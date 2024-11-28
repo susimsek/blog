@@ -1,6 +1,10 @@
 ---
 title: "My First Blog Post"
 date: "2024-11-28"
+summary: "This is a short summary of the blog post. It provides a brief introduction to the content."
+thumbnail: "/images/my-first-post-thumbnail.jpg"
 ---
 
-This is my first blog post written in Markdown!
+# My First Blog Post
+
+This is the **main content** of the blog post. It contains detailed information about the topic.

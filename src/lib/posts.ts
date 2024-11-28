@@ -17,7 +17,7 @@ export function getSortedPostsData(): Post[] {
 
     return {
       id,
-      ...(matterResult.data as { title: string; date: string }),
+      ...(matterResult.data as { title: string; date: string; summary: string }),
     };
   });
 
@@ -34,7 +34,12 @@ export async function getPostData(id: string): Promise<Post> {
   return {
     id,
     contentHtml,
-    ...(matterResult.data as { title: string; date: string }),
+    ...(matterResult.data as {
+      title: string;
+      date: string;
+      summary: string;
+      thumbnail?: string;
+    }),
   };
 }
 

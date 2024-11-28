@@ -1,2 +1,13 @@
 // Import Bootstrap SCSS
 @import 'bootstrap/scss/bootstrap';
+
+.hover-link {
+  text-decoration: none;
+  color: #212529;
+  transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out;
+}
+
+.hover-link:hover {
+  text-decoration: underline;
+  color: #007bff;
+}
