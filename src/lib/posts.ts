@@ -22,7 +22,7 @@ export function getSortedPostsData(): Post[] {
         title: string;
         date: string;
         summary: string;
-        thumbnail?: string;
+        thumbnail: string;
       }),
       thumbnail: matterResult.data.thumbnail
         ? `${assetPrefix}${matterResult.data.thumbnail}`
@@ -47,7 +47,7 @@ export async function getPostData(id: string): Promise<Post> {
       title: string;
       date: string;
       summary: string;
-      thumbnail?: string;
+      thumbnail: string;
     }),
     thumbnail: matterResult.data.thumbnail
       ? `${assetPrefix}${matterResult.data.thumbnail}`
