@@ -22,6 +22,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Check GITHUB_ACTIONS Variable
+        run: echo "GITHUB_ACTIONS is $GITHUB_ACTIONS"
+
+      - name: Print Repository Name
+        run: echo "The repository is ${{ github.repository }}"
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
