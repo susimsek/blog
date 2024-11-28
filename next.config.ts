@@ -6,7 +6,7 @@ let assetPrefix = "";
 if (isGithubActions) {
   const repo = process.env.GITHUB_REPOSITORY?.replace(/.*?\//, "") || "";
   basePath = `/${repo}`;
-  assetPrefix = `/${repo}/`;
+  assetPrefix = `/${repo}`;
 }
 
 module.exports = {
