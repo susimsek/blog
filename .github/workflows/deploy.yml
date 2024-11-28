@@ -33,6 +33,9 @@ jobs:
         run: npm install
 
       - name: Build
+        env:
+          NEXT_PUBLIC_BASE_PATH: "/blog"
+          NEXT_PUBLIC_ASSET_PREFIX: "/blog"
         run: npm run build
 
       - name: Deploy
