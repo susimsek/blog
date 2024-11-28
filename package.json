@@ -1,0 +1,56 @@
+{
+  "name": "blog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Blog application",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "next dev",
+    "start": "next start",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "prepare": "husky",
+    "prettier:format": "prettier --write */**/*.{md,json,js,ts,html,tsx,css,scss}",
+    "build": "npm run webapp:prod --",
+    "webapp:dev": "npm run clean-www && next dev",
+    "webapp:prod": "npm run clean-www && npm run webapp:build:prod",
+    "webapp:build:prod": "next build",
+    "clean-www": "rimraf build/*"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "bootstrap": "^5.3.3",
+    "gray-matter": "^4.0.3",
+    "next": "15.0.1",
+    "react": "18.2.0",
+    "react-bootstrap": "^2.10.5",
+    "react-dom": "18.2.0",
+    "remark": "^15.0.1",
+    "remark-html": "^16.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-bootstrap": "^0.32.37",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.14.0",
+    "eslint-config-next": "^15.0.3",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "picocolors": "^1.1.1",
+    "postcss": "^8",
+    "rimraf": "^3.0.2",
+    "sass": "1.77.6",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=21.6.0"
+  },
+  "cacheDirectories": [
+    "node_modules"
+  ]
+}

@@ -1,0 +1,25 @@
+# Node.js and Next.js generated directories
+node
+node_modules
+.next
+out
+next-env.d.ts
+next.config.js
+.cache
+
+# Build and distribution directories
+build
+dist
+
+# Lock files and config files
+package-lock.json
+yarn.lock
+
+# Static files and images
+public
+
+# API and GraphQL generated files
+src/generated/*
+
+.git
+target/classes/static/
