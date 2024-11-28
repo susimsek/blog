@@ -4,6 +4,7 @@ import matter from 'gray-matter';
 import { remark } from 'remark';
 import html from 'remark-html';
 import { Post } from '@/types/posts';
+import { assetPrefix } from '@/config/constants';
 
 const postsDirectory = path.join(process.cwd(), 'content/posts');
 
@@ -17,7 +18,15 @@ export function getSortedPostsData(): Post[] {
 
     return {
       id,
-      ...(matterResult.data as { title: string; date: string; summary: string }),
+      ...(matterResult.data as {
+        title: string;
+        date: string;
+        summary: string;
+        thumbnail?: string;
+      }),
+      thumbnail: matterResult.data.thumbnail
+        ? `${assetPrefix}${matterResult.data.thumbnail}`
+        : undefined,
     };
   });
 
@@ -40,6 +49,9 @@ export async function getPostData(id: string): Promise<Post> {
       summary: string;
       thumbnail?: string;
     }),
+    thumbnail: matterResult.data.thumbnail
+      ? `${assetPrefix}${matterResult.data.thumbnail}`
+      : undefined,
   };
 }
 
