@@ -13,6 +13,8 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       NODE_VERSION: 21.6.0
     steps:
