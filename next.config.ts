@@ -1,5 +1,3 @@
-import type { NextConfig } from "next";
-
 const isGithubActions = process.env.GITHUB_ACTIONS || false;
 
 let basePath = "";
@@ -11,18 +9,13 @@ if (isGithubActions) {
   assetPrefix = `/${repo}/`;
 }
 
-const nextConfig: NextConfig = {
+module.exports = {
   poweredByHeader: false,
-  distDir: 'build',
-  output: 'export',
+  distDir: "build",
+  output: "export",
+  basePath,
+  assetPrefix,
   images: {
     unoptimized: true,
   },
-  basePath,
-  assetPrefix,
-  webpack: config => {
-    return config;
-  },
 };
-
-export default nextConfig;
