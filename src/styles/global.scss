@@ -224,3 +224,28 @@ select.form-select {
     color: var(--text-color);
   }
 }
+
+.post-card {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--main-bg);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.post-card-content {
+  flex: 1;
+  padding: 16px;
+  color: var(--text-color);
+}
+
+.post-card-thumbnail-wrapper {
+  flex: 0 0 150px;
+  min-height: 150px;
+  overflow: hidden;
+  border-radius: 8px 0 0 8px;
+}
