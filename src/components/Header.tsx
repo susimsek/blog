@@ -16,7 +16,7 @@ export default function Header() {
             priority
             className="rounded-circle"
           />
-          <span className="ms-2 fw-bold text-dark" style={{ fontSize: '1.25rem' }}>
+          <span className="ms-2 fw-bold" style={{ fontSize: '1.25rem' }}>
             My Blog
           </span>
         </Navbar.Brand>
