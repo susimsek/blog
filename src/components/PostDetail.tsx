@@ -1,6 +1,7 @@
 // components/PostDetail.tsx
 import { Post } from '@/types/posts';
 import { Container } from 'react-bootstrap';
+import { assetPrefix } from '@/config/constants';
 
 export default function PostDetail({ postData }: { postData: Post }) {
   return (
@@ -15,17 +16,10 @@ export default function PostDetail({ postData }: { postData: Post }) {
       </p>
       {postData.thumbnail && (
         <div className="text-center mb-5">
-          <img
-            src={postData.thumbnail}
-            alt={postData.title}
-            className="img-fluid rounded"
-          />
+          <img src={`${assetPrefix}${postData.thumbnail}`} alt={postData.title} className="img-fluid rounded" />
         </div>
       )}
-      <article
-        className="fs-5 lh-lg"
-        dangerouslySetInnerHTML={{ __html: postData.contentHtml || '' }}
-      />
+      <article className="fs-5 lh-lg" dangerouslySetInnerHTML={{ __html: postData.contentHtml || '' }} />
     </Container>
   );
 }

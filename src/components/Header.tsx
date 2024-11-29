@@ -1,28 +1,38 @@
-import { Container, Navbar } from 'react-bootstrap';
+import { Container, Navbar, Nav } from 'react-bootstrap';
 import Link from 'next/link';
+import Image from 'next/image';
+import { assetPrefix } from '@/config/constants';
 
 export default function Header() {
   return (
     <Navbar bg="light" expand="lg" className="border-bottom shadow-sm">
       <Container>
-        <Navbar.Brand>
-          <Link href="/" className="text-decoration-none">
+        <Navbar.Brand as={Link} href="/" className="d-flex align-items-center text-decoration-none">
+          <Image
+            src={`${assetPrefix}/images/logo.png`}
+            alt="My Blog Logo"
+            width={40}
+            height={40}
+            priority
+            className="rounded-circle"
+          />
+          <span className="ms-2 fw-bold text-dark" style={{ fontSize: '1.25rem' }}>
             My Blog
-          </Link>
+          </span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
-          <div className="ms-auto d-flex gap-3">
-            <Link href="/" className="nav-link">
+          <Nav className="ms-auto d-flex gap-3">
+            <Nav.Link as={Link} href="/">
               Home
-            </Link>
-            <Link href="/about" className="nav-link">
+            </Nav.Link>
+            <Nav.Link as={Link} href="/about">
               About
-            </Link>
-            <Link href="/contact" className="nav-link">
+            </Nav.Link>
+            <Nav.Link as={Link} href="/contact">
               Contact
-            </Link>
-          </div>
+            </Nav.Link>
+          </Nav>
         </Navbar.Collapse>
       </Container>
     </Navbar>
