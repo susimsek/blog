@@ -9,7 +9,7 @@ export default function PostList({ posts }: { posts: Post[] }) {
       {posts.map(({ id, title, date, summary }) => (
         <div key={id} className="mb-5">
           <h2 className="fw-bold mb-3">
-            <Link href={`/posts/${id}`} className="text-decoration-none hover-link">
+            <Link href={`/posts/${id}`} className="link">
               {title}
             </Link>
           </h2>
@@ -21,7 +21,7 @@ export default function PostList({ posts }: { posts: Post[] }) {
             })}
           </p>
           <p className="fs-5 lh-lg text-muted">{summary}</p>
-          <Link href={`/posts/${id}`} className="text-decoration-none hover-link">
+          <Link href={`/posts/${id}`} className="link">
             <span className="fw-bold">Read More</span>
           </Link>
         </div>

@@ -6,16 +6,20 @@ $transition-speed: 0.3s;
   --bg-color: #ffffff;
   --text-color: #212529;
   --navbar-bg: #f8f9fa;
+  --footer-bg: #e9ecef;
   --link-color: #007bff;
   --link-hover-color: #0056b3;
+  --border-color: #dee2e6;
 }
 
 .dark {
   --bg-color: #121212;
   --text-color: #f8f9fa;
   --navbar-bg: #333333;
+  --footer-bg: #222222;
   --link-color: #80dfff;
   --link-hover-color: #33b2e8;
+  --border-color: #444444;
 }
 
 body {
@@ -28,7 +32,10 @@ body {
 
 .navbar {
   background-color: var(--navbar-bg);
-  transition: background-color $transition-speed ease;
+  border-bottom: 1px solid var(--border-color);
+  transition:
+    background-color $transition-speed ease,
+    border-color $transition-speed ease;
 
   .nav-link {
     color: var(--text-color);
@@ -52,7 +59,7 @@ body {
   }
 
   .navbar-toggler {
-    border: 1px solid var(--text-color);
+    border: 1px solid var(--border-color);
     transition:
       border-color $transition-speed ease,
       color $transition-speed ease;
@@ -69,14 +76,18 @@ body {
   }
 }
 
-.hover-link {
-  text-decoration: none;
-  transition:
-    color $transition-speed ease,
-    text-decoration $transition-speed ease;
+.footer {
+  background-color: var(--footer-bg);
+  color: var(--text-color);
+  border-top: 1px solid var(--border-color);
 
-  &:hover {
-    text-decoration: underline;
+  transition:
+    background-color $transition-speed ease,
+    color $transition-speed ease,
+    border-color $transition-speed ease;
+
+  p {
+    color: var(--text-color);
   }
 }
 
@@ -89,6 +100,20 @@ body {
   color: var(--text-color);
 
   &:hover {
+    color: var(--link-hover-color);
+  }
+}
+
+.link {
+  color: var(--text-color);
+  text-decoration: none;
+  transition: color $transition-speed ease;
+
+  &:hover {
+    color: var(--link-hover-color);
+  }
+
+  &.active {
     color: var(--link-hover-color);
   }
 }
