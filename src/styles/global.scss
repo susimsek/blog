@@ -12,6 +12,7 @@ $transition-speed: 0.3s;
   --link-hover-color: #0056b3;
   --border-color: #dee2e6;
   --muted-text-color: #6c757d;
+  --spinner-color: #333333;
 }
 
 .dark {
@@ -24,6 +25,7 @@ $transition-speed: 0.3s;
   --link-hover-color: #33b2e8;
   --border-color: #444444;
   --muted-text-color: #9a9a9a;
+  --spinner-color: #e0e0e0;
 }
 
 body {
@@ -146,5 +148,11 @@ h6 {
 
 .text-muted {
   color: var(--muted-text-color) !important;
+  transition: color $transition-speed ease;
+}
+
+.spinner-border,
+.spinner-grow {
+  color: var(--spinner-color);
   transition: color $transition-speed ease;
 }
