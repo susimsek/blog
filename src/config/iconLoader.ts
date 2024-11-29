@@ -1,9 +1,12 @@
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faGithub, faLinkedin, faMedium } from '@fortawesome/free-brands-svg-icons';
 import {
   faBars,
   faBook,
   faCheckCircle,
   faCode,
   faDatabase,
+  faEnvelope,
   faExclamationCircle,
   faExclamationTriangle,
   faEye,
@@ -19,14 +22,15 @@ import {
   faSun,
   faTimes,
   faTrash,
-  faUser
+  faUser,
 } from '@fortawesome/free-solid-svg-icons';
-import { library } from '@fortawesome/fontawesome-svg-core';
 import { faSidebar } from '@/lib/icons';
 
-// Load icons into FontAwesome library
 export const loadIcons = () => {
   library.add(
+    faGithub,
+    faLinkedin,
+    faMedium,
     faBook,
     faGlobe,
     faHome,
@@ -46,12 +50,9 @@ export const loadIcons = () => {
     faCode,
     faEye,
     faEyeSlash,
-    faCheckCircle,
-    faExclamationCircle,
-    faExclamationTriangle,
-    faInfoCircle,
     faTimes,
     faSidebar,
-    faUser
+    faUser,
+    faEnvelope,
   );
 };
