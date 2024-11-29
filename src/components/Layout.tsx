@@ -12,7 +12,7 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <>
       <Header />
-      <main style={{ backgroundColor: '#f9f9f9', minHeight: '100vh' }}>
+      <main>
         <Container className="py-5">{children}</Container>
       </main>
       <Footer />

@@ -12,7 +12,7 @@ export default function Header() {
   const theme = useSelector((state: RootState) => state.theme.theme);
 
   return (
-    <Navbar expand="lg" className="border-bottom shadow-sm">
+    <Navbar expand="lg" className="shadow-sm">
       <Container>
         <Navbar.Brand as={Link} href="/" className="d-flex align-items-center text-decoration-none">
           <Image
