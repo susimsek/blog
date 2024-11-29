@@ -8,11 +8,17 @@ export default function PostList({ posts }: { posts: Post[] }) {
   const [postsPerPage, setPostsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil(posts.length / postsPerPage);
-  const startIndex = (currentPage - 1) * postsPerPage;
-  const currentPosts = posts.slice(startIndex, startIndex + postsPerPage);
+  const getPagedPostsData = (page: number, size: number) => {
+    const totalPages = Math.ceil(posts.length / size);
+    const startIndex = (page - 1) * size;
+    const endIndex = startIndex + size;
+    const pagedPosts = posts.slice(startIndex, endIndex);
+    return { pagedPosts, totalPages };
+  };
 
-  const handlePageChange = (page: number) => setCurrentPage(page);
+  const { pagedPosts: currentPosts, totalPages } = getPagedPostsData(currentPage, postsPerPage);
+
+  const handlePageChange = (page: number) => setCurrentPage(page); // Sayfa değişikliği
   const handlePostsPerPageChange = (size: number) => {
     setPostsPerPage(size);
     setCurrentPage(1);
