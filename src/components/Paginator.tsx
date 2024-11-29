@@ -12,8 +12,8 @@ const Paginator: React.FC<PaginatorProps> = ({ currentPage, totalPages, maxPages
   const paginationItems: ReactNode[] = []; // Specify the type here
   const halfPagesToShow = Math.floor(maxPagesToShow / 2);
 
-  let startPage = Math.max(1, Math.min(currentPage - halfPagesToShow, totalPages - maxPagesToShow + 1));
-  let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+  const startPage = Math.max(1, Math.min(currentPage - halfPagesToShow, totalPages - maxPagesToShow + 1));
+  const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
 
   // Add the "First" and "Previous" buttons
   paginationItems.push(
