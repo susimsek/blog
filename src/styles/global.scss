@@ -14,6 +14,42 @@ $transition-speed: 0.3s;
   --muted-text-color: #6c757d;
   --spinner-color: #333333;
   --input-bg-color: #ffffff;
+
+  --primary-bg: #007bff;
+  --secondary-bg: #6c757d;
+  --success-bg: #28a745;
+  --info-bg: #17a2b8;
+  --warning-bg: #ffc107;
+  --danger-bg: #dc3545;
+  --light-bg: #f8f9fa;
+  --dark-bg: #343a40;
+
+  --primary-hover: #0056b3;
+  --secondary-hover: #5a6268;
+  --success-hover: #218838;
+  --info-hover: #138496;
+  --warning-hover: #e0a800;
+  --danger-hover: #c82333;
+  --light-hover: #e2e6ea;
+  --dark-hover: #23272b;
+
+  --primary-color: #ffffff;
+  --secondary-color: #ffffff;
+  --success-color: #ffffff;
+  --info-color: #ffffff;
+  --warning-color: #000000;
+  --danger-color: #ffffff;
+  --light-color: #000000;
+  --dark-color: #ffffff;
+
+  --primary-text: #007bff;
+  --secondary-text: #6c757d;
+  --success-text: #28a745;
+  --info-text: #17a2b8;
+  --warning-text: #ffc107;
+  --danger-text: #dc3545;
+  --light-text: #f8f9fa;
+  --dark-text: #343a40;
 }
 
 .dark {
@@ -28,6 +64,42 @@ $transition-speed: 0.3s;
   --muted-text-color: #9a9a9a;
   --spinner-color: #e0e0e0;
   --input-bg-color: #1e1e1e;
+
+  --primary-bg: #1e88e5;
+  --secondary-bg: #9a9a9a;
+  --success-bg: #28a745;
+  --info-bg: #17a2b8;
+  --warning-bg: #ffc107;
+  --danger-bg: #dc3545;
+  --light-bg: #f8f9fa;
+  --dark-bg: #121212;
+
+  --primary-hover: #1565c0;
+  --secondary-hover: #808080;
+  --success-hover: #218838;
+  --info-hover: #138496;
+  --warning-hover: #e0a800;
+  --danger-hover: #c82333;
+  --light-hover: #e2e6ea;
+  --dark-hover: #23272b;
+
+  --primary-color: #ffffff;
+  --secondary-color: #121212;
+  --success-color: #ffffff;
+  --info-color: #ffffff;
+  --warning-color: #000000;
+  --danger-color: #ffffff;
+  --light-color: #000000;
+  --dark-color: #ffffff;
+
+  --primary-text: #1e88e5;
+  --secondary-text: #9a9a9a;
+  --success-text: #28a745;
+  --info-text: #17a2b8;
+  --warning-text: #ffc107;
+  --danger-text: #dc3545;
+  --light-text: #f8f9fa;
+  --dark-text: #121212;
 }
 
 body {
@@ -286,4 +358,156 @@ input.form-control {
   min-height: 150px;
   overflow: hidden;
   border-radius: 8px 0 0 8px;
+}
+
+.text-primary {
+  color: var(--primary-text) !important;
+}
+
+.text-secondary {
+  color: var(--secondary-text) !important;
+}
+
+.text-success {
+  color: var(--success-text) !important;
+}
+
+.text-info {
+  color: var(--info-text) !important;
+}
+
+.text-warning {
+  color: var(--warning-text) !important;
+}
+
+.text-danger {
+  color: var(--danger-text) !important;
+}
+
+.text-light {
+  color: var(--light-text) !important;
+}
+
+.text-dark {
+  color: var(--dark-text) !important;
+}
+
+.btn-primary {
+  background-color: var(--primary-bg);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-bg);
+  transition:
+    background-color $transition-speed ease,
+    border-color $transition-speed ease,
+    color $transition-speed ease;
+
+  &:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+  }
+}
+
+.btn-secondary {
+  background-color: var(--secondary-bg);
+  color: var(--secondary-color);
+  border: 1px solid var(--secondary-bg);
+  transition:
+    background-color $transition-speed ease,
+    border-color $transition-speed ease,
+    color $transition-speed ease;
+
+  &:hover {
+    background-color: var(--secondary-hover);
+    border-color: var(--secondary-hover);
+  }
+}
+
+.btn-success {
+  background-color: var(--success-bg);
+  color: var(--success-color);
+  border: 1px solid var(--success-bg);
+  transition:
+    background-color $transition-speed ease,
+    border-color $transition-speed ease,
+    color $transition-speed ease;
+
+  &:hover {
+    background-color: var(--success-hover);
+    border-color: var(--success-hover);
+  }
+}
+
+.btn-info {
+  background-color: var(--info-bg);
+  color: var(--info-color);
+  border: 1px solid var(--info-bg);
+  transition:
+    background-color $transition-speed ease,
+    border-color $transition-speed ease,
+    color $transition-speed ease;
+
+  &:hover {
+    background-color: var(--info-hover);
+    border-color: var(--info-hover);
+  }
+}
+
+.btn-warning {
+  background-color: var(--warning-bg);
+  color: var(--warning-color);
+  border: 1px solid var(--warning-bg);
+  transition:
+    background-color $transition-speed ease,
+    border-color $transition-speed ease,
+    color $transition-speed ease;
+
+  &:hover {
+    background-color: var(--warning-hover);
+    border-color: var(--warning-hover);
+  }
+}
+
+.btn-danger {
+  background-color: var(--danger-bg);
+  color: var(--danger-color);
+  border: 1px solid var(--danger-bg);
+  transition:
+    background-color $transition-speed ease,
+    border-color $transition-speed ease,
+    color $transition-speed ease;
+
+  &:hover {
+    background-color: var(--danger-hover);
+    border-color: var(--danger-hover);
+  }
+}
+
+.btn-light {
+  background-color: var(--light-bg);
+  color: var(--light-color);
+  border: 1px solid var(--light-bg);
+  transition:
+    background-color $transition-speed ease,
+    border-color $transition-speed ease,
+    color $transition-speed ease;
+
+  &:hover {
+    background-color: var(--light-hover);
+    border-color: var(--light-hover);
+  }
+}
+
+.btn-dark {
+  background-color: var(--dark-bg);
+  color: var(--dark-color);
+  border: 1px solid var(--dark-bg);
+  transition:
+    background-color $transition-speed ease,
+    border-color $transition-speed ease,
+    color $transition-speed ease;
+
+  &:hover {
+    background-color: var(--dark-hover);
+    border-color: var(--dark-hover);
+  }
 }
