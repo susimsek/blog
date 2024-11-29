@@ -14,7 +14,7 @@ export default function Header() {
   return (
     <Navbar expand="lg" className="shadow-sm">
       <Container>
-        <Navbar.Brand as={Link} href="/" className="d-flex align-items-center text-decoration-none">
+        <Navbar.Brand as={Link} href="/" className="d-flex align-items-center link">
           <Image
             src={`${assetPrefix}/images/logo.png`}
             alt="My Blog Logo"
