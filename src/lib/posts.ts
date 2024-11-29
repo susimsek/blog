@@ -4,7 +4,6 @@ import matter from 'gray-matter';
 import { remark } from 'remark';
 import html from 'remark-html';
 import { Post } from '@/types/posts';
-import { assetPrefix } from '@/config/constants';
 
 const postsDirectory = path.join(process.cwd(), 'content/posts');
 

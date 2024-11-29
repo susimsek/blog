@@ -2,7 +2,6 @@
 import { getSortedPostsData } from '@/lib/posts';
 import PostList from '@/components/PostList';
 import { Post } from '@/types/posts';
-import { Container } from 'react-bootstrap';
 
 type HomeProps = {
   allPostsData: Post[];
