@@ -1,3 +1,4 @@
+// config/iconLoader.tsx
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faGithub, faLinkedin, faMedium } from '@fortawesome/free-brands-svg-icons';
 import {

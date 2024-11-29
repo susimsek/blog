@@ -1,3 +1,4 @@
+// components/PostList.tsx
 import Link from 'next/link';
 import { Post } from '@/types/posts';
 import { Container } from 'react-bootstrap';

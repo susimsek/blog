@@ -1,3 +1,4 @@
+// pages/contact.tsx
 import { Container } from 'react-bootstrap';
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

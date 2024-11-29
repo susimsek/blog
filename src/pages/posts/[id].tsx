@@ -1,3 +1,4 @@
+// pages/posts/[id].tsx
 import { getAllPostIds, getPostData } from '@/lib/posts';
 import React from 'react';
 import PostDetail from '@/components/PostDetail';

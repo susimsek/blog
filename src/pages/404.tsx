@@ -1,3 +1,4 @@
+// pages/404.tsx
 import { Container } from 'react-bootstrap';
 import React from 'react';
 import Link from 'next/link';
