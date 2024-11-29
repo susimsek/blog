@@ -1,31 +1,35 @@
-// components/PostList.tsx
-import Link from 'next/link';
+import React, { useState } from 'react';
 import { Post } from '@/types/posts';
 import { Container } from 'react-bootstrap';
+import PostCard from '@/components/PostCard';
+import PaginationBar from '@/components/PaginationBar';
 
 export default function PostList({ posts }: { posts: Post[] }) {
+  const [postsPerPage, setPostsPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(posts.length / postsPerPage);
+  const startIndex = (currentPage - 1) * postsPerPage;
+  const currentPosts = posts.slice(startIndex, startIndex + postsPerPage);
+
+  const handlePageChange = (page: number) => setCurrentPage(page);
+  const handlePostsPerPageChange = (size: number) => {
+    setPostsPerPage(size);
+    setCurrentPage(1);
+  };
+
   return (
     <Container className="mt-5" style={{ maxWidth: '700px' }}>
-      {posts.map(({ id, title, date, summary }) => (
-        <div key={id} className="mb-5">
-          <h2 className="fw-bold mb-3">
-            <Link href={`/posts/${id}`} className="link">
-              {title}
-            </Link>
-          </h2>
-          <p className="text-muted" style={{ fontSize: '0.9rem' }}>
-            {new Date(date).toLocaleDateString(undefined, {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </p>
-          <p className="fs-5 lh-lg text-muted">{summary}</p>
-          <Link href={`/posts/${id}`} className="link">
-            <span className="fw-bold">Read More</span>
-          </Link>
-        </div>
+      {currentPosts.map(post => (
+        <PostCard key={post.id} post={post} />
       ))}
+      <PaginationBar
+        currentPage={currentPage}
+        totalPages={totalPages}
+        size={postsPerPage}
+        onPageChange={handlePageChange}
+        onSizeChange={handlePostsPerPageChange}
+      />
     </Container>
   );
 }
