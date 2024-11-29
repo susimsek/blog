@@ -134,6 +134,7 @@ body {
 
   .navbar-brand {
     color: var(--text-color);
+    transition: color $transition-speed ease;
 
     &:hover {
       color: var(--link-hover-color);
@@ -167,10 +168,6 @@ body {
     background-color $transition-speed ease,
     color $transition-speed ease,
     border-color $transition-speed ease;
-
-  p {
-    color: var(--text-color);
-  }
 }
 
 main {
@@ -344,7 +341,10 @@ input.form-control {
   overflow: hidden;
   background-color: var(--main-bg);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  transition:
+    background-color $transition-speed ease,
+    box-shadow $transition-speed ease,
+    border-color $transition-speed ease;
 }
 
 .post-card-content {
