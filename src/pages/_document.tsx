@@ -1,6 +1,7 @@
 // pages/_document.tsx
 import Document, { Head, Html, Main, NextScript } from 'next/document';
 import i18nextConfig from '../../next-i18next.config';
+import { assetPrefix } from '@/config/constants';
 
 class MyDocument extends Document {
   render() {
@@ -9,7 +10,7 @@ class MyDocument extends Document {
     return (
       <Html lang={currentLocale}>
         <Head>
-          <link rel="icon" href="/favicon.ico" />
+          <link rel="icon" href={`${assetPrefix}/favicon.ico`} />
         </Head>
         <body>
           <Main />
