@@ -5,13 +5,14 @@ import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
 import { getStaticPaths, makeStaticProps } from '@/lib/getStatic';
 import { AUTHOR_NAME } from '@/config/constants';
+import { GetStaticPropsContext } from 'next';
 
 type HomeProps = {
   allPostsData: Post[];
 };
 
 const getStaticPropsWrapper = makeStaticProps(['common', 'home', 'post']);
-export const getStaticProps = async (context: any) => {
+export const getStaticProps = async (context: GetStaticPropsContext) => {
   const allPostsData: Post[] = getSortedPostsData();
 
   const staticProps = await getStaticPropsWrapper(context);

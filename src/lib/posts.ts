@@ -4,19 +4,19 @@ import path from 'path';
 import matter from 'gray-matter';
 import { remark } from 'remark';
 import html from 'remark-html';
-import { Post } from '@/types/posts';
+import { Post, PostMeta } from '@/types/posts';
 import i18nextConfig from '../../next-i18next.config';
 
 const postsDirectory = path.join(process.cwd(), 'content/posts');
 
 // Helper function to read and parse a Markdown file
-function parsePostFile(fileName: string): { id: string; data: Record<string, any>; content: string } {
+function parsePostFile(fileName: string): { id: string; data: PostMeta; content: string } {
   const id = fileName.replace(/\.md$/, '');
   const fullPath = path.join(postsDirectory, fileName);
   const fileContents = fs.readFileSync(fullPath, 'utf8');
   const { data, content } = matter(fileContents);
 
-  return { id, data, content };
+  return { id, data: data as PostMeta, content };
 }
 
 // Retrieve all post metadata sorted by date
@@ -28,13 +28,7 @@ export function getSortedPostsData(): Post[] {
 
     return {
       id,
-      ...(data as {
-        title: string;
-        date: string;
-        summary: string;
-        thumbnail?: string;
-        topics?: string[];
-      }),
+      ...data,
     };
   });
 
@@ -52,13 +46,7 @@ export async function getPostData(id: string): Promise<Post> {
   return {
     id,
     contentHtml,
-    ...(data as {
-      title: string;
-      date: string;
-      summary: string;
-      thumbnail?: string;
-      topics?: string[];
-    }),
+    ...data,
   };
 }
 

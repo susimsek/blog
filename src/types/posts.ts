@@ -1,10 +1,12 @@
-// types/posts.ts
-export type Post = {
-  id: string;
+export type PostMeta = {
   title: string;
   date: string;
   summary: string;
-  contentHtml?: string;
   thumbnail?: string;
   topics?: string[];
+};
+
+export type Post = PostMeta & {
+  id: string;
+  contentHtml?: string;
 };
