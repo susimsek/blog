@@ -8,7 +8,8 @@
     "header": "Contact Me",
     "description": "Feel free to reach out via email, LinkedIn, Medium, or GitHub. I’m always open to discussing new projects, collaborations, or opportunities!",
     "contactInfo": {
-      "title": "Contact Information"
+      "title": "Contact Information",
+      "email": "Email"
     }
   }
 }

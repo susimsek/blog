@@ -5,9 +5,8 @@ module.exports = {
   debug: isDev,
   i18n: {
     defaultLocale: 'en',
-    locales: ['en'],
+    locales: ['en', 'tr'],
   },
-  fallbackLng: 'en',
   localePath: typeof window === 'undefined' ? require('path').resolve('./public/locales') : '/locales',
   reloadOnPrerender: isDev,
 };

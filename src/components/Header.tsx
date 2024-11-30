@@ -1,17 +1,23 @@
-import { Container, Navbar, Nav } from 'react-bootstrap';
+import { Container, Navbar, Nav, NavDropdown } from 'react-bootstrap';
 import Image from 'next/image';
 import { assetPrefix } from '@/config/constants';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '@/reducers/theme';
 import { RootState } from '@/config/store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Link from '../components/Link';
+import Link from '@/components/Link';
 import { useTranslation } from 'next-i18next';
+import { useRouter } from 'next/router';
+import i18nextConfig from '../../next-i18next.config';
+import LanguageSwitchLink from '@/components/LanguageSwitchLink';
 
 export default function Header() {
   const { t } = useTranslation('common');
+  const router = useRouter();
   const dispatch = useDispatch();
   const theme = useSelector((state: RootState) => state.theme.theme);
+
+  const currentLocale = router.query.locale || i18nextConfig.i18n.defaultLocale;
 
   return (
     <Navbar expand="lg" className="shadow-sm">
@@ -25,7 +31,7 @@ export default function Header() {
             priority
             className="rounded-circle"
           />
-          <span className={`ms-2 fw-bold `} style={{ fontSize: '1.25rem' }}>
+          <span className={`ms-2 fw-bold`} style={{ fontSize: '1.25rem' }}>
             {t('common.header.title')}
           </span>
         </Navbar.Brand>
@@ -43,6 +49,23 @@ export default function Header() {
             <Nav.Link as={Link} href="/contact">
               {t('common.header.menu.contact')}
             </Nav.Link>
+            <NavDropdown
+              title={
+                <span>
+                  <FontAwesomeIcon icon="globe" className="me-2" />
+                  {t('common.language')}
+                </span>
+              }
+              id="language-selector"
+            >
+              {i18nextConfig.i18n.locales
+                .filter(locale => locale !== currentLocale)
+                .map(locale => (
+                  <NavDropdown.Item key={locale}>
+                    <LanguageSwitchLink locale={locale} />
+                  </NavDropdown.Item>
+                ))}
+            </NavDropdown>
             <button
               className={`btn theme-toggle-btn d-flex align-items-center gap-2 ${theme}`}
               onClick={() => dispatch(toggleTheme())}

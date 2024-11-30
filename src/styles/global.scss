@@ -4,12 +4,12 @@ $transition-speed: 0.3s;
 
 .light {
   --bg-color: #f9f9f9;
-  --text-color: #333333;
-  --navbar-bg: #f1f1f1;
+  --text-color: #212529;
+  --navbar-bg: #f8f9fa;
   --footer-bg: #f8f9fa;
-  --main-bg: #f9f9f9;
-  --link-color: #0056b3;
-  --link-hover-color: #003d80;
+  --main-bg: #ffffff;
+  --link-color: #212529;
+  --link-hover-color: #000000;
   --border-color: #dee2e6;
   --muted-text-color: #6c757d;
   --active-color: #007bff;
@@ -55,12 +55,12 @@ $transition-speed: 0.3s;
 
 .dark {
   --bg-color: #2b2b2b;
-  --text-color: #e0e0e0;
-  --navbar-bg: #1e1e1e;
-  --footer-bg: #181818;
-  --main-bg: #2b2b2b;
-  --link-color: #2196f3;
-  --link-hover-color: #1976d2;
+  --text-color: #ffffff;
+  --navbar-bg: #121212;
+  --footer-bg: #1e1e1e;
+  --main-bg: #1e1e1e;
+  --link-color: #ffffff;
+  --link-hover-color: #cccccc;
   --border-color: #444444;
   --muted-text-color: #9a9a9a;
   --active-color: #1e88e5;
@@ -750,5 +750,78 @@ input.form-control {
       background-color: var(--main-bg);
       color: var(--link-hover-color);
     }
+  }
+}
+
+.navbar-nav .dropdown-menu {
+  background-color: var(--main-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition:
+    background-color $transition-speed ease,
+    border-color $transition-speed ease;
+
+  .dropdown-item {
+    color: var(--text-color);
+    transition:
+      color $transition-speed ease,
+      background-color $transition-speed ease;
+
+    &:hover {
+      color: var(--primary-color);
+      background-color: var(--active-color);
+    }
+
+    &.active {
+      color: var(--primary-color);
+      background-color: var(--active-color);
+    }
+
+    &:focus {
+      background-color: var(--active-color);
+      color: var(--primary-color);
+    }
+  }
+
+  .dropdown-divider {
+    border-color: var(--border-color);
+    transition: border-color $transition-speed ease;
+  }
+}
+
+.navbar-nav .dropdown-toggle {
+  color: var(--text-color);
+  transition: color $transition-speed ease;
+
+  &:hover {
+    color: var(--link-hover-color);
+  }
+
+  &:focus {
+    color: var(--active-color);
+  }
+}
+
+.button-link {
+  background-color: transparent;
+  border: none;
+  color: var(--text-color);
+  padding: 0.5rem 1rem;
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: var(--primary-color);
+    background-color: var(--active-color);
+  }
+
+  &:focus {
+    outline: none;
+    background-color: var(--active-color);
+    color: var(--primary-color);
   }
 }

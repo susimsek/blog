@@ -1,0 +1,15 @@
+{
+  "about": {
+    "meta": {
+      "title": "Hakkımda",
+      "description": "Türkiye'den tutkulu bir backend ve fullstack geliştirici olan Şuayb Şimşek hakkında daha fazla bilgi edinin. Deneyimlerini, eğitimini ve çevrimiçi varlığını keşfedin.",
+      "keywords": "Şuayb Şimşek, backend geliştirici, fullstack geliştirici, blockchain, DevOps"
+    },
+    "header": "Hakkımda",
+    "description": "Merhaba, ben Şuayb Şimşek. Türkiye'den tutkulu bir backend ve fullstack geliştiricisiyim. TOBB Ekonomi ve Teknoloji Üniversitesi Bilgisayar Mühendisliği bölümünden mezun oldum. Son 5 yılda backend, frontend, blockchain ve DevOps teknolojilerinde geniş bir deneyim kazandım.",
+    "findMeOnline": "Benimle İletişime Geçin",
+    "contactInfo": {
+      "email": "E-posta"
+    }
+  }
+}
