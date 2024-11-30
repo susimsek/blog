@@ -1,7 +1,7 @@
-import Link from 'next/link';
+import Link from '../components/Link';
 import Image from 'next/image';
 import { Post } from '@/types/posts';
-import { Badge } from 'react-bootstrap'; // React-Bootstrap Badge bileşeni
+import { Badge } from 'react-bootstrap';
 
 interface PostCardProps {
   post: Post;

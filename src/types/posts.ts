@@ -1,3 +1,4 @@
+// types/posts.ts
 export type Post = {
   id: string;
   title: string;

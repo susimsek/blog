@@ -1,0 +1,12 @@
+{
+  "404": {
+    "title": "404 - Page Not Found",
+    "meta": {
+      "description": "The page you are looking for does not exist or has been moved."
+    },
+    "errorCode": "404",
+    "header": "Oops! Page Not Found",
+    "description": "The page you are looking for does not exist or has been moved. Please check the URL or return to the homepage.",
+    "backToHome": "Back to Home"
+  }
+}

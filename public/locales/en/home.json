@@ -1,0 +1,13 @@
+{
+  "home": {
+    "title": "Welcome to My Blog",
+    "meta": {
+      "description": "Explore the latest articles, tutorials, and insights on my blog. Discover a variety of topics including programming, technology, and more.",
+      "keywords": "blog, articles, tutorials, programming, technology"
+    },
+    "header": {
+      "title": "Welcome to My Blog",
+      "subtitle": "Explore the latest articles, tutorials, and insights."
+    }
+  }
+}

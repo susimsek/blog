@@ -1,13 +1,15 @@
 import { Container, Navbar, Nav } from 'react-bootstrap';
-import Link from 'next/link';
 import Image from 'next/image';
 import { assetPrefix } from '@/config/constants';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '@/reducers/theme';
 import { RootState } from '@/config/store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from '../components/Link';
+import { useTranslation } from 'next-i18next';
 
 export default function Header() {
+  const { t } = useTranslation('common');
   const dispatch = useDispatch();
   const theme = useSelector((state: RootState) => state.theme.theme);
 
@@ -17,14 +19,14 @@ export default function Header() {
         <Navbar.Brand as={Link} href="/" className="d-flex align-items-center link">
           <Image
             src={`${assetPrefix}/images/logo.png`}
-            alt="My Blog Logo"
+            alt={t('common.header.logoAlt')}
             width={40}
             height={40}
             priority
             className="rounded-circle"
           />
           <span className={`ms-2 fw-bold `} style={{ fontSize: '1.25rem' }}>
-            My Blog
+            {t('common.header.title')}
           </span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbar-nav">
@@ -33,21 +35,21 @@ export default function Header() {
         <Navbar.Collapse id="navbar-nav">
           <Nav className="ms-auto d-flex gap-3 align-items-center">
             <Nav.Link as={Link} href="/">
-              Home
+              {t('common.header.menu.home')}
             </Nav.Link>
             <Nav.Link as={Link} href="/about">
-              About
+              {t('common.header.menu.about')}
             </Nav.Link>
             <Nav.Link as={Link} href="/contact">
-              Contact
+              {t('common.header.menu.contact')}
             </Nav.Link>
             <button
               className={`btn theme-toggle-btn d-flex align-items-center gap-2 ${theme}`}
               onClick={() => dispatch(toggleTheme())}
-              aria-label="Toggle Theme"
+              aria-label={t('common.header.themeToggle')}
             >
               <FontAwesomeIcon icon={theme === 'light' ? 'moon' : 'sun'} />
-              <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+              <span>{t(`common.header.theme.${theme}`)}</span>
             </button>
           </Nav>
         </Navbar.Collapse>

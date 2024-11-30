@@ -4,8 +4,10 @@ import { Container } from 'react-bootstrap';
 import SearchBar from './SearchBar';
 import PaginationBar from './PaginationBar';
 import PostCard from '@/components/PostCard';
+import { useTranslation } from 'next-i18next';
 
 export default function PostList({ posts }: { posts: Post[] }) {
+  const { t } = useTranslation('post');
   const [postsPerPage, setPostsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
@@ -39,7 +41,7 @@ export default function PostList({ posts }: { posts: Post[] }) {
       {currentPosts.length > 0 ? (
         currentPosts.map(post => <PostCard key={post.id} post={post} />)
       ) : (
-        <p className="text-center text-muted">No posts found.</p>
+        <p className="text-center text-muted">{t('post.noPostsFound')}</p>
       )}
 
       {filteredPosts.length > 0 && (

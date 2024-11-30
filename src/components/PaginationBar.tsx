@@ -1,5 +1,6 @@
 import { Form, Row, Col } from 'react-bootstrap';
 import Paginator from './Paginator';
+import { useTranslation } from 'next-i18next';
 
 interface PaginationBarProps {
   currentPage: number;
@@ -18,6 +19,8 @@ export default function PaginationBar({
   onPageChange,
   onSizeChange,
 }: PaginationBarProps) {
+  const { t } = useTranslation('common');
+
   return (
     <Row className="align-items-center mt-4">
       <Col>
@@ -30,7 +33,7 @@ export default function PaginationBar({
       </Col>
       <Col md="auto">
         <Form.Group controlId="postsPerPageSelect" className="d-flex align-items-center">
-          <Form.Label className="me-2 mb-0">Page size:</Form.Label>
+          <Form.Label className="me-2 mb-0">{t('common.pagination.pageSize')}:</Form.Label>
           <Form.Select value={size} onChange={e => onSizeChange(Number(e.target.value))} style={{ width: '100px' }}>
             <option value={5}>5</option>
             <option value={10}>10</option>

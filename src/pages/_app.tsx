@@ -6,6 +6,7 @@ import Layout from '@/components/Layout';
 import { Provider } from 'react-redux';
 import store from '@/config/store';
 import ThemeProvider from '@/components/ThemeProvider';
+import { appWithTranslation } from 'next-i18next';
 
 loadIcons();
 
@@ -21,4 +22,4 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
   );
 };
 
-export default MyApp;
+export default appWithTranslation(MyApp);

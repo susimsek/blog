@@ -1,0 +1,15 @@
+{
+  "about": {
+    "meta": {
+      "title": "About Me",
+      "description": "Learn more about Şuayb Şimşek, a passionate backend and fullstack developer from Turkey. Explore his experience, education, and online presence.",
+      "keywords": "Şuayb Şimşek, backend developer, fullstack developer, blockchain, DevOps"
+    },
+    "header": "About Me",
+    "description": "Hi, I’m Şuayb Şimşek, a passionate backend and fullstack developer from Turkey. I graduated in Computer Engineering from TOBB University of Economics and Technology. Over the past 5 years, I have gained extensive experience in backend, frontend, blockchain, and DevOps technologies.",
+    "findMeOnline": "Find Me Online",
+    "contactInfo": {
+      "email": "suaybsimsek58@gmail.com"
+    }
+  }
+}
