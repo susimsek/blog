@@ -251,7 +251,7 @@ h6 {
     &.active .page-link {
       background-color: var(--active-color);
       border-color: var(--border-color);
-      color: #ffffff;
+      color: var(--primary-color);
     }
 
     &.disabled .page-link {
