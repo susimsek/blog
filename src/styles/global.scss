@@ -4,17 +4,19 @@ $transition-speed: 0.3s;
 
 .light {
   --bg-color: #f9f9f9;
-  --text-color: #212529;
+  --text-color: #343a40;
   --navbar-bg: #f8f9fa;
   --footer-bg: #f8f9fa;
   --main-bg: #ffffff;
-  --link-color: #212529;
+  --link-color: #343a40;
   --link-hover-color: #000000;
   --border-color: #dee2e6;
   --muted-text-color: #6c757d;
   --active-color: #007bff;
   --spinner-color: #333333;
   --input-bg-color: #ffffff;
+  --dropdown-hover-bg: #e9ecef;
+  --dropdown-hover-color: #212529;
 
   --primary-bg: #007bff;
   --secondary-bg: #6c757d;
@@ -66,6 +68,8 @@ $transition-speed: 0.3s;
   --active-color: #1e88e5;
   --spinner-color: #e0e0e0;
   --input-bg-color: #1e1e1e;
+  --dropdown-hover-bg: #343a40;
+  --dropdown-hover-color: #ffffff;
 
   --primary-bg: #1e88e5;
   --secondary-bg: #9a9a9a;
@@ -768,18 +772,18 @@ input.form-control {
       background-color $transition-speed ease;
 
     &:hover {
-      color: var(--primary-color);
-      background-color: var(--active-color);
+      color: var(--dropdown-hover-color);
+      background-color: var(--dropdown-hover-bg);
     }
 
     &.active {
-      color: var(--primary-color);
-      background-color: var(--active-color);
+      color: var(--dropdown-hover-color);
+      background-color: var(--dropdown-hover-bg);
     }
 
     &:focus {
-      background-color: var(--active-color);
-      color: var(--primary-color);
+      background-color: var(--dropdown-hover-bg);
+      color: var(--dropdown-hover-color);
     }
   }
 
@@ -815,13 +819,13 @@ input.form-control {
   transition: all 0.3s ease;
 
   &:hover {
-    color: var(--primary-color);
-    background-color: var(--active-color);
+    color: var(--dropdown-hover-color);
+    background-color: var(--dropdown-hover-bg);
   }
 
   &:focus {
     outline: none;
-    background-color: var(--active-color);
-    color: var(--primary-color);
+    background-color: var(--dropdown-hover-bg);
+    color: var(--dropdown-hover-color);
   }
 }
