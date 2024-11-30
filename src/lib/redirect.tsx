@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { NextRouter, useRouter } from 'next/router';
 import languageDetector from './languageDetector';
-import { Spinner } from 'react-bootstrap';
+import Loading from '@/components/Loading';
 
 // Helper function for language-based redirection
 const detectAndRedirect = (router: NextRouter, targetPath: string) => {
@@ -28,13 +28,7 @@ export const useRedirect = (to?: string): JSX.Element => {
     detectAndRedirect(router, targetPath);
   }, [router, targetPath]);
 
-  return (
-    <div>
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
-        <Spinner animation="border" role="status" />
-      </div>
-    </div>
-  );
+  return <Loading />;
 };
 
 // Functional component for direct usage with spinner display
