@@ -1,8 +1,7 @@
 import { AppProps } from 'next/app';
 import '../styles/global.scss';
-import React, { Suspense } from 'react';
+import React from 'react';
 import { loadIcons } from '@/config/iconLoader';
-import Layout from '@/components/Layout';
 import { Provider } from 'react-redux';
 import store from '@/config/store';
 import ThemeProvider from '@/components/ThemeProvider';
