@@ -12,6 +12,7 @@ $transition-speed: 0.3s;
   --link-hover-color: #0056b3;
   --border-color: #dee2e6;
   --muted-text-color: #6c757d;
+  --active-color: #007bff;
   --spinner-color: #333333;
   --input-bg-color: #ffffff;
 
@@ -62,6 +63,7 @@ $transition-speed: 0.3s;
   --link-hover-color: #1565c0;
   --border-color: #444444;
   --muted-text-color: #9a9a9a;
+  --active-color: #1e88e5;
   --spinner-color: #e0e0e0;
   --input-bg-color: #1e1e1e;
 
@@ -128,7 +130,7 @@ body {
     }
 
     &.active {
-      color: var(--link-hover-color);
+      color: var(--active-color);
     }
   }
 
@@ -198,7 +200,7 @@ main {
   }
 
   &.active {
-    color: var(--link-hover-color);
+    color: var(--active-color);
   }
 }
 
@@ -247,9 +249,9 @@ h6 {
     }
 
     &.active .page-link {
-      background-color: var(--link-color);
+      background-color: var(--active-color);
       border-color: var(--border-color);
-      color: #fff;
+      color: #ffffff;
     }
 
     &.disabled .page-link {
@@ -699,5 +701,54 @@ input.form-control {
     background-color: var(--main-bg);
     border-color: var(--link-hover-color);
     color: var(--link-hover-color);
+  }
+}
+
+.search-bar {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+
+  transition:
+    border-color $transition-speed,
+    box-shadow $transition-speed;
+
+  &:focus-within {
+    border-color: var(--link-hover-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+  .search-input {
+    flex: 1;
+    border: none;
+    padding: 0.5rem;
+    background-color: var(--input-bg-color);
+    color: var(--text-color);
+    outline: none;
+
+    &::placeholder {
+      color: var(--muted-text-color);
+    }
+  }
+
+  .search-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    background-color: var(--input-bg-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition:
+      background-color $transition-speed,
+      color $transition-speed;
+
+    &:hover {
+      background-color: var(--main-bg);
+      color: var(--link-hover-color);
+    }
   }
 }

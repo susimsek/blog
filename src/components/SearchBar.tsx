@@ -1,5 +1,4 @@
 import React from 'react';
-import { InputGroup, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface SearchBarProps {
@@ -13,11 +12,11 @@ export default function SearchBar({ query, onChange }: SearchBarProps) {
   };
 
   return (
-    <InputGroup className="mb-4">
-      <InputGroup.Text className="icon">
+    <div className="mb-4 search-bar">
+      <input type="text" className="search-input" placeholder="Search" value={query} onChange={handleInputChange} />
+      <div className="search-icon">
         <FontAwesomeIcon icon="search" />
-      </InputGroup.Text>
-      <Form.Control type="text" placeholder="Search posts..." value={query} onChange={handleInputChange} />
-    </InputGroup>
+      </div>
+    </div>
   );
 }
