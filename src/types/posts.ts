@@ -5,4 +5,5 @@ export type Post = {
   summary: string;
   contentHtml?: string;
   thumbnail?: string;
+  topics?: string[];
 };

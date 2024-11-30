@@ -1,5 +1,3 @@
-// lib/posts.ts
-
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
@@ -24,6 +22,7 @@ export function getSortedPostsData(): Post[] {
         date: string;
         summary: string;
         thumbnail: string;
+        topics?: string[];
       }),
     };
   });
@@ -31,6 +30,7 @@ export function getSortedPostsData(): Post[] {
   return allPostsData.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
+// Tek bir postun detaylarını getirir
 export async function getPostData(id: string): Promise<Post> {
   const fullPath = path.join(postsDirectory, `${id}.md`);
   const fileContents = fs.readFileSync(fullPath, 'utf8');
@@ -46,6 +46,7 @@ export async function getPostData(id: string): Promise<Post> {
       date: string;
       summary: string;
       thumbnail: string;
+      topics?: string[];
     }),
   };
 }
@@ -58,4 +59,9 @@ export function getAllPostIds() {
       id: fileName.replace(/\.md$/, ''),
     },
   }));
+}
+
+export function getPostsByTopic(topic: string): Post[] {
+  const allPosts = getSortedPostsData();
+  return allPosts.filter(post => post.topics?.includes(topic));
 }

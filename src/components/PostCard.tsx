@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Post } from '@/types/posts';
+import { Badge } from 'react-bootstrap'; // React-Bootstrap Badge bileşeni
 
 interface PostCardProps {
   post: Post;
@@ -9,7 +10,7 @@ interface PostCardProps {
 const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || '';
 
 export default function PostCard({ post }: PostCardProps) {
-  const { id, title, date, summary, thumbnail } = post;
+  const { id, title, date, summary, thumbnail, topics } = post;
 
   return (
     <div className="post-card d-flex align-items-center mb-4">
@@ -27,17 +28,25 @@ export default function PostCard({ post }: PostCardProps) {
             day: 'numeric',
           })}
         </p>
+        {topics && topics.length > 0 && (
+          <div className="mt-2">
+            {topics.map(topic => (
+              <Badge key={topic} bg="secondary" className="me-2">
+                {topic}
+              </Badge>
+            ))}
+          </div>
+        )}
       </div>
       {thumbnail && (
-        <div className="post-card-thumbnail-wrapper">
+        <div className="post-card-thumbnail-wrapper ms-3">
           <Image
             src={`${assetPrefix}${thumbnail}`}
             alt={title}
             className="rounded"
             width={120}
             height={80}
-            layout="fixed"
-            objectFit="cover"
+            style={{ objectFit: 'cover' }}
           />
         </div>
       )}
