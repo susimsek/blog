@@ -1,12 +1,14 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, MouseEvent } from 'react';
 import Link, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';
 
 interface LinkComponentProps extends Omit<LinkProps, 'href'> {
   children: ReactNode;
   href?: string;
+  className?: string; // Class name for the anchor element
   skipLocaleHandling?: boolean;
   locale?: string;
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void; // onClick handler
 }
 
 const LinkComponent: React.FC<LinkComponentProps> = ({
@@ -14,6 +16,8 @@ const LinkComponent: React.FC<LinkComponentProps> = ({
   skipLocaleHandling = false,
   href,
   locale,
+  className,
+  onClick,
   ...rest
 }) => {
   const router = useRouter();
@@ -31,9 +35,21 @@ const LinkComponent: React.FC<LinkComponentProps> = ({
       : router.pathname.replace('[locale]', currentLocale);
   }
 
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (onClick) {
+      onClick(event);
+    }
+  };
+
+  // Define default class name
+  const defaultClassName = 'link';
+  const combinedClassName = className ? `${defaultClassName} ${className}` : defaultClassName;
+
   return (
     <Link href={resolvedHref} {...rest} legacyBehavior>
-      <a>{children}</a>
+      <a className={combinedClassName} onClick={handleClick}>
+        {children}
+      </a>
     </Link>
   );
 };
