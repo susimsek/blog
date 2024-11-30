@@ -1,0 +1,15 @@
+{
+  "contact": {
+    "meta": {
+      "title": "Bana Ulaşın",
+      "description": "Şuayb Şimşek ile email, LinkedIn, Medium veya GitHub üzerinden iletişime geçin. Yeni projeler ve işbirlikleri hakkında konuşmaya her zaman açığım.",
+      "keywords": "Şuayb Şimşek, iletişim, email, LinkedIn, Medium, GitHub"
+    },
+    "header": "Bana Ulaşın",
+    "description": "Email, LinkedIn, Medium veya GitHub üzerinden iletişime geçmekten çekinmeyin. Yeni projeler, işbirlikleri veya fırsatlar hakkında konuşmaya her zaman açığım!",
+    "contactInfo": {
+      "title": "İletişim Bilgileri",
+      "email": "E-posta"
+    }
+  }
+}

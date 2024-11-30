@@ -1,0 +1,12 @@
+{
+  "404": {
+    "title": "404 - Sayfa Bulunamadı",
+    "meta": {
+      "description": "Aradığınız sayfa mevcut değil veya taşınmış olabilir."
+    },
+    "errorCode": "404",
+    "header": "Üzgünüz! Sayfa Bulunamadı",
+    "description": "Aradığınız sayfa mevcut değil veya taşınmış olabilir. Lütfen URL'yi kontrol edin veya ana sayfaya dönün.",
+    "backToHome": "Ana Sayfaya Dön"
+  }
+}

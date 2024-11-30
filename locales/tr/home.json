@@ -1,0 +1,13 @@
+{
+  "home": {
+    "title": "Bloguma Hoş Geldiniz",
+    "meta": {
+      "description": "Blogumda en son makaleleri, eğitimleri ve analizleri keşfedin. Programlama, teknoloji ve daha fazlasını kapsayan çeşitli konuları inceleyin.",
+      "keywords": "blog, makaleler, eğitimler, programlama, teknoloji"
+    },
+    "header": {
+      "title": "Bloguma Hoş Geldiniz",
+      "subtitle": "En son makaleleri, eğitimleri ve analizleri keşfedin."
+    }
+  }
+}
