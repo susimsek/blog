@@ -1,19 +1,17 @@
-// pages/posts/[id].tsx
 import { getAllPostIds, getPostData } from '@/lib/posts';
 import React from 'react';
 import Head from 'next/head';
 import PostDetail from '@/components/PostDetail';
 import type { Post } from '@/types/posts'; // type-only import
-import { makeStaticProps } from '@/lib/getStatic';
+import { getI18nProps } from '@/lib/getStatic';
 
-const getStaticPropsWrapper = makeStaticProps(['common', 'post']);
-
-export const getStaticProps = async ({ params }: { params: { id: string } }) => {
+export const getStaticProps = async ({ params, locale }: { params: { id: string }; locale: string }) => {
   const postData = await getPostData(params.id);
-  const staticProps = await getStaticPropsWrapper({ params });
+
+  const i18nProps = await getI18nProps({ locale }, ['common', 'post']);
   return {
     props: {
-      ...staticProps.props,
+      ...i18nProps,
       postData,
     },
   };
