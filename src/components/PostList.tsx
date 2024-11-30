@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Post } from '@/types/posts';
-import { Container, Form } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
+import SearchBar from './SearchBar';
+import PaginationBar from './PaginationBar';
 import PostCard from '@/components/PostCard';
-import PaginationBar from '@/components/PaginationBar';
 
 export default function PostList({ posts }: { posts: Post[] }) {
   const [postsPerPage, setPostsPerPage] = useState(5);
@@ -16,30 +17,24 @@ export default function PostList({ posts }: { posts: Post[] }) {
   );
 
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
-  const startIndex = (currentPage - 1) * postsPerPage;
-  const currentPosts = filteredPosts.slice(startIndex, startIndex + postsPerPage);
+
+  const currentPosts = filteredPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
 
   const handlePageChange = (page: number) => setCurrentPage(page);
+
   const handlePostsPerPageChange = (size: number) => {
     setPostsPerPage(size);
     setCurrentPage(1);
   };
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
     setCurrentPage(1);
   };
 
   return (
     <Container className="mt-5" style={{ maxWidth: '700px' }}>
-      <Form.Group className="mb-4">
-        <Form.Control
-          type="text"
-          placeholder="Search posts by title or summary..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-        />
-      </Form.Group>
+      <SearchBar query={searchQuery} onChange={handleSearchChange} />
 
       {currentPosts.length > 0 ? (
         currentPosts.map(post => <PostCard key={post.id} post={post} />)

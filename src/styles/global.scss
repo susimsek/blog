@@ -511,3 +511,28 @@ input.form-control {
     border-color: var(--dark-hover);
   }
 }
+
+.icon {
+  color: var(--text-color);
+  transition: color $transition-speed ease;
+
+  &:hover {
+    color: var(--link-hover-color);
+  }
+}
+
+.input-group-text {
+  background-color: var(--input-bg-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  transition:
+    background-color $transition-speed ease,
+    border-color $transition-speed ease,
+    color $transition-speed ease;
+
+  &:hover {
+    background-color: var(--main-bg);
+    border-color: var(--link-hover-color);
+    color: var(--link-hover-color);
+  }
+}
