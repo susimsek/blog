@@ -582,6 +582,101 @@ input.form-control {
   }
 }
 
+.alert {
+  transition:
+    background-color $transition-speed ease,
+    color $transition-speed ease,
+    border-color $transition-speed ease;
+
+  &-primary {
+    background-color: var(--primary-bg);
+    color: var(--primary-color);
+    border-color: var(--primary-bg);
+
+    &:hover {
+      background-color: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+  }
+
+  &-secondary {
+    background-color: var(--secondary-bg);
+    color: var(--secondary-color);
+    border-color: var(--secondary-bg);
+
+    &:hover {
+      background-color: var(--secondary-hover);
+      border-color: var(--secondary-hover);
+    }
+  }
+
+  &-success {
+    background-color: var(--success-bg);
+    color: var(--success-color);
+    border-color: var(--success-bg);
+
+    &:hover {
+      background-color: var(--success-hover);
+      border-color: var(--success-hover);
+    }
+  }
+
+  &-info {
+    background-color: var(--info-bg);
+    color: var(--info-color);
+    border-color: var(--info-bg);
+
+    &:hover {
+      background-color: var(--info-hover);
+      border-color: var(--info-hover);
+    }
+  }
+
+  &-warning {
+    background-color: var(--warning-bg);
+    color: var(--warning-color);
+    border-color: var(--warning-bg);
+
+    &:hover {
+      background-color: var(--warning-hover);
+      border-color: var(--warning-hover);
+    }
+  }
+
+  &-danger {
+    background-color: var(--danger-bg);
+    color: var(--danger-color);
+    border-color: var(--danger-bg);
+
+    &:hover {
+      background-color: var(--danger-hover);
+      border-color: var(--danger-hover);
+    }
+  }
+
+  &-light {
+    background-color: var(--light-bg);
+    color: var(--light-color);
+    border-color: var(--light-bg);
+
+    &:hover {
+      background-color: var(--light-hover);
+      border-color: var(--light-hover);
+    }
+  }
+
+  &-dark {
+    background-color: var(--dark-bg);
+    color: var(--dark-color);
+    border-color: var(--dark-bg);
+
+    &:hover {
+      background-color: var(--dark-hover);
+      border-color: var(--dark-hover);
+    }
+  }
+}
+
 .icon {
   color: var(--text-color);
   transition: color $transition-speed ease;
