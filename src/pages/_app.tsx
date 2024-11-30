@@ -1,6 +1,6 @@
 import { AppProps } from 'next/app';
 import '../styles/global.scss';
-import React from 'react';
+import React, { Suspense } from 'react';
 import { loadIcons } from '@/config/iconLoader';
 import Layout from '@/components/Layout';
 import { Provider } from 'react-redux';
@@ -14,9 +14,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
     <Provider store={store}>
       <ThemeProvider>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+        <Component {...pageProps} />
       </ThemeProvider>
     </Provider>
   );

@@ -6,12 +6,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import { AUTHOR_NAME, CONTACT_LINKS, SOCIAL_MEDIA_NAMES } from '@/config/constants';
 import { getStaticPaths, makeStaticProps } from '@/lib/getStatic';
+import Layout from '@/components/Layout';
 
 export default function About() {
   const { t } = useTranslation(['about']);
 
   return (
-    <>
+    <Layout>
       <Head>
         <title>{t('about.meta.title')}</title>
         <meta name="description" content={t('about.meta.description')} />
@@ -53,7 +54,7 @@ export default function About() {
           </li>
         </ul>
       </Container>
-    </>
+    </Layout>
   );
 }
 

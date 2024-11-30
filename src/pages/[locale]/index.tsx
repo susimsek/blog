@@ -6,6 +6,7 @@ import { useTranslation } from 'next-i18next';
 import { getStaticPaths, getI18nProps } from '@/lib/getStatic';
 import { AUTHOR_NAME } from '@/config/constants';
 import { GetStaticPropsContext } from 'next';
+import Layout from '@/components/Layout';
 
 type HomeProps = {
   allPostsData: Post[];
@@ -15,7 +16,7 @@ export default function Home({ allPostsData }: HomeProps) {
   const { t } = useTranslation('home');
 
   return (
-    <>
+    <Layout>
       <Head>
         <title>{t('home.title')}</title>
         <meta name="description" content={t('home.meta.description')} />
@@ -29,7 +30,7 @@ export default function Home({ allPostsData }: HomeProps) {
         </header>
         <PostList posts={allPostsData} />
       </div>
-    </>
+    </Layout>
   );
 }
 

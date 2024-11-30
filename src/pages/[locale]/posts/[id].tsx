@@ -4,6 +4,7 @@ import Head from 'next/head';
 import PostDetail from '@/components/PostDetail';
 import type { Post } from '@/types/posts'; // type-only import
 import { getI18nProps } from '@/lib/getStatic';
+import Layout from '@/components/Layout';
 
 export const getStaticProps = async ({ params, locale }: { params: { id: string }; locale: string }) => {
   const postData = await getPostData(params.id);
@@ -29,7 +30,7 @@ export default function Post({ postData }: { postData: Post }) {
   const keywords = [...(postData.topics || [])].join(', ');
 
   return (
-    <>
+    <Layout>
       <Head>
         <title>{postData.title}</title>
         <meta name="description" content={postData.summary} />
@@ -37,6 +38,6 @@ export default function Post({ postData }: { postData: Post }) {
         <meta name="author" content="Şuayb Şimşek" />
       </Head>
       <PostDetail postData={postData} />
-    </>
+    </Layout>
   );
 }

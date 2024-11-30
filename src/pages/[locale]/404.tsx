@@ -6,12 +6,13 @@ import { useTranslation } from 'next-i18next';
 import Link from '@/components/Link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getStaticPaths, makeStaticProps } from '@/lib/getStatic';
+import Layout from '@/components/Layout';
 
 export default function NotFound() {
   const { t } = useTranslation('404');
 
   return (
-    <>
+    <Layout>
       <Head>
         <title>{t('404.title')}</title>
         <meta name="description" content={t('404.meta.description')} />
@@ -29,7 +30,7 @@ export default function NotFound() {
           {t('404.backToHome')}
         </Link>
       </Container>
-    </>
+    </Layout>
   );
 }
 
