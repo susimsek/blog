@@ -1,3 +1,4 @@
+// components/PostList.tsx
 import React, { useState } from 'react';
 import { Post } from '@/types/posts';
 import { Container } from 'react-bootstrap';

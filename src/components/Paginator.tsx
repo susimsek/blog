@@ -1,3 +1,4 @@
+// components/Paginator.tsx
 import React, { ReactNode } from 'react';
 import { Pagination } from 'react-bootstrap';
 

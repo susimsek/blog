@@ -1,14 +1,14 @@
-import { useSelector } from 'react-redux';
-import { RootState } from '@/config/store';
+// components/ThemeProvider.tsx
 import { ReactNode, useEffect, useState } from 'react';
 import Loading from '@/components/Loading';
+import { useAppSelector } from '@/config/store';
 
 type ThemeProviderProps = {
   children: ReactNode;
 };
 
 export default function ThemeProvider({ children }: ThemeProviderProps) {
-  const theme = useSelector((state: RootState) => state.theme.theme);
+  const theme = useAppSelector(state => state.theme.theme);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {

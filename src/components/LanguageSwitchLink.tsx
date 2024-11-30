@@ -1,3 +1,4 @@
+// components/LanguageSwitchLink.tsx
 import languageDetector from '../lib/languageDetector';
 import { useRouter } from 'next/router';
 import Link from 'next/link';

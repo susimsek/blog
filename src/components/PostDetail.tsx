@@ -1,3 +1,4 @@
+// components/PostDetail.tsx
 import { Post } from '@/types/posts';
 import { Container, Badge } from 'react-bootstrap';
 import { assetPrefix } from '@/config/constants';

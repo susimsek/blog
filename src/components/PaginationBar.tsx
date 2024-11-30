@@ -1,3 +1,4 @@
+// components/PaginationBar.tsx
 import { Form, Row, Col } from 'react-bootstrap';
 import Paginator from './Paginator';
 import { useTranslation } from 'next-i18next';

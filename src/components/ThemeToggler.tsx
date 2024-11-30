@@ -1,14 +1,13 @@
 // components/ThemeToggler.tsx
-import { useDispatch, useSelector } from 'react-redux';
 import { toggleTheme } from '@/reducers/theme';
-import { RootState } from '@/config/store';
+import { useAppDispatch, useAppSelector } from '@/config/store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 
 const ThemeToggler = () => {
   const { t } = useTranslation('common');
-  const dispatch = useDispatch();
-  const theme = useSelector((state: RootState) => state.theme.theme);
+  const dispatch = useAppDispatch();
+  const theme = useAppSelector(state => state.theme.theme);
 
   return (
     <button

@@ -1,3 +1,4 @@
+// components/Header.tsx
 import { Container, Navbar, Nav } from 'react-bootstrap';
 import Image from 'next/image';
 import { assetPrefix } from '@/config/constants';
