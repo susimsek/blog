@@ -6,6 +6,8 @@ import { useTranslation } from 'next-i18next';
 import Link from '@/components/Link';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import ThemeToggler from '@/components/ThemeToggler';
+import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function Header() {
   const { t } = useTranslation('common');
@@ -26,7 +28,9 @@ export default function Header() {
             {t('common.header.title')}
           </span>
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls="navbar-nav" />
+        <Navbar.Toggle aria-controls="navbar-nav">
+          <FontAwesomeIcon icon="bars" className="navbar-toggler-icon" />
+        </Navbar.Toggle>
         <Navbar.Collapse id="navbar-nav">
           <Nav className="ms-auto d-flex gap-3 align-items-center">
             <Nav.Link as={Link} href="/">
