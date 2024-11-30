@@ -1,0 +1,27 @@
+{
+  "common": {
+    "header": {
+      "logoAlt": "My Blog Logo",
+      "title": "My Blog",
+      "menu": {
+        "home": "Home",
+        "about": "About",
+        "contact": "Contact"
+      },
+      "themeToggle": "Toggle Theme",
+      "theme": {
+        "light": "Light Mode",
+        "dark": "Dark Mode"
+      }
+    },
+    "footer": {
+      "text": "© {{year}} My Blog. All rights reserved."
+    },
+    "pagination": {
+      "pageSize": "Page size"
+    },
+    "searchBar": {
+      "placeholder": "Search"
+    }
+  }
+}
