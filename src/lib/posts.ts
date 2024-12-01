@@ -6,6 +6,8 @@ import { remark } from 'remark';
 import html from 'remark-html';
 import { Post, PostMeta } from '@/types/posts';
 import i18nextConfig from '../../next-i18next.config';
+import { GetStaticPropsContext } from 'next';
+import { getI18nProps } from '@/lib/getStatic';
 
 const postsDirectory = path.join(process.cwd(), 'content/posts');
 
@@ -65,8 +67,33 @@ export function getAllPostIds() {
   });
 }
 
-// Retrieve posts filtered by topic
-export function getPostsByTopic(topic: string): Post[] {
-  const allPosts = getSortedPostsData();
-  return allPosts.filter(post => post.topics?.includes(topic));
-}
+export const makePostProps =
+  (ns: string[] = []) =>
+  async (context: GetStaticPropsContext) => {
+    const allPostsData: Post[] = getSortedPostsData();
+
+    const i18nProps = await getI18nProps(context, ns);
+
+    return {
+      props: {
+        ...i18nProps,
+        allPostsData,
+      },
+    };
+  };
+
+export const makePostDetailProps =
+  (ns: string[] = []) =>
+  async (ctx: GetStaticPropsContext<{ id: string }>) => {
+    const { params, locale } = ctx;
+
+    const postData = await getPostData(params!.id);
+    const i18nProps = await getI18nProps({ locale }, ns);
+
+    return {
+      props: {
+        ...i18nProps,
+        postData,
+      },
+    };
+  };

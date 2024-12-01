@@ -1,11 +1,11 @@
-import { getSortedPostsData } from '@/lib/posts';
+// pages/index.tsx
+import { makePostProps } from '@/lib/posts';
 import PostList from '@/components/PostList';
 import { Post } from '@/types/posts';
 import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
-import { getStaticPaths, getI18nProps } from '@/lib/getStatic';
+import { getStaticPaths } from '@/lib/getStatic';
 import { AUTHOR_NAME } from '@/config/constants';
-import { GetStaticPropsContext } from 'next';
 import Layout from '@/components/Layout';
 
 type HomeProps = {
@@ -34,16 +34,6 @@ export default function Home({ allPostsData }: HomeProps) {
   );
 }
 
-export const getStaticProps = async (context: GetStaticPropsContext) => {
-  const allPostsData: Post[] = getSortedPostsData();
+const getStaticProps = makePostProps(['common', 'home', 'post']);
 
-  const i18nProps = await getI18nProps(context, ['common', 'home', 'post']);
-  return {
-    props: {
-      ...i18nProps,
-      allPostsData,
-    },
-  };
-};
-
-export { getStaticPaths };
+export { getStaticPaths, getStaticProps };

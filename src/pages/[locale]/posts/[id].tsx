@@ -1,30 +1,10 @@
-import { getAllPostIds, getPostData } from '@/lib/posts';
+// pages/posts/[id].tsx
+import { getAllPostIds, makePostDetailProps } from '@/lib/posts';
 import React from 'react';
 import Head from 'next/head';
 import PostDetail from '@/components/PostDetail';
 import type { Post } from '@/types/posts'; // type-only import
-import { getI18nProps } from '@/lib/getStatic';
 import Layout from '@/components/Layout';
-
-export const getStaticProps = async ({ params, locale }: { params: { id: string }; locale: string }) => {
-  const postData = await getPostData(params.id);
-
-  const i18nProps = await getI18nProps({ locale }, ['common', 'post']);
-  return {
-    props: {
-      ...i18nProps,
-      postData,
-    },
-  };
-};
-
-export async function getStaticPaths() {
-  const paths = getAllPostIds();
-  return {
-    paths,
-    fallback: false,
-  };
-}
 
 export default function Post({ postData }: { postData: Post }) {
   const keywords = [...(postData.topics || [])].join(', ');
@@ -41,3 +21,15 @@ export default function Post({ postData }: { postData: Post }) {
     </Layout>
   );
 }
+
+const getStaticProps = makePostDetailProps(['common', 'post']);
+
+async function getStaticPaths() {
+  const paths = getAllPostIds();
+  return {
+    paths,
+    fallback: false,
+  };
+}
+
+export { getStaticPaths, getStaticProps };
