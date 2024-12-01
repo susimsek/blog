@@ -1,8 +1,8 @@
-// components/PostDetail.tsx
+// components/posts/PostDetail.tsx
 import { Post } from '@/types/posts';
 import { Container, Badge } from 'react-bootstrap';
 import { assetPrefix } from '@/config/constants';
-import DateDisplay from '@/components/DateDisplay';
+import DateDisplay from '@/components/common/DateDisplay';
 
 export default function PostDetail({ post }: { post: Post }) {
   const { title, date, contentHtml, thumbnail, topics } = post;

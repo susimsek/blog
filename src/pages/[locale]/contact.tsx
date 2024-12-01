@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import { getStaticPaths, makeStaticProps } from '@/lib/getStatic';
 import { AUTHOR_NAME, CONTACT_LINKS, SOCIAL_MEDIA_NAMES } from '@/config/constants';
-import Layout from '@/components/Layout';
+import Layout from '@/components/common/Layout';
 
 export default function Contact() {
   const { t } = useTranslation(['contact']);

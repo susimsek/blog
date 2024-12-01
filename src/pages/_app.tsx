@@ -4,7 +4,7 @@ import React from 'react';
 import { loadIcons } from '@/config/iconLoader';
 import { Provider } from 'react-redux';
 import store from '@/config/store';
-import ThemeProvider from '@/components/ThemeProvider';
+import ThemeProvider from '@/components/theme/ThemeProvider';
 import { appWithTranslation } from 'next-i18next';
 
 loadIcons();

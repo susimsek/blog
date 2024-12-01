@@ -1,9 +1,9 @@
-// components/PostCard.tsx
-import Link from '../components/Link';
+// components/posts/PostSummary.tsx
+import Link from '@/components/common/Link';
 import Image from 'next/image';
 import { Post } from '@/types/posts';
 import { Badge } from 'react-bootstrap';
-import DateDisplay from '@/components/DateDisplay';
+import DateDisplay from '@/components/common/DateDisplay';
 
 interface PostCardProps {
   post: Post;
@@ -11,7 +11,7 @@ interface PostCardProps {
 
 const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || '';
 
-export default function PostCard({ post }: PostCardProps) {
+export default function PostSummary({ post }: PostCardProps) {
   const { id, title, date, summary, thumbnail, topics } = post;
 
   return (

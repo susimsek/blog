@@ -1,4 +1,4 @@
-// components/Loading.tsx
+// components/common/Loading.tsx
 import React from 'react';
 import { Container, Spinner } from 'react-bootstrap';
 

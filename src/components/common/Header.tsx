@@ -1,11 +1,11 @@
-// components/Header.tsx
+// components/common/Header.tsx
 import { Container, Navbar, Nav } from 'react-bootstrap';
 import Image from 'next/image';
 import { assetPrefix } from '@/config/constants';
 import { useTranslation } from 'next-i18next';
-import Link from '@/components/Link';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
-import ThemeToggler from '@/components/ThemeToggler';
+import Link from '@/components/common/Link';
+import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
+import ThemeToggler from '@/components/theme/ThemeToggler';
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 

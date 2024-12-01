@@ -1,6 +1,6 @@
-// components/ThemeProvider.tsx
+// components/theme/ThemeProvider.tsx
 import { ReactNode, useEffect, useState } from 'react';
-import Loading from '@/components/Loading';
+import Loading from '@/components/common/Loading';
 import { useAppSelector } from '@/config/store';
 
 type ThemeProviderProps = {

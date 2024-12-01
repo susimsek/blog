@@ -1,10 +1,10 @@
-// components/PostList.tsx
+// components/posts/PostList.tsx
 import React, { useState } from 'react';
 import { PostSummary } from '@/types/posts';
 import { Container } from 'react-bootstrap';
-import SearchBar from './SearchBar';
-import PaginationBar from './PaginationBar';
-import PostCard from '@/components/PostCard';
+import SearchBar from '@/components/search/SearchBar';
+import PaginationBar from '@/components/pagination/PaginationBar';
+import PostCard from '@/components/posts/PostSummary';
 import { useTranslation } from 'next-i18next';
 
 export default function PostList({ posts }: { posts: PostSummary[] }) {

@@ -2,9 +2,9 @@
 import { getAllPostIds, makePostDetailProps } from '@/lib/posts';
 import React from 'react';
 import Head from 'next/head';
-import PostDetail from '@/components/PostDetail';
+import PostDetail from '@/components/posts/PostDetail';
 import type { Post } from '@/types/posts'; // type-only import
-import Layout from '@/components/Layout';
+import Layout from '@/components/common/Layout';
 
 type PostProps = {
   post: Post;

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { NextRouter, useRouter } from 'next/router';
 import languageDetector from './languageDetector';
-import Loading from '@/components/Loading';
+import Loading from '@/components/common/Loading';
 
 // Helper function for language-based redirection
 const detectAndRedirect = (router: NextRouter, targetPath: string) => {

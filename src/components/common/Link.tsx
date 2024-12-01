@@ -1,4 +1,4 @@
-// components/LinkComponent.tsx
+// components/common/LinkComponent.tsx
 import React, { ReactNode, MouseEvent } from 'react';
 import Link, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';

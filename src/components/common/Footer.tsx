@@ -1,4 +1,4 @@
-// components/Footer.tsx
+// components/common/Footer.tsx
 import { Container } from 'react-bootstrap';
 import { useTranslation } from 'next-i18next';
 

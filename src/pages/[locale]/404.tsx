@@ -3,10 +3,10 @@ import { Container } from 'react-bootstrap';
 import React from 'react';
 import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
-import Link from '@/components/Link';
+import Link from '@/components/common/Link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getStaticPaths, makeStaticProps } from '@/lib/getStatic';
-import Layout from '@/components/Layout';
+import Layout from '@/components/common/Layout';
 
 export default function NotFound() {
   const { t } = useTranslation('404');

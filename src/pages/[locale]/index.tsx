@@ -1,11 +1,11 @@
 // pages/index.tsx
 import { makePostProps } from '@/lib/posts';
-import PostList from '@/components/PostList';
 import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
 import { getStaticPaths } from '@/lib/getStatic';
 import { AUTHOR_NAME } from '@/config/constants';
-import Layout from '@/components/Layout';
+import Layout from '@/components/common/Layout';
+import PostList from '@/components/posts/PostList';
 import { PostSummary } from '@/types/posts';
 
 type HomeProps = {

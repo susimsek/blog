@@ -1,4 +1,4 @@
-// components/ThemeToggler.tsx
+// components/theme/ThemeToggler.tsx
 import { toggleTheme } from '@/reducers/theme';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

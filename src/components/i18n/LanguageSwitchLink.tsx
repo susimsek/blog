@@ -1,5 +1,5 @@
-// components/LanguageSwitchLink.tsx
-import languageDetector from '../lib/languageDetector';
+// components/i18n/LanguageSwitchLink.tsx
+import languageDetector from '@/lib/languageDetector';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { Button } from 'react-bootstrap';
