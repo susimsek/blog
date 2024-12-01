@@ -23,6 +23,7 @@ npm run dev
 ```
 
 Open your browser and navigate to:
+
 ```
 http://localhost:3000
 ```
@@ -45,5 +46,8 @@ npm run build
 - ESLint
 - Prettier
 - Husky
+- Redux
+- Next i18next
+- Next Language Detector
 - Bootstrap
 - Font Awesome
