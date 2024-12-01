@@ -1,16 +1,14 @@
-// components/i18n/LanguageSwitchLink.tsx
 import languageDetector from '@/lib/languageDetector';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
-import { Button } from 'react-bootstrap';
 import React from 'react';
+import { Button } from 'react-bootstrap';
 
 interface LanguageSwitchLinkProps {
   locale: string;
   href?: string;
 }
 
-const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href, ...rest }) => {
+const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href }) => {
   const router = useRouter();
 
   let currentHref = href || router.asPath;
@@ -32,17 +30,17 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href, .
   }
 
   return (
-    <Link href={currentHref} passHref legacyBehavior>
-      <Button
-        {...rest}
-        variant="link"
-        size="sm"
-        className="button-link"
-        onClick={() => languageDetector.cache?.(locale)}
-      >
-        {locale.toUpperCase()}
-      </Button>
-    </Link>
+    <Button
+      variant="link"
+      size="sm"
+      className="button-link"
+      onClick={() => {
+        languageDetector.cache?.(locale);
+        router.push(currentHref);
+      }}
+    >
+      {locale.toUpperCase()}
+    </Button>
   );
 };
 
