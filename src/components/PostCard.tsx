@@ -3,6 +3,7 @@ import Link from '../components/Link';
 import Image from 'next/image';
 import { Post } from '@/types/posts';
 import { Badge } from 'react-bootstrap';
+import DateDisplay from '@/components/DateDisplay';
 
 interface PostCardProps {
   post: Post;
@@ -23,11 +24,7 @@ export default function PostCard({ post }: PostCardProps) {
         </h2>
         <p className="text-muted mb-2">{summary}</p>
         <p className="text-muted">
-          {new Date(date).toLocaleDateString(undefined, {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
+          <DateDisplay date={date} />
         </p>
         {topics && topics.length > 0 && (
           <div className="mt-2">

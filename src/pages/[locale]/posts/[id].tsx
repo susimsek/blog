@@ -22,7 +22,7 @@ export default function Post({ post }: PostProps) {
         <meta name="keywords" content={keywords} />
         <meta name="author" content="Şuayb Şimşek" />
       </Head>
-      <PostDetail postData={post} />
+      <PostDetail post={post} />
     </Layout>
   );
 }

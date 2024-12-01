@@ -2,33 +2,31 @@
 import { Post } from '@/types/posts';
 import { Container, Badge } from 'react-bootstrap';
 import { assetPrefix } from '@/config/constants';
+import DateDisplay from '@/components/DateDisplay';
 
-export default function PostDetail({ postData }: { postData: Post }) {
+export default function PostDetail({ post }: { post: Post }) {
+  const { title, date, contentHtml, thumbnail, topics } = post;
   return (
     <Container className="mt-5" style={{ maxWidth: '700px' }}>
-      <h1 className="fw-bold display-4 text-center mb-4">{postData.title}</h1>
+      <h1 className="fw-bold display-4 text-center mb-4">{title}</h1>
       <p className="text-muted text-center mb-4" style={{ fontSize: '1.1rem' }}>
-        {new Date(postData.date).toLocaleDateString(undefined, {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })}
+        <DateDisplay date={date} />
       </p>
-      {postData.topics && postData.topics.length > 0 && (
+      {topics && topics.length > 0 && (
         <div className="text-center mb-4">
-          {postData.topics.map(topic => (
+          {topics.map(topic => (
             <Badge key={topic} bg="secondary" className="me-2">
               {topic}
             </Badge>
           ))}
         </div>
       )}
-      {postData.thumbnail && (
+      {thumbnail && (
         <div className="text-center mb-5">
-          <img src={`${assetPrefix}${postData.thumbnail}`} alt={postData.title} className="img-fluid rounded" />
+          <img src={`${assetPrefix}${thumbnail}`} alt={title} className="img-fluid rounded" />
         </div>
       )}
-      <article className="fs-5 lh-lg" dangerouslySetInnerHTML={{ __html: postData.contentHtml || '' }} />
+      <article className="fs-5 lh-lg" dangerouslySetInnerHTML={{ __html: contentHtml || '' }} />
     </Container>
   );
 }
