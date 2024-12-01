@@ -1,15 +1,15 @@
 // pages/index.tsx
 import { makePostProps } from '@/lib/posts';
 import PostList from '@/components/PostList';
-import { Post, PostMeta } from '@/types/posts';
 import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
 import { getStaticPaths } from '@/lib/getStatic';
 import { AUTHOR_NAME } from '@/config/constants';
 import Layout from '@/components/Layout';
+import { PostSummary } from '@/types/posts';
 
 type HomeProps = {
-  posts: PostMeta[];
+  posts: PostSummary[];
 };
 
 export default function Home({ posts }: HomeProps) {

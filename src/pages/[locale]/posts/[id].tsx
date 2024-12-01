@@ -5,7 +5,6 @@ import Head from 'next/head';
 import PostDetail from '@/components/PostDetail';
 import type { Post } from '@/types/posts'; // type-only import
 import Layout from '@/components/Layout';
-import { useTranslation } from 'next-i18next';
 
 type PostProps = {
   post: Post;
