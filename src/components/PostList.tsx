@@ -1,13 +1,13 @@
 // components/PostList.tsx
 import React, { useState } from 'react';
-import { Post } from '@/types/posts';
+import { PostSummary } from '@/types/posts';
 import { Container } from 'react-bootstrap';
 import SearchBar from './SearchBar';
 import PaginationBar from './PaginationBar';
 import PostCard from '@/components/PostCard';
 import { useTranslation } from 'next-i18next';
 
-export default function PostList({ posts }: { posts: Post[] }) {
+export default function PostList({ posts }: { posts: PostSummary[] }) {
   const { t } = useTranslation('post');
   const [postsPerPage, setPostsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);

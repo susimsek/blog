@@ -1,4 +1,5 @@
-export type PostMeta = {
+export type PostSummary = {
+  id: string;
   title: string;
   date: string;
   summary: string;
@@ -6,7 +7,6 @@ export type PostMeta = {
   topics?: string[];
 };
 
-export type Post = PostMeta & {
-  id: string;
+export type Post = PostSummary & {
   contentHtml?: string;
 };
