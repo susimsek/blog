@@ -8,24 +8,21 @@ import Layout from '@/components/Layout';
 import { useTranslation } from 'next-i18next';
 
 type PostProps = {
-  postData: { [locale: string]: Post };
+  post: Post;
 };
 
-export default function Post({ postData }: PostProps) {
-  const { i18n } = useTranslation('post');
-  const currentLocale = i18n.language;
-  const localizedPost = postData[currentLocale];
-  const keywords = [...(localizedPost.topics || [])].join(', ');
+export default function Post({ post }: PostProps) {
+  const keywords = [...(post.topics || [])].join(', ');
 
   return (
     <Layout>
       <Head>
-        <title>{localizedPost.title}</title>
-        <meta name="description" content={localizedPost.summary} />
+        <title>{post.title}</title>
+        <meta name="description" content={post.summary} />
         <meta name="keywords" content={keywords} />
         <meta name="author" content="Şuayb Şimşek" />
       </Head>
-      <PostDetail postData={localizedPost} />
+      <PostDetail postData={post} />
     </Layout>
   );
 }
