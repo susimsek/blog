@@ -9,11 +9,14 @@ import { AUTHOR_NAME } from '@/config/constants';
 import Layout from '@/components/Layout';
 
 type HomeProps = {
-  allPostsData: Post[];
+  allPostsData: { [locale: string]: Post[] };
 };
 
 export default function Home({ allPostsData }: HomeProps) {
-  const { t } = useTranslation('home');
+  const { t, i18n } = useTranslation('home');
+  const currentLocale = i18n.language;
+
+  const localizedPosts = allPostsData[currentLocale] || [];
 
   return (
     <Layout>
@@ -28,7 +31,7 @@ export default function Home({ allPostsData }: HomeProps) {
           <h1 className="fw-bold mb-4">{t('home.header.title')}</h1>
           <p className="text-muted fs-5">{t('home.header.subtitle')}</p>
         </header>
-        <PostList posts={allPostsData} />
+        <PostList posts={localizedPosts} />
       </div>
     </Layout>
   );

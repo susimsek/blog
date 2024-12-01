@@ -5,19 +5,27 @@ import Head from 'next/head';
 import PostDetail from '@/components/PostDetail';
 import type { Post } from '@/types/posts'; // type-only import
 import Layout from '@/components/Layout';
+import { useTranslation } from 'next-i18next';
 
-export default function Post({ postData }: { postData: Post }) {
-  const keywords = [...(postData.topics || [])].join(', ');
+type PostProps = {
+  postData: { [locale: string]: Post };
+};
+
+export default function Post({ postData }: PostProps) {
+  const { i18n } = useTranslation('post');
+  const currentLocale = i18n.language;
+  const localizedPost = postData[currentLocale];
+  const keywords = [...(localizedPost.topics || [])].join(', ');
 
   return (
     <Layout>
       <Head>
-        <title>{postData.title}</title>
-        <meta name="description" content={postData.summary} />
+        <title>{localizedPost.title}</title>
+        <meta name="description" content={localizedPost.summary} />
         <meta name="keywords" content={keywords} />
         <meta name="author" content="Şuayb Şimşek" />
       </Head>
-      <PostDetail postData={postData} />
+      <PostDetail postData={localizedPost} />
     </Layout>
   );
 }
