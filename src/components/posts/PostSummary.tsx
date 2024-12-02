@@ -36,7 +36,7 @@ export default function PostSummary({ post }: PostCardProps) {
         )}
         {thumbnail && (
           <Link href={`/posts/${id}`}>
-            <div className="post-card-thumbnail-wrapper mb-4">
+            <div className="thumbnail-wrapper mb-4">
               <img src={`${assetPrefix}${thumbnail}`} alt={title} className="img-fluid rounded" />
             </div>
           </Link>

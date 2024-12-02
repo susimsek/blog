@@ -53,6 +53,7 @@ $transition-speed: 0.3s;
   --danger-text: #dc3545;
   --light-text: #f8f9fa;
   --dark-text: #343a40;
+  --hover-brightness: 90%;
 }
 
 .dark {
@@ -106,6 +107,7 @@ $transition-speed: 0.3s;
   --danger-text: #dc3545;
   --light-text: #f8f9fa;
   --dark-text: #121212;
+  --hover-brightness: 70%;
 }
 
 body {
@@ -357,6 +359,29 @@ input.form-control {
   flex: 1;
   padding: 16px;
   color: var(--text-color);
+}
+
+.thumbnail-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: var(--main-bg);
+  transition:
+    background-color $transition-speed ease,
+    border-color $transition-speed ease;
+}
+
+.thumbnail-wrapper img {
+  width: 100%;
+  height: auto;
+  transition:
+    transform $transition-speed ease,
+    filter $transition-speed ease;
+}
+
+.thumbnail-wrapper:hover img {
+  transform: scale(1.1);
+  filter: brightness(var(--hover-brightness));
 }
 
 .text-primary {
