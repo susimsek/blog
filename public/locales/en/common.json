@@ -24,6 +24,10 @@
     },
     "searchBar": {
       "placeholder": "Search"
+    },
+    "sort": {
+      "newest": "Newest First",
+      "oldest": "Oldest First"
     }
   }
 }

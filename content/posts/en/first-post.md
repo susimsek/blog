@@ -1,6 +1,6 @@
 ---
 title: 'My First Blog Post'
-date: '2024-11-28'
+date: '2024-11-30'
 summary: 'This is a short summary of the blog post. It provides a brief introduction to the content.'
 thumbnail: '/images/my-first-post-thumbnail.jpg'
 topics:

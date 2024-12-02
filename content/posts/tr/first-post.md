@@ -1,6 +1,6 @@
 ---
 title: 'İlk Blog Yazım'
-date: '2024-11-28'
+date: '2024-11-30'
 summary: 'Bu blog yazısının kısa bir özeti. İçeriğe dair kısa bir giriş sunar.'
 thumbnail: '/images/my-first-post-thumbnail.jpg'
 topics:
