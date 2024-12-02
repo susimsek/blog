@@ -1,4 +1,4 @@
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Container } from 'react-bootstrap';
 import Paginator from '@/components/pagination/Paginator';
 import PageSizeSelector from './PageSizeSelector';
 import { useTranslation } from 'next-i18next';
@@ -26,47 +26,33 @@ export default function PaginationBar({
 }: PaginationBarProps) {
   const { t } = useTranslation('common');
 
-  // Calculate the range of results currently being displayed
   const start = (currentPage - 1) * size + 1;
   const end = Math.min(currentPage * size, totalResults);
 
   return (
-    <Row className="pagination-bar align-items-center justify-content-between mt-4">
-      {/* Pagination Controls */}
-      <Col
-        xs="12"
-        md="auto"
-        className="mb-2 d-flex align-items-center justify-content-md-start justify-content-center"
-        style={{ margin: 0, padding: 0 }}
-      >
-        <Paginator
-          className="pagination"
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
-          maxPagesToShow={maxPagesToShow}
-        />
-      </Col>
+    <Container className="pagination-bar">
+      <Row className="align-items-center justify-content-between">
+        <Col xs="12" md="auto" className="d-flex justify-content-center mb-2">
+          <Paginator
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            maxPagesToShow={maxPagesToShow}
+          />
+        </Col>
 
-      {/* Showing Results Info */}
-      <Col
-        xs="12"
-        md="auto"
-        className="mb-2 d-flex align-items-center justify-content-center text-center"
-        style={{ margin: 0, padding: 0 }}
-      >
-        <p className="text-muted mb-0">{t('common.pagination.showingResults', { start, end, total: totalResults })}</p>
-      </Col>
+        {/* Results Info */}
+        <Col xs="12" md="auto" className="d-flex justify-content-center mb-2">
+          <p className="text-muted">{t('common.pagination.showingResults', { start, end, total: totalResults })}</p>
+        </Col>
+      </Row>
 
-      {/* Page Size Selector */}
-      <Col
-        xs="12"
-        md="auto"
-        className="mb-2 d-flex align-items-center justify-content-md-end justify-content-center"
-        style={{ margin: 0, padding: 0 }}
-      >
-        <PageSizeSelector size={size} pageSizeOptions={pageSizeOptions} onSizeChange={onSizeChange} />
-      </Col>
-    </Row>
+      <Row className="align-items-center justify-content-start mt-3">
+        {/* Page Size Selector */}
+        <Col xs="12" md="auto" className="d-flex justify-content-start">
+          <PageSizeSelector size={size} pageSizeOptions={pageSizeOptions} onSizeChange={onSizeChange} />
+        </Col>
+      </Row>
+    </Container>
   );
 }

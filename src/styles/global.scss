@@ -831,22 +831,43 @@ input.form-control {
 }
 
 .pagination-bar {
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 16px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 16px;
-  gap: 8px;
   background-color: var(--main-bg);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition:
-    background-color $transition-speed ease,
-    box-shadow $transition-speed ease,
-    border-color $transition-speed ease;
+}
 
-  .pagination {
-    margin: 0 auto;
+.pagination-bar .row {
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .pagination-bar .row {
+    text-align: center;
+  }
+
+  .pagination-bar .d-flex {
+    justify-content: center !important;
+  }
+}
+
+.pagination {
+  flex: 0 1 auto;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  overflow-x: auto;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.pagination-bar .pagination::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .pagination-bar .pagination {
+    justify-content: center;
   }
 }
