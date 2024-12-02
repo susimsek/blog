@@ -5,10 +5,10 @@ import { useRouter } from 'next/router';
 interface LinkComponentProps extends Omit<LinkProps, 'href'> {
   children: ReactNode;
   href?: string;
-  className?: string; // Class name for the anchor element
+  className?: string;
   skipLocaleHandling?: boolean;
   locale?: string;
-  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void; // onClick handler
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }
 
 const LinkComponent: React.FC<LinkComponentProps> = ({
@@ -53,7 +53,13 @@ const LinkComponent: React.FC<LinkComponentProps> = ({
 
   return (
     <Link href={resolvedHref} {...rest} legacyBehavior>
-      <a className={combinedClassName} onClick={handleClick} onKeyDown={handleKeyDown}>
+      <a
+        className={combinedClassName}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+        aria-label={href || 'Navigation link'}
+      >
         {children}
       </a>
     </Link>
