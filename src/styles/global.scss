@@ -840,48 +840,47 @@ input.form-control {
 
 .pagination-bar .row {
   display: flex;
-  flex-wrap: wrap; /* Alan daraldığında elemanların alt satıra geçmesine izin verir */
-  gap: 12px; /* Elemanlar arasında boşluk */
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .pagination-bar .pagination {
   flex: 0 1 auto;
   display: flex;
-  align-items: center; /* Pagination içeriğini dikey ortala */
-  white-space: nowrap; /* Yazının alt satıra geçmesini önler */
-  max-width: 100%; /* Ekran taşmasını önler */
+  align-items: center;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .pagination-bar .results-info {
   flex: 0 1 auto;
-  white-space: nowrap; /* Yazının alt satıra geçmesini önler */
-  margin-left: 12px; /* Pagination ile Label arasında boşluk bırak */
+  white-space: nowrap;
+  margin-left: 12px;
 }
 
 .pagination-bar .page-size-selector {
   flex: 0 1 auto;
-  margin-left: 12px; /* Label ile Selector arasında boşluk bırak */
+  margin-left: 12px;
   display: flex;
-  align-items: center; /* Selector'u dikey ortala */
-  justify-content: flex-start; /* Solda hizala */
+  align-items: center;
+  justify-content: flex-start;
 }
 
-/* Mobil görünümde düzenleme */
 @media (max-width: 768px) {
   .pagination-bar .row {
-    flex-direction: column; /* Elemanları dikey hizala */
-    align-items: flex-start; /* Solda hizala */
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .pagination-bar .results-info {
-    text-align: left; /* Label yazısını sola hizala */
-    margin-top: 8px; /* Üst boşluk bırak */
-    margin-left: 0; /* Margin kaldır */
+    text-align: left;
+    margin-top: 8px;
+    margin-left: 0;
   }
 
   .pagination-bar .page-size-selector {
-    text-align: left; /* Mobilde Selector'u sola hizala */
-    margin-top: 8px; /* Üst boşluk bırak */
-    margin-left: 0; /* Margin kaldır */
+    text-align: left;
+    margin-top: 8px;
+    margin-left: 0;
   }
 }
