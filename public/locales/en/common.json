@@ -19,7 +19,8 @@
       "text": "© {{year}} My Blog. All rights reserved."
     },
     "pagination": {
-      "pageSize": "Page size"
+      "pageSize": "Page size",
+      "showingResults": "Showing {{start}}–{{end}} of {{total}} results"
     },
     "searchBar": {
       "placeholder": "Search"

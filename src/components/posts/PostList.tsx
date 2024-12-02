@@ -47,6 +47,7 @@ export default function PostList({ posts }: { posts: PostSummary[] }) {
   const filteredPosts = filterPosts();
   const totalPages = calculateTotalPages(filteredPosts);
   const currentPosts = getCurrentPosts(filteredPosts);
+  const totalResults = filteredPosts.length;
 
   return (
     <Container className="mt-5" style={{ maxWidth: '700px' }}>
@@ -65,6 +66,7 @@ export default function PostList({ posts }: { posts: PostSummary[] }) {
           size={postsPerPage}
           onPageChange={handlePageChange}
           onSizeChange={handlePostsPerPageChange}
+          totalResults={totalResults}
         />
       )}
     </Container>
