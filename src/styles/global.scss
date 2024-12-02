@@ -90,7 +90,7 @@ $transition-speed: 0.3s;
   --dark-hover: #23272b;
 
   --primary-color: #ffffff;
-  --secondary-color: #121212;
+  --secondary-color: #ffffff;
   --success-color: #ffffff;
   --info-color: #ffffff;
   --warning-color: #000000;
@@ -364,6 +364,7 @@ input.form-control {
   min-height: 150px;
   overflow: hidden;
   border-radius: 8px 0 0 8px;
+  margin-right: 16px;
 }
 
 .text-primary {
@@ -882,5 +883,30 @@ input.form-control {
     text-align: left;
     margin-top: 8px;
     margin-left: 0;
+  }
+}
+
+.btn-read-more {
+  background-color: transparent;
+  color: var(--link-color);
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: var(--link-hover-color);
+  }
+
+  &:focus {
+    outline: none;
+    color: var(--active-color);
+  }
+
+  &:active {
+    color: var(--primary-hover);
   }
 }

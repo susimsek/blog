@@ -1,18 +1,18 @@
-// components/posts/PostSummary.tsx
 import Link from '@/components/common/Link';
 import Image from 'next/image';
 import { Post } from '@/types/posts';
-import { Badge } from 'react-bootstrap';
+import { Badge, Button } from 'react-bootstrap';
 import DateDisplay from '@/components/common/DateDisplay';
+import { useTranslation } from 'next-i18next';
+import { assetPrefix } from '@/config/constants';
 
 interface PostCardProps {
   post: Post;
 }
 
-const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX || '';
-
 export default function PostSummary({ post }: PostCardProps) {
   const { id, title, date, summary, thumbnail, topics } = post;
+  const { t } = useTranslation('post'); // Localization için ekleme
 
   return (
     <div className="post-card d-flex align-items-center mb-4">
@@ -35,18 +35,25 @@ export default function PostSummary({ post }: PostCardProps) {
             ))}
           </div>
         )}
+        <div className="mt-3">
+          <Link href={`/posts/${id}`}>
+            <Button className="primary">{t('post.readMore')}</Button>
+          </Link>
+        </div>
       </div>
       {thumbnail && (
-        <div className="post-card-thumbnail-wrapper ms-3">
-          <Image
-            src={`${assetPrefix}${thumbnail}`}
-            alt={title}
-            className="rounded"
-            width={120}
-            height={80}
-            style={{ objectFit: 'cover' }}
-          />
-        </div>
+        <Link href={`/posts/${id}`}>
+          <div className="post-card-thumbnail-wrapper ms-3">
+            <Image
+              src={`${assetPrefix}${thumbnail}`}
+              alt={title}
+              className="rounded"
+              width={120}
+              height={80}
+              style={{ objectFit: 'cover' }}
+            />
+          </div>
+        </Link>
       )}
     </div>
   );
