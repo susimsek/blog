@@ -76,7 +76,9 @@ export default function PostList({ posts }: { posts: PostSummary[] }) {
         <DropdownButton
           id="sort-dropdown"
           title={sortOrder === 'asc' ? t('common:common.sort.oldest') : t('common:common.sort.newest')}
-          onSelect={(e: any) => handleSortOrderChange(e)}
+          onSelect={(e: string | null) => {
+            if (e) handleSortOrderChange(e as 'asc' | 'desc');
+          }}
         >
           <Dropdown.Item eventKey="desc">{t('common:common.sort.newest')}</Dropdown.Item>
           <Dropdown.Item eventKey="asc">{t('common:common.sort.oldest')}</Dropdown.Item>
