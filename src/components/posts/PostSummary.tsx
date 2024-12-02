@@ -1,10 +1,10 @@
 import Link from '@/components/common/Link';
-import Image from 'next/image';
 import { Post } from '@/types/posts';
 import { Badge, Button } from 'react-bootstrap';
 import DateDisplay from '@/components/common/DateDisplay';
 import { useTranslation } from 'next-i18next';
 import { assetPrefix } from '@/config/constants';
+import Image from 'next/image';
 
 interface PostCardProps {
   post: Post;
@@ -37,7 +37,15 @@ export default function PostSummary({ post }: PostCardProps) {
         {thumbnail && (
           <Link href={`/posts/${id}`}>
             <div className="thumbnail-wrapper mb-4">
-              <img src={`${assetPrefix}${thumbnail}`} alt={title} className="img-fluid rounded" />
+              <Image
+                src={`${assetPrefix}${thumbnail}`}
+                alt={title}
+                className="img-fluid rounded"
+                width={800}
+                height={600}
+                layout="responsive"
+                priority={true}
+              />
             </div>
           </Link>
         )}
