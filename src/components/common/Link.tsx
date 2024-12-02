@@ -1,6 +1,3 @@
-// Ignore SonarQube rule typescript:S6852 for this block
-// sonar-ignore-start
-
 import React, { ReactNode, MouseEvent, KeyboardEvent } from 'react';
 import Link, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';
@@ -14,7 +11,6 @@ interface LinkComponentProps extends Omit<LinkProps, 'href'> {
   onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }
 
-// Disable SonarQube rule typescript:S6852 for this class
 const LinkComponent: React.FC<LinkComponentProps> = ({
   children,
   skipLocaleHandling = false,
@@ -63,7 +59,5 @@ const LinkComponent: React.FC<LinkComponentProps> = ({
     </Link>
   );
 };
-
-// sonar-ignore-end
 
 export default LinkComponent;
