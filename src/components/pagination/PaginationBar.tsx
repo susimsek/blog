@@ -1,5 +1,6 @@
-import { Form, Row, Col } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 import Paginator from '@/components/pagination/Paginator';
+import PageSizeSelector from './PageSizeSelector';
 import { useTranslation } from 'next-i18next';
 
 interface PaginationBarProps {
@@ -18,7 +19,7 @@ export default function PaginationBar({
   totalPages,
   totalResults,
   size,
-  pageSizeOptions = [5, 10, 20],
+  pageSizeOptions = [1, 10, 20],
   maxPagesToShow = 5,
   onPageChange,
   onSizeChange,
@@ -31,6 +32,7 @@ export default function PaginationBar({
 
   return (
     <Row className="pagination-bar align-items-center justify-content-between mt-4">
+      {/* Pagination Controls */}
       <Col
         xs="12"
         md="auto"
@@ -46,6 +48,7 @@ export default function PaginationBar({
         />
       </Col>
 
+      {/* Showing Results Info */}
       <Col
         xs="12"
         md="auto"
@@ -55,22 +58,14 @@ export default function PaginationBar({
         <p className="text-muted mb-0">{t('common.pagination.showingResults', { start, end, total: totalResults })}</p>
       </Col>
 
+      {/* Page Size Selector */}
       <Col
         xs="12"
         md="auto"
         className="mb-2 d-flex align-items-center justify-content-md-end justify-content-center"
         style={{ margin: 0, padding: 0 }}
       >
-        <Form.Group controlId="postsPerPageSelect" className="d-flex align-items-center">
-          <Form.Label className="me-2 mb-0">{t('common.pagination.pageSize')}:</Form.Label>
-          <Form.Select value={size} onChange={e => onSizeChange(Number(e.target.value))} style={{ width: '100px' }}>
-            {pageSizeOptions.map(option => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </Form.Select>
-        </Form.Group>
+        <PageSizeSelector size={size} pageSizeOptions={pageSizeOptions} onSizeChange={onSizeChange} />
       </Col>
     </Row>
   );
