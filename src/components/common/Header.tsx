@@ -34,12 +34,15 @@ export default function Header() {
         <Navbar.Collapse id="navbar-nav">
           <Nav className="ms-auto d-flex gap-3 align-items-center">
             <Nav.Link as={Link} href="/">
+              <FontAwesomeIcon icon="home" className="me-2" />
               {t('common.header.menu.home')}
             </Nav.Link>
             <Nav.Link as={Link} href="/about">
+              <FontAwesomeIcon icon="info-circle" className="me-2" />
               {t('common.header.menu.about')}
             </Nav.Link>
             <Nav.Link as={Link} href="/contact">
+              <FontAwesomeIcon icon="address-book" className="me-2" />
               {t('common.header.menu.contact')}
             </Nav.Link>
             <LanguageSwitcher />
