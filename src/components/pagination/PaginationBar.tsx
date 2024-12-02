@@ -19,7 +19,7 @@ export default function PaginationBar({
   totalPages,
   totalResults,
   size,
-  pageSizeOptions = [1, 10, 20],
+  pageSizeOptions = [5, 10, 20],
   maxPagesToShow = 5,
   onPageChange,
   onSizeChange,
