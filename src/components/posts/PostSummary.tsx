@@ -23,7 +23,9 @@ export default function PostSummary({ post }: PostCardProps) {
           </Link>
         </h2>
         <p className="text-muted">
-          <DateDisplay date={date} />
+          <Link href={`/posts/${id}`}>
+            <DateDisplay date={date} />
+          </Link>
         </p>
         {topics && topics.length > 0 && (
           <div className="mb-4">
@@ -43,7 +45,7 @@ export default function PostSummary({ post }: PostCardProps) {
                 className="img-fluid rounded"
                 width={800}
                 height={600}
-                layout="responsive"
+                style={{ width: '100%', height: 'auto' }}
                 priority={true}
               />
             </div>

@@ -30,7 +30,7 @@ export default function PostDetail({ post }: { post: Post }) {
             className="img-fluid rounded"
             width={800}
             height={600}
-            layout="responsive"
+            style={{ width: '100%', height: 'auto' }}
             priority={true}
           />
         </div>
