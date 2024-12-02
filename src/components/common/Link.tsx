@@ -1,5 +1,4 @@
-// components/common/LinkComponent.tsx
-import React, { ReactNode, MouseEvent } from 'react';
+import React, { ReactNode, MouseEvent, KeyboardEvent, FocusEvent } from 'react';
 import Link, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -42,13 +41,19 @@ const LinkComponent: React.FC<LinkComponentProps> = ({
     }
   };
 
-  // Define default class name
+  const handleKeyDown = (event: KeyboardEvent<HTMLAnchorElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onClick?.(event as unknown as MouseEvent<HTMLAnchorElement>);
+    }
+  };
+
   const defaultClassName = 'link';
   const combinedClassName = className ? `${defaultClassName} ${className}` : defaultClassName;
 
   return (
     <Link href={resolvedHref} {...rest} legacyBehavior>
-      <a className={combinedClassName} onClick={handleClick}>
+      <a className={combinedClassName} onClick={handleClick} onKeyDown={handleKeyDown}>
         {children}
       </a>
     </Link>
