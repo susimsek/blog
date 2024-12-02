@@ -57,8 +57,7 @@ const LinkComponent: React.FC<LinkComponentProps> = ({
         className={combinedClassName}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
-        tabIndex={0}
-        aria-label={href || 'Navigation link'}
+        aria-label={href ?? 'Navigation link'}
       >
         {children}
       </a>
