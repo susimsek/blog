@@ -32,6 +32,11 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Run Quality Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          run: npm run sonar
+
       - name: Build
         env:
           NEXT_PUBLIC_BASE_PATH: "/blog"
