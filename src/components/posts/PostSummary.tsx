@@ -4,7 +4,7 @@ import { Badge, Button } from 'react-bootstrap';
 import DateDisplay from '@/components/common/DateDisplay';
 import { useTranslation } from 'next-i18next';
 import { assetPrefix } from '@/config/constants';
-import Image from 'next/image';
+import Thumbnail from '@/components/common/Thumbnail';
 
 interface PostCardProps {
   post: Post;
@@ -38,17 +38,13 @@ export default function PostSummary({ post }: PostCardProps) {
         )}
         {thumbnail && (
           <Link href={`/posts/${id}`}>
-            <div className="thumbnail-wrapper mb-4">
-              <Image
-                src={`${assetPrefix}${thumbnail}`}
-                alt={title}
-                className="img-fluid rounded"
-                width={800}
-                height={600}
-                style={{ width: '100%', height: 'auto' }}
-                priority={true}
-              />
-            </div>
+            <Thumbnail
+              className="thumbnail-wrapper"
+              src={`${assetPrefix}${thumbnail}`}
+              alt={title}
+              width={800}
+              height={600}
+            />
           </Link>
         )}
         <p className="text-muted mb-4">{summary}</p>

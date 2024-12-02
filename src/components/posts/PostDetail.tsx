@@ -3,7 +3,7 @@ import { Post } from '@/types/posts';
 import { Container, Badge } from 'react-bootstrap';
 import { assetPrefix } from '@/config/constants';
 import DateDisplay from '@/components/common/DateDisplay';
-import Image from 'next/image';
+import Thumbnail from '@/components/common/Thumbnail';
 
 export default function PostDetail({ post }: { post: Post }) {
   const { title, date, contentHtml, thumbnail, topics } = post;
@@ -22,19 +22,7 @@ export default function PostDetail({ post }: { post: Post }) {
           ))}
         </div>
       )}
-      {thumbnail && (
-        <div className="text-center mb-5">
-          <Image
-            src={`${assetPrefix}${thumbnail}`}
-            alt={title}
-            className="img-fluid rounded"
-            width={800}
-            height={600}
-            style={{ width: '100%', height: 'auto' }}
-            priority={true}
-          />
-        </div>
-      )}
+      {thumbnail && <Thumbnail src={`${assetPrefix}${thumbnail}`} alt={title} width={800} height={600} />}
       <article className="fs-5 lh-lg" dangerouslySetInnerHTML={{ __html: contentHtml || '' }} />
     </Container>
   );
