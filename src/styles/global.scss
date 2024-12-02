@@ -885,28 +885,3 @@ input.form-control {
     margin-left: 0;
   }
 }
-
-.btn-read-more {
-  background-color: transparent;
-  color: var(--link-color);
-  border: none;
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 0;
-  text-decoration: underline;
-  cursor: pointer;
-  transition: color 0.3s ease;
-
-  &:hover {
-    color: var(--link-hover-color);
-  }
-
-  &:focus {
-    outline: none;
-    color: var(--active-color);
-  }
-
-  &:active {
-    color: var(--primary-hover);
-  }
-}
