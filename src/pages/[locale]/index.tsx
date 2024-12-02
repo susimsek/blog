@@ -24,9 +24,9 @@ export default function Home({ posts }: HomeProps) {
         <meta name="author" content={AUTHOR_NAME} />
       </Head>
       <div>
-        <header className="text-center py-5">
+        <header className="text-center py-4">
           <h1 className="fw-bold mb-4">{t('home.header.title')}</h1>
-          <p className="text-muted fs-5">{t('home.header.subtitle')}</p>
+          <p className="text-muted fs-4">{t('home.header.subtitle')}</p>
         </header>
         <PostList posts={posts} />
       </div>
