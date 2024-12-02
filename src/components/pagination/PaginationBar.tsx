@@ -23,16 +23,17 @@ export default function PaginationBar({
   const { t } = useTranslation('common');
 
   return (
-    <Row className="align-items-center mt-4">
-      <Col>
+    <Row className="pagination-bar align-items-center mt-4">
+      <Col className="p-0">
         <Paginator
+          className="pagination"
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={onPageChange}
           maxPagesToShow={maxPagesToShow}
         />
       </Col>
-      <Col md="auto">
+      <Col md="auto" className="p-0">
         <Form.Group controlId="postsPerPageSelect" className="d-flex align-items-center">
           <Form.Label className="me-2 mb-0">{t('common.pagination.pageSize')}:</Form.Label>
           <Form.Select value={size} onChange={e => onSizeChange(Number(e.target.value))} style={{ width: '100px' }}>

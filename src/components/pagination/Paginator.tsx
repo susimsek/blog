@@ -1,4 +1,3 @@
-// components/pagination/Paginator.tsx
 import React, { ReactNode } from 'react';
 import { Pagination } from 'react-bootstrap';
 
@@ -7,10 +6,17 @@ interface PaginatorProps {
   totalPages: number;
   maxPagesToShow?: number;
   onPageChange: (page: number) => void;
+  className?: string; // New prop for custom class names
 }
 
-const Paginator: React.FC<PaginatorProps> = ({ currentPage, totalPages, maxPagesToShow = 5, onPageChange }) => {
-  const paginationItems: ReactNode[] = []; // Specify the type here
+const Paginator: React.FC<PaginatorProps> = ({
+  currentPage,
+  totalPages,
+  maxPagesToShow = 5,
+  onPageChange,
+  className = '', // Default to an empty string
+}) => {
+  const paginationItems: ReactNode[] = [];
   const halfPagesToShow = Math.floor(maxPagesToShow / 2);
 
   const startPage = Math.max(1, Math.min(currentPage - halfPagesToShow, totalPages - maxPagesToShow + 1));
@@ -61,7 +67,7 @@ const Paginator: React.FC<PaginatorProps> = ({ currentPage, totalPages, maxPages
     <Pagination.Last key="last" disabled={currentPage === totalPages} onClick={() => onPageChange(totalPages)} />,
   );
 
-  return <Pagination>{paginationItems}</Pagination>;
+  return <Pagination className={className}>{paginationItems}</Pagination>;
 };
 
 export default Paginator;
