@@ -72,7 +72,7 @@ export default function PostList({ posts }: { posts: PostSummary[] }) {
       <SearchBar query={searchQuery} onChange={handleSearchChange} />
 
       {/* Sort Dropdown */}
-      <div className="d-flex justify-content-start mb-3">
+      <div className="d-flex justify-content-start mb-4">
         <DropdownButton
           id="sort-dropdown"
           title={sortOrder === 'asc' ? t('common:common.sort.oldest') : t('common:common.sort.newest')}
