@@ -33,7 +33,9 @@ jobs:
         run: npm install
 
       - name: Run Quality Analysis
-        run: npm run sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: npm run sonar
 
       - name: Build
         env:
