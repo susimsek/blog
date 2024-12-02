@@ -24,6 +24,10 @@
     },
     "searchBar": {
       "placeholder": "Ara"
+    },
+    "sort": {
+      "newest": "En Yeni Önce",
+      "oldest": "En Eski Önce"
     }
   }
 }
