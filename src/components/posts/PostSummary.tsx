@@ -34,27 +34,20 @@ export default function PostSummary({ post }: PostCardProps) {
             ))}
           </div>
         )}
+        {thumbnail && (
+          <Link href={`/posts/${id}`}>
+            <div className="post-card-thumbnail-wrapper mb-4">
+              <img src={`${assetPrefix}${thumbnail}`} alt={title} className="img-fluid rounded" />
+            </div>
+          </Link>
+        )}
         <p className="text-muted mb-4">{summary}</p>
-        <div className="mt-4">
+        <div className="mb-4">
           <Link href={`/posts/${id}`}>
             <Button className="primary">{t('post.readMore')}</Button>
           </Link>
         </div>
       </div>
-      {thumbnail && (
-        <Link href={`/posts/${id}`}>
-          <div className="post-card-thumbnail-wrapper ms-3">
-            <Image
-              src={`${assetPrefix}${thumbnail}`}
-              alt={title}
-              className="rounded"
-              width={120}
-              height={80}
-              style={{ objectFit: 'cover' }}
-            />
-          </div>
-        </Link>
-      )}
     </div>
   );
 }
