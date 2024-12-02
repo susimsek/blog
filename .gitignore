@@ -87,4 +87,9 @@ Desktop.ini
 .Spotlight-V100
 .Trashes
 
+# SonarQube files
+.sonar
+.sonarqube
+.scannerwork
+
 
