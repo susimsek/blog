@@ -19,7 +19,8 @@
       "text": "© {{year}} Blogum. Tüm hakları saklıdır."
     },
     "pagination": {
-      "pageSize": "Sayfa Boyutu"
+      "pageSize": "Sayfa Boyutu",
+      "showingResults": "{{start}}–{{end}} arası {{total}} sonuç gösteriliyor"
     },
     "searchBar": {
       "placeholder": "Ara"
