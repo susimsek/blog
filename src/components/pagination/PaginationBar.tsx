@@ -31,9 +31,11 @@ export default function PaginationBar({
 
   return (
     <Container className="pagination-bar">
-      <Row className="align-items-center justify-content-between">
-        <Col xs="12" md="auto" className="d-flex justify-content-center mb-2">
+      <Row className="align-items-center flex-wrap">
+        {/* Pagination */}
+        <Col xs="auto" className="d-flex align-items-center pagination">
           <Paginator
+            className="pagination mb-2"
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={onPageChange}
@@ -42,14 +44,14 @@ export default function PaginationBar({
         </Col>
 
         {/* Results Info */}
-        <Col xs="12" md="auto" className="d-flex justify-content-center mb-2">
-          <p className="text-muted">{t('common.pagination.showingResults', { start, end, total: totalResults })}</p>
+        <Col xs="auto" className="d-flex align-items-center results-info">
+          <p className="text-muted mb-2">
+            {t('common.pagination.showingResults', { start, end, total: totalResults })}
+          </p>
         </Col>
-      </Row>
 
-      <Row className="align-items-center justify-content-start mt-3">
         {/* Page Size Selector */}
-        <Col xs="12" md="auto" className="d-flex justify-content-start">
+        <Col xs="auto" className="d-flex align-items-center page-size-selector">
           <PageSizeSelector size={size} pageSizeOptions={pageSizeOptions} onSizeChange={onSizeChange} />
         </Col>
       </Row>

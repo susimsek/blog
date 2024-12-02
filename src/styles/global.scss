@@ -831,7 +831,7 @@ input.form-control {
 }
 
 .pagination-bar {
-  padding: 16px;
+  padding: 16px 24px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background-color: var(--main-bg);
@@ -839,35 +839,49 @@ input.form-control {
 }
 
 .pagination-bar .row {
-  gap: 12px;
+  display: flex;
+  flex-wrap: wrap; /* Alan daraldığında elemanların alt satıra geçmesine izin verir */
+  gap: 12px; /* Elemanlar arasında boşluk */
 }
 
-@media (max-width: 768px) {
-  .pagination-bar .row {
-    text-align: center;
-  }
-
-  .pagination-bar .d-flex {
-    justify-content: center !important;
-  }
-}
-
-.pagination {
+.pagination-bar .pagination {
   flex: 0 1 auto;
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  overflow-x: auto;
-  white-space: nowrap;
-  max-width: 100%;
+  align-items: center; /* Pagination içeriğini dikey ortala */
+  white-space: nowrap; /* Yazının alt satıra geçmesini önler */
+  max-width: 100%; /* Ekran taşmasını önler */
 }
 
-.pagination-bar .pagination::-webkit-scrollbar {
-  display: none;
+.pagination-bar .results-info {
+  flex: 0 1 auto;
+  white-space: nowrap; /* Yazının alt satıra geçmesini önler */
+  margin-left: 12px; /* Pagination ile Label arasında boşluk bırak */
 }
 
+.pagination-bar .page-size-selector {
+  flex: 0 1 auto;
+  margin-left: 12px; /* Label ile Selector arasında boşluk bırak */
+  display: flex;
+  align-items: center; /* Selector'u dikey ortala */
+  justify-content: flex-start; /* Solda hizala */
+}
+
+/* Mobil görünümde düzenleme */
 @media (max-width: 768px) {
-  .pagination-bar .pagination {
-    justify-content: center;
+  .pagination-bar .row {
+    flex-direction: column; /* Elemanları dikey hizala */
+    align-items: flex-start; /* Solda hizala */
+  }
+
+  .pagination-bar .results-info {
+    text-align: left; /* Label yazısını sola hizala */
+    margin-top: 8px; /* Üst boşluk bırak */
+    margin-left: 0; /* Margin kaldır */
+  }
+
+  .pagination-bar .page-size-selector {
+    text-align: left; /* Mobilde Selector'u sola hizala */
+    margin-top: 8px; /* Üst boşluk bırak */
+    margin-left: 0; /* Margin kaldır */
   }
 }
