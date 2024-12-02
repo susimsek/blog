@@ -1,4 +1,4 @@
-import React, { ReactNode, MouseEvent, KeyboardEvent, FocusEvent } from 'react';
+import React, { ReactNode, MouseEvent, KeyboardEvent } from 'react';
 import Link, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';
 
