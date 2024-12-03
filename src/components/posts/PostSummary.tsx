@@ -6,11 +6,11 @@ import { useTranslation } from 'next-i18next';
 import { assetPrefix } from '@/config/constants';
 import Thumbnail from '@/components/common/Thumbnail';
 
-interface PostCardProps {
+interface PostSummaryProps {
   post: Post;
 }
 
-export default function PostSummary({ post }: PostCardProps) {
+export default function PostSummary({ post }: Readonly<PostSummaryProps>) {
   const { id, title, date, summary, thumbnail, topics } = post;
   const { t } = useTranslation('post');
 

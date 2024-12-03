@@ -6,7 +6,11 @@ import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
 import { useTranslation } from 'next-i18next';
 
-export default function PostList({ posts }: { posts: PostSummary[] }) {
+interface PostListProps {
+  posts: PostSummary[];
+}
+
+export default function PostList({ posts }: Readonly<PostListProps>) {
   const { t } = useTranslation(['post', 'common']);
   const [postsPerPage, setPostsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);

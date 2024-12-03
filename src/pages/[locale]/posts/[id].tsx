@@ -10,8 +10,8 @@ type PostProps = {
   post: Post;
 };
 
-export default function Post({ post }: PostProps) {
-  const keywords = [...(post.topics || [])].join(', ');
+export default function Post({ post }: Readonly<PostProps>) {
+  const keywords = [...(post.topics ?? [])].join(', ');
 
   return (
     <Layout>

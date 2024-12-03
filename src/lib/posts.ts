@@ -70,7 +70,13 @@ export async function getPostData(id: string, locale: string): Promise<Post> {
   const localizedPath = path.join(postsDirectory, locale, `${id}.md`);
   const fallbackPath = path.join(postsDirectory, fallbackLocale, `${id}.md`);
 
-  const filePath = fs.existsSync(localizedPath) ? localizedPath : fs.existsSync(fallbackPath) ? fallbackPath : null;
+  let filePath: string | null = null;
+
+  if (fs.existsSync(localizedPath)) {
+    filePath = localizedPath;
+  } else if (fs.existsSync(fallbackPath)) {
+    filePath = fallbackPath;
+  }
 
   if (!filePath) {
     throw new Error(`Post "${id}" not found in "${locale}" or fallback "${fallbackLocale}".`);

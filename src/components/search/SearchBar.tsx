@@ -1,4 +1,3 @@
-// components/search/SearchBar.tsx
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
@@ -8,7 +7,7 @@ interface SearchBarProps {
   onChange: (query: string) => void;
 }
 
-export default function SearchBar({ query, onChange }: SearchBarProps) {
+export default function SearchBar({ query, onChange }: Readonly<SearchBarProps>) {
   const { t } = useTranslation('common');
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -12,7 +12,7 @@ type HomeProps = {
   posts: PostSummary[];
 };
 
-export default function Home({ posts }: HomeProps) {
+export default function Home({ posts }: Readonly<HomeProps>) {
   const { t } = useTranslation('home');
 
   return (

@@ -22,7 +22,7 @@ const detectAndRedirect = (router: NextRouter, targetPath: string) => {
 // Custom hook for language-based redirection with spinner display
 export const useRedirect = (to?: string): JSX.Element => {
   const router = useRouter();
-  const targetPath = to || router.asPath;
+  const targetPath = to ?? router.asPath; // Using `??` for safer handling of `null` or `undefined`
 
   useEffect(() => {
     detectAndRedirect(router, targetPath);

@@ -11,7 +11,7 @@ interface LanguageSwitchLinkProps {
 const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href }) => {
   const router = useRouter();
 
-  let currentHref = href || router.asPath;
+  let currentHref = href ?? router.asPath;
   let currentPath = router.pathname;
 
   Object.keys(router.query).forEach(key => {

@@ -23,7 +23,7 @@ export default function PaginationBar({
   maxPagesToShow = 5,
   onPageChange,
   onSizeChange,
-}: PaginationBarProps) {
+}: Readonly<PaginationBarProps>) {
   const { t } = useTranslation('common');
 
   const start = (currentPage - 1) * size + 1;

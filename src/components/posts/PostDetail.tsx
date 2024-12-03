@@ -5,8 +5,13 @@ import { assetPrefix } from '@/config/constants';
 import DateDisplay from '@/components/common/DateDisplay';
 import Thumbnail from '@/components/common/Thumbnail';
 
-export default function PostDetail({ post }: { post: Post }) {
+interface PostDetailProps {
+  post: Post;
+}
+
+export default function PostDetail({ post }: Readonly<PostDetailProps>) {
   const { title, date, contentHtml, thumbnail, topics } = post;
+
   return (
     <Container className="mt-5" style={{ maxWidth: '700px' }}>
       <h1 className="fw-bold display-4 text-center mb-4">{title}</h1>
@@ -23,7 +28,7 @@ export default function PostDetail({ post }: { post: Post }) {
         </div>
       )}
       {thumbnail && <Thumbnail src={`${assetPrefix}${thumbnail}`} alt={title} width={800} height={600} />}
-      <article className="fs-5 lh-lg" dangerouslySetInnerHTML={{ __html: contentHtml || '' }} />
+      <article className="fs-5 lh-lg" dangerouslySetInnerHTML={{ __html: contentHtml ?? '' }} />
     </Container>
   );
 }
