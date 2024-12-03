@@ -13,12 +13,11 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
   let currentHref = href ?? router.asPath;
   let currentPath = router.pathname;
 
+  // Replace dynamic segments (e.g., [locale], [id]) with query values
   Object.keys(router.query).forEach(key => {
-    if (key === 'locale') {
-      currentPath = currentPath.replace(`[${key}]`, locale);
-      return;
-    }
-    currentPath = currentPath.replace(`[${key}]`, String(router.query[key]));
+    const value = router.query[key];
+    // Replace each dynamic segment with its value
+    currentPath = currentPath.replace(`[${key}]`, String(value));
   });
 
   if (href && !href.startsWith('http')) {
