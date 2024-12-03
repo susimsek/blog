@@ -24,6 +24,7 @@ yarn-error.log*
 ######################
 /.next
 /out
+.swc
 
 # production
 /build
