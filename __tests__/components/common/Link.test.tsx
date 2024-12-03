@@ -147,4 +147,32 @@ describe('Link', () => {
     const link = screen.getByText('External Link').closest('a');
     expect(link).toHaveAttribute('href', 'https://example.com');
   });
+
+  it('resolves href with locale and skips locale handling for external URLs', () => {
+    render(
+      <Link href="https://external.com" skipLocaleHandling>
+        <span>External Link</span>
+      </Link>,
+    );
+
+    const link = screen.getByText('External Link').closest('a');
+    expect(link).toHaveAttribute('href', 'https://external.com');
+  });
+
+  it('resolves the href with locale when skipLocaleHandling is false and the router query is used', () => {
+    (useRouter as jest.Mock).mockReturnValue({
+      query: { locale: 'fr-FR' },
+      asPath: '/about',
+      pathname: '/about',
+    });
+
+    render(
+      <Link href="/about">
+        <span>About Us</span>
+      </Link>,
+    );
+
+    const link = screen.getByText('About Us').closest('a');
+    expect(link).toHaveAttribute('href', '/fr-FR/about');
+  });
 });
