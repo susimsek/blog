@@ -1,7 +1,6 @@
-import languageDetector from '@/lib/languageDetector';
 import { useRouter } from 'next/router';
-import React from 'react';
 import { Button } from 'react-bootstrap';
+import languageDetector from '@/lib/languageDetector';
 
 interface LanguageSwitchLinkProps {
   locale: string;
@@ -22,10 +21,14 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
     currentPath = currentPath.replace(`[${key}]`, String(router.query[key]));
   });
 
-  if (locale) {
-    currentHref = href ? `/${locale}${href}` : currentPath;
+  if (href && !href.startsWith('http')) {
+    // Check if the URL is internal
+    if (locale) {
+      currentHref = `/${locale}${href}`;
+    }
   }
-  if (!currentHref.startsWith(`/${locale}`)) {
+
+  if (!currentHref.startsWith(`/${locale}`) && !href?.startsWith('http')) {
     currentHref = `/${locale}${currentHref}`;
   }
 

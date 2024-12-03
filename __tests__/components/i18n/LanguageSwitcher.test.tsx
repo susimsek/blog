@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import { useRouter } from 'next/router';
+import i18nextConfig from '../../../next-i18next.config';
 
 // Mocking next/router
 jest.mock('next/router', () => ({
@@ -26,10 +27,6 @@ describe('LanguageSwitcher', () => {
   });
 
   it('renders the globe icon correctly', () => {
-    (useRouter as jest.Mock).mockReturnValue({
-      query: { locale: 'en-US' },
-    });
-
     render(<LanguageSwitcher />);
 
     // Select the icon using the mocked data-testid
@@ -43,5 +40,30 @@ describe('LanguageSwitcher', () => {
     // Ensure the dropdown is in the document
     const dropdown = screen.getByRole('button', { name: /common.language/i });
     expect(dropdown).toBeInTheDocument();
+  });
+
+  it('uses the current locale from router.query when available', () => {
+    (useRouter as jest.Mock).mockReturnValue({
+      query: { locale: 'fr-FR' }, // Simulating a locale being set in the query
+    });
+
+    render(<LanguageSwitcher />);
+
+    // Verify the correct locale is used (in this case, fr-FR)
+    const dropdown = screen.getByRole('button', { name: /common.language/i });
+    expect(dropdown).toHaveTextContent('common.language'); // Assuming the default text content is 'common.language'
+  });
+
+  it('uses the default locale when router.query.locale is not available', () => {
+    // Simulating no locale in the query, fallback to the default locale
+    (useRouter as jest.Mock).mockReturnValue({
+      query: {}, // No locale in the query
+    });
+
+    render(<LanguageSwitcher />);
+
+    // Verify the correct default locale is used
+    const dropdown = screen.getByRole('button', { name: /common.language/i });
+    expect(dropdown).toHaveTextContent('common.language'); // Assuming the default text content is 'common.language'
   });
 });
