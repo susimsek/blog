@@ -21,11 +21,8 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
     currentPath = currentPath.replace(`[${key}]`, String(router.query[key]));
   });
 
-  if (href && !href.startsWith('http')) {
-    // Check if the URL is internal
-    if (locale) {
-      currentHref = `/${locale}${href}`;
-    }
+  if (locale && !href?.startsWith('http')) {
+    currentHref = href ? `/${locale}${href}` : currentPath;
   }
 
   if (!currentHref.startsWith(`/${locale}`) && !href?.startsWith('http')) {
