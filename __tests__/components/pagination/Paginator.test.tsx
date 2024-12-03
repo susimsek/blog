@@ -168,4 +168,78 @@ describe('Paginator', () => {
     fireEvent.click(screen.getByRole('button', { name: /Previous/i }));
     expect(mockOnPageChange).toHaveBeenCalledWith(2);
   });
+
+  it('renders as disabled when on the last page', () => {
+    render(<Paginator currentPage={5} totalPages={5} maxPagesToShow={5} onPageChange={mockOnPageChange} />);
+
+    const lastButton = screen.getByRole('button', { name: /Last/i });
+    expect(lastButton).toBeDisabled();
+  });
+
+  it('renders as enabled when not on the last page', () => {
+    render(<Paginator currentPage={3} totalPages={5} maxPagesToShow={5} onPageChange={mockOnPageChange} />);
+
+    const lastButton = screen.getByRole('button', { name: /Last/i });
+    expect(lastButton).not.toBeDisabled();
+  });
+
+  it('calls onPageChange with the last page number when clicked', () => {
+    render(<Paginator currentPage={3} totalPages={5} maxPagesToShow={5} onPageChange={mockOnPageChange} />);
+
+    const lastButton = screen.getByRole('button', { name: /Last/i });
+    fireEvent.click(lastButton);
+
+    expect(mockOnPageChange).toHaveBeenCalledTimes(1);
+    expect(mockOnPageChange).toHaveBeenCalledWith(5);
+  });
+
+  it('disables all navigation buttons when totalPages is 1', () => {
+    render(<Paginator currentPage={1} totalPages={1} maxPagesToShow={5} onPageChange={mockOnPageChange} />);
+
+    const navigationItems = screen.getAllByRole('listitem');
+
+    const disabledButtons = navigationItems.filter(item => item.classList.contains('disabled'));
+
+    expect(disabledButtons).toHaveLength(4);
+
+    expect(disabledButtons[0]).toHaveTextContent('«'); // First
+    expect(disabledButtons[1]).toHaveTextContent('‹'); // Previous
+    expect(disabledButtons[2]).toHaveTextContent('›'); // Next
+    expect(disabledButtons[3]).toHaveTextContent('»'); // Last
+  });
+
+  it('does not call onPageChange when clicking disabled navigation buttons', () => {
+    render(<Paginator currentPage={1} totalPages={5} maxPagesToShow={5} onPageChange={mockOnPageChange} />);
+
+    const firstButton = screen.getByText('«').closest('li');
+    fireEvent.click(firstButton!);
+    expect(mockOnPageChange).not.toHaveBeenCalled();
+
+    const prevButton = screen.getByText('‹').closest('li');
+    fireEvent.click(prevButton!);
+    expect(mockOnPageChange).not.toHaveBeenCalled();
+  });
+
+  it('shows ellipsis and last page when endPage is less than totalPages', () => {
+    render(<Paginator currentPage={3} totalPages={10} maxPagesToShow={5} onPageChange={mockOnPageChange} />);
+
+    const ellipsis = screen.getByText((_, element) => element?.textContent === '…');
+    expect(ellipsis).toBeInTheDocument();
+
+    const lastPageButton = screen.getByText('10'); // TotalPages = 10
+    expect(lastPageButton).toBeInTheDocument();
+
+    fireEvent.click(lastPageButton);
+    expect(mockOnPageChange).toHaveBeenCalledWith(10);
+  });
+
+  it('renders the first page button when startPage is greater than 1', () => {
+    render(<Paginator currentPage={5} totalPages={10} maxPagesToShow={5} onPageChange={mockOnPageChange} />);
+
+    const firstPageButton = screen.getByText('1');
+    expect(firstPageButton).toBeInTheDocument();
+
+    fireEvent.click(firstPageButton);
+    expect(mockOnPageChange).toHaveBeenCalledWith(1);
+  });
 });
