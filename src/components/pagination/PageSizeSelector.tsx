@@ -2,8 +2,8 @@ import React from 'react';
 import { Form } from 'react-bootstrap';
 
 interface PageSizeSelectorProps {
-  size: number;
-  pageSizeOptions: number[];
+  size?: number;
+  pageSizeOptions?: number[];
   onSizeChange: (size: number) => void;
 }
 

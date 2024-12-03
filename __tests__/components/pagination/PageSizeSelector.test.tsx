@@ -11,7 +11,7 @@ describe('PageSizeSelector', () => {
   it('renders with default props', () => {
     const mockOnSizeChange = jest.fn();
 
-    render(<PageSizeSelector size={5} pageSizeOptions={[5, 10, 20]} onSizeChange={mockOnSizeChange} />);
+    render(<PageSizeSelector onSizeChange={mockOnSizeChange} />);
 
     const selectElement = screen.getByRole('combobox');
     expect(selectElement).toBeInTheDocument();
@@ -34,7 +34,7 @@ describe('PageSizeSelector', () => {
   });
 
   it('calls onSizeChange when a new option is selected', () => {
-    render(<PageSizeSelector size={5} pageSizeOptions={[5, 10, 20]} onSizeChange={mockOnSizeChange} />);
+    render(<PageSizeSelector pageSizeOptions={[5, 10, 20]} onSizeChange={mockOnSizeChange} />);
 
     const selectElement = screen.getByRole('combobox');
     fireEvent.change(selectElement, { target: { value: '10' } });
