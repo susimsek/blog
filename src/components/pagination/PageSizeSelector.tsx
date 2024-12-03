@@ -13,9 +13,13 @@ const PageSizeSelector: React.FC<PageSizeSelectorProps> = ({
   onSizeChange,
 }) => {
   return (
-    <Form.Group controlId="postsPerPageSelect" className="d-flex align-items-center" role="group">
-      <Form.Label className="me-2">Page size:</Form.Label>
+    <fieldset className="d-flex align-items-center">
+      <legend className="visually-hidden">Page size selector</legend>
+      <Form.Label htmlFor="postsPerPageSelect" className="me-2">
+        Page size:
+      </Form.Label>
       <Form.Select
+        id="postsPerPageSelect"
         className="mb-2"
         value={size}
         onChange={e => onSizeChange(Number(e.target.value))}
@@ -27,7 +31,7 @@ const PageSizeSelector: React.FC<PageSizeSelectorProps> = ({
           </option>
         ))}
       </Form.Select>
-    </Form.Group>
+    </fieldset>
   );
 };
 

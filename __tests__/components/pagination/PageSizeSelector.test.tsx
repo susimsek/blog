@@ -60,8 +60,8 @@ describe('PageSizeSelector', () => {
   it('applies custom styles and classes', () => {
     render(<PageSizeSelector size={5} pageSizeOptions={[5, 10]} onSizeChange={mockOnSizeChange} />);
 
-    const formGroup = screen.getByRole('group');
-    expect(formGroup).toHaveClass('d-flex align-items-center');
+    const fieldset = screen.getByRole('group', { name: /page size selector/i });
+    expect(fieldset).toHaveClass('d-flex align-items-center');
 
     const selectElement = screen.getByRole('combobox');
     expect(selectElement).toHaveClass('mb-2');
