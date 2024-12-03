@@ -19,6 +19,7 @@
     "experimentalDecorators": true,
     "removeComments": false,
     "noImplicitAny": false,
+    "types": ["@testing-library/jest-dom"],
     "plugins": [
       {
         "name": "next"
