@@ -172,8 +172,12 @@ describe('Paginator', () => {
   it('renders as disabled when on the last page', () => {
     render(<Paginator currentPage={5} totalPages={5} maxPagesToShow={5} onPageChange={mockOnPageChange} />);
 
-    const lastButton = screen.getByRole('button', { name: /Last/i });
-    expect(lastButton).toBeDisabled();
+    const lastButton = screen.getByText((content, element) => {
+      return element?.tagName.toLowerCase() === 'span' && content.includes('Last');
+    });
+
+    expect(lastButton).toBeInTheDocument();
+    expect(lastButton.closest('li')).toHaveClass('disabled');
   });
 
   it('renders as enabled when not on the last page', () => {
