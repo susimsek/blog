@@ -7,9 +7,17 @@ type ThumbnailProps = {
   width?: number;
   height?: number;
   className?: string;
+  priority?: boolean;
 };
 
-export default function Thumbnail({ src, alt, width = 800, height = 600, className = '' }: Readonly<ThumbnailProps>) {
+export default function Thumbnail({
+  src,
+  alt,
+  width = 800,
+  height = 600,
+  className = '',
+  priority = true,
+}: Readonly<ThumbnailProps>) {
   return (
     <div className={`text-center mb-4 ${className}`}>
       <Image
@@ -19,7 +27,7 @@ export default function Thumbnail({ src, alt, width = 800, height = 600, classNa
         width={width}
         height={height}
         style={{ width: '100%', height: 'auto' }}
-        priority={true}
+        priority={priority}
       />
     </div>
   );
