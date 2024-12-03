@@ -45,6 +45,8 @@ npm run build
 - TypeScript
 - ESLint
 - Prettier
+- SonarQube
+- Jest
 - Husky
 - Redux
 - Next i18next
