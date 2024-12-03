@@ -20,6 +20,7 @@
     "removeComments": false,
     "noImplicitAny": false,
     "types": ["@testing-library/jest-dom"],
+    "baseUrl": ".",
     "plugins": [
       {
         "name": "next"
