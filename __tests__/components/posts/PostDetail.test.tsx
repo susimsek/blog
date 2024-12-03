@@ -77,4 +77,21 @@ describe('PostDetail Component', () => {
     const { query } = useRouter();
     expect(query.locale).toBe('en');
   });
+
+  it('renders the HTML content when contentHtml is provided', () => {
+    render(<PostDetail post={mockPost} />);
+
+    const articleElement = screen.getByRole('article');
+    expect(articleElement).toBeInTheDocument();
+    expect(articleElement.innerHTML).toBe(mockPost.contentHtml);
+  });
+
+  it('renders an empty article when contentHtml is null or undefined', () => {
+    const mockPostWithoutContent = { ...mockPost, contentHtml: undefined };
+    render(<PostDetail post={mockPostWithoutContent} />);
+
+    const articleElement = screen.getByRole('article');
+    expect(articleElement).toBeInTheDocument();
+    expect(articleElement.innerHTML).toBe('');
+  });
 });
