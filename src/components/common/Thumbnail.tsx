@@ -1,15 +1,15 @@
 // components/common/Thumbnail.tsx
 import Image from 'next/image';
 
-interface ThumbnailProps {
+type ThumbnailProps = {
   src: string;
   alt: string;
   width?: number;
   height?: number;
   className?: string;
-}
+};
 
-export default function Thumbnail({ src, alt, width = 800, height = 600, className = '' }: ThumbnailProps) {
+export default function Thumbnail({ src, alt, width = 800, height = 600, className = '' }: Readonly<ThumbnailProps>) {
   return (
     <div className={`text-center mb-4 ${className}`}>
       <Image

@@ -21,9 +21,9 @@ const LinkComponent: React.FC<LinkComponentProps> = ({
   ...rest
 }) => {
   const router = useRouter();
-  const currentLocale = locale || (router.query.locale as string) || '';
+  const currentLocale = locale ?? (router.query.locale as string) ?? '';
 
-  let resolvedHref = href || router.asPath;
+  let resolvedHref = href ?? router.asPath;
 
   if (resolvedHref.startsWith('http')) {
     skipLocaleHandling = true;

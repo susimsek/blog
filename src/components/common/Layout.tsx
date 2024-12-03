@@ -1,4 +1,3 @@
-// components/common/Layout.tsx
 import { ReactNode } from 'react';
 import Header from '@/components/common/Header';
 import Footer from '@/components/common/Footer';
@@ -8,7 +7,7 @@ type LayoutProps = {
   children: ReactNode;
 };
 
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children }: Readonly<LayoutProps>) {
   return (
     <>
       <Header />
