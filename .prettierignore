@@ -23,3 +23,7 @@ src/generated/*
 
 .git
 target/classes/static/
+
+# Code coverage
+/coverage/
+/.nyc_output/
