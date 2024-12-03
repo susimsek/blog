@@ -13,7 +13,7 @@ const PageSizeSelector: React.FC<PageSizeSelectorProps> = ({
   onSizeChange,
 }) => {
   return (
-    <Form.Group controlId="postsPerPageSelect" className="d-flex align-items-center">
+    <Form.Group controlId="postsPerPageSelect" className="d-flex align-items-center" role="group">
       <Form.Label className="me-2">Page size:</Form.Label>
       <Form.Select
         className="mb-2"
