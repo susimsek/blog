@@ -1,4 +1,4 @@
-// pages/about.tsx
+// pages/[locale]/about.tsx
 import { Container } from 'react-bootstrap';
 import React from 'react';
 import Head from 'next/head';
