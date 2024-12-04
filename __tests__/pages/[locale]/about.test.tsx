@@ -31,7 +31,10 @@ beforeEach(() => {
 
 // Mock FontAwesomeIcon
 jest.mock('@fortawesome/react-fontawesome', () => ({
-  FontAwesomeIcon: ({ icon }: { icon: string }) => <i data-testid={`font-awesome-icon-${icon}`} />,
+  FontAwesomeIcon: ({ icon }: { icon: string | [string, string] }) => {
+    const iconName = Array.isArray(icon) ? icon.join('-') : icon;
+    return <i data-testid={`font-awesome-icon-${iconName}`} />;
+  },
 }));
 
 describe('About Page', () => {
@@ -104,9 +107,9 @@ describe('About Page', () => {
 
     // Icons
     expect(screen.getByTestId('font-awesome-icon-envelope')).toBeInTheDocument();
-    expect(screen.getByTestId('font-awesome-icon-linkedin')).toBeInTheDocument();
-    expect(screen.getByTestId('font-awesome-icon-medium')).toBeInTheDocument();
-    expect(screen.getByTestId('font-awesome-icon-github')).toBeInTheDocument();
+    expect(screen.getByTestId('font-awesome-icon-fab-linkedin')).toBeInTheDocument();
+    expect(screen.getByTestId('font-awesome-icon-fab-medium')).toBeInTheDocument();
+    expect(screen.getByTestId('font-awesome-icon-fab-github')).toBeInTheDocument();
   });
 });
 
