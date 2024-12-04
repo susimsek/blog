@@ -7,6 +7,22 @@ import '@testing-library/jest-dom';
 import { useTranslation } from 'next-i18next';
 import { PostSummary } from '@/types/posts';
 
+const mockPosts = [
+  {
+    id: '1',
+    title: 'Mocked Post 1',
+    date: '2024-01-01',
+    summary: 'Summary for mocked post 1',
+  },
+  {
+    id: '2',
+    title: 'Mocked Post 2',
+    date: '2024-01-02',
+    summary: 'Summary for mocked post 2',
+    thumbnail: '/images/mock-thumbnail.jpg',
+  },
+];
+
 // Mock `next/router`
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockReturnValue({
@@ -60,21 +76,7 @@ jest.mock('@/components/posts/PostList', () => ({
 jest.mock('@/lib/posts', () => ({
   makePostProps: jest.fn().mockImplementation(() => async () => ({
     props: {
-      posts: [
-        {
-          id: '1',
-          title: 'Mocked Post 1',
-          date: '2024-01-01',
-          summary: 'Summary for mocked post 1',
-        },
-        {
-          id: '2',
-          title: 'Mocked Post 2',
-          date: '2024-01-02',
-          summary: 'Summary for mocked post 2',
-          thumbnail: '/images/mock-thumbnail.jpg',
-        },
-      ],
+      posts: mockPosts,
     },
   })),
 }));
@@ -129,21 +131,7 @@ describe('getStaticProps', () => {
 
     expect(result).toEqual({
       props: {
-        posts: [
-          {
-            id: '1',
-            title: 'Mocked Post 1',
-            date: '2024-01-01',
-            summary: 'Summary for mocked post 1',
-          },
-          {
-            id: '2',
-            title: 'Mocked Post 2',
-            date: '2024-01-02',
-            summary: 'Summary for mocked post 2',
-            thumbnail: '/images/mock-thumbnail.jpg',
-          },
-        ],
+        posts: mockPosts,
       },
     });
   });
