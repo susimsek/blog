@@ -32,8 +32,8 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <i data-testid={`font-awesome-icon-${icon}`} />,
 }));
 
-describe('About Page', () => {
-  it('renders the navigation and main content', async () => {
+describe('Contact Page', () => {
+  it('renders the navigation and main content', () => {
     render(
       <Provider store={store}>
         <Contact />
@@ -45,5 +45,51 @@ describe('About Page', () => {
 
     // Main content
     expect(screen.getByRole('main')).toBeInTheDocument();
+  });
+
+  it('renders the contact header and description', () => {
+    render(
+      <Provider store={store}>
+        <Contact />
+      </Provider>,
+    );
+
+    // Header
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('contact.header');
+
+    // Description
+    expect(screen.getByText('contact.description')).toBeInTheDocument();
+  });
+
+  it('renders the contact information', () => {
+    render(
+      <Provider store={store}>
+        <Contact />
+      </Provider>,
+    );
+
+    // Email
+    expect(screen.getByRole('link', { name: 'suaybsimsek58@gmail.com' })).toHaveAttribute(
+      'href',
+      'mailto:suaybsimsek58@gmail.com',
+    );
+
+    // LinkedIn
+    expect(screen.getByRole('link', { name: 'https://linkedin.com/in/şuayb-şimşek-29b077178' })).toHaveAttribute(
+      'href',
+      'https://linkedin.com/in/şuayb-şimşek-29b077178',
+    );
+
+    // Medium
+    expect(screen.getByRole('link', { name: 'https://medium.com/@suaybsimsek58' })).toHaveAttribute(
+      'href',
+      'https://medium.com/@suaybsimsek58',
+    );
+
+    // GitHub
+    expect(screen.getByRole('link', { name: 'https://github.com/susimsek' })).toHaveAttribute(
+      'href',
+      'https://github.com/susimsek',
+    );
   });
 });

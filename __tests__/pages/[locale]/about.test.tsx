@@ -46,4 +46,64 @@ describe('About Page', () => {
     // Main content
     expect(screen.getByRole('main')).toBeInTheDocument();
   });
+
+  it('renders the about header and description', async () => {
+    render(
+      <Provider store={store}>
+        <About />
+      </Provider>,
+    );
+
+    // Header
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('about.header');
+
+    // Description
+    expect(screen.getByText('about.description')).toBeInTheDocument();
+  });
+
+  it('renders the social media links', async () => {
+    render(
+      <Provider store={store}>
+        <About />
+      </Provider>,
+    );
+
+    // Email
+    expect(screen.getByRole('link', { name: 'suaybsimsek58@gmail.com' })).toHaveAttribute(
+      'href',
+      'mailto:suaybsimsek58@gmail.com',
+    );
+
+    // LinkedIn
+    expect(screen.getByRole('link', { name: 'https://linkedin.com/in/şuayb-şimşek-29b077178' })).toHaveAttribute(
+      'href',
+      'https://linkedin.com/in/şuayb-şimşek-29b077178',
+    );
+
+    // Medium
+    expect(screen.getByRole('link', { name: 'https://medium.com/@suaybsimsek58' })).toHaveAttribute(
+      'href',
+      'https://medium.com/@suaybsimsek58',
+    );
+
+    // GitHub
+    expect(screen.getByRole('link', { name: 'https://github.com/susimsek' })).toHaveAttribute(
+      'href',
+      'https://github.com/susimsek',
+    );
+  });
+
+  it('renders FontAwesome icons correctly', async () => {
+    render(
+      <Provider store={store}>
+        <About />
+      </Provider>,
+    );
+
+    // Icons
+    expect(screen.getByTestId('font-awesome-icon-envelope')).toBeInTheDocument();
+    expect(screen.getByTestId('font-awesome-icon-linkedin')).toBeInTheDocument();
+    expect(screen.getByTestId('font-awesome-icon-medium')).toBeInTheDocument();
+    expect(screen.getByTestId('font-awesome-icon-github')).toBeInTheDocument();
+  });
 });
