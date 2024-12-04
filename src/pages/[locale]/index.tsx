@@ -1,4 +1,4 @@
-// pages/index.tsx
+// pages/[locale]index.tsx
 import { makePostProps } from '@/lib/posts';
 import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
