@@ -4,7 +4,9 @@ import { Provider } from 'react-redux';
 import store from '@/config/store';
 import '@testing-library/jest-dom';
 import { useTranslation } from 'next-i18next';
-import Contact from '@/pages/[locale]/contact';
+import Contact, { getStaticPaths, getStaticProps } from '@/pages/[locale]/contact';
+
+const mockContext = { locales: ['en', 'tr'], defaultLocale: 'en' };
 
 // Mock `next/router`
 jest.mock('next/router', () => ({
@@ -91,5 +93,35 @@ describe('Contact Page', () => {
       'href',
       'https://github.com/susimsek',
     );
+  });
+});
+
+describe('getStaticPaths', () => {
+  it('returns correct paths for all supported locales', async () => {
+    const result = await getStaticPaths(mockContext);
+
+    expect(result).toEqual({
+      paths: [{ params: { locale: 'en' } }, { params: { locale: 'tr' } }],
+      fallback: false,
+    });
+  });
+});
+
+describe('getStaticProps', () => {
+  it('returns props with correct namespaces', async () => {
+    const context = {
+      params: { locale: 'en' },
+    };
+
+    const result = await getStaticProps(context);
+
+    expect(result).toEqual({
+      props: {
+        _nextI18Next: expect.objectContaining({
+          initialLocale: 'en',
+          ns: ['contact', 'common'],
+        }),
+      },
+    });
   });
 });

@@ -2,9 +2,10 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import store from '@/config/store';
-import About, { getStaticPaths, getStaticProps } from '@/pages/[locale]/about';
+import { getStaticPaths, getStaticProps } from '@/pages/[locale]/404';
 import '@testing-library/jest-dom';
 import { useTranslation } from 'next-i18next';
+import NotFound from '@/pages/[locale]/404';
 
 const mockContext = { locales: ['en', 'tr'], defaultLocale: 'en' };
 
@@ -38,7 +39,7 @@ describe('About Page', () => {
   it('renders the navigation and main content', async () => {
     render(
       <Provider store={store}>
-        <About />
+        <NotFound />
       </Provider>,
     );
 
@@ -49,64 +50,49 @@ describe('About Page', () => {
     expect(screen.getByRole('main')).toBeInTheDocument();
   });
 
-  it('renders the about header and description', async () => {
+  it('renders Layout with header, footer, and main content', () => {
     render(
       <Provider store={store}>
-        <About />
+        <NotFound />
       </Provider>,
     );
 
-    // Header
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('about.header');
+    // Error code
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('404.errorCode');
+
+    // Error header
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('404.header');
 
     // Description
-    expect(screen.getByText('about.description')).toBeInTheDocument();
+    expect(screen.getByText('404.description')).toBeInTheDocument();
   });
 
-  it('renders the social media links', async () => {
+  it('renders the back to home link', () => {
     render(
       <Provider store={store}>
-        <About />
+        <NotFound />
       </Provider>,
     );
 
-    // Email
-    expect(screen.getByRole('link', { name: 'suaybsimsek58@gmail.com' })).toHaveAttribute(
-      'href',
-      'mailto:suaybsimsek58@gmail.com',
-    );
+    const homeLink = screen.getByRole('link', { name: /404.backToHome/i });
+    expect(homeLink).toBeInTheDocument();
 
-    // LinkedIn
-    expect(screen.getByRole('link', { name: 'https://linkedin.com/in/şuayb-şimşek-29b077178' })).toHaveAttribute(
-      'href',
-      'https://linkedin.com/in/şuayb-şimşek-29b077178',
-    );
-
-    // Medium
-    expect(screen.getByRole('link', { name: 'https://medium.com/@suaybsimsek58' })).toHaveAttribute(
-      'href',
-      'https://medium.com/@suaybsimsek58',
-    );
-
-    // GitHub
-    expect(screen.getByRole('link', { name: 'https://github.com/susimsek' })).toHaveAttribute(
-      'href',
-      'https://github.com/susimsek',
-    );
+    // Expect dynamic locale-aware URL
+    const expectedHref = '/en';
+    expect(homeLink).toHaveAttribute('href', expectedHref);
   });
 
-  it('renders FontAwesome icons correctly', async () => {
+  it('renders FontAwesome icons correctly', () => {
     render(
       <Provider store={store}>
-        <About />
+        <NotFound />
       </Provider>,
     );
 
-    // Icons
-    expect(screen.getByTestId('font-awesome-icon-envelope')).toBeInTheDocument();
-    expect(screen.getByTestId('font-awesome-icon-linkedin')).toBeInTheDocument();
-    expect(screen.getByTestId('font-awesome-icon-medium')).toBeInTheDocument();
-    expect(screen.getByTestId('font-awesome-icon-github')).toBeInTheDocument();
+    const homeIcons = screen.queryAllByTestId('font-awesome-icon-home');
+    expect(homeIcons).toHaveLength(2);
+
+    expect(homeIcons[0]).toBeInTheDocument();
   });
 });
 
@@ -133,7 +119,7 @@ describe('getStaticProps', () => {
       props: {
         _nextI18Next: expect.objectContaining({
           initialLocale: 'en',
-          ns: ['about', 'common'],
+          ns: ['404', 'common'],
         }),
       },
     });
