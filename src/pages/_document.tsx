@@ -11,6 +11,7 @@ class MyDocument extends Document {
       <Html lang={currentLocale}>
         <Head>
           <link rel="icon" href={`${assetPrefix}/favicon.ico`} />
+          <link rel="apple-touch-icon" sizes="180x180" href={`${assetPrefix}/apple-touch-icon.png`} />
         </Head>
         <body>
           <Main />

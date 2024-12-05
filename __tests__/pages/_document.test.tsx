@@ -64,6 +64,17 @@ describe('MyDocument', () => {
     expect(faviconLink).toHaveAttribute('href', '/static/favicon.ico');
   });
 
+  it('renders apple-touch-icon link', () => {
+    const props = {
+      __NEXT_DATA__: { locale: 'en' },
+    };
+    const { container } = render(<MyDocument {...(props as any)} />);
+    const appleTouchIconLink = container.querySelector('link[rel="apple-touch-icon"]');
+
+    expect(appleTouchIconLink).toBeInTheDocument();
+    expect(appleTouchIconLink).toHaveAttribute('href', '/static/apple-touch-icon.png');
+  });
+
   it('renders Main and NextScript components', () => {
     const props = {
       __NEXT_DATA__: { locale: 'en' },
