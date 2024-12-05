@@ -53,26 +53,27 @@ describe('MyDocument', () => {
     expect(htmlElement).toHaveAttribute('lang', 'en'); // Default locale
   });
 
-  it('renders Head with correct favicon link', () => {
+  it('renders Head with correct favicon links', () => {
     const props = {
       __NEXT_DATA__: { locale: 'en' },
     };
     const { container } = render(<MyDocument {...(props as any)} />);
-    const faviconLink = container.querySelector('link[rel="icon"]');
 
-    expect(faviconLink).toBeInTheDocument();
-    expect(faviconLink).toHaveAttribute('href', '/static/favicon.ico');
-  });
-
-  it('renders apple-touch-icon link', () => {
-    const props = {
-      __NEXT_DATA__: { locale: 'en' },
-    };
-    const { container } = render(<MyDocument {...(props as any)} />);
     const appleTouchIconLink = container.querySelector('link[rel="apple-touch-icon"]');
-
     expect(appleTouchIconLink).toBeInTheDocument();
-    expect(appleTouchIconLink).toHaveAttribute('href', '/static/apple-touch-icon.png');
+    expect(appleTouchIconLink).toHaveAttribute('href', '/static/favicons/apple-touch-icon.png');
+
+    const favicon32Link = container.querySelector('link[rel="icon"][sizes="32x32"]');
+    expect(favicon32Link).toBeInTheDocument();
+    expect(favicon32Link).toHaveAttribute('href', '/static/favicons/favicon-32x32.png');
+
+    const favicon16Link = container.querySelector('link[rel="icon"][sizes="16x16"]');
+    expect(favicon16Link).toBeInTheDocument();
+    expect(favicon16Link).toHaveAttribute('href', '/static/favicons/favicon-16x16.png');
+
+    const shortcutIconLink = container.querySelector('link[rel="shortcut icon"]');
+    expect(shortcutIconLink).toBeInTheDocument();
+    expect(shortcutIconLink).toHaveAttribute('href', '/static/favicons/favicon.ico');
   });
 
   it('renders Main and NextScript components', () => {

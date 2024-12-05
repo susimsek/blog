@@ -10,8 +10,10 @@ class MyDocument extends Document {
     return (
       <Html lang={currentLocale}>
         <Head>
-          <link rel="icon" href={`${assetPrefix}/favicon.ico`} />
-          <link rel="apple-touch-icon" sizes="180x180" href={`${assetPrefix}/apple-touch-icon.png`} />
+          <link rel="apple-touch-icon" sizes="180x180" href={`${assetPrefix}/favicons/apple-touch-icon.png`} />
+          <link rel="icon" type="image/png" sizes="32x32" href={`${assetPrefix}/favicons/favicon-32x32.png`} />
+          <link rel="icon" type="image/png" sizes="16x16" href={`${assetPrefix}/favicons/favicon-16x16.png`} />
+          <link rel="shortcut icon" href={`${assetPrefix}/favicons/favicon.ico`} />
         </Head>
         <body>
           <Main />
