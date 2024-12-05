@@ -1,6 +1,7 @@
 # Blog Application
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=blog)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=coverage)](https://sonarcloud.io/summary/new_code?id=blog)
 
 This is a simple **blog application** built with **Next.js**, **TypeScript**, **React-Bootstrap**, and **Markdown**. It uses Markdown files to manage and display blog posts in a static site format.
 
