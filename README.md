@@ -6,6 +6,7 @@ This is a simple **blog application** built with **Next.js**, **TypeScript**, **
 
 - 🌗 **Theme Support**: Seamless theme switching between light and dark modes.
 - 🌍 **i18n Support**: Fully supports **English (en)** and **Turkish (tr)** languages.
+- 📱 **Responsive Design**: Fully responsive UI optimized for various devices and screen sizes.
 - ✅ **100% Code Coverage**: Comprehensive unit tests with Jest ensure maximum code reliability.
 - 📝 **Markdown Rendering**: Posts are written in Markdown for simplicity and portability.
 - 🛠️ **Redux Integration**: State management with Redux for scalability.
