@@ -110,3 +110,6 @@ npm run sonar
 - **Bootstrap**
 - **Font Awesome**
 - **Sass**
+- **Gray Matter**
+- **Remark**
+- **Remark Html**
