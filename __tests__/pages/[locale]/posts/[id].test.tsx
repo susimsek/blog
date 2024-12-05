@@ -163,6 +163,23 @@ describe('Post Page', () => {
     expect(headElement).toBeInTheDocument();
     expect(headElement).toHaveAttribute('content', '');
   });
+
+  it('renders empty keywords when topics are undefined', () => {
+    const post: Post = {
+      id: '1',
+      title: 'Test Post',
+      summary: 'Test summary',
+      contentHtml: '<p>Test content</p>',
+      date: '2024-01-01',
+      // No topics defined
+    };
+
+    renderPostPage(post);
+
+    const headElement = document.querySelector('meta[name="keywords"]');
+    expect(headElement).toBeInTheDocument();
+    expect(headElement).toHaveAttribute('content', '');
+  });
 });
 
 describe('getStaticPaths', () => {
