@@ -13,7 +13,10 @@ const mockPost: Post = {
   date: '2024-12-03',
   contentHtml: '<p>Test Content</p>',
   thumbnail: '/test-thumbnail.jpg',
-  topics: ['React', 'Testing'],
+  topics: [
+    { name: 'React', color: 'blue' },
+    { name: 'Testing', color: 'green' },
+  ],
   summary: 'Test summary',
 };
 
@@ -54,7 +57,7 @@ describe('PostDetail Component', () => {
     render(<PostDetail post={mockPost} />);
     if (mockPost.topics) {
       mockPost.topics.forEach(topic => {
-        expect(screen.getByText(topic)).toBeInTheDocument();
+        expect(screen.getByText(topic.name)).toBeInTheDocument();
       });
     } else {
       expect(screen.queryByRole('badge')).not.toBeInTheDocument();

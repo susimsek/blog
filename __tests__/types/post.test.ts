@@ -8,7 +8,10 @@ describe('Post and PostSummary Types', () => {
       date: '2024-12-04',
       summary: 'This is a summary of the post.',
       thumbnail: '/images/sample.jpg',
-      topics: ['TypeScript', 'Testing'],
+      topics: [
+        { name: 'TypeScript', color: 'blue' },
+        { name: 'Testing', color: 'green' },
+      ],
     };
 
     expect(postSummary.id).toBe('1');
@@ -16,7 +19,11 @@ describe('Post and PostSummary Types', () => {
     expect(postSummary.date).toBe('2024-12-04');
     expect(postSummary.summary).toBe('This is a summary of the post.');
     expect(postSummary.thumbnail).toBe('/images/sample.jpg');
-    expect(postSummary.topics).toEqual(['TypeScript', 'Testing']);
+    expect(postSummary.topics).toHaveLength(2);
+    expect(postSummary.topics?.[0].name).toBe('TypeScript');
+    expect(postSummary.topics?.[0].color).toBe('blue');
+    expect(postSummary.topics?.[1].name).toBe('Testing');
+    expect(postSummary.topics?.[1].color).toBe('green');
   });
 
   it('should allow a PostSummary without optional fields', () => {
@@ -39,12 +46,19 @@ describe('Post and PostSummary Types', () => {
       summary: 'A detailed post summary.',
       contentHtml: '<p>Full content of the post.</p>',
       thumbnail: '/images/full.jpg',
-      topics: ['JavaScript', 'React'],
+      topics: [
+        { name: 'JavaScript', color: 'blue' },
+        { name: 'React', color: 'green' },
+      ],
     };
 
     expect(post.contentHtml).toBe('<p>Full content of the post.</p>');
     expect(post.thumbnail).toBe('/images/full.jpg');
-    expect(post.topics).toEqual(['JavaScript', 'React']);
+    expect(post.topics).toHaveLength(2);
+    expect(post.topics?.[0].name).toBe('JavaScript');
+    expect(post.topics?.[0].color).toBe('blue');
+    expect(post.topics?.[1].name).toBe('React');
+    expect(post.topics?.[1].color).toBe('green');
   });
 
   it('should allow a Post without optional fields', () => {

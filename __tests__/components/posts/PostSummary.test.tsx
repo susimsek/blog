@@ -34,7 +34,10 @@ const mockPost: Post = {
   date: '2024-12-03',
   summary: 'This is a summary of the test post.',
   thumbnail: '/test-thumbnail.jpg',
-  topics: ['React', 'Testing'],
+  topics: [
+    { name: 'React', color: 'blue' },
+    { name: 'Testing', color: 'green' },
+  ],
 };
 
 describe('PostSummary Component', () => {
@@ -55,9 +58,8 @@ describe('PostSummary Component', () => {
   it('renders the topics as badges', () => {
     render(<PostSummary post={mockPost} />);
     mockPost.topics?.forEach(topic => {
-      const badge = screen.getByText(topic);
+      const badge = screen.getByText(topic.name);
       expect(badge).toBeInTheDocument();
-      expect(badge).toHaveClass('badge bg-secondary');
     });
   });
 

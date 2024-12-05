@@ -26,7 +26,7 @@ jest.mock('gray-matter', () =>
           title: 'Post 1',
           date: '2024-01-01',
           summary: 'Summary 1',
-          topics: ['React', 'Next.js'],
+          topics: [{ name: 'React', color: 'red' }],
         },
         content: 'Content 1',
       };
@@ -38,7 +38,7 @@ jest.mock('gray-matter', () =>
           title: 'Post 2',
           date: '2024-01-01',
           summary: 'Summary 2',
-          topics: ['React', 'Next.js'],
+          topics: [{ name: 'Next.js', color: 'blue' }],
         },
         content: 'Content 2',
       };
@@ -50,7 +50,7 @@ jest.mock('gray-matter', () =>
           title: 'Post 3',
           date: '2024-01-02',
           summary: 'Summary 3',
-          topics: ['React', 'Next.js'],
+          topics: [{ name: 'React', color: 'green' }],
         },
         content: 'Content 3',
       };
@@ -62,7 +62,7 @@ jest.mock('gray-matter', () =>
           title: 'Post 4',
           date: '2024-01-01',
           summary: 'Summary 4',
-          topics: ['React', 'Next.js'],
+          topics: [{ name: 'JavaScript', color: 'orange' }],
         },
         content: 'Content 4',
       };
@@ -73,7 +73,7 @@ jest.mock('gray-matter', () =>
         title: 'Mock Post Title',
         date: '2024-01-01',
         summary: 'Mock summary',
-        topics: ['React', 'Next.js'],
+        topics: [{ name: 'React', color: 'red' }],
       },
       content: 'Mock Markdown Content',
     };
@@ -120,7 +120,7 @@ describe('Posts Library', () => {
       title: Mock Post Title
       date: "2024-01-01"
       summary: Mock summary
-      topics: ["React", "Next.js"]
+      topics: [{"name": "React", "color": "red"}]
       ---
       # Mock Markdown Content
     `);
@@ -136,7 +136,7 @@ describe('Posts Library', () => {
           title: 'Mock Post Title',
           date: '2024-01-01',
           summary: 'Mock summary',
-          topics: ['React', 'Next.js'],
+          topics: [{ name: 'React', color: 'red' }],
         },
       ]);
     });
@@ -154,7 +154,7 @@ describe('Posts Library', () => {
     title: Post 1
     date: "2024-01-01"
     summary: Summary 1
-    topics: ["React"]
+    topics: [{"name": "React", "color": "red"}]
     ---
     # Content 1
     `;
@@ -166,7 +166,7 @@ describe('Posts Library', () => {
     title: Post 2
     date: "2024-01-01"
     summary: Summary 2
-    topics: ["Next.js"]
+    topics: [{ name: 'Next.js', color: 'blue' }]
     ---
     # Content 2
     `;
@@ -178,7 +178,7 @@ describe('Posts Library', () => {
     title: Post 3
     date: "2024-01-02"
     summary: Summary 3
-    topics: ["React", "Next.js"]
+    topics: [{ name: 'React', color: 'green' }]
     ---
     # Content 3
     `;
@@ -190,7 +190,7 @@ describe('Posts Library', () => {
     title: Post 4
     date: "2024-01-01"
     summary: Summary 4
-    topics: ["JavaScript"]
+    topics: [{"name": "JavaScript", "color": "orange"}]
     ---
     # Content 4
     `;
@@ -202,10 +202,34 @@ describe('Posts Library', () => {
 
       // Expect posts to be sorted by date in descending order
       expect(result).toEqual([
-        { id: 'post3', title: 'Post 3', date: '2024-01-02', summary: 'Summary 3', topics: ['React', 'Next.js'] },
-        { id: 'post4', title: 'Post 4', date: '2024-01-01', summary: 'Summary 4', topics: ['React', 'Next.js'] },
-        { id: 'post2', title: 'Post 2', date: '2024-01-01', summary: 'Summary 2', topics: ['React', 'Next.js'] },
-        { id: 'post1', title: 'Post 1', date: '2024-01-01', summary: 'Summary 1', topics: ['React', 'Next.js'] },
+        {
+          id: 'post3',
+          title: 'Post 3',
+          date: '2024-01-02',
+          summary: 'Summary 3',
+          topics: [{ name: 'React', color: 'green' }],
+        },
+        {
+          id: 'post4',
+          title: 'Post 4',
+          date: '2024-01-01',
+          summary: 'Summary 4',
+          topics: [{ name: 'JavaScript', color: 'orange' }],
+        },
+        {
+          id: 'post2',
+          title: 'Post 2',
+          date: '2024-01-01',
+          summary: 'Summary 2',
+          topics: [{ name: 'Next.js', color: 'blue' }],
+        },
+        {
+          id: 'post1',
+          title: 'Post 1',
+          date: '2024-01-01',
+          summary: 'Summary 1',
+          topics: [{ name: 'React', color: 'red' }],
+        },
       ]);
     });
 
@@ -233,7 +257,7 @@ describe('Posts Library', () => {
           title: 'Mock Post Title',
           date: '2024-01-01',
           summary: 'Mock summary',
-          topics: ['React', 'Next.js'],
+          topics: [{ name: 'React', color: 'red' }],
         },
       ]);
 
@@ -258,7 +282,7 @@ describe('Posts Library', () => {
         title: 'Mock Post Title',
         date: '2024-01-01',
         summary: 'Mock summary',
-        topics: ['React', 'Next.js'],
+        topics: [{ name: 'React', color: 'red' }],
         contentHtml: '<p>Mocked HTML Content</p>',
       });
 
@@ -301,7 +325,7 @@ describe('Posts Library', () => {
         title: 'Mock Post Title',
         date: '2024-01-01',
         summary: 'Mock summary',
-        topics: ['React', 'Next.js'],
+        topics: [{ name: 'React', color: 'red' }],
         contentHtml: '<p>Mocked HTML Content</p>',
       });
 
@@ -380,7 +404,7 @@ describe('Posts Library', () => {
           title: 'Mock Post Title',
           date: '2024-01-01',
           summary: 'Mock summary',
-          topics: ['React', 'Next.js'],
+          topics: [{ name: 'React', color: 'red' }],
         },
       ]);
     });
@@ -402,7 +426,7 @@ describe('Posts Library', () => {
               title: 'Mock Post Title',
               date: '2024-01-01',
               summary: 'Mock summary',
-              topics: ['React', 'Next.js'],
+              topics: [{ name: 'React', color: 'red' }],
             },
           ],
         },
@@ -463,7 +487,7 @@ describe('Posts Library', () => {
         title: 'Mock Post Title',
         date: '2024-01-01',
         summary: 'Mock summary',
-        topics: ['React', 'Next.js'],
+        topics: [{ name: 'React', color: 'red' }],
         contentHtml: '<p>Mocked HTML Content</p>',
       });
     });
@@ -484,7 +508,7 @@ describe('Posts Library', () => {
             title: 'Mock Post Title',
             date: '2024-01-01',
             summary: 'Mock summary',
-            topics: ['React', 'Next.js'],
+            topics: [{ name: 'React', color: 'red' }],
             contentHtml: '<p>Mocked HTML Content</p>',
           },
         },
@@ -516,7 +540,7 @@ describe('Posts Library', () => {
         title: 'Mock Post Title',
         date: '2024-01-01',
         summary: 'Mock summary',
-        topics: ['React', 'Next.js'],
+        topics: [{ name: 'React', color: 'red' }],
         contentHtml: '<p>Mocked HTML Content</p>',
       });
     });
