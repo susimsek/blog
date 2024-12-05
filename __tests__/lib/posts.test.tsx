@@ -128,6 +128,46 @@ describe('Posts Library', () => {
         },
       });
     });
+
+    it('uses default locale when locale is missing', async () => {
+      const context: GetStaticPropsContext = {
+        params: {},
+      };
+      const result = await makePostProps(['common', 'post'])(context);
+
+      expect(result.props).toBeDefined();
+      expect(result.props?._nextI18Next).toBeDefined();
+      expect(result.props?._nextI18Next?.initialLocale).toBe('en');
+    });
+
+    it('returns empty list when no posts exist for the locale', async () => {
+      // Mock the directory listing for both the locale and fallback
+      (fs.readdirSync as jest.Mock).mockImplementation((dirPath: string) => {
+        if (dirPath.includes('/fr')) return []; // No posts in 'fr' directory
+        if (dirPath.includes('/en')) return []; // No posts in fallback 'en' directory
+        return [];
+      });
+
+      const context: GetStaticPropsContext = {
+        params: { locale: 'fr' },
+      };
+
+      const result = await makePostProps(['common', 'post'])(context);
+
+      // Verify the posts list is empty
+      expect(result.props.posts).toEqual([]); // Empty array
+    });
+
+    it('includes correct i18nProps', async () => {
+      const context: GetStaticPropsContext = {
+        params: { locale: 'en' },
+      };
+      const result = await makePostProps(['common', 'post'])(context);
+      expect(result.props._nextI18Next).toEqual({
+        initialLocale: 'en',
+        ns: ['common', 'post'],
+      });
+    });
   });
 
   describe('makePostDetailProps', () => {
