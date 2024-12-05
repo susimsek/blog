@@ -2,7 +2,11 @@
 
 This is a simple **blog application** built with **Next.js**, **TypeScript**, **React-Bootstrap**, and **Markdown**. It uses Markdown files to manage and display blog posts in a static site format.
 
-[Visit the Blog](https://susimsek.github.io/blog)
+## Live Demo
+
+You can explore the live version of the blog application at [https://susimsek.github.io/blog](https://susimsek.github.io/blog).
+
+Enjoy reading blog posts and experience seamless navigation between different sections of the site!
 
 ![Introduction](https://github.com/susimsek/blog/blob/main/images/introduction.png)
 
