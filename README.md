@@ -2,7 +2,7 @@
 
 This is a simple **blog application** built with **Next.js**, **TypeScript**, **React-Bootstrap**, and **Markdown**. It uses Markdown files to manage and display blog posts in a static site format.
 
-![Introduction](https://github.com/susimsek/blog/blob/main/images/introduction.png)
+<img src="https://github.com/susimsek/blog/blob/main/images/introduction.png" alt="Introduction" width="600">
 
 ## Features
 
