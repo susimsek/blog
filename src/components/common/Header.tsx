@@ -13,7 +13,7 @@ export default function Header() {
   const { t } = useTranslation('common');
 
   return (
-    <Navbar expand="lg" className="shadow-sm">
+    <Navbar expand="lg" className="shadow-sm" sticky="top">
       <Container>
         <Navbar.Brand as={Link} href="/" className="d-flex align-items-center link">
           <Image

@@ -14,6 +14,12 @@ This is a simple **blog application** built with **Next.js**, **TypeScript**, **
 - 🎨 **Prettier and ESLint**: Enforces code style and formatting standards.
 - 🔍 **SonarQube Integration**: Code quality and maintainability analysis with SonarQube.
 
+## Preview
+
+Below is a preview of the **Blog Application** interface:
+
+![Blog Application Preview](https://github.com/susimsek/blog/blob/main/images/webapp.png)
+
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
