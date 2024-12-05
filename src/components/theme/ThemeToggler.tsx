@@ -16,7 +16,7 @@ const ThemeToggler = () => {
       aria-label={t('common.header.themeToggle')}
     >
       <FontAwesomeIcon icon={theme === 'light' ? 'moon' : 'sun'} />
-      <span>{t(`common.header.theme.${theme}`)}</span>
+      <span>{t(`common.header.theme.${theme === 'light' ? 'dark' : 'light'}`)}</span>
     </button>
   );
 };

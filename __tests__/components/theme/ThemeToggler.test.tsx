@@ -37,7 +37,7 @@ describe('ThemeToggler', () => {
       name: /common.header.themeToggle/i,
     });
     const icon = screen.getByTestId('font-awesome-icon-moon');
-    const text = screen.getByText(/common.header.theme.light/i);
+    const text = screen.getByText(/common.header.theme.dark/i);
 
     expect(button).toBeInTheDocument();
     expect(icon).toBeInTheDocument();
@@ -53,7 +53,7 @@ describe('ThemeToggler', () => {
       name: /common.header.themeToggle/i,
     });
     const icon = screen.getByTestId('font-awesome-icon-sun');
-    const text = screen.getByText(/common.header.theme.dark/i);
+    const text = screen.getByText(/common.header.theme.light/i);
 
     expect(button).toBeInTheDocument();
     expect(icon).toBeInTheDocument();
