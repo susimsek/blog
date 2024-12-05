@@ -55,6 +55,18 @@ jest.mock('gray-matter', () =>
         content: 'Content 3',
       };
     }
+    if (content.includes('Post 4')) {
+      return {
+        data: {
+          id: 'post4',
+          title: 'Post 4',
+          date: '2024-01-01',
+          summary: 'Summary 4',
+          topics: ['React', 'Next.js'],
+        },
+        content: 'Content 4',
+      };
+    }
     return {
       data: {
         id: 'mock-post',
@@ -133,43 +145,55 @@ describe('Posts Library', () => {
       // Mock posts with the same date
 
       // Mock return values for `fs` functions
-      (fs.readdirSync as jest.Mock).mockReturnValue(['post1.md', 'post2.md', 'post3.md']);
+      (fs.readdirSync as jest.Mock).mockReturnValue(['post1.md', 'post2.md', 'post3.md', 'post4.md']);
       (fs.readFileSync as jest.Mock).mockImplementation(path => {
         if (path.includes('post1.md')) {
           return `
-      ---
-      id: post1
-      title: Post 1
-      date: "2024-01-01"
-      summary: Summary 1
-      topics: ["React"]
-      ---
-      # Content 1
-      `;
+    ---
+    id: post1
+    title: Post 1
+    date: "2024-01-01"
+    summary: Summary 1
+    topics: ["React"]
+    ---
+    # Content 1
+    `;
         }
         if (path.includes('post2.md')) {
           return `
-      ---
-      id: post2
-      title: Post 2
-      date: "2024-01-01"
-      summary: Summary 2
-      topics: ["Next.js"]
-      ---
-      # Content 2
-      `;
+    ---
+    id: post2
+    title: Post 2
+    date: "2024-01-01"
+    summary: Summary 2
+    topics: ["Next.js"]
+    ---
+    # Content 2
+    `;
         }
         if (path.includes('post3.md')) {
           return `
-      ---
-      id: post3
-      title: Post 3
-      date: "2024-01-02"
-      summary: Summary 3
-      topics: ["React", "Next.js"]
-      ---
-      # Content 3
-      `;
+    ---
+    id: post3
+    title: Post 3
+    date: "2024-01-02"
+    summary: Summary 3
+    topics: ["React", "Next.js"]
+    ---
+    # Content 3
+    `;
+        }
+        if (path.includes('post4.md')) {
+          return `
+    ---
+    id: post4
+    title: Post 4
+    date: "2024-01-01"
+    summary: Summary 4
+    topics: ["JavaScript"]
+    ---
+    # Content 4
+    `;
         }
         return '';
       });
@@ -179,6 +203,7 @@ describe('Posts Library', () => {
       // Expect posts to be sorted by date in descending order
       expect(result).toEqual([
         { id: 'post3', title: 'Post 3', date: '2024-01-02', summary: 'Summary 3', topics: ['React', 'Next.js'] },
+        { id: 'post4', title: 'Post 4', date: '2024-01-01', summary: 'Summary 4', topics: ['React', 'Next.js'] },
         { id: 'post2', title: 'Post 2', date: '2024-01-01', summary: 'Summary 2', topics: ['React', 'Next.js'] },
         { id: 'post1', title: 'Post 1', date: '2024-01-01', summary: 'Summary 1', topics: ['React', 'Next.js'] },
       ]);
