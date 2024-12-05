@@ -39,7 +39,7 @@ export function getSortedPostsData(locale: string): PostSummary[] {
     const fileNames = fs.readdirSync(directory);
     fileNames.forEach(fileName => {
       const filePath = path.join(directory, fileName);
-      const { data } = parsePostFile(filePath, false);
+      const { data } = parsePostFile(filePath);
       seenIds.add(data.id);
       posts.push(data);
     });
@@ -50,7 +50,7 @@ export function getSortedPostsData(locale: string): PostSummary[] {
     const fallbackFileNames = fs.readdirSync(fallbackDirectory);
     fallbackFileNames.forEach(fileName => {
       const filePath = path.join(fallbackDirectory, fileName);
-      const { data } = parsePostFile(filePath, false);
+      const { data } = parsePostFile(filePath);
 
       if (!seenIds.has(data.id)) {
         posts.push(data);
