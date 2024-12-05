@@ -981,49 +981,8 @@ input.form-control {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.pagination-bar .row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.pagination-bar .pagination {
-  flex: 0 1 auto;
-  display: flex;
-  align-items: center;
+.text-nowrap {
   white-space: nowrap;
-  max-width: 100%;
-}
-
-.pagination-bar .results-info {
-  flex: 0 1 auto;
-  white-space: nowrap;
-  margin-left: 12px;
-}
-
-.pagination-bar .page-size-selector {
-  flex: 0 1 auto;
-  margin-left: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-@media (max-width: 768px) {
-  .pagination-bar .row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .pagination-bar .results-info {
-    text-align: left;
-    margin-top: 8px;
-    margin-left: 0;
-  }
-
-  .pagination-bar .page-size-selector {
-    text-align: left;
-    margin-top: 8px;
-    margin-left: 0;
-  }
+  overflow-wrap: normal;
+  word-break: normal;
 }

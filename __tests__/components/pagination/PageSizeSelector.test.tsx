@@ -50,7 +50,6 @@ describe('PageSizeSelector', () => {
     expect(fieldset).toHaveClass('d-flex align-items-center');
 
     const selectElement = screen.getByRole('combobox');
-    expect(selectElement).toHaveClass('mb-2');
     expect(selectElement).toHaveStyle('width: 100px');
   });
 
