@@ -228,5 +228,35 @@ describe('Posts Library', () => {
         },
       });
     });
+
+    it('uses default locale when locale is missing', async () => {
+      const context: GetStaticPropsContext = {
+        params: { id: 'mock-post' }, // `locale` missing
+      };
+
+      const result = await makePostDetailProps(['common', 'post'])(context);
+
+      expect(result.props._nextI18Next?.initialLocale).toBe('en'); // Default locale
+      expect(result.props.post.id).toBe('mock-post');
+    });
+
+    it('returns props with default values when id is missing', async () => {
+      const context: GetStaticPropsContext = {
+        params: { locale: 'en' }, // `id` yok
+      };
+
+      const result = await makePostDetailProps(['common', 'post'])(context);
+
+      expect(result.props).toBeDefined();
+      expect(result.props._nextI18Next?.initialLocale).toBe('en');
+      expect(result.props.post).toEqual({
+        id: 'mock-post',
+        title: 'Mock Post Title',
+        date: '2024-01-01',
+        summary: 'Mock summary',
+        topics: ['React', 'Next.js'],
+        contentHtml: '<p>Mocked HTML Content</p>',
+      });
+    });
   });
 });
