@@ -105,6 +105,24 @@ describe('Posts Library', () => {
   });
 
   describe('makePostProps', () => {
+    it('returns props with default namespace', async () => {
+      const context: GetStaticPropsContext = {
+        params: { locale: 'en' },
+      };
+
+      const result = await makePostProps()(context); // `ns` defaults to []
+      expect(result.props._nextI18Next?.initialLocale).toBe('en');
+      expect(result.props.posts).toEqual([
+        {
+          id: 'mock-post',
+          title: 'Mock Post Title',
+          date: '2024-01-01',
+          summary: 'Mock summary',
+          topics: ['React', 'Next.js'],
+        },
+      ]);
+    });
+
     it('returns props for post list', async () => {
       const context: GetStaticPropsContext = {
         params: { locale: 'en' },
@@ -171,6 +189,23 @@ describe('Posts Library', () => {
   });
 
   describe('makePostDetailProps', () => {
+    it('returns props with default namespace', async () => {
+      const context: GetStaticPropsContext = {
+        params: { id: 'mock-post', locale: 'en' },
+      };
+
+      const result = await makePostDetailProps()(context); // `ns` defaults to []
+      expect(result.props._nextI18Next?.initialLocale).toBe('en');
+      expect(result.props.post).toEqual({
+        id: 'mock-post',
+        title: 'Mock Post Title',
+        date: '2024-01-01',
+        summary: 'Mock summary',
+        topics: ['React', 'Next.js'],
+        contentHtml: '<p>Mocked HTML Content</p>',
+      });
+    });
+
     it('returns props for a specific post', async () => {
       const context: GetStaticPropsContext = {
         params: { id: 'mock-post', locale: 'en' },
