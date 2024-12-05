@@ -1,8 +1,6 @@
-import { getPostData, getAllPostIds, getSortedPostsData, makePostProps, makePostDetailProps } from '@/lib/posts';
+import { getAllPostIds, getSortedPostsData, makePostProps, makePostDetailProps } from '@/lib/posts';
 import fs from 'fs';
 import { GetStaticPropsContext } from 'next';
-import path from 'path';
-import matter from 'gray-matter';
 
 // Mock `fs` module
 jest.mock('fs', () => ({
@@ -101,6 +99,32 @@ describe('Posts Library', () => {
         { params: { id: 'mock-post', locale: 'fr' } },
         { params: { id: 'mock-post', locale: 'de' } },
       ]);
+    });
+
+    it('returns an empty list when directory does not exist', () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+
+      const result = getAllPostIds();
+
+      expect(result).toEqual([]);
+      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
+      expect(fs.readdirSync).not.toHaveBeenCalled();
+    });
+
+    it('handles a mix of directories with and without posts', () => {
+      (fs.existsSync as jest.Mock).mockImplementation((path: string) => path.includes('/en'));
+      (fs.readdirSync as jest.Mock).mockReturnValue(['post1.md']);
+
+      const result = getAllPostIds();
+
+      expect(result).toEqual([
+        { params: { id: 'post1', locale: 'en' } },
+        { params: { id: 'post1', locale: 'fr' } },
+        { params: { id: 'post1', locale: 'de' } },
+      ]);
+
+      expect(fs.existsSync).toHaveBeenCalledTimes(1);
+      expect(fs.readdirSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
     });
   });
 
