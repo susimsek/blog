@@ -36,7 +36,7 @@ jest.mock('gray-matter', () =>
         data: {
           id: 'post2',
           title: 'Post 2',
-          date: '2024-01-02',
+          date: '2024-01-01',
           summary: 'Summary 2',
           topics: ['React', 'Next.js'],
         },
@@ -48,7 +48,7 @@ jest.mock('gray-matter', () =>
         data: {
           id: 'post3',
           title: 'Post 3',
-          date: '2024-01-03',
+          date: '2024-01-02',
           summary: 'Summary 3',
           topics: ['React', 'Next.js'],
         },
@@ -129,6 +129,61 @@ describe('Posts Library', () => {
       ]);
     });
 
+    it('sorts posts with the same date', () => {
+      // Mock posts with the same date
+
+      // Mock return values for `fs` functions
+      (fs.readdirSync as jest.Mock).mockReturnValue(['post1.md', 'post2.md', 'post3.md']);
+      (fs.readFileSync as jest.Mock).mockImplementation(path => {
+        if (path.includes('post1.md')) {
+          return `
+      ---
+      id: post1
+      title: Post 1
+      date: "2024-01-01"
+      summary: Summary 1
+      topics: ["React"]
+      ---
+      # Content 1
+      `;
+        }
+        if (path.includes('post2.md')) {
+          return `
+      ---
+      id: post2
+      title: Post 2
+      date: "2024-01-01"
+      summary: Summary 2
+      topics: ["Next.js"]
+      ---
+      # Content 2
+      `;
+        }
+        if (path.includes('post3.md')) {
+          return `
+      ---
+      id: post3
+      title: Post 3
+      date: "2024-01-02"
+      summary: Summary 3
+      topics: ["React", "Next.js"]
+      ---
+      # Content 3
+      `;
+        }
+        return '';
+      });
+
+      const result = getSortedPostsData('en');
+
+      // Expect posts to be sorted by date in descending order
+      expect(result).toEqual([
+        { id: 'post3', title: 'Post 3', date: '2024-01-02', summary: 'Summary 3', topics: ['React', 'Next.js'] },
+        { id: 'post2', title: 'Post 2', date: '2024-01-01', summary: 'Summary 2', topics: ['React', 'Next.js'] },
+        { id: 'post1', title: 'Post 1', date: '2024-01-01', summary: 'Summary 1', topics: ['React', 'Next.js'] },
+      ]);
+    });
+
     it('loads posts from fallback directory if locale is different', () => {
       // Mock `fs.existsSync` to simulate fallback directory exists
       (fs.existsSync as jest.Mock).mockImplementation(path => {
@@ -160,65 +215,6 @@ describe('Posts Library', () => {
       expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
       expect(fs.readdirSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
       expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('fallback-post.md'), 'utf8');
-    });
-
-    it('sorts posts by date in descending order', () => {
-      // Mock `fs.existsSync` and `fs.readdirSync`
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.readdirSync as jest.Mock).mockReturnValue(['post1.md', 'post2.md']);
-
-      // Mock `fs.readFileSync` for posts
-      (fs.readFileSync as jest.Mock).mockImplementation(path => {
-        if (path.includes('post1.md')) {
-          return `
-      ---
-      id: post1
-      title: Post 1
-      date: "2024-01-01"
-      summary: Summary 1
-      topics: ["React", "Next.js"]
-      ---
-      # Content 1
-      `;
-        }
-        if (path.includes('post2.md')) {
-          return `
-      ---
-      id: post2
-      title: Post 2
-      date: "2024-01-02"
-      summary: Summary 2
-      topics: ["React", "Next.js"]
-      ---
-      # Content 2
-      `;
-        }
-        return '';
-      });
-
-      const result = getSortedPostsData('en');
-
-      // Expect the posts to be sorted by date in descending order
-      expect(result).toEqual([
-        {
-          id: 'post2',
-          title: 'Post 2',
-          date: '2024-01-02',
-          summary: 'Summary 2',
-          topics: ['React', 'Next.js'],
-        },
-        {
-          id: 'post1',
-          title: 'Post 1',
-          date: '2024-01-01',
-          summary: 'Summary 1',
-          topics: ['React', 'Next.js'],
-        },
-      ]);
-
-      // Ensure the sorting order is descending
-      expect(result[0].date).toBe('2024-01-02');
-      expect(result[1].date).toBe('2024-01-01');
     });
   });
 
