@@ -1,6 +1,7 @@
-import { getAllPostIds, getSortedPostsData, makePostProps, makePostDetailProps } from '@/lib/posts';
+import { getAllPostIds, getSortedPostsData, makePostProps, makePostDetailProps, getPostData } from '@/lib/posts';
 import fs from 'fs';
 import { GetStaticPropsContext } from 'next';
+import path from 'path';
 
 // Mock `fs` module
 jest.mock('fs', () => ({
@@ -88,6 +89,92 @@ describe('Posts Library', () => {
           topics: ['React', 'Next.js'],
         },
       ]);
+    });
+  });
+
+  describe('getPostData', () => {
+    it('uses localizedPath if it exists', async () => {
+      // Mock `fs.existsSync` to return true for localized path
+      (fs.existsSync as jest.Mock).mockImplementation(path => path.includes('en/mock-post.md'));
+
+      // Mock `fs.readFileSync` to return content for localized path
+
+      const result = await getPostData('mock-post', 'en');
+
+      // Assert the result
+      expect(result).toEqual({
+        id: 'mock-post',
+        title: 'Mock Post Title',
+        date: '2024-01-01',
+        summary: 'Mock summary',
+        topics: ['React', 'Next.js'],
+        contentHtml: '<p>Mocked HTML Content</p>',
+      });
+
+      // Verify the localized path was used
+      expect(path.join).toHaveBeenCalledWith(expect.anything(), 'en', 'mock-post.md');
+      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('en/mock-post.md'));
+      expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('en/mock-post.md'), 'utf8');
+    });
+
+    it('uses fallbackPath if localizedPath does not exist', async () => {
+      // Mock `path.join` to simulate paths for localized and fallback
+      const mockedJoin = require('path').join as jest.Mock;
+      mockedJoin.mockImplementation((...args) => {
+        const joinedPath = args.join('/');
+        if (joinedPath.includes('/fr/mock-post.md')) {
+          return 'localized/fr/mock-post.md'; // Localized path
+        }
+        if (joinedPath.includes('/en/mock-post.md')) {
+          return 'fallback/en/mock-post.md'; // Fallback path
+        }
+        return joinedPath;
+      });
+
+      // Mock `fs.existsSync` to return false for localized and true for fallback path
+      (fs.existsSync as jest.Mock).mockImplementation(path => {
+        if (path === 'localized/fr/mock-post.md') {
+          return false; // Localized does not exist
+        }
+        if (path === 'fallback/en/mock-post.md') {
+          return true; // Fallback exists
+        }
+        return false;
+      });
+
+      const result = await getPostData('mock-post', 'fr');
+
+      // Verify the result matches the fallback content
+      expect(result).toEqual({
+        id: 'mock-post',
+        title: 'Mock Post Title',
+        date: '2024-01-01',
+        summary: 'Mock summary',
+        topics: ['React', 'Next.js'],
+        contentHtml: '<p>Mocked HTML Content</p>',
+      });
+
+      // Verify `path.join` was called correctly
+      expect(mockedJoin).toHaveBeenCalledWith(expect.stringContaining('content/posts'), 'fr', 'mock-post.md');
+      expect(mockedJoin).toHaveBeenCalledWith(expect.stringContaining('content/posts'), 'en', 'mock-post.md');
+
+      // Verify `fs.existsSync` was called for both paths
+      expect(fs.existsSync).toHaveBeenCalledWith('localized/fr/mock-post.md');
+      expect(fs.existsSync).toHaveBeenCalledWith('fallback/en/mock-post.md');
+
+      // Verify `fs.readFileSync` was only called for the fallback
+      expect(fs.readFileSync).toHaveBeenCalledWith('fallback/en/mock-post.md', 'utf8');
+    });
+
+    it('throws an error if neither localizedPath nor fallbackPath exists', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+
+      await expect(getPostData('mock-post', 'de')).rejects.toThrow(
+        'Post "mock-post" not found in "de" or fallback "en".',
+      );
+
+      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('de'));
+      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('en'));
     });
   });
 
