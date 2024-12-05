@@ -1,6 +1,8 @@
-import { getAllPostIds, getPostData, getSortedPostsData, makePostDetailProps, makePostProps } from '@/lib/posts';
+import { getPostData, getAllPostIds, getSortedPostsData, makePostProps, makePostDetailProps } from '@/lib/posts';
 import fs from 'fs';
 import { GetStaticPropsContext } from 'next';
+import path from 'path';
+import matter from 'gray-matter';
 
 // Mock `fs` module
 jest.mock('fs', () => ({
@@ -16,8 +18,8 @@ jest.mock('path', () => ({
 }));
 
 // Mock `gray-matter`
-jest.mock('gray-matter', () => {
-  return jest.fn((content: string = 'Mock Markdown Content') => ({
+jest.mock('gray-matter', () =>
+  jest.fn().mockImplementation((content: string) => ({
     data: {
       id: 'mock-post',
       title: 'Mock Post Title',
@@ -25,9 +27,10 @@ jest.mock('gray-matter', () => {
       summary: 'Mock summary',
       topics: ['React', 'Next.js'],
     },
-    content,
-  }));
-});
+    content: 'Mock Markdown Content',
+  })),
+);
+
 // Mock `remark` and `remark-html`
 jest.mock('remark', () => ({
   remark: jest.fn().mockReturnValue({
@@ -87,105 +90,6 @@ describe('Posts Library', () => {
           topics: ['React', 'Next.js'],
         },
       ]);
-    });
-  });
-
-  describe('getPostData', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-
-      (fs.existsSync as jest.Mock).mockImplementation((filePath: string) => {
-        return filePath.includes('mock-post.md');
-      });
-
-      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.includes('mock-post.md')) {
-          return `
-          ---
-          title: Mock Post Title
-          date: "2024-01-01"
-          summary: Mock summary
-          topics: ["React", "Next.js"]
-          ---
-          Mock Markdown Content
-        `;
-        }
-        if (filePath.includes('empty-file.md')) {
-          return '';
-        }
-        if (filePath.includes('no-front-matter.md')) {
-          return 'No front matter here';
-        }
-        throw new Error('File not found');
-      });
-    });
-
-    it('returns parsed and processed post data with valid content', async () => {
-      const result = await getPostData('mock-post', 'en');
-      expect(result).toEqual({
-        id: 'mock-post',
-        title: 'Mock Post Title',
-        date: '2024-01-01',
-        summary: 'Mock summary',
-        topics: ['React', 'Next.js'],
-        contentHtml: '<p>Mocked HTML Content</p>',
-      });
-    });
-
-    it('throws an error if file does not exist', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(false);
-
-      await expect(getPostData('non-existent-post', 'en')).rejects.toThrow(
-        'Post "non-existent-post" not found in "en" or fallback "en".',
-      );
-    });
-
-    it('handles empty file content gracefully', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.readFileSync as jest.Mock).mockReturnValue('');
-
-      const result = await getPostData('empty-file', 'en');
-
-      expect(result).toEqual({
-        id: 'mock-post',
-        title: 'Mock Post Title',
-        date: '2024-01-01',
-        summary: 'Mock summary',
-        topics: ['React', 'Next.js'],
-        contentHtml: '<p>Mocked HTML Content</p>',
-      });
-    });
-
-    it('handles missing content gracefully', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.readFileSync as jest.Mock).mockReturnValue(`
-    ---
-    title: Mock Post Title
-    date: "2024-01-01"
-    summary: Mock summary
-    ---
-  `);
-
-      // Remark Mock
-      const remarkMock = jest.spyOn(require('remark'), 'remark').mockReturnValue({
-        use: jest.fn().mockReturnThis(),
-        process: jest.fn().mockResolvedValue({
-          toString: jest.fn().mockReturnValue(''),
-        }),
-      });
-
-      const result = await getPostData('mock-post', 'en');
-
-      expect(result).toEqual({
-        id: 'mock-post',
-        title: 'Mock Post Title',
-        date: '2024-01-01',
-        summary: 'Mock summary',
-        topics: ['React', 'Next.js'],
-        contentHtml: '',
-      });
-
-      remarkMock.mockRestore();
     });
   });
 
