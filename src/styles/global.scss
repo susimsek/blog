@@ -652,6 +652,83 @@ input.form-control {
       border-color: var(--dark-hover);
     }
   }
+
+  &.badge-red {
+    background-color: var(--red-bg);
+    color: var(--red-text);
+    border-color: var(--red-bg);
+
+    &:hover {
+      background-color: var(--red-hover);
+      border-color: var(--red-hover);
+    }
+  }
+
+  &.badge-green {
+    background-color: var(--green-bg);
+    color: var(--green-text);
+    border-color: var(--green-bg);
+
+    &:hover {
+      background-color: var(--green-hover);
+      border-color: var(--green-hover);
+    }
+  }
+
+  &.badge-blue {
+    background-color: var(--blue-bg);
+    color: var(--blue-text);
+    border-color: var(--blue-bg);
+
+    &:hover {
+      background-color: var(--blue-hover);
+      border-color: var(--blue-hover);
+    }
+  }
+
+  &.badge-orange {
+    background-color: var(--orange-bg);
+    color: var(--orange-text);
+    border-color: var(--orange-bg);
+
+    &:hover {
+      background-color: var(--orange-hover);
+      border-color: var(--orange-hover);
+    }
+  }
+
+  &.badge-yellow {
+    background-color: var(--yellow-bg);
+    color: var(--yellow-text);
+    border-color: var(--yellow-bg);
+
+    &:hover {
+      background-color: var(--yellow-hover);
+      border-color: var(--yellow-hover);
+    }
+  }
+
+  &.badge-purple {
+    background-color: var(--purple-bg);
+    color: var(--purple-text);
+    border-color: var(--purple-bg);
+
+    &:hover {
+      background-color: var(--purple-hover);
+      border-color: var(--purple-hover);
+    }
+  }
+
+  &.badge-gray {
+    background-color: var(--gray-bg);
+    color: var(--gray-text);
+    border-color: var(--gray-bg);
+
+    &:hover {
+      background-color: var(--gray-hover);
+      border-color: var(--gray-hover);
+    }
+  }
 }
 
 .alert {
