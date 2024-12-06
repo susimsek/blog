@@ -1,0 +1,11 @@
+{
+  "topic": {
+    "title": "{{topic}} Hakkında Yazılar",
+    "subtitle": "{{topic}} ile ilgili en son yazılara göz atın.",
+    "no_posts": "{{topic}} konusu için yazı bulunamadı.",
+    "meta": {
+      "description": "{{topic}} hakkında en son yazıları ve analizleri keşfedin. Trendler ve makalelerle güncel kalın.",
+      "keywords": "{{topic}}, {{topic}} blogu, {{topic}} hakkında analizler, {{topic}} trendleri"
+    }
+  }
+}
