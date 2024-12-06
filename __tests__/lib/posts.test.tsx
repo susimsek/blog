@@ -450,6 +450,56 @@ describe('Posts Library', () => {
     });
   });
 
+  describe('getTopicData', () => {
+    const mockTopics = [
+      { id: 'react', name: 'React', color: 'blue' },
+      { id: 'nextjs', name: 'Next.js', color: 'green' },
+    ];
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+
+      (fs.promises.readdir as jest.Mock).mockReturnValue(['mock-post.md']);
+
+      (fs.promises.readFile as jest.Mock).mockReturnValue(`
+      ---
+      id: mock-post
+      title: Mock Post Title
+      date: "2024-01-01"
+      summary: Mock summary
+      topics: [{"id": "typescript", "name": "Typescript", "color": "red"}]
+      ---
+      # Mock Markdown Content
+    `);
+    });
+
+    it('collects topics from both directory and fallbackDirectory when they exist', async () => {
+      const result = await getTopicData('tr', 'typescript');
+
+      expect(fs.promises.readdir).toHaveBeenCalledWith(expect.stringContaining('/content/posts/en'));
+      expect(fs.promises.readdir).toHaveBeenCalledWith(expect.stringContaining('/content/posts/tr'));
+      expect(result).toEqual({ id: 'typescript', name: 'Typescript', color: 'red' });
+    });
+
+    it('collects topics from only directory when fallbackDirectory does not exist', async () => {
+      (fs.existsSync as jest.Mock).mockImplementation(path => path.includes('/en')); // fallbackDirectory missing
+
+      const result = await getTopicData('en', 'typescript');
+
+      expect(fs.promises.readdir).toHaveBeenCalledWith(expect.stringContaining('/content/posts/en'));
+      expect(result).toEqual({ id: 'typescript', name: 'Typescript', color: 'red' });
+    });
+
+    it('returns null when both directory and fallbackDirectory are empty', async () => {
+      (fs.promises.readdir as jest.Mock).mockResolvedValue([]); // Empty directories
+
+      const result = await getTopicData('en', 'react');
+
+      expect(fs.promises.readdir).toHaveBeenCalledWith(expect.stringContaining('/content/posts/en'));
+      expect(result).toBeNull();
+    });
+  });
+
   describe('getAllPostIds', () => {
     it('returns all post IDs with locales', () => {
       const result = getAllPostIds();
