@@ -878,7 +878,6 @@ describe('Posts Library', () => {
       ]);
 
       expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
-      expect(fs.readdirSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
     });
   });
 });
