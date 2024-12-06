@@ -70,7 +70,7 @@ To run the tests and ensure the application is functioning correctly:
 npm test
 ```
 
-## 🏗️ Build
+## 🏗️️ Build
 
 To build the application for production:
 
