@@ -5,7 +5,19 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=coverage)](https://sonarcloud.io/summary/new_code?id=blog)
 ![Top Language](https://img.shields.io/github/languages/top/susimsek/blog)
 
-This is a simple **blog application** built with **Next.js**, **TypeScript**, **React-Bootstrap**, and **Markdown**. It uses Markdown files to manage and display blog posts in a static site format.
+Welcome to **Blog Application** – a sleek, modern, and fully-featured blogging platform built with 💻 **Next.js**, 🎨 **React-Bootstrap**, and 🔧 **TypeScript**. 🚀
+
+## 🚀 Quick Links
+
+- 🌐 [Live Demo](#live-demo)
+- 📖 [Features](#features)
+- 🧑‍💻 [Development Setup](#-development-setup)
+- 🧪 [Testing](#-testing)
+- 🏗️ [Build](#-build)
+- 📏 [ESLint](#-eslint)
+- 🎨 [Prettier](#-prettier)
+- 🛡️ [Code Quality](#-code-quality)
+- 🛠️ [Used Technologies](#-used-technologies)
 
 ## Live Demo
 
@@ -17,95 +29,86 @@ Enjoy reading blog posts and experience seamless navigation between different se
 
 ## Features
 
-- 🌗 **Theme Support**: Seamless theme switching between light and dark modes.
-- 🌍 **i18n Support**: Fully supports **English (en)** and **Turkish (tr)** languages.
-- 📱 **Responsive Design**: Fully responsive UI optimized for various devices and screen sizes.
-- ✅ **100% Code Coverage**: Comprehensive unit tests with Jest ensure maximum code reliability.
-- 📝 **Markdown Rendering**: Posts are written in Markdown for simplicity and portability.
-- 🛠️ **Redux Integration**: State management with Redux for scalability.
-- 🚀 **GitHub Actions CI/CD**: Continuous integration and delivery pipeline with automated testing.
-- 🎨 **Prettier and ESLint**: Enforces code style and formatting standards.
-- 🔍 **SonarQube Integration**: Code quality and maintainability analysis with SonarQube.
+- 🌗 **Theme Switching**: Light and dark modes for a seamless user experience.
+- 🌍 **Multilingual Support**: Available in **English** and **Turkish**.
+- 📱 **Responsive Design**: Optimized for all devices.
+- ✅ **High Test Coverage**: Ensures reliability with comprehensive unit tests.
+- 📝 **Markdown Rendering**: Write your posts in Markdown.
+- 🛠️ **Redux Integration**: Powerful state management.
+- 🎨 **Code Style Enforcements**: With **Prettier** and **ESLint**.
+- 🔍 **SonarQube Integration**: Continuous code quality monitoring.
 
-## Preview
+## 🎥 Demo Preview
 
-Below is a preview of the **Blog Application** interface:
+Below is a quick preview of the Blog Application:
 
 ![Blog Application Preview](https://github.com/susimsek/blog/blob/main/images/webapp.png)
 
-## Prerequisites
+## ⚙️ Development Setup
 
-Before you begin, ensure you have the following installed:
+To clone and run this application locally:
 
-- **Node.js 21**
+```bash
+# Clone the repository
+git clone https://github.com/susimsek/blog.git
 
-## Development
+# Navigate to the project directory
+cd blog
 
-To install dependencies:
-
-```sh
+# Install dependencies
 npm install
-```
 
-To start developing the web application:
-
-```sh
+# Start the development server
 npm run dev
 ```
 
-Open your browser and navigate to:
-
-```
-http://localhost:3000
-```
-
-## Testing
+## 🧪 Testing
 
 To run the tests and ensure the application is functioning correctly:
 
-```sh
+```bash
 npm test
 ```
 
-### Build
+## 🏗️ Build
 
 To build the application for production:
 
-```sh
+```bash
 npm run build
 ```
 
-## ESLint
+## 📏 ESLint
 
 To check the JavaScript and TypeScript code style using ESLint, execute:
 
-```sh
+```bash
 npm run lint
 ```
 
 To automatically fix linting issues, execute:
 
-```sh
+```bash
 npm run lint:fix
 ```
 
-## Prettier
+## 🎨 Prettier
 
 To format the code using Prettier, execute:
 
-```sh
+```bash
 npm run prettier:format
 ```
 
-## Code Quality
+## 🛡️ Code Quality
 
 To assess code quality locally using SonarQube, execute:
 
-```sh
+```bash
 npm run sonar
 ```
 
-## Used Technologies
+## 🛠️ Used Technologies
 
 ![Node.js](https://img.shields.io/badge/Node.js-21.0-green?logo=node.js&logoColor=white)  
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white)  
