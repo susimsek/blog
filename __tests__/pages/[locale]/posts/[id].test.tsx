@@ -51,7 +51,7 @@ jest.mock('@/components/posts/PostDetail', () => ({
       {post.topics && (
         <ul>
           {post.topics.map((topic, index) => (
-            <li key={index}>{topic}</li>
+            <li key={index}>{topic.name}</li>
           ))}
         </ul>
       )}
@@ -110,7 +110,10 @@ describe('Post Page', () => {
       summary: 'This is a mocked post summary.',
       contentHtml: '<p>Mocked HTML content</p>',
       date: '2024-01-01',
-      topics: ['React', 'Next.js'],
+      topics: [
+        { id: '1', name: 'React', color: 'blue' },
+        { id: '2', name: 'Next.js', color: 'green' },
+      ],
     };
 
     renderPostPage(mockPost);
@@ -137,14 +140,18 @@ describe('Post Page', () => {
       summary: 'Test summary',
       contentHtml: '<p>Test content</p>',
       date: '2024-01-01',
-      topics: ['React', 'Next.js'],
+      topics: [
+        { id: '1', name: 'React', color: 'blue' },
+        { id: '2', name: 'Next.js', color: 'green' },
+      ],
     };
 
     renderPostPage(mockPost);
 
-    const headElement = document.querySelector('meta[name="keywords"]');
+    const headElement = document.querySelector('meta[name="keywords"]') as HTMLMetaElement;
     expect(headElement).not.toBeNull();
-    expect(headElement).toHaveAttribute('content', 'React, Next.js');
+
+    expect(headElement?.getAttribute('content')).toBe('React, Next.js');
   });
 
   it('renders empty keywords when topics are an empty array', () => {

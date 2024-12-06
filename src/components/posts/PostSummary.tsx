@@ -30,9 +30,11 @@ export default function PostSummary({ post }: Readonly<PostSummaryProps>) {
         {topics && topics.length > 0 && (
           <div className="mb-4">
             {topics.map(topic => (
-              <Badge key={topic.name} bg={topic.color} className={`me-2 badge-${topic.color}`}>
-                {topic.name}
-              </Badge>
+              <Link key={topic.id} href={`/topics/${topic.id}`}>
+                <Badge bg={topic.color} className={`me-2 badge-${topic.color}`}>
+                  {topic.name}
+                </Badge>
+              </Link>
             ))}
           </div>
         )}

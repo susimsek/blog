@@ -3,7 +3,7 @@ import path from 'path';
 import matter from 'gray-matter';
 import { remark } from 'remark';
 import html from 'remark-html';
-import { Post, PostSummary } from '@/types/posts';
+import { Post, PostSummary, Topic } from '@/types/posts';
 import i18nextConfig from '../../next-i18next.config';
 import { GetStaticPropsContext } from 'next';
 import { getI18nProps } from '@/lib/getStatic';
@@ -25,8 +25,29 @@ function parsePostFile(filePath: string, includeContent: boolean = false): { dat
   return includeContent ? { data: postSummary, content } : { data: postSummary };
 }
 
+async function collectTopicsFromDirectory(dir: string, topicsMap: Map<string, Topic>) {
+  if (!fs.existsSync(dir)) return;
+
+  const fileNames = await fs.promises.readdir(dir);
+
+  for (const fileName of fileNames) {
+    const filePath = path.join(dir, fileName);
+    const fileContents = await fs.promises.readFile(filePath, 'utf8');
+
+    const { data } = matter(fileContents);
+
+    if (Array.isArray(data.topics)) {
+      data.topics.forEach((topic: Topic) => {
+        if (!topicsMap.has(topic.id)) {
+          topicsMap.set(topic.id, topic);
+        }
+      });
+    }
+  }
+}
+
 // Get all posts grouped by locale with fallback support
-export function getSortedPostsData(locale: string): PostSummary[] {
+export function getSortedPostsData(locale: string, topicId?: string): PostSummary[] {
   const fallbackLocale = i18nextConfig.i18n.defaultLocale;
   const directory = path.join(postsDirectory, locale);
   const fallbackDirectory = path.join(postsDirectory, fallbackLocale);
@@ -40,8 +61,12 @@ export function getSortedPostsData(locale: string): PostSummary[] {
     fileNames.forEach(fileName => {
       const filePath = path.join(directory, fileName);
       const { data } = parsePostFile(filePath);
-      seenIds.add(data.id);
-      posts.push(data);
+
+      // Check if the post matches the topicId
+      if (!topicId || (Array.isArray(data.topics) && data.topics.some((t: Topic) => t.id === topicId))) {
+        seenIds.add(data.id);
+        posts.push(data);
+      }
     });
   }
 
@@ -52,7 +77,11 @@ export function getSortedPostsData(locale: string): PostSummary[] {
       const filePath = path.join(fallbackDirectory, fileName);
       const { data } = parsePostFile(filePath);
 
-      if (!seenIds.has(data.id)) {
+      // Check if the post matches the topicId
+      if (
+        !seenIds.has(data.id) &&
+        (!topicId || (Array.isArray(data.topics) && data.topics.some((t: Topic) => t.id === topicId)))
+      ) {
         posts.push(data);
       }
     });
@@ -63,7 +92,7 @@ export function getSortedPostsData(locale: string): PostSummary[] {
 }
 
 // Get a specific post for all locales with fallback support
-export async function getPostData(id: string, locale: string): Promise<Post> {
+export async function getPostData(id: string, locale: string): Promise<Post | null> {
   const fallbackLocale = i18nextConfig.i18n.defaultLocale;
 
   // Localized and fallback paths
@@ -79,7 +108,7 @@ export async function getPostData(id: string, locale: string): Promise<Post> {
   }
 
   if (!filePath) {
-    throw new Error(`Post "${id}" not found in "${locale}" or fallback "${fallbackLocale}".`);
+    return null;
   }
 
   // Parse post file and process content
@@ -92,6 +121,20 @@ export async function getPostData(id: string, locale: string): Promise<Post> {
   };
 }
 
+export async function getTopicData(locale: string, topicId: string): Promise<Topic | null> {
+  const fallbackLocale = i18nextConfig.i18n.defaultLocale;
+  const directory = path.join(postsDirectory, locale);
+  const fallbackDirectory = path.join(postsDirectory, fallbackLocale);
+
+  const allTopics = new Map<string, Topic>();
+
+  await collectTopicsFromDirectory(directory, allTopics);
+  if (locale !== fallbackLocale) {
+    await collectTopicsFromDirectory(fallbackDirectory, allTopics);
+  }
+
+  return allTopics.get(topicId) || null;
+}
 // Generate all post IDs for static paths
 export function getAllPostIds() {
   const defaultLocale = i18nextConfig.i18n.defaultLocale;
@@ -107,6 +150,36 @@ export function getAllPostIds() {
       },
     }));
   });
+}
+
+export function getAllTopicIds() {
+  const defaultLocale = i18nextConfig.i18n.defaultLocale;
+  const directory = path.join(postsDirectory, defaultLocale);
+  const fileNames = fs.existsSync(directory) ? fs.readdirSync(directory) : [];
+
+  const topicIds = new Set<string>();
+
+  // Iterate through all post files to collect unique topic IDs
+  fileNames.forEach(fileName => {
+    const filePath = path.join(directory, fileName);
+    const { data } = parsePostFile(filePath);
+
+    if (Array.isArray(data.topics)) {
+      data.topics.forEach((topic: { id: string }) => {
+        topicIds.add(topic.id); // Add each topic's id to the Set
+      });
+    }
+  });
+
+  // Convert the Set to an array of paths with locales
+  return Array.from(topicIds).flatMap(id =>
+    i18nextConfig.i18n.locales.map(locale => ({
+      params: {
+        id,
+        locale,
+      },
+    })),
+  );
 }
 
 // Factory for generating localized props for post lists
@@ -135,13 +208,44 @@ export const makePostDetailProps =
     const id = (context?.params?.id as string) || '';
 
     const post = await getPostData(id, locale);
+    if (!post) {
+      return {
+        notFound: true,
+      };
+    }
 
-    const i18nProps = await getI18nProps({ locale }, ns);
+    const i18nProps = await getI18nProps(context, ns);
 
     return {
       props: {
         ...i18nProps,
         post,
+      },
+    };
+  };
+
+export const makeTopicProps =
+  (ns: string[] = []) =>
+  async (context: GetStaticPropsContext) => {
+    const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
+    const topicId = (context?.params?.id as string) || '';
+
+    const topic = await getTopicData(locale, topicId);
+    if (!topic) {
+      return {
+        notFound: true,
+      };
+    }
+
+    const posts = getSortedPostsData(locale, topicId);
+
+    const i18nProps = await getI18nProps(context, ns);
+
+    return {
+      props: {
+        ...i18nProps,
+        topic,
+        posts,
       },
     };
   };

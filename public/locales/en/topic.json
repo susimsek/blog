@@ -1,0 +1,11 @@
+{
+  "topic": {
+    "title": "Posts about {{topic}}",
+    "subtitle": "Explore the latest posts related to {{topic}}.",
+    "no_posts": "No posts found for the topic {{topic}}.",
+    "meta": {
+      "description": "Discover the latest posts and insights about {{topic}}. Stay updated with trends and articles.",
+      "keywords": "{{topic}}, {{topic}} blog, insights on {{topic}}, {{topic}} trends"
+    }
+  }
+}

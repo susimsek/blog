@@ -10,9 +10,6 @@ topics:
   - id: 'technology'
     name: 'Teknoloji'
     color: 'blue'
-  - id: 'javascript'
-    name: 'JavaScript'
-    color: 'green'
 ---
 
 # İlk Blog Yazım3

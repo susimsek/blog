@@ -10,9 +10,6 @@ topics:
   - id: 'technology'
     name: 'Technology'
     color: 'blue'
-  - id: 'javascript'
-    name: 'JavaScript'
-    color: 'green'
 ---
 
 # My First Blog Post3

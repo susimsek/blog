@@ -4,6 +4,7 @@ import { Container, Badge } from 'react-bootstrap';
 import { assetPrefix } from '@/config/constants';
 import DateDisplay from '@/components/common/DateDisplay';
 import Thumbnail from '@/components/common/Thumbnail';
+import Link from 'next/link';
 
 interface PostDetailProps {
   post: Post;
@@ -21,9 +22,11 @@ export default function PostDetail({ post }: Readonly<PostDetailProps>) {
       {topics && topics.length > 0 && (
         <div className="mb-4">
           {topics.map(topic => (
-            <Badge key={topic.name} bg={topic.color} className={`me-2 badge-${topic.color}`}>
-              {topic.name}
-            </Badge>
+            <Link key={topic.id} href={`/topics/${topic.id}`}>
+              <Badge bg={topic.color} className={`me-2 badge-${topic.color}`}>
+                {topic.name}
+              </Badge>
+            </Link>
           ))}
         </div>
       )}

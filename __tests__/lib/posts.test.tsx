@@ -1,13 +1,26 @@
-import { getAllPostIds, getSortedPostsData, makePostProps, makePostDetailProps, getPostData } from '@/lib/posts';
+import {
+  getAllPostIds,
+  getSortedPostsData,
+  makePostProps,
+  makePostDetailProps,
+  getPostData,
+  getTopicData,
+  makeTopicProps,
+} from '@/lib/posts';
 import fs from 'fs';
 import { GetStaticPropsContext } from 'next';
 import path from 'path';
+import { getI18nProps } from '@/lib/getStatic';
 
 // Mock `fs` module
 jest.mock('fs', () => ({
   existsSync: jest.fn(),
   readFileSync: jest.fn(),
   readdirSync: jest.fn(),
+  promises: {
+    readdir: jest.fn(),
+    readFile: jest.fn(),
+  },
 }));
 
 // Mock `path` module
@@ -26,7 +39,7 @@ jest.mock('gray-matter', () =>
           title: 'Post 1',
           date: '2024-01-01',
           summary: 'Summary 1',
-          topics: [{ name: 'React', color: 'red' }],
+          topics: [{ id: 'react', name: 'React', color: 'red' }],
         },
         content: 'Content 1',
       };
@@ -50,7 +63,7 @@ jest.mock('gray-matter', () =>
           title: 'Post 3',
           date: '2024-01-02',
           summary: 'Summary 3',
-          topics: [{ name: 'React', color: 'green' }],
+          topics: [{ name: 'Boostrap', color: 'green' }],
         },
         content: 'Content 3',
       };
@@ -73,7 +86,7 @@ jest.mock('gray-matter', () =>
         title: 'Mock Post Title',
         date: '2024-01-01',
         summary: 'Mock summary',
-        topics: [{ name: 'React', color: 'red' }],
+        topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
       },
       content: 'Mock Markdown Content',
     };
@@ -97,7 +110,7 @@ jest.mock('@/lib/getStatic', () => ({
   getI18nProps: jest.fn().mockResolvedValue({
     _nextI18Next: {
       initialLocale: 'en',
-      ns: ['common', 'post'],
+      ns: ['common', 'post', 'topic'],
     },
   }),
 }));
@@ -136,9 +149,40 @@ describe('Posts Library', () => {
           title: 'Mock Post Title',
           date: '2024-01-01',
           summary: 'Mock summary',
-          topics: [{ name: 'React', color: 'red' }],
+          topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
         },
       ]);
+    });
+
+    it('filters posts by topicId', () => {
+      (fs.readdirSync as jest.Mock).mockReturnValue(['post1.md', 'post2.md', 'post3.md']);
+      (fs.readFileSync as jest.Mock).mockImplementation(path => {
+        if (path.includes('post1.md')) {
+          return `
+          ---
+          id: post1
+          title: Post 1
+          date: "2024-01-01"
+          topics: [{ id: 'react', name: 'React', color: 'blue' }]
+          ---
+          `;
+        }
+        if (path.includes('post2.md')) {
+          return `
+          ---
+          id: post2
+          title: Post 2
+          date: "2024-01-01"
+          topics: [{ id: 'nextjs', name: 'Next.js', color: 'green' }]
+          ---
+          `;
+        }
+        return '';
+      });
+
+      const result = getSortedPostsData('en', 'react');
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe('post1');
     });
 
     it('sorts posts with the same date', () => {
@@ -207,7 +251,7 @@ describe('Posts Library', () => {
           title: 'Post 3',
           date: '2024-01-02',
           summary: 'Summary 3',
-          topics: [{ name: 'React', color: 'green' }],
+          topics: [{ name: 'Boostrap', color: 'green' }],
         },
         {
           id: 'post4',
@@ -228,7 +272,7 @@ describe('Posts Library', () => {
           title: 'Post 1',
           date: '2024-01-01',
           summary: 'Summary 1',
-          topics: [{ name: 'React', color: 'red' }],
+          topics: [{ id: 'react', name: 'React', color: 'red' }],
         },
       ]);
     });
@@ -257,7 +301,7 @@ describe('Posts Library', () => {
           title: 'Mock Post Title',
           date: '2024-01-01',
           summary: 'Mock summary',
-          topics: [{ name: 'React', color: 'red' }],
+          topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
         },
       ]);
 
@@ -282,7 +326,7 @@ describe('Posts Library', () => {
         title: 'Mock Post Title',
         date: '2024-01-01',
         summary: 'Mock summary',
-        topics: [{ name: 'React', color: 'red' }],
+        topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
         contentHtml: '<p>Mocked HTML Content</p>',
       });
 
@@ -325,7 +369,7 @@ describe('Posts Library', () => {
         title: 'Mock Post Title',
         date: '2024-01-01',
         summary: 'Mock summary',
-        topics: [{ name: 'React', color: 'red' }],
+        topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
         contentHtml: '<p>Mocked HTML Content</p>',
       });
 
@@ -341,15 +385,10 @@ describe('Posts Library', () => {
       expect(fs.readFileSync).toHaveBeenCalledWith('fallback/en/mock-post.md', 'utf8');
     });
 
-    it('throws an error if neither localizedPath nor fallbackPath exists', async () => {
+    it('returns null if file does not exist', async () => {
       (fs.existsSync as jest.Mock).mockReturnValue(false);
-
-      await expect(getPostData('mock-post', 'de')).rejects.toThrow(
-        'Post "mock-post" not found in "de" or fallback "en".',
-      );
-
-      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('de'));
-      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('en'));
+      const result = await getPostData('missing-post', 'en');
+      expect(result).toBeNull();
     });
   });
 
@@ -361,6 +400,12 @@ describe('Posts Library', () => {
         { params: { id: 'mock-post', locale: 'fr' } },
         { params: { id: 'mock-post', locale: 'de' } },
       ]);
+    });
+
+    it('returns an empty list when no posts are found', () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+      const result = getAllPostIds();
+      expect(result).toEqual([]);
     });
 
     it('returns an empty list when directory does not exist', () => {
@@ -404,7 +449,7 @@ describe('Posts Library', () => {
           title: 'Mock Post Title',
           date: '2024-01-01',
           summary: 'Mock summary',
-          topics: [{ name: 'React', color: 'red' }],
+          topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
         },
       ]);
     });
@@ -418,7 +463,7 @@ describe('Posts Library', () => {
         props: {
           _nextI18Next: {
             initialLocale: 'en',
-            ns: ['common', 'post'],
+            ns: ['common', 'post', 'topic'],
           },
           posts: [
             {
@@ -426,7 +471,7 @@ describe('Posts Library', () => {
               title: 'Mock Post Title',
               date: '2024-01-01',
               summary: 'Mock summary',
-              topics: [{ name: 'React', color: 'red' }],
+              topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
             },
           ],
         },
@@ -469,7 +514,7 @@ describe('Posts Library', () => {
       const result = await makePostProps(['common', 'post'])(context);
       expect(result.props._nextI18Next).toEqual({
         initialLocale: 'en',
-        ns: ['common', 'post'],
+        ns: ['common', 'post', 'topic'],
       });
     });
   });
@@ -487,7 +532,7 @@ describe('Posts Library', () => {
         title: 'Mock Post Title',
         date: '2024-01-01',
         summary: 'Mock summary',
-        topics: [{ name: 'React', color: 'red' }],
+        topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
         contentHtml: '<p>Mocked HTML Content</p>',
       });
     });
@@ -501,14 +546,14 @@ describe('Posts Library', () => {
         props: {
           _nextI18Next: {
             initialLocale: 'en',
-            ns: ['common', 'post'],
+            ns: ['common', 'post', 'topic'],
           },
           post: {
             id: 'mock-post',
             title: 'Mock Post Title',
             date: '2024-01-01',
             summary: 'Mock summary',
-            topics: [{ name: 'React', color: 'red' }],
+            topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
             contentHtml: '<p>Mocked HTML Content</p>',
           },
         },
@@ -540,9 +585,83 @@ describe('Posts Library', () => {
         title: 'Mock Post Title',
         date: '2024-01-01',
         summary: 'Mock summary',
-        topics: [{ name: 'React', color: 'red' }],
+        topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
         contentHtml: '<p>Mocked HTML Content</p>',
       });
+    });
+  });
+
+  describe('makeTopicProps', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('returns props when locale and topicId are valid', async () => {
+      (fs.promises.readdir as jest.Mock).mockReturnValue(['mock-post.md']);
+
+      (fs.promises.readFile as jest.Mock).mockReturnValue(`
+      ---
+      id: mock-post
+      title: Mock Post Title
+      date: "2024-01-01"
+      summary: Mock summary
+      topics: [{"id": "typescript", "name": "Typescript", "color": "red"}]
+      ---
+      # Mock Markdown Content
+    `);
+
+      const context: GetStaticPropsContext = {
+        params: { locale: 'en', id: 'typescript' },
+      };
+
+      const result = await makeTopicProps(['common', 'topic'])(context);
+
+      expect(result.props).toBeDefined();
+      expect(result.props._nextI18Next?.initialLocale).toBe('en');
+    });
+
+    it('returns notFound: true when topic does not exist', async () => {
+      const context: GetStaticPropsContext = {
+        params: { locale: 'en', id: 'missing-topic' },
+      };
+
+      (fs.promises.readdir as jest.Mock).mockReturnValue(['mock-post.md']);
+
+      (fs.promises.readFile as jest.Mock).mockReturnValue(`
+      ---
+      id: mock-post
+      title: Mock Post Title
+      date: "2024-01-01"
+      summary: Mock summary
+      topics: [{"id": "typescript", "name": "Typescript", "color": "red"}]
+      ---
+      # Mock Markdown Content
+    `);
+
+      const result = await makeTopicProps(['common', 'topic'])(context);
+
+      expect(result).toEqual({ notFound: true });
+    });
+
+    it('uses default locale when locale is missing', async () => {
+      const context: GetStaticPropsContext = {
+        params: { id: 'typescript' },
+      };
+      (fs.promises.readdir as jest.Mock).mockReturnValue(['mock-post.md']);
+
+      (fs.promises.readFile as jest.Mock).mockReturnValue(`
+      ---
+      id: mock-post
+      title: Mock Post Title
+      date: "2024-01-01"
+      summary: Mock summary
+      topics: [{"id": "typescript", "name": "Typescript", "color": "red"}]
+      ---
+      # Mock Markdown Content
+    `);
+      const result = await makeTopicProps(['common', 'topic'])(context);
+
+      expect(result.props._nextI18Next?.initialLocale).toBe('en');
     });
   });
 });

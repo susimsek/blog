@@ -8,9 +8,10 @@ import { useTranslation } from 'next-i18next';
 
 interface PostListProps {
   posts: PostSummary[];
+  noPostsFoundMessage?: string;
 }
 
-export default function PostList({ posts }: Readonly<PostListProps>) {
+export default function PostList({ posts, noPostsFoundMessage }: Readonly<PostListProps>) {
   const { t } = useTranslation(['post', 'common']);
   const [postsPerPage, setPostsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
@@ -93,7 +94,7 @@ export default function PostList({ posts }: Readonly<PostListProps>) {
       {currentPosts.length > 0 ? (
         currentPosts.map(post => <PostCard key={post.id} post={post} />)
       ) : (
-        <p className="text-center text-muted">{t('post.noPostsFound')}</p>
+        <p className="text-center text-muted">{noPostsFoundMessage ?? t('post.noPostsFound')}</p>
       )}
 
       {/* Pagination */}
