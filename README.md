@@ -11,7 +11,7 @@ Welcome to **Blog Application** – a sleek, modern, and fully-featured blogging
 
 - 🌐 [Live Demo](#live-demo)
 - 📖 [Features](#features)
-- 🧑‍💻 [Development Setup](#-development-setup)
+- 🧑‍💻 [Development Setup](#️-development-setup)
 - 🧪 [Testing](#-testing)
 - 🏗️ [Build](#-build)
 - 📏 [ESLint](#-eslint)
