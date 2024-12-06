@@ -13,7 +13,7 @@ Welcome to **Blog Application** – a sleek, modern, and fully-featured blogging
 - 📖 [Features](#-features)
 - 🧑‍💻 [Development Setup](#-development-setup)
 - 🧪 [Testing](#-testing)
-- 🏗️ [Build](#-build)
+- 🏗️ [Build](#️-build)
 - 📏 [ESLint](#-eslint)
 - 🎨 [Prettier](#-prettier)
 - 🛡️ [Code Quality](#-code-quality)
