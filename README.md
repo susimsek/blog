@@ -9,9 +9,9 @@ Welcome to **Blog Application** – a sleek, modern, and fully-featured blogging
 
 ## 🚀 Quick Links
 
-- 🌐 [Live Demo](#live-demo)
-- 📖 [Features](#features)
-- 🧑‍💻 [Development Setup](#️-development-setup)
+- 🌐 [Live Demo](#-live-demo)
+- 📖 [Features](#-features)
+- 🧑‍💻 [Development Setup](#-development-setup)
 - 🧪 [Testing](#-testing)
 - 🏗️ [Build](#-build)
 - 📏 [ESLint](#-eslint)
@@ -19,7 +19,7 @@ Welcome to **Blog Application** – a sleek, modern, and fully-featured blogging
 - 🛡️ [Code Quality](#-code-quality)
 - 🛠️ [Used Technologies](#-used-technologies)
 
-## Live Demo
+## 🌐 Live Demo
 
 You can explore the live version of the blog application at [https://susimsek.github.io/blog](https://susimsek.github.io/blog).
 
@@ -27,7 +27,7 @@ Enjoy reading blog posts and experience seamless navigation between different se
 
 ![Introduction](https://github.com/susimsek/blog/blob/main/images/introduction.png)
 
-## Features
+## 📖 Features
 
 - 🌗 **Theme Switching**: Light and dark modes for a seamless user experience.
 - 🌍 **Multilingual Support**: Available in **English** and **Turkish**.
@@ -44,7 +44,7 @@ Below is a quick preview of the Blog Application:
 
 ![Blog Application Preview](https://github.com/susimsek/blog/blob/main/images/webapp.png)
 
-## ⚙️ Development Setup
+## 🧑‍💻 Development Setup
 
 To clone and run this application locally:
 
