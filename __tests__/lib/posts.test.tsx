@@ -473,6 +473,14 @@ describe('Posts Library', () => {
     `);
     });
 
+    it('does not collect topics if directory does not exist', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+
+      const result = await getTopicData('en', 'react'); // Assuming 'react' topic id
+      // Verify result is null as no topics are collected
+      expect(result).toBeNull();
+    });
+
     it('collects topics from both directory and fallbackDirectory when they exist', async () => {
       const result = await getTopicData('tr', 'typescript');
 
