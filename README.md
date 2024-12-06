@@ -11,13 +11,13 @@ Welcome to **Blog Application** – a sleek, modern, and fully-featured blogging
 
 - 🌐 [Live Demo](#live-demo)
 - 📖 [Features](#features)
-- 🧑‍💻 [Development Setup](#development-setup)
-- 🧪 [Testing](#testing)
-- 🏗️ [Build](#build)
-- 📏 [ESLint](#eslint)
-- 🎨 [Prettier](#prettier)
-- 🛡️ [Code Quality](#code-quality)
-- 🛠️ [Used Technologies](#used-technologies)
+- 🧑‍💻 [Development Setup](#️-development-setup)
+- 🧪 [Testing](#-testing)
+- 🏗️ [Build](#️-build)
+- 📏 [ESLint](#️-eslint)
+- 🎨 [Prettier](#️-prettier)
+- 🛡️ [Code Quality](#️-code-quality)
+- 🛠️ [Used Technologies](#️-used-technologies)
 
 ## Live Demo
 
