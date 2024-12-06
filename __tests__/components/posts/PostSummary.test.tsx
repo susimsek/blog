@@ -35,8 +35,8 @@ const mockPost: Post = {
   summary: 'This is a summary of the test post.',
   thumbnail: '/test-thumbnail.jpg',
   topics: [
-    { name: 'React', color: 'blue' },
-    { name: 'Testing', color: 'green' },
+    { id: 'react', name: 'React', color: 'blue' },
+    { id: 'testing', name: 'Testing', color: 'green' },
   ],
 };
 
@@ -81,7 +81,6 @@ describe('PostSummary Component', () => {
     render(<PostSummary post={mockPost} />);
     const summaryElement = screen.getByText(mockPost.summary);
     expect(summaryElement).toBeInTheDocument();
-    expect(summaryElement).toHaveClass('text-muted');
   });
 
   it('renders the "Read More" button with correct link', () => {
