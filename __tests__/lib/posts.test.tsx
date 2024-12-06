@@ -6,6 +6,7 @@ import {
   getPostData,
   getTopicData,
   makeTopicProps,
+  getAllTopicIds,
 } from '@/lib/posts';
 import fs from 'fs';
 import { GetStaticPropsContext } from 'next';
@@ -835,6 +836,49 @@ describe('Posts Library', () => {
       const result = await makeTopicProps(['common', 'topic'])(context);
 
       expect(result).toEqual({ notFound: true });
+    });
+  });
+
+  describe('getAllTopicIds', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('returns an empty array if directory does not exist', () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+
+      const result = getAllTopicIds();
+
+      expect(result).toEqual([]);
+      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
+      expect(fs.readdirSync).not.toHaveBeenCalled();
+    });
+
+    it('returns topic IDs with locales if directory exists', () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.readdirSync as jest.Mock).mockReturnValue(['mock-post.md']);
+
+      (fs.promises.readFile as jest.Mock).mockReturnValue(`
+      ---
+      id: mock-post
+      title: Mock Post Title
+      date: "2024-01-01"
+      summary: Mock summary
+      topics: [{"id": "typescript", "name": "Typescript", "color": "red"}]
+      ---
+      # Mock Markdown Content
+    `);
+
+      const result = getAllTopicIds();
+
+      expect(result).toEqual([
+        { params: { id: 'typescript', locale: 'en' } },
+        { params: { id: 'typescript', locale: 'fr' } },
+        { params: { id: 'typescript', locale: 'de' } },
+      ]);
+
+      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
+      expect(fs.readdirSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
     });
   });
 });
