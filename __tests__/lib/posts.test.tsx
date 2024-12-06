@@ -589,6 +589,18 @@ describe('Posts Library', () => {
         contentHtml: '<p>Mocked HTML Content</p>',
       });
     });
+
+    it('returns notFound when post is undefined', async () => {
+      const context: GetStaticPropsContext = {
+        params: { id: 'non-existent-post', locale: 'en' },
+      };
+
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+
+      const result = await makePostDetailProps(['common', 'post'])(context);
+
+      expect(result).toEqual({ notFound: true });
+    });
   });
 
   describe('makeTopicProps', () => {
