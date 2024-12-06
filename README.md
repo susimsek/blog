@@ -5,7 +5,13 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=coverage)](https://sonarcloud.io/summary/new_code?id=blog)
 ![Top Language](https://img.shields.io/github/languages/top/susimsek/blog)
 
-Welcome to **Blog Application** – a sleek, modern, and fully-featured blogging platform built with 💻 **Next.js**, 🎨 **React-Bootstrap**, and 🔧 **TypeScript**. 🚀
+Welcome to **Blog Application** – a sleek, modern, and fully-featured blogging platform built with:
+
+![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)  
+![React-Bootstrap](https://img.shields.io/badge/React--Bootstrap-563D7C?logo=bootstrap&logoColor=white)  
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)
+
+Explore seamless navigation, robust state management, and responsive design for modern blogging needs. 🚀
 
 ## 🚀 Quick Links
 
