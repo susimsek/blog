@@ -309,6 +309,64 @@ describe('Posts Library', () => {
       expect(fs.readdirSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
       expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('fallback-post.md'), 'utf8');
     });
+
+    it('filters posts matching the topicId', () => {
+      // Mock `fs.existsSync` to simulate fallback directory exists
+      (fs.existsSync as jest.Mock).mockImplementation(path => {
+        if (path.includes('/fr')) return true; // Localized directory exists
+        if (path.includes('/en')) return true; // Fallback directory exists
+        return false;
+      });
+
+      // Mock `fs.readdirSync` to return file names for fallback directory
+      (fs.readdirSync as jest.Mock).mockImplementation(path => {
+        if (path.includes('/en')) {
+          return ['fallback-post.md'];
+        }
+        return [];
+      });
+
+      const result = getSortedPostsData('fr', 'typescript');
+
+      expect(result).toEqual([
+        {
+          id: 'mock-post',
+          title: 'Mock Post Title',
+          date: '2024-01-01',
+          summary: 'Mock summary',
+          topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
+        },
+      ]);
+
+      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
+      expect(fs.readdirSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
+      expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('fallback-post.md'), 'utf8');
+    });
+
+    it('excludes posts not matching the topicId', () => {
+      // Mock `fs.existsSync` to simulate fallback directory exists
+      (fs.existsSync as jest.Mock).mockImplementation(path => {
+        if (path.includes('/fr')) return true; // Localized directory exists
+        if (path.includes('/en')) return true; // Fallback directory exists
+        return false;
+      });
+
+      // Mock `fs.readdirSync` to return file names for fallback directory
+      (fs.readdirSync as jest.Mock).mockImplementation(path => {
+        if (path.includes('/en')) {
+          return ['fallback-post.md'];
+        }
+        return [];
+      });
+
+      const result = getSortedPostsData('fr', 'react');
+
+      expect(result).toEqual([]);
+
+      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
+      expect(fs.readdirSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
+      expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('fallback-post.md'), 'utf8');
+    });
   });
 
   describe('getPostData', () => {
