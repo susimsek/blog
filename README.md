@@ -17,7 +17,7 @@ Welcome to **Blog Application** – a sleek, modern, and fully-featured blogging
 - 📏 [ESLint](#-eslint)
 - 🎨 [Prettier](#-prettier)
 - 🛡️ [Code Quality](#-code-quality)
-- 🛠️ [Used Technologies](#-used-technologies)
+- 🛠️ [Used Technologies](#used-technologies)
 
 ## 🌐 Live Demo
 
