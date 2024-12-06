@@ -107,22 +107,21 @@ npm run sonar
 
 ## Used Technologies
 
-- **Node.js 21**
-- **GitHub Actions**
-- **React**
-- **Next.js**
-- **TypeScript**
-- **ESLint**
-- **Prettier**
-- **SonarQube**
-- **Jest**
-- **Husky**
-- **Redux**
-- **Next i18next**
-- **Next Language Detector**
-- **Bootstrap**
-- **Font Awesome**
-- **Sass**
-- **Gray Matter**
-- **Remark**
-- **Remark Html**
+![Node.js](https://img.shields.io/badge/Node.js-21.0-green?logo=node.js&logoColor=white)  
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white)  
+![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)  
+![Next.js](https://img.shields.io/badge/Next.js-000?logo=next.js&logoColor=white)  
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)  
+![ESLint](https://img.shields.io/badge/ESLint-4B32C3?logo=eslint&logoColor=white)  
+![Prettier](https://img.shields.io/badge/Prettier-F7B93E?logo=prettier&logoColor=white)  
+![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?logo=sonarqube&logoColor=white)  
+![Jest](https://img.shields.io/badge/Jest-C21325?logo=jest&logoColor=white)  
+![Husky](https://img.shields.io/badge/Husky-4B32C3?logo=github&logoColor=white)  
+![Redux](https://img.shields.io/badge/Redux-764ABC?logo=redux&logoColor=white)  
+![Next i18next](https://img.shields.io/badge/Next_i18next-000000?logo=next.js&logoColor=white)  
+![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=white)  
+![Font Awesome](https://img.shields.io/badge/Font_Awesome-339AF0?logo=font-awesome&logoColor=white)  
+![Sass](https://img.shields.io/badge/Sass-CC6699?logo=sass&logoColor=white)  
+![Gray Matter](https://img.shields.io/badge/Gray_Matter-FFB6C1?logo=markdown&logoColor=black)  
+![Remark](https://img.shields.io/badge/Remark-000?logo=markdown&logoColor=white)  
+![Remark Html](https://img.shields.io/badge/Remark_Html-000?logo=markdown&logoColor=white)
