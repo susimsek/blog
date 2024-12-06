@@ -9,15 +9,15 @@ Welcome to **Blog Application** – a sleek, modern, and fully-featured blogging
 
 ## 🚀 Quick Links
 
-- 🌐 [Live Demo](#-live-demo)
-- 📖 [Features](#-features)
-- 🧑‍💻 [Development Setup](#-development-setup)
-- 🧪 [Testing](#-testing)
-- 🏗️️ [Build](#-build)
-- 📏 [ESLint](#-eslint)
-- 🎨 [Prettier](#-prettier)
-- 🛡️ [Code Quality](#-code-quality)
-- 🛠️ [Used Technologies](#-used-technologies)
+- 🌐 [Live Demo](#live-demo)
+- 📖 [Features](#features)
+- 🧑‍💻 [Development Setup](#development-setup)
+- 🧪 [Testing](#testing)
+- 🏗️ [Build](#build)
+- 📏 [ESLint](#eslint)
+- 🎨 [Prettier](#prettier)
+- 🛡️ [Code Quality](#code-quality)
+- 🛠️ [Used Technologies](#used-technologies)
 
 ## 🌐 Live Demo
 
@@ -70,7 +70,7 @@ To run the tests and ensure the application is functioning correctly:
 npm test
 ```
 
-## 🏗️️ Build
+## 🏗️ Build
 
 To build the application for production:
 
