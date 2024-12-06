@@ -4,11 +4,14 @@ date: '2024-10-28'
 summary: 'Bu blog yazısının kısa bir özeti. İçeriğe dair kısa bir giriş sunar.'
 thumbnail: '/images/my-first-post-thumbnail.jpg'
 topics:
-  - name: 'Programlama'
+  - id: 'programming'
+    name: 'Programlama'
     color: 'red'
-  - name: 'Teknoloji'
+  - id: 'technology'
+    name: 'Teknoloji'
     color: 'blue'
-  - name: 'JavaScript'
+  - id: 'javascript'
+    name: 'JavaScript'
     color: 'green'
 ---
 

@@ -9,8 +9,8 @@ describe('Post and PostSummary Types', () => {
       summary: 'This is a summary of the post.',
       thumbnail: '/images/sample.jpg',
       topics: [
-        { name: 'TypeScript', color: 'blue' },
-        { name: 'Testing', color: 'green' },
+        { id: 'typescript', name: 'TypeScript', color: 'blue' },
+        { id: 'testing', name: 'Testing', color: 'green' },
       ],
     };
 
@@ -20,8 +20,10 @@ describe('Post and PostSummary Types', () => {
     expect(postSummary.summary).toBe('This is a summary of the post.');
     expect(postSummary.thumbnail).toBe('/images/sample.jpg');
     expect(postSummary.topics).toHaveLength(2);
+    expect(postSummary.topics?.[0].id).toBe('typescript');
     expect(postSummary.topics?.[0].name).toBe('TypeScript');
     expect(postSummary.topics?.[0].color).toBe('blue');
+    expect(postSummary.topics?.[1].id).toBe('testing');
     expect(postSummary.topics?.[1].name).toBe('Testing');
     expect(postSummary.topics?.[1].color).toBe('green');
   });
@@ -47,16 +49,18 @@ describe('Post and PostSummary Types', () => {
       contentHtml: '<p>Full content of the post.</p>',
       thumbnail: '/images/full.jpg',
       topics: [
-        { name: 'JavaScript', color: 'blue' },
-        { name: 'React', color: 'green' },
+        { id: 'javascript', name: 'JavaScript', color: 'blue' },
+        { id: 'react', name: 'React', color: 'green' },
       ],
     };
 
     expect(post.contentHtml).toBe('<p>Full content of the post.</p>');
     expect(post.thumbnail).toBe('/images/full.jpg');
     expect(post.topics).toHaveLength(2);
+    expect(post.topics?.[0].id).toBe('javascript');
     expect(post.topics?.[0].name).toBe('JavaScript');
     expect(post.topics?.[0].color).toBe('blue');
+    expect(post.topics?.[1].id).toBe('react');
     expect(post.topics?.[1].name).toBe('React');
     expect(post.topics?.[1].color).toBe('green');
   });
