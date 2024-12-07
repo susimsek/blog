@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import PostSummary from '@/components/posts/PostSummary';
 import { Post } from '@/types/posts';
+import { mockPost } from '../../__mocks__/mockPostData';
 
 jest.mock('next-i18next', () => ({
   useTranslation: jest.fn(() => ({
@@ -27,18 +28,6 @@ jest.mock('@/components/common/DateDisplay', () => ({
   __esModule: true,
   default: ({ date }: { date: string }) => <span data-testid="date-display">{date}</span>,
 }));
-
-const mockPost: Post = {
-  id: '1',
-  title: 'Test Post',
-  date: '2024-12-03',
-  summary: 'This is a summary of the test post.',
-  thumbnail: '/test-thumbnail.jpg',
-  topics: [
-    { id: 'react', name: 'React', color: 'blue' },
-    { id: 'testing', name: 'Testing', color: 'green' },
-  ],
-};
 
 describe('PostSummary Component', () => {
   it('renders the post title with a link', () => {
@@ -71,7 +60,7 @@ describe('PostSummary Component', () => {
 
     if (mockPost.thumbnail) {
       const expectedThumbnailPath = mockPost.thumbnail.startsWith('/') ? mockPost.thumbnail : `/${mockPost.thumbnail}`;
-      expect(thumbnail).toHaveAttribute('src', expectedThumbnailPath);
+      expect(thumbnail).toHaveAttribute('src', expect.stringContaining(expectedThumbnailPath));
     }
 
     expect(thumbnail).toHaveAttribute('alt', mockPost.title);

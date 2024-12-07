@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import PostList from '@/components/posts/PostList';
 import { PostSummary } from '@/types/posts';
+import { mockPosts } from '../../__mocks__/mockPostData';
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
@@ -55,15 +56,6 @@ jest.mock('@/components/posts/PostSummary', () => ({
     </div>
   ),
 }));
-
-const mockPosts: PostSummary[] = [
-  { id: '1', title: 'Post 1', summary: 'Summary 1', date: '2024-12-03' },
-  { id: '2', title: 'Post 2', summary: 'Summary 2', date: '2023-11-03' },
-  { id: '3', title: 'Post 3', summary: 'Summary 3', date: '2023-10-01' },
-  { id: '4', title: 'Post 4', summary: 'Summary 4', date: '2023-09-15' },
-  { id: '5', title: 'Post 5', summary: 'Summary 5', date: '2023-08-20' },
-  { id: '6', title: 'Post 6', summary: 'Summary 6', date: '2023-07-10' },
-];
 
 describe('PostList Component', () => {
   it('renders all components correctly', () => {
