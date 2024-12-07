@@ -399,6 +399,14 @@ input.form-control {
     var(--purple-hover),
     var(--purple-bg)
   );
+  @include button-variant(
+    gray,
+    var(--gray-bg),
+    var(--gray-color),
+    var(--gray-hover),
+    var(--gray-hover),
+    var(--gray-bg)
+  );
 }
 
 .badge {
@@ -457,11 +465,11 @@ input.form-control {
     var(--light-bg)
   );
   @include badge-variant(dark, var(--dark-bg), var(--dark-color), var(--dark-hover), var(--dark-hover), var(--dark-bg));
-  @include badge-variant(red, var(--red-bg), var(--red-text), var(--red-hover), var(--red-hover), var(--red-bg));
+  @include badge-variant(red, var(--red-bg), var(--red-color), var(--red-hover), var(--red-hover), var(--red-bg));
   @include badge-variant(
     green,
     var(--green-bg),
-    var(--green-text),
+    var(--green-color),
     var(--green-hover),
     var(--green-hover),
     var(--green-bg)
@@ -470,7 +478,7 @@ input.form-control {
   @include badge-variant(
     orange,
     var(--orange-bg),
-    var(--orange-text),
+    var(--orange-color),
     var(--orange-hover),
     var(--orange-hover),
     var(--orange-bg)
@@ -478,7 +486,7 @@ input.form-control {
   @include badge-variant(
     yellow,
     var(--yellow-bg),
-    var(--yellow-text),
+    var(--yellow-color),
     var(--yellow-hover),
     var(--yellow-hover),
     var(--yellow-bg)
@@ -486,12 +494,12 @@ input.form-control {
   @include badge-variant(
     purple,
     var(--purple-bg),
-    var(--purple-text),
+    var(--purple-color),
     var(--purple-hover),
     var(--purple-hover),
     var(--purple-bg)
   );
-  @include badge-variant(gray, var(--gray-bg), var(--gray-text), var(--gray-hover), var(--gray-hover), var(--gray-bg));
+  @include badge-variant(gray, var(--gray-bg), var(--gray-color), var(--gray-hover), var(--gray-hover), var(--gray-bg));
 }
 
 .alert {
@@ -583,6 +591,14 @@ input.form-control {
     var(--purple-hover),
     var(--purple-hover),
     var(--purple-bg)
+  );
+  @include alert-variant(
+    purple,
+    var(--gray-bg),
+    var(--gray-color),
+    var(--gray-hover),
+    var(--gray-hover),
+    var(--gray-bg)
   );
 }
 
