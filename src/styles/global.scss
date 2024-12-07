@@ -1,6 +1,8 @@
-@import 'bootstrap/scss/bootstrap';
+@import './mixins';
 
-$transition-speed: 0.3s;
+:root {
+  --transition-speed: $transition-speed;
+}
 
 .light {
   --bg-color: #f9f9f9;
@@ -163,21 +165,17 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
-  transition:
-    background-color $transition-speed ease,
-    color $transition-speed ease;
+  @include transition(background-color, color);
 }
 
 .navbar {
   background-color: var(--navbar-bg);
   border-bottom: 1px solid var(--border-color);
-  transition:
-    background-color $transition-speed ease,
-    border-color $transition-speed ease;
+  @include transition(background-color, border-color);
 
   .nav-link {
     color: var(--text-color);
-    transition: color $transition-speed ease;
+    @include transition(color);
 
     &:hover {
       color: var(--link-hover-color);
@@ -190,7 +188,7 @@ body {
 
   .navbar-brand {
     color: var(--text-color);
-    transition: color $transition-speed ease;
+    @include transition(color);
 
     &:hover {
       color: var(--link-hover-color);
@@ -199,14 +197,12 @@ body {
 
   .navbar-toggler {
     border: 1px solid var(--border-color);
-    transition:
-      border-color $transition-speed ease,
-      color $transition-speed ease;
+    @include transition(border-color, color);
 
     .navbar-toggler-icon {
       font-size: 1.5rem;
       color: var(--text-color);
-      transition: color $transition-speed ease;
+      @include transition(color);
 
       &:hover {
         color: var(--link-hover-color);
@@ -219,25 +215,19 @@ body {
   background-color: var(--footer-bg);
   color: var(--text-color);
   border-top: 1px solid var(--border-color);
-
-  transition:
-    background-color $transition-speed ease,
-    color $transition-speed ease,
-    border-color $transition-speed ease;
+  @include transition(background-color, color, border-color);
 }
 
 main {
   background-color: var(--main-bg);
   min-height: 100vh;
-  transition: background-color $transition-speed ease;
+  @include transition(background-color);
 }
 
 .theme-toggle-btn {
   background-color: transparent;
   color: var(--text-color);
-  transition:
-    background-color $transition-speed ease,
-    color $transition-speed ease;
+  @include transition(background-color, color);
 
   &:hover {
     color: var(--link-hover-color);
@@ -247,7 +237,7 @@ main {
 .link {
   color: var(--text-color);
   text-decoration: none;
-  transition: color $transition-speed ease;
+  @include transition(color);
 
   &:hover {
     color: var(--link-hover-color);
@@ -260,7 +250,7 @@ main {
 
 p {
   color: var(--text-color);
-  transition: color $transition-speed ease;
+  @include transition(color);
 }
 
 h1,
@@ -270,18 +260,18 @@ h4,
 h5,
 h6 {
   color: var(--text-color);
-  transition: color $transition-speed ease;
+  @include transition(color);
 }
 
 .text-muted {
   color: var(--muted-text-color) !important;
-  transition: color $transition-speed ease;
+  @include transition(color);
 }
 
 .spinner-border,
 .spinner-grow {
   color: var(--spinner-color);
-  transition: color $transition-speed ease;
+  @include transition(color);
 }
 
 .pagination {
@@ -290,10 +280,7 @@ h6 {
       background-color: transparent;
       color: var(--text-color);
       border: 1px solid var(--border-color);
-      transition:
-        background-color $transition-speed ease,
-        color $transition-speed ease,
-        border-color $transition-speed ease;
+      @include transition(background-color, color, border-color);
 
       &:hover {
         color: var(--link-hover-color);
@@ -323,10 +310,7 @@ select.form-select {
   border-radius: 4px;
   padding: 0.375rem 0.75rem;
   font-size: 1rem;
-  transition:
-    background-color $transition-speed ease,
-    color $transition-speed ease,
-    border-color $transition-speed ease;
+  @include transition(background-color, color, border-color);
 
   &:focus {
     background-color: var(--main-bg-color);
@@ -359,10 +343,7 @@ input.form-control {
   border-radius: 4px;
   padding: 0.375rem 0.75rem;
   font-size: 1rem;
-  transition:
-    background-color $transition-speed ease,
-    color $transition-speed ease,
-    border-color $transition-speed ease;
+  @include transition(background-color, color, border-color);
 
   &::placeholder {
     color: var(--text-color);
@@ -397,10 +378,7 @@ input.form-control {
   overflow: hidden;
   background-color: var(--main-bg);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition:
-    background-color $transition-speed ease,
-    box-shadow $transition-speed ease,
-    border-color $transition-speed ease;
+  @include transition(background-color, box-shadow, border-color);
 }
 
 .post-card-content {
@@ -414,17 +392,13 @@ input.form-control {
   overflow: hidden;
   border-radius: 8px;
   background-color: var(--main-bg);
-  transition:
-    background-color $transition-speed ease,
-    border-color $transition-speed ease;
-}
+  @include transition(background-color, border-color);
 
-.thumbnail-wrapper img {
-  width: 100%;
-  height: auto;
-  transition:
-    transform $transition-speed ease,
-    filter $transition-speed ease;
+  img {
+    width: 100%;
+    height: auto;
+    @include transition(transform, filter);
+  }
 }
 
 .thumbnail-wrapper:hover img {
@@ -432,403 +406,243 @@ input.form-control {
   filter: brightness(var(--hover-brightness));
 }
 
-.text-primary {
-  color: var(--primary-text) !important;
-}
-
-.text-secondary {
-  color: var(--secondary-text) !important;
-}
-
-.text-success {
-  color: var(--success-text) !important;
-}
-
-.text-info {
-  color: var(--info-text) !important;
-}
-
-.text-warning {
-  color: var(--warning-text) !important;
-}
-
-.text-danger {
-  color: var(--danger-text) !important;
-}
-
-.text-light {
-  color: var(--light-text) !important;
-}
-
-.text-dark {
-  color: var(--dark-text) !important;
+.text {
+  @include text-variant(primary, var(--primary-text));
+  @include text-variant(secondary, var(--secondary-text));
+  @include text-variant(success, var(--success-text));
+  @include text-variant(info, var(--info-text));
+  @include text-variant(warning, var(--warning-text));
+  @include text-variant(danger, var(--danger-text));
+  @include text-variant(light, var(--light-text));
+  @include text-variant(dark, var(--dark-text));
 }
 
 .btn {
   transition:
-    background-color $transition-speed ease,
-    border-color $transition-speed ease,
-    color $transition-speed ease;
+    background-color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease,
+    color var(--transition-speed) ease;
 
-  &.btn-primary {
-    background-color: var(--primary-bg);
-    color: var(--primary-color);
-    border-color: var(--primary-bg);
-
-    &:hover {
-      background-color: var(--primary-hover);
-      border-color: var(--primary-hover);
-    }
-  }
-
-  &.btn-secondary {
-    background-color: var(--secondary-bg);
-    color: var(--secondary-color);
-    border-color: var(--secondary-bg);
-
-    &:hover {
-      background-color: var(--secondary-hover);
-      border-color: var(--secondary-hover);
-    }
-  }
-
-  &.btn-success {
-    background-color: var(--success-bg);
-    color: var(--success-color);
-    border-color: var(--success-bg);
-
-    &:hover {
-      background-color: var(--success-hover);
-      border-color: var(--success-hover);
-    }
-  }
-
-  &.btn-info {
-    background-color: var(--info-bg);
-    color: var(--info-color);
-    border-color: var(--info-bg);
-
-    &:hover {
-      background-color: var(--info-hover);
-      border-color: var(--info-hover);
-    }
-  }
-
-  &.btn-warning {
-    background-color: var(--warning-bg);
-    color: var(--warning-color);
-    border-color: var(--warning-bg);
-
-    &:hover {
-      background-color: var(--warning-hover);
-      border-color: var(--warning-hover);
-    }
-  }
-
-  &.btn-danger {
-    background-color: var(--danger-bg);
-    color: var(--danger-color);
-    border-color: var(--danger-bg);
-
-    &:hover {
-      background-color: var(--danger-hover);
-      border-color: var(--danger-hover);
-    }
-  }
-
-  &.btn-light {
-    background-color: var(--light-bg);
-    color: var(--light-color);
-    border-color: var(--light-bg);
-
-    &:hover {
-      background-color: var(--light-hover);
-      border-color: var(--light-hover);
-    }
-  }
-
-  &.btn-dark {
-    background-color: var(--dark-bg);
-    color: var(--dark-color);
-    border-color: var(--dark-bg);
-
-    &:hover {
-      background-color: var(--dark-hover);
-      border-color: var(--dark-hover);
-    }
-  }
+  @include button-variant(
+    primary,
+    var(--primary-bg),
+    var(--primary-color),
+    var(--primary-hover),
+    var(--primary-hover),
+    var(--primary-bg)
+  );
+  @include button-variant(
+    secondary,
+    var(--secondary-bg),
+    var(--secondary-color),
+    var(--secondary-hover),
+    var(--secondary-hover),
+    var(--secondary-bg)
+  );
+  @include button-variant(
+    success,
+    var(--success-bg),
+    var(--success-color),
+    var(--success-hover),
+    var(--success-hover),
+    var(--success-bg)
+  );
+  @include button-variant(
+    info,
+    var(--info-bg),
+    var(--info-color),
+    var(--info-hover),
+    var(--info-hover),
+    var(--info-bg)
+  );
+  @include button-variant(
+    warning,
+    var(--warning-bg),
+    var(--warning-color),
+    var(--warning-hover),
+    var(--warning-hover),
+    var(--warning-bg)
+  );
+  @include button-variant(
+    danger,
+    var(--danger-bg),
+    var(--danger-color),
+    var(--danger-hover),
+    var(--danger-hover),
+    var(--danger-bg)
+  );
+  @include button-variant(
+    light,
+    var(--light-bg),
+    var(--light-color),
+    var(--light-hover),
+    var(--light-hover),
+    var(--light-bg)
+  );
+  @include button-variant(
+    dark,
+    var(--dark-bg),
+    var(--dark-color),
+    var(--dark-hover),
+    var(--dark-hover),
+    var(--dark-bg)
+  );
 }
 
 .badge {
   transition:
-    background-color $transition-speed ease,
-    border-color $transition-speed ease,
-    color $transition-speed ease;
+    background-color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease,
+    color var(--transition-speed) ease;
 
-  &.badge-primary {
-    background-color: var(--primary-bg);
-    color: var(--primary-color);
-    border-color: var(--primary-bg);
-
-    &:hover {
-      background-color: var(--primary-hover);
-      border-color: var(--primary-hover);
-    }
-  }
-
-  &.badge-secondary {
-    background-color: var(--secondary-bg);
-    color: var(--secondary-color);
-    border-color: var(--secondary-bg);
-
-    &:hover {
-      background-color: var(--secondary-hover);
-      border-color: var(--secondary-hover);
-    }
-  }
-
-  &.badge-success {
-    background-color: var(--success-bg);
-    color: var(--success-color);
-    border-color: var(--success-bg);
-
-    &:hover {
-      background-color: var(--success-hover);
-      border-color: var(--success-hover);
-    }
-  }
-
-  &.badge-info {
-    background-color: var(--info-bg);
-    color: var(--info-color);
-    border-color: var(--info-bg);
-
-    &:hover {
-      background-color: var(--info-hover);
-      border-color: var(--info-hover);
-    }
-  }
-
-  &.badge-warning {
-    background-color: var(--warning-bg);
-    color: var(--warning-color);
-    border-color: var(--warning-bg);
-
-    &:hover {
-      background-color: var(--warning-hover);
-      border-color: var(--warning-hover);
-    }
-  }
-
-  &.badge-danger {
-    background-color: var(--danger-bg);
-    color: var(--danger-color);
-    border-color: var(--danger-bg);
-
-    &:hover {
-      background-color: var(--danger-hover);
-      border-color: var(--danger-hover);
-    }
-  }
-
-  &.badge-light {
-    background-color: var(--light-bg);
-    color: var(--light-color);
-    border-color: var(--light-bg);
-
-    &:hover {
-      background-color: var(--light-hover);
-      border-color: var(--light-hover);
-    }
-  }
-
-  &.badge-dark {
-    background-color: var(--dark-bg);
-    color: var(--dark-color);
-    border-color: var(--dark-bg);
-
-    &:hover {
-      background-color: var(--dark-hover);
-      border-color: var(--dark-hover);
-    }
-  }
-
-  &.badge-red {
-    background-color: var(--red-bg);
-    color: var(--red-text);
-    border-color: var(--red-bg);
-
-    &:hover {
-      background-color: var(--red-hover);
-      border-color: var(--red-hover);
-    }
-  }
-
-  &.badge-green {
-    background-color: var(--green-bg);
-    color: var(--green-text);
-    border-color: var(--green-bg);
-
-    &:hover {
-      background-color: var(--green-hover);
-      border-color: var(--green-hover);
-    }
-  }
-
-  &.badge-blue {
-    background-color: var(--blue-bg);
-    color: var(--blue-text);
-    border-color: var(--blue-bg);
-
-    &:hover {
-      background-color: var(--blue-hover);
-      border-color: var(--blue-hover);
-    }
-  }
-
-  &.badge-orange {
-    background-color: var(--orange-bg);
-    color: var(--orange-text);
-    border-color: var(--orange-bg);
-
-    &:hover {
-      background-color: var(--orange-hover);
-      border-color: var(--orange-hover);
-    }
-  }
-
-  &.badge-yellow {
-    background-color: var(--yellow-bg);
-    color: var(--yellow-text);
-    border-color: var(--yellow-bg);
-
-    &:hover {
-      background-color: var(--yellow-hover);
-      border-color: var(--yellow-hover);
-    }
-  }
-
-  &.badge-purple {
-    background-color: var(--purple-bg);
-    color: var(--purple-text);
-    border-color: var(--purple-bg);
-
-    &:hover {
-      background-color: var(--purple-hover);
-      border-color: var(--purple-hover);
-    }
-  }
-
-  &.badge-gray {
-    background-color: var(--gray-bg);
-    color: var(--gray-text);
-    border-color: var(--gray-bg);
-
-    &:hover {
-      background-color: var(--gray-hover);
-      border-color: var(--gray-hover);
-    }
-  }
+  @include badge-variant(
+    primary,
+    var(--primary-bg),
+    var(--primary-color),
+    var(--primary-hover),
+    var(--primary-hover),
+    var(--primary-bg)
+  );
+  @include badge-variant(
+    secondary,
+    var(--secondary-bg),
+    var(--secondary-color),
+    var(--secondary-hover),
+    var(--secondary-hover),
+    var(--secondary-bg)
+  );
+  @include badge-variant(
+    success,
+    var(--success-bg),
+    var(--success-color),
+    var(--success-hover),
+    var(--success-hover),
+    var(--success-bg)
+  );
+  @include badge-variant(info, var(--info-bg), var(--info-color), var(--info-hover), var(--info-hover), var(--info-bg));
+  @include badge-variant(
+    warning,
+    var(--warning-bg),
+    var(--warning-color),
+    var(--warning-hover),
+    var(--warning-hover),
+    var(--warning-bg)
+  );
+  @include badge-variant(
+    danger,
+    var(--danger-bg),
+    var(--danger-color),
+    var(--danger-hover),
+    var(--danger-hover),
+    var(--danger-bg)
+  );
+  @include badge-variant(
+    light,
+    var(--light-bg),
+    var(--light-color),
+    var(--light-hover),
+    var(--light-hover),
+    var(--light-bg)
+  );
+  @include badge-variant(dark, var(--dark-bg), var(--dark-color), var(--dark-hover), var(--dark-hover), var(--dark-bg));
+  @include badge-variant(red, var(--red-bg), var(--red-text), var(--red-hover), var(--red-hover), var(--red-bg));
+  @include badge-variant(
+    green,
+    var(--green-bg),
+    var(--green-text),
+    var(--green-hover),
+    var(--green-hover),
+    var(--green-bg)
+  );
+  @include badge-variant(blue, var(--blue-bg), var(--blue-text), var(--blue-hover), var(--blue-hover), var(--blue-bg));
+  @include badge-variant(
+    orange,
+    var(--orange-bg),
+    var(--orange-text),
+    var(--orange-hover),
+    var(--orange-hover),
+    var(--orange-bg)
+  );
+  @include badge-variant(
+    yellow,
+    var(--yellow-bg),
+    var(--yellow-text),
+    var(--yellow-hover),
+    var(--yellow-hover),
+    var(--yellow-bg)
+  );
+  @include badge-variant(
+    purple,
+    var(--purple-bg),
+    var(--purple-text),
+    var(--purple-hover),
+    var(--purple-hover),
+    var(--purple-bg)
+  );
+  @include badge-variant(gray, var(--gray-bg), var(--gray-text), var(--gray-hover), var(--gray-hover), var(--gray-bg));
 }
 
 .alert {
   transition:
-    background-color $transition-speed ease,
-    color $transition-speed ease,
-    border-color $transition-speed ease;
+    background-color var(--transition-speed) ease,
+    color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease;
 
-  &-primary {
-    background-color: var(--primary-bg);
-    color: var(--primary-color);
-    border-color: var(--primary-bg);
-
-    &:hover {
-      background-color: var(--primary-hover);
-      border-color: var(--primary-hover);
-    }
-  }
-
-  &-secondary {
-    background-color: var(--secondary-bg);
-    color: var(--secondary-color);
-    border-color: var(--secondary-bg);
-
-    &:hover {
-      background-color: var(--secondary-hover);
-      border-color: var(--secondary-hover);
-    }
-  }
-
-  &-success {
-    background-color: var(--success-bg);
-    color: var(--success-color);
-    border-color: var(--success-bg);
-
-    &:hover {
-      background-color: var(--success-hover);
-      border-color: var(--success-hover);
-    }
-  }
-
-  &-info {
-    background-color: var(--info-bg);
-    color: var(--info-color);
-    border-color: var(--info-bg);
-
-    &:hover {
-      background-color: var(--info-hover);
-      border-color: var(--info-hover);
-    }
-  }
-
-  &-warning {
-    background-color: var(--warning-bg);
-    color: var(--warning-color);
-    border-color: var(--warning-bg);
-
-    &:hover {
-      background-color: var(--warning-hover);
-      border-color: var(--warning-hover);
-    }
-  }
-
-  &-danger {
-    background-color: var(--danger-bg);
-    color: var(--danger-color);
-    border-color: var(--danger-bg);
-
-    &:hover {
-      background-color: var(--danger-hover);
-      border-color: var(--danger-hover);
-    }
-  }
-
-  &-light {
-    background-color: var(--light-bg);
-    color: var(--light-color);
-    border-color: var(--light-bg);
-
-    &:hover {
-      background-color: var(--light-hover);
-      border-color: var(--light-hover);
-    }
-  }
-
-  &-dark {
-    background-color: var(--dark-bg);
-    color: var(--dark-color);
-    border-color: var(--dark-bg);
-
-    &:hover {
-      background-color: var(--dark-hover);
-      border-color: var(--dark-hover);
-    }
-  }
+  @include alert-variant(
+    primary,
+    var(--primary-bg),
+    var(--primary-color),
+    var(--primary-hover),
+    var(--primary-hover),
+    var(--primary-bg)
+  );
+  @include alert-variant(
+    secondary,
+    var(--secondary-bg),
+    var(--secondary-color),
+    var(--secondary-hover),
+    var(--secondary-hover),
+    var(--secondary-bg)
+  );
+  @include alert-variant(
+    success,
+    var(--success-bg),
+    var(--success-color),
+    var(--success-hover),
+    var(--success-hover),
+    var(--success-bg)
+  );
+  @include alert-variant(info, var(--info-bg), var(--info-color), var(--info-hover), var(--info-hover), var(--info-bg));
+  @include alert-variant(
+    warning,
+    var(--warning-bg),
+    var(--warning-color),
+    var(--warning-hover),
+    var(--warning-hover),
+    var(--warning-bg)
+  );
+  @include alert-variant(
+    danger,
+    var(--danger-bg),
+    var(--danger-color),
+    var(--danger-hover),
+    var(--danger-hover),
+    var(--danger-bg)
+  );
+  @include alert-variant(
+    light,
+    var(--light-bg),
+    var(--light-color),
+    var(--light-hover),
+    var(--light-hover),
+    var(--light-bg)
+  );
+  @include alert-variant(dark, var(--dark-bg), var(--dark-color), var(--dark-hover), var(--dark-hover), var(--dark-bg));
 }
 
 .icon {
   color: var(--text-color);
-  transition: color $transition-speed ease;
+  @include transition(color);
 
   &:hover {
     color: var(--link-hover-color);
@@ -839,10 +653,7 @@ input.form-control {
   background-color: var(--input-bg-color);
   border: 1px solid var(--border-color);
   color: var(--text-color);
-  transition:
-    background-color $transition-speed ease,
-    border-color $transition-speed ease,
-    color $transition-speed ease;
+  @include transition(background-color, border-color, color);
 
   &:hover {
     background-color: var(--main-bg);
@@ -858,10 +669,7 @@ input.form-control {
   border: 1px solid var(--border-color);
   border-radius: 4px;
   overflow: hidden;
-
-  transition:
-    border-color $transition-speed,
-    box-shadow $transition-speed;
+  @include transition(border-color, box-shadow);
 
   &:focus-within {
     border-color: var(--link-hover-color);
@@ -889,9 +697,7 @@ input.form-control {
     background-color: var(--input-bg-color);
     color: var(--text-color);
     cursor: pointer;
-    transition:
-      background-color $transition-speed,
-      color $transition-speed;
+    @include transition(background-color, color);
 
     &:hover {
       background-color: var(--main-bg);
@@ -904,41 +710,33 @@ input.form-control {
   background-color: var(--main-bg);
   border: 1px solid var(--border-color);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition:
-    background-color $transition-speed ease,
-    border-color $transition-speed ease;
+  @include transition(background-color, border-color);
 
   .dropdown-item {
     color: var(--text-color);
-    transition:
-      color $transition-speed ease,
-      background-color $transition-speed ease;
+    @include transition(color, background-color);
 
     &:hover {
       color: var(--dropdown-hover-color);
       background-color: var(--dropdown-hover-bg);
     }
 
-    &.active {
-      color: var(--dropdown-hover-color);
-      background-color: var(--dropdown-hover-bg);
-    }
-
+    &.active,
     &:focus {
-      background-color: var(--dropdown-hover-bg);
       color: var(--dropdown-hover-color);
+      background-color: var(--dropdown-hover-bg);
     }
   }
 
   .dropdown-divider {
     border-color: var(--border-color);
-    transition: border-color $transition-speed ease;
+    @include transition(border-color);
   }
 }
 
 .navbar-nav .dropdown-toggle {
   color: var(--text-color);
-  transition: color $transition-speed ease;
+  @include transition(color);
 
   &:hover {
     color: var(--link-hover-color);
@@ -959,7 +757,7 @@ input.form-control {
   text-align: left;
   font-size: 1rem;
   text-decoration: none;
-  transition: all 0.3s ease;
+  @include transition(background-color, color);
 
   &:hover {
     color: var(--dropdown-hover-color);

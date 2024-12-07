@@ -1,0 +1,52 @@
+@import 'bootstrap/scss/bootstrap';
+
+$transition-speed: 0.3s;
+
+@mixin transition($properties...) {
+  transition: #{join($properties, ', ')} var(--transition-speed) ease;
+}
+
+@mixin button-variant($name, $bg-color, $text-color, $hover-bg, $hover-border, $border-color: $bg-color) {
+  &.btn-#{$name} {
+    background-color: $bg-color;
+    color: $text-color;
+    border-color: $border-color;
+
+    &:hover {
+      background-color: $hover-bg;
+      border-color: $hover-border;
+    }
+  }
+}
+
+@mixin text-variant($name, $color-var) {
+  &.text-#{$name} {
+    color: $color-var !important;
+  }
+}
+
+@mixin badge-variant($name, $bg-color, $text-color, $hover-bg, $hover-border, $border-color: $bg-color) {
+  &.badge-#{$name} {
+    background-color: $bg-color;
+    color: $text-color;
+    border-color: $border-color;
+
+    &:hover {
+      background-color: $hover-bg;
+      border-color: $hover-border;
+    }
+  }
+}
+
+@mixin alert-variant($name, $bg-color, $text-color, $hover-bg, $hover-border, $border-color: $bg-color) {
+  &-#{$name} {
+    background-color: $bg-color;
+    color: $text-color;
+    border-color: $border-color;
+
+    &:hover {
+      background-color: $hover-bg;
+      border-color: $hover-border;
+    }
+  }
+}
