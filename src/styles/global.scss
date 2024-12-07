@@ -474,7 +474,7 @@ input.form-control {
     var(--green-hover),
     var(--green-bg)
   );
-  @include badge-variant(blue, var(--blue-bg), var(--blue-text), var(--blue-hover), var(--blue-hover), var(--blue-bg));
+  @include badge-variant(blue, var(--blue-bg), var(--blue-color), var(--blue-hover), var(--blue-hover), var(--blue-bg));
   @include badge-variant(
     orange,
     var(--orange-bg),
