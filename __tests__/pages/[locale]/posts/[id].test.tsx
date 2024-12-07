@@ -8,6 +8,7 @@ import { useTranslation } from 'next-i18next';
 import { Post } from '@/types/posts';
 import { getStaticPaths } from '@/pages/[locale]/posts/[id]';
 import { GetStaticPropsContext } from 'next';
+import { mockPost } from '../../../__mocks__/mockPostData';
 
 // Mock `next/router`
 jest.mock('next/router', () => ({
@@ -64,14 +65,7 @@ jest.mock('@/lib/posts', () => ({
   makePostDetailProps: jest.fn().mockImplementation(() => async (context: GetStaticPropsContext) => {
     const id = context?.params?.id as string;
     const mockedPosts = {
-      '1': {
-        id: '1',
-        title: 'Mocked Post',
-        summary: 'This is a mocked post summary.',
-        contentHtml: '<p>Mocked HTML content</p>',
-        date: '2024-01-01',
-        topics: ['React', 'Next.js'],
-      },
+      '1': mockPost,
       '2': {
         id: '2',
         title: 'Another Mocked Post',
@@ -104,22 +98,10 @@ const renderPostPage = (post: Post) => {
 
 describe('Post Page', () => {
   it('renders the post details correctly', () => {
-    const mockPost: Post = {
-      id: '1',
-      title: 'Mocked Post',
-      summary: 'This is a mocked post summary.',
-      contentHtml: '<p>Mocked HTML content</p>',
-      date: '2024-01-01',
-      topics: [
-        { id: '1', name: 'React', color: 'blue' },
-        { id: '2', name: 'Next.js', color: 'green' },
-      ],
-    };
-
     renderPostPage(mockPost);
 
     // Verify the <h1> title
-    const heading = screen.getByText('Mocked Post', { selector: 'h1' });
+    const heading = screen.getByText('Test Post', { selector: 'h1' });
     expect(heading).toBeInTheDocument();
 
     // Verify post detail container
@@ -129,38 +111,22 @@ describe('Post Page', () => {
     // Verify other details
     expect(screen.getByText(mockPost.summary)).toBeInTheDocument();
     expect(screen.getByText('React')).toBeInTheDocument();
-    expect(screen.getByText('Next.js')).toBeInTheDocument();
-    expect(screen.getByText(/Mocked HTML content/i)).toBeInTheDocument();
+    expect(screen.getByText('Testing')).toBeInTheDocument();
+    expect(screen.getByText(/Test Content/i)).toBeInTheDocument();
   });
 
   it('renders keywords when topics are defined and non-empty', () => {
-    const mockPost: Post = {
-      id: '1',
-      title: 'Test Post',
-      summary: 'Test summary',
-      contentHtml: '<p>Test content</p>',
-      date: '2024-01-01',
-      topics: [
-        { id: '1', name: 'React', color: 'blue' },
-        { id: '2', name: 'Next.js', color: 'green' },
-      ],
-    };
-
     renderPostPage(mockPost);
 
     const headElement = document.querySelector('meta[name="keywords"]') as HTMLMetaElement;
     expect(headElement).not.toBeNull();
 
-    expect(headElement?.getAttribute('content')).toBe('React, Next.js');
+    expect(headElement?.getAttribute('content')).toBe('React, Testing');
   });
 
   it('renders empty keywords when topics are an empty array', () => {
     const post: Post = {
-      id: '1',
-      title: 'Test Post',
-      summary: 'Test summary',
-      contentHtml: '<p>Test content</p>',
-      date: '2024-01-01',
+      ...mockPost,
       topics: [],
     };
 
@@ -173,11 +139,8 @@ describe('Post Page', () => {
 
   it('renders empty keywords when topics are undefined', () => {
     const post: Post = {
-      id: '1',
-      title: 'Test Post',
-      summary: 'Test summary',
-      contentHtml: '<p>Test content</p>',
-      date: '2024-01-01',
+      ...mockPost,
+      topics: undefined,
       // No topics defined
     };
 
