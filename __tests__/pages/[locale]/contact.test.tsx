@@ -5,6 +5,7 @@ import store from '@/config/store';
 import '@testing-library/jest-dom';
 import { useTranslation } from 'next-i18next';
 import Contact, { getStaticPaths, getStaticProps } from '@/pages/[locale]/contact';
+import { AUTHOR_NAME } from '@/config/constants';
 
 const mockContext = { locales: ['en', 'tr'], defaultLocale: 'en' };
 
@@ -23,6 +24,8 @@ jest.mock('next-i18next', () => ({
   useTranslation: jest.fn(),
 }));
 
+jest.mock('@/components/common/ContactInfo', () => () => <div data-testid="contact-info" />);
+
 beforeEach(() => {
   (useTranslation as jest.Mock).mockReturnValue({
     t: (key: string) => key, // Mock translation function
@@ -35,14 +38,13 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 }));
 
 describe('Contact Page', () => {
-  it('renders the navigation and main content', () => {
+  it('renders the page title and meta tags', () => {
     render(
       <Provider store={store}>
         <Contact />
       </Provider>,
     );
 
-    // Navigation
     expect(screen.getByRole('navigation')).toBeInTheDocument();
 
     // Main content
@@ -61,38 +63,6 @@ describe('Contact Page', () => {
 
     // Description
     expect(screen.getByText('contact.description')).toBeInTheDocument();
-  });
-
-  it('renders the contact information', () => {
-    render(
-      <Provider store={store}>
-        <Contact />
-      </Provider>,
-    );
-
-    // Email
-    expect(screen.getByRole('link', { name: 'suaybsimsek58@gmail.com' })).toHaveAttribute(
-      'href',
-      'mailto:suaybsimsek58@gmail.com',
-    );
-
-    // LinkedIn
-    expect(screen.getByRole('link', { name: 'https://linkedin.com/in/şuayb-şimşek-29b077178' })).toHaveAttribute(
-      'href',
-      'https://linkedin.com/in/şuayb-şimşek-29b077178',
-    );
-
-    // Medium
-    expect(screen.getByRole('link', { name: 'https://medium.com/@suaybsimsek58' })).toHaveAttribute(
-      'href',
-      'https://medium.com/@suaybsimsek58',
-    );
-
-    // GitHub
-    expect(screen.getByRole('link', { name: 'https://github.com/susimsek' })).toHaveAttribute(
-      'href',
-      'https://github.com/susimsek',
-    );
   });
 });
 

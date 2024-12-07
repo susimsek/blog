@@ -37,6 +37,8 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   },
 }));
 
+jest.mock('@/components/common/ContactInfo', () => () => <div data-testid="contact-info" />);
+
 describe('About Page', () => {
   it('renders the navigation and main content', async () => {
     render(
@@ -64,52 +66,6 @@ describe('About Page', () => {
 
     // Description
     expect(screen.getByText('about.description')).toBeInTheDocument();
-  });
-
-  it('renders the social media links', async () => {
-    render(
-      <Provider store={store}>
-        <About />
-      </Provider>,
-    );
-
-    // Email
-    expect(screen.getByRole('link', { name: 'suaybsimsek58@gmail.com' })).toHaveAttribute(
-      'href',
-      'mailto:suaybsimsek58@gmail.com',
-    );
-
-    // LinkedIn
-    expect(screen.getByRole('link', { name: 'https://linkedin.com/in/şuayb-şimşek-29b077178' })).toHaveAttribute(
-      'href',
-      'https://linkedin.com/in/şuayb-şimşek-29b077178',
-    );
-
-    // Medium
-    expect(screen.getByRole('link', { name: 'https://medium.com/@suaybsimsek58' })).toHaveAttribute(
-      'href',
-      'https://medium.com/@suaybsimsek58',
-    );
-
-    // GitHub
-    expect(screen.getByRole('link', { name: 'https://github.com/susimsek' })).toHaveAttribute(
-      'href',
-      'https://github.com/susimsek',
-    );
-  });
-
-  it('renders FontAwesome icons correctly', async () => {
-    render(
-      <Provider store={store}>
-        <About />
-      </Provider>,
-    );
-
-    // Icons
-    expect(screen.getByTestId('font-awesome-icon-envelope')).toBeInTheDocument();
-    expect(screen.getByTestId('font-awesome-icon-fab-linkedin')).toBeInTheDocument();
-    expect(screen.getByTestId('font-awesome-icon-fab-medium')).toBeInTheDocument();
-    expect(screen.getByTestId('font-awesome-icon-fab-github')).toBeInTheDocument();
   });
 });
 

@@ -18,7 +18,7 @@ export default function NotFound() {
         <meta name="description" content={t('404.meta.description')} />
         <meta name="robots" content="noindex, nofollow" />
       </Head>
-      <Container className="text-center py-5" style={{ maxWidth: '600px' }}>
+      <Container className="text-center py-5" style={{ maxWidth: '800px' }}>
         <h1 className="display-1 fw-bold text-danger">
           <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
           {t('404.errorCode')}
