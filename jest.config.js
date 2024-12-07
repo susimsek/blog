@@ -13,7 +13,7 @@ const customJestConfig = {
     prefix: '<rootDir>/',
   }),
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  testPathIgnorePatterns: ['<rootDir>/node_modules/'],
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '/__mocks__/'],
   reporters: [
     'default',
     [
