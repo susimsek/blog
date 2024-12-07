@@ -1,4 +1,10 @@
-import { PostSummary, Post } from '@/types/posts';
+import { PostSummary, Post, Topic } from '@/types/posts';
+
+export const mockTopic: Topic = {
+  id: 'react',
+  name: 'React',
+  color: 'blue',
+};
 
 export const mockPost: Post = {
   id: '1',
@@ -6,10 +12,16 @@ export const mockPost: Post = {
   date: '2024-12-03',
   contentHtml: '<p>Test Content</p>',
   thumbnail: '/test-thumbnail.jpg',
-  topics: [
-    { id: 'react', name: 'React', color: 'blue' },
-    { id: 'testing', name: 'Testing', color: 'green' },
-  ],
+  topics: [mockTopic, { id: 'testing', name: 'Testing', color: 'green' }],
+  summary: 'Test summary',
+};
+
+export const mockPostSummary: PostSummary = {
+  id: '1',
+  title: 'Test Post',
+  date: '2024-12-03',
+  thumbnail: '/test-thumbnail.jpg',
+  topics: [mockTopic, { id: 'testing', name: 'Testing', color: 'green' }],
   summary: 'Test summary',
 };
 
@@ -25,4 +37,43 @@ export const mockPosts: PostSummary[] = [
   { id: '4', title: 'Post 4', summary: 'Summary 4', date: '2023-09-15' },
   { id: '5', title: 'Post 5', summary: 'Summary 5', date: '2023-08-20' },
   { id: '6', title: 'Post 6', summary: 'Summary 6', date: '2023-07-10' },
+];
+
+export const mockTopicIds: { params: { id: string; locale: string } }[] = [
+  {
+    params: {
+      id: 'react',
+      locale: 'en',
+    },
+  },
+  {
+    params: {
+      id: 'react',
+      locale: 'fr',
+    },
+  },
+  {
+    params: {
+      id: 'react',
+      locale: 'de',
+    },
+  },
+  {
+    params: {
+      id: 'testing',
+      locale: 'en',
+    },
+  },
+  {
+    params: {
+      id: 'testing',
+      locale: 'fr',
+    },
+  },
+  {
+    params: {
+      id: 'testing',
+      locale: 'de',
+    },
+  },
 ];

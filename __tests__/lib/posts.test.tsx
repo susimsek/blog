@@ -11,7 +11,7 @@ import {
 import fs from 'fs';
 import { GetStaticPropsContext } from 'next';
 import path from 'path';
-import { getI18nProps } from '@/lib/getStatic';
+import { mockPost, mockPostSummary, mockTopic, mockTopicIds } from '../__mocks__/mockPostData';
 
 // Mock `fs` module
 jest.mock('fs', () => ({
@@ -83,13 +83,14 @@ jest.mock('gray-matter', () =>
     }
     return {
       data: {
-        id: 'mock-post',
-        title: 'Mock Post Title',
-        date: '2024-01-01',
-        summary: 'Mock summary',
-        topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
+        id: mockPost.id,
+        title: mockPost.title,
+        date: mockPost.date,
+        summary: mockPost.summary,
+        topics: mockPost.topics,
+        thumbnail: mockPost.thumbnail,
       },
-      content: 'Mock Markdown Content',
+      content: mockPost.contentHtml,
     };
   }),
 );
@@ -99,7 +100,7 @@ jest.mock('remark', () => ({
   remark: jest.fn().mockReturnValue({
     use: jest.fn().mockReturnThis(),
     process: jest.fn().mockResolvedValue({
-      toString: jest.fn().mockReturnValue('<p>Mocked HTML Content</p>'),
+      toString: jest.fn().mockReturnValue('<p>Test Content</p>'),
     }),
   }),
 }));
@@ -130,11 +131,12 @@ describe('Posts Library', () => {
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockReturnValue(`
       ---
-      id: mock-post
-      title: Mock Post Title
-      date: "2024-01-01"
-      summary: Mock summary
-      topics: [{"name": "React", "color": "red"}]
+      id: ${mockPost.id}
+      title: ${mockPost.title}
+      date: "${mockPost.date}"
+      summary: ${mockPost.summary}
+      thumbnail: ${mockPost.thumbnail}
+      topics: ${JSON.stringify(mockPost.topics)}
       ---
       # Mock Markdown Content
     `);
@@ -144,15 +146,7 @@ describe('Posts Library', () => {
   describe('getSortedPostsData', () => {
     it('returns sorted posts data', () => {
       const result = getSortedPostsData('en');
-      expect(result).toEqual([
-        {
-          id: 'mock-post',
-          title: 'Mock Post Title',
-          date: '2024-01-01',
-          summary: 'Mock summary',
-          topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
-        },
-      ]);
+      expect(result).toEqual([mockPostSummary]);
     });
 
     it('filters posts by topicId', () => {
@@ -182,8 +176,8 @@ describe('Posts Library', () => {
       });
 
       const result = getSortedPostsData('en', 'react');
-      expect(result).toHaveLength(1);
-      expect(result[0].id).toBe('post1');
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe('1');
     });
 
     it('sorts posts with the same date', () => {
@@ -296,15 +290,7 @@ describe('Posts Library', () => {
 
       const result = getSortedPostsData('fr');
 
-      expect(result).toEqual([
-        {
-          id: 'mock-post',
-          title: 'Mock Post Title',
-          date: '2024-01-01',
-          summary: 'Mock summary',
-          topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
-        },
-      ]);
+      expect(result).toEqual([mockPostSummary]);
 
       expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
       expect(fs.readdirSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
@@ -327,17 +313,9 @@ describe('Posts Library', () => {
         return [];
       });
 
-      const result = getSortedPostsData('fr', 'typescript');
+      const result = getSortedPostsData('fr', 'react');
 
-      expect(result).toEqual([
-        {
-          id: 'mock-post',
-          title: 'Mock Post Title',
-          date: '2024-01-01',
-          summary: 'Mock summary',
-          topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
-        },
-      ]);
+      expect(result).toEqual([mockPostSummary]);
 
       expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
       expect(fs.readdirSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
@@ -360,7 +338,7 @@ describe('Posts Library', () => {
         return [];
       });
 
-      const result = getSortedPostsData('fr', 'react');
+      const result = getSortedPostsData('fr', 'non_existing_topic');
 
       expect(result).toEqual([]);
 
@@ -380,14 +358,7 @@ describe('Posts Library', () => {
       const result = await getPostData('mock-post', 'en');
 
       // Assert the result
-      expect(result).toEqual({
-        id: 'mock-post',
-        title: 'Mock Post Title',
-        date: '2024-01-01',
-        summary: 'Mock summary',
-        topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
-        contentHtml: '<p>Mocked HTML Content</p>',
-      });
+      expect(result).toEqual(mockPost);
 
       // Verify the localized path was used
       expect(path.join).toHaveBeenCalledWith(expect.anything(), 'en', 'mock-post.md');
@@ -423,14 +394,7 @@ describe('Posts Library', () => {
       const result = await getPostData('mock-post', 'fr');
 
       // Verify the result matches the fallback content
-      expect(result).toEqual({
-        id: 'mock-post',
-        title: 'Mock Post Title',
-        date: '2024-01-01',
-        summary: 'Mock summary',
-        topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
-        contentHtml: '<p>Mocked HTML Content</p>',
-      });
+      expect(result).toEqual(mockPost);
 
       // Verify `path.join` was called correctly
       expect(mockedJoin).toHaveBeenCalledWith(expect.stringContaining('content/posts'), 'fr', 'mock-post.md');
@@ -452,11 +416,6 @@ describe('Posts Library', () => {
   });
 
   describe('getTopicData', () => {
-    const mockTopics = [
-      { id: 'react', name: 'React', color: 'blue' },
-      { id: 'nextjs', name: 'Next.js', color: 'green' },
-    ];
-
     beforeEach(() => {
       jest.clearAllMocks();
 
@@ -464,11 +423,12 @@ describe('Posts Library', () => {
 
       (fs.promises.readFile as jest.Mock).mockReturnValue(`
       ---
-      id: mock-post
-      title: Mock Post Title
-      date: "2024-01-01"
-      summary: Mock summary
-      topics: [{"id": "typescript", "name": "Typescript", "color": "red"}]
+      id: ${mockPost.id}
+      title: ${mockPost.title}
+      date: "${mockPost.date}"
+      summary: ${mockPost.summary}
+      thumbnail: ${mockPost.thumbnail}
+      topics: ${JSON.stringify(mockPost.topics)}
       ---
       # Mock Markdown Content
     `);
@@ -483,20 +443,20 @@ describe('Posts Library', () => {
     });
 
     it('collects topics from both directory and fallbackDirectory when they exist', async () => {
-      const result = await getTopicData('tr', 'typescript');
+      const result = await getTopicData('tr', 'react');
 
       expect(fs.promises.readdir).toHaveBeenCalledWith(expect.stringContaining('/content/posts/en'));
       expect(fs.promises.readdir).toHaveBeenCalledWith(expect.stringContaining('/content/posts/tr'));
-      expect(result).toEqual({ id: 'typescript', name: 'Typescript', color: 'red' });
+      expect(result).toEqual(mockTopic);
     });
 
     it('collects topics from only directory when fallbackDirectory does not exist', async () => {
       (fs.existsSync as jest.Mock).mockImplementation(path => path.includes('/en')); // fallbackDirectory missing
 
-      const result = await getTopicData('en', 'typescript');
+      const result = await getTopicData('en', 'react');
 
       expect(fs.promises.readdir).toHaveBeenCalledWith(expect.stringContaining('/content/posts/en'));
-      expect(result).toEqual({ id: 'typescript', name: 'Typescript', color: 'red' });
+      expect(result).toEqual(mockTopic);
     });
 
     it('returns null when both directory and fallbackDirectory are empty', async () => {
@@ -560,15 +520,7 @@ describe('Posts Library', () => {
 
       const result = await makePostProps()(context); // `ns` defaults to []
       expect(result.props._nextI18Next?.initialLocale).toBe('en');
-      expect(result.props.posts).toEqual([
-        {
-          id: 'mock-post',
-          title: 'Mock Post Title',
-          date: '2024-01-01',
-          summary: 'Mock summary',
-          topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
-        },
-      ]);
+      expect(result.props.posts).toEqual([mockPostSummary]);
     });
 
     it('returns props for post list', async () => {
@@ -582,15 +534,7 @@ describe('Posts Library', () => {
             initialLocale: 'en',
             ns: ['common', 'post', 'topic'],
           },
-          posts: [
-            {
-              id: 'mock-post',
-              title: 'Mock Post Title',
-              date: '2024-01-01',
-              summary: 'Mock summary',
-              topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
-            },
-          ],
+          posts: [mockPostSummary],
         },
       });
     });
@@ -644,14 +588,7 @@ describe('Posts Library', () => {
 
       const result = await makePostDetailProps()(context); // `ns` defaults to []
       expect(result.props?._nextI18Next?.initialLocale).toBe('en');
-      expect(result.props?.post).toEqual({
-        id: 'mock-post',
-        title: 'Mock Post Title',
-        date: '2024-01-01',
-        summary: 'Mock summary',
-        topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
-        contentHtml: '<p>Mocked HTML Content</p>',
-      });
+      expect(result.props?.post).toEqual(mockPost);
     });
 
     it('returns props for a specific post', async () => {
@@ -665,27 +602,20 @@ describe('Posts Library', () => {
             initialLocale: 'en',
             ns: ['common', 'post', 'topic'],
           },
-          post: {
-            id: 'mock-post',
-            title: 'Mock Post Title',
-            date: '2024-01-01',
-            summary: 'Mock summary',
-            topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
-            contentHtml: '<p>Mocked HTML Content</p>',
-          },
+          post: mockPost,
         },
       });
     });
 
     it('uses default locale when locale is missing', async () => {
       const context: GetStaticPropsContext = {
-        params: { id: 'mock-post' }, // `locale` missing
+        params: { id: '1' }, // `locale` missing
       };
 
       const result = await makePostDetailProps(['common', 'post'])(context);
 
       expect(result.props?._nextI18Next?.initialLocale).toBe('en'); // Default locale
-      expect(result.props?.post.id).toBe('mock-post');
+      expect(result.props?.post.id).toBe('1');
     });
 
     it('returns props with default values when id is missing', async () => {
@@ -697,14 +627,7 @@ describe('Posts Library', () => {
 
       expect(result.props).toBeDefined();
       expect(result.props?._nextI18Next?.initialLocale).toBe('en');
-      expect(result.props?.post).toEqual({
-        id: 'mock-post',
-        title: 'Mock Post Title',
-        date: '2024-01-01',
-        summary: 'Mock summary',
-        topics: [{ id: 'typescript', name: 'Typescript', color: 'red' }],
-        contentHtml: '<p>Mocked HTML Content</p>',
-      });
+      expect(result.props?.post).toEqual(mockPost);
     });
 
     it('returns notFound when post is undefined', async () => {
@@ -730,17 +653,18 @@ describe('Posts Library', () => {
 
       (fs.promises.readFile as jest.Mock).mockReturnValue(`
       ---
-      id: mock-post
-      title: Mock Post Title
-      date: "2024-01-01"
-      summary: Mock summary
-      topics: [{"id": "typescript", "name": "Typescript", "color": "red"}]
+      id: ${mockPost.id}
+      title: ${mockPost.title}
+      date: "${mockPost.date}"
+      summary: ${mockPost.summary}
+      thumbnail: ${mockPost.thumbnail}
+      topics: ${JSON.stringify(mockPost.topics)}
       ---
       # Mock Markdown Content
     `);
 
       const context: GetStaticPropsContext = {
-        params: { locale: 'en', id: 'typescript' },
+        params: { locale: 'en', id: 'react' },
       };
 
       const result = await makeTopicProps()(context); // `ns` defaults to []
@@ -753,17 +677,18 @@ describe('Posts Library', () => {
 
       (fs.promises.readFile as jest.Mock).mockReturnValue(`
       ---
-      id: mock-post
-      title: Mock Post Title
-      date: "2024-01-01"
-      summary: Mock summary
-      topics: [{"id": "typescript", "name": "Typescript", "color": "red"}]
+      id: ${mockPost.id}
+      title: ${mockPost.title}
+      date: "${mockPost.date}"
+      summary: ${mockPost.summary}
+      thumbnail: ${mockPost.thumbnail}
+      topics: ${JSON.stringify(mockPost.topics)}
       ---
       # Mock Markdown Content
     `);
 
       const context: GetStaticPropsContext = {
-        params: { locale: 'en', id: 'typescript' },
+        params: { locale: 'en', id: 'react' },
       };
 
       const result = await makeTopicProps(['common', 'topic'])(context);
@@ -781,11 +706,12 @@ describe('Posts Library', () => {
 
       (fs.promises.readFile as jest.Mock).mockReturnValue(`
       ---
-      id: mock-post
-      title: Mock Post Title
-      date: "2024-01-01"
-      summary: Mock summary
-      topics: [{"id": "typescript", "name": "Typescript", "color": "red"}]
+      id: ${mockPost.id}
+      title: ${mockPost.title}
+      date: "${mockPost.date}"
+      summary: ${mockPost.summary}
+      thumbnail: ${mockPost.thumbnail}
+      topics: ${JSON.stringify(mockPost.topics)}
       ---
       # Mock Markdown Content
     `);
@@ -797,17 +723,18 @@ describe('Posts Library', () => {
 
     it('uses default locale when locale is missing', async () => {
       const context: GetStaticPropsContext = {
-        params: { id: 'typescript' },
+        params: { id: 'react' },
       };
       (fs.promises.readdir as jest.Mock).mockReturnValue(['mock-post.md']);
 
       (fs.promises.readFile as jest.Mock).mockReturnValue(`
       ---
-      id: mock-post
-      title: Mock Post Title
-      date: "2024-01-01"
-      summary: Mock summary
-      topics: [{"id": "typescript", "name": "Typescript", "color": "red"}]
+      id: ${mockPost.id}
+      title: ${mockPost.title}
+      date: "${mockPost.date}"
+      summary: ${mockPost.summary}
+      thumbnail: ${mockPost.thumbnail}
+      topics: ${JSON.stringify(mockPost.topics)}
       ---
       # Mock Markdown Content
     `);
@@ -825,11 +752,12 @@ describe('Posts Library', () => {
 
       (fs.promises.readFile as jest.Mock).mockReturnValue(`
       ---
-      id: mock-post
-      title: Mock Post Title
-      date: "2024-01-01"
-      summary: Mock summary
-      topics: [{"id": "typescript", "name": "Typescript", "color": "red"}]
+      id: ${mockPost.id}
+      title: ${mockPost.title}
+      date: "${mockPost.date}"
+      summary: ${mockPost.summary}
+      thumbnail: ${mockPost.thumbnail}
+      topics: ${JSON.stringify(mockPost.topics)}
       ---
       # Mock Markdown Content
     `);
@@ -860,22 +788,19 @@ describe('Posts Library', () => {
 
       (fs.promises.readFile as jest.Mock).mockReturnValue(`
       ---
-      id: mock-post
-      title: Mock Post Title
-      date: "2024-01-01"
-      summary: Mock summary
-      topics: [{"id": "typescript", "name": "Typescript", "color": "red"}]
+      id: ${mockPost.id}
+      title: ${mockPost.title}
+      date: "${mockPost.date}"
+      summary: ${mockPost.summary}
+      thumbnail: ${mockPost.thumbnail}
+      topics: ${JSON.stringify(mockPost.topics)}
       ---
       # Mock Markdown Content
     `);
 
       const result = getAllTopicIds();
 
-      expect(result).toEqual([
-        { params: { id: 'typescript', locale: 'en' } },
-        { params: { id: 'typescript', locale: 'fr' } },
-        { params: { id: 'typescript', locale: 'de' } },
-      ]);
+      expect(result).toEqual(mockTopicIds);
 
       expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
     });
