@@ -72,7 +72,7 @@ export default function PostList({ posts, noPostsFoundMessage }: Readonly<PostLi
   const totalResults = filteredPosts.length;
 
   return (
-    <Container className="mt-5" style={{ maxWidth: '700px' }}>
+    <Container className="mt-5" style={{ maxWidth: '800px' }}>
       {/* Search Bar */}
       <SearchBar query={searchQuery} onChange={handleSearchChange} />
 

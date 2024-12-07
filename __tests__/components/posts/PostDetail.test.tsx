@@ -14,8 +14,8 @@ const mockPost: Post = {
   contentHtml: '<p>Test Content</p>',
   thumbnail: '/test-thumbnail.jpg',
   topics: [
-    { name: 'React', color: 'blue' },
-    { name: 'Testing', color: 'green' },
+    { id: 'react', name: 'React', color: 'blue' },
+    { id: 'testing', name: 'Testing', color: 'green' },
   ],
   summary: 'Test summary',
 };

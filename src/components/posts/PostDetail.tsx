@@ -14,7 +14,7 @@ export default function PostDetail({ post }: Readonly<PostDetailProps>) {
   const { title, date, contentHtml, thumbnail, topics } = post;
 
   return (
-    <Container className="mt-5" style={{ maxWidth: '700px' }}>
+    <Container className="mt-5" style={{ maxWidth: '800px' }}>
       <h1 className="fw-bold display-4 text-center mb-4">{title}</h1>
       <p className="text-muted text-center mb-4" style={{ fontSize: '1.1rem' }}>
         <DateDisplay date={date} />
