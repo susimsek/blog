@@ -259,6 +259,13 @@ input.form-control {
   @include text-variant(danger, var(--danger-text));
   @include text-variant(light, var(--light-text));
   @include text-variant(dark, var(--dark-text));
+  @include text-variant(red, var(--red-text));
+  @include text-variant(green, var(--green-text));
+  @include text-variant(blue, var(--blue-text));
+  @include text-variant(orange, var(--orange-text));
+  @include text-variant(yellow, var(--yellow-text));
+  @include text-variant(purple, var(--purple-text));
+  @include text-variant(gray, var(--gray-text));
 }
 
 .background {
@@ -272,6 +279,13 @@ input.form-control {
   @include background-variant(danger, var(--danger-bg));
   @include background-variant(light, var(--light-bg));
   @include background-variant(dark, var(--dark-bg));
+  @include background-variant(red, var(--red-bg));
+  @include background-variant(green, var(--green-bg));
+  @include background-variant(blue, var(--blue-bg));
+  @include background-variant(orange, var(--orange-bg));
+  @include background-variant(yellow, var(--yellow-bg));
+  @include background-variant(purple, var(--purple-bg));
+  @include background-variant(gray, var(--gray-bg));
 }
 
 .btn {
@@ -343,6 +357,47 @@ input.form-control {
     var(--dark-hover),
     var(--dark-hover),
     var(--dark-bg)
+  );
+  @include button-variant(red, var(--red-bg), var(--red-color), var(--red-hover), var(--red-hover), var(--red-bg));
+  @include button-variant(
+    green,
+    var(--green-bg),
+    var(--green-color),
+    var(--green-hover),
+    var(--green-hover),
+    var(--green-bg)
+  );
+  @include button-variant(
+    blue,
+    var(--blue-bg),
+    var(--blue-color),
+    var(--blue-hover),
+    var(--blue-hover),
+    var(--blue-bg)
+  );
+  @include button-variant(
+    orange,
+    var(--orange-bg),
+    var(--orange-color),
+    var(--orange-hover),
+    var(--orange-hover),
+    var(--orange-bg)
+  );
+  @include button-variant(
+    yellow,
+    var(--yellow-bg),
+    var(--yellow-color),
+    var(--yellow-hover),
+    var(--yellow-hover),
+    var(--yellow-bg)
+  );
+  @include button-variant(
+    purple,
+    var(--purple-bg),
+    var(--purple-color),
+    var(--purple-hover),
+    var(--purple-hover),
+    var(--purple-bg)
   );
 }
 
@@ -495,6 +550,40 @@ input.form-control {
     var(--light-bg)
   );
   @include alert-variant(dark, var(--dark-bg), var(--dark-color), var(--dark-hover), var(--dark-hover), var(--dark-bg));
+  @include alert-variant(red, var(--red-bg), var(--red-color), var(--red-hover), var(--red-hover), var(--red-bg));
+  @include alert-variant(
+    green,
+    var(--green-bg),
+    var(--green-color),
+    var(--green-hover),
+    var(--green-hover),
+    var(--green-bg)
+  );
+  @include alert-variant(blue, var(--blue-bg), var(--blue-color), var(--blue-hover), var(--blue-hover), var(--blue-bg));
+  @include alert-variant(
+    orange,
+    var(--orange-bg),
+    var(--orange-color),
+    var(--orange-hover),
+    var(--orange-hover),
+    var(--orange-bg)
+  );
+  @include alert-variant(
+    yellow,
+    var(--yellow-bg),
+    var(--yellow-color),
+    var(--yellow-hover),
+    var(--yellow-hover),
+    var(--yellow-bg)
+  );
+  @include alert-variant(
+    purple,
+    var(--purple-bg),
+    var(--purple-color),
+    var(--purple-hover),
+    var(--purple-hover),
+    var(--purple-bg)
+  );
 }
 
 .icon {
