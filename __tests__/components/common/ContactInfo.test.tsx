@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import ContactInfo from '@/components/common/ContactInfo';
-import { CONTACT_LINKS, SOCIAL_MEDIA_NAMES } from '@/config/constants';
+import { CONTACT_LINKS } from '@/config/constants';
 
 jest.mock('next-i18next', () => ({
   useTranslation: jest.fn(() => ({
