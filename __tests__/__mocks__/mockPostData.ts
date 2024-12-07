@@ -42,6 +42,8 @@ export const mockPostWithoutContent: Post = {
 
 export const mockPosts: Post[] = [mockPost, mockPost2];
 
+export const mockTopics: Topic[] = [mockTopic];
+
 export const mockPostSummaries: PostSummary[] = [
   { id: '1', title: 'Post 1', summary: 'Summary 1', date: '2024-12-03' },
   { id: '2', title: 'Post 2', summary: 'Summary 2', date: '2023-11-03' },

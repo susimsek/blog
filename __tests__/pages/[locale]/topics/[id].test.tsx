@@ -6,6 +6,7 @@ import TopicPage, { getStaticPaths } from '@/pages/[locale]/topics/[id]';
 import { Topic, PostSummary } from '@/types/posts';
 import '@testing-library/jest-dom';
 import { useTranslation } from 'next-i18next';
+import { mockPostSummaries, mockTopic, mockTopics } from '../../../__mocks__/mockPostData';
 
 // Mock `next/router`
 jest.mock('next/router', () => ({
@@ -57,34 +58,8 @@ jest.mock('@/lib/posts', () => ({
   makeTopicProps: jest.fn().mockImplementation(() => async (context: any) => {
     const topicId = (context?.params?.id as string) || '';
 
-    const mockedTopics = {
-      '1': { id: '1', name: 'React', color: 'blue' },
-      '2': { id: '2', name: 'Next.js', color: 'green' },
-    };
-
-    const mockedPosts = {
-      '1': [
-        {
-          id: '1',
-          title: 'React Basics',
-          date: '2024-01-01',
-          summary: 'Learn the basics of React.',
-          topics: [{ id: '1', name: 'React', color: 'blue' }],
-        },
-      ],
-      '2': [
-        {
-          id: '2',
-          title: 'Next.js Introduction',
-          date: '2024-02-01',
-          summary: 'Intro to Next.js.',
-          topics: [{ id: '2', name: 'Next.js', color: 'green' }],
-        },
-      ],
-    };
-
-    const topic = mockedTopics[topicId] || null;
-    const posts = mockedPosts[topicId] || [];
+    const topic = mockTopics[topicId] || null;
+    const posts = mockPostSummaries[topicId] || [];
 
     if (!topic) {
       return { notFound: true };
@@ -119,26 +94,9 @@ beforeEach(() => {
   });
 });
 
-// Mock data
-const mockTopic: Topic = {
-  id: '1',
-  name: 'React',
-  color: 'blue',
-};
-
-const mockPosts: PostSummary[] = [
-  {
-    id: '1',
-    title: 'React Basics',
-    date: '2024-01-01',
-    summary: 'Learn the basics of React.',
-    topics: [{ id: '1', name: 'React', color: 'blue' }],
-  },
-];
-
 describe('TopicPage', () => {
   it('renders correctly with posts', () => {
-    renderTopicPage(mockTopic, mockPosts);
+    renderTopicPage(mockTopic, mockPostSummaries);
 
     // Check header elements
     expect(screen.getByRole('heading', { name: 'topic.title' })).toBeInTheDocument();
@@ -147,7 +105,7 @@ describe('TopicPage', () => {
     // Check post list
     const postList = screen.getByTestId('post-list');
     expect(postList).toBeInTheDocument();
-    expect(screen.getByText('React Basics')).toBeInTheDocument();
+    expect(screen.getByText('Post 1')).toBeInTheDocument();
   });
 
   it('renders correctly without posts', () => {
@@ -158,7 +116,7 @@ describe('TopicPage', () => {
   });
 
   it('sets correct meta tags', () => {
-    renderTopicPage(mockTopic, mockPosts);
+    renderTopicPage(mockTopic, mockPostSummaries);
 
     const metaDescription = document.querySelector('meta[name="description"]');
     const metaKeywords = document.querySelector('meta[name="keywords"]');

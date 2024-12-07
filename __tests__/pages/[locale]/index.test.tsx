@@ -5,24 +5,8 @@ import store from '@/config/store';
 import Home, { getStaticProps } from '@/pages/[locale]/index';
 import '@testing-library/jest-dom';
 import { useTranslation } from 'next-i18next';
-import { PostSummary } from '@/types/posts';
-
-const mockPosts = [
-  {
-    id: '1',
-    title: 'Mocked Post 1',
-    date: '2024-01-01',
-    summary: 'Summary for mocked post 1',
-  },
-  {
-    id: '2',
-    title: 'Mocked Post 2',
-    date: '2024-01-02',
-    summary: 'Summary for mocked post 2',
-    thumbnail: '/images/mock-thumbnail.jpg',
-  },
-];
-
+import { PostSummary, Topic } from '@/types/posts';
+import { mockPosts, mockPostSummaries } from '../../__mocks__/mockPostData';
 // Mock `next/router`
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockReturnValue({
@@ -61,8 +45,8 @@ jest.mock('@/components/posts/PostList', () => ({
           {post.thumbnail && <img src={post.thumbnail} alt={post.title} />}
           {post.topics && (
             <ul>
-              {post.topics.map((topic, index) => (
-                <li key={index}>{topic}</li>
+              {post.topics.map((topic: Topic, index) => (
+                <li key={index}>{topic.name}</li>
               ))}
             </ul>
           )}
