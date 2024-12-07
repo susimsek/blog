@@ -8,7 +8,7 @@ import { useTranslation } from 'next-i18next';
 import { Post } from '@/types/posts';
 import { getStaticPaths } from '@/pages/[locale]/posts/[id]';
 import { GetStaticPropsContext } from 'next';
-import { mockPost } from '../../../__mocks__/mockPostData';
+import { mockPost, mockPost2 } from '../../../__mocks__/mockPostData';
 
 // Mock `next/router`
 jest.mock('next/router', () => ({
@@ -66,14 +66,7 @@ jest.mock('@/lib/posts', () => ({
     const id = context?.params?.id as string;
     const mockedPosts = {
       '1': mockPost,
-      '2': {
-        id: '2',
-        title: 'Another Mocked Post',
-        summary: 'Summary for another mocked post.',
-        contentHtml: '<p>Another mocked HTML content</p>',
-        date: '2024-01-02',
-        topics: ['TypeScript', 'Testing'],
-      },
+      '2': mockPost2,
     };
 
     return {

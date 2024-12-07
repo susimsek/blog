@@ -16,6 +16,16 @@ export const mockPost: Post = {
   summary: 'Test summary',
 };
 
+export const mockPost2: Post = {
+  id: '1',
+  title: 'Another Test Post',
+  date: '2024-12-03',
+  contentHtml: '<p>Another Test Content</p>',
+  thumbnail: '/test-thumbnail.jpg',
+  topics: [mockTopic, { id: 'testing', name: 'Testing', color: 'green' }],
+  summary: 'Another Test summary',
+};
+
 export const mockPostSummary: PostSummary = {
   id: '1',
   title: 'Test Post',
@@ -29,6 +39,8 @@ export const mockPostWithoutContent: Post = {
   ...mockPost,
   contentHtml: undefined,
 };
+
+export const mockPosts: Post[] = [mockPost, mockPost2];
 
 export const mockPostSummaries: PostSummary[] = [
   { id: '1', title: 'Post 1', summary: 'Summary 1', date: '2024-12-03' },
