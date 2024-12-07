@@ -28,6 +28,9 @@
     "sort": {
       "newest": "Newest First",
       "oldest": "Oldest First"
+    },
+    "contactInfo": {
+      "email": "Email"
     }
   }
 }

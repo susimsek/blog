@@ -28,6 +28,9 @@
     "sort": {
       "newest": "En Yeni Önce",
       "oldest": "En Eski Önce"
+    },
+    "contactInfo": {
+      "email": "E-posta"
     }
   }
 }
