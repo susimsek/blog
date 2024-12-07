@@ -249,6 +249,8 @@ input.form-control {
 }
 
 .text {
+  transition: color var(--transition-speed) ease;
+
   @include text-variant(primary, var(--primary-text));
   @include text-variant(secondary, var(--secondary-text));
   @include text-variant(success, var(--success-text));
@@ -260,6 +262,8 @@ input.form-control {
 }
 
 .background {
+  transition: background-color var(--transition-speed) ease;
+
   @include background-variant(primary, var(--primary-bg));
   @include background-variant(secondary, var(--secondary-bg));
   @include background-variant(success, var(--success-bg));
