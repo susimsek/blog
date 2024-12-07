@@ -30,7 +30,7 @@ export const mockPostWithoutContent: Post = {
   contentHtml: undefined,
 };
 
-export const mockPosts: PostSummary[] = [
+export const mockPostSummaries: PostSummary[] = [
   { id: '1', title: 'Post 1', summary: 'Summary 1', date: '2024-12-03' },
   { id: '2', title: 'Post 2', summary: 'Summary 2', date: '2023-11-03' },
   { id: '3', title: 'Post 3', summary: 'Summary 3', date: '2023-10-01' },

@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import PostList from '@/components/posts/PostList';
 import { PostSummary } from '@/types/posts';
-import { mockPosts } from '../../__mocks__/mockPostData';
+import { mockPostSummaries } from '../../__mocks__/mockPostData';
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
@@ -59,7 +59,7 @@ jest.mock('@/components/posts/PostSummary', () => ({
 
 describe('PostList Component', () => {
   it('renders all components correctly', () => {
-    render(<PostList posts={mockPosts} />);
+    render(<PostList posts={mockPostSummaries} />);
 
     expect(screen.getByTestId('search-bar')).toBeInTheDocument();
     expect(screen.getByText('common:common.sort.newest')).toBeInTheDocument();
@@ -68,7 +68,7 @@ describe('PostList Component', () => {
   });
 
   it('filters posts based on search query', () => {
-    render(<PostList posts={mockPosts} />);
+    render(<PostList posts={mockPostSummaries} />);
     const searchBar = screen.getByTestId('search-bar');
     fireEvent.change(searchBar, { target: { value: 'Post 3' } });
 
@@ -77,7 +77,7 @@ describe('PostList Component', () => {
   });
 
   it('sorts posts based on selected order', () => {
-    render(<PostList posts={mockPosts} />);
+    render(<PostList posts={mockPostSummaries} />);
     const sortButton = screen.getByText('common:common.sort.newest');
     fireEvent.click(sortButton);
 
@@ -90,7 +90,7 @@ describe('PostList Component', () => {
   });
 
   it('changes posts per page and handles pagination correctly', () => {
-    render(<PostList posts={mockPosts} />);
+    render(<PostList posts={mockPostSummaries} />);
     const nextButton = screen.getByText('Next');
     fireEvent.click(nextButton);
 
@@ -104,7 +104,7 @@ describe('PostList Component', () => {
   });
 
   it('displays "no posts found" message when no posts match', () => {
-    render(<PostList posts={mockPosts} />);
+    render(<PostList posts={mockPostSummaries} />);
     const searchBar = screen.getByTestId('search-bar');
     fireEvent.change(searchBar, { target: { value: 'Nonexistent Post' } });
 
