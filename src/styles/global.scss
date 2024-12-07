@@ -7,6 +7,7 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   @include transition(background-color, color);
+  @include theme-transition;
 }
 
 .navbar {
