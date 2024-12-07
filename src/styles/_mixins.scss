@@ -23,6 +23,12 @@
   }
 }
 
+@mixin background-variant($name, $bg-color) {
+  &.bg-#{$name} {
+    background-color: $bg-color !important;
+  }
+}
+
 @mixin badge-variant($name, $bg-color, $text-color, $hover-bg, $hover-border, $border-color: $bg-color) {
   &.badge-#{$name} {
     background-color: $bg-color;

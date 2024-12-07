@@ -259,6 +259,17 @@ input.form-control {
   @include text-variant(dark, var(--dark-text));
 }
 
+.background {
+  @include background-variant(primary, var(--primary-bg));
+  @include background-variant(secondary, var(--secondary-bg));
+  @include background-variant(success, var(--success-bg));
+  @include background-variant(info, var(--info-bg));
+  @include background-variant(warning, var(--warning-bg));
+  @include background-variant(danger, var(--danger-bg));
+  @include background-variant(light, var(--light-bg));
+  @include background-variant(dark, var(--dark-bg));
+}
+
 .btn {
   transition:
     background-color var(--transition-speed) ease,
