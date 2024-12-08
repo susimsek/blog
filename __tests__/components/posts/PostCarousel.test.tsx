@@ -25,6 +25,19 @@ describe('PostCarousel Component', () => {
     expect(screen.getByText(mockPostSummaries[0].title)).toBeInTheDocument();
   });
 
+  it('does not render badges when no topics are available', () => {
+    const postsWithoutTopics = mockPostSummaries.map(post => ({
+      ...post,
+      topics: [], // Force no topics
+    }));
+
+    render(<PostCarousel posts={postsWithoutTopics} />);
+
+    // Ensure no topic badges are rendered
+    const badges = screen.queryAllByRole('link', { name: /topic/i });
+    expect(badges).toHaveLength(0);
+  });
+
   it('navigates to the next slide when the next button is clicked', () => {
     render(<PostCarousel posts={mockPostSummaries} />);
 
