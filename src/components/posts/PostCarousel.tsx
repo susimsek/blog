@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Badge, Carousel } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight, faCircle } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { PostSummary } from '@/types/posts';
 import { assetPrefix } from '@/config/constants';
 import Link from '@/components/common/Link';
@@ -74,7 +74,7 @@ export default function PostCarousel({ posts, interval = 5000 }: Readonly<PostCa
             onClick={() => handleSelect(index)}
             aria-label={`Go to slide ${index + 1}`}
           >
-            <FontAwesomeIcon className="icon" icon="circle" size="sm" />
+            <FontAwesomeIcon className="carousel-indicator-icon" icon="circle" size="sm" />
           </button>
         ))}
       </div>

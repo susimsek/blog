@@ -806,7 +806,7 @@ input.form-control {
       opacity: 0.8;
     }
 
-    .icon {
+    .carousel-indicator-icon {
       color: var(--gray-text);
     }
   }
@@ -814,7 +814,7 @@ input.form-control {
   .active {
     background-color: var(--caption-active-bg) !important;
 
-    .icon {
+    .carousel-indicator-icon {
       color: var(--caption-active-bg) !important;
     }
   }
