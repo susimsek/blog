@@ -17,6 +17,21 @@
   }
 }
 
+@mixin link-variant($name, $color, $hover-color, $active-color) {
+  &.link-#{$name} {
+    color: $color;
+    text-decoration: none;
+
+    &:hover {
+      color: $hover-color;
+    }
+
+    &:active {
+      color: $active-color;
+    }
+  }
+}
+
 @mixin text-variant($name, $color-var) {
   &.text-#{$name} {
     color: $color-var !important;

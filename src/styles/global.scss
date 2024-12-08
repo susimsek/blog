@@ -288,6 +288,26 @@ input.form-control {
   @include background-variant(gray, var(--gray-bg));
 }
 
+.link {
+  @include transition(color);
+
+  @include link-variant(primary, var(--primary-bg), var(--primary-hover), var(--primary-color));
+  @include link-variant(secondary, var(--secondary-bg), var(--secondary-hover), var(--secondary-color));
+  @include link-variant(success, var(--success-bg), var(--success-hover), var(--success-color));
+  @include link-variant(info, var(--info-bg), var(--info-hover), var(--info-color));
+  @include link-variant(warning, var(--warning-bg), var(--warning-hover), var(--warning-color));
+  @include link-variant(danger, var(--danger-bg), var(--danger-hover), var(--danger-color));
+  @include link-variant(light, var(--light-bg), var(--light-hover), var(--light-color));
+  @include link-variant(dark, var(--dark-bg), var(--dark-hover), var(--dark-color));
+  @include link-variant(red, var(--red-bg), var(--red-hover), var(--red-color));
+  @include link-variant(green, var(--green-bg), var(--green-hover), var(--green-color));
+  @include link-variant(blue, var(--blue-bg), var(--blue-hover), var(--blue-color));
+  @include link-variant(orange, var(--orange-bg), var(--orange-hover), var(--orange-color));
+  @include link-variant(yellow, var(--yellow-bg), var(--yellow-hover), var(--yellow-color));
+  @include link-variant(purple, var(--purple-bg), var(--purple-hover), var(--purple-color));
+  @include link-variant(gray, var(--gray-bg), var(--gray-hover), var(--gray-color));
+}
+
 .btn {
   transition:
     background-color var(--transition-speed) ease,
@@ -756,9 +776,6 @@ input.form-control {
 
 /* Caption */
 .carousel-caption {
-  background-color: var(--caption-bg-color) !important;
-  border-radius: 10px;
-  bottom: 3rem !important;
   color: var(--text-color);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   @include transition(background-color, color);
@@ -778,13 +795,13 @@ input.form-control {
 
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
-  color: var(--text-color);
+  color: var(--light-bg);
   background-image: none;
   border: none;
   @include transition(color);
 
   &:hover {
-    color: var(--link-hover-color);
+    color: var(--light-hover);
   }
 }
 
