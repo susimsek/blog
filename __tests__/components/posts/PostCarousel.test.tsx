@@ -25,6 +25,18 @@ describe('PostCarousel Component', () => {
     expect(screen.getByText(mockPostSummaries[0].title)).toBeInTheDocument();
   });
 
+  it('renders topics as badges when topics are available', () => {
+    render(<PostCarousel posts={mockPostSummaries} />);
+
+    // Check if topics are rendered as badges for a post with topics
+    const postWithTopics = mockPostSummaries.find(post => post.topics && post.topics.length > 0);
+    if (postWithTopics) {
+      postWithTopics.topics?.forEach(topic => {
+        expect(screen.getByText(topic.name)).toBeInTheDocument();
+      });
+    }
+  });
+
   it('does not render badges when no topics are available', () => {
     const postsWithoutTopics = mockPostSummaries.map(post => ({
       ...post,
