@@ -751,6 +751,7 @@ input.form-control {
 .carousel {
   background-color: var(--main-bg);
   color: var(--text-color);
+  @include transition(background-color, color);
 }
 
 /* Caption */
@@ -760,16 +761,19 @@ input.form-control {
   bottom: 3rem !important;
   color: var(--text-color);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  @include transition(background-color, color);
 }
 
 /* Indicators */
-.carousel-indicators button {
-  background-color: var(--muted-text-color) !important;
-  border: none;
-}
-
-.carousel-indicators .active {
-  background-color: var(--active-color);
+.carousel-indicators {
+  @include transition(background-color);
+  button {
+    background-color: var(--muted-text-color) !important;
+    border: none;
+  }
+  .active {
+    background-color: var(--active-color) !important;
+  }
 }
 
 .carousel-control-prev-icon,
@@ -784,22 +788,16 @@ input.form-control {
   }
 }
 
-.shadow-sm {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
 .image-wrapper {
   position: relative;
   overflow: hidden;
 }
 
 .image-wrapper img {
-  transition:
-    transform 0.3s ease,
-    filter 0.3s ease;
+  @include transition(transform, filter);
 }
 
 .image-wrapper:hover img {
   transform: scale(1.1);
-  filter: brightness(85%);
+  filter: brightness(var(--hover-brightness));
 }
