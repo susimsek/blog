@@ -37,11 +37,11 @@ export default function PostCarousel({ posts, interval = 5000 }: Readonly<PostCa
             </div>
           </Link>
           <Carousel.Caption className="text-center bg-opacity-75 p-3 rounded" style={{ bottom: '2rem' }}>
-            <h5 className="fw-bold mb-3">
+            <h3 className="fw-bold mb-3">
               <Link href={`/posts/${post.id}`} className="link-light">
                 {post.title}
               </Link>
-            </h5>
+            </h3>
             {post.topics && post.topics.length > 0 && (
               <div className="mb-4">
                 {post.topics.map(topic => (

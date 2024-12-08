@@ -19,15 +19,15 @@
 
 @mixin link-variant($name, $color, $hover-color, $active-color) {
   &.link-#{$name} {
-    color: $color;
+    color: $color !important;
     text-decoration: none;
 
     &:hover {
-      color: $hover-color;
+      color: $hover-color !important;
     }
 
     &:active {
-      color: $active-color;
+      color: $active-color !important;
     }
   }
 }
