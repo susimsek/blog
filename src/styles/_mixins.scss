@@ -5,7 +5,7 @@
 }
 
 @mixin button-variant($name, $bg-color, $text-color, $hover-bg, $hover-border, $border-color: $bg-color) {
-  &.btn-#{$name} {
+  &.btn-#{'#{$name}'} {
     background-color: $bg-color;
     color: $text-color;
     border-color: $border-color;
@@ -18,7 +18,7 @@
 }
 
 @mixin link-variant($name, $color, $hover-color, $active-color) {
-  &.link-#{$name} {
+  &.link-#{'#{$name}'} {
     color: $color !important;
     text-decoration: none;
 
@@ -33,19 +33,19 @@
 }
 
 @mixin text-variant($name, $color-var) {
-  &.text-#{$name} {
+  &.text-#{'#{$name}'} {
     color: $color-var !important;
   }
 }
 
 @mixin background-variant($name, $bg-color) {
-  &.bg-#{$name} {
+  &.bg-#{'#{$name}'} {
     background-color: $bg-color !important;
   }
 }
 
 @mixin badge-variant($name, $bg-color, $text-color, $hover-bg, $hover-border, $border-color: $bg-color) {
-  &.badge-#{$name} {
+  &.badge-#{'#{$name}'} {
     background-color: $bg-color;
     color: $text-color;
     border-color: $border-color;
@@ -58,7 +58,7 @@
 }
 
 @mixin alert-variant($name, $bg-color, $text-color, $hover-bg, $hover-border, $border-color: $bg-color) {
-  &-#{$name} {
+  &-#{'#{$name}'} {
     background-color: $bg-color;
     color: $text-color;
     border-color: $border-color;
