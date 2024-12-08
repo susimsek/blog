@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PostSummary } from '@/types/posts';
 import { assetPrefix } from '@/config/constants';
 import Link from '@/components/common/Link';
+import Image from 'next/image';
 
 type PostCarouselProps = {
   posts: PostSummary[];
@@ -34,10 +35,14 @@ export default function PostCarousel({ posts, interval = 5000 }: Readonly<PostCa
           <Carousel.Item key={post.id}>
             <Link href={`/posts/${post.id}`}>
               <div className="thumbnail-wrapper">
-                <img
+                <Image
                   src={`${assetPrefix}${post.thumbnail}`}
                   alt={post.title}
                   className="d-block w-100 rounded shadow"
+                  layout="responsive"
+                  width={800}
+                  height={450}
+                  objectFit="cover"
                 />
               </div>
             </Link>
