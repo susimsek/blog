@@ -30,7 +30,7 @@ export default function PostCarousel({ posts, interval = 5000 }: Readonly<PostCa
         wrap={true}
         indicators={false}
       >
-        {posts.map((post, index) => (
+        {posts.map(post => (
           <Carousel.Item key={post.id}>
             <Link href={`/posts/${post.id}`}>
               <div className="thumbnail-wrapper">
