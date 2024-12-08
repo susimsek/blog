@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Badge, Carousel } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { PostSummary } from '@/types/posts';
 import { assetPrefix } from '@/config/constants';
 import Link from '@/components/common/Link';
@@ -23,13 +22,13 @@ export default function PostCarousel({ posts, interval = 5000 }: Readonly<PostCa
       <Carousel
         className="mx-auto shadow-sm rounded overflow-hidden"
         style={{ maxWidth: '800px' }}
-        prevIcon={<FontAwesomeIcon className="carousel-control-prev-icon" icon={faChevronLeft} size="lg" />}
-        nextIcon={<FontAwesomeIcon className="carousel-control-next-icon" icon={faChevronRight} size="lg" />}
+        prevIcon={<FontAwesomeIcon className="carousel-control-prev-icon" icon="chevron-left" size="lg" />}
+        nextIcon={<FontAwesomeIcon className="carousel-control-next-icon" icon="chevron-right" size="lg" />}
         activeIndex={activeIndex}
         onSelect={handleSelect}
         interval={interval}
         wrap={true}
-        indicators={false} // Default indicators are disabled
+        indicators={false}
       >
         {posts.map((post, index) => (
           <Carousel.Item key={post.id}>
