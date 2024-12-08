@@ -746,3 +746,60 @@ input.form-control {
   overflow-wrap: normal;
   word-break: normal;
 }
+
+/* Carousel Container */
+.carousel {
+  background-color: var(--main-bg);
+  color: var(--text-color);
+}
+
+/* Caption */
+.carousel-caption {
+  background-color: var(--caption-bg-color) !important;
+  border-radius: 10px;
+  bottom: 3rem !important;
+  color: var(--text-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Indicators */
+.carousel-indicators button {
+  background-color: var(--muted-text-color) !important;
+  border: none;
+}
+
+.carousel-indicators .active {
+  background-color: var(--active-color);
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  color: var(--text-color);
+  background-image: none;
+  border: none;
+  @include transition(color);
+
+  &:hover {
+    color: var(--link-hover-color);
+  }
+}
+
+.shadow-sm {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.image-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.image-wrapper img {
+  transition:
+    transform 0.3s ease,
+    filter 0.3s ease;
+}
+
+.image-wrapper:hover img {
+  transform: scale(1.1);
+  filter: brightness(85%);
+}

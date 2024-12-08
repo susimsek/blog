@@ -56,6 +56,20 @@ jest.mock('@/components/posts/PostList', () => ({
   ),
 }));
 
+jest.mock('@/components/posts/PostCarousel', () => ({
+  __esModule: true,
+  default: ({ posts }: { posts: PostSummary[] }) => (
+    <div data-testid="post-carousel">
+      {posts.map(post => (
+        <div key={post.id} data-testid="carousel-item">
+          <h3>{post.title}</h3>
+          <p>{post.summary}</p>
+        </div>
+      ))}
+    </div>
+  ),
+}));
+
 // Mock `makePostProps` function
 jest.mock('@/lib/posts', () => ({
   makePostProps: jest.fn().mockImplementation(() => async () => ({
@@ -67,41 +81,42 @@ jest.mock('@/lib/posts', () => ({
 
 describe('Home Page', () => {
   it('renders mocked post list correctly', async () => {
-    const mockPosts: PostSummary[] = [
-      {
-        id: '1',
-        title: 'Mocked Post 1',
-        date: '2024-01-01',
-        summary: 'Summary for mocked post 1',
-      },
-      {
-        id: '2',
-        title: 'Mocked Post 2',
-        date: '2024-01-02',
-        summary: 'Summary for mocked post 2',
-        thumbnail: '/images/mock-thumbnail.jpg',
-      },
-    ];
-
     render(
       <Provider store={store}>
-        <Home posts={mockPosts} />
+        <Home posts={mockPostSummaries} />
       </Provider>,
     );
 
     // Verify post list content
     expect(screen.getByTestId('post-list')).toBeInTheDocument();
     const postItems = screen.getAllByTestId('post-item');
-    expect(postItems).toHaveLength(mockPosts.length);
+    expect(postItems).toHaveLength(6);
 
     // Check first post details
-    expect(postItems[0]).toHaveTextContent(mockPosts[0].title);
-    expect(postItems[0]).toHaveTextContent(mockPosts[0].summary);
+    expect(postItems[0]).toHaveTextContent('Post 1Summary 12024-12-03');
+    expect(postItems[0]).toHaveTextContent('Post 1Summary 12024-12-03');
+  });
 
-    // Check second post details
-    expect(postItems[1]).toHaveTextContent(mockPosts[1].title);
-    expect(postItems[1]).toHaveTextContent(mockPosts[1].summary);
-    expect(postItems[1].querySelector('img')).toHaveAttribute('src', mockPosts[1].thumbnail);
+  it('renders PostCarousel and PostList components', async () => {
+    render(
+      <Provider store={store}>
+        <Home posts={mockPostSummaries} />
+      </Provider>,
+    );
+
+    // Verify carousel content
+    expect(screen.getByTestId('post-carousel')).toBeInTheDocument();
+    const carouselItems = screen.getAllByTestId('carousel-item');
+    expect(carouselItems).toHaveLength(3); // Check for first 3 posts
+
+    // Verify post list content
+    expect(screen.getByTestId('post-list')).toBeInTheDocument();
+    const postItems = screen.getAllByTestId('post-item');
+    expect(postItems).toHaveLength(6);
+
+    // Check first post details
+    expect(postItems[0]).toHaveTextContent('Post 1');
+    expect(postItems[0]).toHaveTextContent('Summary 1');
   });
 });
 

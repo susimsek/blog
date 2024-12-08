@@ -1,4 +1,3 @@
-// pages/[locale]index.tsx
 import { makePostProps } from '@/lib/posts';
 import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
@@ -7,6 +6,8 @@ import { AUTHOR_NAME } from '@/config/constants';
 import Layout from '@/components/common/Layout';
 import PostList from '@/components/posts/PostList';
 import { PostSummary } from '@/types/posts';
+import PostCarousel from '@/components/posts/PostCarousel'; // Carousel bileşenini içeri aktardık
+import { Container } from 'react-bootstrap';
 
 type HomeProps = {
   posts: PostSummary[];
@@ -23,13 +24,16 @@ export default function Home({ posts }: Readonly<HomeProps>) {
         <meta name="keywords" content={t('home.meta.keywords')} />
         <meta name="author" content={AUTHOR_NAME} />
       </Head>
-      <div>
+      <Container>
         <header className="text-center py-4">
           <h1 className="fw-bold mb-4">{t('home.header.title')}</h1>
           <p className="text-muted fs-4">{t('home.header.subtitle')}</p>
         </header>
+
+        <PostCarousel posts={posts.slice(0, 3)} />
+
         <PostList posts={posts} />
-      </div>
+      </Container>
     </Layout>
   );
 }

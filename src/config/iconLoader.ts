@@ -6,6 +6,9 @@ import {
   faBars,
   faBook,
   faCheckCircle,
+  faChevronLeft,
+  faChevronRight,
+  faCircle,
   faCode,
   faDatabase,
   faEnvelope,
@@ -57,5 +60,8 @@ export const loadIcons = () => {
     faUser,
     faEnvelope,
     faAddressBook,
+    faCircle,
+    faChevronLeft,
+    faChevronRight,
   );
 };
