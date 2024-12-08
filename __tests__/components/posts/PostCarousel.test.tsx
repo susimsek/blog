@@ -13,6 +13,27 @@ jest.mock('next/router', () => ({
   }),
 }));
 
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: ({
+    src,
+    alt,
+    width,
+    height,
+    style,
+    priority,
+  }: {
+    src: string;
+    alt: string;
+    width?: number;
+    height?: number;
+    style?: React.CSSProperties;
+    priority?: boolean;
+  }) => (
+    <img src={src} alt={alt} width={width} height={height} style={style} data-priority={priority ? 'true' : 'false'} />
+  ),
+}));
+
 describe('PostCarousel Component', () => {
   it('renders the carousel with posts', () => {
     render(<PostCarousel posts={mockPostSummaries} />);
