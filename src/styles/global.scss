@@ -249,7 +249,7 @@ input.form-control {
 }
 
 .text {
-  transition: color var(--transition-speed) ease;
+  @include transition(color);
 
   @include text-variant(primary, var(--primary-text));
   @include text-variant(secondary, var(--secondary-text));
@@ -269,7 +269,7 @@ input.form-control {
 }
 
 .background {
-  transition: background-color var(--transition-speed) ease;
+  @include transition(background-color);
 
   @include background-variant(primary, var(--primary-bg));
   @include background-variant(secondary, var(--secondary-bg));
@@ -309,10 +309,7 @@ input.form-control {
 }
 
 .btn {
-  transition:
-    background-color var(--transition-speed) ease,
-    border-color var(--transition-speed) ease,
-    color var(--transition-speed) ease;
+  @include transition(background-color, border-color, color);
 
   @include button-variant(
     primary,
@@ -430,10 +427,7 @@ input.form-control {
 }
 
 .badge {
-  transition:
-    background-color var(--transition-speed) ease,
-    border-color var(--transition-speed) ease,
-    color var(--transition-speed) ease;
+  @include transition(background-color, border-color, color);
 
   @include badge-variant(
     primary,
@@ -523,10 +517,7 @@ input.form-control {
 }
 
 .alert {
-  transition:
-    background-color var(--transition-speed) ease,
-    color var(--transition-speed) ease,
-    border-color var(--transition-speed) ease;
+  @include transition(background-color, color, border-color);
 
   @include alert-variant(
     primary,
@@ -799,7 +790,7 @@ input.form-control {
     align-items: center;
     justify-content: center;
     padding: 0;
-    transition: background-color var(--transition-speed);
+    @include transition(background-color);
 
     &:hover {
       background-color: var(--caption-active-bg) !important;
