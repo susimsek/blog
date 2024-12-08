@@ -45,7 +45,13 @@ export const mockPosts: Post[] = [mockPost, mockPost2];
 export const mockTopics: Topic[] = [mockTopic];
 
 export const mockPostSummaries: PostSummary[] = [
-  { id: '1', title: 'Post 1', summary: 'Summary 1', date: '2024-12-03' },
+  {
+    id: '1',
+    title: 'Post 1',
+    summary: 'Summary 1',
+    date: '2024-12-03',
+    topics: [mockTopic, { id: 'testing', name: 'Testing', color: 'green' }],
+  },
   { id: '2', title: 'Post 2', summary: 'Summary 2', date: '2023-11-03' },
   { id: '3', title: 'Post 3', summary: 'Summary 3', date: '2023-10-01' },
   { id: '4', title: 'Post 4', summary: 'Summary 4', date: '2023-09-15' },
