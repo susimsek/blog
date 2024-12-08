@@ -768,11 +768,11 @@ input.form-control {
 .carousel-indicators {
   @include transition(background-color);
   button {
-    background-color: var(--muted-text-color) !important;
+    background-color: var(--gray-bg) !important;
     border: none;
   }
   .active {
-    background-color: var(--active-color) !important;
+    background-color: var(--caption-active-bg) !important;
   }
 }
 
