@@ -22,8 +22,8 @@ export default function PostCarousel({ posts, interval = 5000 }: Readonly<PostCa
     <Carousel
       className="mx-auto shadow-sm rounded overflow-hidden"
       style={{ maxWidth: '800px' }}
-      prevIcon={<FontAwesomeIcon className="carousel-control-prev-icon" icon={faChevronLeft} size="lg" />}
-      nextIcon={<FontAwesomeIcon className="carousel-control-next-icon" icon={faChevronRight} size="lg" />}
+      prevIcon={<FontAwesomeIcon className="carousel-control-prev-icon" icon="chevron-left" size="lg" />}
+      nextIcon={<FontAwesomeIcon className="carousel-control-next-icon" icon="chevron-right" size="lg" />}
       activeIndex={activeIndex}
       onSelect={handleSelect}
       interval={interval}
