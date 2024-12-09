@@ -768,7 +768,6 @@ input.form-control {
 /* Caption */
 .carousel-caption {
   color: var(--text-color);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   @include transition(background-color, color);
 }
 
