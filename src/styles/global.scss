@@ -722,18 +722,18 @@ input.form-control {
 }
 
 .table > :not(caption) > thead > tr > th {
-  background-color: var(--caption-bg-color);
+  background-color: var(--table-header-bg);
   color: var(--text-color);
   font-weight: bold;
 }
 
 .table-striped > tbody > tr:nth-of-type(odd) {
-  background-color: var(--light-bg);
+  background-color: var(--table-striped-bg);
 }
 
 .table > tbody > tr:hover {
-  background-color: var(--dropdown-hover-bg);
-  color: var(--dropdown-hover-color);
+  background-color: var(--table-row-hover-bg);
+  color: var(--table-row-hover-text);
 }
 
 .button-link {

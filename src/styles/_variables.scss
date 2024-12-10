@@ -93,6 +93,10 @@
 
   --caption-bg-color: #f8f9fa;
   --caption-active-bg: #ffffff;
+  --table-striped-bg: #f9f9f9;
+  --table-row-hover-bg: #e9ecef;
+  --table-row-hover-text: #212529;
+  --table-header-bg: #f8f9fa;
 }
 
 .dark {
@@ -181,4 +185,8 @@
   --gray-color: #ffffff;
   --caption-bg-color: #2d2d2d;
   --caption-active-bg: #f0f0f0;
+  --table-striped-bg: #2d2d2d;
+  --table-row-hover-bg: #343a40;
+  --table-row-hover-text: #ffffff;
+  --table-header-bg: #1e1e1e;
 }
