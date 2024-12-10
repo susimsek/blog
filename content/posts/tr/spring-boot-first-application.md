@@ -1,7 +1,7 @@
 ---
-title: 'Spring Boot ile İlk Uygulama'
+title: 'Spring Boot - İlk Uygulamanız'
 date: '2024-12-10'
-summary: 'Spring Boot kullanarak sıfırdan ilk uygulamanızı nasıl oluşturacağınızı öğrenin. Bu yazı, başlangıç seviyesindeki kullanıcılar için rehber niteliğindedir.'
+summary: 'Spring Boot ile ilk uygulamanızı sıfırdan oluşturmak için başlangıç seviyesinde bir rehber. Temel bilgileri öğrenin ve Spring Boot ile yolculuğunuza başlayın.'
 thumbnail: '/images/spring-boot-first-app-thumbnail.jpg'
 topics:
   - id: 'spring-boot'
@@ -15,39 +15,47 @@ topics:
     color: 'blue'
 ---
 
-Spring Boot, Spring Framework ile üretime hazır uygulamaların geliştirilmesini kolaylaştırır. Bu rehberde, ilk Spring Boot uygulamanızı adım adım oluşturacağız.
+Spring Boot, Spring Framework ile üretim için hazır uygulamalar oluşturmayı kolaylaştırır. Bu rehberde, adım adım ilk Spring Boot uygulamanızı oluşturmayı öğreneceksiniz.
 
-## **Adım 1: Gereksinimler**
+---
 
-Başlamadan önce şu araçlara sahip olduğunuzdan emin olun:
+### **Gereksinimler**
 
-- **Java Geliştirme Kiti (JDK)** 17+
-- **Maven veya Gradle**
-- Bir **IDE** (IntelliJ IDEA, Eclipse veya Visual Studio Code)
+Başlamadan önce aşağıdaki öğelerin yüklü olduğundan emin olun:
 
-## **Adım 2: Yeni Proje Oluşturma**
+- **Java Development Kit (JDK)** 17+ yüklü
+- **Maven veya Gradle** yüklü
+- Bir **Java IDE** (ör. IntelliJ IDEA, Eclipse veya Visual Studio Code)
 
-Spring Initializr veya IDE kullanarak bir Spring Boot projesi oluşturabilirsiniz.
+---
 
-### **Seçenek 1: Spring Initializr ile**
+### **Adım 1: Bir Spring Boot Projesi Oluşturun**
 
-1. [Spring Initializr](https://start.spring.io/) sitesine gidin.
-2. Şunları seçin:
-   - **Project:** Maven
-   - **Language:** Java
-   - **Spring Boot Version:** 3.0.0 (veya son sürüm)
-   - **Dependencies:** Spring Web
-3. **Generate** butonuna tıklayarak projeyi indirin.
+İlk Spring Boot projenizi iki şekilde oluşturabilirsiniz:
 
-### **Seçenek 2: IDE Kullanarak**
+1. **Spring Initializr Kullanarak:**
 
-IntelliJ IDEA gibi modern IDE'lerde doğrudan Spring Initializr desteği bulunmaktadır.
+- [Spring Initializr](https://start.spring.io/) adresini ziyaret edin.
+- Şu şekilde yapılandırın:
+  - Proje: `Maven`
+  - Dil: `Java`
+  - Spring Boot Sürümü: `3.0.0` (veya en son sürüm).
+  - Bağımlılık ekleyin: `Spring Web`
+- Proje dosyalarını indirmek için **Generate** düğmesine tıklayın.
 
-## **Adım 3: İlk Endpoint'inizi Yazma**
+2. **IntelliJ IDEA Kullanarak:**
 
-Bir REST endpoint'i ekleyelim.
+- IntelliJ IDEA'yı açın.
+- `Yeni Proje > Spring Initializr` bölümüne gidin.
+- Yukarıda belirtilenlere benzer parametreleri yapılandırın.
 
-### **`DemoApplication.java`**
+---
+
+### **Adım 2: İlk Endpoint'inizi Yazın**
+
+Merhaba diyecek basit bir endpoint yazalım.
+
+`DemoApplication.java` adlı bir dosya oluşturun ve aşağıdaki içeriği ekleyin:
 
 ```java
 package com.example.demo;
@@ -60,7 +68,6 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 @RestController
 public class DemoApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
     }
@@ -72,18 +79,28 @@ public class DemoApplication {
 }
 ```
 
-## **Adım 4: Uygulamayı Çalıştırma**
+---
 
-Terminalde şu komutu çalıştırın:
+### **Adım 3: Uygulamayı Çalıştırın**
 
-```
+1. Proje klasöründe bir terminal açın.
+2. Aşağıdaki komutu çalıştırarak uygulamanızı başlatın:
+
+```bash
 ./mvnw spring-boot:run
 ```
 
-Tarayıcınızda şu adrese gidin:
+3. Şu adrese erişin:
+   ```
+   http://localhost:8080/hello
+   ```
+
+**Cevap:**
 
 ```
-http://localhost:8080/hello
+Merhaba, Spring Boot!
 ```
 
-Sonuç: **"Merhaba, Spring Boot!"**
+---
+
+Bu yazı, bir Spring Boot projesi oluşturmanın, bir endpoint yazmanın ve başarıyla çalıştırmanın temel bilgilerini kapsar.
