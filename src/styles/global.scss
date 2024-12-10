@@ -707,11 +707,11 @@ input.form-control {
   @include transition(color);
 
   &:hover {
-    color: var(--link-hover-color);
+    color: var(--dropdown-hover-color);
   }
 
   &:focus {
-    color: var(--active-color);
+    color: var(--dropdown-hover-color);
   }
 }
 
