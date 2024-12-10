@@ -22,8 +22,8 @@ export default function PostList({ posts, noPostsFoundMessage }: Readonly<PostLi
   const filterPosts = (): PostSummary[] =>
     posts.filter(
       post =>
-        (post.title && post.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (post.summary && post.summary.toLowerCase().includes(searchQuery.toLowerCase())),
+        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.summary.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
   // Sort posts based on date and sort order

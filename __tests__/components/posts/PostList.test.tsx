@@ -111,6 +111,14 @@ describe('PostList Component', () => {
     expect(screen.getByText('post.noPostsFound')).toBeInTheDocument();
   });
 
+  it('returns all posts when search query is empty', () => {
+    render(<PostList posts={mockPostSummaries} />);
+    const searchBar = screen.getByTestId('search-bar');
+    fireEvent.change(searchBar, { target: { value: '' } });
+
+    expect(screen.getAllByTestId('post-card')).toHaveLength(5);
+  });
+
   it('handles empty posts gracefully', () => {
     render(<PostList posts={[]} />);
     expect(screen.getByText('post.noPostsFound')).toBeInTheDocument();
