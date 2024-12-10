@@ -70,13 +70,13 @@ export default function PostCarousel({ posts, interval = 5000 }: Readonly<PostCa
       </Carousel>
 
       <div className="carousel-indicators">
-        {posts.map((_, index) => (
+        {posts.map(post => (
           <button
-            key={index}
+            key={post.id}
             type="button"
-            className={`${activeIndex === index ? 'active' : ''}`}
-            onClick={() => handleSelect(index)}
-            aria-label={`Go to slide ${index + 1}`}
+            className={`${activeIndex === posts.indexOf(post) ? 'active' : ''}`}
+            onClick={() => handleSelect(posts.indexOf(post))}
+            aria-label={`Go to slide ${posts.indexOf(post) + 1}`}
           >
             <FontAwesomeIcon className="carousel-indicator-icon" icon="circle" size="sm" />
           </button>
