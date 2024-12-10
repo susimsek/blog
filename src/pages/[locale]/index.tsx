@@ -6,7 +6,7 @@ import { AUTHOR_NAME } from '@/config/constants';
 import Layout from '@/components/common/Layout';
 import PostList from '@/components/posts/PostList';
 import { PostSummary } from '@/types/posts';
-import PostCarousel from '@/components/posts/PostCarousel'; // Carousel bileşenini içeri aktardık
+import PostCarousel from '@/components/posts/PostCarousel';
 import { Container } from 'react-bootstrap';
 
 type HomeProps = {
@@ -15,6 +15,7 @@ type HomeProps = {
 
 export default function Home({ posts }: Readonly<HomeProps>) {
   const { t } = useTranslation('home');
+  console.log(posts);
 
   return (
     <Layout>
