@@ -76,20 +76,6 @@ main {
   }
 }
 
-.link {
-  color: var(--text-color);
-  text-decoration: none;
-  @include transition(color);
-
-  &:hover {
-    color: var(--link-hover-color);
-  }
-
-  &.active {
-    color: var(--active-color);
-  }
-}
-
 p {
   color: var(--text-color);
   @include transition(color);
@@ -289,7 +275,16 @@ input.form-control {
 }
 
 .link {
+  color: var(--text-color);
+  text-decoration: none;
   @include transition(color);
+  &:hover {
+    color: var(--link-hover-color);
+  }
+
+  &.active {
+    color: var(--active-color);
+  }
 
   @include link-variant(primary, var(--primary-bg), var(--primary-hover), var(--primary-color));
   @include link-variant(secondary, var(--secondary-bg), var(--secondary-hover), var(--secondary-color));
