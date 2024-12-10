@@ -11,6 +11,10 @@ jest.mock('next/router', () => ({
   }),
 }));
 
+jest.mock('@/components/common/MarkdownRenderer', () => {
+  return jest.fn(({ content }: { content: string }) => <div data-testid="markdown-renderer">{content}</div>);
+});
+
 describe('PostDetail Component', () => {
   const setup = (post = mockPost) => render(<PostDetail post={post} />);
 
@@ -29,10 +33,11 @@ describe('PostDetail Component', () => {
     expect(dateElement).toBeInTheDocument();
   });
 
-  it('renders the post content', () => {
+  it('renders the post content using MarkdownRenderer', () => {
     setup();
-    const contentElement = screen.getByText('Test Content');
-    expect(contentElement).toBeInTheDocument();
+    const markdownElement = screen.getByTestId('markdown-renderer');
+    expect(markdownElement).toBeInTheDocument();
+    expect(markdownElement).toHaveTextContent(mockPost.contentHtml || '');
   });
 
   it('renders the topics as badges', () => {
@@ -49,17 +54,10 @@ describe('PostDetail Component', () => {
     expect(thumbnailElement).toHaveAttribute('src', expect.stringContaining(encodeURIComponent(mockPost.thumbnail!)));
   });
 
-  it('renders the HTML content when contentHtml is provided', () => {
-    setup();
-    const articleElement = screen.getByRole('article');
-    expect(articleElement).toBeInTheDocument();
-    expect(articleElement.innerHTML).toBe(mockPost.contentHtml);
-  });
-
   it('renders an empty article when contentHtml is null or undefined', () => {
     setup(mockPostWithoutContent);
-    const articleElement = screen.getByRole('article');
-    expect(articleElement).toBeInTheDocument();
-    expect(articleElement.innerHTML).toBe('');
+    const markdownElement = screen.getByTestId('markdown-renderer');
+    expect(markdownElement).toBeInTheDocument();
+    expect(markdownElement).toHaveTextContent('');
   });
 });

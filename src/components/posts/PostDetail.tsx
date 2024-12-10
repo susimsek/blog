@@ -5,6 +5,7 @@ import { assetPrefix } from '@/config/constants';
 import DateDisplay from '@/components/common/DateDisplay';
 import Thumbnail from '@/components/common/Thumbnail';
 import Link from 'next/link';
+import MarkdownRenderer from '@/components/common/MarkdownRenderer';
 
 interface PostDetailProps {
   post: Post;
@@ -31,7 +32,11 @@ export default function PostDetail({ post }: Readonly<PostDetailProps>) {
         </div>
       )}
       {thumbnail && <Thumbnail src={`${assetPrefix}${thumbnail}`} alt={title} width={800} height={600} />}
-      <article className="fs-5 lh-lg" dangerouslySetInnerHTML={{ __html: contentHtml ?? '' }} />
+      <article className="fs-5 lh-lg">
+        <article className="fs-5 lh-lg">
+          <MarkdownRenderer content={contentHtml ?? ''} />
+        </article>
+      </article>
     </Container>
   );
 }

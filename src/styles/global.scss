@@ -736,6 +736,33 @@ input.form-control {
   color: var(--table-row-hover-text);
 }
 
+.list-group {
+  background-color: var(--main-bg);
+  border: 1px solid var(--border-color);
+  @include transition(background-color, border-color);
+
+  .list-group-item {
+    background-color: var(--main-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    @include transition(background-color, color, border-color);
+  }
+}
+
+.list-group-numbered {
+  background-color: var(--main-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  @include transition(background-color, color, border-color);
+
+  .list-group-item {
+    background-color: var(--main-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    @include transition(background-color, color, border-color);
+  }
+}
+
 .button-link {
   background-color: transparent;
   border: none;

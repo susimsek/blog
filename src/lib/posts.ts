@@ -1,13 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { remark } from 'remark';
-import html from 'remark-html';
 import { Post, PostSummary, Topic } from '@/types/posts';
 import i18nextConfig from '../../next-i18next.config';
 import { GetStaticPropsContext } from 'next';
 import { getI18nProps } from '@/lib/getStatic';
-import gfm from 'remark-gfm';
 
 // Base directory for posts
 const postsDirectory = path.join(process.cwd(), 'content/posts');
@@ -114,14 +111,8 @@ export async function getPostData(id: string, locale: string): Promise<Post | nu
 
   // Parse post file and process content
   const { data, content } = parsePostFile(filePath, true);
-  const processedContent = await remark().use(gfm).use(html).process(content);
-
-  const rawHtml = processedContent.toString();
-
-  const formattedHtml = rawHtml.replace(/<table>/g, '<table class="table table-striped table-bordered">');
-
   return {
-    contentHtml: formattedHtml,
+    contentHtml: content,
     ...data,
   };
 }

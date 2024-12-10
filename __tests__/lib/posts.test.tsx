@@ -24,9 +24,6 @@ jest.mock('fs', () => ({
   },
 }));
 
-// Mock remark-gfm
-jest.mock('remark-gfm', () => jest.fn(() => () => {}));
-
 // Mock `path` module
 jest.mock('path', () => ({
   join: jest.fn((...args) => args.join('/')),
@@ -97,18 +94,6 @@ jest.mock('gray-matter', () =>
     };
   }),
 );
-
-// Mock `remark` and `remark-html`
-jest.mock('remark', () => ({
-  remark: jest.fn().mockReturnValue({
-    use: jest.fn().mockReturnThis(),
-    process: jest.fn().mockResolvedValue({
-      toString: jest.fn().mockReturnValue('<p>Test Content</p>'),
-    }),
-  }),
-}));
-
-jest.mock('remark-html', () => jest.fn());
 
 // Mock config
 jest.mock('@/lib/getStatic', () => ({
