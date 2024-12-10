@@ -76,7 +76,7 @@ jest.mock('gray-matter', () =>
           title: 'Post 4',
           date: '2024-01-01',
           summary: 'Summary 4',
-          topics: [{ name: 'JavaScript', color: 'orange' }],
+          topics: [{ name: 'Spring Boot', color: 'orange' }],
         },
         content: 'Content 4',
       };
@@ -229,7 +229,7 @@ describe('Posts Library', () => {
     title: Post 4
     date: "2024-01-01"
     summary: Summary 4
-    topics: [{"name": "JavaScript", "color": "orange"}]
+    topics: [{"name": "Spring Boot", "color": "orange"}]
     ---
     # Content 4
     `;
@@ -253,7 +253,7 @@ describe('Posts Library', () => {
           title: 'Post 4',
           date: '2024-01-01',
           summary: 'Summary 4',
-          topics: [{ name: 'JavaScript', color: 'orange' }],
+          topics: [{ name: 'Spring Boot', color: 'orange' }],
         },
         {
           id: 'post2',

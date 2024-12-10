@@ -49,7 +49,7 @@ describe('Post and PostSummary Types', () => {
       contentHtml: '<p>Full content of the post.</p>',
       thumbnail: '/images/full.jpg',
       topics: [
-        { id: 'javascript', name: 'JavaScript', color: 'blue' },
+        { id: 'spring-boot', name: 'Spring Boot', color: 'blue' },
         { id: 'react', name: 'React', color: 'green' },
       ],
     };
@@ -57,8 +57,8 @@ describe('Post and PostSummary Types', () => {
     expect(post.contentHtml).toBe('<p>Full content of the post.</p>');
     expect(post.thumbnail).toBe('/images/full.jpg');
     expect(post.topics).toHaveLength(2);
-    expect(post.topics?.[0].id).toBe('javascript');
-    expect(post.topics?.[0].name).toBe('JavaScript');
+    expect(post.topics?.[0].id).toBe('spring-boot');
+    expect(post.topics?.[0].name).toBe('Spring Boot');
     expect(post.topics?.[0].color).toBe('blue');
     expect(post.topics?.[1].id).toBe('react');
     expect(post.topics?.[1].name).toBe('React');

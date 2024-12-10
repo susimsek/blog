@@ -10,8 +10,8 @@ topics:
   - id: 'technology'
     name: 'Technology'
     color: 'blue'
-  - id: 'javascript'
-    name: 'JavaScript'
+  - id: 'spring-boot'
+    name: 'Spring Boot'
     color: 'green'
 ---
 
