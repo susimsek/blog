@@ -34,6 +34,11 @@ jest.mock('next/image', () => ({
   ),
 }));
 
+// Mock `FontAwesomeIcon` component
+jest.mock('@fortawesome/react-fontawesome', () => ({
+  FontAwesomeIcon: ({ icon }: { icon: string }) => <i data-testid={`font-awesome-icon-${icon}`} />,
+}));
+
 describe('PostCarousel Component', () => {
   it('renders the carousel with posts', () => {
     render(<PostCarousel posts={mockPostSummaries} />);
@@ -111,5 +116,29 @@ describe('PostCarousel Component', () => {
     // Check if the post titles are clickable links
     const firstPostLink = screen.getByText(mockPostSummaries[0].title).closest('a');
     expect(firstPostLink).toHaveAttribute('href', expect.stringContaining(`/posts/${mockPostSummaries[0].id}`));
+  });
+
+  it('applies the "active" class to the correct slide indicator', () => {
+    render(<PostCarousel posts={mockPostSummaries} />);
+
+    const indicators = screen.getAllByRole('button', { name: /go to slide/i });
+    expect(indicators[0]).toHaveClass('active');
+    expect(indicators[1]).not.toHaveClass('active');
+
+    fireEvent.click(indicators[1]);
+    expect(indicators[1]).toHaveClass('active');
+    expect(indicators[0]).not.toHaveClass('active');
+  });
+
+  it('does not apply the "active" class to inactive slides', () => {
+    render(<PostCarousel posts={mockPostSummaries} />);
+
+    const indicators = screen.getAllByRole('button', { name: /go to slide/i });
+
+    indicators.forEach((indicator, index) => {
+      if (index !== 0) {
+        expect(indicator).not.toHaveClass('active');
+      }
+    });
   });
 });
