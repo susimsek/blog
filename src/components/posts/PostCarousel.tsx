@@ -63,7 +63,6 @@ export default function PostCarousel({ posts, interval = 5000 }: Readonly<PostCa
                   ))}
                 </div>
               )}
-              <p className="text-light">{post.summary}</p>
             </Carousel.Caption>
           </Carousel.Item>
         ))}
