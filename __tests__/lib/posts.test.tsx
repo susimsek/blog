@@ -24,6 +24,9 @@ jest.mock('fs', () => ({
   },
 }));
 
+// Mock remark-gfm
+jest.mock('remark-gfm', () => jest.fn(() => () => {}));
+
 // Mock `path` module
 jest.mock('path', () => ({
   join: jest.fn((...args) => args.join('/')),

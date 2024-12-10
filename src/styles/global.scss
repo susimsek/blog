@@ -715,6 +715,27 @@ input.form-control {
   }
 }
 
+.table > :not(caption) > * > * {
+  color: var(--text-color);
+  background-color: var(--main-bg);
+  border: 1px solid var(--border-color);
+}
+
+.table > :not(caption) > thead > tr > th {
+  background-color: var(--caption-bg-color);
+  color: var(--text-color);
+  font-weight: bold;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: var(--light-bg);
+}
+
+.table > tbody > tr:hover {
+  background-color: var(--dropdown-hover-bg);
+  color: var(--dropdown-hover-color);
+}
+
 .button-link {
   background-color: transparent;
   border: none;
