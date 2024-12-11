@@ -33,9 +33,7 @@ export default function PostDetail({ post }: Readonly<PostDetailProps>) {
       )}
       {thumbnail && <Thumbnail src={`${assetPrefix}${thumbnail}`} alt={title} width={800} height={600} />}
       <article className="fs-5 lh-lg">
-        <article className="fs-5 lh-lg">
-          <MarkdownRenderer content={contentHtml ?? ''} />
-        </article>
+        <MarkdownRenderer content={contentHtml ?? ''} />
       </article>
     </Container>
   );

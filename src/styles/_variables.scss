@@ -98,6 +98,12 @@
   --table-row-hover-text: #212529;
   --table-header-bg: #f8f9fa;
   --disabled-bg: #e9ecef;
+
+  --copy-button-bg: #e9ecef;
+  --copy-button-hover-bg: #ced4da;
+
+  --tooltip-bg: #f8f9fa;
+  --tooltip-border-color: #dee2e6;
 }
 
 .dark {
@@ -191,4 +197,10 @@
   --table-row-hover-text: #ffffff;
   --table-header-bg: #1e1e1e;
   --disabled-bg: #343a40;
+
+  --copy-button-bg: #343a40;
+  --copy-button-hover-bg: #495057;
+
+  --tooltip-bg: #2b2b2b;
+  --tooltip-border-color: #444444;
 }

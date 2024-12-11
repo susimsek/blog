@@ -1,6 +1,23 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import CodeBlock from '@/components/common/CodeBlock';
+
+Object.assign(navigator, {
+  clipboard: {
+    writeText: jest.fn(),
+  },
+});
+
+// Mock i18n translation function
+jest.mock('next-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key, // Just return the key as translation
+  }),
+}));
+
+jest.mock('react-bootstrap/Tooltip', () => {
+  return ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
+});
 
 describe('CodeBlock Component', () => {
   it('renders syntax highlighted code when language is provided', () => {
@@ -53,5 +70,21 @@ describe('CodeBlock Component', () => {
     const plainCode = screen.getByText(/console\.log\('No Language Provided'\)/);
     expect(plainCode).toBeInTheDocument();
     expect(plainCode.tagName).toBe('CODE');
+  });
+
+  it('copies text to clipboard when copy button is clicked', async () => {
+    render(
+      <CodeBlock className="language-javascript" theme="light">
+        {`console.log('Copy Test');`}
+      </CodeBlock>,
+    );
+
+    const copyButton = screen.getByRole('button', { name: /common\.codeBlock\.copy/ });
+
+    // Simulate clicking the button
+    fireEvent.click(copyButton);
+
+    // Check if clipboard.writeText was called
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith("console.log('Copy Test');");
   });
 });

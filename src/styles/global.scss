@@ -914,3 +914,41 @@ input.form-control {
   transform: scale(1.1);
   filter: brightness(var(--hover-brightness));
 }
+
+.code-block-container {
+  position: relative;
+
+  .copy-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    background-color: var(--copy-button-bg);
+    color: var(--text-color);
+    border: none;
+    padding: 4px 8px;
+    font-size: 0.875rem;
+    border-radius: 4px;
+    @include transition(background-color, color);
+
+    &:hover {
+      background-color: var(--copy-button-hover-bg);
+      color: var(--text-color);
+    }
+  }
+}
+
+.tooltip {
+  background-color: var(--tooltip-bg);
+  color: var(--text-color);
+  border: 1px solid var(--tooltip-border-color);
+
+  .tooltip-inner {
+    background-color: var(--tooltip-bg);
+    color: var(--text-color);
+  }
+
+  .tooltip-arrow::before {
+    background-color: var(--tooltip-bg);
+  }
+}

@@ -2,13 +2,14 @@ import React from 'react';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAppSelector } from '@/config/store';
+import { useTranslation } from 'next-i18next';
 import CodeBlock from '@/components/common/CodeBlock';
 
 interface MarkdownRendererProps {
   content: string;
 }
 
-const MarkdownComponents = (theme: 'light' | 'dark'): Components => ({
+const MarkdownComponents = (theme: 'light' | 'dark', t: (key: string) => string): Components => ({
   code: ({ className, children }: { className?: string; children?: React.ReactNode }) => (
     <CodeBlock className={className} theme={theme}>
       {children}
@@ -27,13 +28,20 @@ const MarkdownComponents = (theme: 'light' | 'dark'): Components => ({
       {children}
     </a>
   ),
+  p: ({ children }: { children?: React.ReactNode }) => (
+    <p className="translated-text">
+      {t('common.textPrefix')}
+      {children}
+    </p>
+  ),
 });
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
+  const { t } = useTranslation('common');
   const theme = useAppSelector(state => state.theme.theme); // Assert type
 
   return (
-    <ReactMarkdown remarkPlugins={[remarkGfm]} components={MarkdownComponents(theme)}>
+    <ReactMarkdown remarkPlugins={[remarkGfm]} components={MarkdownComponents(theme, t)}>
       {content}
     </ReactMarkdown>
   );
