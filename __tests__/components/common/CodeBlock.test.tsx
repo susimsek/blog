@@ -29,6 +29,11 @@ jest.mock('@/config/store', () => ({
   useAppSelector: jest.fn(),
 }));
 
+// Mock `FontAwesomeIcon` component
+jest.mock('@fortawesome/react-fontawesome', () => ({
+  FontAwesomeIcon: ({ icon }: { icon: string }) => <i data-testid={`font-awesome-icon-${icon}`} />,
+}));
+
 describe('CodeBlock Component', () => {
   it('renders syntax highlighted code when language is provided', () => {
     render(
@@ -101,12 +106,15 @@ describe('CodeBlock Component', () => {
       >{`console.log('Copy Test');`}</CodeBlock>,
     );
 
-    const copyButton = screen.getByRole('button', { name: /common\.codeBlock\.copy/ });
+    const copyIcon = screen.getByTestId('font-awesome-icon-copy');
+    expect(copyIcon).toBeInTheDocument();
 
-    // Simulate clicking the button
+    const copyButton = screen.getByRole('button');
     fireEvent.click(copyButton);
 
-    // Check if clipboard.writeText was called
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith("console.log('Copy Test');");
+
+    const checkIcon = screen.getByTestId('font-awesome-icon-check');
+    expect(checkIcon).toBeInTheDocument();
   });
 });

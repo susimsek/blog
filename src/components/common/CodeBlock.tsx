@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialDark, materialLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface CodeBlockProps {
   className?: string;
@@ -36,7 +37,7 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ className, children, th
         }
       >
         <Button className="copy-button" size="sm" onClick={copyToClipboard}>
-          {t('common.codeBlock.copy')}
+          <FontAwesomeIcon icon={isCopied ? 'check' : 'copy'} className="me-2 fa-icon" />
         </Button>
       </OverlayTrigger>
     </div>

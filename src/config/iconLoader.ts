@@ -5,11 +5,13 @@ import {
   faAddressBook,
   faBars,
   faBook,
+  faCheck,
   faCheckCircle,
   faChevronLeft,
   faChevronRight,
   faCircle,
   faCode,
+  faCopy,
   faDatabase,
   faEnvelope,
   faExclamationCircle,
@@ -63,5 +65,7 @@ export const loadIcons = () => {
     faCircle,
     faChevronLeft,
     faChevronRight,
+    faCopy,
+    faCheck,
   );
 };
