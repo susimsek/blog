@@ -30,7 +30,7 @@ const MarkdownComponents = (theme: 'light' | 'dark'): Components => ({
 });
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
-  const theme = useAppSelector(state => state.theme.theme) as 'light' | 'dark'; // Assert type
+  const theme = useAppSelector(state => state.theme.theme); // Assert type
 
   return (
     <ReactMarkdown remarkPlugins={[remarkGfm]} components={MarkdownComponents(theme)}>
