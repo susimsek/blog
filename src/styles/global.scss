@@ -732,8 +732,8 @@ input.form-control {
 }
 
 .table > tbody > tr:hover {
-  background-color: var(--table-row-hover-bg);
-  color: var(--table-row-hover-text);
+  background-color: var(--table-row-hover-bg) !important;
+  color: var(--table-row-hover-text) !important;
 }
 
 .list-group {

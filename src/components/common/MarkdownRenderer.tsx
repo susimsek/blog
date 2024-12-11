@@ -19,11 +19,11 @@ const MarkdownComponents = (theme: 'light' | 'dark'): Components => ({
   ),
   th: ({ children }: { children?: React.ReactNode }) => <th>{children}</th>,
   td: ({ children }: { children?: React.ReactNode }) => <td>{children}</td>,
-  ul: ({ children }: { children?: React.ReactNode }) => <ul className="list-group">{children}</ul>,
-  ol: ({ children }: { children?: React.ReactNode }) => <ol className="list-group-numbered">{children}</ol>,
+  ul: ({ children }: { children?: React.ReactNode }) => <ul className="list-group list-group-flush">{children}</ul>,
+  ol: ({ children }: { children?: React.ReactNode }) => <ol className="list-group list-group-numbered">{children}</ol>,
   li: ({ children }: { children?: React.ReactNode }) => <li className="list-group-item">{children}</li>,
   a: ({ href, children }: { href?: string; children?: React.ReactNode }) => (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="text-decoration-underline">
+    <a href={href} target="_blank" rel="noopener noreferrer" className="text-decoration-none text-primary">
       {children}
     </a>
   ),
