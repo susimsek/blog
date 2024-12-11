@@ -28,12 +28,6 @@ const MarkdownComponents = (theme: 'light' | 'dark', t: (key: string) => string)
       {children}
     </a>
   ),
-  p: ({ children }: { children?: React.ReactNode }) => (
-    <p className="translated-text">
-      {t('common.textPrefix')}
-      {children}
-    </p>
-  ),
 });
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
