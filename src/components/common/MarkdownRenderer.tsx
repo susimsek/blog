@@ -9,11 +9,7 @@ interface MarkdownRendererProps {
   theme: 'light' | 'dark';
 }
 
-interface MarkdownComponentsProps {
-  theme: 'light' | 'dark';
-}
-
-const createMarkdownComponents = ({ theme }: MarkdownComponentsProps): Components => ({
+const createMarkdownComponents = (): Components => ({
   code: ({ className, children }: { className?: string; children?: React.ReactNode }) => (
     <CodeBlock className={className}>{children}</CodeBlock>
   ),
@@ -33,7 +29,7 @@ const createMarkdownComponents = ({ theme }: MarkdownComponentsProps): Component
 });
 
 const MarkdownRenderer: React.FC<Readonly<MarkdownRendererProps>> = ({ content, theme }) => {
-  const MarkdownComponents = useMemo(() => createMarkdownComponents({ theme }), [theme]);
+  const MarkdownComponents = useMemo(() => createMarkdownComponents(), [theme]);
 
   return (
     <ReactMarkdown remarkPlugins={[remarkGfm]} components={MarkdownComponents}>
