@@ -31,6 +31,10 @@
     },
     "contactInfo": {
       "email": "Email"
+    },
+    "codeBlock": {
+      "copy": "Copy",
+      "copied": "Copied!"
     }
   }
 }
