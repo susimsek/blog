@@ -31,10 +31,10 @@ const createMarkdownComponents = (theme: 'light' | 'dark', t: (key: string) => s
 });
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
-  const { t, i18n } = useTranslation('common');
+  const { t } = useTranslation('common');
   const theme = useAppSelector(state => state.theme.theme);
 
-  const MarkdownComponents = useMemo(() => createMarkdownComponents(theme, t), [i18n.language, theme]);
+  const MarkdownComponents = useMemo(() => createMarkdownComponents(theme, t), [theme, t]);
 
   return (
     <ReactMarkdown remarkPlugins={[remarkGfm]} components={MarkdownComponents}>
