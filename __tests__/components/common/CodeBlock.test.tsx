@@ -16,6 +16,10 @@ jest.mock('next-i18next', () => ({
   }),
 }));
 
+const mockTranslation = (key: string) => {
+  return key;
+};
+
 jest.mock('react-bootstrap/Tooltip', () => {
   return ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
 });
@@ -27,8 +31,13 @@ jest.mock('@/config/store', () => ({
 
 describe('CodeBlock Component', () => {
   it('renders syntax highlighted code when language is provided', () => {
-    (useAppSelector as jest.Mock).mockReturnValue('dark');
-    render(<CodeBlock className="language-javascript">{`console.log('Hello, World!');`}</CodeBlock>);
+    render(
+      <CodeBlock
+        theme="dark"
+        t={mockTranslation}
+        className="language-javascript"
+      >{`console.log('Hello, World!');`}</CodeBlock>,
+    );
 
     const codeElement = screen.getByRole('code');
     expect(codeElement).toBeInTheDocument();
@@ -37,8 +46,7 @@ describe('CodeBlock Component', () => {
   });
 
   it('renders plain code when language is not provided', () => {
-    (useAppSelector as jest.Mock).mockReturnValue('light');
-    render(<CodeBlock>{`console.log('Hello, World!');`}</CodeBlock>);
+    render(<CodeBlock theme="light" t={mockTranslation}>{`console.log('Hello, World!');`}</CodeBlock>);
 
     const plainCode = screen.getByText(/console\.log\('Hello, World!'\)/);
     expect(plainCode).toBeInTheDocument();
@@ -46,7 +54,13 @@ describe('CodeBlock Component', () => {
 
   it('renders JavaScript code block correctly with dark theme', () => {
     (useAppSelector as jest.Mock).mockReturnValue('dark');
-    render(<CodeBlock className="language-javascript">{`console.log('Hello, World!');`}</CodeBlock>);
+    render(
+      <CodeBlock
+        theme="dark"
+        t={mockTranslation}
+        className="language-javascript"
+      >{`console.log('Hello, World!');`}</CodeBlock>,
+    );
 
     const codeBlock = document.querySelector('.language-javascript');
     expect(codeBlock).toBeInTheDocument();
@@ -55,7 +69,13 @@ describe('CodeBlock Component', () => {
 
   it('applies the correct theme for light mode', () => {
     (useAppSelector as jest.Mock).mockReturnValue('light');
-    render(<CodeBlock className="language-javascript">{`console.log('Hello, World!');`}</CodeBlock>);
+    render(
+      <CodeBlock
+        theme="light"
+        t={mockTranslation}
+        className="language-javascript"
+      >{`console.log('Hello, World!');`}</CodeBlock>,
+    );
 
     const codeBlock = document.querySelector('code.language-javascript');
     expect(codeBlock).toBeInTheDocument();
@@ -64,7 +84,7 @@ describe('CodeBlock Component', () => {
 
   it('renders code as plain text when className is not defined', () => {
     (useAppSelector as jest.Mock).mockReturnValue('dark');
-    render(<CodeBlock>{`console.log('No Language Provided');`}</CodeBlock>);
+    render(<CodeBlock theme="dark" t={mockTranslation}>{`console.log('No Language Provided');`}</CodeBlock>);
 
     const plainCode = screen.getByText(/console\.log\('No Language Provided'\)/);
     expect(plainCode).toBeInTheDocument();
@@ -73,7 +93,13 @@ describe('CodeBlock Component', () => {
 
   it('copies text to clipboard when copy button is clicked', async () => {
     (useAppSelector as jest.Mock).mockReturnValue('light');
-    render(<CodeBlock className="language-javascript">{`console.log('Copy Test');`}</CodeBlock>);
+    render(
+      <CodeBlock
+        theme="light"
+        t={mockTranslation}
+        className="language-javascript"
+      >{`console.log('Copy Test');`}</CodeBlock>,
+    );
 
     const copyButton = screen.getByRole('button', { name: /common\.codeBlock\.copy/ });
 

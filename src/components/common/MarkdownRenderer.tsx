@@ -2,16 +2,18 @@ import React, { useMemo } from 'react';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAppSelector } from '@/config/store';
+import { useTranslation } from 'next-i18next';
 import CodeBlock from '@/components/common/CodeBlock';
 
 interface MarkdownRendererProps {
   content: string;
-  theme: 'light' | 'dark';
 }
 
-const createMarkdownComponents = (): Components => ({
-  code: ({ className, children }: { className?: string; children?: React.ReactNode }) => (
-    <CodeBlock className={className}>{children}</CodeBlock>
+const createMarkdownComponents = (theme: 'light' | 'dark', t: (key: string) => string): Components => ({
+  code: ({ className, children, ...rest }: { className?: string; children?: React.ReactNode }) => (
+    <CodeBlock className={className} theme={theme} t={t} {...rest}>
+      {children}
+    </CodeBlock>
   ),
   table: ({ children }: { children?: React.ReactNode }) => (
     <table className="table table-striped table-bordered">{children}</table>
@@ -28,8 +30,11 @@ const createMarkdownComponents = (): Components => ({
   ),
 });
 
-const MarkdownRenderer: React.FC<Readonly<MarkdownRendererProps>> = ({ content, theme }) => {
-  const MarkdownComponents = useMemo(() => createMarkdownComponents(), [theme]);
+const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
+  const { t, i18n } = useTranslation('common');
+  const theme = useAppSelector(state => state.theme.theme);
+
+  const MarkdownComponents = useMemo(() => createMarkdownComponents(theme, t), [i18n.language, theme]);
 
   return (
     <ReactMarkdown remarkPlugins={[remarkGfm]} components={MarkdownComponents}>
@@ -38,10 +43,4 @@ const MarkdownRenderer: React.FC<Readonly<MarkdownRendererProps>> = ({ content, 
   );
 };
 
-// Wrapper Component to Fetch Theme
-const MarkdownRendererWrapper: React.FC<Omit<MarkdownRendererProps, 'theme'>> = ({ content }) => {
-  const theme = useAppSelector(state => state.theme.theme);
-  return <MarkdownRenderer content={content} theme={theme} />;
-};
-
-export default MarkdownRendererWrapper;
+export default MarkdownRenderer;
