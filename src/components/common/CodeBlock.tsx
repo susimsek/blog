@@ -3,15 +3,16 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialDark, materialLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useTranslation } from 'next-i18next';
+import { useAppSelector } from '@/config/store';
 
 interface CodeBlockProps {
   className?: string;
   children: React.ReactNode;
-  theme: 'dark' | 'light';
 }
 
-const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ className, children, theme }) => {
+const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ className, children }) => {
   const { t } = useTranslation('common');
+  const theme = useAppSelector(state => state.theme.theme);
   const [isCopied, setIsCopied] = useState(false);
 
   const syntaxTheme = theme === 'dark' ? materialDark : materialLight;

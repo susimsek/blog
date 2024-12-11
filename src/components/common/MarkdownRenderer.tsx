@@ -3,7 +3,6 @@ import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAppSelector } from '@/config/store';
 import CodeBlock from '@/components/common/CodeBlock';
-import { useTranslation } from 'next-i18next';
 
 interface MarkdownRendererProps {
   content: string;
@@ -11,14 +10,11 @@ interface MarkdownRendererProps {
 
 const MarkdownRenderer: React.FC<Readonly<MarkdownRendererProps>> = ({ content }) => {
   const theme = useAppSelector(state => state.theme.theme);
-  const { t } = useTranslation('common');
 
   const MarkdownComponents: Components = useMemo(
     () => ({
       code: ({ className, children }: { className?: string; children?: React.ReactNode }) => (
-        <CodeBlock className={className} theme={theme}>
-          {children}
-        </CodeBlock>
+        <CodeBlock className={className}>{children}</CodeBlock>
       ),
       table: ({ children }: { children?: React.ReactNode }) => (
         <table className="table table-striped table-bordered">{children}</table>
@@ -36,7 +32,7 @@ const MarkdownRenderer: React.FC<Readonly<MarkdownRendererProps>> = ({ content }
         </a>
       ),
     }),
-    [theme, t],
+    [theme],
   );
 
   return (
