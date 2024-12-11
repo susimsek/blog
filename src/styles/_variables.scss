@@ -104,6 +104,11 @@
 
   --tooltip-bg: #f8f9fa;
   --tooltip-border-color: #dee2e6;
+  --tab-theme-active-bg: #f8f9fa;
+  --tab-theme-active-text: #007bff;
+  --tab-theme-border: #dee2e6;
+  --tab-theme-hover-bg: #e9ecef;
+  --tab-theme-hover-border: #ced4da;
 }
 
 .dark {
@@ -203,4 +208,9 @@
 
   --tooltip-bg: #2b2b2b;
   --tooltip-border-color: #444444;
+  --tab-theme-active-bg: #1e1e1e;
+  --tab-theme-active-text: #1e88e5;
+  --tab-theme-border: #444444;
+  --tab-theme-hover-bg: #343a40;
+  --tab-theme-hover-border: #495057;
 }

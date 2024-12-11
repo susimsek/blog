@@ -952,3 +952,42 @@ input.form-control {
     background-color: var(--tooltip-bg);
   }
 }
+
+// Tab Container
+.nav-tabs {
+  border-bottom: 1px solid var(--tab-theme-border);
+  @include transition(border-color);
+
+  .nav-link {
+    color: var(--text-color);
+    background-color: var(--main-bg);
+    border: 1px solid transparent;
+    border-radius: 0.25rem 0.25rem 0 0;
+    @include transition(color, background-color, border-color);
+
+    &:hover {
+      color: var(--text-color);
+      background-color: var(--tab-theme-hover-bg);
+      border-color: var(--tab-theme-hover-border);
+    }
+
+    &.active {
+      color: var(--tab-theme-active-text);
+      border-color: var(--tab-theme-border);
+      background-color: var(--tab-theme-active-bg);
+      border-bottom-color: var(--tab-theme-active-bg);
+    }
+  }
+}
+
+// Tab Content
+.tab-content {
+  border: 1px solid var(--border-color);
+  background-color: var(--main-bg);
+  @include transition(border-color, background-color);
+
+  .tab-pane {
+    color: var(--text-color);
+    @include transition(color);
+  }
+}
