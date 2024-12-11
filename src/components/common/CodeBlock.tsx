@@ -13,7 +13,7 @@ interface CodeBlockProps {
 const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ className, children, theme, t }) => {
   const [isCopied, setIsCopied] = useState(false);
 
-  const syntaxTheme: any = theme === 'dark' ? materialDark : materialLight;
+  const syntaxTheme = theme === 'dark' ? materialDark : materialLight;
   const match = /language-(\w+)/.exec(className ?? '');
 
   const copyToClipboard = () => {
