@@ -131,5 +131,5 @@ npm run sonar
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=white)  
 ![Font Awesome](https://img.shields.io/badge/Font_Awesome-339AF0?logo=font-awesome&logoColor=white)  
 ![Sass](https://img.shields.io/badge/Sass-CC6699?logo=sass&logoColor=white)  
-![Gray Matter](https://img.shields.io/badge/Gray_Matter-FFB6C1?logo=markdown&logoColor=black)
+![Gray Matter](https://img.shields.io/badge/Gray_Matter-FFB6C1?logo=markdown&logoColor=black)  
 ![React Markdown](https://img.shields.io/badge/React_Markdown-61DAFB?logo=react&logoColor=black)
