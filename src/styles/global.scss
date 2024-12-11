@@ -763,6 +763,42 @@ input.form-control {
   }
 }
 
+.list-group-item-action {
+  background-color: var(--main-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  @include transition(background-color, color, border-color);
+
+  i {
+    color: var(--text-color);
+    @include transition(color);
+
+    &:hover {
+      color: var(--dropdown-hover-color);
+    }
+  }
+
+  &:hover {
+    color: var(--dropdown-hover-color);
+    background-color: var(--dropdown-hover-bg);
+  }
+
+  &.active {
+    background-color: var(--active-color);
+    border-color: var(--border-color);
+    color: var(--primary-color);
+
+    i {
+      color: var(--primary-color);
+    }
+  }
+
+  &.disabled {
+    background-color: var(--disabled-bg);
+    color: var(--muted-text-color);
+  }
+}
+
 .button-link {
   background-color: transparent;
   border: none;
