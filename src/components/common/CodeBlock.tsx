@@ -5,13 +5,15 @@ import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface CodeBlockProps {
+  node?: any;
+  inline?: boolean;
   className?: string;
   children: React.ReactNode;
   theme: 'light' | 'dark';
   t: (key: string) => string;
 }
 
-const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ className, children, theme, t }) => {
+const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ node, inline, className, children, theme, t, ...props }) => {
   const [isCopied, setIsCopied] = useState(false);
 
   const syntaxTheme = theme === 'dark' ? materialDark : materialLight;
@@ -25,9 +27,17 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ className, children, th
     }
   };
 
+  if (inline) {
+    return (
+      <code className={className} {...props}>
+        {children}
+      </code>
+    );
+  }
+
   return match ? (
     <div className="code-block-container">
-      <SyntaxHighlighter style={syntaxTheme} language={match[1]}>
+      <SyntaxHighlighter style={syntaxTheme} language={match[1]} PreTag="div" {...props}>
         {String(children).replace(/\n$/, '')}
       </SyntaxHighlighter>
       <OverlayTrigger
@@ -42,7 +52,9 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ className, children, th
       </OverlayTrigger>
     </div>
   ) : (
-    <code className={className}>{children}</code>
+    <code className={className} {...props}>
+      {children}
+    </code>
   );
 };
 

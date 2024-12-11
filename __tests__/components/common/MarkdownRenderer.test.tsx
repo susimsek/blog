@@ -7,14 +7,22 @@ jest.mock('react-markdown', () => {
 
 jest.mock('remark-gfm', () => jest.fn());
 
+jest.mock('rehype-raw', () => jest.fn());
+
 // Mock store selector
 jest.mock('@/config/store', () => ({
   useAppSelector: jest.fn(),
 }));
 
 jest.mock('@/components/common/CodeBlock', () => {
-  return ({ children, className, theme }: any) => (
-    <pre data-testid="code-block" className={className} data-theme={theme}>
+  return ({ children, className, theme, inline, node, ...props }: any) => (
+    <pre
+      data-testid="code-block"
+      className={className}
+      data-theme={theme}
+      data-inline={inline ? 'true' : 'false'}
+      {...props}
+    >
       {children}
     </pre>
   );

@@ -4,14 +4,26 @@ import remarkGfm from 'remark-gfm';
 import { useAppSelector } from '@/config/store';
 import { useTranslation } from 'next-i18next';
 import CodeBlock from '@/components/common/CodeBlock';
+import rehypeRaw from 'rehype-raw';
 
 interface MarkdownRendererProps {
   content: string;
 }
 
 const createMarkdownComponents = (theme: 'light' | 'dark', t: (key: string) => string): Components => ({
-  code: ({ className, children, ...rest }: { className?: string; children?: React.ReactNode }) => (
-    <CodeBlock className={className} theme={theme} t={t} {...rest}>
+  code: ({
+    node,
+    inline,
+    className,
+    children,
+    ...rest
+  }: {
+    node?: any;
+    inline?: boolean;
+    className?: string;
+    children?: React.ReactNode;
+  }) => (
+    <CodeBlock node={node} inline={inline} className={className} theme={theme} t={t} {...rest}>
       {children}
     </CodeBlock>
   ),
@@ -37,7 +49,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   const MarkdownComponents = useMemo(() => createMarkdownComponents(theme, t), [theme, t]);
 
   return (
-    <ReactMarkdown remarkPlugins={[remarkGfm]} components={MarkdownComponents}>
+    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={MarkdownComponents}>
       {content}
     </ReactMarkdown>
   );
