@@ -19,7 +19,7 @@ const parseTabs = (content: string) => {
     });
 };
 
-const TabsRenderer: React.FC<TabsRendererProps> = ({ content, components }) => {
+const TabsRenderer: React.FC<Readonly<TabsRendererProps>> = ({ content, components }) => {
   const tabs = parseTabs(content);
 
   return (
