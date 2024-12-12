@@ -14,7 +14,7 @@ jest.mock('@/config/store', () => ({
   useAppSelector: jest.fn(),
 }));
 
-jest.mock('@/components/common/TabsRenderer', () => {
+jest.mock('@/components/common/MarkdownTabsRenderer', () => {
   return jest.fn(({ content }: { content: string }) => (
     <div data-testid="tabs-renderer">
       <span>{content}</span>
@@ -77,7 +77,7 @@ describe('MarkdownRenderer Component', () => {
     expect(codeBlock).toBeInTheDocument();
   });
 
-  it('renders tabs content with TabsRenderer', () => {
+  it('renders tabs content with MarkdownTabsRenderer', () => {
     const content = `
       :::tabs
       @tab Tab1

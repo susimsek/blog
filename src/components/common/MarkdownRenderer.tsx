@@ -6,7 +6,7 @@ import { Table } from 'react-bootstrap';
 import { useAppSelector } from '@/config/store';
 import { useTranslation } from 'next-i18next';
 import CodeBlock from '@/components/common/CodeBlock';
-import TabsRenderer from './TabsRenderer';
+import MarkdownTabsRenderer from './MarkdownTabsRenderer';
 
 interface MarkdownRendererProps {
   content: string;
@@ -90,7 +90,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
         const key = segment.type === 'tabs' ? `tabs-${segment.content}` : `markdown-${segment.content}`;
 
         if (segment.type === 'tabs') {
-          return <TabsRenderer key={key} content={segment.content} components={MarkdownComponents} />;
+          return <MarkdownTabsRenderer key={key} content={segment.content} components={MarkdownComponents} />;
         }
 
         return (

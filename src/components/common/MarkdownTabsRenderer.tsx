@@ -4,7 +4,7 @@ import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 
-interface TabsRendererProps {
+interface MarkdownTabsRendererProps {
   content: string;
   components: Components;
 }
@@ -19,7 +19,7 @@ const parseTabs = (content: string) => {
     });
 };
 
-const TabsRenderer: React.FC<Readonly<TabsRendererProps>> = ({ content, components }) => {
+const MarkdownTabsRenderer: React.FC<Readonly<MarkdownTabsRendererProps>> = ({ content, components }) => {
   const tabs = parseTabs(content);
 
   return (
@@ -35,4 +35,4 @@ const TabsRenderer: React.FC<Readonly<TabsRendererProps>> = ({ content, componen
   );
 };
 
-export default TabsRenderer;
+export default MarkdownTabsRenderer;

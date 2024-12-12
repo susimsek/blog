@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import TabsRenderer from '@/components/common/TabsRenderer';
+import MarkdownTabsRenderer from '@/components/common/MarkdownTabsRenderer';
 
 jest.mock('react-markdown', () => {
   return ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
@@ -37,7 +37,7 @@ describe('TabsRenderer', () => {
       ),
     };
 
-    render(<TabsRenderer content={content} components={mockComponents} />);
+    render(<MarkdownTabsRenderer content={content} components={mockComponents} />);
 
     // Check if the tab titles are rendered
     expect(screen.getByText('Java')).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('TabsRenderer', () => {
   });
 
   it('renders with no tabs when content is empty', () => {
-    render(<TabsRenderer content="" components={{}} />);
+    render(<MarkdownTabsRenderer content="" components={{}} />);
 
     // Ensure no tabs are rendered
     expect(screen.queryByRole('tab')).not.toBeInTheDocument();
@@ -67,7 +67,7 @@ describe('TabsRenderer', () => {
     :::
   `;
 
-    render(<TabsRenderer content={content} components={{}} />);
+    render(<MarkdownTabsRenderer content={content} components={{}} />);
 
     expect(screen.getByText('Content for Tab 1')).toBeVisible();
   });
