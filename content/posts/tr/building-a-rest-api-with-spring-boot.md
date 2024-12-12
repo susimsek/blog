@@ -49,7 +49,10 @@ Projeyi indirin, IDE'nizde açın ve çalıştırmaya hazır olun.
 
 ## **Adım 2: Model Sınıfı Oluşturma**
 
-Lombok kullanarak `Todo` nesnesi için bir model sınıfı oluşturun:
+`Todo` nesnesi için bir model sınıfı oluşturun:
+
+:::tabs
+@tab Java
 
 ```java
 package com.example.demo.model;
@@ -64,13 +67,28 @@ public class Todo {
 }
 ```
 
-Lombok, `@Data` anotasyonu sayesinde getter, setter, `toString`, `equals` ve `hashCode` gibi metodları otomatik olarak oluşturur.
+@tab Kotlin
+
+```kotlin
+package com.example.demo.model
+
+data class Todo(
+    var id: Long,
+    var title: String,
+    var completed: Boolean
+)
+```
+
+:::
 
 ---
 
 ## **Adım 3: Controller Sınıfı Oluşturma**
 
 `TodoController` adında bir controller sınıfı ekleyerek CRUD işlemleri için REST endpoint'leri tanımlayın:
+
+:::tabs
+@tab Java
 
 ```java
 package com.example.demo.controller;
@@ -115,6 +133,49 @@ public class TodoController {
     }
 }
 ```
+
+@tab Kotlin
+
+```kotlin
+package com.example.demo.controller
+
+import com.example.demo.model.Todo
+import org.springframework.web.bind.annotation.*
+
+@RestController
+@RequestMapping("/api/todos")
+class TodoController {
+
+    private val todos = mutableListOf<Todo>()
+
+    @GetMapping
+    fun getAllTodos(): List<Todo> = todos
+
+    @PostMapping
+    fun createTodo(@RequestBody todo: Todo): Todo {
+        todo.id = (todos.size + 1).toLong()
+        todos.add(todo)
+        return todo
+    }
+
+    @PutMapping("/{id}")
+    fun updateTodo(@PathVariable id: Long, @RequestBody updatedTodo: Todo): Todo? {
+        val todo = todos.find { it.id == id }
+        todo?.apply {
+            title = updatedTodo.title
+            completed = updatedTodo.completed
+        }
+        return todo
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteTodo(@PathVariable id: Long) {
+        todos.removeIf { it.id == id }
+    }
+}
+```
+
+:::
 
 ---
 

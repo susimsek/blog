@@ -55,7 +55,8 @@ Başlamadan önce aşağıdaki öğelerin yüklü olduğundan emin olun:
 
 Merhaba diyecek basit bir endpoint yazalım.
 
-`DemoApplication.java` adlı bir dosya oluşturun ve aşağıdaki içeriği ekleyin:
+:::tabs
+@tab Java
 
 ```java
 package com.example.demo;
@@ -78,6 +79,32 @@ public class DemoApplication {
     }
 }
 ```
+
+@tab Kotlin
+
+```kotlin
+package com.example.demo
+
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RestController
+
+@SpringBootApplication
+@RestController
+class DemoApplication
+
+fun main(args: Array<String>) {
+    runApplication<DemoApplication>(*args)
+}
+
+@GetMapping("/hello")
+fun sayHello(): String {
+    return "Merhaba, Spring Boot!"
+}
+```
+
+:::
 
 ---
 

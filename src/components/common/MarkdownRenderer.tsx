@@ -1,15 +1,48 @@
 import React, { useMemo } from 'react';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import { Table } from 'react-bootstrap';
 import { useAppSelector } from '@/config/store';
 import { useTranslation } from 'next-i18next';
 import CodeBlock from '@/components/common/CodeBlock';
-import rehypeRaw from 'rehype-raw';
-import { Table } from 'react-bootstrap';
+import TabsRenderer from './TabsRenderer';
 
 interface MarkdownRendererProps {
   content: string;
 }
+
+const splitContentWithTabs = (content: string) => {
+  const tabSectionsRegex = /:::tabs([\s\S]*?):::/gm;
+  const segments: Array<{ type: 'tabs' | 'markdown'; content: string }> = [];
+  let match;
+  let lastIndex = 0;
+
+  while ((match = tabSectionsRegex.exec(content)) !== null) {
+    if (lastIndex < match.index) {
+      segments.push({
+        type: 'markdown',
+        content: content.slice(lastIndex, match.index),
+      });
+    }
+
+    segments.push({
+      type: 'tabs',
+      content: match[1].trim(),
+    });
+
+    lastIndex = tabSectionsRegex.lastIndex;
+  }
+
+  if (lastIndex < content.length) {
+    segments.push({
+      type: 'markdown',
+      content: content.slice(lastIndex),
+    });
+  }
+
+  return segments;
+};
 
 const createMarkdownComponents = (theme: 'light' | 'dark', t: (key: string) => string): Components => ({
   code: ({
@@ -49,10 +82,27 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
 
   const MarkdownComponents = useMemo(() => createMarkdownComponents(theme, t), [theme, t]);
 
+  const segments = splitContentWithTabs(content);
+
   return (
-    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={MarkdownComponents}>
-      {content}
-    </ReactMarkdown>
+    <>
+      {segments.map((segment, index) => {
+        if (segment.type === 'tabs') {
+          return <TabsRenderer key={index} content={segment.content} components={MarkdownComponents} />;
+        }
+
+        return (
+          <ReactMarkdown
+            key={index}
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+            components={MarkdownComponents}
+          >
+            {segment.content}
+          </ReactMarkdown>
+        );
+      })}
+    </>
   );
 };
 

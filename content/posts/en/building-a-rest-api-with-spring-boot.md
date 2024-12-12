@@ -49,7 +49,10 @@ Download the project, open it in your IDE, and get ready to run it.
 
 ## **Step 2: Create a Model Class**
 
-Use Lombok to create a model class for a `Todo` object:
+Create a model class for a `Todo` object:
+
+:::tabs
+@tab Java
 
 ```java
 package com.example.demo.model;
@@ -64,13 +67,28 @@ public class Todo {
 }
 ```
 
-Lombok's `@Data` annotation automatically generates getters, setters, `toString`, `equals`, and `hashCode` methods.
+@tab Kotlin
+
+```kotlin
+package com.example.demo.model
+
+data class Todo(
+    var id: Long,
+    var title: String,
+    var completed: Boolean
+)
+```
+
+:::
 
 ---
 
 ## **Step 3: Create a Controller Class**
 
 Add a `TodoController` class to define CRUD operations as REST endpoints:
+
+:::tabs
+@tab Java
 
 ```java
 package com.example.demo.controller;
@@ -115,6 +133,49 @@ public class TodoController {
     }
 }
 ```
+
+@tab Kotlin
+
+```kotlin
+package com.example.demo.controller
+
+import com.example.demo.model.Todo
+import org.springframework.web.bind.annotation.*
+
+@RestController
+@RequestMapping("/api/todos")
+class TodoController {
+
+    private val todos = mutableListOf<Todo>()
+
+    @GetMapping
+    fun getAllTodos(): List<Todo> = todos
+
+    @PostMapping
+    fun createTodo(@RequestBody todo: Todo): Todo {
+        todo.id = (todos.size + 1).toLong()
+        todos.add(todo)
+        return todo
+    }
+
+    @PutMapping("/{id}")
+    fun updateTodo(@PathVariable id: Long, @RequestBody updatedTodo: Todo): Todo? {
+        val todo = todos.find { it.id == id }
+        todo?.apply {
+            title = updatedTodo.title
+            completed = updatedTodo.completed
+        }
+        return todo
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteTodo(@PathVariable id: Long) {
+        todos.removeIf { it.id == id }
+    }
+}
+```
+
+:::
 
 ---
 
