@@ -5,7 +5,7 @@ import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface CodeBlockProps {
-  node?: any;
+  node?: unknown;
   inline?: boolean;
   className?: string;
   children: React.ReactNode;

@@ -18,7 +18,7 @@ const createMarkdownComponents = (theme: 'light' | 'dark', t: (key: string) => s
     children,
     ...rest
   }: {
-    node?: any;
+    node?: unknown;
     inline?: boolean;
     className?: string;
     children?: React.ReactNode;
