@@ -24,8 +24,8 @@ const TabsRenderer: React.FC<Readonly<TabsRendererProps>> = ({ content, componen
 
   return (
     <Tabs defaultActiveKey={tabs[0]?.title || 'tab-0'} className="mb-3">
-      {tabs.map((tab, tabIndex) => (
-        <Tab eventKey={tab.title} title={tab.title} key={tabIndex}>
+      {tabs.map(tab => (
+        <Tab eventKey={tab.title} title={tab.title} key={tab.title}>
           <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={components}>
             {tab.content}
           </ReactMarkdown>

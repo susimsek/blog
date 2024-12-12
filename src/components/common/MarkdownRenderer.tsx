@@ -86,14 +86,16 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
 
   return (
     <>
-      {segments.map((segment, index) => {
+      {segments.map(segment => {
+        const key = segment.type === 'tabs' ? `tabs-${segment.content}` : `markdown-${segment.content}`;
+
         if (segment.type === 'tabs') {
-          return <TabsRenderer key={index} content={segment.content} components={MarkdownComponents} />;
+          return <TabsRenderer key={key} content={segment.content} components={MarkdownComponents} />;
         }
 
         return (
           <ReactMarkdown
-            key={index}
+            key={key}
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}
             components={MarkdownComponents}
