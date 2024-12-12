@@ -5,7 +5,6 @@ import { useAppSelector } from '@/config/store';
 import { useTranslation } from 'next-i18next';
 import CodeBlock from '@/components/common/CodeBlock';
 import rehypeRaw from 'rehype-raw';
-import { Node } from 'hast';
 
 interface MarkdownRendererProps {
   content: string;
@@ -13,18 +12,16 @@ interface MarkdownRendererProps {
 
 const createMarkdownComponents = (theme: 'light' | 'dark', t: (key: string) => string): Components => ({
   code: ({
-    node,
     inline,
     className,
     children,
     ...rest
   }: {
-    node?: Node;
     inline?: boolean;
     className?: string;
     children?: React.ReactNode;
   }) => (
-    <CodeBlock node={node} inline={inline} className={className} theme={theme} t={t} {...rest}>
+    <CodeBlock inline={inline} className={className} theme={theme} t={t} {...rest}>
       {children}
     </CodeBlock>
   ),

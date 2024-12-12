@@ -3,10 +3,8 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialDark, materialLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Node } from 'hast';
 
 interface CodeBlockProps {
-  node?: Node;
   inline?: boolean;
   className?: string;
   children: React.ReactNode;
@@ -14,7 +12,7 @@ interface CodeBlockProps {
   t: (key: string) => string;
 }
 
-const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ node, inline, className, children, theme, t, ...props }) => {
+const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, children, theme, t, ...props }) => {
   const [isCopied, setIsCopied] = useState(false);
 
   const syntaxTheme = theme === 'dark' ? materialDark : materialLight;
