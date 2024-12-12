@@ -1,12 +1,12 @@
 import React from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 
 interface TabsRendererProps {
   content: string;
-  components: any;
+  components: Components;
 }
 
 const parseTabs = (content: string) => {
