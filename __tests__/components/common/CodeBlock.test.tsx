@@ -58,7 +58,6 @@ describe('CodeBlock Component', () => {
   });
 
   it('renders JavaScript code block correctly with dark theme', () => {
-    (useAppSelector as jest.Mock).mockReturnValue('dark');
     render(
       <CodeBlock
         theme="dark"
@@ -73,7 +72,6 @@ describe('CodeBlock Component', () => {
   });
 
   it('applies the correct theme for light mode', () => {
-    (useAppSelector as jest.Mock).mockReturnValue('light');
     render(
       <CodeBlock
         theme="light"
@@ -88,7 +86,6 @@ describe('CodeBlock Component', () => {
   });
 
   it('renders code as plain text when className is not defined', () => {
-    (useAppSelector as jest.Mock).mockReturnValue('dark');
     render(<CodeBlock theme="dark" t={mockTranslation}>{`console.log('No Language Provided');`}</CodeBlock>);
 
     const plainCode = screen.getByText(/console\.log\('No Language Provided'\)/);
@@ -97,7 +94,6 @@ describe('CodeBlock Component', () => {
   });
 
   it('copies text to clipboard when copy button is clicked', async () => {
-    (useAppSelector as jest.Mock).mockReturnValue('light');
     render(
       <CodeBlock
         theme="light"
@@ -116,5 +112,18 @@ describe('CodeBlock Component', () => {
 
     const checkIcon = screen.getByTestId('font-awesome-icon-check');
     expect(checkIcon).toBeInTheDocument();
+  });
+
+  it('renders inline code correctly when inline prop is true', () => {
+    render(
+      <CodeBlock inline theme="light" t={mockTranslation} className="language-javascript">
+        {`inline code example`}
+      </CodeBlock>,
+    );
+
+    const inlineCode = screen.getByText('inline code example');
+    expect(inlineCode).toBeInTheDocument();
+    expect(inlineCode.tagName).toBe('CODE');
+    expect(inlineCode).toHaveClass('language-javascript');
   });
 });
