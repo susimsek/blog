@@ -5,7 +5,7 @@ import { useAppSelector } from '@/config/store';
 import { useTranslation } from 'next-i18next';
 import CodeBlock from '@/components/common/CodeBlock';
 import rehypeRaw from 'rehype-raw';
-import { ListGroup, Table } from 'react-bootstrap';
+import { Table } from 'react-bootstrap';
 
 interface MarkdownRendererProps {
   content: string;
@@ -33,13 +33,9 @@ const createMarkdownComponents = (theme: 'light' | 'dark', t: (key: string) => s
   ),
   th: ({ children }: { children?: React.ReactNode }) => <th>{children}</th>,
   td: ({ children }: { children?: React.ReactNode }) => <td>{children}</td>,
-  ul: ({ children }: { children?: React.ReactNode }) => <ListGroup variant="flush">{children}</ListGroup>,
-  ol: ({ children }: { children?: React.ReactNode }) => (
-    <ListGroup as="ol" numbered>
-      {children}
-    </ListGroup>
-  ),
-  li: ({ children }: { children?: React.ReactNode }) => <ListGroup.Item as="li">{children}</ListGroup.Item>,
+  ul: ({ children }: { children?: React.ReactNode }) => <ul className="list-group list-group-flush">{children}</ul>,
+  ol: ({ children }: { children?: React.ReactNode }) => <ol className="list-group list-group-numbered">{children}</ol>,
+  li: ({ children }: { children?: React.ReactNode }) => <li className="list-group-item">{children}</li>,
   a: ({ href, children }: { href?: string; children?: React.ReactNode }) => (
     <a href={href} target="_blank" rel="noopener noreferrer" className="text-decoration-none text-primary">
       {children}
