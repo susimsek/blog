@@ -14,6 +14,14 @@ jest.mock('@/config/store', () => ({
   useAppSelector: jest.fn(),
 }));
 
+jest.mock('@/components/common/TabsRenderer', () => {
+  return jest.fn(({ content }: { content: string }) => (
+    <div data-testid="tabs-renderer">
+      <span>{content}</span>
+    </div>
+  ));
+});
+
 jest.mock('@/components/common/CodeBlock', () => {
   return ({ children, className, theme, inline, node, ...props }: any) => (
     <pre
@@ -67,5 +75,37 @@ describe('MarkdownRenderer Component', () => {
 
     const codeBlock = screen.getByText(/console\.log\('Hello, World!'\)/);
     expect(codeBlock).toBeInTheDocument();
+  });
+
+  it('renders tabs content with TabsRenderer', () => {
+    const content = `
+      :::tabs
+      @tab Tab1
+      Content for Tab 1
+      @tab Tab2
+      Content for Tab 2
+      :::`;
+
+    render(<MarkdownRenderer content={content} />);
+
+    const tabsRenderer = screen.getByTestId('tabs-renderer');
+    expect(tabsRenderer).toBeInTheDocument();
+    expect(tabsRenderer).toHaveTextContent('@tab Tab1 Content for Tab 1 @tab Tab2 Content for Tab 2');
+  });
+
+  it('renders markdown outside of tabs correctly', () => {
+    const content = `
+      This is markdown outside of tabs.
+
+      :::tabs
+      @tab Tab1
+      Content for Tab 1
+      :::`;
+
+    render(<MarkdownRenderer content={content} />);
+
+    const markdownElement = screen.getByTestId('react-markdown');
+    expect(markdownElement).toBeInTheDocument();
+    expect(markdownElement).toHaveTextContent('This is markdown outside of tabs.');
   });
 });
