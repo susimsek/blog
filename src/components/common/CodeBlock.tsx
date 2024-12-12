@@ -3,9 +3,10 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialDark, materialLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Node } from 'hast';
 
 interface CodeBlockProps {
-  node?: unknown;
+  node?: Node;
   inline?: boolean;
   className?: string;
   children: React.ReactNode;
