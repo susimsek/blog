@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -32,38 +32,39 @@ const parseTabs = (content: string) => {
 const MarkdownTabsRenderer: React.FC<Readonly<MarkdownTabsRendererProps>> = ({ content, components }) => {
   const tabs = parseTabs(content);
 
-  // Load icons synchronously using require
-  const icons: { [key: string]: React.ReactNode } = {};
-  tabs.forEach(tab => {
-    if (tab.iconName) {
-      try {
-        // Require the icon dynamically based on the icon name
-        const IconComponent = require(`../../assets/icons/${tab.iconName}.svg`).ReactComponent;
-        icons[tab.key] = <IconComponent style={{ height: '20px', marginRight: '8px' }} />;
-      } catch (e) {
-        console.warn(`Icon for "${tab.iconName}" not found.`);
-      }
-    }
-  });
+  // Dynamic icon loading using React.lazy and import()
+  const loadIcon = (iconName: string): React.ComponentType<React.SVGProps<SVGSVGElement>> => {
+    return React.lazy(() =>
+      import(`../../assets/icons/${iconName}.svg`).then(module => ({ default: module.ReactComponent })),
+    );
+  };
 
   return (
-    <Tabs defaultActiveKey={tabs[0]?.key || 'tab-0'} className="mb-3">
-      {tabs.map(tab => (
-        <Tab
-          eventKey={tab.key}
-          key={tab.key}
-          title={
-            <span style={{ display: 'flex', alignItems: 'center' }}>
-              {icons[tab.key]}
-              {tab.title}
-            </span>
-          }
-        >
-          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={components}>
-            {tab.content}
-          </ReactMarkdown>
-        </Tab>
-      ))}
+    <Tabs defaultActiveKey={tabs[0]?.key ?? 'tab-0'} className="mb-3">
+      {tabs.map(tab => {
+        const IconComponent = tab.iconName ? loadIcon(tab.iconName) : null;
+
+        return (
+          <Tab
+            eventKey={tab.key}
+            key={tab.key}
+            title={
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+                {IconComponent && (
+                  <Suspense fallback={<span>Loading...</span>}>
+                    <IconComponent style={{ height: '20px', marginRight: '8px' }} />
+                  </Suspense>
+                )}
+                {tab.title}
+              </span>
+            }
+          >
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={components}>
+              {tab.content}
+            </ReactMarkdown>
+          </Tab>
+        );
+      })}
     </Tabs>
   );
 };
