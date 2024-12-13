@@ -56,7 +56,7 @@ Spring Boot, Spring Framework ile üretim için hazır uygulamalar oluşturmayı
 Bir "hello" mesajı dönen basit bir endpoint yazalım:
 
 :::tabs  
-@tab Java ☕
+@tab Java
 
 ```java
 package com.example.demo;
@@ -80,7 +80,7 @@ public class DemoApplication {
 }
 ```
 
-@tab Kotlin 🐦
+@tab Kotlin
 
 ```kotlin
 package com.example.demo
