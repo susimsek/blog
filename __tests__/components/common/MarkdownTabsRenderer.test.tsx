@@ -108,4 +108,23 @@ describe('TabsRenderer', () => {
     expect(elements[0]).toBeVisible();
     expect(elements[1]).toBeVisible();
   });
+
+  it('handles empty title gracefully', () => {
+    const content = `
+    :::tabs
+    @tab  [icon=kotlin]
+    \`\`\`kotlin
+    fun main() {
+        println("Hello, World!")
+    }
+    \`\`\`
+  `;
+
+    render(<MarkdownTabsRenderer content={content} components={{}} />);
+
+    // Ensure the tab renders but with an empty title
+    const tabs = screen.queryAllByRole('tab');
+    expect(tabs.length).toBe(1); // Only one tab should render
+    expect(tabs[0].textContent).toBe(''); // Tab title should be empty
+  });
 });
