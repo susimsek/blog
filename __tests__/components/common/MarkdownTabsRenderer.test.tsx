@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import MarkdownTabsRenderer from '@/components/common/MarkdownTabsRenderer';
-import { act } from 'react-dom/test-utils';
 
 jest.mock('react-markdown', () => {
   return ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
