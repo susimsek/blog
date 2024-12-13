@@ -19,7 +19,7 @@ Spring Boot is an excellent tool for quickly developing RESTful web services. In
 
 ---
 
-## **What is a REST API?**
+## 🌟 What is a REST API?
 
 REST (Representational State Transfer) is an architectural style for designing web services. It uses standard HTTP methods for communication between clients and servers.
 
@@ -34,7 +34,7 @@ REST (Representational State Transfer) is an architectural style for designing w
 
 ---
 
-## **Step 1: Create a Project**
+## 🛠️ Step 1: Create a Project
 
 You can create a Spring Boot project using [Spring Initializr](https://start.spring.io/). Select the following settings:
 
@@ -47,7 +47,7 @@ Download the project, open it in your IDE, and get ready to run it.
 
 ---
 
-## **Step 2: Create a Model Class**
+## 📖 Step 2: Create a Model Class
 
 Create a model class for a `Todo` object:
 
@@ -83,7 +83,7 @@ data class Todo(
 
 ---
 
-## **Step 3: Create a Controller Class**
+## 📘 Step 3: Create a Controller Class
 
 Add a `TodoController` class to define CRUD operations as REST endpoints:
 
@@ -179,7 +179,7 @@ class TodoController {
 
 ---
 
-## **Step 4: Test the API**
+## ▶️ Step 4: Test the API
 
 Test your API using `curl` commands:
 

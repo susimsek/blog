@@ -19,35 +19,35 @@ Spring Boot, RESTful web servislerini hızlı ve kolay bir şekilde geliştirmek
 
 ---
 
-## **REST API Nedir?**
+## 🌟 REST API Nedir?
 
-REST (Representational State Transfer), web servislerini tasarlamak için kullanılan bir mimari stildir. Temel HTTP metodlarını kullanarak istemcilerle sunucular arasında veri alışverişi yapılır.
+REST (Representational State Transfer), web servisleri tasarlamak için kullanılan bir mimari stilidir. İstemciler ile sunucular arasındaki iletişimde standart HTTP yöntemlerini kullanır.
 
-### **HTTP Metodları**
+### **HTTP Yöntemleri**
 
-| **Metot**  | **Açıklama**                                   | **Örnek Endpoint** |
-| ---------- | ---------------------------------------------- | ------------------ |
-| **GET**    | Kaynağı alır.                                  | `/api/todos`       |
-| **POST**   | Yeni bir kaynak oluşturur.                     | `/api/todos`       |
-| **PUT**    | Var olan bir kaynağı günceller veya oluşturur. | `/api/todos/1`     |
-| **DELETE** | Bir kaynağı siler.                             | `/api/todos/1`     |
-
----
-
-## **Adım 1: Proje Oluşturma**
-
-Spring Boot projesi oluşturmak için [Spring Initializr](https://start.spring.io/) kullanabilirsiniz. Aşağıdaki ayarları seçin:
-
-- **Project:** Maven
-- **Language:** Java veya Kotlin
-- **Spring Boot Version:** 3.0.0+
-- **Dependencies:** Spring Web, Spring Boot DevTools, Lombok
-
-Projeyi indirin, IDE'nizde açın ve çalıştırmaya hazır olun.
+| **Yöntem** | **Açıklama**                      | **Örnek Endpoint** |
+| ---------- | --------------------------------- | ------------------ |
+| **GET**    | Bir kaynağı alır.                 | `/api/todos`       |
+| **POST**   | Yeni bir kaynak oluşturur.        | `/api/todos`       |
+| **PUT**    | Kaynağı günceller veya oluşturur. | `/api/todos/1`     |
+| **DELETE** | Kaynağı siler.                    | `/api/todos/1`     |
 
 ---
 
-## **Adım 2: Model Sınıfı Oluşturma**
+## 🛠️ Adım 1: Proje Oluşturma
+
+Spring Boot projesini [Spring Initializr](https://start.spring.io/) kullanarak oluşturabilirsiniz. Aşağıdaki ayarları seçin:
+
+- **Proje:** Maven
+- **Dil:** Java veya Kotlin
+- **Spring Boot Sürümü:** 3.0.0+
+- **Bağımlılıklar:** Spring Web, Spring Boot DevTools, Lombok
+
+Projeyi indirin, IDE'nizde açın ve çalıştırmaya hazırlanın.
+
+---
+
+## 📖 Adım 2: Model Sınıfı Oluşturma
 
 `Todo` nesnesi için bir model sınıfı oluşturun:
 
@@ -83,9 +83,9 @@ data class Todo(
 
 ---
 
-## **Adım 3: Controller Sınıfı Oluşturma**
+## 📘 Adım 3: Controller Sınıfı Oluşturma
 
-`TodoController` adında bir controller sınıfı ekleyerek CRUD işlemleri için REST endpoint'leri tanımlayın:
+CRUD işlemlerini tanımlayan bir `TodoController` sınıfı ekleyin:
 
 :::tabs
 @tab Java
@@ -179,29 +179,29 @@ class TodoController {
 
 ---
 
-## **Adım 4: API'yi Test Etme**
+## ▶️ Adım 4: API'yi Test Etme
 
-API'nizi `curl` komutlarıyla test edebilirsiniz:
+API'nizi test etmek için `curl` komutlarını kullanın:
 
-- **GET Tüm Görevler:**
+- **GET Tüm Todos:**
 
 ```bash
 curl -X GET http://localhost:8080/api/todos
 ```
 
-- **POST Yeni Görev:**
+- **POST Yeni Todo:**
 
 ```bash
-curl -X POST http://localhost:8080/api/todos -H "Content-Type: application/json" -d '{"title": "Yeni Görev", "completed": false}'
+curl -X POST http://localhost:8080/api/todos -H "Content-Type: application/json" -d '{"title": "New Todo", "completed": false}'
 ```
 
-- **PUT Görev Güncelleme:**
+- **PUT Todo Güncelleme:**
 
 ```bash
-curl -X PUT http://localhost:8080/api/todos/1 -H "Content-Type: application/json" -d '{"title": "Güncellenmiş Görev", "completed": true}'
+curl -X PUT http://localhost:8080/api/todos/1 -H "Content-Type: application/json" -d '{"title": "Updated Todo", "completed": true}'
 ```
 
-- **DELETE Görev Silme:**
+- **DELETE Todo Silme:**
 
 ```bash
 curl -X DELETE http://localhost:8080/api/todos/1
