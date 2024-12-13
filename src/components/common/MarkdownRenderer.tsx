@@ -7,42 +7,11 @@ import { useAppSelector } from '@/config/store';
 import { useTranslation } from 'next-i18next';
 import CodeBlock from '@/components/common/CodeBlock';
 import MarkdownTabsRenderer from './MarkdownTabsRenderer';
+import { splitContentWithTabs } from '@/lib/markdownUtils';
 
 interface MarkdownRendererProps {
   content: string;
 }
-
-const splitContentWithTabs = (content: string) => {
-  const tabSectionsRegex = /:::tabs([\s\S]*?):::/gm;
-  const segments: Array<{ type: 'tabs' | 'markdown'; content: string }> = [];
-  let match;
-  let lastIndex = 0;
-
-  while ((match = tabSectionsRegex.exec(content)) !== null) {
-    if (lastIndex < match.index) {
-      segments.push({
-        type: 'markdown',
-        content: content.slice(lastIndex, match.index),
-      });
-    }
-
-    segments.push({
-      type: 'tabs',
-      content: match[1].trim(),
-    });
-
-    lastIndex = tabSectionsRegex.lastIndex;
-  }
-
-  if (lastIndex < content.length) {
-    segments.push({
-      type: 'markdown',
-      content: content.slice(lastIndex),
-    });
-  }
-
-  return segments;
-};
 
 const createMarkdownComponents = (theme: 'light' | 'dark', t: (key: string) => string): Components => ({
   code: ({
