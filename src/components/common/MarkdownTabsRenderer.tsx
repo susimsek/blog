@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -30,30 +30,21 @@ const parseTabs = (content: string) => {
 };
 
 const MarkdownTabsRenderer: React.FC<Readonly<MarkdownTabsRendererProps>> = ({ content, components }) => {
-  const [icons, setIcons] = useState<{ [key: string]: React.ReactNode }>({});
-
   const tabs = parseTabs(content);
 
-  useEffect(() => {
-    const loadIcons = async () => {
-      const newIcons: { [key: string]: React.ReactNode } = {};
-
-      for (const tab of tabs) {
-        if (tab.iconName) {
-          try {
-            const IconComponent = (await import(`../../assets/icons/${tab.iconName}.svg`)).ReactComponent;
-            newIcons[tab.key] = <IconComponent style={{ height: '20px', marginRight: '8px' }} />;
-          } catch (e) {
-            console.warn(`Icon for "${tab.iconName}" not found.`);
-          }
-        }
+  // Load icons synchronously using require
+  const icons: { [key: string]: React.ReactNode } = {};
+  tabs.forEach(tab => {
+    if (tab.iconName) {
+      try {
+        // Require the icon dynamically based on the icon name
+        const IconComponent = require(`../../assets/icons/${tab.iconName}.svg`).ReactComponent;
+        icons[tab.key] = <IconComponent style={{ height: '20px', marginRight: '8px' }} />;
+      } catch (e) {
+        console.warn(`Icon for "${tab.iconName}" not found.`);
       }
-
-      setIcons(newIcons);
-    };
-
-    loadIcons();
-  }, [tabs]);
+    }
+  });
 
   return (
     <Tabs defaultActiveKey={tabs[0]?.key || 'tab-0'} className="mb-3">
