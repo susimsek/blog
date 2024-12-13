@@ -19,12 +19,12 @@ const parseTabs = (content: string) => {
       const [rawTitle, ...rest] = tab.trim().split('\n');
       const title = rawTitle.trim();
 
-      const icon =
-        title.toLowerCase() === 'java' ? (
-          <JavaIcon style={{ height: '20px', marginRight: '8px' }} />
-        ) : title.toLowerCase() === 'kotlin' ? (
-          <KotlinIcon style={{ height: '20px', marginRight: '8px' }} />
-        ) : null;
+      let icon: React.ReactNode = null;
+      if (title.toLowerCase() === 'java') {
+        icon = <JavaIcon style={{ height: '20px', marginRight: '8px' }} />;
+      } else if (title.toLowerCase() === 'kotlin') {
+        icon = <KotlinIcon style={{ height: '20px', marginRight: '8px' }} />;
+      }
 
       return {
         key: `tab-${index}`,
