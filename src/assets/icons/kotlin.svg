@@ -1,0 +1,37 @@
+<svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Linear Gradients -->
+    <linearGradient id="kotlin-gradient-a" gradientUnits="userSpaceOnUse" x1="-11.8991" x2="40.2992" y1="48.6943" y2="-8.3222">
+      <stop offset="0" stop-color="var(--svg-kotlin-a1, #1c93c1)" />
+      <stop offset=".1625" stop-color="var(--svg-kotlin-a2, #2391c0)" />
+      <stop offset=".4043" stop-color="var(--svg-kotlin-a3, #378bbe)" />
+      <stop offset=".6955" stop-color="var(--svg-kotlin-a4, #587eb9)" />
+      <stop offset=".9952" stop-color="var(--svg-kotlin-a5, #7f6cb1)" />
+    </linearGradient>
+    <linearGradient id="kotlin-gradient-b" gradientUnits="userSpaceOnUse" x1="43.5526" x2="95.9878" y1="149.1739" y2="94.8756">
+      <stop offset="0" stop-color="var(--svg-kotlin-b1, #1c93c1)" />
+      <stop offset=".2156" stop-color="var(--svg-kotlin-b2, #2d8ebf)" />
+      <stop offset=".6399" stop-color="var(--svg-kotlin-b3, #587eb9)" />
+      <stop offset=".9952" stop-color="var(--svg-kotlin-b4, #7f6cb1)" />
+    </linearGradient>
+    <linearGradient id="kotlin-gradient-c" gradientUnits="userSpaceOnUse" x1="3.2398" x2="92.4815" y1="95.2486" y2="2.1156">
+      <stop offset="0" stop-color="var(--svg-kotlin-c1, #c757a7)" />
+      <stop offset=".04551384" stop-color="var(--svg-kotlin-c2, #ca5a9e)" />
+      <stop offset=".2413" stop-color="var(--svg-kotlin-c3, #d66779)" />
+      <stop offset=".428" stop-color="var(--svg-kotlin-c4, #e17357)" />
+      <stop offset=".6004" stop-color="var(--svg-kotlin-c5, #e97c3a)" />
+      <stop offset=".7556" stop-color="var(--svg-kotlin-c6, #ef8324)" />
+      <stop offset=".8879" stop-color="var(--svg-kotlin-c7, #f28817)" />
+      <stop offset=".9819" stop-color="var(--svg-kotlin-c8, #f48912)" />
+    </linearGradient>
+  </defs>
+
+  <!-- Top Triangle -->
+  <path d="m0 0h65.4l-65.4 64.4z" fill="url(#kotlin-gradient-a)" />
+  
+  <!-- Bottom Right Triangle -->
+  <path d="m128 128-63.4-65.4-64.6 65.4z" fill="url(#kotlin-gradient-b)" />
+  
+  <!-- Diagonal Triangle -->
+  <path d="m0 128 128-128h-63.4l-64.6 63.7z" fill="url(#kotlin-gradient-c)" />
+</svg>

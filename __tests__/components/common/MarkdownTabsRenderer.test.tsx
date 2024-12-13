@@ -6,6 +6,14 @@ jest.mock('react-markdown', () => {
   return ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
 });
 
+jest.mock('@/assets/icons/java.svg', () => ({
+  ReactComponent: () => <div data-testid="java-icon" />,
+}));
+
+jest.mock('@/assets/icons/kotlin.svg', () => ({
+  ReactComponent: () => <div data-testid="kotlin-icon" />,
+}));
+
 jest.mock('remark-gfm', () => jest.fn());
 
 jest.mock('rehype-raw', () => jest.fn());
@@ -70,5 +78,34 @@ describe('TabsRenderer', () => {
     render(<MarkdownTabsRenderer content={content} components={{}} />);
 
     expect(screen.getByText('Content for Tab 1')).toBeVisible();
+  });
+
+  it('renders the correct content in the tabs', () => {
+    const content = `
+    :::tabs
+    @tab Java
+    \`\`\`java
+    public class HelloWorld {
+        public static void main(String[] args) {
+            System.out.println("Hello, World!");
+        }
+    }
+    \`\`\`
+    @tab Kotlin
+    \`\`\`kotlin
+    fun main() {
+        println("Hello, World!")
+    }
+    \`\`\`
+    :::
+  `;
+
+    render(<MarkdownTabsRenderer content={content} components={{}} />);
+
+    const elements = screen.getAllByText(content => content.includes('println("Hello, World!")'));
+
+    expect(elements.length).toBe(2);
+    expect(elements[0]).toBeVisible();
+    expect(elements[1]).toBeVisible();
   });
 });
