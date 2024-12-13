@@ -19,31 +19,31 @@ Spring Boot simplifies the process of building production-ready applications wit
 
 ---
 
-### **Prerequisites**
+## 🌟 Prerequisites
 
-Before starting, ensure you have the following:
+📋 Before starting, ensure you have the following:
 
-- **Java Development Kit (JDK)** 17+ installed
-- **Maven or Gradle** installed
-- A **Java IDE** (e.g., IntelliJ IDEA, Eclipse, or Visual Studio Code)
+- ☕ **Java Development Kit (JDK)** 17+ installed
+- 📦 **Maven or Gradle** installed
+- 🖥️ A **Java IDE** (e.g., IntelliJ IDEA, Eclipse, or Visual Studio Code)
 
 ---
 
-### **Step 1: Create a Spring Boot Project**
+## 🛠️ Step 1: Create a Spring Boot Project
 
 You can create your first Spring Boot project in two ways:
 
-1. **Using Spring Initializr:**
+1. **Using Spring Initializr 🖱️**
 
 - Visit [Spring Initializr](https://start.spring.io/).
 - Configure the following:
-  - Project: `Maven`
-  - Language: `Java`
-  - Spring Boot Version: `3.0.0` (or the latest version).
-  - Add dependencies: `Spring Web`
+  - 📂 Project: `Maven`
+  - 👨‍💻 Language: `Java` or `Kotlin`
+  - 🔄 Spring Boot Version: `3.0.0` (or the latest version).
+  - 📜 Add dependencies: `Spring Web`
 - Click **Generate** to download the project files.
 
-2. **Using IntelliJ IDEA:**
+2. **Using IntelliJ IDEA 💻**
 
 - Open IntelliJ IDEA.
 - Go to `New Project > Spring Initializr`.
@@ -51,12 +51,12 @@ You can create your first Spring Boot project in two ways:
 
 ---
 
-### **Step 2: Writing Your First Endpoint**
+## 📖 Step 2: Writing Your First Endpoint
 
-Let’s write a simple endpoint to say hello.
+Let’s write a simple endpoint to say hello:
 
-:::tabs
-@tab Java
+:::tabs  
+@tab Java ☕
 
 ```java
 package com.example.demo;
@@ -80,7 +80,7 @@ public class DemoApplication {
 }
 ```
 
-@tab Kotlin
+@tab Kotlin 🐦
 
 ```kotlin
 package com.example.demo
@@ -108,7 +108,7 @@ fun sayHello(): String {
 
 ---
 
-### **Step 3: Run the Application**
+## ▶️ Step 3: Run the Application
 
 1. Open a terminal in the project folder.
 2. Execute the command to run your application:

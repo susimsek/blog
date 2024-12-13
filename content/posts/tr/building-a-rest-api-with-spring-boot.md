@@ -39,7 +39,7 @@ REST (Representational State Transfer), web servislerini tasarlamak için kullan
 Spring Boot projesi oluşturmak için [Spring Initializr](https://start.spring.io/) kullanabilirsiniz. Aşağıdaki ayarları seçin:
 
 - **Project:** Maven
-- **Language:** Java
+- **Language:** Java veya Kotlin
 - **Spring Boot Version:** 3.0.0+
 - **Dependencies:** Spring Web, Spring Boot DevTools, Lombok
 

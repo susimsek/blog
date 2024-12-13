@@ -39,7 +39,7 @@ REST (Representational State Transfer) is an architectural style for designing w
 You can create a Spring Boot project using [Spring Initializr](https://start.spring.io/). Select the following settings:
 
 - **Project:** Maven
-- **Language:** Java
+- **Language:** Java or Kotlin
 - **Spring Boot Version:** 3.0.0+
 - **Dependencies:** Spring Web, Spring Boot DevTools, Lombok
 

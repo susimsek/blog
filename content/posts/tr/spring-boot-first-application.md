@@ -19,44 +19,44 @@ Spring Boot, Spring Framework ile üretim için hazır uygulamalar oluşturmayı
 
 ---
 
-### **Gereksinimler**
+## 🌟 Gereksinimler
 
-Başlamadan önce aşağıdaki öğelerin yüklü olduğundan emin olun:
+📋 Başlamadan önce aşağıdaki araçların kurulu olduğundan emin olun:
 
-- **Java Development Kit (JDK)** 17+ yüklü
-- **Maven veya Gradle** yüklü
-- Bir **Java IDE** (ör. IntelliJ IDEA, Eclipse veya Visual Studio Code)
+- ☕ **Java Geliştirme Kiti (JDK)** 17+
+- 📦 **Maven veya Gradle**
+- 🖥️ Bir **Java IDE'si** (Örneğin IntelliJ IDEA, Eclipse veya Visual Studio Code)
 
 ---
 
-### **Adım 1: Bir Spring Boot Projesi Oluşturun**
+## 🛠️ Adım 1: Spring Boot Projesi Oluşturma
 
 İlk Spring Boot projenizi iki şekilde oluşturabilirsiniz:
 
-1. **Spring Initializr Kullanarak:**
+1. **Spring Initializr Kullanarak 🖱️**
 
 - [Spring Initializr](https://start.spring.io/) adresini ziyaret edin.
-- Şu şekilde yapılandırın:
-  - Proje: `Maven`
-  - Dil: `Java`
-  - Spring Boot Sürümü: `3.0.0` (veya en son sürüm).
-  - Bağımlılık ekleyin: `Spring Web`
-- Proje dosyalarını indirmek için **Generate** düğmesine tıklayın.
+- Aşağıdaki gibi yapılandırın:
+  - 📂 Proje: `Maven`
+  - 👨‍💻 Dil: `Java` veya `Kotlin`
+  - 🔄 Spring Boot Sürümü: `3.0.0` (veya en güncel sürüm).
+  - 📜 Bağımlılıklar: `Spring Web`
+- **Generate** düğmesine tıklayarak proje dosyalarını indirin.
 
-2. **IntelliJ IDEA Kullanarak:**
+2. **IntelliJ IDEA Kullanarak 💻**
 
-- IntelliJ IDEA'yı açın.
-- `Yeni Proje > Spring Initializr` bölümüne gidin.
-- Yukarıda belirtilenlere benzer parametreleri yapılandırın.
+- IntelliJ IDEA’yı açın.
+- `New Project > Spring Initializr` bölümüne gidin.
+- Yukarıda belirtilen parametrelerle benzer şekilde yapılandırın.
 
 ---
 
-### **Adım 2: İlk Endpoint'inizi Yazın**
+## 📖 Adım 2: İlk Endpoint’inizi Yazma
 
-Merhaba diyecek basit bir endpoint yazalım.
+Bir "hello" mesajı dönen basit bir endpoint yazalım:
 
-:::tabs
-@tab Java
+:::tabs  
+@tab Java ☕
 
 ```java
 package com.example.demo;
@@ -80,7 +80,7 @@ public class DemoApplication {
 }
 ```
 
-@tab Kotlin
+@tab Kotlin 🐦
 
 ```kotlin
 package com.example.demo
@@ -108,21 +108,21 @@ fun sayHello(): String {
 
 ---
 
-### **Adım 3: Uygulamayı Çalıştırın**
+## ▶️ Adım 3: Uygulamayı Çalıştırma
 
 1. Proje klasöründe bir terminal açın.
-2. Aşağıdaki komutu çalıştırarak uygulamanızı başlatın:
+2. Uygulamanızı çalıştırmak için şu komutu yürütün:
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-3. Şu adrese erişin:
+3. Endpoint’e şu adresten erişebilirsiniz:
    ```
    http://localhost:8080/hello
    ```
 
-**Cevap:**
+**Yanıt:**
 
 ```
 Merhaba, Spring Boot!
@@ -130,4 +130,4 @@ Merhaba, Spring Boot!
 
 ---
 
-Bu yazı, bir Spring Boot projesi oluşturmanın, bir endpoint yazmanın ve başarıyla çalıştırmanın temel bilgilerini kapsar.
+Bu yazı, bir Spring Boot projesi oluşturmayı, bir endpoint yazmayı ve başarıyla çalıştırmayı kapsar.
