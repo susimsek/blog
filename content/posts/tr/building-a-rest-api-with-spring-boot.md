@@ -52,7 +52,7 @@ Projeyi indirin, IDE'nizde açın ve çalıştırmaya hazırlanın.
 `Todo` nesnesi için bir model sınıfı oluşturun:
 
 :::tabs
-@tab Java
+@tab Java [icon=java]
 
 ```java
 package com.example.demo.model;
@@ -67,7 +67,7 @@ public class Todo {
 }
 ```
 
-@tab Kotlin
+@tab Kotlin [icon=kotlin]
 
 ```kotlin
 package com.example.demo.model
@@ -88,7 +88,7 @@ data class Todo(
 CRUD işlemlerini tanımlayan bir `TodoController` sınıfı ekleyin:
 
 :::tabs
-@tab Java
+@tab Java [icon=java]
 
 ```java
 package com.example.demo.controller;
@@ -134,7 +134,7 @@ public class TodoController {
 }
 ```
 
-@tab Kotlin
+@tab Kotlin [icon=kotlin]
 
 ```kotlin
 package com.example.demo.controller

@@ -56,7 +56,7 @@ You can create your first Spring Boot project in two ways:
 Let’s write a simple endpoint to say hello:
 
 :::tabs  
-@tab Java
+@tab Java [icon=java]
 
 ```java
 package com.example.demo;
@@ -80,7 +80,7 @@ public class DemoApplication {
 }
 ```
 
-@tab Kotlin
+@tab Kotlin [icon=kotlin]
 
 ```kotlin
 package com.example.demo

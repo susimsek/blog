@@ -22,7 +22,7 @@ describe('TabsRenderer', () => {
   it('renders tabs with correct titles and content', () => {
     const content = `
       :::tabs
-      @tab Java
+      @tab Java [icon=java]
       \`\`\`java
       public class HelloWorld {
           public static void main(String[] args) {
@@ -30,7 +30,7 @@ describe('TabsRenderer', () => {
           }
       }
       \`\`\`
-      @tab Kotlin
+      @tab Kotlin [icon=kotlin]
       \`\`\`kotlin
       fun main() {
           println("Hello, World!")
@@ -83,7 +83,7 @@ describe('TabsRenderer', () => {
   it('renders the correct content in the tabs', () => {
     const content = `
     :::tabs
-    @tab Java
+    @tab Java [icon=java]
     \`\`\`java
     public class HelloWorld {
         public static void main(String[] args) {
@@ -91,7 +91,7 @@ describe('TabsRenderer', () => {
         }
     }
     \`\`\`
-    @tab Kotlin
+    @tab Kotlin [icon=kotlin]
     \`\`\`kotlin
     fun main() {
         println("Hello, World!")

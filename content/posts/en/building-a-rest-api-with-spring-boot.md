@@ -52,7 +52,7 @@ Download the project, open it in your IDE, and get ready to run it.
 Create a model class for a `Todo` object:
 
 :::tabs
-@tab Java
+@tab Java [icon=java]
 
 ```java
 package com.example.demo.model;
@@ -67,7 +67,7 @@ public class Todo {
 }
 ```
 
-@tab Kotlin
+@tab Kotlin [icon=kotlin]
 
 ```kotlin
 package com.example.demo.model
@@ -88,7 +88,7 @@ data class Todo(
 Add a `TodoController` class to define CRUD operations as REST endpoints:
 
 :::tabs
-@tab Java
+@tab Java [icon=java]
 
 ```java
 package com.example.demo.controller;
@@ -134,7 +134,7 @@ public class TodoController {
 }
 ```
 
-@tab Kotlin
+@tab Kotlin [icon=kotlin]
 
 ```kotlin
 package com.example.demo.controller

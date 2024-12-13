@@ -3,8 +3,6 @@ import { Tabs, Tab } from 'react-bootstrap';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import { ReactComponent as JavaIcon } from '../../assets/icons/java.svg';
-import { ReactComponent as KotlinIcon } from '../../assets/icons/kotlin.svg';
 
 interface MarkdownTabsRendererProps {
   content: string;
@@ -17,15 +15,19 @@ const parseTabs = (content: string) => {
     .slice(1)
     .map((tab, index) => {
       const [rawTitle, ...rest] = tab.trim().split('\n');
-      const title = rawTitle.trim();
+      const titleMatch = rawTitle.match(/^(.*?)(?:\s+\[icon=(.*?)])?$/); // Match title and optional icon attribute
+      const title = titleMatch?.[1]?.trim() || '';
+      const iconName = titleMatch?.[2]; // Either 'java' or 'kotlin' or undefined
 
       let icon: React.ReactNode = null;
-      if (title.toLowerCase() === 'java') {
-        icon = <JavaIcon style={{ height: '20px', marginRight: '8px' }} />;
-      } else if (title.toLowerCase() === 'kotlin') {
-        icon = <KotlinIcon style={{ height: '20px', marginRight: '8px' }} />;
+      if (iconName) {
+        try {
+          const IconComponent = require(`../../assets/icons/${iconName}.svg`).ReactComponent;
+          icon = <IconComponent style={{ height: '20px', marginRight: '8px' }} />;
+        } catch (e) {
+          console.warn(`Icon for "${iconName}" not found.`);
+        }
       }
-
       return {
         key: `tab-${index}`,
         title: (
