@@ -15,7 +15,7 @@ const parseTabs = (content: string) => {
     .slice(1)
     .map((tab, index) => {
       const [rawTitle, ...rest] = tab.trim().split('\n');
-      const titleRegEx = /^([^[]+)(?:\s+\[icon=([^\]]+)])?$/;
+      const titleRegEx = /^([^\[\]]+)(?:\s+\[icon=([a-zA-Z0-9_-]+)])?$/;
       const titleMatch = titleRegEx.exec(rawTitle); // Using exec instead of match
       const title = titleMatch?.[1]?.trim() ?? '';
       const iconName = titleMatch?.[2]; // Either 'java' or 'kotlin' or undefined
