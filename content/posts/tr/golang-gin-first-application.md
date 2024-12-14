@@ -6,7 +6,7 @@ thumbnail: '/images/golang-gin-first-app-thumbnail.jpg'
 topics:
   - id: 'red'
     name: 'Go'
-    color: 'red'
+    color: 'blue'
   - id: 'gin'
     name: 'Gin'
     color: 'green'
