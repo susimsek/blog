@@ -1,13 +1,12 @@
 // components/common/Header.tsx
 import { Container, Navbar, Nav } from 'react-bootstrap';
-import Image from 'next/image';
-import { assetPrefix } from '@/config/constants';
 import { useTranslation } from 'next-i18next';
 import Link from '@/components/common/Link';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import ThemeToggler from '@/components/theme/ThemeToggler';
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ReactComponent as Logo } from '@assets/images/logo.svg';
 
 export default function Header() {
   const { t } = useTranslation('common');
@@ -16,14 +15,7 @@ export default function Header() {
     <Navbar expand="lg" className="shadow-sm" sticky="top">
       <Container>
         <Navbar.Brand as={Link} href="/" className="d-flex align-items-center link">
-          <Image
-            src={`${assetPrefix}/images/logo.png`}
-            alt={t('common.header.logoAlt')}
-            width={40}
-            height={40}
-            priority
-            className="rounded-circle"
-          />
+          <Logo width={40} height={40} className="rounded-circle" />
           <span className={`ms-2 fw-bold`} style={{ fontSize: '1.25rem' }}>
             {t('common.header.title')}
           </span>

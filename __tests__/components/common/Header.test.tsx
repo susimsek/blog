@@ -30,20 +30,16 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <i data-testid={`font-awesome-icon-${icon}`} />,
 }));
 
+jest.mock('@assets/images/logo.svg', () => ({
+  __esModule: true,
+  ReactComponent: () => <svg data-testid="mock-logo" />,
+}));
+
 describe('Header', () => {
   beforeEach(() => {
     (useTranslation as jest.Mock).mockReturnValue({
       t: (key: string) => key, // Mock translation function
     });
-  });
-
-  it('renders the logo with the correct alt text', () => {
-    render(<Header />);
-    const logo = screen.getByAltText('common.header.logoAlt');
-    expect(logo).toBeInTheDocument();
-
-    // Use regex to match the optimized src path
-    expect(logo).toHaveAttribute('src', expect.stringMatching(/\/_next\/image\?url=%2Fimages%2Flogo.png/));
   });
 
   it('renders the navigation links with icons', () => {
