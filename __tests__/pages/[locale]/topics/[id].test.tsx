@@ -87,6 +87,11 @@ const renderTopicPage = (topic: Topic, posts: PostSummary[]) => {
   );
 };
 
+jest.mock('@assets/images/logo.svg', () => ({
+  __esModule: true,
+  ReactComponent: () => <svg data-testid="mock-logo" />,
+}));
+
 // Mock translations
 beforeEach(() => {
   (useTranslation as jest.Mock).mockReturnValue({
