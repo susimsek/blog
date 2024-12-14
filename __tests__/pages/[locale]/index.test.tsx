@@ -32,6 +32,11 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <i data-testid={`font-awesome-icon-${icon}`} />,
 }));
 
+jest.mock('@assets/images/logo.svg', () => ({
+  __esModule: true,
+  ReactComponent: () => <svg data-testid="mock-logo" />,
+}));
+
 // Mock `PostList` component
 jest.mock('@/components/posts/PostList', () => ({
   __esModule: true,
