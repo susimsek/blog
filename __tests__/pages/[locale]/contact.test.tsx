@@ -5,7 +5,6 @@ import store from '@/config/store';
 import '@testing-library/jest-dom';
 import { useTranslation } from 'next-i18next';
 import Contact, { getStaticPaths, getStaticProps } from '@/pages/[locale]/contact';
-import { AUTHOR_NAME } from '@/config/constants';
 
 const mockContext = { locales: ['en', 'tr'], defaultLocale: 'en' };
 
@@ -35,6 +34,11 @@ beforeEach(() => {
 // Mock FontAwesomeIcon
 jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <i data-testid={`font-awesome-icon-${icon}`} />,
+}));
+
+jest.mock('@assets/images/logo.svg', () => ({
+  __esModule: true,
+  ReactComponent: () => <svg data-testid="mock-logo" />,
 }));
 
 describe('Contact Page', () => {
