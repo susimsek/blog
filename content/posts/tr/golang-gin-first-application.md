@@ -1,5 +1,5 @@
 ---
-title: 'Gin - İlk Uygulamanız'
+title: 'Gin - İlk Uygulama'
 date: '2024-12-14'
 summary: 'Sıfırdan ilk Golang Gin uygulamanızı oluşturmanıza yardımcı olacak, yeni başlayanlar için rehber. Temelleri öğrenin ve Gin ile yolculuğunuza başlayın.'
 thumbnail: '/images/golang-gin-first-app-thumbnail.jpg'

@@ -1,5 +1,5 @@
 ---
-title: 'Spring Boot - İlk Uygulamanız'
+title: 'Spring Boot - İlk Uygulama'
 date: '2024-12-10'
 summary: 'Spring Boot ile ilk uygulamanızı sıfırdan oluşturmak için başlangıç seviyesinde bir rehber. Temel bilgileri öğrenin ve Spring Boot ile yolculuğunuza başlayın.'
 thumbnail: '/images/spring-boot-first-app-thumbnail.jpg'
