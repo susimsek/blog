@@ -35,6 +35,11 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <i data-testid={`font-awesome-icon-${icon}`} />,
 }));
 
+jest.mock('@assets/images/logo.svg', () => ({
+  __esModule: true,
+  ReactComponent: () => <svg data-testid="mock-logo" />,
+}));
+
 describe('About Page', () => {
   it('renders the navigation and main content', async () => {
     render(
