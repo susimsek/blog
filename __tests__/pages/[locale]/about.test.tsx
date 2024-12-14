@@ -39,6 +39,11 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 
 jest.mock('@/components/common/ContactInfo', () => () => <div data-testid="contact-info" />);
 
+jest.mock('@assets/images/logo.svg', () => ({
+  __esModule: true,
+  ReactComponent: () => <svg data-testid="mock-logo" />,
+}));
+
 describe('About Page', () => {
   it('renders the navigation and main content', async () => {
     render(
