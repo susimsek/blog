@@ -253,6 +253,7 @@ input.form-control {
   @include text-variant(purple, var(--purple-text));
   @include text-variant(gray, var(--gray-text));
   @include text-variant(brown, var(--brown-text));
+  @include text-variant(pink, var(--pink-text));
 }
 
 .background {
@@ -303,6 +304,7 @@ input.form-control {
   @include link-variant(purple, var(--purple-bg), var(--purple-hover), var(--purple-color));
   @include link-variant(gray, var(--gray-bg), var(--gray-hover), var(--gray-color));
   @include link-variant(brown, var(--brown-bg), var(--brown-hover), var(--brown-color));
+  @include link-variant(pink, var(--pink-bg), var(--pink-hover), var(--pink-color));
 }
 
 .btn {
@@ -429,6 +431,14 @@ input.form-control {
     var(--brown-hover),
     var(--brown-bg)
   );
+  @include button-variant(
+    pink,
+    var(--pink-bg),
+    var(--pink-color),
+    var(--pink-hover),
+    var(--pink-hover),
+    var(--pink-bg)
+  );
 }
 
 .badge {
@@ -527,6 +537,7 @@ input.form-control {
     var(--brown-hover),
     var(--brown-bg)
   );
+  @include badge-variant(pink, var(--pink-bg), var(--pink-color), var(--pink-hover), var(--pink-hover), var(--pink-bg));
 }
 
 .alert {
@@ -625,6 +636,7 @@ input.form-control {
     var(--brown-hover),
     var(--brown-bg)
   );
+  @include alert-variant(pink, var(--pink-bg), var(--pink-color), var(--pink-hover), var(--pink-hover), var(--pink-bg));
 }
 
 .icon {
