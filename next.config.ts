@@ -1,5 +1,7 @@
 module.exports = {
+  reactStrictMode: true,
   poweredByHeader: false,
+  trailingSlash: false,
   distDir: 'build',
   output: 'export',
   basePath: process.env.NEXT_PUBLIC_BASE_PATH,
