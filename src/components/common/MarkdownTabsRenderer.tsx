@@ -1,13 +1,25 @@
-import React, { Suspense } from 'react';
+import React, { useMemo } from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 
+// İkonları statik olarak yükleme
+import { ReactComponent as JavaIcon } from '@/assets/icons/java.svg';
+import { ReactComponent as KotlinIcon } from '@/assets/icons/kotlin.svg';
+import { ReactComponent as GoIcon } from '@/assets/icons/go.svg';
+
 interface MarkdownTabsRendererProps {
   content: string;
   components: Components;
 }
+
+// İkonları bir haritada saklama
+const icons: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  java: JavaIcon,
+  kotlin: KotlinIcon,
+  go: GoIcon,
+};
 
 const parseTabs = (content: string) => {
   return content
@@ -16,9 +28,9 @@ const parseTabs = (content: string) => {
     .map((tab, index) => {
       const [rawTitle, ...rest] = tab.trim().split('\n');
       const titleRegEx = /^([a-zA-Z0-9\s]+?)(?:\s+\[icon=([a-zA-Z0-9_-]+)])?$/;
-      const titleMatch = titleRegEx.exec(rawTitle); // Using exec instead of match
+      const titleMatch = titleRegEx.exec(rawTitle);
       const title = titleMatch?.[1]?.trim() ?? '';
-      const iconName = titleMatch?.[2]; // Either 'java' or 'kotlin' or undefined
+      const iconName = titleMatch?.[2]; // İkon adı (ör. java, kotlin)
 
       return {
         key: `tab-${index}`,
@@ -29,20 +41,13 @@ const parseTabs = (content: string) => {
     });
 };
 
-const MarkdownTabsRenderer: React.FC<Readonly<MarkdownTabsRendererProps>> = ({ content, components }) => {
-  const tabs = parseTabs(content);
-
-  // Dynamic icon loading using React.lazy and import()
-  const loadIcon = (iconName: string): React.ComponentType<React.SVGProps<SVGSVGElement>> => {
-    return React.lazy(() =>
-      import(`../../assets/icons/${iconName}.svg`).then(module => ({ default: module.ReactComponent })),
-    );
-  };
+const MarkdownTabsRenderer: React.FC<Readonly<MarkdownTabsRendererProps>> = React.memo(({ content, components }) => {
+  const tabs = useMemo(() => parseTabs(content), [content]);
 
   return (
     <Tabs defaultActiveKey={tabs[0]?.key ?? 'tab-0'} className="mb-3">
       {tabs.map(tab => {
-        const IconComponent = tab.iconName ? loadIcon(tab.iconName) : null;
+        const IconComponent = tab.iconName ? icons[tab.iconName] : null;
 
         return (
           <Tab
@@ -50,11 +55,7 @@ const MarkdownTabsRenderer: React.FC<Readonly<MarkdownTabsRendererProps>> = ({ c
             key={tab.key}
             title={
               <span style={{ display: 'flex', alignItems: 'center' }}>
-                {IconComponent && (
-                  <Suspense fallback={<span>Loading...</span>}>
-                    <IconComponent style={{ height: '20px', marginRight: '8px' }} />
-                  </Suspense>
-                )}
+                {IconComponent && <IconComponent style={{ height: '20px', marginRight: '8px' }} />}
                 {tab.title}
               </span>
             }
@@ -67,6 +68,6 @@ const MarkdownTabsRenderer: React.FC<Readonly<MarkdownTabsRendererProps>> = ({ c
       })}
     </Tabs>
   );
-};
+});
 
 export default MarkdownTabsRenderer;
