@@ -573,8 +573,9 @@ describe('Posts Library', () => {
       };
       const result = await makePostProps(['common', 'post'])(context);
       expect(result.props._nextI18Next).toEqual({
+        initialI18nStore: {},
         initialLocale: 'en',
-        ns: ['common', 'post', 'topic'],
+        userConfig: {},
       });
     });
   });
