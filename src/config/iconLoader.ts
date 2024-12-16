@@ -1,4 +1,3 @@
-// config/iconLoader.tsx
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faGithub, faLinkedin, faMedium } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -32,6 +31,11 @@ import {
   faUser,
 } from '@fortawesome/free-solid-svg-icons';
 import { faSidebar } from '@/lib/icons';
+
+// SVG ikonları ekliyoruz
+import { ReactComponent as JavaIcon } from '@/assets/icons/java.svg';
+import { ReactComponent as KotlinIcon } from '@/assets/icons/kotlin.svg';
+import { ReactComponent as GoIcon } from '@/assets/icons/go.svg';
 
 export const loadIcons = () => {
   library.add(
@@ -68,4 +72,11 @@ export const loadIcons = () => {
     faCopy,
     faCheck,
   );
+};
+
+// Harici SVG ikonlar için bir harita oluşturuyoruz
+export const customIcons: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  java: JavaIcon,
+  kotlin: KotlinIcon,
+  go: GoIcon,
 };

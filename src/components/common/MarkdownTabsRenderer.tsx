@@ -3,22 +3,12 @@ import { Tabs, Tab } from 'react-bootstrap';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-
-import { ReactComponent as JavaIcon } from '@/assets/icons/java.svg';
-import { ReactComponent as KotlinIcon } from '@/assets/icons/kotlin.svg';
-import { ReactComponent as GoIcon } from '@/assets/icons/go.svg';
+import { customIcons } from '@/config/iconLoader';
 
 interface MarkdownTabsRendererProps {
   content: string;
   components: Components;
 }
-
-// İkonları bir haritada saklama
-const icons: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
-  java: JavaIcon,
-  kotlin: KotlinIcon,
-  go: GoIcon,
-};
 
 const parseTabs = (content: string) => {
   return content
@@ -29,7 +19,7 @@ const parseTabs = (content: string) => {
       const titleRegEx = /^([a-zA-Z0-9\s]+?)(?:\s+\[icon=([a-zA-Z0-9_-]+)])?$/;
       const titleMatch = titleRegEx.exec(rawTitle);
       const title = titleMatch?.[1]?.trim() ?? '';
-      const iconName = titleMatch?.[2]; // İkon adı (ör. java, kotlin)
+      const iconName = titleMatch?.[2];
 
       return {
         key: `tab-${index}`,
@@ -46,7 +36,7 @@ const MarkdownTabsRenderer: React.FC<Readonly<MarkdownTabsRendererProps>> = Reac
   return (
     <Tabs defaultActiveKey={tabs[0]?.key ?? 'tab-0'} className="mb-3">
       {tabs.map(tab => {
-        const IconComponent = tab.iconName ? icons[tab.iconName] : null;
+        const IconComponent = tab.iconName ? customIcons[tab.iconName] : null;
 
         return (
           <Tab
