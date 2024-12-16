@@ -6,12 +6,12 @@ jest.mock('react-markdown', () => {
   return ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
 });
 
-jest.mock('@/assets/icons/java.svg', () => ({
-  ReactComponent: () => <div data-testid="java-icon" />,
-}));
-
-jest.mock('@/assets/icons/kotlin.svg', () => ({
-  ReactComponent: () => <div data-testid="kotlin-icon" />,
+jest.mock('@/config/iconLoader', () => ({
+  customIcons: {
+    java: () => <div data-testid="java-icon" />,
+    kotlin: () => <div data-testid="kotlin-icon" />,
+    go: () => <div data-testid="go-icon" />,
+  },
 }));
 
 jest.mock('remark-gfm', () => jest.fn());
