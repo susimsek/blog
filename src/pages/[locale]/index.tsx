@@ -15,7 +15,6 @@ type HomeProps = {
 
 export default function Home({ posts }: Readonly<HomeProps>) {
   const { t } = useTranslation('home');
-  console.log(posts);
 
   return (
     <Layout>

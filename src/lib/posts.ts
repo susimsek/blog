@@ -5,6 +5,7 @@ import { Post, PostSummary, Topic } from '@/types/posts';
 import i18nextConfig from '../../next-i18next.config';
 import { GetStaticPropsContext } from 'next';
 import { getI18nProps } from '@/lib/getStatic';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 // Base directory for posts
 const postsDirectory = path.join(process.cwd(), 'content/posts');
@@ -186,7 +187,7 @@ export const makePostProps =
 
     const posts = getSortedPostsData(locale);
 
-    const i18nProps = await getI18nProps(context, ns);
+    const i18nProps = await serverSideTranslations(locale, ns);
 
     return {
       props: {
@@ -210,7 +211,7 @@ export const makePostDetailProps =
       };
     }
 
-    const i18nProps = await getI18nProps(context, ns);
+    const i18nProps = await serverSideTranslations(locale, ns);
 
     return {
       props: {

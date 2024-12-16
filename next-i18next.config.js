@@ -8,5 +8,4 @@ module.exports = {
     locales: ['en', 'tr'],
   },
   localePath: typeof window === 'undefined' ? require('path').resolve('./public/locales') : '/locales',
-  reloadOnPrerender: isDev,
 };
