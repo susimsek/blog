@@ -1,6 +1,6 @@
 ---
 title: 'Building a REST API with Spring Boot'
-date: '2024-12-10'
+date: '2024-12-11'
 summary: 'Learn how to create a REST API using Spring Boot. Includes HTTP methods, JSON handling, Lombok integration, and curl for testing.'
 thumbnail: '/images/spring-boot-rest-api-thumbnail.jpg'
 topics:
