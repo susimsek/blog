@@ -4,7 +4,6 @@ import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 
-// İkonları statik olarak yükleme
 import { ReactComponent as JavaIcon } from '@/assets/icons/java.svg';
 import { ReactComponent as KotlinIcon } from '@/assets/icons/kotlin.svg';
 import { ReactComponent as GoIcon } from '@/assets/icons/go.svg';
@@ -70,4 +69,5 @@ const MarkdownTabsRenderer: React.FC<Readonly<MarkdownTabsRendererProps>> = Reac
   );
 });
 
+MarkdownTabsRenderer.displayName = 'MarkdownTabsRenderer';
 export default MarkdownTabsRenderer;
