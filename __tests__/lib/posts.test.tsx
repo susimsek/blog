@@ -529,8 +529,9 @@ describe('Posts Library', () => {
       expect(result).toEqual({
         props: {
           _nextI18Next: {
+            initialI18nStore: {},
             initialLocale: 'en',
-            ns: ['common', 'post', 'topic'],
+            userConfig: {},
           },
           posts: [mockPostSummary],
         },
