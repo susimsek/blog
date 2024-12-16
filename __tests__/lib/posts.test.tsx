@@ -30,6 +30,16 @@ jest.mock('path', () => ({
   basename: jest.fn((filePath: string) => filePath.split('/').pop()?.split('.')[0] || ''),
 }));
 
+jest.mock('next-i18next/serverSideTranslations', () => ({
+  serverSideTranslations: jest.fn((locale, namespaces) => ({
+    _nextI18Next: {
+      initialI18nStore: {},
+      initialLocale: locale,
+      userConfig: {},
+    },
+  })),
+}));
+
 // Mock `gray-matter`
 jest.mock('gray-matter', () =>
   jest.fn().mockImplementation((content: string) => {
@@ -587,8 +597,9 @@ describe('Posts Library', () => {
       expect(result).toEqual({
         props: {
           _nextI18Next: {
+            initialI18nStore: {},
             initialLocale: 'en',
-            ns: ['common', 'post', 'topic'],
+            userConfig: {},
           },
           post: mockPost,
         },
