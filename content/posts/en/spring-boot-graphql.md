@@ -18,7 +18,7 @@ topics:
     color: 'green'
   - id: 'programming'
     name: 'Programming'
-    color: 'orange'
+    color: 'blue'
 ---
 
 Spring for GraphQL simplifies the development of GraphQL APIs by integrating with Spring Boot. This guide demonstrates how to create a GraphQL API using Java and Kotlin, with examples for schema definition, query handling, and dependency injection.
