@@ -13,6 +13,10 @@ jest.mock('@/lib/languageDetector', () => ({
   cache: jest.fn(),
 }));
 
+jest.mock('react-world-flags', () => (props: { code: string }) => {
+  return <span data-testid={`flag-${props.code}`}></span>;
+});
+
 describe('LanguageSwitchLink', () => {
   beforeEach(() => {
     (useRouter as jest.Mock).mockReturnValue({
@@ -136,5 +140,23 @@ describe('LanguageSwitchLink', () => {
     fireEvent.click(button);
 
     expect(pushMock).toHaveBeenCalledWith('/fr-FR/post/123');
+  });
+
+  it('handles missing flag codes gracefully', () => {
+    render(<LanguageSwitchLink locale="fr" />);
+    expect(screen.getByTestId('flag-fr')).toBeInTheDocument();
+    expect(screen.getByText('fr')).toBeInTheDocument();
+  });
+
+  it('renders Turkish flag and name for locale "tr"', () => {
+    render(<LanguageSwitchLink locale="tr" />);
+    expect(screen.getByTestId('flag-tr')).toBeInTheDocument();
+    expect(screen.getByText('Türkçe')).toBeInTheDocument();
+  });
+
+  it('renders the correct flag and locale name', () => {
+    render(<LanguageSwitchLink locale="en" />);
+    expect(screen.getByTestId('flag-gb')).toBeInTheDocument();
+    expect(screen.getByText('English')).toBeInTheDocument();
   });
 });

@@ -2,6 +2,8 @@ import { useRouter } from 'next/router';
 import languageDetector from '@/lib/languageDetector';
 import i18nextConfig from '../../../next-i18next.config';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React from 'react';
+import Flag from 'react-world-flags';
 
 interface LanguageSwitchLinkProps {
   locale: string;
@@ -11,6 +13,11 @@ interface LanguageSwitchLinkProps {
 const localeNames: Record<string, string> = {
   tr: 'Türkçe',
   en: 'English',
+};
+
+const flagCodes: Record<string, string> = {
+  tr: 'tr',
+  en: 'gb',
 };
 
 const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href }) => {
@@ -45,7 +52,10 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
         router.push(currentHref);
       }}
     >
-      <span>{localeNames[locale] || locale}</span>
+      <span>
+        <Flag code={flagCodes[locale] || locale} style={{ width: '20px', marginRight: '8px' }} />
+        {localeNames[locale] || locale}
+      </span>
       {currentLocale === locale && <FontAwesomeIcon icon="circle-check" className="text-muted" />}
     </div>
   );
