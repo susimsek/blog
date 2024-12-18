@@ -81,6 +81,11 @@ p {
   @include transition(color);
 }
 
+span {
+  color: var(--text-color);
+  @include transition(color);
+}
+
 h1,
 h2,
 h3,
