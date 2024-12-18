@@ -43,13 +43,23 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
     currentHref = `/${locale}${currentHref}`;
   }
 
+  // Click Handler
+  const handleClick = () => {
+    languageDetector.cache?.(locale);
+    router.push(currentHref);
+  };
+
   return (
     <div
       className="d-flex justify-content-between align-items-center w-100 px-2"
       role="button"
-      onClick={() => {
-        languageDetector.cache?.(locale);
-        router.push(currentHref);
+      tabIndex={0}
+      onClick={handleClick}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
       }}
     >
       <span>
