@@ -50,24 +50,17 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
   };
 
   return (
-    <div
-      className="d-flex justify-content-between align-items-center w-100 px-2"
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
+      className="d-flex justify-content-between align-items-center w-100 px-2 border-0 bg-transparent"
       onClick={handleClick}
-      onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleClick();
-        }
-      }}
     >
-      <span>
+      <span className="d-flex align-items-center">
         <Flag code={flagCodes[locale] || locale} style={{ width: '20px', marginRight: '8px' }} />
         {localeNames[locale] || locale}
       </span>
       {currentLocale === locale && <FontAwesomeIcon icon="circle-check" className="text-muted" />}
-    </div>
+    </button>
   );
 };
 
