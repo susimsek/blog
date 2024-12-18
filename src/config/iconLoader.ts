@@ -9,6 +9,7 @@ import {
   faChevronLeft,
   faChevronRight,
   faCircle,
+  faCircleCheck,
   faCode,
   faCopy,
   faDatabase,
@@ -71,10 +72,10 @@ export const loadIcons = () => {
     faChevronRight,
     faCopy,
     faCheck,
+    faCircleCheck,
   );
 };
 
-// Harici SVG ikonlar için bir harita oluşturuyoruz
 export const customIcons: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   java: JavaIcon,
   kotlin: KotlinIcon,

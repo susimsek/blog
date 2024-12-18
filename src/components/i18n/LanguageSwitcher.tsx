@@ -1,5 +1,4 @@
 // components/i18n/LanguageSwitcher.tsx
-import { useRouter } from 'next/router';
 import { NavDropdown } from 'react-bootstrap';
 import i18nextConfig from '../../../next-i18next.config';
 import LanguageSwitchLink from './LanguageSwitchLink';
@@ -8,8 +7,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const LanguageSwitcher = () => {
   const { t } = useTranslation('common');
-  const router = useRouter();
-  const currentLocale = router.query.locale || i18nextConfig.i18n.defaultLocale;
 
   return (
     <NavDropdown
@@ -20,14 +17,14 @@ const LanguageSwitcher = () => {
         </span>
       }
       id="language-selector"
+      className="text-center"
+      align="end"
     >
-      {i18nextConfig.i18n.locales
-        .filter(locale => locale !== currentLocale)
-        .map(locale => (
-          <NavDropdown.Item key={locale}>
-            <LanguageSwitchLink locale={locale} />
-          </NavDropdown.Item>
-        ))}
+      {i18nextConfig.i18n.locales.map(locale => (
+        <NavDropdown.Item key={locale}>
+          <LanguageSwitchLink locale={locale} />
+        </NavDropdown.Item>
+      ))}
     </NavDropdown>
   );
 };

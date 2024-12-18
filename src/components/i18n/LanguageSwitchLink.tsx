@@ -1,14 +1,21 @@
 import { useRouter } from 'next/router';
-import { Button } from 'react-bootstrap';
 import languageDetector from '@/lib/languageDetector';
+import i18nextConfig from '../../../next-i18next.config';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface LanguageSwitchLinkProps {
   locale: string;
   href?: string;
 }
 
+const localeNames: Record<string, string> = {
+  tr: 'Türkçe',
+  en: 'English',
+};
+
 const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href }) => {
   const router = useRouter();
+  const currentLocale = router.query.locale || i18nextConfig.i18n.defaultLocale;
 
   let currentHref = href ?? router.asPath;
   let currentPath = router.pathname;
@@ -30,17 +37,17 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
   }
 
   return (
-    <Button
-      variant="link"
-      size="sm"
-      className="button-link"
+    <div
+      className="d-flex justify-content-between align-items-center w-100 px-2"
+      role="button"
       onClick={() => {
         languageDetector.cache?.(locale);
         router.push(currentHref);
       }}
     >
-      {locale.toUpperCase()}
-    </Button>
+      <span>{localeNames[locale] || locale}</span>
+      {currentLocale === locale && <FontAwesomeIcon icon="circle-check" className="text-muted" />}
+    </div>
   );
 };
 

@@ -1,7 +1,7 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import { useRouter } from 'next/router';
-import i18nextConfig from '../../../next-i18next.config';
+import LanguageSwitchLink from '@/components/i18n/LanguageSwitchLink';
 
 // Mocking next/router
 jest.mock('next/router', () => ({
@@ -65,5 +65,17 @@ describe('LanguageSwitcher', () => {
     // Verify the correct default locale is used
     const dropdown = screen.getByRole('button', { name: /common.language/i });
     expect(dropdown).toHaveTextContent('common.language'); // Assuming the default text content is 'common.language'
+  });
+
+  it('renders the locale code as fallback when no display name is available', () => {
+    render(<LanguageSwitchLink locale="es" />);
+    const button = screen.getByRole('button');
+    expect(button).toHaveTextContent('es');
+  });
+
+  it('renders the display name for the locale when available in localeNames', () => {
+    render(<LanguageSwitchLink locale="tr" />);
+    const button = screen.getByRole('button');
+    expect(button).toHaveTextContent('Türkçe');
   });
 });
