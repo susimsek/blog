@@ -4,7 +4,7 @@ import i18nextConfig from '../../../next-i18next.config';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { LOCALES } from '@/config/constants';
-import FlagIcon from '@/components/common/Flag';
+import FlagIcon from '@/components/common/FlagIcon';
 
 interface LanguageSwitchLinkProps {
   locale: string;

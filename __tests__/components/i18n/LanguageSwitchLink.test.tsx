@@ -13,7 +13,7 @@ jest.mock('@/lib/languageDetector', () => ({
   cache: jest.fn(),
 }));
 
-jest.mock('@/components/common/Flag', () => {
+jest.mock('@/components/common/FlagIcon', () => {
   return ({ code, alt }: { code: string; alt?: string }) => (
     <span data-testid={`flag-${code.toLowerCase()}`} aria-label={alt}></span>
   );

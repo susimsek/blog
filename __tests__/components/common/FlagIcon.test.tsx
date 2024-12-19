@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import FlagIcon from '@/components/common/Flag';
+import FlagIcon from '@/components/common/FlagIcon';
 
 // Mock `flags` to simulate icon loading
 jest.mock('@/config/iconLoader', () => ({
