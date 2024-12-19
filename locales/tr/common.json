@@ -1,6 +1,7 @@
 {
   "common": {
     "language": "Dil",
+    "theme": "Tema",
     "header": {
       "logoAlt": "Blog Logom",
       "title": "Blogum",

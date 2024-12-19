@@ -1,6 +1,7 @@
 {
   "common": {
     "language": "Language",
+    "theme": "Theme",
     "header": {
       "logoAlt": "My Blog Logo",
       "title": "My Blog",
