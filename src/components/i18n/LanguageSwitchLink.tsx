@@ -3,8 +3,8 @@ import languageDetector from '@/lib/languageDetector';
 import i18nextConfig from '../../../next-i18next.config';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import Flag from 'react-world-flags';
 import { LOCALES } from '@/config/constants';
+import FlagIcon from '@/components/common/Flag';
 
 interface LanguageSwitchLinkProps {
   locale: string;
@@ -47,7 +47,11 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
       onClick={handleClick}
     >
       <span className="d-flex align-items-center">
-        <Flag code={LOCALES[locale]?.flagCode || locale} style={{ width: '20px', marginRight: '8px' }} />
+        <FlagIcon
+          code={LOCALES[locale]?.locale || locale}
+          alt={`${LOCALES[locale]?.name}`}
+          style={{ width: 20, marginRight: 8 }}
+        />
         {LOCALES[locale]?.name || locale}
       </span>
       {currentLocale === locale && <FontAwesomeIcon icon="circle-check" className="circle-check" />}

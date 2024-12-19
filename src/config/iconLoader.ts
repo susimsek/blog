@@ -33,10 +33,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { faSidebar } from '@/lib/icons';
 
-// SVG ikonları ekliyoruz
 import { ReactComponent as JavaIcon } from '@/assets/icons/java.svg';
 import { ReactComponent as KotlinIcon } from '@/assets/icons/kotlin.svg';
 import { ReactComponent as GoIcon } from '@/assets/icons/go.svg';
+
+import { ReactComponent as TrFlag } from '@/assets/flags/tr.svg';
+import { ReactComponent as EnFlag } from '@/assets/flags/en.svg';
 
 export const loadIcons = () => {
   library.add(
@@ -80,4 +82,9 @@ export const customIcons: Record<string, React.ComponentType<React.SVGProps<SVGS
   java: JavaIcon,
   kotlin: KotlinIcon,
   go: GoIcon,
+};
+
+export const flags: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  tr: TrFlag,
+  en: EnFlag,
 };

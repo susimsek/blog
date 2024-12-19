@@ -26,6 +26,6 @@ export const SOCIAL_MEDIA_NAMES = {
 };
 
 export const LOCALES = {
-  tr: { name: 'Türkçe', flagCode: 'tr' },
-  en: { name: 'English', flagCode: 'gb' },
+  tr: { name: 'Türkçe', locale: 'tr' },
+  en: { name: 'English', locale: 'en' },
 };

@@ -13,8 +13,10 @@ jest.mock('@/lib/languageDetector', () => ({
   cache: jest.fn(),
 }));
 
-jest.mock('react-world-flags', () => (props: { code: string }) => {
-  return <span data-testid={`flag-${props.code}`}></span>;
+jest.mock('@/components/common/Flag', () => {
+  return ({ code, alt }: { code: string; alt?: string }) => (
+    <span data-testid={`flag-${code.toLowerCase()}`} aria-label={alt}></span>
+  );
 });
 
 describe('LanguageSwitchLink', () => {
@@ -156,7 +158,7 @@ describe('LanguageSwitchLink', () => {
 
   it('renders the correct flag and locale name', () => {
     render(<LanguageSwitchLink locale="en" />);
-    expect(screen.getByTestId('flag-gb')).toBeInTheDocument();
+    expect(screen.getByTestId('flag-en')).toBeInTheDocument();
     expect(screen.getByText('English')).toBeInTheDocument();
   });
 });

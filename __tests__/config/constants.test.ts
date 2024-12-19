@@ -62,8 +62,8 @@ describe('Static Constants', () => {
   it('should export correct locales', () => {
     const { LOCALES } = require('@/config/constants');
     expect(LOCALES).toEqual({
-      tr: { name: 'Türkçe', flagCode: 'tr' },
-      en: { name: 'English', flagCode: 'gb' },
+      tr: { name: 'Türkçe', locale: 'tr' },
+      en: { name: 'English', locale: 'en' },
     });
   });
 });
