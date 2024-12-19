@@ -23,9 +23,9 @@ const FlagIcon: React.FC<Readonly<FlagIconProps>> = ({ code, alt, width = 20, he
       height={height}
       style={{ ...style, display: 'inline-block' }}
       role="img"
-      aria-label={alt || `${code} flag`}
+      aria-label={alt ?? `${code} flag`}
     >
-      <title>{alt || `${code}`}</title>
+      <title>{alt ?? `${code}`}</title>
     </FlagComponent>
   );
 };
