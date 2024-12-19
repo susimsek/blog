@@ -58,6 +58,14 @@ describe('Static Constants', () => {
       github: 'GitHub',
     });
   });
+
+  it('should export correct locales', () => {
+    const { LOCALES } = require('@/config/constants');
+    expect(LOCALES).toEqual({
+      tr: { name: 'Türkçe', flagCode: 'tr' },
+      en: { name: 'English', flagCode: 'gb' },
+    });
+  });
 });
 
 describe('Dynamic Constants', () => {

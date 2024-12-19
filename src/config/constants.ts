@@ -24,3 +24,8 @@ export const SOCIAL_MEDIA_NAMES = {
   medium: 'Medium',
   github: 'GitHub',
 };
+
+export const LOCALES = {
+  tr: { name: 'Türkçe', flagCode: 'tr' },
+  en: { name: 'English', flagCode: 'gb' },
+};
