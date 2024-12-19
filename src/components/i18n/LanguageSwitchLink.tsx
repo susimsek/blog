@@ -59,7 +59,7 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
         <Flag code={flagCodes[locale] || locale} style={{ width: '20px', marginRight: '8px' }} />
         {localeNames[locale] || locale}
       </span>
-      {currentLocale === locale && <FontAwesomeIcon icon="circle-check" className="text-muted" />}
+      {currentLocale === locale && <FontAwesomeIcon icon="circle-check" className="circle-check" />}
     </button>
   );
 };

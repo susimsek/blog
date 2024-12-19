@@ -1039,3 +1039,8 @@ input.form-control {
     @include transition(color);
   }
 }
+
+.circle-check {
+  color: var(--icon-check-color);
+  @include transition(color);
+}
