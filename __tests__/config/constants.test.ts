@@ -66,6 +66,22 @@ describe('Static Constants', () => {
       en: { name: 'English', locale: 'en' },
     });
   });
+
+  it('should export correct themes', () => {
+    const { THEMES } = require('@/config/constants');
+    expect(THEMES).toEqual([
+      {
+        key: 'light',
+        label: 'common.header.theme.light',
+        icon: 'sun',
+      },
+      {
+        key: 'dark',
+        label: 'common.header.theme.dark',
+        icon: 'moon',
+      },
+    ]);
+  });
 });
 
 describe('Dynamic Constants', () => {

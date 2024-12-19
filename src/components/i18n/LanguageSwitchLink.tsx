@@ -48,9 +48,10 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
     >
       <span className="d-flex align-items-center">
         <FlagIcon
+          className="me-2"
           code={LOCALES[locale]?.locale || locale}
           alt={`${LOCALES[locale]?.name} flag`}
-          style={{ width: 20, marginRight: 8 }}
+          style={{ width: 20 }}
         />
         {LOCALES[locale]?.name || locale}
       </span>

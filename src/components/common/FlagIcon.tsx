@@ -7,9 +7,10 @@ interface FlagIconProps {
   width?: number | string;
   height?: number | string;
   style?: React.CSSProperties;
+  className?: string;
 }
 
-const FlagIcon: React.FC<Readonly<FlagIconProps>> = ({ code, alt, width = 20, height = 20, style }) => {
+const FlagIcon: React.FC<Readonly<FlagIconProps>> = ({ code, alt, width = 20, height = 20, style, className }) => {
   const FlagComponent = flags[code];
 
   if (!FlagComponent) {
@@ -22,6 +23,7 @@ const FlagIcon: React.FC<Readonly<FlagIconProps>> = ({ code, alt, width = 20, he
       width={width}
       height={height}
       style={{ ...style, display: 'inline-block' }}
+      className={className}
       aria-label={alt ?? `${code} flag`}
     >
       <title>{alt ?? `${code} flag`}</title>

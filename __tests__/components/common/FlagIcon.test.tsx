@@ -39,4 +39,11 @@ describe('FlagIcon Component', () => {
     expect(container.firstChild).toBeNull();
     consoleErrorMock.mockRestore();
   });
+
+  it('applies the provided className to the rendered flag', () => {
+    render(<FlagIcon code="tr" className="custom-class" />);
+    const flag = screen.getByTestId('flag-tr');
+    expect(flag).toBeInTheDocument();
+    expect(flag).toHaveClass('custom-class');
+  });
 });

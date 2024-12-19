@@ -1,6 +1,5 @@
-// __tests__/components/theme/ThemeToggler.test.tsx
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within, act } from '@testing-library/react';
 import ThemeToggler from '@/components/theme/ThemeToggler';
 import { toggleTheme } from '@/reducers/theme';
 import { useAppDispatch, useAppSelector } from '@/config/store';
@@ -28,70 +27,105 @@ describe('ThemeToggler', () => {
     jest.clearAllMocks();
   });
 
-  it('renders the correct icon and text for light theme', () => {
+  it('renders the dropdown with the correct icon and label', () => {
     (useAppSelector as jest.Mock).mockReturnValue('light');
 
     render(<ThemeToggler />);
 
-    const button = screen.getByRole('button', {
-      name: /common.header.themeToggle/i,
-    });
-    const icon = screen.getByTestId('font-awesome-icon-moon');
-    const text = screen.getByText(/common.header.theme.dark/i);
+    const dropdown = screen.getByText(/common.theme/i);
+    const paletteIcon = screen.getByTestId('font-awesome-icon-palette');
 
-    expect(button).toBeInTheDocument();
-    expect(icon).toBeInTheDocument();
-    expect(text).toBeInTheDocument();
+    expect(dropdown).toBeInTheDocument();
+    expect(paletteIcon).toBeInTheDocument();
   });
 
-  it('renders the correct icon and text for dark theme', () => {
+  it('renders light theme option as active when the current theme is light', () => {
+    (useAppSelector as jest.Mock).mockReturnValue('light');
+
+    render(<ThemeToggler />);
+
+    const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
+    fireEvent.click(dropdownToggle);
+
+    const lightOption = screen.getByRole('button', {
+      name: /common.header.theme.light/i,
+    });
+
+    const checkIcon = screen.getByTestId('font-awesome-icon-circle-check');
+
+    expect(lightOption).toBeInTheDocument();
+    expect(checkIcon).toBeInTheDocument();
+  });
+
+  it('renders dark theme option as active when the current theme is dark', async () => {
     (useAppSelector as jest.Mock).mockReturnValue('dark');
 
     render(<ThemeToggler />);
 
-    const button = screen.getByRole('button', {
-      name: /common.header.themeToggle/i,
+    const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
+    await act(async () => {
+      fireEvent.click(dropdownToggle);
     });
-    const icon = screen.getByTestId('font-awesome-icon-sun');
-    const text = screen.getByText(/common.header.theme.light/i);
 
-    expect(button).toBeInTheDocument();
-    expect(icon).toBeInTheDocument();
-    expect(text).toBeInTheDocument();
+    const darkOption = screen.getByRole('button', {
+      name: /common.header.theme.dark/i,
+    });
+
+    const checkIcon = screen.getByTestId('font-awesome-icon-circle-check');
+
+    expect(darkOption).toBeInTheDocument();
+    expect(checkIcon).toBeInTheDocument();
   });
 
-  it('dispatches toggleTheme action when clicked', () => {
+  it('dispatches toggleTheme action when selecting a new theme', async () => {
     (useAppSelector as jest.Mock).mockReturnValue('light');
 
     render(<ThemeToggler />);
 
-    const button = screen.getByRole('button', {
-      name: /common.header.themeToggle/i,
+    const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
+    await act(async () => {
+      fireEvent.click(dropdownToggle);
     });
 
-    fireEvent.click(button);
+    const darkOption = screen.getByRole('button', {
+      name: /common.header.theme.dark/i,
+    });
+    await act(async () => {
+      fireEvent.click(darkOption);
+    });
 
     expect(mockDispatch).toHaveBeenCalledTimes(1);
     expect(mockDispatch).toHaveBeenCalledWith(toggleTheme());
   });
 
-  it('applies the correct theme-specific class to the button', () => {
-    const mockUseAppSelector = useAppSelector as jest.Mock;
+  it('does not dispatch toggleTheme if the selected theme matches the current theme', () => {
+    (useAppSelector as jest.Mock).mockReturnValue('light');
 
-    mockUseAppSelector.mockReturnValue('light');
-    const { rerender } = render(<ThemeToggler />);
+    render(<ThemeToggler />);
 
-    const button = screen.getByRole('button', {
-      name: /common.header.themeToggle/i,
+    const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
+    fireEvent.click(dropdownToggle);
+
+    const lightOption = screen.getByText(/common.header.theme.light/i);
+    fireEvent.click(lightOption);
+
+    expect(mockDispatch).not.toHaveBeenCalled();
+  });
+
+  it('renders the correct icons for light and dark options', () => {
+    (useAppSelector as jest.Mock).mockReturnValue('light');
+
+    render(<ThemeToggler />);
+
+    const dropdownToggle = screen.getByRole('button', {
+      name: /common.theme/i,
     });
+    fireEvent.click(dropdownToggle);
 
-    expect(button).toHaveClass('light');
-    expect(button).not.toHaveClass('dark');
+    const sunIcon = screen.getByTestId('font-awesome-icon-sun');
+    const moonIcon = screen.getByTestId('font-awesome-icon-moon');
 
-    mockUseAppSelector.mockReturnValue('dark');
-    rerender(<ThemeToggler />);
-
-    expect(button).toHaveClass('dark');
-    expect(button).not.toHaveClass('light');
+    expect(sunIcon).toBeInTheDocument();
+    expect(moonIcon).toBeInTheDocument();
   });
 });

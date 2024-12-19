@@ -29,3 +29,16 @@ export const LOCALES = {
   tr: { name: 'Türkçe', locale: 'tr' },
   en: { name: 'English', locale: 'en' },
 };
+
+export const THEMES = [
+  {
+    key: 'light',
+    label: 'common.header.theme.light',
+    icon: 'sun',
+  },
+  {
+    key: 'dark',
+    label: 'common.header.theme.dark',
+    icon: 'moon',
+  },
+];

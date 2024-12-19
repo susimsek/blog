@@ -22,6 +22,7 @@ import {
   faHome,
   faInfoCircle,
   faMoon,
+  faPalette,
   faSave,
   faSearch,
   faSignInAlt,
@@ -75,6 +76,7 @@ export const loadIcons = () => {
     faCopy,
     faCheck,
     faCircleCheck,
+    faPalette,
   );
 };
 
