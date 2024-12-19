@@ -21,7 +21,7 @@ export default function PostDetail({ post }: Readonly<PostDetailProps>) {
         <DateDisplay date={date} />
       </p>
       {topics && topics.length > 0 && (
-        <div className="mb-4">
+        <div className="mb-4 d-flex justify-content-center flex-wrap">
           {topics.map(topic => (
             <Link key={topic.id} href={`/topics/${topic.id}`}>
               <Badge bg={topic.color} className={`me-2 badge-${topic.color}`}>
