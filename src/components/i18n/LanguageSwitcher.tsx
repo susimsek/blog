@@ -18,7 +18,7 @@ const LanguageSwitcher = () => {
       }
       id="language-selector"
       className="text-center"
-      align="end"
+      align="start"
     >
       {i18nextConfig.i18n.locales.map(locale => (
         <NavDropdown.Item key={locale}>

@@ -27,7 +27,7 @@ const ThemeToggler = () => {
       }
       id="theme-toggler-dropdown"
       className="text-center"
-      align="end"
+      align="start"
     >
       {THEMES.map(({ key, label, icon }) => (
         <NavDropdown.Item
