@@ -36,6 +36,8 @@
     "codeBlock": {
       "copy": "Copy",
       "copied": "Copied!"
-    }
+    },
+    "allTopics": "All Topics",
+    "searchTopics": "Search Topics"
   }
 }

@@ -36,6 +36,8 @@
     "codeBlock": {
       "copy": "Kopyala",
       "copied": "Kopyalandı!"
-    }
+    },
+    "allTopics": "Tüm Konular",
+    "searchTopics": "Konuları Ara"
   }
 }
