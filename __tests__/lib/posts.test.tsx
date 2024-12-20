@@ -7,11 +7,12 @@ import {
   getTopicData,
   makeTopicProps,
   getAllTopicIds,
+  getAllTopics,
 } from '@/lib/posts';
 import fs from 'fs';
 import { GetStaticPropsContext } from 'next';
 import path from 'path';
-import { mockPost, mockPostSummary, mockTopic, mockTopicIds } from '../__mocks__/mockPostData';
+import { mockPost, mockPostSummary, mockTopic, mockTopicIds, mockTopics } from '../__mocks__/mockPostData';
 
 // Mock `fs` module
 jest.mock('fs', () => ({
@@ -510,8 +511,120 @@ describe('Posts Library', () => {
     });
   });
 
+  describe('getAllTopics', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    const mockTopics = [
+      { id: 'react', name: 'React', color: 'red' },
+      { name: 'Next.js', color: 'blue' },
+    ];
+
+    it('collects topics from localized directory', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.promises.readdir as jest.Mock).mockResolvedValue(['post1.md', 'post2.md']);
+      (fs.promises.readFile as jest.Mock).mockImplementation(filePath => {
+        if (filePath.includes('post1.md')) {
+          return `
+    ---
+    id: post1
+    title: Post 1
+    date: "2024-01-01"
+    summary: Summary 1
+    topics: [{"name": "React", "color": "red"}]
+    ---
+    # Content 1
+    `;
+        }
+        if (filePath.includes('post2.md')) {
+          return `
+    ---
+    id: post2
+    title: Post 2
+    date: "2024-01-01"
+    summary: Summary 2
+    topics: [{ name: 'Next.js', color: 'blue' }]
+    ---
+    # Content 2
+    `;
+        }
+        return '';
+      });
+
+      const result = await getAllTopics('en');
+      expect(result).toEqual(mockTopics);
+      expect(fs.promises.readdir).toHaveBeenCalledWith(expect.stringContaining('/content/posts/en'));
+      expect(fs.promises.readFile).toHaveBeenCalledTimes(2);
+    });
+
+    it('collects topics from fallback directory if localized directory is empty', async () => {
+      (fs.existsSync as jest.Mock).mockImplementation(
+        path => path.includes('/content/posts/en') || path.includes('/content/posts/en'),
+      );
+
+      (fs.promises.readdir as jest.Mock).mockImplementation(dirPath => {
+        if (dirPath.includes('/content/posts/tr')) {
+          return []; // Localized directory boş
+        }
+        if (dirPath.includes('/content/posts/en')) {
+          return ['post3.md'];
+        }
+        return [];
+      });
+
+      (fs.promises.readFile as jest.Mock).mockReturnValue(`
+  ---
+  id: post3
+  title: Post 3
+  topics:
+    - id: "vue"
+      name: "Vue.js"
+      color: "purple"
+  ---
+  `);
+
+      const result = await getAllTopics('tr');
+      expect(result).toEqual([{ name: 'Boostrap', color: 'green' }]);
+      expect(fs.promises.readdir).toHaveBeenCalledWith(expect.stringContaining('/content/posts/en'));
+    });
+
+    it('returns an empty array if no topics are found', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.promises.readdir as jest.Mock).mockResolvedValue([]);
+      const result = await getAllTopics('en');
+      expect(result).toEqual([]);
+    });
+
+    it('handles missing directories gracefully', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+
+      const result = await getAllTopics('en');
+      expect(result).toEqual([]);
+      expect(fs.promises.readdir).not.toHaveBeenCalled();
+      expect(fs.promises.readFile).not.toHaveBeenCalled();
+    });
+  });
+
   describe('makePostProps', () => {
     it('returns props with default namespace', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.promises.readdir as jest.Mock).mockResolvedValue(['post1.md']);
+      (fs.promises.readFile as jest.Mock).mockImplementation(filePath => {
+        if (filePath.includes('post1.md')) {
+          return `
+    ---
+    id: post1
+    title: Post 1
+    date: "2024-01-01"
+    summary: Summary 1
+    topics: [{"name": "React", "color": "red"}]
+    ---
+    # Content 1
+    `;
+        }
+        return '';
+      });
       const context: GetStaticPropsContext = {
         params: { locale: 'en' },
       };
@@ -522,6 +635,23 @@ describe('Posts Library', () => {
     });
 
     it('returns props for post list', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.promises.readdir as jest.Mock).mockResolvedValue(['post1.md']);
+      (fs.promises.readFile as jest.Mock).mockImplementation(filePath => {
+        if (filePath.includes('post1.md')) {
+          return `
+    ---
+    id: post1
+    title: Post 1
+    date: "2024-01-01"
+    summary: Summary 1
+    topics: [{"name": "React", "color": "red"}]
+    ---
+    # Content 1
+    `;
+        }
+        return '';
+      });
       const context: GetStaticPropsContext = {
         params: { locale: 'en' },
       };
@@ -534,6 +664,7 @@ describe('Posts Library', () => {
             userConfig: {},
           },
           posts: [mockPostSummary],
+          topics: mockTopics,
         },
       });
     });
@@ -542,6 +673,23 @@ describe('Posts Library', () => {
       const context: GetStaticPropsContext = {
         params: {},
       };
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.promises.readdir as jest.Mock).mockResolvedValue(['post1.md']);
+      (fs.promises.readFile as jest.Mock).mockImplementation(filePath => {
+        if (filePath.includes('post1.md')) {
+          return `
+    ---
+    id: post1
+    title: Post 1
+    date: "2024-01-01"
+    summary: Summary 1
+    topics: [{"name": "React", "color": "red"}]
+    ---
+    # Content 1
+    `;
+        }
+        return '';
+      });
       const result = await makePostProps(['common', 'post'])(context);
 
       expect(result.props).toBeDefined();
@@ -571,6 +719,23 @@ describe('Posts Library', () => {
       const context: GetStaticPropsContext = {
         params: { locale: 'en' },
       };
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.promises.readdir as jest.Mock).mockResolvedValue(['post1.md']);
+      (fs.promises.readFile as jest.Mock).mockImplementation(filePath => {
+        if (filePath.includes('post1.md')) {
+          return `
+    ---
+    id: post1
+    title: Post 1
+    date: "2024-01-01"
+    summary: Summary 1
+    topics: [{"name": "React", "color": "red"}]
+    ---
+    # Content 1
+    `;
+        }
+        return '';
+      });
       const result = await makePostProps(['common', 'post'])(context);
       expect(result.props._nextI18Next).toEqual({
         initialI18nStore: {},

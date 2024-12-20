@@ -3,7 +3,7 @@ import { PostSummary, Post, Topic } from '@/types/posts';
 export const mockTopic: Topic = {
   id: 'react',
   name: 'React',
-  color: 'blue',
+  color: 'red',
 };
 
 export const mockPost: Post = {

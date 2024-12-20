@@ -5,15 +5,16 @@ import { getStaticPaths } from '@/lib/getStatic';
 import { AUTHOR_NAME } from '@/config/constants';
 import Layout from '@/components/common/Layout';
 import PostList from '@/components/posts/PostList';
-import { PostSummary } from '@/types/posts';
+import { PostSummary, Topic } from '@/types/posts';
 import PostCarousel from '@/components/posts/PostCarousel';
 import { Container } from 'react-bootstrap';
 
 type HomeProps = {
   posts: PostSummary[];
+  topics: Topic[];
 };
 
-export default function Home({ posts }: Readonly<HomeProps>) {
+export default function Home({ posts, topics }: Readonly<HomeProps>) {
   const { t } = useTranslation('home');
 
   return (
@@ -32,7 +33,7 @@ export default function Home({ posts }: Readonly<HomeProps>) {
 
         <PostCarousel posts={posts.slice(0, 3)} />
 
-        <PostList posts={posts} />
+        <PostList posts={posts} topics={topics} />
       </Container>
     </Layout>
   );

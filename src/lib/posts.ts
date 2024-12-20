@@ -132,6 +132,27 @@ export async function getTopicData(locale: string, topicId: string): Promise<Top
 
   return allTopics.get(topicId) || null;
 }
+
+// Get all unique topics from the posts directory
+export async function getAllTopics(locale: string): Promise<Topic[]> {
+  const fallbackLocale = i18nextConfig.i18n.defaultLocale;
+  const directory = path.join(postsDirectory, locale);
+  const fallbackDirectory = path.join(postsDirectory, fallbackLocale);
+
+  const allTopicsMap = new Map<string, Topic>();
+
+  // Collect topics from the localized directory
+  await collectTopicsFromDirectory(directory, allTopicsMap);
+
+  // Collect topics from the fallback directory if the locale is different
+  if (locale !== fallbackLocale) {
+    await collectTopicsFromDirectory(fallbackDirectory, allTopicsMap);
+  }
+
+  // Convert Map to an array
+  return Array.from(allTopicsMap.values());
+}
+
 // Generate all post IDs for static paths
 export function getAllPostIds() {
   const defaultLocale = i18nextConfig.i18n.defaultLocale;
@@ -186,6 +207,7 @@ export const makePostProps =
     const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
 
     const posts = getSortedPostsData(locale);
+    const topics = await getAllTopics(locale);
 
     const i18nProps = await serverSideTranslations(locale, ns);
 
@@ -193,6 +215,7 @@ export const makePostProps =
       props: {
         ...i18nProps,
         posts,
+        topics,
       },
     };
   };

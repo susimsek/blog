@@ -6,7 +6,7 @@ import Home, { getStaticProps } from '@/pages/[locale]/index';
 import '@testing-library/jest-dom';
 import { useTranslation } from 'next-i18next';
 import { PostSummary, Topic } from '@/types/posts';
-import { mockPosts, mockPostSummaries } from '../../__mocks__/mockPostData';
+import { mockPosts, mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
 // Mock `next/router`
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockReturnValue({
@@ -88,7 +88,7 @@ describe('Home Page', () => {
   it('renders mocked post list correctly', async () => {
     render(
       <Provider store={store}>
-        <Home posts={mockPostSummaries} />
+        <Home posts={mockPostSummaries} topics={mockTopics} />
       </Provider>,
     );
 
@@ -105,7 +105,7 @@ describe('Home Page', () => {
   it('renders PostCarousel and PostList components', async () => {
     render(
       <Provider store={store}>
-        <Home posts={mockPostSummaries} />
+        <Home posts={mockPostSummaries} topics={mockTopics} />
       </Provider>,
     );
 
