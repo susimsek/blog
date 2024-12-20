@@ -10,11 +10,11 @@ import { useTranslation } from 'next-i18next';
 
 interface PostListProps {
   posts: PostSummary[];
-  topics: Topic[];
+  topics?: Topic[];
   noPostsFoundMessage?: string;
 }
 
-export default function PostList({ posts, topics, noPostsFoundMessage }: Readonly<PostListProps>) {
+export default function PostList({ posts, topics = [], noPostsFoundMessage }: Readonly<PostListProps>) {
   const { t } = useTranslation(['post', 'common']);
   const [postsPerPage, setPostsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,14 +57,16 @@ export default function PostList({ posts, topics, noPostsFoundMessage }: Readonl
             setCurrentPage(1);
           }}
         />
-        <TopicsDropdown
-          topics={topics}
-          selectedTopic={selectedTopic}
-          onTopicChange={newTopic => {
-            setSelectedTopic(newTopic);
-            setCurrentPage(1);
-          }}
-        />
+        {topics.length > 0 && (
+          <TopicsDropdown
+            topics={topics}
+            selectedTopic={selectedTopic}
+            onTopicChange={newTopic => {
+              setSelectedTopic(newTopic);
+              setCurrentPage(1);
+            }}
+          />
+        )}
       </div>
       {paginatedPosts.length > 0 ? (
         paginatedPosts.map(post => <PostCard key={post.id} post={post} />)
