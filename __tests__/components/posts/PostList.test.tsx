@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import PostList from '@/components/posts/PostList';
-import { PostSummary } from '@/types/posts';
 import { mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
 
 jest.mock('react-i18next', () => ({
@@ -49,7 +48,7 @@ jest.mock('@/components/pagination/PaginationBar', () => ({
 
 jest.mock('@/components/posts/PostSummary', () => ({
   __esModule: true,
-  default: ({ post }: { post: PostSummary }) => (
+  default: ({ post }: { post: any }) => (
     <div data-testid="post-card">
       <h2>{post.title}</h2>
       <p>{post.summary}</p>
@@ -99,6 +98,12 @@ describe('PostList Component', () => {
     expect(screen.getByTestId('pagination-bar')).toBeInTheDocument();
   });
 
+  it('handles topics dropdown absence gracefully', () => {
+    render(<PostList posts={mockPostSummaries} />);
+
+    expect(screen.queryByTestId('topics-dropdown')).not.toBeInTheDocument();
+  });
+
   it('filters posts based on search query', () => {
     render(<PostList posts={mockPostSummaries} topics={[]} />);
     const searchBar = screen.getByTestId('search-bar');
@@ -108,7 +113,16 @@ describe('PostList Component', () => {
     expect(screen.queryByText('Post 1')).not.toBeInTheDocument();
   });
 
-  it('sorts posts based on selected order', () => {
+  it('filters posts by topic', () => {
+    render(<PostList posts={mockPostSummaries} topics={mockTopics} />);
+    const reactTopic = screen.getByText('React');
+    fireEvent.click(reactTopic);
+
+    expect(screen.getByText('Post 1')).toBeInTheDocument();
+    expect(screen.queryByText('Post 2')).not.toBeInTheDocument();
+  });
+
+  it('sorts posts in ascending order', () => {
     render(<PostList posts={mockPostSummaries} topics={[]} />);
     const sortAscending = screen.getByText('Sort Ascending');
     fireEvent.click(sortAscending);
@@ -151,5 +165,23 @@ describe('PostList Component', () => {
   it('handles empty posts gracefully', () => {
     render(<PostList posts={[]} topics={[]} />);
     expect(screen.getByText('post.noPostsFound')).toBeInTheDocument();
+  });
+
+  it('resets pagination when sort order is changed', () => {
+    render(<PostList posts={mockPostSummaries} topics={[]} />);
+    const sortAscending = screen.getByText('Sort Ascending');
+    fireEvent.click(sortAscending);
+
+    const previousButton = screen.getByText('Previous');
+    expect(previousButton).toBeDisabled();
+  });
+
+  it('resets pagination when topic is changed', () => {
+    render(<PostList posts={mockPostSummaries} topics={mockTopics} />);
+    const vueTopic = screen.getByText('Vue.js');
+    fireEvent.click(vueTopic);
+
+    const previousButton = screen.getByText('Previous');
+    expect(previousButton).toBeDisabled();
   });
 });

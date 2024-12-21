@@ -42,7 +42,13 @@ export const mockPostWithoutContent: Post = {
 
 export const mockPosts: Post[] = [mockPost, mockPost2];
 
-export const mockTopics: Topic[] = [mockTopic];
+export const mockTopicVue: Topic = {
+  id: 'vue',
+  name: 'Vue.js',
+  color: 'purple',
+};
+
+export const mockTopics: Topic[] = [mockTopic, mockTopicVue];
 
 export const mockPostSummaries: PostSummary[] = [
   {
