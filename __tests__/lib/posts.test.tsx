@@ -603,8 +603,26 @@ describe('Posts Library', () => {
     });
 
     it('returns props for post list', async () => {
+      const mockEnglishTopics = [
+        { id: 'react', name: 'React', color: 'red' },
+        { id: 'nextjs', name: 'Next.js', color: 'blue' },
+      ];
+
+      const mockTurkishTopics = [
+        { id: 'react', name: 'React', color: 'red' },
+        { id: 'nextjs', name: 'Sonraki.js', color: 'mavi' },
+      ];
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.promises.readdir as jest.Mock).mockResolvedValue(['post1.md']);
+      (fs.readFileSync as jest.Mock).mockImplementation(filePath => {
+        if (filePath.endsWith('/content/topics/en/topics.json')) {
+          return JSON.stringify(mockEnglishTopics);
+        }
+        if (filePath.endsWith('/content/topics/tr/topics.json')) {
+          return JSON.stringify(mockTurkishTopics);
+        }
+        return '';
+      });
       (fs.promises.readFile as jest.Mock).mockImplementation(filePath => {
         if (filePath.includes('post1.md')) {
           return `
@@ -637,6 +655,11 @@ describe('Posts Library', () => {
               color: 'red',
               id: 'react',
               name: 'React',
+            },
+            {
+              color: 'blue',
+              id: 'nextjs',
+              name: 'Next.js',
             },
           ],
         },
