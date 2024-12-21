@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { PostSummary, Topic } from '@/types/posts';
 import { Alert, Container } from 'react-bootstrap';
 import SearchBar from '@/components/search/SearchBar';
@@ -52,6 +52,24 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
     [sortedPosts, currentPage, postsPerPage],
   );
 
+  // Callback for sort order change
+  const handleSortChange = useCallback((newSortOrder: 'asc' | 'desc') => {
+    setSortOrder(newSortOrder);
+    setCurrentPage(1);
+  }, []);
+
+  // Callback for topic selection change
+  const handleTopicsChange = useCallback((newTopics: string[]) => {
+    setSelectedTopics(newTopics);
+    setCurrentPage(1);
+  }, []);
+
+  // Callback for page size change
+  const handleSizeChange = useCallback((size: number) => {
+    setPostsPerPage(size);
+    setCurrentPage(1);
+  }, []);
+
   return (
     <Container className="mt-5" style={{ maxWidth: '800px' }}>
       <div className="d-flex flex-wrap align-items-center mb-3">
@@ -60,22 +78,9 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
         </div>
         <div className="d-flex flex-column flex-md-row align-items-stretch w-100 w-md-auto" style={{ gap: '10px' }}>
           {topics.length > 0 && (
-            <TopicsDropdown
-              topics={topics}
-              selectedTopics={selectedTopics}
-              onTopicsChange={newTopics => {
-                setSelectedTopics(newTopics);
-                setCurrentPage(1);
-              }}
-            />
+            <TopicsDropdown topics={topics} selectedTopics={selectedTopics} onTopicsChange={handleTopicsChange} />
           )}
-          <SortDropdown
-            sortOrder={sortOrder}
-            onChange={newSortOrder => {
-              setSortOrder(newSortOrder);
-              setCurrentPage(1);
-            }}
-          />
+          <SortDropdown sortOrder={sortOrder} onChange={handleSortChange} />
         </div>
       </div>
       {paginatedPosts.length > 0 ? (
@@ -92,10 +97,7 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
           totalPages={Math.ceil(sortedPosts.length / postsPerPage)}
           size={postsPerPage}
           onPageChange={setCurrentPage}
-          onSizeChange={size => {
-            setPostsPerPage(size);
-            setCurrentPage(1);
-          }}
+          onSizeChange={handleSizeChange}
           totalResults={sortedPosts.length}
         />
       )}
