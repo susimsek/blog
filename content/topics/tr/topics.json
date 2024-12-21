@@ -1,0 +1,21 @@
+[
+  { "id": "java", "name": "Java", "color": "red" },
+  { "id": "kotlin", "name": "Kotlin", "color": "purple" },
+  { "id": "spring-boot", "name": "Spring Boot", "color": "green" },
+  { "id": "rest-api", "name": "REST API", "color": "blue" },
+  { "id": "programming", "name": "Programlama", "color": "orange" },
+  { "id": "go", "name": "Go", "color": "brown" },
+  { "id": "gin", "name": "Gin", "color": "green" },
+  { "id": "beginner-guide", "name": "Başlangıç Rehberi", "color": "orange" },
+  { "id": "orm", "name": "ORM", "color": "orange" },
+  { "id": "validation", "name": "Doğrulama", "color": "orange" },
+  { "id": "actuator", "name": "Actuator", "color": "orange" },
+  { "id": "monitoring", "name": "İzleme", "color": "purple" },
+  { "id": "aop", "name": "AOP", "color": "orange" },
+  { "id": "clean-coding", "name": "Temiz Kodlama", "color": "orange" },
+  { "id": "devtools", "name": "Geliştirme Araçları", "color": "orange" },
+  { "id": "dependency-injection", "name": "Bağımlılık Enjeksiyonu", "color": "orange" },
+  { "id": "graphql", "name": "GraphQL", "color": "pink" },
+  { "id": "openapi", "name": "OpenAPI", "color": "orange" },
+  { "id": "documentation", "name": "Dokümantasyon", "color": "brown" }
+]

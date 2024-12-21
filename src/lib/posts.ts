@@ -10,6 +10,8 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 // Base directory for posts
 const postsDirectory = path.join(process.cwd(), 'content/posts');
 
+const topicsDirectory = path.join(process.cwd(), 'content/topics');
+
 // Helper function to parse a Markdown file
 function parsePostFile(filePath: string, includeContent: boolean = false): { data: PostSummary; content?: string } {
   const id = path.basename(filePath, '.md');
@@ -134,23 +136,22 @@ export async function getTopicData(locale: string, topicId: string): Promise<Top
 }
 
 // Get all unique topics from the posts directory
+// Get all unique topics from the topics.json file
 export async function getAllTopics(locale: string): Promise<Topic[]> {
-  const fallbackLocale = i18nextConfig.i18n.defaultLocale;
-  const directory = path.join(postsDirectory, locale);
-  const fallbackDirectory = path.join(postsDirectory, fallbackLocale);
+  const topicsFilePath = path.join(topicsDirectory, locale, 'topics.json');
 
-  const allTopicsMap = new Map<string, Topic>();
-
-  // Collect topics from the localized directory
-  await collectTopicsFromDirectory(directory, allTopicsMap);
-
-  // Collect topics from the fallback directory if the locale is different
-  if (locale !== fallbackLocale) {
-    await collectTopicsFromDirectory(fallbackDirectory, allTopicsMap);
+  if (!fs.existsSync(topicsFilePath)) {
+    console.error(`Topics file not found for locale "${locale}": ${topicsFilePath}`);
+    return [];
   }
 
-  // Convert Map to an array
-  return Array.from(allTopicsMap.values());
+  try {
+    const fileContents = fs.readFileSync(topicsFilePath, 'utf8');
+    return JSON.parse(fileContents);
+  } catch (error) {
+    console.error('Error reading or parsing topics.json:', error);
+    return [];
+  }
 }
 
 // Generate all post IDs for static paths
