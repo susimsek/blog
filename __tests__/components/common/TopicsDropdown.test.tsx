@@ -205,4 +205,26 @@ describe('TopicsDropdown - getDropdownTitle', () => {
     const dropdownButton = screen.getByRole('button', { name: '' });
     expect(dropdownButton).toBeInTheDocument();
   });
+
+  test('adds a topic to selectedTopics if not already selected', () => {
+    const onTopicsChangeMock = jest.fn();
+    const selectedTopics = ['react'];
+
+    render(<TopicsDropdown topics={mockTopics} selectedTopics={selectedTopics} onTopicsChange={onTopicsChangeMock} />);
+
+    fireEvent.click(screen.getByText('React'));
+    fireEvent.click(screen.getByText('Vue.js'));
+
+    expect(onTopicsChangeMock).toHaveBeenCalledWith(['react', 'vue']);
+  });
+
+  test('removes a topic from selectedTopics if already selected', () => {
+    const onTopicsChangeMock = jest.fn();
+    const selectedTopics = ['react', 'vue'];
+
+    render(<TopicsDropdown topics={mockTopics} selectedTopics={selectedTopics} onTopicsChange={onTopicsChangeMock} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /React, Vue.js/i }));
+    expect(screen.getByText('Vue.js')).toBeInTheDocument();
+  });
 });
