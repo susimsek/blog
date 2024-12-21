@@ -82,7 +82,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
       {selectedTopics.length > 0 && (
         <>
           <Dropdown.Header>{t('topic:topic.selectedTopics')}</Dropdown.Header>
-          <div className="p-3">
+          <div className="p-2 ms-2">
             {selectedTopics.map(topicId => {
               const topic = topics.find(t => t.id === topicId);
               if (!topic) return null;
