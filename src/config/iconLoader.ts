@@ -29,6 +29,7 @@ import {
   faSignOutAlt,
   faSun,
   faTimes,
+  faTimesCircle,
   faTrash,
   faUser,
 } from '@fortawesome/free-solid-svg-icons';
@@ -77,6 +78,7 @@ export const loadIcons = () => {
     faCheck,
     faCircleCheck,
     faPalette,
+    faTimesCircle,
   );
 };
 

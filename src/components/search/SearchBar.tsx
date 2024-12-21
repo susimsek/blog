@@ -15,6 +15,10 @@ export default function SearchBar({ query, onChange, className }: Readonly<Searc
     onChange(event.target.value);
   };
 
+  const handleClear = () => {
+    onChange('');
+  };
+
   return (
     <div className={`search-bar d-flex align-items-center ${className ?? ''}`}>
       <div className="search-icon">
@@ -22,11 +26,16 @@ export default function SearchBar({ query, onChange, className }: Readonly<Searc
       </div>
       <input
         type="text"
-        className="search-input form-control me-2"
+        className="search-input form-control"
         placeholder={t('common.searchBar.placeholder')}
         value={query}
         onChange={handleInputChange}
       />
+      {query && (
+        <div className="clear-icon" onClick={handleClear}>
+          <FontAwesomeIcon icon="times-circle" />
+        </div>
+      )}
     </div>
   );
 }

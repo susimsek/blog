@@ -30,7 +30,7 @@ describe('SearchBar Component', () => {
     const inputElement = screen.getByPlaceholderText('common.searchBar.placeholder');
     expect(inputElement).toBeInTheDocument();
 
-    // Check if FontAwesome icon is rendered
+    // Check if FontAwesome search icon is rendered
     const iconElement = screen.getByTestId('icon-search');
     expect(iconElement).toBeInTheDocument();
   });
@@ -51,5 +51,29 @@ describe('SearchBar Component', () => {
     fireEvent.change(inputElement, { target: { value: 'New Query' } });
     expect(mockOnChange).toHaveBeenCalledTimes(1);
     expect(mockOnChange).toHaveBeenCalledWith('New Query');
+  });
+
+  it('shows the clear icon when query is not empty', () => {
+    render(<SearchBar query="Test Query" onChange={mockOnChange} />);
+
+    const clearIcon = screen.getByTestId('icon-times-circle');
+    expect(clearIcon).toBeInTheDocument();
+  });
+
+  it('does not show the clear icon when query is empty', () => {
+    render(<SearchBar query="" onChange={mockOnChange} />);
+
+    const clearIcon = screen.queryByTestId('icon-times-circle');
+    expect(clearIcon).not.toBeInTheDocument();
+  });
+
+  it('calls onChange with an empty string when clear icon is clicked', () => {
+    render(<SearchBar query="Test Query" onChange={mockOnChange} />);
+
+    const clearIcon = screen.getByTestId('icon-times-circle');
+    fireEvent.click(clearIcon);
+
+    expect(mockOnChange).toHaveBeenCalledTimes(1);
+    expect(mockOnChange).toHaveBeenCalledWith('');
   });
 });
