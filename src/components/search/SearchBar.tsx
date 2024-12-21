@@ -32,9 +32,9 @@ export default function SearchBar({ query, onChange, className }: Readonly<Searc
         onChange={handleInputChange}
       />
       {query && (
-        <div className="clear-icon" onClick={handleClear}>
-          <FontAwesomeIcon icon="times-circle" />
-        </div>
+        <button className="border-0 bg-transparent" onClick={handleClear}>
+          <FontAwesomeIcon icon="times-circle" className="clear-icon" />
+        </button>
       )}
     </div>
   );
