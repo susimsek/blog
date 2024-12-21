@@ -137,7 +137,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
         ))
       ) : (
         <Dropdown.Item className="text-center py-3">
-          <Alert variant="info" className="mb-0 d-flex align-items-center">
+          <Alert variant="warning" className="mb-0 d-flex align-items-center">
             <FontAwesomeIcon icon="exclamation-circle" className="me-2" size="lg" />
             {t('topic:topic.noTopicFound')}
           </Alert>

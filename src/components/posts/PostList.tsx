@@ -86,7 +86,7 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
       {paginatedPosts.length > 0 ? (
         paginatedPosts.map(post => <PostCard key={post.id} post={post} />)
       ) : (
-        <Alert variant="info" className="mb-0 d-flex align-items-center justify-content-center py-3">
+        <Alert variant="warning" className="mb-0 d-flex align-items-center justify-content-center py-3">
           <FontAwesomeIcon icon="exclamation-circle" className="me-2" size="lg" />
           {noPostsFoundMessage ?? t('post.noPostsFound')}
         </Alert>
