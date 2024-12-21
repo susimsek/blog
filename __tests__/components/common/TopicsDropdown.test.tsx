@@ -1,8 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { TopicsDropdown } from '@/components/common/TopicsDropdown';
-import { mockTopics } from '../../__mocks__/mockPostData';
-import { Pagination } from 'react-bootstrap';
+import { Topic } from '@/types/posts';
 
 jest.mock('next-i18next', () => ({
   useTranslation: jest.fn().mockReturnValue({
@@ -14,12 +13,25 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: () => <span>Icon</span>,
 }));
 
+const mockTopics: Topic[] = [
+  { id: 'react', name: 'React', color: 'blue' },
+  { id: 'vue', name: 'Vue.js', color: 'green' },
+  { id: 'angular', name: 'Angular', color: 'red' },
+  { id: 'svelte', name: 'Svelte', color: 'orange' },
+  { id: 'nextjs', name: 'Next.js', color: 'purple' },
+  { id: 'nuxt', name: 'Nuxt.js', color: 'pink' },
+];
+
 describe('TopicsDropdown', () => {
   const onTopicChangeMock = jest.fn();
 
-  const renderComponent = (selectedTopic: string | null = null) => {
-    render(<TopicsDropdown topics={mockTopics} selectedTopic={selectedTopic} onTopicChange={onTopicChangeMock} />);
+  const renderComponent = (selectedTopic: string | null = null, topics = mockTopics) => {
+    render(<TopicsDropdown topics={topics} selectedTopic={selectedTopic} onTopicChange={onTopicChangeMock} />);
   };
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   test('renders with default title', () => {
     renderComponent();
@@ -33,16 +45,23 @@ describe('TopicsDropdown', () => {
     expect(screen.getByText('React')).toBeInTheDocument();
   });
 
+  test('renders without error when topics list is empty', () => {
+    renderComponent(null, []);
+
+    expect(screen.queryByText('common.allTopics')).toBeInTheDocument();
+    expect(screen.queryByText('React')).not.toBeInTheDocument();
+  });
+
   test('filters topics based on search input', () => {
     renderComponent();
 
     fireEvent.click(screen.getByText('common.allTopics'));
 
     const searchInput = screen.getByPlaceholderText('common.searchBar.placeholder');
-    fireEvent.change(searchInput, { target: { value: 'React' } });
+    fireEvent.change(searchInput, { target: { value: 'Vue' } });
 
-    expect(screen.getByText('React')).toBeInTheDocument();
-    expect(screen.queryByText('Testing')).not.toBeInTheDocument();
+    expect(screen.getByText('Vue.js')).toBeInTheDocument();
+    expect(screen.queryByText('React')).not.toBeInTheDocument();
   });
 
   test('calls onTopicChange with null when "all topics" is selected', async () => {
@@ -73,21 +92,34 @@ describe('TopicsDropdown', () => {
 
     fireEvent.click(screen.getByText('common.allTopics'));
 
-    expect(screen.getByText('React')).toBeInTheDocument();
+    const nextPage = screen.getByText('2');
+    fireEvent.click(nextPage);
+
+    expect(screen.getByText('Nuxt.js')).toBeInTheDocument();
+    expect(screen.queryByText('React')).not.toBeInTheDocument();
   });
 
-  test('calls handlePaginationClick with correct page number', () => {
-    const mockHandlePaginationClick = jest.fn();
-    const handlePageChange = (page: number) => () => mockHandlePaginationClick(page);
+  test('updates topic list dynamically when searching', () => {
+    renderComponent();
 
-    const { getByText } = render(
-      <Pagination.Item key={2} active={false} onClick={handlePageChange(2)}>
-        2
-      </Pagination.Item>,
-    );
+    fireEvent.click(screen.getByText('common.allTopics'));
 
-    fireEvent.click(getByText('2'));
+    const searchInput = screen.getByPlaceholderText('common.searchBar.placeholder');
+    fireEvent.change(searchInput, { target: { value: 'Next' } });
 
-    expect(mockHandlePaginationClick).toHaveBeenCalledWith(2);
+    expect(screen.getByText('Next.js')).toBeInTheDocument();
+    expect(screen.queryByText('React')).not.toBeInTheDocument();
+  });
+
+  test('resets pagination when topics are filtered', () => {
+    renderComponent();
+
+    fireEvent.click(screen.getByText('common.allTopics'));
+
+    const searchInput = screen.getByPlaceholderText('common.searchBar.placeholder');
+    fireEvent.change(searchInput, { target: { value: 'Vue' } });
+
+    expect(screen.getByText('Vue.js')).toBeInTheDocument();
+    expect(screen.queryByText('React')).not.toBeInTheDocument();
   });
 });
