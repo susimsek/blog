@@ -104,21 +104,11 @@ describe('TopicsDropdown', () => {
 
   test('calls onTopicsChange with an empty array when "all topics" is selected', () => {
     renderComponent(['react', 'vue']);
-    fireEvent.click(screen.getByText('topic:topic.allTopics Icon'));
 
-    expect(onTopicsChangeMock).toHaveBeenCalledWith([]);
-  });
-
-  test('calls onTopicsChange with an empty array when "all topics" is selected', () => {
-    renderComponent(['react', 'vue']);
-
-    // Dropdown'ı aç
     fireEvent.click(screen.getByRole('button', { name: 'React, Vue.js' }));
 
-    // Tüm konular butonuna tıkla
     fireEvent.click(screen.getByText('topic:topic.allTopics'));
 
-    // Beklenen çağrıyı kontrol et
     expect(onTopicsChangeMock).toHaveBeenCalledWith([]);
   });
 
