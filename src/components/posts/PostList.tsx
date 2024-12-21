@@ -46,27 +46,29 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
 
   return (
     <Container className="mt-5" style={{ maxWidth: '800px' }}>
-      <div className="d-flex flex-wrap align-items-center mb-4">
-        <div className="flex-grow-1 me-2 mb-2">
+      <div className="d-flex flex-wrap align-items-center mb-3">
+        <div className="flex-grow-1 mb-4">
           <SearchBar query={searchQuery} onChange={setSearchQuery} />
         </div>
-        <SortDropdown
-          sortOrder={sortOrder}
-          onChange={newSortOrder => {
-            setSortOrder(newSortOrder);
-            setCurrentPage(1);
-          }}
-        />
-        {topics.length > 0 && (
-          <TopicsDropdown
-            topics={topics}
-            selectedTopic={selectedTopic}
-            onTopicChange={newTopic => {
-              setSelectedTopic(newTopic);
+        <div className="d-flex flex-column flex-md-row align-items-stretch w-100 w-md-auto" style={{ gap: '10px' }}>
+          {topics.length > 0 && (
+            <TopicsDropdown
+              topics={topics}
+              selectedTopic={selectedTopic}
+              onTopicChange={newTopic => {
+                setSelectedTopic(newTopic);
+                setCurrentPage(1);
+              }}
+            />
+          )}
+          <SortDropdown
+            sortOrder={sortOrder}
+            onChange={newSortOrder => {
+              setSortOrder(newSortOrder);
               setCurrentPage(1);
             }}
           />
-        )}
+        </div>
       </div>
       {paginatedPosts.length > 0 ? (
         paginatedPosts.map(post => <PostCard key={post.id} post={post} />)
