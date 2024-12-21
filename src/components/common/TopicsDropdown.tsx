@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dropdown, DropdownButton } from 'react-bootstrap';
+import { Dropdown, DropdownButton, Badge } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import { Topic } from '@/types/posts';
@@ -53,14 +53,18 @@ export function TopicsDropdown({ topics, selectedTopic, onTopicChange }: Readonl
 
       {/* Paginated Topics */}
       <Dropdown.Divider />
-      <Dropdown.Item onClick={() => onTopicChange(null)}>
-        {t('common.allTopics')}
-        {!selectedTopic && <FontAwesomeIcon icon="circle-check" className="ms-2 circle-check" />}
+      <Dropdown.Item onClick={() => onTopicChange(null)} className="d-flex align-items-center">
+        <Badge bg="gray" className="badge-gray me-2">
+          {t('common.allTopics')}
+        </Badge>
+        {!selectedTopic && <FontAwesomeIcon icon="circle-check" className="ms-auto" />}
       </Dropdown.Item>
       {paginatedTopics.map(topic => (
-        <Dropdown.Item key={topic.id} onClick={() => onTopicChange(topic.id)}>
-          {topic.name}
-          {selectedTopic === topic.id && <FontAwesomeIcon icon="circle-check" className="ms-2 circle-check" />}
+        <Dropdown.Item key={topic.id} onClick={() => onTopicChange(topic.id)} className="d-flex align-items-center">
+          <Badge bg={topic.color} className={`badge-${topic.color} me-2`}>
+            {topic.name}
+          </Badge>
+          {selectedTopic === topic.id && <FontAwesomeIcon icon="circle-check" className="ms-auto" />}
         </Dropdown.Item>
       ))}
 

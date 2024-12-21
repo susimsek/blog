@@ -114,7 +114,7 @@ describe('TopicsDropdown', () => {
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByText('common.allTopics', { selector: 'a.dropdown-item' }));
+      fireEvent.click(screen.getByRole('button', { name: 'common.allTopics Icon' }));
     });
 
     expect(onTopicChangeMock).toHaveBeenCalledWith(null);
