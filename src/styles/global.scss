@@ -729,7 +729,7 @@ input.form-control {
   .clear-icon {
     padding: 0.5rem;
     cursor: pointer;
-    color: var(--muted-text-color);
+    color: var(--icon-check-color);
     @include transition(color);
 
     &:hover {
