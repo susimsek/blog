@@ -10,7 +10,9 @@ jest.mock('next-i18next', () => ({
 }));
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
-  FontAwesomeIcon: () => <span>Icon</span>,
+  FontAwesomeIcon: ({ icon, onClick }: { icon: string; onClick?: () => void }) => (
+    <i data-testid={`font-awesome-icon-${icon}`} onClick={onClick} />
+  ),
 }));
 
 const mockTopics: Topic[] = [
@@ -164,6 +166,8 @@ describe('TopicsDropdown', () => {
 });
 
 describe('TopicsDropdown - getDropdownTitle', () => {
+  afterEach(cleanup);
+
   const topics = [
     { id: 'react', name: 'React', color: 'blue' },
     { id: 'vue', name: 'Vue.js', color: 'green' },
@@ -251,5 +255,24 @@ describe('TopicsDropdown - getDropdownTitle', () => {
     );
 
     expect(onTopicsChangeMock).toHaveBeenCalledWith(['react']);
+  });
+
+  test('calls handleTopicRemove when times icon is clicked', async () => {
+    const onTopicsChangeMock = jest.fn();
+    const topics = [{ id: 'react', name: 'React', color: 'blue' }];
+
+    render(<TopicsDropdown topics={topics} selectedTopics={['react']} onTopicsChange={onTopicsChangeMock} />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /react/i }));
+    });
+
+    const removeIcon = screen.getByTestId('font-awesome-icon-times');
+
+    await act(async () => {
+      fireEvent.click(removeIcon);
+    });
+
+    expect(onTopicsChangeMock).toHaveBeenCalledWith([]);
   });
 });
