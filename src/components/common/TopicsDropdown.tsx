@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Dropdown, DropdownButton, Pagination } from 'react-bootstrap';
+import { Dropdown, DropdownButton } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import { Topic } from '@/types/posts';
 import SearchBar from '@/components/search/SearchBar';
+import Paginator from '@/components/pagination/Paginator';
 
 interface TopicsDropdownProps {
   topics: Topic[];
@@ -28,7 +29,7 @@ export function TopicsDropdown({ topics, selectedTopic, onTopicChange }: Readonl
     setCurrentPage(1);
   };
 
-  const handlePaginationClick = (page: number) => {
+  const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
@@ -65,18 +66,13 @@ export function TopicsDropdown({ topics, selectedTopic, onTopicChange }: Readonl
 
       {/* Pagination */}
       <Dropdown.Divider />
-      <div className="d-flex justify-content-center">
-        <Pagination>
-          {[...Array(totalPages)].map((_, index) => (
-            <Pagination.Item
-              key={index + 1}
-              active={currentPage === index + 1}
-              onClick={() => handlePaginationClick(index + 1)}
-            >
-              {index + 1}
-            </Pagination.Item>
-          ))}
-        </Pagination>
+      <div className="d-flex justify-content-center p-2">
+        <Paginator
+          currentPage={currentPage}
+          totalPages={totalPages}
+          maxPagesToShow={5}
+          onPageChange={handlePageChange}
+        />
       </div>
     </DropdownButton>
   );
