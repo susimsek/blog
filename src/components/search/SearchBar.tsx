@@ -17,6 +17,9 @@ export default function SearchBar({ query, onChange, className }: Readonly<Searc
 
   return (
     <div className={`search-bar d-flex align-items-center ${className ?? ''}`}>
+      <div className="search-icon">
+        <FontAwesomeIcon icon="search" />
+      </div>
       <input
         type="text"
         className="search-input form-control me-2"
@@ -24,9 +27,6 @@ export default function SearchBar({ query, onChange, className }: Readonly<Searc
         value={query}
         onChange={handleInputChange}
       />
-      <div className="search-icon">
-        <FontAwesomeIcon icon="search" />
-      </div>
     </div>
   );
 }
