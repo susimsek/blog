@@ -683,13 +683,14 @@ input.form-control {
   display: flex;
   align-items: center;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   @include transition(border-color, box-shadow);
 
   &:focus-within {
     border-color: var(--link-hover-color);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
   }
 
   .search-input {
