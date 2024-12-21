@@ -37,6 +37,33 @@ jest.mock('@/components/search/SearchBar', () => ({
   ),
 }));
 
+jest.mock('@/components/pagination/Paginator', () => ({
+  __esModule: true,
+  default: ({
+    currentPage,
+    totalPages,
+    onPageChange,
+  }: {
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+  }) => (
+    <div data-testid="paginator">
+      <button data-testid="paginator-prev" disabled={currentPage === 1} onClick={() => onPageChange(currentPage - 1)}>
+        Prev
+      </button>
+      <span data-testid="paginator-current">{currentPage}</span>
+      <button
+        data-testid="paginator-next"
+        disabled={currentPage === totalPages}
+        onClick={() => onPageChange(currentPage + 1)}
+      >
+        Next
+      </button>
+    </div>
+  ),
+}));
+
 describe('TopicsDropdown', () => {
   const onTopicChangeMock = jest.fn();
 
@@ -102,16 +129,26 @@ describe('TopicsDropdown', () => {
     expect(onTopicChangeMock).toHaveBeenCalledWith('react');
   });
 
-  test('handles pagination correctly', () => {
+  test('handles pagination correctly', async () => {
     renderComponent();
 
     fireEvent.click(screen.getByText('common.allTopics'));
 
-    const nextPage = screen.getByText('2');
-    fireEvent.click(nextPage);
+    expect(screen.getByText('1')).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('paginator-next'));
+    });
 
     expect(screen.getByText('Nuxt.js')).toBeInTheDocument();
     expect(screen.queryByText('React')).not.toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('paginator-prev'));
+    });
+
+    expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.queryByText('Nuxt.js')).not.toBeInTheDocument();
   });
 
   test('updates topic list dynamically when searching', () => {
