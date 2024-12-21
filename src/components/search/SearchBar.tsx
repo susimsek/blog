@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 
@@ -11,13 +11,16 @@ interface SearchBarProps {
 export default function SearchBar({ query, onChange, className }: Readonly<SearchBarProps>) {
   const { t } = useTranslation('common');
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(event.target.value);
-  };
+  const handleInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(event.target.value);
+    },
+    [onChange],
+  );
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     onChange('');
-  };
+  }, [onChange]);
 
   return (
     <div className={`search-bar d-flex align-items-center ${className ?? ''}`}>
