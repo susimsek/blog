@@ -664,7 +664,13 @@ describe('Posts Library', () => {
             userConfig: {},
           },
           posts: [mockPostSummary],
-          topics: mockTopics,
+          topics: [
+            {
+              color: 'red',
+              id: 'react',
+              name: 'React',
+            },
+          ],
         },
       });
     });
