@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Dropdown, DropdownButton, FormControl, Pagination } from 'react-bootstrap';
+import { Dropdown, DropdownButton, Pagination } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import { Topic } from '@/types/posts';
+import SearchBar from '@/components/search/SearchBar';
 
 interface TopicsDropdownProps {
   topics: Topic[];
@@ -44,15 +45,9 @@ export function TopicsDropdown({ topics, selectedTopic, onTopicChange }: Readonl
           : t('common.allTopics')
       }
     >
-      <div className="px-3 py-2 d-flex align-items-center">
-        <FormControl
-          type="text"
-          placeholder={t('common.searchBar.placeholder')}
-          value={topicSearchQuery}
-          onChange={e => handleTopicSearch(e.target.value)}
-          className="ms-auto w-75"
-        />
-        <FontAwesomeIcon icon="search" className="ms-2" />
+      {/* Search Bar */}
+      <div className="p-2">
+        <SearchBar query={topicSearchQuery} onChange={handleTopicSearch} className="w-100" />
       </div>
 
       {/* Paginated Topics */}

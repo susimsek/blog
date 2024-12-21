@@ -22,6 +22,21 @@ const mockTopics: Topic[] = [
   { id: 'nuxt', name: 'Nuxt.js', color: 'pink' },
 ];
 
+jest.mock('@/components/search/SearchBar', () => ({
+  __esModule: true,
+  default: ({ query, onChange }: { query: string; onChange: (query: string) => void }) => (
+    <div>
+      <input
+        data-testid="search-bar-input"
+        type="text"
+        value={query}
+        onChange={e => onChange(e.target.value)}
+        placeholder="common.searchBar.placeholder"
+      />
+    </div>
+  ),
+}));
+
 describe('TopicsDropdown', () => {
   const onTopicChangeMock = jest.fn();
 
