@@ -36,6 +36,7 @@ export function TopicsDropdown({ topics, selectedTopic, onTopicChange }: Readonl
       id="topics-dropdown"
       variant="primary"
       className="mb-2"
+      flip={false}
       align="start"
       title={
         selectedTopic

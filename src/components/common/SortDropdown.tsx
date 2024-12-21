@@ -17,6 +17,7 @@ export function SortDropdown({ sortOrder, onChange }: Readonly<SortDropdownProps
       variant="primary"
       className="me-2 mb-2"
       align="start"
+      flip={false}
       title={sortOrder === 'asc' ? t('common.sort.oldest') : t('common.sort.newest')}
       onSelect={e => e && onChange(e as 'asc' | 'desc')}
     >
