@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Badge, Carousel } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PostSummary } from '@/types/posts';
@@ -14,9 +14,10 @@ type PostCarouselProps = {
 export default function PostCarousel({ posts, interval = 5000 }: Readonly<PostCarouselProps>) {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const handleSelect = (selectedIndex: number) => {
+  // Optimized handleSelect with useCallback
+  const handleSelect = useCallback((selectedIndex: number) => {
     setActiveIndex(selectedIndex);
-  };
+  }, []);
 
   return (
     <div className="position-relative">
@@ -71,13 +72,13 @@ export default function PostCarousel({ posts, interval = 5000 }: Readonly<PostCa
       </Carousel>
 
       <div className="carousel-indicators">
-        {posts.map(post => (
+        {posts.map((post, index) => (
           <button
             key={post.id}
             type="button"
-            className={`${activeIndex === posts.indexOf(post) ? 'active' : ''}`}
-            onClick={() => handleSelect(posts.indexOf(post))}
-            aria-label={`Go to slide ${posts.indexOf(post) + 1}`}
+            className={`${activeIndex === index ? 'active' : ''}`}
+            onClick={() => handleSelect(index)}
+            aria-label={`Go to slide ${index + 1}`}
           >
             <FontAwesomeIcon className="carousel-indicator-icon" icon="circle" size="sm" />
           </button>
