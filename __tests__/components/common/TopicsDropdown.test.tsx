@@ -264,4 +264,43 @@ describe('TopicsDropdown - getDropdownTitle', () => {
 
     expect(onTopicsChangeMock).toHaveBeenCalledWith([]);
   });
+
+  test('adds a topic to selectedTopics if not already selected', () => {
+    const onTopicsChangeMock = jest.fn();
+    const selectedTopics = ['react'];
+
+    render(<TopicsDropdown topics={mockTopics} selectedTopics={selectedTopics} onTopicsChange={onTopicsChangeMock} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /React/i }));
+
+    const angularOption = screen.getByText('Angular');
+    fireEvent.click(angularOption);
+
+    expect(onTopicsChangeMock).toHaveBeenCalledWith(['react', 'angular']);
+  });
+
+  test('removes a topic from selectedTopics if already selected', () => {
+    const onTopicsChangeMock = jest.fn();
+    const selectedTopics = ['react', 'angular'];
+
+    render(<TopicsDropdown topics={mockTopics} selectedTopics={selectedTopics} onTopicsChange={onTopicsChangeMock} />);
+
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /React, Angular/i }));
+    });
+
+    const removeIcons = screen.getAllByTestId('font-awesome-icon-times');
+
+    const angularRemoveIcon = removeIcons.find(icon => icon.closest('span')?.textContent?.includes('Angular'));
+
+    if (!angularRemoveIcon) {
+      throw new Error('Remove icon for Angular not found!');
+    }
+
+    act(() => {
+      fireEvent.click(angularRemoveIcon);
+    });
+
+    expect(onTopicsChangeMock).toHaveBeenCalledWith(['react']);
+  });
 });
