@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
 import { TopicsDropdown } from '@/components/common/TopicsDropdown';
 import { Topic } from '@/types/posts';
 
@@ -160,5 +160,49 @@ describe('TopicsDropdown', () => {
     fireEvent.click(screen.getByText('topic:topic.allTopics'));
 
     expect(screen.getByText('topic:topic.noTopicFound')).toBeInTheDocument();
+  });
+});
+
+describe('TopicsDropdown - getDropdownTitle', () => {
+  const topics = [
+    { id: 'react', name: 'React', color: 'blue' },
+    { id: 'vue', name: 'Vue.js', color: 'green' },
+    { id: 'angular', name: 'Angular', color: 'red' },
+    { id: 'svelte', name: 'Svelte', color: 'orange' },
+    { id: 'nextjs', name: 'Next.js', color: 'purple' },
+  ];
+
+  const renderComponent = (selectedTopics: string[]) => {
+    render(<TopicsDropdown topics={topics} selectedTopics={selectedTopics} onTopicsChange={() => {}} />);
+  };
+
+  test('displays "All Topics" when no topics are selected', () => {
+    renderComponent([]);
+    expect(screen.getByText('topic:topic.allTopics')).toBeInTheDocument();
+  });
+
+  test('displays selected topics when less than or equal to 3 topics are selected', () => {
+    renderComponent(['react', 'vue']);
+    expect(screen.getByText('React, Vue.js')).toBeInTheDocument();
+
+    renderComponent(['react', 'vue', 'angular']);
+    expect(screen.getByText('React, Vue.js, Angular')).toBeInTheDocument();
+  });
+
+  test('displays "and more" when more than 3 topics are selected', () => {
+    renderComponent(['react', 'vue', 'angular', 'svelte']);
+    expect(screen.getByText('React, Vue.js, Angular common.andMore')).toBeInTheDocument();
+
+    cleanup();
+
+    renderComponent(['react', 'vue', 'angular', 'svelte', 'nextjs']);
+    expect(screen.getByText('React, Vue.js, Angular common.andMore')).toBeInTheDocument();
+  });
+
+  test('handles topics that are not found in the topics list', () => {
+    renderComponent(['nonexistent']);
+
+    const dropdownButton = screen.getByRole('button', { name: '' });
+    expect(dropdownButton).toBeInTheDocument();
   });
 });
