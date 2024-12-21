@@ -65,10 +65,10 @@ jest.mock('@/components/pagination/Paginator', () => ({
 }));
 
 describe('TopicsDropdown', () => {
-  const onTopicChangeMock = jest.fn();
+  const onTopicsChangeMock = jest.fn();
 
-  const renderComponent = (selectedTopic: string | null = null, topics = mockTopics) => {
-    render(<TopicsDropdown topics={topics} selectedTopic={selectedTopic} onTopicChange={onTopicChangeMock} />);
+  const renderComponent = (selectedTopics: string[] = [], topics = mockTopics) => {
+    render(<TopicsDropdown topics={topics} selectedTopics={selectedTopics} onTopicsChange={onTopicsChangeMock} />);
   };
 
   afterEach(() => {
@@ -77,27 +77,23 @@ describe('TopicsDropdown', () => {
 
   test('renders with default title', () => {
     renderComponent();
-
-    expect(screen.getByText('common.allTopics')).toBeInTheDocument();
+    expect(screen.getByText('topic:topic.allTopics')).toBeInTheDocument();
   });
 
-  test('displays the selected topic as the title', () => {
-    renderComponent('react');
-
-    expect(screen.getByText('React')).toBeInTheDocument();
+  test('displays selected topics as the title', () => {
+    renderComponent(['react', 'vue']);
+    expect(screen.getByText('React, Vue.js')).toBeInTheDocument();
   });
 
   test('renders without error when topics list is empty', () => {
-    renderComponent(null, []);
-
-    expect(screen.queryByText('common.allTopics')).toBeInTheDocument();
+    renderComponent([], []);
+    expect(screen.getByText('topic:topic.allTopics')).toBeInTheDocument();
     expect(screen.queryByText('React')).not.toBeInTheDocument();
   });
 
   test('filters topics based on search input', () => {
     renderComponent();
-
-    fireEvent.click(screen.getByText('common.allTopics'));
+    fireEvent.click(screen.getByText('topic:topic.allTopics'));
 
     const searchInput = screen.getByPlaceholderText('common.searchBar.placeholder');
     fireEvent.change(searchInput, { target: { value: 'Vue' } });
@@ -106,33 +102,29 @@ describe('TopicsDropdown', () => {
     expect(screen.queryByText('React')).not.toBeInTheDocument();
   });
 
-  test('calls onTopicChange with null when "all topics" is selected', async () => {
-    renderComponent();
+  test('calls onTopicsChange with an empty array when "all topics" is selected', () => {
+    renderComponent(['react', 'vue']);
+    fireEvent.click(screen.getByText('topic:topic.allTopics Icon'));
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'common.allTopics' }));
-    });
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'common.allTopics Icon' }));
-    });
-
-    expect(onTopicChangeMock).toHaveBeenCalledWith(null);
+    expect(onTopicsChangeMock).toHaveBeenCalledWith([]);
   });
 
-  test('calls onTopicChange with correct topic id when a topic is selected', () => {
-    renderComponent();
+  test('calls onTopicsChange with an empty array when "all topics" is selected', () => {
+    renderComponent(['react', 'vue']);
 
-    fireEvent.click(screen.getByText('common.allTopics'));
-    fireEvent.click(screen.getByText('React'));
+    // Dropdown'ı aç
+    fireEvent.click(screen.getByRole('button', { name: 'React, Vue.js' }));
 
-    expect(onTopicChangeMock).toHaveBeenCalledWith('react');
+    // Tüm konular butonuna tıkla
+    fireEvent.click(screen.getByText('topic:topic.allTopics'));
+
+    // Beklenen çağrıyı kontrol et
+    expect(onTopicsChangeMock).toHaveBeenCalledWith([]);
   });
 
   test('handles pagination correctly', async () => {
     renderComponent();
-
-    fireEvent.click(screen.getByText('common.allTopics'));
+    fireEvent.click(screen.getByText('topic:topic.allTopics'));
 
     expect(screen.getByText('1')).toBeInTheDocument();
 
@@ -153,8 +145,7 @@ describe('TopicsDropdown', () => {
 
   test('updates topic list dynamically when searching', () => {
     renderComponent();
-
-    fireEvent.click(screen.getByText('common.allTopics'));
+    fireEvent.click(screen.getByText('topic:topic.allTopics'));
 
     const searchInput = screen.getByPlaceholderText('common.searchBar.placeholder');
     fireEvent.change(searchInput, { target: { value: 'Next' } });
@@ -165,8 +156,7 @@ describe('TopicsDropdown', () => {
 
   test('resets pagination when topics are filtered', () => {
     renderComponent();
-
-    fireEvent.click(screen.getByText('common.allTopics'));
+    fireEvent.click(screen.getByText('topic:topic.allTopics'));
 
     const searchInput = screen.getByPlaceholderText('common.searchBar.placeholder');
     fireEvent.change(searchInput, { target: { value: 'Vue' } });
@@ -175,10 +165,10 @@ describe('TopicsDropdown', () => {
     expect(screen.queryByText('React')).not.toBeInTheDocument();
   });
 
-  test('displays "common.allTopics" when selectedTopic does not match any topic in the list', () => {
-    renderComponent('nonexistent-topic');
+  test('displays a message when no topics are found', () => {
+    renderComponent([], []);
+    fireEvent.click(screen.getByText('topic:topic.allTopics'));
 
-    expect(screen.getByText('common.allTopics')).toBeInTheDocument();
-    expect(screen.queryByText('React')).not.toBeInTheDocument();
+    expect(screen.getByText('topic:topic.noTopicFound')).toBeInTheDocument();
   });
 });

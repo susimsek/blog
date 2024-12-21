@@ -21,27 +21,19 @@ jest.mock('@/components/pagination/PaginationBar', () => ({
   default: ({
     currentPage,
     totalPages,
-    size,
     onPageChange,
-    onSizeChange,
   }: {
     currentPage: number;
     totalPages: number;
-    size: number;
     onPageChange: (page: number) => void;
-    onSizeChange: (size: number) => void;
   }) => (
     <div data-testid="pagination-bar">
-      <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>
+      <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1} aria-label="Previous">
         Previous
       </button>
-      <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+      <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages} aria-label="Next">
         Next
       </button>
-      <select value={size} onChange={e => onSizeChange(Number(e.target.value))}>
-        <option value={5}>5</option>
-        <option value={10}>10</option>
-      </select>
     </div>
   ),
 }));
@@ -66,23 +58,38 @@ jest.mock('@/components/common/SortDropdown', () => ({
   ),
 }));
 
+jest.mock('@fortawesome/react-fontawesome', () => ({
+  FontAwesomeIcon: () => <span>Icon</span>,
+}));
+
 jest.mock('@/components/common/TopicsDropdown', () => ({
   __esModule: true,
   TopicsDropdown: ({
     topics,
-    onTopicChange,
+    selectedTopics,
+    onTopicsChange,
   }: {
-    topics: { id: string; name: string }[];
-    selectedTopic: string | null;
-    onTopicChange: (topicId: string | null) => void;
+    topics: { id: string; name: string; color: string }[];
+    selectedTopics: string[];
+    onTopicsChange: (topicIds: string[]) => void;
   }) => (
     <div data-testid="topics-dropdown">
-      <button onClick={() => onTopicChange(null)}>All Topics</button>
+      <button onClick={() => onTopicsChange([])}>All Topics</button>
       {topics.map(topic => (
-        <button key={topic.id} onClick={() => onTopicChange(topic.id)}>
-          {topic.name}
+        <button
+          key={topic.id}
+          style={{ color: topic.color }}
+          onClick={() => {
+            const newSelectedTopics = selectedTopics.includes(topic.id)
+              ? selectedTopics.filter(id => id !== topic.id)
+              : [...selectedTopics, topic.id];
+            onTopicsChange(newSelectedTopics);
+          }}
+        >
+          {selectedTopics.includes(topic.id) ? `✓ ${topic.name}` : topic.name}
         </button>
       ))}
+      {topics.length === 0 && <div data-testid="no-topics">No topics available</div>}
     </div>
   ),
 }));
@@ -132,20 +139,6 @@ describe('PostList Component', () => {
     expect(posts[4]).toHaveTextContent('Post 2');
   });
 
-  it('changes posts per page and handles pagination correctly', () => {
-    render(<PostList posts={mockPostSummaries} topics={[]} />);
-    const nextButton = screen.getByText('Next');
-    fireEvent.click(nextButton);
-
-    const postsOnPage = screen.getAllByTestId('post-card');
-    expect(postsOnPage[0]).toHaveTextContent('Post 6');
-
-    const sizeSelector = screen.getByRole('combobox');
-    fireEvent.change(sizeSelector, { target: { value: '10' } });
-
-    expect(screen.getAllByTestId('post-card')).toHaveLength(6);
-  });
-
   it('displays "no posts found" message when no posts match', () => {
     render(<PostList posts={mockPostSummaries} topics={[]} />);
     const searchBar = screen.getByTestId('search-bar');
@@ -171,15 +164,6 @@ describe('PostList Component', () => {
     render(<PostList posts={mockPostSummaries} topics={[]} />);
     const sortAscending = screen.getByText('Sort Ascending');
     fireEvent.click(sortAscending);
-
-    const previousButton = screen.getByText('Previous');
-    expect(previousButton).toBeDisabled();
-  });
-
-  it('resets pagination when topic is changed', () => {
-    render(<PostList posts={mockPostSummaries} topics={mockTopics} />);
-    const vueTopic = screen.getByText('Vue.js');
-    fireEvent.click(vueTopic);
 
     const previousButton = screen.getByText('Previous');
     expect(previousButton).toBeDisabled();

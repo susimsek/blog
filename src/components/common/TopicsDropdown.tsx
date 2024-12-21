@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Dropdown, DropdownButton, Badge } from 'react-bootstrap';
+import React, { useState, useMemo } from 'react';
+import { Dropdown, DropdownButton, Badge, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import { Topic } from '@/types/posts';
@@ -8,29 +8,40 @@ import Paginator from '@/components/pagination/Paginator';
 
 interface TopicsDropdownProps {
   topics: Topic[];
-  selectedTopic: string | null;
-  onTopicChange: (topicId: string | null) => void;
+  selectedTopics: string[];
+  onTopicsChange: (topicIds: string[]) => void;
 }
 
-export function TopicsDropdown({ topics, selectedTopic, onTopicChange }: Readonly<TopicsDropdownProps>) {
-  const { t } = useTranslation('common');
+export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Readonly<TopicsDropdownProps>) {
+  const { t } = useTranslation(['common', 'topic']);
   const [topicSearchQuery, setTopicSearchQuery] = useState('');
-  const [filteredTopics, setFilteredTopics] = useState<Topic[]>(topics);
   const [currentPage, setCurrentPage] = useState(1);
 
   const itemsPerPage = 5;
-  const totalPages = Math.ceil(filteredTopics.length / itemsPerPage);
-  const paginatedTopics = filteredTopics.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const filteredTopics = useMemo(() => {
+    return topics.filter(topic => topic.name.toLowerCase().includes(topicSearchQuery.toLowerCase()));
+  }, [topics, topicSearchQuery]);
+
+  const paginatedTopics = useMemo(() => {
+    return filteredTopics.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  }, [filteredTopics, currentPage, itemsPerPage]);
 
   const handleTopicSearch = (query: string) => {
     setTopicSearchQuery(query);
-    const filtered = topics.filter(topic => topic.name.toLowerCase().includes(query.toLowerCase()));
-    setFilteredTopics(filtered);
     setCurrentPage(1);
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleTopicToggle = (topicId: string) => {
+    const newSelectedTopics = selectedTopics.includes(topicId)
+      ? selectedTopics.filter(id => id !== topicId)
+      : [...selectedTopics, topicId];
+
+    onTopicsChange(newSelectedTopics);
   };
 
   return (
@@ -41,43 +52,62 @@ export function TopicsDropdown({ topics, selectedTopic, onTopicChange }: Readonl
       flip={false}
       align="start"
       title={
-        selectedTopic
-          ? topics.find(topic => topic.id === selectedTopic)?.name ?? t('common.allTopics')
-          : t('common.allTopics')
+        selectedTopics.length > 0
+          ? selectedTopics.length > 3
+            ? `${selectedTopics
+                .slice(0, 3)
+                .map(id => topics.find(topic => topic.id === id)?.name)
+                .join(', ')} ${t('common.andMore', { count: selectedTopics.length - 3 })}`
+            : selectedTopics.map(id => topics.find(topic => topic.id === id)?.name).join(', ')
+          : t('topic:topic.allTopics')
       }
     >
-      {/* Search Bar */}
       <div className="p-2">
         <SearchBar query={topicSearchQuery} onChange={handleTopicSearch} className="w-100" />
       </div>
 
-      {/* Paginated Topics */}
       <Dropdown.Divider />
-      <Dropdown.Item onClick={() => onTopicChange(null)} className="d-flex align-items-center">
+      <Dropdown.Item onClick={() => onTopicsChange([])} className="d-flex align-items-center">
         <Badge bg="gray" className="badge-gray me-2">
-          {t('common.allTopics')}
+          {t('topic:topic.allTopics')}
         </Badge>
-        {!selectedTopic && <FontAwesomeIcon icon="circle-check" className="ms-auto" />}
+        {selectedTopics.length === 0 && <FontAwesomeIcon icon="circle-check" className="ms-auto" />}
       </Dropdown.Item>
-      {paginatedTopics.map(topic => (
-        <Dropdown.Item key={topic.id} onClick={() => onTopicChange(topic.id)} className="d-flex align-items-center">
-          <Badge bg={topic.color} className={`badge-${topic.color} me-2`}>
-            {topic.name}
-          </Badge>
-          {selectedTopic === topic.id && <FontAwesomeIcon icon="circle-check" className="ms-auto" />}
-        </Dropdown.Item>
-      ))}
 
-      {/* Pagination */}
-      <Dropdown.Divider />
-      <div className="d-flex justify-content-center p-2">
-        <Paginator
-          currentPage={currentPage}
-          totalPages={totalPages}
-          maxPagesToShow={5}
-          onPageChange={handlePageChange}
-        />
-      </div>
+      {paginatedTopics.length > 0 ? (
+        paginatedTopics.map(topic => (
+          <Dropdown.Item
+            key={topic.id}
+            onClick={() => handleTopicToggle(topic.id)}
+            className="d-flex align-items-center"
+          >
+            <Badge bg={topic.color} className={`badge-${topic.color} me-2`}>
+              {topic.name}
+            </Badge>
+            {selectedTopics.includes(topic.id) && <FontAwesomeIcon icon="circle-check" className="ms-auto" />}
+          </Dropdown.Item>
+        ))
+      ) : (
+        <Dropdown.Item className="text-center py-3">
+          <Alert variant="info" className="mb-0 d-flex align-items-center">
+            <FontAwesomeIcon icon="exclamation-circle" className="me-2" size="lg" />
+            {t('topic:topic.noTopicFound')}
+          </Alert>
+        </Dropdown.Item>
+      )}
+      {filteredTopics.length > 0 && (
+        <>
+          <Dropdown.Divider />
+          <div className="d-flex justify-content-center p-2">
+            <Paginator
+              currentPage={currentPage}
+              totalPages={Math.ceil(filteredTopics.length / itemsPerPage)}
+              maxPagesToShow={5}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        </>
+      )}
     </DropdownButton>
   );
 }

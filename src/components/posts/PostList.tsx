@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { PostSummary, Topic } from '@/types/posts';
-import { Container } from 'react-bootstrap';
+import { Alert, Container } from 'react-bootstrap';
 import SearchBar from '@/components/search/SearchBar';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
 import { SortDropdown } from '@/components/common/SortDropdown';
 import { TopicsDropdown } from '@/components/common/TopicsDropdown';
 import { useTranslation } from 'next-i18next';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface PostListProps {
   posts: PostSummary[];
@@ -20,14 +21,14 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
   const filterPosts = (): PostSummary[] =>
     posts.filter(
       post =>
         (post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           post.summary.toLowerCase().includes(searchQuery.toLowerCase())) &&
-        (!selectedTopic || post.topics?.some(topic => topic.id === selectedTopic)),
+        (selectedTopics.length === 0 || post.topics?.some(topic => selectedTopics.includes(topic.id))),
     );
 
   const sortPosts = (posts: PostSummary[]): PostSummary[] =>
@@ -41,7 +42,6 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
 
   const filteredAndSortedPosts = getFilteredAndSortedPosts();
 
-  // Paginated posts
   const paginatedPosts = filteredAndSortedPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
 
   return (
@@ -54,9 +54,9 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
           {topics.length > 0 && (
             <TopicsDropdown
               topics={topics}
-              selectedTopic={selectedTopic}
-              onTopicChange={newTopic => {
-                setSelectedTopic(newTopic);
+              selectedTopics={selectedTopics}
+              onTopicsChange={newTopics => {
+                setSelectedTopics(newTopics);
                 setCurrentPage(1);
               }}
             />
@@ -73,19 +73,24 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
       {paginatedPosts.length > 0 ? (
         paginatedPosts.map(post => <PostCard key={post.id} post={post} />)
       ) : (
-        <p className="text-center text-muted">{noPostsFoundMessage ?? t('post.noPostsFound')}</p>
+        <Alert variant="info" className="mb-0 d-flex align-items-center justify-content-center py-3">
+          <FontAwesomeIcon icon="exclamation-circle" className="me-2" size="lg" />
+          {noPostsFoundMessage ?? t('post.noPostsFound')}
+        </Alert>
       )}
-      <PaginationBar
-        currentPage={currentPage}
-        totalPages={Math.ceil(filteredAndSortedPosts.length / postsPerPage)}
-        size={postsPerPage}
-        onPageChange={setCurrentPage}
-        onSizeChange={size => {
-          setPostsPerPage(size);
-          setCurrentPage(1);
-        }}
-        totalResults={filteredAndSortedPosts.length}
-      />
+      {filteredAndSortedPosts.length > 0 && (
+        <PaginationBar
+          currentPage={currentPage}
+          totalPages={Math.ceil(filteredAndSortedPosts.length / postsPerPage)}
+          size={postsPerPage}
+          onPageChange={setCurrentPage}
+          onSizeChange={size => {
+            setPostsPerPage(size);
+            setCurrentPage(1);
+          }}
+          totalResults={filteredAndSortedPosts.length}
+        />
+      )}
     </Container>
   );
 }

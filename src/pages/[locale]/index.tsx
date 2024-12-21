@@ -39,6 +39,6 @@ export default function Home({ posts, topics }: Readonly<HomeProps>) {
   );
 }
 
-const getStaticProps = makePostProps(['common', 'home', 'post']);
+const getStaticProps = makePostProps(['common', 'home', 'post', 'topic']);
 
 export { getStaticPaths, getStaticProps };

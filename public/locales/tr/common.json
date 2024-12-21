@@ -37,7 +37,9 @@
       "copy": "Kopyala",
       "copied": "Kopyalandı!"
     },
-    "allTopics": "Tüm Konular",
-    "searchTopics": "Konuları Ara"
+    "selected": "Seçildi",
+    "selectAll": "Tümünü Seç",
+    "noResults": "Sonuç bulunamadı",
+    "andMore": "ve {{count}} daha"
   }
 }
