@@ -9,6 +9,7 @@
     },
     "noTopicFound": "No topic found.",
     "allTopics": "All Topics",
-    "searchTopics": "Search Topics"
+    "searchTopics": "Search Topics",
+    "selectedTopics": "Selected Topics"
   }
 }

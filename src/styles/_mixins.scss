@@ -50,6 +50,12 @@
     color: $text-color;
     border-color: $border-color;
 
+    svg,
+    i {
+      color: $text-color !important;
+      @include transition(color);
+    }
+
     &:hover {
       background-color: $hover-bg;
       border-color: $hover-border;

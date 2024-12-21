@@ -20,7 +20,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
   const itemsPerPage = 5;
 
   const filteredTopics = useMemo(() => {
-    return topics.filter(topic => topic.name.toLowerCase().includes(topicSearchQuery.toLowerCase()));
+    return topics.filter(topic => topic.name.toLowerCase().includes(topicSearchQuery.toLowerCase().trim()));
   }, [topics, topicSearchQuery]);
 
   const paginatedTopics = useMemo(() => {
@@ -42,6 +42,10 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
       : [...selectedTopics, topicId];
 
     onTopicsChange(newSelectedTopics);
+  };
+
+  const handleTopicRemove = (topicId: string) => {
+    onTopicsChange(selectedTopics.filter(id => id !== topicId));
   };
 
   const getDropdownTitle = () => {
@@ -74,6 +78,30 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
       </div>
 
       <Dropdown.Divider />
+
+      {selectedTopics.length > 0 && (
+        <>
+          <Dropdown.Header>{t('topic:topic.selectedTopics')}</Dropdown.Header>
+          <div className="p-3">
+            {selectedTopics.map(topicId => {
+              const topic = topics.find(t => t.id === topicId);
+              if (!topic) return null;
+              return (
+                <Badge key={topicId} bg={topic.color} className={`badge-${topic.color} me-2 mb-2`}>
+                  {topic.name}{' '}
+                  <FontAwesomeIcon
+                    icon="times"
+                    className="ms-1 cursor-pointer"
+                    onClick={() => handleTopicRemove(topicId)}
+                  />
+                </Badge>
+              );
+            })}
+          </div>
+          <Dropdown.Divider />
+        </>
+      )}
+
       <Dropdown.Item onClick={() => onTopicsChange([])} className="d-flex align-items-center">
         <Badge bg="gray" className="badge-gray me-2">
           {t('topic:topic.allTopics')}
@@ -102,6 +130,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
           </Alert>
         </Dropdown.Item>
       )}
+
       {filteredTopics.length > 0 && (
         <>
           <Dropdown.Divider />

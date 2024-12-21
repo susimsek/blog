@@ -9,6 +9,7 @@
     },
     "noTopicFound": "Hiçbir konu bulunamadı.",
     "allTopics": "Tüm Konular",
-    "searchTopics": "Konuları Ara"
+    "searchTopics": "Konuları Ara",
+    "selectedTopics": "Seçili Konular"
   }
 }
