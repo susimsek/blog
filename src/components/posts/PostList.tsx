@@ -27,7 +27,7 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
       post =>
         (post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           post.summary.toLowerCase().includes(searchQuery.toLowerCase())) &&
-        (!selectedTopic || (post.topics && post.topics.some(topic => topic.id === selectedTopic))),
+        (!selectedTopic || post.topics?.some(topic => topic.id === selectedTopic)),
     );
 
   const sortPosts = (posts: PostSummary[]): PostSummary[] =>

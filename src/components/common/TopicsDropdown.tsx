@@ -10,7 +10,7 @@ interface TopicsDropdownProps {
   onTopicChange: (topicId: string | null) => void;
 }
 
-export function TopicsDropdown({ topics, selectedTopic, onTopicChange }: TopicsDropdownProps) {
+export function TopicsDropdown({ topics, selectedTopic, onTopicChange }: Readonly<TopicsDropdownProps>) {
   const { t } = useTranslation('common');
   const [topicSearchQuery, setTopicSearchQuery] = useState('');
   const [filteredTopics, setFilteredTopics] = useState<Topic[]>(topics);
@@ -39,7 +39,7 @@ export function TopicsDropdown({ topics, selectedTopic, onTopicChange }: TopicsD
       align="start"
       title={
         selectedTopic
-          ? topics.find(topic => topic.id === selectedTopic)?.name || t('common.allTopics')
+          ? topics.find(topic => topic.id === selectedTopic)?.name ?? t('common.allTopics')
           : t('common.allTopics')
       }
     >

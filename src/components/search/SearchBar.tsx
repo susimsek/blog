@@ -16,7 +16,7 @@ export default function SearchBar({ query, onChange, className }: Readonly<Searc
   };
 
   return (
-    <div className={`search-bar d-flex align-items-center ${className || ''}`}>
+    <div className={`search-bar d-flex align-items-center ${className ?? ''}`}>
       <input
         type="text"
         className="search-input form-control me-2"

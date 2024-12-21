@@ -8,7 +8,7 @@ interface SortDropdownProps {
   onChange: (order: 'asc' | 'desc') => void;
 }
 
-export function SortDropdown({ sortOrder, onChange }: SortDropdownProps) {
+export function SortDropdown({ sortOrder, onChange }: Readonly<SortDropdownProps>) {
   const { t } = useTranslation('common');
 
   return (
