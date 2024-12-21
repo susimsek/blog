@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Dropdown, DropdownButton, Badge, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
@@ -19,36 +19,18 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
 
   const itemsPerPage = 5;
 
+  // Filtered topics
   const filteredTopics = useMemo(() => {
     return topics.filter(topic => topic.name.toLowerCase().includes(topicSearchQuery.toLowerCase().trim()));
   }, [topics, topicSearchQuery]);
 
+  // Paginated topics
   const paginatedTopics = useMemo(() => {
     return filteredTopics.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   }, [filteredTopics, currentPage, itemsPerPage]);
 
-  const handleTopicSearch = (query: string) => {
-    setTopicSearchQuery(query);
-    setCurrentPage(1);
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handleTopicToggle = (topicId: string) => {
-    const newSelectedTopics = selectedTopics.includes(topicId)
-      ? selectedTopics.filter(id => id !== topicId)
-      : [...selectedTopics, topicId];
-
-    onTopicsChange(newSelectedTopics);
-  };
-
-  const handleTopicRemove = (topicId: string) => {
-    onTopicsChange(selectedTopics.filter(id => id !== topicId));
-  };
-
-  const getDropdownTitle = () => {
+  // Dropdown title
+  const dropdownTitle = useMemo(() => {
     if (selectedTopics.length === 0) {
       return t('topic:topic.allTopics');
     }
@@ -57,12 +39,43 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
       const firstThreeNames = selectedTopics
         .slice(0, 3)
         .map(id => topics.find(topic => topic.id === id)?.name)
+        .filter(Boolean) // Undefined değerleri kaldırır
         .join(', ');
       return `${firstThreeNames} ${t('common.andMore', { count: selectedTopics.length - 3 })}`;
     }
 
-    return selectedTopics.map(id => topics.find(topic => topic.id === id)?.name).join(', ');
-  };
+    return selectedTopics
+      .map(id => topics.find(topic => topic.id === id)?.name)
+      .filter(Boolean) // Undefined değerleri kaldırır
+      .join(', ');
+  }, [selectedTopics, topics, t]);
+
+  // Callback functions with useCallback
+  const handleTopicSearch = useCallback((query: string) => {
+    setTopicSearchQuery(query);
+    setCurrentPage(1);
+  }, []);
+
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, []);
+
+  const handleTopicToggle = useCallback(
+    (topicId: string) => {
+      const newSelectedTopics = selectedTopics.includes(topicId)
+        ? selectedTopics.filter(id => id !== topicId)
+        : [...selectedTopics, topicId];
+      onTopicsChange(newSelectedTopics);
+    },
+    [selectedTopics, onTopicsChange],
+  );
+
+  const handleTopicRemove = useCallback(
+    (topicId: string) => {
+      onTopicsChange(selectedTopics.filter(id => id !== topicId));
+    },
+    [selectedTopics, onTopicsChange],
+  );
 
   return (
     <DropdownButton
@@ -71,7 +84,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
       className="mb-2 topics-dropdown"
       flip={false}
       align="start"
-      title={getDropdownTitle()}
+      title={dropdownTitle}
     >
       <div className="p-2">
         <SearchBar query={topicSearchQuery} onChange={handleTopicSearch} className="w-100" />
