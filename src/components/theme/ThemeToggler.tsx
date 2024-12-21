@@ -1,3 +1,4 @@
+import React, { useCallback } from 'react';
 import { toggleTheme } from '@/reducers/theme';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,11 +12,14 @@ const ThemeToggler = () => {
   const dispatch = useAppDispatch();
   const theme = useAppSelector(state => state.theme.theme);
 
-  const handleThemeChange = (selectedTheme: 'light' | 'dark') => {
-    if (theme !== selectedTheme) {
-      dispatch(toggleTheme());
-    }
-  };
+  const handleThemeChange = useCallback(
+    (selectedTheme: 'light' | 'dark') => {
+      if (theme !== selectedTheme) {
+        dispatch(toggleTheme());
+      }
+    },
+    [theme, dispatch],
+  );
 
   return (
     <NavDropdown
@@ -34,7 +38,7 @@ const ThemeToggler = () => {
           key={key}
           onClick={() => handleThemeChange(key as 'light' | 'dark')}
           aria-label={t(label)}
-          className="d-flex justify-content-between align-items-center"
+          className={`d-flex justify-content-between align-items-center ${theme === key ? 'active-theme' : ''}`}
         >
           <div>
             <FontAwesomeIcon icon={icon as IconProp} className={`me-2 ${icon === 'moon' ? 'ms-1' : ''}`} />
