@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { PostSummary, Topic } from '@/types/posts';
 import { Alert, Container } from 'react-bootstrap';
 import SearchBar from '@/components/search/SearchBar';
@@ -23,26 +23,34 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
-  const filterPosts = (): PostSummary[] =>
-    posts.filter(
-      post =>
-        (post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          post.summary.toLowerCase().includes(searchQuery.toLowerCase())) &&
-        (selectedTopics.length === 0 || post.topics?.some(topic => selectedTopics.includes(topic.id))),
-    );
+  // Memoized filtered posts
+  const filteredPosts = useMemo(
+    () =>
+      posts.filter(
+        post =>
+          (post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            post.summary.toLowerCase().includes(searchQuery.toLowerCase())) &&
+          (selectedTopics.length === 0 || post.topics?.some(topic => selectedTopics.includes(topic.id))),
+      ),
+    [posts, searchQuery, selectedTopics],
+  );
 
-  const sortPosts = (posts: PostSummary[]): PostSummary[] =>
-    [...posts].sort((a, b) =>
-      sortOrder === 'asc'
-        ? new Date(a.date).getTime() - new Date(b.date).getTime()
-        : new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
+  // Memoized sorted posts
+  const sortedPosts = useMemo(
+    () =>
+      [...filteredPosts].sort((a, b) =>
+        sortOrder === 'asc'
+          ? new Date(a.date).getTime() - new Date(b.date).getTime()
+          : new Date(b.date).getTime() - new Date(a.date).getTime(),
+      ),
+    [filteredPosts, sortOrder],
+  );
 
-  const getFilteredAndSortedPosts = (): PostSummary[] => sortPosts(filterPosts());
-
-  const filteredAndSortedPosts = getFilteredAndSortedPosts();
-
-  const paginatedPosts = filteredAndSortedPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+  // Memoized paginated posts
+  const paginatedPosts = useMemo(
+    () => sortedPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage),
+    [sortedPosts, currentPage, postsPerPage],
+  );
 
   return (
     <Container className="mt-5" style={{ maxWidth: '800px' }}>
@@ -78,17 +86,17 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
           {noPostsFoundMessage ?? t('post.noPostsFound')}
         </Alert>
       )}
-      {filteredAndSortedPosts.length > 0 && (
+      {sortedPosts.length > 0 && (
         <PaginationBar
           currentPage={currentPage}
-          totalPages={Math.ceil(filteredAndSortedPosts.length / postsPerPage)}
+          totalPages={Math.ceil(sortedPosts.length / postsPerPage)}
           size={postsPerPage}
           onPageChange={setCurrentPage}
           onSizeChange={size => {
             setPostsPerPage(size);
             setCurrentPage(1);
           }}
-          totalResults={filteredAndSortedPosts.length}
+          totalResults={sortedPosts.length}
         />
       )}
     </Container>
