@@ -931,41 +931,123 @@ describe('Posts Library', () => {
   });
 
   describe('getAllTopicIds', () => {
+    const mockEnglishTopics = [
+      { id: 'react', name: 'React', color: 'red' },
+      { id: 'nextjs', name: 'Next.js', color: 'blue' },
+    ];
+
+    const mockFrenchTopics = [
+      { id: 'react', name: 'Réagir', color: 'rouge' },
+      { id: 'nextjs', name: 'Suivant.js', color: 'bleu' },
+    ];
+
     beforeEach(() => {
       jest.clearAllMocks();
+      jest.spyOn(console, 'error').mockImplementation(() => {}); // Mock console.error
+      jest.spyOn(console, 'warn').mockImplementation(() => {}); // Mock console.warn
     });
 
-    it('returns an empty array if directory does not exist', () => {
+    afterEach(() => {
+      jest.restoreAllMocks(); // Restore original console methods
+    });
+
+    it('returns topic IDs for all locales when topics.json exists', () => {
+      // Mock `fs.existsSync` to return true for both locale files
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.readFileSync as jest.Mock).mockImplementation(filePath => {
+        if (filePath.endsWith('/content/topics/en/topics.json')) {
+          return JSON.stringify(mockEnglishTopics);
+        }
+        if (filePath.endsWith('/content/topics/fr/topics.json')) {
+          return JSON.stringify(mockFrenchTopics);
+        }
+        return '';
+      });
+
+      // Call the function
+      const result = getAllTopicIds();
+
+      // Assert the result
+      expect(result).toEqual([
+        {
+          params: {
+            id: 'react',
+            locale: 'en',
+          },
+        },
+        {
+          params: {
+            id: 'nextjs',
+            locale: 'en',
+          },
+        },
+        {
+          params: {
+            id: 'react',
+            locale: 'fr',
+          },
+        },
+        {
+          params: {
+            id: 'nextjs',
+            locale: 'fr',
+          },
+        },
+      ]);
+
+      // Verify the mocks were called correctly
+      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/content/topics/en/topics.json'));
+      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/content/topics/fr/topics.json'));
+      expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('/content/topics/en/topics.json'), 'utf8');
+      expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('/content/topics/fr/topics.json'), 'utf8');
+    });
+
+    it('returns an empty array if topics.json does not exist for any locale', () => {
       (fs.existsSync as jest.Mock).mockReturnValue(false);
 
       const result = getAllTopicIds();
 
       expect(result).toEqual([]);
-      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
-      expect(fs.readdirSync).not.toHaveBeenCalled();
+      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('Topics file not found'));
     });
 
-    it('returns topic IDs with locales if directory exists', () => {
+    it('handles JSON parse errors gracefully', () => {
       (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.readdirSync as jest.Mock).mockReturnValue(['mock-post.md']);
-
-      (fs.promises.readFile as jest.Mock).mockReturnValue(`
-      ---
-      id: ${mockPost.id}
-      title: ${mockPost.title}
-      date: "${mockPost.date}"
-      summary: ${mockPost.summary}
-      thumbnail: ${mockPost.thumbnail}
-      topics: ${JSON.stringify(mockPost.topics)}
-      ---
-      # Mock Markdown Content
-    `);
+      (fs.readFileSync as jest.Mock).mockImplementation(() => '{ invalid json }');
 
       const result = getAllTopicIds();
 
-      expect(result).toEqual(mockTopicIds);
+      expect(result).toEqual([]);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining('Error reading or parsing topics.json'),
+        expect.any(SyntaxError),
+      );
+    });
 
-      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
+    it('returns an empty array if no topics are found for any locale', () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify([])); // Empty array for topics
+
+      const result = getAllTopicIds();
+
+      expect(result).toEqual([]);
+    });
+
+    it('handles a mix of existing and missing topics.json files for different locales', () => {
+      (fs.existsSync as jest.Mock).mockImplementation(filePath => {
+        return filePath.includes('/content/topics/en/topics.json');
+      });
+      (fs.readFileSync as jest.Mock).mockImplementation(filePath => {
+        if (filePath.endsWith('/content/topics/en/topics.json')) {
+          return JSON.stringify(mockEnglishTopics);
+        }
+        throw new Error('File not found');
+      });
+
+      const result = getAllTopicIds();
+
+      expect(result).toEqual([{ params: { id: 'react', locale: 'en' } }, { params: { id: 'nextjs', locale: 'en' } }]);
+      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('Topics file not found'));
     });
   });
 });

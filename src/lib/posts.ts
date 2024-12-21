@@ -172,33 +172,33 @@ export function getAllPostIds() {
 }
 
 export function getAllTopicIds() {
-  const defaultLocale = i18nextConfig.i18n.defaultLocale;
-  const directory = path.join(postsDirectory, defaultLocale);
-  const fileNames = fs.existsSync(directory) ? fs.readdirSync(directory) : [];
+  const topicIds: { params: { id: string; locale: string } }[] = [];
 
-  const topicIds = new Set<string>();
+  i18nextConfig.i18n.locales.forEach(locale => {
+    const topicsFilePath = path.join(topicsDirectory, locale, 'topics.json');
 
-  // Iterate through all post files to collect unique topic IDs
-  fileNames.forEach(fileName => {
-    const filePath = path.join(directory, fileName);
-    const { data } = parsePostFile(filePath);
+    if (fs.existsSync(topicsFilePath)) {
+      try {
+        const fileContents = fs.readFileSync(topicsFilePath, 'utf8');
+        const topics: Topic[] = JSON.parse(fileContents);
 
-    if (Array.isArray(data.topics)) {
-      data.topics.forEach((topic: { id: string }) => {
-        topicIds.add(topic.id); // Add each topic's id to the Set
-      });
+        topics.forEach(topic => {
+          topicIds.push({
+            params: {
+              id: topic.id,
+              locale,
+            },
+          });
+        });
+      } catch (error) {
+        console.error(`Error reading or parsing topics.json for locale "${locale}":`, error);
+      }
+    } else {
+      console.warn(`Topics file not found for locale "${locale}": ${topicsFilePath}`);
     }
   });
 
-  // Convert the Set to an array of paths with locales
-  return Array.from(topicIds).flatMap(id =>
-    i18nextConfig.i18n.locales.map(locale => ({
-      params: {
-        id,
-        locale,
-      },
-    })),
-  );
+  return topicIds;
 }
 
 // Factory for generating localized props for post lists
