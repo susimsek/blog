@@ -1044,3 +1044,8 @@ input.form-control {
   color: var(--icon-check-color);
   @include transition(color);
 }
+
+svg {
+  color: var(--text-color) !important;
+  @include transition(color);
+}

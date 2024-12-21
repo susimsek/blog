@@ -52,7 +52,7 @@ export function TopicsDropdown({ topics, selectedTopic, onTopicChange }: Readonl
           onChange={e => handleTopicSearch(e.target.value)}
           className="ms-auto w-75"
         />
-        <FontAwesomeIcon icon="search" className="ms-2 text-muted" />
+        <FontAwesomeIcon icon="search" className="ms-2" />
       </div>
 
       {/* Paginated Topics */}
