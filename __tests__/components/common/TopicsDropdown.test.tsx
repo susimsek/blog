@@ -212,7 +212,8 @@ describe('TopicsDropdown - getDropdownTitle', () => {
 
     render(<TopicsDropdown topics={mockTopics} selectedTopics={selectedTopics} onTopicsChange={onTopicsChangeMock} />);
 
-    fireEvent.click(screen.getByText('React'));
+    fireEvent.click(screen.getByRole('button', { name: /React/i }));
+
     fireEvent.click(screen.getByText('Vue.js'));
 
     expect(onTopicsChangeMock).toHaveBeenCalledWith(['react', 'vue']);
@@ -225,6 +226,30 @@ describe('TopicsDropdown - getDropdownTitle', () => {
     render(<TopicsDropdown topics={mockTopics} selectedTopics={selectedTopics} onTopicsChange={onTopicsChangeMock} />);
 
     fireEvent.click(screen.getByRole('button', { name: /React, Vue.js/i }));
-    expect(screen.getByText('Vue.js')).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByText((content, element) => {
+        return element?.textContent === 'Vue.js';
+      }),
+    );
+
+    expect(onTopicsChangeMock).toHaveBeenCalledWith(['react']);
+  });
+
+  test('correctly filters the selected topic when removed', () => {
+    const onTopicsChangeMock = jest.fn();
+    const selectedTopics = ['react', 'vue']; // Başlangıçta seçili olanlar
+
+    render(<TopicsDropdown topics={mockTopics} selectedTopics={selectedTopics} onTopicsChange={onTopicsChangeMock} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /React, Vue.js/i }));
+
+    fireEvent.click(
+      screen.getByText((content, element) => {
+        return element?.textContent === 'Vue.js';
+      }),
+    );
+
+    expect(onTopicsChangeMock).toHaveBeenCalledWith(['react']);
   });
 });
