@@ -1065,3 +1065,7 @@ svg {
   color: var(--text-color) !important;
   @include transition(color);
 }
+
+.topics-dropdown .dropdown-menu {
+  min-width: 300px;
+}

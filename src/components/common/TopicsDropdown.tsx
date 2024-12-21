@@ -37,7 +37,7 @@ export function TopicsDropdown({ topics, selectedTopic, onTopicChange }: Readonl
     <DropdownButton
       id="topics-dropdown"
       variant="primary"
-      className="mb-2"
+      className="mb-2 topics-dropdown"
       flip={false}
       align="start"
       title={
