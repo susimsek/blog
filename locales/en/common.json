@@ -39,6 +39,7 @@
     },
     "selected": "Selected",
     "selectAll": "Select All",
+    "clearAll": "Clear All",
     "noResults": "No results found",
     "andMore": "and {{count}} more"
   }
