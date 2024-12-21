@@ -122,4 +122,11 @@ describe('TopicsDropdown', () => {
     expect(screen.getByText('Vue.js')).toBeInTheDocument();
     expect(screen.queryByText('React')).not.toBeInTheDocument();
   });
+
+  test('displays "common.allTopics" when selectedTopic does not match any topic in the list', () => {
+    renderComponent('nonexistent-topic');
+
+    expect(screen.getByText('common.allTopics')).toBeInTheDocument();
+    expect(screen.queryByText('React')).not.toBeInTheDocument();
+  });
 });
