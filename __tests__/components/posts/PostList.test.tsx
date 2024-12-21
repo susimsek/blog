@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import PostList from '@/components/posts/PostList';
 import { mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
 
@@ -22,10 +22,12 @@ jest.mock('@/components/pagination/PaginationBar', () => ({
     currentPage,
     totalPages,
     onPageChange,
+    onSizeChange,
   }: {
     currentPage: number;
     totalPages: number;
     onPageChange: (page: number) => void;
+    onSizeChange: (size: number) => void;
   }) => (
     <div data-testid="pagination-bar">
       <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1} aria-label="Previous">
@@ -34,6 +36,11 @@ jest.mock('@/components/pagination/PaginationBar', () => ({
       <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages} aria-label="Next">
         Next
       </button>
+      <select data-testid="page-size-select" onChange={e => onSizeChange(Number(e.target.value))}>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+      </select>
     </div>
   ),
 }));
@@ -166,6 +173,24 @@ describe('PostList Component', () => {
     fireEvent.click(sortAscending);
 
     const previousButton = screen.getByText('Previous');
+    expect(previousButton).toBeDisabled();
+  });
+
+  it('updates posts per page and resets pagination when page size is changed', async () => {
+    render(<PostList posts={mockPostSummaries} topics={[]} />);
+
+    expect(screen.getAllByTestId('post-card')).toHaveLength(5);
+
+    const pageSizeSelect = screen.getByTestId('page-size-select');
+    fireEvent.change(pageSizeSelect, { target: { value: '10' } });
+
+    console.log('Mocked Posts:', mockPostSummaries);
+
+    await waitFor(() => {
+      expect(screen.getAllByTestId('post-card')).toHaveLength(6);
+    });
+
+    const previousButton = screen.getByLabelText('Previous');
     expect(previousButton).toBeDisabled();
   });
 });
