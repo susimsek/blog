@@ -166,8 +166,6 @@ describe('TopicsDropdown', () => {
 });
 
 describe('TopicsDropdown - getDropdownTitle', () => {
-  afterEach(cleanup);
-
   const topics = [
     { id: 'react', name: 'React', color: 'blue' },
     { id: 'vue', name: 'Vue.js', color: 'green' },
@@ -179,6 +177,8 @@ describe('TopicsDropdown - getDropdownTitle', () => {
   const renderComponent = (selectedTopics: string[]) => {
     render(<TopicsDropdown topics={topics} selectedTopics={selectedTopics} onTopicsChange={() => {}} />);
   };
+
+  afterEach(cleanup);
 
   test('displays "All Topics" when no topics are selected', () => {
     renderComponent([]);
@@ -223,36 +223,25 @@ describe('TopicsDropdown - getDropdownTitle', () => {
     expect(onTopicsChangeMock).toHaveBeenCalledWith(['react', 'vue']);
   });
 
-  test('removes a topic from selectedTopics if already selected', () => {
+  test('removes a topic from selectedTopics if already selected', async () => {
     const onTopicsChangeMock = jest.fn();
     const selectedTopics = ['react', 'vue'];
 
     render(<TopicsDropdown topics={mockTopics} selectedTopics={selectedTopics} onTopicsChange={onTopicsChangeMock} />);
 
-    fireEvent.click(screen.getByRole('button', { name: /React, Vue.js/i }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /React, Vue.js/i }));
+    });
 
-    fireEvent.click(
-      screen.getByText((content, element) => {
-        return element?.textContent === 'Vue.js';
-      }),
-    );
+    const allRemoveIcons = screen.queryAllByTestId('font-awesome-icon-times');
+    const vueRemoveIcon = allRemoveIcons.find(icon => icon.closest('.badge-green'));
+    console.log('Vue.js Remove Icon:', vueRemoveIcon?.outerHTML);
 
-    expect(onTopicsChangeMock).toHaveBeenCalledWith(['react']);
-  });
-
-  test('correctly filters the selected topic when removed', () => {
-    const onTopicsChangeMock = jest.fn();
-    const selectedTopics = ['react', 'vue']; // Başlangıçta seçili olanlar
-
-    render(<TopicsDropdown topics={mockTopics} selectedTopics={selectedTopics} onTopicsChange={onTopicsChangeMock} />);
-
-    fireEvent.click(screen.getByRole('button', { name: /React, Vue.js/i }));
-
-    fireEvent.click(
-      screen.getByText((content, element) => {
-        return element?.textContent === 'Vue.js';
-      }),
-    );
+    if (vueRemoveIcon) {
+      await act(async () => {
+        fireEvent.click(vueRemoveIcon);
+      });
+    }
 
     expect(onTopicsChangeMock).toHaveBeenCalledWith(['react']);
   });
