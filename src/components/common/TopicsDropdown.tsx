@@ -87,6 +87,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
       flip={false}
       align="start"
       title={dropdownTitle}
+      autoClose="outside"
     >
       <div className="p-2">
         <SearchBar query={topicSearchQuery} onChange={handleTopicSearch} className="w-100" />
