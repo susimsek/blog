@@ -6,6 +6,9 @@
     "meta": {
       "description": "{{topic}} hakkında en son yazıları ve analizleri keşfedin. Trendler ve makalelerle güncel kalın.",
       "keywords": "{{topic}}, {{topic}} blogu, {{topic}} hakkında analizler, {{topic}} trendleri"
-    }
+    },
+    "noTopicFound": "Hiçbir konu bulunamadı.",
+    "allTopics": "Tüm Konular",
+    "searchTopics": "Konuları Ara"
   }
 }
