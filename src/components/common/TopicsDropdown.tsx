@@ -66,6 +66,8 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
         ? selectedTopics.filter(id => id !== topicId)
         : [...selectedTopics, topicId];
       onTopicsChange(newSelectedTopics);
+      setTopicSearchQuery('');
+      setCurrentPage(1);
     },
     [selectedTopics, onTopicsChange],
   );
