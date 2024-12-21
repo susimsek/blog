@@ -44,6 +44,22 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
     onTopicsChange(newSelectedTopics);
   };
 
+  const getDropdownTitle = () => {
+    if (selectedTopics.length === 0) {
+      return t('topic:topic.allTopics');
+    }
+
+    if (selectedTopics.length > 3) {
+      const firstThreeNames = selectedTopics
+        .slice(0, 3)
+        .map(id => topics.find(topic => topic.id === id)?.name)
+        .join(', ');
+      return `${firstThreeNames} ${t('common.andMore', { count: selectedTopics.length - 3 })}`;
+    }
+
+    return selectedTopics.map(id => topics.find(topic => topic.id === id)?.name).join(', ');
+  };
+
   return (
     <DropdownButton
       id="topics-dropdown"
@@ -51,16 +67,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
       className="mb-2 topics-dropdown"
       flip={false}
       align="start"
-      title={
-        selectedTopics.length > 0
-          ? selectedTopics.length > 3
-            ? `${selectedTopics
-                .slice(0, 3)
-                .map(id => topics.find(topic => topic.id === id)?.name)
-                .join(', ')} ${t('common.andMore', { count: selectedTopics.length - 3 })}`
-            : selectedTopics.map(id => topics.find(topic => topic.id === id)?.name).join(', ')
-          : t('topic:topic.allTopics')
-      }
+      title={getDropdownTitle()}
     >
       <div className="p-2">
         <SearchBar query={topicSearchQuery} onChange={handleTopicSearch} className="w-100" />
