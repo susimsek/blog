@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Dropdown, DropdownButton, Badge, Alert } from 'react-bootstrap';
+import { Dropdown, DropdownButton, Badge, Alert, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import { Topic } from '@/types/posts';
@@ -97,7 +97,16 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
 
       {selectedTopics.length > 0 && (
         <>
-          <Dropdown.Header>{t('topic:topic.selectedTopics')}</Dropdown.Header>
+          <Dropdown.Header>
+            <div className="d-flex justify-content-between align-items-center">
+              <span>{t('topic:topic.selectedTopics')}</span>
+
+              <Button variant="danger" onClick={() => onTopicsChange([])} className="btn-badge">
+                <FontAwesomeIcon icon="trash" className="me-1" />
+                {t('common.clearAll')}
+              </Button>
+            </div>
+          </Dropdown.Header>
           <div className="p-2 ms-2">
             {selectedTopics.map(topicId => {
               const topic = topics.find(t => t.id === topicId);

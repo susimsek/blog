@@ -39,6 +39,7 @@
     },
     "selected": "Seçildi",
     "selectAll": "Tümünü Seç",
+    "clearAll": "Tümünü Temizle",
     "noResults": "Sonuç bulunamadı",
     "andMore": "ve {{count}} daha"
   }
