@@ -102,7 +102,7 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
             <TopicsDropdown topics={topics} selectedTopics={selectedTopics} onTopicsChange={handleTopicsChange} />
           )}
           <DateRangePicker
-            onRangeChange={dates => console.log(dates)}
+            onRangeChange={dates => handleDateRangeChange(dates)}
             minDate={new Date('2024-01-01')}
             maxDate={new Date()}
           />

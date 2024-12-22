@@ -4,6 +4,7 @@ import {
   faAddressBook,
   faBars,
   faBook,
+  faCalendarAlt,
   faCheck,
   faCheckCircle,
   faChevronLeft,
@@ -79,6 +80,7 @@ export const loadIcons = () => {
     faCircleCheck,
     faPalette,
     faTimesCircle,
+    faCalendarAlt,
   );
 };
 

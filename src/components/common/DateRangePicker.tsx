@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Dropdown, DropdownButton, Form, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'next-i18next';
 import i18nextConfig from '../../../next-i18next.config';
 import { useRouter } from 'next/router';
@@ -126,37 +126,39 @@ export default function DateRangePicker({
 
       {selectedOption === 'customDate' && (
         <div className="p-3">
-          <div className="d-flex align-items-center mb-4">
-            <Form.Label className="me-2" style={{ minWidth: '120px' }}>
-              {t('common.datePicker.startDateLabel')}
-            </Form.Label>
-            <DatePicker
-              selected={customStartDate}
-              onChange={date => handleCustomDateChange(date, customEndDate)}
-              locale={selectedLocale}
-              dateFormat="P"
-              isClearable
-              placeholderText={t('common.datePicker.startDatePlaceholder')}
-              className="form-control"
-              minDate={minDate} // Props'tan gelen minDate
-              maxDate={maxDate} // Props'tan gelen maxDate
-            />
+          <div className="d-flex flex-column mb-4">
+            <Form.Label className="mb-2">{t('common.datePicker.startDateLabel')}</Form.Label>
+            <div className="d-flex align-items-center">
+              <FontAwesomeIcon icon="calendar-alt" className="me-2" />
+              <DatePicker
+                selected={customStartDate}
+                onChange={date => handleCustomDateChange(date, customEndDate)}
+                locale={selectedLocale}
+                dateFormat="P"
+                isClearable
+                placeholderText={t('common.datePicker.startDatePlaceholder')}
+                className="form-control"
+                minDate={minDate}
+                maxDate={maxDate}
+              />
+            </div>
           </div>
-          <div className="d-flex align-items-center">
-            <Form.Label className="me-2" style={{ minWidth: '120px' }}>
-              {t('common.datePicker.endDateLabel')}
-            </Form.Label>
-            <DatePicker
-              selected={customEndDate}
-              onChange={date => handleCustomDateChange(customStartDate, date)}
-              locale={selectedLocale}
-              dateFormat="P"
-              isClearable
-              placeholderText={t('common.datePicker.endDatePlaceholder')}
-              className="form-control"
-              minDate={minDate}
-              maxDate={maxDate}
-            />
+          <div className="d-flex flex-column">
+            <Form.Label className="mb-2">{t('common.datePicker.endDateLabel')}</Form.Label>
+            <div className="d-flex align-items-center">
+              <FontAwesomeIcon icon="calendar-alt" className="me-2" />
+              <DatePicker
+                selected={customEndDate}
+                onChange={date => handleCustomDateChange(customStartDate, date)}
+                locale={selectedLocale}
+                dateFormat="P"
+                isClearable
+                placeholderText={t('common.datePicker.endDatePlaceholder')}
+                className="form-control"
+                minDate={minDate}
+                maxDate={maxDate}
+              />
+            </div>
           </div>
         </div>
       )}
