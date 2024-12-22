@@ -23,7 +23,7 @@ export default function Thumbnail({
       <Image
         src={src}
         alt={alt}
-        className="img-fluid"
+        className="img-fluid rounded"
         width={width}
         height={height}
         style={{ width: '100%', height: 'auto' }}
