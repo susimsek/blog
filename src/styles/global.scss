@@ -57,7 +57,8 @@ body {
   background-color: var(--footer-bg);
   color: var(--text-color);
   border-top: 1px solid var(--border-color);
-  @include transition(background-color, color, border-color);
+  box-shadow: var(--box-shadow-footer);
+  @include transition(background-color, color, border-color, box-shadow);
 }
 
 main {
