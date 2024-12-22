@@ -51,24 +51,24 @@ export default function DateRangePicker({ onRangeChange }: DateRangePickerProps)
 
     switch (option) {
       case 'today':
-        startDate = today.toISOString().split('T')[0];
-        endDate = today.toISOString().split('T')[0];
+        startDate = today.toLocaleDateString();
+        endDate = today.toLocaleDateString();
         break;
       case 'last7Days':
         const lastWeek = new Date(today);
         lastWeek.setDate(today.getDate() - 7);
-        startDate = lastWeek.toISOString().split('T')[0];
-        endDate = today.toISOString().split('T')[0];
+        startDate = lastWeek.toLocaleDateString();
+        endDate = today.toLocaleDateString();
         break;
       case 'last30Days':
         const lastMonth = new Date(today);
         lastMonth.setDate(today.getDate() - 30);
-        startDate = lastMonth.toISOString().split('T')[0];
-        endDate = today.toISOString().split('T')[0];
+        startDate = lastMonth.toLocaleDateString();
+        endDate = today.toLocaleDateString();
         break;
       case 'customDate':
-        startDate = customStartDate?.toISOString().split('T')[0];
-        endDate = customEndDate?.toISOString().split('T')[0];
+        startDate = customStartDate ? customStartDate.toLocaleDateString() : undefined;
+        endDate = customEndDate ? customEndDate.toLocaleDateString() : undefined;
         break;
       default:
         startDate = undefined;

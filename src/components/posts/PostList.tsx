@@ -33,7 +33,7 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
       const endDate = dateRange[1] ? new Date(dateRange[1]) : undefined;
 
       if (startDate) {
-        startDate.setHours(0, 0, 0, 0); // Günü sıfırla (00:00:00.000)
+        startDate.setHours(0, 0, 0, 0);
       }
       if (endDate) {
         endDate.setHours(23, 59, 59, 999);
