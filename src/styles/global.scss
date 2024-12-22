@@ -1023,6 +1023,10 @@ input.form-control {
     border-radius: 4px;
     @include transition(background-color, color);
 
+    svg {
+      color: var(--text-color) !important;
+    }
+
     &:hover {
       background-color: var(--copy-button-hover-bg);
       color: var(--text-color);
