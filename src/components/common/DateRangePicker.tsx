@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Dropdown, DropdownButton, Form, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'next-i18next';
 import i18nextConfig from '../../../next-i18next.config';
 import { useRouter } from 'next/router';
@@ -168,7 +168,7 @@ export default function DateRangePicker({
           <Dropdown.Divider />
           <div className="date-picker-clear-button-container">
             <Button variant="danger" onClick={handleClearFilter} size="sm" className="date-picker-clear-button">
-              <FontAwesomeIcon icon={faTimes} className="me-2" />
+              <FontAwesomeIcon icon="times" className="me-2" />
               {t('common.datePicker.clearSelection')}
             </Button>
           </div>
