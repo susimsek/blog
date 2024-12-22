@@ -121,12 +121,7 @@ export default function DateRangePicker({ onRangeChange }: DateRangePickerProps)
       {selectedOption === 'customDate' && (
         <div className="p-3">
           <div className="d-flex align-items-center mb-4">
-            <Form.Label
-              style={{
-                marginRight: '8px',
-                minWidth: '120px',
-              }}
-            >
+            <Form.Label className="me-2" style={{ minWidth: '120px' }}>
               {t('common.datePicker.startDateLabel')}
             </Form.Label>
             <DatePicker
@@ -142,7 +137,7 @@ export default function DateRangePicker({ onRangeChange }: DateRangePickerProps)
             />
           </div>
           <div className="d-flex align-items-center">
-            <Form.Label style={{ marginRight: '8px', minWidth: '120px' }}>
+            <Form.Label className="me-2" style={{ minWidth: '120px' }}>
               {t('common.datePicker.endDateLabel')}
             </Form.Label>
             <DatePicker
