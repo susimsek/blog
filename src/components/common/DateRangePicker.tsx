@@ -13,9 +13,15 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 interface DateRangePickerProps {
   onRangeChange: (dates: { startDate?: string; endDate?: string }) => void;
+  minDate?: Date;
+  maxDate?: Date;
 }
 
-export default function DateRangePicker({ onRangeChange }: DateRangePickerProps) {
+export default function DateRangePicker({
+  onRangeChange,
+  minDate = new Date('2024-01-01'),
+  maxDate = new Date(),
+}: DateRangePickerProps) {
   const { t } = useTranslation('common');
   const router = useRouter();
   const currentLocale = (router.query.locale as string) ?? i18nextConfig.i18n.defaultLocale;
@@ -132,8 +138,8 @@ export default function DateRangePicker({ onRangeChange }: DateRangePickerProps)
               isClearable
               placeholderText={t('common.datePicker.startDatePlaceholder')}
               className="form-control"
-              minDate={new Date('2024-01-01')}
-              maxDate={new Date()}
+              minDate={minDate} // Props'tan gelen minDate
+              maxDate={maxDate} // Props'tan gelen maxDate
             />
           </div>
           <div className="d-flex align-items-center">
@@ -148,8 +154,8 @@ export default function DateRangePicker({ onRangeChange }: DateRangePickerProps)
               isClearable
               placeholderText={t('common.datePicker.endDatePlaceholder')}
               className="form-control"
-              minDate={new Date('2024-01-01')}
-              maxDate={new Date()}
+              minDate={minDate}
+              maxDate={maxDate}
             />
           </div>
         </div>
