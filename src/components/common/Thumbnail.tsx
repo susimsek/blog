@@ -19,11 +19,11 @@ export default function Thumbnail({
   priority = true,
 }: Readonly<ThumbnailProps>) {
   return (
-    <div className={`text-center mb-4 ${className}`}>
+    <div className={`image-wrapper text-center mb-4 ${className}`}>
       <Image
         src={src}
         alt={alt}
-        className="img-fluid rounded"
+        className="img-fluid"
         width={width}
         height={height}
         style={{ width: '100%', height: 'auto' }}

@@ -996,15 +996,16 @@ input.form-control {
 .image-wrapper {
   position: relative;
   overflow: hidden;
-}
+  border-radius: 8px;
+  background-color: var(--main-bg);
+  box-shadow: var(--box-shadow-primary);
+  @include transition(background-color, border-color, box-shadow);
 
-.image-wrapper img {
-  @include transition(transform, filter);
-}
-
-.image-wrapper:hover img {
-  transform: scale(1.1);
-  filter: brightness(var(--hover-brightness));
+  img {
+    width: 100%;
+    height: auto;
+    @include transition(transform, filter);
+  }
 }
 
 .code-block-container {
