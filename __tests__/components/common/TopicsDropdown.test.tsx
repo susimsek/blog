@@ -303,4 +303,12 @@ describe('TopicsDropdown - getDropdownTitle', () => {
 
     expect(onTopicsChangeMock).toHaveBeenCalledWith(['react']);
   });
+
+  test('renders Clear All button with mocked translation', () => {
+    renderComponent(['react', 'vue']);
+
+    fireEvent.click(screen.getByRole('button', { name: /React, Vue.js/i }));
+
+    expect(screen.getByText('common.clearAll')).toBeInTheDocument();
+  });
 });
