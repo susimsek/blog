@@ -114,14 +114,16 @@ export default function DateRangePicker({
       title={dropdownTitle}
       autoClose="outside"
     >
-      <Dropdown.Item onClick={() => handleOptionSelect('today')}>{t('common.datePicker.today')}</Dropdown.Item>
-      <Dropdown.Item onClick={() => handleOptionSelect('last7Days')}>{t('common.datePicker.last7Days')}</Dropdown.Item>
-      <Dropdown.Item onClick={() => handleOptionSelect('last30Days')}>
-        {t('common.datePicker.last30Days')}
-      </Dropdown.Item>
-      <Dropdown.Item onClick={() => handleOptionSelect('customDate')}>
-        {t('common.datePicker.customDate')}
-      </Dropdown.Item>
+      {['today', 'last7Days', 'last30Days', 'customDate'].map(option => (
+        <Dropdown.Item
+          key={option}
+          onClick={() => handleOptionSelect(option)}
+          className="d-flex justify-content-between align-items-center"
+        >
+          {t(`common.datePicker.${option}`)}
+          {selectedOption === option && <FontAwesomeIcon icon="circle-check" className="circle-check ms-2" />}
+        </Dropdown.Item>
+      ))}
 
       {selectedOption === 'customDate' && (
         <div className="p-3">
