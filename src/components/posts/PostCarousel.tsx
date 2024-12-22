@@ -42,7 +42,7 @@ export default function PostCarousel({ posts, interval = 5000 }: Readonly<PostCa
                 <Image
                   src={`${assetPrefix}${post.thumbnail}`}
                   alt={post.title}
-                  className="d-block w-100 rounded shadow"
+                  className="d-block w-100 rounded"
                   width={800}
                   height={450}
                   style={{ objectFit: 'cover' }}
