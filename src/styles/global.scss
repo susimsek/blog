@@ -108,6 +108,8 @@ h6 {
 }
 
 .pagination {
+  box-shadow: var(--box-shadow-primary);
+  @include transition(box-shadow);
   .page-item {
     .page-link {
       background-color: transparent;
@@ -206,6 +208,11 @@ input.form-control {
     cursor: not-allowed;
     box-shadow: none;
   }
+}
+
+.card {
+  box-shadow: var(--box-shadow-primary);
+  @include transition(box-shadow);
 }
 
 .post-card {
@@ -326,7 +333,8 @@ input.form-control {
 }
 
 .btn {
-  @include transition(background-color, border-color, color);
+  box-shadow: var(--box-shadow-primary);
+  @include transition(background-color, border-color, color, box-shadow);
 
   @include button-variant(
     primary,
@@ -468,7 +476,8 @@ input.form-control {
 }
 
 .badge {
-  @include transition(background-color, border-color, color);
+  box-shadow: var(--box-shadow-badge);
+  @include transition(background-color, border-color, color, box-shadow);
 
   @include badge-variant(
     primary,
@@ -821,7 +830,8 @@ input.form-control {
     background-color: var(--main-bg);
     color: var(--text-color);
     border: 1px solid var(--border-color);
-    @include transition(background-color, color, border-color);
+    box-shadow: var(--box-shadow-primary);
+    @include transition(background-color, color, border-color, box-shadow);
   }
 }
 
@@ -918,7 +928,12 @@ input.form-control {
 .carousel {
   background-color: var(--main-bg);
   color: var(--text-color);
-  @include transition(background-color, color);
+  box-shadow: var(--box-shadow-primary);
+  @include transition(background-color, color, box-shadow);
+}
+
+.carousel-item {
+  box-shadow: var(--box-shadow-primary);
 }
 
 /* Caption */
@@ -1019,6 +1034,8 @@ input.form-control {
   background-color: var(--tooltip-bg);
   color: var(--text-color);
   border: 1px solid var(--tooltip-border-color);
+  box-shadow: var(--box-shadow-primary);
+  @include transition(background-color, color, border-color, box-shadow);
 
   .tooltip-inner {
     background-color: var(--tooltip-bg);
@@ -1033,7 +1050,8 @@ input.form-control {
 // Tab Container
 .nav-tabs {
   border-bottom: 1px solid var(--tab-theme-border);
-  @include transition(border-color);
+  box-shadow: var(--box-shadow-primary);
+  @include transition(border-color, box-shadow);
 
   .nav-link {
     color: var(--text-color);
@@ -1061,7 +1079,8 @@ input.form-control {
 .tab-content {
   border: 1px solid var(--border-color);
   background-color: var(--main-bg);
-  @include transition(border-color, background-color);
+  box-shadow: var(--box-shadow-primary);
+  @include transition(border-color, background-color, box-shadow);
 
   .tab-pane {
     color: var(--text-color);
