@@ -17,5 +17,7 @@
   { "id": "dependency-injection", "name": "Bağımlılık Enjeksiyonu", "color": "orange" },
   { "id": "graphql", "name": "GraphQL", "color": "pink" },
   { "id": "openapi", "name": "OpenAPI", "color": "orange" },
-  { "id": "documentation", "name": "Dokümantasyon", "color": "brown" }
+  { "id": "documentation", "name": "Dokümantasyon", "color": "brown" },
+  { "id": "redis", "name": "Redis", "color": "orange" },
+  { "id": "caching", "name": "Önbellekleme", "color": "brown" }
 ]
