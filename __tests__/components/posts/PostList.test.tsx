@@ -2,11 +2,16 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import PostList from '@/components/posts/PostList';
 import { mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
+import { useRouter } from 'next/router';
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
     t: jest.fn((key: string) => key),
   })),
+}));
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
 }));
 
 jest.mock('@/components/search/SearchBar', () => ({
@@ -102,6 +107,11 @@ jest.mock('@/components/common/TopicsDropdown', () => ({
 }));
 
 describe('PostList Component', () => {
+  beforeEach(() => {
+    (useRouter as jest.Mock).mockReturnValue({
+      query: {},
+    });
+  });
   it('renders all components correctly', () => {
     render(<PostList posts={mockPostSummaries} topics={mockTopics} />);
 

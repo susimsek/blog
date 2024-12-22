@@ -41,6 +41,18 @@
     "selectAll": "Tümünü Seç",
     "clearAll": "Tümünü Temizle",
     "noResults": "Sonuç bulunamadı",
-    "andMore": "ve {{count}} daha"
+    "andMore": "ve {{count}} daha",
+    "datePicker": {
+      "selectDate": "Tarih Seçin",
+      "today": "Bugün",
+      "last7Days": "Son 7 Gün",
+      "last30Days": "Son 30 Gün",
+      "customDate": "Özel Tarih",
+      "startDatePlaceholder": "Başlangıç Tarihi",
+      "endDatePlaceholder": "Bitiş Tarihi",
+      "startDateLabel": "Başlangıç Tarihi",
+      "endDateLabel": "Bitiş Tarihi",
+      "clearSelection": "Seçimi Temizle"
+    }
   }
 }

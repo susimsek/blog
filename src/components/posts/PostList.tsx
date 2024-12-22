@@ -6,6 +6,7 @@ import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
 import { SortDropdown } from '@/components/common/SortDropdown';
 import { TopicsDropdown } from '@/components/common/TopicsDropdown';
+import DateRangePicker from '@/components/common/DateRangePicker';
 import { useTranslation } from 'next-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -22,35 +23,46 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  const [dateRange, setDateRange] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]); // Tarih filtresi
 
   // Memoized filtered posts
-  const filteredPosts = useMemo(
-    () =>
-      posts.filter(
-        post =>
-          (post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            post.summary.toLowerCase().includes(searchQuery.toLowerCase())) &&
-          (selectedTopics.length === 0 || post.topics?.some(topic => selectedTopics.includes(topic.id))),
-      ),
-    [posts, searchQuery, selectedTopics],
-  );
+  const filteredPosts = useMemo(() => {
+    return posts.filter(post => {
+      const postDate = new Date(post.date);
+      const startDate = dateRange[0] ? new Date(dateRange[0]) : undefined;
+      const endDate = dateRange[1] ? new Date(dateRange[1]) : undefined;
+
+      if (startDate) {
+        startDate.setHours(0, 0, 0, 0); // Günü sıfırla (00:00:00.000)
+      }
+      if (endDate) {
+        endDate.setHours(23, 59, 59, 999);
+      }
+
+      const matchesQuery =
+        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.summary.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesTopics =
+        selectedTopics.length === 0 || post.topics?.some(topic => selectedTopics.includes(topic.id));
+      const matchesDateRange = (!startDate || postDate >= startDate) && (!endDate || postDate <= endDate);
+
+      return matchesQuery && matchesTopics && matchesDateRange;
+    });
+  }, [posts, searchQuery, selectedTopics, dateRange]);
 
   // Memoized sorted posts
-  const sortedPosts = useMemo(
-    () =>
-      [...filteredPosts].sort((a, b) =>
-        sortOrder === 'asc'
-          ? new Date(a.date).getTime() - new Date(b.date).getTime()
-          : new Date(b.date).getTime() - new Date(a.date).getTime(),
-      ),
-    [filteredPosts, sortOrder],
-  );
+  const sortedPosts = useMemo(() => {
+    return [...filteredPosts].sort((a, b) =>
+      sortOrder === 'asc'
+        ? new Date(a.date).getTime() - new Date(b.date).getTime()
+        : new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
+  }, [filteredPosts, sortOrder]);
 
   // Memoized paginated posts
-  const paginatedPosts = useMemo(
-    () => sortedPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage),
-    [sortedPosts, currentPage, postsPerPage],
-  );
+  const paginatedPosts = useMemo(() => {
+    return sortedPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+  }, [sortedPosts, currentPage, postsPerPage]);
 
   // Callback for sort order change
   const handleSortChange = useCallback((newSortOrder: 'asc' | 'desc') => {
@@ -70,6 +82,15 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
     setCurrentPage(1);
   }, []);
 
+  // Callback for date range change
+  const handleDateRangeChange = useCallback((dates: { startDate?: string; endDate?: string }) => {
+    const startDate = dates.startDate ? new Date(dates.startDate) : undefined;
+    const endDate = dates.endDate ? new Date(dates.endDate) : undefined;
+
+    setDateRange([startDate, endDate]);
+    setCurrentPage(1);
+  }, []);
+
   return (
     <Container className="mt-5" style={{ maxWidth: '800px' }}>
       <div className="d-flex flex-wrap align-items-center mb-3">
@@ -80,6 +101,7 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
           {topics.length > 0 && (
             <TopicsDropdown topics={topics} selectedTopics={selectedTopics} onTopicsChange={handleTopicsChange} />
           )}
+          <DateRangePicker onRangeChange={handleDateRangeChange} />
           <SortDropdown sortOrder={sortOrder} onChange={handleSortChange} />
         </div>
       </div>

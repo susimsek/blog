@@ -15,7 +15,7 @@ export function SortDropdown({ sortOrder, onChange }: Readonly<SortDropdownProps
     <DropdownButton
       id="sort-dropdown"
       variant="primary"
-      className="me-2 mb-2"
+      className="mb-2"
       align="start"
       flip={false}
       title={sortOrder === 'asc' ? t('common.sort.oldest') : t('common.sort.newest')}
