@@ -39,14 +39,14 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
       const firstThreeNames = selectedTopics
         .slice(0, 3)
         .map(id => topics.find(topic => topic.id === id)?.name)
-        .filter(Boolean) // Undefined değerleri kaldırır
+        .filter(Boolean)
         .join(', ');
       return `${firstThreeNames} ${t('common.andMore', { count: selectedTopics.length - 3 })}`;
     }
 
     return selectedTopics
       .map(id => topics.find(topic => topic.id === id)?.name)
-      .filter(Boolean) // Undefined değerleri kaldırır
+      .filter(Boolean)
       .join(', ');
   }, [selectedTopics, topics, t]);
 
