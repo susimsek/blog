@@ -41,6 +41,18 @@
     "selectAll": "Select All",
     "clearAll": "Clear All",
     "noResults": "No results found",
-    "andMore": "and {{count}} more"
+    "andMore": "and {{count}} more",
+    "datePicker": {
+      "selectDate": "Select Date",
+      "today": "Today",
+      "last7Days": "Last 7 Days",
+      "last30Days": "Last 30 Days",
+      "customDate": "Custom Date",
+      "startDatePlaceholder": "Start Date",
+      "endDatePlaceholder": "End Date",
+      "startDateLabel": "Start Date",
+      "endDateLabel": "End Date",
+      "clearSelection": "Clear Selection"
+    }
   }
 }
