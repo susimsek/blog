@@ -20,9 +20,9 @@ export default function PostCarousel({ posts, interval = 5000 }: Readonly<PostCa
   }, []);
 
   return (
-    <div className="position-relative">
+    <div className="carousel-wrapper">
       <Carousel
-        className="mx-auto shadow-sm rounded overflow-hidden"
+        className="mx-auto rounded overflow-hidden"
         style={{
           maxWidth: '800px',
           width: '100%',
