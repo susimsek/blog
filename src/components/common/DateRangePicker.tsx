@@ -118,6 +118,7 @@ export default function DateRangePicker({
     setCustomStartDate(null);
     setCustomEndDate(null);
     onRangeChange({ startDate: undefined, endDate: undefined });
+    setShowDropdown(false);
   };
 
   const isSelectionMade = !!selectedOption;
@@ -152,6 +153,7 @@ export default function DateRangePicker({
       }
       show={showDropdown}
       onToggle={handleToggle}
+      autoClose="outside"
     >
       {options.map(option => (
         <Dropdown.Item
