@@ -23,66 +23,58 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
-  const [dateRange, setDateRange] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]); // Tarih filtresi
+  const [dateRange, setDateRange] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
 
-  // Memoized filtered posts
-  const filteredPosts = useMemo(() => {
-    return posts.filter(post => {
-      const postDate = new Date(post.date);
-      const startDate = dateRange[0] ? new Date(dateRange[0]) : undefined;
-      const endDate = dateRange[1] ? new Date(dateRange[1]) : undefined;
+  const filterByQuery = (post: PostSummary) =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    post.summary.toLowerCase().includes(searchQuery.toLowerCase());
 
-      if (startDate) {
-        startDate.setHours(0, 0, 0, 0);
-      }
-      if (endDate) {
-        endDate.setHours(23, 59, 59, 999);
-      }
+  const filterByTopics = (post: PostSummary) =>
+    selectedTopics.length === 0 || post.topics?.some(topic => selectedTopics.includes(topic.id));
 
-      const matchesQuery =
-        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.summary.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesTopics =
-        selectedTopics.length === 0 || post.topics?.some(topic => selectedTopics.includes(topic.id));
-      const matchesDateRange = (!startDate || postDate >= startDate) && (!endDate || postDate <= endDate);
+  const filterByDateRange = (post: PostSummary) => {
+    const postDate = new Date(post.date).getTime();
+    const startDate = dateRange[0] ? new Date(dateRange[0]).setHours(0, 0, 0, 0) : undefined;
+    const endDate = dateRange[1] ? new Date(dateRange[1]).setHours(23, 59, 59, 999) : undefined;
 
-      return matchesQuery && matchesTopics && matchesDateRange;
-    });
-  }, [posts, searchQuery, selectedTopics, dateRange]);
+    return (!startDate || postDate >= startDate) && (!endDate || postDate <= endDate);
+  };
 
-  // Memoized sorted posts
-  const sortedPosts = useMemo(() => {
-    return [...filteredPosts].sort((a, b) =>
-      sortOrder === 'asc'
-        ? new Date(a.date).getTime() - new Date(b.date).getTime()
-        : new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
-  }, [filteredPosts, sortOrder]);
+  const filteredPosts = useMemo(
+    () => posts.filter(post => filterByQuery(post) && filterByTopics(post) && filterByDateRange(post)),
+    [posts, searchQuery, selectedTopics, dateRange],
+  );
 
-  // Memoized paginated posts
-  const paginatedPosts = useMemo(() => {
-    return sortedPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
-  }, [sortedPosts, currentPage, postsPerPage]);
+  const sortedPosts = useMemo(
+    () =>
+      [...filteredPosts].sort((a, b) =>
+        sortOrder === 'asc'
+          ? new Date(a.date).getTime() - new Date(b.date).getTime()
+          : new Date(b.date).getTime() - new Date(a.date).getTime(),
+      ),
+    [filteredPosts, sortOrder],
+  );
 
-  // Callback for sort order change
+  const paginatedPosts = useMemo(
+    () => sortedPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage),
+    [sortedPosts, currentPage, postsPerPage],
+  );
+
   const handleSortChange = useCallback((newSortOrder: 'asc' | 'desc') => {
     setSortOrder(newSortOrder);
     setCurrentPage(1);
   }, []);
 
-  // Callback for topic selection change
   const handleTopicsChange = useCallback((newTopics: string[]) => {
     setSelectedTopics(newTopics);
     setCurrentPage(1);
   }, []);
 
-  // Callback for page size change
   const handleSizeChange = useCallback((size: number) => {
     setPostsPerPage(size);
     setCurrentPage(1);
   }, []);
 
-  // Callback for date range change
   const handleDateRangeChange = useCallback((dates: { startDate?: string; endDate?: string }) => {
     const startDate = dates.startDate ? new Date(dates.startDate) : undefined;
     const endDate = dates.endDate ? new Date(dates.endDate) : undefined;
