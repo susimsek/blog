@@ -155,4 +155,24 @@ describe('DateRangePicker', () => {
 
     expect(mockOnRangeChange).toHaveBeenCalledWith({ startDate: undefined, endDate: undefined });
   });
+
+  it('falls back to enUS when currentLocale is not valid and displays custom date fields correctly', () => {
+    const { query } = jest.requireMock('next/router').useRouter();
+    query.locale = 'fr';
+
+    render(<DateRangePicker {...defaultProps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
+
+    fireEvent.click(screen.getByText(/common.datePicker.customDate/i));
+
+    const startDateInput = screen.getByPlaceholderText(/common.datePicker.startDatePlaceholder/i);
+    const endDateInput = screen.getByPlaceholderText(/common.datePicker.endDatePlaceholder/i);
+
+    expect(startDateInput).toBeInTheDocument();
+    expect(startDateInput).toHaveAttribute('placeholder', 'common.datePicker.startDatePlaceholder');
+
+    expect(endDateInput).toBeInTheDocument();
+    expect(endDateInput).toHaveAttribute('placeholder', 'common.datePicker.endDatePlaceholder');
+  });
 });
