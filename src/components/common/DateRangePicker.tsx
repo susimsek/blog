@@ -110,8 +110,8 @@ export default function DateRangePicker({
 
   const isSelectionMade = !!selectedOption;
 
-  const minDateTime = useMemo(() => new Date(minDate).setHours(0, 0, 0, 0), [minDate]);
-  const maxDateTime = useMemo(() => new Date(maxDate).setHours(23, 59, 59, 999), [maxDate]);
+  const minDateTime = new Date(minDate).setHours(0, 0, 0, 0);
+  const maxDateTime = new Date(maxDate).setHours(23, 59, 59, 999);
 
   const dayClassName = (date: Date): string => {
     return date.getTime() < minDateTime || date.getTime() > maxDateTime ? 'react-datepicker__day--muted' : '';
