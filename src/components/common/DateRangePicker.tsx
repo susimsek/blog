@@ -186,7 +186,7 @@ export default function DateRangePicker({
               />
             </div>
           </div>
-          <div className="d-flex flex-column">
+          <div className="d-flex flex-column mb-4">
             <Form.Label className="mb-2">{t('common.datePicker.endDateLabel')}</Form.Label>
             <div className="d-flex align-items-center">
               <FontAwesomeIcon icon="calendar-alt" className="me-2" />
@@ -204,6 +204,18 @@ export default function DateRangePicker({
               />
             </div>
           </div>
+          <div className="d-flex align-items-center">
+            <Button
+              variant="success"
+              onClick={() => setShowDropdown(false)}
+              size="sm"
+              className="date-picker-button"
+              disabled={!customStartDate || !customEndDate}
+            >
+              <FontAwesomeIcon icon="check" className="me-2" />
+              {t('common.datePicker.applySelection')}
+            </Button>
+          </div>
         </div>
       )}
 
@@ -211,7 +223,7 @@ export default function DateRangePicker({
         <>
           <Dropdown.Divider />
           <div className="date-picker-clear-button-container">
-            <Button variant="danger" onClick={handleClearFilter} size="sm" className="date-picker-clear-button">
+            <Button variant="danger" onClick={handleClearFilter} size="sm" className="date-picker-button">
               <FontAwesomeIcon icon="times" className="me-2" />
               {t('common.datePicker.clearSelection')}
             </Button>

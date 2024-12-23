@@ -53,7 +53,8 @@
       "endDatePlaceholder": "Bitiş Tarihi",
       "startDateLabel": "Başlangıç Tarihi",
       "endDateLabel": "Bitiş Tarihi",
-      "clearSelection": "Seçimi Temizle"
+      "clearSelection": "Seçimi Temizle",
+      "applySelection": "Seçimi Uygula"
     }
   }
 }
