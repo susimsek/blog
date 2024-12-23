@@ -117,6 +117,14 @@ export default function DateRangePicker({
     return date.getTime() < minDateTime || date.getTime() > maxDateTime ? 'react-datepicker__day--muted' : '';
   };
 
+  const options = [
+    { key: 'today', label: t('common.datePicker.today') },
+    { key: 'yesterday', label: t('common.datePicker.yesterday') },
+    { key: 'last7Days', label: t('common.datePicker.last7Days') },
+    { key: 'last30Days', label: t('common.datePicker.last30Days') },
+    { key: 'customDate', label: t('common.datePicker.customDate') },
+  ];
+
   return (
     <DropdownButton
       id="date-range-dropdown"
@@ -132,14 +140,14 @@ export default function DateRangePicker({
       }
       autoClose="outside"
     >
-      {['today', 'yesterday', 'last7Days', 'last30Days', 'customDate'].map(option => (
+      {options.map(option => (
         <Dropdown.Item
-          key={option}
-          onClick={() => handleOptionSelect(option)}
+          key={option.key}
+          onClick={() => handleOptionSelect(option.key)}
           className="d-flex justify-content-between align-items-center"
         >
-          {t(`common.datePicker.${option}`)}
-          {selectedOption === option && <FontAwesomeIcon icon="circle-check" className="circle-check ms-2" />}
+          {option.label}
+          {selectedOption === option.key && <FontAwesomeIcon icon="circle-check" className="circle-check ms-2" />}
         </Dropdown.Item>
       ))}
 
