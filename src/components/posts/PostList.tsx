@@ -1,15 +1,12 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { PostSummary, Topic } from '@/types/posts';
 import { Alert, Container } from 'react-bootstrap';
-import SearchBar from '@/components/search/SearchBar';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
-import { SortDropdown } from '@/components/common/SortDropdown';
-import { TopicsDropdown } from '@/components/common/TopicsDropdown';
-import DateRangePicker from '@/components/common/DateRangePicker';
 import { useTranslation } from 'next-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { filterByQuery, filterByTopics, filterByDateRange } from '@/lib/postFilters';
+import { PostFilters } from './PostFilters';
 
 interface PostListProps {
   posts: PostSummary[];
@@ -24,7 +21,7 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
-  const [dateRange, setDateRange] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
+  const [dateRange, setDateRange] = useState<{ startDate?: string; endDate?: string }>({});
 
   const filteredPosts = useMemo(
     () =>
@@ -68,31 +65,22 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
   }, []);
 
   const handleDateRangeChange = useCallback((dates: { startDate?: string; endDate?: string }) => {
-    const startDate = dates.startDate ? new Date(dates.startDate) : undefined;
-    const endDate = dates.endDate ? new Date(dates.endDate) : undefined;
-
-    setDateRange([startDate, endDate]);
+    setDateRange(dates);
     setCurrentPage(1);
   }, []);
 
   return (
     <Container className="mt-5" style={{ maxWidth: '800px' }}>
-      <div className="d-flex flex-wrap align-items-center mb-3">
-        <div className="flex-grow-1 mb-4">
-          <SearchBar query={searchQuery} onChange={setSearchQuery} />
-        </div>
-        <div className="d-flex flex-column flex-md-row align-items-stretch w-100 w-md-auto" style={{ gap: '10px' }}>
-          {topics.length > 0 && (
-            <TopicsDropdown topics={topics} selectedTopics={selectedTopics} onTopicsChange={handleTopicsChange} />
-          )}
-          <DateRangePicker
-            onRangeChange={dates => handleDateRangeChange(dates)}
-            minDate={new Date('2024-01-01')}
-            maxDate={new Date()}
-          />
-          <SortDropdown sortOrder={sortOrder} onChange={handleSortChange} />
-        </div>
-      </div>
+      <PostFilters
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        sortOrder={sortOrder}
+        onSortChange={handleSortChange}
+        selectedTopics={selectedTopics}
+        onTopicsChange={handleTopicsChange}
+        onDateRangeChange={handleDateRangeChange}
+        topics={topics}
+      />
       {paginatedPosts.length > 0 ? (
         paginatedPosts.map(post => <PostCard key={post.id} post={post} />)
       ) : (

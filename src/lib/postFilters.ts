@@ -15,10 +15,10 @@ export const filterByTopics = (post: PostSummary, selectedTopics: string[]) =>
 /**
  * Filters posts by date range.
  */
-export const filterByDateRange = (post: PostSummary, dateRange: [Date | undefined, Date | undefined]) => {
+export const filterByDateRange = (post: PostSummary, dateRange: { startDate?: string; endDate?: string }) => {
   const postDate = new Date(post.date).getTime();
-  const startDate = dateRange[0] ? new Date(dateRange[0]).setHours(0, 0, 0, 0) : undefined;
-  const endDate = dateRange[1] ? new Date(dateRange[1]).setHours(23, 59, 59, 999) : undefined;
+  const startDate = dateRange.startDate ? new Date(dateRange.startDate).setHours(0, 0, 0, 0) : undefined;
+  const endDate = dateRange.endDate ? new Date(dateRange.endDate).setHours(23, 59, 59, 999) : undefined;
 
   return (!startDate || postDate >= startDate) && (!endDate || postDate <= endDate);
 };
