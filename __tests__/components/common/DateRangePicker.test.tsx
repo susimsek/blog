@@ -18,6 +18,51 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: () => <span>Icon</span>,
 }));
 
+jest.mock('react-datepicker', () => {
+  const React = require('react');
+  const locales = {};
+
+  const MockDatePicker = ({
+    selected,
+    onChange,
+    placeholderText,
+    className,
+    minDate,
+    maxDate,
+    dayClassName,
+    ...props
+  }) => {
+    return (
+      <input
+        data-testid="mock-datepicker"
+        placeholder={placeholderText}
+        value={selected ? selected.toLocaleDateString() : ''}
+        onChange={e => {
+          const valueDate = new Date(e.target.value);
+          if ((!minDate || valueDate >= new Date(minDate)) && (!maxDate || valueDate <= new Date(maxDate))) {
+            onChange(valueDate);
+          }
+        }}
+        className={`${className || ''} ${dayClassName ? dayClassName(new Date()) : ''}`}
+        {...props}
+      />
+    );
+  };
+
+  const registerLocale = jest.fn((localeName, localeData) => {
+    locales[localeName] = localeData;
+  });
+
+  const getRegisteredLocale = localeName => locales[localeName] || null;
+
+  return {
+    __esModule: true,
+    default: MockDatePicker,
+    registerLocale,
+    getRegisteredLocale,
+  };
+});
+
 describe('DateRangePicker', () => {
   const mockOnRangeChange = jest.fn();
 
@@ -125,26 +170,30 @@ describe('DateRangePicker', () => {
     const startDateInput = screen.getByPlaceholderText(/common.datePicker.startDatePlaceholder/i);
     const endDateInput = screen.getByPlaceholderText(/common.datePicker.endDatePlaceholder/i);
 
-    const customStartDate = new Date('2024-05-01');
-    const customEndDate = new Date('2024-05-10');
+    await act(async () => {
+      fireEvent.change(startDateInput, { target: { value: '2024-05-01' } });
+    });
 
     await act(async () => {
-      fireEvent.change(startDateInput, { target: { value: customStartDate.toLocaleDateString() } });
-      fireEvent.change(endDateInput, { target: { value: customEndDate.toLocaleDateString() } });
+      fireEvent.change(endDateInput, { target: { value: '2024-05-10' } });
     });
 
     expect(mockOnRangeChange).toHaveBeenCalledWith({
-      startDate: customStartDate.toLocaleDateString(),
-      endDate: customEndDate.toLocaleDateString(),
+      startDate: '5/1/2024',
+      endDate: '5/10/2024',
     });
   });
 
-  it('calls onRangeChange with undefined startDate and endDate when "Custom Date" is selected but no dates are provided', () => {
+  it('calls onRangeChange with undefined when "Custom Date" is selected but no dates are provided', async () => {
     render(<DateRangePicker {...defaultProps} />);
 
-    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
+    });
 
-    fireEvent.click(screen.getByText(/common.datePicker.customDate/i));
+    await act(async () => {
+      fireEvent.click(screen.getByText(/common.datePicker.customDate/i));
+    });
 
     expect(mockOnRangeChange).toHaveBeenCalledWith({
       startDate: undefined,
