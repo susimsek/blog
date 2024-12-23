@@ -67,6 +67,11 @@ describe('PostFilters Component', () => {
     ],
   };
 
+  const noTopicsProps = {
+    ...defaultProps,
+    topics: [],
+  };
+
   beforeEach(() => {
     mockOnSearchChange.mockClear();
   });
@@ -119,5 +124,11 @@ describe('PostFilters Component', () => {
     fireEvent.click(sortButton);
 
     expect(mockOnSortChange).toHaveBeenCalledWith('desc');
+  });
+
+  test('does not render TopicsDropdown when topics are empty', () => {
+    render(<PostFilters {...noTopicsProps} />);
+
+    expect(screen.queryByTestId('topics-dropdown')).not.toBeInTheDocument();
   });
 });
