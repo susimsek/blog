@@ -5,7 +5,7 @@ import DateRangePicker from '@/components/common/DateRangePicker';
 import SearchBar from '@/components/search/SearchBar';
 import { Topic } from '@/types/posts';
 
-interface PostFiltersProps {
+export interface PostFiltersProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   sortOrder: 'asc' | 'desc';
@@ -25,7 +25,7 @@ export function PostFilters({
   onTopicsChange,
   onDateRangeChange,
   topics = [],
-}: PostFiltersProps) {
+}: Readonly<PostFiltersProps>) {
   return (
     <div className="d-flex flex-wrap align-items-center mb-3">
       <div className="flex-grow-1 mb-4">
