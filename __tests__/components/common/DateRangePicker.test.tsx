@@ -111,6 +111,34 @@ describe('DateRangePicker', () => {
     expect(screen.getByText(/common.datePicker.endDateLabel/i)).toBeInTheDocument();
   });
 
+  it('calls onRangeChange with custom start and end dates when "Custom Date" is selected', async () => {
+    render(<DateRangePicker {...defaultProps} />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText(/common.datePicker.customDate/i));
+    });
+
+    const startDateInput = screen.getByPlaceholderText(/common.datePicker.startDatePlaceholder/i);
+    const endDateInput = screen.getByPlaceholderText(/common.datePicker.endDatePlaceholder/i);
+
+    const customStartDate = new Date('2024-05-01');
+    const customEndDate = new Date('2024-05-10');
+
+    await act(async () => {
+      fireEvent.change(startDateInput, { target: { value: customStartDate.toLocaleDateString() } });
+      fireEvent.change(endDateInput, { target: { value: customEndDate.toLocaleDateString() } });
+    });
+
+    expect(mockOnRangeChange).toHaveBeenCalledWith({
+      startDate: customStartDate.toLocaleDateString(),
+      endDate: customEndDate.toLocaleDateString(),
+    });
+  });
+
   it('calls onRangeChange with undefined startDate and endDate when "Custom Date" is selected but no dates are provided', () => {
     render(<DateRangePicker {...defaultProps} />);
 
