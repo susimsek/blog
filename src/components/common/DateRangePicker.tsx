@@ -83,9 +83,6 @@ export default function DateRangePicker({
         startDate = customStartDate ? customStartDate.toLocaleDateString() : undefined;
         endDate = customEndDate ? customEndDate.toLocaleDateString() : undefined;
         break;
-      default:
-        startDate = undefined;
-        endDate = undefined;
     }
 
     onRangeChange({ startDate, endDate });
