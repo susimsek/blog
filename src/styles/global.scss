@@ -1230,6 +1230,12 @@ label {
   @include transition(background-color, color);
 }
 
+.react-datepicker__day--muted {
+  color: var(--muted-text-color) !important; //
+  pointer-events: none;
+  opacity: 0.5;
+}
+
 @media (max-width: 768px) {
   #sort-dropdown,
   #topics-dropdown,
