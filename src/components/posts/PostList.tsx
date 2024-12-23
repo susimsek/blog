@@ -9,6 +9,7 @@ import { TopicsDropdown } from '@/components/common/TopicsDropdown';
 import DateRangePicker from '@/components/common/DateRangePicker';
 import { useTranslation } from 'next-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { filterByQuery, filterByTopics, filterByDateRange } from '@/lib/postFilters';
 
 interface PostListProps {
   posts: PostSummary[];
@@ -25,23 +26,14 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
 
-  const filterByQuery = (post: PostSummary) =>
-    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.summary.toLowerCase().includes(searchQuery.toLowerCase());
-
-  const filterByTopics = (post: PostSummary) =>
-    selectedTopics.length === 0 || post.topics?.some(topic => selectedTopics.includes(topic.id));
-
-  const filterByDateRange = (post: PostSummary) => {
-    const postDate = new Date(post.date).getTime();
-    const startDate = dateRange[0] ? new Date(dateRange[0]).setHours(0, 0, 0, 0) : undefined;
-    const endDate = dateRange[1] ? new Date(dateRange[1]).setHours(23, 59, 59, 999) : undefined;
-
-    return (!startDate || postDate >= startDate) && (!endDate || postDate <= endDate);
-  };
-
   const filteredPosts = useMemo(
-    () => posts.filter(post => filterByQuery(post) && filterByTopics(post) && filterByDateRange(post)),
+    () =>
+      posts.filter(
+        post =>
+          filterByQuery(post, searchQuery) &&
+          filterByTopics(post, selectedTopics) &&
+          filterByDateRange(post, dateRange),
+      ),
     [posts, searchQuery, selectedTopics, dateRange],
   );
 
