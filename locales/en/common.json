@@ -53,7 +53,8 @@
       "endDatePlaceholder": "End Date",
       "startDateLabel": "Start Date",
       "endDateLabel": "End Date",
-      "clearSelection": "Clear Selection"
+      "clearSelection": "Clear Selection",
+      "applySelection": "Apply Selection"
     }
   }
 }
