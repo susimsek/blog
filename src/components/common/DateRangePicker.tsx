@@ -59,6 +59,12 @@ export default function DateRangePicker({
         startDate = today.toLocaleDateString();
         endDate = today.toLocaleDateString();
         break;
+      case 'yesterday':
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+        startDate = yesterday.toLocaleDateString();
+        endDate = yesterday.toLocaleDateString();
+        break;
       case 'last7Days':
         const lastWeek = new Date(today);
         lastWeek.setDate(today.getDate() - 7);
@@ -119,7 +125,7 @@ export default function DateRangePicker({
       }
       autoClose="outside"
     >
-      {['today', 'last7Days', 'last30Days', 'customDate'].map(option => (
+      {['today', 'yesterday', 'last7Days', 'last30Days', 'customDate'].map(option => (
         <Dropdown.Item
           key={option}
           onClick={() => handleOptionSelect(option)}

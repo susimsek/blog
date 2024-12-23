@@ -45,6 +45,7 @@
     "datePicker": {
       "selectDate": "Select Date",
       "today": "Today",
+      "yesterday": "Yesterday",
       "last7Days": "Last 7 Days",
       "last30Days": "Last 30 Days",
       "customDate": "Custom Date",

@@ -45,6 +45,7 @@
     "datePicker": {
       "selectDate": "Tarih Seçin",
       "today": "Bugün",
+      "yesterday": "Dün",
       "last7Days": "Son 7 Gün",
       "last30Days": "Son 30 Gün",
       "customDate": "Özel Tarih",
