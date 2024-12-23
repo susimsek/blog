@@ -14,7 +14,7 @@ export function SortDropdown({ sortOrder, onChange }: Readonly<SortDropdownProps
   return (
     <DropdownButton
       id="sort-dropdown"
-      variant="primary"
+      variant="green"
       className="mb-2"
       align="start"
       flip={false}

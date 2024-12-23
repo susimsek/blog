@@ -82,7 +82,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
   return (
     <DropdownButton
       id="topics-dropdown"
-      variant="primary"
+      variant="gray"
       className="mb-2 topics-dropdown"
       flip={false}
       align="start"

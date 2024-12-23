@@ -107,7 +107,7 @@ export default function DateRangePicker({
   return (
     <DropdownButton
       id="date-range-dropdown"
-      variant="primary"
+      variant="orange"
       className="date-picker-dropdown mb-2"
       align="start"
       flip={false}
