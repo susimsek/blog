@@ -1229,3 +1229,15 @@ label {
   color: var(--dropdown-hover-color) !important;
   @include transition(background-color, color);
 }
+
+@media (max-width: 768px) {
+  #sort-dropdown {
+    width: 100%;
+  }
+  #topics-dropdown {
+    width: 100%;
+  }
+  #date-range-dropdown {
+    width: 100%;
+  }
+}
