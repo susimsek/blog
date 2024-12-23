@@ -111,6 +111,19 @@ describe('DateRangePicker', () => {
     expect(screen.getByText(/common.datePicker.endDateLabel/i)).toBeInTheDocument();
   });
 
+  it('calls onRangeChange with undefined startDate and endDate when "Custom Date" is selected but no dates are provided', () => {
+    render(<DateRangePicker {...defaultProps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
+
+    fireEvent.click(screen.getByText(/common.datePicker.customDate/i));
+
+    expect(mockOnRangeChange).toHaveBeenCalledWith({
+      startDate: undefined,
+      endDate: undefined,
+    });
+  });
+
   it('calls onRangeChange with selected custom dates', async () => {
     const mockOnRangeChange = jest.fn();
     const defaultProps = { onRangeChange: mockOnRangeChange };
