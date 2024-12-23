@@ -983,13 +983,13 @@ input.form-control {
 
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
-  color: var(--light-bg);
+  color: var(--primary-color) !important;
   background-image: none;
   border: none;
   @include transition(color);
 
   &:hover {
-    color: var(--light-hover);
+    color: var(--light-hover) !important;
   }
 }
 

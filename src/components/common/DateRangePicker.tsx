@@ -110,11 +110,11 @@ export default function DateRangePicker({
 
   const isSelectionMade = !!selectedOption;
 
-  const dayClassName = (date: Date): string => {
-    const isOutOfRange =
-      date.getTime() < minDate.setHours(0, 0, 0, 0) || date.getTime() > maxDate.setHours(23, 59, 59, 999);
+  const minDateTime = useMemo(() => new Date(minDate).setHours(0, 0, 0, 0), [minDate]);
+  const maxDateTime = useMemo(() => new Date(maxDate).setHours(23, 59, 59, 999), [maxDate]);
 
-    return isOutOfRange ? 'react-datepicker__day--muted' : '';
+  const dayClassName = (date: Date): string => {
+    return date.getTime() < minDateTime || date.getTime() > maxDateTime ? 'react-datepicker__day--muted' : '';
   };
 
   return (
