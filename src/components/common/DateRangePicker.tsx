@@ -40,6 +40,7 @@ export default function DateRangePicker({
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [customStartDate, setCustomStartDate] = useState<Date | null>(null);
   const [customEndDate, setCustomEndDate] = useState<Date | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const dropdownTitle = useMemo(() => {
     if (selectedOption === 'customDate') {
@@ -50,7 +51,31 @@ export default function DateRangePicker({
     return selectedOption ? translate(selectedOption) : translate('selectDate');
   }, [selectedOption, customStartDate, customEndDate, currentLocale, translate]);
 
-  const handleOptionSelect = (option: string) => {
+  const handleToggle = (isOpen: boolean) => {
+    setShowDropdown(isOpen);
+  };
+
+  const handleCustomDateChange = (start: Date | null, end: Date | null) => {
+    setCustomStartDate(start);
+    setCustomEndDate(end);
+
+    if (selectedOption === 'customDate') {
+      onRangeChange({
+        startDate: start?.toLocaleDateString(),
+        endDate: end?.toLocaleDateString(),
+      });
+    }
+  };
+
+  const handleOptionSelect = (option: string, e?: React.MouseEvent) => {
+    if (e && option === 'customDate') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    if (option !== 'customDate') {
+      setShowDropdown(false);
+    }
     setSelectedOption(option);
     const today = new Date();
     let startDate: string | undefined;
@@ -86,18 +111,6 @@ export default function DateRangePicker({
     }
 
     onRangeChange({ startDate, endDate });
-  };
-
-  const handleCustomDateChange = (start: Date | null, end: Date | null) => {
-    setCustomStartDate(start);
-    setCustomEndDate(end);
-
-    if (selectedOption === 'customDate') {
-      onRangeChange({
-        startDate: start?.toLocaleDateString(),
-        endDate: end?.toLocaleDateString(),
-      });
-    }
   };
 
   const handleClearFilter = () => {
@@ -137,12 +150,13 @@ export default function DateRangePicker({
           {dropdownTitle}
         </span>
       }
-      autoClose="outside"
+      show={showDropdown}
+      onToggle={handleToggle}
     >
       {options.map(option => (
         <Dropdown.Item
           key={option.key}
-          onClick={() => handleOptionSelect(option.key)}
+          onClick={e => handleOptionSelect(option.key, e)}
           className="d-flex justify-content-between align-items-center"
         >
           {option.label}
