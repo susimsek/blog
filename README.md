@@ -132,4 +132,6 @@ npm run sonar
 ![Font Awesome](https://img.shields.io/badge/Font_Awesome-339AF0?logo=font-awesome&logoColor=white)  
 ![Sass](https://img.shields.io/badge/Sass-CC6699?logo=sass&logoColor=white)  
 ![Gray Matter](https://img.shields.io/badge/Gray_Matter-FFB6C1?logo=markdown&logoColor=black)  
-![React Markdown](https://img.shields.io/badge/React_Markdown-61DAFB?logo=react&logoColor=black)
+![React Markdown](https://img.shields.io/badge/React_Markdown-61DAFB?logo=react&logoColor=black)  
+![React Datepicker](https://img.shields.io/badge/React_Datepicker-61DAFB?logo=react&logoColor=black)  
+![Date-fns](https://img.shields.io/badge/Date--fns-007ACC?logo=javascript&logoColor=white)
