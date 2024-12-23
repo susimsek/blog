@@ -1231,12 +1231,8 @@ label {
 }
 
 @media (max-width: 768px) {
-  #sort-dropdown {
-    width: 100%;
-  }
-  #topics-dropdown {
-    width: 100%;
-  }
+  #sort-dropdown,
+  #topics-dropdown,
   #date-range-dropdown {
     width: 100%;
   }
