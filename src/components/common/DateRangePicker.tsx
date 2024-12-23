@@ -35,6 +35,8 @@ export default function DateRangePicker({
     registerLocale('tr', tr);
   }, []);
 
+  const translate = (key: string) => t(`common.datePicker.${key}`);
+
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [customStartDate, setCustomStartDate] = useState<Date | null>(null);
   const [customEndDate, setCustomEndDate] = useState<Date | null>(null);
@@ -43,10 +45,10 @@ export default function DateRangePicker({
     if (selectedOption === 'customDate') {
       const start = customStartDate ? customStartDate.toLocaleDateString(currentLocale) : '';
       const end = customEndDate ? customEndDate.toLocaleDateString(currentLocale) : '';
-      return start && end ? `${start} - ${end}` : t('common.datePicker.customDate');
+      return start && end ? `${start} - ${end}` : translate('customDate');
     }
-    return selectedOption ? t(`common.datePicker.${selectedOption}`) : t('common.datePicker.selectDate');
-  }, [selectedOption, customStartDate, customEndDate, currentLocale, t]);
+    return selectedOption ? translate(selectedOption) : translate('selectDate');
+  }, [selectedOption, customStartDate, customEndDate, currentLocale, translate]);
 
   const handleOptionSelect = (option: string) => {
     setSelectedOption(option);
@@ -118,11 +120,11 @@ export default function DateRangePicker({
   };
 
   const options = [
-    { key: 'today', label: t('common.datePicker.today') },
-    { key: 'yesterday', label: t('common.datePicker.yesterday') },
-    { key: 'last7Days', label: t('common.datePicker.last7Days') },
-    { key: 'last30Days', label: t('common.datePicker.last30Days') },
-    { key: 'customDate', label: t('common.datePicker.customDate') },
+    { key: 'today', label: translate('today') },
+    { key: 'yesterday', label: translate('yesterday') },
+    { key: 'last7Days', label: translate('last7Days') },
+    { key: 'last30Days', label: translate('last30Days') },
+    { key: 'customDate', label: translate('customDate') },
   ];
 
   return (
