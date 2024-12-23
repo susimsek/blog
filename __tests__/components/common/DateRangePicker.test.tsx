@@ -70,6 +70,38 @@ describe('DateRangePicker', () => {
     expect(mockOnRangeChange).toHaveBeenCalledWith({ startDate: yesterdayDate, endDate: yesterdayDate });
   });
 
+  it('calls onRangeChange with last 7 days range when "Last 7 Days" is selected', () => {
+    render(<DateRangePicker {...defaultProps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
+    fireEvent.click(screen.getByText(/common.datePicker.last7Days/i));
+    const today = new Date();
+    const lastWeek = new Date();
+    lastWeek.setDate(today.getDate() - 7);
+
+    const startDate = lastWeek.toLocaleDateString();
+    const endDate = today.toLocaleDateString();
+
+    expect(mockOnRangeChange).toHaveBeenCalledWith({ startDate, endDate });
+  });
+
+  it('calls onRangeChange with last 30 days range when "Last 30 Days" is selected', () => {
+    render(<DateRangePicker {...defaultProps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
+
+    fireEvent.click(screen.getByText(/common.datePicker.last30Days/i));
+
+    const today = new Date();
+    const lastMonth = new Date();
+    lastMonth.setDate(today.getDate() - 30);
+
+    const startDate = lastMonth.toLocaleDateString();
+    const endDate = today.toLocaleDateString();
+
+    expect(mockOnRangeChange).toHaveBeenCalledWith({ startDate, endDate });
+  });
+
   it('opens custom date picker when "Custom Date" is selected', () => {
     render(<DateRangePicker {...defaultProps} />);
     fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
