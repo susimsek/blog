@@ -111,7 +111,12 @@ export default function DateRangePicker({
       className="date-picker-dropdown mb-2"
       align="start"
       flip={false}
-      title={dropdownTitle}
+      title={
+        <span>
+          <FontAwesomeIcon icon="calendar-alt" className="me-2" />
+          {dropdownTitle}
+        </span>
+      }
       autoClose="outside"
     >
       {['today', 'last7Days', 'last30Days', 'customDate'].map(option => (

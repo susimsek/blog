@@ -12,7 +12,8 @@
     box-shadow: var(--box-shadow-primary);
 
     svg,
-    i {
+    i,
+    span {
       color: $text-color !important;
       @include transition(color);
     }

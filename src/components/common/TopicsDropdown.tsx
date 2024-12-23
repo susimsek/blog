@@ -86,7 +86,12 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
       className="mb-2 topics-dropdown"
       flip={false}
       align="start"
-      title={dropdownTitle}
+      title={
+        <span>
+          <FontAwesomeIcon icon="tags" className="me-2" />
+          {dropdownTitle}
+        </span>
+      }
       autoClose="outside"
     >
       <div className="p-2">

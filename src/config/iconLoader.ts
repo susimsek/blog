@@ -28,7 +28,9 @@ import {
   faSearch,
   faSignInAlt,
   faSignOutAlt,
+  faSort,
   faSun,
+  faTags,
   faTimes,
   faTimesCircle,
   faTrash,
@@ -81,6 +83,8 @@ export const loadIcons = () => {
     faPalette,
     faTimesCircle,
     faCalendarAlt,
+    faSort,
+    faTags,
   );
 };
 

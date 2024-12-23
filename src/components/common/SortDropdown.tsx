@@ -18,7 +18,12 @@ export function SortDropdown({ sortOrder, onChange }: Readonly<SortDropdownProps
       className="mb-2"
       align="start"
       flip={false}
-      title={sortOrder === 'asc' ? t('common.sort.oldest') : t('common.sort.newest')}
+      title={
+        <span>
+          <FontAwesomeIcon icon="sort" className="me-2" />
+          {sortOrder === 'asc' ? t('common.sort.oldest') : t('common.sort.newest')}
+        </span>
+      }
       onSelect={e => e && onChange(e as 'asc' | 'desc')}
     >
       <Dropdown.Item eventKey="desc">
