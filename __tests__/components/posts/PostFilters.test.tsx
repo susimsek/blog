@@ -69,7 +69,7 @@ describe('PostFilters Component', () => {
 
   const noTopicsProps = {
     ...defaultProps,
-    topics: [],
+    topics: undefined,
   };
 
   beforeEach(() => {
