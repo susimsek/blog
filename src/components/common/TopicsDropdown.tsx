@@ -64,10 +64,9 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
 
   const handleTopicToggle = useCallback(
     (topicId: string) => {
-      const newPendingSelectedTopics = pendingSelectedTopics.includes(topicId)
-        ? pendingSelectedTopics.filter(id => id !== topicId)
-        : [...pendingSelectedTopics, topicId];
-      setPendingSelectedTopics(newPendingSelectedTopics);
+      if (!pendingSelectedTopics.includes(topicId)) {
+        setPendingSelectedTopics([...pendingSelectedTopics, topicId]);
+      }
     },
     [pendingSelectedTopics],
   );
