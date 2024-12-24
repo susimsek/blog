@@ -125,7 +125,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
               <span>{t('topic:topic.selectedTopics')}</span>
 
               <Button variant="danger" onClick={handleTopicClear} className="btn-badge">
-                <FontAwesomeIcon icon="trash" className="me-1" />
+                <FontAwesomeIcon icon="trash" className="me-2" />
                 {t('common.clearAll')}
               </Button>
             </div>
