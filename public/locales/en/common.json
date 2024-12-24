@@ -55,6 +55,26 @@
       "endDateLabel": "End Date",
       "clearSelection": "Clear Selection",
       "applySelection": "Apply Selection"
+    },
+    "validation": {
+      "required": "This field is required.",
+      "minlength": "This field must be at least {{ min }} characters.",
+      "maxlength": "This field cannot be longer than {{ max }} characters.",
+      "min": "This field should be at least {{ min }}.",
+      "max": "This field cannot be more than {{ max }}.",
+      "minbytes": "This field should be at least {{ min }} bytes.",
+      "maxbytes": "This field cannot be more than {{ max }} bytes.",
+      "pattern": "This field should match the pattern for {{ pattern }}.",
+      "number": "This field should be a number.",
+      "datetimelocal": "This field should be a date and time.",
+      "patternLogin": "This field can only contain letters, digits, and e-mail addresses.",
+      "email": "Please enter a valid email address.",
+      "url": "Please enter a valid URL.",
+      "alpha": "This field should only contain letters.",
+      "alphanumeric": "This field should only contain letters and numbers.",
+      "passwordStrength": "Password must contain at least 8 characters, including an uppercase letter, a number, and a special character.",
+      "startDateAfterEndDate": "Start date cannot be after end date.",
+      "endDateBeforeStartDate": "End date cannot be before start date."
     }
   }
 }

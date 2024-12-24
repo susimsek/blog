@@ -55,6 +55,26 @@
       "endDateLabel": "Bitiş Tarihi",
       "clearSelection": "Seçimi Temizle",
       "applySelection": "Seçimi Uygula"
+    },
+    "validation": {
+      "required": "Bu alan zorunludur.",
+      "minlength": "Bu alan en az {{ min }} karakter olmalıdır.",
+      "maxlength": "Bu alan en fazla {{ max }} karakter olabilir.",
+      "min": "Bu alan en az {{ min }} olmalıdır.",
+      "max": "Bu alan en fazla {{ max }} olabilir.",
+      "minbytes": "Bu alan en az {{ min }} bayt olmalıdır.",
+      "maxbytes": "Bu alan en fazla {{ max }} bayt olabilir.",
+      "pattern": "Bu alan {{ pattern }} deseniyle eşleşmelidir.",
+      "number": "Bu alan bir sayı olmalıdır.",
+      "datetimelocal": "Bu alan bir tarih ve saat olmalıdır.",
+      "patternLogin": "Bu alan sadece harfler, rakamlar ve e-posta adresleri içerebilir.",
+      "email": "Lütfen geçerli bir e-posta adresi girin.",
+      "url": "Lütfen geçerli bir URL girin.",
+      "alpha": "Bu alan sadece harf içermelidir.",
+      "alphanumeric": "Bu alan sadece harf ve rakam içermelidir.",
+      "passwordStrength": "Şifre en az bir büyük harf, bir sayı ve bir özel karakter içeren en az 8 karakter olmalıdır.",
+      "startDateAfterEndDate": "Başlangıç tarihi, bitiş tarihinden sonra olamaz.",
+      "endDateBeforeStartDate": "Bitiş tarihi, başlangıç tarihinden önce olamaz."
     }
   }
 }
