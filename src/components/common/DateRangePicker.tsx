@@ -41,30 +41,41 @@ export default function DateRangePicker({
   const [customStartDate, setCustomStartDate] = useState<Date | null>(null);
   const [customEndDate, setCustomEndDate] = useState<Date | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   const dropdownTitle = useMemo(() => {
     if (selectedOption === 'customDate') {
-      const start = customStartDate ? customStartDate.toLocaleDateString(currentLocale) : '';
-      const end = customEndDate ? customEndDate.toLocaleDateString(currentLocale) : '';
-      return start && end ? `${start} - ${end}` : translate('customDate');
+      if (isConfirmed) {
+        const start = customStartDate ? customStartDate.toLocaleDateString(currentLocale) : '';
+        const end = customEndDate ? customEndDate.toLocaleDateString(currentLocale) : '';
+        return start && end ? `${start} - ${end}` : translate('customDate');
+      }
+      return translate('customDate');
     }
     return selectedOption ? translate(selectedOption) : translate('selectDate');
   }, [selectedOption, customStartDate, customEndDate, currentLocale, translate]);
 
   const handleToggle = (isOpen: boolean) => {
     setShowDropdown(isOpen);
+    if (!isOpen) {
+      setIsConfirmed(false);
+    }
   };
 
   const handleCustomDateChange = (start: Date | null, end: Date | null) => {
     setCustomStartDate(start);
     setCustomEndDate(end);
+  };
 
+  const handleApplySelection = () => {
     if (selectedOption === 'customDate') {
       onRangeChange({
-        startDate: start?.toLocaleDateString(),
-        endDate: end?.toLocaleDateString(),
+        startDate: customStartDate?.toLocaleDateString(),
+        endDate: customEndDate?.toLocaleDateString(),
       });
     }
+    setIsConfirmed(true);
+    setShowDropdown(false);
   };
 
   const handleOptionSelect = (option: string, e?: React.MouseEvent) => {
@@ -207,7 +218,7 @@ export default function DateRangePicker({
           <div className="d-flex align-items-center">
             <Button
               variant="success"
-              onClick={() => setShowDropdown(false)}
+              onClick={handleApplySelection}
               size="sm"
               className="date-picker-button"
               disabled={!customStartDate || !customEndDate}
