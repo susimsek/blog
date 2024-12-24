@@ -7,11 +7,17 @@ export const createValidationSchema = (t: TFunction) => {
       .date()
       .required(t('common.validation.required'))
       .typeError(t('common.validation.datetimelocal'))
-      .max(yup.ref('endDate'), t('common.validation.startDateAfterEndDate')),
+      .test('startDateBeforeEndDate', t('common.validation.startDateAfterEndDate'), function (value) {
+        const { endDate } = this.parent;
+        return !(value && endDate && value > endDate);
+      }),
     endDate: yup
       .date()
       .required(t('common.validation.required'))
       .typeError(t('common.validation.datetimelocal'))
-      .min(yup.ref('startDate'), t('common.validation.endDateBeforeStartDate')),
+      .test('endDateAfterStartDate', t('common.validation.endDateBeforeStartDate'), function (value) {
+        const { startDate } = this.parent;
+        return !(value && startDate && value < startDate);
+      }),
   });
 };

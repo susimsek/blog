@@ -44,6 +44,7 @@ export default function DateRangePicker({
     control,
     reset,
     getValues,
+    clearErrors,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
@@ -207,7 +208,10 @@ export default function DateRangePicker({
                   render={({ field: { onChange, value } }) => (
                     <DatePicker
                       selected={value}
-                      onChange={date => onChange(date)}
+                      onChange={date => {
+                        onChange(date);
+                        clearErrors();
+                      }}
                       locale={selectedLocale}
                       dateFormat="P"
                       isClearable
@@ -232,7 +236,10 @@ export default function DateRangePicker({
                   render={({ field: { onChange, value } }) => (
                     <DatePicker
                       selected={value}
-                      onChange={date => onChange(date)}
+                      onChange={date => {
+                        onChange(date);
+                        clearErrors();
+                      }}
                       locale={selectedLocale}
                       dateFormat="P"
                       isClearable
