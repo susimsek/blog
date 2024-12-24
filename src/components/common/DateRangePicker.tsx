@@ -9,6 +9,9 @@ import { registerLocale } from 'react-datepicker';
 import { enUS } from 'date-fns/locale/en-US';
 import { tr } from 'date-fns/locale/tr';
 import 'react-datepicker/dist/react-datepicker.css';
+import { Controller, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { createValidationSchema } from '@/config/createValidationSchema';
 
 interface DateRangePickerProps {
   onRangeChange: (dates: { startDate?: string; endDate?: string }) => void;
@@ -35,25 +38,39 @@ export default function DateRangePicker({
     registerLocale('tr', tr);
   }, []);
 
+  const validationSchema = createValidationSchema(t);
+  const {
+    handleSubmit,
+    control,
+    reset,
+    getValues,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+    defaultValues: {
+      startDate: undefined,
+      endDate: undefined,
+    },
+  });
+
   const translate = (key: string) => t(`common.datePicker.${key}`);
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [customStartDate, setCustomStartDate] = useState<Date | null>(null);
-  const [customEndDate, setCustomEndDate] = useState<Date | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
 
   const dropdownTitle = useMemo(() => {
     if (selectedOption === 'customDate') {
       if (isConfirmed) {
-        const start = customStartDate ? customStartDate.toLocaleDateString(currentLocale) : '';
-        const end = customEndDate ? customEndDate.toLocaleDateString(currentLocale) : '';
+        const { startDate, endDate } = getValues();
+        const start = startDate ? startDate.toLocaleDateString() : '';
+        const end = endDate ? endDate.toLocaleDateString() : '';
         return start && end ? `${start} - ${end}` : translate('customDate');
       }
       return translate('customDate');
     }
     return selectedOption ? translate(selectedOption) : translate('selectDate');
-  }, [selectedOption, customStartDate, customEndDate, currentLocale, translate]);
+  }, [selectedOption, isConfirmed, getValues, translate]);
 
   const handleToggle = (isOpen: boolean) => {
     setShowDropdown(isOpen);
@@ -62,16 +79,11 @@ export default function DateRangePicker({
     }
   };
 
-  const handleCustomDateChange = (start: Date | null, end: Date | null) => {
-    setCustomStartDate(start);
-    setCustomEndDate(end);
-  };
-
-  const handleApplySelection = () => {
+  const handleApplySelection = (data: { startDate: Date | null; endDate: Date | null }) => {
     if (selectedOption === 'customDate') {
       onRangeChange({
-        startDate: customStartDate?.toLocaleDateString(),
-        endDate: customEndDate?.toLocaleDateString(),
+        startDate: data.startDate?.toLocaleDateString(),
+        endDate: data.endDate?.toLocaleDateString(),
       });
     }
     setIsConfirmed(true);
@@ -121,8 +133,9 @@ export default function DateRangePicker({
         endDate = today.toLocaleDateString();
         break;
       case 'customDate':
-        startDate = customStartDate ? customStartDate.toLocaleDateString() : undefined;
-        endDate = customEndDate ? customEndDate.toLocaleDateString() : undefined;
+        const { startDate: rawStartDate, endDate: rawEndDate } = getValues();
+        startDate = rawStartDate ? rawStartDate.toLocaleDateString() : undefined;
+        endDate = rawEndDate ? rawEndDate.toLocaleDateString() : undefined;
         break;
     }
 
@@ -130,9 +143,8 @@ export default function DateRangePicker({
   };
 
   const handleClearFilter = () => {
+    reset();
     setSelectedOption(null);
-    setCustomStartDate(null);
-    setCustomEndDate(null);
     onRangeChange({ startDate: undefined, endDate: undefined });
     setShowDropdown(false);
   };
@@ -155,97 +167,107 @@ export default function DateRangePicker({
   ];
 
   return (
-    <DropdownButton
-      id="date-range-dropdown"
-      variant="orange"
-      className="date-picker-dropdown mb-2"
-      align="start"
-      flip={false}
-      title={
-        <span>
-          <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-          {dropdownTitle}
-        </span>
-      }
-      show={showDropdown}
-      onToggle={handleToggle}
-      autoClose="outside"
-    >
-      {options.map(option => (
-        <Dropdown.Item
-          key={option.key}
-          onClick={e => handleOptionSelect(option.key, e)}
-          className="d-flex justify-content-between align-items-center"
-        >
-          {option.label}
-          {selectedOption === option.key && <FontAwesomeIcon icon="circle-check" className="circle-check ms-2" />}
-        </Dropdown.Item>
-      ))}
+    <Form onSubmit={handleSubmit(handleApplySelection)}>
+      <DropdownButton
+        id="date-range-dropdown"
+        variant="orange"
+        className="date-picker-dropdown mb-2"
+        align="start"
+        flip={false}
+        title={
+          <span>
+            <FontAwesomeIcon icon="calendar-alt" className="me-2" />
+            {dropdownTitle}
+          </span>
+        }
+        show={showDropdown}
+        onToggle={handleToggle}
+        autoClose="outside"
+      >
+        {options.map(option => (
+          <Dropdown.Item
+            key={option.key}
+            onClick={e => handleOptionSelect(option.key, e)}
+            className="d-flex justify-content-between align-items-center"
+          >
+            {option.label}
+            {selectedOption === option.key && <FontAwesomeIcon icon="circle-check" className="circle-check ms-2" />}
+          </Dropdown.Item>
+        ))}
 
-      {selectedOption === 'customDate' && (
-        <div className="p-3">
-          <div className="d-flex flex-column mb-4">
-            <Form.Label className="mb-2">{t('common.datePicker.startDateLabel')}</Form.Label>
+        {selectedOption === 'customDate' && (
+          <div className="p-3">
+            <div className="d-flex flex-column mb-4">
+              <Form.Label className="mb-2">{t('common.datePicker.startDateLabel')}</Form.Label>
+              <div className="d-flex align-items-center">
+                <FontAwesomeIcon icon="calendar-alt" className="me-2" />
+                <Controller
+                  name="startDate"
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <DatePicker
+                      selected={value}
+                      onChange={date => onChange(date)}
+                      locale={selectedLocale}
+                      dateFormat="P"
+                      isClearable
+                      className="form-control"
+                      placeholderText={t('common.datePicker.startDatePlaceholder')}
+                      minDate={minDate}
+                      maxDate={maxDate}
+                      dayClassName={dayClassName}
+                    />
+                  )}
+                />
+              </div>
+              {errors.startDate && <Form.Text className="text-danger mt-2">{errors.startDate.message}</Form.Text>}
+            </div>
+            <div className="d-flex flex-column mb-4">
+              <Form.Label className="mb-2">{t('common.datePicker.endDateLabel')}</Form.Label>
+              <div className="d-flex align-items-center">
+                <FontAwesomeIcon icon="calendar-alt" className="me-2" />
+                <Controller
+                  name="endDate"
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <DatePicker
+                      selected={value}
+                      onChange={date => onChange(date)}
+                      locale={selectedLocale}
+                      dateFormat="P"
+                      isClearable
+                      className="form-control"
+                      placeholderText={t('common.datePicker.endDatePlaceholder')}
+                      minDate={minDate}
+                      maxDate={maxDate}
+                      dayClassName={dayClassName}
+                    />
+                  )}
+                />
+              </div>
+              {errors.endDate && <Form.Text className="text-danger mt-2">{errors.endDate.message}</Form.Text>}
+            </div>
             <div className="d-flex align-items-center">
-              <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-              <DatePicker
-                selected={customStartDate}
-                onChange={date => handleCustomDateChange(date, customEndDate)}
-                locale={selectedLocale}
-                dateFormat="P"
-                isClearable
-                placeholderText={t('common.datePicker.startDatePlaceholder')}
-                className="form-control"
-                minDate={minDate}
-                maxDate={maxDate}
-                dayClassName={dayClassName}
-              />
+              <Button variant="success" type="submit" size="sm" className="date-picker-button">
+                <FontAwesomeIcon icon="check" className="me-2" />
+                {t('common.datePicker.applySelection')}
+              </Button>
             </div>
           </div>
-          <div className="d-flex flex-column mb-4">
-            <Form.Label className="mb-2">{t('common.datePicker.endDateLabel')}</Form.Label>
-            <div className="d-flex align-items-center">
-              <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-              <DatePicker
-                selected={customEndDate}
-                onChange={date => handleCustomDateChange(customStartDate, date)}
-                locale={selectedLocale}
-                dateFormat="P"
-                isClearable
-                placeholderText={t('common.datePicker.endDatePlaceholder')}
-                className="form-control"
-                minDate={minDate}
-                maxDate={maxDate}
-                dayClassName={dayClassName}
-              />
-            </div>
-          </div>
-          <div className="d-flex align-items-center">
-            <Button
-              variant="success"
-              onClick={handleApplySelection}
-              size="sm"
-              className="date-picker-button"
-              disabled={!customStartDate || !customEndDate}
-            >
-              <FontAwesomeIcon icon="check" className="me-2" />
-              {t('common.datePicker.applySelection')}
-            </Button>
-          </div>
-        </div>
-      )}
+        )}
 
-      {isSelectionMade && (
-        <>
-          <Dropdown.Divider />
-          <div className="date-picker-clear-button-container">
-            <Button variant="danger" onClick={handleClearFilter} size="sm" className="date-picker-button">
-              <FontAwesomeIcon icon="times" className="me-2" />
-              {t('common.datePicker.clearSelection')}
-            </Button>
-          </div>
-        </>
-      )}
-    </DropdownButton>
+        {isSelectionMade && (
+          <>
+            <Dropdown.Divider />
+            <div className="date-picker-clear-button-container">
+              <Button variant="danger" onClick={handleClearFilter} size="sm" className="date-picker-button">
+                <FontAwesomeIcon icon="times" className="me-2" />
+                {t('common.datePicker.clearSelection')}
+              </Button>
+            </div>
+          </>
+        )}
+      </DropdownButton>
+    </Form>
   );
 }

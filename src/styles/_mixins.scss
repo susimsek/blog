@@ -42,7 +42,7 @@
 }
 
 @mixin text-variant($name, $color-var) {
-  &.text-#{'#{$name}'} {
+  .text-#{'#{$name}'} {
     color: $color-var !important;
   }
 }

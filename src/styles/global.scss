@@ -257,28 +257,24 @@ input.form-control {
   }
 }
 
-.text {
-  @include transition(color);
-
-  @include text-variant(primary, var(--primary-text));
-  @include text-variant(secondary, var(--secondary-text));
-  @include text-variant(success, var(--success-text));
-  @include text-variant(info, var(--info-text));
-  @include text-variant(warning, var(--warning-text));
-  @include text-variant(danger, var(--danger-text));
-  @include text-variant(light, var(--light-text));
-  @include text-variant(dark, var(--dark-text));
-  @include text-variant(red, var(--red-text));
-  @include text-variant(green, var(--green-text));
-  @include text-variant(blue, var(--blue-text));
-  @include text-variant(orange, var(--orange-text));
-  @include text-variant(yellow, var(--yellow-text));
-  @include text-variant(purple, var(--purple-text));
-  @include text-variant(gray, var(--gray-text));
-  @include text-variant(brown, var(--brown-text));
-  @include text-variant(pink, var(--pink-text));
-  @include text-variant(cyan, var(--cyan-text));
-}
+@include text-variant(primary, var(--primary-text));
+@include text-variant(secondary, var(--secondary-text));
+@include text-variant(success, var(--success-text));
+@include text-variant(info, var(--info-text));
+@include text-variant(warning, var(--warning-text));
+@include text-variant(danger, var(--danger-text));
+@include text-variant(light, var(--light-text));
+@include text-variant(dark, var(--dark-text));
+@include text-variant(red, var(--red-text));
+@include text-variant(green, var(--green-text));
+@include text-variant(blue, var(--blue-text));
+@include text-variant(orange, var(--orange-text));
+@include text-variant(yellow, var(--yellow-text));
+@include text-variant(purple, var(--purple-text));
+@include text-variant(gray, var(--gray-text));
+@include text-variant(brown, var(--brown-text));
+@include text-variant(pink, var(--pink-text));
+@include text-variant(cyan, var(--cyan-text));
 
 .background {
   @include transition(background-color);
