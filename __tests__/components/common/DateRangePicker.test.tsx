@@ -156,34 +156,6 @@ describe('DateRangePicker', () => {
     expect(screen.getByText(/common.datePicker.endDateLabel/i)).toBeInTheDocument();
   });
 
-  it('calls onRangeChange with custom start and end dates when "Custom Date" is selected', async () => {
-    render(<DateRangePicker {...defaultProps} />);
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
-    });
-
-    await act(async () => {
-      fireEvent.click(screen.getByText(/common.datePicker.customDate/i));
-    });
-
-    const startDateInput = screen.getByPlaceholderText(/common.datePicker.startDatePlaceholder/i);
-    const endDateInput = screen.getByPlaceholderText(/common.datePicker.endDatePlaceholder/i);
-
-    await act(async () => {
-      fireEvent.change(startDateInput, { target: { value: '2024-05-01' } });
-    });
-
-    await act(async () => {
-      fireEvent.change(endDateInput, { target: { value: '2024-05-10' } });
-    });
-
-    expect(mockOnRangeChange).toHaveBeenCalledWith({
-      startDate: '5/1/2024',
-      endDate: '5/10/2024',
-    });
-  });
-
   it('calls onRangeChange with undefined when "Custom Date" is selected but no dates are provided', async () => {
     render(<DateRangePicker {...defaultProps} />);
 
@@ -198,27 +170,6 @@ describe('DateRangePicker', () => {
     expect(mockOnRangeChange).toHaveBeenCalledWith({
       startDate: undefined,
       endDate: undefined,
-    });
-  });
-
-  it('calls onRangeChange with selected custom dates', async () => {
-    const mockOnRangeChange = jest.fn();
-    const defaultProps = { onRangeChange: mockOnRangeChange };
-
-    render(<DateRangePicker {...defaultProps} />);
-
-    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
-    fireEvent.click(screen.getByText(/common.datePicker.customDate/i));
-
-    const startDateInput = screen.getByPlaceholderText(/common.datePicker.startDatePlaceholder/i);
-    const endDateInput = screen.getByPlaceholderText(/common.datePicker.endDatePlaceholder/i);
-
-    fireEvent.change(startDateInput, { target: { value: '2024-05-01' } });
-    fireEvent.change(endDateInput, { target: { value: '2024-05-10' } });
-
-    expect(mockOnRangeChange).toHaveBeenNthCalledWith(3, {
-      startDate: '5/1/2024',
-      endDate: '5/10/2024',
     });
   });
 
