@@ -156,23 +156,6 @@ describe('DateRangePicker', () => {
     expect(screen.getByText(/common.datePicker.endDateLabel/i)).toBeInTheDocument();
   });
 
-  it('calls onRangeChange with undefined when "Custom Date" is selected but no dates are provided', async () => {
-    render(<DateRangePicker {...defaultProps} />);
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
-    });
-
-    await act(async () => {
-      fireEvent.click(screen.getByText(/common.datePicker.customDate/i));
-    });
-
-    expect(mockOnRangeChange).toHaveBeenCalledWith({
-      startDate: undefined,
-      endDate: undefined,
-    });
-  });
-
   it('resets selection when clear button is clicked', () => {
     render(<DateRangePicker {...defaultProps} />);
     fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));

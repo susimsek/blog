@@ -84,6 +84,11 @@ export default function DateRangePicker({
       e.stopPropagation();
     }
 
+    if (option === 'customDate' && !isConfirmed) {
+      setSelectedOption(option);
+      return;
+    }
+
     if (option !== 'customDate') {
       setShowDropdown(false);
     }
