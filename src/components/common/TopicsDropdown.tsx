@@ -16,6 +16,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
   const { t } = useTranslation(['common', 'topic']);
   const [topicSearchQuery, setTopicSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const itemsPerPage = 5;
 
@@ -72,6 +73,15 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
     [selectedTopics, onTopicsChange],
   );
 
+  const handleToggle = (isOpen: boolean) => {
+    setShowDropdown(isOpen);
+  };
+
+  const handleTopicClear = useCallback(() => {
+    onTopicsChange([]);
+    setShowDropdown(false);
+  }, [onTopicsChange]);
+
   const handleTopicRemove = useCallback(
     (topicId: string) => {
       onTopicsChange(selectedTopics.filter(id => id !== topicId));
@@ -92,6 +102,8 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
           {dropdownTitle}
         </span>
       }
+      show={showDropdown}
+      onToggle={handleToggle}
       autoClose="outside"
     >
       <div className="p-2">
@@ -106,7 +118,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
             <div className="d-flex justify-content-between align-items-center">
               <span>{t('topic:topic.selectedTopics')}</span>
 
-              <Button variant="danger" onClick={() => onTopicsChange([])} className="btn-badge">
+              <Button variant="danger" onClick={handleTopicClear} className="btn-badge">
                 <FontAwesomeIcon icon="trash" className="me-1" />
                 {t('common.clearAll')}
               </Button>
