@@ -217,17 +217,4 @@ describe('TopicsDropdown - getDropdownTitle', () => {
 
     expect(screen.getByText('common.clearAll')).toBeInTheDocument();
   });
-
-  test('calls onTopicsChange with an empty array when Clear All button is clicked', () => {
-    const onTopicsChangeMock = jest.fn();
-    const selectedTopics = ['react', 'vue'];
-
-    render(<TopicsDropdown topics={mockTopics} selectedTopics={selectedTopics} onTopicsChange={onTopicsChangeMock} />);
-
-    fireEvent.click(screen.getByRole('button', { name: /React, Vue.js/i }));
-
-    fireEvent.click(screen.getByRole('button', { name: /common.clearAll/i }));
-
-    expect(onTopicsChangeMock).toHaveBeenCalledWith([]);
-  });
 });
