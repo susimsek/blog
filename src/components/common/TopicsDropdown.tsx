@@ -17,6 +17,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
   const [topicSearchQuery, setTopicSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [pendingSelectedTopics, setPendingSelectedTopics] = useState<string[]>(selectedTopics);
 
   const itemsPerPage = 5;
 
@@ -51,7 +52,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
       .join(', ');
   }, [selectedTopics, topics, t]);
 
-  // Callback functions with useCallback
+  // Callback functions
   const handleTopicSearch = useCallback((query: string) => {
     setTopicSearchQuery(query);
     setCurrentPage(1);
@@ -63,31 +64,38 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
 
   const handleTopicToggle = useCallback(
     (topicId: string) => {
-      const newSelectedTopics = selectedTopics.includes(topicId)
-        ? selectedTopics.filter(id => id !== topicId)
-        : [...selectedTopics, topicId];
-      onTopicsChange(newSelectedTopics);
-      setTopicSearchQuery('');
-      setCurrentPage(1);
+      const newPendingSelectedTopics = pendingSelectedTopics.includes(topicId)
+        ? pendingSelectedTopics.filter(id => id !== topicId)
+        : [...pendingSelectedTopics, topicId];
+      setPendingSelectedTopics(newPendingSelectedTopics);
     },
-    [selectedTopics, onTopicsChange],
+    [pendingSelectedTopics],
   );
 
   const handleToggle = (isOpen: boolean) => {
     setShowDropdown(isOpen);
+    if (!isOpen) {
+      setPendingSelectedTopics(selectedTopics);
+    }
   };
 
   const handleTopicClear = useCallback(() => {
+    setPendingSelectedTopics([]);
     onTopicsChange([]);
     setShowDropdown(false);
-  }, [onTopicsChange]);
+  }, [setPendingSelectedTopics, onTopicsChange]);
 
   const handleTopicRemove = useCallback(
     (topicId: string) => {
-      onTopicsChange(selectedTopics.filter(id => id !== topicId));
+      setPendingSelectedTopics(pendingSelectedTopics.filter(id => id !== topicId));
     },
-    [selectedTopics, onTopicsChange],
+    [pendingSelectedTopics],
   );
+
+  const handleApplySelection = useCallback(() => {
+    onTopicsChange(pendingSelectedTopics);
+    setShowDropdown(false);
+  }, [pendingSelectedTopics, onTopicsChange]);
 
   return (
     <DropdownButton
@@ -112,7 +120,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
 
       <Dropdown.Divider />
 
-      {selectedTopics.length > 0 && (
+      {pendingSelectedTopics.length > 0 && (
         <>
           <Dropdown.Header>
             <div className="d-flex justify-content-between align-items-center">
@@ -125,7 +133,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
             </div>
           </Dropdown.Header>
           <div className="p-2 ms-2">
-            {selectedTopics.map(topicId => {
+            {pendingSelectedTopics.map(topicId => {
               const topic = topics.find(t => t.id === topicId);
               if (!topic) return null;
               return (
@@ -144,11 +152,11 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
         </>
       )}
 
-      <Dropdown.Item onClick={() => onTopicsChange([])} className="d-flex align-items-center">
+      <Dropdown.Item className="d-flex align-items-center" onClick={handleTopicClear}>
         <Badge bg="gray" className="badge-gray me-2">
           {t('topic:topic.allTopics')}
         </Badge>
-        {selectedTopics.length === 0 && <FontAwesomeIcon icon="circle-check" className="ms-auto" />}
+        {pendingSelectedTopics.length === 0 && <FontAwesomeIcon icon="circle-check" className="ms-auto" />}
       </Dropdown.Item>
 
       {paginatedTopics.length > 0 ? (
@@ -161,7 +169,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
             <Badge bg={topic.color} className={`badge-${topic.color} me-2`}>
               {topic.name}
             </Badge>
-            {selectedTopics.includes(topic.id) && <FontAwesomeIcon icon="circle-check" className="ms-auto" />}
+            {pendingSelectedTopics.includes(topic.id) && <FontAwesomeIcon icon="circle-check" className="ms-auto" />}
           </Dropdown.Item>
         ))
       ) : (
@@ -186,6 +194,19 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
           </div>
         </>
       )}
+
+      <Dropdown.Divider />
+      <div className="d-flex justify-content-center p-2">
+        <Button
+          className="apply-button"
+          variant="success"
+          disabled={pendingSelectedTopics.length === 0}
+          onClick={handleApplySelection}
+        >
+          <FontAwesomeIcon icon="check" className="me-2" />
+          {t('common.datePicker.applySelection')}
+        </Button>
+      </div>
     </DropdownButton>
   );
 }
