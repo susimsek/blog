@@ -80,8 +80,9 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
 
   const handleTopicClear = useCallback(() => {
     setPendingSelectedTopics([]);
-    setShowDropdown(true);
-  }, [setPendingSelectedTopics, onTopicsChange]);
+    setShowDropdown(false);
+    onTopicsChange([]);
+  }, [setPendingSelectedTopics, setShowDropdown, onTopicsChange]);
 
   const handleTopicRemove = useCallback(
     (topicId: string) => {
