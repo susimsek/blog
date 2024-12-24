@@ -3,7 +3,11 @@ import { TFunction } from 'i18next';
 
 export const createValidationSchema = (t: TFunction) => {
   return yup.object().shape({
-    startDate: yup.date().required(t('common.validation.required')).typeError(t('common.validation.datetimelocal')),
+    startDate: yup
+      .date()
+      .required(t('common.validation.required'))
+      .typeError(t('common.validation.datetimelocal'))
+      .max(yup.ref('endDate'), t('common.validation.startDateAfterEndDate')),
     endDate: yup
       .date()
       .required(t('common.validation.required'))
