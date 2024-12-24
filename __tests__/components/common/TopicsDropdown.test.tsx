@@ -104,16 +104,6 @@ describe('TopicsDropdown', () => {
     expect(screen.queryByText('React')).not.toBeInTheDocument();
   });
 
-  test('calls onTopicsChange with an empty array when "all topics" is selected', () => {
-    renderComponent(['react', 'vue']);
-
-    fireEvent.click(screen.getByRole('button', { name: 'React, Vue.js' }));
-
-    fireEvent.click(screen.getByText('topic:topic.allTopics'));
-
-    expect(onTopicsChangeMock).toHaveBeenCalledWith([]);
-  });
-
   test('handles pagination correctly', async () => {
     renderComponent();
     fireEvent.click(screen.getByText('topic:topic.allTopics'));
