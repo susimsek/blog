@@ -81,8 +81,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
 
   const handleTopicClear = useCallback(() => {
     setPendingSelectedTopics([]);
-    onTopicsChange([]);
-    setShowDropdown(false);
+    setShowDropdown(true);
   }, [setPendingSelectedTopics, onTopicsChange]);
 
   const handleTopicRemove = useCallback(
@@ -200,7 +199,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
         <Button
           className="apply-button"
           variant="success"
-          disabled={pendingSelectedTopics.length === 0}
+          disabled={selectedTopics.length === 0 && pendingSelectedTopics.length === 0}
           onClick={handleApplySelection}
         >
           <FontAwesomeIcon icon="check" className="me-2" />
