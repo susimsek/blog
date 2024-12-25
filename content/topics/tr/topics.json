@@ -19,5 +19,7 @@
   { "id": "openapi", "name": "OpenAPI", "color": "orange" },
   { "id": "documentation", "name": "Dokümantasyon", "color": "brown" },
   { "id": "redis", "name": "Redis", "color": "orange" },
-  { "id": "caching", "name": "Önbellekleme", "color": "brown" }
+  { "id": "caching", "name": "Önbellekleme", "color": "brown" },
+  { "id": "kafka", "name": "Kafka", "color": "orange" },
+  { "id": "messaging", "name": "Mesajlaşma", "color": "brown" }
 ]
