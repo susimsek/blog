@@ -22,8 +22,8 @@ export default function PostSummary({ post }: Readonly<PostSummaryProps>) {
             {title}
           </Link>
         </h2>
-        <p className="text-muted">
-          <Link href={`/posts/${id}`}>
+        <p>
+          <Link href={`/posts/${id}`} className="link-muted">
             <DateDisplay date={date} />
           </Link>
         </p>

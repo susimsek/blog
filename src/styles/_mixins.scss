@@ -31,6 +31,17 @@
     color: $color !important;
     text-decoration: none;
 
+    svg,
+    i,
+    span {
+      color: $color !important;
+      @include transition(color);
+
+      &:hover {
+        color: $hover-color !important;
+      }
+    }
+
     &:hover {
       color: $hover-color !important;
     }

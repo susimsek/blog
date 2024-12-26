@@ -99,7 +99,7 @@ h6 {
 }
 
 .text-muted {
-  color: var(--muted-text-color) !important;
+  color: var(--muted-bg) !important;
   @include transition(color);
 }
 
@@ -327,6 +327,7 @@ input.form-control {
   @include link-variant(brown, var(--brown-bg), var(--brown-hover), var(--brown-color));
   @include link-variant(pink, var(--pink-bg), var(--pink-hover), var(--pink-color));
   @include link-variant(cyan, var(--cyan-bg), var(--cyan-hover), var(--cyan-color));
+  @include link-variant(muted, var(--muted-bg), var(--muted-hover), var(--muted-color));
 }
 
 .btn {
@@ -1330,7 +1331,6 @@ label {
   font-size: 0.875rem;
   line-height: 1.2;
   margin-bottom: 0.5rem; /* mb-1 */
-  color: var(--muted-text-color);
 }
 
 .post-topics {
