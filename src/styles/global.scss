@@ -16,6 +16,7 @@ body {
   @include transition(background-color, border-color);
 
   .nav-link {
+    white-space: nowrap;
     color: var(--text-color);
     @include transition(color);
 
@@ -867,12 +868,12 @@ input.form-control {
   }
 
   &.active {
-    background-color: var(--active-color);
+    background-color: var(--dropdown-hover-bg);
     border-color: var(--border-color);
-    color: var(--primary-color);
+    color: var(--dropdown-hover-color);
 
     i {
-      color: var(--primary-color);
+      color: var(--dropdown-hover-color);
     }
   }
 

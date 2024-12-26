@@ -76,7 +76,7 @@ export default function Header({ posts = [], searchEnabled = false }: Readonly<H
                   <ListGroup className="search-results">
                     {searchResults.length > 0 ? (
                       searchResults.map(result => (
-                        <ListGroup.Item key={result.id} className="p-3">
+                        <ListGroup.Item as={Link} action key={result.id} href={`/posts/${result.id}`} className="p-3">
                           <PostListItem post={result} />
                         </ListGroup.Item>
                       ))
