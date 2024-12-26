@@ -133,7 +133,7 @@ h6 {
     }
 
     &.disabled .page-link {
-      color: var(--muted-text-color);
+      color: var(--muted-bg);
       pointer-events: none;
     }
   }
@@ -164,7 +164,7 @@ select.form-select {
 
   &:disabled {
     background-color: var(--main-bg);
-    color: var(--muted-text-color);
+    color: var(--muted-bg);
     border-color: var(--border-color);
     cursor: not-allowed;
     box-shadow: none;
@@ -204,7 +204,7 @@ input.form-control {
 
   &:disabled {
     background-color: var(--input-bg-color);
-    color: var(--muted-text-color);
+    color: var(--muted-bg);
     border-color: var(--border-color);
     cursor: not-allowed;
     box-shadow: none;
@@ -725,7 +725,7 @@ input.form-control {
     }
 
     &::placeholder {
-      color: var(--muted-text-color);
+      color: var(--muted-bg);
     }
   }
 
@@ -880,7 +880,7 @@ input.form-control {
 
   &.disabled {
     background-color: var(--disabled-bg);
-    color: var(--muted-text-color);
+    color: var(--muted-bg);
   }
 }
 
@@ -1193,7 +1193,7 @@ label {
 }
 
 .react-datepicker__day--outside-month {
-  color: var(--muted-text-color) !important;
+  color: var(--muted-bg) !important;
   @include transition(color);
 }
 
@@ -1230,7 +1230,7 @@ label {
 }
 
 .react-datepicker__day--muted {
-  color: var(--muted-text-color) !important;
+  color: var(--muted-bg) !important;
   pointer-events: none;
   opacity: 0.5;
 }
