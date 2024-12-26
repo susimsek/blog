@@ -4,6 +4,7 @@ import { Row, Col, Badge } from 'react-bootstrap';
 import Link from 'next/link';
 import Image from 'next/image';
 import DateDisplay from '@/components/common/DateDisplay';
+import { assetPrefix } from '@/config/constants';
 
 interface PostListItemProps {
   post: PostSummary;
@@ -20,7 +21,7 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
           <Link href={`/posts/${id}`}>
             <div className="post-thumbnail">
               <Image
-                src={thumbnail}
+                src={`${assetPrefix}${thumbnail}`}
                 alt={title}
                 className="img-fluid rounded"
                 width={80}
