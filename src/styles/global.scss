@@ -1258,7 +1258,7 @@ label {
   border-radius: 0.25rem;
   top: 100%;
   z-index: 1050;
-  max-height: 300px;
+  max-height: 50vh;
   overflow-y: auto;
   width: 100%;
 }
@@ -1290,23 +1290,23 @@ label {
 
 .post-list-item {
   display: flex;
-  align-items: flex-start; /* Resmi ve başlığı aynı başlangıç hizasında tutar */
-  margin-bottom: 1rem; /* mb-3 */
+  align-items: flex-start;
+  margin-bottom: 1rem;
 }
 
 .post-thumbnail-container {
   display: flex;
-  align-items: flex-start; /* Resim üst hizalamada */
+  align-items: flex-start;
 }
 
 .post-thumbnail {
-  width: 80px; /* Resim genişliği */
-  height: auto; /* Oranı koruyarak yüksekliği ayarlar */
+  width: 80px;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: hidden; /* Taşan içerikleri gizler */
+  overflow: hidden;
   box-shadow: var(--box-shadow-primary);
   @include transition(box-shadow);
 

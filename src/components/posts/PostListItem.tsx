@@ -41,7 +41,7 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
             </Link>
           </h6>
           <p className="post-date">
-            <Link href={`/posts/${id}`} className="link-muted">
+            <Link href={`/posts/${id}`} className="link link-muted">
               <DateDisplay date={date} />
             </Link>
           </p>
