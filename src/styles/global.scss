@@ -112,6 +112,11 @@ h6 {
   @include transition(color);
 }
 
+.shadow-sm {
+  box-shadow: var(--box-shadow-sm) !important;
+  @include transition(box-shadow);
+}
+
 .spinner-border,
 .spinner-grow {
   color: var(--spinner-color);
@@ -483,7 +488,7 @@ input.form-control {
 }
 
 .badge {
-  box-shadow: var(--box-shadow-badge);
+  box-shadow: var(--box-shadow-sm);
   @include transition(background-color, border-color, color, box-shadow);
 
   @include badge-variant(

@@ -69,7 +69,7 @@
     background-color: $bg-color;
     color: $text-color;
     border-color: $border-color;
-    box-shadow: var(--box-shadow-badge);
+    box-shadow: var(--box-shadow-sm);
 
     svg,
     i {
@@ -80,7 +80,7 @@
     &:hover {
       background-color: $hover-bg;
       border-color: $hover-border;
-      box-shadow: var(--box-shadow-badge-hover);
+      box-shadow: var(--box-shadow-sm-hover);
     }
   }
 }
