@@ -18,7 +18,7 @@ export default function Home({ posts, topics }: Readonly<HomeProps>) {
   const { t } = useTranslation('home');
 
   return (
-    <Layout>
+    <Layout posts={posts} topics={topics} searchEnabled={true}>
       <Head>
         <title>{t('home.title')}</title>
         <meta name="description" content={t('home.meta.description')} />
