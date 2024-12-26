@@ -1295,23 +1295,21 @@ label {
 }
 
 .post-thumbnail-container {
-  display: flex;
-  align-items: flex-start;
+  position: relative;
 }
 
 .post-thumbnail {
-  width: 80px;
-  height: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
   box-shadow: var(--box-shadow-primary);
   @include transition(box-shadow);
 
   &:hover {
     box-shadow: var(--box-shadow-hover);
+  }
+
+  img {
+    object-fit: cover;
+    width: 100%;
+    height: auto;
   }
 
   &:hover img {
