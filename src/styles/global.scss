@@ -37,8 +37,6 @@ body {
       color: var(--link-hover-color);
     }
 
-    svg,
-    i,
     span {
       color: var(--text-color);
       @include transition(color);
