@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Dropdown, DropdownButton, Form, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
@@ -54,7 +54,7 @@ export default function DateRangePicker({
     },
   });
 
-  const translate = (key: string) => t(`common.datePicker.${key}`);
+  const translate = useCallback((key: string) => t(`common.datePicker.${key}`), [t]);
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
