@@ -11,6 +11,7 @@ import {
   faChevronRight,
   faCircle,
   faCircleCheck,
+  faClock,
   faCode,
   faCopy,
   faDatabase,
@@ -85,6 +86,7 @@ export const loadIcons = () => {
     faCalendarAlt,
     faSort,
     faTags,
+    faClock,
   );
 };
 

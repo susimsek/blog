@@ -110,6 +110,12 @@ h6 {
 .text-muted {
   color: var(--muted-bg) !important;
   @include transition(color);
+
+  svg,
+  i {
+    color: var(--muted-bg) !important;
+    @include transition(color);
+  }
 }
 
 .shadow-sm {

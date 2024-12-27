@@ -3,6 +3,7 @@ title: 'Spring GraphQL ile API Oluşturma'
 date: '2024-12-15'
 summary: 'Java ve Kotlin kullanarak Spring for GraphQL ile GraphQL API\u201leri nasıl oluşturacağınızı öğrenin. Şema oluşturma, sorgu işleme ve entegrasyonu içerir.'
 thumbnail: '/images/spring-boot-graphql-thumbnail.jpg'
+readingTime: '3 dk okuma'
 topics:
   - id: 'java'
     name: 'Java'

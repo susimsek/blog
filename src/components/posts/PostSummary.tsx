@@ -5,13 +5,15 @@ import DateDisplay from '@/components/common/DateDisplay';
 import { useTranslation } from 'next-i18next';
 import { assetPrefix } from '@/config/constants';
 import Thumbnail from '@/components/common/Thumbnail';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarAlt, faClock } from '@fortawesome/free-solid-svg-icons';
 
 interface PostSummaryProps {
   post: Post;
 }
 
 export default function PostSummary({ post }: Readonly<PostSummaryProps>) {
-  const { id, title, date, summary, thumbnail, topics } = post;
+  const { id, title, date, summary, thumbnail, topics, readingTime } = post;
   const { t } = useTranslation('post');
 
   return (
@@ -22,10 +24,15 @@ export default function PostSummary({ post }: Readonly<PostSummaryProps>) {
             {title}
           </Link>
         </h2>
-        <p>
-          <Link href={`/posts/${id}`} className="link-muted">
+        <p className="d-flex align-items-center">
+          <Link href={`/posts/${id}`} className="link-muted d-flex align-items-center me-3">
+            <FontAwesomeIcon icon="calendar-alt" className="me-2" />
             <DateDisplay date={date} />
           </Link>
+          <span className="text-muted d-flex align-items-center">
+            <FontAwesomeIcon icon="clock" className="me-2" />
+            {readingTime}
+          </span>
         </p>
         {topics && topics.length > 0 && (
           <div className="mb-4">

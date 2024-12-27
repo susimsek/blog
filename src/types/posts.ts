@@ -11,6 +11,7 @@ export type PostSummary = {
   summary: string;
   thumbnail?: string;
   topics?: Topic[];
+  readingTime: string;
 };
 
 export type Post = PostSummary & {
