@@ -21,5 +21,7 @@
   { "id": "redis", "name": "Redis", "color": "orange" },
   { "id": "caching", "name": "Önbellekleme", "color": "brown" },
   { "id": "kafka", "name": "Kafka", "color": "orange" },
-  { "id": "messaging", "name": "Mesajlaşma", "color": "brown" }
+  { "id": "messaging", "name": "Mesajlaşma", "color": "brown" },
+  { "id": "graalvm", "name": "GraalVM", "color": "pink" },
+  { "id": "native-image", "name": "Native İmaj", "color": "orange" }
 ]
