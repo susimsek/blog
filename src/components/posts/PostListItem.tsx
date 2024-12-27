@@ -5,13 +5,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import DateDisplay from '@/components/common/DateDisplay';
 import { assetPrefix } from '@/config/constants';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface PostListItemProps {
   post: PostSummary;
 }
 
 export default function PostListItem({ post }: Readonly<PostListItemProps>) {
-  const { id, title, date, thumbnail, topics } = post;
+  const { id, title, date, thumbnail, topics, readingTime } = post;
 
   return (
     <Row className="post-list-item">
@@ -39,10 +40,15 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
               {title}
             </Link>
           </h6>
-          <p className="post-date">
-            <Link href={`/posts/${id}`} className="link link-muted">
+          <p className="post-date text-muted mb-1">
+            <Link href={`/posts/${id}`} className="link link-muted d-block mb-1">
+              <FontAwesomeIcon icon="calendar-alt" className="me-2" />
               <DateDisplay date={date} />
             </Link>
+            <span className="text-muted d-block">
+              <FontAwesomeIcon icon="clock" className="me-2" />
+              {readingTime}
+            </span>
           </p>
           {topics && topics.length > 0 && (
             <div className="post-topics">
