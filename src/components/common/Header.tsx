@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ReactComponent as Logo } from '@assets/images/logo.svg';
 import PostListItem from '@/components/posts/PostListItem';
 import SearchBar from '@/components/search/SearchBar';
+import { filterByQuery } from '@/lib/postFilters';
 
 interface HeaderProps {
   posts?: PostSummary[];
@@ -26,13 +27,7 @@ export default function Header({ posts = [], searchEnabled = false }: Readonly<H
     setSearchQuery(query);
 
     if (query.trim() && posts.length > 0) {
-      const filteredPosts = posts
-        .filter(
-          post =>
-            post.title.toLowerCase().includes(query.toLowerCase()) ||
-            (post.summary && post.summary.toLowerCase().includes(query.toLowerCase())),
-        )
-        .slice(0, 5);
+      const filteredPosts = posts.filter(post => filterByQuery(post, query)).slice(0, 5);
       setSearchResults(filteredPosts);
       setShowResults(true);
     } else {
