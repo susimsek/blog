@@ -4,8 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import i18nextConfig from '../../../next-i18next.config';
 import { useRouter } from 'next/router';
-import DatePicker from 'react-datepicker';
-import { registerLocale } from 'react-datepicker';
+import DatePicker, { registerLocale } from 'react-datepicker';
 import { enUS } from 'date-fns/locale/en-US';
 import { tr } from 'date-fns/locale/tr';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -23,7 +22,7 @@ export default function DateRangePicker({
   onRangeChange,
   minDate = new Date('2024-01-01'),
   maxDate = new Date(),
-}: DateRangePickerProps) {
+}: Readonly<DateRangePickerProps>) {
   const { t } = useTranslation('common');
   const router = useRouter();
   const currentLocale = (router.query.locale as string) ?? i18nextConfig.i18n.defaultLocale;
