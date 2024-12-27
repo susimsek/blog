@@ -76,7 +76,10 @@ export default function Header({ posts = [], searchEnabled = false }: Readonly<H
                         </ListGroup.Item>
                       ))
                     ) : (
-                      <ListGroup.Item className="text-center text-muted py-3">{t('common.noResults')}</ListGroup.Item>
+                      <ListGroup.Item className="text-center text-muted py-3">
+                        <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
+                        {t('common.noResults')}
+                      </ListGroup.Item>
                     )}
                   </ListGroup>
                 )}
