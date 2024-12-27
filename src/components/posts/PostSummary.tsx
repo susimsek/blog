@@ -6,7 +6,6 @@ import { useTranslation } from 'next-i18next';
 import { assetPrefix } from '@/config/constants';
 import Thumbnail from '@/components/common/Thumbnail';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt, faClock } from '@fortawesome/free-solid-svg-icons';
 
 interface PostSummaryProps {
   post: Post;
