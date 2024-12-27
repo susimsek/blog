@@ -105,37 +105,51 @@ export default function DateRangePicker({
       setShowDropdown(false);
     }
     setSelectedOption(option);
+
     const today = new Date();
     let startDate: string | undefined;
     let endDate: string | undefined;
 
     switch (option) {
-      case 'today':
-        startDate = today.toLocaleDateString();
-        endDate = today.toLocaleDateString();
+      case 'today': {
+        const todayDate = today.toLocaleDateString();
+        startDate = todayDate;
+        endDate = todayDate;
         break;
-      case 'yesterday':
+      }
+
+      case 'yesterday': {
         const yesterday = new Date(today);
         yesterday.setDate(today.getDate() - 1);
         startDate = yesterday.toLocaleDateString();
         endDate = yesterday.toLocaleDateString();
         break;
-      case 'last7Days':
+      }
+
+      case 'last7Days': {
         const lastWeek = new Date(today);
         lastWeek.setDate(today.getDate() - 7);
         startDate = lastWeek.toLocaleDateString();
         endDate = today.toLocaleDateString();
         break;
-      case 'last30Days':
+      }
+
+      case 'last30Days': {
         const lastMonth = new Date(today);
         lastMonth.setDate(today.getDate() - 30);
         startDate = lastMonth.toLocaleDateString();
         endDate = today.toLocaleDateString();
         break;
-      case 'customDate':
+      }
+
+      case 'customDate': {
         const { startDate: rawStartDate, endDate: rawEndDate } = getValues();
         startDate = rawStartDate ? rawStartDate.toLocaleDateString() : undefined;
         endDate = rawEndDate ? rawEndDate.toLocaleDateString() : undefined;
+        break;
+      }
+
+      default:
         break;
     }
 
