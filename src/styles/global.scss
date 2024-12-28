@@ -71,6 +71,50 @@ body {
   @include transition(background-color, color, border-color, box-shadow);
 }
 
+.sidebar {
+  height: 100%;
+  background-color: var(--sidebar-bg);
+  color: var(--text-color);
+  border-right: 1px solid var(--border-color);
+  box-shadow: var(--box-shadow-sidebar);
+  @include transition(background-color, color, border-color, box-shadow);
+}
+
+.sidebar-toggler {
+  padding: 0.5rem 1rem;
+  color: var(--text-color);
+  background-color: transparent !important; /* Transparent background */
+  border: none !important; /* Apply standardized border color */
+
+  &:hover {
+    .sidebar-toggler-icon {
+      color: var(--link-hover-color);
+    }
+  }
+
+  svg,
+  i,
+  span {
+    color: var(--text-color) !important;
+    @include transition(color);
+
+    &:hover {
+      color: var(--link-hover-color) !important;
+    }
+  }
+}
+
+.sidebar-toggler-icon {
+  background-image: none; /* Remove default icon */
+  color: var(--text-color); /* Set icon color to match text */
+  font-size: 1.2rem; /* Adjust size for better visibility */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5em; // Set consistent width
+  height: 1.5em;
+}
+
 main {
   background-color: var(--main-bg);
   min-height: 100vh;
@@ -851,6 +895,151 @@ input.form-control {
     border: 1px solid var(--border-color);
     box-shadow: var(--box-shadow-primary);
     @include transition(background-color, color, border-color, box-shadow);
+
+    @include list-group-item-variant(
+      primary,
+      var(--primary-bg),
+      var(--primary-color),
+      var(--primary-hover),
+      var(--primary-hover),
+      var(--primary-bg)
+    );
+    @include list-group-item-variant(
+      secondary,
+      var(--secondary-bg),
+      var(--secondary-color),
+      var(--secondary-hover),
+      var(--secondary-hover),
+      var(--secondary-bg)
+    );
+    @include list-group-item-variant(
+      success,
+      var(--success-bg),
+      var(--success-color),
+      var(--success-hover),
+      var(--success-hover),
+      var(--success-bg)
+    );
+    @include list-group-item-variant(
+      info,
+      var(--info-bg),
+      var(--info-color),
+      var(--info-hover),
+      var(--info-hover),
+      var(--info-bg)
+    );
+    @include list-group-item-variant(
+      warning,
+      var(--warning-bg),
+      var(--warning-color),
+      var(--warning-hover),
+      var(--warning-hover),
+      var(--warning-bg)
+    );
+    @include list-group-item-variant(
+      danger,
+      var(--danger-bg),
+      var(--danger-color),
+      var(--danger-hover),
+      var(--danger-hover),
+      var(--danger-bg)
+    );
+    @include list-group-item-variant(
+      light,
+      var(--light-bg),
+      var(--light-color),
+      var(--light-hover),
+      var(--light-hover),
+      var(--light-bg)
+    );
+    @include list-group-item-variant(
+      dark,
+      var(--dark-bg),
+      var(--dark-color),
+      var(--dark-hover),
+      var(--dark-hover),
+      var(--dark-bg)
+    );
+    @include list-group-item-variant(
+      red,
+      var(--red-bg),
+      var(--red-color),
+      var(--red-hover),
+      var(--red-hover),
+      var(--red-bg)
+    );
+    @include list-group-item-variant(
+      green,
+      var(--green-bg),
+      var(--green-color),
+      var(--green-hover),
+      var(--green-hover),
+      var(--green-bg)
+    );
+    @include list-group-item-variant(
+      blue,
+      var(--blue-bg),
+      var(--blue-color),
+      var(--blue-hover),
+      var(--blue-hover),
+      var(--blue-bg)
+    );
+    @include list-group-item-variant(
+      orange,
+      var(--orange-bg),
+      var(--orange-color),
+      var(--orange-hover),
+      var(--orange-hover),
+      var(--orange-bg)
+    );
+    @include list-group-item-variant(
+      yellow,
+      var(--yellow-bg),
+      var(--yellow-color),
+      var(--yellow-hover),
+      var(--yellow-hover),
+      var(--yellow-bg)
+    );
+    @include list-group-item-variant(
+      purple,
+      var(--purple-bg),
+      var(--purple-color),
+      var(--purple-hover),
+      var(--purple-hover),
+      var(--purple-bg)
+    );
+    @include list-group-item-variant(
+      gray,
+      var(--gray-bg),
+      var(--gray-color),
+      var(--gray-hover),
+      var(--gray-hover),
+      var(--gray-bg)
+    );
+    @include list-group-item-variant(
+      brown,
+      var(--brown-bg),
+      var(--brown-color),
+      var(--brown-hover),
+      var(--brown-hover),
+      var(--brown-bg)
+    );
+    @include list-group-item-variant(
+      pink,
+      var(--pink-bg),
+      var(--pink-color),
+      var(--pink-hover),
+      var(--pink-hover),
+      var(--pink-bg)
+    );
+    @include list-group-item-variant(
+      cyan,
+      var(--cyan-bg),
+      var(--cyan-color),
+      var(--cyan-hover),
+      var(--cyan-hover),
+      var(--cyan-bg)
+    );
   }
 }
 
@@ -1083,9 +1272,28 @@ input.form-control {
 
   .nav-link {
     color: var(--text-color);
-    background-color: var(--main-bg);
     border: 1px solid transparent;
     border-radius: 0.25rem 0.25rem 0 0;
+    @include transition(color, background-color, border-color);
+
+    &:hover {
+      color: var(--text-color);
+      background-color: var(--tab-theme-hover-bg);
+      border-color: var(--tab-theme-hover-border);
+    }
+
+    &.active {
+      color: var(--tab-theme-active-text);
+      border-color: var(--tab-theme-border);
+      background-color: var(--tab-theme-active-bg);
+      border-bottom-color: var(--tab-theme-active-bg);
+    }
+  }
+}
+
+.nav {
+  .nav-link {
+    color: var(--text-color);
     @include transition(color, background-color, border-color);
 
     &:hover {
@@ -1274,6 +1482,7 @@ label {
 }
 
 .search-results {
+  max-width: 500px;
   position: absolute;
   border-radius: 0.25rem;
   top: 100%;
@@ -1284,6 +1493,7 @@ label {
 }
 
 .search-container {
+  max-width: 500px;
   flex-grow: 1;
   margin-right: 1rem;
   position: relative;
@@ -1358,4 +1568,77 @@ label {
 .post-topic-badge {
   font-size: 0.75rem;
   margin-right: 0.5rem; /* me-1 */
+}
+
+.me-md-64 {
+  margin-right: 0;
+}
+
+@media (min-width: 768px) {
+  .me-md-64 {
+    margin-right: 64px;
+  }
+}
+
+.offcanvas {
+  background-color: var(--sidebar-bg) !important; /* Match sidebar background */
+  color: var(--text-color) !important; /* Match sidebar text color */
+
+  .offcanvas-header {
+    background-color: var(--sidebar-bg); /* Match sidebar background */
+    color: var(--text-color); /* Match sidebar text color */
+    border-bottom: 1px solid var(--border-color); /* Optional border for separation */
+    .nav-link,
+    .brand {
+      color: var(--text-color) !important;
+      @include transition(color);
+
+      &:hover {
+        color: var(--link-hover-color) !important; // Adjusted hover color
+      }
+    }
+  }
+
+  .offcanvas-body {
+    background-color: var(--sidebar-bg);
+    color: var(--text-color);
+
+    .nav-link {
+      color: var(--text-color) !important;
+      @include transition(color, background-color);
+
+      &:hover {
+        color: var(--text-color) !important;
+        background-color: var(--tab-theme-hover-bg) !important;
+      }
+
+      &.active {
+        color: var(--tab-theme-active-text) !important;
+        background-color: var(--tab-theme-active-bg) !important;
+      }
+    }
+  }
+}
+
+.btn-close-custom {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+
+  &:hover {
+    color: var(--link-hover-color) !important;
+  }
+
+  svg,
+  i,
+  span {
+    color: var(--text-color) !important;
+    @include transition(color);
+
+    &:hover {
+      color: var(--link-hover-color) !important;
+    }
+  }
 }

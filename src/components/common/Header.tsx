@@ -14,9 +14,16 @@ import { filterByQuery } from '@/lib/postFilters';
 interface HeaderProps {
   posts?: PostSummary[];
   searchEnabled?: boolean;
+  onSidebarToggle?: () => void;
+  sidebarEnabled?: boolean; // Sidebar toggle callback
 }
 
-export default function Header({ posts = [], searchEnabled = false }: Readonly<HeaderProps>) {
+export default function Header({
+  posts = [],
+  searchEnabled = false,
+  sidebarEnabled = false,
+  onSidebarToggle,
+}: Readonly<HeaderProps>) {
   const { t } = useTranslation('common');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<PostSummary[]>([]);
@@ -50,65 +57,68 @@ export default function Header({ posts = [], searchEnabled = false }: Readonly<H
   }, []);
 
   return (
-    <Navbar expand="lg" className="shadow-sm sticky-top">
-      <Container>
-        <Navbar.Brand as={Link} href="/" className="navbar-brand link">
-          <Logo width={40} height={40} className="rounded-circle" />
-          <span className="ms-2 fw-bold" style={{ fontSize: '1.25rem' }}>
-            {t('common.header.title')}
-          </span>
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="navbar-nav">
-          <FontAwesomeIcon icon="bars" />
-        </Navbar.Toggle>
-        <Navbar.Collapse id="navbar-nav">
-          <div className="d-lg-flex w-100 align-items-center flex-column flex-lg-row">
-            {/* Search Bar */}
-            {searchEnabled && (
-              <div ref={searchRef} className="search-container mt-3 mt-lg-0">
-                <SearchBar query={searchQuery} onChange={handleSearch} />
-                {showResults && searchQuery && (
-                  <ListGroup className="search-results">
-                    {searchResults.length > 0 ? (
-                      searchResults.map(result => (
-                        <ListGroup.Item as={Link} action key={result.id} href={`/posts/${result.id}`} className="p-3">
-                          <PostListItem post={result} />
-                        </ListGroup.Item>
-                      ))
-                    ) : (
-                      <ListGroup.Item className="text-center text-muted py-3">
-                        <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
-                        {t('common.noResults')}
+    <Navbar expand="lg" className="shadow-sm sticky-top p-2">
+      {sidebarEnabled && (
+        <button type="button" className="sidebar-toggler" onClick={onSidebarToggle} aria-label="sidebarToggle">
+          <FontAwesomeIcon icon="sidebar" className="sidebar-toggler-icon" />
+        </button>
+      )}
+      <Navbar.Brand as={Link} href="/" className="navbar-brand link">
+        <Logo width={40} height={40} className="rounded-circle" />
+        <span className="ms-2 fw-bold" style={{ fontSize: '1.25rem' }}>
+          {t('common.header.title')}
+        </span>
+      </Navbar.Brand>
+      <Navbar.Toggle aria-controls="navbar-nav">
+        <FontAwesomeIcon icon="bars" />
+      </Navbar.Toggle>
+      <Navbar.Collapse id="navbar-nav">
+        <div className="d-lg-flex w-100 align-items-center flex-column flex-lg-row">
+          {/* Search Bar */}
+          {searchEnabled && (
+            <div ref={searchRef} className="search-container ms-auto mt-3 mt-lg-0">
+              <SearchBar query={searchQuery} onChange={handleSearch} />
+              {showResults && searchQuery && (
+                <ListGroup className="ms-auto search-results">
+                  {searchResults.length > 0 ? (
+                    searchResults.map(result => (
+                      <ListGroup.Item as={Link} action key={result.id} href={`/posts/${result.id}`} className="p-3">
+                        <PostListItem post={result} />
                       </ListGroup.Item>
-                    )}
-                  </ListGroup>
-                )}
-              </div>
-            )}
-            {/* Navigation Links */}
-            <Nav className="ms-auto d-flex gap-3 align-items-center">
-              <Nav.Link as={Link} href="/" className="d-flex align-items-center">
-                <FontAwesomeIcon icon="home" className="me-2" />
-                {t('common.header.menu.home')}
-              </Nav.Link>
-              <Nav.Link as={Link} href="/about" className="d-flex align-items-center">
-                <FontAwesomeIcon icon="info-circle" className="me-2" />
-                {t('common.header.menu.about')}
-              </Nav.Link>
-              <Nav.Link as={Link} href="/contact" className="d-flex align-items-center">
-                <FontAwesomeIcon icon="address-book" className="me-2" />
-                {t('common.header.menu.contact')}
-              </Nav.Link>
-              <div className="d-flex align-items-center">
-                <LanguageSwitcher />
-              </div>
-              <div className="d-flex align-items-center">
-                <ThemeToggler />
-              </div>
-            </Nav>
-          </div>
-        </Navbar.Collapse>
-      </Container>
+                    ))
+                  ) : (
+                    <ListGroup.Item className="text-center text-muted py-3">
+                      <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
+                      {t('common.noResults')}
+                    </ListGroup.Item>
+                  )}
+                </ListGroup>
+              )}
+            </div>
+          )}
+          {/* Navigation Links */}
+          <Nav className={`d-flex gap-3 align-items-center ${searchEnabled ? '' : 'ms-auto'}`}>
+            <Nav.Link as={Link} href="/" className="d-flex align-items-center">
+              <FontAwesomeIcon icon="home" className="me-2" />
+              {t('common.header.menu.home')}
+            </Nav.Link>
+            <Nav.Link as={Link} href="/about" className="d-flex align-items-center">
+              <FontAwesomeIcon icon="info-circle" className="me-2" />
+              {t('common.header.menu.about')}
+            </Nav.Link>
+            <Nav.Link as={Link} href="/contact" className="d-flex align-items-center">
+              <FontAwesomeIcon icon="address-book" className="me-2" />
+              {t('common.header.menu.contact')}
+            </Nav.Link>
+            <div className="d-flex align-items-center">
+              <LanguageSwitcher />
+            </div>
+            <div className="d-flex align-items-center me-md-64">
+              <ThemeToggler />
+            </div>
+          </Nav>
+        </div>
+      </Navbar.Collapse>
     </Navbar>
   );
 }

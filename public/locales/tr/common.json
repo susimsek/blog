@@ -16,6 +16,10 @@
         "dark": "Koyu Mod"
       }
     },
+    "sidebar": {
+      "title": "Konular",
+      "loading": "Daha fazla konu yükleniyor..."
+    },
     "footer": {
       "text": "© {{year}} Blogum. Tüm hakları saklıdır."
     },

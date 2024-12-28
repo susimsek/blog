@@ -118,3 +118,30 @@
 @mixin theme-transition {
   animation: theme-transition var(--transition-speed) ease-in-out;
 }
+
+@mixin list-group-item-variant($name, $bg-color, $text-color, $hover-bg, $hover-border, $border-color: $bg-color) {
+  &.list-group-item-#{'#{$name}'} {
+    background-color: $bg-color;
+    color: $text-color;
+    border-color: $border-color;
+
+    svg,
+    i,
+    span {
+      color: $text-color !important;
+      @include transition(color);
+    }
+
+    &:hover {
+      background-color: $hover-bg;
+      border-color: $hover-border;
+      box-shadow: var(--box-shadow-hover);
+    }
+
+    &.active {
+      background-color: $hover-bg;
+      color: $text-color;
+      border-color: $hover-border;
+    }
+  }
+}

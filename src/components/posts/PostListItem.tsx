@@ -17,7 +17,7 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
   return (
     <Row className="post-list-item">
       {/* Thumbnail */}
-      <Col xs={5} className="post-thumbnail-container">
+      <Col xs={5} md={4} className="post-thumbnail-container">
         {thumbnail && (
           <Link href={`/posts/${id}`}>
             <div className="post-thumbnail">
@@ -33,7 +33,7 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
         )}
       </Col>
       {/* Content */}
-      <Col xs={7} className="d-flex flex-column justify-content-between">
+      <Col xs={7} md={8} className="d-flex flex-column justify-content-between">
         <div>
           <h6 className="post-title">
             <Link href={`/posts/${id}`} className="link">
