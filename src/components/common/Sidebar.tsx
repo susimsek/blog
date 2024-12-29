@@ -18,7 +18,7 @@ type SidebarProps = {
 
 const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onClose, itemsPerPage = 10 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1); // Aktif sayfa
+  const [currentPage, setCurrentPage] = useState(1);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -41,8 +41,9 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
     setCurrentPage(page);
   };
 
-  const renderTopics = () =>
-    currentTopics.length > 0 ? (
+  // Optimize renderTopics with useMemo
+  const renderTopics = useMemo(() => {
+    return currentTopics.length > 0 ? (
       currentTopics.map(topic => (
         <Nav.Link as={Link} key={topic.id} href={`/topics/${topic.id}`} className="px-4 py-2">
           {topic.name}
@@ -54,13 +55,14 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
         {t('topic:topic.noTopicFound')}
       </div>
     );
+  }, [currentTopics, t]);
 
   const sidebarContent = (
     <>
       <div className="d-flex px-4 mb-3">
         <SearchBar query={searchQuery} onChange={setSearchQuery} className="flex-grow-1" />
       </div>
-      <Nav className="d-flex flex-column">{renderTopics()}</Nav>
+      <Nav className="d-flex flex-column">{renderTopics}</Nav>
       {filteredTopics.length > 0 && (
         <div className="mt-4 px-4">
           <div className="text-muted mb-3 d-flex align-items-center">
@@ -71,7 +73,6 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
               total: filteredTopics.length,
             })}
           </div>
-          {/* Pagination */}
           <div className="d-flex justify-content-start">
             <Paginator
               currentPage={currentPage}
