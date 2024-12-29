@@ -72,12 +72,19 @@ body {
 }
 
 .sidebar {
-  height: 100%;
+  position: sticky;
+  top: 67px;
+  height: calc(100vh - 67px);
+  overflow-y: auto;
   background-color: var(--sidebar-bg);
   color: var(--text-color);
   border-right: 1px solid var(--border-color);
   box-shadow: var(--box-shadow-sidebar);
   @include transition(background-color, color, border-color, box-shadow);
+}
+
+.footer-visible .sidebar {
+  height: calc(100vh - 67px - 57px);
 }
 
 .sidebar-toggler {

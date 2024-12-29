@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useEffect } from 'react';
+import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import Header from '@/components/common/Header';
 import Footer from '@/components/common/Footer';
 import Sidebar from '@/components/common/Sidebar';
@@ -23,22 +23,46 @@ const Layout: React.FC<LayoutProps> = ({
 }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [isSidebarVisible, setIsSidebarVisible] = useState(sidebarEnabled);
+  const footerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsSidebarVisible(sidebarEnabled && !isMobile);
   }, [isMobile, sidebarEnabled]);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          document.body.classList.add('footer-visible');
+        } else {
+          document.body.classList.remove('footer-visible');
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    if (footerRef.current) {
+      observer.observe(footerRef.current);
+    }
+
+    return () => {
+      if (footerRef.current) {
+        observer.unobserve(footerRef.current);
+      }
+    };
+  }, []);
+
   const toggleSidebar = () => setIsSidebarVisible(prev => !prev);
 
   return (
-    <>
+    <div className="d-flex flex-column min-vh-100">
       <Header
         posts={posts}
         searchEnabled={searchEnabled}
         sidebarEnabled={sidebarEnabled}
         onSidebarToggle={toggleSidebar}
       />
-      <main>
+      <main className="flex-grow-1">
         <Row>
           {/* Sidebar */}
           {isSidebarVisible && (
@@ -57,8 +81,10 @@ const Layout: React.FC<LayoutProps> = ({
           </Col>
         </Row>
       </main>
-      <Footer />
-    </>
+      <div ref={footerRef}>
+        <Footer />
+      </div>
+    </div>
   );
 };
 
