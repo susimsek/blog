@@ -24,7 +24,6 @@ import {
   faGlobe,
   faHome,
   faInfoCircle,
-  faList,
   faMoon,
   faPalette,
   faSave,
