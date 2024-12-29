@@ -26,7 +26,7 @@ const Layout: React.FC<LayoutProps> = ({
 
   useEffect(() => {
     setIsSidebarVisible(sidebarEnabled && !isMobile);
-  }, [isMobile]);
+  }, [isMobile, sidebarEnabled]);
 
   const toggleSidebar = () => setIsSidebarVisible(prev => !prev);
 
