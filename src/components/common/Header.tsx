@@ -1,4 +1,4 @@
-import { Container, Navbar, Nav, ListGroup } from 'react-bootstrap';
+import { Navbar, Nav, ListGroup } from 'react-bootstrap';
 import { useTranslation } from 'next-i18next';
 import Link from '@/components/common/Link';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
