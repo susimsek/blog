@@ -5,6 +5,7 @@ import Link from '@/components/common/Link';
 import SearchBar from '@/components/search/SearchBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
+import { ReactComponent as Logo } from '@assets/images/logo.svg';
 
 type SidebarProps = {
   topics?: Topic[];
@@ -47,8 +48,21 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
 
   return isMobile ? (
     <Offcanvas show={isVisible} onHide={onClose} placement="start">
-      <Offcanvas.Header closeButton>
-        <h5 className="fw-bold">{t('common:common.sidebar.title')}</h5>
+      <Offcanvas.Header closeButton={false}>
+        <div className="d-flex align-items-center brand">
+          <Link href="/" onClick={onClose}>
+            <Logo width={40} height={40} className="rounded-circle me-2" />
+          </Link>
+          <h5 className="fw-bold m-0">{t('common:common.sidebar.title')}</h5>
+        </div>
+        <button
+          type="button"
+          className="btn-close-custom position-absolute top-0 end-0 m-3"
+          aria-label="Close"
+          onClick={onClose}
+        >
+          <FontAwesomeIcon icon="times" style={{ fontSize: '1.5rem' }} />
+        </button>
       </Offcanvas.Header>
       <Offcanvas.Body>{sidebarContent}</Offcanvas.Body>
     </Offcanvas>
