@@ -16,6 +16,10 @@
         "dark": "Dark Mode"
       }
     },
+    "sidebar": {
+      "title": "Topics",
+      "loading": "Loading more topics..."
+    },
     "footer": {
       "text": "© {{year}} My Blog. All rights reserved."
     },
