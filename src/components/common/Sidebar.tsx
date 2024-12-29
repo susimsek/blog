@@ -6,12 +6,11 @@ import SearchBar from '@/components/search/SearchBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import useMediaQuery from '@/hooks/useMediaQuery';
-import LinkComponent from '@/components/common/Link';
 import { ReactComponent as Logo } from '@assets/images/logo.svg';
 
 type SidebarProps = {
   topics?: Topic[];
-  onClose: () => void; // Layout'tan gelen Sidebar kapatma fonksiyonu
+  onClose: () => void;
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ topics = [], onClose }) => {
@@ -55,9 +54,9 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], onClose }) => {
         <Offcanvas show={showCanvas} onHide={onClose} placement="start">
           <Offcanvas.Header closeButton={false}>
             <div className="d-flex align-items-center brand">
-              <LinkComponent href="/" onClick={handleLinkClick}>
+              <Link href="/" onClick={handleLinkClick}>
                 <Logo width={40} height={40} className="rounded-circle" />
-              </LinkComponent>
+              </Link>
               <span className="ms-2 fw-bold">{t('common:common.sidebar.title')}</span>
             </div>
             <button
