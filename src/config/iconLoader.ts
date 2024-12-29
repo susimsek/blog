@@ -11,6 +11,7 @@ import {
   faChevronRight,
   faCircle,
   faCircleCheck,
+  faClipboardList,
   faClock,
   faCode,
   faCopy,
@@ -23,6 +24,7 @@ import {
   faGlobe,
   faHome,
   faInfoCircle,
+  faList,
   faMoon,
   faPalette,
   faSave,
@@ -87,6 +89,7 @@ export const loadIcons = () => {
     faSort,
     faTags,
     faClock,
+    faClipboardList,
   );
 };
 
