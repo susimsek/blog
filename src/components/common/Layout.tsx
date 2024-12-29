@@ -1,9 +1,10 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import Header from '@/components/common/Header';
 import Footer from '@/components/common/Footer';
 import Sidebar from '@/components/common/Sidebar';
 import { Container, Row, Col } from 'react-bootstrap';
 import { PostSummary, Topic } from '@/types/posts';
+import useMediaQuery from '@/hooks/useMediaQuery';
 
 type LayoutProps = {
   children: ReactNode;
@@ -13,43 +14,45 @@ type LayoutProps = {
   sidebarEnabled?: boolean;
 };
 
-export default function Layout({
+const Layout: React.FC<LayoutProps> = ({
   children,
   posts = [],
   topics = [],
   searchEnabled = false,
   sidebarEnabled = false,
-}: Readonly<LayoutProps>) {
+}) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const [isSidebarVisible, setIsSidebarVisible] = useState(sidebarEnabled);
 
-  const handleSidebarToggle = () => {
-    setIsSidebarVisible(!isSidebarVisible);
-  };
+  useEffect(() => {
+    setIsSidebarVisible(!isMobile);
+  }, [isMobile]);
 
-  const handleSidebarClose = () => {
-    setIsSidebarVisible(false);
-  };
+  const toggleSidebar = () => setIsSidebarVisible(prev => !prev);
 
   return (
     <>
-      {/* Header with Sidebar Toggle */}
       <Header
         posts={posts}
         searchEnabled={searchEnabled}
         sidebarEnabled={sidebarEnabled}
-        onSidebarToggle={handleSidebarToggle}
+        onSidebarToggle={toggleSidebar}
       />
       <main>
         <Row>
+          {/* Sidebar */}
           {isSidebarVisible && (
-            /* Sidebar */
-            <Col xs={12} md={3} className="sidebar-container">
-              <Sidebar topics={topics} onClose={handleSidebarClose} />
+            <Col xs={12} md={3}>
+              <Sidebar
+                topics={topics}
+                isMobile={isMobile}
+                isVisible={isSidebarVisible}
+                onClose={() => setIsSidebarVisible(false)}
+              />
             </Col>
           )}
-
           {/* Main Content */}
-          <Col xs={12} md={isSidebarVisible ? 9 : 12}>
+          <Col xs={12} md={!isMobile && isSidebarVisible ? 9 : 12}>
             <Container className="py-5">{children}</Container>
           </Col>
         </Row>
@@ -57,4 +60,6 @@ export default function Layout({
       <Footer />
     </>
   );
-}
+};
+
+export default Layout;

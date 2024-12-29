@@ -3,7 +3,7 @@ import { useTranslation } from 'next-i18next';
 import Link from '@/components/common/Link';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import ThemeToggler from '@/components/theme/ThemeToggler';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { PostSummary } from '@/types/posts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ReactComponent as Logo } from '@assets/images/logo.svg';
@@ -26,21 +26,19 @@ export default function Header({
 }: Readonly<HeaderProps>) {
   const { t } = useTranslation('common');
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<PostSummary[]>([]);
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
+  const searchResults = useMemo(() => {
+    if (searchQuery.trim() && posts.length > 0) {
+      return posts.filter(post => filterByQuery(post, searchQuery)).slice(0, 5);
+    }
+    return [];
+  }, [posts, searchQuery]);
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-
-    if (query.trim() && posts.length > 0) {
-      const filteredPosts = posts.filter(post => filterByQuery(post, query)).slice(0, 5);
-      setSearchResults(filteredPosts);
-      setShowResults(true);
-    } else {
-      setSearchResults([]);
-      setShowResults(false);
-    }
+    setShowResults(query.trim().length > 0 && searchResults.length > 0);
   };
 
   const handleClickOutside = (event: MouseEvent) => {
