@@ -6,7 +6,6 @@ import i18nextConfig from '../../next-i18next.config';
 import { GetStaticPropsContext } from 'next';
 import { getI18nProps } from '@/lib/getStatic';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { isDev } from '@/config/constants';
 import { CacheEntry, getCache, setCache } from '@/lib/cacheUtils';
 
 // Base directory for posts
