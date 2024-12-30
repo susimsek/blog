@@ -98,7 +98,7 @@ jest.mock('@/lib/posts', () => ({
 const renderTopicPage = (topic: Topic, posts: PostSummary[]) => {
   render(
     <Provider store={store}>
-      <TopicPage topic={topic} posts={posts} />
+      <TopicPage topic={topic} posts={posts} topics={mockTopics} />
     </Provider>,
   );
 };

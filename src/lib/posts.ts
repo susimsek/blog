@@ -427,11 +427,14 @@ export const makeTopicProps =
 
     const i18nProps = await getI18nProps(context, ns);
 
+    const topics = await getAllTopics(locale);
+
     return {
       props: {
         ...i18nProps,
         topic,
         posts,
+        topics,
       },
     };
   };

@@ -10,13 +10,14 @@ import { useTranslation } from 'next-i18next';
 type TopicPageProps = {
   topic: Topic;
   posts: PostSummary[];
+  topics: Topic[];
 };
 
-export default function TopicPage({ topic, posts }: Readonly<TopicPageProps>) {
+export default function TopicPage({ topic, posts, topics }: Readonly<TopicPageProps>) {
   const { t } = useTranslation(['topic']);
 
   return (
-    <Layout>
+    <Layout topics={topics} sidebarEnabled={true}>
       <Head>
         <title>{t('topic.title', { topic: topic.name })}</title>
         <meta name="description" content={t('topic.meta.description', { topic: topic.name })} />
