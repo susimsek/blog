@@ -5,6 +5,7 @@ import store from '@/config/store';
 import About, { getStaticPaths, getStaticProps } from '@/pages/[locale]/about';
 import '@testing-library/jest-dom';
 import { useTranslation } from 'next-i18next';
+import { mockPosts, mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
 
 const mockContext = { locales: ['en', 'tr'], defaultLocale: 'en' };
 
@@ -60,11 +61,20 @@ jest.mock('@assets/images/logo.svg', () => ({
   ReactComponent: () => <svg data-testid="mock-logo" />,
 }));
 
+// Mock `makePostProps` function
+jest.mock('@/lib/posts', () => ({
+  makePostProps: jest.fn().mockImplementation(() => async () => ({
+    props: {
+      posts: mockPosts,
+    },
+  })),
+}));
+
 describe('About Page', () => {
   it('renders the navigation and main content', async () => {
     render(
       <Provider store={store}>
-        <About />
+        <About posts={mockPostSummaries} topics={mockTopics} />
       </Provider>,
     );
 
@@ -78,7 +88,7 @@ describe('About Page', () => {
   it('renders the about header and description', async () => {
     render(
       <Provider store={store}>
-        <About />
+        <About posts={mockPostSummaries} topics={mockTopics} />
       </Provider>,
     );
 
@@ -111,10 +121,7 @@ describe('getStaticProps', () => {
 
     expect(result).toEqual({
       props: {
-        _nextI18Next: expect.objectContaining({
-          initialLocale: 'en',
-          ns: ['about', 'common'],
-        }),
+        posts: mockPosts,
       },
     });
   });

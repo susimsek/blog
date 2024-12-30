@@ -5,6 +5,7 @@ import store from '@/config/store';
 import '@testing-library/jest-dom';
 import { useTranslation } from 'next-i18next';
 import Contact, { getStaticPaths, getStaticProps } from '@/pages/[locale]/contact';
+import { mockPosts, mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
 
 const mockContext = { locales: ['en', 'tr'], defaultLocale: 'en' };
 
@@ -57,11 +58,20 @@ beforeAll(() => {
   });
 });
 
+// Mock `makePostProps` function
+jest.mock('@/lib/posts', () => ({
+  makePostProps: jest.fn().mockImplementation(() => async () => ({
+    props: {
+      posts: mockPosts,
+    },
+  })),
+}));
+
 describe('Contact Page', () => {
   it('renders the page title and meta tags', () => {
     render(
       <Provider store={store}>
-        <Contact />
+        <Contact posts={mockPostSummaries} topics={mockTopics} />
       </Provider>,
     );
 
@@ -74,7 +84,7 @@ describe('Contact Page', () => {
   it('renders the contact header and description', () => {
     render(
       <Provider store={store}>
-        <Contact />
+        <Contact posts={mockPostSummaries} topics={mockTopics} />
       </Provider>,
     );
 
@@ -107,10 +117,7 @@ describe('getStaticProps', () => {
 
     expect(result).toEqual({
       props: {
-        _nextI18Next: expect.objectContaining({
-          initialLocale: 'en',
-          ns: ['contact', 'common'],
-        }),
+        posts: mockPosts,
       },
     });
   });
