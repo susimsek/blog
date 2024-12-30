@@ -10,24 +10,22 @@ export function setCache<T>(
   key: string,
   value: T,
   cache: { [key: string]: CacheEntry<T> },
+  cacheName: string,
   ttl: number = cacheTTL,
 ): void {
   const now = Date.now();
 
-  // Mevcut timer varsa temizle
   if (cache[key]?.timer) {
     clearTimeout(cache[key].timer!);
   }
 
-  // Cache süresi dolduğunda otomatik olarak silinmesi için timer
   const timer = setTimeout(() => {
     delete cache[key];
     if (isDev) {
-      console.log(`[Cache Expired] ${key}`);
+      console.log(`[Cache Expired] ${cacheName} - Key: ${key}`);
     }
   }, ttl);
 
-  // Cache'e kaydet
   cache[key] = {
     value,
     expiry: now + ttl,
@@ -35,16 +33,16 @@ export function setCache<T>(
   };
 
   if (isDev) {
-    console.log(`[Cache Set] ${key} - Expires at ${new Date(now + ttl).toISOString()}`);
+    console.log(`[Cache Set] ${cacheName} - Key: ${key} - Expires at ${new Date(now + ttl).toISOString()}`);
   }
 }
 
-export function getCache<T>(key: string, cache: { [key: string]: CacheEntry<T> }): T | null {
+export function getCache<T>(key: string, cache: { [key: string]: CacheEntry<T> }, cacheName: string): T | null {
   const entry = cache[key];
 
   if (!entry) {
     if (isDev) {
-      console.log(`[Cache Miss] ${key}`);
+      console.log(`[Cache Miss] ${cacheName} - Key: ${key}`);
     }
     return null;
   }
@@ -53,13 +51,13 @@ export function getCache<T>(key: string, cache: { [key: string]: CacheEntry<T> }
   if (entry.expiry < now) {
     delete cache[key];
     if (isDev) {
-      console.log(`[Cache Expired] ${key}`);
+      console.log(`[Cache Expired] ${cacheName} - Key: ${key}`);
     }
     return null;
   }
 
   if (isDev) {
-    console.log(`[Cache Hit] ${key}`);
+    console.log(`[Cache Hit] ${cacheName} - Key: ${key}`);
   }
   return entry.value;
 }

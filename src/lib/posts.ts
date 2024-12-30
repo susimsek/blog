@@ -62,8 +62,9 @@ async function collectTopicsFromDirectory(dir: string, topicsMap: Map<string, To
 
 // Get all posts grouped by locale with fallback support
 export function getSortedPostsData(locale: string, topicId?: string): PostSummary[] {
+  const cacheName = 'getSortedPostsData';
   const cacheKey = `${locale}-${topicId || 'all'}`;
-  const cachedData = getCache(cacheKey, postsCache);
+  const cachedData = getCache(cacheKey, postsCache, cacheName);
 
   if (cachedData) {
     return cachedData;
@@ -109,18 +110,17 @@ export function getSortedPostsData(locale: string, topicId?: string): PostSummar
 
   const sortedPosts = posts.sort((a, b) => (a.date < b.date ? 1 : -1));
 
-  // Cache'e kaydet
-  setCache(cacheKey, sortedPosts, postsCache);
+  setCache(cacheKey, sortedPosts, postsCache, cacheName);
 
   return sortedPosts;
 }
 
 // Get a specific post for all locales with fallback support
 export async function getPostData(id: string, locale: string): Promise<Post | null> {
+  const cacheName = 'getPostData';
   const cacheKey = `${locale}-${id}`;
 
-  // Cache kontrolü
-  const cachedData = getCache<Post | null>(cacheKey, postDataCache);
+  const cachedData = getCache<Post | null>(cacheKey, postDataCache, cacheName);
   if (cachedData) {
     return cachedData;
   }
@@ -140,7 +140,7 @@ export async function getPostData(id: string, locale: string): Promise<Post | nu
   }
 
   if (!filePath) {
-    setCache(cacheKey, null, postDataCache); // Cache'e `null` ekle
+    setCache(cacheKey, null, postDataCache, cacheName);
     return null;
   }
 
@@ -152,17 +152,16 @@ export async function getPostData(id: string, locale: string): Promise<Post | nu
     ...data,
   };
 
-  // Cache'e kaydet
-  setCache(cacheKey, post, postDataCache);
+  setCache(cacheKey, post, postDataCache, cacheName);
 
   return post;
 }
 
 export async function getTopicData(locale: string, topicId: string): Promise<Topic | null> {
+  const cacheName = 'getTopicData';
   const cacheKey = `${locale}-${topicId}`;
 
-  // Cache kontrolü
-  const cachedData = getCache<Topic | null>(cacheKey, topicDataCache);
+  const cachedData = getCache<Topic | null>(cacheKey, topicDataCache, cacheName);
   if (cachedData) {
     return cachedData;
   }
@@ -173,7 +172,6 @@ export async function getTopicData(locale: string, topicId: string): Promise<Top
 
   const allTopics = new Map<string, Topic>();
 
-  // Verileri toplama
   await collectTopicsFromDirectory(directory, allTopics);
   if (locale !== fallbackLocale) {
     await collectTopicsFromDirectory(fallbackDirectory, allTopics);
@@ -181,18 +179,17 @@ export async function getTopicData(locale: string, topicId: string): Promise<Top
 
   const topic = allTopics.get(topicId) || null;
 
-  // Cache'e kaydet
-  setCache(cacheKey, topic, topicDataCache);
+  setCache(cacheKey, topic, topicDataCache, cacheName);
 
   return topic;
 }
 
 // Get all unique topics from the posts directory
 export async function getAllTopics(locale: string): Promise<Topic[]> {
+  const cacheName = 'getAllTopics';
   const cacheKey = locale;
 
-  // Cache kontrolü
-  const cachedData = getCache<Topic[]>(cacheKey, topicsCache);
+  const cachedData = getCache<Topic[]>(cacheKey, topicsCache, cacheName);
   if (cachedData) {
     return cachedData;
   }
@@ -201,7 +198,7 @@ export async function getAllTopics(locale: string): Promise<Topic[]> {
 
   if (!fs.existsSync(topicsFilePath)) {
     console.error(`Topics file not found for locale "${locale}": ${topicsFilePath}`);
-    setCache(cacheKey, [], topicsCache); // Cache'e boş bir array ekle
+    setCache(cacheKey, [], topicsCache, cacheName);
     return [];
   }
 
@@ -209,23 +206,22 @@ export async function getAllTopics(locale: string): Promise<Topic[]> {
     const fileContents = fs.readFileSync(topicsFilePath, 'utf8');
     const topics = JSON.parse(fileContents) as Topic[];
 
-    // Cache'e kaydet
-    setCache(cacheKey, topics, topicsCache);
+    setCache(cacheKey, topics, topicsCache, cacheName);
 
     return topics;
   } catch (error) {
     console.error('Error reading or parsing topics.json:', error);
-    setCache(cacheKey, [], topicsCache); // Cache'e boş bir array ekle
+    setCache(cacheKey, [], topicsCache, cacheName);
     return [];
   }
 }
 
 // Generate all post IDs for static paths
 export function getAllPostIds() {
+  const cacheName = 'getAllPostIds';
   const cacheKey = 'all-post-ids';
 
-  // Cache kontrolü
-  const cachedData = getCache(cacheKey, postIdsCache);
+  const cachedData = getCache(cacheKey, postIdsCache, cacheName);
   if (cachedData) {
     return cachedData;
   }
@@ -244,17 +240,16 @@ export function getAllPostIds() {
     }));
   });
 
-  // Cache'e kaydet
-  setCache(cacheKey, postIds, postIdsCache);
+  setCache(cacheKey, postIds, postIdsCache, cacheName);
 
   return postIds;
 }
 
 export function getAllTopicIds() {
+  const cacheName = 'getAllTopicIds';
   const cacheKey = 'all-topic-ids';
 
-  // Cache kontrolü
-  const cachedData = getCache(cacheKey, topicIdsCache);
+  const cachedData = getCache(cacheKey, topicIdsCache, cacheName);
   if (cachedData) {
     return cachedData;
   }
@@ -285,8 +280,7 @@ export function getAllTopicIds() {
     }
   });
 
-  // Cache'e kaydet
-  setCache(cacheKey, topicIds, topicIdsCache);
+  setCache(cacheKey, topicIds, topicIdsCache, cacheName);
 
   return topicIds;
 }
