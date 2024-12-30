@@ -46,7 +46,7 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
           {topics && topics.length > 0 && (
             <div className="post-topics">
               {topics.map(topic => (
-                <Badge bg={topic.color} className={`post-topic-badge badge-${topic.color}`}>
+                <Badge key={topic.id} bg={topic.color} className={`post-topic-badge badge-${topic.color}`}>
                   {topic.name}
                 </Badge>
               ))}
