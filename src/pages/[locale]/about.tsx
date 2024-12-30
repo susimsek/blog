@@ -4,15 +4,22 @@ import { Container } from 'react-bootstrap';
 import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
 import { AUTHOR_NAME } from '@/config/constants';
-import { getStaticPaths, makeStaticProps } from '@/lib/getStatic';
+import { getStaticPaths } from '@/lib/getStatic';
 import Layout from '@/components/common/Layout';
 import ContactInfo from '@/components/common/ContactInfo';
+import { makePostProps } from '@/lib/posts';
+import { PostSummary, Topic } from '@/types/posts';
 
-export default function About() {
+type AboutProps = {
+  posts: PostSummary[];
+  topics: Topic[];
+};
+
+export default function About({ posts, topics }: Readonly<AboutProps>) {
   const { t } = useTranslation(['about']);
 
   return (
-    <Layout>
+    <Layout posts={posts} topics={topics} searchEnabled={true} sidebarEnabled={true}>
       <Head>
         <title>{t('about.meta.title')}</title>
         <meta name="description" content={t('about.meta.description')} />
@@ -29,5 +36,6 @@ export default function About() {
   );
 }
 
-const getStaticProps = makeStaticProps(['about', 'common']);
+const getStaticProps = makePostProps(['common', 'about']);
+
 export { getStaticPaths, getStaticProps };

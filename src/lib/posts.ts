@@ -6,11 +6,24 @@ import i18nextConfig from '../../next-i18next.config';
 import { GetStaticPropsContext } from 'next';
 import { getI18nProps } from '@/lib/getStatic';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { isDev } from '@/config/constants';
 
 // Base directory for posts
 const postsDirectory = path.join(process.cwd(), 'content/posts');
 
 const topicsDirectory = path.join(process.cwd(), 'content/topics');
+
+export const postsCache: { [key: string]: PostSummary[] } = {};
+
+export const postDataCache: { [key: string]: Post | null } = {};
+
+export const topicsCache: { [key: string]: Topic[] } = {};
+
+export const topicDataCache: { [key: string]: Topic | null } = {};
+
+export const postIdsCache: { [key: string]: { params: { id: string; locale: string } }[] } = {};
+
+export const topicIdsCache: { [key: string]: { params: { id: string; locale: string } }[] } = {};
 
 // Helper function to parse a Markdown file
 function parsePostFile(filePath: string, includeContent: boolean = false): { data: PostSummary; content?: string } {
@@ -49,6 +62,19 @@ async function collectTopicsFromDirectory(dir: string, topicsMap: Map<string, To
 
 // Get all posts grouped by locale with fallback support
 export function getSortedPostsData(locale: string, topicId?: string): PostSummary[] {
+  const cacheKey = `${locale}-${topicId || 'all'}`;
+
+  if (postsCache[cacheKey]) {
+    if (isDev) {
+      console.log(`[Cache Hit] getSortedPostsData: ${cacheKey}`);
+    }
+    return postsCache[cacheKey];
+  }
+
+  if (isDev) {
+    console.log(`[Cache Miss] getSortedPostsData: ${cacheKey}`);
+  }
+
   const fallbackLocale = i18nextConfig.i18n.defaultLocale;
   const directory = path.join(postsDirectory, locale);
   const fallbackDirectory = path.join(postsDirectory, fallbackLocale);
@@ -78,7 +104,6 @@ export function getSortedPostsData(locale: string, topicId?: string): PostSummar
       const filePath = path.join(fallbackDirectory, fileName);
       const { data } = parsePostFile(filePath);
 
-      // Check if the post matches the topicId
       if (
         !seenIds.has(data.id) &&
         (!topicId || (Array.isArray(data.topics) && data.topics.some((t: Topic) => t.id === topicId)))
@@ -88,12 +113,33 @@ export function getSortedPostsData(locale: string, topicId?: string): PostSummar
     });
   }
 
-  // Sort by date in descending order
-  return posts.sort((a, b) => (a.date < b.date ? 1 : -1));
+  const sortedPosts = posts.sort((a, b) => (a.date < b.date ? 1 : -1));
+
+  postsCache[cacheKey] = sortedPosts;
+
+  if (isDev) {
+    console.log(`[Cache Update] getSortedPostsData: ${cacheKey}`);
+  }
+
+  return sortedPosts;
 }
 
 // Get a specific post for all locales with fallback support
 export async function getPostData(id: string, locale: string): Promise<Post | null> {
+  const cacheKey = `${locale}-${id}`;
+
+  // Cache kontrolü
+  if (postDataCache[cacheKey]) {
+    if (isDev) {
+      console.log(`[Cache Hit] getPostData: ${cacheKey}`);
+    }
+    return postDataCache[cacheKey];
+  }
+
+  if (isDev) {
+    console.log(`[Cache Miss] getPostData: ${cacheKey}`);
+  }
+
   const fallbackLocale = i18nextConfig.i18n.defaultLocale;
 
   // Localized and fallback paths
@@ -109,58 +155,143 @@ export async function getPostData(id: string, locale: string): Promise<Post | nu
   }
 
   if (!filePath) {
+    if (isDev) {
+      console.log(`[Cache Update] getPostData: ${cacheKey} - No file found`);
+    }
+    postDataCache[cacheKey] = null;
     return null;
   }
 
   // Parse post file and process content
   const { data, content } = parsePostFile(filePath, true);
-  return {
+
+  const post: Post = {
     contentHtml: content,
     ...data,
   };
+
+  // Cache'e kaydet
+  postDataCache[cacheKey] = post;
+
+  if (isDev) {
+    console.log(`[Cache Update] getPostData: ${cacheKey} - Data cached`);
+  }
+
+  return post;
 }
 
 export async function getTopicData(locale: string, topicId: string): Promise<Topic | null> {
+  const cacheKey = `${locale}-${topicId}`;
+
+  // Cache kontrolü
+  if (topicDataCache[cacheKey]) {
+    if (isDev) {
+      console.log(`[Cache Hit] getTopicData: ${cacheKey}`);
+    }
+    return topicDataCache[cacheKey];
+  }
+
+  if (isDev) {
+    console.log(`[Cache Miss] getTopicData: ${cacheKey}`);
+  }
+
   const fallbackLocale = i18nextConfig.i18n.defaultLocale;
   const directory = path.join(postsDirectory, locale);
   const fallbackDirectory = path.join(postsDirectory, fallbackLocale);
 
   const allTopics = new Map<string, Topic>();
 
+  // Verileri toplama
   await collectTopicsFromDirectory(directory, allTopics);
   if (locale !== fallbackLocale) {
     await collectTopicsFromDirectory(fallbackDirectory, allTopics);
   }
 
-  return allTopics.get(topicId) || null;
+  const topic = allTopics.get(topicId) || null;
+
+  // Cache'e kaydet
+  topicDataCache[cacheKey] = topic;
+
+  if (isDev) {
+    if (topic) {
+      console.log(`[Cache Update] getTopicData: ${cacheKey} - Data cached`);
+    } else {
+      console.log(`[Cache Update] getTopicData: ${cacheKey} - No data found`);
+    }
+  }
+
+  return topic;
 }
 
 // Get all unique topics from the posts directory
 // Get all unique topics from the topics.json file
 export async function getAllTopics(locale: string): Promise<Topic[]> {
+  const cacheKey = locale;
+
+  // Cache kontrolü
+  if (topicsCache[cacheKey]) {
+    if (isDev) {
+      console.log(`[Cache Hit] getAllTopics: ${cacheKey}`);
+    }
+    return topicsCache[cacheKey];
+  }
+
+  if (isDev) {
+    console.log(`[Cache Miss] getAllTopics: ${cacheKey}`);
+  }
+
   const topicsFilePath = path.join(topicsDirectory, locale, 'topics.json');
 
   if (!fs.existsSync(topicsFilePath)) {
     console.error(`Topics file not found for locale "${locale}": ${topicsFilePath}`);
+    topicsCache[cacheKey] = [];
     return [];
   }
 
   try {
     const fileContents = fs.readFileSync(topicsFilePath, 'utf8');
-    return JSON.parse(fileContents);
+    const topics = JSON.parse(fileContents) as Topic[];
+
+    topicsCache[cacheKey] = topics;
+
+    if (isDev) {
+      console.log(`[Cache Update] getAllTopics: ${cacheKey} - Data cached`);
+    }
+
+    return topics;
   } catch (error) {
     console.error('Error reading or parsing topics.json:', error);
+    topicsCache[cacheKey] = [];
+
+    if (isDev) {
+      console.log(`[Cache Update] getAllTopics: ${cacheKey} - Error encountered`);
+    }
+
     return [];
   }
 }
 
 // Generate all post IDs for static paths
 export function getAllPostIds() {
+  const cacheKey = 'all-post-ids';
+
+  // Cache kontrolü
+  if (postIdsCache[cacheKey]) {
+    if (isDev) {
+      console.log(`[Cache Hit] getAllPostIds`);
+    }
+    return postIdsCache[cacheKey];
+  }
+
+  if (isDev) {
+    console.log(`[Cache Miss] getAllPostIds`);
+  }
+
   const defaultLocale = i18nextConfig.i18n.defaultLocale;
   const directory = path.join(postsDirectory, defaultLocale);
   const fileNames = fs.existsSync(directory) ? fs.readdirSync(directory) : [];
 
-  return fileNames.flatMap(fileName => {
+  const postIds = fileNames.flatMap(fileName => {
     const id = fileName.replace(/\.md$/, '');
     return i18nextConfig.i18n.locales.map(locale => ({
       params: {
@@ -169,9 +300,32 @@ export function getAllPostIds() {
       },
     }));
   });
+
+  // Cache'e kaydet
+  postIdsCache[cacheKey] = postIds;
+
+  if (isDev) {
+    console.log(`[Cache Update] getAllPostIds - Data cached`);
+  }
+
+  return postIds;
 }
 
 export function getAllTopicIds() {
+  const cacheKey = 'all-topic-ids';
+
+  // Cache kontrolü
+  if (topicIdsCache[cacheKey]) {
+    if (isDev) {
+      console.log(`[Cache Hit] getAllTopicIds`);
+    }
+    return topicIdsCache[cacheKey];
+  }
+
+  if (isDev) {
+    console.log(`[Cache Miss] getAllTopicIds`);
+  }
+
   const topicIds: { params: { id: string; locale: string } }[] = [];
 
   i18nextConfig.i18n.locales.forEach(locale => {
@@ -190,6 +344,10 @@ export function getAllTopicIds() {
             },
           });
         });
+
+        if (isDev) {
+          console.log(`[Data Loaded] getAllTopicIds: Topics loaded for locale "${locale}"`);
+        }
       } catch (error) {
         console.error(`Error reading or parsing topics.json for locale "${locale}":`, error);
       }
@@ -197,6 +355,13 @@ export function getAllTopicIds() {
       console.warn(`Topics file not found for locale "${locale}": ${topicsFilePath}`);
     }
   });
+
+  // Cache'e kaydet
+  topicIdsCache[cacheKey] = topicIds;
+
+  if (isDev) {
+    console.log(`[Cache Update] getAllTopicIds - Data cached`);
+  }
 
   return topicIds;
 }

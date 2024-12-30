@@ -1,11 +1,11 @@
 import React from 'react';
 import { PostSummary } from '@/types/posts';
 import { Row, Col, Badge } from 'react-bootstrap';
-import Link from 'next/link';
 import Image from 'next/image';
 import DateDisplay from '@/components/common/DateDisplay';
 import { assetPrefix } from '@/config/constants';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from '@/components/common/Link';
 
 interface PostListItemProps {
   post: PostSummary;
@@ -19,8 +19,8 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
       {/* Thumbnail */}
       <Col xs={5} md={4} className="post-thumbnail-container">
         {thumbnail && (
-          <Link href={`/posts/${id}`}>
-            <div className="post-thumbnail">
+          <Link href={`/posts/${id}`} legacyBehavior>
+            <a className="post-thumbnail">
               <Image
                 src={`${assetPrefix}${thumbnail}`}
                 alt={title}
@@ -28,7 +28,7 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
                 width={800}
                 height={600}
               />
-            </div>
+            </a>
           </Link>
         )}
       </Col>

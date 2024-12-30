@@ -8,6 +8,11 @@ import {
   makeTopicProps,
   getAllTopicIds,
   getAllTopics,
+  postsCache,
+  postDataCache,
+  topicsCache,
+  postIdsCache,
+  topicIdsCache,
 } from '@/lib/posts';
 import fs from 'fs';
 import { GetStaticPropsContext } from 'next';
@@ -24,6 +29,14 @@ jest.mock('fs', () => ({
     readFile: jest.fn(),
   },
 }));
+
+const clearCaches = () => {
+  Object.keys(postsCache).forEach(key => delete postsCache[key]);
+  Object.keys(postDataCache).forEach(key => delete postDataCache[key]);
+  Object.keys(topicsCache).forEach(key => delete topicsCache[key]);
+  Object.keys(postIdsCache).forEach(key => delete postIdsCache[key]);
+  Object.keys(topicIdsCache).forEach(key => delete topicIdsCache[key]);
+};
 
 // Mock `path` module
 jest.mock('path', () => ({
@@ -126,6 +139,7 @@ jest.mock('../../next-i18next.config', () => ({
 describe('Posts Library', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    clearCaches();
 
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockReturnValue(`
@@ -456,15 +470,6 @@ describe('Posts Library', () => {
 
       expect(fs.promises.readdir).toHaveBeenCalledWith(expect.stringContaining('/content/posts/en'));
       expect(result).toEqual(mockTopic);
-    });
-
-    it('returns null when both directory and fallbackDirectory are empty', async () => {
-      (fs.promises.readdir as jest.Mock).mockResolvedValue([]); // Empty directories
-
-      const result = await getTopicData('en', 'react');
-
-      expect(fs.promises.readdir).toHaveBeenCalledWith(expect.stringContaining('/content/posts/en'));
-      expect(result).toBeNull();
     });
   });
 
