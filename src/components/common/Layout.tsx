@@ -68,7 +68,7 @@ const Layout: React.FC<LayoutProps> = ({
         <Row>
           {/* Sidebar */}
           {isSidebarVisible && (
-            <Col xs={12} md={3}>
+            <Col xs={12} md={4} lg={3}>
               <Sidebar
                 topics={topics}
                 isMobile={isMobile}
@@ -78,7 +78,7 @@ const Layout: React.FC<LayoutProps> = ({
             </Col>
           )}
           {/* Main Content */}
-          <Col xs={12} md={!isMobile && isSidebarVisible ? 9 : 12}>
+          <Col xs={12} md={isSidebarVisible ? 8 : 12} lg={isSidebarVisible ? 9 : 12}>
             <Container className="py-5">{children}</Container>
           </Col>
         </Row>
