@@ -402,10 +402,13 @@ export const makePostDetailProps =
 
     const i18nProps = await serverSideTranslations(locale, ns);
 
+    const posts = getSortedPostsData(locale);
+
     return {
       props: {
         ...i18nProps,
         post,
+        posts,
       },
     };
   };

@@ -3,19 +3,20 @@ import { getAllPostIds, makePostDetailProps } from '@/lib/posts';
 import React from 'react';
 import Head from 'next/head';
 import PostDetail from '@/components/posts/PostDetail';
-import type { Post } from '@/types/posts'; // type-only import
+import type { Post, PostSummary } from '@/types/posts'; // type-only import
 import Layout from '@/components/common/Layout';
 import { AUTHOR_NAME } from '@/config/constants';
 
 type PostProps = {
   post: Post;
+  posts: PostSummary[];
 };
 
-export default function Post({ post }: Readonly<PostProps>) {
+export default function Post({ post, posts }: Readonly<PostProps>) {
   const keywords = (post.topics ?? []).map(topic => topic.name).join(', ');
 
   return (
-    <Layout>
+    <Layout posts={posts} searchEnabled={true}>
       <Head>
         <title>{post.title}</title>
         <meta name="description" content={post.summary} />

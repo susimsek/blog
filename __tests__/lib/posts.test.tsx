@@ -771,6 +771,7 @@ describe('Posts Library', () => {
             userConfig: {},
           },
           post: mockPost,
+          posts: [mockPostSummary],
         },
       });
     });
