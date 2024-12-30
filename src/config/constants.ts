@@ -9,6 +9,8 @@ export const isProd = process.env.NODE_ENV === 'production';
 // Use nullish coalescing operator instead of logical OR
 export const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX ?? '';
 
+export const cacheTTL = 3600000;
+
 export const AUTHOR_NAME = 'Şuayb Şimşek';
 
 // Static contact links
