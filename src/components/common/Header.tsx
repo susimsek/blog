@@ -1,15 +1,13 @@
-import { Navbar, Nav, ListGroup } from 'react-bootstrap';
+import { Navbar, Nav } from 'react-bootstrap';
 import { useTranslation } from 'next-i18next';
 import Link from '@/components/common/Link';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import ThemeToggler from '@/components/theme/ThemeToggler';
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React from 'react';
 import { PostSummary } from '@/types/posts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ReactComponent as Logo } from '@assets/images/logo.svg';
-import PostListItem from '@/components/posts/PostListItem';
-import SearchBar from '@/components/search/SearchBar';
-import { filterByQuery } from '@/lib/postFilters';
+import SearchContainer from '@/components/search/SearchContainer';
 
 interface HeaderProps {
   posts?: PostSummary[];
@@ -25,34 +23,6 @@ export default function Header({
   onSidebarToggle,
 }: Readonly<HeaderProps>) {
   const { t } = useTranslation('common');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showResults, setShowResults] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
-
-  const searchResults = useMemo(() => {
-    if (searchQuery.trim() && posts.length > 0) {
-      return posts.filter(post => filterByQuery(post, searchQuery)).slice(0, 5);
-    }
-    return [];
-  }, [posts, searchQuery]);
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    setShowResults(query.trim().length > 0 && searchResults.length > 0);
-  };
-
-  const handleClickOutside = (event: MouseEvent) => {
-    if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-      setShowResults(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   return (
     <Navbar expand="lg" className="shadow-sm sticky-top p-2">
@@ -73,27 +43,7 @@ export default function Header({
       <Navbar.Collapse id="navbar-nav">
         <div className="d-lg-flex w-100 align-items-center flex-column flex-lg-row">
           {/* Search Bar */}
-          {searchEnabled && (
-            <div ref={searchRef} className="search-container ms-auto mt-3 mt-lg-0">
-              <SearchBar query={searchQuery} onChange={handleSearch} />
-              {showResults && searchQuery && (
-                <ListGroup className="ms-auto search-results">
-                  {searchResults.length > 0 ? (
-                    searchResults.map(result => (
-                      <ListGroup.Item as={Link} action key={result.id} href={`/posts/${result.id}`} className="p-3">
-                        <PostListItem post={result} />
-                      </ListGroup.Item>
-                    ))
-                  ) : (
-                    <ListGroup.Item className="text-center text-muted py-3">
-                      <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
-                      {t('common.noResults')}
-                    </ListGroup.Item>
-                  )}
-                </ListGroup>
-              )}
-            </div>
-          )}
+          {searchEnabled && <SearchContainer posts={posts} />}
           {/* Navigation Links */}
           <Nav className={`d-flex gap-3 align-items-center ${searchEnabled ? '' : 'ms-auto'}`}>
             <Nav.Link as={Link} href="/" className="d-flex align-items-center">
