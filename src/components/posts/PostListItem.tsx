@@ -19,8 +19,8 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
       {/* Thumbnail */}
       <Col xs={5} md={4} className="post-thumbnail-container">
         {thumbnail && (
-          <Link href={`/posts/${id}`} legacyBehavior>
-            <a className="post-thumbnail">
+          <div className="post-thumbnail">
+            <Link href={`/posts/${id}`}>
               <Image
                 src={`${assetPrefix}${thumbnail}`}
                 alt={title}
@@ -28,8 +28,8 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
                 width={800}
                 height={600}
               />
-            </a>
-          </Link>
+            </Link>
+          </div>
         )}
       </Col>
       {/* Content */}
