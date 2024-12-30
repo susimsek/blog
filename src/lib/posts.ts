@@ -351,7 +351,9 @@ export const makeTopicProps =
       };
     }
 
-    const posts = getSortedPostsData(locale, topicId);
+    const allPosts = getSortedPostsData(locale);
+
+    const posts = allPosts.filter(post => Array.isArray(post.topics) && post.topics.some(t => t.id === topicId));
 
     const i18nProps = await getI18nProps(context, ns);
 
@@ -361,6 +363,7 @@ export const makeTopicProps =
       props: {
         ...i18nProps,
         topic,
+        allPosts,
         posts,
         topics,
       },

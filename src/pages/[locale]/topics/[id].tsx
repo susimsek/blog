@@ -11,13 +11,14 @@ type TopicPageProps = {
   topic: Topic;
   posts: PostSummary[];
   topics: Topic[];
+  allPosts: PostSummary[];
 };
 
-export default function TopicPage({ topic, posts, topics }: Readonly<TopicPageProps>) {
+export default function TopicPage({ topic, posts, topics, allPosts }: Readonly<TopicPageProps>) {
   const { t } = useTranslation(['topic']);
 
   return (
-    <Layout topics={topics} sidebarEnabled={true}>
+    <Layout posts={allPosts} topics={topics} sidebarEnabled={true} searchEnabled={true}>
       <Head>
         <title>{t('topic.title', { topic: topic.name })}</title>
         <meta name="description" content={t('topic.meta.description', { topic: topic.name })} />
