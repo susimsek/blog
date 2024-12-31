@@ -36,6 +36,10 @@ export default function SearchContainer({ posts }: SearchContainerProps) {
     }
   };
 
+  const handleViewAllResults = () => {
+    setShowResults(false);
+  };
+
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
@@ -49,11 +53,23 @@ export default function SearchContainer({ posts }: SearchContainerProps) {
       {showResults && searchQuery && (
         <ListGroup className="ms-auto search-results">
           {searchResults.length > 0 ? (
-            searchResults.map(result => (
-              <ListGroup.Item as={Link} action key={result.id} href={`/posts/${result.id}`} className="p-3">
-                <PostListItem post={result} />
+            <>
+              {searchResults.map(result => (
+                <ListGroup.Item as={Link} action key={result.id} href={`/posts/${result.id}`} className="p-3">
+                  <PostListItem post={result} />
+                </ListGroup.Item>
+              ))}
+              <ListGroup.Item
+                as={Link}
+                action
+                className="py-3 d-flex align-items-center"
+                href={`/search?query=${encodeURIComponent(searchQuery)}`}
+                onClick={handleViewAllResults}
+              >
+                <FontAwesomeIcon icon="search" className="me-2" />
+                <span className="text-start fw-bold">{t('common.viewAllResults')}</span>
               </ListGroup.Item>
-            ))
+            </>
           ) : (
             <ListGroup.Item className="text-center text-muted py-3">
               <FontAwesomeIcon icon="exclamation-circle" className="me-2" />

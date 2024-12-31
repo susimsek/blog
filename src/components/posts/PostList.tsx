@@ -12,9 +12,15 @@ interface PostListProps {
   posts: PostSummary[];
   topics?: Topic[];
   noPostsFoundMessage?: string;
+  searchEnabled?: boolean;
 }
 
-export default function PostList({ posts, topics = [], noPostsFoundMessage }: Readonly<PostListProps>) {
+export default function PostList({
+  posts,
+  topics = [],
+  noPostsFoundMessage,
+  searchEnabled = true,
+}: Readonly<PostListProps>) {
   const { t } = useTranslation(['post', 'common']);
   const [postsPerPage, setPostsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
@@ -80,6 +86,7 @@ export default function PostList({ posts, topics = [], noPostsFoundMessage }: Re
         onTopicsChange={handleTopicsChange}
         onDateRangeChange={handleDateRangeChange}
         topics={topics}
+        searchEnabled={searchEnabled}
       />
       {paginatedPosts.length > 0 ? (
         paginatedPosts.map(post => <PostCard key={post.id} post={post} />)

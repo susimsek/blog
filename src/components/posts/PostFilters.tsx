@@ -14,6 +14,7 @@ export interface PostFiltersProps {
   onTopicsChange: (topics: string[]) => void;
   onDateRangeChange: (dates: { startDate?: string; endDate?: string }) => void;
   topics?: Topic[];
+  searchEnabled?: boolean;
 }
 
 export function PostFilters({
@@ -25,12 +26,15 @@ export function PostFilters({
   onTopicsChange,
   onDateRangeChange,
   topics = [],
+  searchEnabled = true,
 }: Readonly<PostFiltersProps>) {
   return (
     <div className="d-flex flex-wrap align-items-center mb-3">
-      <div className="flex-grow-1 mb-4">
-        <SearchBar query={searchQuery} onChange={onSearchChange} />
-      </div>
+      {searchEnabled && (
+        <div className="flex-grow-1 mb-4">
+          <SearchBar query={searchQuery} onChange={onSearchChange} />
+        </div>
+      )}
       <div className="d-flex flex-column flex-md-row align-items-stretch w-100 w-md-auto" style={{ gap: '10px' }}>
         {topics.length > 0 && (
           <TopicsDropdown topics={topics} selectedTopics={selectedTopics} onTopicsChange={onTopicsChange} />

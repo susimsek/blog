@@ -363,3 +363,23 @@ export const makeTopicProps =
       },
     };
   };
+
+export const makeSearchProps =
+  (ns: string[] = []) =>
+  async (context: GetStaticPropsContext) => {
+    const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
+
+    const allPosts = getSortedPostsData(locale);
+
+    const i18nProps = await serverSideTranslations(locale, ns);
+
+    const topics = await getAllTopics(locale);
+
+    return {
+      props: {
+        ...i18nProps,
+        allPosts,
+        topics,
+      },
+    };
+  };

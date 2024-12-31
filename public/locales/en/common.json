@@ -79,6 +79,7 @@
       "passwordStrength": "Password must contain at least 8 characters, including an uppercase letter, a number, and a special character.",
       "startDateAfterEndDate": "Start date cannot be after end date.",
       "endDateBeforeStartDate": "End date cannot be before start date."
-    }
+    },
+    "viewAllResults": "View all results"
   }
 }

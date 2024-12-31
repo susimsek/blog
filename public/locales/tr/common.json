@@ -79,6 +79,7 @@
       "passwordStrength": "Şifre en az bir büyük harf, bir sayı ve bir özel karakter içeren en az 8 karakter olmalıdır.",
       "startDateAfterEndDate": "Başlangıç tarihi, bitiş tarihinden sonra olamaz.",
       "endDateBeforeStartDate": "Bitiş tarihi, başlangıç tarihinden önce olamaz."
-    }
+    },
+    "viewAllResults": "Tüm sonuçları gör"
   }
 }
