@@ -63,11 +63,11 @@ export default function SearchContainer({ posts }: SearchContainerProps) {
                 as={Link}
                 action
                 className="py-3 d-flex align-items-center"
-                href={`/search?query=${encodeURIComponent(searchQuery)}`}
+                href={`/search?q=${encodeURIComponent(searchQuery)}`}
                 onClick={handleViewAllResults}
               >
                 <FontAwesomeIcon icon="search" className="me-2" />
-                <span className="text-start fw-bold">{t('common.viewAllResults')}</span>
+                {t('common.viewAllResults', { query: searchQuery })}
               </ListGroup.Item>
             </>
           ) : (

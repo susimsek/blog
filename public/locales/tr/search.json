@@ -1,8 +1,8 @@
 {
   "search": {
     "title": "Arama Sonuçları",
-    "subtitle": "'{{query}}' için arama sonuçları gösteriliyor",
-    "no_results": "'{{query}}' için sonuç bulunamadı.",
+    "subtitle": "\"{{query}}\" için arama sonuçları gösteriliyor",
+    "no_results": "\"{{query}}\" için sonuç bulunamadı.",
     "meta": {
       "description": "Blogumuzdaki arama sonuçlarını keşfedin.",
       "keywords": "arama, blog, makaleler"

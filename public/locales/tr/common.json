@@ -80,6 +80,6 @@
       "startDateAfterEndDate": "Başlangıç tarihi, bitiş tarihinden sonra olamaz.",
       "endDateBeforeStartDate": "Bitiş tarihi, başlangıç tarihinden önce olamaz."
     },
-    "viewAllResults": "Tüm sonuçları gör"
+    "viewAllResults": "\"{{query}}\" için tüm sonuçları gör"
   }
 }

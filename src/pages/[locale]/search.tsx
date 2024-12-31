@@ -18,32 +18,32 @@ interface SearchPageProps {
 export default function SearchPage({ allPosts, topics }: Readonly<SearchPageProps>) {
   const { t } = useTranslation(['search']);
   const router = useRouter();
-  const { query } = router.query;
+  const { q } = router.query;
 
   const filteredPosts = useMemo(() => {
-    if (query && typeof query === 'string') {
-      return allPosts.filter(post => filterByQuery(post, query));
+    if (q && typeof q === 'string') {
+      return allPosts.filter(post => filterByQuery(post, q));
     }
     return allPosts;
-  }, [query, allPosts]);
+  }, [q, allPosts]);
 
   return (
     <Layout posts={allPosts} topics={topics} sidebarEnabled={true} searchEnabled={true}>
       <Head>
-        <title>{t('search.title', { query: query || '' })}</title>
-        <meta name="description" content={t('search.meta.description', { query: query || '' })} />
-        <meta name="keywords" content={t('search.meta.keywords', { query: query || '' })} />
+        <title>{t('search.title', { query: q || '' })}</title>
+        <meta name="description" content={t('search.meta.description', { query: q || '' })} />
+        <meta name="keywords" content={t('search.meta.keywords', { query: q || '' })} />
         <meta name="author" content={AUTHOR_NAME} />
       </Head>
       <div>
         <header className="text-center py-4">
           <h1 className="fw-bold mb-4">{t('search.title')}</h1>
-          <p className="text-muted fs-4">{t('search.subtitle', { query: query || '' })}</p>
+          <p className="text-muted fs-4">{t('search.subtitle', { query: q || '' })}</p>
         </header>
         <PostList
           posts={filteredPosts}
           searchEnabled={false}
-          noPostsFoundMessage={t('search.no_results', { query: query || '' })}
+          noPostsFoundMessage={t('search.no_results', { query: q || '' })}
         />
       </div>
     </Layout>
