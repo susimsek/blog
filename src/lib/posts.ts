@@ -63,7 +63,7 @@ async function collectTopicsFromDirectory(dir: string, topicsMap: Map<string, To
 // Get all posts grouped by locale with fallback support
 export function getSortedPostsData(locale: string, topicId?: string): PostSummary[] {
   const cacheName = 'getSortedPostsData';
-  const cacheKey = `${locale}-${topicId || 'all'}`;
+  const cacheKey = `${locale}-${topicId ?? 'all'}`;
   const cachedData = getCache(cacheKey, postsCache, cacheName);
 
   if (cachedData) {

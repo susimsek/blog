@@ -12,7 +12,7 @@ interface SearchContainerProps {
   posts: PostSummary[];
 }
 
-export default function SearchContainer({ posts }: SearchContainerProps) {
+export default function SearchContainer({ posts }: Readonly<SearchContainerProps>) {
   const { t } = useTranslation('common');
   const [searchQuery, setSearchQuery] = useState('');
   const [showResults, setShowResults] = useState(false);
