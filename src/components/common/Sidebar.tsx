@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import { ReactComponent as Logo } from '@assets/images/logo.svg';
 import Paginator from '@/components/pagination/Paginator';
+import useDebounce from '@/hooks/useDebounce'; // Import the custom debounce hook
 
 type SidebarProps = {
   topics?: Topic[];
@@ -21,13 +22,16 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
   const [currentPage, setCurrentPage] = useState(1);
   const { t } = useTranslation();
 
+  // Debounced search query
+  const debouncedSearchQuery = useDebounce(searchQuery, 500); // 500ms debounce
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery]);
+  }, [debouncedSearchQuery]);
 
   const filteredTopics = useMemo(
-    () => topics.filter(topic => topic.name.toLowerCase().includes(searchQuery.toLowerCase())),
-    [topics, searchQuery],
+    () => topics.filter(topic => topic.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase())),
+    [topics, debouncedSearchQuery],
   );
 
   const totalPages = Math.ceil(filteredTopics.length / itemsPerPage);

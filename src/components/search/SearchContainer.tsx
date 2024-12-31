@@ -7,6 +7,7 @@ import { PostSummary } from '@/types/posts';
 import { filterByQuery } from '@/lib/postFilters';
 import { useTranslation } from 'next-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import useDebounce from '@/hooks/useDebounce';
 
 interface SearchContainerProps {
   posts: PostSummary[];
@@ -18,16 +19,19 @@ export default function SearchContainer({ posts }: Readonly<SearchContainerProps
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
   const searchResults = useMemo(() => {
-    if (searchQuery.trim() && posts.length > 0) {
-      return posts.filter(post => filterByQuery(post, searchQuery)).slice(0, 5);
+    const query = debouncedSearchQuery.trim() || searchQuery.trim();
+    if (query && posts.length > 0) {
+      return posts.filter(post => filterByQuery(post, query)).slice(0, 5);
     }
     return [];
-  }, [posts, searchQuery]);
+  }, [posts, debouncedSearchQuery, searchQuery]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setShowResults(query.trim().length > 0 && searchResults.length > 0);
+    setShowResults(query.trim().length > 0); // Show results only if there is a search query
   };
 
   const handleClickOutside = (event: MouseEvent) => {

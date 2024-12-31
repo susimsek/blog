@@ -7,6 +7,7 @@ import { useTranslation } from 'next-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { filterByQuery, filterByTopics, filterByDateRange, sortPosts } from '@/lib/postFilters';
 import { PostFilters } from './PostFilters';
+import useDebounce from '@/hooks/useDebounce';
 
 interface PostListProps {
   posts: PostSummary[];
@@ -29,15 +30,17 @@ export default function PostList({
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<{ startDate?: string; endDate?: string }>({});
 
+  const debouncedSearchQuery = useDebounce(searchQuery, 500); // 500ms debounce
+
   const filteredPosts = useMemo(
     () =>
       posts.filter(
         post =>
-          filterByQuery(post, searchQuery) &&
+          filterByQuery(post, debouncedSearchQuery) &&
           filterByTopics(post, selectedTopics) &&
           filterByDateRange(post, dateRange),
       ),
-    [posts, searchQuery, selectedTopics, dateRange],
+    [posts, debouncedSearchQuery, selectedTopics, dateRange],
   );
 
   const sortedPosts = useMemo(() => sortPosts(filteredPosts, sortOrder), [filteredPosts, sortOrder]);

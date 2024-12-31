@@ -5,6 +5,7 @@ import { useTranslation } from 'next-i18next';
 import { Topic } from '@/types/posts';
 import SearchBar from '@/components/search/SearchBar';
 import Paginator from '@/components/pagination/Paginator';
+import useDebounce from '@/hooks/useDebounce';
 
 interface TopicsDropdownProps {
   topics: Topic[];
@@ -21,10 +22,13 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
 
   const itemsPerPage = 5;
 
-  // Filtered topics
+  // Debounced search query
+  const debouncedTopicSearchQuery = useDebounce(topicSearchQuery, 500); // 500ms debounce
+
+  // Filtered topics based on the debounced query
   const filteredTopics = useMemo(() => {
-    return topics.filter(topic => topic.name.toLowerCase().includes(topicSearchQuery.toLowerCase().trim()));
-  }, [topics, topicSearchQuery]);
+    return topics.filter(topic => topic.name.toLowerCase().includes(debouncedTopicSearchQuery.toLowerCase().trim()));
+  }, [topics, debouncedTopicSearchQuery]);
 
   // Paginated topics
   const paginatedTopics = useMemo(() => {
