@@ -11,7 +11,7 @@ interface PostListItemProps {
 }
 
 export default function PostListItem({ post }: Readonly<PostListItemProps>) {
-  const { id, title, date, thumbnail, topics, readingTime } = post;
+  const { title, date, thumbnail, topics, readingTime } = post;
 
   return (
     <Row className="post-list-item">
