@@ -22,3 +22,12 @@ export const filterByDateRange = (post: PostSummary, dateRange: { startDate?: st
 
   return (!startDate || postDate >= startDate) && (!endDate || postDate <= endDate);
 };
+
+export const sortPosts = (posts: PostSummary[], sortOrder: 'asc' | 'desc' = 'desc') => {
+  return [...posts].sort((a, b) => {
+    const dateA = new Date(a.date).getTime();
+    const dateB = new Date(b.date).getTime();
+
+    return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+  });
+};

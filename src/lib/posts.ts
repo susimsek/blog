@@ -7,6 +7,7 @@ import { GetStaticPropsContext } from 'next';
 import { getI18nProps } from '@/lib/getStatic';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { CacheEntry, getCache, setCache } from '@/lib/cacheUtils';
+import { sortPosts } from '@/lib/postFilters';
 
 // Base directory for posts
 const postsDirectory = path.join(process.cwd(), 'content/posts');
@@ -108,7 +109,7 @@ export function getSortedPostsData(locale: string, topicId?: string): PostSummar
     });
   }
 
-  const sortedPosts = posts.sort((a, b) => (a.date < b.date ? 1 : -1));
+  const sortedPosts = sortPosts(posts);
 
   setCache(cacheKey, sortedPosts, postsCache, cacheName);
 
