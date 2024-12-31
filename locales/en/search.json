@@ -1,0 +1,11 @@
+{
+  "search": {
+    "title": "Search Results",
+    "subtitle": "Displaying search results for \"{{query}}\"",
+    "no_results": "No results found for \"{{query}}\".",
+    "meta": {
+      "description": "Browse search results on our blog.",
+      "keywords": "search, blog, articles"
+    }
+  }
+}
