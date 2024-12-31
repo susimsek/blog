@@ -34,10 +34,15 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
     currentHref = `/${locale}${currentHref}`;
   }
 
+  if (router.query?.query) {
+    const queryString = `query=${router.query.query}`;
+    currentHref += currentHref.includes('?') ? `&${queryString}` : `?${queryString}`;
+  }
+
   // Click Handler
   const handleClick = () => {
     languageDetector.cache?.(locale);
-    router.push(currentHref);
+    router.replace(currentHref);
   };
 
   return (
