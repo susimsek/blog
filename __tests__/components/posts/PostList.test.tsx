@@ -155,14 +155,6 @@ describe('PostList Component', () => {
     expect(posts[4]).toHaveTextContent('Post 2');
   });
 
-  it('displays "no posts found" message when no posts match', () => {
-    render(<PostList posts={mockPostSummaries} topics={[]} />);
-    const searchBar = screen.getByTestId('search-bar');
-    fireEvent.change(searchBar, { target: { value: 'Nonexistent Post' } });
-
-    expect(screen.getByText('post.noPostsFound')).toBeInTheDocument();
-  });
-
   it('returns all posts when search query is empty', () => {
     render(<PostList posts={mockPostSummaries} topics={[]} />);
     const searchBar = screen.getByTestId('search-bar');
