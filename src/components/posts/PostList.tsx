@@ -5,7 +5,7 @@ import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
 import { useTranslation } from 'next-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { filterByQuery, filterByTopics, filterByDateRange } from '@/lib/postFilters';
+import { filterByQuery, filterByTopics, filterByDateRange, sortPosts } from '@/lib/postFilters';
 import { PostFilters } from './PostFilters';
 
 interface PostListProps {
@@ -40,15 +40,7 @@ export default function PostList({
     [posts, searchQuery, selectedTopics, dateRange],
   );
 
-  const sortedPosts = useMemo(
-    () =>
-      [...filteredPosts].sort((a, b) =>
-        sortOrder === 'asc'
-          ? new Date(a.date).getTime() - new Date(b.date).getTime()
-          : new Date(b.date).getTime() - new Date(a.date).getTime(),
-      ),
-    [filteredPosts, sortOrder],
-  );
+  const sortedPosts = useMemo(() => sortPosts(filteredPosts, sortOrder), [filteredPosts, sortOrder]);
 
   const paginatedPosts = useMemo(
     () => sortedPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage),
