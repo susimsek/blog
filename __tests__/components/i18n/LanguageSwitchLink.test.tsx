@@ -26,6 +26,7 @@ describe('LanguageSwitchLink', () => {
       asPath: '/[locale]/post/[id]',
       pathname: '/[locale]/post/[id]',
       push: jest.fn(),
+      replace: jest.fn(),
     });
   });
 
@@ -36,12 +37,12 @@ describe('LanguageSwitchLink', () => {
   });
 
   it('replaces dynamic path segments with query parameters', () => {
-    const pushMock = jest.fn();
+    const replaceMock = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({
       query: { locale: 'en-US', id: '123' },
       asPath: '/[locale]/post/[id]',
       pathname: '/[locale]/post/[id]',
-      push: pushMock,
+      replace: replaceMock,
     });
 
     render(<LanguageSwitchLink locale="fr-FR" />);
@@ -49,16 +50,16 @@ describe('LanguageSwitchLink', () => {
     const button = screen.getByRole('button');
     fireEvent.click(button);
 
-    expect(pushMock).toHaveBeenCalledWith('/fr-FR/post/123');
+    expect(replaceMock).toHaveBeenCalledWith('/fr-FR/post/123');
   });
 
   it('uses current asPath when href is not provided', () => {
-    const pushMock = jest.fn();
+    const replaceMock = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({
       query: { locale: 'en-US' },
       asPath: '/[locale]/dashboard',
       pathname: '/[locale]/dashboard',
-      push: pushMock,
+      replace: replaceMock,
     });
 
     render(<LanguageSwitchLink locale="fr-FR" />);
@@ -66,16 +67,16 @@ describe('LanguageSwitchLink', () => {
     const button = screen.getByRole('button');
     fireEvent.click(button);
 
-    expect(pushMock).toHaveBeenCalledWith('/fr-FR/dashboard');
+    expect(replaceMock).toHaveBeenCalledWith('/fr-FR/dashboard');
   });
 
   it('constructs href correctly for internal paths', () => {
-    const pushMock = jest.fn();
+    const replaceMock = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({
       query: { locale: 'en-US' },
       asPath: '/current-path',
       pathname: '/current-path',
-      push: pushMock,
+      replace: replaceMock,
     });
 
     render(<LanguageSwitchLink locale="fr-FR" href="/about" />);
@@ -83,16 +84,16 @@ describe('LanguageSwitchLink', () => {
     const button = screen.getByRole('button');
     fireEvent.click(button);
 
-    expect(pushMock).toHaveBeenCalledWith('/fr-FR/about');
+    expect(replaceMock).toHaveBeenCalledWith('/fr-FR/about');
   });
 
   it('handles external URLs without modification', () => {
-    const pushMock = jest.fn();
+    const replaceMock = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({
       query: { locale: 'en-US' },
       asPath: '/current-path',
       pathname: '/current-path',
-      push: pushMock,
+      replace: replaceMock,
     });
 
     render(<LanguageSwitchLink locale="fr-FR" href="https://example.com" />);
@@ -100,7 +101,7 @@ describe('LanguageSwitchLink', () => {
     const button = screen.getByRole('button');
     fireEvent.click(button);
 
-    expect(pushMock).toHaveBeenCalledWith('https://example.com');
+    expect(replaceMock).toHaveBeenCalledWith('https://example.com');
   });
 
   it('calls languageDetector.cache with the selected locale', () => {
@@ -111,12 +112,12 @@ describe('LanguageSwitchLink', () => {
   });
 
   it('does not modify the href if the locale matches the current one', () => {
-    const pushMock = jest.fn();
+    const replaceMock = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({
       query: { locale: 'fr-FR' },
       asPath: '/[locale]/home',
       pathname: '/[locale]/home',
-      push: pushMock,
+      replace: replaceMock,
     });
 
     render(<LanguageSwitchLink locale="fr-FR" />);
@@ -124,16 +125,16 @@ describe('LanguageSwitchLink', () => {
     const button = screen.getByRole('button');
     fireEvent.click(button);
 
-    expect(pushMock).toHaveBeenCalledWith('/fr-FR/home');
+    expect(replaceMock).toHaveBeenCalledWith('/fr-FR/home');
   });
 
   it('prepends locale to the current path if missing', () => {
-    const pushMock = jest.fn();
+    const replaceMock = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({
       query: { id: '123' },
       asPath: '/post/[id]',
       pathname: '/post/[id]',
-      push: pushMock,
+      replace: replaceMock,
     });
 
     render(<LanguageSwitchLink locale="fr-FR" />);
@@ -141,7 +142,7 @@ describe('LanguageSwitchLink', () => {
     const button = screen.getByRole('button');
     fireEvent.click(button);
 
-    expect(pushMock).toHaveBeenCalledWith('/fr-FR/post/123');
+    expect(replaceMock).toHaveBeenCalledWith('/fr-FR/post/123');
   });
 
   it('handles missing flag codes gracefully', () => {
