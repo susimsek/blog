@@ -16,7 +16,7 @@ export function setCache<T>(
   const now = Date.now();
 
   if (cache[key]?.timer) {
-    clearTimeout(cache[key].timer!);
+    clearTimeout(cache[key].timer);
   }
 
   const timer = setTimeout(() => {
