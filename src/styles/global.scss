@@ -1649,3 +1649,8 @@ label {
     }
   }
 }
+
+.border-top {
+  border-top: 1px solid var(--border-color) !important;
+  @include transition(border-color);
+}

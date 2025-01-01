@@ -68,8 +68,8 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
       </div>
       <Nav className="d-flex flex-column">{renderTopics}</Nav>
       {filteredTopics.length > 0 && (
-        <div className="mt-4 px-4">
-          <div className="text-muted mb-3 d-flex align-items-center">
+        <div className="mt-4 px-4 border-top">
+          <div className="mt-4 text-muted mb-3 d-flex align-items-center">
             <FontAwesomeIcon icon="clipboard-list" className="me-2" />
             {t('common.pagination.showingResults', {
               start: (currentPage - 1) * itemsPerPage + 1,
