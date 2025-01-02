@@ -42,9 +42,6 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Generate RSS Feed
-        run: npm run generate:rss
-
       - name: Build
         env:
           NEXT_PUBLIC_BASE_PATH: "/blog"
