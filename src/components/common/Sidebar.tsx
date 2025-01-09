@@ -63,13 +63,13 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
 
   const sidebarContent = (
     <>
-      <div className="d-flex px-4 mb-3">
+      <div className="d-flex px-4 mb-2">
         <SearchBar query={searchQuery} onChange={setSearchQuery} className="flex-grow-1" />
       </div>
       <Nav className="d-flex flex-column">{renderTopics}</Nav>
       {filteredTopics.length > 0 && (
-        <div className="mt-4 px-4 border-top">
-          <div className="mt-4 text-muted mb-3 d-flex align-items-center">
+        <div className="px-4 border-top">
+          <div className="mt-4 text-muted mb-2 d-flex align-items-center">
             <FontAwesomeIcon icon="clipboard-list" className="me-2" />
             {t('common.pagination.showingResults', {
               start: (currentPage - 1) * itemsPerPage + 1,
@@ -111,8 +111,8 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
       <Offcanvas.Body>{sidebarContent}</Offcanvas.Body>
     </Offcanvas>
   ) : (
-    <Nav className="sidebar py-4 flex-column">
-      <h5 className="fw-bold px-4 mb-3">{t('common:common.sidebar.title')}</h5>
+    <Nav className="sidebar flex-column">
+      <h5 className="fw-bold mt-4 px-4 mb-3">{t('common:common.sidebar.title')}</h5>
       {sidebarContent}
     </Nav>
   );
