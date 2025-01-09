@@ -80,7 +80,41 @@ body {
   color: var(--text-color);
   border-right: 1px solid var(--border-color);
   box-shadow: var(--box-shadow-sidebar);
-  @include transition(background-color, color, border-color, box-shadow);
+
+  .sidebar-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-search {
+    margin-bottom: 1rem;
+  }
+
+  .sidebar-topics {
+    flex: 1;
+  }
+
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+  }
+}
+
+.sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
 .footer-visible .sidebar {
