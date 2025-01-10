@@ -4,7 +4,7 @@ import { useTranslation } from 'next-i18next';
 
 export default function Footer() {
   const { t } = useTranslation('common');
-  const currentYear = new Date().getFullYear();
+  const currentYear = 2024;
 
   return (
     <footer className="footer py-3">
