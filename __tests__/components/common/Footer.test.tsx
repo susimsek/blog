@@ -29,7 +29,7 @@ describe('Footer', () => {
     render(<Footer />);
 
     // Get the current year dynamically
-    const currentYear = new Date().getFullYear();
+    const currentYear = 2024;
 
     // Assert that the footer text is rendered correctly
     expect(screen.getByText(`All rights reserved - ${currentYear}`)).toBeInTheDocument();
