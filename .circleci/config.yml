@@ -29,7 +29,9 @@ jobs:
 
       - run:
           name: SonarQube Scan
-          command: SONAR_HOST_URL=$SONAR_HOST_URL SONAR_TOKEN=$SONAR_TOKEN npm run sonar
+          command: |
+            chmod +x node_modules/sonar-scanner/bin/sonar-scanner
+            SONAR_HOST_URL=$SONAR_HOST_URL SONAR_TOKEN=$SONAR_TOKEN npm run sonar
 
       - run:
           name: Build Project
