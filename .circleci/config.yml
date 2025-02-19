@@ -49,7 +49,7 @@ jobs:
       - run:
           name: Deploy to GitHub Pages
           command: |
-            npm install -g gh-pages
+            sudo npm install -g gh-pages
             gh-pages -d build -t true -r "https://x-access-token:${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
 workflows:
