@@ -26,5 +26,6 @@
   { "id": "native-image", "name": "Native Image", "color": "orange" },
   { "id": "reactive-programming", "name": "Reactive Programming", "color": "blue" },
   { "id": "webflux", "name": "Spring WebFlux", "color": "orange" },
-  { "id": "scheduled-tasks", "name": "Scheduled Tasks", "color": "blue" }
+  { "id": "scheduled-tasks", "name": "Scheduled Tasks", "color": "blue" },
+  { "id": "async-tasks", "name": "Async Tasks", "color": "blue" }
 ]

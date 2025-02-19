@@ -26,5 +26,6 @@
   { "id": "native-image", "name": "Native İmaj", "color": "orange" },
   { "id": "reactive-programming", "name": "Reaktif Programlama", "color": "blue" },
   { "id": "webflux", "name": "Spring WebFlux", "color": "orange" },
-  { "id": "scheduled-tasks", "name": "Planlanmış Görevler", "color": "blue" }
+  { "id": "scheduled-tasks", "name": "Planlanmış Görevler", "color": "blue" },
+  { "id": "async-tasks", "name": "Asenkron Görevler", "color": "blue" }
 ]
