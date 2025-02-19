@@ -23,5 +23,7 @@
   { "id": "kafka", "name": "Kafka", "color": "orange" },
   { "id": "messaging", "name": "Mesajlaşma", "color": "brown" },
   { "id": "graalvm", "name": "GraalVM", "color": "pink" },
-  { "id": "native-image", "name": "Native İmaj", "color": "orange" }
+  { "id": "native-image", "name": "Native İmaj", "color": "orange" },
+  { "id": "reactive-programming", "name": "Reaktif Programlama", "color": "blue" },
+  { "id": "webflux", "name": "Spring WebFlux", "color": "orange" }
 ]
