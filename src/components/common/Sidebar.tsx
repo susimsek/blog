@@ -52,7 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
         {t('topic:topic.noTopicFound')}
       </div>
     );
-  }, [filteredTopics, t, isMobile, handleTopicClick]);
+  }, [filteredTopics, t, handleTopicClick]);
 
   const sidebarContent = (
     <div className="sidebar-content px-4 py-3">
