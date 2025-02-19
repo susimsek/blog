@@ -1,0 +1,74 @@
+version: 2.1
+
+executors:
+  node-executor:
+    docker:
+      - image: cimg/node:21.6.0
+
+jobs:
+  build:
+    executor: node-executor
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+
+      - run:
+          name: Install Dependencies
+          command: npm install
+
+      - save_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules
+
+      - run:
+          name: Run Tests
+          command: npm test
+
+      - run:
+          name: SonarQube Scan
+          command: npm run sonar
+        environment:
+          SONAR_HOST_URL: $SONAR_HOST_URL
+          SONAR_TOKEN: $SONAR_TOKEN
+
+      - run:
+          name: Build Project
+          command: |
+            export NEXT_PUBLIC_BASE_PATH="/blog"
+            export NEXT_PUBLIC_ASSET_PREFIX="/blog/"
+            npm run build
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build
+
+  deploy:
+    executor: node-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+
+      - run:
+          name: Deploy to GitHub Pages
+          command: |
+            npm install -g gh-pages
+            gh-pages -d build -t true -r "https://x-access-token:${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
+        environment:
+          GITHUB_TOKEN: $GITHUB_TOKEN
+
+workflows:
+  version: 2
+  deploy-workflow:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: main
