@@ -31,8 +31,6 @@ jobs:
           name: Run Tests
           command: npm test
 
-      - sonarcloud/scan
-
       - run:
           name: Build Project
           command: |
@@ -65,7 +63,8 @@ workflows:
   version: 2
   deploy-workflow:
     jobs:
-      - build
+      - build:
+          context: sonarcloud
       - deploy:
           requires:
             - build
