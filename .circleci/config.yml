@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  sonarcloud: sonarsource/sonarcloud@2.0.0
+
 executors:
   node-executor:
     docker:
@@ -8,6 +11,7 @@ executors:
 jobs:
   build:
     executor: node-executor
+    context: sonarcloud
     steps:
       - checkout
 
@@ -26,6 +30,8 @@ jobs:
       - run:
           name: Run Tests
           command: npm test
+
+      - sonarcloud/scan
 
       - run:
           name: Build Project
