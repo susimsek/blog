@@ -43,15 +43,14 @@ Spring Boot with Reactive Programming enables developers to build non-blocking, 
 Ensure you have the following:
 
 - ☕ **Java Development Kit (JDK)** 17+
-- 🛠 **Spring Boot** 3+
-- 🌀 **Spring WebFlux** for reactive web applications
-- 🔌 **Project Reactor** for reactive streams
+- 📦 **Maven or Gradle** installed
+- 🔤 A **Java IDE** (e.g., IntelliJ IDEA, Eclipse)
 
 ---
 
 ## 🛠️ Step 1: Add Dependencies
 
-Add the necessary dependencies for **Spring WebFlux** and **Reactor** in your `pom.xml` or `build.gradle` file.
+Add the necessary dependency for **Spring WebFlux** in your `pom.xml` or `build.gradle` file.
 
 **Maven:**
 

@@ -43,15 +43,14 @@ Spring Boot ile **Reaktif Programlama**, geliştiricilere **bloklamayan, olay g�
 Şunlara sahip olduğunuzdan emin olun:
 
 - ☕ **Java Development Kit (JDK)** 17+
-- 🛠 **Spring Boot** 3+
-- 🌀 **Spring WebFlux** reaktif web uygulamaları için
-- 🔌 **Project Reactor** reaktif akışlar için
+- 📦 **Maven veya Gradle** kurulu
+- 🔤 Bir **Java IDE** (IntelliJ IDEA, Eclipse vb.)
 
 ---
 
 ## 🛠️ Adım 1: Bağımlılıkları Ekleyin
 
-**Spring WebFlux** ve **Reactor** bağımlılıklarını `pom.xml` veya `build.gradle` dosyanıza ekleyin.
+**Spring WebFlux** bağımlılığını `pom.xml` veya `build.gradle` dosyanıza ekleyin.
 
 **Maven:**
 
