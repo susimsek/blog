@@ -29,10 +29,7 @@ jobs:
 
       - run:
           name: SonarQube Scan
-          command: npm run sonar
-        environment:
-          SONAR_HOST_URL: $SONAR_HOST_URL
-          SONAR_TOKEN: $SONAR_TOKEN
+          command: SONAR_HOST_URL=$SONAR_HOST_URL SONAR_TOKEN=$SONAR_TOKEN npm run sonar
 
       - run:
           name: Build Project
@@ -58,8 +55,6 @@ jobs:
           command: |
             npm install -g gh-pages
             gh-pages -d build -t true -r "https://x-access-token:${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
-        environment:
-          GITHUB_TOKEN: $GITHUB_TOKEN
 
 workflows:
   version: 2
