@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   sonarcloud: sonarsource/sonarcloud@2.0.0
+  snyk: snyk/snyk@2.2.0
 
 executors:
   node-executor:
@@ -15,16 +16,19 @@ jobs:
       - checkout
 
       - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
 
       - run:
           name: Install Dependencies
           command: npm install
 
       - save_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
+
+      - snyk/scan:
+          fail-on-issues: false
 
       - run:
           name: Run Tests
