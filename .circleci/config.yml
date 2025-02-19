@@ -50,7 +50,7 @@ jobs:
           name: Deploy to GitHub Pages
           command: |
             sudo npm install -g gh-pages
-            gh-pages -d build -t true -r "https://x-access-token:${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
+            gh-pages -d build --nojekyll
 
 workflows:
   version: 2
