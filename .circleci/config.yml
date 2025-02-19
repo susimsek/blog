@@ -51,7 +51,8 @@ jobs:
           command: |
             sudo npm install -g gh-pages
             git config --global user.email "suaybsimsek58@gmail.com"
-            git config --global user.name "susimsek"
+            git config --global user.name "$CIRCLE_USERNAME"
+            git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git
             gh-pages -d build --nojekyll
 
 workflows:
