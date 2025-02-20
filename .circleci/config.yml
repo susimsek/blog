@@ -62,23 +62,14 @@ jobs:
       - run:
           name: Install Dependencies Updater
           command: |
-            sudo npm install -g npm-check-updates jq
+            npm install -g npm-check-updates jq --unsafe-perm
       - run:
           name: Fetch outdated dependencies
           command: |
             ncu --jsonAll > outdated.json
             cat outdated.json
       - run:
-          name: Install GitHub CLI
-          command: |
-            sudo apt update
-            sudo apt install -y gh
-      - run:
-          name: Authenticate GitHub CLI
-          command: |
-            echo "$GITHUB_TOKEN" | gh auth login --with-token
-      - run:
-          name: Update dependencies and create PRs
+          name: Update dependencies and create PRs via GitHub API
           command: |
             dependencies=$(jq -r 'keys[]' outdated.json)
             for dep in $dependencies; do
@@ -91,10 +82,15 @@ jobs:
               git commit -m "chore(deps): bump $dep to $version"
               git push origin $branch_name
 
-              gh pr create \
-                --title "chore(deps): bump $dep to $version" \
-                --body "Automated dependency update for $dep to version $version" \
-                --base main --head $branch_name
+              curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
+                -H "Accept: application/vnd.github.v3+json" \
+                https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pulls \
+                -d '{
+                  "title": "chore(deps): bump '"$dep"' to '"$version"'",
+                  "body": "Automated dependency update for '"$dep"' to version '"$version"'",
+                  "head": "'"$branch_name"'",
+                  "base": "main"
+                }'
 
               git checkout main
               git branch -D $branch_name
