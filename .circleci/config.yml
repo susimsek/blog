@@ -55,47 +55,6 @@ jobs:
             git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git
             gh-pages -d build --nojekyll
 
-  update-dependencies:
-    executor: node-executor
-    steps:
-      - checkout
-      - run:
-          name: Install Dependencies Updater
-          command: |
-            sudo npm install -g npm-check-updates
-            sudo apt-get update && sudo apt-get install -y jq
-      - run:
-          name: Fetch outdated dependencies
-          command: |
-            ncu --jsonAll > outdated.json
-            cat outdated.json
-      - run:
-          name: Update dependencies and create PRs via GitHub API
-          command: |
-            dependencies=$(jq -r 'keys[]' outdated.json)
-            for dep in $dependencies; do
-              version=$(jq -r --arg dep "$dep" '.[$dep]' outdated.json)
-              branch_name="dependabot/npm_and_yarn/${dep}-${version}"
-              git checkout -b "$branch_name"
-              npm install "$dep@$version"
-              git add package.json package-lock.json
-              git commit -m "chore(deps): bump $dep to $version"
-              git push origin "$branch_name"
-
-              curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
-                -H "Accept: application/vnd.github.v3+json" \
-                https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pulls \
-                -d "{
-                  \"title\": \"chore(deps): bump $dep to $version\",
-                  \"body\": \"Automated dependency update for $dep to version $version\",
-                  \"head\": \"$branch_name\",
-                  \"base\": \"main\"
-                }"
-
-              git checkout main
-              git branch -D "$branch_name"
-
-
 workflows:
   version: 2
   deploy-workflow:
@@ -103,21 +62,9 @@ workflows:
       - update-dependencies
       - build:
           context: sonarcloud
-          requires:
-            - update-dependencies
       - deploy:
           requires:
             - build
           filters:
             branches:
               only: main
-
-  scheduled-dependency-updates:
-    triggers:
-      - schedule:
-          cron: "0 0 1 * *"
-          filters:
-            branches:
-              only: main
-    jobs:
-      - update-dependencies
