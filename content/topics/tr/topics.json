@@ -30,5 +30,7 @@
   { "id": "async-tasks", "name": "Asenkron Görevler", "color": "blue" },
   { "id": "docker", "name": "Docker", "color": "blue" },
   { "id": "containerization", "name": "Konteynerizasyon", "color": "orange" },
-  { "id": "jib", "name": "Jib", "color": "pink" }
+  { "id": "jib", "name": "Jib", "color": "pink" },
+  { "id": "kubernetes", "name": "Kubernetes", "color": "blue" },
+  { "id": "microservice", "name": "Mikroservis", "color": "orange" }
 ]
