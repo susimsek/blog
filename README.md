@@ -118,6 +118,7 @@ npm run sonar
 
 ![Node.js](https://img.shields.io/badge/Node.js-21.0-green?logo=node.js&logoColor=white)  
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white)  
+![CircleCI](https://img.shields.io/badge/CircleCI-343434?logo=circleci&logoColor=white)  
 ![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)  
 ![Next.js](https://img.shields.io/badge/Next.js-000?logo=next.js&logoColor=white)  
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)  
