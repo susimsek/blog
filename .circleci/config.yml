@@ -64,7 +64,6 @@ jobs:
           command: |
             sudo npm install -g npm-check-updates
             sudo apt-get update && sudo apt-get install -y jq
-
       - run:
           name: Fetch outdated dependencies
           command: |
@@ -77,25 +76,25 @@ jobs:
             for dep in $dependencies; do
               version=$(jq -r --arg dep "$dep" '.[$dep]' outdated.json)
               branch_name="dependabot/npm_and_yarn/${dep}-${version}"
-
-              git checkout -b $branch_name
-              npm install $dep@$version
+              git checkout -b "$branch_name"
+              npm install "$dep@$version"
               git add package.json package-lock.json
               git commit -m "chore(deps): bump $dep to $version"
-              git push origin $branch_name
+              git push origin "$branch_name"
 
               curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
                 -H "Accept: application/vnd.github.v3+json" \
                 https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pulls \
-                -d '{
-                  "title": "chore(deps): bump '"$dep"' to '"$version"'",
-                  "body": "Automated dependency update for '"$dep"' to version '"$version"'",
-                  "head": "'"$branch_name"'",
-                  "base": "main"
-                }'
+                -d "{
+                  \"title\": \"chore(deps): bump $dep to $version\",
+                  \"body\": \"Automated dependency update for $dep to version $version\",
+                  \"head\": \"$branch_name\",
+                  \"base\": \"main\"
+                }"
 
               git checkout main
-              git branch -D $branch_name
+              git branch -D "$branch_name"
+
 
 workflows:
   version: 2
