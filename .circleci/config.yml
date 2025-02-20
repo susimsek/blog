@@ -14,35 +14,27 @@ jobs:
     executor: node-executor
     steps:
       - checkout
-
       - restore_cache:
           key: v1-dependencies-{{ checksum "package-lock.json" }}
-
       - run:
           name: Install Dependencies
           command: npm install
-
       - save_cache:
           key: v1-dependencies-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
-
       - snyk/scan:
           fail-on-issues: false
-
       - run:
           name: Run Tests
           command: npm test
-
       - sonarcloud/scan
-
       - run:
           name: Build Project
           command: |
             export NEXT_PUBLIC_BASE_PATH="/blog"
             export NEXT_PUBLIC_ASSET_PREFIX="/blog/"
             npm run build
-
       - persist_to_workspace:
           root: .
           paths:
@@ -54,7 +46,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-
       - run:
           name: Deploy to GitHub Pages
           command: |
@@ -64,15 +55,64 @@ jobs:
             git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git
             gh-pages -d build --nojekyll
 
+  update-dependencies:
+    executor: node-executor
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies Updater
+          command: |
+            npm install -g npm-check-updates jq
+      - run:
+          name: Fetch outdated dependencies
+          command: |
+            ncu --json > outdated.json
+            cat outdated.json
+      - run:
+          name: Update dependencies and create PRs
+          command: |
+            dependencies=$(jq -r 'keys[]' outdated.json)
+            for dep in $dependencies; do
+              version=$(jq -r --arg dep "$dep" '.[$dep]' outdated.json)
+              branch_name="dependabot/npm_and_yarn/${dep}-${version}"
+
+              git checkout -b $branch_name
+              npm install $dep@$version
+              git add package.json package-lock.json
+              git commit -m "chore(deps): bump $dep to $version"
+              git push origin $branch_name
+
+              gh auth login --with-token <<< "$GITHUB_TOKEN"
+              gh pr create \
+                --title "chore(deps): bump $dep to $version" \
+                --body "Automated dependency update for $dep to version $version" \
+                --base main --head $branch_name
+
+              git checkout main
+              git branch -D $branch_name
+
 workflows:
   version: 2
   deploy-workflow:
     jobs:
+      - update-dependencies
       - build:
           context: sonarcloud
+          requires:
+            - update-dependencies
       - deploy:
           requires:
             - build
           filters:
             branches:
               only: main
+
+  scheduled-dependency-updates:
+    triggers:
+      - schedule:
+          cron: "0 0 1 * *"
+          filters:
+            branches:
+              only: main
+    jobs:
+      - update-dependencies
