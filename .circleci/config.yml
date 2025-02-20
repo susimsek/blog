@@ -69,6 +69,10 @@ jobs:
             ncu --json > outdated.json
             cat outdated.json
       - run:
+          name: Authenticate GitHub CLI
+          command: |
+            echo "$GITHUB_TOKEN" | gh auth login --with-token
+      - run:
           name: Update dependencies and create PRs
           command: |
             dependencies=$(jq -r 'keys[]' outdated.json)
@@ -82,7 +86,6 @@ jobs:
               git commit -m "chore(deps): bump $dep to $version"
               git push origin $branch_name
 
-              gh auth login --with-token <<< "$GITHUB_TOKEN"
               gh pr create \
                 --title "chore(deps): bump $dep to $version" \
                 --body "Automated dependency update for $dep to version $version" \
