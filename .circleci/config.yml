@@ -59,7 +59,6 @@ workflows:
   version: 2
   deploy-workflow:
     jobs:
-      - update-dependencies
       - build:
           context: sonarcloud
       - deploy:
