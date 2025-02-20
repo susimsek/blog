@@ -62,7 +62,9 @@ jobs:
       - run:
           name: Install Dependencies Updater
           command: |
-            sudo npm install -g npm-check-updates jq
+            sudo npm install -g npm-check-updates
+            sudo apt-get update && sudo apt-get install -y jq
+
       - run:
           name: Fetch outdated dependencies
           command: |
