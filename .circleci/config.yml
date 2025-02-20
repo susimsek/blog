@@ -66,7 +66,7 @@ jobs:
       - run:
           name: Fetch outdated dependencies
           command: |
-            ncu --format json > outdated.json
+            ncu --jsonAll > outdated.json
             cat outdated.json
       - run:
           name: Authenticate GitHub CLI
