@@ -27,5 +27,8 @@
   { "id": "reactive-programming", "name": "Reactive Programming", "color": "blue" },
   { "id": "webflux", "name": "Spring WebFlux", "color": "orange" },
   { "id": "scheduled-tasks", "name": "Scheduled Tasks", "color": "blue" },
-  { "id": "async-tasks", "name": "Async Tasks", "color": "blue" }
+  { "id": "async-tasks", "name": "Async Tasks", "color": "blue" },
+  { "id": "docker", "name": "Docker", "color": "blue" },
+  { "id": "containerization", "name": "Containerization", "color": "orange" },
+  { "id": "jib", "name": "Jib", "color": "pink" }
 ]
