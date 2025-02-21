@@ -47,3 +47,6 @@ export const THEMES = [
     icon: 'moon',
   },
 ];
+
+// Constant for professional experience start year
+export const EXPERIENCE_START_YEAR = 2018;

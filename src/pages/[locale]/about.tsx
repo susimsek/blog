@@ -4,7 +4,7 @@ import { Container, Card } from 'react-bootstrap';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
-import { AUTHOR_NAME, AVATAR_LINK } from '@/config/constants';
+import { AUTHOR_NAME, AVATAR_LINK, EXPERIENCE_START_YEAR } from '@/config/constants';
 import { getStaticPaths } from '@/lib/getStatic';
 import Layout from '@/components/common/Layout';
 import ContactInfo from '@/components/common/ContactInfo';
@@ -35,7 +35,7 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
               <Image src={AVATAR_LINK} alt="Şuayb Şimşek" width={150} height={150} className="rounded-circle" />
             </div>
             <Card.Text className="fs-5">
-              {t('about.description', { experienceYears: new Date().getFullYear() - 2018 })}
+              {t('about.description', { experienceYears: new Date().getFullYear() - EXPERIENCE_START_YEAR })}
             </Card.Text>
             <hr />
             <h2 className="fw-bold mt-4">{t('about.findMeOnline')}</h2>
