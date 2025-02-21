@@ -31,7 +31,7 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
         <h1 className="fw-bold mb-4">{t('about.header')}</h1>
         <Card>
           <Container>
-            <Card.Body>
+            <Card.Body className="px-0">
               <div className="mb-3 text-center">
                 <Image src={AVATAR_LINK} alt="Şuayb Şimşek" width={150} height={150} className="rounded-circle" />
               </div>
