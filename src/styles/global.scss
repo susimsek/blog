@@ -317,8 +317,19 @@ input.form-control {
 }
 
 .card {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--main-bg);
   box-shadow: var(--box-shadow-primary);
-  @include transition(box-shadow);
+  @include transition(background-color, box-shadow, border-color);
+
+  .card-body {
+    color: var(--text-color);
+  }
 }
 
 .post-card {

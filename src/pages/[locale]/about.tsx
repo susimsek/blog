@@ -1,6 +1,6 @@
 // pages/[locale]/about.tsx
 import React from 'react';
-import { Container } from 'react-bootstrap';
+import { Container, Card } from 'react-bootstrap';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
@@ -28,13 +28,18 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
         <meta name="author" content={AUTHOR_NAME} />
       </Head>
       <Container className="py-5" style={{ maxWidth: '800px' }}>
-        <div className="text-center mb-4">
-          <Image src={AVATAR_LINK} alt="Şuayb Şimşek" width={150} height={150} className="rounded-circle" />
-        </div>
         <h1 className="fw-bold mb-4">{t('about.header')}</h1>
-        <p className="fs-5">{t('about.description')}</p>
-        <h2 className="fw-bold mt-4">{t('about.findMeOnline')}</h2>
-        <ContactInfo />
+        <Card>
+          <Card.Body>
+            <div className="mb-3 text-center">
+              <Image src={AVATAR_LINK} alt="Şuayb Şimşek" width={150} height={150} className="rounded-circle" />
+            </div>
+            <Card.Text className="fs-5">{t('about.description')}</Card.Text>
+            <hr />
+            <h2 className="fw-bold mt-4">{t('about.findMeOnline')}</h2>
+            <ContactInfo />
+          </Card.Body>
+        </Card>
       </Container>
     </Layout>
   );
