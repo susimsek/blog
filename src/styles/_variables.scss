@@ -406,6 +406,11 @@
   --box-shadow-sm-hover: 0 3px 6px rgba(0, 0, 0, 0.2);
   --box-shadow-footer: 0 -4px 6px rgba(0, 0, 0, 0.05);
   --box-shadow-sidebar: 2px 0 4px rgba(0, 0, 0, 0.1);
+
+  --email-logo-color: #d14836;
+  --medium-brand-logo-color: #12100e;
+  --linkedin-brand-logo-bg: #ffffff;
+  --github-brand-logo-color: #181717;
 }
 
 .dark {
@@ -424,8 +429,8 @@
   --dropdown-hover-bg: #343a40;
   --dropdown-hover-color: #ffffff;
 
-  --scrollbar-track: #292d31; /* Track, sidebar arka planına benzer */
-  --scrollbar-thumb: #3a3f44; /* Thumb, track'ten daha açık */
+  --scrollbar-track: #292d31;
+  --scrollbar-thumb: #3a3f44;
   --scrollbar-thumb-hover: #4a4f54;
 
   --primary-bg: #1e88e5;
@@ -808,4 +813,9 @@
   --box-shadow-sm-hover: 0 3px 6px rgba(255, 255, 255, 0.08);
   --box-shadow-footer: 0 -4px 6px rgba(255, 255, 255, 0.05);
   --box-shadow-sidebar: 2px 0 4px rgba(255, 255, 255, 0.05);
+
+  --email-logo-color: #ffffff;
+  --medium-brand-logo-color: #ffffff;
+  --linkedin-brand-logo-bg: #005f91;
+  --github-brand-logo-bg: #181717;
 }

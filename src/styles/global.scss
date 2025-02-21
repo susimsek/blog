@@ -1699,3 +1699,21 @@ label {
   border-top: 1px solid var(--border-color) !important;
   @include transition(border-color);
 }
+
+.medium-brand-logo {
+  color: var(--medium-brand-logo-color);
+  @include transition(color);
+}
+
+.linkedin-brand-logo {
+  background-color: var(--linkedin-brand-logo-bg) !important;
+  @include transition(color, background-color);
+}
+
+.github-brand-logo {
+  background-color: var(--github-brand-logo-bg);
+}
+
+.email-logo {
+  color: var(--email-logo-color);
+}
