@@ -30,17 +30,19 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
       <Container className="py-5" style={{ maxWidth: '800px' }}>
         <h1 className="fw-bold mb-4">{t('about.header')}</h1>
         <Card>
-          <Card.Body>
-            <div className="mb-3 text-center">
-              <Image src={AVATAR_LINK} alt="Şuayb Şimşek" width={150} height={150} className="rounded-circle" />
-            </div>
-            <Card.Text className="fs-5">
-              {t('about.description', { experienceYears: new Date().getFullYear() - EXPERIENCE_START_YEAR })}
-            </Card.Text>
-            <hr />
-            <h2 className="fw-bold mt-4">{t('about.findMeOnline')}</h2>
-            <ContactInfo />
-          </Card.Body>
+          <Container>
+            <Card.Body>
+              <div className="mb-3 text-center">
+                <Image src={AVATAR_LINK} alt="Şuayb Şimşek" width={150} height={150} className="rounded-circle" />
+              </div>
+              <Card.Text className="fs-5">
+                {t('about.description', { experienceYears: new Date().getFullYear() - EXPERIENCE_START_YEAR })}
+              </Card.Text>
+              <hr />
+              <h2 className="fw-bold mt-4">{t('about.findMeOnline')}</h2>
+              <ContactInfo />
+            </Card.Body>
+          </Container>
         </Card>
       </Container>
     </Layout>
