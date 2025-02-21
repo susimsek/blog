@@ -34,7 +34,9 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
             <div className="mb-3 text-center">
               <Image src={AVATAR_LINK} alt="Şuayb Şimşek" width={150} height={150} className="rounded-circle" />
             </div>
-            <Card.Text className="fs-5">{t('about.description')}</Card.Text>
+            <Card.Text className="fs-5">
+              {t('about.description', { experienceYears: new Date().getFullYear() - 2018 })}
+            </Card.Text>
             <hr />
             <h2 className="fw-bold mt-4">{t('about.findMeOnline')}</h2>
             <ContactInfo />
