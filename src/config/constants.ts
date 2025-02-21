@@ -50,3 +50,5 @@ export const THEMES = [
 
 // Constant for professional experience start year
 export const EXPERIENCE_START_YEAR = 2018;
+
+export const LAUNCH_YEAR = 2024;
