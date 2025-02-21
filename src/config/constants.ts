@@ -13,6 +13,9 @@ export const cacheTTL = 3600000;
 
 export const AUTHOR_NAME = 'Şuayb Şimşek';
 
+// Constant for avatar link
+export const AVATAR_LINK = 'https://avatars.githubusercontent.com/u/46258776?v=4';
+
 // Static contact links
 export const CONTACT_LINKS = {
   email: 'mailto:suaybsimsek58@gmail.com',
