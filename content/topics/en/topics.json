@@ -34,5 +34,6 @@
   { "id": "async-tasks", "name": "Async Tasks", "color": "blue" },
   { "id": "containerization", "name": "Containerization", "color": "orange" },
   { "id": "jib", "name": "Jib", "color": "pink" },
-  { "id": "config-server", "name": "Config Server", "color": "blue" }
+  { "id": "config-server", "name": "Config Server", "color": "blue" },
+  { "id": "eureka-server", "name": "Eureka Server", "color": "blue" }
 ]
