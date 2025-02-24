@@ -8,13 +8,9 @@ ENV NEXT_PUBLIC_BASE_PATH=/blog
 COPY build /usr/share/nginx/html/${NEXT_PUBLIC_BASE_PATH}
 
 # Copy the Nginx configuration template
-COPY nginx/nginx.conf.template /etc/nginx/conf.d/default.conf.template
-
-# Copy the entrypoint script and make it executable
-COPY nginx/docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+COPY nginx/nginx.conf.template /etc/nginx/templates/default.conf.template
 
 EXPOSE 80
 
 # Use the custom entrypoint script to substitute env variables and start Nginx
-CMD ["/docker-entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
