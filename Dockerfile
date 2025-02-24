@@ -2,7 +2,7 @@
 FROM nginx:alpine
 
 # Copy the pre-built static files from the CI/CD pipeline (located in the "build" directory)
-COPY build /usr/share/nginx/html
+COPY build /usr/share/nginx/html/blog
 
 # Replace the default NGINX configuration with a custom one for optimized performance
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
