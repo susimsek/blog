@@ -41,7 +41,7 @@ jobs:
             - build
 
   docker-publish:
-    executor: node-executor
+    executor: docker/machine
     steps:
       - checkout
       - attach_workspace:
