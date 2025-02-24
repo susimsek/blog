@@ -1,8 +1,8 @@
 version: 2.1
-
 orbs:
   sonarcloud: sonarsource/sonarcloud@2.0.0
   snyk: snyk/snyk@2.2.0
+  docker: circleci/docker@2.8.2
 
 executors:
   node-executor:
@@ -40,6 +40,14 @@ jobs:
           paths:
             - build
 
+  docker-publish:
+    executor: node-executor
+    steps:
+      - checkout
+      - docker/publish:
+          image: $DOCKER_LOGIN/$CIRCLE_PROJECT_REPONAME
+          tag: $CIRCLE_SHA1
+
   deploy:
     executor: node-executor
     steps:
@@ -61,6 +69,12 @@ workflows:
     jobs:
       - build:
           context: sonarcloud
+      - docker-publish:
+          requires:
+            - build
+          filters:
+            branches:
+              only: main
       - deploy:
           requires:
             - build
