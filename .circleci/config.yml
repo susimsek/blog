@@ -49,10 +49,10 @@ jobs:
       - docker/check
       - docker/build:
           image: $DOCKER_LOGIN/$CIRCLE_PROJECT_REPONAME
-          tag: $CIRCLE_SHA1
+          tag: $CIRCLE_BRANCH
       - docker/push:
           image: $DOCKER_LOGIN/$CIRCLE_PROJECT_REPONAME
-          tag: $CIRCLE_SHA1
+          tag: $CIRCLE_BRANCH
 
   deploy:
     executor: node-executor
