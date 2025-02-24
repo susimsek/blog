@@ -46,7 +46,10 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - docker/publish:
+      - docker/build:
+          image: $DOCKER_LOGIN/$CIRCLE_PROJECT_REPONAME
+          tag: $CIRCLE_SHA1
+      - docker/push:
           image: $DOCKER_LOGIN/$CIRCLE_PROJECT_REPONAME
           tag: $CIRCLE_SHA1
 
