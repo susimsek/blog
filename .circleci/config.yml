@@ -83,7 +83,7 @@ workflows:
               only: main
       - deploy:
           requires:
-            - build
+            - docker-publish
           filters:
             branches:
               only: main
