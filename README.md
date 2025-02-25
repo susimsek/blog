@@ -1,4 +1,4 @@
-# Blog Application
+# Blog Application 1
 
 ![Build Status](https://github.com/susimsek/blog/actions/workflows/deploy.yml/badge.svg)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=blog)
