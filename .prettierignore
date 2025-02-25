@@ -33,3 +33,13 @@ target/classes/static/
 
 # GitHub Actions
 .github
+
+######################
+# Docker
+######################
+# Docker config files
+.dockerignore
+Dockerfile
+Dockerfile.*
+docker-compose.yml
+docker-compose.override.yml

@@ -27,3 +27,19 @@ target/classes/static/
 # Code coverage
 /coverage/
 /.nyc_output/
+
+# CircleCI
+.circleci
+
+# GitHub Actions
+.github
+
+######################
+# Docker
+######################
+# Docker config files
+.dockerignore
+Dockerfile
+Dockerfile.*
+docker-compose.yml
+docker-compose.override.yml
