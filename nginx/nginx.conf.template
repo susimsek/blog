@@ -17,6 +17,11 @@ server {
         return 301 ${NEXT_PUBLIC_BASE_PATH}/;
     }
 
+    # Favicon redirection
+     location = /favicon.ico {
+         try_files ${NEXT_PUBLIC_BASE_PATH}/favicons/favicon.ico =404;
+     }
+
     # Serve files under the dynamic base path
     location ${NEXT_PUBLIC_BASE_PATH}/ {
         try_files $uri $uri.html $uri/ =404;
