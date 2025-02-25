@@ -23,6 +23,7 @@ Explore seamless navigation, robust state management, and responsive design for 
 - 📏 [ESLint](#-eslint)
 - 🎨 [Prettier](#-prettier)
 - 🛡️ [Code Quality](#️-code-quality)
+- 🚀 [Deployment](#-deployment)
 - 🛠️ [Used Technologies](#️-used-technologies)
 
 ## 🌐 Live Demo
@@ -114,6 +115,24 @@ To assess code quality locally using SonarQube, execute:
 npm run sonar
 ```
 
+## 🚀 Deployment
+
+### Docker Compose Deployment
+
+To deploy the application using Docker Compose, run the following command:
+
+```bash
+docker-compose -f deploy/docker-compose/docker-compose.yml up -d
+```
+
+To stop and remove the Docker Compose deployment:
+
+```bash
+docker-compose -f deploy/docker-compose/docker-compose.yml down
+```
+
+You can access the blog directly at [http://localhost](http://localhost).
+
 ## 🛠️ Used Technologies
 
 ![Node.js](https://img.shields.io/badge/Node.js-22.0-green?logo=node.js&logoColor=white)  
@@ -125,6 +144,7 @@ npm run sonar
 ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?logo=eslint&logoColor=white)  
 ![Prettier](https://img.shields.io/badge/Prettier-F7B93E?logo=prettier&logoColor=white)  
 ![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?logo=sonarqube&logoColor=white)  
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)  
 ![Jest](https://img.shields.io/badge/Jest-C21325?logo=jest&logoColor=white)  
 ![Husky](https://img.shields.io/badge/Husky-4B32C3?logo=github&logoColor=white)  
 ![Redux](https://img.shields.io/badge/Redux-764ABC?logo=redux&logoColor=white)  
