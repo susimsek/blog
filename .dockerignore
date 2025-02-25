@@ -132,6 +132,7 @@ docker-logs/
 .gitconfig
 *.patch
 *.diff
+*.md
 
 ######################
 # SonarQube
@@ -176,4 +177,10 @@ npm-cache/
 .yarn-cache/
 .pnp/
 .pnp.js
+
+# CircleCI
+.circleci
+
+# GitHub Actions
+.github
 

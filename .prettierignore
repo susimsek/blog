@@ -27,3 +27,9 @@ target/classes/static/
 # Code coverage
 /coverage/
 /.nyc_output/
+
+# CircleCI
+.circleci
+
+# GitHub Actions
+.github
