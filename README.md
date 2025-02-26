@@ -28,7 +28,7 @@ Explore seamless navigation, robust state management, and responsive design for 
 
 ## 🌐 Live Demo
 
-You can explore the live version of the blog application at [https://susimsek.github.io/blog](https://susimsek.github.io/blog).
+You can explore the live version of the blog application at [https://suaybsimsek.com](https://suaybsimsek.com).
 
 Enjoy reading blog posts and experience seamless navigation between different sections of the site!
 
@@ -155,7 +155,7 @@ In `values.yaml`, ensure the following configuration is set for Ingress, with an
 
 ```yaml
 ingress:
-  ingressClassName: "nginx"
+  ingressClassName: 'nginx'
 ```
 
 Additionally, to ensure proper local access, add the following entry to your **hosts** file:
