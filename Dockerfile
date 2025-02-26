@@ -2,7 +2,7 @@
 FROM nginx:alpine
 
 # Set the base path environment variable
-ENV NEXT_PUBLIC_BASE_PATH=/blog
+ENV NEXT_PUBLIC_BASE_PATH=""
 
 # Copy the pre-built static files from the CI/CD pipeline (located in the "build" directory)
 COPY build /usr/share/nginx/html/${NEXT_PUBLIC_BASE_PATH}
