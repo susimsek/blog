@@ -32,7 +32,7 @@ jobs:
       - run:
           name: Build Project
           command: |
-            export NEXT_PUBLIC_BASE_PATH="/"
+            export NEXT_PUBLIC_BASE_PATH=""
             export NEXT_PUBLIC_ASSET_PREFIX="/"
             npm run build
       - persist_to_workspace:
