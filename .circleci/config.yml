@@ -72,7 +72,8 @@ jobs:
           command: echo 'suaybsimsek.com' > build/CNAME
       - run:
           name: Deploy to GitHub Pages
-          gh-pages -d build --nojekyll -m "deploy: ${CIRCLE_SHA1}"
+          command: |
+            gh-pages -d build --nojekyll -m "deploy: ${CIRCLE_SHA1}"
 
 workflows:
   version: 2
