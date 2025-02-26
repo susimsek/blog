@@ -155,7 +155,7 @@ In `values.yaml`, ensure the following configuration is set for Ingress, with an
 
 ```yaml
 ingress:
-  ingressClassName: 'nginx'
+  ingressClassName: "nginx"
 ```
 
 Additionally, to ensure proper local access, add the following entry to your **hosts** file:
