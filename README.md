@@ -67,6 +67,9 @@ npm install
 
 # Start the development server
 npm run dev
+
+# Open the application in your browser
+http://localhost:3000
 ```
 
 ## 🧪 Testing
