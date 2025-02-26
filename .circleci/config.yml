@@ -59,6 +59,9 @@ jobs:
       - attach_workspace:
           at: .
       - run:
+          name: Install gh-pages
+          command: npm install -g gh-pages
+      - run:
           name: Configure Git
           command: |
             git config --global user.email "suaybsimsek58@gmail.com"
