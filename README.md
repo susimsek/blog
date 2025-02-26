@@ -133,6 +133,22 @@ docker-compose -f deploy/docker-compose/docker-compose.yml down
 
 You can access the blog directly at [http://localhost](http://localhost).
 
+### Kubernetes Deployment using Helm
+
+To deploy the application on Kubernetes using Helm, run the following command:
+
+```bash
+helm install blog deploy/helm/blog
+```
+
+To uninstall the Helm deployment:
+
+```bash
+helm uninstall blog
+```
+
+This will deploy the **Blog Application** on your **Kubernetes cluster** using the Helm chart located at `deploy/helm/blog`.
+
 ## 🛠️ Used Technologies
 
 ![Node.js](https://img.shields.io/badge/Node.js-22.0-green?logo=node.js&logoColor=white)  
@@ -145,6 +161,8 @@ You can access the blog directly at [http://localhost](http://localhost).
 ![Prettier](https://img.shields.io/badge/Prettier-F7B93E?logo=prettier&logoColor=white)  
 ![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?logo=sonarqube&logoColor=white)  
 ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)  
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white)  
+![Helm](https://img.shields.io/badge/Helm-0F1689?logo=helm&logoColor=white)  
 ![Jest](https://img.shields.io/badge/Jest-C21325?logo=jest&logoColor=white)  
 ![Husky](https://img.shields.io/badge/Husky-4B32C3?logo=github&logoColor=white)  
 ![Redux](https://img.shields.io/badge/Redux-764ABC?logo=redux&logoColor=white)  

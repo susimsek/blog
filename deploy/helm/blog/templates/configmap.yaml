@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "blog.fullname" . | quote }}
+  namespace: {{ include "blog.namespace" . | quote }}
+  labels: {{- include "blog.labels" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
+    app.kubernetes.io/component: blog
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "blog.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+data:
+  NEXT_PUBLIC_BASE_PATH: {{ .Values.app.basePath | quote }}
