@@ -60,7 +60,7 @@ jobs:
           at: .
       - run:
           name: Install gh-pages
-          command: npm install -g gh-pages
+          command: npm install -g --silent gh-pages
       - run:
           name: Configure Git
           command: |
