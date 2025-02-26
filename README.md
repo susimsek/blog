@@ -1,6 +1,6 @@
 # Blog Application
 
-![Build Status](https://github.com/susimsek/blog/actions/workflows/deploy.yml/badge.svg)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/susimsek/blog/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/susimsek/blog/tree/main)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=blog)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=coverage)](https://sonarcloud.io/summary/new_code?id=blog)
 ![Top Language](https://img.shields.io/github/languages/top/susimsek/blog)
@@ -192,8 +192,7 @@ Save and restart your browser.
 
 ## 🛠️ Used Technologies
 
-![Node.js](https://img.shields.io/badge/Node.js-22.0-green?logo=node.js&logoColor=white)  
-![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white)  
+![Node.js](https://img.shields.io/badge/Node.js-22.0-green?logo=node.js&logoColor=white)
 ![CircleCI](https://img.shields.io/badge/CircleCI-343434?logo=circleci&logoColor=white)  
 ![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)  
 ![Next.js](https://img.shields.io/badge/Next.js-000?logo=next.js&logoColor=white)  
