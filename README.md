@@ -147,7 +147,48 @@ To uninstall the Helm deployment:
 helm uninstall blog
 ```
 
+You can access the blog directly at [http://blog.local](http://blog.local).
+
 This will deploy the **Blog Application** on your **Kubernetes cluster** using the Helm chart located at `deploy/helm/blog`.
+
+In `values.yaml`, ensure the following configuration is set for Ingress, with an appropriate ingress class name (e.g., `nginx`, `traefik`, or another available option):
+
+```yaml
+ingress:
+  ingressClassName: 'nginx'
+```
+
+Additionally, to ensure proper local access, add the following entry to your **hosts** file:
+
+On **Linux/macOS**:
+
+```bash
+sudo nano /etc/hosts
+```
+
+Add this line:
+
+```
+127.0.0.1 blog.local
+```
+
+Save and exit.
+
+On **Windows**:
+
+Edit the file:
+
+```
+C:\Windows\System32\drivers\etc\hosts
+```
+
+Add this line:
+
+```
+127.0.0.1 blog.local
+```
+
+Save and restart your browser.
 
 ## 🛠️ Used Technologies
 
