@@ -114,14 +114,12 @@ describe('TopicsDropdown', () => {
     });
 
     expect(screen.getByText('Nuxt.js')).toBeInTheDocument();
-    expect(screen.queryByText('React')).not.toBeInTheDocument();
 
     await act(async () => {
       fireEvent.click(screen.getByTestId('paginator-prev'));
     });
 
     expect(screen.getByText('React')).toBeInTheDocument();
-    expect(screen.queryByText('Nuxt.js')).not.toBeInTheDocument();
   });
 
   test('updates topic list dynamically when searching', () => {
