@@ -1,4 +1,3 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 import MyDocument from '@/pages/_document';
 
@@ -36,8 +35,9 @@ describe('MyDocument', () => {
     const props = {
       __NEXT_DATA__: { locale: 'fr' },
     };
+
     const { container } = render(<MyDocument {...(props as any)} />);
-    const htmlElement = container.querySelector('html');
+    const htmlElement = container.ownerDocument.documentElement;
 
     expect(htmlElement).toBeInTheDocument();
     expect(htmlElement).toHaveAttribute('lang', 'fr');
@@ -47,8 +47,9 @@ describe('MyDocument', () => {
     const props = {
       __NEXT_DATA__: { locale: undefined },
     };
+
     const { container } = render(<MyDocument {...(props as any)} />);
-    const htmlElement = container.querySelector('html');
+    const htmlElement = container.ownerDocument.documentElement;
 
     expect(htmlElement).toHaveAttribute('lang', 'en'); // Default locale
   });
@@ -57,32 +58,31 @@ describe('MyDocument', () => {
     const props = {
       __NEXT_DATA__: { locale: 'en' },
     };
+
     const { container } = render(<MyDocument {...(props as any)} />);
+    const headElement = container.ownerDocument.head;
 
-    const appleTouchIconLink = container.querySelector('link[rel="apple-touch-icon"]');
-    expect(appleTouchIconLink).toBeInTheDocument();
-    expect(appleTouchIconLink).toHaveAttribute('href', '/static/favicons/apple-touch-icon.png');
-
-    const favicon32Link = container.querySelector('link[rel="icon"][sizes="32x32"]');
-    expect(favicon32Link).toBeInTheDocument();
-    expect(favicon32Link).toHaveAttribute('href', '/static/favicons/favicon-32x32.png');
-
-    const favicon16Link = container.querySelector('link[rel="icon"][sizes="16x16"]');
-    expect(favicon16Link).toBeInTheDocument();
-    expect(favicon16Link).toHaveAttribute('href', '/static/favicons/favicon-16x16.png');
-
-    const shortcutIconLink = container.querySelector('link[rel="shortcut icon"]');
-    expect(shortcutIconLink).toBeInTheDocument();
-    expect(shortcutIconLink).toHaveAttribute('href', '/static/favicons/favicon.ico');
+    expect(headElement.innerHTML).toContain(
+      '<link rel="apple-touch-icon" sizes="180x180" href="/static/favicons/apple-touch-icon.png">',
+    );
+    expect(headElement.innerHTML).toContain(
+      '<link rel="icon" type="image/png" sizes="32x32" href="/static/favicons/favicon-32x32.png">',
+    );
+    expect(headElement.innerHTML).toContain(
+      '<link rel="icon" type="image/png" sizes="16x16" href="/static/favicons/favicon-16x16.png">',
+    );
+    expect(headElement.innerHTML).toContain('<link rel="shortcut icon" href="/static/favicons/favicon.ico">');
   });
 
   it('renders Main and NextScript components', () => {
     const props = {
       __NEXT_DATA__: { locale: 'en' },
     };
-    const { container } = render(<MyDocument {...(props as any)} />);
 
-    expect(container).toHaveTextContent('Main content');
-    expect(container).toHaveTextContent('Next script');
+    const { container } = render(<MyDocument {...(props as any)} />);
+    const bodyElement = container.ownerDocument.body;
+
+    expect(bodyElement).toHaveTextContent('Main content');
+    expect(bodyElement).toHaveTextContent('Next script');
   });
 });
