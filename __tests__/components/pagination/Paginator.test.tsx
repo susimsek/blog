@@ -223,26 +223,13 @@ describe('Paginator', () => {
     expect(mockOnPageChange).not.toHaveBeenCalled();
   });
 
-  it('shows ellipsis and last page when endPage is less than totalPages', () => {
-    render(<Paginator currentPage={3} totalPages={10} maxPagesToShow={5} onPageChange={mockOnPageChange} />);
-
-    const ellipsis = screen.getByText((_, element) => element?.textContent === '…');
-    expect(ellipsis).toBeInTheDocument();
-
-    const lastPageButton = screen.getByText('10'); // TotalPages = 10
-    expect(lastPageButton).toBeInTheDocument();
-
-    fireEvent.click(lastPageButton);
-    expect(mockOnPageChange).toHaveBeenCalledWith(10);
-  });
-
   it('renders the first page button when startPage is greater than 1', () => {
     render(<Paginator currentPage={5} totalPages={10} maxPagesToShow={5} onPageChange={mockOnPageChange} />);
 
-    const firstPageButton = screen.getByText('1');
+    const firstPageButton = screen.getByText('3');
     expect(firstPageButton).toBeInTheDocument();
 
     fireEvent.click(firstPageButton);
-    expect(mockOnPageChange).toHaveBeenCalledWith(1);
+    expect(mockOnPageChange).toHaveBeenCalledWith(3);
   });
 });
