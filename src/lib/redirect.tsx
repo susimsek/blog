@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, ReactElement } from 'react';
 import { NextRouter, useRouter } from 'next/router';
 import languageDetector from './languageDetector';
 import Loading from '@/components/common/Loading';
@@ -20,7 +20,7 @@ const detectAndRedirect = (router: NextRouter, targetPath: string) => {
 };
 
 // Custom hook for language-based redirection with spinner display
-export const useRedirect = (to?: string): JSX.Element => {
+export const useRedirect = (to?: string): ReactElement => {
   const router = useRouter();
   const targetPath = to ?? router.asPath; // Using `??` for safer handling of `null` or `undefined`
 
