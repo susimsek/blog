@@ -20,7 +20,7 @@ const Paginator: React.FC<PaginatorProps> = ({
   const halfPagesToShow = Math.floor(maxPagesToShow / 2);
 
   let startPage = Math.max(1, currentPage - halfPagesToShow);
-  let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+  const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
 
   if (endPage - startPage < maxPagesToShow - 1) {
     startPage = Math.max(1, endPage - maxPagesToShow + 1);
