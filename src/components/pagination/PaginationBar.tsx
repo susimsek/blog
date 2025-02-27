@@ -44,7 +44,7 @@ export default function PaginationBar({
         </Col>
 
         {/* Label */}
-        <Col xs={12} md className="d-flex align-items-center justify-content-center justify-content-md-start">
+        <Col xs={12} md className="d-flex align-items-center justify-content-center">
           <p className="text-muted mb-0 text-nowrap">
             {t('common.pagination.showingResults', { start, end, total: totalResults })}
           </p>
