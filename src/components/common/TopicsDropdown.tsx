@@ -20,7 +20,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
   const [showDropdown, setShowDropdown] = useState(false);
   const [pendingSelectedTopics, setPendingSelectedTopics] = useState<string[]>(selectedTopics);
 
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
 
   // Debounced search query
   const debouncedTopicSearchQuery = useDebounce(topicSearchQuery, 500); // 500ms debounce

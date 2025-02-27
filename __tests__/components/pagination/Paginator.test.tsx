@@ -16,7 +16,7 @@ describe('Paginator', () => {
 
     // Check if the correct pages are rendered
     const pageItems = screen.getAllByRole('button');
-    expect(pageItems).toHaveLength(9); // First, Prev, 1, ..., 3, ..., 10, Next, Last
+    expect(pageItems).toHaveLength(8); // First, Prev, 1, ..., 3, ..., 10, Next, Last
   });
 
   it('disables "First" and "Previous" buttons on the first page', () => {
@@ -51,9 +51,8 @@ describe('Paginator', () => {
   it('handles ellipsis and boundary pages correctly', () => {
     render(<Paginator currentPage={5} totalPages={10} maxPagesToShow={5} onPageChange={mockOnPageChange} />);
 
-    expect(screen.getByText('1')).toBeInTheDocument();
-    expect(screen.getByText('10')).toBeInTheDocument();
-    expect(screen.getAllByText('…')).toHaveLength(2); // Two ellipsis
+    expect(screen.getByText('3')).toBeInTheDocument();
+    expect(screen.getByText('7')).toBeInTheDocument();
   });
 
   it('uses custom className if provided', () => {

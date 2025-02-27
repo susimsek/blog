@@ -6,7 +6,7 @@ interface PaginatorProps {
   totalPages: number;
   maxPagesToShow?: number;
   onPageChange: (page: number) => void;
-  className?: string; // New prop for custom class names
+  className?: string;
 }
 
 const Paginator: React.FC<PaginatorProps> = ({
@@ -14,33 +14,23 @@ const Paginator: React.FC<PaginatorProps> = ({
   totalPages,
   maxPagesToShow = 5,
   onPageChange,
-  className = '', // Default to an empty string
+  className = '',
 }) => {
   const paginationItems: ReactNode[] = [];
   const halfPagesToShow = Math.floor(maxPagesToShow / 2);
 
-  const startPage = Math.max(1, Math.min(currentPage - halfPagesToShow, totalPages - maxPagesToShow + 1));
-  const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+  let startPage = Math.max(1, currentPage - halfPagesToShow);
+  let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
 
-  // Add the "First" and "Previous" buttons
+  if (endPage - startPage < maxPagesToShow - 1) {
+    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+  }
+
   paginationItems.push(
     <Pagination.First key="first" disabled={currentPage === 1} onClick={() => onPageChange(1)} />,
     <Pagination.Prev key="prev" disabled={currentPage === 1} onClick={() => onPageChange(currentPage - 1)} />,
   );
 
-  // Show the first page and ellipsis if needed
-  if (startPage > 1) {
-    paginationItems.push(
-      <Pagination.Item key={1} onClick={() => onPageChange(1)}>
-        1
-      </Pagination.Item>,
-    );
-    if (startPage > 2) {
-      paginationItems.push(<Pagination.Ellipsis key="start-ellipsis" disabled />);
-    }
-  }
-
-  // Generate page numbers
   for (let page = startPage; page <= endPage; page++) {
     paginationItems.push(
       <Pagination.Item key={page} active={page === currentPage} onClick={() => onPageChange(page)}>
@@ -49,19 +39,6 @@ const Paginator: React.FC<PaginatorProps> = ({
     );
   }
 
-  // Show the last page and ellipsis if needed
-  if (endPage < totalPages) {
-    if (endPage < totalPages - 1) {
-      paginationItems.push(<Pagination.Ellipsis key="end-ellipsis" disabled />);
-    }
-    paginationItems.push(
-      <Pagination.Item key={totalPages} onClick={() => onPageChange(totalPages)}>
-        {totalPages}
-      </Pagination.Item>,
-    );
-  }
-
-  // Add the "Next" and "Last" buttons
   paginationItems.push(
     <Pagination.Next key="next" disabled={currentPage === totalPages} onClick={() => onPageChange(currentPage + 1)} />,
     <Pagination.Last key="last" disabled={currentPage === totalPages} onClick={() => onPageChange(totalPages)} />,
