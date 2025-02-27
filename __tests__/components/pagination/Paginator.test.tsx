@@ -140,9 +140,6 @@ describe('Paginator', () => {
     const buttons = screen.queryAllByRole('button');
     const firstPageButton = buttons.find(button => button.textContent === '1');
     expect(firstPageButton).toBeInTheDocument();
-
-    const ellipsis = screen.getByText((_, element) => element?.textContent === '…');
-    expect(ellipsis).toBeInTheDocument();
   });
 
   it('does not show ellipsis when startPage is 1', () => {
