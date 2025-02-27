@@ -191,7 +191,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
             <Paginator
               currentPage={currentPage}
               totalPages={Math.ceil(filteredTopics.length / itemsPerPage)}
-              maxPagesToShow={5}
+              maxPagesToShow={7}
               onPageChange={handlePageChange}
             />
           </div>
