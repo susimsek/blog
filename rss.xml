@@ -3,14 +3,14 @@
   <channel>
     <title><![CDATA[Şuayb Şimşek's Blog]]></title>
     <description><![CDATA[A blog about backend, fullstack development, and DevOps (English)]]></description>
-    <link>https://susimsek.github.io/blog</link>
+    <link>https://suaybsimsek.com</link>
     <language>en</language>
     <copyright>All rights reserved 2024, Şuayb Şimşek Blog</copyright>
     <lastBuildDate>Wed, 11 Dec 2024 12:00:00 GMT</lastBuildDate>
     <item>
       <title><![CDATA[Spring Boot Eureka Server]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-eureka-server</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-eureka-server</guid>
+      <link>https://suaybsimsek.com/spring-boot-eureka-server</link>
+      <guid>https://suaybsimsek.com/spring-boot-eureka-server</guid>
       <description><![CDATA[Learn how to set up and configure a Spring Boot Eureka Server for service discovery in microservices architecture.]]></description>
       <pubDate>Sun, 23 Feb 2025 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -20,7 +20,7 @@
       <category><![CDATA[Eureka Server]]></category>
       <category><![CDATA[Microservice]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-eureka-server-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-eureka-server-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot <strong>Eureka Server</strong> is a service registry that enables service discovery in a microservices architecture. It allows microservices to register themselves and discover other services dynamically. This guide will walk you through setting up and configuring a Spring Boot Eureka Server.</p>
 <hr>
 <h2>🌟 Why Use Eureka Server?</h2>
@@ -171,8 +171,8 @@
     </item>
     <item>
       <title><![CDATA[Spring Boot Config Server]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-config-server</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-config-server</guid>
+      <link>https://suaybsimsek.com/spring-boot-config-server</link>
+      <guid>https://suaybsimsek.com/spring-boot-config-server</guid>
       <description><![CDATA[Learn how to use Spring Boot Config Server to centralize and manage application configurations efficiently.]]></description>
       <pubDate>Sat, 22 Feb 2025 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -182,7 +182,7 @@
       <category><![CDATA[Config Server]]></category>
       <category><![CDATA[Microservice]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-config-server-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-config-server-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot <strong>Config Server</strong> enables centralized configuration management for distributed applications, allowing dynamic configuration updates without requiring service restarts. This guide covers how to set up and use Spring Boot Config Server efficiently.</p>
 <hr>
 <h2>🌟 Why Use Config Server?</h2>
@@ -363,8 +363,8 @@
     </item>
     <item>
       <title><![CDATA[Spring Boot Kubernetes Integration]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-kubernetes</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-kubernetes</guid>
+      <link>https://suaybsimsek.com/spring-boot-kubernetes</link>
+      <guid>https://suaybsimsek.com/spring-boot-kubernetes</guid>
       <description><![CDATA[Learn how to deploy Spring Boot applications on Kubernetes for scalable, containerized microservices.]]></description>
       <pubDate>Wed, 21 Feb 2025 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -374,7 +374,7 @@
       <category><![CDATA[Microservice]]></category>
       <category><![CDATA[Containerization]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-kubernetes-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot seamlessly integrates with <strong>Kubernetes</strong> to provide scalable, containerized applications. This guide explores how to deploy and manage Spring Boot applications in a Kubernetes cluster.</p>
 <hr>
 <h2>✨ Why Use Kubernetes for Spring Boot?</h2>
@@ -503,8 +503,8 @@
     </item>
     <item>
       <title><![CDATA[Spring Boot Docker Integration]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-docker</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-docker</guid>
+      <link>https://suaybsimsek.com/spring-boot-docker</link>
+      <guid>https://suaybsimsek.com/spring-boot-docker</guid>
       <description><![CDATA[Learn how to build and deploy Spring Boot applications using Docker with Buildpacks and Jib for efficient containerization.]]></description>
       <pubDate>Fri, 21 Feb 2025 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -514,7 +514,7 @@
       <category><![CDATA[Containerization]]></category>
       <category><![CDATA[Jib]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-docker-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-docker-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot provides multiple ways to containerize applications efficiently using <strong>Docker</strong>, <strong>Buildpacks</strong>, and <strong>Jib</strong>. This guide explores different approaches to building and deploying Spring Boot applications with Docker.</p>
 <hr>
 <h2>🌟 Why Use Docker for Spring Boot?</h2>
@@ -649,8 +649,8 @@
     </item>
     <item>
       <title><![CDATA[Spring Boot Async Tasks]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-async-tasks</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-async-tasks</guid>
+      <link>https://suaybsimsek.com/spring-boot-async-tasks</link>
+      <guid>https://suaybsimsek.com/spring-boot-async-tasks</guid>
       <description><![CDATA[Learn how to use @Async in Spring Boot to execute tasks asynchronously without blocking the main thread.]]></description>
       <pubDate>Thu, 20 Feb 2025 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -658,7 +658,7 @@
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Async Tasks]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-async-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-async-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot provides an easy way to run asynchronous tasks using the <code node="[object Object]">@Async</code> annotation. This is useful for executing tasks in the background, improving performance, and avoiding blocking the main thread.</p>
 <hr>
 <h2>🌟 Why Use @Async in Spring Boot?</h2>
@@ -791,8 +791,8 @@
     </item>
     <item>
       <title><![CDATA[Spring Boot Scheduled Tasks]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-scheduled-tasks</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-scheduled-tasks</guid>
+      <link>https://suaybsimsek.com/spring-boot-scheduled-tasks</link>
+      <guid>https://suaybsimsek.com/spring-boot-scheduled-tasks</guid>
       <description><![CDATA[Learn how to use @Scheduled in Spring Boot to run background tasks at fixed intervals or cron expressions.]]></description>
       <pubDate>Thu, 20 Feb 2025 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -800,7 +800,7 @@
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Scheduled Tasks]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-scheduled-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot allows developers to easily schedule and execute background tasks using the <code node="[object Object]">@Scheduled</code> annotation. This is useful for running periodic jobs, automation tasks, and batch processing without manual intervention.</p>
 <hr>
 <h2>🌟 Why Use @Scheduled in Spring Boot?</h2>
@@ -904,8 +904,8 @@ Scheduled task executed at: 12:00:11</code></div><button type="button" class="co
     </item>
     <item>
       <title><![CDATA[Spring Boot Reactive Programming]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-reactive-programming</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-reactive-programming</guid>
+      <link>https://suaybsimsek.com/spring-boot-reactive-programming</link>
+      <guid>https://suaybsimsek.com/spring-boot-reactive-programming</guid>
       <description><![CDATA[Learn how to build reactive applications using Spring Boot with Project Reactor and WebFlux for high-performance asynchronous processing.]]></description>
       <pubDate>Wed, 19 Feb 2025 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -914,7 +914,7 @@ Scheduled task executed at: 12:00:11</code></div><button type="button" class="co
       <category><![CDATA[Reactive Programming]]></category>
       <category><![CDATA[Spring WebFlux]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-reactive-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot with Reactive Programming enables developers to build non-blocking, event-driven applications that scale efficiently. By leveraging <strong>Spring WebFlux</strong> and <strong>Project Reactor</strong>, developers can handle large amounts of concurrent requests with minimal resource consumption, making it ideal for microservices and real-time applications.</p>
 <hr>
 <h2>🌟 Why Use Reactive Programming?</h2>
@@ -1013,8 +1013,8 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Spring Boot GraalVM Native Application]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-graalvm</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-graalvm</guid>
+      <link>https://suaybsimsek.com/spring-boot-graalvm</link>
+      <guid>https://suaybsimsek.com/spring-boot-graalvm</guid>
       <description><![CDATA[Learn how to build and deploy a Spring Boot application as a GraalVM native image for improved startup time and reduced resource usage.]]></description>
       <pubDate>Sat, 28 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -1023,7 +1023,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[GraalVM]]></category>
       <category><![CDATA[Native Image]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-graalvm-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot with GraalVM Native enables developers to create applications that offer lightning-fast startup times, reduced memory consumption, and enhanced security. With native image support, your Spring Boot applications can efficiently run in resource-constrained environments, making them ideal for modern cloud-native architectures.</p>
 <hr>
 <h2>🌟 Why Build a Native Application with GraalVM?</h2>
@@ -1128,8 +1128,8 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Spring Boot Kafka Integration]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-kafka</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-kafka</guid>
+      <link>https://suaybsimsek.com/spring-boot-kafka</link>
+      <guid>https://suaybsimsek.com/spring-boot-kafka</guid>
       <description><![CDATA[Learn how to integrate Apache Kafka with Spring Boot to send and consume JSON messages through Kafka topics.]]></description>
       <pubDate>Wed, 25 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -1138,7 +1138,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Kafka]]></category>
       <category><![CDATA[Messaging]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-kafka-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Apache Kafka is a distributed event streaming platform that facilitates real-time data processing. This guide demonstrates how to send and consume JSON messages in a Spring Boot application using Kafka.</p>
 <hr>
 <h2>🌟 Why Use Kafka?</h2>
@@ -1307,8 +1307,8 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Spring Boot Redis Caching]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-redis-caching</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-redis-caching</guid>
+      <link>https://suaybsimsek.com/spring-boot-redis-caching</link>
+      <guid>https://suaybsimsek.com/spring-boot-redis-caching</guid>
       <description><![CDATA[Learn how to implement Redis caching in your Spring Boot application to improve performance and efficiency.]]></description>
       <pubDate>Sun, 22 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -1317,7 +1317,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Redis]]></category>
       <category><![CDATA[Caching]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-redis-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-redis-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Redis is a powerful in-memory data store often used for caching, messaging, and real-time data management. This guide explains how to integrate Redis into a Spring Boot application using both Java and Kotlin.</p>
 <hr>
 <h2>🌟 Why Use Redis?</h2>
@@ -1477,8 +1477,8 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Spring Boot with OpenAPI]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-openapi</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-openapi</guid>
+      <link>https://suaybsimsek.com/spring-boot-openapi</link>
+      <guid>https://suaybsimsek.com/spring-boot-openapi</guid>
       <description><![CDATA[Learn how to integrate OpenAPI into your Spring Boot application for API documentation and testing using SpringDoc.]]></description>
       <pubDate>Fri, 20 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -1487,7 +1487,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[OpenAPI]]></category>
       <category><![CDATA[Documentation]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-openapi-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>OpenAPI simplifies API documentation and testing by providing an interactive interface and machine-readable documentation. This guide will show you how to integrate OpenAPI into your Spring Boot application using SpringDoc.</p>
 <hr>
 <h2>🌟 Why Use OpenAPI?</h2>
@@ -1627,8 +1627,8 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Clean Coding Practices in Spring Boot]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-clean-coding</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-clean-coding</guid>
+      <link>https://suaybsimsek.com/spring-boot-clean-coding</link>
+      <guid>https://suaybsimsek.com/spring-boot-clean-coding</guid>
       <description><![CDATA[Learn how to apply clean coding principles in Spring Boot projects. Includes best practices, examples, and benefits of using Lombok in Java and Kotlin clean code techniques.]]></description>
       <pubDate>Thu, 19 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -1636,7 +1636,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Clean Coding]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-clean-coding-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Clean coding practices ensure that your Spring Boot applications are maintainable, readable, and scalable. This guide provides essential tips and code examples to help you write cleaner and more efficient code in both Java and Kotlin.</p>
 <hr>
 <h2>🌟 Why Focus on Clean Coding?</h2>
@@ -1838,8 +1838,8 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Spring Boot DevTools]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-devtools</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-devtools</guid>
+      <link>https://suaybsimsek.com/spring-boot-devtools</link>
+      <guid>https://suaybsimsek.com/spring-boot-devtools</guid>
       <description><![CDATA[Learn how to utilize Spring Boot DevTools for rapid development. Includes live reload, caching, and debugging tips.]]></description>
       <pubDate>Thu, 19 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -1847,7 +1847,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Dev Tools]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-devtools-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot DevTools is a must-have tool for developers looking to speed up their development process. This guide will walk you through the features and setup of DevTools, including live reload, caching, and debugging enhancements.</p>
 <hr>
 <h2>🌟 Why Use Spring Boot DevTools?</h2>
@@ -1921,8 +1921,8 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Spring Boot Actuator]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-actuator</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-actuator</guid>
+      <link>https://suaybsimsek.com/spring-boot-actuator</link>
+      <guid>https://suaybsimsek.com/spring-boot-actuator</guid>
       <description><![CDATA[Learn how to use Spring Boot Actuator to monitor and manage your applications with ease. Includes endpoints, customization, and security examples.]]></description>
       <pubDate>Wed, 18 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -1931,7 +1931,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Actuator]]></category>
       <category><![CDATA[Monitoring]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-actuator-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot Actuator provides production-ready features to monitor and manage your applications. This guide explores Actuator's capabilities, how to enable it, and secure its endpoints.</p>
 <hr>
 <h2>🌟 Why Use Spring Boot Actuator?</h2>
@@ -2051,8 +2051,8 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Aspect-Oriented Programming (AOP) in Spring Boot]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-aop</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-aop</guid>
+      <link>https://suaybsimsek.com/spring-boot-aop</link>
+      <guid>https://suaybsimsek.com/spring-boot-aop</guid>
       <description><![CDATA[Learn how to implement Aspect-Oriented Programming (AOP) in Spring Boot using Java and Kotlin. Covers core concepts, use cases, and practical examples.]]></description>
       <pubDate>Wed, 18 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -2060,7 +2060,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[AOP]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-aop-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-aop-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Aspect-Oriented Programming (AOP) provides a way to modularize cross-cutting concerns, such as logging, transaction management, and security. This guide demonstrates how to implement AOP in Spring Boot with examples in Java and Kotlin.</p>
 <hr>
 <h2>🌟 Why Use AOP?</h2>
@@ -2232,8 +2232,8 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Dependency Injection in Spring Boot]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-di</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-di</guid>
+      <link>https://suaybsimsek.com/spring-boot-di</link>
+      <guid>https://suaybsimsek.com/spring-boot-di</guid>
       <description><![CDATA[Learn how Dependency Injection (DI) works in Spring Boot, including examples in Java and Kotlin. Covers key concepts, annotations, and practical use cases.]]></description>
       <pubDate>Wed, 18 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -2241,7 +2241,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Dependency Injection]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-di-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-di-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Dependency Injection (DI) is a fundamental concept in Spring Boot that helps achieve loose coupling and increased testability. This guide demonstrates how to use DI in Spring Boot with practical examples in Java and Kotlin.</p>
 <hr>
 <h2>🌟 Why Use Dependency Injection?</h2>
@@ -2379,8 +2379,8 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Object-Relational Mapping (ORM)]]></title>
-      <link>https://susimsek.github.io/blog/object-relational-mapping</link>
-      <guid>https://susimsek.github.io/blog/object-relational-mapping</guid>
+      <link>https://suaybsimsek.com/object-relational-mapping</link>
+      <guid>https://suaybsimsek.com/object-relational-mapping</guid>
       <description><![CDATA[Learn how to set up an ORM-based application with Spring Boot using Java, Kotlin, and Go (Gin). Includes PostgreSQL integration and basic CRUD operations.]]></description>
       <pubDate>Mon, 16 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -2390,7 +2390,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[ORM]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/orm-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/orm-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Object-Relational Mapping (ORM) simplifies database operations in modern applications. This guide will show you how to set up ORM with PostgreSQL using Spring Boot and the Gin framework.</p>
 <hr>
 <h2>🌟 Why Use ORM?</h2>
@@ -2632,8 +2632,8 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Input Validation in REST APIs]]></title>
-      <link>https://susimsek.github.io/blog/rest-api-input-validation</link>
-      <guid>https://susimsek.github.io/blog/rest-api-input-validation</guid>
+      <link>https://suaybsimsek.com/rest-api-input-validation</link>
+      <guid>https://suaybsimsek.com/rest-api-input-validation</guid>
       <description><![CDATA[Learn how to implement input validation in REST APIs using Java, Kotlin, and Go with frameworks like Spring Boot and Gin. Covers annotations, custom validators, and error handling.]]></description>
       <pubDate>Sun, 15 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -2643,7 +2643,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[Validation]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/input-validation-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/input-validation-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Input validation is crucial for building secure and robust REST APIs. In this article, we will explore how to implement input validation in Spring Boot using Java, Kotlin, and Go (with Gin).</p>
 <hr>
 <h2>🌟 Why Validate Input?</h2>
@@ -2864,8 +2864,8 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Building APIs with Spring for GraphQL]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-graphql</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-graphql</guid>
+      <link>https://suaybsimsek.com/spring-boot-graphql</link>
+      <guid>https://suaybsimsek.com/spring-boot-graphql</guid>
       <description><![CDATA[Learn how to build GraphQL APIs using Spring for GraphQL with Java and Kotlin. Includes schema creation, query handling, and integration.]]></description>
       <pubDate>Sun, 15 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -2873,7 +2873,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[GraphQL]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-graphql-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring for GraphQL simplifies the development of GraphQL APIs by integrating with Spring Boot. This guide demonstrates how to create a GraphQL API using Java and Kotlin, with examples for schema definition, query handling, and dependency injection.</p>
 <hr>
 <h2>🌟 Why Use GraphQL?</h2>
@@ -3065,15 +3065,15 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Gin - First Application]]></title>
-      <link>https://susimsek.github.io/blog/golang-gin-first-application</link>
-      <guid>https://susimsek.github.io/blog/golang-gin-first-application</guid>
+      <link>https://suaybsimsek.com/golang-gin-first-application</link>
+      <guid>https://suaybsimsek.com/golang-gin-first-application</guid>
       <description><![CDATA[A beginner-friendly guide to creating your first Golang Gin application from scratch. Learn the basics and start your journey with Gin.]]></description>
       <pubDate>Thu, 14 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Go]]></category>
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[Beginner Guide]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/golang-gin-first-app-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/golang-gin-first-app-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Gin simplifies the process of building high-performance web applications with Golang. In this guide, we’ll walk through creating your first Gin application step by step.</p>
 <hr>
 <h2>🌟 Prerequisites</h2>
@@ -3138,8 +3138,8 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Building a REST API with Spring Boot]]></title>
-      <link>https://susimsek.github.io/blog/building-a-rest-api-with-spring-boot</link>
-      <guid>https://susimsek.github.io/blog/building-a-rest-api-with-spring-boot</guid>
+      <link>https://suaybsimsek.com/building-a-rest-api-with-spring-boot</link>
+      <guid>https://suaybsimsek.com/building-a-rest-api-with-spring-boot</guid>
       <description><![CDATA[Learn how to create a REST API using Spring Boot. Includes HTTP methods, JSON handling, Lombok integration, and curl for testing.]]></description>
       <pubDate>Wed, 11 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -3147,7 +3147,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[REST API]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-rest-api-thumbnail.jpg" type="image/jpeg"/>
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.jpg" type="image/jpeg"/>
       <content:encoded><![CDATA[<p>Spring Boot is an excellent tool for quickly developing RESTful web services. In this article, we’ll walk through creating a REST API step by step using Spring Boot.</p>
 <hr>
 <h2>🌟 What is a REST API?</h2>
@@ -3312,8 +3312,8 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
     </item>
     <item>
       <title><![CDATA[Spring Boot - First Application]]></title>
-      <link>https://susimsek.github.io/blog/spring-boot-first-application</link>
-      <guid>https://susimsek.github.io/blog/spring-boot-first-application</guid>
+      <link>https://suaybsimsek.com/spring-boot-first-application</link>
+      <guid>https://suaybsimsek.com/spring-boot-first-application</guid>
       <description><![CDATA[A beginner-friendly guide to creating your first Spring Boot application from scratch. Learn the basics and start your journey with Spring Boot.]]></description>
       <pubDate>Tue, 10 Dec 2024 12:00:00 GMT</pubDate>
       <category><![CDATA[Java]]></category>
@@ -3321,7 +3321,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Beginner Guide]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://susimsek.github.io/blog/images/spring-boot-first-app-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.jpg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot simplifies the process of building production-ready applications with the Spring Framework. In this guide, we’ll walk through creating your first Spring Boot application step by step.</p>
 <hr>
 <h2>🌟 Prerequisites</h2>
