@@ -7,7 +7,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr" />
   </url>
   <!--This page provides information about the website or the author.-->
@@ -17,7 +17,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/about" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/about" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/about" />
   </url>
   <!--This page contains contact details and ways to get in touch.-->
@@ -27,7 +27,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/contact" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/contact" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/contact" />
   </url>
   <!--This page allows users to search for content within the website.-->
@@ -37,7 +37,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/search" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/search" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/search" />
   </url>
   <!--This section includes all blog posts and articles.-->
@@ -47,7 +47,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-eureka-server" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-eureka-server" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-eureka-server" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-eureka-server-thumbnail.jpg</image:loc>
@@ -59,7 +59,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-config-server" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-config-server" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-config-server" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-config-server-thumbnail.jpg</image:loc>
@@ -71,7 +71,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-kubernetes" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-kubernetes" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-kubernetes" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.jpg</image:loc>
@@ -83,7 +83,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-docker" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-docker" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-docker" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-docker-thumbnail.jpg</image:loc>
@@ -95,7 +95,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-async-tasks" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-async-tasks" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-async-tasks" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-async-thumbnail.jpg</image:loc>
@@ -107,7 +107,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-scheduled-tasks" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-scheduled-tasks" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-scheduled-tasks" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.jpg</image:loc>
@@ -119,7 +119,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-reactive-programming" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-reactive-programming" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-reactive-programming" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.jpg</image:loc>
@@ -131,7 +131,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-graalvm" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-graalvm" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-graalvm" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.jpg</image:loc>
@@ -143,7 +143,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-kafka" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-kafka" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-kafka" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.jpg</image:loc>
@@ -155,7 +155,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-redis-caching" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-redis-caching" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-redis-caching" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-redis-thumbnail.jpg</image:loc>
@@ -167,7 +167,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-openapi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-openapi" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-openapi" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.jpg</image:loc>
@@ -179,7 +179,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-clean-coding" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-clean-coding" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-clean-coding" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.jpg</image:loc>
@@ -191,7 +191,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-devtools" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-devtools" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-devtools" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.jpg</image:loc>
@@ -203,7 +203,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-actuator" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-actuator" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-actuator" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.jpg</image:loc>
@@ -215,7 +215,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-aop" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-aop" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-aop" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-aop-thumbnail.jpg</image:loc>
@@ -227,7 +227,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-di" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-di" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-di" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-di-thumbnail.jpg</image:loc>
@@ -239,7 +239,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/object-relational-mapping" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/object-relational-mapping" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/object-relational-mapping" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/orm-thumbnail.jpg</image:loc>
@@ -251,7 +251,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/rest-api-input-validation" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/rest-api-input-validation" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/rest-api-input-validation" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/input-validation-thumbnail.jpg</image:loc>
@@ -263,7 +263,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-graphql" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-graphql" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-graphql" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.jpg</image:loc>
@@ -275,7 +275,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/golang-gin-first-application" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/golang-gin-first-application" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/golang-gin-first-application" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/golang-gin-first-app-thumbnail.jpg</image:loc>
@@ -287,7 +287,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/building-a-rest-api-with-spring-boot" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/building-a-rest-api-with-spring-boot" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/building-a-rest-api-with-spring-boot" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.jpg</image:loc>
@@ -299,7 +299,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/spring-boot-first-application" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-first-application" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-first-application" />
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.jpg</image:loc>
@@ -313,7 +313,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/java" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/java" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/java" />
   </url>
   <url>
@@ -321,7 +321,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/kotlin" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/kotlin" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/kotlin" />
   </url>
   <url>
@@ -329,7 +329,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/go" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/go" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/go" />
   </url>
   <url>
@@ -337,7 +337,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/spring-boot" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/spring-boot" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/spring-boot" />
   </url>
   <url>
@@ -345,7 +345,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/spring-cloud" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/spring-cloud" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/spring-cloud" />
   </url>
   <url>
@@ -353,7 +353,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/microservice" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/microservice" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/microservice" />
   </url>
   <url>
@@ -361,7 +361,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/docker" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/docker" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/docker" />
   </url>
   <url>
@@ -369,7 +369,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/kubernetes" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/kubernetes" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/kubernetes" />
   </url>
   <url>
@@ -377,7 +377,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/rest-api" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/rest-api" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/rest-api" />
   </url>
   <url>
@@ -385,7 +385,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/programming" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/programming" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/programming" />
   </url>
   <url>
@@ -393,7 +393,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/gin" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/gin" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/gin" />
   </url>
   <url>
@@ -401,7 +401,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/beginner-guide" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/beginner-guide" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/beginner-guide" />
   </url>
   <url>
@@ -409,7 +409,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/orm" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/orm" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/orm" />
   </url>
   <url>
@@ -417,7 +417,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/validation" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/validation" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/validation" />
   </url>
   <url>
@@ -425,7 +425,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/actuator" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/actuator" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/actuator" />
   </url>
   <url>
@@ -433,7 +433,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/monitoring" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/monitoring" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/monitoring" />
   </url>
   <url>
@@ -441,7 +441,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/aop" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/aop" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/aop" />
   </url>
   <url>
@@ -449,7 +449,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/clean-coding" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/clean-coding" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/clean-coding" />
   </url>
   <url>
@@ -457,7 +457,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/devtools" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/devtools" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/devtools" />
   </url>
   <url>
@@ -465,7 +465,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/dependency-injection" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/dependency-injection" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/dependency-injection" />
   </url>
   <url>
@@ -473,7 +473,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/graphql" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/graphql" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/graphql" />
   </url>
   <url>
@@ -481,7 +481,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/openapi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/openapi" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/openapi" />
   </url>
   <url>
@@ -489,7 +489,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/documentation" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/documentation" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/documentation" />
   </url>
   <url>
@@ -497,7 +497,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/redis" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/redis" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/redis" />
   </url>
   <url>
@@ -505,7 +505,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/caching" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/caching" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/caching" />
   </url>
   <url>
@@ -513,7 +513,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/kafka" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/kafka" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/kafka" />
   </url>
   <url>
@@ -521,7 +521,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/messaging" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/messaging" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/messaging" />
   </url>
   <url>
@@ -529,7 +529,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/graalvm" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/graalvm" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/graalvm" />
   </url>
   <url>
@@ -537,7 +537,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/native-image" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/native-image" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/native-image" />
   </url>
   <url>
@@ -545,7 +545,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/reactive-programming" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/reactive-programming" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/reactive-programming" />
   </url>
   <url>
@@ -553,7 +553,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/webflux" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/webflux" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/webflux" />
   </url>
   <url>
@@ -561,7 +561,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/scheduled-tasks" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/scheduled-tasks" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/scheduled-tasks" />
   </url>
   <url>
@@ -569,7 +569,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/async-tasks" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/async-tasks" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/async-tasks" />
   </url>
   <url>
@@ -577,7 +577,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/containerization" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/containerization" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/containerization" />
   </url>
   <url>
@@ -585,7 +585,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/jib" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/jib" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/jib" />
   </url>
   <url>
@@ -593,7 +593,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/config-server" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/config-server" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/config-server" />
   </url>
   <url>
@@ -601,7 +601,7 @@
     <lastmod>2025-02-28T06:25:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="canonical" href="https://suaybsimsek.com/en/topics/eureka-server" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/topics/eureka-server" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/topics/eureka-server" />
   </url>
 </urlset>
