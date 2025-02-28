@@ -26,6 +26,7 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
         <meta name="description" content={t('about.meta.description')} />
         <meta name="keywords" content={t('about.meta.keywords')} />
         <meta name="author" content={AUTHOR_NAME} />
+        <meta name="robots" content="index, follow" />
       </Head>
       <Container className="py-5" style={{ maxWidth: '800px' }}>
         <h1 className="fw-bold mb-4">{t('about.header')}</h1>

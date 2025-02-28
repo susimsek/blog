@@ -23,6 +23,7 @@ export default function Home({ posts, topics }: Readonly<HomeProps>) {
         <meta name="description" content={t('home.meta.description')} />
         <meta name="keywords" content={t('home.meta.keywords')} />
         <meta name="author" content={AUTHOR_NAME} />
+        <meta name="robots" content="index, follow" />
       </Head>
       <header className="text-center py-4">
         <h1 className="fw-bold mb-4">{t('home.header.title')}</h1>

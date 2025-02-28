@@ -24,6 +24,7 @@ export default function TopicPage({ topic, posts, topics, allPosts }: Readonly<T
         <meta name="description" content={t('topic.meta.description', { topic: topic.name })} />
         <meta name="keywords" content={t('topic.meta.keywords', { topic: topic.name })} />
         <meta name="author" content={AUTHOR_NAME} />
+        <meta name="robots" content="index, follow" />
       </Head>
       <div>
         <header className="text-center py-4">

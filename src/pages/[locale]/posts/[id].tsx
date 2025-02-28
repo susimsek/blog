@@ -22,6 +22,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         <meta name="description" content={post.summary} />
         <meta name="keywords" content={keywords} />
         <meta name="author" content={AUTHOR_NAME} />
+        <meta name="robots" content="index, follow" />
       </Head>
       <PostDetail post={post} />
     </Layout>
