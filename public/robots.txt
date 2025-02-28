@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://suaybsimsek.com
+
+# Sitemaps
+Sitemap: https://suaybsimsek.com/sitemap.xml
