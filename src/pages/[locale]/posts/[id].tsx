@@ -68,7 +68,6 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         <meta name="twitter:title" content={post.title} />
         <meta name="twitter:description" content={post.summary} />
         <meta name="twitter:image" content={image} />
-        <meta name="twitter:image:alt" content={post.title} />
         <meta name="twitter:creator" content={TWITTER_USERNAME} />
 
         {/* JSON-LD structured data for enhanced search result features */}
