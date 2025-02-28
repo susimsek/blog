@@ -5,7 +5,9 @@ import Head from 'next/head';
 import PostDetail from '@/components/posts/PostDetail';
 import type { Post, PostSummary } from '@/types/posts'; // type-only import
 import Layout from '@/components/common/Layout';
-import { AUTHOR_NAME, SITE_URL } from '@/config/constants';
+import { AUTHOR_NAME, LOCALES, SITE_URL } from '@/config/constants';
+import { useRouter } from 'next/router';
+import i18nextConfig from '../../../../next-i18next.config';
 
 type PostProps = {
   post: Post;
@@ -13,16 +15,21 @@ type PostProps = {
 };
 
 export default function Post({ post, posts }: Readonly<PostProps>) {
+  const router = useRouter();
+
+  const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
+
   const keywords = (post.topics ?? []).map(topic => topic.name).join(', ');
 
   const url = `${SITE_URL}/posts/${post.id}`;
+  const image = `${SITE_URL}${post.thumbnail}`;
 
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.summary,
-    image: post.thumbnail,
+    image,
     author: {
       '@type': 'Person',
       name: AUTHOR_NAME,
@@ -45,13 +52,22 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         <meta property="og:description" content={post.summary} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={url} />
-        <meta property="og:image" content={post.thumbnail} />
+        <meta property="og:image" content={image} />
+        <meta property="og:image:width" content="800" />
+        <meta property="og:image:height" content="600" />
+        <meta property="og:locale" content={LOCALES[currentLocale]?.ogLocale} />
+
+        <meta property="article:published_time" content={post.date} />
+        <meta property="article:author" content={AUTHOR_NAME} />
+        {(post.topics ?? []).map(topic => (
+          <meta key={topic.name} property="article:tag" content={topic.name} />
+        ))}
 
         {/* Twitter Card meta tags for sharing on Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={post.title} />
         <meta name="twitter:description" content={post.summary} />
-        <meta name="twitter:image" content={post.thumbnail} />
+        <meta name="twitter:image" content={image} />
 
         {/* JSON-LD structured data for enhanced search result features */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />

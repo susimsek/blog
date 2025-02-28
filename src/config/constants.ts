@@ -33,8 +33,8 @@ export const SOCIAL_MEDIA_NAMES = {
 };
 
 export const LOCALES = {
-  tr: { name: 'Türkçe', locale: 'tr' },
-  en: { name: 'English', locale: 'en' },
+  tr: { name: 'Türkçe', locale: 'tr', ogLocale: 'tr_TR' },
+  en: { name: 'English', locale: 'en', ogLocale: 'en_US' },
 };
 
 export const THEMES = [
