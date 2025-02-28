@@ -5,7 +5,7 @@ import Head from 'next/head';
 import PostDetail from '@/components/posts/PostDetail';
 import type { Post, PostSummary } from '@/types/posts'; // type-only import
 import Layout from '@/components/common/Layout';
-import { AUTHOR_NAME } from '@/config/constants';
+import { AUTHOR_NAME, SITE_URL } from '@/config/constants';
 
 type PostProps = {
   post: Post;
@@ -15,6 +15,22 @@ type PostProps = {
 export default function Post({ post, posts }: Readonly<PostProps>) {
   const keywords = (post.topics ?? []).map(topic => topic.name).join(', ');
 
+  const url = `${SITE_URL}/posts/${post.id}`;
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.summary,
+    image: post.thumbnail,
+    author: {
+      '@type': 'Person',
+      name: AUTHOR_NAME,
+    },
+    datePublished: post.date,
+    url: url,
+  };
+
   return (
     <Layout posts={posts} searchEnabled={true}>
       <Head>
@@ -23,6 +39,22 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         <meta name="keywords" content={keywords} />
         <meta name="author" content={AUTHOR_NAME} />
         <meta name="robots" content="index, follow" />
+
+        {/* Open Graph meta tags for social media sharing */}
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={post.summary} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={url} />
+        <meta property="og:image" content={post.thumbnail} />
+
+        {/* Twitter Card meta tags for sharing on Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.title} />
+        <meta name="twitter:description" content={post.summary} />
+        <meta name="twitter:image" content={post.thumbnail} />
+
+        {/* JSON-LD structured data for enhanced search result features */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       </Head>
       <PostDetail post={post} />
     </Layout>

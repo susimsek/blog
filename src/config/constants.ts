@@ -13,6 +13,8 @@ export const cacheTTL = 3600000;
 
 export const AUTHOR_NAME = 'Şuayb Şimşek';
 
+export const SITE_URL = 'https://suaybsimsek.com';
+
 // Constant for avatar link
 export const AVATAR_LINK = 'https://avatars.githubusercontent.com/u/46258776?v=4';
 
