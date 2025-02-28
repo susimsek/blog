@@ -5,7 +5,7 @@ import Head from 'next/head';
 import PostDetail from '@/components/posts/PostDetail';
 import type { Post, PostSummary } from '@/types/posts'; // type-only import
 import Layout from '@/components/common/Layout';
-import { AUTHOR_NAME, LOCALES, SITE_URL } from '@/config/constants';
+import { AUTHOR_NAME, LOCALES, SITE_URL, TWITTER_USERNAME } from '@/config/constants';
 import { useRouter } from 'next/router';
 import i18nextConfig from '../../../../next-i18next.config';
 
@@ -68,6 +68,8 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         <meta name="twitter:title" content={post.title} />
         <meta name="twitter:description" content={post.summary} />
         <meta name="twitter:image" content={image} />
+        <meta name="twitter:image:alt" content={post.title} />
+        <meta name="twitter:creator" content={TWITTER_USERNAME} />
 
         {/* JSON-LD structured data for enhanced search result features */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />

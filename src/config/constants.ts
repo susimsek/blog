@@ -54,3 +54,6 @@ export const THEMES = [
 export const EXPERIENCE_START_YEAR = 2018;
 
 export const LAUNCH_YEAR = 2024;
+
+// Twitter username
+export const TWITTER_USERNAME = '@suaybsimsek58';
