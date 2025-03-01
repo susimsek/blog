@@ -44,7 +44,7 @@ describe('Static Constants', () => {
 
   it('should export correct contact links', () => {
     expect(CONTACT_LINKS).toEqual({
-      email: 'mailto:suaybsimsek58@gmail.com',
+      email: 'suaybsimsek58@gmail.com',
       linkedin: 'https://linkedin.com/in/şuayb-şimşek-29b077178',
       medium: 'https://medium.com/@suaybsimsek58',
       github: 'https://github.com/susimsek',
