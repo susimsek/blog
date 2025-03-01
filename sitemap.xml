@@ -30,16 +30,6 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/contact" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/contact" />
   </url>
-  <!--This page allows users to search for content within the website.-->
-  <!-- Search Page -->
-  <url>
-    <loc>https://suaybsimsek.com/search</loc>
-    <lastmod>2025-02-28T06:25:22+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/search" />
-    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/search" />
-  </url>
   <!--This section includes all blog posts and articles.-->
   <!-- Blog Posts Section -->
   <url>
