@@ -24,7 +24,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
   const url = `${SITE_URL}/posts/${post.id}`;
   const image = `${SITE_URL}${post.thumbnail}`;
 
-  const structuredData = {
+  const jsonLdData = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.title,
@@ -71,7 +71,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         <meta name="twitter:creator" content={TWITTER_USERNAME} />
 
         {/* JSON-LD structured data for enhanced search result features */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
       </Head>
       <PostDetail post={post} />
     </Layout>

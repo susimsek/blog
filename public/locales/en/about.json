@@ -7,6 +7,7 @@
     },
     "header": "About Me",
     "description": "Hi, I’m Şuayb Şimşek, a passionate backend and fullstack developer from Turkey. I graduated in Computer Engineering from TOBB University of Economics and Technology. Over the past {{experienceYears}} years, I have gained extensive experience in backend, frontend, blockchain, and DevOps technologies.",
-    "findMeOnline": "Get in Touch with Me"
+    "findMeOnline": "Get in Touch with Me",
+    "jobTitle": "Senior Software Engineer"
   }
 }

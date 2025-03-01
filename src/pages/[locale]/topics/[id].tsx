@@ -4,7 +4,7 @@ import { getAllTopicIds, makeTopicProps } from '@/lib/posts';
 import PostList from '@/components/posts/PostList';
 import type { PostSummary, Topic } from '@/types/posts';
 import Layout from '@/components/common/Layout';
-import { AUTHOR_NAME } from '@/config/constants';
+import { AUTHOR_NAME, SITE_URL } from '@/config/constants';
 import { useTranslation } from 'next-i18next';
 
 type TopicPageProps = {
@@ -17,6 +17,20 @@ type TopicPageProps = {
 export default function TopicPage({ topic, posts, topics, allPosts }: Readonly<TopicPageProps>) {
   const { t } = useTranslation(['topic']);
 
+  const url = `${SITE_URL}/topics/${topic.id}`;
+
+  const jsonLdData = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: t('topic.title', { topic: topic.name }),
+    description: t('topic.meta.description', { topic: topic.name }),
+    url: url,
+    author: {
+      '@type': 'Person',
+      name: AUTHOR_NAME,
+    },
+  };
+
   return (
     <Layout posts={allPosts} topics={topics} sidebarEnabled={true} searchEnabled={true}>
       <Head>
@@ -25,6 +39,7 @@ export default function TopicPage({ topic, posts, topics, allPosts }: Readonly<T
         <meta name="keywords" content={t('topic.meta.keywords', { topic: topic.name })} />
         <meta name="author" content={AUTHOR_NAME} />
         <meta name="robots" content="index, follow" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
       </Head>
       <div>
         <header className="text-center py-4">

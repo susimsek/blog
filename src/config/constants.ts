@@ -20,7 +20,7 @@ export const AVATAR_LINK = 'https://avatars.githubusercontent.com/u/46258776?v=4
 
 // Static contact links
 export const CONTACT_LINKS = {
-  email: 'mailto:suaybsimsek58@gmail.com',
+  email: 'suaybsimsek58@gmail.com',
   linkedin: 'https://linkedin.com/in/şuayb-şimşek-29b077178',
   medium: 'https://medium.com/@suaybsimsek58',
   github: 'https://github.com/susimsek',

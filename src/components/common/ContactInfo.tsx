@@ -12,8 +12,8 @@ const ContactInfo = () => {
       <li className="mb-3">
         <FontAwesomeIcon icon="envelope" className="me-2 email-logo" />
         <strong>{t('common.contactInfo.email')}:</strong>{' '}
-        <a href={CONTACT_LINKS.email} className="text-decoration-none">
-          {CONTACT_LINKS.email.replace('mailto:', '')}
+        <a href={`mailto:${CONTACT_LINKS.email}`} className="text-decoration-none">
+          {CONTACT_LINKS.email}
         </a>
       </li>
       <li className="mb-3">
