@@ -38,7 +38,7 @@ export default function SearchPage({ allPosts, topics }: Readonly<SearchPageProp
         <meta name="description" content={t('search.meta.description', { query: debouncedQuery || '' })} />
         <meta name="keywords" content={t('search.meta.keywords', { query: debouncedQuery || '' })} />
         <meta name="author" content={AUTHOR_NAME} />
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content="noindex, nofollow" />
       </Head>
       <div>
         <header className="text-center py-4">

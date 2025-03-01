@@ -1,6 +1,8 @@
 # *
 User-agent: *
 Allow: /
+Disallow: /search
+Disallow: /*?
 
 # Host
 Host: https://suaybsimsek.com
