@@ -18,9 +18,10 @@ describe('ContactInfo Component', () => {
   it('renders email information correctly', () => {
     render(<ContactInfo />);
 
-    const emailElement = screen.getByText(CONTACT_LINKS.email.replace('mailto:', ''));
+    const emailElement = screen.getByText(CONTACT_LINKS.email);
+
     expect(emailElement).toBeInTheDocument();
-    expect(emailElement.closest('a')).toHaveAttribute('href', CONTACT_LINKS.email);
+    expect(emailElement.closest('a')).toHaveAttribute('href', `mailto:${CONTACT_LINKS.email}`);
   });
 
   it('renders LinkedIn information correctly', () => {
