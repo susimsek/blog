@@ -71,6 +71,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         <meta name="twitter:description" content={post.summary} />
         <meta name="twitter:image" content={image} />
         <meta name="twitter:creator" content={TWITTER_USERNAME} />
+        <meta name="twitter:site" content={TWITTER_USERNAME} />
 
         {/* JSON-LD structured data for enhanced search result features */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
