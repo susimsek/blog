@@ -12,6 +12,12 @@ jest.mock('@/components/common/Footer', () => ({
   default: () => <footer data-testid="footer">Footer</footer>,
 }));
 
+// Mock GoogleAnalytics component
+jest.mock('@next/third-parties/google', () => ({
+  __esModule: true,
+  GoogleAnalytics: () => <div data-testid="google-analytics">Google Analytics</div>,
+}));
+
 beforeAll(() => {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
