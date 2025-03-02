@@ -24,7 +24,6 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
 
   const keywords = (post.topics ?? []).map(topic => topic.name).join(', ');
 
-  const url = `${SITE_URL}/posts/${post.id}`;
   const localizedUrl = `${SITE_URL}/${currentLocale}/posts/${post.id}`;
   const image = `${SITE_URL}${post.thumbnail}`;
 
