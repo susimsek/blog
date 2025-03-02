@@ -10,7 +10,10 @@ class MyDocument extends Document {
     return (
       <Html lang={currentLocale}>
         <Head>
-          <meta httpEquiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline' *;" />
+          <meta
+            httpEquiv="Content-Security-Policy"
+            content="default-src 'self'; style-src 'unsafe-inline' static.licdn.com static-exp1.licdn.com static-exp2.licdn.com static-exp3.licdn.com www.linkedin.com;"
+          />
           <link rel="apple-touch-icon" sizes="180x180" href={`${assetPrefix}/favicons/apple-touch-icon.png`} />
           <link rel="icon" type="image/png" sizes="32x32" href={`${assetPrefix}/favicons/favicon-32x32.png`} />
           <link rel="icon" type="image/png" sizes="16x16" href={`${assetPrefix}/favicons/favicon-16x16.png`} />
