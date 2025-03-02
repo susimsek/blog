@@ -24,6 +24,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
 
   const keywords = (post.topics ?? []).map(topic => topic.name).join(', ');
 
+  const url = `${SITE_URL}/posts/${post.id}`;
   const localizedUrl = `${SITE_URL}/${currentLocale}/posts/${post.id}`;
   const image = `${SITE_URL}${post.thumbnail}`;
 
@@ -46,7 +47,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
       <Head>
         <title>{post.title}</title>
         <meta name="description" content={post.summary} />
-        <link rel="canonical" href={localizedUrl} />
+        <link rel="canonical" href={url} />
         <meta name="keywords" content={keywords} />
         <meta name="author" content={AUTHOR_NAME} />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
