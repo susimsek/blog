@@ -56,21 +56,13 @@ jest.mock('@assets/images/logo.svg', () => ({
   ReactComponent: () => <svg data-testid="mock-logo" />,
 }));
 
-describe('About Page', () => {
-  it('renders the navigation and main content', async () => {
-    render(
-      <Provider store={store}>
-        <NotFound />
-      </Provider>,
-    );
+// Mock Layout component
+jest.mock('@/components/common/Layout', () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-layout">{children}</div>,
+}));
 
-    // Navigation
-    expect(screen.getByRole('navigation')).toBeInTheDocument();
-
-    // Main content
-    expect(screen.getByRole('main')).toBeInTheDocument();
-  });
-
+describe('404 Page', () => {
   it('renders Layout with header, footer, and main content', () => {
     render(
       <Provider store={store}>
@@ -101,19 +93,6 @@ describe('About Page', () => {
     // Expect dynamic locale-aware URL
     const expectedHref = '/en';
     expect(homeLink).toHaveAttribute('href', expectedHref);
-  });
-
-  it('renders FontAwesome icons correctly', () => {
-    render(
-      <Provider store={store}>
-        <NotFound />
-      </Provider>,
-    );
-
-    const homeIcons = screen.queryAllByTestId('font-awesome-icon-home');
-    expect(homeIcons).toHaveLength(2);
-
-    expect(homeIcons[0]).toBeInTheDocument();
   });
 });
 

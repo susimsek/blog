@@ -100,6 +100,12 @@ jest.mock('@/lib/posts', () => ({
   })),
 }));
 
+// Mock Layout component
+jest.mock('@/components/common/Layout', () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-layout">{children}</div>,
+}));
+
 describe('Home Page', () => {
   it('renders mocked post list correctly', async () => {
     render(

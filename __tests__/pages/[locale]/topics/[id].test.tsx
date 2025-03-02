@@ -108,6 +108,12 @@ jest.mock('@assets/images/logo.svg', () => ({
   ReactComponent: () => <svg data-testid="mock-logo" />,
 }));
 
+// Mock Layout component
+jest.mock('@/components/common/Layout', () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-layout">{children}</div>,
+}));
+
 // Mock translations
 beforeEach(() => {
   (useTranslation as jest.Mock).mockReturnValue({

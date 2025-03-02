@@ -31,6 +31,12 @@ jest.mock('next/head', () => ({
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
+// Mock Layout component
+jest.mock('@/components/common/Layout', () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-layout">{children}</div>,
+}));
+
 beforeEach(() => {
   (useTranslation as jest.Mock).mockReturnValue({
     t: (key: string) => key, // Mock translation function

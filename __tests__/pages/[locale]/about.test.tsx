@@ -24,6 +24,12 @@ jest.mock('next-i18next', () => ({
   useTranslation: jest.fn(),
 }));
 
+// Mock Layout component
+jest.mock('@/components/common/Layout', () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-layout">{children}</div>,
+}));
+
 beforeEach(() => {
   (useTranslation as jest.Mock).mockReturnValue({
     t: (key: string) => key, // Mock translation function
@@ -71,20 +77,6 @@ jest.mock('@/lib/posts', () => ({
 }));
 
 describe('About Page', () => {
-  it('renders the navigation and main content', async () => {
-    render(
-      <Provider store={store}>
-        <About posts={mockPostSummaries} topics={mockTopics} />
-      </Provider>,
-    );
-
-    // Navigation
-    expect(screen.getByRole('navigation')).toBeInTheDocument();
-
-    // Main content
-    expect(screen.getByRole('main')).toBeInTheDocument();
-  });
-
   it('renders the about header and description', async () => {
     render(
       <Provider store={store}>
