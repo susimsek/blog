@@ -8,6 +8,7 @@ import Layout from '@/components/common/Layout';
 import { AUTHOR_NAME, LOCALES, SITE_URL, TWITTER_USERNAME } from '@/config/constants';
 import { useRouter } from 'next/router';
 import i18nextConfig from '../../../../next-i18next.config';
+import { useTranslation } from 'next-i18next';
 
 type PostProps = {
   post: Post;
@@ -16,6 +17,8 @@ type PostProps = {
 
 export default function Post({ post, posts }: Readonly<PostProps>) {
   const router = useRouter();
+
+  const { t } = useTranslation('post');
 
   const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
 
