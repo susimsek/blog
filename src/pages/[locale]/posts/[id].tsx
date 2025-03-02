@@ -25,6 +25,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
   const keywords = (post.topics ?? []).map(topic => topic.name).join(', ');
 
   const url = `${SITE_URL}/posts/${post.id}`;
+  const localizedUrl = `${SITE_URL}/${currentLocale}/posts/${post.id}`;
   const image = `${SITE_URL}${post.thumbnail}`;
 
   const jsonLdData = {
@@ -38,7 +39,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
       name: AUTHOR_NAME,
     },
     datePublished: post.date,
-    url: url,
+    url: localizedUrl,
   };
 
   return (
@@ -46,6 +47,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
       <Head>
         <title>{post.title}</title>
         <meta name="description" content={post.summary} />
+        <link rel="canonical" href={url} />
         <meta name="keywords" content={keywords} />
         <meta name="author" content={AUTHOR_NAME} />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
@@ -54,7 +56,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         <meta property="og:title" content={post.title} />
         <meta property="og:description" content={post.summary} />
         <meta property="og:type" content="article" />
-        <meta property="og:url" content={url} />
+        <meta property="og:url" content={localizedUrl} />
         <meta property="og:site_name" content={t('common:common.siteName')} />
         <meta property="og:image" content={image} />
         <meta property="og:image:width" content="800" />
