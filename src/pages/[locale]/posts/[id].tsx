@@ -53,7 +53,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
 
         {/* Open Graph meta tags for social media sharing */}
-        <meta name="title" property="og:title" content={post.title} />
+        <meta name="title" property="og:title" content="test" />
         <meta property="og:description" content={post.summary} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={localizedUrl} />
