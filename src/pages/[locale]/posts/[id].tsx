@@ -47,7 +47,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
       <Head>
         <title>{post.title}</title>
         <meta name="description" content={post.summary} />
-        <link rel="canonical" href={url} />
+        <link rel="canonical" href={localizedUrl} />
         <meta name="keywords" content={keywords} />
         <meta name="author" content={AUTHOR_NAME} />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
