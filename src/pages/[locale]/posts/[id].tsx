@@ -48,7 +48,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         <meta name="description" content={post.summary} />
         <meta name="keywords" content={keywords} />
         <meta name="author" content={AUTHOR_NAME} />
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
 
         {/* Open Graph meta tags for social media sharing */}
         <meta property="og:title" content={post.title} />
