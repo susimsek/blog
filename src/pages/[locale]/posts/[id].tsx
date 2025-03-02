@@ -61,6 +61,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         <meta property="og:image" content={image} />
         <meta property="og:image:width" content="800" />
         <meta property="og:image:height" content="600" />
+        <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:locale" content={LOCALES[currentLocale]?.ogLocale} />
 
         <meta property="article:published_time" content={post.date} />
