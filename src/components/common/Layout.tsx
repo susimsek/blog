@@ -5,6 +5,8 @@ import Sidebar from '@/components/common/Sidebar';
 import { Container, Row, Col } from 'react-bootstrap';
 import { PostSummary, Topic } from '@/types/posts';
 import useMediaQuery from '@/hooks/useMediaQuery';
+import { GoogleAnalytics } from '@next/third-parties/google';
+import { GA_ID } from '@/config/constants';
 
 type LayoutProps = {
   children: ReactNode;
@@ -58,6 +60,7 @@ const Layout: React.FC<LayoutProps> = ({
 
   return (
     <div className="d-flex flex-column min-vh-100">
+      <GoogleAnalytics gaId={GA_ID} />
       <Header
         posts={posts}
         searchEnabled={searchEnabled}

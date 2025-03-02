@@ -199,6 +199,7 @@ Save and restart your browser.
 ![CircleCI](https://img.shields.io/badge/CircleCI-343434?logo=circleci&logoColor=white)  
 ![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)  
 ![Next.js](https://img.shields.io/badge/Next.js-000?logo=next.js&logoColor=white)  
+![Next.js Third Parties](https://img.shields.io/badge/Next.js_Third_Parties-000?logo=next.js&logoColor=white)  
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)  
 ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?logo=eslint&logoColor=white)  
 ![Prettier](https://img.shields.io/badge/Prettier-F7B93E?logo=prettier&logoColor=white)  
