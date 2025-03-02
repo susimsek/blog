@@ -1,13 +1,14 @@
 // pages/posts/[id].tsx
 import { getAllPostIds, makePostDetailProps } from '@/lib/posts';
 import React from 'react';
-import Head from 'next/head';
 import PostDetail from '@/components/posts/PostDetail';
 import type { Post, PostSummary } from '@/types/posts'; // type-only import
 import Layout from '@/components/common/Layout';
 import { AUTHOR_NAME, LOCALES, SITE_URL, TWITTER_USERNAME } from '@/config/constants';
 import { useRouter } from 'next/router';
 import i18nextConfig from '../../../../next-i18next.config';
+import { NextSeo } from 'next-seo';
+import { useTranslation } from 'next-i18next';
 
 type PostProps = {
   post: Post;
@@ -16,6 +17,8 @@ type PostProps = {
 
 export default function Post({ post, posts }: Readonly<PostProps>) {
   const router = useRouter();
+
+  const { t } = useTranslation('post');
 
   const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
 
@@ -40,39 +43,38 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
 
   return (
     <Layout posts={posts} searchEnabled={true}>
-      <Head>
-        <title>{post.title}</title>
-        <meta name="description" content={post.summary} />
-        <meta name="keywords" content={keywords} />
-        <meta name="author" content={AUTHOR_NAME} />
-        <meta name="robots" content="index, follow" />
+      <NextSeo
+        title={post.title}
+        description={post.summary}
+        canonical={url}
+        openGraph={{
+          type: 'article',
+          url: url,
+          title: post.title,
+          description: post.summary,
+          images: [{ url: image, width: 800, height: 600, alt: post.title }],
+          locale: LOCALES[currentLocale]?.ogLocale as string,
+          siteName: t('common:common.siteName'),
+          article: {
+            publishedTime: post.date,
+            authors: [AUTHOR_NAME],
+            tags: post.topics?.map(topic => topic.name) ?? [],
+          },
+        }}
+        twitter={{
+          cardType: 'summary_large_image',
+          site: SITE_URL,
+          handle: TWITTER_USERNAME,
+        }}
+        additionalMetaTags={[
+          { name: 'keywords', content: keywords },
+          { name: 'author', content: AUTHOR_NAME },
+          { name: 'robots', content: 'index, follow' },
+        ]}
+      />
 
-        {/* Open Graph meta tags for social media sharing */}
-        <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={post.summary} />
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={url} />
-        <meta property="og:image" content={image} />
-        <meta property="og:image:width" content="800" />
-        <meta property="og:image:height" content="600" />
-        <meta property="og:locale" content={LOCALES[currentLocale]?.ogLocale} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
 
-        <meta property="article:published_time" content={post.date} />
-        <meta property="article:author" content={AUTHOR_NAME} />
-        {(post.topics ?? []).map(topic => (
-          <meta key={topic.name} property="article:tag" content={topic.name} />
-        ))}
-
-        {/* Twitter Card meta tags for sharing on Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={post.title} />
-        <meta name="twitter:description" content={post.summary} />
-        <meta name="twitter:image" content={image} />
-        <meta name="twitter:creator" content={TWITTER_USERNAME} />
-
-        {/* JSON-LD structured data for enhanced search result features */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
-      </Head>
       <PostDetail post={post} />
     </Layout>
   );
