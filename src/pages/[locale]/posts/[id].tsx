@@ -57,7 +57,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         <meta property="og:description" content={post.summary} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={localizedUrl} />
-        <meta property="og:site_name" content="test" />
+        <meta property="og:site_name" content={t('common:common.siteName')} />
         <meta property="og:image" content={image} />
         <meta property="og:image:width" content="800" />
         <meta property="og:image:height" content="600" />
