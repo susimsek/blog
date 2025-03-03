@@ -40,7 +40,7 @@ export default function PostDetail({ post }: Readonly<PostDetailProps>) {
           ))}
         </div>
       )}
-      {thumbnail && <Thumbnail src={`${assetPrefix}${thumbnail}`} alt={title} width={1024} height={576} />}
+      {thumbnail && <Thumbnail src={`${assetPrefix}${thumbnail}`} alt={title} width={800} height={600} />}
       <article className="fs-5 lh-lg">
         <MarkdownRenderer content={contentHtml ?? ''} />
       </article>

@@ -59,8 +59,8 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         <meta property="og:url" content={localizedUrl} />
         <meta property="og:site_name" content={t('common:common.siteName')} />
         <meta property="og:image" content={image} />
-        <meta property="og:image:width" content="1024" />
-        <meta property="og:image:height" content="576" />
+        <meta property="og:image:width" content="800" />
+        <meta property="og:image:height" content="600" />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:locale" content={LOCALES[currentLocale]?.ogLocale} />
 
