@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[571],{63571:(e,t,s)=>{s.r(t),s.d(t,{default:()=>a});var u=s(37876),c=s(14232),n=s(52074);function a(e){let{children:t}=e,s=(0,n.GV)(e=>e.theme.theme);return(0,c.useEffect)(()=>{document.body.className=s},[s]),(0,u.jsx)(u.Fragment,{children:t})}}}]);
