@@ -27,12 +27,14 @@ jest.mock('next-i18next', () => ({
 }));
 
 describe('MyApp', () => {
-  it('renders child components with all providers', () => {
+  it('renders child components with all providers', async () => {
     const DummyComponent = () => <div>Test Component</div>;
-    const { container, getByText } = render(<MyApp Component={DummyComponent} pageProps={{}} router={{} as any} />);
+    const { container, findByText } = render(<MyApp Component={DummyComponent} pageProps={{}} />);
 
     expect(container).toBeInTheDocument();
 
-    expect(getByText('Test Component')).toBeInTheDocument();
+    // await findByText wraps act() internally
+    const testComponent = await findByText('Test Component');
+    expect(testComponent).toBeInTheDocument();
   });
 });
