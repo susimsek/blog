@@ -6,10 +6,9 @@ import { Provider } from 'react-redux';
 import store from '@/config/store';
 import { appWithTranslation } from 'next-i18next';
 import dynamic from 'next/dynamic';
+import ThemeProvider from '@/components/theme/ThemeProvider';
 
 loadIcons();
-
-const ThemeProvider = dynamic(() => import('@/components/theme/ThemeProvider'), { ssr: false });
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   return (

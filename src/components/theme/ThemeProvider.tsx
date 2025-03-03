@@ -1,5 +1,3 @@
-'use client';
-
 import { ReactNode, useEffect } from 'react';
 import { useAppSelector } from '@/config/store';
 
