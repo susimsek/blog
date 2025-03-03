@@ -23,8 +23,8 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
               src={`${assetPrefix}${thumbnail}`}
               alt={title}
               className="img-fluid rounded"
-              width={800}
-              height={600}
+              width={1024}
+              height={576}
             />
           </div>
         )}
