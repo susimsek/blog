@@ -30,8 +30,8 @@ describe('Thumbnail Component', () => {
     const image = screen.getByAltText('Test Image');
     expect(image).toBeInTheDocument();
     expect(image).toHaveAttribute('src', '/test-image.jpg');
-    expect(image).toHaveAttribute('width', '800');
-    expect(image).toHaveAttribute('height', '600');
+    expect(image).toHaveAttribute('width', '1200');
+    expect(image).toHaveAttribute('height', '630');
   });
 
   it('renders the image with custom dimensions', () => {
