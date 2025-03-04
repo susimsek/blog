@@ -2,7 +2,7 @@
 title: 'Spring Boot Config Server'
 date: '2025-02-22'
 summary: 'Spring Boot Config Server kullanarak merkezi yapılandırma yönetimini nasıl gerçekleştireceğinizi öğrenin.'
-thumbnail: '/images/spring-boot-config-server-thumbnail.jpg'
+thumbnail: '/images/spring-boot-config-server-thumbnail.jpeg'
 readingTime: '4 dakika okuma'
 topics:
   - id: 'java'
