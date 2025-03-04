@@ -76,7 +76,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-docker" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-docker" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-docker-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-docker-thumbnail.jpeg</image:loc>
       <image:title>Spring Boot Docker Integration</image:title>
     </image:image>
   </url>

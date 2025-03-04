@@ -514,7 +514,7 @@
       <category><![CDATA[Containerization]]></category>
       <category><![CDATA[Jib]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-docker-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-docker-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot provides multiple ways to containerize applications efficiently using <strong>Docker</strong>, <strong>Buildpacks</strong>, and <strong>Jib</strong>. This guide explores different approaches to building and deploying Spring Boot applications with Docker.</p>
 <hr>
 <h2>🌟 Why Use Docker for Spring Boot?</h2>
