@@ -73,9 +73,6 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
 
         {/* Twitter Card meta tags for sharing on Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={post.title} />
-        <meta name="twitter:description" content={post.summary} />
-        <meta name="twitter:image" content={image} />
         <meta name="twitter:creator" content={TWITTER_USERNAME} />
         <meta name="twitter:site" content={TWITTER_USERNAME} />
 
