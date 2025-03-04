@@ -13,8 +13,8 @@ type ThumbnailProps = {
 export default function Thumbnail({
   src,
   alt,
-  width = 800,
-  height = 600,
+  width = 1200,
+  height = 630,
   className = '',
   priority = true,
 }: Readonly<ThumbnailProps>) {

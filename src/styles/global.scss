@@ -1207,6 +1207,18 @@ input.form-control {
   @include transition(background-color, color);
 }
 
+@media (max-width: 768px) {
+  .carousel-caption {
+    padding: 3px !important;
+    font-size: 12px !important;
+  }
+
+  .carousel-caption .badge {
+    font-size: 10px !important;
+    margin-bottom: 3px !important;
+  }
+}
+
 /* Indicators */
 .carousel-indicators {
   @include transition(background-color);
