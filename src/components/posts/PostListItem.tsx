@@ -16,21 +16,21 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
   return (
     <Row className="post-list-item">
       {/* Thumbnail */}
-      <Col xs={5} md={4} className="post-thumbnail-container">
+      <Col xs={5} md={5} className="post-thumbnail-container">
         {thumbnail && (
           <div className="post-thumbnail">
             <Image
               src={`${assetPrefix}${thumbnail}`}
               alt={title}
               className="img-fluid rounded"
-              width={800}
-              height={600}
+              width={1200}
+              height={630}
             />
           </div>
         )}
       </Col>
       {/* Content */}
-      <Col xs={7} md={8} className="d-flex flex-column justify-content-between">
+      <Col xs={7} md={7} className="d-flex flex-column justify-content-between">
         <div>
           <h6 className="post-title">{title}</h6>
           <p className="post-date text-muted mb-1">
