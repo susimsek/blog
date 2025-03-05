@@ -160,7 +160,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-openapi" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-openapi" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.jpeg</image:loc>
       <image:title>Spring Boot with OpenAPI</image:title>
     </image:image>
   </url>
@@ -172,7 +172,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-clean-coding" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-clean-coding" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.jpeg</image:loc>
       <image:title>Clean Coding Practices in Spring Boot</image:title>
     </image:image>
   </url>
@@ -184,7 +184,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-devtools" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-devtools" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.jpeg</image:loc>
       <image:title>Spring Boot DevTools</image:title>
     </image:image>
   </url>
@@ -196,7 +196,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-actuator" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-actuator" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.jpeg</image:loc>
       <image:title>Spring Boot Actuator</image:title>
     </image:image>
   </url>
@@ -208,7 +208,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-aop" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-aop" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-aop-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-aop-thumbnail.jpeg</image:loc>
       <image:title>Aspect-Oriented Programming (AOP) in Spring Boot</image:title>
     </image:image>
   </url>
@@ -220,7 +220,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-di" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-di" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-di-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-di-thumbnail.jpeg</image:loc>
       <image:title>Dependency Injection in Spring Boot</image:title>
     </image:image>
   </url>

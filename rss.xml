@@ -1487,7 +1487,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[OpenAPI]]></category>
       <category><![CDATA[Documentation]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>OpenAPI simplifies API documentation and testing by providing an interactive interface and machine-readable documentation. This guide will show you how to integrate OpenAPI into your Spring Boot application using SpringDoc.</p>
 <hr>
 <h2>🌟 Why Use OpenAPI?</h2>
@@ -1636,7 +1636,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Clean Coding]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Clean coding practices ensure that your Spring Boot applications are maintainable, readable, and scalable. This guide provides essential tips and code examples to help you write cleaner and more efficient code in both Java and Kotlin.</p>
 <hr>
 <h2>🌟 Why Focus on Clean Coding?</h2>
@@ -1847,7 +1847,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Dev Tools]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot DevTools is a must-have tool for developers looking to speed up their development process. This guide will walk you through the features and setup of DevTools, including live reload, caching, and debugging enhancements.</p>
 <hr>
 <h2>🌟 Why Use Spring Boot DevTools?</h2>
@@ -1931,7 +1931,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Actuator]]></category>
       <category><![CDATA[Monitoring]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot Actuator provides production-ready features to monitor and manage your applications. This guide explores Actuator's capabilities, how to enable it, and secure its endpoints.</p>
 <hr>
 <h2>🌟 Why Use Spring Boot Actuator?</h2>
@@ -2060,7 +2060,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[AOP]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-aop-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-aop-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Aspect-Oriented Programming (AOP) provides a way to modularize cross-cutting concerns, such as logging, transaction management, and security. This guide demonstrates how to implement AOP in Spring Boot with examples in Java and Kotlin.</p>
 <hr>
 <h2>🌟 Why Use AOP?</h2>
@@ -2241,7 +2241,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Dependency Injection]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-di-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-di-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Dependency Injection (DI) is a fundamental concept in Spring Boot that helps achieve loose coupling and increased testability. This guide demonstrates how to use DI in Spring Boot with practical examples in Java and Kotlin.</p>
 <hr>
 <h2>🌟 Why Use Dependency Injection?</h2>
