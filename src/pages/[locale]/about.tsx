@@ -8,6 +8,9 @@ import {
   AVATAR_LINK,
   CONTACT_LINKS,
   EXPERIENCE_START_YEAR,
+  LOCALES,
+  PROFILE_FIRST_NAME,
+  PROFILE_LAST_NAME,
   SITE_URL,
   TWITTER_USERNAME,
 } from '@/config/constants';
@@ -65,6 +68,9 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
         <meta property="og:image:width" content="400" />
         <meta property="og:image:height" content="400" />
         <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:locale" content={LOCALES[currentLocale]?.ogLocale} />
+        <meta property="profile:first_name" content={PROFILE_FIRST_NAME} />
+        <meta property="profile:last_name" content={PROFILE_LAST_NAME} />
 
         {/* Twitter Card meta tags for sharing on Twitter */}
         <meta name="twitter:card" content="summary_large_image" />

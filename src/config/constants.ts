@@ -60,3 +60,7 @@ export const LAUNCH_YEAR = 2024;
 
 // Twitter username
 export const TWITTER_USERNAME = '@suaybsimsek58';
+
+// 🆕 Open Graph Profile Constants
+export const PROFILE_FIRST_NAME = 'Şuayb';
+export const PROFILE_LAST_NAME = 'Şimşek';
