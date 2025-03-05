@@ -2,7 +2,7 @@
 title: 'Spring Boot - First Application'
 date: '2024-12-10'
 summary: 'A beginner-friendly guide to creating your first Spring Boot application from scratch. Learn the basics and start your journey with Spring Boot.'
-thumbnail: '/images/spring-boot-first-app-thumbnail.jpg'
+thumbnail: '/images/spring-boot-first-app-thumbnail.jpeg'
 readingTime: '2 min read'
 topics:
   - id: 'java'

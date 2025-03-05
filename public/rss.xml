@@ -2643,7 +2643,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[Validation]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/input-validation-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/input-validation-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Input validation is crucial for building secure and robust REST APIs. In this article, we will explore how to implement input validation in Spring Boot using Java, Kotlin, and Go (with Gin).</p>
 <hr>
 <h2>🌟 Why Validate Input?</h2>
@@ -2873,7 +2873,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[GraphQL]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring for GraphQL simplifies the development of GraphQL APIs by integrating with Spring Boot. This guide demonstrates how to create a GraphQL API using Java and Kotlin, with examples for schema definition, query handling, and dependency injection.</p>
 <hr>
 <h2>🌟 Why Use GraphQL?</h2>
@@ -3073,7 +3073,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[Beginner Guide]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/golang-gin-first-app-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/golang-gin-first-app-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Gin simplifies the process of building high-performance web applications with Golang. In this guide, we’ll walk through creating your first Gin application step by step.</p>
 <hr>
 <h2>🌟 Prerequisites</h2>
@@ -3147,7 +3147,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[REST API]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.jpg" type="image/jpeg"/>
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.jpeg" type="image/jpeg"/>
       <content:encoded><![CDATA[<p>Spring Boot is an excellent tool for quickly developing RESTful web services. In this article, we’ll walk through creating a REST API step by step using Spring Boot.</p>
 <hr>
 <h2>🌟 What is a REST API?</h2>
@@ -3321,7 +3321,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Beginner Guide]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot simplifies the process of building production-ready applications with the Spring Framework. In this guide, we’ll walk through creating your first Spring Boot application step by step.</p>
 <hr>
 <h2>🌟 Prerequisites</h2>
