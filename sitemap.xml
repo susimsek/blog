@@ -244,7 +244,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/rest-api-input-validation" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/rest-api-input-validation" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/input-validation-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/input-validation-thumbnail.jpeg</image:loc>
       <image:title>Input Validation in REST APIs</image:title>
     </image:image>
   </url>
@@ -256,7 +256,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-graphql" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-graphql" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.jpeg</image:loc>
       <image:title>Building APIs with Spring for GraphQL</image:title>
     </image:image>
   </url>
@@ -268,7 +268,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/golang-gin-first-application" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/golang-gin-first-application" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/golang-gin-first-app-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/golang-gin-first-app-thumbnail.jpeg</image:loc>
       <image:title>Gin - First Application</image:title>
     </image:image>
   </url>
@@ -280,7 +280,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/building-a-rest-api-with-spring-boot" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/building-a-rest-api-with-spring-boot" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.jpeg</image:loc>
       <image:title>Building a REST API with Spring Boot</image:title>
     </image:image>
   </url>
@@ -292,7 +292,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-first-application" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-first-application" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.jpeg</image:loc>
       <image:title>Spring Boot - First Application</image:title>
     </image:image>
   </url>
