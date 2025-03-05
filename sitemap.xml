@@ -64,7 +64,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-kubernetes" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-kubernetes" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.jpeg</image:loc>
       <image:title>Spring Boot Kubernetes Integration</image:title>
     </image:image>
   </url>
@@ -88,7 +88,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-async-tasks" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-async-tasks" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-async-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-async-thumbnail.jpeg</image:loc>
       <image:title>Spring Boot Async Tasks</image:title>
     </image:image>
   </url>
@@ -100,7 +100,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-scheduled-tasks" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-scheduled-tasks" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.jpeg</image:loc>
       <image:title>Spring Boot Scheduled Tasks</image:title>
     </image:image>
   </url>
@@ -112,7 +112,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-reactive-programming" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-reactive-programming" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.jpeg</image:loc>
       <image:title>Spring Boot Reactive Programming</image:title>
     </image:image>
   </url>
@@ -124,7 +124,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-graalvm" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-graalvm" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.jpeg</image:loc>
       <image:title>Spring Boot GraalVM Native Application</image:title>
     </image:image>
   </url>
@@ -136,7 +136,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-kafka" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-kafka" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.jpeg</image:loc>
       <image:title>Spring Boot Kafka Integration</image:title>
     </image:image>
   </url>
@@ -148,7 +148,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/spring-boot-redis-caching" />
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/spring-boot-redis-caching" />
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-redis-thumbnail.jpg</image:loc>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-redis-thumbnail.jpeg</image:loc>
       <image:title>Spring Boot Redis Caching</image:title>
     </image:image>
   </url>
