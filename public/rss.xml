@@ -2390,7 +2390,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[ORM]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/orm-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/orm-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Object-Relational Mapping (ORM) simplifies database operations in modern applications. This guide will show you how to set up ORM with PostgreSQL using Spring Boot and the Gin framework.</p>
 <hr>
 <h2>🌟 Why Use ORM?</h2>
