@@ -19,7 +19,7 @@ export const AUTHOR_NAME = 'Şuayb Şimşek';
 export const SITE_URL = 'https://suaybsimsek.com';
 
 // Constant for avatar link
-export const AVATAR_LINK = 'https://avatars.githubusercontent.com/u/46258776?v=4';
+export const AVATAR_LINK = `${assetPrefix}/images/profile.jpeg`;
 
 // Static contact links
 export const CONTACT_LINKS = {
