@@ -2,7 +2,7 @@
 title: 'Spring Boot DevTools'
 date: '2024-12-19'
 summary: 'Spring Boot DevTools ile hızlı geliştirme sürecinizi nasıl hızlandırabileceğinizi keşfedin. Canlı yeniden yükleme, önbellekleme ve hata ayıklama ipuçları içerir.'
-thumbnail: '/images/spring-boot-devtools-thumbnail.jpg'
+thumbnail: '/images/spring-boot-devtools-thumbnail.jpeg'
 readingTime: '2 dk okuma'
 topics:
   - id: 'java'

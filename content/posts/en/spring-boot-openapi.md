@@ -2,7 +2,7 @@
 title: 'Spring Boot with OpenAPI'
 date: '2024-12-20'
 summary: 'Learn how to integrate OpenAPI into your Spring Boot application for API documentation and testing using SpringDoc.'
-thumbnail: '/images/spring-boot-openapi-thumbnail.jpg'
+thumbnail: '/images/spring-boot-openapi-thumbnail.jpeg'
 readingTime: '3 min read'
 topics:
   - id: 'java'
