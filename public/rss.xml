@@ -374,7 +374,7 @@
       <category><![CDATA[Microservice]]></category>
       <category><![CDATA[Containerization]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot seamlessly integrates with <strong>Kubernetes</strong> to provide scalable, containerized applications. This guide explores how to deploy and manage Spring Boot applications in a Kubernetes cluster.</p>
 <hr>
 <h2>✨ Why Use Kubernetes for Spring Boot?</h2>
@@ -658,7 +658,7 @@
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Async Tasks]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-async-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-async-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot provides an easy way to run asynchronous tasks using the <code node="[object Object]">@Async</code> annotation. This is useful for executing tasks in the background, improving performance, and avoiding blocking the main thread.</p>
 <hr>
 <h2>🌟 Why Use @Async in Spring Boot?</h2>
@@ -800,7 +800,7 @@
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Scheduled Tasks]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot allows developers to easily schedule and execute background tasks using the <code node="[object Object]">@Scheduled</code> annotation. This is useful for running periodic jobs, automation tasks, and batch processing without manual intervention.</p>
 <hr>
 <h2>🌟 Why Use @Scheduled in Spring Boot?</h2>
@@ -914,7 +914,7 @@ Scheduled task executed at: 12:00:11</code></div><button type="button" class="co
       <category><![CDATA[Reactive Programming]]></category>
       <category><![CDATA[Spring WebFlux]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot with Reactive Programming enables developers to build non-blocking, event-driven applications that scale efficiently. By leveraging <strong>Spring WebFlux</strong> and <strong>Project Reactor</strong>, developers can handle large amounts of concurrent requests with minimal resource consumption, making it ideal for microservices and real-time applications.</p>
 <hr>
 <h2>🌟 Why Use Reactive Programming?</h2>
@@ -1023,7 +1023,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[GraalVM]]></category>
       <category><![CDATA[Native Image]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Spring Boot with GraalVM Native enables developers to create applications that offer lightning-fast startup times, reduced memory consumption, and enhanced security. With native image support, your Spring Boot applications can efficiently run in resource-constrained environments, making them ideal for modern cloud-native architectures.</p>
 <hr>
 <h2>🌟 Why Build a Native Application with GraalVM?</h2>
@@ -1138,7 +1138,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Kafka]]></category>
       <category><![CDATA[Messaging]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Apache Kafka is a distributed event streaming platform that facilitates real-time data processing. This guide demonstrates how to send and consume JSON messages in a Spring Boot application using Kafka.</p>
 <hr>
 <h2>🌟 Why Use Kafka?</h2>
@@ -1317,7 +1317,7 @@ Flux</code></div><button type="button" class="copy-button btn btn-primary btn-sm
       <category><![CDATA[Redis]]></category>
       <category><![CDATA[Caching]]></category>
       <category><![CDATA[Programming]]></category>
-      <enclosure url="https://suaybsimsek.com/images/spring-boot-redis-thumbnail.jpg" type="image/jpeg" />
+      <enclosure url="https://suaybsimsek.com/images/spring-boot-redis-thumbnail.jpeg" type="image/jpeg" />
       <content:encoded><![CDATA[<p>Redis is a powerful in-memory data store often used for caching, messaging, and real-time data management. This guide explains how to integrate Redis into a Spring Boot application using both Java and Kotlin.</p>
 <hr>
 <h2>🌟 Why Use Redis?</h2>

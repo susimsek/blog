@@ -2,7 +2,7 @@
 title: 'Spring Boot ile Kafka Entegrasyonu'
 date: '2024-12-25'
 summary: 'Spring Boot uygulamanızın Kafka topicleri aracılığıyla JSON mesajları göndermesini ve tüketmesini nasıl entegre edeceğinizi öğrenin.'
-thumbnail: '/images/spring-boot-kafka-thumbnail.jpg'
+thumbnail: '/images/spring-boot-kafka-thumbnail.jpeg'
 readingTime: '3 dk okuma'
 topics:
   - id: 'java'
