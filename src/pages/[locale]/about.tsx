@@ -34,7 +34,6 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
 
   const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
 
-  const url = `${SITE_URL}/about`;
   const localizedUrl = `${SITE_URL}/${currentLocale}/about`;
 
   const jsonLdData = {
@@ -53,7 +52,7 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
       <Head>
         <title>{t('about.meta.title')}</title>
         <meta name="description" content={t('about.meta.description')} />
-        <link rel="canonical" href={url} />
+        <link rel="canonical" href={localizedUrl} />
         <meta name="keywords" content={t('about.meta.keywords')} />
         <meta name="author" content={AUTHOR_NAME} />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
