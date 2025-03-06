@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Post: Spring Boot Eureka Server (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-eureka-server</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-eureka-server"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-eureka-server"/>
+  </url>
+  <!-- Post: Spring Boot Eureka Server (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-eureka-server</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-eureka-server"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-eureka-server"/>
+  </url>
+
+  <!-- Post: Spring Boot Config Server (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-config-server</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-config-server"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-config-server"/>
+  </url>
+  <!-- Post: Spring Boot Config Server (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-config-server</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-config-server"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-config-server"/>
+  </url>
+
+  <!-- Post: Spring Boot Docker (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-docker</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-docker"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-docker"/>
+  </url>
+  <!-- Post: Spring Boot Docker (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-docker</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-docker"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-docker"/>
+  </url>
+
+  <!-- Post: Spring Boot Kubernetes (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-kubernetes</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-kubernetes"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-kubernetes"/>
+  </url>
+  <!-- Post: Spring Boot Kubernetes (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-kubernetes</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-kubernetes"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-kubernetes"/>
+  </url>
+
+  <!-- Post: Spring Boot Async Tasks (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-async-tasks</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-async-tasks"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-async-tasks"/>
+  </url>
+  <!-- Post: Spring Boot Async Tasks (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-async-tasks</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-async-tasks"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-async-tasks"/>
+  </url>
+
+  <!-- Post: Spring Boot Scheduled Tasks (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-scheduled-tasks</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-scheduled-tasks"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-scheduled-tasks"/>
+  </url>
+  <!-- Post: Spring Boot Scheduled Tasks (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-scheduled-tasks</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-scheduled-tasks"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-scheduled-tasks"/>
+  </url>
+
+  <!-- Post: Spring Boot Reactive Programming (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-reactive-programming</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-reactive-programming"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-reactive-programming"/>
+  </url>
+  <!-- Post: Spring Boot Reactive Programming (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-reactive-programming</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-reactive-programming"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-reactive-programming"/>
+  </url>
+
+  <!-- Post: Spring Boot GraalVM (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-graalvm</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-graalvm"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-graalvm"/>
+  </url>
+  <!-- Post: Spring Boot GraalVM (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-graalvm</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-graalvm"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-graalvm"/>
+  </url>
+
+  <!-- Post: Spring Boot Kafka (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-kafka</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-kafka"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-kafka"/>
+  </url>
+  <!-- Post: Spring Boot Kafka (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-kafka</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-kafka"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-kafka"/>
+  </url>
+
+  <!-- Post: Spring Boot Redis Caching (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-redis-caching</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-redis-caching"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-redis-caching"/>
+  </url>
+  <!-- Post: Spring Boot Redis Caching (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-redis-caching</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-redis-caching"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-redis-caching"/>
+  </url>
+
+  <!-- Post: Spring Boot OpenAPI (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-openapi</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-openapi"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-openapi"/>
+  </url>
+  <!-- Post: Spring Boot OpenAPI (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-openapi</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-openapi"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-openapi"/>
+  </url>
+
+  <!-- Post: Spring Boot Clean Coding (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-clean-coding</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-clean-coding"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-clean-coding"/>
+  </url>
+  <!-- Post: Spring Boot Clean Coding (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-clean-coding</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-clean-coding"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-clean-coding"/>
+  </url>
+
+  <!-- Post: Spring Boot DevTools (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-devtools</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-devtools"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-devtools"/>
+  </url>
+  <!-- Post: Spring Boot DevTools (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-devtools</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-devtools"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-devtools"/>
+  </url>
+
+  <!-- Post: Spring Boot Actuator (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-actuator</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-actuator"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-actuator"/>
+  </url>
+  <!-- Post: Spring Boot Actuator (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-actuator</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-actuator"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-actuator"/>
+  </url>
+
+  <!-- Post: Spring Boot AOP (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-aop</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-aop"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-aop"/>
+  </url>
+  <!-- Post: Spring Boot AOP (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-aop</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-aop"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-aop"/>
+  </url>
+
+  <!-- Post: Spring Boot DI (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-di</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-di"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-di"/>
+  </url>
+  <!-- Post: Spring Boot DI (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-di</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-di"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-di"/>
+  </url>
+
+  <!-- Post: Object Relational Mapping (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/object-relational-mapping</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/object-relational-mapping"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/object-relational-mapping"/>
+  </url>
+  <!-- Post: Object Relational Mapping (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/object-relational-mapping</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/object-relational-mapping"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/object-relational-mapping"/>
+  </url>
+
+  <!-- Post: Rest API Input Validation (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/rest-api-input-validation</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/rest-api-input-validation"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/rest-api-input-validation"/>
+  </url>
+  <!-- Post: Rest API Input Validation (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/rest-api-input-validation</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/rest-api-input-validation"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/rest-api-input-validation"/>
+  </url>
+
+  <!-- Post: Spring Boot GraphQL (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-graphql</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-graphql"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-graphql"/>
+  </url>
+  <!-- Post: Spring Boot GraphQL (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-graphql</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-graphql"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-graphql"/>
+  </url>
+
+  <!-- Post: Golang Gin First Application (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/golang-gin-first-application</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/golang-gin-first-application"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/golang-gin-first-application"/>
+  </url>
+  <!-- Post: Golang Gin First Application (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/golang-gin-first-application</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/golang-gin-first-application"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/golang-gin-first-application"/>
+  </url>
+
+  <!-- Post: Building a REST API with Spring Boot (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/building-a-rest-api-with-spring-boot</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/building-a-rest-api-with-spring-boot"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/building-a-rest-api-with-spring-boot"/>
+  </url>
+  <!-- Post: Building a REST API with Spring Boot (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/building-a-rest-api-with-spring-boot</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/building-a-rest-api-with-spring-boot"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/building-a-rest-api-with-spring-boot"/>
+  </url>
+
+  <!-- Post: Spring Boot First Application (English) -->
+  <url>
+    <loc>https://suaybsimsek.com/en/posts/spring-boot-first-application</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-first-application"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-first-application"/>
+  </url>
+  <!-- Post: Spring Boot First Application (Turkish) -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-first-application</loc>
+    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-first-application"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-first-application"/>
+  </url>
+</urlset>
