@@ -27,7 +27,7 @@ export default function Home({ posts, topics }: Readonly<HomeProps>) {
   const jsonLdData = {
     '@context': 'https://schema.org',
     '@type': 'Blog',
-    headline: t('home.header.title'),
+    headline: t('home.meta.title'),
     description: t('home.meta.description'),
     url: localizedUrl,
     author: {
