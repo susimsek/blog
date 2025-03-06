@@ -18,6 +18,9 @@ export const AUTHOR_NAME = 'Şuayb Şimşek';
 
 export const SITE_URL = 'https://suaybsimsek.com';
 
+// 🆕 Site Logo (for Open Graph, Structured Data, etc.)
+export const SITE_LOGO = `${assetPrefix}/images/logo.jpeg`;
+
 // Constant for avatar link
 export const AVATAR_LINK = `${assetPrefix}/images/profile.jpeg`;
 
