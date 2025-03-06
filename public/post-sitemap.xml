@@ -118,7 +118,7 @@
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-async-thumbnail.jpeg</image:loc>
-      <<image:title>Spring Boot Asenkron Görevler</image:title>
+      <image:title>Spring Boot Asenkron Görevler</image:title>
     </image:image>
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-async-tasks"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-async-tasks"/>
