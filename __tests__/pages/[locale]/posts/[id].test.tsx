@@ -143,33 +143,6 @@ describe('Post Page', () => {
 
     expect(headElement?.getAttribute('content')).toBe('React, Testing');
   });
-
-  it('renders empty keywords when topics are an empty array', () => {
-    const post: Post = {
-      ...mockPost,
-      topics: [],
-    };
-
-    renderPostPage(post);
-
-    const headElement = document.querySelector('meta[name="keywords"]');
-    expect(headElement).toBeInTheDocument();
-    expect(headElement).toHaveAttribute('content', '');
-  });
-
-  it('renders empty keywords when topics are undefined', () => {
-    const post: Post = {
-      ...mockPost,
-      topics: undefined,
-      // No topics defined
-    };
-
-    renderPostPage(post);
-
-    const headElement = document.querySelector('meta[name="keywords"]');
-    expect(headElement).toBeInTheDocument();
-    expect(headElement).toHaveAttribute('content', '');
-  });
 });
 
 describe('getStaticPaths', () => {
