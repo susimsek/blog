@@ -7,6 +7,8 @@ import Layout from '@/components/common/Layout';
 import PostList from '@/components/posts/PostList';
 import { PostSummary, Topic } from '@/types/posts';
 import PostCarousel from '@/components/posts/PostCarousel';
+import { useRouter } from 'next/router';
+import i18nextConfig from '../../../next-i18next.config';
 
 type HomeProps = {
   posts: PostSummary[];
@@ -15,6 +17,12 @@ type HomeProps = {
 
 export default function Home({ posts, topics }: Readonly<HomeProps>) {
   const { t } = useTranslation('home');
+
+  const router = useRouter();
+
+  const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
+
+  const localizedUrl = `${SITE_URL}/${currentLocale}`;
 
   const jsonLdData = {
     '@context': 'https://schema.org',
@@ -25,7 +33,7 @@ export default function Home({ posts, topics }: Readonly<HomeProps>) {
       '@type': 'Person',
       name: AUTHOR_NAME,
     },
-    url: SITE_URL,
+    url: localizedUrl,
   };
 
   return (
@@ -33,9 +41,10 @@ export default function Home({ posts, topics }: Readonly<HomeProps>) {
       <Head>
         <title>{t('home.title')}</title>
         <meta name="description" content={t('home.meta.description')} />
+        <link rel="canonical" href={localizedUrl} />
         <meta name="keywords" content={t('home.meta.keywords')} />
         <meta name="author" content={AUTHOR_NAME} />
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
       </Head>
       <header className="text-center py-4">

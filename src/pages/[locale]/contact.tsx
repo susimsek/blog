@@ -59,8 +59,8 @@ export default function Contact({ posts, topics }: Readonly<ContactProps>) {
         <meta property="og:url" content={localizedUrl} />
         <meta property="og:site_name" content={t('common:common.siteName')} />
         <meta property="og:image" content={AVATAR_LINK} />
-        <meta property="og:image:width" content="400" />
-        <meta property="og:image:height" content="400" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:locale" content={LOCALES[currentLocale]?.ogLocale} />
 
