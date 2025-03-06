@@ -11,8 +11,9 @@ class MyDocument extends Document {
       <Html lang={currentLocale}>
         <Head>
           <link rel="apple-touch-icon" sizes="180x180" href={`${assetPrefix}/apple-touch-icon.png`} />
-          <link rel="icon" type="image/png" sizes="32x32" href={`${assetPrefix}/favicon-32x32.png`} />
           <link rel="icon" type="image/png" sizes="16x16" href={`${assetPrefix}/favicon-16x16.png`} />
+          <link rel="icon" type="image/png" sizes="32x32" href={`${assetPrefix}/favicon-32x32.png`} />
+          <link rel="icon" type="image/png" sizes="192x192" href={`${assetPrefix}/favicon-192x192.png`} />
           <link rel="shortcut icon" href={`${assetPrefix}/favicon.ico`} />
         </Head>
         <body>
