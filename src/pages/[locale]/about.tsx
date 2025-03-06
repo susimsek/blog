@@ -19,8 +19,7 @@ import Layout from '@/components/common/Layout';
 import ContactInfo from '@/components/common/ContactInfo';
 import { makePostProps } from '@/lib/posts';
 import { PostSummary, Topic } from '@/types/posts';
-import { useRouter } from 'next/router';
-import i18nextConfig from '../../../next-i18next.config';
+import SEO from '@/components/common/SEO';
 
 type AboutProps = {
   posts: PostSummary[];
@@ -30,54 +29,31 @@ type AboutProps = {
 export default function About({ posts, topics }: Readonly<AboutProps>) {
   const { t } = useTranslation(['about']);
 
-  const router = useRouter();
-
-  const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
-
-  const localizedUrl = `${SITE_URL}/${currentLocale}/about`;
-
   const jsonLdData = {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: AUTHOR_NAME,
-    url: localizedUrl,
     image: AVATAR_LINK,
     jobTitle: t('about.jobTitle'),
     email: CONTACT_LINKS.email,
     sameAs: [CONTACT_LINKS.linkedin, CONTACT_LINKS.medium, CONTACT_LINKS.github],
   };
 
+  const profileData = { first_name: 'Şuayb', last_name: 'Şimşek' };
+
   return (
     <Layout posts={posts} topics={topics} searchEnabled={true} sidebarEnabled={true}>
-      <Head>
-        <title>{t('about.meta.title')}</title>
-        <meta name="description" content={t('about.meta.description')} />
-        <link rel="canonical" href={localizedUrl} />
-        <meta name="keywords" content={t('about.meta.keywords')} />
-        <meta name="author" content={AUTHOR_NAME} />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
-
-        {/* Open Graph meta tags */}
-        <meta property="og:title" content={t('about.meta.title')} />
-        <meta property="og:description" content={t('about.meta.description')} />
-        <meta property="og:type" content="profile" />
-        <meta property="og:url" content={localizedUrl} />
-        <meta property="og:site_name" content={t('common:common.siteName')} />
-        <meta property="og:image" content={AVATAR_LINK} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:type" content="image/jpeg" />
-        <meta property="og:locale" content={LOCALES[currentLocale]?.ogLocale} />
-        <meta property="profile:first_name" content={PROFILE_FIRST_NAME} />
-        <meta property="profile:last_name" content={PROFILE_LAST_NAME} />
-
-        {/* Twitter Card meta tags for sharing on Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:creator" content={TWITTER_USERNAME} />
-        <meta name="twitter:site" content={TWITTER_USERNAME} />
-
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
-      </Head>
+      <SEO
+        title={t('about.title')}
+        ogTitle={t('about.meta.title')}
+        description={t('about.meta.description')}
+        keywords={t('about.meta.keywords')}
+        image={AVATAR_LINK}
+        type="profile"
+        path="/about"
+        profile={profileData}
+        jsonLd={jsonLdData}
+      />
       <Container className="py-5" style={{ maxWidth: '800px' }}>
         <h1 className="fw-bold mb-4">{t('about.header')}</h1>
         <Card>
