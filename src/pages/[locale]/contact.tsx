@@ -53,8 +53,8 @@ export default function Contact({ posts, topics }: Readonly<ContactProps>) {
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
 
         {/* Open Graph meta tags */}
-        <meta property="og:title" content={t('about.meta.title')} />
-        <meta property="og:description" content={t('about.meta.description')} />
+        <meta property="og:title" content={t('contact.meta.title')} />
+        <meta property="og:description" content={t('contact.meta.description')} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={localizedUrl} />
         <meta property="og:site_name" content={t('common:common.siteName')} />
