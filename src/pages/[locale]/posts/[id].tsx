@@ -1,14 +1,10 @@
 // pages/posts/[id].tsx
 import { getAllPostIds, makePostDetailProps } from '@/lib/posts';
 import React from 'react';
-import Head from 'next/head';
 import PostDetail from '@/components/posts/PostDetail';
 import type { Post, PostSummary } from '@/types/posts'; // type-only import
 import Layout from '@/components/common/Layout';
-import { AUTHOR_NAME, LOCALES, SITE_URL, TWITTER_USERNAME } from '@/config/constants';
-import { useRouter } from 'next/router';
-import i18nextConfig from '../../../../next-i18next.config';
-import { useTranslation } from 'next-i18next';
+import { AUTHOR_NAME, SITE_URL } from '@/config/constants';
 import SEO from '@/components/common/SEO';
 
 type PostProps = {
