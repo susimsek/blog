@@ -1,19 +1,8 @@
 import React from 'react';
 import { Container, Card } from 'react-bootstrap';
-import Head from 'next/head';
 import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
-import {
-  AUTHOR_NAME,
-  AVATAR_LINK,
-  CONTACT_LINKS,
-  EXPERIENCE_START_YEAR,
-  LOCALES,
-  PROFILE_FIRST_NAME,
-  PROFILE_LAST_NAME,
-  SITE_URL,
-  TWITTER_USERNAME,
-} from '@/config/constants';
+import { AUTHOR_NAME, AVATAR_LINK, CONTACT_LINKS, EXPERIENCE_START_YEAR } from '@/config/constants';
 import { getStaticPaths } from '@/lib/getStatic';
 import Layout from '@/components/common/Layout';
 import ContactInfo from '@/components/common/ContactInfo';
