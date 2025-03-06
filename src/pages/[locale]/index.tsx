@@ -29,11 +29,16 @@ export default function Home({ posts, topics }: Readonly<HomeProps>) {
     '@type': 'Blog',
     headline: t('home.header.title'),
     description: t('home.meta.description'),
+    url: localizedUrl,
     author: {
       '@type': 'Person',
       name: AUTHOR_NAME,
     },
-    url: localizedUrl,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${SITE_URL}/${currentLocale}/search?q={search_term_string}`,
+      'query-input': 'required name=search_term_string',
+    },
   };
 
   return (
