@@ -16,7 +16,6 @@ type HomeProps = {
 };
 
 export default function Home({ posts, topics }: Readonly<HomeProps>) {
-  console.log('Posts:', posts);
   const { t } = useTranslation('home');
 
   const router = useRouter();
