@@ -1,5 +1,4 @@
 import React from 'react';
-import Head from 'next/head';
 import { getAllTopicIds, makeTopicProps } from '@/lib/posts';
 import PostList from '@/components/posts/PostList';
 import type { PostSummary, Topic } from '@/types/posts';
