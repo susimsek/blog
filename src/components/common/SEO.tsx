@@ -57,11 +57,15 @@ const SEO: React.FC<SEOProps> = ({
   const imageUrl = `${SITE_URL}${image}`;
   const { t } = useTranslation('common');
 
+  const siteName = t('common:common.siteName');
+
   const updatedJsonLd = jsonLd ? { ...jsonLd, url: canonicalUrl } : null;
 
   return (
     <Head>
-      <title>{title}</title>
+      <title>
+        {title} | {siteName}
+      </title>
       <meta name="description" content={description} />
       <link rel="canonical" href={canonicalUrl} />
       {keywords && <meta name="keywords" content={keywords} />}

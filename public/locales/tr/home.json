@@ -1,9 +1,9 @@
 {
   "home": {
-    "title": "Bloguma Hoş Geldiniz",
+    "title": "Java, Kotlin, Kubernetes, Blockchain, Spring Boot, Golang, React, Microservis",
     "meta": {
       "title": "Bloguma Hoş Geldiniz",
-      "description": "Blogumda en son makaleleri, eğitimleri ve analizleri keşfedin. Programlama, teknoloji ve daha fazlasını kapsayan çeşitli konuları inceleyin.",
+      "description": "Blogumda en son makaleleri, eğitimleri ve analizleri keşfedin. Programlama, teknoloji, Java, Kotlin, Kubernetes, Blockchain, Spring Boot, Golang, React, microservice gibi çeşitli konuları keşfedin.",
       "keywords": "blog, makaleler, eğitimler, programlama, teknoloji"
     },
     "header": {
