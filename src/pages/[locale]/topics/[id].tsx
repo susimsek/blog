@@ -3,7 +3,7 @@ import { getAllTopicIds, makeTopicProps } from '@/lib/posts';
 import PostList from '@/components/posts/PostList';
 import type { PostSummary, Topic } from '@/types/posts';
 import Layout from '@/components/common/Layout';
-import { AUTHOR_NAME, SITE_LOGO, SITE_URL } from '@/config/constants';
+import { AUTHOR_NAME, SITE_LOGO } from '@/config/constants';
 import { useTranslation } from 'next-i18next';
 import SEO from '@/components/common/SEO';
 
