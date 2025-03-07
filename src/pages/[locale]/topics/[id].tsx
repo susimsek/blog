@@ -32,12 +32,14 @@ export default function TopicPage({ topic, posts, topics, allPosts }: Readonly<T
     },
   };
 
+  const topicTitle = t('topic.title', { topic: topic.name });
+
   return (
     <Layout posts={allPosts} topics={topics} sidebarEnabled={true} searchEnabled={true}>
       <SEO
         type="website"
-        title={t('topic.title', { topic: topic.name })}
-        ogTitle={t('home.meta.title')}
+        title={topicTitle}
+        ogTitle={topicTitle}
         description={t('topic.meta.description', { topic: topic.name })}
         keywords={t('topic.meta.keywords', { topic: topic.name })}
         path={`/topics/${topic.id}`}
