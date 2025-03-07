@@ -24,17 +24,20 @@ export default function Home({ posts, topics }: Readonly<HomeProps>) {
 
   const jsonLdData = {
     '@context': 'https://schema.org',
-    '@type': 'Blog',
-    headline: t('home.meta.title'),
+    '@type': 'WebSite',
+    name: t('home.meta.title'),
     description: t('home.meta.description'),
-    author: {
-      '@type': 'Person',
-      name: AUTHOR_NAME,
-    },
     potentialAction: {
       '@type': 'SearchAction',
-      target: `${SITE_URL}/${currentLocale}/search?q={search_term_string}`,
-      'query-input': 'required name=search_term_string',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${SITE_URL}/${currentLocale}/search?q={search_term_string}`,
+      },
+      'query-input': {
+        '@type': 'PropertyValueSpecification',
+        valueRequired: true,
+        valueName: 'search_term_string',
+      },
     },
   };
 
