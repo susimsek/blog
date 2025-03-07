@@ -1,4 +1,3 @@
-// components/common/SEO.tsx
 import React from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -44,17 +43,27 @@ const SEO: React.FC<SEOProps> = ({
 }) => {
   const router = useRouter();
   const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
-  const localizedUrl = `${SITE_URL}/${currentLocale}${path}`;
+
+  const { page, size } = router.query;
+
+  const queryParams = new URLSearchParams();
+  if (page) queryParams.append('page', String(page));
+  if (size) queryParams.append('size', String(size));
+
+  const canonicalUrl = queryParams.toString()
+    ? `${SITE_URL}/${currentLocale}${path}?${queryParams}`
+    : `${SITE_URL}/${currentLocale}${path}`;
+
   const imageUrl = `${SITE_URL}${image}`;
   const { t } = useTranslation('common');
 
-  const updatedJsonLd = jsonLd ? { ...jsonLd, url: localizedUrl } : null;
+  const updatedJsonLd = jsonLd ? { ...jsonLd, url: canonicalUrl } : null;
 
   return (
     <Head>
       <title>{title}</title>
       <meta name="description" content={description} />
-      <link rel="canonical" href={localizedUrl} />
+      <link rel="canonical" href={canonicalUrl} />
       {keywords && <meta name="keywords" content={keywords} />}
       <meta name="author" content={AUTHOR_NAME} />
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
@@ -63,7 +72,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta property="og:title" content={ogTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:type" content={type} />
-      <meta property="og:url" content={localizedUrl} />
+      <meta property="og:url" content={canonicalUrl} />
       <meta property="og:site_name" content={t('common:common.siteName')} />
       <meta property="og:image" content={imageUrl} />
       <meta property="og:locale" content={LOCALES[currentLocale]?.ogLocale} />
