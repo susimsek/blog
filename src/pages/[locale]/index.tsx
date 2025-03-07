@@ -1,7 +1,7 @@
 import { makePostProps } from '@/lib/posts';
 import { useTranslation } from 'next-i18next';
 import { getStaticPaths } from '@/lib/getStatic';
-import { AUTHOR_NAME, SITE_LOGO, SITE_URL } from '@/config/constants';
+import { SITE_LOGO, SITE_URL } from '@/config/constants';
 import Layout from '@/components/common/Layout';
 import PostList from '@/components/posts/PostList';
 import { PostSummary, Topic } from '@/types/posts';
