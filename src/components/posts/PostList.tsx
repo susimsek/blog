@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
+import { useRouter } from 'next/router';
 import { PostSummary, Topic } from '@/types/posts';
 import { Alert, Container } from 'react-bootstrap';
 import PaginationBar from '@/components/pagination/PaginationBar';
@@ -23,15 +24,19 @@ export default function PostList({
   searchEnabled = true,
 }: Readonly<PostListProps>) {
   const { t } = useTranslation(['post', 'common']);
-  const [postsPerPage, setPostsPerPage] = useState(5);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
-  const [dateRange, setDateRange] = useState<{ startDate?: string; endDate?: string }>({});
+  const router = useRouter();
 
-  const debouncedSearchQuery = useDebounce(searchQuery, 500); // 500ms debounce
+  const currentPage = Number(router.query.page) || 1;
+  const postsPerPage = Number(router.query.size) || 5;
 
+  const [searchQuery, setSearchQuery] = React.useState((router.query.q as string) || '');
+  const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('desc');
+  const [selectedTopics, setSelectedTopics] = React.useState<string[]>([]);
+  const [dateRange, setDateRange] = React.useState<{ startDate?: string; endDate?: string }>({});
+
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  // Filtreleme işlemleri
   const filteredPosts = useMemo(
     () =>
       posts.filter(
@@ -50,25 +55,35 @@ export default function PostList({
     [sortedPosts, currentPage, postsPerPage],
   );
 
-  const handleSortChange = useCallback((newSortOrder: 'asc' | 'desc') => {
-    setSortOrder(newSortOrder);
-    setCurrentPage(1);
-  }, []);
+  // Sayfa değiştirme işlemi
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      router.push(
+        {
+          pathname: router.pathname,
+          query: { ...router.query, page: newPage, size: postsPerPage },
+        },
+        undefined,
+        { shallow: true },
+      );
+    },
+    [router, postsPerPage],
+  );
 
-  const handleTopicsChange = useCallback((newTopics: string[]) => {
-    setSelectedTopics(newTopics);
-    setCurrentPage(1);
-  }, []);
-
-  const handleSizeChange = useCallback((size: number) => {
-    setPostsPerPage(size);
-    setCurrentPage(1);
-  }, []);
-
-  const handleDateRangeChange = useCallback((dates: { startDate?: string; endDate?: string }) => {
-    setDateRange(dates);
-    setCurrentPage(1);
-  }, []);
+  // Sayfa boyutunu değiştirme işlemi
+  const handleSizeChange = useCallback(
+    (size: number) => {
+      router.push(
+        {
+          pathname: router.pathname,
+          query: { ...router.query, page: 1, size },
+        },
+        undefined,
+        { shallow: true },
+      );
+    },
+    [router],
+  );
 
   return (
     <Container className="mt-5" style={{ maxWidth: '800px' }}>
@@ -76,10 +91,10 @@ export default function PostList({
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         sortOrder={sortOrder}
-        onSortChange={handleSortChange}
+        onSortChange={setSortOrder}
         selectedTopics={selectedTopics}
-        onTopicsChange={handleTopicsChange}
-        onDateRangeChange={handleDateRangeChange}
+        onTopicsChange={setSelectedTopics}
+        onDateRangeChange={setDateRange}
         topics={topics}
         searchEnabled={searchEnabled}
       />
@@ -96,7 +111,7 @@ export default function PostList({
           currentPage={currentPage}
           totalPages={Math.ceil(sortedPosts.length / postsPerPage)}
           size={postsPerPage}
-          onPageChange={setCurrentPage}
+          onPageChange={handlePageChange}
           onSizeChange={handleSizeChange}
           totalResults={sortedPosts.length}
         />

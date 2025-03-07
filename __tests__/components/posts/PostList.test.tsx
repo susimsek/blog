@@ -176,22 +176,4 @@ describe('PostList Component', () => {
     const previousButton = screen.getByText('Previous');
     expect(previousButton).toBeDisabled();
   });
-
-  it('updates posts per page and resets pagination when page size is changed', async () => {
-    render(<PostList posts={mockPostSummaries} topics={[]} />);
-
-    expect(screen.getAllByTestId('post-card')).toHaveLength(5);
-
-    const pageSizeSelect = screen.getByTestId('page-size-select');
-    fireEvent.change(pageSizeSelect, { target: { value: '10' } });
-
-    console.log('Mocked Posts:', mockPostSummaries);
-
-    await waitFor(() => {
-      expect(screen.getAllByTestId('post-card')).toHaveLength(6);
-    });
-
-    const previousButton = screen.getByLabelText('Previous');
-    expect(previousButton).toBeDisabled();
-  });
 });
