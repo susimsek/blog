@@ -17,21 +17,19 @@ type TopicPageProps = {
 export default function TopicPage({ topic, posts, topics, allPosts }: Readonly<TopicPageProps>) {
   const { t } = useTranslation(['topic']);
 
-  const url = `${SITE_URL}/topics/${topic.id}`;
+  const topicTitle = t('topic.title', { topic: topic.name });
+  const description = t('topic.meta.description', { topic: topic.name });
 
   const jsonLdData = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: t('topic.title', { topic: topic.name }),
-    description: t('topic.meta.description', { topic: topic.name }),
-    url: url,
+    name: topicTitle,
+    description,
     author: {
       '@type': 'Person',
       name: AUTHOR_NAME,
     },
   };
-
-  const topicTitle = t('topic.title', { topic: topic.name });
 
   return (
     <Layout posts={allPosts} topics={topics} sidebarEnabled={true} searchEnabled={true}>
@@ -39,7 +37,7 @@ export default function TopicPage({ topic, posts, topics, allPosts }: Readonly<T
         type="website"
         title={topicTitle}
         ogTitle={topicTitle}
-        description={t('topic.meta.description', { topic: topic.name })}
+        description={description}
         keywords={t('topic.meta.keywords', { topic: topic.name })}
         path={`/topics/${topic.id}`}
         image={SITE_LOGO}
