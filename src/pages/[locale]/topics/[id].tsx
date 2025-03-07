@@ -4,8 +4,9 @@ import { getAllTopicIds, makeTopicProps } from '@/lib/posts';
 import PostList from '@/components/posts/PostList';
 import type { PostSummary, Topic } from '@/types/posts';
 import Layout from '@/components/common/Layout';
-import { AUTHOR_NAME, SITE_URL } from '@/config/constants';
+import { AUTHOR_NAME, SITE_LOGO, SITE_URL } from '@/config/constants';
 import { useTranslation } from 'next-i18next';
+import SEO from '@/components/common/SEO';
 
 type TopicPageProps = {
   topic: Topic;
@@ -33,14 +34,16 @@ export default function TopicPage({ topic, posts, topics, allPosts }: Readonly<T
 
   return (
     <Layout posts={allPosts} topics={topics} sidebarEnabled={true} searchEnabled={true}>
-      <Head>
-        <title>{t('topic.title', { topic: topic.name })}</title>
-        <meta name="description" content={t('topic.meta.description', { topic: topic.name })} />
-        <meta name="keywords" content={t('topic.meta.keywords', { topic: topic.name })} />
-        <meta name="author" content={AUTHOR_NAME} />
-        <meta name="robots" content="index, follow" />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
-      </Head>
+      <SEO
+        type="website"
+        title={t('topic.title', { topic: topic.name })}
+        ogTitle={t('home.meta.title')}
+        description={t('topic.meta.description', { topic: topic.name })}
+        keywords={t('topic.meta.keywords', { topic: topic.name })}
+        path={`/topics/${topic.id}`}
+        image={SITE_LOGO}
+        jsonLd={jsonLdData}
+      />
       <div>
         <header className="text-center py-4">
           <h1 className="fw-bold mb-4">{t('topic.title', { topic: topic.name })}</h1>
