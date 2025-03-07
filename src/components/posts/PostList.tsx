@@ -36,7 +36,6 @@ export default function PostList({
 
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
-  // Filtreleme işlemleri
   const filteredPosts = useMemo(
     () =>
       posts.filter(
@@ -55,7 +54,6 @@ export default function PostList({
     [sortedPosts, currentPage, postsPerPage],
   );
 
-  // Sayfa değiştirme işlemi
   const handlePageChange = useCallback(
     (newPage: number) => {
       router.push(
@@ -70,7 +68,6 @@ export default function PostList({
     [router, postsPerPage],
   );
 
-  // Sayfa boyutunu değiştirme işlemi
   const handleSizeChange = useCallback(
     (size: number) => {
       router.push(
