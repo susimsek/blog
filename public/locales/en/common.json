@@ -4,8 +4,8 @@
     "language": "Language",
     "theme": "Theme",
     "header": {
-      "logoAlt": "My Blog Logo",
-      "title": "My Blog",
+      "logoAlt": "Şuayb's Blog Logo",
+      "title": "Şuayb's Blog",
       "menu": {
         "home": "Home",
         "about": "About",
@@ -22,7 +22,7 @@
       "loading": "Loading more topics..."
     },
     "footer": {
-      "text": "© {{year}} My Blog. All rights reserved."
+      "text": "© {{year}} Şuayb's Blog. All rights reserved."
     },
     "pagination": {
       "pageSize": "Page size",

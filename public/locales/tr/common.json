@@ -4,8 +4,8 @@
     "language": "Dil",
     "theme": "Tema",
     "header": {
-      "logoAlt": "Blog Logom",
-      "title": "Blogum",
+      "logoAlt": "Şuayb'in Blogu Logo",
+      "title": "Şuayb'in Blogu",
       "menu": {
         "home": "Ana Sayfa",
         "about": "Hakkında",
@@ -22,7 +22,7 @@
       "loading": "Daha fazla konu yükleniyor..."
     },
     "footer": {
-      "text": "© {{year}} Blogum. Tüm hakları saklıdır."
+      "text": "© {{year}} Şuayb'in Blogu. Tüm hakları saklıdır."
     },
     "pagination": {
       "pageSize": "Sayfa Boyutu",
