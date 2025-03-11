@@ -12,7 +12,7 @@
     "prepare": "husky",
     "prettier:format": "prettier --write */**/*.{md,json,js,ts,html,tsx,css,scss}",
     "build": "npm run webapp:prod --",
-    "postbuild": "node scripts/generate-sitemap.js",
+    "postbuild": "node scripts/generate-sitemap.js && node scripts/generate-rss.js",
     "webapp:dev": "npm run clean-www && next dev",
     "webapp:prod": "npm run clean-www && npm run webapp:build:prod",
     "webapp:build:prod": "next build",

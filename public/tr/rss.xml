@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>Şuayb'in Bloguna Hoş Geldiniz</title>
+    <link>https://suaybsimsek.com/tr</link>
+    <description>Şuayb'in Blogundan en son gönderiler</description>
+    <lastBuildDate>Tue, 11 Mar 2025 08:13:45 GMT</lastBuildDate>
+    <language>tr</language>
+    <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
+    <atom:link rel="alternate" hreflang="en" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
+
+    <item>
+      <title>Spring Boot Eureka Server</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-eureka-server</link>
+      <description><![CDATA[Mikro hizmet mimarisinde servis keşfi için Spring Boot Eureka serverın nasıl kurulacağını ve yapılandırılacağını öğrenin.]]></description>
+      <pubDate>Sun, 23 Feb 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-eureka-server</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Spring Cloud</category>
+      <category>Eureka Server</category>
+      <category>Mikroservis</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-eureka-server-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot Config Server</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-config-server</link>
+      <description><![CDATA[Spring Boot Config Server kullanarak merkezi yapılandırma yönetimini nasıl gerçekleştireceğinizi öğrenin.]]></description>
+      <pubDate>Sat, 22 Feb 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-config-server</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Spring Cloud</category>
+      <category>Config Server</category>
+      <category>Mikroservis</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-config-server-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot Docker Entegrasyonu</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-docker</link>
+      <description><![CDATA[Spring Boot uygulamalarını Docker kullanarak Buildpacks ve Jib ile nasıl oluşturup dağıtabileceğinizi öğrenin.]]></description>
+      <pubDate>Fri, 21 Feb 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-docker</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Docker</category>
+      <category>Konteynerizasyon</category>
+      <category>Jib</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-docker-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot Kubernetes Entegrasyonu</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-kubernetes</link>
+      <description><![CDATA[Spring Boot uygulamalarını Kubernetes üzerinde nasıl ölçeklenebilir ve konteyner tabanlı olarak dağıtabileceğinizi öğrenin.]]></description>
+      <pubDate>Fri, 21 Feb 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-kubernetes</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Kubernetes</category>
+      <category>Mikroservis</category>
+      <category>Konteynerizasyon</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot Asenkron Görevler</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-async-tasks</link>
+      <description><![CDATA[Spring Boot ile @Async kullanarak görevleri ana threadi engellemeden asenkron olarak nasıl çalıştıracağınızı öğrenin.]]></description>
+      <pubDate>Thu, 20 Feb 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-async-tasks</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Asenkron Görevler</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-async-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot Planlanmış Görevler</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-scheduled-tasks</link>
+      <description><![CDATA[Spring Boot ile @Scheduled anotasyonunu kullanarak belirli aralıklarla veya cron ifadeleriyle arka plan görevlerini nasıl çalıştıracağınızı öğrenin.]]></description>
+      <pubDate>Thu, 20 Feb 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-scheduled-tasks</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Planlanmış Görevler</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot Reaktif Programlama</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-reactive-programming</link>
+      <description><![CDATA[Spring Boot ile Project Reactor ve WebFlux kullanarak yüksek performanslı, eşzamanlı işleme sahip reaktif uygulamalar oluşturmayı öğrenin.]]></description>
+      <pubDate>Wed, 19 Feb 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-reactive-programming</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Reaktif Programlama</category>
+      <category>Spring WebFlux</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot ile GraalVM Native Uygulama</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-graalvm</link>
+      <description><![CDATA[Spring Boot uygulamalarınızı GraalVM native imajı olarak derleyerek daha hızlı başlatma süreleri ve azaltılmış kaynak kullanımı elde etmeyi öğrenin.]]></description>
+      <pubDate>Sat, 28 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-graalvm</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>GraalVM</category>
+      <category>Native İmaj</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot ile Kafka Entegrasyonu</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-kafka</link>
+      <description><![CDATA[Spring Boot uygulamanızın Kafka topicleri aracılığıyla JSON mesajları göndermesini ve tüketmesini nasıl entegre edeceğinizi öğrenin.]]></description>
+      <pubDate>Wed, 25 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-kafka</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Kafka</category>
+      <category>Mesajlaşma</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot ile Redis Önbellekleme</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-redis-caching</link>
+      <description><![CDATA[Spring Boot uygulamanıza Redis önbellekleme uygulayarak performansını ve verimliliğini artırmayı öğrenin.]]></description>
+      <pubDate>Sun, 22 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-redis-caching</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Redis</category>
+      <category>Önbellekleme</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-redis-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot ile OpenAPI</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-openapi</link>
+      <description><![CDATA[SpringDoc kullanarak Spring Boot uygulamanızda OpenAPI entegrasyonu ile API dokümantasyonu ve test yöntemlerini öğrenin.]]></description>
+      <pubDate>Fri, 20 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-openapi</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>OpenAPI</category>
+      <category>Dokümantasyon</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot Temiz Kodlama Pratikleri</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-clean-coding</link>
+      <description><![CDATA[Spring Boot projelerinde temiz kodlama ilkelerini uygulamayı öğrenin. En iyi uygulamalar, örnekler ve Java'da Lombok ile Kotlin temiz kodlama tekniklerinin faydaları.]]></description>
+      <pubDate>Thu, 19 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-clean-coding</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Temiz Kodlama</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot DevTools</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-devtools</link>
+      <description><![CDATA[Spring Boot DevTools ile hızlı geliştirme sürecinizi nasıl hızlandırabileceğinizi keşfedin. Canlı yeniden yükleme, önbellekleme ve hata ayıklama ipuçları içerir.]]></description>
+      <pubDate>Thu, 19 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-devtools</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Geliştirme Araçları</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot Actuator</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-actuator</link>
+      <description><![CDATA[Spring Boot Actuator kullanarak uygulamalarınızı izleme ve yönetme. Endpointler, özelleştirme ve güvenlik örneklerini içerir.]]></description>
+      <pubDate>Wed, 18 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-actuator</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Actuator</category>
+      <category>İzleme</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot ile Aspect-Oriented Programming (AOP)</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-aop</link>
+      <description><![CDATA[Spring Boot ile AOP uygulamasını nasıl yapacağınızı öğrenin. Java ve Kotlin örnekleri ile temel kavramlar ve uygulamalar.]]></description>
+      <pubDate>Wed, 18 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-aop</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>AOP</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-aop-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot ile Dependency Injection</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-di</link>
+      <description><![CDATA[Spring Boot ile Bağımlılık Enjeksiyonu (Dependency Injection - DI) nasıl çalışır? Java ve Kotlin örnekleriyle temel kavramlar, anotasyonlar ve pratik kullanım senaryolarını öğrenin.]]></description>
+      <pubDate>Wed, 18 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-di</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Bağımlılık Enjeksiyonu</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-di-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Object-Relational Mapping (ORM)</title>
+      <link>https://suaybsimsek.com/tr/posts/object-relational-mapping</link>
+      <description><![CDATA[Spring Boot kullanarak Java, Kotlin ve Go (Gin) ile PostgreSQL entegrasyonu ve temel CRUD işlemlerini içeren bir ORM tabanlı uygulamanın nasıl kurulacağını öğrenin.]]></description>
+      <pubDate>Mon, 16 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/object-relational-mapping</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Go</category>
+      <category>Spring Boot</category>
+      <category>Gin</category>
+      <category>ORM</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/orm-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>REST API’lerde Girdi Doğrulama</title>
+      <link>https://suaybsimsek.com/tr/posts/rest-api-input-validation</link>
+      <description><![CDATA[Spring Boot ve Gin gibi framework’leri kullanarak Java, Kotlin ve Go ile REST API’lerde girdi doğrulamasını nasıl uygulayacağnızı öğrenin. Anotasyonlar, özel doğrulama ve hata yönetimi örnekleri içerir.]]></description>
+      <pubDate>Sun, 15 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/rest-api-input-validation</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Go</category>
+      <category>Spring Boot</category>
+      <category>Gin</category>
+      <category>Doğrulama</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/input-validation-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring GraphQL ile API Oluşturma</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-graphql</link>
+      <description><![CDATA[Java ve Kotlin kullanarak Spring for GraphQL ile GraphQL API\u201leri nasıl oluşturacağınızı öğrenin. Şema oluşturma, sorgu işleme ve entegrasyonu içerir.]]></description>
+      <pubDate>Sun, 15 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-graphql</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>GraphQL</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Gin - İlk Uygulama</title>
+      <link>https://suaybsimsek.com/tr/posts/golang-gin-first-application</link>
+      <description><![CDATA[Sıfırdan ilk Golang Gin uygulamanızı oluşturmanıza yardımcı olacak, yeni başlayanlar için rehber. Temelleri öğrenin ve Gin ile yolculuğunuza başlayın.]]></description>
+      <pubDate>Sat, 14 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/golang-gin-first-application</guid>
+      <category>Go</category>
+      <category>Gin</category>
+      <category>Başlangıç Rehberi</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/golang-gin-first-app-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot ile REST API Geliştirme</title>
+      <link>https://suaybsimsek.com/tr/posts/building-a-rest-api-with-spring-boot</link>
+      <description><![CDATA[Spring Boot kullanarak REST API nasıl geliştirilir? HTTP metodları, JSON veri işleme, Lombok entegrasyonu ve curl ile test etme.]]></description>
+      <pubDate>Tue, 10 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/building-a-rest-api-with-spring-boot</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>REST API</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.jpeg" />
+    </item>
+
+    <item>
+      <title>Spring Boot - İlk Uygulama</title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-first-application</link>
+      <description><![CDATA[Spring Boot ile ilk uygulamanızı sıfırdan oluşturmak için başlangıç seviyesinde bir rehber. Temel bilgileri öğrenin ve Spring Boot ile yolculuğunuza başlayın.]]></description>
+      <pubDate>Tue, 10 Dec 2024 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-first-application</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Başlangıç Rehberi</category>
+      <category>Programlama</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.jpeg" />
+    </item>
+
+  </channel>
+</rss>

@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
   <sitemap>
     <loc>https://suaybsimsek.com/page-sitemap.xml</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T08:13:45.464Z</lastmod>
   </sitemap>
+
   <sitemap>
     <loc>https://suaybsimsek.com/post-sitemap.xml</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T08:13:45.465Z</lastmod>
   </sitemap>
+
   <sitemap>
     <loc>https://suaybsimsek.com/post_topic-sitemap.xml</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T08:13:45.465Z</lastmod>
   </sitemap>
+
 </sitemapindex>

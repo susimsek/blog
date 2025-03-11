@@ -272,12 +272,47 @@ function generatePagesSitemap() {
   console.log('Pages sitemap generated at:', sitemapPath);
 }
 
+/** -------------- SITEMAP INDEX GENERATION -------------- **/
+
+/**
+ * Generates the XML content for the sitemap index.
+ * This index references the pages, posts, and topics sitemap files.
+ * @returns {string} - The sitemap index XML string.
+ */
+function generateSitemapIndexXML() {
+  let sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+  sitemapIndex += `<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>\n`;
+  sitemapIndex += `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n\n`;
+
+  const sitemapFiles = ['page-sitemap.xml', 'post-sitemap.xml', 'post_topic-sitemap.xml'];
+  sitemapFiles.forEach(file => {
+    sitemapIndex += `  <sitemap>\n`;
+    sitemapIndex += `    <loc>${siteUrl}/${file}</loc>\n`;
+    sitemapIndex += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
+    sitemapIndex += `  </sitemap>\n\n`;
+  });
+
+  sitemapIndex += `</sitemapindex>\n`;
+  return sitemapIndex;
+}
+
+/**
+ * Writes the sitemap index XML to the public folder.
+ */
+function generateSitemapIndex() {
+  const sitemapIndexXML = generateSitemapIndexXML();
+  const sitemapIndexPath = path.join(process.cwd(), 'public', 'sitemap_index.xml');
+  fs.writeFileSync(sitemapIndexPath, sitemapIndexXML, 'utf8');
+  console.log('Sitemap index generated at:', sitemapIndexPath);
+}
+
 /** -------------- MAIN -------------- **/
 
 /**
- * Main function that generates posts, topics, and pages sitemaps.
+ * Main function that generates posts, topics, pages, and sitemap index.
  */
 function generateAllSitemaps() {
+  generateSitemapIndex();
   generatePagesSitemap();
   generatePostsSitemap();
   generateTopicsSitemap();
