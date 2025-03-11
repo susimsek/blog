@@ -183,12 +183,102 @@ function generateTopicsSitemap() {
   console.log('Topics sitemap generated at:', sitemapPath);
 }
 
+/** -------------- PAGES SITEMAP GENERATION -------------- **/
+
+/**
+ * Returns static page data for the sitemap.
+ * Each page object contains a slug ('' for home), change frequency, and image info.
+ * The image title is provided per locale.
+ * @returns {Array} - Array of page objects.
+ */
+function getPagesData() {
+  return [
+    {
+      slug: '', // Home page
+      changefreq: 'daily',
+      image: {
+        loc: '/images/logo.jpeg',
+        title: { en: "Welcome to Şuayb's Blog", tr: "Şuayb'in Bloguna Hoş Geldiniz" },
+      },
+    },
+    {
+      slug: 'about',
+      changefreq: 'monthly',
+      image: {
+        loc: '/images/profile.jpeg',
+        title: { en: 'About', tr: 'Hakkımda' },
+      },
+    },
+    {
+      slug: 'contact',
+      changefreq: 'monthly',
+      image: {
+        loc: '/images/profile.jpeg',
+        title: { en: 'Contact Information', tr: 'İletişim Bilgileri' },
+      },
+    },
+  ];
+}
+
+/**
+ * Generates the XML sitemap content for static pages.
+ * @param {Array} pages - Array of page objects.
+ * @returns {string} - The XML sitemap string.
+ */
+function generatePagesSitemapXML(pages) {
+  let sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+  sitemap += `<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>\n`;
+  sitemap += `<urlset\n`;
+  sitemap += `  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n`;
+  sitemap += `  xmlns:xhtml="http://www.w3.org/1999/xhtml"\n`;
+  sitemap += `  xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n\n`;
+
+  pages.forEach(page => {
+    locales.forEach(locale => {
+      // Construct the page URL; if slug is empty, it's the home page URL.
+      const pageUrl = page.slug ? `${siteUrl}/${locale}/${page.slug}` : `${siteUrl}/${locale}`;
+      sitemap += `  <url>\n`;
+      sitemap += `    <loc>${pageUrl}</loc>\n`;
+      sitemap += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
+      sitemap += `    <changefreq>${page.changefreq}</changefreq>\n`;
+      // Image details: build absolute URL and choose title based on locale.
+      const imageUrl = page.image.loc.startsWith('/') ? `${siteUrl}${page.image.loc}` : page.image.loc;
+      const imageTitle = page.image.title[locale] || page.image.title.en;
+      sitemap += `    <image:image>\n`;
+      sitemap += `      <image:loc>${imageUrl}</image:loc>\n`;
+      sitemap += `      <image:title>${imageTitle}</image:title>\n`;
+      sitemap += `    </image:image>\n`;
+      // Add alternate language links
+      locales.forEach(altLocale => {
+        const altUrl = page.slug ? `${siteUrl}/${altLocale}/${page.slug}` : `${siteUrl}/${altLocale}`;
+        sitemap += `    <xhtml:link rel="alternate" hreflang="${altLocale}" href="${altUrl}"/>\n`;
+      });
+      sitemap += `  </url>\n\n`;
+    });
+  });
+
+  sitemap += `</urlset>\n`;
+  return sitemap;
+}
+
+/**
+ * Writes the pages sitemap XML to the public folder.
+ */
+function generatePagesSitemap() {
+  const pages = getPagesData();
+  const sitemapXML = generatePagesSitemapXML(pages);
+  const sitemapPath = path.join(process.cwd(), 'public', 'page-sitemap.xml');
+  fs.writeFileSync(sitemapPath, sitemapXML, 'utf8');
+  console.log('Pages sitemap generated at:', sitemapPath);
+}
+
 /** -------------- MAIN -------------- **/
 
 /**
- * Main function that generates both posts and topics sitemaps.
+ * Main function that generates posts, topics, and pages sitemaps.
  */
 function generateAllSitemaps() {
+  generatePagesSitemap();
   generatePostsSitemap();
   generateTopicsSitemap();
 }
