@@ -34,11 +34,11 @@ function readPosts(locale) {
 function generateRSSFeedXML(posts, locale) {
   let title, description;
   if (locale === 'en') {
-    title = "Welcome to Şuayb's Blog";
-    description = "Latest posts from Şuayb's Blog";
+    title = "Şuayb's Blog";
+    description = 'Explore the latest articles, tutorials, and insights.';
   } else if (locale === 'tr') {
-    title = "Şuayb'in Bloguna Hoş Geldiniz";
-    description = "Şuayb'in Blogundan en son gönderiler";
+    title = "Şuayb'in Blogu";
+    description = 'En son makaleleri, eğitimleri ve analizleri keşfedin.';
   } else {
     title = 'Blog';
     description = 'Latest posts';
