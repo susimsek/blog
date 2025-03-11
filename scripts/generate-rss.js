@@ -95,7 +95,7 @@ function generateRSSFeeds() {
     const posts = readPosts(locale);
     const rssXML = generateRSSFeedXML(posts, locale);
     // Ensure the locale directory exists under public
-    const localeDir = path.join(process.cwd(), 'public', locale);
+    const localeDir = path.join(process.cwd(), 'build', locale);
     if (!fs.existsSync(localeDir)) {
       fs.mkdirSync(localeDir, { recursive: true });
     }

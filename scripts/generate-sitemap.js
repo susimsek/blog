@@ -301,7 +301,7 @@ function generateSitemapIndexXML() {
  */
 function generateSitemapIndex() {
   const sitemapIndexXML = generateSitemapIndexXML();
-  const sitemapIndexPath = path.join(process.cwd(), 'public', 'sitemap_index.xml');
+  const sitemapIndexPath = path.join(process.cwd(), 'build', 'sitemap_index.xml');
   fs.writeFileSync(sitemapIndexPath, sitemapIndexXML, 'utf8');
   console.log('Sitemap index generated at:', sitemapIndexPath);
 }
