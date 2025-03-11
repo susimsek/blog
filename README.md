@@ -17,6 +17,7 @@ Explore seamless navigation, robust state management, and responsive design for 
 
 - 🌐 [Live Demo](#-live-demo)
 - 📖 [Features](#-features)
+- 📰 [RSS Feed](#-rss-feed)
 - 🧑‍💻 [Development Setup](#-development-setup)
 - 🧪 [Testing](#-testing)
 - 🏗️ [Build](#️-build)
@@ -42,8 +43,23 @@ Enjoy reading blog posts and experience seamless navigation between different se
 - ✅ **High Test Coverage**: Ensures reliability with comprehensive unit tests.
 - 📝 **Markdown Rendering**: Write your posts in Markdown.
 - 🛠️ **Redux Integration**: Powerful state management.
+- 📰 **RSS Support**: Automatically generates and updates an RSS feed for your blog posts.
 - 🎨 **Code Style Enforcements**: With **Prettier** and **ESLint**.
 - 🔍 **SonarQube Integration**: Continuous code quality monitoring.
+
+## 📰 RSS Feed
+
+Stay updated with the latest blog posts via our RSS feeds. We offer separate feeds for English and Turkish content so you can follow your preferred language:
+
+- **English Feed:**  
+  Subscribe to the English feed to receive updates on the newest posts directly in your RSS reader.  
+  [https://suaybsimsek.com/en/rss.xml](https://suaybsimsek.com/en/rss.xml)
+
+- **Turkish Feed:**  
+  For Turkish content, use the Turkish RSS feed to stay informed about all the latest posts.  
+  [https://suaybsimsek.com/tr/rss.xml](https://suaybsimsek.com/tr/rss.xml)
+
+Simply add these links to your favorite RSS reader or news aggregator, and enjoy a seamless reading experience!
 
 ## 🎥 Demo Preview
 
@@ -201,6 +217,7 @@ Save and restart your browser.
 ![Next.js](https://img.shields.io/badge/Next.js-000?logo=next.js&logoColor=white)  
 ![Next.js Third Parties](https://img.shields.io/badge/Next.js_Third_Parties-000?logo=next.js&logoColor=white)  
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)  
+![RSS](https://img.shields.io/badge/RSS-Supported-FF6600?logo=rss&logoColor=white)  
 ![ESLint](https://img.shields.io/badge/ESLint-4B32C3?logo=eslint&logoColor=white)  
 ![Prettier](https://img.shields.io/badge/Prettier-F7B93E?logo=prettier&logoColor=white)  
 ![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?logo=sonarqube&logoColor=white)  
