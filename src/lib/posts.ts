@@ -66,54 +66,33 @@ export function getSortedPostsData(locale: string, topicId?: string): PostSummar
   const cacheName = 'getSortedPostsData';
   const cacheKey = `${locale}-${topicId ?? 'all'}`;
   const cachedData = getCache(cacheKey, postsCache, cacheName);
-
   if (cachedData) {
     return cachedData;
   }
 
-  const fallbackLocale = i18nextConfig.i18n.defaultLocale;
-  const directory = path.join(postsDirectory, locale);
-  const fallbackDirectory = path.join(postsDirectory, fallbackLocale);
+  const postsJsonPath = path.join(postsDirectory, locale, 'posts.json');
 
-  const seenIds = new Set<string>();
-  const posts: PostSummary[] = [];
-
-  // Localized posts
-  if (fs.existsSync(directory)) {
-    const fileNames = fs.readdirSync(directory);
-    fileNames.forEach(fileName => {
-      const filePath = path.join(directory, fileName);
-      const { data } = parsePostFile(filePath);
-
-      // Check if the post matches the topicId
-      if (!topicId || (Array.isArray(data.topics) && data.topics.some((t: Topic) => t.id === topicId))) {
-        seenIds.add(data.id);
-        posts.push(data);
-      }
-    });
+  if (!fs.existsSync(postsJsonPath)) {
+    console.error(`Posts file not found for locale "${locale}": ${postsJsonPath}`);
+    setCache(cacheKey, [], postsCache, cacheName);
+    return [];
   }
 
-  // Fallback posts
-  if (locale !== fallbackLocale && fs.existsSync(fallbackDirectory)) {
-    const fallbackFileNames = fs.readdirSync(fallbackDirectory);
-    fallbackFileNames.forEach(fileName => {
-      const filePath = path.join(fallbackDirectory, fileName);
-      const { data } = parsePostFile(filePath);
+  try {
+    const fileContents = fs.readFileSync(postsJsonPath, 'utf8');
+    const allPosts: PostSummary[] = JSON.parse(fileContents);
+    const posts = allPosts.filter(
+      post => !topicId || (Array.isArray(post.topics) && post.topics.some((t: Topic) => t.id === topicId)),
+    );
 
-      if (
-        !seenIds.has(data.id) &&
-        (!topicId || (Array.isArray(data.topics) && data.topics.some((t: Topic) => t.id === topicId)))
-      ) {
-        posts.push(data);
-      }
-    });
+    const sortedPosts = sortPosts(posts);
+    setCache(cacheKey, sortedPosts, postsCache, cacheName);
+    return sortedPosts;
+  } catch (error) {
+    console.error(`Error reading/parsing posts.json for locale "${locale}":`, error);
+    setCache(cacheKey, [], postsCache, cacheName);
+    return [];
   }
-
-  const sortedPosts = sortPosts(posts);
-
-  setCache(cacheKey, sortedPosts, postsCache, cacheName);
-
-  return sortedPosts;
 }
 
 // Get a specific post for all locales with fallback support

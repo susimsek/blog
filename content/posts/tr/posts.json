@@ -1,0 +1,857 @@
+[
+  {
+    "id": "spring-boot-eureka-server",
+    "title": "Spring Boot Eureka Server",
+    "date": "2025-02-23",
+    "summary": "Mikro hizmet mimarisinde servis keşfi için Spring Boot Eureka serverın nasıl kurulacağını ve yapılandırılacağını öğrenin.",
+    "thumbnail": "/images/spring-boot-eureka-server-thumbnail.jpeg",
+    "readingTime": "3 dakika okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "spring-cloud",
+        "name": "Spring Cloud",
+        "color": "pink"
+      },
+      {
+        "id": "eureka-server",
+        "name": "Eureka Server",
+        "color": "blue"
+      },
+      {
+        "id": "microservice",
+        "name": "Mikroservis",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "brown"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-config-server",
+    "title": "Spring Boot Config Server",
+    "date": "2025-02-22",
+    "summary": "Spring Boot Config Server kullanarak merkezi yapılandırma yönetimini nasıl gerçekleştireceğinizi öğrenin.",
+    "thumbnail": "/images/spring-boot-config-server-thumbnail.jpeg",
+    "readingTime": "4 dakika okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "spring-cloud",
+        "name": "Spring Cloud",
+        "color": "pink"
+      },
+      {
+        "id": "config-server",
+        "name": "Config Server",
+        "color": "blue"
+      },
+      {
+        "id": "microservice",
+        "name": "Mikroservis",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "brown"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-docker",
+    "title": "Spring Boot Docker Entegrasyonu",
+    "date": "2025-02-21",
+    "summary": "Spring Boot uygulamalarını Docker kullanarak Buildpacks ve Jib ile nasıl oluşturup dağıtabileceğinizi öğrenin.",
+    "thumbnail": "/images/spring-boot-docker-thumbnail.jpeg",
+    "readingTime": "3 dakika okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "docker",
+        "name": "Docker",
+        "color": "blue"
+      },
+      {
+        "id": "containerization",
+        "name": "Konteynerizasyon",
+        "color": "orange"
+      },
+      {
+        "id": "jib",
+        "name": "Jib",
+        "color": "pink"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "brown"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-kubernetes",
+    "title": "Spring Boot Kubernetes Entegrasyonu",
+    "date": "2025-02-21",
+    "summary": "Spring Boot uygulamalarını Kubernetes üzerinde nasıl ölçeklenebilir ve konteyner tabanlı olarak dağıtabileceğinizi öğrenin.",
+    "thumbnail": "/images/spring-boot-kubernetes-thumbnail.jpeg",
+    "readingTime": "3 dakika okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "kubernetes",
+        "name": "Kubernetes",
+        "color": "blue"
+      },
+      {
+        "id": "microservice",
+        "name": "Mikroservis",
+        "color": "orange"
+      },
+      {
+        "id": "containerization",
+        "name": "Konteynerizasyon",
+        "color": "pink"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "brown"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-async-tasks",
+    "title": "Spring Boot Asenkron Görevler",
+    "date": "2025-02-20",
+    "summary": "Spring Boot ile @Async kullanarak görevleri ana threadi engellemeden asenkron olarak nasıl çalıştıracağınızı öğrenin.",
+    "thumbnail": "/images/spring-boot-async-thumbnail.jpeg",
+    "readingTime": "3 dakikalık okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "async-tasks",
+        "name": "Asenkron Görevler",
+        "color": "blue"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "brown"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-scheduled-tasks",
+    "title": "Spring Boot Planlanmış Görevler",
+    "date": "2025-02-20",
+    "summary": "Spring Boot ile @Scheduled anotasyonunu kullanarak belirli aralıklarla veya cron ifadeleriyle arka plan görevlerini nasıl çalıştıracağınızı öğrenin.",
+    "thumbnail": "/images/spring-boot-scheduled-thumbnail.jpeg",
+    "readingTime": "3 dakika okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "scheduled-tasks",
+        "name": "Planlanmış Görevler",
+        "color": "blue"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "brown"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-reactive-programming",
+    "title": "Spring Boot Reaktif Programlama",
+    "date": "2025-02-19",
+    "summary": "Spring Boot ile Project Reactor ve WebFlux kullanarak yüksek performanslı, eşzamanlı işleme sahip reaktif uygulamalar oluşturmayı öğrenin.",
+    "thumbnail": "/images/spring-boot-reactive-thumbnail.jpeg",
+    "readingTime": "3 dakika okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "reactive-programming",
+        "name": "Reaktif Programlama",
+        "color": "blue"
+      },
+      {
+        "id": "webflux",
+        "name": "Spring WebFlux",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "brown"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-graalvm",
+    "title": "Spring Boot ile GraalVM Native Uygulama",
+    "date": "2024-12-28",
+    "summary": "Spring Boot uygulamalarınızı GraalVM native imajı olarak derleyerek daha hızlı başlatma süreleri ve azaltılmış kaynak kullanımı elde etmeyi öğrenin.",
+    "thumbnail": "/images/spring-boot-graalvm-thumbnail.jpeg",
+    "readingTime": "2 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "graalvm",
+        "name": "GraalVM",
+        "color": "pink"
+      },
+      {
+        "id": "native-image",
+        "name": "Native İmaj",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-kafka",
+    "title": "Spring Boot ile Kafka Entegrasyonu",
+    "date": "2024-12-25",
+    "summary": "Spring Boot uygulamanızın Kafka topicleri aracılığıyla JSON mesajları göndermesini ve tüketmesini nasıl entegre edeceğinizi öğrenin.",
+    "thumbnail": "/images/spring-boot-kafka-thumbnail.jpeg",
+    "readingTime": "3 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "kafka",
+        "name": "Kafka",
+        "color": "orange"
+      },
+      {
+        "id": "messaging",
+        "name": "Mesajlaşma",
+        "color": "brown"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-redis-caching",
+    "title": "Spring Boot ile Redis Önbellekleme",
+    "date": "2024-12-22",
+    "summary": "Spring Boot uygulamanıza Redis önbellekleme uygulayarak performansını ve verimliliğini artırmayı öğrenin.",
+    "thumbnail": "/images/spring-boot-redis-thumbnail.jpeg",
+    "readingTime": "3 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "redis",
+        "name": "Redis",
+        "color": "orange"
+      },
+      {
+        "id": "caching",
+        "name": "Önbellekleme",
+        "color": "brown"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-openapi",
+    "title": "Spring Boot ile OpenAPI",
+    "date": "2024-12-20",
+    "summary": "SpringDoc kullanarak Spring Boot uygulamanızda OpenAPI entegrasyonu ile API dokümantasyonu ve test yöntemlerini öğrenin.",
+    "thumbnail": "/images/spring-boot-openapi-thumbnail.jpeg",
+    "readingTime": "3 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "openapi",
+        "name": "OpenAPI",
+        "color": "orange"
+      },
+      {
+        "id": "documentation",
+        "name": "Dokümantasyon",
+        "color": "brown"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-clean-coding",
+    "title": "Spring Boot Temiz Kodlama Pratikleri",
+    "date": "2024-12-19",
+    "summary": "Spring Boot projelerinde temiz kodlama ilkelerini uygulamayı öğrenin. En iyi uygulamalar, örnekler ve Java'da Lombok ile Kotlin temiz kodlama tekniklerinin faydaları.",
+    "thumbnail": "/images/spring-boot-clean-coding-thumbnail.jpeg",
+    "readingTime": "3 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "clean-coding",
+        "name": "Temiz Kodlama",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-devtools",
+    "title": "Spring Boot DevTools",
+    "date": "2024-12-19",
+    "summary": "Spring Boot DevTools ile hızlı geliştirme sürecinizi nasıl hızlandırabileceğinizi keşfedin. Canlı yeniden yükleme, önbellekleme ve hata ayıklama ipuçları içerir.",
+    "thumbnail": "/images/spring-boot-devtools-thumbnail.jpeg",
+    "readingTime": "2 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "devtools",
+        "name": "Geliştirme Araçları",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-actuator",
+    "title": "Spring Boot Actuator",
+    "date": "2024-12-18",
+    "summary": "Spring Boot Actuator kullanarak uygulamalarınızı izleme ve yönetme. Endpointler, özelleştirme ve güvenlik örneklerini içerir.",
+    "thumbnail": "/images/spring-boot-actuator-thumbnail.jpeg",
+    "readingTime": "2 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "actuator",
+        "name": "Actuator",
+        "color": "orange"
+      },
+      {
+        "id": "monitoring",
+        "name": "İzleme",
+        "color": "purple"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-aop",
+    "title": "Spring Boot ile Aspect-Oriented Programming (AOP)",
+    "date": "2024-12-18",
+    "summary": "Spring Boot ile AOP uygulamasını nasıl yapacağınızı öğrenin. Java ve Kotlin örnekleri ile temel kavramlar ve uygulamalar.",
+    "thumbnail": "/images/spring-boot-aop-thumbnail.jpeg",
+    "readingTime": "3 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "aop",
+        "name": "AOP",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-di",
+    "title": "Spring Boot ile Dependency Injection",
+    "date": "2024-12-18",
+    "summary": "Spring Boot ile Bağımlılık Enjeksiyonu (Dependency Injection - DI) nasıl çalışır? Java ve Kotlin örnekleriyle temel kavramlar, anotasyonlar ve pratik kullanım senaryolarını öğrenin.",
+    "thumbnail": "/images/spring-boot-di-thumbnail.jpeg",
+    "readingTime": "2 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "dependency-injection",
+        "name": "Bağımlılık Enjeksiyonu",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "id": "object-relational-mapping",
+    "title": "Object-Relational Mapping (ORM)",
+    "date": "2024-12-16",
+    "summary": "Spring Boot kullanarak Java, Kotlin ve Go (Gin) ile PostgreSQL entegrasyonu ve temel CRUD işlemlerini içeren bir ORM tabanlı uygulamanın nasıl kurulacağını öğrenin.",
+    "thumbnail": "/images/orm-thumbnail.jpeg",
+    "readingTime": "3 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "go",
+        "name": "Go",
+        "color": "brown"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "gin",
+        "name": "Gin",
+        "color": "green"
+      },
+      {
+        "id": "orm",
+        "name": "ORM",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "id": "rest-api-input-validation",
+    "title": "REST API’lerde Girdi Doğrulama",
+    "date": "2024-12-15",
+    "summary": "Spring Boot ve Gin gibi framework’leri kullanarak Java, Kotlin ve Go ile REST API’lerde girdi doğrulamasını nasıl uygulayacağnızı öğrenin. Anotasyonlar, özel doğrulama ve hata yönetimi örnekleri içerir.",
+    "thumbnail": "/images/input-validation-thumbnail.jpeg",
+    "readingTime": "4 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "go",
+        "name": "Go",
+        "color": "brown"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "gin",
+        "name": "Gin",
+        "color": "green"
+      },
+      {
+        "id": "validation",
+        "name": "Doğrulama",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-graphql",
+    "title": "Spring GraphQL ile API Oluşturma",
+    "date": "2024-12-15",
+    "summary": "Java ve Kotlin kullanarak Spring for GraphQL ile GraphQL API\\u201leri nasıl oluşturacağınızı öğrenin. Şema oluşturma, sorgu işleme ve entegrasyonu içerir.",
+    "thumbnail": "/images/spring-boot-graphql-thumbnail.jpeg",
+    "readingTime": "3 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "graphql",
+        "name": "GraphQL",
+        "color": "pink"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "id": "golang-gin-first-application",
+    "title": "Gin - İlk Uygulama",
+    "date": "2024-12-14",
+    "summary": "Sıfırdan ilk Golang Gin uygulamanızı oluşturmanıza yardımcı olacak, yeni başlayanlar için rehber. Temelleri öğrenin ve Gin ile yolculuğunuza başlayın.",
+    "thumbnail": "/images/golang-gin-first-app-thumbnail.jpeg",
+    "readingTime": "1 dk okuma",
+    "topics": [
+      {
+        "id": "go",
+        "name": "Go",
+        "color": "brown"
+      },
+      {
+        "id": "gin",
+        "name": "Gin",
+        "color": "green"
+      },
+      {
+        "id": "beginner-guide",
+        "name": "Başlangıç Rehberi",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "id": "building-a-rest-api-with-spring-boot",
+    "title": "Spring Boot ile REST API Geliştirme",
+    "date": "2024-12-10",
+    "summary": "Spring Boot kullanarak REST API nasıl geliştirilir? HTTP metodları, JSON veri işleme, Lombok entegrasyonu ve curl ile test etme.",
+    "thumbnail": "/images/spring-boot-rest-api-thumbnail.jpeg",
+    "readingTime": "3 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "rest-api",
+        "name": "REST API",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  },
+  {
+    "id": "spring-boot-first-application",
+    "title": "Spring Boot - İlk Uygulama",
+    "date": "2024-12-10",
+    "summary": "Spring Boot ile ilk uygulamanızı sıfırdan oluşturmak için başlangıç seviyesinde bir rehber. Temel bilgileri öğrenin ve Spring Boot ile yolculuğunuza başlayın.",
+    "thumbnail": "/images/spring-boot-first-app-thumbnail.jpeg",
+    "readingTime": "2 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "beginner-guide",
+        "name": "Başlangıç Rehberi",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "blue"
+      }
+    ]
+  }
+]
