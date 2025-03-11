@@ -47,6 +47,7 @@ function generateRSSFeedXML(posts, locale) {
   const alternateLocale = locale === 'en' ? 'tr' : 'en';
 
   let rss = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+  rss += `<?xml-stylesheet type="text/xsl" href="/rss.xsl"?>\n`;
   rss += `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">\n`;
   rss += `  <channel>\n`;
   rss += `    <title>${title}</title>\n`;

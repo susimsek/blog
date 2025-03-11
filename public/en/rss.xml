@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/rss.xsl"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
-    <title>Welcome to Şuayb's Blog</title>
+    <title>Şuayb's Blog</title>
     <link>https://suaybsimsek.com/en</link>
-    <description>Latest posts from Şuayb's Blog</description>
-    <lastBuildDate>Tue, 11 Mar 2025 08:13:45 GMT</lastBuildDate>
+    <description>Explore the latest articles, tutorials, and insights.</description>
+    <lastBuildDate>Tue, 11 Mar 2025 10:57:55 GMT</lastBuildDate>
     <language>en</language>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
     <atom:link rel="alternate" hreflang="tr" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
