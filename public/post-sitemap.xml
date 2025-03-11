@@ -5,10 +5,9 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml"
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
-  <!-- Post: spring-boot-eureka-server -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-eureka-server</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.466Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-eureka-server-thumbnail.jpeg</image:loc>
@@ -17,9 +16,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-eureka-server"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-eureka-server"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-eureka-server</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-eureka-server-thumbnail.jpeg</image:loc>
@@ -29,21 +29,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-eureka-server"/>
   </url>
 
-  <!-- Post: spring-boot-config-server -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-config-server</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-config-server-thumbnail.jpeg</image:loc>
-      <image:title>Spring Boot Config Server</image:title>
-    </image:image>
-    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-config-server"/>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-config-server"/>
-  </url>
-  <url>
-    <loc>https://suaybsimsek.com/tr/posts/spring-boot-config-server</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-config-server-thumbnail.jpeg</image:loc>
@@ -53,10 +41,21 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-config-server"/>
   </url>
 
-  <!-- Post: spring-boot-docker -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-config-server</loc>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <image:image>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-config-server-thumbnail.jpeg</image:loc>
+      <image:title>Spring Boot Config Server</image:title>
+    </image:image>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-config-server"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-config-server"/>
+  </url>
+
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-docker</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-docker-thumbnail.jpeg</image:loc>
@@ -65,9 +64,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-docker"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-docker"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-docker</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-docker-thumbnail.jpeg</image:loc>
@@ -77,10 +77,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-docker"/>
   </url>
 
-  <!-- Post: spring-boot-kubernetes -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-kubernetes</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.jpeg</image:loc>
@@ -89,9 +88,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-kubernetes"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-kubernetes"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-kubernetes</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.jpeg</image:loc>
@@ -101,10 +101,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-kubernetes"/>
   </url>
 
-  <!-- Post: spring-boot-async-tasks -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-async-tasks</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-async-thumbnail.jpeg</image:loc>
@@ -113,9 +112,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-async-tasks"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-async-tasks"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-async-tasks</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-async-thumbnail.jpeg</image:loc>
@@ -125,10 +125,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-async-tasks"/>
   </url>
 
-  <!-- Post: spring-boot-scheduled-tasks -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-scheduled-tasks</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.jpeg</image:loc>
@@ -137,9 +136,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-scheduled-tasks"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-scheduled-tasks"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-scheduled-tasks</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.jpeg</image:loc>
@@ -149,10 +149,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-scheduled-tasks"/>
   </url>
 
-  <!-- Post: spring-boot-reactive-programming -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-reactive-programming</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.jpeg</image:loc>
@@ -161,9 +160,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-reactive-programming"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-reactive-programming"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-reactive-programming</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.jpeg</image:loc>
@@ -173,10 +173,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-reactive-programming"/>
   </url>
 
-  <!-- Post: spring-boot-graalvm -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-graalvm</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.jpeg</image:loc>
@@ -185,9 +184,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-graalvm"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-graalvm"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-graalvm</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.jpeg</image:loc>
@@ -197,10 +197,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-graalvm"/>
   </url>
 
-  <!-- Post: spring-boot-kafka -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-kafka</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.jpeg</image:loc>
@@ -209,9 +208,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-kafka"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-kafka"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-kafka</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.jpeg</image:loc>
@@ -221,21 +221,21 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-kafka"/>
   </url>
 
-  <!-- Post: spring-boot-redis-caching -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-redis-caching</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-redis-thumbnail.jpeg</image:loc>
-      <image:title>Spring Boot with Redis Caching</image:title>
+      <image:title>Spring Boot Redis Caching</image:title>
     </image:image>
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-redis-caching"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-redis-caching"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-redis-caching</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-redis-thumbnail.jpeg</image:loc>
@@ -245,10 +245,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-redis-caching"/>
   </url>
 
-  <!-- Post: spring-boot-openapi -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-openapi</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.jpeg</image:loc>
@@ -257,9 +256,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-openapi"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-openapi"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-openapi</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.jpeg</image:loc>
@@ -269,10 +269,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-openapi"/>
   </url>
 
-  <!-- Post: spring-boot-clean-coding -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-clean-coding</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.jpeg</image:loc>
@@ -281,9 +280,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-clean-coding"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-clean-coding"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-clean-coding</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.jpeg</image:loc>
@@ -293,10 +293,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-clean-coding"/>
   </url>
 
-  <!-- Post: spring-boot-devtools -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-devtools</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.jpeg</image:loc>
@@ -305,9 +304,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-devtools"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-devtools"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-devtools</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.jpeg</image:loc>
@@ -317,21 +317,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-devtools"/>
   </url>
 
-  <!-- Post: spring-boot-actuator -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-actuator</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <image:image>
-      <image:loc>https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.jpeg</image:loc>
-      <image:title>Spring Boot Actuator</image:title>
-    </image:image>
-    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-actuator"/>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-actuator"/>
-  </url>
-  <url>
-    <loc>https://suaybsimsek.com/tr/posts/spring-boot-actuator</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.jpeg</image:loc>
@@ -341,10 +329,21 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-actuator"/>
   </url>
 
-  <!-- Post: spring-boot-aop -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/spring-boot-actuator</loc>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <image:image>
+      <image:loc>https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.jpeg</image:loc>
+      <image:title>Spring Boot Actuator</image:title>
+    </image:image>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-actuator"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-actuator"/>
+  </url>
+
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-aop</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-aop-thumbnail.jpeg</image:loc>
@@ -353,9 +352,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-aop"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-aop"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-aop</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-aop-thumbnail.jpeg</image:loc>
@@ -365,10 +365,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-aop"/>
   </url>
 
-  <!-- Post: spring-boot-di -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-di</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-di-thumbnail.jpeg</image:loc>
@@ -377,9 +376,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-di"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-di"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-di</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-di-thumbnail.jpeg</image:loc>
@@ -389,21 +389,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-di"/>
   </url>
 
-  <!-- Post: object-relational-mapping -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/object-relational-mapping</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <image:image>
-      <image:loc>https://suaybsimsek.com/images/orm-thumbnail.jpeg</image:loc>
-      <image:title>Object-Relational Mapping (ORM)</image:title>
-    </image:image>
-    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/object-relational-mapping"/>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/object-relational-mapping"/>
-  </url>
-  <url>
-    <loc>https://suaybsimsek.com/tr/posts/object-relational-mapping</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/orm-thumbnail.jpeg</image:loc>
@@ -413,10 +401,21 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/object-relational-mapping"/>
   </url>
 
-  <!-- Post: rest-api-input-validation -->
+  <url>
+    <loc>https://suaybsimsek.com/tr/posts/object-relational-mapping</loc>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <image:image>
+      <image:loc>https://suaybsimsek.com/images/orm-thumbnail.jpeg</image:loc>
+      <image:title>Object-Relational Mapping (ORM)</image:title>
+    </image:image>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/object-relational-mapping"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/object-relational-mapping"/>
+  </url>
+
   <url>
     <loc>https://suaybsimsek.com/en/posts/rest-api-input-validation</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/input-validation-thumbnail.jpeg</image:loc>
@@ -425,9 +424,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/rest-api-input-validation"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/rest-api-input-validation"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/rest-api-input-validation</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/input-validation-thumbnail.jpeg</image:loc>
@@ -437,10 +437,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/rest-api-input-validation"/>
   </url>
 
-  <!-- Post: spring-boot-graphql -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-graphql</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.jpeg</image:loc>
@@ -449,9 +448,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-graphql"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-graphql"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-graphql</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.jpeg</image:loc>
@@ -461,10 +461,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-graphql"/>
   </url>
 
-  <!-- Post: golang-gin-first-application -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/golang-gin-first-application</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/golang-gin-first-app-thumbnail.jpeg</image:loc>
@@ -473,9 +472,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/golang-gin-first-application"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/golang-gin-first-application"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/golang-gin-first-application</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/golang-gin-first-app-thumbnail.jpeg</image:loc>
@@ -485,10 +485,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/golang-gin-first-application"/>
   </url>
 
-  <!-- Post: building-a-rest-api-with-spring-boot -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/building-a-rest-api-with-spring-boot</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.jpeg</image:loc>
@@ -497,9 +496,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/building-a-rest-api-with-spring-boot"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/building-a-rest-api-with-spring-boot"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/building-a-rest-api-with-spring-boot</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.jpeg</image:loc>
@@ -509,10 +509,9 @@
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/building-a-rest-api-with-spring-boot"/>
   </url>
 
-  <!-- Post: spring-boot-first-application -->
   <url>
     <loc>https://suaybsimsek.com/en/posts/spring-boot-first-application</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.jpeg</image:loc>
@@ -521,9 +520,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-first-application"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-first-application"/>
   </url>
+
   <url>
     <loc>https://suaybsimsek.com/tr/posts/spring-boot-first-application</loc>
-    <lastmod>2025-03-06T00:00:00+00:00</lastmod>
+    <lastmod>2025-03-11T07:28:44.467Z</lastmod>
     <changefreq>weekly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.jpeg</image:loc>
@@ -532,4 +532,5 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/posts/spring-boot-first-application"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/posts/spring-boot-first-application"/>
   </url>
+
 </urlset>
