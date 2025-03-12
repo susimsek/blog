@@ -19,6 +19,7 @@ interface ArticleProps {
 interface JsonLdData {
   url?: string;
   mainEntityOfPage?: string;
+  inLanguage?: string;
   [key: string]: unknown;
 }
 
@@ -49,6 +50,7 @@ const SEO: React.FC<SEOProps> = ({
 }) => {
   const router = useRouter();
   const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
+  const ogLocale = LOCALES[currentLocale]?.ogLocale;
 
   const { page, size } = router.query;
 
@@ -68,6 +70,7 @@ const SEO: React.FC<SEOProps> = ({
   const updatedJsonLd: JsonLdData | null = jsonLd ? { ...jsonLd, url: canonicalUrl } : null;
 
   if (updatedJsonLd && article) {
+    updatedJsonLd.inLanguage = ogTitle;
     updatedJsonLd.mainEntityOfPage = canonicalUrl;
   }
 
@@ -89,7 +92,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:site_name" content={t('common:common.siteName')} />
       <meta property="og:image" content={imageUrl} />
-      <meta property="og:locale" content={LOCALES[currentLocale]?.ogLocale} />
+      <meta property="og:locale" content={ogLocale} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:image:type" content="image/jpeg" />

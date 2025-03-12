@@ -20,11 +20,17 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
   const jsonLdData = {
     '@context': 'http://schema.org',
     '@type': 'NewsArticle',
-    image: [image],
+    image: {
+      '@type': 'ImageObject',
+      url: image,
+      width: 1200,
+      height: 630,
+    },
     dateCreated: post.date,
     datePublished: post.date,
     dateModified: post.date,
     headline: post.title,
+    keywords: keywords,
     name: post.title,
     description: post.summary,
     identifier: post.id,
