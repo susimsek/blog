@@ -41,9 +41,11 @@ function generateRSSFeedXML(posts, locale) {
   if (locale === 'en') {
     title = "Şuayb's Blog";
     description = 'Explore the latest articles, tutorials, and insights.';
+    copyright = `© ${new Date().getFullYear()} Şuayb Şimşek. All rights reserved.`;
   } else if (locale === 'tr') {
     title = "Şuayb'in Blogu";
     description = 'En son makaleleri, eğitimleri ve analizleri keşfedin.';
+    copyright = `© ${new Date().getFullYear()} Şuayb Şimşek. Tüm hakları saklıdır.`;
   } else {
     title = 'Blog';
     description = 'Latest posts';
@@ -60,6 +62,7 @@ function generateRSSFeedXML(posts, locale) {
   rss += `    <description>${description}</description>\n`;
   rss += `    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
   rss += `    <language>${locale}</language>\n`;
+  rss += `    <copyright>${copyright}</copyright>\n`;
   rss += `    <atom:link rel="self" type="application/rss+xml" href="${siteUrl}/${locale}/rss.xml" />\n`;
   rss += `    <atom:link rel="alternate" hreflang="${alternateLocale}" type="application/rss+xml" href="${siteUrl}/${alternateLocale}/rss.xml" />\n\n`;
 
