@@ -26,6 +26,8 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
     jobTitle: t('about.jobTitle'),
     email: CONTACT_LINKS.email,
     sameAs: [CONTACT_LINKS.linkedin, CONTACT_LINKS.medium, CONTACT_LINKS.github],
+    gender: 'male',
+    nationality: 'Turkish',
   };
 
   const profileData = { first_name: 'Şuayb', last_name: 'Şimşek' };

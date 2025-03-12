@@ -30,6 +30,8 @@ export default function Contact({ posts, topics }: Readonly<ContactProps>) {
       jobTitle: t('contact.jobTitle'),
       email: CONTACT_LINKS.email,
       sameAs: [CONTACT_LINKS.linkedin, CONTACT_LINKS.medium, CONTACT_LINKS.github],
+      gender: 'male',
+      nationality: 'Turkish',
     },
   };
 

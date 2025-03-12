@@ -69,9 +69,13 @@ const SEO: React.FC<SEOProps> = ({
 
   const updatedJsonLd: JsonLdData | null = jsonLd ? { ...jsonLd, url: canonicalUrl } : null;
 
-  if (updatedJsonLd && article) {
-    updatedJsonLd.inLanguage = ogTitle;
-    updatedJsonLd.mainEntityOfPage = canonicalUrl;
+  if (updatedJsonLd) {
+    if (article) {
+      updatedJsonLd.inLanguage = ogTitle;
+      updatedJsonLd.mainEntityOfPage = canonicalUrl;
+    } else if (updatedJsonLd['@type'] === 'ContactPage') {
+      updatedJsonLd.inLanguage = ogLocale;
+    }
   }
 
   return (
