@@ -16,6 +16,12 @@ interface ArticleProps {
   tags?: string[];
 }
 
+interface JsonLdData {
+  url?: string;
+  mainEntityOfPage?: string;
+  [key: string]: unknown;
+}
+
 interface SEOProps {
   title: string;
   ogTitle: string;
@@ -23,7 +29,7 @@ interface SEOProps {
   keywords?: string;
   image?: string;
   type?: string;
-  jsonLd?: object;
+  jsonLd?: JsonLdData;
   path?: string;
   profile?: ProfileProps;
   article?: ArticleProps;
@@ -59,7 +65,11 @@ const SEO: React.FC<SEOProps> = ({
 
   const siteName = t('common:common.siteName');
 
-  const updatedJsonLd = jsonLd ? { ...jsonLd, url: canonicalUrl } : null;
+  const updatedJsonLd: JsonLdData | null = jsonLd ? { ...jsonLd, url: canonicalUrl } : null;
+
+  if (updatedJsonLd && article) {
+    updatedJsonLd.mainEntityOfPage = canonicalUrl;
+  }
 
   return (
     <Head>

@@ -26,7 +26,7 @@ export default function Contact({ posts, topics }: Readonly<ContactProps>) {
       '@type': 'Person',
       name: AUTHOR_NAME,
       url: SITE_URL,
-      image: AVATAR_LINK,
+      image: `${SITE_URL}${AVATAR_LINK}`,
       jobTitle: t('contact.jobTitle'),
       email: CONTACT_LINKS.email,
       sameAs: [CONTACT_LINKS.linkedin, CONTACT_LINKS.medium, CONTACT_LINKS.github],

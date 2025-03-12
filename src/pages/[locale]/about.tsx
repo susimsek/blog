@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Card } from 'react-bootstrap';
 import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
-import { AUTHOR_NAME, AVATAR_LINK, CONTACT_LINKS, EXPERIENCE_START_YEAR } from '@/config/constants';
+import { AUTHOR_NAME, AVATAR_LINK, CONTACT_LINKS, EXPERIENCE_START_YEAR, SITE_URL } from '@/config/constants';
 import { getStaticPaths } from '@/lib/getStatic';
 import Layout from '@/components/common/Layout';
 import ContactInfo from '@/components/common/ContactInfo';
@@ -22,7 +22,7 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: AUTHOR_NAME,
-    image: AVATAR_LINK,
+    image: `${SITE_URL}${AVATAR_LINK}`,
     jobTitle: t('about.jobTitle'),
     email: CONTACT_LINKS.email,
     sameAs: [CONTACT_LINKS.linkedin, CONTACT_LINKS.medium, CONTACT_LINKS.github],

@@ -4,7 +4,7 @@ import React from 'react';
 import PostDetail from '@/components/posts/PostDetail';
 import type { Post, PostSummary } from '@/types/posts'; // type-only import
 import Layout from '@/components/common/Layout';
-import { AUTHOR_NAME, SITE_URL } from '@/config/constants';
+import { AUTHOR_NAME, SITE_LOGO, SITE_URL } from '@/config/constants';
 import SEO from '@/components/common/SEO';
 
 type PostProps = {
@@ -18,16 +18,33 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
   const image = `${SITE_URL}${post.thumbnail}`;
 
   const jsonLdData = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
+    '@context': 'http://schema.org',
+    '@type': 'NewsArticle',
+    image: [image],
+    dateCreated: post.date,
+    datePublished: post.date,
+    dateModified: post.date,
     headline: post.title,
+    name: post.title,
     description: post.summary,
-    image,
+    identifier: post.id,
     author: {
       '@type': 'Person',
       name: AUTHOR_NAME,
+      url: SITE_URL,
     },
-    datePublished: post.date,
+    creator: [AUTHOR_NAME],
+    publisher: {
+      '@type': 'Organization',
+      name: AUTHOR_NAME,
+      url: SITE_URL,
+      logo: {
+        '@type': 'ImageObject',
+        width: 1200,
+        height: 630,
+        url: `${SITE_URL}${SITE_LOGO}`,
+      },
+    },
   };
 
   const articleData = {
