@@ -46,9 +46,9 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
       url: SITE_URL,
       logo: {
         '@type': 'ImageObject',
+        url: `${SITE_URL}${SITE_LOGO}`,
         width: 1200,
         height: 630,
-        url: `${SITE_URL}${SITE_LOGO}`,
       },
     },
   };
