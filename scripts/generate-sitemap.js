@@ -8,6 +8,8 @@ const siteUrl = 'https://suaybsimsek.com';
 
 const locales = nextI18NextConfig.i18n.locales;
 
+const buildDir = path.join(process.cwd(), 'build');
+
 /** -------------- POSTS SITEMAP GENERATION -------------- **/
 
 /**
@@ -95,7 +97,7 @@ function generatePostsSitemapXML(postsById) {
 function generatePostsSitemap() {
   const postsById = groupPostsById();
   const sitemapXML = generatePostsSitemapXML(postsById);
-  const sitemapPath = path.join(process.cwd(), 'build', 'post-sitemap.xml');
+  const sitemapPath = path.join(buildDir, 'post-sitemap.xml');
   fs.writeFileSync(sitemapPath, sitemapXML, 'utf8');
   console.log('Posts sitemap generated at:', sitemapPath);
 }
@@ -181,7 +183,7 @@ function generateTopicsSitemapXML(topicsById) {
 function generateTopicsSitemap() {
   const topicsById = groupTopicsById();
   const sitemapXML = generateTopicsSitemapXML(topicsById);
-  const sitemapPath = path.join(process.cwd(), 'build', 'post_topic-sitemap.xml');
+  const sitemapPath = path.join(buildDir, 'post_topic-sitemap.xml');
   fs.writeFileSync(sitemapPath, sitemapXML, 'utf8');
   console.log('Topics sitemap generated at:', sitemapPath);
 }
@@ -270,7 +272,7 @@ function generatePagesSitemapXML(pages) {
 function generatePagesSitemap() {
   const pages = getPagesData();
   const sitemapXML = generatePagesSitemapXML(pages);
-  const sitemapPath = path.join(process.cwd(), 'build', 'page-sitemap.xml');
+  const sitemapPath = path.join(buildDir, 'page-sitemap.xml');
   fs.writeFileSync(sitemapPath, sitemapXML, 'utf8');
   console.log('Pages sitemap generated at:', sitemapPath);
 }
@@ -304,7 +306,7 @@ function generateSitemapIndexXML() {
  */
 function generateSitemapIndex() {
   const sitemapIndexXML = generateSitemapIndexXML();
-  const sitemapIndexPath = path.join(process.cwd(), 'build', 'sitemap_index.xml');
+  const sitemapIndexPath = path.join(buildDir, 'sitemap_index.xml');
   fs.writeFileSync(sitemapIndexPath, sitemapIndexXML, 'utf8');
   console.log('Sitemap index generated at:', sitemapIndexPath);
 }

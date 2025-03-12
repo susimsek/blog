@@ -8,6 +8,8 @@ const siteUrl = 'https://suaybsimsek.com';
 
 const locales = nextI18NextConfig.i18n.locales;
 
+const buildDir = path.join(process.cwd(), 'build');
+
 /**
  * Reads posts for a given locale from posts.json.
  * @param {string} locale - The locale identifier (e.g., 'en' or 'tr').
@@ -98,7 +100,7 @@ function generateRSSFeeds() {
     const posts = readPosts(locale);
     const rssXML = generateRSSFeedXML(posts, locale);
     // Ensure the locale directory exists under build
-    const localeDir = path.join(process.cwd(), 'build', locale);
+    const localeDir = path.join(buildDir, locale);
     if (!fs.existsSync(localeDir)) {
       fs.mkdirSync(localeDir, { recursive: true });
     }
