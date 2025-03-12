@@ -90,12 +90,12 @@ function generatePostsSitemapXML(postsById) {
 }
 
 /**
- * Writes the posts sitemap XML to the public folder.
+ * Writes the posts sitemap XML to the build folder.
  */
 function generatePostsSitemap() {
   const postsById = groupPostsById();
   const sitemapXML = generatePostsSitemapXML(postsById);
-  const sitemapPath = path.join(process.cwd(), 'public', 'post-sitemap.xml');
+  const sitemapPath = path.join(process.cwd(), 'build', 'post-sitemap.xml');
   fs.writeFileSync(sitemapPath, sitemapXML, 'utf8');
   console.log('Posts sitemap generated at:', sitemapPath);
 }
@@ -176,12 +176,12 @@ function generateTopicsSitemapXML(topicsById) {
 }
 
 /**
- * Writes the topics sitemap XML to the public folder.
+ * Writes the topics sitemap XML to the build folder.
  */
 function generateTopicsSitemap() {
   const topicsById = groupTopicsById();
   const sitemapXML = generateTopicsSitemapXML(topicsById);
-  const sitemapPath = path.join(process.cwd(), 'public', 'post_topic-sitemap.xml');
+  const sitemapPath = path.join(process.cwd(), 'build', 'post_topic-sitemap.xml');
   fs.writeFileSync(sitemapPath, sitemapXML, 'utf8');
   console.log('Topics sitemap generated at:', sitemapPath);
 }
@@ -265,12 +265,12 @@ function generatePagesSitemapXML(pages) {
 }
 
 /**
- * Writes the pages sitemap XML to the public folder.
+ * Writes the pages sitemap XML to the build folder.
  */
 function generatePagesSitemap() {
   const pages = getPagesData();
   const sitemapXML = generatePagesSitemapXML(pages);
-  const sitemapPath = path.join(process.cwd(), 'public', 'page-sitemap.xml');
+  const sitemapPath = path.join(process.cwd(), 'build', 'page-sitemap.xml');
   fs.writeFileSync(sitemapPath, sitemapXML, 'utf8');
   console.log('Pages sitemap generated at:', sitemapPath);
 }
@@ -300,7 +300,7 @@ function generateSitemapIndexXML() {
 }
 
 /**
- * Writes the sitemap index XML to the public folder.
+ * Writes the sitemap index XML to the build folder.
  */
 function generateSitemapIndex() {
   const sitemapIndexXML = generateSitemapIndexXML();

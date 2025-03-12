@@ -91,13 +91,13 @@ function generateRSSFeedXML(posts, locale) {
 
 /**
  * Generates and writes the RSS feed for each locale.
- * The feed is written to public/{locale}/rss.xml.
+ * The feed is written to build/{locale}/rss.xml.
  */
 function generateRSSFeeds() {
   locales.forEach(locale => {
     const posts = readPosts(locale);
     const rssXML = generateRSSFeedXML(posts, locale);
-    // Ensure the locale directory exists under public
+    // Ensure the locale directory exists under build
     const localeDir = path.join(process.cwd(), 'build', locale);
     if (!fs.existsSync(localeDir)) {
       fs.mkdirSync(localeDir, { recursive: true });
