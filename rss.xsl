@@ -71,6 +71,14 @@
             max-height: 120px;
             border: 1px solid #ccc;
           }
+          .footer {
+            font-size: 14px;
+            color: #333;
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+          }
         </style>
       </head>
       <body>
@@ -78,7 +86,7 @@
           <h1><xsl:value-of select="rss/channel/title"/></h1>
           <p><xsl:value-of select="rss/channel/description"/></p>
           <p><strong>Last Build Date:</strong> <xsl:value-of select="rss/channel/lastBuildDate"/></p>
-
+          <p><strong>Total Items:</strong> <xsl:value-of select="count(rss/channel/item)"/></p>
           <xsl:for-each select="rss/channel/item">
             <div class="item">
               <xsl:if test="media:thumbnail">
@@ -108,6 +116,9 @@
               </div>
             </div>
           </xsl:for-each>
+          <div class="footer">
+            <xsl:value-of select="rss/channel/copyright"/>
+          </div>
         </div>
       </body>
     </html>
