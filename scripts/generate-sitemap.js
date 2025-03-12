@@ -2,8 +2,11 @@
 const fs = require('fs');
 const path = require('path');
 
+const nextI18NextConfig = require('../next-i18next.config');
+
 const siteUrl = 'https://suaybsimsek.com';
-const locales = ['en', 'tr'];
+
+const locales = nextI18NextConfig.i18n.locales;
 
 /** -------------- POSTS SITEMAP GENERATION -------------- **/
 
