@@ -41,11 +41,11 @@ function generateRSSFeedXML(posts, locale) {
   if (locale === 'en') {
     title = "Şuayb's Blog";
     description = 'Explore the latest articles, tutorials, and insights.';
-    copyright = `© ${new Date().getFullYear()} Şuayb Şimşek. All rights reserved.`;
+    copyright = `© 2024 Şuayb Şimşek. All rights reserved.`;
   } else if (locale === 'tr') {
     title = "Şuayb'in Blogu";
     description = 'En son makaleleri, eğitimleri ve analizleri keşfedin.';
-    copyright = `© ${new Date().getFullYear()} Şuayb Şimşek. Tüm hakları saklıdır.`;
+    copyright = `© 2024 Şuayb Şimşek. Tüm hakları saklıdır.`;
   } else {
     title = 'Blog';
     description = 'Latest posts';
