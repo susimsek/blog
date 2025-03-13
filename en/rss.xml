@@ -5,11 +5,27 @@
     <title>Şuayb's Blog</title>
     <link>https://suaybsimsek.com/en</link>
     <description>Explore the latest articles, tutorials, and insights.</description>
-    <lastBuildDate>Thu, 13 Mar 2025 11:56:20 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 13 Mar 2025 19:39:13 GMT</lastBuildDate>
     <language>en</language>
     <copyright>© 2024 Şuayb Şimşek. All rights reserved.</copyright>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
     <atom:link rel="alternate" hreflang="tr" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
+
+    <item>
+      <title>Spring Boot Circuit Breaker</title>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-circuit-breaker</link>
+      <description><![CDATA[Learn how to implement Circuit Breaker in Spring Boot applications for resilient microservices.]]></description>
+      <pubDate>Thu, 13 Mar 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-circuit-breaker</guid>
+      <category>Java</category>
+      <category>Kotlin</category>
+      <category>Spring Boot</category>
+      <category>Spring Cloud</category>
+      <category>Circuit Breaker</category>
+      <category>Microservice</category>
+      <category>Programming</category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-circuit-breaker-thumbnail.webp" />
+    </item>
 
     <item>
       <title>Spring Boot Eureka Server</title>
