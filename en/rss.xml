@@ -5,7 +5,7 @@
     <title>Şuayb's Blog</title>
     <link>https://suaybsimsek.com/en</link>
     <description>Explore the latest articles, tutorials, and insights.</description>
-    <lastBuildDate>Wed, 12 Mar 2025 19:55:46 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 13 Mar 2025 10:45:33 GMT</lastBuildDate>
     <language>en</language>
     <copyright>© 2024 Şuayb Şimşek. All rights reserved.</copyright>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
@@ -305,7 +305,7 @@
       <category>Gin</category>
       <category>Beginner Guide</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/golang-gin-first-app-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/golang-gin-first-app-thumbnail.webp" />
     </item>
 
     <item>
