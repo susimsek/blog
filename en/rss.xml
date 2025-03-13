@@ -5,7 +5,7 @@
     <title>Şuayb's Blog</title>
     <link>https://suaybsimsek.com/en</link>
     <description>Explore the latest articles, tutorials, and insights.</description>
-    <lastBuildDate>Thu, 13 Mar 2025 10:45:33 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 13 Mar 2025 11:56:20 GMT</lastBuildDate>
     <language>en</language>
     <copyright>© 2024 Şuayb Şimşek. All rights reserved.</copyright>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
@@ -24,7 +24,7 @@
       <category>Eureka Server</category>
       <category>Microservice</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-eureka-server-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-eureka-server-thumbnail.webp" />
     </item>
 
     <item>
@@ -40,7 +40,7 @@
       <category>Config Server</category>
       <category>Microservice</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-config-server-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-config-server-thumbnail.webp" />
     </item>
 
     <item>
@@ -56,7 +56,7 @@
       <category>Containerization</category>
       <category>Jib</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-docker-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-docker-thumbnail.webp" />
     </item>
 
     <item>
@@ -72,7 +72,7 @@
       <category>Microservice</category>
       <category>Containerization</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.webp" />
     </item>
 
     <item>
@@ -86,7 +86,7 @@
       <category>Spring Boot</category>
       <category>Async Tasks</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-async-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-async-thumbnail.webp" />
     </item>
 
     <item>
@@ -100,7 +100,7 @@
       <category>Spring Boot</category>
       <category>Scheduled Tasks</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.webp" />
     </item>
 
     <item>
@@ -115,7 +115,7 @@
       <category>Reactive Programming</category>
       <category>Spring WebFlux</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.webp" />
     </item>
 
     <item>
@@ -130,7 +130,7 @@
       <category>GraalVM</category>
       <category>Native Image</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.webp" />
     </item>
 
     <item>
@@ -145,7 +145,7 @@
       <category>Kafka</category>
       <category>Messaging</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.webp" />
     </item>
 
     <item>
@@ -160,7 +160,7 @@
       <category>Redis</category>
       <category>Caching</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-redis-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-redis-thumbnail.webp" />
     </item>
 
     <item>
@@ -175,7 +175,7 @@
       <category>OpenAPI</category>
       <category>Documentation</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.webp" />
     </item>
 
     <item>
@@ -189,7 +189,7 @@
       <category>Spring Boot</category>
       <category>Clean Coding</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.webp" />
     </item>
 
     <item>
@@ -203,7 +203,7 @@
       <category>Spring Boot</category>
       <category>Dev Tools</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.webp" />
     </item>
 
     <item>
@@ -218,7 +218,7 @@
       <category>Actuator</category>
       <category>Monitoring</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.webp" />
     </item>
 
     <item>
@@ -232,7 +232,7 @@
       <category>Spring Boot</category>
       <category>AOP</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-aop-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-aop-thumbnail.webp" />
     </item>
 
     <item>
@@ -246,7 +246,7 @@
       <category>Spring Boot</category>
       <category>Dependency Injection</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-di-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-di-thumbnail.webp" />
     </item>
 
     <item>
@@ -262,7 +262,7 @@
       <category>Gin</category>
       <category>ORM</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/orm-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/orm-thumbnail.webp" />
     </item>
 
     <item>
@@ -278,7 +278,7 @@
       <category>Gin</category>
       <category>Validation</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/input-validation-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/input-validation-thumbnail.webp" />
     </item>
 
     <item>
@@ -292,7 +292,7 @@
       <category>GraphQL</category>
       <category>Spring Boot</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.webp" />
     </item>
 
     <item>
@@ -319,7 +319,7 @@
       <category>Spring Boot</category>
       <category>REST API</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.webp" />
     </item>
 
     <item>
@@ -333,7 +333,7 @@
       <category>Spring Boot</category>
       <category>Beginner Guide</category>
       <category>Programming</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.webp" />
     </item>
 
   </channel>

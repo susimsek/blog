@@ -5,7 +5,7 @@
     <title>Şuayb'in Blogu</title>
     <link>https://suaybsimsek.com/tr</link>
     <description>En son makaleleri, eğitimleri ve analizleri keşfedin.</description>
-    <lastBuildDate>Thu, 13 Mar 2025 10:45:33 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 13 Mar 2025 11:56:20 GMT</lastBuildDate>
     <language>tr</language>
     <copyright>© 2024 Şuayb Şimşek. Tüm hakları saklıdır.</copyright>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
@@ -24,7 +24,7 @@
       <category>Eureka Server</category>
       <category>Mikroservis</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-eureka-server-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-eureka-server-thumbnail.webp" />
     </item>
 
     <item>
@@ -40,7 +40,7 @@
       <category>Config Server</category>
       <category>Mikroservis</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-config-server-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-config-server-thumbnail.webp" />
     </item>
 
     <item>
@@ -56,7 +56,7 @@
       <category>Konteynerizasyon</category>
       <category>Jib</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-docker-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-docker-thumbnail.webp" />
     </item>
 
     <item>
@@ -72,7 +72,7 @@
       <category>Mikroservis</category>
       <category>Konteynerizasyon</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.webp" />
     </item>
 
     <item>
@@ -86,7 +86,7 @@
       <category>Spring Boot</category>
       <category>Asenkron Görevler</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-async-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-async-thumbnail.webp" />
     </item>
 
     <item>
@@ -100,7 +100,7 @@
       <category>Spring Boot</category>
       <category>Planlanmış Görevler</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.webp" />
     </item>
 
     <item>
@@ -115,7 +115,7 @@
       <category>Reaktif Programlama</category>
       <category>Spring WebFlux</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.webp" />
     </item>
 
     <item>
@@ -130,7 +130,7 @@
       <category>GraalVM</category>
       <category>Native İmaj</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.webp" />
     </item>
 
     <item>
@@ -145,7 +145,7 @@
       <category>Kafka</category>
       <category>Mesajlaşma</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.webp" />
     </item>
 
     <item>
@@ -160,7 +160,7 @@
       <category>Redis</category>
       <category>Önbellekleme</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-redis-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-redis-thumbnail.webp" />
     </item>
 
     <item>
@@ -175,7 +175,7 @@
       <category>OpenAPI</category>
       <category>Dokümantasyon</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.webp" />
     </item>
 
     <item>
@@ -189,7 +189,7 @@
       <category>Spring Boot</category>
       <category>Temiz Kodlama</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.webp" />
     </item>
 
     <item>
@@ -203,7 +203,7 @@
       <category>Spring Boot</category>
       <category>Geliştirme Araçları</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.webp" />
     </item>
 
     <item>
@@ -218,7 +218,7 @@
       <category>Actuator</category>
       <category>İzleme</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.webp" />
     </item>
 
     <item>
@@ -232,7 +232,7 @@
       <category>Spring Boot</category>
       <category>AOP</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-aop-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-aop-thumbnail.webp" />
     </item>
 
     <item>
@@ -246,7 +246,7 @@
       <category>Spring Boot</category>
       <category>Bağımlılık Enjeksiyonu</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-di-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-di-thumbnail.webp" />
     </item>
 
     <item>
@@ -262,7 +262,7 @@
       <category>Gin</category>
       <category>ORM</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/orm-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/orm-thumbnail.webp" />
     </item>
 
     <item>
@@ -278,7 +278,7 @@
       <category>Gin</category>
       <category>Doğrulama</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/input-validation-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/input-validation-thumbnail.webp" />
     </item>
 
     <item>
@@ -292,7 +292,7 @@
       <category>Spring Boot</category>
       <category>GraphQL</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.webp" />
     </item>
 
     <item>
@@ -319,7 +319,7 @@
       <category>Spring Boot</category>
       <category>REST API</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.webp" />
     </item>
 
     <item>
@@ -333,7 +333,7 @@
       <category>Spring Boot</category>
       <category>Başlangıç Rehberi</category>
       <category>Programlama</category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.jpeg" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.webp" />
     </item>
 
   </channel>
