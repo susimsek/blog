@@ -99,7 +99,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta property="og:locale" content={ogLocale} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      <meta property="og:image:type" content="image/jpeg" />
+      <meta property="og:image:type" content="image/webp" />
 
       {/* Optional profile properties */}
       {profile && (

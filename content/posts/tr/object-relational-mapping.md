@@ -2,7 +2,7 @@
 title: 'Object-Relational Mapping (ORM)'
 date: '2024-12-16'
 summary: 'Spring Boot kullanarak Java, Kotlin ve Go (Gin) ile PostgreSQL entegrasyonu ve temel CRUD işlemlerini içeren bir ORM tabanlı uygulamanın nasıl kurulacağını öğrenin.'
-thumbnail: '/images/orm-thumbnail.jpeg'
+thumbnail: '/images/orm-thumbnail.webp'
 readingTime: '3 dk okuma'
 topics:
   - id: 'java'

@@ -2,7 +2,7 @@
 title: 'Spring Boot ile GraalVM Native Uygulama'
 date: '2024-12-28'
 summary: 'Spring Boot uygulamalarınızı GraalVM native imajı olarak derleyerek daha hızlı başlatma süreleri ve azaltılmış kaynak kullanımı elde etmeyi öğrenin.'
-thumbnail: '/images/spring-boot-graalvm-thumbnail.jpeg'
+thumbnail: '/images/spring-boot-graalvm-thumbnail.webp'
 readingTime: '2 dk okuma'
 topics:
   - id: 'java'

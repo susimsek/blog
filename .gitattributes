@@ -79,6 +79,7 @@ TODO            text
 *.svg           binary
 #*.svg          text
 *.eps           binary
+*.webp          binary
 
 # These files are binary and should be left untouched
 # (binary is a macro for -text -diff)

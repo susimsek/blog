@@ -2,7 +2,7 @@
 title: 'Spring Boot ile Dependency Injection'
 date: '2024-12-18'
 summary: 'Spring Boot ile Bağımlılık Enjeksiyonu (Dependency Injection - DI) nasıl çalışır? Java ve Kotlin örnekleriyle temel kavramlar, anotasyonlar ve pratik kullanım senaryolarını öğrenin.'
-thumbnail: '/images/spring-boot-di-thumbnail.jpeg'
+thumbnail: '/images/spring-boot-di-thumbnail.webp'
 readingTime: '2 dk okuma'
 topics:
   - id: 'java'

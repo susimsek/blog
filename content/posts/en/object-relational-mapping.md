@@ -2,7 +2,7 @@
 title: 'Object-Relational Mapping (ORM)'
 date: '2024-12-16'
 summary: 'Learn how to set up an ORM-based application with Spring Boot using Java, Kotlin, and Go (Gin). Includes PostgreSQL integration and basic CRUD operations.'
-thumbnail: '/images/orm-thumbnail.jpeg'
+thumbnail: '/images/orm-thumbnail.webp'
 readingTime: '3 min read'
 topics:
   - id: 'java'

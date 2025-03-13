@@ -2,7 +2,7 @@
 title: 'Spring Boot Redis Caching'
 date: '2024-12-22'
 summary: 'Learn how to implement Redis caching in your Spring Boot application to improve performance and efficiency.'
-thumbnail: '/images/spring-boot-redis-thumbnail.jpeg'
+thumbnail: '/images/spring-boot-redis-thumbnail.webp'
 readingTime: '3 min read'
 topics:
   - id: 'java'
