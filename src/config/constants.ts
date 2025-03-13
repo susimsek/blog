@@ -19,10 +19,10 @@ export const AUTHOR_NAME = 'Şuayb Şimşek';
 export const SITE_URL = 'https://suaybsimsek.com';
 
 // 🆕 Site Logo (for Open Graph, Structured Data, etc.)
-export const SITE_LOGO = `${assetPrefix}/images/logo.jpeg`;
+export const SITE_LOGO = `${assetPrefix}/images/logo.webp`;
 
 // Constant for avatar link
-export const AVATAR_LINK = `${assetPrefix}/images/profile.jpeg`;
+export const AVATAR_LINK = `${assetPrefix}/images/profile.webp`;
 
 // Static contact links
 export const CONTACT_LINKS = {

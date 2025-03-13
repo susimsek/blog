@@ -202,7 +202,7 @@ function getPagesData() {
       slug: '', // Home page
       changefreq: 'daily',
       image: {
-        loc: '/images/logo.jpeg',
+        loc: '/images/logo.webp',
         title: { en: "Welcome to Şuayb's Blog", tr: "Şuayb'in Bloguna Hoş Geldiniz" },
       },
     },
@@ -210,7 +210,7 @@ function getPagesData() {
       slug: 'about',
       changefreq: 'monthly',
       image: {
-        loc: '/images/profile.jpeg',
+        loc: '/images/profile.webp',
         title: { en: 'About', tr: 'Hakkımda' },
       },
     },
@@ -218,7 +218,7 @@ function getPagesData() {
       slug: 'contact',
       changefreq: 'monthly',
       image: {
-        loc: '/images/profile.jpeg',
+        loc: '/images/profile.webp',
         title: { en: 'Contact Information', tr: 'İletişim Bilgileri' },
       },
     },
