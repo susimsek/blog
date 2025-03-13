@@ -35,5 +35,6 @@
   { "id": "containerization", "name": "Konteynerizasyon", "color": "orange" },
   { "id": "jib", "name": "Jib", "color": "pink" },
   { "id": "config-server", "name": "Config Server", "color": "blue" },
-  { "id": "eureka-server", "name": "Eureka Server", "color": "blue" }
+  { "id": "eureka-server", "name": "Eureka Server", "color": "blue" },
+  { "id": "circuit-breaker", "name": "Circuit Breaker", "color": "blue" }
 ]

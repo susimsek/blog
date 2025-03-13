@@ -1,5 +1,50 @@
 [
   {
+    "id": "spring-boot-circuit-breaker",
+    "title": "Spring Boot Circuit Breaker",
+    "date": "2025-03-13",
+    "summary": "Learn how to implement Circuit Breaker in Spring Boot applications for resilient microservices.",
+    "thumbnail": "/images/spring-boot-circuit-breaker-thumbnail.webp",
+    "readingTime": "3 min read",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "spring-cloud",
+        "name": "Spring Cloud",
+        "color": "pink"
+      },
+      {
+        "id": "circuit-breaker",
+        "name": "Circuit Breaker",
+        "color": "blue"
+      },
+      {
+        "id": "microservice",
+        "name": "Microservice",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programming",
+        "color": "brown"
+      }
+    ]
+  },
+  {
     "id": "spring-boot-eureka-server",
     "title": "Spring Boot Eureka Server",
     "date": "2025-02-23",
