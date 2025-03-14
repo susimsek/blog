@@ -40,27 +40,6 @@ function parsePostFile(filePath: string, includeContent: boolean = false): { dat
   return includeContent ? { data: postSummary, content } : { data: postSummary };
 }
 
-async function collectTopicsFromDirectory(dir: string, topicsMap: Map<string, Topic>) {
-  if (!fs.existsSync(dir)) return;
-
-  const fileNames = await fs.promises.readdir(dir);
-
-  for (const fileName of fileNames) {
-    const filePath = path.join(dir, fileName);
-    const fileContents = await fs.promises.readFile(filePath, 'utf8');
-
-    const { data } = matter(fileContents);
-
-    if (Array.isArray(data.topics)) {
-      data.topics.forEach((topic: Topic) => {
-        if (!topicsMap.has(topic.id)) {
-          topicsMap.set(topic.id, topic);
-        }
-      });
-    }
-  }
-}
-
 // Get all posts grouped by locale with fallback support
 export function getSortedPostsData(locale: string, topicId?: string): PostSummary[] {
   const cacheName = 'getSortedPostsData';
@@ -142,25 +121,12 @@ export async function getTopicData(locale: string, topicId: string): Promise<Top
   const cacheKey = `${locale}-${topicId}`;
 
   const cachedData = getCache<Topic | null>(cacheKey, topicDataCache, cacheName);
-  if (cachedData) {
-    return cachedData;
-  }
+  if (cachedData) return cachedData;
 
-  const fallbackLocale = i18nextConfig.i18n.defaultLocale;
-  const directory = path.join(postsDirectory, locale);
-  const fallbackDirectory = path.join(postsDirectory, fallbackLocale);
-
-  const allTopics = new Map<string, Topic>();
-
-  await collectTopicsFromDirectory(directory, allTopics);
-  if (locale !== fallbackLocale) {
-    await collectTopicsFromDirectory(fallbackDirectory, allTopics);
-  }
-
-  const topic = allTopics.get(topicId) || null;
+  const topics = await getAllTopics(locale);
+  const topic = topics.find(topic => topic.id === topicId) || null;
 
   setCache(cacheKey, topic, topicDataCache, cacheName);
-
   return topic;
 }
 
@@ -197,32 +163,20 @@ export async function getAllTopics(locale: string): Promise<Topic[]> {
 }
 
 // Generate all post IDs for static paths
+
 export function getAllPostIds() {
   const cacheName = 'getAllPostIds';
   const cacheKey = 'all-post-ids';
-  let postIds = getCache(cacheKey, postIdsCache, cacheName);
-  if (postIds) return postIds;
+  const cachedData = getCache(cacheKey, postIdsCache, cacheName);
+  if (cachedData) return cachedData;
 
   const defaultLocale = i18nextConfig.i18n.defaultLocale;
-  const postsJsonPath = path.join(postsDirectory, defaultLocale, 'posts.json');
-
-  if (!fs.existsSync(postsJsonPath)) {
-    console.error(`Posts file not found for locale "${defaultLocale}": ${postsJsonPath}`);
-    postIds = [];
-  } else {
-    try {
-      const fileContents = fs.readFileSync(postsJsonPath, 'utf8');
-      const allPosts: PostSummary[] = JSON.parse(fileContents);
-      postIds = allPosts.flatMap(post =>
-        i18nextConfig.i18n.locales.map(locale => ({
-          params: { id: post.id, locale },
-        })),
-      );
-    } catch (error) {
-      console.error(`Error reading/parsing posts.json for locale "${defaultLocale}":`, error);
-      postIds = [];
-    }
-  }
+  const posts = getSortedPostsData(defaultLocale);
+  const postIds = posts.flatMap(post =>
+    i18nextConfig.i18n.locales.map(locale => ({
+      params: { id: post.id, locale },
+    })),
+  );
 
   setCache(cacheKey, postIds, postIdsCache, cacheName);
   return postIds;

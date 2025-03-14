@@ -298,17 +298,14 @@ describe('Posts Library', () => {
       expect(result).toBeNull();
     });
 
-    it('collects topics from both directory and fallbackDirectory when they exist', async () => {
-      const result = await getTopicData('tr', 'react');
-      expect(fs.promises.readdir).toHaveBeenCalledWith(expect.stringContaining('/content/posts/en'));
-      expect(fs.promises.readdir).toHaveBeenCalledWith(expect.stringContaining('/content/posts/tr'));
-      expect(result).toEqual(mockTopic);
-    });
-
-    it('collects topics from only directory when fallbackDirectory does not exist', async () => {
-      (fs.existsSync as jest.Mock).mockImplementation((p: string) => p.includes('/en'));
+    it('collects topics from only directory', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      const mockTopic = { id: 'react', name: 'React' };
+      (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify([mockTopic]));
       const result = await getTopicData('en', 'react');
-      expect(fs.promises.readdir).toHaveBeenCalledWith(expect.stringContaining('/content/posts/en'));
+      expect(fs.existsSync).toHaveBeenCalledWith(
+        expect.stringContaining(path.join('content', 'topics', 'en', 'topics.json')),
+      );
       expect(result).toEqual(mockTopic);
     });
   });
