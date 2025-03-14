@@ -200,28 +200,31 @@ export async function getAllTopics(locale: string): Promise<Topic[]> {
 export function getAllPostIds() {
   const cacheName = 'getAllPostIds';
   const cacheKey = 'all-post-ids';
-
-  const cachedData = getCache(cacheKey, postIdsCache, cacheName);
-  if (cachedData) {
-    return cachedData;
-  }
+  let postIds = getCache(cacheKey, postIdsCache, cacheName);
+  if (postIds) return postIds;
 
   const defaultLocale = i18nextConfig.i18n.defaultLocale;
-  const directory = path.join(postsDirectory, defaultLocale);
-  const fileNames = fs.existsSync(directory) ? fs.readdirSync(directory) : [];
+  const postsJsonPath = path.join(postsDirectory, defaultLocale, 'posts.json');
 
-  const postIds = fileNames.flatMap(fileName => {
-    const id = fileName.replace(/\.md$/, '');
-    return i18nextConfig.i18n.locales.map(locale => ({
-      params: {
-        id,
-        locale,
-      },
-    }));
-  });
+  if (!fs.existsSync(postsJsonPath)) {
+    console.error(`Posts file not found for locale "${defaultLocale}": ${postsJsonPath}`);
+    postIds = [];
+  } else {
+    try {
+      const fileContents = fs.readFileSync(postsJsonPath, 'utf8');
+      const allPosts: PostSummary[] = JSON.parse(fileContents);
+      postIds = allPosts.flatMap(post =>
+        i18nextConfig.i18n.locales.map(locale => ({
+          params: { id: post.id, locale },
+        })),
+      );
+    } catch (error) {
+      console.error(`Error reading/parsing posts.json for locale "${defaultLocale}":`, error);
+      postIds = [];
+    }
+  }
 
   setCache(cacheKey, postIds, postIdsCache, cacheName);
-
   return postIds;
 }
 
