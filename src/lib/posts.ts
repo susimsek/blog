@@ -75,7 +75,7 @@ export function getSortedPostsData(locale: string, topicId?: string): PostSummar
 }
 
 // Get a specific post for all locales with fallback support
-export async function getPostData(id: string, locale: string): Promise<Post | null> {
+export function getPostData(id: string, locale: string): Post | null {
   const cacheName = 'getPostData';
   const cacheKey = `${locale}-${id}`;
 
@@ -116,14 +116,14 @@ export async function getPostData(id: string, locale: string): Promise<Post | nu
   return post;
 }
 
-export async function getTopicData(locale: string, topicId: string): Promise<Topic | null> {
+export function getTopicData(locale: string, topicId: string): Topic | null {
   const cacheName = 'getTopicData';
   const cacheKey = `${locale}-${topicId}`;
 
   const cachedData = getCache<Topic | null>(cacheKey, topicDataCache, cacheName);
   if (cachedData) return cachedData;
 
-  const topics = await getAllTopics(locale);
+  const topics = getAllTopics(locale);
   const topic = topics.find(topic => topic.id === topicId) || null;
 
   setCache(cacheKey, topic, topicDataCache, cacheName);
@@ -131,7 +131,7 @@ export async function getTopicData(locale: string, topicId: string): Promise<Top
 }
 
 // Get all unique topics from the posts directory
-export async function getAllTopics(locale: string): Promise<Topic[]> {
+export function getAllTopics(locale: string): Topic[] {
   const cacheName = 'getAllTopics';
   const cacheKey = locale;
 
@@ -185,40 +185,18 @@ export function getAllPostIds() {
 export function getAllTopicIds() {
   const cacheName = 'getAllTopicIds';
   const cacheKey = 'all-topic-ids';
-
   const cachedData = getCache(cacheKey, topicIdsCache, cacheName);
-  if (cachedData) {
-    return cachedData;
-  }
+  if (cachedData) return cachedData;
 
-  const topicIds: { params: { id: string; locale: string } }[] = [];
-
-  i18nextConfig.i18n.locales.forEach(locale => {
-    const topicsFilePath = path.join(topicsDirectory, locale, 'topics.json');
-
-    if (fs.existsSync(topicsFilePath)) {
-      try {
-        const fileContents = fs.readFileSync(topicsFilePath, 'utf8');
-        const topics: Topic[] = JSON.parse(fileContents);
-
-        topics.forEach(topic => {
-          topicIds.push({
-            params: {
-              id: topic.id,
-              locale,
-            },
-          });
-        });
-      } catch (error) {
-        console.error(`Error reading or parsing topics.json for locale "${locale}":`, error);
-      }
-    } else {
-      console.warn(`Topics file not found for locale "${locale}": ${topicsFilePath}`);
-    }
-  });
+  const defaultLocale = i18nextConfig.i18n.defaultLocale;
+  const topics = getAllTopics(defaultLocale);
+  const topicIds = topics.flatMap(topic =>
+    i18nextConfig.i18n.locales.map(locale => ({
+      params: { id: topic.id, locale },
+    })),
+  );
 
   setCache(cacheKey, topicIds, topicIdsCache, cacheName);
-
   return topicIds;
 }
 
@@ -229,7 +207,7 @@ export const makePostProps =
     const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
 
     const posts = getSortedPostsData(locale);
-    const topics = await getAllTopics(locale);
+    const topics = getAllTopics(locale);
 
     const i18nProps = await serverSideTranslations(locale, ns);
 
@@ -249,7 +227,7 @@ export const makePostDetailProps =
     const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
     const id = (context?.params?.id as string) || '';
 
-    const post = await getPostData(id, locale);
+    const post = getPostData(id, locale);
     if (!post) {
       return {
         notFound: true,
@@ -288,7 +266,7 @@ export const makeTopicProps =
 
     const i18nProps = await getI18nProps(context, ns);
 
-    const topics = await getAllTopics(locale);
+    const topics = getAllTopics(locale);
 
     return {
       props: {
@@ -310,7 +288,7 @@ export const makeSearchProps =
 
     const i18nProps = await serverSideTranslations(locale, ns);
 
-    const topics = await getAllTopics(locale);
+    const topics = getAllTopics(locale);
 
     return {
       props: {

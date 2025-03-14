@@ -717,22 +717,51 @@ describe('Posts Library', () => {
       });
       const result = getAllTopicIds();
       expect(result).toEqual([
-        { params: { id: 'react', locale: 'en' } },
-        { params: { id: 'nextjs', locale: 'en' } },
-        { params: { id: 'react', locale: 'fr' } },
-        { params: { id: 'nextjs', locale: 'fr' } },
+        {
+          params: {
+            id: 'react',
+            locale: 'en',
+          },
+        },
+        {
+          params: {
+            id: 'react',
+            locale: 'fr',
+          },
+        },
+        {
+          params: {
+            id: 'react',
+            locale: 'de',
+          },
+        },
+        {
+          params: {
+            id: 'nextjs',
+            locale: 'en',
+          },
+        },
+        {
+          params: {
+            id: 'nextjs',
+            locale: 'fr',
+          },
+        },
+        {
+          params: {
+            id: 'nextjs',
+            locale: 'de',
+          },
+        },
       ]);
       expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/content/topics/en/topics.json'));
-      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/content/topics/fr/topics.json'));
       expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('/content/topics/en/topics.json'), 'utf8');
-      expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('/content/topics/fr/topics.json'), 'utf8');
     });
 
     it('returns an empty array if topics.json does not exist for any locale', () => {
       (fs.existsSync as jest.Mock).mockReturnValue(false);
       const result = getAllTopicIds();
       expect(result).toEqual([]);
-      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('Topics file not found'));
     });
 
     it('handles JSON parse errors gracefully', () => {
@@ -764,8 +793,44 @@ describe('Posts Library', () => {
         throw new Error('File not found');
       });
       const result = getAllTopicIds();
-      expect(result).toEqual([{ params: { id: 'react', locale: 'en' } }, { params: { id: 'nextjs', locale: 'en' } }]);
-      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('Topics file not found'));
+      expect(result).toEqual([
+        {
+          params: {
+            id: 'react',
+            locale: 'en',
+          },
+        },
+        {
+          params: {
+            id: 'react',
+            locale: 'fr',
+          },
+        },
+        {
+          params: {
+            id: 'react',
+            locale: 'de',
+          },
+        },
+        {
+          params: {
+            id: 'nextjs',
+            locale: 'en',
+          },
+        },
+        {
+          params: {
+            id: 'nextjs',
+            locale: 'fr',
+          },
+        },
+        {
+          params: {
+            id: 'nextjs',
+            locale: 'de',
+          },
+        },
+      ]);
     });
   });
 });
