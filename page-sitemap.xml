@@ -7,7 +7,7 @@
 
   <url>
     <loc>https://suaybsimsek.com/en</loc>
-    <lastmod>2025-03-31T18:15:16.130Z</lastmod>
+    <lastmod>2025-03-31T18:21:31.927Z</lastmod>
     <changefreq>daily</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/logo.webp</image:loc>
@@ -19,7 +19,7 @@
 
   <url>
     <loc>https://suaybsimsek.com/tr</loc>
-    <lastmod>2025-03-31T18:15:16.130Z</lastmod>
+    <lastmod>2025-03-31T18:21:31.927Z</lastmod>
     <changefreq>daily</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/logo.webp</image:loc>
@@ -31,7 +31,7 @@
 
   <url>
     <loc>https://suaybsimsek.com/en/about</loc>
-    <lastmod>2025-03-31T18:15:16.130Z</lastmod>
+    <lastmod>2025-03-31T18:21:31.927Z</lastmod>
     <changefreq>monthly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/profile.webp</image:loc>
@@ -43,7 +43,7 @@
 
   <url>
     <loc>https://suaybsimsek.com/tr/about</loc>
-    <lastmod>2025-03-31T18:15:16.130Z</lastmod>
+    <lastmod>2025-03-31T18:21:31.927Z</lastmod>
     <changefreq>monthly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/profile.webp</image:loc>
@@ -55,7 +55,7 @@
 
   <url>
     <loc>https://suaybsimsek.com/en/contact</loc>
-    <lastmod>2025-03-31T18:15:16.130Z</lastmod>
+    <lastmod>2025-03-31T18:21:31.927Z</lastmod>
     <changefreq>monthly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/profile.webp</image:loc>
@@ -67,7 +67,7 @@
 
   <url>
     <loc>https://suaybsimsek.com/tr/contact</loc>
-    <lastmod>2025-03-31T18:15:16.130Z</lastmod>
+    <lastmod>2025-03-31T18:21:31.927Z</lastmod>
     <changefreq>monthly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/profile.webp</image:loc>
@@ -79,10 +79,10 @@
 
   <url>
     <loc>https://suaybsimsek.com/en/medium</loc>
-    <lastmod>2025-03-31T18:15:16.130Z</lastmod>
-    <changefreq>weekly</changefreq>
+    <lastmod>2025-03-31T18:21:31.927Z</lastmod>
+    <changefreq>daily</changefreq>
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/profile.webp</image:loc>
+      <image:loc>https://suaybsimsek.com/images/logo.webp</image:loc>
       <image:title>Medium Articles</image:title>
     </image:image>
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/medium"/>
@@ -91,10 +91,10 @@
 
   <url>
     <loc>https://suaybsimsek.com/tr/medium</loc>
-    <lastmod>2025-03-31T18:15:16.130Z</lastmod>
-    <changefreq>weekly</changefreq>
+    <lastmod>2025-03-31T18:21:31.927Z</lastmod>
+    <changefreq>daily</changefreq>
     <image:image>
-      <image:loc>https://suaybsimsek.com/images/profile.webp</image:loc>
+      <image:loc>https://suaybsimsek.com/images/logo.webp</image:loc>
       <image:title>Medium Yazıları</image:title>
     </image:image>
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/medium"/>
