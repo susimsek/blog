@@ -226,7 +226,7 @@ function getPagesData() {
       slug: 'medium',
       changefreq: 'daily',
       image: {
-        loc: '/images/logo.webp',
+        loc: '/images/medium.webp',
         title: {
           en: 'Medium Articles',
           tr: 'Medium Yazıları',
