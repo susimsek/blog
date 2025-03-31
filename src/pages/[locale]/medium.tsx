@@ -1,7 +1,7 @@
 import { makeMediumPostsProps } from '@/lib/medium';
 import { useTranslation } from 'next-i18next';
 import { getStaticPaths } from '@/lib/getStatic';
-import { SITE_LOGO } from '@/config/constants';
+import { MEDIUM_LOGO } from '@/config/constants';
 import Layout from '@/components/common/Layout';
 import SEO from '@/components/common/SEO';
 import { PostSummary } from '@/types/posts';
@@ -29,8 +29,8 @@ export default function MediumPage({ posts }: Readonly<MediumPageProps>) {
         ogTitle={t('medium.meta.title')}
         description={t('medium.meta.description')}
         keywords={t('medium.meta.keywords')}
-        path="medium"
-        image={SITE_LOGO}
+        path="/medium"
+        image={MEDIUM_LOGO}
         jsonLd={jsonLdData}
       />
       <header className="text-center py-4">

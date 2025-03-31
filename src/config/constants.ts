@@ -24,6 +24,9 @@ export const SITE_LOGO = `${assetPrefix}/images/logo.webp`;
 // Constant for avatar link
 export const AVATAR_LINK = `${assetPrefix}/images/profile.webp`;
 
+// Constant for medium logo
+export const MEDIUM_LOGO = `${assetPrefix}/images/medium.webp`;
+
 // Static contact links
 export const CONTACT_LINKS = {
   email: 'suaybsimsek58@gmail.com',

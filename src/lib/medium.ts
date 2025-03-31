@@ -1,4 +1,6 @@
 import Parser from 'rss-parser';
+import fs from 'fs';
+import path from 'path';
 import { PostSummary, Topic } from '@/types/posts';
 import i18nextConfig from '../../next-i18next.config';
 import { GetStaticPropsContext } from 'next';
@@ -17,14 +19,9 @@ const parser = new Parser<unknown, MediumItem>({
   },
 });
 
-// 🧠 Cache constants
-const MEDIUM_FEED_CACHE_KEY = 'medium-feed';
-const MEDIUM_FEED_CACHE_NAME = 'mediumFeedCache';
+const FEED_JSON_PATH = path.join(process.cwd(), 'content', 'medium-feed.json');
 
-// Feed cache object to avoid hitting Medium RSS endpoint multiple times
-export const mediumFeedCache: {
-  [key: string]: CacheEntry<Parser.Output<MediumItem>>;
-} = {};
+export const mediumPostsCache: { [key: string]: CacheEntry<PostSummary[]> } = {};
 
 function stripHtml(html: string): string {
   return html
@@ -50,7 +47,6 @@ function extractSummary(item: MediumItem): string {
   return raw.length > 200 ? trimmed + '...' : trimmed;
 }
 
-// 🎨 Hash-based color selection for topic names
 function getColorForTopic(topic: string): (typeof TOPIC_COLORS)[number] {
   let hash = 0;
   for (let i = 0; i < topic.length; i++) {
@@ -61,22 +57,45 @@ function getColorForTopic(topic: string): (typeof TOPIC_COLORS)[number] {
 }
 
 export async function fetchRssSummaries(feedUrl: string, locale: string): Promise<PostSummary[]> {
-  const cachedFeed = getCache<Parser.Output<MediumItem>>(
-    MEDIUM_FEED_CACHE_KEY,
-    mediumFeedCache,
-    MEDIUM_FEED_CACHE_NAME,
-  );
+  const cacheName = 'mediumPostsData';
+  const cacheKey = `${locale}-'all'}`;
 
-  let feed: Parser.Output<MediumItem>;
-
-  if (cachedFeed) {
-    feed = cachedFeed;
-  } else {
-    feed = await parser.parseURL(feedUrl);
-    setCache(MEDIUM_FEED_CACHE_KEY, feed, mediumFeedCache, MEDIUM_FEED_CACHE_NAME);
+  const cachedData = getCache(cacheKey, mediumPostsCache, cacheName);
+  if (cachedData) {
+    return cachedData;
   }
 
-  return feed.items.map((item, index) => {
+  let feed: Parser.Output<MediumItem> | undefined;
+
+  try {
+    // Try to fetch fresh feed first
+    feed = await parser.parseURL(feedUrl);
+
+    // Save to file (create or overwrite)
+    fs.mkdirSync(path.dirname(FEED_JSON_PATH), { recursive: true });
+    fs.writeFileSync(FEED_JSON_PATH, JSON.stringify(feed), 'utf-8');
+  } catch (error) {
+    // If fetching fails, fallback to local file if it exists
+    if (fs.existsSync(FEED_JSON_PATH)) {
+      const content = fs.readFileSync(FEED_JSON_PATH, 'utf-8');
+      feed = JSON.parse(content);
+    } else {
+      // No backup feed either
+      if (error instanceof Error) {
+        console.error('Medium RSS fetch error:', error.message);
+      } else {
+        console.error('Unknown error while fetching Medium RSS feed:', error);
+      }
+      feed = undefined;
+    }
+  }
+
+  if (!feed) {
+    setCache(cacheKey, [], mediumPostsCache, cacheName);
+    return [];
+  }
+
+  const posts: PostSummary[] = feed.items.map((item, index) => {
     const content = item['content:encoded'] ?? item.content ?? '';
     const summary = extractSummary(item);
     const thumbnail = extractFirstImage(content);
@@ -100,13 +119,15 @@ export async function fetchRssSummaries(feedUrl: string, locale: string): Promis
       link: item.link ?? item.guid ?? '',
     };
   });
+
+  setCache(cacheName, posts, mediumPostsCache, cacheName);
+  return posts;
 }
 
 export const makeMediumPostsProps =
   (ns: string[] = []) =>
   async (context: GetStaticPropsContext) => {
     const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
-
     const posts = await fetchRssSummaries(MEDIUM_FEED_URL, locale);
     const i18nProps = await serverSideTranslations(locale, ns);
 
