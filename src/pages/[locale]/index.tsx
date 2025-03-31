@@ -18,8 +18,6 @@ type HomeProps = {
 export default function Home({ posts, topics }: Readonly<HomeProps>) {
   const { t } = useTranslation('home');
 
-  console.log(posts);
-
   const router = useRouter();
 
   const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
