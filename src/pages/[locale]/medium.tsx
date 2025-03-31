@@ -16,8 +16,8 @@ export default function MediumPage({ posts }: Readonly<MediumPageProps>) {
 
   const jsonLdData = {
     '@context': 'https://schema.org',
-    '@type': 'Blog',
-    name: 'Şuayb Şimşek Medium',
+    '@type': 'WebSite',
+    name: t('medium.meta.title'),
     description: t('medium.meta.description'),
   };
 
