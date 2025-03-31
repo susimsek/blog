@@ -4,6 +4,7 @@ import i18nextConfig from '../../next-i18next.config';
 import { GetStaticPropsContext } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { MEDIUM_FEED_URL, TOPIC_COLORS } from '@/config/constants';
+import { CacheEntry, getCache, setCache } from '@/lib/cacheUtils';
 
 type MediumItem = Parser.Item & {
   'content:encoded'?: string;
@@ -15,6 +16,15 @@ const parser = new Parser<unknown, MediumItem>({
     item: ['content:encoded', 'content:encodedSnippet'],
   },
 });
+
+// 🧠 Cache constants
+const MEDIUM_FEED_CACHE_KEY = 'medium-feed';
+const MEDIUM_FEED_CACHE_NAME = 'mediumFeedCache';
+
+// Feed cache object to avoid hitting Medium RSS endpoint multiple times
+export const mediumFeedCache: {
+  [key: string]: CacheEntry<Parser.Output<MediumItem>>;
+} = {};
 
 function stripHtml(html: string): string {
   return html
@@ -51,7 +61,20 @@ function getColorForTopic(topic: string): (typeof TOPIC_COLORS)[number] {
 }
 
 export async function fetchRssSummaries(feedUrl: string, locale: string): Promise<PostSummary[]> {
-  const feed = await parser.parseURL(feedUrl);
+  const cachedFeed = getCache<Parser.Output<MediumItem>>(
+    MEDIUM_FEED_CACHE_KEY,
+    mediumFeedCache,
+    MEDIUM_FEED_CACHE_NAME,
+  );
+
+  let feed: Parser.Output<MediumItem>;
+
+  if (cachedFeed) {
+    feed = cachedFeed;
+  } else {
+    feed = await parser.parseURL(feedUrl);
+    setCache(MEDIUM_FEED_CACHE_KEY, feed, mediumFeedCache, MEDIUM_FEED_CACHE_NAME);
+  }
 
   return feed.items.map((item, index) => {
     const content = item['content:encoded'] ?? item.content ?? '';
