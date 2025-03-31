@@ -50,6 +50,10 @@ export default function Header({
               <FontAwesomeIcon icon="home" className="me-2" />
               {t('common.header.menu.home')}
             </Nav.Link>
+            <Nav.Link as={Link} href="/medium" className="d-flex align-items-center">
+              <FontAwesomeIcon icon={['fab', 'medium']} className="me-2 medium-brand-logo" />
+              Medium
+            </Nav.Link>
             <Nav.Link as={Link} href="/about" className="d-flex align-items-center">
               <FontAwesomeIcon icon="info-circle" className="me-2" />
               {t('common.header.menu.about')}
@@ -57,10 +61,6 @@ export default function Header({
             <Nav.Link as={Link} href="/contact" className="d-flex align-items-center">
               <FontAwesomeIcon icon="address-book" className="me-2" />
               {t('common.header.menu.contact')}
-            </Nav.Link>
-            <Nav.Link as={Link} href="/medium" className="d-flex align-items-center">
-              <FontAwesomeIcon icon={['fab', 'medium']} className="me-2 medium-brand-logo" />
-              Medium
             </Nav.Link>
             <div className="d-flex align-items-center">
               <LanguageSwitcher />
