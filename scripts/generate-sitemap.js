@@ -224,7 +224,7 @@ function getPagesData() {
     },
     {
       slug: 'medium',
-      changefreq: 'weekly',
+      changefreq: 'daily',
       image: {
         loc: '/images/logo.webp',
         title: {
