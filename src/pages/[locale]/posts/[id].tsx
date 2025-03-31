@@ -66,7 +66,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         ogTitle={post.title}
         description={post.summary}
         keywords={keywords}
-        image={post.thumbnail}
+        image={post.thumbnail ?? undefined}
         type="article"
         path={`/posts/${post.id}`}
         article={articleData}
