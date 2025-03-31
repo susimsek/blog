@@ -1,0 +1,14 @@
+{
+  "medium": {
+    "title": "Medium Yazıları",
+    "meta": {
+      "title": "Şuayb Şimşek'in Medium Üzerindeki Yazıları",
+      "description": "Medium üzerindeki teknik blog yazılarımı okuyun. Konular arasında Java, Kotlin, Kubernetes, Blockchain, Spring Boot, Golang, React ve Mikroservisler yer alıyor.",
+      "keywords": "medium, blog, yazı, yazılım, java, kotlin, kubernetes, spring boot, react, mikroservis"
+    },
+    "header": {
+      "title": "Medium'daki Yazılarım",
+      "subtitle": "Medium blogumda paylaştığım detaylı makale ve eğitim içeriklerini keşfedin."
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "medium": {
+    "title": "Medium Articles",
+    "meta": {
+      "title": "Articles by Şuayb Şimşek on Medium",
+      "description": "Read my technical blog posts on Medium. Topics include Java, Kotlin, Kubernetes, Blockchain, Spring Boot, Golang, React, and Microservices.",
+      "keywords": "medium, blog, articles, programming, java, kotlin, kubernetes, spring boot, react, microservice"
+    },
+    "header": {
+      "title": "My Writings on Medium",
+      "subtitle": "Explore deep-dive articles and hands-on tutorials from my Medium blog."
+    }
+  }
+}
