@@ -222,6 +222,17 @@ function getPagesData() {
         title: { en: 'Contact Information', tr: 'İletişim Bilgileri' },
       },
     },
+    {
+      slug: 'medium',
+      changefreq: 'weekly',
+      image: {
+        loc: '/images/profile.webp',
+        title: {
+          en: 'Medium Articles',
+          tr: 'Medium Yazıları',
+        },
+      },
+    },
   ];
 }
 

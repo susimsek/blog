@@ -64,6 +64,23 @@ export const LAUNCH_YEAR = 2024;
 // Twitter username
 export const TWITTER_USERNAME = '@suaybsimsek58';
 
+// Medium feed RSS URL
+export const MEDIUM_FEED_URL = 'https://medium.com/feed/@suaybsimsek58';
+
 // 🆕 Open Graph Profile Constants
 export const PROFILE_FIRST_NAME = 'Şuayb';
 export const PROFILE_LAST_NAME = 'Şimşek';
+
+// 🎨 Fixed color palette for topic badges.
+export const TOPIC_COLORS = [
+  'red',
+  'green',
+  'blue',
+  'orange',
+  'yellow',
+  'purple',
+  'gray',
+  'brown',
+  'pink',
+  'cyan',
+] as const;

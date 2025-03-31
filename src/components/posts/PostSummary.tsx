@@ -12,19 +12,21 @@ interface PostSummaryProps {
 }
 
 export default function PostSummary({ post }: Readonly<PostSummaryProps>) {
-  const { id, title, date, summary, thumbnail, topics, readingTime } = post;
+  const { id, title, date, summary, thumbnail, topics, readingTime, link } = post;
   const { t } = useTranslation('post');
+
+  const postLink = link ?? `/posts/${id}`;
 
   return (
     <div className="post-card d-flex align-items-center mb-4">
       <div className="post-card-content flex-grow-1">
         <h2 className="fw-bold mb-4">
-          <Link href={`/posts/${id}`} className="link">
+          <Link href={postLink} className="link">
             {title}
           </Link>
         </h2>
         <p className="d-flex align-items-center">
-          <Link href={`/posts/${id}`} className="link-muted d-flex align-items-center me-3">
+          <Link href={postLink} className="link-muted d-flex align-items-center me-3">
             <FontAwesomeIcon icon="calendar-alt" className="me-2" />
             <DateDisplay date={date} />
           </Link>
@@ -36,7 +38,7 @@ export default function PostSummary({ post }: Readonly<PostSummaryProps>) {
         {topics && topics.length > 0 && (
           <div className="mb-4">
             {topics.map(topic => (
-              <Link key={topic.id} href={`/topics/${topic.id}`}>
+              <Link key={topic.id} href={topic.link ?? `/topics/${topic.id}`}>
                 <Badge bg={topic.color} className={`me-2 badge-${topic.color}`}>
                   {topic.name}
                 </Badge>
@@ -45,7 +47,7 @@ export default function PostSummary({ post }: Readonly<PostSummaryProps>) {
           </div>
         )}
         {thumbnail && (
-          <Link href={`/posts/${id}`}>
+          <Link href={postLink}>
             <Thumbnail
               className="thumbnail-wrapper"
               src={`${assetPrefix}${thumbnail}`}
@@ -57,7 +59,7 @@ export default function PostSummary({ post }: Readonly<PostSummaryProps>) {
         )}
         <p className="mb-4">{summary}</p>
         <div className="mb-4">
-          <Link href={`/posts/${id}`}>
+          <Link href={postLink}>
             <Button className="primary">{t('post.readMore')}</Button>
           </Link>
         </div>

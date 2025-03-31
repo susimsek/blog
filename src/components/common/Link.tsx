@@ -25,9 +25,7 @@ const LinkComponent: React.FC<LinkComponentProps> = ({
 
   let resolvedHref = href ?? router.asPath;
 
-  if (resolvedHref.startsWith('http')) {
-    skipLocaleHandling = true;
-  }
+  if (resolvedHref.indexOf('http') === 0) skipLocaleHandling = true;
 
   if (currentLocale && !skipLocaleHandling) {
     resolvedHref = resolvedHref

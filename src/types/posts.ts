@@ -2,6 +2,7 @@ export type Topic = {
   id: string;
   name: string;
   color: string;
+  link?: string;
 };
 
 export type PostSummary = {
@@ -9,9 +10,10 @@ export type PostSummary = {
   title: string;
   date: string;
   summary: string;
-  thumbnail?: string;
+  thumbnail: string | null;
   topics?: Topic[];
   readingTime: string;
+  link?: string;
 };
 
 export type Post = PostSummary & {
