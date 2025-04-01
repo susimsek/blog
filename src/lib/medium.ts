@@ -5,19 +5,13 @@ import { PostSummary, Topic } from '@/types/posts';
 import i18nextConfig from '../../next-i18next.config';
 import { GetStaticPropsContext } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { MEDIUM_FEED_URL, TOPIC_COLORS } from '@/config/constants';
+import { TOPIC_COLORS } from '@/config/constants';
 import { CacheEntry, getCache, setCache } from '@/lib/cacheUtils';
 
 type MediumItem = Parser.Item & {
   'content:encoded'?: string;
   'content:encodedSnippet'?: string;
 };
-
-const parser = new Parser<unknown, MediumItem>({
-  customFields: {
-    item: ['content:encoded', 'content:encodedSnippet'],
-  },
-});
 
 const FEED_JSON_PATH = path.join(process.cwd(), 'content', 'medium-feed.json');
 
