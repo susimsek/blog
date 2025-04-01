@@ -117,7 +117,7 @@ workflows:
   medium-feed-refresh:
     triggers:
       - schedule:
-          cron: "7 4 * * *"
+          cron: "11 4 * * *"
           filters:
             branches:
               only: main
