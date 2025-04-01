@@ -20,7 +20,8 @@
     "sonar": "npx sonar-scanner",
     "jest": "jest --coverage --logHeapUsage --maxWorkers=2 --config jest.config.js",
     "test": "npm run jest --",
-    "test:watch": "npm run jest -- --watch"
+    "test:watch": "npm run jest -- --watch",
+    "fetch:medium": "node scripts/fetch-medium-feed.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
