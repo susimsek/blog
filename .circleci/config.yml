@@ -84,7 +84,7 @@ jobs:
           command: npm ci
       - run:
           name: Fetch Medium RSS Feed
-          command: Fetch Medium RSS Feed
+          command: npm run fetch:medium
       - run:
           name: Commit and Push Feed File
           command: |
