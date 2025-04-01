@@ -7,6 +7,7 @@ import { GetStaticPropsContext } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { TOPIC_COLORS } from '@/config/constants';
 import { CacheEntry, getCache, setCache } from '@/lib/cacheUtils';
+import { getAllTopics, getSortedPostsData } from '@/lib/posts';
 
 type MediumItem = Parser.Item & {
   'content:encoded'?: string;
@@ -107,13 +108,19 @@ export const makeMediumPostsProps =
   (ns: string[] = []) =>
   async (context: GetStaticPropsContext) => {
     const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
-    const posts = await fetchRssSummaries(locale);
+    const mediumPosts = await fetchRssSummaries(locale);
+
+    const posts = getSortedPostsData(locale);
+    const topics = getAllTopics(locale);
+
     const i18nProps = await serverSideTranslations(locale, ns);
 
     return {
       props: {
         ...i18nProps,
         posts,
+        topics,
+        mediumPosts,
       },
     };
   };

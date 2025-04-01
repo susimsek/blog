@@ -4,14 +4,16 @@ import { getStaticPaths } from '@/lib/getStatic';
 import { MEDIUM_LOGO } from '@/config/constants';
 import Layout from '@/components/common/Layout';
 import SEO from '@/components/common/SEO';
-import { PostSummary } from '@/types/posts';
+import { PostSummary, Topic } from '@/types/posts';
 import PostList from '@/components/posts/PostList';
 
 type MediumPageProps = {
+  mediumPosts: PostSummary[];
   posts: PostSummary[];
+  topics: Topic[];
 };
 
-export default function MediumPage({ posts }: Readonly<MediumPageProps>) {
+export default function MediumPage({ posts, topics, mediumPosts }: Readonly<MediumPageProps>) {
   const { t } = useTranslation('medium');
 
   const jsonLdData = {
@@ -22,7 +24,7 @@ export default function MediumPage({ posts }: Readonly<MediumPageProps>) {
   };
 
   return (
-    <Layout posts={posts} searchEnabled={false} sidebarEnabled={false}>
+    <Layout posts={posts} topics={topics} searchEnabled={true} sidebarEnabled={true}>
       <SEO
         type="website"
         title={t('medium.title')}
@@ -37,7 +39,7 @@ export default function MediumPage({ posts }: Readonly<MediumPageProps>) {
         <h1 className="fw-bold mb-4">{t('medium.header.title')}</h1>
         <p className="text-muted fs-4">{t('medium.header.subtitle')}</p>
       </header>
-      <PostList posts={posts} />
+      <PostList posts={mediumPosts} />
     </Layout>
   );
 }
