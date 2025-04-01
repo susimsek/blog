@@ -86,11 +86,14 @@ jobs:
           name: Fetch Medium RSS Feed
           command: npm run fetch:medium
       - run:
-          name: Commit and Push Feed File
+          name: Configure Git
           command: |
             git config --global user.email "suaybsimsek58@gmail.com"
             git config --global user.name "$CIRCLE_USERNAME"
             git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git
+      - run:
+          name: Commit and Push Feed File
+          command: |
             git add content/medium-feed.json
             git commit -m "chore: auto-update medium feed [skip ci]" || echo "No changes to commit"
             git push origin $CIRCLE_BRANCH
@@ -117,7 +120,7 @@ workflows:
   medium-feed-refresh:
     triggers:
       - schedule:
-          cron: "20 4 * * *"
+          cron: "30 4 * * *"
           filters:
             branches:
               only: main
