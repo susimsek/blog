@@ -44,6 +44,7 @@ Enjoy reading blog posts and experience seamless navigation between different se
 - 📝 **Markdown Rendering**: Write your posts in Markdown.
 - 🛠️ **Redux Integration**: Powerful state management.
 - 📰 **RSS Support**: Automatically generates and updates an RSS feed for your blog posts.
+- ✍️ **Medium Integration**: Displays your latest Medium posts with smart caching.
 - 🎨 **Code Style Enforcements**: With **Prettier** and **ESLint**.
 - 🔍 **SonarQube Integration**: Continuous code quality monitoring.
 
