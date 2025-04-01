@@ -65,7 +65,7 @@ jobs:
           name: Configure Git
           command: |
             git config --global user.email "suaybsimsek58@gmail.com"
-            git config --global user.name "$CIRCLE_USERNAME"
+            git config --global user.name "${CIRCLE_USERNAME:-circleci-bot}"
             git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git
       - run:
           name: Create CNAME File
