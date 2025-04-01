@@ -1,7 +1,7 @@
 {
   "items": [
     {
-      "creator": "Şuayb Şimşek1",
+      "creator": "Şuayb Şimşek",
       "title": "React & Spring Boot Graphql Fullstack Microservice Application on Kubernetes",
       "link": "https://suaybsimsek58.medium.com/react-spring-boot-graphql-fullstack-microservice-application-on-kubernetes-eb227e1a748b?source=rss-bda589f2335a------2",
       "pubDate": "Sun, 28 Aug 2022 16:29:12 GMT",
@@ -115,11 +115,13 @@
     "url": "https://cdn-images-1.medium.com/fit/c/150/150/1*lX-xeCmafVAFHZQp-zXGVQ.png",
     "title": "Stories by Şuayb Şimşek on Medium"
   },
-  "paginationLinks": { "self": "https://medium.com/@suaybsimsek58/feed" },
+  "paginationLinks": {
+    "self": "https://medium.com/@suaybsimsek58/feed"
+  },
   "title": "Stories by Şuayb Şimşek on Medium",
   "description": "Stories by Şuayb Şimşek on Medium",
   "webMaster": "yourfriends@medium.com",
   "generator": "Medium",
   "link": "https://medium.com/@suaybsimsek58?source=rss-bda589f2335a------2",
-  "lastBuildDate": "Mon, 31 Mar 2025 19:46:12 GMT"
+  "lastBuildDate": "Tue, 01 Apr 2025 04:49:08 GMT"
 }
