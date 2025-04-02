@@ -172,6 +172,16 @@ main {
   }
 }
 
+.search-toggle-btn {
+  background-color: transparent;
+  color: var(--text-color);
+  @include transition(background-color, color);
+
+  &:hover {
+    color: var(--link-hover-color);
+  }
+}
+
 p {
   color: var(--text-color);
   @include transition(color);
@@ -1733,4 +1743,12 @@ label {
 
 .email-logo {
   color: var(--email-logo-color);
+}
+
+.search-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.25rem;
+  padding: 0.5rem;
 }
