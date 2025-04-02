@@ -9,7 +9,8 @@
       "menu": {
         "home": "Ana Sayfa",
         "about": "Hakkında",
-        "contact": "İletişim"
+        "contact": "İletişim",
+        "search": "Ara"
       },
       "themeToggle": "Temayı Değiştir",
       "theme": {
