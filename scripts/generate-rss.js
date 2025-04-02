@@ -37,7 +37,7 @@ function readPosts(locale) {
  * @returns {string} - The RSS feed XML content.
  */
 function generateRSSFeedXML(posts, locale) {
-  let title, description;
+  let title, description, copyright;
   if (locale === 'en') {
     title = "Şuayb's Blog";
     description = 'Explore the latest articles, tutorials, and insights.';
@@ -49,48 +49,62 @@ function generateRSSFeedXML(posts, locale) {
   } else {
     title = 'Blog';
     description = 'Latest posts';
+    copyright = '';
   }
 
   const alternateLocale = locale === 'en' ? 'tr' : 'en';
+
+  // Sort posts by date (newest first)
+  posts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   let rss = `<?xml version="1.0" encoding="UTF-8"?>\n`;
   rss += `<?xml-stylesheet type="text/xsl" href="/rss.xsl"?>\n`;
   rss += `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">\n`;
   rss += `  <channel>\n`;
-  rss += `    <title>${title}</title>\n`;
+  rss += `    <title><![CDATA[${title}]]></title>\n`;
   rss += `    <link>${siteUrl}/${locale}</link>\n`;
-  rss += `    <description>${description}</description>\n`;
+  rss += `    <description><![CDATA[${description}]]></description>\n`;
   rss += `    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
   rss += `    <language>${locale}</language>\n`;
-  rss += `    <copyright>${copyright}</copyright>\n`;
+  rss += `    <copyright><![CDATA[${copyright}]]></copyright>\n`;
+  rss += `    <image>\n`;
+  rss += `      <url>${siteUrl}/images/logo.webp</url>\n`;
+  rss += `      <title><![CDATA[${title}]]></title>\n`;
+  rss += `      <link>${siteUrl}/${locale}</link>\n`;
+  rss += `    </image>\n`;
   rss += `    <atom:link rel="self" type="application/rss+xml" href="${siteUrl}/${locale}/rss.xml" />\n`;
-  rss += `    <atom:link rel="alternate" hreflang="${alternateLocale}" type="application/rss+xml" href="${siteUrl}/${alternateLocale}/rss.xml" />\n\n`;
+  rss += `    <atom:link rel="alternate" hreflang="${alternateLocale}" type="application/rss+xml" href="${siteUrl}/${alternateLocale}/rss.xml" />\n`;
 
+  // Add each post
   posts.forEach(post => {
     const postUrl = `${siteUrl}/${locale}/posts/${post.id}`;
     const pubDate = new Date(post.date).toUTCString();
     rss += `    <item>\n`;
-    rss += `      <title>${post.title}</title>\n`;
+    rss += `      <title><![CDATA[${post.title}]]></title>\n`;
     rss += `      <link>${postUrl}</link>\n`;
     rss += `      <description><![CDATA[${post.summary}]]></description>\n`;
     rss += `      <pubDate>${pubDate}</pubDate>\n`;
     rss += `      <guid>${postUrl}</guid>\n`;
-    // Add topics as categories if available
+
+    // Topics as <category>
     if (post.topics && Array.isArray(post.topics)) {
       post.topics.forEach(topic => {
-        rss += `      <category>${topic.name}</category>\n`;
+        rss += `      <category><![CDATA[${topic.name}]]></category>\n`;
       });
     }
-    // Add thumbnail using media:thumbnail if available
+
+    // Thumbnail
     if (post.thumbnail) {
       const thumbnailUrl = post.thumbnail.startsWith('/') ? `${siteUrl}${post.thumbnail}` : post.thumbnail;
       rss += `      <media:thumbnail url="${thumbnailUrl}" />\n`;
     }
-    rss += `    </item>\n\n`;
+
+    rss += `    </item>\n`;
   });
 
   rss += `  </channel>\n`;
   rss += `</rss>\n`;
+
   return rss;
 }
 
