@@ -26,7 +26,7 @@ export default function Header({
   const { t } = useTranslation('common');
 
   const [searchVisible, setSearchVisible] = React.useState(false);
-  const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1024px)');
+  const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1366px)');
 
   const handleSearchToggle = () => {
     setSearchVisible(prev => !prev);
