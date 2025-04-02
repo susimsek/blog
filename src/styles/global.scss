@@ -20,8 +20,19 @@ body {
     color: var(--text-color);
     @include transition(color);
 
+    svg,
+    i {
+      color: inherit;
+      @include transition(color);
+    }
+
     &:hover {
       color: var(--link-hover-color);
+
+      svg,
+      i {
+        color: var(--link-hover-color) !important;
+      }
     }
 
     &.active {
