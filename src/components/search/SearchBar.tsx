@@ -23,7 +23,7 @@ export default function SearchBar({ query, onChange, className }: Readonly<Searc
   }, [onChange]);
 
   return (
-    <div className={`search-bar d-flex align-items-center ${className ?? ''}`}>
+    <div className={`search-bar w-100 d-flex align-items-center ${className ?? ''}`}>
       <div className="search-icon">
         <FontAwesomeIcon icon="search" />
       </div>

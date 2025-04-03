@@ -33,18 +33,20 @@ export default function Header({
   };
 
   const renderSearchSection = () => (
-    <div className="d-flex w-100 align-items-center gap-3">
+    <div className="d-flex w-100 align-items-center">
       <button
-        className="bg-transparent border-0 p-0 d-flex align-items-center"
+        className="nav-link bg-transparent border-0 p-0 d-flex align-items-center"
         onClick={handleSearchToggle}
         aria-label="Hide search"
       >
-        <FontAwesomeIcon icon="chevron-left" />
+        <FontAwesomeIcon icon="chevron-left" className="me-3" />
       </button>
+
       <div className="flex-grow-1">
         <SearchContainer posts={posts} />
       </div>
-      <Nav className="d-flex align-items-center gap-3 ms-auto">
+
+      <Nav className="d-flex align-items-center gap-3 ms-3">
         <div className="d-flex align-items-center">
           <LanguageSwitcher />
         </div>
