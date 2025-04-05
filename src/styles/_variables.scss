@@ -2,8 +2,12 @@
   --transition-speed: 0.3s;
   --bg-color: #f9f9f9;
   --text-color: #343a40;
-  --font-family: 'Noe Display', 'Inter', 'Charter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
+  --font-family:
+    'Noe Display', 'Inter', 'Charter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --body-line-height: 1.15;
+  --body-font-size: 14px;
+  --main-line-height: 1.6;
 }
 
 .light {

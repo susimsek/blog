@@ -1,11 +1,24 @@
 @import './variables';
 @import './mixins';
 
+html {
+  box-sizing: border-box;
+  min-height: 100vh;
+  overscroll-behavior: none;
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
+  word-wrap: anywhere;
   font-family: var(--font-family), sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
+  line-height: var(--body-line-height);
+  tab-size: 4;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  text-rendering: optimizeLegibility;
   @include transition(background-color, color);
   @include theme-transition;
 }
@@ -168,8 +181,10 @@ body {
 }
 
 main {
+  color: var(--text-color);
   background-color: var(--main-bg);
   min-height: 100vh;
+  line-height: var(--main-line-height);
   @include transition(background-color);
 }
 
