@@ -55,7 +55,7 @@ export default function SearchContainer({ posts }: Readonly<SearchContainerProps
     <div ref={searchRef} className="search-container ms-auto mt-3 mt-lg-0">
       <SearchBar query={searchQuery} onChange={handleSearch} />
       {showResults && searchQuery && (
-        <ListGroup className="ms-auto search-results">
+        <ListGroup className="ms-auto w-100 search-results">
           {searchResults.length > 0 ? (
             <>
               {searchResults.map(result => (
