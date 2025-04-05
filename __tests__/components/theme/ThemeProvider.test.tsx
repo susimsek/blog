@@ -44,7 +44,7 @@ describe('ThemeProvider', () => {
     );
 
     // Simulate client-side rendering by triggering useEffect
-    expect(document.body.className).toBe('dark');
+    expect(document.body.className).toBe('dark-theme');
   });
 
   it('renders children after client-side rendering', () => {

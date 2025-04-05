@@ -9,7 +9,11 @@ export default function ThemeProvider({ children }: Readonly<ThemeProviderProps>
   const theme = useAppSelector(state => state.theme.theme);
 
   useEffect(() => {
-    document.body.className = theme;
+    if (theme === 'dark') {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
   }, [theme]);
 
   return <>{children}</>;
