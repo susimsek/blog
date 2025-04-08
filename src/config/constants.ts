@@ -16,7 +16,7 @@ export const cacheTTL = 3600000;
 
 export const AUTHOR_NAME = 'Şuayb Şimşek';
 
-export const SITE_URL = 'https://suaybsimsek.com';
+export const SITE_URL = process.env.SITE_URL ?? 'https://suaybsimsek.com';
 
 // 🆕 Site Logo (for Open Graph, Structured Data, etc.)
 export const SITE_LOGO = `${assetPrefix}/images/logo.webp`;
