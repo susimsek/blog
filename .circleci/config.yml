@@ -69,7 +69,7 @@ jobs:
             git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git
       - run:
           name: Create CNAME File
-          command: echo 'suaybsimsek.com' > build/CNAME
+          command: echo "${SITE_DOMAIN}" > build/CNAME
       - run:
           name: Deploy to GitHub Pages
           command: |
