@@ -3,24 +3,24 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
     <title><![CDATA[Şuayb'in Blogu]]></title>
-    <link>https://suaybsimsek.com/tr</link>
+    <link>https://suaybsimsek1.com/tr</link>
     <description><![CDATA[En son makaleleri, eğitimleri ve analizleri keşfedin.]]></description>
-    <lastBuildDate>Tue, 08 Apr 2025 19:35:43 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 08 Apr 2025 19:49:02 GMT</lastBuildDate>
     <language>tr</language>
     <copyright><![CDATA[© 2024 Şuayb Şimşek. Tüm hakları saklıdır.]]></copyright>
     <image>
-      <url>https://suaybsimsek.com/images/logo.webp</url>
+      <url>https://suaybsimsek1.com/images/logo.webp</url>
       <title><![CDATA[Şuayb'in Blogu]]></title>
-      <link>https://suaybsimsek.com/tr</link>
+      <link>https://suaybsimsek1.com/tr</link>
     </image>
-    <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
-    <atom:link rel="alternate" hreflang="en" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
+    <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek1.com/tr/rss.xml" />
+    <atom:link rel="alternate" hreflang="en" type="application/rss+xml" href="https://suaybsimsek1.com/en/rss.xml" />
     <item>
       <title><![CDATA[Spring Boot Circuit Breaker]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-circuit-breaker</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-circuit-breaker</link>
       <description><![CDATA[Spring Boot uygulamalarında Circuit Breaker kullanımını öğrenerek mikro hizmetlerin dayanıklılığını artırın.]]></description>
       <pubDate>Thu, 13 Mar 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-circuit-breaker</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-circuit-breaker</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
@@ -28,14 +28,14 @@
       <category><![CDATA[Circuit Breaker]]></category>
       <category><![CDATA[Mikroservis]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-circuit-breaker-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-circuit-breaker-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Eureka Server]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-eureka-server</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-eureka-server</link>
       <description><![CDATA[Mikro hizmet mimarisinde servis keşfi için Spring Boot Eureka serverın nasıl kurulacağını ve yapılandırılacağını öğrenin.]]></description>
       <pubDate>Sun, 23 Feb 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-eureka-server</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-eureka-server</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
@@ -43,14 +43,14 @@
       <category><![CDATA[Eureka Server]]></category>
       <category><![CDATA[Mikroservis]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-eureka-server-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-eureka-server-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Config Server]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-config-server</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-config-server</link>
       <description><![CDATA[Spring Boot Config Server kullanarak merkezi yapılandırma yönetimini nasıl gerçekleştireceğinizi öğrenin.]]></description>
       <pubDate>Sat, 22 Feb 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-config-server</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-config-server</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
@@ -58,14 +58,14 @@
       <category><![CDATA[Config Server]]></category>
       <category><![CDATA[Mikroservis]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-config-server-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-config-server-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Docker Entegrasyonu]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-docker</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-docker</link>
       <description><![CDATA[Spring Boot uygulamalarını Docker kullanarak Buildpacks ve Jib ile nasıl oluşturup dağıtabileceğinizi öğrenin.]]></description>
       <pubDate>Fri, 21 Feb 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-docker</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-docker</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
@@ -73,14 +73,14 @@
       <category><![CDATA[Konteynerizasyon]]></category>
       <category><![CDATA[Jib]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-docker-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-docker-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Kubernetes Entegrasyonu]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-kubernetes</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-kubernetes</link>
       <description><![CDATA[Spring Boot uygulamalarını Kubernetes üzerinde nasıl ölçeklenebilir ve konteyner tabanlı olarak dağıtabileceğinizi öğrenin.]]></description>
       <pubDate>Fri, 21 Feb 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-kubernetes</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-kubernetes</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
@@ -88,176 +88,176 @@
       <category><![CDATA[Mikroservis]]></category>
       <category><![CDATA[Konteynerizasyon]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-kubernetes-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Asenkron Görevler]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-async-tasks</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-async-tasks</link>
       <description><![CDATA[Spring Boot ile @Async kullanarak görevleri ana threadi engellemeden asenkron olarak nasıl çalıştıracağınızı öğrenin.]]></description>
       <pubDate>Thu, 20 Feb 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-async-tasks</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-async-tasks</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Asenkron Görevler]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-async-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-async-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Planlanmış Görevler]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-scheduled-tasks</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-scheduled-tasks</link>
       <description><![CDATA[Spring Boot ile @Scheduled anotasyonunu kullanarak belirli aralıklarla veya cron ifadeleriyle arka plan görevlerini nasıl çalıştıracağınızı öğrenin.]]></description>
       <pubDate>Thu, 20 Feb 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-scheduled-tasks</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-scheduled-tasks</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Planlanmış Görevler]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-scheduled-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Reaktif Programlama]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-reactive-programming</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-reactive-programming</link>
       <description><![CDATA[Spring Boot ile Project Reactor ve WebFlux kullanarak yüksek performanslı, eşzamanlı işleme sahip reaktif uygulamalar oluşturmayı öğrenin.]]></description>
       <pubDate>Wed, 19 Feb 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-reactive-programming</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-reactive-programming</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Reaktif Programlama]]></category>
       <category><![CDATA[Spring WebFlux]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-reactive-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot ile GraalVM Native Uygulama]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-graalvm</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-graalvm</link>
       <description><![CDATA[Spring Boot uygulamalarınızı GraalVM native imajı olarak derleyerek daha hızlı başlatma süreleri ve azaltılmış kaynak kullanımı elde etmeyi öğrenin.]]></description>
       <pubDate>Sat, 28 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-graalvm</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-graalvm</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[GraalVM]]></category>
       <category><![CDATA[Native İmaj]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-graalvm-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot ile Kafka Entegrasyonu]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-kafka</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-kafka</link>
       <description><![CDATA[Spring Boot uygulamanızın Kafka topicleri aracılığıyla JSON mesajları göndermesini ve tüketmesini nasıl entegre edeceğinizi öğrenin.]]></description>
       <pubDate>Wed, 25 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-kafka</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-kafka</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Kafka]]></category>
       <category><![CDATA[Mesajlaşma]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-kafka-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot ile Redis Önbellekleme]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-redis-caching</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-redis-caching</link>
       <description><![CDATA[Spring Boot uygulamanıza Redis önbellekleme uygulayarak performansını ve verimliliğini artırmayı öğrenin.]]></description>
       <pubDate>Sun, 22 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-redis-caching</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-redis-caching</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Redis]]></category>
       <category><![CDATA[Önbellekleme]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-redis-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-redis-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot ile OpenAPI]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-openapi</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-openapi</link>
       <description><![CDATA[SpringDoc kullanarak Spring Boot uygulamanızda OpenAPI entegrasyonu ile API dokümantasyonu ve test yöntemlerini öğrenin.]]></description>
       <pubDate>Fri, 20 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-openapi</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-openapi</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[OpenAPI]]></category>
       <category><![CDATA[Dokümantasyon]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-openapi-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Temiz Kodlama Pratikleri]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-clean-coding</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-clean-coding</link>
       <description><![CDATA[Spring Boot projelerinde temiz kodlama ilkelerini uygulamayı öğrenin. En iyi uygulamalar, örnekler ve Java'da Lombok ile Kotlin temiz kodlama tekniklerinin faydaları.]]></description>
       <pubDate>Thu, 19 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-clean-coding</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-clean-coding</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Temiz Kodlama]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-clean-coding-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot DevTools]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-devtools</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-devtools</link>
       <description><![CDATA[Spring Boot DevTools ile hızlı geliştirme sürecinizi nasıl hızlandırabileceğinizi keşfedin. Canlı yeniden yükleme, önbellekleme ve hata ayıklama ipuçları içerir.]]></description>
       <pubDate>Thu, 19 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-devtools</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-devtools</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Geliştirme Araçları]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-devtools-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Actuator]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-actuator</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-actuator</link>
       <description><![CDATA[Spring Boot Actuator kullanarak uygulamalarınızı izleme ve yönetme. Endpointler, özelleştirme ve güvenlik örneklerini içerir.]]></description>
       <pubDate>Wed, 18 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-actuator</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-actuator</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Actuator]]></category>
       <category><![CDATA[İzleme]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-actuator-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot ile Aspect-Oriented Programming (AOP)]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-aop</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-aop</link>
       <description><![CDATA[Spring Boot ile AOP uygulamasını nasıl yapacağınızı öğrenin. Java ve Kotlin örnekleri ile temel kavramlar ve uygulamalar.]]></description>
       <pubDate>Wed, 18 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-aop</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-aop</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[AOP]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-aop-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-aop-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot ile Dependency Injection]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-di</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-di</link>
       <description><![CDATA[Spring Boot ile Bağımlılık Enjeksiyonu (Dependency Injection - DI) nasıl çalışır? Java ve Kotlin örnekleriyle temel kavramlar, anotasyonlar ve pratik kullanım senaryolarını öğrenin.]]></description>
       <pubDate>Wed, 18 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-di</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-di</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Bağımlılık Enjeksiyonu]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-di-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-di-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Object-Relational Mapping (ORM)]]></title>
-      <link>https://suaybsimsek.com/tr/posts/object-relational-mapping</link>
+      <link>https://suaybsimsek1.com/tr/posts/object-relational-mapping</link>
       <description><![CDATA[Spring Boot kullanarak Java, Kotlin ve Go (Gin) ile PostgreSQL entegrasyonu ve temel CRUD işlemlerini içeren bir ORM tabanlı uygulamanın nasıl kurulacağını öğrenin.]]></description>
       <pubDate>Mon, 16 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/object-relational-mapping</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/object-relational-mapping</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Go]]></category>
@@ -265,14 +265,14 @@
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[ORM]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/orm-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/orm-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[REST API’lerde Girdi Doğrulama]]></title>
-      <link>https://suaybsimsek.com/tr/posts/rest-api-input-validation</link>
+      <link>https://suaybsimsek1.com/tr/posts/rest-api-input-validation</link>
       <description><![CDATA[Spring Boot ve Gin gibi framework’leri kullanarak Java, Kotlin ve Go ile REST API’lerde girdi doğrulamasını nasıl uygulayacağnızı öğrenin. Anotasyonlar, özel doğrulama ve hata yönetimi örnekleri içerir.]]></description>
       <pubDate>Sun, 15 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/rest-api-input-validation</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/rest-api-input-validation</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Go]]></category>
@@ -280,58 +280,58 @@
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[Doğrulama]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/input-validation-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/input-validation-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring GraphQL ile API Oluşturma]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-graphql</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-graphql</link>
       <description><![CDATA[Java ve Kotlin kullanarak Spring for GraphQL ile GraphQL API\u201leri nasıl oluşturacağınızı öğrenin. Şema oluşturma, sorgu işleme ve entegrasyonu içerir.]]></description>
       <pubDate>Sun, 15 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-graphql</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-graphql</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[GraphQL]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-graphql-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Gin - İlk Uygulama]]></title>
-      <link>https://suaybsimsek.com/tr/posts/golang-gin-first-application</link>
+      <link>https://suaybsimsek1.com/tr/posts/golang-gin-first-application</link>
       <description><![CDATA[Sıfırdan ilk Golang Gin uygulamanızı oluşturmanıza yardımcı olacak, yeni başlayanlar için rehber. Temelleri öğrenin ve Gin ile yolculuğunuza başlayın.]]></description>
       <pubDate>Sat, 14 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/golang-gin-first-application</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/golang-gin-first-application</guid>
       <category><![CDATA[Go]]></category>
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[Başlangıç Rehberi]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/golang-gin-first-app-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/golang-gin-first-app-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot ile REST API Geliştirme]]></title>
-      <link>https://suaybsimsek.com/tr/posts/building-a-rest-api-with-spring-boot</link>
+      <link>https://suaybsimsek1.com/tr/posts/building-a-rest-api-with-spring-boot</link>
       <description><![CDATA[Spring Boot kullanarak REST API nasıl geliştirilir? HTTP metodları, JSON veri işleme, Lombok entegrasyonu ve curl ile test etme.]]></description>
       <pubDate>Tue, 10 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/building-a-rest-api-with-spring-boot</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/building-a-rest-api-with-spring-boot</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[REST API]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-rest-api-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot - İlk Uygulama]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-first-application</link>
+      <link>https://suaybsimsek1.com/tr/posts/spring-boot-first-application</link>
       <description><![CDATA[Spring Boot ile ilk uygulamanızı sıfırdan oluşturmak için başlangıç seviyesinde bir rehber. Temel bilgileri öğrenin ve Spring Boot ile yolculuğunuza başlayın.]]></description>
       <pubDate>Tue, 10 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-first-application</guid>
+      <guid>https://suaybsimsek1.com/tr/posts/spring-boot-first-application</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Başlangıç Rehberi]]></category>
       <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-first-app-thumbnail.webp" />
     </item>
   </channel>
 </rss>
