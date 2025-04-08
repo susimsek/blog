@@ -6,99 +6,99 @@
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
   <url>
-    <loc>https://suaybsimsek1.com/en</loc>
-    <lastmod>2025-04-08T19:50:05.992Z</lastmod>
+    <loc>https://suaybsimsek.com/en</loc>
+    <lastmod>2025-04-08T19:56:45.546Z</lastmod>
     <changefreq>daily</changefreq>
     <image:image>
-      <image:loc>https://suaybsimsek1.com/images/logo.webp</image:loc>
+      <image:loc>https://suaybsimsek.com/images/logo.webp</image:loc>
       <image:title>Welcome to Şuayb's Blog</image:title>
     </image:image>
-    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek1.com/en"/>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek1.com/tr"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr"/>
   </url>
 
   <url>
-    <loc>https://suaybsimsek1.com/tr</loc>
-    <lastmod>2025-04-08T19:50:05.992Z</lastmod>
+    <loc>https://suaybsimsek.com/tr</loc>
+    <lastmod>2025-04-08T19:56:45.546Z</lastmod>
     <changefreq>daily</changefreq>
     <image:image>
-      <image:loc>https://suaybsimsek1.com/images/logo.webp</image:loc>
+      <image:loc>https://suaybsimsek.com/images/logo.webp</image:loc>
       <image:title>Şuayb'in Bloguna Hoş Geldiniz</image:title>
     </image:image>
-    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek1.com/en"/>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek1.com/tr"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr"/>
   </url>
 
   <url>
-    <loc>https://suaybsimsek1.com/en/about</loc>
-    <lastmod>2025-04-08T19:50:05.992Z</lastmod>
+    <loc>https://suaybsimsek.com/en/about</loc>
+    <lastmod>2025-04-08T19:56:45.546Z</lastmod>
     <changefreq>monthly</changefreq>
     <image:image>
-      <image:loc>https://suaybsimsek1.com/images/profile.webp</image:loc>
+      <image:loc>https://suaybsimsek.com/images/profile.webp</image:loc>
       <image:title>About</image:title>
     </image:image>
-    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek1.com/en/about"/>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek1.com/tr/about"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/about"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/about"/>
   </url>
 
   <url>
-    <loc>https://suaybsimsek1.com/tr/about</loc>
-    <lastmod>2025-04-08T19:50:05.992Z</lastmod>
+    <loc>https://suaybsimsek.com/tr/about</loc>
+    <lastmod>2025-04-08T19:56:45.546Z</lastmod>
     <changefreq>monthly</changefreq>
     <image:image>
-      <image:loc>https://suaybsimsek1.com/images/profile.webp</image:loc>
+      <image:loc>https://suaybsimsek.com/images/profile.webp</image:loc>
       <image:title>Hakkımda</image:title>
     </image:image>
-    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek1.com/en/about"/>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek1.com/tr/about"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/about"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/about"/>
   </url>
 
   <url>
-    <loc>https://suaybsimsek1.com/en/contact</loc>
-    <lastmod>2025-04-08T19:50:05.992Z</lastmod>
+    <loc>https://suaybsimsek.com/en/contact</loc>
+    <lastmod>2025-04-08T19:56:45.546Z</lastmod>
     <changefreq>monthly</changefreq>
     <image:image>
-      <image:loc>https://suaybsimsek1.com/images/profile.webp</image:loc>
+      <image:loc>https://suaybsimsek.com/images/profile.webp</image:loc>
       <image:title>Contact Information</image:title>
     </image:image>
-    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek1.com/en/contact"/>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek1.com/tr/contact"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/contact"/>
   </url>
 
   <url>
-    <loc>https://suaybsimsek1.com/tr/contact</loc>
-    <lastmod>2025-04-08T19:50:05.992Z</lastmod>
+    <loc>https://suaybsimsek.com/tr/contact</loc>
+    <lastmod>2025-04-08T19:56:45.546Z</lastmod>
     <changefreq>monthly</changefreq>
     <image:image>
-      <image:loc>https://suaybsimsek1.com/images/profile.webp</image:loc>
+      <image:loc>https://suaybsimsek.com/images/profile.webp</image:loc>
       <image:title>İletişim Bilgileri</image:title>
     </image:image>
-    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek1.com/en/contact"/>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek1.com/tr/contact"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/contact"/>
   </url>
 
   <url>
-    <loc>https://suaybsimsek1.com/en/medium</loc>
-    <lastmod>2025-04-08T19:50:05.992Z</lastmod>
+    <loc>https://suaybsimsek.com/en/medium</loc>
+    <lastmod>2025-04-08T19:56:45.546Z</lastmod>
     <changefreq>daily</changefreq>
     <image:image>
-      <image:loc>https://suaybsimsek1.com/images/medium.webp</image:loc>
+      <image:loc>https://suaybsimsek.com/images/medium.webp</image:loc>
       <image:title>Medium Articles</image:title>
     </image:image>
-    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek1.com/en/medium"/>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek1.com/tr/medium"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/medium"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/medium"/>
   </url>
 
   <url>
-    <loc>https://suaybsimsek1.com/tr/medium</loc>
-    <lastmod>2025-04-08T19:50:05.992Z</lastmod>
+    <loc>https://suaybsimsek.com/tr/medium</loc>
+    <lastmod>2025-04-08T19:56:45.546Z</lastmod>
     <changefreq>daily</changefreq>
     <image:image>
-      <image:loc>https://suaybsimsek1.com/images/medium.webp</image:loc>
+      <image:loc>https://suaybsimsek.com/images/medium.webp</image:loc>
       <image:title>Medium Yazıları</image:title>
     </image:image>
-    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek1.com/en/medium"/>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek1.com/tr/medium"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en/medium"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr/medium"/>
   </url>
 
 </urlset>

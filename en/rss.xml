@@ -3,24 +3,24 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
     <title><![CDATA[Şuayb's Blog]]></title>
-    <link>https://suaybsimsek1.com/en</link>
+    <link>https://suaybsimsek.com/en</link>
     <description><![CDATA[Explore the latest articles, tutorials, and insights.]]></description>
-    <lastBuildDate>Tue, 08 Apr 2025 19:50:06 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 08 Apr 2025 19:56:45 GMT</lastBuildDate>
     <language>en</language>
     <copyright><![CDATA[© 2024 Şuayb Şimşek. All rights reserved.]]></copyright>
     <image>
-      <url>https://suaybsimsek1.com/images/logo.webp</url>
+      <url>https://suaybsimsek.com/images/logo.webp</url>
       <title><![CDATA[Şuayb's Blog]]></title>
-      <link>https://suaybsimsek1.com/en</link>
+      <link>https://suaybsimsek.com/en</link>
     </image>
-    <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek1.com/en/rss.xml" />
-    <atom:link rel="alternate" hreflang="tr" type="application/rss+xml" href="https://suaybsimsek1.com/tr/rss.xml" />
+    <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
+    <atom:link rel="alternate" hreflang="tr" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
     <item>
       <title><![CDATA[Spring Boot Circuit Breaker]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-circuit-breaker</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-circuit-breaker</link>
       <description><![CDATA[Learn how to implement Circuit Breaker in Spring Boot applications for resilient microservices.]]></description>
       <pubDate>Thu, 13 Mar 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-circuit-breaker</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-circuit-breaker</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
@@ -28,14 +28,14 @@
       <category><![CDATA[Circuit Breaker]]></category>
       <category><![CDATA[Microservice]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-circuit-breaker-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-circuit-breaker-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Eureka Server]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-eureka-server</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-eureka-server</link>
       <description><![CDATA[Learn how to set up and configure a Spring Boot Eureka Server for service discovery in microservices architecture.]]></description>
       <pubDate>Sun, 23 Feb 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-eureka-server</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-eureka-server</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
@@ -43,14 +43,14 @@
       <category><![CDATA[Eureka Server]]></category>
       <category><![CDATA[Microservice]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-eureka-server-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-eureka-server-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Config Server]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-config-server</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-config-server</link>
       <description><![CDATA[Learn how to use Spring Boot Config Server to centralize and manage application configurations efficiently.]]></description>
       <pubDate>Sat, 22 Feb 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-config-server</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-config-server</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
@@ -58,14 +58,14 @@
       <category><![CDATA[Config Server]]></category>
       <category><![CDATA[Microservice]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-config-server-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-config-server-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Docker Integration]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-docker</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-docker</link>
       <description><![CDATA[Learn how to build and deploy Spring Boot applications using Docker with Buildpacks and Jib for efficient containerization.]]></description>
       <pubDate>Fri, 21 Feb 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-docker</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-docker</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
@@ -73,14 +73,14 @@
       <category><![CDATA[Containerization]]></category>
       <category><![CDATA[Jib]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-docker-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-docker-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Kubernetes Integration]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-kubernetes</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-kubernetes</link>
       <description><![CDATA[Learn how to deploy Spring Boot applications on Kubernetes for scalable, containerized microservices.]]></description>
       <pubDate>Fri, 21 Feb 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-kubernetes</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-kubernetes</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
@@ -88,176 +88,176 @@
       <category><![CDATA[Microservice]]></category>
       <category><![CDATA[Containerization]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-kubernetes-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Async Tasks]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-async-tasks</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-async-tasks</link>
       <description><![CDATA[Learn how to use @Async in Spring Boot to execute tasks asynchronously without blocking the main thread.]]></description>
       <pubDate>Thu, 20 Feb 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-async-tasks</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-async-tasks</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Async Tasks]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-async-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-async-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Scheduled Tasks]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-scheduled-tasks</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-scheduled-tasks</link>
       <description><![CDATA[Learn how to use @Scheduled in Spring Boot to run background tasks at fixed intervals or cron expressions.]]></description>
       <pubDate>Thu, 20 Feb 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-scheduled-tasks</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-scheduled-tasks</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Scheduled Tasks]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-scheduled-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Reactive Programming]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-reactive-programming</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-reactive-programming</link>
       <description><![CDATA[Learn how to build reactive applications using Spring Boot with Project Reactor and WebFlux for high-performance asynchronous processing.]]></description>
       <pubDate>Wed, 19 Feb 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-reactive-programming</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-reactive-programming</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Reactive Programming]]></category>
       <category><![CDATA[Spring WebFlux]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-reactive-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot GraalVM Native Application]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-graalvm</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-graalvm</link>
       <description><![CDATA[Learn how to build and deploy a Spring Boot application as a GraalVM native image for improved startup time and reduced resource usage.]]></description>
       <pubDate>Sat, 28 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-graalvm</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-graalvm</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[GraalVM]]></category>
       <category><![CDATA[Native Image]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-graalvm-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Kafka Integration]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-kafka</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-kafka</link>
       <description><![CDATA[Learn how to integrate Apache Kafka with Spring Boot to send and consume JSON messages through Kafka topics.]]></description>
       <pubDate>Wed, 25 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-kafka</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-kafka</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Kafka]]></category>
       <category><![CDATA[Messaging]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-kafka-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Redis Caching]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-redis-caching</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-redis-caching</link>
       <description><![CDATA[Learn how to implement Redis caching in your Spring Boot application to improve performance and efficiency.]]></description>
       <pubDate>Sun, 22 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-redis-caching</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-redis-caching</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Redis]]></category>
       <category><![CDATA[Caching]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-redis-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-redis-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot with OpenAPI]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-openapi</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-openapi</link>
       <description><![CDATA[Learn how to integrate OpenAPI into your Spring Boot application for API documentation and testing using SpringDoc.]]></description>
       <pubDate>Fri, 20 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-openapi</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-openapi</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[OpenAPI]]></category>
       <category><![CDATA[Documentation]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-openapi-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Clean Coding Practices in Spring Boot]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-clean-coding</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-clean-coding</link>
       <description><![CDATA[Learn how to apply clean coding principles in Spring Boot projects. Includes best practices, examples, and benefits of using Lombok in Java and Kotlin clean code techniques.]]></description>
       <pubDate>Thu, 19 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-clean-coding</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-clean-coding</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Clean Coding]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-clean-coding-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot DevTools]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-devtools</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-devtools</link>
       <description><![CDATA[Learn how to utilize Spring Boot DevTools for rapid development. Includes live reload, caching, and debugging tips.]]></description>
       <pubDate>Thu, 19 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-devtools</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-devtools</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Dev Tools]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-devtools-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot Actuator]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-actuator</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-actuator</link>
       <description><![CDATA[Learn how to use Spring Boot Actuator to monitor and manage your applications with ease. Includes endpoints, customization, and security examples.]]></description>
       <pubDate>Wed, 18 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-actuator</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-actuator</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Actuator]]></category>
       <category><![CDATA[Monitoring]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-actuator-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Aspect-Oriented Programming (AOP) in Spring Boot]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-aop</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-aop</link>
       <description><![CDATA[Learn how to implement Aspect-Oriented Programming (AOP) in Spring Boot using Java and Kotlin. Covers core concepts, use cases, and practical examples.]]></description>
       <pubDate>Wed, 18 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-aop</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-aop</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[AOP]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-aop-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-aop-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Dependency Injection in Spring Boot]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-di</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-di</link>
       <description><![CDATA[Learn how Dependency Injection (DI) works in Spring Boot, including examples in Java and Kotlin. Covers key concepts, annotations, and practical use cases.]]></description>
       <pubDate>Wed, 18 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-di</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-di</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Dependency Injection]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-di-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-di-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Object-Relational Mapping (ORM)]]></title>
-      <link>https://suaybsimsek1.com/en/posts/object-relational-mapping</link>
+      <link>https://suaybsimsek.com/en/posts/object-relational-mapping</link>
       <description><![CDATA[Learn how to set up an ORM-based application with Spring Boot using Java, Kotlin, and Go (Gin). Includes PostgreSQL integration and basic CRUD operations.]]></description>
       <pubDate>Mon, 16 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/object-relational-mapping</guid>
+      <guid>https://suaybsimsek.com/en/posts/object-relational-mapping</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Go]]></category>
@@ -265,14 +265,14 @@
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[ORM]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/orm-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/orm-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Input Validation in REST APIs]]></title>
-      <link>https://suaybsimsek1.com/en/posts/rest-api-input-validation</link>
+      <link>https://suaybsimsek.com/en/posts/rest-api-input-validation</link>
       <description><![CDATA[Learn how to implement input validation in REST APIs using Java, Kotlin, and Go with frameworks like Spring Boot and Gin. Covers annotations, custom validators, and error handling.]]></description>
       <pubDate>Sun, 15 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/rest-api-input-validation</guid>
+      <guid>https://suaybsimsek.com/en/posts/rest-api-input-validation</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Go]]></category>
@@ -280,58 +280,58 @@
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[Validation]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/input-validation-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/input-validation-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Building APIs with Spring for GraphQL]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-graphql</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-graphql</link>
       <description><![CDATA[Learn how to build GraphQL APIs using Spring for GraphQL with Java and Kotlin. Includes schema creation, query handling, and integration.]]></description>
       <pubDate>Sun, 15 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-graphql</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-graphql</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[GraphQL]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-graphql-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Gin - First Application]]></title>
-      <link>https://suaybsimsek1.com/en/posts/golang-gin-first-application</link>
+      <link>https://suaybsimsek.com/en/posts/golang-gin-first-application</link>
       <description><![CDATA[A beginner-friendly guide to creating your first Golang Gin application from scratch. Learn the basics and start your journey with Gin.]]></description>
       <pubDate>Sat, 14 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/golang-gin-first-application</guid>
+      <guid>https://suaybsimsek.com/en/posts/golang-gin-first-application</guid>
       <category><![CDATA[Go]]></category>
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[Beginner Guide]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/golang-gin-first-app-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/golang-gin-first-app-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Building a REST API with Spring Boot]]></title>
-      <link>https://suaybsimsek1.com/en/posts/building-a-rest-api-with-spring-boot</link>
+      <link>https://suaybsimsek.com/en/posts/building-a-rest-api-with-spring-boot</link>
       <description><![CDATA[Learn how to create a REST API using Spring Boot. Includes HTTP methods, JSON handling, Lombok integration, and curl for testing.]]></description>
       <pubDate>Wed, 11 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/building-a-rest-api-with-spring-boot</guid>
+      <guid>https://suaybsimsek.com/en/posts/building-a-rest-api-with-spring-boot</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[REST API]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-rest-api-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.webp" />
     </item>
     <item>
       <title><![CDATA[Spring Boot - First Application]]></title>
-      <link>https://suaybsimsek1.com/en/posts/spring-boot-first-application</link>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-first-application</link>
       <description><![CDATA[A beginner-friendly guide to creating your first Spring Boot application from scratch. Learn the basics and start your journey with Spring Boot.]]></description>
       <pubDate>Tue, 10 Dec 2024 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek1.com/en/posts/spring-boot-first-application</guid>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-first-application</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Beginner Guide]]></category>
       <category><![CDATA[Programming]]></category>
-      <media:thumbnail url="https://suaybsimsek1.com/images/spring-boot-first-app-thumbnail.webp" />
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.webp" />
     </item>
   </channel>
 </rss>
