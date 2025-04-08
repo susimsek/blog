@@ -4,7 +4,7 @@ const path = require('path');
 
 const nextI18NextConfig = require('../next-i18next.config');
 
-const siteUrl = 'https://suaybsimsek.com';
+const siteUrl = process.env.SITE_URL || 'https://suaybsimsek.com';
 
 const locales = nextI18NextConfig.i18n.locales;
 
