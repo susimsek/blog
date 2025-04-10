@@ -5,7 +5,7 @@
     <title><![CDATA[Şuayb'in Blogu]]></title>
     <link>https://suaybsimsek.com/tr</link>
     <description><![CDATA[En son makaleleri, eğitimleri ve analizleri keşfedin.]]></description>
-    <lastBuildDate>Tue, 08 Apr 2025 19:56:45 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 10 Apr 2025 07:03:09 GMT</lastBuildDate>
     <language>tr</language>
     <copyright><![CDATA[© 2024 Şuayb Şimşek. Tüm hakları saklıdır.]]></copyright>
     <image>
@@ -15,6 +15,20 @@
     </image>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
     <atom:link rel="alternate" hreflang="en" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
+    <item>
+      <title><![CDATA[Spring Boot ile Test Odaklı Geliştirme (TDD)]]></title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-tdd</link>
+      <description><![CDATA[Spring Boot ile TDD yaklaşımını uygulamayı; önce test yazarak, iş mantığını geliştirerek ve testlerle kaliteyi garanti altına alarak öğrenin.]]></description>
+      <pubDate>Wed, 09 Apr 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-tdd</guid>
+      <category><![CDATA[Java]]></category>
+      <category><![CDATA[Kotlin]]></category>
+      <category><![CDATA[Spring Boot]]></category>
+      <category><![CDATA[TDD]]></category>
+      <category><![CDATA[Test]]></category>
+      <category><![CDATA[Programlama]]></category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-tdd-thumbnail.webp" />
+    </item>
     <item>
       <title><![CDATA[Spring Boot Circuit Breaker]]></title>
       <link>https://suaybsimsek.com/tr/posts/spring-boot-circuit-breaker</link>
