@@ -1,5 +1,45 @@
 [
   {
+    "id": "spring-boot-tdd",
+    "title": "Spring Boot ile Test Odaklı Geliştirme (TDD)",
+    "date": "2025-04-09",
+    "summary": "Spring Boot ile TDD yaklaşımını uygulamayı; önce test yazarak, iş mantığını geliştirerek ve testlerle kaliteyi garanti altına alarak öğrenin.",
+    "thumbnail": "/images/spring-boot-tdd-thumbnail.webp",
+    "readingTime": "1 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "tdd",
+        "name": "TDD",
+        "color": "blue"
+      },
+      {
+        "id": "testing",
+        "name": "Test",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "brown"
+      }
+    ]
+  },
+  {
     "id": "spring-boot-circuit-breaker",
     "title": "Spring Boot Circuit Breaker",
     "date": "2025-03-13",
