@@ -39,6 +39,7 @@
   { "id": "circuit-breaker", "name": "Circuit Breaker", "color": "blue" },
   { "id": "tdd", "name": "TDD", "color": "blue" },
   { "id": "testing", "name": "Test", "color": "orange" },
+  { "id": "spring-data", "name": "Spring Data", "color": "yellow" },
   { "id": "jpa", "name": "JPA", "color": "blue" },
   { "id": "auditing", "name": "Auditing", "color": "orange" }
 ]

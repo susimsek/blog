@@ -23,14 +23,19 @@
         "color": "green"
       },
       {
+        "id": "spring-data",
+        "name": "Spring Data",
+        "color": "yellow"
+      },
+      {
         "id": "jpa",
         "name": "JPA",
-        "color": "orange"
+        "color": "blue"
       },
       {
         "id": "auditing",
         "name": "Auditing",
-        "color": "blue"
+        "color": "orange"
       },
       {
         "id": "programming",
