@@ -122,7 +122,7 @@ class GreetingServiceTest {
 Now implement the `GreetingService` to pass the test.
 
 :::tabs
-@tab Java
+@tab Java [icon=java]
 
 ```java
 package com.example.tdd;
@@ -134,7 +134,7 @@ public class GreetingService {
 }
 ```
 
-@tab Kotlin
+@tab Kotlin [icon=kotlin]
 
 ```kotlin
 package com.example.tdd

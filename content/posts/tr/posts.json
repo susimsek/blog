@@ -1,5 +1,45 @@
 [
   {
+    "id": "spring-boot-jpa-auditing",
+    "title": "Spring Boot JPA Auditing",
+    "date": "2025-04-10",
+    "summary": "Spring Boot uygulamalarında JPA Auditing ile oluşturulma/değiştirilme tarihlerini ve kullanıcılarını otomatik olarak nasıl yakalayacağınızı öğrenin.",
+    "thumbnail": "/images/spring-boot-jpa-auditing-thumbnail.webp",
+    "readingTime": "1 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "jpa",
+        "name": "JPA",
+        "color": "blue"
+      },
+      {
+        "id": "auditing",
+        "name": "Auditing",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "brown"
+      }
+    ]
+  },
+  {
     "id": "spring-boot-tdd",
     "title": "Spring Boot ile Test Odaklı Geliştirme (TDD)",
     "date": "2025-04-09",

@@ -38,5 +38,7 @@
   { "id": "eureka-server", "name": "Eureka Server", "color": "blue" },
   { "id": "circuit-breaker", "name": "Circuit Breaker", "color": "blue" },
   { "id": "tdd", "name": "TDD", "color": "blue" },
-  { "id": "testing", "name": "Testing", "color": "orange" }
+  { "id": "testing", "name": "Testing", "color": "orange" },
+  { "id": "jpa", "name": "JPA", "color": "blue" },
+  { "id": "auditing", "name": "Auditing", "color": "orange" }
 ]
