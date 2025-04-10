@@ -5,7 +5,7 @@
     <title><![CDATA[Şuayb'in Blogu]]></title>
     <link>https://suaybsimsek.com/tr</link>
     <description><![CDATA[En son makaleleri, eğitimleri ve analizleri keşfedin.]]></description>
-    <lastBuildDate>Thu, 10 Apr 2025 18:49:45 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 10 Apr 2025 19:26:45 GMT</lastBuildDate>
     <language>tr</language>
     <copyright><![CDATA[© 2024 Şuayb Şimşek. Tüm hakları saklıdır.]]></copyright>
     <image>
@@ -24,6 +24,7 @@
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
+      <category><![CDATA[Spring Data]]></category>
       <category><![CDATA[JPA]]></category>
       <category><![CDATA[Auditing]]></category>
       <category><![CDATA[Programlama]]></category>
