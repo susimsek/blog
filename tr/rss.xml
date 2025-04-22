@@ -5,7 +5,7 @@
     <title><![CDATA[Şuayb'in Blogu]]></title>
     <link>https://suaybsimsek.com/tr</link>
     <description><![CDATA[En son makaleleri, eğitimleri ve analizleri keşfedin.]]></description>
-    <lastBuildDate>Thu, 10 Apr 2025 19:26:45 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 22 Apr 2025 11:26:26 GMT</lastBuildDate>
     <language>tr</language>
     <copyright><![CDATA[© 2024 Şuayb Şimşek. Tüm hakları saklıdır.]]></copyright>
     <image>
@@ -15,21 +15,6 @@
     </image>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
     <atom:link rel="alternate" hreflang="en" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
-    <item>
-      <title><![CDATA[Spring Boot JPA Auditing]]></title>
-      <link>https://suaybsimsek.com/tr/posts/spring-boot-jpa-auditing</link>
-      <description><![CDATA[Spring Boot uygulamalarında JPA Auditing ile oluşturulma/değiştirilme tarihlerini ve kullanıcılarını otomatik olarak nasıl yakalayacağınızı öğrenin.]]></description>
-      <pubDate>Thu, 10 Apr 2025 00:00:00 GMT</pubDate>
-      <guid>https://suaybsimsek.com/tr/posts/spring-boot-jpa-auditing</guid>
-      <category><![CDATA[Java]]></category>
-      <category><![CDATA[Kotlin]]></category>
-      <category><![CDATA[Spring Boot]]></category>
-      <category><![CDATA[Spring Data]]></category>
-      <category><![CDATA[JPA]]></category>
-      <category><![CDATA[Auditing]]></category>
-      <category><![CDATA[Programlama]]></category>
-      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-jpa-auditing-thumbnail.webp" />
-    </item>
     <item>
       <title><![CDATA[Spring Boot ile Test Odaklı Geliştirme (TDD)]]></title>
       <link>https://suaybsimsek.com/tr/posts/spring-boot-tdd</link>
