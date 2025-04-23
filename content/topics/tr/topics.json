@@ -41,5 +41,6 @@
   { "id": "testing", "name": "Test", "color": "orange" },
   { "id": "spring-data", "name": "Spring Data", "color": "yellow" },
   { "id": "jpa", "name": "JPA", "color": "blue" },
-  { "id": "auditing", "name": "Auditing", "color": "orange" }
+  { "id": "auditing", "name": "Auditing", "color": "orange" },
+  { "id": "ai", "name": "Yapay Zeka", "color": "pink" }
 ]

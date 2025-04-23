@@ -1,5 +1,40 @@
 [
   {
+    "id": "spring-boot-ai",
+    "title": "Spring AI Integration",
+    "date": "2025-04-23",
+    "summary": "Learn how to integrate AI models into Spring applications using Spring AI for modular, portable, and observable AI workflows.",
+    "thumbnail": "/images/spring-boot-ai-thumbnail.webp",
+    "readingTime": "3 min read",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "ai",
+        "name": "Artificial Intelligence",
+        "color": "pink"
+      },
+      {
+        "id": "programming",
+        "name": "Programming",
+        "color": "brown"
+      }
+    ]
+  },
+  {
     "id": "spring-boot-jpa-auditing",
     "title": "Spring Boot JPA Auditing",
     "date": "2025-04-10",
