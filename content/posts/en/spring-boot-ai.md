@@ -1,7 +1,7 @@
 ---
-title: 'Spring AI Integration'
+title: 'Spring Boot AI Integration'
 date: '2025-04-23'
-summary: 'Learn how to integrate AI models into Spring applications using Spring AI for modular, portable, and observable AI workflows.'
+summary: 'Learn how to integrate AI models into Spring Boot applications using Spring AI for modular, portable, and observable AI workflows.'
 thumbnail: '/images/spring-boot-ai-thumbnail.webp'
 readingTime: '3 min read'
 topics:
@@ -14,6 +14,9 @@ topics:
   - id: 'spring-boot'
     name: 'Spring Boot'
     color: 'green'
+  - id: 'spring-ai'
+    name: 'Spring AI'
+    color: 'orange'
   - id: 'ai'
     name: 'Artificial Intelligence'
     color: 'pink'

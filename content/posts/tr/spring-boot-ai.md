@@ -1,7 +1,7 @@
 ---
-title: 'Spring AI Entegrasyonu'
+title: 'Spring Boot AI Entegrasyonu'
 date: '2025-04-23'
-summary: 'Modüler, taşınabilir ve gözlemlenebilir AI iş akışları için Spring AI kullanarak Spring uygulamalarına AI modellerini nasıl entegre edeceğinizi öğrenin.'
+summary: 'Modüler, taşınabilir ve gözlemlenebilir AI iş akışları için Spring AI kullanarak Spring Boot uygulamalarına AI modellerini nasıl entegre edeceğinizi öğrenin.'
 thumbnail: '/images/spring-boot-ai-thumbnail.webp'
 readingTime: '3 dakika okuma'
 topics:
@@ -14,6 +14,9 @@ topics:
   - id: 'spring-boot'
     name: 'Spring Boot'
     color: 'green'
+  - id: 'spring-ai'
+    name: 'Spring AI'
+    color: 'orange'
   - id: 'ai'
     name: 'Yapay Zeka'
     color: 'pink'
