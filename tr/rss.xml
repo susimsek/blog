@@ -5,7 +5,7 @@
     <title><![CDATA[Şuayb'in Blogu]]></title>
     <link>https://suaybsimsek.com/tr</link>
     <description><![CDATA[En son makaleleri, eğitimleri ve analizleri keşfedin.]]></description>
-    <lastBuildDate>Wed, 23 Apr 2025 08:07:59 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 23 Apr 2025 12:00:34 GMT</lastBuildDate>
     <language>tr</language>
     <copyright><![CDATA[© 2024 Şuayb Şimşek. Tüm hakları saklıdır.]]></copyright>
     <image>
@@ -16,14 +16,15 @@
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
     <atom:link rel="alternate" hreflang="en" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
     <item>
-      <title><![CDATA[Spring AI Entegrasyonu]]></title>
+      <title><![CDATA[Spring Boot AI Entegrasyonu]]></title>
       <link>https://suaybsimsek.com/tr/posts/spring-boot-ai</link>
-      <description><![CDATA[Modüler, taşınabilir ve gözlemlenebilir AI iş akışları için Spring AI kullanarak Spring uygulamalarına AI modellerini nasıl entegre edeceğinizi öğrenin.]]></description>
+      <description><![CDATA[Modüler, taşınabilir ve gözlemlenebilir AI iş akışları için Spring AI kullanarak Spring Boot uygulamalarına AI modellerini nasıl entegre edeceğinizi öğrenin.]]></description>
       <pubDate>Wed, 23 Apr 2025 00:00:00 GMT</pubDate>
       <guid>https://suaybsimsek.com/tr/posts/spring-boot-ai</guid>
       <category><![CDATA[Java]]></category>
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
+      <category><![CDATA[Spring AI]]></category>
       <category><![CDATA[Yapay Zeka]]></category>
       <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-ai-thumbnail.webp" />
