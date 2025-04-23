@@ -5,7 +5,7 @@
     <title><![CDATA[Şuayb's Blog]]></title>
     <link>https://suaybsimsek.com/en</link>
     <description><![CDATA[Explore the latest articles, tutorials, and insights.]]></description>
-    <lastBuildDate>Tue, 22 Apr 2025 13:29:06 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 23 Apr 2025 08:07:59 GMT</lastBuildDate>
     <language>en</language>
     <copyright><![CDATA[© 2024 Şuayb Şimşek. All rights reserved.]]></copyright>
     <image>
@@ -15,6 +15,19 @@
     </image>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
     <atom:link rel="alternate" hreflang="tr" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
+    <item>
+      <title><![CDATA[Spring AI Integration]]></title>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-ai</link>
+      <description><![CDATA[Learn how to integrate AI models into Spring applications using Spring AI for modular, portable, and observable AI workflows.]]></description>
+      <pubDate>Wed, 23 Apr 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-ai</guid>
+      <category><![CDATA[Java]]></category>
+      <category><![CDATA[Kotlin]]></category>
+      <category><![CDATA[Spring Boot]]></category>
+      <category><![CDATA[Artificial Intelligence]]></category>
+      <category><![CDATA[Programming]]></category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-ai-thumbnail.webp" />
+    </item>
     <item>
       <title><![CDATA[Spring Boot JPA Auditing]]></title>
       <link>https://suaybsimsek.com/en/posts/spring-boot-jpa-auditing</link>
