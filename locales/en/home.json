@@ -1,10 +1,10 @@
 {
   "home": {
-    "title": "Java, Kotlin, Kubernetes, Blockchain, Spring Boot, Golang, React, Microservice",
+    "title": "Java, Kotlin, Kubernetes, Blockchain, Spring Boot, Golang, React, Microservice, Artificial Intelligence",
     "meta": {
       "title": "Welcome to Şuayb's Blog",
-      "description": "Explore the latest articles, tutorials, and insights on my blog. Discover a variety of topics including programming, technology, Java, Kotlin, Kubernetes, Blockchain, Spring Boot, Golang, React, microservice.",
-      "keywords": "blog, articles, tutorials, programming, technology"
+      "description": "Explore the latest articles, tutorials, and insights on my blog. Discover a variety of topics including programming, technology, Java, Kotlin, Kubernetes, Blockchain, Spring Boot, Golang, React, microservice, artificial intelligence.",
+      "keywords": "blog, articles, tutorials, programming, technology, artificial intelligence"
     },
     "header": {
       "title": "Welcome to Şuayb's Blog",
