@@ -43,5 +43,6 @@
   { "id": "jpa", "name": "JPA", "color": "blue" },
   { "id": "auditing", "name": "Auditing", "color": "orange" },
   { "id": "ai", "name": "Yapay Zeka", "color": "pink" },
-  { "id": "spring-ai", "name": "Spring AI", "color": "orange" }
+  { "id": "spring-ai", "name": "Spring AI", "color": "orange" },
+  { "id": "virtual-thread", "name": "Sanal Thread", "color": "orange" }
 ]

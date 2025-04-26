@@ -1,5 +1,45 @@
 [
   {
+    "id": "spring-boot-async-tasks-virtual",
+    "title": "Spring Boot Sanal Thread’li Asenkron Görevler",
+    "date": "2025-04-26",
+    "summary": "Spring Boot’ta JDK 21 sanal thread’leri ve `@Async` anotasyonunu kullanarak hafif ve ölçeklenebilir asenkron görevleri nasıl oluşturacağınızı öğrenin.",
+    "thumbnail": "/images/spring-boot-async-virtual-thumbnail.webp",
+    "readingTime": "3 min read",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "async-tasks",
+        "name": "Asenkron Görevler",
+        "color": "blue"
+      },
+      {
+        "id": "virtual-thread",
+        "name": "Sanal Thread",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "brown"
+      }
+    ]
+  },
+  {
     "id": "spring-boot-ai",
     "title": "Spring Boot AI Entegrasyonu",
     "date": "2025-04-23",

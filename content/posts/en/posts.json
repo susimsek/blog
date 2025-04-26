@@ -1,5 +1,45 @@
 [
   {
+    "id": "spring-boot-async-tasks-virtual",
+    "title": "Spring Boot Async Tasks with Virtual Threads",
+    "date": "2025-04-26",
+    "summary": "Learn how to run asynchronous tasks with `@Async` on JDK 21 virtual threads in Spring Boot.",
+    "thumbnail": "/images/spring-boot-async-virtual-thumbnail.webp",
+    "readingTime": "3 min read",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "async-tasks",
+        "name": "Async Tasks",
+        "color": "blue"
+      },
+      {
+        "id": "virtual-thread",
+        "name": "Virtual Thread",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programming",
+        "color": "brown"
+      }
+    ]
+  },
+  {
     "id": "spring-boot-ai",
     "title": "Spring Boot AI Integration",
     "date": "2025-04-23",
