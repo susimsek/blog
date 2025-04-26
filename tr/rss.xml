@@ -5,7 +5,7 @@
     <title><![CDATA[Şuayb'in Blogu]]></title>
     <link>https://suaybsimsek.com/tr</link>
     <description><![CDATA[En son makaleleri, eğitimleri ve analizleri keşfedin.]]></description>
-    <lastBuildDate>Fri, 25 Apr 2025 10:54:03 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 26 Apr 2025 10:39:26 GMT</lastBuildDate>
     <language>tr</language>
     <copyright><![CDATA[© 2024 Şuayb Şimşek. Tüm hakları saklıdır.]]></copyright>
     <image>
@@ -15,6 +15,20 @@
     </image>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
     <atom:link rel="alternate" hreflang="en" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
+    <item>
+      <title><![CDATA[Spring Boot Sanal Thread’li Asenkron Görevler]]></title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-async-tasks-virtual</link>
+      <description><![CDATA[Spring Boot’ta JDK 21 sanal thread’leri ve `@Async` anotasyonunu kullanarak hafif ve ölçeklenebilir asenkron görevleri nasıl oluşturacağınızı öğrenin.]]></description>
+      <pubDate>Sat, 26 Apr 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-async-tasks-virtual</guid>
+      <category><![CDATA[Java]]></category>
+      <category><![CDATA[Kotlin]]></category>
+      <category><![CDATA[Spring Boot]]></category>
+      <category><![CDATA[Asenkron Görevler]]></category>
+      <category><![CDATA[Sanal Thread]]></category>
+      <category><![CDATA[Programlama]]></category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-async-virtual-thumbnail.webp" />
+    </item>
     <item>
       <title><![CDATA[Spring Boot AI Entegrasyonu]]></title>
       <link>https://suaybsimsek.com/tr/posts/spring-boot-ai</link>

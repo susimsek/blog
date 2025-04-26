@@ -5,7 +5,7 @@
     <title><![CDATA[Şuayb's Blog]]></title>
     <link>https://suaybsimsek.com/en</link>
     <description><![CDATA[Explore the latest articles, tutorials, and insights.]]></description>
-    <lastBuildDate>Fri, 25 Apr 2025 10:54:03 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 26 Apr 2025 10:39:26 GMT</lastBuildDate>
     <language>en</language>
     <copyright><![CDATA[© 2024 Şuayb Şimşek. All rights reserved.]]></copyright>
     <image>
@@ -15,6 +15,20 @@
     </image>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
     <atom:link rel="alternate" hreflang="tr" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
+    <item>
+      <title><![CDATA[Spring Boot Async Tasks with Virtual Thread]]></title>
+      <link>https://suaybsimsek.com/en/posts/spring-boot-async-tasks-virtual</link>
+      <description><![CDATA[Learn how to run asynchronous tasks with `@Async` on JDK 21 virtual threads in Spring Boot.]]></description>
+      <pubDate>Sat, 26 Apr 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/en/posts/spring-boot-async-tasks-virtual</guid>
+      <category><![CDATA[Java]]></category>
+      <category><![CDATA[Kotlin]]></category>
+      <category><![CDATA[Spring Boot]]></category>
+      <category><![CDATA[Async Tasks]]></category>
+      <category><![CDATA[Virtual Thread]]></category>
+      <category><![CDATA[Programming]]></category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-async-virtual-thumbnail.webp" />
+    </item>
     <item>
       <title><![CDATA[Spring Boot AI Integration]]></title>
       <link>https://suaybsimsek.com/en/posts/spring-boot-ai</link>
