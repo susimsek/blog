@@ -1245,12 +1245,21 @@ input.form-control {
 @media (max-width: 768px) {
   .carousel-caption {
     padding: 3px !important;
-    font-size: 12px !important;
+  }
+
+  .carousel-caption h3 {
+    font-size: 14px !important;
+    line-height: 1.2 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
   }
 
   .carousel-caption .badge {
-    font-size: 10px !important;
-    margin-bottom: 3px !important;
+    font-size: 8px !important;
+    margin-bottom: 2px !important;
+    white-space: nowrap !important;
   }
 }
 
