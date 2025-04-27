@@ -5,7 +5,7 @@
     <title><![CDATA[Şuayb'in Blogu]]></title>
     <link>https://suaybsimsek.com/tr</link>
     <description><![CDATA[En son makaleleri, eğitimleri ve analizleri keşfedin.]]></description>
-    <lastBuildDate>Sat, 26 Apr 2025 10:44:11 GMT</lastBuildDate>
+    <lastBuildDate>Sun, 27 Apr 2025 11:59:09 GMT</lastBuildDate>
     <language>tr</language>
     <copyright><![CDATA[© 2024 Şuayb Şimşek. Tüm hakları saklıdır.]]></copyright>
     <image>
@@ -15,6 +15,20 @@
     </image>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
     <atom:link rel="alternate" hreflang="en" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
+    <item>
+      <title><![CDATA[Spring Boot HTTP Interface Client]]></title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-http-interface-client</link>
+      <description><![CDATA[Deklaratif, tip güvenli HTTP çağrıları için Spring Boot 3.2+ HTTP Interface Client nasıl kullanılır öğrenin.]]></description>
+      <pubDate>Sun, 27 Apr 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-http-interface-client</guid>
+      <category><![CDATA[Java]]></category>
+      <category><![CDATA[Kotlin]]></category>
+      <category><![CDATA[Spring Boot]]></category>
+      <category><![CDATA[REST API]]></category>
+      <category><![CDATA[Rest Client]]></category>
+      <category><![CDATA[Programlama]]></category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-http-interface-thumbnail.webp" />
+    </item>
     <item>
       <title><![CDATA[Spring Boot Sanal Thread’li Asenkron Görevler]]></title>
       <link>https://suaybsimsek.com/tr/posts/spring-boot-async-tasks-virtual</link>
