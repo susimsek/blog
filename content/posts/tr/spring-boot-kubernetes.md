@@ -3,7 +3,7 @@ title: 'Spring Boot Kubernetes Entegrasyonu'
 date: '2025-02-21'
 summary: 'Spring Boot uygulamalarını Kubernetes üzerinde nasıl ölçeklenebilir ve konteyner tabanlı olarak dağıtabileceğinizi öğrenin.'
 thumbnail: '/images/spring-boot-kubernetes-thumbnail.webp'
-readingTime: '3 dakika okuma'
+readingTime: '3 dk okuma'
 topics:
   - id: 'java'
     name: 'Java'

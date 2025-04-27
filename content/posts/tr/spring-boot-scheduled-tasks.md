@@ -3,7 +3,7 @@ title: 'Spring Boot Planlanmış Görevler'
 date: '2025-02-20'
 summary: 'Spring Boot ile @Scheduled anotasyonunu kullanarak belirli aralıklarla veya cron ifadeleriyle arka plan görevlerini nasıl çalıştıracağınızı öğrenin.'
 thumbnail: '/images/spring-boot-scheduled-thumbnail.webp'
-readingTime: '3 dakika okuma'
+readingTime: '3 dk okuma'
 topics:
   - id: 'java'
     name: 'Java'

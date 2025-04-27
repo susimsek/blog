@@ -3,7 +3,7 @@ title: 'Spring Boot Docker Entegrasyonu'
 date: '2025-02-21'
 summary: 'Spring Boot uygulamalarını Docker kullanarak Buildpacks ve Jib ile nasıl oluşturup dağıtabileceğinizi öğrenin.'
 thumbnail: '/images/spring-boot-docker-thumbnail.webp'
-readingTime: '3 dakika okuma'
+readingTime: '3 dk okuma'
 topics:
   - id: 'java'
     name: 'Java'

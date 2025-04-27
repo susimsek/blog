@@ -44,5 +44,6 @@
   { "id": "auditing", "name": "Auditing", "color": "orange" },
   { "id": "ai", "name": "Yapay Zeka", "color": "pink" },
   { "id": "spring-ai", "name": "Spring AI", "color": "orange" },
-  { "id": "virtual-thread", "name": "Sanal Thread", "color": "orange" }
+  { "id": "virtual-thread", "name": "Sanal Thread", "color": "orange" },
+  { "id": "rest-client", "name": "Rest Client", "color": "orange" }
 ]
