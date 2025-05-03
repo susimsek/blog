@@ -822,7 +822,7 @@ public class CookieBearerTokenResolver implements BearerTokenResolver {
         String headerToken = resolveFromAuthorizationHeader(request);
         String queryToken  = resolveAccessTokenFromQueryString(request);
         String bodyToken   = resolveAccessTokenFromBody(request);
-        String cookieToken = resolveFromCookie(request);
+        String cookieToken = headerToken == null ? resolveFromCookie(request): null;
 
         return resolveToken(headerToken, queryToken, bodyToken, cookieToken);
     }
@@ -924,7 +924,7 @@ class CookieBearerTokenResolver {
             && request.contentType == "application/x-www-form-urlencoded")
             request.getParameterValues(ACCESS_TOKEN_PARAMETER_NAME)?.let(::resolveToken)
         else null
-        val cookie = resolveFromCookie(request)
+        val cookie = if (header == null) resolveFromCookie(request) else null
         return listOf(header, query, body, cookie).filterNotNull().let {
             if (it.size > 1) throw OAuth2AuthenticationException(BearerTokenErrors.invalidRequest("Found multiple bearer tokens"))
             it.firstOrNull()?: null
