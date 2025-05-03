@@ -45,5 +45,8 @@
   { "id": "ai", "name": "Artificial Intelligence", "color": "pink" },
   { "id": "spring-ai", "name": "Spring AI", "color": "orange" },
   { "id": "virtual-thread", "name": "Virtual Thread", "color": "orange" },
-  { "id": "rest-client", "name": "Rest Client", "color": "orange" }
+  { "id": "rest-client", "name": "Rest Client", "color": "orange" },
+  { "id": "security", "name": "Security", "color": "blue" },
+  { "id": "jwt", "name": "JWT", "color": "pink" },
+  { "id": "jwe", "name": "JWE", "color": "orange" }
 ]

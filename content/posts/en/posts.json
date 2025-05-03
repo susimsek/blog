@@ -1,5 +1,50 @@
 [
   {
+    "id": "spring-boot-jwe-authentication",
+    "title": "Spring Boot JWE Authentication",
+    "date": "2025-05-03",
+    "summary": "Learn how to use JWE to encrypt your JWTs and secure your Spring Boot APIs for confidentiality and integrity.",
+    "thumbnail": "/images/spring-boot-jwe-auth-thumbnail.webp",
+    "readingTime": "5 min read",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "security",
+        "name": "Security",
+        "color": "blue"
+      },
+      {
+        "id": "jwt",
+        "name": "JWT",
+        "color": "pink"
+      },
+      {
+        "id": "jwe",
+        "name": "JWE",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programming",
+        "color": "brown"
+      }
+    ]
+  },
+  {
     "id": "spring-boot-http-interface-client",
     "title": "Spring Boot HTTP Interface Client",
     "date": "2025-04-27",

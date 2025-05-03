@@ -1,5 +1,50 @@
 [
   {
+    "id": "spring-boot-jwe-authentication",
+    "title": "Spring Boot JWE Kimlik Doğrulama",
+    "date": "2025-05-03",
+    "summary": "JWT’lerinizi JWE ile şifreleyerek gizlilik ve bütünlüğü sağlamak için Spring Boot API’lerinizi nasıl güvence altına alacağınızı öğrenin.",
+    "thumbnail": "/images/spring-boot-jwe-auth-thumbnail.webp",
+    "readingTime": "5 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "security",
+        "name": "Güvenlik",
+        "color": "blue"
+      },
+      {
+        "id": "jwt",
+        "name": "JWT",
+        "color": "pink"
+      },
+      {
+        "id": "jwe",
+        "name": "JWE",
+        "color": "orange"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "brown"
+      }
+    ]
+  },
+  {
     "id": "spring-boot-http-interface-client",
     "title": "Spring Boot HTTP Interface Client",
     "date": "2025-04-27",
