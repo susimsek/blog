@@ -48,5 +48,6 @@
   { "id": "rest-client", "name": "Rest Client", "color": "orange" },
   { "id": "security", "name": "Security", "color": "blue" },
   { "id": "jwt", "name": "JWT", "color": "pink" },
-  { "id": "jwe", "name": "JWE", "color": "orange" }
+  { "id": "jwe", "name": "JWE", "color": "orange" },
+  { "id": "ldap", "name": "LDAP", "color": "red" }
 ]

@@ -1,5 +1,55 @@
 [
   {
+    "id": "spring-boot-ldap-jwe-authentication",
+    "title": "Spring Boot LDAP ve JWE Kimlik Doğrulama",
+    "date": "2025-05-10",
+    "summary": "LDAP kimlik doğrulama ve JWE şifreli JWT’lerle Spring Boot API’lerinizi external directory entegrasyonu ve token gizliliği ile nasıl güvene alacağınızı öğrenin.",
+    "thumbnail": "/images/spring-boot-ldap-jwe-auth-thumbnail.webp",
+    "readingTime": "5 dk okuma",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "security",
+        "name": "Güvenlik",
+        "color": "blue"
+      },
+      {
+        "id": "jwt",
+        "name": "JWT",
+        "color": "pink"
+      },
+      {
+        "id": "jwe",
+        "name": "JWE",
+        "color": "orange"
+      },
+      {
+        "id": "ldap",
+        "name": "LDAP",
+        "color": "red"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "brown"
+      }
+    ]
+  },
+  {
     "id": "spring-boot-jwe-authentication",
     "title": "Spring Boot JWE Kimlik Doğrulama",
     "date": "2025-05-03",

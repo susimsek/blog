@@ -1,5 +1,55 @@
 [
   {
+    "id": "spring-boot-ldap-jwe-authentication",
+    "title": "Spring Boot LDAP and JWE Authentication",
+    "date": "2025-05-10",
+    "summary": "Learn how to use LDAP authentication with JWE-encrypted JWTs to secure your Spring Boot APIs with both external directory integration and token confidentiality.",
+    "thumbnail": "/images/spring-boot-ldap-jwe-auth-thumbnail.webp",
+    "readingTime": "5 min read",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "security",
+        "name": "Security",
+        "color": "blue"
+      },
+      {
+        "id": "jwt",
+        "name": "JWT",
+        "color": "pink"
+      },
+      {
+        "id": "jwe",
+        "name": "JWE",
+        "color": "orange"
+      },
+      {
+        "id": "ldap",
+        "name": "LDAP",
+        "color": "red"
+      },
+      {
+        "id": "programming",
+        "name": "Programming",
+        "color": "brown"
+      }
+    ]
+  },
+  {
     "id": "spring-boot-jwe-authentication",
     "title": "Spring Boot JWE Authentication",
     "date": "2025-05-03",
