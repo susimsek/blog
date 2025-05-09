@@ -5,7 +5,7 @@
     <title><![CDATA[Şuayb'in Blogu]]></title>
     <link>https://suaybsimsek.com/tr</link>
     <description><![CDATA[En son makaleleri, eğitimleri ve analizleri keşfedin.]]></description>
-    <lastBuildDate>Sat, 03 May 2025 16:48:53 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 09 May 2025 10:48:41 GMT</lastBuildDate>
     <language>tr</language>
     <copyright><![CDATA[© 2024 Şuayb Şimşek. Tüm hakları saklıdır.]]></copyright>
     <image>
@@ -15,6 +15,22 @@
     </image>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
     <atom:link rel="alternate" hreflang="en" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
+    <item>
+      <title><![CDATA[Spring Boot LDAP ve JWE Kimlik Doğrulama]]></title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-ldap-jwe-authentication</link>
+      <description><![CDATA[LDAP kimlik doğrulama ve JWE şifreli JWT’lerle Spring Boot API’lerinizi external directory entegrasyonu ve token gizliliği ile nasıl güvene alacağınızı öğrenin.]]></description>
+      <pubDate>Sat, 10 May 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-ldap-jwe-authentication</guid>
+      <category><![CDATA[Java]]></category>
+      <category><![CDATA[Kotlin]]></category>
+      <category><![CDATA[Spring Boot]]></category>
+      <category><![CDATA[Güvenlik]]></category>
+      <category><![CDATA[JWT]]></category>
+      <category><![CDATA[JWE]]></category>
+      <category><![CDATA[LDAP]]></category>
+      <category><![CDATA[Programlama]]></category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-ldap-jwe-auth-thumbnail.webp" />
+    </item>
     <item>
       <title><![CDATA[Spring Boot JWE Kimlik Doğrulama]]></title>
       <link>https://suaybsimsek.com/tr/posts/spring-boot-jwe-authentication</link>
