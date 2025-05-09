@@ -64,6 +64,11 @@ Bu satırları `pom.xml` veya `build.gradle` dosyanıza ekleyin.
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-oauth2-resource-server</artifactId>
 </dependency>
+<dependency>
+  <groupId>org.projectlombok</groupId>
+  <artifactId>lombok</artifactId>
+  <optional>true</optional>
+</dependency>
 ```
 
 **Gradle:**
@@ -71,6 +76,7 @@ Bu satırları `pom.xml` veya `build.gradle` dosyanıza ekleyin.
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-web'
 implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+compileOnly 'org.projectlombok:lombok'
 ```
 
 ---

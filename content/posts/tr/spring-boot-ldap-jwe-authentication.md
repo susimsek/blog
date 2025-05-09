@@ -76,6 +76,11 @@ Bu satırları `pom.xml` veya `build.gradle` dosyanıza ekleyin.
   <groupId>com.unboundid</groupId>
   <artifactId>unboundid-ldapsdk</artifactId>
 </dependency>
+<dependency>
+  <groupId>org.projectlombok</groupId>
+  <artifactId>lombok</artifactId>
+  <optional>true</optional>
+</dependency>
 ```
 
 **Gradle:**
@@ -85,6 +90,7 @@ implementation 'org.springframework.boot:spring-boot-starter-web'
 implementation 'org.springframework.security:spring-security-oauth2-resource-server'
 implementation 'org.springframework.security:spring-security-ldap'
 implementation 'com.unboundid:unboundid-ldapsdk'
+compileOnly 'org.projectlombok:lombok'
 ```
 
 ---
