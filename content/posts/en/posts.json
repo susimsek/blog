@@ -1,5 +1,55 @@
 [
   {
+    "id": "spring-boot-jwe-authentication-with-jpa",
+    "title": "Spring Boot JWE Authentication with JPA",
+    "date": "2025-05-11",
+    "summary": "Learn how to use stateless encrypted JWTs (JWE) to secure your Spring Boot APIs while persisting user identities and roles in a JPA-backed database.",
+    "thumbnail": "/images/spring-boot-jwe-auth-with-jpa-thumbnail.webp",
+    "readingTime": "5 min read",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "security",
+        "name": "Security",
+        "color": "blue"
+      },
+      {
+        "id": "jwt",
+        "name": "JWT",
+        "color": "pink"
+      },
+      {
+        "id": "jwe",
+        "name": "JWE",
+        "color": "orange"
+      },
+      {
+        "id": "jpa",
+        "name": "JPA",
+        "color": "blue"
+      },
+      {
+        "id": "programming",
+        "name": "Programming",
+        "color": "brown"
+      }
+    ]
+  },
+  {
     "id": "spring-boot-ldap-jwe-authentication",
     "title": "Spring Boot LDAP and JWE Authentication",
     "date": "2025-05-10",
