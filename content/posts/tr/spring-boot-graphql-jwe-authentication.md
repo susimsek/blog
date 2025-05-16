@@ -1,8 +1,8 @@
 ---
-title: 'Spring Boot JPA ile JWE Kimlik Doğrulaması'
-date: '2025-05-11'
-summary: 'Stateless şifreli JWT’ler (JWE) kullanarak Spring Boot API’lerinizi güvenli hale getirirken, kullanıcı kimliklerini ve rolleri JPA destekli bir veritabanında nasıl saklayacağınızı öğrenin.'
-thumbnail: '/images/spring-boot-jwe-auth-with-jpa-thumbnail.webp'
+title: 'Spring Boot GraphQL JWE Kimlik Doğrulama'
+date: '2025-05-17'
+summary: 'Stateless şifreli JWT’ler (JWE) kullanarak Spring Boot GraphQL API’lerinizi nasıl güvenli hale getirirken, kullanıcı kimliklerini ve rolleri JPA destekli bir veritabanında nasıl saklayacağınızı öğrenin.'
+thumbnail: '/images/spring-boot-graphql-jwe-auth-thumbnail.webp'
 readingTime: '5 dk okuma'
 topics:
   - id: 'java'
@@ -22,25 +22,26 @@ topics:
     color: 'pink'
   - id: 'jwe'
     name: 'JWE'
-  - id: 'jpa'
-    name: 'JPA'
-    color: 'blue'
+  - id: 'graphql'
+    name: 'GraphQL'
+    color: 'pink'
   - id: 'programming'
     name: 'Programlama'
     color: 'brown'
 ---
 
-Spring Boot, stateless şifrelenmiş JWT’leri (JWE) kullanarak API’lerinizi güvence altına almanızı ve kullanıcı kimliklerini ile rollerini JPA tabanlı bir veritabanında saklamanızı sağlar.
+Spring Boot GraphQL JWE Kimlik Doğrulaması, GraphQL’in esnekliğini, stateless şifreli JWT’leri (JWE) ve JPA'yı birleştirerek güvenli ve ölçeklendirilebilir bir API sunar.
 
 ---
 
-## 🌟 Neden JWE + JPA Kimlik Doğrulama?
+## 🌟 GraphQL + JWE Kimlik Doğrulaması Neden Kullanılmalı?
 
 - **Stateless Güvenlik**: Tokenlar kendi içinde tüm bilgiyi barındırır ve sunucu tarafında saklama gerektirmez.
+- **GraphQL Esnekliği**: Her query veya mutationu tutarlı bir şekilde koruyun.
+- **Veri Hassasiyeti**: İstemcilerin tam olarak istediği veriyi çeker.
 - **Bütünlük**: İmzalı tokenlar, içeriğin değiştirilmediğini garanti eder.
 - **Gizlilik**: Şifrelenmiş JWT’ler hassas bilgileri dışarıdan okunamaz halde tutar.
-- **Kullanıcı Yönetimi**: JPA depoları ile kullanıcıları ve rolleri JPA repositorylerde saklayıp yönetebilirsiniz.
-- **Standartlara Uygun**: JOSE, Spring Security ve Spring Data JPA’nın gücünü bir arada kullanır.
+- **Standartlara Dayalı**: JOSE, Spring Security ve GraphQL’den yararlanın.
 - **Ölçeklenebilirlik**: Session replikasyonu veya sticky session gerektirmeden yatay ölçeklenebilir.
 
 ---
@@ -54,69 +55,133 @@ Spring Boot, stateless şifrelenmiş JWT’leri (JWE) kullanarak API’lerinizi 
 
 ---
 
-## 🛠️ Adım 1: Bağımlılıkları Ekle
+## 🛠️ Step 1: Add Dependencies
 
 `pom.xml` veya `build.gradle` dosyanıza şunları ekleyin.
 
 **Maven:**
 
 ```xml
-<dependency>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-web</artifactId>
-</dependency>
-<dependency>
-  <groupId>org.springframework.security</groupId>
-  <artifactId>spring-security-oauth2-resource-server</artifactId>
-</dependency>
-<dependency>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-data-jpa</artifactId>
-</dependency>
-<dependency>
-  <groupId>org.liquibase</groupId>
-  <artifactId>liquibase-core</artifactId>
-</dependency>
-<dependency>
-  <groupId>org.projectlombok</groupId>
-  <artifactId>lombok</artifactId>
-  <optional>true</optional>
-</dependency>
+<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-websocket</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-oauth2-resource-server</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-graphql</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>com.graphql-java</groupId>
+    <artifactId>graphql-java-extended-scalars</artifactId>
+    <version>22.0</version>
+  </dependency>
+  <dependency>
+    <groupId>org.liquibase</groupId>
+    <artifactId>liquibase-core</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <optional>true</optional>
+  </dependency>
+</dependencies>
+
+<build>
+<plugins>
+  <plugin>
+    <groupId>org.hibernate.orm.tooling</groupId>
+    <artifactId>hibernate-enhance-maven-plugin</artifactId>
+    <version>${hibernate.version}</version>
+    <executions>
+      <execution>
+        <id>enhance</id>
+        <goals>
+          <goal>enhance</goal>
+        </goals>
+        <configuration>
+          <enableLazyInitialization>true</enableLazyInitialization>
+          <enableDirtyTracking>true</enableDirtyTracking>
+          <enableAssociationManagement>true</enableAssociationManagement>
+        </configuration>
+      </execution>
+    </executions>
+  </plugin>
+  <plugin>
+    <groupId>org.graalvm.buildtools</groupId>
+    <artifactId>native-maven-plugin</artifactId>
+  </plugin>
+</plugins>
+</build>
 ```
 
 **Gradle:**
 
 ```groovy
-implementation 'org.springframework.boot:spring-boot-starter-web'
-implementation 'org.springframework.security:spring-security-oauth2-resource-server'
-implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-implementation 'org.liquibase:liquibase-core'
-compileOnly 'org.projectlombok:lombok'
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-websocket'
+  implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.springframework.boot:spring-boot-starter-graphql'
+  implementation 'com.graphql-java:graphql-java-extended-scalars:22.0'
+  implementation 'org.liquibase:liquibase-core'
+  compileOnly 'org.projectlombok:lombok'
+}
+
+plugins {
+  id 'org.hibernate.orm' version '6.6.13.Final'
+  id 'org.graalvm.buildtools.native' version '0.10.6'
+}
+
+hibernate {
+  enhancement {
+    enableAssociationManagement = true
+  }
+}
 ```
 
 ---
 
 ## 🛠️ Adım 2: Yapılandırma Dosyaları
 
-Bu bölümde, Spring Boot uygulamanızı H2/PostgreSQL, JPA, Liquibase değişiklik changelog, veri yüklemeleri ve JWE anahtar özellikleri ile yapılandırmak için gereken tüm uygulama ve veritabanı düzeyindeki yapılandırma dosyalarını tanımlıyoruz:
+Bu bölümde, Spring Boot uygulamamızı H2/PostgreSQL, JPA, Liquibase changelog’ları, veri yüklemeleri, JWE anahtar özellikleri, GraphQL şema tanımları ve GraalVM native-image reflection tanımları ile yapılandırmak için gereken tüm uygulama ve veritabanı düzeyindeki yapılandırma dosyalarını tanımlıyoruz.
 
 - **`application.yml`**
-  Spring veri kaynağı (datasource), H2 konsolu, JPA/Hibernate, Liquibase changelog pathi ve tüm JWT/JWE anahtar, issuer ve geçerlilik süresi (expiration) ayarlarını içerir.
+  Spring datasource, H2 konsolu, JPA/Hibernate, Liquibase changelog path’i, GraphQL subscriptions pathi ve tüm JWT/JWE anahtarları, issuer ve geçerlilik süresi (expiration) ayarlarını içerir.
 
-- **`db/master.xml`**
+- **`liquibase/master.xml`**
   Liquibase **master changelog** dosyası; H2 ve PostgreSQL için DBMS özel özellikler ve alt changelog tanımlarını barındırır.
 
-- **`db/changelog/changelog-user.xml`**
+- **`liquibase/changelog/changelog-user.xml`**
   `user_identity`, `authority` ve `user_authority_mapping` tabloları, indeksler, yabancı anahtarlar (FK) ve ilk `<loadData>` adımlarını tanımlayan temel şema değişiklik changelogu.
 
-- **`db/data/user.csv`**
+- **`liquibase/data/user.csv`**
   Kullanıcı kayıtları (UUID, kullanıcı adı, bcrypt ile şifrelenmiş parola, e-posta, enabled flagi, zaman damgaları ve oluşturan kullanıcı bilgisi).
 
-- **`db/data/authority.csv`**
+- **`liquibase/data/authority.csv`**
   Yetki kayıtları (UUID, ad, açıklama, zaman damgaları ve oluşturan kullanıcı bilgisi).
 
-- **`db/data/user_authority_mapping.csv`**
+- **`liquibase/data/user_authority_mapping.csv`**
   Kullanıcılar ile yetkiler arasındaki mappingler (composite birincil anahtar, zaman damgaları ve oluşturan kullanıcı bilgisi).
+
+- **`graphql/schema.graphqls`**
+  API için özel scalar tipler, query, subscription ve mutation tanımları ile DTO şema tanımlamalarını içeren GraphQL şema dosyası.
+
+- **`META-INF/native-image/liquibase/reflect-config.json`**
+  GraalVM native-image oluştururken Liquibase sınıfları için gerekli reflection kurallarını tanımlar.
 
 <span style="display:block; height:1rem;"></span>
 
@@ -140,7 +205,12 @@ spring:
     properties:
       hibernate.format_sql: true
   liquibase:
-    change-log: classpath:db/master.xml
+    change-log: classpath:liquibase/master.xml
+  graphql:
+    websocket:
+      path: /subscriptions
+    graphiql:
+      enabled: true
 security:
   admin:
     username: admin
@@ -470,16 +540,217 @@ a1b2c3d4-e5f6-7890-abcd-ef1234567890;f47ac10b-58cc-4372-a567-0e02b2c3d479;2025-0
 09876543-21fe-dcba-0987-654321fedcba;9c858901-8a57-4791-81fe-4c455b099bc9;2025-05-10 12:00:00;system;2025-05-10 12:00:00;system
 ```
 
+<span style="display:block; height:1rem;"></span>
+
+### schema.graphqls
+
+```graphql
+scalar Long
+scalar Date
+scalar Instant
+
+type Query {
+  helloAll: String!
+  helloAdmin: String!
+}
+
+type Mutation {
+  login(input: LoginInput!): TokenDTO!
+  logout: Boolean!
+  greet(input: GreetInput!): GreetDTO!
+}
+
+type Subscription {
+  greetStream(input: GreetInput!): GreetDTO!
+  greetStreamAdmin(input: GreetInput!): GreetDTO!
+}
+
+input LoginInput {
+  username: String!
+  password: String!
+}
+
+input GreetInput {
+  message: String!
+}
+
+type TokenDTO {
+  accessToken: String!
+  tokenType: String!
+  accessTokenExpiresIn: Long!
+}
+
+type GreetDTO {
+  greeting: String!
+  timestamp: Instant!
+}
+```
+
+<span style="display:block; height:1rem;"></span>
+
+### reflect-config.json
+
+```json
+[
+  {
+    "name": "liquibase.logging.mdc.MdcManagerFactory",
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.change.core.LoadDataColumnConfig",
+    "queryAllPublicMethods": true,
+    "allDeclaredMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.command.CommandFactory",
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.changelog.ChangeLogHistoryServiceFactory",
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.BigIntType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.BlobType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.BooleanType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.CharType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.ClobType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.CurrencyType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.DatabaseFunctionType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.DateTimeType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.DateType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.DecimalType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.DoubleType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.FloatType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.IntType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.MediumIntType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.NCharType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.NumberType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.NVarcharType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.SmallIntType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.TimestampType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.TimeType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.TinyIntType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.UnknownType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.UUIDType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.VarcharType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "liquibase.datatype.core.XMLType",
+    "allPublicMethods": true,
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  }
+]
+```
+
 ---
 
-## 📋 Adım 3: Güvenlik & Veritabanı Yapılandırması
+## 📋 Adım 3: GraphQL & Güvenlik & Veritabanı Yapılandırması
 
-Bu bölümde, JWE tabanlı kimlik doğrulama için RSA anahtarları, HTTP güvenlik filtreleri ve JPA repository / auditing yapılandırmasını tanımlayan bean'leri ve ayarları oluşturuyoruz:
+Bu bölümde JWE tabanlı kimlik doğrulama, GraphQL entegrasyonu, GraalVM native-image çalışma zamanı ipuçları ve özel scalars için gerekli bean'leri ve ayarları tanımlıyoruz:
 
 - **JwtProperties**: JWT düzenleyicisi (issuer), geçerlilik süresi ve imzalama/şifreleme anahtar çiftlerini yapılandırır.
-- **SecurityJwtConfig**: RSA JWK nesnelerini oluşturur, JWT encoder/decoder’ı, authentication converter ve token resolveri yapılandırır.
+- **SecurityJwtConfig**: RSA JWK nesnelerini oluşturur, JWT encoder/decoder’ı, authentication converter ve token resolver ve WebSocket interceptor bean’lerini yapılandırır.
 - **SecurityConfig**: `DomainUserDetailsService` ile entegre olur, kimlik doğrulama yöneticisi (authentication manager), password encoder ve JWE desteği ile stateless güvenlik filtre zincirini yapılandırır.
 - **DatabaseConfig**: JPA repository'lerini, auditing ve transaction yönetimini etkinleştirir.
+- **GraphQLConfig**: GraphQL için özel scalarları (`Long`, `Date`, `Instant`) tanımlar.
+- **InstantScalar**: GraphQL şemasında ISO-8601 uyumlu `Instant` tipini tanımlayan custom scalar.
+- **NativeConfig**: GraalVM native-image derlemesi için çalışma zamanı ipuçlarını (reflection ve kaynak desenleri) kaydeder.
 
 <span style="display:block; height:1rem;"></span>
 
@@ -489,7 +760,7 @@ Bu bölümde, JWE tabanlı kimlik doğrulama için RSA anahtarları, HTTP güven
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.config;
+package io.github.susimsek.springbootgraphqljwedemo.config;
 
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
@@ -501,110 +772,119 @@ import com.nimbusds.jose.proc.JWEDecryptionKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
-import io.github.susimsek.springbootjweauthjpademo.security.CookieBearerTokenResolver;
-import io.github.susimsek.springbootjweauthjpademo.security.KeyUtils;
+import io.github.susimsek.springbootgraphqljwedemo.security.CookieAuthenticationWebSocketInterceptor;
+import io.github.susimsek.springbootgraphqljwedemo.security.CookieBearerTokenResolver;
+import io.github.susimsek.springbootgraphqljwedemo.security.KeyUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.graphql.server.WebSocketGraphQlInterceptor;
+import org.springframework.graphql.server.support.BearerTokenAuthenticationExtractor;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 
 import java.util.List;
 
-import static io.github.susimsek.springbootjweauthjpademo.security.SecurityUtils.AUTHORITIES_KEY;
+import static io.github.susimsek.springbootgraphqljwedemo.security.SecurityUtils.AUTHORITIES_KEY;
 
 @Configuration
 public class SecurityJwtConfig {
 
-    private final JwtProperties props;
-    public SecurityJwtConfig(JwtProperties props) { this.props = props; }
+  private final JwtProperties props;
 
-    @Bean
-    public RSAKey signingKey() throws Exception {
-        return KeyUtils.buildRsaKey(
-            props.getSigning().getPublicKey(),
-            props.getSigning().getPrivateKey(),
-            props.getSigning().getKeyId(),
-            true
-        );
-    }
+  public SecurityJwtConfig(JwtProperties props) {
+    this.props = props;
+  }
 
-    @Bean
-    public RSAKey encryptionKey() throws Exception {
-        return KeyUtils.buildRsaKey(
-            props.getEncryption().getPublicKey(),
-            props.getEncryption().getPrivateKey(),
-            props.getEncryption().getKeyId(),
-            false
-        );
-    }
+  @Bean
+  public RSAKey signingKey() throws Exception {
+    return KeyUtils.buildRsaKey(
+      props.getSigning().getPublicKey(),
+      props.getSigning().getPrivateKey(),
+      props.getSigning().getKeyId(),
+      true
+    );
+  }
 
-    @Bean
-    public JWKSource<SecurityContext> jwkSource(RSAKey signingKey, RSAKey encryptionKey) {
-        JWKSet jwkSet = new JWKSet(List.of(
-            signingKey,
-            encryptionKey
-        ));
-        return (jwkSelector, context) -> jwkSelector.select(jwkSet);
-    }
+  @Bean
+  public RSAKey encryptionKey() throws Exception {
+    return KeyUtils.buildRsaKey(
+      props.getEncryption().getPublicKey(),
+      props.getEncryption().getPrivateKey(),
+      props.getEncryption().getKeyId(),
+      false
+    );
+  }
 
-    @Bean
-    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
-        DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
-        JWEDecryptionKeySelector<SecurityContext> jweKeySelector =
-            new JWEDecryptionKeySelector<>(
-                JWEAlgorithm.RSA_OAEP_256,
-                EncryptionMethod.A128GCM,
-                jwkSource
-            );
-        jwtProcessor.setJWEKeySelector(jweKeySelector);
+  @Bean
+  public JWKSource<SecurityContext> jwkSource(RSAKey signingKey, RSAKey encryptionKey) {
+    JWKSet jwkSet = new JWKSet(List.of(signingKey, encryptionKey));
+    return (jwkSelector, context) -> jwkSelector.select(jwkSet);
+  }
 
-        JWSVerificationKeySelector<SecurityContext> jwsKeySelector =
-            new JWSVerificationKeySelector<>(
-                JWSAlgorithm.RS256,
-                jwkSource
-            );
-        jwtProcessor.setJWSKeySelector(jwsKeySelector);
-        jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {});
+  @Bean
+  public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
+    DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 
-        return new NimbusJwtDecoder(jwtProcessor);
-    }
+    jwtProcessor.setJWEKeySelector(new JWEDecryptionKeySelector<>(
+      JWEAlgorithm.RSA_OAEP_256,
+      EncryptionMethod.A128GCM,
+      jwkSource
+    ));
+    jwtProcessor.setJWSKeySelector(new JWSVerificationKeySelector<>(
+      JWSAlgorithm.RS256,
+      jwkSource
+    ));
+    jwtProcessor.setJWTClaimsSetVerifier((claims, ctx) -> {});
 
-    @Bean
-    public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
-        return new NimbusJwtEncoder(jwkSource);
-    }
+    return new NimbusJwtDecoder(jwtProcessor);
+  }
 
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
-        converter.setAuthorityPrefix("");
-        converter.setAuthoritiesClaimName(AUTHORITIES_KEY);
+  @Bean
+  public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
+    return new NimbusJwtEncoder(jwkSource);
+  }
 
-        JwtAuthenticationConverter authConverter = new JwtAuthenticationConverter();
-        authConverter.setJwtGrantedAuthoritiesConverter(converter);
-        return authConverter;
-    }
+  @Bean
+  public JwtAuthenticationConverter jwtAuthenticationConverter() {
+    JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
+    converter.setAuthorityPrefix("");
+    converter.setAuthoritiesClaimName(AUTHORITIES_KEY);
 
-    @Bean
-    public BearerTokenResolver bearerTokenResolver() {
-        CookieBearerTokenResolver resolver = new CookieBearerTokenResolver();
-        resolver.setAllowUriQueryParameter(false);
-        resolver.setAllowFormEncodedBodyParameter(false);
-        resolver.setAllowCookie(true);
-        return resolver;
-    }
+    JwtAuthenticationConverter authConverter = new JwtAuthenticationConverter();
+    authConverter.setJwtGrantedAuthoritiesConverter(converter);
+    return authConverter;
+  }
+
+  @Bean
+  public BearerTokenResolver bearerTokenResolver() {
+    CookieBearerTokenResolver resolver = new CookieBearerTokenResolver();
+    resolver.setAllowUriQueryParameter(false);
+    resolver.setAllowFormEncodedBodyParameter(false);
+    resolver.setAllowCookie(true);
+    return resolver;
+  }
+
+  @Bean
+  public WebSocketGraphQlInterceptor authenticationInterceptor(JwtDecoder jwtDecoder) {
+    return new CookieAuthenticationWebSocketInterceptor(
+      new BearerTokenAuthenticationExtractor(),
+      new ProviderManager(new JwtAuthenticationProvider(jwtDecoder))
+    );
+  }
 }
 ```
 
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.config
+package io.github.susimsek.springbootgraphqljwedemo.config
 
 import com.nimbusds.jose.EncryptionMethod
 import com.nimbusds.jose.JWEAlgorithm
@@ -616,87 +896,101 @@ import com.nimbusds.jose.proc.JWEDecryptionKeySelector
 import com.nimbusds.jose.proc.JWSVerificationKeySelector
 import com.nimbusds.jose.proc.SecurityContext
 import com.nimbusds.jwt.proc.DefaultJWTProcessor
-import io.github.susimsek.springbootjweauthjpademo.security.CookieBearerTokenResolver
-import io.github.susimsek.springbootjweauthjpademo.security.KeyUtils
+import io.github.susimsek.springbootgraphqljwedemo.security.CookieAuthenticationWebSocketInterceptor
+import io.github.susimsek.springbootgraphqljwedemo.security.CookieBearerTokenResolver
+import io.github.susimsek.springbootgraphqljwedemo.security.KeyUtils
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.graphql.server.WebSocketGraphQlInterceptor
+import org.springframework.graphql.server.support.BearerTokenAuthenticationExtractor
+import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver
 
 @Configuration
-class SecurityJwtConfig(private val props: JwtProperties) {
+class SecurityJwtConfig(
+  private val props: JwtProperties
+) {
 
-    @Bean
-    @Throws(Exception::class)
-    fun signingKey(): RSAKey =
-        KeyUtils.buildRsaKey(
-            props.signing.publicKey,
-            props.signing.privateKey,
-            props.signing.keyId,
-            true
-        )
+  @Bean
+  @Throws(Exception::class)
+  fun signingKey(): RSAKey = KeyUtils.buildRsaKey(
+    props.signing.publicKey,
+    props.signing.privateKey,
+    props.signing.keyId,
+    true
+  )
 
-    @Bean
-    @Throws(Exception::class)
-    fun encryptionKey(): RSAKey =
-        KeyUtils.buildRsaKey(
-            props.encryption.publicKey,
-            props.encryption.privateKey,
-            props.encryption.keyId,
-            false
-        )
+  @Bean
+  @Throws(Exception::class)
+  fun encryptionKey(): RSAKey = KeyUtils.buildRsaKey(
+    props.encryption.publicKey,
+    props.encryption.privateKey,
+    props.encryption.keyId,
+    false
+  )
 
-    @Bean
-    fun jwkSource(signingKey: RSAKey, encryptionKey: RSAKey): JWKSource<SecurityContext> {
-        val jwkSet = JWKSet(listOf(signingKey, encryptionKey))
-        return JWKSource { jwkSelector, context -> jwkSelector.select(jwkSet) }
+  @Bean
+  fun jwkSource(
+    signingKey: RSAKey,
+    encryptionKey: RSAKey
+  ): JWKSource<SecurityContext> {
+    val jwkSet = JWKSet(listOf(signingKey, encryptionKey))
+    return JWKSource { jwkSelector, _ -> jwkSelector.select(jwkSet) }
+  }
+
+  @Bean
+  fun jwtDecoder(jwkSource: JWKSource<SecurityContext>): JwtDecoder {
+    val processor = DefaultJWTProcessor<SecurityContext>().apply {
+      setJWEKeySelector(JWEDecryptionKeySelector(
+        JWEAlgorithm.RSA_OAEP_256,
+        EncryptionMethod.A128GCM,
+        jwkSource
+      ))
+      setJWSKeySelector(JWSVerificationKeySelector(
+        JWSAlgorithm.RS256,
+        jwkSource
+      ))
+      setJWTClaimsSetVerifier { _, _ -> }
+    }
+    return NimbusJwtDecoder(processor)
+  }
+
+  @Bean
+  fun jwtEncoder(jwkSource: JWKSource<SecurityContext>): JwtEncoder =
+    NimbusJwtEncoder(jwkSource)
+
+  @Bean
+  fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
+    val granted = JwtGrantedAuthoritiesConverter().apply {
+      authorityPrefix = ""
+      authoritiesClaimName = SecurityUtils.AUTHORITIES_KEY
+    }
+    return JwtAuthenticationConverter().apply {
+      setJwtGrantedAuthoritiesConverter(granted)
+    }
+  }
+
+  @Bean
+  fun bearerTokenResolver(): BearerTokenResolver =
+    CookieBearerTokenResolver().apply {
+      setAllowUriQueryParameter(false)
+      setAllowFormEncodedBodyParameter(false)
+      setAllowCookie(true)
     }
 
-    @Bean
-    fun jwtDecoder(jwkSource: JWKSource<SecurityContext>): JwtDecoder {
-        val jwtProcessor = DefaultJWTProcessor<SecurityContext>()
-        val jweKeySelector = JWEDecryptionKeySelector(
-            JWEAlgorithm.RSA_OAEP_256,
-            EncryptionMethod.A128GCM,
-            jwkSource
-        )
-        jwtProcessor.jweKeySelector = jweKeySelector
-        val jwsKeySelector = JWSVerificationKeySelector(
-            JWSAlgorithm.RS256,
-            jwkSource
-        )
-        jwtProcessor.jwsKeySelector = jwsKeySelector
-        jwtProcessor.jwtClaimsSetVerifier = { _, _ -> }
-        return NimbusJwtDecoder(jwtProcessor)
-    }
-
-    @Bean
-    fun jwtEncoder(jwkSource: JWKSource<SecurityContext>): JwtEncoder =
-        NimbusJwtEncoder(jwkSource)
-
-    @Bean
-    fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
-        val converter = JwtGrantedAuthoritiesConverter().apply {
-            setAuthorityPrefix("")
-            setAuthoritiesClaimName(AUTHORITIES_KEY)
-        }
-        return JwtAuthenticationConverter().apply {
-            setJwtGrantedAuthoritiesConverter(converter)
-        }
-    }
-
-    @Bean
-    fun bearerTokenResolver(): BearerTokenResolver =
-        CookieBearerTokenResolver().apply {
-            setAllowUriQueryParameter(false)
-            setAllowFormEncodedBodyParameter(false)
-            setAllowCookie(true)
-        }
+  @Bean
+  fun authenticationInterceptor(jwtDecoder: JwtDecoder): WebSocketGraphQlInterceptor =
+    CookieAuthenticationWebSocketInterceptor(
+      BearerTokenAuthenticationExtractor(),
+      ProviderManager(JwtAuthenticationProvider(jwtDecoder))
+    )
 }
 ```
 
@@ -710,11 +1004,10 @@ class SecurityJwtConfig(private val props: JwtProperties) {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.config;
+package io.github.susimsek.springbootgraphqljwedemo.config;
 
-import io.github.susimsek.springbootjweauthjpademo.repository.UserRepository;
-import io.github.susimsek.springbootjweauthjpademo.security.AuthoritiesConstants;
-import io.github.susimsek.springbootjweauthjpademo.security.DomainUserDetailsService;
+import io.github.susimsek.springbootgraphqljwedemo.repository.UserRepository;
+import io.github.susimsek.springbootgraphqljwedemo.security.DomainUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -743,32 +1036,37 @@ public class SecurityConfig {
     http
       .cors(withDefaults())
       .csrf(AbstractHttpConfigurer::disable)
-      .authorizeHttpRequests(authz -> authz
-        .requestMatchers(
-          mvc.pattern("/webjars/**"),
-          mvc.pattern("/css/**"),
-          mvc.pattern("/js/**")
-        ).permitAll()
-        .requestMatchers(
-          mvc.pattern("/*.ico"),
-          mvc.pattern("/*.png"),
-          mvc.pattern("/*.svg"),
-          mvc.pattern("/*.webapp")
-        ).permitAll()
-        .requestMatchers("/actuator/**").permitAll()
-        .requestMatchers(
-          "/v3/api-docs/**",
-          "/swagger-ui.html",
-          "/swagger-ui/**"
-        ).permitAll()
-        .requestMatchers(mvc.pattern("/api/auth/login")).permitAll()
-        .requestMatchers(mvc.pattern("/api/hello/admin")).hasAuthority(AuthoritiesConstants.ADMIN)
-        .anyRequest().authenticated()
+      .authorizeHttpRequests(authz ->
+        authz
+          .requestMatchers(
+            mvc.pattern("/webjars/**"),
+            mvc.pattern("/css/**"),
+            mvc.pattern("/js/**")
+          ).permitAll()
+          .requestMatchers(
+            mvc.pattern("/*.ico"),
+            mvc.pattern("/*.png"),
+            mvc.pattern("/*.svg"),
+            mvc.pattern("/*.webapp")
+          ).permitAll()
+          .requestMatchers("/actuator/**").permitAll()
+          .requestMatchers(
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/swagger-ui/**"
+          ).permitAll()
+          .requestMatchers(
+            mvc.pattern("/graphql"),
+            mvc.pattern("/graphiql"),
+            mvc.pattern("/subscriptions")
+          ).permitAll()
+          .anyRequest().authenticated()
       )
       .sessionManagement(session ->
-        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-      )
-      .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
+        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+      .oauth2ResourceServer(oauth2 -> oauth2
+        .jwt(withDefaults())
+      );
 
     return http.build();
   }
@@ -787,11 +1085,10 @@ public class SecurityConfig {
   public AuthenticationManager authenticationManager(
     UserDetailsService userDetailsService,
     PasswordEncoder passwordEncoder) {
-    DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-    authenticationProvider.setUserDetailsService(userDetailsService);
-    authenticationProvider.setPasswordEncoder(passwordEncoder);
-
-    return new ProviderManager(authenticationProvider);
+    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    provider.setUserDetailsService(userDetailsService);
+    provider.setPasswordEncoder(passwordEncoder);
+    return new ProviderManager(provider);
   }
 
   @Bean
@@ -804,11 +1101,10 @@ public class SecurityConfig {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.config
+package io.github.susimsek.springbootgraphqljwedemo.config
 
-import io.github.susimsek.springbootjweauthjpademo.repository.UserRepository
-import io.github.susimsek.springbootjweauthjpademo.security.AuthoritiesConstants
-import io.github.susimsek.springbootjweauthjpademo.security.DomainUserDetailsService
+import io.github.susimsek.springbootgraphqljwedemo.repository.UserRepository
+import io.github.susimsek.springbootgraphqljwedemo.security.DomainUserDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -816,7 +1112,7 @@ import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.configurers.AbstractHttpConfigurer
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -824,6 +1120,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector
+import org.springframework.security.config.Customizer.withDefaults
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
@@ -831,8 +1128,10 @@ class SecurityConfig {
 
   @Bean
   @Throws(Exception::class)
-  fun securityFilterChain(http: HttpSecurity,
-                          mvc: MvcRequestMatcher.Builder): SecurityFilterChain {
+  fun securityFilterChain(
+    http: HttpSecurity,
+    mvc: MvcRequestMatcher.Builder
+  ): SecurityFilterChain {
     http
       .cors(withDefaults())
       .csrf { it.disable() }
@@ -855,12 +1154,19 @@ class SecurityConfig {
             "/swagger-ui.html",
             "/swagger-ui/**"
           ).permitAll()
-          .requestMatchers(mvc.pattern("/api/auth/login")).permitAll()
-          .requestMatchers(mvc.pattern("/api/hello/admin")).hasAuthority(AuthoritiesConstants.ADMIN)
+          .requestMatchers(
+            mvc.pattern("/graphql"),
+            mvc.pattern("/graphiql"),
+            mvc.pattern("/subscriptions")
+          ).permitAll()
           .anyRequest().authenticated()
       }
-      .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-      .oauth2ResourceServer { it.jwt(withDefaults()) }
+      .sessionManagement {
+        it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      }
+      .oauth2ResourceServer {
+        it.jwt(withDefaults())
+      }
 
     return http.build()
   }
@@ -900,7 +1206,7 @@ class SecurityConfig {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.config;
+package io.github.susimsek.springbootgraphqljwedemo.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -930,7 +1236,7 @@ public class JwtProperties {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.config
+package io.github.susimsek.springbootgraphqljwedemo.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
@@ -963,7 +1269,7 @@ class JwtProperties {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.config;
+package io.github.susimsek.springbootgraphqljwedemo.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -971,7 +1277,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@EnableJpaRepositories("io.github.susimsek.springbootjweauthjpademo.repository")
+@EnableJpaRepositories("io.github.susimsek.springbootgraphqljwedemo.repository")
 @EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
 @EnableTransactionManagement
 public class DatabaseConfig {
@@ -982,7 +1288,7 @@ public class DatabaseConfig {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.config
+package io.github.susimsek.springbootgraphqljwedemo.config
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
@@ -990,10 +1296,411 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.transaction.annotation.EnableTransactionManagement
 
 @Configuration
-@EnableJpaRepositories("io.github.susimsek.springbootjweauthjpademo.repository")
+@EnableJpaRepositories("io.github.susimsek.springbootgraphqljwedemo.repository")
 @EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
 @EnableTransactionManagement
 class DatabaseConfig
+```
+
+:::
+
+<span style="display:block; height:1rem;"></span>
+
+### GraphQLConfig
+
+:::tabs
+@tab Java [icon=java]
+
+```java
+package io.github.susimsek.springbootgraphqljwedemo.config;
+
+import graphql.scalars.ExtendedScalars;
+import io.github.susimsek.springbootgraphqljwedemo.scalar.InstantScalar;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.graphql.execution.RuntimeWiringConfigurer;
+
+@Configuration
+public class GraphQLConfig {
+
+  @Bean
+  public RuntimeWiringConfigurer runtimeWiringConfigurer() {
+    return wiring -> wiring
+      .scalar(ExtendedScalars.GraphQLLong)
+      .scalar(ExtendedScalars.Date)
+      .scalar(InstantScalar.INSTANCE);
+  }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin
+package io.github.susimsek.springbootgraphqljwedemo.config
+
+import graphql.scalars.ExtendedScalars
+import io.github.susimsek.springbootgraphqljwedemo.scalar.InstantScalar
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.graphql.execution.RuntimeWiringConfigurer
+
+@Configuration
+class GraphQLConfig {
+
+  @Bean
+  fun runtimeWiringConfigurer(): RuntimeWiringConfigurer {
+    return RuntimeWiringConfigurer { wiring ->
+      wiring
+        .scalar(ExtendedScalars.GraphQLLong)
+        .scalar(ExtendedScalars.Date)
+        .scalar(InstantScalar.INSTANCE)
+    }
+  }
+}
+```
+
+:::
+
+<span style="display:block; height:1rem;"></span>
+
+### InstantScalar
+
+:::tabs
+@tab Java [icon=java]
+
+```java
+package io.github.susimsek.springbootgraphqljwedemo.scalar;
+
+import graphql.GraphQLContext;
+import graphql.execution.CoercedVariables;
+import graphql.language.StringValue;
+import graphql.language.Value;
+import graphql.scalars.util.Kit;
+import graphql.schema.Coercing;
+import graphql.schema.CoercingParseLiteralException;
+import graphql.schema.CoercingParseValueException;
+import graphql.schema.CoercingSerializeException;
+import graphql.schema.GraphQLScalarType;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.springframework.lang.NonNull;
+
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
+import java.util.Locale;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class InstantScalar {
+
+  public static final GraphQLScalarType INSTANCE;
+
+  static {
+    Coercing<Instant, String> coercing = new Coercing<>() {
+      @Override
+      public String serialize(
+        @NonNull Object input,
+        @NonNull GraphQLContext context,
+        @NonNull Locale locale
+      ) throws CoercingSerializeException {
+        if (input instanceof Instant instant) {
+          return instant.toString();
+        }
+        throw new CoercingSerializeException(
+          "Expected java.time.Instant but was: " + Kit.typeName(input) + "'."
+        );
+      }
+
+      @Override
+      public Instant parseValue(
+        @NonNull Object input,
+        @NonNull GraphQLContext context,
+        @NonNull Locale locale
+      ) throws CoercingParseValueException {
+        if (input instanceof String s) {
+          try {
+            return Instant.parse(s);
+          } catch (DateTimeParseException e) {
+            throw new CoercingParseValueException("Invalid Instant value: " + e.getMessage() + "'.");
+          }
+        }
+        throw new CoercingParseValueException(
+          "Expected a String for Instant but was: " + Kit.typeName(input) + "'."
+        );
+      }
+
+      @Override
+      public Instant parseLiteral(
+        @NonNull Value<?> input,
+        @NonNull CoercedVariables variables,
+        @NonNull GraphQLContext context,
+        @NonNull Locale locale
+      ) throws CoercingParseLiteralException {
+        if (input instanceof StringValue sv) {
+          String s = sv.getValue();
+          try {
+            return Instant.parse(s);
+          } catch (DateTimeParseException e) {
+            throw new CoercingParseLiteralException("Invalid Instant literal: " + e.getMessage() + "'");
+          }
+        }
+        throw new CoercingParseLiteralException(
+          "Expected AST type 'StringValue' but was: " + Kit.typeName(input) + "'."
+        );
+      }
+
+      @Override
+      @NonNull
+      public Value<?> valueToLiteral(
+        @NonNull Object input,
+        @NonNull GraphQLContext context,
+        @NonNull Locale locale
+      ) {
+        String serialized = serialize(input, context, locale);
+        return StringValue.newStringValue(serialized).build();
+      }
+    };
+
+    INSTANCE = GraphQLScalarType.newScalar()
+      .name("Instant")
+      .description("An ISO-8601 compliant java.time.Instant scalar")
+      .specifiedByUrl("https://www.rfc-editor.org/rfc/rfc3339.html#section-5.6")
+      .coercing(coercing)
+      .build();
+  }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin
+package io.github.susimsek.springbootgraphqljwedemo.scalar
+
+import graphql.GraphQLContext
+import graphql.execution.CoercedVariables
+import graphql.language.StringValue
+import graphql.language.Value
+import graphql.scalars.util.Kit
+import graphql.schema.Coercing
+import graphql.schema.CoercingParseLiteralException
+import graphql.schema.CoercingParseValueException
+import graphql.schema.CoercingSerializeException
+import graphql.schema.GraphQLScalarType
+import java.time.Instant
+import java.time.format.DateTimeParseException
+import java.util.Locale
+
+object InstantScalar {
+
+  @JvmField
+  val INSTANCE: GraphQLScalarType = GraphQLScalarType.newScalar()
+    .name("Instant")
+    .description("An ISO-8601 compliant java.time.Instant scalar")
+    .specifiedByUrl("https://www.rfc-editor.org/rfc/rfc3339.html#section-5.6")
+    .coercing(object : Coercing<Instant, String> {
+      override fun serialize(
+        input: Any,
+        context: GraphQLContext,
+        locale: Locale
+      ): String {
+        return if (input is Instant) {
+          input.toString()
+        } else {
+          throw CoercingSerializeException("Expected java.time.Instant but was: ${Kit.typeName(input)}'.")
+        }
+      }
+
+      override fun parseValue(
+        input: Any,
+        context: GraphQLContext,
+        locale: Locale
+      ): Instant {
+        if (input is String) {
+          return try {
+            Instant.parse(input)
+          } catch (e: DateTimeParseException) {
+            throw CoercingParseValueException("Invalid Instant value: ${e.message}'.")
+          }
+        }
+        throw CoercingParseValueException("Expected a String for Instant but was: ${Kit.typeName(input)}'.")
+      }
+
+      override fun parseLiteral(
+        input: Value<*>,
+        variables: CoercedVariables,
+        context: GraphQLContext,
+        locale: Locale
+      ): Instant {
+        if (input is StringValue) {
+          return try {
+            Instant.parse(input.value)
+          } catch (e: DateTimeParseException) {
+            throw CoercingParseLiteralException("Invalid Instant literal: ${e.message}'")
+          }
+        }
+        throw CoercingParseLiteralException("Expected AST type 'StringValue' but was: ${Kit.typeName(input)}'.")
+      }
+
+      override fun valueToLiteral(
+        input: Any,
+        context: GraphQLContext,
+        locale: Locale
+      ): Value<*> {
+        val serialized = serialize(input, context, locale)
+        return StringValue.newStringValue(serialized).build()
+      }
+    })
+    .build()
+}
+```
+
+:::
+
+<span style="display:block; height:1rem;"></span>
+
+### NativeConfig
+
+:::tabs
+@tab Java [icon=java]
+
+```java
+package io.github.susimsek.springbootgraphqljwedemo.config;
+
+import org.springframework.aot.hint.MemberCategory;
+import org.springframework.aot.hint.RuntimeHints;
+import org.springframework.aot.hint.RuntimeHintsRegistrar;
+
+public class NativeConfig {
+
+  public static class AppNativeRuntimeHints implements RuntimeHintsRegistrar {
+
+    @Override
+    public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+      hints.reflection()
+        .registerType(sun.misc.Unsafe.class,
+          hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS));
+      hints.reflection()
+        .registerType(java.util.Locale.class,
+          hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS));
+      hints.reflection()
+        .registerType(org.hibernate.binder.internal.BatchSizeBinder.class,
+          hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS));
+      hints.resources().registerPattern("liquibase/*");
+      hints.reflection()
+        .registerType(liquibase.ui.LoggerUIService.class,
+          hint -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS));
+      hints.reflection()
+        .registerType(liquibase.database.LiquibaseTableNamesFactory.class,
+          hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS));
+      hints.reflection()
+        .registerType(liquibase.report.ShowSummaryGeneratorFactory.class,
+          hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS));
+      hints.reflection()
+        .registerType(liquibase.changelog.FastCheckService.class,
+          hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS));
+      hints.reflection()
+        .registerType(liquibase.changelog.visitor.ValidatingVisitorGeneratorFactory.class,
+          hint -> hint.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS));
+    }
+  }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin
+package io.github.susimsek.springbootgraphqljwedemo.config
+
+import org.springframework.aot.hint.MemberCategory
+import org.springframework.aot.hint.RuntimeHints
+import org.springframework.aot.hint.RuntimeHintsRegistrar
+
+class NativeConfig {
+
+  class AppNativeRuntimeHints : RuntimeHintsRegistrar {
+    override fun registerHints(hints: RuntimeHints, classLoader: ClassLoader) {
+      hints.reflection().registerType(
+        sun.misc.Unsafe::class.java,
+        hint = hint@{ it.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS) }
+      )
+      hints.reflection().registerType(
+        java.util.Locale::class.java,
+        hint = hint@{ it.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS) }
+      )
+      hints.reflection().registerType(
+        org.hibernate.binder.internal.BatchSizeBinder::class.java,
+        hint = hint@{ it.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS) }
+      )
+      hints.resources().registerPattern("liquibase/*")
+      hints.reflection().registerType(
+        liquibase.ui.LoggerUIService::class.java,
+        hint = hint@{ it.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS) }
+      )
+      hints.reflection().registerType(
+        liquibase.database.LiquibaseTableNamesFactory::class.java,
+        hint = hint@{ it.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS) }
+      )
+      hints.reflection().registerType(
+        liquibase.report.ShowSummaryGeneratorFactory::class.java,
+        hint = hint@{ it.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS) }
+      )
+      hints.reflection().registerType(
+        liquibase.changelog.FastCheckService::class.java,
+        hint = hint@{ it.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS) }
+      )
+      hints.reflection().registerType(
+        liquibase.changelog.visitor.ValidatingVisitorGeneratorFactory::class.java,
+        hint = hint@{ it.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS) }
+      )
+    }
+  }
+}
+```
+
+:::
+
+<span style="display:block; height:1rem;"></span>
+
+### Main
+
+:::tabs
+@tab Java [icon=java]
+
+```java
+package io.github.susimsek.springbootgraphqljwedemo;
+
+import io.github.susimsek.springbootgraphqljwedemo.config.NativeConfig;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ImportRuntimeHints;
+
+@SpringBootApplication
+@ImportRuntimeHints({ NativeConfig.AppNativeRuntimeHints.class })
+public class SpringBootJweAuthJpaDemoApplication {
+
+  public static void main(String[] args) {
+    SpringApplication.run(SpringBootJweAuthJpaDemoApplication.class, args);
+  }
+
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin
+package io.github.susimsek.springbootgraphqljwedemo
+
+import io.github.susimsek.springbootgraphqljwedemo.config.NativeConfig
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+import org.springframework.context.annotation.ImportRuntimeHints
+
+@SpringBootApplication
+@ImportRuntimeHints(NativeConfig.AppNativeRuntimeHints::class)
+class SpringBootJweAuthJpaDemoApplication
+
+fun main(args: Array<String>) {
+  runApplication<SpringBootJweAuthJpaDemoApplication>(*args)
+}
 ```
 
 :::
@@ -1019,7 +1726,7 @@ Bu bölümde, kullanıcıları, rollerleri ve bunların eşlemelerini temsil ede
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.entity;
+package io.github.susimsek.springbootgraphqljwedemo.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
@@ -1061,7 +1768,7 @@ public abstract class BaseEntity {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.entity
+package io.github.susimsek.springbootgraphqljwedemo.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.EntityListeners
@@ -1105,7 +1812,7 @@ abstract class BaseEntity {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.entity;
+package io.github.susimsek.springbootgraphqljwedemo.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -1169,7 +1876,7 @@ public class Authority extends BaseEntity {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.entity
+package io.github.susimsek.springbootgraphqljwedemo.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -1218,7 +1925,7 @@ class Authority(
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.entity;
+package io.github.susimsek.springbootgraphqljwedemo.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -1308,7 +2015,7 @@ public class User extends BaseEntity {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.entity
+package io.github.susimsek.springbootgraphqljwedemo.entity
 
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -1396,7 +2103,7 @@ class User(
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.entity;
+package io.github.susimsek.springbootgraphqljwedemo.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -1466,7 +2173,7 @@ public class UserAuthorityMapping extends BaseEntity {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.entity
+package io.github.susimsek.springbootgraphqljwedemo.entity
 
 import jakarta.persistence.*
 import org.hibernate.proxy.HibernateProxy
@@ -1525,7 +2232,7 @@ data class UserAuthorityMapping(
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.entity;
+package io.github.susimsek.springbootgraphqljwedemo.entity;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -1562,7 +2269,7 @@ public class UserAuthorityMappingId implements Serializable {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.entity
+package io.github.susimsek.springbootgraphqljwedemo.entity
 
 import java.io.Serializable
 import java.util.Objects
@@ -1595,9 +2302,9 @@ data class UserAuthorityMappingId(
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.repository;
+package io.github.susimsek.springbootgraphqljwedemo.repository;
 
-import io.github.susimsek.springbootjweauthjpademo.entity.User;
+import io.github.susimsek.springbootgraphqljwedemo.entity.User;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -1615,9 +2322,9 @@ public interface UserRepository extends JpaRepository<User, String> {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.repository
+package io.github.susimsek.springbootgraphqljwedemo.repository
 
-import io.github.susimsek.springbootjweauthjpademo.entity.User
+import io.github.susimsek.springbootgraphqljwedemo.entity.User
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
@@ -1641,12 +2348,14 @@ Bu bölümde, Spring Boot uygulamanızda JSON Web Encryption (JWE) tokenları ol
 
 - **AuthoritiesConstants**: `ROLE_` ön ekiyle rol isimlerini merkezileştirir.
 - **CookieBearerTokenResolver**: Bearer token’ları yetkilendirme başlıklarından veya HTTP çerezlerinden çözer.
-- **CookieUtils**: Erişim token’ları için HTTP-only ve secure çerezler oluşturur.
+- **CookieUtils**: Yeni veya süresi dolmuş token’ler için HTTP-only, secure `ResponseCookie` oluşturur ve `HttpHeaders` içinden `accessToken` değerini çıkartır.
 - **JweUtil**: Nimbus kütüphanesi ile RSA anahtarları kullanarak JWT’leri imzalar (JWS) ve şifreler (JWE).
 - **KeyUtils**: PEM formatındaki anahtar çiftinden RSA JWK’leri oluşturur.
 - **SecurityUtils**: SecurityContext oturum açan kullanıcının bilgisini sunar.
 - **SpringSecurityAuditorAware**: Auditing için oturum açan kullanıcıyı sağlayan `AuditorAware` implementasyonu.
 - **DomainUserDetailsService**: JPA tabanlı `UserDetailsService`, kullanıcı kimlik bilgilerini ve yetkilerini getirir.
+- **GraphQlTokenCookieInterceptor**: GraphQL yanıtlarını yakalar ve `GraphQLContext` içindeki `accessToken` veya `clearAccessToken` flaglerine göre erişim çerezini oluşturur veya siler.
+- **CookieAuthenticationWebSocketInterceptor**: Headerdan veya çerezlerden alınan JWE token’larla WebSocket bağlantılarını doğrular.
 
 Bu yardımcılar, Spring Security ile durumsuz (stateless) JWE tabanlı bir kimlik doğrulama akışının temelini oluşturur.
 
@@ -1657,7 +2366,7 @@ Bu yardımcılar, Spring Security ile durumsuz (stateless) JWE tabanlı bir kiml
 
 ```java
 
-package io.github.susimsek.springbootjweauthjpademo.security;
+package io.github.susimsek.springbootgraphqljwedemo.security;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -1674,7 +2383,7 @@ public final class AuthoritiesConstants {
 
 ```kotlin
 
-package io.github.susimsek.springbootjweauthjpademo.security
+package io.github.susimsek.springbootgraphqljwedemo.security
 
 object AuthoritiesConstants {
   const val ADMIN = "ROLE_ADMIN"
@@ -1693,7 +2402,7 @@ object AuthoritiesConstants {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.security;
+package io.github.susimsek.springbootgraphqljwedemo.security;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -1795,7 +2504,7 @@ public class CookieBearerTokenResolver implements BearerTokenResolver {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.security
+package io.github.susimsek.springbootgraphqljwedemo.security
 
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
@@ -1876,22 +2585,49 @@ package io.github.susimsek.springbootjweauthjpademo.security;
 
 import io.github.susimsek.springbootjweauthjpademo.dto.TokenDTO;
 import lombok.experimental.UtilityClass;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+
+import java.net.HttpCookie;
+import java.util.Arrays;
+import java.util.Optional;
 
 @UtilityClass
 public class CookieUtils {
 
-    private static final String COOKIE_NAME = "accessToken";
+  public static final String COOKIE_NAME = "accessToken";
 
-    public ResponseCookie createAccessTokenCookie(TokenDTO tokenDto) {
-        return ResponseCookie.from(COOKIE_NAME, tokenDto.accessToken())
-            .httpOnly(true)
-            .secure(true)
-            .path("/")
-            .maxAge(tokenDto.accessTokenExpiresIn())
-            .sameSite("Strict")
-            .build();
-    }
+  public ResponseCookie createAccessTokenCookie(TokenDTO tokenDto) {
+    return ResponseCookie.from(COOKIE_NAME, tokenDto.accessToken())
+      .httpOnly(true)
+      .secure(true)
+      .path("/")
+      .maxAge(tokenDto.accessTokenExpiresIn())
+      .sameSite("Strict")
+      .build();
+  }
+
+  public static ResponseCookie removeAccessTokenCookie() {
+    return ResponseCookie.from(COOKIE_NAME, "")
+      .httpOnly(true)
+      .secure(true)
+      .path("/")
+      .maxAge(0)
+      .sameSite("Strict")
+      .build();
+  }
+
+  public String resolveToken(HttpHeaders headers) {
+    return Optional.ofNullable(headers.getFirst(HttpHeaders.COOKIE))
+      .map(h -> h.split(";"))
+      .stream()
+      .flatMap(Arrays::stream)
+      .flatMap(part -> HttpCookie.parse(part).stream())
+      .filter(c -> COOKIE_NAME.equals(c.getName()))
+      .map(HttpCookie::getValue)
+      .findFirst()
+      .orElse(null);
+  }
 }
 ```
 
@@ -1901,21 +2637,40 @@ public class CookieUtils {
 package io.github.susimsek.springbootjweauthjpademo.security
 
 import io.github.susimsek.springbootjweauthjpademo.dto.TokenDTO
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
+import java.net.HttpCookie
 
 object CookieUtils {
 
-  private const val COOKIE_NAME = "accessToken"
+  const val COOKIE_NAME = "accessToken"
 
-  fun createAccessTokenCookie(tokenDto: TokenDTO): ResponseCookie {
-    return ResponseCookie.from(COOKIE_NAME, tokenDto.accessToken())
+  fun createAccessTokenCookie(tokenDto: TokenDTO): ResponseCookie =
+    ResponseCookie.from(COOKIE_NAME, tokenDto.accessToken())
       .httpOnly(true)
       .secure(true)
       .path("/")
       .maxAge(tokenDto.accessTokenExpiresIn())
       .sameSite("Strict")
       .build()
-  }
+
+  fun removeAccessTokenCookie(): ResponseCookie =
+    ResponseCookie.from(COOKIE_NAME, "")
+      .httpOnly(true)
+      .secure(true)
+      .path("/")
+      .maxAge(0)
+      .sameSite("Strict")
+      .build()
+
+  fun resolveToken(headers: HttpHeaders): String? =
+    headers.getFirst(HttpHeaders.COOKIE)
+      ?.split(";")
+      .orEmpty()
+      .asSequence()
+      .flatMap { HttpCookie.parse(it).asSequence() }
+      .firstOrNull { it.name == COOKIE_NAME }
+      ?.value
 }
 ```
 
@@ -1929,7 +2684,7 @@ object CookieUtils {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.security;
+package io.github.susimsek.springbootgraphqljwedemo.security;
 
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JOSEException;
@@ -1939,8 +2694,8 @@ import com.nimbusds.jose.JWEObject;
 import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.RSAEncrypter;
 import com.nimbusds.jose.jwk.RSAKey;
-import io.github.susimsek.springbootjweauthjpademo.config.JwtProperties;
-import io.github.susimsek.springbootjweauthjpademo.dto.TokenDTO;
+import io.github.susimsek.springbootgraphqljwedemo.config.JwtProperties;
+import io.github.susimsek.springbootgraphqljwedemo.dto.TokenDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -1951,7 +2706,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.List;
 
-import static io.github.susimsek.springbootjweauthjpademo.security.SecurityUtils.AUTHORITIES_KEY;
+import static io.github.susimsek.springbootgraphqljwedemo.security.SecurityUtils.AUTHORITIES_KEY;
 
 @Component
 @RequiredArgsConstructor
@@ -2006,7 +2761,7 @@ public class JweUtil {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.security
+package io.github.susimsek.springbootgraphqljwedemo.security
 
 import com.nimbusds.jose.EncryptionMethod
 import com.nimbusds.jose.JOSEException
@@ -2016,8 +2771,8 @@ import com.nimbusds.jose.JWEObject
 import com.nimbusds.jose.Payload
 import com.nimbusds.jose.crypto.RSAEncrypter
 import com.nimbusds.jose.jwk.RSAKey
-import io.github.susimsek.springbootjweauthjpademo.config.JwtProperties
-import io.github.susimsek.springbootjweauthjpademo.dto.TokenDTO
+import io.github.susimsek.springbootgraphqljwedemo.config.JwtProperties
+import io.github.susimsek.springbootgraphqljwedemo.dto.TokenDTO
 import lombok.RequiredArgsConstructor
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm
@@ -2084,7 +2839,7 @@ class JweUtil(
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.security;
+package io.github.susimsek.springbootgraphqljwedemo.security;
 
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -2145,7 +2900,7 @@ public class KeyUtils {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.security
+package io.github.susimsek.springbootgraphqljwedemo.security
 
 import com.nimbusds.jose.JWEAlgorithm
 import com.nimbusds.jose.JWSAlgorithm
@@ -2212,7 +2967,7 @@ object KeyUtils {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.security;
+package io.github.susimsek.springbootgraphqljwedemo.security;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.security.core.Authentication;
@@ -2254,7 +3009,7 @@ public class SecurityUtils {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.security
+package io.github.susimsek.springbootgraphqljwedemo.security
 
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
@@ -2291,10 +3046,10 @@ object SecurityUtils {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.security;
+package io.github.susimsek.springbootgraphqljwedemo.security;
 
-import io.github.susimsek.springbootjweauthjpademo.entity.User;
-import io.github.susimsek.springbootjweauthjpademo.repository.UserRepository;
+import io.github.susimsek.springbootgraphqljwedemo.entity.User;
+import io.github.susimsek.springbootgraphqljwedemo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -2336,9 +3091,9 @@ public class DomainUserDetailsService implements UserDetailsService {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.security
+package io.github.susimsek.springbootgraphqljwedemo.security
 
-import io.github.susimsek.springbootjweauthjpademo.repository.UserRepository
+import io.github.susimsek.springbootgraphqljwedemo.repository.UserRepository
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -2380,7 +3135,7 @@ class DomainUserDetailsService(
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.security;
+package io.github.susimsek.springbootgraphqljwedemo.security;
 
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.lang.NonNull;
@@ -2402,7 +3157,7 @@ public class SpringSecurityAuditorAware implements AuditorAware<String> {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.security
+package io.github.susimsek.springbootgraphqljwedemo.security
 
 import org.springframework.data.domain.AuditorAware
 import org.springframework.lang.NonNull
@@ -2418,20 +3173,277 @@ class SpringSecurityAuditorAware : AuditorAware<String> {
 
 :::
 
+<span style="display:block; height:1rem;"></span>
+
+### GraphQlTokenCookieInterceptor
+
+:::tabs
+@tab Java [icon=java]
+
+```java
+package io.github.susimsek.springbootjweauthjpademo.security;
+
+import graphql.GraphQLContext;
+import io.github.susimsek.springbootjweauthjpademo.dto.TokenDTO;
+import org.springframework.graphql.server.WebGraphQlInterceptor;
+import org.springframework.graphql.server.WebGraphQlRequest;
+import org.springframework.graphql.server.WebGraphQlResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
+
+@Component
+public class GraphQlTokenCookieInterceptor implements WebGraphQlInterceptor {
+
+  @Override
+  @NonNull
+  public Mono<WebGraphQlResponse> intercept(@NonNull WebGraphQlRequest request, Chain chain) {
+    return chain.next(request)
+      .doOnNext(response -> {
+        GraphQLContext ctx = response.getExecutionInput().getGraphQLContext();
+
+        if (Boolean.TRUE.equals(ctx.get("clearAccessToken"))) {
+          ResponseCookie expired = CookieUtils.removeAccessTokenCookie();
+          response.getResponseHeaders().add(HttpHeaders.SET_COOKIE, expired.toString());
+          return;
+        }
+
+        TokenDTO tokenDto = ctx.get("accessToken");
+        if (tokenDto != null) {
+          ResponseCookie cookie = CookieUtils.createAccessTokenCookie(tokenDto);
+          response.getResponseHeaders()
+            .add(HttpHeaders.SET_COOKIE, cookie.toString());
+        }
+      });
+  }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin
+package io.github.susimsek.springbootjweauthjpademo.security
+
+import graphql.GraphQLContext
+import io.github.susimsek.springbootjweauthjpademo.dto.TokenDTO
+import org.springframework.graphql.server.WebGraphQlInterceptor
+import org.springframework.graphql.server.WebGraphQlRequest
+import org.springframework.graphql.server.WebGraphQlResponse
+import org.springframework.http.HttpHeaders
+import org.springframework.http.ResponseCookie
+import org.springframework.stereotype.Component
+import reactor.core.publisher.Mono
+
+@Component
+class GraphQlTokenCookieInterceptor : WebGraphQlInterceptor {
+
+  override fun intercept(
+    request: WebGraphQlRequest,
+    chain: WebGraphQlInterceptor.Chain
+  ): Mono<WebGraphQlResponse> {
+    return chain.next(request)
+      .doOnNext { response ->
+        val ctx: GraphQLContext = response.executionInput.graphQLContext
+
+        if (ctx.get<Boolean>("clearAccessToken") == true) {
+          val expired: ResponseCookie = CookieUtils.removeAccessTokenCookie()
+          response.responseHeaders.add(HttpHeaders.SET_COOKIE, expired.toString())
+          return@doOnNext
+        }
+
+        ctx.get<TokenDTO>("accessToken")?.let { tokenDto ->
+          val cookie: ResponseCookie = CookieUtils.createAccessTokenCookie(tokenDto)
+          response.responseHeaders.add(HttpHeaders.SET_COOKIE, cookie.toString())
+        }
+      }
+  }
+}
+```
+
+:::
+
+<span style="display:block; height:1rem;"></span>
+
+### CookieAuthenticationWebSocketInterceptor
+
+:::tabs
+@tab Java [icon=java]
+
+```java
+package io.github.susimsek.springbootgraphqljwedemo.security;
+
+import io.github.susimsek.springbootgraphqljwedemo.security.CookieUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.graphql.server.WebGraphQlInterceptor;
+import org.springframework.graphql.server.WebGraphQlRequest;
+import org.springframework.graphql.server.WebGraphQlResponse;
+import org.springframework.graphql.server.WebSocketGraphQlInterceptor;
+import org.springframework.graphql.server.WebSocketGraphQlRequest;
+import org.springframework.graphql.server.WebSocketSessionInfo;
+import org.springframework.graphql.server.support.AuthenticationExtractor;
+import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
+import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
+import reactor.util.context.ContextView;
+
+import java.util.Map;
+
+@RequiredArgsConstructor
+public class CookieAuthenticationWebSocketInterceptor implements WebSocketGraphQlInterceptor {
+
+  private final String authenticationAttribute = this.getClass().getName() + ".AUTHENTICATION";
+  private final AuthenticationExtractor authExtractor;
+  private final AuthenticationManager authenticationManager;
+
+  @Override
+  @NonNull
+  public Mono<Object> handleConnectionInitialization(@NonNull WebSocketSessionInfo info,
+                                                     @NonNull Map<String, Object> payload) {
+
+    Mono<Authentication> headerAuth = authExtractor.getAuthentication(payload);
+
+    Mono<Authentication> cookieAuth = Mono.defer(() -> {
+      String token = CookieUtils.resolveToken(info.getHeaders());
+      return token != null
+        ? Mono.just(new BearerTokenAuthenticationToken(token))
+        : Mono.empty();
+    });
+
+    return headerAuth
+      .switchIfEmpty(cookieAuth)
+      .flatMap(this::authenticate)
+      .doOnNext(auth -> {
+        SecurityContext securityContext = new SecurityContextImpl(auth);
+        info.getAttributes().put(this.authenticationAttribute, securityContext);
+      })
+      .then(Mono.empty());
+  }
+
+  @Override
+  @NonNull
+  public Mono<WebGraphQlResponse> intercept(@NonNull WebGraphQlRequest request,
+                                            @NonNull WebGraphQlInterceptor.Chain chain) {
+    if (request instanceof WebSocketGraphQlRequest webSocketRequest) {
+      Map<String, Object> attributes = webSocketRequest.getSessionInfo().getAttributes();
+      SecurityContext securityContext = (SecurityContext) attributes.get(this.authenticationAttribute);
+      ContextView contextView = this.getContextToWrite(securityContext);
+      return chain.next(request).contextWrite(contextView);
+    } else {
+      return chain.next(request);
+    }
+  }
+
+  protected Mono<Authentication> authenticate(Authentication authentication) {
+    return Mono.just(this.authenticationManager.authenticate(authentication));
+  }
+
+  protected ContextView getContextToWrite(SecurityContext securityContext) {
+    return Context.of(SecurityContext.class.getName(), securityContext);
+  }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin
+package io.github.susimsek.springbootgraphqljwedemo.security
+
+import io.github.susimsek.springbootgraphqljwedemo.security.CookieUtils
+import org.springframework.graphql.server.WebGraphQlInterceptor
+import org.springframework.graphql.server.WebGraphQlRequest
+import org.springframework.graphql.server.WebGraphQlResponse
+import org.springframework.graphql.server.WebSocketGraphQlInterceptor
+import org.springframework.graphql.server.WebSocketGraphQlRequest
+import org.springframework.graphql.server.WebSocketSessionInfo
+import org.springframework.graphql.server.support.AuthenticationExtractor
+import org.springframework.lang.NonNull
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextImpl
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken
+import reactor.core.publisher.Mono
+import reactor.util.context.Context
+import reactor.util.context.ContextView
+
+class CookieAuthenticationWebSocketInterceptor(
+  private val authExtractor: AuthenticationExtractor,
+  private val authenticationManager: AuthenticationManager
+) : WebSocketGraphQlInterceptor {
+
+  private val authenticationAttribute: String = "${this::class.java.name}.AUTHENTICATION"
+
+  @NonNull
+  override fun handleConnectionInitialization(
+    @NonNull info: WebSocketSessionInfo,
+    @NonNull payload: Map<String, Any>
+  ): Mono<Any> {
+    val headerAuth: Mono<Authentication> = authExtractor.getAuthentication(payload)
+
+    val cookieAuth: Mono<Authentication> = Mono.defer {
+      val token = CookieUtils.resolveToken(info.headers)
+      if (token != null) {
+        Mono.just(BearerTokenAuthenticationToken(token))
+      } else {
+        Mono.empty()
+      }
+    }
+
+    return headerAuth
+      .switchIfEmpty(cookieAuth)
+      .flatMap { authenticate(it) }
+      .doOnNext { auth ->
+        val securityContext = SecurityContextImpl(auth)
+        info.attributes[authenticationAttribute] = securityContext
+      }
+      .then(Mono.empty())
+  }
+
+  @NonNull
+  override fun intercept(
+    @NonNull request: WebGraphQlRequest,
+    @NonNull chain: WebGraphQlInterceptor.Chain
+  ): Mono<WebGraphQlResponse> {
+    return if (request is WebSocketGraphQlRequest) {
+      val attributes = request.sessionInfo.attributes
+      val securityContext = attributes[authenticationAttribute] as SecurityContext
+      val contextView: ContextView = getContextToWrite(securityContext)
+      chain.next(request).contextWrite(contextView)
+    } else {
+      chain.next(request)
+    }
+  }
+
+  protected fun authenticate(authentication: Authentication): Mono<Authentication> =
+    Mono.just(authenticationManager.authenticate(authentication))
+
+  protected fun getContextToWrite(securityContext: SecurityContext): ContextView =
+    Context.of(SecurityContext::class.java.name, securityContext)
+}
+```
+
+:::
+
 ---
 
 ## 🔐 Adım 6: Kimlik Doğrulama ve Güvenli Endpointler
 
-Bu bölümde, aşağıdakileri gerçekleştirmek için gerekli REST controller ve DTO’ları tanımlıyoruz:
+Bu bölümde, aşağıdaki GraphQL controller ve DTO’ları tanımlıyoruz:
 
-- **AuthController**: Kullanıcıları doğrular, JWE token’ları oluşturur ve güvenli cookie ayarlar.
-- **HelloController**: Kimliği doğrulanmış kullanıcılar ve yalnızca admine özel pathler için güvenli endpointler sunar.
-- **LoginRequestDTO**: Login isteği payloadını (kullanıcı adı/parola) modelleyen DTO.
-- **TokenDTO**: Token ve geçerlilik süresini içeren kimlik doğrulama yanıtını modelleyen DTO.
+- **AuthController**: Kullanıcıları doğrular, JWE token'ı GraphQL mutationu ile oluşturur ve GraphQLContext içine `accessToken` veya `clearAccessToken` flaglerini ekler.
+- **HelloController**: Kimliği doğrulanmış kullanıcılar ve yalnızca adminin erişebileceği GraphQL query, subscription ve mutationları sunar.
+- **LoginInput**: Login işlemi için (kullanıcı adı/şifre) GraphQL input tipi.
+- **GreetInput** & **GreetDTO**: greet mutationu için GraphQL input ve yanıt tipi.
+- **TokenDTO**: Token, tür ve geçerlilik süresini içeren JWE token yanıt modelidir.
 
-Bu bileşenler, login işlemi, token oluşturma, cookie yönetimi ve kaynak korumasını işleyerek stateless(durumsuz) kimlik doğrulama akışını tamamlar.
-
-Bu bölümde, kullanıcı kimlik doğrulamasını, token oluşturmayı ve korunan kaynak erişimini yönetmek için REST controller ve DTO’ları oluşturuyoruz.
+Bu bileşenler, JWE token’ları ve JPA yı kullanarak GraphQL API’de stateless kimlik doğrulama akışını tamamlar.
 
 ### AuthController
 
@@ -2441,48 +3453,52 @@ Bu bölümde, kullanıcı kimlik doğrulamasını, token oluşturmayı ve koruna
 ```java
 package io.github.susimsek.springbootjweauthjpademo.controller;
 
-import io.github.susimsek.springbootjweauthjpademo.dto.LoginRequestDTO;
+import graphql.GraphQLContext;
+import io.github.susimsek.springbootjweauthjpademo.dto.LoginInput;
 import io.github.susimsek.springbootjweauthjpademo.dto.TokenDTO;
-import io.github.susimsek.springbootjweauthjpademo.security.CookieUtils;
 import io.github.susimsek.springbootjweauthjpademo.security.JweUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
-@RequestMapping("/api/auth")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final JweUtil jweUtil;
+  private final AuthenticationManager authenticationManager;
+  private final JweUtil jweUtil;
 
-    @PostMapping("/login")
-    public ResponseEntity<TokenDTO> login(@RequestBody LoginRequestDTO loginRequest) throws Exception {
-        // Authenticate user
-        var authToken = new UsernamePasswordAuthenticationToken(
-            loginRequest.username(), loginRequest.password()
-        );
-        Authentication auth = authenticationManager.authenticate(authToken);
-        SecurityContextHolder.getContext().setAuthentication(auth);
+  @MutationMapping
+  public TokenDTO login(@Argument LoginInput input,
+                        GraphQLContext context) {
+    // Authenticate user
+    Authentication auth = authenticationManager.authenticate(
+      new UsernamePasswordAuthenticationToken(input.username(), input.password())
+    );
+    SecurityContextHolder.getContext().setAuthentication(auth);
 
-        // Generate JWE token and cookie
-        TokenDTO tokenDto = jweUtil.generateToken(auth);
-        ResponseCookie cookie = CookieUtils.createAccessTokenCookie(tokenDto);
+    // Generate JWE token
+    TokenDTO tokenDto = jweUtil.generateToken(auth);
 
-        return ResponseEntity.ok()
-            .header(HttpHeaders.SET_COOKIE, cookie.toString())
-            .body(tokenDto);
-    }
+    // Store token in GraphQLContext for the interceptor to set cookie
+    context.put("accessToken", tokenDto);
+
+    return tokenDto;
+  }
+
+  @PreAuthorize("isAuthenticated()")
+  @MutationMapping
+  public Boolean logout(GraphQLContext context) {
+    // Signal the interceptor to clear the cookie
+    context.put("clearAccessToken", Boolean.TRUE);
+    return true;
+  }
 }
 ```
 
@@ -2491,46 +3507,51 @@ public class AuthController {
 ```kotlin
 package io.github.susimsek.springbootjweauthjpademo.controller
 
-import io.github.susimsek.springbootjweauthjpademo.dto.LoginRequestDTO
+import graphql.GraphQLContext
+import io.github.susimsek.springbootjweauthjpademo.dto.LoginInput
 import io.github.susimsek.springbootjweauthjpademo.dto.TokenDTO
-import io.github.susimsek.springbootjweauthjpademo.security.CookieUtils
 import io.github.susimsek.springbootjweauthjpademo.security.JweUtil
-import lombok.RequiredArgsConstructor
-import org.springframework.http.HttpHeaders
-import org.springframework.http.ResponseCookie
-import org.springframework.http.ResponseEntity
+import org.springframework.graphql.data.method.annotation.Argument
+import org.springframework.graphql.data.method.annotation.MutationMapping
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.stereotype.Controller
 
-@RestController
-@RequiredArgsConstructor
-@RequestMapping("/api/auth")
+@Controller
 class AuthController(
-    private val authenticationManager: AuthenticationManager,
-    private val jweUtil: JweUtil
+  private val authenticationManager: AuthenticationManager,
+  private val jweUtil: JweUtil
 ) {
 
-    @PostMapping("/login")
-    fun login(@RequestBody loginRequest: LoginRequestDTO): ResponseEntity<TokenDTO> {
-        val authToken = UsernamePasswordAuthenticationToken(
-            loginRequest.username, loginRequest.password
-        )
-        val auth: Authentication = authenticationManager.authenticate(authToken)
-        SecurityContextHolder.getContext().authentication = auth
+  @MutationMapping
+  fun login(
+    @Argument input: LoginInput,
+    context: GraphQLContext
+  ): TokenDTO {
+    // Authenticate user
+    val auth = authenticationManager.authenticate(
+      UsernamePasswordAuthenticationToken(input.username, input.password)
+    )
+    SecurityContextHolder.getContext().authentication = auth
 
-        val tokenDto: TokenDTO = jweUtil.generateToken(auth)
-        val cookie: ResponseCookie = CookieUtils.createAccessTokenCookie(tokenDto)
+    // Generate JWE token
+    val tokenDto = jweUtil.generateToken(auth)
 
-        return ResponseEntity.ok()
-            .header(HttpHeaders.SET_COOKIE, cookie.toString())
-            .body(tokenDto)
-    }
+    // Store token in GraphQLContext for the interceptor to set cookie
+    context.put("accessToken", tokenDto)
+
+    return tokenDto
+  }
+
+  @PreAuthorize("isAuthenticated()")
+  @MutationMapping
+  fun logout(context: GraphQLContext): Boolean {
+    // Signal the interceptor to clear the cookie
+    context.put("clearAccessToken", true)
+    return true
+  }
 }
 ```
 
@@ -2544,58 +3565,149 @@ class AuthController(
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.controller;
+package io.github.susimsek.springbootgraphqljwedemo.controller;
 
+import io.github.susimsek.springbootgraphqljwedemo.dto.GreetDTO;
+import io.github.susimsek.springbootgraphqljwedemo.dto.GreetInput;
+import lombok.RequiredArgsConstructor;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.method.annotation.SubscriptionMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import reactor.core.publisher.Flux;
 
-import static io.github.susimsek.springbootjweauthjpademo.security.SecurityUtils.AUTHORITIES_KEY;
+import java.time.Duration;
+import java.time.Instant;
 
-@RestController
-@RequestMapping("/api/hello")
+import static io.github.susimsek.springbootgraphqljwedemo.security.SecurityUtils.AUTHORITIES_KEY;
+
+@Controller
+@RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
 public class HelloController {
 
-    @GetMapping
-    public String helloAll(@AuthenticationPrincipal Jwt jwt) {
-        String user = jwt.getSubject();
-        var roles = jwt.getClaimAsStringList(AUTHORITIES_KEY);
-        return "Hello, " + user + "! Your roles: " + roles;
-    }
+  @QueryMapping
+  public String helloAll(@AuthenticationPrincipal Jwt jwt) {
+    var roles = jwt.getClaimAsStringList(AUTHORITIES_KEY);
+    return "Hello, " + jwt.getSubject() + "! Your roles: " + roles;
+  }
 
-    @GetMapping("/admin")
-    public String helloAdmin(@AuthenticationPrincipal Jwt jwt) {
-        return "Hello Admin, " + jwt.getSubject() + "!";
-    }
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  @QueryMapping
+  public String helloAdmin(@AuthenticationPrincipal Jwt jwt) {
+    return "Hello Admin, " + jwt.getSubject() + "!";
+  }
+
+  @MutationMapping
+  public GreetDTO greet(
+    @Argument GreetInput input,
+    @AuthenticationPrincipal Jwt jwt
+  ) {
+    String msg = "Hello " + jwt.getSubject() + ", you said: " + input.getMessage();
+    return new GreetDTO(msg, Instant.now());
+  }
+
+  @SubscriptionMapping("greetStream")
+  public Flux<GreetDTO> greetStream(
+    @Argument GreetInput input,
+    @AuthenticationPrincipal Jwt jwt
+  ) {
+    return Flux.interval(Duration.ofSeconds(1))
+      .map(i -> {
+        String msg = "Hello " + jwt.getSubject()
+          + ", you said: " + input.getMessage()
+          + " (event " + (i + 1) + ")";
+        return new GreetDTO(msg, Instant.now());
+      });
+  }
+
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  @SubscriptionMapping("greetStreamAdmin")
+  public Flux<GreetDTO> greetStreamAdmin(
+    @Argument GreetInput input,
+    @AuthenticationPrincipal Jwt jwt
+  ) {
+    return Flux.interval(Duration.ofSeconds(2))
+      .map(i -> {
+        String msg = "Hello Admin " + jwt.getSubject()
+          + ", you said: " + input.getMessage()
+          + " (admin event " + (i + 1) + ")";
+        return new GreetDTO(msg, Instant.now());
+      });
+  }
 }
 ```
 
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.controller
+package io.github.susimsek.springbootgraphqljwedemo.controller
 
+import io.github.susimsek.springbootgraphqljwedemo.dto.GreetDTO
+import io.github.susimsek.springbootgraphqljwedemo.dto.GreetInput
+import org.springframework.graphql.data.method.annotation.Argument
+import org.springframework.graphql.data.method.annotation.MutationMapping
+import org.springframework.graphql.data.method.annotation.QueryMapping
+import org.springframework.graphql.data.method.annotation.SubscriptionMapping
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
-import org.springframework.web.bind.annotation.*
+import org.springframework.stereotype.Controller
+import reactor.core.publisher.Flux
+import java.time.Duration
+import java.time.Instant
 
-import io.github.susimsek.springbootjweauthjpademo.security.SecurityUtils.AUTHORITIES_KEY
-
-@RestController
-@RequestMapping("/api/hello")
+@Controller
+@RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
 class HelloController {
 
-    @GetMapping
-    fun helloAll(@AuthenticationPrincipal jwt: Jwt): String {
-        val user = jwt.subject
-        val roles = jwt.getClaimAsStringList(AUTHORITIES_KEY)
-        return "Hello, \$user! Your roles: \$roles"
-    }
+  @QueryMapping
+  fun helloAll(@AuthenticationPrincipal jwt: Jwt): String {
+    val roles = jwt.getClaimAsStringList(SecurityUtils.AUTHORITIES_KEY)
+    return "Hello, ${jwt.subject}! Your roles: $roles"
+  }
 
-    @GetMapping("/admin")
-    fun helloAdmin(@AuthenticationPrincipal jwt: Jwt): String {
-        return "Hello Admin, \${jwt.subject}!"
-    }
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  @QueryMapping
+  fun helloAdmin(@AuthenticationPrincipal jwt: Jwt): String =
+    "Hello Admin, ${jwt.subject}!"
+
+  @MutationMapping
+  fun greet(
+    @Argument input: GreetInput,
+    @AuthenticationPrincipal jwt: Jwt
+  ): GreetDTO {
+    val msg = "Hello ${jwt.subject}, you said: ${input.message}"
+    return GreetDTO(msg, Instant.now())
+  }
+
+  @SubscriptionMapping("greetStream")
+  fun greetStream(
+    @Argument input: GreetInput,
+    @AuthenticationPrincipal jwt: Jwt
+  ): Flux<GreetDTO> =
+    Flux.interval(Duration.ofSeconds(1))
+      .map { i ->
+        val msg = "Hello ${jwt.subject}, you said: ${input.message} (event ${i + 1})"
+        GreetDTO(msg, Instant.now())
+      }
+
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  @SubscriptionMapping("greetStreamAdmin")
+  fun greetStreamAdmin(
+    @Argument input: GreetInput,
+    @AuthenticationPrincipal jwt: Jwt
+  ): Flux<GreetDTO> =
+    Flux.interval(Duration.ofSeconds(2))
+      .map { i ->
+        val msg = "Hello Admin ${jwt.subject}, you said: ${input.message} (admin event ${i + 1})"
+        GreetDTO(msg, Instant.now())
+      }
 }
 ```
 
@@ -2603,28 +3715,88 @@ class HelloController {
 
 <span style="display:block; height:1rem;"></span>
 
-### LoginRequestDTO
+### LoginInput
 
 :::tabs
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.dto;
+package io.github.susimsek.springbootgraphqljwedemo.dto;
 
-public record LoginRequestDTO(
-    String username,
-    String password
-) { }
+public record LoginInput(
+  String username,
+  String password
+) {}
 ```
 
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.dto
+package io.github.susimsek.springbootgraphqljwedemo.dto
 
-data class LoginRequestDTO(
-    val username: String,
-    val password: String
+data class LoginInput(
+  val username: String,
+  val password: String
+)
+```
+
+:::
+
+<span style="display:block; height:1rem;"></span>
+
+### GreetInput
+
+:::tabs
+@tab Java [icon=java]
+
+```java
+package io.github.susimsek.springbootgraphqljwedemo.dto;
+
+public record GreetInput(
+  String message
+) {}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin
+package io.github.susimsek.springbootgraphqljwedemo.dto
+
+data class GreetInput(
+  val message: String
+)
+```
+
+:::
+
+<span style="display:block; height:1rem;"></span>
+
+### GreetDTO
+
+:::tabs
+@tab Java [icon=java]
+
+```java
+package io.github.susimsek.springbootgraphqljwedemo.dto;
+
+import java.time.Instant;
+
+public record GreetDTO(
+  String greeting,
+  Instant timestamp
+) {}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin
+package io.github.susimsek.springbootgraphqljwedemo.dto
+
+import java.time.Instant
+
+data class GreetDTO(
+  val greeting: String,
+  val timestamp: Instant
 )
 ```
 
@@ -2638,26 +3810,24 @@ data class LoginRequestDTO(
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjweauthjpademo.dto;
+package io.github.susimsek.springbootgraphqljwedemo.dto;
 
 public record TokenDTO(
-    String accessToken,
-    String tokenType,
-    long accessTokenExpiresIn
+  String accessToken,
+  String tokenType,
+  long accessTokenExpiresIn
 ) {}
 ```
 
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjweauthjpademo.dto
-
-import kotlin.Long
+package io.github.susimsek.springbootgraphqljwedemo.dto
 
 data class TokenDTO(
-    val accessToken: String,
-    val tokenType: String,
-    val accessTokenExpiresIn: Long
+  val accessToken: String,
+  val tokenType: String,
+  val accessTokenExpiresIn: Long
 )
 ```
 
@@ -2673,18 +3843,36 @@ data class TokenDTO(
 gradle bootRun
 ```
 
+GraalVM 22.3+ yüklüyse, `native` profili ile native-image derlemek için şu komutu çalıştır:
+
+```bash
+./mvnw native:compile -Pnative
+```
+
+Native-image derlemesi başarıyla tamamlandıktan sonra, çalıştırılabilir dosya `target/` altında oluşturulur (örneğin: `target/spring-boot-graphql-jwe-auth-demo`). Doğrudan şu komut ile çalıştırın:
+
+```bash
+./target/spring-boot-graphql-jwe-auth-demo
+```
+
+**Opsiyonel:** UPX yüklüyse, yerel çalıştırılabilir dosyayı daha küçük boyut için sıkıştırabilirsiniz:
+
+```bash
+upx --ultra-brute --lzma target/spring-boot-graphql-jwe-auth-demo
+```
+
 ---
 
-## 🧪 Endpoint Testi
+## 🧪 GraphQL Endpoint Testi
 
 ### Admin Akışı
 
 **admin** olarak giriş yapın ve `Set-Cookie` başlığından JWE tokeni yakalayın:
 
 ```bash
-curl -i -X POST http://localhost:8080/api/auth/login \
+curl -i -X POST http://localhost:8080/graphql \
   -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"adminpass"}'
+  -d '{ "query": "mutation { login(input: { username: \"admin\", password: \"adminpass\" }) { accessToken tokenType accessTokenExpiresIn } }" }'
 ```
 
 - **Set-Cookie** başlığı `accessToken=<jwe-token>` içerir
@@ -2692,61 +3880,174 @@ curl -i -X POST http://localhost:8080/api/auth/login \
 
 ```json
 {
-  "accessToken": "<jwe-token>",
-  "tokenType": "Bearer",
-  "accessTokenExpiresIn": 3600
+  "data": {
+    "login": {
+      "accessToken": "<jwe-token>",
+      "tokenType": "Bearer",
+      "accessTokenExpiresIn": 3600
+    }
+  }
 }
 ```
 
-**cookie** kullanarak `hello` endpointine erişin:
+**Cookie** kullanarak `helloAll` sorgusuna erişin:
 
 ```bash
-curl -b "accessToken=<jwe-token>" http://localhost:8080/api/hello
+curl -b "accessToken=<jwe-token>" \
+  -H "Content-Type: application/json" \
+  -d '{ "query": "{ helloAll }" }' \
+  http://localhost:8080/graphql
 ```
 
 Veya **Authorization** başlığıyla:
 
 ```bash
-curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello
+curl -H "Authorization: Bearer <jwe-token>" \
+  -H "Content-Type: application/json" \
+  -d '{ "query": "{ helloAll }" }' \
+  http://localhost:8080/graphql
 ```
 
-admin-özel endpointine erişin:
+admin-özel `helloAdmin` sorgusunu çalıştırın:
 
 ```bash
-curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello/admin
+curl -H "Authorization: Bearer <jwe-token>" \
+  -H "Content-Type: application/json" \
+  -d '{ "query": "{ helloAdmin }" }' \
+  http://localhost:8080/graphql
 ```
 
-### Kullanıcı Akışı
+Oturum çerezini temizlemek için `logout` mutationu çalıştırın:
+
+```bash
+curl -H "Authorization: Bearer <jwe-token>" \
+  -H "Content-Type: application/json" \
+  -d '{ "query": "mutation { logout }" }' \
+  http://localhost:8080/graphql
+```
+
+### User Flow
 
 **user** olarak giriş yapın ve **cookie**’den JWE tokeni yakalayın:
 
 ```bash
-curl -i -X POST http://localhost:8080/api/auth/login \
+curl -i -X POST http://localhost:8080/graphql \
   -H "Content-Type: application/json" \
-  -d '{"username":"user","password":"userpass"}'
+  -d '{ "query": "mutation { login(input: { username: \"user\", password: \"userpass\" }) { accessToken tokenType accessTokenExpiresIn } }" }'
 ```
 
 - **Set-Cookie** başlığı `accessToken=<jwe-token>` içerir
 
-**cookie** kullanarak `hello` endpointine erişin:
+`helloAll` sorgusunu çağırmak için **cookie** kullanın:
 
 ```bash
-curl -b "accessToken=<jwe-token>" http://localhost:8080/api/hello
+curl -b "accessToken=<jwe-token>" \
+  -H "Content-Type: application/json" \
+  -d '{ "query": "{ helloAll }" }' \
+  http://localhost:8080/graphql
 ```
 
 **Authorization** başlığıyla:
 
 ```bash
-curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello
+curl -H "Authorization: Bearer <jwe-token>" \
+  -H "Content-Type: application/json" \
+  -d '{ "query": "{ helloAll }" }' \
+  http://localhost:8080/graphql
 ```
 
-Admin endpointini deneyince (**403 Forbidden** döner):
+`helloAdmin` sorgusunu dene (403 hata dönmesi gerekir):
 
 ```bash
-curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello/admin
-# HTTP/1.1 403 Forbidden
+curl -H "Authorization: Bearer <jwe-token>" \
+  -H "Content-Type: application/json" \
+  -d '{ "query": "{ helloAdmin }" }' \
+  http://localhost:8080/graphql
 ```
+
+### GraphiQL Üzerinden Subscription Testi
+
+Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql` adresinde test edin:
+
+**1. GraphiQL’de Token Alma**
+
+1. **Sorgu (Query)** paneline şunu girin:
+
+   ```graphql
+   mutation Login($in: LoginInput!) {
+     login(input: $in) {
+       accessToken
+     }
+   }
+   ```
+
+2. **Değişkenler (Variables)** paneline geçip ekleyin:
+
+   ```json
+   {
+     "in": { "username": "admin", "password": "adminpass" }
+   }
+   ```
+
+3. ▶️ düğmesine tıklayın ve dönen yanıttaki `accessToken` değerini kopyalayın.
+
+<span style="display:block; height:1rem;"></span>
+
+**2. Başlıkları (Headers) Yapılandırma**
+
+1. Kenar çubuğunda **Headers** sekmesine tıklayın.
+2. Aşağıdaki JSON’u ekleyin:
+
+   ```json
+   {
+     "Authorization": "Bearer <accessToken>"
+   }
+   ```
+
+<span style="display:block; height:1rem;"></span>
+
+**3. Kullanıcı Olarak Abone Olma (greetStream)**
+
+1. **Subscriptions** paneline geçin.
+2. Aşağıdaki subscription sorgusunu girin:
+
+   ```graphql
+   subscription UserSubscribe($in: GreetInput!) {
+     greetStream(input: $in) {
+       greeting
+       timestamp
+     }
+   }
+   ```
+
+3. **Variables** paneline:
+
+   ```json
+   {
+     "in": { "message": "GraphiQL üzerinden merhaba!" }
+   }
+   ```
+
+4. ▶️ düğmesine tıklayarak `greetStream` akışını dinlemeye başlayın.
+
+<span style="display:block; height:1rem;"></span>
+
+**4. Admin Olarak Abone Olma (greetStreamAdmin)**
+
+1. Aynı **Subscriptions** panelinde aşağıdaki sorguyu girin:
+
+   ```graphql
+   subscription AdminSubscribe($in: GreetInput!) {
+     greetStreamAdmin(input: $in) {
+       greeting
+       timestamp
+     }
+   }
+   ```
+
+2. Aynı **Variables** panelini kullanın.
+3. ▶️ düğmesine tıklayın. Sadece `ROLE_ADMIN` yetkisine sahip token’lar veri alacak; diğerleri yetki hatası görecektir.
 
 ---
 
-Bu yapı, JWT, RSA şifrelemesi, Spring Security ve veritabanı destekli kullanıcı depolamanın avantajlarını birleştirerek Spring Boot ve JPA ile tamamen stateless, güçlü ve güvenli bir JWE tabanlı kimlik doğrulama çözümü sunar.
+Bu GraphQL yapılandırması, Spring Boot, GraphQL ve JPA ile, stateless, şifreli JWT (JWE) tabanlı bir kimlik doğrulama akışı sunar ve sağlam güvenlik ile ölçeklenebilirlik sağlar.

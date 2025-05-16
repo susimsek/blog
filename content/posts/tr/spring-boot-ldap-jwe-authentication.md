@@ -278,7 +278,7 @@ Bu bölümde, LDAP kimlik doğrulamasını yapılandırmak, RSA anahtarlarını 
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjwedemo.config;
+package io.github.susimsek.springbootldapjwedemo.config;
 
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
@@ -290,8 +290,8 @@ import com.nimbusds.jose.proc.JWEDecryptionKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
-import io.github.susimsek.springbootjwedemo.security.CookieBearerTokenResolver;
-import io.github.susimsek.springbootjwedemo.security.KeyUtils;
+import io.github.susimsek.springbootldapjwedemo.security.CookieBearerTokenResolver;
+import io.github.susimsek.springbootldapjwedemo.security.KeyUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -304,7 +304,7 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 
 import java.util.List;
 
-import static io.github.susimsek.springbootjwedemo.security.SecurityUtils.AUTHORITIES_KEY;
+import static io.github.susimsek.springbootldapjwedemo.security.SecurityUtils.AUTHORITIES_KEY;
 
 @Configuration
 public class SecurityJwtConfig {
@@ -393,7 +393,7 @@ public class SecurityJwtConfig {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjwedemo.config
+package io.github.susimsek.springbootldapjwedemo.config
 
 import com.nimbusds.jose.EncryptionMethod
 import com.nimbusds.jose.JWEAlgorithm
@@ -405,8 +405,8 @@ import com.nimbusds.jose.proc.JWEDecryptionKeySelector
 import com.nimbusds.jose.proc.JWSVerificationKeySelector
 import com.nimbusds.jose.proc.SecurityContext
 import com.nimbusds.jwt.proc.DefaultJWTProcessor
-import io.github.susimsek.springbootjwedemo.security.CookieBearerTokenResolver
-import io.github.susimsek.springbootjwedemo.security.KeyUtils
+import io.github.susimsek.springbootldapjwedemo.security.CookieBearerTokenResolver
+import io.github.susimsek.springbootldapjwedemo.security.KeyUtils
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.oauth2.jwt.JwtDecoder
@@ -499,9 +499,9 @@ class SecurityJwtConfig(private val props: JwtProperties) {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootldapdemo.config;
+package io.github.susimsek.springbootldapjwedemo.config;
 
-import io.github.susimsek.springbootldapdemo.security.AuthoritiesConstants;
+import io.github.susimsek.springbootldapjwedemo.security.AuthoritiesConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
@@ -602,9 +602,9 @@ public class SecurityConfig {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootldapdemo.config
+package io.github.susimsek.springbootldapjwedemo.config
 
-import io.github.susimsek.springbootldapdemo.security.AuthoritiesConstants
+import io.github.susimsek.springbootldapjwedemo.security.AuthoritiesConstants
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.ldap.core.support.BaseLdapPathContextSource
@@ -700,7 +700,7 @@ class SecurityConfig {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjwedemo.config;
+package io.github.susimsek.springbootldapjwedemo.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -730,7 +730,7 @@ public class JwtProperties {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjwedemo.config
+package io.github.susimsek.springbootldapjwedemo.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
@@ -763,7 +763,7 @@ class JwtProperties {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjwedemo.config;
+package io.github.susimsek.springbootldapjwedemo.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -781,7 +781,7 @@ public class UserProperties {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjwedemo.config
+package io.github.susimsek.springbootldapjwedemo.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
@@ -818,7 +818,7 @@ Bu yardımcılar, Spring Security ile durumsuz (stateless) JWE tabanlı bir kiml
 
 ```java
 
-package io.github.susimsek.springbootjwedemo.security;
+package io.github.susimsek.springbootldapjwedemo.security;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -835,7 +835,7 @@ public final class AuthoritiesConstants {
 
 ```kotlin
 
-package io.github.susimsek.springbootjwedemo.security
+package io.github.susimsek.springbootldapjwedemo.security
 
 object AuthoritiesConstants {
   const val ADMIN = "ROLE_ADMIN"
@@ -854,7 +854,7 @@ object AuthoritiesConstants {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjwedemo.security;
+package io.github.susimsek.springbootldapjwedemo.security;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -956,7 +956,7 @@ public class CookieBearerTokenResolver implements BearerTokenResolver {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjwedemo.security
+package io.github.susimsek.springbootldapjwedemo.security
 
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
@@ -1033,9 +1033,9 @@ class CookieBearerTokenResolver {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjwedemo.security;
+package io.github.susimsek.springbootldapjwedemo.security;
 
-import io.github.susimsek.springbootjwedemo.dto.TokenDTO;
+import io.github.susimsek.springbootldapjwedemo.dto.TokenDTO;
 import lombok.experimental.UtilityClass;
 import org.springframework.http.ResponseCookie;
 
@@ -1059,9 +1059,9 @@ public class CookieUtils {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjwedemo.security
+package io.github.susimsek.springbootldapjwedemo.security
 
-import io.github.susimsek.springbootjwedemo.dto.TokenDTO
+import io.github.susimsek.springbootldapjwedemo.dto.TokenDTO
 import org.springframework.http.ResponseCookie
 
 object CookieUtils {
@@ -1090,7 +1090,7 @@ object CookieUtils {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjwedemo.security;
+package io.github.susimsek.springbootldapjwedemo.security;
 
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JOSEException;
@@ -1100,8 +1100,8 @@ import com.nimbusds.jose.JWEObject;
 import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.RSAEncrypter;
 import com.nimbusds.jose.jwk.RSAKey;
-import io.github.susimsek.springbootjwedemo.config.JwtProperties;
-import io.github.susimsek.springbootjwedemo.dto.TokenDTO;
+import io.github.susimsek.springbootldapjwedemo.config.JwtProperties;
+import io.github.susimsek.springbootldapjwedemo.dto.TokenDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -1112,7 +1112,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.util.List;
 
-import static io.github.susimsek.springbootjwedemo.security.SecurityUtils.AUTHORITIES_KEY;
+import static io.github.susimsek.springbootldapjwedemo.security.SecurityUtils.AUTHORITIES_KEY;
 
 @Component
 @RequiredArgsConstructor
@@ -1167,7 +1167,7 @@ public class JweUtil {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjwedemo.security
+package io.github.susimsek.springbootldapjwedemo.security
 
 import com.nimbusds.jose.EncryptionMethod
 import com.nimbusds.jose.JOSEException
@@ -1177,8 +1177,8 @@ import com.nimbusds.jose.JWEObject
 import com.nimbusds.jose.Payload
 import com.nimbusds.jose.crypto.RSAEncrypter
 import com.nimbusds.jose.jwk.RSAKey
-import io.github.susimsek.springbootjwedemo.config.JwtProperties
-import io.github.susimsek.springbootjwedemo.dto.TokenDTO
+import io.github.susimsek.springbootldapjwedemo.config.JwtProperties
+import io.github.susimsek.springbootldapjwedemo.dto.TokenDTO
 import lombok.RequiredArgsConstructor
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm
@@ -1245,7 +1245,7 @@ class JweUtil(
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjwedemo.security;
+package io.github.susimsek.springbootldapjwedemo.security;
 
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -1306,7 +1306,7 @@ public class KeyUtils {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjwedemo.security
+package io.github.susimsek.springbootldapjwedemo.security
 
 import com.nimbusds.jose.JWEAlgorithm
 import com.nimbusds.jose.JWSAlgorithm
@@ -1373,7 +1373,7 @@ object KeyUtils {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjwedemo.security;
+package io.github.susimsek.springbootldapjwedemo.security;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.security.core.Authentication;
@@ -1415,7 +1415,7 @@ public class SecurityUtils {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjwedemo.security
+package io.github.susimsek.springbootldapjwedemo.security
 
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
@@ -1465,12 +1465,12 @@ Bu bölümde, kullanıcı kimlik doğrulamasını, token oluşturmayı ve koruna
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjwedemo.controller;
+package io.github.susimsek.springbootldapjwedemo.controller;
 
-import io.github.susimsek.springbootjwedemo.dto.LoginRequestDTO;
-import io.github.susimsek.springbootjwedemo.dto.TokenDTO;
-import io.github.susimsek.springbootjwedemo.security.CookieUtils;
-import io.github.susimsek.springbootjwedemo.security.JweUtil;
+import io.github.susimsek.springbootldapjwedemo.dto.LoginRequestDTO;
+import io.github.susimsek.springbootldapjwedemo.dto.TokenDTO;
+import io.github.susimsek.springbootldapjwedemo.security.CookieUtils;
+import io.github.susimsek.springbootldapjwedemo.security.JweUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -1515,12 +1515,12 @@ public class AuthController {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjwedemo.controller
+package io.github.susimsek.springbootldapjwedemo.controller
 
-import io.github.susimsek.springbootjwedemo.dto.LoginRequestDTO
-import io.github.susimsek.springbootjwedemo.dto.TokenDTO
-import io.github.susimsek.springbootjwedemo.security.CookieUtils
-import io.github.susimsek.springbootjwedemo.security.JweUtil
+import io.github.susimsek.springbootldapjwedemo.dto.LoginRequestDTO
+import io.github.susimsek.springbootldapjwedemo.dto.TokenDTO
+import io.github.susimsek.springbootldapjwedemo.security.CookieUtils
+import io.github.susimsek.springbootldapjwedemo.security.JweUtil
 import lombok.RequiredArgsConstructor
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
@@ -1570,13 +1570,13 @@ class AuthController(
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjwedemo.controller;
+package io.github.susimsek.springbootldapjwedemo.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import static io.github.susimsek.springbootjwedemo.security.SecurityUtils.AUTHORITIES_KEY;
+import static io.github.susimsek.springbootldapjwedemo.security.SecurityUtils.AUTHORITIES_KEY;
 
 @RestController
 @RequestMapping("/api/hello")
@@ -1599,13 +1599,13 @@ public class HelloController {
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjwedemo.controller
+package io.github.susimsek.springbootldapjwedemo.controller
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 
-import io.github.susimsek.springbootjwedemo.security.SecurityUtils.AUTHORITIES_KEY
+import io.github.susimsek.springbootldapjwedemo.security.SecurityUtils.AUTHORITIES_KEY
 
 @RestController
 @RequestMapping("/api/hello")
@@ -1635,7 +1635,7 @@ class HelloController {
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjwedemo.dto;
+package io.github.susimsek.springbootldapjwedemo.dto;
 
 public record LoginRequestDTO(
     String username,
@@ -1646,7 +1646,7 @@ public record LoginRequestDTO(
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjwedemo.dto
+package io.github.susimsek.springbootldapjwedemo.dto
 
 data class LoginRequestDTO(
     val username: String,
@@ -1664,7 +1664,7 @@ data class LoginRequestDTO(
 @tab Java [icon=java]
 
 ```java
-package io.github.susimsek.springbootjwedemo.dto;
+package io.github.susimsek.springbootldapjwedemo.dto;
 
 public record TokenDTO(
     String accessToken,
@@ -1676,7 +1676,7 @@ public record TokenDTO(
 @tab Kotlin [icon=kotlin]
 
 ```kotlin
-package io.github.susimsek.springbootjwedemo.dto
+package io.github.susimsek.springbootldapjwedemo.dto
 
 import kotlin.Long
 
