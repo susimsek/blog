@@ -5,7 +5,7 @@
     <title><![CDATA[Şuayb'in Blogu]]></title>
     <link>https://suaybsimsek.com/tr</link>
     <description><![CDATA[En son makaleleri, eğitimleri ve analizleri keşfedin.]]></description>
-    <lastBuildDate>Sat, 10 May 2025 19:10:07 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 16 May 2025 05:46:29 GMT</lastBuildDate>
     <language>tr</language>
     <copyright><![CDATA[© 2024 Şuayb Şimşek. Tüm hakları saklıdır.]]></copyright>
     <image>
@@ -15,6 +15,22 @@
     </image>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
     <atom:link rel="alternate" hreflang="en" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
+    <item>
+      <title><![CDATA[Spring Boot GraphQL JWE Kimlik Doğrulama]]></title>
+      <link>https://suaybsimsek.com/tr/posts/spring-boot-graphql-jwe-authentication</link>
+      <description><![CDATA[Stateless şifreli JWT’ler (JWE) kullanarak Spring Boot GraphQL API’lerinizi nasıl güvenli hale getirirken, kullanıcı kimliklerini ve rolleri JPA destekli bir veritabanında nasıl saklayacağınızı öğrenin.]]></description>
+      <pubDate>Sat, 17 May 2025 00:00:00 GMT</pubDate>
+      <guid>https://suaybsimsek.com/tr/posts/spring-boot-graphql-jwe-authentication</guid>
+      <category><![CDATA[Java]]></category>
+      <category><![CDATA[Kotlin]]></category>
+      <category><![CDATA[Spring Boot]]></category>
+      <category><![CDATA[Güvenlik]]></category>
+      <category><![CDATA[JWT]]></category>
+      <category><![CDATA[JWE]]></category>
+      <category><![CDATA[GraphQL]]></category>
+      <category><![CDATA[Programlama]]></category>
+      <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graphql-jwe-auth-thumbnail.webp" />
+    </item>
     <item>
       <title><![CDATA[Spring Boot JPA ile JWE Kimlik Doğrulaması]]></title>
       <link>https://suaybsimsek.com/tr/posts/spring-boot-jwe-authentication-with-jpa</link>
