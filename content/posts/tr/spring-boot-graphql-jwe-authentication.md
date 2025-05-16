@@ -97,6 +97,11 @@ Spring Boot GraphQL JWE Kimlik Doğrulaması, GraphQL’in esnekliğini, statele
     <artifactId>lombok</artifactId>
     <optional>true</optional>
   </dependency>
+  <dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <scope>runtime</scope>
+  </dependency>
 </dependencies>
 
 <build>
@@ -139,6 +144,7 @@ dependencies {
   implementation 'com.graphql-java:graphql-java-extended-scalars:22.0'
   implementation 'org.liquibase:liquibase-core'
   compileOnly 'org.projectlombok:lombok'
+  runtimeOnly 'com.h2database:h2'
 }
 
 plugins {

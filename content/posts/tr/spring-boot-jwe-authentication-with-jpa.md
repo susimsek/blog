@@ -82,6 +82,11 @@ Spring Boot, stateless şifrelenmiş JWT’leri (JWE) kullanarak API’lerinizi 
   <artifactId>lombok</artifactId>
   <optional>true</optional>
 </dependency>
+<dependency>
+  <groupId>com.h2database</groupId>
+  <artifactId>h2</artifactId>
+  <scope>runtime</scope>
+</dependency>
 ```
 
 **Gradle:**
@@ -92,6 +97,7 @@ implementation 'org.springframework.security:spring-security-oauth2-resource-ser
 implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 implementation 'org.liquibase:liquibase-core'
 compileOnly 'org.projectlombok:lombok'
+runtimeOnly 'com.h2database:h2'
 ```
 
 ---
