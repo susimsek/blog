@@ -50,10 +50,8 @@ const LinkComponent: React.FC<LinkComponentProps> = ({
   const combinedClassName = className ? `${defaultClassName} ${className}` : defaultClassName;
 
   return (
-    <Link href={resolvedHref} {...rest} legacyBehavior>
-      <a className={combinedClassName} onClick={handleClick} onKeyDown={handleKeyDown}>
-        {children}
-      </a>
+    <Link href={resolvedHref} className={combinedClassName} onClick={handleClick} onKeyDown={handleKeyDown} {...rest}>
+      {children}
     </Link>
   );
 };
