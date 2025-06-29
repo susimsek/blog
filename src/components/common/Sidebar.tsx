@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Topic } from '@/types/posts';
 import { Nav, Offcanvas } from 'react-bootstrap';
 import Link from '@/components/common/Link';
@@ -27,11 +27,11 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
     [topics, debouncedSearchQuery],
   );
 
-  const handleTopicClick = () => {
+  const handleTopicClick = useCallback(() => {
     if (isMobile) {
       onClose();
     }
-  };
+  }, [isMobile, onClose]);
 
   const renderTopics = useMemo(() => {
     return filteredTopics.length > 0 ? (
@@ -52,7 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
         {t('topic:topic.noTopicFound')}
       </div>
     );
-  }, [filteredTopics, t]);
+  }, [filteredTopics, t, handleTopicClick]);
 
   const sidebarContent = (
     <div className="sidebar-content px-4 py-3">
