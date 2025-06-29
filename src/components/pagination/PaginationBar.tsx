@@ -32,7 +32,12 @@ export default function PaginationBar({
   return (
     <Container className="pagination-bar">
       <Row className="align-items-center justify-content-between flex-wrap gy-3">
-        {/* Paginator */}
+        <Col xs={12} md className="d-flex align-items-center justify-content-center">
+          <p className="text-muted mb-0 text-nowrap">
+            {t('common.pagination.showingResults', { start, end, total: totalResults })}
+          </p>
+        </Col>
+
         <Col xs={12} md="auto" className="d-flex justify-content-center flex-wrap">
           <Paginator
             className="pagination mb-0"
@@ -43,14 +48,6 @@ export default function PaginationBar({
           />
         </Col>
 
-        {/* Label */}
-        <Col xs={12} md className="d-flex align-items-center justify-content-center">
-          <p className="text-muted mb-0 text-nowrap">
-            {t('common.pagination.showingResults', { start, end, total: totalResults })}
-          </p>
-        </Col>
-
-        {/* Page Size Selector */}
         <Col xs={12} md="auto" className="d-flex align-items-center justify-content-center justify-content-md-end">
           <PageSizeSelector size={size} pageSizeOptions={pageSizeOptions} onSizeChange={onSizeChange} />
         </Col>
