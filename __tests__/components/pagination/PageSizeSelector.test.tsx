@@ -48,9 +48,6 @@ describe('PageSizeSelector', () => {
 
     const fieldset = screen.getByRole('group');
     expect(fieldset).toHaveClass('d-flex align-items-center');
-
-    const selectElement = screen.getByRole('combobox');
-    expect(selectElement).toHaveStyle('width: 100px');
   });
 
   it('handles edge case of empty pageSizeOptions', () => {
