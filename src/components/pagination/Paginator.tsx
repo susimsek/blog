@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import { Pagination } from 'react-bootstrap';
 
 interface PaginatorProps {
@@ -54,7 +54,7 @@ const Paginator: React.FC<PaginatorProps> = ({
     return pages;
   };
 
-  const pageItems = generatePageItems();
+  const pageItems = useMemo(() => generatePageItems(), [currentPage, totalPages, maxPagesToShow]);
   const paginationItems: ReactNode[] = [];
 
   paginationItems.push(
