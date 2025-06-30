@@ -31,7 +31,7 @@ export default function PaginationBar({
 
   return (
     <Container className="pagination-bar">
-      <Row className="align-items-center justify-content-between flex-wrap gy-3">
+      <Row className="pagination-grid">
         <Col xs={12} md className="d-flex align-items-center justify-content-center justify-content-md-start">
           <p className="text-muted mb-0 text-nowrap">
             {t('common.pagination.showingResults', { start, end, total: totalResults })}
