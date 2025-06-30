@@ -19,9 +19,9 @@ const PageSizeSelector: React.FC<PageSizeSelectorProps> = ({
   const { t } = useTranslation('common');
 
   return (
-    <fieldset className={`d-flex align-items-center ${className}`}>
+    <fieldset className={`d-flex align-items-center flex-nowrap ${className}`}>
       <legend className="visually-hidden">Page size selector</legend>
-      <Form.Label htmlFor="postsPerPageSelect" className="me-2 mb-0">
+      <Form.Label htmlFor="postsPerPageSelect" className="me-2 mb-0 text-nowrap">
         {t('common.pagination.pageSize')}
       </Form.Label>
       <div className="position-relative d-inline-block" style={{ width: '100px' }}>
