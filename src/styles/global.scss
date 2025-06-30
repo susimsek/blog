@@ -287,6 +287,12 @@ h6 {
 
 select,
 select.form-select {
+  /* Hide native dropdown arrow and reset appearance */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none !important;
+
   background-color: var(--main-bg-color);
   color: var(--text-color);
   border: 1px solid var(--border-color);
@@ -320,6 +326,20 @@ select.form-select {
     background-color: var(--main-bg);
     color: var(--text-color);
   }
+
+  svg {
+    color: var(--text-color) !important;
+  }
+}
+
+.chevron-dropdown-icon {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  padding-right: 0.5rem;
+  pointer-events: none;
+  font-size: 0.75rem;
 }
 
 input.form-control {

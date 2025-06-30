@@ -1,6 +1,7 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
 import { useTranslation } from 'next-i18next';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface PageSizeSelectorProps {
   size?: number;
@@ -23,19 +24,21 @@ const PageSizeSelector: React.FC<PageSizeSelectorProps> = ({
       <Form.Label htmlFor="postsPerPageSelect" className="me-2 mb-0">
         {t('common.pagination.pageSize')}
       </Form.Label>
-      <Form.Select
-        id="postsPerPageSelect"
-        className="mb-0"
-        value={size}
-        onChange={e => onSizeChange(Number(e.target.value))}
-        style={{ width: '100px' }}
-      >
-        {pageSizeOptions.map(option => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </Form.Select>
+      <div className="position-relative d-inline-block" style={{ width: '100px' }}>
+        <Form.Select
+          id="postsPerPageSelect"
+          className="mb-0"
+          value={size}
+          onChange={e => onSizeChange(Number(e.target.value))}
+        >
+          {pageSizeOptions.map(option => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </Form.Select>
+        <FontAwesomeIcon icon="chevron-down" className="chevron-dropdown-icon" />
+      </div>
     </fieldset>
   );
 };
