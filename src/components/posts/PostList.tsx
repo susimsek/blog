@@ -98,10 +98,14 @@ export default function PostList({
       {paginatedPosts.length > 0 ? (
         paginatedPosts.map(post => <PostCard key={post.id} post={post} />)
       ) : (
-        <Alert variant="warning" className="mb-0 d-flex align-items-center justify-content-center py-3">
-          <FontAwesomeIcon icon="exclamation-circle" className="me-2" size="lg" />
-          {noPostsFoundMessage ?? t('post.noPostsFound')}
-        </Alert>
+        <div className="post-card d-flex align-items-center mb-4">
+          <div className="post-card-content flex-grow-1 text-center">
+            <div className="text-muted px-4 py-2">
+              <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
+              {noPostsFoundMessage ?? t('post.noPostsFound')}
+            </div>
+          </div>
+        </div>
       )}
       {sortedPosts.length > 0 && (
         <PaginationBar
