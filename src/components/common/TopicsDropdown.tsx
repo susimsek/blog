@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Dropdown, DropdownButton, Badge, Alert, Button } from 'react-bootstrap';
+import { Dropdown, DropdownButton, Badge, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import { Topic } from '@/types/posts';
@@ -177,10 +177,10 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
         ))
       ) : (
         <Dropdown.Item className="text-center py-3">
-          <Alert variant="warning" className="mb-0 d-flex align-items-center">
-            <FontAwesomeIcon icon="exclamation-circle" className="me-2" size="lg" />
+          <div className="text-muted px-4 py-2">
+            <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
             {t('topic:topic.noTopicFound')}
-          </Alert>
+          </div>
         </Dropdown.Item>
       )}
 
