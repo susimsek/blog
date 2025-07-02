@@ -176,12 +176,15 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
           </Dropdown.Item>
         ))
       ) : (
-        <Dropdown.Item className="text-center py-3">
-          <div className="text-muted px-4 py-2">
-            <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
-            {t('topic:topic.noTopicFound')}
-          </div>
-        </Dropdown.Item>
+        <>
+          <Dropdown.Divider />
+          <Dropdown.Item className="text-center">
+            <div className="text-muted px-4 py-2">
+              <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
+              {t('topic:topic.noTopicFound')}
+            </div>
+          </Dropdown.Item>
+        </>
       )}
 
       {filteredTopics.length > 0 && (
