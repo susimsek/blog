@@ -178,8 +178,8 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
       ) : (
         <>
           <Dropdown.Divider />
-          <Dropdown.Item className="text-center">
-            <div className="text-muted px-4 py-2">
+          <Dropdown.Item className="d-flex align-items-center">
+            <div className="text-muted">
               <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
               {t('topic:topic.noTopicFound')}
             </div>
