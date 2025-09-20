@@ -27,7 +27,7 @@
     },
     "pagination": {
       "pageSize": "Sayfa Boyutu",
-      "showingResults": "{{start}}–{{end}} arası {{total}} sonuç gösteriliyor"
+      "showingResults": "{{start}}–{{end}} arası {{total}} sonuç"
     },
     "searchBar": {
       "placeholder": "Ara"
