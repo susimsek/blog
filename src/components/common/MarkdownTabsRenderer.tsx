@@ -3,7 +3,9 @@ import { Tabs, Tab } from 'react-bootstrap';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
 import { customIcons } from '@/config/iconLoader';
+import markdownSchema from '@/config/markdownSchema';
 
 interface MarkdownTabsRendererProps {
   content: string;
@@ -49,7 +51,11 @@ const MarkdownTabsRenderer: React.FC<Readonly<MarkdownTabsRendererProps>> = Reac
               </span>
             }
           >
-            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]} components={components}>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSchema]]}
+              components={components}
+            >
               {tab.content}
             </ReactMarkdown>
           </Tab>

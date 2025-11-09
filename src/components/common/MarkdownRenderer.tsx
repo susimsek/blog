@@ -2,12 +2,14 @@ import React, { useMemo } from 'react';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
 import { Table } from 'react-bootstrap';
 import { useAppSelector } from '@/config/store';
 import { useTranslation } from 'next-i18next';
 import CodeBlock from '@/components/common/CodeBlock';
 import MarkdownTabsRenderer from './MarkdownTabsRenderer';
 import { splitContentWithTabs } from '@/lib/markdownUtils';
+import markdownSchema from '@/config/markdownSchema';
 
 interface MarkdownRendererProps {
   content: string;
@@ -64,7 +66,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
           <ReactMarkdown
             key={segment.id}
             remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
+            rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSchema]]}
             components={MarkdownComponents}
           >
             {segment.content}

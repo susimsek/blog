@@ -47,6 +47,7 @@
     "react-redux": "^9.2.0",
     "react-syntax-highlighter": "^15.6.1",
     "rehype-raw": "^7.0.0",
+    "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.1",
     "rss-parser": "^3.13.0",
     "yup": "^1.6.1"
