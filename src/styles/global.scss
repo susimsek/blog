@@ -448,44 +448,154 @@ input.form-control {
   }
 }
 
-@include text-variant(primary, var(--primary-text));
-@include text-variant(secondary, var(--secondary-text));
-@include text-variant(success, var(--success-text));
-@include text-variant(info, var(--info-text));
-@include text-variant(warning, var(--warning-text));
-@include text-variant(danger, var(--danger-text));
-@include text-variant(light, var(--light-text));
-@include text-variant(dark, var(--dark-text));
-@include text-variant(red, var(--red-text));
-@include text-variant(green, var(--green-text));
-@include text-variant(blue, var(--blue-text));
-@include text-variant(orange, var(--orange-text));
-@include text-variant(yellow, var(--yellow-text));
-@include text-variant(purple, var(--purple-text));
-@include text-variant(gray, var(--gray-text));
-@include text-variant(brown, var(--brown-text));
-@include text-variant(pink, var(--pink-text));
-@include text-variant(cyan, var(--cyan-text));
+$text-variants: (
+  primary: var(--primary-text),
+  secondary: var(--secondary-text),
+  success: var(--success-text),
+  info: var(--info-text),
+  warning: var(--warning-text),
+  danger: var(--danger-text),
+  light: var(--light-text),
+  dark: var(--dark-text),
+  red: var(--red-text),
+  green: var(--green-text),
+  blue: var(--blue-text),
+  orange: var(--orange-text),
+  yellow: var(--yellow-text),
+  purple: var(--purple-text),
+  gray: var(--gray-text),
+  brown: var(--brown-text),
+  pink: var(--pink-text),
+  cyan: var(--cyan-text),
+);
+
+@each $name, $color in $text-variants {
+  @include text-variant($name, $color);
+}
 
 .background {
   @include transition(background-color);
 
-  @include background-variant(primary, var(--primary-bg));
-  @include background-variant(secondary, var(--secondary-bg));
-  @include background-variant(success, var(--success-bg));
-  @include background-variant(info, var(--info-bg));
-  @include background-variant(warning, var(--warning-bg));
-  @include background-variant(danger, var(--danger-bg));
-  @include background-variant(light, var(--light-bg));
-  @include background-variant(dark, var(--dark-bg));
-  @include background-variant(red, var(--red-bg));
-  @include background-variant(green, var(--green-bg));
-  @include background-variant(blue, var(--blue-bg));
-  @include background-variant(orange, var(--orange-bg));
-  @include background-variant(yellow, var(--yellow-bg));
-  @include background-variant(purple, var(--purple-bg));
-  @include background-variant(gray, var(--gray-bg));
+  $background-variants: (
+    primary: var(--primary-bg),
+    secondary: var(--secondary-bg),
+    success: var(--success-bg),
+    info: var(--info-bg),
+    warning: var(--warning-bg),
+    danger: var(--danger-bg),
+    light: var(--light-bg),
+    dark: var(--dark-bg),
+    red: var(--red-bg),
+    green: var(--green-bg),
+    blue: var(--blue-bg),
+    orange: var(--orange-bg),
+    yellow: var(--yellow-bg),
+    purple: var(--purple-bg),
+    gray: var(--gray-bg),
+  );
+
+  @each $name, $color in $background-variants {
+    @include background-variant($name, $color);
+  }
 }
+
+$link-variants: (
+  primary: (
+    var(--primary-bg),
+    var(--primary-hover),
+    var(--primary-color),
+  ),
+  secondary: (
+    var(--secondary-bg),
+    var(--secondary-hover),
+    var(--secondary-color),
+  ),
+  success: (
+    var(--success-bg),
+    var(--success-hover),
+    var(--success-color),
+  ),
+  info: (
+    var(--info-bg),
+    var(--info-hover),
+    var(--info-color),
+  ),
+  warning: (
+    var(--warning-bg),
+    var(--warning-hover),
+    var(--warning-color),
+  ),
+  danger: (
+    var(--danger-bg),
+    var(--danger-hover),
+    var(--danger-color),
+  ),
+  light: (
+    var(--light-bg),
+    var(--light-hover),
+    var(--light-color),
+  ),
+  dark: (
+    var(--dark-bg),
+    var(--dark-hover),
+    var(--dark-color),
+  ),
+  red: (
+    var(--red-bg),
+    var(--red-hover),
+    var(--red-color),
+  ),
+  green: (
+    var(--green-bg),
+    var(--green-hover),
+    var(--green-color),
+  ),
+  blue: (
+    var(--blue-bg),
+    var(--blue-hover),
+    var(--blue-color),
+  ),
+  orange: (
+    var(--orange-bg),
+    var(--orange-hover),
+    var(--orange-color),
+  ),
+  yellow: (
+    var(--yellow-bg),
+    var(--yellow-hover),
+    var(--yellow-color),
+  ),
+  purple: (
+    var(--purple-bg),
+    var(--purple-hover),
+    var(--purple-color),
+  ),
+  gray: (
+    var(--gray-bg),
+    var(--gray-hover),
+    var(--gray-color),
+  ),
+  brown: (
+    var(--brown-bg),
+    var(--brown-hover),
+    var(--brown-color),
+  ),
+  pink: (
+    var(--pink-bg),
+    var(--pink-hover),
+    var(--pink-color),
+  ),
+  cyan: (
+    var(--cyan-bg),
+    var(--cyan-hover),
+    var(--cyan-color),
+  ),
+  muted: (
+    var(--muted-bg),
+    var(--muted-hover),
+    var(--muted-color),
+  ),
+);
 
 .link {
   color: var(--text-color);
@@ -499,369 +609,182 @@ input.form-control {
     color: var(--active-color);
   }
 
-  @include link-variant(primary, var(--primary-bg), var(--primary-hover), var(--primary-color));
-  @include link-variant(secondary, var(--secondary-bg), var(--secondary-hover), var(--secondary-color));
-  @include link-variant(success, var(--success-bg), var(--success-hover), var(--success-color));
-  @include link-variant(info, var(--info-bg), var(--info-hover), var(--info-color));
-  @include link-variant(warning, var(--warning-bg), var(--warning-hover), var(--warning-color));
-  @include link-variant(danger, var(--danger-bg), var(--danger-hover), var(--danger-color));
-  @include link-variant(light, var(--light-bg), var(--light-hover), var(--light-color));
-  @include link-variant(dark, var(--dark-bg), var(--dark-hover), var(--dark-color));
-  @include link-variant(red, var(--red-bg), var(--red-hover), var(--red-color));
-  @include link-variant(green, var(--green-bg), var(--green-hover), var(--green-color));
-  @include link-variant(blue, var(--blue-bg), var(--blue-hover), var(--blue-color));
-  @include link-variant(orange, var(--orange-bg), var(--orange-hover), var(--orange-color));
-  @include link-variant(yellow, var(--yellow-bg), var(--yellow-hover), var(--yellow-color));
-  @include link-variant(purple, var(--purple-bg), var(--purple-hover), var(--purple-color));
-  @include link-variant(gray, var(--gray-bg), var(--gray-hover), var(--gray-color));
-  @include link-variant(brown, var(--brown-bg), var(--brown-hover), var(--brown-color));
-  @include link-variant(pink, var(--pink-bg), var(--pink-hover), var(--pink-color));
-  @include link-variant(cyan, var(--cyan-bg), var(--cyan-hover), var(--cyan-color));
-  @include link-variant(muted, var(--muted-bg), var(--muted-hover), var(--muted-color));
+  @each $name, $values in $link-variants {
+    $color: nth($values, 1);
+    $hover: nth($values, 2);
+    $active: nth($values, 3);
+    @include link-variant($name, $color, $hover, $active);
+  }
 }
+
+$state-variants: (
+  primary: (
+    var(--primary-bg),
+    var(--primary-color),
+    var(--primary-hover),
+    var(--primary-hover),
+    var(--primary-bg),
+  ),
+  secondary: (
+    var(--secondary-bg),
+    var(--secondary-color),
+    var(--secondary-hover),
+    var(--secondary-hover),
+    var(--secondary-bg),
+  ),
+  success: (
+    var(--success-bg),
+    var(--success-color),
+    var(--success-hover),
+    var(--success-hover),
+    var(--success-bg),
+  ),
+  info: (
+    var(--info-bg),
+    var(--info-color),
+    var(--info-hover),
+    var(--info-hover),
+    var(--info-bg),
+  ),
+  warning: (
+    var(--warning-bg),
+    var(--warning-color),
+    var(--warning-hover),
+    var(--warning-hover),
+    var(--warning-bg),
+  ),
+  danger: (
+    var(--danger-bg),
+    var(--danger-color),
+    var(--danger-hover),
+    var(--danger-hover),
+    var(--danger-bg),
+  ),
+  light: (
+    var(--light-bg),
+    var(--light-color),
+    var(--light-hover),
+    var(--light-hover),
+    var(--light-bg),
+  ),
+  dark: (
+    var(--dark-bg),
+    var(--dark-color),
+    var(--dark-hover),
+    var(--dark-hover),
+    var(--dark-bg),
+  ),
+  red: (
+    var(--red-bg),
+    var(--red-color),
+    var(--red-hover),
+    var(--red-hover),
+    var(--red-bg),
+  ),
+  green: (
+    var(--green-bg),
+    var(--green-color),
+    var(--green-hover),
+    var(--green-hover),
+    var(--green-bg),
+  ),
+  blue: (
+    var(--blue-bg),
+    var(--blue-color),
+    var(--blue-hover),
+    var(--blue-hover),
+    var(--blue-bg),
+  ),
+  orange: (
+    var(--orange-bg),
+    var(--orange-color),
+    var(--orange-hover),
+    var(--orange-hover),
+    var(--orange-bg),
+  ),
+  yellow: (
+    var(--yellow-bg),
+    var(--yellow-color),
+    var(--yellow-hover),
+    var(--yellow-hover),
+    var(--yellow-bg),
+  ),
+  purple: (
+    var(--purple-bg),
+    var(--purple-color),
+    var(--purple-hover),
+    var(--purple-hover),
+    var(--purple-bg),
+  ),
+  gray: (
+    var(--gray-bg),
+    var(--gray-color),
+    var(--gray-hover),
+    var(--gray-hover),
+    var(--gray-bg),
+  ),
+  brown: (
+    var(--brown-bg),
+    var(--brown-color),
+    var(--brown-hover),
+    var(--brown-hover),
+    var(--brown-bg),
+  ),
+  pink: (
+    var(--pink-bg),
+    var(--pink-color),
+    var(--pink-hover),
+    var(--pink-hover),
+    var(--pink-bg),
+  ),
+  cyan: (
+    var(--cyan-bg),
+    var(--cyan-color),
+    var(--cyan-hover),
+    var(--cyan-hover),
+    var(--cyan-bg),
+  ),
+);
 
 .btn {
   box-shadow: var(--box-shadow-primary);
   @include transition(background-color, border-color, color, box-shadow);
 
-  @include button-variant(
-    primary,
-    var(--primary-bg),
-    var(--primary-color),
-    var(--primary-hover),
-    var(--primary-hover),
-    var(--primary-bg)
-  );
-  @include button-variant(
-    secondary,
-    var(--secondary-bg),
-    var(--secondary-color),
-    var(--secondary-hover),
-    var(--secondary-hover),
-    var(--secondary-bg)
-  );
-  @include button-variant(
-    success,
-    var(--success-bg),
-    var(--success-color),
-    var(--success-hover),
-    var(--success-hover),
-    var(--success-bg)
-  );
-  @include button-variant(
-    info,
-    var(--info-bg),
-    var(--info-color),
-    var(--info-hover),
-    var(--info-hover),
-    var(--info-bg)
-  );
-  @include button-variant(
-    warning,
-    var(--warning-bg),
-    var(--warning-color),
-    var(--warning-hover),
-    var(--warning-hover),
-    var(--warning-bg)
-  );
-  @include button-variant(
-    danger,
-    var(--danger-bg),
-    var(--danger-color),
-    var(--danger-hover),
-    var(--danger-hover),
-    var(--danger-bg)
-  );
-  @include button-variant(
-    light,
-    var(--light-bg),
-    var(--light-color),
-    var(--light-hover),
-    var(--light-hover),
-    var(--light-bg)
-  );
-  @include button-variant(
-    dark,
-    var(--dark-bg),
-    var(--dark-color),
-    var(--dark-hover),
-    var(--dark-hover),
-    var(--dark-bg)
-  );
-  @include button-variant(red, var(--red-bg), var(--red-color), var(--red-hover), var(--red-hover), var(--red-bg));
-  @include button-variant(
-    green,
-    var(--green-bg),
-    var(--green-color),
-    var(--green-hover),
-    var(--green-hover),
-    var(--green-bg)
-  );
-  @include button-variant(
-    blue,
-    var(--blue-bg),
-    var(--blue-color),
-    var(--blue-hover),
-    var(--blue-hover),
-    var(--blue-bg)
-  );
-  @include button-variant(
-    orange,
-    var(--orange-bg),
-    var(--orange-color),
-    var(--orange-hover),
-    var(--orange-hover),
-    var(--orange-bg)
-  );
-  @include button-variant(
-    yellow,
-    var(--yellow-bg),
-    var(--yellow-color),
-    var(--yellow-hover),
-    var(--yellow-hover),
-    var(--yellow-bg)
-  );
-  @include button-variant(
-    purple,
-    var(--purple-bg),
-    var(--purple-color),
-    var(--purple-hover),
-    var(--purple-hover),
-    var(--purple-bg)
-  );
-  @include button-variant(
-    gray,
-    var(--gray-bg),
-    var(--gray-color),
-    var(--gray-hover),
-    var(--gray-hover),
-    var(--gray-bg)
-  );
-  @include button-variant(
-    brown,
-    var(--brown-bg),
-    var(--brown-color),
-    var(--brown-hover),
-    var(--brown-hover),
-    var(--brown-bg)
-  );
-  @include button-variant(
-    pink,
-    var(--pink-bg),
-    var(--pink-color),
-    var(--pink-hover),
-    var(--pink-hover),
-    var(--pink-bg)
-  );
-  @include button-variant(
-    cyan,
-    var(--cyan-bg),
-    var(--cyan-color),
-    var(--cyan-hover),
-    var(--cyan-hover),
-    var(--cyan-bg)
-  );
+  @each $name, $values in $state-variants {
+    $bg: nth($values, 1);
+    $text: nth($values, 2);
+    $hover-bg: nth($values, 3);
+    $hover-border: nth($values, 4);
+    $border-color: nth($values, 5);
+    @include button-variant($name, $bg, $text, $hover-bg, $hover-border, $border-color);
+  }
 }
 
 .badge {
   box-shadow: var(--box-shadow-sm);
   @include transition(background-color, border-color, color, box-shadow);
 
-  @include badge-variant(
-    primary,
-    var(--primary-bg),
-    var(--primary-color),
-    var(--primary-hover),
-    var(--primary-hover),
-    var(--primary-bg)
-  );
-  @include badge-variant(
-    secondary,
-    var(--secondary-bg),
-    var(--secondary-color),
-    var(--secondary-hover),
-    var(--secondary-hover),
-    var(--secondary-bg)
-  );
-  @include badge-variant(
-    success,
-    var(--success-bg),
-    var(--success-color),
-    var(--success-hover),
-    var(--success-hover),
-    var(--success-bg)
-  );
-  @include badge-variant(info, var(--info-bg), var(--info-color), var(--info-hover), var(--info-hover), var(--info-bg));
-  @include badge-variant(
-    warning,
-    var(--warning-bg),
-    var(--warning-color),
-    var(--warning-hover),
-    var(--warning-hover),
-    var(--warning-bg)
-  );
-  @include badge-variant(
-    danger,
-    var(--danger-bg),
-    var(--danger-color),
-    var(--danger-hover),
-    var(--danger-hover),
-    var(--danger-bg)
-  );
-  @include badge-variant(
-    light,
-    var(--light-bg),
-    var(--light-color),
-    var(--light-hover),
-    var(--light-hover),
-    var(--light-bg)
-  );
-  @include badge-variant(dark, var(--dark-bg), var(--dark-color), var(--dark-hover), var(--dark-hover), var(--dark-bg));
-  @include badge-variant(red, var(--red-bg), var(--red-color), var(--red-hover), var(--red-hover), var(--red-bg));
-  @include badge-variant(
-    green,
-    var(--green-bg),
-    var(--green-color),
-    var(--green-hover),
-    var(--green-hover),
-    var(--green-bg)
-  );
-  @include badge-variant(blue, var(--blue-bg), var(--blue-color), var(--blue-hover), var(--blue-hover), var(--blue-bg));
-  @include badge-variant(
-    orange,
-    var(--orange-bg),
-    var(--orange-color),
-    var(--orange-hover),
-    var(--orange-hover),
-    var(--orange-bg)
-  );
-  @include badge-variant(
-    yellow,
-    var(--yellow-bg),
-    var(--yellow-color),
-    var(--yellow-hover),
-    var(--yellow-hover),
-    var(--yellow-bg)
-  );
-  @include badge-variant(
-    purple,
-    var(--purple-bg),
-    var(--purple-color),
-    var(--purple-hover),
-    var(--purple-hover),
-    var(--purple-bg)
-  );
-  @include badge-variant(gray, var(--gray-bg), var(--gray-color), var(--gray-hover), var(--gray-hover), var(--gray-bg));
-  @include badge-variant(
-    brown,
-    var(--brown-bg),
-    var(--brown-color),
-    var(--brown-hover),
-    var(--brown-hover),
-    var(--brown-bg)
-  );
-  @include badge-variant(pink, var(--pink-bg), var(--pink-color), var(--pink-hover), var(--pink-hover), var(--pink-bg));
-  @include badge-variant(cyan, var(--cyan-bg), var(--cyan-color), var(--cyan-hover), var(--cyan-hover), var(--cyan-bg));
+  @each $name, $values in $state-variants {
+    $bg: nth($values, 1);
+    $text: nth($values, 2);
+    $hover-bg: nth($values, 3);
+    $hover-border: nth($values, 4);
+    $border-color: nth($values, 5);
+    @include badge-variant($name, $bg, $text, $hover-bg, $hover-border, $border-color);
+  }
 }
 
 .alert {
   @include transition(background-color, color, border-color);
 
-  @include alert-variant(
-    primary,
-    var(--primary-bg),
-    var(--primary-color),
-    var(--primary-hover),
-    var(--primary-hover),
-    var(--primary-bg)
-  );
-  @include alert-variant(
-    secondary,
-    var(--secondary-bg),
-    var(--secondary-color),
-    var(--secondary-hover),
-    var(--secondary-hover),
-    var(--secondary-bg)
-  );
-  @include alert-variant(
-    success,
-    var(--success-bg),
-    var(--success-color),
-    var(--success-hover),
-    var(--success-hover),
-    var(--success-bg)
-  );
-  @include alert-variant(info, var(--info-bg), var(--info-color), var(--info-hover), var(--info-hover), var(--info-bg));
-  @include alert-variant(
-    warning,
-    var(--warning-bg),
-    var(--warning-color),
-    var(--warning-hover),
-    var(--warning-hover),
-    var(--warning-bg)
-  );
-  @include alert-variant(
-    danger,
-    var(--danger-bg),
-    var(--danger-color),
-    var(--danger-hover),
-    var(--danger-hover),
-    var(--danger-bg)
-  );
-  @include alert-variant(
-    light,
-    var(--light-bg),
-    var(--light-color),
-    var(--light-hover),
-    var(--light-hover),
-    var(--light-bg)
-  );
-  @include alert-variant(dark, var(--dark-bg), var(--dark-color), var(--dark-hover), var(--dark-hover), var(--dark-bg));
-  @include alert-variant(red, var(--red-bg), var(--red-color), var(--red-hover), var(--red-hover), var(--red-bg));
-  @include alert-variant(
-    green,
-    var(--green-bg),
-    var(--green-color),
-    var(--green-hover),
-    var(--green-hover),
-    var(--green-bg)
-  );
-  @include alert-variant(blue, var(--blue-bg), var(--blue-color), var(--blue-hover), var(--blue-hover), var(--blue-bg));
-  @include alert-variant(
-    orange,
-    var(--orange-bg),
-    var(--orange-color),
-    var(--orange-hover),
-    var(--orange-hover),
-    var(--orange-bg)
-  );
-  @include alert-variant(
-    yellow,
-    var(--yellow-bg),
-    var(--yellow-color),
-    var(--yellow-hover),
-    var(--yellow-hover),
-    var(--yellow-bg)
-  );
-  @include alert-variant(
-    purple,
-    var(--purple-bg),
-    var(--purple-color),
-    var(--purple-hover),
-    var(--purple-hover),
-    var(--purple-bg)
-  );
-  @include alert-variant(gray, var(--gray-bg), var(--gray-color), var(--gray-hover), var(--gray-hover), var(--gray-bg));
-  @include alert-variant(
-    brown,
-    var(--brown-bg),
-    var(--brown-color),
-    var(--brown-hover),
-    var(--brown-hover),
-    var(--brown-bg)
-  );
-  @include alert-variant(pink, var(--pink-bg), var(--pink-color), var(--pink-hover), var(--pink-hover), var(--pink-bg));
-  @include alert-variant(cyan, var(--cyan-bg), var(--cyan-color), var(--cyan-hover), var(--cyan-hover), var(--cyan-bg));
+  @each $name, $values in $state-variants {
+    $bg: nth($values, 1);
+    $text: nth($values, 2);
+    $hover-bg: nth($values, 3);
+    $hover-border: nth($values, 4);
+    $border-color: nth($values, 5);
+    @include alert-variant($name, $bg, $text, $hover-bg, $hover-border, $border-color);
+  }
 }
 
 .icon {
