@@ -11,6 +11,16 @@ interface LinkComponentProps extends Omit<LinkProps, 'href'> {
   onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }
 
+const isExternalUrl = (href: string) => {
+  try {
+    const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+    const url = new URL(href, base);
+    return url.origin !== base;
+  } catch {
+    return false;
+  }
+};
+
 const LinkComponent: React.FC<LinkComponentProps> = ({
   children,
   skipLocaleHandling = false,
@@ -21,22 +31,14 @@ const LinkComponent: React.FC<LinkComponentProps> = ({
   ...rest
 }) => {
   const router = useRouter();
-  const currentLocale = locale ?? (router.query.locale as string) ?? '';
+  const resolvedHref = href ?? router.asPath;
+  const currentLocale = locale ?? router.locale ?? router.defaultLocale ?? undefined;
 
-  let resolvedHref = href ?? router.asPath;
-
-  if (resolvedHref.indexOf('http') === 0) skipLocaleHandling = true;
-
-  if (currentLocale && !skipLocaleHandling) {
-    resolvedHref = resolvedHref
-      ? `/${currentLocale}${resolvedHref}`
-      : router.pathname.replace('[locale]', currentLocale);
-  }
+  const external = isExternalUrl(resolvedHref);
+  const shouldHandleLocale = !skipLocaleHandling && !external && !!currentLocale;
 
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (onClick) {
-      onClick(event);
-    }
+    onClick?.(event);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLAnchorElement>) => {
@@ -50,7 +52,14 @@ const LinkComponent: React.FC<LinkComponentProps> = ({
   const combinedClassName = className ? `${defaultClassName} ${className}` : defaultClassName;
 
   return (
-    <Link href={resolvedHref} className={combinedClassName} onClick={handleClick} onKeyDown={handleKeyDown} {...rest}>
+    <Link
+      href={resolvedHref}
+      locale={shouldHandleLocale ? currentLocale : false}
+      className={combinedClassName}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      {...rest}
+    >
       {children}
     </Link>
   );

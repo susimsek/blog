@@ -1,6 +1,18 @@
+import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Link from '@/components/common/Link';
 import { useRouter } from 'next/router';
+
+const mockNextLinkComponent = jest.fn(({ children, locale, ...props }: any) => (
+  <a data-locale={locale === false ? 'false' : (locale ?? '')} {...props}>
+    {children}
+  </a>
+));
+
+jest.mock('next/link', () => ({
+  __esModule: true,
+  default: (props: any) => mockNextLinkComponent(props),
+}));
 
 // Mock `next/router`
 jest.mock('next/router', () => ({
@@ -13,7 +25,13 @@ describe('Link', () => {
       query: { locale: 'en-US' },
       asPath: '/current-path',
       pathname: '/current-path',
+      locale: 'en-US',
+      defaultLocale: 'en-US',
     });
+  });
+
+  afterEach(() => {
+    mockNextLinkComponent.mockClear();
   });
 
   it('renders children correctly', () => {
@@ -48,7 +66,7 @@ describe('Link', () => {
     expect(link).toHaveClass('link custom-class');
   });
 
-  it('resolves the href with locale when skipLocaleHandling is false', () => {
+  it('passes locale information to next/link when skipLocaleHandling is false', () => {
     render(
       <Link href="/about">
         <span>About Us</span>
@@ -56,10 +74,11 @@ describe('Link', () => {
     );
 
     const link = screen.getByText('About Us').closest('a');
-    expect(link).toHaveAttribute('href', '/en-US/about');
+    expect(link).toHaveAttribute('data-locale', 'en-US');
+    expect(link).toHaveAttribute('href', '/about');
   });
 
-  it('does not modify href when skipLocaleHandling is true', () => {
+  it('does not modify href or locale when skipLocaleHandling is true', () => {
     render(
       <Link href="/about" skipLocaleHandling>
         <span>About Us</span>
@@ -68,9 +87,10 @@ describe('Link', () => {
 
     const link = screen.getByText('About Us').closest('a');
     expect(link).toHaveAttribute('href', '/about');
+    expect(link).toHaveAttribute('data-locale', 'false');
   });
 
-  it('uses current asPath when href is not provided', () => {
+  it('falls back to router.asPath when href is not provided', () => {
     render(
       <Link>
         <span>Current Path</span>
@@ -78,7 +98,8 @@ describe('Link', () => {
     );
 
     const link = screen.getByText('Current Path').closest('a');
-    expect(link).toHaveAttribute('href', '/en-US/current-path');
+    expect(link).toHaveAttribute('href', '/current-path');
+    expect(link).toHaveAttribute('data-locale', 'en-US');
   });
 
   it('calls onClick handler when clicked', () => {
@@ -137,7 +158,7 @@ describe('Link', () => {
     expect(onClickMock).not.toHaveBeenCalled();
   });
 
-  it('resolves external URLs without locale handling', () => {
+  it('does not append locale data for external URLs', () => {
     render(
       <Link href="https://example.com">
         <span>External Link</span>
@@ -146,72 +167,28 @@ describe('Link', () => {
 
     const link = screen.getByText('External Link').closest('a');
     expect(link).toHaveAttribute('href', 'https://example.com');
+    expect(link).toHaveAttribute('data-locale', 'false');
   });
 
-  it('resolves href with locale and skips locale handling for external URLs', () => {
+  it('uses provided locale when available', () => {
     render(
-      <Link href="https://external.com" skipLocaleHandling>
-        <span>External Link</span>
-      </Link>,
-    );
-
-    const link = screen.getByText('External Link').closest('a');
-    expect(link).toHaveAttribute('href', 'https://external.com');
-  });
-
-  it('resolves the href with locale when skipLocaleHandling is false and the router query is used', () => {
-    (useRouter as jest.Mock).mockReturnValue({
-      query: { locale: 'fr-FR' },
-      asPath: '/about',
-      pathname: '/about',
-    });
-
-    render(
-      <Link href="/about">
+      <Link href="/about" locale="fr-FR">
         <span>About Us</span>
       </Link>,
     );
 
     const link = screen.getByText('About Us').closest('a');
-    expect(link).toHaveAttribute('href', '/fr-FR/about');
+    expect(link).toHaveAttribute('href', '/about');
+    expect(link).toHaveAttribute('data-locale', 'fr-FR');
   });
 
-  it('uses the provided locale', () => {
-    const locale = 'fr-FR';
-    render(
-      <Link href="/about" locale={locale}>
-        <span>About Us</span>
-      </Link>,
-    );
-
-    const link = screen.getByText('About Us').closest('a');
-    expect(link).toHaveAttribute('href', '/fr-FR/about');
-  });
-
-  it('uses the locale from the router query if no locale prop is provided', () => {
-    // Mock the router to have a locale in query
-    (useRouter as jest.Mock).mockReturnValue({
-      query: { locale: 'es-ES' },
-      asPath: '/current-path',
-      pathname: '/current-path',
-    });
-
-    render(
-      <Link href="/about">
-        <span>About Us</span>
-      </Link>,
-    );
-
-    const link = screen.getByText('About Us').closest('a');
-    expect(link).toHaveAttribute('href', '/es-ES/about');
-  });
-
-  it('falls back to the default locale if both locale and router.query.locale are undefined', () => {
-    // Mock the router with no locale in query
+  it('falls back to router locale when locale prop is not provided', () => {
     (useRouter as jest.Mock).mockReturnValue({
       query: {},
-      asPath: '/current-path',
-      pathname: '/current-path',
+      asPath: '/fallback',
+      pathname: '/fallback',
+      locale: 'es-ES',
+      defaultLocale: 'en-US',
     });
 
     render(
@@ -221,98 +198,44 @@ describe('Link', () => {
     );
 
     const link = screen.getByText('About Us').closest('a');
-    expect(link).toHaveAttribute('href', '/about'); // This assumes default locale is not prefixed
+    expect(link).toHaveAttribute('data-locale', 'es-ES');
   });
 
-  it('prepends currentLocale to resolvedHref when locale is provided and skipLocaleHandling is false', () => {
-    const locale = 'fr-FR';
-    const resolvedHref = '/about';
-    (useRouter as jest.Mock).mockReturnValue({
-      query: { locale: 'en-US' },
-      asPath: '/current-path',
-      pathname: '/current-path',
-    });
-
-    render(
-      <Link href={resolvedHref} locale={locale}>
-        <span>About Us</span>
-      </Link>,
-    );
-
-    const link = screen.getByText('About Us').closest('a');
-    expect(link).toHaveAttribute('href', `/fr-FR${resolvedHref}`);
-  });
-
-  it('uses router.pathname when resolvedHref is not provided and locale is provided', () => {
-    const locale = 'fr-FR';
-    const resolvedHref = '';
-    (useRouter as jest.Mock).mockReturnValue({
-      query: { locale: 'en-US' },
-      asPath: '/current-path',
-      pathname: '/posts/[locale]/index',
-    });
-
-    render(
-      <Link href={resolvedHref} locale={locale}>
-        <span>About Us</span>
-      </Link>,
-    );
-
-    const link = screen.getByText('About Us').closest('a');
-    expect(link).toHaveAttribute('href', '/posts/fr-FR/index');
-  });
-
-  it('does not modify href when skipLocaleHandling is true', () => {
-    const resolvedHref = '/about';
-    (useRouter as jest.Mock).mockReturnValue({
-      query: { locale: 'en-US' },
-      asPath: '/current-path',
-      pathname: '/current-path',
-    });
-
-    render(
-      <Link href={resolvedHref} skipLocaleHandling>
-        <span>About Us</span>
-      </Link>,
-    );
-
-    const link = screen.getByText('About Us').closest('a');
-    expect(link).toHaveAttribute('href', resolvedHref);
-  });
-
-  it('does not modify href when currentLocale is undefined', () => {
-    const resolvedHref = '/about';
+  it('falls back to default locale if no locale information is available', () => {
     (useRouter as jest.Mock).mockReturnValue({
       query: {},
-      asPath: '/current-path',
-      pathname: '/current-path',
+      asPath: '/fallback',
+      pathname: '/fallback',
+      defaultLocale: 'en-US',
+      locale: undefined,
     });
 
     render(
-      <Link href={resolvedHref}>
+      <Link href="/about">
         <span>About Us</span>
       </Link>,
     );
 
     const link = screen.getByText('About Us').closest('a');
-    expect(link).toHaveAttribute('href', resolvedHref);
+    expect(link).toHaveAttribute('data-locale', 'en-US');
   });
 
-  it('handles the case when resolvedHref is empty and locale is defined', () => {
-    const locale = 'fr-FR';
+  it('sets locale to false when locale cannot be resolved', () => {
     (useRouter as jest.Mock).mockReturnValue({
-      query: { locale: 'en-US' },
-      asPath: '/current-path',
-      pathname: '/posts/[locale]/index',
+      query: {},
+      asPath: '/fallback',
+      pathname: '/fallback',
+      defaultLocale: undefined,
+      locale: undefined,
     });
 
     render(
-      <Link href="" locale={locale}>
+      <Link href="/about">
         <span>About Us</span>
       </Link>,
     );
 
     const link = screen.getByText('About Us').closest('a');
-    expect(link).toHaveAttribute('href', '/posts/fr-FR/index');
+    expect(link).toHaveAttribute('data-locale', 'false');
   });
 });

@@ -90,8 +90,8 @@ describe('404 Page', () => {
     const homeLink = screen.getByRole('link', { name: /404.backToHome/i });
     expect(homeLink).toBeInTheDocument();
 
-    // Expect dynamic locale-aware URL
-    const expectedHref = '/en';
+    // Expect the root URL since Link handles locale internally
+    const expectedHref = '/';
     expect(homeLink).toHaveAttribute('href', expectedHref);
   });
 });
