@@ -62,7 +62,13 @@ const SEO: React.FC<SEOProps> = ({
     ? `${SITE_URL}/${currentLocale}${path}?${queryParams}`
     : `${SITE_URL}/${currentLocale}${path}`;
 
-  const imageUrl = `${SITE_URL}${image}`;
+  const imageUrl = (() => {
+    try {
+      return new URL(image, SITE_URL).toString();
+    } catch {
+      return `${SITE_URL}${image}`;
+    }
+  })();
   const { t } = useTranslation('common');
 
   const siteName = t('common:common.siteName');
@@ -70,11 +76,14 @@ const SEO: React.FC<SEOProps> = ({
   const updatedJsonLd: JsonLdData | null = jsonLd ? { ...jsonLd, url: canonicalUrl } : null;
 
   if (updatedJsonLd) {
+    const jsonLdLocale = ogLocale ?? LOCALES[i18nextConfig.i18n.defaultLocale]?.ogLocale;
+    if (jsonLdLocale) {
+      updatedJsonLd.inLanguage = jsonLdLocale;
+    }
     if (article) {
-      updatedJsonLd.inLanguage = ogTitle;
       updatedJsonLd.mainEntityOfPage = canonicalUrl;
-    } else if (updatedJsonLd['@type'] === 'ContactPage') {
-      updatedJsonLd.inLanguage = ogLocale;
+    } else if (updatedJsonLd['@type'] === 'ContactPage' && jsonLdLocale) {
+      updatedJsonLd.inLanguage = jsonLdLocale;
     }
   }
 
