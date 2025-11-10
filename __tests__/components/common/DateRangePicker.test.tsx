@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import DateRangePicker from '@/components/common/DateRangePicker';
 
 jest.mock('next-i18next', () => ({
@@ -185,5 +185,46 @@ describe('DateRangePicker', () => {
 
     expect(endDateInput).toBeInTheDocument();
     expect(endDateInput).toHaveAttribute('placeholder', 'common.datePicker.endDatePlaceholder');
+  });
+
+  it('applies custom range when selection is confirmed', () => {
+    render(<DateRangePicker {...defaultProps} />);
+
+    const toggle = screen.getByRole('button', { name: /common.datePicker.selectDate/i });
+    fireEvent.click(toggle);
+    const customOption = screen.getAllByRole('button', { name: /common\.datePicker\.customDate/i }).at(-1);
+    if (!customOption) {
+      throw new Error('Custom option not found');
+    }
+    fireEvent.click(customOption);
+
+    fireEvent.change(screen.getByPlaceholderText(/common.datePicker.startDatePlaceholder/i), {
+      target: { value: '5/1/2024' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/common.datePicker.endDatePlaceholder/i), {
+      target: { value: '5/5/2024' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.applySelection/i }));
+
+    const expectedStart = new Date('2024-05-01').toLocaleDateString();
+    const expectedEnd = new Date('2024-05-05').toLocaleDateString();
+
+    return waitFor(() => {
+      expect(mockOnRangeChange).toHaveBeenCalledWith({
+        startDate: expectedStart,
+        endDate: expectedEnd,
+      });
+    });
+  });
+
+  it('applies muted day class when current day is outside range', () => {
+    render(<DateRangePicker {...defaultProps} minDate={new Date('2100-01-01')} maxDate={new Date('2100-12-31')} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
+    fireEvent.click(screen.getByText(/common.datePicker.customDate/i));
+
+    const startInput = screen.getByPlaceholderText(/common.datePicker.startDatePlaceholder/i);
+    expect(startInput.className).toContain('react-datepicker__day--muted');
   });
 });
