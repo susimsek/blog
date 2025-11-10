@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import languageDetector from '@/lib/languageDetector';
 import i18nextConfig from '../../../next-i18next.config';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { LOCALES } from '@/config/constants';
 import FlagIcon from '@/components/common/FlagIcon';
 
@@ -13,33 +13,81 @@ interface LanguageSwitchLinkProps {
 
 const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href }) => {
   const router = useRouter();
-  const currentLocale = router.query.locale || i18nextConfig.i18n.defaultLocale;
+  const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
 
-  let currentHref = href ?? router.asPath;
-  let currentPath = router.pathname;
+  const isExternalHref = href?.startsWith('http');
 
-  Object.keys(router.query).forEach(key => {
-    if (key === 'locale') {
-      currentPath = currentPath.replace(`[${key}]`, locale);
-      return;
+  const dynamicKeys = useMemo(() => {
+    const matches = router.pathname.match(/\[\.{3}.+?]|\.{3}\[.+?]|\[.+?]/g) ?? [];
+    return new Set(
+      matches.map(segment =>
+        segment
+          .replace(/^\[\.\.\./, '')
+          .replace(/\[|\]/g, '')
+          .replace(/\.{3}/g, ''),
+      ),
+    );
+  }, [router.pathname]);
+
+  const sanitizedQuery = useMemo(() => {
+    const params = new URLSearchParams();
+    Object.entries(router.query).forEach(([key, value]) => {
+      if (key === 'locale' || typeof value === 'undefined' || dynamicKeys.has(key)) {
+        return;
+      }
+      if (Array.isArray(value)) {
+        value.forEach(item => params.append(key, item));
+      } else {
+        params.append(key, value);
+      }
+    });
+    return params.toString();
+  }, [router.query, dynamicKeys]);
+
+  const replaceDynamicSegments = (path: string) => {
+    let resolvedPath = path;
+    Object.entries(router.query).forEach(([key, value]) => {
+      if (!dynamicKeys.has(key) || typeof value === 'undefined') {
+        return;
+      }
+      const normalizedValue = Array.isArray(value) ? value.join('/') : value;
+      const pattern = new RegExp(`\\[\\.{3}${key}\\]|\\[${key}\\]`, 'g');
+      resolvedPath = resolvedPath.replace(pattern, normalizedValue);
+    });
+    return resolvedPath;
+  };
+
+  const buildLocalizedHref = () => {
+    if (isExternalHref && href) {
+      return href;
     }
-    currentPath = currentPath.replace(`[${key}]`, String(router.query[key]));
-  });
 
-  if (locale && !href?.startsWith('http')) {
-    currentHref = href ? `/${locale}${href}` : currentPath;
-  }
+    const basePath = (() => {
+      if (href) {
+        return href.startsWith('/') ? href : `/${href}`;
+      }
+      const pathWithParams = replaceDynamicSegments(router.pathname);
+      const [pathOnly] = (pathWithParams || router.asPath || '/').split('?');
+      if (!currentLocale) {
+        return pathOnly;
+      }
+      const localePrefix = `/${currentLocale}`;
+      if (pathOnly === localePrefix) {
+        return '/';
+      }
+      if (pathOnly.startsWith(`${localePrefix}/`)) {
+        return pathOnly.substring(localePrefix.length) || '/';
+      }
+      return pathOnly;
+    })();
 
-  if (!currentHref.startsWith(`/${locale}`) && !href?.startsWith('http')) {
-    currentHref = `/${locale}${currentHref}`;
-  }
+    const normalizedPath = basePath === '/' ? '' : basePath;
+    const localizedPath = `/${locale}${normalizedPath}`;
+    return sanitizedQuery ? `${localizedPath}?${sanitizedQuery}` : localizedPath;
+  };
 
-  if (router.query?.q) {
-    const queryString = `q=${router.query.q}`;
-    currentHref += currentHref.includes('?') ? `&${queryString}` : `?${queryString}`;
-  }
+  const currentHref = buildLocalizedHref();
 
-  // Click Handler
   const handleClick = () => {
     languageDetector.cache?.(locale);
     router.replace(currentHref);
