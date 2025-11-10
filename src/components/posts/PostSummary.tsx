@@ -59,9 +59,9 @@ export default function PostSummary({ post }: Readonly<PostSummaryProps>) {
         )}
         <p className="mb-4">{summary}</p>
         <div className="mb-4">
-          <Link href={postLink}>
-            <Button className="primary">{t('post.readMore')}</Button>
-          </Link>
+          <Button as={Link} href={postLink} variant="primary">
+            {t('post.readMore')}
+          </Button>
         </div>
       </div>
     </div>
