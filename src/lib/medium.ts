@@ -18,16 +18,109 @@ const FEED_JSON_PATH = path.join(process.cwd(), 'content', 'medium-feed.json');
 
 export const mediumPostsCache: { [key: string]: CacheEntry<PostSummary[]> } = {};
 
+const WHITESPACE_CHARS = new Set([' ', '\n', '\r', '\t', '\f', '\v']);
+
+const collapseWhitespace = (value: string): string => {
+  let result = '';
+  let inWhitespace = false;
+
+  for (let i = 0; i < value.length; i += 1) {
+    const char = value[i];
+    if (WHITESPACE_CHARS.has(char)) {
+      if (!inWhitespace) {
+        result += ' ';
+        inWhitespace = true;
+      }
+    } else {
+      inWhitespace = false;
+      result += char;
+    }
+  }
+
+  return result.trim();
+};
+
 function stripHtml(html: string): string {
-  return html
-    .replace(/<[^>]+>/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+  let result = '';
+  let insideTag = false;
+
+  for (let i = 0; i < html.length; i += 1) {
+    const char = html[i];
+
+    if (char === '<') {
+      insideTag = true;
+      continue;
+    }
+
+    if (char === '>') {
+      insideTag = false;
+      result += ' ';
+      continue;
+    }
+
+    if (!insideTag) {
+      result += char;
+    }
+  }
+
+  return collapseWhitespace(result);
 }
 
+const extractAttributeValue = (tag: string, attribute: string): string | null => {
+  const lowerTag = tag.toLowerCase();
+  const attributePattern = `${attribute.toLowerCase()}=`;
+  const attrIndex = lowerTag.indexOf(attributePattern);
+
+  if (attrIndex === -1) {
+    return null;
+  }
+
+  let valueStart = attrIndex + attributePattern.length;
+  const quoteChar = tag[valueStart];
+  let valueEnd: number;
+
+  if (quoteChar === '"' || quoteChar === "'") {
+    valueStart += 1;
+    valueEnd = tag.indexOf(quoteChar, valueStart);
+    if (valueEnd === -1) {
+      return null;
+    }
+    return tag.slice(valueStart, valueEnd);
+  }
+
+  valueEnd = valueStart;
+  while (valueEnd < tag.length && !WHITESPACE_CHARS.has(tag[valueEnd]) && tag[valueEnd] !== '>') {
+    valueEnd += 1;
+  }
+
+  return tag.slice(valueStart, valueEnd);
+};
+
 function extractFirstImage(html: string): string | null {
-  const match = html.match(/<img[^>]+src="([^">]+)"/);
-  return match ? match[1] : null;
+  const lowerHtml = html.toLowerCase();
+  let searchIndex = 0;
+
+  while (searchIndex < lowerHtml.length) {
+    const imgIndex = lowerHtml.indexOf('<img', searchIndex);
+    if (imgIndex === -1) {
+      return null;
+    }
+
+    const tagEnd = lowerHtml.indexOf('>', imgIndex);
+    if (tagEnd === -1) {
+      return null;
+    }
+
+    const tag = html.slice(imgIndex, tagEnd + 1);
+    const srcValue = extractAttributeValue(tag, 'src');
+    if (srcValue) {
+      return srcValue;
+    }
+
+    searchIndex = tagEnd + 1;
+  }
+
+  return null;
 }
 
 function calculateReadingTime(html: string, locale: string): string {
