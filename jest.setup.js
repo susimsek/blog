@@ -1,4 +1,6 @@
-require('@testing-library/jest-dom');
+if (typeof global.expect !== 'undefined') {
+  require('@testing-library/jest-dom');
+}
 
 if (typeof jest !== 'undefined') {
   jest.mock('rehype-sanitize', () => ({
