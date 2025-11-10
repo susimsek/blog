@@ -15,7 +15,8 @@
       "themeToggle": "Temayı Değiştir",
       "theme": {
         "light": "Açık Mod",
-        "dark": "Koyu Mod"
+        "dark": "Koyu Mod",
+        "oceanic": "Okyanus Mod"
       }
     },
     "sidebar": {
