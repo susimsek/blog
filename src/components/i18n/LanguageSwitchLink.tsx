@@ -11,6 +11,49 @@ interface LanguageSwitchLinkProps {
   href?: string;
 }
 
+const extractDynamicKeys = (pathname: string): Set<string> => {
+  const keys = new Set<string>();
+  for (let i = 0; i < pathname.length; i += 1) {
+    if (pathname[i] !== '[') {
+      continue;
+    }
+    let j = i + 1;
+    let buffer = '';
+    while (j < pathname.length && pathname[j] !== ']') {
+      buffer += pathname[j];
+      j += 1;
+    }
+    if (!buffer) {
+      i = j;
+      continue;
+    }
+    const normalized = buffer.startsWith('...') ? buffer.slice(3) : buffer;
+    keys.add(normalized);
+    i = j;
+  }
+  return keys;
+};
+
+const replaceDynamicSegments = (
+  path: string,
+  query: Record<string, string | string[] | undefined>,
+  dynamicKeys: Set<string>,
+) => {
+  let resolvedPath = path;
+  dynamicKeys.forEach(key => {
+    if (!(key in query)) {
+      return;
+    }
+    const value = query[key];
+    if (typeof value === 'undefined') {
+      return;
+    }
+    const normalizedValue = Array.isArray(value) ? value.join('/') : value;
+    resolvedPath = resolvedPath.split(`[...${key}]`).join(normalizedValue).split(`[${key}]`).join(normalizedValue);
+  });
+  return resolvedPath;
+};
+
 const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href }) => {
   const router = useRouter();
   const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
@@ -18,15 +61,7 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
   const isExternalHref = href?.startsWith('http');
 
   const dynamicKeys = useMemo(() => {
-    const matches = router.pathname.match(/\[\.{3}.+?]|\.{3}\[.+?]|\[.+?]/g) ?? [];
-    return new Set(
-      matches.map(segment =>
-        segment
-          .replace(/^\[\.\.\./, '')
-          .replace(/\[|\]/g, '')
-          .replace(/\.{3}/g, ''),
-      ),
-    );
+    return extractDynamicKeys(router.pathname);
   }, [router.pathname]);
 
   const sanitizedQuery = useMemo(() => {
@@ -44,19 +79,6 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
     return params.toString();
   }, [router.query, dynamicKeys]);
 
-  const replaceDynamicSegments = (path: string) => {
-    let resolvedPath = path;
-    Object.entries(router.query).forEach(([key, value]) => {
-      if (!dynamicKeys.has(key) || typeof value === 'undefined') {
-        return;
-      }
-      const normalizedValue = Array.isArray(value) ? value.join('/') : value;
-      const pattern = new RegExp(`\\[\\.{3}${key}\\]|\\[${key}\\]`, 'g');
-      resolvedPath = resolvedPath.replace(pattern, normalizedValue);
-    });
-    return resolvedPath;
-  };
-
   const buildLocalizedHref = () => {
     if (isExternalHref && href) {
       return href;
@@ -66,7 +88,7 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
       if (href) {
         return href.startsWith('/') ? href : `/${href}`;
       }
-      const pathWithParams = replaceDynamicSegments(router.pathname);
+      const pathWithParams = replaceDynamicSegments(router.pathname, router.query, dynamicKeys);
       const [pathOnly] = (pathWithParams || router.asPath || '/').split('?');
       if (!currentLocale) {
         return pathOnly;
