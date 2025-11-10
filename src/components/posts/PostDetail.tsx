@@ -1,10 +1,10 @@
 // components/posts/PostDetail.tsx
 import { Post } from '@/types/posts';
 import { Container, Badge } from 'react-bootstrap';
-import { assetPrefix } from '@/config/constants';
+import { assetPrefix, SITE_URL } from '@/config/constants';
 import DateDisplay from '@/components/common/DateDisplay';
 import Thumbnail from '@/components/common/Thumbnail';
-import Link from 'next/link';
+import Link from '@/components/common/Link';
 import MarkdownRenderer from '@/components/common/MarkdownRenderer';
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -15,6 +15,15 @@ interface PostDetailProps {
 
 export default function PostDetail({ post }: Readonly<PostDetailProps>) {
   const { title, date, contentHtml, thumbnail, topics, readingTime } = post;
+  const thumbnailSrc = (() => {
+    if (!thumbnail) return null;
+    try {
+      const base = assetPrefix || SITE_URL;
+      return new URL(thumbnail, base).toString();
+    } catch {
+      return thumbnail;
+    }
+  })();
 
   return (
     <Container className="mt-5" style={{ maxWidth: '800px' }}>
@@ -40,7 +49,7 @@ export default function PostDetail({ post }: Readonly<PostDetailProps>) {
           ))}
         </div>
       )}
-      {thumbnail && <Thumbnail src={`${assetPrefix}${thumbnail}`} alt={title} width={1200} height={630} />}
+      {thumbnailSrc && <Thumbnail src={thumbnailSrc} alt={title} width={1200} height={630} />}
       <article className="fs-5 lh-lg">
         <MarkdownRenderer content={contentHtml ?? ''} />
       </article>
