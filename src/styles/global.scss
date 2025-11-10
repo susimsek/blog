@@ -814,6 +814,7 @@ $state-variants: (
   align-items: center;
   border: 1px solid var(--border-color);
   border-radius: 8px;
+  background-color: var(--input-bg-color);
   overflow: hidden;
   box-shadow: var(--box-shadow-primary);
   @include transition(border-color, box-shadow);
@@ -845,15 +846,16 @@ $state-variants: (
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem;
+    padding: 0 0.75rem;
+    height: 100%;
     background-color: var(--input-bg-color);
-    color: var(--text-color);
-    cursor: pointer;
-    @include transition(background-color, color);
+    color: var(--muted-bg);
+    border-right: none;
+    cursor: default;
+    @include transition(border-color, color);
 
-    &:hover {
-      background-color: var(--main-bg);
-      color: var(--link-hover-color);
+    svg {
+      color: inherit;
     }
   }
 
