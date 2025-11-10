@@ -1,6 +1,6 @@
 import Link from '@/components/common/Link';
 import { Post } from '@/types/posts';
-import { Badge, Button } from 'react-bootstrap';
+import { Badge } from 'react-bootstrap';
 import DateDisplay from '@/components/common/DateDisplay';
 import { useTranslation } from 'next-i18next';
 import { assetPrefix } from '@/config/constants';
@@ -59,9 +59,9 @@ export default function PostSummary({ post }: Readonly<PostSummaryProps>) {
         )}
         <p className="mb-4">{summary}</p>
         <div className="mb-4">
-          <Button as={Link} href={postLink} variant="primary">
+          <Link href={postLink} className="btn btn-primary">
             {t('post.readMore')}
-          </Button>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
-import React, { ReactNode, MouseEvent, KeyboardEvent } from 'react';
-import Link, { LinkProps } from 'next/link';
+import React, { ReactNode, MouseEvent, KeyboardEvent, forwardRef } from 'react';
+import NextLink, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';
 
 interface LinkComponentProps extends Omit<LinkProps, 'href'> {
@@ -21,48 +21,48 @@ const isExternalUrl = (href: string) => {
   }
 };
 
-const LinkComponent: React.FC<LinkComponentProps> = ({
-  children,
-  skipLocaleHandling = false,
-  href,
-  locale,
-  className,
-  onClick,
-  ...rest
-}) => {
-  const router = useRouter();
-  const resolvedHref = href ?? router.asPath;
-  const currentLocale = locale ?? router.locale ?? router.defaultLocale ?? undefined;
+const LinkComponent = forwardRef<HTMLAnchorElement, LinkComponentProps>(
+  ({ children, skipLocaleHandling = false, href, locale, className, onClick, ...rest }, ref) => {
+    const router = useRouter();
+    const resolvedHref = href ?? router.asPath;
+    const currentLocale = locale ?? router.locale ?? router.defaultLocale ?? undefined;
 
-  const external = isExternalUrl(resolvedHref);
-  const shouldHandleLocale = !skipLocaleHandling && !external && !!currentLocale;
+    const external = isExternalUrl(resolvedHref);
+    const shouldHandleLocale = !skipLocaleHandling && !external && !!currentLocale;
 
-  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    onClick?.(event);
-  };
+    const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+      onClick?.(event);
+    };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLAnchorElement>) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      onClick?.(event as unknown as MouseEvent<HTMLAnchorElement>);
-    }
-  };
+    const handleKeyDown = (event: KeyboardEvent<HTMLAnchorElement>) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        onClick?.(event as unknown as MouseEvent<HTMLAnchorElement>);
+      }
+    };
 
-  const defaultClassName = 'link';
-  const combinedClassName = className ? `${defaultClassName} ${className}` : defaultClassName;
+    const defaultClassName = 'link';
+    const combinedClassName = className ? `${defaultClassName} ${className}` : defaultClassName;
 
-  return (
-    <Link
-      href={resolvedHref}
-      locale={shouldHandleLocale ? currentLocale : false}
-      className={combinedClassName}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      {...rest}
-    >
-      {children}
-    </Link>
-  );
-};
+    const localeAttr = shouldHandleLocale ? (currentLocale ?? '') : 'false';
+
+    return (
+      <NextLink
+        ref={ref}
+        href={resolvedHref}
+        locale={shouldHandleLocale ? currentLocale : false}
+        className={combinedClassName}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        data-locale={localeAttr}
+        {...rest}
+      >
+        {children}
+      </NextLink>
+    );
+  },
+);
+
+LinkComponent.displayName = 'LinkComponent';
 
 export default LinkComponent;
