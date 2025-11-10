@@ -10,6 +10,12 @@ jest.mock('next-i18next', () => ({
   })),
 }));
 
+jest.mock('@fortawesome/react-fontawesome', () => ({
+  FontAwesomeIcon: ({ icon }: { icon: string | [string, string] }) => (
+    <span data-testid={`icon-${Array.isArray(icon) ? icon.join('-') : icon}`} />
+  ),
+}));
+
 jest.mock('@/components/common/Link', () => ({
   __esModule: true,
   default: ({ href, children }: { href: string; children: React.ReactNode }) => (

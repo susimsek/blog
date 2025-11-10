@@ -1,10 +1,12 @@
-import '@testing-library/jest-dom';
+require('@testing-library/jest-dom');
 
-jest.mock('rehype-sanitize', () => ({
-  __esModule: true,
-  default: jest.fn(),
-  defaultSchema: {},
-}));
+if (typeof jest !== 'undefined') {
+  jest.mock('rehype-sanitize', () => ({
+    __esModule: true,
+    default: jest.fn(),
+    defaultSchema: {},
+  }));
+}
 
 global.IntersectionObserver = class {
   constructor(callback) {
@@ -17,3 +19,19 @@ global.IntersectionObserver = class {
 
   disconnect() {}
 };
+
+if (typeof global.Request === 'undefined') {
+  global.Request = class {};
+}
+
+if (typeof global.Response === 'undefined') {
+  global.Response = class {};
+}
+
+if (typeof global.Headers === 'undefined') {
+  global.Headers = class {};
+}
+
+if (typeof global.fetch === 'undefined') {
+  global.fetch = typeof jest !== 'undefined' ? jest.fn() : () => Promise.resolve();
+}

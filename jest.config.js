@@ -1,3 +1,7 @@
+if (typeof global.Request === 'undefined') {
+  global.Request = class {};
+}
+
 const nextJest = require('next/jest');
 const { pathsToModuleNameMapper } = require('ts-jest');
 const { compilerOptions } = require('./tsconfig.json');
