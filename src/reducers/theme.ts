@@ -2,15 +2,20 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { isBrowser } from '@/config/constants';
 
+export type Theme = 'light' | 'dark' | 'oceanic';
+
 type ThemeState = {
-  theme: 'light' | 'dark';
+  theme: Theme;
 };
 
-const getInitialTheme = (): 'light' | 'dark' => {
+const THEME_STORAGE_KEY = 'theme';
+const THEME_ORDER: Theme[] = ['light', 'dark', 'oceanic'];
+
+const getInitialTheme = (): Theme => {
   if (isBrowser) {
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme === 'light' || storedTheme === 'dark') {
-      return storedTheme;
+    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (storedTheme && THEME_ORDER.includes(storedTheme as Theme)) {
+      return storedTheme as Theme;
     }
   }
   return 'light';
@@ -25,15 +30,17 @@ const themeSlice = createSlice({
   initialState,
   reducers: {
     toggleTheme: state => {
-      state.theme = state.theme === 'light' ? 'dark' : 'light';
+      const currentIndex = THEME_ORDER.indexOf(state.theme);
+      const nextTheme = THEME_ORDER[(currentIndex + 1) % THEME_ORDER.length];
+      state.theme = nextTheme;
       if (isBrowser) {
-        localStorage.setItem('theme', state.theme);
+        localStorage.setItem(THEME_STORAGE_KEY, state.theme);
       }
     },
-    setTheme: (state, action: PayloadAction<'light' | 'dark'>) => {
+    setTheme: (state, action: PayloadAction<Theme>) => {
       state.theme = action.payload;
       if (isBrowser) {
-        localStorage.setItem('theme', state.theme);
+        localStorage.setItem(THEME_STORAGE_KEY, state.theme);
       }
     },
   },

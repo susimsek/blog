@@ -1123,12 +1123,16 @@ $state-variants: (
   &:hover {
     color: var(--dropdown-hover-color);
     background-color: var(--dropdown-hover-bg);
+    --bs-list-group-action-hover-color: var(--dropdown-hover-color);
+    --bs-list-group-action-hover-bg: var(--dropdown-hover-bg);
   }
 
   &.active {
     background-color: var(--dropdown-hover-bg);
     border-color: var(--border-color);
     color: var(--dropdown-hover-color);
+    --bs-list-group-action-active-color: var(--dropdown-hover-color);
+    --bs-list-group-action-active-bg: var(--dropdown-hover-bg);
 
     i {
       color: var(--dropdown-hover-color);

@@ -15,7 +15,7 @@ interface MarkdownRendererProps {
   content: string;
 }
 
-const createMarkdownComponents = (theme: 'light' | 'dark', t: (key: string) => string): Components => ({
+const createMarkdownComponents = (theme: 'light' | 'dark' | 'oceanic', t: (key: string) => string): Components => ({
   code: ({
     inline,
     className,

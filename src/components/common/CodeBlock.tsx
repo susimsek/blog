@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialDark, materialLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import materialOceanic from 'react-syntax-highlighter/dist/cjs/styles/prism/material-oceanic';
 import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -8,14 +9,14 @@ interface CodeBlockProps {
   inline?: boolean;
   className?: string;
   children: React.ReactNode;
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'oceanic';
   t: (key: string) => string;
 }
 
 const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, children, theme, t, ...props }) => {
   const [isCopied, setIsCopied] = useState(false);
 
-  const syntaxTheme = theme === 'dark' ? materialDark : materialLight;
+  const syntaxTheme = theme === 'dark' ? materialDark : theme === 'oceanic' ? materialOceanic : materialLight;
   const match = /language-(\w+)/.exec(className ?? '');
 
   const copyToClipboard = () => {

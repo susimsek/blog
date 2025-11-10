@@ -77,6 +77,11 @@ describe('Static Constants', () => {
         label: 'common.header.theme.dark',
         icon: 'moon',
       },
+      {
+        key: 'oceanic',
+        label: 'common.header.theme.oceanic',
+        icon: 'water',
+      },
     ]);
   });
 });

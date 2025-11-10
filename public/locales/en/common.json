@@ -15,7 +15,8 @@
       "themeToggle": "Toggle Theme",
       "theme": {
         "light": "Light Mode",
-        "dark": "Dark Mode"
+        "dark": "Dark Mode",
+        "oceanic": "Oceanic Mode"
       }
     },
     "sidebar": {

@@ -38,6 +38,7 @@ import {
   faTimesCircle,
   faTrash,
   faUser,
+  faWater,
 } from '@fortawesome/free-solid-svg-icons';
 import { faSidebar } from '@/lib/icons';
 
@@ -91,6 +92,7 @@ export const loadIcons = () => {
     faClock,
     faClipboardList,
     faChevronDown,
+    faWater,
   );
 };
 

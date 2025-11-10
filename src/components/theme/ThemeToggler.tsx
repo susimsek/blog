@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { toggleTheme } from '@/reducers/theme';
+import { setTheme, type Theme } from '@/reducers/theme';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
@@ -13,9 +13,9 @@ const ThemeToggler = () => {
   const theme = useAppSelector(state => state.theme.theme);
 
   const handleThemeChange = useCallback(
-    (selectedTheme: 'light' | 'dark') => {
+    (selectedTheme: Theme) => {
       if (theme !== selectedTheme) {
-        dispatch(toggleTheme());
+        dispatch(setTheme(selectedTheme));
       }
     },
     [theme, dispatch],
@@ -31,20 +31,24 @@ const ThemeToggler = () => {
       }
       id="theme-toggler-dropdown"
       className="text-center"
-      align="start"
+      align="end"
     >
       {THEMES.map(({ key, label, icon }) => (
         <NavDropdown.Item
           key={key}
-          onClick={() => handleThemeChange(key as 'light' | 'dark')}
+          onClick={() => handleThemeChange(key)}
           aria-label={t(label)}
-          className={`d-flex justify-content-between align-items-center ${theme === key ? 'active-theme' : ''}`}
+          className={`d-flex align-items-center justify-content-between gap-2 ${theme === key ? 'active-theme' : ''}`}
         >
-          <div>
-            <FontAwesomeIcon icon={icon as IconProp} className={`me-2 ${icon === 'moon' ? 'ms-1' : ''}`} />
-            {t(label)}
+          <div className="d-flex align-items-center flex-grow-1 gap-2">
+            <FontAwesomeIcon icon={icon as IconProp} className={icon === 'moon' ? 'ms-1' : ''} />
+            <span className="text-truncate">{t(label)}</span>
           </div>
-          {theme === key && <FontAwesomeIcon icon="circle-check" className="circle-check" />}
+          <FontAwesomeIcon
+            icon="circle-check"
+            className={`circle-check ms-2 flex-shrink-0 ${theme === key ? '' : 'opacity-0'}`}
+            aria-hidden={theme === key ? undefined : true}
+          />
         </NavDropdown.Item>
       ))}
     </NavDropdown>

@@ -57,7 +57,12 @@ export const THEMES = [
     label: 'common.header.theme.dark',
     icon: 'moon',
   },
-];
+  {
+    key: 'oceanic',
+    label: 'common.header.theme.oceanic',
+    icon: 'water',
+  },
+] as const;
 
 // Constant for professional experience start year
 export const EXPERIENCE_START_YEAR = 2018;

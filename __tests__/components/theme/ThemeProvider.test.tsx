@@ -14,6 +14,7 @@ jest.mock('@/components/common/Loading', () => () => <div data-testid="loading-c
 describe('ThemeProvider', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    document.body.className = '';
   });
 
   it('renders children after client-side rendering', async () => {
@@ -33,7 +34,7 @@ describe('ThemeProvider', () => {
     expect(screen.queryByTestId('loading-component')).not.toBeInTheDocument();
   });
 
-  it('applies the theme class to the body element', () => {
+  it('applies the dark theme class to the body element', () => {
     // Mock Redux selector to return "dark" theme
     (useAppSelector as jest.Mock).mockReturnValue('dark');
 
@@ -44,7 +45,21 @@ describe('ThemeProvider', () => {
     );
 
     // Simulate client-side rendering by triggering useEffect
-    expect(document.body.className).toBe('dark-theme');
+    expect(document.body.classList.contains('dark-theme')).toBe(true);
+    expect(document.body.classList.contains('oceanic-theme')).toBe(false);
+  });
+
+  it('applies the oceanic theme class to the body element', () => {
+    (useAppSelector as jest.Mock).mockReturnValue('oceanic');
+
+    render(
+      <ThemeProvider>
+        <div data-testid="child-content">Child Content</div>
+      </ThemeProvider>,
+    );
+
+    expect(document.body.classList.contains('oceanic-theme')).toBe(true);
+    expect(document.body.classList.contains('dark-theme')).toBe(false);
   });
 
   it('renders children after client-side rendering', () => {

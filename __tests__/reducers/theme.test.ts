@@ -1,4 +1,4 @@
-import themeReducer, { toggleTheme, setTheme } from '@/reducers/theme';
+import themeReducer, { toggleTheme, setTheme, type Theme } from '@/reducers/theme';
 
 jest.mock('@/config/constants', () => ({
   ...jest.requireActual('@/config/constants'),
@@ -40,6 +40,16 @@ describe('theme reducer', () => {
       expect(initialState.theme).toBe('dark');
     });
 
+    it('should initialize with oceanic theme when localStorage has oceanic', () => {
+      getItemMock.mockReturnValue('oceanic');
+
+      jest.resetModules();
+      const themeReducer = require('@/reducers/theme').default;
+
+      const initialState = themeReducer(undefined, { type: '@@INIT' });
+      expect(initialState.theme).toBe('oceanic');
+    });
+
     it('should initialize with light theme when localStorage has invalid value', () => {
       getItemMock.mockReturnValue('invalid-value');
       const initialState = themeReducer(undefined, { type: '@@INIT' });
@@ -49,14 +59,21 @@ describe('theme reducer', () => {
 
   describe('toggleTheme', () => {
     it('should toggle theme from light to dark', () => {
-      const initialState: { theme: 'light' | 'dark' } = { theme: 'light' };
+      const initialState: { theme: Theme } = { theme: 'light' };
       const newState = themeReducer(initialState, toggleTheme());
       expect(newState.theme).toBe('dark');
       expect(setItemMock).toHaveBeenCalledWith('theme', 'dark');
     });
 
-    it('should toggle theme from dark to light', () => {
-      const initialState: { theme: 'light' | 'dark' } = { theme: 'dark' };
+    it('should toggle theme from dark to oceanic', () => {
+      const initialState: { theme: Theme } = { theme: 'dark' };
+      const newState = themeReducer(initialState, toggleTheme());
+      expect(newState.theme).toBe('oceanic');
+      expect(setItemMock).toHaveBeenCalledWith('theme', 'oceanic');
+    });
+
+    it('should toggle theme from oceanic to light', () => {
+      const initialState: { theme: Theme } = { theme: 'oceanic' };
       const newState = themeReducer(initialState, toggleTheme());
       expect(newState.theme).toBe('light');
       expect(setItemMock).toHaveBeenCalledWith('theme', 'light');
@@ -65,17 +82,24 @@ describe('theme reducer', () => {
 
   describe('setTheme', () => {
     it('should set theme to light', () => {
-      const initialState: { theme: 'light' | 'dark' } = { theme: 'dark' };
+      const initialState: { theme: Theme } = { theme: 'dark' };
       const newState = themeReducer(initialState, setTheme('light'));
       expect(newState.theme).toBe('light');
       expect(setItemMock).toHaveBeenCalledWith('theme', 'light');
     });
 
     it('should set theme to dark', () => {
-      const initialState: { theme: 'light' | 'dark' } = { theme: 'light' };
+      const initialState: { theme: Theme } = { theme: 'light' };
       const newState = themeReducer(initialState, setTheme('dark'));
       expect(newState.theme).toBe('dark');
       expect(setItemMock).toHaveBeenCalledWith('theme', 'dark');
+    });
+
+    it('should set theme to oceanic', () => {
+      const initialState: { theme: Theme } = { theme: 'light' };
+      const newState = themeReducer(initialState, setTheme('oceanic'));
+      expect(newState.theme).toBe('oceanic');
+      expect(setItemMock).toHaveBeenCalledWith('theme', 'oceanic');
     });
   });
 });
