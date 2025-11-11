@@ -10,6 +10,7 @@ const THEME_CLASS_MAP: Record<Theme, string | null> = {
   light: null,
   dark: 'dark-theme',
   oceanic: 'oceanic-theme',
+  forest: 'forest-theme',
 };
 
 export default function ThemeProvider({ children }: Readonly<ThemeProviderProps>) {

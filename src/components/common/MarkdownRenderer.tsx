@@ -10,12 +10,13 @@ import CodeBlock from '@/components/common/CodeBlock';
 import MarkdownTabsRenderer from './MarkdownTabsRenderer';
 import { splitContentWithTabs } from '@/lib/markdownUtils';
 import markdownSchema from '@/config/markdownSchema';
+import type { Theme } from '@/reducers/theme';
 
 interface MarkdownRendererProps {
   content: string;
 }
 
-const createMarkdownComponents = (theme: 'light' | 'dark' | 'oceanic', t: (key: string) => string): Components => ({
+const createMarkdownComponents = (theme: Theme, t: (key: string) => string): Components => ({
   code: ({
     inline,
     className,

@@ -2,14 +2,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { isBrowser } from '@/config/constants';
 
-export type Theme = 'light' | 'dark' | 'oceanic';
+export type Theme = 'light' | 'dark' | 'oceanic' | 'forest';
 
 type ThemeState = {
   theme: Theme;
 };
 
 const THEME_STORAGE_KEY = 'theme';
-const THEME_ORDER: Theme[] = ['light', 'dark', 'oceanic'];
+const THEME_ORDER: Theme[] = ['light', 'dark', 'oceanic', 'forest'];
 
 const getInitialTheme = (): Theme => {
   if (isBrowser) {

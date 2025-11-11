@@ -62,6 +62,11 @@ export const THEMES = [
     label: 'common.header.theme.oceanic',
     icon: 'water',
   },
+  {
+    key: 'forest',
+    label: 'common.header.theme.forest',
+    icon: 'leaf',
+  },
 ] as const;
 
 // Constant for professional experience start year

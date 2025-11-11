@@ -50,6 +50,16 @@ describe('theme reducer', () => {
       expect(initialState.theme).toBe('oceanic');
     });
 
+    it('should initialize with forest theme when localStorage has forest', () => {
+      getItemMock.mockReturnValue('forest');
+
+      jest.resetModules();
+      const themeReducer = require('@/reducers/theme').default;
+
+      const initialState = themeReducer(undefined, { type: '@@INIT' });
+      expect(initialState.theme).toBe('forest');
+    });
+
     it('should initialize with light theme when localStorage has invalid value', () => {
       getItemMock.mockReturnValue('invalid-value');
       const initialState = themeReducer(undefined, { type: '@@INIT' });
@@ -72,8 +82,15 @@ describe('theme reducer', () => {
       expect(setItemMock).toHaveBeenCalledWith('theme', 'oceanic');
     });
 
-    it('should toggle theme from oceanic to light', () => {
+    it('should toggle theme from oceanic to forest', () => {
       const initialState: { theme: Theme } = { theme: 'oceanic' };
+      const newState = themeReducer(initialState, toggleTheme());
+      expect(newState.theme).toBe('forest');
+      expect(setItemMock).toHaveBeenCalledWith('theme', 'forest');
+    });
+
+    it('should toggle theme from forest to light', () => {
+      const initialState: { theme: Theme } = { theme: 'forest' };
       const newState = themeReducer(initialState, toggleTheme());
       expect(newState.theme).toBe('light');
       expect(setItemMock).toHaveBeenCalledWith('theme', 'light');
@@ -100,6 +117,13 @@ describe('theme reducer', () => {
       const newState = themeReducer(initialState, setTheme('oceanic'));
       expect(newState.theme).toBe('oceanic');
       expect(setItemMock).toHaveBeenCalledWith('theme', 'oceanic');
+    });
+
+    it('should set theme to forest', () => {
+      const initialState: { theme: Theme } = { theme: 'light' };
+      const newState = themeReducer(initialState, setTheme('forest'));
+      expect(newState.theme).toBe('forest');
+      expect(setItemMock).toHaveBeenCalledWith('theme', 'forest');
     });
   });
 });

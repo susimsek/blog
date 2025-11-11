@@ -1238,3 +1238,177 @@
   --linkedin-brand-logo-bg: #09121c;
   --github-brand-logo-bg: #09121c;
 }
+
+.forest-theme {
+  --bg-color: #08140e;
+  --text-color: #e6f4ec;
+  --navbar-bg: #031e12;
+  --sidebar-bg: #0d2b1c;
+  --footer-bg: #0b2618;
+  --main-bg: #0a2115;
+  --link-color: #7de2a8;
+  --link-hover-color: #baf7cf;
+  --border-color: #1a3d2b;
+  --active-color: #4ade80;
+  --spinner-color: #f1fff8;
+  --input-bg-color: #0a2115;
+  --dropdown-hover-bg: #153a27;
+  --dropdown-hover-color: #f1fff8;
+  --bs-list-group-action-hover-color: #f1fff8;
+  --bs-list-group-action-hover-bg: #153a27;
+  --bs-list-group-action-active-color: #f1fff8;
+  --bs-list-group-action-active-bg: #153a27;
+
+  --scrollbar-track: #06130c;
+  --scrollbar-thumb: #1f4631;
+  --scrollbar-thumb-hover: #2c5d41;
+
+  --primary-bg: #2fbf84;
+  --secondary-bg: #2d4234;
+  --success-bg: #4ade80;
+  --info-bg: #37c8b2;
+  --warning-bg: #f4c95d;
+  --danger-bg: #f97383;
+  --light-bg: #e5f4ec;
+  --dark-bg: #04140d;
+
+  --primary-hover: #25a66f;
+  --secondary-hover: #3a5243;
+  --success-hover: #38c46e;
+  --info-hover: #23b6a0;
+  --warning-hover: #dfb24c;
+  --danger-hover: #e2556b;
+  --light-hover: #d5e8df;
+  --dark-hover: #10281d;
+
+  --primary-color: #f5fbff;
+  --secondary-color: #f1fff8;
+  --success-color: #f1fff8;
+  --info-color: #f1fff8;
+  --warning-color: #04140d;
+  --danger-color: #f1fff8;
+  --light-color: #04140d;
+  --dark-color: #f1fff8;
+
+  --primary-text: #a4f1c9;
+  --secondary-text: #cde0d4;
+  --success-text: #bef5d4;
+  --info-text: #b8f2ea;
+  --warning-text: #ffe6ac;
+  --danger-text: #ffcbd4;
+  --light-text: #0f2218;
+  --dark-text: #f1fff8;
+  --hover-brightness: 85%;
+
+  --red-bg: #f97383;
+  --green-bg: #2e9f6a;
+  --blue-bg: #3ca4a4;
+  --orange-bg: #f7a76c;
+  --yellow-bg: #f4d35e;
+  --purple-bg: #a48bff;
+  --gray-bg: #4f6558;
+  --brown-bg: #8c7050;
+  --pink-bg: #f38abf;
+  --cyan-bg: #4fd2b0;
+  --muted-bg: #9db5a6;
+
+  --red-text: #ffe0e4;
+  --green-text: #cfeedd;
+  --blue-text: #d5f1ef;
+  --orange-text: #ffe1c8;
+  --yellow-text: #fff1c0;
+  --purple-text: #f1e6ff;
+  --gray-text: #d2dbd6;
+  --brown-text: #f3dfcf;
+  --pink-text: #ffd9ec;
+  --cyan-text: #d7faf0;
+
+  --red-hover: #e05569;
+  --green-hover: #248a59;
+  --blue-hover: #278c8c;
+  --orange-hover: #f18c46;
+  --yellow-hover: #edc748;
+  --purple-hover: #8f75e5;
+  --gray-hover: #5f776a;
+  --brown-hover: #a18163;
+  --pink-hover: #ed69aa;
+  --cyan-hover: #34c6a1;
+  --muted-hover: #b7cabc;
+
+  --red-color: #f1fff8;
+  --green-color: #f1fff8;
+  --blue-color: #f1fff8;
+  --orange-color: #04140d;
+  --yellow-color: #04140d;
+  --purple-color: #f1fff8;
+  --gray-color: #f1fff8;
+  --brown-color: #f1fff8;
+  --pink-color: #f1fff8;
+  --cyan-color: #f1fff8;
+  --muted-color: #f1fff8;
+
+  --caption-bg-color: #0f2518;
+  --caption-active-bg: #1c3b2a;
+  --table-striped-bg: #0b1e15;
+  --table-row-hover-bg: #163828;
+  --table-row-hover-text: #f1fff8;
+  --table-header-bg: #081d13;
+  --disabled-bg: #1d3728;
+
+  --copy-button-bg: #163125;
+  --copy-button-hover-bg: #204231;
+
+  --tooltip-bg: #07140e;
+  --tooltip-border-color: #1a3d2b;
+  --tab-theme-active-bg: #0a2115;
+  --tab-theme-active-text: #a4f1c9;
+  --tab-theme-border: #1a3d2b;
+  --tab-theme-hover-bg: #133424;
+  --tab-theme-hover-border: #244b33;
+
+  --svg-java-primary: #95d4b2;
+  --svg-java-secondary: #ff8fa2;
+  --svg-kotlin-a1: #1d7a5f;
+  --svg-kotlin-a2: #1f7f63;
+  --svg-kotlin-a3: #256d5a;
+  --svg-kotlin-a4: #3a5f55;
+  --svg-kotlin-a5: #4f5460;
+  --svg-kotlin-b1: #1d7a5f;
+  --svg-kotlin-b2: #22745d;
+  --svg-kotlin-b3: #3a5f55;
+  --svg-kotlin-b4: #4f5460;
+  --svg-kotlin-c1: #8ecf7c;
+  --svg-kotlin-c2: #7dc36f;
+  --svg-kotlin-c3: #6ead5f;
+  --svg-kotlin-c4: #5c9b4e;
+  --svg-kotlin-c5: #4d8a3d;
+  --svg-kotlin-c6: #3f7a30;
+  --svg-kotlin-c7: #356b25;
+  --svg-kotlin-c8: #2d5c1f;
+
+  --svg-golang-primary: #9c8a7e;
+  --svg-golang-secondary: #4b99a9;
+  --svg-golang-accent: #000000;
+  --svg-golang-light: #ffffff;
+
+  --svg-typescript-bg: #005b99;
+  --svg-typescript-fg: #dcdcdc;
+
+  --svg-javascript-bg: #c7a600;
+  --svg-javascript-fg: #222222;
+
+  --icon-check-color: #a4f1c9;
+
+  --box-shadow-primary: 0 4px 6px rgba(74, 191, 132, 0.25);
+  --box-shadow-hover: 0 6px 8px rgba(74, 191, 132, 0.35);
+  --box-shadow-focus: 0 6px 10px rgba(74, 191, 132, 0.45);
+  --box-shadow-sm: 0 2px 4px rgba(74, 191, 132, 0.2);
+  --box-shadow-sm-hover: 0 3px 6px rgba(74, 191, 132, 0.3);
+  --box-shadow-footer: 0 -4px 6px rgba(74, 191, 132, 0.25);
+  --box-shadow-sidebar: 2px 0 4px rgba(74, 191, 132, 0.3);
+
+  --email-logo-color: #e6f4ec;
+  --medium-brand-logo-color: #e6f4ec;
+  --linkedin-brand-logo-bg: #06170f;
+  --github-brand-logo-bg: #06170f;
+}

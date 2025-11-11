@@ -2,21 +2,34 @@ import React, { useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialDark, materialLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import materialOceanic from 'react-syntax-highlighter/dist/cjs/styles/prism/material-oceanic';
+import gruvboxDark from 'react-syntax-highlighter/dist/cjs/styles/prism/gruvbox-dark';
 import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { Theme } from '@/reducers/theme';
 
 interface CodeBlockProps {
   inline?: boolean;
   className?: string;
   children: React.ReactNode;
-  theme: 'light' | 'dark' | 'oceanic';
+  theme: Theme;
   t: (key: string) => string;
 }
 
 const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, children, theme, t, ...props }) => {
   const [isCopied, setIsCopied] = useState(false);
 
-  const syntaxTheme = theme === 'dark' ? materialDark : theme === 'oceanic' ? materialOceanic : materialLight;
+  const syntaxTheme = (() => {
+    switch (theme) {
+      case 'dark':
+        return materialDark;
+      case 'oceanic':
+        return materialOceanic;
+      case 'forest':
+        return gruvboxDark;
+      default:
+        return materialLight;
+    }
+  })();
   const match = /language-(\w+)/.exec(className ?? '');
 
   const copyToClipboard = () => {

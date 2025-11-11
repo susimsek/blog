@@ -22,6 +22,7 @@ import {
   faExclamationTriangle,
   faEye,
   faEyeSlash,
+  faLeaf,
   faGlobe,
   faHome,
   faInfoCircle,
@@ -93,6 +94,7 @@ export const loadIcons = () => {
     faClipboardList,
     faChevronDown,
     faWater,
+    faLeaf,
   );
 };
 

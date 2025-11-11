@@ -82,6 +82,11 @@ describe('Static Constants', () => {
         label: 'common.header.theme.oceanic',
         icon: 'water',
       },
+      {
+        key: 'forest',
+        label: 'common.header.theme.forest',
+        icon: 'leaf',
+      },
     ]);
   });
 });

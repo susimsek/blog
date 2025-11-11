@@ -62,6 +62,19 @@ describe('ThemeProvider', () => {
     expect(document.body.classList.contains('dark-theme')).toBe(false);
   });
 
+  it('applies the forest theme class to the body element', () => {
+    (useAppSelector as jest.Mock).mockReturnValue('forest');
+
+    render(
+      <ThemeProvider>
+        <div data-testid="child-content">Child Content</div>
+      </ThemeProvider>,
+    );
+
+    expect(document.body.classList.contains('forest-theme')).toBe(true);
+    expect(document.body.classList.contains('oceanic-theme')).toBe(false);
+  });
+
   it('renders children after client-side rendering', () => {
     // Mock Redux selector to return "light" theme
     (useAppSelector as jest.Mock).mockReturnValue('light');

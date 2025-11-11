@@ -118,9 +118,13 @@ describe('ThemeToggler', () => {
 
     const sunIcon = screen.getByTestId('font-awesome-icon-sun');
     const moonIcon = screen.getByTestId('font-awesome-icon-moon');
+    const waterIcon = screen.getByTestId('font-awesome-icon-water');
+    const leafIcon = screen.getByTestId('font-awesome-icon-leaf');
 
     expect(sunIcon).toBeInTheDocument();
     expect(moonIcon).toBeInTheDocument();
+    expect(waterIcon).toBeInTheDocument();
+    expect(leafIcon).toBeInTheDocument();
   });
 
   it('renders and selects the oceanic option', async () => {
@@ -139,6 +143,26 @@ describe('ThemeToggler', () => {
 
     expect(oceanicOption).toBeInTheDocument();
     const checkIcon = within(oceanicOption).getByTestId('font-awesome-icon-circle-check');
+    expect(checkIcon).toBeInTheDocument();
+    expect(mockDispatch).not.toHaveBeenCalled();
+  });
+
+  it('renders and selects the forest option', async () => {
+    (useAppSelector as jest.Mock).mockReturnValue('forest');
+
+    render(<ThemeToggler />);
+
+    const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
+    await act(async () => {
+      fireEvent.click(dropdownToggle);
+    });
+
+    const forestOption = screen.getByRole('button', {
+      name: /common.header.theme.forest/i,
+    });
+
+    expect(forestOption).toBeInTheDocument();
+    const checkIcon = within(forestOption).getByTestId('font-awesome-icon-circle-check');
     expect(checkIcon).toBeInTheDocument();
     expect(mockDispatch).not.toHaveBeenCalled();
   });

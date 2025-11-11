@@ -16,7 +16,8 @@
       "theme": {
         "light": "Light Mode",
         "dark": "Dark Mode",
-        "oceanic": "Oceanic Mode"
+        "oceanic": "Oceanic Mode",
+        "forest": "Forest Mode"
       }
     },
     "sidebar": {
