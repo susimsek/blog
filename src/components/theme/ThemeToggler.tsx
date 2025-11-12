@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { THEMES } from '@/config/constants';
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 const ThemeToggler = () => {
   const { t } = useTranslation('common');
@@ -41,7 +40,7 @@ const ThemeToggler = () => {
           className={`d-flex align-items-center justify-content-between gap-2 ${theme === key ? 'active-theme' : ''}`}
         >
           <div className="d-flex align-items-center flex-grow-1 gap-2">
-            <FontAwesomeIcon icon={icon as IconProp} className={icon === 'moon' ? 'ms-1' : ''} />
+            <FontAwesomeIcon icon={icon} className={icon === 'moon' ? 'ms-1' : ''} />
             <span className="text-truncate">{t(label)}</span>
           </div>
           <FontAwesomeIcon

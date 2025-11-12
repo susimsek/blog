@@ -1,8 +1,9 @@
 // reducers/theme.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { isBrowser } from '@/config/constants';
+import type { ThemeKey } from '@/config/constants';
 
-export type Theme = 'light' | 'dark' | 'oceanic' | 'forest';
+export type Theme = ThemeKey;
 
 type ThemeState = {
   theme: Theme;

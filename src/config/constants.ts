@@ -1,4 +1,5 @@
 // config/constants.ts
+import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 export const isBrowser = typeof window !== 'undefined';
 
@@ -46,7 +47,15 @@ export const LOCALES = {
   en: { name: 'English', locale: 'en', ogLocale: 'en_US' },
 };
 
-export const THEMES = [
+export type ThemeKey = 'light' | 'dark' | 'oceanic' | 'forest';
+
+type ThemeOption = {
+  key: ThemeKey;
+  label: string;
+  icon: IconProp;
+};
+
+export const THEMES: ReadonlyArray<ThemeOption> = [
   {
     key: 'light',
     label: 'common.header.theme.light',
