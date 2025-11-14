@@ -1,11 +1,13 @@
 // config/store.ts
 import { configureStore } from '@reduxjs/toolkit';
 import themeReducer from '@/reducers/theme';
+import postsQueryReducer from '@/reducers/postsQuery';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 const store = configureStore({
   reducer: {
     theme: themeReducer,
+    postsQuery: postsQueryReducer,
   },
 });
 

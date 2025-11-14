@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { PostSummary, Topic } from '@/types/posts';
 import { Container } from 'react-bootstrap';
@@ -9,6 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { filterByQuery, filterByTopics, filterByDateRange, sortPosts } from '@/lib/postFilters';
 import { PostFilters } from './PostFilters';
 import useDebounce from '@/hooks/useDebounce';
+import { useAppDispatch, useAppSelector } from '@/config/store';
+import { setPage, setPageSize, setQuery } from '@/reducers/postsQuery';
 
 interface PostListProps {
   posts: PostSummary[];
@@ -25,16 +27,24 @@ export default function PostList({
 }: Readonly<PostListProps>) {
   const { t } = useTranslation(['post', 'common']);
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { query, sortOrder, selectedTopics, dateRange, page, pageSize } = useAppSelector(state => state.postsQuery);
+  const debouncedSearchQuery = useDebounce(query, 500);
 
-  const currentPage = Number(router.query.page) || 1;
-  const postsPerPage = Number(router.query.size) || 5;
+  useEffect(() => {
+    if (!router.isReady) {
+      return;
+    }
 
-  const [searchQuery, setSearchQuery] = React.useState((router.query.q as string) || '');
-  const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('desc');
-  const [selectedTopics, setSelectedTopics] = React.useState<string[]>([]);
-  const [dateRange, setDateRange] = React.useState<{ startDate?: string; endDate?: string }>({});
+    const routePage = Number(router.query.page) || 1;
+    dispatch(setPage(routePage));
 
-  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+    const routeSize = Number(router.query.size) || 5;
+    dispatch(setPageSize(routeSize));
+
+    const routeQuery = typeof router.query.q === 'string' ? router.query.q : '';
+    dispatch(setQuery(routeQuery));
+  }, [router.isReady, router.query.page, router.query.size, router.query.q, dispatch]);
 
   const filteredPosts = useMemo(
     () =>
@@ -50,26 +60,28 @@ export default function PostList({
   const sortedPosts = useMemo(() => sortPosts(filteredPosts, sortOrder), [filteredPosts, sortOrder]);
 
   const paginatedPosts = useMemo(
-    () => sortedPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage),
-    [sortedPosts, currentPage, postsPerPage],
+    () => sortedPosts.slice((page - 1) * pageSize, page * pageSize),
+    [sortedPosts, page, pageSize],
   );
 
   const handlePageChange = useCallback(
     (newPage: number) => {
+      dispatch(setPage(newPage));
       router.push(
         {
           pathname: router.pathname,
-          query: { ...router.query, page: newPage, size: postsPerPage },
+          query: { ...router.query, page: newPage, size: pageSize },
         },
         undefined,
         { shallow: true },
       );
     },
-    [router, postsPerPage],
+    [router, pageSize, dispatch],
   );
 
   const handleSizeChange = useCallback(
     (size: number) => {
+      dispatch(setPageSize(size));
       router.push(
         {
           pathname: router.pathname,
@@ -79,22 +91,12 @@ export default function PostList({
         { shallow: true },
       );
     },
-    [router],
+    [router, dispatch],
   );
 
   return (
     <Container className="mt-5" style={{ maxWidth: '800px' }}>
-      <PostFilters
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        sortOrder={sortOrder}
-        onSortChange={setSortOrder}
-        selectedTopics={selectedTopics}
-        onTopicsChange={setSelectedTopics}
-        onDateRangeChange={setDateRange}
-        topics={topics}
-        searchEnabled={searchEnabled}
-      />
+      <PostFilters topics={topics} searchEnabled={searchEnabled} />
       {paginatedPosts.length > 0 ? (
         paginatedPosts.map(post => <PostCard key={post.id} post={post} />)
       ) : (
@@ -109,9 +111,9 @@ export default function PostList({
       )}
       {sortedPosts.length > 0 && (
         <PaginationBar
-          currentPage={currentPage}
-          totalPages={Math.ceil(sortedPosts.length / postsPerPage)}
-          size={postsPerPage}
+          currentPage={page}
+          totalPages={Math.ceil(sortedPosts.length / pageSize)}
+          size={pageSize}
           onPageChange={handlePageChange}
           onSizeChange={handleSizeChange}
           totalResults={sortedPosts.length}

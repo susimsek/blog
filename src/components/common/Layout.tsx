@@ -7,6 +7,9 @@ import { PostSummary, Topic } from '@/types/posts';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { GA_ID } from '@/config/constants';
+import { useAppDispatch } from '@/config/store';
+import { useRouter } from 'next/router';
+import { setPosts, setLocale } from '@/reducers/postsQuery';
 
 type LayoutProps = {
   children: ReactNode;
@@ -23,9 +26,20 @@ const Layout: React.FC<LayoutProps> = ({
   searchEnabled = false,
   sidebarEnabled = false,
 }) => {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [isSidebarVisible, setIsSidebarVisible] = useState(sidebarEnabled);
   const footerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    dispatch(setPosts(posts));
+  }, [dispatch, posts]);
+
+  useEffect(() => {
+    const currentLocale = (router.locale as string) ?? router.defaultLocale ?? null;
+    dispatch(setLocale(currentLocale));
+  }, [dispatch, router.locale, router.defaultLocale]);
 
   useEffect(() => {
     setIsSidebarVisible(sidebarEnabled && !isMobile);
@@ -61,12 +75,7 @@ const Layout: React.FC<LayoutProps> = ({
   return (
     <div className="d-flex flex-column min-vh-100">
       <GoogleAnalytics gaId={GA_ID} />
-      <Header
-        posts={posts}
-        searchEnabled={searchEnabled}
-        sidebarEnabled={sidebarEnabled}
-        onSidebarToggle={toggleSidebar}
-      />
+      <Header searchEnabled={searchEnabled} sidebarEnabled={sidebarEnabled} onSidebarToggle={toggleSidebar} />
       <main className="flex-grow-1">
         <Row>
           {/* Sidebar */}

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect } from 'react';
 import Head from 'next/head';
 import { makeSearchProps } from '@/lib/posts';
 import PostList from '@/components/posts/PostList';
@@ -8,8 +8,8 @@ import { AUTHOR_NAME } from '@/config/constants';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { getStaticPaths } from '@/lib/getStatic';
-import { filterByQuery } from '@/lib/postFilters';
-import useDebounce from '@/hooks/useDebounce';
+import { useAppDispatch, useAppSelector } from '@/config/store';
+import { setQuery } from '@/reducers/postsQuery';
 
 interface SearchPageProps {
   allPosts: PostSummary[];
@@ -20,35 +20,39 @@ export default function SearchPage({ allPosts, topics }: Readonly<SearchPageProp
   const { t } = useTranslation(['search']);
   const router = useRouter();
   const { q } = router.query;
+  const dispatch = useAppDispatch();
+  const { query } = useAppSelector(state => state.postsQuery);
 
-  // Use debounce hook for the search query
-  const debouncedQuery = useDebounce(q, 500); // 500ms delay
-
-  const filteredPosts = useMemo(() => {
-    if (debouncedQuery && typeof debouncedQuery === 'string') {
-      return allPosts.filter(post => filterByQuery(post, debouncedQuery));
+  useEffect(() => {
+    if (!router.isReady) {
+      return;
     }
-    return allPosts;
-  }, [debouncedQuery, allPosts]);
+
+    if (typeof q === 'string') {
+      dispatch(setQuery(q));
+    } else {
+      dispatch(setQuery(''));
+    }
+  }, [router.isReady, q, dispatch]);
 
   return (
     <Layout posts={allPosts} topics={topics} sidebarEnabled={true} searchEnabled={true}>
       <Head>
-        <title>{t('search.title', { query: debouncedQuery || '' })}</title>
-        <meta name="description" content={t('search.meta.description', { query: debouncedQuery || '' })} />
-        <meta name="keywords" content={t('search.meta.keywords', { query: debouncedQuery || '' })} />
+        <title>{t('search.title', { query: query || '' })}</title>
+        <meta name="description" content={t('search.meta.description', { query: query || '' })} />
+        <meta name="keywords" content={t('search.meta.keywords', { query: query || '' })} />
         <meta name="author" content={AUTHOR_NAME} />
         <meta name="robots" content="noindex, follow" />
       </Head>
       <div>
         <header className="text-center py-4">
           <h1 className="fw-bold mb-4">{t('search.title')}</h1>
-          <p className="text-muted fs-4">{t('search.subtitle', { query: debouncedQuery || '' })}</p>
+          <p className="text-muted fs-4">{t('search.subtitle', { query: query || '' })}</p>
         </header>
         <PostList
-          posts={filteredPosts}
+          posts={allPosts}
           searchEnabled={false}
-          noPostsFoundMessage={t('search.no_results', { query: debouncedQuery || '' })}
+          noPostsFoundMessage={t('search.no_results', { query: query || '' })}
         />
       </div>
     </Layout>

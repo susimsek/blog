@@ -4,21 +4,18 @@ import Link from '@/components/common/Link';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import ThemeToggler from '@/components/theme/ThemeToggler';
 import React from 'react';
-import { PostSummary } from '@/types/posts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ReactComponent as Logo } from '@assets/images/logo.svg';
 import SearchContainer from '@/components/search/SearchContainer';
 import useMediaQuery from '@/hooks/useMediaQuery';
 
 interface HeaderProps {
-  posts?: PostSummary[];
   searchEnabled?: boolean;
   onSidebarToggle?: () => void;
   sidebarEnabled?: boolean;
 }
 
 export default function Header({
-  posts = [],
   searchEnabled = false,
   sidebarEnabled = false,
   onSidebarToggle,
@@ -43,7 +40,7 @@ export default function Header({
       </button>
 
       <div className="flex-grow-1">
-        <SearchContainer posts={posts} />
+        <SearchContainer />
       </div>
 
       <Nav className="d-flex align-items-center gap-3 ms-3">
@@ -79,7 +76,7 @@ export default function Header({
           {searchEnabled && isTablet && searchVisible && renderSearchSection()}
 
           {/* Default Desktop or Non-Search Tablet View */}
-          {!isTablet && searchEnabled && <SearchContainer posts={posts} />}
+          {!isTablet && searchEnabled && <SearchContainer />}
 
           {!(isTablet && searchVisible) && (
             <Nav

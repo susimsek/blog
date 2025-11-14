@@ -3,19 +3,18 @@ import { ListGroup } from 'react-bootstrap';
 import SearchBar from '@/components/search/SearchBar';
 import PostListItem from '@/components/posts/PostListItem';
 import Link from '@/components/common/Link';
-import { PostSummary } from '@/types/posts';
 import { filterByQuery } from '@/lib/postFilters';
 import { useTranslation } from 'next-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useDebounce from '@/hooks/useDebounce';
+import { useAppDispatch, useAppSelector } from '@/config/store';
+import { setQuery } from '@/reducers/postsQuery';
 
-interface SearchContainerProps {
-  posts: PostSummary[];
-}
-
-export default function SearchContainer({ posts }: Readonly<SearchContainerProps>) {
+export default function SearchContainer() {
   const { t } = useTranslation('common');
-  const [searchQuery, setSearchQuery] = useState('');
+  const dispatch = useAppDispatch();
+  const posts = useAppSelector(state => state.postsQuery.posts);
+  const searchQuery = useAppSelector(state => state.postsQuery.query);
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
@@ -30,8 +29,8 @@ export default function SearchContainer({ posts }: Readonly<SearchContainerProps
   }, [posts, debouncedSearchQuery, searchQuery]);
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    setShowResults(query.trim().length > 0); // Show results only if there is a search query
+    dispatch(setQuery(query));
+    setShowResults(query.trim().length > 0);
   };
 
   const handleClickOutside = (event: MouseEvent) => {
