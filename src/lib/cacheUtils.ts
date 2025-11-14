@@ -61,3 +61,35 @@ export function getCache<T>(key: string, cache: { [key: string]: CacheEntry<T> }
   }
   return entry.value;
 }
+
+export type CacheStore<T> = {
+  name: string;
+  store: { [key: string]: CacheEntry<T> };
+  get: (key: string) => T | null;
+  set: (key: string, value: T, ttl?: number) => void;
+  delete: (key: string) => void;
+  clear: () => void;
+};
+
+export const createCacheStore = <T>(name: string): CacheStore<T> => {
+  const store: { [key: string]: CacheEntry<T> } = {};
+
+  const deleteEntry = (key: string) => {
+    const existing = store[key];
+    if (existing?.timer) {
+      clearTimeout(existing.timer);
+    }
+    delete store[key];
+  };
+
+  return {
+    name,
+    store,
+    get: key => getCache(key, store, name),
+    set: (key, value, ttl = cacheTTL) => setCache(key, value, store, name, ttl),
+    delete: deleteEntry,
+    clear: () => {
+      Object.keys(store).forEach(deleteEntry);
+    },
+  };
+};

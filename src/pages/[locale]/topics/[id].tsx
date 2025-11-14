@@ -59,7 +59,7 @@ const getStaticProps = makeTopicProps(['common', 'topic', 'post']);
 
 // Generate static paths for all topics
 async function getStaticPaths() {
-  const paths = getAllTopicIds();
+  const paths = await getAllTopicIds();
 
   return {
     paths,

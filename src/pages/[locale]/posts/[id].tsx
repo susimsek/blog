@@ -80,7 +80,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
 const getStaticProps = makePostDetailProps(['common', 'post']);
 
 async function getStaticPaths() {
-  const paths = getAllPostIds();
+  const paths = await getAllPostIds();
   return {
     paths,
     fallback: false,

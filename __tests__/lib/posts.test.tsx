@@ -31,11 +31,20 @@ jest.mock('fs', () => ({
 }));
 
 const clearCaches = () => {
-  Object.keys(postsCache).forEach(key => delete postsCache[key]);
-  Object.keys(postDataCache).forEach(key => delete postDataCache[key]);
-  Object.keys(topicsCache).forEach(key => delete topicsCache[key]);
-  Object.keys(postIdsCache).forEach(key => delete postIdsCache[key]);
-  Object.keys(topicIdsCache).forEach(key => delete topicIdsCache[key]);
+  postsCache.clear();
+  postDataCache.clear();
+  topicsCache.clear();
+  postIdsCache.clear();
+  topicIdsCache.clear();
+};
+
+const fsMock = fs as unknown as {
+  existsSync: jest.Mock;
+  readFileSync: jest.Mock;
+  promises: {
+    readdir: jest.Mock;
+    readFile: jest.Mock;
+  };
 };
 
 // Mock `path` module
@@ -141,14 +150,17 @@ describe('Posts Library', () => {
     jest.clearAllMocks();
     clearCaches();
 
-    (fs.existsSync as jest.Mock).mockReturnValue(true);
+    fsMock.existsSync.mockReturnValue(true);
+    fsMock.promises.readFile.mockImplementation((filePath: string, encoding: string) =>
+      Promise.resolve((fs.readFileSync as jest.Mock)(filePath, encoding)),
+    );
 
     (fs.readFileSync as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
       if (filePath.includes('posts.json')) {
         return JSON.stringify([mockPostSummary]);
       }
       if (filePath.includes('topics.json')) {
-        return '';
+        return JSON.stringify([mockTopic]);
       }
       return `
       ---
@@ -166,12 +178,12 @@ describe('Posts Library', () => {
   });
 
   describe('getSortedPostsData', () => {
-    it('returns sorted posts data', () => {
-      const result = getSortedPostsData('en');
+    it('returns sorted posts data', async () => {
+      const result = await getSortedPostsData('en');
       expect(result).toEqual([mockPostSummary]);
     });
 
-    it('filters posts by topicId', () => {
+    it('filters posts by topicId', async () => {
       (fs.readdirSync as jest.Mock).mockReturnValue(['post1.md', 'post2.md', 'post3.md']);
       (fs.readFileSync as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
         if (filePath.includes('posts.json')) {
@@ -205,12 +217,12 @@ describe('Posts Library', () => {
         return 'Some markdown content';
       });
 
-      const result = getSortedPostsData('en', 'react');
+      const result = await getSortedPostsData('en', 'react');
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe('post3');
     });
 
-    it('excludes posts not matching the topicId', () => {
+    it('excludes posts not matching the topicId', async () => {
       (fs.existsSync as jest.Mock).mockImplementation((p: string) => {
         if (p.includes('/fr')) return true;
         if (p.includes('/en')) return true;
@@ -227,7 +239,7 @@ describe('Posts Library', () => {
         return 'Some markdown content';
       });
 
-      const result = getSortedPostsData('fr', 'non_existing_topic');
+      const result = await getSortedPostsData('fr', 'non_existing_topic');
       expect(result).toEqual([]);
     });
   });
@@ -277,9 +289,11 @@ describe('Posts Library', () => {
 
   describe('getTopicData', () => {
     beforeEach(() => {
-      jest.clearAllMocks();
       (fs.promises.readdir as jest.Mock).mockResolvedValue(['mock-post.md']);
-      (fs.promises.readFile as jest.Mock).mockResolvedValue(`
+      const originalReadFile = (fs.promises.readFile as jest.Mock).getMockImplementation();
+      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
+        if (filePath.endsWith('.md')) {
+          return Promise.resolve(`
       ---
       id: ${mockPost.id}
       title: ${mockPost.title}
@@ -290,6 +304,9 @@ describe('Posts Library', () => {
       ---
       # Mock Markdown Content
     `);
+        }
+        return originalReadFile ? originalReadFile(filePath, encoding) : Promise.resolve('');
+      });
     });
 
     it('does not collect topics if directory does not exist', async () => {
@@ -311,11 +328,11 @@ describe('Posts Library', () => {
   });
 
   describe('getAllPostIds', () => {
-    it('returns all post IDs with locales', () => {
+    it('returns all post IDs with locales', async () => {
       const mockPosts = [{ id: '1' }];
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify(mockPosts));
-      const result = getAllPostIds();
+      const result = await getAllPostIds();
       expect(result).toEqual([
         { params: { id: '1', locale: 'en' } },
         { params: { id: '1', locale: 'fr' } },
@@ -323,15 +340,15 @@ describe('Posts Library', () => {
       ]);
     });
 
-    it('returns an empty list when no posts are found', () => {
+    it('returns an empty list when no posts are found', async () => {
       (fs.existsSync as jest.Mock).mockReturnValue(false);
-      const result = getAllPostIds();
+      const result = await getAllPostIds();
       expect(result).toEqual([]);
     });
 
-    it('returns an empty list when directory does not exist', () => {
+    it('returns an empty list when directory does not exist', async () => {
       (fs.existsSync as jest.Mock).mockReturnValue(false);
-      const result = getAllPostIds();
+      const result = await getAllPostIds();
       expect(result).toEqual([]);
       expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
       expect(fs.readdirSync).not.toHaveBeenCalled();
@@ -399,9 +416,10 @@ describe('Posts Library', () => {
     it('returns props with default namespace', async () => {
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.promises.readdir as jest.Mock).mockResolvedValue(['post1.md']);
-      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string) => {
+      const originalReadFile = (fs.promises.readFile as jest.Mock).getMockImplementation();
+      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
         if (filePath.includes('post1.md')) {
-          return `
+          return Promise.resolve(`
     ---
     id: post1
     title: Post 1
@@ -410,9 +428,9 @@ describe('Posts Library', () => {
     topics: [{"name": "React", "color": "red"}]
     ---
     # Content 1
-    `;
+    `);
         }
-        return '';
+        return originalReadFile ? originalReadFile(filePath, encoding) : Promise.resolve('');
       });
       const context: GetStaticPropsContext = { params: { locale: 'en' } };
       const result = await makePostProps()(context);
@@ -444,9 +462,10 @@ describe('Posts Library', () => {
         }
         return '';
       });
-      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string) => {
+      const originalReadFile = (fs.promises.readFile as jest.Mock).getMockImplementation();
+      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
         if (filePath.includes('post1.md')) {
-          return `
+          return Promise.resolve(`
   ---
   id: post1
   title: Post 1
@@ -455,9 +474,9 @@ describe('Posts Library', () => {
   topics: [{"name": "React", "color": "red"}]
   ---
   # Content 1
-  `;
+  `);
         }
-        return '';
+        return originalReadFile ? originalReadFile(filePath, encoding) : Promise.resolve('');
       });
       const context: GetStaticPropsContext = { params: { locale: 'en' } };
       const result = await makePostProps(['common', 'post'])(context);
@@ -481,9 +500,10 @@ describe('Posts Library', () => {
       const context: GetStaticPropsContext = { params: {} };
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.promises.readdir as jest.Mock).mockResolvedValue(['post1.md']);
-      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string) => {
+      const originalReadFile = (fs.promises.readFile as jest.Mock).getMockImplementation();
+      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
         if (filePath.includes('post1.md')) {
-          return `
+          return Promise.resolve(`
     ---
     id: post1
     title: Post 1
@@ -492,9 +512,9 @@ describe('Posts Library', () => {
     topics: [{"name": "React", "color": "red"}]
     ---
     # Content 1
-    `;
+    `);
         }
-        return '';
+        return originalReadFile ? originalReadFile(filePath, encoding) : Promise.resolve('');
       });
       const result = await makePostProps(['common', 'post'])(context);
       expect(result.props?._nextI18Next?.initialLocale).toBe('en');
@@ -516,9 +536,10 @@ describe('Posts Library', () => {
       const context: GetStaticPropsContext = { params: { locale: 'en' } };
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.promises.readdir as jest.Mock).mockResolvedValue(['post1.md']);
-      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string) => {
+      const originalReadFile = (fs.promises.readFile as jest.Mock).getMockImplementation();
+      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
         if (filePath.includes('post1.md')) {
-          return `
+          return Promise.resolve(`
     ---
     id: post1
     title: Post 1
@@ -527,9 +548,9 @@ describe('Posts Library', () => {
     topics: [{"name": "React", "color": "red"}]
     ---
     # Content 1
-    `;
+    `);
         }
-        return '';
+        return originalReadFile ? originalReadFile(filePath, encoding) : Promise.resolve('');
       });
       const result = await makePostProps(['common', 'post'])(context);
       expect(result.props._nextI18Next).toEqual({
@@ -589,12 +610,10 @@ describe('Posts Library', () => {
 
   describe('makeTopicProps', () => {
     beforeEach(() => {
-      jest.clearAllMocks();
-    });
-
-    it('returns props with default namespace', async () => {
-      (fs.promises.readdir as jest.Mock).mockResolvedValue(['mock-post.md']);
-      (fs.promises.readFile as jest.Mock).mockResolvedValue(`
+      const originalReadFile = (fs.promises.readFile as jest.Mock).getMockImplementation();
+      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
+        if (filePath.endsWith('.md')) {
+          return Promise.resolve(`
       ---
       id: ${mockPost.id}
       title: ${mockPost.title}
@@ -605,6 +624,13 @@ describe('Posts Library', () => {
       ---
       # Mock Markdown Content
     `);
+        }
+        return originalReadFile ? originalReadFile(filePath, encoding) : Promise.resolve('');
+      });
+    });
+
+    it('returns props with default namespace', async () => {
+      (fs.promises.readdir as jest.Mock).mockResolvedValue(['mock-post.md']);
       const context: GetStaticPropsContext = { params: { locale: 'en', id: 'react' } };
       const result = await makeTopicProps()(context);
       expect(result.props?._nextI18Next?.initialLocale).toBe('en');
@@ -612,17 +638,6 @@ describe('Posts Library', () => {
 
     it('returns props when locale and topicId are valid', async () => {
       (fs.promises.readdir as jest.Mock).mockResolvedValue(['mock-post.md']);
-      (fs.promises.readFile as jest.Mock).mockResolvedValue(`
-      ---
-      id: ${mockPost.id}
-      title: ${mockPost.title}
-      date: "${mockPost.date}"
-      summary: ${mockPost.summary}
-      thumbnail: ${mockPost.thumbnail}
-      topics: ${JSON.stringify(mockPost.topics)}
-      ---
-      # Mock Markdown Content
-    `);
       const context: GetStaticPropsContext = { params: { locale: 'en', id: 'react' } };
       const result = await makeTopicProps(['common', 'topic'])(context);
       expect(result.props).toBeDefined();
@@ -632,17 +647,6 @@ describe('Posts Library', () => {
     it('returns notFound: true when topic does not exist', async () => {
       const context: GetStaticPropsContext = { params: { locale: 'en', id: 'missing-topic' } };
       (fs.promises.readdir as jest.Mock).mockResolvedValue(['mock-post.md']);
-      (fs.promises.readFile as jest.Mock).mockResolvedValue(`
-      ---
-      id: ${mockPost.id}
-      title: ${mockPost.title}
-      date: "${mockPost.date}"
-      summary: ${mockPost.summary}
-      thumbnail: ${mockPost.thumbnail}
-      topics: ${JSON.stringify(mockPost.topics)}
-      ---
-      # Mock Markdown Content
-    `);
       const result = await makeTopicProps(['common', 'topic'])(context);
       expect(result).toEqual({ notFound: true });
     });
@@ -650,17 +654,6 @@ describe('Posts Library', () => {
     it('uses default locale when locale is missing', async () => {
       const context: GetStaticPropsContext = { params: { id: 'react' } };
       (fs.promises.readdir as jest.Mock).mockResolvedValue(['mock-post.md']);
-      (fs.promises.readFile as jest.Mock).mockResolvedValue(`
-      ---
-      id: ${mockPost.id}
-      title: ${mockPost.title}
-      date: "${mockPost.date}"
-      summary: ${mockPost.summary}
-      thumbnail: ${mockPost.thumbnail}
-      topics: ${JSON.stringify(mockPost.topics)}
-      ---
-      # Mock Markdown Content
-    `);
       const result = await makeTopicProps(['common', 'topic'])(context);
       expect(result.props?._nextI18Next?.initialLocale).toBe('en');
     });
@@ -668,17 +661,6 @@ describe('Posts Library', () => {
     it('returns props with default values when id is missing', async () => {
       const context: GetStaticPropsContext = { params: { locale: 'en' } };
       (fs.promises.readdir as jest.Mock).mockResolvedValue(['mock-post.md']);
-      (fs.promises.readFile as jest.Mock).mockResolvedValue(`
-      ---
-      id: ${mockPost.id}
-      title: ${mockPost.title}
-      date: "${mockPost.date}"
-      summary: ${mockPost.summary}
-      thumbnail: ${mockPost.thumbnail}
-      topics: ${JSON.stringify(mockPost.topics)}
-      ---
-      # Mock Markdown Content
-    `);
       const result = await makeTopicProps(['common', 'topic'])(context);
       expect(result).toEqual({ notFound: true });
     });
@@ -704,7 +686,7 @@ describe('Posts Library', () => {
       jest.restoreAllMocks();
     });
 
-    it('returns topic IDs for all locales when topics.json exists', () => {
+    it('returns topic IDs for all locales when topics.json exists', async () => {
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
         if (filePath.endsWith('/content/topics/en/topics.json')) {
@@ -715,7 +697,7 @@ describe('Posts Library', () => {
         }
         return '';
       });
-      const result = getAllTopicIds();
+      const result = await getAllTopicIds();
       expect(result).toEqual([
         {
           params: {
@@ -758,16 +740,16 @@ describe('Posts Library', () => {
       expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('/content/topics/en/topics.json'), 'utf8');
     });
 
-    it('returns an empty array if topics.json does not exist for any locale', () => {
+    it('returns an empty array if topics.json does not exist for any locale', async () => {
       (fs.existsSync as jest.Mock).mockReturnValue(false);
-      const result = getAllTopicIds();
+      const result = await getAllTopicIds();
       expect(result).toEqual([]);
     });
 
-    it('handles JSON parse errors gracefully', () => {
+    it('handles JSON parse errors gracefully', async () => {
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.readFileSync as jest.Mock).mockImplementation(() => '{ invalid json }');
-      const result = getAllTopicIds();
+      const result = await getAllTopicIds();
       expect(result).toEqual([]);
       expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining('Error reading or parsing topics.json'),
@@ -775,14 +757,14 @@ describe('Posts Library', () => {
       );
     });
 
-    it('returns an empty array if no topics are found for any locale', () => {
+    it('returns an empty array if no topics are found for any locale', async () => {
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify([]));
-      const result = getAllTopicIds();
+      const result = await getAllTopicIds();
       expect(result).toEqual([]);
     });
 
-    it('handles a mix of existing and missing topics.json files for different locales', () => {
+    it('handles a mix of existing and missing topics.json files for different locales', async () => {
       (fs.existsSync as jest.Mock).mockImplementation((filePath: string) =>
         filePath.includes('/content/topics/en/topics.json'),
       );
@@ -792,7 +774,7 @@ describe('Posts Library', () => {
         }
         throw new Error('File not found');
       });
-      const result = getAllTopicIds();
+      const result = await getAllTopicIds();
       expect(result).toEqual([
         {
           params: {

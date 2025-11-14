@@ -2,18 +2,15 @@ import type { PostSummary } from '@/types/posts';
 import type { GetStaticPropsContext } from 'next';
 import * as mediumModule from '@/lib/medium';
 import fs from 'fs';
-import { getCache, setCache } from '@/lib/cacheUtils';
 import { getAllTopics, getSortedPostsData } from '@/lib/posts';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 jest.mock('fs', () => ({
   existsSync: jest.fn(),
   readFileSync: jest.fn(),
-}));
-
-jest.mock('@/lib/cacheUtils', () => ({
-  getCache: jest.fn(),
-  setCache: jest.fn(),
+  promises: {
+    readFile: jest.fn(),
+  },
 }));
 
 jest.mock('@/lib/posts', () => ({
@@ -28,8 +25,7 @@ jest.mock('next-i18next/serverSideTranslations', () => ({
 const { mediumPostsCache, fetchRssSummaries, makeMediumPostsProps } = mediumModule;
 
 const fsMock = fs as jest.Mocked<typeof fs>;
-const getCacheMock = getCache as jest.MockedFunction<typeof getCache>;
-const setCacheMock = setCache as jest.MockedFunction<typeof setCache>;
+const readFileMock = fsMock.promises.readFile as jest.Mock;
 const getAllTopicsMock = getAllTopics as jest.MockedFunction<typeof getAllTopics>;
 const getSortedPostsDataMock = getSortedPostsData as jest.MockedFunction<typeof getSortedPostsData>;
 const serverSideTranslationsMock = serverSideTranslations as jest.MockedFunction<typeof serverSideTranslations>;
@@ -37,7 +33,10 @@ const serverSideTranslationsMock = serverSideTranslations as jest.MockedFunction
 describe('medium utilities', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    Object.keys(mediumPostsCache).forEach(key => delete mediumPostsCache[key]);
+    mediumPostsCache.clear();
+    readFileMock.mockImplementation((filePath: string, encoding: string) =>
+      Promise.resolve(fsMock.readFileSync(filePath, encoding)),
+    );
   });
 
   const makeCachedPost = (id: string): PostSummary => ({
@@ -51,27 +50,24 @@ describe('medium utilities', () => {
 
   it('returns cached summaries when present', async () => {
     const cachedPosts = [makeCachedPost('cached')];
-    getCacheMock.mockReturnValueOnce(cachedPosts);
+    mediumPostsCache.set('en-all', cachedPosts);
 
     const result = await fetchRssSummaries('en');
 
     expect(result).toEqual(cachedPosts);
     expect(fsMock.existsSync).not.toHaveBeenCalled();
-    expect(setCacheMock).not.toHaveBeenCalled();
   });
 
-  it('returns empty list and sets cache when feed file is missing', async () => {
-    getCacheMock.mockReturnValueOnce(null);
+  it('returns empty list and stores it when feed file is missing', async () => {
     fsMock.existsSync.mockReturnValueOnce(false);
 
     const result = await fetchRssSummaries('en');
 
     expect(result).toEqual([]);
-    expect(setCacheMock).toHaveBeenCalledWith('en-all', [], mediumPostsCache, 'mediumPostsData');
+    expect(mediumPostsCache.get('en-all')).toEqual([]);
   });
 
   it('parses feed items and stores them in cache', async () => {
-    getCacheMock.mockReturnValueOnce(null);
     fsMock.existsSync.mockReturnValueOnce(true);
 
     const feed = {
@@ -113,11 +109,10 @@ describe('medium utilities', () => {
     expect(second.summary).toBe('Snippet summary');
     expect(second.topics).toEqual([]);
 
-    expect(setCacheMock).toHaveBeenCalledWith('en-all', result, mediumPostsCache, 'mediumPostsData');
+    expect(mediumPostsCache.get('en-all')).toEqual(result);
   });
 
   it('calculates Turkish reading time format', async () => {
-    getCacheMock.mockReturnValueOnce(null);
     fsMock.existsSync.mockReturnValueOnce(true);
 
     const feed = {
@@ -136,25 +131,24 @@ describe('medium utilities', () => {
 
     const result = await fetchRssSummaries('tr');
     expect(result[0].readingTime).toMatch(/dk okuma$/);
-    expect(setCacheMock).toHaveBeenCalledWith('tr-all', result, mediumPostsCache, 'mediumPostsData');
+    expect(mediumPostsCache.get('tr-all')).toEqual(result);
   });
 
   it('handles JSON parse errors gracefully', async () => {
-    getCacheMock.mockReturnValueOnce(null);
     fsMock.existsSync.mockReturnValueOnce(true);
     fsMock.readFileSync.mockReturnValueOnce('not-json');
 
     const result = await fetchRssSummaries('en');
 
     expect(result).toEqual([]);
-    expect(setCacheMock).toHaveBeenCalledWith('en-all', [], mediumPostsCache, 'mediumPostsData');
+    expect(mediumPostsCache.get('en-all')).toEqual([]);
   });
 
   it('creates static props with provided locale', async () => {
     const cachedPosts = [makeCachedPost('cached-tr')];
-    getCacheMock.mockReturnValueOnce(cachedPosts);
-    getSortedPostsDataMock.mockReturnValueOnce([{ id: '1' } as PostSummary]);
-    getAllTopicsMock.mockReturnValueOnce([]);
+    mediumPostsCache.set('tr-all', cachedPosts);
+    getSortedPostsDataMock.mockResolvedValueOnce([{ id: '1' } as PostSummary]);
+    getAllTopicsMock.mockResolvedValueOnce([]);
     serverSideTranslationsMock.mockResolvedValueOnce({ common: 'test' } as any);
 
     const getProps = makeMediumPostsProps(['common']);
@@ -169,14 +163,16 @@ describe('medium utilities', () => {
   });
 
   it('falls back to default locale when locale param is missing', async () => {
-    getCacheMock.mockReturnValueOnce([makeCachedPost('cached-en')]);
-    getSortedPostsDataMock.mockReturnValueOnce([]);
-    getAllTopicsMock.mockReturnValueOnce([]);
+    const cachedPosts = [makeCachedPost('cached-en')];
+    mediumPostsCache.set('en-all', cachedPosts);
+    getSortedPostsDataMock.mockResolvedValueOnce([]);
+    getAllTopicsMock.mockResolvedValueOnce([]);
     serverSideTranslationsMock.mockResolvedValueOnce({});
 
     const getProps = makeMediumPostsProps();
+    const getSpy = jest.spyOn(mediumPostsCache, 'get');
     await getProps({} as GetStaticPropsContext);
-
-    expect(getCacheMock).toHaveBeenCalledWith('en-all', mediumPostsCache, 'mediumPostsData');
+    expect(getSpy).toHaveBeenCalledWith('en-all');
+    getSpy.mockRestore();
   });
 });

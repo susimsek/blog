@@ -6,7 +6,7 @@ import i18nextConfig from '../../next-i18next.config';
 import { GetStaticPropsContext } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { TOPIC_COLORS } from '@/config/constants';
-import { CacheEntry, getCache, setCache } from '@/lib/cacheUtils';
+import { createCacheStore } from '@/lib/cacheUtils';
 import { getAllTopics, getSortedPostsData } from '@/lib/posts';
 
 type MediumItem = Parser.Item & {
@@ -14,9 +14,12 @@ type MediumItem = Parser.Item & {
   'content:encodedSnippet'?: string;
 };
 
+const fsPromises = fs.promises;
+const fileExists = async (filePath: string) => fs.existsSync(filePath);
+
 const FEED_JSON_PATH = path.join(process.cwd(), 'content', 'medium-feed.json');
 
-export const mediumPostsCache: { [key: string]: CacheEntry<PostSummary[]> } = {};
+export const mediumPostsCache = createCacheStore<PostSummary[]>('mediumPostsData');
 
 const WHITESPACE_CHARS = new Set([' ', '\n', '\r', '\t', '\f', '\v']);
 
@@ -145,22 +148,21 @@ function getColorForTopic(topic: string): (typeof TOPIC_COLORS)[number] {
 }
 
 export async function fetchRssSummaries(locale: string): Promise<PostSummary[]> {
-  const cacheName = 'mediumPostsData';
   const cacheKey = `${locale}-all`;
 
-  const cachedData = getCache(cacheKey, mediumPostsCache, cacheName);
+  const cachedData = mediumPostsCache.get(cacheKey);
   if (cachedData) {
     return cachedData;
   }
 
-  if (!fs.existsSync(FEED_JSON_PATH)) {
+  if (!(await fileExists(FEED_JSON_PATH))) {
     console.error(`Medium feed file not found: ${FEED_JSON_PATH}`);
-    setCache(cacheKey, [], mediumPostsCache, cacheName);
+    mediumPostsCache.set(cacheKey, []);
     return [];
   }
 
   try {
-    const fileContents = fs.readFileSync(FEED_JSON_PATH, 'utf-8');
+    const fileContents = await fsPromises.readFile(FEED_JSON_PATH, 'utf-8');
     const feed: Parser.Output<MediumItem> = JSON.parse(fileContents);
 
     const posts: PostSummary[] = feed.items.map((item, index) => {
@@ -188,11 +190,11 @@ export async function fetchRssSummaries(locale: string): Promise<PostSummary[]> 
       };
     });
 
-    setCache(cacheKey, posts, mediumPostsCache, cacheName);
+    mediumPostsCache.set(cacheKey, posts);
     return posts;
   } catch (error) {
     console.error(`Error reading/parsing Medium feed JSON:`, error);
-    setCache(cacheKey, [], mediumPostsCache, cacheName);
+    mediumPostsCache.set(cacheKey, []);
     return [];
   }
 }
@@ -203,8 +205,8 @@ export const makeMediumPostsProps =
     const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
     const mediumPosts = await fetchRssSummaries(locale);
 
-    const posts = getSortedPostsData(locale);
-    const topics = getAllTopics(locale);
+    const posts = await getSortedPostsData(locale);
+    const topics = await getAllTopics(locale);
 
     const i18nProps = await serverSideTranslations(locale, ns);
 
