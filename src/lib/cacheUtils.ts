@@ -3,8 +3,18 @@ import { cacheTTL, isDev } from '@/config/constants';
 export interface CacheEntry<T> {
   value: T;
   expiry: number;
-  timer?: NodeJS.Timeout;
 }
+
+const purgeExpiredEntries = <T>(cache: { [key: string]: CacheEntry<T> }, cacheName: string, now: number) => {
+  Object.entries(cache).forEach(([cacheKey, entry]) => {
+    if (entry.expiry < now) {
+      delete cache[cacheKey];
+      if (isDev) {
+        console.log(`[Cache Purged] ${cacheName} - Key: ${cacheKey}`);
+      }
+    }
+  });
+};
 
 export function setCache<T>(
   key: string,
@@ -15,21 +25,11 @@ export function setCache<T>(
 ): void {
   const now = Date.now();
 
-  if (cache[key]?.timer) {
-    clearTimeout(cache[key].timer);
-  }
-
-  const timer = setTimeout(() => {
-    delete cache[key];
-    if (isDev) {
-      console.log(`[Cache Expired] ${cacheName} - Key: ${key}`);
-    }
-  }, ttl);
+  purgeExpiredEntries(cache, cacheName, now);
 
   cache[key] = {
     value,
     expiry: now + ttl,
-    timer,
   };
 
   if (isDev) {
@@ -75,10 +75,6 @@ export const createCacheStore = <T>(name: string): CacheStore<T> => {
   const store: { [key: string]: CacheEntry<T> } = {};
 
   const deleteEntry = (key: string) => {
-    const existing = store[key];
-    if (existing?.timer) {
-      clearTimeout(existing.timer);
-    }
     delete store[key];
   };
 
