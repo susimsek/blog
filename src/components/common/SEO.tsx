@@ -89,9 +89,7 @@ const SEO: React.FC<SEOProps> = ({
 
   return (
     <Head>
-      <title>
-        {title} | {siteName}
-      </title>
+      <title>{`${title} | ${siteName}`}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={canonicalUrl} />
       {keywords && <meta name="keywords" content={keywords} />}
