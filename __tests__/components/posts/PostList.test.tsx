@@ -3,7 +3,7 @@ import { screen, fireEvent } from '@testing-library/react';
 import PostList from '@/components/posts/PostList';
 import { mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
 import { useRouter } from 'next/router';
-import { renderWithProviders } from '../../../test-utils/renderWithProviders';
+import { renderWithProviders } from '../../utils/renderWithProviders';
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({

@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import Layout from '@/components/common/Layout';
-import { renderWithProviders } from '../../../test-utils/renderWithProviders';
+import { renderWithProviders } from '../../utils/renderWithProviders';
 import { useRouter } from 'next/router';
 
 jest.mock('next/router', () => ({

@@ -6,7 +6,7 @@ import { mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
 import { makeSearchProps } from '@/lib/posts';
 import type { PostSummary } from '@/types/posts';
 import type { GetStaticPropsContext } from 'next';
-import { renderWithProviders } from '../../../test-utils/renderWithProviders';
+import { renderWithProviders } from '../../utils/renderWithProviders';
 
 const layoutSpy = jest.fn();
 const postListSpy = jest.fn();

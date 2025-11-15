@@ -1,7 +1,7 @@
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import SearchContainer from '@/components/search/SearchContainer';
-import { renderWithProviders } from '../../../test-utils/renderWithProviders';
+import { renderWithProviders } from '../../utils/renderWithProviders';
 import { setPosts } from '@/reducers/postsQuery';
 
 jest.mock('next-i18next', () => ({

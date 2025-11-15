@@ -17,7 +17,7 @@ const customJestConfig = {
     prefix: '<rootDir>/',
   }),
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  testPathIgnorePatterns: ['<rootDir>/node_modules/', '/__mocks__/'],
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '/__mocks__/', '<rootDir>/__tests__/utils/'],
   coverageDirectory: './coverage',
 };
 
