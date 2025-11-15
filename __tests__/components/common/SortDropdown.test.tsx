@@ -2,6 +2,49 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { SortDropdown } from '@/components/common/SortDropdown';
 
+jest.mock('@fortawesome/react-fontawesome', () => ({
+  FontAwesomeIcon: () => <span data-testid="fa-icon" />,
+}));
+
+jest.mock('react-bootstrap', () => {
+  const React = require('react');
+
+  const DropdownContext = React.createContext<{ onSelect?: (eventKey: string) => void }>({});
+
+  const DropdownButton = ({
+    children,
+    onSelect,
+  }: {
+    children: React.ReactNode;
+    onSelect?: (eventKey: string | null) => void;
+  }) => (
+    <div data-testid="dropdown-button">
+      <DropdownContext.Provider value={{ onSelect: onSelect as (eventKey: string) => void }}>
+        {children}
+      </DropdownContext.Provider>
+    </div>
+  );
+
+  const DropdownItem = ({ children, eventKey }: { children: React.ReactNode; eventKey: string }) => {
+    const ctx = React.useContext(DropdownContext);
+    return (
+      <button type="button" onClick={() => ctx.onSelect?.(eventKey)}>
+        {children}
+      </button>
+    );
+  };
+
+  const DropdownDivider = () => <hr />;
+
+  return {
+    DropdownButton,
+    Dropdown: {
+      Item: DropdownItem,
+      Divider: DropdownDivider,
+    },
+  };
+});
+
 jest.mock('next-i18next', () => ({
   useTranslation: jest.fn().mockReturnValue({
     t: (key: string) => key,

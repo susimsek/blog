@@ -1,14 +1,17 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import PostList from '@/components/posts/PostList';
 import { mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
 import { useRouter } from 'next/router';
+import { renderWithProviders } from '../../../test-utils/renderWithProviders';
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
     t: jest.fn((key: string) => key),
   })),
 }));
+
+jest.mock('@/hooks/useDebounce', () => jest.fn((value: string) => value));
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -110,10 +113,13 @@ describe('PostList Component', () => {
   beforeEach(() => {
     (useRouter as jest.Mock).mockReturnValue({
       query: {},
+      push: jest.fn(),
+      pathname: '/',
+      isReady: true,
     });
   });
   it('renders all components correctly', () => {
-    render(<PostList posts={mockPostSummaries} topics={mockTopics} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />);
 
     expect(screen.getByTestId('search-bar')).toBeInTheDocument();
     expect(screen.getByTestId('sort-dropdown')).toBeInTheDocument();
@@ -123,13 +129,13 @@ describe('PostList Component', () => {
   });
 
   it('handles topics dropdown absence gracefully', () => {
-    render(<PostList posts={mockPostSummaries} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} />);
 
     expect(screen.queryByTestId('topics-dropdown')).not.toBeInTheDocument();
   });
 
   it('filters posts based on search query', () => {
-    render(<PostList posts={mockPostSummaries} topics={[]} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />);
     const searchBar = screen.getByTestId('search-bar');
     fireEvent.change(searchBar, { target: { value: 'Post 3' } });
 
@@ -137,7 +143,7 @@ describe('PostList Component', () => {
   });
 
   it('filters posts by topic', () => {
-    render(<PostList posts={mockPostSummaries} topics={mockTopics} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />);
     const reactTopic = screen.getByText('React');
     fireEvent.click(reactTopic);
 
@@ -146,7 +152,7 @@ describe('PostList Component', () => {
   });
 
   it('sorts posts in ascending order', () => {
-    render(<PostList posts={mockPostSummaries} topics={[]} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />);
     const sortAscending = screen.getByText('Sort Ascending');
     fireEvent.click(sortAscending);
 
@@ -156,7 +162,7 @@ describe('PostList Component', () => {
   });
 
   it('returns all posts when search query is empty', () => {
-    render(<PostList posts={mockPostSummaries} topics={[]} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />);
     const searchBar = screen.getByTestId('search-bar');
     fireEvent.change(searchBar, { target: { value: '' } });
 
@@ -164,12 +170,12 @@ describe('PostList Component', () => {
   });
 
   it('handles empty posts gracefully', () => {
-    render(<PostList posts={[]} topics={[]} />);
+    renderWithProviders(<PostList posts={[]} topics={[]} />);
     expect(screen.getByText('post.noPostsFound')).toBeInTheDocument();
   });
 
   it('resets pagination when sort order is changed', () => {
-    render(<PostList posts={mockPostSummaries} topics={[]} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />);
     const sortAscending = screen.getByText('Sort Ascending');
     fireEvent.click(sortAscending);
 

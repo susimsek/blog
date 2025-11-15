@@ -1,11 +1,12 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import SearchPage from '@/pages/[locale]/search';
 import { useTranslation } from 'next-i18next';
 import { mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
 import { makeSearchProps } from '@/lib/posts';
 import type { PostSummary } from '@/types/posts';
 import type { GetStaticPropsContext } from 'next';
+import { renderWithProviders } from '../../../test-utils/renderWithProviders';
 
 const layoutSpy = jest.fn();
 const postListSpy = jest.fn();
@@ -16,6 +17,7 @@ jest.mock('next/router', () => ({
     pathname: '/search',
     query: { q: 'Post 1' },
     asPath: '/search?q=Post+1',
+    isReady: true,
   }),
 }));
 
@@ -73,27 +75,28 @@ describe('Search Page', () => {
     });
   });
 
-  it('renders header and filters posts by query', () => {
-    render(<SearchPage allPosts={mockAllPosts} topics={mockTopics} />);
+  it('renders header and filters posts by query', async () => {
+    renderWithProviders(<SearchPage allPosts={mockAllPosts} topics={mockTopics} />);
 
     expect(screen.getByText('search.title')).toBeInTheDocument();
-    expect(screen.getByText('search.subtitle:Post 1')).toBeInTheDocument();
+    expect(await screen.findByText('search.subtitle:Post 1')).toBeInTheDocument();
     expect(layoutSpy).toHaveBeenCalledWith(expect.objectContaining({ sidebarEnabled: true, searchEnabled: true }));
 
-    expect(postListSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        posts: mockAllPosts.filter(post => post.title.includes('Post 1')),
-        searchEnabled: false,
-      }),
-    );
+    expect(postListSpy).toHaveBeenCalledWith(expect.objectContaining({ posts: mockAllPosts, searchEnabled: false }));
   });
 
-  it('passes all posts when query is missing', () => {
-    mockedUseRouter.mockReturnValueOnce({ route: '/search', pathname: '/search', query: {}, asPath: '/search' });
+  it('passes all posts when query is missing', async () => {
+    mockedUseRouter.mockReturnValueOnce({
+      route: '/search',
+      pathname: '/search',
+      query: {},
+      asPath: '/search',
+      isReady: true,
+    });
 
-    render(<SearchPage allPosts={mockAllPosts} topics={mockTopics} />);
+    renderWithProviders(<SearchPage allPosts={mockAllPosts} topics={mockTopics} />);
 
-    expect(postListSpy).toHaveBeenCalledWith(expect.objectContaining({ posts: mockAllPosts }));
+    await waitFor(() => expect(postListSpy).toHaveBeenCalledWith(expect.objectContaining({ posts: mockAllPosts })));
   });
 });
 

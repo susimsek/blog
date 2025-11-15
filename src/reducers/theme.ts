@@ -5,7 +5,7 @@ import type { ThemeKey } from '@/config/constants';
 
 export type Theme = ThemeKey;
 
-type ThemeState = {
+export type ThemeState = {
   theme: Theme;
 };
 

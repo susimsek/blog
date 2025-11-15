@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { ListGroup } from 'react-bootstrap';
 import SearchBar from '@/components/search/SearchBar';
 import PostListItem from '@/components/posts/PostListItem';
@@ -33,22 +33,26 @@ export default function SearchContainer() {
     setShowResults(query.trim().length > 0);
   };
 
-  const handleClickOutside = (event: MouseEvent) => {
+  const handleClickOutside = useCallback((event: MouseEvent) => {
     if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
       setShowResults(false);
     }
-  };
+  }, []);
 
   const handleViewAllResults = () => {
     setShowResults(false);
   };
 
   useEffect(() => {
+    if (!showResults) {
+      return;
+    }
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [showResults, handleClickOutside]);
 
   return (
     <div ref={searchRef} className="search-container ms-auto mt-3 mt-lg-0">

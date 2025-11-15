@@ -1,6 +1,8 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, act } from '@testing-library/react';
 import SearchContainer from '@/components/search/SearchContainer';
+import { renderWithProviders } from '../../../test-utils/renderWithProviders';
+import { setPosts } from '@/reducers/postsQuery';
 
 jest.mock('next-i18next', () => ({
   useTranslation: () => ({
@@ -56,7 +58,10 @@ describe('SearchContainer', () => {
   });
 
   it('renders filtered search results and limits to 5 items', () => {
-    render(<SearchContainer posts={posts} />);
+    const { store } = renderWithProviders(<SearchContainer />);
+    act(() => {
+      store.dispatch(setPosts(posts));
+    });
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
 
@@ -65,7 +70,10 @@ describe('SearchContainer', () => {
   });
 
   it('hides results when clicking outside', () => {
-    render(<SearchContainer posts={posts} />);
+    const { store } = renderWithProviders(<SearchContainer />);
+    act(() => {
+      store.dispatch(setPosts(posts));
+    });
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post 1' } });
     expect(screen.getByText('Post 1')).toBeInTheDocument();
@@ -76,7 +84,10 @@ describe('SearchContainer', () => {
   });
 
   it('closes results when "view all" link is clicked and preserves encoded query', () => {
-    render(<SearchContainer posts={posts} />);
+    const { store } = renderWithProviders(<SearchContainer />);
+    act(() => {
+      store.dispatch(setPosts(posts));
+    });
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
 

@@ -1,6 +1,7 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { PostFilters, PostFiltersProps } from '@/components/posts/PostFilters';
+import { renderWithProviders } from '../../../test-utils/renderWithProviders';
 
 jest.mock('@/components/search/SearchBar', () => ({
   __esModule: true,
@@ -48,40 +49,19 @@ jest.mock('@/components/common/SortDropdown', () => ({
 }));
 
 describe('PostFilters Component', () => {
-  const mockOnSearchChange = jest.fn();
-  const mockOnSortChange = jest.fn();
-  const mockOnTopicsChange = jest.fn();
-  const mockOnDateRangeChange = jest.fn();
-
   const defaultProps: PostFiltersProps = {
-    searchQuery: '',
-    onSearchChange: mockOnSearchChange,
-    sortOrder: 'asc',
-    onSortChange: mockOnSortChange,
-    selectedTopics: [],
-    onTopicsChange: mockOnTopicsChange,
-    onDateRangeChange: mockOnDateRangeChange,
     topics: [
       { id: '1', name: 'Topic 1', color: 'red' },
       { id: '2', name: 'Topic 2', color: 'blue' },
     ],
   };
 
-  const noTopicsProps = {
-    ...defaultProps,
-    topics: undefined,
-  };
-
-  beforeEach(() => {
-    mockOnSearchChange.mockClear();
-  });
-
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   test('renders all mocked components', () => {
-    render(<PostFilters {...defaultProps} />);
+    renderWithProviders(<PostFilters {...defaultProps} />);
 
     expect(screen.getByTestId('search-bar')).toBeInTheDocument();
     expect(screen.getByTestId('topics-dropdown')).toBeInTheDocument();
@@ -90,44 +70,43 @@ describe('PostFilters Component', () => {
   });
 
   test('calls onSearchChange when search input changes', () => {
-    render(<PostFilters {...defaultProps} />);
+    const { store } = renderWithProviders(<PostFilters {...defaultProps} />);
 
     const searchInput = screen.getByTestId('search-bar');
     fireEvent.change(searchInput, { target: { value: 'Test query' } });
 
-    expect(mockOnSearchChange).toHaveBeenCalledWith('Test query');
-    expect(mockOnSearchChange).toHaveBeenCalledTimes(1);
+    expect(store.getState().postsQuery.query).toBe('Test query');
   });
 
   test('calls onTopicsChange when a topic is clicked', () => {
-    render(<PostFilters {...defaultProps} />);
+    const { store } = renderWithProviders(<PostFilters {...defaultProps} />);
 
     const topicButton = screen.getByText('Topic 1');
     fireEvent.click(topicButton);
 
-    expect(mockOnTopicsChange).toHaveBeenCalledWith(['1']);
+    expect(store.getState().postsQuery.selectedTopics).toEqual(['1']);
   });
 
   test('calls onDateRangeChange when date range button is clicked', () => {
-    render(<PostFilters {...defaultProps} />);
+    const { store } = renderWithProviders(<PostFilters {...defaultProps} />);
 
     const datePickerButton = screen.getByTestId('date-picker');
     fireEvent.click(datePickerButton);
 
-    expect(mockOnDateRangeChange).toHaveBeenCalledWith({ startDate: '2024-01-01', endDate: '2024-01-31' });
+    expect(store.getState().postsQuery.dateRange).toEqual({ startDate: '2024-01-01', endDate: '2024-01-31' });
   });
 
   test('calls onSortChange when sort dropdown button is clicked', () => {
-    render(<PostFilters {...defaultProps} />);
+    const { store } = renderWithProviders(<PostFilters {...defaultProps} />);
 
     const sortButton = screen.getByTestId('sort-dropdown');
     fireEvent.click(sortButton);
 
-    expect(mockOnSortChange).toHaveBeenCalledWith('desc');
+    expect(store.getState().postsQuery.sortOrder).toBe('desc');
   });
 
   test('does not render TopicsDropdown when topics are empty', () => {
-    render(<PostFilters {...noTopicsProps} />);
+    renderWithProviders(<PostFilters topics={[]} />);
 
     expect(screen.queryByTestId('topics-dropdown')).not.toBeInTheDocument();
   });

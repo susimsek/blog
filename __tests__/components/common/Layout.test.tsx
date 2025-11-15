@@ -1,5 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import Layout from '@/components/common/Layout';
+import { renderWithProviders } from '../../../test-utils/renderWithProviders';
+import { useRouter } from 'next/router';
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
 
 // Mock Header and Footer components
 jest.mock('@/components/common/Header', () => ({
@@ -35,8 +41,18 @@ beforeAll(() => {
 });
 
 describe('Layout Component', () => {
+  beforeEach(() => {
+    (useRouter as jest.Mock).mockReturnValue({
+      locale: 'en',
+      defaultLocale: 'en',
+      pathname: '/',
+      query: {},
+      push: jest.fn(),
+    });
+  });
+
   it('renders the Header component', () => {
-    render(
+    renderWithProviders(
       <Layout>
         <div data-testid="child">Content</div>
       </Layout>,
@@ -48,7 +64,7 @@ describe('Layout Component', () => {
   });
 
   it('renders the Footer component', () => {
-    render(
+    renderWithProviders(
       <Layout>
         <div data-testid="child">Content</div>
       </Layout>,
@@ -60,7 +76,7 @@ describe('Layout Component', () => {
   });
 
   it('renders the children passed to the Layout', () => {
-    render(
+    renderWithProviders(
       <Layout>
         <div data-testid="child">Content</div>
       </Layout>,
@@ -72,7 +88,7 @@ describe('Layout Component', () => {
   });
 
   it('renders the main container with the correct className', () => {
-    render(
+    renderWithProviders(
       <Layout>
         <div data-testid="child">Content</div>
       </Layout>,
