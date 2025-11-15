@@ -19,27 +19,31 @@ type LayoutProps = {
   sidebarEnabled?: boolean;
 };
 
-const Layout: React.FC<LayoutProps> = ({
-  children,
-  posts = [],
-  topics = [],
-  searchEnabled = false,
-  sidebarEnabled = false,
-}) => {
+const LayoutStateInitializer: React.FC<Pick<LayoutProps, 'posts'>> = ({ posts = [] }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const isMobile = useMediaQuery('(max-width: 768px)');
-  const [isSidebarVisible, setIsSidebarVisible] = useState(sidebarEnabled);
-  const footerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     dispatch(setPosts(posts));
   }, [dispatch, posts]);
 
   useEffect(() => {
-    const currentLocale = (router.locale as string) ?? router.defaultLocale ?? null;
+    const currentLocale = router.locale ?? router.defaultLocale ?? null;
     dispatch(setLocale(currentLocale));
   }, [dispatch, router.locale, router.defaultLocale]);
+
+  return null;
+};
+
+const LayoutView: React.FC<LayoutProps> = ({
+  children,
+  topics = [],
+  searchEnabled = false,
+  sidebarEnabled = false,
+}) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [isSidebarVisible, setIsSidebarVisible] = useState(sidebarEnabled);
+  const footerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsSidebarVisible(sidebarEnabled && !isMobile);
@@ -99,6 +103,15 @@ const Layout: React.FC<LayoutProps> = ({
         <Footer />
       </div>
     </div>
+  );
+};
+
+const Layout: React.FC<LayoutProps> = props => {
+  return (
+    <>
+      <LayoutStateInitializer posts={props.posts} />
+      <LayoutView {...props} />
+    </>
   );
 };
 
