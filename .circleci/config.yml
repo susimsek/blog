@@ -34,6 +34,7 @@ jobs:
             - ~/.pnpm-store
       - snyk/scan:
           fail-on-issues: false
+          additional-arguments: "--all-projects"
       - run:
           name: Run Tests
           command: pnpm test
