@@ -43,12 +43,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { faSidebar } from '@/lib/icons';
 
-import { ReactComponent as JavaIcon } from '@/assets/icons/java.svg';
-import { ReactComponent as KotlinIcon } from '@/assets/icons/kotlin.svg';
-import { ReactComponent as GoIcon } from '@/assets/icons/go.svg';
+import JavaIcon from '@/assets/icons/java.svg';
+import KotlinIcon from '@/assets/icons/kotlin.svg';
+import GoIcon from '@/assets/icons/go.svg';
 
-import { ReactComponent as TrFlag } from '@/assets/flags/tr.svg';
-import { ReactComponent as EnFlag } from '@/assets/flags/en.svg';
+import TrFlag from '@/assets/flags/tr.svg';
+import EnFlag from '@/assets/flags/en.svg';
 
 export const loadIcons = () => {
   library.add(

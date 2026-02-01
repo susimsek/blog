@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import languageDetector from '@/lib/languageDetector';
-import i18nextConfig from '../../../next-i18next.config';
+import i18nextConfig from '@root/next-i18next.config';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useMemo } from 'react';
 import { LOCALES } from '@/config/constants';

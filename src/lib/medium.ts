@@ -2,7 +2,7 @@ import Parser from 'rss-parser';
 import fs from 'fs';
 import path from 'path';
 import { PostSummary, Topic } from '@/types/posts';
-import i18nextConfig from '../../next-i18next.config';
+import i18nextConfig from '@root/next-i18next.config';
 import { GetStaticPropsContext } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { TOPIC_COLORS } from '@/config/constants';

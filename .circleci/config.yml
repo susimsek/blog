@@ -16,23 +16,31 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: v1-dependencies-{{ checksum "package-lock.json" }}
+          keys:
+            - v2-pnpm-store-{{ checksum "pnpm-lock.yaml" }}
+            - v2-pnpm-store-
       - run:
-          name: Install Dependencies
-          command: npm install
+          name: Enable Corepack (pnpm)
+          command: corepack enable
+      - run:
+          name: Configure pnpm store dir
+          command: pnpm config set store-dir ~/.pnpm-store
+      - run:
+          name: Install Dependencies (pnpm)
+          command: pnpm install --frozen-lockfile
       - save_cache:
-          key: v1-dependencies-{{ checksum "package-lock.json" }}
+          key: v2-pnpm-store-{{ checksum "pnpm-lock.yaml" }}
           paths:
-            - node_modules
+            - ~/.pnpm-store
       - snyk/scan:
           fail-on-issues: false
       - run:
           name: Run Tests
-          command: npm test
+          command: pnpm test
       - sonarcloud/scan
       - run:
           name: Build Project
-          command: npm run build
+          command: pnpm run build
       - persist_to_workspace:
           root: .
           paths:
@@ -59,8 +67,11 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Install gh-pages
-          command: npm install -g --silent gh-pages
+          name: Enable Corepack (pnpm)
+          command: corepack enable
+      - run:
+          name: Configure pnpm store dir
+          command: pnpm config set store-dir ~/.pnpm-store
       - run:
           name: Configure Git
           command: |
@@ -73,24 +84,32 @@ jobs:
       - run:
           name: Deploy to GitHub Pages
           command: |
-            gh-pages -d build --nojekyll -m "deploy: ${CIRCLE_SHA1}"
+            pnpm dlx gh-pages -d build --nojekyll -m "deploy: ${CIRCLE_SHA1}"
 
   fetch-medium-feed:
     executor: node-executor
     steps:
       - checkout
       - restore_cache:
-          key: v1-dependencies-{{ checksum "package-lock.json" }}
+          keys:
+            - v2-pnpm-store-{{ checksum "pnpm-lock.yaml" }}
+            - v2-pnpm-store-
       - run:
-          name: Install Dependencies
-          command: npm install
+          name: Enable Corepack (pnpm)
+          command: corepack enable
+      - run:
+          name: Configure pnpm store dir
+          command: pnpm config set store-dir ~/.pnpm-store
+      - run:
+          name: Install Dependencies (pnpm)
+          command: pnpm install --frozen-lockfile
       - save_cache:
-          key: v1-dependencies-{{ checksum "package-lock.json" }}
+          key: v2-pnpm-store-{{ checksum "pnpm-lock.yaml" }}
           paths:
-            - node_modules
+            - ~/.pnpm-store
       - run:
           name: Fetch Medium RSS Feed
-          command: npm run fetch:medium
+          command: pnpm run fetch:medium
       - run:
           name: Configure Git
           command: |

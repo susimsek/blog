@@ -20,7 +20,7 @@ jest.mock('next/document', () => {
   };
 });
 
-jest.mock('../../next-i18next.config', () => ({
+jest.mock('@root/next-i18next.config', () => ({
   i18n: {
     defaultLocale: 'en',
   },

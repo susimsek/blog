@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import PostDetail from '@/components/posts/PostDetail';
-import { mockPost, mockPostWithoutContent } from '../../__mocks__/mockPostData';
+import { mockPost, mockPostWithoutContent } from '@tests/__mocks__/mockPostData';
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <span data-testid={`fa-icon-${icon}`} />,

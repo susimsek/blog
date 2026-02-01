@@ -17,7 +17,7 @@ import {
 import fs from 'fs';
 import { GetStaticPropsContext } from 'next';
 import path from 'path';
-import { mockPost, mockPostSummary, mockTopic } from '../__mocks__/mockPostData';
+import { mockPost, mockPostSummary, mockTopic } from '@tests/__mocks__/mockPostData';
 
 // Mock `fs` module
 jest.mock('fs', () => ({
@@ -138,7 +138,7 @@ jest.mock('@/lib/getStatic', () => ({
   }),
 }));
 
-jest.mock('../../next-i18next.config', () => ({
+jest.mock('@root/next-i18next.config', () => ({
   i18n: {
     defaultLocale: 'en',
     locales: ['en', 'fr', 'de'],

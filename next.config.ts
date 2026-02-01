@@ -1,4 +1,6 @@
-module.exports = {
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   trailingSlash: false,
@@ -9,13 +11,14 @@ module.exports = {
   images: {
     unoptimized: true,
   },
-  webpack: config => {
-    // Add rule for SVG files
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ['@svgr/webpack', 'url-loader'],
-    });
-
-    return config;
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
   },
 };
+
+export default nextConfig;

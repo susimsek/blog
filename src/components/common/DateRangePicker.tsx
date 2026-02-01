@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Dropdown, DropdownButton, Form, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
-import i18nextConfig from '../../../next-i18next.config';
+import i18nextConfig from '@root/next-i18next.config';
 import { useRouter } from 'next/router';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { enUS } from 'date-fns/locale/en-US';

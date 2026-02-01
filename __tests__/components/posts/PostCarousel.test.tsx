@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import PostCarousel from '@/components/posts/PostCarousel';
-import { mockPostSummaries } from '../../__mocks__/mockPostData';
+import { mockPostSummaries } from '@tests/__mocks__/mockPostData';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockReturnValue({

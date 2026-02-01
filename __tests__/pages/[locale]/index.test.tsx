@@ -6,7 +6,7 @@ import Home, { getStaticProps } from '@/pages/[locale]/index';
 import '@testing-library/jest-dom';
 import { useTranslation } from 'next-i18next';
 import { PostSummary, Topic } from '@/types/posts';
-import { mockPosts, mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
+import { mockPosts, mockPostSummaries, mockTopics } from '@tests/__mocks__/mockPostData';
 // Mock `next/router`
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockReturnValue({
@@ -50,7 +50,7 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 
 jest.mock('@assets/images/logo.svg', () => ({
   __esModule: true,
-  ReactComponent: () => <svg data-testid="mock-logo" />,
+  default: () => <svg data-testid="mock-logo" />,
 }));
 
 // Mock `PostList` component

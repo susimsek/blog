@@ -1,7 +1,7 @@
 // lib/getStatic.ts
 import { GetStaticPaths, GetStaticPropsContext } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import i18nextConfig from '../../next-i18next.config';
+import i18nextConfig from '@root/next-i18next.config';
 
 // Define the type of params returned in getI18nPaths for locale-based paths
 type LocaleParams = {

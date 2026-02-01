@@ -53,7 +53,7 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 
 jest.mock('@assets/images/logo.svg', () => ({
   __esModule: true,
-  ReactComponent: () => <svg data-testid="mock-logo" />,
+  default: () => <svg data-testid="mock-logo" />,
 }));
 
 // Mock Layout component

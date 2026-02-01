@@ -5,7 +5,7 @@ import store from '@/config/store';
 import '@testing-library/jest-dom';
 import { useTranslation } from 'next-i18next';
 import Contact, { getStaticPaths, getStaticProps } from '@/pages/[locale]/contact';
-import { mockPosts, mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
+import { mockPosts, mockPostSummaries, mockTopics } from '@tests/__mocks__/mockPostData';
 
 const mockContext = { locales: ['en', 'tr'], defaultLocale: 'en' };
 
@@ -39,7 +39,7 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 
 jest.mock('@assets/images/logo.svg', () => ({
   __esModule: true,
-  ReactComponent: () => <svg data-testid="mock-logo" />,
+  default: () => <svg data-testid="mock-logo" />,
 }));
 
 // Mock Layout component

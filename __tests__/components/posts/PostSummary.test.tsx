@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import PostSummary from '@/components/posts/PostSummary';
 import { Post } from '@/types/posts';
-import { mockPost } from '../../__mocks__/mockPostData';
+import { mockPost } from '@tests/__mocks__/mockPostData';
 
 jest.mock('next-i18next', () => ({
   useTranslation: jest.fn(() => ({

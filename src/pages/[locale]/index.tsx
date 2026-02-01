@@ -7,7 +7,7 @@ import PostList from '@/components/posts/PostList';
 import { PostSummary, Topic } from '@/types/posts';
 import PostCarousel from '@/components/posts/PostCarousel';
 import { useRouter } from 'next/router';
-import i18nextConfig from '../../../next-i18next.config';
+import i18nextConfig from '@root/next-i18next.config';
 import SEO from '@/components/common/SEO';
 
 type HomeProps = {

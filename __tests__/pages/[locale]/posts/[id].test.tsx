@@ -8,7 +8,7 @@ import { useTranslation } from 'next-i18next';
 import { Post } from '@/types/posts';
 import { getStaticPaths } from '@/pages/[locale]/posts/[id]';
 import { GetStaticPropsContext } from 'next';
-import { mockPost, mockPost2 } from '../../../__mocks__/mockPostData';
+import { mockPost, mockPost2 } from '@tests/__mocks__/mockPostData';
 
 // Mock `next/router`
 jest.mock('next/router', () => ({
@@ -65,7 +65,7 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 
 jest.mock('@assets/images/logo.svg', () => ({
   __esModule: true,
-  ReactComponent: () => <svg data-testid="mock-logo" />,
+  default: () => <svg data-testid="mock-logo" />,
 }));
 
 // Mock `PostDetail` component

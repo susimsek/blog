@@ -1,7 +1,7 @@
 import React from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import { PostFilters, PostFiltersProps } from '@/components/posts/PostFilters';
-import { renderWithProviders } from '../../utils/renderWithProviders';
+import { renderWithProviders } from '@tests/utils/renderWithProviders';
 
 jest.mock('@/components/search/SearchBar', () => ({
   __esModule: true,

@@ -37,7 +37,7 @@ jest.mock('@/components/common/Link', () => ({
 
 jest.mock('@assets/images/logo.svg', () => ({
   __esModule: true,
-  ReactComponent: () => <span data-testid="logo" />,
+  default: () => <span data-testid="logo" />,
 }));
 
 jest.mock('react-bootstrap', () => {

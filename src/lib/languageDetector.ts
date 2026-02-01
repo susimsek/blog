@@ -1,5 +1,5 @@
 import languageDetector from 'next-language-detector';
-import i18nextConfig from '../../next-i18next.config';
+import i18nextConfig from '@root/next-i18next.config';
 
 // Configures the language detector with types
 export default languageDetector({

@@ -1,2 +1,2 @@
 #!/bin/sh
-npx lint-staged --config .lintstagedrc
+pnpm exec lint-staged --config .lintstagedrc

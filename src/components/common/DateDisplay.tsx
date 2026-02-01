@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import i18nextConfig from '../../../next-i18next.config';
+import i18nextConfig from '@root/next-i18next.config';
 
 interface DateDisplayProps {
   readonly date: string;

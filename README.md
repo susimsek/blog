@@ -79,11 +79,14 @@ git clone https://github.com/susimsek/blog.git
 # Navigate to the project directory
 cd blog
 
+# Enable pnpm via Corepack (recommended)
+corepack enable
+
 # Install dependencies
-npm install
+pnpm install
 
 # Start the development server
-npm run dev
+pnpm dev
 
 # Open the application in your browser
 http://localhost:3000
@@ -94,7 +97,7 @@ http://localhost:3000
 To run the tests and ensure the application is functioning correctly:
 
 ```bash
-npm test
+pnpm test
 ```
 
 ## 🏗️ Build
@@ -102,7 +105,7 @@ npm test
 To build the application for production:
 
 ```bash
-npm run build
+pnpm build
 ```
 
 ## 📏 ESLint
@@ -110,13 +113,13 @@ npm run build
 To check the JavaScript and TypeScript code style using ESLint, execute:
 
 ```bash
-npm run lint
+pnpm run lint
 ```
 
 To automatically fix linting issues, execute:
 
 ```bash
-npm run lint:fix
+pnpm run lint:fix
 ```
 
 ## 🎨 Prettier
@@ -124,7 +127,7 @@ npm run lint:fix
 To format the code using Prettier, execute:
 
 ```bash
-npm run prettier:format
+pnpm run prettier:format
 ```
 
 ## 🛡️ Code Quality
@@ -132,7 +135,7 @@ npm run prettier:format
 To assess code quality locally using SonarQube, execute:
 
 ```bash
-npm run sonar
+pnpm run sonar
 ```
 
 ## 🚀 Deployment

@@ -1,9 +1,9 @@
 import React from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import PostList from '@/components/posts/PostList';
-import { mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
+import { mockPostSummaries, mockTopics } from '@tests/__mocks__/mockPostData';
 import { useRouter } from 'next/router';
-import { renderWithProviders } from '../../utils/renderWithProviders';
+import { renderWithProviders } from '@tests/utils/renderWithProviders';
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({

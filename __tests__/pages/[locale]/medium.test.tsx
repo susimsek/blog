@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import MediumPage from '@/pages/[locale]/medium';
 import { useTranslation } from 'next-i18next';
 import type { PostSummary, Topic } from '@/types/posts';
-import { mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
+import { mockPostSummaries, mockTopics } from '@tests/__mocks__/mockPostData';
 import type { GetStaticPropsContext } from 'next';
 import { makeMediumPostsProps } from '@/lib/medium';
 

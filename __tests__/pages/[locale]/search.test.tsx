@@ -2,11 +2,11 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import SearchPage from '@/pages/[locale]/search';
 import { useTranslation } from 'next-i18next';
-import { mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
+import { mockPostSummaries, mockTopics } from '@tests/__mocks__/mockPostData';
 import { makeSearchProps } from '@/lib/posts';
 import type { PostSummary } from '@/types/posts';
 import type { GetStaticPropsContext } from 'next';
-import { renderWithProviders } from '../../utils/renderWithProviders';
+import { renderWithProviders } from '@tests/utils/renderWithProviders';
 
 const layoutSpy = jest.fn();
 const postListSpy = jest.fn();

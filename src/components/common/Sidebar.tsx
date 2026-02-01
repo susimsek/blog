@@ -5,7 +5,7 @@ import Link from '@/components/common/Link';
 import SearchBar from '@/components/search/SearchBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
-import { ReactComponent as Logo } from '@assets/images/logo.svg';
+import Logo from '@assets/images/logo.svg';
 import useDebounce from '@/hooks/useDebounce';
 
 type SidebarProps = {

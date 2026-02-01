@@ -42,12 +42,10 @@ const LayoutView: React.FC<LayoutProps> = ({
   sidebarEnabled = false,
 }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const [isSidebarVisible, setIsSidebarVisible] = useState(sidebarEnabled);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const footerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setIsSidebarVisible(sidebarEnabled && !isMobile);
-  }, [isMobile, sidebarEnabled]);
+  const isSidebarVisible = sidebarEnabled && !isMobile && isSidebarOpen;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -74,7 +72,7 @@ const LayoutView: React.FC<LayoutProps> = ({
     };
   }, []);
 
-  const toggleSidebar = () => setIsSidebarVisible(prev => !prev);
+  const toggleSidebar = () => setIsSidebarOpen(prev => !prev);
 
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -89,7 +87,7 @@ const LayoutView: React.FC<LayoutProps> = ({
                 topics={topics}
                 isMobile={isMobile}
                 isVisible={isSidebarVisible}
-                onClose={() => setIsSidebarVisible(false)}
+                onClose={() => setIsSidebarOpen(false)}
               />
             </Col>
           )}

@@ -5,7 +5,7 @@ import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import ThemeToggler from '@/components/theme/ThemeToggler';
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ReactComponent as Logo } from '@assets/images/logo.svg';
+import Logo from '@assets/images/logo.svg';
 import SearchContainer from '@/components/search/SearchContainer';
 import useMediaQuery from '@/hooks/useMediaQuery';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import i18nextConfig from '../../../next-i18next.config';
+import i18nextConfig from '@root/next-i18next.config';
 import { AUTHOR_NAME, SITE_URL, TWITTER_USERNAME, AVATAR_LINK, LOCALES } from '@/config/constants';
 import { useTranslation } from 'next-i18next';
 

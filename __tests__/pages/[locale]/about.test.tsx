@@ -5,7 +5,7 @@ import store from '@/config/store';
 import About, { getStaticPaths, getStaticProps } from '@/pages/[locale]/about';
 import '@testing-library/jest-dom';
 import { useTranslation } from 'next-i18next';
-import { mockPosts, mockPostSummaries, mockTopics } from '../../__mocks__/mockPostData';
+import { mockPosts, mockPostSummaries, mockTopics } from '@tests/__mocks__/mockPostData';
 
 const mockContext = { locales: ['en', 'tr'], defaultLocale: 'en' };
 
@@ -64,7 +64,7 @@ jest.mock('@/components/common/ContactInfo', () => () => <div data-testid="conta
 
 jest.mock('@assets/images/logo.svg', () => ({
   __esModule: true,
-  ReactComponent: () => <svg data-testid="mock-logo" />,
+  default: () => <svg data-testid="mock-logo" />,
 }));
 
 // Mock `makePostProps` function
