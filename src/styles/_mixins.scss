@@ -1,7 +1,12 @@
-@import 'bootstrap/scss/bootstrap';
+@use 'bootstrap/scss/bootstrap';
+@use 'sass:list';
 
 @mixin transition($properties...) {
-  transition: #{join($properties, ', ')} var(--transition-speed) ease;
+  $transitions: ();
+  @each $property in $properties {
+    $transitions: list.append($transitions, #{$property} var(--transition-speed) ease, $separator: comma);
+  }
+  transition: $transitions;
 }
 
 @mixin button-variant($name, $bg-color, $text-color, $hover-bg, $hover-border, $border-color: $bg-color) {

@@ -1,7 +1,7 @@
 # AI Agent Guidelines
 
 This repo is a blog application built with **Next.js (static export)**. It reads content from Markdown and supports **multiple languages (en/tr)**.
-Tech stack: Next.js 15, React 19, TypeScript, Redux Toolkit, next-i18next, Bootstrap/Sass, Jest + Testing Library.
+Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, next-i18next, Bootstrap/Sass, ESLint (flat config), Jest + Testing Library.
 
 ## Table of Contents
 
@@ -30,7 +30,7 @@ Tech stack: Next.js 15, React 19, TypeScript, Redux Toolkit, next-i18next, Boots
 | Install               | `pnpm install --frozen-lockfile`                                   |
 | Dev                   | `pnpm dev`                                                         |
 | Build (prod export)   | `pnpm build`                                                       |
-| Start (Next server)   | `pnpm start`                                                       |
+| Preview (static)      | `pnpm build` then `pnpm dlx serve build`                           |
 | Unit tests            | `pnpm test`                                                        |
 | Single test file      | `pnpm test -- __tests__/lib/posts.test.tsx`                        |
 | Lint                  | `pnpm run lint`                                                    |
@@ -136,7 +136,7 @@ Tech stack: Next.js 15, React 19, TypeScript, Redux Toolkit, next-i18next, Boots
   - `pnpm build` runs Next build and then `postbuild` scripts.
   - `postbuild`: generates sitemap + RSS (writes into `build/`).
 - Scripts:
-  - `scripts/generate-sitemap.js` → writes `build/post-sitemap.xml`, `build/topic-sitemap.xml`, and supporting sitemap files.
+  - `scripts/generate-sitemap.js` → writes `build/sitemap_index.xml`, `build/page-sitemap.xml`, `build/post-sitemap.xml`, `build/post_topic-sitemap.xml`.
   - `scripts/generate-rss.js` → writes `build/<locale>/rss.xml`.
   - `scripts/fetch-medium-feed.js` → refreshes `content/medium-feed.json`.
 - `SITE_URL` affects absolute URLs in sitemap/RSS output.
@@ -279,3 +279,5 @@ Optional longer description.
 - Adding an i18n key but updating only one locale file.
 - Introducing server-only APIs or runtime dependencies in an `output: 'export'` environment.
 - Using `NEXT_PUBLIC_BASE_PATH` without accounting for asset paths and NGINX 404 routing.
+- If Sass deprecation warnings appear in CI: prefer `@use` over `@import`, and keep `next.config.ts` `sassOptions.quietDeps` enabled to silence dependency noise.
+- Ignoring large-page-data warnings: some `getStaticProps` payloads can exceed Next's default 128k threshold and may impact performance.

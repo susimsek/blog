@@ -1,5 +1,6 @@
-@import './variables';
-@import './mixins';
+@use './variables';
+@use './mixins' as *;
+@use 'sass:list';
 
 html {
   box-sizing: border-box;
@@ -610,9 +611,9 @@ $link-variants: (
   }
 
   @each $name, $values in $link-variants {
-    $color: nth($values, 1);
-    $hover: nth($values, 2);
-    $active: nth($values, 3);
+    $color: list.nth($values, 1);
+    $hover: list.nth($values, 2);
+    $active: list.nth($values, 3);
     @include link-variant($name, $color, $hover, $active);
   }
 }
@@ -751,11 +752,11 @@ $state-variants: (
   @include transition(background-color, border-color, color, box-shadow);
 
   @each $name, $values in $state-variants {
-    $bg: nth($values, 1);
-    $text: nth($values, 2);
-    $hover-bg: nth($values, 3);
-    $hover-border: nth($values, 4);
-    $border-color: nth($values, 5);
+    $bg: list.nth($values, 1);
+    $text: list.nth($values, 2);
+    $hover-bg: list.nth($values, 3);
+    $hover-border: list.nth($values, 4);
+    $border-color: list.nth($values, 5);
     @include button-variant($name, $bg, $text, $hover-bg, $hover-border, $border-color);
   }
 }
@@ -765,11 +766,11 @@ $state-variants: (
   @include transition(background-color, border-color, color, box-shadow);
 
   @each $name, $values in $state-variants {
-    $bg: nth($values, 1);
-    $text: nth($values, 2);
-    $hover-bg: nth($values, 3);
-    $hover-border: nth($values, 4);
-    $border-color: nth($values, 5);
+    $bg: list.nth($values, 1);
+    $text: list.nth($values, 2);
+    $hover-bg: list.nth($values, 3);
+    $hover-border: list.nth($values, 4);
+    $border-color: list.nth($values, 5);
     @include badge-variant($name, $bg, $text, $hover-bg, $hover-border, $border-color);
   }
 }
@@ -778,11 +779,11 @@ $state-variants: (
   @include transition(background-color, color, border-color);
 
   @each $name, $values in $state-variants {
-    $bg: nth($values, 1);
-    $text: nth($values, 2);
-    $hover-bg: nth($values, 3);
-    $hover-border: nth($values, 4);
-    $border-color: nth($values, 5);
+    $bg: list.nth($values, 1);
+    $text: list.nth($values, 2);
+    $hover-bg: list.nth($values, 3);
+    $hover-border: list.nth($values, 4);
+    $border-color: list.nth($values, 5);
     @include alert-variant($name, $bg, $text, $hover-bg, $hover-border, $border-color);
   }
 }
