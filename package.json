@@ -19,7 +19,7 @@
     "webapp:build:prod": "next build",
     "clean-www": "rimraf build/*",
     "sonar": "pnpm exec sonar-scanner",
-    "jest": "jest --coverage --logHeapUsage --maxWorkers=2 --config jest.config.js",
+    "jest": "jest --coverage --maxWorkers=2 --config jest.config.js",
     "test": "pnpm run jest --",
     "test:watch": "pnpm run jest -- --watch",
     "fetch:medium": "node scripts/fetch-medium-feed.js"
