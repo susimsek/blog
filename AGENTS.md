@@ -43,7 +43,7 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, next-i18next, Boots
 
 ## Prerequisites
 
-- Node.js: `>= 22.14.0` (see `package.json#engines`)
+- Node.js: `>= 24.13.0` (see `package.json#engines`)
 - Package manager: `pnpm` (lockfile: `pnpm-lock.yaml`; use Corepack)
 
 ## Project Structure

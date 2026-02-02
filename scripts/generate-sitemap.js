@@ -1,6 +1,6 @@
-// scripts/generate-sitemaps.js
-const fs = require('fs');
-const path = require('path');
+// scripts/generate-sitemap.js
+const fs = require('node:fs');
+const path = require('node:path');
 
 const nextI18NextConfig = require('../next-i18next.config');
 

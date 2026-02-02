@@ -1,6 +1,6 @@
 // scripts/generate-rss.js
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const nextI18NextConfig = require('../next-i18next.config');
 
@@ -55,7 +55,7 @@ function generateRSSFeedXML(posts, locale) {
   const alternateLocale = locale === 'en' ? 'tr' : 'en';
 
   // Sort posts by date (newest first)
-  posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   let rss = `<?xml version="1.0" encoding="UTF-8"?>\n`;
   rss += `<?xml-stylesheet type="text/xsl" href="/rss.xsl"?>\n`;
