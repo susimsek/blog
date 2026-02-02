@@ -1,9 +1,9 @@
 version: 2.1
 
 orbs:
-  sonarcloud: sonarsource/sonarcloud@2.0.0
-  snyk: snyk/snyk@2.2.0
-  docker: circleci/docker@2.8.2
+  sonarcloud: sonarsource/sonarcloud@4.0.0
+  snyk: snyk/snyk@2.3.0
+  docker: circleci/docker@3.0.1
 
 executors:
   node-executor:
