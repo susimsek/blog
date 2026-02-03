@@ -6,28 +6,28 @@ self.__BUILD_MANIFEST = {
     "static/chunks/24645581dbcbd3c5.js"
   ],
   "/[locale]": [
-    "static/chunks/9c46ac3929b258c3.js"
+    "static/chunks/29e51196905addaf.js"
   ],
   "/[locale]/404": [
-    "static/chunks/6c33e083c0ec6ebc.js"
+    "static/chunks/e561e883ef2293ee.js"
   ],
   "/[locale]/about": [
-    "static/chunks/227226c9ab6518b4.js"
+    "static/chunks/8736a378797def31.js"
   ],
   "/[locale]/contact": [
-    "static/chunks/b43ea65ad471068d.js"
+    "static/chunks/2b01fe83694145c7.js"
   ],
   "/[locale]/medium": [
-    "static/chunks/973b587cef4afe7d.js"
+    "static/chunks/0730b92eac4c67b2.js"
   ],
   "/[locale]/posts/[id]": [
-    "static/chunks/c17dd3a88d351ee2.js"
+    "static/chunks/5ff311401d6b3606.js"
   ],
   "/[locale]/search": [
-    "static/chunks/52a56bfc41743713.js"
+    "static/chunks/5d9ac62c3d1e58a3.js"
   ],
   "/[locale]/topics/[id]": [
-    "static/chunks/f0e1017b49b91b0f.js"
+    "static/chunks/bb7d22a371cb6fb6.js"
   ],
   "/_error": [
     "static/chunks/66aa34f854e5b91d.js"
