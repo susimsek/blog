@@ -7,7 +7,7 @@ import Layout from '@/components/common/Layout';
 import { AUTHOR_NAME, SITE_LOGO, SITE_URL, assetPrefix } from '@/config/constants';
 import SEO from '@/components/common/SEO';
 import { getRelatedPosts } from '@/lib/postFilters';
-import type { GetStaticProps, GetStaticPropsContext } from 'next';
+import type { GetStaticPropsContext } from 'next';
 import i18nextConfig from '@root/next-i18next.config';
 
 type PostProps = {
@@ -105,7 +105,7 @@ export default function Post({ post, posts = [], locale }: Readonly<PostProps>) 
   );
 }
 
-const getStaticProps: GetStaticProps<PostProps> = async (context: GetStaticPropsContext) => {
+const getStaticProps = async (context: GetStaticPropsContext) => {
   const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
   const base = await makePostDetailProps(['common', 'post'])(context);
 
@@ -119,11 +119,7 @@ const getStaticProps: GetStaticProps<PostProps> = async (context: GetStaticProps
     };
   }
 
-  if ('redirect' in base) {
-    return base;
-  }
-
-  return { notFound: true };
+  return { notFound: true as const };
 };
 
 async function getStaticPaths() {
