@@ -95,7 +95,7 @@ dependencies {
 
 ---
 
-## 📖 Adım 2: Basit Bir Spring Boot Uygulaması Oluşturun
+## 🛠️ Adım 2: Basit Bir Spring Boot Uygulaması Oluşturun
 
 Docker konteyneri içinde dağıtılacak bir REST uç noktası tanımlayın.
 
@@ -152,7 +152,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 🐳 Adım 3: Docker İmajı Oluşturma ve Çalıştırma
+## ▶️ Adım 3: Docker İmajı Oluşturma ve Çalıştırma
 
 ### Seçenek 1: Buildpacks Kullanarak
 

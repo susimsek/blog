@@ -37,7 +37,7 @@ Temiz kodlama ilkelerini benimsemek şu faydaları sağlar:
 
 ---
 
-## 🌟 Ön Koşullar
+## 🌟 Gereksinimler
 
 🗌 Aşağıdakilere sahip olduğunuzdan emin olun:
 
@@ -69,7 +69,7 @@ src/main/java/com/example/cleanproject
 
 ---
 
-## 📋 Adım 2: Java Kodlarında Lombok Kullanımı
+## 🛠️ Adım 2: Java Kodlarında Lombok Kullanımı
 
 Lombok, Java'daki gereksiz kodu azaltarak sınıflarınızı daha kısa ve okunabilir hale getirir. İşte Lombok'u etkili bir şekilde kullanmanın yöntemi:
 
@@ -125,7 +125,7 @@ public class User {
 
 ---
 
-## 📖 Adım 3: Kotlin'de Kısa ve Okunabilir Kod Yazın
+## 🛠️ Adım 3: Kotlin'de Kısa ve Okunabilir Kod Yazın
 
 Kotlin, modern özellikleri ile doğal olarak daha temiz kod yazılmasını sağlar:
 
@@ -153,7 +153,7 @@ data class User(
 
 ---
 
-## 📘 Adım 4: Dependency Injection Prensiplerini Takip Edin
+## 🛠️ Adım 4: Dependency Injection Prensiplerini Takip Edin
 
 Bileşenleri ayırmak ve test edilebilirliği arttırmak için dependency injectionu kullanın.
 
@@ -205,7 +205,7 @@ class UserService(
 
 ---
 
-## 🔒 Adım 5: Veri Transferi İçin DTO'ları Kullananın
+## 🛠️ Adım 5: Veri Transferi İçin DTO'ları Kullananın
 
 Data Transfer Object (DTO), domain ve API katmanlarını ayırarak daha iyi kapsülleme sağlar.
 
@@ -241,7 +241,7 @@ data class UserDTO(
 
 ---
 
-## 📖 Controller Katmanı
+## Controller Katmanı
 
 HTTP isteklerini yönetmek ve service katmanıyla etkileşim sağlamak için bir controller uygulayın.
 

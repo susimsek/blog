@@ -70,7 +70,7 @@ implementation 'org.springframework.kafka:spring-kafka'
 
 ---
 
-## 📋 Step 2: Configure Kafka
+## 🛠️ Step 2: Configure Kafka
 
 Set up Kafka connection in your `application.properties` or `application.yml` file:
 
@@ -86,7 +86,7 @@ spring.kafka.consumer.properties.spring.json.trusted.packages=*
 
 ---
 
-## 📖 Step 3: Create a Model for JSON Messages
+## 🛠️ Step 3: Create a Model for JSON Messages
 
 ### Model Class
 
@@ -124,7 +124,7 @@ data class Message(
 
 ---
 
-## 📘 Step 4: Implement Kafka Producer and Consumer
+## 🛠️ Step 4: Implement Kafka Producer and Consumer
 
 ### Producer Example
 
@@ -216,7 +216,7 @@ class KafkaConsumer {
 
 ---
 
-## 🔄 Controller Example
+## Controller Example
 
 :::tabs
 @tab Java [icon=java]

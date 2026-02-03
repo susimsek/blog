@@ -90,7 +90,7 @@ This setting auto-configures the following:
 
 ---
 
-## 📋 Step 3: Enable Async Support
+## 🛠️ Step 3: Enable Async Support
 
 Annotate your main application class in Java or Kotlin:
 
@@ -135,7 +135,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 📖 Step 4: Define an Async Service
+## 🛠️ Step 4: Define an Async Service
 
 Create a service with `@Async`. It will run each call on a new virtual thread.
 
@@ -210,7 +210,7 @@ class AsyncVirtualService {
 
 ---
 
-## 🔄 Step 5: Trigger via REST Controller
+## 🛠️ Step 5: Trigger via REST Controller
 
 Expose endpoints to invoke your async methods:
 

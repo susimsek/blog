@@ -38,7 +38,7 @@ Validation ensures the data sent to your API adheres to expected formats and pre
 
 ---
 
-## 🛠️ Step 1: Add Validation Dependencies
+## 🧪 Step 1: Add Validation Dependencies
 
 For Spring Boot projects, include the following dependencies:
 
@@ -69,7 +69,7 @@ go get -u github.com/go-playground/validator/v10
 
 ---
 
-## 📖 Step 2: Define a DTO with Validation Rules
+## 🧪 Step 2: Define a DTO with Validation Rules
 
 Use annotations to define validation constraints on fields. Examples include `@NotNull`, `@Size`, and `@Pattern`.
 
@@ -136,7 +136,7 @@ func ValidateTodoRequest(todo TodoRequest) error {
 
 ---
 
-## 📘 Step 3: Create a Controller with Validation
+## 🧪 Step 3: Create a Controller with Validation
 
 Integrate validation into your REST endpoints.
 
@@ -213,7 +213,7 @@ func CreateTodoHandler(c *gin.Context) {
 
 ---
 
-## 📋 Step 4: Handle Validation Errors
+## 🧪 Step 4: Handle Validation Errors
 
 Customize error handling to return user-friendly responses.
 
@@ -288,7 +288,7 @@ func ErrorHandler() gin.HandlerFunc {
 
 ---
 
-## 🌐 main.go Example
+## main.go Example
 
 Here is an example of the `main.go` file for setting up a Gin application:
 

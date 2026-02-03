@@ -69,7 +69,7 @@ src/main/java/com/example/cleanproject
 
 ---
 
-## 📋 Step 2: Use Lombok for Cleaner Java Code
+## 🛠️ Step 2: Use Lombok for Cleaner Java Code
 
 Lombok reduces boilerplate code in Java, making your classes more concise and readable. Here's how to use Lombok effectively:
 
@@ -125,7 +125,7 @@ public class User {
 
 ---
 
-## 📖 Step 3: Write Concise and Readable Code in Kotlin
+## 🛠️ Step 3: Write Concise and Readable Code in Kotlin
 
 Kotlin offers modern features that naturally lead to cleaner code:
 
@@ -153,7 +153,7 @@ data class User(
 
 ---
 
-## 📘 Step 4: Follow Dependency Injection Principles
+## 🛠️ Step 4: Follow Dependency Injection Principles
 
 Use dependency injection to decouple components and improve testability.
 
@@ -205,7 +205,7 @@ class UserService(
 
 ---
 
-## 🔒 Step 5: Use DTOs for Data Transfer
+## 🛠️ Step 5: Use DTOs for Data Transfer
 
 Data Transfer Objects (DTOs) separate your domain and API layers, promoting better encapsulation.
 
@@ -241,7 +241,7 @@ data class UserDTO(
 
 ---
 
-## 📖 Controller Layer
+## Controller Layer
 
 Implement a controller to handle HTTP requests and interact with the service layer.
 

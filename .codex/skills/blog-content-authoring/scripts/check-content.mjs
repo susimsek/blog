@@ -25,6 +25,10 @@ const ALLOWED_TOPIC_COLORS = new Set([
   'cyan',
 ]);
 
+const ALLOWED_TAB_ICONS = new Set(['java', 'kotlin', 'go', 'maven', 'gradle', 'javascript', 'typescript']);
+
+const ALLOWED_HEADING_EMOJIS = new Set(['🌟', '🛠️', '🧪', '▶️']);
+
 const readJson = async filePath => {
   const raw = await fs.readFile(filePath, 'utf8');
   return JSON.parse(raw);
@@ -116,6 +120,32 @@ const main = async () => {
 
       const mdPath = path.join(ROOT, 'content', 'posts', locale, `${post.id}.md`);
       if (!(await exists(mdPath))) fail(errors, `${postsFile}: ${post.id} markdown missing: ${mdPath}`);
+      if (await exists(mdPath)) {
+        const md = await fs.readFile(mdPath, 'utf8');
+        const iconMatches = md.matchAll(/\[icon=([^\]]+)\]/g);
+        for (const match of iconMatches) {
+          const icon = match[1];
+          if (!ALLOWED_TAB_ICONS.has(icon)) {
+            warn(warnings, `${mdPath}: unknown tab icon "${icon}" (allowed: ${[...ALLOWED_TAB_ICONS].join(', ')})`);
+          }
+        }
+
+        const headingLines = md.split(/\r?\n/).filter(line => /^#{2,6}\s+/.test(line));
+        for (const line of headingLines) {
+          const m =
+            /^#{2,6}\s+(?<emoji>[\p{Extended_Pictographic}\p{Emoji_Presentation}][\p{Extended_Pictographic}\p{Emoji_Presentation}\uFE0F\u200D]*)\s+/u.exec(
+              line,
+            );
+          if (m?.groups?.emoji && !ALLOWED_HEADING_EMOJIS.has(m.groups.emoji)) {
+            warn(warnings, `${mdPath}: non-standard heading emoji "${m.groups.emoji}" -> ${line.trim()}`);
+          }
+
+          const isStepLike = /\b(Step|Adım)\s+\d+:/u.test(line);
+          if (isStepLike && !/^##\s+(🛠️|🧪|▶️)\s+(Step|Adım)\s+\d+:/u.test(line)) {
+            warn(warnings, `${mdPath}: non-standard step heading format -> ${line.trim()}`);
+          }
+        }
+      }
 
       if (post.topics != null && !Array.isArray(post.topics)) {
         fail(errors, `${postsFile}: ${post.id} topics must be an array`);

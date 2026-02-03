@@ -42,7 +42,7 @@ Spring AI, AI mühendisliği için Spring’in taşınabilirlik ve modüler tasa
 
 ---
 
-## 🌟 Ön Koşullar
+## 🌟 Gereksinimler
 
 Aşağıdakilere sahip olduğunuzdan emin olun:
 
@@ -97,7 +97,7 @@ dependencies {
 
 ---
 
-## 📋 Adım 2: Yapılandırma
+## 🛠️ Adım 2: Yapılandırma
 
 `application.yml` dosyanıza OpenAI anahtarınızı ve ChatClient model ayarlarını ekleyin:
 
@@ -113,7 +113,7 @@ spring:
 
 ---
 
-## 📖 Adım 3: Servis Katmanını Uygulama
+## 🛠️ Adım 3: Servis Katmanını Uygulama
 
 `ChatClient.Builder` ile ChatClient’i oluşturup sarmalayan bir `AIService` sınıfı yazın.
 
@@ -166,7 +166,7 @@ class AIService(builder: ChatClient.Builder) {
 
 ---
 
-## 📘 Adım 4: REST Controller Oluşturma
+## 🛠️ Adım 4: REST Controller Oluşturma
 
 `AIService`’i HTTP üzerinden sunmak için bir `ChatController` sınıfı oluşturun.
 

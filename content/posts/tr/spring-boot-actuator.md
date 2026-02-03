@@ -70,7 +70,7 @@ implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
 ---
 
-## 📋 Adım 2: Actuator Endpointlerini Etkinleştirin
+## 🛠️ Adım 2: Actuator Endpointlerini Etkinleştirin
 
 Varsayılan olarak, Actuator uygulama bilgilerinin sağlanması için çeşitli endpointler yayınlar. Bu endpointleri `application.properties` veya `application.yml` dosyasında etkinleştirebilirsiniz.
 
@@ -83,7 +83,7 @@ management.endpoint.health.show-details=always
 
 ---
 
-## 📖 Adım 3: Actuator Endpointlerini Kullanmaya Başlayın
+## 🛠️ Adım 3: Actuator Endpointlerini Kullanmaya Başlayın
 
 İşte sık kullanılan Actuator endpointleri:
 
@@ -101,7 +101,7 @@ curl -X GET http://localhost:8080/actuator/health
 
 ---
 
-## 📘 Adım 4: Actuator Endpointlerini Özelleştirin
+## 🛠️ Adım 4: Actuator Endpointlerini Özelleştirin
 
 Actuator endpointlerini ihtiyaçlarınıza göre özelleştirin. Örneğin, `/actuator/info` endpointi için ek metadata tanımlayabilirsiniz:
 
@@ -113,7 +113,7 @@ info.app.description=Spring Boot Actuator Örneği
 
 ---
 
-## 🔒 Adım 5: Actuator Endpointlerini Güvenli Hale Getirin
+## 🛠️ Adım 5: Actuator Endpointlerini Güvenli Hale Getirin
 
 Prodüksiyon ortamlarında, Actuator endpointlerinin güvenli hale getirilmesi önemlidir. Spring Security kullanarak erişimi sınırlayabilirsiniz.
 

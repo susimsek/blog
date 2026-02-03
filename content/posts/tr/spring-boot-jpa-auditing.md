@@ -40,7 +40,7 @@ Spring Boot'ta JPA Auditing, bir varlığın kim tarafından ve ne zaman oluştu
 
 ---
 
-## 🛠️ Bağımlılıkları Ekleyin
+## 🛠️ Adım 1: Bağımlılıkları Ekleyin
 
 Projenize aşağıdaki bağımlılıkları ekleyin:
 
@@ -63,7 +63,7 @@ dependencies {
 
 ---
 
-## 📋 JPA Auditing Özelliğini Etkinleştirme
+## 🛠️ Adım 2: JPA Auditing Özelliğini Etkinleştirme
 
 Ana sınıfınıza veya yapılandırma sınıfınıza `@EnableJpaAuditing` ekleyin.
 
@@ -104,7 +104,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 👤 AuditorAware Bean'i Oluşturun
+## 🛠️ Adım 3: AuditorAware Bean'i Oluşturun
 
 Bu bean, Spring'e geçerli kullanıcıyı bildirir. Statik bir kullanıcı örneği aşağıda:
 
@@ -137,7 +137,7 @@ class AuditingConfig {
 
 ---
 
-## 📖 Entity Sınıfına Anotasyonları Ekle
+## 🛠️ Adım 4: Entity Sınıfına Anotasyonları Ekle
 
 Aşağıdaki gibi denetim anotasyonlarını kullanın: `@CreatedDate`, `@LastModifiedDate`, vb.
 

@@ -38,7 +38,7 @@ ORM, nesne yönelimli programlama ile ilişkisel veritabanları arasındaki boş
 
 ---
 
-## 🌟 Ön Gereksinimler
+## 🌟 Gereksinimler
 
 📜 Şunlara sahip olduğunuzdan emin olun:
 
@@ -54,7 +54,7 @@ ORM, nesne yönelimli programlama ile ilişkisel veritabanları arasındaki boş
 
 ---
 
-## 🛠️ 1. Adım: Bağımlılıkları Ekleme
+## 🛠️ Adım 1: Bağımlılıkları Ekleme
 
 Spring Boot projesi kurmak ve ORM entegrasyonu sağlamak için şu adımları izleyin:
 
@@ -117,7 +117,7 @@ go get -u gorm.io/gorm
 
 ---
 
-## 📋 2. Adım: Modeli Tanımlayın ve REST Controller Uygulayın
+## 🛠️ Adım 2: Modeli Tanımlayın ve REST Controller Uygulayın
 
 Bu adım, entity/model, repository ve REST controller oluşturulmasını birleştirir.
 

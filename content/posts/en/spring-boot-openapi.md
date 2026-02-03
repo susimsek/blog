@@ -70,7 +70,7 @@ implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
 
 ---
 
-## 📋 Step 2: Configure OpenAPI
+## 🛠️ Step 2: Configure OpenAPI
 
 SpringDoc requires minimal configuration. You can customize your OpenAPI documentation using the `application.properties` or `application.yml` file.
 
@@ -83,7 +83,7 @@ springdoc.swagger-ui.path=/swagger-ui.html
 
 ---
 
-## 📖 Step 3: Annotate Your REST Controllers
+## 🛠️ Step 3: Annotate Your REST Controllers
 
 Add annotations to your REST controllers and models to generate OpenAPI documentation automatically.
 

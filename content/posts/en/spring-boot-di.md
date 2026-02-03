@@ -67,7 +67,7 @@ implementation 'org.springframework.boot:spring-boot-starter'
 
 ---
 
-## 📋 Step 2: Create a Service
+## 🛠️ Step 2: Create a Service
 
 Define a simple service to demonstrate DI.
 
@@ -120,7 +120,7 @@ class UserService {
 
 ---
 
-## 📖 Step 3: Inject Dependencies
+## 🛠️ Step 3: Inject Dependencies
 
 Use annotations to inject the service into other components.
 

@@ -63,7 +63,7 @@ implementation 'org.springframework.boot:spring-boot-starter-aop'
 
 ---
 
-## 📋 Adım 2: Bir Servis Tanımlayın
+## 🛠️ Adım 2: Bir Servis Tanımlayın
 
 AOP'yi göstermek için basit bir servis oluşturun.
 
@@ -116,7 +116,7 @@ class UserService {
 
 ---
 
-## 📖 Adım 3: Bir Aspect Oluşturun
+## 🛠️ Adım 3: Bir Aspect Oluşturun
 
 Method çalışma detaylarını loglamak için bir aspect tanımlayın.
 
@@ -176,7 +176,7 @@ class LoggingAspect {
 
 ---
 
-## 📘 Adım 4: Bir Controller Oluşturun
+## 🛠️ Adım 4: Bir Controller Oluşturun
 
 Servis methodlarını bir REST controller üzerinden sunun.
 

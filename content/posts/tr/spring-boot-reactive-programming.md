@@ -69,7 +69,7 @@ implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 ---
 
-## 📋 Adım 2: Reaktif REST Controller Oluşturun
+## 🛠️ Adım 2: Reaktif REST Controller Oluşturun
 
 **Mono** ve **Flux** kullanarak **bloklamayan** bir REST endpoint'i tanımlayın.
 

@@ -5,7 +5,8 @@ import DateRangePicker from '@/components/common/DateRangePicker';
 import SearchBar from '@/components/search/SearchBar';
 import { Topic } from '@/types/posts';
 import { useAppDispatch, useAppSelector } from '@/config/store';
-import { setQuery, setSortOrder, setSelectedTopics, setDateRange } from '@/reducers/postsQuery';
+import { setQuery, setSortOrder, setSelectedTopics, setDateRange, setReadingTimeRange } from '@/reducers/postsQuery';
+import ReadingTimeDropdown from '@/components/common/ReadingTimeDropdown';
 
 export interface PostFiltersProps {
   topics?: Topic[];
@@ -14,7 +15,7 @@ export interface PostFiltersProps {
 
 export function PostFilters({ topics = [], searchEnabled = true }: Readonly<PostFiltersProps>) {
   const dispatch = useAppDispatch();
-  const { query, sortOrder, selectedTopics } = useAppSelector(state => state.postsQuery);
+  const { query, sortOrder, selectedTopics, readingTimeRange } = useAppSelector(state => state.postsQuery);
 
   return (
     <div className="d-flex flex-wrap align-items-center mb-3">
@@ -36,6 +37,7 @@ export function PostFilters({ topics = [], searchEnabled = true }: Readonly<Post
           minDate={new Date('2024-01-01')}
           maxDate={new Date()}
         />
+        <ReadingTimeDropdown value={readingTimeRange} onChange={value => dispatch(setReadingTimeRange(value))} />
         <SortDropdown sortOrder={sortOrder} onChange={order => dispatch(setSortOrder(order))} />
       </div>
     </div>

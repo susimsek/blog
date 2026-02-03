@@ -41,7 +41,7 @@ Spring Boot, mikroservislerinizdeki JWT’lerin bütünlüğünü ve gizliliğin
 
 ---
 
-## 🌟 Ön Koşullar
+## 🌟 Gereksinimler
 
 - ☕ **Java Development Kit (JDK) 17** veya üzeri
 - 📦 **Spring Boot 3.2+**
@@ -182,7 +182,7 @@ security:
 
 ---
 
-## 📋 Adım 3: Güvenlik Yapılandırması
+## 🛠️ Adım 3: Güvenlik Yapılandırması
 
 Bu bölümde, JWE tabanlı kimlik doğrulama için gerekli olan bean’leri ve ayarları tanımlıyoruz:
 
@@ -740,7 +740,7 @@ class UserProperties {
 
 ---
 
-## 🔐 Adım 4: Güvenli JWE Token Yardımcı Sınıfları Oluşturun
+## 🛠️ Adım 4: Güvenli JWE Token Yardımcı Sınıfları Oluşturun
 
 Bu bölümde, Spring Boot uygulamanızda JSON Web Encryption (JWE) tokenları oluşturmak, şifrelemek ve çözmek için gereken temel yardımcı sınıfları ve sabitleri tanımlıyoruz. Bu bileşenler şunları sağlar:
 

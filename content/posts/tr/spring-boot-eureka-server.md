@@ -51,7 +51,7 @@ Aşağıdakilerin kurulu olduğundan emin olun:
 
 ---
 
-## 🛠 Adım 1: Bağımlılıkları Ekleyin
+## 🛠️ Adım 1: Bağımlılıkları Ekleyin
 
 ### Maven Yapılandırması:
 
@@ -70,7 +70,7 @@ implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-se
 
 ---
 
-## 📖 Adım 2: Eureka Sunucu Uygulamasını Oluşturun
+## 🛠️ Adım 2: Eureka Sunucu Uygulamasını Oluşturun
 
 :::tabs
 @tab Java [icon=java]
@@ -113,7 +113,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 🛠 Adım 3: Eureka Server'ı Yapılandırma
+## 🛠️ Adım 3: Eureka Server'ı Yapılandırma
 
 Bir `application.yml` dosyası oluşturun ve aşağıdaki yapılandırmayı ekleyin:
 
@@ -157,7 +157,7 @@ http://localhost:8761/
 
 ---
 
-## 📌 Adım 4: Bir İstemci Uygulamasını Kaydetme
+## 🛠️ Adım 4: Bir İstemci Uygulamasını Kaydetme
 
 ### Bağımlılıkları Ekleyin
 
@@ -251,7 +251,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 🏃 İstemci Uygulamayı Çalıştırma
+## ▶️ İstemci Uygulamayı Çalıştırma
 
 Eureka İstemci uygulamasını başlatın:
 

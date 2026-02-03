@@ -124,7 +124,7 @@ plugins {
 
 ---
 
-## 📖 Step 2: Create a Simple Spring Boot Application
+## 🛠️ Step 2: Create a Simple Spring Boot Application
 
 Define a REST endpoint to deploy inside a Docker container.
 
@@ -181,7 +181,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 🐳 Step 3: Build and Run a Docker Image
+## ▶️ Step 3: Build and Run a Docker Image
 
 ### Option 1: Using Buildpacks
 

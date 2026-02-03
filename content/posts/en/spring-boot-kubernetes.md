@@ -32,7 +32,7 @@ Spring Boot seamlessly integrates with **Kubernetes** to provide scalable, conta
 
 ---
 
-## ✨ Why Use Kubernetes for Spring Boot?
+## 🌟 Why Use Kubernetes for Spring Boot?
 
 - **Scalability**: Automatically scale applications based on traffic.
 - **Self-Healing**: Kubernetes restarts failed containers automatically.
@@ -42,7 +42,7 @@ Spring Boot seamlessly integrates with **Kubernetes** to provide scalable, conta
 
 ---
 
-## ✨ Prerequisites
+## 🌟 Prerequisites
 
 Ensure you have the following:
 
@@ -54,7 +54,7 @@ Ensure you have the following:
 
 ---
 
-## 🛠 Step 1: Add Dependencies
+## 🛠️ Step 1: Add Dependencies
 
 Add the necessary dependencies for **Spring Boot Web** and **Actuator** to expose health endpoints.
 
@@ -84,7 +84,7 @@ dependencies {
 
 ---
 
-## 📖 Step 2: Create a Simple Spring Boot Application
+## 🛠️ Step 2: Create a Simple Spring Boot Application
 
 Define a REST endpoint to deploy inside Kubernetes.
 
@@ -141,7 +141,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 💪 Step 3: Create Kubernetes Deployment and Service
+## 🛠️ Step 3: Create Kubernetes Deployment and Service
 
 Create a **deployment.yaml** file:
 

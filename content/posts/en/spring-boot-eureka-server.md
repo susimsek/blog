@@ -51,7 +51,7 @@ Ensure you have the following:
 
 ---
 
-## 🛠 Step 1: Add Dependencies
+## 🛠️ Step 1: Add Dependencies
 
 ### Maven Configuration:
 
@@ -70,7 +70,7 @@ implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-se
 
 ---
 
-## 📖 Step 2: Create the Eureka Server Application
+## 🛠️ Step 2: Create the Eureka Server Application
 
 :::tabs
 @tab Java [icon=java]
@@ -113,7 +113,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 🛠 Step 3: Configure the Eureka Server
+## 🛠️ Step 3: Configure the Eureka Server
 
 Create an `application.yml` file for Eureka Server configuration.
 
@@ -157,7 +157,7 @@ http://localhost:8761/
 
 ---
 
-## 📌 Step 4: Register a Client Application
+## 🛠️ Step 4: Register a Client Application
 
 ### Add Dependencies
 
@@ -251,7 +251,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 🏃 Running the Client Application
+## ▶️ Running the Client Application
 
 Run the Eureka Client application:
 

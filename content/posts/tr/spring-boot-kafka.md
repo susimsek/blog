@@ -70,7 +70,7 @@ implementation 'org.springframework.kafka:spring-kafka'
 
 ---
 
-## 📋 Adım 2: Kafka'yı Yapılandırın
+## 🛠️ Adım 2: Kafka'yı Yapılandırın
 
 Kafka bağlantısını `application.properties` veya `application.yml` dosyasında yapılandırın:
 
@@ -86,7 +86,7 @@ spring.kafka.consumer.properties.spring.json.trusted.packages=*
 
 ---
 
-## 📖 Adım 3: JSON Mesajlar için Bir Model Oluşturun
+## 🛠️ Adım 3: JSON Mesajlar için Bir Model Oluşturun
 
 ### Model Sınıfı
 
@@ -124,7 +124,7 @@ data class Message(
 
 ---
 
-## 📘 Adım 4: Kafka Producer ve Consumer Uygulamaları
+## 🛠️ Adım 4: Kafka Producer ve Consumer Uygulamaları
 
 ### Producer Örneği
 
@@ -216,7 +216,7 @@ class KafkaConsumer {
 
 ---
 
-## 🔄 Controller Örneği
+## Controller Örneği
 
 :::tabs
 @tab Java [icon=java]

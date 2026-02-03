@@ -68,7 +68,7 @@ runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 
 ---
 
-## 📋 Step 2: Configure DevTools
+## 🛠️ Step 2: Configure DevTools
 
 Spring Boot DevTools requires minimal configuration but offers some customization options. Here are some common configurations:
 
@@ -95,7 +95,7 @@ spring.devtools.restart.exclude=static/**,public/**
 
 ---
 
-## 📖 Step 3: Debugging Enhancements
+## 🛠️ Step 3: Debugging Enhancements
 
 Spring Boot DevTools improves debugging by:
 

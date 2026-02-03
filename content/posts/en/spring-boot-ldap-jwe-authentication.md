@@ -262,7 +262,7 @@ This combined configuration ensures your application boots an embedded LDAP serv
 
 ---
 
-## 📋 Step 3: Security Configuration
+## 🛠️ Step 3: Security Configuration
 
 In this section, we define the beans and properties configure LDAP authentication, set up RSA keys, and enforce HTTP security filters for a JWE-based authentication:
 
@@ -757,7 +757,7 @@ class JwtProperties {
 
 ---
 
-## 🔐 Step 4: Secure JWE Token Utilities
+## 🛠️ Step 4: Secure JWE Token Utilities
 
 In this section, we define the core utility classes and constants needed to generate, encrypt, and resolve JSON Web Encryption (JWE) tokens in your Spring Boot application. These components work together to:
 
@@ -1405,7 +1405,7 @@ object SecurityUtils {
 
 ---
 
-## 🔐 Step 5: Authentication & Protected Endpoints
+## 🛠️ Step 5: Authentication & Protected Endpoints
 
 In this section, we define the REST controllers and DTOs necessary for:
 

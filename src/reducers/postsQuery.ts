@@ -8,6 +8,8 @@ export type DateRange = {
   endDate?: string;
 };
 
+export type ReadingTimeRange = 'any' | '3-7' | '8-12' | '15+';
+
 export interface PostsQueryState {
   query: string;
   sortOrder: SortOrder;
@@ -15,6 +17,7 @@ export interface PostsQueryState {
   pageSize: number;
   selectedTopics: string[];
   dateRange: DateRange;
+  readingTimeRange: ReadingTimeRange;
   locale: string | null;
   posts: PostSummary[];
 }
@@ -26,6 +29,7 @@ const initialState: PostsQueryState = {
   pageSize: 5,
   selectedTopics: [],
   dateRange: {},
+  readingTimeRange: 'any',
   locale: null,
   posts: [],
 };
@@ -60,6 +64,10 @@ const postsQuerySlice = createSlice({
       state.dateRange = action.payload;
       state.page = 1;
     },
+    setReadingTimeRange: (state, action: PayloadAction<ReadingTimeRange>) => {
+      state.readingTimeRange = action.payload;
+      state.page = 1;
+    },
     setLocale: (state, action: PayloadAction<string | null>) => {
       state.locale = action.payload;
     },
@@ -67,6 +75,7 @@ const postsQuerySlice = createSlice({
       state.query = '';
       state.selectedTopics = [];
       state.dateRange = {};
+      state.readingTimeRange = 'any';
       state.page = 1;
       state.sortOrder = 'desc';
     },
@@ -81,6 +90,7 @@ export const {
   setPageSize,
   setSelectedTopics,
   setDateRange,
+  setReadingTimeRange,
   setLocale,
   resetFilters,
 } = postsQuerySlice.actions;

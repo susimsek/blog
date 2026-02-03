@@ -44,7 +44,7 @@ Spring Boot, LDAP kimlik doğrulamasını JWE ile şifrelenmiş JWT’lerle birl
 
 ---
 
-## 🌟 Ön Koşullar
+## 🌟 Gereksinimler
 
 - ☕ **Java Development Kit (JDK) 17** veya üzeri
 - 📦 **Spring Boot 3.2+**
@@ -262,7 +262,7 @@ Bu yapılandırma, tanımlı şema ile embedded bir LDAP sunucusunu ayağa kald�
 
 ---
 
-## 📋 Adım 3: Güvenlik Yapılandırması
+## 🛠️ Adım 3: Güvenlik Yapılandırması
 
 Bu bölümde, LDAP kimlik doğrulamasını yapılandırmak, RSA anahtarlarını ayarlamak ve JWE tabanlı kimlik doğrulama için HTTP güvenlik filtrelerini uygulamak üzere gerekli bean’leri ve özellikleri tanımlıyoruz:
 
@@ -798,7 +798,7 @@ class UserProperties {
 
 ---
 
-## 🔐 Adım 4: Güvenli JWE Token Yardımcı Sınıfları Oluşturun
+## 🛠️ Adım 4: Güvenli JWE Token Yardımcı Sınıfları Oluşturun
 
 Bu bölümde, Spring Boot uygulamanızda JSON Web Encryption (JWE) tokenları oluşturmak, şifrelemek ve çözmek için gereken temel yardımcı sınıfları ve sabitleri tanımlıyoruz. Bu bileşenler şunları sağlar:
 

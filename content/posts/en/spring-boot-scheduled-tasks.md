@@ -69,7 +69,7 @@ implementation 'org.springframework.boot:spring-boot-starter-web'
 
 ---
 
-## 📋 Step 2: Enable Scheduling in Your Application
+## 🛠️ Step 2: Enable Scheduling in Your Application
 
 To enable scheduling, annotate your main application class with `@EnableScheduling`.
 
@@ -114,7 +114,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 📖 Step 3: Create a Scheduled Task
+## 🛠️ Step 3: Create a Scheduled Task
 
 Define a scheduled task using `@Scheduled`.
 

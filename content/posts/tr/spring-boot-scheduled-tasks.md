@@ -68,7 +68,7 @@ implementation 'org.springframework.boot:spring-boot-starter-web'
 
 ---
 
-## 📋 Adım 2: Cron Etkinleştirme
+## 🛠️ Adım 2: Cron Etkinleştirme
 
 Cron desteğini etkinleştirmek için ana uygulama sınıfınıza `@EnableScheduling` anotasyonunu ekleyin.
 
@@ -113,7 +113,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 📖 Adım 3: Planlanmış Bir Görev Tanımlayın
+## 🛠️ Adım 3: Planlanmış Bir Görev Tanımlayın
 
 `@Scheduled` kullanarak zamanlanmış bir görev oluşturun.
 

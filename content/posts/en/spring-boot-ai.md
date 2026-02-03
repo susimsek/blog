@@ -97,7 +97,7 @@ dependencies {
 
 ---
 
-## 📋 Step 2: Configuration
+## 🛠️ Step 2: Configuration
 
 In `application.yml`, configure your OpenAI key and set the ChatClient model:
 
@@ -113,7 +113,7 @@ spring:
 
 ---
 
-## 📖 Step 3: Implement the Service Layer
+## 🛠️ Step 3: Implement the Service Layer
 
 Create an `AIService` to wrap your ChatClient. Inject `ChatClient.Builder` and build the client.
 
@@ -169,7 +169,7 @@ class AIService(builder: ChatClient.Builder) {
 
 ---
 
-## 📘 Step 4: Expose a REST Controller
+## 🛠️ Step 4: Expose a REST Controller
 
 Create a `ChatController` to expose your AIService over HTTP.
 

@@ -9,20 +9,53 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface PostSummaryProps {
   post: Post;
+  highlightQuery?: string;
 }
 
-export default function PostSummary({ post }: Readonly<PostSummaryProps>) {
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const highlight = (text: string, query: string): React.ReactNode => {
+  const tokens = query
+    .trim()
+    .split(/\s+/)
+    .map(token => token.trim())
+    .filter(token => token.length >= 2);
+
+  if (tokens.length === 0) {
+    return text;
+  }
+
+  const regex = new RegExp(`(${tokens.map(escapeRegExp).join('|')})`, 'gi');
+  const parts = text.split(regex);
+  if (parts.length === 1) return text;
+
+  return parts.map((part, index) => {
+    if (index % 2 === 1) {
+      return (
+        <mark key={`${part}-${index}`} className="px-1">
+          {part}
+        </mark>
+      );
+    }
+    return part;
+  });
+};
+
+export default function PostSummary({ post, highlightQuery }: Readonly<PostSummaryProps>) {
   const { id, title, date, summary, thumbnail, topics, readingTime, link } = post;
   const { t } = useTranslation('post');
 
   const postLink = link ?? `/posts/${id}`;
+  const q = highlightQuery?.trim() ?? '';
+  const titleNode = q ? highlight(title, q) : title;
+  const summaryNode = q ? highlight(summary, q) : summary;
 
   return (
     <div className="post-card d-flex align-items-center mb-4">
       <div className="post-card-content flex-grow-1">
         <h2 className="fw-bold mb-4">
           <Link href={postLink} className="link">
-            {title}
+            {titleNode}
           </Link>
         </h2>
         <p className="d-flex align-items-center">
@@ -57,7 +90,7 @@ export default function PostSummary({ post }: Readonly<PostSummaryProps>) {
             />
           </Link>
         )}
-        <p className="mb-4">{summary}</p>
+        <p className="mb-4">{summaryNode}</p>
         <div className="mb-4">
           <Link href={postLink} className="btn btn-primary">
             {t('post.readMore')}

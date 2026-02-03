@@ -58,7 +58,7 @@ Spring Boot, Spring Framework ile üretim için hazır uygulamalar oluşturmayı
 
 ---
 
-## 📖 Adım 2: İlk Endpoint’inizi Yazma
+## 🛠️ Adım 2: İlk Endpoint’inizi Yazma
 
 Bir "hello" mesajı dönen basit bir endpoint yazalım:
 

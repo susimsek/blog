@@ -70,7 +70,7 @@ implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 ---
 
-## 📋 Step 2: Configure Redis
+## 🛠️ Step 2: Configure Redis
 
 Set up the Redis connection in your `application.properties` or `application.yml` file.
 
@@ -90,7 +90,7 @@ spring.redis.ssl=true
 
 ---
 
-## 🔒 Step 3: Enable Caching
+## 🛠️ Step 3: Enable Caching
 
 Add the `@EnableCaching` annotation to your main application class to enable Spring's caching abstraction.
 
@@ -135,7 +135,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 🔖 Step 4: Service Layer Example with Caching
+## 🛠️ Step 4: Service Layer Example with Caching
 
 :::tabs
 @tab Java [icon=java]
@@ -192,7 +192,7 @@ class UserService {
 
 ---
 
-## 🔢 Configuring TTL (Time-To-Live)
+## Configuring TTL (Time-To-Live)
 
 Set the cache expiration time in your `application.properties` file:
 
@@ -204,7 +204,7 @@ This sets the TTL to 10 minutes (600,000 milliseconds).
 
 ---
 
-## 🔢 Controller Example
+## Controller Example
 
 Create a REST controller to expose the caching functionality.
 

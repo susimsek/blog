@@ -66,7 +66,7 @@ implementation 'org.springframework.boot:spring-boot-starter-web'
 
 ---
 
-## 📋 Adım 2: Uygulamanızda Asenkron İşlemi Etkinleştirin
+## 🛠️ Adım 2: Uygulamanızda Asenkron İşlemi Etkinleştirin
 
 Ana uygulama sınıfınıza `@EnableAsync` anotasyonunu ekleyerek asenkron çalışmayı etkinleştirin.
 
@@ -111,7 +111,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 📖 Adım 3: Asenkron Bir Görev Tanımlayın
+## 🛠️ Adım 3: Asenkron Bir Görev Tanımlayın
 
 `@Async` anotasyonunu kullanarak bir asenkron metot tanımlayın.
 
@@ -158,7 +158,7 @@ class AsyncTask {
 
 ---
 
-## 🔄 Adım 4: Asenkron Görevleri Tetiklemek için Bir Controller Oluşturun
+## 🛠️ Adım 4: Asenkron Görevleri Tetiklemek için Bir Controller Oluşturun
 
 Bir REST controller oluşturarak asenkron işlemi tetikleyin.
 

@@ -478,7 +478,7 @@ a1b2c3d4-e5f6-7890-abcd-ef1234567890;f47ac10b-58cc-4372-a567-0e02b2c3d479;2025-0
 
 ---
 
-## 📋 Step 3: Security & Database Configuration
+## 🛠️ Step 3: Security & Database Configuration
 
 In this section, we define the beans and properties RSA keys, HTTP security filters, and JPA repository/auditing setup for JWE‑based authentication:
 
@@ -1006,7 +1006,7 @@ class DatabaseConfig
 
 ---
 
-## 🗄️ Step 4: JPA Integration
+## 🛠️ Step 4: JPA Integration
 
 In this section, we define the JPA entities representing users, authorities, and their mappings, along with the Spring Data repository for loading users with their authorities.
 
@@ -1641,7 +1641,7 @@ interface UserRepository : JpaRepository<User, String> {
 
 ---
 
-## 🔐 Step 5: Secure JWE Token Utilities
+## 🛠️ Step 5: Secure JWE Token Utilities
 
 In this section, we define the core utility classes and constants needed to generate, encrypt, and resolve JSON Web Encryption (JWE) tokens in your Spring Boot application, integrate auditing, and implement a JPA-based user details service:
 
@@ -2426,7 +2426,7 @@ class SpringSecurityAuditorAware : AuditorAware<String> {
 
 ---
 
-## 🔐 Step 6: Authentication & Protected Endpoints
+## 🛠️ Step 6: Authentication & Protected Endpoints
 
 In this section, we define the REST controllers and DTOs necessary for:
 

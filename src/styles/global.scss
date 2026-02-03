@@ -24,6 +24,14 @@ body {
   @include theme-transition;
 }
 
+mark {
+  background-color: var(--dropdown-hover-bg);
+  border-bottom: 2px solid var(--active-color);
+  color: inherit;
+  border-radius: 4px;
+  padding: 0 0.15em;
+}
+
 .reading-progress {
   position: fixed;
   top: 0;
@@ -1642,7 +1650,8 @@ label {
 @media (max-width: 768px) {
   #sort-dropdown,
   #topics-dropdown,
-  #date-range-dropdown {
+  #date-range-dropdown,
+  #reading-time-dropdown {
     width: 100%;
   }
 }

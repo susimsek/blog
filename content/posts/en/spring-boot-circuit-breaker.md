@@ -53,7 +53,7 @@ Ensure you have the following:
 
 ---
 
-## 🛠 Step 1: Add Dependencies
+## 🛠️ Step 1: Add Dependencies
 
 ### Maven Configuration:
 
@@ -72,7 +72,7 @@ implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-re
 
 ---
 
-## 🛠 Step 2: Configure Circuit Breaker Properties
+## 🛠️ Step 2: Configure Circuit Breaker Properties
 
 Define Circuit Breaker settings in `application.yml`.
 
@@ -92,7 +92,7 @@ resilience4j:
 
 ---
 
-## 🛠 Step 3: Implement Circuit Breaker in a REST Service
+## 🛠️ Step 3: Implement Circuit Breaker in a REST Service
 
 ### Create a Service to Call an External API
 
@@ -150,7 +150,7 @@ class ExternalService {
 
 ---
 
-## 🛠 Step 4: Create a REST Controller
+## 🛠️ Step 4: Create a REST Controller
 
 :::tabs
 @tab Java [icon=java]

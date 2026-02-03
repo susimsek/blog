@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect
+    x="8"
+    y="8"
+    width="112"
+    height="112"
+    rx="24"
+    fill="var(--svg-gradle-bg, #0b6aa2)"
+  />
+  <g fill="var(--svg-gradle-fg, #ffffff)">
+    <rect x="36" y="36" width="56" height="12" rx="6" />
+    <rect x="36" y="36" width="12" height="56" rx="6" />
+    <rect x="36" y="80" width="56" height="12" rx="6" />
+    <rect x="80" y="64" width="12" height="28" rx="6" />
+    <rect x="64" y="64" width="28" height="12" rx="6" />
+  </g>
+</svg>
+

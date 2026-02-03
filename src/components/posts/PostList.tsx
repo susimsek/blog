@@ -6,7 +6,7 @@ import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
 import { useTranslation } from 'next-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { filterByQuery, filterByTopics, filterByDateRange, sortPosts } from '@/lib/postFilters';
+import { filterByQuery, filterByTopics, filterByDateRange, filterByReadingTime, sortPosts } from '@/lib/postFilters';
 import { PostFilters } from './PostFilters';
 import useDebounce from '@/hooks/useDebounce';
 import { useAppDispatch, useAppSelector } from '@/config/store';
@@ -17,6 +17,7 @@ interface PostListProps {
   topics?: Topic[];
   noPostsFoundMessage?: string;
   searchEnabled?: boolean;
+  highlightQuery?: string;
 }
 
 export default function PostList({
@@ -24,11 +25,14 @@ export default function PostList({
   topics = [],
   noPostsFoundMessage,
   searchEnabled = true,
+  highlightQuery,
 }: Readonly<PostListProps>) {
   const { t } = useTranslation(['post', 'common']);
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { query, sortOrder, selectedTopics, dateRange, page, pageSize } = useAppSelector(state => state.postsQuery);
+  const { query, sortOrder, selectedTopics, dateRange, readingTimeRange, page, pageSize } = useAppSelector(
+    state => state.postsQuery,
+  );
   const debouncedSearchQuery = useDebounce(query, 500);
 
   useEffect(() => {
@@ -52,9 +56,10 @@ export default function PostList({
         post =>
           filterByQuery(post, debouncedSearchQuery) &&
           filterByTopics(post, selectedTopics) &&
-          filterByDateRange(post, dateRange),
+          filterByDateRange(post, dateRange) &&
+          filterByReadingTime(post, readingTimeRange),
       ),
-    [posts, debouncedSearchQuery, selectedTopics, dateRange],
+    [posts, debouncedSearchQuery, selectedTopics, dateRange, readingTimeRange],
   );
 
   const sortedPosts = useMemo(() => sortPosts(filteredPosts, sortOrder), [filteredPosts, sortOrder]);
@@ -98,7 +103,9 @@ export default function PostList({
     <Container className="mt-5" style={{ maxWidth: '800px' }}>
       <PostFilters topics={topics} searchEnabled={searchEnabled} />
       {paginatedPosts.length > 0 ? (
-        paginatedPosts.map(post => <PostCard key={post.id} post={post} />)
+        paginatedPosts.map(post => (
+          <PostCard key={post.id} post={post} highlightQuery={highlightQuery?.trim() ? highlightQuery : undefined} />
+        ))
       ) : (
         <div className="post-card d-flex align-items-center mb-4">
           <div className="post-card-content flex-grow-1 text-center">

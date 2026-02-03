@@ -746,7 +746,7 @@ type GreetDTO {
 
 ---
 
-## 📋 Step 3: GraphQL & Security & Database Configuration
+## 🛠️ Step 3: GraphQL & Security & Database Configuration
 
 In this section, we define the beans and properties RSA keys, HTTP security filters, and JPA repository/auditing setup for JWE‑based authentication, GraalVM native-image runtime hints, GraphQL wiring and custom scalars:
 
@@ -1713,7 +1713,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 🗄️ Step 4: JPA Integration
+## 🛠️ Step 4: JPA Integration
 
 In this section, we define the JPA entities representing users, authorities, and their mappings, along with the Spring Data repository for loading users with their authorities.
 
@@ -2348,7 +2348,7 @@ interface UserRepository : JpaRepository<User, String> {
 
 ---
 
-## 🔐 Step 5: Secure JWE Token Utilities
+## 🛠️ Step 5: Secure JWE Token Utilities
 
 In this section, we define the core utility classes and constants needed to generate, encrypt, and resolve JSON Web Encryption (JWE) tokens in your Spring Boot application, integrate auditing, and implement a JPA-based user details service:
 
@@ -3439,7 +3439,7 @@ class CookieAuthenticationWebSocketInterceptor(
 
 ---
 
-## 🔐 Step 6: Authentication & Protected Endpoints
+## 🛠️ Step 6: Authentication & Protected Endpoints
 
 In this section, we define the GraphQL controllers and DTOs necessary for:
 

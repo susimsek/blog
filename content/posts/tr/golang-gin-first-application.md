@@ -52,7 +52,7 @@ go get -u github.com/gin-gonic/gin
 
 ---
 
-## 📖 Adım 2: İlk Endpoint’inizi Yazma
+## 🛠️ Adım 2: İlk Endpoint’inizi Yazma
 
 Basit bir "hello" mesajı gönderen bir endpoint yazalım:
 

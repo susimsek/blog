@@ -20,6 +20,41 @@ This repo generates content via **static export**. List pages are driven by **JS
 2. **`posts.json` is the source of truth**: list pages / RSS / sitemap use `posts.json`. Markdown is read for the detail page content + frontmatter metadata.
 3. **Thumbnail**: `1200x630` (OG size), `webp`, under `public/images/`.
 4. **Topic consistency**: topic `id`s must exist in `topics.json` in both locales; `name` is translated per locale; `color` must be one of the allowed values.
+5. **Icon standards**: tab icons use the `[icon=...]` format and must be from the allowed set; step headings must use the standardized emoji + label format (see below).
+
+## Icon & Heading Standards
+
+### Tab icons (`:::tabs` + `@tab`)
+
+Format:
+
+```md
+:::tabs
+@tab Java [icon=java]
+...
+:::
+```
+
+Allowed tab icons:
+
+- Languages: `java`, `kotlin`, `go`, `javascript`, `typescript`
+- Build tools: `maven`, `gradle`
+
+### Heading emojis (recommended)
+
+Keep headings consistent across posts:
+
+- **Prerequisites**
+  - EN: `## 🌟 Prerequisites`
+  - TR: `## 🌟 Gereksinimler`
+- **Steps**
+  - Build/implementation step:
+    - EN: `## 🛠️ Step N: ...`
+    - TR: `## 🛠️ Adım N: ...`
+  - Testing/verification step: `## 🧪 Step N: ...` / `## 🧪 Adım N: ...`
+  - Run/start step: `## ▶️ Step N: ...` / `## ▶️ Adım N: ...`
+
+Note: Avoid “random” emojis in headings. Prefer the small set above so posts feel consistent.
 
 ## Add a New Post (Step-by-Step)
 
@@ -136,6 +171,13 @@ This skill includes a content check script:
 
 ```bash
 node .codex/skills/blog-content-authoring/scripts/check-content.mjs
+```
+
+To standardize existing posts (headings/steps/prerequisites), run:
+
+```bash
+node .codex/skills/blog-content-authoring/scripts/standardize-posts.mjs --dry-run
+node .codex/skills/blog-content-authoring/scripts/standardize-posts.mjs
 ```
 
 Then run the repo quality gates:

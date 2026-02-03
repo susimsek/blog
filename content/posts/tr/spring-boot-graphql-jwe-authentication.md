@@ -46,7 +46,7 @@ Spring Boot GraphQL JWE Kimlik Doğrulaması, GraphQL’in esnekliğini, statele
 
 ---
 
-## 🌟 Ön Koşullar
+## 🌟 Gereksinimler
 
 - ☕ **JDK 17** veya üzeri
 - 📦 **Spring Boot 3.2+**
@@ -55,7 +55,7 @@ Spring Boot GraphQL JWE Kimlik Doğrulaması, GraphQL’in esnekliğini, statele
 
 ---
 
-## 🛠️ Step 1: Add Dependencies
+## 🛠️ Adım 1: Add Dependencies
 
 `pom.xml` veya `build.gradle` dosyanıza şunları ekleyin.
 
@@ -746,7 +746,7 @@ type GreetDTO {
 
 ---
 
-## 📋 Adım 3: GraphQL & Güvenlik & Veritabanı Yapılandırması
+## 🛠️ Adım 3: GraphQL & Güvenlik & Veritabanı Yapılandırması
 
 Bu bölümde JWE tabanlı kimlik doğrulama, GraphQL entegrasyonu, GraalVM native-image çalışma zamanı ipuçları ve özel scalars için gerekli bean'leri ve ayarları tanımlıyoruz:
 
@@ -1713,7 +1713,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 🗄️ Adım 4: JPA Entegrasyonu
+## 🛠️ Adım 4: JPA Entegrasyonu
 
 Bu bölümde, kullanıcıları, rollerleri ve bunların eşlemelerini temsil eden JPA entity’lerini ve kullanıcıları yetkileriyle birlikte yüklemek için Spring Data JPA deposunu tanımlıyoruz.
 
@@ -2348,7 +2348,7 @@ interface UserRepository : JpaRepository<User, String> {
 
 ---
 
-## 🔐 Adım 5: Güvenli JWE Token Yardımcı Sınıfları Oluşturun
+## 🛠️ Adım 5: Güvenli JWE Token Yardımcı Sınıfları Oluşturun
 
 Bu bölümde, Spring Boot uygulamanızda JSON Web Encryption (JWE) tokenları oluşturmak, şifrelemek ve çözmek için gerekli temel yardımcı sınıfları ve sabitleri tanımlıyoruz. Ayrıca auditing entegrasyonu ve JPA tabanlı UserDetailsService de ekliyoruz:
 
@@ -3439,7 +3439,7 @@ class CookieAuthenticationWebSocketInterceptor(
 
 ---
 
-## 🔐 Adım 6: Kimlik Doğrulama ve Güvenli Endpointler
+## 🧪 Adım 6: Kimlik Doğrulama ve Güvenli Endpointler
 
 Bu bölümde, aşağıdaki GraphQL controller ve DTO’ları tanımlıyoruz:
 

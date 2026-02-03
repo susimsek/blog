@@ -38,7 +38,7 @@ Doğrulama, API’nıza gönderilen verilerin beklenen formatlara uygun olmasın
 
 ---
 
-## 🛠️ 1. Adım: Doğrulama Bağımlılıklarını Ekleyin
+## 🧪 Adım 1: Doğrulama Bağımlılıklarını Ekleyin
 
 ### Spring Boot Projeleri için:
 
@@ -69,7 +69,7 @@ go get -u github.com/go-playground/validator/v10
 
 ---
 
-## 📖 2. Adım: Doğrulama Kuralları ile Bir DTO Tanımlayın
+## 🧪 Adım 2: Doğrulama Kuralları ile Bir DTO Tanımlayın
 
 Alanlara doğrulama kurallarını tanımlamak için anotasyonlar kullanın. Örnekler: `@NotNull`, `@Size`, `@Pattern`.
 
@@ -136,7 +136,7 @@ func ValidateTodoRequest(todo TodoRequest) error {
 
 ---
 
-## 📘 3. Adım: Doğrulama ile Bir Controller Oluşturun
+## 🧪 Adım 3: Doğrulama ile Bir Controller Oluşturun
 
 Doğrulamayı REST endpoint’lerinize entegre edin.
 
@@ -213,7 +213,7 @@ func CreateTodoHandler(c *gin.Context) {
 
 ---
 
-## 📋 4. Adım: Hata Mesajlarını Yönetin
+## 🛠️ Adım 4: Hata Mesajlarını Yönetin
 
 Hata mesajlarını daha kullanıcı dostu olacak şekilde düzelleyin.
 
@@ -288,7 +288,7 @@ func ErrorHandler() gin.HandlerFunc {
 
 ---
 
-## 🌐 main.go Örneği
+## main.go Örneği
 
 Gin uygulaması için `main.go` dosyasının bir örneği:
 
@@ -311,7 +311,7 @@ func main() {
 
 ---
 
-## ▶️ 5. Adım: Uygulamayı Çalıştırın
+## ▶️ Adım 5: Uygulamayı Çalıştırın
 
 ### Spring Boot (Java/Kotlin)
 

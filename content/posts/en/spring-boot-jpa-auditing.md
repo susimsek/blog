@@ -40,7 +40,7 @@ JPA Auditing in Spring Boot allows you to automatically track who created or mod
 
 ---
 
-## 🛠️ Add Dependencies
+## 🛠️ Step 1: Add Dependencies
 
 Make sure you have the following dependencies in your project:
 
@@ -63,7 +63,7 @@ dependencies {
 
 ---
 
-## 📋 Enable JPA Auditing
+## 🛠️ Step 2: Enable JPA Auditing
 
 Add `@EnableJpaAuditing` to your main class or a configuration class.
 
@@ -104,7 +104,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 👤 Create AuditorAware Bean
+## 🛠️ Step 3: Create AuditorAware Bean
 
 This bean tells Spring Security who the current user is. Here's a basic static user example:
 
@@ -137,7 +137,7 @@ class AuditingConfig {
 
 ---
 
-## 📖 Annotate Your Entity
+## 🛠️ Step 4: Annotate Your Entity
 
 Use auditing annotations like `@CreatedDate`, `@LastModifiedDate`, etc.
 

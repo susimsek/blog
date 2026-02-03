@@ -182,7 +182,7 @@ security:
 
 ---
 
-## 📋 Step 3: Security Configuration
+## 🛠️ Step 3: Security Configuration
 
 In this section, we define the beans and properties required to load credentials, RSA keys, and HTTP security filters for JWE-based authentication:
 
@@ -740,7 +740,7 @@ class UserProperties {
 
 ---
 
-## 🔐 Step 4: Secure JWE Token Utilities
+## 🛠️ Step 4: Secure JWE Token Utilities
 
 In this section, we define the core utility classes and constants needed to generate, encrypt, and resolve JSON Web Encryption (JWE) tokens in your Spring Boot application. These components work together to:
 
@@ -1388,7 +1388,7 @@ object SecurityUtils {
 
 ---
 
-## 🔐 Step 5: Authentication & Protected Endpoints
+## 🛠️ Step 5: Authentication & Protected Endpoints
 
 In this section, we define the REST controllers and DTOs necessary for:
 

@@ -117,7 +117,7 @@ go get -u gorm.io/gorm
 
 ---
 
-## 📋 Step 2: Define the Model and Implement the REST Controller
+## 🛠️ Step 2: Define the Model and Implement the REST Controller
 
 This step combines creating the entity/model, repository, and REST controllers.
 

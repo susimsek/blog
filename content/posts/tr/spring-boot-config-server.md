@@ -52,7 +52,7 @@ Aşağıdaki bileşenlerin sisteminizde yüklü olduğundan emin olun:
 
 ---
 
-## 🛠 Adım 1: Bağımlılıkları Ekleyin
+## 🛠️ Adım 1: Bağımlılıkları Ekleyin
 
 Spring Cloud Config Server için gerekli bağımlılıkları ekleyin.
 
@@ -73,7 +73,7 @@ implementation 'org.springframework.cloud:spring-cloud-config-server'
 
 ---
 
-## 📖 Adım 2: Config Server Uygulamasını Oluşturma
+## 🛠️ Adım 2: Config Server Uygulamasını Oluşturma
 
 :::tabs
 @tab Java [icon=java]
@@ -116,7 +116,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 🛠 Adım 3: Config Server'ı Yapılandırma
+## 🛠️ Adım 3: Config Server'ı Yapılandırma
 
 Config ayarlarını saklamak için Git deposunu belirten bir `application.yml` dosyası oluşturun.
 
@@ -136,7 +136,7 @@ spring:
 
 ---
 
-## 📂 Adım 4: Konfigürasyon Deposu Oluşturma
+## 🛠️ Adım 4: Konfigürasyon Deposu Oluşturma
 
 Git deposunda (`config-repo`) bir `application.yml` dosyası oluşturun:
 
@@ -193,7 +193,7 @@ Beklenen Çıktı:
 
 ---
 
-## 📌 Adım 5: İstemci Uygulamayı Yapılandırma
+## 🛠️ Adım 5: İstemci Uygulamayı Yapılandırma
 
 ### Bağımlılıkları Ekleme
 
@@ -212,7 +212,7 @@ Beklenen Çıktı:
 implementation 'org.springframework.cloud:spring-cloud-starter-config'
 ```
 
-### 🔧 İstemci Uygulama Yapılandırması
+### İstemci Uygulama Yapılandırması
 
 İstemci uygulamanın `bootstrap.yml` dosyasına aşağıdaki ayarları ekleyin:
 
@@ -225,7 +225,7 @@ spring:
       uri: http://localhost:8888
 ```
 
-### 🔧 İstemci Uygulama Kodu
+### İstemci Uygulama Kodu
 
 :::tabs
 @tab Java [icon=java]
@@ -294,7 +294,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 🏃 İstemci Uygulamayı Çalıştırma
+## ▶️ İstemci Uygulamayı Çalıştırma
 
 İstemci uygulamasını başlatmak için:
 

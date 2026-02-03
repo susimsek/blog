@@ -72,7 +72,7 @@ plugins {
 
 ---
 
-## 📋 Adım 2: Bir REST Controller Yazın
+## 🛠️ Adım 2: Bir REST Controller Yazın
 
 Native imaj fonksiyonelliğini test etmek için basit bir REST endpoint oluşturun.
 
@@ -129,7 +129,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 📖 Adım 3: Native İmaj Oluşturun
+## 🛠️ Adım 3: Native İmaj Oluşturun
 
 ### Maven Kullanarak
 
@@ -149,7 +149,7 @@ gradle nativeCompile
 
 ---
 
-## 🐳 Adım 4: Docker İmajı Oluşturun
+## 🛠️ Adım 4: Docker İmajı Oluşturun
 
 Spring Boot, native yürütülebilir dosyalarla Docker imajları oluşturmayı destekler.
 

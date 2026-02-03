@@ -70,7 +70,7 @@ implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 ---
 
-## 📋 Adım 2: Redis'i Yapılandırın
+## 🛠️ Adım 2: Redis'i Yapılandırın
 
 Redis bağlantısını `application.properties` veya `application.yml` dosyanızda yapılandırın.
 
@@ -90,7 +90,7 @@ spring.redis.ssl=true
 
 ---
 
-## 🔒 Adım 3: Önbelleği Etkinleştirin
+## 🛠️ Adım 3: Önbelleği Etkinleştirin
 
 Ana uygulama sınıfınıza `@EnableCaching` ekleyin:
 
@@ -192,7 +192,7 @@ class UserService {
 
 ---
 
-## 🔢 Önbellek Zaman Aşımı (TTL) Yapılandırması
+## Önbellek Zaman Aşımı (TTL) Yapılandırması
 
 `application.properties` dosyasında önbellek sona erme sürelerini ayarlayın:
 
@@ -204,7 +204,7 @@ Bu, zaman aşımını 10 dakika (600.000 milisaniye) olarak ayarlar.
 
 ---
 
-## 🔢 Controller Örneği
+## Controller Örneği
 
 Önbellekleme işlevini expose etmek için bir REST Controller oluşturun.
 

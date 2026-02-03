@@ -68,7 +68,7 @@ runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 
 ---
 
-## 📋 Adım 2: DevTools'u Yapılandırın
+## 🛠️ Adım 2: DevTools'u Yapılandırın
 
 Spring Boot DevTools, minimal yapılandırma gerektirir ancak bazı özelleştirme seçenekleri sunar. İşte bazı yaygın yapılandırma örnekleri:
 
@@ -95,7 +95,7 @@ spring.devtools.restart.exclude=static/**,public/**
 
 ---
 
-## 📖 Adım 3: Hata Ayıklama İyileştirmeleri
+## 🛠️ Adım 3: Hata Ayıklama İyileştirmeleri
 
 Spring Boot DevTools, hata ayıklamayı şu şekilde iyileştirir:
 

@@ -72,7 +72,7 @@ plugins {
 
 ---
 
-## 📋 Step 2: Write a REST Controller
+## 🛠️ Step 2: Write a REST Controller
 
 Create a simple REST endpoint to test the native image functionality.
 
@@ -129,7 +129,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 📖 Step 3: Build a Native Image
+## 🛠️ Step 3: Build a Native Image
 
 ### Using Maven
 
@@ -149,7 +149,7 @@ gradle nativeCompile
 
 ---
 
-## 🐳 Step 4: Build a Docker Image
+## 🛠️ Step 4: Build a Docker Image
 
 Spring Boot provides built-in support for creating Docker images with native executables.
 

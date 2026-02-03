@@ -52,7 +52,7 @@ go get -u github.com/gin-gonic/gin
 
 ---
 
-## 📖 Step 2: Writing Your First Endpoint
+## 🛠️ Step 2: Writing Your First Endpoint
 
 Let’s write a simple endpoint to say hello:
 

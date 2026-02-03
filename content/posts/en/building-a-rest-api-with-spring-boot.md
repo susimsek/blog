@@ -54,7 +54,7 @@ Download the project, open it in your IDE, and get ready to run it.
 
 ---
 
-## 📖 Step 2: Create a Model Class
+## 🛠️ Step 2: Create a Model Class
 
 Create a model class for a `Todo` object:
 
@@ -90,7 +90,7 @@ data class Todo(
 
 ---
 
-## 📘 Step 3: Create a Controller Class
+## 🛠️ Step 3: Create a Controller Class
 
 Add a `TodoController` class to define CRUD operations as REST endpoints:
 
@@ -186,7 +186,7 @@ class TodoController {
 
 ---
 
-## ▶️ Step 4: Test the API
+## 🧪 Step 4: Test the API
 
 Test your API using `curl` commands:
 

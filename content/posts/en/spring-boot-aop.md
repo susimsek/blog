@@ -63,7 +63,7 @@ implementation 'org.springframework.boot:spring-boot-starter-aop'
 
 ---
 
-## 📋 Step 2: Define a Service
+## 🛠️ Step 2: Define a Service
 
 Create a simple service to demonstrate AOP.
 
@@ -116,7 +116,7 @@ class UserService {
 
 ---
 
-## 📖 Step 3: Create an Aspect
+## 🛠️ Step 3: Create an Aspect
 
 Define an aspect to log method execution details.
 
@@ -176,7 +176,7 @@ class LoggingAspect {
 
 ---
 
-## 📘 Step 4: Create a Controller
+## 🛠️ Step 4: Create a Controller
 
 Expose the service methods through a REST controller.
 

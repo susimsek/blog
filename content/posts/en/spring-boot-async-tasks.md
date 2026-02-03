@@ -66,7 +66,7 @@ implementation 'org.springframework.boot:spring-boot-starter-web'
 
 ---
 
-## 📋 Step 2: Enable Async in Your Application
+## 🛠️ Step 2: Enable Async in Your Application
 
 Annotate your main application class with `@EnableAsync` to enable asynchronous execution.
 
@@ -111,7 +111,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 📖 Step 3: Create an Async Task
+## 🛠️ Step 3: Create an Async Task
 
 Define an asynchronous method using `@Async`.
 
@@ -158,7 +158,7 @@ class AsyncTask {
 
 ---
 
-## 🔄 Step 4: Create a Controller to Trigger Async Tasks
+## 🛠️ Step 4: Create a Controller to Trigger Async Tasks
 
 Create a REST controller to trigger the asynchronous task.
 

@@ -54,7 +54,7 @@ Projeyi indirin, IDE'nizde açın ve çalıştırmaya hazırlanın.
 
 ---
 
-## 📖 Adım 2: Model Sınıfı Oluşturma
+## 🛠️ Adım 2: Model Sınıfı Oluşturma
 
 `Todo` nesnesi için bir model sınıfı oluşturun:
 
@@ -90,7 +90,7 @@ data class Todo(
 
 ---
 
-## 📘 Adım 3: Controller Sınıfı Oluşturma
+## 🛠️ Adım 3: Controller Sınıfı Oluşturma
 
 CRUD işlemlerini tanımlayan bir `TodoController` sınıfı ekleyin:
 
@@ -186,7 +186,7 @@ class TodoController {
 
 ---
 
-## ▶️ Adım 4: API'yi Test Etme
+## 🧪 Adım 4: API'yi Test Etme
 
 API'nizi test etmek için `curl` komutlarını kullanın:
 

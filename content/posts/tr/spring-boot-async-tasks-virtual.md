@@ -38,7 +38,7 @@ Spring Boot 3.2 ve üzeri sürümler, JDK 21’in sanal thread desteğini otomat
 
 ---
 
-## 🌟 Ön Koşullar
+## 🌟 Gereksinimler
 
 - ☕ **Java Development Kit (JDK) 21** veya üzeri
 - 📦 **Spring Boot 3.2+**
@@ -46,7 +46,7 @@ Spring Boot 3.2 ve üzeri sürümler, JDK 21’in sanal thread desteğini otomat
 
 ---
 
-## 🛠️ 1. Bağımlılıkları Ekle
+## 🛠️ Adım 1: Bağımlılıkları Ekle
 
 Asenkron işleme olanak tanıyan `spring-boot-starter-web` paketini projenize ekleyin.
 
@@ -67,7 +67,7 @@ implementation 'org.springframework.boot:spring-boot-starter-web'
 
 ---
 
-## 🛠️ 2. Sanal Thread’leri Aktifleştir
+## 🛠️ Adım 2: Sanal Thread’leri Aktifleştir
 
 `application.yml` veya `application.properties` dosyanıza şu satırı ekleyin:
 
@@ -90,7 +90,7 @@ Bu ayar, aşağıdakileri otomatik yapılandırır:
 
 ---
 
-## 📋 3. Asenkron Desteği Aktif Etme
+## 🛠️ Adım 3: Asenkron Desteği Aktif Etme
 
 Ana uygulama sınıfınıza `@EnableAsync` ekleyin:
 
@@ -135,7 +135,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 📖 4. Asenkron Servis Tanımla
+## 🛠️ Adım 4: Asenkron Servis Tanımla
 
 `@Async` anotasyonlu metodlar sanal thread üzerinde çalışır:
 
@@ -206,7 +206,7 @@ class AsyncVirtualService {
 
 ---
 
-## 🔄 5. REST Controller ile Tetikle
+## 🛠️ Adım 5: REST Controller ile Tetikle
 
 Aşağıdaki endpoint’leri kullanarak servis metodlarını tetikleyin:
 

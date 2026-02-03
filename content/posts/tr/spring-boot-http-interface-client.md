@@ -38,7 +38,7 @@ Spring Boot 3.2+ ile Java veya Kotlin arayüzleri üzerinden deklaratif ve tip g
 
 ---
 
-## 🌟 Ön Koşullar
+## 🌟 Gereksinimler
 
 - ☕ **Java Development Kit (JDK) 21** veya üstü
 - 📦 **Spring Boot 3.2+**
@@ -67,7 +67,7 @@ implementation 'org.springframework.boot:spring-boot-starter-web'
 
 ---
 
-## 📝 Adım 2: Temel URL Ayarı
+## 🛠️ Adım 2: Temel URL Ayarı
 
 `application.yml` veya `application.properties` dosyanıza ekleyin:
 
@@ -223,7 +223,7 @@ class HttpClientConfig {
 
 ---
 
-## 🔄 Adım 5: Servis ve Controller Oluşturun
+## 🛠️ Adım 5: Servis ve Controller Oluşturun
 
 :::tabs
 @tab Java [icon=java]

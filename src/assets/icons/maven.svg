@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect
+    x="8"
+    y="8"
+    width="112"
+    height="112"
+    rx="24"
+    fill="var(--svg-maven-bg, #7a1fa2)"
+  />
+  <path
+    fill="var(--svg-maven-fg, #ffffff)"
+    d="M32 92V36h14l18 27 18-27h14v56H82V60L64 87 46 60v32H32z"
+  />
+</svg>
+

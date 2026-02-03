@@ -48,7 +48,7 @@ OpenAPI, API dokümantasyonu ve test işlemlerini kolaylaştıran etkileşimli b
 
 ---
 
-## 🛠️ 1. Adım: Bağımlılıkları Ekleyin
+## 🛠️ Adım 1: Bağımlılıkları Ekleyin
 
 SpringDoc kullanarak OpenAPI'yi entegre etmek için aşağıdaki bağımlılığı projenize ekleyin:
 
@@ -70,7 +70,7 @@ implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
 
 ---
 
-## 📋 2. Adım: OpenAPI'yi Yapılandırın
+## 🛠️ Adım 2: OpenAPI'yi Yapılandırın
 
 SpringDoc minimal konfigürasyon gerektirir. `application.properties` veya `application.yml` dosyası üzerinden dokümantasyonu özelleştirebilirsiniz.
 
@@ -83,7 +83,7 @@ springdoc.swagger-ui.path=/swagger-ui.html
 
 ---
 
-## 📖 3. Adım: REST Kontrollerinizi Anotasyonlarla Belgeleyin
+## 🛠️ Adım 3: REST Kontrollerinizi Anotasyonlarla Belgeleyin
 
 REST kontrollerinize ve modellerinize anotasyonlar ekleyerek OpenAPI dokümantasyonunu otomatik olarak oluşturabilirsiniz.
 

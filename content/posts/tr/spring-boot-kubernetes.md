@@ -32,7 +32,7 @@ Spring Boot, **Kubernetes** ile sorunsuz bir şekilde bütünleşerek konteynerl
 
 ---
 
-## ✨ Neden Spring Boot İçin Kubernetes Kullanmalıyız?
+## 🌟 Neden Spring Boot İçin Kubernetes Kullanmalıyız?
 
 - **Ölçeklenebilirlik**: Trafiğe göre uygulamaları otomatik olarak ölçekleyin.
 - **Kendi Kendine İyileşme**: Kubernetes, başarısız olan konteynerleri otomatik olarak yeniden başlatır.
@@ -42,7 +42,7 @@ Spring Boot, **Kubernetes** ile sorunsuz bir şekilde bütünleşerek konteynerl
 
 ---
 
-## ✨ Gereksinimler
+## 🌟 Gereksinimler
 
 Aşağıdaki araçların sisteminizde kurulu olduğundan emin olun:
 
@@ -54,7 +54,7 @@ Aşağıdaki araçların sisteminizde kurulu olduğundan emin olun:
 
 ---
 
-## 🛠 Adım 1: Bağımlılıkları Ekleyin
+## 🛠️ Adım 1: Bağımlılıkları Ekleyin
 
 Spring Boot Web ve Actuator bağımlılıklarını ekleyerek uygulamanın sağlık durumu apilerini aktif edin.
 
@@ -84,7 +84,7 @@ dependencies {
 
 ---
 
-## 📖 Adım 2: Basit Bir Spring Boot Uygulaması Oluşturun
+## 🛠️ Adım 2: Basit Bir Spring Boot Uygulaması Oluşturun
 
 Kubernetes üzerinde çalıştırılacak bir REST endpoint oluşturun.
 
@@ -141,7 +141,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 💪 Adım 3: Kubernetes Dağıtımı ve Servisi Tanımlayın
+## 🛠️ Adım 3: Kubernetes Dağıtımı ve Servisi Tanımlayın
 
 **deployment.yaml** dosyasını oluşturun:
 

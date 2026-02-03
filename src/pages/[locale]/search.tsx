@@ -52,6 +52,7 @@ export default function SearchPage({ allPosts, topics }: Readonly<SearchPageProp
         <PostList
           posts={allPosts}
           searchEnabled={false}
+          highlightQuery={query}
           noPostsFoundMessage={t('search.no_results', { query: query || '' })}
         />
       </div>

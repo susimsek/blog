@@ -38,7 +38,7 @@ Test Odaklı Geliştirme (TDD), iş mantığını uygulamadan **önce** testler 
 
 ---
 
-## 🌟 Ön Koşullar
+## 🌟 Gereksinimler
 
 Şunlara sahip olduğundan emin ol:
 
@@ -48,7 +48,7 @@ Test Odaklı Geliştirme (TDD), iş mantığını uygulamadan **önce** testler 
 
 ---
 
-## 🛠️ 1. Adım: Test Bağımlılıklarını Ekle
+## 🧪 Adım 1: Test Bağımlılıklarını Ekle
 
 Projene Spring Boot test starter'ını ekle.
 
@@ -70,7 +70,7 @@ testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 ---
 
-## 📋 2. Adım: İlk Testini Yaz
+## 🛠️ Adım 2: İlk Testini Yaz
 
 Servisi yazmadan **önce** basit birim test oluştur.
 
@@ -117,7 +117,7 @@ class GreetingServiceTest {
 
 ---
 
-## 📖 3. Adım: Servisi Oluşturun
+## 🛠️ Adım 3: Servisi Oluşturun
 
 Testi geçecek şekilde `GreetingService` sınıfını oluştur.
 
@@ -168,7 +168,7 @@ Test başarıyla geçmeli ✅
 
 ---
 
-## 🔄 Refactor ve Tekrarla
+## Refactor ve Tekrarla
 
 Test geçtikten sonra kodu güvenle refactor edebilirsin. TDD döngüsü şöyledir:
 

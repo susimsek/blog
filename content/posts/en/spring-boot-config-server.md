@@ -52,7 +52,7 @@ Ensure you have the following:
 
 ---
 
-## 🛠 Step 1: Add Dependencies
+## 🛠️ Step 1: Add Dependencies
 
 Add the necessary dependencies for **Spring Cloud Config Server**.
 
@@ -73,7 +73,7 @@ implementation 'org.springframework.cloud:spring-cloud-config-server'
 
 ---
 
-## 📖 Step 2: Create the Config Server Application
+## 🛠️ Step 2: Create the Config Server Application
 
 :::tabs
 @tab Java [icon=java]
@@ -116,7 +116,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 🛠 Step 3: Configure the Config Server
+## 🛠️ Step 3: Configure the Config Server
 
 Create an `application.yml` file to specify the Git repository for storing configurations.
 
@@ -136,7 +136,7 @@ spring:
 
 ---
 
-## 📂 Step 4: Create a Configuration Repository
+## 🛠️ Step 4: Create a Configuration Repository
 
 In your Git repository (e.g., `config-repo`), create an `application.yml` file with the following content:
 
@@ -193,7 +193,7 @@ Expected Output:
 
 ---
 
-## 📌 Step 5: Configure a Client Application
+## 🛠️ Step 5: Configure a Client Application
 
 ### Add Dependencies
 
@@ -294,7 +294,7 @@ fun main(args: Array<String>) {
 
 ---
 
-## 🏃 Running the Client Application
+## ▶️ Running the Client Application
 
 Run the Config Client application:
 

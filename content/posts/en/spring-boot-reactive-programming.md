@@ -69,7 +69,7 @@ implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 ---
 
-## 📋 Step 2: Create a Reactive REST Controller
+## 🛠️ Step 2: Create a Reactive REST Controller
 
 Define a **non-blocking** REST endpoint using `Mono` and `Flux` to handle asynchronous processing.
 

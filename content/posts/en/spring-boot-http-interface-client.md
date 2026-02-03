@@ -67,7 +67,7 @@ implementation 'org.springframework.boot:spring-boot-starter-web'
 
 ---
 
-## 📝 Step 2: Configure Base URL
+## 🛠️ Step 2: Configure Base URL
 
 Add to `application.yml` or `application.properties`:
 
@@ -223,7 +223,7 @@ class HttpClientConfig {
 
 ---
 
-## 🔄 Step 5: Implement Service and Controller
+## 🛠️ Step 5: Implement Service and Controller
 
 :::tabs
 @tab Java [icon=java]

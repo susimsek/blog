@@ -58,7 +58,7 @@ You can create your first Spring Boot project in two ways:
 
 ---
 
-## 📖 Step 2: Writing Your First Endpoint
+## 🛠️ Step 2: Writing Your First Endpoint
 
 Let’s write a simple endpoint to say hello:
 

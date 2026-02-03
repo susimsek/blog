@@ -70,7 +70,7 @@ implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
 ---
 
-## 📜 Step 2: Enable Actuator Endpoints
+## 🛠️ Step 2: Enable Actuator Endpoints
 
 By default, Actuator exposes several endpoints to provide application insights. You can enable these endpoints in your `application.properties` or `application.yml` file.
 
@@ -83,7 +83,7 @@ management.endpoint.health.show-details=always
 
 ---
 
-## 📖 Step 3: Using Actuator Endpoints
+## 🛠️ Step 3: Using Actuator Endpoints
 
 Here are some commonly used Actuator endpoints:
 
@@ -101,7 +101,7 @@ curl -X GET http://localhost:8080/actuator/health
 
 ---
 
-## 📘 Step 4: Customize Actuator Endpoints
+## 🛠️ Step 4: Customize Actuator Endpoints
 
 You can customize Actuator endpoints to suit your needs. For example, you can define additional metadata in the `application.properties` file for the `/actuator/info` endpoint:
 
@@ -113,7 +113,7 @@ info.app.description=Spring Boot Actuator Example
 
 ---
 
-## 🔒 Step 5: Secure Actuator Endpoints
+## 🛠️ Step 5: Secure Actuator Endpoints
 
 For production environments, it's essential to secure Actuator endpoints. Use Spring Security to restrict access.
 

@@ -63,7 +63,7 @@ implementation 'org.springframework.boot:spring-boot-starter-graphql'
 
 ---
 
-## 📋 Step 2: Define the GraphQL Schema
+## 🛠️ Step 2: Define the GraphQL Schema
 
 Create a schema file named `schema.graphqls` under the `src/main/resources/graphql` directory.
 
@@ -82,7 +82,7 @@ type User {
 
 ---
 
-## 📖 Step 3: Implement the Data Model and Services
+## 🛠️ Step 3: Implement the Data Model and Services
 
 Define the data model and service layer for handling queries.
 
@@ -181,7 +181,7 @@ class UserService {
 
 ---
 
-## 📘 Step 4: Implement GraphQL Controllers
+## 🛠️ Step 4: Implement GraphQL Controllers
 
 Controllers handle GraphQL queries and mutations. Use the `@Controller` annotation in Spring for GraphQL.
 

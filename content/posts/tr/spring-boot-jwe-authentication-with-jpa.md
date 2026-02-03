@@ -45,7 +45,7 @@ Spring Boot, stateless şifrelenmiş JWT’leri (JWE) kullanarak API’lerinizi 
 
 ---
 
-## 🌟 Ön Koşullar
+## 🌟 Gereksinimler
 
 - ☕ **JDK 17** veya üzeri
 - 📦 **Spring Boot 3.2+**
@@ -478,7 +478,7 @@ a1b2c3d4-e5f6-7890-abcd-ef1234567890;f47ac10b-58cc-4372-a567-0e02b2c3d479;2025-0
 
 ---
 
-## 📋 Adım 3: Güvenlik & Veritabanı Yapılandırması
+## 🛠️ Adım 3: Güvenlik & Veritabanı Yapılandırması
 
 Bu bölümde, JWE tabanlı kimlik doğrulama için RSA anahtarları, HTTP güvenlik filtreleri ve JPA repository / auditing yapılandırmasını tanımlayan bean'leri ve ayarları oluşturuyoruz:
 
@@ -1006,7 +1006,7 @@ class DatabaseConfig
 
 ---
 
-## 🗄️ Adım 4: JPA Entegrasyonu
+## 🛠️ Adım 4: JPA Entegrasyonu
 
 Bu bölümde, kullanıcıları, rollerleri ve bunların eşlemelerini temsil eden JPA entity’lerini ve kullanıcıları yetkileriyle birlikte yüklemek için Spring Data JPA deposunu tanımlıyoruz.
 
@@ -1641,7 +1641,7 @@ interface UserRepository : JpaRepository<User, String> {
 
 ---
 
-## 🔐 Adım 5: Güvenli JWE Token Yardımcı Sınıfları Oluşturun
+## 🛠️ Adım 5: Güvenli JWE Token Yardımcı Sınıfları Oluşturun
 
 Bu bölümde, Spring Boot uygulamanızda JSON Web Encryption (JWE) tokenları oluşturmak, şifrelemek ve çözmek için gerekli temel yardımcı sınıfları ve sabitleri tanımlıyoruz. Ayrıca auditing entegrasyonu ve JPA tabanlı UserDetailsService de ekliyoruz:
 
@@ -2426,7 +2426,7 @@ class SpringSecurityAuditorAware : AuditorAware<String> {
 
 ---
 
-## 🔐 Adım 6: Kimlik Doğrulama ve Güvenli Endpointler
+## 🧪 Adım 6: Kimlik Doğrulama ve Güvenli Endpointler
 
 Bu bölümde, aşağıdakileri gerçekleştirmek için gerekli REST controller ve DTO’ları tanımlıyoruz:
 

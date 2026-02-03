@@ -63,7 +63,7 @@ implementation 'org.springframework.boot:spring-boot-starter-graphql'
 
 ---
 
-## 📋 Adım 2: GraphQL Şemasını Tanımlama
+## 🛠️ Adım 2: GraphQL Şemasını Tanımlama
 
 `src/main/resources/graphql` dizini altında `schema.graphqls` adlı bir dosya oluşturun.
 
@@ -82,7 +82,7 @@ type User {
 
 ---
 
-## 📖 Adım 3: Veri Modeli ve Servislerin Tanımlanması
+## 🛠️ Adım 3: Veri Modeli ve Servislerin Tanımlanması
 
 Sorguları işlemek için veri modelinizi ve servis katmanını tanımlayın.
 
@@ -181,7 +181,7 @@ class UserService {
 
 ---
 
-## 📘 Adım 4: GraphQL Controllerı Uygulama
+## 🛠️ Adım 4: GraphQL Controllerı Uygulama
 
 GraphQL sorgularını ve mutasyonlarını işlemek için `@Controller` anotasyonunu kullanın.
 

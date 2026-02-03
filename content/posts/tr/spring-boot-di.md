@@ -36,7 +36,7 @@ Bağımlılık Enjeksiyonu, sınıflara bağımlılıkları manuel olarak oluşt
 
 ---
 
-## 🌟 Ön Koşullar
+## 🌟 Gereksinimler
 
 📋 Aşağıdakilere sahip olduğunuzdan emin olun:
 
@@ -67,7 +67,7 @@ implementation 'org.springframework.boot:spring-boot-starter'
 
 ---
 
-## 📋 Adım 2: Bir Servis Oluşturun
+## 🛠️ Adım 2: Bir Servis Oluşturun
 
 Bağımlılık Enjeksiyonu'nu göstermek için basit bir servis tanımlayın.
 
@@ -120,7 +120,7 @@ class UserService {
 
 ---
 
-## 📖 Adım 3: Bağımlılıkları Enjekte Edin
+## 🛠️ Adım 3: Bağımlılıkları Enjekte Edin
 
 Servisi diğer bileşenlere enjekte etmek için anotasyonları kullanın.
 

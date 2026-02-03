@@ -48,7 +48,7 @@ Make sure you have:
 
 ---
 
-## 🛠️ Step 1: Add Test Dependencies
+## 🧪 Step 1: Add Test Dependencies
 
 Add Spring Boot's test starter to your project.
 
@@ -70,7 +70,7 @@ testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 ---
 
-## 📋 Step 2: Write Your First Test
+## 🧪 Step 2: Write Your First Test
 
 Create a simple unit test **before** implementing the service.
 
@@ -117,7 +117,7 @@ class GreetingServiceTest {
 
 ---
 
-## 📖 Step 3: Implement the Service
+## 🛠️ Step 3: Implement the Service
 
 Now implement the `GreetingService` to pass the test.
 
@@ -168,7 +168,7 @@ You should see the test pass ✅
 
 ---
 
-## 🔄 Refactor and Repeat
+## Refactor and Repeat
 
 Now that your test passes, you can safely refactor your code. TDD is a loop:
 
