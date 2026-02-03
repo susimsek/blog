@@ -10,6 +10,7 @@ import { GA_ID } from '@/config/constants';
 import { useAppDispatch } from '@/config/store';
 import { useRouter } from 'next/router';
 import { setPosts, setLocale } from '@/reducers/postsQuery';
+import PreFooter from '@/components/common/PreFooter';
 
 type LayoutProps = {
   children: ReactNode;
@@ -37,6 +38,7 @@ const LayoutStateInitializer: React.FC<Pick<LayoutProps, 'posts'>> = ({ posts = 
 
 const LayoutView: React.FC<LayoutProps> = ({
   children,
+  posts = [],
   topics = [],
   searchEnabled = false,
   sidebarEnabled = false,
@@ -97,6 +99,7 @@ const LayoutView: React.FC<LayoutProps> = ({
           </Col>
         </Row>
       </main>
+      <PreFooter posts={posts} topics={topics} />
       <div ref={footerRef}>
         <Footer />
       </div>

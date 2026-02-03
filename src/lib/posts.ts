@@ -45,7 +45,10 @@ async function getPostMarkdownContent(id: string, locale: string): Promise<strin
   return content;
 }
 
-async function getReadingTimeForPostSummary(post: PostSummary, locale: string): Promise<string> {
+async function getReadingTimeForPostSummary(
+  post: Pick<PostSummary, 'id' | 'title' | 'summary'>,
+  locale: string,
+): Promise<string> {
   const cacheKey = `${locale}-${post.id}`;
   const cached = readingTimeCache.get(cacheKey);
   if (cached) {

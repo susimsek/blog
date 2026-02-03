@@ -27,6 +27,18 @@
     "footer": {
       "text": "© {{year}} Şuayb's Blog. All rights reserved."
     },
+    "preFooter": {
+      "title": "Footer navigation",
+      "aboutTitle": "About",
+      "aboutText": "Articles on Spring Boot, microservices, security, and more.",
+      "contactCta": "Contact",
+      "startHereCta": "Start here",
+      "latestPostsTitle": "Latest posts",
+      "topTopicsTitle": "Top topics",
+      "subscribeTitle": "Subscribe",
+      "rss": "RSS",
+      "socialTitle": "Social"
+    },
     "pagination": {
       "pageSize": "Page size",
       "showingResults": "Showing {{start}}–{{end}} of {{total}} results"

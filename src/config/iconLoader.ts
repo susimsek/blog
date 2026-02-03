@@ -35,6 +35,7 @@ import {
   faSort,
   faSun,
   faTags,
+  faRss,
   faTimes,
   faTimesCircle,
   faTrash,
@@ -93,6 +94,7 @@ export const loadIcons = () => {
     faClock,
     faClipboardList,
     faChevronDown,
+    faRss,
     faWater,
     faLeaf,
   );

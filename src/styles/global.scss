@@ -96,6 +96,26 @@ body {
   @include transition(background-color, color, border-color, box-shadow);
 }
 
+.pre-footer {
+  background-color: var(--footer-bg);
+  color: var(--text-color);
+  border-top: 1px solid var(--border-color);
+  @include transition(background-color, color, border-color);
+
+  .pre-footer-title {
+    position: relative;
+    display: inline-block;
+  }
+
+  a {
+    color: var(--text-color);
+
+    &:hover {
+      color: var(--link-hover-color);
+    }
+  }
+}
+
 .sidebar {
   position: sticky;
   top: 67px;
@@ -423,6 +443,27 @@ input.form-control {
   flex: 1;
   padding: 16px;
   color: var(--text-color);
+}
+
+.related-post-card {
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: var(--box-shadow-hover);
+    border-color: var(--link-hover-color);
+  }
+
+  .related-post-thumb {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--main-bg);
+
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  }
 }
 
 .thumbnail-wrapper {
