@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import sharp from 'sharp';
 
 const ROOT = process.cwd();
 
@@ -73,6 +74,7 @@ const warn = (warnings, message) => warnings.push(message);
 const main = async () => {
   const errors = [];
   const warnings = [];
+  const thumbnailMetaCache = new Map(); // publicPath -> { w, h, kb } | null
 
   const topicsByLocale = await loadTopicsByLocale();
   const postsByLocale = await loadPostsByLocale();
@@ -116,6 +118,33 @@ const main = async () => {
         const publicPath = path.join(ROOT, 'public', post.thumbnail.replace(/^\//, ''));
         if (!(await exists(publicPath)))
           fail(errors, `${postsFile}: ${post.id} thumbnail file not found: ${publicPath}`);
+        if (await exists(publicPath)) {
+          if (!thumbnailMetaCache.has(publicPath)) {
+            try {
+              const meta = await sharp(publicPath).metadata();
+              const st = await fs.stat(publicPath);
+              thumbnailMetaCache.set(publicPath, {
+                w: meta.width ?? null,
+                h: meta.height ?? null,
+                kb: Math.round(st.size / 1024),
+              });
+            } catch {
+              thumbnailMetaCache.set(publicPath, null);
+            }
+          }
+
+          const info = thumbnailMetaCache.get(publicPath);
+          if (!info) {
+            warn(warnings, `${postsFile}: ${post.id} unable to read thumbnail metadata: ${publicPath}`);
+          } else if (info.w !== 1200 || info.h !== 630) {
+            warn(
+              warnings,
+              `${postsFile}: ${post.id} thumbnail should be 1200x630 (got ${info.w}x${info.h}): ${post.thumbnail}`,
+            );
+          } else if (info.kb != null && info.kb > 350) {
+            warn(warnings, `${postsFile}: ${post.id} thumbnail is quite large (${info.kb}KB): ${post.thumbnail}`);
+          }
+        }
       }
 
       const mdPath = path.join(ROOT, 'content', 'posts', locale, `${post.id}.md`);
@@ -143,6 +172,34 @@ const main = async () => {
           const isStepLike = /\b(Step|Adım)\s+\d+:/u.test(line);
           if (isStepLike && !/^##\s+(🛠️|🧪|▶️)\s+(Step|Adım)\s+\d+:/u.test(line)) {
             warn(warnings, `${mdPath}: non-standard step heading format -> ${line.trim()}`);
+          }
+        }
+
+        // Inline images in Markdown/HTML (optional, but enforce best practices).
+        const inlineSrcs = new Set();
+        for (const m of md.matchAll(/!\[[^\]]*]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)/g)) inlineSrcs.add(m[1]);
+        for (const m of md.matchAll(/<img[^>]+src=['"]([^'"]+)['"][^>]*>/gi)) inlineSrcs.add(m[1]);
+
+        for (const src of inlineSrcs) {
+          if (!src.startsWith('/images/')) {
+            warn(warnings, `${mdPath}: inline image should be under /images/ (got "${src}")`);
+            continue;
+          }
+
+          const publicImgPath = path.join(ROOT, 'public', src.replace(/^\//, ''));
+          if (!(await exists(publicImgPath))) {
+            fail(errors, `${mdPath}: inline image file not found: ${publicImgPath}`);
+            continue;
+          }
+
+          if (!src.endsWith('.webp')) {
+            warn(warnings, `${mdPath}: inline image should be .webp for consistency/perf: ${src}`);
+          }
+
+          // Recommended structure: /images/posts/<slug>/...
+          const isThumbnail = src === post.thumbnail;
+          if (!isThumbnail && !src.startsWith(`/images/posts/${post.id}/`)) {
+            warn(warnings, `${mdPath}: inline images should live under /images/posts/${post.id}/ (got "${src}")`);
           }
         }
       }

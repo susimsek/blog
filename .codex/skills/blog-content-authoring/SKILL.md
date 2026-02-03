@@ -18,9 +18,63 @@ This repo generates content via **static export**. List pages are driven by **JS
 
 1. **Slug/ID**: kebab-case (`my-new-post`). Use the same slug for both `en` and `tr`.
 2. **`posts.json` is the source of truth**: list pages / RSS / sitemap use `posts.json`. Markdown is read for the detail page content + frontmatter metadata.
-3. **Thumbnail**: `1200x630` (OG size), `webp`, under `public/images/`.
-4. **Topic consistency**: topic `id`s must exist in `topics.json` in both locales; `name` is translated per locale; `color` must be one of the allowed values.
-5. **Icon standards**: tab icons use the `[icon=...]` format and must be from the allowed set; step headings must use the standardized emoji + label format (see below).
+3. **Images**: keep post images under `/images/` and prefer `webp` for consistency/performance.
+4. **Thumbnail**: `1200x630` (OG size), `webp`, under `public/images/` (recommended name: `<slug>-thumbnail.webp`).
+5. **Topic consistency**: topic `id`s must exist in `topics.json` in both locales; `name` is translated per locale; `color` must be one of the allowed values.
+6. **Icon standards**: tab icons use the `[icon=...]` format and must be from the allowed set; step headings must use the standardized emoji + label format (see below).
+
+## Image Standards
+
+### 1) Post thumbnail (required)
+
+- **Purpose**: post list card + RSS/sitemap image + OG-like share image
+- **Format**: `webp`
+- **Dimensions**: `1200x630`
+- **Location**: `public/images/`
+- **Path in Markdown/posts.json**: `/images/<slug>-thumbnail.webp`
+
+Generate:
+
+```bash
+node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs \
+  --in /path/to/source.png \
+  --out public/images/<slug>-thumbnail.webp
+```
+
+### 2) Inline post images (optional)
+
+If you add images inside the post body (Markdown/HTML):
+
+- **Format**: prefer `webp`
+- **Location**: `public/images/posts/<slug>/`
+- **Reference path**: `/images/posts/<slug>/<name>.webp`
+
+Generate (keeps aspect ratio, resizes to a max width):
+
+```bash
+node .codex/skills/blog-content-authoring/scripts/make-post-image.mjs \
+  --in /path/to/source.png \
+  --out public/images/posts/<slug>/<name>.webp \
+  --maxWidth 1200
+```
+
+Recommended markup (for better layout stability):
+
+```html
+<figure>
+  <img
+    src="/images/posts/<slug>/<name>.webp"
+    alt="Describe the image"
+    width="1200"
+    height="675"
+    loading="lazy"
+    decoding="async"
+  />
+  <figcaption>Optional caption</figcaption>
+</figure>
+```
+
+Tip: use the generated file’s real `width`/`height` (the script prints it) to avoid layout shift.
 
 ## Icon & Heading Standards
 
@@ -171,6 +225,12 @@ This skill includes a content check script:
 
 ```bash
 node .codex/skills/blog-content-authoring/scripts/check-content.mjs
+```
+
+To see a quick inventory of images referenced by posts:
+
+```bash
+node .codex/skills/blog-content-authoring/scripts/report-images.mjs
 ```
 
 To standardize existing posts (headings/steps/prerequisites), run:
