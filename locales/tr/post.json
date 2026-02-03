@@ -1,6 +1,7 @@
 {
   "post": {
     "noPostsFound": "Hiçbir gönderi bulunamadı.",
-    "readMore": "Daha Fazla Oku"
+    "readMore": "Daha Fazla Oku",
+    "relatedPostsTitle": "Benzer yazılar"
   }
 }

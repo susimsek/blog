@@ -27,6 +27,18 @@
     "footer": {
       "text": "© {{year}} Şuayb'in Blogu. Tüm hakları saklıdır."
     },
+    "preFooter": {
+      "title": "Alt menü",
+      "aboutTitle": "Hakkımda",
+      "aboutText": "Spring Boot, mikroservis, güvenlik ve daha fazlası hakkında yazılar.",
+      "contactCta": "İletişim",
+      "startHereCta": "Yeni başladıysan",
+      "latestPostsTitle": "Son yazılar",
+      "topTopicsTitle": "Popüler konular",
+      "subscribeTitle": "Abone ol",
+      "rss": "RSS",
+      "socialTitle": "Sosyal"
+    },
     "pagination": {
       "pageSize": "Sayfa Boyutu",
       "showingResults": "{{start}}–{{end}} arası {{total}} sonuç"
