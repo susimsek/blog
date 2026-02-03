@@ -42,7 +42,7 @@ Spring Boot **Circuit Breaker** is a fault-tolerance mechanism used to prevent c
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 Ensure you have the following:
 

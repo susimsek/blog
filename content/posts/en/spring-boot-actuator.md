@@ -39,7 +39,7 @@ Spring Boot Actuator allows developers to:
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 📋 Ensure you have the following:
 

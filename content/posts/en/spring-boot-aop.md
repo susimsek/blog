@@ -32,7 +32,7 @@ AOP enables developers to separate concerns that affect multiple parts of an app
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 📋 Ensure you have the following:
 

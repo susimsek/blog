@@ -42,7 +42,7 @@ Spring Boot **Circuit Breaker**, mikro hizmetler mimarisinde ardışık hatalar�
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 Aşağıdakilere sahip olduğunuzdan emin olun:
 

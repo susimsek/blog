@@ -42,7 +42,7 @@ Spring Boot **Eureka Server**, mikroservis mimarisinde servis kaydı ve keşfi s
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 Aşağıdakilerin kurulu olduğundan emin olun:
 

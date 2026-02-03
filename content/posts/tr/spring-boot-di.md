@@ -36,7 +36,7 @@ Bağımlılık Enjeksiyonu, sınıflara bağımlılıkları manuel olarak oluşt
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 📋 Aşağıdakilere sahip olduğunuzdan emin olun:
 

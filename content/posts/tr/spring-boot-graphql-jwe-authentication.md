@@ -46,7 +46,7 @@ Spring Boot GraphQL JWE Kimlik Doğrulaması, GraphQL’in esnekliğini, statele
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 - ☕ **JDK 17** veya üzeri
 - 📦 **Spring Boot 3.2+**

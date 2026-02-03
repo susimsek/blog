@@ -37,7 +37,7 @@ Spring Boot with GraalVM Native enables developers to create applications that o
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 Ensure you have the following:
 

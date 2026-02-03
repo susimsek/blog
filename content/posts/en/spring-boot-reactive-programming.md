@@ -38,7 +38,7 @@ Spring Boot with Reactive Programming enables developers to build non-blocking, 
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 Ensure you have the following:
 

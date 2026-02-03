@@ -45,7 +45,7 @@ Spring Boot, stateless şifrelenmiş JWT’leri (JWE) kullanarak API’lerinizi 
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 - ☕ **JDK 17** veya üzeri
 - 📦 **Spring Boot 3.2+**

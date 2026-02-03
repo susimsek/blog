@@ -42,7 +42,7 @@ Spring AI is a framework for AI engineering that applies Spring’s portability 
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 Ensure you have the following:
 

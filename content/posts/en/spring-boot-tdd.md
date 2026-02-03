@@ -38,7 +38,7 @@ Test-Driven Development (TDD) helps you build robust applications by writing tes
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 Make sure you have:
 

@@ -42,7 +42,7 @@ Spring Boot, **Kubernetes** ile sorunsuz bir şekilde bütünleşerek konteynerl
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 Aşağıdaki araçların sisteminizde kurulu olduğundan emin olun:
 

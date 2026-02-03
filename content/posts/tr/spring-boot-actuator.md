@@ -39,7 +39,7 @@ Spring Boot Actuator geliştiricilere şunları sağlar:
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 📋 Aşağıdaki şartların karşılandığından emin olun:
 

@@ -37,7 +37,7 @@ Adopting clean coding principles helps to:
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 📋 Ensure you have the following:
 

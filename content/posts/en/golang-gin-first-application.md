@@ -23,7 +23,7 @@ Gin simplifies the process of building high-performance web applications with Go
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 📋 Before starting, ensure you have the following:
 

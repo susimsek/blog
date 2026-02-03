@@ -26,7 +26,7 @@ Spring Boot, Spring Framework ile üretim için hazır uygulamalar oluşturmayı
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 📋 Başlamadan önce aşağıdaki araçların kurulu olduğundan emin olun:
 

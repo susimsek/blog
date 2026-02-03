@@ -35,7 +35,7 @@ Spring Boot allows developers to easily schedule and execute background tasks us
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 Ensure you have the following:
 

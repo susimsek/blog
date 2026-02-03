@@ -32,7 +32,7 @@ GraphQL, istemcilerin sadece gerekli olan verileri talep etmesine izin vererek, 
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 📋 Aşağıdaki bileşenlerin kurulu olduğundan emin olun:
 

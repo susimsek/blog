@@ -38,7 +38,7 @@ Apache Kafka is a distributed event streaming platform that facilitates real-tim
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 🕊 Ensure you have the following:
 

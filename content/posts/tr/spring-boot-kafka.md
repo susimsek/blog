@@ -38,7 +38,7 @@ Apache Kafka, gerçek zamanlı veri işleme olanağı sağlayan dağıtık bir o
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 📋 Aşağıdakilere sahip olduğunuzdan emin olun:
 

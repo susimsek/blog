@@ -45,7 +45,7 @@ Spring Boot lets you use stateless encrypted JWTs (JWE) to secure your APIs, whi
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 - ☕ **Java Development Kit (JDK) 17** or higher
 - 📦 **Spring Boot 3.2+**

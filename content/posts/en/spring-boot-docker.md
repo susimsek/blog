@@ -41,7 +41,7 @@ Spring Boot provides multiple ways to containerize applications efficiently usin
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 Ensure you have the following:
 

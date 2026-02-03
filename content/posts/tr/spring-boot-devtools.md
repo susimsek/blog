@@ -36,7 +36,7 @@ Spring Boot DevTools geliştiricilere şunları sunar:
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 📋 Şunlara sahip olduğunuzdan emin olun:
 

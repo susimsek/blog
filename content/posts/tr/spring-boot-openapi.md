@@ -38,7 +38,7 @@ OpenAPI, API dokümantasyonu ve test işlemlerini kolaylaştıran etkileşimli b
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 📋 Şunlara sahip olduğunuzdan emin olun:
 

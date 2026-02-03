@@ -38,7 +38,7 @@ Redis is a powerful in-memory data store often used for caching, messaging, and 
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 🗈 Ensure you have the following:
 

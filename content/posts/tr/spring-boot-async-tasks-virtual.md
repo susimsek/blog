@@ -38,7 +38,7 @@ Spring Boot 3.2 ve üzeri sürümler, JDK 21’in sanal thread desteğini otomat
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 - ☕ **Java Development Kit (JDK) 21** veya üzeri
 - 📦 **Spring Boot 3.2+**

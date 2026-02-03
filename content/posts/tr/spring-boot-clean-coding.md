@@ -37,7 +37,7 @@ Temiz kodlama ilkelerini benimsemek şu faydaları sağlar:
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 🗌 Aşağıdakilere sahip olduğunuzdan emin olun:
 

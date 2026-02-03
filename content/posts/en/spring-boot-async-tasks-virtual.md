@@ -38,7 +38,7 @@ Spring Boot 3.2+ lets you combine the simplicity of `@Async` with JDK 21 virtual
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 - ☕ **Java Development Kit (JDK) 21** or higher
 - 📦 **Spring Boot 3.2+**

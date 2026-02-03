@@ -38,7 +38,7 @@ OpenAPI simplifies API documentation and testing by providing an interactive int
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 📋 Ensure you have the following:
 

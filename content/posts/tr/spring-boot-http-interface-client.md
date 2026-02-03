@@ -38,7 +38,7 @@ Spring Boot 3.2+ ile Java veya Kotlin arayüzleri üzerinden deklaratif ve tip g
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 - ☕ **Java Development Kit (JDK) 21** veya üstü
 - 📦 **Spring Boot 3.2+**

@@ -42,7 +42,7 @@ Spring Boot seamlessly integrates with **Kubernetes** to provide scalable, conta
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 Ensure you have the following:
 

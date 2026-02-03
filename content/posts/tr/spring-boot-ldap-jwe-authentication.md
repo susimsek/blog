@@ -44,7 +44,7 @@ Spring Boot, LDAP kimlik doğrulamasını JWE ile şifrelenmiş JWT’lerle birl
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 - ☕ **Java Development Kit (JDK) 17** veya üzeri
 - 📦 **Spring Boot 3.2+**

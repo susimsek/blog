@@ -36,7 +36,7 @@ Dependency Injection allows developers to manage and inject dependencies into cl
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 📋 Ensure you have the following:
 

@@ -38,7 +38,7 @@ Spring Boot ile **Reaktif Programlama**, geliştiricilere **bloklamayan, olay g�
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 Şunlara sahip olduğunuzdan emin olun:
 

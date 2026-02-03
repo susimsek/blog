@@ -38,7 +38,7 @@ Test Odaklı Geliştirme (TDD), iş mantığını uygulamadan **önce** testler 
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 Şunlara sahip olduğundan emin ol:
 

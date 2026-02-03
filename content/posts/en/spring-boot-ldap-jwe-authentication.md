@@ -44,7 +44,7 @@ Spring Boot lets you combine LDAP authentication with JWE-encrypted JWTs to secu
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 - ☕ **Java Development Kit (JDK) 17** or higher
 - 📦 **Spring Boot 3.2+**

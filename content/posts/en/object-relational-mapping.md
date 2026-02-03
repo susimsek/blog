@@ -38,7 +38,7 @@ ORM bridges the gap between object-oriented programming and relational databases
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 📋 Ensure you have the following:
 

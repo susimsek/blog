@@ -26,7 +26,7 @@ Spring Boot simplifies the process of building production-ready applications wit
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 📋 Before starting, ensure you have the following:
 

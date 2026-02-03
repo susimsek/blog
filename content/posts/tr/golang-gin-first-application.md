@@ -23,7 +23,7 @@ Gin, Golang ile yüksek performanslı web uygulamaları oluşturma sürecini bas
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 📋 Başlamadan önce aşağıdaki gereksinimlere sahip olduğunuzdan emin olun:
 

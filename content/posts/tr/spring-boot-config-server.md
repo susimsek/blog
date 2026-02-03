@@ -42,7 +42,7 @@ Spring Boot **Config Server**, dağıtılmış uygulamalar için merkezi yapıla
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 Aşağıdaki bileşenlerin sisteminizde yüklü olduğundan emin olun:
 

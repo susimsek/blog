@@ -35,7 +35,7 @@ Spring Boot provides an easy way to run asynchronous tasks using the `@Async` an
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 Ensure you have the following:
 

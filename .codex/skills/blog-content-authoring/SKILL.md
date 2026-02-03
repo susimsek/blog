@@ -45,8 +45,8 @@ Allowed tab icons:
 Keep headings consistent across posts:
 
 - **Prerequisites**
-  - EN: `## 🌟 Prerequisites`
-  - TR: `## 🌟 Gereksinimler`
+  - EN: `## 📋 Prerequisites`
+  - TR: `## 📋 Gereksinimler`
 - **Steps**
   - Build/implementation step:
     - EN: `## 🛠️ Step N: ...`

@@ -38,7 +38,7 @@ ORM, nesne yönelimli programlama ile ilişkisel veritabanları arasındaki boş
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 📜 Şunlara sahip olduğunuzdan emin olun:
 

@@ -38,7 +38,7 @@ Redis, genellikle önbellekleme, mesajlaşma ve gerçek zamanlı veri yönetimi 
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 👈 Aşağıdakilere sahip olduğunuzdan emin olun:
 

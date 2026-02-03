@@ -37,7 +37,7 @@ Spring Boot ile GraalVM Native, geliştiricilere daha hızlı başlatma süreler
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 Aşağıdakilere sahip olduğunuzdan emin olun:
 

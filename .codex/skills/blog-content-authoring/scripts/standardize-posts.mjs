@@ -17,12 +17,12 @@ const normalizePrereqHeading = (locale, headingLevel, title) => {
   if (headingLevel !== '##') return null;
 
   if (locale === 'en') {
-    if (/^Prerequisites$/i.test(title)) return '## 🌟 Prerequisites';
+    if (/^Prerequisites$/i.test(title)) return '## 📋 Prerequisites';
     return null;
   }
 
   // tr
-  if (/^(Gereksinimler|Ön Koşullar|Ön Gereksinimler)$/u.test(title)) return '## 🌟 Gereksinimler';
+  if (/^(Gereksinimler|Ön Koşullar|Ön Gereksinimler)$/u.test(title)) return '## 📋 Gereksinimler';
   return null;
 };
 
@@ -132,8 +132,8 @@ const normalizeHeadingLine = (locale, line) => {
 
     if (emoji === '🛠') return `${hashes} 🛠️ ${title}`;
 
-    // Keep 🌟, 🧪, ▶️; drop everything else.
-    if (emoji === '🌟' || emoji === '🧪' || emoji === '▶️') return `${hashes} ${emoji} ${title}`;
+    // Keep 🌟, 📋, 🧪, ▶️; drop everything else.
+    if (emoji === '🌟' || emoji === '📋' || emoji === '🧪' || emoji === '▶️') return `${hashes} ${emoji} ${title}`;
 
     return `${hashes} ${title}`;
   }

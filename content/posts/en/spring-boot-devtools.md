@@ -36,7 +36,7 @@ Spring Boot DevTools provides features such as:
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 📋 Ensure you have the following:
 

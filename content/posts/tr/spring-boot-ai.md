@@ -42,7 +42,7 @@ Spring AI, AI mühendisliği için Spring’in taşınabilirlik ve modüler tasa
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 Aşağıdakilere sahip olduğunuzdan emin olun:
 

@@ -38,7 +38,7 @@ Spring Boot 3.2+ introduces the HTTP Interface Client, enabling you to define de
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 - ☕ **Java Development Kit (JDK) 21** or higher
 - 📦 **Spring Boot 3.2+**

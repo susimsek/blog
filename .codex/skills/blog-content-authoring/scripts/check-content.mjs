@@ -27,7 +27,7 @@ const ALLOWED_TOPIC_COLORS = new Set([
 
 const ALLOWED_TAB_ICONS = new Set(['java', 'kotlin', 'go', 'maven', 'gradle', 'javascript', 'typescript']);
 
-const ALLOWED_HEADING_EMOJIS = new Set(['🌟', '🛠️', '🧪', '▶️']);
+const ALLOWED_HEADING_EMOJIS = new Set(['🌟', '📋', '🛠️', '🧪', '▶️']);
 
 const readJson = async filePath => {
   const raw = await fs.readFile(filePath, 'utf8');

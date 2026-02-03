@@ -32,7 +32,7 @@ AOP, bir uygulamanın birden fazla bölümünü etkileyen logging veya güvenlik
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 📋 Aşağıdakilere sahip olduğunuzdan emin olun:
 

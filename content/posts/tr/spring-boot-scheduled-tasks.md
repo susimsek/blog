@@ -35,7 +35,7 @@ Spring Boot, `@Scheduled` anotasyonu ile arka planda çalışan görevleri kolay
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 Şunlara sahip olduğunuzdan emin olun:
 

@@ -42,7 +42,7 @@ Spring Boot **Eureka Server** is a service registry that enables service discove
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 Ensure you have the following:
 

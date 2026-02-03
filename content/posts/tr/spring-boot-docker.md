@@ -41,7 +41,7 @@ Spring Boot, **Docker**, **Buildpacks** ve **Jib** kullanarak uygulamaları veri
 
 ---
 
-## 🌟 Gereksinimler
+## 📋 Gereksinimler
 
 Aşağıdaki bileşenlere sahip olduğunuzdan emin olun:
 

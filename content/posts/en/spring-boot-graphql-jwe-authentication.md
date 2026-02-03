@@ -46,7 +46,7 @@ Spring Boot GraphQL JWE Authentication combines the flexibility of GraphQL with 
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 - ☕ **Java Development Kit (JDK) 17** or higher
 - 📦 **Spring Boot 3.2+**

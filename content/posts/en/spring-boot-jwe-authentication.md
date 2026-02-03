@@ -41,7 +41,7 @@ Spring Boot lets you combine JWS signing with JWE encryption to protect both the
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 - ☕ **Java Development Kit (JDK) 17** or higher
 - 📦 **Spring Boot 3.2+**

@@ -32,7 +32,7 @@ GraphQL allows clients to request specific data, reducing over-fetching and unde
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 📋 Ensure you have the following:
 

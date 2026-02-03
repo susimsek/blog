@@ -42,7 +42,7 @@ Spring Boot **Config Server** enables centralized configuration management for d
 
 ---
 
-## 🌟 Prerequisites
+## 📋 Prerequisites
 
 Ensure you have the following:
 
