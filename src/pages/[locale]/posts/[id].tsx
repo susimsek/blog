@@ -108,17 +108,22 @@ export default function Post({ post, posts = [], locale }: Readonly<PostProps>) 
 const getStaticProps: GetStaticProps<PostProps> = async (context: GetStaticPropsContext) => {
   const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
   const base = await makePostDetailProps(['common', 'post'])(context);
-  if (!('props' in base)) {
+
+  if ('props' in base) {
+    return {
+      ...base,
+      props: {
+        ...(base.props as Omit<PostProps, 'locale'>),
+        locale,
+      },
+    };
+  }
+
+  if ('redirect' in base) {
     return base;
   }
 
-  return {
-    ...base,
-    props: {
-      ...base.props,
-      locale,
-    },
-  };
+  return { notFound: true };
 };
 
 async function getStaticPaths() {
