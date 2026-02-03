@@ -8,12 +8,15 @@ import Link from '@/components/common/Link';
 import MarkdownRenderer from '@/components/common/MarkdownRenderer';
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { PostSummary } from '@/types/posts';
+import RelatedPosts from '@/components/posts/RelatedPosts';
 
 interface PostDetailProps {
   post: Post;
+  relatedPosts?: PostSummary[];
 }
 
-export default function PostDetail({ post }: Readonly<PostDetailProps>) {
+export default function PostDetail({ post, relatedPosts = [] }: Readonly<PostDetailProps>) {
   const { title, date, contentHtml, thumbnail, topics, readingTime } = post;
   const thumbnailSrc = (() => {
     if (!thumbnail) return null;
@@ -53,6 +56,7 @@ export default function PostDetail({ post }: Readonly<PostDetailProps>) {
       <article className="fs-5 lh-lg">
         <MarkdownRenderer content={contentHtml ?? ''} />
       </article>
+      <RelatedPosts posts={relatedPosts} />
     </Container>
   );
 }

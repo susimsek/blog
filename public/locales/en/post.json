@@ -1,6 +1,7 @@
 {
   "post": {
     "readMore": "Read More",
-    "noPostsFound": "No posts found."
+    "noPostsFound": "No posts found.",
+    "relatedPostsTitle": "Related posts"
   }
 }

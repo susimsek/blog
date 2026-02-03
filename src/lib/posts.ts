@@ -8,6 +8,7 @@ import { getI18nProps } from '@/lib/getStatic';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { createCacheStore } from '@/lib/cacheUtils';
 import { sortPosts } from '@/lib/postFilters';
+import { calculateReadingTime } from '@/lib/readingTime';
 
 const fsPromises = fs.promises;
 
@@ -23,6 +24,39 @@ export const topicsCache = createCacheStore<Topic[]>('getAllTopics');
 export const topicDataCache = createCacheStore<Topic | null>('getTopicData');
 export const postIdsCache = createCacheStore<{ params: { id: string; locale: string } }[]>('getAllPostIds');
 export const topicIdsCache = createCacheStore<{ params: { id: string; locale: string } }[]>('getAllTopicIds');
+export const readingTimeCache = createCacheStore<string>('getReadingTime');
+
+async function getPostMarkdownContent(id: string, locale: string): Promise<string | null> {
+  const fallbackLocale = i18nextConfig.i18n.defaultLocale;
+  const localizedPath = path.join(postsDirectory, locale, `${id}.md`);
+  const fallbackPath = path.join(postsDirectory, fallbackLocale, `${id}.md`);
+
+  const filePath = (await fileExists(localizedPath))
+    ? localizedPath
+    : (await fileExists(fallbackPath))
+      ? fallbackPath
+      : null;
+  if (!filePath) {
+    return null;
+  }
+
+  const raw = await fsPromises.readFile(filePath, 'utf8');
+  const { content } = matter(raw);
+  return content;
+}
+
+async function getReadingTimeForPostSummary(post: PostSummary, locale: string): Promise<string> {
+  const cacheKey = `${locale}-${post.id}`;
+  const cached = readingTimeCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const markdown = await getPostMarkdownContent(post.id, locale);
+  const computed = calculateReadingTime(markdown ?? `${post.title} ${post.summary}`, locale);
+  readingTimeCache.set(cacheKey, computed);
+  return computed;
+}
 
 // Helper function to parse a Markdown file
 async function parsePostFile(
@@ -59,12 +93,19 @@ export async function getSortedPostsData(locale: string, topicId?: string): Prom
 
   try {
     const fileContents = await fsPromises.readFile(postsJsonPath, 'utf8');
-    const allPosts: PostSummary[] = JSON.parse(fileContents);
+    const allPosts = JSON.parse(fileContents) as Array<Omit<PostSummary, 'readingTime'> & { readingTime?: string }>;
     const filteredPosts = allPosts.filter(
       post => !topicId || (Array.isArray(post.topics) && post.topics.some((t: Topic) => t.id === topicId)),
     );
 
-    const sortedPosts = sortPosts(filteredPosts);
+    const withReadingTime = await Promise.all(
+      filteredPosts.map(async post => ({
+        ...post,
+        readingTime: await getReadingTimeForPostSummary(post, locale),
+      })),
+    );
+
+    const sortedPosts = sortPosts(withReadingTime);
     postsCache.set(cacheKey, sortedPosts);
     return sortedPosts;
   } catch (error) {
@@ -105,9 +146,12 @@ export async function getPostData(id: string, locale: string): Promise<Post | nu
   // Parse post file and process content
   const { data, content } = await parsePostFile(filePath, true);
 
+  const readingTime = calculateReadingTime(content ?? '', locale);
+
   const post: Post = {
     contentHtml: content,
     ...data,
+    readingTime,
   };
 
   postDataCache.set(cacheKey, post);

@@ -1,6 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import MarkdownRenderer from '@/components/common/MarkdownRenderer';
 
+jest.mock('next/router', () => ({
+  useRouter: jest.fn().mockReturnValue({
+    query: { locale: 'en' },
+  }),
+}));
+
 jest.mock('react-markdown', () => {
   return jest.fn(({ children }: { children: React.ReactNode }) => <div data-testid="react-markdown">{children}</div>);
 });

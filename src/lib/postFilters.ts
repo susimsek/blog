@@ -31,3 +31,63 @@ export const sortPosts = (posts: PostSummary[], sortOrder: 'asc' | 'desc' = 'des
     return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
   });
 };
+
+export const getRelatedPosts = (post: PostSummary, allPosts: PostSummary[], limit: number = 3): PostSummary[] => {
+  const postTopicIds = new Set((post.topics ?? []).map(topic => topic.id).filter(Boolean));
+  if (postTopicIds.size === 0) {
+    return [];
+  }
+
+  const minScore = 0.5;
+  const totalPosts = allPosts.length;
+  const topicFrequency = new Map<string, number>();
+  for (const candidate of allPosts) {
+    for (const topic of candidate.topics ?? []) {
+      if (!topic?.id) continue;
+      topicFrequency.set(topic.id, (topicFrequency.get(topic.id) ?? 0) + 1);
+    }
+  }
+
+  const idf = (topicId: string) => {
+    const freq = topicFrequency.get(topicId) ?? 0;
+    return Math.log((totalPosts + 1) / (freq + 1));
+  };
+
+  const scoredAll = allPosts
+    .filter(candidate => candidate.id !== post.id)
+    .map(candidate => {
+      let sharedCount = 0;
+      let score = 0;
+
+      for (const topic of candidate.topics ?? []) {
+        if (!topic?.id) continue;
+        if (!postTopicIds.has(topic.id)) continue;
+        sharedCount += 1;
+        score += idf(topic.id);
+      }
+
+      return { candidate, sharedCount, score };
+    })
+    .filter(item => item.sharedCount > 0);
+
+  scoredAll.sort((a, b) => {
+    if (b.score !== a.score) {
+      return b.score - a.score;
+    }
+    if (b.sharedCount !== a.sharedCount) {
+      return b.sharedCount - a.sharedCount;
+    }
+    return new Date(b.candidate.date).getTime() - new Date(a.candidate.date).getTime();
+  });
+
+  const strong = scoredAll.filter(item => item.score >= minScore);
+  const selected = strong.slice(0, limit);
+
+  if (selected.length < limit) {
+    const selectedIds = new Set(selected.map(item => item.candidate.id));
+    const fallback = scoredAll.filter(item => item.score > 0 && !selectedIds.has(item.candidate.id));
+    selected.push(...fallback.slice(0, limit - selected.length));
+  }
+
+  return selected.map(item => item.candidate);
+};

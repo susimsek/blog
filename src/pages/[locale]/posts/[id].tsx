@@ -6,14 +6,16 @@ import type { Post, PostSummary } from '@/types/posts'; // type-only import
 import Layout from '@/components/common/Layout';
 import { AUTHOR_NAME, SITE_LOGO, SITE_URL } from '@/config/constants';
 import SEO from '@/components/common/SEO';
+import { getRelatedPosts } from '@/lib/postFilters';
 
 type PostProps = {
   post: Post;
-  posts: PostSummary[];
+  posts?: PostSummary[];
 };
 
-export default function Post({ post, posts }: Readonly<PostProps>) {
+export default function Post({ post, posts = [] }: Readonly<PostProps>) {
   const keywords = (post.topics ?? []).map(topic => topic.name).join(', ');
+  const relatedPosts = getRelatedPosts(post, posts, 3);
 
   const logoUrl = (() => {
     try {
@@ -93,7 +95,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
         article={articleData}
         jsonLd={jsonLdData}
       />
-      <PostDetail post={post} />
+      <PostDetail post={post} relatedPosts={relatedPosts} />
     </Layout>
   );
 }
