@@ -15,17 +15,38 @@ type PostProps = {
 export default function Post({ post, posts }: Readonly<PostProps>) {
   const keywords = (post.topics ?? []).map(topic => topic.name).join(', ');
 
-  const image = `${SITE_URL}${post.thumbnail}`;
+  const logoUrl = (() => {
+    try {
+      return new URL(SITE_LOGO, SITE_URL).toString();
+    } catch {
+      return `${SITE_URL}${SITE_LOGO}`;
+    }
+  })();
+
+  const imageUrl = (() => {
+    if (!post.thumbnail) {
+      return null;
+    }
+    try {
+      return new URL(post.thumbnail, SITE_URL).toString();
+    } catch {
+      return `${SITE_URL}${post.thumbnail}`;
+    }
+  })();
 
   const jsonLdData = {
-    '@context': 'http://schema.org',
-    '@type': 'NewsArticle',
-    image: {
-      '@type': 'ImageObject',
-      url: image,
-      width: 1200,
-      height: 630,
-    },
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    ...(imageUrl
+      ? {
+          image: {
+            '@type': 'ImageObject',
+            url: imageUrl,
+            width: 1200,
+            height: 630,
+          },
+        }
+      : {}),
     dateCreated: post.date,
     datePublished: post.date,
     dateModified: post.date,
@@ -46,7 +67,7 @@ export default function Post({ post, posts }: Readonly<PostProps>) {
       url: SITE_URL,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}${SITE_LOGO}`,
+        url: logoUrl,
         width: 1200,
         height: 630,
       },

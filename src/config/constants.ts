@@ -11,7 +11,7 @@ export const isProd = process.env.NODE_ENV === 'production';
 export const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX ?? '';
 
 // Google Analytics ID
-export const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? '123';
+export const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? '';
 
 export const cacheTTL = 3600000;
 

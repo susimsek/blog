@@ -76,7 +76,7 @@ const LayoutView: React.FC<LayoutProps> = ({
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      <GoogleAnalytics gaId={GA_ID} />
+      {GA_ID ? <GoogleAnalytics gaId={GA_ID} /> : null}
       <Header searchEnabled={searchEnabled} sidebarEnabled={sidebarEnabled} onSidebarToggle={toggleSidebar} />
       <main className="flex-grow-1">
         <Row>
