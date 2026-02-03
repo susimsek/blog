@@ -2,6 +2,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faGithub, faLinkedin, faMedium } from '@fortawesome/free-brands-svg-icons';
 import {
   faAddressBook,
+  faArrowUp,
   faBars,
   faBook,
   faCalendarAlt,
@@ -66,6 +67,7 @@ export const loadIcons = () => {
     faSun,
     faMoon,
     faBars,
+    faArrowUp,
     faExclamationTriangle,
     faInfoCircle,
     faCheckCircle,

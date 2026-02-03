@@ -24,6 +24,65 @@ body {
   @include theme-transition;
 }
 
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: rgba(127, 127, 127, 0.2);
+  z-index: 1200;
+}
+
+.reading-progress-bar {
+  height: 100%;
+  width: 0%;
+  background-color: var(--active-color);
+  transition: width 0.1s linear;
+}
+
+.back-to-top {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--main-bg);
+  color: var(--active-color);
+  border: 1px solid var(--active-color);
+  box-shadow: var(--box-shadow-primary);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+  z-index: 1200;
+}
+
+.back-to-top.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.back-to-top:hover {
+  box-shadow: var(--box-shadow-hover);
+  background-color: var(--dropdown-hover-bg);
+  border-color: var(--active-color);
+  color: var(--active-color);
+}
+
+.back-to-top:focus-visible {
+  outline: 2px solid var(--active-color);
+  outline-offset: 2px;
+}
+
 .navbar {
   background-color: var(--navbar-bg);
   border-bottom: 1px solid var(--border-color);
