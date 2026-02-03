@@ -46,6 +46,12 @@
     "searchBar": {
       "placeholder": "Search"
     },
+    "readingTimeFilter": {
+      "any": "All Reading Times",
+      "range3to7": "3–7 min",
+      "range8to12": "8–12 min",
+      "range15plus": "15+ min"
+    },
     "sort": {
       "newest": "Newest First",
       "oldest": "Oldest First"

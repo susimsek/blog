@@ -46,6 +46,12 @@
     "searchBar": {
       "placeholder": "Ara"
     },
+    "readingTimeFilter": {
+      "any": "Okuma süresi (hepsi)",
+      "range3to7": "3–7 dk",
+      "range8to12": "8–12 dk",
+      "range15plus": "15+ dk"
+    },
     "sort": {
       "newest": "En Yeni Önce",
       "oldest": "En Eski Önce"
