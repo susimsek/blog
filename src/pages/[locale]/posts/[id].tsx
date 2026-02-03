@@ -4,16 +4,19 @@ import React from 'react';
 import PostDetail from '@/components/posts/PostDetail';
 import type { Post, PostSummary } from '@/types/posts'; // type-only import
 import Layout from '@/components/common/Layout';
-import { AUTHOR_NAME, SITE_LOGO, SITE_URL } from '@/config/constants';
+import { AUTHOR_NAME, SITE_LOGO, SITE_URL, assetPrefix } from '@/config/constants';
 import SEO from '@/components/common/SEO';
 import { getRelatedPosts } from '@/lib/postFilters';
+import type { GetStaticProps, GetStaticPropsContext } from 'next';
+import i18nextConfig from '@root/next-i18next.config';
 
 type PostProps = {
   post: Post;
   posts?: PostSummary[];
+  locale: string;
 };
 
-export default function Post({ post, posts = [] }: Readonly<PostProps>) {
+export default function Post({ post, posts = [], locale }: Readonly<PostProps>) {
   const keywords = (post.topics ?? []).map(topic => topic.name).join(', ');
   const relatedPosts = getRelatedPosts(post, posts, 3);
 
@@ -29,16 +32,18 @@ export default function Post({ post, posts = [] }: Readonly<PostProps>) {
     if (!post.thumbnail) {
       return null;
     }
+    const imageBase = assetPrefix && /^https?:\/\//.test(assetPrefix) ? assetPrefix : SITE_URL;
     try {
-      return new URL(post.thumbnail, SITE_URL).toString();
+      return new URL(post.thumbnail, imageBase).toString();
     } catch {
-      return `${SITE_URL}${post.thumbnail}`;
+      return `${imageBase}${post.thumbnail}`;
     }
   })();
 
   const jsonLdData = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
+    inLanguage: locale,
     ...(imageUrl
       ? {
           image: {
@@ -89,7 +94,7 @@ export default function Post({ post, posts = [] }: Readonly<PostProps>) {
         ogTitle={post.title}
         description={post.summary}
         keywords={keywords}
-        image={post.thumbnail ?? undefined}
+        image={imageUrl ?? undefined}
         type="article"
         path={`/posts/${post.id}`}
         article={articleData}
@@ -100,7 +105,21 @@ export default function Post({ post, posts = [] }: Readonly<PostProps>) {
   );
 }
 
-const getStaticProps = makePostDetailProps(['common', 'post']);
+const getStaticProps: GetStaticProps<PostProps> = async (context: GetStaticPropsContext) => {
+  const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
+  const base = await makePostDetailProps(['common', 'post'])(context);
+  if (!('props' in base)) {
+    return base;
+  }
+
+  return {
+    ...base,
+    props: {
+      ...base.props,
+      locale,
+    },
+  };
+};
 
 async function getStaticPaths() {
   const paths = await getAllPostIds();

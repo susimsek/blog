@@ -18,7 +18,7 @@ interface ArticleProps {
 
 interface JsonLdData {
   url?: string;
-  mainEntityOfPage?: string;
+  mainEntityOfPage?: string | { '@type': 'WebPage'; '@id': string };
   inLanguage?: string;
   [key: string]: unknown;
 }
@@ -76,14 +76,16 @@ const SEO: React.FC<SEOProps> = ({
   const updatedJsonLd: JsonLdData | null = jsonLd ? { ...jsonLd, url: canonicalUrl } : null;
 
   if (updatedJsonLd) {
-    const jsonLdLocale = ogLocale ?? LOCALES[i18nextConfig.i18n.defaultLocale]?.ogLocale;
-    if (jsonLdLocale) {
-      updatedJsonLd.inLanguage = jsonLdLocale;
-    }
+    const schemaLocale = (ogLocale ?? LOCALES[i18nextConfig.i18n.defaultLocale]?.ogLocale ?? currentLocale).replace(
+      '_',
+      '-',
+    );
+    updatedJsonLd.inLanguage = schemaLocale;
+
     if (article) {
-      updatedJsonLd.mainEntityOfPage = canonicalUrl;
-    } else if (updatedJsonLd['@type'] === 'ContactPage' && jsonLdLocale) {
-      updatedJsonLd.inLanguage = jsonLdLocale;
+      updatedJsonLd.mainEntityOfPage = { '@type': 'WebPage', '@id': canonicalUrl };
+    } else if (updatedJsonLd['@type'] === 'ContactPage') {
+      updatedJsonLd.inLanguage = schemaLocale;
     }
   }
 
