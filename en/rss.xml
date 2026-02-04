@@ -5,7 +5,7 @@
     <title><![CDATA[Şuayb's Blog]]></title>
     <link>https://suaybsimsek.com/en</link>
     <description><![CDATA[Explore the latest articles, tutorials, and insights.]]></description>
-    <lastBuildDate>Wed, 04 Feb 2026 07:46:14 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 04 Feb 2026 16:14:43 GMT</lastBuildDate>
     <language>en</language>
     <copyright><![CDATA[© 2024 Şuayb Şimşek. All rights reserved.]]></copyright>
     <image>
@@ -149,7 +149,7 @@
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-jpa-auditing-thumbnail.webp" />
     </item>
     <item>
-      <title><![CDATA[Spring Boot Test-Driven Development (TDD)]]></title>
+      <title><![CDATA[Spring Boot Test-Driven Development]]></title>
       <link>https://suaybsimsek.com/en/posts/spring-boot-tdd</link>
       <description><![CDATA[Learn how to apply TDD in Spring Boot by writing unit tests first, implementing logic, and ensuring code quality through testing.]]></description>
       <pubDate>Wed, 09 Apr 2025 00:00:00 GMT</pubDate>
@@ -374,7 +374,7 @@
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.webp" />
     </item>
     <item>
-      <title><![CDATA[Aspect-Oriented Programming (AOP) in Spring Boot]]></title>
+      <title><![CDATA[Aspect-Oriented Programming in Spring Boot]]></title>
       <link>https://suaybsimsek.com/en/posts/spring-boot-aop</link>
       <description><![CDATA[Learn how to implement Aspect-Oriented Programming (AOP) in Spring Boot using Java and Kotlin. Covers core concepts, use cases, and practical examples.]]></description>
       <pubDate>Wed, 18 Dec 2024 00:00:00 GMT</pubDate>
@@ -400,7 +400,7 @@
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-di-thumbnail.webp" />
     </item>
     <item>
-      <title><![CDATA[Object-Relational Mapping (ORM)]]></title>
+      <title><![CDATA[Object-Relational Mapping]]></title>
       <link>https://suaybsimsek.com/en/posts/object-relational-mapping</link>
       <description><![CDATA[Learn how to set up an ORM-based application with Spring Boot using Java, Kotlin, and Go (Gin). Includes PostgreSQL integration and basic CRUD operations.]]></description>
       <pubDate>Mon, 16 Dec 2024 00:00:00 GMT</pubDate>
