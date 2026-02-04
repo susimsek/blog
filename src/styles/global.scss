@@ -40,6 +40,12 @@ mark {
   height: 4px;
   background-color: rgba(127, 127, 127, 0.2);
   z-index: 1200;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+
+.reading-progress.is-hidden {
+  opacity: 0;
 }
 
 .reading-progress-bar {

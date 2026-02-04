@@ -11,7 +11,7 @@ describe('ReadingProgress', () => {
 
     render(<ReadingProgress />);
 
-    const progressbar = screen.getByRole('progressbar', { name: 'Reading progress' });
+    const progressbar = await screen.findByRole('progressbar', { name: 'Reading progress' });
 
     await waitFor(() => {
       expect(progressbar).toHaveStyle({ top: '64px' });

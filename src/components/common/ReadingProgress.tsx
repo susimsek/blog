@@ -5,6 +5,7 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 export default function ReadingProgress() {
   const [progress, setProgress] = useState(0);
   const [topOffset, setTopOffset] = useState(0);
+  const [isReady, setIsReady] = useState(false);
 
   const raf = useMemo(() => {
     if (typeof window === 'undefined') return null;
@@ -21,6 +22,7 @@ export default function ReadingProgress() {
     const updateOffset = () => {
       const next = headerEl?.getBoundingClientRect().height ?? 0;
       setTopOffset(Math.max(0, Math.round(next)));
+      setIsReady(true);
     };
 
     updateOffset();
@@ -72,9 +74,11 @@ export default function ReadingProgress() {
     };
   }, [raf]);
 
+  if (!isReady) return null;
+
   return (
     <div
-      className="reading-progress"
+      className={`reading-progress${progress === 0 ? ' is-hidden' : ''}`}
       style={{ top: topOffset }}
       role="progressbar"
       aria-label="Reading progress"
