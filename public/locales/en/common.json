@@ -61,7 +61,9 @@
     },
     "codeBlock": {
       "copy": "Copy",
-      "copied": "Copied!"
+      "copied": "Copied!",
+      "showLineNumbers": "Show line numbers",
+      "hideLineNumbers": "Hide line numbers"
     },
     "selected": "Selected",
     "selectAll": "Select All",

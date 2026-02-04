@@ -19,6 +19,7 @@
   { "id": "clean-coding", "name": "Temiz Kodlama", "color": "orange" },
   { "id": "devtools", "name": "Geliştirme Araçları", "color": "orange" },
   { "id": "dependency-injection", "name": "Bağımlılık Enjeksiyonu", "color": "orange" },
+  { "id": "configuration", "name": "Yapılandırma", "color": "blue" },
   { "id": "graphql", "name": "GraphQL", "color": "pink" },
   { "id": "openapi", "name": "OpenAPI", "color": "orange" },
   { "id": "documentation", "name": "Dokümantasyon", "color": "brown" },

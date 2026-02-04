@@ -3993,4 +3993,6 @@ Test subscriptions directly in the GraphiQL UI at `http://localhost:8080/graphiq
 
 ---
 
-This GraphQL setup provides a stateless, encrypted-JWT (JWE) based authentication flow, blending Spring Boot, GraphQL, and JPA’s user/role persistence for robust security and scalability.
+## 🏁 Conclusion
+
+This setup delivers a robust, production-ready Spring Boot GraphQL JWE Authentication solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.

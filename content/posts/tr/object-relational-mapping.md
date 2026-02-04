@@ -353,4 +353,6 @@ curl -X POST http://localhost:8080/api/users \
 
 ---
 
-Bu kılavuz, Spring Boot ile PostgreSQL kullanarak Java, Kotlin ve Gin frameworküyle ORM'nin nasıl kullanılacağını göstermektedir.
+## 🏁 Sonuç
+
+Bu kurulum, Spring Boot ile Object-Relational Mapping için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.

@@ -1734,4 +1734,6 @@ curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello/admi
 
 ---
 
-This setup delivers a fully stateless, robust, and secure LDAP-backed authentication flow with JWE-encrypted JWTs in Spring Boot, combining the strengths of external directory integration, JWT confidentiality, RSA encryption, and Spring Security.
+## 🏁 Conclusion
+
+This setup delivers a robust, production-ready Spring Boot LDAP and JWE Authentication solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.

@@ -17,6 +17,7 @@ interface CodeBlockProps {
 
 const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, children, theme, t, ...props }) => {
   const [isCopied, setIsCopied] = useState(false);
+  const [showLineNumbers, setShowLineNumbers] = useState(false);
 
   const syntaxTheme = (() => {
     switch (theme) {
@@ -31,10 +32,13 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, chil
     }
   })();
   const match = /language-(\w+)/.exec(className ?? '');
+  const language = match?.[1];
+  const codeText = String(children ?? '').replace(/\n$/, '');
+  const isMultiline = codeText.includes('\n');
 
   const copyToClipboard = () => {
-    if (children) {
-      navigator.clipboard.writeText(String(children));
+    if (codeText) {
+      navigator.clipboard?.writeText?.(codeText);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     }
@@ -50,8 +54,36 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, chil
 
   return match ? (
     <div className="code-block-container">
-      <SyntaxHighlighter style={syntaxTheme} language={match[1]} PreTag="div" {...props}>
-        {String(children).replace(/\n$/, '')}
+      {language && <span className="code-language-badge">{language.toUpperCase()}</span>}
+      {isMultiline && (
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="line-numbers-tooltip">
+              {showLineNumbers ? t('common.codeBlock.hideLineNumbers') : t('common.codeBlock.showLineNumbers')}
+            </Tooltip>
+          }
+        >
+          <Button
+            className="line-numbers-button"
+            size="sm"
+            aria-label={showLineNumbers ? t('common.codeBlock.hideLineNumbers') : t('common.codeBlock.showLineNumbers')}
+            onClick={() => setShowLineNumbers(prev => !prev)}
+          >
+            <FontAwesomeIcon icon={showLineNumbers ? 'eye-slash' : 'eye'} className="fa-icon" />
+          </Button>
+        </OverlayTrigger>
+      )}
+
+      <SyntaxHighlighter
+        style={syntaxTheme}
+        language={language}
+        PreTag="div"
+        showLineNumbers={showLineNumbers}
+        customStyle={{ paddingTop: '2.5rem' }}
+        {...props}
+      >
+        {codeText}
       </SyntaxHighlighter>
       <OverlayTrigger
         placement="top"
@@ -59,7 +91,7 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, chil
           <Tooltip id="copy-tooltip">{isCopied ? t('common.codeBlock.copied') : t('common.codeBlock.copy')}</Tooltip>
         }
       >
-        <Button className="copy-button" size="sm" onClick={copyToClipboard}>
+        <Button className="copy-button" size="sm" aria-label={t('common.codeBlock.copy')} onClick={copyToClipboard}>
           <FontAwesomeIcon icon={isCopied ? 'check' : 'copy'} className="me-2 fa-icon" />
         </Button>
       </OverlayTrigger>

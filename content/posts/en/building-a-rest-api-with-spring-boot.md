@@ -216,4 +216,6 @@ curl -X DELETE http://localhost:8080/api/todos/1
 
 ---
 
-By following these steps, you’ll have built a REST API with Spring Boot.
+## 🏁 Conclusion
+
+This setup delivers a robust, production-ready Building a REST API with Spring Boot solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.

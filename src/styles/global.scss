@@ -1407,10 +1407,48 @@ $state-variants: (
 .code-block-container {
   position: relative;
 
+  .code-language-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 10;
+    background-color: var(--copy-button-bg);
+    color: var(--text-color);
+    border: none;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    opacity: 0.9;
+    @include transition(background-color, color);
+  }
+
   .copy-button {
     position: absolute;
     top: 8px;
     right: 8px;
+    z-index: 10;
+    background-color: var(--copy-button-bg);
+    color: var(--text-color);
+    border: none;
+    padding: 4px 8px;
+    font-size: 0.875rem;
+    border-radius: 4px;
+    @include transition(background-color, color);
+
+    svg {
+      color: var(--text-color) !important;
+    }
+
+    &:hover {
+      background-color: var(--copy-button-hover-bg);
+      color: var(--text-color);
+    }
+  }
+
+  .line-numbers-button {
+    position: absolute;
+    top: 8px;
+    right: 56px;
     z-index: 10;
     background-color: var(--copy-button-bg);
     color: var(--text-color);

@@ -206,4 +206,6 @@ curl -X GET http://localhost:8080/actuator/info
 
 ---
 
-Spring Boot Actuator, uygulamalarınızı izleme ve yönetmeyi basitleştirir. Bu rehberde, Actuator endpointlerini etkinleştirme, özelleştirme ve güvenlik altına alma adımlarını ele aldık.
+## 🏁 Sonuç
+
+Bu kurulum, Spring Boot ile Spring Boot Actuator için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.

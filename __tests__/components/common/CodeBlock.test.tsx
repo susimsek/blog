@@ -105,13 +105,33 @@ describe('CodeBlock Component', () => {
     const copyIcon = screen.getByTestId('font-awesome-icon-copy');
     expect(copyIcon).toBeInTheDocument();
 
-    const copyButton = screen.getByRole('button');
+    const copyButton = screen.getByRole('button', { name: 'common.codeBlock.copy' });
     fireEvent.click(copyButton);
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith("console.log('Copy Test');");
 
     const checkIcon = screen.getByTestId('font-awesome-icon-check');
     expect(checkIcon).toBeInTheDocument();
+  });
+
+  it('shows language badge and toggles line numbers for multiline code', () => {
+    render(
+      <CodeBlock
+        theme="light"
+        t={mockTranslation}
+        className="language-javascript"
+      >{`const a = 1;\nconst b = 2;`}</CodeBlock>,
+    );
+
+    expect(screen.getByText('JAVASCRIPT')).toBeInTheDocument();
+
+    const toggleButton = screen.getByRole('button', { name: 'common.codeBlock.showLineNumbers' });
+    expect(screen.getByTestId('font-awesome-icon-eye')).toBeInTheDocument();
+
+    fireEvent.click(toggleButton);
+
+    expect(screen.getByRole('button', { name: 'common.codeBlock.hideLineNumbers' })).toBeInTheDocument();
+    expect(screen.getByTestId('font-awesome-icon-eye-slash')).toBeInTheDocument();
   });
 
   it('renders inline code correctly when inline prop is true', () => {

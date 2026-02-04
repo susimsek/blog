@@ -28,7 +28,7 @@ const ALLOWED_TOPIC_COLORS = new Set([
 
 const ALLOWED_TAB_ICONS = new Set(['java', 'kotlin', 'go', 'maven', 'gradle', 'javascript', 'typescript']);
 
-const ALLOWED_HEADING_EMOJIS = new Set(['🌟', '📋', '🛠️', '🧪', '▶️']);
+const ALLOWED_HEADING_EMOJIS = new Set(['🌟', '📋', '🛠️', '🧪', '▶️', '🏁']);
 
 const readJson = async filePath => {
   const raw = await fs.readFile(filePath, 'utf8');
@@ -70,6 +70,37 @@ const loadPostsByLocale = async () => {
 
 const fail = (errors, message) => errors.push(message);
 const warn = (warnings, message) => warnings.push(message);
+
+const isPlainParagraphBlock = blockLines => {
+  if (!blockLines.length) return false;
+  const text = blockLines.join('\n').trim();
+  if (!text) return false;
+  if (text.length > 420) return false;
+  if (blockLines.some(l => /^#{1,6}\s+/.test(l.trim()))) return false;
+  if (blockLines.some(l => /^\s*(-|\*|\d+\.)\s+/.test(l))) return false;
+  if (blockLines.some(l => /^(```|~~~)/.test(l.trim()))) return false;
+  if (blockLines.some(l => /^\s*>/.test(l))) return false;
+  if (/<\/?[a-z][\s\S]*>/i.test(text)) return false;
+  return true;
+};
+
+const isLikelyConclusionPreface = (blockLines, locale) => {
+  if (!isPlainParagraphBlock(blockLines)) return false;
+  const text = blockLines.join(' ').replace(/\s+/g, ' ').trim();
+  const lower = text.toLowerCase();
+
+  if (locale === 'tr') {
+    const startsLike = /^(bu|şu)\s+(kurulum|yapılandırma|kurgu|yaklaşım)\b/u.test(lower);
+    const hasVerb = /\b(sunar|sağlar|sağlıyor|sağlayan|sağlam|birleştirir|kombine)\b/u.test(lower);
+    const hasAdjectives = /\b(sağlam|üretim[\s-]?hazır|güvenli|stateless|ölçeklenebilir)\b/u.test(lower);
+    return (startsLike && hasVerb) || (startsLike && hasAdjectives);
+  }
+
+  const startsLike = /^(this|the)\s+(setup|configuration|approach|implementation)\b/.test(lower);
+  const hasVerb = /\b(delivers|provides|offers|gives)\b/.test(lower);
+  const hasAdjectives = /\b(robust|production[-\s]?ready|secure|stateless|scalable|best practices)\b/.test(lower);
+  return (startsLike && hasVerb) || (startsLike && hasAdjectives);
+};
 
 const main = async () => {
   const errors = [];
@@ -160,6 +191,47 @@ const main = async () => {
         }
 
         const headingLines = md.split(/\r?\n/).filter(line => /^#{2,6}\s+/.test(line));
+        const conclusionHeading = locale === 'tr' ? '## 🏁 Sonuç' : '## 🏁 Conclusion';
+        const oldConclusionHeading = locale === 'tr' ? '## 🌟 Sonuç' : '## 🌟 Conclusion';
+        const conclusionCount = md.split(/\r?\n/).filter(line => line.trim() === conclusionHeading).length;
+        const oldConclusionCount = md.split(/\r?\n/).filter(line => line.trim() === oldConclusionHeading).length;
+        if (oldConclusionCount > 0) {
+          warn(warnings, `${mdPath}: old conclusion heading found (${oldConclusionHeading})`);
+        }
+        if (conclusionCount > 1) {
+          warn(warnings, `${mdPath}: multiple conclusion headings found (${conclusionCount}x ${conclusionHeading})`);
+        }
+        const hasConclusion = headingLines.some(line => line.trim() === conclusionHeading);
+        if (!hasConclusion) {
+          warn(warnings, `${mdPath}: missing conclusion heading (${conclusionHeading})`);
+        } else {
+          const lastHeading = [...headingLines].reverse().find(Boolean)?.trim();
+          if (lastHeading && lastHeading !== conclusionHeading) {
+            warn(warnings, `${mdPath}: conclusion heading should be the last section (${conclusionHeading})`);
+          }
+
+          // Ensure `---` exists right above the Conclusion heading (no extra paragraph in between).
+          const lines = md.split(/\r?\n/);
+          const idx = lines.findIndex(line => line.trim() === conclusionHeading);
+          if (idx !== -1) {
+            let j = idx - 1;
+            while (j >= 0 && lines[j].trim() === '') j -= 1;
+            if (j < 0 || lines[j].trim() !== '---') {
+              warn(warnings, `${mdPath}: expected '---' immediately before conclusion heading`);
+            } else {
+              // Ensure there isn't a *conclusion-like* unheaded paragraph immediately before the final '---'.
+              let k = j - 1;
+              while (k >= 0 && lines[k].trim() === '') k -= 1;
+              const blockEnd = k;
+              while (k >= 0 && lines[k].trim() !== '') k -= 1;
+              const blockStart = k + 1;
+              const block = blockEnd >= 0 ? lines.slice(blockStart, blockEnd + 1) : [];
+              if (isLikelyConclusionPreface(block, locale)) {
+                warn(warnings, `${mdPath}: remove the unheaded paragraph right before the conclusion separator '---'`);
+              }
+            }
+          }
+        }
         for (const line of headingLines) {
           const m =
             /^#{2,6}\s+(?<emoji>[\p{Extended_Pictographic}\p{Emoji_Presentation}][\p{Extended_Pictographic}\p{Emoji_Presentation}\uFE0F\u200D]*)\s+/u.exec(

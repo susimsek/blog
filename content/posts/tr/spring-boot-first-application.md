@@ -137,4 +137,6 @@ Merhaba, Spring Boot!
 
 ---
 
-Bu yazı, bir Spring Boot projesi oluşturmayı, bir endpoint yazmayı ve başarıyla çalıştırmayı kapsar.
+## 🏁 Sonuç
+
+Bu kurulum, Spring Boot ile Spring Boot - İlk Uygulama için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.

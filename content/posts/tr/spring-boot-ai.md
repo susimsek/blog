@@ -242,4 +242,6 @@ curl -X GET "http://localhost:8080/joke?topic=dogs"
 
 ---
 
-Spring AI’nin `ChatClient` API’si, güçlü LLM yeteneklerini tanıdık Spring paradigmasıyla harmanlayarak AI entegrasyonunu basit hale getirir.
+## 🏁 Sonuç
+
+Bu kurulum, Spring Boot ile Spring Boot AI Entegrasyonu için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.

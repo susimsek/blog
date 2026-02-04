@@ -1,5 +1,19 @@
 [
   {
+    "id": "spring-boot-configuration-properties",
+    "title": "Spring Boot Configuration Properties",
+    "date": "2026-02-04",
+    "summary": "@ConfigurationProperties ile tip-güvenli yapılandırma tanımlamayı, @Validated ile ayarları doğrulamayı ve profile-specific application-{profile}.yml dosyalarıyla ortama göre değer yönetimini öğrenin.",
+    "thumbnail": "/images/spring-boot-configuration-properties-thumbnail.webp",
+    "topics": [
+      { "id": "java", "name": "Java", "color": "red" },
+      { "id": "kotlin", "name": "Kotlin", "color": "purple" },
+      { "id": "spring-boot", "name": "Spring Boot", "color": "green" },
+      { "id": "configuration", "name": "Yapılandırma", "color": "blue" },
+      { "id": "programming", "name": "Programlama", "color": "brown" }
+    ]
+  },
+  {
     "id": "spring-boot-graphql-jwe-authentication",
     "title": "Spring Boot GraphQL JWE Kimlik Doğrulama",
     "date": "2025-05-17",

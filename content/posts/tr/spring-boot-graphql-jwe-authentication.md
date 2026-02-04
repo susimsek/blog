@@ -4056,4 +4056,6 @@ Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql`
 
 ---
 
-Bu GraphQL yapılandırması, Spring Boot, GraphQL ve JPA ile, stateless, şifreli JWT (JWE) tabanlı bir kimlik doğrulama akışı sunar ve sağlam güvenlik ile ölçeklenebilirlik sağlar.
+## 🏁 Sonuç
+
+Bu kurulum, Spring Boot ile Spring Boot GraphQL JWE Kimlik Doğrulama için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.

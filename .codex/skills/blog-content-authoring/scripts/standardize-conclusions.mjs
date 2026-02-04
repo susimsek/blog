@@ -1,0 +1,317 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+const ROOT = process.cwd();
+const LOCALES = ['en', 'tr'];
+
+const stripTrailingEmptyLines = lines => {
+  let end = lines.length - 1;
+  while (end >= 0 && lines[end].trim() === '') end -= 1;
+  return lines.slice(0, end + 1);
+};
+
+const splitFrontmatter = markdown => {
+  if (!markdown.startsWith('---')) return { frontmatter: null, body: markdown };
+  const end = markdown.indexOf('\n---', 3);
+  if (end === -1) return { frontmatter: null, body: markdown };
+  return {
+    frontmatter: markdown.slice(0, end + 4).replace(/\s*$/, '\n'),
+    body: markdown.slice(end + 4).replace(/^\s*\n/, ''),
+  };
+};
+
+const parseFrontmatterValue = (frontmatter, key) => {
+  if (!frontmatter) return null;
+  const m = new RegExp(`^${key}:\\s*'([^']*)'\\s*$`, 'm').exec(frontmatter);
+  return m?.[1] ?? null;
+};
+
+const lastNonEmptyBlock = lines => {
+  let i = lines.length - 1;
+  while (i >= 0 && lines[i].trim() === '') i -= 1;
+  if (i < 0) return { start: 0, end: -1, block: [] };
+  const end = i;
+  while (i >= 0 && lines[i].trim() !== '') i -= 1;
+  const start = i + 1;
+  return { start, end, block: lines.slice(start, end + 1) };
+};
+
+const shortTitle = title => {
+  if (!title) return '';
+  return title
+    .replace(/\s*\([^)]*\)\s*/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
+const CUSTOM_CONCLUSION_BY_ID = {
+  'spring-boot-configuration-properties': {
+    en: 'This setup delivers a robust, production-ready configuration layer in Spring Boot by combining @ConfigurationProperties, startup validation with @Validated, and profile-specific overrides—making your app safer to operate across environments.',
+    tr: "Bu kurulum, Spring Boot'ta @ConfigurationProperties, @Validated ile açılış doğrulaması ve profile-specific override'ları birleştirerek sağlam ve üretim‑hazır bir yapılandırma katmanı sunar; uygulamanızı farklı ortamlarda daha güvenli işletmenizi sağlar.",
+  },
+};
+
+const defaultConclusion = (locale, title, isSpringBoot) => {
+  const base = shortTitle(title) || (locale === 'tr' ? 'bu konu' : 'this topic');
+  if (locale === 'en') {
+    if (isSpringBoot) {
+      return `This setup delivers a robust, production-ready ${base} solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.`;
+    }
+    return `This setup delivers a robust, production-ready guide to ${base}, combining best practices, clear structure, and practical examples you can adapt to your own project.`;
+  }
+
+  if (isSpringBoot) {
+    return `Bu kurulum, Spring Boot ile ${base} için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.`;
+  }
+  return `Bu kurulum, ${base} için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.`;
+};
+
+const hasSpringBootTopic = frontmatter => {
+  if (!frontmatter) return false;
+  return /-\s+id:\s+'spring-boot'\s*$/m.test(frontmatter);
+};
+
+const conclusionHeading = locale => (locale === 'tr' ? '## 🏁 Sonuç' : '## 🏁 Conclusion');
+
+const conclusionAlreadyPresent = (bodyLines, locale) => {
+  const heading = conclusionHeading(locale);
+  const oldHeading = locale === 'tr' ? '## 🌟 Sonuç' : '## 🌟 Conclusion';
+  return bodyLines.some(line => line.trim() === heading || line.trim() === oldHeading);
+};
+
+const isSummaryLikeBlock = (locale, text) => {
+  const t = text.trim();
+  if (!t) return false;
+  if (locale === 'en') {
+    return /^(This .* setup (delivers|provides)|By following these steps)/i.test(t);
+  }
+  return /^(Bu .* kurulum|Bu adımları takip)/i.test(t);
+};
+
+const cleanupPrefaceBeforeConclusion = (lines, locale) => {
+  const newHeading = conclusionHeading(locale);
+  const oldHeading = locale === 'tr' ? '## 🌟 Sonuç' : '## 🌟 Conclusion';
+
+  const headingIndex = lines.findIndex(line => {
+    const t = line.trim();
+    return t === newHeading || t === oldHeading;
+  });
+  if (headingIndex === -1) return { lines, changed: false };
+
+  // Look for a summary-like paragraph immediately above the conclusion heading, possibly wrapped by `---`.
+  // Pattern we want to remove:
+  // ---
+  // <summary-like paragraph>
+  // ---
+  // ## 🏁 Conclusion
+  let i = headingIndex - 1;
+  while (i >= 0 && lines[i].trim() === '') i -= 1;
+
+  // Optional separator right before heading.
+  const hasLowerHr = i >= 0 && lines[i].trim() === '---';
+  if (hasLowerHr) i -= 1;
+  while (i >= 0 && lines[i].trim() === '') i -= 1;
+
+  // Identify the paragraph block end at i, and find its start (blank-line delimited).
+  if (i < 0) return { lines, changed: false };
+  const paraEnd = i;
+  while (i >= 0 && lines[i].trim() !== '') i -= 1;
+  const paraStart = i + 1;
+  const paraText = lines
+    .slice(paraStart, paraEnd + 1)
+    .join('\n')
+    .trim();
+
+  if (!isSummaryLikeBlock(locale, paraText)) return { lines, changed: false };
+
+  // Optional separator above the paragraph.
+  let removeStart = paraStart;
+  let j = paraStart - 1;
+  while (j >= 0 && lines[j].trim() === '') j -= 1;
+  if (j >= 0 && lines[j].trim() === '---') {
+    removeStart = j;
+  }
+
+  // Remove the paragraph and (optionally) the lower HR directly above the heading.
+  let removeEnd = paraEnd;
+  // Extend to include trailing blank lines after paragraph.
+  let k = paraEnd + 1;
+  while (k < lines.length && lines[k].trim() === '') k += 1;
+  if (k < lines.length && lines[k].trim() === '---') {
+    // This is the HR right before the conclusion heading.
+    removeEnd = k;
+  }
+
+  const next = [...lines.slice(0, removeStart), ...lines.slice(removeEnd + 1)];
+  return { lines: next, changed: true };
+};
+
+const isPlainParagraphBlock = blockLines => {
+  if (!blockLines.length) return false;
+  const text = blockLines.join('\n').trim();
+  if (!text) return false;
+
+  // Reject common markdown structures; we only want to remove trailing free-form paragraphs.
+  const looksLikeHeading = blockLines.some(l => /^#{1,6}\s+/.test(l.trim()));
+  if (looksLikeHeading) return false;
+  const looksLikeList = blockLines.some(l => /^\s*(-|\*|\d+\.)\s+/.test(l));
+  if (looksLikeList) return false;
+  const looksLikeFence = blockLines.some(l => /^(```|~~~)/.test(l.trim()));
+  if (looksLikeFence) return false;
+  const looksLikeQuote = blockLines.some(l => /^\s*>/.test(l));
+  if (looksLikeQuote) return false;
+  const looksLikeTable = text.includes('|') && blockLines.some(l => /^\s*\|?[\w\s:-]+\|/.test(l));
+  if (looksLikeTable) return false;
+  const looksLikeHtml = /<\/?[a-z][\s\S]*>/i.test(text);
+  if (looksLikeHtml) return false;
+
+  // Heuristic: keep it short-ish so we don’t delete real sections.
+  return text.length <= 420;
+};
+
+const cleanupTrailingParagraphBeforeConclusion = (lines, locale) => {
+  const newHeading = conclusionHeading(locale);
+  const oldHeading = locale === 'tr' ? '## 🌟 Sonuç' : '## 🌟 Conclusion';
+
+  const headingIndex = lines.findIndex(line => {
+    const t = line.trim();
+    return t === newHeading || t === oldHeading;
+  });
+  if (headingIndex === -1) return { lines, changed: false };
+
+  // Find the nearest '---' above the conclusion heading.
+  let hrIdx = headingIndex - 1;
+  while (hrIdx >= 0 && lines[hrIdx].trim() === '') hrIdx -= 1;
+  if (hrIdx < 0 || lines[hrIdx].trim() !== '---') return { lines, changed: false };
+
+  // Find the last non-empty block immediately above that HR.
+  let i = hrIdx - 1;
+  while (i >= 0 && lines[i].trim() === '') i -= 1;
+  if (i < 0) return { lines, changed: false };
+  const blockEnd = i;
+  while (i >= 0 && lines[i].trim() !== '') i -= 1;
+  const blockStart = i + 1;
+  const block = lines.slice(blockStart, blockEnd + 1);
+
+  if (!isPlainParagraphBlock(block)) return { lines, changed: false };
+
+  // Remove the block + surrounding blank lines above it, but keep the HR.
+  let removeStart = blockStart;
+  let j = blockStart - 1;
+  while (j >= 0 && lines[j].trim() === '') j -= 1;
+  // Keep one blank line before the HR by trimming all whitespace in the removed range.
+  const next = [...lines.slice(0, removeStart), ...lines.slice(hrIdx)];
+
+  return { lines: next, changed: true };
+};
+
+const cleanupDuplicateHrBeforeConclusion = (lines, locale) => {
+  const newHeading = conclusionHeading(locale);
+  const oldHeading = locale === 'tr' ? '## 🌟 Sonuç' : '## 🌟 Conclusion';
+
+  const headingIndex = lines.findIndex(line => {
+    const t = line.trim();
+    return t === newHeading || t === oldHeading;
+  });
+  if (headingIndex === -1) return { lines, changed: false };
+
+  // Find the nearest '---' above the conclusion heading.
+  let hrIdx = headingIndex - 1;
+  while (hrIdx >= 0 && lines[hrIdx].trim() === '') hrIdx -= 1;
+  if (hrIdx < 0 || lines[hrIdx].trim() !== '---') return { lines, changed: false };
+
+  // If the previous non-empty line is also '---', remove the earlier one.
+  let prev = hrIdx - 1;
+  while (prev >= 0 && lines[prev].trim() === '') prev -= 1;
+  if (prev >= 0 && lines[prev].trim() === '---') {
+    const next = [...lines.slice(0, prev), ...lines.slice(hrIdx)];
+    return { lines: next, changed: true };
+  }
+
+  return { lines, changed: false };
+};
+
+const standardizeFile = async (filePath, locale) => {
+  const raw = await fs.readFile(filePath, 'utf8');
+  const { frontmatter, body } = splitFrontmatter(raw);
+  const originalLines = stripTrailingEmptyLines(body.split(/\r?\n/));
+
+  const oldHeading = locale === 'tr' ? '## 🌟 Sonuç' : '## 🌟 Conclusion';
+  const newHeading = conclusionHeading(locale);
+
+  // If an old conclusion heading exists, migrate it to the new icon.
+  let migratedLines = originalLines;
+  let changed = false;
+  const idx = migratedLines.findIndex(line => line.trim() === oldHeading);
+  if (idx !== -1) {
+    migratedLines = [...migratedLines];
+    migratedLines[idx] = newHeading;
+    changed = true;
+  }
+
+  const cleaned = cleanupPrefaceBeforeConclusion(migratedLines, locale);
+  migratedLines = cleaned.lines;
+  changed = changed || cleaned.changed;
+
+  const cleaned2 = cleanupTrailingParagraphBeforeConclusion(migratedLines, locale);
+  migratedLines = cleaned2.lines;
+  changed = changed || cleaned2.changed;
+
+  const cleaned3 = cleanupDuplicateHrBeforeConclusion(migratedLines, locale);
+  migratedLines = cleaned3.lines;
+  changed = changed || cleaned3.changed;
+
+  if (conclusionAlreadyPresent(migratedLines, locale)) {
+    if (changed) {
+      const out = `${frontmatter ?? ''}${migratedLines.join('\n')}\n`;
+      await fs.writeFile(filePath, out, 'utf8');
+      return { changed: true };
+    }
+    // Keep existing conclusion; do not override in bulk.
+    return { changed: false };
+  }
+
+  // If the file ends with a summary-like paragraph, drop it before adding a standardized Conclusion/Sonuç.
+  const { start, end, block } = lastNonEmptyBlock(migratedLines);
+  const blockText = block.join('\n').trim();
+  let nextLines = migratedLines;
+  if (isSummaryLikeBlock(locale, blockText)) {
+    nextLines = [...migratedLines.slice(0, start), ...migratedLines.slice(end + 1)];
+    nextLines = stripTrailingEmptyLines(nextLines);
+  } else {
+    nextLines = migratedLines;
+  }
+
+  const id = path.basename(filePath, '.md');
+  const title = parseFrontmatterValue(frontmatter, 'title');
+  const isSpringBoot = hasSpringBootTopic(frontmatter) || (title?.includes('Spring Boot') ?? false);
+  const conclusion = CUSTOM_CONCLUSION_BY_ID[id]?.[locale] ?? defaultConclusion(locale, title, isSpringBoot);
+
+  const heading = newHeading;
+  const appended = [...nextLines, '', '---', '', heading, '', conclusion, ''].join('\n');
+
+  const out = `${frontmatter ?? ''}${appended}`;
+  await fs.writeFile(filePath, out, 'utf8');
+  return { changed: true };
+};
+
+const main = async () => {
+  const touched = [];
+  for (const locale of LOCALES) {
+    const dir = path.join(ROOT, 'content', 'posts', locale);
+    const files = (await fs.readdir(dir)).filter(name => name.endsWith('.md')).map(name => path.join(dir, name));
+
+    for (const filePath of files) {
+      const res = await standardizeFile(filePath, locale);
+      if (res.changed) touched.push(path.relative(ROOT, filePath));
+    }
+  }
+
+  console.log(`OK: updated ${touched.length} files.`);
+  for (const fp of touched) console.log(`- ${fp}`);
+};
+
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});

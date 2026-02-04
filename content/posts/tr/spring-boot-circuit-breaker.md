@@ -229,4 +229,6 @@ curl -X GET http://localhost:8080/api/data
 
 ---
 
-Spring Boot Circuit Breaker ile **Resilience4j**, mikro hizmetlerdeki zincirleme hataları önlemeye yardımcı olur. Hataları izleyerek ve başarısız hizmetlere gereksiz çağrıları durdurarak sistem kararlılığını ve genel uygulama dayanıklılığını artırır. 🚀
+## 🏁 Sonuç
+
+Bu kurulum, Spring Boot ile Spring Boot Circuit Breaker için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.

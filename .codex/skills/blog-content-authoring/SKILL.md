@@ -25,6 +25,47 @@ This repo generates content via **static export**. List pages are driven by **JS
 
 ## Image Standards
 
+## Iram City Art Direction (Thumbnails & Inline Images)
+
+Goal: make all **post visuals** (thumbnails + optional inline images) feel like they belong to the same world:
+
+- Iram of the Pillars (Irem Şehri), ancient Arab myth-inspired lost city
+- endless columns, monumental palaces, sacred timeless atmosphere
+- terraced nature, clear water channels, reflective pools
+- golden-hour / “golden light” beams, volumetric light, cinematic haze
+- **no people**, no modern elements, no readable text/logos/watermarks
+- style: fantastical realism, epic cinematic, wide angle, high detail
+
+### Prompt template (copy/paste)
+
+Use this as a base in your image generator (SDXL / Midjourney / etc.), then add a _post-specific motif_:
+
+**Base prompt**
+
+- “Iram of the Pillars (Irem Şehri), ancient Arab myth-inspired lost city, majestic and mysterious sacred place, timeless, uninhabited (no people), endless columns and towering palaces, monumental architecture, terraced gardens integrated with nature, clear water channels, reflective pools, golden hour light beams, volumetric light, atmospheric haze, epic cinematic mood, fantastical realism, ultra-detailed, wide-angle, HDR”
+
+**Negative prompt**
+
+- “people, faces, crowds, text, logos, watermark, lowres, blurry, noise, oversaturated, cartoon, anime”
+
+### Batch prompt generation for all existing posts
+
+Generate one JSONL line per post (includes EN/TR prompts + negative prompt + suggested thumbnail path):
+
+```bash
+node .codex/skills/blog-content-authoring/scripts/generate-irem-prompts.mjs > /tmp/irem-prompts.jsonl
+```
+
+Workflow suggestion:
+
+1. Pick a post from `/tmp/irem-prompts.jsonl`
+2. Generate an image at 1200x630 (or generate larger, then crop)
+3. Convert/crop to blog thumbnail:
+
+```bash
+node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs --in /path/to/generated.png --out public/images/<slug>-thumbnail.webp
+```
+
 ### 1) Post thumbnail (required)
 
 - **Purpose**: post list card + RSS/sitemap image + OG-like share image
@@ -98,6 +139,9 @@ Allowed tab icons:
 
 Keep headings consistent across posts:
 
+- **Overview / Why**
+  - EN: `## 🌟 ...`
+  - TR: `## 🌟 ...`
 - **Prerequisites**
   - EN: `## 📋 Prerequisites`
   - TR: `## 📋 Gereksinimler`
@@ -109,6 +153,27 @@ Keep headings consistent across posts:
   - Run/start step: `## ▶️ Step N: ...` / `## ▶️ Adım N: ...`
 
 Note: Avoid “random” emojis in headings. Prefer the small set above so posts feel consistent.
+
+## Conclusion Standard (Required)
+
+All posts should end with a short, consistent conclusion section:
+
+- EN: `## 🏁 Conclusion`
+- TR: `## 🏁 Sonuç`
+
+Template (EN):
+
+- “This setup delivers a robust, production-ready … by combining …”
+
+Template (TR):
+
+- “Bu kurulum, … için sağlam ve üretim‑hazır bir yaklaşım sunar; …”
+
+You can batch-apply this standard to all posts with:
+
+```bash
+node .codex/skills/blog-content-authoring/scripts/standardize-conclusions.mjs
+```
 
 ## Add a New Post (Step-by-Step)
 

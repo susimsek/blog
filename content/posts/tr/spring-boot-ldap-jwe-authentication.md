@@ -1775,4 +1775,6 @@ curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello/admi
 
 ---
 
-Bu yapılandırma; harici directory entegrasyonu, JWT gizliliği, RSA şifrelemesi ve Spring Security’nin birleşimiyle Spring Boot uygulamanızda tamamen stateless, sağlam ve güvenli bir LDAP tabanlı kimlik doğrulama akışı sunar.
+## 🏁 Sonuç
+
+Bu kurulum, Spring Boot ile Spring Boot LDAP ve JWE Kimlik Doğrulama için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.

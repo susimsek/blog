@@ -132,8 +132,9 @@ const normalizeHeadingLine = (locale, line) => {
 
     if (emoji === '🛠') return `${hashes} 🛠️ ${title}`;
 
-    // Keep 🌟, 📋, 🧪, ▶️; drop everything else.
-    if (emoji === '🌟' || emoji === '📋' || emoji === '🧪' || emoji === '▶️') return `${hashes} ${emoji} ${title}`;
+    // Keep 🌟, 📋, 🧪, ▶️, 🏁; drop everything else.
+    if (emoji === '🌟' || emoji === '📋' || emoji === '🧪' || emoji === '▶️' || emoji === '🏁')
+      return `${hashes} ${emoji} ${title}`;
 
     return `${hashes} ${title}`;
   }

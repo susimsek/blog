@@ -19,6 +19,7 @@
   { "id": "clean-coding", "name": "Clean Coding", "color": "orange" },
   { "id": "devtools", "name": "Dev Tools", "color": "orange" },
   { "id": "dependency-injection", "name": "Dependency Injection", "color": "orange" },
+  { "id": "configuration", "name": "Configuration", "color": "blue" },
   { "id": "graphql", "name": "GraphQL", "color": "pink" },
   { "id": "openapi", "name": "OpenAPI", "color": "orange" },
   { "id": "documentation", "name": "Documentation", "color": "brown" },

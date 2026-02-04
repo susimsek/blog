@@ -210,4 +210,6 @@ Docker üzerinde çalışan Spring Boot uygulamasından merhaba!
 
 ---
 
-Spring Boot, uygulamaları verimli bir şekilde konteynerleştirmek için birden fazla yöntem sunar. **Buildpacks** basit kullanım sağlarken, **Jib** optimize edilmiş imaj oluşturmayı destekler. Spring Boot uygulamalarını Docker ile kolayca paketleyip dağıtabilirsiniz.
+## 🏁 Sonuç
+
+Bu kurulum, Spring Boot ile Spring Boot Docker Entegrasyonu için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
