@@ -50,7 +50,9 @@ const SEO: React.FC<SEOProps> = ({
 }) => {
   const router = useRouter();
   const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
-  const ogLocale = LOCALES[currentLocale]?.ogLocale;
+  const basePathSegment = (process.env.NEXT_PUBLIC_BASE_PATH ?? '').replace(/^\/+|\/+$/g, '');
+  const locales = i18nextConfig.i18n.locales ?? [i18nextConfig.i18n.defaultLocale];
+  const ogLocale = LOCALES[currentLocale]?.ogLocale ?? LOCALES[i18nextConfig.i18n.defaultLocale]?.ogLocale;
 
   const { page, size } = router.query;
 
@@ -58,9 +60,27 @@ const SEO: React.FC<SEOProps> = ({
   if (page) queryParams.append('page', String(page));
   if (size) queryParams.append('size', String(size));
 
-  const canonicalUrl = queryParams.toString()
-    ? `${SITE_URL}/${currentLocale}${path}?${queryParams}`
-    : `${SITE_URL}/${currentLocale}${path}`;
+  const siteUrl = SITE_URL.replace(/\/+$/g, '');
+  const joinPath = (...segments: ReadonlyArray<string>) =>
+    segments
+      .map(s => s.trim())
+      .filter(Boolean)
+      .map(s => s.replace(/^\/+|\/+$/g, ''))
+      .filter(Boolean)
+      .join('/');
+
+  const buildLocalizedUrl = (locale: string) => {
+    const localizedPath = `/${joinPath(basePathSegment, locale, path)}`;
+    return queryParams.toString() ? `${siteUrl}${localizedPath}?${queryParams}` : `${siteUrl}${localizedPath}`;
+  };
+
+  const canonicalUrl = buildLocalizedUrl(currentLocale);
+  const alternateLinks = locales.map(locale => ({
+    locale,
+    hrefLang: locale,
+    href: buildLocalizedUrl(locale),
+  }));
+  const xDefaultHref = buildLocalizedUrl(i18nextConfig.i18n.defaultLocale);
 
   const imageUrl = (() => {
     try {
@@ -94,6 +114,10 @@ const SEO: React.FC<SEOProps> = ({
       <title>{`${title} | ${siteName}`}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={canonicalUrl} />
+      {alternateLinks.map(link => (
+        <link key={link.locale} rel="alternate" hrefLang={link.hrefLang} href={link.href} />
+      ))}
+      <link rel="alternate" hrefLang="x-default" href={xDefaultHref} />
       {keywords && <meta name="keywords" content={keywords} />}
       <meta name="author" content={AUTHOR_NAME} />
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
@@ -105,7 +129,14 @@ const SEO: React.FC<SEOProps> = ({
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:site_name" content={t('common:common.siteName')} />
       <meta property="og:image" content={imageUrl} />
-      <meta property="og:locale" content={ogLocale} />
+      <meta property="og:image:alt" content={ogTitle} />
+      {ogLocale ? <meta property="og:locale" content={ogLocale} /> : null}
+      {locales
+        .filter(locale => locale !== currentLocale)
+        .map(locale => {
+          const altOgLocale = LOCALES[locale]?.ogLocale;
+          return altOgLocale ? <meta key={altOgLocale} property="og:locale:alternate" content={altOgLocale} /> : null;
+        })}
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:image:type" content="image/webp" />
@@ -132,6 +163,11 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:creator" content={TWITTER_USERNAME} />
       <meta name="twitter:site" content={TWITTER_USERNAME} />
+      <meta name="twitter:title" content={ogTitle} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={imageUrl} />
+      <meta name="twitter:image:alt" content={ogTitle} />
+      <meta name="twitter:url" content={canonicalUrl} />
 
       {/* JSON-LD Structured Data */}
       {updatedJsonLd && (
