@@ -14,6 +14,7 @@
       },
       "themeToggle": "Toggle Theme",
       "theme": {
+        "system": "System",
         "light": "Light Mode",
         "dark": "Dark Mode",
         "oceanic": "Oceanic Mode",
