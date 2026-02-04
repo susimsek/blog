@@ -139,6 +139,17 @@ const main = async () => {
       if (!post.summary || typeof post.summary !== 'string') fail(errors, `${postsFile}: ${post.id} missing summary`);
       if (!isValidDate(post.date)) fail(errors, `${postsFile}: ${post.id} invalid date: ${post.date}`);
 
+      if (typeof post.title === 'string' && /[()]/.test(post.title)) {
+        warn(warnings, `${postsFile}: ${post.id} title should not contain parentheses: ${post.title}`);
+      }
+
+      if (typeof post.summary === 'string') {
+        const summary = post.summary.trim();
+        if (summary.length > 200) warn(warnings, `${postsFile}: ${post.id} summary is too long (>200 chars)`);
+        if (summary.length > 0 && summary.length < 80)
+          warn(warnings, `${postsFile}: ${post.id} summary is quite short (<80 chars)`);
+      }
+
       if (post.thumbnail == null || typeof post.thumbnail !== 'string') {
         fail(errors, `${postsFile}: ${post.id} missing thumbnail`);
       } else {

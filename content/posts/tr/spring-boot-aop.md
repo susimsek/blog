@@ -1,5 +1,5 @@
 ---
-title: 'Spring Boot ile Aspect-Oriented Programming (AOP)'
+title: 'Spring Boot ile Aspect-Oriented Programming'
 date: '2024-12-18'
 summary: 'Spring Boot ile AOP uygulamasını nasıl yapacağınızı öğrenin. Java ve Kotlin örnekleri ile temel kavramlar ve uygulamalar.'
 thumbnail: '/images/spring-boot-aop-thumbnail.webp'

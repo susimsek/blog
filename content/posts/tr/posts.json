@@ -17,7 +17,7 @@
     "id": "spring-boot-graphql-jwe-authentication",
     "title": "Spring Boot GraphQL JWE Kimlik Doğrulama",
     "date": "2025-05-17",
-    "summary": "Stateless şifreli JWT’ler (JWE) kullanarak Spring Boot GraphQL API’lerinizi nasıl güvenli hale getirirken, kullanıcı kimliklerini ve rolleri JPA destekli bir veritabanında nasıl saklayacağınızı öğrenin.",
+    "summary": "Stateless şifreli JWT’ler (JWE) ile Spring Boot GraphQL API’lerinizi güvenli hale getirmeyi; kullanıcı kimliği ve rolleri JPA ile bir veritabanında saklamayı öğrenin.",
     "thumbnail": "/images/spring-boot-graphql-jwe-auth-thumbnail.webp",
     "topics": [
       {
@@ -367,7 +367,7 @@
   },
   {
     "id": "spring-boot-tdd",
-    "title": "Spring Boot ile Test Odaklı Geliştirme (TDD)",
+    "title": "Spring Boot ile Test Odaklı Geliştirme",
     "date": "2025-04-09",
     "summary": "Spring Boot ile TDD yaklaşımını uygulamayı; önce test yazarak, iş mantığını geliştirerek ve testlerle kaliteyi garanti altına alarak öğrenin.",
     "thumbnail": "/images/spring-boot-tdd-thumbnail.webp",
@@ -996,7 +996,7 @@
   },
   {
     "id": "spring-boot-aop",
-    "title": "Spring Boot ile Aspect-Oriented Programming (AOP)",
+    "title": "Spring Boot ile Aspect-Oriented Programming",
     "date": "2024-12-18",
     "summary": "Spring Boot ile AOP uygulamasını nasıl yapacağınızı öğrenin. Java ve Kotlin örnekleri ile temel kavramlar ve uygulamalar.",
     "thumbnail": "/images/spring-boot-aop-thumbnail.webp",
@@ -1064,7 +1064,7 @@
   },
   {
     "id": "object-relational-mapping",
-    "title": "Object-Relational Mapping (ORM)",
+    "title": "Object-Relational Mapping",
     "date": "2024-12-16",
     "summary": "Spring Boot kullanarak Java, Kotlin ve Go (Gin) ile PostgreSQL entegrasyonu ve temel CRUD işlemlerini içeren bir ORM tabanlı uygulamanın nasıl kurulacağını öğrenin.",
     "thumbnail": "/images/orm-thumbnail.webp",
@@ -1110,7 +1110,7 @@
     "id": "rest-api-input-validation",
     "title": "REST API’lerde Girdi Doğrulama",
     "date": "2024-12-15",
-    "summary": "Spring Boot ve Gin gibi framework’leri kullanarak Java, Kotlin ve Go ile REST API’lerde girdi doğrulamasını nasıl uygulayacağnızı öğrenin. Anotasyonlar, özel doğrulama ve hata yönetimi örnekleri içerir.",
+    "summary": "Spring Boot ve Gin ile Java, Kotlin ve Go’da REST API girdi doğrulamasını uygulamayı öğrenin. Anotasyon, özel doğrulama ve hata yönetimi örnekleri içerir.",
     "thumbnail": "/images/input-validation-thumbnail.webp",
     "topics": [
       {

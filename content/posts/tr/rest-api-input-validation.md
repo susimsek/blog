@@ -1,7 +1,7 @@
 ---
 title: 'REST API’lerde Girdi Doğrulama'
 date: '2024-12-15'
-summary: 'Spring Boot ve Gin gibi framework’leri kullanarak Java, Kotlin ve Go ile REST API’lerde girdi doğrulamasını nasıl uygulayacağnızı öğrenin. Anotasyonlar, özel doğrulama ve hata yönetimi örnekleri içerir.'
+summary: 'Spring Boot ve Gin ile Java, Kotlin ve Go’da REST API girdi doğrulamasını uygulamayı öğrenin. Anotasyon, özel doğrulama ve hata yönetimi örnekleri içerir.'
 thumbnail: '/images/input-validation-thumbnail.webp'
 readingTime: '4 dk okuma'
 topics:

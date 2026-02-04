@@ -322,6 +322,11 @@ topics:
 
 Notes:
 
+- Keep `summary` short and scannable:
+  - Recommended: **140–180 characters**
+  - Hard limit: **≤ 200 characters**
+- Keep `title` clean and SEO-friendly:
+  - Avoid parentheses in titles (e.g. do **not** use “(Type-Safe Config + Profiles)”)
 - `date` format: `YYYY-MM-DD` (e.g. `2026-02-03`)
 - `topics` entries must be **objects** (`id/name/color`). The `id` must exist in `topics.json`.
 - `readingTime` is computed automatically; you may keep it for consistency, but it is not a reliable source of truth.
