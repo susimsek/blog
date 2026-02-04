@@ -9,6 +9,55 @@ html {
   scroll-behavior: smooth;
 }
 
+.post-article {
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    scroll-margin-top: 96px;
+  }
+}
+
+.post-toc {
+  .accordion {
+    --bs-accordion-bg: var(--main-bg);
+    --bs-accordion-color: var(--text-color);
+    --bs-accordion-border-color: var(--border-color);
+    --bs-accordion-btn-bg: var(--main-bg);
+    --bs-accordion-btn-color: var(--text-color);
+    --bs-accordion-active-bg: var(--dropdown-hover-bg);
+    --bs-accordion-active-color: var(--text-color);
+  }
+
+  .accordion-button:focus {
+    box-shadow: none;
+  }
+
+  .accordion-button:focus-visible {
+    outline: 2px solid var(--active-color);
+    outline-offset: 2px;
+    box-shadow: none;
+  }
+
+  .post-toc-link {
+    color: var(--text-color);
+    text-decoration: none;
+    @include transition(color);
+  }
+
+  .post-toc-link:hover {
+    color: var(--link-hover-color);
+    text-decoration: underline;
+  }
+
+  .post-toc-link:focus-visible {
+    outline: 2px solid var(--active-color);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
 body {
   margin: 0;
   word-wrap: anywhere;

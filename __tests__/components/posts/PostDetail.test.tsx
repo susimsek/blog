@@ -2,6 +2,12 @@ import { render, screen } from '@testing-library/react';
 import PostDetail from '@/components/posts/PostDetail';
 import { mockPost, mockPostWithoutContent } from '@tests/__mocks__/mockPostData';
 
+jest.mock('next-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
 jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <span data-testid={`fa-icon-${icon}`} />,
 }));
@@ -39,9 +45,9 @@ describe('PostDetail Component', () => {
 
   it('renders the post content using MarkdownRenderer', () => {
     setup();
-    const markdownElement = screen.getByTestId('markdown-renderer');
-    expect(markdownElement).toBeInTheDocument();
-    expect(markdownElement).toHaveTextContent(mockPost.contentHtml || '');
+    const markdownElements = screen.getAllByTestId('markdown-renderer');
+    expect(markdownElements.length).toBeGreaterThan(0);
+    expect(markdownElements.map(el => el.textContent).join('\n')).toContain(mockPost.contentHtml || '');
   });
 
   it('renders the topics as badges', () => {
@@ -60,8 +66,6 @@ describe('PostDetail Component', () => {
 
   it('renders an empty article when contentHtml is null or undefined', () => {
     setup(mockPostWithoutContent);
-    const markdownElement = screen.getByTestId('markdown-renderer');
-    expect(markdownElement).toBeInTheDocument();
-    expect(markdownElement).toHaveTextContent('');
+    expect(screen.queryByTestId('markdown-renderer')).not.toBeInTheDocument();
   });
 });

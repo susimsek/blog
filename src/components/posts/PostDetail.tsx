@@ -12,6 +12,7 @@ import type { PostSummary } from '@/types/posts';
 import RelatedPosts from '@/components/posts/RelatedPosts';
 import ReadingProgress from '@/components/common/ReadingProgress';
 import BackToTop from '@/components/common/BackToTop';
+import PostToc from '@/components/posts/PostToc';
 
 interface PostDetailProps {
   post: Post;
@@ -20,6 +21,8 @@ interface PostDetailProps {
 
 export default function PostDetail({ post, relatedPosts = [] }: Readonly<PostDetailProps>) {
   const { title, date, contentHtml, thumbnail, topics, readingTime } = post;
+  const articleRef = React.useRef<HTMLElement | null>(null);
+  const markdown = contentHtml ?? '';
   const thumbnailSrc = (() => {
     if (!thumbnail) return null;
     try {
@@ -29,6 +32,50 @@ export default function PostDetail({ post, relatedPosts = [] }: Readonly<PostDet
       return thumbnail;
     }
   })();
+
+  const splitIntro = React.useMemo(() => {
+    if (!markdown) {
+      return { intro: '', rest: '' };
+    }
+
+    const lines = markdown.split(/\r?\n/);
+    let inFence = false;
+    let fenceToken: string | null = null;
+
+    const isFence = (line: string) => {
+      const trimmed = line.trimStart();
+      if (trimmed.startsWith('```')) return '```';
+      if (trimmed.startsWith('~~~')) return '~~~';
+      return null;
+    };
+
+    const isSectionHeading = (line: string) => {
+      if (inFence) return false;
+      return /^#{2,6}\s+\S+/.test(line);
+    };
+
+    for (let i = 0; i < lines.length; i += 1) {
+      const fence = isFence(lines[i] ?? '');
+      if (fence) {
+        if (!inFence) {
+          inFence = true;
+          fenceToken = fence;
+        } else if (fenceToken === fence) {
+          inFence = false;
+          fenceToken = null;
+        }
+        continue;
+      }
+
+      if (isSectionHeading(lines[i] ?? '')) {
+        const intro = lines.slice(0, i).join('\n').trim();
+        const rest = lines.slice(i).join('\n').trim();
+        return { intro, rest };
+      }
+    }
+
+    return { intro: markdown.trim(), rest: '' };
+  }, [markdown]);
 
   return (
     <>
@@ -58,8 +105,10 @@ export default function PostDetail({ post, relatedPosts = [] }: Readonly<PostDet
           </div>
         )}
         {thumbnailSrc && <Thumbnail src={thumbnailSrc} alt={title} width={1200} height={630} />}
-        <article className="fs-5 lh-lg">
-          <MarkdownRenderer content={contentHtml ?? ''} />
+        <article ref={articleRef} className="fs-5 lh-lg post-article">
+          {splitIntro.intro && <MarkdownRenderer content={splitIntro.intro} />}
+          <PostToc content={markdown} rootRef={articleRef} />
+          {splitIntro.rest && <MarkdownRenderer content={splitIntro.rest} />}
         </article>
         <RelatedPosts posts={relatedPosts} />
       </Container>
