@@ -61,7 +61,9 @@
     },
     "codeBlock": {
       "copy": "Kopyala",
-      "copied": "Kopyalandı!"
+      "copied": "Kopyalandı!",
+      "showLineNumbers": "Satır numaralarını göster",
+      "hideLineNumbers": "Satır numaralarını gizle"
     },
     "selected": "Seçildi",
     "selectAll": "Tümünü Seç",
