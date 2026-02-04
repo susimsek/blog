@@ -288,6 +288,8 @@ const motifByTopicId = {
   programming: 'ancient codex tablets, etched code patterns, glowing script',
   testing: 'ritual trial chamber, calibrated light, verification seals',
   configuration: 'inscribed configuration tablets, nested glyph panels, orderly columns',
+  react: 'orbiting luminous nodes, component-like petals, soft cyan glow, modular symmetry',
+  'next-js': 'dark obsidian gateway, starfield void beyond arches, crisp rim light, minimalist sacred geometry',
 };
 
 const baseStyle = [

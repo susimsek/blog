@@ -223,6 +223,40 @@ node .codex/skills/blog-content-authoring/scripts/standardize-conclusions.mjs
 
 ## Add a New Post (Step-by-Step)
 
+## Random Post Generation (Constrained Topics)
+
+If you want to generate a **random new post idea** that still fits this blog’s content constraints, use the helper script below.
+
+Constraints (topic pool):
+
+- Java (`java`)
+- Kotlin (`kotlin`)
+- Spring Boot (`spring-boot`)
+- Kubernetes (`kubernetes`)
+- Go / Golang (`go`)
+- React (`react`)
+- Next.js (`next-js`)
+
+Generate a random post idea (deterministic with a seed):
+
+```bash
+node .codex/skills/blog-content-authoring/scripts/suggest-random-post.mjs --seed=2026-02-04
+```
+
+It prints:
+
+- suggested `slug` + `date`
+- EN/TR `title` + `summary`
+- topic entries (id/name/color) for both locales
+- a minimal outline that already follows the standard heading emojis and the single Conclusion rule
+
+After picking an idea:
+
+1. Create `content/posts/en/<slug>.md` and `content/posts/tr/<slug>.md`
+2. Add the post to `content/posts/en/posts.json` and `content/posts/tr/posts.json`
+3. Create `public/images/<slug>-thumbnail.webp` (1200x630) using the Iram art direction + **one theme variant**
+4. Run the checker: `node .codex/skills/blog-content-authoring/scripts/check-content.mjs`
+
 ### 1) Choose the slug/ID
 
 - Use only lowercase letters + digits + hyphens: `spring-boot-ai`
