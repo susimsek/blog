@@ -257,6 +257,21 @@ After picking an idea:
 3. Create `public/images/<slug>-thumbnail.webp` (1200x630) using the Iram art direction + **one theme variant**
 4. Run the checker: `node .codex/skills/blog-content-authoring/scripts/check-content.mjs`
 
+## Documentation Source (Context7 MCP Required)
+
+When writing technical posts (Java/Kotlin/Spring Boot/Kubernetes/Go/React/Next.js), always pull **current** API guidance from **Context7** before finalizing code/config snippets.
+
+Workflow:
+
+1. Resolve the library id:
+   - `mcp__context7__resolve-library-id` (example inputs: “spring boot”, “kubernetes”, “react”, “next.js”)
+2. Query for the exact topic you’re writing about:
+   - `mcp__context7__query-docs` (ask for the _specific feature_, version caveats, and example snippets)
+3. Adapt examples to this repo’s constraints:
+   - Static export (no server-only patterns for Next.js)
+   - Blog markdown conventions (headings/steps/conclusion)
+   - Keep code snippets minimal and production-safe
+
 ### 1) Choose the slug/ID
 
 - Use only lowercase letters + digits + hyphens: `spring-boot-ai`
