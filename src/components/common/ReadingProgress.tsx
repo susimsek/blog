@@ -4,12 +4,38 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 
 export default function ReadingProgress() {
   const [progress, setProgress] = useState(0);
+  const [topOffset, setTopOffset] = useState(0);
 
   const raf = useMemo(() => {
     if (typeof window === 'undefined') return null;
     return window.requestAnimationFrame
       ? (cb: FrameRequestCallback) => window.requestAnimationFrame(cb)
       : (cb: FrameRequestCallback) => window.setTimeout(() => cb(performance.now()), 0);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const headerEl = document.querySelector('nav.navbar.sticky-top') as HTMLElement | null;
+
+    const updateOffset = () => {
+      const next = headerEl?.getBoundingClientRect().height ?? 0;
+      setTopOffset(Math.max(0, Math.round(next)));
+    };
+
+    updateOffset();
+    window.addEventListener('resize', updateOffset);
+
+    let ro: ResizeObserver | null = null;
+    if (headerEl && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(updateOffset);
+      ro.observe(headerEl);
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateOffset);
+      ro?.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -49,6 +75,7 @@ export default function ReadingProgress() {
   return (
     <div
       className="reading-progress"
+      style={{ top: topOffset }}
       role="progressbar"
       aria-label="Reading progress"
       aria-valuemin={0}

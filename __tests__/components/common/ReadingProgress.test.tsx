@@ -1,0 +1,20 @@
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import ReadingProgress from '@/components/common/ReadingProgress';
+
+describe('ReadingProgress', () => {
+  it('positions progress bar under the sticky header', async () => {
+    const header = document.createElement('nav');
+    header.className = 'navbar sticky-top';
+    header.getBoundingClientRect = () => ({ height: 64 }) as DOMRect;
+    document.body.appendChild(header);
+
+    render(<ReadingProgress />);
+
+    const progressbar = screen.getByRole('progressbar', { name: 'Reading progress' });
+
+    await waitFor(() => {
+      expect(progressbar).toHaveStyle({ top: '64px' });
+    });
+  });
+});
