@@ -121,6 +121,14 @@ node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs --in /path/
 - **Location**: `public/images/`
 - **Path in Markdown/posts.json**: `/images/<slug>-thumbnail.webp`
 
+#### Thumbnail quality checklist (must pass)
+
+- No readable text (no UI text, no captions, no logos, no watermarks)
+- Composition centered, with strong leading lines (columns/arches/perspective)
+- 1200x630 output (crop if needed; avoid distorted aspect ratios)
+- `webp` only
+- Target file size: **< 350KB** (optimize/crop if larger)
+
 Generate:
 
 ```bash
