@@ -73,13 +73,13 @@ The helper script will assign a variant **automatically** (deterministic by post
 Use a seed so the same post gets the same variant every time:
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/generate-irem-prompts.mjs --seed=2026-02-04 > /tmp/irem-prompts.jsonl
+node .codex/skills/blog-content-authoring/scripts/generate-thumbnail-prompts.mjs --seed=2026-02-04 > /tmp/irem-prompts.jsonl
 ```
 
 If you really want a different variant assignment each run:
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/generate-irem-prompts.mjs --mode=random > /tmp/irem-prompts.jsonl
+node .codex/skills/blog-content-authoring/scripts/generate-thumbnail-prompts.mjs --mode=random > /tmp/irem-prompts.jsonl
 ```
 
 ### Prompt template (copy/paste)
@@ -99,7 +99,7 @@ Use this as a base in your image generator (SDXL / Midjourney / etc.), then add 
 Generate one JSONL line per post (includes EN/TR prompts + negative prompt + suggested thumbnail path):
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/generate-irem-prompts.mjs > /tmp/irem-prompts.jsonl
+node .codex/skills/blog-content-authoring/scripts/generate-thumbnail-prompts.mjs > /tmp/irem-prompts.jsonl
 ```
 
 Workflow suggestion:

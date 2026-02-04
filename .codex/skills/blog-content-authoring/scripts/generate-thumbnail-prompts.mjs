@@ -339,7 +339,7 @@ const main = async () => {
     process.stdout.write(
       [
         'Usage:',
-        '  node .codex/skills/blog-content-authoring/scripts/generate-irem-prompts.mjs [--seed=STRING] [--mode=by-post-id|random]',
+        '  node .codex/skills/blog-content-authoring/scripts/generate-thumbnail-prompts.mjs [--seed=STRING] [--mode=by-post-id|random]',
         '',
         'Notes:',
         '  --mode=by-post-id (default) assigns a deterministic theme per post id.',
