@@ -70,7 +70,20 @@ body {
   -o-tab-size: 4;
   text-rendering: optimizeLegibility;
   @include transition(background-color, color);
-  @include theme-transition;
+}
+
+html.theme-transitioning body {
+  animation: theme-transition var(--transition-speed) ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none !important;
+  }
+
+  html.theme-transitioning body {
+    animation: none !important;
+  }
 }
 
 mark {

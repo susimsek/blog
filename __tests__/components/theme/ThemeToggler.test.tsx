@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, within, act } from '@testing-library/react';
 import ThemeToggler from '@/components/theme/ThemeToggler';
-import { setTheme } from '@/reducers/theme';
+import { resetToSystemTheme, setTheme } from '@/reducers/theme';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 
 jest.mock('@/config/store', () => ({
@@ -21,15 +21,21 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 
 describe('ThemeToggler', () => {
   const mockDispatch = jest.fn();
+  const mockState = {
+    theme: { theme: 'light', hasExplicitTheme: true },
+  };
 
   beforeEach(() => {
-    (useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
     jest.clearAllMocks();
+    (useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
+    (useAppSelector as jest.Mock).mockImplementation((selector: (state: typeof mockState) => unknown) =>
+      selector(mockState),
+    );
+    mockState.theme.theme = 'light';
+    mockState.theme.hasExplicitTheme = true;
   });
 
   it('renders the dropdown with the correct icon and label', () => {
-    (useAppSelector as jest.Mock).mockReturnValue('light');
-
     render(<ThemeToggler />);
 
     const dropdown = screen.getByText(/common.theme/i);
@@ -39,13 +45,16 @@ describe('ThemeToggler', () => {
     expect(paletteIcon).toBeInTheDocument();
   });
 
-  it('renders light theme option as active when the current theme is light', () => {
-    (useAppSelector as jest.Mock).mockReturnValue('light');
+  it('renders light theme option as active when the current theme is light', async () => {
+    mockState.theme.theme = 'light';
+    mockState.theme.hasExplicitTheme = true;
 
     render(<ThemeToggler />);
 
     const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
-    fireEvent.click(dropdownToggle);
+    await act(async () => {
+      fireEvent.click(dropdownToggle);
+    });
 
     const lightOption = screen.getByRole('button', { name: /common.header.theme.light/i });
     const checkIcon = within(lightOption).getByTestId('font-awesome-icon-circle-check');
@@ -55,7 +64,8 @@ describe('ThemeToggler', () => {
   });
 
   it('renders dark theme option as active when the current theme is dark', async () => {
-    (useAppSelector as jest.Mock).mockReturnValue('dark');
+    mockState.theme.theme = 'dark';
+    mockState.theme.hasExplicitTheme = true;
 
     render(<ThemeToggler />);
 
@@ -72,7 +82,8 @@ describe('ThemeToggler', () => {
   });
 
   it('dispatches setTheme action when selecting a new theme', async () => {
-    (useAppSelector as jest.Mock).mockReturnValue('light');
+    mockState.theme.theme = 'light';
+    mockState.theme.hasExplicitTheme = true;
 
     render(<ThemeToggler />);
 
@@ -92,35 +103,45 @@ describe('ThemeToggler', () => {
     expect(mockDispatch).toHaveBeenCalledWith(setTheme('dark'));
   });
 
-  it('does not dispatch setTheme if the selected theme matches the current theme', () => {
-    (useAppSelector as jest.Mock).mockReturnValue('light');
+  it('does not dispatch setTheme if the selected theme matches the current theme', async () => {
+    mockState.theme.theme = 'light';
+    mockState.theme.hasExplicitTheme = true;
 
     render(<ThemeToggler />);
 
     const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
-    fireEvent.click(dropdownToggle);
+    await act(async () => {
+      fireEvent.click(dropdownToggle);
+    });
 
     const lightOption = screen.getByText(/common.header.theme.light/i);
-    fireEvent.click(lightOption);
+    await act(async () => {
+      fireEvent.click(lightOption);
+    });
 
     expect(mockDispatch).not.toHaveBeenCalled();
   });
 
-  it('renders the correct icons for light and dark options', () => {
-    (useAppSelector as jest.Mock).mockReturnValue('light');
+  it('renders the correct icons for light and dark options', async () => {
+    mockState.theme.theme = 'light';
+    mockState.theme.hasExplicitTheme = true;
 
     render(<ThemeToggler />);
 
     const dropdownToggle = screen.getByRole('button', {
       name: /common.theme/i,
     });
-    fireEvent.click(dropdownToggle);
+    await act(async () => {
+      fireEvent.click(dropdownToggle);
+    });
 
+    const desktopIcon = screen.getByTestId('font-awesome-icon-desktop');
     const sunIcon = screen.getByTestId('font-awesome-icon-sun');
     const moonIcon = screen.getByTestId('font-awesome-icon-moon');
     const waterIcon = screen.getByTestId('font-awesome-icon-water');
     const leafIcon = screen.getByTestId('font-awesome-icon-leaf');
 
+    expect(desktopIcon).toBeInTheDocument();
     expect(sunIcon).toBeInTheDocument();
     expect(moonIcon).toBeInTheDocument();
     expect(waterIcon).toBeInTheDocument();
@@ -128,7 +149,8 @@ describe('ThemeToggler', () => {
   });
 
   it('renders and selects the oceanic option', async () => {
-    (useAppSelector as jest.Mock).mockReturnValue('oceanic');
+    mockState.theme.theme = 'oceanic';
+    mockState.theme.hasExplicitTheme = true;
 
     render(<ThemeToggler />);
 
@@ -148,7 +170,8 @@ describe('ThemeToggler', () => {
   });
 
   it('renders and selects the forest option', async () => {
-    (useAppSelector as jest.Mock).mockReturnValue('forest');
+    mockState.theme.theme = 'forest';
+    mockState.theme.hasExplicitTheme = true;
 
     render(<ThemeToggler />);
 
@@ -165,5 +188,42 @@ describe('ThemeToggler', () => {
     const checkIcon = within(forestOption).getByTestId('font-awesome-icon-circle-check');
     expect(checkIcon).toBeInTheDocument();
     expect(mockDispatch).not.toHaveBeenCalled();
+  });
+
+  it('renders system theme option as active when no explicit theme is set', async () => {
+    mockState.theme.theme = 'dark';
+    mockState.theme.hasExplicitTheme = false;
+
+    render(<ThemeToggler />);
+
+    const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
+    await act(async () => {
+      fireEvent.click(dropdownToggle);
+    });
+
+    const systemOption = screen.getByRole('button', { name: /common.header.theme.system/i });
+    const checkIcon = within(systemOption).getByTestId('font-awesome-icon-circle-check');
+
+    expect(systemOption).toBeInTheDocument();
+    expect(checkIcon).toBeInTheDocument();
+  });
+
+  it('dispatches resetToSystemTheme when selecting system theme', async () => {
+    mockState.theme.theme = 'dark';
+    mockState.theme.hasExplicitTheme = true;
+
+    render(<ThemeToggler />);
+
+    const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
+    await act(async () => {
+      fireEvent.click(dropdownToggle);
+    });
+
+    const systemOption = screen.getByRole('button', { name: /common.header.theme.system/i });
+    await act(async () => {
+      fireEvent.click(systemOption);
+    });
+
+    expect(mockDispatch).toHaveBeenCalledWith(resetToSystemTheme());
   });
 });

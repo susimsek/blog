@@ -1,4 +1,4 @@
-import themeReducer, { toggleTheme, setTheme, type Theme } from '@/reducers/theme';
+import themeReducer, { toggleTheme, setTheme, resetToSystemTheme, type Theme } from '@/reducers/theme';
 
 jest.mock('@/config/constants', () => ({
   ...jest.requireActual('@/config/constants'),
@@ -8,13 +8,16 @@ jest.mock('@/config/constants', () => ({
 describe('theme reducer', () => {
   let getItemMock: jest.SpyInstance;
   let setItemMock: jest.SpyInstance;
+  let removeItemMock: jest.SpyInstance;
 
   beforeEach(() => {
     // Mock localStorage methods
     getItemMock = jest.spyOn(Storage.prototype, 'getItem');
     setItemMock = jest.spyOn(Storage.prototype, 'setItem');
+    removeItemMock = jest.spyOn(Storage.prototype, 'removeItem');
     getItemMock.mockClear();
     setItemMock.mockClear();
+    removeItemMock.mockClear();
   });
 
   afterEach(() => {
@@ -26,6 +29,7 @@ describe('theme reducer', () => {
       getItemMock.mockReturnValue(null);
       const initialState = themeReducer(undefined, { type: '@@INIT' });
       expect(initialState.theme).toBe('light');
+      expect(initialState.hasExplicitTheme).toBe(false);
     });
 
     it('should initialize with dark theme when localStorage has dark', () => {
@@ -38,6 +42,7 @@ describe('theme reducer', () => {
 
       const initialState = themeReducer(undefined, { type: '@@INIT' });
       expect(initialState.theme).toBe('dark');
+      expect(initialState.hasExplicitTheme).toBe(true);
     });
 
     it('should initialize with oceanic theme when localStorage has oceanic', () => {
@@ -48,6 +53,7 @@ describe('theme reducer', () => {
 
       const initialState = themeReducer(undefined, { type: '@@INIT' });
       expect(initialState.theme).toBe('oceanic');
+      expect(initialState.hasExplicitTheme).toBe(true);
     });
 
     it('should initialize with forest theme when localStorage has forest', () => {
@@ -58,72 +64,93 @@ describe('theme reducer', () => {
 
       const initialState = themeReducer(undefined, { type: '@@INIT' });
       expect(initialState.theme).toBe('forest');
+      expect(initialState.hasExplicitTheme).toBe(true);
     });
 
     it('should initialize with light theme when localStorage has invalid value', () => {
       getItemMock.mockReturnValue('invalid-value');
       const initialState = themeReducer(undefined, { type: '@@INIT' });
       expect(initialState.theme).toBe('light');
+      expect(initialState.hasExplicitTheme).toBe(false);
     });
   });
 
   describe('toggleTheme', () => {
     it('should toggle theme from light to dark', () => {
-      const initialState: { theme: Theme } = { theme: 'light' };
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'light', hasExplicitTheme: false };
       const newState = themeReducer(initialState, toggleTheme());
       expect(newState.theme).toBe('dark');
+      expect(newState.hasExplicitTheme).toBe(true);
       expect(setItemMock).toHaveBeenCalledWith('theme', 'dark');
     });
 
     it('should toggle theme from dark to oceanic', () => {
-      const initialState: { theme: Theme } = { theme: 'dark' };
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'dark', hasExplicitTheme: false };
       const newState = themeReducer(initialState, toggleTheme());
       expect(newState.theme).toBe('oceanic');
+      expect(newState.hasExplicitTheme).toBe(true);
       expect(setItemMock).toHaveBeenCalledWith('theme', 'oceanic');
     });
 
     it('should toggle theme from oceanic to forest', () => {
-      const initialState: { theme: Theme } = { theme: 'oceanic' };
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'oceanic', hasExplicitTheme: false };
       const newState = themeReducer(initialState, toggleTheme());
       expect(newState.theme).toBe('forest');
+      expect(newState.hasExplicitTheme).toBe(true);
       expect(setItemMock).toHaveBeenCalledWith('theme', 'forest');
     });
 
     it('should toggle theme from forest to light', () => {
-      const initialState: { theme: Theme } = { theme: 'forest' };
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'forest', hasExplicitTheme: false };
       const newState = themeReducer(initialState, toggleTheme());
       expect(newState.theme).toBe('light');
+      expect(newState.hasExplicitTheme).toBe(true);
       expect(setItemMock).toHaveBeenCalledWith('theme', 'light');
     });
   });
 
   describe('setTheme', () => {
     it('should set theme to light', () => {
-      const initialState: { theme: Theme } = { theme: 'dark' };
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'dark', hasExplicitTheme: false };
       const newState = themeReducer(initialState, setTheme('light'));
       expect(newState.theme).toBe('light');
+      expect(newState.hasExplicitTheme).toBe(true);
       expect(setItemMock).toHaveBeenCalledWith('theme', 'light');
     });
 
     it('should set theme to dark', () => {
-      const initialState: { theme: Theme } = { theme: 'light' };
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'light', hasExplicitTheme: false };
       const newState = themeReducer(initialState, setTheme('dark'));
       expect(newState.theme).toBe('dark');
+      expect(newState.hasExplicitTheme).toBe(true);
       expect(setItemMock).toHaveBeenCalledWith('theme', 'dark');
     });
 
     it('should set theme to oceanic', () => {
-      const initialState: { theme: Theme } = { theme: 'light' };
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'light', hasExplicitTheme: false };
       const newState = themeReducer(initialState, setTheme('oceanic'));
       expect(newState.theme).toBe('oceanic');
+      expect(newState.hasExplicitTheme).toBe(true);
       expect(setItemMock).toHaveBeenCalledWith('theme', 'oceanic');
     });
 
     it('should set theme to forest', () => {
-      const initialState: { theme: Theme } = { theme: 'light' };
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'light', hasExplicitTheme: false };
       const newState = themeReducer(initialState, setTheme('forest'));
       expect(newState.theme).toBe('forest');
+      expect(newState.hasExplicitTheme).toBe(true);
       expect(setItemMock).toHaveBeenCalledWith('theme', 'forest');
+    });
+  });
+
+  describe('resetToSystemTheme', () => {
+    it('should clear explicit theme preference and remove localStorage key', () => {
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'forest', hasExplicitTheme: true };
+      const newState = themeReducer(initialState, resetToSystemTheme());
+
+      expect(newState.hasExplicitTheme).toBe(false);
+      expect(newState.theme).toBe('light');
+      expect(removeItemMock).toHaveBeenCalledWith('theme');
     });
   });
 });

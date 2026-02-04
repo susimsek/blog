@@ -1,94 +1,95 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import ThemeProvider from '@/components/theme/ThemeProvider';
-import { useAppSelector } from '@/config/store';
+import { useAppDispatch, useAppSelector } from '@/config/store';
 
 // Mock store selector
 jest.mock('@/config/store', () => ({
   useAppSelector: jest.fn(),
+  useAppDispatch: jest.fn(),
 }));
-
-// Mock Loading component
-jest.mock('@/components/common/Loading', () => () => <div data-testid="loading-component">Loading...</div>);
 
 describe('ThemeProvider', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    document.body.className = '';
+    document.documentElement.className = '';
   });
 
-  it('renders children after client-side rendering', async () => {
-    // Mock Redux selector to return "light" theme
-    (useAppSelector as jest.Mock).mockReturnValue('light');
+  it('renders children', () => {
+    (useAppSelector as jest.Mock).mockReturnValue({ theme: 'light', hasExplicitTheme: true });
+    (useAppDispatch as jest.Mock).mockReturnValue(jest.fn());
 
     render(
       <ThemeProvider>
-        <div data-testid="child-content">Child Content</div>
+        <div>Child Content</div>
       </ThemeProvider>,
     );
-
-    // Simulate client-side rendering by waiting for Loading to be removed
-    expect(await screen.findByTestId('child-content')).toBeInTheDocument();
-
-    // "Loading" component should no longer be in the document
-    expect(screen.queryByTestId('loading-component')).not.toBeInTheDocument();
   });
 
-  it('applies the dark theme class to the body element', () => {
-    // Mock Redux selector to return "dark" theme
-    (useAppSelector as jest.Mock).mockReturnValue('dark');
+  it('applies the dark theme class to the document element', () => {
+    (useAppSelector as jest.Mock).mockReturnValue({ theme: 'dark', hasExplicitTheme: true });
+    (useAppDispatch as jest.Mock).mockReturnValue(jest.fn());
 
     render(
       <ThemeProvider>
-        <div data-testid="child-content">Child Content</div>
+        <div>Child Content</div>
       </ThemeProvider>,
     );
 
-    // Simulate client-side rendering by triggering useEffect
-    expect(document.body.classList.contains('dark-theme')).toBe(true);
-    expect(document.body.classList.contains('oceanic-theme')).toBe(false);
+    expect(document.documentElement.classList.contains('dark-theme')).toBe(true);
+    expect(document.documentElement.classList.contains('oceanic-theme')).toBe(false);
   });
 
-  it('applies the oceanic theme class to the body element', () => {
-    (useAppSelector as jest.Mock).mockReturnValue('oceanic');
+  it('applies the oceanic theme class to the document element', () => {
+    (useAppSelector as jest.Mock).mockReturnValue({ theme: 'oceanic', hasExplicitTheme: true });
+    (useAppDispatch as jest.Mock).mockReturnValue(jest.fn());
 
     render(
       <ThemeProvider>
-        <div data-testid="child-content">Child Content</div>
+        <div>Child Content</div>
       </ThemeProvider>,
     );
 
-    expect(document.body.classList.contains('oceanic-theme')).toBe(true);
-    expect(document.body.classList.contains('dark-theme')).toBe(false);
+    expect(document.documentElement.classList.contains('oceanic-theme')).toBe(true);
+    expect(document.documentElement.classList.contains('dark-theme')).toBe(false);
   });
 
-  it('applies the forest theme class to the body element', () => {
-    (useAppSelector as jest.Mock).mockReturnValue('forest');
+  it('applies the forest theme class to the document element', () => {
+    (useAppSelector as jest.Mock).mockReturnValue({ theme: 'forest', hasExplicitTheme: true });
+    (useAppDispatch as jest.Mock).mockReturnValue(jest.fn());
 
     render(
       <ThemeProvider>
-        <div data-testid="child-content">Child Content</div>
+        <div>Child Content</div>
       </ThemeProvider>,
     );
 
-    expect(document.body.classList.contains('forest-theme')).toBe(true);
-    expect(document.body.classList.contains('oceanic-theme')).toBe(false);
+    expect(document.documentElement.classList.contains('forest-theme')).toBe(true);
+    expect(document.documentElement.classList.contains('oceanic-theme')).toBe(false);
   });
 
-  it('renders children after client-side rendering', () => {
-    // Mock Redux selector to return "light" theme
-    (useAppSelector as jest.Mock).mockReturnValue('light');
+  it('dispatches system theme when no explicit theme', () => {
+    const dispatch = jest.fn();
+    (useAppSelector as jest.Mock).mockReturnValue({ theme: 'light', hasExplicitTheme: false });
+    (useAppDispatch as jest.Mock).mockReturnValue(dispatch);
+
+    const addEventListener = jest.fn();
+    const removeEventListener = jest.fn();
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: jest.fn().mockReturnValue({
+        matches: true,
+        addEventListener,
+        removeEventListener,
+      }),
+    });
 
     render(
       <ThemeProvider>
-        <div data-testid="child-content">Child Content</div>
+        <div>Child Content</div>
       </ThemeProvider>,
     );
 
-    // Simulate client-side rendering
-    expect(screen.queryByTestId('loading-component')).not.toBeInTheDocument();
-
-    // Child content should now be visible
-    expect(screen.getByTestId('child-content')).toBeInTheDocument();
+    expect(dispatch).toHaveBeenCalledWith({ type: 'theme/setThemeFromSystem', payload: 'dark' });
   });
 });

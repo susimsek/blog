@@ -18,6 +18,7 @@ import {
   faCode,
   faCopy,
   faDatabase,
+  faDesktop,
   faEnvelope,
   faExclamationCircle,
   faExclamationTriangle,
@@ -103,6 +104,7 @@ export const loadIcons = () => {
     faRss,
     faWater,
     faLeaf,
+    faDesktop,
   );
 };
 
