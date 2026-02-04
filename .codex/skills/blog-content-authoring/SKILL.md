@@ -18,10 +18,11 @@ This repo generates content via **static export**. List pages are driven by **JS
 
 1. **Slug/ID**: kebab-case (`my-new-post`). Use the same slug for both `en` and `tr`.
 2. **`posts.json` is the source of truth**: list pages / RSS / sitemap use `posts.json`. Markdown is read for the detail page content + frontmatter metadata.
-3. **Images**: keep post images under `/images/` and prefer `webp` for consistency/performance.
-4. **Thumbnail**: `1200x630` (OG size), `webp`, under `public/images/` (recommended name: `<slug>-thumbnail.webp`).
-5. **Topic consistency**: topic `id`s must exist in `topics.json` in both locales; `name` is translated per locale; `color` must be one of the allowed values.
-6. **Icon standards**: tab icons use the `[icon=...]` format and must be from the allowed set; step headings must use the standardized emoji + label format (see below).
+3. **Sorting**: `posts.json` must be kept in **date DESC** order (newest first).
+4. **Images**: keep post images under `/images/` and prefer `webp` for consistency/performance.
+5. **Thumbnail**: `1200x630` (OG size), `webp`, under `public/images/` (recommended name: `<slug>-thumbnail.webp`).
+6. **Topic consistency**: topic `id`s must exist in `topics.json` in both locales; `name` is translated per locale; `color` must be one of the allowed values.
+7. **Icon standards**: tab icons use the `[icon=...]` format and must be from the allowed set; step headings must use the standardized emoji + label format (see below).
 
 ## Image Standards
 
@@ -296,6 +297,23 @@ node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs \
   - `content/topics/en/topics.json`
   - `content/topics/tr/topics.json`
 - If you need a new topic, follow “Add a New Topic” below, then use it in the post.
+
+## Add a New Topic (Step-by-Step)
+
+When you introduce a new topic (e.g. `react`, `next-js`), it must be added to **both** locale files and then used consistently.
+
+1. Pick a stable topic `id` (kebab-case), e.g. `next-js`
+2. Add it to `content/topics/en/topics.json`:
+   - `id`: the same id
+   - `name`: English display name (e.g. `Next.js`)
+   - `color`: pick from the allowed set (see checker’s `ALLOWED_TOPIC_COLORS`)
+3. Add it to `content/topics/tr/topics.json`:
+   - `id`: the same id
+   - `name`: Turkish display name (e.g. `Next.js` or a localized equivalent)
+   - `color`: **must match** the EN color
+4. Use the topic in both `content/posts/en/posts.json` and `content/posts/tr/posts.json` entries (topic object must include `id/name/color`)
+5. Re-run the checker:
+   - `node .codex/skills/blog-content-authoring/scripts/check-content.mjs`
 
 ### 4) Create Markdown files (en + tr)
 
