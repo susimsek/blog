@@ -2,6 +2,7 @@
   "post": {
     "readMore": "Read More",
     "noPostsFound": "No posts found.",
-    "relatedPostsTitle": "Related posts"
+    "relatedPostsTitle": "Related posts",
+    "tocTitle": "Table of contents"
   }
 }
