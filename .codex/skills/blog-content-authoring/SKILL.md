@@ -243,8 +243,6 @@ Constraints (topic pool):
 - Spring Boot (`spring-boot`)
 - Kubernetes (`kubernetes`)
 - Go / Golang (`go`)
-- React (`react`)
-- Next.js (`next-js`)
 
 Generate a random post idea (deterministic with a seed):
 
@@ -268,16 +266,15 @@ After picking an idea:
 
 ## Documentation Source (Context7 MCP Required)
 
-When writing technical posts (Java/Kotlin/Spring Boot/Kubernetes/Go/React/Next.js), always pull **current** API guidance from **Context7** before finalizing code/config snippets.
+When writing technical posts (Java/Kotlin/Spring Boot/Kubernetes/Go), always pull **current** API guidance from **Context7** before finalizing code/config snippets.
 
 Workflow:
 
 1. Resolve the library id:
-   - `mcp__context7__resolve-library-id` (example inputs: “spring boot”, “kubernetes”, “react”, “next.js”)
+   - `mcp__context7__resolve-library-id` (example inputs: “spring boot”, “kubernetes”, “go”)
 2. Query for the exact topic you’re writing about:
    - `mcp__context7__query-docs` (ask for the _specific feature_, version caveats, and example snippets)
 3. Adapt examples to this repo’s constraints:
-   - Static export (no server-only patterns for Next.js)
    - Blog markdown conventions (headings/steps/conclusion)
    - Keep code snippets minimal and production-safe
 
@@ -308,16 +305,16 @@ node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs \
 
 ## Add a New Topic (Step-by-Step)
 
-When you introduce a new topic (e.g. `react`, `next-js`), it must be added to **both** locale files and then used consistently.
+When you introduce a new topic (e.g. `redis`, `kafka`), it must be added to **both** locale files and then used consistently.
 
-1. Pick a stable topic `id` (kebab-case), e.g. `next-js`
+1. Pick a stable topic `id` (kebab-case), e.g. `spring-ai`
 2. Add it to `content/topics/en/topics.json`:
    - `id`: the same id
-   - `name`: English display name (e.g. `Next.js`)
+   - `name`: English display name (e.g. `Spring AI`)
    - `color`: pick from the allowed set (see checker’s `ALLOWED_TOPIC_COLORS`)
 3. Add it to `content/topics/tr/topics.json`:
    - `id`: the same id
-   - `name`: Turkish display name (e.g. `Next.js` or a localized equivalent)
+   - `name`: Turkish display name (e.g. `Spring AI` or a localized equivalent)
    - `color`: **must match** the EN color
 4. Use the topic in both `content/posts/en/posts.json` and `content/posts/tr/posts.json` entries (topic object must include `id/name/color`)
 5. Re-run the checker:

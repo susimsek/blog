@@ -5,7 +5,7 @@ const ROOT = process.cwd();
 
 const LOCALES = ['en', 'tr'];
 
-const TOPIC_POOL = ['java', 'kotlin', 'spring-boot', 'kubernetes', 'go', 'react', 'next-js'];
+const TOPIC_POOL = ['java', 'kotlin', 'spring-boot', 'kubernetes', 'go'];
 
 const readJson = async filePath => JSON.parse(await fs.readFile(filePath, 'utf8'));
 
@@ -150,42 +150,6 @@ const IDEAS = {
       ],
     },
   ],
-  react: [
-    {
-      id: 'react-data-fetching-patterns',
-      title: { en: 'React Data Fetching Patterns', tr: 'React Data Fetching Pattern’ları' },
-      summary: {
-        en: 'Compare request lifecycles, caching strategies, and how to avoid waterfall fetches in real UIs.',
-        tr: 'İstek yaşam döngüsü, cache stratejileri ve waterfall fetch problemini nasıl önleyeceğinizi karşılaştırın.',
-      },
-      outline: [
-        { en: '## 🌟 The Problem', tr: '## 🌟 Problem' },
-        { en: '## 📋 Prerequisites', tr: '## 📋 Gereksinimler' },
-        { en: '## 🛠️ Step 1: Build a simple fetch hook', tr: '## 🛠️ Adım 1: Basit fetch hook yazın' },
-        { en: '## 🛠️ Step 2: Add caching', tr: '## 🛠️ Adım 2: Cache ekleyin' },
-        { en: '## 🧪 Step 3: Test loading/error states', tr: '## 🧪 Adım 3: Loading/error state test edin' },
-        { en: '---\n\n## 🏁 Conclusion', tr: '---\n\n## 🏁 Sonuç' },
-      ],
-    },
-  ],
-  'next-js': [
-    {
-      id: 'nextjs-static-export-i18n',
-      title: { en: 'Next.js Static Export with i18n', tr: 'i18n ile Next.js Static Export' },
-      summary: {
-        en: 'Build a locale-prefixed static export, keep routes clean, and avoid server-only patterns.',
-        tr: 'Locale prefix’li static export kurun, route’ları temiz tutun ve server-only pattern’lardan kaçının.',
-      },
-      outline: [
-        { en: '## 🌟 Static Export Constraints', tr: '## 🌟 Static Export Kısıtları' },
-        { en: '## 📋 Prerequisites', tr: '## 📋 Gereksinimler' },
-        { en: '## 🛠️ Step 1: Configure locales', tr: '## 🛠️ Adım 1: Locale yapılandırın' },
-        { en: '## 🛠️ Step 2: Generate paths', tr: '## 🛠️ Adım 2: Path’leri üretin' },
-        { en: '## 🧪 Step 3: Verify export output', tr: '## 🧪 Adım 3: Export çıktısını doğrulayın' },
-        { en: '---\n\n## 🏁 Conclusion', tr: '---\n\n## 🏁 Sonuç' },
-      ],
-    },
-  ],
 };
 
 const slugify = s =>
@@ -215,7 +179,7 @@ const main = async () => {
         '  node .codex/skills/blog-content-authoring/scripts/suggest-random-post.mjs [--seed=STRING]',
         '',
         'Output:',
-        '  Prints a JSON payload with a random post idea constrained to: Java/Kotlin/Spring Boot/Kubernetes/Go/React/Next.js.',
+        '  Prints a JSON payload with a random post idea constrained to: Java/Kotlin/Spring Boot/Kubernetes/Go.',
       ].join('\n') + '\n',
     );
     return;
