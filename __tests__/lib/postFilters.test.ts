@@ -173,5 +173,49 @@ describe('Post Filters', () => {
       expect(related).toHaveLength(2);
       expect(related.map(post => post.id)).toEqual(['p1', 'p2']);
     });
+
+    it('handles candidates with missing topic ids and falls back when score is low', () => {
+      const postsWithSparseTopics: PostSummary[] = [
+        { ...basePosts[0], id: 'base-low', topics: [{ id: 'topic1', name: 'Topic 1', color: 'red' }] },
+        { ...basePosts[1], id: 'low-a', topics: [{ id: 'topic1', name: 'Topic 1', color: 'red' }] },
+        { ...basePosts[2], id: 'low-b', topics: [{ id: 'topic1', name: 'Topic 1', color: 'red' }] },
+        { ...basePosts[3], id: 'invalid-topic', topics: [{ id: '', name: 'No Id', color: 'gray' }] },
+      ];
+
+      const related = getRelatedPosts(postsWithSparseTopics[0], postsWithSparseTopics, 2);
+      expect(related.map(post => post.id)).toEqual(['low-a', 'low-b']);
+    });
+
+    it('sorts by shared count and recency when scores tie', () => {
+      const tiePosts: PostSummary[] = [
+        {
+          ...mockPost,
+          id: 'base-tie',
+          date: '2024-01-20',
+          topics: [{ id: 'topic1', name: 'Topic 1', color: 'red' }],
+        },
+        {
+          ...mockPost,
+          id: 'tie-old',
+          date: '2024-01-01',
+          topics: [{ id: 'topic1', name: 'Topic 1', color: 'red' }],
+        },
+        {
+          ...mockPost,
+          id: 'tie-new',
+          date: '2024-01-19',
+          topics: [{ id: 'topic1', name: 'Topic 1', color: 'red' }],
+        },
+        {
+          ...mockPost,
+          id: 'other',
+          date: '2024-01-10',
+          topics: [{ id: 'topic2', name: 'Topic 2', color: 'blue' }],
+        },
+      ];
+
+      const related = getRelatedPosts(tiePosts[0], tiePosts, 2);
+      expect(related.map(post => post.id)).toEqual(['tie-new', 'tie-old']);
+    });
   });
 });

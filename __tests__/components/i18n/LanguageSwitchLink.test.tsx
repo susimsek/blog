@@ -166,4 +166,66 @@ describe('LanguageSwitchLink', () => {
     expect(screen.getByTestId('flag-en')).toBeInTheDocument();
     expect(screen.getByText('English')).toBeInTheDocument();
   });
+
+  it('handles catch-all dynamic segments and keeps non-dynamic query params', () => {
+    const replaceMock = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({
+      query: {
+        locale: 'en',
+        slug: ['guides', 'nextjs'],
+        tags: ['react', 'ssg'],
+        optional: undefined,
+      },
+      asPath: '/[locale]/docs/[...slug]',
+      pathname: '/[locale]/docs/[...slug]',
+      replace: replaceMock,
+    });
+
+    render(<LanguageSwitchLink locale="tr" />);
+    fireEvent.click(screen.getByRole('button'));
+
+    expect(replaceMock).toHaveBeenCalledWith('/tr/docs/guides/nextjs?tags=react&tags=ssg');
+  });
+
+  it('normalizes non-prefixed href values', () => {
+    const replaceMock = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({
+      query: { locale: 'en' },
+      asPath: '/[locale]',
+      pathname: '/[locale]',
+      replace: replaceMock,
+    });
+
+    render(<LanguageSwitchLink locale="tr" href="contact" />);
+    fireEvent.click(screen.getByRole('button'));
+    expect(replaceMock).toHaveBeenCalledWith('/tr/contact');
+  });
+
+  it('maps locale root path to localized root', () => {
+    const replaceMock = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({
+      query: { locale: 'en' },
+      asPath: '/en',
+      pathname: '/en',
+      replace: replaceMock,
+    });
+
+    render(<LanguageSwitchLink locale="tr" />);
+    fireEvent.click(screen.getByRole('button'));
+    expect(replaceMock).toHaveBeenCalledWith('/tr');
+  });
+
+  it('ignores undefined dynamic values and keeps scalar query params', () => {
+    const replaceMock = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({
+      query: { locale: 'en', id: undefined, page: '2' },
+      asPath: '/[locale]/post/[id]',
+      pathname: '/[locale]/post/[id]',
+      replace: replaceMock,
+    });
+
+    render(<LanguageSwitchLink locale="tr" />);
+    fireEvent.click(screen.getByRole('button'));
+    expect(replaceMock).toHaveBeenCalledWith('/tr/post/[id]?page=2');
+  });
 });

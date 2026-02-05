@@ -8,11 +8,13 @@ import {
   makeTopicProps,
   getAllTopicIds,
   getAllTopics,
+  makeSearchProps,
   postsCache,
   postDataCache,
   topicsCache,
   postIdsCache,
   topicIdsCache,
+  readingTimeCache,
 } from '@/lib/posts';
 import fs from 'fs';
 import { GetStaticPropsContext } from 'next';
@@ -36,6 +38,7 @@ const clearCaches = () => {
   topicsCache.clear();
   postIdsCache.clear();
   topicIdsCache.clear();
+  readingTimeCache.clear();
 };
 
 const fsMock = fs as unknown as {
@@ -242,6 +245,80 @@ describe('Posts Library', () => {
       const result = await getSortedPostsData('fr', 'non_existing_topic');
       expect(result).toEqual([]);
     });
+
+    it('returns cached posts without re-reading files', async () => {
+      const first = await getSortedPostsData('en');
+      expect(first).toHaveLength(1);
+
+      (fs.readFileSync as jest.Mock).mockImplementation(() => {
+        throw new Error('should not read from fs when cached');
+      });
+
+      const second = await getSortedPostsData('en');
+      expect(second).toEqual(first);
+    });
+
+    it('falls back to post summary when markdown files do not exist', async () => {
+      (fs.existsSync as jest.Mock).mockImplementation((p: string) => p.includes('posts.json'));
+      const result = await getSortedPostsData('en');
+      expect(result).toHaveLength(1);
+      expect(result[0].readingTime).toBeDefined();
+    });
+
+    it('uses fallback markdown path and reuses cached reading time between cache keys', async () => {
+      (fs.existsSync as jest.Mock).mockImplementation((p: string) => {
+        if (p.includes('/fr/posts.json')) return true;
+        if (p.includes('/fr/fallback-post.md')) return false;
+        if (p.includes('/en/fallback-post.md')) return true;
+        return false;
+      });
+
+      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
+        if (filePath.includes('/fr/posts.json')) {
+          return JSON.stringify([
+            {
+              id: 'fallback-post',
+              title: 'Fallback Post',
+              date: '2024-01-10',
+              summary: 'Fallback summary',
+              topics: [{ id: 'react', name: 'React', color: 'blue' }],
+              thumbnail: '/thumb.jpg',
+            },
+          ]);
+        }
+        if (filePath.includes('/en/fallback-post.md')) {
+          return `---
+title: Fallback Post
+---
+Fallback markdown content`;
+        }
+        return '';
+      });
+
+      const first = await getSortedPostsData('fr');
+      const second = await getSortedPostsData('fr', 'react');
+
+      expect(first).toHaveLength(1);
+      expect(second).toHaveLength(1);
+
+      const fallbackFileChecks = (fs.existsSync as jest.Mock).mock.calls
+        .map(call => call[0] as string)
+        .filter(p => p.includes('/en/fallback-post.md'));
+
+      expect(fallbackFileChecks).toHaveLength(1);
+    });
+
+    it('handles malformed posts.json gracefully', async () => {
+      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
+        if (filePath.includes('posts.json')) {
+          return '{invalid json}';
+        }
+        return '';
+      });
+
+      const result = await getSortedPostsData('en');
+      expect(result).toEqual([]);
+    });
   });
 
   describe('getPostData', () => {
@@ -284,6 +361,18 @@ describe('Posts Library', () => {
       (fs.existsSync as jest.Mock).mockReturnValue(false);
       const result = await getPostData('missing-post', 'en');
       expect(result).toBeNull();
+    });
+
+    it('returns cached post data without fs access', async () => {
+      const first = await getPostData('mock-post', 'en');
+      expect(first).toBeTruthy();
+
+      (fs.readFileSync as jest.Mock).mockImplementation(() => {
+        throw new Error('should not read when cached');
+      });
+
+      const second = await getPostData('mock-post', 'en');
+      expect(second).toEqual(first);
     });
   });
 
@@ -409,6 +498,17 @@ describe('Posts Library', () => {
       (fs.existsSync as jest.Mock).mockReturnValue(false);
       const result = await getAllTopics('unsupported-locale');
       expect(result).toEqual([]);
+    });
+
+    it('returns cached topics on repeated calls', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify([{ id: 'react', name: 'React', color: 'red' }]));
+
+      const first = await getAllTopics('en');
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+
+      const second = await getAllTopics('en');
+      expect(second).toEqual(first);
     });
   });
 
@@ -813,6 +913,54 @@ describe('Posts Library', () => {
           },
         },
       ]);
+    });
+  });
+
+  describe('makeSearchProps', () => {
+    it('returns search props with locale specific posts/topics', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
+        if (filePath.includes('posts.json')) {
+          return JSON.stringify([mockPostSummary]);
+        }
+        if (filePath.includes('topics.json')) {
+          return JSON.stringify([mockTopic]);
+        }
+        return '';
+      });
+
+      const context: GetStaticPropsContext = { params: { locale: 'en' } };
+      const result = await makeSearchProps(['common', 'search'])(context);
+
+      expect(result).toEqual({
+        props: {
+          _nextI18Next: {
+            initialI18nStore: {},
+            initialLocale: 'en',
+            userConfig: {},
+          },
+          allPosts: [mockPostSummary],
+          topics: [mockTopic],
+        },
+      });
+    });
+
+    it('falls back to default locale when locale param is missing', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
+        if (filePath.includes('posts.json')) {
+          return JSON.stringify([mockPostSummary]);
+        }
+        if (filePath.includes('topics.json')) {
+          return JSON.stringify([mockTopic]);
+        }
+        return '';
+      });
+
+      const result = await makeSearchProps(['common'])({ params: {} } as GetStaticPropsContext);
+      expect(result.props?._nextI18Next?.initialLocale).toBe('en');
+      expect(result.props?.allPosts).toEqual([mockPostSummary]);
+      expect(result.props?.topics).toEqual([mockTopic]);
     });
   });
 });

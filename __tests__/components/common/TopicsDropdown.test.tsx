@@ -66,6 +66,11 @@ jest.mock('@/components/pagination/Paginator', () => ({
   ),
 }));
 
+jest.mock('@/hooks/useDebounce', () => ({
+  __esModule: true,
+  default: (value: string) => value,
+}));
+
 describe('TopicsDropdown', () => {
   const onTopicsChangeMock = jest.fn();
 
@@ -147,6 +152,47 @@ describe('TopicsDropdown', () => {
     fireEvent.click(screen.getByText('topic:topic.allTopics'));
 
     expect(screen.getByText('topic:topic.noTopicFound')).toBeInTheDocument();
+  });
+
+  test('does not duplicate a topic when clicked multiple times', () => {
+    renderComponent();
+    fireEvent.click(screen.getByText('topic:topic.allTopics'));
+    fireEvent.click(screen.getAllByText('React').at(-1) as HTMLElement);
+    fireEvent.click(screen.getAllByText('React').at(-1) as HTMLElement);
+    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.applySelection/i }));
+
+    expect(onTopicsChangeMock).toHaveBeenCalledWith(['react']);
+  });
+
+  test('resets pending selection when dropdown closes', () => {
+    renderComponent(['react']);
+    fireEvent.click(screen.getAllByRole('button', { name: /React/i })[0]);
+    fireEvent.click(screen.getAllByText('Vue.js').at(-1) as HTMLElement);
+
+    // Close dropdown without applying; pending selection should reset to selectedTopics prop.
+    fireEvent.click(screen.getAllByRole('button', { name: /React/i })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: /React/i })[0]);
+    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.applySelection/i }));
+
+    expect(onTopicsChangeMock).toHaveBeenLastCalledWith(['react']);
+  });
+
+  test('clears selections and notifies parent', () => {
+    renderComponent(['react', 'vue']);
+    fireEvent.click(screen.getByRole('button', { name: /React, Vue.js/i }));
+    fireEvent.click(screen.getByRole('button', { name: /common.clearAll/i }));
+    expect(onTopicsChangeMock).toHaveBeenCalledWith([]);
+  });
+
+  test('removes a selected topic from pending badges', () => {
+    renderComponent(['react', 'vue']);
+    fireEvent.click(screen.getByRole('button', { name: /React, Vue.js/i }));
+
+    const removeIcons = screen.getAllByTestId('font-awesome-icon-times');
+    fireEvent.click(removeIcons[0]);
+    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.applySelection/i }));
+
+    expect(onTopicsChangeMock).toHaveBeenCalledWith(['vue']);
   });
 });
 

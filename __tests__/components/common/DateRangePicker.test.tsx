@@ -227,4 +227,42 @@ describe('DateRangePicker', () => {
     const startInput = screen.getByPlaceholderText(/common.datePicker.startDatePlaceholder/i);
     expect(startInput.className).toContain('react-datepicker__day--muted');
   });
+
+  it('keeps normal day class when current day is within range', () => {
+    render(<DateRangePicker onRangeChange={mockOnRangeChange} />);
+    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
+    fireEvent.click(screen.getByText(/common.datePicker.customDate/i));
+
+    const startInput = screen.getByPlaceholderText(/common.datePicker.startDatePlaceholder/i);
+    expect(startInput.className).not.toContain('react-datepicker__day--muted');
+  });
+
+  it('reuses confirmed custom date values when custom option is clicked again', async () => {
+    render(<DateRangePicker {...defaultProps} />);
+    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
+    fireEvent.click(screen.getByText(/common.datePicker.customDate/i));
+
+    fireEvent.change(screen.getByPlaceholderText(/common.datePicker.startDatePlaceholder/i), {
+      target: { value: '6/1/2024' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/common.datePicker.endDatePlaceholder/i), {
+      target: { value: '6/2/2024' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.applySelection/i }));
+
+    const toggle = screen.getAllByRole('button', { name: /common.datePicker.customDate/i })[0];
+    fireEvent.click(toggle);
+    const customOption = screen.getAllByRole('button', { name: /common.datePicker.customDate/i }).at(-1);
+    if (!customOption) {
+      throw new Error('Custom option not found');
+    }
+    fireEvent.click(customOption);
+
+    await waitFor(() => {
+      expect(mockOnRangeChange).toHaveBeenLastCalledWith({
+        startDate: new Date('2024-06-01').toLocaleDateString(),
+        endDate: new Date('2024-06-02').toLocaleDateString(),
+      });
+    });
+  });
 });

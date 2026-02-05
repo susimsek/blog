@@ -7,6 +7,7 @@ import '@testing-library/jest-dom';
 import { useTranslation } from 'next-i18next';
 import { Post } from '@/types/posts';
 import { getStaticPaths } from '@/pages/[locale]/posts/[id]';
+import { getStaticProps } from '@/pages/[locale]/posts/[id]';
 import { GetStaticPropsContext } from 'next';
 import { mockPost, mockPost2 } from '@tests/__mocks__/mockPostData';
 
@@ -143,6 +144,20 @@ describe('Post Page', () => {
 
     expect(headElement?.getAttribute('content')).toBe('React, Testing');
   });
+
+  it('renders page when thumbnail and topics are missing', () => {
+    const postWithoutMedia = {
+      ...mockPost,
+      thumbnail: undefined,
+      topics: [],
+    };
+
+    renderPostPage(postWithoutMedia);
+
+    expect(screen.getByTestId('post-detail')).toBeInTheDocument();
+    const headElement = document.querySelector('meta[name="keywords"]') as HTMLMetaElement;
+    expect(headElement?.getAttribute('content')).toBeUndefined();
+  });
 });
 
 describe('getStaticPaths', () => {
@@ -153,5 +168,28 @@ describe('getStaticPaths', () => {
       paths: [{ params: { id: '1', locale: 'en' } }, { params: { id: '2', locale: 'en' } }],
       fallback: false,
     });
+  });
+});
+
+describe('getStaticProps', () => {
+  it('returns locale in props when base returns props', async () => {
+    const result = await getStaticProps({ params: { id: '1', locale: 'tr' } } as unknown as GetStaticPropsContext);
+    expect(result).toMatchObject({
+      props: {
+        locale: 'tr',
+      },
+    });
+  });
+
+  it('returns notFound when base props are missing', async () => {
+    const { makePostDetailProps } = jest.requireMock('@/lib/posts') as {
+      makePostDetailProps: jest.Mock;
+    };
+    makePostDetailProps.mockImplementationOnce(() => async () => ({ notFound: true }));
+
+    const result = await getStaticProps({
+      params: { id: 'unknown', locale: 'en' },
+    } as unknown as GetStaticPropsContext);
+    expect(result).toEqual({ notFound: true });
   });
 });

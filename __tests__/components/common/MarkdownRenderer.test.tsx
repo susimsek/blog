@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import MarkdownRenderer from '@/components/common/MarkdownRenderer';
 
@@ -14,6 +15,15 @@ jest.mock('react-markdown', () => {
 jest.mock('remark-gfm', () => jest.fn());
 
 jest.mock('rehype-raw', () => jest.fn());
+
+jest.mock('@/components/common/Link', () => ({
+  __esModule: true,
+  default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
+}));
 
 // Mock store selector
 jest.mock('@/config/store', () => ({
@@ -113,5 +123,43 @@ describe('MarkdownRenderer Component', () => {
     const markdownElement = screen.getByTestId('react-markdown');
     expect(markdownElement).toBeInTheDocument();
     expect(markdownElement).toHaveTextContent('This is markdown outside of tabs.');
+  });
+
+  it('renders all link variants from markdown component map', () => {
+    render(<MarkdownRenderer content="links" />);
+
+    const reactMarkdownMock = jest.requireMock('react-markdown') as jest.Mock;
+    const firstCallProps = reactMarkdownMock.mock.calls[0][0] as { components: Record<string, any> };
+    const LinkRenderer = firstCallProps.components.a;
+
+    const { container } = render(
+      <div>
+        {LinkRenderer({ children: 'no-href' })}
+        {LinkRenderer({ href: '#section', children: 'hash' })}
+        {LinkRenderer({ href: 'mailto:test@example.com', children: 'mail' })}
+        {LinkRenderer({ href: 'tel:+905551112233', children: 'tel' })}
+        {LinkRenderer({ href: 'https://example.com', children: 'external' })}
+        {LinkRenderer({ href: 'relative/path', children: 'relative' })}
+        {LinkRenderer({ href: '/', children: 'root' })}
+        {LinkRenderer({ href: '/tr/about', children: 'localized-path' })}
+        {LinkRenderer({ href: '/about', children: 'internal' })}
+      </div>,
+    );
+
+    expect(screen.getByText('no-href').tagName.toLowerCase()).toBe('span');
+    expect(screen.getByText('hash').closest('a')).toHaveAttribute('href', '#section');
+    expect(screen.getByText('mail').closest('a')).toHaveAttribute('href', 'mailto:test@example.com');
+    expect(screen.getByText('tel').closest('a')).toHaveAttribute('href', 'tel:+905551112233');
+
+    const externalLink = screen.getByText('external').closest('a');
+    expect(externalLink).toHaveAttribute('href', 'https://example.com');
+    expect(externalLink).toHaveAttribute('target', '_blank');
+    expect(externalLink).toHaveAttribute('rel', 'noopener noreferrer');
+
+    expect(screen.getByText('relative').closest('a')).toHaveAttribute('href', 'relative/path');
+    expect(screen.getByText('root').closest('a')).toHaveAttribute('href', '/en');
+    expect(screen.getByText('localized-path').closest('a')).toHaveAttribute('href', '/tr/about');
+    expect(screen.getByText('internal').closest('a')).toHaveAttribute('href', '/en/about');
+    expect(container.querySelectorAll('a').length).toBeGreaterThanOrEqual(8);
   });
 });

@@ -144,6 +144,52 @@ describe('medium utilities', () => {
     expect(mediumPostsCache.get('en-all')).toEqual([]);
   });
 
+  it('continues scanning image tags when first img has no src', async () => {
+    fsMock.existsSync.mockReturnValueOnce(true);
+
+    fsMock.readFileSync.mockReturnValueOnce(
+      JSON.stringify({
+        items: [
+          {
+            guid: 'item-3',
+            title: 'Image scan post',
+            pubDate: '2024-05-03',
+            link: 'https://medium.com/@author/image-scan',
+            'content:encoded': '<p>text</p><img alt="x"><img src="https://cdn/second.webp">',
+          },
+        ],
+      }),
+    );
+
+    const result = await fetchRssSummaries('en');
+    expect(result[0].thumbnail).toBe('https://cdn/second.webp');
+  });
+
+  it('returns null thumbnail for malformed image tag and missing quote in src', async () => {
+    fsMock.existsSync.mockReturnValueOnce(true);
+
+    fsMock.readFileSync.mockReturnValueOnce(
+      JSON.stringify({
+        items: [
+          {
+            guid: undefined,
+            title: undefined,
+            pubDate: undefined,
+            link: 'https://medium.com/@author/malformed',
+            // missing closing quote and no tag close '>' forces null path
+            'content:encoded': '<img src="https://cdn/broken.webp',
+          },
+        ],
+      }),
+    );
+
+    const result = await fetchRssSummaries('en');
+    expect(result[0].thumbnail).toBeNull();
+    expect(result[0].id).toBe('rss-0');
+    expect(result[0].title).toBe('Untitled');
+    expect(result[0].date).toBeTruthy();
+  });
+
   it('creates static props with provided locale', async () => {
     const cachedPosts = [makeCachedPost('cached-tr')];
     mediumPostsCache.set('tr-all', cachedPosts);

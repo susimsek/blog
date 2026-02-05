@@ -1,4 +1,4 @@
-import { setCache, getCache, CacheEntry } from '@/lib/cacheUtils';
+import { setCache, getCache, createCacheStore, CacheEntry } from '@/lib/cacheUtils';
 
 jest.mock('@/config/constants', () => ({
   cacheTTL: 100,
@@ -38,5 +38,28 @@ describe('cacheUtils', () => {
 
     expect(getCache('stale', cache, 'metrics')).toBeNull();
     expect(cache.stale).toBeUndefined();
+  });
+
+  it('returns null on cache miss', () => {
+    const cache: Record<string, CacheEntry<string>> = {};
+    expect(getCache('unknown', cache, 'metrics')).toBeNull();
+  });
+
+  it('supports createCacheStore helpers', () => {
+    const store = createCacheStore<string>('sample');
+
+    expect(store.get('a')).toBeNull();
+
+    store.set('a', '1', 1000);
+    expect(store.get('a')).toBe('1');
+
+    store.delete('a');
+    expect(store.get('a')).toBeNull();
+
+    store.set('a', '1', 1000);
+    store.set('b', '2', 1000);
+    store.clear();
+    expect(store.get('a')).toBeNull();
+    expect(store.get('b')).toBeNull();
   });
 });

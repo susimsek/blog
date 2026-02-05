@@ -146,4 +146,40 @@ describe('CodeBlock Component', () => {
     expect(inlineCode.tagName).toBe('CODE');
     expect(inlineCode).toHaveClass('language-javascript');
   });
+
+  it('supports oceanic and forest themes for highlighted blocks', () => {
+    const { rerender } = render(
+      <CodeBlock theme="oceanic" t={mockTranslation} className="language-javascript">
+        {`const theme = 'oceanic';`}
+      </CodeBlock>,
+    );
+
+    expect(screen.getByRole('code')).toHaveTextContent("const theme = 'oceanic';");
+
+    rerender(
+      <CodeBlock theme="forest" t={mockTranslation} className="language-javascript">
+        {`const theme = 'forest';`}
+      </CodeBlock>,
+    );
+    expect(screen.getByRole('code')).toHaveTextContent("const theme = 'forest';");
+  });
+
+  it('normalizes complex children before copy and skips empty copy payloads', () => {
+    render(
+      <CodeBlock theme="light" t={mockTranslation} className="language-javascript">
+        {['line ', 1, '\n', <span key="x">ignored</span>]}
+      </CodeBlock>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'common.codeBlock.copy' }));
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('line 1');
+
+    render(
+      <CodeBlock theme="light" t={mockTranslation} className="language-javascript">
+        {<span>ignored</span>}
+      </CodeBlock>,
+    );
+    fireEvent.click(screen.getAllByRole('button', { name: 'common.codeBlock.copy' }).at(-1) as HTMLElement);
+    expect((navigator.clipboard.writeText as jest.Mock).mock.calls.filter(call => call[0] === '').length).toBe(0);
+  });
 });

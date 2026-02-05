@@ -1,10 +1,16 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import Header from '@/components/common/Header';
 import { useTranslation } from 'next-i18next';
+import useMediaQuery from '@/hooks/useMediaQuery';
 
 // Mock `next-i18next`
 jest.mock('next-i18next', () => ({
   useTranslation: jest.fn(),
+}));
+
+jest.mock('@/hooks/useMediaQuery', () => ({
+  __esModule: true,
+  default: jest.fn(),
 }));
 
 // Mock `Link` component
@@ -35,6 +41,11 @@ jest.mock('@assets/images/logo.svg', () => ({
   default: () => <svg data-testid="mock-logo" />,
 }));
 
+jest.mock('@/components/search/SearchContainer', () => ({
+  __esModule: true,
+  default: () => <div data-testid="search-container">SearchContainer</div>,
+}));
+
 beforeAll(() => {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
@@ -56,6 +67,7 @@ describe('Header', () => {
     (useTranslation as jest.Mock).mockReturnValue({
       t: (key: string) => key, // Mock translation function
     });
+    (useMediaQuery as jest.Mock).mockReturnValue(false);
   });
 
   it('renders the navigation links with icons', () => {
@@ -102,5 +114,19 @@ describe('Header', () => {
     // Ensure the toggle button has the "bars" icon
     const toggleIcon = screen.getByTestId('font-awesome-icon-bars');
     expect(toggleIcon).toBeInTheDocument();
+  });
+
+  it('toggles tablet search mode when search button is clicked', () => {
+    (useMediaQuery as jest.Mock).mockReturnValue(true);
+    render(<Header searchEnabled />);
+
+    const openSearchBtn = screen.getByRole('button', { name: 'common.header.menu.search' });
+    fireEvent.click(openSearchBtn);
+    expect(screen.getByLabelText('Hide search')).toBeInTheDocument();
+    expect(screen.getByTestId('search-container')).toBeInTheDocument();
+
+    const closeSearchBtn = screen.getByLabelText('Hide search');
+    fireEvent.click(closeSearchBtn);
+    expect(screen.getByRole('button', { name: 'common.header.menu.search' })).toBeInTheDocument();
   });
 });

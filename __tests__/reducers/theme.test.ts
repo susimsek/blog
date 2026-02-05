@@ -1,4 +1,10 @@
-import themeReducer, { toggleTheme, setTheme, resetToSystemTheme, type Theme } from '@/reducers/theme';
+import themeReducer, {
+  toggleTheme,
+  setTheme,
+  setThemeFromSystem,
+  resetToSystemTheme,
+  type Theme,
+} from '@/reducers/theme';
 
 jest.mock('@/config/constants', () => ({
   ...jest.requireActual('@/config/constants'),
@@ -151,6 +157,40 @@ describe('theme reducer', () => {
       expect(newState.hasExplicitTheme).toBe(false);
       expect(newState.theme).toBe('light');
       expect(removeItemMock).toHaveBeenCalledWith('theme');
+    });
+  });
+
+  describe('setThemeFromSystem', () => {
+    it('updates theme when there is no explicit preference', () => {
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'light', hasExplicitTheme: false };
+      const newState = themeReducer(initialState, setThemeFromSystem('dark'));
+      expect(newState.theme).toBe('dark');
+    });
+
+    it('does not override theme when explicit preference exists', () => {
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'forest', hasExplicitTheme: true };
+      const newState = themeReducer(initialState, setThemeFromSystem('light'));
+      expect(newState.theme).toBe('forest');
+    });
+  });
+
+  describe('storage failures', () => {
+    it('ignores localStorage errors while setting theme', () => {
+      setItemMock.mockImplementation(() => {
+        throw new Error('blocked');
+      });
+
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'light', hasExplicitTheme: false };
+      expect(() => themeReducer(initialState, setTheme('dark'))).not.toThrow();
+    });
+
+    it('ignores localStorage errors while resetting theme', () => {
+      removeItemMock.mockImplementation(() => {
+        throw new Error('blocked');
+      });
+
+      const initialState: { theme: Theme; hasExplicitTheme: boolean } = { theme: 'forest', hasExplicitTheme: true };
+      expect(() => themeReducer(initialState, resetToSystemTheme())).not.toThrow();
     });
   });
 });

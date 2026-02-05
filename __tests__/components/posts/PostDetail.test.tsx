@@ -68,4 +68,30 @@ describe('PostDetail Component', () => {
     setup(mockPostWithoutContent);
     expect(screen.queryByTestId('markdown-renderer')).not.toBeInTheDocument();
   });
+
+  it('splits intro and rest when a section heading exists', () => {
+    const post = {
+      ...mockPost,
+      contentHtml: 'Intro paragraph.\n\n## Section Title\nSection content.',
+    };
+
+    setup(post);
+    const markdownElements = screen.getAllByTestId('markdown-renderer');
+    expect(markdownElements).toHaveLength(2);
+    expect(markdownElements[0]).toHaveTextContent('Intro paragraph.');
+    expect(markdownElements[1]).toHaveTextContent('## Section Title');
+  });
+
+  it('does not split headings inside code fences', () => {
+    const post = {
+      ...mockPost,
+      contentHtml: '```md\n## In code\n```\n\n## Actual section\nBody',
+    };
+
+    setup(post);
+    const markdownElements = screen.getAllByTestId('markdown-renderer');
+    expect(markdownElements).toHaveLength(2);
+    expect(markdownElements[0]).toHaveTextContent('```md');
+    expect(markdownElements[1]).toHaveTextContent('## Actual section');
+  });
 });
