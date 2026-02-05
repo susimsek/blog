@@ -1,13 +1,13 @@
 export const getWordsFromMarkdown = (markdown: string): string[] => {
   const withoutCodeBlocks = markdown
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/~~~[\s\S]*?~~~/g, ' ')
-    .replace(/`[^`]*`/g, ' ')
-    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/<\/?[^>]+>/g, ' ');
+    .replaceAll(/```[\s\S]*?```/g, ' ')
+    .replaceAll(/~~~[\s\S]*?~~~/g, ' ')
+    .replaceAll(/`[^`]*`/g, ' ')
+    .replaceAll(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
+    .replaceAll(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replaceAll(/<\/?[^>]+>/g, ' ');
 
-  const normalized = withoutCodeBlocks.replace(/[^\p{L}\p{N}]+/gu, ' ');
+  const normalized = withoutCodeBlocks.replaceAll(/[^\p{L}\p{N}]+/gu, ' ');
   const matches = normalized.match(/\p{L}[\p{L}\p{N}'’_-]*/gu);
   return matches ?? [];
 };

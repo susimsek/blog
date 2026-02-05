@@ -1,23 +1,31 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+const scheduleFrame = (cb: FrameRequestCallback) => {
+  const win = globalThis.window;
+  if (!win) {
+    globalThis.setTimeout(() => cb(performance.now()), 0);
+    return;
+  }
+
+  if (typeof win.requestAnimationFrame === 'function') {
+    win.requestAnimationFrame(cb);
+    return;
+  }
+
+  win.setTimeout(() => cb(performance.now()), 0);
+};
 
 export default function ReadingProgress() {
   const [progress, setProgress] = useState(0);
   const [topOffset, setTopOffset] = useState(0);
   const [isReady, setIsReady] = useState(false);
 
-  const raf = useMemo(() => {
-    if (typeof window === 'undefined') return null;
-    return window.requestAnimationFrame
-      ? (cb: FrameRequestCallback) => window.requestAnimationFrame(cb)
-      : (cb: FrameRequestCallback) => window.setTimeout(() => cb(performance.now()), 0);
-  }, []);
-
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    const win = globalThis.window;
+    if (!win) return;
 
-    const headerEl = document.querySelector('nav.navbar.sticky-top') as HTMLElement | null;
+    const headerEl = document.querySelector<HTMLElement>('nav.navbar.sticky-top');
 
     const updateOffset = () => {
       const next = headerEl?.getBoundingClientRect().height ?? 0;
@@ -26,7 +34,7 @@ export default function ReadingProgress() {
     };
 
     updateOffset();
-    window.addEventListener('resize', updateOffset);
+    win.addEventListener('resize', updateOffset);
 
     let ro: ResizeObserver | null = null;
     if (headerEl && typeof ResizeObserver !== 'undefined') {
@@ -35,13 +43,14 @@ export default function ReadingProgress() {
     }
 
     return () => {
-      window.removeEventListener('resize', updateOffset);
+      win.removeEventListener('resize', updateOffset);
       ro?.disconnect();
     };
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    const win = globalThis.window;
+    if (!win) return;
 
     let scheduled = false;
 
@@ -49,9 +58,9 @@ export default function ReadingProgress() {
       scheduled = false;
 
       const doc = document.documentElement;
-      const scrollTop = window.scrollY || doc.scrollTop || 0;
+      const scrollTop = win.scrollY || doc.scrollTop || 0;
       const scrollHeight = doc.scrollHeight || 0;
-      const clientHeight = window.innerHeight || doc.clientHeight || 0;
+      const clientHeight = win.innerHeight || doc.clientHeight || 0;
 
       const maxScroll = Math.max(1, scrollHeight - clientHeight);
       const next = clamp((scrollTop / maxScroll) * 100, 0, 100);
@@ -61,31 +70,24 @@ export default function ReadingProgress() {
     const onScroll = () => {
       if (scheduled) return;
       scheduled = true;
-      (raf ?? (cb => window.setTimeout(() => cb(performance.now()), 0)))(update as FrameRequestCallback);
+      scheduleFrame(update);
     };
 
     update();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+    win.addEventListener('scroll', onScroll, { passive: true });
+    win.addEventListener('resize', onScroll);
 
     return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
+      win.removeEventListener('scroll', onScroll);
+      win.removeEventListener('resize', onScroll);
     };
-  }, [raf]);
+  }, []);
 
   if (!isReady) return null;
 
   return (
-    <div
-      className={`reading-progress${progress === 0 ? ' is-hidden' : ''}`}
-      style={{ top: topOffset }}
-      role="progressbar"
-      aria-label="Reading progress"
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={Math.round(progress)}
-    >
+    <div className={`reading-progress${progress === 0 ? ' is-hidden' : ''}`} style={{ top: topOffset }}>
+      <progress className="visually-hidden" max={100} value={Math.round(progress)} aria-label="Reading progress" />
       <div className="reading-progress-bar" style={{ width: `${progress}%` }} />
     </div>
   );

@@ -14,10 +14,10 @@ const THEME_STORAGE_KEY = 'theme';
 const THEME_ORDER: Theme[] = ['light', 'dark', 'oceanic', 'forest'];
 
 const resolveSystemTheme = (): Theme => {
-  if (!isBrowser || typeof window.matchMedia !== 'function') {
+  if (!isBrowser || typeof globalThis.window?.matchMedia !== 'function') {
     return 'light';
   }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return globalThis.window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 };
 
 const getInitialState = (): ThemeState => {

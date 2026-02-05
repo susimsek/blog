@@ -20,6 +20,7 @@ export default function ThemeProvider({ children }: Readonly<ThemeProviderProps>
   const didMountRef = useRef(false);
 
   useEffect(() => {
+    const win = globalThis.window;
     const root = document.documentElement;
     const classesToRemove = Object.values(THEME_CLASS_MAP).filter(Boolean) as string[];
     root.classList.remove(...classesToRemove);
@@ -35,7 +36,7 @@ export default function ThemeProvider({ children }: Readonly<ThemeProviderProps>
     }
 
     const prefersReducedMotion =
-      typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      typeof win?.matchMedia === 'function' && win.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (!prefersReducedMotion) {
       root.classList.remove('theme-transitioning');
@@ -43,15 +44,16 @@ export default function ThemeProvider({ children }: Readonly<ThemeProviderProps>
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       root.offsetHeight;
       root.classList.add('theme-transitioning');
-      window.setTimeout(() => root.classList.remove('theme-transitioning'), 320);
+      win?.setTimeout(() => root.classList.remove('theme-transitioning'), 320);
     }
   }, [theme]);
 
   useEffect(() => {
+    const win = globalThis.window;
     if (hasExplicitTheme) return;
-    if (typeof window.matchMedia !== 'function') return;
+    if (typeof win?.matchMedia !== 'function') return;
 
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const mediaQuery = win.matchMedia('(prefers-color-scheme: dark)');
     const apply = () => dispatch(setThemeFromSystem(mediaQuery.matches ? 'dark' : 'light'));
 
     apply();

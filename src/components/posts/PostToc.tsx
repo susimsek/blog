@@ -13,13 +13,14 @@ const slugify = (value: string) => {
     .trim()
     .toLowerCase()
     .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '');
+    .replaceAll(/[\u0300-\u036f]/g, '');
 
   const collapsed = normalized
-    .replace(/['"]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .replace(/-+/g, '-');
+    .replaceAll(/['"]/g, '')
+    .replaceAll(/[^a-z0-9]+/g, '-')
+    .replaceAll(/^-+/g, '')
+    .replaceAll(/-+$/g, '')
+    .replaceAll(/-+/g, '-');
 
   return collapsed || 'section';
 };
@@ -104,7 +105,7 @@ export default function PostToc({ content, rootRef }: Readonly<PostTocProps>) {
                           if (!el) return;
 
                           el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                          window.history.pushState(null, '', `#${item.id}`);
+                          globalThis.window?.history.pushState(null, '', `#${item.id}`);
                         }}
                       >
                         {item.text}

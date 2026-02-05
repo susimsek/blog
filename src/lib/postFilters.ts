@@ -28,7 +28,7 @@ const getReadingTimeMinutes = (readingTime: string): { minutes: number; isCapped
   if (!normalized) return null;
 
   const isCapped = normalized.includes('15+');
-  const match = normalized.match(/(\d+)/);
+  const match = /(\d+)/.exec(normalized);
   if (!match) return null;
 
   const minutes = Number(match[1]);

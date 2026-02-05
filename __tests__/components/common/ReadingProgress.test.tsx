@@ -12,9 +12,10 @@ describe('ReadingProgress', () => {
     render(<ReadingProgress />);
 
     const progressbar = await screen.findByRole('progressbar', { name: 'Reading progress' });
+    const container = progressbar.closest('.reading-progress');
 
     await waitFor(() => {
-      expect(progressbar).toHaveStyle({ top: '64px' });
+      expect(container).toHaveStyle({ top: '64px' });
     });
   });
 });

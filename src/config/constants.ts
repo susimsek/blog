@@ -1,7 +1,7 @@
 // config/constants.ts
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 
-export const isBrowser = typeof window !== 'undefined';
+export const isBrowser = typeof globalThis.window !== 'undefined';
 
 export const isDev = process.env.NODE_ENV === 'development';
 

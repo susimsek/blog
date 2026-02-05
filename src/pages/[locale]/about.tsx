@@ -3,12 +3,11 @@ import { Container, Card } from 'react-bootstrap';
 import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
 import { AUTHOR_NAME, AVATAR_LINK, CONTACT_LINKS, EXPERIENCE_START_YEAR, SITE_URL } from '@/config/constants';
-import { getStaticPaths } from '@/lib/getStatic';
 import Layout from '@/components/common/Layout';
 import ContactInfo from '@/components/common/ContactInfo';
 import { makePostProps } from '@/lib/posts';
 import { PostSummary, Topic } from '@/types/posts';
-import SEO from '@/components/common/SEO';
+import Seo from '@/components/common/SEO';
 
 type AboutProps = {
   posts: PostSummary[];
@@ -34,7 +33,7 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
 
   return (
     <Layout posts={posts} topics={topics} searchEnabled={true} sidebarEnabled={true}>
-      <SEO
+      <Seo
         title={t('about.title')}
         ogTitle={t('about.meta.title')}
         description={t('about.meta.description')}
@@ -67,6 +66,5 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
   );
 }
 
-const getStaticProps = makePostProps(['common', 'about']);
-
-export { getStaticPaths, getStaticProps };
+export const getStaticProps = makePostProps(['common', 'about']);
+export { getStaticPaths } from '@/lib/getStatic';

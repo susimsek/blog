@@ -1,3 +1,1 @@
-import { Redirect } from '@/lib/redirect';
-
-export default Redirect;
+export { Redirect as default } from '@/lib/redirect';

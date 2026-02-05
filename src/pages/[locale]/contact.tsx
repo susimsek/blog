@@ -2,12 +2,11 @@ import React from 'react';
 import { Container } from 'react-bootstrap';
 import { useTranslation } from 'next-i18next';
 import { AUTHOR_NAME, AVATAR_LINK, CONTACT_LINKS, SITE_URL } from '@/config/constants';
-import { getStaticPaths } from '@/lib/getStatic';
 import Layout from '@/components/common/Layout';
 import ContactInfo from '@/components/common/ContactInfo';
 import { makePostProps } from '@/lib/posts';
 import { PostSummary, Topic } from '@/types/posts';
-import SEO from '@/components/common/SEO';
+import Seo from '@/components/common/SEO';
 
 type ContactProps = {
   posts: PostSummary[];
@@ -37,7 +36,7 @@ export default function Contact({ posts, topics }: Readonly<ContactProps>) {
 
   return (
     <Layout posts={posts} topics={topics} searchEnabled={true} sidebarEnabled={true}>
-      <SEO
+      <Seo
         title={t('contact.title')}
         ogTitle={t('contact.meta.title')}
         description={t('contact.meta.description')}
@@ -57,6 +56,5 @@ export default function Contact({ posts, topics }: Readonly<ContactProps>) {
   );
 }
 
-const getStaticProps = makePostProps(['common', 'contact']);
-
-export { getStaticPaths, getStaticProps };
+export const getStaticProps = makePostProps(['common', 'contact']);
+export { getStaticPaths } from '@/lib/getStatic';

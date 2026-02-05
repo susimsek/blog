@@ -7,7 +7,6 @@ import Layout from '@/components/common/Layout';
 import { AUTHOR_NAME } from '@/config/constants';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
-import { getStaticPaths } from '@/lib/getStatic';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { setQuery } from '@/reducers/postsQuery';
 
@@ -60,7 +59,5 @@ export default function SearchPage({ allPosts, topics }: Readonly<SearchPageProp
   );
 }
 
-const getStaticProps = makeSearchProps(['common', 'search', 'post']);
-
-// Generate static paths
-export { getStaticPaths, getStaticProps };
+export const getStaticProps = makeSearchProps(['common', 'search', 'post']);
+export { getStaticPaths } from '@/lib/getStatic';

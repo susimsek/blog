@@ -13,7 +13,7 @@ interface LinkComponentProps extends Omit<LinkProps, 'href'> {
 
 const isExternalUrl = (href: string) => {
   try {
-    const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+    const base = globalThis.window ? globalThis.window.location.origin : 'http://localhost';
     const url = new URL(href, base);
     return url.origin !== base;
   } catch {

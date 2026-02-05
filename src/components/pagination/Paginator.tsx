@@ -9,6 +9,8 @@ interface PaginatorProps {
   className?: string;
 }
 
+type PageItem = number | 'ellipsis-left' | 'ellipsis-right';
+
 const Paginator: React.FC<PaginatorProps> = ({
   currentPage,
   totalPages,
@@ -16,12 +18,12 @@ const Paginator: React.FC<PaginatorProps> = ({
   onPageChange,
   className = '',
 }) => {
-  const generatePageItems = useCallback((): (number | string)[] => {
+  const generatePageItems = useCallback((): PageItem[] => {
     if (totalPages <= maxPagesToShow) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    const pages: (number | string)[] = [];
+    const pages: PageItem[] = [];
     pages.push(1);
 
     let left: number;
@@ -39,7 +41,7 @@ const Paginator: React.FC<PaginatorProps> = ({
     }
 
     if (left > 2) {
-      pages.push('ellipsis');
+      pages.push('ellipsis-left');
     }
 
     for (let i = left; i <= right; i++) {
@@ -47,7 +49,7 @@ const Paginator: React.FC<PaginatorProps> = ({
     }
 
     if (right < totalPages - 1) {
-      pages.push('ellipsis');
+      pages.push('ellipsis-right');
     }
 
     pages.push(totalPages);
@@ -62,9 +64,9 @@ const Paginator: React.FC<PaginatorProps> = ({
     <Pagination.Prev key="prev" disabled={currentPage === 1} onClick={() => onPageChange(currentPage - 1)} />,
   );
 
-  pageItems.forEach((item, index) => {
-    if (item === 'ellipsis') {
-      paginationItems.push(<Pagination.Ellipsis key={`ellipsis-${index}`} disabled />);
+  pageItems.forEach(item => {
+    if (item === 'ellipsis-left' || item === 'ellipsis-right') {
+      paginationItems.push(<Pagination.Ellipsis key={item} disabled />);
     } else {
       paginationItems.push(
         <Pagination.Item key={item} active={item === currentPage} onClick={() => onPageChange(Number(item))}>

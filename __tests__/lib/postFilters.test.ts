@@ -1,4 +1,11 @@
-import { filterByQuery, filterByTopics, filterByDateRange } from '@/lib/postFilters';
+import {
+  filterByQuery,
+  filterByTopics,
+  filterByDateRange,
+  filterByReadingTime,
+  getRelatedPosts,
+  sortPosts,
+} from '@/lib/postFilters';
 import { PostSummary } from '@/types/posts';
 
 const mockPost: PostSummary = {
@@ -77,6 +84,94 @@ describe('Post Filters', () => {
 
     it('returns true if no date range is provided', () => {
       expect(filterByDateRange(mockPost, {})).toBe(true);
+    });
+  });
+
+  describe('filterByReadingTime', () => {
+    it('returns true for "any"', () => {
+      expect(filterByReadingTime({ ...mockPost, readingTime: '1 min read' }, 'any')).toBe(true);
+    });
+
+    it('handles 15+ range with capped and numeric values', () => {
+      expect(filterByReadingTime({ ...mockPost, readingTime: '15+ min read' }, '15+')).toBe(true);
+      expect(filterByReadingTime({ ...mockPost, readingTime: '16 min read' }, '15+')).toBe(true);
+    });
+
+    it('handles bounded ranges', () => {
+      expect(filterByReadingTime({ ...mockPost, readingTime: '5 min read' }, '3-7')).toBe(true);
+      expect(filterByReadingTime({ ...mockPost, readingTime: '8 min read' }, '3-7')).toBe(false);
+      expect(filterByReadingTime({ ...mockPost, readingTime: '10 min read' }, '8-12')).toBe(true);
+      expect(filterByReadingTime({ ...mockPost, readingTime: '13 min read' }, '8-12')).toBe(false);
+    });
+
+    it('falls back to true when parsing fails', () => {
+      expect(filterByReadingTime({ ...mockPost, readingTime: '' }, '3-7')).toBe(true);
+      expect(filterByReadingTime({ ...mockPost, readingTime: 'no-time' }, '3-7')).toBe(true);
+      expect(filterByReadingTime({ ...mockPost, readingTime: '0 min read' }, '3-7')).toBe(true);
+    });
+  });
+
+  describe('sortPosts', () => {
+    it('sorts posts by date descending by default', () => {
+      const sorted = sortPosts([
+        { ...mockPost, id: 'a', date: '2023-01-01' },
+        { ...mockPost, id: 'b', date: '2024-01-01' },
+      ]);
+      expect(sorted.map(post => post.id)).toEqual(['b', 'a']);
+    });
+
+    it('sorts posts by date ascending when requested', () => {
+      const sorted = sortPosts(
+        [
+          { ...mockPost, id: 'a', date: '2023-01-01' },
+          { ...mockPost, id: 'b', date: '2024-01-01' },
+        ],
+        'asc',
+      );
+      expect(sorted.map(post => post.id)).toEqual(['a', 'b']);
+    });
+  });
+
+  describe('getRelatedPosts', () => {
+    const basePosts: PostSummary[] = [
+      {
+        ...mockPost,
+        id: 'base',
+        date: '2024-01-20',
+        topics: [
+          { id: 'topic1', name: 'Topic 1', color: 'red' },
+          { id: 'topic2', name: 'Topic 2', color: 'blue' },
+        ],
+      },
+      {
+        ...mockPost,
+        id: 'p1',
+        date: '2024-01-19',
+        topics: [{ id: 'topic1', name: 'Topic 1', color: 'red' }],
+      },
+      {
+        ...mockPost,
+        id: 'p2',
+        date: '2024-01-18',
+        topics: [{ id: 'topic2', name: 'Topic 2', color: 'blue' }],
+      },
+      {
+        ...mockPost,
+        id: 'p3',
+        date: '2024-01-17',
+        topics: [{ id: 'topic3', name: 'Topic 3', color: 'green' }],
+      },
+    ];
+
+    it('returns empty array when the current post has no topics', () => {
+      const related = getRelatedPosts({ ...basePosts[0], topics: [] }, basePosts);
+      expect(related).toEqual([]);
+    });
+
+    it('returns topic-related posts with fallback ordering', () => {
+      const related = getRelatedPosts(basePosts[0], basePosts, 2);
+      expect(related).toHaveLength(2);
+      expect(related.map(post => post.id)).toEqual(['p1', 'p2']);
     });
   });
 });

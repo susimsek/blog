@@ -12,7 +12,7 @@ interface PostSummaryProps {
   highlightQuery?: string;
 }
 
-const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeRegExp = (value: string) => value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 
 const highlight = (text: string, query: string): React.ReactNode => {
   const tokens = query

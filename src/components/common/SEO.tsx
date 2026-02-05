@@ -50,7 +50,7 @@ const SEO: React.FC<SEOProps> = ({
 }) => {
   const router = useRouter();
   const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
-  const basePathSegment = (process.env.NEXT_PUBLIC_BASE_PATH ?? '').replace(/^\/+|\/+$/g, '');
+  const basePathSegment = (process.env.NEXT_PUBLIC_BASE_PATH ?? '').replaceAll(/^\/+/g, '').replaceAll(/\/+$/g, '');
   const locales = i18nextConfig.i18n.locales ?? [i18nextConfig.i18n.defaultLocale];
   const ogLocale = LOCALES[currentLocale]?.ogLocale ?? LOCALES[i18nextConfig.i18n.defaultLocale]?.ogLocale;
 
@@ -60,12 +60,12 @@ const SEO: React.FC<SEOProps> = ({
   if (page) queryParams.append('page', String(page));
   if (size) queryParams.append('size', String(size));
 
-  const siteUrl = SITE_URL.replace(/\/+$/g, '');
+  const siteUrl = SITE_URL.replaceAll(/\/+$/g, '');
   const joinPath = (...segments: ReadonlyArray<string>) =>
     segments
       .map(s => s.trim())
       .filter(Boolean)
-      .map(s => s.replace(/^\/+|\/+$/g, ''))
+      .map(s => s.replaceAll(/^\/+/g, '').replaceAll(/\/+$/g, ''))
       .filter(Boolean)
       .join('/');
 
@@ -96,7 +96,7 @@ const SEO: React.FC<SEOProps> = ({
   const updatedJsonLd: JsonLdData | null = jsonLd ? { ...jsonLd, url: canonicalUrl } : null;
 
   if (updatedJsonLd) {
-    const schemaLocale = (ogLocale ?? LOCALES[i18nextConfig.i18n.defaultLocale]?.ogLocale ?? currentLocale).replace(
+    const schemaLocale = (ogLocale ?? LOCALES[i18nextConfig.i18n.defaultLocale]?.ogLocale ?? currentLocale).replaceAll(
       '_',
       '-',
     );
@@ -155,7 +155,9 @@ const SEO: React.FC<SEOProps> = ({
           <meta property="article:published_time" content={article.published_time} />
           <meta property="article:modified_time" content={article.modified_time} />
           <meta property="article:author" content={AUTHOR_NAME} />
-          {article.tags && article.tags.map(tag => <meta key={tag} property="article:tag" content={tag} />)}
+          {article.tags?.map(tag => (
+            <meta key={tag} property="article:tag" content={tag} />
+          ))}
         </>
       )}
 

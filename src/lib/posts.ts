@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import matter from 'gray-matter';
 import { Post, PostSummary, Topic } from '@/types/posts';
 import i18nextConfig from '@root/next-i18next.config';
@@ -31,11 +31,13 @@ async function getPostMarkdownContent(id: string, locale: string): Promise<strin
   const localizedPath = path.join(postsDirectory, locale, `${id}.md`);
   const fallbackPath = path.join(postsDirectory, fallbackLocale, `${id}.md`);
 
-  const filePath = (await fileExists(localizedPath))
-    ? localizedPath
-    : (await fileExists(fallbackPath))
-      ? fallbackPath
-      : null;
+  let filePath: string | null = null;
+  if (await fileExists(localizedPath)) {
+    filePath = localizedPath;
+  } else if (await fileExists(fallbackPath)) {
+    filePath = fallbackPath;
+  }
+
   if (!filePath) {
     return null;
   }

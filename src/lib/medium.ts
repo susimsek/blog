@@ -1,6 +1,6 @@
 import Parser from 'rss-parser';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { PostSummary, Topic } from '@/types/posts';
 import i18nextConfig from '@root/next-i18next.config';
 import { GetStaticPropsContext } from 'next';
@@ -27,8 +27,7 @@ const collapseWhitespace = (value: string): string => {
   let result = '';
   let inWhitespace = false;
 
-  for (let i = 0; i < value.length; i += 1) {
-    const char = value[i];
+  for (const char of value) {
     if (WHITESPACE_CHARS.has(char)) {
       if (!inWhitespace) {
         result += ' ';
@@ -47,9 +46,7 @@ function stripHtml(html: string): string {
   let result = '';
   let insideTag = false;
 
-  for (let i = 0; i < html.length; i += 1) {
-    const char = html[i];
-
+  for (const char of html) {
     if (char === '<') {
       insideTag = true;
       continue;
@@ -140,8 +137,8 @@ function extractSummary(item: MediumItem): string {
 
 function getColorForTopic(topic: string): (typeof TOPIC_COLORS)[number] {
   let hash = 0;
-  for (let i = 0; i < topic.length; i++) {
-    hash = topic.charCodeAt(i) + ((hash << 5) - hash);
+  for (const char of topic) {
+    hash = (char.codePointAt(0) ?? 0) + ((hash << 5) - hash);
   }
   const index = Math.abs(hash) % TOPIC_COLORS.length;
   return TOPIC_COLORS[index];

@@ -1,9 +1,8 @@
 import { makeMediumPostsProps } from '@/lib/medium';
 import { useTranslation } from 'next-i18next';
-import { getStaticPaths } from '@/lib/getStatic';
 import { MEDIUM_LOGO } from '@/config/constants';
 import Layout from '@/components/common/Layout';
-import SEO from '@/components/common/SEO';
+import Seo from '@/components/common/SEO';
 import { PostSummary, Topic } from '@/types/posts';
 import PostList from '@/components/posts/PostList';
 
@@ -25,7 +24,7 @@ export default function MediumPage({ posts, topics, mediumPosts }: Readonly<Medi
 
   return (
     <Layout posts={posts} topics={topics} searchEnabled={true} sidebarEnabled={true}>
-      <SEO
+      <Seo
         type="website"
         title={t('medium.title')}
         ogTitle={t('medium.meta.title')}
@@ -44,6 +43,5 @@ export default function MediumPage({ posts, topics, mediumPosts }: Readonly<Medi
   );
 }
 
-const getStaticProps = makeMediumPostsProps(['common', 'medium', 'post', 'topic']);
-
-export { getStaticPaths, getStaticProps };
+export const getStaticProps = makeMediumPostsProps(['common', 'medium', 'post', 'topic']);
+export { getStaticPaths } from '@/lib/getStatic';

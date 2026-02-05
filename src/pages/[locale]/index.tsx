@@ -1,6 +1,5 @@
 import { makePostProps } from '@/lib/posts';
 import { useTranslation } from 'next-i18next';
-import { getStaticPaths } from '@/lib/getStatic';
 import { SITE_LOGO, SITE_URL } from '@/config/constants';
 import Layout from '@/components/common/Layout';
 import PostList from '@/components/posts/PostList';
@@ -8,7 +7,7 @@ import { PostSummary, Topic } from '@/types/posts';
 import PostCarousel from '@/components/posts/PostCarousel';
 import { useRouter } from 'next/router';
 import i18nextConfig from '@root/next-i18next.config';
-import SEO from '@/components/common/SEO';
+import Seo from '@/components/common/SEO';
 
 type HomeProps = {
   posts: PostSummary[];
@@ -43,7 +42,7 @@ export default function Home({ posts, topics }: Readonly<HomeProps>) {
 
   return (
     <Layout posts={posts} topics={topics} searchEnabled={true} sidebarEnabled={true}>
-      <SEO
+      <Seo
         type="website"
         title={t('home.title')}
         ogTitle={t('home.meta.title')}
@@ -63,6 +62,5 @@ export default function Home({ posts, topics }: Readonly<HomeProps>) {
   );
 }
 
-const getStaticProps = makePostProps(['common', 'home', 'post', 'topic']);
-
-export { getStaticPaths, getStaticProps };
+export const getStaticProps = makePostProps(['common', 'home', 'post', 'topic']);
+export { getStaticPaths } from '@/lib/getStatic';

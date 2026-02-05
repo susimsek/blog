@@ -290,9 +290,6 @@ mark {
   &::-webkit-scrollbar-thumb:hover {
     background-color: var(--scrollbar-thumb-hover);
   }
-}
-
-.sidebar {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
@@ -355,8 +352,12 @@ main {
 }
 
 .search-toggle-btn {
+  background: none;
   background-color: transparent;
+  border: none;
   color: var(--text-color);
+  font-size: 1.25rem;
+  padding: 0.5rem;
   @include transition(background-color, color);
 
   &:hover {
@@ -1955,12 +1956,4 @@ label {
 
 .email-logo {
   color: var(--email-logo-color);
-}
-
-.search-toggle-btn {
-  background: none;
-  border: none;
-  color: var(--text-color);
-  font-size: 1.25rem;
-  padding: 0.5rem;
 }

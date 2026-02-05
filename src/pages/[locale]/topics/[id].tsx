@@ -5,7 +5,7 @@ import type { PostSummary, Topic } from '@/types/posts';
 import Layout from '@/components/common/Layout';
 import { AUTHOR_NAME, SITE_LOGO, SITE_URL } from '@/config/constants';
 import { useTranslation } from 'next-i18next';
-import SEO from '@/components/common/SEO';
+import Seo from '@/components/common/SEO';
 
 type TopicPageProps = {
   topic: Topic;
@@ -34,7 +34,7 @@ export default function TopicPage({ topic, posts, topics, allPosts }: Readonly<T
 
   return (
     <Layout posts={allPosts} topics={topics} sidebarEnabled={true} searchEnabled={true}>
-      <SEO
+      <Seo
         type="website"
         title={topicTitle}
         ogTitle={topicTitle}

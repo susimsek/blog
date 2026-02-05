@@ -5,7 +5,7 @@ import PostDetail from '@/components/posts/PostDetail';
 import type { Post, PostSummary } from '@/types/posts'; // type-only import
 import Layout from '@/components/common/Layout';
 import { AUTHOR_NAME, SITE_LOGO, SITE_URL, assetPrefix } from '@/config/constants';
-import SEO from '@/components/common/SEO';
+import Seo from '@/components/common/SEO';
 import { getRelatedPosts } from '@/lib/postFilters';
 import type { GetStaticPropsContext } from 'next';
 import i18nextConfig from '@root/next-i18next.config';
@@ -89,7 +89,7 @@ export default function Post({ post, posts = [], locale }: Readonly<PostProps>) 
 
   return (
     <Layout posts={posts} searchEnabled={true}>
-      <SEO
+      <Seo
         title={post.title}
         ogTitle={post.title}
         description={post.summary}

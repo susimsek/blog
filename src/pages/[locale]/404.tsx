@@ -5,7 +5,7 @@ import Head from 'next/head';
 import { useTranslation } from 'next-i18next';
 import Link from '@/components/common/Link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { getStaticPaths, makeStaticProps } from '@/lib/getStatic';
+import { makeStaticProps } from '@/lib/getStatic';
 import Layout from '@/components/common/Layout';
 
 export default function NotFound() {
@@ -34,5 +34,5 @@ export default function NotFound() {
   );
 }
 
-const getStaticProps = makeStaticProps(['404', 'common']);
-export { getStaticPaths, getStaticProps };
+export const getStaticProps = makeStaticProps(['404', 'common']);
+export { getStaticPaths } from '@/lib/getStatic';

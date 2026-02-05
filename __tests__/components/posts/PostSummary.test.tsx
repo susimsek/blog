@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import PostSummary from '@/components/posts/PostSummary';
-import { Post } from '@/types/posts';
 import { mockPost } from '@tests/__mocks__/mockPostData';
 
 jest.mock('next-i18next', () => ({
@@ -96,5 +95,29 @@ describe('PostSummary Component', () => {
     const postWithoutThumbnail = { ...mockPost, thumbnail: undefined };
     render(<PostSummary post={postWithoutThumbnail} />);
     expect(screen.queryByTestId('thumbnail')).not.toBeInTheDocument();
+  });
+
+  it('highlights matched query tokens in title and summary', () => {
+    const { container } = render(<PostSummary post={mockPost} highlightQuery="Test summary" />);
+    expect(container.querySelectorAll('mark')).toHaveLength(3);
+  });
+
+  it('does not highlight single-character tokens', () => {
+    const { container } = render(<PostSummary post={mockPost} highlightQuery="t" />);
+    expect(container.querySelector('mark')).toBeNull();
+  });
+
+  it('escapes regex special chars in highlight query', () => {
+    const post = { ...mockPost, title: 'How to use C++ safely', summary: 'C++ tips' };
+    const { container } = render(<PostSummary post={post} highlightQuery="C++" />);
+    expect(container.querySelectorAll('mark').length).toBeGreaterThan(0);
+  });
+
+  it('uses external post link when provided', () => {
+    const post = { ...mockPost, link: 'https://example.com/post' };
+    render(<PostSummary post={post} />);
+
+    const titleLink = screen.getByText(post.title).closest('a');
+    expect(titleLink).toHaveAttribute('href', 'https://example.com/post');
   });
 });

@@ -15,6 +15,16 @@ interface CodeBlockProps {
   t: (key: string) => string;
 }
 
+const toCodeText = (node: React.ReactNode): string => {
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+  if (Array.isArray(node)) {
+    return node.map(toCodeText).join('');
+  }
+  return '';
+};
+
 const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, children, theme, t, ...props }) => {
   const [isCopied, setIsCopied] = useState(false);
   const [showLineNumbers, setShowLineNumbers] = useState(false);
@@ -33,7 +43,7 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, chil
   })();
   const match = /language-(\w+)/.exec(className ?? '');
   const language = match?.[1];
-  const codeText = String(children ?? '').replace(/\n$/, '');
+  const codeText = toCodeText(children).replace(/\n$/, '');
   const isMultiline = codeText.includes('\n');
 
   const copyToClipboard = () => {

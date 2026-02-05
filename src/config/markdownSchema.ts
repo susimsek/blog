@@ -7,7 +7,7 @@ const markdownSchema: Schema = {
     new Set([...(defaultSchema.tagNames ?? []), 'figure', 'figcaption', 'table', 'thead', 'tbody', 'tfoot']),
   ),
   attributes: {
-    ...(defaultSchema.attributes ?? {}),
+    ...defaultSchema.attributes,
     '*': [...(defaultSchema.attributes?.['*'] ?? []), 'className'],
     a: [...(defaultSchema.attributes?.a ?? []), 'target', 'rel'],
     code: [...(defaultSchema.attributes?.code ?? []), 'className'],

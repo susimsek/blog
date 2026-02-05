@@ -13,23 +13,11 @@ interface LanguageSwitchLinkProps {
 
 const extractDynamicKeys = (pathname: string): Set<string> => {
   const keys = new Set<string>();
-  for (let i = 0; i < pathname.length; i += 1) {
-    if (pathname[i] !== '[') {
-      continue;
+  for (const match of pathname.matchAll(/\[(?:\.\.\.)?([^\]]+)\]/g)) {
+    const normalized = match[1]?.trim();
+    if (normalized) {
+      keys.add(normalized);
     }
-    let j = i + 1;
-    let buffer = '';
-    while (j < pathname.length && pathname[j] !== ']') {
-      buffer += pathname[j];
-      j += 1;
-    }
-    if (!buffer) {
-      i = j;
-      continue;
-    }
-    const normalized = buffer.startsWith('...') ? buffer.slice(3) : buffer;
-    keys.add(normalized);
-    i = j;
   }
   return keys;
 };
@@ -45,7 +33,7 @@ const replaceDynamicSegments = (
       return;
     }
     const value = query[key];
-    if (typeof value === 'undefined') {
+    if (value === undefined) {
       return;
     }
     const normalizedValue = Array.isArray(value) ? value.join('/') : value;
@@ -67,7 +55,7 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
   const sanitizedQuery = useMemo(() => {
     const params = new URLSearchParams();
     Object.entries(router.query).forEach(([key, value]) => {
-      if (key === 'locale' || typeof value === 'undefined' || dynamicKeys.has(key)) {
+      if (key === 'locale' || value === undefined || dynamicKeys.has(key)) {
         return;
       }
       if (Array.isArray(value)) {
