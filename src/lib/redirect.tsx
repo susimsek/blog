@@ -1,14 +1,17 @@
 import React, { useEffect, ReactElement } from 'react';
-import { NextRouter, useRouter } from '@/navigation/router';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import languageDetector from './languageDetector';
 import Loading from '@/components/common/Loading';
 
-// Helper function for language-based redirection
-const detectAndRedirect = (router: NextRouter, targetPath: string) => {
+type RouterLike = {
+  replace: (href: string) => void;
+};
+
+const detectAndRedirect = (router: RouterLike, pathname: string, targetPath: string) => {
   const detectedLng = languageDetector.detect() as string;
 
-  if (targetPath.startsWith('/' + detectedLng) && router.route === '/404') {
-    router.replace('/' + detectedLng + router.route);
+  if (targetPath.startsWith('/' + detectedLng) && pathname === '/404') {
+    router.replace('/' + detectedLng + pathname);
     return;
   }
 
@@ -22,11 +25,17 @@ const detectAndRedirect = (router: NextRouter, targetPath: string) => {
 // Custom hook for language-based redirection with spinner display
 export const useRedirect = (to?: string): ReactElement => {
   const router = useRouter();
-  const targetPath = to ?? router.asPath; // Using `??` for safer handling of `null` or `undefined`
+  const pathname = usePathname() ?? '/';
+  const searchParams = useSearchParams();
+  const asPath = (() => {
+    const query = searchParams.toString();
+    return query ? `${pathname}?${query}` : pathname;
+  })();
+  const targetPath = to ?? asPath;
 
   useEffect(() => {
-    detectAndRedirect(router, targetPath);
-  }, [router, targetPath]);
+    detectAndRedirect(router, pathname, targetPath);
+  }, [router, pathname, targetPath]);
 
   return <Loading />;
 };

@@ -4,13 +4,12 @@ import '@testing-library/jest-dom';
 import PostCarousel from '@/components/posts/PostCarousel';
 import { mockPostSummaries } from '@tests/__mocks__/mockPostData';
 
-jest.mock('@/navigation/router', () => ({
-  useRouter: jest.fn().mockReturnValue({
-    asPath: '/',
-    pathname: '/',
-    query: { locale: 'en' },
-    push: jest.fn(),
-  }),
+const useParamsMock = jest.fn().mockReturnValue({ locale: 'en' });
+
+jest.mock('next/navigation', () => ({
+  useParams: () => useParamsMock(),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 jest.mock('next/image', () => ({

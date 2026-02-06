@@ -2,8 +2,11 @@ import React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import PostList from '@/components/posts/PostList';
 import { mockPostSummaries, mockTopics } from '@tests/__mocks__/mockPostData';
-import { useRouter } from '@/navigation/router';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
+
+const useRouterMock = jest.fn();
+const usePathnameMock = jest.fn();
+const useSearchParamsMock = jest.fn();
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
@@ -13,8 +16,11 @@ jest.mock('react-i18next', () => ({
 
 jest.mock('@/hooks/useDebounce', () => jest.fn((value: string) => value));
 
-jest.mock('@/navigation/router', () => ({
-  useRouter: jest.fn(),
+jest.mock('next/navigation', () => ({
+  useRouter: () => useRouterMock(),
+  usePathname: () => usePathnameMock(),
+  useSearchParams: () => useSearchParamsMock(),
+  useParams: () => ({ locale: 'en' }),
 }));
 
 jest.mock('@/components/search/SearchBar', () => ({
@@ -112,6 +118,7 @@ jest.mock('@/components/common/TopicsDropdown', () => ({
 describe('PostList Component', () => {
   const scrollIntoViewMock = jest.fn();
   let pushMock: jest.Mock;
+  let currentSearchParams: URLSearchParams;
 
   beforeAll(() => {
     Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
@@ -123,12 +130,10 @@ describe('PostList Component', () => {
   beforeEach(() => {
     scrollIntoViewMock.mockClear();
     pushMock = jest.fn();
-    (useRouter as jest.Mock).mockReturnValue({
-      query: {},
-      push: pushMock,
-      pathname: '/',
-      isReady: true,
-    });
+    currentSearchParams = new URLSearchParams();
+    useRouterMock.mockReturnValue({ push: pushMock });
+    usePathnameMock.mockReturnValue('/');
+    useSearchParamsMock.mockImplementation(() => currentSearchParams);
   });
   it('renders all components correctly', () => {
     renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />);
@@ -196,12 +201,7 @@ describe('PostList Component', () => {
   });
 
   it('keeps active page from route query when q is empty', async () => {
-    (useRouter as jest.Mock).mockReturnValue({
-      query: { page: '2', size: '5' },
-      push: pushMock,
-      pathname: '/',
-      isReady: true,
-    });
+    currentSearchParams = new URLSearchParams('page=2&size=5');
 
     renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />);
 

@@ -1,11 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
-import { useRouter } from '@/navigation/router';
 import LanguageSwitchLink from '@/components/i18n/LanguageSwitchLink';
 
-// Mocking @/navigation/router
-jest.mock('@/navigation/router', () => ({
-  useRouter: jest.fn(),
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ replace: jest.fn() }),
+  usePathname: () => '/en',
+  useSearchParams: () => new URLSearchParams(),
+  useParams: () => ({ locale: 'en' }),
 }));
 
 // Mocking react-i18next and FontAwesomeIcon
@@ -17,15 +18,11 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <i data-testid={`font-awesome-icon-${icon}`} />,
 }));
 
-describe('LanguageSwitcher', () => {
-  beforeEach(() => {
-    (useRouter as jest.Mock).mockReturnValue({
-      query: { locale: 'en-US' },
-      asPath: '/current-path',
-      pathname: '/current-path',
-    });
-  });
+jest.mock('@/components/common/FlagIcon', () => {
+  return ({ code, alt }: { code: string; alt?: string }) => <span data-testid={`flag-${code}`} aria-label={alt}></span>;
+});
 
+describe('LanguageSwitcher', () => {
   it('renders the globe icon correctly', () => {
     render(<LanguageSwitcher />);
 
@@ -43,10 +40,6 @@ describe('LanguageSwitcher', () => {
   });
 
   it('uses the current locale from router.query when available', () => {
-    (useRouter as jest.Mock).mockReturnValue({
-      query: { locale: 'fr-FR' }, // Simulating a locale being set in the query
-    });
-
     render(<LanguageSwitcher />);
 
     // Verify the correct locale is used (in this case, fr-FR)
@@ -55,11 +48,6 @@ describe('LanguageSwitcher', () => {
   });
 
   it('uses the default locale when router.query.locale is not available', () => {
-    // Simulating no locale in the query, fallback to the default locale
-    (useRouter as jest.Mock).mockReturnValue({
-      query: {}, // No locale in the query
-    });
-
     render(<LanguageSwitcher />);
 
     // Verify the correct default locale is used

@@ -1,4 +1,4 @@
-import { useRouter } from '@/navigation/router';
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import languageDetector from '@/lib/languageDetector';
 import i18nextConfig from '@/i18n/settings';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,62 +11,21 @@ interface LanguageSwitchLinkProps {
   href?: string;
 }
 
-const extractDynamicKeys = (pathname: string): Set<string> => {
-  const keys = new Set<string>();
-  for (const match of pathname.matchAll(/\[(?:\.\.\.)?([^\]]+)\]/g)) {
-    const normalized = match[1]?.trim();
-    if (normalized) {
-      keys.add(normalized);
-    }
-  }
-  return keys;
-};
-
-const replaceDynamicSegments = (
-  path: string,
-  query: Record<string, string | string[] | undefined>,
-  dynamicKeys: Set<string>,
-) => {
-  let resolvedPath = path;
-  dynamicKeys.forEach(key => {
-    if (!(key in query)) {
-      return;
-    }
-    const value = query[key];
-    if (value === undefined) {
-      return;
-    }
-    const normalizedValue = Array.isArray(value) ? value.join('/') : value;
-    resolvedPath = resolvedPath.split(`[...${key}]`).join(normalizedValue).split(`[${key}]`).join(normalizedValue);
-  });
-  return resolvedPath;
-};
-
 const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href }) => {
   const router = useRouter();
-  const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
-  const paramKeys = router.paramKeys ?? [];
+  const pathname = usePathname() ?? '/';
+  const searchParams = useSearchParams();
+  const params = useParams<{ locale?: string | string[] }>();
+  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
+  const currentLocale = routeLocale ?? i18nextConfig.i18n.defaultLocale;
 
   const isExternalHref = href?.startsWith('http');
 
-  const dynamicKeys = useMemo(() => {
-    return extractDynamicKeys(router.pathname);
-  }, [router.pathname]);
-
   const sanitizedQuery = useMemo(() => {
-    const params = new URLSearchParams();
-    Object.entries(router.query).forEach(([key, value]) => {
-      if (key === 'locale' || value === undefined || dynamicKeys.has(key) || paramKeys.includes(key)) {
-        return;
-      }
-      if (Array.isArray(value)) {
-        value.forEach(item => params.append(key, item));
-      } else {
-        params.append(key, value);
-      }
-    });
-    return params.toString();
-  }, [router.query, dynamicKeys, paramKeys]);
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete('locale');
+    return nextParams.toString();
+  }, [searchParams]);
 
   const buildLocalizedHref = () => {
     if (isExternalHref && href) {
@@ -77,8 +36,7 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
       if (href) {
         return href.startsWith('/') ? href : `/${href}`;
       }
-      const pathWithParams = replaceDynamicSegments(router.pathname, router.query, dynamicKeys);
-      const [pathOnly] = (pathWithParams || router.asPath || '/').split('?');
+      const pathOnly = pathname || '/';
       if (!currentLocale) {
         return pathOnly;
       }

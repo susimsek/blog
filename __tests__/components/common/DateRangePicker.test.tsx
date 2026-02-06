@@ -1,6 +1,8 @@
 import React from 'react';
-import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import DateRangePicker from '@/components/common/DateRangePicker';
+
+const useParamsMock = jest.fn().mockReturnValue({ locale: 'en' });
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -8,10 +10,8 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
-jest.mock('@/navigation/router', () => ({
-  useRouter: jest.fn().mockReturnValue({
-    query: { locale: 'en' },
-  }),
+jest.mock('next/navigation', () => ({
+  useParams: () => useParamsMock(),
 }));
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
@@ -71,6 +71,10 @@ describe('DateRangePicker', () => {
     minDate: new Date('2024-01-01'),
     maxDate: new Date('2024-12-31'),
   };
+
+  beforeEach(() => {
+    useParamsMock.mockReturnValue({ locale: 'en' });
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -168,8 +172,7 @@ describe('DateRangePicker', () => {
   });
 
   it('falls back to enUS when currentLocale is not valid and displays custom date fields correctly', () => {
-    const { query } = jest.requireMock('@/navigation/router').useRouter();
-    query.locale = 'fr';
+    useParamsMock.mockReturnValue({ locale: 'fr' });
 
     render(<DateRangePicker {...defaultProps} />);
 

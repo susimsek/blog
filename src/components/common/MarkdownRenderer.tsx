@@ -11,7 +11,7 @@ import CodeBlock from '@/components/common/CodeBlock';
 import { splitContentWithTabs } from '@/lib/markdownUtils';
 import markdownSchema from '@/config/markdownSchema';
 import type { Theme } from '@/reducers/theme';
-import { useRouter } from '@/navigation/router';
+import { useParams } from 'next/navigation';
 import i18nextConfig from '@/i18n/settings';
 import Link from '@/components/common/Link';
 
@@ -104,8 +104,9 @@ const createMarkdownComponents = (theme: Theme, t: (key: string) => string, curr
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   const { t } = useTranslation('common');
   const theme = useAppSelector(state => state.theme.theme);
-  const router = useRouter();
-  const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
+  const params = useParams<{ locale?: string | string[] }>();
+  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
+  const currentLocale = routeLocale || i18nextConfig.i18n.defaultLocale;
 
   const MarkdownComponents = useMemo(
     () => createMarkdownComponents(theme, t, currentLocale),

@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Link from '@/components/common/Link';
-import { useRouter } from '@/navigation/router';
 
 const mockNextLinkComponent = jest.fn(({ children, locale, ...props }: any) => (
   <a data-locale={locale === false ? 'false' : (locale ?? '')} {...props}>
@@ -9,25 +8,26 @@ const mockNextLinkComponent = jest.fn(({ children, locale, ...props }: any) => (
   </a>
 ));
 
+const useParamsMock = jest.fn();
+const usePathnameMock = jest.fn();
+const useSearchParamsMock = jest.fn();
+
 jest.mock('next/link', () => ({
   __esModule: true,
   default: (props: any) => mockNextLinkComponent(props),
 }));
 
-// Mock `@/navigation/router`
-jest.mock('@/navigation/router', () => ({
-  useRouter: jest.fn(),
+jest.mock('next/navigation', () => ({
+  useParams: () => useParamsMock(),
+  usePathname: () => usePathnameMock(),
+  useSearchParams: () => useSearchParamsMock(),
 }));
 
 describe('Link', () => {
   beforeEach(() => {
-    (useRouter as jest.Mock).mockReturnValue({
-      query: { locale: 'en-US' },
-      asPath: '/current-path',
-      pathname: '/current-path',
-      locale: 'en-US',
-      defaultLocale: 'en-US',
-    });
+    useParamsMock.mockReturnValue({ locale: 'en-US' });
+    usePathnameMock.mockReturnValue('/current-path');
+    useSearchParamsMock.mockReturnValue(new URLSearchParams());
   });
 
   afterEach(() => {
@@ -100,6 +100,19 @@ describe('Link', () => {
     const link = screen.getByText('Current Path').closest('a');
     expect(link).toHaveAttribute('href', '/current-path');
     expect(link).toHaveAttribute('data-locale', 'en-US');
+  });
+
+  it('includes current query params when href is not provided', () => {
+    useSearchParamsMock.mockReturnValue(new URLSearchParams('page=2&q=next'));
+
+    render(
+      <Link>
+        <span>Current Path With Query</span>
+      </Link>,
+    );
+
+    const link = screen.getByText('Current Path With Query').closest('a');
+    expect(link).toHaveAttribute('href', '/current-path?page=2&q=next');
   });
 
   it('calls onClick handler when clicked', () => {
@@ -182,15 +195,8 @@ describe('Link', () => {
     expect(link).toHaveAttribute('data-locale', 'fr-FR');
   });
 
-  it('falls back to router locale when locale prop is not provided', () => {
-    (useRouter as jest.Mock).mockReturnValue({
-      query: {},
-      asPath: '/fallback',
-      pathname: '/fallback',
-      locale: 'es-ES',
-      defaultLocale: 'en-US',
-    });
-
+  it('falls back to route locale when locale prop is not provided', () => {
+    useParamsMock.mockReturnValue({ locale: 'es-ES' });
     render(
       <Link href="/about">
         <span>About Us</span>
@@ -201,15 +207,8 @@ describe('Link', () => {
     expect(link).toHaveAttribute('data-locale', 'es-ES');
   });
 
-  it('falls back to default locale if no locale information is available', () => {
-    (useRouter as jest.Mock).mockReturnValue({
-      query: {},
-      asPath: '/fallback',
-      pathname: '/fallback',
-      defaultLocale: 'en-US',
-      locale: undefined,
-    });
-
+  it('uses default locale if route locale is not available', () => {
+    useParamsMock.mockReturnValue({});
     render(
       <Link href="/about">
         <span>About Us</span>
@@ -217,25 +216,6 @@ describe('Link', () => {
     );
 
     const link = screen.getByText('About Us').closest('a');
-    expect(link).toHaveAttribute('data-locale', 'en-US');
-  });
-
-  it('sets locale to false when locale cannot be resolved', () => {
-    (useRouter as jest.Mock).mockReturnValue({
-      query: {},
-      asPath: '/fallback',
-      pathname: '/fallback',
-      defaultLocale: undefined,
-      locale: undefined,
-    });
-
-    render(
-      <Link href="/about">
-        <span>About Us</span>
-      </Link>,
-    );
-
-    const link = screen.getByText('About Us').closest('a');
-    expect(link).toHaveAttribute('data-locale', 'false');
+    expect(link).toHaveAttribute('data-locale', 'en');
   });
 });

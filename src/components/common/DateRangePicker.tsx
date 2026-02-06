@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 import i18nextConfig from '@/i18n/settings';
-import { useRouter } from '@/navigation/router';
+import { useParams } from 'next/navigation';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { enUS } from 'date-fns/locale/en-US';
 import { tr } from 'date-fns/locale/tr';
@@ -35,8 +35,9 @@ export default function DateRangePicker({
   maxDate = new Date(),
 }: Readonly<DateRangePickerProps>) {
   const { t } = useTranslation('common');
-  const router = useRouter();
-  const currentLocale = (router.query.locale as string) ?? i18nextConfig.i18n.defaultLocale;
+  const params = useParams<{ locale?: string | string[] }>();
+  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
+  const currentLocale = routeLocale ?? i18nextConfig.i18n.defaultLocale;
 
   // Locale Mapping
   const localeMap = { en: enUS, tr };

@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useEffect, useRef } from 'react';
-import { useRouter } from '@/navigation/router';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PostSummary, Topic } from '@/types/posts';
 import Container from 'react-bootstrap/Container';
 import PaginationBar from '@/components/pagination/PaginationBar';
@@ -29,49 +29,37 @@ export default function PostList({
 }: Readonly<PostListProps>) {
   const { t } = useTranslation(['post', 'common']);
   const router = useRouter();
+  const pathname = usePathname() ?? '/';
+  const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const listTopRef = useRef<HTMLDivElement | null>(null);
+  const lastSyncedRouteRef = useRef<string>('');
   const { query, sortOrder, selectedTopics, dateRange, readingTimeRange, page, pageSize } = useAppSelector(
     state => state.postsQuery,
   );
   const debouncedSearchQuery = useDebounce(query, 500);
 
-  const toSingleQueryValue = (value: string | string[] | undefined): string | undefined => {
-    return Array.isArray(value) ? value[0] : value;
-  };
-
   useEffect(() => {
-    if (!router.isReady) {
-      return;
-    }
-
-    const routePageValue = toSingleQueryValue(router.query.page);
+    const routePageValue = searchParams.get('page');
     const parsedPage = Number.parseInt(routePageValue ?? '', 10);
     const routePage = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
 
-    const routeSizeValue = toSingleQueryValue(router.query.size);
+    const routeSizeValue = searchParams.get('size');
     const parsedSize = Number.parseInt(routeSizeValue ?? '', 10);
     const routeSize = Number.isFinite(parsedSize) && parsedSize > 0 ? parsedSize : 5;
 
-    const routeQuery = toSingleQueryValue(router.query.q) ?? '';
-
-    const queryChanged = routeQuery !== query;
-    const sizeChanged = routeSize !== pageSize;
-    const pageChanged = routePage !== page;
-
-    if (queryChanged) {
-      dispatch(setQuery(routeQuery));
+    const routeQuery = searchParams.get('q') ?? '';
+    const routeKey = `${pathname}|${routePage}|${routeSize}|${routeQuery}`;
+    if (lastSyncedRouteRef.current === routeKey) {
+      return;
     }
+    lastSyncedRouteRef.current = routeKey;
 
-    if (sizeChanged) {
-      dispatch(setPageSize(routeSize));
-    }
-
-    // Keep URL as the source of truth for active page.
-    if (queryChanged || sizeChanged || pageChanged) {
-      dispatch(setPage(routePage));
-    }
-  }, [router.isReady, router.query.page, router.query.size, router.query.q, query, page, pageSize, dispatch]);
+    // URL is the source of truth for pagination/search state.
+    dispatch(setQuery(routeQuery));
+    dispatch(setPageSize(routeSize));
+    dispatch(setPage(routePage));
+  }, [dispatch, pathname, searchParams]);
 
   const filteredPosts = useMemo(
     () =>
@@ -112,33 +100,27 @@ export default function PostList({
   const handlePageChange = useCallback(
     (newPage: number) => {
       dispatch(setPage(newPage));
-      router.push(
-        {
-          pathname: router.pathname,
-          query: { ...router.query, page: newPage, size: pageSize },
-        },
-        undefined,
-        { shallow: true },
-      );
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('page', String(newPage));
+      params.set('size', String(pageSize));
+      const nextQuery = params.toString();
+      router.push(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
       scrollToListStart();
     },
-    [router, pageSize, dispatch, scrollToListStart],
+    [dispatch, pageSize, pathname, router, scrollToListStart, searchParams],
   );
 
   const handleSizeChange = useCallback(
     (size: number) => {
       dispatch(setPageSize(size));
-      router.push(
-        {
-          pathname: router.pathname,
-          query: { ...router.query, page: 1, size },
-        },
-        undefined,
-        { shallow: true },
-      );
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('page', '1');
+      params.set('size', String(size));
+      const nextQuery = params.toString();
+      router.push(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
       scrollToListStart();
     },
-    [router, dispatch, scrollToListStart],
+    [dispatch, pathname, router, scrollToListStart, searchParams],
   );
 
   return (

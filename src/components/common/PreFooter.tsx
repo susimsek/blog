@@ -4,7 +4,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Badge from 'react-bootstrap/Badge';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from '@/navigation/router';
+import { useParams } from 'next/navigation';
 import i18nextConfig from '@/i18n/settings';
 import type { PostSummary, Topic } from '@/types/posts';
 import Link from '@/components/common/Link';
@@ -38,8 +38,9 @@ const getTopTopics = (posts: PostSummary[], topics: Topic[], limit: number) => {
 
 export default function PreFooter({ posts = [], topics = [], topTopics = [] }: Readonly<PreFooterProps>) {
   const { t } = useTranslation('common');
-  const router = useRouter();
-  const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
+  const params = useParams<{ locale?: string | string[] }>();
+  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
+  const currentLocale = routeLocale || i18nextConfig.i18n.defaultLocale;
 
   const latestPosts = useMemo(() => {
     const sorted = [...posts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

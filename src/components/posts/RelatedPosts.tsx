@@ -3,7 +3,7 @@ import type { PostSummary } from '@/types/posts';
 import Link from '@/components/common/Link';
 import DateDisplay from '@/components/common/DateDisplay';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from '@/navigation/router';
+import { useParams } from 'next/navigation';
 import i18nextConfig from '@/i18n/settings';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Row from 'react-bootstrap/Row';
@@ -18,8 +18,9 @@ interface RelatedPostsProps {
 
 export default function RelatedPosts({ posts }: Readonly<RelatedPostsProps>) {
   const { t } = useTranslation('post');
-  const router = useRouter();
-  const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
+  const params = useParams<{ locale?: string | string[] }>();
+  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
+  const currentLocale = routeLocale || i18nextConfig.i18n.defaultLocale;
 
   if (posts.length === 0) {
     return null;

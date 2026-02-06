@@ -12,13 +12,10 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <span data-testid={`fa-icon-${icon}`} />,
 }));
 
-jest.mock('@/navigation/router', () => ({
-  useRouter: jest.fn().mockReturnValue({
-    asPath: '/',
-    pathname: '/',
-    query: { locale: 'en' },
-    push: jest.fn(),
-  }),
+jest.mock('next/navigation', () => ({
+  useParams: () => ({ locale: 'en' }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 jest.mock('@/components/common/MarkdownRenderer', () => {

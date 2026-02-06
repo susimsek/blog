@@ -2,8 +2,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import PreFooter from '@/components/common/PreFooter';
 import type { PostSummary, Topic } from '@/types/posts';
-import { useRouter } from '@/navigation/router';
 import { CONTACT_LINKS } from '@/config/constants';
+
+const useParamsMock = jest.fn();
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -11,17 +12,21 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
-jest.mock('@/navigation/router', () => ({
-  useRouter: jest.fn(),
+jest.mock('next/navigation', () => ({
+  useParams: () => useParamsMock(),
 }));
 
 jest.mock('@/components/common/Link', () => ({
   __esModule: true,
-  default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => (
-    <a href={href} {...props}>
-      {children}
-    </a>
-  ),
+  default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => {
+    const { skipLocaleHandling, ...anchorProps } = props as { skipLocaleHandling?: boolean };
+    void skipLocaleHandling;
+    return (
+      <a href={href} {...anchorProps}>
+        {children}
+      </a>
+    );
+  },
 }));
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
@@ -42,7 +47,7 @@ const buildPost = (id: string, date: string, topics: Array<{ id?: string; name: 
 
 describe('PreFooter', () => {
   beforeEach(() => {
-    (useRouter as jest.Mock).mockReturnValue({ query: { locale: 'tr' } });
+    useParamsMock.mockReturnValue({ locale: 'tr' });
   });
 
   it('renders latest posts and top topics based on frequency', () => {
@@ -82,7 +87,7 @@ describe('PreFooter', () => {
   });
 
   it('falls back to default locale when route locale is missing', () => {
-    (useRouter as jest.Mock).mockReturnValue({ query: {} });
+    useParamsMock.mockReturnValue({});
     render(<PreFooter posts={[]} topics={[]} />);
 
     expect(screen.getByRole('link', { name: 'common.preFooter.contactCta' })).toHaveAttribute('href', '/en/contact');

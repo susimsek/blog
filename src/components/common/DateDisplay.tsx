@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRouter } from '@/navigation/router';
+import { useParams } from 'next/navigation';
 import i18nextConfig from '@/i18n/settings';
 
 interface DateDisplayProps {
@@ -9,8 +9,9 @@ interface DateDisplayProps {
 }
 
 export default function DateDisplay({ date, locale, className }: Readonly<DateDisplayProps>) {
-  const router = useRouter();
-  const currentLocale = locale ?? (router.query.locale as string) ?? i18nextConfig.i18n.defaultLocale;
+  const params = useParams<{ locale?: string | string[] }>();
+  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
+  const currentLocale = locale ?? routeLocale ?? i18nextConfig.i18n.defaultLocale;
 
   return (
     <span className={className}>

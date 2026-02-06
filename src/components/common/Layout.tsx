@@ -10,7 +10,8 @@ import useMediaQuery from '@/hooks/useMediaQuery';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { GA_ID } from '@/config/constants';
 import { useAppDispatch } from '@/config/store';
-import { useRouter } from '@/navigation/router';
+import { useParams } from 'next/navigation';
+import { defaultLocale } from '@/i18n/settings';
 import { setPosts, setLocale } from '@/reducers/postsQuery';
 import PreFooter from '@/components/common/PreFooter';
 
@@ -25,16 +26,17 @@ type LayoutProps = {
 
 const LayoutStateInitializer: React.FC<Pick<LayoutProps, 'posts'>> = ({ posts = [] }) => {
   const dispatch = useAppDispatch();
-  const router = useRouter();
+  const params = useParams<{ locale?: string | string[] }>();
+  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
 
   useEffect(() => {
     dispatch(setPosts(posts));
   }, [dispatch, posts]);
 
   useEffect(() => {
-    const currentLocale = router.locale ?? router.defaultLocale ?? null;
+    const currentLocale = routeLocale ?? defaultLocale ?? null;
     dispatch(setLocale(currentLocale));
-  }, [dispatch, router.locale, router.defaultLocale]);
+  }, [dispatch, routeLocale]);
 
   return null;
 };

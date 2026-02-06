@@ -1,11 +1,12 @@
 import { fireEvent, screen } from '@testing-library/react';
 import Layout from '@/components/common/Layout';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
-import { useRouter } from '@/navigation/router';
 import useMediaQuery from '@/hooks/useMediaQuery';
 
-jest.mock('@/navigation/router', () => ({
-  useRouter: jest.fn(),
+const useParamsMock = jest.fn();
+
+jest.mock('next/navigation', () => ({
+  useParams: () => useParamsMock(),
 }));
 
 jest.mock('@/hooks/useMediaQuery', () => ({
@@ -48,13 +49,7 @@ describe('Layout Component', () => {
   let intersectionCallback: ((entries: Array<{ isIntersecting: boolean }>) => void) | undefined;
 
   beforeEach(() => {
-    (useRouter as jest.Mock).mockReturnValue({
-      locale: 'en',
-      defaultLocale: 'en',
-      pathname: '/',
-      query: {},
-      push: jest.fn(),
-    });
+    useParamsMock.mockReturnValue({ locale: 'en' });
     (useMediaQuery as jest.Mock).mockReturnValue(false);
     document.body.className = '';
     observe.mockClear();

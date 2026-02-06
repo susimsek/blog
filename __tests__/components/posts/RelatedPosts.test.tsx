@@ -2,7 +2,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import RelatedPosts from '@/components/posts/RelatedPosts';
 import type { PostSummary } from '@/types/posts';
-import { useRouter } from '@/navigation/router';
+
+const useParamsMock = jest.fn();
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -10,17 +11,21 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
-jest.mock('@/navigation/router', () => ({
-  useRouter: jest.fn(),
+jest.mock('next/navigation', () => ({
+  useParams: () => useParamsMock(),
 }));
 
 jest.mock('@/components/common/Link', () => ({
   __esModule: true,
-  default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => (
-    <a href={href} {...props}>
-      {children}
-    </a>
-  ),
+  default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => {
+    const { skipLocaleHandling, ...anchorProps } = props as { skipLocaleHandling?: boolean };
+    void skipLocaleHandling;
+    return (
+      <a href={href} {...anchorProps}>
+        {children}
+      </a>
+    );
+  },
 }));
 
 jest.mock('@/components/common/DateDisplay', () => ({
@@ -54,7 +59,7 @@ const basePost: PostSummary = {
 
 describe('RelatedPosts', () => {
   beforeEach(() => {
-    (useRouter as jest.Mock).mockReturnValue({ query: { locale: 'tr' } });
+    useParamsMock.mockReturnValue({ locale: 'tr' });
   });
 
   it('returns nothing when posts are empty', () => {
@@ -78,7 +83,7 @@ describe('RelatedPosts', () => {
   });
 
   it('falls back to default locale and handles posts without thumbnail/topics', () => {
-    (useRouter as jest.Mock).mockReturnValue({ query: {} });
+    useParamsMock.mockReturnValue({});
     const noMediaPost: PostSummary = {
       ...basePost,
       id: '2',

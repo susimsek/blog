@@ -2,9 +2,15 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import MarkdownRenderer from '@/components/common/MarkdownRenderer';
 
-jest.mock('@/navigation/router', () => ({
-  useRouter: jest.fn().mockReturnValue({
-    query: { locale: 'en' },
+jest.mock('next/navigation', () => ({
+  useParams: jest.fn().mockReturnValue({
+    locale: 'en',
+  }),
+}));
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
   }),
 }));
 
@@ -18,19 +24,15 @@ jest.mock('rehype-raw', () => jest.fn());
 
 jest.mock('@/components/common/Link', () => ({
   __esModule: true,
-  default: ({
-    href,
-    children,
-    skipLocaleHandling: _skipLocaleHandling,
-    ...props
-  }: {
-    href: string;
-    children: React.ReactNode;
-  }) => (
-    <a href={href} {...props}>
-      {children}
-    </a>
-  ),
+  default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => {
+    const { skipLocaleHandling, ...anchorProps } = props as { skipLocaleHandling?: boolean };
+    void skipLocaleHandling;
+    return (
+      <a href={href} {...anchorProps}>
+        {children}
+      </a>
+    );
+  },
 }));
 
 // Mock store selector
@@ -39,7 +41,7 @@ jest.mock('@/config/store', () => ({
 }));
 
 jest.mock('@/components/common/CodeBlock', () => {
-  return ({ children, className, theme, inline, node, ...props }: any) => (
+  return ({ children, className, theme, inline, ...props }: any) => (
     <pre
       data-testid="code-block"
       className={className}
