@@ -1,7 +1,7 @@
 # AI Agent Guidelines
 
 This repo is a blog application built with **Next.js (static export)**. It reads content from Markdown and supports **multiple languages (en/tr)**.
-Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, next-i18next, Bootstrap/Sass, ESLint (flat config), Jest + Testing Library.
+Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18next, Bootstrap/Sass, ESLint (flat config), Jest + Testing Library.
 
 ## Table of Contents
 
@@ -21,7 +21,7 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, next-i18next, Boots
 
 ## Agent MCP Usage Guidelines
 
-- Always use the Context7 MCP server when you need library/API documentation (e.g., Next.js, React, TypeScript, Redux Toolkit, next-i18next, Jest, Testing Library, Bootstrap/Sass), code generation, setup or configuration steps without me having to explicitly ask.
+- Always use the Context7 MCP server when you need library/API documentation (e.g., Next.js, React, TypeScript, Redux Toolkit, i18next/react-i18next, Jest, Testing Library, Bootstrap/Sass), code generation, setup or configuration steps without me having to explicitly ask.
 
 ## Quick Reference
 
@@ -51,13 +51,12 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, next-i18next, Boots
 ### Frontend
 
 - Application: `src`
-  - `pages`: routing (Pages Router)
-    - `[locale]`: locale-prefixed pages (static export outputs `/en/.../index.html`, etc.)
-    - `index.tsx`: root entry redirect (`/` → `/{locale}/...`) via `src/lib/redirect.tsx`
-    - Top-level route shims: `about.tsx`, `contact.tsx`, `medium.tsx`, `search.tsx`, `posts/[id].tsx`, `topics/[id].tsx` (redirect to `/{locale}/...`)
-    - `_app.tsx`: app wrapper/providers
-    - `_document.tsx`: custom document
-    - `404.tsx`: non-locale 404
+  - `app`: routing (App Router)
+    - `[locale]`: locale-prefixed routes (static export outputs `/en/.../index.html`, etc.)
+    - top-level route shims (`about`, `contact`, `medium`, `search`, `posts/[id]`, `topics/[id]`) redirect to `/{locale}/...`
+    - `layout.tsx`: root metadata and global style entry
+    - `[locale]/layout.tsx`: locale providers + static params
+    - `not-found.tsx` and `[locale]/not-found.tsx`: 404 surfaces
   - `components`: shared UI components
   - `config`: app config + Redux store + validation/schema helpers
     - `store.ts`: Redux store setup
@@ -67,7 +66,6 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, next-i18next, Boots
     - `iconLoader.ts`: icon loading utilities
   - `reducers`: Redux slices/reducers (`postsQuery.ts`, `theme.ts`)
   - `lib`: shared frontend code
-    - `getStatic.ts`: next-i18next SSG helpers
     - `languageDetector.ts`: locale detection + cache
     - `redirect.tsx`: locale redirect helpers (used by root/shim pages)
     - `posts.ts`: Markdown/index readers for posts
@@ -80,11 +78,11 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, next-i18next, Boots
   - `styles`: global Sass/CSS
   - `types`: shared TypeScript types and declarations
 - Public assets: `public`
-  - `locales/<lng>/<ns>.json`: next-i18next translation files
+  - `locales/<lng>/<ns>.json`: i18n translation files
 - Tests: `__tests__` (Jest + Testing Library)
 - Frontend config:
   - `next.config.ts`: Next config (static export: `output: 'export'`, output dir: `build/`)
-  - `next-i18next.config.js`: next-i18next config (`localePath` points at `public/locales`)
+  - `i18n.config.json`: locale source-of-truth for app/runtime scripts
 
 ### Content (Markdown + indexes)
 
@@ -128,7 +126,7 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, next-i18next, Boots
 - When adding a new topic, update `content/topics/<locale>/topics.json`.
 - When adding new UI copy:
   - Update both locale namespaces: `public/locales/en/*.json` and `public/locales/tr/*.json`
-  - Ensure pages include the needed namespaces in their `getStaticProps` helpers (see `src/lib/getStatic.ts`).
+  - Ensure route metadata/translator usage includes needed namespaces (see `src/i18n/server.ts` and route `generateMetadata` files).
 
 ## SEO, Feeds & Scripts
 
@@ -280,4 +278,4 @@ Optional longer description.
 - Introducing server-only APIs or runtime dependencies in an `output: 'export'` environment.
 - Using `NEXT_PUBLIC_BASE_PATH` without accounting for asset paths and NGINX 404 routing.
 - If Sass deprecation warnings appear in CI: prefer `@use` over `@import`, and keep `next.config.ts` `sassOptions.quietDeps` enabled to silence dependency noise.
-- Ignoring large-page-data warnings: some `getStaticProps` payloads can exceed Next's default 128k threshold and may impact performance.
+- Ignoring large-page-data warnings: large static payloads from locale/post preloads can impact performance.

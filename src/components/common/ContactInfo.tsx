@@ -1,7 +1,7 @@
 // components/common/ContactInfo.tsx
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { CONTACT_LINKS, SOCIAL_MEDIA_NAMES } from '@/config/constants';
 
 const ContactInfo = () => {

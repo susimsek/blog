@@ -33,6 +33,7 @@ export default defineConfig([
       'coverage/**',
       '.nyc_output/**',
       'public/**',
+      'src/pages_legacy/**',
       'src/generated/**',
       'target/**',
       '.git/**',

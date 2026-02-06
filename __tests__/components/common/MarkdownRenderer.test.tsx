@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import MarkdownRenderer from '@/components/common/MarkdownRenderer';
 
-jest.mock('next/router', () => ({
+jest.mock('@/navigation/router', () => ({
   useRouter: jest.fn().mockReturnValue({
     query: { locale: 'en' },
   }),
@@ -18,7 +18,15 @@ jest.mock('rehype-raw', () => jest.fn());
 
 jest.mock('@/components/common/Link', () => ({
   __esModule: true,
-  default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => (
+  default: ({
+    href,
+    children,
+    skipLocaleHandling: _skipLocaleHandling,
+    ...props
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => (
     <a href={href} {...props}>
       {children}
     </a>
@@ -29,14 +37,6 @@ jest.mock('@/components/common/Link', () => ({
 jest.mock('@/config/store', () => ({
   useAppSelector: jest.fn(),
 }));
-
-jest.mock('@/components/common/MarkdownTabsRenderer', () => {
-  return jest.fn(({ content }: { content: string }) => (
-    <div data-testid="tabs-renderer">
-      <span>{content}</span>
-    </div>
-  ));
-});
 
 jest.mock('@/components/common/CodeBlock', () => {
   return ({ children, className, theme, inline, node, ...props }: any) => (
@@ -93,7 +93,7 @@ describe('MarkdownRenderer Component', () => {
     expect(codeBlock).toBeInTheDocument();
   });
 
-  it('renders tabs content with MarkdownTabsRenderer', () => {
+  it('renders tabs content with MarkdownTabsRenderer', async () => {
     const content = `
       :::tabs
       @tab Tab1
@@ -104,9 +104,9 @@ describe('MarkdownRenderer Component', () => {
 
     render(<MarkdownRenderer content={content} />);
 
-    const tabsRenderer = screen.getByTestId('tabs-renderer');
-    expect(tabsRenderer).toBeInTheDocument();
-    expect(tabsRenderer).toHaveTextContent('@tab Tab1 Content for Tab 1 @tab Tab2 Content for Tab 2');
+    expect(await screen.findByText('Tab1')).toBeInTheDocument();
+    expect(screen.getByText('Tab2')).toBeInTheDocument();
+    expect(screen.getByText('Content for Tab 1')).toBeInTheDocument();
   });
 
   it('renders markdown outside of tabs correctly', () => {
@@ -120,9 +120,7 @@ describe('MarkdownRenderer Component', () => {
 
     render(<MarkdownRenderer content={content} />);
 
-    const markdownElement = screen.getByTestId('react-markdown');
-    expect(markdownElement).toBeInTheDocument();
-    expect(markdownElement).toHaveTextContent('This is markdown outside of tabs.');
+    expect(screen.getByText('This is markdown outside of tabs.')).toBeInTheDocument();
   });
 
   it('renders all link variants from markdown component map', () => {

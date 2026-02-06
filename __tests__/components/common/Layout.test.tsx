@@ -1,10 +1,10 @@
 import { fireEvent, screen } from '@testing-library/react';
 import Layout from '@/components/common/Layout';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
-import { useRouter } from 'next/router';
+import { useRouter } from '@/navigation/router';
 import useMediaQuery from '@/hooks/useMediaQuery';
 
-jest.mock('next/router', () => ({
+jest.mock('@/navigation/router', () => ({
   useRouter: jest.fn(),
 }));
 

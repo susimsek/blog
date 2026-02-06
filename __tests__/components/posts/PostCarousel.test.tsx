@@ -4,7 +4,7 @@ import '@testing-library/jest-dom';
 import PostCarousel from '@/components/posts/PostCarousel';
 import { mockPostSummaries } from '@tests/__mocks__/mockPostData';
 
-jest.mock('next/router', () => ({
+jest.mock('@/navigation/router', () => ({
   useRouter: jest.fn().mockReturnValue({
     asPath: '/',
     pathname: '/',

@@ -1,12 +1,17 @@
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { SortDropdown } from '@/components/common/SortDropdown';
 import { TopicsDropdown } from '@/components/common/TopicsDropdown';
-import DateRangePicker from '@/components/common/DateRangePicker';
 import SearchBar from '@/components/search/SearchBar';
 import { Topic } from '@/types/posts';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { setQuery, setSortOrder, setSelectedTopics, setDateRange, setReadingTimeRange } from '@/reducers/postsQuery';
 import ReadingTimeDropdown from '@/components/common/ReadingTimeDropdown';
+
+const DateRangePicker = dynamic(() => import('@/components/common/DateRangePicker'), {
+  ssr: false,
+  loading: () => <div className="mb-2" style={{ minWidth: '220px' }} />,
+});
 
 export interface PostFiltersProps {
   topics?: Topic[];

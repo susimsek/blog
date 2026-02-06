@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import SearchBar from '@/components/search/SearchBar';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 
 // Mock useTranslation hook
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(),
 }));
 

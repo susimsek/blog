@@ -9,7 +9,7 @@ jest.mock('@/config/store', () => ({
   useAppSelector: jest.fn(),
 }));
 
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
     t: jest.fn((key: string) => key),
   })),

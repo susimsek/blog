@@ -1,10 +1,10 @@
-import React, { useMemo, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React, { useMemo, useCallback, useEffect, useRef } from 'react';
+import { useRouter } from '@/navigation/router';
 import { PostSummary, Topic } from '@/types/posts';
 import Container from 'react-bootstrap/Container';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { filterByQuery, filterByTopics, filterByDateRange, filterByReadingTime, sortPosts } from '@/lib/postFilters';
 import { PostFilters } from './PostFilters';
@@ -30,25 +30,48 @@ export default function PostList({
   const { t } = useTranslation(['post', 'common']);
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const listTopRef = useRef<HTMLDivElement | null>(null);
   const { query, sortOrder, selectedTopics, dateRange, readingTimeRange, page, pageSize } = useAppSelector(
     state => state.postsQuery,
   );
   const debouncedSearchQuery = useDebounce(query, 500);
+
+  const toSingleQueryValue = (value: string | string[] | undefined): string | undefined => {
+    return Array.isArray(value) ? value[0] : value;
+  };
 
   useEffect(() => {
     if (!router.isReady) {
       return;
     }
 
-    const routePage = Number(router.query.page) || 1;
-    dispatch(setPage(routePage));
+    const routePageValue = toSingleQueryValue(router.query.page);
+    const parsedPage = Number.parseInt(routePageValue ?? '', 10);
+    const routePage = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
 
-    const routeSize = Number(router.query.size) || 5;
-    dispatch(setPageSize(routeSize));
+    const routeSizeValue = toSingleQueryValue(router.query.size);
+    const parsedSize = Number.parseInt(routeSizeValue ?? '', 10);
+    const routeSize = Number.isFinite(parsedSize) && parsedSize > 0 ? parsedSize : 5;
 
-    const routeQuery = typeof router.query.q === 'string' ? router.query.q : '';
-    dispatch(setQuery(routeQuery));
-  }, [router.isReady, router.query.page, router.query.size, router.query.q, dispatch]);
+    const routeQuery = toSingleQueryValue(router.query.q) ?? '';
+
+    const queryChanged = routeQuery !== query;
+    const sizeChanged = routeSize !== pageSize;
+    const pageChanged = routePage !== page;
+
+    if (queryChanged) {
+      dispatch(setQuery(routeQuery));
+    }
+
+    if (sizeChanged) {
+      dispatch(setPageSize(routeSize));
+    }
+
+    // Keep URL as the source of truth for active page.
+    if (queryChanged || sizeChanged || pageChanged) {
+      dispatch(setPage(routePage));
+    }
+  }, [router.isReady, router.query.page, router.query.size, router.query.q, query, page, pageSize, dispatch]);
 
   const filteredPosts = useMemo(
     () =>
@@ -69,6 +92,23 @@ export default function PostList({
     [sortedPosts, page, pageSize],
   );
 
+  const scrollToListStart = useCallback(() => {
+    const target = listTopRef.current;
+    if (!target) {
+      return;
+    }
+
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    target.scrollIntoView({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  }, []);
+
   const handlePageChange = useCallback(
     (newPage: number) => {
       dispatch(setPage(newPage));
@@ -80,8 +120,9 @@ export default function PostList({
         undefined,
         { shallow: true },
       );
+      scrollToListStart();
     },
-    [router, pageSize, dispatch],
+    [router, pageSize, dispatch, scrollToListStart],
   );
 
   const handleSizeChange = useCallback(
@@ -95,12 +136,14 @@ export default function PostList({
         undefined,
         { shallow: true },
       );
+      scrollToListStart();
     },
-    [router, dispatch],
+    [router, dispatch, scrollToListStart],
   );
 
   return (
     <Container className="mt-5" style={{ maxWidth: '800px' }}>
+      <div ref={listTopRef} />
       <PostFilters topics={topics} searchEnabled={searchEnabled} />
       {paginatedPosts.length > 0 ? (
         paginatedPosts.map(post => (

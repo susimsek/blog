@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import DateDisplay from '@/components/common/DateDisplay';
-import { useRouter } from 'next/router';
+import { useRouter } from '@/navigation/router';
 
-// Mock next/router
-jest.mock('next/router', () => ({
+// Mock @/navigation/router
+jest.mock('@/navigation/router', () => ({
   useRouter: jest.fn(),
 }));
 

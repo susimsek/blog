@@ -45,7 +45,7 @@ jest.mock('react-bootstrap', () => {
   };
 });
 
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: jest.fn().mockReturnValue({
     t: (key: string) => key,
   }),

@@ -1,6 +1,6 @@
 // components/common/Footer.tsx
 import Container from 'react-bootstrap/Container';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { LAUNCH_YEAR } from '@/config/constants';
 
 export default function Footer() {

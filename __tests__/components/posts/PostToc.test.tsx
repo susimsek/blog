@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import PostToc from '@/components/posts/PostToc';
 
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
     t: jest.fn((key: string) => key),
   })),

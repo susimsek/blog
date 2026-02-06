@@ -1,6 +1,6 @@
 import React, { ReactNode, MouseEvent, KeyboardEvent, forwardRef } from 'react';
 import NextLink, { LinkProps } from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter } from '@/navigation/router';
 
 interface LinkComponentProps extends Omit<LinkProps, 'href'> {
   children: ReactNode;
@@ -50,7 +50,6 @@ const LinkComponent = forwardRef<HTMLAnchorElement, LinkComponentProps>(
       <NextLink
         ref={ref}
         href={resolvedHref}
-        locale={shouldHandleLocale ? currentLocale : false}
         className={combinedClassName}
         onClick={handleClick}
         onKeyDown={handleKeyDown}

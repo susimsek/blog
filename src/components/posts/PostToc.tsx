@@ -1,6 +1,6 @@
 import React from 'react';
 import Accordion from 'react-bootstrap/Accordion';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 
 type TocItem = {
   id: string;

@@ -10,7 +10,7 @@ import useMediaQuery from '@/hooks/useMediaQuery';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { GA_ID } from '@/config/constants';
 import { useAppDispatch } from '@/config/store';
-import { useRouter } from 'next/router';
+import { useRouter } from '@/navigation/router';
 import { setPosts, setLocale } from '@/reducers/postsQuery';
 import PreFooter from '@/components/common/PreFooter';
 

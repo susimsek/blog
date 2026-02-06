@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { resetToSystemTheme, setTheme, type Theme } from '@/reducers/theme';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { THEMES } from '@/config/constants';
 

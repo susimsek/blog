@@ -1,10 +1,10 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { useRedirect, Redirect, getRedirect } from '@/lib/redirect';
-import { useRouter } from 'next/router';
+import { useRouter } from '@/navigation/router';
 import languageDetector from '@/lib/languageDetector';
 
-jest.mock('next/router', () => ({
+jest.mock('@/navigation/router', () => ({
   useRouter: jest.fn(),
 }));
 

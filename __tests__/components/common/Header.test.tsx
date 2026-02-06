@@ -1,10 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import Header from '@/components/common/Header';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import useMediaQuery from '@/hooks/useMediaQuery';
 
-// Mock `next-i18next`
-jest.mock('next-i18next', () => ({
+// Mock `react-i18next`
+jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(),
 }));
 

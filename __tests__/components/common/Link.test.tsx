@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Link from '@/components/common/Link';
-import { useRouter } from 'next/router';
+import { useRouter } from '@/navigation/router';
 
 const mockNextLinkComponent = jest.fn(({ children, locale, ...props }: any) => (
   <a data-locale={locale === false ? 'false' : (locale ?? '')} {...props}>
@@ -14,8 +14,8 @@ jest.mock('next/link', () => ({
   default: (props: any) => mockNextLinkComponent(props),
 }));
 
-// Mock `next/router`
-jest.mock('next/router', () => ({
+// Mock `@/navigation/router`
+jest.mock('@/navigation/router', () => ({
   useRouter: jest.fn(),
 }));
 

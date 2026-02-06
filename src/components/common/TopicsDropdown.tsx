@@ -4,7 +4,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { Topic } from '@/types/posts';
 import SearchBar from '@/components/search/SearchBar';
 import Paginator from '@/components/pagination/Paginator';

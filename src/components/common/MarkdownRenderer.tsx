@@ -1,19 +1,23 @@
 import React, { useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import Table from 'react-bootstrap/Table';
 import { useAppSelector } from '@/config/store';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import CodeBlock from '@/components/common/CodeBlock';
-import MarkdownTabsRenderer from './MarkdownTabsRenderer';
 import { splitContentWithTabs } from '@/lib/markdownUtils';
 import markdownSchema from '@/config/markdownSchema';
 import type { Theme } from '@/reducers/theme';
-import { useRouter } from 'next/router';
-import i18nextConfig from '@root/next-i18next.config';
+import { useRouter } from '@/navigation/router';
+import i18nextConfig from '@/i18n/settings';
 import Link from '@/components/common/Link';
+
+const MarkdownTabsRenderer = dynamic(() => import('./MarkdownTabsRenderer'), {
+  loading: () => null,
+});
 
 interface MarkdownRendererProps {
   content: string;

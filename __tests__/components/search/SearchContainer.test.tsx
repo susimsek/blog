@@ -4,7 +4,7 @@ import SearchContainer from '@/components/search/SearchContainer';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
 import { setPosts } from '@/reducers/postsQuery';
 
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, string>) => (options?.query ? `${key}:${options.query}` : key),
   }),

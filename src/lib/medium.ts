@@ -2,12 +2,8 @@ import Parser from 'rss-parser';
 import fs from 'node:fs';
 import path from 'node:path';
 import { PostSummary, Topic } from '@/types/posts';
-import i18nextConfig from '@root/next-i18next.config';
-import { GetStaticPropsContext } from 'next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { TOPIC_COLORS } from '@/config/constants';
 import { createCacheStore } from '@/lib/cacheUtils';
-import { getAllTopics, getLayoutPosts, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/posts';
 
 type MediumItem = Parser.Item & {
   'content:encoded'?: string;
@@ -195,27 +191,3 @@ export async function fetchRssSummaries(locale: string): Promise<PostSummary[]> 
     return [];
   }
 }
-
-export const makeMediumPostsProps =
-  (ns: string[] = []) =>
-  async (context: GetStaticPropsContext) => {
-    const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
-    const mediumPosts = await fetchRssSummaries(locale);
-
-    const allPosts = await getSortedPostsData(locale);
-    const layoutPosts = getLayoutPosts(allPosts);
-    const topics = await getAllTopics(locale);
-    const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
-
-    const i18nProps = await serverSideTranslations(locale, ns);
-
-    return {
-      props: {
-        ...i18nProps,
-        layoutPosts,
-        topics,
-        preFooterTopTopics,
-        mediumPosts,
-      },
-    };
-  };

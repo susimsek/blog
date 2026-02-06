@@ -2,15 +2,15 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import RelatedPosts from '@/components/posts/RelatedPosts';
 import type { PostSummary } from '@/types/posts';
-import { useRouter } from 'next/router';
+import { useRouter } from '@/navigation/router';
 
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),
 }));
 
-jest.mock('next/router', () => ({
+jest.mock('@/navigation/router', () => ({
   useRouter: jest.fn(),
 }));
 

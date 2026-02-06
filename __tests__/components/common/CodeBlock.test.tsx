@@ -9,7 +9,7 @@ Object.assign(navigator, {
 });
 
 // Mock i18n translation function
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key, // Just return the key as translation
   }),

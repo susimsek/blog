@@ -1,14 +1,10 @@
 import {
   getAllPostIds,
   getSortedPostsData,
-  makePostProps,
-  makePostDetailProps,
   getPostData,
   getTopicData,
-  makeTopicProps,
   getAllTopicIds,
   getAllTopics,
-  makeSearchProps,
   postsCache,
   postDataCache,
   topicsCache,
@@ -17,7 +13,6 @@ import {
   readingTimeCache,
 } from '@/lib/posts';
 import fs from 'fs';
-import { GetStaticPropsContext } from 'next';
 import path from 'path';
 import { mockPost, mockPostSummary, mockTopic } from '@tests/__mocks__/mockPostData';
 
@@ -54,16 +49,6 @@ const fsMock = fs as unknown as {
 jest.mock('path', () => ({
   join: jest.fn((...args) => args.join('/')),
   basename: jest.fn((filePath: string) => filePath.split('/').pop()?.split('.')[0] || ''),
-}));
-
-jest.mock('next-i18next/serverSideTranslations', () => ({
-  serverSideTranslations: jest.fn((locale, namespaces) => ({
-    _nextI18Next: {
-      initialI18nStore: {},
-      initialLocale: locale,
-      userConfig: {},
-    },
-  })),
 }));
 
 // Mock `gray-matter`
@@ -131,17 +116,7 @@ jest.mock('gray-matter', () =>
   }),
 );
 
-// Mock config
-jest.mock('@/lib/getStatic', () => ({
-  getI18nProps: jest.fn().mockResolvedValue({
-    _nextI18Next: {
-      initialLocale: 'en',
-      ns: ['common', 'post', 'topic'],
-    },
-  }),
-}));
-
-jest.mock('@root/next-i18next.config', () => ({
+jest.mock('@/i18n/settings', () => ({
   i18n: {
     defaultLocale: 'en',
     locales: ['en', 'fr', 'de'],
@@ -158,7 +133,7 @@ describe('Posts Library', () => {
       Promise.resolve((fs.readFileSync as jest.Mock)(filePath, encoding)),
     );
 
-    (fs.readFileSync as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
+    (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
       if (filePath.includes('posts.json')) {
         return JSON.stringify([mockPostSummary]);
       }
@@ -188,7 +163,7 @@ describe('Posts Library', () => {
 
     it('filters posts by topicId', async () => {
       (fs.readdirSync as jest.Mock).mockReturnValue(['post1.md', 'post2.md', 'post3.md']);
-      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
+      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
         if (filePath.includes('posts.json')) {
           return JSON.stringify([
             {
@@ -235,7 +210,7 @@ describe('Posts Library', () => {
         if (p.includes('/en')) return ['fallback-post.md'];
         return [];
       });
-      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
+      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
         if (filePath.includes('posts.json')) {
           return JSON.stringify([mockPostSummary]);
         }
@@ -512,263 +487,6 @@ Fallback markdown content`;
     });
   });
 
-  describe('makePostProps', () => {
-    it('returns props with default namespace', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.promises.readdir as jest.Mock).mockResolvedValue(['post1.md']);
-      const originalReadFile = (fs.promises.readFile as jest.Mock).getMockImplementation();
-      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
-        if (filePath.includes('post1.md')) {
-          return Promise.resolve(`
-    ---
-    id: post1
-    title: Post 1
-    date: "2024-01-01"
-    summary: Summary 1
-    topics: [{"name": "React", "color": "red"}]
-    ---
-    # Content 1
-    `);
-        }
-        return originalReadFile ? originalReadFile(filePath, encoding) : Promise.resolve('');
-      });
-      const context: GetStaticPropsContext = { params: { locale: 'en' } };
-      const result = await makePostProps()(context);
-      expect(result.props._nextI18Next?.initialLocale).toBe('en');
-      expect(result.props.posts).toEqual([mockPostSummary]);
-    });
-
-    it('returns props for post list', async () => {
-      const mockEnglishTopics = [
-        { id: 'react', name: 'React', color: 'red' },
-        { id: 'nextjs', name: 'Next.js', color: 'blue' },
-      ];
-      const mockTurkishTopics = [
-        { id: 'react', name: 'React', color: 'red' },
-        { id: 'nextjs', name: 'Sonraki.js', color: 'mavi' },
-      ];
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.promises.readdir as jest.Mock).mockResolvedValue(['post1.md']);
-      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.endsWith('/content/topics/en/topics.json')) {
-          return JSON.stringify(mockEnglishTopics);
-        }
-        if (filePath.endsWith('/content/topics/tr/topics.json')) {
-          return JSON.stringify(mockTurkishTopics);
-        }
-
-        if (filePath.includes('posts.json')) {
-          return JSON.stringify([mockPostSummary]);
-        }
-        return '';
-      });
-      const originalReadFile = (fs.promises.readFile as jest.Mock).getMockImplementation();
-      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
-        if (filePath.includes('post1.md')) {
-          return Promise.resolve(`
-  ---
-  id: post1
-  title: Post 1
-  date: "2024-01-01"
-  summary: Summary 1
-  topics: [{"name": "React", "color": "red"}]
-  ---
-  # Content 1
-  `);
-        }
-        return originalReadFile ? originalReadFile(filePath, encoding) : Promise.resolve('');
-      });
-      const context: GetStaticPropsContext = { params: { locale: 'en' } };
-      const result = await makePostProps(['common', 'post'])(context);
-      expect(result).toEqual({
-        props: {
-          _nextI18Next: {
-            initialI18nStore: {},
-            initialLocale: 'en',
-            userConfig: {},
-          },
-          posts: [mockPostSummary],
-          preFooterTopTopics: [{ color: 'red', id: 'react', name: 'React' }],
-          topics: [
-            { color: 'red', id: 'react', name: 'React' },
-            { color: 'blue', id: 'nextjs', name: 'Next.js' },
-          ],
-        },
-      });
-    });
-
-    it('uses default locale when locale is missing', async () => {
-      const context: GetStaticPropsContext = { params: {} };
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.promises.readdir as jest.Mock).mockResolvedValue(['post1.md']);
-      const originalReadFile = (fs.promises.readFile as jest.Mock).getMockImplementation();
-      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
-        if (filePath.includes('post1.md')) {
-          return Promise.resolve(`
-    ---
-    id: post1
-    title: Post 1
-    date: "2024-01-01"
-    summary: Summary 1
-    topics: [{"name": "React", "color": "red"}]
-    ---
-    # Content 1
-    `);
-        }
-        return originalReadFile ? originalReadFile(filePath, encoding) : Promise.resolve('');
-      });
-      const result = await makePostProps(['common', 'post'])(context);
-      expect(result.props?._nextI18Next?.initialLocale).toBe('en');
-    });
-
-    it('returns empty list when no posts exist for the locale', async () => {
-      (fs.existsSync as jest.Mock).mockImplementation((dirPath: string) => {
-        if (dirPath.includes('/content/topics/fr/topics.json')) return false;
-        if (dirPath.includes('/content/posts/fr')) return false;
-        return false;
-      });
-      (fs.readdirSync as jest.Mock).mockImplementation((dirPath: string) => []);
-      const context: GetStaticPropsContext = { params: { locale: 'fr' } };
-      const result = await makePostProps(['common', 'post'])(context);
-      expect(result.props.posts).toEqual([]);
-    });
-
-    it('includes correct i18nProps', async () => {
-      const context: GetStaticPropsContext = { params: { locale: 'en' } };
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.promises.readdir as jest.Mock).mockResolvedValue(['post1.md']);
-      const originalReadFile = (fs.promises.readFile as jest.Mock).getMockImplementation();
-      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
-        if (filePath.includes('post1.md')) {
-          return Promise.resolve(`
-    ---
-    id: post1
-    title: Post 1
-    date: "2024-01-01"
-    summary: Summary 1
-    topics: [{"name": "React", "color": "red"}]
-    ---
-    # Content 1
-    `);
-        }
-        return originalReadFile ? originalReadFile(filePath, encoding) : Promise.resolve('');
-      });
-      const result = await makePostProps(['common', 'post'])(context);
-      expect(result.props._nextI18Next).toEqual({
-        initialI18nStore: {},
-        initialLocale: 'en',
-        userConfig: {},
-      });
-    });
-  });
-
-  describe('makePostDetailProps', () => {
-    it('returns props with default namespace', async () => {
-      const context: GetStaticPropsContext = { params: { id: 'mock-post', locale: 'en' } };
-      const result = await makePostDetailProps()(context);
-      expect(result.props?._nextI18Next?.initialLocale).toBe('en');
-      expect(result.props?.post).toEqual(mockPost);
-    });
-
-    it('returns props for a specific post', async () => {
-      const context: GetStaticPropsContext = { params: { id: 'mock-post', locale: 'en' } };
-      const result = await makePostDetailProps(['common', 'post'])(context);
-      expect(result).toEqual({
-        props: {
-          _nextI18Next: {
-            initialI18nStore: {},
-            initialLocale: 'en',
-            userConfig: {},
-          },
-          layoutPosts: [mockPostSummary],
-          post: mockPost,
-          preFooterTopTopics: [{ color: 'red', id: 'react', name: 'React' }],
-          relatedPosts: [],
-        },
-      });
-    });
-
-    it('uses default locale when locale is missing', async () => {
-      const context: GetStaticPropsContext = { params: { id: '1' } };
-      const result = await makePostDetailProps(['common', 'post'])(context);
-      expect(result.props?._nextI18Next?.initialLocale).toBe('en');
-      expect(result.props?.post.id).toBe('1');
-    });
-
-    it('returns props with default values when id is missing', async () => {
-      const context: GetStaticPropsContext = { params: { locale: 'en' } };
-      const result = await makePostDetailProps(['common', 'post'])(context);
-      expect(result.props).toBeDefined();
-      expect(result.props?._nextI18Next?.initialLocale).toBe('en');
-      expect(result.props?.post).toEqual(mockPost);
-    });
-
-    it('returns notFound when post is undefined', async () => {
-      const context: GetStaticPropsContext = { params: { id: 'non-existent-post', locale: 'en' } };
-      (fs.existsSync as jest.Mock).mockReturnValue(false);
-      const result = await makePostDetailProps(['common', 'post'])(context);
-      expect(result).toEqual({ notFound: true });
-    });
-  });
-
-  describe('makeTopicProps', () => {
-    beforeEach(() => {
-      const originalReadFile = (fs.promises.readFile as jest.Mock).getMockImplementation();
-      (fs.promises.readFile as jest.Mock).mockImplementation((filePath: string, encoding: string) => {
-        if (filePath.endsWith('.md')) {
-          return Promise.resolve(`
-      ---
-      id: ${mockPost.id}
-      title: ${mockPost.title}
-      date: "${mockPost.date}"
-      summary: ${mockPost.summary}
-      thumbnail: ${mockPost.thumbnail}
-      topics: ${JSON.stringify(mockPost.topics)}
-      ---
-      # Mock Markdown Content
-    `);
-        }
-        return originalReadFile ? originalReadFile(filePath, encoding) : Promise.resolve('');
-      });
-    });
-
-    it('returns props with default namespace', async () => {
-      (fs.promises.readdir as jest.Mock).mockResolvedValue(['mock-post.md']);
-      const context: GetStaticPropsContext = { params: { locale: 'en', id: 'react' } };
-      const result = await makeTopicProps()(context);
-      expect(result.props?._nextI18Next?.initialLocale).toBe('en');
-    });
-
-    it('returns props when locale and topicId are valid', async () => {
-      (fs.promises.readdir as jest.Mock).mockResolvedValue(['mock-post.md']);
-      const context: GetStaticPropsContext = { params: { locale: 'en', id: 'react' } };
-      const result = await makeTopicProps(['common', 'topic'])(context);
-      expect(result.props).toBeDefined();
-      expect(result.props?._nextI18Next?.initialLocale).toBe('en');
-    });
-
-    it('returns notFound: true when topic does not exist', async () => {
-      const context: GetStaticPropsContext = { params: { locale: 'en', id: 'missing-topic' } };
-      (fs.promises.readdir as jest.Mock).mockResolvedValue(['mock-post.md']);
-      const result = await makeTopicProps(['common', 'topic'])(context);
-      expect(result).toEqual({ notFound: true });
-    });
-
-    it('uses default locale when locale is missing', async () => {
-      const context: GetStaticPropsContext = { params: { id: 'react' } };
-      (fs.promises.readdir as jest.Mock).mockResolvedValue(['mock-post.md']);
-      const result = await makeTopicProps(['common', 'topic'])(context);
-      expect(result.props?._nextI18Next?.initialLocale).toBe('en');
-    });
-
-    it('returns props with default values when id is missing', async () => {
-      const context: GetStaticPropsContext = { params: { locale: 'en' } };
-      (fs.promises.readdir as jest.Mock).mockResolvedValue(['mock-post.md']);
-      const result = await makeTopicProps(['common', 'topic'])(context);
-      expect(result).toEqual({ notFound: true });
-    });
-  });
-
   describe('getAllTopicIds', () => {
     const mockEnglishTopics = [
       { id: 'react', name: 'React', color: 'red' },
@@ -916,55 +634,6 @@ Fallback markdown content`;
           },
         },
       ]);
-    });
-  });
-
-  describe('makeSearchProps', () => {
-    it('returns search props with locale specific posts/topics', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.includes('posts.json')) {
-          return JSON.stringify([mockPostSummary]);
-        }
-        if (filePath.includes('topics.json')) {
-          return JSON.stringify([mockTopic]);
-        }
-        return '';
-      });
-
-      const context: GetStaticPropsContext = { params: { locale: 'en' } };
-      const result = await makeSearchProps(['common', 'search'])(context);
-
-      expect(result).toEqual({
-        props: {
-          _nextI18Next: {
-            initialI18nStore: {},
-            initialLocale: 'en',
-            userConfig: {},
-          },
-          allPosts: [mockPostSummary],
-          preFooterTopTopics: [{ color: 'red', id: 'react', name: 'React' }],
-          topics: [mockTopic],
-        },
-      });
-    });
-
-    it('falls back to default locale when locale param is missing', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.includes('posts.json')) {
-          return JSON.stringify([mockPostSummary]);
-        }
-        if (filePath.includes('topics.json')) {
-          return JSON.stringify([mockTopic]);
-        }
-        return '';
-      });
-
-      const result = await makeSearchProps(['common'])({ params: {} } as GetStaticPropsContext);
-      expect(result.props?._nextI18Next?.initialLocale).toBe('en');
-      expect(result.props?.allPosts).toEqual([mockPostSummary]);
-      expect(result.props?.topics).toEqual([mockTopic]);
     });
   });
 });

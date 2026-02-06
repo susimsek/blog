@@ -4,13 +4,14 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useTranslation } from 'next-i18next';
-import i18nextConfig from '@root/next-i18next.config';
-import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
+import i18nextConfig from '@/i18n/settings';
+import { useRouter } from '@/navigation/router';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { enUS } from 'date-fns/locale/en-US';
 import { tr } from 'date-fns/locale/tr';
 import 'react-datepicker/dist/react-datepicker.css';
+import styles from './DateRangePicker.module.scss';
 
 interface DateRangePickerProps {
   onRangeChange: (dates: { startDate?: string; endDate?: string }) => void;
@@ -237,7 +238,7 @@ export default function DateRangePicker({
       <DropdownButton
         id="date-range-dropdown"
         variant="orange"
-        className="date-picker-dropdown mb-2"
+        className={`${styles.datePickerDropdown} mb-2`}
         align="start"
         flip={false}
         title={
@@ -302,7 +303,7 @@ export default function DateRangePicker({
               {formErrors.endDate && <Form.Text className="text-danger mt-2">{formErrors.endDate}</Form.Text>}
             </div>
             <div className="d-flex align-items-center">
-              <Button variant="success" type="submit" size="sm" className="date-picker-button">
+              <Button variant="success" type="submit" size="sm" className={styles.datePickerButton}>
                 <FontAwesomeIcon icon="check" className="me-2" />
                 {t('common.datePicker.applySelection')}
               </Button>
@@ -313,8 +314,8 @@ export default function DateRangePicker({
         {isSelectionMade && (
           <>
             <Dropdown.Divider />
-            <div className="date-picker-clear-button-container">
-              <Button variant="danger" onClick={handleClearFilter} size="sm" className="date-picker-button">
+            <div className={styles.datePickerClearButtonContainer}>
+              <Button variant="danger" onClick={handleClearFilter} size="sm" className={styles.datePickerButton}>
                 <FontAwesomeIcon icon="times" className="me-2" />
                 {t('common.datePicker.clearSelection')}
               </Button>

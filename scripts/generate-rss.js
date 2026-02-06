@@ -2,11 +2,11 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const nextI18NextConfig = require('../next-i18next.config');
+const i18nConfig = require('../i18n.config.json');
 
 const siteUrl = process.env.SITE_URL || 'https://suaybsimsek.com';
 
-const locales = nextI18NextConfig.i18n.locales;
+const locales = i18nConfig.locales;
 
 const buildDir = path.join(process.cwd(), 'build');
 

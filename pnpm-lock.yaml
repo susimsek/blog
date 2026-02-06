@@ -52,9 +52,6 @@ importers:
       next:
         specifier: ^16.1.6
         version: 16.1.6(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sass@1.97.3)
-      next-i18next:
-        specifier: ^15.4.3
-        version: 15.4.3(@types/react@19.2.10)(i18next@25.8.0(typescript@5.9.3))(next@16.1.6(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sass@1.97.3))(react-i18next@16.5.4(i18next@25.8.0(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(react@19.2.4)
       next-language-detector:
         specifier: ^1.1.1
         version: 1.1.1
@@ -2725,10 +2722,6 @@ packages:
     resolution:
       { integrity: sha512-OM4cAF3D6VtH/WkLtWvyNC56EZVXsZdU3iqaMG2B4WvYrlqU831pc4UtG5yp0sE9z8Y02wVN7PjW5Zf9Gt0f1Q== }
 
-  core-js@3.48.0:
-    resolution:
-      { integrity: sha512-zpEHTy1fjTMZCKLHUZoVeylt9XrzaIN2rbPXEt0k+q7JE5CkCZdo6bNq55bn24a69CH7ErAVLKijxJja4fw+UQ== }
-
   cosmiconfig@8.3.6:
     resolution:
       { integrity: sha512-kcZ6+W5QzcJ3P1Mt+83OUv/oHFqZHIx8DuxG6eZ5RGMERoLqp4BuGjhHLYGK+Kf5XVkQvqBSmAy/nGWN3qDgEA== }
@@ -3573,10 +3566,6 @@ packages:
   i18next-browser-languagedetector@8.2.0:
     resolution:
       { integrity: sha512-P+3zEKLnOF0qmiesW383vsLdtQVyKtCNA9cjSoKCppTKPQVfKd2W8hbVo5ZhNJKDqeM7BOcvNoKJOjpHh4Js9g== }
-
-  i18next-fs-backend@2.6.1:
-    resolution:
-      { integrity: sha512-eYWTX7QT7kJ0sZyCPK6x1q+R63zvNKv2D6UdbMf15A8vNb2ZLyw4NNNZxPFwXlIv/U+oUtg8SakW6ZgJZcoqHQ== }
 
   i18next-resources-for-ts@2.0.0:
     resolution:
@@ -4499,16 +4488,6 @@ packages:
   neo-async@2.6.2:
     resolution:
       { integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw== }
-
-  next-i18next@15.4.3:
-    resolution:
-      { integrity: sha512-ZRmiz72o1Jvh2ZghCUQX1Ua5F/f2W1/Ila/L1ZeKVuSWiH7J4zfUedfDxNBEhj9lajREC7aoJuPXMFtKi2bdIg== }
-    engines: { node: '>=14' }
-    peerDependencies:
-      i18next: '>= 23.7.13'
-      next: '>= 12.0.0'
-      react: '>= 17.0.2'
-      react-i18next: '>= 13.5.0'
 
   next-language-detector@1.1.1:
     resolution:
@@ -8182,8 +8161,6 @@ snapshots:
     dependencies:
       browserslist: 4.28.1
 
-  core-js@3.48.0: {}
-
   cosmiconfig@8.3.6(typescript@5.9.3):
     dependencies:
       import-fresh: 3.3.1
@@ -9060,8 +9037,6 @@ snapshots:
   i18next-browser-languagedetector@8.2.0:
     dependencies:
       '@babel/runtime': 7.28.3
-
-  i18next-fs-backend@2.6.1: {}
 
   i18next-resources-for-ts@2.0.0(@swc/helpers@0.5.18):
     dependencies:
@@ -10194,20 +10169,6 @@ snapshots:
   natural-compare@1.4.0: {}
 
   neo-async@2.6.2: {}
-
-  next-i18next@15.4.3(@types/react@19.2.10)(i18next@25.8.0(typescript@5.9.3))(next@16.1.6(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sass@1.97.3))(react-i18next@16.5.4(i18next@25.8.0(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(react@19.2.4):
-    dependencies:
-      '@babel/runtime': 7.28.6
-      '@types/hoist-non-react-statics': 3.3.7(@types/react@19.2.10)
-      core-js: 3.48.0
-      hoist-non-react-statics: 3.3.2
-      i18next: 25.8.0(typescript@5.9.3)
-      i18next-fs-backend: 2.6.1
-      next: 16.1.6(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sass@1.97.3)
-      react: 19.2.4
-      react-i18next: 16.5.4(i18next@25.8.0(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)
-    transitivePeerDependencies:
-      - '@types/react'
 
   next-language-detector@1.1.1:
     dependencies:

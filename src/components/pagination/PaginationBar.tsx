@@ -3,7 +3,7 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Paginator from '@/components/pagination/Paginator';
 import PageSizeSelector from './PageSizeSelector';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 
 interface PaginationBarProps {
   currentPage: number;

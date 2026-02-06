@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import PostDetail from '@/components/posts/PostDetail';
 import { mockPost, mockPostWithoutContent } from '@tests/__mocks__/mockPostData';
 
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),
@@ -12,7 +12,7 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <span data-testid={`fa-icon-${icon}`} />,
 }));
 
-jest.mock('next/router', () => ({
+jest.mock('@/navigation/router', () => ({
   useRouter: jest.fn().mockReturnValue({
     asPath: '/',
     pathname: '/',

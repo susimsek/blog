@@ -1,4 +1,5 @@
 // components/posts/PostDetail.tsx
+import dynamic from 'next/dynamic';
 import { Post } from '@/types/posts';
 import Container from 'react-bootstrap/Container';
 import Badge from 'react-bootstrap/Badge';
@@ -6,7 +7,6 @@ import { assetPrefix, SITE_URL } from '@/config/constants';
 import DateDisplay from '@/components/common/DateDisplay';
 import Thumbnail from '@/components/common/Thumbnail';
 import Link from '@/components/common/Link';
-import MarkdownRenderer from '@/components/common/MarkdownRenderer';
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { PostSummary } from '@/types/posts';
@@ -14,6 +14,10 @@ import RelatedPosts from '@/components/posts/RelatedPosts';
 import ReadingProgress from '@/components/common/ReadingProgress';
 import BackToTop from '@/components/common/BackToTop';
 import PostToc from '@/components/posts/PostToc';
+
+const MarkdownRenderer = dynamic(() => import('@/components/common/MarkdownRenderer'), {
+  loading: () => null,
+});
 
 interface PostDetailProps {
   post: Post;

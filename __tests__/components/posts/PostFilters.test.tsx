@@ -60,12 +60,12 @@ describe('PostFilters Component', () => {
     jest.clearAllMocks();
   });
 
-  test('renders all mocked components', () => {
+  test('renders all mocked components', async () => {
     renderWithProviders(<PostFilters {...defaultProps} />);
 
     expect(screen.getByTestId('search-bar')).toBeInTheDocument();
     expect(screen.getByTestId('topics-dropdown')).toBeInTheDocument();
-    expect(screen.getByTestId('date-picker')).toBeInTheDocument();
+    expect(await screen.findByTestId('date-picker')).toBeInTheDocument();
     expect(screen.getByTestId('sort-dropdown')).toBeInTheDocument();
   });
 
@@ -87,10 +87,10 @@ describe('PostFilters Component', () => {
     expect(store.getState().postsQuery.selectedTopics).toEqual(['1']);
   });
 
-  test('calls onDateRangeChange when date range button is clicked', () => {
+  test('calls onDateRangeChange when date range button is clicked', async () => {
     const { store } = renderWithProviders(<PostFilters {...defaultProps} />);
 
-    const datePickerButton = screen.getByTestId('date-picker');
+    const datePickerButton = await screen.findByTestId('date-picker');
     fireEvent.click(datePickerButton);
 
     expect(store.getState().postsQuery.dateRange).toEqual({ startDate: '2024-01-01', endDate: '2024-01-31' });

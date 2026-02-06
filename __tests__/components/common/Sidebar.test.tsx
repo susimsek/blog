@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Sidebar from '@/components/common/Sidebar';
 
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),
@@ -40,7 +40,7 @@ jest.mock('@assets/images/logo.svg', () => ({
   default: () => <span data-testid="logo" />,
 }));
 
-jest.mock('react-bootstrap', () => {
+jest.mock('react-bootstrap/Nav', () => {
   const Nav = ({ children, ...props }: { children: React.ReactNode }) => <nav {...props}>{children}</nav>;
   const NavLink = ({ children, ...props }: { children: React.ReactNode }) => (
     <a data-testid="nav-link" {...props}>
@@ -48,7 +48,10 @@ jest.mock('react-bootstrap', () => {
     </a>
   );
   Nav.Link = NavLink;
+  return Nav;
+});
 
+jest.mock('react-bootstrap/Offcanvas', () => {
   const Offcanvas = ({ show, children, onHide }: { show: boolean; children: React.ReactNode; onHide?: () => void }) =>
     show ? (
       <div data-testid="offcanvas">
@@ -58,13 +61,11 @@ jest.mock('react-bootstrap', () => {
         {children}
       </div>
     ) : null;
+
   Offcanvas.Header = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
   Offcanvas.Body = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
 
-  return {
-    Nav,
-    Offcanvas,
-  };
+  return Offcanvas;
 });
 
 describe('Sidebar', () => {

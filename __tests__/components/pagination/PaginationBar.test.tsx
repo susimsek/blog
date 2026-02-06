@@ -1,9 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import PaginationBar from '@/components/pagination/PaginationBar';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 
 // Mocking useTranslation
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, any>) => {
       if (key === 'common.pagination.showingResults') {

@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import Footer from '@/components/common/Footer';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 
 // Mock useTranslation
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(),
 }));
 

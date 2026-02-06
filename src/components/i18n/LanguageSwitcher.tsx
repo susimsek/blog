@@ -1,8 +1,8 @@
 // components/i18n/LanguageSwitcher.tsx
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import i18nextConfig from '@root/next-i18next.config';
+import i18nextConfig from '@/i18n/settings';
 import LanguageSwitchLink from './LanguageSwitchLink';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const LanguageSwitcher = () => {

@@ -1,14 +1,14 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import LanguageSwitchLink from '@/components/i18n/LanguageSwitchLink';
-import { useRouter } from 'next/router';
+import { useRouter } from '@/navigation/router';
 import languageDetector from '@/lib/languageDetector';
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <span data-testid={`icon-${icon}`} />,
 }));
 
-// Mocking next/router
-jest.mock('next/router', () => ({
+// Mocking @/navigation/router
+jest.mock('@/navigation/router', () => ({
   useRouter: jest.fn(),
 }));
 

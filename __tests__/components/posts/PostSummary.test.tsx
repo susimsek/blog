@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import PostSummary from '@/components/posts/PostSummary';
 import { mockPost } from '@tests/__mocks__/mockPostData';
 
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
     t: jest.fn((key: string) => key),
   })),

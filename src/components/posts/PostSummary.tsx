@@ -2,7 +2,7 @@ import Link from '@/components/common/Link';
 import { Post } from '@/types/posts';
 import Badge from 'react-bootstrap/Badge';
 import DateDisplay from '@/components/common/DateDisplay';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { assetPrefix } from '@/config/constants';
 import Thumbnail from '@/components/common/Thumbnail';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

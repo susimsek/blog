@@ -5,7 +5,7 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import Link from '@/components/common/Link';
 import SearchBar from '@/components/search/SearchBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { SITE_LOGO } from '@/config/constants';
 import useDebounce from '@/hooks/useDebounce';
 import Image from 'next/image';

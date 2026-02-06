@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
-import { useRouter } from 'next/router';
+import { useRouter } from '@/navigation/router';
 import LanguageSwitchLink from '@/components/i18n/LanguageSwitchLink';
 
-// Mocking next/router
-jest.mock('next/router', () => ({
+// Mocking @/navigation/router
+jest.mock('@/navigation/router', () => ({
   useRouter: jest.fn(),
 }));
 

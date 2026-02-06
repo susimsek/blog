@@ -4,7 +4,7 @@ import PostListItem from '@/components/posts/PostListItem';
 
 jest.mock('next/image', () => (props: any) => <img alt={props.alt} data-testid="thumbnail" />);
 
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),

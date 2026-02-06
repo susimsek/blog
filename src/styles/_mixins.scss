@@ -1,5 +1,5 @@
-@use 'bootstrap/scss/bootstrap';
 @use 'sass:list';
+@import './bootstrap';
 
 @mixin transition($properties...) {
   $transitions: ();

@@ -1,6 +1,6 @@
-import { useRouter } from 'next/router';
+import { useRouter } from '@/navigation/router';
 import languageDetector from '@/lib/languageDetector';
-import i18nextConfig from '@root/next-i18next.config';
+import i18nextConfig from '@/i18n/settings';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useMemo } from 'react';
 import { LOCALES } from '@/config/constants';
@@ -45,6 +45,7 @@ const replaceDynamicSegments = (
 const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href }) => {
   const router = useRouter();
   const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
+  const paramKeys = router.paramKeys ?? [];
 
   const isExternalHref = href?.startsWith('http');
 
@@ -55,7 +56,7 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
   const sanitizedQuery = useMemo(() => {
     const params = new URLSearchParams();
     Object.entries(router.query).forEach(([key, value]) => {
-      if (key === 'locale' || value === undefined || dynamicKeys.has(key)) {
+      if (key === 'locale' || value === undefined || dynamicKeys.has(key) || paramKeys.includes(key)) {
         return;
       }
       if (Array.isArray(value)) {
@@ -65,7 +66,7 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
       }
     });
     return params.toString();
-  }, [router.query, dynamicKeys]);
+  }, [router.query, dynamicKeys, paramKeys]);
 
   const buildLocalizedHref = () => {
     if (isExternalHref && href) {

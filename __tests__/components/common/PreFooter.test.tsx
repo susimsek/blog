@@ -2,16 +2,16 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import PreFooter from '@/components/common/PreFooter';
 import type { PostSummary, Topic } from '@/types/posts';
-import { useRouter } from 'next/router';
+import { useRouter } from '@/navigation/router';
 import { CONTACT_LINKS } from '@/config/constants';
 
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),
 }));
 
-jest.mock('next/router', () => ({
+jest.mock('@/navigation/router', () => ({
   useRouter: jest.fn(),
 }));
 

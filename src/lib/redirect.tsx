@@ -1,5 +1,5 @@
 import React, { useEffect, ReactElement } from 'react';
-import { NextRouter, useRouter } from 'next/router';
+import { NextRouter, useRouter } from '@/navigation/router';
 import languageDetector from './languageDetector';
 import Loading from '@/components/common/Loading';
 

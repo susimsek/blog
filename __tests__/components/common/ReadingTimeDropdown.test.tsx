@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import ReadingTimeDropdown from '@/components/common/ReadingTimeDropdown';
 import type { ReadingTimeRange } from '@/reducers/postsQuery';
 
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),
@@ -13,7 +13,7 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: () => <span data-testid="icon-clock" />,
 }));
 
-jest.mock('react-bootstrap', () => {
+jest.mock('react-bootstrap/DropdownButton', () => {
   const React = require('react');
 
   const DropdownButton = ({ title, onSelect, children }: any) => (
@@ -30,6 +30,10 @@ jest.mock('react-bootstrap', () => {
     </div>
   );
 
+  return DropdownButton;
+});
+
+jest.mock('react-bootstrap/Dropdown', () => {
   const DropdownItem = ({ eventKey, onSelect, children }: any) => (
     <button type="button" onClick={() => onSelect?.(eventKey)}>
       {children}
@@ -37,10 +41,7 @@ jest.mock('react-bootstrap', () => {
   );
 
   return {
-    DropdownButton,
-    Dropdown: {
-      Item: DropdownItem,
-    },
+    Item: DropdownItem,
   };
 });
 

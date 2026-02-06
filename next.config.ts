@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
   assetPrefix: process.env.NEXT_PUBLIC_ASSET_PREFIX,
   sassOptions: {
     quietDeps: true,
+    silenceDeprecations: ['import'],
   },
   experimental: {
     inlineCss: true,

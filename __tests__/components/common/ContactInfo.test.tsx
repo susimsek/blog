@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import ContactInfo from '@/components/common/ContactInfo';
 import { CONTACT_LINKS } from '@/config/constants';
 
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
     t: (key: string) => key,
   })),

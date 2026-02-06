@@ -2,12 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
 import { Post, PostSummary, Topic } from '@/types/posts';
-import i18nextConfig from '@root/next-i18next.config';
-import { GetStaticPropsContext } from 'next';
-import { getI18nProps } from '@/lib/getStatic';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import i18nextConfig from '@/i18n/settings';
 import { createCacheStore } from '@/lib/cacheUtils';
-import { getRelatedPosts, sortPosts } from '@/lib/postFilters';
+import { sortPosts } from '@/lib/postFilters';
 import { calculateReadingTime } from '@/lib/readingTime';
 import { compressContentForPayload } from '@/lib/contentCompression';
 
@@ -272,123 +269,3 @@ export const getTopTopicsFromPosts = (
     .slice(0, limit)
     .map(item => item.topic as Topic);
 };
-
-type MakePostPropsOptions = {
-  includePosts?: boolean;
-  layoutPostsLimit?: number;
-};
-
-// Factory for generating localized props for post lists
-export const makePostProps =
-  (ns: string[] = [], options: MakePostPropsOptions = {}) =>
-  async (context: GetStaticPropsContext) => {
-    const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
-    const includePosts = options.includePosts ?? true;
-    const layoutPostsLimit = options.layoutPostsLimit ?? DEFAULT_LAYOUT_POSTS_LIMIT;
-
-    const allPosts = await getSortedPostsData(locale);
-    const topics = await getAllTopics(locale);
-    const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
-    const layoutPosts = getLayoutPosts(allPosts, layoutPostsLimit);
-
-    const i18nProps = await serverSideTranslations(locale, ns);
-
-    return {
-      props: {
-        ...i18nProps,
-        ...(includePosts ? { posts: allPosts } : {}),
-        ...(includePosts ? {} : { layoutPosts }),
-        topics,
-        preFooterTopTopics,
-      },
-    };
-  };
-
-// Factory for generating localized props for post details
-export const makePostDetailProps =
-  (ns: string[] = []) =>
-  async (context: GetStaticPropsContext) => {
-    const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
-    const id = (context?.params?.id as string) || '';
-
-    const post = await getPostData(id, locale);
-    if (!post) {
-      return {
-        notFound: true,
-      };
-    }
-
-    const i18nProps = await serverSideTranslations(locale, ns);
-
-    const allPosts = await getSortedPostsData(locale);
-    const relatedPosts = getRelatedPosts(post, allPosts, 3);
-    const layoutPosts = getLayoutPosts(allPosts, DEFAULT_LAYOUT_POSTS_LIMIT);
-    const topics = await getAllTopics(locale);
-    const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
-
-    return {
-      props: {
-        ...i18nProps,
-        post,
-        relatedPosts,
-        layoutPosts,
-        preFooterTopTopics,
-      },
-    };
-  };
-
-export const makeTopicProps =
-  (ns: string[] = []) =>
-  async (context: GetStaticPropsContext) => {
-    const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
-    const topicId = (context?.params?.id as string) || '';
-
-    const topic = await getTopicData(locale, topicId);
-    if (!topic) {
-      return {
-        notFound: true,
-      };
-    }
-
-    const allPosts = await getSortedPostsData(locale);
-    const posts = allPosts.filter(post => Array.isArray(post.topics) && post.topics.some(t => t.id === topicId));
-    const layoutPosts = getLayoutPosts(allPosts, DEFAULT_LAYOUT_POSTS_LIMIT);
-
-    const i18nProps = await getI18nProps(context, ns);
-
-    const topics = await getAllTopics(locale);
-    const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
-
-    return {
-      props: {
-        ...i18nProps,
-        topic,
-        posts,
-        layoutPosts,
-        topics,
-        preFooterTopTopics,
-      },
-    };
-  };
-
-export const makeSearchProps =
-  (ns: string[] = []) =>
-  async (context: GetStaticPropsContext) => {
-    const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
-
-    const allPosts = await getSortedPostsData(locale);
-
-    const i18nProps = await serverSideTranslations(locale, ns);
-
-    const topics = await getAllTopics(locale);
-    const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
-
-    return {
-      props: {
-        ...i18nProps,
-        allPosts,
-        topics,
-        preFooterTopTopics,
-      },
-    };
-  };

@@ -1,8 +1,8 @@
 import React from 'react';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import PostList from '@/components/posts/PostList';
 import { mockPostSummaries, mockTopics } from '@tests/__mocks__/mockPostData';
-import { useRouter } from 'next/router';
+import { useRouter } from '@/navigation/router';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
 
 jest.mock('react-i18next', () => ({
@@ -13,7 +13,7 @@ jest.mock('react-i18next', () => ({
 
 jest.mock('@/hooks/useDebounce', () => jest.fn((value: string) => value));
 
-jest.mock('next/router', () => ({
+jest.mock('@/navigation/router', () => ({
   useRouter: jest.fn(),
 }));
 
@@ -65,7 +65,7 @@ jest.mock('@/components/posts/PostSummary', () => ({
 
 jest.mock('@/components/common/SortDropdown', () => ({
   __esModule: true,
-  SortDropdown: ({ sortOrder, onChange }: { sortOrder: string; onChange: (order: string) => void }) => (
+  SortDropdown: ({ onChange }: { onChange: (order: string) => void }) => (
     <div data-testid="sort-dropdown">
       <button onClick={() => onChange('asc')}>Sort Ascending</button>
       <button onClick={() => onChange('desc')}>Sort Descending</button>
@@ -110,10 +110,22 @@ jest.mock('@/components/common/TopicsDropdown', () => ({
 }));
 
 describe('PostList Component', () => {
+  const scrollIntoViewMock = jest.fn();
+  let pushMock: jest.Mock;
+
+  beforeAll(() => {
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: scrollIntoViewMock,
+    });
+  });
+
   beforeEach(() => {
+    scrollIntoViewMock.mockClear();
+    pushMock = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({
       query: {},
-      push: jest.fn(),
+      push: pushMock,
       pathname: '/',
       isReady: true,
     });
@@ -181,5 +193,28 @@ describe('PostList Component', () => {
 
     const previousButton = screen.getByText('Previous');
     expect(previousButton).toBeDisabled();
+  });
+
+  it('keeps active page from route query when q is empty', async () => {
+    (useRouter as jest.Mock).mockReturnValue({
+      query: { page: '2', size: '5' },
+      push: pushMock,
+      pathname: '/',
+      isReady: true,
+    });
+
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Previous')).not.toBeDisabled();
+    });
+  });
+
+  it('scrolls list start into view when page changes', () => {
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />);
+
+    fireEvent.click(screen.getByLabelText('Next'));
+
+    expect(scrollIntoViewMock).toHaveBeenCalledTimes(1);
   });
 });

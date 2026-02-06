@@ -4,7 +4,7 @@ import SearchBar from '@/components/search/SearchBar';
 import PostListItem from '@/components/posts/PostListItem';
 import Link from '@/components/common/Link';
 import { filterByQuery } from '@/lib/postFilters';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useDebounce from '@/hooks/useDebounce';
 import { useAppDispatch, useAppSelector } from '@/config/store';

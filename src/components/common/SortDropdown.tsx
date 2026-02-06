@@ -2,7 +2,7 @@ import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 
 interface SortDropdownProps {
   sortOrder: 'asc' | 'desc';

@@ -3,7 +3,7 @@ import { render, screen, fireEvent, act, cleanup } from '@testing-library/react'
 import { TopicsDropdown } from '@/components/common/TopicsDropdown';
 import { Topic } from '@/types/posts';
 
-jest.mock('next-i18next', () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: jest.fn().mockReturnValue({
     t: (key: string) => key,
   }),

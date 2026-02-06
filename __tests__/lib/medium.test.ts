@@ -1,9 +1,6 @@
 import type { PostSummary } from '@/types/posts';
-import type { GetStaticPropsContext } from 'next';
 import * as mediumModule from '@/lib/medium';
 import fs from 'fs';
-import { getAllTopics, getLayoutPosts, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/posts';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 jest.mock('fs', () => ({
   existsSync: jest.fn(),
@@ -13,36 +10,17 @@ jest.mock('fs', () => ({
   },
 }));
 
-jest.mock('@/lib/posts', () => ({
-  getAllTopics: jest.fn(),
-  getLayoutPosts: jest.fn(),
-  getSortedPostsData: jest.fn(),
-  getTopTopicsFromPosts: jest.fn(),
-}));
-
-jest.mock('next-i18next/serverSideTranslations', () => ({
-  serverSideTranslations: jest.fn(),
-}));
-
-const { mediumPostsCache, fetchRssSummaries, makeMediumPostsProps } = mediumModule;
+const { mediumPostsCache, fetchRssSummaries } = mediumModule;
 
 const fsMock = fs as jest.Mocked<typeof fs>;
 const readFileMock = fsMock.promises.readFile as jest.Mock;
-const getAllTopicsMock = getAllTopics as jest.MockedFunction<typeof getAllTopics>;
-const getLayoutPostsMock = getLayoutPosts as jest.MockedFunction<typeof getLayoutPosts>;
-const getSortedPostsDataMock = getSortedPostsData as jest.MockedFunction<typeof getSortedPostsData>;
-const getTopTopicsFromPostsMock = getTopTopicsFromPosts as jest.MockedFunction<typeof getTopTopicsFromPosts>;
-const serverSideTranslationsMock = serverSideTranslations as jest.MockedFunction<typeof serverSideTranslations>;
-
 describe('medium utilities', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mediumPostsCache.clear();
     readFileMock.mockImplementation((filePath: string, encoding: string) =>
-      Promise.resolve(fsMock.readFileSync(filePath, encoding)),
+      Promise.resolve(fsMock.readFileSync(filePath, encoding as BufferEncoding)),
     );
-    getLayoutPostsMock.mockImplementation((posts: PostSummary[]) => posts);
-    getTopTopicsFromPostsMock.mockReturnValue([]);
   });
 
   const makeCachedPost = (id: string): PostSummary => ({
@@ -194,40 +172,5 @@ describe('medium utilities', () => {
     expect(result[0].id).toBe('rss-0');
     expect(result[0].title).toBe('Untitled');
     expect(result[0].date).toBeTruthy();
-  });
-
-  it('creates static props with provided locale', async () => {
-    const cachedPosts = [makeCachedPost('cached-tr')];
-    mediumPostsCache.set('tr-all', cachedPosts);
-    getSortedPostsDataMock.mockResolvedValueOnce([makeCachedPost('1')]);
-    getLayoutPostsMock.mockReturnValueOnce([makeCachedPost('layout-1')]);
-    getAllTopicsMock.mockResolvedValueOnce([]);
-    getTopTopicsFromPostsMock.mockReturnValueOnce([]);
-    serverSideTranslationsMock.mockResolvedValueOnce({ common: 'test' } as any);
-
-    const getProps = makeMediumPostsProps(['common']);
-    const result = await getProps({ params: { locale: 'tr' } } as unknown as GetStaticPropsContext);
-
-    expect(result.props).toMatchObject({
-      common: 'test',
-      layoutPosts: [{ id: 'layout-1' }],
-      topics: [],
-      preFooterTopTopics: [],
-      mediumPosts: cachedPosts,
-    });
-  });
-
-  it('falls back to default locale when locale param is missing', async () => {
-    const cachedPosts = [makeCachedPost('cached-en')];
-    mediumPostsCache.set('en-all', cachedPosts);
-    getSortedPostsDataMock.mockResolvedValueOnce([]);
-    getAllTopicsMock.mockResolvedValueOnce([]);
-    serverSideTranslationsMock.mockResolvedValueOnce({});
-
-    const getProps = makeMediumPostsProps();
-    const getSpy = jest.spyOn(mediumPostsCache, 'get');
-    await getProps({} as GetStaticPropsContext);
-    expect(getSpy).toHaveBeenCalledWith('en-all');
-    getSpy.mockRestore();
   });
 });
