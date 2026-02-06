@@ -32,77 +32,75 @@ let syntaxAssetsPromise: Promise<SyntaxAssets> | null = null;
 const registeredLanguages = new Set<string>();
 
 const loadSyntaxAssets = async (): Promise<SyntaxAssets> => {
-  if (!syntaxAssetsPromise) {
-    syntaxAssetsPromise = Promise.all([
-      import('react-syntax-highlighter/dist/cjs/prism-light'),
-      import('react-syntax-highlighter/dist/cjs/styles/prism/material-dark'),
-      import('react-syntax-highlighter/dist/cjs/styles/prism/material-light'),
-      import('react-syntax-highlighter/dist/cjs/styles/prism/material-oceanic'),
-      import('react-syntax-highlighter/dist/cjs/styles/prism/gruvbox-dark'),
-      import('react-syntax-highlighter/dist/cjs/languages/prism/bash'),
-      import('react-syntax-highlighter/dist/cjs/languages/prism/csv'),
-      import('react-syntax-highlighter/dist/cjs/languages/prism/go'),
-      import('react-syntax-highlighter/dist/cjs/languages/prism/graphql'),
-      import('react-syntax-highlighter/dist/cjs/languages/prism/groovy'),
-      import('react-syntax-highlighter/dist/cjs/languages/prism/java'),
-      import('react-syntax-highlighter/dist/cjs/languages/prism/json'),
-      import('react-syntax-highlighter/dist/cjs/languages/prism/kotlin'),
-      import('react-syntax-highlighter/dist/cjs/languages/prism/properties'),
-      import('react-syntax-highlighter/dist/cjs/languages/prism/xml-doc'),
-      import('react-syntax-highlighter/dist/cjs/languages/prism/yaml'),
-    ]).then(
-      ([
-        prismLightLib,
-        darkStyle,
-        lightStyle,
-        oceanicStyle,
-        forestStyle,
-        bashLang,
-        csvLang,
-        goLang,
-        graphqlLang,
-        groovyLang,
-        javaLang,
-        jsonLang,
-        kotlinLang,
-        propertiesLang,
-        xmlLang,
-        yamlLang,
-      ]) => {
-        const SyntaxHighlighter = prismLightLib.default as unknown as SyntaxHighlighterComponent;
-        const prismLightApi = prismLightLib.default as unknown as PrismLightStaticApi;
-        const registerLanguage = (name: string, languageModule: unknown) => {
-          if (registeredLanguages.has(name) || !prismLightApi.registerLanguage) {
-            return;
-          }
-          prismLightApi.registerLanguage(name, (languageModule as { default?: unknown }).default ?? languageModule);
-          registeredLanguages.add(name);
-        };
+  syntaxAssetsPromise ??= Promise.all([
+    import('react-syntax-highlighter/dist/cjs/prism-light'),
+    import('react-syntax-highlighter/dist/cjs/styles/prism/material-dark'),
+    import('react-syntax-highlighter/dist/cjs/styles/prism/material-light'),
+    import('react-syntax-highlighter/dist/cjs/styles/prism/material-oceanic'),
+    import('react-syntax-highlighter/dist/cjs/styles/prism/gruvbox-dark'),
+    import('react-syntax-highlighter/dist/cjs/languages/prism/bash'),
+    import('react-syntax-highlighter/dist/cjs/languages/prism/csv'),
+    import('react-syntax-highlighter/dist/cjs/languages/prism/go'),
+    import('react-syntax-highlighter/dist/cjs/languages/prism/graphql'),
+    import('react-syntax-highlighter/dist/cjs/languages/prism/groovy'),
+    import('react-syntax-highlighter/dist/cjs/languages/prism/java'),
+    import('react-syntax-highlighter/dist/cjs/languages/prism/json'),
+    import('react-syntax-highlighter/dist/cjs/languages/prism/kotlin'),
+    import('react-syntax-highlighter/dist/cjs/languages/prism/properties'),
+    import('react-syntax-highlighter/dist/cjs/languages/prism/xml-doc'),
+    import('react-syntax-highlighter/dist/cjs/languages/prism/yaml'),
+  ]).then(
+    ([
+      prismLightLib,
+      darkStyle,
+      lightStyle,
+      oceanicStyle,
+      forestStyle,
+      bashLang,
+      csvLang,
+      goLang,
+      graphqlLang,
+      groovyLang,
+      javaLang,
+      jsonLang,
+      kotlinLang,
+      propertiesLang,
+      xmlLang,
+      yamlLang,
+    ]) => {
+      const SyntaxHighlighter = prismLightLib.default as unknown as SyntaxHighlighterComponent;
+      const prismLightApi = prismLightLib.default as unknown as PrismLightStaticApi;
+      const registerLanguage = (name: string, languageModule: unknown) => {
+        if (registeredLanguages.has(name) || !prismLightApi.registerLanguage) {
+          return;
+        }
+        prismLightApi.registerLanguage(name, (languageModule as { default?: unknown }).default ?? languageModule);
+        registeredLanguages.add(name);
+      };
 
-        registerLanguage('bash', bashLang);
-        registerLanguage('csv', csvLang);
-        registerLanguage('go', goLang);
-        registerLanguage('graphql', graphqlLang);
-        registerLanguage('groovy', groovyLang);
-        registerLanguage('java', javaLang);
-        registerLanguage('json', jsonLang);
-        registerLanguage('kotlin', kotlinLang);
-        registerLanguage('properties', propertiesLang);
-        registerLanguage('xml', xmlLang);
-        registerLanguage('yaml', yamlLang);
+      registerLanguage('bash', bashLang);
+      registerLanguage('csv', csvLang);
+      registerLanguage('go', goLang);
+      registerLanguage('graphql', graphqlLang);
+      registerLanguage('groovy', groovyLang);
+      registerLanguage('java', javaLang);
+      registerLanguage('json', jsonLang);
+      registerLanguage('kotlin', kotlinLang);
+      registerLanguage('properties', propertiesLang);
+      registerLanguage('xml', xmlLang);
+      registerLanguage('yaml', yamlLang);
 
-        return {
-          SyntaxHighlighter,
-          themes: {
-            dark: darkStyle.default,
-            light: lightStyle.default,
-            oceanic: oceanicStyle.default,
-            forest: forestStyle.default,
-          },
-        };
-      },
-    );
-  }
+      return {
+        SyntaxHighlighter,
+        themes: {
+          dark: darkStyle.default,
+          light: lightStyle.default,
+          oceanic: oceanicStyle.default,
+          forest: forestStyle.default,
+        },
+      };
+    },
+  );
 
   return syntaxAssetsPromise;
 };
@@ -137,6 +135,19 @@ const toCodeText = (node: React.ReactNode): string => {
     return node.map(toCodeText).join('');
   }
   return '';
+};
+
+const getSyntaxTheme = (theme: Theme, themes: SyntaxAssets['themes']): SyntaxTheme => {
+  switch (theme) {
+    case 'dark':
+      return themes.dark;
+    case 'oceanic':
+      return themes.oceanic;
+    case 'forest':
+      return themes.forest;
+    default:
+      return themes.light;
+  }
 };
 
 const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, children, theme, t, ...props }) => {
@@ -183,20 +194,7 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, chil
     );
   }
 
-  const syntaxTheme = syntaxAssets
-    ? (() => {
-        switch (theme) {
-          case 'dark':
-            return syntaxAssets.themes.dark;
-          case 'oceanic':
-            return syntaxAssets.themes.oceanic;
-          case 'forest':
-            return syntaxAssets.themes.forest;
-          default:
-            return syntaxAssets.themes.light;
-        }
-      })()
-    : null;
+  const syntaxTheme = syntaxAssets ? getSyntaxTheme(theme, syntaxAssets.themes) : null;
   const SyntaxHighlighter = syntaxAssets?.SyntaxHighlighter;
 
   return match ? (

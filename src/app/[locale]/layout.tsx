@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import AppProviders from '@/app/providers';
 import { allNamespaces, locales } from '@/i18n/settings';
-import { loadLocaleResources } from '@/i18n/server';
+import { hasLocale, loadLocaleResources } from '@/i18n/server';
 
 export const dynamic = 'error';
 export const dynamicParams = false;
@@ -20,7 +20,7 @@ export default async function LocaleLayout({
 }>) {
   const { locale } = await params;
 
-  if (!locales.includes(locale)) {
+  if (!hasLocale(locale)) {
     notFound();
   }
 

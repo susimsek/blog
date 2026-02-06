@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import CodeBlock from '@/components/common/CodeBlock';
 
 Object.assign(navigator, {
@@ -180,5 +180,53 @@ describe('CodeBlock Component', () => {
     );
     fireEvent.click(screen.getAllByRole('button', { name: 'common.codeBlock.copy' }).at(-1) as HTMLElement);
     expect((navigator.clipboard.writeText as jest.Mock).mock.calls.filter(call => call[0] === '').length).toBe(0);
+  });
+
+  it('loads syntax assets outside test environment and applies all theme branches', async () => {
+    const previousNodeEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+
+    try {
+      const { rerender } = render(
+        <CodeBlock theme="dark" t={mockTranslation} className="language-sh">
+          {'echo "hello"'}
+        </CodeBlock>,
+      );
+
+      await waitFor(() => {
+        expect(document.querySelector('pre.language-sh')).not.toBeInTheDocument();
+      });
+
+      rerender(
+        <CodeBlock theme="oceanic" t={mockTranslation} className="language-sh">
+          {'echo "hello"'}
+        </CodeBlock>,
+      );
+      rerender(
+        <CodeBlock theme="forest" t={mockTranslation} className="language-sh">
+          {'echo "hello"'}
+        </CodeBlock>,
+      );
+      rerender(
+        <CodeBlock theme="light" t={mockTranslation} className="language-sh">
+          {'echo "hello"'}
+        </CodeBlock>,
+      );
+
+      expect(screen.getByText('SH')).toBeInTheDocument();
+    } finally {
+      process.env.NODE_ENV = previousNodeEnv;
+    }
+  });
+
+  it('resolves language aliases that should map to plain text', () => {
+    render(
+      <CodeBlock theme="light" t={mockTranslation} className="language-text">
+        {'just text'}
+      </CodeBlock>,
+    );
+
+    expect(screen.getByText('TEXT')).toBeInTheDocument();
+    expect(screen.getByRole('code')).toHaveTextContent('just text');
   });
 });

@@ -30,8 +30,15 @@ jest.mock('react-datepicker', () => {
     minDate,
     maxDate,
     dayClassName,
+    dateFormat,
+    isClearable,
+    locale,
     ...props
   }) => {
+    void dateFormat;
+    void isClearable;
+    void locale;
+
     return (
       <input
         data-testid="mock-datepicker"
@@ -62,6 +69,13 @@ jest.mock('react-datepicker', () => {
     getRegisteredLocale,
   };
 });
+
+const toISODateString = (value: Date) => {
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, '0');
+  const day = String(value.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 describe('DateRangePicker', () => {
   const mockOnRangeChange = jest.fn();
@@ -103,7 +117,7 @@ describe('DateRangePicker', () => {
     fireEvent.click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
     fireEvent.click(screen.getByText(/common.datePicker.today/i));
 
-    const today = new Date().toLocaleDateString();
+    const today = toISODateString(new Date());
     expect(mockOnRangeChange).toHaveBeenCalledWith({ startDate: today, endDate: today });
   });
 
@@ -114,7 +128,7 @@ describe('DateRangePicker', () => {
 
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayDate = yesterday.toLocaleDateString();
+    const yesterdayDate = toISODateString(yesterday);
 
     expect(mockOnRangeChange).toHaveBeenCalledWith({ startDate: yesterdayDate, endDate: yesterdayDate });
   });
@@ -128,8 +142,8 @@ describe('DateRangePicker', () => {
     const lastWeek = new Date();
     lastWeek.setDate(today.getDate() - 7);
 
-    const startDate = lastWeek.toLocaleDateString();
-    const endDate = today.toLocaleDateString();
+    const startDate = toISODateString(lastWeek);
+    const endDate = toISODateString(today);
 
     expect(mockOnRangeChange).toHaveBeenCalledWith({ startDate, endDate });
   });
@@ -145,8 +159,8 @@ describe('DateRangePicker', () => {
     const lastMonth = new Date();
     lastMonth.setDate(today.getDate() - 30);
 
-    const startDate = lastMonth.toLocaleDateString();
-    const endDate = today.toLocaleDateString();
+    const startDate = toISODateString(lastMonth);
+    const endDate = toISODateString(today);
 
     expect(mockOnRangeChange).toHaveBeenCalledWith({ startDate, endDate });
   });
@@ -210,8 +224,8 @@ describe('DateRangePicker', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /common.datePicker.applySelection/i }));
 
-    const expectedStart = new Date('2024-05-01').toLocaleDateString();
-    const expectedEnd = new Date('2024-05-05').toLocaleDateString();
+    const expectedStart = '2024-05-01';
+    const expectedEnd = '2024-05-05';
 
     return waitFor(() => {
       expect(mockOnRangeChange).toHaveBeenCalledWith({
@@ -263,8 +277,8 @@ describe('DateRangePicker', () => {
 
     await waitFor(() => {
       expect(mockOnRangeChange).toHaveBeenLastCalledWith({
-        startDate: new Date('2024-06-01').toLocaleDateString(),
-        endDate: new Date('2024-06-02').toLocaleDateString(),
+        startDate: '2024-06-01',
+        endDate: '2024-06-02',
       });
     });
   });

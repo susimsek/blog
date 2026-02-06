@@ -92,8 +92,6 @@ describe('Static Constants', () => {
 });
 
 describe('Dynamic Constants', () => {
-  const { assetPrefix } = require('@/config/constants');
-
   it('should handle asset prefix correctly when set', () => {
     process.env.NEXT_PUBLIC_ASSET_PREFIX = '/custom-prefix';
     jest.resetModules();

@@ -69,14 +69,11 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
     setCurrentPage(page);
   }, []);
 
-  const handleTopicToggle = useCallback(
-    (topicId: string) => {
-      if (!pendingSelectedTopics.includes(topicId)) {
-        setPendingSelectedTopics([...pendingSelectedTopics, topicId]);
-      }
-    },
-    [pendingSelectedTopics],
-  );
+  const handleTopicToggle = useCallback((topicId: string) => {
+    setPendingSelectedTopics(prev =>
+      prev.includes(topicId) ? prev.filter(existingTopicId => existingTopicId !== topicId) : [...prev, topicId],
+    );
+  }, []);
 
   const handleToggle = (isOpen: boolean) => {
     setShowDropdown(isOpen);

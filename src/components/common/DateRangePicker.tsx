@@ -29,6 +29,13 @@ type DateRangeErrors = {
   endDate?: string;
 };
 
+const toISODateString = (value: Date): string => {
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, '0');
+  const day = String(value.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export default function DateRangePicker({
   onRangeChange,
   minDate = new Date('2024-01-01'),
@@ -64,14 +71,14 @@ export default function DateRangePicker({
     if (selectedOption === 'customDate') {
       if (isConfirmed) {
         const { startDate, endDate } = formValues;
-        const start = startDate ? startDate.toLocaleDateString() : '';
-        const end = endDate ? endDate.toLocaleDateString() : '';
+        const start = startDate ? startDate.toLocaleDateString(currentLocale) : '';
+        const end = endDate ? endDate.toLocaleDateString(currentLocale) : '';
         return start && end ? `${start} - ${end}` : translate('customDate');
       }
       return translate('customDate');
     }
     return selectedOption ? translate(selectedOption) : translate('selectDate');
-  }, [selectedOption, isConfirmed, formValues, translate]);
+  }, [selectedOption, isConfirmed, formValues, translate, currentLocale]);
 
   const handleToggle = (isOpen: boolean) => {
     setShowDropdown(isOpen);
@@ -105,7 +112,7 @@ export default function DateRangePicker({
     return Object.keys(nextErrors).length === 0;
   }, [formValues, t]);
 
-  const handleApplySelection = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleApplySelection = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (selectedOption !== 'customDate') {
@@ -117,8 +124,8 @@ export default function DateRangePicker({
     }
 
     onRangeChange({
-      startDate: formValues.startDate?.toLocaleDateString(),
-      endDate: formValues.endDate?.toLocaleDateString(),
+      startDate: formValues.startDate ? toISODateString(formValues.startDate) : undefined,
+      endDate: formValues.endDate ? toISODateString(formValues.endDate) : undefined,
     });
 
     setIsConfirmed(true);
@@ -162,7 +169,7 @@ export default function DateRangePicker({
 
     switch (option) {
       case 'today': {
-        const todayDate = today.toLocaleDateString();
+        const todayDate = toISODateString(today);
         startDate = todayDate;
         endDate = todayDate;
         break;
@@ -171,31 +178,31 @@ export default function DateRangePicker({
       case 'yesterday': {
         const yesterday = new Date(today);
         yesterday.setDate(today.getDate() - 1);
-        startDate = yesterday.toLocaleDateString();
-        endDate = yesterday.toLocaleDateString();
+        startDate = toISODateString(yesterday);
+        endDate = toISODateString(yesterday);
         break;
       }
 
       case 'last7Days': {
         const lastWeek = new Date(today);
         lastWeek.setDate(today.getDate() - 7);
-        startDate = lastWeek.toLocaleDateString();
-        endDate = today.toLocaleDateString();
+        startDate = toISODateString(lastWeek);
+        endDate = toISODateString(today);
         break;
       }
 
       case 'last30Days': {
         const lastMonth = new Date(today);
         lastMonth.setDate(today.getDate() - 30);
-        startDate = lastMonth.toLocaleDateString();
-        endDate = today.toLocaleDateString();
+        startDate = toISODateString(lastMonth);
+        endDate = toISODateString(today);
         break;
       }
 
       case 'customDate': {
         const { startDate: rawStartDate, endDate: rawEndDate } = formValues;
-        startDate = rawStartDate ? rawStartDate.toLocaleDateString() : undefined;
-        endDate = rawEndDate ? rawEndDate.toLocaleDateString() : undefined;
+        startDate = rawStartDate ? toISODateString(rawStartDate) : undefined;
+        endDate = rawEndDate ? toISODateString(rawEndDate) : undefined;
         break;
       }
 

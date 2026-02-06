@@ -5,10 +5,41 @@ const path = require('node:path');
 const i18nConfig = require('../i18n.config.json');
 
 const siteUrl = process.env.SITE_URL || 'https://suaybsimsek.com';
+const normalizedSiteUrl = siteUrl.replace(/\/+$/g, '');
+const basePath = (process.env.NEXT_PUBLIC_BASE_PATH || '').replace(/^\/+|\/+$/g, '');
+const basePathPrefix = basePath ? `/${basePath}` : '';
 
 const locales = i18nConfig.locales;
 
 const buildDir = path.join(process.cwd(), 'build');
+
+const xmlEscape = value =>
+  String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&apos;');
+
+const normalizeSegment = segment =>
+  String(segment)
+    .trim()
+    .replace(/^\/+|\/+$/g, '');
+
+const buildSiteUrl = (...segments) => {
+  const normalizedSegments = segments.map(normalizeSegment).filter(Boolean);
+  return normalizedSegments.length > 0 ? `${normalizedSiteUrl}/${normalizedSegments.join('/')}` : normalizedSiteUrl;
+};
+
+const toAbsoluteUrl = value => {
+  if (!value) {
+    return '';
+  }
+  if (/^https?:\/\//i.test(value)) {
+    return value;
+  }
+  return buildSiteUrl(basePath, value);
+};
 
 /** -------------- POSTS SITEMAP GENERATION -------------- **/
 
@@ -57,7 +88,7 @@ function groupPostsById() {
  */
 function generatePostsSitemapXML(postsById) {
   let sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-  sitemap += `<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>\n`;
+  sitemap += `<?xml-stylesheet type="text/xsl" href="${xmlEscape(`${basePathPrefix}/sitemap.xsl`)}"?>\n`;
   sitemap += `<urlset\n`;
   sitemap += `  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n`;
   sitemap += `  xmlns:xhtml="http://www.w3.org/1999/xhtml"\n`;
@@ -67,21 +98,23 @@ function generatePostsSitemapXML(postsById) {
     const localesForPost = Object.keys(postsById[postId]);
     localesForPost.forEach(locale => {
       const post = postsById[postId][locale];
-      const postUrl = `${siteUrl}/${locale}/posts/${post.id}`;
-      const thumbnailUrl = post.thumbnail.startsWith('/') ? `${siteUrl}${post.thumbnail}` : post.thumbnail;
+      const postUrl = buildSiteUrl(basePath, locale, 'posts', post.id);
+      const thumbnailUrl = toAbsoluteUrl(post.thumbnail);
 
       sitemap += `  <url>\n`;
-      sitemap += `    <loc>${postUrl}</loc>\n`;
+      sitemap += `    <loc>${xmlEscape(postUrl)}</loc>\n`;
       sitemap += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
       sitemap += `    <changefreq>weekly</changefreq>\n`;
-      sitemap += `    <image:image>\n`;
-      sitemap += `      <image:loc>${thumbnailUrl}</image:loc>\n`;
-      sitemap += `      <image:title>${post.title}</image:title>\n`;
-      sitemap += `    </image:image>\n`;
+      if (thumbnailUrl) {
+        sitemap += `    <image:image>\n`;
+        sitemap += `      <image:loc>${xmlEscape(thumbnailUrl)}</image:loc>\n`;
+        sitemap += `      <image:title>${xmlEscape(post.title)}</image:title>\n`;
+        sitemap += `    </image:image>\n`;
+      }
       // Add alternate language links for all locales where the post exists
       localesForPost.forEach(altLocale => {
-        const altUrl = `${siteUrl}/${altLocale}/posts/${post.id}`;
-        sitemap += `    <xhtml:link rel="alternate" hreflang="${altLocale}" href="${altUrl}"/>\n`;
+        const altUrl = buildSiteUrl(basePath, altLocale, 'posts', post.id);
+        sitemap += `    <xhtml:link rel="alternate" hreflang="${xmlEscape(altLocale)}" href="${xmlEscape(altUrl)}"/>\n`;
       });
       sitemap += `  </url>\n\n`;
     });
@@ -149,7 +182,7 @@ function groupTopicsById() {
  */
 function generateTopicsSitemapXML(topicsById) {
   let sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-  sitemap += `<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>\n`;
+  sitemap += `<?xml-stylesheet type="text/xsl" href="${xmlEscape(`${basePathPrefix}/sitemap.xsl`)}"?>\n`;
   sitemap += `<urlset\n`;
   sitemap += `  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n`;
   sitemap += `  xmlns:xhtml="http://www.w3.org/1999/xhtml">\n\n`;
@@ -158,16 +191,16 @@ function generateTopicsSitemapXML(topicsById) {
     const localesForTopic = Object.keys(topicsById[topicId]);
     localesForTopic.forEach(locale => {
       const topic = topicsById[topicId][locale];
-      const topicUrl = `${siteUrl}/${locale}/topics/${topic.id}`;
+      const topicUrl = buildSiteUrl(basePath, locale, 'topics', topic.id);
 
       sitemap += `  <url>\n`;
-      sitemap += `    <loc>${topicUrl}</loc>\n`;
+      sitemap += `    <loc>${xmlEscape(topicUrl)}</loc>\n`;
       sitemap += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
       sitemap += `    <changefreq>weekly</changefreq>\n`;
       // Add alternate language links for all locales where the topic exists
       localesForTopic.forEach(altLocale => {
-        const altUrl = `${siteUrl}/${altLocale}/topics/${topic.id}`;
-        sitemap += `    <xhtml:link rel="alternate" hreflang="${altLocale}" href="${altUrl}"/>\n`;
+        const altUrl = buildSiteUrl(basePath, altLocale, 'topics', topic.id);
+        sitemap += `    <xhtml:link rel="alternate" hreflang="${xmlEscape(altLocale)}" href="${xmlEscape(altUrl)}"/>\n`;
       });
       sitemap += `  </url>\n\n`;
     });
@@ -243,7 +276,7 @@ function getPagesData() {
  */
 function generatePagesSitemapXML(pages) {
   let sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-  sitemap += `<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>\n`;
+  sitemap += `<?xml-stylesheet type="text/xsl" href="${xmlEscape(`${basePathPrefix}/sitemap.xsl`)}"?>\n`;
   sitemap += `<urlset\n`;
   sitemap += `  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n`;
   sitemap += `  xmlns:xhtml="http://www.w3.org/1999/xhtml"\n`;
@@ -252,22 +285,22 @@ function generatePagesSitemapXML(pages) {
   pages.forEach(page => {
     locales.forEach(locale => {
       // Construct the page URL; if slug is empty, it's the home page URL.
-      const pageUrl = page.slug ? `${siteUrl}/${locale}/${page.slug}` : `${siteUrl}/${locale}`;
+      const pageUrl = page.slug ? buildSiteUrl(basePath, locale, page.slug) : buildSiteUrl(basePath, locale);
       sitemap += `  <url>\n`;
-      sitemap += `    <loc>${pageUrl}</loc>\n`;
+      sitemap += `    <loc>${xmlEscape(pageUrl)}</loc>\n`;
       sitemap += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
       sitemap += `    <changefreq>${page.changefreq}</changefreq>\n`;
       // Image details: build absolute URL and choose title based on locale.
-      const imageUrl = page.image.loc.startsWith('/') ? `${siteUrl}${page.image.loc}` : page.image.loc;
+      const imageUrl = toAbsoluteUrl(page.image.loc);
       const imageTitle = page.image.title[locale] || page.image.title.en;
       sitemap += `    <image:image>\n`;
-      sitemap += `      <image:loc>${imageUrl}</image:loc>\n`;
-      sitemap += `      <image:title>${imageTitle}</image:title>\n`;
+      sitemap += `      <image:loc>${xmlEscape(imageUrl)}</image:loc>\n`;
+      sitemap += `      <image:title>${xmlEscape(imageTitle)}</image:title>\n`;
       sitemap += `    </image:image>\n`;
       // Add alternate language links
       locales.forEach(altLocale => {
-        const altUrl = page.slug ? `${siteUrl}/${altLocale}/${page.slug}` : `${siteUrl}/${altLocale}`;
-        sitemap += `    <xhtml:link rel="alternate" hreflang="${altLocale}" href="${altUrl}"/>\n`;
+        const altUrl = page.slug ? buildSiteUrl(basePath, altLocale, page.slug) : buildSiteUrl(basePath, altLocale);
+        sitemap += `    <xhtml:link rel="alternate" hreflang="${xmlEscape(altLocale)}" href="${xmlEscape(altUrl)}"/>\n`;
       });
       sitemap += `  </url>\n\n`;
     });
@@ -297,13 +330,13 @@ function generatePagesSitemap() {
  */
 function generateSitemapIndexXML() {
   let sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-  sitemapIndex += `<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>\n`;
+  sitemapIndex += `<?xml-stylesheet type="text/xsl" href="${xmlEscape(`${basePathPrefix}/sitemap.xsl`)}"?>\n`;
   sitemapIndex += `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n\n`;
 
   const sitemapFiles = ['page-sitemap.xml', 'post-sitemap.xml', 'post_topic-sitemap.xml'];
   sitemapFiles.forEach(file => {
     sitemapIndex += `  <sitemap>\n`;
-    sitemapIndex += `    <loc>${siteUrl}/${file}</loc>\n`;
+    sitemapIndex += `    <loc>${xmlEscape(buildSiteUrl(basePath, file))}</loc>\n`;
     sitemapIndex += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
     sitemapIndex += `  </sitemap>\n\n`;
   });

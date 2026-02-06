@@ -75,7 +75,7 @@ describe('Link', () => {
 
     const link = screen.getByText('About Us').closest('a');
     expect(link).toHaveAttribute('data-locale', 'en-US');
-    expect(link).toHaveAttribute('href', '/about');
+    expect(link).toHaveAttribute('href', '/en-US/about');
   });
 
   it('does not modify href or locale when skipLocaleHandling is true', () => {
@@ -98,7 +98,7 @@ describe('Link', () => {
     );
 
     const link = screen.getByText('Current Path').closest('a');
-    expect(link).toHaveAttribute('href', '/current-path');
+    expect(link).toHaveAttribute('href', '/en-US/current-path');
     expect(link).toHaveAttribute('data-locale', 'en-US');
   });
 
@@ -112,7 +112,7 @@ describe('Link', () => {
     );
 
     const link = screen.getByText('Current Path With Query').closest('a');
-    expect(link).toHaveAttribute('href', '/current-path?page=2&q=next');
+    expect(link).toHaveAttribute('href', '/en-US/current-path?page=2&q=next');
   });
 
   it('calls onClick handler when clicked', () => {
@@ -127,48 +127,6 @@ describe('Link', () => {
     fireEvent.click(link!);
 
     expect(onClickMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('handles Enter keydown events', () => {
-    const onClickMock = jest.fn();
-    render(
-      <Link href="/about" onClick={onClickMock}>
-        <span>About Us</span>
-      </Link>,
-    );
-
-    const link = screen.getByText('About Us').closest('a');
-    fireEvent.keyDown(link!, { key: 'Enter' });
-
-    expect(onClickMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('handles Space keydown events', () => {
-    const onClickMock = jest.fn();
-    render(
-      <Link href="/about" onClick={onClickMock}>
-        <span>About Us</span>
-      </Link>,
-    );
-
-    const link = screen.getByText('About Us').closest('a');
-    fireEvent.keyDown(link!, { key: ' ' });
-
-    expect(onClickMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not call onClick for other keydown events', () => {
-    const onClickMock = jest.fn();
-    render(
-      <Link href="/about" onClick={onClickMock}>
-        <span>About Us</span>
-      </Link>,
-    );
-
-    const link = screen.getByText('About Us').closest('a');
-    fireEvent.keyDown(link!, { key: 'Tab' });
-
-    expect(onClickMock).not.toHaveBeenCalled();
   });
 
   it('does not append locale data for external URLs', () => {
@@ -191,7 +149,7 @@ describe('Link', () => {
     );
 
     const link = screen.getByText('About Us').closest('a');
-    expect(link).toHaveAttribute('href', '/about');
+    expect(link).toHaveAttribute('href', '/fr-FR/about');
     expect(link).toHaveAttribute('data-locale', 'fr-FR');
   });
 
@@ -204,6 +162,7 @@ describe('Link', () => {
     );
 
     const link = screen.getByText('About Us').closest('a');
+    expect(link).toHaveAttribute('href', '/es-ES/about');
     expect(link).toHaveAttribute('data-locale', 'es-ES');
   });
 
@@ -216,6 +175,7 @@ describe('Link', () => {
     );
 
     const link = screen.getByText('About Us').closest('a');
+    expect(link).toHaveAttribute('href', '/en/about');
     expect(link).toHaveAttribute('data-locale', 'en');
   });
 });

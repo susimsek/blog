@@ -154,14 +154,14 @@ describe('TopicsDropdown', () => {
     expect(screen.getByText('topic:topic.noTopicFound')).toBeInTheDocument();
   });
 
-  test('does not duplicate a topic when clicked multiple times', () => {
+  test('toggles off a selected topic when clicked again', () => {
     renderComponent();
     fireEvent.click(screen.getByText('topic:topic.allTopics'));
     fireEvent.click(screen.getAllByText('React').at(-1) as HTMLElement);
     fireEvent.click(screen.getAllByText('React').at(-1) as HTMLElement);
-    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.applySelection/i }));
-
-    expect(onTopicsChangeMock).toHaveBeenCalledWith(['react']);
+    const applyButton = screen.getByRole('button', { name: /common.datePicker.applySelection/i });
+    expect(applyButton).toBeDisabled();
+    expect(onTopicsChangeMock).not.toHaveBeenCalled();
   });
 
   test('resets pending selection when dropdown closes', () => {

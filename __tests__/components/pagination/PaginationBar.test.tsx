@@ -1,6 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import PaginationBar from '@/components/pagination/PaginationBar';
-import { useTranslation } from 'react-i18next';
 
 // Mocking useTranslation
 jest.mock('react-i18next', () => ({

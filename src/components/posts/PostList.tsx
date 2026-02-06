@@ -86,10 +86,11 @@ export default function PostList({
       return;
     }
 
+    const currentWindow = globalThis.window;
     const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      typeof window.matchMedia === 'function' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      typeof currentWindow !== 'undefined' &&
+      typeof currentWindow.matchMedia === 'function' &&
+      currentWindow.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     target.scrollIntoView({
       behavior: prefersReducedMotion ? 'auto' : 'smooth',

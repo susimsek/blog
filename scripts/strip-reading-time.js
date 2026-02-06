@@ -21,7 +21,8 @@ for (const locale of locales) {
     if (!Object.prototype.hasOwnProperty.call(post, 'readingTime')) {
       return post;
     }
-    const { readingTime: _readingTime, ...rest } = post;
+    const { readingTime, ...rest } = post;
+    void readingTime;
     changed += 1;
     return rest;
   });

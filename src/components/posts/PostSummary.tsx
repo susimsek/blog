@@ -46,6 +46,25 @@ export default function PostSummary({ post, highlightQuery }: Readonly<PostSumma
   const { t } = useTranslation('post');
 
   const postLink = link ?? `/posts/${id}`;
+  const resolveThumbnailSrc = (value: string) => {
+    if (/^https?:\/\//i.test(value)) {
+      return value;
+    }
+
+    const normalizedPath = value.startsWith('/') ? value : `/${value}`;
+    if (!assetPrefix) {
+      return normalizedPath;
+    }
+
+    const normalizedPrefix = assetPrefix.endsWith('/') ? assetPrefix.slice(0, -1) : assetPrefix;
+    return `${normalizedPrefix}${normalizedPath}`;
+  };
+  const thumbnailSrc = (() => {
+    if (!thumbnail) {
+      return null;
+    }
+    return resolveThumbnailSrc(thumbnail);
+  })();
   const q = highlightQuery?.trim() ?? '';
   const titleNode = q ? highlight(title, q) : title;
   const summaryNode = q ? highlight(summary, q) : summary;
@@ -79,15 +98,9 @@ export default function PostSummary({ post, highlightQuery }: Readonly<PostSumma
             ))}
           </div>
         )}
-        {thumbnail && (
+        {thumbnailSrc && (
           <Link href={postLink}>
-            <Thumbnail
-              className="thumbnail-wrapper"
-              src={`${assetPrefix}${thumbnail}`}
-              alt={title}
-              width={800}
-              height={600}
-            />
+            <Thumbnail className="thumbnail-wrapper" src={thumbnailSrc} alt={title} width={800} height={600} />
           </Link>
         )}
         <p className="mb-4">{summaryNode}</p>

@@ -19,7 +19,7 @@ jest.mock('@/components/search/SearchBar', () => ({
 
 jest.mock('@/components/common/TopicsDropdown', () => ({
   __esModule: true,
-  TopicsDropdown: jest.fn(({ topics, selectedTopics, onTopicsChange }) => (
+  TopicsDropdown: jest.fn(({ topics, onTopicsChange }) => (
     <div data-testid="topics-dropdown">
       {topics.map(topic => (
         <button key={topic.id} onClick={() => onTopicsChange([topic.id])}>
@@ -41,7 +41,7 @@ jest.mock('@/components/common/DateRangePicker', () => ({
 
 jest.mock('@/components/common/SortDropdown', () => ({
   __esModule: true,
-  SortDropdown: jest.fn(({ sortOrder, onChange }) => (
+  SortDropdown: jest.fn(({ onChange }) => (
     <button onClick={() => onChange('desc')} data-testid="sort-dropdown">
       Sort by
     </button>

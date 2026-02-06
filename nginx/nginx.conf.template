@@ -14,7 +14,7 @@ server {
 
     # Favicon redirection
      location = /favicon.ico {
-         try_files ${NEXT_PUBLIC_BASE_PATH}/favicons/favicon.ico =404;
+         try_files ${NEXT_PUBLIC_BASE_PATH}/favicon.ico =404;
      }
 
     # Serve files under the dynamic base path

@@ -2,7 +2,6 @@ import React, { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { AnyAction, configureStore } from '@reduxjs/toolkit';
-import type { IRootState } from '@/config/store';
 import themeReducer, { type ThemeState } from '@/reducers/theme';
 import postsQueryReducer, { type PostsQueryState } from '@/reducers/postsQuery';
 

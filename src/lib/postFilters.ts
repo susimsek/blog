@@ -17,8 +17,16 @@ export const filterByTopics = (post: PostSummary, selectedTopics: string[]) =>
  */
 export const filterByDateRange = (post: PostSummary, dateRange: { startDate?: string; endDate?: string }) => {
   const postDate = new Date(post.date).getTime();
-  const startDate = dateRange.startDate ? new Date(dateRange.startDate).setHours(0, 0, 0, 0) : undefined;
-  const endDate = dateRange.endDate ? new Date(dateRange.endDate).setHours(23, 59, 59, 999) : undefined;
+  const parseDate = (value: string): Date => {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (!match) {
+      return new Date(value);
+    }
+    const [, year, month, day] = match;
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  };
+  const startDate = dateRange.startDate ? parseDate(dateRange.startDate).setHours(0, 0, 0, 0) : undefined;
+  const endDate = dateRange.endDate ? parseDate(dateRange.endDate).setHours(23, 59, 59, 999) : undefined;
 
   return (!startDate || postDate >= startDate) && (!endDate || postDate <= endDate);
 };

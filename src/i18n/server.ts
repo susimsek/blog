@@ -1,26 +1,60 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import 'server-only';
 import { createInstance } from 'i18next';
 import { allNamespaces, defaultLocale, locales } from '@/i18n/settings';
 
 type NamespaceResource = Record<string, unknown>;
 export type LocaleResources = Record<string, NamespaceResource>;
 
-const localesDir = path.join(process.cwd(), 'public', 'locales');
+const dictionaries = {
+  en: {
+    '404': () => import('../../public/locales/en/404.json').then(module => module.default as NamespaceResource),
+    about: () => import('../../public/locales/en/about.json').then(module => module.default as NamespaceResource),
+    common: () => import('../../public/locales/en/common.json').then(module => module.default as NamespaceResource),
+    contact: () => import('../../public/locales/en/contact.json').then(module => module.default as NamespaceResource),
+    home: () => import('../../public/locales/en/home.json').then(module => module.default as NamespaceResource),
+    medium: () => import('../../public/locales/en/medium.json').then(module => module.default as NamespaceResource),
+    post: () => import('../../public/locales/en/post.json').then(module => module.default as NamespaceResource),
+    search: () => import('../../public/locales/en/search.json').then(module => module.default as NamespaceResource),
+    topic: () => import('../../public/locales/en/topic.json').then(module => module.default as NamespaceResource),
+  },
+  tr: {
+    '404': () => import('../../public/locales/tr/404.json').then(module => module.default as NamespaceResource),
+    about: () => import('../../public/locales/tr/about.json').then(module => module.default as NamespaceResource),
+    common: () => import('../../public/locales/tr/common.json').then(module => module.default as NamespaceResource),
+    contact: () => import('../../public/locales/tr/contact.json').then(module => module.default as NamespaceResource),
+    home: () => import('../../public/locales/tr/home.json').then(module => module.default as NamespaceResource),
+    medium: () => import('../../public/locales/tr/medium.json').then(module => module.default as NamespaceResource),
+    post: () => import('../../public/locales/tr/post.json').then(module => module.default as NamespaceResource),
+    search: () => import('../../public/locales/tr/search.json').then(module => module.default as NamespaceResource),
+    topic: () => import('../../public/locales/tr/topic.json').then(module => module.default as NamespaceResource),
+  },
+} as const;
 
-const resolveLocale = (locale: string) => (locales.includes(locale) ? locale : defaultLocale);
+export type Locale = keyof typeof dictionaries;
+export type DictionaryNamespace = keyof (typeof dictionaries)[Locale];
+
+export const hasLocale = (locale: string): locale is Locale => locale in dictionaries;
+
+const fallbackLocale: Locale = hasLocale(defaultLocale) ? defaultLocale : 'en';
+const fallbackNamespace: DictionaryNamespace = 'common';
+
+const hasNamespace = (namespace: string): namespace is DictionaryNamespace => namespace in dictionaries[fallbackLocale];
+const resolveLocale = (locale: string): Locale => (hasLocale(locale) ? locale : fallbackLocale);
+const resolveNamespace = (namespace: string): DictionaryNamespace =>
+  hasNamespace(namespace) ? namespace : fallbackNamespace;
+
+export const getDictionary = async (locale: Locale, namespace: DictionaryNamespace): Promise<NamespaceResource> => {
+  return dictionaries[locale][namespace]();
+};
 
 async function loadNamespace(locale: string, namespace: string): Promise<NamespaceResource> {
   const safeLocale = resolveLocale(locale);
-  const localeFile = path.join(localesDir, safeLocale, `${namespace}.json`);
-  const fallbackFile = path.join(localesDir, defaultLocale, `${namespace}.json`);
+  const safeNamespace = resolveNamespace(namespace);
 
   try {
-    const raw = await fs.readFile(localeFile, 'utf8');
-    return JSON.parse(raw) as NamespaceResource;
+    return await getDictionary(safeLocale, safeNamespace);
   } catch {
-    const raw = await fs.readFile(fallbackFile, 'utf8');
-    return JSON.parse(raw) as NamespaceResource;
+    return getDictionary(fallbackLocale, safeNamespace);
   }
 }
 
@@ -28,21 +62,26 @@ export async function loadLocaleResources(
   locale: string,
   namespaces: string[] = allNamespaces,
 ): Promise<LocaleResources> {
-  const uniqueNamespaces = [...new Set(namespaces)];
-  const entries = await Promise.all(uniqueNamespaces.map(async ns => [ns, await loadNamespace(locale, ns)] as const));
+  const uniqueNamespaces = [...new Set(namespaces)].filter(hasNamespace);
+  const resolvedNamespaces = uniqueNamespaces.length > 0 ? uniqueNamespaces : [fallbackNamespace];
+  const entries = await Promise.all(
+    resolvedNamespaces.map(async namespace => [namespace, await loadNamespace(locale, namespace)] as const),
+  );
   return Object.fromEntries(entries);
 }
 
 export async function getServerTranslator(locale: string, namespaces: string[] = allNamespaces) {
   const safeLocale = resolveLocale(locale);
-  const resources = await loadLocaleResources(safeLocale, namespaces);
+  const uniqueNamespaces = [...new Set(namespaces)].filter(hasNamespace);
+  const resolvedNamespaces = uniqueNamespaces.length > 0 ? uniqueNamespaces : [fallbackNamespace];
+  const resources = await loadLocaleResources(safeLocale, resolvedNamespaces);
 
   const i18n = createInstance();
   await i18n.init({
     lng: safeLocale,
     fallbackLng: defaultLocale,
     supportedLngs: locales,
-    ns: namespaces,
+    ns: resolvedNamespaces,
     defaultNS: 'common',
     resources: {
       [safeLocale]: resources,

@@ -21,6 +21,19 @@ export default function RelatedPosts({ posts }: Readonly<RelatedPostsProps>) {
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
   const currentLocale = routeLocale || i18nextConfig.i18n.defaultLocale;
+  const resolveThumbnailSrc = (value: string) => {
+    if (/^https?:\/\//i.test(value)) {
+      return value;
+    }
+
+    const normalizedPath = value.startsWith('/') ? value : `/${value}`;
+    if (!assetPrefix) {
+      return normalizedPath;
+    }
+
+    const normalizedPrefix = assetPrefix.endsWith('/') ? assetPrefix.slice(0, -1) : assetPrefix;
+    return `${normalizedPrefix}${normalizedPath}`;
+  };
 
   if (posts.length === 0) {
     return null;
@@ -41,7 +54,7 @@ export default function RelatedPosts({ posts }: Readonly<RelatedPostsProps>) {
                 {post.thumbnail && (
                   <div className="related-post-thumb">
                     <Image
-                      src={`${assetPrefix}${post.thumbnail}`}
+                      src={resolveThumbnailSrc(post.thumbnail)}
                       alt={post.title}
                       className="img-fluid"
                       width={1200}

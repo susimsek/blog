@@ -23,6 +23,7 @@ jest.mock('@/app/providers', () => ({
 }));
 
 jest.mock('@/i18n/server', () => ({
+  hasLocale: (locale: string) => ['en', 'tr'].includes(locale),
   loadLocaleResources: (locale: string, ns: string[]) => loadLocaleResourcesMock(locale, ns),
 }));
 
