@@ -1,13 +1,16 @@
 import { Navbar, Nav } from 'react-bootstrap';
 import { useTranslation } from 'next-i18next';
 import Link from '@/components/common/Link';
-import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
-import ThemeToggler from '@/components/theme/ThemeToggler';
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SITE_LOGO } from '@/config/constants';
 import SearchContainer from '@/components/search/SearchContainer';
 import useMediaQuery from '@/hooks/useMediaQuery';
+import Image from 'next/image';
+import dynamic from 'next/dynamic';
+
+const LanguageSwitcher = dynamic(() => import('@/components/i18n/LanguageSwitcher'));
+const ThemeToggler = dynamic(() => import('@/components/theme/ThemeToggler'));
 
 interface HeaderProps {
   searchEnabled?: boolean;
@@ -62,7 +65,7 @@ export default function Header({
         </button>
       )}
       <Navbar.Brand as={Link} href="/" className="navbar-brand link">
-        <img src={SITE_LOGO} alt={t('common.header.title')} width={40} height={40} className="rounded-circle" />
+        <Image src={SITE_LOGO} alt={t('common.header.title')} width={40} height={40} className="rounded-circle" />
         <span className="ms-2 fw-bold" style={{ fontSize: '1.25rem' }}>
           {t('common.header.title')}
         </span>

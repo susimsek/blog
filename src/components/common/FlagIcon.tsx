@@ -1,5 +1,5 @@
 import React from 'react';
-import { flags } from '@/config/iconLoader';
+import { flags } from '@/config/flags';
 
 interface FlagIconProps {
   code: string; // ISO 3166-1 alpha-2 country code

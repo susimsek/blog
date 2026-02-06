@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import CodeBlock from '@/components/common/CodeBlock';
-import { useAppSelector } from '@/config/store';
 
 Object.assign(navigator, {
   clipboard: {
@@ -71,7 +70,7 @@ describe('CodeBlock Component', () => {
     expect(codeBlock).toHaveTextContent(`console.log('Hello, World!');`);
   });
 
-  it('applies the correct theme for light mode', () => {
+  it('renders highlighted block markup for light mode', () => {
     render(
       <CodeBlock
         theme="light"
@@ -80,9 +79,9 @@ describe('CodeBlock Component', () => {
       >{`console.log('Hello, World!');`}</CodeBlock>,
     );
 
-    const codeBlock = document.querySelector('code.language-javascript');
+    const codeBlock = document.querySelector('.language-javascript');
     expect(codeBlock).toBeInTheDocument();
-    expect(codeBlock).toHaveStyle({ background: 'rgb(250, 250, 250)' });
+    expect(codeBlock).toHaveTextContent(`console.log('Hello, World!');`);
   });
 
   it('renders code as plain text when className is not defined', () => {

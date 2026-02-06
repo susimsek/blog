@@ -377,7 +377,6 @@ export const makeSearchProps =
     const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
 
     const allPosts = await getSortedPostsData(locale);
-    const layoutPosts = getLayoutPosts(allPosts, DEFAULT_LAYOUT_POSTS_LIMIT);
 
     const i18nProps = await serverSideTranslations(locale, ns);
 
@@ -388,7 +387,6 @@ export const makeSearchProps =
       props: {
         ...i18nProps,
         allPosts,
-        layoutPosts,
         topics,
         preFooterTopTopics,
       },

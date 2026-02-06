@@ -76,7 +76,7 @@ describe('Search Page', () => {
   });
 
   it('renders header and filters posts by query', async () => {
-    renderWithProviders(<SearchPage allPosts={mockAllPosts} topics={mockTopics} />);
+    renderWithProviders(<SearchPage allPosts={mockAllPosts} topics={mockTopics} preFooterTopTopics={mockTopics} />);
 
     expect(screen.getByText('search.title')).toBeInTheDocument();
     expect(await screen.findByText('search.subtitle:Post 1')).toBeInTheDocument();
@@ -94,7 +94,7 @@ describe('Search Page', () => {
       isReady: true,
     });
 
-    renderWithProviders(<SearchPage allPosts={mockAllPosts} topics={mockTopics} />);
+    renderWithProviders(<SearchPage allPosts={mockAllPosts} topics={mockTopics} preFooterTopTopics={mockTopics} />);
 
     await waitFor(() => expect(postListSpy).toHaveBeenCalledWith(expect.objectContaining({ posts: mockAllPosts })));
   });

@@ -6,7 +6,7 @@ jest.mock('react-markdown', () => {
   return ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
 });
 
-jest.mock('@/config/iconLoader', () => ({
+jest.mock('@/config/customIcons', () => ({
   customIcons: {
     java: () => <div data-testid="java-icon" />,
     kotlin: () => <div data-testid="kotlin-icon" />,

@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import { SITE_LOGO } from '@/config/constants';
 import useDebounce from '@/hooks/useDebounce';
+import Image from 'next/image';
 
 type SidebarProps = {
   topics?: Topic[];
@@ -69,7 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
       <Offcanvas.Header closeButton={false}>
         <div className="d-flex align-items-center brand">
           <Link href="/" onClick={onClose}>
-            <img
+            <Image
               src={SITE_LOGO}
               alt={t('common:common.header.title')}
               width={40}

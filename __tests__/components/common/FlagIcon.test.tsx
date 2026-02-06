@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import FlagIcon from '@/components/common/FlagIcon';
 
 // Mock `flags` to simulate icon loading
-jest.mock('@/config/iconLoader', () => ({
+jest.mock('@/config/flags', () => ({
   flags: {
     tr: (props: any) => <svg {...props} data-testid="flag-tr" />,
     en: (props: any) => <svg {...props} data-testid="flag-en" />,

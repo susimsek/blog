@@ -943,7 +943,6 @@ Fallback markdown content`;
             userConfig: {},
           },
           allPosts: [mockPostSummary],
-          layoutPosts: [mockPostSummary],
           preFooterTopTopics: [{ color: 'red', id: 'react', name: 'React' }],
           topics: [mockTopic],
         },

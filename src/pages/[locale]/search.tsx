@@ -12,12 +12,11 @@ import { setQuery } from '@/reducers/postsQuery';
 
 interface SearchPageProps {
   allPosts: PostSummary[];
-  layoutPosts: PostSummary[];
   topics: Topic[];
   preFooterTopTopics: Topic[];
 }
 
-export default function SearchPage({ allPosts, layoutPosts, topics, preFooterTopTopics }: Readonly<SearchPageProps>) {
+export default function SearchPage({ allPosts, topics, preFooterTopTopics }: Readonly<SearchPageProps>) {
   const { t } = useTranslation(['search']);
   const router = useRouter();
   const { q } = router.query;
@@ -38,7 +37,7 @@ export default function SearchPage({ allPosts, layoutPosts, topics, preFooterTop
 
   return (
     <Layout
-      posts={layoutPosts}
+      posts={allPosts}
       topics={topics}
       preFooterTopTopics={preFooterTopTopics}
       sidebarEnabled={true}
