@@ -2,5 +2,5 @@
 2:I[18608,["/_next/static/chunks/13a61cbd9ca77595.js"],"default"]
 3:I[26270,["/_next/static/chunks/d977e0a23c15263b.js","/_next/static/chunks/8bc25b6585f9a64d.js"],"OutletBoundary"]
 4:"$Sreact.suspense"
-0:{"buildId":"Ll11czd12auIZy1B3LYPX","rsc":["$","$1","c",{"children":[["$","$L2",null,{"path":"/posts/spring-boot-config-server"}],[["$","script","script-0",{"src":"/_next/static/chunks/13a61cbd9ca77595.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"loading":null,"isPartial":false}
+0:{"buildId":"u68UKODN-IC69o95WLyq3","rsc":["$","$1","c",{"children":[["$","$L2",null,{"path":"/posts/spring-boot-config-server"}],[["$","script","script-0",{"src":"/_next/static/chunks/13a61cbd9ca77595.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"loading":null,"isPartial":false}
 5:null
