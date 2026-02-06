@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 interface PreFooterProps {
   posts?: PostSummary[];
   topics?: Topic[];
+  topTopics?: Topic[];
 }
 
 const getTopTopics = (posts: PostSummary[], topics: Topic[], limit: number) => {
@@ -32,7 +33,7 @@ const getTopTopics = (posts: PostSummary[], topics: Topic[], limit: number) => {
     .map(item => item.topic as Topic);
 };
 
-export default function PreFooter({ posts = [], topics = [] }: Readonly<PreFooterProps>) {
+export default function PreFooter({ posts = [], topics = [], topTopics = [] }: Readonly<PreFooterProps>) {
   const { t } = useTranslation('common');
   const router = useRouter();
   const currentLocale = (router.query.locale as string) || i18nextConfig.i18n.defaultLocale;
@@ -42,7 +43,12 @@ export default function PreFooter({ posts = [], topics = [] }: Readonly<PreFoote
     return sorted.slice(0, 5);
   }, [posts]);
 
-  const topTopics = useMemo(() => getTopTopics(posts, topics, 6), [posts, topics]);
+  const resolvedTopTopics = useMemo(() => {
+    if (topTopics.length > 0) {
+      return topTopics;
+    }
+    return getTopTopics(posts, topics, 6);
+  }, [topTopics, posts, topics]);
 
   return (
     <section className="pre-footer py-5" aria-label={t('common.preFooter.title')}>
@@ -76,7 +82,7 @@ export default function PreFooter({ posts = [], topics = [] }: Readonly<PreFoote
 
             <h4 className="h6 fw-bold mb-2">{t('common.preFooter.topTopicsTitle')}</h4>
             <div className="d-flex flex-wrap gap-2">
-              {topTopics.map(topic => (
+              {resolvedTopTopics.map(topic => (
                 <Link
                   key={topic.id}
                   href={`/${currentLocale}/topics/${topic.id}`}

@@ -5,7 +5,7 @@ import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import ThemeToggler from '@/components/theme/ThemeToggler';
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Logo from '@assets/images/logo.svg';
+import { SITE_LOGO } from '@/config/constants';
 import SearchContainer from '@/components/search/SearchContainer';
 import useMediaQuery from '@/hooks/useMediaQuery';
 
@@ -62,7 +62,7 @@ export default function Header({
         </button>
       )}
       <Navbar.Brand as={Link} href="/" className="navbar-brand link">
-        <Logo width={40} height={40} className="rounded-circle" />
+        <img src={SITE_LOGO} alt={t('common.header.title')} width={40} height={40} className="rounded-circle" />
         <span className="ms-2 fw-bold" style={{ fontSize: '1.25rem' }}>
           {t('common.header.title')}
         </span>

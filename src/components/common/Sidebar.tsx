@@ -5,7 +5,7 @@ import Link from '@/components/common/Link';
 import SearchBar from '@/components/search/SearchBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
-import Logo from '@assets/images/logo.svg';
+import { SITE_LOGO } from '@/config/constants';
 import useDebounce from '@/hooks/useDebounce';
 
 type SidebarProps = {
@@ -69,7 +69,13 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
       <Offcanvas.Header closeButton={false}>
         <div className="d-flex align-items-center brand">
           <Link href="/" onClick={onClose}>
-            <Logo width={40} height={40} className="rounded-circle me-2" />
+            <img
+              src={SITE_LOGO}
+              alt={t('common:common.header.title')}
+              width={40}
+              height={40}
+              className="rounded-circle me-2"
+            />
           </Link>
           <h5 className="fw-bold m-0 d-flex align-items-center">{t('common:common.sidebar.title')}</h5>
         </div>

@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
   sassOptions: {
     quietDeps: true,
   },
+  experimental: {
+    inlineCss: true,
+  },
   images: {
     unoptimized: true,
   },

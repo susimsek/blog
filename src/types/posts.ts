@@ -18,4 +18,6 @@ export type PostSummary = {
 
 export type Post = PostSummary & {
   contentHtml?: string;
+  contentCompressed?: string;
+  contentEncoding?: 'lz-string-uri';
 };

@@ -9,11 +9,12 @@ import { PostSummary, Topic } from '@/types/posts';
 import Seo from '@/components/common/SEO';
 
 type ContactProps = {
-  posts: PostSummary[];
+  layoutPosts: PostSummary[];
   topics: Topic[];
+  preFooterTopTopics: Topic[];
 };
 
-export default function Contact({ posts, topics }: Readonly<ContactProps>) {
+export default function Contact({ layoutPosts, topics, preFooterTopTopics }: Readonly<ContactProps>) {
   const { t } = useTranslation(['contact']);
 
   const jsonLdData = {
@@ -35,7 +36,13 @@ export default function Contact({ posts, topics }: Readonly<ContactProps>) {
   };
 
   return (
-    <Layout posts={posts} topics={topics} searchEnabled={true} sidebarEnabled={true}>
+    <Layout
+      posts={layoutPosts}
+      topics={topics}
+      preFooterTopTopics={preFooterTopTopics}
+      searchEnabled={true}
+      sidebarEnabled={true}
+    >
       <Seo
         title={t('contact.title')}
         ogTitle={t('contact.meta.title')}
@@ -56,5 +63,5 @@ export default function Contact({ posts, topics }: Readonly<ContactProps>) {
   );
 }
 
-export const getStaticProps = makePostProps(['common', 'contact']);
+export const getStaticProps = makePostProps(['common', 'contact'], { includePosts: false });
 export { getStaticPaths } from '@/lib/getStatic';

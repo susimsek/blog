@@ -16,6 +16,7 @@ type LayoutProps = {
   children: ReactNode;
   posts?: PostSummary[];
   topics?: Topic[];
+  preFooterTopTopics?: Topic[];
   searchEnabled?: boolean;
   sidebarEnabled?: boolean;
 };
@@ -40,6 +41,7 @@ const LayoutView: React.FC<LayoutProps> = ({
   children,
   posts = [],
   topics = [],
+  preFooterTopTopics = [],
   searchEnabled = false,
   sidebarEnabled = false,
 }) => {
@@ -99,7 +101,7 @@ const LayoutView: React.FC<LayoutProps> = ({
           </Col>
         </Row>
       </main>
-      <PreFooter posts={posts} topics={topics} />
+      <PreFooter posts={posts} topics={topics} topTopics={preFooterTopTopics} />
       <div ref={footerRef}>
         <Footer />
       </div>

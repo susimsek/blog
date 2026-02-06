@@ -7,8 +7,9 @@ import { GetStaticPropsContext } from 'next';
 import { getI18nProps } from '@/lib/getStatic';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { createCacheStore } from '@/lib/cacheUtils';
-import { sortPosts } from '@/lib/postFilters';
+import { getRelatedPosts, sortPosts } from '@/lib/postFilters';
 import { calculateReadingTime } from '@/lib/readingTime';
+import { compressContentForPayload } from '@/lib/contentCompression';
 
 const fsPromises = fs.promises;
 
@@ -25,6 +26,9 @@ export const topicDataCache = createCacheStore<Topic | null>('getTopicData');
 export const postIdsCache = createCacheStore<{ params: { id: string; locale: string } }[]>('getAllPostIds');
 export const topicIdsCache = createCacheStore<{ params: { id: string; locale: string } }[]>('getAllTopicIds');
 export const readingTimeCache = createCacheStore<string>('getReadingTime');
+
+const DEFAULT_LAYOUT_POSTS_LIMIT = 40;
+const DEFAULT_TOP_TOPICS_LIMIT = 6;
 
 async function getPostMarkdownContent(id: string, locale: string): Promise<string | null> {
   const fallbackLocale = i18nextConfig.i18n.defaultLocale;
@@ -151,12 +155,14 @@ export async function getPostData(id: string, locale: string): Promise<Post | nu
   // Parse post file and process content
   const { data, content } = await parsePostFile(filePath, true);
 
-  const readingTime = calculateReadingTime(content ?? '', locale);
+  const markdownContent = content ?? '';
+  const readingTime = calculateReadingTime(markdownContent, locale);
+  const serializedContent = compressContentForPayload(markdownContent);
 
   const post: Post = {
-    contentHtml: content,
     ...data,
     readingTime,
+    ...serializedContent,
   };
 
   postDataCache.set(cacheKey, post);
@@ -239,22 +245,61 @@ export async function getAllTopicIds() {
   return topicIds;
 }
 
+export const getLayoutPosts = (posts: PostSummary[], limit: number = DEFAULT_LAYOUT_POSTS_LIMIT): PostSummary[] => {
+  const safeLimit = Number.isFinite(limit) ? Math.max(0, Math.floor(limit)) : DEFAULT_LAYOUT_POSTS_LIMIT;
+  return posts.slice(0, safeLimit);
+};
+
+export const getTopTopicsFromPosts = (
+  posts: PostSummary[],
+  topics: Topic[],
+  limit: number = DEFAULT_TOP_TOPICS_LIMIT,
+): Topic[] => {
+  const topicById = new Map(topics.map(topic => [topic.id, topic]));
+  const counts = new Map<string, number>();
+
+  for (const post of posts) {
+    for (const topic of post.topics ?? []) {
+      if (!topic?.id) continue;
+      counts.set(topic.id, (counts.get(topic.id) ?? 0) + 1);
+    }
+  }
+
+  return [...counts.entries()]
+    .map(([id, count]) => ({ id, count, topic: topicById.get(id) }))
+    .filter(item => item.topic)
+    .sort((a, b) => b.count - a.count || String(a.topic?.name).localeCompare(String(b.topic?.name)))
+    .slice(0, limit)
+    .map(item => item.topic as Topic);
+};
+
+type MakePostPropsOptions = {
+  includePosts?: boolean;
+  layoutPostsLimit?: number;
+};
+
 // Factory for generating localized props for post lists
 export const makePostProps =
-  (ns: string[] = []) =>
+  (ns: string[] = [], options: MakePostPropsOptions = {}) =>
   async (context: GetStaticPropsContext) => {
     const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
+    const includePosts = options.includePosts ?? true;
+    const layoutPostsLimit = options.layoutPostsLimit ?? DEFAULT_LAYOUT_POSTS_LIMIT;
 
-    const posts = await getSortedPostsData(locale);
+    const allPosts = await getSortedPostsData(locale);
     const topics = await getAllTopics(locale);
+    const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
+    const layoutPosts = getLayoutPosts(allPosts, layoutPostsLimit);
 
     const i18nProps = await serverSideTranslations(locale, ns);
 
     return {
       props: {
         ...i18nProps,
-        posts,
+        ...(includePosts ? { posts: allPosts } : {}),
+        ...(includePosts ? {} : { layoutPosts }),
         topics,
+        preFooterTopTopics,
       },
     };
   };
@@ -275,13 +320,19 @@ export const makePostDetailProps =
 
     const i18nProps = await serverSideTranslations(locale, ns);
 
-    const posts = await getSortedPostsData(locale);
+    const allPosts = await getSortedPostsData(locale);
+    const relatedPosts = getRelatedPosts(post, allPosts, 3);
+    const layoutPosts = getLayoutPosts(allPosts, DEFAULT_LAYOUT_POSTS_LIMIT);
+    const topics = await getAllTopics(locale);
+    const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
 
     return {
       props: {
         ...i18nProps,
         post,
-        posts,
+        relatedPosts,
+        layoutPosts,
+        preFooterTopTopics,
       },
     };
   };
@@ -300,20 +351,22 @@ export const makeTopicProps =
     }
 
     const allPosts = await getSortedPostsData(locale);
-
     const posts = allPosts.filter(post => Array.isArray(post.topics) && post.topics.some(t => t.id === topicId));
+    const layoutPosts = getLayoutPosts(allPosts, DEFAULT_LAYOUT_POSTS_LIMIT);
 
     const i18nProps = await getI18nProps(context, ns);
 
     const topics = await getAllTopics(locale);
+    const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
 
     return {
       props: {
         ...i18nProps,
         topic,
-        allPosts,
         posts,
+        layoutPosts,
         topics,
+        preFooterTopTopics,
       },
     };
   };
@@ -324,16 +377,20 @@ export const makeSearchProps =
     const locale = (context?.params?.locale as string) || i18nextConfig.i18n.defaultLocale;
 
     const allPosts = await getSortedPostsData(locale);
+    const layoutPosts = getLayoutPosts(allPosts, DEFAULT_LAYOUT_POSTS_LIMIT);
 
     const i18nProps = await serverSideTranslations(locale, ns);
 
     const topics = await getAllTopics(locale);
+    const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
 
     return {
       props: {
         ...i18nProps,
         allPosts,
+        layoutPosts,
         topics,
+        preFooterTopTopics,
       },
     };
   };

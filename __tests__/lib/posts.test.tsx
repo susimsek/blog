@@ -588,6 +588,7 @@ Fallback markdown content`;
             userConfig: {},
           },
           posts: [mockPostSummary],
+          preFooterTopTopics: [{ color: 'red', id: 'react', name: 'React' }],
           topics: [
             { color: 'red', id: 'react', name: 'React' },
             { color: 'blue', id: 'nextjs', name: 'Next.js' },
@@ -679,8 +680,10 @@ Fallback markdown content`;
             initialLocale: 'en',
             userConfig: {},
           },
+          layoutPosts: [mockPostSummary],
           post: mockPost,
-          posts: [mockPostSummary],
+          preFooterTopTopics: [{ color: 'red', id: 'react', name: 'React' }],
+          relatedPosts: [],
         },
       });
     });
@@ -940,6 +943,8 @@ Fallback markdown content`;
             userConfig: {},
           },
           allPosts: [mockPostSummary],
+          layoutPosts: [mockPostSummary],
+          preFooterTopTopics: [{ color: 'red', id: 'react', name: 'React' }],
           topics: [mockTopic],
         },
       });

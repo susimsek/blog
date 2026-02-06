@@ -10,11 +10,12 @@ import { PostSummary, Topic } from '@/types/posts';
 import Seo from '@/components/common/SEO';
 
 type AboutProps = {
-  posts: PostSummary[];
+  layoutPosts: PostSummary[];
   topics: Topic[];
+  preFooterTopTopics: Topic[];
 };
 
-export default function About({ posts, topics }: Readonly<AboutProps>) {
+export default function About({ layoutPosts, topics, preFooterTopTopics }: Readonly<AboutProps>) {
   const { t } = useTranslation(['about']);
 
   const jsonLdData = {
@@ -32,7 +33,13 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
   const profileData = { first_name: 'Şuayb', last_name: 'Şimşek' };
 
   return (
-    <Layout posts={posts} topics={topics} searchEnabled={true} sidebarEnabled={true}>
+    <Layout
+      posts={layoutPosts}
+      topics={topics}
+      preFooterTopTopics={preFooterTopTopics}
+      searchEnabled={true}
+      sidebarEnabled={true}
+    >
       <Seo
         title={t('about.title')}
         ogTitle={t('about.meta.title')}
@@ -66,5 +73,5 @@ export default function About({ posts, topics }: Readonly<AboutProps>) {
   );
 }
 
-export const getStaticProps = makePostProps(['common', 'about']);
+export const getStaticProps = makePostProps(['common', 'about'], { includePosts: false });
 export { getStaticPaths } from '@/lib/getStatic';

@@ -8,11 +8,17 @@ import PostList from '@/components/posts/PostList';
 
 type MediumPageProps = {
   mediumPosts: PostSummary[];
-  posts: PostSummary[];
+  layoutPosts: PostSummary[];
   topics: Topic[];
+  preFooterTopTopics: Topic[];
 };
 
-export default function MediumPage({ posts, topics, mediumPosts }: Readonly<MediumPageProps>) {
+export default function MediumPage({
+  layoutPosts,
+  topics,
+  preFooterTopTopics,
+  mediumPosts,
+}: Readonly<MediumPageProps>) {
   const { t } = useTranslation('medium');
 
   const jsonLdData = {
@@ -23,7 +29,13 @@ export default function MediumPage({ posts, topics, mediumPosts }: Readonly<Medi
   };
 
   return (
-    <Layout posts={posts} topics={topics} searchEnabled={true} sidebarEnabled={true}>
+    <Layout
+      posts={layoutPosts}
+      topics={topics}
+      preFooterTopTopics={preFooterTopTopics}
+      searchEnabled={true}
+      sidebarEnabled={true}
+    >
       <Seo
         type="website"
         title={t('medium.title')}

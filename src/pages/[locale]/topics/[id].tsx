@@ -10,11 +10,12 @@ import Seo from '@/components/common/SEO';
 type TopicPageProps = {
   topic: Topic;
   posts: PostSummary[];
+  layoutPosts: PostSummary[];
   topics: Topic[];
-  allPosts: PostSummary[];
+  preFooterTopTopics: Topic[];
 };
 
-export default function TopicPage({ topic, posts, topics, allPosts }: Readonly<TopicPageProps>) {
+export default function TopicPage({ topic, posts, layoutPosts, topics, preFooterTopTopics }: Readonly<TopicPageProps>) {
   const { t } = useTranslation(['topic']);
 
   const topicTitle = t('topic.title', { topic: topic.name });
@@ -33,7 +34,13 @@ export default function TopicPage({ topic, posts, topics, allPosts }: Readonly<T
   };
 
   return (
-    <Layout posts={allPosts} topics={topics} sidebarEnabled={true} searchEnabled={true}>
+    <Layout
+      posts={layoutPosts}
+      topics={topics}
+      preFooterTopTopics={preFooterTopTopics}
+      sidebarEnabled={true}
+      searchEnabled={true}
+    >
       <Seo
         type="website"
         title={topicTitle}

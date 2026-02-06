@@ -2,23 +2,35 @@
 import { getAllPostIds, makePostDetailProps } from '@/lib/posts';
 import React from 'react';
 import PostDetail from '@/components/posts/PostDetail';
-import type { Post, PostSummary } from '@/types/posts'; // type-only import
+import type { Post, PostSummary, Topic } from '@/types/posts'; // type-only import
 import Layout from '@/components/common/Layout';
 import { AUTHOR_NAME, SITE_LOGO, SITE_URL, assetPrefix } from '@/config/constants';
 import Seo from '@/components/common/SEO';
-import { getRelatedPosts } from '@/lib/postFilters';
 import type { GetStaticPropsContext } from 'next';
 import i18nextConfig from '@root/next-i18next.config';
+import { resolvePostContent } from '@/lib/contentCompression';
 
 type PostProps = {
   post: Post;
-  posts?: PostSummary[];
+  relatedPosts?: PostSummary[];
+  layoutPosts?: PostSummary[];
+  preFooterTopTopics?: Topic[];
   locale: string;
 };
 
-export default function Post({ post, posts = [], locale }: Readonly<PostProps>) {
+export default function Post({
+  post,
+  relatedPosts = [],
+  layoutPosts = [],
+  preFooterTopTopics = [],
+  locale,
+}: Readonly<PostProps>) {
+  const postWithContent = React.useMemo(() => {
+    const contentHtml = resolvePostContent(post);
+    return { ...post, contentHtml };
+  }, [post]);
+
   const keywords = (post.topics ?? []).map(topic => topic.name).join(', ');
-  const relatedPosts = getRelatedPosts(post, posts, 3);
 
   const logoUrl = (() => {
     try {
@@ -88,19 +100,19 @@ export default function Post({ post, posts = [], locale }: Readonly<PostProps>) 
   };
 
   return (
-    <Layout posts={posts} searchEnabled={true}>
+    <Layout posts={layoutPosts} preFooterTopTopics={preFooterTopTopics} searchEnabled={true}>
       <Seo
-        title={post.title}
-        ogTitle={post.title}
-        description={post.summary}
+        title={postWithContent.title}
+        ogTitle={postWithContent.title}
+        description={postWithContent.summary}
         keywords={keywords}
         image={imageUrl ?? undefined}
         type="article"
-        path={`/posts/${post.id}`}
+        path={`/posts/${postWithContent.id}`}
         article={articleData}
         jsonLd={jsonLdData}
       />
-      <PostDetail post={post} relatedPosts={relatedPosts} />
+      <PostDetail post={postWithContent} relatedPosts={relatedPosts} />
     </Layout>
   );
 }
