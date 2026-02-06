@@ -20,11 +20,7 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({
-  params,
-}: Readonly<{
-  params: Promise<{ locale: string; id: string }>;
-}>): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<'/[locale]/topics/[id]'>): Promise<Metadata> {
   const { locale, id } = await params;
   const topic = await getTopicData(locale, id);
   if (!topic) {
@@ -43,11 +39,7 @@ export async function generateMetadata({
   });
 }
 
-export default async function TopicRoute({
-  params,
-}: Readonly<{
-  params: Promise<{ locale: string; id: string }>;
-}>) {
+export default async function TopicRoute({ params }: PageProps<'/[locale]/topics/[id]'>) {
   const { locale, id } = await params;
 
   const topic = await getTopicData(locale, id);

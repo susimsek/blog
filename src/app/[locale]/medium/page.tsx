@@ -5,11 +5,7 @@ import { getAllTopics, getLayoutPosts, getSortedPostsData, getTopTopicsFromPosts
 import { getServerTranslator } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';
 
-export async function generateMetadata({
-  params,
-}: Readonly<{
-  params: Promise<{ locale: string }>;
-}>): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<'/[locale]/medium'>): Promise<Metadata> {
   const { locale } = await params;
   const { t } = await getServerTranslator(locale, ['medium']);
 
@@ -22,11 +18,7 @@ export async function generateMetadata({
   });
 }
 
-export default async function MediumRoute({
-  params,
-}: Readonly<{
-  params: Promise<{ locale: string }>;
-}>) {
+export default async function MediumRoute({ params }: PageProps<'/[locale]/medium'>) {
   const { locale } = await params;
   const mediumPosts = await fetchRssSummaries(locale);
 

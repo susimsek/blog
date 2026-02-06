@@ -4,11 +4,7 @@ import { getAllTopics, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/p
 import { getServerTranslator } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';
 
-export async function generateMetadata({
-  params,
-}: Readonly<{
-  params: Promise<{ locale: string }>;
-}>): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<'/[locale]/search'>): Promise<Metadata> {
   const { locale } = await params;
   const { t } = await getServerTranslator(locale, ['search']);
 
@@ -25,11 +21,7 @@ export async function generateMetadata({
   });
 }
 
-export default async function SearchRoute({
-  params,
-}: Readonly<{
-  params: Promise<{ locale: string }>;
-}>) {
+export default async function SearchRoute({ params }: PageProps<'/[locale]/search'>) {
   const { locale } = await params;
 
   const allPosts = await getSortedPostsData(locale);

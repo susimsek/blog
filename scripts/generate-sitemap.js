@@ -12,6 +12,23 @@ const basePathPrefix = basePath ? `/${basePath}` : '';
 const locales = i18nConfig.locales;
 
 const buildDir = path.join(process.cwd(), 'build');
+const generatedAt = new Date().toISOString();
+
+const toIsoTimestamp = value => {
+  if (!value) {
+    return generatedAt;
+  }
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? generatedAt : parsed.toISOString();
+};
+
+const getFileLastModified = filePath => {
+  try {
+    return fs.statSync(filePath).mtime.toISOString();
+  } catch {
+    return generatedAt;
+  }
+};
 
 const xmlEscape = value =>
   String(value)
@@ -100,10 +117,11 @@ function generatePostsSitemapXML(postsById) {
       const post = postsById[postId][locale];
       const postUrl = buildSiteUrl(basePath, locale, 'posts', post.id);
       const thumbnailUrl = toAbsoluteUrl(post.thumbnail);
+      const postLastMod = toIsoTimestamp(post.date);
 
       sitemap += `  <url>\n`;
       sitemap += `    <loc>${xmlEscape(postUrl)}</loc>\n`;
-      sitemap += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
+      sitemap += `    <lastmod>${postLastMod}</lastmod>\n`;
       sitemap += `    <changefreq>weekly</changefreq>\n`;
       if (thumbnailUrl) {
         sitemap += `    <image:image>\n`;
@@ -192,10 +210,11 @@ function generateTopicsSitemapXML(topicsById) {
     localesForTopic.forEach(locale => {
       const topic = topicsById[topicId][locale];
       const topicUrl = buildSiteUrl(basePath, locale, 'topics', topic.id);
+      const topicLastMod = getFileLastModified(path.join(process.cwd(), 'content', 'topics', locale, 'topics.json'));
 
       sitemap += `  <url>\n`;
       sitemap += `    <loc>${xmlEscape(topicUrl)}</loc>\n`;
-      sitemap += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
+      sitemap += `    <lastmod>${topicLastMod}</lastmod>\n`;
       sitemap += `    <changefreq>weekly</changefreq>\n`;
       // Add alternate language links for all locales where the topic exists
       localesForTopic.forEach(altLocale => {
@@ -234,6 +253,7 @@ function getPagesData() {
     {
       slug: '', // Home page
       changefreq: 'daily',
+      sourceFile: 'src/app/[locale]/page.tsx',
       image: {
         loc: '/images/logo.webp',
         title: { en: "Welcome to Şuayb's Blog", tr: "Şuayb'in Bloguna Hoş Geldiniz" },
@@ -242,6 +262,7 @@ function getPagesData() {
     {
       slug: 'about',
       changefreq: 'monthly',
+      sourceFile: 'src/app/[locale]/about/page.tsx',
       image: {
         loc: '/images/profile.webp',
         title: { en: 'About', tr: 'Hakkımda' },
@@ -250,6 +271,7 @@ function getPagesData() {
     {
       slug: 'contact',
       changefreq: 'monthly',
+      sourceFile: 'src/app/[locale]/contact/page.tsx',
       image: {
         loc: '/images/profile.webp',
         title: { en: 'Contact Information', tr: 'İletişim Bilgileri' },
@@ -258,6 +280,7 @@ function getPagesData() {
     {
       slug: 'medium',
       changefreq: 'daily',
+      sourceFile: 'src/app/[locale]/medium/page.tsx',
       image: {
         loc: '/images/medium.webp',
         title: {
@@ -286,9 +309,10 @@ function generatePagesSitemapXML(pages) {
     locales.forEach(locale => {
       // Construct the page URL; if slug is empty, it's the home page URL.
       const pageUrl = page.slug ? buildSiteUrl(basePath, locale, page.slug) : buildSiteUrl(basePath, locale);
+      const pageLastMod = getFileLastModified(path.join(process.cwd(), page.sourceFile));
       sitemap += `  <url>\n`;
       sitemap += `    <loc>${xmlEscape(pageUrl)}</loc>\n`;
-      sitemap += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
+      sitemap += `    <lastmod>${pageLastMod}</lastmod>\n`;
       sitemap += `    <changefreq>${page.changefreq}</changefreq>\n`;
       // Image details: build absolute URL and choose title based on locale.
       const imageUrl = toAbsoluteUrl(page.image.loc);
@@ -335,9 +359,10 @@ function generateSitemapIndexXML() {
 
   const sitemapFiles = ['page-sitemap.xml', 'post-sitemap.xml', 'post_topic-sitemap.xml'];
   sitemapFiles.forEach(file => {
+    const sitemapLastMod = getFileLastModified(path.join(buildDir, file));
     sitemapIndex += `  <sitemap>\n`;
     sitemapIndex += `    <loc>${xmlEscape(buildSiteUrl(basePath, file))}</loc>\n`;
-    sitemapIndex += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
+    sitemapIndex += `    <lastmod>${sitemapLastMod}</lastmod>\n`;
     sitemapIndex += `  </sitemap>\n\n`;
   });
 
@@ -361,10 +386,10 @@ function generateSitemapIndex() {
  * Main function that generates posts, topics, pages, and sitemap index.
  */
 function generateAllSitemaps() {
-  generateSitemapIndex();
   generatePagesSitemap();
   generatePostsSitemap();
   generateTopicsSitemap();
+  generateSitemapIndex();
 }
 
 // Execute the main function

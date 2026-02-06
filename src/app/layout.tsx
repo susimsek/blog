@@ -10,9 +10,10 @@ export const metadata: Metadata = {
 };
 
 const localePattern = i18nextConfig.i18n.locales.map(locale => locale.replaceAll('-', '\\-')).join('|');
-const syncHtmlLangScript = `(function(){var m=window.location.pathname.match(new RegExp('^/(${localePattern})(?:/|$)'));if(m){document.documentElement.lang=m[1];}})();`;
+const normalizedBasePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? '').replaceAll(/^\/+/g, '').replaceAll(/\/+$/g, '');
+const syncHtmlLangScript = `(function(){var p=window.location.pathname;var b=${JSON.stringify(normalizedBasePath)};if(b&&p.startsWith('/'+b+'/')){p=p.slice(b.length+1);}var m=p.match(new RegExp('^/(${localePattern})(?:/|$)'));if(m){document.documentElement.lang=m[1];}})();`;
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang={i18nextConfig.i18n.defaultLocale}>
       <head>

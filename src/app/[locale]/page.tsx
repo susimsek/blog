@@ -4,11 +4,7 @@ import { getAllTopics, getSortedPostsData } from '@/lib/posts';
 import { getServerTranslator } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';
 
-export async function generateMetadata({
-  params,
-}: Readonly<{
-  params: Promise<{ locale: string }>;
-}>): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<'/[locale]'>): Promise<Metadata> {
   const { locale } = await params;
   const { t } = await getServerTranslator(locale, ['home']);
 
@@ -20,11 +16,7 @@ export async function generateMetadata({
   });
 }
 
-export default async function LocaleHomePage({
-  params,
-}: Readonly<{
-  params: Promise<{ locale: string }>;
-}>) {
+export default async function LocaleHomePage({ params }: PageProps<'/[locale]'>) {
   const { locale } = await params;
   const posts = await getSortedPostsData(locale);
   const topics = await getAllTopics(locale);

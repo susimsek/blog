@@ -11,11 +11,7 @@ export async function generateStaticParams() {
     }));
 }
 
-export default async function PostRedirectPage({
-  params,
-}: Readonly<{
-  params: Promise<{ id: string }>;
-}>) {
+export default async function PostRedirectPage({ params }: PageProps<'/posts/[id]'>) {
   const { id } = await params;
   return <LocaleRedirect path={`/posts/${id}`} />;
 }

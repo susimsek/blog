@@ -410,6 +410,34 @@ Fallback markdown content`;
       expect(result).toEqual([]);
     });
 
+    it('returns union of IDs found across locales', async () => {
+      (fs.existsSync as jest.Mock).mockImplementation((filePath: string) => {
+        if (filePath.endsWith('/content/posts/en/posts.json')) return true;
+        if (filePath.endsWith('/content/posts/fr/posts.json')) return true;
+        if (filePath.endsWith('/content/posts/de/posts.json')) return false;
+        return false;
+      });
+      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
+        if (filePath.endsWith('/content/posts/en/posts.json')) {
+          return JSON.stringify([{ id: 'post-en' }]);
+        }
+        if (filePath.endsWith('/content/posts/fr/posts.json')) {
+          return JSON.stringify([{ id: 'post-fr' }]);
+        }
+        return '';
+      });
+
+      const result = await getAllPostIds();
+      expect(result).toEqual([
+        { params: { id: 'post-en', locale: 'en' } },
+        { params: { id: 'post-en', locale: 'fr' } },
+        { params: { id: 'post-en', locale: 'de' } },
+        { params: { id: 'post-fr', locale: 'en' } },
+        { params: { id: 'post-fr', locale: 'fr' } },
+        { params: { id: 'post-fr', locale: 'de' } },
+      ]);
+    });
+
     it('returns an empty list when directory does not exist', async () => {
       (fs.existsSync as jest.Mock).mockReturnValue(false);
       const result = await getAllPostIds();
@@ -522,37 +550,37 @@ Fallback markdown content`;
       expect(result).toEqual([
         {
           params: {
-            id: 'react',
+            id: 'nextjs',
             locale: 'en',
           },
         },
         {
           params: {
-            id: 'react',
+            id: 'nextjs',
             locale: 'fr',
           },
         },
         {
           params: {
-            id: 'react',
+            id: 'nextjs',
             locale: 'de',
           },
         },
         {
           params: {
-            id: 'nextjs',
+            id: 'react',
             locale: 'en',
           },
         },
         {
           params: {
-            id: 'nextjs',
+            id: 'react',
             locale: 'fr',
           },
         },
         {
           params: {
-            id: 'nextjs',
+            id: 'react',
             locale: 'de',
           },
         },
@@ -567,13 +595,41 @@ Fallback markdown content`;
       expect(result).toEqual([]);
     });
 
+    it('returns union of topic IDs found across locales', async () => {
+      (fs.existsSync as jest.Mock).mockImplementation((filePath: string) => {
+        if (filePath.endsWith('/content/topics/en/topics.json')) return true;
+        if (filePath.endsWith('/content/topics/fr/topics.json')) return true;
+        if (filePath.endsWith('/content/topics/de/topics.json')) return false;
+        return false;
+      });
+      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
+        if (filePath.endsWith('/content/topics/en/topics.json')) {
+          return JSON.stringify([{ id: 'react', name: 'React', color: 'red' }]);
+        }
+        if (filePath.endsWith('/content/topics/fr/topics.json')) {
+          return JSON.stringify([{ id: 'nestjs', name: 'NestJS', color: 'blue' }]);
+        }
+        return '';
+      });
+
+      const result = await getAllTopicIds();
+      expect(result).toEqual([
+        { params: { id: 'nestjs', locale: 'en' } },
+        { params: { id: 'nestjs', locale: 'fr' } },
+        { params: { id: 'nestjs', locale: 'de' } },
+        { params: { id: 'react', locale: 'en' } },
+        { params: { id: 'react', locale: 'fr' } },
+        { params: { id: 'react', locale: 'de' } },
+      ]);
+    });
+
     it('handles JSON parse errors gracefully', async () => {
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.readFileSync as jest.Mock).mockImplementation(() => '{ invalid json }');
       const result = await getAllTopicIds();
       expect(result).toEqual([]);
       expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining('Error reading or parsing topics.json'),
+        expect.stringContaining('Error reading/parsing topics.json'),
         expect.any(SyntaxError),
       );
     });
@@ -599,37 +655,37 @@ Fallback markdown content`;
       expect(result).toEqual([
         {
           params: {
-            id: 'react',
+            id: 'nextjs',
             locale: 'en',
           },
         },
         {
           params: {
-            id: 'react',
+            id: 'nextjs',
             locale: 'fr',
           },
         },
         {
           params: {
-            id: 'react',
+            id: 'nextjs',
             locale: 'de',
           },
         },
         {
           params: {
-            id: 'nextjs',
+            id: 'react',
             locale: 'en',
           },
         },
         {
           params: {
-            id: 'nextjs',
+            id: 'react',
             locale: 'fr',
           },
         },
         {
           params: {
-            id: 'nextjs',
+            id: 'react',
             locale: 'de',
           },
         },

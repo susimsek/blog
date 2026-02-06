@@ -21,11 +21,7 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({
-  params,
-}: Readonly<{
-  params: Promise<{ locale: string; id: string }>;
-}>): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<'/[locale]/posts/[id]'>): Promise<Metadata> {
   const { locale, id } = await params;
   const post = await getPostData(id, locale);
 
@@ -53,11 +49,7 @@ export async function generateMetadata({
   });
 }
 
-export default async function PostRoute({
-  params,
-}: Readonly<{
-  params: Promise<{ locale: string; id: string }>;
-}>) {
+export default async function PostRoute({ params }: PageProps<'/[locale]/posts/[id]'>) {
   const { locale, id } = await params;
 
   const post = await getPostData(id, locale);

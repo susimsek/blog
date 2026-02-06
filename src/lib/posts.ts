@@ -26,6 +26,27 @@ export const readingTimeCache = createCacheStore<string>('getReadingTime');
 
 const DEFAULT_LAYOUT_POSTS_LIMIT = 40;
 const DEFAULT_TOP_TOPICS_LIMIT = 6;
+const ALL_POST_IDS_CACHE_KEY = 'all-post-ids';
+const ALL_TOPIC_IDS_CACHE_KEY = 'all-topic-ids';
+
+const readIdsFromIndexFile = async (indexPath: string, fileLabel: string): Promise<string[]> => {
+  if (!(await fileExists(indexPath))) {
+    return [];
+  }
+
+  try {
+    const fileContents = await fsPromises.readFile(indexPath, 'utf8');
+    const parsed = JSON.parse(fileContents) as Array<{ id?: unknown }>;
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.map(item => (typeof item?.id === 'string' ? item.id.trim() : '')).filter(Boolean);
+  } catch (error) {
+    console.error(`Error reading/parsing ${fileLabel}:`, error);
+    return [];
+  }
+};
 
 async function getPostMarkdownContent(id: string, locale: string): Promise<string | null> {
   const fallbackLocale = i18nextConfig.i18n.defaultLocale;
@@ -211,34 +232,56 @@ export async function getAllTopics(locale: string): Promise<Topic[]> {
 
 // Generate all post IDs for static paths
 export async function getAllPostIds() {
-  const cachedData = postIdsCache.get('all-post-ids');
+  const cachedData = postIdsCache.get(ALL_POST_IDS_CACHE_KEY);
   if (cachedData) return cachedData;
 
-  const defaultLocale = i18nextConfig.i18n.defaultLocale;
-  const posts = await getSortedPostsData(defaultLocale);
-  const postIds = posts.flatMap(post =>
-    i18nextConfig.i18n.locales.map(locale => ({
-      params: { id: post.id, locale },
-    })),
+  const localeList = i18nextConfig.i18n.locales;
+  const postIdSet = new Set<string>();
+
+  await Promise.all(
+    localeList.map(async locale => {
+      const postsJsonPath = path.join(postsDirectory, locale, 'posts.json');
+      const ids = await readIdsFromIndexFile(postsJsonPath, `posts.json for locale "${locale}"`);
+      ids.forEach(id => postIdSet.add(id));
+    }),
   );
 
-  postIdsCache.set('all-post-ids', postIds);
+  const postIds = [...postIdSet]
+    .sort((a, b) => a.localeCompare(b))
+    .flatMap(id =>
+      localeList.map(locale => ({
+        params: { id, locale },
+      })),
+    );
+
+  postIdsCache.set(ALL_POST_IDS_CACHE_KEY, postIds);
   return postIds;
 }
 
 export async function getAllTopicIds() {
-  const cachedData = topicIdsCache.get('all-topic-ids');
+  const cachedData = topicIdsCache.get(ALL_TOPIC_IDS_CACHE_KEY);
   if (cachedData) return cachedData;
 
-  const defaultLocale = i18nextConfig.i18n.defaultLocale;
-  const topics = await getAllTopics(defaultLocale);
-  const topicIds = topics.flatMap(topic =>
-    i18nextConfig.i18n.locales.map(locale => ({
-      params: { id: topic.id, locale },
-    })),
+  const localeList = i18nextConfig.i18n.locales;
+  const topicIdSet = new Set<string>();
+
+  await Promise.all(
+    localeList.map(async locale => {
+      const topicsJsonPath = path.join(topicsDirectory, locale, 'topics.json');
+      const ids = await readIdsFromIndexFile(topicsJsonPath, `topics.json for locale "${locale}"`);
+      ids.forEach(id => topicIdSet.add(id));
+    }),
   );
 
-  topicIdsCache.set('all-topic-ids', topicIds);
+  const topicIds = [...topicIdSet]
+    .sort((a, b) => a.localeCompare(b))
+    .flatMap(id =>
+      localeList.map(locale => ({
+        params: { id, locale },
+      })),
+    );
+
+  topicIdsCache.set(ALL_TOPIC_IDS_CACHE_KEY, topicIds);
   return topicIds;
 }
 

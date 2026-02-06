@@ -11,11 +11,7 @@ export async function generateStaticParams() {
     }));
 }
 
-export default async function TopicRedirectPage({
-  params,
-}: Readonly<{
-  params: Promise<{ id: string }>;
-}>) {
+export default async function TopicRedirectPage({ params }: PageProps<'/topics/[id]'>) {
   const { id } = await params;
   return <LocaleRedirect path={`/topics/${id}`} />;
 }
