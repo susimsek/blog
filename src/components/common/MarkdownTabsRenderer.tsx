@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { Tabs, Tab } from 'react-bootstrap';
+import Tabs from 'react-bootstrap/Tabs';
+import Tab from 'react-bootstrap/Tab';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';

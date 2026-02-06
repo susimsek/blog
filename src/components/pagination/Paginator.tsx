@@ -1,5 +1,5 @@
 import React, { ReactNode, useMemo, useCallback } from 'react';
-import { Pagination } from 'react-bootstrap';
+import Pagination from 'react-bootstrap/Pagination';
 
 interface PaginatorProps {
   currentPage: number;

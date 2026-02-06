@@ -1,5 +1,5 @@
 // components/i18n/LanguageSwitcher.tsx
-import { NavDropdown } from 'react-bootstrap';
+import NavDropdown from 'react-bootstrap/NavDropdown';
 import i18nextConfig from '@root/next-i18next.config';
 import LanguageSwitchLink from './LanguageSwitchLink';
 import { useTranslation } from 'next-i18next';

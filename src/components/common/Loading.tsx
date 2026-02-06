@@ -1,6 +1,7 @@
 // components/common/Loading.tsx
 import React from 'react';
-import { Container, Spinner } from 'react-bootstrap';
+import Container from 'react-bootstrap/Container';
+import Spinner from 'react-bootstrap/Spinner';
 
 const Loading: React.FC = () => {
   return (

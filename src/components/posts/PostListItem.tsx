@@ -1,6 +1,8 @@
 import React from 'react';
 import { PostSummary } from '@/types/posts';
-import { Row, Col, Badge } from 'react-bootstrap';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Badge from 'react-bootstrap/Badge';
 import Image from 'next/image';
 import DateDisplay from '@/components/common/DateDisplay';
 import { assetPrefix } from '@/config/constants';

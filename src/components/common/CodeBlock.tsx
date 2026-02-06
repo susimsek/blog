@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { Theme } from '@/reducers/theme';
 
@@ -12,6 +14,9 @@ interface CodeBlockProps {
 }
 
 type SyntaxHighlighterComponent = typeof import('react-syntax-highlighter').Prism;
+type PrismLightStaticApi = {
+  registerLanguage?: (name: string, language: unknown) => void;
+};
 type SyntaxTheme = Record<string, React.CSSProperties>;
 type SyntaxAssets = {
   SyntaxHighlighter: SyntaxHighlighterComponent;
@@ -24,27 +29,104 @@ type SyntaxAssets = {
 };
 
 let syntaxAssetsPromise: Promise<SyntaxAssets> | null = null;
+const registeredLanguages = new Set<string>();
 
 const loadSyntaxAssets = async (): Promise<SyntaxAssets> => {
   if (!syntaxAssetsPromise) {
     syntaxAssetsPromise = Promise.all([
-      import('react-syntax-highlighter'),
+      import('react-syntax-highlighter/dist/cjs/prism-light'),
       import('react-syntax-highlighter/dist/cjs/styles/prism/material-dark'),
       import('react-syntax-highlighter/dist/cjs/styles/prism/material-light'),
       import('react-syntax-highlighter/dist/cjs/styles/prism/material-oceanic'),
       import('react-syntax-highlighter/dist/cjs/styles/prism/gruvbox-dark'),
-    ]).then(([syntaxLib, darkStyle, lightStyle, oceanicStyle, forestStyle]) => ({
-      SyntaxHighlighter: syntaxLib.Prism,
-      themes: {
-        dark: darkStyle.default,
-        light: lightStyle.default,
-        oceanic: oceanicStyle.default,
-        forest: forestStyle.default,
+      import('react-syntax-highlighter/dist/cjs/languages/prism/bash'),
+      import('react-syntax-highlighter/dist/cjs/languages/prism/csv'),
+      import('react-syntax-highlighter/dist/cjs/languages/prism/go'),
+      import('react-syntax-highlighter/dist/cjs/languages/prism/graphql'),
+      import('react-syntax-highlighter/dist/cjs/languages/prism/groovy'),
+      import('react-syntax-highlighter/dist/cjs/languages/prism/java'),
+      import('react-syntax-highlighter/dist/cjs/languages/prism/json'),
+      import('react-syntax-highlighter/dist/cjs/languages/prism/kotlin'),
+      import('react-syntax-highlighter/dist/cjs/languages/prism/properties'),
+      import('react-syntax-highlighter/dist/cjs/languages/prism/xml-doc'),
+      import('react-syntax-highlighter/dist/cjs/languages/prism/yaml'),
+    ]).then(
+      ([
+        prismLightLib,
+        darkStyle,
+        lightStyle,
+        oceanicStyle,
+        forestStyle,
+        bashLang,
+        csvLang,
+        goLang,
+        graphqlLang,
+        groovyLang,
+        javaLang,
+        jsonLang,
+        kotlinLang,
+        propertiesLang,
+        xmlLang,
+        yamlLang,
+      ]) => {
+        const SyntaxHighlighter = prismLightLib.default as unknown as SyntaxHighlighterComponent;
+        const prismLightApi = prismLightLib.default as unknown as PrismLightStaticApi;
+        const registerLanguage = (name: string, languageModule: unknown) => {
+          if (registeredLanguages.has(name) || !prismLightApi.registerLanguage) {
+            return;
+          }
+          prismLightApi.registerLanguage(name, (languageModule as { default?: unknown }).default ?? languageModule);
+          registeredLanguages.add(name);
+        };
+
+        registerLanguage('bash', bashLang);
+        registerLanguage('csv', csvLang);
+        registerLanguage('go', goLang);
+        registerLanguage('graphql', graphqlLang);
+        registerLanguage('groovy', groovyLang);
+        registerLanguage('java', javaLang);
+        registerLanguage('json', jsonLang);
+        registerLanguage('kotlin', kotlinLang);
+        registerLanguage('properties', propertiesLang);
+        registerLanguage('xml', xmlLang);
+        registerLanguage('yaml', yamlLang);
+
+        return {
+          SyntaxHighlighter,
+          themes: {
+            dark: darkStyle.default,
+            light: lightStyle.default,
+            oceanic: oceanicStyle.default,
+            forest: forestStyle.default,
+          },
+        };
       },
-    }));
+    );
   }
 
   return syntaxAssetsPromise;
+};
+
+const LANGUAGE_ALIASES: Record<string, string> = {
+  html: 'xml',
+  ldif: 'properties',
+  plaintext: 'text',
+  shell: 'bash',
+  sh: 'bash',
+  text: 'text',
+  xml: 'xml',
+  yml: 'yaml',
+};
+
+const resolveLanguage = (language: string | undefined): string | null => {
+  if (!language) {
+    return null;
+  }
+  const normalized = language.toLowerCase();
+  if (LANGUAGE_ALIASES[normalized] === 'text') {
+    return null;
+  }
+  return LANGUAGE_ALIASES[normalized] ?? normalized;
 };
 
 const toCodeText = (node: React.ReactNode): string => {
@@ -64,6 +146,7 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, chil
   const match = /language-(\w+)/.exec(className ?? '');
   const hasLanguage = Boolean(match);
   const language = match?.[1];
+  const resolvedLanguage = resolveLanguage(language);
   const codeText = toCodeText(children).replace(/\n$/, '');
   const isMultiline = codeText.includes('\n');
 
@@ -142,7 +225,7 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, chil
       {SyntaxHighlighter && syntaxTheme ? (
         <SyntaxHighlighter
           style={syntaxTheme}
-          language={language}
+          language={resolvedLanguage ?? language}
           PreTag="div"
           showLineNumbers={showLineNumbers}
           customStyle={{ padding: '2.5rem 1rem 1rem' }}

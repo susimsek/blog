@@ -6,7 +6,9 @@ import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import i18nextConfig from '@root/next-i18next.config';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Row, Col, Badge } from 'react-bootstrap';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Badge from 'react-bootstrap/Badge';
 import Image from 'next/image';
 import { assetPrefix } from '@/config/constants';
 

@@ -1,4 +1,6 @@
-import { Row, Col, Container } from 'react-bootstrap';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
 import Paginator from '@/components/pagination/Paginator';
 import PageSizeSelector from './PageSizeSelector';
 import { useTranslation } from 'next-i18next';

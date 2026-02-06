@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { Badge, Carousel } from 'react-bootstrap';
+import Badge from 'react-bootstrap/Badge';
+import Carousel from 'react-bootstrap/Carousel';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PostSummary } from '@/types/posts';
 import { assetPrefix } from '@/config/constants';

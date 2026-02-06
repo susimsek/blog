@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container } from 'react-bootstrap';
+import Container from 'react-bootstrap/Container';
 import { useTranslation } from 'next-i18next';
 import { AUTHOR_NAME, AVATAR_LINK, CONTACT_LINKS, SITE_URL } from '@/config/constants';
 import Layout from '@/components/common/Layout';

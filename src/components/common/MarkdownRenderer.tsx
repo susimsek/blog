@@ -3,7 +3,7 @@ import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
-import { Table } from 'react-bootstrap';
+import Table from 'react-bootstrap/Table';
 import { useAppSelector } from '@/config/store';
 import { useTranslation } from 'next-i18next';
 import CodeBlock from '@/components/common/CodeBlock';

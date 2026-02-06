@@ -1,5 +1,8 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { Dropdown, DropdownButton, Form, Button } from 'react-bootstrap';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import i18nextConfig from '@root/next-i18next.config';
@@ -8,15 +11,22 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import { enUS } from 'date-fns/locale/en-US';
 import { tr } from 'date-fns/locale/tr';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Controller, useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { createValidationSchema } from '@/config/createValidationSchema';
 
 interface DateRangePickerProps {
   onRangeChange: (dates: { startDate?: string; endDate?: string }) => void;
   minDate?: Date;
   maxDate?: Date;
 }
+
+type DateRangeFormValues = {
+  startDate: Date | null;
+  endDate: Date | null;
+};
+
+type DateRangeErrors = {
+  startDate?: string;
+  endDate?: string;
+};
 
 export default function DateRangePicker({
   onRangeChange,
@@ -31,27 +41,16 @@ export default function DateRangePicker({
   const localeMap = { en: enUS, tr };
   const selectedLocale = localeMap[currentLocale] || enUS;
 
-  // Register Locales
-  useMemo(() => {
+  useEffect(() => {
     registerLocale('en', enUS);
     registerLocale('tr', tr);
   }, []);
 
-  const validationSchema = createValidationSchema(t);
-  const {
-    handleSubmit,
-    control,
-    reset,
-    getValues,
-    clearErrors,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(validationSchema),
-    defaultValues: {
-      startDate: undefined,
-      endDate: undefined,
-    },
+  const [formValues, setFormValues] = useState<DateRangeFormValues>({
+    startDate: null,
+    endDate: null,
   });
+  const [formErrors, setFormErrors] = useState<DateRangeErrors>({});
 
   const translate = useCallback((key: string) => t(`common.datePicker.${key}`), [t]);
 
@@ -62,7 +61,7 @@ export default function DateRangePicker({
   const dropdownTitle = useMemo(() => {
     if (selectedOption === 'customDate') {
       if (isConfirmed) {
-        const { startDate, endDate } = getValues();
+        const { startDate, endDate } = formValues;
         const start = startDate ? startDate.toLocaleDateString() : '';
         const end = endDate ? endDate.toLocaleDateString() : '';
         return start && end ? `${start} - ${end}` : translate('customDate');
@@ -70,7 +69,7 @@ export default function DateRangePicker({
       return translate('customDate');
     }
     return selectedOption ? translate(selectedOption) : translate('selectDate');
-  }, [selectedOption, isConfirmed, getValues, translate]);
+  }, [selectedOption, isConfirmed, formValues, translate]);
 
   const handleToggle = (isOpen: boolean) => {
     setShowDropdown(isOpen);
@@ -79,15 +78,64 @@ export default function DateRangePicker({
     }
   };
 
-  const handleApplySelection = (data: { startDate: Date | null; endDate: Date | null }) => {
-    if (selectedOption === 'customDate') {
-      onRangeChange({
-        startDate: data.startDate?.toLocaleDateString(),
-        endDate: data.endDate?.toLocaleDateString(),
-      });
+  const validateCustomDateRange = useCallback((): boolean => {
+    const nextErrors: DateRangeErrors = {};
+    const { startDate, endDate } = formValues;
+
+    if (!startDate) {
+      nextErrors.startDate = t('common.validation.required');
+    } else if (Number.isNaN(startDate.getTime())) {
+      nextErrors.startDate = t('common.validation.datetimelocal');
     }
+
+    if (!endDate) {
+      nextErrors.endDate = t('common.validation.required');
+    } else if (Number.isNaN(endDate.getTime())) {
+      nextErrors.endDate = t('common.validation.datetimelocal');
+    }
+
+    if (startDate && endDate && startDate > endDate) {
+      nextErrors.startDate = t('common.validation.startDateAfterEndDate');
+      nextErrors.endDate = t('common.validation.endDateBeforeStartDate');
+    }
+
+    setFormErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  }, [formValues, t]);
+
+  const handleApplySelection = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (selectedOption !== 'customDate') {
+      return;
+    }
+
+    if (!validateCustomDateRange()) {
+      return;
+    }
+
+    onRangeChange({
+      startDate: formValues.startDate?.toLocaleDateString(),
+      endDate: formValues.endDate?.toLocaleDateString(),
+    });
+
     setIsConfirmed(true);
     setShowDropdown(false);
+  };
+
+  const handleDateChange = (key: keyof DateRangeFormValues, date: Date | null) => {
+    setFormValues(prev => ({ ...prev, [key]: date }));
+    setFormErrors(prev => {
+      if (!prev.startDate && !prev.endDate) {
+        return prev;
+      }
+      const next = { ...prev };
+      delete next[key];
+      if (key === 'startDate') {
+        delete next.endDate;
+      }
+      return next;
+    });
   };
 
   const handleOptionSelect = (option: string, e?: React.MouseEvent) => {
@@ -143,7 +191,7 @@ export default function DateRangePicker({
       }
 
       case 'customDate': {
-        const { startDate: rawStartDate, endDate: rawEndDate } = getValues();
+        const { startDate: rawStartDate, endDate: rawEndDate } = formValues;
         startDate = rawStartDate ? rawStartDate.toLocaleDateString() : undefined;
         endDate = rawEndDate ? rawEndDate.toLocaleDateString() : undefined;
         break;
@@ -157,7 +205,11 @@ export default function DateRangePicker({
   };
 
   const handleClearFilter = () => {
-    reset();
+    setFormValues({
+      startDate: null,
+      endDate: null,
+    });
+    setFormErrors({});
     setSelectedOption(null);
     onRangeChange({ startDate: undefined, endDate: undefined });
     setShowDropdown(false);
@@ -181,7 +233,7 @@ export default function DateRangePicker({
   ];
 
   return (
-    <Form onSubmit={handleSubmit(handleApplySelection)}>
+    <Form onSubmit={handleApplySelection}>
       <DropdownButton
         id="date-range-dropdown"
         variant="orange"
@@ -215,57 +267,39 @@ export default function DateRangePicker({
               <Form.Label className="mb-2">{t('common.datePicker.startDateLabel')}</Form.Label>
               <div className="d-flex align-items-center">
                 <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-                <Controller
-                  name="startDate"
-                  control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <DatePicker
-                      selected={value}
-                      onChange={date => {
-                        onChange(date);
-                        clearErrors();
-                      }}
-                      locale={selectedLocale}
-                      dateFormat="P"
-                      isClearable
-                      className="form-control"
-                      placeholderText={t('common.datePicker.startDatePlaceholder')}
-                      minDate={minDate}
-                      maxDate={maxDate}
-                      dayClassName={dayClassName}
-                    />
-                  )}
+                <DatePicker
+                  selected={formValues.startDate}
+                  onChange={date => handleDateChange('startDate', date)}
+                  locale={selectedLocale}
+                  dateFormat="P"
+                  isClearable
+                  className="form-control"
+                  placeholderText={t('common.datePicker.startDatePlaceholder')}
+                  minDate={minDate}
+                  maxDate={maxDate}
+                  dayClassName={dayClassName}
                 />
               </div>
-              {errors.startDate && <Form.Text className="text-danger mt-2">{errors.startDate.message}</Form.Text>}
+              {formErrors.startDate && <Form.Text className="text-danger mt-2">{formErrors.startDate}</Form.Text>}
             </div>
             <div className="d-flex flex-column mb-4">
               <Form.Label className="mb-2">{t('common.datePicker.endDateLabel')}</Form.Label>
               <div className="d-flex align-items-center">
                 <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-                <Controller
-                  name="endDate"
-                  control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <DatePicker
-                      selected={value}
-                      onChange={date => {
-                        onChange(date);
-                        clearErrors();
-                      }}
-                      locale={selectedLocale}
-                      dateFormat="P"
-                      isClearable
-                      className="form-control"
-                      placeholderText={t('common.datePicker.endDatePlaceholder')}
-                      minDate={minDate}
-                      maxDate={maxDate}
-                      dayClassName={dayClassName}
-                    />
-                  )}
+                <DatePicker
+                  selected={formValues.endDate}
+                  onChange={date => handleDateChange('endDate', date)}
+                  locale={selectedLocale}
+                  dateFormat="P"
+                  isClearable
+                  className="form-control"
+                  placeholderText={t('common.datePicker.endDatePlaceholder')}
+                  minDate={minDate}
+                  maxDate={maxDate}
+                  dayClassName={dayClassName}
                 />
               </div>
-              {errors.endDate && <Form.Text className="text-danger mt-2">{errors.endDate.message}</Form.Text>}
+              {formErrors.endDate && <Form.Text className="text-danger mt-2">{formErrors.endDate}</Form.Text>}
             </div>
             <div className="d-flex align-items-center">
               <Button variant="success" type="submit" size="sm" className="date-picker-button">

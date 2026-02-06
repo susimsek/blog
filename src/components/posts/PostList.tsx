@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { PostSummary, Topic } from '@/types/posts';
-import { Container } from 'react-bootstrap';
+import Container from 'react-bootstrap/Container';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
 import { useTranslation } from 'next-i18next';

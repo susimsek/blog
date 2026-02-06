@@ -1,5 +1,8 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Dropdown, DropdownButton, Badge, Button } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import Badge from 'react-bootstrap/Badge';
+import Button from 'react-bootstrap/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import { Topic } from '@/types/posts';

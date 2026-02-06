@@ -1,5 +1,6 @@
 import React from 'react';
-import { Dropdown, DropdownButton } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'next-i18next';
 import type { ReadingTimeRange } from '@/reducers/postsQuery';

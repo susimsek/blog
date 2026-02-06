@@ -1,5 +1,5 @@
 // components/common/Footer.tsx
-import { Container } from 'react-bootstrap';
+import Container from 'react-bootstrap/Container';
 import { useTranslation } from 'next-i18next';
 import { LAUNCH_YEAR } from '@/config/constants';
 

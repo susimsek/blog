@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Topic } from '@/types/posts';
-import { Nav, Offcanvas } from 'react-bootstrap';
+import Nav from 'react-bootstrap/Nav';
+import Offcanvas from 'react-bootstrap/Offcanvas';
 import Link from '@/components/common/Link';
 import SearchBar from '@/components/search/SearchBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

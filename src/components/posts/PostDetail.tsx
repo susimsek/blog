@@ -1,6 +1,7 @@
 // components/posts/PostDetail.tsx
 import { Post } from '@/types/posts';
-import { Container, Badge } from 'react-bootstrap';
+import Container from 'react-bootstrap/Container';
+import Badge from 'react-bootstrap/Badge';
 import { assetPrefix, SITE_URL } from '@/config/constants';
 import DateDisplay from '@/components/common/DateDisplay';
 import Thumbnail from '@/components/common/Thumbnail';

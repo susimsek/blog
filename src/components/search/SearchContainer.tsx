@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { ListGroup } from 'react-bootstrap';
+import ListGroup from 'react-bootstrap/ListGroup';
 import SearchBar from '@/components/search/SearchBar';
 import PostListItem from '@/components/posts/PostListItem';
 import Link from '@/components/common/Link';

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Container, Card } from 'react-bootstrap';
+import Container from 'react-bootstrap/Container';
+import Card from 'react-bootstrap/Card';
 import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
 import { AUTHOR_NAME, AVATAR_LINK, CONTACT_LINKS, EXPERIENCE_START_YEAR, SITE_URL } from '@/config/constants';

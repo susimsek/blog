@@ -1,5 +1,5 @@
 // pages/404.tsx
-import { Container } from 'react-bootstrap';
+import Container from 'react-bootstrap/Container';
 import React from 'react';
 import Head from 'next/head';
 import { useTranslation } from 'next-i18next';

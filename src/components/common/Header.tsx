@@ -1,4 +1,5 @@
-import { Navbar, Nav } from 'react-bootstrap';
+import Navbar from 'react-bootstrap/Navbar';
+import Nav from 'react-bootstrap/Nav';
 import { useTranslation } from 'next-i18next';
 import Link from '@/components/common/Link';
 import React from 'react';
