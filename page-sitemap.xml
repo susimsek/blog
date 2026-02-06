@@ -7,11 +7,11 @@
 
   <url>
     <loc>https://suaybsimsek.com/en</loc>
-    <lastmod>2026-02-06T15:41:24.646Z</lastmod>
+    <lastmod>2026-02-06T16:05:53.675Z</lastmod>
     <changefreq>daily</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/logo.webp</image:loc>
-      <image:title>Welcome to Şuayb's Blog</image:title>
+      <image:title>Welcome to Şuayb&apos;s Blog</image:title>
     </image:image>
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr"/>
@@ -19,11 +19,11 @@
 
   <url>
     <loc>https://suaybsimsek.com/tr</loc>
-    <lastmod>2026-02-06T15:41:24.646Z</lastmod>
+    <lastmod>2026-02-06T16:05:53.675Z</lastmod>
     <changefreq>daily</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/logo.webp</image:loc>
-      <image:title>Şuayb'in Bloguna Hoş Geldiniz</image:title>
+      <image:title>Şuayb&apos;in Bloguna Hoş Geldiniz</image:title>
     </image:image>
     <xhtml:link rel="alternate" hreflang="en" href="https://suaybsimsek.com/en"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://suaybsimsek.com/tr"/>
@@ -31,7 +31,7 @@
 
   <url>
     <loc>https://suaybsimsek.com/en/about</loc>
-    <lastmod>2026-02-06T15:41:24.646Z</lastmod>
+    <lastmod>2026-02-06T16:05:53.675Z</lastmod>
     <changefreq>monthly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/profile.webp</image:loc>
@@ -43,7 +43,7 @@
 
   <url>
     <loc>https://suaybsimsek.com/tr/about</loc>
-    <lastmod>2026-02-06T15:41:24.646Z</lastmod>
+    <lastmod>2026-02-06T16:05:53.675Z</lastmod>
     <changefreq>monthly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/profile.webp</image:loc>
@@ -55,7 +55,7 @@
 
   <url>
     <loc>https://suaybsimsek.com/en/contact</loc>
-    <lastmod>2026-02-06T15:41:24.646Z</lastmod>
+    <lastmod>2026-02-06T16:05:53.675Z</lastmod>
     <changefreq>monthly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/profile.webp</image:loc>
@@ -67,7 +67,7 @@
 
   <url>
     <loc>https://suaybsimsek.com/tr/contact</loc>
-    <lastmod>2026-02-06T15:41:24.646Z</lastmod>
+    <lastmod>2026-02-06T16:05:53.675Z</lastmod>
     <changefreq>monthly</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/profile.webp</image:loc>
@@ -79,7 +79,7 @@
 
   <url>
     <loc>https://suaybsimsek.com/en/medium</loc>
-    <lastmod>2026-02-06T15:41:24.646Z</lastmod>
+    <lastmod>2026-02-06T16:05:53.675Z</lastmod>
     <changefreq>daily</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/medium.webp</image:loc>
@@ -91,7 +91,7 @@
 
   <url>
     <loc>https://suaybsimsek.com/tr/medium</loc>
-    <lastmod>2026-02-06T15:41:24.646Z</lastmod>
+    <lastmod>2026-02-06T16:05:53.675Z</lastmod>
     <changefreq>daily</changefreq>
     <image:image>
       <image:loc>https://suaybsimsek.com/images/medium.webp</image:loc>
