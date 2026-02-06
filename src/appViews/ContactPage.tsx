@@ -3,10 +3,11 @@
 import React from 'react';
 import Container from 'react-bootstrap/Container';
 import { useTranslation } from 'react-i18next';
-import { AUTHOR_NAME, AVATAR_LINK, CONTACT_LINKS, SITE_URL } from '@/config/constants';
+import { AUTHOR_NAME, AVATAR_LINK, CONTACT_LINKS } from '@/config/constants';
 import Layout from '@/components/common/Layout';
 import ContactInfo from '@/components/common/ContactInfo';
 import type { PostSummary, Topic } from '@/types/posts';
+import { toAbsoluteSiteUrl } from '@/lib/metadata';
 
 type ContactPageProps = {
   layoutPosts: PostSummary[];
@@ -16,6 +17,7 @@ type ContactPageProps = {
 
 export default function ContactPage({ layoutPosts, topics, preFooterTopTopics }: Readonly<ContactPageProps>) {
   const { t } = useTranslation(['contact']);
+  const siteRootUrl = toAbsoluteSiteUrl('/');
 
   const jsonLdData = {
     '@context': 'https://schema.org',
@@ -25,8 +27,8 @@ export default function ContactPage({ layoutPosts, topics, preFooterTopTopics }:
     author: {
       '@type': 'Person',
       name: AUTHOR_NAME,
-      url: SITE_URL,
-      image: `${SITE_URL}${AVATAR_LINK}`,
+      url: siteRootUrl,
+      image: toAbsoluteSiteUrl(AVATAR_LINK),
       jobTitle: t('contact.jobTitle'),
       email: CONTACT_LINKS.email,
       sameAs: [CONTACT_LINKS.linkedin, CONTACT_LINKS.medium, CONTACT_LINKS.github],

@@ -5,10 +5,11 @@ import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card';
 import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
-import { AUTHOR_NAME, AVATAR_LINK, CONTACT_LINKS, EXPERIENCE_START_YEAR, SITE_URL } from '@/config/constants';
+import { AUTHOR_NAME, AVATAR_LINK, CONTACT_LINKS, EXPERIENCE_START_YEAR } from '@/config/constants';
 import Layout from '@/components/common/Layout';
 import ContactInfo from '@/components/common/ContactInfo';
 import type { PostSummary, Topic } from '@/types/posts';
+import { toAbsoluteSiteUrl } from '@/lib/metadata';
 
 type AboutPageProps = {
   layoutPosts: PostSummary[];
@@ -23,7 +24,7 @@ export default function AboutPage({ layoutPosts, topics, preFooterTopTopics }: R
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: AUTHOR_NAME,
-    image: `${SITE_URL}${AVATAR_LINK}`,
+    image: toAbsoluteSiteUrl(AVATAR_LINK),
     jobTitle: t('about.jobTitle'),
     email: CONTACT_LINKS.email,
     sameAs: [CONTACT_LINKS.linkedin, CONTACT_LINKS.medium, CONTACT_LINKS.github],

@@ -27,15 +27,54 @@ const joinPath = (...segments: ReadonlyArray<string>): string =>
     .filter(Boolean)
     .join('/');
 
-const toLocalizedPath = (locale: string, path = ''): string => `/${joinPath(basePathSegment, locale, path)}`;
+const prefixedBasePath = basePathSegment ? `/${basePathSegment}` : '';
 
-const toAbsoluteUrl = (urlOrPath: string): string => {
+const isAbsoluteUrl = (value: string): boolean => {
   try {
-    return new URL(urlOrPath, normalizedSiteUrl).toString();
+    return Boolean(new URL(value).protocol);
   } catch {
-    return `${normalizedSiteUrl}/${urlOrPath.replaceAll(/^\/+/g, '')}`;
+    return false;
   }
 };
+
+const startsWithBasePath = (value: string): boolean => {
+  if (!prefixedBasePath) {
+    return false;
+  }
+  return value === prefixedBasePath || value.startsWith(`${prefixedBasePath}/`);
+};
+
+export const buildSitePath = (path = ''): string => {
+  const joinedPath = joinPath(basePathSegment, path);
+  return joinedPath ? `/${joinedPath}` : '/';
+};
+
+export const buildLocalizedPath = (locale: string, path = ''): string => buildSitePath(joinPath(locale, path));
+
+export const toAbsoluteSiteUrl = (urlOrPath: string): string => {
+  if (!urlOrPath) {
+    return normalizedSiteUrl;
+  }
+
+  if (isAbsoluteUrl(urlOrPath)) {
+    return urlOrPath;
+  }
+
+  const normalizedPath = urlOrPath.startsWith('/')
+    ? startsWithBasePath(urlOrPath)
+      ? urlOrPath
+      : buildSitePath(urlOrPath)
+    : buildSitePath(urlOrPath);
+
+  try {
+    return new URL(normalizedPath, normalizedSiteUrl).toString();
+  } catch {
+    return `${normalizedSiteUrl}/${normalizedPath.replaceAll(/^\/+/g, '')}`;
+  }
+};
+
+export const buildLocalizedAbsoluteUrl = (locale: string, path = ''): string =>
+  toAbsoluteSiteUrl(buildLocalizedPath(locale, path));
 
 const toSupportedLocale = (locale: string): string => (isSupportedLocale(locale) ? locale : defaultLocale);
 
@@ -73,9 +112,9 @@ export const buildPageMetadata = ({
     .map(candidateLocale => LOCALES[candidateLocale]?.ogLocale)
     .filter((candidateLocale): candidateLocale is string => Boolean(candidateLocale));
 
-  const canonicalPath = toLocalizedPath(activeLocale, path);
+  const canonicalPath = buildLocalizedPath(activeLocale, path);
   const languageAlternates = Object.fromEntries(
-    locales.map(candidateLocale => [candidateLocale, toLocalizedPath(candidateLocale, path)]),
+    locales.map(candidateLocale => [candidateLocale, buildLocalizedPath(candidateLocale, path)]),
   );
 
   return {
@@ -87,7 +126,7 @@ export const buildPageMetadata = ({
       canonical: canonicalPath,
       languages: {
         ...languageAlternates,
-        'x-default': toLocalizedPath(defaultLocale, path),
+        'x-default': buildLocalizedPath(defaultLocale, path),
       },
     },
     robots: robots ?? {
@@ -110,7 +149,7 @@ export const buildPageMetadata = ({
       alternateLocale: alternateLocales,
       images: [
         {
-          url: toAbsoluteUrl(image),
+          url: toAbsoluteSiteUrl(image),
           width: 1200,
           height: 630,
           alt: resolvedOgTitle,
@@ -125,7 +164,7 @@ export const buildPageMetadata = ({
       site: TWITTER_USERNAME,
       title: resolvedOgTitle,
       description,
-      images: [{ url: toAbsoluteUrl(image), alt: resolvedOgTitle }],
+      images: [{ url: toAbsoluteSiteUrl(image), alt: resolvedOgTitle }],
       ...twitter,
     },
   };

@@ -4,8 +4,9 @@ import React from 'react';
 import PostDetail from '@/components/posts/PostDetail';
 import type { Post, PostSummary, Topic } from '@/types/posts';
 import Layout from '@/components/common/Layout';
-import { AUTHOR_NAME, SITE_LOGO, SITE_URL, assetPrefix } from '@/config/constants';
+import { AUTHOR_NAME, SITE_LOGO } from '@/config/constants';
 import { resolvePostContent } from '@/lib/contentCompression';
+import { toAbsoluteSiteUrl } from '@/lib/metadata';
 
 type PostPageProps = {
   post: Post;
@@ -28,26 +29,11 @@ export default function PostPage({
   }, [post]);
 
   const keywords = (post.topics ?? []).map(topic => topic.name).join(', ');
+  const siteRootUrl = toAbsoluteSiteUrl('/');
 
-  const logoUrl = (() => {
-    try {
-      return new URL(SITE_LOGO, SITE_URL).toString();
-    } catch {
-      return `${SITE_URL}${SITE_LOGO}`;
-    }
-  })();
+  const logoUrl = toAbsoluteSiteUrl(SITE_LOGO);
 
-  const imageUrl = (() => {
-    if (!post.thumbnail) {
-      return null;
-    }
-    const imageBase = assetPrefix && /^https?:\/\//.test(assetPrefix) ? assetPrefix : SITE_URL;
-    try {
-      return new URL(post.thumbnail, imageBase).toString();
-    } catch {
-      return `${imageBase}${post.thumbnail}`;
-    }
-  })();
+  const imageUrl = post.thumbnail ? toAbsoluteSiteUrl(post.thumbnail) : null;
 
   const jsonLdData = {
     '@context': 'https://schema.org',
@@ -74,13 +60,13 @@ export default function PostPage({
     author: {
       '@type': 'Person',
       name: AUTHOR_NAME,
-      url: SITE_URL,
+      url: siteRootUrl,
     },
     creator: [AUTHOR_NAME],
     publisher: {
       '@type': 'Organization',
       name: AUTHOR_NAME,
-      url: SITE_URL,
+      url: siteRootUrl,
       logo: {
         '@type': 'ImageObject',
         url: logoUrl,

@@ -36,9 +36,10 @@ export default function Header({
   const renderSearchSection = () => (
     <div className="d-flex w-100 align-items-center">
       <button
+        type="button"
         className="nav-link bg-transparent border-0 p-0 d-flex align-items-center"
         onClick={handleSearchToggle}
-        aria-label="Hide search"
+        aria-label={t('common.header.actions.hideSearch')}
       >
         <FontAwesomeIcon icon="chevron-left" className="me-3" />
       </button>
@@ -61,7 +62,12 @@ export default function Header({
   return (
     <Navbar expand="lg" className="shadow-sm sticky-top p-2">
       {sidebarEnabled && (
-        <button type="button" className="sidebar-toggler" onClick={onSidebarToggle} aria-label="sidebarToggle">
+        <button
+          type="button"
+          className="sidebar-toggler"
+          onClick={onSidebarToggle}
+          aria-label={t('common.header.actions.toggleSidebar')}
+        >
           <FontAwesomeIcon icon="sidebar" className="sidebar-toggler-icon" />
         </button>
       )}
@@ -89,8 +95,10 @@ export default function Header({
               {/* Search toggle button on tablet */}
               {searchEnabled && isTablet && !searchVisible && (
                 <button
+                  type="button"
                   onClick={handleSearchToggle}
                   className="nav-link d-flex align-items-center bg-transparent border-0"
+                  aria-label={t('common.header.actions.showSearch')}
                 >
                   <FontAwesomeIcon icon="search" className="me-2" />
                   {t('common.header.menu.search')}

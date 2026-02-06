@@ -35,7 +35,12 @@ export default function SearchBar({ query, onChange, className }: Readonly<Searc
         onChange={handleInputChange}
       />
       {query && (
-        <button className="border-0 bg-transparent" onClick={handleClear}>
+        <button
+          type="button"
+          className="border-0 bg-transparent"
+          onClick={handleClear}
+          aria-label={t('common.searchBar.clear')}
+        >
           <FontAwesomeIcon icon="times-circle" className="clear-icon" />
         </button>
       )}

@@ -3,4 +3,4 @@ User-agent: *
 Disallow:
 
 # Sitemaps
-Sitemap: https://suaybsimsek.com/sitemap_index.xml
+Sitemap: /sitemap_index.xml

@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { SITE_URL } from '@/config/constants';
 import Layout from '@/components/common/Layout';
 import PostList from '@/components/posts/PostList';
 import PostCarousel from '@/components/posts/PostCarousel';
 import type { PostSummary, Topic } from '@/types/posts';
+import { buildLocalizedAbsoluteUrl } from '@/lib/metadata';
 
 type HomePageProps = {
   posts: PostSummary[];
@@ -16,6 +16,7 @@ type HomePageProps = {
 
 export default function HomePage({ posts, topics, locale }: Readonly<HomePageProps>) {
   const { t } = useTranslation('home');
+  const searchUrl = buildLocalizedAbsoluteUrl(locale, 'search');
 
   const jsonLdData = {
     '@context': 'https://schema.org',
@@ -26,7 +27,7 @@ export default function HomePage({ posts, topics, locale }: Readonly<HomePagePro
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${SITE_URL}/${locale}/search?q={search_term_string}`,
+        urlTemplate: `${searchUrl}?q={search_term_string}`,
       },
       'query-input': {
         '@type': 'PropertyValueSpecification',

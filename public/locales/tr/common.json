@@ -12,6 +12,11 @@
         "contact": "İletişim",
         "search": "Ara"
       },
+      "actions": {
+        "hideSearch": "Aramayı gizle",
+        "showSearch": "Aramayı göster",
+        "toggleSidebar": "Kenar çubuğunu aç veya kapat"
+      },
       "themeToggle": "Temayı Değiştir",
       "theme": {
         "system": "Sistem",
@@ -45,7 +50,8 @@
       "showingResults": "{{start}}–{{end}} arası {{total}} sonuç"
     },
     "searchBar": {
-      "placeholder": "Ara"
+      "placeholder": "Ara",
+      "clear": "Aramayı temizle"
     },
     "readingTimeFilter": {
       "any": "Okuma süresi (hepsi)",

@@ -120,13 +120,13 @@ describe('Header', () => {
     (useMediaQuery as jest.Mock).mockReturnValue(true);
     render(<Header searchEnabled />);
 
-    const openSearchBtn = screen.getByRole('button', { name: 'common.header.menu.search' });
+    const openSearchBtn = screen.getByRole('button', { name: 'common.header.actions.showSearch' });
     fireEvent.click(openSearchBtn);
-    expect(screen.getByLabelText('Hide search')).toBeInTheDocument();
+    expect(screen.getByLabelText('common.header.actions.hideSearch')).toBeInTheDocument();
     expect(screen.getByTestId('search-container')).toBeInTheDocument();
 
-    const closeSearchBtn = screen.getByLabelText('Hide search');
+    const closeSearchBtn = screen.getByLabelText('common.header.actions.hideSearch');
     fireEvent.click(closeSearchBtn);
-    expect(screen.getByRole('button', { name: 'common.header.menu.search' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'common.header.actions.showSearch' })).toBeInTheDocument();
   });
 });

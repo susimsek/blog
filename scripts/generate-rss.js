@@ -5,10 +5,35 @@ const path = require('node:path');
 const i18nConfig = require('../i18n.config.json');
 
 const siteUrl = process.env.SITE_URL || 'https://suaybsimsek.com';
+const normalizedSiteUrl = siteUrl.replace(/\/+$/g, '');
+const basePath = (process.env.NEXT_PUBLIC_BASE_PATH || '').replace(/^\/+|\/+$/g, '');
+const basePathPrefix = basePath ? `/${basePath}` : '';
 
 const locales = i18nConfig.locales;
 
 const buildDir = path.join(process.cwd(), 'build');
+
+const normalizeSegment = segment =>
+  String(segment)
+    .trim()
+    .replace(/^\/+|\/+$/g, '');
+
+const buildSiteUrl = (...segments) => {
+  const normalizedSegments = segments.map(normalizeSegment).filter(Boolean);
+  return normalizedSegments.length > 0 ? `${normalizedSiteUrl}/${normalizedSegments.join('/')}` : normalizedSiteUrl;
+};
+
+const toAbsoluteUrl = value => {
+  if (!value) {
+    return '';
+  }
+
+  if (/^https?:\/\//i.test(value)) {
+    return value;
+  }
+
+  return buildSiteUrl(basePath, value);
+};
 
 /**
  * Reads posts for a given locale from posts.json.
@@ -55,29 +80,29 @@ function generateRSSFeedXML(posts, locale) {
   const alternateLocale = locale === 'en' ? 'tr' : 'en';
 
   // Sort posts by date (newest first)
-  posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const sortedPosts = [...posts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   let rss = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-  rss += `<?xml-stylesheet type="text/xsl" href="/rss.xsl"?>\n`;
+  rss += `<?xml-stylesheet type="text/xsl" href="${basePathPrefix}/rss.xsl"?>\n`;
   rss += `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">\n`;
   rss += `  <channel>\n`;
   rss += `    <title><![CDATA[${title}]]></title>\n`;
-  rss += `    <link>${siteUrl}/${locale}</link>\n`;
+  rss += `    <link>${buildSiteUrl(basePath, locale)}</link>\n`;
   rss += `    <description><![CDATA[${description}]]></description>\n`;
   rss += `    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
   rss += `    <language>${locale}</language>\n`;
   rss += `    <copyright><![CDATA[${copyright}]]></copyright>\n`;
   rss += `    <image>\n`;
-  rss += `      <url>${siteUrl}/images/logo.webp</url>\n`;
+  rss += `      <url>${buildSiteUrl(basePath, 'images/logo.webp')}</url>\n`;
   rss += `      <title><![CDATA[${title}]]></title>\n`;
-  rss += `      <link>${siteUrl}/${locale}</link>\n`;
+  rss += `      <link>${buildSiteUrl(basePath, locale)}</link>\n`;
   rss += `    </image>\n`;
-  rss += `    <atom:link rel="self" type="application/rss+xml" href="${siteUrl}/${locale}/rss.xml" />\n`;
-  rss += `    <atom:link rel="alternate" hreflang="${alternateLocale}" type="application/rss+xml" href="${siteUrl}/${alternateLocale}/rss.xml" />\n`;
+  rss += `    <atom:link rel="self" type="application/rss+xml" href="${buildSiteUrl(basePath, locale, 'rss.xml')}" />\n`;
+  rss += `    <atom:link rel="alternate" hreflang="${alternateLocale}" type="application/rss+xml" href="${buildSiteUrl(basePath, alternateLocale, 'rss.xml')}" />\n`;
 
   // Add each post
-  posts.forEach(post => {
-    const postUrl = `${siteUrl}/${locale}/posts/${post.id}`;
+  sortedPosts.forEach(post => {
+    const postUrl = buildSiteUrl(basePath, locale, 'posts', post.id);
     const pubDate = new Date(post.date).toUTCString();
     rss += `    <item>\n`;
     rss += `      <title><![CDATA[${post.title}]]></title>\n`;
@@ -95,7 +120,7 @@ function generateRSSFeedXML(posts, locale) {
 
     // Thumbnail
     if (post.thumbnail) {
-      const thumbnailUrl = post.thumbnail.startsWith('/') ? `${siteUrl}${post.thumbnail}` : post.thumbnail;
+      const thumbnailUrl = toAbsoluteUrl(post.thumbnail);
       rss += `      <media:thumbnail url="${thumbnailUrl}" />\n`;
     }
 

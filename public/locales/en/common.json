@@ -12,6 +12,11 @@
         "contact": "Contact",
         "search": "Search"
       },
+      "actions": {
+        "hideSearch": "Hide search",
+        "showSearch": "Show search",
+        "toggleSidebar": "Toggle sidebar"
+      },
       "themeToggle": "Toggle Theme",
       "theme": {
         "system": "System",
@@ -45,7 +50,8 @@
       "showingResults": "Showing {{start}}–{{end}} of {{total}} results"
     },
     "searchBar": {
-      "placeholder": "Search"
+      "placeholder": "Search",
+      "clear": "Clear search"
     },
     "readingTimeFilter": {
       "any": "All Reading Times",

@@ -4,8 +4,9 @@ import React from 'react';
 import PostList from '@/components/posts/PostList';
 import type { PostSummary, Topic } from '@/types/posts';
 import Layout from '@/components/common/Layout';
-import { AUTHOR_NAME, SITE_URL } from '@/config/constants';
+import { AUTHOR_NAME } from '@/config/constants';
 import { useTranslation } from 'react-i18next';
+import { toAbsoluteSiteUrl } from '@/lib/metadata';
 
 type TopicPageProps = {
   topic: Topic;
@@ -17,6 +18,7 @@ type TopicPageProps = {
 
 export default function TopicPage({ topic, posts, layoutPosts, topics, preFooterTopTopics }: Readonly<TopicPageProps>) {
   const { t } = useTranslation(['topic']);
+  const siteRootUrl = toAbsoluteSiteUrl('/');
 
   const topicTitle = t('topic.title', { topic: topic.name });
   const description = t('topic.meta.description', { topic: topic.name });
@@ -29,7 +31,7 @@ export default function TopicPage({ topic, posts, layoutPosts, topics, preFooter
     author: {
       '@type': 'Person',
       name: AUTHOR_NAME,
-      url: SITE_URL,
+      url: siteRootUrl,
     },
   };
 
