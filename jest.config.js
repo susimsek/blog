@@ -4,22 +4,40 @@ if (typeof global.Request === 'undefined') {
 
 const path = require('path');
 const nextJest = require('next/jest');
-const { pathsToModuleNameMapper } = require('ts-jest');
 const { compilerOptions } = require('./tsconfig.json');
 
 const createJestConfig = nextJest({
   dir: './',
 });
 
+const toJestMapper = (paths, rootDir = '<rootDir>/') => {
+  const mapper = {};
+  Object.entries(paths || {}).forEach(([alias, targets]) => {
+    if (!Array.isArray(targets) || targets.length === 0) {
+      return;
+    }
+    const target = targets[0];
+    const escapedAlias = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const hasWildcard = escapedAlias.includes('\\*');
+    const regexKey = `^${escapedAlias.replace('\\*', '(.*)')}$`;
+    mapper[regexKey] = `${rootDir}${target.replace(/^\.\//, '').replace(/\*$/, '$1')}`;
+
+    if (!hasWildcard && alias.endsWith('/')) {
+      mapper[`^${escapedAlias}(.*)$`] = `${rootDir}${target.replace(/^\.\//, '')}$1`;
+    }
+  });
+  return mapper;
+};
+
 const customJestConfig = {
   testEnvironment: 'jsdom',
+  roots: ['<rootDir>'],
+  modulePaths: [compilerOptions.baseUrl],
   moduleNameMapper: {
-    ...pathsToModuleNameMapper(compilerOptions.paths, {
-      prefix: '<rootDir>/',
-    }),
+    ...toJestMapper(compilerOptions.paths),
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  testPathIgnorePatterns: ['<rootDir>/node_modules/', '/__mocks__/', '<rootDir>/__tests__/utils/'],
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/', '/__mocks__/', '<rootDir>/__tests__/utils/'],
   coverageDirectory: './coverage',
 };
 
