@@ -1,9 +1,7 @@
-import i18nConfig from '@root/i18n.config.json';
-
 const i18nextConfig = {
   i18n: {
-    defaultLocale: i18nConfig.defaultLocale,
-    locales: i18nConfig.locales,
+    defaultLocale: 'en',
+    locales: ['en', 'tr'],
   },
 } as const;
 
