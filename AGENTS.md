@@ -36,6 +36,8 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18
 | Lint                  | `pnpm run lint`                                                    |
 | Lint fix              | `pnpm run lint:fix`                                                |
 | Format                | `pnpm run prettier:format`                                         |
+| Format check          | `pnpm run prettier:check`                                          |
+| Typecheck             | `pnpm run typecheck`                                               |
 | Sonar (local)         | `pnpm run sonar`                                                   |
 | Update Medium feed    | `pnpm run fetch:medium`                                            |
 | Docker Compose deploy | `docker-compose -f deploy/docker-compose/docker-compose.yml up -d` |
