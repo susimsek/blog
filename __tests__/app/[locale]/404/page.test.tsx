@@ -13,7 +13,7 @@ jest.mock('next/navigation', () => ({
   useParams: () => useParamsMock(),
 }));
 
-jest.mock('@/appViews/LocaleNotFoundPage', () => ({
+jest.mock('@/views/LocaleNotFoundPage', () => ({
   __esModule: true,
   default: (props: { locale: string }) => localeNotFoundPageMock(props),
 }));

@@ -44,7 +44,7 @@ jest.mock('@/lib/posts', () => ({
   getTopTopicsFromPosts: (posts: unknown[], topics: unknown[]) => getTopTopicsFromPostsMock(posts, topics),
 }));
 
-jest.mock('@/appViews/TopicPage', () => ({
+jest.mock('@/views/TopicPage', () => ({
   __esModule: true,
   default: (props: {
     topic: Record<string, unknown>;

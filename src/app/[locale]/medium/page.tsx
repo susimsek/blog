@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import MediumPage from '@/appViews/MediumPage';
+import MediumPage from '@/views/MediumPage';
 import { fetchRssSummaries } from '@/lib/medium';
 import { getAllTopics, getLayoutPosts, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/posts';
 import { getServerTranslator } from '@/i18n/server';

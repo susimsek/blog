@@ -26,7 +26,7 @@ jest.mock('@/lib/posts', () => ({
   getTopTopicsFromPosts: (posts: unknown[], topics: unknown[]) => getTopTopicsFromPostsMock(posts, topics),
 }));
 
-jest.mock('@/appViews/SearchPage', () => ({
+jest.mock('@/views/SearchPage', () => ({
   __esModule: true,
   default: (props: { allPosts: unknown[]; topics: unknown[]; preFooterTopTopics: unknown[] }) => searchPageMock(props),
 }));

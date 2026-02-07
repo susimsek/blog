@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import HomePage from '@/appViews/HomePage';
+import HomePage from '@/views/HomePage';
 import { getAllTopics, getSortedPostsData } from '@/lib/posts';
 import { getServerTranslator } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';

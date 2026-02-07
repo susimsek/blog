@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import LocaleNotFoundPage from '@/appViews/LocaleNotFoundPage';
+import LocaleNotFoundPage from '@/views/LocaleNotFoundPage';
 import { buildNotFoundMetadata } from '@/lib/metadata';
 
 export const metadata: Metadata = buildNotFoundMetadata();

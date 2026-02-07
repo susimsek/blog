@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import PostPage from '@/appViews/PostPage';
+import PostPage from '@/views/PostPage';
 import {
   getAllPostIds,
   getAllTopics,

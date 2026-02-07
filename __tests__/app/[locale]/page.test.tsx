@@ -24,7 +24,7 @@ jest.mock('@/lib/posts', () => ({
   getAllTopics: (locale: string) => getAllTopicsMock(locale),
 }));
 
-jest.mock('@/appViews/HomePage', () => ({
+jest.mock('@/views/HomePage', () => ({
   __esModule: true,
   default: (props: { posts: unknown[]; topics: unknown[]; locale: string }) => homePageMock(props),
 }));

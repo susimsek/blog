@@ -1,4 +1,4 @@
-import LocaleRedirect from '@/app/_components/LocaleRedirect';
+import LocaleRedirect from '@/lib/redirect';
 import { getAllPostIds } from '@/lib/posts';
 import { defaultLocale } from '@/i18n/settings';
 

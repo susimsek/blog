@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import ContactPage from '@/appViews/ContactPage';
+import ContactPage from '@/views/ContactPage';
 import { getAllTopics, getLayoutPosts, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/posts';
 import { getServerTranslator } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';

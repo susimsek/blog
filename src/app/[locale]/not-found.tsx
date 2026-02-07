@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import LocaleNotFoundPage from '@/appViews/LocaleNotFoundPage';
+import LocaleNotFoundPage from '@/views/LocaleNotFoundPage';
 import { defaultLocale } from '@/i18n/settings';
 
 export default function NotFound() {

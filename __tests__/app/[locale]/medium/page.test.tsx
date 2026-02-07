@@ -33,7 +33,7 @@ jest.mock('@/lib/posts', () => ({
   getTopTopicsFromPosts: (posts: unknown[], topics: unknown[]) => getTopTopicsFromPostsMock(posts, topics),
 }));
 
-jest.mock('@/appViews/MediumPage', () => ({
+jest.mock('@/views/MediumPage', () => ({
   __esModule: true,
   default: (props: {
     mediumPosts: unknown[];

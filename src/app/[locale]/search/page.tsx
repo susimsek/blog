@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import SearchPage from '@/appViews/SearchPage';
+import SearchPage from '@/views/SearchPage';
 import { getAllTopics, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/posts';
 import { getServerTranslator } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';

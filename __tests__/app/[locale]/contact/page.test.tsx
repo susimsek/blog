@@ -28,7 +28,7 @@ jest.mock('@/lib/posts', () => ({
   getLayoutPosts: (posts: unknown[]) => getLayoutPostsMock(posts),
 }));
 
-jest.mock('@/appViews/ContactPage', () => ({
+jest.mock('@/views/ContactPage', () => ({
   __esModule: true,
   default: (props: { layoutPosts: unknown[]; topics: unknown[]; preFooterTopTopics: unknown[] }) =>
     contactPageMock(props),

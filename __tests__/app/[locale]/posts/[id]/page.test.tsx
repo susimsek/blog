@@ -34,7 +34,7 @@ jest.mock('@/lib/postFilters', () => ({
   getRelatedPosts: (post: unknown, allPosts: unknown[], limit: number) => getRelatedPostsMock(post, allPosts, limit),
 }));
 
-jest.mock('@/appViews/PostPage', () => ({
+jest.mock('@/views/PostPage', () => ({
   __esModule: true,
   default: (props: {
     locale: string;

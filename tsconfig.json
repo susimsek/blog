@@ -37,6 +37,7 @@
       "@reducers/*": ["./src/reducers/*"],
       "@styles/*": ["./src/styles/*"],
       "@types/*": ["./src/types/*"],
+      "@views/*": ["./src/views/*"],
       "@tests/*": ["./__tests__/*"],
       "@root/*": ["./*"]
     }
