@@ -59,7 +59,9 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18
     - `layout.tsx`: root metadata and global style entry
     - `[locale]/layout.tsx`: locale providers + static params
     - `not-found.tsx` and `[locale]/not-found.tsx`: 404 surfaces
+  - `views`: route-level UI (page views used by App Router)
   - `components`: shared UI components
+    - `LocaleRedirect.tsx`: locale redirect helpers (used by root/shim pages)
   - `config`: app config + Redux store + validation/schema helpers
     - `store.ts`: Redux store setup
     - `constants.ts`: app constants
@@ -69,7 +71,6 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18
   - `reducers`: Redux slices/reducers (`postsQuery.ts`, `theme.ts`)
   - `lib`: shared frontend code
     - `languageDetector.ts`: locale detection + cache
-    - `redirect.tsx`: locale redirect helpers (used by root/shim pages)
     - `posts.ts`: Markdown/index readers for posts
     - `postFilters.ts`: post filtering/sorting helpers
     - `markdownUtils.ts`: Markdown utilities
