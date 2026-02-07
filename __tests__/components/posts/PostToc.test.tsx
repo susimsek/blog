@@ -99,7 +99,7 @@ describe('PostToc', () => {
 
   it('keeps only h2 items when there are more than 20 entries', () => {
     const headings = Array.from({ length: 22 }, (_, index) => ({
-      tag: (index % 2 === 0 ? 'h2' : 'h3') as const,
+      tag: (index % 2 === 0 ? 'h2' : 'h3') as 'h2' | 'h3',
       text: `Heading ${index + 1}`,
     }));
     const root = createRoot(headings);

@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import HomeRoute, { generateMetadata } from '@/app/[locale]/page';
 
-const getServerTranslatorMock = jest.fn(async () => ({
+const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) => ({
   t: (key: string) =>
     ({
       'home.meta.title': 'Home Meta Title',
@@ -11,9 +11,11 @@ const getServerTranslatorMock = jest.fn(async () => ({
     })[key] ?? key,
 }));
 
-const getSortedPostsDataMock = jest.fn(async () => [{ id: 'post-1' }]);
-const getAllTopicsMock = jest.fn(async () => [{ id: 'topic-1' }]);
-const homePageMock = jest.fn(() => <div data-testid="home-page">home-page</div>);
+const getSortedPostsDataMock = jest.fn(async (_locale: string) => [{ id: 'post-1' }]);
+const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
+const homePageMock = jest.fn((props: { posts: unknown[]; topics: unknown[]; locale: string }) => (
+  <div data-testid="home-page">home-page</div>
+));
 
 jest.mock('@/i18n/server', () => ({
   getServerTranslator: (locale: string, ns: string[]) => getServerTranslatorMock(locale, ns),
@@ -35,7 +37,10 @@ describe('App Route /[locale]', () => {
   });
 
   it('builds metadata from i18n translator', async () => {
-    const metadata = await generateMetadata({ params: Promise.resolve({ locale: 'tr' }) });
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ locale: 'tr' }),
+      searchParams: Promise.resolve({}),
+    });
 
     expect(getServerTranslatorMock).toHaveBeenCalledWith('tr', ['home']);
     expect(metadata).toMatchObject({
@@ -46,7 +51,10 @@ describe('App Route /[locale]', () => {
   });
 
   it('loads posts/topics and renders HomePage view', async () => {
-    const element = await HomeRoute({ params: Promise.resolve({ locale: 'tr' }) });
+    const element = await HomeRoute({
+      params: Promise.resolve({ locale: 'tr' }),
+      searchParams: Promise.resolve({}),
+    });
     render(element);
 
     expect(getSortedPostsDataMock).toHaveBeenCalledWith('tr');

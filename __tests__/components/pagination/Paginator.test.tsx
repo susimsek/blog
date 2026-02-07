@@ -99,11 +99,11 @@ describe('Paginator', () => {
 
   it('disables "First" and "Previous" buttons when on the first page (using text query)', () => {
     render(<Paginator currentPage={1} totalPages={5} maxPagesToShow={5} onPageChange={mockOnPageChange} />);
-    const firstButton = screen.getByText(/First/i, { includeHidden: true }).closest('li');
+    const firstButton = screen.getByText(/First/i).closest('li');
     expect(firstButton).toBeInTheDocument();
     expect(firstButton).toHaveClass('disabled');
 
-    const previousButton = screen.getByText(/Previous/i, { includeHidden: true }).closest('li');
+    const previousButton = screen.getByText(/Previous/i).closest('li');
     expect(previousButton).toBeInTheDocument();
     expect(previousButton).toHaveClass('disabled');
   });
@@ -145,7 +145,7 @@ describe('Paginator', () => {
 
   it('renders as disabled when on the last page', () => {
     render(<Paginator currentPage={5} totalPages={5} maxPagesToShow={5} onPageChange={mockOnPageChange} />);
-    const lastButton = screen.getByText(/Last/i, { includeHidden: true }).closest('li');
+    const lastButton = screen.getByText(/Last/i).closest('li');
     expect(lastButton).toBeInTheDocument();
     expect(lastButton).toHaveClass('disabled');
   });
@@ -177,11 +177,11 @@ describe('Paginator', () => {
 
   it('does not call onPageChange when clicking disabled navigation buttons', () => {
     render(<Paginator currentPage={1} totalPages={5} maxPagesToShow={5} onPageChange={mockOnPageChange} />);
-    const firstButton = screen.getByText(/First/i, { includeHidden: true }).closest('li');
+    const firstButton = screen.getByText(/First/i).closest('li');
     fireEvent.click(firstButton!);
     expect(mockOnPageChange).not.toHaveBeenCalled();
 
-    const prevButton = screen.getByText(/Previous/i, { includeHidden: true }).closest('li');
+    const prevButton = screen.getByText(/Previous/i).closest('li');
     fireEvent.click(prevButton!);
     expect(mockOnPageChange).not.toHaveBeenCalled();
   });

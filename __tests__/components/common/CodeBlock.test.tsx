@@ -183,8 +183,11 @@ describe('CodeBlock Component', () => {
   });
 
   it('loads syntax assets outside test environment and applies all theme branches', async () => {
-    const previousNodeEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    const previousDescriptor = Object.getOwnPropertyDescriptor(process.env, 'NODE_ENV');
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: 'production',
+      configurable: true,
+    });
 
     try {
       const { rerender } = render(
@@ -215,7 +218,14 @@ describe('CodeBlock Component', () => {
 
       expect(screen.getByText('SH')).toBeInTheDocument();
     } finally {
-      process.env.NODE_ENV = previousNodeEnv;
+      if (previousDescriptor) {
+        Object.defineProperty(process.env, 'NODE_ENV', previousDescriptor);
+      } else {
+        Object.defineProperty(process.env, 'NODE_ENV', {
+          value: 'test',
+          configurable: true,
+        });
+      }
     }
   });
 

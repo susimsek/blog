@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import MediumRoute, { generateMetadata } from '@/app/[locale]/medium/page';
 
-const getServerTranslatorMock = jest.fn(async () => ({
+const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) => ({
   t: (key: string) =>
     ({
       'medium.meta.title': 'Medium Meta Title',
@@ -11,12 +11,16 @@ const getServerTranslatorMock = jest.fn(async () => ({
     })[key] ?? key,
 }));
 
-const fetchRssSummariesMock = jest.fn(async () => [{ id: 'medium-1' }]);
-const getSortedPostsDataMock = jest.fn(async () => [{ id: 'post-1' }, { id: 'post-2' }]);
-const getLayoutPostsMock = jest.fn(() => [{ id: 'post-1' }]);
-const getAllTopicsMock = jest.fn(async () => [{ id: 'topic-1' }]);
-const getTopTopicsFromPostsMock = jest.fn(() => [{ id: 'topic-1' }]);
-const mediumPageMock = jest.fn(() => <div data-testid="medium-page">medium-page</div>);
+const fetchRssSummariesMock = jest.fn(async (_locale: string) => [{ id: 'medium-1' }]);
+const getSortedPostsDataMock = jest.fn(async (_locale: string) => [{ id: 'post-1' }, { id: 'post-2' }]);
+const getLayoutPostsMock = jest.fn((_posts: unknown[]) => [{ id: 'post-1' }]);
+const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
+const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'topic-1' }]);
+const mediumPageMock = jest.fn(
+  (props: { mediumPosts: unknown[]; layoutPosts: unknown[]; topics: unknown[]; preFooterTopTopics: unknown[] }) => (
+    <div data-testid="medium-page">medium-page</div>
+  ),
+);
 
 jest.mock('@/i18n/server', () => ({
   getServerTranslator: (locale: string, ns: string[]) => getServerTranslatorMock(locale, ns),
@@ -49,7 +53,10 @@ describe('App Route /[locale]/medium', () => {
   });
 
   it('builds metadata from i18n translator', async () => {
-    const metadata = await generateMetadata({ params: Promise.resolve({ locale: 'en' }) });
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ locale: 'en' }),
+      searchParams: Promise.resolve({}),
+    });
 
     expect(metadata).toMatchObject({
       title: 'Medium Meta Title',
@@ -59,7 +66,10 @@ describe('App Route /[locale]/medium', () => {
   });
 
   it('loads medium/posts data and renders MediumPage view', async () => {
-    const element = await MediumRoute({ params: Promise.resolve({ locale: 'tr' }) });
+    const element = await MediumRoute({
+      params: Promise.resolve({ locale: 'tr' }),
+      searchParams: Promise.resolve({}),
+    });
     render(element);
 
     expect(fetchRssSummariesMock).toHaveBeenCalledWith('tr');

@@ -6,7 +6,9 @@ const notFoundMock = jest.fn(() => {
   throw new Error('NOT_FOUND');
 });
 
-const loadLocaleResourcesMock = jest.fn(async () => ({ common: { common: { siteName: 'Blog' } } }));
+const loadLocaleResourcesMock = jest.fn(async (_locale: string, _ns: string[]) => ({
+  common: { common: { siteName: 'Blog' } },
+}));
 
 const appProvidersMock = jest.fn(({ children }: { children: React.ReactNode }) => (
   <div data-testid="providers">{children}</div>

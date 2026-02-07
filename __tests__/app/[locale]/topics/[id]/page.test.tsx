@@ -9,15 +9,17 @@ const getAllTopicIdsMock = jest.fn(async () => [
   { params: { id: 'java', locale: 'en' } },
   { params: { id: 'java', locale: 'tr' } },
 ]);
-const getTopicDataMock = jest.fn(async () => ({ id: 'java', name: 'Java' }));
-const getSortedPostsDataMock = jest.fn(async () => [
+const getTopicDataMock = jest.fn<Promise<{ id: string; name: string } | null>, [string, string]>(
+  async (_locale: string, _id: string) => ({ id: 'java', name: 'Java' }),
+);
+const getSortedPostsDataMock = jest.fn(async (_locale: string) => [
   { id: '1', topics: [{ id: 'java' }] },
   { id: '2', topics: [] },
 ]);
-const getLayoutPostsMock = jest.fn(() => [{ id: '1' }]);
-const getAllTopicsMock = jest.fn(async () => [{ id: 'java', name: 'Java' }]);
-const getTopTopicsFromPostsMock = jest.fn(() => [{ id: 'java', name: 'Java' }]);
-const getServerTranslatorMock = jest.fn(async () => ({
+const getLayoutPostsMock = jest.fn((_posts: unknown[]) => [{ id: '1' }]);
+const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'java', name: 'Java' }]);
+const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'java', name: 'Java' }]);
+const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) => ({
   t: (key: string) =>
     ({
       'topic.title': 'Topic Title',
@@ -25,7 +27,15 @@ const getServerTranslatorMock = jest.fn(async () => ({
       'topic.meta.keywords': 'topic,keywords',
     })[key] ?? key,
 }));
-const topicPageMock = jest.fn(() => <div data-testid="topic-page">topic-page</div>);
+const topicPageMock = jest.fn(
+  (props: {
+    topic: Record<string, unknown>;
+    posts: unknown[];
+    layoutPosts: unknown[];
+    topics: unknown[];
+    preFooterTopTopics: unknown[];
+  }) => <div data-testid="topic-page">topic-page</div>,
+);
 
 jest.mock('next/navigation', () => ({
   notFound: () => notFoundMock(),
@@ -71,7 +81,10 @@ describe('App Route /[locale]/topics/[id]', () => {
   });
 
   it('generates metadata from topic + translator', async () => {
-    const metadata = await generateMetadata({ params: Promise.resolve({ locale: 'en', id: 'java' }) });
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ locale: 'en', id: 'java' }),
+      searchParams: Promise.resolve({}),
+    });
 
     expect(getServerTranslatorMock).toHaveBeenCalledWith('en', ['topic']);
     expect(metadata).toMatchObject({
@@ -84,7 +97,10 @@ describe('App Route /[locale]/topics/[id]', () => {
   it('returns fallback metadata when topic is missing', async () => {
     getTopicDataMock.mockResolvedValueOnce(null);
 
-    const metadata = await generateMetadata({ params: Promise.resolve({ locale: 'en', id: 'missing' }) });
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ locale: 'en', id: 'missing' }),
+      searchParams: Promise.resolve({}),
+    });
 
     expect(metadata).toMatchObject({
       title: 'Not Found',
@@ -93,7 +109,10 @@ describe('App Route /[locale]/topics/[id]', () => {
   });
 
   it('loads all data and renders TopicPage view', async () => {
-    const element = await TopicRoute({ params: Promise.resolve({ locale: 'tr', id: 'java' }) });
+    const element = await TopicRoute({
+      params: Promise.resolve({ locale: 'tr', id: 'java' }),
+      searchParams: Promise.resolve({}),
+    });
     render(element);
 
     expect(getTopicDataMock).toHaveBeenCalledWith('tr', 'java');
@@ -111,7 +130,12 @@ describe('App Route /[locale]/topics/[id]', () => {
   it('calls notFound when topic does not exist', async () => {
     getTopicDataMock.mockResolvedValueOnce(null);
 
-    await expect(TopicRoute({ params: Promise.resolve({ locale: 'en', id: 'missing' }) })).rejects.toThrow('NOT_FOUND');
+    await expect(
+      TopicRoute({
+        params: Promise.resolve({ locale: 'en', id: 'missing' }),
+        searchParams: Promise.resolve({}),
+      }),
+    ).rejects.toThrow('NOT_FOUND');
     expect(notFoundMock).toHaveBeenCalledTimes(1);
   });
 });

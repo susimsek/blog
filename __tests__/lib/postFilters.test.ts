@@ -13,6 +13,8 @@ const mockPost: PostSummary = {
   title: 'Test Post',
   summary: 'This is a summary of the test post.',
   date: '2024-01-15',
+  thumbnail: null,
+  readingTime: '3 min read',
   topics: [
     { id: 'topic1', name: 'Topic 1', color: 'red' },
     { id: 'topic2', name: 'Topic 2', color: 'blue' },

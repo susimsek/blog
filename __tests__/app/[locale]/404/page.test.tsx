@@ -7,7 +7,7 @@ const localeNotFoundPageMock = jest.fn(({ locale }: { locale: string }) => (
   <div data-testid="locale-not-found-page">{locale}</div>
 ));
 
-const useParamsMock = jest.fn(() => ({ locale: 'tr' }));
+const useParamsMock = jest.fn<{ locale?: string }, []>(() => ({ locale: 'tr' }));
 
 jest.mock('next/navigation', () => ({
   useParams: () => useParamsMock(),
@@ -33,7 +33,10 @@ describe('App Route /[locale]/404 and not-found boundary', () => {
   });
 
   it('renders localized 404 page with locale param', async () => {
-    const element = await Localized404Page({ params: Promise.resolve({ locale: 'en' }) });
+    const element = await Localized404Page({
+      params: Promise.resolve({ locale: 'en' }),
+      searchParams: Promise.resolve({}),
+    });
     render(element);
 
     expect(localeNotFoundPageMock).toHaveBeenCalledWith({ locale: 'en' });
@@ -48,7 +51,7 @@ describe('App Route /[locale]/404 and not-found boundary', () => {
   });
 
   it('falls back to default locale when useParams has no locale', () => {
-    useParamsMock.mockReturnValueOnce({});
+    useParamsMock.mockReturnValueOnce({ locale: undefined });
 
     render(<LocaleNotFound />);
 

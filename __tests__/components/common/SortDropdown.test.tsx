@@ -9,7 +9,7 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 jest.mock('react-bootstrap', () => {
   const React = require('react');
 
-  const DropdownContext = React.createContext<{ onSelect?: (eventKey: string) => void }>({});
+  const DropdownContext = React.createContext({} as { onSelect?: (eventKey: string) => void });
 
   const DropdownButton = ({
     children,

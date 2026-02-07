@@ -59,14 +59,15 @@ export const mockPostSummaries: PostSummary[] = [
     title: 'Post 1',
     summary: 'Summary 1',
     date: '2024-12-03',
+    thumbnail: null,
     readingTime: '3 min read',
     topics: [mockTopic, { id: 'testing', name: 'Testing', color: 'green' }],
   },
-  { id: '2', title: 'Post 2', summary: 'Summary 2', date: '2023-11-03', readingTime: '3 min read' },
-  { id: '3', title: 'Post 3', summary: 'Summary 3', date: '2023-10-01', readingTime: '3 min read' },
-  { id: '4', title: 'Post 4', summary: 'Summary 4', date: '2023-09-15', readingTime: '3 min read' },
-  { id: '5', title: 'Post 5', summary: 'Summary 5', date: '2023-08-20', readingTime: '3 min read' },
-  { id: '6', title: 'Post 6', summary: 'Summary 6', date: '2023-07-10', readingTime: '3 min read' },
+  { id: '2', title: 'Post 2', summary: 'Summary 2', date: '2023-11-03', thumbnail: null, readingTime: '3 min read' },
+  { id: '3', title: 'Post 3', summary: 'Summary 3', date: '2023-10-01', thumbnail: null, readingTime: '3 min read' },
+  { id: '4', title: 'Post 4', summary: 'Summary 4', date: '2023-09-15', thumbnail: null, readingTime: '3 min read' },
+  { id: '5', title: 'Post 5', summary: 'Summary 5', date: '2023-08-20', thumbnail: null, readingTime: '3 min read' },
+  { id: '6', title: 'Post 6', summary: 'Summary 6', date: '2023-07-10', thumbnail: null, readingTime: '3 min read' },
 ];
 
 export const mockTopicIds: { params: { id: string; locale: string } }[] = [

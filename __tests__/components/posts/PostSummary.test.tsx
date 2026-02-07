@@ -91,12 +91,6 @@ describe('PostSummary Component', () => {
     expect(screen.queryByText('badge')).not.toBeInTheDocument();
   });
 
-  it('handles undefined thumbnail gracefully', () => {
-    const postWithoutThumbnail = { ...mockPost, thumbnail: undefined };
-    render(<PostSummary post={postWithoutThumbnail} />);
-    expect(screen.queryByTestId('thumbnail')).not.toBeInTheDocument();
-  });
-
   it('highlights matched query tokens in title and summary', () => {
     const { container } = render(<PostSummary post={mockPost} highlightQuery="Test summary" />);
     expect(container.querySelectorAll('mark')).toHaveLength(3);

@@ -9,13 +9,40 @@ const getAllPostIdsMock = jest.fn(async () => [
   { params: { id: '1', locale: 'en' } },
   { params: { id: '1', locale: 'tr' } },
 ]);
-const getPostDataMock = jest.fn(async () => ({ id: '1', title: 'Post Title', summary: 'Post Summary', topics: [] }));
-const getSortedPostsDataMock = jest.fn(async () => [{ id: '1' }, { id: '2' }]);
-const getLayoutPostsMock = jest.fn(() => [{ id: '1' }]);
-const getAllTopicsMock = jest.fn(async () => [{ id: 'topic-1' }]);
-const getTopTopicsFromPostsMock = jest.fn(() => [{ id: 'topic-1' }]);
-const getRelatedPostsMock = jest.fn(() => [{ id: '2' }]);
-const postPageMock = jest.fn(() => <div data-testid="post-page">post-page</div>);
+const getPostDataMock = jest.fn<
+  Promise<{
+    id: string;
+    title: string;
+    summary: string;
+    topics: never[];
+    date: string;
+    readingTime: string;
+    thumbnail: string | null;
+  } | null>,
+  [string, string]
+>(async (_id: string, _locale: string) => ({
+  id: '1',
+  title: 'Post Title',
+  summary: 'Post Summary',
+  topics: [],
+  date: '2024-01-01',
+  readingTime: '3 min read',
+  thumbnail: null,
+}));
+const getSortedPostsDataMock = jest.fn(async (_locale: string) => [{ id: '1' }, { id: '2' }]);
+const getLayoutPostsMock = jest.fn((_posts: unknown[]) => [{ id: '1' }]);
+const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
+const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'topic-1' }]);
+const getRelatedPostsMock = jest.fn((_post: unknown, _allPosts: unknown[], _limit: number) => [{ id: '2' }]);
+const postPageMock = jest.fn(
+  (props: {
+    locale: string;
+    post: Record<string, unknown>;
+    relatedPosts: unknown[];
+    layoutPosts: unknown[];
+    preFooterTopTopics: unknown[];
+  }) => <div data-testid="post-page">post-page</div>,
+);
 
 jest.mock('next/navigation', () => ({
   notFound: () => notFoundMock(),
@@ -50,7 +77,15 @@ import PostRoute, { generateMetadata, generateStaticParams } from '@/app/[locale
 describe('App Route /[locale]/posts/[id]', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    getPostDataMock.mockResolvedValue({ id: '1', title: 'Post Title', summary: 'Post Summary', topics: [] });
+    getPostDataMock.mockResolvedValue({
+      id: '1',
+      title: 'Post Title',
+      summary: 'Post Summary',
+      topics: [],
+      date: '2024-01-01',
+      readingTime: '3 min read',
+      thumbnail: null,
+    });
   });
 
   it('generates static params from all post ids', async () => {
@@ -61,7 +96,10 @@ describe('App Route /[locale]/posts/[id]', () => {
   });
 
   it('generates metadata from post content', async () => {
-    const metadata = await generateMetadata({ params: Promise.resolve({ locale: 'en', id: '1' }) });
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ locale: 'en', id: '1' }),
+      searchParams: Promise.resolve({}),
+    });
 
     expect(metadata).toMatchObject({
       title: 'Post Title',
@@ -73,7 +111,10 @@ describe('App Route /[locale]/posts/[id]', () => {
   it('returns fallback metadata when post is missing', async () => {
     getPostDataMock.mockResolvedValueOnce(null);
 
-    const metadata = await generateMetadata({ params: Promise.resolve({ locale: 'en', id: 'missing' }) });
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ locale: 'en', id: 'missing' }),
+      searchParams: Promise.resolve({}),
+    });
 
     expect(metadata).toMatchObject({
       title: 'Not Found',
@@ -82,7 +123,10 @@ describe('App Route /[locale]/posts/[id]', () => {
   });
 
   it('loads all data and renders PostPage view', async () => {
-    const element = await PostRoute({ params: Promise.resolve({ locale: 'tr', id: '1' }) });
+    const element = await PostRoute({
+      params: Promise.resolve({ locale: 'tr', id: '1' }),
+      searchParams: Promise.resolve({}),
+    });
     render(element);
 
     expect(getPostDataMock).toHaveBeenCalledWith('1', 'tr');
@@ -94,7 +138,15 @@ describe('App Route /[locale]/posts/[id]', () => {
     );
     expect(postPageMock).toHaveBeenCalledWith({
       locale: 'tr',
-      post: { id: '1', title: 'Post Title', summary: 'Post Summary', topics: [] },
+      post: {
+        id: '1',
+        title: 'Post Title',
+        summary: 'Post Summary',
+        topics: [],
+        date: '2024-01-01',
+        readingTime: '3 min read',
+        thumbnail: null,
+      },
       relatedPosts: [{ id: '2' }],
       layoutPosts: [{ id: '1' }],
       preFooterTopTopics: [{ id: 'topic-1' }],
@@ -105,7 +157,12 @@ describe('App Route /[locale]/posts/[id]', () => {
   it('calls notFound when post does not exist', async () => {
     getPostDataMock.mockResolvedValueOnce(null);
 
-    await expect(PostRoute({ params: Promise.resolve({ locale: 'en', id: 'missing' }) })).rejects.toThrow('NOT_FOUND');
+    await expect(
+      PostRoute({
+        params: Promise.resolve({ locale: 'en', id: 'missing' }),
+        searchParams: Promise.resolve({}),
+      }),
+    ).rejects.toThrow('NOT_FOUND');
     expect(notFoundMock).toHaveBeenCalledTimes(1);
   });
 });

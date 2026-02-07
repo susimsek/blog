@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import ContactRoute, { generateMetadata } from '@/app/[locale]/contact/page';
 
-const getServerTranslatorMock = jest.fn(async () => ({
+const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) => ({
   t: (key: string) =>
     ({
       'contact.meta.title': 'Contact Meta Title',
@@ -11,11 +11,15 @@ const getServerTranslatorMock = jest.fn(async () => ({
     })[key] ?? key,
 }));
 
-const getSortedPostsDataMock = jest.fn(async () => [{ id: 'post-1' }, { id: 'post-2' }]);
-const getAllTopicsMock = jest.fn(async () => [{ id: 'topic-1' }]);
-const getTopTopicsFromPostsMock = jest.fn(() => [{ id: 'topic-1' }]);
-const getLayoutPostsMock = jest.fn(() => [{ id: 'post-1' }]);
-const contactPageMock = jest.fn(() => <div data-testid="contact-page">contact-page</div>);
+const getSortedPostsDataMock = jest.fn(async (_locale: string) => [{ id: 'post-1' }, { id: 'post-2' }]);
+const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
+const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'topic-1' }]);
+const getLayoutPostsMock = jest.fn((_posts: unknown[]) => [{ id: 'post-1' }]);
+const contactPageMock = jest.fn(
+  (props: { layoutPosts: unknown[]; topics: unknown[]; preFooterTopTopics: unknown[] }) => (
+    <div data-testid="contact-page">contact-page</div>
+  ),
+);
 
 jest.mock('@/i18n/server', () => ({
   getServerTranslator: (locale: string, ns: string[]) => getServerTranslatorMock(locale, ns),
@@ -40,7 +44,10 @@ describe('App Route /[locale]/contact', () => {
   });
 
   it('builds metadata from i18n translator', async () => {
-    const metadata = await generateMetadata({ params: Promise.resolve({ locale: 'en' }) });
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ locale: 'en' }),
+      searchParams: Promise.resolve({}),
+    });
 
     expect(metadata).toMatchObject({
       title: 'Contact Meta Title',
@@ -50,7 +57,10 @@ describe('App Route /[locale]/contact', () => {
   });
 
   it('loads page data and renders ContactPage view', async () => {
-    const element = await ContactRoute({ params: Promise.resolve({ locale: 'tr' }) });
+    const element = await ContactRoute({
+      params: Promise.resolve({ locale: 'tr' }),
+      searchParams: Promise.resolve({}),
+    });
     render(element);
 
     expect(getSortedPostsDataMock).toHaveBeenCalledWith('tr');

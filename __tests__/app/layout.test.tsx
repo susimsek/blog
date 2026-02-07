@@ -11,17 +11,21 @@ describe('RootLayout', () => {
   });
 
   it('creates html/body wrapper with children', () => {
-    const element = RootLayout({ children: <div>child-content</div> }) as React.ReactElement;
+    const element = RootLayout({
+      params: Promise.resolve({}),
+      children: <div>child-content</div>,
+    }) as React.ReactElement<{ lang?: string; children: React.ReactNode }>;
 
     expect(element.type).toBe('html');
     expect(element.props.lang).toBe('en');
 
     const children = React.Children.toArray(element.props.children) as React.ReactElement[];
-    const headElement = children[0];
-    const bodyElement = children[1];
+    const headElement = children[0] as React.ReactElement;
+    const bodyElement = children[1] as React.ReactElement<{ children: React.ReactElement }>;
+    const bodyChildren = bodyElement.props.children as React.ReactElement<{ children: string }>;
 
     expect(headElement.type).toBe('head');
     expect(bodyElement.type).toBe('body');
-    expect(bodyElement.props.children.props.children).toBe('child-content');
+    expect(bodyChildren.props.children).toBe('child-content');
   });
 });

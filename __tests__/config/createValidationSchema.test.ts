@@ -1,6 +1,7 @@
+import type { TFunction } from 'i18next';
 import { createValidationSchema } from '@/config/createValidationSchema';
 
-const t = (key: string) => key;
+const t = ((key: string) => key) as unknown as TFunction;
 
 describe('createValidationSchema', () => {
   const schema = createValidationSchema(t);

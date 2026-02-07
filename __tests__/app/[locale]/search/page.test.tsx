@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import SearchRoute, { generateMetadata } from '@/app/[locale]/search/page';
 
-const getServerTranslatorMock = jest.fn(async () => ({
+const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) => ({
   t: (key: string) =>
     ({
       'search.title': 'Search Title',
@@ -11,10 +11,12 @@ const getServerTranslatorMock = jest.fn(async () => ({
     })[key] ?? key,
 }));
 
-const getSortedPostsDataMock = jest.fn(async () => [{ id: 'post-1' }]);
-const getAllTopicsMock = jest.fn(async () => [{ id: 'topic-1' }]);
-const getTopTopicsFromPostsMock = jest.fn(() => [{ id: 'topic-1' }]);
-const searchPageMock = jest.fn(() => <div data-testid="search-page">search-page</div>);
+const getSortedPostsDataMock = jest.fn(async (_locale: string) => [{ id: 'post-1' }]);
+const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
+const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'topic-1' }]);
+const searchPageMock = jest.fn((props: { allPosts: unknown[]; topics: unknown[]; preFooterTopTopics: unknown[] }) => (
+  <div data-testid="search-page">search-page</div>
+));
 
 jest.mock('@/i18n/server', () => ({
   getServerTranslator: (locale: string, ns: string[]) => getServerTranslatorMock(locale, ns),
@@ -37,7 +39,10 @@ describe('App Route /[locale]/search', () => {
   });
 
   it('builds metadata with noindex robots', async () => {
-    const metadata = await generateMetadata({ params: Promise.resolve({ locale: 'en' }) });
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ locale: 'en' }),
+      searchParams: Promise.resolve({}),
+    });
 
     expect(metadata).toMatchObject({
       title: 'Search Title',
@@ -51,7 +56,10 @@ describe('App Route /[locale]/search', () => {
   });
 
   it('loads search data and renders SearchPage view', async () => {
-    const element = await SearchRoute({ params: Promise.resolve({ locale: 'tr' }) });
+    const element = await SearchRoute({
+      params: Promise.resolve({ locale: 'tr' }),
+      searchParams: Promise.resolve({}),
+    });
     render(element);
 
     expect(getSortedPostsDataMock).toHaveBeenCalledWith('tr');

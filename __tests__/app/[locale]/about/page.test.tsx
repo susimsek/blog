@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import AboutRoute, { generateMetadata } from '@/app/[locale]/about/page';
 
-const getServerTranslatorMock = jest.fn(async () => ({
+const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) => ({
   t: (key: string) =>
     ({
       'about.meta.title': 'About Meta Title',
@@ -11,11 +11,13 @@ const getServerTranslatorMock = jest.fn(async () => ({
     })[key] ?? key,
 }));
 
-const getSortedPostsDataMock = jest.fn(async () => [{ id: 'post-1' }, { id: 'post-2' }]);
-const getAllTopicsMock = jest.fn(async () => [{ id: 'topic-1' }]);
-const getTopTopicsFromPostsMock = jest.fn(() => [{ id: 'topic-1' }]);
-const getLayoutPostsMock = jest.fn(() => [{ id: 'post-1' }]);
-const aboutPageMock = jest.fn(() => <div data-testid="about-page">about-page</div>);
+const getSortedPostsDataMock = jest.fn(async (_locale: string) => [{ id: 'post-1' }, { id: 'post-2' }]);
+const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
+const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'topic-1' }]);
+const getLayoutPostsMock = jest.fn((_posts: unknown[]) => [{ id: 'post-1' }]);
+const aboutPageMock = jest.fn((props: { layoutPosts: unknown[]; topics: unknown[]; preFooterTopTopics: unknown[] }) => (
+  <div data-testid="about-page">about-page</div>
+));
 
 jest.mock('@/i18n/server', () => ({
   getServerTranslator: (locale: string, ns: string[]) => getServerTranslatorMock(locale, ns),
@@ -40,7 +42,10 @@ describe('App Route /[locale]/about', () => {
   });
 
   it('builds metadata from i18n translator', async () => {
-    const metadata = await generateMetadata({ params: Promise.resolve({ locale: 'en' }) });
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ locale: 'en' }),
+      searchParams: Promise.resolve({}),
+    });
 
     expect(metadata).toMatchObject({
       title: 'About Meta Title',
@@ -50,7 +55,10 @@ describe('App Route /[locale]/about', () => {
   });
 
   it('loads page data and renders AboutPage view', async () => {
-    const element = await AboutRoute({ params: Promise.resolve({ locale: 'en' }) });
+    const element = await AboutRoute({
+      params: Promise.resolve({ locale: 'en' }),
+      searchParams: Promise.resolve({}),
+    });
     render(element);
 
     expect(getSortedPostsDataMock).toHaveBeenCalledWith('en');
