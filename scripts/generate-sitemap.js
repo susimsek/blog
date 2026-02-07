@@ -3,13 +3,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const i18nConfig = require('../i18n.config.json');
+const locales = i18nConfig.locales;
 
 const siteUrl = process.env.SITE_URL || 'https://suaybsimsek.com';
 const normalizedSiteUrl = siteUrl.replace(/\/+$/g, '');
 const basePath = (process.env.NEXT_PUBLIC_BASE_PATH || '').replace(/^\/+|\/+$/g, '');
 const basePathPrefix = basePath ? `/${basePath}` : '';
-
-const locales = i18nConfig.locales;
 
 const buildDir = path.join(process.cwd(), 'build');
 const generatedAt = new Date().toISOString();
