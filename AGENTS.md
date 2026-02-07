@@ -160,6 +160,7 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18
   - `@reducers/*` → `src/reducers/*`
   - `@styles/*` → `src/styles/*`
   - `@types/*` → `src/types/*`
+  - `@views/*` → `src/views/*`
   - `@tests/*` → `__tests__/*`
   - `@root/*` → repo root (`./*`)
 
