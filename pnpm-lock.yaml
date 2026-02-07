@@ -119,9 +119,6 @@ importers:
       '@types/react':
         specifier: ^19.2.10
         version: 19.2.10
-      '@types/react-dom':
-        specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.10)
       '@types/react-redux':
         specifier: ^7.1.34
         version: 7.1.34
@@ -7526,6 +7523,7 @@ snapshots:
   '@types/react-dom@19.2.3(@types/react@19.2.10)':
     dependencies:
       '@types/react': 19.2.10
+    optional: true
 
   '@types/react-redux@7.1.34':
     dependencies:
