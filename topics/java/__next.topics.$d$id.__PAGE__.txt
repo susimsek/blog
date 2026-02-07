@@ -1,6 +1,6 @@
 1:"$Sreact.fragment"
-2:I[18608,["/_next/static/chunks/13a61cbd9ca77595.js"],"default"]
-3:I[26270,["/_next/static/chunks/d977e0a23c15263b.js","/_next/static/chunks/8bc25b6585f9a64d.js"],"OutletBoundary"]
-4:"$Sreact.suspense"
-0:{"buildId":"u68UKODN-IC69o95WLyq3","rsc":["$","$1","c",{"children":[["$","$L2",null,{"path":"/topics/java"}],[["$","script","script-0",{"src":"/_next/static/chunks/13a61cbd9ca77595.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"loading":null,"isPartial":false}
+2:"$Sreact.suspense"
+3:I[81445,["/_next/static/chunks/2284e505e50d6f70.js"],"default"]
+4:I[26270,["/_next/static/chunks/d977e0a23c15263b.js","/_next/static/chunks/8bc25b6585f9a64d.js"],"OutletBoundary"]
+0:{"buildId":"iINWaXdRMUt5Zqw3OYnYh","rsc":["$","$1","c",{"children":[["$","$2",null,{"fallback":null,"children":["$","$L3",null,{"path":"/topics/java"}]}],[["$","script","script-0",{"src":"/_next/static/chunks/2284e505e50d6f70.js","async":true}]],["$","$L4",null,{"children":["$","$2",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"loading":null,"isPartial":false}
 5:null
