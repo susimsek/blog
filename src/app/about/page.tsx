@@ -1,5 +1,10 @@
-import LocaleRedirect from '@/lib/redirect';
+import { Suspense } from 'react';
+import LocaleRedirect from '@/components/LocaleRedirect';
 
 export default function AboutRedirectPage() {
-  return <LocaleRedirect path="/about" />;
+  return (
+    <Suspense fallback={null}>
+      <LocaleRedirect path="/about" />
+    </Suspense>
+  );
 }

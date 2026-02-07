@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { useRedirect, Redirect, getRedirect } from '@/lib/redirect';
+import { useRedirect, Redirect, getRedirect } from '@/components/LocaleRedirect';
 import languageDetector from '@/lib/languageDetector';
 
 const replaceMock = jest.fn();
@@ -21,7 +21,7 @@ jest.mock('@/lib/languageDetector', () => ({
 
 jest.mock('@/components/common/Loading', () => () => <div data-testid="loading-spinner">Loading...</div>);
 
-describe('useRedirect', () => {
+describe('LocaleRedirect/useRedirect', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useRouterMock.mockReturnValue({ replace: replaceMock });
@@ -92,7 +92,7 @@ describe('useRedirect', () => {
   });
 });
 
-describe('getRedirect', () => {
+describe('LocaleRedirect/getRedirect', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     useRouterMock.mockReturnValue({ replace: replaceMock });

@@ -1,5 +1,10 @@
-import LocaleRedirect from '@/lib/LocaleRedirect';
+import { Suspense } from 'react';
+import LocaleRedirect from '@/components/LocaleRedirect';
 
 export default function SearchRedirectPage() {
-  return <LocaleRedirect path="/search" />;
+  return (
+    <Suspense fallback={null}>
+      <LocaleRedirect path="/search" />
+    </Suspense>
+  );
 }

@@ -1,4 +1,5 @@
-import LocaleRedirect from '@/lib/redirect';
+import { Suspense } from 'react';
+import LocaleRedirect from '@/components/LocaleRedirect';
 import { getAllPostIds } from '@/lib/posts';
 import { defaultLocale } from '@/i18n/settings';
 
@@ -13,5 +14,9 @@ export async function generateStaticParams() {
 
 export default async function PostRedirectPage({ params }: PageProps<'/posts/[id]'>) {
   const { id } = await params;
-  return <LocaleRedirect path={`/posts/${id}`} />;
+  return (
+    <Suspense fallback={null}>
+      <LocaleRedirect path={`/posts/${id}`} />
+    </Suspense>
+  );
 }
