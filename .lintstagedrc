@@ -1,5 +1,5 @@
 {
   "*.{js,jsx,mjs,cjs,ts,tsx}": ["eslint --fix", "prettier --write"],
   "*.{css,scss,html,md,json,yml,yaml}": ["prettier --write"],
-  "public/locales/en/**/*.json": "i18next-resources-for-ts interface -i ./public/locales/en -o ./src/types/i18next-resources.d.ts"
+  "public/locales/en/**/*.json": "i18next-resources-for-ts interface -i ./public/locales/en -o ./src/types/i18n-resources.d.ts"
 }
