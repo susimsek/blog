@@ -16,7 +16,7 @@ export const createTestStore = (preloadedState?: TestPreloadedState) =>
       theme: themeReducer as (state: ThemeState | undefined, action: AnyAction) => ThemeState,
       postsQuery: postsQueryReducer as (state: PostsQueryState | undefined, action: AnyAction) => PostsQueryState,
     },
-    preloadedState: preloadedState as TestPreloadedState | undefined,
+    preloadedState,
   });
 
 type TestStore = ReturnType<typeof createTestStore>;
@@ -30,7 +30,7 @@ export function renderWithProviders(
   ui: ReactElement,
   { preloadedState, store = createTestStore(preloadedState), ...renderOptions }: RenderWithProvidersOptions = {},
 ) {
-  function Wrapper({ children }: { children: React.ReactNode }) {
+  function Wrapper({ children }: { readonly children: React.ReactNode }) {
     return <Provider store={store}>{children}</Provider>;
   }
 
