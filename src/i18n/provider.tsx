@@ -31,7 +31,7 @@ function createClientI18n(locale: string, resources: LocaleResources) {
     react: {
       useSuspense: false,
     },
-    initImmediate: false,
+    initAsync: false,
   });
 
   return i18n;

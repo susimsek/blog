@@ -89,7 +89,7 @@ export async function getServerTranslator(locale: string, namespaces: string[] =
     interpolation: {
       escapeValue: false,
     },
-    initImmediate: false,
+    initAsync: false,
   });
 
   return {
