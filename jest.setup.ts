@@ -25,7 +25,7 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('next/link', () => {
   const Link = ({ children, href, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href?: string }) =>
-    React.createElement('a', { href, ...props }, children as React.ReactNode);
+    React.createElement('a', { href, ...props }, children);
   return { __esModule: true, default: Link };
 });
 
@@ -39,14 +39,12 @@ jest.mock('next/image', () => {
     priority,
     ...props
   }: React.ImgHTMLAttributes<HTMLImageElement> & { src?: unknown; priority?: boolean }) => {
-    // If src is an object (imported), try to use src.src
-    let resolvedSrc = '';
-    if (typeof src === 'string') {
-      // If absolute URL, include an encoded form so tests that expect encoded fragments pass
-      resolvedSrc = src.startsWith('http') ? `${src}?e=${encodeURIComponent(src)}` : src;
-    } else if (src && typeof src === 'object' && (src as { src?: string }).src) {
-      resolvedSrc = String((src as { src?: string }).src);
-    }
+    const resolvedSrc = (() => {
+      if (typeof src === 'string') return src.startsWith('http') ? `${src}?e=${encodeURIComponent(src)}` : src;
+      if (src && typeof src === 'object' && 'src' in src) return String((src as { src?: string }).src);
+      return '';
+    })();
+
     return React.createElement('img', {
       src: resolvedSrc,
       alt,
@@ -57,13 +55,14 @@ jest.mock('next/image', () => {
       ...props,
     });
   };
+
   return { __esModule: true, default: Image };
 });
 
 jest.mock('react-i18next', () => ({
   __esModule: true,
   useTranslation: () => ({ t: (k: string) => k, i18n: { changeLanguage: jest.fn() } }),
-  Trans: ({ children }: { children?: React.ReactNode }) => (children as React.ReactNode) ?? null,
+  Trans: ({ children }: { children?: React.ReactNode }) => children ?? null,
   initReactI18next: { type: '3rdParty', init: jest.fn() },
 }));
 
@@ -78,21 +77,26 @@ jest.mock('next/dynamic', () => {
     MarkdownRenderer: '@/components/common/MarkdownRenderer',
   };
 
-  const resolveModule = (id: string) => {
+  const tryLoad = (id: string) => {
+    try {
+      return jest.requireMock(id);
+    } catch {
+      try {
+        return jest.requireActual(id);
+      } catch {
+        return null;
+      }
+    }
+  };
+
+  const resolveModule = (id?: string | null) => {
+    if (!id) return null;
     const candidates = [id, id.startsWith('@/') ? path.join(process.cwd(), 'src', id.slice(2)) : null].filter(
       Boolean,
     ) as string[];
-
-    for (const candidate of candidates) {
-      try {
-        return jest.requireMock(candidate);
-      } catch {
-        try {
-          return jest.requireActual(candidate);
-        } catch {
-          continue;
-        }
-      }
+    for (const c of candidates) {
+      const m = tryLoad(c);
+      if (m) return m;
     }
     return null;
   };
@@ -101,36 +105,28 @@ jest.mock('next/dynamic', () => {
     importer: () => Promise<DynamicModule> | DynamicModule,
     options?: { loading?: () => ReactElement | null },
   ) => {
-    // use top-level React import
     const importerString = importer?.toString?.() ?? '';
-    const importMatch = /import\(['"](.+?)['"]\)/.exec(importerString);
-    const requireMatch = /require\(['"](.+?)['"]\)/.exec(importerString);
-    const moduleId = importMatch?.[1] ?? requireMatch?.[1];
+    const moduleId =
+      /import\(['"](.+?)['"]\)/.exec(importerString)?.[1] ??
+      /require\(['"](.+?)['"]\)/.exec(importerString)?.[1] ??
+      null;
 
     const matchedKey = Object.keys(knownModules).find(key => importerString.includes(key));
     const resolvedModuleId = moduleId ?? (matchedKey ? knownModules[matchedKey] : null);
 
-    const mockedModule = resolveDynamicMock({
-      importerString,
-      moduleId: resolvedModuleId ?? moduleId,
-      knownModules,
-    });
+    const mockedModule = resolveDynamicMock({ importerString, moduleId: resolvedModuleId ?? moduleId, knownModules });
     const loadedModule = mockedModule ?? (resolvedModuleId ? resolveModule(resolvedModuleId) : null);
-    let Resolved: unknown;
-    if (loadedModule && typeof loadedModule === 'object' && 'default' in (loadedModule as object)) {
-      Resolved = (loadedModule as { default?: unknown }).default ?? loadedModule;
-    } else {
-      Resolved = loadedModule;
-    }
+
+    const Resolved =
+      loadedModule && typeof loadedModule === 'object' && 'default' in (loadedModule as object)
+        ? ((loadedModule as { default?: unknown }).default ?? loadedModule)
+        : loadedModule;
 
     const DynamicComponent = (props: Record<string, unknown>) => {
       if (!Resolved) {
-        return options?.loading ? options.loading() : null;
+        return options?.loading?.() ?? null;
       }
-      return React.createElement(
-        Resolved as React.ComponentType<Record<string, unknown>>,
-        props as Record<string, unknown>,
-      );
+      return React.createElement(Resolved as React.ComponentType<Record<string, unknown>>, props);
     };
 
     DynamicComponent.displayName = 'DynamicComponent';
