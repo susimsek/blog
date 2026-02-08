@@ -2,7 +2,7 @@
 // Keep the implementation minimal and robust: accept any module shape, avoid React imports,
 // deduplicate candidate lookups, and auto-reset between tests when running under Jest.
 
-type DynamicModule = any;
+// Use `any` directly instead of a redundant type alias
 
 type ResolveOptions = {
   importerString: string; // stringified importer (e.g. the file that imports the dynamic module)
@@ -10,13 +10,13 @@ type ResolveOptions = {
   knownModules: Record<string, string>; // mapping of known module ids -> path
 };
 
-const registry = new Map<string, DynamicModule>();
-const orderedRegistry: DynamicModule[] = [];
+const registry = new Map<string, any>();
+const orderedRegistry: any[] = [];
 
 /**
  * Register a dynamic mock for a specific id (or key).
  */
-export const registerDynamicMock = (id: string, module: DynamicModule) => {
+export const registerDynamicMock = (id: string, module: any) => {
   registry.set(id, module);
   orderedRegistry.push(module);
 };
@@ -25,7 +25,7 @@ export const registerDynamicMock = (id: string, module: DynamicModule) => {
  * Register an ordered sequence of dynamic mocks. Useful when multiple dynamics are imported
  * and the test wants to provide them in the import-order.
  */
-export const registerDynamicMockSequence = (modules: DynamicModule[]) => {
+export const registerDynamicMockSequence = (modules: any[]) => {
   orderedRegistry.push(...modules);
 };
 
@@ -47,11 +47,7 @@ try {
  * 1. If a registered id matches moduleId or knownModules -> return that mock.
  * 2. Otherwise, use the ordered (queue) registry by shifting the next available mock.
  */
-export const resolveDynamicMock = ({
-  importerString,
-  moduleId,
-  knownModules,
-}: ResolveOptions): DynamicModule | null => {
+export const resolveDynamicMock = ({ importerString, moduleId, knownModules }: ResolveOptions): any | null => {
   const candidateSet = new Set<string>();
 
   if (moduleId) candidateSet.add(moduleId);
@@ -62,7 +58,7 @@ export const resolveDynamicMock = ({
       candidateSet.add(key);
       candidateSet.add(path);
     }
-    if (moduleId && moduleId.includes(key)) {
+    if (moduleId?.includes(key)) {
       candidateSet.add(key);
       candidateSet.add(path);
     }
