@@ -9,15 +9,16 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18
 2. [Quick Reference](#quick-reference)
 3. [Prerequisites](#prerequisites)
 4. [Project Structure](#project-structure)
-5. [Static Export & SSG Guidance](#static-export--ssg-guidance)
-6. [Content & i18n Guide](#content--i18n-guide)
-7. [SEO, Feeds & Scripts](#seo-feeds--scripts)
-8. [Code Style & Quality Gates](#code-style--quality-gates)
-9. [Testing Guidelines](#testing-guidelines)
-10. [Deployment](#deployment)
-11. [Pull Request & Commit Guidelines](#pull-request--commit-guidelines)
-12. [Review Process & What Reviewers Look For](#review-process--what-reviewers-look-for)
-13. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+5. [Static Export](#static-export)
+6. [Internationalization](#internationalization)
+7. [SEO](#seo)
+8. [TypeScript](#typescript)
+9. [Code Style & Quality Gates](#code-style--quality-gates)
+10. [Testing Guidelines](#testing-guidelines)
+11. [Deployment](#deployment)
+12. [Pull Request & Commit Guidelines](#pull-request--commit-guidelines)
+13. [Review Process & What Reviewers Look For](#review-process--what-reviewers-look-for)
+14. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
 
 ## Agent MCP Usage Guidelines
 
@@ -25,23 +26,24 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18
 
 ## Quick Reference
 
-| Action                | Command                                                            |
-| --------------------- | ------------------------------------------------------------------ |
-| Install               | `pnpm install --frozen-lockfile`                                   |
-| Dev                   | `pnpm dev`                                                         |
-| Build (prod export)   | `pnpm build`                                                       |
-| Preview (static)      | `pnpm build` then `pnpm dlx serve build`                           |
-| Unit tests            | `pnpm test`                                                        |
-| Single test file      | `pnpm test -- __tests__/lib/posts.test.tsx`                        |
-| Lint                  | `pnpm run lint`                                                    |
-| Lint fix              | `pnpm run lint:fix`                                                |
-| Format                | `pnpm run prettier:format`                                         |
-| Format check          | `pnpm run prettier:check`                                          |
-| Typecheck             | `pnpm run typecheck`                                               |
-| Sonar (local)         | `pnpm run sonar`                                                   |
-| Update Medium feed    | `pnpm run fetch:medium`                                            |
-| Docker Compose deploy | `docker-compose -f deploy/docker-compose/docker-compose.yml up -d` |
-| Helm deploy           | `helm install blog deploy/helm/blog`                               |
+| Action                 | Command                                                            |
+| ---------------------- | ------------------------------------------------------------------ |
+| Install                | `pnpm install --frozen-lockfile`                                   |
+| Dev                    | `pnpm dev`                                                         |
+| Build (prod export)    | `pnpm build`                                                       |
+| Preview (static)       | `pnpm build` then `pnpm dlx serve build`                           |
+| Unit tests             | `pnpm test`                                                        |
+| Single test file       | `pnpm test -- __tests__/lib/posts.test.tsx`                        |
+| Lint                   | `pnpm run lint`                                                    |
+| Lint fix               | `pnpm run lint:fix`                                                |
+| Format                 | `pnpm run prettier:format`                                         |
+| Format check           | `pnpm run prettier:check`                                          |
+| Typecheck              | `pnpm run typecheck`                                               |
+| I18n types (interface) | `pnpm run i18n:interface`                                          |
+| Sonar (local)          | `pnpm run sonar`                                                   |
+| Update Medium feed     | `pnpm run fetch:medium`                                            |
+| Docker Compose deploy  | `docker-compose -f deploy/docker-compose/docker-compose.yml up -d` |
+| Helm deploy            | `helm install blog deploy/helm/blog`                               |
 
 ## Prerequisites
 
@@ -87,7 +89,7 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18
   - `next.config.ts`: Next config (static export: `output: 'export'`, output dir: `build/`)
   - `i18n.config.json`: locale source-of-truth for app/runtime scripts
 
-### Content (Markdown + indexes)
+### Content
 
 - Posts:
   - Markdown: `content/posts/<locale>/*.md`
@@ -103,7 +105,7 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18
 - Docker Compose: `deploy/docker-compose/docker-compose.yml`
 - Helm chart: `deploy/helm/blog`
 
-## Static Export & SSG Guidance
+## Static Export
 
 - `next.config.ts`:
   - `output: 'export'` → static export; avoid server-only runtime patterns.
@@ -120,7 +122,7 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18
   - `NEXT_PUBLIC_GA_ID`: Google Analytics id
   - `SITE_URL`: base URL for sitemap/rss generation and SEO
 
-## Content & i18n Guide
+## Internationalization
 
 - When adding a new post:
   - Markdown file: `content/posts/<locale>/<slug>.md`
@@ -131,16 +133,12 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18
   - Update both locale namespaces: `public/locales/en/*.json` and `public/locales/tr/*.json`
   - Ensure route metadata/translator usage includes needed namespaces (see `src/i18n/server.ts` and route `generateMetadata` files).
 
-## SEO, Feeds & Scripts
+## TypeScript
 
-- Build hooks:
-  - `pnpm build` runs Next build and then `postbuild` scripts.
-  - `postbuild`: generates sitemap + RSS (writes into `build/`).
-- Scripts:
-  - `scripts/generate-sitemap.js` → writes `build/sitemap_index.xml`, `build/page-sitemap.xml`, `build/post-sitemap.xml`, `build/post_topic-sitemap.xml`.
-  - `scripts/generate-rss.js` → writes `build/<locale>/rss.xml`.
-  - `scripts/fetch-medium-feed.js` → refreshes `content/medium-feed.json`.
-- `SITE_URL` affects absolute URLs in sitemap/RSS output.
+- Typecheck: `pnpm run typecheck`
+- Use `strict` TypeScript settings; avoid `any` in new code unless required.
+- Keep `src/types/` for shared type declarations and generated type outputs.
+- Generate i18n types after updating locale JSON: `pnpm run i18n:interface`
 
 ## Code Style & Quality Gates
 
