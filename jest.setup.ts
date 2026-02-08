@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { ReactElement } from 'react';
-import path from 'path';
+import path from 'node:path';
 import '@testing-library/jest-dom';
 import { resetDynamicMocks, resolveDynamicMock } from '@tests/utils/dynamicMockRegistry';
 
