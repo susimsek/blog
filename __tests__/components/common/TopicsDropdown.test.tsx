@@ -71,6 +71,18 @@ jest.mock('@/hooks/useDebounce', () => ({
   default: (value: string) => value,
 }));
 
+const click = async (element: HTMLElement) => {
+  await act(async () => {
+    fireEvent.click(element);
+  });
+};
+
+const change = async (element: HTMLElement, value: string) => {
+  await act(async () => {
+    fireEvent.change(element, { target: { value } });
+  });
+};
+
 describe('TopicsDropdown', () => {
   const onTopicsChangeMock = jest.fn();
 
@@ -98,99 +110,95 @@ describe('TopicsDropdown', () => {
     expect(screen.queryByText('React')).not.toBeInTheDocument();
   });
 
-  test('filters topics based on search input', () => {
+  test('filters topics based on search input', async () => {
     renderComponent();
-    fireEvent.click(screen.getByText('topic:topic.allTopics'));
+    await click(screen.getByText('topic:topic.allTopics'));
 
     const searchInput = screen.getByPlaceholderText('common.searchBar.placeholder');
-    fireEvent.change(searchInput, { target: { value: 'Vue' } });
+    await change(searchInput, 'Vue');
 
     expect(screen.getByText('Vue.js')).toBeInTheDocument();
   });
 
   test('handles pagination correctly', async () => {
     renderComponent();
-    fireEvent.click(screen.getByText('topic:topic.allTopics'));
+    await click(screen.getByText('topic:topic.allTopics'));
 
     expect(screen.getByText('1')).toBeInTheDocument();
 
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('paginator-next'));
-    });
+    await click(screen.getByTestId('paginator-next'));
 
     expect(screen.getByText('Nuxt.js')).toBeInTheDocument();
 
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('paginator-prev'));
-    });
+    await click(screen.getByTestId('paginator-prev'));
 
     expect(screen.getByText('React')).toBeInTheDocument();
   });
 
-  test('updates topic list dynamically when searching', () => {
+  test('updates topic list dynamically when searching', async () => {
     renderComponent();
-    fireEvent.click(screen.getByText('topic:topic.allTopics'));
+    await click(screen.getByText('topic:topic.allTopics'));
 
     const searchInput = screen.getByPlaceholderText('common.searchBar.placeholder');
-    fireEvent.change(searchInput, { target: { value: 'Next' } });
+    await change(searchInput, 'Next');
 
     expect(screen.getByText('Next.js')).toBeInTheDocument();
   });
 
-  test('resets pagination when topics are filtered', () => {
+  test('resets pagination when topics are filtered', async () => {
     renderComponent();
-    fireEvent.click(screen.getByText('topic:topic.allTopics'));
+    await click(screen.getByText('topic:topic.allTopics'));
 
     const searchInput = screen.getByPlaceholderText('common.searchBar.placeholder');
-    fireEvent.change(searchInput, { target: { value: 'Vue' } });
+    await change(searchInput, 'Vue');
 
     expect(screen.getByText('Vue.js')).toBeInTheDocument();
   });
 
-  test('displays a message when no topics are found', () => {
+  test('displays a message when no topics are found', async () => {
     renderComponent([], []);
-    fireEvent.click(screen.getByText('topic:topic.allTopics'));
+    await click(screen.getByText('topic:topic.allTopics'));
 
     expect(screen.getByText('topic:topic.noTopicFound')).toBeInTheDocument();
   });
 
-  test('toggles off a selected topic when clicked again', () => {
+  test('toggles off a selected topic when clicked again', async () => {
     renderComponent();
-    fireEvent.click(screen.getByText('topic:topic.allTopics'));
-    fireEvent.click(screen.getAllByText('React').at(-1) as HTMLElement);
-    fireEvent.click(screen.getAllByText('React').at(-1) as HTMLElement);
+    await click(screen.getByText('topic:topic.allTopics'));
+    await click(screen.getAllByText('React').at(-1) as HTMLElement);
+    await click(screen.getAllByText('React').at(-1) as HTMLElement);
     const applyButton = screen.getByRole('button', { name: /common.datePicker.applySelection/i });
     expect(applyButton).toBeDisabled();
     expect(onTopicsChangeMock).not.toHaveBeenCalled();
   });
 
-  test('resets pending selection when dropdown closes', () => {
+  test('resets pending selection when dropdown closes', async () => {
     renderComponent(['react']);
-    fireEvent.click(screen.getAllByRole('button', { name: /React/i })[0]);
-    fireEvent.click(screen.getAllByText('Vue.js').at(-1) as HTMLElement);
+    await click(screen.getAllByRole('button', { name: /React/i })[0]);
+    await click(screen.getAllByText('Vue.js').at(-1) as HTMLElement);
 
     // Close dropdown without applying; pending selection should reset to selectedTopics prop.
-    fireEvent.click(screen.getAllByRole('button', { name: /React/i })[0]);
-    fireEvent.click(screen.getAllByRole('button', { name: /React/i })[0]);
-    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.applySelection/i }));
+    await click(screen.getAllByRole('button', { name: /React/i })[0]);
+    await click(screen.getAllByRole('button', { name: /React/i })[0]);
+    await click(screen.getByRole('button', { name: /common.datePicker.applySelection/i }));
 
     expect(onTopicsChangeMock).toHaveBeenLastCalledWith(['react']);
   });
 
-  test('clears selections and notifies parent', () => {
+  test('clears selections and notifies parent', async () => {
     renderComponent(['react', 'vue']);
-    fireEvent.click(screen.getByRole('button', { name: /React, Vue.js/i }));
-    fireEvent.click(screen.getByRole('button', { name: /common.clearAll/i }));
+    await click(screen.getByRole('button', { name: /React, Vue.js/i }));
+    await click(screen.getByRole('button', { name: /common.clearAll/i }));
     expect(onTopicsChangeMock).toHaveBeenCalledWith([]);
   });
 
-  test('removes a selected topic from pending badges', () => {
+  test('removes a selected topic from pending badges', async () => {
     renderComponent(['react', 'vue']);
-    fireEvent.click(screen.getByRole('button', { name: /React, Vue.js/i }));
+    await click(screen.getByRole('button', { name: /React, Vue.js/i }));
 
     const removeIcons = screen.getAllByTestId('font-awesome-icon-times');
-    fireEvent.click(removeIcons[0]);
-    fireEvent.click(screen.getByRole('button', { name: /common.datePicker.applySelection/i }));
+    await click(removeIcons[0]);
+    await click(screen.getByRole('button', { name: /common.datePicker.applySelection/i }));
 
     expect(onTopicsChangeMock).toHaveBeenCalledWith(['vue']);
   });
@@ -241,10 +249,10 @@ describe('TopicsDropdown - getDropdownTitle', () => {
     expect(dropdownButton).toBeInTheDocument();
   });
 
-  test('renders Clear All button with mocked translation', () => {
+  test('renders Clear All button with mocked translation', async () => {
     renderComponent(['react', 'vue']);
 
-    fireEvent.click(screen.getByRole('button', { name: /React, Vue.js/i }));
+    await click(screen.getByRole('button', { name: /React, Vue.js/i }));
 
     expect(screen.getByText('common.clearAll')).toBeInTheDocument();
   });

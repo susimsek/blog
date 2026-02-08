@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { SortDropdown } from '@/components/common/SortDropdown';
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
@@ -51,6 +51,12 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
+const click = async (element: HTMLElement) => {
+  await act(async () => {
+    fireEvent.click(element);
+  });
+};
+
 describe('SortDropdown', () => {
   const onChangeMock = jest.fn();
 
@@ -70,20 +76,20 @@ describe('SortDropdown', () => {
     expect(screen.getByText('common.sort.newest')).toBeInTheDocument();
   });
 
-  test('calls onChange with "desc" when selected', () => {
+  test('calls onChange with "desc" when selected', async () => {
     renderComponent('asc');
 
-    fireEvent.click(screen.getByText('common.sort.oldest'));
-    fireEvent.click(screen.getByText('common.sort.newest'));
+    await click(screen.getByText('common.sort.oldest'));
+    await click(screen.getByText('common.sort.newest'));
 
     expect(onChangeMock).toHaveBeenCalledWith('desc');
   });
 
-  test('calls onChange with "asc" when selected', () => {
+  test('calls onChange with "asc" when selected', async () => {
     renderComponent('desc');
 
-    fireEvent.click(screen.getByText('common.sort.newest'));
-    fireEvent.click(screen.getByText('common.sort.oldest'));
+    await click(screen.getByText('common.sort.newest'));
+    await click(screen.getByText('common.sort.oldest'));
 
     expect(onChangeMock).toHaveBeenCalledWith('asc');
   });

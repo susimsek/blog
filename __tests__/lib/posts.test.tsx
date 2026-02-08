@@ -291,7 +291,10 @@ Fallback markdown content`;
         return '';
       });
 
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       const result = await getSortedPostsData('en');
+      consoleSpy.mockRestore();
+
       expect(result).toEqual([]);
     });
   });
@@ -375,7 +378,10 @@ Fallback markdown content`;
 
     it('does not collect topics if directory does not exist', async () => {
       (fs.existsSync as jest.Mock).mockReturnValue(false);
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       const result = await getTopicData('en', 'react');
+      consoleSpy.mockRestore();
+
       expect(result).toBeNull();
     });
 

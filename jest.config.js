@@ -45,7 +45,7 @@ const baseConfig = createJestConfig(customJestConfig);
 
 module.exports = async (...args) => {
   const config = await baseConfig(...args);
-  config.setupFilesAfterEnv = [path.join(__dirname, 'jest.setup.js')];
+  config.setupFilesAfterEnv = [path.join(__dirname, 'jest.setup.ts')];
   // Treat SVG imports as React components in tests (the default Next fileMock returns an object).
   config.moduleNameMapper['^.+\\.(svg)$'] = '<rootDir>/__tests__/__mocks__/svgMock.tsx';
   // Next 16 + react-syntax-highlighter@16 pulls in ESM deps (refractor/hastscript). Allow SWC to transform them.

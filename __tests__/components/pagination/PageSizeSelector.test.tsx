@@ -1,6 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import PageSizeSelector from '@/components/pagination/PageSizeSelector';
 
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
 describe('PageSizeSelector', () => {
   const mockOnSizeChange = jest.fn();
 

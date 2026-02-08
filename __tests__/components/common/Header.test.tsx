@@ -1,7 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import Header from '@/components/common/Header';
+import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import useMediaQuery from '@/hooks/useMediaQuery';
+import { registerDynamicMock, registerDynamicMockSequence } from '@tests/utils/dynamicMockRegistry';
+
+let Header: ComponentType;
 
 // Mock `react-i18next`
 jest.mock('react-i18next', () => ({
@@ -36,11 +39,6 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <i data-testid={`font-awesome-icon-${icon}`} />,
 }));
 
-jest.mock('@assets/images/logo.svg', () => ({
-  __esModule: true,
-  default: () => <svg data-testid="mock-logo" />,
-}));
-
 jest.mock('@/components/search/SearchContainer', () => ({
   __esModule: true,
   default: () => <div data-testid="search-container">SearchContainer</div>,
@@ -63,6 +61,19 @@ beforeAll(() => {
 });
 
 describe('Header', () => {
+  beforeAll(() => {
+    const languageSwitcher = jest.requireMock('@/components/i18n/LanguageSwitcher');
+    registerDynamicMock('LanguageSwitcher', languageSwitcher);
+    registerDynamicMock('@/components/i18n/LanguageSwitcher', languageSwitcher);
+
+    const themeToggler = jest.requireMock('@/components/theme/ThemeToggler');
+    registerDynamicMock('ThemeToggler', themeToggler);
+    registerDynamicMock('@/components/theme/ThemeToggler', themeToggler);
+
+    registerDynamicMockSequence([languageSwitcher, themeToggler]);
+    Header = require('@/components/common/Header').default;
+  });
+
   beforeEach(() => {
     (useTranslation as jest.Mock).mockReturnValue({
       t: (key: string) => key, // Mock translation function

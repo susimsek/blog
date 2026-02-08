@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import MarkdownRenderer from '@/components/common/MarkdownRenderer';
+import { registerDynamicMock } from '@tests/utils/dynamicMockRegistry';
+
+let MarkdownRenderer: typeof import('@/components/common/MarkdownRenderer').default;
 
 jest.mock('next/navigation', () => ({
   useParams: jest.fn().mockReturnValue({
@@ -18,13 +20,17 @@ jest.mock('react-markdown', () => {
   return jest.fn(({ children }: { children: React.ReactNode }) => <div data-testid="react-markdown">{children}</div>);
 });
 
-jest.mock('remark-gfm', () => jest.fn());
-
-jest.mock('rehype-raw', () => jest.fn());
-
 jest.mock('@/components/common/Link', () => ({
   __esModule: true,
-  default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => {
+  default: ({
+    href,
+    children,
+    ...props
+  }: {
+    href?: string;
+    children?: React.ReactNode;
+    skipLocaleHandling?: boolean;
+  }) => {
     const { skipLocaleHandling, ...anchorProps } = props as { skipLocaleHandling?: boolean };
     void skipLocaleHandling;
     return (
@@ -40,21 +46,14 @@ jest.mock('@/config/store', () => ({
   useAppSelector: jest.fn(),
 }));
 
-jest.mock('@/components/common/CodeBlock', () => {
-  return ({ children, className, theme, inline, ...props }: any) => (
-    <pre
-      data-testid="code-block"
-      className={className}
-      data-theme={theme}
-      data-inline={inline ? 'true' : 'false'}
-      {...props}
-    >
-      {children}
-    </pre>
-  );
-});
-
 describe('MarkdownRenderer Component', () => {
+  beforeAll(() => {
+    const markdownTabsRenderer = require('@/components/common/MarkdownTabsRenderer');
+    registerDynamicMock('MarkdownTabsRenderer', markdownTabsRenderer);
+    registerDynamicMock('@/components/common/MarkdownTabsRenderer', markdownTabsRenderer);
+    MarkdownRenderer = require('@/components/common/MarkdownRenderer').default;
+  });
+
   it('renders headings correctly', () => {
     const content = '# Heading 1\n## Heading 2\n### Heading 3';
     render(<MarkdownRenderer content={content} />);

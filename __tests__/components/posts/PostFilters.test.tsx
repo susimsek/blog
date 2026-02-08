@@ -1,7 +1,16 @@
 import React from 'react';
 import { screen, fireEvent } from '@testing-library/react';
-import { PostFilters, PostFiltersProps } from '@/components/posts/PostFilters';
+import type { PostFiltersProps } from '@/components/posts/PostFilters';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
+import { registerDynamicMock, registerDynamicMockSequence } from '@tests/utils/dynamicMockRegistry';
+
+let PostFilters: typeof import('@/components/posts/PostFilters').PostFilters;
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
 
 jest.mock('@/components/search/SearchBar', () => ({
   __esModule: true,
@@ -55,6 +64,14 @@ describe('PostFilters Component', () => {
       { id: '2', name: 'Topic 2', color: 'blue' },
     ],
   };
+
+  beforeAll(() => {
+    const dateRangePicker = jest.requireMock('@/components/common/DateRangePicker');
+    registerDynamicMock('DateRangePicker', dateRangePicker);
+    registerDynamicMock('@/components/common/DateRangePicker', dateRangePicker);
+    registerDynamicMockSequence([dateRangePicker]);
+    PostFilters = require('@/components/posts/PostFilters').PostFilters;
+  });
 
   afterEach(() => {
     jest.clearAllMocks();

@@ -35,18 +35,17 @@ jest.mock('@/components/common/Link', () => ({
   ),
 }));
 
-jest.mock('@assets/images/logo.svg', () => ({
-  __esModule: true,
-  default: () => <span data-testid="logo" />,
-}));
-
 jest.mock('react-bootstrap/Nav', () => {
   const Nav = ({ children, ...props }: { children: React.ReactNode }) => <nav {...props}>{children}</nav>;
-  const NavLink = ({ children, ...props }: { children: React.ReactNode }) => (
-    <a data-testid="nav-link" {...props}>
-      {children}
-    </a>
-  );
+  const NavLink = ({ children, ...props }: { children: React.ReactNode }) => {
+    const { as, ...anchorProps } = props as { as?: unknown };
+    void as;
+    return (
+      <a data-testid="nav-link" {...anchorProps}>
+        {children}
+      </a>
+    );
+  };
   Nav.Link = NavLink;
   return Nav;
 });

@@ -14,10 +14,6 @@ jest.mock('@/config/customIcons', () => ({
   },
 }));
 
-jest.mock('remark-gfm', () => jest.fn());
-
-jest.mock('rehype-raw', () => jest.fn());
-
 describe('TabsRenderer', () => {
   it('renders tabs with correct titles and content', () => {
     const content = `

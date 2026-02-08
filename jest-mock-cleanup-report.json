@@ -1,0 +1,1072 @@
+[
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/app/[locale]/404/page.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/views/LocaleNotFoundPage",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/app/[locale]/about/page.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "@/i18n/server",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/lib/posts",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/views/AboutPage",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/app/[locale]/contact/page.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "@/i18n/server",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/lib/posts",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/views/ContactPage",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/app/[locale]/layout.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/app/providers",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/i18n/server",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/app/[locale]/medium/page.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "@/i18n/server",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/lib/medium",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/lib/posts",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/views/MediumPage",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/app/[locale]/page.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "@/i18n/server",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/lib/posts",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/views/HomePage",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/app/[locale]/posts/[id]/page.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/lib/posts",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/lib/postFilters",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/views/PostPage",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/app/[locale]/search/page.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "@/i18n/server",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/lib/posts",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/views/SearchPage",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/app/[locale]/topics/[id]/page.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/i18n/server",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/lib/posts",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/views/TopicPage",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/app/page.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/lib/languageDetector",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/components/common/Loading",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/LocaleRedirect.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/lib/languageDetector",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/components/common/Loading",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/BackToTop.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/CodeBlock.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "react-bootstrap/Tooltip",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/config/store",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/ContactInfo.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/DateDisplay.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/navigation",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/DateRangePicker.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "react-datepicker",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/FlagIcon.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "@/config/flags",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/Footer.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/Header.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/hooks/useMediaQuery",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/components/common/Link",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/components/i18n/LanguageSwitcher",
+        "removable": false
+      },
+      {
+        "index": 4,
+        "module": "@/components/theme/ThemeToggler",
+        "removable": false
+      },
+      {
+        "index": 5,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      },
+      {
+        "index": 6,
+        "module": "@/components/search/SearchContainer",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/Layout.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/hooks/useMediaQuery",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/components/common/Header",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/components/common/Footer",
+        "removable": false
+      },
+      {
+        "index": 4,
+        "module": "@/components/common/Sidebar",
+        "removable": false
+      },
+      {
+        "index": 5,
+        "module": "@/components/common/PreFooter",
+        "removable": false
+      },
+      {
+        "index": 6,
+        "module": "@next/third-parties/google",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/Link.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/link",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "next/navigation",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/MarkdownRenderer.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "react-markdown",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/components/common/Link",
+        "removable": false
+      },
+      {
+        "index": 4,
+        "module": "@/config/store",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/MarkdownTabsRenderer.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-markdown",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/config/customIcons",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/PreFooter.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/components/common/Link",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/ReadingTimeDropdown.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "react-bootstrap/DropdownButton",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "react-bootstrap/Dropdown",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/Sidebar.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/hooks/useDebounce",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/components/search/SearchBar",
+        "removable": false
+      },
+      {
+        "index": 4,
+        "module": "@/components/common/Link",
+        "removable": false
+      },
+      {
+        "index": 5,
+        "module": "react-bootstrap/Nav",
+        "removable": false
+      },
+      {
+        "index": 6,
+        "module": "react-bootstrap/Offcanvas",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/SortDropdown.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "react-bootstrap",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "react-i18next",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/Thumbnail.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/image",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/common/TopicsDropdown.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/components/search/SearchBar",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/components/pagination/Paginator",
+        "removable": false
+      },
+      {
+        "index": 4,
+        "module": "@/hooks/useDebounce",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/i18n/LanguageSwitchLink.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/lib/languageDetector",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/components/common/FlagIcon",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/i18n/LanguageSwitcher.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/components/common/FlagIcon",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/pagination/PageSizeSelector.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/pagination/PaginationBar.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/posts/PostCarousel.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "next/image",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/posts/PostDetail.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/components/common/MarkdownRenderer",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/posts/PostFilters.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/components/search/SearchBar",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/components/common/TopicsDropdown",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/components/common/DateRangePicker",
+        "removable": false
+      },
+      {
+        "index": 4,
+        "module": "@/components/common/SortDropdown",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/posts/PostList.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@/hooks/useDebounce",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/components/search/SearchBar",
+        "removable": false
+      },
+      {
+        "index": 4,
+        "module": "@/components/pagination/PaginationBar",
+        "removable": false
+      },
+      {
+        "index": 5,
+        "module": "@/components/posts/PostSummary",
+        "removable": false
+      },
+      {
+        "index": 6,
+        "module": "@/components/common/SortDropdown",
+        "removable": false
+      },
+      {
+        "index": 7,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      },
+      {
+        "index": 8,
+        "module": "@/components/common/TopicsDropdown",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/posts/PostListItem.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "next/image",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/components/common/DateDisplay",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/posts/PostSummary.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/components/common/Link",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/components/common/Thumbnail",
+        "removable": false
+      },
+      {
+        "index": 4,
+        "module": "@/components/common/DateDisplay",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/posts/PostToc.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "react-bootstrap",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/posts/RelatedPosts.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "next/navigation",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/components/common/Link",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/components/common/DateDisplay",
+        "removable": false
+      },
+      {
+        "index": 4,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      },
+      {
+        "index": 5,
+        "module": "next/image",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/search/SearchBar.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/search/SearchContainer.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@/hooks/useDebounce",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/components/search/SearchBar",
+        "removable": false
+      },
+      {
+        "index": 4,
+        "module": "@/components/posts/PostListItem",
+        "removable": false
+      },
+      {
+        "index": 5,
+        "module": "@/components/common/Link",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/theme/ThemeProvider.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "@/config/store",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/components/theme/ThemeToggler.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "@/config/store",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "react-i18next",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "@fortawesome/react-fontawesome",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/config/iconLoader.test.ts",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "@fortawesome/fontawesome-svg-core",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/lib/cacheUtils.test.ts",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "@/config/constants",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/lib/medium.test.ts",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "fs",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/lib/posts.test.tsx",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "fs",
+        "removable": false
+      },
+      {
+        "index": 1,
+        "module": "path",
+        "removable": false
+      },
+      {
+        "index": 2,
+        "module": "gray-matter",
+        "removable": false
+      },
+      {
+        "index": 3,
+        "module": "@/i18n/settings",
+        "removable": false
+      }
+    ]
+  },
+  {
+    "file": "/Users/T097315/Documents/MyProject/blog/__tests__/reducers/theme.test.ts",
+    "mocks": [
+      {
+        "index": 0,
+        "module": "@/config/constants",
+        "removable": false
+      }
+    ]
+  }
+]

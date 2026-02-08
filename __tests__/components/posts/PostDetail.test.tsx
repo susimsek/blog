@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
-import PostDetail from '@/components/posts/PostDetail';
 import { mockPost, mockPostWithoutContent } from '@tests/__mocks__/mockPostData';
+import { registerDynamicMock } from '@tests/utils/dynamicMockRegistry';
+
+let PostDetail: typeof import('@/components/posts/PostDetail').default;
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -23,6 +25,13 @@ jest.mock('@/components/common/MarkdownRenderer', () => {
 });
 
 describe('PostDetail Component', () => {
+  beforeAll(() => {
+    const markdownRenderer = jest.requireMock('@/components/common/MarkdownRenderer');
+    registerDynamicMock('MarkdownRenderer', markdownRenderer);
+    registerDynamicMock('@/components/common/MarkdownRenderer', markdownRenderer);
+    PostDetail = require('@/components/posts/PostDetail').default;
+  });
+
   const setup = (post = mockPost) => render(<PostDetail post={post} />);
 
   it('renders the post title', () => {

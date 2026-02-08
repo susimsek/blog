@@ -14,6 +14,7 @@ const { mediumPostsCache, fetchRssSummaries } = mediumModule;
 
 const fsMock = fs as jest.Mocked<typeof fs>;
 const readFileMock = fsMock.promises.readFile as jest.Mock;
+
 describe('medium utilities', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -44,8 +45,9 @@ describe('medium utilities', () => {
 
   it('returns empty list and stores it when feed file is missing', async () => {
     fsMock.existsSync.mockReturnValueOnce(false);
-
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const result = await fetchRssSummaries('en');
+    consoleSpy.mockRestore();
 
     expect(result).toEqual([]);
     expect(mediumPostsCache.get('en-all')).toEqual([]);
@@ -121,8 +123,9 @@ describe('medium utilities', () => {
   it('handles JSON parse errors gracefully', async () => {
     fsMock.existsSync.mockReturnValueOnce(true);
     fsMock.readFileSync.mockReturnValueOnce('not-json');
-
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const result = await fetchRssSummaries('en');
+    consoleSpy.mockRestore();
 
     expect(result).toEqual([]);
     expect(mediumPostsCache.get('en-all')).toEqual([]);
