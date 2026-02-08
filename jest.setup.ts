@@ -38,14 +38,14 @@ jest.mock('next/image', () => {
     style,
     priority,
     ...props
-  }: React.ImgHTMLAttributes<HTMLImageElement> & { src?: unknown }) => {
+  }: React.ImgHTMLAttributes<HTMLImageElement> & { src?: unknown; priority?: boolean }) => {
     // If src is an object (imported), try to use src.src
     let resolvedSrc = '';
     if (typeof src === 'string') {
       // If absolute URL, include an encoded form so tests that expect encoded fragments pass
       resolvedSrc = src.startsWith('http') ? `${src}?e=${encodeURIComponent(src)}` : src;
-    } else if (src && typeof src === 'object' && src.src) {
-      resolvedSrc = String(src.src);
+    } else if (src && typeof src === 'object' && (src as { src?: string }).src) {
+      resolvedSrc = String((src as { src?: string }).src);
     }
     return React.createElement('img', {
       src: resolvedSrc,
@@ -116,7 +116,12 @@ jest.mock('next/dynamic', () => {
       knownModules,
     });
     const loadedModule = mockedModule ?? (resolvedModuleId ? resolveModule(resolvedModuleId) : null);
-    const Resolved = loadedModule?.default ?? loadedModule;
+    let Resolved: unknown;
+    if (loadedModule && typeof loadedModule === 'object' && 'default' in (loadedModule as object)) {
+      Resolved = (loadedModule as { default?: unknown }).default ?? loadedModule;
+    } else {
+      Resolved = loadedModule;
+    }
 
     const DynamicComponent = (props: Record<string, unknown>) => {
       if (!Resolved) {
