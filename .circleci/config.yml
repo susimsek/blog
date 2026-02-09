@@ -61,9 +61,6 @@ jobs:
               echo "Skipping docker publish on branch ${CIRCLE_BRANCH}";
               exit 0;
             fi
-
-            docker version
-
             if [ -n "${DOCKER_PASSWORD:-}" ]; then
               echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_LOGIN}" --password-stdin
             fi
