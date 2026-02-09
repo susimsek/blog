@@ -89,5 +89,5 @@ workflows:
   version: 2
   deploy-workflow:
     jobs:
-      - build:
+      - build-and-deploy:
           context: sonarcloud
