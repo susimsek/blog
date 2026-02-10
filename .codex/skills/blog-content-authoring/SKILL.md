@@ -37,55 +37,17 @@ Goal: make all **post visuals** (thumbnails + optional inline images) feel like 
 - **no people**, no modern elements, no readable text/logos/watermarks
 - style: fantastical realism, epic cinematic, wide angle, high detail
 
-## Iram City Theme Variants (Pick 1 per Image)
+### Generate base Iram prompts for all posts
 
-To avoid thumbnails looking “same-y”, generate each image using **one** variant theme on top of the base art direction.
-
-The helper script will assign a variant **automatically** (deterministic by post id + seed) and include it in the prompt output.
-
-### Available variants
-
-- Kumlar Altında Kayıp İrem (Lost beneath sands)
-- Buzlar Altında Donmuş İrem (Frozen under ice)
-- Ormanlar Tarafından Yutulmuş İrem (Swallowed by forests)
-- Dağ Vadilerinde Gizli İrem (Hidden in mountain valleys)
-- Sular Altında Batık İrem (Sunken underwater)
-- Lanetlenmiş Karanlık İrem (Cursed dark)
-- Ay Işığında İrem (Moonlit)
-- Gün Doğumundaki İrem (Sunrise)
-- Gün Batımındaki İrem (Sunset)
-- Fırtına Altındaki İrem (Storm)
-- Sonsuz Sütunların Şehri İrem (City of endless pillars)
-- Yeşilliklerle Kaplı İrem (Covered in greenery)
-- Çiçek Vadilerindeki İrem (Flower valleys)
-- Şelaleler Arasındaki İrem (Between waterfalls)
-- Harabeler Üzerinde Yükselen İrem (Rising over ruins)
-- Doğayla Yeniden Doğan İrem (Reborn with nature)
-- Kadim Bilgelerin İrem’i (Ancient sages)
-- Zamanın Dışındaki İrem (Outside of time)
-- Kayıp Medeniyet İrem (Lost civilization)
-- Yıldızların Altında İrem (Under the stars)
-- Bulutlar Üzerinde İrem (Above the clouds)
-- Rüyalar Diyarı İrem (Dream realm)
-- Zamansız Efsane İrem (Timeless legend)
-
-### Generate prompts with a stable “random” variant per post
-
-Use a seed so the same post gets the same variant every time:
+The helper script outputs one JSONL line per post with a single, topic-independent Iram prompt.
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/generate-thumbnail-prompts.mjs --seed=2026-02-04 > /tmp/irem-prompts.jsonl
-```
-
-If you really want a different variant assignment each run:
-
-```bash
-node .codex/skills/blog-content-authoring/scripts/generate-thumbnail-prompts.mjs --mode=random > /tmp/irem-prompts.jsonl
+node .codex/skills/blog-content-authoring/scripts/generate-thumbnail-prompts.mjs > /tmp/irem-prompts.jsonl
 ```
 
 ### Prompt template (copy/paste)
 
-Use this as a base in your image generator (SDXL / Midjourney / etc.), then add a _post-specific motif_:
+Use this as-is in your image generator (SDXL / Midjourney / etc.):
 
 **Base prompt**
 
@@ -261,7 +223,7 @@ After picking an idea:
 
 1. Create `content/posts/en/<slug>.md` and `content/posts/tr/<slug>.md`
 2. Add the post to `content/posts/en/posts.json` and `content/posts/tr/posts.json`
-3. Create `public/images/<slug>-thumbnail.webp` (1200x630) using the Iram art direction + **one theme variant**
+3. Create `public/images/<slug>-thumbnail.webp` (1200x630) using the Iram art direction
 4. Run the checker: `node .codex/skills/blog-content-authoring/scripts/check-content.mjs`
 
 ## Documentation Source (Context7 MCP Required)
