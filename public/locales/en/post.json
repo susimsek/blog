@@ -17,6 +17,11 @@
       "copyLink": "Copy link",
       "copied": "Copied"
     },
+    "navigation": {
+      "title": "Post navigation",
+      "previous": "Previous article",
+      "next": "Next article"
+    },
     "authorBox": {
       "title": "Written by",
       "bio": "Backend-focused fullstack developer sharing practical notes on Spring Boot, security, microservices, and cloud-native architecture.",

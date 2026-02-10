@@ -7,10 +7,13 @@ import Layout from '@/components/common/Layout';
 import { AUTHOR_NAME, SITE_LOGO } from '@/config/constants';
 import { resolvePostContent } from '@/lib/contentCompression';
 import { toAbsoluteSiteUrl } from '@/lib/metadata';
+import type { AdjacentPostLink } from '@/lib/postFilters';
 
 type PostPageProps = {
   post: Post;
   relatedPosts?: PostSummary[];
+  previousPost?: AdjacentPostLink | null;
+  nextPost?: AdjacentPostLink | null;
   layoutPosts?: LayoutPostSummary[];
   preFooterTopTopics?: Topic[];
   locale: string;
@@ -19,6 +22,8 @@ type PostPageProps = {
 export default function PostPage({
   post,
   relatedPosts = [],
+  previousPost = null,
+  nextPost = null,
   layoutPosts = [],
   preFooterTopTopics = [],
   locale,
@@ -79,7 +84,7 @@ export default function PostPage({
   return (
     <Layout posts={layoutPosts} preFooterTopTopics={preFooterTopTopics} searchEnabled={true}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
-      <PostDetail post={postWithContent} relatedPosts={relatedPosts} />
+      <PostDetail post={postWithContent} relatedPosts={relatedPosts} previousPost={previousPost} nextPost={nextPost} />
     </Layout>
   );
 }

@@ -34,11 +34,17 @@ const getLayoutPostsMock = jest.fn((_posts: unknown[]) => [{ id: '1' }]);
 const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
 const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'topic-1' }]);
 const getRelatedPostsMock = jest.fn((_post: unknown, _allPosts: unknown[], _limit: number) => [{ id: '2' }]);
+const getAdjacentPostsMock = jest.fn((_postId: string, _allPosts: unknown[]) => ({
+  previousPost: { id: '0', title: 'Previous Post' },
+  nextPost: { id: '2', title: 'Next Post' },
+}));
 const postPageMock = jest.fn(
   (_props: {
     locale: string;
     post: Record<string, unknown>;
     relatedPosts: unknown[];
+    previousPost?: unknown;
+    nextPost?: unknown;
     layoutPosts: unknown[];
     preFooterTopTopics: unknown[];
   }) => <div data-testid="post-page">post-page</div>,
@@ -59,6 +65,7 @@ jest.mock('@/lib/posts', () => ({
 
 jest.mock('@/lib/postFilters', () => ({
   getRelatedPosts: (post: unknown, allPosts: unknown[], limit: number) => getRelatedPostsMock(post, allPosts, limit),
+  getAdjacentPosts: (postId: string, allPosts: unknown[]) => getAdjacentPostsMock(postId, allPosts),
 }));
 
 jest.mock('@/views/PostPage', () => ({
@@ -67,6 +74,8 @@ jest.mock('@/views/PostPage', () => ({
     locale: string;
     post: Record<string, unknown>;
     relatedPosts: unknown[];
+    previousPost?: unknown;
+    nextPost?: unknown;
     layoutPosts: unknown[];
     preFooterTopTopics: unknown[];
   }) => postPageMock(props),
@@ -136,6 +145,7 @@ describe('App Route /[locale]/posts/[id]', () => {
       [{ id: '1' }, { id: '2' }],
       3,
     );
+    expect(getAdjacentPostsMock).toHaveBeenCalledWith('1', [{ id: '1' }, { id: '2' }]);
     expect(postPageMock).toHaveBeenCalledWith({
       locale: 'tr',
       post: {
@@ -148,6 +158,8 @@ describe('App Route /[locale]/posts/[id]', () => {
         thumbnail: null,
       },
       relatedPosts: [{ id: '2' }],
+      previousPost: { id: '0', title: 'Previous Post' },
+      nextPost: { id: '2', title: 'Next Post' },
       layoutPosts: [{ id: '1' }],
       preFooterTopTopics: [{ id: 'topic-1' }],
     });

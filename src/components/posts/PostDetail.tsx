@@ -20,6 +20,7 @@ import { defaultLocale } from '@/i18n/settings';
 import { buildLocalizedAbsoluteUrl } from '@/lib/metadata';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import type { AdjacentPostLink } from '@/lib/postFilters';
 
 const MarkdownRenderer = dynamic(() => import('@/components/common/MarkdownRenderer'), {
   loading: () => null,
@@ -28,9 +29,16 @@ const MarkdownRenderer = dynamic(() => import('@/components/common/MarkdownRende
 interface PostDetailProps {
   post: Post;
   relatedPosts?: PostSummary[];
+  previousPost?: AdjacentPostLink | null;
+  nextPost?: AdjacentPostLink | null;
 }
 
-export default function PostDetail({ post, relatedPosts = [] }: Readonly<PostDetailProps>) {
+export default function PostDetail({
+  post,
+  relatedPosts = [],
+  previousPost = null,
+  nextPost = null,
+}: Readonly<PostDetailProps>) {
   const { t } = useTranslation('post');
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
@@ -258,6 +266,38 @@ export default function PostDetail({ post, relatedPosts = [] }: Readonly<PostDet
           <PostToc content={markdown} rootRef={articleRef} />
           {splitIntro.rest && <MarkdownRenderer content={splitIntro.rest} />}
         </article>
+        {(previousPost || nextPost) && (
+          <nav className="post-navigation mt-5 mb-4" aria-label={t('post.navigation.title')}>
+            <div className="post-navigation-grid">
+              {previousPost && (
+                <Link
+                  href={`/posts/${previousPost.id}`}
+                  className="post-navigation-link post-navigation-link-previous"
+                  aria-label={`${t('post.navigation.previous')}: ${previousPost.title}`}
+                >
+                  <span className="post-navigation-label">
+                    <FontAwesomeIcon icon="chevron-left" />
+                    {t('post.navigation.previous')}
+                  </span>
+                  <span className="post-navigation-title">{previousPost.title}</span>
+                </Link>
+              )}
+              {nextPost && (
+                <Link
+                  href={`/posts/${nextPost.id}`}
+                  className="post-navigation-link post-navigation-link-next"
+                  aria-label={`${t('post.navigation.next')}: ${nextPost.title}`}
+                >
+                  <span className="post-navigation-label">
+                    {t('post.navigation.next')}
+                    <FontAwesomeIcon icon="chevron-right" />
+                  </span>
+                  <span className="post-navigation-title">{nextPost.title}</span>
+                </Link>
+              )}
+            </div>
+          </nav>
+        )}
         <PostAuthorBox />
         <RelatedPosts posts={relatedPosts} />
       </section>

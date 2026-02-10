@@ -3,6 +3,7 @@ import {
   filterByTopics,
   filterByDateRange,
   filterByReadingTime,
+  getAdjacentPosts,
   getRelatedPosts,
   sortPosts,
 } from '@/lib/postFilters';
@@ -218,6 +219,46 @@ describe('Post Filters', () => {
 
       const related = getRelatedPosts(tiePosts[0], tiePosts, 2);
       expect(related.map(post => post.id)).toEqual(['tie-new', 'tie-old']);
+    });
+  });
+
+  describe('getAdjacentPosts', () => {
+    const orderedPosts: PostSummary[] = [
+      { ...mockPost, id: 'p3', title: 'Newest', date: '2024-03-01' },
+      { ...mockPost, id: 'p2', title: 'Middle', date: '2024-02-01' },
+      { ...mockPost, id: 'p1', title: 'Oldest', date: '2024-01-01' },
+    ];
+
+    it('returns both adjacent posts for a middle item', () => {
+      const adjacent = getAdjacentPosts('p2', orderedPosts);
+      expect(adjacent).toEqual({
+        previousPost: { id: 'p3', title: 'Newest' },
+        nextPost: { id: 'p1', title: 'Oldest' },
+      });
+    });
+
+    it('returns only next post for the first item', () => {
+      const adjacent = getAdjacentPosts('p3', orderedPosts);
+      expect(adjacent).toEqual({
+        previousPost: null,
+        nextPost: { id: 'p2', title: 'Middle' },
+      });
+    });
+
+    it('returns only previous post for the last item', () => {
+      const adjacent = getAdjacentPosts('p1', orderedPosts);
+      expect(adjacent).toEqual({
+        previousPost: { id: 'p2', title: 'Middle' },
+        nextPost: null,
+      });
+    });
+
+    it('returns null links when current post is missing', () => {
+      const adjacent = getAdjacentPosts('unknown-id', orderedPosts);
+      expect(adjacent).toEqual({
+        previousPost: null,
+        nextPost: null,
+      });
     });
   });
 });

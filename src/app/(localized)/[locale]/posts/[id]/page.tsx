@@ -9,7 +9,7 @@ import {
   getSortedPostsData,
   getTopTopicsFromPosts,
 } from '@/lib/posts';
-import { getRelatedPosts } from '@/lib/postFilters';
+import { getAdjacentPosts, getRelatedPosts } from '@/lib/postFilters';
 import { AUTHOR_NAME } from '@/config/constants';
 import { buildNotFoundMetadata, buildPageMetadata } from '@/lib/metadata';
 
@@ -59,6 +59,7 @@ export default async function PostRoute({ params }: PageProps<'/[locale]/posts/[
 
   const allPosts = await getSortedPostsData(locale);
   const relatedPosts = getRelatedPosts(post, allPosts, 3);
+  const { previousPost, nextPost } = getAdjacentPosts(post.id, allPosts);
   const layoutPosts = getLayoutPosts(allPosts);
   const topics = await getAllTopics(locale);
   const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
@@ -68,6 +69,8 @@ export default async function PostRoute({ params }: PageProps<'/[locale]/posts/[
       locale={locale}
       post={post}
       relatedPosts={relatedPosts}
+      previousPost={previousPost}
+      nextPost={nextPost}
       layoutPosts={layoutPosts}
       preFooterTopTopics={preFooterTopTopics}
     />

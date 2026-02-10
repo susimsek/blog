@@ -201,6 +201,11 @@ interface Resources {
         };
         title: 'Written by';
       };
+      navigation: {
+        next: 'Next article';
+        previous: 'Previous article';
+        title: 'Post navigation';
+      };
       noPostsFound: 'No posts found.';
       readMore: 'Read More';
       relatedPostsTitle: 'Related posts';

@@ -1,5 +1,7 @@
 import { PostSummary } from '@/types/posts';
 
+export type AdjacentPostLink = Pick<PostSummary, 'id' | 'title'>;
+
 /**
  * Filters posts by query.
  */
@@ -129,4 +131,23 @@ export const getRelatedPosts = (post: PostSummary, allPosts: PostSummary[], limi
   }
 
   return selected.map(item => item.candidate);
+};
+
+export const getAdjacentPosts = (
+  postId: string,
+  allPosts: PostSummary[],
+): { previousPost: AdjacentPostLink | null; nextPost: AdjacentPostLink | null } => {
+  const currentIndex = allPosts.findIndex(post => post.id === postId);
+
+  if (currentIndex === -1) {
+    return { previousPost: null, nextPost: null };
+  }
+
+  const previous = allPosts[currentIndex - 1];
+  const next = allPosts[currentIndex + 1];
+
+  return {
+    previousPost: previous ? { id: previous.id, title: previous.title } : null,
+    nextPost: next ? { id: next.id, title: next.title } : null,
+  };
 };
