@@ -1,8 +1,8 @@
 1:"$Sreact.fragment"
-2:I[9235,["/_next/static/chunks/5399c5734125eb21.js","/_next/static/chunks/0476f80a489bc9ef.js","/_next/static/chunks/536569c57f2284ad.js","/_next/static/chunks/b6bdf2d37f14a20d.js","/_next/static/chunks/a8d3fa37f2b9f61a.js","/_next/static/chunks/05be93ee0a66e1f6.js","/_next/static/chunks/ece0eaf1befeb859.js","/_next/static/chunks/b192481a303c485e.js","/_next/static/chunks/d0ae69adfd34b3f3.js"],"default"]
-a:I[26270,["/_next/static/chunks/d977e0a23c15263b.js","/_next/static/chunks/8bc25b6585f9a64d.js"],"OutletBoundary"]
-b:"$Sreact.suspense"
-3:T19c4,
+2:I[9235,["/_next/static/chunks/5399c5734125eb21.js","/_next/static/chunks/0476f80a489bc9ef.js","/_next/static/chunks/536569c57f2284ad.js","/_next/static/chunks/b6bdf2d37f14a20d.js","/_next/static/chunks/9c5a3b16981c3f95.js","/_next/static/chunks/b0ffe2e623af3d19.js","/_next/static/chunks/a8d3fa37f2b9f61a.js","/_next/static/chunks/05be93ee0a66e1f6.js","/_next/static/chunks/b192481a303c485e.js","/_next/static/chunks/ece0eaf1befeb859.js"],"default"]
+b:I[26270,["/_next/static/chunks/d977e0a23c15263b.js","/_next/static/chunks/8bc25b6585f9a64d.js"],"OutletBoundary"]
+c:"$Sreact.suspense"
+3:T197c,
 Object-Relational Mapping (ORM), modern uygulamalarda veritabanı işlemlerini basitleştirir. Bu kılavuzda, Spring Boot ve Gin çerçevesini kullanarak PostgreSQL ile ORM nasıl kurulacağını öğreneceksiniz.
 
 ---
@@ -17,15 +17,15 @@ ORM, nesne yönelimli programlama ile ilişkisel veritabanları arasındaki boş
 
 📜 Şunlara sahip olduğunuzdan emin olun:
 
-- ☕ **Java Geliştirme Kiti (JDK)** 17+
-- 📦 **Maven veya Gradle** kurulu
-- 🔤 Bir **Java IDE**
-- 🐘 **PostgreSQL** kurulu ve çalışır durumda
+- ☕ Java Geliştirme Kiti (JDK) 17+
+- 📦 Maven veya Gradle kurulu
+- 🔤 Bir Java IDE
+- 🐘 PostgreSQL kurulu ve çalışır durumda
 
-**Go** için:
+Go için:
 
-- 🔧 **Golang** 1.17+ kurulu
-- 🔄 Projenizde **go.mod** başlatılmış
+- 🔧 Golang 1.17+ kurulu
+- 🔄 Projenizde go.mod başlatılmış
 
 ---
 
@@ -37,7 +37,7 @@ Spring Boot projesi kurmak ve ORM entegrasyonu sağlamak için şu adımları iz
 
 Spring Boot projeleri için aşağıdaki bağımlılıkları projenize ekleyin:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -50,7 +50,7 @@ Spring Boot projeleri için aşağıdaki bağımlılıkları projenize ekleyin:
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -72,12 +72,12 @@ spring.jpa.hibernate.ddl-auto=update
 
 Henüz yapmadıysanız, [Spring Initializr](https://start.spring.io/) kullanarak projenizi oluşturun:
 
-1. **Spring Web**, **Spring Data JPA** ve **PostgreSQL Driver** bağımlılıklarını seçin.
+1. Spring Web, Spring Data JPA ve PostgreSQL Driver bağımlılıklarını seçin.
 2. Projeyi indirin ve tercih ettiğiniz IDE'ye aktarın.
 
-**Go** projeleri için:
+Go projeleri için:
 
-- **Gin Çerçevesini ve GORM'u Kurun:**
+- Gin Çerçevesini ve GORM'u Kurun:
 
 ```bash
 # Gin çerçevesini kurun
@@ -294,13 +294,13 @@ func main() {
 
 ## ▶️ Uygulamaları Çalıştırma
 
-- **Spring Boot:**
+- Spring Boot:
 
   ```bash
   ./mvnw spring-boot:run
   ```
 
-- **Gin:**
+- Gin:
 
   ```bash
   go run main.go
@@ -312,13 +312,13 @@ func main() {
 
 API'yi aşağıdaki cURL komutları ile test edebilirsiniz:
 
-**Tüm Kullanıcıları Getir:**
+Tüm Kullanıcıları Getir:
 
 ```bash
 curl -X GET http://localhost:8080/api/users
 ```
 
-**Yeni Bir Kullanıcı Oluştur:**
+Yeni Bir Kullanıcı Oluştur:
 
 ```bash
 curl -X POST http://localhost:8080/api/users \
@@ -331,11 +331,12 @@ curl -X POST http://localhost:8080/api/users \
 ## 🏁 Sonuç
 
 Bu kurulum, Spring Boot ile Object-Relational Mapping için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
-0:{"buildId":"sAfFoWl6sciWoWw18_kPE","rsc":["$","$1","c",{"children":[["$","$L2",null,{"locale":"tr","post":{"id":"object-relational-mapping","title":"Object-Relational Mapping","date":"2024-12-16","summary":"Spring Boot kullanarak Java, Kotlin ve Go (Gin) ile PostgreSQL entegrasyonu ve temel CRUD işlemlerini içeren bir ORM tabanlı uygulamanın nasıl kurulacağını öğrenin.","thumbnail":"/images/orm-thumbnail.webp","readingTime":"3 dk okuma","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"go","name":"Go","color":"brown"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"gin","name":"Gin","color":"green"},{"id":"orm","name":"ORM","color":"orange"},{"id":"programming","name":"Programlama","color":"blue"}],"contentHtml":"$3"},"relatedPosts":[{"id":"rest-api-input-validation","title":"REST API’lerde Girdi Doğrulama","date":"2024-12-15","summary":"Spring Boot ve Gin ile Java, Kotlin ve Go’da REST API girdi doğrulamasını uygulamayı öğrenin. Anotasyon, özel doğrulama ve hata yönetimi örnekleri içerir.","thumbnail":"/images/input-validation-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"go","name":"Go","color":"brown"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"gin","name":"Gin","color":"green"},{"id":"validation","name":"Doğrulama","color":"orange"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"3 dk okuma"},{"id":"golang-gin-first-application","title":"Gin - İlk Uygulama","date":"2024-12-14","summary":"Sıfırdan ilk Golang Gin uygulamanızı oluşturmanıza yardımcı olacak, yeni başlayanlar için rehber. Temelleri öğrenin ve Gin ile yolculuğunuza başlayın.","thumbnail":"/images/golang-gin-first-app-thumbnail.webp","topics":[{"id":"go","name":"Go","color":"brown"},{"id":"gin","name":"Gin","color":"green"},{"id":"beginner-guide","name":"Başlangıç Rehberi","color":"orange"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"3 dk okuma"},{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04","summary":"@ConfigurationProperties ile tip-güvenli yapılandırma tanımlamayı, @Validated ile ayarları doğrulamayı ve profile-specific application-{profile}.yml dosyalarıyla ortama göre değer yönetimini öğrenin.","thumbnail":"/images/spring-boot-configuration-properties-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"configuration","name":"Yapılandırma","color":"blue"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"3 dk okuma"}],"previousPost":{"id":"spring-boot-di","title":"Spring Boot ile Dependency Injection"},"nextPost":{"id":"rest-api-input-validation","title":"REST API’lerde Girdi Doğrulama"},"layoutPosts":[{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Kimlik Doğrulama","date":"2025-05-17"},{"id":"spring-boot-jwe-authentication-with-jpa","title":"Spring Boot JPA ile JWE Kimlik Doğrulaması","date":"2025-05-11"},{"id":"spring-boot-ldap-jwe-authentication","title":"Spring Boot LDAP ve JWE Kimlik Doğrulama","date":"2025-05-10"},{"id":"spring-boot-jwe-authentication","title":"Spring Boot JWE Kimlik Doğrulama","date":"2025-05-03"},{"id":"spring-boot-http-interface-client","title":"Spring Boot HTTP Interface Client","date":"2025-04-27"},{"id":"spring-boot-async-tasks-virtual","title":"Spring Boot Sanal Thread’li Asenkron Görevler","date":"2025-04-26"},{"id":"spring-boot-ai","title":"Spring Boot AI Entegrasyonu","date":"2025-04-23"},{"id":"spring-boot-jpa-auditing","title":"Spring Boot JPA Auditing","date":"2025-04-10"},{"id":"spring-boot-tdd","title":"Spring Boot ile Test Odaklı Geliştirme","date":"2025-04-09"},{"id":"spring-boot-circuit-breaker","title":"Spring Boot Circuit Breaker","date":"2025-03-13"},{"id":"spring-boot-eureka-server","title":"Spring Boot Eureka Server","date":"2025-02-23"}],"preFooterTopTopics":[{"id":"programming","name":"Programlama","color":"brown"},{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Güvenlik","color":"blue"},{"id":"jwe","name":"JWE","color":"orange"}]}],["$L4","$L5","$L6","$L7","$L8"],"$L9"]}],"loading":null,"isPartial":false}
-4:["$","script","script-0",{"src":"/_next/static/chunks/a8d3fa37f2b9f61a.js","async":true}]
-5:["$","script","script-1",{"src":"/_next/static/chunks/05be93ee0a66e1f6.js","async":true}]
-6:["$","script","script-2",{"src":"/_next/static/chunks/ece0eaf1befeb859.js","async":true}]
-7:["$","script","script-3",{"src":"/_next/static/chunks/b192481a303c485e.js","async":true}]
-8:["$","script","script-4",{"src":"/_next/static/chunks/d0ae69adfd34b3f3.js","async":true}]
-9:["$","$La",null,{"children":["$","$b",null,{"name":"Next.MetadataOutlet","children":"$@c"}]}]
-c:null
+0:{"buildId":"6yG9PrdyuiFOfgcHWVW33","rsc":["$","$1","c",{"children":[["$","$L2",null,{"locale":"tr","post":{"id":"object-relational-mapping","title":"Object-Relational Mapping","date":"2024-12-16","summary":"Spring Boot kullanarak Java, Kotlin ve Go (Gin) ile PostgreSQL entegrasyonu ve temel CRUD işlemlerini içeren bir ORM tabanlı uygulamanın nasıl kurulacağını öğrenin.","thumbnail":"/images/orm-thumbnail.webp","readingTime":"3 dk okuma","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"go","name":"Go","color":"brown"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"gin","name":"Gin","color":"green"},{"id":"orm","name":"ORM","color":"orange"},{"id":"programming","name":"Programlama","color":"blue"}],"contentHtml":"$3"},"relatedPosts":[{"id":"rest-api-input-validation","title":"REST API’lerde Girdi Doğrulama","date":"2024-12-15","summary":"Spring Boot ve Gin ile Java, Kotlin ve Go’da REST API girdi doğrulamasını uygulamayı öğrenin. Anotasyon, özel doğrulama ve hata yönetimi örnekleri içerir.","thumbnail":"/images/input-validation-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"go","name":"Go","color":"brown"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"gin","name":"Gin","color":"green"},{"id":"validation","name":"Doğrulama","color":"orange"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"3 dk okuma"},{"id":"golang-gin-first-application","title":"Gin - İlk Uygulama","date":"2024-12-14","summary":"Sıfırdan ilk Golang Gin uygulamanızı oluşturmanıza yardımcı olacak, yeni başlayanlar için rehber. Temelleri öğrenin ve Gin ile yolculuğunuza başlayın.","thumbnail":"/images/golang-gin-first-app-thumbnail.webp","topics":[{"id":"go","name":"Go","color":"brown"},{"id":"gin","name":"Gin","color":"green"},{"id":"beginner-guide","name":"Başlangıç Rehberi","color":"orange"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"3 dk okuma"},{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04","summary":"@ConfigurationProperties ile tip-güvenli yapılandırma tanımlamayı, @Validated ile ayarları doğrulamayı ve profile-specific application-{profile}.yml dosyalarıyla ortama göre değer yönetimini öğrenin.","thumbnail":"/images/spring-boot-configuration-properties-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"configuration","name":"Yapılandırma","color":"blue"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"3 dk okuma"}],"previousPost":{"id":"rest-api-input-validation","title":"REST API’lerde Girdi Doğrulama"},"nextPost":{"id":"spring-boot-di","title":"Spring Boot ile Dependency Injection"},"layoutPosts":[{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Kimlik Doğrulama","date":"2025-05-17"},{"id":"spring-boot-jwe-authentication-with-jpa","title":"Spring Boot JPA ile JWE Kimlik Doğrulaması","date":"2025-05-11"},{"id":"spring-boot-ldap-jwe-authentication","title":"Spring Boot LDAP ve JWE Kimlik Doğrulama","date":"2025-05-10"},{"id":"spring-boot-jwe-authentication","title":"Spring Boot JWE Kimlik Doğrulama","date":"2025-05-03"},{"id":"spring-boot-http-interface-client","title":"Spring Boot HTTP Interface Client","date":"2025-04-27"},{"id":"spring-boot-async-tasks-virtual","title":"Spring Boot Sanal Thread’li Asenkron Görevler","date":"2025-04-26"},{"id":"spring-boot-ai","title":"Spring Boot AI Entegrasyonu","date":"2025-04-23"},{"id":"spring-boot-jpa-auditing","title":"Spring Boot JPA Auditing","date":"2025-04-10"},{"id":"spring-boot-tdd","title":"Spring Boot ile Test Odaklı Geliştirme","date":"2025-04-09"},{"id":"spring-boot-circuit-breaker","title":"Spring Boot Circuit Breaker","date":"2025-03-13"},{"id":"spring-boot-eureka-server","title":"Spring Boot Eureka Server","date":"2025-02-23"}],"preFooterTopTopics":[{"id":"programming","name":"Programlama","color":"brown"},{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Güvenlik","color":"blue"},{"id":"jwe","name":"JWE","color":"orange"}]}],["$L4","$L5","$L6","$L7","$L8","$L9"],"$La"]}],"loading":null,"isPartial":false}
+4:["$","script","script-0",{"src":"/_next/static/chunks/9c5a3b16981c3f95.js","async":true}]
+5:["$","script","script-1",{"src":"/_next/static/chunks/b0ffe2e623af3d19.js","async":true}]
+6:["$","script","script-2",{"src":"/_next/static/chunks/a8d3fa37f2b9f61a.js","async":true}]
+7:["$","script","script-3",{"src":"/_next/static/chunks/05be93ee0a66e1f6.js","async":true}]
+8:["$","script","script-4",{"src":"/_next/static/chunks/b192481a303c485e.js","async":true}]
+9:["$","script","script-5",{"src":"/_next/static/chunks/ece0eaf1befeb859.js","async":true}]
+a:["$","$Lb",null,{"children":["$","$c",null,{"name":"Next.MetadataOutlet","children":"$@d"}]}]
+d:null

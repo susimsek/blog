@@ -1,8 +1,8 @@
 1:"$Sreact.fragment"
-2:I[9235,["/_next/static/chunks/5399c5734125eb21.js","/_next/static/chunks/0476f80a489bc9ef.js","/_next/static/chunks/536569c57f2284ad.js","/_next/static/chunks/b6bdf2d37f14a20d.js","/_next/static/chunks/a8d3fa37f2b9f61a.js","/_next/static/chunks/05be93ee0a66e1f6.js","/_next/static/chunks/ece0eaf1befeb859.js","/_next/static/chunks/b192481a303c485e.js","/_next/static/chunks/d0ae69adfd34b3f3.js"],"default"]
-a:I[26270,["/_next/static/chunks/d977e0a23c15263b.js","/_next/static/chunks/8bc25b6585f9a64d.js"],"OutletBoundary"]
-b:"$Sreact.suspense"
-3:Te38,
+2:I[9235,["/_next/static/chunks/5399c5734125eb21.js","/_next/static/chunks/0476f80a489bc9ef.js","/_next/static/chunks/536569c57f2284ad.js","/_next/static/chunks/b6bdf2d37f14a20d.js","/_next/static/chunks/9c5a3b16981c3f95.js","/_next/static/chunks/b0ffe2e623af3d19.js","/_next/static/chunks/a8d3fa37f2b9f61a.js","/_next/static/chunks/05be93ee0a66e1f6.js","/_next/static/chunks/b192481a303c485e.js","/_next/static/chunks/ece0eaf1befeb859.js"],"default"]
+b:I[26270,["/_next/static/chunks/d977e0a23c15263b.js","/_next/static/chunks/8bc25b6585f9a64d.js"],"OutletBoundary"]
+c:"$Sreact.suspense"
+3:Te04,
 Spring Boot DevTools, geliştirme sürecinizi hızlandırmak isteyen geliştiriciler için olmazsa olmaz bir aracıdır. Bu kılavuz, canlı yeniden yükleme, önbellekleme ve hata ayıklama iyileştirmeleri dahil olmak üzere DevTools'ın özelliklerini ve kurulumunu anlatmaktadır.
 
 ---
@@ -11,9 +11,9 @@ Spring Boot DevTools, geliştirme sürecinizi hızlandırmak isteyen geliştiric
 
 Spring Boot DevTools geliştiricilere şunları sunar:
 
-- **Canlı Yeniden Yükleme**: Kod değişikliklerinde uygulamayı otomatik olarak yeniden yükler.
-- **Önbellekleme İyileştirmeleri**: Daha hızlı yineleme için şablon önbelleklemesini devre dışı bırakır.
-- **Hata Ayıklama Araçları**: Geliştirme sürecinde hata ayıklama deneyimini iyileştirir.
+- Canlı Yeniden Yükleme: Kod değişikliklerinde uygulamayı otomatik olarak yeniden yükler.
+- Önbellekleme İyileştirmeleri: Daha hızlı yineleme için şablon önbelleklemesini devre dışı bırakır.
+- Hata Ayıklama Araçları: Geliştirme sürecinde hata ayıklama deneyimini iyileştirir.
 
 ---
 
@@ -21,9 +21,9 @@ Spring Boot DevTools geliştiricilere şunları sunar:
 
 📋 Şunlara sahip olduğunuzdan emin olun:
 
-- ☕ **Java Geliştirme Kiti (JDK)** 17+
-- 📦 **Maven veya Gradle** yüklenmiş
-- 🔤 Bir **Java IDE** (IntelliJ IDEA, Eclipse gibi)
+- ☕ Java Geliştirme Kiti (JDK) 17+
+- 📦 Maven veya Gradle yüklenmiş
+- 🔤 Bir Java IDE (IntelliJ IDEA, Eclipse gibi)
 
 ---
 
@@ -31,7 +31,7 @@ Spring Boot DevTools geliştiricilere şunları sunar:
 
 DevTools'u etkinleştirmek için projenize aşağıdaki bağımlılıkları ekleyin:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -41,7 +41,7 @@ DevTools'u etkinleştirmek için projenize aşağıdaki bağımlılıkları ekle
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 runtimeOnly 'org.springframework.boot:spring-boot-devtools'
@@ -80,8 +80,8 @@ spring.devtools.restart.exclude=static/**,public/**
 
 Spring Boot DevTools, hata ayıklamayı şu şekilde iyileştirir:
 
-- **Otomatik Yeniden Başlatma**: Kod değişiklikleri algılandığında uygulama bağlamını yeniden başlatır.
-- **Uzaktan Hata Ayıklama**: Uzak sunucularda çalışan uygulamaları hata ayıklama yeteneği sunar.
+- Otomatik Yeniden Başlatma: Kod değişiklikleri algılandığında uygulama bağlamını yeniden başlatır.
+- Uzaktan Hata Ayıklama: Uzak sunucularda çalışan uygulamaları hata ayıklama yeteneği sunar.
 
 Uzaktan hata ayıklamayı etkinleştirmek için:
 
@@ -113,20 +113,21 @@ Kodunuzda değişiklik yapın ve canlı yeniden yükleme ile uygulama bağlamın
 
 Spring Boot DevTools özelliklerini aşağıdaki şekilde test edebilirsiniz:
 
-- **Canlı Yeniden Yükleme**: Kontrolcünüzde veya şablonunuzda bir değişiklik yapın ve dosyayı kaydedin. Uygulama otomatik olarak yeniden yüklenmelidir.
-- **Şablon Güncellemeleri**: Bir `.html` dosyasını güncelleyerek sunucuyu yeniden başlatmadan değişiklikleri kontrol edin.
-- **Hata Ayıklama**: IDE'ńizde kesme noktaları ekleyin ve `DevTools` etkin olduğundan emin olarak uzaktan hata ayıklamayı test edin.
+- Canlı Yeniden Yükleme: Kontrolcünüzde veya şablonunuzda bir değişiklik yapın ve dosyayı kaydedin. Uygulama otomatik olarak yeniden yüklenmelidir.
+- Şablon Güncellemeleri: Bir `.html` dosyasını güncelleyerek sunucuyu yeniden başlatmadan değişiklikleri kontrol edin.
+- Hata Ayıklama: IDE'ńizde kesme noktaları ekleyin ve `DevTools` etkin olduğundan emin olarak uzaktan hata ayıklamayı test edin.
 
 ---
 
 ## 🏁 Sonuç
 
 Bu kurulum, Spring Boot ile Spring Boot DevTools için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
-0:{"buildId":"sAfFoWl6sciWoWw18_kPE","rsc":["$","$1","c",{"children":[["$","$L2",null,{"locale":"tr","post":{"id":"spring-boot-devtools","title":"Spring Boot DevTools","date":"2024-12-19","summary":"Spring Boot DevTools ile hızlı geliştirme sürecinizi nasıl hızlandırabileceğinizi keşfedin. Canlı yeniden yükleme, önbellekleme ve hata ayıklama ipuçları içerir.","thumbnail":"/images/spring-boot-devtools-thumbnail.webp","readingTime":"3 dk okuma","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"devtools","name":"Geliştirme Araçları","color":"orange"},{"id":"programming","name":"Programlama","color":"blue"}],"contentHtml":"$3"},"relatedPosts":[{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04","summary":"@ConfigurationProperties ile tip-güvenli yapılandırma tanımlamayı, @Validated ile ayarları doğrulamayı ve profile-specific application-{profile}.yml dosyalarıyla ortama göre değer yönetimini öğrenin.","thumbnail":"/images/spring-boot-configuration-properties-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"configuration","name":"Yapılandırma","color":"blue"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"3 dk okuma"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Kimlik Doğrulama","date":"2025-05-17","summary":"Stateless şifreli JWT’ler (JWE) ile Spring Boot GraphQL API’lerinizi güvenli hale getirmeyi; kullanıcı kimliği ve rolleri JPA ile bir veritabanında saklamayı öğrenin.","thumbnail":"/images/spring-boot-graphql-jwe-auth-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Güvenlik","color":"blue"},{"id":"jwt","name":"JWT","color":"pink"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"graphql","name":"GraphQL","color":"pink"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"6 dk okuma"},{"id":"spring-boot-jwe-authentication-with-jpa","title":"Spring Boot JPA ile JWE Kimlik Doğrulaması","date":"2025-05-11","summary":"Stateless şifreli JWT’ler (JWE) kullanarak Spring Boot API’lerinizi güvenli hale getirirken, kullanıcı kimliklerini ve rolleri JPA destekli bir veritabanında nasıl saklayacağınızı öğrenin.","thumbnail":"/images/spring-boot-jwe-auth-with-jpa-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Güvenlik","color":"blue"},{"id":"jwt","name":"JWT","color":"pink"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"jpa","name":"JPA","color":"blue"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"4 dk okuma"}],"previousPost":{"id":"spring-boot-clean-coding","title":"Spring Boot Temiz Kodlama Pratikleri"},"nextPost":{"id":"spring-boot-actuator","title":"Spring Boot Actuator"},"layoutPosts":[{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Kimlik Doğrulama","date":"2025-05-17"},{"id":"spring-boot-jwe-authentication-with-jpa","title":"Spring Boot JPA ile JWE Kimlik Doğrulaması","date":"2025-05-11"},{"id":"spring-boot-ldap-jwe-authentication","title":"Spring Boot LDAP ve JWE Kimlik Doğrulama","date":"2025-05-10"},{"id":"spring-boot-jwe-authentication","title":"Spring Boot JWE Kimlik Doğrulama","date":"2025-05-03"},{"id":"spring-boot-http-interface-client","title":"Spring Boot HTTP Interface Client","date":"2025-04-27"},{"id":"spring-boot-async-tasks-virtual","title":"Spring Boot Sanal Thread’li Asenkron Görevler","date":"2025-04-26"},{"id":"spring-boot-ai","title":"Spring Boot AI Entegrasyonu","date":"2025-04-23"},{"id":"spring-boot-jpa-auditing","title":"Spring Boot JPA Auditing","date":"2025-04-10"},{"id":"spring-boot-tdd","title":"Spring Boot ile Test Odaklı Geliştirme","date":"2025-04-09"},{"id":"spring-boot-circuit-breaker","title":"Spring Boot Circuit Breaker","date":"2025-03-13"},{"id":"spring-boot-eureka-server","title":"Spring Boot Eureka Server","date":"2025-02-23"}],"preFooterTopTopics":[{"id":"programming","name":"Programlama","color":"brown"},{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Güvenlik","color":"blue"},{"id":"jwe","name":"JWE","color":"orange"}]}],["$L4","$L5","$L6","$L7","$L8"],"$L9"]}],"loading":null,"isPartial":false}
-4:["$","script","script-0",{"src":"/_next/static/chunks/a8d3fa37f2b9f61a.js","async":true}]
-5:["$","script","script-1",{"src":"/_next/static/chunks/05be93ee0a66e1f6.js","async":true}]
-6:["$","script","script-2",{"src":"/_next/static/chunks/ece0eaf1befeb859.js","async":true}]
-7:["$","script","script-3",{"src":"/_next/static/chunks/b192481a303c485e.js","async":true}]
-8:["$","script","script-4",{"src":"/_next/static/chunks/d0ae69adfd34b3f3.js","async":true}]
-9:["$","$La",null,{"children":["$","$b",null,{"name":"Next.MetadataOutlet","children":"$@c"}]}]
-c:null
+0:{"buildId":"6yG9PrdyuiFOfgcHWVW33","rsc":["$","$1","c",{"children":[["$","$L2",null,{"locale":"tr","post":{"id":"spring-boot-devtools","title":"Spring Boot DevTools","date":"2024-12-19","summary":"Spring Boot DevTools ile hızlı geliştirme sürecinizi nasıl hızlandırabileceğinizi keşfedin. Canlı yeniden yükleme, önbellekleme ve hata ayıklama ipuçları içerir.","thumbnail":"/images/spring-boot-devtools-thumbnail.webp","readingTime":"3 dk okuma","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"devtools","name":"Geliştirme Araçları","color":"orange"},{"id":"programming","name":"Programlama","color":"blue"}],"contentHtml":"$3"},"relatedPosts":[{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04","summary":"@ConfigurationProperties ile tip-güvenli yapılandırma tanımlamayı, @Validated ile ayarları doğrulamayı ve profile-specific application-{profile}.yml dosyalarıyla ortama göre değer yönetimini öğrenin.","thumbnail":"/images/spring-boot-configuration-properties-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"configuration","name":"Yapılandırma","color":"blue"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"3 dk okuma"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Kimlik Doğrulama","date":"2025-05-17","summary":"Stateless şifreli JWT’ler (JWE) ile Spring Boot GraphQL API’lerinizi güvenli hale getirmeyi; kullanıcı kimliği ve rolleri JPA ile bir veritabanında saklamayı öğrenin.","thumbnail":"/images/spring-boot-graphql-jwe-auth-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Güvenlik","color":"blue"},{"id":"jwt","name":"JWT","color":"pink"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"graphql","name":"GraphQL","color":"pink"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"6 dk okuma"},{"id":"spring-boot-jwe-authentication-with-jpa","title":"Spring Boot JPA ile JWE Kimlik Doğrulaması","date":"2025-05-11","summary":"Stateless şifreli JWT’ler (JWE) kullanarak Spring Boot API’lerinizi güvenli hale getirirken, kullanıcı kimliklerini ve rolleri JPA destekli bir veritabanında nasıl saklayacağınızı öğrenin.","thumbnail":"/images/spring-boot-jwe-auth-with-jpa-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Güvenlik","color":"blue"},{"id":"jwt","name":"JWT","color":"pink"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"jpa","name":"JPA","color":"blue"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"4 dk okuma"}],"previousPost":{"id":"spring-boot-actuator","title":"Spring Boot Actuator"},"nextPost":{"id":"spring-boot-clean-coding","title":"Spring Boot Temiz Kodlama Pratikleri"},"layoutPosts":[{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Kimlik Doğrulama","date":"2025-05-17"},{"id":"spring-boot-jwe-authentication-with-jpa","title":"Spring Boot JPA ile JWE Kimlik Doğrulaması","date":"2025-05-11"},{"id":"spring-boot-ldap-jwe-authentication","title":"Spring Boot LDAP ve JWE Kimlik Doğrulama","date":"2025-05-10"},{"id":"spring-boot-jwe-authentication","title":"Spring Boot JWE Kimlik Doğrulama","date":"2025-05-03"},{"id":"spring-boot-http-interface-client","title":"Spring Boot HTTP Interface Client","date":"2025-04-27"},{"id":"spring-boot-async-tasks-virtual","title":"Spring Boot Sanal Thread’li Asenkron Görevler","date":"2025-04-26"},{"id":"spring-boot-ai","title":"Spring Boot AI Entegrasyonu","date":"2025-04-23"},{"id":"spring-boot-jpa-auditing","title":"Spring Boot JPA Auditing","date":"2025-04-10"},{"id":"spring-boot-tdd","title":"Spring Boot ile Test Odaklı Geliştirme","date":"2025-04-09"},{"id":"spring-boot-circuit-breaker","title":"Spring Boot Circuit Breaker","date":"2025-03-13"},{"id":"spring-boot-eureka-server","title":"Spring Boot Eureka Server","date":"2025-02-23"}],"preFooterTopTopics":[{"id":"programming","name":"Programlama","color":"brown"},{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Güvenlik","color":"blue"},{"id":"jwe","name":"JWE","color":"orange"}]}],["$L4","$L5","$L6","$L7","$L8","$L9"],"$La"]}],"loading":null,"isPartial":false}
+4:["$","script","script-0",{"src":"/_next/static/chunks/9c5a3b16981c3f95.js","async":true}]
+5:["$","script","script-1",{"src":"/_next/static/chunks/b0ffe2e623af3d19.js","async":true}]
+6:["$","script","script-2",{"src":"/_next/static/chunks/a8d3fa37f2b9f61a.js","async":true}]
+7:["$","script","script-3",{"src":"/_next/static/chunks/05be93ee0a66e1f6.js","async":true}]
+8:["$","script","script-4",{"src":"/_next/static/chunks/b192481a303c485e.js","async":true}]
+9:["$","script","script-5",{"src":"/_next/static/chunks/ece0eaf1befeb859.js","async":true}]
+a:["$","$Lb",null,{"children":["$","$c",null,{"name":"Next.MetadataOutlet","children":"$@d"}]}]
+d:null

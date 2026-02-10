@@ -1,8 +1,8 @@
 1:"$Sreact.fragment"
-2:I[9235,["/_next/static/chunks/5399c5734125eb21.js","/_next/static/chunks/0476f80a489bc9ef.js","/_next/static/chunks/536569c57f2284ad.js","/_next/static/chunks/b6bdf2d37f14a20d.js","/_next/static/chunks/a8d3fa37f2b9f61a.js","/_next/static/chunks/05be93ee0a66e1f6.js","/_next/static/chunks/ece0eaf1befeb859.js","/_next/static/chunks/b192481a303c485e.js","/_next/static/chunks/d0ae69adfd34b3f3.js"],"default"]
-a:I[26270,["/_next/static/chunks/d977e0a23c15263b.js","/_next/static/chunks/8bc25b6585f9a64d.js"],"OutletBoundary"]
-b:"$Sreact.suspense"
-3:T122a,
+2:I[9235,["/_next/static/chunks/5399c5734125eb21.js","/_next/static/chunks/0476f80a489bc9ef.js","/_next/static/chunks/536569c57f2284ad.js","/_next/static/chunks/b6bdf2d37f14a20d.js","/_next/static/chunks/9c5a3b16981c3f95.js","/_next/static/chunks/b0ffe2e623af3d19.js","/_next/static/chunks/a8d3fa37f2b9f61a.js","/_next/static/chunks/05be93ee0a66e1f6.js","/_next/static/chunks/b192481a303c485e.js","/_next/static/chunks/ece0eaf1befeb859.js"],"default"]
+b:I[26270,["/_next/static/chunks/d977e0a23c15263b.js","/_next/static/chunks/8bc25b6585f9a64d.js"],"OutletBoundary"]
+c:"$Sreact.suspense"
+3:T11d6,
 Spring Boot is an excellent tool for quickly developing RESTful web services. In this article, we’ll walk through creating a REST API step by step using Spring Boot.
 
 ---
@@ -11,14 +11,14 @@ Spring Boot is an excellent tool for quickly developing RESTful web services. In
 
 REST (Representational State Transfer) is an architectural style for designing web services. It uses standard HTTP methods for communication between clients and servers.
 
-### **HTTP Methods**
+### HTTP Methods
 
-| **Method** | **Description**                | **Example Endpoint** |
-| ---------- | ------------------------------ | -------------------- |
-| **GET**    | Retrieves a resource.          | `/api/todos`         |
-| **POST**   | Creates a new resource.        | `/api/todos`         |
-| **PUT**    | Updates or creates a resource. | `/api/todos/1`       |
-| **DELETE** | Deletes a resource.            | `/api/todos/1`       |
+| Method | Description                    | Example Endpoint |
+| ------ | ------------------------------ | ---------------- |
+| GET    | Retrieves a resource.          | `/api/todos`     |
+| POST   | Creates a new resource.        | `/api/todos`     |
+| PUT    | Updates or creates a resource. | `/api/todos/1`   |
+| DELETE | Deletes a resource.            | `/api/todos/1`   |
 
 ---
 
@@ -26,10 +26,10 @@ REST (Representational State Transfer) is an architectural style for designing w
 
 You can create a Spring Boot project using [Spring Initializr](https://start.spring.io/). Select the following settings:
 
-- **Project:** Maven
-- **Language:** Java or Kotlin
-- **Spring Boot Version:** 3.0.0+
-- **Dependencies:** Spring Web, Spring Boot DevTools, Lombok
+- Project: Maven
+- Language: Java or Kotlin
+- Spring Boot Version: 3.0.0+
+- Dependencies: Spring Web, Spring Boot DevTools, Lombok
 
 Download the project, open it in your IDE, and get ready to run it.
 
@@ -171,25 +171,25 @@ class TodoController {
 
 Test your API using `curl` commands:
 
-- **GET All Todos:**
+- GET All Todos:
 
 ```bash
 curl -X GET http://localhost:8080/api/todos
 ```
 
-- **POST New Todo:**
+- POST New Todo:
 
 ```bash
 curl -X POST http://localhost:8080/api/todos -H "Content-Type: application/json" -d '{"title": "New Todo", "completed": false}'
 ```
 
-- **PUT Update Todo:**
+- PUT Update Todo:
 
 ```bash
 curl -X PUT http://localhost:8080/api/todos/1 -H "Content-Type: application/json" -d '{"title": "Updated Todo", "completed": true}'
 ```
 
-- **DELETE Delete Todo:**
+- DELETE Delete Todo:
 
 ```bash
 curl -X DELETE http://localhost:8080/api/todos/1
@@ -200,11 +200,12 @@ curl -X DELETE http://localhost:8080/api/todos/1
 ## 🏁 Conclusion
 
 This setup delivers a robust, production-ready Building a REST API with Spring Boot solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
-0:{"buildId":"sAfFoWl6sciWoWw18_kPE","rsc":["$","$1","c",{"children":[["$","$L2",null,{"locale":"en","post":{"id":"building-a-rest-api-with-spring-boot","title":"Building a REST API with Spring Boot","date":"2024-12-11","summary":"Learn how to create a REST API using Spring Boot. Includes HTTP methods, JSON handling, Lombok integration, and curl for testing.","thumbnail":"/images/spring-boot-rest-api-thumbnail.webp","readingTime":"3 min read","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"rest-api","name":"REST API","color":"blue"},{"id":"programming","name":"Programming","color":"orange"}],"contentHtml":"$3"},"relatedPosts":[{"id":"spring-boot-http-interface-client","title":"Spring Boot HTTP Interface Client","date":"2025-04-27","summary":"Learn how to use Spring Boot 3.2+ HTTP Interface Client for declarative, type-safe HTTP calls.","thumbnail":"/images/spring-boot-http-interface-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"rest-api","name":"REST API","color":"blue"},{"id":"rest-client","name":"Rest Client","color":"orange"},{"id":"programming","name":"Programming","color":"brown"}],"readingTime":"3 min read"},{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04","summary":"Learn how to use @ConfigurationProperties for type-safe configuration, validate settings with @Validated, and manage environment-specific values with profile-specific application-{profile}.yml files.","thumbnail":"/images/spring-boot-configuration-properties-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"configuration","name":"Configuration","color":"blue"},{"id":"programming","name":"Programming","color":"brown"}],"readingTime":"3 min read"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Authentication","date":"2025-05-17","summary":"Learn how to secure your Spring Boot GraphQL APIs with stateless encrypted JWTs (JWE) while persisting user identities and roles in a JPA-backed database.","thumbnail":"/images/spring-boot-graphql-jwe-auth-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Security","color":"blue"},{"id":"jwt","name":"JWT","color":"pink"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"graphql","name":"GraphQL","color":"pink"},{"id":"programming","name":"Programming","color":"brown"}],"readingTime":"6 min read"}],"previousPost":{"id":"golang-gin-first-application","title":"Gin - First Application"},"nextPost":{"id":"spring-boot-first-application","title":"Spring Boot - First Application"},"layoutPosts":[{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Authentication","date":"2025-05-17"},{"id":"spring-boot-jwe-authentication-with-jpa","title":"Spring Boot JWE Authentication with JPA","date":"2025-05-11"},{"id":"spring-boot-ldap-jwe-authentication","title":"Spring Boot LDAP and JWE Authentication","date":"2025-05-10"},{"id":"spring-boot-jwe-authentication","title":"Spring Boot JWE Authentication","date":"2025-05-03"},{"id":"spring-boot-http-interface-client","title":"Spring Boot HTTP Interface Client","date":"2025-04-27"},{"id":"spring-boot-async-tasks-virtual","title":"Spring Boot Async Tasks with Virtual Thread","date":"2025-04-26"},{"id":"spring-boot-ai","title":"Spring Boot AI Integration","date":"2025-04-23"},{"id":"spring-boot-jpa-auditing","title":"Spring Boot JPA Auditing","date":"2025-04-10"},{"id":"spring-boot-tdd","title":"Spring Boot Test-Driven Development","date":"2025-04-09"},{"id":"spring-boot-circuit-breaker","title":"Spring Boot Circuit Breaker","date":"2025-03-13"},{"id":"spring-boot-eureka-server","title":"Spring Boot Eureka Server","date":"2025-02-23"}],"preFooterTopTopics":[{"id":"programming","name":"Programming","color":"brown"},{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"jwt","name":"JWT","color":"pink"}]}],["$L4","$L5","$L6","$L7","$L8"],"$L9"]}],"loading":null,"isPartial":false}
-4:["$","script","script-0",{"src":"/_next/static/chunks/a8d3fa37f2b9f61a.js","async":true}]
-5:["$","script","script-1",{"src":"/_next/static/chunks/05be93ee0a66e1f6.js","async":true}]
-6:["$","script","script-2",{"src":"/_next/static/chunks/ece0eaf1befeb859.js","async":true}]
-7:["$","script","script-3",{"src":"/_next/static/chunks/b192481a303c485e.js","async":true}]
-8:["$","script","script-4",{"src":"/_next/static/chunks/d0ae69adfd34b3f3.js","async":true}]
-9:["$","$La",null,{"children":["$","$b",null,{"name":"Next.MetadataOutlet","children":"$@c"}]}]
-c:null
+0:{"buildId":"6yG9PrdyuiFOfgcHWVW33","rsc":["$","$1","c",{"children":[["$","$L2",null,{"locale":"en","post":{"id":"building-a-rest-api-with-spring-boot","title":"Building a REST API with Spring Boot","date":"2024-12-11","summary":"Learn how to create a REST API using Spring Boot. Includes HTTP methods, JSON handling, Lombok integration, and curl for testing.","thumbnail":"/images/spring-boot-rest-api-thumbnail.webp","readingTime":"3 min read","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"rest-api","name":"REST API","color":"blue"},{"id":"programming","name":"Programming","color":"orange"}],"contentHtml":"$3"},"relatedPosts":[{"id":"spring-boot-http-interface-client","title":"Spring Boot HTTP Interface Client","date":"2025-04-27","summary":"Learn how to use Spring Boot 3.2+ HTTP Interface Client for declarative, type-safe HTTP calls.","thumbnail":"/images/spring-boot-http-interface-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"rest-api","name":"REST API","color":"blue"},{"id":"rest-client","name":"Rest Client","color":"orange"},{"id":"programming","name":"Programming","color":"brown"}],"readingTime":"3 min read"},{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04","summary":"Learn how to use @ConfigurationProperties for type-safe configuration, validate settings with @Validated, and manage environment-specific values with profile-specific application-{profile}.yml files.","thumbnail":"/images/spring-boot-configuration-properties-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"configuration","name":"Configuration","color":"blue"},{"id":"programming","name":"Programming","color":"brown"}],"readingTime":"3 min read"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Authentication","date":"2025-05-17","summary":"Learn how to secure your Spring Boot GraphQL APIs with stateless encrypted JWTs (JWE) while persisting user identities and roles in a JPA-backed database.","thumbnail":"/images/spring-boot-graphql-jwe-auth-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Security","color":"blue"},{"id":"jwt","name":"JWT","color":"pink"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"graphql","name":"GraphQL","color":"pink"},{"id":"programming","name":"Programming","color":"brown"}],"readingTime":"6 min read"}],"previousPost":{"id":"spring-boot-first-application","title":"Spring Boot - First Application"},"nextPost":{"id":"golang-gin-first-application","title":"Gin - First Application"},"layoutPosts":[{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Authentication","date":"2025-05-17"},{"id":"spring-boot-jwe-authentication-with-jpa","title":"Spring Boot JWE Authentication with JPA","date":"2025-05-11"},{"id":"spring-boot-ldap-jwe-authentication","title":"Spring Boot LDAP and JWE Authentication","date":"2025-05-10"},{"id":"spring-boot-jwe-authentication","title":"Spring Boot JWE Authentication","date":"2025-05-03"},{"id":"spring-boot-http-interface-client","title":"Spring Boot HTTP Interface Client","date":"2025-04-27"},{"id":"spring-boot-async-tasks-virtual","title":"Spring Boot Async Tasks with Virtual Thread","date":"2025-04-26"},{"id":"spring-boot-ai","title":"Spring Boot AI Integration","date":"2025-04-23"},{"id":"spring-boot-jpa-auditing","title":"Spring Boot JPA Auditing","date":"2025-04-10"},{"id":"spring-boot-tdd","title":"Spring Boot Test-Driven Development","date":"2025-04-09"},{"id":"spring-boot-circuit-breaker","title":"Spring Boot Circuit Breaker","date":"2025-03-13"},{"id":"spring-boot-eureka-server","title":"Spring Boot Eureka Server","date":"2025-02-23"}],"preFooterTopTopics":[{"id":"programming","name":"Programming","color":"brown"},{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"jwt","name":"JWT","color":"pink"}]}],["$L4","$L5","$L6","$L7","$L8","$L9"],"$La"]}],"loading":null,"isPartial":false}
+4:["$","script","script-0",{"src":"/_next/static/chunks/9c5a3b16981c3f95.js","async":true}]
+5:["$","script","script-1",{"src":"/_next/static/chunks/b0ffe2e623af3d19.js","async":true}]
+6:["$","script","script-2",{"src":"/_next/static/chunks/a8d3fa37f2b9f61a.js","async":true}]
+7:["$","script","script-3",{"src":"/_next/static/chunks/05be93ee0a66e1f6.js","async":true}]
+8:["$","script","script-4",{"src":"/_next/static/chunks/b192481a303c485e.js","async":true}]
+9:["$","script","script-5",{"src":"/_next/static/chunks/ece0eaf1befeb859.js","async":true}]
+a:["$","$Lb",null,{"children":["$","$c",null,{"name":"Next.MetadataOutlet","children":"$@d"}]}]
+d:null

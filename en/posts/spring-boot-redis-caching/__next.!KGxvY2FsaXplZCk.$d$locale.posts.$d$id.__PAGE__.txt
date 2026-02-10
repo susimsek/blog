@@ -1,18 +1,18 @@
 1:"$Sreact.fragment"
-2:I[9235,["/_next/static/chunks/5399c5734125eb21.js","/_next/static/chunks/0476f80a489bc9ef.js","/_next/static/chunks/536569c57f2284ad.js","/_next/static/chunks/b6bdf2d37f14a20d.js","/_next/static/chunks/a8d3fa37f2b9f61a.js","/_next/static/chunks/05be93ee0a66e1f6.js","/_next/static/chunks/ece0eaf1befeb859.js","/_next/static/chunks/b192481a303c485e.js","/_next/static/chunks/d0ae69adfd34b3f3.js"],"default"]
-a:I[26270,["/_next/static/chunks/d977e0a23c15263b.js","/_next/static/chunks/8bc25b6585f9a64d.js"],"OutletBoundary"]
-b:"$Sreact.suspense"
-3:T14d3,
+2:I[9235,["/_next/static/chunks/5399c5734125eb21.js","/_next/static/chunks/0476f80a489bc9ef.js","/_next/static/chunks/536569c57f2284ad.js","/_next/static/chunks/b6bdf2d37f14a20d.js","/_next/static/chunks/9c5a3b16981c3f95.js","/_next/static/chunks/b0ffe2e623af3d19.js","/_next/static/chunks/a8d3fa37f2b9f61a.js","/_next/static/chunks/05be93ee0a66e1f6.js","/_next/static/chunks/b192481a303c485e.js","/_next/static/chunks/ece0eaf1befeb859.js"],"default"]
+b:I[26270,["/_next/static/chunks/d977e0a23c15263b.js","/_next/static/chunks/8bc25b6585f9a64d.js"],"OutletBoundary"]
+c:"$Sreact.suspense"
+3:T14a9,
 Redis is a powerful in-memory data store often used for caching, messaging, and real-time data management. This guide explains how to integrate Redis into a Spring Boot application using both Java and Kotlin.
 
 ---
 
 ## 🌟 Why Use Redis?
 
-- **High Performance**: Redis provides extremely low latency for read and write operations.
-- **Versatile Data Structures**: Supports strings, hashes, lists, sets, and more.
-- **Scalability**: Ideal for distributed caching and real-time analytics.
-- **Integration**: Easily integrates with Spring Boot for seamless development.
+- High Performance: Redis provides extremely low latency for read and write operations.
+- Versatile Data Structures: Supports strings, hashes, lists, sets, and more.
+- Scalability: Ideal for distributed caching and real-time analytics.
+- Integration: Easily integrates with Spring Boot for seamless development.
 
 ---
 
@@ -20,10 +20,10 @@ Redis is a powerful in-memory data store often used for caching, messaging, and 
 
 🗈 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🔤 A **Java IDE** (e.g., IntelliJ IDEA, Eclipse)
-- 💠 **Redis Server** installed and running locally or accessible via a network
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🔤 A Java IDE (e.g., IntelliJ IDEA, Eclipse)
+- 💠 Redis Server installed and running locally or accessible via a network
 
 ---
 
@@ -31,7 +31,7 @@ Redis is a powerful in-memory data store often used for caching, messaging, and 
 
 To integrate Redis into your Spring Boot project, add the following dependencies:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -40,7 +40,7 @@ To integrate Redis into your Spring Boot project, add the following dependencies
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-data-redis'
@@ -170,7 +170,7 @@ class UserService {
 
 ---
 
-## Configuring TTL (Time-To-Live)
+### Configuring TTL (Time-To-Live)
 
 Set the cache expiration time in your `application.properties` file:
 
@@ -182,7 +182,7 @@ This sets the TTL to 10 minutes (600,000 milliseconds).
 
 ---
 
-## Controller Example
+### Controller Example
 
 Create a REST controller to expose the caching functionality.
 
@@ -246,7 +246,7 @@ Run the application using the following command:
 
 You can test the API using cURL or Postman:
 
-- **Fetch a User (cached):**
+- Fetch a User (cached):
 
 ```bash
 curl -X GET http://localhost:8080/users/1
@@ -259,11 +259,12 @@ Make subsequent requests to observe faster responses due to caching.
 ## 🏁 Conclusion
 
 This setup delivers a robust, production-ready Spring Boot Redis Caching solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
-0:{"buildId":"sAfFoWl6sciWoWw18_kPE","rsc":["$","$1","c",{"children":[["$","$L2",null,{"locale":"en","post":{"id":"spring-boot-redis-caching","title":"Spring Boot Redis Caching","date":"2024-12-22","summary":"Learn how to implement Redis caching in your Spring Boot application to improve performance and efficiency.","thumbnail":"/images/spring-boot-redis-thumbnail.webp","readingTime":"3 min read","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"redis","name":"Redis","color":"orange"},{"id":"caching","name":"Caching","color":"brown"},{"id":"programming","name":"Programming","color":"blue"}],"contentHtml":"$3"},"relatedPosts":[{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04","summary":"Learn how to use @ConfigurationProperties for type-safe configuration, validate settings with @Validated, and manage environment-specific values with profile-specific application-{profile}.yml files.","thumbnail":"/images/spring-boot-configuration-properties-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"configuration","name":"Configuration","color":"blue"},{"id":"programming","name":"Programming","color":"brown"}],"readingTime":"3 min read"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Authentication","date":"2025-05-17","summary":"Learn how to secure your Spring Boot GraphQL APIs with stateless encrypted JWTs (JWE) while persisting user identities and roles in a JPA-backed database.","thumbnail":"/images/spring-boot-graphql-jwe-auth-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Security","color":"blue"},{"id":"jwt","name":"JWT","color":"pink"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"graphql","name":"GraphQL","color":"pink"},{"id":"programming","name":"Programming","color":"brown"}],"readingTime":"6 min read"},{"id":"spring-boot-jwe-authentication-with-jpa","title":"Spring Boot JWE Authentication with JPA","date":"2025-05-11","summary":"Learn how to use stateless encrypted JWTs (JWE) to secure your Spring Boot APIs while persisting user identities and roles in a JPA-backed database.","thumbnail":"/images/spring-boot-jwe-auth-with-jpa-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Security","color":"blue"},{"id":"jwt","name":"JWT","color":"pink"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"jpa","name":"JPA","color":"blue"},{"id":"programming","name":"Programming","color":"brown"}],"readingTime":"4 min read"}],"previousPost":{"id":"spring-boot-kafka","title":"Spring Boot Kafka Integration"},"nextPost":{"id":"spring-boot-openapi","title":"Spring Boot with OpenAPI"},"layoutPosts":[{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Authentication","date":"2025-05-17"},{"id":"spring-boot-jwe-authentication-with-jpa","title":"Spring Boot JWE Authentication with JPA","date":"2025-05-11"},{"id":"spring-boot-ldap-jwe-authentication","title":"Spring Boot LDAP and JWE Authentication","date":"2025-05-10"},{"id":"spring-boot-jwe-authentication","title":"Spring Boot JWE Authentication","date":"2025-05-03"},{"id":"spring-boot-http-interface-client","title":"Spring Boot HTTP Interface Client","date":"2025-04-27"},{"id":"spring-boot-async-tasks-virtual","title":"Spring Boot Async Tasks with Virtual Thread","date":"2025-04-26"},{"id":"spring-boot-ai","title":"Spring Boot AI Integration","date":"2025-04-23"},{"id":"spring-boot-jpa-auditing","title":"Spring Boot JPA Auditing","date":"2025-04-10"},{"id":"spring-boot-tdd","title":"Spring Boot Test-Driven Development","date":"2025-04-09"},{"id":"spring-boot-circuit-breaker","title":"Spring Boot Circuit Breaker","date":"2025-03-13"},{"id":"spring-boot-eureka-server","title":"Spring Boot Eureka Server","date":"2025-02-23"}],"preFooterTopTopics":[{"id":"programming","name":"Programming","color":"brown"},{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"jwt","name":"JWT","color":"pink"}]}],["$L4","$L5","$L6","$L7","$L8"],"$L9"]}],"loading":null,"isPartial":false}
-4:["$","script","script-0",{"src":"/_next/static/chunks/a8d3fa37f2b9f61a.js","async":true}]
-5:["$","script","script-1",{"src":"/_next/static/chunks/05be93ee0a66e1f6.js","async":true}]
-6:["$","script","script-2",{"src":"/_next/static/chunks/ece0eaf1befeb859.js","async":true}]
-7:["$","script","script-3",{"src":"/_next/static/chunks/b192481a303c485e.js","async":true}]
-8:["$","script","script-4",{"src":"/_next/static/chunks/d0ae69adfd34b3f3.js","async":true}]
-9:["$","$La",null,{"children":["$","$b",null,{"name":"Next.MetadataOutlet","children":"$@c"}]}]
-c:null
+0:{"buildId":"6yG9PrdyuiFOfgcHWVW33","rsc":["$","$1","c",{"children":[["$","$L2",null,{"locale":"en","post":{"id":"spring-boot-redis-caching","title":"Spring Boot Redis Caching","date":"2024-12-22","summary":"Learn how to implement Redis caching in your Spring Boot application to improve performance and efficiency.","thumbnail":"/images/spring-boot-redis-thumbnail.webp","readingTime":"3 min read","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"redis","name":"Redis","color":"orange"},{"id":"caching","name":"Caching","color":"brown"},{"id":"programming","name":"Programming","color":"blue"}],"contentHtml":"$3"},"relatedPosts":[{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04","summary":"Learn how to use @ConfigurationProperties for type-safe configuration, validate settings with @Validated, and manage environment-specific values with profile-specific application-{profile}.yml files.","thumbnail":"/images/spring-boot-configuration-properties-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"configuration","name":"Configuration","color":"blue"},{"id":"programming","name":"Programming","color":"brown"}],"readingTime":"3 min read"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Authentication","date":"2025-05-17","summary":"Learn how to secure your Spring Boot GraphQL APIs with stateless encrypted JWTs (JWE) while persisting user identities and roles in a JPA-backed database.","thumbnail":"/images/spring-boot-graphql-jwe-auth-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Security","color":"blue"},{"id":"jwt","name":"JWT","color":"pink"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"graphql","name":"GraphQL","color":"pink"},{"id":"programming","name":"Programming","color":"brown"}],"readingTime":"6 min read"},{"id":"spring-boot-jwe-authentication-with-jpa","title":"Spring Boot JWE Authentication with JPA","date":"2025-05-11","summary":"Learn how to use stateless encrypted JWTs (JWE) to secure your Spring Boot APIs while persisting user identities and roles in a JPA-backed database.","thumbnail":"/images/spring-boot-jwe-auth-with-jpa-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Security","color":"blue"},{"id":"jwt","name":"JWT","color":"pink"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"jpa","name":"JPA","color":"blue"},{"id":"programming","name":"Programming","color":"brown"}],"readingTime":"4 min read"}],"previousPost":{"id":"spring-boot-openapi","title":"Spring Boot with OpenAPI"},"nextPost":{"id":"spring-boot-kafka","title":"Spring Boot Kafka Integration"},"layoutPosts":[{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Authentication","date":"2025-05-17"},{"id":"spring-boot-jwe-authentication-with-jpa","title":"Spring Boot JWE Authentication with JPA","date":"2025-05-11"},{"id":"spring-boot-ldap-jwe-authentication","title":"Spring Boot LDAP and JWE Authentication","date":"2025-05-10"},{"id":"spring-boot-jwe-authentication","title":"Spring Boot JWE Authentication","date":"2025-05-03"},{"id":"spring-boot-http-interface-client","title":"Spring Boot HTTP Interface Client","date":"2025-04-27"},{"id":"spring-boot-async-tasks-virtual","title":"Spring Boot Async Tasks with Virtual Thread","date":"2025-04-26"},{"id":"spring-boot-ai","title":"Spring Boot AI Integration","date":"2025-04-23"},{"id":"spring-boot-jpa-auditing","title":"Spring Boot JPA Auditing","date":"2025-04-10"},{"id":"spring-boot-tdd","title":"Spring Boot Test-Driven Development","date":"2025-04-09"},{"id":"spring-boot-circuit-breaker","title":"Spring Boot Circuit Breaker","date":"2025-03-13"},{"id":"spring-boot-eureka-server","title":"Spring Boot Eureka Server","date":"2025-02-23"}],"preFooterTopTopics":[{"id":"programming","name":"Programming","color":"brown"},{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"jwt","name":"JWT","color":"pink"}]}],["$L4","$L5","$L6","$L7","$L8","$L9"],"$La"]}],"loading":null,"isPartial":false}
+4:["$","script","script-0",{"src":"/_next/static/chunks/9c5a3b16981c3f95.js","async":true}]
+5:["$","script","script-1",{"src":"/_next/static/chunks/b0ffe2e623af3d19.js","async":true}]
+6:["$","script","script-2",{"src":"/_next/static/chunks/a8d3fa37f2b9f61a.js","async":true}]
+7:["$","script","script-3",{"src":"/_next/static/chunks/05be93ee0a66e1f6.js","async":true}]
+8:["$","script","script-4",{"src":"/_next/static/chunks/b192481a303c485e.js","async":true}]
+9:["$","script","script-5",{"src":"/_next/static/chunks/ece0eaf1befeb859.js","async":true}]
+a:["$","$Lb",null,{"children":["$","$c",null,{"name":"Next.MetadataOutlet","children":"$@d"}]}]
+d:null

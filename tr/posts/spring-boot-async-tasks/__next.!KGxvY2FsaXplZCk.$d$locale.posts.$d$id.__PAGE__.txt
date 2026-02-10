@@ -1,18 +1,18 @@
 1:"$Sreact.fragment"
-2:I[9235,["/_next/static/chunks/5399c5734125eb21.js","/_next/static/chunks/0476f80a489bc9ef.js","/_next/static/chunks/536569c57f2284ad.js","/_next/static/chunks/b6bdf2d37f14a20d.js","/_next/static/chunks/a8d3fa37f2b9f61a.js","/_next/static/chunks/05be93ee0a66e1f6.js","/_next/static/chunks/ece0eaf1befeb859.js","/_next/static/chunks/b192481a303c485e.js","/_next/static/chunks/d0ae69adfd34b3f3.js"],"default"]
-a:I[26270,["/_next/static/chunks/d977e0a23c15263b.js","/_next/static/chunks/8bc25b6585f9a64d.js"],"OutletBoundary"]
-b:"$Sreact.suspense"
-3:T12d1,
+2:I[9235,["/_next/static/chunks/5399c5734125eb21.js","/_next/static/chunks/0476f80a489bc9ef.js","/_next/static/chunks/536569c57f2284ad.js","/_next/static/chunks/b6bdf2d37f14a20d.js","/_next/static/chunks/9c5a3b16981c3f95.js","/_next/static/chunks/b0ffe2e623af3d19.js","/_next/static/chunks/a8d3fa37f2b9f61a.js","/_next/static/chunks/05be93ee0a66e1f6.js","/_next/static/chunks/b192481a303c485e.js","/_next/static/chunks/ece0eaf1befeb859.js"],"default"]
+b:I[26270,["/_next/static/chunks/d977e0a23c15263b.js","/_next/static/chunks/8bc25b6585f9a64d.js"],"OutletBoundary"]
+c:"$Sreact.suspense"
+3:T12a9,
 Spring Boot, `@Async` anotasyonu ile arka planda asenkron görevler çalıştırmayı kolaylaştırır. Bu, ana threadi engellemeden görevleri çalıştırarak uygulamanın performansını artırmak ve yanıt süresini optimize etmek için kullanılır.
 
 ---
 
 ## 🌟 Neden Spring Boot'ta @Async Kullanmalıyız?
 
-- **Engellenmeyen Çalıştırma**: Görevleri ana thread'i bekletmeden çalıştırır.
-- **Geliştirilmiş Performans**: Bağımsız görevleri paralel olarak yürütür.
-- **Daha İyi Ölçeklenebilirlik**: Diğer süreçler için kaynakları serbest bırakır.
-- **Kolay Entegrasyon**: Spring Boot’un bağımlılık enjeksiyonu ve yaşam döngüsü yönetimiyle sorunsuz çalışır.
+- Engellenmeyen Çalıştırma: Görevleri ana thread'i bekletmeden çalıştırır.
+- Geliştirilmiş Performans: Bağımsız görevleri paralel olarak yürütür.
+- Daha İyi Ölçeklenebilirlik: Diğer süreçler için kaynakları serbest bırakır.
+- Kolay Entegrasyon: Spring Boot’un bağımlılık enjeksiyonu ve yaşam döngüsü yönetimiyle sorunsuz çalışır.
 
 ---
 
@@ -20,17 +20,17 @@ Spring Boot, `@Async` anotasyonu ile arka planda asenkron görevler çalıştır
 
 Şu gereksinimlere sahip olduğunuzdan emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven veya Gradle** kurulu
-- 🔤 Bir **Java IDE** (IntelliJ IDEA, Eclipse vb.)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven veya Gradle kurulu
+- 🔤 Bir Java IDE (IntelliJ IDEA, Eclipse vb.)
 
 ---
 
 ## 🛠️ Adım 1: Bağımlılıkları Ekleyin
 
-Asenkron işlemleri etkinleştirmek için **spring-boot-starter-web** bağımlılığını `pom.xml` veya `build.gradle` dosyanıza ekleyin.
+Asenkron işlemleri etkinleştirmek için spring-boot-starter-web bağımlılığını `pom.xml` veya `build.gradle` dosyanıza ekleyin.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -39,7 +39,7 @@ Asenkron işlemleri etkinleştirmek için **spring-boot-starter-web** bağımlı
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -226,11 +226,12 @@ Asenkron görev çalıştırıldı: 12:00:01
 ## 🏁 Sonuç
 
 Bu kurulum, Spring Boot ile Spring Boot Asenkron Görevler için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
-0:{"buildId":"sAfFoWl6sciWoWw18_kPE","rsc":["$","$1","c",{"children":[["$","$L2",null,{"locale":"tr","post":{"id":"spring-boot-async-tasks","title":"Spring Boot Asenkron Görevler","date":"2025-02-20","summary":"Spring Boot ile @Async kullanarak görevleri ana threadi engellemeden asenkron olarak nasıl çalıştıracağınızı öğrenin.","thumbnail":"/images/spring-boot-async-thumbnail.webp","readingTime":"3 dk okuma","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"async-tasks","name":"Asenkron Görevler","color":"blue"},{"id":"programming","name":"Programlama","color":"brown"}],"contentHtml":"$3"},"relatedPosts":[{"id":"spring-boot-async-tasks-virtual","title":"Spring Boot Sanal Thread’li Asenkron Görevler","date":"2025-04-26","summary":"Spring Boot’ta JDK 21 sanal thread’leri ve `@Async` anotasyonunu kullanarak hafif ve ölçeklenebilir asenkron görevleri nasıl oluşturacağınızı öğrenin.","thumbnail":"/images/spring-boot-async-virtual-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"async-tasks","name":"Asenkron Görevler","color":"blue"},{"id":"virtual-thread","name":"Sanal Thread","color":"orange"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"3 dk okuma"},{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04","summary":"@ConfigurationProperties ile tip-güvenli yapılandırma tanımlamayı, @Validated ile ayarları doğrulamayı ve profile-specific application-{profile}.yml dosyalarıyla ortama göre değer yönetimini öğrenin.","thumbnail":"/images/spring-boot-configuration-properties-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"configuration","name":"Yapılandırma","color":"blue"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"3 dk okuma"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Kimlik Doğrulama","date":"2025-05-17","summary":"Stateless şifreli JWT’ler (JWE) ile Spring Boot GraphQL API’lerinizi güvenli hale getirmeyi; kullanıcı kimliği ve rolleri JPA ile bir veritabanında saklamayı öğrenin.","thumbnail":"/images/spring-boot-graphql-jwe-auth-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Güvenlik","color":"blue"},{"id":"jwt","name":"JWT","color":"pink"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"graphql","name":"GraphQL","color":"pink"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"6 dk okuma"}],"previousPost":{"id":"spring-boot-kubernetes","title":"Spring Boot Kubernetes Entegrasyonu"},"nextPost":{"id":"spring-boot-scheduled-tasks","title":"Spring Boot Planlanmış Görevler"},"layoutPosts":[{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Kimlik Doğrulama","date":"2025-05-17"},{"id":"spring-boot-jwe-authentication-with-jpa","title":"Spring Boot JPA ile JWE Kimlik Doğrulaması","date":"2025-05-11"},{"id":"spring-boot-ldap-jwe-authentication","title":"Spring Boot LDAP ve JWE Kimlik Doğrulama","date":"2025-05-10"},{"id":"spring-boot-jwe-authentication","title":"Spring Boot JWE Kimlik Doğrulama","date":"2025-05-03"},{"id":"spring-boot-http-interface-client","title":"Spring Boot HTTP Interface Client","date":"2025-04-27"},{"id":"spring-boot-async-tasks-virtual","title":"Spring Boot Sanal Thread’li Asenkron Görevler","date":"2025-04-26"},{"id":"spring-boot-ai","title":"Spring Boot AI Entegrasyonu","date":"2025-04-23"},{"id":"spring-boot-jpa-auditing","title":"Spring Boot JPA Auditing","date":"2025-04-10"},{"id":"spring-boot-tdd","title":"Spring Boot ile Test Odaklı Geliştirme","date":"2025-04-09"},{"id":"spring-boot-circuit-breaker","title":"Spring Boot Circuit Breaker","date":"2025-03-13"},{"id":"spring-boot-eureka-server","title":"Spring Boot Eureka Server","date":"2025-02-23"}],"preFooterTopTopics":[{"id":"programming","name":"Programlama","color":"brown"},{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Güvenlik","color":"blue"},{"id":"jwe","name":"JWE","color":"orange"}]}],["$L4","$L5","$L6","$L7","$L8"],"$L9"]}],"loading":null,"isPartial":false}
-4:["$","script","script-0",{"src":"/_next/static/chunks/a8d3fa37f2b9f61a.js","async":true}]
-5:["$","script","script-1",{"src":"/_next/static/chunks/05be93ee0a66e1f6.js","async":true}]
-6:["$","script","script-2",{"src":"/_next/static/chunks/ece0eaf1befeb859.js","async":true}]
-7:["$","script","script-3",{"src":"/_next/static/chunks/b192481a303c485e.js","async":true}]
-8:["$","script","script-4",{"src":"/_next/static/chunks/d0ae69adfd34b3f3.js","async":true}]
-9:["$","$La",null,{"children":["$","$b",null,{"name":"Next.MetadataOutlet","children":"$@c"}]}]
-c:null
+0:{"buildId":"6yG9PrdyuiFOfgcHWVW33","rsc":["$","$1","c",{"children":[["$","$L2",null,{"locale":"tr","post":{"id":"spring-boot-async-tasks","title":"Spring Boot Asenkron Görevler","date":"2025-02-20","summary":"Spring Boot ile @Async kullanarak görevleri ana threadi engellemeden asenkron olarak nasıl çalıştıracağınızı öğrenin.","thumbnail":"/images/spring-boot-async-thumbnail.webp","readingTime":"3 dk okuma","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"async-tasks","name":"Asenkron Görevler","color":"blue"},{"id":"programming","name":"Programlama","color":"brown"}],"contentHtml":"$3"},"relatedPosts":[{"id":"spring-boot-async-tasks-virtual","title":"Spring Boot Sanal Thread’li Asenkron Görevler","date":"2025-04-26","summary":"Spring Boot’ta JDK 21 sanal thread’leri ve `@Async` anotasyonunu kullanarak hafif ve ölçeklenebilir asenkron görevleri nasıl oluşturacağınızı öğrenin.","thumbnail":"/images/spring-boot-async-virtual-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"async-tasks","name":"Asenkron Görevler","color":"blue"},{"id":"virtual-thread","name":"Sanal Thread","color":"orange"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"3 dk okuma"},{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04","summary":"@ConfigurationProperties ile tip-güvenli yapılandırma tanımlamayı, @Validated ile ayarları doğrulamayı ve profile-specific application-{profile}.yml dosyalarıyla ortama göre değer yönetimini öğrenin.","thumbnail":"/images/spring-boot-configuration-properties-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"configuration","name":"Yapılandırma","color":"blue"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"3 dk okuma"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Kimlik Doğrulama","date":"2025-05-17","summary":"Stateless şifreli JWT’ler (JWE) ile Spring Boot GraphQL API’lerinizi güvenli hale getirmeyi; kullanıcı kimliği ve rolleri JPA ile bir veritabanında saklamayı öğrenin.","thumbnail":"/images/spring-boot-graphql-jwe-auth-thumbnail.webp","topics":[{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Güvenlik","color":"blue"},{"id":"jwt","name":"JWT","color":"pink"},{"id":"jwe","name":"JWE","color":"orange"},{"id":"graphql","name":"GraphQL","color":"pink"},{"id":"programming","name":"Programlama","color":"brown"}],"readingTime":"6 dk okuma"}],"previousPost":{"id":"spring-boot-scheduled-tasks","title":"Spring Boot Planlanmış Görevler"},"nextPost":{"id":"spring-boot-kubernetes","title":"Spring Boot Kubernetes Entegrasyonu"},"layoutPosts":[{"id":"spring-boot-configuration-properties","title":"Spring Boot Configuration Properties","date":"2026-02-04"},{"id":"spring-boot-graphql-jwe-authentication","title":"Spring Boot GraphQL JWE Kimlik Doğrulama","date":"2025-05-17"},{"id":"spring-boot-jwe-authentication-with-jpa","title":"Spring Boot JPA ile JWE Kimlik Doğrulaması","date":"2025-05-11"},{"id":"spring-boot-ldap-jwe-authentication","title":"Spring Boot LDAP ve JWE Kimlik Doğrulama","date":"2025-05-10"},{"id":"spring-boot-jwe-authentication","title":"Spring Boot JWE Kimlik Doğrulama","date":"2025-05-03"},{"id":"spring-boot-http-interface-client","title":"Spring Boot HTTP Interface Client","date":"2025-04-27"},{"id":"spring-boot-async-tasks-virtual","title":"Spring Boot Sanal Thread’li Asenkron Görevler","date":"2025-04-26"},{"id":"spring-boot-ai","title":"Spring Boot AI Entegrasyonu","date":"2025-04-23"},{"id":"spring-boot-jpa-auditing","title":"Spring Boot JPA Auditing","date":"2025-04-10"},{"id":"spring-boot-tdd","title":"Spring Boot ile Test Odaklı Geliştirme","date":"2025-04-09"},{"id":"spring-boot-circuit-breaker","title":"Spring Boot Circuit Breaker","date":"2025-03-13"},{"id":"spring-boot-eureka-server","title":"Spring Boot Eureka Server","date":"2025-02-23"}],"preFooterTopTopics":[{"id":"programming","name":"Programlama","color":"brown"},{"id":"java","name":"Java","color":"red"},{"id":"kotlin","name":"Kotlin","color":"purple"},{"id":"spring-boot","name":"Spring Boot","color":"green"},{"id":"security","name":"Güvenlik","color":"blue"},{"id":"jwe","name":"JWE","color":"orange"}]}],["$L4","$L5","$L6","$L7","$L8","$L9"],"$La"]}],"loading":null,"isPartial":false}
+4:["$","script","script-0",{"src":"/_next/static/chunks/9c5a3b16981c3f95.js","async":true}]
+5:["$","script","script-1",{"src":"/_next/static/chunks/b0ffe2e623af3d19.js","async":true}]
+6:["$","script","script-2",{"src":"/_next/static/chunks/a8d3fa37f2b9f61a.js","async":true}]
+7:["$","script","script-3",{"src":"/_next/static/chunks/05be93ee0a66e1f6.js","async":true}]
+8:["$","script","script-4",{"src":"/_next/static/chunks/b192481a303c485e.js","async":true}]
+9:["$","script","script-5",{"src":"/_next/static/chunks/ece0eaf1befeb859.js","async":true}]
+a:["$","$Lb",null,{"children":["$","$c",null,{"name":"Next.MetadataOutlet","children":"$@d"}]}]
+d:null
