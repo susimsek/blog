@@ -17,6 +17,8 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'next/navigation';
 import { defaultLocale } from '@/i18n/settings';
 import { buildLocalizedAbsoluteUrl } from '@/lib/metadata';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 const MarkdownRenderer = dynamic(() => import('@/components/common/MarkdownRenderer'), {
   loading: () => null,
@@ -184,10 +186,16 @@ export default function PostDetail({ post, relatedPosts = [] }: Readonly<PostDet
           </div>
         )}
         <div className="post-share mb-4" role="group" aria-label={t('post.share.title')}>
-          <span className="post-share-prefix text-muted" aria-hidden="true">
-            <FontAwesomeIcon icon="share-nodes" />
-            <span className="ms-2">{t('post.share.title')}</span>
-          </span>
+          <OverlayTrigger placement="top" overlay={<Tooltip id="post-share-tooltip">{t('post.share.title')}</Tooltip>}>
+            <span
+              className="post-share-prefix text-muted me-2"
+              role="img"
+              aria-label={t('post.share.title')}
+              tabIndex={0}
+            >
+              <FontAwesomeIcon icon="share-nodes" />
+            </span>
+          </OverlayTrigger>
           <div className="post-share-actions">
             <a
               href={xShareUrl}
@@ -232,7 +240,7 @@ export default function PostDetail({ post, relatedPosts = [] }: Readonly<PostDet
               aria-label={isCopied ? t('post.share.copied') : t('post.share.copyLink')}
             >
               <span className="post-share-circle post-share-circle-copy" aria-hidden="true">
-                <FontAwesomeIcon icon={isCopied ? 'check' : 'copy'} />
+                <FontAwesomeIcon icon={isCopied ? 'check' : 'link'} />
               </span>
               <span className="post-share-text">
                 {isCopied ? t('post.share.shortCopied') : t('post.share.shortCopy')}
