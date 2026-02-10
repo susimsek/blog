@@ -6,18 +6,18 @@ import Badge from 'react-bootstrap/Badge';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'next/navigation';
 import i18nextConfig from '@/i18n/settings';
-import type { PostSummary, Topic } from '@/types/posts';
+import type { LayoutPostSummary, Topic } from '@/types/posts';
 import Link from '@/components/common/Link';
 import { CONTACT_LINKS } from '@/config/constants';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface PreFooterProps {
-  posts?: PostSummary[];
+  posts?: LayoutPostSummary[];
   topics?: Topic[];
   topTopics?: Topic[];
 }
 
-const getTopTopics = (posts: PostSummary[], topics: Topic[], limit: number) => {
+const getTopTopics = (posts: LayoutPostSummary[], topics: Topic[], limit: number) => {
   const topicById = new Map(topics.map(topic => [topic.id, topic]));
   const counts = new Map<string, number>();
 

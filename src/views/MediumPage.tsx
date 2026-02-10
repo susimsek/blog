@@ -3,12 +3,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Layout from '@/components/common/Layout';
-import type { PostSummary, Topic } from '@/types/posts';
+import type { LayoutPostSummary, PostSummary, Topic } from '@/types/posts';
 import PostList from '@/components/posts/PostList';
 
 type MediumPageProps = {
   mediumPosts: PostSummary[];
-  layoutPosts: PostSummary[];
+  layoutPosts: LayoutPostSummary[];
   topics: Topic[];
   preFooterTopTopics: Topic[];
 };

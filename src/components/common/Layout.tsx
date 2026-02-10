@@ -4,7 +4,7 @@ import Footer from '@/components/common/Footer';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { PostSummary, Topic } from '@/types/posts';
+import { LayoutPostSummary, PostSummary, Topic } from '@/types/posts';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { GA_ID } from '@/config/constants';
@@ -19,7 +19,7 @@ const Sidebar = dynamic(() => import('@/components/common/Sidebar'));
 
 type LayoutProps = {
   children: ReactNode;
-  posts?: PostSummary[];
+  posts?: LayoutPostSummary[];
   topics?: Topic[];
   preFooterTopTopics?: Topic[];
   searchEnabled?: boolean;
@@ -30,10 +30,28 @@ const LayoutStateInitializer: React.FC<Pick<LayoutProps, 'posts'>> = ({ posts = 
   const dispatch = useAppDispatch();
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
+  const normalizedPosts = React.useMemo(
+    () =>
+      posts.map(post => {
+        const candidate = post as Partial<PostSummary>;
+        return {
+          id: post.id,
+          title: post.title,
+          date: post.date,
+          summary: typeof candidate.summary === 'string' ? candidate.summary : '',
+          thumbnail:
+            candidate.thumbnail === null || typeof candidate.thumbnail === 'string' ? candidate.thumbnail : null,
+          topics: Array.isArray(candidate.topics) ? candidate.topics : post.topics,
+          readingTime: typeof candidate.readingTime === 'string' ? candidate.readingTime : '',
+          ...(typeof candidate.link === 'string' ? { link: candidate.link } : {}),
+        };
+      }),
+    [posts],
+  );
 
   useEffect(() => {
-    dispatch(setPosts(posts));
-  }, [dispatch, posts]);
+    dispatch(setPosts(normalizedPosts));
+  }, [dispatch, normalizedPosts]);
 
   useEffect(() => {
     const currentLocale = routeLocale ?? defaultLocale ?? null;

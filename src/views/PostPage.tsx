@@ -2,7 +2,7 @@
 
 import React from 'react';
 import PostDetail from '@/components/posts/PostDetail';
-import type { Post, PostSummary, Topic } from '@/types/posts';
+import type { LayoutPostSummary, Post, PostSummary, Topic } from '@/types/posts';
 import Layout from '@/components/common/Layout';
 import { AUTHOR_NAME, SITE_LOGO } from '@/config/constants';
 import { resolvePostContent } from '@/lib/contentCompression';
@@ -11,7 +11,7 @@ import { toAbsoluteSiteUrl } from '@/lib/metadata';
 type PostPageProps = {
   post: Post;
   relatedPosts?: PostSummary[];
-  layoutPosts?: PostSummary[];
+  layoutPosts?: LayoutPostSummary[];
   preFooterTopTopics?: Topic[];
   locale: string;
 };

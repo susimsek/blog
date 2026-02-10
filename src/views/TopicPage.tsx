@@ -2,7 +2,7 @@
 
 import React from 'react';
 import PostList from '@/components/posts/PostList';
-import type { PostSummary, Topic } from '@/types/posts';
+import type { LayoutPostSummary, PostSummary, Topic } from '@/types/posts';
 import Layout from '@/components/common/Layout';
 import { AUTHOR_NAME } from '@/config/constants';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,7 @@ import { toAbsoluteSiteUrl } from '@/lib/metadata';
 type TopicPageProps = {
   topic: Topic;
   posts: PostSummary[];
-  layoutPosts: PostSummary[];
+  layoutPosts: LayoutPostSummary[];
   topics: Topic[];
   preFooterTopTopics: Topic[];
 };

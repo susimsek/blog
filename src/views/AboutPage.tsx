@@ -7,11 +7,11 @@ import { useTranslation } from 'react-i18next';
 import { AUTHOR_NAME, AVATAR_LINK, CONTACT_LINKS, EXPERIENCE_START_YEAR } from '@/config/constants';
 import Layout from '@/components/common/Layout';
 import ContactInfo from '@/components/common/ContactInfo';
-import type { PostSummary, Topic } from '@/types/posts';
+import type { LayoutPostSummary, Topic } from '@/types/posts';
 import { toAbsoluteSiteUrl } from '@/lib/metadata';
 
 type AboutPageProps = {
-  layoutPosts: PostSummary[];
+  layoutPosts: LayoutPostSummary[];
   topics: Topic[];
   preFooterTopTopics: Topic[];
 };

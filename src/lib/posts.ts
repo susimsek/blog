@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
-import { Post, PostSummary, Topic } from '@/types/posts';
+import { LayoutPostSummary, Post, PostSummary, Topic } from '@/types/posts';
 import i18nextConfig from '@/i18n/settings';
 import { createCacheStore } from '@/lib/cacheUtils';
 import { sortPosts } from '@/lib/postFilters';
@@ -285,17 +285,16 @@ export async function getAllTopicIds() {
   return topicIds;
 }
 
-const toLayoutPostSummary = (post: PostSummary): PostSummary => ({
+const toLayoutPostSummary = (post: PostSummary): LayoutPostSummary => ({
   id: post.id,
   title: post.title,
   date: post.date,
-  summary: post.summary,
-  thumbnail: post.thumbnail,
-  readingTime: post.readingTime,
-  ...(post.link ? { link: post.link } : {}),
 });
 
-export const getLayoutPosts = (posts: PostSummary[], limit: number = DEFAULT_LAYOUT_POSTS_LIMIT): PostSummary[] => {
+export const getLayoutPosts = (
+  posts: PostSummary[],
+  limit: number = DEFAULT_LAYOUT_POSTS_LIMIT,
+): LayoutPostSummary[] => {
   const safeLimit = Number.isFinite(limit) ? Math.max(0, Math.floor(limit)) : DEFAULT_LAYOUT_POSTS_LIMIT;
   return posts.slice(0, safeLimit).map(toLayoutPostSummary);
 };

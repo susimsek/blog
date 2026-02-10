@@ -16,6 +16,10 @@ export type PostSummary = {
   link?: string;
 };
 
+export type LayoutPostSummary = Pick<PostSummary, 'id' | 'title' | 'date'> & {
+  topics?: Topic[];
+};
+
 export type Post = PostSummary & {
   contentHtml?: string;
   contentCompressed?: string;
