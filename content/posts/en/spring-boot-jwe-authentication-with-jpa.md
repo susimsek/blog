@@ -36,21 +36,21 @@ Spring Boot lets you use stateless encrypted JWTs (JWE) to secure your APIs, whi
 
 ## 🌟 Why Use JWE + JPA Authentication?
 
-- **Stateless Security**: Tokens are self-contained and require no server-side storage.
-- **Integrity**: Signed tokens ensure tamper evidence.
-- **Confidentiality**: Encrypted JWTs hide sensitive claims.
-- **User Management**: Persist and manage users and roles via familiar JPA repositories.
-- **Standards-based**: Leverage JOSE, Spring Security, and Spring Data JPA.
-- **Scalable**: Scale horizontally without session replication or sticky sessions.
+- Stateless Security: Tokens are self-contained and require no server-side storage.
+- Integrity: Signed tokens ensure tamper evidence.
+- Confidentiality: Encrypted JWTs hide sensitive claims.
+- User Management: Persist and manage users and roles via familiar JPA repositories.
+- Standards-based: Leverage JOSE, Spring Security, and Spring Data JPA.
+- Scalable: Scale horizontally without session replication or sticky sessions.
 
 ---
 
 ## 📋 Prerequisites
 
-- ☕ **Java Development Kit (JDK) 17** or higher
-- 📦 **Spring Boot 3.2+**
-- 🔤 **IDE** (IntelliJ IDEA, Eclipse)
-- 🛢️ **PostgreSQL** (or H2 for dev)
+- ☕ Java Development Kit (JDK) 17 or higher
+- 📦 Spring Boot 3.2+
+- 🔤 IDE (IntelliJ IDEA, Eclipse)
+- 🛢️ PostgreSQL (or H2 for dev)
 
 ---
 
@@ -58,7 +58,7 @@ Spring Boot lets you use stateless encrypted JWTs (JWE) to secure your APIs, whi
 
 Include these in your `pom.xml` or `build.gradle` file.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -89,7 +89,7 @@ Include these in your `pom.xml` or `build.gradle` file.
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -106,22 +106,22 @@ runtimeOnly 'com.h2database:h2'
 
 In this section, we define all of the application- and database-level configuration files required to wire up our Spring Boot app with H2/PostgreSQL, JPA, Liquibase changelogs, initial data loads, and JWE key properties.
 
-- **`application.yml`**
+- `application.yml`
   Holds Spring datasource, H2 console, JPA/Hibernate, Liquibase changelog path, and all JWT/JWE key, issuer, and expiration settings.
 
-- **`db/master.xml`**
-  The Liquibase **master changelog**, with includes and DBMS-specific properties for H2 and PostgreSQL.
+- `db/master.xml`
+  The Liquibase master changelog, with includes and DBMS-specific properties for H2 and PostgreSQL.
 
-- **`db/changelog/changelog-user.xml`**
-  Your core **schema changelog** defining `user_identity`, `authority`, and `user_authority_mapping` tables, indexes, FKs, and initial `<loadData>` steps.
+- `db/changelog/changelog-user.xml`
+  Your core schema changelog defining `user_identity`, `authority`, and `user_authority_mapping` tables, indexes, FKs, and initial `<loadData>` steps.
 
-- **`db/data/user.csv`**
+- `db/data/user.csv`
   Initial user records (UUID, username, bcrypt-hashed password, email, enabled flag, timestamps, auditor).
 
-- **`db/data/authority.csv`**
+- `db/data/authority.csv`
   Initial authority records (UUID, name, description, timestamps, auditor).
 
-- **`db/data/user_authority_mapping.csv`**
+- `db/data/user_authority_mapping.csv`
   Initial mapping of users ↔ authorities (composite PK, timestamps, auditor).
 
 <span style="display:block; height:1rem;"></span>
@@ -482,10 +482,10 @@ a1b2c3d4-e5f6-7890-abcd-ef1234567890;f47ac10b-58cc-4372-a567-0e02b2c3d479;2025-0
 
 In this section, we define the beans and properties RSA keys, HTTP security filters, and JPA repository/auditing setup for JWE‑based authentication:
 
-- **JwtProperties**: Configures JWT issuer, expiration, and signing/encryption key pairs.
-- **SecurityJwtConfig**: Builds RSA JWKs, JWT encoder/decoder, authentication converter, and token resolver.
-- **SecurityConfig**: Integrates `DomainUserDetailsService`, configures authentication manager, password encoder, and stateless security filter chain with JWE support.
-- **DatabaseConfig**: Enables JPA repositories, auditing, and transaction management.
+- JwtProperties: Configures JWT issuer, expiration, and signing/encryption key pairs.
+- SecurityJwtConfig: Builds RSA JWKs, JWT encoder/decoder, authentication converter, and token resolver.
+- SecurityConfig: Integrates `DomainUserDetailsService`, configures authentication manager, password encoder, and stateless security filter chain with JWE support.
+- DatabaseConfig: Enables JPA repositories, auditing, and transaction management.
 
 <span style="display:block; height:1rem;"></span>
 
@@ -1010,12 +1010,12 @@ class DatabaseConfig
 
 In this section, we define the JPA entities representing users, authorities, and their mappings, along with the Spring Data repository for loading users with their authorities.
 
-- **BaseEntity**: Abstract superclass providing audit fields (`createdAt`, `createdBy`, `updatedAt`, `updatedBy`).
-- **Authority**: `authority` table entity storing role data.
-- **User**: `user_identity` table entity storing user credentials and profile.
-- **UserAuthorityMapping**: `user_authority_mapping` join table entity linking users and authorities.
-- **UserAuthorityMappingId**: Composite key class for `UserAuthorityMapping`.
-- **UserRepository**: Spring Data JPA repository for `User` with an entity graph to load authorities.
+- BaseEntity: Abstract superclass providing audit fields (`createdAt`, `createdBy`, `updatedAt`, `updatedBy`).
+- Authority: `authority` table entity storing role data.
+- User: `user_identity` table entity storing user credentials and profile.
+- UserAuthorityMapping: `user_authority_mapping` join table entity linking users and authorities.
+- UserAuthorityMappingId: Composite key class for `UserAuthorityMapping`.
+- UserRepository: Spring Data JPA repository for `User` with an entity graph to load authorities.
 
 <span style="display:block; height:1rem;"></span>
 
@@ -1645,14 +1645,14 @@ interface UserRepository : JpaRepository<User, String> {
 
 In this section, we define the core utility classes and constants needed to generate, encrypt, and resolve JSON Web Encryption (JWE) tokens in your Spring Boot application, integrate auditing, and implement a JPA-based user details service:
 
-- **AuthoritiesConstants**: Centralize role names with the `ROLE_` prefix.
-- **CookieBearerTokenResolver**: Resolve bearer tokens from Authorization headers or HTTP cookies.
-- **CookieUtils**: Create HTTP-only, secure cookies for access tokens.
-- **JweUtil**: Sign (JWS) and encrypt (JWE) JWTs using RSA keys and Nimbus.
-- **KeyUtils**: Build RSA JWKs from PEM‐encoded key material.
-- **SecurityUtils**: Extract the current user’s login from the security context.
-- **SpringSecurityAuditorAware**: Implement `AuditorAware` to provide the current user for auditing.
-- **DomainUserDetailsService**: JPA-based `UserDetailsService` loading user and authorities for authentication.
+- AuthoritiesConstants: Centralize role names with the `ROLE_` prefix.
+- CookieBearerTokenResolver: Resolve bearer tokens from Authorization headers or HTTP cookies.
+- CookieUtils: Create HTTP-only, secure cookies for access tokens.
+- JweUtil: Sign (JWS) and encrypt (JWE) JWTs using RSA keys and Nimbus.
+- KeyUtils: Build RSA JWKs from PEM‐encoded key material.
+- SecurityUtils: Extract the current user’s login from the security context.
+- SpringSecurityAuditorAware: Implement `AuditorAware` to provide the current user for auditing.
+- DomainUserDetailsService: JPA-based `UserDetailsService` loading user and authorities for authentication.
 
 These utilities form the foundation for a stateless, JWE‐based authentication flow in Spring Security.
 
@@ -2430,10 +2430,10 @@ class SpringSecurityAuditorAware : AuditorAware<String> {
 
 In this section, we define the REST controllers and DTOs necessary for:
 
-- **AuthController**: Authenticate users, issue JWE tokens, and set secure cookies.
-- **HelloController**: Expose protected resource endpoints for authenticated users and admin-specific paths.
-- **LoginRequestDTO**: Model the login request payload (username/password).
-- **TokenDTO**: Model the authentication response including token and expiration.
+- AuthController: Authenticate users, issue JWE tokens, and set secure cookies.
+- HelloController: Expose protected resource endpoints for authenticated users and admin-specific paths.
+- LoginRequestDTO: Model the login request payload (username/password).
+- TokenDTO: Model the authentication response including token and expiration.
 
 These components complete the stateless authentication flow by handling login, token issuance, cookie management, and resource protection.
 
@@ -2685,7 +2685,7 @@ gradle bootRun
 
 ### Admin Flow
 
-Login as **admin** and capture the JWE token from the `Set-Cookie` header:
+Login as admin and capture the JWE token from the `Set-Cookie` header:
 
 ```bash
 curl -i -X POST http://localhost:8080/api/auth/login \
@@ -2693,7 +2693,7 @@ curl -i -X POST http://localhost:8080/api/auth/login \
   -d '{"username":"admin","password":"adminpass"}'
 ```
 
-- **Set-Cookie** header contains `accessToken=<jwe-token>`
+- Set-Cookie header contains `accessToken=<jwe-token>`
 - Response body:
 
 ```json
@@ -2704,13 +2704,13 @@ curl -i -X POST http://localhost:8080/api/auth/login \
 }
 ```
 
-Use **cookie** to access hello endpoint:
+Use cookie to access hello endpoint:
 
 ```bash
 curl -b "accessToken=<jwe-token>" http://localhost:8080/api/hello
 ```
 
-Use **Authorization** header instead:
+Use Authorization header instead:
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello
@@ -2724,7 +2724,7 @@ curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello/admi
 
 ### User Flow
 
-Login as **user** and capture JWE token from **cookie**:
+Login as user and capture JWE token from cookie:
 
 ```bash
 curl -i -X POST http://localhost:8080/api/auth/login \
@@ -2732,21 +2732,21 @@ curl -i -X POST http://localhost:8080/api/auth/login \
   -d '{"username":"user","password":"userpass"}'
 ```
 
-- **Set-Cookie** header contains `accessToken=<jwe-token>`
+- Set-Cookie header contains `accessToken=<jwe-token>`
 
-Use **cookie** to access hello endpoint:
+Use cookie to access hello endpoint:
 
 ```bash
 curl -b "accessToken=<jwe-token>" http://localhost:8080/api/hello
 ```
 
-Use **Authorization** header:
+Use Authorization header:
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello
 ```
 
-Attempt admin endpoint (should be **403 Forbidden**):
+Attempt admin endpoint (should be 403 Forbidden):
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello/admin

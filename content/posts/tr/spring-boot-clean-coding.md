@@ -41,9 +41,9 @@ Temiz kodlama ilkelerini benimsemek şu faydaları sağlar:
 
 🗌 Aşağıdakilere sahip olduğunuzdan emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven veya Gradle** kurulu
-- 🔤 Bir **Java IDE** (IntelliJ IDEA, Eclipse vb.)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven veya Gradle kurulu
+- 🔤 Bir Java IDE (IntelliJ IDEA, Eclipse vb.)
 - 🛠️ Spring Boot temel bilgilerine hakimiyet
 
 ---
@@ -52,9 +52,9 @@ Temiz kodlama ilkelerini benimsemek şu faydaları sağlar:
 
 Spring Boot projenizi daha net bir hale getirmek için aşağıdaki gibi organize edin:
 
-- **Controller Katmanı:** Gelen HTTP isteklerini yönetir.
-- **Service Katmanı:** İş mantığını içerir.
-- **Repository Katmanı:** Veritabanı ile etkileşir.
+- Controller Katmanı: Gelen HTTP isteklerini yönetir.
+- Service Katmanı: İş mantığını içerir.
+- Repository Katmanı: Veritabanı ile etkileşir.
 
 ### Örnek Klasör Yapısı:
 
@@ -75,7 +75,7 @@ Lombok, Java'daki gereksiz kodu azaltarak sınıflarınızı daha kısa ve okuna
 
 ### Lombok Bağlılığını Ekleyin
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -85,7 +85,7 @@ Lombok, Java'daki gereksiz kodu azaltarak sınıflarınızı daha kısa ve okuna
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 provided 'org.projectlombok:lombok'
@@ -118,7 +118,7 @@ public class User {
 }
 ```
 
-**Faydalar:**
+Faydalar:
 
 - `@Data`, getter, setter, equals, hashCode ve toString metotlarını otomatik olarak oluşturur.
 - `@NoArgsConstructor` ve `@AllArgsConstructor` yapıcı metotları oluşturur.
@@ -146,7 +146,7 @@ data class User(
 )
 ```
 
-**Kotlin'in Avantajları:**
+Kotlin'in Avantajları:
 
 - `data class`, `toString`, `equals` ve `hashCode` metotlarını otomatik olarak oluşturur.
 - Değişmez özellikler (`val`) daha iyi stabilite sağlar.
@@ -241,7 +241,7 @@ data class UserDTO(
 
 ---
 
-## Controller Katmanı
+### Controller Katmanı
 
 HTTP isteklerini yönetmek ve service katmanıyla etkileşim sağlamak için bir controller uygulayın.
 
@@ -312,7 +312,7 @@ Postman veya cURL gibi bir aracı kullanarak endpoint'leri test edin.
 
 API'yi aşağıdaki cURL komutu ile test edebilirsiniz:
 
-- **Tüm kullanıcıları getir:**
+- Tüm kullanıcıları getir:
 
 ```bash
 curl -X GET http://localhost:8080/api/users

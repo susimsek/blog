@@ -28,17 +28,17 @@ topics:
     color: 'brown'
 ---
 
-Spring Boot, **Kubernetes** ile sorunsuz bir şekilde bütünleşerek konteynerleştirilmiş, ölçeklenebilir uygulamalar oluşturmanıza olanak tanır. Bu rehberde, Spring Boot uygulamalarının Kubernetes kümesi içinde nasıl dağıtılacağını ve yönetileceğini öğreneceksiniz.
+Spring Boot, Kubernetes ile sorunsuz bir şekilde bütünleşerek konteynerleştirilmiş, ölçeklenebilir uygulamalar oluşturmanıza olanak tanır. Bu rehberde, Spring Boot uygulamalarının Kubernetes kümesi içinde nasıl dağıtılacağını ve yönetileceğini öğreneceksiniz.
 
 ---
 
 ## 🌟 Neden Spring Boot İçin Kubernetes Kullanmalıyız?
 
-- **Ölçeklenebilirlik**: Trafiğe göre uygulamaları otomatik olarak ölçekleyin.
-- **Kendi Kendine İyileşme**: Kubernetes, başarısız olan konteynerleri otomatik olarak yeniden başlatır.
-- **Deklaratif Yapılandırma**: YAML dosyalarıyla altyapınızı kolayca yönetin.
-- **Yük Dengeleme & Servis Keşfi**: Gelen trafiği etkin bir şekilde yönlendirin.
-- **Verimli Kaynak Kullanımı**: CPU ve bellek tüketimini dinamik olarak optimize edin.
+- Ölçeklenebilirlik: Trafiğe göre uygulamaları otomatik olarak ölçekleyin.
+- Kendi Kendine İyileşme: Kubernetes, başarısız olan konteynerleri otomatik olarak yeniden başlatır.
+- Deklaratif Yapılandırma: YAML dosyalarıyla altyapınızı kolayca yönetin.
+- Yük Dengeleme & Servis Keşfi: Gelen trafiği etkin bir şekilde yönlendirin.
+- Verimli Kaynak Kullanımı: CPU ve bellek tüketimini dinamik olarak optimize edin.
 
 ---
 
@@ -46,11 +46,11 @@ Spring Boot, **Kubernetes** ile sorunsuz bir şekilde bütünleşerek konteynerl
 
 Aşağıdaki araçların sisteminizde kurulu olduğundan emin olun:
 
-- ☕ **Java Geliştirme Kiti (JDK)** 17+
-- 📦 **Maven veya Gradle**
-- 🛠 **Docker** yüklü ve çalışır durumda
-- 🌐 **Kubernetes Kümesi** (Minikube veya AWS EKS, GKE, AKS gibi bulut servis sağlayıcıları)
-- 🛠 **kubectl** komut satırı aracı
+- ☕ Java Geliştirme Kiti (JDK) 17+
+- 📦 Maven veya Gradle
+- 🛠 Docker yüklü ve çalışır durumda
+- 🌐 Kubernetes Kümesi (Minikube veya AWS EKS, GKE, AKS gibi bulut servis sağlayıcıları)
+- 🛠 kubectl komut satırı aracı
 
 ---
 
@@ -143,7 +143,7 @@ fun main(args: Array<String>) {
 
 ## 🛠️ Adım 3: Kubernetes Dağıtımı ve Servisi Tanımlayın
 
-**deployment.yaml** dosyasını oluşturun:
+deployment.yaml dosyasını oluşturun:
 
 ```yaml
 apiVersion: apps/v1
@@ -167,7 +167,7 @@ spec:
             - containerPort: 8080
 ```
 
-**service.yaml** dosyasını oluşturun:
+service.yaml dosyasını oluşturun:
 
 ```yaml
 apiVersion: v1

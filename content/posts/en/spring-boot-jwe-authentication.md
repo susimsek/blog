@@ -34,18 +34,18 @@ Spring Boot lets you combine JWS signing with JWE encryption to protect both the
 
 ## 🌟 Why Use JWE Authentication?
 
-- **Integrity**: Ensure tokens are signed (JWS) and tamper-evident.
-- **Confidentiality**: Encrypt sensitive claims so only holders of the private key can read them (JWE).
-- **Standards-based**: Built on the JOSE (JWS, JWE) specifications.
-- **Spring Support**: Spring Security’s OAuth2 Resource Server handles JWE+JWS seamlessly.
+- Integrity: Ensure tokens are signed (JWS) and tamper-evident.
+- Confidentiality: Encrypt sensitive claims so only holders of the private key can read them (JWE).
+- Standards-based: Built on the JOSE (JWS, JWE) specifications.
+- Spring Support: Spring Security’s OAuth2 Resource Server handles JWE+JWS seamlessly.
 
 ---
 
 ## 📋 Prerequisites
 
-- ☕ **Java Development Kit (JDK) 17** or higher
-- 📦 **Spring Boot 3.2+**
-- 🔤 **IDE** (IntelliJ IDEA, Eclipse)
+- ☕ Java Development Kit (JDK) 17 or higher
+- 📦 Spring Boot 3.2+
+- 🔤 IDE (IntelliJ IDEA, Eclipse)
 
 ---
 
@@ -53,7 +53,7 @@ Spring Boot lets you combine JWS signing with JWE encryption to protect both the
 
 Include these in your `pom.xml` or `build.gradle` file.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -71,7 +71,7 @@ Include these in your `pom.xml` or `build.gradle` file.
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -186,11 +186,11 @@ security:
 
 In this section, we define the beans and properties required to load credentials, RSA keys, and HTTP security filters for JWE-based authentication:
 
-- **AdminProperties**: Loads admin username and password from application properties.
-- **UserProperties**: Loads normal user credentials from application properties.
-- **JwtProperties**: Configures JWT issuer, expiration, and signing/encryption key pairs.
-- **SecurityJwtConfig**: Builds RSA JWKs, JWT encoder/decoder, authentication converter, and token resolver.
-- **SecurityConfig**: Defines in-memory users and the stateless security filter chain with route authorization.
+- AdminProperties: Loads admin username and password from application properties.
+- UserProperties: Loads normal user credentials from application properties.
+- JwtProperties: Configures JWT issuer, expiration, and signing/encryption key pairs.
+- SecurityJwtConfig: Builds RSA JWKs, JWT encoder/decoder, authentication converter, and token resolver.
+- SecurityConfig: Defines in-memory users and the stateless security filter chain with route authorization.
 
 <span style="display:block; height:1rem;"></span>
 
@@ -744,12 +744,12 @@ class UserProperties {
 
 In this section, we define the core utility classes and constants needed to generate, encrypt, and resolve JSON Web Encryption (JWE) tokens in your Spring Boot application. These components work together to:
 
-- **AuthoritiesConstants**: Centralize role names with the `ROLE_` prefix.
-- **CookieBearerTokenResolver**: Resolve bearer tokens from Authorization headers or HTTP cookies.
-- **CookieUtils**: Create HTTP-only, secure cookies for access tokens.
-- **JweUtil**: Sign (JWS) and encrypt (JWE) JWTs using RSA keys and Nimbus.
-- **KeyUtils**: Build RSA JWKs from PEM‐encoded key material.
-- **SecurityUtils**: Extract the current user’s login from the security context.
+- AuthoritiesConstants: Centralize role names with the `ROLE_` prefix.
+- CookieBearerTokenResolver: Resolve bearer tokens from Authorization headers or HTTP cookies.
+- CookieUtils: Create HTTP-only, secure cookies for access tokens.
+- JweUtil: Sign (JWS) and encrypt (JWE) JWTs using RSA keys and Nimbus.
+- KeyUtils: Build RSA JWKs from PEM‐encoded key material.
+- SecurityUtils: Extract the current user’s login from the security context.
 
 These utilities form the foundation for a stateless, JWE‐based authentication flow in Spring Security.
 
@@ -1392,10 +1392,10 @@ object SecurityUtils {
 
 In this section, we define the REST controllers and DTOs necessary for:
 
-- **AuthController**: Authenticate users, issue JWE tokens, and set secure cookies.
-- **HelloController**: Expose protected resource endpoints for authenticated users and admin-specific paths.
-- **LoginRequestDTO**: Model the login request payload (username/password).
-- **TokenDTO**: Model the authentication response including token and expiration.
+- AuthController: Authenticate users, issue JWE tokens, and set secure cookies.
+- HelloController: Expose protected resource endpoints for authenticated users and admin-specific paths.
+- LoginRequestDTO: Model the login request payload (username/password).
+- TokenDTO: Model the authentication response including token and expiration.
 
 These components complete the stateless authentication flow by handling login, token issuance, cookie management, and resource protection.
 
@@ -1647,7 +1647,7 @@ gradle bootRun
 
 ### Admin Flow
 
-Login as **admin** and capture the JWE token from the `Set-Cookie` header:
+Login as admin and capture the JWE token from the `Set-Cookie` header:
 
 ```bash
 curl -i -X POST http://localhost:8080/api/auth/login \
@@ -1655,7 +1655,7 @@ curl -i -X POST http://localhost:8080/api/auth/login \
   -d '{"username":"admin","password":"adminpass"}'
 ```
 
-- **Set-Cookie** header contains `accessToken=<jwe-token>`
+- Set-Cookie header contains `accessToken=<jwe-token>`
 - Response body:
 
 ```json
@@ -1666,13 +1666,13 @@ curl -i -X POST http://localhost:8080/api/auth/login \
 }
 ```
 
-Use **cookie** to access hello endpoint:
+Use cookie to access hello endpoint:
 
 ```bash
 curl -b "accessToken=<jwe-token>" http://localhost:8080/api/hello
 ```
 
-Use **Authorization** header instead:
+Use Authorization header instead:
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello
@@ -1686,7 +1686,7 @@ curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello/admi
 
 ### User Flow
 
-Login as **user** and capture JWE token from **cookie**:
+Login as user and capture JWE token from cookie:
 
 ```bash
 curl -i -X POST http://localhost:8080/api/auth/login \
@@ -1694,21 +1694,21 @@ curl -i -X POST http://localhost:8080/api/auth/login \
   -d '{"username":"user","password":"userpass"}'
 ```
 
-- **Set-Cookie** header contains `accessToken=<jwe-token>`
+- Set-Cookie header contains `accessToken=<jwe-token>`
 
-Use **cookie** to access hello endpoint:
+Use cookie to access hello endpoint:
 
 ```bash
 curl -b "accessToken=<jwe-token>" http://localhost:8080/api/hello
 ```
 
-Use **Authorization** header:
+Use Authorization header:
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello
 ```
 
-Attempt admin endpoint (should be **403 Forbidden**):
+Attempt admin endpoint (should be 403 Forbidden):
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello/admin

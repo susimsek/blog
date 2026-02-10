@@ -43,9 +43,9 @@ Spring Boot Actuator allows developers to:
 
 📋 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 💼 **Maven or Gradle** installed
-- 🄄 A **Java IDE** (e.g., IntelliJ IDEA, Eclipse)
+- ☕ Java Development Kit (JDK) 17+
+- 💼 Maven or Gradle installed
+- 🄄 A Java IDE (e.g., IntelliJ IDEA, Eclipse)
 
 ---
 
@@ -53,7 +53,7 @@ Spring Boot Actuator allows developers to:
 
 To enable Actuator, add the following dependency to your Spring Boot project:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -62,7 +62,7 @@ To enable Actuator, add the following dependency to your Spring Boot project:
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -87,9 +87,9 @@ management.endpoint.health.show-details=always
 
 Here are some commonly used Actuator endpoints:
 
-- **`/actuator/health`**: Provides application health status.
-- **`/actuator/info`**: Displays application metadata.
-- **`/actuator/metrics`**: Offers application performance metrics.
+- `/actuator/health`: Provides application health status.
+- `/actuator/info`: Displays application metadata.
+- `/actuator/metrics`: Offers application performance metrics.
 
 You can access these endpoints via a browser or API tools like cURL.
 
@@ -196,13 +196,13 @@ http://localhost:8080/actuator/health
 
 You can test the Actuator endpoints using cURL or browser:
 
-- **Health Endpoint:**
+- Health Endpoint:
 
 ```bash
 curl -X GET http://localhost:8080/actuator/health
 ```
 
-- **Info Endpoint:**
+- Info Endpoint:
 
 ```bash
 curl -X GET http://localhost:8080/actuator/info

@@ -31,9 +31,9 @@ Spring Boot with GraalVM Native enables developers to create applications that o
 
 ## 🌟 Why Build a Native Application with GraalVM?
 
-- **Faster Startup Times**: Native images start much faster compared to JVM-based applications.
-- **Reduced Resource Usage**: Native images consume less memory, making them ideal for cloud and containerized environments.
-- **Enhanced Security**: Smaller runtime and reduced attack surface.
+- Faster Startup Times: Native images start much faster compared to JVM-based applications.
+- Reduced Resource Usage: Native images consume less memory, making them ideal for cloud and containerized environments.
+- Enhanced Security: Smaller runtime and reduced attack surface.
 
 ---
 
@@ -41,10 +41,10 @@ Spring Boot with GraalVM Native enables developers to create applications that o
 
 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 🛠 **GraalVM** installed with native-image support
-- 🕝 **Maven** or **Gradle**
-- 🐳 **Docker** for building container images (optional)
+- ☕ Java Development Kit (JDK) 17+
+- 🛠 GraalVM installed with native-image support
+- 🕝 Maven or Gradle
+- 🐳 Docker for building container images (optional)
 
 ---
 
@@ -52,7 +52,7 @@ Ensure you have the following:
 
 Add the GraalVM Native Build Tools plugin to your `pom.xml` or `build.gradle` file.
 
-**Maven:**
+Maven:
 
 ```xml
 <plugin>
@@ -62,7 +62,7 @@ Add the GraalVM Native Build Tools plugin to your `pom.xml` or `build.gradle` fi
 </plugin>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 plugins {

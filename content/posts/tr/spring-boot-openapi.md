@@ -31,10 +31,10 @@ OpenAPI, API dokümantasyonu ve test işlemlerini kolaylaştıran etkileşimli b
 
 ## 🌟 Neden OpenAPI Kullanmalıyız?
 
-- **Etkileşimli Dokümantasyon**: API'leri keşfetmek için kullanıcı dostu bir arayüz sağlar.
-- **Standartlaştırılmış Format**: Makine tarafından okunabilir API tanımları oluşturur.
-- **Kolay Test**: Endpoint'leri test etmek için yerleşik araçlar sunar.
-- **İstemci Kod Üretimi**: Çeşitli programlama dilleri için otomatik istemci kodu üretimi sağlar.
+- Etkileşimli Dokümantasyon: API'leri keşfetmek için kullanıcı dostu bir arayüz sağlar.
+- Standartlaştırılmış Format: Makine tarafından okunabilir API tanımları oluşturur.
+- Kolay Test: Endpoint'leri test etmek için yerleşik araçlar sunar.
+- İstemci Kod Üretimi: Çeşitli programlama dilleri için otomatik istemci kodu üretimi sağlar.
 
 ---
 
@@ -42,9 +42,9 @@ OpenAPI, API dokümantasyonu ve test işlemlerini kolaylaştıran etkileşimli b
 
 📋 Şunlara sahip olduğunuzdan emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven veya Gradle** yüklü
-- 🔤 Bir **Java IDE** (Örneğin IntelliJ IDEA, Eclipse)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven veya Gradle yüklü
+- 🔤 Bir Java IDE (Örneğin IntelliJ IDEA, Eclipse)
 
 ---
 
@@ -52,7 +52,7 @@ OpenAPI, API dokümantasyonu ve test işlemlerini kolaylaştıran etkileşimli b
 
 SpringDoc kullanarak OpenAPI'yi entegre etmek için aşağıdaki bağımlılığı projenize ekleyin:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -62,7 +62,7 @@ SpringDoc kullanarak OpenAPI'yi entegre etmek için aşağıdaki bağımlılığ
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
@@ -202,8 +202,8 @@ Uygulamayı aşağıdaki komutla çalıştırın:
 
 OpenAPI dokümantasyonuna erişmek için:
 
-- **API Docs:** `http://localhost:8080/api-docs`
-- **Swagger UI:** `http://localhost:8080/swagger-ui.html`
+- API Docs: `http://localhost:8080/api-docs`
+- Swagger UI: `http://localhost:8080/swagger-ui.html`
 
 ---
 

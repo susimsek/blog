@@ -30,9 +30,9 @@ Spring Boot DevTools, geliştirme sürecinizi hızlandırmak isteyen geliştiric
 
 Spring Boot DevTools geliştiricilere şunları sunar:
 
-- **Canlı Yeniden Yükleme**: Kod değişikliklerinde uygulamayı otomatik olarak yeniden yükler.
-- **Önbellekleme İyileştirmeleri**: Daha hızlı yineleme için şablon önbelleklemesini devre dışı bırakır.
-- **Hata Ayıklama Araçları**: Geliştirme sürecinde hata ayıklama deneyimini iyileştirir.
+- Canlı Yeniden Yükleme: Kod değişikliklerinde uygulamayı otomatik olarak yeniden yükler.
+- Önbellekleme İyileştirmeleri: Daha hızlı yineleme için şablon önbelleklemesini devre dışı bırakır.
+- Hata Ayıklama Araçları: Geliştirme sürecinde hata ayıklama deneyimini iyileştirir.
 
 ---
 
@@ -40,9 +40,9 @@ Spring Boot DevTools geliştiricilere şunları sunar:
 
 📋 Şunlara sahip olduğunuzdan emin olun:
 
-- ☕ **Java Geliştirme Kiti (JDK)** 17+
-- 📦 **Maven veya Gradle** yüklenmiş
-- 🔤 Bir **Java IDE** (IntelliJ IDEA, Eclipse gibi)
+- ☕ Java Geliştirme Kiti (JDK) 17+
+- 📦 Maven veya Gradle yüklenmiş
+- 🔤 Bir Java IDE (IntelliJ IDEA, Eclipse gibi)
 
 ---
 
@@ -50,7 +50,7 @@ Spring Boot DevTools geliştiricilere şunları sunar:
 
 DevTools'u etkinleştirmek için projenize aşağıdaki bağımlılıkları ekleyin:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -60,7 +60,7 @@ DevTools'u etkinleştirmek için projenize aşağıdaki bağımlılıkları ekle
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 runtimeOnly 'org.springframework.boot:spring-boot-devtools'
@@ -99,8 +99,8 @@ spring.devtools.restart.exclude=static/**,public/**
 
 Spring Boot DevTools, hata ayıklamayı şu şekilde iyileştirir:
 
-- **Otomatik Yeniden Başlatma**: Kod değişiklikleri algılandığında uygulama bağlamını yeniden başlatır.
-- **Uzaktan Hata Ayıklama**: Uzak sunucularda çalışan uygulamaları hata ayıklama yeteneği sunar.
+- Otomatik Yeniden Başlatma: Kod değişiklikleri algılandığında uygulama bağlamını yeniden başlatır.
+- Uzaktan Hata Ayıklama: Uzak sunucularda çalışan uygulamaları hata ayıklama yeteneği sunar.
 
 Uzaktan hata ayıklamayı etkinleştirmek için:
 
@@ -132,9 +132,9 @@ Kodunuzda değişiklik yapın ve canlı yeniden yükleme ile uygulama bağlamın
 
 Spring Boot DevTools özelliklerini aşağıdaki şekilde test edebilirsiniz:
 
-- **Canlı Yeniden Yükleme**: Kontrolcünüzde veya şablonunuzda bir değişiklik yapın ve dosyayı kaydedin. Uygulama otomatik olarak yeniden yüklenmelidir.
-- **Şablon Güncellemeleri**: Bir `.html` dosyasını güncelleyerek sunucuyu yeniden başlatmadan değişiklikleri kontrol edin.
-- **Hata Ayıklama**: IDE'ńizde kesme noktaları ekleyin ve `DevTools` etkin olduğundan emin olarak uzaktan hata ayıklamayı test edin.
+- Canlı Yeniden Yükleme: Kontrolcünüzde veya şablonunuzda bir değişiklik yapın ve dosyayı kaydedin. Uygulama otomatik olarak yeniden yüklenmelidir.
+- Şablon Güncellemeleri: Bir `.html` dosyasını güncelleyerek sunucuyu yeniden başlatmadan değişiklikleri kontrol edin.
+- Hata Ayıklama: IDE'ńizde kesme noktaları ekleyin ve `DevTools` etkin olduğundan emin olarak uzaktan hata ayıklamayı test edin.
 
 ---
 

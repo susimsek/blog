@@ -36,9 +36,9 @@ AOP enables developers to separate concerns that affect multiple parts of an app
 
 📋 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🔤 A **Java IDE** (e.g., IntelliJ IDEA, Eclipse)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🔤 A Java IDE (e.g., IntelliJ IDEA, Eclipse)
 
 ---
 
@@ -46,7 +46,7 @@ AOP enables developers to separate concerns that affect multiple parts of an app
 
 Include the following dependencies in your project:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -55,7 +55,7 @@ Include the following dependencies in your project:
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-aop'
@@ -249,7 +249,7 @@ class UserController(
 
 Run the application using the following commands:
 
-- **Spring Boot (Java/Kotlin):**
+- Spring Boot (Java/Kotlin):
 
   ```bash
   ./mvnw spring-boot:run
@@ -263,13 +263,13 @@ Access the API at `http://localhost:8080/api/users`.
 
 You can test the API using the following cURL commands:
 
-- **Fetch all users:**
+- Fetch all users:
 
 ```bash
 curl -X GET http://localhost:8080/api/users
 ```
 
-- **Fetch a user by ID:**
+- Fetch a user by ID:
 
 ```bash
 curl -X GET http://localhost:8080/api/users/1

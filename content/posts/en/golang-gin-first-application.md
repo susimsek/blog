@@ -27,8 +27,8 @@ Gin simplifies the process of building high-performance web applications with Go
 
 📋 Before starting, ensure you have the following:
 
-- 🔧 **Golang** 1.17+ installed
-- 🗍 **A text editor or IDE** (e.g., Visual Studio Code, GoLand, or Vim)
+- 🔧 Golang 1.17+ installed
+- 🗍 A text editor or IDE (e.g., Visual Studio Code, GoLand, or Vim)
 
 ---
 
@@ -36,7 +36,7 @@ Gin simplifies the process of building high-performance web applications with Go
 
 You can set up your first Gin project by following these steps:
 
-1. **Initialize a Go Module**
+1. Initialize a Go Module
 
 ```bash
 mkdir gin-first-app
@@ -44,7 +44,7 @@ cd gin-first-app
 go mod init gin-first-app
 ```
 
-2. **Install Gin**
+2. Install Gin
 
 ```bash
 go get -u github.com/gin-gonic/gin
@@ -94,7 +94,7 @@ go run main.go
    http://localhost:8080/hello
    ```
 
-**Response:**
+Response:
 
 ```json
 {

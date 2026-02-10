@@ -31,10 +31,10 @@ OpenAPI simplifies API documentation and testing by providing an interactive int
 
 ## 🌟 Why Use OpenAPI?
 
-- **Interactive Documentation**: Offers a user-friendly interface for exploring APIs.
-- **Standardized Format**: Generates machine-readable API definitions.
-- **Ease of Testing**: Provides built-in tools for testing endpoints.
-- **Client Code Generation**: Allows automatic generation of client code for various programming languages.
+- Interactive Documentation: Offers a user-friendly interface for exploring APIs.
+- Standardized Format: Generates machine-readable API definitions.
+- Ease of Testing: Provides built-in tools for testing endpoints.
+- Client Code Generation: Allows automatic generation of client code for various programming languages.
 
 ---
 
@@ -42,9 +42,9 @@ OpenAPI simplifies API documentation and testing by providing an interactive int
 
 📋 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🔤 A **Java IDE** (e.g., IntelliJ IDEA, Eclipse)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🔤 A Java IDE (e.g., IntelliJ IDEA, Eclipse)
 
 ---
 
@@ -52,7 +52,7 @@ OpenAPI simplifies API documentation and testing by providing an interactive int
 
 To integrate OpenAPI using SpringDoc, add the following dependency to your Spring Boot project:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -62,7 +62,7 @@ To integrate OpenAPI using SpringDoc, add the following dependency to your Sprin
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
@@ -202,8 +202,8 @@ Run the application using the following command:
 
 Access the OpenAPI documentation at:
 
-- **API Docs:** `http://localhost:8080/api-docs`
-- **Swagger UI:** `http://localhost:8080/swagger-ui.html`
+- API Docs: `http://localhost:8080/api-docs`
+- Swagger UI: `http://localhost:8080/swagger-ui.html`
 
 ---
 

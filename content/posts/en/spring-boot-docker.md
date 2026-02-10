@@ -28,16 +28,16 @@ topics:
     color: 'brown'
 ---
 
-Spring Boot provides multiple ways to containerize applications efficiently using **Docker**, **Buildpacks**, and **Jib**. This guide explores different approaches to building and deploying Spring Boot applications with Docker.
+Spring Boot provides multiple ways to containerize applications efficiently using Docker, Buildpacks, and Jib. This guide explores different approaches to building and deploying Spring Boot applications with Docker.
 
 ---
 
 ## 🌟 Why Use Docker for Spring Boot?
 
-- **Portable Deployment**: Run applications consistently across environments.
-- **Scalability**: Easily scale and manage containerized applications.
-- **Lightweight and Efficient**: Optimize resource utilization with minimal overhead.
-- **DevOps Friendly**: Seamlessly integrate with CI/CD pipelines.
+- Portable Deployment: Run applications consistently across environments.
+- Scalability: Easily scale and manage containerized applications.
+- Lightweight and Efficient: Optimize resource utilization with minimal overhead.
+- DevOps Friendly: Seamlessly integrate with CI/CD pipelines.
 
 ---
 
@@ -45,15 +45,15 @@ Spring Boot provides multiple ways to containerize applications efficiently usin
 
 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🐳 **Docker** installed and running
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🐳 Docker installed and running
 
 ---
 
 ## 🛠️ Step 1: Add Dependencies
 
-To enable Docker support, add the **Spring Boot Maven Plugin**, **Jib Plugin**, and **Spring Boot Web Starter** to your build tool.
+To enable Docker support, add the Spring Boot Maven Plugin, Jib Plugin, and Spring Boot Web Starter to your build tool.
 
 ### Maven Configuration:
 
@@ -93,7 +93,7 @@ dependencies {
 }
 ```
 
-To enable Docker support, add the **Spring Boot Maven Plugin** and **Jib Plugin** to your build tool.
+To enable Docker support, add the Spring Boot Maven Plugin and Jib Plugin to your build tool.
 
 ### Maven Configuration:
 
@@ -185,7 +185,7 @@ fun main(args: Array<String>) {
 
 ### Option 1: Using Buildpacks
 
-Spring Boot provides built-in support for creating Docker images without a `Dockerfile` using **Buildpacks**.
+Spring Boot provides built-in support for creating Docker images without a `Dockerfile` using Buildpacks.
 
 ```bash
 mvn spring-boot:build-image

@@ -42,15 +42,15 @@ ORM, nesne yönelimli programlama ile ilişkisel veritabanları arasındaki boş
 
 📜 Şunlara sahip olduğunuzdan emin olun:
 
-- ☕ **Java Geliştirme Kiti (JDK)** 17+
-- 📦 **Maven veya Gradle** kurulu
-- 🔤 Bir **Java IDE**
-- 🐘 **PostgreSQL** kurulu ve çalışır durumda
+- ☕ Java Geliştirme Kiti (JDK) 17+
+- 📦 Maven veya Gradle kurulu
+- 🔤 Bir Java IDE
+- 🐘 PostgreSQL kurulu ve çalışır durumda
 
-**Go** için:
+Go için:
 
-- 🔧 **Golang** 1.17+ kurulu
-- 🔄 Projenizde **go.mod** başlatılmış
+- 🔧 Golang 1.17+ kurulu
+- 🔄 Projenizde go.mod başlatılmış
 
 ---
 
@@ -62,7 +62,7 @@ Spring Boot projesi kurmak ve ORM entegrasyonu sağlamak için şu adımları iz
 
 Spring Boot projeleri için aşağıdaki bağımlılıkları projenize ekleyin:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -75,7 +75,7 @@ Spring Boot projeleri için aşağıdaki bağımlılıkları projenize ekleyin:
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -97,12 +97,12 @@ spring.jpa.hibernate.ddl-auto=update
 
 Henüz yapmadıysanız, [Spring Initializr](https://start.spring.io/) kullanarak projenizi oluşturun:
 
-1. **Spring Web**, **Spring Data JPA** ve **PostgreSQL Driver** bağımlılıklarını seçin.
+1. Spring Web, Spring Data JPA ve PostgreSQL Driver bağımlılıklarını seçin.
 2. Projeyi indirin ve tercih ettiğiniz IDE'ye aktarın.
 
-**Go** projeleri için:
+Go projeleri için:
 
-- **Gin Çerçevesini ve GORM'u Kurun:**
+- Gin Çerçevesini ve GORM'u Kurun:
 
 ```bash
 # Gin çerçevesini kurun
@@ -319,13 +319,13 @@ func main() {
 
 ## ▶️ Uygulamaları Çalıştırma
 
-- **Spring Boot:**
+- Spring Boot:
 
   ```bash
   ./mvnw spring-boot:run
   ```
 
-- **Gin:**
+- Gin:
 
   ```bash
   go run main.go
@@ -337,13 +337,13 @@ func main() {
 
 API'yi aşağıdaki cURL komutları ile test edebilirsiniz:
 
-**Tüm Kullanıcıları Getir:**
+Tüm Kullanıcıları Getir:
 
 ```bash
 curl -X GET http://localhost:8080/api/users
 ```
 
-**Yeni Bir Kullanıcı Oluştur:**
+Yeni Bir Kullanıcı Oluştur:
 
 ```bash
 curl -X POST http://localhost:8080/api/users \

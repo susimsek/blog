@@ -27,8 +27,8 @@ Gin, Golang ile yüksek performanslı web uygulamaları oluşturma sürecini bas
 
 📋 Başlamadan önce aşağıdaki gereksinimlere sahip olduğunuzdan emin olun:
 
-- 🔧 **Golang** 1.17+ kurulu
-- 🗍 **Bir metin editörü veya IDE** (ör. Visual Studio Code, GoLand veya Vim)
+- 🔧 Golang 1.17+ kurulu
+- 🗍 Bir metin editörü veya IDE (ör. Visual Studio Code, GoLand veya Vim)
 
 ---
 
@@ -36,7 +36,7 @@ Gin, Golang ile yüksek performanslı web uygulamaları oluşturma sürecini bas
 
 İlk Gin projenizi aşağıdaki adımları izleyerek ayarlayabilirsiniz:
 
-1. **Bir Go Modülü Başlatın**
+1. Bir Go Modülü Başlatın
 
 ```bash
 mkdir gin-first-app
@@ -44,7 +44,7 @@ cd gin-first-app
 go mod init gin-first-app
 ```
 
-2. **Gin Kurulumu**
+2. Gin Kurulumu
 
 ```bash
 go get -u github.com/gin-gonic/gin
@@ -94,7 +94,7 @@ go run main.go
    http://localhost:8080/hello
    ```
 
-**Yanıt:**
+Yanıt:
 
 ```json
 {

@@ -28,16 +28,16 @@ topics:
     color: 'brown'
 ---
 
-Spring Boot, **Docker**, **Buildpacks** ve **Jib** kullanarak uygulamaları verimli bir şekilde konteynerleştirmek için birden fazla yöntem sunar. Bu kılavuz, Spring Boot uygulamalarını Docker kullanarak oluşturma ve dağıtma süreçlerini ele almaktadır.
+Spring Boot, Docker, Buildpacks ve Jib kullanarak uygulamaları verimli bir şekilde konteynerleştirmek için birden fazla yöntem sunar. Bu kılavuz, Spring Boot uygulamalarını Docker kullanarak oluşturma ve dağıtma süreçlerini ele almaktadır.
 
 ---
 
 ## 🌟 Neden Spring Boot İçin Docker Kullanmalıyız?
 
-- **Taşınabilir Dağıtım**: Uygulamaları farklı ortamlar arasında tutarlı bir şekilde çalıştırın.
-- **Ölçeklenebilirlik**: Konteynerleştirilmiş uygulamaları kolayca ölçeklendirin ve yönetin.
-- **Hafif ve Verimli**: Kaynak kullanımını optimize ederek gereksiz yükü azaltın.
-- **DevOps Uyumlu**: CI/CD pipeline hatlarına sorunsuz şekilde entegre edin.
+- Taşınabilir Dağıtım: Uygulamaları farklı ortamlar arasında tutarlı bir şekilde çalıştırın.
+- Ölçeklenebilirlik: Konteynerleştirilmiş uygulamaları kolayca ölçeklendirin ve yönetin.
+- Hafif ve Verimli: Kaynak kullanımını optimize ederek gereksiz yükü azaltın.
+- DevOps Uyumlu: CI/CD pipeline hatlarına sorunsuz şekilde entegre edin.
 
 ---
 
@@ -45,15 +45,15 @@ Spring Boot, **Docker**, **Buildpacks** ve **Jib** kullanarak uygulamaları veri
 
 Aşağıdaki bileşenlere sahip olduğunuzdan emin olun:
 
-- ☕ **Java Geliştirme Kiti (JDK)** 17+
-- 📦 **Maven veya Gradle**
-- 🐳 **Docker** yüklü ve çalışır durumda
+- ☕ Java Geliştirme Kiti (JDK) 17+
+- 📦 Maven veya Gradle
+- 🐳 Docker yüklü ve çalışır durumda
 
 ---
 
 ## 🛠️ Adım 1: Bağımlılıkları Ekleyin
 
-Docker desteğini etkinleştirmek için **Spring Boot Maven Plugin**, **Jib Plugin** ve **Spring Boot Web Starter** eklentilerini yapılandırma dosyanıza ekleyin.
+Docker desteğini etkinleştirmek için Spring Boot Maven Plugin, Jib Plugin ve Spring Boot Web Starter eklentilerini yapılandırma dosyanıza ekleyin.
 
 ### Maven Yapılandırması:
 
@@ -156,7 +156,7 @@ fun main(args: Array<String>) {
 
 ### Seçenek 1: Buildpacks Kullanarak
 
-Spring Boot, **Buildpacks** ile `Dockerfile` kullanmadan Docker imajları oluşturmayı destekler.
+Spring Boot, Buildpacks ile `Dockerfile` kullanmadan Docker imajları oluşturmayı destekler.
 
 ```bash
 mvn spring-boot:build-image

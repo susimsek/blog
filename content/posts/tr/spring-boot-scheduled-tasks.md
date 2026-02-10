@@ -28,10 +28,10 @@ Spring Boot, `@Scheduled` anotasyonu ile arka planda çalışan görevleri kolay
 
 ## 🌟 Neden Spring Boot @Scheduled Kullanmalıyız?
 
-- **Görevleri Otomatikleştirin**: İşlemleri belirli aralıklarla çalıştırın.
-- **Kaynakları Verimli Kullanın**: Ana iş parçacıklarını bloklamadan görevleri planlayın.
-- **Farklı Zamanlama Seçenekleri**: Sabit oranlı, sabit gecikmeli veya cron tabanlı zamanlamalar.
-- **Spring Boot Entegrasyonu**: Uygulama yaşam döngüsüyle sorunsuz çalışır.
+- Görevleri Otomatikleştirin: İşlemleri belirli aralıklarla çalıştırın.
+- Kaynakları Verimli Kullanın: Ana iş parçacıklarını bloklamadan görevleri planlayın.
+- Farklı Zamanlama Seçenekleri: Sabit oranlı, sabit gecikmeli veya cron tabanlı zamanlamalar.
+- Spring Boot Entegrasyonu: Uygulama yaşam döngüsüyle sorunsuz çalışır.
 
 ---
 
@@ -39,9 +39,9 @@ Spring Boot, `@Scheduled` anotasyonu ile arka planda çalışan görevleri kolay
 
 Şunlara sahip olduğunuzdan emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven veya Gradle** kurulu
-- 🔤 Bir **Java IDE** (IntelliJ IDEA, Eclipse vb.)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven veya Gradle kurulu
+- 🔤 Bir Java IDE (IntelliJ IDEA, Eclipse vb.)
 
 ---
 
@@ -49,7 +49,7 @@ Spring Boot, `@Scheduled` anotasyonu ile arka planda çalışan görevleri kolay
 
 Cron desteğini etkinleştirmek için `spring-boot-starter-web` bağımlılığını `pom.xml` veya `build.gradle` dosyanıza ekleyin.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -58,13 +58,13 @@ Cron desteğini etkinleştirmek için `spring-boot-starter-web` bağımlılığ�
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-web'
 ```
 
-> **Neden `spring-boot-starter-web`?** > `@Scheduled` anotasyonu çalışırken **Spring Context** gerektirir. `spring-boot-starter-web` eklenerek uygulama yaşam döngüsünün doğru şekilde yönetilmesi sağlanır.
+> Neden `spring-boot-starter-web`? > `@Scheduled` anotasyonu çalışırken Spring Context gerektirir. `spring-boot-starter-web` eklenerek uygulama yaşam döngüsünün doğru şekilde yönetilmesi sağlanır.
 
 ---
 
@@ -174,7 +174,7 @@ Veya Gradle kullanarak:
 gradle bootRun
 ```
 
-Planlanmış görev **her 5 saniyede bir** çalıştırılacaktır.
+Planlanmış görev her 5 saniyede bir çalıştırılacaktır.
 
 ---
 

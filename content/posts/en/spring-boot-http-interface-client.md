@@ -31,18 +31,18 @@ Spring Boot 3.2+ introduces the HTTP Interface Client, enabling you to define de
 
 ## 🌟 Why HTTP Interface Client?
 
-- **Declarative**: Define an interface and annotate methods for HTTP calls.
-- **Type-safe**: Compiler catches mismatched signatures or misconfigured paths.
-- **Minimal boilerplate**: One bean definition, no manual proxy or template code.
-- **Spring-friendly**: Leverages Spring Framework 6.2’s `@HttpExchange`, `@GetExchange`, and `WebClientAdapter`.
+- Declarative: Define an interface and annotate methods for HTTP calls.
+- Type-safe: Compiler catches mismatched signatures or misconfigured paths.
+- Minimal boilerplate: One bean definition, no manual proxy or template code.
+- Spring-friendly: Leverages Spring Framework 6.2’s `@HttpExchange`, `@GetExchange`, and `WebClientAdapter`.
 
 ---
 
 ## 📋 Prerequisites
 
-- ☕ **Java Development Kit (JDK) 21** or higher
-- 📦 **Spring Boot 3.2+**
-- 🔤 **IDE** (IntelliJ IDEA, Eclipse, etc.)
+- ☕ Java Development Kit (JDK) 21 or higher
+- 📦 Spring Boot 3.2+
+- 🔤 IDE (IntelliJ IDEA, Eclipse, etc.)
 
 ---
 
@@ -50,7 +50,7 @@ Spring Boot 3.2+ introduces the HTTP Interface Client, enabling you to define de
 
 Add the Web starter to your build:
 
-**Maven**:
+Maven:
 
 ```xml
 <dependency>
@@ -59,7 +59,7 @@ Add the Web starter to your build:
 </dependency>
 ```
 
-**Gradle**:
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-web'

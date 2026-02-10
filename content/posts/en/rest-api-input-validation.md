@@ -42,7 +42,7 @@ Validation ensures the data sent to your API adheres to expected formats and pre
 
 For Spring Boot projects, include the following dependencies:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -51,7 +51,7 @@ For Spring Boot projects, include the following dependencies:
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -288,7 +288,7 @@ func ErrorHandler() gin.HandlerFunc {
 
 ---
 
-## main.go Example
+### main.go Example
 
 Here is an example of the `main.go` file for setting up a Gin application:
 
@@ -340,7 +340,7 @@ Access the API at `http://localhost:8080/api/todos`.
 
 Here are some example cURL commands to test the API:
 
-- **POST a new Todo:**
+- POST a new Todo:
 
 ```bash
 curl -X POST http://localhost:8080/api/todos \
@@ -348,13 +348,13 @@ curl -X POST http://localhost:8080/api/todos \
 -d '{"title": "New Task", "completed": false}'
 ```
 
-- **GET all Todos:**
+- GET all Todos:
 
 ```bash
 curl -X GET http://localhost:8080/api/todos
 ```
 
-- **Handle Validation Errors:**
+- Handle Validation Errors:
 
 Send an invalid request:
 

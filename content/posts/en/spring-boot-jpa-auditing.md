@@ -44,7 +44,7 @@ JPA Auditing in Spring Boot allows you to automatically track who created or mod
 
 Make sure you have the following dependencies in your project:
 
-**Maven**:
+Maven:
 
 ```xml
 <dependency>
@@ -53,7 +53,7 @@ Make sure you have the following dependencies in your project:
 </dependency>
 ```
 
-**Gradle**:
+Gradle:
 
 ```groovy
 dependencies {

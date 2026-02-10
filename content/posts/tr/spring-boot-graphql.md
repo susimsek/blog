@@ -36,9 +36,9 @@ GraphQL, istemcilerin sadece gerekli olan verileri talep etmesine izin vererek, 
 
 📋 Aşağıdaki bileşenlerin kurulu olduğundan emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven veya Gradle** kurulu
-- 🔤 Bir **Java IDE** (IntelliJ IDEA, Eclipse vb.)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven veya Gradle kurulu
+- 🔤 Bir Java IDE (IntelliJ IDEA, Eclipse vb.)
 
 ---
 
@@ -250,7 +250,7 @@ class UserController(
 
 Uygulamayı aşağıdaki komutlarla çalıştırın:
 
-- **Spring Boot (Java/Kotlin):**
+- Spring Boot (Java/Kotlin):
 
   ```bash
   ./mvnw spring-boot:run
@@ -264,7 +264,7 @@ GraphQL Playground'a erişim sağlamak için `http://localhost:8080/graphiql` ad
 
 API'nizi test etmek için aşağıdaki sorguları kullanabilirsiniz:
 
-- **Bir kullanıcıyı ID'ye göre getir:**
+- Bir kullanıcıyı ID'ye göre getir:
 
 ```graphql
 query {
@@ -276,7 +276,7 @@ query {
 }
 ```
 
-- **Tüm kullanıcıları getir:**
+- Tüm kullanıcıları getir:
 
 ```graphql
 query {

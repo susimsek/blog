@@ -28,17 +28,17 @@ topics:
     color: 'brown'
 ---
 
-Spring Boot **Config Server**, dağıtılmış uygulamalar için merkezi yapılandırma yönetimi sağlar ve hizmetlerin yeniden başlatılmasına gerek kalmadan dinamik yapılandırma güncellemelerine olanak tanır. Bu kılavuz, Spring Boot Config Server'ı nasıl kuracağınızı ve etkin bir şekilde kullanacağınızı açıklar.
+Spring Boot Config Server, dağıtılmış uygulamalar için merkezi yapılandırma yönetimi sağlar ve hizmetlerin yeniden başlatılmasına gerek kalmadan dinamik yapılandırma güncellemelerine olanak tanır. Bu kılavuz, Spring Boot Config Server'ı nasıl kuracağınızı ve etkin bir şekilde kullanacağınızı açıklar.
 
 ---
 
 ## 🌟 Neden Config Server Kullanmalıyız?
 
-- **Merkezi Yapılandırma:** Uygulama ayarlarını tek bir yerde yönetin.
-- **Dinamik Güncellemeler:** Yapılandırmaları hizmetleri yeniden başlatmadan güncelleyin.
-- **Environment Profilleri:** Geliştirme, test ve üretim ortamları için farklı yapılandırmaları destekler.
-- **Güvenlik ve Erişim Kontrolü:** Hassas yapılandırmaları güvenli bir şekilde saklayın.
-- **Git Entegrasyonu:** Yapılandırma sürümlerini yönetmek ve izlemek için Git kullanın.
+- Merkezi Yapılandırma: Uygulama ayarlarını tek bir yerde yönetin.
+- Dinamik Güncellemeler: Yapılandırmaları hizmetleri yeniden başlatmadan güncelleyin.
+- Environment Profilleri: Geliştirme, test ve üretim ortamları için farklı yapılandırmaları destekler.
+- Güvenlik ve Erişim Kontrolü: Hassas yapılandırmaları güvenli bir şekilde saklayın.
+- Git Entegrasyonu: Yapılandırma sürümlerini yönetmek ve izlemek için Git kullanın.
 
 ---
 
@@ -46,9 +46,9 @@ Spring Boot **Config Server**, dağıtılmış uygulamalar için merkezi yapıla
 
 Aşağıdaki bileşenlerin sisteminizde yüklü olduğundan emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven veya Gradle** yüklü
-- 📁 **Git Deposu** (Yapılandırmaları saklamak için)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven veya Gradle yüklü
+- 📁 Git Deposu (Yapılandırmaları saklamak için)
 
 ---
 
@@ -132,7 +132,7 @@ spring:
           default-label: main
 ```
 
-> **Not:** `https://github.com/example/config-repo` adresini kendi Git deponuzla değiştirin.
+> Not: `https://github.com/example/config-repo` adresini kendi Git deponuzla değiştirin.
 
 ---
 
@@ -197,7 +197,7 @@ Beklenen Çıktı:
 
 ### Bağımlılıkları Ekleme
 
-#### Maven:
+### Maven:
 
 ```xml
 <dependency>
@@ -206,7 +206,7 @@ Beklenen Çıktı:
 </dependency>
 ```
 
-#### Gradle:
+### Gradle:
 
 ```groovy
 implementation 'org.springframework.cloud:spring-cloud-starter-config'

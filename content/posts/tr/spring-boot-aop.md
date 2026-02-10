@@ -36,9 +36,9 @@ AOP, bir uygulamanın birden fazla bölümünü etkileyen logging veya güvenlik
 
 📋 Aşağıdakilere sahip olduğunuzdan emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven veya Gradle** kurulu
-- 🔤 **Java IDE** (IntelliJ IDEA, Eclipse veya VS Code)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven veya Gradle kurulu
+- 🔤 Java IDE (IntelliJ IDEA, Eclipse veya VS Code)
 
 ---
 
@@ -46,7 +46,7 @@ AOP, bir uygulamanın birden fazla bölümünü etkileyen logging veya güvenlik
 
 Projenize aşağıdaki bağlılıkları dahil edin:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -55,7 +55,7 @@ Projenize aşağıdaki bağlılıkları dahil edin:
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-aop'
@@ -249,7 +249,7 @@ class UserController(
 
 Aşağıdaki komutlarla uygulamayı çalıştırın:
 
-- **Spring Boot (Java/Kotlin):**
+- Spring Boot (Java/Kotlin):
 
   ```bash
   ./mvnw spring-boot:run
@@ -263,13 +263,13 @@ API'ye şu adresten erişebilirsiniz: `http://localhost:8080/api/users`.
 
 API'yi aşağıdaki cURL komutları ile test edebilirsiniz:
 
-- **Tüm kullanıcıları getir:**
+- Tüm kullanıcıları getir:
 
 ```bash
 curl -X GET http://localhost:8080/api/users
 ```
 
-- **Bir ID'ye göre kullanıcı getir:**
+- Bir ID'ye göre kullanıcı getir:
 
 ```bash
 curl -X GET http://localhost:8080/api/users/1

@@ -31,10 +31,10 @@ Apache Kafka, gerçek zamanlı veri işleme olanağı sağlayan dağıtık bir o
 
 ## 🌟 Neden Kafka Kullanılmalı?
 
-- **Ölçeklenebilir Mesajlaşma:** Büyük veri hacimlerini sorunsuz bir şekilde işleyin.
-- **Hata Toleransı:** Veri dayanıklılığı ve yüksek erişilebilirlik sağlar.
-- **Gerçek Zamanlı Veri İşleme:** Verileri anında işleyin ve analiz edin.
-- **Kolay Entegrasyon:** Kafka, Spring Boot ile etkin bir geliştirme için kolayca entegre edilebilir.
+- Ölçeklenebilir Mesajlaşma: Büyük veri hacimlerini sorunsuz bir şekilde işleyin.
+- Hata Toleransı: Veri dayanıklılığı ve yüksek erişilebilirlik sağlar.
+- Gerçek Zamanlı Veri İşleme: Verileri anında işleyin ve analiz edin.
+- Kolay Entegrasyon: Kafka, Spring Boot ile etkin bir geliştirme için kolayca entegre edilebilir.
 
 ---
 
@@ -42,10 +42,10 @@ Apache Kafka, gerçek zamanlı veri işleme olanağı sağlayan dağıtık bir o
 
 📋 Aşağıdakilere sahip olduğunuzdan emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven veya Gradle** yüklenmiş
-- 🔠 Bir **Java IDE** (IntelliJ IDEA, Eclipse gibi)
-- 🔠 **Apache Kafka**, yüklenmiş ve çalışır durumda
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven veya Gradle yüklenmiş
+- 🔠 Bir Java IDE (IntelliJ IDEA, Eclipse gibi)
+- 🔠 Apache Kafka, yüklenmiş ve çalışır durumda
 
 ---
 
@@ -53,7 +53,7 @@ Apache Kafka, gerçek zamanlı veri işleme olanağı sağlayan dağıtık bir o
 
 Kafka'yı Spring Boot projenize entegre etmek için aşağıdaki bağımlıkları ekleyin:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -62,7 +62,7 @@ Kafka'yı Spring Boot projenize entegre etmek için aşağıdaki bağımlıklar�
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.kafka:spring-kafka'
@@ -216,7 +216,7 @@ class KafkaConsumer {
 
 ---
 
-## Controller Örneği
+### Controller Örneği
 
 :::tabs
 @tab Java [icon=java]

@@ -25,16 +25,16 @@ topics:
     color: 'brown'
 ---
 
-Test-Driven Development (TDD) helps you build robust applications by writing tests **before** implementing business logic. With Spring Boot, writing unit tests is fast, clean, and efficient.
+Test-Driven Development (TDD) helps you build robust applications by writing tests before implementing business logic. With Spring Boot, writing unit tests is fast, clean, and efficient.
 
 ---
 
 ## 🌟 Why Use TDD in Spring Boot?
 
-- **Fail Fast**: Catch issues early during development.
-- **Clean Design**: Forces modular, testable code structure.
-- **Refactor with Confidence**: Tests serve as a safety net.
-- **Documentation**: Tests describe intended behavior clearly.
+- Fail Fast: Catch issues early during development.
+- Clean Design: Forces modular, testable code structure.
+- Refactor with Confidence: Tests serve as a safety net.
+- Documentation: Tests describe intended behavior clearly.
 
 ---
 
@@ -42,8 +42,8 @@ Test-Driven Development (TDD) helps you build robust applications by writing tes
 
 Make sure you have:
 
-- ☕ **JDK 17+** installed
-- 📦 **Maven or Gradle**
+- ☕ JDK 17+ installed
+- 📦 Maven or Gradle
 - 🔤 A Java IDE like IntelliJ IDEA or Eclipse
 
 ---
@@ -52,7 +52,7 @@ Make sure you have:
 
 Add Spring Boot's test starter to your project.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -62,7 +62,7 @@ Add Spring Boot's test starter to your project.
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -72,7 +72,7 @@ testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 ## 🧪 Step 2: Write Your First Test
 
-Create a simple unit test **before** implementing the service.
+Create a simple unit test before implementing the service.
 
 :::tabs
 @tab Java [icon=java]
@@ -168,13 +168,13 @@ You should see the test pass ✅
 
 ---
 
-## Refactor and Repeat
+### Refactor and Repeat
 
 Now that your test passes, you can safely refactor your code. TDD is a loop:
 
-1. **Red** – Write a failing test
-2. **Green** – Make it pass
-3. **Refactor** – Improve the code
+1. Red – Write a failing test
+2. Green – Make it pass
+3. Refactor – Improve the code
 
 ---
 

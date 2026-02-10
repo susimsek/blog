@@ -143,8 +143,8 @@ export const getAdjacentPosts = (
     return { previousPost: null, nextPost: null };
   }
 
-  const previous = allPosts[currentIndex - 1];
-  const next = allPosts[currentIndex + 1];
+  const previous = allPosts[currentIndex + 1];
+  const next = allPosts[currentIndex - 1];
 
   return {
     previousPost: previous ? { id: previous.id, title: previous.title } : null,

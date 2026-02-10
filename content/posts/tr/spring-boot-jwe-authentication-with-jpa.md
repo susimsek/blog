@@ -36,21 +36,21 @@ Spring Boot, stateless şifrelenmiş JWT’leri (JWE) kullanarak API’lerinizi 
 
 ## 🌟 Neden JWE + JPA Kimlik Doğrulama?
 
-- **Stateless Güvenlik**: Tokenlar kendi içinde tüm bilgiyi barındırır ve sunucu tarafında saklama gerektirmez.
-- **Bütünlük**: İmzalı tokenlar, içeriğin değiştirilmediğini garanti eder.
-- **Gizlilik**: Şifrelenmiş JWT’ler hassas bilgileri dışarıdan okunamaz halde tutar.
-- **Kullanıcı Yönetimi**: JPA depoları ile kullanıcıları ve rolleri JPA repositorylerde saklayıp yönetebilirsiniz.
-- **Standartlara Uygun**: JOSE, Spring Security ve Spring Data JPA’nın gücünü bir arada kullanır.
-- **Ölçeklenebilirlik**: Session replikasyonu veya sticky session gerektirmeden yatay ölçeklenebilir.
+- Stateless Güvenlik: Tokenlar kendi içinde tüm bilgiyi barındırır ve sunucu tarafında saklama gerektirmez.
+- Bütünlük: İmzalı tokenlar, içeriğin değiştirilmediğini garanti eder.
+- Gizlilik: Şifrelenmiş JWT’ler hassas bilgileri dışarıdan okunamaz halde tutar.
+- Kullanıcı Yönetimi: JPA depoları ile kullanıcıları ve rolleri JPA repositorylerde saklayıp yönetebilirsiniz.
+- Standartlara Uygun: JOSE, Spring Security ve Spring Data JPA’nın gücünü bir arada kullanır.
+- Ölçeklenebilirlik: Session replikasyonu veya sticky session gerektirmeden yatay ölçeklenebilir.
 
 ---
 
 ## 📋 Gereksinimler
 
-- ☕ **JDK 17** veya üzeri
-- 📦 **Spring Boot 3.2+**
-- 🔤 **IDE** (IntelliJ IDEA, Eclipse)
-- 🛢️ **PostgreSQL** (veya geliştirme için H2)
+- ☕ JDK 17 veya üzeri
+- 📦 Spring Boot 3.2+
+- 🔤 IDE (IntelliJ IDEA, Eclipse)
+- 🛢️ PostgreSQL (veya geliştirme için H2)
 
 ---
 
@@ -58,7 +58,7 @@ Spring Boot, stateless şifrelenmiş JWT’leri (JWE) kullanarak API’lerinizi 
 
 `pom.xml` veya `build.gradle` dosyanıza şunları ekleyin.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -89,7 +89,7 @@ Spring Boot, stateless şifrelenmiş JWT’leri (JWE) kullanarak API’lerinizi 
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -106,22 +106,22 @@ runtimeOnly 'com.h2database:h2'
 
 Bu bölümde, Spring Boot uygulamanızı H2/PostgreSQL, JPA, Liquibase değişiklik changelog, veri yüklemeleri ve JWE anahtar özellikleri ile yapılandırmak için gereken tüm uygulama ve veritabanı düzeyindeki yapılandırma dosyalarını tanımlıyoruz:
 
-- **`application.yml`**
+- `application.yml`
   Spring veri kaynağı (datasource), H2 konsolu, JPA/Hibernate, Liquibase changelog pathi ve tüm JWT/JWE anahtar, issuer ve geçerlilik süresi (expiration) ayarlarını içerir.
 
-- **`db/master.xml`**
-  Liquibase **master changelog** dosyası; H2 ve PostgreSQL için DBMS özel özellikler ve alt changelog tanımlarını barındırır.
+- `db/master.xml`
+  Liquibase master changelog dosyası; H2 ve PostgreSQL için DBMS özel özellikler ve alt changelog tanımlarını barındırır.
 
-- **`db/changelog/changelog-user.xml`**
+- `db/changelog/changelog-user.xml`
   `user_identity`, `authority` ve `user_authority_mapping` tabloları, indeksler, yabancı anahtarlar (FK) ve ilk `<loadData>` adımlarını tanımlayan temel şema değişiklik changelogu.
 
-- **`db/data/user.csv`**
+- `db/data/user.csv`
   Kullanıcı kayıtları (UUID, kullanıcı adı, bcrypt ile şifrelenmiş parola, e-posta, enabled flagi, zaman damgaları ve oluşturan kullanıcı bilgisi).
 
-- **`db/data/authority.csv`**
+- `db/data/authority.csv`
   Yetki kayıtları (UUID, ad, açıklama, zaman damgaları ve oluşturan kullanıcı bilgisi).
 
-- **`db/data/user_authority_mapping.csv`**
+- `db/data/user_authority_mapping.csv`
   Kullanıcılar ile yetkiler arasındaki mappingler (composite birincil anahtar, zaman damgaları ve oluşturan kullanıcı bilgisi).
 
 <span style="display:block; height:1rem;"></span>
@@ -482,10 +482,10 @@ a1b2c3d4-e5f6-7890-abcd-ef1234567890;f47ac10b-58cc-4372-a567-0e02b2c3d479;2025-0
 
 Bu bölümde, JWE tabanlı kimlik doğrulama için RSA anahtarları, HTTP güvenlik filtreleri ve JPA repository / auditing yapılandırmasını tanımlayan bean'leri ve ayarları oluşturuyoruz:
 
-- **JwtProperties**: JWT düzenleyicisi (issuer), geçerlilik süresi ve imzalama/şifreleme anahtar çiftlerini yapılandırır.
-- **SecurityJwtConfig**: RSA JWK nesnelerini oluşturur, JWT encoder/decoder’ı, authentication converter ve token resolveri yapılandırır.
-- **SecurityConfig**: `DomainUserDetailsService` ile entegre olur, kimlik doğrulama yöneticisi (authentication manager), password encoder ve JWE desteği ile stateless güvenlik filtre zincirini yapılandırır.
-- **DatabaseConfig**: JPA repository'lerini, auditing ve transaction yönetimini etkinleştirir.
+- JwtProperties: JWT düzenleyicisi (issuer), geçerlilik süresi ve imzalama/şifreleme anahtar çiftlerini yapılandırır.
+- SecurityJwtConfig: RSA JWK nesnelerini oluşturur, JWT encoder/decoder’ı, authentication converter ve token resolveri yapılandırır.
+- SecurityConfig: `DomainUserDetailsService` ile entegre olur, kimlik doğrulama yöneticisi (authentication manager), password encoder ve JWE desteği ile stateless güvenlik filtre zincirini yapılandırır.
+- DatabaseConfig: JPA repository'lerini, auditing ve transaction yönetimini etkinleştirir.
 
 <span style="display:block; height:1rem;"></span>
 
@@ -1010,12 +1010,12 @@ class DatabaseConfig
 
 Bu bölümde, kullanıcıları, rollerleri ve bunların eşlemelerini temsil eden JPA entity’lerini ve kullanıcıları yetkileriyle birlikte yüklemek için Spring Data JPA deposunu tanımlıyoruz.
 
-- **BaseEntity**: Audit alanları (`createdAt`, `createdBy`, `updatedAt`, `updatedBy`) sağlayan soyut üst sınıf.
-- **Authority**: Rol verilerini saklayan `authority` tablosu entity’si.
-- **User**: Kullanıcı kimlik bilgileri ve profili saklayan `user_identity` tablosu entity’si.
-- **UserAuthorityMapping**: Kullanıcıları ve rolleri birbirine bağlayan `user_authority_mapping` ilişki tablosunun entity’si.
-- **UserAuthorityMappingId**: `UserAuthorityMapping` için composite anahtar sınıfı.
-- **UserRepository**: Entity graph kullanarak kullanıcı ve yetkilerini getiren Spring Data JPA repository.
+- BaseEntity: Audit alanları (`createdAt`, `createdBy`, `updatedAt`, `updatedBy`) sağlayan soyut üst sınıf.
+- Authority: Rol verilerini saklayan `authority` tablosu entity’si.
+- User: Kullanıcı kimlik bilgileri ve profili saklayan `user_identity` tablosu entity’si.
+- UserAuthorityMapping: Kullanıcıları ve rolleri birbirine bağlayan `user_authority_mapping` ilişki tablosunun entity’si.
+- UserAuthorityMappingId: `UserAuthorityMapping` için composite anahtar sınıfı.
+- UserRepository: Entity graph kullanarak kullanıcı ve yetkilerini getiren Spring Data JPA repository.
 
 <span style="display:block; height:1rem;"></span>
 
@@ -1645,14 +1645,14 @@ interface UserRepository : JpaRepository<User, String> {
 
 Bu bölümde, Spring Boot uygulamanızda JSON Web Encryption (JWE) tokenları oluşturmak, şifrelemek ve çözmek için gerekli temel yardımcı sınıfları ve sabitleri tanımlıyoruz. Ayrıca auditing entegrasyonu ve JPA tabanlı UserDetailsService de ekliyoruz:
 
-- **AuthoritiesConstants**: `ROLE_` ön ekiyle rol isimlerini merkezileştirir.
-- **CookieBearerTokenResolver**: Bearer token’ları yetkilendirme başlıklarından veya HTTP çerezlerinden çözer.
-- **CookieUtils**: Erişim token’ları için HTTP-only ve secure çerezler oluşturur.
-- **JweUtil**: Nimbus kütüphanesi ile RSA anahtarları kullanarak JWT’leri imzalar (JWS) ve şifreler (JWE).
-- **KeyUtils**: PEM formatındaki anahtar çiftinden RSA JWK’leri oluşturur.
-- **SecurityUtils**: SecurityContext oturum açan kullanıcının bilgisini sunar.
-- **SpringSecurityAuditorAware**: Auditing için oturum açan kullanıcıyı sağlayan `AuditorAware` implementasyonu.
-- **DomainUserDetailsService**: JPA tabanlı `UserDetailsService`, kullanıcı kimlik bilgilerini ve yetkilerini getirir.
+- AuthoritiesConstants: `ROLE_` ön ekiyle rol isimlerini merkezileştirir.
+- CookieBearerTokenResolver: Bearer token’ları yetkilendirme başlıklarından veya HTTP çerezlerinden çözer.
+- CookieUtils: Erişim token’ları için HTTP-only ve secure çerezler oluşturur.
+- JweUtil: Nimbus kütüphanesi ile RSA anahtarları kullanarak JWT’leri imzalar (JWS) ve şifreler (JWE).
+- KeyUtils: PEM formatındaki anahtar çiftinden RSA JWK’leri oluşturur.
+- SecurityUtils: SecurityContext oturum açan kullanıcının bilgisini sunar.
+- SpringSecurityAuditorAware: Auditing için oturum açan kullanıcıyı sağlayan `AuditorAware` implementasyonu.
+- DomainUserDetailsService: JPA tabanlı `UserDetailsService`, kullanıcı kimlik bilgilerini ve yetkilerini getirir.
 
 Bu yardımcılar, Spring Security ile durumsuz (stateless) JWE tabanlı bir kimlik doğrulama akışının temelini oluşturur.
 
@@ -2430,10 +2430,10 @@ class SpringSecurityAuditorAware : AuditorAware<String> {
 
 Bu bölümde, aşağıdakileri gerçekleştirmek için gerekli REST controller ve DTO’ları tanımlıyoruz:
 
-- **AuthController**: Kullanıcıları doğrular, JWE token’ları oluşturur ve güvenli cookie ayarlar.
-- **HelloController**: Kimliği doğrulanmış kullanıcılar ve yalnızca admine özel pathler için güvenli endpointler sunar.
-- **LoginRequestDTO**: Login isteği payloadını (kullanıcı adı/parola) modelleyen DTO.
-- **TokenDTO**: Token ve geçerlilik süresini içeren kimlik doğrulama yanıtını modelleyen DTO.
+- AuthController: Kullanıcıları doğrular, JWE token’ları oluşturur ve güvenli cookie ayarlar.
+- HelloController: Kimliği doğrulanmış kullanıcılar ve yalnızca admine özel pathler için güvenli endpointler sunar.
+- LoginRequestDTO: Login isteği payloadını (kullanıcı adı/parola) modelleyen DTO.
+- TokenDTO: Token ve geçerlilik süresini içeren kimlik doğrulama yanıtını modelleyen DTO.
 
 Bu bileşenler, login işlemi, token oluşturma, cookie yönetimi ve kaynak korumasını işleyerek stateless(durumsuz) kimlik doğrulama akışını tamamlar.
 
@@ -2685,7 +2685,7 @@ gradle bootRun
 
 ### Admin Akışı
 
-**admin** olarak giriş yapın ve `Set-Cookie` başlığından JWE tokeni yakalayın:
+admin olarak giriş yapın ve `Set-Cookie` başlığından JWE tokeni yakalayın:
 
 ```bash
 curl -i -X POST http://localhost:8080/api/auth/login \
@@ -2693,7 +2693,7 @@ curl -i -X POST http://localhost:8080/api/auth/login \
   -d '{"username":"admin","password":"adminpass"}'
 ```
 
-- **Set-Cookie** başlığı `accessToken=<jwe-token>` içerir
+- Set-Cookie başlığı `accessToken=<jwe-token>` içerir
 - Yanıt:
 
 ```json
@@ -2704,13 +2704,13 @@ curl -i -X POST http://localhost:8080/api/auth/login \
 }
 ```
 
-**cookie** kullanarak `hello` endpointine erişin:
+cookie kullanarak `hello` endpointine erişin:
 
 ```bash
 curl -b "accessToken=<jwe-token>" http://localhost:8080/api/hello
 ```
 
-Veya **Authorization** başlığıyla:
+Veya Authorization başlığıyla:
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello
@@ -2724,7 +2724,7 @@ curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello/admi
 
 ### Kullanıcı Akışı
 
-**user** olarak giriş yapın ve **cookie**’den JWE tokeni yakalayın:
+user olarak giriş yapın ve cookie’den JWE tokeni yakalayın:
 
 ```bash
 curl -i -X POST http://localhost:8080/api/auth/login \
@@ -2732,21 +2732,21 @@ curl -i -X POST http://localhost:8080/api/auth/login \
   -d '{"username":"user","password":"userpass"}'
 ```
 
-- **Set-Cookie** başlığı `accessToken=<jwe-token>` içerir
+- Set-Cookie başlığı `accessToken=<jwe-token>` içerir
 
-**cookie** kullanarak `hello` endpointine erişin:
+cookie kullanarak `hello` endpointine erişin:
 
 ```bash
 curl -b "accessToken=<jwe-token>" http://localhost:8080/api/hello
 ```
 
-**Authorization** başlığıyla:
+Authorization başlığıyla:
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello
 ```
 
-Admin endpointini deneyince (**403 Forbidden** döner):
+Admin endpointini deneyince (403 Forbidden döner):
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello/admin

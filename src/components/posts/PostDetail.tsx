@@ -48,6 +48,41 @@ export default function PostDetail({
   const copyTimeoutRef = React.useRef<number | null>(null);
   const [isCopied, setIsCopied] = React.useState(false);
   const markdown = contentHtml ?? '';
+  const hasToc = React.useMemo(() => {
+    if (!markdown) {
+      return false;
+    }
+
+    const lines = markdown.split(/\r?\n/);
+    let inFence = false;
+    let fenceToken: string | null = null;
+    let headingCount = 0;
+
+    for (const line of lines) {
+      const trimmed = line.trimStart();
+      const currentFence = trimmed.startsWith('```') ? '```' : trimmed.startsWith('~~~') ? '~~~' : null;
+
+      if (currentFence) {
+        if (!inFence) {
+          inFence = true;
+          fenceToken = currentFence;
+        } else if (fenceToken === currentFence) {
+          inFence = false;
+          fenceToken = null;
+        }
+        continue;
+      }
+
+      if (!inFence && /^##\s+\S+/.test(line)) {
+        headingCount += 1;
+        if (headingCount >= 2) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }, [markdown]);
   const thumbnailSrc = (() => {
     if (!thumbnail) return null;
     try {
@@ -171,7 +206,7 @@ export default function PostDetail({
     <>
       <ReadingProgress />
       <BackToTop />
-      <section className="mt-5">
+      <section className={`mt-5 post-detail-section${hasToc ? ' has-toc' : ''}`}>
         <h1 className="fw-bold display-4 text-center mb-4">{title}</h1>
         <p className="text-center d-flex justify-content-center align-items-center text-muted mb-4">
           <span className="d-flex align-items-center me-3">
@@ -260,46 +295,58 @@ export default function PostDetail({
             {isCopied ? t('post.share.copied') : ''}
           </span>
         </div>
-        {thumbnailSrc && <Thumbnail src={thumbnailSrc} alt={title} width={1200} height={630} />}
-        <article ref={articleRef} className="post-article">
-          {splitIntro.intro && <MarkdownRenderer content={splitIntro.intro} />}
-          <PostToc content={markdown} rootRef={articleRef} />
-          {splitIntro.rest && <MarkdownRenderer content={splitIntro.rest} />}
-        </article>
-        {(previousPost || nextPost) && (
-          <nav className="post-navigation mt-5 mb-4" aria-label={t('post.navigation.title')}>
-            <div className="post-navigation-grid">
-              {previousPost && (
-                <Link
-                  href={`/posts/${previousPost.id}`}
-                  className="post-navigation-link post-navigation-link-previous"
-                  aria-label={`${t('post.navigation.previous')}: ${previousPost.title}`}
-                >
-                  <span className="post-navigation-label">
-                    <FontAwesomeIcon icon="chevron-left" />
-                    {t('post.navigation.previous')}
-                  </span>
-                  <span className="post-navigation-title">{previousPost.title}</span>
-                </Link>
-              )}
-              {nextPost && (
-                <Link
-                  href={`/posts/${nextPost.id}`}
-                  className="post-navigation-link post-navigation-link-next"
-                  aria-label={`${t('post.navigation.next')}: ${nextPost.title}`}
-                >
-                  <span className="post-navigation-label">
-                    {t('post.navigation.next')}
-                    <FontAwesomeIcon icon="chevron-right" />
-                  </span>
-                  <span className="post-navigation-title">{nextPost.title}</span>
-                </Link>
-              )}
-            </div>
-          </nav>
+        {thumbnailSrc && (
+          <Thumbnail src={thumbnailSrc} alt={title} width={1200} height={630} className="post-hero-image" />
         )}
-        <PostAuthorBox />
-        <RelatedPosts posts={relatedPosts} />
+        <div className={`post-detail-layout${hasToc ? ' has-toc' : ''}`}>
+          {hasToc && (
+            <aside className="post-toc-rail" aria-label={t('post.tocTitle')}>
+              <PostToc content={markdown} rootRef={articleRef} />
+            </aside>
+          )}
+          <div className="post-detail-main">
+            <article ref={articleRef} className="post-article">
+              {splitIntro.intro && <MarkdownRenderer content={splitIntro.intro} />}
+              {splitIntro.rest && <MarkdownRenderer content={splitIntro.rest} />}
+            </article>
+            {(previousPost || nextPost) && (
+              <nav className="post-navigation mt-5 mb-4" aria-label={t('post.navigation.title')}>
+                <div
+                  className={`post-navigation-grid${!previousPost ? ' has-only-next' : ''}${!nextPost ? ' has-only-previous' : ''}`}
+                >
+                  {previousPost && (
+                    <Link
+                      href={`/posts/${previousPost.id}`}
+                      className="post-navigation-link post-navigation-link-previous"
+                      aria-label={`${t('post.navigation.previous')}: ${previousPost.title}`}
+                    >
+                      <span className="post-navigation-label">
+                        <FontAwesomeIcon icon="chevron-left" />
+                        {t('post.navigation.previous')}
+                      </span>
+                      <span className="post-navigation-title">{previousPost.title}</span>
+                    </Link>
+                  )}
+                  {nextPost && (
+                    <Link
+                      href={`/posts/${nextPost.id}`}
+                      className="post-navigation-link post-navigation-link-next"
+                      aria-label={`${t('post.navigation.next')}: ${nextPost.title}`}
+                    >
+                      <span className="post-navigation-label">
+                        {t('post.navigation.next')}
+                        <FontAwesomeIcon icon="chevron-right" />
+                      </span>
+                      <span className="post-navigation-title">{nextPost.title}</span>
+                    </Link>
+                  )}
+                </div>
+              </nav>
+            )}
+            <PostAuthorBox />
+            <RelatedPosts posts={relatedPosts} />
+          </div>
+        </div>
       </section>
     </>
   );

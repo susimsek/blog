@@ -30,14 +30,14 @@ Spring Boot is an excellent tool for quickly developing RESTful web services. In
 
 REST (Representational State Transfer) is an architectural style for designing web services. It uses standard HTTP methods for communication between clients and servers.
 
-### **HTTP Methods**
+### HTTP Methods
 
-| **Method** | **Description**                | **Example Endpoint** |
-| ---------- | ------------------------------ | -------------------- |
-| **GET**    | Retrieves a resource.          | `/api/todos`         |
-| **POST**   | Creates a new resource.        | `/api/todos`         |
-| **PUT**    | Updates or creates a resource. | `/api/todos/1`       |
-| **DELETE** | Deletes a resource.            | `/api/todos/1`       |
+| Method | Description                    | Example Endpoint |
+| ------ | ------------------------------ | ---------------- |
+| GET    | Retrieves a resource.          | `/api/todos`     |
+| POST   | Creates a new resource.        | `/api/todos`     |
+| PUT    | Updates or creates a resource. | `/api/todos/1`   |
+| DELETE | Deletes a resource.            | `/api/todos/1`   |
 
 ---
 
@@ -45,10 +45,10 @@ REST (Representational State Transfer) is an architectural style for designing w
 
 You can create a Spring Boot project using [Spring Initializr](https://start.spring.io/). Select the following settings:
 
-- **Project:** Maven
-- **Language:** Java or Kotlin
-- **Spring Boot Version:** 3.0.0+
-- **Dependencies:** Spring Web, Spring Boot DevTools, Lombok
+- Project: Maven
+- Language: Java or Kotlin
+- Spring Boot Version: 3.0.0+
+- Dependencies: Spring Web, Spring Boot DevTools, Lombok
 
 Download the project, open it in your IDE, and get ready to run it.
 
@@ -190,25 +190,25 @@ class TodoController {
 
 Test your API using `curl` commands:
 
-- **GET All Todos:**
+- GET All Todos:
 
 ```bash
 curl -X GET http://localhost:8080/api/todos
 ```
 
-- **POST New Todo:**
+- POST New Todo:
 
 ```bash
 curl -X POST http://localhost:8080/api/todos -H "Content-Type: application/json" -d '{"title": "New Todo", "completed": false}'
 ```
 
-- **PUT Update Todo:**
+- PUT Update Todo:
 
 ```bash
 curl -X PUT http://localhost:8080/api/todos/1 -H "Content-Type: application/json" -d '{"title": "Updated Todo", "completed": true}'
 ```
 
-- **DELETE Delete Todo:**
+- DELETE Delete Todo:
 
 ```bash
 curl -X DELETE http://localhost:8080/api/todos/1

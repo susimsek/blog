@@ -28,17 +28,17 @@ topics:
     color: 'brown'
 ---
 
-Spring Boot **Circuit Breaker** is a fault-tolerance mechanism used to prevent cascading failures in a microservices architecture. It helps applications handle failures gracefully by detecting failures and stopping excessive requests to unhealthy services. This guide will walk you through implementing Circuit Breaker using **Resilience4j** in Spring Boot.
+Spring Boot Circuit Breaker is a fault-tolerance mechanism used to prevent cascading failures in a microservices architecture. It helps applications handle failures gracefully by detecting failures and stopping excessive requests to unhealthy services. This guide will walk you through implementing Circuit Breaker using Resilience4j in Spring Boot.
 
 ---
 
 ## 🌟 Why Use Circuit Breaker?
 
-- **Prevents cascading failures** in microservices.
-- **Improves application resilience** by stopping excessive failed requests.
-- **Automatically recovers** when services become healthy again.
-- **Reduces latency** by preventing unnecessary waits for failed services.
-- **Configurable retry strategies** to manage failures efficiently.
+- Prevents cascading failures in microservices.
+- Improves application resilience by stopping excessive failed requests.
+- Automatically recovers when services become healthy again.
+- Reduces latency by preventing unnecessary waits for failed services.
+- Configurable retry strategies to manage failures efficiently.
 
 ---
 
@@ -46,10 +46,10 @@ Spring Boot **Circuit Breaker** is a fault-tolerance mechanism used to prevent c
 
 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🌐 **Spring Boot & Spring Cloud**
-- 🛠 **A REST API to demonstrate Circuit Breaker behavior**
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🌐 Spring Boot & Spring Cloud
+- 🛠 A REST API to demonstrate Circuit Breaker behavior
 
 ---
 

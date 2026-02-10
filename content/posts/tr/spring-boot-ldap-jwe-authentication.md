@@ -37,19 +37,19 @@ Spring Boot, LDAP kimlik doğrulamasını JWE ile şifrelenmiş JWT’lerle birl
 
 ## 🌟 Neden LDAP ve JWE?
 
-- **Dış Directory**: LDAP ile kullanıcı yönetimini merkezi hale getirin (kurumsal veya gömülü directory).
-- **Bütünlük & Gizlilik**: Token’ları imzalayın (JWS) ve şifreleyin (JWE) — güvenli taşıma.
-- **Standartlara Uygun**: JOSE (JWS & JWE) ve Spring Security OAuth2 Resource Server.
-- **Rol Tabanlı Erişim**: LDAP gruplarını `ROLE_USER` / `ROLE_ADMIN` rollerine otomatik eşleyin.
+- Dış Directory: LDAP ile kullanıcı yönetimini merkezi hale getirin (kurumsal veya gömülü directory).
+- Bütünlük & Gizlilik: Token’ları imzalayın (JWS) ve şifreleyin (JWE) — güvenli taşıma.
+- Standartlara Uygun: JOSE (JWS & JWE) ve Spring Security OAuth2 Resource Server.
+- Rol Tabanlı Erişim: LDAP gruplarını `ROLE_USER` / `ROLE_ADMIN` rollerine otomatik eşleyin.
 
 ---
 
 ## 📋 Gereksinimler
 
-- ☕ **Java Development Kit (JDK) 17** veya üzeri
-- 📦 **Spring Boot 3.2+**
-- 🗄️ **LDAP** (Embedded veya harici)
-- 🔤 **IDE** (IntelliJ IDEA, Eclipse vb.)
+- ☕ Java Development Kit (JDK) 17 veya üzeri
+- 📦 Spring Boot 3.2+
+- 🗄️ LDAP (Embedded veya harici)
+- 🔤 IDE (IntelliJ IDEA, Eclipse vb.)
 
 ---
 
@@ -57,7 +57,7 @@ Spring Boot, LDAP kimlik doğrulamasını JWE ile şifrelenmiş JWT’lerle birl
 
 Bu satırları `pom.xml` veya `build.gradle` dosyanıza ekleyin.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -83,7 +83,7 @@ Bu satırları `pom.xml` veya `build.gradle` dosyanıza ekleyin.
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -266,9 +266,9 @@ Bu yapılandırma, tanımlı şema ile embedded bir LDAP sunucusunu ayağa kald�
 
 Bu bölümde, LDAP kimlik doğrulamasını yapılandırmak, RSA anahtarlarını ayarlamak ve JWE tabanlı kimlik doğrulama için HTTP güvenlik filtrelerini uygulamak üzere gerekli bean’leri ve özellikleri tanımlıyoruz:
 
-- **JwtProperties**: JWT encoder/decoder için imzalama ve şifreleme anahtar çiftlerini, issuer bilgisini ve expire süresini tanımlar.
-- **SecurityJwtConfig**: RSA JWK nesnelerini oluşturur, JWT encoder/decoder’ı, authentication converter ve token resolveri yapılandırır.
-- **SecurityConfig**: Embedded LDAP kimlik doğrulamasını tanımlar ve stateless bir güvenlik filtresi zinciri kurarak ilgili URL’leri yetkilendirmeye tabi tutar.
+- JwtProperties: JWT encoder/decoder için imzalama ve şifreleme anahtar çiftlerini, issuer bilgisini ve expire süresini tanımlar.
+- SecurityJwtConfig: RSA JWK nesnelerini oluşturur, JWT encoder/decoder’ı, authentication converter ve token resolveri yapılandırır.
+- SecurityConfig: Embedded LDAP kimlik doğrulamasını tanımlar ve stateless bir güvenlik filtresi zinciri kurarak ilgili URL’leri yetkilendirmeye tabi tutar.
 
 <span style="display:block; height:1rem;"></span>
 
@@ -802,12 +802,12 @@ class UserProperties {
 
 Bu bölümde, Spring Boot uygulamanızda JSON Web Encryption (JWE) tokenları oluşturmak, şifrelemek ve çözmek için gereken temel yardımcı sınıfları ve sabitleri tanımlıyoruz. Bu bileşenler şunları sağlar:
 
-- **AuthoritiesConstants**: `ROLE_` ön ekiyle rol isimlerini merkezileştirir.
-- **CookieBearerTokenResolver**: Bearer token’ları yetkilendirme başlıklarından veya HTTP çerezlerinden çözer.
-- **CookieUtils**: Erişim token’ları için HTTP-only ve secure çerezler oluşturur.
-- **JweUtil**: Nimbus kütüphanesi ile RSA anahtarları kullanarak JWT’leri imzalar (JWS) ve şifreler (JWE).
-- **KeyUtils**: PEM formatındaki anahtar çiftinden RSA JWK’leri oluşturur.
-- **SecurityUtils**: SecurityContext oturum açan kullanıcının bilgisini sunar.
+- AuthoritiesConstants: `ROLE_` ön ekiyle rol isimlerini merkezileştirir.
+- CookieBearerTokenResolver: Bearer token’ları yetkilendirme başlıklarından veya HTTP çerezlerinden çözer.
+- CookieUtils: Erişim token’ları için HTTP-only ve secure çerezler oluşturur.
+- JweUtil: Nimbus kütüphanesi ile RSA anahtarları kullanarak JWT’leri imzalar (JWS) ve şifreler (JWE).
+- KeyUtils: PEM formatındaki anahtar çiftinden RSA JWK’leri oluşturur.
+- SecurityUtils: SecurityContext oturum açan kullanıcının bilgisini sunar.
 
 Bu yardımcılar, Spring Security ile durumsuz (stateless) JWE tabanlı bir kimlik doğrulama akışının temelini oluşturur.
 
@@ -1450,10 +1450,10 @@ object SecurityUtils {
 
 Bu bölümde, aşağıdakileri gerçekleştirmek için gerekli REST controller ve DTO’ları tanımlıyoruz:
 
-- **AuthController**: Kullanıcıları doğrular, JWE token’ları oluşturur ve güvenli cookie ayarlar.
-- **HelloController**: Kimliği doğrulanmış kullanıcılar ve yalnızca admine özel pathler için güvenli endpointler sunar.
-- **LoginRequestDTO**: Login isteği payloadını (kullanıcı adı/parola) modelleyen DTO.
-- **TokenDTO**: Token ve geçerlilik süresini içeren kimlik doğrulama yanıtını modelleyen DTO.
+- AuthController: Kullanıcıları doğrular, JWE token’ları oluşturur ve güvenli cookie ayarlar.
+- HelloController: Kimliği doğrulanmış kullanıcılar ve yalnızca admine özel pathler için güvenli endpointler sunar.
+- LoginRequestDTO: Login isteği payloadını (kullanıcı adı/parola) modelleyen DTO.
+- TokenDTO: Token ve geçerlilik süresini içeren kimlik doğrulama yanıtını modelleyen DTO.
 
 Bu bileşenler, login işlemi, token oluşturma, cookie yönetimi ve kaynak korumasını işleyerek stateless(durumsuz) kimlik doğrulama akışını tamamlar.
 
@@ -1705,7 +1705,7 @@ gradle bootRun
 
 ### Admin Akışı
 
-**admin** olarak giriş yapın ve `Set-Cookie` başlığından JWE tokeni yakalayın:
+admin olarak giriş yapın ve `Set-Cookie` başlığından JWE tokeni yakalayın:
 
 ```bash
 curl -i -X POST http://localhost:8080/api/auth/login \
@@ -1713,7 +1713,7 @@ curl -i -X POST http://localhost:8080/api/auth/login \
   -d '{"username":"admin","password":"adminpass"}'
 ```
 
-- **Set-Cookie** başlığı `accessToken=<jwe-token>` içerir
+- Set-Cookie başlığı `accessToken=<jwe-token>` içerir
 - Yanıt:
 
 ```json
@@ -1724,13 +1724,13 @@ curl -i -X POST http://localhost:8080/api/auth/login \
 }
 ```
 
-**cookie** kullanarak `hello` endpointine erişin:
+cookie kullanarak `hello` endpointine erişin:
 
 ```bash
 curl -b "accessToken=<jwe-token>" http://localhost:8080/api/hello
 ```
 
-Veya **Authorization** başlığıyla:
+Veya Authorization başlığıyla:
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello
@@ -1744,7 +1744,7 @@ curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello/admi
 
 ### Kullanıcı Akışı
 
-**user** olarak giriş yapın ve **cookie**’den JWE tokeni yakalayın:
+user olarak giriş yapın ve cookie’den JWE tokeni yakalayın:
 
 ```bash
 curl -i -X POST http://localhost:8080/api/auth/login \
@@ -1752,21 +1752,21 @@ curl -i -X POST http://localhost:8080/api/auth/login \
   -d '{"username":"user","password":"userpass"}'
 ```
 
-- **Set-Cookie** başlığı `accessToken=<jwe-token>` içerir
+- Set-Cookie başlığı `accessToken=<jwe-token>` içerir
 
-**cookie** kullanarak `hello` endpointine erişin:
+cookie kullanarak `hello` endpointine erişin:
 
 ```bash
 curl -b "accessToken=<jwe-token>" http://localhost:8080/api/hello
 ```
 
-**Authorization** başlığıyla:
+Authorization başlığıyla:
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello
 ```
 
-Admin endpointini deneyince (**403 Forbidden** döner):
+Admin endpointini deneyince (403 Forbidden döner):
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello/admin

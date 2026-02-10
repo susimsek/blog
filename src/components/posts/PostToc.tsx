@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 type TocItem = {
   id: string;
   text: string;
-  level: number;
 };
 
 const slugify = (value: string) => {
@@ -43,12 +42,13 @@ interface PostTocProps {
 export default function PostToc({ content, rootRef }: Readonly<PostTocProps>) {
   const { t } = useTranslation('post');
   const [items, setItems] = React.useState<TocItem[]>([]);
+  const [activeId, setActiveId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
 
-    const headings = Array.from(root.querySelectorAll<HTMLElement>('h2, h3')).filter(
+    const headings = Array.from(root.querySelectorAll<HTMLElement>('h2')).filter(
       heading => !heading.closest('.post-toc'),
     );
     if (headings.length === 0) {
@@ -67,13 +67,66 @@ export default function PostToc({ content, rootRef }: Readonly<PostTocProps>) {
         heading.id = slug(text);
       }
 
-      const level = Number(heading.tagName.slice(1));
-      tocItems.push({ id: heading.id, text, level });
+      tocItems.push({ id: heading.id, text });
+    }
+    setItems(tocItems);
+    setActiveId(tocItems[0]?.id ?? null);
+  }, [content, rootRef]);
+
+  React.useEffect(() => {
+    const root = rootRef.current;
+    if (!root || items.length === 0) {
+      setActiveId(null);
+      return;
     }
 
-    const hasTooManyEntries = tocItems.length > 20;
-    setItems(hasTooManyEntries ? tocItems.filter(item => item.level === 2) : tocItems);
-  }, [content, rootRef]);
+    const headingElements = items
+      .map(item => document.getElementById(item.id))
+      .filter((element): element is HTMLElement => !!element && root.contains(element));
+
+    if (headingElements.length === 0) {
+      setActiveId(null);
+      return;
+    }
+
+    const updateActiveHeading = () => {
+      const stickyOffset = 128;
+      let currentId = headingElements[0].id;
+
+      for (const heading of headingElements) {
+        if (heading.getBoundingClientRect().top <= stickyOffset) {
+          currentId = heading.id;
+        } else {
+          break;
+        }
+      }
+
+      setActiveId(previous => (previous === currentId ? previous : currentId));
+    };
+
+    updateActiveHeading();
+
+    let observer: IntersectionObserver | null = null;
+    if ('IntersectionObserver' in globalThis) {
+      observer = new IntersectionObserver(updateActiveHeading, {
+        root: null,
+        rootMargin: '-128px 0px -55% 0px',
+        threshold: [0, 1],
+      });
+      for (const heading of headingElements) {
+        observer.observe(heading);
+      }
+    }
+
+    globalThis.window?.addEventListener('scroll', updateActiveHeading, { passive: true });
+    globalThis.window?.addEventListener('resize', updateActiveHeading);
+
+    return () => {
+      observer?.disconnect();
+      globalThis.window?.removeEventListener('scroll', updateActiveHeading);
+      globalThis.window?.removeEventListener('resize', updateActiveHeading);
+    };
+  }, [items, rootRef]);
 
   if (items.length < 2) {
     return null;
@@ -90,13 +143,12 @@ export default function PostToc({ content, rootRef }: Readonly<PostTocProps>) {
             <nav aria-label={tocTitle}>
               <ul className="list-unstyled mb-0">
                 {items.map(item => {
-                  const indentClass = item.level === 3 ? 'ms-3' : undefined;
-
                   return (
-                    <li key={item.id} className={indentClass}>
+                    <li key={item.id}>
                       <a
                         href={`#${item.id}`}
-                        className="post-toc-link d-inline-block py-1"
+                        className={`post-toc-link d-inline-block py-1${activeId === item.id ? ' is-active' : ''}`}
+                        aria-current={activeId === item.id ? 'location' : undefined}
                         onClick={e => {
                           e.preventDefault();
                           const root = rootRef.current;

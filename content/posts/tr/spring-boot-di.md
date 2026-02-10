@@ -40,9 +40,9 @@ Bağımlılık Enjeksiyonu, sınıflara bağımlılıkları manuel olarak oluşt
 
 📋 Aşağıdakilere sahip olduğunuzdan emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven veya Gradle** yüklü
-- 🔤 Bir **Java IDE** (örneğin, IntelliJ IDEA, Eclipse)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven veya Gradle yüklü
+- 🔤 Bir Java IDE (örneğin, IntelliJ IDEA, Eclipse)
 
 ---
 
@@ -50,7 +50,7 @@ Bağımlılık Enjeksiyonu, sınıflara bağımlılıkları manuel olarak oluşt
 
 Gerekli Spring Boot bağımlılıklarını ekleyin:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -59,7 +59,7 @@ Gerekli Spring Boot bağımlılıklarını ekleyin:
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter'
@@ -193,7 +193,7 @@ class UserController(
 
 Uygulamayı aşağıdaki komutlarla çalıştırın:
 
-- **Spring Boot (Java/Kotlin):**
+- Spring Boot (Java/Kotlin):
 
   ```bash
   ./mvnw spring-boot:run
@@ -207,13 +207,13 @@ API'ye şu adresten erişin: `http://localhost:8080/api/users`.
 
 API'yi aşağıdaki cURL komutlarıyla test edebilirsiniz:
 
-- **Tüm kullanıcıları alın:**
+- Tüm kullanıcıları alın:
 
 ```bash
 curl -X GET http://localhost:8080/api/users
 ```
 
-- **Belirli bir kullanıcıyı alın:**
+- Belirli bir kullanıcıyı alın:
 
 ```bash
 curl -X GET http://localhost:8080/api/users/1

@@ -36,22 +36,22 @@ Spring Boot GraphQL JWE Authentication combines the flexibility of GraphQL with 
 
 ## 🌟 Why Use GraphQL + JWE Authentication?
 
-- **Stateless Security**: Tokens are self-contained and require no server-side storage.
-- **GraphQL Flexibility**: Secure any query or mutation uniformly.
-- **Data Precision**: Fetch exactly what clients request.
-- **Integrity**: Signed tokens ensure tamper evidence.
-- **Confidentiality**: Encrypted JWTs hide sensitive claims.
-- **Standards-based**: Leverage JOSE, Spring Security, and GraphQL.
-- **Scalable**: Scale horizontally without session replication or sticky sessions.
+- Stateless Security: Tokens are self-contained and require no server-side storage.
+- GraphQL Flexibility: Secure any query or mutation uniformly.
+- Data Precision: Fetch exactly what clients request.
+- Integrity: Signed tokens ensure tamper evidence.
+- Confidentiality: Encrypted JWTs hide sensitive claims.
+- Standards-based: Leverage JOSE, Spring Security, and GraphQL.
+- Scalable: Scale horizontally without session replication or sticky sessions.
 
 ---
 
 ## 📋 Prerequisites
 
-- ☕ **Java Development Kit (JDK) 17** or higher
-- 📦 **Spring Boot 3.2+**
-- 🔤 **IDE** (IntelliJ IDEA, Eclipse)
-- 🛢️ **PostgreSQL** (or H2 for dev)
+- ☕ Java Development Kit (JDK) 17 or higher
+- 📦 Spring Boot 3.2+
+- 🔤 IDE (IntelliJ IDEA, Eclipse)
+- 🛢️ PostgreSQL (or H2 for dev)
 
 ---
 
@@ -59,7 +59,7 @@ Spring Boot GraphQL JWE Authentication combines the flexibility of GraphQL with 
 
 Include these in your `pom.xml` or `build.gradle` file.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependencies>
@@ -132,7 +132,7 @@ Include these in your `pom.xml` or `build.gradle` file.
 </build>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 dependencies {
@@ -165,28 +165,28 @@ hibernate {
 
 In this section, we define all of the application- and database-level configuration files required to wire up our Spring Boot app with H2/PostgreSQL, JPA, Liquibase changelogs, initial data loads, JWE key properties and GraphQL schema definitions, and GraalVM native-image reflection config.
 
-- **`application.yml`**
+- `application.yml`
   Holds Spring datasource, H2 console, JPA/Hibernate settings, Liquibase changelog path, GraphQL subscriptions path, and all JWT/JWE keys, issuer, and expiration configurations.
 
-- **`liquibase/master.xml`**
-  The Liquibase **master changelog**, with includes and DBMS-specific properties for H2 and PostgreSQL.
+- `liquibase/master.xml`
+  The Liquibase master changelog, with includes and DBMS-specific properties for H2 and PostgreSQL.
 
-- **`liquibase/changelog/changelog-user.xml`**
-  Your core **schema changelog** defining `user_identity`, `authority`, and `user_authority_mapping` tables, indexes, FKs, and initial `<loadData>` steps.
+- `liquibase/changelog/changelog-user.xml`
+  Your core schema changelog defining `user_identity`, `authority`, and `user_authority_mapping` tables, indexes, FKs, and initial `<loadData>` steps.
 
-- **`liquibase/data/user.csv`**
+- `liquibase/data/user.csv`
   Initial user records (UUID, username, bcrypt-hashed password, email, enabled flag, timestamps, auditor).
 
-- **`liquibase/data/authority.csv`**
+- `liquibase/data/authority.csv`
   Initial authority records (UUID, name, description, timestamps, auditor).
 
-- **`liquibase/data/user_authority_mapping.csv`**
+- `liquibase/data/user_authority_mapping.csv`
   Initial mapping of users ↔ authorities (composite PK, timestamps, auditor).
 
-- **`graphql/schema.graphqls`**
+- `graphql/schema.graphqls`
   GraphQL schema definitions for the API, including custom scalars, query, subscription and mutation types, and DTO definitions.
 
-- **`META-INF/native-image/liquibase/reflect-config.json`**
+- `META-INF/native-image/liquibase/reflect-config.json`
   Native-image reflection configuration for Liquibase classes to ensure compatibility when building a GraalVM native image.
 
 <span style="display:block; height:1rem;"></span>
@@ -750,13 +750,13 @@ type GreetDTO {
 
 In this section, we define the beans and properties RSA keys, HTTP security filters, and JPA repository/auditing setup for JWE‑based authentication, GraalVM native-image runtime hints, GraphQL wiring and custom scalars:
 
-- **JwtProperties**: Configures JWT issuer, expiration, and signing/encryption key pairs.
-- **SecurityJwtConfig**: Builds RSA keys and JWK sources; configures JWT encoder/decoder, authentication converter, token resolver, and WebSocket interceptor beans.
-- **SecurityConfig**: Integrates `DomainUserDetailsService`, configures authentication manager, password encoder, and stateless security filter chain with JWE support.
-- **DatabaseConfig**: Enables JPA repositories, auditing, and transaction management.
-- **GraphQLConfig**: Registers custom scalars for GraphQL (`Long`, `Date`, `Instant`).
-- **InstantScalar**: Defines an ISO-8601 `Instant` scalar for GraphQL.
-- **NativeConfig**: Registers runtime hints for GraalVM native-image, including reflection and resource patterns.
+- JwtProperties: Configures JWT issuer, expiration, and signing/encryption key pairs.
+- SecurityJwtConfig: Builds RSA keys and JWK sources; configures JWT encoder/decoder, authentication converter, token resolver, and WebSocket interceptor beans.
+- SecurityConfig: Integrates `DomainUserDetailsService`, configures authentication manager, password encoder, and stateless security filter chain with JWE support.
+- DatabaseConfig: Enables JPA repositories, auditing, and transaction management.
+- GraphQLConfig: Registers custom scalars for GraphQL (`Long`, `Date`, `Instant`).
+- InstantScalar: Defines an ISO-8601 `Instant` scalar for GraphQL.
+- NativeConfig: Registers runtime hints for GraalVM native-image, including reflection and resource patterns.
 
 <span style="display:block; height:1rem;"></span>
 
@@ -1717,12 +1717,12 @@ fun main(args: Array<String>) {
 
 In this section, we define the JPA entities representing users, authorities, and their mappings, along with the Spring Data repository for loading users with their authorities.
 
-- **BaseEntity**: Abstract superclass providing audit fields (`createdAt`, `createdBy`, `updatedAt`, `updatedBy`).
-- **Authority**: `authority` table entity storing role data.
-- **User**: `user_identity` table entity storing user credentials and profile.
-- **UserAuthorityMapping**: `user_authority_mapping` join table entity linking users and authorities.
-- **UserAuthorityMappingId**: Composite key class for `UserAuthorityMapping`.
-- **UserRepository**: Spring Data JPA repository for `User` with an entity graph to load authorities.
+- BaseEntity: Abstract superclass providing audit fields (`createdAt`, `createdBy`, `updatedAt`, `updatedBy`).
+- Authority: `authority` table entity storing role data.
+- User: `user_identity` table entity storing user credentials and profile.
+- UserAuthorityMapping: `user_authority_mapping` join table entity linking users and authorities.
+- UserAuthorityMappingId: Composite key class for `UserAuthorityMapping`.
+- UserRepository: Spring Data JPA repository for `User` with an entity graph to load authorities.
 
 <span style="display:block; height:1rem;"></span>
 
@@ -2352,16 +2352,16 @@ interface UserRepository : JpaRepository<User, String> {
 
 In this section, we define the core utility classes and constants needed to generate, encrypt, and resolve JSON Web Encryption (JWE) tokens in your Spring Boot application, integrate auditing, and implement a JPA-based user details service:
 
-- **AuthoritiesConstants**: Centralize role names with the `ROLE_` prefix.
-- **CookieBearerTokenResolver**: Resolve bearer tokens from Authorization headers or HTTP cookies.
-- **CookieUtils**: Generates HTTP-only, secure `ResponseCookie` for new or expired tokens, and extracts the raw `accessToken` from `HttpHeaders`
-- **JweUtil**: Sign (JWS) and encrypt (JWE) JWTs using RSA keys and Nimbus.
-- **KeyUtils**: Build RSA JWKs from PEM‐encoded key material.
-- **SecurityUtils**: Extract the current user’s login from the security context.
-- **SpringSecurityAuditorAware**: Implement `AuditorAware` to provide the current user for auditing.
-- **DomainUserDetailsService**: JPA-based `UserDetailsService` loading user and authorities for authentication.
-- **GraphQlTokenCookieInterceptor**: Intercepts GraphQL responses to set or clear the access token cookie based on `accessToken` and `clearAccessToken` flags in the `GraphQLContext`.
-- **CookieAuthenticationWebSocketInterceptor**: Intercept WebSocket connections to authenticate using JWE tokens from headers or cookies.
+- AuthoritiesConstants: Centralize role names with the `ROLE_` prefix.
+- CookieBearerTokenResolver: Resolve bearer tokens from Authorization headers or HTTP cookies.
+- CookieUtils: Generates HTTP-only, secure `ResponseCookie` for new or expired tokens, and extracts the raw `accessToken` from `HttpHeaders`
+- JweUtil: Sign (JWS) and encrypt (JWE) JWTs using RSA keys and Nimbus.
+- KeyUtils: Build RSA JWKs from PEM‐encoded key material.
+- SecurityUtils: Extract the current user’s login from the security context.
+- SpringSecurityAuditorAware: Implement `AuditorAware` to provide the current user for auditing.
+- DomainUserDetailsService: JPA-based `UserDetailsService` loading user and authorities for authentication.
+- GraphQlTokenCookieInterceptor: Intercepts GraphQL responses to set or clear the access token cookie based on `accessToken` and `clearAccessToken` flags in the `GraphQLContext`.
+- CookieAuthenticationWebSocketInterceptor: Intercept WebSocket connections to authenticate using JWE tokens from headers or cookies.
 
 These utilities form the foundation for a stateless, JWE‐based authentication flow in Spring Security.
 
@@ -3443,11 +3443,11 @@ class CookieAuthenticationWebSocketInterceptor(
 
 In this section, we define the GraphQL controllers and DTOs necessary for:
 
-- **AuthController**: Authenticates users, issues JWE tokens via a GraphQL mutation, and places `accessToken` or `clearAccessToken` flags into the GraphQLContext.
-- **HelloController**: Expose protected GraphQL queries, subscriptions and mutations for authenticated users and admin-only operations.
-- **LoginInput**: GraphQL input type for login (username/password).
-- **GreetInput** & **GreetDTO**: GraphQL mutation input and response for a greeting operation.
-- **TokenDTO**: Model the JWE token response including token, type, and expiration.
+- AuthController: Authenticates users, issues JWE tokens via a GraphQL mutation, and places `accessToken` or `clearAccessToken` flags into the GraphQLContext.
+- HelloController: Expose protected GraphQL queries, subscriptions and mutations for authenticated users and admin-only operations.
+- LoginInput: GraphQL input type for login (username/password).
+- GreetInput & GreetDTO: GraphQL mutation input and response for a greeting operation.
+- TokenDTO: Model the JWE token response including token, type, and expiration.
 
 These components complete the stateless authentication flow in a GraphQL API using JWE tokens and a JPA-backed user store.
 
@@ -3810,7 +3810,7 @@ upx --ultra-brute --lzma target/spring-boot-graphql-jwe-auth-demo
 
 ### Admin Flow
 
-Login as **admin** and capture the JWE token from the `Set-Cookie` header:
+Login as admin and capture the JWE token from the `Set-Cookie` header:
 
 ```bash
 curl -i -X POST http://localhost:8080/graphql \
@@ -3818,7 +3818,7 @@ curl -i -X POST http://localhost:8080/graphql \
   -d '{ "query": "mutation { login(input: { username: \"admin\", password: \"adminpass\" }) { accessToken tokenType accessTokenExpiresIn } }" }'
 ```
 
-- **Set-Cookie** header contains `accessToken=<jwe-token>`
+- Set-Cookie header contains `accessToken=<jwe-token>`
 - Response body:
 
 ```json
@@ -3833,7 +3833,7 @@ curl -i -X POST http://localhost:8080/graphql \
 }
 ```
 
-Use **cookie** to access hello endpoint:
+Use cookie to access hello endpoint:
 
 ```bash
 curl -b "accessToken=<jwe-token>" \
@@ -3842,7 +3842,7 @@ curl -b "accessToken=<jwe-token>" \
   http://localhost:8080/graphql
 ```
 
-Use **Authorization** header instead:
+Use Authorization header instead:
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" \
@@ -3871,7 +3871,7 @@ curl -H "Authorization: Bearer <jwe-token>" \
 
 ### User Flow
 
-Login as **user** and capture JWE token from **cookie**:
+Login as user and capture JWE token from cookie:
 
 ```bash
 curl -i -X POST http://localhost:8080/graphql \
@@ -3879,9 +3879,9 @@ curl -i -X POST http://localhost:8080/graphql \
   -d '{ "query": "mutation { login(input: { username: \"user\", password: \"userpass\" }) { accessToken tokenType accessTokenExpiresIn } }" }'
 ```
 
-- **Set-Cookie** header contains `accessToken=<jwe-token>`
+- Set-Cookie header contains `accessToken=<jwe-token>`
 
-Use **cookie** to call `helloAll`:
+Use cookie to call `helloAll`:
 
 ```bash
 curl -b "accessToken=<jwe-token>" \
@@ -3890,7 +3890,7 @@ curl -b "accessToken=<jwe-token>" \
   http://localhost:8080/graphql
 ```
 
-Use **Authorization** header:
+Use Authorization header:
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" \
@@ -3899,7 +3899,7 @@ curl -H "Authorization: Bearer <jwe-token>" \
   http://localhost:8080/graphql
 ```
 
-Attempt the `helloAdmin` query (should return **errors** with 403):
+Attempt the `helloAdmin` query (should return errors with 403):
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" \
@@ -3912,9 +3912,9 @@ curl -H "Authorization: Bearer <jwe-token>" \
 
 Test subscriptions directly in the GraphiQL UI at `http://localhost:8080/graphiql`:
 
-**1. Token Retrieval in GraphiQL**
+1. Token Retrieval in GraphiQL
 
-1. In the **Query** pane, enter:
+1. In the Query pane, enter:
 
    ```graphql
    mutation Login($in: LoginInput!) {
@@ -3924,7 +3924,7 @@ Test subscriptions directly in the GraphiQL UI at `http://localhost:8080/graphiq
    }
    ```
 
-2. Switch to the **Variables** pane and add:
+1. Switch to the Variables pane and add:
 
    ```json
    {
@@ -3932,14 +3932,14 @@ Test subscriptions directly in the GraphiQL UI at `http://localhost:8080/graphiq
    }
    ```
 
-3. Click ▶️ to execute and copy the returned `accessToken` from the response.
+1. Click ▶️ to execute and copy the returned `accessToken` from the response.
 
 <span style="display:block; height:1rem;"></span>
 
-**2. Configure Headers**
+2. Configure Headers
 
-1. Click the **Headers** tab in the sidebar.
-2. Add:
+1. Click the Headers tab in the sidebar.
+1. Add:
 
    ```json
    {
@@ -3949,10 +3949,10 @@ Test subscriptions directly in the GraphiQL UI at `http://localhost:8080/graphiq
 
 <span style="display:block; height:1rem;"></span>
 
-**3. Subscribe as User**
+3. Subscribe as User
 
-1. Switch to the **Subscriptions** pane.
-2. Enter:
+1. Switch to the Subscriptions pane.
+1. Enter:
 
    ```graphql
    subscription UserSubscribe($in: GreetInput!) {
@@ -3963,7 +3963,7 @@ Test subscriptions directly in the GraphiQL UI at `http://localhost:8080/graphiq
    }
    ```
 
-3. In **Variables**, set:
+1. In Variables, set:
 
    ```json
    {
@@ -3971,13 +3971,13 @@ Test subscriptions directly in the GraphiQL UI at `http://localhost:8080/graphiq
    }
    ```
 
-4. Click ▶️ to start streaming messages from `greetStream`.
+1. Click ▶️ to start streaming messages from `greetStream`.
 
 <span style="display:block; height:1rem;"></span>
 
-**4. Subscribe as Admin**
+4. Subscribe as Admin
 
-1. In the same **Subscriptions** pane, enter:
+1. In the same Subscriptions pane, enter:
 
    ```graphql
    subscription AdminSubscribe($in: GreetInput!) {
@@ -3988,8 +3988,8 @@ Test subscriptions directly in the GraphiQL UI at `http://localhost:8080/graphiq
    }
    ```
 
-2. Use the same **Variables** panel.
-3. Click ▶️. Only tokens with `ROLE_ADMIN` receive data; others see an authorization error.
+1. Use the same Variables panel.
+1. Click ▶️. Only tokens with `ROLE_ADMIN` receive data; others see an authorization error.
 
 ---
 

@@ -2,6 +2,8 @@
 @use './mixins' as *;
 @use 'sass:list';
 
+$post-content-max-width: 78ch;
+
 html {
   box-sizing: border-box;
   min-height: 100vh;
@@ -10,7 +12,7 @@ html {
 }
 
 .post-article {
-  max-width: 72ch;
+  max-width: $post-content-max-width;
   margin-inline: auto;
   font-size: clamp(1.04rem, 1rem + 0.2vw, 1.125rem);
   line-height: 1.75;
@@ -33,6 +35,60 @@ html {
     margin-bottom: 0.85rem;
     line-height: 1.3;
     scroll-margin-top: 96px;
+  }
+}
+
+.post-detail-layout {
+  max-width: $post-content-max-width;
+  margin-inline: auto;
+  position: relative;
+}
+
+.post-detail-section {
+  width: 100%;
+}
+
+.post-detail-main,
+.post-toc-rail {
+  min-width: 0;
+}
+
+.post-detail-main {
+  width: 100%;
+}
+
+.post-hero-image {
+  width: min(92%, 1040px);
+  margin-inline: auto;
+}
+
+@media (max-width: 768px) {
+  .post-hero-image {
+    width: 100%;
+  }
+}
+
+@media (min-width: 992px) {
+  .post-detail-layout.has-toc .post-navigation {
+    max-width: $post-content-max-width;
+  }
+}
+
+@media (min-width: 1320px) {
+  .post-detail-layout.has-toc {
+    overflow: visible;
+  }
+
+  .post-detail-layout.has-toc .post-toc-rail {
+    position: absolute;
+    left: calc(100% + 0.75rem);
+    top: 0;
+    bottom: 0;
+    width: 280px;
+  }
+
+  .post-detail-layout.has-toc .post-toc {
+    margin-bottom: 0;
   }
 }
 
@@ -158,7 +214,7 @@ html {
 }
 
 .post-navigation {
-  max-width: 72ch;
+  max-width: $post-content-max-width;
   margin-inline: auto;
 }
 
@@ -166,6 +222,10 @@ html {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
+}
+
+.post-navigation-grid.has-only-next .post-navigation-link-next {
+  grid-column: 2;
 }
 
 .post-navigation-link {
@@ -217,6 +277,10 @@ html {
 @media (max-width: 768px) {
   .post-navigation-grid {
     grid-template-columns: 1fr;
+  }
+
+  .post-navigation-grid.has-only-next .post-navigation-link-next {
+    grid-column: auto;
   }
 
   .post-navigation-link-next {
@@ -313,6 +377,12 @@ html {
 }
 
 .post-toc {
+  @media (min-width: 992px) {
+    position: sticky;
+    top: 88px;
+    z-index: 20;
+  }
+
   .accordion {
     --bs-accordion-bg: var(--main-bg);
     --bs-accordion-color: var(--text-color);
@@ -334,9 +404,20 @@ html {
   }
 
   .post-toc-link {
+    position: relative;
+    padding-left: 0.625rem;
+    border-left: 2px solid transparent;
     color: var(--text-color);
     text-decoration: none;
-    @include transition(color);
+    @include transition(color, border-color, background-color);
+  }
+
+  .post-toc-link.is-active {
+    color: var(--active-color);
+    border-left-color: var(--active-color);
+    font-weight: 600;
+    background-color: var(--dropdown-hover-bg);
+    border-radius: 6px;
   }
 
   .post-toc-link:hover {

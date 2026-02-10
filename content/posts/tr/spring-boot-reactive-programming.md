@@ -25,16 +25,16 @@ topics:
     color: 'brown'
 ---
 
-Spring Boot ile **Reaktif Programlama**, geliştiricilere **bloklamayan, olay güdümlü** ve **yüksek ölçeklenebilir** uygulamalar oluşturma imkanı sunar. **Spring WebFlux** ve **Project Reactor** kullanarak eşzamanlı istekleri düşük kaynak kullanımıyla yönetebilir, mikro hizmetler ve gerçek zamanlı uygulamalar geliştirebilirsiniz.
+Spring Boot ile Reaktif Programlama, geliştiricilere bloklamayan, olay güdümlü ve yüksek ölçeklenebilir uygulamalar oluşturma imkanı sunar. Spring WebFlux ve Project Reactor kullanarak eşzamanlı istekleri düşük kaynak kullanımıyla yönetebilir, mikro hizmetler ve gerçek zamanlı uygulamalar geliştirebilirsiniz.
 
 ---
 
 ## 🌟 Neden Reaktif Programlama Kullanmalıyız?
 
-- **Eşzamansız & Bloklamayan İşleme**: Birden fazla isteği iş parçacıklarını bloklamadan verimli bir şekilde yönetin.
-- **Daha İyi Ölçeklenebilirlik**: Daha az kaynak kullanarak daha fazla eşzamanlı kullanıcıyı destekleyin.
-- **Olay Güdümlü Model**: Mikro hizmetler, gerçek zamanlı uygulamalar ve veri akışı işleme için idealdir.
-- **Dahili Geri Basınç (Backpressure)**: Sistemin aşırı yüklenmesini önler.
+- Eşzamansız & Bloklamayan İşleme: Birden fazla isteği iş parçacıklarını bloklamadan verimli bir şekilde yönetin.
+- Daha İyi Ölçeklenebilirlik: Daha az kaynak kullanarak daha fazla eşzamanlı kullanıcıyı destekleyin.
+- Olay Güdümlü Model: Mikro hizmetler, gerçek zamanlı uygulamalar ve veri akışı işleme için idealdir.
+- Dahili Geri Basınç (Backpressure): Sistemin aşırı yüklenmesini önler.
 
 ---
 
@@ -42,17 +42,17 @@ Spring Boot ile **Reaktif Programlama**, geliştiricilere **bloklamayan, olay g�
 
 Şunlara sahip olduğunuzdan emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven veya Gradle** kurulu
-- 🔤 Bir **Java IDE** (IntelliJ IDEA, Eclipse vb.)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven veya Gradle kurulu
+- 🔤 Bir Java IDE (IntelliJ IDEA, Eclipse vb.)
 
 ---
 
 ## 🛠️ Adım 1: Bağımlılıkları Ekleyin
 
-**Spring WebFlux** bağımlılığını `pom.xml` veya `build.gradle` dosyanıza ekleyin.
+Spring WebFlux bağımlılığını `pom.xml` veya `build.gradle` dosyanıza ekleyin.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -61,7 +61,7 @@ Spring Boot ile **Reaktif Programlama**, geliştiricilere **bloklamayan, olay g�
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -71,7 +71,7 @@ implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 ## 🛠️ Adım 2: Reaktif REST Controller Oluşturun
 
-**Mono** ve **Flux** kullanarak **bloklamayan** bir REST endpoint'i tanımlayın.
+Mono ve Flux kullanarak bloklamayan bir REST endpoint'i tanımlayın.
 
 :::tabs
 @tab Java [icon=java]
@@ -158,7 +158,7 @@ gradle bootRun
 curl -X GET http://localhost:8080/reaktif/mono
 ```
 
-**Beklenen çıktı:**
+Beklenen çıktı:
 
 ```plaintext
 Reaktif Mono'dan Merhaba!
@@ -170,7 +170,7 @@ Reaktif Mono'dan Merhaba!
 curl -X GET http://localhost:8080/reaktif/flux
 ```
 
-**Beklenen çıktı (her kelime için 1 saniyelik gecikme ile):**
+Beklenen çıktı (her kelime için 1 saniyelik gecikme ile):
 
 ```plaintext
 Merhaba

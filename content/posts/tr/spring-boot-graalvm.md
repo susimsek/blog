@@ -31,9 +31,9 @@ Spring Boot ile GraalVM Native, geliştiricilere daha hızlı başlatma süreler
 
 ## 🌟 Neden GraalVM ile Native Uygulama Oluşturalım?
 
-- **Daha Hızlı Başlatma Süreleri**: Native imajlar, JVM tabanlı uygulamalara kıyasla çok daha hızlı başlatılır.
-- **Azaltılmış Kaynak Kullanımı**: Native imajlar daha az bellek kullanır, bu da bulut ve konteynerize ortamlar için idealdir.
-- **Artırılmış Güvenlik**: Daha küçük bir runtime ve sınırlı bir yüzey alanı sunar.
+- Daha Hızlı Başlatma Süreleri: Native imajlar, JVM tabanlı uygulamalara kıyasla çok daha hızlı başlatılır.
+- Azaltılmış Kaynak Kullanımı: Native imajlar daha az bellek kullanır, bu da bulut ve konteynerize ortamlar için idealdir.
+- Artırılmış Güvenlik: Daha küçük bir runtime ve sınırlı bir yüzey alanı sunar.
 
 ---
 
@@ -41,10 +41,10 @@ Spring Boot ile GraalVM Native, geliştiricilere daha hızlı başlatma süreler
 
 Aşağıdakilere sahip olduğunuzdan emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 🛠 **GraalVM** native-image desteği ile yüklenmiş
-- 🕝 **Maven** veya **Gradle**
-- 🐳 **Docker** (opsiyonel, konteyner imajları oluşturmak için)
+- ☕ Java Development Kit (JDK) 17+
+- 🛠 GraalVM native-image desteği ile yüklenmiş
+- 🕝 Maven veya Gradle
+- 🐳 Docker (opsiyonel, konteyner imajları oluşturmak için)
 
 ---
 
@@ -52,7 +52,7 @@ Aşağıdakilere sahip olduğunuzdan emin olun:
 
 `pom.xml` veya `build.gradle` dosyanıza GraalVM Native Build Tools eklentisini ekleyin.
 
-**Maven:**
+Maven:
 
 ```xml
 <plugin>
@@ -62,7 +62,7 @@ Aşağıdakilere sahip olduğunuzdan emin olun:
 </plugin>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 plugins {

@@ -43,7 +43,7 @@ describe('PostToc', () => {
     expect(screen.queryByText('post.tocTitle')).not.toBeInTheDocument();
   });
 
-  it('creates slugs, keeps preset ids, and updates hash on click', () => {
+  it('creates slugs from h2 headings and updates hash on click', () => {
     const root = createRoot([
       { tag: 'h2', text: 'Section' },
       { tag: 'h2', text: 'Section' },
@@ -60,10 +60,9 @@ describe('PostToc', () => {
 
     render(<PostToc content="content" rootRef={{ current: root }} />);
 
-    const headings = root.querySelectorAll('h2, h3');
+    const headings = root.querySelectorAll('h2');
     expect(headings[0].id).toBe('section');
     expect(headings[1].id).toBe('section-1');
-    expect(headings[2].id).toBe('preset-id');
 
     const links = screen.getAllByRole('link');
     fireEvent.click(links[1]);
@@ -97,8 +96,8 @@ describe('PostToc', () => {
     expect(pushStateSpy).not.toHaveBeenCalled();
   });
 
-  it('keeps only h2 items when there are more than 20 entries', () => {
-    const headings = Array.from({ length: 22 }, (_, index) => ({
+  it('renders only h2 headings in toc', () => {
+    const headings = Array.from({ length: 10 }, (_, index) => ({
       tag: (index % 2 === 0 ? 'h2' : 'h3') as 'h2' | 'h3',
       text: `Heading ${index + 1}`,
     }));
@@ -106,6 +105,6 @@ describe('PostToc', () => {
 
     render(<PostToc content="content" rootRef={{ current: root }} />);
 
-    expect(screen.getAllByRole('link')).toHaveLength(11);
+    expect(screen.getAllByRole('link')).toHaveLength(5);
   });
 });

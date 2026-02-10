@@ -28,10 +28,10 @@ Spring Boot allows developers to easily schedule and execute background tasks us
 
 ## 🌟 Why Use @Scheduled in Spring Boot?
 
-- **Automate Tasks**: Run jobs periodically without human interaction.
-- **Efficient Resource Usage**: Schedule tasks without blocking main threads.
-- **Supports Fixed Rate, Fixed Delay, and Cron Expressions**.
-- **Seamless Integration**: Works with Spring Boot’s dependency injection and lifecycle management.
+- Automate Tasks: Run jobs periodically without human interaction.
+- Efficient Resource Usage: Schedule tasks without blocking main threads.
+- Supports Fixed Rate, Fixed Delay, and Cron Expressions.
+- Seamless Integration: Works with Spring Boot’s dependency injection and lifecycle management.
 
 ---
 
@@ -39,17 +39,17 @@ Spring Boot allows developers to easily schedule and execute background tasks us
 
 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🔤 A **Java IDE** (e.g., IntelliJ IDEA, Eclipse)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🔤 A Java IDE (e.g., IntelliJ IDEA, Eclipse)
 
 ---
 
 ## 🛠️ Step 1: Add Dependencies
 
-To enable scheduling, you need to include **spring-boot-starter-web** in your `pom.xml` or `build.gradle` file.
+To enable scheduling, you need to include spring-boot-starter-web in your `pom.xml` or `build.gradle` file.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -58,14 +58,14 @@ To enable scheduling, you need to include **spring-boot-starter-web** in your `p
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-web'
 ```
 
-> **Why `spring-boot-starter-web`?**
-> Spring Boot applications using `@Scheduled` need a running **Spring Context**. Including `spring-boot-starter-web` ensures that the application lifecycle is properly managed.
+> Why `spring-boot-starter-web`?
+> Spring Boot applications using `@Scheduled` need a running Spring Context. Including `spring-boot-starter-web` ensures that the application lifecycle is properly managed.
 
 ---
 
@@ -175,7 +175,7 @@ Or using Gradle:
 gradle bootRun
 ```
 
-The scheduled task will execute **every 5 seconds** and print a timestamp.
+The scheduled task will execute every 5 seconds and print a timestamp.
 
 ---
 

@@ -44,7 +44,7 @@ Spring Boot'ta JPA Auditing, bir varlığın kim tarafından ve ne zaman oluştu
 
 Projenize aşağıdaki bağımlılıkları ekleyin:
 
-**Maven**:
+Maven:
 
 ```xml
 <dependency>
@@ -53,7 +53,7 @@ Projenize aşağıdaki bağımlılıkları ekleyin:
 </dependency>
 ```
 
-**Gradle**:
+Gradle:
 
 ```groovy
 dependencies {

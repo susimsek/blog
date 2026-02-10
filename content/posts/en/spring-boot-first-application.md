@@ -30,9 +30,9 @@ Spring Boot simplifies the process of building production-ready applications wit
 
 📋 Before starting, ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+ installed
-- 📦 **Maven or Gradle** installed
-- 🖥️ A **Java IDE** (e.g., IntelliJ IDEA, Eclipse, or Visual Studio Code)
+- ☕ Java Development Kit (JDK) 17+ installed
+- 📦 Maven or Gradle installed
+- 🖥️ A Java IDE (e.g., IntelliJ IDEA, Eclipse, or Visual Studio Code)
 
 ---
 
@@ -40,7 +40,7 @@ Spring Boot simplifies the process of building production-ready applications wit
 
 You can create your first Spring Boot project in two ways:
 
-1. **Using Spring Initializr 🖱️**
+1. Using Spring Initializr 🖱️
 
 - Visit [Spring Initializr](https://start.spring.io/).
 - Configure the following:
@@ -48,9 +48,9 @@ You can create your first Spring Boot project in two ways:
   - 👨‍💻 Language: `Java` or `Kotlin`
   - 🔄 Spring Boot Version: `3.0.0` (or the latest version).
   - 📜 Add dependencies: `Spring Web`
-- Click **Generate** to download the project files.
+- Click Generate to download the project files.
 
-2. **Using IntelliJ IDEA 💻**
+2. Using IntelliJ IDEA 💻
 
 - Open IntelliJ IDEA.
 - Go to `New Project > Spring Initializr`.
@@ -129,7 +129,7 @@ fun sayHello(): String {
    http://localhost:8080/hello
    ```
 
-**Response:**
+Response:
 
 ```
 Hello, Spring Boot!

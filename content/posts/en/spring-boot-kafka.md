@@ -31,10 +31,10 @@ Apache Kafka is a distributed event streaming platform that facilitates real-tim
 
 ## 🌟 Why Use Kafka?
 
-- **Scalable Messaging:** Handle large volumes of data seamlessly.
-- **Fault Tolerance:** Ensure data durability and high availability.
-- **Real-Time Processing:** Process and analyze data in real time.
-- **Integration:** Easily integrate Kafka with Spring Boot for efficient development.
+- Scalable Messaging: Handle large volumes of data seamlessly.
+- Fault Tolerance: Ensure data durability and high availability.
+- Real-Time Processing: Process and analyze data in real time.
+- Integration: Easily integrate Kafka with Spring Boot for efficient development.
 
 ---
 
@@ -42,10 +42,10 @@ Apache Kafka is a distributed event streaming platform that facilitates real-tim
 
 🕊 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🔠 A **Java IDE** (e.g., IntelliJ IDEA, Eclipse)
-- 🔠 **Apache Kafka** installed and running
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🔠 A Java IDE (e.g., IntelliJ IDEA, Eclipse)
+- 🔠 Apache Kafka installed and running
 
 ---
 
@@ -53,7 +53,7 @@ Apache Kafka is a distributed event streaming platform that facilitates real-tim
 
 To integrate Kafka into your Spring Boot project, add the following dependencies:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -62,7 +62,7 @@ To integrate Kafka into your Spring Boot project, add the following dependencies
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.kafka:spring-kafka'
@@ -216,7 +216,7 @@ class KafkaConsumer {
 
 ---
 
-## Controller Example
+### Controller Example
 
 :::tabs
 @tab Java [icon=java]

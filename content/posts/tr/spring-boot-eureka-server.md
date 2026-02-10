@@ -28,17 +28,17 @@ topics:
     color: 'brown'
 ---
 
-Spring Boot **Eureka Server**, mikroservis mimarisinde servis kaydı ve keşfi sağlayan bir servis kayıt merkezi olarak çalışır. Mikroservislerin kendilerini otomatik olarak kaydetmelerine ve diğer servisleri dinamik olarak keşfetmelerine olanak tanır. Bu kılavuzda, Spring Boot ile Eureka serverın nasıl kurulacağını ve yapılandırılacağını öğreneceksiniz.
+Spring Boot Eureka Server, mikroservis mimarisinde servis kaydı ve keşfi sağlayan bir servis kayıt merkezi olarak çalışır. Mikroservislerin kendilerini otomatik olarak kaydetmelerine ve diğer servisleri dinamik olarak keşfetmelerine olanak tanır. Bu kılavuzda, Spring Boot ile Eureka serverın nasıl kurulacağını ve yapılandırılacağını öğreneceksiniz.
 
 ---
 
 ## 🌟 Neden Eureka Server Kullanmalıyız?
 
-- **Servis Keşfi**: Mikro servislerin otomatik olarak kaydolmasını ve keşfedilmesini sağlar.
-- **Yük Dengeleme**: Ribbon ile istemci taraflı yük dengeleme sağlar.
-- **Hata Toleransı**: Bir servis başarısız olursa alternatif örnekleri bulmaya yardımcı olur.
-- **Ölçeklenebilirlik**: Mikroserivslerin kolayca ölçeklenmesini sağlar.
-- **Spring Cloud Entegrasyonu**: Spring Boot uygulamalarıyla sorunsuz çalışır.
+- Servis Keşfi: Mikro servislerin otomatik olarak kaydolmasını ve keşfedilmesini sağlar.
+- Yük Dengeleme: Ribbon ile istemci taraflı yük dengeleme sağlar.
+- Hata Toleransı: Bir servis başarısız olursa alternatif örnekleri bulmaya yardımcı olur.
+- Ölçeklenebilirlik: Mikroserivslerin kolayca ölçeklenmesini sağlar.
+- Spring Cloud Entegrasyonu: Spring Boot uygulamalarıyla sorunsuz çalışır.
 
 ---
 
@@ -46,8 +46,8 @@ Spring Boot **Eureka Server**, mikroservis mimarisinde servis kaydı ve keşfi s
 
 Aşağıdakilerin kurulu olduğundan emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven veya Gradle** yüklü
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven veya Gradle yüklü
 
 ---
 
@@ -131,7 +131,7 @@ eureka:
     wait-time-in-ms-when-sync-empty: 5
 ```
 
-> **Not:** Eureka Sunucusu kendisini kaydetmez.
+> Not: Eureka Sunucusu kendisini kaydetmez.
 
 ---
 
@@ -161,7 +161,7 @@ http://localhost:8761/
 
 ### Bağımlılıkları Ekleyin
 
-#### Maven:
+### Maven:
 
 ```xml
 <dependency>
@@ -170,7 +170,7 @@ http://localhost:8761/
 </dependency>
 ```
 
-#### Gradle:
+### Gradle:
 
 ```groovy
 implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'

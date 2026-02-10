@@ -232,24 +232,24 @@ describe('Post Filters', () => {
     it('returns both adjacent posts for a middle item', () => {
       const adjacent = getAdjacentPosts('p2', orderedPosts);
       expect(adjacent).toEqual({
-        previousPost: { id: 'p3', title: 'Newest' },
-        nextPost: { id: 'p1', title: 'Oldest' },
+        previousPost: { id: 'p1', title: 'Oldest' },
+        nextPost: { id: 'p3', title: 'Newest' },
       });
     });
 
     it('returns only next post for the first item', () => {
       const adjacent = getAdjacentPosts('p3', orderedPosts);
       expect(adjacent).toEqual({
-        previousPost: null,
-        nextPost: { id: 'p2', title: 'Middle' },
+        previousPost: { id: 'p2', title: 'Middle' },
+        nextPost: null,
       });
     });
 
     it('returns only previous post for the last item', () => {
       const adjacent = getAdjacentPosts('p1', orderedPosts);
       expect(adjacent).toEqual({
-        previousPost: { id: 'p2', title: 'Middle' },
-        nextPost: null,
+        previousPost: null,
+        nextPost: { id: 'p2', title: 'Middle' },
       });
     });
 

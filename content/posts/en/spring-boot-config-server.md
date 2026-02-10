@@ -28,17 +28,17 @@ topics:
     color: 'brown'
 ---
 
-Spring Boot **Config Server** enables centralized configuration management for distributed applications, allowing dynamic configuration updates without requiring service restarts. This guide covers how to set up and use Spring Boot Config Server efficiently.
+Spring Boot Config Server enables centralized configuration management for distributed applications, allowing dynamic configuration updates without requiring service restarts. This guide covers how to set up and use Spring Boot Config Server efficiently.
 
 ---
 
 ## 🌟 Why Use Config Server?
 
-- **Centralized Configuration**: Manage application settings in a single place.
-- **Dynamic Updates**: Update configurations without restarting services.
-- **Environment Profiles**: Support different configurations for dev, test, and production environments.
-- **Security & Access Control**: Store sensitive configurations securely.
-- **Integration with Git**: Keep configuration versions managed and trackable.
+- Centralized Configuration: Manage application settings in a single place.
+- Dynamic Updates: Update configurations without restarting services.
+- Environment Profiles: Support different configurations for dev, test, and production environments.
+- Security & Access Control: Store sensitive configurations securely.
+- Integration with Git: Keep configuration versions managed and trackable.
 
 ---
 
@@ -46,15 +46,15 @@ Spring Boot **Config Server** enables centralized configuration management for d
 
 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 📁 **Git Repository** (for storing configurations)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 📁 Git Repository (for storing configurations)
 
 ---
 
 ## 🛠️ Step 1: Add Dependencies
 
-Add the necessary dependencies for **Spring Cloud Config Server**.
+Add the necessary dependencies for Spring Cloud Config Server.
 
 ### Maven Configuration:
 
@@ -132,7 +132,7 @@ spring:
           default-label: main
 ```
 
-> **Note:** Replace `https://github.com/example/config-repo` with your actual Git repository.
+> Note: Replace `https://github.com/example/config-repo` with your actual Git repository.
 
 ---
 
@@ -197,7 +197,7 @@ Expected Output:
 
 ### Add Dependencies
 
-#### Maven:
+### Maven:
 
 ```xml
 <dependency>
@@ -206,7 +206,7 @@ Expected Output:
 </dependency>
 ```
 
-#### Gradle:
+### Gradle:
 
 ```groovy
 implementation 'org.springframework.cloud:spring-cloud-starter-config'

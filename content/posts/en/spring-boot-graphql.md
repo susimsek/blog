@@ -36,9 +36,9 @@ GraphQL allows clients to request specific data, reducing over-fetching and unde
 
 📋 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🔤 A **Java IDE** (e.g., IntelliJ IDEA, Eclipse)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🔤 A Java IDE (e.g., IntelliJ IDEA, Eclipse)
 
 ---
 
@@ -46,7 +46,7 @@ GraphQL allows clients to request specific data, reducing over-fetching and unde
 
 Include the following dependencies in your project to enable Spring for GraphQL.
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -55,7 +55,7 @@ Include the following dependencies in your project to enable Spring for GraphQL.
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-graphql'
@@ -250,7 +250,7 @@ class UserController(
 
 Run the application using the following commands:
 
-- **Spring Boot (Java/Kotlin):**
+- Spring Boot (Java/Kotlin):
 
   ```bash
   ./mvnw spring-boot:run
@@ -264,7 +264,7 @@ Access the GraphQL Playground at `http://localhost:8080/graphiql` to test your A
 
 Here are some example queries to test your API:
 
-- **Fetch a user by ID:**
+- Fetch a user by ID:
 
 ```graphql
 query {
@@ -276,7 +276,7 @@ query {
 }
 ```
 
-- **Fetch all users:**
+- Fetch all users:
 
 ```graphql
 query {

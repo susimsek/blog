@@ -31,26 +31,26 @@ Spring Boot 3.2+ lets you combine the simplicity of `@Async` with JDK 21 virtual
 
 ## 🌟 Why Use Virtual Thread in Spring Boot?
 
-- **Ultra-Lightweight**: Virtual threads are thousands of times cheaper than platform threads.
-- **Non-Blocking**: `@Async` methods run off the main thread, improving responsiveness.
-- **Scalable**: Handle high concurrency with minimal resource overhead.
-- **Simple Config**: Enable with a single property, no custom executors needed.
+- Ultra-Lightweight: Virtual threads are thousands of times cheaper than platform threads.
+- Non-Blocking: `@Async` methods run off the main thread, improving responsiveness.
+- Scalable: Handle high concurrency with minimal resource overhead.
+- Simple Config: Enable with a single property, no custom executors needed.
 
 ---
 
 ## 📋 Prerequisites
 
-- ☕ **Java Development Kit (JDK) 21** or higher
-- 📦 **Spring Boot 3.2+**
-- 🔤 **IDE** (IntelliJ IDEA, Eclipse)
+- ☕ Java Development Kit (JDK) 21 or higher
+- 📦 Spring Boot 3.2+
+- 🔤 IDE (IntelliJ IDEA, Eclipse)
 
 ---
 
 ## 🛠️ Step 1: Add Dependencies
 
-To enable async processing, include **spring-boot-starter-web** in your `pom.xml` or `build.gradle` file.
+To enable async processing, include spring-boot-starter-web in your `pom.xml` or `build.gradle` file.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -59,7 +59,7 @@ To enable async processing, include **spring-boot-starter-web** in your `pom.xml
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-web'

@@ -31,18 +31,18 @@ Spring Boot 3.2 ve üzeri sürümler, JDK 21’in sanal thread desteğini otomat
 
 ## 🌟 Neden Spring Boot'ta Sanal Thread Kullanmalıyız?
 
-- **Hafif Maliyet**: Sanal thread’ler, geleneksel platform thread’lere kıyasla çok daha az kaynak kullanır.
-- **Bloklamasız**: `@Async` ile işaretlenen metodlar ana thread’i meşgul etmeden çalışır.
-- **Yüksek Ölçeklenebilirlik**: Binlerce concurrent iş yükünü düşük bellek ayak iziyle yönetir.
-- **Basit Konfigürasyon**: Tek bir özellik (property) ekleyerek tüm executor ve scheduler’ları sanal thread’li yapar.
+- Hafif Maliyet: Sanal thread’ler, geleneksel platform thread’lere kıyasla çok daha az kaynak kullanır.
+- Bloklamasız: `@Async` ile işaretlenen metodlar ana thread’i meşgul etmeden çalışır.
+- Yüksek Ölçeklenebilirlik: Binlerce concurrent iş yükünü düşük bellek ayak iziyle yönetir.
+- Basit Konfigürasyon: Tek bir özellik (property) ekleyerek tüm executor ve scheduler’ları sanal thread’li yapar.
 
 ---
 
 ## 📋 Gereksinimler
 
-- ☕ **Java Development Kit (JDK) 21** veya üzeri
-- 📦 **Spring Boot 3.2+**
-- 🔤 **IDE** (IntelliJ IDEA, Eclipse vb.)
+- ☕ Java Development Kit (JDK) 21 veya üzeri
+- 📦 Spring Boot 3.2+
+- 🔤 IDE (IntelliJ IDEA, Eclipse vb.)
 
 ---
 
@@ -50,7 +50,7 @@ Spring Boot 3.2 ve üzeri sürümler, JDK 21’in sanal thread desteğini otomat
 
 Asenkron işleme olanak tanıyan `spring-boot-starter-web` paketini projenize ekleyin.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -59,7 +59,7 @@ Asenkron işleme olanak tanıyan `spring-boot-starter-web` paketini projenize ek
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-web'

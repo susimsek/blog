@@ -42,15 +42,15 @@ ORM bridges the gap between object-oriented programming and relational databases
 
 📋 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🖥️ A **Java IDE**
-- 🐘 **PostgreSQL** installed and running
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🖥️ A Java IDE
+- 🐘 PostgreSQL installed and running
 
-For **Go**:
+For Go:
 
-- 🔧 **Golang** 1.17+ installed
-- 🔄 **go.mod** initialized in your project
+- 🔧 Golang 1.17+ installed
+- 🔄 go.mod initialized in your project
 
 ---
 
@@ -62,7 +62,7 @@ To set up a Spring Boot project and integrate ORM, follow these steps:
 
 For Spring Boot projects, include the following dependencies in your project:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -75,7 +75,7 @@ For Spring Boot projects, include the following dependencies in your project:
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -97,12 +97,12 @@ spring.jpa.hibernate.ddl-auto=update
 
 If you haven't already, create your Spring Boot project using [Spring Initializr](https://start.spring.io/):
 
-1. Choose **Spring Web**, **Spring Data JPA**, and **PostgreSQL Driver** as dependencies.
+1. Choose Spring Web, Spring Data JPA, and PostgreSQL Driver as dependencies.
 2. Download the project and import it into your preferred IDE.
 
 For Go projects:
 
-- **Install Gin Framework and GORM:**
+- Install Gin Framework and GORM:
 
 ```bash
 # Install the Gin framework
@@ -319,13 +319,13 @@ func main() {
 
 ## ▶️ Running the Applications
 
-- **Spring Boot:**
+- Spring Boot:
 
   ```bash
   ./mvnw spring-boot:run
   ```
 
-- **Gin:**
+- Gin:
 
   ```bash
   go run main.go
@@ -337,13 +337,13 @@ func main() {
 
 You can test the API using the following cURL commands:
 
-**Fetch All Users:**
+Fetch All Users:
 
 ```bash
 curl -X GET http://localhost:8080/api/users
 ```
 
-**Create a New User:**
+Create a New User:
 
 ```bash
 curl -X POST http://localhost:8080/api/users \

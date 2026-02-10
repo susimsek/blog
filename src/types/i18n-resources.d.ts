@@ -189,6 +189,7 @@ interface Resources {
         connectTitle: 'Connect';
         expertise: {
           cloud: 'Cloud Native';
+          go: 'Go';
           microservices: 'Microservices';
           nextjs: 'Next.js';
           spring: 'Spring Boot';

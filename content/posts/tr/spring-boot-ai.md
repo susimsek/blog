@@ -31,14 +31,14 @@ Spring AI, AI mühendisliği için Spring’in taşınabilirlik ve modüler tasa
 
 ## 🌟 Neden Spring AI Kullanılmalı?
 
-- **Sağlayıcıdan bağımsız taşınabilirlik**: Kodunuzu bir kez yazın, AI sağlayıcıları (OpenAI, Anthropic, Azure vb.) arasında değiştirmeler yapmadan geçiş yapın.
-- **POJO tabanlı tasarım**: AI girdi ve çıktılarınızı düz Java/Kotlin nesneleri olarak modelleyerek tür güvenliği ve kolay entegrasyon sağlayın.
-- **Yapılandırılmış çıktılar**: Model yanıtlarını alan nesnelerinize otomatik olarak eşleyin.
-- **Vektör veri deposu entegrasyonu**: Chroma, Pinecone, Redis gibi önde gelen vektör veritabanları için birleşik API desteği.
-- **Araç/fonksiyon çağrısı**: LLM’lerin gerçek zamanlı veri için özel fonksiyonları veya servisleri çağırmasına izin verin.
-- **Gözlemlenebilirlik ve değerlendirme**: AI işlemlerini izlemeniz ve halüsinasyonları tespit etmeniz için yerleşik metrikler ve değerlendirme araçları.
-- **Sohbet soyutlamaları**: WebClient benzeri akıcı bir ChatClient API’si ile chat agentlar oluşturun.
-- **Retrieval-augmented generation (RAG)**: Advisorler ve bellek API’leri ile belgelere dayalı QA ve geçmiş sohbete dayalı sohbeti basitleştirin.
+- Sağlayıcıdan bağımsız taşınabilirlik: Kodunuzu bir kez yazın, AI sağlayıcıları (OpenAI, Anthropic, Azure vb.) arasında değiştirmeler yapmadan geçiş yapın.
+- POJO tabanlı tasarım: AI girdi ve çıktılarınızı düz Java/Kotlin nesneleri olarak modelleyerek tür güvenliği ve kolay entegrasyon sağlayın.
+- Yapılandırılmış çıktılar: Model yanıtlarını alan nesnelerinize otomatik olarak eşleyin.
+- Vektör veri deposu entegrasyonu: Chroma, Pinecone, Redis gibi önde gelen vektör veritabanları için birleşik API desteği.
+- Araç/fonksiyon çağrısı: LLM’lerin gerçek zamanlı veri için özel fonksiyonları veya servisleri çağırmasına izin verin.
+- Gözlemlenebilirlik ve değerlendirme: AI işlemlerini izlemeniz ve halüsinasyonları tespit etmeniz için yerleşik metrikler ve değerlendirme araçları.
+- Sohbet soyutlamaları: WebClient benzeri akıcı bir ChatClient API’si ile chat agentlar oluşturun.
+- Retrieval-augmented generation (RAG): Advisorler ve bellek API’leri ile belgelere dayalı QA ve geçmiş sohbete dayalı sohbeti basitleştirin.
 
 ---
 

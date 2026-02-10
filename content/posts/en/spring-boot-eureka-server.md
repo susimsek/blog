@@ -28,17 +28,17 @@ topics:
     color: 'brown'
 ---
 
-Spring Boot **Eureka Server** is a service registry that enables service discovery in a microservices architecture. It allows microservices to register themselves and discover other services dynamically. This guide will walk you through setting up and configuring a Spring Boot Eureka Server.
+Spring Boot Eureka Server is a service registry that enables service discovery in a microservices architecture. It allows microservices to register themselves and discover other services dynamically. This guide will walk you through setting up and configuring a Spring Boot Eureka Server.
 
 ---
 
 ## 🌟 Why Use Eureka Server?
 
-- **Service Discovery**: Automatically register and discover microservices.
-- **Load Balancing**: Enables client-side load balancing with Ribbon.
-- **Failover Support**: Services can find alternative instances if one fails.
-- **Scalability**: Easily scale microservices without manual configuration.
-- **Spring Cloud Integration**: Works seamlessly with Spring Boot applications.
+- Service Discovery: Automatically register and discover microservices.
+- Load Balancing: Enables client-side load balancing with Ribbon.
+- Failover Support: Services can find alternative instances if one fails.
+- Scalability: Easily scale microservices without manual configuration.
+- Spring Cloud Integration: Works seamlessly with Spring Boot applications.
 
 ---
 
@@ -46,8 +46,8 @@ Spring Boot **Eureka Server** is a service registry that enables service discove
 
 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
 
 ---
 
@@ -131,7 +131,7 @@ eureka:
     wait-time-in-ms-when-sync-empty: 5
 ```
 
-> **Note:** The Eureka Server does not register itself.
+> Note: The Eureka Server does not register itself.
 
 ---
 
@@ -161,7 +161,7 @@ http://localhost:8761/
 
 ### Add Dependencies
 
-#### Maven:
+### Maven:
 
 ```xml
 <dependency>
@@ -170,7 +170,7 @@ http://localhost:8761/
 </dependency>
 ```
 
-#### Gradle:
+### Gradle:
 
 ```groovy
 implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'

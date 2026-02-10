@@ -28,10 +28,10 @@ Spring Boot provides an easy way to run asynchronous tasks using the `@Async` an
 
 ## 🌟 Why Use @Async in Spring Boot?
 
-- **Non-Blocking Execution**: Runs tasks asynchronously without blocking the main thread.
-- **Improved Performance**: Executes independent tasks in parallel.
-- **Better Scalability**: Frees up resources for other processes.
-- **Seamless Integration**: Works with Spring Boot’s dependency injection and lifecycle management.
+- Non-Blocking Execution: Runs tasks asynchronously without blocking the main thread.
+- Improved Performance: Executes independent tasks in parallel.
+- Better Scalability: Frees up resources for other processes.
+- Seamless Integration: Works with Spring Boot’s dependency injection and lifecycle management.
 
 ---
 
@@ -39,17 +39,17 @@ Spring Boot provides an easy way to run asynchronous tasks using the `@Async` an
 
 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🔤 A **Java IDE** (e.g., IntelliJ IDEA, Eclipse)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🔤 A Java IDE (e.g., IntelliJ IDEA, Eclipse)
 
 ---
 
 ## 🛠️ Step 1: Add Dependencies
 
-To enable async processing, include **spring-boot-starter-web** in your `pom.xml` or `build.gradle` file.
+To enable async processing, include spring-boot-starter-web in your `pom.xml` or `build.gradle` file.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -58,7 +58,7 @@ To enable async processing, include **spring-boot-starter-web** in your `pom.xml
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-web'

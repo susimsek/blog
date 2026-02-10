@@ -31,10 +31,10 @@ Redis is a powerful in-memory data store often used for caching, messaging, and 
 
 ## 🌟 Why Use Redis?
 
-- **High Performance**: Redis provides extremely low latency for read and write operations.
-- **Versatile Data Structures**: Supports strings, hashes, lists, sets, and more.
-- **Scalability**: Ideal for distributed caching and real-time analytics.
-- **Integration**: Easily integrates with Spring Boot for seamless development.
+- High Performance: Redis provides extremely low latency for read and write operations.
+- Versatile Data Structures: Supports strings, hashes, lists, sets, and more.
+- Scalability: Ideal for distributed caching and real-time analytics.
+- Integration: Easily integrates with Spring Boot for seamless development.
 
 ---
 
@@ -42,10 +42,10 @@ Redis is a powerful in-memory data store often used for caching, messaging, and 
 
 🗈 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🔤 A **Java IDE** (e.g., IntelliJ IDEA, Eclipse)
-- 💠 **Redis Server** installed and running locally or accessible via a network
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🔤 A Java IDE (e.g., IntelliJ IDEA, Eclipse)
+- 💠 Redis Server installed and running locally or accessible via a network
 
 ---
 
@@ -53,7 +53,7 @@ Redis is a powerful in-memory data store often used for caching, messaging, and 
 
 To integrate Redis into your Spring Boot project, add the following dependencies:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -62,7 +62,7 @@ To integrate Redis into your Spring Boot project, add the following dependencies
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-data-redis'
@@ -192,7 +192,7 @@ class UserService {
 
 ---
 
-## Configuring TTL (Time-To-Live)
+### Configuring TTL (Time-To-Live)
 
 Set the cache expiration time in your `application.properties` file:
 
@@ -204,7 +204,7 @@ This sets the TTL to 10 minutes (600,000 milliseconds).
 
 ---
 
-## Controller Example
+### Controller Example
 
 Create a REST controller to expose the caching functionality.
 
@@ -268,7 +268,7 @@ Run the application using the following command:
 
 You can test the API using cURL or Postman:
 
-- **Fetch a User (cached):**
+- Fetch a User (cached):
 
 ```bash
 curl -X GET http://localhost:8080/users/1

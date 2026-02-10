@@ -25,16 +25,16 @@ topics:
     color: 'brown'
 ---
 
-Spring Boot with Reactive Programming enables developers to build non-blocking, event-driven applications that scale efficiently. By leveraging **Spring WebFlux** and **Project Reactor**, developers can handle large amounts of concurrent requests with minimal resource consumption, making it ideal for microservices and real-time applications.
+Spring Boot with Reactive Programming enables developers to build non-blocking, event-driven applications that scale efficiently. By leveraging Spring WebFlux and Project Reactor, developers can handle large amounts of concurrent requests with minimal resource consumption, making it ideal for microservices and real-time applications.
 
 ---
 
 ## 🌟 Why Use Reactive Programming?
 
-- **Asynchronous & Non-Blocking**: Handle multiple requests efficiently without blocking threads.
-- **Better Scalability**: Utilize fewer resources while handling more concurrent users.
-- **Event-Driven Model**: Ideal for microservices, real-time applications, and streaming data.
-- **Built-in Backpressure**: Prevents overwhelming the system with too many requests.
+- Asynchronous & Non-Blocking: Handle multiple requests efficiently without blocking threads.
+- Better Scalability: Utilize fewer resources while handling more concurrent users.
+- Event-Driven Model: Ideal for microservices, real-time applications, and streaming data.
+- Built-in Backpressure: Prevents overwhelming the system with too many requests.
 
 ---
 
@@ -42,17 +42,17 @@ Spring Boot with Reactive Programming enables developers to build non-blocking, 
 
 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🔤 A **Java IDE** (e.g., IntelliJ IDEA, Eclipse)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🔤 A Java IDE (e.g., IntelliJ IDEA, Eclipse)
 
 ---
 
 ## 🛠️ Step 1: Add Dependencies
 
-Add the necessary dependency for **Spring WebFlux** in your `pom.xml` or `build.gradle` file.
+Add the necessary dependency for Spring WebFlux in your `pom.xml` or `build.gradle` file.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -61,7 +61,7 @@ Add the necessary dependency for **Spring WebFlux** in your `pom.xml` or `build.
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -71,7 +71,7 @@ implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 ## 🛠️ Step 2: Create a Reactive REST Controller
 
-Define a **non-blocking** REST endpoint using `Mono` and `Flux` to handle asynchronous processing.
+Define a non-blocking REST endpoint using `Mono` and `Flux` to handle asynchronous processing.
 
 :::tabs
 @tab Java [icon=java]

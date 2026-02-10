@@ -20,6 +20,7 @@ export default function PostAuthorBox() {
         <p className="post-author-meta-label text-muted mb-2">{t('post.authorBox.expertiseTitle')}</p>
         <ul className="post-author-expertise list-unstyled d-flex flex-wrap gap-2 mb-3">
           <li className="post-author-skill">{t('post.authorBox.expertise.spring')}</li>
+          <li className="post-author-skill">{t('post.authorBox.expertise.go')}</li>
           <li className="post-author-skill">{t('post.authorBox.expertise.microservices')}</li>
           <li className="post-author-skill">{t('post.authorBox.expertise.nextjs')}</li>
           <li className="post-author-skill">{t('post.authorBox.expertise.cloud')}</li>

@@ -30,9 +30,9 @@ Spring Boot, Spring Framework ile üretim için hazır uygulamalar oluşturmayı
 
 📋 Başlamadan önce aşağıdaki araçların kurulu olduğundan emin olun:
 
-- ☕ **Java Geliştirme Kiti (JDK)** 17+
-- 📦 **Maven veya Gradle**
-- 🖥️ Bir **Java IDE'si** (Örneğin IntelliJ IDEA, Eclipse veya Visual Studio Code)
+- ☕ Java Geliştirme Kiti (JDK) 17+
+- 📦 Maven veya Gradle
+- 🖥️ Bir Java IDE'si (Örneğin IntelliJ IDEA, Eclipse veya Visual Studio Code)
 
 ---
 
@@ -40,7 +40,7 @@ Spring Boot, Spring Framework ile üretim için hazır uygulamalar oluşturmayı
 
 İlk Spring Boot projenizi iki şekilde oluşturabilirsiniz:
 
-1. **Spring Initializr Kullanarak 🖱️**
+1. Spring Initializr Kullanarak 🖱️
 
 - [Spring Initializr](https://start.spring.io/) adresini ziyaret edin.
 - Aşağıdaki gibi yapılandırın:
@@ -48,9 +48,9 @@ Spring Boot, Spring Framework ile üretim için hazır uygulamalar oluşturmayı
   - 👨‍💻 Dil: `Java` veya `Kotlin`
   - 🔄 Spring Boot Sürümü: `3.0.0` (veya en güncel sürüm).
   - 📜 Bağımlılıklar: `Spring Web`
-- **Generate** düğmesine tıklayarak proje dosyalarını indirin.
+- Generate düğmesine tıklayarak proje dosyalarını indirin.
 
-2. **IntelliJ IDEA Kullanarak 💻**
+2. IntelliJ IDEA Kullanarak 💻
 
 - IntelliJ IDEA’yı açın.
 - `New Project > Spring Initializr` bölümüne gidin.
@@ -129,7 +129,7 @@ fun sayHello(): String {
    http://localhost:8080/hello
    ```
 
-**Yanıt:**
+Yanıt:
 
 ```
 Merhaba, Spring Boot!

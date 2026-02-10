@@ -43,9 +43,9 @@ Spring Boot Actuator geliştiricilere şunları sağlar:
 
 📋 Aşağıdaki şartların karşılandığından emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven veya Gradle** yüklenmiş olmalı
-- 🔤 Bir **Java IDE** (IntelliJ IDEA, Eclipse vb.)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven veya Gradle yüklenmiş olmalı
+- 🔤 Bir Java IDE (IntelliJ IDEA, Eclipse vb.)
 
 ---
 
@@ -53,7 +53,7 @@ Spring Boot Actuator geliştiricilere şunları sağlar:
 
 Actuator'ı etkinleştirmek için, projenize aşağıdaki bağımlılıkları ekleyin:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -62,7 +62,7 @@ Actuator'ı etkinleştirmek için, projenize aşağıdaki bağımlılıkları ek
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -87,9 +87,9 @@ management.endpoint.health.show-details=always
 
 İşte sık kullanılan Actuator endpointleri:
 
-- **`/actuator/health`**: Uygulama sağlık durumu sağlar.
-- **`/actuator/info`**: Uygulama metadatasını gösterir.
-- **`/actuator/metrics`**: Uygulama performans metriklerini sunar.
+- `/actuator/health`: Uygulama sağlık durumu sağlar.
+- `/actuator/info`: Uygulama metadatasını gösterir.
+- `/actuator/metrics`: Uygulama performans metriklerini sunar.
 
 Bu endpointlere bir tarayıcı veya cURL gibi API araçları kullanarak erişebilirsiniz.
 
@@ -192,13 +192,13 @@ http://localhost:8080/actuator/health
 
 Actuator endpointlerini cURL veya tarayıcı kullanarak test edebilirsiniz:
 
-- **Health Endpoint:**
+- Health Endpoint:
 
 ```bash
 curl -X GET http://localhost:8080/actuator/health
 ```
 
-- **Info Endpoint:**
+- Info Endpoint:
 
 ```bash
 curl -X GET http://localhost:8080/actuator/info

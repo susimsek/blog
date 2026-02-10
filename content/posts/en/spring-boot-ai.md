@@ -31,14 +31,14 @@ Spring AI is a framework for AI engineering that applies Spring’s portability 
 
 ## 🌟 Why Use Spring AI?
 
-- **Provider-agnostic portability**: Write code once and switch between AI providers (OpenAI, Anthropic, Azure, etc.) without changes.
-- **POJO-based design**: Model AI inputs and outputs as plain Java/Kotlin objects for type safety and easy integration.
-- **Structured outputs**: Automatically map model responses to your domain objects.
-- **Vector store integration**: Seamless support for major vector databases (Chroma, Pinecone, Redis, etc.) via a unified API.
-- **Tool/function calling**: Enable LLMs to invoke custom functions or services for real-time data.
-- **Observability & evaluation**: Built-in metrics and evaluation utilities to monitor AI operations and detect hallucinations.
-- **Chat abstractions**: Fluent ChatClient API, similar to Spring’s WebClient, for building conversational agents.
-- **Retrieval-augmented generation (RAG)**: Simplify document-based QA and memory-backed chat with advisors and memory APIs.
+- Provider-agnostic portability: Write code once and switch between AI providers (OpenAI, Anthropic, Azure, etc.) without changes.
+- POJO-based design: Model AI inputs and outputs as plain Java/Kotlin objects for type safety and easy integration.
+- Structured outputs: Automatically map model responses to your domain objects.
+- Vector store integration: Seamless support for major vector databases (Chroma, Pinecone, Redis, etc.) via a unified API.
+- Tool/function calling: Enable LLMs to invoke custom functions or services for real-time data.
+- Observability & evaluation: Built-in metrics and evaluation utilities to monitor AI operations and detect hallucinations.
+- Chat abstractions: Fluent ChatClient API, similar to Spring’s WebClient, for building conversational agents.
+- Retrieval-augmented generation (RAG): Simplify document-based QA and memory-backed chat with advisors and memory APIs.
 
 ---
 
@@ -46,10 +46,10 @@ Spring AI is a framework for AI engineering that applies Spring’s portability 
 
 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🐳 **Spring Boot** 3+
-- 🔑 **OpenAI API Key** (set as environment variable `OPENAI_API_KEY`)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🐳 Spring Boot 3+
+- 🔑 OpenAI API Key (set as environment variable `OPENAI_API_KEY`)
 
 ---
 

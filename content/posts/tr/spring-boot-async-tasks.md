@@ -28,10 +28,10 @@ Spring Boot, `@Async` anotasyonu ile arka planda asenkron görevler çalıştır
 
 ## 🌟 Neden Spring Boot'ta @Async Kullanmalıyız?
 
-- **Engellenmeyen Çalıştırma**: Görevleri ana thread'i bekletmeden çalıştırır.
-- **Geliştirilmiş Performans**: Bağımsız görevleri paralel olarak yürütür.
-- **Daha İyi Ölçeklenebilirlik**: Diğer süreçler için kaynakları serbest bırakır.
-- **Kolay Entegrasyon**: Spring Boot’un bağımlılık enjeksiyonu ve yaşam döngüsü yönetimiyle sorunsuz çalışır.
+- Engellenmeyen Çalıştırma: Görevleri ana thread'i bekletmeden çalıştırır.
+- Geliştirilmiş Performans: Bağımsız görevleri paralel olarak yürütür.
+- Daha İyi Ölçeklenebilirlik: Diğer süreçler için kaynakları serbest bırakır.
+- Kolay Entegrasyon: Spring Boot’un bağımlılık enjeksiyonu ve yaşam döngüsü yönetimiyle sorunsuz çalışır.
 
 ---
 
@@ -39,17 +39,17 @@ Spring Boot, `@Async` anotasyonu ile arka planda asenkron görevler çalıştır
 
 Şu gereksinimlere sahip olduğunuzdan emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven veya Gradle** kurulu
-- 🔤 Bir **Java IDE** (IntelliJ IDEA, Eclipse vb.)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven veya Gradle kurulu
+- 🔤 Bir Java IDE (IntelliJ IDEA, Eclipse vb.)
 
 ---
 
 ## 🛠️ Adım 1: Bağımlılıkları Ekleyin
 
-Asenkron işlemleri etkinleştirmek için **spring-boot-starter-web** bağımlılığını `pom.xml` veya `build.gradle` dosyanıza ekleyin.
+Asenkron işlemleri etkinleştirmek için spring-boot-starter-web bağımlılığını `pom.xml` veya `build.gradle` dosyanıza ekleyin.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -58,7 +58,7 @@ Asenkron işlemleri etkinleştirmek için **spring-boot-starter-web** bağımlı
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-web'

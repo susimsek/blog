@@ -22,7 +22,7 @@ topics:
     color: 'brown'
 ---
 
-Çok sayıda `@Value` ve dağınık ayarlarla uğraşıyorsan, `@ConfigurationProperties` Spring Boot’ta yapılandırmayı **tip-güvenli**, **düzenli** ve **doğrulanabilir** hale getirmenin en iyi yoludur.
+Çok sayıda `@Value` ve dağınık ayarlarla uğraşıyorsan, `@ConfigurationProperties` Spring Boot’ta yapılandırmayı tip-güvenli, düzenli ve doğrulanabilir hale getirmenin en iyi yoludur.
 
 Bu yazıda şunları öğreneceksin:
 

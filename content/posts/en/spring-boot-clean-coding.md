@@ -41,9 +41,9 @@ Adopting clean coding principles helps to:
 
 📋 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🔤 A **Java IDE** (e.g., IntelliJ IDEA, Eclipse)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🔤 A Java IDE (e.g., IntelliJ IDEA, Eclipse)
 - 🛠️ Familiarity with Spring Boot basics
 
 ---
@@ -52,9 +52,9 @@ Adopting clean coding principles helps to:
 
 Organize your Spring Boot project for better clarity:
 
-- **Controller Layer:** Handles incoming HTTP requests.
-- **Service Layer:** Contains business logic.
-- **Repository Layer:** Interacts with the database.
+- Controller Layer: Handles incoming HTTP requests.
+- Service Layer: Contains business logic.
+- Repository Layer: Interacts with the database.
 
 ### Example Folder Structure:
 
@@ -75,7 +75,7 @@ Lombok reduces boilerplate code in Java, making your classes more concise and re
 
 ### Add Lombok Dependency
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -85,7 +85,7 @@ Lombok reduces boilerplate code in Java, making your classes more concise and re
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 provided 'org.projectlombok:lombok'
@@ -118,7 +118,7 @@ public class User {
 }
 ```
 
-**Benefits:**
+Benefits:
 
 - `@Data` generates getters, setters, equals, hashCode, and toString methods.
 - `@NoArgsConstructor` and `@AllArgsConstructor` create constructors.
@@ -146,7 +146,7 @@ data class User(
 )
 ```
 
-**Advantages of Kotlin:**
+Advantages of Kotlin:
 
 - `data class` automatically generates `toString`, `equals`, and `hashCode` methods.
 - Immutable properties (`val`) ensure better stability.
@@ -241,7 +241,7 @@ data class UserDTO(
 
 ---
 
-## Controller Layer
+### Controller Layer
 
 Implement a controller to handle HTTP requests and interact with the service layer.
 
@@ -312,7 +312,7 @@ Test endpoints using a tool like Postman or cURL.
 
 You can test the API using the following cURL command:
 
-- **Fetch all users:**
+- Fetch all users:
 
 ```bash
 curl -X GET http://localhost:8080/api/users

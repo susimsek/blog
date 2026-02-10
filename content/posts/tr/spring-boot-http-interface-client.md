@@ -31,18 +31,18 @@ Spring Boot 3.2+ ile Java veya Kotlin arayüzleri üzerinden deklaratif ve tip g
 
 ## 🌟 Neden HTTP Arayüz İstemcisi?
 
-- **Deklaratif**: Bir arayüz tanımlayıp HTTP çağrılarını yöntem anotasyonlarıyla eşleyin.
-- **Tip güvenli**: Yanlış imzalar veya hatalı yol konfigürasyonları derleme zamanında yakalanır.
-- **Azaltılmış tekrar eden kod**: Tek bir bean tanımı, manuel proxy veya template koduna gerek yok.
-- **Spring Dostu**: Spring Framework 6.2’nin `@HttpExchange`, `@GetExchange` ve `WebClientAdapter` bileşenlerini kullanır.
+- Deklaratif: Bir arayüz tanımlayıp HTTP çağrılarını yöntem anotasyonlarıyla eşleyin.
+- Tip güvenli: Yanlış imzalar veya hatalı yol konfigürasyonları derleme zamanında yakalanır.
+- Azaltılmış tekrar eden kod: Tek bir bean tanımı, manuel proxy veya template koduna gerek yok.
+- Spring Dostu: Spring Framework 6.2’nin `@HttpExchange`, `@GetExchange` ve `WebClientAdapter` bileşenlerini kullanır.
 
 ---
 
 ## 📋 Gereksinimler
 
-- ☕ **Java Development Kit (JDK) 21** veya üstü
-- 📦 **Spring Boot 3.2+**
-- 🔤 **IDE** (IntelliJ IDEA, Eclipse vb.)
+- ☕ Java Development Kit (JDK) 21 veya üstü
+- 📦 Spring Boot 3.2+
+- 🔤 IDE (IntelliJ IDEA, Eclipse vb.)
 
 ---
 
@@ -50,7 +50,7 @@ Spring Boot 3.2+ ile Java veya Kotlin arayüzleri üzerinden deklaratif ve tip g
 
 Projenizin yapı dosyasına Web starter’ı ekleyin:
 
-**Maven**:
+Maven:
 
 ```xml
 <dependency>
@@ -59,7 +59,7 @@ Projenizin yapı dosyasına Web starter’ı ekleyin:
 </dependency>
 ```
 
-**Gradle**:
+Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-web'

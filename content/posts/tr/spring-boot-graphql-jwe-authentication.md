@@ -36,22 +36,22 @@ Spring Boot GraphQL JWE Kimlik Doğrulaması, GraphQL’in esnekliğini, statele
 
 ## 🌟 GraphQL + JWE Kimlik Doğrulaması Neden Kullanılmalı?
 
-- **Stateless Güvenlik**: Tokenlar kendi içinde tüm bilgiyi barındırır ve sunucu tarafında saklama gerektirmez.
-- **GraphQL Esnekliği**: Her query veya mutationu tutarlı bir şekilde koruyun.
-- **Veri Hassasiyeti**: İstemcilerin tam olarak istediği veriyi çeker.
-- **Bütünlük**: İmzalı tokenlar, içeriğin değiştirilmediğini garanti eder.
-- **Gizlilik**: Şifrelenmiş JWT’ler hassas bilgileri dışarıdan okunamaz halde tutar.
-- **Standartlara Dayalı**: JOSE, Spring Security ve GraphQL’den yararlanın.
-- **Ölçeklenebilirlik**: Session replikasyonu veya sticky session gerektirmeden yatay ölçeklenebilir.
+- Stateless Güvenlik: Tokenlar kendi içinde tüm bilgiyi barındırır ve sunucu tarafında saklama gerektirmez.
+- GraphQL Esnekliği: Her query veya mutationu tutarlı bir şekilde koruyun.
+- Veri Hassasiyeti: İstemcilerin tam olarak istediği veriyi çeker.
+- Bütünlük: İmzalı tokenlar, içeriğin değiştirilmediğini garanti eder.
+- Gizlilik: Şifrelenmiş JWT’ler hassas bilgileri dışarıdan okunamaz halde tutar.
+- Standartlara Dayalı: JOSE, Spring Security ve GraphQL’den yararlanın.
+- Ölçeklenebilirlik: Session replikasyonu veya sticky session gerektirmeden yatay ölçeklenebilir.
 
 ---
 
 ## 📋 Gereksinimler
 
-- ☕ **JDK 17** veya üzeri
-- 📦 **Spring Boot 3.2+**
-- 🔤 **IDE** (IntelliJ IDEA, Eclipse)
-- 🛢️ **PostgreSQL** (veya geliştirme için H2)
+- ☕ JDK 17 veya üzeri
+- 📦 Spring Boot 3.2+
+- 🔤 IDE (IntelliJ IDEA, Eclipse)
+- 🛢️ PostgreSQL (veya geliştirme için H2)
 
 ---
 
@@ -59,7 +59,7 @@ Spring Boot GraphQL JWE Kimlik Doğrulaması, GraphQL’in esnekliğini, statele
 
 `pom.xml` veya `build.gradle` dosyanıza şunları ekleyin.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependencies>
@@ -132,7 +132,7 @@ Spring Boot GraphQL JWE Kimlik Doğrulaması, GraphQL’in esnekliğini, statele
 </build>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 dependencies {
@@ -165,28 +165,28 @@ hibernate {
 
 Bu bölümde, Spring Boot uygulamamızı H2/PostgreSQL, JPA, Liquibase changelog’ları, veri yüklemeleri, JWE anahtar özellikleri, GraphQL şema tanımları ve GraalVM native-image reflection tanımları ile yapılandırmak için gereken tüm uygulama ve veritabanı düzeyindeki yapılandırma dosyalarını tanımlıyoruz.
 
-- **`application.yml`**
+- `application.yml`
   Spring datasource, H2 konsolu, JPA/Hibernate, Liquibase changelog path’i, GraphQL subscriptions pathi ve tüm JWT/JWE anahtarları, issuer ve geçerlilik süresi (expiration) ayarlarını içerir.
 
-- **`liquibase/master.xml`**
-  Liquibase **master changelog** dosyası; H2 ve PostgreSQL için DBMS özel özellikler ve alt changelog tanımlarını barındırır.
+- `liquibase/master.xml`
+  Liquibase master changelog dosyası; H2 ve PostgreSQL için DBMS özel özellikler ve alt changelog tanımlarını barındırır.
 
-- **`liquibase/changelog/changelog-user.xml`**
+- `liquibase/changelog/changelog-user.xml`
   `user_identity`, `authority` ve `user_authority_mapping` tabloları, indeksler, yabancı anahtarlar (FK) ve ilk `<loadData>` adımlarını tanımlayan temel şema değişiklik changelogu.
 
-- **`liquibase/data/user.csv`**
+- `liquibase/data/user.csv`
   Kullanıcı kayıtları (UUID, kullanıcı adı, bcrypt ile şifrelenmiş parola, e-posta, enabled flagi, zaman damgaları ve oluşturan kullanıcı bilgisi).
 
-- **`liquibase/data/authority.csv`**
+- `liquibase/data/authority.csv`
   Yetki kayıtları (UUID, ad, açıklama, zaman damgaları ve oluşturan kullanıcı bilgisi).
 
-- **`liquibase/data/user_authority_mapping.csv`**
+- `liquibase/data/user_authority_mapping.csv`
   Kullanıcılar ile yetkiler arasındaki mappingler (composite birincil anahtar, zaman damgaları ve oluşturan kullanıcı bilgisi).
 
-- **`graphql/schema.graphqls`**
+- `graphql/schema.graphqls`
   API için özel scalar tipler, query, subscription ve mutation tanımları ile DTO şema tanımlamalarını içeren GraphQL şema dosyası.
 
-- **`META-INF/native-image/liquibase/reflect-config.json`**
+- `META-INF/native-image/liquibase/reflect-config.json`
   GraalVM native-image oluştururken Liquibase sınıfları için gerekli reflection kurallarını tanımlar.
 
 <span style="display:block; height:1rem;"></span>
@@ -750,13 +750,13 @@ type GreetDTO {
 
 Bu bölümde JWE tabanlı kimlik doğrulama, GraphQL entegrasyonu, GraalVM native-image çalışma zamanı ipuçları ve özel scalars için gerekli bean'leri ve ayarları tanımlıyoruz:
 
-- **JwtProperties**: JWT düzenleyicisi (issuer), geçerlilik süresi ve imzalama/şifreleme anahtar çiftlerini yapılandırır.
-- **SecurityJwtConfig**: RSA JWK nesnelerini oluşturur, JWT encoder/decoder’ı, authentication converter ve token resolver ve WebSocket interceptor bean’lerini yapılandırır.
-- **SecurityConfig**: `DomainUserDetailsService` ile entegre olur, kimlik doğrulama yöneticisi (authentication manager), password encoder ve JWE desteği ile stateless güvenlik filtre zincirini yapılandırır.
-- **DatabaseConfig**: JPA repository'lerini, auditing ve transaction yönetimini etkinleştirir.
-- **GraphQLConfig**: GraphQL için özel scalarları (`Long`, `Date`, `Instant`) tanımlar.
-- **InstantScalar**: GraphQL şemasında ISO-8601 uyumlu `Instant` tipini tanımlayan custom scalar.
-- **NativeConfig**: GraalVM native-image derlemesi için çalışma zamanı ipuçlarını (reflection ve kaynak desenleri) kaydeder.
+- JwtProperties: JWT düzenleyicisi (issuer), geçerlilik süresi ve imzalama/şifreleme anahtar çiftlerini yapılandırır.
+- SecurityJwtConfig: RSA JWK nesnelerini oluşturur, JWT encoder/decoder’ı, authentication converter ve token resolver ve WebSocket interceptor bean’lerini yapılandırır.
+- SecurityConfig: `DomainUserDetailsService` ile entegre olur, kimlik doğrulama yöneticisi (authentication manager), password encoder ve JWE desteği ile stateless güvenlik filtre zincirini yapılandırır.
+- DatabaseConfig: JPA repository'lerini, auditing ve transaction yönetimini etkinleştirir.
+- GraphQLConfig: GraphQL için özel scalarları (`Long`, `Date`, `Instant`) tanımlar.
+- InstantScalar: GraphQL şemasında ISO-8601 uyumlu `Instant` tipini tanımlayan custom scalar.
+- NativeConfig: GraalVM native-image derlemesi için çalışma zamanı ipuçlarını (reflection ve kaynak desenleri) kaydeder.
 
 <span style="display:block; height:1rem;"></span>
 
@@ -1717,12 +1717,12 @@ fun main(args: Array<String>) {
 
 Bu bölümde, kullanıcıları, rollerleri ve bunların eşlemelerini temsil eden JPA entity’lerini ve kullanıcıları yetkileriyle birlikte yüklemek için Spring Data JPA deposunu tanımlıyoruz.
 
-- **BaseEntity**: Audit alanları (`createdAt`, `createdBy`, `updatedAt`, `updatedBy`) sağlayan soyut üst sınıf.
-- **Authority**: Rol verilerini saklayan `authority` tablosu entity’si.
-- **User**: Kullanıcı kimlik bilgileri ve profili saklayan `user_identity` tablosu entity’si.
-- **UserAuthorityMapping**: Kullanıcıları ve rolleri birbirine bağlayan `user_authority_mapping` ilişki tablosunun entity’si.
-- **UserAuthorityMappingId**: `UserAuthorityMapping` için composite anahtar sınıfı.
-- **UserRepository**: Entity graph kullanarak kullanıcı ve yetkilerini getiren Spring Data JPA repository.
+- BaseEntity: Audit alanları (`createdAt`, `createdBy`, `updatedAt`, `updatedBy`) sağlayan soyut üst sınıf.
+- Authority: Rol verilerini saklayan `authority` tablosu entity’si.
+- User: Kullanıcı kimlik bilgileri ve profili saklayan `user_identity` tablosu entity’si.
+- UserAuthorityMapping: Kullanıcıları ve rolleri birbirine bağlayan `user_authority_mapping` ilişki tablosunun entity’si.
+- UserAuthorityMappingId: `UserAuthorityMapping` için composite anahtar sınıfı.
+- UserRepository: Entity graph kullanarak kullanıcı ve yetkilerini getiren Spring Data JPA repository.
 
 <span style="display:block; height:1rem;"></span>
 
@@ -2352,16 +2352,16 @@ interface UserRepository : JpaRepository<User, String> {
 
 Bu bölümde, Spring Boot uygulamanızda JSON Web Encryption (JWE) tokenları oluşturmak, şifrelemek ve çözmek için gerekli temel yardımcı sınıfları ve sabitleri tanımlıyoruz. Ayrıca auditing entegrasyonu ve JPA tabanlı UserDetailsService de ekliyoruz:
 
-- **AuthoritiesConstants**: `ROLE_` ön ekiyle rol isimlerini merkezileştirir.
-- **CookieBearerTokenResolver**: Bearer token’ları yetkilendirme başlıklarından veya HTTP çerezlerinden çözer.
-- **CookieUtils**: Yeni veya süresi dolmuş token’ler için HTTP-only, secure `ResponseCookie` oluşturur ve `HttpHeaders` içinden `accessToken` değerini çıkartır.
-- **JweUtil**: Nimbus kütüphanesi ile RSA anahtarları kullanarak JWT’leri imzalar (JWS) ve şifreler (JWE).
-- **KeyUtils**: PEM formatındaki anahtar çiftinden RSA JWK’leri oluşturur.
-- **SecurityUtils**: SecurityContext oturum açan kullanıcının bilgisini sunar.
-- **SpringSecurityAuditorAware**: Auditing için oturum açan kullanıcıyı sağlayan `AuditorAware` implementasyonu.
-- **DomainUserDetailsService**: JPA tabanlı `UserDetailsService`, kullanıcı kimlik bilgilerini ve yetkilerini getirir.
-- **GraphQlTokenCookieInterceptor**: GraphQL yanıtlarını yakalar ve `GraphQLContext` içindeki `accessToken` veya `clearAccessToken` flaglerine göre erişim çerezini oluşturur veya siler.
-- **CookieAuthenticationWebSocketInterceptor**: Headerdan veya çerezlerden alınan JWE token’larla WebSocket bağlantılarını doğrular.
+- AuthoritiesConstants: `ROLE_` ön ekiyle rol isimlerini merkezileştirir.
+- CookieBearerTokenResolver: Bearer token’ları yetkilendirme başlıklarından veya HTTP çerezlerinden çözer.
+- CookieUtils: Yeni veya süresi dolmuş token’ler için HTTP-only, secure `ResponseCookie` oluşturur ve `HttpHeaders` içinden `accessToken` değerini çıkartır.
+- JweUtil: Nimbus kütüphanesi ile RSA anahtarları kullanarak JWT’leri imzalar (JWS) ve şifreler (JWE).
+- KeyUtils: PEM formatındaki anahtar çiftinden RSA JWK’leri oluşturur.
+- SecurityUtils: SecurityContext oturum açan kullanıcının bilgisini sunar.
+- SpringSecurityAuditorAware: Auditing için oturum açan kullanıcıyı sağlayan `AuditorAware` implementasyonu.
+- DomainUserDetailsService: JPA tabanlı `UserDetailsService`, kullanıcı kimlik bilgilerini ve yetkilerini getirir.
+- GraphQlTokenCookieInterceptor: GraphQL yanıtlarını yakalar ve `GraphQLContext` içindeki `accessToken` veya `clearAccessToken` flaglerine göre erişim çerezini oluşturur veya siler.
+- CookieAuthenticationWebSocketInterceptor: Headerdan veya çerezlerden alınan JWE token’larla WebSocket bağlantılarını doğrular.
 
 Bu yardımcılar, Spring Security ile durumsuz (stateless) JWE tabanlı bir kimlik doğrulama akışının temelini oluşturur.
 
@@ -3443,11 +3443,11 @@ class CookieAuthenticationWebSocketInterceptor(
 
 Bu bölümde, aşağıdaki GraphQL controller ve DTO’ları tanımlıyoruz:
 
-- **AuthController**: Kullanıcıları doğrular, JWE token'ı GraphQL mutationu ile oluşturur ve GraphQLContext içine `accessToken` veya `clearAccessToken` flaglerini ekler.
-- **HelloController**: Kimliği doğrulanmış kullanıcılar ve yalnızca adminin erişebileceği GraphQL query, subscription ve mutationları sunar.
-- **LoginInput**: Login işlemi için (kullanıcı adı/şifre) GraphQL input tipi.
-- **GreetInput** & **GreetDTO**: greet mutationu için GraphQL input ve yanıt tipi.
-- **TokenDTO**: Token, tür ve geçerlilik süresini içeren JWE token yanıt modelidir.
+- AuthController: Kullanıcıları doğrular, JWE token'ı GraphQL mutationu ile oluşturur ve GraphQLContext içine `accessToken` veya `clearAccessToken` flaglerini ekler.
+- HelloController: Kimliği doğrulanmış kullanıcılar ve yalnızca adminin erişebileceği GraphQL query, subscription ve mutationları sunar.
+- LoginInput: Login işlemi için (kullanıcı adı/şifre) GraphQL input tipi.
+- GreetInput & GreetDTO: greet mutationu için GraphQL input ve yanıt tipi.
+- TokenDTO: Token, tür ve geçerlilik süresini içeren JWE token yanıt modelidir.
 
 Bu bileşenler, JWE token’ları ve JPA yı kullanarak GraphQL API’de stateless kimlik doğrulama akışını tamamlar.
 
@@ -3861,7 +3861,7 @@ Native-image derlemesi başarıyla tamamlandıktan sonra, çalıştırılabilir 
 ./target/spring-boot-graphql-jwe-auth-demo
 ```
 
-**Opsiyonel:** UPX yüklüyse, yerel çalıştırılabilir dosyayı daha küçük boyut için sıkıştırabilirsiniz:
+Opsiyonel: UPX yüklüyse, yerel çalıştırılabilir dosyayı daha küçük boyut için sıkıştırabilirsiniz:
 
 ```bash
 upx --ultra-brute --lzma target/spring-boot-graphql-jwe-auth-demo
@@ -3873,7 +3873,7 @@ upx --ultra-brute --lzma target/spring-boot-graphql-jwe-auth-demo
 
 ### Admin Akışı
 
-**admin** olarak giriş yapın ve `Set-Cookie` başlığından JWE tokeni yakalayın:
+admin olarak giriş yapın ve `Set-Cookie` başlığından JWE tokeni yakalayın:
 
 ```bash
 curl -i -X POST http://localhost:8080/graphql \
@@ -3881,7 +3881,7 @@ curl -i -X POST http://localhost:8080/graphql \
   -d '{ "query": "mutation { login(input: { username: \"admin\", password: \"adminpass\" }) { accessToken tokenType accessTokenExpiresIn } }" }'
 ```
 
-- **Set-Cookie** başlığı `accessToken=<jwe-token>` içerir
+- Set-Cookie başlığı `accessToken=<jwe-token>` içerir
 - Yanıt:
 
 ```json
@@ -3896,7 +3896,7 @@ curl -i -X POST http://localhost:8080/graphql \
 }
 ```
 
-**Cookie** kullanarak `helloAll` sorgusuna erişin:
+Cookie kullanarak `helloAll` sorgusuna erişin:
 
 ```bash
 curl -b "accessToken=<jwe-token>" \
@@ -3905,7 +3905,7 @@ curl -b "accessToken=<jwe-token>" \
   http://localhost:8080/graphql
 ```
 
-Veya **Authorization** başlığıyla:
+Veya Authorization başlığıyla:
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" \
@@ -3934,7 +3934,7 @@ curl -H "Authorization: Bearer <jwe-token>" \
 
 ### User Flow
 
-**user** olarak giriş yapın ve **cookie**’den JWE tokeni yakalayın:
+user olarak giriş yapın ve cookie’den JWE tokeni yakalayın:
 
 ```bash
 curl -i -X POST http://localhost:8080/graphql \
@@ -3942,9 +3942,9 @@ curl -i -X POST http://localhost:8080/graphql \
   -d '{ "query": "mutation { login(input: { username: \"user\", password: \"userpass\" }) { accessToken tokenType accessTokenExpiresIn } }" }'
 ```
 
-- **Set-Cookie** başlığı `accessToken=<jwe-token>` içerir
+- Set-Cookie başlığı `accessToken=<jwe-token>` içerir
 
-`helloAll` sorgusunu çağırmak için **cookie** kullanın:
+`helloAll` sorgusunu çağırmak için cookie kullanın:
 
 ```bash
 curl -b "accessToken=<jwe-token>" \
@@ -3953,7 +3953,7 @@ curl -b "accessToken=<jwe-token>" \
   http://localhost:8080/graphql
 ```
 
-**Authorization** başlığıyla:
+Authorization başlığıyla:
 
 ```bash
 curl -H "Authorization: Bearer <jwe-token>" \
@@ -3975,9 +3975,9 @@ curl -H "Authorization: Bearer <jwe-token>" \
 
 Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql` adresinde test edin:
 
-**1. GraphiQL’de Token Alma**
+1. GraphiQL’de Token Alma
 
-1. **Sorgu (Query)** paneline şunu girin:
+1. Sorgu (Query) paneline şunu girin:
 
    ```graphql
    mutation Login($in: LoginInput!) {
@@ -3987,7 +3987,7 @@ Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql`
    }
    ```
 
-2. **Değişkenler (Variables)** paneline geçip ekleyin:
+1. Değişkenler (Variables) paneline geçip ekleyin:
 
    ```json
    {
@@ -3995,14 +3995,14 @@ Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql`
    }
    ```
 
-3. ▶️ düğmesine tıklayın ve dönen yanıttaki `accessToken` değerini kopyalayın.
+1. ▶️ düğmesine tıklayın ve dönen yanıttaki `accessToken` değerini kopyalayın.
 
 <span style="display:block; height:1rem;"></span>
 
-**2. Başlıkları (Headers) Yapılandırma**
+2. Başlıkları (Headers) Yapılandırma
 
-1. Kenar çubuğunda **Headers** sekmesine tıklayın.
-2. Aşağıdaki JSON’u ekleyin:
+1. Kenar çubuğunda Headers sekmesine tıklayın.
+1. Aşağıdaki JSON’u ekleyin:
 
    ```json
    {
@@ -4012,10 +4012,10 @@ Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql`
 
 <span style="display:block; height:1rem;"></span>
 
-**3. Kullanıcı Olarak Abone Olma (greetStream)**
+3. Kullanıcı Olarak Abone Olma (greetStream)
 
-1. **Subscriptions** paneline geçin.
-2. Aşağıdaki subscription sorgusunu girin:
+1. Subscriptions paneline geçin.
+1. Aşağıdaki subscription sorgusunu girin:
 
    ```graphql
    subscription UserSubscribe($in: GreetInput!) {
@@ -4026,7 +4026,7 @@ Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql`
    }
    ```
 
-3. **Variables** paneline:
+1. Variables paneline:
 
    ```json
    {
@@ -4034,13 +4034,13 @@ Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql`
    }
    ```
 
-4. ▶️ düğmesine tıklayarak `greetStream` akışını dinlemeye başlayın.
+1. ▶️ düğmesine tıklayarak `greetStream` akışını dinlemeye başlayın.
 
 <span style="display:block; height:1rem;"></span>
 
-**4. Admin Olarak Abone Olma (greetStreamAdmin)**
+4. Admin Olarak Abone Olma (greetStreamAdmin)
 
-1. Aynı **Subscriptions** panelinde aşağıdaki sorguyu girin:
+1. Aynı Subscriptions panelinde aşağıdaki sorguyu girin:
 
    ```graphql
    subscription AdminSubscribe($in: GreetInput!) {
@@ -4051,8 +4051,8 @@ Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql`
    }
    ```
 
-2. Aynı **Variables** panelini kullanın.
-3. ▶️ düğmesine tıklayın. Sadece `ROLE_ADMIN` yetkisine sahip token’lar veri alacak; diğerleri yetki hatası görecektir.
+1. Aynı Variables panelini kullanın.
+1. ▶️ düğmesine tıklayın. Sadece `ROLE_ADMIN` yetkisine sahip token’lar veri alacak; diğerleri yetki hatası görecektir.
 
 ---
 

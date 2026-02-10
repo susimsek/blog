@@ -28,17 +28,17 @@ topics:
     color: 'brown'
 ---
 
-Spring Boot seamlessly integrates with **Kubernetes** to provide scalable, containerized applications. This guide explores how to deploy and manage Spring Boot applications in a Kubernetes cluster.
+Spring Boot seamlessly integrates with Kubernetes to provide scalable, containerized applications. This guide explores how to deploy and manage Spring Boot applications in a Kubernetes cluster.
 
 ---
 
 ## 🌟 Why Use Kubernetes for Spring Boot?
 
-- **Scalability**: Automatically scale applications based on traffic.
-- **Self-Healing**: Kubernetes restarts failed containers automatically.
-- **Declarative Configuration**: Manage infrastructure with YAML configurations.
-- **Load Balancing & Service Discovery**: Built-in support for routing requests efficiently.
-- **Efficient Resource Utilization**: Optimize CPU and memory usage dynamically.
+- Scalability: Automatically scale applications based on traffic.
+- Self-Healing: Kubernetes restarts failed containers automatically.
+- Declarative Configuration: Manage infrastructure with YAML configurations.
+- Load Balancing & Service Discovery: Built-in support for routing requests efficiently.
+- Efficient Resource Utilization: Optimize CPU and memory usage dynamically.
 
 ---
 
@@ -46,17 +46,17 @@ Spring Boot seamlessly integrates with **Kubernetes** to provide scalable, conta
 
 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🛠 **Docker** installed and running
-- 🌐 **Kubernetes Cluster** (Minikube or a cloud provider like AWS EKS, GKE, or AKS)
-- 🛠 **kubectl** installed for managing Kubernetes
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🛠 Docker installed and running
+- 🌐 Kubernetes Cluster (Minikube or a cloud provider like AWS EKS, GKE, or AKS)
+- 🛠 kubectl installed for managing Kubernetes
 
 ---
 
 ## 🛠️ Step 1: Add Dependencies
 
-Add the necessary dependencies for **Spring Boot Web** and **Actuator** to expose health endpoints.
+Add the necessary dependencies for Spring Boot Web and Actuator to expose health endpoints.
 
 ### Maven Configuration:
 
@@ -143,7 +143,7 @@ fun main(args: Array<String>) {
 
 ## 🛠️ Step 3: Create Kubernetes Deployment and Service
 
-Create a **deployment.yaml** file:
+Create a deployment.yaml file:
 
 ```yaml
 apiVersion: apps/v1
@@ -167,7 +167,7 @@ spec:
             - containerPort: 8080
 ```
 
-Create a **service.yaml** file:
+Create a service.yaml file:
 
 ```yaml
 apiVersion: v1

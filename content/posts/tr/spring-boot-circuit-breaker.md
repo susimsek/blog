@@ -28,17 +28,17 @@ topics:
     color: 'brown'
 ---
 
-Spring Boot **Circuit Breaker**, mikro hizmetler mimarisinde ardışık hataların önlenmesi için kullanılan bir hata toleransı mekanizmasıdır. Hataları algılayarak ve sağlıksız hizmetlere aşırı istekleri durdurarak uygulamaların hataları zarif bir şekilde yönetmesine yardımcı olur. Bu kılavuz, Spring Boot'ta **Resilience4j** kullanarak Circuit Breaker uygulamasını adım adım açıklamaktadır.
+Spring Boot Circuit Breaker, mikro hizmetler mimarisinde ardışık hataların önlenmesi için kullanılan bir hata toleransı mekanizmasıdır. Hataları algılayarak ve sağlıksız hizmetlere aşırı istekleri durdurarak uygulamaların hataları zarif bir şekilde yönetmesine yardımcı olur. Bu kılavuz, Spring Boot'ta Resilience4j kullanarak Circuit Breaker uygulamasını adım adım açıklamaktadır.
 
 ---
 
 ## 🌟 Neden Circuit Breaker Kullanmalıyız?
 
-- **Mikro hizmetlerde zincirleme hataları önler**.
-- **Uygulama dayanıklılığını artırır**, aşırı hatalı istekleri durdurur.
-- **Hizmet sağlığı geri kazandığında otomatik olarak iyileşir**.
-- **Gereksiz bekleme sürelerini önleyerek gecikmeyi azaltır**.
-- **Hataları yönetmek için yapılandırılabilir yeniden deneme stratejileri sunar**.
+- Mikro hizmetlerde zincirleme hataları önler.
+- Uygulama dayanıklılığını artırır, aşırı hatalı istekleri durdurur.
+- Hizmet sağlığı geri kazandığında otomatik olarak iyileşir.
+- Gereksiz bekleme sürelerini önleyerek gecikmeyi azaltır.
+- Hataları yönetmek için yapılandırılabilir yeniden deneme stratejileri sunar.
 
 ---
 
@@ -46,10 +46,10 @@ Spring Boot **Circuit Breaker**, mikro hizmetler mimarisinde ardışık hatalar�
 
 Aşağıdakilere sahip olduğunuzdan emin olun:
 
-- ☕ **Java Development Kit (JDK) 17+**
-- 📞 **Maven veya Gradle** kurulu
-- 🌐 **Spring Boot & Spring Cloud**
-- 🧐 **Circuit Breaker davranışını göstermek için bir REST API**
+- ☕ Java Development Kit (JDK) 17+
+- 📞 Maven veya Gradle kurulu
+- 🌐 Spring Boot & Spring Cloud
+- 🧐 Circuit Breaker davranışını göstermek için bir REST API
 
 ---
 

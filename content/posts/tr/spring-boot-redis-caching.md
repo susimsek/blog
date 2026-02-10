@@ -31,10 +31,10 @@ Redis, genellikle önbellekleme, mesajlaşma ve gerçek zamanlı veri yönetimi 
 
 ## 🌟 Neden Redis Kullanmalıyız?
 
-- **Yüksek Performans**: Redis, okuma ve yazma işlemleri için son derece düşük gecikme süreleri sağlar.
-- **Esnek Veri Yapıları**: String, hash, liste, set ve daha fazlasını destekler.
-- **Ölçüklenebilirlik**: Dağıtık önbellekleme ve gerçek zamanlı analitik için idealdir.
-- **Kolay Entegrasyon**: Spring Boot ile kolayca entegre edilebilir.
+- Yüksek Performans: Redis, okuma ve yazma işlemleri için son derece düşük gecikme süreleri sağlar.
+- Esnek Veri Yapıları: String, hash, liste, set ve daha fazlasını destekler.
+- Ölçüklenebilirlik: Dağıtık önbellekleme ve gerçek zamanlı analitik için idealdir.
+- Kolay Entegrasyon: Spring Boot ile kolayca entegre edilebilir.
 
 ---
 
@@ -42,10 +42,10 @@ Redis, genellikle önbellekleme, mesajlaşma ve gerçek zamanlı veri yönetimi 
 
 👈 Aşağıdakilere sahip olduğunuzdan emin olun:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven veya Gradle** yüklenmiş
-- 🄤 Bir **Java IDE** (IntelliJ IDEA, Eclipse gibi)
-- 🔠 **Redis Sunucusu**, lokal olarak yüklenmiş veya ağa erişilebilir
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven veya Gradle yüklenmiş
+- 🄤 Bir Java IDE (IntelliJ IDEA, Eclipse gibi)
+- 🔠 Redis Sunucusu, lokal olarak yüklenmiş veya ağa erişilebilir
 
 ---
 
@@ -53,7 +53,7 @@ Redis, genellikle önbellekleme, mesajlaşma ve gerçek zamanlı veri yönetimi 
 
 Redis'i Spring Boot projenize entegre etmek için aşağıdaki bağımlıkları ekleyin:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -62,7 +62,7 @@ Redis'i Spring Boot projenize entegre etmek için aşağıdaki bağımlıkları 
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-data-redis'
@@ -192,7 +192,7 @@ class UserService {
 
 ---
 
-## Önbellek Zaman Aşımı (TTL) Yapılandırması
+### Önbellek Zaman Aşımı (TTL) Yapılandırması
 
 `application.properties` dosyasında önbellek sona erme sürelerini ayarlayın:
 
@@ -204,7 +204,7 @@ Bu, zaman aşımını 10 dakika (600.000 milisaniye) olarak ayarlar.
 
 ---
 
-## Controller Örneği
+### Controller Örneği
 
 Önbellekleme işlevini expose etmek için bir REST Controller oluşturun.
 
@@ -268,7 +268,7 @@ Uygulamayı aşağıdaki komutla çalıştırın:
 
 API’yı cURL veya Postman kullanarak test edebilirsiniz:
 
-- **Bir Kullanıcıyı Getir (önbellekli):**
+- Bir Kullanıcıyı Getir (önbellekli):
 
 ```bash
 curl -X GET http://localhost:8080/users/1

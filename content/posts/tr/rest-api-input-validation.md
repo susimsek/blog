@@ -42,7 +42,7 @@ Doğrulama, API’nıza gönderilen verilerin beklenen formatlara uygun olmasın
 
 ### Spring Boot Projeleri için:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -51,7 +51,7 @@ Doğrulama, API’nıza gönderilen verilerin beklenen formatlara uygun olmasın
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -288,7 +288,7 @@ func ErrorHandler() gin.HandlerFunc {
 
 ---
 
-## main.go Örneği
+### main.go Örneği
 
 Gin uygulaması için `main.go` dosyasının bir örneği:
 
@@ -340,7 +340,7 @@ API adresi: `http://localhost:8080/api/todos`
 
 API’yı test etmek için cURL komutları:
 
-- **Yeni Bir Görev Ekleme:**
+- Yeni Bir Görev Ekleme:
 
 ```bash
 curl -X POST http://localhost:8080/api/todos \
@@ -348,13 +348,13 @@ curl -X POST http://localhost:8080/api/todos \
 -d '{"title": "Yeni Görev", "completed": false}'
 ```
 
-- **Tüm Görevleri Getirme:**
+- Tüm Görevleri Getirme:
 
 ```bash
 curl -X GET http://localhost:8080/api/todos
 ```
 
-- **Doğrulama Hatalarını Test Etme:**
+- Doğrulama Hatalarını Test Etme:
 
 Geçersiz bir istek gönderin:
 

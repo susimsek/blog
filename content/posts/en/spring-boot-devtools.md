@@ -30,9 +30,9 @@ Spring Boot DevTools is a must-have tool for developers looking to speed up thei
 
 Spring Boot DevTools provides features such as:
 
-- **Live Reload**: Automatically reloads the application on code changes.
-- **Enhanced Caching**: Disables template caching for faster iteration.
-- **Debugging Tools**: Improves development-time debugging experience.
+- Live Reload: Automatically reloads the application on code changes.
+- Enhanced Caching: Disables template caching for faster iteration.
+- Debugging Tools: Improves development-time debugging experience.
 
 ---
 
@@ -40,9 +40,9 @@ Spring Boot DevTools provides features such as:
 
 📋 Ensure you have the following:
 
-- ☕ **Java Development Kit (JDK)** 17+
-- 📦 **Maven or Gradle** installed
-- 🔤 A **Java IDE** (e.g., IntelliJ IDEA, Eclipse)
+- ☕ Java Development Kit (JDK) 17+
+- 📦 Maven or Gradle installed
+- 🔤 A Java IDE (e.g., IntelliJ IDEA, Eclipse)
 
 ---
 
@@ -50,7 +50,7 @@ Spring Boot DevTools provides features such as:
 
 To enable DevTools, add the following dependency to your Spring Boot project:
 
-- **Maven:**
+- Maven:
 
 ```xml
 <dependency>
@@ -60,7 +60,7 @@ To enable DevTools, add the following dependency to your Spring Boot project:
 </dependency>
 ```
 
-- **Gradle:**
+- Gradle:
 
 ```groovy
 runtimeOnly 'org.springframework.boot:spring-boot-devtools'
@@ -99,8 +99,8 @@ spring.devtools.restart.exclude=static/**,public/**
 
 Spring Boot DevTools improves debugging by:
 
-- **Automatic Restart**: Restarts the application context when code changes are detected.
-- **Remote Debugging**: Provides the ability to debug applications running on remote servers.
+- Automatic Restart: Restarts the application context when code changes are detected.
+- Remote Debugging: Provides the ability to debug applications running on remote servers.
 
 To enable remote debugging:
 
@@ -132,9 +132,9 @@ Make changes to your code, and observe live reload and application context resta
 
 You can test Spring Boot DevTools features as follows:
 
-- **Live Reload**: Make a change in your controller or template and save the file. The application should reload automatically.
-- **Template Updates**: Update a `.html` file and verify the changes without restarting the server.
-- **Debugging**: Add breakpoints in your IDE and test remote debugging with `DevTools` enabled.
+- Live Reload: Make a change in your controller or template and save the file. The application should reload automatically.
+- Template Updates: Update a `.html` file and verify the changes without restarting the server.
+- Debugging: Add breakpoints in your IDE and test remote debugging with `DevTools` enabled.
 
 ---
 

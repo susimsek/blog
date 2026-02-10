@@ -25,16 +25,16 @@ topics:
     color: 'brown'
 ---
 
-Test Odaklı Geliştirme (TDD), iş mantığını uygulamadan **önce** testler yazarak sağlam uygulamalar geliştirmeni sağlar. Spring Boot ile birim testler yazmak hızlı, temiz ve etkilidir.
+Test Odaklı Geliştirme (TDD), iş mantığını uygulamadan önce testler yazarak sağlam uygulamalar geliştirmeni sağlar. Spring Boot ile birim testler yazmak hızlı, temiz ve etkilidir.
 
 ---
 
 ## 🌟 Neden Spring Boot ile TDD?
 
-- **Hataları Erken Yakala**: Geliştirme aşamasında problemleri fark et.
-- **Temiz Tasarım**: Modüler ve test edilebilir kod yapısı zorunlu olur.
-- **Güvenle Refactor Et**: Testler değişikliklerde güven sağlar.
-- **Dokümantasyon**: Testler, beklenen davranışı anlatır.
+- Hataları Erken Yakala: Geliştirme aşamasında problemleri fark et.
+- Temiz Tasarım: Modüler ve test edilebilir kod yapısı zorunlu olur.
+- Güvenle Refactor Et: Testler değişikliklerde güven sağlar.
+- Dokümantasyon: Testler, beklenen davranışı anlatır.
 
 ---
 
@@ -42,8 +42,8 @@ Test Odaklı Geliştirme (TDD), iş mantığını uygulamadan **önce** testler 
 
 Şunlara sahip olduğundan emin ol:
 
-- ☕ **JDK 17+** kurulu
-- 📦 **Maven veya Gradle**
+- ☕ JDK 17+ kurulu
+- 📦 Maven veya Gradle
 - 🔤 Java IDE (IntelliJ IDEA, Eclipse vb.)
 
 ---
@@ -52,7 +52,7 @@ Test Odaklı Geliştirme (TDD), iş mantığını uygulamadan **önce** testler 
 
 Projene Spring Boot test starter'ını ekle.
 
-**Maven:**
+Maven:
 
 ```xml
 <dependency>
@@ -62,7 +62,7 @@ Projene Spring Boot test starter'ını ekle.
 </dependency>
 ```
 
-**Gradle:**
+Gradle:
 
 ```groovy
 testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -72,7 +72,7 @@ testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 ## 🛠️ Adım 2: İlk Testini Yaz
 
-Servisi yazmadan **önce** basit birim test oluştur.
+Servisi yazmadan önce basit birim test oluştur.
 
 :::tabs
 @tab Java [icon=java]
@@ -168,13 +168,13 @@ Test başarıyla geçmeli ✅
 
 ---
 
-## Refactor ve Tekrarla
+### Refactor ve Tekrarla
 
 Test geçtikten sonra kodu güvenle refactor edebilirsin. TDD döngüsü şöyledir:
 
-1. **Red** – Başarısız test yaz
-2. **Green** – Testi geçir
-3. **Refactor** – Kodu temizle
+1. Red – Başarısız test yaz
+2. Green – Testi geçir
+3. Refactor – Kodu temizle
 
 ---
 
