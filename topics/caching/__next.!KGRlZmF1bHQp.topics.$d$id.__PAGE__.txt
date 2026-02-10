@@ -2,5 +2,5 @@
 2:"$Sreact.suspense"
 3:I[81445,["/_next/static/chunks/17901df2d8eeff1b.js"],"default"]
 4:I[26270,["/_next/static/chunks/d977e0a23c15263b.js","/_next/static/chunks/8bc25b6585f9a64d.js"],"OutletBoundary"]
-0:{"buildId":"orOcblrH1W0R9XcXO5H8z","rsc":["$","$1","c",{"children":[["$","$2",null,{"fallback":null,"children":["$","$L3",null,{"path":"/topics/caching"}]}],[["$","script","script-0",{"src":"/_next/static/chunks/17901df2d8eeff1b.js","async":true}]],["$","$L4",null,{"children":["$","$2",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"loading":null,"isPartial":false}
+0:{"buildId":"gO0XLFNIIPcNV6febslbY","rsc":["$","$1","c",{"children":[["$","$2",null,{"fallback":null,"children":["$","$L3",null,{"path":"/topics/caching"}]}],[["$","script","script-0",{"src":"/_next/static/chunks/17901df2d8eeff1b.js","async":true}]],["$","$L4",null,{"children":["$","$2",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"loading":null,"isPartial":false}
 5:null
