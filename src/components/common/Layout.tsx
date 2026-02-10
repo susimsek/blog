@@ -1,7 +1,6 @@
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import Header from '@/components/common/Header';
 import Footer from '@/components/common/Footer';
-import Sidebar from '@/components/common/Sidebar';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -14,6 +13,9 @@ import { useParams } from 'next/navigation';
 import { defaultLocale } from '@/i18n/settings';
 import { setPosts, setLocale } from '@/reducers/postsQuery';
 import PreFooter from '@/components/common/PreFooter';
+import dynamic from 'next/dynamic';
+
+const Sidebar = dynamic(() => import('@/components/common/Sidebar'));
 
 type LayoutProps = {
   children: ReactNode;

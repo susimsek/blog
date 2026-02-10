@@ -62,6 +62,10 @@ beforeAll(() => {
 
 describe('Header', () => {
   beforeAll(() => {
+    const searchContainer = jest.requireMock('@/components/search/SearchContainer');
+    registerDynamicMock('SearchContainer', searchContainer);
+    registerDynamicMock('@/components/search/SearchContainer', searchContainer);
+
     const languageSwitcher = jest.requireMock('@/components/i18n/LanguageSwitcher');
     registerDynamicMock('LanguageSwitcher', languageSwitcher);
     registerDynamicMock('@/components/i18n/LanguageSwitcher', languageSwitcher);
@@ -70,7 +74,7 @@ describe('Header', () => {
     registerDynamicMock('ThemeToggler', themeToggler);
     registerDynamicMock('@/components/theme/ThemeToggler', themeToggler);
 
-    registerDynamicMockSequence([languageSwitcher, themeToggler]);
+    registerDynamicMockSequence([searchContainer, languageSwitcher, themeToggler]);
     Header = require('@/components/common/Header').default;
   });
 

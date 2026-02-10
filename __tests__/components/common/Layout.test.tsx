@@ -1,7 +1,10 @@
 import { fireEvent, screen } from '@testing-library/react';
-import Layout from '@/components/common/Layout';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
 import useMediaQuery from '@/hooks/useMediaQuery';
+import { registerDynamicMock } from '@tests/utils/dynamicMockRegistry';
+
+type LayoutComponent = typeof import('@/components/common/Layout').default;
+let Layout: LayoutComponent;
 
 const useParamsMock = jest.fn();
 
@@ -47,6 +50,13 @@ describe('Layout Component', () => {
   const observe = jest.fn();
   const unobserve = jest.fn();
   let intersectionCallback: ((entries: Array<{ isIntersecting: boolean }>) => void) | undefined;
+
+  beforeAll(() => {
+    const sidebar = jest.requireMock('@/components/common/Sidebar');
+    registerDynamicMock('Sidebar', sidebar);
+    registerDynamicMock('@/components/common/Sidebar', sidebar);
+    Layout = require('@/components/common/Layout').default;
+  });
 
   beforeEach(() => {
     useParamsMock.mockReturnValue({ locale: 'en' });

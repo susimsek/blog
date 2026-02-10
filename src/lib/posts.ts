@@ -24,7 +24,7 @@ export const postIdsCache = createCacheStore<{ params: { id: string; locale: str
 export const topicIdsCache = createCacheStore<{ params: { id: string; locale: string } }[]>('getAllTopicIds');
 export const readingTimeCache = createCacheStore<string>('getReadingTime');
 
-const DEFAULT_LAYOUT_POSTS_LIMIT = 40;
+const DEFAULT_LAYOUT_POSTS_LIMIT = 12;
 const DEFAULT_TOP_TOPICS_LIMIT = 6;
 const ALL_POST_IDS_CACHE_KEY = 'all-post-ids';
 const ALL_TOPIC_IDS_CACHE_KEY = 'all-topic-ids';
@@ -285,9 +285,19 @@ export async function getAllTopicIds() {
   return topicIds;
 }
 
+const toLayoutPostSummary = (post: PostSummary): PostSummary => ({
+  id: post.id,
+  title: post.title,
+  date: post.date,
+  summary: post.summary,
+  thumbnail: post.thumbnail,
+  readingTime: post.readingTime,
+  ...(post.link ? { link: post.link } : {}),
+});
+
 export const getLayoutPosts = (posts: PostSummary[], limit: number = DEFAULT_LAYOUT_POSTS_LIMIT): PostSummary[] => {
   const safeLimit = Number.isFinite(limit) ? Math.max(0, Math.floor(limit)) : DEFAULT_LAYOUT_POSTS_LIMIT;
-  return posts.slice(0, safeLimit);
+  return posts.slice(0, safeLimit).map(toLayoutPostSummary);
 };
 
 export const getTopTopicsFromPosts = (

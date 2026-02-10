@@ -5,11 +5,11 @@ import Link from '@/components/common/Link';
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SITE_LOGO } from '@/config/constants';
-import SearchContainer from '@/components/search/SearchContainer';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 
+const SearchContainer = dynamic(() => import('@/components/search/SearchContainer'));
 const LanguageSwitcher = dynamic(() => import('@/components/i18n/LanguageSwitcher'));
 const ThemeToggler = dynamic(() => import('@/components/theme/ThemeToggler'));
 
