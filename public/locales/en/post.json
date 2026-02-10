@@ -16,6 +16,23 @@
       "shortCopied": "Copied",
       "copyLink": "Copy link",
       "copied": "Copied"
+    },
+    "authorBox": {
+      "title": "Written by",
+      "bio": "Backend-focused fullstack developer sharing practical notes on Spring Boot, security, microservices, and cloud-native architecture.",
+      "expertiseTitle": "Expertise",
+      "connectTitle": "Connect",
+      "expertise": {
+        "spring": "Spring Boot",
+        "microservices": "Microservices",
+        "nextjs": "Next.js",
+        "cloud": "Cloud Native"
+      },
+      "links": {
+        "github": "GitHub",
+        "linkedin": "LinkedIn",
+        "medium": "Medium"
+      }
     }
   }
 }

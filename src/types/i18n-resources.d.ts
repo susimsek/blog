@@ -184,6 +184,23 @@ interface Resources {
   };
   post: {
     post: {
+      authorBox: {
+        bio: 'Backend-focused fullstack developer sharing practical notes on Spring Boot, security, microservices, and cloud-native architecture.';
+        connectTitle: 'Connect';
+        expertise: {
+          cloud: 'Cloud Native';
+          microservices: 'Microservices';
+          nextjs: 'Next.js';
+          spring: 'Spring Boot';
+        };
+        expertiseTitle: 'Expertise';
+        links: {
+          github: 'GitHub';
+          linkedin: 'LinkedIn';
+          medium: 'Medium';
+        };
+        title: 'Written by';
+      };
       noPostsFound: 'No posts found.';
       readMore: 'Read More';
       relatedPostsTitle: 'Related posts';

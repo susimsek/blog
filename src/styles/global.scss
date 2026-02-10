@@ -157,6 +157,93 @@ html {
   }
 }
 
+.post-author-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background-color: var(--main-bg);
+  box-shadow: var(--box-shadow-sm);
+  @include transition(background-color, border-color, box-shadow);
+}
+
+.post-author-avatar {
+  flex-shrink: 0;
+
+  img {
+    border: 1px solid var(--border-color);
+  }
+}
+
+.post-author-eyebrow {
+  font-size: 0.9rem;
+}
+
+.post-author-meta-label {
+  font-size: 0.875rem;
+}
+
+.post-author-skill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background-color: var(--dropdown-hover-bg);
+  color: var(--muted-text-color);
+  font-size: 0.8rem;
+  line-height: 1;
+  border: 1px solid var(--border-color);
+}
+
+.post-author-links {
+  row-gap: 0.55rem;
+}
+
+.post-author-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text-color);
+  text-decoration: none;
+  @include transition(color);
+
+  svg,
+  i,
+  span {
+    color: inherit;
+    @include transition(color);
+  }
+
+  &:hover {
+    color: var(--link-hover-color);
+
+    svg,
+    i,
+    span {
+      color: var(--link-hover-color) !important;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .post-author-box {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .post-author-links {
+    justify-content: center;
+  }
+
+  .post-author-expertise {
+    justify-content: center;
+  }
+}
+
 .post-toc {
   .accordion {
     --bs-accordion-bg: var(--main-bg);

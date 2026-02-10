@@ -13,6 +13,7 @@ import RelatedPosts from '@/components/posts/RelatedPosts';
 import ReadingProgress from '@/components/common/ReadingProgress';
 import BackToTop from '@/components/common/BackToTop';
 import PostToc from '@/components/posts/PostToc';
+import PostAuthorBox from '@/components/posts/PostAuthorBox';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'next/navigation';
 import { defaultLocale } from '@/i18n/settings';
@@ -257,6 +258,7 @@ export default function PostDetail({ post, relatedPosts = [] }: Readonly<PostDet
           <PostToc content={markdown} rootRef={articleRef} />
           {splitIntro.rest && <MarkdownRenderer content={splitIntro.rest} />}
         </article>
+        <PostAuthorBox />
         <RelatedPosts posts={relatedPosts} />
       </section>
     </>
