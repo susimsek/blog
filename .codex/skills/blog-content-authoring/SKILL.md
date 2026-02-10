@@ -171,6 +171,19 @@ Keep headings consistent across posts:
 
 Note: Avoid “random” emojis in headings. Prefer the small set above so posts feel consistent.
 
+### Heading hierarchy & text style (repo standard)
+
+Apply these rules for all EN/TR post markdown files:
+
+- TOC is main-section oriented: keep **main sections as `##` only**.
+- Use `###` for sub-sections (examples, controller snippets, notes).
+- Do not use `####` and deeper levels; collapse them to `###`.
+- If a section title is plain (non-step/non-standard emoji), prefer making it a sub-section (`###`) rather than a new `##`.
+- Keep body/list text plain; avoid bold emphasis markers (`**text**`, `__text__`) in prose.
+- Keep technical tokens in inline code (`` `@ConfigurationProperties` ``, `` `application.yml` ``), not bold.
+
+Goal: visual rhythm and hierarchy stay consistent across all posts without noisy emphasis.
+
 ## Conclusion Standard (Required)
 
 All posts should end with a short, consistent conclusion section:
