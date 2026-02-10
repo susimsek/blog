@@ -53,7 +53,11 @@ describe('LocaleLayout', () => {
     expect(htmlElement.type).toBe('html');
     expect(htmlElement.props.lang).toBe('en');
 
-    render(element);
+    const htmlChildren = React.Children.toArray(htmlElement.props.children) as React.ReactElement[];
+    const bodyElement = htmlChildren[0] as React.ReactElement<{ children: React.ReactNode }>;
+    expect(bodyElement.type).toBe('body');
+
+    render(<>{bodyElement.props.children}</>);
 
     expect(loadLocaleResourcesMock).toHaveBeenCalledWith(
       'en',

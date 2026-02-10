@@ -26,7 +26,6 @@
     &:hover {
       background-color: $hover-bg;
       border-color: $hover-border;
-      box-shadow: var(--box-shadow-hover);
     }
   }
 }
@@ -111,12 +110,10 @@
 
 @keyframes theme-transition {
   from {
-    opacity: 0.8;
-    transform: scale(1.02);
+    opacity: 0.96;
   }
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
@@ -140,7 +137,6 @@
     &:hover {
       background-color: $hover-bg;
       border-color: $hover-border;
-      box-shadow: var(--box-shadow-hover);
     }
 
     &.active {

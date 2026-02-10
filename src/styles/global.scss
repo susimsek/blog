@@ -99,12 +99,25 @@ html.theme-transitioning body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   body {
     transition: none !important;
   }
 
   html.theme-transitioning body {
     animation: none !important;
+  }
+
+  .card,
+  .post-card,
+  .thumbnail-wrapper img,
+  .post-thumbnail img,
+  .back-to-top {
+    transition: none !important;
+    transform: none !important;
   }
 }
 
@@ -445,7 +458,7 @@ h6 {
 .pagination {
   max-width: 300px;
   margin: 0 auto;
-  box-shadow: var(--box-shadow-primary);
+  box-shadow: none;
   @include transition(box-shadow);
 
   .page-item {
@@ -491,7 +504,7 @@ select.form-select {
   border-radius: 4px;
   padding: 0.25rem 0.5rem;
   font-size: 0.9rem;
-  box-shadow: var(--box-shadow-primary);
+  box-shadow: none;
   @include transition(background-color, color, border-color, box-shadow);
 
   &:focus {
@@ -503,7 +516,7 @@ select.form-select {
 
   &:hover {
     border-color: var(--link-hover-color);
-    box-shadow: var(--box-shadow-hover);
+    box-shadow: none;
   }
 
   &:disabled {
@@ -541,7 +554,7 @@ input.form-control {
   border-radius: 4px;
   padding: 0.375rem 0.75rem;
   font-size: 1rem;
-  box-shadow: var(--box-shadow-primary);
+  box-shadow: none;
   @include transition(background-color, color, border-color, box-shadow);
 
   &::placeholder {
@@ -573,12 +586,16 @@ input.form-control {
   display: flex;
   align-items: center;
   border: 1px solid var(--border-color);
-  border-right: 1px solid var(--border-color);
   border-radius: 8px;
   overflow: hidden;
   background-color: var(--main-bg);
-  box-shadow: var(--box-shadow-primary);
-  @include transition(background-color, box-shadow, border-color);
+  box-shadow: none;
+  @include transition(background-color, box-shadow, border-color, transform);
+
+  &:hover {
+    box-shadow: var(--box-shadow-hover);
+    transform: translateY(-2px);
+  }
 
   .card-body {
     color: var(--text-color);
@@ -589,12 +606,16 @@ input.form-control {
   display: flex;
   align-items: center;
   border: 1px solid var(--border-color);
-  border-right: 1px solid var(--border-color);
   border-radius: 8px;
   overflow: hidden;
   background-color: var(--main-bg);
-  box-shadow: var(--box-shadow-primary);
-  @include transition(background-color, box-shadow, border-color);
+  box-shadow: none;
+  @include transition(background-color, box-shadow, border-color, transform);
+
+  &:hover {
+    box-shadow: var(--box-shadow-hover);
+    transform: translateY(-2px);
+  }
 }
 
 .post-card-content {
@@ -629,7 +650,7 @@ input.form-control {
   overflow: hidden;
   border-radius: 8px;
   background-color: var(--main-bg);
-  box-shadow: var(--box-shadow-primary);
+  box-shadow: none;
   @include transition(background-color, border-color, box-shadow);
 
   img {
@@ -643,7 +664,7 @@ input.form-control {
   }
 
   &:hover img {
-    transform: scale(1.1);
+    transform: scale(1.03);
     filter: brightness(var(--hover-brightness));
   }
 }
@@ -1016,7 +1037,7 @@ $state-variants: (
   border-radius: 8px;
   background-color: var(--input-bg-color);
   overflow: hidden;
-  box-shadow: var(--box-shadow-primary);
+  box-shadow: none;
   @include transition(border-color, box-shadow);
 
   &:focus-within {
@@ -1074,7 +1095,7 @@ $state-variants: (
 .dropdown-menu {
   background-color: var(--main-bg);
   border: 1px solid var(--border-color);
-  box-shadow: var(--box-shadow-primary);
+  box-shadow: var(--box-shadow-sm);
   @include transition(background-color, border-color, box-shadow);
 
   .dropdown-item {
@@ -1136,14 +1157,14 @@ $state-variants: (
 .list-group {
   background-color: var(--main-bg);
   border: 1px solid var(--border-color);
-  box-shadow: var(--box-shadow-primary);
+  box-shadow: none;
   @include transition(background-color, border-color, box-shadow);
 
   .list-group-item {
     background-color: var(--main-bg);
     color: var(--text-color);
     border: 1px solid var(--border-color);
-    box-shadow: var(--box-shadow-primary);
+    box-shadow: none;
     @include transition(background-color, color, border-color, box-shadow);
 
     @include list-group-item-variant(
@@ -1376,7 +1397,7 @@ $state-variants: (
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background-color: var(--main-bg);
-  box-shadow: var(--box-shadow-primary);
+  box-shadow: none;
   @include transition(border-color, background-color, box-shadow);
 }
 
@@ -1390,12 +1411,12 @@ $state-variants: (
 .carousel {
   background-color: var(--main-bg);
   color: var(--text-color);
-  box-shadow: var(--box-shadow-primary);
+  box-shadow: none;
   @include transition(background-color, color, box-shadow);
 }
 
 .carousel-item {
-  box-shadow: var(--box-shadow-primary);
+  box-shadow: none;
 }
 
 /* Caption */
@@ -1485,7 +1506,7 @@ $state-variants: (
   overflow: hidden;
   border-radius: 8px;
   background-color: var(--main-bg);
-  box-shadow: var(--box-shadow-primary);
+  box-shadow: none;
   @include transition(background-color, border-color, box-shadow);
 
   img {
@@ -1580,7 +1601,7 @@ $state-variants: (
 // Tab Container
 .nav-tabs {
   border-bottom: 1px solid var(--tab-theme-border);
-  box-shadow: var(--box-shadow-primary);
+  box-shadow: none;
   @include transition(border-color, box-shadow);
 
   .nav-link {
@@ -1628,7 +1649,7 @@ $state-variants: (
 .tab-content {
   border: 1px solid var(--border-color);
   background-color: var(--main-bg);
-  box-shadow: var(--box-shadow-primary);
+  box-shadow: none;
   @include transition(border-color, background-color, box-shadow);
 
   .tab-pane {
@@ -1741,7 +1762,7 @@ label {
 }
 
 .post-thumbnail {
-  box-shadow: var(--box-shadow-primary);
+  box-shadow: none;
   @include transition(box-shadow);
 
   &:hover {
@@ -1755,7 +1776,7 @@ label {
   }
 
   &:hover img {
-    transform: scale(1.1);
+    transform: scale(1.03);
     filter: brightness(var(--hover-brightness));
   }
 }
