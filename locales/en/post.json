@@ -3,6 +3,19 @@
     "readMore": "Read More",
     "noPostsFound": "No posts found.",
     "relatedPostsTitle": "Related posts",
-    "tocTitle": "Table of contents"
+    "tocTitle": "Table of contents",
+    "share": {
+      "title": "Share",
+      "onX": "Share on X",
+      "onLinkedIn": "Share on LinkedIn",
+      "onFacebook": "Share on Facebook",
+      "shortX": "X",
+      "shortLinkedIn": "LinkedIn",
+      "shortFacebook": "Facebook",
+      "shortCopy": "Copy",
+      "shortCopied": "Copied",
+      "copyLink": "Copy link",
+      "copied": "Copied"
+    }
   }
 }
