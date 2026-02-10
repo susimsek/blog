@@ -1,7 +1,6 @@
 import React, { useMemo, useCallback, useEffect, useRef } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PostSummary, Topic } from '@/types/posts';
-import Container from 'react-bootstrap/Container';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
 import { useTranslation } from 'react-i18next';
@@ -125,7 +124,7 @@ export default function PostList({
   );
 
   return (
-    <Container className="mt-5" style={{ maxWidth: '800px' }}>
+    <section className="mt-5">
       <div ref={listTopRef} />
       <PostFilters topics={topics} searchEnabled={searchEnabled} />
       {paginatedPosts.length > 0 ? (
@@ -152,6 +151,6 @@ export default function PostList({
           totalResults={sortedPosts.length}
         />
       )}
-    </Container>
+    </section>
   );
 }

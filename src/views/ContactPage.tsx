@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Container from 'react-bootstrap/Container';
 import { useTranslation } from 'react-i18next';
 import { AUTHOR_NAME, AVATAR_LINK, CONTACT_LINKS } from '@/config/constants';
 import Layout from '@/components/common/Layout';
@@ -46,12 +45,12 @@ export default function ContactPage({ layoutPosts, topics, preFooterTopTopics }:
       sidebarEnabled={true}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
-      <Container className="py-5" style={{ maxWidth: '800px' }}>
+      <section className="py-5">
         <h1 className="fw-bold mb-4">{t('contact.header')}</h1>
         <p className="fs-5">{t('contact.description')}</p>
         <h2 className="fw-bold mt-4">{t('contact.title')}</h2>
         <ContactInfo />
-      </Container>
+      </section>
     </Layout>
   );
 }

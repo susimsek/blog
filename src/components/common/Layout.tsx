@@ -87,7 +87,7 @@ const LayoutView: React.FC<LayoutProps> = ({
       {GA_ID ? <GoogleAnalytics gaId={GA_ID} /> : null}
       <Header searchEnabled={searchEnabled} sidebarEnabled={sidebarEnabled} onSidebarToggle={toggleSidebar} />
       <main className="flex-grow-1">
-        <Row>
+        <Row className="g-0">
           {/* Sidebar */}
           {isSidebarVisible && (
             <Col xs={12} md={4} lg={3}>
@@ -101,7 +101,7 @@ const LayoutView: React.FC<LayoutProps> = ({
           )}
           {/* Main Content */}
           <Col xs={12} md={isSidebarVisible ? 8 : 12} lg={isSidebarVisible ? 9 : 12}>
-            <Container className="py-5">{children}</Container>
+            <Container className="content-shell py-5">{children}</Container>
           </Col>
         </Row>
       </main>

@@ -25,7 +25,6 @@ export default function PostCarousel({ posts, interval = 5000 }: Readonly<PostCa
       <Carousel
         className="mx-auto rounded overflow-hidden"
         style={{
-          maxWidth: '800px',
           width: '100%',
         }}
         prevIcon={<FontAwesomeIcon className="carousel-control-prev-icon" icon="chevron-left" size="lg" />}

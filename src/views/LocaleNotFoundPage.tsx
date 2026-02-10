@@ -1,6 +1,5 @@
 'use client';
 
-import Container from 'react-bootstrap/Container';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from '@/components/common/Link';
@@ -16,7 +15,7 @@ export default function LocaleNotFoundPage({ locale }: Readonly<LocaleNotFoundPa
 
   return (
     <Layout>
-      <Container className="text-center py-5" style={{ maxWidth: '800px' }}>
+      <section className="text-center py-5">
         <h1 className="display-1 fw-bold text-danger">
           <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
           {t('404.errorCode')}
@@ -27,7 +26,7 @@ export default function LocaleNotFoundPage({ locale }: Readonly<LocaleNotFoundPa
           <FontAwesomeIcon icon="home" className="me-2" />
           {t('404.backToHome')}
         </Link>
-      </Container>
+      </section>
     </Layout>
   );
 }

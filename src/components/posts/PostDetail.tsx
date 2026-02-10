@@ -1,7 +1,6 @@
 // components/posts/PostDetail.tsx
 import dynamic from 'next/dynamic';
 import { Post } from '@/types/posts';
-import Container from 'react-bootstrap/Container';
 import Badge from 'react-bootstrap/Badge';
 import { assetPrefix, SITE_URL } from '@/config/constants';
 import DateDisplay from '@/components/common/DateDisplay';
@@ -86,7 +85,7 @@ export default function PostDetail({ post, relatedPosts = [] }: Readonly<PostDet
     <>
       <ReadingProgress />
       <BackToTop />
-      <Container className="mt-5" style={{ maxWidth: '800px' }}>
+      <section className="mt-5">
         <h1 className="fw-bold display-4 text-center mb-4">{title}</h1>
         <p className="text-center d-flex justify-content-center align-items-center text-muted mb-4">
           <span className="d-flex align-items-center me-3">
@@ -110,13 +109,13 @@ export default function PostDetail({ post, relatedPosts = [] }: Readonly<PostDet
           </div>
         )}
         {thumbnailSrc && <Thumbnail src={thumbnailSrc} alt={title} width={1200} height={630} />}
-        <article ref={articleRef} className="fs-5 lh-lg post-article">
+        <article ref={articleRef} className="post-article">
           {splitIntro.intro && <MarkdownRenderer content={splitIntro.intro} />}
           <PostToc content={markdown} rootRef={articleRef} />
           {splitIntro.rest && <MarkdownRenderer content={splitIntro.rest} />}
         </article>
         <RelatedPosts posts={relatedPosts} />
-      </Container>
+      </section>
     </>
   );
 }

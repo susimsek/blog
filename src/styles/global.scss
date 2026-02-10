@@ -10,11 +10,28 @@ html {
 }
 
 .post-article {
+  max-width: 72ch;
+  margin-inline: auto;
+  font-size: clamp(1.04rem, 1rem + 0.2vw, 1.125rem);
+  line-height: 1.75;
+
+  p,
+  ul,
+  ol,
+  pre,
+  table,
+  blockquote {
+    margin-bottom: 1.25rem;
+  }
+
   h2,
   h3,
   h4,
   h5,
   h6 {
+    margin-top: 2.25rem;
+    margin-bottom: 0.85rem;
+    line-height: 1.3;
     scroll-margin-top: 96px;
   }
 }
@@ -62,6 +79,7 @@ body {
   margin: 0;
   word-wrap: anywhere;
   font-family: var(--font-family), sans-serif;
+  font-size: var(--body-font-size);
   background-color: var(--bg-color);
   color: var(--text-color);
   line-height: var(--body-line-height);
@@ -70,6 +88,10 @@ body {
   -o-tab-size: 4;
   text-rendering: optimizeLegibility;
   @include transition(background-color, color);
+}
+
+.content-shell {
+  max-width: var(--content-shell-max-width);
 }
 
 html.theme-transitioning body {
