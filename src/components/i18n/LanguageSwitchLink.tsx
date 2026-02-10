@@ -1,6 +1,7 @@
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import languageDetector from '@/lib/languageDetector';
-import i18nextConfig from '@/i18n/settings';
+import { defaultLocale, isSupportedLocale } from '@/i18n/settings';
+import type { Locale } from '@/i18n/settings';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useMemo } from 'react';
 import { LOCALES } from '@/config/constants';
@@ -17,7 +18,7 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
   const searchParams = useSearchParams();
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
-  const currentLocale = routeLocale ?? i18nextConfig.i18n.defaultLocale;
+  const currentLocale: Locale = routeLocale && isSupportedLocale(routeLocale) ? routeLocale : defaultLocale;
 
   const isExternalHref = href?.startsWith('http');
 
@@ -56,6 +57,7 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
   };
 
   const currentHref = buildLocalizedHref();
+  const localeEntry = isSupportedLocale(locale) ? LOCALES[locale] : null;
 
   const handleClick = () => {
     languageDetector.cache?.(locale);
@@ -71,11 +73,11 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
       <span className="d-flex align-items-center">
         <FlagIcon
           className="me-2"
-          code={LOCALES[locale]?.locale || locale}
-          alt={`${LOCALES[locale]?.name} flag`}
+          code={localeEntry?.locale ?? locale}
+          alt={`${localeEntry?.name ?? locale} flag`}
           style={{ width: 20 }}
         />
-        {LOCALES[locale]?.name || locale}
+        {localeEntry?.name ?? locale}
       </span>
       {currentLocale === locale && <FontAwesomeIcon icon="circle-check" className="circle-check" />}
     </button>

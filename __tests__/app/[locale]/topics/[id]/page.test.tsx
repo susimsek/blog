@@ -28,7 +28,7 @@ const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) =
     })[key] ?? key,
 }));
 const topicPageMock = jest.fn(
-  (props: {
+  (_props: {
     topic: Record<string, unknown>;
     posts: unknown[];
     layoutPosts: unknown[];

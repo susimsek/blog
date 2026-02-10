@@ -35,7 +35,7 @@ const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }])
 const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'topic-1' }]);
 const getRelatedPostsMock = jest.fn((_post: unknown, _allPosts: unknown[], _limit: number) => [{ id: '2' }]);
 const postPageMock = jest.fn(
-  (props: {
+  (_props: {
     locale: string;
     post: Record<string, unknown>;
     relatedPosts: unknown[];

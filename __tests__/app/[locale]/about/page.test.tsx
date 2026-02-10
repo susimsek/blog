@@ -15,9 +15,11 @@ const getSortedPostsDataMock = jest.fn(async (_locale: string) => [{ id: 'post-1
 const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
 const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'topic-1' }]);
 const getLayoutPostsMock = jest.fn((_posts: unknown[]) => [{ id: 'post-1' }]);
-const aboutPageMock = jest.fn((props: { layoutPosts: unknown[]; topics: unknown[]; preFooterTopTopics: unknown[] }) => (
-  <div data-testid="about-page">about-page</div>
-));
+const aboutPageMock = jest.fn(
+  (_props: { layoutPosts: unknown[]; topics: unknown[]; preFooterTopTopics: unknown[] }) => (
+    <div data-testid="about-page">about-page</div>
+  ),
+);
 
 jest.mock('@/i18n/server', () => ({
   getServerTranslator: (locale: string, ns: string[]) => getServerTranslatorMock(locale, ns),

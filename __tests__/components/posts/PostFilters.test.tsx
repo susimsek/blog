@@ -28,15 +28,23 @@ jest.mock('@/components/search/SearchBar', () => ({
 
 jest.mock('@/components/common/TopicsDropdown', () => ({
   __esModule: true,
-  TopicsDropdown: jest.fn(({ topics, onTopicsChange }) => (
-    <div data-testid="topics-dropdown">
-      {topics.map(topic => (
-        <button key={topic.id} onClick={() => onTopicsChange([topic.id])}>
-          {topic.name}
-        </button>
-      ))}
-    </div>
-  )),
+  TopicsDropdown: jest.fn(
+    ({
+      topics,
+      onTopicsChange,
+    }: {
+      topics: Array<{ id: string; name: string }>;
+      onTopicsChange: (topicIds: string[]) => void;
+    }) => (
+      <div data-testid="topics-dropdown">
+        {topics.map(topic => (
+          <button key={topic.id} onClick={() => onTopicsChange([topic.id])}>
+            {topic.name}
+          </button>
+        ))}
+      </div>
+    ),
+  ),
 }));
 
 jest.mock('@/components/common/DateRangePicker', () => ({

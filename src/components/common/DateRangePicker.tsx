@@ -5,7 +5,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
-import i18nextConfig from '@/i18n/settings';
+import { defaultLocale, isSupportedLocale } from '@/i18n/settings';
 import { useParams } from 'next/navigation';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { enUS } from 'date-fns/locale/en-US';
@@ -44,11 +44,11 @@ export default function DateRangePicker({
   const { t } = useTranslation('common');
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
-  const currentLocale = routeLocale ?? i18nextConfig.i18n.defaultLocale;
+  const currentLocale = routeLocale && isSupportedLocale(routeLocale) ? routeLocale : defaultLocale;
 
   // Locale Mapping
   const localeMap = { en: enUS, tr };
-  const selectedLocale = localeMap[currentLocale] || enUS;
+  const selectedLocale = localeMap[currentLocale] ?? enUS;
 
   useEffect(() => {
     registerLocale('en', enUS);
@@ -278,7 +278,7 @@ export default function DateRangePicker({
                 <FontAwesomeIcon icon="calendar-alt" className="me-2" />
                 <DatePicker
                   selected={formValues.startDate}
-                  onChange={date => handleDateChange('startDate', date)}
+                  onChange={(date: Date | null) => handleDateChange('startDate', date)}
                   locale={selectedLocale}
                   dateFormat="P"
                   isClearable
@@ -297,7 +297,7 @@ export default function DateRangePicker({
                 <FontAwesomeIcon icon="calendar-alt" className="me-2" />
                 <DatePicker
                   selected={formValues.endDate}
-                  onChange={date => handleDateChange('endDate', date)}
+                  onChange={(date: Date | null) => handleDateChange('endDate', date)}
                   locale={selectedLocale}
                   dateFormat="P"
                   isClearable

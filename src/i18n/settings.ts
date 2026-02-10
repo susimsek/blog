@@ -1,16 +1,26 @@
 import i18nConfig from '@root/i18n.config.json';
+import { LOCALES } from '@/config/constants';
+
+export type Locale = keyof typeof LOCALES;
+
+const localeKeys = Object.keys(LOCALES) as Locale[];
+const isKnownLocale = (value: string): value is Locale => localeKeys.includes(value as Locale);
+
+const configuredLocales = i18nConfig.locales.filter(isKnownLocale);
+export const locales: Locale[] = configuredLocales.length > 0 ? configuredLocales : localeKeys;
+
+const configuredDefaultLocale = i18nConfig.defaultLocale;
+export const defaultLocale: Locale = isKnownLocale(configuredDefaultLocale) ? configuredDefaultLocale : locales[0];
 
 const i18nextConfig = {
   i18n: {
-    defaultLocale: i18nConfig.defaultLocale,
-    locales: i18nConfig.locales,
+    defaultLocale,
+    locales,
   },
 } as const;
 
-export const defaultLocale = i18nextConfig.i18n.defaultLocale;
-export const locales = [...i18nextConfig.i18n.locales] as string[];
 export const allNamespaces = ['404', 'about', 'common', 'contact', 'home', 'medium', 'post', 'search', 'topic'];
 
-export const isSupportedLocale = (value: string): boolean => locales.includes(value);
+export const isSupportedLocale = (value: string): value is Locale => locales.includes(value as Locale);
 
 export default i18nextConfig;

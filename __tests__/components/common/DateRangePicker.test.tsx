@@ -20,7 +20,21 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 
 jest.mock('react-datepicker', () => {
   const React = require('react');
-  const locales = {};
+  const locales: Record<string, unknown> = {};
+
+  type MockDatePickerProps = {
+    selected?: Date | null;
+    onChange: (date: Date | null) => void;
+    placeholderText?: string;
+    className?: string;
+    minDate?: Date;
+    maxDate?: Date;
+    dayClassName?: (date: Date) => string;
+    dateFormat?: string;
+    isClearable?: boolean;
+    locale?: unknown;
+    [key: string]: unknown;
+  };
 
   const MockDatePicker = ({
     selected,
@@ -34,7 +48,7 @@ jest.mock('react-datepicker', () => {
     isClearable,
     locale,
     ...props
-  }) => {
+  }: MockDatePickerProps) => {
     void dateFormat;
     void isClearable;
     void locale;
@@ -56,11 +70,11 @@ jest.mock('react-datepicker', () => {
     );
   };
 
-  const registerLocale = jest.fn((localeName, localeData) => {
+  const registerLocale = jest.fn((localeName: string, localeData: unknown) => {
     locales[localeName] = localeData;
   });
 
-  const getRegisteredLocale = localeName => locales[localeName] || null;
+  const getRegisteredLocale = (localeName: string) => locales[localeName] || null;
 
   return {
     __esModule: true,

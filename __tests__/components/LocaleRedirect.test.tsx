@@ -50,8 +50,8 @@ describe('LocaleRedirect/useRedirect', () => {
     render(<TestComponent to="/custom-path" />);
 
     expect(languageDetector.detect).toHaveBeenCalled();
-    expect(replaceMock).toHaveBeenCalledWith('/es/custom-path');
-    expect(languageDetector.cache).toHaveBeenCalledWith('es');
+    expect(replaceMock).toHaveBeenCalledWith('/en/custom-path');
+    expect(languageDetector.cache).toHaveBeenCalledWith('en');
   });
 
   it('does not cache language if languageDetector.cache is undefined', () => {
@@ -63,7 +63,7 @@ describe('LocaleRedirect/useRedirect', () => {
     render(<TestComponent to="/another-path" />);
 
     expect(languageDetector.detect).toHaveBeenCalled();
-    expect(replaceMock).toHaveBeenCalledWith('/fr/another-path');
+    expect(replaceMock).toHaveBeenCalledWith('/en/another-path');
     if (languageDetector.cache) {
       expect(languageDetector.cache).not.toHaveBeenCalled();
     }
@@ -78,17 +78,28 @@ describe('LocaleRedirect/useRedirect', () => {
     render(<Redirect />);
 
     expect(languageDetector.detect).toHaveBeenCalled();
-    expect(replaceMock).toHaveBeenCalledWith('/de/unknown');
+    expect(replaceMock).toHaveBeenCalledWith('/en/unknown');
   });
 
-  it('keeps localized target for 404 when target already has detected locale prefix', () => {
+  it('keeps localized target when target already has supported locale prefix', () => {
     (languageDetector.detect as jest.Mock).mockReturnValue('fr');
     usePathnameMock.mockReturnValue('/404');
 
-    render(<TestComponent to="/fr/404" />);
+    render(<TestComponent to="/tr/404" />);
 
     expect(languageDetector.detect).toHaveBeenCalled();
-    expect(replaceMock).toHaveBeenCalledWith('/fr/404');
+    expect(replaceMock).toHaveBeenCalledWith('/tr/404');
+  });
+
+  it('strips basePath from pathname before locale redirecting', () => {
+    (languageDetector.detect as jest.Mock).mockReturnValue('en');
+    usePathnameMock.mockReturnValue('/blog/404');
+    process.env.NEXT_PUBLIC_BASE_PATH = '/blog';
+
+    render(<Redirect />);
+
+    expect(replaceMock).toHaveBeenCalledWith('/en/404');
+    delete process.env.NEXT_PUBLIC_BASE_PATH;
   });
 });
 

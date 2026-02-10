@@ -1,10 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { registerDynamicMock, registerDynamicMockSequence } from '@tests/utils/dynamicMockRegistry';
 
-let Header: ComponentType;
+type HeaderComponent = typeof import('@/components/common/Header').default;
+let Header: HeaderComponent;
 
 // Mock `react-i18next`
 jest.mock('react-i18next', () => ({

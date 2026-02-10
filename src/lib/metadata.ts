@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { AUTHOR_NAME, AVATAR_LINK, LOCALES, SITE_URL, TWITTER_USERNAME } from '@/config/constants';
 import { defaultLocale, isSupportedLocale, locales } from '@/i18n/settings';
+import type { Locale } from '@/i18n/settings';
 
 type BuildPageMetadataOptions = {
   locale: string;
@@ -76,7 +77,7 @@ export const toAbsoluteSiteUrl = (urlOrPath: string): string => {
 export const buildLocalizedAbsoluteUrl = (locale: string, path = ''): string =>
   toAbsoluteSiteUrl(buildLocalizedPath(locale, path));
 
-const toSupportedLocale = (locale: string): string => (isSupportedLocale(locale) ? locale : defaultLocale);
+const toSupportedLocale = (locale: string): Locale => (isSupportedLocale(locale) ? locale : defaultLocale);
 
 export const getMetadataBase = (): URL => {
   try {

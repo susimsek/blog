@@ -16,7 +16,7 @@ const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }])
 const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'topic-1' }]);
 const getLayoutPostsMock = jest.fn((_posts: unknown[]) => [{ id: 'post-1' }]);
 const contactPageMock = jest.fn(
-  (props: { layoutPosts: unknown[]; topics: unknown[]; preFooterTopTopics: unknown[] }) => (
+  (_props: { layoutPosts: unknown[]; topics: unknown[]; preFooterTopTopics: unknown[] }) => (
     <div data-testid="contact-page">contact-page</div>
   ),
 );
