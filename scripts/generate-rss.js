@@ -11,6 +11,10 @@ const basePath = (process.env.NEXT_PUBLIC_BASE_PATH || '').replace(/^\/+|\/+$/g,
 const basePathPrefix = basePath ? `/${basePath}` : '';
 
 const buildDir = path.join(process.cwd(), 'build');
+const rssLanguageByLocale = {
+  en: 'en-US',
+  tr: 'tr-TR',
+};
 
 const normalizeSegment = segment =>
   String(segment)
@@ -33,6 +37,8 @@ const toAbsoluteUrl = value => {
 
   return buildSiteUrl(basePath, value);
 };
+
+const getRssLanguage = locale => rssLanguageByLocale[locale] || locale;
 
 /**
  * Reads posts for a given locale from posts.json.
@@ -89,7 +95,7 @@ function generateRSSFeedXML(posts, locale) {
   rss += `    <link>${buildSiteUrl(basePath, locale)}</link>\n`;
   rss += `    <description><![CDATA[${description}]]></description>\n`;
   rss += `    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
-  rss += `    <language>${locale}</language>\n`;
+  rss += `    <language>${getRssLanguage(locale)}</language>\n`;
   rss += `    <copyright><![CDATA[${copyright}]]></copyright>\n`;
   rss += `    <image>\n`;
   rss += `      <url>${buildSiteUrl(basePath, 'images/logo.webp')}</url>\n`;
@@ -102,7 +108,8 @@ function generateRSSFeedXML(posts, locale) {
   // Add each post
   sortedPosts.forEach(post => {
     const postUrl = buildSiteUrl(basePath, locale, 'posts', post.id);
-    const pubDate = new Date(post.date).toUTCString();
+    const publishedAt = new Date(post.date);
+    const pubDate = publishedAt.toUTCString();
     rss += `    <item>\n`;
     rss += `      <title><![CDATA[${post.title}]]></title>\n`;
     rss += `      <link>${postUrl}</link>\n`;
