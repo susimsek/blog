@@ -17,6 +17,11 @@
       "copyLink": "Bağlantıyı kopyala",
       "copied": "Kopyalandı"
     },
+    "navigation": {
+      "title": "Yazı geçişi",
+      "previous": "Önceki makale",
+      "next": "Sonraki makale"
+    },
     "authorBox": {
       "title": "Yazan",
       "bio": "Spring Boot, güvenlik, mikroservis ve cloud-native mimari konularında pratik teknik notlar paylaşan backend odaklı fullstack geliştirici.",
