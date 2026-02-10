@@ -187,6 +187,19 @@ interface Resources {
       noPostsFound: 'No posts found.';
       readMore: 'Read More';
       relatedPostsTitle: 'Related posts';
+      share: {
+        copied: 'Copied';
+        copyLink: 'Copy link';
+        onFacebook: 'Share on Facebook';
+        onLinkedIn: 'Share on LinkedIn';
+        onX: 'Share on X';
+        shortCopied: 'Copied';
+        shortCopy: 'Copy';
+        shortFacebook: 'Facebook';
+        shortLinkedIn: 'LinkedIn';
+        shortX: 'X';
+        title: 'Share';
+      };
       tocTitle: 'Table of contents';
     };
   };

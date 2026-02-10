@@ -3,6 +3,19 @@
     "noPostsFound": "Hiçbir gönderi bulunamadı.",
     "readMore": "Daha Fazla Oku",
     "relatedPostsTitle": "Benzer yazılar",
-    "tocTitle": "İçindekiler"
+    "tocTitle": "İçindekiler",
+    "share": {
+      "title": "Paylaş",
+      "onX": "X'te paylaş",
+      "onLinkedIn": "LinkedIn'de paylaş",
+      "onFacebook": "Facebook'ta paylaş",
+      "shortX": "X",
+      "shortLinkedIn": "LinkedIn",
+      "shortFacebook": "Facebook",
+      "shortCopy": "Kopyala",
+      "shortCopied": "Kopyalandı",
+      "copyLink": "Bağlantıyı kopyala",
+      "copied": "Kopyalandı"
+    }
   }
 }

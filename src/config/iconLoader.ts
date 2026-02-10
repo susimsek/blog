@@ -1,5 +1,5 @@
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faGithub, faLinkedin, faMedium } from '@fortawesome/free-brands-svg-icons';
+import { faFacebookF, faGithub, faLinkedin, faMedium, faXTwitter } from '@fortawesome/free-brands-svg-icons';
 import {
   faAddressBook,
   faArrowUp,
@@ -32,6 +32,7 @@ import {
   faPalette,
   faSave,
   faSearch,
+  faShareNodes,
   faSignInAlt,
   faSignOutAlt,
   faSort,
@@ -49,13 +50,16 @@ import { faSidebar } from '@/lib/icons';
 export const loadIcons = () => {
   library.add(
     faGithub,
+    faFacebookF,
     faLinkedin,
     faMedium,
+    faXTwitter,
     faBook,
     faGlobe,
     faHome,
     faSave,
     faSearch,
+    faShareNodes,
     faSignOutAlt,
     faSignInAlt,
     faSun,
