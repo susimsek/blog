@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import HomeRoute, { generateMetadata } from '@/app/[locale]/page';
+import HomeRoute, { generateMetadata } from '@/app/(localized)/[locale]/page';
 
 const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) => ({
   t: (key: string) =>

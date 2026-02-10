@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Provider } from 'react-redux';
 import { makeStore } from '@/config/store';
 import ThemeProvider from '@/components/theme/ThemeProvider';
@@ -18,10 +18,6 @@ type AppProvidersProps = {
 
 export default function AppProviders({ locale, resources, children }: Readonly<AppProvidersProps>) {
   const [store] = useState(() => makeStore());
-
-  useEffect(() => {
-    document.documentElement.lang = locale;
-  }, [locale]);
 
   return (
     <Provider store={store}>

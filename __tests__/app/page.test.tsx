@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
-import RootPage from '@/app/page';
+import RootPage from '@/app/(default)/page';
 import languageDetector from '@/lib/languageDetector';
 
 const replaceMock = jest.fn();

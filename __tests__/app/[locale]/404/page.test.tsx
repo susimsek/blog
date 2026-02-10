@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import Localized404Page, { metadata } from '@/app/[locale]/404/page';
-import LocaleNotFound from '@/app/[locale]/not-found';
+import Localized404Page, { metadata } from '@/app/(localized)/[locale]/404/page';
+import LocaleNotFound from '@/app/(localized)/[locale]/not-found';
 
 const localeNotFoundPageMock = jest.fn(({ locale }: { locale: string }) => (
   <div data-testid="locale-not-found-page">{locale}</div>

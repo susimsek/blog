@@ -72,7 +72,7 @@ jest.mock('@/views/PostPage', () => ({
   }) => postPageMock(props),
 }));
 
-import PostRoute, { generateMetadata, generateStaticParams } from '@/app/[locale]/posts/[id]/page';
+import PostRoute, { generateMetadata, generateStaticParams } from '@/app/(localized)/[locale]/posts/[id]/page';
 
 describe('App Route /[locale]/posts/[id]', () => {
   beforeEach(() => {

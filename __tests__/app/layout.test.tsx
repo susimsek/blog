@@ -1,5 +1,5 @@
 import React from 'react';
-import RootLayout, { metadata } from '@/app/layout';
+import RootLayout, { metadata } from '@/app/(default)/layout';
 
 describe('RootLayout', () => {
   it('exposes base metadata', () => {
@@ -20,11 +20,9 @@ describe('RootLayout', () => {
     expect(element.props.lang).toBe('en');
 
     const children = React.Children.toArray(element.props.children) as React.ReactElement[];
-    const headElement = children[0] as React.ReactElement;
-    const bodyElement = children[1] as React.ReactElement<{ children: React.ReactElement }>;
+    const bodyElement = children[0] as React.ReactElement<{ children: React.ReactElement }>;
     const bodyChildren = bodyElement.props.children as React.ReactElement<{ children: string }>;
 
-    expect(headElement.type).toBe('head');
     expect(bodyElement.type).toBe('body');
     expect(bodyChildren.props.children).toBe('child-content');
   });

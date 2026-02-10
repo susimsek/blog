@@ -65,7 +65,7 @@ jest.mock('@/views/TopicPage', () => ({
   }) => topicPageMock(props),
 }));
 
-import TopicRoute, { generateMetadata, generateStaticParams } from '@/app/[locale]/topics/[id]/page';
+import TopicRoute, { generateMetadata, generateStaticParams } from '@/app/(localized)/[locale]/topics/[id]/page';
 
 describe('App Route /[locale]/topics/[id]', () => {
   beforeEach(() => {

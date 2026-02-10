@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import LocaleLayout, { dynamic, dynamicParams, generateStaticParams } from '@/app/[locale]/layout';
+import LocaleLayout, { dynamic, dynamicParams, generateStaticParams } from '@/app/(localized)/[locale]/layout';
 
 const notFoundMock = jest.fn(() => {
   throw new Error('NOT_FOUND');
@@ -48,6 +48,10 @@ describe('LocaleLayout', () => {
       children: <div>locale-content</div>,
       params: Promise.resolve({ locale: 'en' }),
     });
+
+    const htmlElement = element as React.ReactElement<{ lang?: string }>;
+    expect(htmlElement.type).toBe('html');
+    expect(htmlElement.props.lang).toBe('en');
 
     render(element);
 
