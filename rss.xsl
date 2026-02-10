@@ -6,7 +6,32 @@
   <xsl:output method="html" encoding="UTF-8" indent="yes"/>
 
   <xsl:template match="/">
-    <html xmlns="http://www.w3.org/1999/xhtml">
+    <xsl:variable name="isTr" select="starts-with(normalize-space(rss/channel/language), 'tr')"/>
+    <xsl:variable name="htmlLang">
+      <xsl:choose>
+        <xsl:when test="$isTr">tr</xsl:when>
+        <xsl:otherwise>en</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="labelLastBuildDate">
+      <xsl:choose>
+        <xsl:when test="$isTr">Son Güncelleme Tarihi:</xsl:when>
+        <xsl:otherwise>Last Build Date:</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="labelTotalItems">
+      <xsl:choose>
+        <xsl:when test="$isTr">Toplam İçerik:</xsl:when>
+        <xsl:otherwise>Total Items:</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="labelCategories">
+      <xsl:choose>
+        <xsl:when test="$isTr">Kategoriler:</xsl:when>
+        <xsl:otherwise>Categories:</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <html xmlns="http://www.w3.org/1999/xhtml" lang="{$htmlLang}">
       <head>
         <title><xsl:value-of select="rss/channel/title"/></title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -85,8 +110,8 @@
         <div id="content">
           <h1><xsl:value-of select="rss/channel/title"/></h1>
           <p><xsl:value-of select="rss/channel/description"/></p>
-          <p><strong>Last Build Date:</strong> <xsl:value-of select="rss/channel/lastBuildDate"/></p>
-          <p><strong>Total Items:</strong> <xsl:value-of select="count(rss/channel/item)"/></p>
+          <p><strong><xsl:value-of select="$labelLastBuildDate"/></strong> <xsl:value-of select="rss/channel/lastBuildDate"/></p>
+          <p><strong><xsl:value-of select="$labelTotalItems"/></strong> <xsl:value-of select="count(rss/channel/item)"/></p>
           <xsl:for-each select="rss/channel/item">
             <div class="item">
               <xsl:if test="media:thumbnail">
@@ -106,7 +131,7 @@
                 <xsl:value-of select="description"/>
               </div>
               <div class="categories">
-                <strong>Categories:</strong>
+                <strong><xsl:value-of select="$labelCategories"/></strong>
                 <xsl:for-each select="category">
                   <span>
                     <xsl:value-of select="."/>
