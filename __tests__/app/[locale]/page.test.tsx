@@ -10,6 +10,9 @@ const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) =
       'home.meta.keywords': 'home,meta,keywords',
     })[key] ?? key,
 }));
+const loadLocaleResourcesMock = jest.fn(async (_locale: string, _ns: string[]) => ({
+  home: { home: { header: { title: 'Home' } } },
+}));
 
 const getSortedPostsDataMock = jest.fn(async (_locale: string) => [{ id: 'post-1' }]);
 const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
@@ -19,6 +22,12 @@ const homePageMock = jest.fn((_props: { posts: unknown[]; topics: unknown[]; loc
 
 jest.mock('@/i18n/server', () => ({
   getServerTranslator: (locale: string, ns: string[]) => getServerTranslatorMock(locale, ns),
+  loadLocaleResources: (locale: string, ns: string[]) => loadLocaleResourcesMock(locale, ns),
+}));
+
+jest.mock('@/i18n/RouteI18nProvider', () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 jest.mock('@/lib/posts', () => ({
@@ -59,6 +68,7 @@ describe('App Route /[locale]', () => {
 
     expect(getSortedPostsDataMock).toHaveBeenCalledWith('tr');
     expect(getAllTopicsMock).toHaveBeenCalledWith('tr');
+    expect(loadLocaleResourcesMock).toHaveBeenCalledWith('tr', ['home']);
     expect(homePageMock).toHaveBeenCalledWith({
       posts: [{ id: 'post-1' }],
       topics: [{ id: 'topic-1' }],

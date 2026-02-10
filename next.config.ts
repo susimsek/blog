@@ -12,9 +12,6 @@ const nextConfig: NextConfig = {
     quietDeps: true,
     silenceDeprecations: ['import'],
   },
-  experimental: {
-    inlineCss: true,
-  },
   images: {
     unoptimized: true,
   },

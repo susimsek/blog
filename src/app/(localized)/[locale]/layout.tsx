@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import '@/styles/global.scss';
 import AppProviders from '@/app/providers';
-import { allNamespaces, locales } from '@/i18n/settings';
+import { layoutNamespaces, locales } from '@/i18n/settings';
 import { hasLocale, loadLocaleResources } from '@/i18n/server';
 import { getMetadataBase } from '@/lib/metadata';
 
@@ -27,7 +27,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
     notFound();
   }
 
-  const resources = await loadLocaleResources(locale, allNamespaces);
+  const resources = await loadLocaleResources(locale, [...layoutNamespaces]);
 
   return (
     <html lang={locale}>

@@ -10,6 +10,9 @@ const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) =
       'medium.meta.keywords': 'medium,meta,keywords',
     })[key] ?? key,
 }));
+const loadLocaleResourcesMock = jest.fn(async (_locale: string, _ns: string[]) => ({
+  medium: { medium: { header: { title: 'Medium' } } },
+}));
 
 const fetchRssSummariesMock = jest.fn(async (_locale: string) => [{ id: 'medium-1' }]);
 const getSortedPostsDataMock = jest.fn(async (_locale: string) => [{ id: 'post-1' }, { id: 'post-2' }]);
@@ -24,6 +27,12 @@ const mediumPageMock = jest.fn(
 
 jest.mock('@/i18n/server', () => ({
   getServerTranslator: (locale: string, ns: string[]) => getServerTranslatorMock(locale, ns),
+  loadLocaleResources: (locale: string, ns: string[]) => loadLocaleResourcesMock(locale, ns),
+}));
+
+jest.mock('@/i18n/RouteI18nProvider', () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 jest.mock('@/lib/medium', () => ({
@@ -74,6 +83,7 @@ describe('App Route /[locale]/medium', () => {
 
     expect(fetchRssSummariesMock).toHaveBeenCalledWith('tr');
     expect(getSortedPostsDataMock).toHaveBeenCalledWith('tr');
+    expect(loadLocaleResourcesMock).toHaveBeenCalledWith('tr', ['medium']);
     expect(mediumPageMock).toHaveBeenCalledWith({
       mediumPosts: [{ id: 'medium-1' }],
       layoutPosts: [{ id: 'post-1' }],

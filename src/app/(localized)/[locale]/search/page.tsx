@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import SearchPage from '@/views/SearchPage';
 import { getAllTopics, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/posts';
-import { getServerTranslator } from '@/i18n/server';
+import RouteI18nProvider from '@/i18n/RouteI18nProvider';
+import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/search'>): Promise<Metadata> {
@@ -27,6 +28,11 @@ export default async function SearchRoute({ params }: PageProps<'/[locale]/searc
   const allPosts = await getSortedPostsData(locale);
   const topics = await getAllTopics(locale);
   const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
+  const resources = await loadLocaleResources(locale, ['search']);
 
-  return <SearchPage allPosts={allPosts} topics={topics} preFooterTopTopics={preFooterTopTopics} />;
+  return (
+    <RouteI18nProvider locale={locale} resources={resources}>
+      <SearchPage allPosts={allPosts} topics={topics} preFooterTopTopics={preFooterTopTopics} />
+    </RouteI18nProvider>
+  );
 }

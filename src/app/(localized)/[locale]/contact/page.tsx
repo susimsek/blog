@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import ContactPage from '@/views/ContactPage';
 import { getAllTopics, getLayoutPosts, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/posts';
-import { getServerTranslator } from '@/i18n/server';
+import RouteI18nProvider from '@/i18n/RouteI18nProvider';
+import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/contact'>): Promise<Metadata> {
@@ -24,6 +25,11 @@ export default async function ContactRoute({ params }: PageProps<'/[locale]/cont
   const topics = await getAllTopics(locale);
   const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
   const layoutPosts = getLayoutPosts(allPosts);
+  const resources = await loadLocaleResources(locale, ['contact']);
 
-  return <ContactPage layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={preFooterTopTopics} />;
+  return (
+    <RouteI18nProvider locale={locale} resources={resources}>
+      <ContactPage layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={preFooterTopTopics} />
+    </RouteI18nProvider>
+  );
 }

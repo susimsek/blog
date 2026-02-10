@@ -49,7 +49,7 @@ describe('LocaleLayout', () => {
       params: Promise.resolve({ locale: 'en' }),
     });
 
-    const htmlElement = element as React.ReactElement<{ lang?: string }>;
+    const htmlElement = element as React.ReactElement<{ lang?: string; children: React.ReactNode }>;
     expect(htmlElement.type).toBe('html');
     expect(htmlElement.props.lang).toBe('en');
 
@@ -61,7 +61,7 @@ describe('LocaleLayout', () => {
 
     expect(loadLocaleResourcesMock).toHaveBeenCalledWith(
       'en',
-      expect.arrayContaining(['common', 'home', 'post', 'topic']),
+      expect.arrayContaining(['404', 'common', 'post', 'topic']),
     );
     expect(appProvidersMock).toHaveBeenCalledWith(
       expect.objectContaining({
