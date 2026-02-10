@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
-import store from '@/config/store';
+import { makeStore } from '@/config/store';
 import ThemeProvider from '@/components/theme/ThemeProvider';
 import I18nProvider from '@/i18n/provider';
 import type { LocaleResources } from '@/i18n/server';
@@ -17,6 +17,8 @@ type AppProvidersProps = {
 };
 
 export default function AppProviders({ locale, resources, children }: Readonly<AppProvidersProps>) {
+  const [store] = useState(() => makeStore());
+
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);

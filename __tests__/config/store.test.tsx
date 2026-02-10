@@ -2,22 +2,26 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import store, { useAppSelector, useAppDispatch } from '@/config/store';
+import { makeStore, useAppSelector, useAppDispatch } from '@/config/store';
 import themeReducer from '@/reducers/theme';
 
 describe('Redux Store', () => {
   it('should initialize with the correct state shape', () => {
+    const store = makeStore();
     const state = store.getState();
     expect(state).toHaveProperty('theme');
     expect(state.theme).toBeDefined();
   });
 
   it('should have the theme reducer correctly integrated', () => {
+    const store = makeStore();
     const initialState = themeReducer(undefined, { type: '@@INIT' });
     expect(store.getState().theme).toEqual(initialState);
   });
 
   it('should allow useAppSelector to access state', () => {
+    const store = makeStore();
+
     const TestComponent = () => {
       const theme = useAppSelector(state => state.theme);
       return <div data-testid="theme">{JSON.stringify(theme)}</div>;
@@ -34,6 +38,8 @@ describe('Redux Store', () => {
   });
 
   it('should allow useAppDispatch to dispatch actions', () => {
+    const store = makeStore();
+
     const TestComponent = () => {
       const dispatch = useAppDispatch();
 

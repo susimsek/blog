@@ -3,6 +3,9 @@ import { render } from '@testing-library/react';
 import ThemeProvider from '@/components/theme/ThemeProvider';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 
+const useAppDispatchMock = useAppDispatch as unknown as jest.Mock;
+const useAppSelectorMock = useAppSelector as unknown as jest.Mock;
+
 jest.mock('@/config/store', () => ({
   useAppSelector: jest.fn(),
   useAppDispatch: jest.fn(),
@@ -17,7 +20,7 @@ describe('ThemeProvider', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     document.documentElement.className = '';
-    (useAppDispatch as jest.Mock).mockReturnValue(dispatch);
+    useAppDispatchMock.mockReturnValue(dispatch);
 
     matchMediaMock.mockImplementation((query: string) => ({
       matches: query.includes('prefers-color-scheme'),
@@ -33,7 +36,7 @@ describe('ThemeProvider', () => {
   });
 
   it('renders children', () => {
-    (useAppSelector as jest.Mock).mockReturnValue({ theme: 'light', hasExplicitTheme: true });
+    useAppSelectorMock.mockReturnValue({ theme: 'light', hasExplicitTheme: true });
 
     render(
       <ThemeProvider>
@@ -43,14 +46,14 @@ describe('ThemeProvider', () => {
   });
 
   it('applies the selected theme class', () => {
-    (useAppSelector as jest.Mock).mockReturnValue({ theme: 'dark', hasExplicitTheme: true });
+    useAppSelectorMock.mockReturnValue({ theme: 'dark', hasExplicitTheme: true });
     render(<ThemeProvider>Child</ThemeProvider>);
     expect(document.documentElement.classList.contains('dark-theme')).toBe(true);
   });
 
   it('adds transition class on theme change when reduced motion is disabled', () => {
     jest.useFakeTimers();
-    (useAppSelector as jest.Mock)
+    useAppSelectorMock
       .mockReturnValueOnce({ theme: 'light', hasExplicitTheme: true })
       .mockReturnValueOnce({ theme: 'forest', hasExplicitTheme: true });
 
@@ -72,7 +75,7 @@ describe('ThemeProvider', () => {
       addEventListener,
       removeEventListener,
     }));
-    (useAppSelector as jest.Mock)
+    useAppSelectorMock
       .mockReturnValueOnce({ theme: 'light', hasExplicitTheme: true })
       .mockReturnValueOnce({ theme: 'oceanic', hasExplicitTheme: true });
 
@@ -84,7 +87,7 @@ describe('ThemeProvider', () => {
   });
 
   it('dispatches system theme and subscribes to preference changes', () => {
-    (useAppSelector as jest.Mock).mockReturnValue({ theme: 'light', hasExplicitTheme: false });
+    useAppSelectorMock.mockReturnValue({ theme: 'light', hasExplicitTheme: false });
     const { unmount } = render(<ThemeProvider>Child</ThemeProvider>);
 
     expect(dispatch).toHaveBeenCalledWith({ type: 'theme/setThemeFromSystem', payload: 'dark' });
@@ -95,7 +98,7 @@ describe('ThemeProvider', () => {
   });
 
   it('does not subscribe to system theme when explicit theme is set', () => {
-    (useAppSelector as jest.Mock).mockReturnValue({ theme: 'light', hasExplicitTheme: true });
+    useAppSelectorMock.mockReturnValue({ theme: 'light', hasExplicitTheme: true });
     render(<ThemeProvider>Child</ThemeProvider>);
     expect(addEventListener).not.toHaveBeenCalled();
   });
@@ -105,7 +108,7 @@ describe('ThemeProvider', () => {
       writable: true,
       value: undefined,
     });
-    (useAppSelector as jest.Mock).mockReturnValue({ theme: 'light', hasExplicitTheme: false });
+    useAppSelectorMock.mockReturnValue({ theme: 'light', hasExplicitTheme: false });
 
     expect(() => render(<ThemeProvider>Child</ThemeProvider>)).not.toThrow();
   });

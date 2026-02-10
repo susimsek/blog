@@ -4,6 +4,9 @@ import ThemeToggler from '@/components/theme/ThemeToggler';
 import { resetToSystemTheme, setTheme } from '@/reducers/theme';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 
+const useAppDispatchMock = useAppDispatch as unknown as jest.Mock;
+const useAppSelectorMock = useAppSelector as unknown as jest.Mock;
+
 jest.mock('@/config/store', () => ({
   useAppDispatch: jest.fn(),
   useAppSelector: jest.fn(),
@@ -27,10 +30,8 @@ describe('ThemeToggler', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
-    (useAppSelector as jest.Mock).mockImplementation((selector: (state: typeof mockState) => unknown) =>
-      selector(mockState),
-    );
+    useAppDispatchMock.mockReturnValue(mockDispatch);
+    useAppSelectorMock.mockImplementation((selector: (state: typeof mockState) => unknown) => selector(mockState));
     mockState.theme.theme = 'light';
     mockState.theme.hasExplicitTheme = true;
   });
