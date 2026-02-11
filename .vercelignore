@@ -2,9 +2,13 @@
 # VCS / Editor
 ######################
 .git
+.gitattributes
+.gitignore
+.vercelignore
 .idea
 .vscode
 .DS_Store
+.editorconfig
 
 ######################
 # Dependencies / Caches
@@ -14,18 +18,30 @@ node_modules
 .pnpm-store
 .scannerwork
 .sonar
+.swc
 coverage
 
 ######################
-# CI / Deploy Files
+# CI / Deploy / Infra
 ######################
 .circleci
+.dockerignore
 deploy
 nginx
 Dockerfile
 
 ######################
-# Build / Test Artifacts
+# Source / Content
+######################
+src
+public
+content
+scripts
+images
+__tests__
+
+######################
+# Build / Reports
 ######################
 build
 jest-mock-cleanup-report.json
@@ -33,7 +49,31 @@ jest-mock-cleanup-report.json
 *.tsbuildinfo
 
 ######################
+# Project Files Not Needed For Prebuilt Upload
+######################
+AGENTS.md
+README.md
+.codex
+.husky
+.lintstagedrc
+.prettierignore
+.prettierrc.json
+eslint.config.mjs
+i18n.config.json
+jest.config.js
+jest.setup.ts
+next-env.d.ts
+next.config.ts
+package.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+postcss.config.mjs
+sonar-project.properties
+tsconfig.json
+
+######################
 # Vercel
 ######################
-# Keep prebuilt output usable; only ignore Vercel cache
+.vercel/README.txt
 .vercel/cache
+.vercel/cache/**
