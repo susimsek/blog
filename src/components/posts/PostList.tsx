@@ -121,7 +121,7 @@ export default function PostList({
   );
 
   return (
-    <section className="mt-5">
+    <section className="post-list-section">
       <div ref={listTopRef} />
       <PostFilters topics={topics} searchEnabled={searchEnabled} />
       {paginatedPosts.length > 0 ? (

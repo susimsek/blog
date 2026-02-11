@@ -35,9 +35,9 @@ export default function SearchPage({ allPosts, topics, preFooterTopTopics }: Rea
       searchEnabled={true}
     >
       <div>
-        <header className="text-center py-4">
-          <h1 className="fw-bold mb-4">{t('search.title')}</h1>
-          <p className="text-muted fs-4">{t('search.subtitle', { query: query || '' })}</p>
+        <header className="page-header">
+          <h1 className="page-header-title fw-bold">{t('search.title')}</h1>
+          <p className="page-header-subtitle text-muted fs-4">{t('search.subtitle', { query: query || '' })}</p>
         </header>
         <PostList
           posts={allPosts}

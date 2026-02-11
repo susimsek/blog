@@ -224,9 +224,9 @@ export default function PostDetail({
     <>
       <ReadingProgress />
       <BackToTop />
-      <section className={`mt-5 post-detail-section${hasToc ? ' has-toc' : ''}`}>
-        <h1 className="fw-bold display-4 text-center mb-4">{title}</h1>
-        <p className="text-center d-flex justify-content-center align-items-center text-muted mb-4">
+      <section className={`post-detail-section${hasToc ? ' has-toc' : ''}`}>
+        <h1 className="post-detail-title fw-bold display-4 text-center">{title}</h1>
+        <p className="post-detail-meta text-center d-flex justify-content-center align-items-center text-muted">
           <span className="d-flex align-items-center me-3">
             <FontAwesomeIcon icon="calendar-alt" className="me-2" />
             <DateDisplay date={date} />
@@ -237,7 +237,7 @@ export default function PostDetail({
           </span>
         </p>
         {topics && topics.length > 0 && (
-          <div className="mb-4 d-flex justify-content-center flex-wrap">
+          <div className="post-detail-topics d-flex justify-content-center flex-wrap">
             {topics.map(topic => (
               <Link key={topic.id} href={`/topics/${topic.id}`}>
                 <Badge bg={topic.color} className={`me-2 badge-${topic.color}`}>
@@ -247,7 +247,7 @@ export default function PostDetail({
             ))}
           </div>
         )}
-        <nav className="post-share mb-4" aria-label={t('post.share.title')}>
+        <nav className="post-share post-detail-share" aria-label={t('post.share.title')}>
           <OverlayTrigger placement="top" overlay={<Tooltip id="post-share-tooltip">{t('post.share.title')}</Tooltip>}>
             <span className="post-share-prefix text-muted me-2" aria-hidden="true">
               <FontAwesomeIcon icon="share-nodes" />
@@ -323,7 +323,7 @@ export default function PostDetail({
               {splitIntro.rest && <MarkdownRenderer content={splitIntro.rest} />}
             </article>
             {(previousPost || nextPost) && (
-              <nav className="post-navigation mt-5 mb-4" aria-label={t('post.navigation.title')}>
+              <nav className="post-navigation post-detail-navigation" aria-label={t('post.navigation.title')}>
                 <div className={postNavigationGridClassName}>
                   {previousPost && (
                     <Link

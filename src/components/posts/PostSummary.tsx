@@ -70,15 +70,15 @@ export default function PostSummary({ post, highlightQuery }: Readonly<PostSumma
   const summaryNode = q ? highlight(summary, q) : summary;
 
   return (
-    <div className="post-card d-flex align-items-center mb-4">
+    <div className="post-card d-flex align-items-center post-summary-card">
       <div className="post-card-content flex-grow-1">
-        <h2 className="fw-bold mb-4">
+        <h2 className="fw-bold post-summary-title">
           <Link href={postLink} className="link">
             {titleNode}
           </Link>
         </h2>
-        <p className="d-flex align-items-center">
-          <Link href={postLink} className="link-muted d-flex align-items-center me-3">
+        <p className="post-summary-meta">
+          <Link href={postLink} className="link-muted d-flex align-items-center">
             <FontAwesomeIcon icon="calendar-alt" className="me-2" />
             <DateDisplay date={date} />
           </Link>
@@ -88,10 +88,10 @@ export default function PostSummary({ post, highlightQuery }: Readonly<PostSumma
           </span>
         </p>
         {topics && topics.length > 0 && (
-          <div className="mb-4">
+          <div className="post-summary-topics">
             {topics.map(topic => (
               <Link key={topic.id} href={topic.link ?? `/topics/${topic.id}`}>
-                <Badge bg={topic.color} className={`me-2 badge-${topic.color}`}>
+                <Badge bg={topic.color} className={`badge-${topic.color}`}>
                   {topic.name}
                 </Badge>
               </Link>
@@ -99,12 +99,12 @@ export default function PostSummary({ post, highlightQuery }: Readonly<PostSumma
           </div>
         )}
         {thumbnailSrc && (
-          <Link href={postLink}>
+          <Link href={postLink} className="post-summary-thumbnail">
             <Thumbnail className="thumbnail-wrapper" src={thumbnailSrc} alt={title} width={800} height={600} />
           </Link>
         )}
-        <p className="mb-4">{summaryNode}</p>
-        <div className="mb-4">
+        <p className="post-summary-text">{summaryNode}</p>
+        <div className="post-summary-cta">
           <Link href={postLink} className="btn btn-primary">
             {t('post.readMore')}
           </Link>

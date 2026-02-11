@@ -45,9 +45,9 @@ export default function TopicPage({ topic, posts, layoutPosts, topics, preFooter
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
       <div>
-        <header className="text-center py-4">
-          <h1 className="fw-bold mb-4">{t('topic.title', { topic: topic.name })}</h1>
-          <p className="text-muted fs-4">{t('topic.subtitle', { topic: topic.name })}</p>
+        <header className="page-header">
+          <h1 className="page-header-title fw-bold">{t('topic.title', { topic: topic.name })}</h1>
+          <p className="page-header-subtitle text-muted fs-4">{t('topic.subtitle', { topic: topic.name })}</p>
         </header>
         <PostList posts={posts} noPostsFoundMessage={t('topic.no_posts', { topic: topic.name })} />
       </div>

@@ -29,7 +29,7 @@ export function PostFilters({ topics = [], searchEnabled = true }: Readonly<Post
           <SearchBar query={query} onChange={value => dispatch(setQuery(value))} />
         </div>
       )}
-      <div className="d-flex flex-column flex-md-row align-items-stretch w-100 w-md-auto" style={{ gap: '10px' }}>
+      <div className="post-filters-row d-flex flex-column flex-md-row align-items-stretch w-100 w-md-auto">
         {topics.length > 0 && (
           <TopicsDropdown
             topics={topics}

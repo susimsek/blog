@@ -37,9 +37,9 @@ export default function MediumPage({
       sidebarEnabled={true}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
-      <header className="text-center py-4">
-        <h1 className="fw-bold mb-4">{t('medium.header.title')}</h1>
-        <p className="text-muted fs-4">{t('medium.header.subtitle')}</p>
+      <header className="page-header">
+        <h1 className="page-header-title fw-bold">{t('medium.header.title')}</h1>
+        <p className="page-header-subtitle text-muted fs-4">{t('medium.header.subtitle')}</p>
       </header>
       <PostList posts={mediumPosts} />
     </Layout>

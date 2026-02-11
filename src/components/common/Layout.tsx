@@ -121,7 +121,7 @@ const LayoutView: React.FC<LayoutProps> = ({
           )}
           {/* Main Content */}
           <Col xs={12} md={isSidebarVisible ? 8 : 12} lg={isSidebarVisible ? 9 : 12}>
-            <Container className="content-shell py-5">{children}</Container>
+            <Container className="content-shell content-shell-inner">{children}</Container>
           </Col>
         </Row>
       </main>

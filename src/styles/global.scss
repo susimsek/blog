@@ -46,6 +46,24 @@ html {
 
 .post-detail-section {
   width: 100%;
+  margin-block-start: var(--space-32);
+}
+
+.post-detail-title {
+  margin-bottom: var(--space-24);
+}
+
+.post-detail-meta {
+  margin-bottom: var(--space-24);
+}
+
+.post-detail-topics {
+  gap: var(--space-8);
+  margin-bottom: var(--space-24);
+}
+
+.post-detail-share {
+  margin-bottom: var(--space-24);
 }
 
 .post-detail-main,
@@ -216,6 +234,11 @@ html {
 .post-navigation {
   max-width: $post-content-max-width;
   margin-inline: auto;
+}
+
+.post-detail-navigation {
+  margin-top: var(--space-32);
+  margin-bottom: var(--space-24);
 }
 
 .post-navigation-grid {
@@ -449,6 +472,31 @@ body {
 
 .content-shell {
   max-width: var(--content-shell-max-width);
+}
+
+.content-shell-inner {
+  padding-block: var(--space-32);
+}
+
+.page-header {
+  padding-block: var(--space-24);
+  text-align: center;
+}
+
+.page-header-title {
+  margin-bottom: var(--space-24);
+}
+
+.page-header-subtitle {
+  margin-bottom: 0;
+}
+
+.post-list-section {
+  margin-top: var(--space-32);
+}
+
+.post-filters-row {
+  gap: var(--space-12);
 }
 
 html.theme-transitioning body {
@@ -977,8 +1025,44 @@ input.form-control {
 
 .post-card-content {
   flex: 1;
-  padding: 16px;
+  padding: var(--space-16);
   color: var(--text-color);
+}
+
+.post-summary-card {
+  margin-bottom: var(--space-24);
+}
+
+.post-summary-title {
+  margin-bottom: var(--space-24);
+}
+
+.post-summary-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+  margin-bottom: var(--space-16);
+}
+
+.post-summary-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  margin-bottom: var(--space-16);
+}
+
+.post-summary-thumbnail {
+  display: block;
+  margin-bottom: var(--space-16);
+}
+
+.post-summary-text {
+  margin-bottom: var(--space-16);
+}
+
+.post-summary-cta {
+  margin-bottom: 0;
 }
 
 .related-post-card {
@@ -1750,7 +1834,7 @@ $state-variants: (
 }
 
 .pagination-bar {
-  padding: 16px 24px;
+  padding: var(--space-16) var(--space-24);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background-color: var(--main-bg);
