@@ -18,10 +18,14 @@ import { mockPost, mockPostSummary, mockTopic } from '@tests/__mocks__/mockPostD
 
 // Mock `fs` module
 jest.mock('fs', () => ({
+  constants: {
+    F_OK: 0,
+  },
   existsSync: jest.fn(),
   readFileSync: jest.fn(),
   readdirSync: jest.fn(),
   promises: {
+    access: jest.fn(),
     readdir: jest.fn(),
     readFile: jest.fn(),
   },
@@ -39,7 +43,9 @@ const clearCaches = () => {
 const fsMock = fs as unknown as {
   existsSync: jest.Mock;
   readFileSync: jest.Mock;
+  readdirSync: jest.Mock;
   promises: {
+    access: jest.Mock;
     readdir: jest.Mock;
     readFile: jest.Mock;
   };
@@ -129,6 +135,15 @@ describe('Posts Library', () => {
     clearCaches();
 
     fsMock.existsSync.mockReturnValue(true);
+    fsMock.promises.access.mockImplementation((filePath: string) => {
+      if (fsMock.existsSync(filePath)) {
+        return Promise.resolve();
+      }
+
+      const err = new Error(`ENOENT: no such file or directory, access '${filePath}'`) as Error & { code?: string };
+      err.code = 'ENOENT';
+      return Promise.reject(err);
+    });
     fsMock.promises.readFile.mockImplementation((filePath: string, encoding: string) =>
       Promise.resolve((fs.readFileSync as jest.Mock)(filePath, encoding)),
     );

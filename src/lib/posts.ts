@@ -10,7 +10,14 @@ import { compressContentForPayload } from '@/lib/contentCompression';
 
 const fsPromises = fs.promises;
 
-const fileExists = async (filePath: string) => fs.existsSync(filePath);
+const fileExists = async (filePath: string): Promise<boolean> => {
+  try {
+    await fsPromises.access(filePath, fs.constants.F_OK);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 // Base directory for posts
 const postsDirectory = path.join(process.cwd(), 'content/posts');

@@ -309,7 +309,7 @@ export default function PostDetail({
           </span>
         </nav>
         {thumbnailSrc && (
-          <Thumbnail src={thumbnailSrc} alt={title} width={1200} height={630} className="post-hero-image" />
+          <Thumbnail src={thumbnailSrc} alt={title} width={1200} height={630} className="post-hero-image" priority />
         )}
         <div className={`post-detail-layout${hasToc ? ' has-toc' : ''}`}>
           {hasToc && (

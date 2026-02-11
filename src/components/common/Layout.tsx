@@ -14,6 +14,7 @@ import { defaultLocale } from '@/i18n/settings';
 import { setPosts, setLocale } from '@/reducers/postsQuery';
 import PreFooter from '@/components/common/PreFooter';
 import dynamic from 'next/dynamic';
+import { withBasePath } from '@/lib/basePath';
 
 const Sidebar = dynamic(() => import('@/components/common/Sidebar'));
 
@@ -26,37 +27,77 @@ type LayoutProps = {
   sidebarEnabled?: boolean;
 };
 
-const LayoutStateInitializer: React.FC<Pick<LayoutProps, 'posts'>> = ({ posts = [] }) => {
+const normalizeSearchPost = (
+  post: Pick<PostSummary, 'id' | 'title' | 'date'> & Partial<Omit<PostSummary, 'id' | 'title' | 'date'>>,
+): PostSummary => ({
+  id: post.id,
+  title: post.title,
+  date: post.date,
+  summary: typeof post.summary === 'string' ? post.summary : '',
+  thumbnail: post.thumbnail === null || typeof post.thumbnail === 'string' ? post.thumbnail : null,
+  topics: Array.isArray(post.topics) ? post.topics : [],
+  readingTime: typeof post.readingTime === 'string' ? post.readingTime : '',
+  ...(typeof post.link === 'string' ? { link: post.link } : {}),
+});
+
+const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
+  posts.flatMap(post => {
+    if (!post || typeof post !== 'object') {
+      return [];
+    }
+
+    const candidate = post as Partial<PostSummary>;
+    if (typeof candidate.id !== 'string' || typeof candidate.title !== 'string' || typeof candidate.date !== 'string') {
+      return [];
+    }
+
+    return [normalizeSearchPost({ ...candidate, id: candidate.id, title: candidate.title, date: candidate.date })];
+  });
+
+const LayoutStateInitializer: React.FC = () => {
   const dispatch = useAppDispatch();
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
-  const normalizedPosts = React.useMemo(
-    () =>
-      posts.map(post => {
-        const candidate = post as Partial<PostSummary>;
-        return {
-          id: post.id,
-          title: post.title,
-          date: post.date,
-          summary: typeof candidate.summary === 'string' ? candidate.summary : '',
-          thumbnail:
-            candidate.thumbnail === null || typeof candidate.thumbnail === 'string' ? candidate.thumbnail : null,
-          topics: Array.isArray(candidate.topics) ? candidate.topics : post.topics,
-          readingTime: typeof candidate.readingTime === 'string' ? candidate.readingTime : '',
-          ...(typeof candidate.link === 'string' ? { link: candidate.link } : {}),
-        };
-      }),
-    [posts],
-  );
+  const currentLocale = routeLocale ?? defaultLocale;
 
   useEffect(() => {
-    dispatch(setPosts(normalizedPosts));
-  }, [dispatch, normalizedPosts]);
-
-  useEffect(() => {
-    const currentLocale = routeLocale ?? defaultLocale ?? null;
     dispatch(setLocale(currentLocale));
-  }, [dispatch, routeLocale]);
+  }, [currentLocale, dispatch]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadPublicPosts = async () => {
+      try {
+        const response = await fetch(withBasePath(`/search/posts.${currentLocale}.json`), {
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = (await response.json()) as unknown;
+        if (!Array.isArray(payload)) {
+          return;
+        }
+
+        const normalized = normalizeSearchPosts(payload);
+        if (normalized.length > 0) {
+          dispatch(setPosts(normalized));
+        }
+      } catch (error) {
+        if ((error as { name?: string })?.name === 'AbortError') {
+          return;
+        }
+      }
+    };
+
+    void loadPublicPosts();
+
+    return () => {
+      controller.abort();
+    };
+  }, [currentLocale, dispatch]);
 
   return null;
 };
@@ -136,7 +177,7 @@ const LayoutView: React.FC<LayoutProps> = ({
 const Layout: React.FC<LayoutProps> = props => {
   return (
     <>
-      <LayoutStateInitializer posts={props.posts} />
+      <LayoutStateInitializer />
       <LayoutView {...props} />
     </>
   );

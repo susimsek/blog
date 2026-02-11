@@ -16,7 +16,7 @@ export default function Thumbnail({
   width = 1200,
   height = 630,
   className = '',
-  priority = true,
+  priority = false,
 }: Readonly<ThumbnailProps>) {
   return (
     <div className={`image-wrapper text-center mb-4 ${className}`}>
