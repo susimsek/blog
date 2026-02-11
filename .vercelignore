@@ -1,0 +1,39 @@
+######################
+# VCS / Editor
+######################
+.git
+.idea
+.vscode
+.DS_Store
+
+######################
+# Dependencies / Caches
+######################
+node_modules
+.next
+.pnpm-store
+.scannerwork
+.sonar
+coverage
+
+######################
+# CI / Deploy Files
+######################
+.circleci
+deploy
+nginx
+Dockerfile
+
+######################
+# Build / Test Artifacts
+######################
+build
+jest-mock-cleanup-report.json
+*.log
+*.tsbuildinfo
+
+######################
+# Vercel
+######################
+# Keep prebuilt output usable; only ignore Vercel cache
+.vercel/cache
