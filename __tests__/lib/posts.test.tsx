@@ -149,7 +149,7 @@ describe('Posts Library', () => {
     );
 
     (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-      if (filePath.includes('posts.json')) {
+      if (filePath.includes('/public/data/posts.')) {
         return JSON.stringify([mockPostSummary]);
       }
       if (filePath.includes('topics.json')) {
@@ -179,7 +179,7 @@ describe('Posts Library', () => {
     it('filters posts by topicId', async () => {
       (fs.readdirSync as jest.Mock).mockReturnValue(['post1.md', 'post2.md', 'post3.md']);
       (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.includes('posts.json')) {
+        if (filePath.includes('/public/data/posts.')) {
           return JSON.stringify([
             {
               id: 'post1',
@@ -226,7 +226,7 @@ describe('Posts Library', () => {
         return [];
       });
       (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.includes('posts.json')) {
+        if (filePath.includes('/public/data/posts.')) {
           return JSON.stringify([mockPostSummary]);
         }
         return 'Some markdown content';
@@ -249,7 +249,7 @@ describe('Posts Library', () => {
     });
 
     it('falls back to post summary when markdown files do not exist', async () => {
-      (fs.existsSync as jest.Mock).mockImplementation((p: string) => p.includes('posts.json'));
+      (fs.existsSync as jest.Mock).mockImplementation((p: string) => p.includes('/public/data/posts.'));
       const result = await getSortedPostsData('en');
       expect(result).toHaveLength(1);
       expect(result[0].readingTime).toBeDefined();
@@ -257,14 +257,14 @@ describe('Posts Library', () => {
 
     it('uses fallback markdown path and reuses cached reading time between cache keys', async () => {
       (fs.existsSync as jest.Mock).mockImplementation((p: string) => {
-        if (p.includes('/fr/posts.json')) return true;
+        if (p.includes('/public/data/posts.fr.json')) return true;
         if (p.includes('/fr/fallback-post.md')) return false;
         if (p.includes('/en/fallback-post.md')) return true;
         return false;
       });
 
       (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.includes('/fr/posts.json')) {
+        if (filePath.includes('/public/data/posts.fr.json')) {
           return JSON.stringify([
             {
               id: 'fallback-post',
@@ -298,9 +298,9 @@ Fallback markdown content`;
       expect(fallbackFileChecks).toHaveLength(1);
     });
 
-    it('handles malformed posts.json gracefully', async () => {
+    it('handles malformed posts index gracefully', async () => {
       (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.includes('posts.json')) {
+        if (filePath.includes('/public/data/posts.')) {
           return '{invalid json}';
         }
         return '';
@@ -433,16 +433,16 @@ Fallback markdown content`;
 
     it('returns union of IDs found across locales', async () => {
       (fs.existsSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.endsWith('/content/posts/en/posts.json')) return true;
-        if (filePath.endsWith('/content/posts/fr/posts.json')) return true;
-        if (filePath.endsWith('/content/posts/de/posts.json')) return false;
+        if (filePath.endsWith('/public/data/posts.en.json')) return true;
+        if (filePath.endsWith('/public/data/posts.fr.json')) return true;
+        if (filePath.endsWith('/public/data/posts.de.json')) return false;
         return false;
       });
       (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.endsWith('/content/posts/en/posts.json')) {
+        if (filePath.endsWith('/public/data/posts.en.json')) {
           return JSON.stringify([{ id: 'post-en' }]);
         }
-        if (filePath.endsWith('/content/posts/fr/posts.json')) {
+        if (filePath.endsWith('/public/data/posts.fr.json')) {
           return JSON.stringify([{ id: 'post-fr' }]);
         }
         return '';
@@ -451,11 +451,7 @@ Fallback markdown content`;
       const result = await getAllPostIds();
       expect(result).toEqual([
         { params: { id: 'post-en', locale: 'en' } },
-        { params: { id: 'post-en', locale: 'fr' } },
-        { params: { id: 'post-en', locale: 'de' } },
-        { params: { id: 'post-fr', locale: 'en' } },
         { params: { id: 'post-fr', locale: 'fr' } },
-        { params: { id: 'post-fr', locale: 'de' } },
       ]);
     });
 
@@ -463,7 +459,7 @@ Fallback markdown content`;
       (fs.existsSync as jest.Mock).mockReturnValue(false);
       const result = await getAllPostIds();
       expect(result).toEqual([]);
-      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/en'));
+      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/public/data/posts.en.json'));
       expect(fs.readdirSync).not.toHaveBeenCalled();
     });
   });

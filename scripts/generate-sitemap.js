@@ -4,6 +4,7 @@ const path = require('node:path');
 
 const i18nConfig = require('../i18n.config.json');
 const locales = i18nConfig.locales;
+const defaultLocale = i18nConfig.defaultLocale;
 
 const siteUrl = process.env.SITE_URL || 'https://suaybsimsek.com';
 const normalizedSiteUrl = siteUrl.replace(/\/+$/g, '');
@@ -57,24 +58,45 @@ const toAbsoluteUrl = value => {
   return buildSiteUrl(basePath, value);
 };
 
+const resolveXDefaultLocale = availableLocales => {
+  if (availableLocales.includes(defaultLocale)) {
+    return defaultLocale;
+  }
+  return availableLocales[0] || defaultLocale;
+};
+
+const buildAlternateLinksXml = (availableLocales, buildUrlForLocale) => {
+  let xml = '';
+  availableLocales.forEach(locale => {
+    const alternateUrl = buildUrlForLocale(locale);
+    xml += `    <xhtml:link rel="alternate" hreflang="${xmlEscape(locale)}" href="${xmlEscape(alternateUrl)}"/>\n`;
+  });
+
+  const xDefaultLocale = resolveXDefaultLocale(availableLocales);
+  const xDefaultUrl = buildUrlForLocale(xDefaultLocale);
+  xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${xmlEscape(xDefaultUrl)}"/>\n`;
+
+  return xml;
+};
+
 /** -------------- POSTS SITEMAP GENERATION -------------- **/
 
 /**
- * Reads posts for a given locale from posts.json.
+ * Reads posts for a given locale from public data index.
  * @param {string} locale - The locale identifier (e.g., 'en' or 'tr').
  * @returns {Array} - Array of post objects.
  */
 function readPosts(locale) {
-  const postsJsonPath = path.join(process.cwd(), 'content', 'posts', locale, 'posts.json');
+  const postsJsonPath = path.join(process.cwd(), 'public', 'data', `posts.${locale}.json`);
   if (fs.existsSync(postsJsonPath)) {
     try {
       return JSON.parse(fs.readFileSync(postsJsonPath, 'utf8'));
     } catch (error) {
-      console.error(`Error reading/parsing posts.json for locale "${locale}":`, error);
+      console.error(`Error reading/parsing posts index for locale "${locale}":`, error);
       return [];
     }
   } else {
-    console.warn(`posts.json not found for locale "${locale}" at ${postsJsonPath}`);
+    console.warn(`posts index not found for locale "${locale}" at ${postsJsonPath}`);
     return [];
   }
 }
@@ -128,11 +150,10 @@ function generatePostsSitemapXML(postsById) {
         sitemap += `      <image:title>${xmlEscape(post.title)}</image:title>\n`;
         sitemap += `    </image:image>\n`;
       }
-      // Add alternate language links for all locales where the post exists
-      localesForPost.forEach(altLocale => {
-        const altUrl = buildSiteUrl(basePath, altLocale, 'posts', post.id);
-        sitemap += `    <xhtml:link rel="alternate" hreflang="${xmlEscape(altLocale)}" href="${xmlEscape(altUrl)}"/>\n`;
-      });
+      // Add alternate language links for all locales where the post exists, plus x-default.
+      sitemap += buildAlternateLinksXml(localesForPost, altLocale =>
+        buildSiteUrl(basePath, altLocale, 'posts', post.id),
+      );
       sitemap += `  </url>\n\n`;
     });
   });
@@ -215,11 +236,10 @@ function generateTopicsSitemapXML(topicsById) {
       sitemap += `    <loc>${xmlEscape(topicUrl)}</loc>\n`;
       sitemap += `    <lastmod>${topicLastMod}</lastmod>\n`;
       sitemap += `    <changefreq>weekly</changefreq>\n`;
-      // Add alternate language links for all locales where the topic exists
-      localesForTopic.forEach(altLocale => {
-        const altUrl = buildSiteUrl(basePath, altLocale, 'topics', topic.id);
-        sitemap += `    <xhtml:link rel="alternate" hreflang="${xmlEscape(altLocale)}" href="${xmlEscape(altUrl)}"/>\n`;
-      });
+      // Add alternate language links for all locales where the topic exists, plus x-default.
+      sitemap += buildAlternateLinksXml(localesForTopic, altLocale =>
+        buildSiteUrl(basePath, altLocale, 'topics', topic.id),
+      );
       sitemap += `  </url>\n\n`;
     });
   });
@@ -320,11 +340,10 @@ function generatePagesSitemapXML(pages) {
       sitemap += `      <image:loc>${xmlEscape(imageUrl)}</image:loc>\n`;
       sitemap += `      <image:title>${xmlEscape(imageTitle)}</image:title>\n`;
       sitemap += `    </image:image>\n`;
-      // Add alternate language links
-      locales.forEach(altLocale => {
-        const altUrl = page.slug ? buildSiteUrl(basePath, altLocale, page.slug) : buildSiteUrl(basePath, altLocale);
-        sitemap += `    <xhtml:link rel="alternate" hreflang="${xmlEscape(altLocale)}" href="${xmlEscape(altUrl)}"/>\n`;
-      });
+      // Add alternate language links for all locales, plus x-default.
+      sitemap += buildAlternateLinksXml(locales, altLocale =>
+        page.slug ? buildSiteUrl(basePath, altLocale, page.slug) : buildSiteUrl(basePath, altLocale),
+      );
       sitemap += `  </url>\n\n`;
     });
   });

@@ -11,6 +11,72 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Semantic spacing utilities (token-first) */
+.stack {
+  --stack-space: var(--space-16);
+
+  > * {
+    margin-block: 0;
+  }
+
+  > * + * {
+    margin-block-start: var(--stack-space);
+  }
+}
+
+.stack-8 {
+  --stack-space: var(--space-8);
+}
+
+.stack-12 {
+  --stack-space: var(--space-12);
+}
+
+.stack-16 {
+  --stack-space: var(--space-16);
+}
+
+.stack-24 {
+  --stack-space: var(--space-24);
+}
+
+.stack-32 {
+  --stack-space: var(--space-32);
+}
+
+.cluster {
+  --cluster-space: var(--space-12);
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--cluster-space);
+}
+
+.cluster-8 {
+  --cluster-space: var(--space-8);
+}
+
+.cluster-12 {
+  --cluster-space: var(--space-12);
+}
+
+.cluster-16 {
+  --cluster-space: var(--space-16);
+}
+
+.cluster-24 {
+  --cluster-space: var(--space-24);
+}
+
+.about-page-section {
+  margin-block: var(--space-32);
+}
+
+.post-list-empty {
+  margin-bottom: var(--space-24);
+}
+
 .post-article {
   max-width: $post-content-max-width;
   margin-inline: auto;
@@ -24,6 +90,20 @@ html {
   table,
   blockquote {
     margin-bottom: 1.25rem;
+  }
+
+  ul,
+  ol {
+    padding-inline-start: 1.35rem;
+  }
+
+  li + li {
+    margin-block-start: var(--space-8);
+  }
+
+  li > ul,
+  li > ol {
+    margin-block: var(--space-8) 0;
   }
 
   h2,

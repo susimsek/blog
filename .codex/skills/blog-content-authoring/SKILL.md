@@ -1,24 +1,24 @@
 ---
 name: blog-content-authoring
-description: Create/update Markdown blog posts and topic metadata for this Next.js static-export blog (multi-language en/tr). Use when adding/editing files under content/posts/**, updating posts.json and topics.json indexes, choosing valid topic colors, and creating 1200x630 WebP thumbnails under public/images.
+description: Create/update Markdown blog posts and topic metadata for this Next.js static-export blog (multi-language en/tr). Use when adding/editing files under content/posts/**, updating post/topic indexes, choosing valid topic colors, and creating 1200x630 WebP thumbnails under public/images.
 ---
 
 # Blog Content Authoring (en/tr)
 
-This repo generates content via **static export**. List pages are driven by **JSON index** files, while the post detail page is driven by the **Markdown** file. Therefore, when adding a new post you must update Markdown + `posts.json` + thumbnail + (if needed) `topics.json` together.
+This repo generates content via **static export**. List pages are driven by **JSON index** files, while the post detail page is driven by the **Markdown** file. Therefore, when adding a new post you must update Markdown + post index JSON + thumbnail + (if needed) `topics.json` together.
 
 ## File/Folder Map
 
 - Posts (Markdown): `content/posts/<locale>/<slug>.md` (`<locale>`: `en` or `tr`)
-- Post list index: `content/posts/<locale>/posts.json`
+- Post list index: `public/data/posts.<locale>.json`
 - Topic list: `content/topics/<locale>/topics.json`
 - Thumbnails: `public/images/*.webp` (referenced as `/images/<file>.webp` in Markdown/JSON)
 
 ## Non-Negotiable Rules (Summary)
 
 1. **Slug/ID**: kebab-case (`my-new-post`). Use the same slug for both `en` and `tr`.
-2. **`posts.json` is the source of truth**: list pages / RSS / sitemap use `posts.json`. Markdown is read for the detail page content + frontmatter metadata.
-3. **Sorting**: `posts.json` must be kept in **date DESC** order (newest first).
+2. **Post index JSON is the source of truth**: list pages / RSS / sitemap use `public/data/posts.<locale>.json`. Markdown is read for the detail page content + frontmatter metadata.
+3. **Sorting**: post index JSON should be kept in **date DESC** order (newest first).
 4. **Images**: keep post images under `/images/` and prefer `webp` for consistency/performance.
 5. **Thumbnail**: `1200x630` (OG size), `webp`, under `public/images/` (recommended name: `<slug>-thumbnail.webp`).
 6. **Topic consistency**: topic `id`s must exist in `topics.json` in both locales; `name` is translated per locale; `color` must be one of the allowed values.
@@ -81,7 +81,7 @@ node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs --in /path/
 - **Format**: `webp`
 - **Dimensions**: `1200x630`
 - **Location**: `public/images/`
-- **Path in Markdown/posts.json**: `/images/<slug>-thumbnail.webp`
+- **Path in Markdown/post index JSON**: `/images/<slug>-thumbnail.webp`
 
 #### Thumbnail quality checklist (must pass)
 
@@ -235,7 +235,7 @@ It prints:
 After picking an idea:
 
 1. Create `content/posts/en/<slug>.md` and `content/posts/tr/<slug>.md`
-2. Add the post to `content/posts/en/posts.json` and `content/posts/tr/posts.json`
+2. Add the post to `public/data/posts.en.json` and `public/data/posts.tr.json`
 3. Create `public/images/<slug>-thumbnail.webp` (1200x630) using the Iram art direction
 4. Run the checker: `node .codex/skills/blog-content-authoring/scripts/check-content.mjs`
 
@@ -256,7 +256,7 @@ Workflow:
 ### 1) Choose the slug/ID
 
 - Use only lowercase letters + digits + hyphens: `spring-boot-ai`
-- The file name and the `posts.json` `id` must match.
+- The file name and the post index `id` must match.
 
 ### 2) Create the thumbnail (WebP, 1200x630)
 
@@ -269,7 +269,7 @@ node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs \
 ```
 
 - Put the output **exactly** under `public/images/...`.
-- Reference it in Markdown/`posts.json` as: `"/images/<slug>-thumbnail.webp"`.
+- Reference it in Markdown/post index JSON as: `"/images/<slug>-thumbnail.webp"`.
 
 ### 3) Pick topics / add a new topic if needed
 
@@ -291,7 +291,7 @@ When you introduce a new topic (e.g. `redis`, `kafka`), it must be added to **bo
    - `id`: the same id
    - `name`: Turkish display name (e.g. `Spring AI` or a localized equivalent)
    - `color`: **must match** the EN color
-4. Use the topic in both `content/posts/en/posts.json` and `content/posts/tr/posts.json` entries (topic object must include `id/name/color`)
+4. Use the topic in both `public/data/posts.en.json` and `public/data/posts.tr.json` entries (topic object must include `id/name/color`)
 5. Re-run the checker:
    - `node .codex/skills/blog-content-authoring/scripts/check-content.mjs`
 
@@ -356,12 +356,12 @@ Link rule:
 
 - Write internal links as `/posts/<id>` or `/topics/<id>`; the renderer will add the locale prefix automatically.
 
-### 5) Update `posts.json` (en + tr)
+### 5) Update post index JSON (en + tr)
 
 Add the new entry (same `id`) to both files:
 
-- `content/posts/en/posts.json`
-- `content/posts/tr/posts.json`
+- `public/data/posts.en.json`
+- `public/data/posts.tr.json`
 
 Entry template:
 
@@ -403,6 +403,12 @@ node .codex/skills/blog-content-authoring/scripts/standardize-posts.mjs --dry-ru
 node .codex/skills/blog-content-authoring/scripts/standardize-posts.mjs
 ```
 
+To sync `readingTime` from Markdown into post index JSON, run:
+
+```bash
+pnpm run sync:reading-time
+```
+
 Then run the repo quality gates:
 
 ```bash
@@ -429,13 +435,13 @@ pnpm build
 
 5. Then add the same `id/name/color` to:
    - the Markdown frontmatter `topics` list
-   - the `posts.json` `topics` list
+   - the post index JSON `topics` list
      for the relevant posts.
 
 ## Common Mistakes
 
-- Adding only the Markdown file but not updating `posts.json` (the post won’t appear in list/RSS/sitemap).
-- Mismatched `id` vs filename (`posts.json id` != `<slug>.md`).
+- Adding only the Markdown file but not updating post index JSON (the post won’t appear in list/RSS/sitemap).
+- Mismatched `id` vs filename (post index `id` != `<slug>.md`).
 - Putting the thumbnail outside `public/images/` or referencing it with a path not starting with `/images/...`.
 - Adding a topic in only one locale (topic pages/build become inconsistent).
 - Using emojis/special characters in `@tab` titles (tab parsing may break).

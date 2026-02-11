@@ -129,7 +129,7 @@ export default function PostList({
           <PostCard key={post.id} post={post} highlightQuery={highlightQuery?.trim() ? highlightQuery : undefined} />
         ))
       ) : (
-        <div className="post-card d-flex align-items-center mb-4">
+        <div className="post-card d-flex align-items-center post-list-empty">
           <div className="post-card-content flex-grow-1 text-center">
             <div className="text-muted px-4 py-2">
               <FontAwesomeIcon icon="exclamation-circle" className="me-2" />

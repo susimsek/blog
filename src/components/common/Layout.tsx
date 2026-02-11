@@ -15,6 +15,7 @@ import { setPosts, setLocale } from '@/reducers/postsQuery';
 import PreFooter from '@/components/common/PreFooter';
 import dynamic from 'next/dynamic';
 import { withBasePath } from '@/lib/basePath';
+import { calculateReadingTime } from '@/lib/readingTime';
 
 const Sidebar = dynamic(() => import('@/components/common/Sidebar'));
 
@@ -28,19 +29,28 @@ type LayoutProps = {
 };
 
 const normalizeSearchPost = (
+  locale: string,
   post: Pick<PostSummary, 'id' | 'title' | 'date'> & Partial<Omit<PostSummary, 'id' | 'title' | 'date'>>,
-): PostSummary => ({
-  id: post.id,
-  title: post.title,
-  date: post.date,
-  summary: typeof post.summary === 'string' ? post.summary : '',
-  thumbnail: post.thumbnail === null || typeof post.thumbnail === 'string' ? post.thumbnail : null,
-  topics: Array.isArray(post.topics) ? post.topics : [],
-  readingTime: typeof post.readingTime === 'string' ? post.readingTime : '',
-  ...(typeof post.link === 'string' ? { link: post.link } : {}),
-});
+): PostSummary => {
+  const summary = typeof post.summary === 'string' ? post.summary : '';
+  const readingTime =
+    typeof post.readingTime === 'string' && post.readingTime.trim().length > 0
+      ? post.readingTime
+      : calculateReadingTime(`${post.title} ${summary}`.trim(), locale);
 
-const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
+  return {
+    id: post.id,
+    title: post.title,
+    date: post.date,
+    summary,
+    thumbnail: post.thumbnail === null || typeof post.thumbnail === 'string' ? post.thumbnail : null,
+    topics: Array.isArray(post.topics) ? post.topics : [],
+    readingTime,
+    ...(typeof post.link === 'string' ? { link: post.link } : {}),
+  };
+};
+
+const normalizeSearchPosts = (posts: ReadonlyArray<unknown>, locale: string): PostSummary[] =>
   posts.flatMap(post => {
     if (!post || typeof post !== 'object') {
       return [];
@@ -51,7 +61,9 @@ const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
       return [];
     }
 
-    return [normalizeSearchPost({ ...candidate, id: candidate.id, title: candidate.title, date: candidate.date })];
+    return [
+      normalizeSearchPost(locale, { ...candidate, id: candidate.id, title: candidate.title, date: candidate.date }),
+    ];
   });
 
 const LayoutStateInitializer: React.FC = () => {
@@ -69,7 +81,7 @@ const LayoutStateInitializer: React.FC = () => {
 
     const loadPublicPosts = async () => {
       try {
-        const response = await fetch(withBasePath(`/search/posts.${currentLocale}.json`), {
+        const response = await fetch(withBasePath(`/data/posts.${currentLocale}.json`), {
           signal: controller.signal,
         });
         if (!response.ok) {
@@ -81,7 +93,7 @@ const LayoutStateInitializer: React.FC = () => {
           return;
         }
 
-        const normalized = normalizeSearchPosts(payload);
+        const normalized = normalizeSearchPosts(payload, currentLocale);
         if (normalized.length > 0) {
           dispatch(setPosts(normalized));
         }

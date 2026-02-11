@@ -40,18 +40,18 @@ export default function AboutPage({ layoutPosts, topics, preFooterTopTopics }: R
       sidebarEnabled={true}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
-      <section className="py-5">
-        <h1 className="fw-bold mb-4">{t('about.header')}</h1>
+      <section className="about-page-section stack stack-24">
+        <h1 className="fw-bold">{t('about.header')}</h1>
         <Card>
-          <Card.Body className="px-4">
-            <div className="mb-3 text-center">
+          <Card.Body className="px-4 stack stack-16">
+            <div className="text-center">
               <Image src={AVATAR_LINK} alt="Şuayb Şimşek" width={150} height={150} className="rounded-circle" />
             </div>
             <Card.Text className="fs-5">
               {t('about.description', { experienceYears: new Date().getFullYear() - EXPERIENCE_START_YEAR })}
             </Card.Text>
             <hr />
-            <h2 className="fw-bold mt-4">{t('about.findMeOnline')}</h2>
+            <h2 className="fw-bold">{t('about.findMeOnline')}</h2>
             <ContactInfo />
           </Card.Body>
         </Card>

@@ -9,7 +9,7 @@ const locale = process.argv[2] || 'en';
 const limit = Number(process.argv[3] || 3);
 const minScore = Number(process.argv[4] || 0.5);
 
-const postsPath = path.join(process.cwd(), 'content', 'posts', locale, 'posts.json');
+const postsPath = path.join(process.cwd(), 'public', 'data', `posts.${locale}.json`);
 const posts = JSON.parse(fs.readFileSync(postsPath, 'utf8'));
 
 const topicFrequency = new Map();

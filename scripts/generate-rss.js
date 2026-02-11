@@ -51,6 +51,66 @@ const escapeHtml = value =>
 
 const wrapCdata = value => `<![CDATA[${String(value).replaceAll(']]>', ']]]]><![CDATA[>')}]]>`;
 
+let markdownProcessorPromise = null;
+
+const appendAttribute = (attributes, tagName, attributeName) => {
+  const existing = Array.isArray(attributes[tagName]) ? attributes[tagName] : [];
+  if (!existing.includes(attributeName)) {
+    attributes[tagName] = [...existing, attributeName];
+  }
+};
+
+const buildRssSanitizeSchema = defaultSchema => {
+  const attributes = { ...(defaultSchema.attributes || {}) };
+  appendAttribute(attributes, 'code', 'className');
+  appendAttribute(attributes, 'pre', 'className');
+  appendAttribute(attributes, 'span', 'className');
+  appendAttribute(attributes, 'div', 'className');
+  appendAttribute(attributes, 'a', 'target');
+  appendAttribute(attributes, 'a', 'rel');
+
+  return {
+    ...defaultSchema,
+    attributes,
+  };
+};
+
+const loadMarkdownProcessor = async () => {
+  if (!markdownProcessorPromise) {
+    markdownProcessorPromise = (async () => {
+      const [
+        { unified },
+        { default: remarkParse },
+        { default: remarkGfm },
+        { default: remarkRehype },
+        { default: rehypeRaw },
+        { default: rehypeSanitize },
+        { default: rehypeStringify },
+        { defaultSchema },
+      ] = await Promise.all([
+        import('unified'),
+        import('remark-parse'),
+        import('remark-gfm'),
+        import('remark-rehype'),
+        import('rehype-raw'),
+        import('rehype-sanitize'),
+        import('rehype-stringify'),
+        import('hast-util-sanitize'),
+      ]);
+
+      return unified()
+        .use(remarkParse)
+        .use(remarkGfm)
+        .use(remarkRehype, { allowDangerousHtml: true })
+        .use(rehypeRaw)
+        .use(rehypeSanitize, buildRssSanitizeSchema(defaultSchema))
+        .use(rehypeStringify);
+    })();
+  }
+
+  return markdownProcessorPromise;
+};
+
 const parseTabs = tabBlockContent =>
   tabBlockContent
     .split('@tab')
@@ -84,129 +144,22 @@ const resolveTabsToDefaultContent = markdown => {
   });
 };
 
-const markdownToHtml = markdown => {
+const markdownToHtml = async markdown => {
   if (!markdown) {
     return '';
   }
 
-  const lines = markdown.replace(/\r\n/g, '\n').split('\n');
-  const html = [];
-  let inCodeBlock = false;
-  let codeLanguage = '';
-  let codeLines = [];
-  let inList = false;
-  let paragraphLines = [];
-
-  const flushParagraph = () => {
-    if (paragraphLines.length > 0) {
-      html.push(`<p>${paragraphLines.join(' ')}</p>`);
-      paragraphLines = [];
-    }
-  };
-
-  const flushList = () => {
-    if (inList) {
-      html.push('</ul>');
-      inList = false;
-    }
-  };
-
-  const flushCodeBlock = () => {
-    if (!inCodeBlock) {
-      return;
-    }
-
-    const className = codeLanguage ? ` class="language-${escapeHtml(codeLanguage)}"` : '';
-    html.push(`<pre><code${className}>${escapeHtml(codeLines.join('\n'))}</code></pre>`);
-    inCodeBlock = false;
-    codeLanguage = '';
-    codeLines = [];
-  };
-
-  lines.forEach(line => {
-    const trimmedLine = line.trim();
-
-    const codeBlockStartMatch = line.match(/^```([\w-]+)?\s*$/);
-    if (codeBlockStartMatch) {
-      flushParagraph();
-      flushList();
-      if (inCodeBlock) {
-        flushCodeBlock();
-      } else {
-        inCodeBlock = true;
-        codeLanguage = codeBlockStartMatch[1] || '';
-      }
-      return;
-    }
-
-    if (inCodeBlock) {
-      codeLines.push(line);
-      return;
-    }
-
-    if (!trimmedLine) {
-      flushParagraph();
-      flushList();
-      return;
-    }
-
-    if (/^[-*_]{3,}$/.test(trimmedLine)) {
-      flushParagraph();
-      flushList();
-      html.push('<hr />');
-      return;
-    }
-
-    // Drop decorative spacing spans used in some markdown files.
-    if (/^<span\b[^>]*>\s*<\/span>$/i.test(trimmedLine)) {
-      flushParagraph();
-      flushList();
-      return;
-    }
-
-    const isRawHtmlLine =
-      /^<([a-zA-Z][\w:-]*)(\s[^>]*)?>.*<\/\1>$/.test(trimmedLine) ||
-      /^<([a-zA-Z][\w:-]*)(\s[^>]*)?\/>$/.test(trimmedLine) ||
-      /^<([a-zA-Z][\w:-]*)(\s[^>]*)?>$/.test(trimmedLine) ||
-      /^<\/([a-zA-Z][\w:-]*)>$/.test(trimmedLine);
-
-    if (isRawHtmlLine) {
-      flushParagraph();
-      flushList();
-      html.push(trimmedLine);
-      return;
-    }
-
-    const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
-    if (headingMatch) {
-      flushParagraph();
-      flushList();
-      const level = Math.min(6, headingMatch[1].length);
-      html.push(`<h${level}>${escapeHtml(headingMatch[2].trim())}</h${level}>`);
-      return;
-    }
-
-    const listMatch = line.match(/^\s*[-*]\s+(.+)$/);
-    if (listMatch) {
-      flushParagraph();
-      if (!inList) {
-        inList = true;
-        html.push('<ul>');
-      }
-      html.push(`<li>${escapeHtml(listMatch[1].trim())}</li>`);
-      return;
-    }
-
-    paragraphLines.push(escapeHtml(trimmedLine));
-  });
-
-  flushParagraph();
-  flushList();
-  flushCodeBlock();
-  return html.join('\n');
+  try {
+    const processor = await loadMarkdownProcessor();
+    const file = await processor.process(markdown);
+    return String(file);
+  } catch (error) {
+    console.warn('Falling back to escaped RSS HTML rendering due to markdown pipeline error:', error);
+    return `<p>${escapeHtml(markdown)}</p>`;
+  }
 };
 
-const getPostContentEncoded = (locale, postId) => {
+const getPostContentEncoded = async (locale, postId) => {
   const postPath = path.join(process.cwd(), 'content', 'posts', locale, `${postId}.md`);
   if (!fs.existsSync(postPath)) {
     return '';
@@ -223,21 +176,21 @@ const getPostContentEncoded = (locale, postId) => {
 };
 
 /**
- * Reads posts for a given locale from posts.json.
+ * Reads posts for a given locale from public data index.
  * @param {string} locale - The locale identifier (e.g., 'en' or 'tr').
  * @returns {Array} - Array of post objects.
  */
 function readPosts(locale) {
-  const postsJsonPath = path.join(process.cwd(), 'content', 'posts', locale, 'posts.json');
+  const postsJsonPath = path.join(process.cwd(), 'public', 'data', `posts.${locale}.json`);
   if (fs.existsSync(postsJsonPath)) {
     try {
       return JSON.parse(fs.readFileSync(postsJsonPath, 'utf8'));
     } catch (error) {
-      console.error(`Error reading/parsing posts.json for locale "${locale}":`, error);
+      console.error(`Error reading/parsing posts index for locale "${locale}":`, error);
       return [];
     }
   } else {
-    console.warn(`posts.json not found for locale "${locale}" at ${postsJsonPath}`);
+    console.warn(`posts index not found for locale "${locale}" at ${postsJsonPath}`);
     return [];
   }
 }
@@ -246,18 +199,19 @@ function readPosts(locale) {
  * Generates the RSS feed XML string using posts data.
  * @param {Array} posts - Array of post objects.
  * @param {string} locale - Locale to generate the feed for.
- * @returns {string} - The RSS feed XML content.
+ * @returns {Promise<string>} - The RSS feed XML content.
  */
-function generateRSSFeedXML(posts, locale) {
+async function generateRSSFeedXML(posts, locale) {
+  const currentYear = new Date().getFullYear();
   let title, description, copyright;
   if (locale === 'en') {
     title = "Şuayb's Blog";
     description = 'Explore the latest articles, tutorials, and insights.';
-    copyright = `© 2024 Şuayb Şimşek. All rights reserved.`;
+    copyright = `© ${currentYear} Şuayb Şimşek. All rights reserved.`;
   } else if (locale === 'tr') {
     title = "Şuayb'in Blogu";
     description = 'En son makaleleri, eğitimleri ve analizleri keşfedin.';
-    copyright = `© 2024 Şuayb Şimşek. Tüm hakları saklıdır.`;
+    copyright = `© ${currentYear} Şuayb Şimşek. Tüm hakları saklıdır.`;
   } else {
     title = 'Blog';
     description = 'Latest posts';
@@ -293,11 +247,11 @@ function generateRSSFeedXML(posts, locale) {
   rss += `    <atom:link rel="alternate" hreflang="${alternateLocale}" type="application/rss+xml" href="${buildSiteUrl(basePath, alternateLocale, 'rss.xml')}" />\n`;
 
   // Add each post
-  sortedPosts.forEach(post => {
+  for (const post of sortedPosts) {
     const postUrl = buildSiteUrl(basePath, locale, 'posts', post.id);
     const publishedAt = new Date(post.date);
     const pubDate = publishedAt.toUTCString();
-    const contentEncoded = getPostContentEncoded(locale, post.id);
+    const contentEncoded = await getPostContentEncoded(locale, post.id);
     rss += `    <item>\n`;
     rss += `      <title>${wrapCdata(post.title)}</title>\n`;
     rss += `      <link>${postUrl}</link>\n`;
@@ -323,7 +277,7 @@ function generateRSSFeedXML(posts, locale) {
     }
 
     rss += `    </item>\n`;
-  });
+  }
 
   rss += `  </channel>\n`;
   rss += `</rss>\n`;
@@ -335,10 +289,10 @@ function generateRSSFeedXML(posts, locale) {
  * Generates and writes the RSS feed for each locale.
  * The feed is written to build/{locale}/rss.xml.
  */
-function generateRSSFeeds() {
-  locales.forEach(locale => {
+async function generateRSSFeeds() {
+  for (const locale of locales) {
     const posts = readPosts(locale);
-    const rssXML = generateRSSFeedXML(posts, locale);
+    const rssXML = await generateRSSFeedXML(posts, locale);
     // Ensure the locale directory exists under build
     const localeDir = path.join(buildDir, locale);
     if (!fs.existsSync(localeDir)) {
@@ -347,8 +301,11 @@ function generateRSSFeeds() {
     const rssPath = path.join(localeDir, 'rss.xml');
     fs.writeFileSync(rssPath, rssXML, 'utf8');
     console.log(`RSS feed for locale "${locale}" generated at: ${rssPath}`);
-  });
+  }
 }
 
 // Execute the RSS feed generation
-generateRSSFeeds();
+generateRSSFeeds().catch(error => {
+  console.error('RSS feed generation failed:', error);
+  process.exitCode = 1;
+});

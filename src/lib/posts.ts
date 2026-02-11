@@ -19,8 +19,9 @@ const fileExists = async (filePath: string): Promise<boolean> => {
   }
 };
 
-// Base directory for posts
-const postsDirectory = path.join(process.cwd(), 'content/posts');
+// Base directories for post markdown and post index data
+const postsMarkdownDirectory = path.join(process.cwd(), 'content/posts');
+const postsIndexDirectory = path.join(process.cwd(), 'public/data');
 const topicsDirectory = path.join(process.cwd(), 'content/topics');
 
 export const postsCache = createCacheStore<PostSummary[]>('getSortedPostsData');
@@ -57,8 +58,8 @@ const readIdsFromIndexFile = async (indexPath: string, fileLabel: string): Promi
 
 async function getPostMarkdownContent(id: string, locale: string): Promise<string | null> {
   const fallbackLocale = i18nextConfig.i18n.defaultLocale;
-  const localizedPath = path.join(postsDirectory, locale, `${id}.md`);
-  const fallbackPath = path.join(postsDirectory, fallbackLocale, `${id}.md`);
+  const localizedPath = path.join(postsMarkdownDirectory, locale, `${id}.md`);
+  const fallbackPath = path.join(postsMarkdownDirectory, fallbackLocale, `${id}.md`);
 
   let filePath: string | null = null;
   if (await fileExists(localizedPath)) {
@@ -117,10 +118,10 @@ export async function getSortedPostsData(locale: string, topicId?: string): Prom
     return cachedData;
   }
 
-  const postsJsonPath = path.join(postsDirectory, locale, 'posts.json');
+  const postsJsonPath = path.join(postsIndexDirectory, `posts.${locale}.json`);
 
   if (!(await fileExists(postsJsonPath))) {
-    console.error(`Posts file not found for locale "${locale}": ${postsJsonPath}`);
+    console.error(`Posts index not found for locale "${locale}": ${postsJsonPath}`);
     postsCache.set(cacheKey, []);
     return [];
   }
@@ -143,7 +144,7 @@ export async function getSortedPostsData(locale: string, topicId?: string): Prom
     postsCache.set(cacheKey, sortedPosts);
     return sortedPosts;
   } catch (error) {
-    console.error(`Error reading/parsing posts.json for locale "${locale}":`, error);
+    console.error(`Error reading/parsing posts index for locale "${locale}":`, error);
     postsCache.set(cacheKey, []);
     return [];
   }
@@ -161,8 +162,8 @@ export async function getPostData(id: string, locale: string): Promise<Post | nu
   const fallbackLocale = i18nextConfig.i18n.defaultLocale;
 
   // Localized and fallback paths
-  const localizedPath = path.join(postsDirectory, locale, `${id}.md`);
-  const fallbackPath = path.join(postsDirectory, fallbackLocale, `${id}.md`);
+  const localizedPath = path.join(postsMarkdownDirectory, locale, `${id}.md`);
+  const fallbackPath = path.join(postsMarkdownDirectory, fallbackLocale, `${id}.md`);
 
   let filePath: string | null = null;
 
@@ -243,22 +244,24 @@ export async function getAllPostIds() {
   if (cachedData) return cachedData;
 
   const localeList = i18nextConfig.i18n.locales;
-  const postIdSet = new Set<string>();
-
-  await Promise.all(
+  const localizedIds = await Promise.all(
     localeList.map(async locale => {
-      const postsJsonPath = path.join(postsDirectory, locale, 'posts.json');
-      const ids = await readIdsFromIndexFile(postsJsonPath, `posts.json for locale "${locale}"`);
-      ids.forEach(id => postIdSet.add(id));
+      const postsJsonPath = path.join(postsIndexDirectory, `posts.${locale}.json`);
+      const ids = await readIdsFromIndexFile(postsJsonPath, `posts index for locale "${locale}"`);
+      return [...new Set(ids)].map(id => ({
+        params: { id, locale },
+      }));
     }),
   );
 
-  const postIds = [...postIdSet]
-    .sort((a, b) => a.localeCompare(b))
-    .flatMap(id =>
-      localeList.map(locale => ({
-        params: { id, locale },
-      })),
+  const localeOrder = new Map(localeList.map((locale, index) => [locale, index]));
+  const postIds = localizedIds
+    .flat()
+    .sort(
+      (a, b) =>
+        a.params.id.localeCompare(b.params.id) ||
+        (localeOrder.get(a.params.locale) ?? Number.MAX_SAFE_INTEGER) -
+          (localeOrder.get(b.params.locale) ?? Number.MAX_SAFE_INTEGER),
     );
 
   postIdsCache.set(ALL_POST_IDS_CACHE_KEY, postIds);

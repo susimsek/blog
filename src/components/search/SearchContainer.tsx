@@ -43,6 +43,11 @@ export default function SearchContainer() {
     setShowResults(false);
   };
 
+  const handlePostResultClick = () => {
+    setShowResults(false);
+    dispatch(setQuery(''));
+  };
+
   useEffect(() => {
     if (!showResults) {
       return;
@@ -62,7 +67,14 @@ export default function SearchContainer() {
           {searchResults.length > 0 ? (
             <>
               {searchResults.map(result => (
-                <ListGroup.Item as={Link} action key={result.id} href={`/posts/${result.id}`} className="p-3">
+                <ListGroup.Item
+                  as={Link}
+                  action
+                  key={result.id}
+                  href={`/posts/${result.id}`}
+                  className="p-3"
+                  onClick={handlePostResultClick}
+                >
                   <PostListItem post={result} />
                 </ListGroup.Item>
               ))}

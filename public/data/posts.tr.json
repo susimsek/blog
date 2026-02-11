@@ -6,12 +6,33 @@
     "summary": "@ConfigurationProperties ile tip-güvenli yapılandırma tanımlamayı, @Validated ile ayarları doğrulamayı ve profile-specific application-{profile}.yml dosyalarıyla ortama göre değer yönetimini öğrenin.",
     "thumbnail": "/images/spring-boot-configuration-properties-thumbnail.webp",
     "topics": [
-      { "id": "java", "name": "Java", "color": "red" },
-      { "id": "kotlin", "name": "Kotlin", "color": "purple" },
-      { "id": "spring-boot", "name": "Spring Boot", "color": "green" },
-      { "id": "configuration", "name": "Yapılandırma", "color": "blue" },
-      { "id": "programming", "name": "Programlama", "color": "brown" }
-    ]
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "kotlin",
+        "name": "Kotlin",
+        "color": "purple"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "configuration",
+        "name": "Yapılandırma",
+        "color": "blue"
+      },
+      {
+        "id": "programming",
+        "name": "Programlama",
+        "color": "brown"
+      }
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-graphql-jwe-authentication",
@@ -60,7 +81,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "6 dk okuma"
   },
   {
     "id": "spring-boot-jwe-authentication-with-jpa",
@@ -109,7 +131,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "4 dk okuma"
   },
   {
     "id": "spring-boot-ldap-jwe-authentication",
@@ -158,7 +181,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-jwe-authentication",
@@ -202,7 +226,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-http-interface-client",
@@ -241,7 +266,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-async-tasks-virtual",
@@ -280,7 +306,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-ai",
@@ -319,7 +346,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-jpa-auditing",
@@ -363,7 +391,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-tdd",
@@ -402,7 +431,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-circuit-breaker",
@@ -446,7 +476,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-eureka-server",
@@ -490,7 +521,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-config-server",
@@ -534,7 +566,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-docker",
@@ -578,7 +611,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-kubernetes",
@@ -622,7 +656,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-async-tasks",
@@ -656,7 +691,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-scheduled-tasks",
@@ -690,7 +726,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-reactive-programming",
@@ -729,7 +766,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-graalvm",
@@ -768,7 +806,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-kafka",
@@ -807,7 +846,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-redis-caching",
@@ -846,7 +886,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-openapi",
@@ -885,7 +926,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-clean-coding",
@@ -919,7 +961,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-devtools",
@@ -953,7 +996,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-actuator",
@@ -992,7 +1036,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-aop",
@@ -1026,7 +1071,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-di",
@@ -1060,7 +1106,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "object-relational-mapping",
@@ -1104,7 +1151,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "rest-api-input-validation",
@@ -1148,7 +1196,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-graphql",
@@ -1182,7 +1231,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "golang-gin-first-application",
@@ -1211,7 +1261,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "building-a-rest-api-with-spring-boot",
@@ -1245,7 +1296,8 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   },
   {
     "id": "spring-boot-first-application",
@@ -1279,6 +1331,7 @@
         "name": "Programlama",
         "color": "brown"
       }
-    ]
+    ],
+    "readingTime": "3 dk okuma"
   }
 ]

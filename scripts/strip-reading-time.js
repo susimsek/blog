@@ -1,5 +1,5 @@
 // scripts/strip-reading-time.js
-// Removes "readingTime" from content/posts/<locale>/posts.json entries.
+// Removes "readingTime" from public/data/posts.<locale>.json entries.
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -13,7 +13,7 @@ const writeJson = (filePath, value) => {
 };
 
 for (const locale of locales) {
-  const postsPath = path.join(process.cwd(), 'content', 'posts', locale, 'posts.json');
+  const postsPath = path.join(process.cwd(), 'public', 'data', `posts.${locale}.json`);
   const posts = readJson(postsPath);
 
   let changed = 0;
