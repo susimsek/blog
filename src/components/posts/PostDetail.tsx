@@ -33,6 +33,106 @@ interface PostDetailProps {
   nextPost?: AdjacentPostLink | null;
 }
 
+type FenceToken = '```' | '~~~';
+
+const getFenceToken = (line: string): FenceToken | null => {
+  const trimmed = line.trimStart();
+  if (trimmed.startsWith('```')) {
+    return '```';
+  }
+  if (trimmed.startsWith('~~~')) {
+    return '~~~';
+  }
+  return null;
+};
+
+const hasAtLeastTwoMarkdownHeadings = (markdown: string): boolean => {
+  if (!markdown) {
+    return false;
+  }
+
+  const lines = markdown.split(/\r?\n/);
+  let inFence = false;
+  let fenceToken: FenceToken | null = null;
+  let headingCount = 0;
+
+  for (const line of lines) {
+    const currentFence = getFenceToken(line);
+    if (currentFence) {
+      if (!inFence) {
+        inFence = true;
+        fenceToken = currentFence;
+      } else if (fenceToken === currentFence) {
+        inFence = false;
+        fenceToken = null;
+      }
+      continue;
+    }
+
+    if (inFence) {
+      continue;
+    }
+
+    if (!/^##\s+\S+/.test(line)) {
+      continue;
+    }
+
+    headingCount += 1;
+    if (headingCount >= 2) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+const splitMarkdownIntro = (markdown: string): { intro: string; rest: string } => {
+  if (!markdown) {
+    return { intro: '', rest: '' };
+  }
+
+  const lines = markdown.split(/\r?\n/);
+  let inFence = false;
+  let fenceToken: FenceToken | null = null;
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i] ?? '';
+    const currentFence = getFenceToken(line);
+    if (currentFence) {
+      if (!inFence) {
+        inFence = true;
+        fenceToken = currentFence;
+      } else if (fenceToken === currentFence) {
+        inFence = false;
+        fenceToken = null;
+      }
+      continue;
+    }
+
+    if (!inFence && /^#{2,6}\s+\S+/.test(line)) {
+      const intro = lines.slice(0, i).join('\n').trim();
+      const rest = lines.slice(i).join('\n').trim();
+      return { intro, rest };
+    }
+  }
+
+  return { intro: markdown.trim(), rest: '' };
+};
+
+const buildPostNavigationGridClassName = (hasPreviousPost: boolean, hasNextPost: boolean): string => {
+  const classNames = ['post-navigation-grid'];
+
+  if (hasPreviousPost === false) {
+    classNames.push('has-only-next');
+  }
+
+  if (hasNextPost === false) {
+    classNames.push('has-only-previous');
+  }
+
+  return classNames.join(' ');
+};
+
 export default function PostDetail({
   post,
   relatedPosts = [],
@@ -45,44 +145,10 @@ export default function PostDetail({
   const locale = routeLocale ?? defaultLocale;
   const { title, date, contentHtml, thumbnail, topics, readingTime } = post;
   const articleRef = React.useRef<HTMLElement | null>(null);
-  const copyTimeoutRef = React.useRef<number | null>(null);
+  const copyTimeoutRef = React.useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
   const [isCopied, setIsCopied] = React.useState(false);
   const markdown = contentHtml ?? '';
-  const hasToc = React.useMemo(() => {
-    if (!markdown) {
-      return false;
-    }
-
-    const lines = markdown.split(/\r?\n/);
-    let inFence = false;
-    let fenceToken: string | null = null;
-    let headingCount = 0;
-
-    for (const line of lines) {
-      const trimmed = line.trimStart();
-      const currentFence = trimmed.startsWith('```') ? '```' : trimmed.startsWith('~~~') ? '~~~' : null;
-
-      if (currentFence) {
-        if (!inFence) {
-          inFence = true;
-          fenceToken = currentFence;
-        } else if (fenceToken === currentFence) {
-          inFence = false;
-          fenceToken = null;
-        }
-        continue;
-      }
-
-      if (!inFence && /^##\s+\S+/.test(line)) {
-        headingCount += 1;
-        if (headingCount >= 2) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }, [markdown]);
+  const hasToc = React.useMemo(() => hasAtLeastTwoMarkdownHeadings(markdown), [markdown]);
   const thumbnailSrc = (() => {
     if (!thumbnail) return null;
     try {
@@ -93,49 +159,13 @@ export default function PostDetail({
     }
   })();
 
-  const splitIntro = React.useMemo(() => {
-    if (!markdown) {
-      return { intro: '', rest: '' };
-    }
-
-    const lines = markdown.split(/\r?\n/);
-    let inFence = false;
-    let fenceToken: string | null = null;
-
-    const isFence = (line: string) => {
-      const trimmed = line.trimStart();
-      if (trimmed.startsWith('```')) return '```';
-      if (trimmed.startsWith('~~~')) return '~~~';
-      return null;
-    };
-
-    const isSectionHeading = (line: string) => {
-      if (inFence) return false;
-      return /^#{2,6}\s+\S+/.test(line);
-    };
-
-    for (let i = 0; i < lines.length; i += 1) {
-      const fence = isFence(lines[i] ?? '');
-      if (fence) {
-        if (!inFence) {
-          inFence = true;
-          fenceToken = fence;
-        } else if (fenceToken === fence) {
-          inFence = false;
-          fenceToken = null;
-        }
-        continue;
-      }
-
-      if (isSectionHeading(lines[i] ?? '')) {
-        const intro = lines.slice(0, i).join('\n').trim();
-        const rest = lines.slice(i).join('\n').trim();
-        return { intro, rest };
-      }
-    }
-
-    return { intro: markdown.trim(), rest: '' };
-  }, [markdown]);
+  const splitIntro = React.useMemo(() => splitMarkdownIntro(markdown), [markdown]);
+  const hasPreviousPost = previousPost !== null;
+  const hasNextPost = nextPost !== null;
+  const postNavigationGridClassName = React.useMemo(
+    () => buildPostNavigationGridClassName(hasPreviousPost, hasNextPost),
+    [hasPreviousPost, hasNextPost],
+  );
 
   const postUrl = React.useMemo(() => buildLocalizedAbsoluteUrl(locale, `posts/${post.id}`), [locale, post.id]);
 
@@ -162,30 +192,18 @@ export default function PostDetail({
   }, [postUrl]);
 
   const handleCopyLink = React.useCallback(async () => {
-    const copyWithFallback = () => {
-      const textarea = document.createElement('textarea');
-      textarea.value = postUrl;
-      textarea.setAttribute('readonly', '');
-      textarea.style.position = 'absolute';
-      textarea.style.left = '-9999px';
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-    };
-
     try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(postUrl);
-      } else {
-        copyWithFallback();
+      const clipboard = globalThis.navigator?.clipboard;
+      if (!clipboard?.writeText) {
+        throw new Error('Clipboard API unavailable');
       }
+      await clipboard.writeText(postUrl);
 
       setIsCopied(true);
       if (copyTimeoutRef.current) {
-        window.clearTimeout(copyTimeoutRef.current);
+        globalThis.clearTimeout(copyTimeoutRef.current);
       }
-      copyTimeoutRef.current = window.setTimeout(() => {
+      copyTimeoutRef.current = globalThis.setTimeout(() => {
         setIsCopied(false);
       }, 2000);
     } catch {
@@ -196,7 +214,7 @@ export default function PostDetail({
   React.useEffect(
     () => () => {
       if (copyTimeoutRef.current) {
-        window.clearTimeout(copyTimeoutRef.current);
+        globalThis.clearTimeout(copyTimeoutRef.current);
       }
     },
     [],
@@ -229,14 +247,9 @@ export default function PostDetail({
             ))}
           </div>
         )}
-        <div className="post-share mb-4" role="group" aria-label={t('post.share.title')}>
+        <nav className="post-share mb-4" aria-label={t('post.share.title')}>
           <OverlayTrigger placement="top" overlay={<Tooltip id="post-share-tooltip">{t('post.share.title')}</Tooltip>}>
-            <span
-              className="post-share-prefix text-muted me-2"
-              role="img"
-              aria-label={t('post.share.title')}
-              tabIndex={0}
-            >
+            <span className="post-share-prefix text-muted me-2" aria-hidden="true">
               <FontAwesomeIcon icon="share-nodes" />
             </span>
           </OverlayTrigger>
@@ -294,7 +307,7 @@ export default function PostDetail({
           <span className="visually-hidden" aria-live="polite">
             {isCopied ? t('post.share.copied') : ''}
           </span>
-        </div>
+        </nav>
         {thumbnailSrc && (
           <Thumbnail src={thumbnailSrc} alt={title} width={1200} height={630} className="post-hero-image" />
         )}
@@ -311,9 +324,7 @@ export default function PostDetail({
             </article>
             {(previousPost || nextPost) && (
               <nav className="post-navigation mt-5 mb-4" aria-label={t('post.navigation.title')}>
-                <div
-                  className={`post-navigation-grid${!previousPost ? ' has-only-next' : ''}${!nextPost ? ' has-only-previous' : ''}`}
-                >
+                <div className={postNavigationGridClassName}>
                   {previousPost && (
                     <Link
                       href={`/posts/${previousPost.id}`}

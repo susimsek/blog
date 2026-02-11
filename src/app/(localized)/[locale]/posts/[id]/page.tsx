@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/posts/[i
   });
 }
 
-export default async function PostRoute({ params }: PageProps<'/[locale]/posts/[id]'>) {
+export default async function PostRoute({ params }: Readonly<PageProps<'/[locale]/posts/[id]'>>) {
   const { locale, id } = await params;
 
   const post = await getPostData(id, locale);

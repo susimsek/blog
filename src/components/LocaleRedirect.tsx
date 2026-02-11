@@ -60,11 +60,15 @@ const hasLocalePrefix = (pathname: string) => {
 const normalizeTarget = (target: string, locale: string) => {
   const { pathname, query, hash } = splitHref(target);
   const basePathAwarePath = stripBasePathFromPathname(pathname);
-  const localizedPath = hasLocalePrefix(basePathAwarePath)
-    ? basePathAwarePath
-    : basePathAwarePath === '/'
-      ? `/${locale}`
-      : `/${locale}${basePathAwarePath}`;
+  let localizedPath = basePathAwarePath;
+
+  if (!hasLocalePrefix(basePathAwarePath)) {
+    if (basePathAwarePath === '/') {
+      localizedPath = `/${locale}`;
+    } else {
+      localizedPath = `/${locale}${basePathAwarePath}`;
+    }
+  }
 
   return `${localizedPath}${query}${hash}`;
 };

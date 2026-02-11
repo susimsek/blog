@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/topics/[
   });
 }
 
-export default async function TopicRoute({ params }: PageProps<'/[locale]/topics/[id]'>) {
+export default async function TopicRoute({ params }: Readonly<PageProps<'/[locale]/topics/[id]'>>) {
   const { locale, id } = await params;
 
   const topic = await getTopicData(locale, id);

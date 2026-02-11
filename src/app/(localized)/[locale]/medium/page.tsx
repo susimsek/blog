@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/medium'>
   });
 }
 
-export default async function MediumRoute({ params }: PageProps<'/[locale]/medium'>) {
+export default async function MediumRoute({ params }: Readonly<PageProps<'/[locale]/medium'>>) {
   const { locale } = await params;
   const mediumPosts = await fetchRssSummaries(locale);
 

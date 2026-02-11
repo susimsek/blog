@@ -150,6 +150,12 @@ const getSyntaxTheme = (theme: Theme, themes: SyntaxAssets['themes']): SyntaxThe
   }
 };
 
+const renderFallbackCodeBlock = (className: string | undefined, codeText: string) => (
+  <pre className={className}>
+    <code role="code">{codeText}</code>
+  </pre>
+);
+
 const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, children, theme, t, ...props }) => {
   const [isCopied, setIsCopied] = useState(false);
   const [showLineNumbers, setShowLineNumbers] = useState(false);
@@ -194,48 +200,55 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, chil
     );
   }
 
+  if (!match) {
+    return (
+      <code className={className} {...props}>
+        {children}
+      </code>
+    );
+  }
+
   const syntaxTheme = syntaxAssets ? getSyntaxTheme(theme, syntaxAssets.themes) : null;
   const SyntaxHighlighter = syntaxAssets?.SyntaxHighlighter;
+  const shouldShowLineNumbersTooltip = showLineNumbers
+    ? t('common.codeBlock.hideLineNumbers')
+    : t('common.codeBlock.showLineNumbers');
+  const highlightedContent =
+    SyntaxHighlighter && syntaxTheme ? (
+      <SyntaxHighlighter
+        style={syntaxTheme}
+        language={resolvedLanguage ?? language}
+        PreTag="div"
+        showLineNumbers={showLineNumbers}
+        customStyle={{ padding: '2.5rem 1rem 1rem' }}
+        {...props}
+      >
+        {codeText}
+      </SyntaxHighlighter>
+    ) : (
+      renderFallbackCodeBlock(className, codeText)
+    );
 
-  return match ? (
+  return (
     <div className="code-block-container">
       {language && <span className="code-language-badge">{language.toUpperCase()}</span>}
-      {isMultiline && (
+      {isMultiline ? (
         <OverlayTrigger
           placement="top"
-          overlay={
-            <Tooltip id="line-numbers-tooltip">
-              {showLineNumbers ? t('common.codeBlock.hideLineNumbers') : t('common.codeBlock.showLineNumbers')}
-            </Tooltip>
-          }
+          overlay={<Tooltip id="line-numbers-tooltip">{shouldShowLineNumbersTooltip}</Tooltip>}
         >
           <Button
             className="line-numbers-button"
             size="sm"
-            aria-label={showLineNumbers ? t('common.codeBlock.hideLineNumbers') : t('common.codeBlock.showLineNumbers')}
+            aria-label={shouldShowLineNumbersTooltip}
             onClick={() => setShowLineNumbers(prev => !prev)}
           >
             <FontAwesomeIcon icon={showLineNumbers ? 'eye-slash' : 'eye'} className="fa-icon" />
           </Button>
         </OverlayTrigger>
-      )}
+      ) : null}
 
-      {SyntaxHighlighter && syntaxTheme ? (
-        <SyntaxHighlighter
-          style={syntaxTheme}
-          language={resolvedLanguage ?? language}
-          PreTag="div"
-          showLineNumbers={showLineNumbers}
-          customStyle={{ padding: '2.5rem 1rem 1rem' }}
-          {...props}
-        >
-          {codeText}
-        </SyntaxHighlighter>
-      ) : (
-        <pre className={className}>
-          <code role="code">{codeText}</code>
-        </pre>
-      )}
+      {highlightedContent}
       <OverlayTrigger
         placement="top"
         overlay={
@@ -247,10 +260,6 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, chil
         </Button>
       </OverlayTrigger>
     </div>
-  ) : (
-    <code className={className} {...props}>
-      {children}
-    </code>
   );
 };
 

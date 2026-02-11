@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]'>): Prom
   });
 }
 
-export default async function LocaleHomePage({ params }: PageProps<'/[locale]'>) {
+export default async function LocaleHomePage({ params }: Readonly<PageProps<'/[locale]'>>) {
   const { locale } = await params;
   const posts = await getSortedPostsData(locale);
   const topics = await getAllTopics(locale);

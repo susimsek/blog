@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/search'>
   });
 }
 
-export default async function SearchRoute({ params }: PageProps<'/[locale]/search'>) {
+export default async function SearchRoute({ params }: Readonly<PageProps<'/[locale]/search'>>) {
   const { locale } = await params;
 
   const allPosts = await getSortedPostsData(locale);

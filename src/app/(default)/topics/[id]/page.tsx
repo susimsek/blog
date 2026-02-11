@@ -12,7 +12,7 @@ export async function generateStaticParams() {
     }));
 }
 
-export default async function TopicRedirectPage({ params }: PageProps<'/topics/[id]'>) {
+export default async function TopicRedirectPage({ params }: Readonly<PageProps<'/topics/[id]'>>) {
   const { id } = await params;
   return (
     <Suspense fallback={null}>

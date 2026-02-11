@@ -61,11 +61,10 @@ export const toAbsoluteSiteUrl = (urlOrPath: string): string => {
     return urlOrPath;
   }
 
-  const normalizedPath = urlOrPath.startsWith('/')
-    ? startsWithBasePath(urlOrPath)
-      ? urlOrPath
-      : buildSitePath(urlOrPath)
-    : buildSitePath(urlOrPath);
+  let normalizedPath = buildSitePath(urlOrPath);
+  if (urlOrPath.startsWith('/') && startsWithBasePath(urlOrPath)) {
+    normalizedPath = urlOrPath;
+  }
 
   try {
     return new URL(normalizedPath, normalizedSiteUrl).toString();

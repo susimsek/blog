@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/contact'
   });
 }
 
-export default async function ContactRoute({ params }: PageProps<'/[locale]/contact'>) {
+export default async function ContactRoute({ params }: Readonly<PageProps<'/[locale]/contact'>>) {
   const { locale } = await params;
 
   const allPosts = await getSortedPostsData(locale);

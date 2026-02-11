@@ -12,7 +12,7 @@ export async function generateStaticParams() {
     }));
 }
 
-export default async function PostRedirectPage({ params }: PageProps<'/posts/[id]'>) {
+export default async function PostRedirectPage({ params }: Readonly<PageProps<'/posts/[id]'>>) {
   const { id } = await params;
   return (
     <Suspense fallback={null}>
