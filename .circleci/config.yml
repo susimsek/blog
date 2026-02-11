@@ -71,19 +71,17 @@ jobs:
             docker push "${IMAGE_NAME}:${CIRCLE_BRANCH}"
 
       - run:
-          name: Deploy to GitHub Pages
+          name: Deploy to Vercel
           command: |
             if [ "${CIRCLE_BRANCH}" != "main" ]; then
-              echo "Skipping GitHub Pages deploy on branch ${CIRCLE_BRANCH}";
+              echo "Skipping Vercel deploy on branch ${CIRCLE_BRANCH}";
               exit 0;
             fi
 
-            git config --global user.email "suaybsimsek58@gmail.com"
-            git config --global user.name "${CIRCLE_USERNAME:-circleci-bot}"
-            git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
-
-            echo "${SITE_DOMAIN}" > build/CNAME
-            pnpm dlx gh-pages -d build --nojekyll -m "deploy: ${CIRCLE_SHA1}"
+            npm install --global vercel@latest
+            vercel pull --yes --environment=production --token="${VERCEL_TOKEN}"
+            vercel build --prod --token="${VERCEL_TOKEN}"
+            vercel deploy --prebuilt --prod --token="${VERCEL_TOKEN}"
 
 workflows:
   version: 2
