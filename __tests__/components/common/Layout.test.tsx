@@ -7,9 +7,11 @@ type LayoutComponent = typeof import('@/components/common/Layout').default;
 let Layout: LayoutComponent;
 
 const useParamsMock = jest.fn();
+const usePathnameMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
   useParams: () => useParamsMock(),
+  usePathname: () => usePathnameMock(),
 }));
 
 jest.mock('@/hooks/useMediaQuery', () => ({
@@ -60,6 +62,7 @@ describe('Layout Component', () => {
 
   beforeEach(() => {
     useParamsMock.mockReturnValue({ locale: 'en' });
+    usePathnameMock.mockReturnValue('/en');
     (useMediaQuery as jest.Mock).mockReturnValue(false);
     document.body.className = '';
     observe.mockClear();
