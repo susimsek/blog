@@ -75,6 +75,7 @@
     "selected": "Seçildi",
     "selectAll": "Tümünü Seç",
     "clearAll": "Tümünü Temizle",
+    "backToTop": "Başa dön",
     "noResults": "Sonuç bulunamadı",
     "andMore": "ve {{count}} daha",
     "datePicker": {

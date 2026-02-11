@@ -28,6 +28,7 @@ interface Resources {
   common: {
     common: {
       andMore: 'and {{count}} more';
+      backToTop: 'Back to top';
       clearAll: 'Clear All';
       codeBlock: {
         copied: 'Copied!';

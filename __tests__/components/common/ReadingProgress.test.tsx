@@ -1,6 +1,7 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ReadingProgress from '@/components/common/ReadingProgress';
+import { BACK_TO_TOP_EVENT } from '@/lib/scrollEvents';
 
 describe('ReadingProgress', () => {
   beforeEach(() => {
@@ -70,5 +71,41 @@ describe('ReadingProgress', () => {
 
     unmount();
     expect(disconnect).toHaveBeenCalled();
+  });
+
+  it('stays visible briefly at top after back-to-top event', async () => {
+    jest.useFakeTimers();
+    try {
+      const header = document.createElement('nav');
+      header.className = 'navbar sticky-top';
+      header.getBoundingClientRect = () => ({ height: 40 }) as DOMRect;
+      document.body.appendChild(header);
+
+      render(<ReadingProgress />);
+      const progressbar = await screen.findByRole('progressbar', { name: 'Reading progress' });
+      const container = progressbar.closest('.reading-progress') as HTMLElement;
+
+      act(() => {
+        window.dispatchEvent(new Event(BACK_TO_TOP_EVENT));
+      });
+
+      await waitFor(() => {
+        expect(container.className).not.toContain('is-hidden');
+      });
+
+      act(() => {
+        jest.advanceTimersByTime(199);
+      });
+      expect(container.className).not.toContain('is-hidden');
+
+      act(() => {
+        jest.advanceTimersByTime(1);
+      });
+      await waitFor(() => {
+        expect(container.className).toContain('is-hidden');
+      });
+    } finally {
+      jest.useRealTimers();
+    }
   });
 });

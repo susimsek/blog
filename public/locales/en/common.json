@@ -75,6 +75,7 @@
     "selected": "Selected",
     "selectAll": "Select All",
     "clearAll": "Clear All",
+    "backToTop": "Back to top",
     "noResults": "No results found",
     "andMore": "and {{count}} more",
     "datePicker": {
