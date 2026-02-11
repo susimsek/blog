@@ -20,7 +20,7 @@
     "webapp:dev": "pnpm run clean-www && next dev",
     "webapp:prod": "pnpm run clean-www && pnpm run webapp:build:prod",
     "webapp:build:prod": "next build",
-    "clean-www": "rimraf build/*",
+    "clean-www": "rimraf build",
     "sonar": "pnpm exec sonar-scanner",
     "jest": "jest --coverage --maxWorkers=2 --config jest.config.js",
     "test": "pnpm run jest --",
