@@ -56,11 +56,11 @@ export default function ReadingProgress() {
     if (!win) return;
 
     let scheduled = false;
-    let hideTimer: ReturnType<typeof setTimeout> | null = null;
+    let hideTimer: number | null = null;
     let backToTopActive = false;
 
     const clearHideTimer = () => {
-      if (hideTimer) {
+      if (hideTimer !== null) {
         win.clearTimeout(hideTimer);
         hideTimer = null;
       }
