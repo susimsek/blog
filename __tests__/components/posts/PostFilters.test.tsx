@@ -1,6 +1,7 @@
 import React from 'react';
 import { screen, fireEvent } from '@testing-library/react';
 import type { PostFiltersProps } from '@/components/posts/PostFilters';
+import type { PostsQueryState } from '@/reducers/postsQuery';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
 import { registerDynamicMock, registerDynamicMockSequence } from '@tests/utils/dynamicMockRegistry';
 
@@ -66,12 +67,29 @@ jest.mock('@/components/common/SortDropdown', () => ({
 }));
 
 describe('PostFilters Component', () => {
-  const defaultProps: PostFiltersProps = {
+  const defaultProps: PostFiltersProps = {};
+  const basePostsQueryState: PostsQueryState = {
+    query: '',
+    sortOrder: 'desc',
+    page: 1,
+    pageSize: 5,
+    selectedTopics: [],
+    dateRange: {},
+    readingTimeRange: 'any',
+    locale: 'en',
+    posts: [],
     topics: [
       { id: '1', name: 'Topic 1', color: 'red' },
       { id: '2', name: 'Topic 2', color: 'blue' },
     ],
   };
+
+  const buildPreloadedState = (overrides: Partial<PostsQueryState> = {}) => ({
+    postsQuery: {
+      ...basePostsQueryState,
+      ...overrides,
+    },
+  });
 
   beforeAll(() => {
     const dateRangePicker = jest.requireMock('@/components/common/DateRangePicker');
@@ -86,7 +104,7 @@ describe('PostFilters Component', () => {
   });
 
   test('renders all mocked components', async () => {
-    renderWithProviders(<PostFilters {...defaultProps} />);
+    renderWithProviders(<PostFilters {...defaultProps} />, { preloadedState: buildPreloadedState() });
 
     expect(screen.getByTestId('search-bar')).toBeInTheDocument();
     expect(screen.getByTestId('topics-dropdown')).toBeInTheDocument();
@@ -95,7 +113,7 @@ describe('PostFilters Component', () => {
   });
 
   test('calls onSearchChange when search input changes', () => {
-    const { store } = renderWithProviders(<PostFilters {...defaultProps} />);
+    const { store } = renderWithProviders(<PostFilters {...defaultProps} />, { preloadedState: buildPreloadedState() });
 
     const searchInput = screen.getByTestId('search-bar');
     fireEvent.change(searchInput, { target: { value: 'Test query' } });
@@ -104,7 +122,7 @@ describe('PostFilters Component', () => {
   });
 
   test('calls onTopicsChange when a topic is clicked', () => {
-    const { store } = renderWithProviders(<PostFilters {...defaultProps} />);
+    const { store } = renderWithProviders(<PostFilters {...defaultProps} />, { preloadedState: buildPreloadedState() });
 
     const topicButton = screen.getByText('Topic 1');
     fireEvent.click(topicButton);
@@ -113,7 +131,7 @@ describe('PostFilters Component', () => {
   });
 
   test('calls onDateRangeChange when date range button is clicked', async () => {
-    const { store } = renderWithProviders(<PostFilters {...defaultProps} />);
+    const { store } = renderWithProviders(<PostFilters {...defaultProps} />, { preloadedState: buildPreloadedState() });
 
     const datePickerButton = await screen.findByTestId('date-picker');
     fireEvent.click(datePickerButton);
@@ -122,7 +140,7 @@ describe('PostFilters Component', () => {
   });
 
   test('calls onSortChange when sort dropdown button is clicked', () => {
-    const { store } = renderWithProviders(<PostFilters {...defaultProps} />);
+    const { store } = renderWithProviders(<PostFilters {...defaultProps} />, { preloadedState: buildPreloadedState() });
 
     const sortButton = screen.getByTestId('sort-dropdown');
     fireEvent.click(sortButton);
@@ -131,7 +149,7 @@ describe('PostFilters Component', () => {
   });
 
   test('does not render TopicsDropdown when topics are empty', () => {
-    renderWithProviders(<PostFilters topics={[]} />);
+    renderWithProviders(<PostFilters />, { preloadedState: buildPreloadedState({ topics: [] }) });
 
     expect(screen.queryByTestId('topics-dropdown')).not.toBeInTheDocument();
   });

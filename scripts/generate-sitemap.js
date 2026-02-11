@@ -176,21 +176,21 @@ function generatePostsSitemap() {
 /** -------------- TOPICS SITEMAP GENERATION -------------- **/
 
 /**
- * Reads topics for a given locale from topics.json.
+ * Reads topics for a given locale from public data index.
  * @param {string} locale - The locale identifier.
  * @returns {Array} - Array of topic objects.
  */
 function readTopics(locale) {
-  const topicsJsonPath = path.join(process.cwd(), 'content', 'topics', locale, 'topics.json');
+  const topicsJsonPath = path.join(process.cwd(), 'public', 'data', `topics.${locale}.json`);
   if (fs.existsSync(topicsJsonPath)) {
     try {
       return JSON.parse(fs.readFileSync(topicsJsonPath, 'utf8'));
     } catch (error) {
-      console.error(`Error reading/parsing topics.json for locale "${locale}":`, error);
+      console.error(`Error reading/parsing topics index for locale "${locale}":`, error);
       return [];
     }
   } else {
-    console.warn(`topics.json not found for locale "${locale}" at ${topicsJsonPath}`);
+    console.warn(`topics index not found for locale "${locale}" at ${topicsJsonPath}`);
     return [];
   }
 }
@@ -230,7 +230,7 @@ function generateTopicsSitemapXML(topicsById) {
     localesForTopic.forEach(locale => {
       const topic = topicsById[topicId][locale];
       const topicUrl = buildSiteUrl(basePath, locale, 'topics', topic.id);
-      const topicLastMod = getFileLastModified(path.join(process.cwd(), 'content', 'topics', locale, 'topics.json'));
+      const topicLastMod = getFileLastModified(path.join(process.cwd(), 'public', 'data', `topics.${locale}.json`));
 
       sitemap += `  <url>\n`;
       sitemap += `    <loc>${xmlEscape(topicUrl)}</loc>\n`;

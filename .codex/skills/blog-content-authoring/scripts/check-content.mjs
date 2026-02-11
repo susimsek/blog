@@ -49,7 +49,7 @@ const isValidDate = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) 
 const loadTopicsByLocale = async () => {
   const byLocale = new Map();
   for (const locale of LOCALES) {
-    const p = path.join(ROOT, 'content', 'topics', locale, 'topics.json');
+    const p = path.join(ROOT, 'public', 'data', `topics.${locale}.json`);
     const topics = await readJson(p);
     const byId = new Map(topics.map(t => [t.id, t]));
     byLocale.set(locale, { file: p, topics, byId });
@@ -60,7 +60,7 @@ const loadTopicsByLocale = async () => {
 const loadPostsByLocale = async () => {
   const byLocale = new Map();
   for (const locale of LOCALES) {
-    const p = path.join(ROOT, 'content', 'posts', locale, 'posts.json');
+    const p = path.join(ROOT, 'public', 'data', `posts.${locale}.json`);
     const posts = await readJson(p);
     const byId = new Map(posts.map(post => [post.id, post]));
     byLocale.set(locale, { file: p, posts, byId });
@@ -113,13 +113,13 @@ const main = async () => {
   // Cross-locale ID consistency
   const enPostIds = new Set(postsByLocale.get('en')?.posts.map(p => p.id) ?? []);
   const trPostIds = new Set(postsByLocale.get('tr')?.posts.map(p => p.id) ?? []);
-  for (const id of enPostIds) if (!trPostIds.has(id)) fail(errors, `Post id missing in tr posts.json: ${id}`);
-  for (const id of trPostIds) if (!enPostIds.has(id)) fail(errors, `Post id missing in en posts.json: ${id}`);
+  for (const id of enPostIds) if (!trPostIds.has(id)) fail(errors, `Post id missing in tr posts index: ${id}`);
+  for (const id of trPostIds) if (!enPostIds.has(id)) fail(errors, `Post id missing in en posts index: ${id}`);
 
   const enTopicIds = new Set(topicsByLocale.get('en')?.topics.map(t => t.id) ?? []);
   const trTopicIds = new Set(topicsByLocale.get('tr')?.topics.map(t => t.id) ?? []);
-  for (const id of enTopicIds) if (!trTopicIds.has(id)) fail(errors, `Topic id missing in tr topics.json: ${id}`);
-  for (const id of trTopicIds) if (!enTopicIds.has(id)) fail(errors, `Topic id missing in en topics.json: ${id}`);
+  for (const id of enTopicIds) if (!trTopicIds.has(id)) fail(errors, `Topic id missing in tr topics index: ${id}`);
+  for (const id of trTopicIds) if (!enTopicIds.has(id)) fail(errors, `Topic id missing in en topics index: ${id}`);
 
   // Validate posts
   for (const locale of LOCALES) {

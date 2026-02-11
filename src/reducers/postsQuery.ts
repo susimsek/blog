@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { PostSummary } from '@/types/posts';
+import { PostSummary, Topic } from '@/types/posts';
 
 export type SortOrder = 'asc' | 'desc';
 
@@ -20,6 +20,7 @@ export interface PostsQueryState {
   readingTimeRange: ReadingTimeRange;
   locale: string | null;
   posts: PostSummary[];
+  topics: Topic[];
 }
 
 const initialState: PostsQueryState = {
@@ -32,6 +33,7 @@ const initialState: PostsQueryState = {
   readingTimeRange: 'any',
   locale: null,
   posts: [],
+  topics: [],
 };
 
 const postsQuerySlice = createSlice({
@@ -40,6 +42,9 @@ const postsQuerySlice = createSlice({
   reducers: {
     setPosts: (state, action: PayloadAction<PostSummary[]>) => {
       state.posts = action.payload;
+    },
+    setTopics: (state, action: PayloadAction<Topic[]>) => {
+      state.topics = action.payload;
     },
     setQuery: (state, action: PayloadAction<string>) => {
       state.query = action.payload;
@@ -84,6 +89,7 @@ const postsQuerySlice = createSlice({
 
 export const {
   setPosts,
+  setTopics,
   setQuery,
   setSortOrder,
   setPage,

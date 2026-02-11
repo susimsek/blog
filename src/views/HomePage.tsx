@@ -45,7 +45,7 @@ export default function HomePage({ posts, topics, locale }: Readonly<HomePagePro
         <p className="page-header-subtitle text-muted fs-4">{t('home.header.subtitle')}</p>
       </header>
       <PostCarousel posts={posts.slice(0, 3)} />
-      <PostList posts={posts} topics={topics} />
+      <PostList posts={posts} />
     </Layout>
   );
 }

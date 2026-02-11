@@ -3,6 +3,7 @@ import { screen, fireEvent, waitFor } from '@testing-library/react';
 import PostList from '@/components/posts/PostList';
 import { mockPostSummaries, mockTopics } from '@tests/__mocks__/mockPostData';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
+import type { PostsQueryState } from '@/reducers/postsQuery';
 
 const useRouterMock = jest.fn();
 const usePathnameMock = jest.fn();
@@ -119,6 +120,25 @@ describe('PostList Component', () => {
   const scrollIntoViewMock = jest.fn();
   let pushMock: jest.Mock;
   let currentSearchParams: URLSearchParams;
+  const basePostsQueryState: PostsQueryState = {
+    query: '',
+    sortOrder: 'desc',
+    page: 1,
+    pageSize: 5,
+    selectedTopics: [],
+    dateRange: {},
+    readingTimeRange: 'any',
+    locale: 'en',
+    posts: mockPostSummaries,
+    topics: mockTopics,
+  };
+
+  const buildPreloadedState = (overrides: Partial<PostsQueryState> = {}) => ({
+    postsQuery: {
+      ...basePostsQueryState,
+      ...overrides,
+    },
+  });
 
   beforeAll(() => {
     Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
@@ -136,7 +156,7 @@ describe('PostList Component', () => {
     useSearchParamsMock.mockImplementation(() => currentSearchParams);
   });
   it('renders all components correctly', () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
 
     expect(screen.getByTestId('search-bar')).toBeInTheDocument();
     expect(screen.getByTestId('sort-dropdown')).toBeInTheDocument();
@@ -146,13 +166,17 @@ describe('PostList Component', () => {
   });
 
   it('handles topics dropdown absence gracefully', () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} />, {
+      preloadedState: buildPreloadedState({ topics: [] }),
+    });
 
     expect(screen.queryByTestId('topics-dropdown')).not.toBeInTheDocument();
   });
 
   it('filters posts based on search query', () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} />, {
+      preloadedState: buildPreloadedState({ topics: [] }),
+    });
     const searchBar = screen.getByTestId('search-bar');
     fireEvent.change(searchBar, { target: { value: 'Post 3' } });
 
@@ -160,7 +184,7 @@ describe('PostList Component', () => {
   });
 
   it('filters posts by topic', () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
     const reactTopic = screen.getByText('React');
     fireEvent.click(reactTopic);
 
@@ -169,7 +193,9 @@ describe('PostList Component', () => {
   });
 
   it('sorts posts in ascending order', () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} />, {
+      preloadedState: buildPreloadedState({ topics: [] }),
+    });
     const sortAscending = screen.getByText('Sort Ascending');
     fireEvent.click(sortAscending);
 
@@ -179,7 +205,9 @@ describe('PostList Component', () => {
   });
 
   it('returns all posts when search query is empty', () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} />, {
+      preloadedState: buildPreloadedState({ topics: [] }),
+    });
     const searchBar = screen.getByTestId('search-bar');
     fireEvent.change(searchBar, { target: { value: '' } });
 
@@ -187,12 +215,14 @@ describe('PostList Component', () => {
   });
 
   it('handles empty posts gracefully', () => {
-    renderWithProviders(<PostList posts={[]} topics={[]} />);
+    renderWithProviders(<PostList posts={[]} />, { preloadedState: buildPreloadedState({ posts: [], topics: [] }) });
     expect(screen.getByText('post.noPostsFound')).toBeInTheDocument();
   });
 
   it('resets pagination when sort order is changed', () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} />, {
+      preloadedState: buildPreloadedState({ topics: [] }),
+    });
     const sortAscending = screen.getByText('Sort Ascending');
     fireEvent.click(sortAscending);
 
@@ -203,7 +233,7 @@ describe('PostList Component', () => {
   it('keeps active page from route query when q is empty', async () => {
     currentSearchParams = new URLSearchParams('page=2&size=5');
 
-    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
 
     await waitFor(() => {
       expect(screen.getByLabelText('Previous')).not.toBeDisabled();
@@ -211,7 +241,7 @@ describe('PostList Component', () => {
   });
 
   it('scrolls list start into view when page changes', () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />);
+    renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
 
     fireEvent.click(screen.getByLabelText('Next'));
 

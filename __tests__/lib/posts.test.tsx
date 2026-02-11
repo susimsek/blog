@@ -406,7 +406,7 @@ Fallback markdown content`;
       (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify([mockTopic]));
       const result = await getTopicData('en', 'react');
       expect(fs.existsSync).toHaveBeenCalledWith(
-        expect.stringContaining(path.join('content', 'topics', 'en', 'topics.json')),
+        expect.stringContaining(path.join('public', 'data', 'topics.en.json')),
       );
       expect(result).toEqual(mockTopic);
     });
@@ -486,10 +486,10 @@ Fallback markdown content`;
     it('returns topics from the correct locale file', async () => {
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.endsWith('/content/topics/en/topics.json')) {
+        if (filePath.endsWith('/public/data/topics.en.json')) {
           return JSON.stringify(mockEnglishTopics);
         }
-        if (filePath.endsWith('/content/topics/tr/topics.json')) {
+        if (filePath.endsWith('/public/data/topics.tr.json')) {
           return JSON.stringify(mockTurkishTopics);
         }
         return '';
@@ -511,7 +511,7 @@ Fallback markdown content`;
       (fs.readFileSync as jest.Mock).mockReturnValue('{ invalid json }');
       const result = await getAllTopics('en');
       expect(result).toEqual([]);
-      expect(console.error).toHaveBeenCalledWith('Error reading or parsing topics.json:', expect.any(SyntaxError));
+      expect(console.error).toHaveBeenCalledWith('Error reading or parsing topics index:', expect.any(SyntaxError));
     });
 
     it('returns an empty array for unsupported locales', async () => {
@@ -555,10 +555,10 @@ Fallback markdown content`;
     it('returns topic IDs for all locales when topics.json exists', async () => {
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.endsWith('/content/topics/en/topics.json')) {
+        if (filePath.endsWith('/public/data/topics.en.json')) {
           return JSON.stringify(mockEnglishTopics);
         }
-        if (filePath.endsWith('/content/topics/fr/topics.json')) {
+        if (filePath.endsWith('/public/data/topics.fr.json')) {
           return JSON.stringify(mockFrenchTopics);
         }
         return '';
@@ -602,8 +602,8 @@ Fallback markdown content`;
           },
         },
       ]);
-      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/content/topics/en/topics.json'));
-      expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('/content/topics/en/topics.json'), 'utf8');
+      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/public/data/topics.en.json'));
+      expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('/public/data/topics.en.json'), 'utf8');
     });
 
     it('returns an empty array if topics.json does not exist for any locale', async () => {
@@ -614,16 +614,16 @@ Fallback markdown content`;
 
     it('returns union of topic IDs found across locales', async () => {
       (fs.existsSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.endsWith('/content/topics/en/topics.json')) return true;
-        if (filePath.endsWith('/content/topics/fr/topics.json')) return true;
-        if (filePath.endsWith('/content/topics/de/topics.json')) return false;
+        if (filePath.endsWith('/public/data/topics.en.json')) return true;
+        if (filePath.endsWith('/public/data/topics.fr.json')) return true;
+        if (filePath.endsWith('/public/data/topics.de.json')) return false;
         return false;
       });
       (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.endsWith('/content/topics/en/topics.json')) {
+        if (filePath.endsWith('/public/data/topics.en.json')) {
           return JSON.stringify([{ id: 'react', name: 'React', color: 'red' }]);
         }
-        if (filePath.endsWith('/content/topics/fr/topics.json')) {
+        if (filePath.endsWith('/public/data/topics.fr.json')) {
           return JSON.stringify([{ id: 'nestjs', name: 'NestJS', color: 'blue' }]);
         }
         return '';
@@ -646,7 +646,7 @@ Fallback markdown content`;
       const result = await getAllTopicIds();
       expect(result).toEqual([]);
       expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining('Error reading/parsing topics.json'),
+        expect.stringContaining('Error reading/parsing topics index'),
         expect.any(SyntaxError),
       );
     });
@@ -660,10 +660,10 @@ Fallback markdown content`;
 
     it('handles a mix of existing and missing topics.json files for different locales', async () => {
       (fs.existsSync as jest.Mock).mockImplementation((filePath: string) =>
-        filePath.includes('/content/topics/en/topics.json'),
+        filePath.includes('/public/data/topics.en.json'),
       );
       (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
-        if (filePath.endsWith('/content/topics/en/topics.json')) {
+        if (filePath.endsWith('/public/data/topics.en.json')) {
           return JSON.stringify(mockEnglishTopics);
         }
         throw new Error('File not found');

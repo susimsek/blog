@@ -22,7 +22,7 @@ const fileExists = async (filePath: string): Promise<boolean> => {
 // Base directories for post markdown and post index data
 const postsMarkdownDirectory = path.join(process.cwd(), 'content/posts');
 const postsIndexDirectory = path.join(process.cwd(), 'public/data');
-const topicsDirectory = path.join(process.cwd(), 'content/topics');
+const topicsIndexDirectory = path.join(process.cwd(), 'public/data');
 
 export const postsCache = createCacheStore<PostSummary[]>('getSortedPostsData');
 export const postDataCache = createCacheStore<Post | null>('getPostData');
@@ -209,17 +209,17 @@ export async function getTopicData(locale: string, topicId: string): Promise<Top
   return topic;
 }
 
-// Get all unique topics from the posts directory
+// Get all topics from the topics index
 export async function getAllTopics(locale: string): Promise<Topic[]> {
   const cachedData = topicsCache.get(locale);
   if (cachedData) {
     return cachedData;
   }
 
-  const topicsFilePath = path.join(topicsDirectory, locale, 'topics.json');
+  const topicsFilePath = path.join(topicsIndexDirectory, `topics.${locale}.json`);
 
   if (!(await fileExists(topicsFilePath))) {
-    console.error(`Topics file not found for locale "${locale}": ${topicsFilePath}`);
+    console.error(`Topics index not found for locale "${locale}": ${topicsFilePath}`);
     topicsCache.set(locale, []);
     return [];
   }
@@ -232,7 +232,7 @@ export async function getAllTopics(locale: string): Promise<Topic[]> {
 
     return topics;
   } catch (error) {
-    console.error('Error reading or parsing topics.json:', error);
+    console.error('Error reading or parsing topics index:', error);
     topicsCache.set(locale, []);
     return [];
   }
@@ -277,8 +277,8 @@ export async function getAllTopicIds() {
 
   await Promise.all(
     localeList.map(async locale => {
-      const topicsJsonPath = path.join(topicsDirectory, locale, 'topics.json');
-      const ids = await readIdsFromIndexFile(topicsJsonPath, `topics.json for locale "${locale}"`);
+      const topicsJsonPath = path.join(topicsIndexDirectory, `topics.${locale}.json`);
+      const ids = await readIdsFromIndexFile(topicsJsonPath, `topics index for locale "${locale}"`);
       ids.forEach(id => topicIdSet.add(id));
     }),
   );

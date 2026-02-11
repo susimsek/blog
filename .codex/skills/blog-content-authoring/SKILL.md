@@ -5,13 +5,13 @@ description: Create/update Markdown blog posts and topic metadata for this Next.
 
 # Blog Content Authoring (en/tr)
 
-This repo generates content via **static export**. List pages are driven by **JSON index** files, while the post detail page is driven by the **Markdown** file. Therefore, when adding a new post you must update Markdown + post index JSON + thumbnail + (if needed) `topics.json` together.
+This repo generates content via **static export**. List pages are driven by **JSON index** files, while the post detail page is driven by the **Markdown** file. Therefore, when adding a new post you must update Markdown + post index JSON + thumbnail + (if needed) topics index JSON together.
 
 ## File/Folder Map
 
 - Posts (Markdown): `content/posts/<locale>/<slug>.md` (`<locale>`: `en` or `tr`)
 - Post list index: `public/data/posts.<locale>.json`
-- Topic list: `content/topics/<locale>/topics.json`
+- Topic list: `public/data/topics.<locale>.json`
 - Thumbnails: `public/images/*.webp` (referenced as `/images/<file>.webp` in Markdown/JSON)
 
 ## Non-Negotiable Rules (Summary)
@@ -21,7 +21,7 @@ This repo generates content via **static export**. List pages are driven by **JS
 3. **Sorting**: post index JSON should be kept in **date DESC** order (newest first).
 4. **Images**: keep post images under `/images/` and prefer `webp` for consistency/performance.
 5. **Thumbnail**: `1200x630` (OG size), `webp`, under `public/images/` (recommended name: `<slug>-thumbnail.webp`).
-6. **Topic consistency**: topic `id`s must exist in `topics.json` in both locales; `name` is translated per locale; `color` must be one of the allowed values.
+6. **Topic consistency**: topic `id`s must exist in topic index JSON in both locales; `name` is translated per locale; `color` must be one of the allowed values.
 7. **Icon standards**: tab icons use the `[icon=...]` format and must be from the allowed set; step headings must use the standardized emoji + label format (see below).
 
 ## Image Standards
@@ -274,8 +274,8 @@ node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs \
 ### 3) Pick topics / add a new topic if needed
 
 - To see existing topics:
-  - `content/topics/en/topics.json`
-  - `content/topics/tr/topics.json`
+  - `public/data/topics.en.json`
+  - `public/data/topics.tr.json`
 - If you need a new topic, follow “Add a New Topic” below, then use it in the post.
 
 ## Add a New Topic (Step-by-Step)
@@ -283,11 +283,11 @@ node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs \
 When you introduce a new topic (e.g. `redis`, `kafka`), it must be added to **both** locale files and then used consistently.
 
 1. Pick a stable topic `id` (kebab-case), e.g. `spring-ai`
-2. Add it to `content/topics/en/topics.json`:
+2. Add it to `public/data/topics.en.json`:
    - `id`: the same id
    - `name`: English display name (e.g. `Spring AI`)
    - `color`: pick from the allowed set (see checker’s `ALLOWED_TOPIC_COLORS`)
-3. Add it to `content/topics/tr/topics.json`:
+3. Add it to `public/data/topics.tr.json`:
    - `id`: the same id
    - `name`: Turkish display name (e.g. `Spring AI` or a localized equivalent)
    - `color`: **must match** the EN color
@@ -326,7 +326,7 @@ Notes:
 - Keep `title` clean and SEO-friendly:
   - Avoid parentheses in titles (e.g. do **not** use “(Type-Safe Config + Profiles)”)
 - `date` format: `YYYY-MM-DD` (e.g. `2026-02-03`)
-- `topics` entries must be **objects** (`id/name/color`). The `id` must exist in `topics.json`.
+- `topics` entries must be **objects** (`id/name/color`). The `id` must exist in topic index JSON.
 - `readingTime` is computed automatically; you may keep it for consistency, but it is not a reliable source of truth.
 - Content supports GitHub Flavored Markdown (tables/lists/code blocks).
 - If you want tabbed blocks:
@@ -421,8 +421,8 @@ pnpm build
 
 1. Choose a new topic `id` (kebab-case): `spring-ai`
 2. Add it to both locale files:
-   - `content/topics/en/topics.json`
-   - `content/topics/tr/topics.json`
+   - `public/data/topics.en.json`
+   - `public/data/topics.tr.json`
 3. Template:
 
 ```json

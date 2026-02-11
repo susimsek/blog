@@ -1,4 +1,4 @@
 interface:
   display_name: 'Blog Content Authoring'
   short_description: 'Create posts, topics, and thumbnails for this blog'
-  default_prompt: 'Add a new blog post (en/tr) with proper Markdown frontmatter, update posts.json/topics.json, and create a 1200x630 WebP thumbnail.'
+  default_prompt: 'Add a new blog post (en/tr) with proper Markdown frontmatter, update public/data posts/topics index JSON files, and create a 1200x630 WebP thumbnail.'

@@ -3,7 +3,6 @@ import dynamic from 'next/dynamic';
 import { SortDropdown } from '@/components/common/SortDropdown';
 import { TopicsDropdown } from '@/components/common/TopicsDropdown';
 import SearchBar from '@/components/search/SearchBar';
-import { Topic } from '@/types/posts';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { setQuery, setSortOrder, setSelectedTopics, setDateRange, setReadingTimeRange } from '@/reducers/postsQuery';
 import ReadingTimeDropdown from '@/components/common/ReadingTimeDropdown';
@@ -14,13 +13,18 @@ const DateRangePicker = dynamic(() => import('@/components/common/DateRangePicke
 });
 
 export interface PostFiltersProps {
-  topics?: Topic[];
   searchEnabled?: boolean;
 }
 
-export function PostFilters({ topics = [], searchEnabled = true }: Readonly<PostFiltersProps>) {
+export function PostFilters({ searchEnabled = true }: Readonly<PostFiltersProps>) {
   const dispatch = useAppDispatch();
-  const { query, sortOrder, selectedTopics, readingTimeRange } = useAppSelector(state => state.postsQuery);
+  const {
+    query,
+    sortOrder,
+    selectedTopics,
+    readingTimeRange,
+    topics: fetchedTopics,
+  } = useAppSelector(state => state.postsQuery);
 
   return (
     <div className="d-flex flex-wrap align-items-center mb-3">
@@ -30,9 +34,9 @@ export function PostFilters({ topics = [], searchEnabled = true }: Readonly<Post
         </div>
       )}
       <div className="post-filters-row d-flex flex-column flex-md-row align-items-stretch w-100 w-md-auto">
-        {topics.length > 0 && (
+        {fetchedTopics.length > 0 && (
           <TopicsDropdown
-            topics={topics}
+            topics={fetchedTopics}
             selectedTopics={selectedTopics}
             onTopicsChange={topicIds => dispatch(setSelectedTopics(topicIds))}
           />

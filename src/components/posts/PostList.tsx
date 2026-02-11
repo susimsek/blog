@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback, useEffect, useRef } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { PostSummary, Topic } from '@/types/posts';
+import { PostSummary } from '@/types/posts';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
 import { useTranslation } from 'react-i18next';
@@ -13,7 +13,6 @@ import { setPage, setPageSize, setQuery } from '@/reducers/postsQuery';
 
 interface PostListProps {
   posts: PostSummary[];
-  topics?: Topic[];
   noPostsFoundMessage?: string;
   searchEnabled?: boolean;
   highlightQuery?: string;
@@ -21,7 +20,6 @@ interface PostListProps {
 
 export default function PostList({
   posts,
-  topics = [],
   noPostsFoundMessage,
   searchEnabled = true,
   highlightQuery,
@@ -33,10 +31,23 @@ export default function PostList({
   const dispatch = useAppDispatch();
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const lastSyncedRouteRef = useRef<string>('');
-  const { query, sortOrder, selectedTopics, dateRange, readingTimeRange, page, pageSize } = useAppSelector(
-    state => state.postsQuery,
-  );
+  const {
+    query,
+    sortOrder,
+    selectedTopics,
+    dateRange,
+    readingTimeRange,
+    page,
+    pageSize,
+    posts: fetchedPosts,
+  } = useAppSelector(state => state.postsQuery);
   const debouncedSearchQuery = useDebounce(query, 500);
+
+  const scopedPostIds = useMemo(() => new Set(posts.map(post => post.id)), [posts]);
+  const sourcePosts = useMemo(
+    () => fetchedPosts.filter(post => scopedPostIds.has(post.id)),
+    [fetchedPosts, scopedPostIds],
+  );
 
   useEffect(() => {
     const routePageValue = searchParams.get('page');
@@ -62,14 +73,14 @@ export default function PostList({
 
   const filteredPosts = useMemo(
     () =>
-      posts.filter(
+      sourcePosts.filter(
         post =>
           filterByQuery(post, debouncedSearchQuery) &&
           filterByTopics(post, selectedTopics) &&
           filterByDateRange(post, dateRange) &&
           filterByReadingTime(post, readingTimeRange),
       ),
-    [posts, debouncedSearchQuery, selectedTopics, dateRange, readingTimeRange],
+    [sourcePosts, debouncedSearchQuery, selectedTopics, dateRange, readingTimeRange],
   );
 
   const sortedPosts = useMemo(() => sortPosts(filteredPosts, sortOrder), [filteredPosts, sortOrder]);
@@ -123,7 +134,7 @@ export default function PostList({
   return (
     <section className="post-list-section">
       <div ref={listTopRef} />
-      <PostFilters topics={topics} searchEnabled={searchEnabled} />
+      <PostFilters searchEnabled={searchEnabled} />
       {paginatedPosts.length > 0 ? (
         paginatedPosts.map(post => (
           <PostCard key={post.id} post={post} highlightQuery={highlightQuery?.trim() ? highlightQuery : undefined} />

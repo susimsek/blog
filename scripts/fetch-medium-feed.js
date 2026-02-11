@@ -4,7 +4,7 @@ const path = require('node:path');
 const Parser = require('rss-parser');
 
 const FEED_URL = 'https://medium.com/feed/@suaybsimsek58';
-const FEED_PATH = path.join(process.cwd(), 'content', 'medium-feed.json');
+const FEED_PATH = path.join(process.cwd(), 'public', 'data', 'medium-feed.json');
 
 const parser = new Parser({
   customFields: {

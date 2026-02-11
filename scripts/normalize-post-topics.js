@@ -1,6 +1,6 @@
 // scripts/normalize-post-topics.js
 // Normalizes topic objects inside public/data/posts.<locale>.json
-// by using content/topics/<locale>/topics.json as the source of truth.
+// by using public/data/topics.<locale>.json as the source of truth.
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -14,7 +14,7 @@ const writeJson = (filePath, value) => {
 };
 
 const normalizeLocale = locale => {
-  const topicsPath = path.join(process.cwd(), 'content', 'topics', locale, 'topics.json');
+  const topicsPath = path.join(process.cwd(), 'public', 'data', `topics.${locale}.json`);
   const postsPath = path.join(process.cwd(), 'public', 'data', `posts.${locale}.json`);
 
   const topics = readJson(topicsPath);

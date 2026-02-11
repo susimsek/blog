@@ -163,7 +163,7 @@ const slugify = s =>
 const loadTopics = async () => {
   const byLocale = new Map();
   for (const locale of LOCALES) {
-    const topicsPath = path.join(ROOT, 'content', 'topics', locale, 'topics.json');
+    const topicsPath = path.join(ROOT, 'public', 'data', `topics.${locale}.json`);
     const topics = await readJson(topicsPath);
     byLocale.set(locale, new Map(topics.map(t => [t.id, t])));
   }
@@ -220,7 +220,7 @@ const main = async () => {
     notes: [
       'Keep the post title clean (avoid parentheses).',
       'Follow the repo standards: Prerequisites/Steps/Conclusion emojis and a single Conclusion section.',
-      'Add the post to both posts.json files and create a 1200x630 WebP thumbnail under public/images.',
+      'Add the post to both post index files (public/data/posts.en.json and public/data/posts.tr.json) and create a 1200x630 WebP thumbnail under public/images.',
       'Use the Iram theme variants when generating the thumbnail.',
     ],
   };
