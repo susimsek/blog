@@ -87,7 +87,7 @@ export default function TopicPage({
             <Breadcrumb.Item active>{topicBreadcrumbLabel}</Breadcrumb.Item>
           </Breadcrumb>
         </nav>
-        <header className="page-header">
+        <header className="page-header page-header-after-breadcrumb">
           <h1 className="page-header-title fw-bold">{topicTitle}</h1>
           <p className="page-header-subtitle text-muted fs-4">{t('topic.subtitle', { topic: topic.name })}</p>
         </header>
