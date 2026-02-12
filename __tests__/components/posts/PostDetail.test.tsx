@@ -36,7 +36,7 @@ describe('PostDetail Component', () => {
 
   it('renders the post title', () => {
     setup();
-    const titleElement = screen.getByText(mockPost.title);
+    const titleElement = screen.getByRole('heading', { level: 1, name: mockPost.title });
     expect(titleElement).toBeInTheDocument();
     expect(titleElement).toHaveClass('fw-bold');
   });
@@ -47,6 +47,16 @@ describe('PostDetail Component', () => {
       return element?.tagName.toLowerCase() === 'span' && content.includes('December 3, 2024');
     });
     expect(dateElement).toBeInTheDocument();
+  });
+
+  it('renders breadcrumb with blog link and current post title', () => {
+    setup();
+    const blogLink = screen.getByRole('link', { name: 'common.searchSource.blog' });
+    expect(blogLink).toBeInTheDocument();
+    expect(blogLink).toHaveAttribute('href', '/en');
+
+    const activeBreadcrumbItem = screen.getByText(mockPost.title, { selector: '.breadcrumb-item.active' });
+    expect(activeBreadcrumbItem).toHaveAttribute('aria-current', 'page');
   });
 
   it('renders the post content using MarkdownRenderer', () => {

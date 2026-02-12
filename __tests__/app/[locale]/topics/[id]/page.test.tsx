@@ -29,6 +29,7 @@ const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) =
 }));
 const topicPageMock = jest.fn(
   (_props: {
+    locale: string;
     topic: Record<string, unknown>;
     posts: unknown[];
     layoutPosts: unknown[];
@@ -57,6 +58,7 @@ jest.mock('@/lib/posts', () => ({
 jest.mock('@/views/TopicPage', () => ({
   __esModule: true,
   default: (props: {
+    locale: string;
     topic: Record<string, unknown>;
     posts: unknown[];
     layoutPosts: unknown[];
@@ -118,6 +120,7 @@ describe('App Route /[locale]/topics/[id]', () => {
     expect(getTopicDataMock).toHaveBeenCalledWith('tr', 'java');
     expect(getSortedPostsDataMock).toHaveBeenCalledWith('tr');
     expect(topicPageMock).toHaveBeenCalledWith({
+      locale: 'tr',
       topic: { id: 'java', name: 'Java' },
       posts: [{ id: '1', topics: [{ id: 'java' }] }],
       layoutPosts: [{ id: '1' }],

@@ -2,6 +2,7 @@
 import dynamic from 'next/dynamic';
 import { Post } from '@/types/posts';
 import Badge from 'react-bootstrap/Badge';
+import Breadcrumb from 'react-bootstrap/Breadcrumb';
 import { assetPrefix, SITE_URL } from '@/config/constants';
 import DateDisplay from '@/components/common/DateDisplay';
 import Thumbnail from '@/components/common/Thumbnail';
@@ -18,8 +19,6 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'next/navigation';
 import { defaultLocale } from '@/i18n/settings';
 import { buildLocalizedAbsoluteUrl } from '@/lib/metadata';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
 import type { AdjacentPostLink } from '@/lib/postFilters';
 import { formatReadingTime } from '@/lib/readingTime';
 
@@ -169,6 +168,7 @@ export default function PostDetail({
   );
 
   const postUrl = React.useMemo(() => buildLocalizedAbsoluteUrl(locale, `posts/${post.id}`), [locale, post.id]);
+  const blogLabel = t('common.searchSource.blog', { ns: 'common' });
 
   const xShareUrl = React.useMemo(() => {
     const params = new URLSearchParams({
@@ -226,6 +226,14 @@ export default function PostDetail({
       <ReadingProgress />
       <BackToTop />
       <section className={`post-detail-section${hasToc ? ' has-toc' : ''}`}>
+        <nav className="post-detail-breadcrumb is-content-aligned" aria-label="Breadcrumb">
+          <Breadcrumb as="ol" className="mb-0 ms-0 ps-0">
+            <Breadcrumb.Item linkAs={Link} href="/">
+              {blogLabel}
+            </Breadcrumb.Item>
+            <Breadcrumb.Item active>{title}</Breadcrumb.Item>
+          </Breadcrumb>
+        </nav>
         <h1 className="post-detail-title fw-bold display-4 text-center">{title}</h1>
         <p className="post-detail-meta text-center d-flex justify-content-center align-items-center text-muted">
           <span className="d-flex align-items-center me-3">
@@ -249,11 +257,9 @@ export default function PostDetail({
           </div>
         )}
         <nav className="post-share post-detail-share" aria-label={t('post.share.title')}>
-          <OverlayTrigger placement="top" overlay={<Tooltip id="post-share-tooltip">{t('post.share.title')}</Tooltip>}>
-            <span className="post-share-prefix text-muted me-2" aria-hidden="true">
-              <FontAwesomeIcon icon="share-nodes" />
-            </span>
-          </OverlayTrigger>
+          <span className="post-share-prefix text-muted me-2" aria-hidden="true">
+            <FontAwesomeIcon icon="share-nodes" />
+          </span>
           <div className="post-share-actions">
             <a
               href={xShareUrl}

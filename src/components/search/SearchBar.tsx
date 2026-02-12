@@ -5,17 +5,25 @@ import { useTranslation } from 'react-i18next';
 interface SearchBarProps {
   query: string;
   onChange: (query: string) => void;
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
   className?: string;
   inputRef?: React.Ref<HTMLInputElement>;
   showShortcutHint?: boolean;
+  expanded?: boolean;
+  controlsId?: string;
+  activeDescendantId?: string;
 }
 
 export default function SearchBar({
   query,
   onChange,
+  onKeyDown,
   className,
   inputRef,
   showShortcutHint = false,
+  expanded = false,
+  controlsId,
+  activeDescendantId,
 }: Readonly<SearchBarProps>) {
   const { t } = useTranslation('common');
   const shortcutHint = React.useMemo(() => {
@@ -52,6 +60,12 @@ export default function SearchBar({
         placeholder={t('common.searchBar.placeholder')}
         value={query}
         onChange={handleInputChange}
+        onKeyDown={onKeyDown}
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={expanded}
+        aria-controls={controlsId}
+        aria-activedescendant={activeDescendantId}
       />
       {showShortcutHint && !query && (
         <span className="search-shortcut-hint" data-testid="search-shortcut-hint" aria-hidden="true">

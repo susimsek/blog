@@ -6,8 +6,9 @@ import type { LayoutPostSummary, Post, PostSummary, Topic } from '@/types/posts'
 import Layout from '@/components/common/Layout';
 import { AUTHOR_NAME, SITE_LOGO } from '@/config/constants';
 import { resolvePostContent } from '@/lib/contentCompression';
-import { toAbsoluteSiteUrl } from '@/lib/metadata';
+import { buildLocalizedAbsoluteUrl, toAbsoluteSiteUrl } from '@/lib/metadata';
 import type { AdjacentPostLink } from '@/lib/postFilters';
+import { useTranslation } from 'react-i18next';
 
 type PostPageProps = {
   post: Post;
@@ -28,6 +29,7 @@ export default function PostPage({
   preFooterTopTopics = [],
   locale,
 }: Readonly<PostPageProps>) {
+  const { t } = useTranslation('common');
   const postWithContent = React.useMemo(() => {
     const contentHtml = resolvePostContent(post);
     return { ...post, contentHtml };
@@ -35,6 +37,8 @@ export default function PostPage({
 
   const keywords = (post.topics ?? []).map(topic => topic.name).join(', ');
   const siteRootUrl = toAbsoluteSiteUrl('/');
+  const homeUrl = buildLocalizedAbsoluteUrl(locale);
+  const postUrl = buildLocalizedAbsoluteUrl(locale, `posts/${post.id}`);
 
   const logoUrl = toAbsoluteSiteUrl(SITE_LOGO);
 
@@ -81,9 +85,31 @@ export default function PostPage({
     },
   };
 
+  const blogLabel = t('common.searchSource.blog', { ns: 'common' });
+
+  const breadcrumbJsonLdData = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: blogLabel,
+        item: homeUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: post.title,
+        item: postUrl,
+      },
+    ],
+  };
+
   return (
     <Layout posts={layoutPosts} preFooterTopTopics={preFooterTopTopics} searchEnabled={true}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLdData) }} />
       <PostDetail post={postWithContent} relatedPosts={relatedPosts} previousPost={previousPost} nextPost={nextPost} />
     </Layout>
   );

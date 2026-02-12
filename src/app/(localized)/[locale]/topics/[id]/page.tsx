@@ -55,6 +55,7 @@ export default async function TopicRoute({ params }: Readonly<PageProps<'/[local
 
   return (
     <TopicPage
+      locale={locale}
       topic={topic}
       posts={posts}
       layoutPosts={layoutPosts}

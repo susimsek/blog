@@ -4,6 +4,12 @@ import SearchContainer from '@/components/search/SearchContainer';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
 import { setPosts } from '@/reducers/postsQuery';
 
+const routerPushMock = jest.fn();
+
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: routerPushMock }),
+}));
+
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, string>) => (options?.query ? `${key}:${options.query}` : key),
@@ -16,12 +22,21 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 
 jest.mock('@/components/search/SearchBar', () => ({
   __esModule: true,
-  default: ({ query, onChange }: { query: string; onChange: (value: string) => void }) => (
+  default: ({
+    query,
+    onChange,
+    onKeyDown,
+  }: {
+    query: string;
+    onChange: (value: string) => void;
+    onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  }) => (
     <input
       data-testid="search-input"
       value={query}
       placeholder="common.searchBar.placeholder"
       onChange={event => onChange(event.target.value)}
+      onKeyDown={event => onKeyDown?.(event)}
     />
   ),
 }));
@@ -54,6 +69,7 @@ describe('SearchContainer', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    routerPushMock.mockReset();
   });
 
   it('renders filtered search results and limits to 5 items', () => {
@@ -65,7 +81,7 @@ describe('SearchContainer', () => {
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
 
     expect(screen.getAllByTestId('post-item')).toHaveLength(5);
-    expect(screen.getByRole('link', { name: /common.viewAllResults:Post/i })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /common.viewAllResults:Post/i })).toBeInTheDocument();
   });
 
   it('hides results when clicking outside', () => {
@@ -90,7 +106,7 @@ describe('SearchContainer', () => {
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
 
-    const viewAllLink = screen.getByRole('link', { name: /common.viewAllResults:Post/i });
+    const viewAllLink = screen.getByRole('option', { name: /common.viewAllResults:Post/i });
     expect(viewAllLink).toHaveAttribute('href', '/search?q=Post');
 
     fireEvent.click(viewAllLink);
@@ -172,7 +188,7 @@ describe('SearchContainer', () => {
     const orderedItems = screen.getAllByTestId('post-item');
     expect(orderedItems[0]).toHaveTextContent('Blog Java Post');
     expect(orderedItems[1]).toHaveTextContent('Medium Java Post');
-    expect(screen.getByRole('link', { name: /Medium Java Post/i })).toHaveAttribute(
+    expect(screen.getByRole('option', { name: /Medium Java Post/i })).toHaveAttribute(
       'href',
       'https://medium.com/example/java',
     );
@@ -191,6 +207,42 @@ describe('SearchContainer', () => {
     act(() => {
       window.dispatchEvent(new CustomEvent('app:search-close', { detail: { clearQuery: true } }));
     });
+
+    expect(screen.getByTestId('search-input')).toHaveValue('');
+    expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
+  });
+
+  it('supports ArrowDown navigation and Enter selection', () => {
+    const { store } = renderWithProviders(<SearchContainer />);
+    act(() => {
+      store.dispatch(setPosts(posts));
+    });
+
+    const input = screen.getByTestId('search-input');
+    fireEvent.change(input, { target: { value: 'Post' } });
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+
+    const firstResultLink = screen.getByRole('option', { name: /Post 0/i });
+    expect(firstResultLink).toHaveClass('active');
+
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(routerPushMock).toHaveBeenCalledWith('/posts/post-0');
+    expect(screen.getByTestId('search-input')).toHaveValue('');
+    expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
+  });
+
+  it('closes dropdown and clears query on Escape', () => {
+    const { store } = renderWithProviders(<SearchContainer />);
+    act(() => {
+      store.dispatch(setPosts(posts));
+    });
+
+    const input = screen.getByTestId('search-input');
+    fireEvent.change(input, { target: { value: 'Post' } });
+    expect(screen.getAllByTestId('post-item')).toHaveLength(5);
+
+    fireEvent.keyDown(input, { key: 'Escape' });
 
     expect(screen.getByTestId('search-input')).toHaveValue('');
     expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
