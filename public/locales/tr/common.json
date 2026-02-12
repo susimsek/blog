@@ -59,6 +59,11 @@
       "range8to12": "8–12 dk",
       "range15plus": "15+ dk"
     },
+    "sourceFilter": {
+      "all": "Tüm Kaynaklar",
+      "blog": "Blog",
+      "medium": "Medium"
+    },
     "readingTime": {
       "minute": "{{count}} dk okuma",
       "fifteenPlus": "15+ dk okuma"
@@ -116,6 +121,10 @@
       "startDateAfterEndDate": "Başlangıç tarihi, bitiş tarihinden sonra olamaz.",
       "endDateBeforeStartDate": "Bitiş tarihi, başlangıç tarihinden önce olamaz."
     },
-    "viewAllResults": "\"{{query}}\" için tüm sonuçları gör"
+    "viewAllResults": "\"{{query}}\" için tüm sonuçları gör",
+    "searchSource": {
+      "blog": "Blog",
+      "medium": "Medium"
+    }
   }
 }

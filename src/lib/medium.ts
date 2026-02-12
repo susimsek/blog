@@ -182,6 +182,7 @@ export async function fetchRssSummaries(locale: string): Promise<PostSummary[]> 
         thumbnail,
         topics,
         readingTimeMin: calculateReadingTimeMin(content),
+        source: 'medium',
         link: item.link,
       };
     });

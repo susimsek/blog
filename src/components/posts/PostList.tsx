@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   filterByTopics,
+  filterBySource,
   filterByDateRange,
   filterByReadingTime,
   sortPosts,
@@ -20,19 +21,14 @@ import { setPage, setPageSize, setQuery } from '@/reducers/postsQuery';
 interface PostListProps {
   posts: PostSummary[];
   noPostsFoundMessage?: string;
-  searchEnabled?: boolean;
   highlightQuery?: string;
 }
 
-export default function PostList({
-  posts,
-  noPostsFoundMessage,
-  searchEnabled = true,
-  highlightQuery,
-}: Readonly<PostListProps>) {
+export default function PostList({ posts, noPostsFoundMessage, highlightQuery }: Readonly<PostListProps>) {
   const { t } = useTranslation(['post', 'common']);
   const router = useRouter();
   const pathname = usePathname() ?? '/';
+  const isSearchRoute = /(?:^|\/)search(?:\/|$)/.test(pathname);
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const listTopRef = useRef<HTMLDivElement | null>(null);
@@ -41,6 +37,7 @@ export default function PostList({
     query,
     sortOrder,
     selectedTopics,
+    sourceFilter,
     dateRange,
     readingTimeRange,
     page,
@@ -82,10 +79,11 @@ export default function PostList({
       sourcePosts.filter(
         post =>
           filterByTopics(post, selectedTopics) &&
+          filterBySource(post, isSearchRoute ? sourceFilter : 'all') &&
           filterByDateRange(post, dateRange) &&
           filterByReadingTime(post, readingTimeRange),
       ),
-    [sourcePosts, selectedTopics, dateRange, readingTimeRange],
+    [sourcePosts, selectedTopics, sourceFilter, dateRange, readingTimeRange, isSearchRoute],
   );
 
   const sortedPosts = useMemo(() => {
@@ -94,8 +92,28 @@ export default function PostList({
       return sortPosts(filteredPosts, sortOrder);
     }
 
-    return searchPostsByRelevance(filteredPosts, query);
+    const matchedPosts = searchPostsByRelevance(filteredPosts, query);
+    return sortPosts(matchedPosts, sortOrder);
   }, [filteredPosts, debouncedSearchQuery, sortOrder]);
+
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(sortedPosts.length / pageSize)),
+    [sortedPosts.length, pageSize],
+  );
+
+  useEffect(() => {
+    const normalizedPage = Math.min(Math.max(page, 1), totalPages);
+    if (page === normalizedPage) {
+      return;
+    }
+
+    dispatch(setPage(normalizedPage));
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', String(normalizedPage));
+    params.set('size', String(pageSize));
+    const nextQuery = params.toString();
+    router.push(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+  }, [dispatch, page, pageSize, pathname, router, searchParams, totalPages]);
 
   const paginatedPosts = useMemo(
     () => sortedPosts.slice((page - 1) * pageSize, page * pageSize),
@@ -146,10 +164,15 @@ export default function PostList({
   return (
     <section className="post-list-section">
       <div ref={listTopRef} />
-      <PostFilters searchEnabled={searchEnabled} />
+      <PostFilters showSourceFilter={isSearchRoute} />
       {paginatedPosts.length > 0 ? (
         paginatedPosts.map(post => (
-          <PostCard key={post.id} post={post} highlightQuery={highlightQuery?.trim() ? highlightQuery : undefined} />
+          <PostCard
+            key={post.id}
+            post={post}
+            highlightQuery={highlightQuery?.trim() ? highlightQuery : undefined}
+            showSource={isSearchRoute}
+          />
         ))
       ) : (
         <div className="post-card d-flex align-items-center post-list-empty">
@@ -164,7 +187,7 @@ export default function PostList({
       {sortedPosts.length > 0 && (
         <PaginationBar
           currentPage={page}
-          totalPages={Math.ceil(sortedPosts.length / pageSize)}
+          totalPages={totalPages}
           size={pageSize}
           onPageChange={handlePageChange}
           onSizeChange={handleSizeChange}

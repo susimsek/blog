@@ -9,14 +9,20 @@ import { assetPrefix } from '@/config/constants';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { formatReadingTime } from '@/lib/readingTime';
 import { useTranslation } from 'react-i18next';
+import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 interface PostListItemProps {
   post: PostSummary;
 }
 
 export default function PostListItem({ post }: Readonly<PostListItemProps>) {
-  const { title, date, thumbnail, topics, readingTimeMin } = post;
+  const { title, date, thumbnail, topics, readingTimeMin, source } = post;
   const { t } = useTranslation('common');
+  const sourceLabel =
+    source === 'medium'
+      ? t('common.searchSource.medium', { ns: 'common' })
+      : t('common.searchSource.blog', { ns: 'common' });
+  const sourceIcon: IconProp = source === 'medium' ? (['fab', 'medium'] as IconProp) : 'book';
 
   return (
     <Row className="post-list-item">
@@ -37,7 +43,7 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
       {/* Content */}
       <Col xs={7} md={7} className="d-flex flex-column justify-content-between">
         <div>
-          <h6 className="post-title">{title}</h6>
+          <h6 className="post-title mb-1">{title}</h6>
           <p className="post-date text-muted mb-1">
             <span className="text-muted d-block mb-1">
               <FontAwesomeIcon icon="calendar-alt" className="me-2" />
@@ -46,6 +52,10 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
             <span className="text-muted d-block">
               <FontAwesomeIcon icon="clock" className="me-2" />
               {formatReadingTime(readingTimeMin, t)}
+            </span>
+            <span className="text-muted d-block mt-1">
+              <FontAwesomeIcon icon={sourceIcon} className="me-2" />
+              {sourceLabel}
             </span>
           </p>
           {topics && topics.length > 0 && (

@@ -135,6 +135,49 @@ describe('SearchContainer', () => {
     expect(screen.getByText('Java Tips')).toBeInTheDocument();
   });
 
+  it('prioritizes blog results over medium results and keeps medium external links', () => {
+    const { store } = renderWithProviders(<SearchContainer />);
+    act(() => {
+      store.dispatch(
+        setPosts([
+          {
+            id: 'medium-java',
+            title: 'Medium Java Post',
+            summary: 'Medium summary',
+            searchText: 'java medium post',
+            date: '2024-05-01',
+            thumbnail: null,
+            topics: [],
+            readingTimeMin: 1,
+            source: 'medium',
+            link: 'https://medium.com/example/java',
+          },
+          {
+            id: 'blog-java',
+            title: 'Blog Java Post',
+            summary: 'Blog summary',
+            searchText: 'java blog post',
+            date: '2024-05-02',
+            thumbnail: null,
+            topics: [],
+            readingTimeMin: 1,
+            source: 'blog',
+          },
+        ]),
+      );
+    });
+
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'java' } });
+
+    const orderedItems = screen.getAllByTestId('post-item');
+    expect(orderedItems[0]).toHaveTextContent('Blog Java Post');
+    expect(orderedItems[1]).toHaveTextContent('Medium Java Post');
+    expect(screen.getByRole('link', { name: /Medium Java Post/i })).toHaveAttribute(
+      'href',
+      'https://medium.com/example/java',
+    );
+  });
+
   it('closes open results and clears query when app:search-close requests clear', () => {
     const { store } = renderWithProviders(<SearchContainer />);
     act(() => {

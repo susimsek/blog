@@ -19,7 +19,10 @@ export default function SearchContainer() {
 
   const searchResults = useMemo(() => {
     if (normalizedQuery.length >= 2 && posts.length > 0) {
-      return searchPostsByRelevance(posts, normalizedQuery, 5);
+      const rankedPosts = searchPostsByRelevance(posts, normalizedQuery);
+      const blogPosts = rankedPosts.filter(post => (post.source ?? 'blog') === 'blog');
+      const mediumPosts = rankedPosts.filter(post => (post.source ?? 'blog') === 'medium');
+      return [...blogPosts, ...mediumPosts].slice(0, 5);
     }
     return [];
   }, [posts, normalizedQuery]);
@@ -97,8 +100,8 @@ export default function SearchContainer() {
                 <ListGroup.Item
                   as={Link}
                   action
-                  key={result.id}
-                  href={`/posts/${result.id}`}
+                  key={`${result.source ?? 'blog'}:${result.id}`}
+                  href={result.link ?? `/posts/${result.id}`}
                   className="p-3"
                   onClick={handlePostResultClick}
                 >

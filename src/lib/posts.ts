@@ -91,6 +91,10 @@ export async function getSortedPostsData(locale: string, topicId?: string): Prom
     const fileContents = await fsPromises.readFile(postsJsonPath, 'utf8');
     const allPosts = JSON.parse(fileContents) as PostSummary[];
     const filteredPosts = allPosts
+      .map(post => ({
+        ...post,
+        source: post.source === 'medium' ? ('medium' as const) : ('blog' as const),
+      }))
       .filter(post => !topicId || (Array.isArray(post.topics) && post.topics.some((t: Topic) => t.id === topicId)))
       .filter(
         post =>
@@ -135,6 +139,7 @@ export async function getPostData(id: string, locale: string): Promise<Post | nu
 
   const post: Post = {
     ...data,
+    source: 'blog',
     readingTimeMin,
     searchText: buildPostSearchText({
       title: data.title,

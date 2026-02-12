@@ -1,6 +1,7 @@
 import {
   filterByQuery,
   filterByTopics,
+  filterBySource,
   filterByDateRange,
   filterByReadingTime,
   getQueryRelevanceScore,
@@ -81,6 +82,25 @@ describe('Post Filters', () => {
     it('returns true if the post has no topics and no topics are selected', () => {
       const postWithoutTopics = { ...mockPost, topics: undefined };
       expect(filterByTopics(postWithoutTopics, [])).toBe(true);
+    });
+  });
+
+  describe('filterBySource', () => {
+    it('returns true for all sources when filter is all', () => {
+      expect(filterBySource({ ...mockPost, source: 'blog' }, 'all')).toBe(true);
+      expect(filterBySource({ ...mockPost, source: 'medium' }, 'all')).toBe(true);
+    });
+
+    it('matches by explicit source', () => {
+      expect(filterBySource({ ...mockPost, source: 'blog' }, 'blog')).toBe(true);
+      expect(filterBySource({ ...mockPost, source: 'medium' }, 'blog')).toBe(false);
+      expect(filterBySource({ ...mockPost, source: 'medium' }, 'medium')).toBe(true);
+    });
+
+    it('treats missing source as blog', () => {
+      const { source: _source, ...withoutSource } = mockPost as PostSummary & { source?: 'blog' | 'medium' };
+      expect(filterBySource(withoutSource as PostSummary, 'blog')).toBe(true);
+      expect(filterBySource(withoutSource as PostSummary, 'medium')).toBe(false);
     });
   });
 

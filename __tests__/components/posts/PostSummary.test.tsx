@@ -114,4 +114,12 @@ describe('PostSummary Component', () => {
     const titleLink = screen.getByText(post.title).closest('a');
     expect(titleLink).toHaveAttribute('href', 'https://example.com/post');
   });
+
+  it('shows source badge when enabled', () => {
+    render(<PostSummary post={{ ...mockPost, source: 'medium' }} showSource />);
+
+    expect(screen.getByText('common.searchSource.medium')).toBeInTheDocument();
+    expect(screen.getByTestId('icon-fab-medium')).toBeInTheDocument();
+    expect(screen.queryByTestId('icon-link')).not.toBeInTheDocument();
+  });
 });

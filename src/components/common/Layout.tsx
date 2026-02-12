@@ -9,7 +9,7 @@ import useMediaQuery from '@/hooks/useMediaQuery';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { GA_ID, TOPIC_COLORS } from '@/config/constants';
 import { useAppDispatch, useAppSelector } from '@/config/store';
-import { useParams, usePathname } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { defaultLocale } from '@/i18n/settings';
 import { setPosts, setLocale, setTopics } from '@/reducers/postsQuery';
 import PreFooter from '@/components/common/PreFooter';
@@ -30,7 +30,7 @@ type LayoutProps = {
 
 const normalizeSearchPost = (
   post: Pick<PostSummary, 'id' | 'title' | 'date' | 'summary' | 'searchText' | 'readingTimeMin' | 'thumbnail'> &
-    Partial<Pick<PostSummary, 'topics' | 'link'>>,
+    Partial<Pick<PostSummary, 'topics' | 'link' | 'source'>>,
 ): PostSummary => {
   return {
     id: post.id,
@@ -41,6 +41,7 @@ const normalizeSearchPost = (
     thumbnail: post.thumbnail,
     topics: post.topics,
     readingTimeMin: post.readingTimeMin,
+    source: post.source === 'medium' ? 'medium' : 'blog',
     ...(typeof post.link === 'string' ? { link: post.link } : {}),
   };
 };
@@ -62,7 +63,8 @@ const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
       candidate.readingTimeMin <= 0 ||
       typeof candidate.searchText !== 'string' ||
       (candidate.thumbnail !== null && typeof candidate.thumbnail !== 'string') ||
-      (candidate.topics !== undefined && !Array.isArray(candidate.topics))
+      (candidate.topics !== undefined && !Array.isArray(candidate.topics)) ||
+      (candidate.source !== undefined && candidate.source !== 'blog' && candidate.source !== 'medium')
     ) {
       return [];
     }
@@ -78,6 +80,7 @@ const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
         topics: candidate.topics,
         readingTimeMin: candidate.readingTimeMin,
         searchText: candidate.searchText,
+        source: candidate.source === 'medium' ? 'medium' : 'blog',
         ...(typeof candidate.link === 'string' ? { link: candidate.link } : {}),
       }),
     ];
@@ -285,6 +288,7 @@ const normalizeMediumFeedPosts = (payload: unknown): PostSummary[] => {
           link: `https://medium.com/tag/${category}`,
         })),
         readingTimeMin: calculateMediumReadingTimeMin(content),
+        source: 'medium',
         ...(typeof candidate.link === 'string' ? { link: candidate.link } : {}),
       },
     ];
@@ -294,10 +298,8 @@ const normalizeMediumFeedPosts = (payload: unknown): PostSummary[] => {
 const LayoutStateInitializer: React.FC = () => {
   const dispatch = useAppDispatch();
   const params = useParams<{ locale?: string | string[] }>();
-  const pathname = usePathname() ?? '';
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
   const currentLocale = routeLocale ?? defaultLocale;
-  const isMediumRoute = /(?:^|\/)medium(?:\/|$)/.test(pathname);
 
   useEffect(() => {
     dispatch(setLocale(currentLocale));
@@ -308,24 +310,27 @@ const LayoutStateInitializer: React.FC = () => {
 
     const loadPublicPosts = async () => {
       try {
-        const response = await fetch(
-          withBasePath(isMediumRoute ? '/data/medium-feed.json' : `/data/posts.${currentLocale}.json`),
-          {
+        const [blogResponse, mediumResponse] = await Promise.all([
+          fetch(withBasePath(`/data/posts.${currentLocale}.json`), {
             signal: controller.signal,
-          },
-        );
-        if (!response.ok) {
-          dispatch(setPosts([]));
-          return;
+          }),
+          fetch(withBasePath('/data/medium-feed.json'), {
+            signal: controller.signal,
+          }),
+        ]);
+
+        const blogPayload = blogResponse.ok ? ((await blogResponse.json()) as unknown) : [];
+        const mediumPayload = mediumResponse.ok ? ((await mediumResponse.json()) as unknown) : null;
+
+        const normalizedBlogPosts = Array.isArray(blogPayload) ? normalizeSearchPosts(blogPayload) : [];
+        const normalizedMediumPosts = normalizeMediumFeedPosts(mediumPayload);
+
+        const deduped = new Map<string, PostSummary>();
+        for (const post of [...normalizedBlogPosts, ...normalizedMediumPosts]) {
+          deduped.set(`${post.source ?? 'blog'}:${post.id}`, post);
         }
 
-        const payload = (await response.json()) as unknown;
-        const normalized = isMediumRoute
-          ? normalizeMediumFeedPosts(payload)
-          : Array.isArray(payload)
-            ? normalizeSearchPosts(payload)
-            : [];
-        dispatch(setPosts(normalized));
+        dispatch(setPosts([...deduped.values()]));
       } catch (error) {
         if ((error as { name?: string })?.name === 'AbortError') {
           return;
@@ -365,7 +370,7 @@ const LayoutStateInitializer: React.FC = () => {
     return () => {
       controller.abort();
     };
-  }, [currentLocale, dispatch, isMediumRoute]);
+  }, [currentLocale, dispatch]);
 
   return null;
 };

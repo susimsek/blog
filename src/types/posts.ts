@@ -5,6 +5,8 @@ export type Topic = {
   link?: string;
 };
 
+export type PostSource = 'blog' | 'medium';
+
 export type PostSummary = {
   id: string;
   title: string;
@@ -14,6 +16,7 @@ export type PostSummary = {
   thumbnail: string | null;
   topics?: Topic[];
   readingTimeMin: number;
+  source?: PostSource;
   link?: string;
 };
 

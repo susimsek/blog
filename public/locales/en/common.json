@@ -59,6 +59,11 @@
       "range8to12": "8–12 min",
       "range15plus": "15+ min"
     },
+    "sourceFilter": {
+      "all": "All Sources",
+      "blog": "Blog",
+      "medium": "Medium"
+    },
     "readingTime": {
       "minute": "{{count}} min read",
       "fifteenPlus": "15+ min read"
@@ -116,6 +121,10 @@
       "startDateAfterEndDate": "Start date cannot be after end date.",
       "endDateBeforeStartDate": "End date cannot be before start date."
     },
-    "viewAllResults": "See all results for \"{{query}}\""
+    "viewAllResults": "See all results for \"{{query}}\"",
+    "searchSource": {
+      "blog": "Blog",
+      "medium": "Medium"
+    }
   }
 }

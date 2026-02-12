@@ -8,6 +8,7 @@ import postsQueryReducer, {
   setQuery,
   setReadingTimeRange,
   setSelectedTopics,
+  setSourceFilter,
   setSortOrder,
 } from '@/reducers/postsQuery';
 import type { PostSummary } from '@/types/posts';
@@ -32,6 +33,7 @@ describe('postsQuery reducer', () => {
     expect(state.page).toBe(1);
     expect(state.pageSize).toBe(5);
     expect(state.selectedTopics).toEqual([]);
+    expect(state.sourceFilter).toBe('all');
     expect(state.dateRange).toEqual({});
     expect(state.readingTimeRange).toBe('any');
     expect(state.locale).toBeNull();
@@ -61,6 +63,10 @@ describe('postsQuery reducer', () => {
     expect(state.selectedTopics).toEqual(['react', 'nextjs']);
     expect(state.page).toBe(1);
 
+    state = postsQueryReducer(state, setSourceFilter('medium'));
+    expect(state.sourceFilter).toBe('medium');
+    expect(state.page).toBe(1);
+
     state = postsQueryReducer(state, setDateRange({ startDate: '2026-01-01', endDate: '2026-01-31' }));
     expect(state.dateRange).toEqual({ startDate: '2026-01-01', endDate: '2026-01-31' });
     expect(state.page).toBe(1);
@@ -75,6 +81,7 @@ describe('postsQuery reducer', () => {
     state = postsQueryReducer(state, resetFilters());
     expect(state.query).toBe('');
     expect(state.selectedTopics).toEqual([]);
+    expect(state.sourceFilter).toBe('all');
     expect(state.dateRange).toEqual({});
     expect(state.readingTimeRange).toBe('any');
     expect(state.page).toBe(1);

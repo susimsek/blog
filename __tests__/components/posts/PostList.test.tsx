@@ -24,13 +24,6 @@ jest.mock('next/navigation', () => ({
   useParams: () => ({ locale: 'en' }),
 }));
 
-jest.mock('@/components/search/SearchBar', () => ({
-  __esModule: true,
-  default: ({ query, onChange }: { query: string; onChange: (query: string) => void }) => (
-    <input placeholder="search" value={query} onChange={e => onChange(e.target.value)} data-testid="search-bar" />
-  ),
-}));
-
 jest.mock('@/components/pagination/PaginationBar', () => ({
   __esModule: true,
   default: ({
@@ -76,6 +69,17 @@ jest.mock('@/components/common/SortDropdown', () => ({
     <div data-testid="sort-dropdown">
       <button onClick={() => onChange('asc')}>Sort Ascending</button>
       <button onClick={() => onChange('desc')}>Sort Descending</button>
+    </div>
+  ),
+}));
+
+jest.mock('@/components/common/SourceDropdown', () => ({
+  __esModule: true,
+  default: ({ onChange }: { onChange: (source: string) => void }) => (
+    <div data-testid="source-dropdown">
+      <button onClick={() => onChange('all')}>Source All</button>
+      <button onClick={() => onChange('blog')}>Source Blog</button>
+      <button onClick={() => onChange('medium')}>Source Medium</button>
     </div>
   ),
 }));
@@ -126,6 +130,7 @@ describe('PostList Component', () => {
     page: 1,
     pageSize: 5,
     selectedTopics: [],
+    sourceFilter: 'all',
     dateRange: {},
     readingTimeRange: 'any',
     locale: 'en',
@@ -158,9 +163,9 @@ describe('PostList Component', () => {
   it('renders all components correctly', () => {
     renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
 
-    expect(screen.getByTestId('search-bar')).toBeInTheDocument();
     expect(screen.getByTestId('sort-dropdown')).toBeInTheDocument();
     expect(screen.getByTestId('topics-dropdown')).toBeInTheDocument();
+    expect(screen.queryByTestId('source-dropdown')).not.toBeInTheDocument();
     expect(screen.getAllByTestId('post-card')).toHaveLength(5);
     expect(screen.getByTestId('pagination-bar')).toBeInTheDocument();
   });
@@ -173,12 +178,11 @@ describe('PostList Component', () => {
     expect(screen.queryByTestId('topics-dropdown')).not.toBeInTheDocument();
   });
 
-  it('filters posts based on search query', () => {
+  it('filters posts based on route query', () => {
+    currentSearchParams = new URLSearchParams('q=Post 3');
     renderWithProviders(<PostList posts={mockPostSummaries} />, {
       preloadedState: buildPreloadedState({ topics: [] }),
     });
-    const searchBar = screen.getByTestId('search-bar');
-    fireEvent.change(searchBar, { target: { value: 'Post 3' } });
 
     expect(screen.getByText('Post 3')).toBeInTheDocument();
   });
@@ -190,6 +194,38 @@ describe('PostList Component', () => {
 
     expect(screen.getByText('Post 1')).toBeInTheDocument();
     expect(screen.queryByText('Post 2')).not.toBeInTheDocument();
+  });
+
+  it('filters posts by source filter', () => {
+    usePathnameMock.mockReturnValue('/search');
+    const mixedPosts = [
+      { ...mockPostSummaries[0], id: 'blog-1', title: 'Blog Post', source: 'blog' as const },
+      { ...mockPostSummaries[1], id: 'medium-1', title: 'Medium Post', source: 'medium' as const },
+    ];
+
+    renderWithProviders(<PostList posts={mixedPosts} />, {
+      preloadedState: buildPreloadedState({ topics: [], posts: mixedPosts, sourceFilter: 'all' }),
+    });
+
+    fireEvent.click(screen.getByText('Source Medium'));
+
+    expect(screen.queryByText('Blog Post')).not.toBeInTheDocument();
+    expect(screen.getByText('Medium Post')).toBeInTheDocument();
+  });
+
+  it('ignores source filter on non-search routes', () => {
+    const mixedPosts = [
+      { ...mockPostSummaries[0], id: 'blog-1', title: 'Blog Post', source: 'blog' as const },
+      { ...mockPostSummaries[1], id: 'medium-1', title: 'Medium Post', source: 'medium' as const },
+    ];
+
+    renderWithProviders(<PostList posts={mixedPosts} />, {
+      preloadedState: buildPreloadedState({ topics: [], posts: mixedPosts, sourceFilter: 'medium' }),
+    });
+
+    expect(screen.queryByTestId('source-dropdown')).not.toBeInTheDocument();
+    expect(screen.getByText('Blog Post')).toBeInTheDocument();
+    expect(screen.getByText('Medium Post')).toBeInTheDocument();
   });
 
   it('sorts posts in ascending order', () => {
@@ -204,12 +240,10 @@ describe('PostList Component', () => {
     expect(posts[4]).toHaveTextContent('Post 2');
   });
 
-  it('returns all posts when search query is empty', () => {
+  it('returns all posts when route query is empty', () => {
     renderWithProviders(<PostList posts={mockPostSummaries} />, {
       preloadedState: buildPreloadedState({ topics: [] }),
     });
-    const searchBar = screen.getByTestId('search-bar');
-    fireEvent.change(searchBar, { target: { value: '' } });
 
     expect(screen.getAllByTestId('post-card')).toHaveLength(5);
   });
@@ -246,5 +280,34 @@ describe('PostList Component', () => {
     fireEvent.click(screen.getByLabelText('Next'));
 
     expect(scrollIntoViewMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('applies sort order even when search query exists', () => {
+    currentSearchParams = new URLSearchParams('q=post&page=1&size=5');
+
+    renderWithProviders(<PostList posts={mockPostSummaries} />, {
+      preloadedState: buildPreloadedState({ topics: [] }),
+    });
+
+    fireEvent.click(screen.getByText('Sort Ascending'));
+
+    const posts = screen.getAllByTestId('post-card');
+    expect(posts[0]).toHaveTextContent('Post 6');
+    expect(posts[4]).toHaveTextContent('Post 2');
+  });
+
+  it('normalizes out-of-range route page and updates url', async () => {
+    currentSearchParams = new URLSearchParams('q=post&page=3&size=5');
+
+    renderWithProviders(<PostList posts={mockPostSummaries} />, {
+      preloadedState: buildPreloadedState({ topics: [] }),
+    });
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith('/?q=post&page=2&size=5', { scroll: false });
+    });
+
+    expect(screen.getAllByTestId('post-card')).toHaveLength(1);
+    expect(screen.getByText('Post 6')).toBeInTheDocument();
   });
 });

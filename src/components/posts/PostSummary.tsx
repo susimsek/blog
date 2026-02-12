@@ -7,10 +7,12 @@ import { assetPrefix } from '@/config/constants';
 import Thumbnail from '@/components/common/Thumbnail';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { formatReadingTime } from '@/lib/readingTime';
+import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 interface PostSummaryProps {
   post: Post;
   highlightQuery?: string;
+  showSource?: boolean;
 }
 
 const escapeRegExp = (value: string) => value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
@@ -42,9 +44,14 @@ const highlight = (text: string, query: string): React.ReactNode => {
   });
 };
 
-export default function PostSummary({ post, highlightQuery }: Readonly<PostSummaryProps>) {
-  const { id, title, date, summary, thumbnail, topics, readingTimeMin, link } = post;
+export default function PostSummary({ post, highlightQuery, showSource = false }: Readonly<PostSummaryProps>) {
+  const { id, title, date, summary, thumbnail, topics, readingTimeMin, source, link } = post;
   const { t } = useTranslation(['post', 'common']);
+  const sourceLabel =
+    source === 'medium'
+      ? t('common.searchSource.medium', { ns: 'common' })
+      : t('common.searchSource.blog', { ns: 'common' });
+  const sourceIcon: IconProp = source === 'medium' ? (['fab', 'medium'] as IconProp) : 'book';
 
   const postLink = link ?? `/posts/${id}`;
   const resolveThumbnailSrc = (value: string) => {
@@ -87,6 +94,12 @@ export default function PostSummary({ post, highlightQuery }: Readonly<PostSumma
             <FontAwesomeIcon icon="clock" className="me-2" />
             {formatReadingTime(readingTimeMin, t)}
           </span>
+          {showSource && (
+            <span className="text-muted d-flex align-items-center">
+              <FontAwesomeIcon icon={sourceIcon} className="me-2" />
+              {sourceLabel}
+            </span>
+          )}
         </p>
         {topics && topics.length > 0 && (
           <div className="post-summary-topics">

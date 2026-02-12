@@ -111,6 +111,10 @@ interface Resources {
         clear: 'Clear search';
         placeholder: 'Search';
       };
+      searchSource: {
+        blog: 'Blog';
+        medium: 'Medium';
+      };
       selectAll: 'Select All';
       selected: 'Selected';
       sidebar: {
@@ -121,6 +125,11 @@ interface Resources {
       sort: {
         newest: 'Newest First';
         oldest: 'Oldest First';
+      };
+      sourceFilter: {
+        all: 'All Sources';
+        blog: 'Blog';
+        medium: 'Medium';
       };
       theme: 'Theme';
       validation: {

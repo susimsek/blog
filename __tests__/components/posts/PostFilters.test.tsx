@@ -1,6 +1,5 @@
 import React from 'react';
 import { screen, fireEvent } from '@testing-library/react';
-import type { PostFiltersProps } from '@/components/posts/PostFilters';
 import type { PostsQueryState } from '@/reducers/postsQuery';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
 import { registerDynamicMock, registerDynamicMockSequence } from '@tests/utils/dynamicMockRegistry';
@@ -11,20 +10,6 @@ jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),
-}));
-
-jest.mock('@/components/search/SearchBar', () => ({
-  __esModule: true,
-  default: jest.fn(({ query, onChange }) => (
-    <input
-      data-testid="search-bar"
-      placeholder="Search..."
-      value={query}
-      onChange={e => {
-        onChange(e.target.value);
-      }}
-    />
-  )),
 }));
 
 jest.mock('@/components/common/TopicsDropdown', () => ({
@@ -66,14 +51,23 @@ jest.mock('@/components/common/SortDropdown', () => ({
   )),
 }));
 
+jest.mock('@/components/common/SourceDropdown', () => ({
+  __esModule: true,
+  default: jest.fn(({ onChange }) => (
+    <button onClick={() => onChange('medium')} data-testid="source-dropdown">
+      Source
+    </button>
+  )),
+}));
+
 describe('PostFilters Component', () => {
-  const defaultProps: PostFiltersProps = {};
   const basePostsQueryState: PostsQueryState = {
     query: '',
     sortOrder: 'desc',
     page: 1,
     pageSize: 5,
     selectedTopics: [],
+    sourceFilter: 'all',
     dateRange: {},
     readingTimeRange: 'any',
     locale: 'en',
@@ -104,25 +98,16 @@ describe('PostFilters Component', () => {
   });
 
   test('renders all mocked components', async () => {
-    renderWithProviders(<PostFilters {...defaultProps} />, { preloadedState: buildPreloadedState() });
+    renderWithProviders(<PostFilters showSourceFilter />, { preloadedState: buildPreloadedState() });
 
-    expect(screen.getByTestId('search-bar')).toBeInTheDocument();
     expect(screen.getByTestId('topics-dropdown')).toBeInTheDocument();
+    expect(screen.getByTestId('source-dropdown')).toBeInTheDocument();
     expect(await screen.findByTestId('date-picker')).toBeInTheDocument();
     expect(screen.getByTestId('sort-dropdown')).toBeInTheDocument();
   });
 
-  test('calls onSearchChange when search input changes', () => {
-    const { store } = renderWithProviders(<PostFilters {...defaultProps} />, { preloadedState: buildPreloadedState() });
-
-    const searchInput = screen.getByTestId('search-bar');
-    fireEvent.change(searchInput, { target: { value: 'Test query' } });
-
-    expect(store.getState().postsQuery.query).toBe('Test query');
-  });
-
   test('calls onTopicsChange when a topic is clicked', () => {
-    const { store } = renderWithProviders(<PostFilters {...defaultProps} />, { preloadedState: buildPreloadedState() });
+    const { store } = renderWithProviders(<PostFilters showSourceFilter />, { preloadedState: buildPreloadedState() });
 
     const topicButton = screen.getByText('Topic 1');
     fireEvent.click(topicButton);
@@ -131,7 +116,7 @@ describe('PostFilters Component', () => {
   });
 
   test('calls onDateRangeChange when date range button is clicked', async () => {
-    const { store } = renderWithProviders(<PostFilters {...defaultProps} />, { preloadedState: buildPreloadedState() });
+    const { store } = renderWithProviders(<PostFilters showSourceFilter />, { preloadedState: buildPreloadedState() });
 
     const datePickerButton = await screen.findByTestId('date-picker');
     fireEvent.click(datePickerButton);
@@ -139,8 +124,16 @@ describe('PostFilters Component', () => {
     expect(store.getState().postsQuery.dateRange).toEqual({ startDate: '2024-01-01', endDate: '2024-01-31' });
   });
 
+  test('calls onSourceFilterChange when source filter button is clicked', () => {
+    const { store } = renderWithProviders(<PostFilters showSourceFilter />, { preloadedState: buildPreloadedState() });
+
+    fireEvent.click(screen.getByTestId('source-dropdown'));
+
+    expect(store.getState().postsQuery.sourceFilter).toBe('medium');
+  });
+
   test('calls onSortChange when sort dropdown button is clicked', () => {
-    const { store } = renderWithProviders(<PostFilters {...defaultProps} />, { preloadedState: buildPreloadedState() });
+    const { store } = renderWithProviders(<PostFilters showSourceFilter />, { preloadedState: buildPreloadedState() });
 
     const sortButton = screen.getByTestId('sort-dropdown');
     fireEvent.click(sortButton);
@@ -149,8 +142,14 @@ describe('PostFilters Component', () => {
   });
 
   test('does not render TopicsDropdown when topics are empty', () => {
-    renderWithProviders(<PostFilters />, { preloadedState: buildPreloadedState({ topics: [] }) });
+    renderWithProviders(<PostFilters showSourceFilter />, { preloadedState: buildPreloadedState({ topics: [] }) });
 
     expect(screen.queryByTestId('topics-dropdown')).not.toBeInTheDocument();
+  });
+
+  test('does not render SourceDropdown when source filter is disabled', () => {
+    renderWithProviders(<PostFilters showSourceFilter={false} />, { preloadedState: buildPreloadedState() });
+
+    expect(screen.queryByTestId('source-dropdown')).not.toBeInTheDocument();
   });
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import PostToc from '@/components/posts/PostToc';
 
 jest.mock('react-i18next', () => ({
@@ -106,5 +106,58 @@ describe('PostToc', () => {
     render(<PostToc content="content" rootRef={{ current: root }} />);
 
     expect(screen.getAllByRole('link')).toHaveLength(5);
+  });
+
+  it('updates toc when headings are added after initial mount', async () => {
+    const originalMutationObserver = globalThis.MutationObserver;
+    let mutationCallback: MutationCallback | null = null;
+
+    class MockMutationObserver {
+      constructor(callback: MutationCallback) {
+        mutationCallback = callback;
+      }
+      observe() {}
+      disconnect() {}
+      takeRecords() {
+        return [];
+      }
+    }
+
+    Object.defineProperty(globalThis, 'MutationObserver', {
+      configurable: true,
+      writable: true,
+      value: MockMutationObserver,
+    });
+
+    const root = createRoot([]);
+    try {
+      render(<PostToc content="content" rootRef={{ current: root }} />);
+
+      expect(screen.queryByText('post.tocTitle')).not.toBeInTheDocument();
+
+      await act(async () => {
+        const first = document.createElement('h2');
+        first.textContent = 'First section';
+        root.appendChild(first);
+
+        const second = document.createElement('h2');
+        second.textContent = 'Second section';
+        root.appendChild(second);
+
+        mutationCallback?.([], {} as MutationObserver);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('post.tocTitle')).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'First section' })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'Second section' })).toBeInTheDocument();
+      });
+    } finally {
+      Object.defineProperty(globalThis, 'MutationObserver', {
+        configurable: true,
+        writable: true,
+        value: originalMutationObserver,
+      });
+    }
   });
 });

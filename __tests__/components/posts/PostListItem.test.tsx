@@ -18,7 +18,9 @@ jest.mock('react-i18next', () => ({
 }));
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
-  FontAwesomeIcon: ({ icon }: { icon: string }) => <span data-testid={`icon-${icon}`} />,
+  FontAwesomeIcon: ({ icon }: { icon: string | [string, string] }) => (
+    <span data-testid={`icon-${Array.isArray(icon) ? icon.join('-') : icon}`} />
+  ),
 }));
 
 jest.mock('@/components/common/DateDisplay', () => ({
@@ -50,6 +52,8 @@ describe('PostListItem', () => {
     expect(screen.getByText('2 min read')).toBeInTheDocument();
     expect(screen.getByText('JavaScript')).toBeInTheDocument();
     expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.getByText('common.searchSource.blog')).toBeInTheDocument();
+    expect(screen.getByTestId('icon-book')).toBeInTheDocument();
   });
 
   it('omits thumbnail section when thumbnail is missing', () => {
@@ -57,5 +61,12 @@ describe('PostListItem', () => {
 
     expect(screen.queryByTestId('thumbnail')).not.toBeInTheDocument();
     expect(screen.getByText('Sample Post')).toBeInTheDocument();
+  });
+
+  it('shows medium source badge when source is medium', () => {
+    render(<PostListItem post={{ ...basePost, source: 'medium' }} />);
+
+    expect(screen.getByText('common.searchSource.medium')).toBeInTheDocument();
+    expect(screen.getByTestId('icon-fab-medium')).toBeInTheDocument();
   });
 });

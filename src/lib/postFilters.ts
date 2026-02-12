@@ -2,6 +2,7 @@ import { PostSummary } from '@/types/posts';
 import { normalizeSearchText } from '@/lib/searchText';
 import Fuse from 'fuse.js';
 import type { IFuseOptions, FuseResult } from 'fuse.js';
+import type { SourceFilter } from '@/reducers/postsQuery';
 
 export type AdjacentPostLink = Pick<PostSummary, 'id' | 'title'>;
 
@@ -28,6 +29,7 @@ const getPostFuse = (posts: PostSummary[]): Fuse<PostSummary> => {
 };
 
 const normalizeFuseScore = (score: number): number => Math.round((1 - score) * 1000);
+const getSourceRank = (post: PostSummary): number => ((post.source ?? 'blog') === 'blog' ? 0 : 1);
 
 const searchWithFuse = (posts: PostSummary[], query: string, limit?: number): FuseResult<PostSummary>[] => {
   const normalizedQuery = normalizeSearchText(query);
@@ -42,6 +44,12 @@ const searchWithFuse = (posts: PostSummary[], query: string, limit?: number): Fu
   const rawResults = fuse.search(normalizedQuery, searchOptions);
 
   return rawResults.sort((left, right) => {
+    const leftSourceRank = getSourceRank(left.item);
+    const rightSourceRank = getSourceRank(right.item);
+    if (leftSourceRank !== rightSourceRank) {
+      return leftSourceRank - rightSourceRank;
+    }
+
     const leftScore = left.score ?? 1;
     const rightScore = right.score ?? 1;
     if (leftScore !== rightScore) {
@@ -88,6 +96,15 @@ export const filterByQuery = (post: PostSummary, query: string) => {
  */
 export const filterByTopics = (post: PostSummary, selectedTopics: string[]) =>
   selectedTopics.length === 0 || post.topics?.some(topic => selectedTopics.includes(topic.id));
+
+export const filterBySource = (post: PostSummary, sourceFilter: SourceFilter) => {
+  if (sourceFilter === 'all') {
+    return true;
+  }
+
+  const source = post.source ?? 'blog';
+  return source === sourceFilter;
+};
 
 /**
  * Filters posts by date range.

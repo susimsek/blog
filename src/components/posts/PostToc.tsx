@@ -7,6 +7,20 @@ type TocItem = {
   text: string;
 };
 
+const areTocItemsEqual = (left: TocItem[], right: TocItem[]) => {
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index]?.id !== right[index]?.id || left[index]?.text !== right[index]?.text) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 const slugify = (value: string) => {
   const normalized = value
     .trim()
@@ -46,31 +60,61 @@ export default function PostToc({ content, rootRef }: Readonly<PostTocProps>) {
 
   React.useEffect(() => {
     const root = rootRef.current;
-    if (!root) return;
-
-    const headings = Array.from(root.querySelectorAll<HTMLElement>('h2')).filter(
-      heading => !heading.closest('.post-toc'),
-    );
-    if (headings.length === 0) {
+    if (!root) {
       setItems([]);
+      setActiveId(null);
       return;
     }
 
-    const slug = createSlugger();
-    const tocItems: TocItem[] = [];
+    const updateTocItems = () => {
+      const headings = Array.from(root.querySelectorAll<HTMLElement>('h2')).filter(
+        heading => !heading.closest('.post-toc'),
+      );
 
-    for (const heading of headings) {
-      const text = (heading.textContent ?? '').trim();
-      if (!text) continue;
-
-      if (!heading.id) {
-        heading.id = slug(text);
+      if (headings.length === 0) {
+        setItems(previous => (previous.length === 0 ? previous : []));
+        setActiveId(null);
+        return;
       }
 
-      tocItems.push({ id: heading.id, text });
+      const slug = createSlugger();
+      const tocItems: TocItem[] = [];
+
+      for (const heading of headings) {
+        const text = (heading.textContent ?? '').trim();
+        if (!text) continue;
+
+        if (!heading.id) {
+          heading.id = slug(text);
+        }
+
+        tocItems.push({ id: heading.id, text });
+      }
+
+      setItems(previous => (areTocItemsEqual(previous, tocItems) ? previous : tocItems));
+      setActiveId(previous => {
+        if (tocItems.length === 0) {
+          return null;
+        }
+        if (previous && tocItems.some(item => item.id === previous)) {
+          return previous;
+        }
+        return tocItems[0]?.id ?? null;
+      });
+    };
+
+    updateTocItems();
+
+    if (!('MutationObserver' in globalThis)) {
+      return;
     }
-    setItems(tocItems);
-    setActiveId(tocItems[0]?.id ?? null);
+
+    const observer = new MutationObserver(updateTocItems);
+    observer.observe(root, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+    };
   }, [content, rootRef]);
 
   React.useEffect(() => {
