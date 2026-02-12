@@ -273,7 +273,6 @@ const normalizeMediumFeedPosts = (payload: unknown): PostSummary[] => {
             : new Date().toISOString(),
         summary,
         searchText: buildPostSearchText({
-          id: typeof candidate.guid === 'string' && candidate.guid.length > 0 ? candidate.guid : `rss-${index}`,
           title: typeof candidate.title === 'string' && candidate.title.length > 0 ? candidate.title : 'Untitled',
           summary,
           topics: categories.map(category => ({ id: category, name: category, color: getColorForTopic(category) })),

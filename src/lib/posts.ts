@@ -137,7 +137,6 @@ export async function getPostData(id: string, locale: string): Promise<Post | nu
     ...data,
     readingTimeMin,
     searchText: buildPostSearchText({
-      id: data.id,
       title: data.title,
       summary: data.summary,
       topics: data.topics,

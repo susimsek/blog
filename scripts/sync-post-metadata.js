@@ -46,12 +46,12 @@ const buildPostSearchText = post => {
   const topics = Array.isArray(post.topics)
     ? post.topics.flatMap(topic =>
         topic && typeof topic === 'object'
-          ? [topic.id, topic.name].filter(value => typeof value === 'string' && value.length > 0)
+          ? [topic.name].filter(value => typeof value === 'string' && value.length > 0)
           : [],
       )
     : [];
 
-  const parts = [post.id, post.title, post.summary, ...topics];
+  const parts = [post.title, post.summary, ...topics];
   return normalizeSearchText(parts.join(' '));
 };
 

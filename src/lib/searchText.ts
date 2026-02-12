@@ -23,12 +23,12 @@ const flattenTopicText = (topics: Topic[] | undefined): string[] => {
       return [];
     }
 
-    return [topic.id, topic.name].filter((value): value is string => typeof value === 'string' && value.length > 0);
+    return [topic.name].filter((value): value is string => typeof value === 'string' && value.length > 0);
   });
 };
 
-export const buildPostSearchText = (post: Pick<PostSummary, 'id' | 'title' | 'summary' | 'topics'>): string => {
-  const parts = [post.id, post.title, post.summary, ...flattenTopicText(post.topics)];
+export const buildPostSearchText = (post: Pick<PostSummary, 'title' | 'summary' | 'topics'>): string => {
+  const parts = [post.title, post.summary, ...flattenTopicText(post.topics)];
   return normalizeSearchText(parts.join(' '));
 };
 

@@ -178,7 +178,7 @@ export async function fetchRssSummaries(locale: string): Promise<PostSummary[]> 
         title,
         date: item.pubDate ?? new Date().toISOString(),
         summary,
-        searchText: buildPostSearchText({ id, title, summary, topics }),
+        searchText: buildPostSearchText({ title, summary, topics }),
         thumbnail,
         topics,
         readingTimeMin: calculateReadingTimeMin(content),
