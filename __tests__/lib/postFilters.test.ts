@@ -3,8 +3,10 @@ import {
   filterByTopics,
   filterByDateRange,
   filterByReadingTime,
+  getQueryRelevanceScore,
   getAdjacentPosts,
   getRelatedPosts,
+  searchPostsByRelevance,
   sortPosts,
 } from '@/lib/postFilters';
 import { PostSummary } from '@/types/posts';
@@ -154,6 +156,44 @@ describe('Post Filters', () => {
         'asc',
       );
       expect(sorted.map(post => post.id)).toEqual(['a', 'b']);
+    });
+  });
+
+  describe('searchPostsByRelevance', () => {
+    const relevancePosts: PostSummary[] = [
+      {
+        ...mockPost,
+        id: 'exact',
+        date: '2024-03-01',
+        searchText: 'spring boot graphql jwe authentication',
+      },
+      {
+        ...mockPost,
+        id: 'partial',
+        date: '2024-03-02',
+        searchText: 'spring security boot graphql',
+      },
+      {
+        ...mockPost,
+        id: 'typo',
+        date: '2024-03-03',
+        searchText: 'sprng but grapql auth',
+      },
+    ];
+
+    it('scores exact matches higher than partial/fuzzy matches', () => {
+      const exactScore = getQueryRelevanceScore(relevancePosts[0], 'spring boot graphql');
+      const partialScore = getQueryRelevanceScore(relevancePosts[1], 'spring boot graphql');
+      const fuzzyScore = getQueryRelevanceScore(relevancePosts[2], 'spring boot graphql');
+
+      expect(exactScore).toBeGreaterThan(partialScore);
+      expect(partialScore).toBeGreaterThanOrEqual(fuzzyScore);
+      expect(fuzzyScore).toBeGreaterThan(0);
+    });
+
+    it('returns posts sorted by relevance score and supports limit', () => {
+      const result = searchPostsByRelevance(relevancePosts, 'spring boot graphql', 2);
+      expect(result.map(post => post.id)).toEqual(['exact', 'partial']);
     });
   });
 

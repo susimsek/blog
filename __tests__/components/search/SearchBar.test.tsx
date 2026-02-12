@@ -33,6 +33,13 @@ describe('SearchBar Component', () => {
     // Check if FontAwesome search icon is rendered
     const iconElement = screen.getByTestId('icon-search');
     expect(iconElement).toBeInTheDocument();
+    expect(screen.queryByTestId('search-shortcut-hint')).not.toBeInTheDocument();
+  });
+
+  it('shows shortcut hint only when enabled', () => {
+    render(<SearchBar query="" onChange={mockOnChange} showShortcutHint />);
+
+    expect(screen.getByTestId('search-shortcut-hint')).toBeInTheDocument();
   });
 
   it('displays the provided query value', () => {
@@ -58,6 +65,7 @@ describe('SearchBar Component', () => {
 
     const clearIcon = screen.getByTestId('icon-times-circle');
     expect(clearIcon).toBeInTheDocument();
+    expect(screen.queryByTestId('search-shortcut-hint')).not.toBeInTheDocument();
   });
 
   it('does not show the clear icon when query is empty', () => {

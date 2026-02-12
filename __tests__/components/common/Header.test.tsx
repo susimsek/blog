@@ -144,4 +144,41 @@ describe('Header', () => {
     fireEvent.click(closeSearchBtn);
     expect(screen.getByRole('button', { name: 'common.header.actions.showSearch' })).toBeInTheDocument();
   });
+
+  it('opens and focuses search with Ctrl/Cmd+K on tablet', () => {
+    (useMediaQuery as jest.Mock).mockReturnValue(true);
+    const rafSpy = jest.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => {
+      callback(0);
+      return 1;
+    });
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent');
+
+    render(<Header searchEnabled />);
+    fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+
+    expect(screen.getByLabelText('common.header.actions.hideSearch')).toBeInTheDocument();
+    expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'app:search-focus' }));
+
+    dispatchSpy.mockRestore();
+    rafSpy.mockRestore();
+  });
+
+  it('closes tablet search with Escape and dispatches close event', () => {
+    (useMediaQuery as jest.Mock).mockReturnValue(true);
+    const dispatchSpy = jest.spyOn(window, 'dispatchEvent');
+
+    render(<Header searchEnabled />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'common.header.actions.showSearch' }));
+    expect(screen.getByLabelText('common.header.actions.hideSearch')).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+
+    expect(screen.getByRole('button', { name: 'common.header.actions.showSearch' })).toBeInTheDocument();
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'app:search-close', detail: { clearQuery: true } }),
+    );
+
+    dispatchSpy.mockRestore();
+  });
 });

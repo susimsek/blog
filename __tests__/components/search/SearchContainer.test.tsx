@@ -14,8 +14,6 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <span data-testid={`icon-${icon}`} />,
 }));
 
-jest.mock('@/hooks/useDebounce', () => jest.fn((value: string) => value));
-
 jest.mock('@/components/search/SearchBar', () => ({
   __esModule: true,
   default: ({ query, onChange }: { query: string; onChange: (value: string) => void }) => (
@@ -97,6 +95,61 @@ describe('SearchContainer', () => {
 
     fireEvent.click(viewAllLink);
 
+    expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
+  });
+
+  it('does not show results panel for single-character query', () => {
+    const { store } = renderWithProviders(<SearchContainer />);
+    act(() => {
+      store.dispatch(setPosts(posts));
+    });
+
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'j' } });
+
+    expect(screen.queryByText('common.noResults')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
+  });
+
+  it('does not show temporary no-results flash when typing second character', () => {
+    const { store } = renderWithProviders(<SearchContainer />);
+    act(() => {
+      store.dispatch(
+        setPosts([
+          {
+            id: 'java-post',
+            title: 'Java Tips',
+            summary: 'Useful Java tips',
+            searchText: 'java tips useful java tips',
+            date: '2024-05-01',
+            thumbnail: null,
+            topics: [],
+            readingTimeMin: 1,
+          },
+        ]),
+      );
+    });
+
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'ja' } });
+
+    expect(screen.queryByText('common.noResults')).not.toBeInTheDocument();
+    expect(screen.getByText('Java Tips')).toBeInTheDocument();
+  });
+
+  it('closes open results and clears query when app:search-close requests clear', () => {
+    const { store } = renderWithProviders(<SearchContainer />);
+    act(() => {
+      store.dispatch(setPosts(posts));
+    });
+
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
+    expect(screen.getByTestId('search-input')).toHaveValue('Post');
+    expect(screen.getAllByTestId('post-item')).toHaveLength(5);
+
+    act(() => {
+      window.dispatchEvent(new CustomEvent('app:search-close', { detail: { clearQuery: true } }));
+    });
+
+    expect(screen.getByTestId('search-input')).toHaveValue('');
     expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
   });
 });

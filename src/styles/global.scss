@@ -1611,6 +1611,26 @@ $state-variants: (
       color: var(--link-hover-color);
     }
   }
+
+  .search-shortcut-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-right: 0.5rem;
+    color: var(--muted-text-color);
+    user-select: none;
+
+    kbd {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.1rem 0.45rem;
+      font-size: 0.72rem;
+      line-height: 1;
+      color: inherit;
+      background: transparent;
+      box-shadow: none;
+    }
+  }
 }
 
 .dropdown-menu {

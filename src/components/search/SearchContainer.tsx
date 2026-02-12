@@ -3,33 +3,29 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import SearchBar from '@/components/search/SearchBar';
 import PostListItem from '@/components/posts/PostListItem';
 import Link from '@/components/common/Link';
-import { filterByQuery } from '@/lib/postFilters';
+import { searchPostsByRelevance } from '@/lib/postFilters';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import useDebounce from '@/hooks/useDebounce';
-import { useAppDispatch, useAppSelector } from '@/config/store';
-import { setQuery } from '@/reducers/postsQuery';
+import { useAppSelector } from '@/config/store';
 
 export default function SearchContainer() {
   const { t } = useTranslation('common');
-  const dispatch = useAppDispatch();
   const posts = useAppSelector(state => state.postsQuery.posts);
-  const searchQuery = useAppSelector(state => state.postsQuery.query);
+  const [searchQuery, setSearchQuery] = useState('');
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
-
-  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const normalizedQuery = searchQuery.trim();
 
   const searchResults = useMemo(() => {
-    const query = debouncedSearchQuery.trim() || searchQuery.trim();
-    if (query && posts.length > 0) {
-      return posts.filter(post => filterByQuery(post, query)).slice(0, 5);
+    if (normalizedQuery.length >= 2 && posts.length > 0) {
+      return searchPostsByRelevance(posts, normalizedQuery, 5);
     }
     return [];
-  }, [posts, debouncedSearchQuery, searchQuery]);
+  }, [posts, normalizedQuery]);
 
   const handleSearch = (query: string) => {
-    dispatch(setQuery(query));
+    setSearchQuery(query);
     setShowResults(query.trim().length > 0);
   };
 
@@ -45,7 +41,7 @@ export default function SearchContainer() {
 
   const handlePostResultClick = () => {
     setShowResults(false);
-    dispatch(setQuery(''));
+    setSearchQuery('');
   };
 
   useEffect(() => {
@@ -59,10 +55,41 @@ export default function SearchContainer() {
     };
   }, [showResults, handleClickOutside]);
 
+  useEffect(() => {
+    const handleSearchFocus = () => {
+      searchInputRef.current?.focus();
+      if (searchQuery.trim().length > 0) {
+        setShowResults(true);
+      }
+    };
+
+    const handleSearchClose = (event: Event) => {
+      const shouldClearQuery =
+        event instanceof CustomEvent &&
+        typeof event.detail === 'object' &&
+        event.detail !== null &&
+        'clearQuery' in event.detail &&
+        event.detail.clearQuery === true;
+
+      setShowResults(false);
+      searchInputRef.current?.blur();
+      if (shouldClearQuery) {
+        setSearchQuery('');
+      }
+    };
+
+    window.addEventListener('app:search-focus', handleSearchFocus as EventListener);
+    window.addEventListener('app:search-close', handleSearchClose as EventListener);
+    return () => {
+      window.removeEventListener('app:search-focus', handleSearchFocus as EventListener);
+      window.removeEventListener('app:search-close', handleSearchClose as EventListener);
+    };
+  }, [searchQuery]);
+
   return (
     <div ref={searchRef} className="search-container ms-auto mt-3 mt-lg-0">
-      <SearchBar query={searchQuery} onChange={handleSearch} />
-      {showResults && searchQuery && (
+      <SearchBar query={searchQuery} onChange={handleSearch} inputRef={searchInputRef} showShortcutHint />
+      {showResults && normalizedQuery.length >= 2 && (
         <ListGroup className="ms-auto w-100 search-results">
           {searchResults.length > 0 ? (
             <>
@@ -82,11 +109,11 @@ export default function SearchContainer() {
                 as={Link}
                 action
                 className="py-3 d-flex align-items-center"
-                href={`/search?q=${encodeURIComponent(searchQuery)}`}
+                href={`/search?q=${encodeURIComponent(normalizedQuery)}`}
                 onClick={handleViewAllResults}
               >
                 <FontAwesomeIcon icon="search" className="me-2" />
-                {t('common.viewAllResults', { query: searchQuery })}
+                {t('common.viewAllResults', { query: normalizedQuery })}
               </ListGroup.Item>
             </>
           ) : (

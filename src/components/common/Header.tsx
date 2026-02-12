@@ -33,6 +33,48 @@ export default function Header({
     setSearchVisible(prev => !prev);
   };
 
+  React.useEffect(() => {
+    if (!searchEnabled) {
+      return;
+    }
+
+    const focusSearchInput = () => {
+      window.dispatchEvent(new Event('app:search-focus'));
+    };
+
+    const handleShortcut = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (isTablet && searchVisible) {
+          setSearchVisible(false);
+        }
+        window.dispatchEvent(new CustomEvent('app:search-close', { detail: { clearQuery: true } }));
+        return;
+      }
+
+      const isK = event.key.toLowerCase() === 'k';
+      if (!isK || (!event.metaKey && !event.ctrlKey)) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (isTablet && !searchVisible) {
+        setSearchVisible(true);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(focusSearchInput);
+        });
+        return;
+      }
+
+      focusSearchInput();
+    };
+
+    window.addEventListener('keydown', handleShortcut);
+    return () => {
+      window.removeEventListener('keydown', handleShortcut);
+    };
+  }, [searchEnabled, isTablet, searchVisible]);
+
   const renderSearchSection = () => (
     <div className="d-flex w-100 align-items-center">
       <button

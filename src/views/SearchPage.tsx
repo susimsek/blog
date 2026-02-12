@@ -34,7 +34,6 @@ export default function SearchPage({ topics }: Readonly<SearchPageProps>) {
         <PostList
           posts={fetchedPosts}
           searchEnabled={false}
-          highlightQuery={query}
           noPostsFoundMessage={t('search.no_results', { query: query || '' })}
         />
       </div>

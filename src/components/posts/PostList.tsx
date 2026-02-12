@@ -5,7 +5,13 @@ import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { filterByQuery, filterByTopics, filterByDateRange, filterByReadingTime, sortPosts } from '@/lib/postFilters';
+import {
+  filterByTopics,
+  filterByDateRange,
+  filterByReadingTime,
+  sortPosts,
+  searchPostsByRelevance,
+} from '@/lib/postFilters';
 import { PostFilters } from './PostFilters';
 import useDebounce from '@/hooks/useDebounce';
 import { useAppDispatch, useAppSelector } from '@/config/store';
@@ -75,15 +81,21 @@ export default function PostList({
     () =>
       sourcePosts.filter(
         post =>
-          filterByQuery(post, debouncedSearchQuery) &&
           filterByTopics(post, selectedTopics) &&
           filterByDateRange(post, dateRange) &&
           filterByReadingTime(post, readingTimeRange),
       ),
-    [sourcePosts, debouncedSearchQuery, selectedTopics, dateRange, readingTimeRange],
+    [sourcePosts, selectedTopics, dateRange, readingTimeRange],
   );
 
-  const sortedPosts = useMemo(() => sortPosts(filteredPosts, sortOrder), [filteredPosts, sortOrder]);
+  const sortedPosts = useMemo(() => {
+    const query = debouncedSearchQuery.trim();
+    if (!query) {
+      return sortPosts(filteredPosts, sortOrder);
+    }
+
+    return searchPostsByRelevance(filteredPosts, query);
+  }, [filteredPosts, debouncedSearchQuery, sortOrder]);
 
   const paginatedPosts = useMemo(
     () => sortedPosts.slice((page - 1) * pageSize, page * pageSize),

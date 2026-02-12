@@ -1,18 +1,86 @@
 import { PostSummary } from '@/types/posts';
 import { normalizeSearchText } from '@/lib/searchText';
+import Fuse from 'fuse.js';
+import type { IFuseOptions, FuseResult } from 'fuse.js';
 
 export type AdjacentPostLink = Pick<PostSummary, 'id' | 'title'>;
+
+const FUSE_OPTIONS: IFuseOptions<PostSummary> = {
+  includeScore: true,
+  ignoreLocation: true,
+  threshold: 0.34,
+  minMatchCharLength: 2,
+  shouldSort: false,
+  keys: ['searchText'],
+};
+
+const postFuseCache = new WeakMap<ReadonlyArray<PostSummary>, Fuse<PostSummary>>();
+
+const getPostFuse = (posts: PostSummary[]): Fuse<PostSummary> => {
+  const cached = postFuseCache.get(posts);
+  if (cached) {
+    return cached;
+  }
+
+  const created = new Fuse(posts, FUSE_OPTIONS);
+  postFuseCache.set(posts, created);
+  return created;
+};
+
+const normalizeFuseScore = (score: number): number => Math.round((1 - score) * 1000);
+
+const searchWithFuse = (posts: PostSummary[], query: string, limit?: number): FuseResult<PostSummary>[] => {
+  const normalizedQuery = normalizeSearchText(query);
+  if (!normalizedQuery) {
+    return [];
+  }
+
+  const fuse = getPostFuse(posts);
+  const searchOptions =
+    typeof limit === 'number' && Number.isFinite(limit) ? { limit: Math.max(0, Math.floor(limit)) } : undefined;
+
+  const rawResults = fuse.search(normalizedQuery, searchOptions);
+
+  return rawResults.sort((left, right) => {
+    const leftScore = left.score ?? 1;
+    const rightScore = right.score ?? 1;
+    if (leftScore !== rightScore) {
+      return leftScore - rightScore;
+    }
+    return new Date(right.item.date).getTime() - new Date(left.item.date).getTime();
+  });
+};
+
+export const getQueryRelevanceScore = (post: PostSummary, query: string): number => {
+  const results = searchWithFuse([post], query, 1);
+  if (results.length === 0) {
+    return 0;
+  }
+
+  return normalizeFuseScore(results[0].score ?? 1);
+};
+
+export const searchPostsByRelevance = (
+  posts: PostSummary[],
+  query: string,
+  limit: number = Number.POSITIVE_INFINITY,
+): PostSummary[] => {
+  if (!normalizeSearchText(query)) {
+    return posts;
+  }
+
+  return searchWithFuse(posts, query, limit).map(result => result.item);
+};
 
 /**
  * Filters posts by query.
  */
 export const filterByQuery = (post: PostSummary, query: string) => {
-  const normalizedQuery = normalizeSearchText(query);
-  if (!normalizedQuery) {
+  if (!normalizeSearchText(query)) {
     return true;
   }
 
-  return post.searchText.includes(normalizedQuery);
+  return getQueryRelevanceScore(post, query) > 0;
 };
 
 /**
