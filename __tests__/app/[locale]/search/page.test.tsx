@@ -14,12 +14,8 @@ const loadLocaleResourcesMock = jest.fn(async (_locale: string, _ns: string[]) =
   search: { search: { title: 'Search' } },
 }));
 
-const getSortedPostsDataMock = jest.fn(async (_locale: string) => [{ id: 'post-1' }]);
 const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
-const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'topic-1' }]);
-const searchPageMock = jest.fn((_props: { allPosts: unknown[]; topics: unknown[]; preFooterTopTopics: unknown[] }) => (
-  <div data-testid="search-page">search-page</div>
-));
+const searchPageMock = jest.fn((_props: { topics: unknown[] }) => <div data-testid="search-page">search-page</div>);
 
 jest.mock('@/i18n/server', () => ({
   getServerTranslator: (locale: string, ns: string[]) => getServerTranslatorMock(locale, ns),
@@ -32,14 +28,12 @@ jest.mock('@/i18n/RouteI18nProvider', () => ({
 }));
 
 jest.mock('@/lib/posts', () => ({
-  getSortedPostsData: (locale: string) => getSortedPostsDataMock(locale),
   getAllTopics: (locale: string) => getAllTopicsMock(locale),
-  getTopTopicsFromPosts: (posts: unknown[], topics: unknown[]) => getTopTopicsFromPostsMock(posts, topics),
 }));
 
 jest.mock('@/views/SearchPage', () => ({
   __esModule: true,
-  default: (props: { allPosts: unknown[]; topics: unknown[]; preFooterTopTopics: unknown[] }) => searchPageMock(props),
+  default: (props: { topics: unknown[] }) => searchPageMock(props),
 }));
 
 describe('App Route /[locale]/search', () => {
@@ -71,13 +65,10 @@ describe('App Route /[locale]/search', () => {
     });
     render(element);
 
-    expect(getSortedPostsDataMock).toHaveBeenCalledWith('tr');
     expect(getAllTopicsMock).toHaveBeenCalledWith('tr');
     expect(loadLocaleResourcesMock).toHaveBeenCalledWith('tr', ['search']);
     expect(searchPageMock).toHaveBeenCalledWith({
-      allPosts: [{ id: 'post-1' }],
       topics: [{ id: 'topic-1' }],
-      preFooterTopTopics: [{ id: 'topic-1' }],
     });
     expect(screen.getByTestId('search-page')).toBeInTheDocument();
   });
