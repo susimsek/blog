@@ -50,7 +50,7 @@ describe('SearchContainer', () => {
     date: '2024-05-01',
     thumbnail: null,
     topics: [],
-    readingTime: '1 min',
+    readingTimeMin: 1,
   }));
 
   beforeEach(() => {

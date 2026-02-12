@@ -16,7 +16,7 @@ const getPostDataMock = jest.fn<
     summary: string;
     topics: never[];
     date: string;
-    readingTime: string;
+    readingTimeMin: number;
     thumbnail: string | null;
   } | null>,
   [string, string]
@@ -26,7 +26,7 @@ const getPostDataMock = jest.fn<
   summary: 'Post Summary',
   topics: [],
   date: '2024-01-01',
-  readingTime: '3 min read',
+  readingTimeMin: 3,
   thumbnail: null,
 }));
 const getSortedPostsDataMock = jest.fn(async (_locale: string) => [{ id: '1' }, { id: '2' }]);
@@ -92,7 +92,7 @@ describe('App Route /[locale]/posts/[id]', () => {
       summary: 'Post Summary',
       topics: [],
       date: '2024-01-01',
-      readingTime: '3 min read',
+      readingTimeMin: 3,
       thumbnail: null,
     });
   });
@@ -154,7 +154,7 @@ describe('App Route /[locale]/posts/[id]', () => {
         summary: 'Post Summary',
         topics: [],
         date: '2024-01-01',
-        readingTime: '3 min read',
+        readingTimeMin: 3,
         thumbnail: null,
       },
       relatedPosts: [{ id: '2' }],

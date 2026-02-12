@@ -11,13 +11,14 @@ import Col from 'react-bootstrap/Col';
 import Badge from 'react-bootstrap/Badge';
 import Image from 'next/image';
 import { assetPrefix } from '@/config/constants';
+import { formatReadingTime } from '@/lib/readingTime';
 
 interface RelatedPostsProps {
   posts: PostSummary[];
 }
 
 export default function RelatedPosts({ posts }: Readonly<RelatedPostsProps>) {
-  const { t } = useTranslation('post');
+  const { t } = useTranslation(['post', 'common']);
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
   const currentLocale = routeLocale || i18nextConfig.i18n.defaultLocale;
@@ -78,7 +79,7 @@ export default function RelatedPosts({ posts }: Readonly<RelatedPostsProps>) {
                     </span>
                     <span className="d-flex align-items-center">
                       <FontAwesomeIcon icon="clock" className="me-2" />
-                      {post.readingTime}
+                      {formatReadingTime(post.readingTimeMin, t)}
                     </span>
                   </div>
 

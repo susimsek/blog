@@ -1,5 +1,5 @@
 // scripts/sync-reading-time.js
-// Syncs readingTime in public/data/posts.<locale>.json
+// Syncs readingTimeMin in public/data/posts.<locale>.json
 // by computing from content/posts/<locale>/<id>.md (fallback: default locale markdown).
 
 const fs = require('node:fs');
@@ -25,24 +25,11 @@ const getWordsFromMarkdown = markdown => {
   return matches ?? [];
 };
 
-const formatReadingTime = (minutes, locale, minMinutes = 3) => {
-  const safeMinutes = Math.max(minMinutes, Math.ceil(minutes));
-
-  if (safeMinutes >= 15) {
-    return locale === 'tr' ? '15+ dk okuma' : '15+ min read';
-  }
-
-  if (locale === 'tr') {
-    return `${safeMinutes} dk okuma`;
-  }
-  return `${safeMinutes} min read`;
-};
-
-const calculateReadingTime = (markdown, locale) => {
+const calculateReadingTimeMin = markdown => {
   const words = getWordsFromMarkdown(markdown);
   const wordsPerMinute = 250;
   const minutes = words.length / wordsPerMinute;
-  return formatReadingTime(minutes, locale, 3);
+  return Math.max(3, Math.ceil(minutes));
 };
 
 const readMarkdownContent = (id, locale) => {
@@ -87,15 +74,19 @@ const syncLocale = locale => {
     }
 
     const markdown = readMarkdownContent(post.id, locale) ?? `${post.title ?? ''} ${post.summary ?? ''}`.trim();
-    const readingTime = calculateReadingTime(markdown, locale);
+    const readingTimeMin = calculateReadingTimeMin(markdown);
+    const nextReadingTimeMin = Number.isFinite(readingTimeMin) && readingTimeMin > 0 ? readingTimeMin : 3;
 
-    if (post.readingTime !== readingTime) {
+    if (post.readingTimeMin !== nextReadingTimeMin || Object.prototype.hasOwnProperty.call(post, 'readingTime')) {
       changed += 1;
     }
 
+    const { readingTime, ...rest } = post;
+    void readingTime;
+
     return {
-      ...post,
-      readingTime,
+      ...rest,
+      readingTimeMin: nextReadingTimeMin,
     };
   });
 

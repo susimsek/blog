@@ -7,7 +7,15 @@ const useParamsMock = jest.fn();
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string, options?: { count?: number; ns?: string }) => {
+      if (key === 'common.readingTime.minute' && options?.ns === 'common') {
+        return `${options?.count ?? 0} dk okuma`;
+      }
+      if (key === 'common.readingTime.fifteenPlus' && options?.ns === 'common') {
+        return '15+ dk okuma';
+      }
+      return key;
+    },
   }),
 }));
 
@@ -49,7 +57,7 @@ const basePost: PostSummary = {
   title: 'First related post',
   summary: 'Summary 1',
   date: '2026-01-01',
-  readingTime: '4 min read',
+  readingTimeMin: 4,
   thumbnail: '/images/post-1.webp',
   topics: [
     { id: 'react', name: 'React', color: 'red' },
@@ -78,7 +86,7 @@ describe('RelatedPosts', () => {
     );
     expect(screen.getByText('React')).toBeInTheDocument();
     expect(screen.getByText('Testing')).toBeInTheDocument();
-    expect(screen.getByText('4 min read')).toBeInTheDocument();
+    expect(screen.getByText('4 dk okuma')).toBeInTheDocument();
     expect(screen.getByText('2026-01-01')).toBeInTheDocument();
   });
 

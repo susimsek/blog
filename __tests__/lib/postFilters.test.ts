@@ -15,7 +15,7 @@ const mockPost: PostSummary = {
   summary: 'This is a summary of the test post.',
   date: '2024-01-15',
   thumbnail: null,
-  readingTime: '3 min read',
+  readingTimeMin: 3,
   topics: [
     { id: 'topic1', name: 'Topic 1', color: 'red' },
     { id: 'topic2', name: 'Topic 2', color: 'blue' },
@@ -92,25 +92,25 @@ describe('Post Filters', () => {
 
   describe('filterByReadingTime', () => {
     it('returns true for "any"', () => {
-      expect(filterByReadingTime({ ...mockPost, readingTime: '1 min read' }, 'any')).toBe(true);
+      expect(filterByReadingTime({ ...mockPost, readingTimeMin: 1 }, 'any')).toBe(true);
     });
 
     it('handles 15+ range with capped and numeric values', () => {
-      expect(filterByReadingTime({ ...mockPost, readingTime: '15+ min read' }, '15+')).toBe(true);
-      expect(filterByReadingTime({ ...mockPost, readingTime: '16 min read' }, '15+')).toBe(true);
+      expect(filterByReadingTime({ ...mockPost, readingTimeMin: 15 }, '15+')).toBe(true);
+      expect(filterByReadingTime({ ...mockPost, readingTimeMin: 16 }, '15+')).toBe(true);
     });
 
     it('handles bounded ranges', () => {
-      expect(filterByReadingTime({ ...mockPost, readingTime: '5 min read' }, '3-7')).toBe(true);
-      expect(filterByReadingTime({ ...mockPost, readingTime: '8 min read' }, '3-7')).toBe(false);
-      expect(filterByReadingTime({ ...mockPost, readingTime: '10 min read' }, '8-12')).toBe(true);
-      expect(filterByReadingTime({ ...mockPost, readingTime: '13 min read' }, '8-12')).toBe(false);
+      expect(filterByReadingTime({ ...mockPost, readingTimeMin: 5 }, '3-7')).toBe(true);
+      expect(filterByReadingTime({ ...mockPost, readingTimeMin: 8 }, '3-7')).toBe(false);
+      expect(filterByReadingTime({ ...mockPost, readingTimeMin: 10 }, '8-12')).toBe(true);
+      expect(filterByReadingTime({ ...mockPost, readingTimeMin: 13 }, '8-12')).toBe(false);
     });
 
-    it('falls back to true when parsing fails', () => {
-      expect(filterByReadingTime({ ...mockPost, readingTime: '' }, '3-7')).toBe(true);
-      expect(filterByReadingTime({ ...mockPost, readingTime: 'no-time' }, '3-7')).toBe(true);
-      expect(filterByReadingTime({ ...mockPost, readingTime: '0 min read' }, '3-7')).toBe(true);
+    it('falls back to true when reading time minutes are invalid', () => {
+      expect(filterByReadingTime({ ...mockPost, readingTimeMin: Number.NaN }, '3-7')).toBe(true);
+      expect(filterByReadingTime({ ...mockPost, readingTimeMin: -1 }, '3-7')).toBe(true);
+      expect(filterByReadingTime({ ...mockPost, readingTimeMin: 0 }, '3-7')).toBe(true);
     });
   });
 

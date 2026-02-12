@@ -97,6 +97,10 @@ interface Resources {
         title: 'Footer navigation';
         topTopicsTitle: 'Top topics';
       };
+      readingTime: {
+        fifteenPlus: '15+ min read';
+        minute: '{{count}} min read';
+      };
       readingTimeFilter: {
         any: 'All Reading Times';
         range15plus: '15+ min';

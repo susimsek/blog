@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+
 export const getWordsFromMarkdown = (markdown: string): string[] => {
   const withoutCodeBlocks = markdown
     .replaceAll(/```[\s\S]*?```/g, ' ')
@@ -12,21 +14,37 @@ export const getWordsFromMarkdown = (markdown: string): string[] => {
   return matches ?? [];
 };
 
-export const formatReadingTime = (minutes: number, locale: string, minMinutes: number = 3) => {
+export const formatReadingTime = (minutes: number, t: TFunction, minMinutes: number = 1) => {
   const safeMinutes = Math.max(minMinutes, Math.ceil(minutes));
 
   // Practical display cap: beyond ~15 minutes, read-through rates typically drop.
   if (safeMinutes >= 15) {
-    return locale === 'tr' ? '15+ dk okuma' : '15+ min read';
+    return t('common.readingTime.fifteenPlus', { ns: 'common' });
   }
 
-  if (locale === 'tr') {
-    return `${safeMinutes} dk okuma`;
-  }
-  return `${safeMinutes} min read`;
+  return t('common.readingTime.minute', { ns: 'common', count: safeMinutes });
 };
 
-export const calculateReadingTime = (markdown: string, locale: string) => {
+export const parseReadingTimeToMinutes = (readingTime: string): number | null => {
+  const normalized = readingTime.trim();
+  if (!normalized) {
+    return null;
+  }
+
+  const match = /(\d+)/.exec(normalized);
+  if (!match) {
+    return null;
+  }
+
+  const minutes = Number(match[1]);
+  if (!Number.isFinite(minutes) || minutes <= 0) {
+    return null;
+  }
+
+  return minutes;
+};
+
+export const calculateReadingTimeMinutes = (markdown: string, minMinutes: number = 3) => {
   const words = getWordsFromMarkdown(markdown);
   // Aim for the practical ranges:
   // - ~200–250 words ≈ 1 minute
@@ -35,5 +53,9 @@ export const calculateReadingTime = (markdown: string, locale: string) => {
   // - 3,500+ words ≈ 15+ minutes
   const wordsPerMinute = 250;
   const minutes = words.length / wordsPerMinute;
-  return formatReadingTime(minutes, locale, 3);
+  return Math.max(minMinutes, Math.ceil(minutes));
 };
+
+// Backward-compatible helper for places still needing a localized display string.
+export const calculateReadingTime = (markdown: string, t: TFunction, minMinutes: number = 3) =>
+  formatReadingTime(calculateReadingTimeMinutes(markdown, minMinutes), t);

@@ -29,7 +29,7 @@ describe('medium utilities', () => {
     title: `Post ${id}`,
     summary: 'Summary',
     date: '2024-05-01',
-    readingTime: '1 min',
+    readingTimeMin: 1,
     thumbnail: null,
   });
 
@@ -98,7 +98,7 @@ describe('medium utilities', () => {
     expect(mediumPostsCache.get('en-all')).toEqual(result);
   });
 
-  it('calculates Turkish reading time format', async () => {
+  it('calculates numeric reading time minutes', async () => {
     fsMock.existsSync.mockReturnValueOnce(true);
 
     const feed = {
@@ -116,7 +116,7 @@ describe('medium utilities', () => {
     fsMock.readFileSync.mockReturnValueOnce(JSON.stringify(feed));
 
     const result = await fetchRssSummaries('tr');
-    expect(result[0].readingTime).toMatch(/dk okuma$/);
+    expect(result[0].readingTimeMin).toBe(3);
     expect(mediumPostsCache.get('tr-all')).toEqual(result);
   });
 

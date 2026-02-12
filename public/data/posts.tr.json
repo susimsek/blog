@@ -32,7 +32,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-graphql-jwe-authentication",
@@ -82,7 +82,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "6 dk okuma"
+    "readingTimeMin": 6
   },
   {
     "id": "spring-boot-jwe-authentication-with-jpa",
@@ -132,7 +132,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "4 dk okuma"
+    "readingTimeMin": 4
   },
   {
     "id": "spring-boot-ldap-jwe-authentication",
@@ -182,7 +182,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-jwe-authentication",
@@ -227,7 +227,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-http-interface-client",
@@ -267,7 +267,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-async-tasks-virtual",
@@ -307,7 +307,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-ai",
@@ -347,7 +347,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-jpa-auditing",
@@ -392,7 +392,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-tdd",
@@ -432,7 +432,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-circuit-breaker",
@@ -477,7 +477,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-eureka-server",
@@ -522,7 +522,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-config-server",
@@ -567,7 +567,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-docker",
@@ -612,7 +612,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-kubernetes",
@@ -657,7 +657,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-async-tasks",
@@ -692,7 +692,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-scheduled-tasks",
@@ -727,7 +727,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-reactive-programming",
@@ -767,7 +767,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-graalvm",
@@ -807,7 +807,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-kafka",
@@ -847,7 +847,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-redis-caching",
@@ -887,7 +887,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-openapi",
@@ -927,7 +927,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-clean-coding",
@@ -962,7 +962,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-devtools",
@@ -997,7 +997,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-actuator",
@@ -1037,7 +1037,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-aop",
@@ -1072,7 +1072,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-di",
@@ -1107,7 +1107,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "object-relational-mapping",
@@ -1152,7 +1152,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "rest-api-input-validation",
@@ -1197,7 +1197,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-graphql",
@@ -1232,7 +1232,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "golang-gin-first-application",
@@ -1262,7 +1262,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "building-a-rest-api-with-spring-boot",
@@ -1297,7 +1297,7 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   },
   {
     "id": "spring-boot-first-application",
@@ -1332,6 +1332,6 @@
         "color": "brown"
       }
     ],
-    "readingTime": "3 dk okuma"
+    "readingTimeMin": 3
   }
 ]

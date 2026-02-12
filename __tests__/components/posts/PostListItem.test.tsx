@@ -3,10 +3,17 @@ import { render, screen } from '@testing-library/react';
 import PostListItem from '@/components/posts/PostListItem';
 
 jest.mock('next/image', () => (props: any) => <img alt={props.alt} data-testid="thumbnail" />);
-
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string, options?: { count?: number; ns?: string }) => {
+      if (key === 'common.readingTime.minute' && options?.ns === 'common') {
+        return `${options?.count ?? 0} min read`;
+      }
+      if (key === 'common.readingTime.fifteenPlus' && options?.ns === 'common') {
+        return '15+ min read';
+      }
+      return key;
+    },
   }),
 }));
 
@@ -30,7 +37,7 @@ describe('PostListItem', () => {
       { id: 'js', name: 'JavaScript', color: 'yellow' },
       { id: 'react', name: 'React', color: 'blue' },
     ],
-    readingTime: '2 min',
+    readingTimeMin: 2,
   };
 
   it('renders thumbnail, date, reading time, and topics', () => {
@@ -39,7 +46,7 @@ describe('PostListItem', () => {
     expect(screen.getByTestId('thumbnail')).toBeInTheDocument();
     expect(screen.getByText(basePost.title)).toBeInTheDocument();
     expect(screen.getByText(basePost.date)).toBeInTheDocument();
-    expect(screen.getByText(basePost.readingTime)).toBeInTheDocument();
+    expect(screen.getByText('2 min read')).toBeInTheDocument();
     expect(screen.getByText('JavaScript')).toBeInTheDocument();
     expect(screen.getByText('React')).toBeInTheDocument();
   });

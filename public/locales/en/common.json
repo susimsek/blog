@@ -59,6 +59,10 @@
       "range8to12": "8–12 min",
       "range15plus": "15+ min"
     },
+    "readingTime": {
+      "minute": "{{count}} min read",
+      "fifteenPlus": "15+ min read"
+    },
     "sort": {
       "newest": "Newest First",
       "oldest": "Oldest First"

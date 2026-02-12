@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { assetPrefix } from '@/config/constants';
 import Thumbnail from '@/components/common/Thumbnail';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { formatReadingTime } from '@/lib/readingTime';
 
 interface PostSummaryProps {
   post: Post;
@@ -42,8 +43,8 @@ const highlight = (text: string, query: string): React.ReactNode => {
 };
 
 export default function PostSummary({ post, highlightQuery }: Readonly<PostSummaryProps>) {
-  const { id, title, date, summary, thumbnail, topics, readingTime, link } = post;
-  const { t } = useTranslation('post');
+  const { id, title, date, summary, thumbnail, topics, readingTimeMin, link } = post;
+  const { t } = useTranslation(['post', 'common']);
 
   const postLink = link ?? `/posts/${id}`;
   const resolveThumbnailSrc = (value: string) => {
@@ -84,7 +85,7 @@ export default function PostSummary({ post, highlightQuery }: Readonly<PostSumma
           </Link>
           <span className="text-muted d-flex align-items-center">
             <FontAwesomeIcon icon="clock" className="me-2" />
-            {readingTime}
+            {formatReadingTime(readingTimeMin, t)}
           </span>
         </p>
         {topics && topics.length > 0 && (

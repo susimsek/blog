@@ -7,13 +7,16 @@ import Image from 'next/image';
 import DateDisplay from '@/components/common/DateDisplay';
 import { assetPrefix } from '@/config/constants';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { formatReadingTime } from '@/lib/readingTime';
+import { useTranslation } from 'react-i18next';
 
 interface PostListItemProps {
   post: PostSummary;
 }
 
 export default function PostListItem({ post }: Readonly<PostListItemProps>) {
-  const { title, date, thumbnail, topics, readingTime } = post;
+  const { title, date, thumbnail, topics, readingTimeMin } = post;
+  const { t } = useTranslation('common');
 
   return (
     <Row className="post-list-item">
@@ -42,7 +45,7 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
             </span>
             <span className="text-muted d-block">
               <FontAwesomeIcon icon="clock" className="me-2" />
-              {readingTime}
+              {formatReadingTime(readingTimeMin, t)}
             </span>
           </p>
           {topics && topics.length > 0 && (

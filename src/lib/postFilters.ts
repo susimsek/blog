@@ -33,35 +33,21 @@ export const filterByDateRange = (post: PostSummary, dateRange: { startDate?: st
   return (!startDate || postDate >= startDate) && (!endDate || postDate <= endDate);
 };
 
-const getReadingTimeMinutes = (readingTime: string): { minutes: number; isCapped: boolean } | null => {
-  const normalized = readingTime.trim();
-  if (!normalized) return null;
-
-  const isCapped = normalized.includes('15+');
-  const match = /(\d+)/.exec(normalized);
-  if (!match) return null;
-
-  const minutes = Number(match[1]);
-  if (!Number.isFinite(minutes) || minutes <= 0) return null;
-
-  return { minutes, isCapped };
-};
-
 export const filterByReadingTime = (post: PostSummary, range: 'any' | '3-7' | '8-12' | '15+') => {
   if (range === 'any') return true;
 
-  const parsed = getReadingTimeMinutes(post.readingTime);
-  if (!parsed) return true;
+  const minutes = Number(post.readingTimeMin);
+  if (!Number.isFinite(minutes) || minutes <= 0) return true;
 
   if (range === '15+') {
-    return parsed.isCapped || parsed.minutes >= 15;
+    return minutes >= 15;
   }
 
   if (range === '3-7') {
-    return parsed.minutes >= 3 && parsed.minutes <= 7;
+    return minutes >= 3 && minutes <= 7;
   }
 
-  return parsed.minutes >= 8 && parsed.minutes <= 12;
+  return minutes >= 8 && minutes <= 12;
 };
 
 export const sortPosts = (posts: PostSummary[], sortOrder: 'asc' | 'desc' = 'desc') => {

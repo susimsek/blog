@@ -59,6 +59,10 @@
       "range8to12": "8–12 dk",
       "range15plus": "15+ dk"
     },
+    "readingTime": {
+      "minute": "{{count}} dk okuma",
+      "fifteenPlus": "15+ dk okuma"
+    },
     "sort": {
       "newest": "En Yeni Önce",
       "oldest": "En Eski Önce"

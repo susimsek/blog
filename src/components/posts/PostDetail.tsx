@@ -21,6 +21,7 @@ import { buildLocalizedAbsoluteUrl } from '@/lib/metadata';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import type { AdjacentPostLink } from '@/lib/postFilters';
+import { formatReadingTime } from '@/lib/readingTime';
 
 const MarkdownRenderer = dynamic(() => import('@/components/common/MarkdownRenderer'), {
   loading: () => null,
@@ -139,11 +140,11 @@ export default function PostDetail({
   previousPost = null,
   nextPost = null,
 }: Readonly<PostDetailProps>) {
-  const { t } = useTranslation('post');
+  const { t } = useTranslation(['post', 'common']);
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
   const locale = routeLocale ?? defaultLocale;
-  const { title, date, contentHtml, thumbnail, topics, readingTime } = post;
+  const { title, date, contentHtml, thumbnail, topics, readingTimeMin } = post;
   const articleRef = React.useRef<HTMLElement | null>(null);
   const copyTimeoutRef = React.useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
   const [isCopied, setIsCopied] = React.useState(false);
@@ -233,7 +234,7 @@ export default function PostDetail({
           </span>
           <span className="d-flex align-items-center">
             <FontAwesomeIcon icon="clock" className="me-2" />
-            {readingTime}
+            {formatReadingTime(readingTimeMin, t)}
           </span>
         </p>
         {topics && topics.length > 0 && (

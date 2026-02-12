@@ -5,7 +5,7 @@ import { LayoutPostSummary, Post, PostSummary, Topic } from '@/types/posts';
 import i18nextConfig from '@/i18n/settings';
 import { createCacheStore } from '@/lib/cacheUtils';
 import { sortPosts } from '@/lib/postFilters';
-import { calculateReadingTime } from '@/lib/readingTime';
+import { calculateReadingTimeMinutes, parseReadingTimeToMinutes } from '@/lib/readingTime';
 import { compressContentForPayload } from '@/lib/contentCompression';
 
 const fsPromises = fs.promises;
@@ -30,7 +30,7 @@ export const topicsCache = createCacheStore<Topic[]>('getAllTopics');
 export const topicDataCache = createCacheStore<Topic | null>('getTopicData');
 export const postIdsCache = createCacheStore<{ params: { id: string; locale: string } }[]>('getAllPostIds');
 export const topicIdsCache = createCacheStore<{ params: { id: string; locale: string } }[]>('getAllTopicIds');
-export const readingTimeCache = createCacheStore<string>('getReadingTime');
+export const readingTimeCache = createCacheStore<number>('getReadingTime');
 
 const DEFAULT_LAYOUT_POSTS_LIMIT = 12;
 const DEFAULT_TOP_TOPICS_LIMIT = 6;
@@ -80,7 +80,7 @@ async function getPostMarkdownContent(id: string, locale: string): Promise<strin
 async function getReadingTimeForPostSummary(
   post: Pick<PostSummary, 'id' | 'title' | 'summary'>,
   locale: string,
-): Promise<string> {
+): Promise<number> {
   const cacheKey = `${locale}-${post.id}`;
   const cached = readingTimeCache.get(cacheKey);
   if (cached) {
@@ -88,7 +88,7 @@ async function getReadingTimeForPostSummary(
   }
 
   const markdown = await getPostMarkdownContent(post.id, locale);
-  const computed = calculateReadingTime(markdown ?? `${post.title} ${post.summary}`, locale);
+  const computed = calculateReadingTimeMinutes(markdown ?? `${post.title} ${post.summary}`, 3);
   readingTimeCache.set(cacheKey, computed);
   return computed;
 }
@@ -128,19 +128,24 @@ export async function getSortedPostsData(locale: string, topicId?: string): Prom
 
   try {
     const fileContents = await fsPromises.readFile(postsJsonPath, 'utf8');
-    const allPosts = JSON.parse(fileContents) as Array<Omit<PostSummary, 'readingTime'> & { readingTime?: string }>;
+    const allPosts = JSON.parse(fileContents) as Array<
+      Omit<PostSummary, 'readingTimeMin'> & { readingTimeMin?: number; readingTime?: string }
+    >;
     const filteredPosts = allPosts.filter(
       post => !topicId || (Array.isArray(post.topics) && post.topics.some((t: Topic) => t.id === topicId)),
     );
 
-    const withReadingTime = await Promise.all(
+    const withReadingTimeMin = await Promise.all(
       filteredPosts.map(async post => ({
         ...post,
-        readingTime: await getReadingTimeForPostSummary(post, locale),
+        readingTimeMin:
+          typeof post.readingTimeMin === 'number' && Number.isFinite(post.readingTimeMin) && post.readingTimeMin > 0
+            ? post.readingTimeMin
+            : (parseReadingTimeToMinutes(post.readingTime ?? '') ?? (await getReadingTimeForPostSummary(post, locale))),
       })),
     );
 
-    const sortedPosts = sortPosts(withReadingTime);
+    const sortedPosts = sortPosts(withReadingTimeMin);
     postsCache.set(cacheKey, sortedPosts);
     return sortedPosts;
   } catch (error) {
@@ -182,12 +187,12 @@ export async function getPostData(id: string, locale: string): Promise<Post | nu
   const { data, content } = await parsePostFile(filePath, true);
 
   const markdownContent = content ?? '';
-  const readingTime = calculateReadingTime(markdownContent, locale);
+  const readingTimeMin = calculateReadingTimeMinutes(markdownContent, 3);
   const serializedContent = compressContentForPayload(markdownContent);
 
   const post: Post = {
     ...data,
-    readingTime,
+    readingTimeMin,
     ...serializedContent,
   };
 

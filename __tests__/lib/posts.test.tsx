@@ -252,7 +252,7 @@ describe('Posts Library', () => {
       (fs.existsSync as jest.Mock).mockImplementation((p: string) => p.includes('/public/data/posts.'));
       const result = await getSortedPostsData('en');
       expect(result).toHaveLength(1);
-      expect(result[0].readingTime).toBeDefined();
+      expect(result[0].readingTimeMin).toBeDefined();
     });
 
     it('uses fallback markdown path and reuses cached reading time between cache keys', async () => {

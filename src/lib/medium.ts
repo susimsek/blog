@@ -119,10 +119,9 @@ function extractFirstImage(html: string): string | null {
   return null;
 }
 
-function calculateReadingTime(html: string, locale: string): string {
+function calculateReadingTimeMin(html: string): number {
   const wordCount = stripHtml(html).split(/\s+/).filter(Boolean).length;
-  const minutes = Math.max(1, Math.ceil(wordCount / 265));
-  return locale === 'tr' ? `${minutes} dk okuma` : `${minutes} min read`;
+  return Math.max(1, Math.ceil(wordCount / 265));
 }
 
 function extractSummary(item: MediumItem): string {
@@ -178,7 +177,7 @@ export async function fetchRssSummaries(locale: string): Promise<PostSummary[]> 
         summary,
         thumbnail,
         topics,
-        readingTime: calculateReadingTime(content, locale),
+        readingTimeMin: calculateReadingTimeMin(content),
         link: item.link,
       };
     });

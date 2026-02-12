@@ -41,7 +41,7 @@ const buildPost = (id: string, date: string, topics: Array<{ id?: string; name: 
     title: `Post ${id}`,
     date,
     summary: `Summary ${id}`,
-    readingTime: '3 min read',
+    readingTimeMin: 3,
     topics,
   }) as PostSummary;
 

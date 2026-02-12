@@ -12,7 +12,7 @@ export type PostSummary = {
   summary: string;
   thumbnail: string | null;
   topics?: Topic[];
-  readingTime: string;
+  readingTimeMin: number;
   link?: string;
 };
 

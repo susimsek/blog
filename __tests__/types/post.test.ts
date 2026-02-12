@@ -8,7 +8,7 @@ describe('Post and PostSummary Types', () => {
       date: '2024-12-04',
       summary: 'This is a summary of the post.',
       thumbnail: '/images/sample.jpg',
-      readingTime: '3 min read',
+      readingTimeMin: 3,
       topics: [
         { id: 'typescript', name: 'TypeScript', color: 'blue' },
         { id: 'testing', name: 'Testing', color: 'green' },
@@ -20,7 +20,7 @@ describe('Post and PostSummary Types', () => {
     expect(postSummary.date).toBe('2024-12-04');
     expect(postSummary.summary).toBe('This is a summary of the post.');
     expect(postSummary.thumbnail).toBe('/images/sample.jpg');
-    expect(postSummary.readingTime).toBe('3 min read');
+    expect(postSummary.readingTimeMin).toBe(3);
     expect(postSummary.topics).toHaveLength(2);
     expect(postSummary.topics?.[0].id).toBe('typescript');
     expect(postSummary.topics?.[0].name).toBe('TypeScript');
@@ -37,7 +37,7 @@ describe('Post and PostSummary Types', () => {
       date: '2024-12-04',
       summary: 'Another summary.',
       thumbnail: null,
-      readingTime: '4 min read',
+      readingTimeMin: 4,
     };
 
     expect(postSummary.thumbnail).toBeNull();
@@ -52,7 +52,7 @@ describe('Post and PostSummary Types', () => {
       summary: 'A detailed post summary.',
       contentHtml: '<p>Full content of the post.</p>',
       thumbnail: '/images/full.jpg',
-      readingTime: '5 min read',
+      readingTimeMin: 5,
       topics: [
         { id: 'spring-boot', name: 'Spring Boot', color: 'blue' },
         { id: 'react', name: 'React', color: 'green' },
@@ -61,7 +61,7 @@ describe('Post and PostSummary Types', () => {
 
     expect(post.contentHtml).toBe('<p>Full content of the post.</p>');
     expect(post.thumbnail).toBe('/images/full.jpg');
-    expect(post.readingTime).toBe('5 min read');
+    expect(post.readingTimeMin).toBe(5);
     expect(post.topics).toHaveLength(2);
     expect(post.topics?.[0].id).toBe('spring-boot');
     expect(post.topics?.[0].name).toBe('Spring Boot');
@@ -78,7 +78,7 @@ describe('Post and PostSummary Types', () => {
       date: '2024-12-04',
       summary: 'Just the essentials.',
       thumbnail: null,
-      readingTime: '2 min read',
+      readingTimeMin: 2,
     };
 
     expect(post.contentHtml).toBeUndefined();

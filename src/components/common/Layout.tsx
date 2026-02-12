@@ -15,7 +15,7 @@ import { setPosts, setLocale, setTopics } from '@/reducers/postsQuery';
 import PreFooter from '@/components/common/PreFooter';
 import dynamic from 'next/dynamic';
 import { withBasePath } from '@/lib/basePath';
-import { calculateReadingTime } from '@/lib/readingTime';
+import { calculateReadingTimeMinutes, parseReadingTimeToMinutes } from '@/lib/readingTime';
 
 const Sidebar = dynamic(() => import('@/components/common/Sidebar'));
 
@@ -29,14 +29,15 @@ type LayoutProps = {
 };
 
 const normalizeSearchPost = (
-  locale: string,
   post: Pick<PostSummary, 'id' | 'title' | 'date'> & Partial<Omit<PostSummary, 'id' | 'title' | 'date'>>,
 ): PostSummary => {
   const summary = typeof post.summary === 'string' ? post.summary : '';
-  const readingTime =
-    typeof post.readingTime === 'string' && post.readingTime.trim().length > 0
-      ? post.readingTime
-      : calculateReadingTime(`${post.title} ${summary}`.trim(), locale);
+  const rawPost = post as Partial<PostSummary> & { readingTime?: string };
+  const readingTimeMin =
+    typeof rawPost.readingTimeMin === 'number' && Number.isFinite(rawPost.readingTimeMin) && rawPost.readingTimeMin > 0
+      ? rawPost.readingTimeMin
+      : (parseReadingTimeToMinutes(rawPost.readingTime ?? '') ??
+        calculateReadingTimeMinutes(`${post.title} ${summary}`.trim(), 3));
 
   return {
     id: post.id,
@@ -45,12 +46,12 @@ const normalizeSearchPost = (
     summary,
     thumbnail: post.thumbnail === null || typeof post.thumbnail === 'string' ? post.thumbnail : null,
     topics: Array.isArray(post.topics) ? post.topics : [],
-    readingTime,
+    readingTimeMin,
     ...(typeof post.link === 'string' ? { link: post.link } : {}),
   };
 };
 
-const normalizeSearchPosts = (posts: ReadonlyArray<unknown>, locale: string): PostSummary[] =>
+const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
   posts.flatMap(post => {
     if (!post || typeof post !== 'object') {
       return [];
@@ -61,9 +62,7 @@ const normalizeSearchPosts = (posts: ReadonlyArray<unknown>, locale: string): Po
       return [];
     }
 
-    return [
-      normalizeSearchPost(locale, { ...candidate, id: candidate.id, title: candidate.title, date: candidate.date }),
-    ];
+    return [normalizeSearchPost({ ...candidate, id: candidate.id, title: candidate.title, date: candidate.date })];
   });
 
 const normalizeSearchTopics = (topics: ReadonlyArray<unknown>): Topic[] =>
@@ -189,10 +188,9 @@ const extractFirstImage = (html: string): string | null => {
   return null;
 };
 
-const calculateMediumReadingTime = (html: string, locale: string): string => {
+const calculateMediumReadingTimeMin = (html: string): number => {
   const wordCount = stripMediumHtml(html).split(/\s+/).filter(Boolean).length;
-  const minutes = Math.max(1, Math.ceil(wordCount / 265));
-  return locale === 'tr' ? `${minutes} dk okuma` : `${minutes} min read`;
+  return Math.max(1, Math.ceil(wordCount / 265));
 };
 
 const getColorForTopic = (topic: string): (typeof TOPIC_COLORS)[number] => {
@@ -204,7 +202,7 @@ const getColorForTopic = (topic: string): (typeof TOPIC_COLORS)[number] => {
   return TOPIC_COLORS[index];
 };
 
-const normalizeMediumFeedPosts = (payload: unknown, locale: string): PostSummary[] => {
+const normalizeMediumFeedPosts = (payload: unknown): PostSummary[] => {
   if (!payload || typeof payload !== 'object') {
     return [];
   }
@@ -263,7 +261,7 @@ const normalizeMediumFeedPosts = (payload: unknown, locale: string): PostSummary
           color: getColorForTopic(category),
           link: `https://medium.com/tag/${category}`,
         })),
-        readingTime: calculateMediumReadingTime(content, locale),
+        readingTimeMin: calculateMediumReadingTimeMin(content),
         ...(typeof candidate.link === 'string' ? { link: candidate.link } : {}),
       },
     ];
@@ -300,9 +298,9 @@ const LayoutStateInitializer: React.FC = () => {
 
         const payload = (await response.json()) as unknown;
         const normalized = isMediumRoute
-          ? normalizeMediumFeedPosts(payload, currentLocale)
+          ? normalizeMediumFeedPosts(payload)
           : Array.isArray(payload)
-            ? normalizeSearchPosts(payload, currentLocale)
+            ? normalizeSearchPosts(payload)
             : [];
         dispatch(setPosts(normalized));
       } catch (error) {
