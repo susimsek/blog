@@ -9,6 +9,7 @@ import { Topic } from '@/types/posts';
 import SearchBar from '@/components/search/SearchBar';
 import Paginator from '@/components/pagination/Paginator';
 import useDebounce from '@/hooks/useDebounce';
+import { topicMatchesQuery } from '@/lib/searchText';
 
 interface TopicsDropdownProps {
   topics: Topic[];
@@ -30,7 +31,7 @@ export function TopicsDropdown({ topics, selectedTopics, onTopicsChange }: Reado
 
   // Filtered topics based on the debounced query
   const filteredTopics = useMemo(() => {
-    return topics.filter(topic => topic.name.toLowerCase().includes(debouncedTopicSearchQuery.toLowerCase().trim()));
+    return topics.filter(topic => topicMatchesQuery(topic, debouncedTopicSearchQuery));
   }, [topics, debouncedTopicSearchQuery]);
 
   // Paginated topics

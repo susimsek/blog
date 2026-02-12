@@ -13,6 +13,7 @@ const mockPost: PostSummary = {
   id: '1',
   title: 'Test Post',
   summary: 'This is a summary of the test post.',
+  searchText: 'test post this is a summary of the test post topic1 topic 1 topic2 topic 2',
   date: '2024-01-15',
   thumbnail: null,
   readingTimeMin: 3,
@@ -38,6 +39,27 @@ describe('Post Filters', () => {
 
     it('returns true for an empty query', () => {
       expect(filterByQuery(mockPost, '')).toBe(true);
+    });
+
+    it('matches Turkish characters without diacritics', () => {
+      const post = {
+        ...mockPost,
+        title: 'Güvenlik Notları',
+        summary: 'Kimlik doğrulama',
+        searchText: 'guvenlik notlari kimlik dogrulama',
+      };
+      expect(filterByQuery(post, 'guvenlik')).toBe(true);
+      expect(filterByQuery(post, 'dogrulama')).toBe(true);
+    });
+
+    it('matches topic text via normalized combined searchText', () => {
+      expect(filterByQuery(mockPost, 'topic1')).toBe(true);
+      expect(filterByQuery(mockPost, 'Topic 2')).toBe(true);
+    });
+
+    it('does not fallback to title/summary when searchText is empty', () => {
+      const postWithoutSearchText = { ...mockPost, searchText: '' };
+      expect(filterByQuery(postWithoutSearchText, 'Test')).toBe(false);
     });
   });
 
@@ -107,10 +129,10 @@ describe('Post Filters', () => {
       expect(filterByReadingTime({ ...mockPost, readingTimeMin: 13 }, '8-12')).toBe(false);
     });
 
-    it('falls back to true when reading time minutes are invalid', () => {
-      expect(filterByReadingTime({ ...mockPost, readingTimeMin: Number.NaN }, '3-7')).toBe(true);
-      expect(filterByReadingTime({ ...mockPost, readingTimeMin: -1 }, '3-7')).toBe(true);
-      expect(filterByReadingTime({ ...mockPost, readingTimeMin: 0 }, '3-7')).toBe(true);
+    it('returns false when reading time minutes are invalid', () => {
+      expect(filterByReadingTime({ ...mockPost, readingTimeMin: Number.NaN }, '3-7')).toBe(false);
+      expect(filterByReadingTime({ ...mockPost, readingTimeMin: -1 }, '3-7')).toBe(false);
+      expect(filterByReadingTime({ ...mockPost, readingTimeMin: 0 }, '3-7')).toBe(false);
     });
   });
 

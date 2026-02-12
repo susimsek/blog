@@ -145,6 +145,18 @@ describe('TopicsDropdown', () => {
     expect(screen.getByText('Next.js')).toBeInTheDocument();
   });
 
+  test('does not match topic by id', async () => {
+    const topicsWithIdOnlyMatch: Topic[] = [...mockTopics, { id: 'rbac-auth', name: 'Authorization', color: 'gray' }];
+    renderComponent([], topicsWithIdOnlyMatch);
+    await click(screen.getByText('topic:topic.allTopics'));
+
+    const searchInput = screen.getByPlaceholderText('common.searchBar.placeholder');
+    await change(searchInput, 'rbac');
+
+    expect(screen.queryByText('Authorization')).not.toBeInTheDocument();
+    expect(screen.getByText('topic:topic.noTopicFound')).toBeInTheDocument();
+  });
+
   test('resets pagination when topics are filtered', async () => {
     renderComponent();
     await click(screen.getByText('topic:topic.allTopics'));

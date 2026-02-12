@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { SITE_LOGO } from '@/config/constants';
 import useDebounce from '@/hooks/useDebounce';
 import Image from 'next/image';
+import { topicMatchesQuery } from '@/lib/searchText';
 
 type SidebarProps = {
   topics?: Topic[];
@@ -25,7 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   const filteredTopics = useMemo(
-    () => topics.filter(topic => topic.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase())),
+    () => topics.filter(topic => topicMatchesQuery(topic, debouncedSearchQuery)),
     [topics, debouncedSearchQuery],
   );
 

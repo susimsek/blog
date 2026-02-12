@@ -28,6 +28,7 @@ describe('medium utilities', () => {
     id,
     title: `Post ${id}`,
     summary: 'Summary',
+    searchText: `post ${id} summary`,
     date: '2024-05-01',
     readingTimeMin: 1,
     thumbnail: null,

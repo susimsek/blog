@@ -10,6 +10,7 @@ export type PostSummary = {
   title: string;
   date: string;
   summary: string;
+  searchText: string;
   thumbnail: string | null;
   topics?: Topic[];
   readingTimeMin: number;

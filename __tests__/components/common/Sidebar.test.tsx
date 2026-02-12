@@ -71,6 +71,7 @@ describe('Sidebar', () => {
   const topics = [
     { id: 'java', name: 'Java', color: 'red' },
     { id: 'react', name: 'React', color: 'blue' },
+    { id: 'rbac-auth', name: 'Authorization', color: 'gray' },
   ];
 
   it('renders filtered topics on desktop', () => {
@@ -87,6 +88,15 @@ describe('Sidebar', () => {
 
     fireEvent.change(screen.getByTestId('sidebar-search'), { target: { value: 'python' } });
 
+    expect(screen.getByText('topic:topic.noTopicFound')).toBeInTheDocument();
+  });
+
+  it('does not match topics by id', () => {
+    render(<Sidebar topics={topics} isMobile={false} isVisible onClose={jest.fn()} />);
+
+    fireEvent.change(screen.getByTestId('sidebar-search'), { target: { value: 'rbac' } });
+
+    expect(screen.queryByText('Authorization')).not.toBeInTheDocument();
     expect(screen.getByText('topic:topic.noTopicFound')).toBeInTheDocument();
   });
 

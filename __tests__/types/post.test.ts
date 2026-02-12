@@ -7,6 +7,7 @@ describe('Post and PostSummary Types', () => {
       title: 'Sample Post',
       date: '2024-12-04',
       summary: 'This is a summary of the post.',
+      searchText: 'sample post this is a summary of the post typescript testing',
       thumbnail: '/images/sample.jpg',
       readingTimeMin: 3,
       topics: [
@@ -36,6 +37,7 @@ describe('Post and PostSummary Types', () => {
       title: 'Another Post',
       date: '2024-12-04',
       summary: 'Another summary.',
+      searchText: 'another post another summary',
       thumbnail: null,
       readingTimeMin: 4,
     };
@@ -50,6 +52,7 @@ describe('Post and PostSummary Types', () => {
       title: 'Full Post',
       date: '2024-12-04',
       summary: 'A detailed post summary.',
+      searchText: 'full post a detailed post summary spring boot react',
       contentHtml: '<p>Full content of the post.</p>',
       thumbnail: '/images/full.jpg',
       readingTimeMin: 5,
@@ -77,6 +80,7 @@ describe('Post and PostSummary Types', () => {
       title: 'Minimal Post',
       date: '2024-12-04',
       summary: 'Just the essentials.',
+      searchText: 'minimal post just the essentials',
       thumbnail: null,
       readingTimeMin: 2,
     };

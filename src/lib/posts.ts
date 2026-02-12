@@ -5,8 +5,9 @@ import { LayoutPostSummary, Post, PostSummary, Topic } from '@/types/posts';
 import i18nextConfig from '@/i18n/settings';
 import { createCacheStore } from '@/lib/cacheUtils';
 import { sortPosts } from '@/lib/postFilters';
-import { calculateReadingTimeMinutes, parseReadingTimeToMinutes } from '@/lib/readingTime';
+import { calculateReadingTimeMinutes } from '@/lib/readingTime';
 import { compressContentForPayload } from '@/lib/contentCompression';
+import { buildPostSearchText } from '@/lib/searchText';
 
 const fsPromises = fs.promises;
 
@@ -56,48 +57,8 @@ const readIdsFromIndexFile = async (indexPath: string, fileLabel: string): Promi
   }
 };
 
-async function getPostMarkdownContent(id: string, locale: string): Promise<string | null> {
-  const fallbackLocale = i18nextConfig.i18n.defaultLocale;
-  const localizedPath = path.join(postsMarkdownDirectory, locale, `${id}.md`);
-  const fallbackPath = path.join(postsMarkdownDirectory, fallbackLocale, `${id}.md`);
-
-  let filePath: string | null = null;
-  if (await fileExists(localizedPath)) {
-    filePath = localizedPath;
-  } else if (await fileExists(fallbackPath)) {
-    filePath = fallbackPath;
-  }
-
-  if (!filePath) {
-    return null;
-  }
-
-  const raw = await fsPromises.readFile(filePath, 'utf8');
-  const { content } = matter(raw);
-  return content;
-}
-
-async function getReadingTimeForPostSummary(
-  post: Pick<PostSummary, 'id' | 'title' | 'summary'>,
-  locale: string,
-): Promise<number> {
-  const cacheKey = `${locale}-${post.id}`;
-  const cached = readingTimeCache.get(cacheKey);
-  if (cached) {
-    return cached;
-  }
-
-  const markdown = await getPostMarkdownContent(post.id, locale);
-  const computed = calculateReadingTimeMinutes(markdown ?? `${post.title} ${post.summary}`, 3);
-  readingTimeCache.set(cacheKey, computed);
-  return computed;
-}
-
 // Helper function to parse a Markdown file
-async function parsePostFile(
-  filePath: string,
-  includeContent: boolean = false,
-): Promise<{ data: PostSummary; content?: string }> {
+async function parsePostFile(filePath: string): Promise<{ data: PostSummary; content: string }> {
   const id = path.basename(filePath, '.md');
   const fileContents = await fsPromises.readFile(filePath, 'utf8');
   const { data, content } = matter(fileContents);
@@ -107,10 +68,10 @@ async function parsePostFile(
     ...data,
   } as PostSummary;
 
-  return includeContent ? { data: postSummary, content } : { data: postSummary };
+  return { data: postSummary, content };
 }
 
-// Get all posts grouped by locale with fallback support
+// Get all posts grouped by locale
 export async function getSortedPostsData(locale: string, topicId?: string): Promise<PostSummary[]> {
   const cacheKey = `${locale}-${topicId ?? 'all'}`;
   const cachedData = postsCache.get(cacheKey);
@@ -128,24 +89,18 @@ export async function getSortedPostsData(locale: string, topicId?: string): Prom
 
   try {
     const fileContents = await fsPromises.readFile(postsJsonPath, 'utf8');
-    const allPosts = JSON.parse(fileContents) as Array<
-      Omit<PostSummary, 'readingTimeMin'> & { readingTimeMin?: number; readingTime?: string }
-    >;
-    const filteredPosts = allPosts.filter(
-      post => !topicId || (Array.isArray(post.topics) && post.topics.some((t: Topic) => t.id === topicId)),
-    );
+    const allPosts = JSON.parse(fileContents) as PostSummary[];
+    const filteredPosts = allPosts
+      .filter(post => !topicId || (Array.isArray(post.topics) && post.topics.some((t: Topic) => t.id === topicId)))
+      .filter(
+        post =>
+          typeof post.readingTimeMin === 'number' &&
+          Number.isFinite(post.readingTimeMin) &&
+          post.readingTimeMin > 0 &&
+          typeof post.searchText === 'string',
+      );
 
-    const withReadingTimeMin = await Promise.all(
-      filteredPosts.map(async post => ({
-        ...post,
-        readingTimeMin:
-          typeof post.readingTimeMin === 'number' && Number.isFinite(post.readingTimeMin) && post.readingTimeMin > 0
-            ? post.readingTimeMin
-            : (parseReadingTimeToMinutes(post.readingTime ?? '') ?? (await getReadingTimeForPostSummary(post, locale))),
-      })),
-    );
-
-    const sortedPosts = sortPosts(withReadingTimeMin);
+    const sortedPosts = sortPosts(filteredPosts);
     postsCache.set(cacheKey, sortedPosts);
     return sortedPosts;
   } catch (error) {
@@ -155,7 +110,7 @@ export async function getSortedPostsData(locale: string, topicId?: string): Prom
   }
 }
 
-// Get a specific post for all locales with fallback support
+// Get a specific post for locale
 export async function getPostData(id: string, locale: string): Promise<Post | null> {
   const cacheKey = `${locale}-${id}`;
 
@@ -164,35 +119,29 @@ export async function getPostData(id: string, locale: string): Promise<Post | nu
     return cachedData;
   }
 
-  const fallbackLocale = i18nextConfig.i18n.defaultLocale;
-
-  // Localized and fallback paths
+  // Localized path
   const localizedPath = path.join(postsMarkdownDirectory, locale, `${id}.md`);
-  const fallbackPath = path.join(postsMarkdownDirectory, fallbackLocale, `${id}.md`);
-
-  let filePath: string | null = null;
-
-  if (await fileExists(localizedPath)) {
-    filePath = localizedPath;
-  } else if (await fileExists(fallbackPath)) {
-    filePath = fallbackPath;
-  }
-
-  if (!filePath) {
+  if (!(await fileExists(localizedPath))) {
     postDataCache.set(cacheKey, null);
     return null;
   }
 
   // Parse post file and process content
-  const { data, content } = await parsePostFile(filePath, true);
+  const { data, content } = await parsePostFile(localizedPath);
 
-  const markdownContent = content ?? '';
+  const markdownContent = content;
   const readingTimeMin = calculateReadingTimeMinutes(markdownContent, 3);
   const serializedContent = compressContentForPayload(markdownContent);
 
   const post: Post = {
     ...data,
     readingTimeMin,
+    searchText: buildPostSearchText({
+      id: data.id,
+      title: data.title,
+      summary: data.summary,
+      topics: data.topics,
+    }),
     ...serializedContent,
   };
 

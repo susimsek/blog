@@ -47,6 +47,7 @@ describe('SearchContainer', () => {
     id: `post-${index}`,
     title: `Post ${index}`,
     summary: `Summary ${index}`,
+    searchText: `post ${index} summary ${index}`,
     date: '2024-05-01',
     thumbnail: null,
     topics: [],

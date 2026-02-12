@@ -31,6 +31,7 @@ describe('PostListItem', () => {
     id: '1',
     title: 'Sample Post',
     summary: 'Summary',
+    searchText: 'sample post summary javascript react',
     date: '2024-05-01',
     thumbnail: '/thumb.webp',
     topics: [

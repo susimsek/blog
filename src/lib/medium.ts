@@ -4,6 +4,7 @@ import path from 'node:path';
 import { PostSummary, Topic } from '@/types/posts';
 import { TOPIC_COLORS } from '@/config/constants';
 import { createCacheStore } from '@/lib/cacheUtils';
+import { buildPostSearchText } from '@/lib/searchText';
 
 type MediumItem = Parser.Item & {
   'content:encoded'?: string;
@@ -169,12 +170,15 @@ export async function fetchRssSummaries(locale: string): Promise<PostSummary[]> 
           color: getColorForTopic(cat),
           link: `https://medium.com/tag/${cat}`,
         })) ?? [];
+      const id = item.guid ?? `rss-${index}`;
+      const title = item.title ?? 'Untitled';
 
       return {
-        id: item.guid ?? `rss-${index}`,
-        title: item.title ?? 'Untitled',
+        id,
+        title,
         date: item.pubDate ?? new Date().toISOString(),
         summary,
+        searchText: buildPostSearchText({ id, title, summary, topics }),
         thumbnail,
         topics,
         readingTimeMin: calculateReadingTimeMin(content),

@@ -1,12 +1,19 @@
 import { PostSummary } from '@/types/posts';
+import { normalizeSearchText } from '@/lib/searchText';
 
 export type AdjacentPostLink = Pick<PostSummary, 'id' | 'title'>;
 
 /**
  * Filters posts by query.
  */
-export const filterByQuery = (post: PostSummary, query: string) =>
-  post.title.toLowerCase().includes(query.toLowerCase()) || post.summary.toLowerCase().includes(query.toLowerCase());
+export const filterByQuery = (post: PostSummary, query: string) => {
+  const normalizedQuery = normalizeSearchText(query);
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  return post.searchText.includes(normalizedQuery);
+};
 
 /**
  * Filters posts by selected topics.
@@ -37,7 +44,7 @@ export const filterByReadingTime = (post: PostSummary, range: 'any' | '3-7' | '8
   if (range === 'any') return true;
 
   const minutes = Number(post.readingTimeMin);
-  if (!Number.isFinite(minutes) || minutes <= 0) return true;
+  if (!Number.isFinite(minutes) || minutes <= 0) return false;
 
   if (range === '15+') {
     return minutes >= 15;

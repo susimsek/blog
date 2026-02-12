@@ -26,7 +26,8 @@
     "test": "pnpm run jest --",
     "test:watch": "pnpm run jest -- --watch",
     "fetch:medium": "node scripts/fetch-medium-feed.js",
-    "sync:reading-time": "node scripts/sync-reading-time.js"
+    "sync:post-metadata": "node scripts/sync-post-metadata.js",
+    "sync:reading-time": "pnpm run sync:post-metadata"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.1.0",

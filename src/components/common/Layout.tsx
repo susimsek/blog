@@ -15,7 +15,7 @@ import { setPosts, setLocale, setTopics } from '@/reducers/postsQuery';
 import PreFooter from '@/components/common/PreFooter';
 import dynamic from 'next/dynamic';
 import { withBasePath } from '@/lib/basePath';
-import { calculateReadingTimeMinutes, parseReadingTimeToMinutes } from '@/lib/readingTime';
+import { buildPostSearchText } from '@/lib/searchText';
 
 const Sidebar = dynamic(() => import('@/components/common/Sidebar'));
 
@@ -29,24 +29,18 @@ type LayoutProps = {
 };
 
 const normalizeSearchPost = (
-  post: Pick<PostSummary, 'id' | 'title' | 'date'> & Partial<Omit<PostSummary, 'id' | 'title' | 'date'>>,
+  post: Pick<PostSummary, 'id' | 'title' | 'date' | 'summary' | 'searchText' | 'readingTimeMin' | 'thumbnail'> &
+    Partial<Pick<PostSummary, 'topics' | 'link'>>,
 ): PostSummary => {
-  const summary = typeof post.summary === 'string' ? post.summary : '';
-  const rawPost = post as Partial<PostSummary> & { readingTime?: string };
-  const readingTimeMin =
-    typeof rawPost.readingTimeMin === 'number' && Number.isFinite(rawPost.readingTimeMin) && rawPost.readingTimeMin > 0
-      ? rawPost.readingTimeMin
-      : (parseReadingTimeToMinutes(rawPost.readingTime ?? '') ??
-        calculateReadingTimeMinutes(`${post.title} ${summary}`.trim(), 3));
-
   return {
     id: post.id,
     title: post.title,
     date: post.date,
-    summary,
-    thumbnail: post.thumbnail === null || typeof post.thumbnail === 'string' ? post.thumbnail : null,
-    topics: Array.isArray(post.topics) ? post.topics : [],
-    readingTimeMin,
+    summary: post.summary,
+    searchText: post.searchText,
+    thumbnail: post.thumbnail,
+    topics: post.topics,
+    readingTimeMin: post.readingTimeMin,
     ...(typeof post.link === 'string' ? { link: post.link } : {}),
   };
 };
@@ -58,11 +52,35 @@ const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
     }
 
     const candidate = post as Partial<PostSummary>;
-    if (typeof candidate.id !== 'string' || typeof candidate.title !== 'string' || typeof candidate.date !== 'string') {
+    if (
+      typeof candidate.id !== 'string' ||
+      typeof candidate.title !== 'string' ||
+      typeof candidate.date !== 'string' ||
+      typeof candidate.summary !== 'string' ||
+      typeof candidate.readingTimeMin !== 'number' ||
+      !Number.isFinite(candidate.readingTimeMin) ||
+      candidate.readingTimeMin <= 0 ||
+      typeof candidate.searchText !== 'string' ||
+      (candidate.thumbnail !== null && typeof candidate.thumbnail !== 'string') ||
+      (candidate.topics !== undefined && !Array.isArray(candidate.topics))
+    ) {
       return [];
     }
 
-    return [normalizeSearchPost({ ...candidate, id: candidate.id, title: candidate.title, date: candidate.date })];
+    return [
+      normalizeSearchPost({
+        ...candidate,
+        id: candidate.id,
+        title: candidate.title,
+        date: candidate.date,
+        summary: candidate.summary,
+        thumbnail: candidate.thumbnail,
+        topics: candidate.topics,
+        readingTimeMin: candidate.readingTimeMin,
+        searchText: candidate.searchText,
+        ...(typeof candidate.link === 'string' ? { link: candidate.link } : {}),
+      }),
+    ];
   });
 
 const normalizeSearchTopics = (topics: ReadonlyArray<unknown>): Topic[] =>
@@ -254,6 +272,12 @@ const normalizeMediumFeedPosts = (payload: unknown): PostSummary[] => {
             ? candidate.pubDate
             : new Date().toISOString(),
         summary,
+        searchText: buildPostSearchText({
+          id: typeof candidate.guid === 'string' && candidate.guid.length > 0 ? candidate.guid : `rss-${index}`,
+          title: typeof candidate.title === 'string' && candidate.title.length > 0 ? candidate.title : 'Untitled',
+          summary,
+          topics: categories.map(category => ({ id: category, name: category, color: getColorForTopic(category) })),
+        }),
         thumbnail: extractFirstImage(content),
         topics: categories.map(category => ({
           id: category,

@@ -186,6 +186,8 @@ describe('Posts Library', () => {
               title: 'Post 1',
               date: '2024-01-01',
               summary: 'Summary 1',
+              searchText: 'post 1 summary 1 react',
+              readingTimeMin: 3,
               topics: [{ id: 'react', name: 'React', color: 'blue' }],
               thumbnail: '/thumb1.jpg',
             },
@@ -194,6 +196,8 @@ describe('Posts Library', () => {
               title: 'Post 2',
               date: '2024-01-01',
               summary: 'Summary 2',
+              searchText: 'post 2 summary 2 nextjs',
+              readingTimeMin: 3,
               topics: [{ id: 'nextjs', name: 'Next.js', color: 'green' }],
               thumbnail: '/thumb2.jpg',
             },
@@ -202,6 +206,8 @@ describe('Posts Library', () => {
               title: 'Post 3',
               date: '2024-01-02',
               summary: 'Summary 3',
+              searchText: 'post 3 summary 3 react',
+              readingTimeMin: 4,
               topics: [{ id: 'react', name: 'React', color: 'red' }],
               thumbnail: '/thumb3.jpg',
             },
@@ -248,54 +254,45 @@ describe('Posts Library', () => {
       expect(second).toEqual(first);
     });
 
-    it('falls back to post summary when markdown files do not exist', async () => {
+    it('uses index metadata directly without markdown fallback', async () => {
       (fs.existsSync as jest.Mock).mockImplementation((p: string) => p.includes('/public/data/posts.'));
       const result = await getSortedPostsData('en');
       expect(result).toHaveLength(1);
       expect(result[0].readingTimeMin).toBeDefined();
+      expect(result[0].searchText).toBeDefined();
     });
 
-    it('uses fallback markdown path and reuses cached reading time between cache keys', async () => {
-      (fs.existsSync as jest.Mock).mockImplementation((p: string) => {
-        if (p.includes('/public/data/posts.fr.json')) return true;
-        if (p.includes('/fr/fallback-post.md')) return false;
-        if (p.includes('/en/fallback-post.md')) return true;
-        return false;
-      });
-
+    it('skips posts missing strict metadata fields', async () => {
+      (fs.existsSync as jest.Mock).mockImplementation((p: string) => p.includes('/public/data/posts.fr.json'));
       (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
         if (filePath.includes('/public/data/posts.fr.json')) {
           return JSON.stringify([
             {
-              id: 'fallback-post',
-              title: 'Fallback Post',
+              id: 'valid-post',
+              title: 'Valid Post',
               date: '2024-01-10',
-              summary: 'Fallback summary',
+              summary: 'Valid summary',
+              searchText: 'valid post valid summary react',
+              readingTimeMin: 3,
+              topics: [{ id: 'react', name: 'React', color: 'blue' }],
+              thumbnail: '/thumb.jpg',
+            },
+            {
+              id: 'invalid-post',
+              title: 'Invalid Post',
+              date: '2024-01-09',
+              summary: 'Invalid summary',
               topics: [{ id: 'react', name: 'React', color: 'blue' }],
               thumbnail: '/thumb.jpg',
             },
           ]);
         }
-        if (filePath.includes('/en/fallback-post.md')) {
-          return `---
-title: Fallback Post
----
-Fallback markdown content`;
-        }
         return '';
       });
 
-      const first = await getSortedPostsData('fr');
-      const second = await getSortedPostsData('fr', 'react');
-
-      expect(first).toHaveLength(1);
-      expect(second).toHaveLength(1);
-
-      const fallbackFileChecks = (fs.existsSync as jest.Mock).mock.calls
-        .map(call => call[0] as string)
-        .filter(p => p.includes('/en/fallback-post.md'));
-
-      expect(fallbackFileChecks).toHaveLength(1);
+      const result = await getSortedPostsData('fr');
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe('valid-post');
     });
 
     it('handles malformed posts index gracefully', async () => {
@@ -324,30 +321,23 @@ Fallback markdown content`;
       expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('en/mock-post.md'), 'utf8');
     });
 
-    it('uses fallbackPath if localizedPath does not exist', async () => {
+    it('returns null when localizedPath does not exist', async () => {
       const mockedJoin = require('path').join as jest.Mock;
       mockedJoin.mockImplementation((...args: string[]) => {
         const joinedPath = args.join('/');
         if (joinedPath.includes('/fr/mock-post.md')) {
           return 'localized/fr/mock-post.md';
         }
-        if (joinedPath.includes('/en/mock-post.md')) {
-          return 'fallback/en/mock-post.md';
-        }
         return joinedPath;
       });
       (fs.existsSync as jest.Mock).mockImplementation((p: string) => {
         if (p === 'localized/fr/mock-post.md') return false;
-        if (p === 'fallback/en/mock-post.md') return true;
         return false;
       });
       const result = await getPostData('mock-post', 'fr');
-      expect(result).toEqual(mockPost);
+      expect(result).toBeNull();
       expect(mockedJoin).toHaveBeenCalledWith(expect.stringContaining('content/posts'), 'fr', 'mock-post.md');
-      expect(mockedJoin).toHaveBeenCalledWith(expect.stringContaining('content/posts'), 'en', 'mock-post.md');
       expect(fs.existsSync).toHaveBeenCalledWith('localized/fr/mock-post.md');
-      expect(fs.existsSync).toHaveBeenCalledWith('fallback/en/mock-post.md');
-      expect(fs.readFileSync).toHaveBeenCalledWith('fallback/en/mock-post.md', 'utf8');
     });
 
     it('returns null if file does not exist', async () => {
