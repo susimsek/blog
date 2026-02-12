@@ -172,7 +172,7 @@ export default function PostToc({ content, rootRef }: Readonly<PostTocProps>) {
     };
   }, [items, rootRef]);
 
-  if (items.length < 2) {
+  if (items.length === 0) {
     return null;
   }
 

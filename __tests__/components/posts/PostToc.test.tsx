@@ -36,8 +36,12 @@ describe('PostToc', () => {
     jest.restoreAllMocks();
   });
 
-  it('returns null when there are fewer than two headings', () => {
-    const root = createRoot([{ tag: 'h2', text: 'Only heading' }]);
+  it('returns null when there are no supported headings', () => {
+    const root = document.createElement('article');
+    const paragraph = document.createElement('p');
+    paragraph.textContent = 'Just paragraph';
+    root.appendChild(paragraph);
+    document.body.appendChild(root);
     render(<PostToc content="content" rootRef={{ current: root }} />);
 
     expect(screen.queryByText('post.tocTitle')).not.toBeInTheDocument();
@@ -60,9 +64,9 @@ describe('PostToc', () => {
 
     render(<PostToc content="content" rootRef={{ current: root }} />);
 
-    const headings = root.querySelectorAll('h2');
-    expect(headings[0].id).toBe('section');
-    expect(headings[1].id).toBe('section-1');
+    const sectionHeadings = root.querySelectorAll('h2');
+    expect(sectionHeadings[0].id).toBe('section');
+    expect(sectionHeadings[1].id).toBe('section-1');
 
     const links = screen.getAllByRole('link');
     fireEvent.click(links[1]);
@@ -140,17 +144,12 @@ describe('PostToc', () => {
         first.textContent = 'First section';
         root.appendChild(first);
 
-        const second = document.createElement('h2');
-        second.textContent = 'Second section';
-        root.appendChild(second);
-
         mutationCallback?.([], {} as MutationObserver);
       });
 
       await waitFor(() => {
         expect(screen.getByText('post.tocTitle')).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'First section' })).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: 'Second section' })).toBeInTheDocument();
       });
     } finally {
       Object.defineProperty(globalThis, 'MutationObserver', {

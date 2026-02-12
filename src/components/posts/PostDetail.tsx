@@ -46,7 +46,7 @@ const getFenceToken = (line: string): FenceToken | null => {
   return null;
 };
 
-const hasAtLeastTwoMarkdownHeadings = (markdown: string): boolean => {
+const hasSupportedMarkdownHeading = (markdown: string): boolean => {
   if (!markdown) {
     return false;
   }
@@ -54,8 +54,6 @@ const hasAtLeastTwoMarkdownHeadings = (markdown: string): boolean => {
   const lines = markdown.split(/\r?\n/);
   let inFence = false;
   let fenceToken: FenceToken | null = null;
-  let headingCount = 0;
-
   for (const line of lines) {
     const currentFence = getFenceToken(line);
     if (currentFence) {
@@ -73,12 +71,7 @@ const hasAtLeastTwoMarkdownHeadings = (markdown: string): boolean => {
       continue;
     }
 
-    if (!/^##\s+\S+/.test(line)) {
-      continue;
-    }
-
-    headingCount += 1;
-    if (headingCount >= 2) {
+    if (/^##\s+\S+/.test(line)) {
       return true;
     }
   }
@@ -148,7 +141,7 @@ export default function PostDetail({
   const copyTimeoutRef = React.useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
   const [isCopied, setIsCopied] = React.useState(false);
   const markdown = contentHtml ?? '';
-  const hasToc = React.useMemo(() => hasAtLeastTwoMarkdownHeadings(markdown), [markdown]);
+  const hasToc = React.useMemo(() => hasSupportedMarkdownHeading(markdown), [markdown]);
   const thumbnailSrc = (() => {
     if (!thumbnail) return null;
     try {
