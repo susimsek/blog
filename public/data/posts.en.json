@@ -358,6 +358,49 @@
     "searchText": "spring boot ai integration learn how to integrate ai models into spring boot applications using spring ai for modular portable and observable ai workflows java kotlin spring boot spring ai artificial intelligence programming"
   },
   {
+    "id": "https://medium.com/p/3703a3b9fd29",
+    "title": "Spring Boot GraalVM Native Image",
+    "date": "Tue, 22 Apr 2025 08:02:29 GMT",
+    "summary": "📖 Introduction\nJava applications often suffer from long startup times and high memory consumption, making modern software development more challenging. However, GraalVM Native Image offers a groundbr...",
+    "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*07CXmp711t--05EF398hwQ.jpeg",
+    "topics": [
+      {
+        "id": "upx",
+        "name": "upx",
+        "color": "cyan",
+        "link": "https://medium.com/tag/upx"
+      },
+      {
+        "id": "kubernetes",
+        "name": "kubernetes",
+        "color": "red",
+        "link": "https://medium.com/tag/kubernetes"
+      },
+      {
+        "id": "spring-boot",
+        "name": "spring-boot",
+        "color": "pink",
+        "link": "https://medium.com/tag/spring-boot"
+      },
+      {
+        "id": "native-image",
+        "name": "native-image",
+        "color": "purple",
+        "link": "https://medium.com/tag/native-image"
+      },
+      {
+        "id": "graalvm",
+        "name": "graalvm",
+        "color": "yellow",
+        "link": "https://medium.com/tag/graalvm"
+      }
+    ],
+    "readingTimeMin": 2,
+    "source": "medium",
+    "link": "https://medium.com/yapi-kredi-teknoloji/spring-boot-graalvm-native-image-3703a3b9fd29?source=rss-bda589f2335a------2",
+    "searchText": "spring boot graalvm native image introduction java applications often suffer from long startup times and high memory consumption making modern software development more challenging however graalvm native image offers a groundbr upx kubernetes spring boot native image graalvm"
+  },
+  {
     "id": "spring-boot-jpa-auditing",
     "title": "Spring Boot JPA Auditing",
     "date": "2025-04-10",
@@ -1366,5 +1409,392 @@
     ],
     "readingTimeMin": 3,
     "searchText": "spring boot first application a beginner friendly guide to creating your first spring boot application from scratch learn the basics and start your journey with spring boot java kotlin spring boot beginner guide programming"
+  },
+  {
+    "id": "https://medium.com/p/eb227e1a748b",
+    "title": "React & Spring Boot Graphql Fullstack Microservice Application on Kubernetes",
+    "date": "Sun, 28 Aug 2022 16:29:12 GMT",
+    "summary": "Hello everyone, In this article, we will develop a fullstack graphql microservice application using React and Spring Boot and deploy this application on Kubernetes.\nGraphQL\nGraphQL is a query language...",
+    "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*PGprMpt9l9D_eUGYW1tzSA.png",
+    "topics": [
+      {
+        "id": "microservices",
+        "name": "microservices",
+        "color": "red",
+        "link": "https://medium.com/tag/microservices"
+      },
+      {
+        "id": "spring-boot",
+        "name": "spring-boot",
+        "color": "pink",
+        "link": "https://medium.com/tag/spring-boot"
+      },
+      {
+        "id": "graphql",
+        "name": "graphql",
+        "color": "cyan",
+        "link": "https://medium.com/tag/graphql"
+      },
+      {
+        "id": "kubernetes",
+        "name": "kubernetes",
+        "color": "red",
+        "link": "https://medium.com/tag/kubernetes"
+      },
+      {
+        "id": "react",
+        "name": "react",
+        "color": "brown",
+        "link": "https://medium.com/tag/react"
+      }
+    ],
+    "readingTimeMin": 5,
+    "source": "medium",
+    "link": "https://suaybsimsek58.medium.com/react-spring-boot-graphql-fullstack-microservice-application-on-kubernetes-eb227e1a748b?source=rss-bda589f2335a------2",
+    "searchText": "react spring boot graphql fullstack microservice application on kubernetes hello everyone in this article we will develop a fullstack graphql microservice application using react and spring boot and deploy this application on kubernetes graphql graphql is a query language microservices spring boot graphql kubernetes react"
+  },
+  {
+    "id": "https://medium.com/p/7ea33894d12b",
+    "title": "React & Spring Boot Hateoas Driven Fullstack Application on Kubernetes",
+    "date": "Tue, 15 Mar 2022 19:22:26 GMT",
+    "summary": "Hello everyone, In this article, we will develop a hateoas driven fullstack application using React and Spring Boot and deploy this application on Kubernetes.\nRichardson Maturity Model\n\nLeonard Richar...",
+    "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*mbUH1UeaKybgUMKTP1ou5w.png",
+    "topics": [
+      {
+        "id": "kubernetes",
+        "name": "kubernetes",
+        "color": "red",
+        "link": "https://medium.com/tag/kubernetes"
+      },
+      {
+        "id": "spring-boot",
+        "name": "spring-boot",
+        "color": "pink",
+        "link": "https://medium.com/tag/spring-boot"
+      },
+      {
+        "id": "hateoas",
+        "name": "hateoas",
+        "color": "cyan",
+        "link": "https://medium.com/tag/hateoas"
+      },
+      {
+        "id": "react",
+        "name": "react",
+        "color": "brown",
+        "link": "https://medium.com/tag/react"
+      },
+      {
+        "id": "spring-native",
+        "name": "spring-native",
+        "color": "green",
+        "link": "https://medium.com/tag/spring-native"
+      }
+    ],
+    "readingTimeMin": 6,
+    "source": "medium",
+    "link": "https://suaybsimsek58.medium.com/react-spring-boot-hateoas-driven-fullstack-application-on-kubernetes-7ea33894d12b?source=rss-bda589f2335a------2",
+    "searchText": "react spring boot hateoas driven fullstack application on kubernetes hello everyone in this article we will develop a hateoas driven fullstack application using react and spring boot and deploy this application on kubernetes richardson maturity model leonard richar kubernetes spring boot hateoas react spring native"
+  },
+  {
+    "id": "https://medium.com/p/b82662ada0a4",
+    "title": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 6)",
+    "date": "Mon, 10 Jan 2022 20:01:06 GMT",
+    "summary": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 6) — Orderer\n\nHello everyone, through this article series we will the Hyperledger Fabric integration wi...",
+    "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*268MMjpMXhKeCJKmo74BWA.png",
+    "topics": [
+      {
+        "id": "orderer",
+        "name": "orderer",
+        "color": "brown",
+        "link": "https://medium.com/tag/orderer"
+      },
+      {
+        "id": "blockchain",
+        "name": "blockchain",
+        "color": "red",
+        "link": "https://medium.com/tag/blockchain"
+      },
+      {
+        "id": "kubernetes",
+        "name": "kubernetes",
+        "color": "red",
+        "link": "https://medium.com/tag/kubernetes"
+      },
+      {
+        "id": "spring-boot",
+        "name": "spring-boot",
+        "color": "pink",
+        "link": "https://medium.com/tag/spring-boot"
+      },
+      {
+        "id": "hyperledger-fabric",
+        "name": "hyperledger-fabric",
+        "color": "green",
+        "link": "https://medium.com/tag/hyperledger-fabric"
+      }
+    ],
+    "readingTimeMin": 6,
+    "source": "medium",
+    "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-6-b82662ada0a4?source=rss-bda589f2335a------2",
+    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 6 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 6 orderer hello everyone through this article series we will the hyperledger fabric integration wi orderer blockchain kubernetes spring boot hyperledger fabric"
+  },
+  {
+    "id": "https://medium.com/p/1723502770e7",
+    "title": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 5)",
+    "date": "Mon, 27 Dec 2021 19:30:57 GMT",
+    "summary": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 5) — Kafka\n\nHello everyone, through this article series we will the Hyperledger Fabric integration with...",
+    "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*cN6xIURs0Xub9a7A38II-g.png",
+    "topics": [
+      {
+        "id": "hyperledger-fabric",
+        "name": "hyperledger-fabric",
+        "color": "green",
+        "link": "https://medium.com/tag/hyperledger-fabric"
+      },
+      {
+        "id": "kubernetes",
+        "name": "kubernetes",
+        "color": "red",
+        "link": "https://medium.com/tag/kubernetes"
+      },
+      {
+        "id": "blockchain",
+        "name": "blockchain",
+        "color": "red",
+        "link": "https://medium.com/tag/blockchain"
+      },
+      {
+        "id": "spring-boot",
+        "name": "spring-boot",
+        "color": "pink",
+        "link": "https://medium.com/tag/spring-boot"
+      },
+      {
+        "id": "kafka",
+        "name": "kafka",
+        "color": "red",
+        "link": "https://medium.com/tag/kafka"
+      }
+    ],
+    "readingTimeMin": 7,
+    "source": "medium",
+    "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-5-1723502770e7?source=rss-bda589f2335a------2",
+    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 5 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 5 kafka hello everyone through this article series we will the hyperledger fabric integration with hyperledger fabric kubernetes blockchain spring boot kafka"
+  },
+  {
+    "id": "https://medium.com/p/daf84e4f9227",
+    "title": "Reducing Spring Native and Golang Docker Image Size by 70% with Upx",
+    "date": "Mon, 20 Dec 2021 18:03:04 GMT",
+    "summary": "Reducing Docker Image Size by 70% in Spring Native and Golang Projects with Upx\n\nHi, In this article, I will explain how we can reduce the docker image size by 70% using upx in spring native and golan...",
+    "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*ssImHh3iXkYz014MF6ukrw.png",
+    "topics": [
+      {
+        "id": "upx",
+        "name": "upx",
+        "color": "cyan",
+        "link": "https://medium.com/tag/upx"
+      },
+      {
+        "id": "golang",
+        "name": "golang",
+        "color": "yellow",
+        "link": "https://medium.com/tag/golang"
+      },
+      {
+        "id": "docker",
+        "name": "docker",
+        "color": "yellow",
+        "link": "https://medium.com/tag/docker"
+      },
+      {
+        "id": "spring-boot",
+        "name": "spring-boot",
+        "color": "pink",
+        "link": "https://medium.com/tag/spring-boot"
+      },
+      {
+        "id": "spring-native",
+        "name": "spring-native",
+        "color": "green",
+        "link": "https://medium.com/tag/spring-native"
+      }
+    ],
+    "readingTimeMin": 3,
+    "source": "medium",
+    "link": "https://suaybsimsek58.medium.com/reducing-spring-native-and-golang-docker-image-size-by-70-with-upx-daf84e4f9227?source=rss-bda589f2335a------2",
+    "searchText": "reducing spring native and golang docker image size by 70 with upx reducing docker image size by 70 in spring native and golang projects with upx hi in this article i will explain how we can reduce the docker image size by 70 using upx in spring native and golan upx golang docker spring boot spring native"
+  },
+  {
+    "id": "https://medium.com/p/d6583a57153c",
+    "title": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 4)",
+    "date": "Sat, 27 Nov 2021 13:47:38 GMT",
+    "summary": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 4) — Generating Certificates and Artifacts\n\nHello everyone, through this article series we will the Hyp...",
+    "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*RynSwoXhv_P64QKrH4q2ZQ.png",
+    "topics": [
+      {
+        "id": "blockchain",
+        "name": "blockchain",
+        "color": "red",
+        "link": "https://medium.com/tag/blockchain"
+      },
+      {
+        "id": "kubernetes",
+        "name": "kubernetes",
+        "color": "red",
+        "link": "https://medium.com/tag/kubernetes"
+      },
+      {
+        "id": "hyperledger",
+        "name": "hyperledger",
+        "color": "purple",
+        "link": "https://medium.com/tag/hyperledger"
+      },
+      {
+        "id": "hyperledger-fabric",
+        "name": "hyperledger-fabric",
+        "color": "green",
+        "link": "https://medium.com/tag/hyperledger-fabric"
+      },
+      {
+        "id": "spring-boot",
+        "name": "spring-boot",
+        "color": "pink",
+        "link": "https://medium.com/tag/spring-boot"
+      }
+    ],
+    "readingTimeMin": 6,
+    "source": "medium",
+    "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-4-d6583a57153c?source=rss-bda589f2335a------2",
+    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 4 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 4 generating certificates and artifacts hello everyone through this article series we will the hyp blockchain kubernetes hyperledger hyperledger fabric spring boot"
+  },
+  {
+    "id": "https://medium.com/p/7eb2fc75ba60",
+    "title": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 3)",
+    "date": "Sun, 21 Nov 2021 14:33:12 GMT",
+    "summary": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 3) — Fabric CA Server\n\nHello everyone, through this article series we will the Hyperledger Fabric integ...",
+    "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*S9G4q0odpEbDjhcIowUDQw.png",
+    "topics": [
+      {
+        "id": "spring-boot",
+        "name": "spring-boot",
+        "color": "pink",
+        "link": "https://medium.com/tag/spring-boot"
+      },
+      {
+        "id": "hyperledger-fabric",
+        "name": "hyperledger-fabric",
+        "color": "green",
+        "link": "https://medium.com/tag/hyperledger-fabric"
+      },
+      {
+        "id": "blockchain",
+        "name": "blockchain",
+        "color": "red",
+        "link": "https://medium.com/tag/blockchain"
+      },
+      {
+        "id": "fabric-ca-server",
+        "name": "fabric-ca-server",
+        "color": "gray",
+        "link": "https://medium.com/tag/fabric-ca-server"
+      },
+      {
+        "id": "kubernetes",
+        "name": "kubernetes",
+        "color": "red",
+        "link": "https://medium.com/tag/kubernetes"
+      }
+    ],
+    "readingTimeMin": 7,
+    "source": "medium",
+    "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-3-7eb2fc75ba60?source=rss-bda589f2335a------2",
+    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 3 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 3 fabric ca server hello everyone through this article series we will the hyperledger fabric integ spring boot hyperledger fabric blockchain fabric ca server kubernetes"
+  },
+  {
+    "id": "https://medium.com/p/ddce8d25858d",
+    "title": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 2)",
+    "date": "Sun, 31 Oct 2021 18:04:46 GMT",
+    "summary": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 2) — Kubernetes Cluster Setup\n\nHello everyone, through this article series we will the Hyperledger Fabr...",
+    "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*9wP-lyvH_YZXzgJHWQRfCw.png",
+    "topics": [
+      {
+        "id": "blockchain",
+        "name": "blockchain",
+        "color": "red",
+        "link": "https://medium.com/tag/blockchain"
+      },
+      {
+        "id": "kubernetes",
+        "name": "kubernetes",
+        "color": "red",
+        "link": "https://medium.com/tag/kubernetes"
+      },
+      {
+        "id": "spring-boot",
+        "name": "spring-boot",
+        "color": "pink",
+        "link": "https://medium.com/tag/spring-boot"
+      },
+      {
+        "id": "vagrant",
+        "name": "vagrant",
+        "color": "purple",
+        "link": "https://medium.com/tag/vagrant"
+      },
+      {
+        "id": "hyperledger-fabric",
+        "name": "hyperledger-fabric",
+        "color": "green",
+        "link": "https://medium.com/tag/hyperledger-fabric"
+      }
+    ],
+    "readingTimeMin": 7,
+    "source": "medium",
+    "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-ddce8d25858d?source=rss-bda589f2335a------2",
+    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 2 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 2 kubernetes cluster setup hello everyone through this article series we will the hyperledger fabr blockchain kubernetes spring boot vagrant hyperledger fabric"
+  },
+  {
+    "id": "https://medium.com/p/c8f7c87d60eb",
+    "title": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 1)",
+    "date": "Sun, 17 Oct 2021 17:59:32 GMT",
+    "summary": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 1) — Introduction\n\nHello everyone, through this article series we will the Hyperledger Fabric integrati...",
+    "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*R9q34HnrsGeQiExwr54NYA.png",
+    "topics": [
+      {
+        "id": "hyperledger-fabric",
+        "name": "hyperledger-fabric",
+        "color": "green",
+        "link": "https://medium.com/tag/hyperledger-fabric"
+      },
+      {
+        "id": "blockchain",
+        "name": "blockchain",
+        "color": "red",
+        "link": "https://medium.com/tag/blockchain"
+      },
+      {
+        "id": "spring",
+        "name": "spring",
+        "color": "brown",
+        "link": "https://medium.com/tag/spring"
+      },
+      {
+        "id": "spring-boot",
+        "name": "spring-boot",
+        "color": "pink",
+        "link": "https://medium.com/tag/spring-boot"
+      },
+      {
+        "id": "hyperledger-explorer",
+        "name": "hyperledger-explorer",
+        "color": "green",
+        "link": "https://medium.com/tag/hyperledger-explorer"
+      }
+    ],
+    "readingTimeMin": 6,
+    "source": "medium",
+    "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-1-c8f7c87d60eb?source=rss-bda589f2335a------2",
+    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 1 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 1 introduction hello everyone through this article series we will the hyperledger fabric integrati hyperledger fabric blockchain spring spring boot hyperledger explorer"
   }
 ]

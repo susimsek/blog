@@ -14,7 +14,7 @@ type MediumItem = Parser.Item & {
 const fsPromises = fs.promises;
 const fileExists = async (filePath: string) => fs.existsSync(filePath);
 
-const FEED_JSON_PATH = path.join(process.cwd(), 'public', 'data', 'medium-feed.json');
+const FEED_JSON_PATH = path.join(process.cwd(), 'content', 'external', 'medium-feed.json');
 
 export const mediumPostsCache = createCacheStore<PostSummary[]>('mediumPostsData');
 

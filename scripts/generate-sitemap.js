@@ -90,7 +90,11 @@ function readPosts(locale) {
   const postsJsonPath = path.join(process.cwd(), 'public', 'data', `posts.${locale}.json`);
   if (fs.existsSync(postsJsonPath)) {
     try {
-      return JSON.parse(fs.readFileSync(postsJsonPath, 'utf8'));
+      const parsed = JSON.parse(fs.readFileSync(postsJsonPath, 'utf8'));
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+      return parsed.filter(post => (post?.source === 'medium' ? false : true));
     } catch (error) {
       console.error(`Error reading/parsing posts index for locale "${locale}":`, error);
       return [];

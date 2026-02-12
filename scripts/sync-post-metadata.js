@@ -117,6 +117,16 @@ const syncLocale = locale => {
   let changed = 0;
   let missingMarkdown = 0;
   const next = posts.map(post => {
+    const source = post.source === 'medium' ? 'medium' : 'blog';
+    if (source === 'medium') {
+      const { readingTime, ...rest } = post;
+      void readingTime;
+      return {
+        ...rest,
+        source: 'medium',
+      };
+    }
+
     const markdown = readMarkdownContent(post.id, locale);
     if (markdown === null) {
       missingMarkdown += 1;

@@ -25,7 +25,8 @@
     "jest": "jest --coverage --maxWorkers=2 --config jest.config.js",
     "test": "pnpm run jest --",
     "test:watch": "pnpm run jest -- --watch",
-    "fetch:medium": "node scripts/fetch-medium-feed.js",
+    "fetch:medium": "node scripts/fetch-medium-feed.js && node scripts/sync-medium-posts.js",
+    "sync:medium-posts": "node scripts/sync-medium-posts.js",
     "sync:post-metadata": "node scripts/sync-post-metadata.js",
     "sync:reading-time": "pnpm run sync:post-metadata"
   },

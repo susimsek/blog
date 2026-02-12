@@ -7,7 +7,7 @@ import Col from 'react-bootstrap/Col';
 import { LayoutPostSummary, PostSummary, Topic } from '@/types/posts';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { GoogleAnalytics } from '@next/third-parties/google';
-import { GA_ID, TOPIC_COLORS } from '@/config/constants';
+import { GA_ID } from '@/config/constants';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { useParams } from 'next/navigation';
 import { defaultLocale } from '@/i18n/settings';
@@ -15,7 +15,6 @@ import { setPosts, setLocale, setTopics } from '@/reducers/postsQuery';
 import PreFooter from '@/components/common/PreFooter';
 import dynamic from 'next/dynamic';
 import { withBasePath } from '@/lib/basePath';
-import { buildPostSearchText } from '@/lib/searchText';
 
 const Sidebar = dynamic(() => import('@/components/common/Sidebar'));
 
@@ -107,194 +106,6 @@ const normalizeSearchTopics = (topics: ReadonlyArray<unknown>): Topic[] =>
     ];
   });
 
-const MEDIUM_WHITESPACE_CHARS = new Set([' ', '\n', '\r', '\t', '\f', '\v']);
-
-const collapseMediumWhitespace = (value: string): string => {
-  let result = '';
-  let inWhitespace = false;
-
-  for (const char of value) {
-    if (MEDIUM_WHITESPACE_CHARS.has(char)) {
-      if (!inWhitespace) {
-        result += ' ';
-        inWhitespace = true;
-      }
-    } else {
-      inWhitespace = false;
-      result += char;
-    }
-  }
-
-  return result.trim();
-};
-
-const stripMediumHtml = (html: string): string => {
-  let result = '';
-  let insideTag = false;
-
-  for (const char of html) {
-    if (char === '<') {
-      insideTag = true;
-      continue;
-    }
-
-    if (char === '>') {
-      insideTag = false;
-      result += ' ';
-      continue;
-    }
-
-    if (!insideTag) {
-      result += char;
-    }
-  }
-
-  return collapseMediumWhitespace(result);
-};
-
-const extractAttributeValue = (tag: string, attribute: string): string | null => {
-  const lowerTag = tag.toLowerCase();
-  const attributePattern = `${attribute.toLowerCase()}=`;
-  const attrIndex = lowerTag.indexOf(attributePattern);
-
-  if (attrIndex === -1) {
-    return null;
-  }
-
-  let valueStart = attrIndex + attributePattern.length;
-  const quoteChar = tag[valueStart];
-  let valueEnd: number;
-
-  if (quoteChar === '"' || quoteChar === "'") {
-    valueStart += 1;
-    valueEnd = tag.indexOf(quoteChar, valueStart);
-    if (valueEnd === -1) {
-      return null;
-    }
-    return tag.slice(valueStart, valueEnd);
-  }
-
-  valueEnd = valueStart;
-  while (valueEnd < tag.length && !MEDIUM_WHITESPACE_CHARS.has(tag[valueEnd]) && tag[valueEnd] !== '>') {
-    valueEnd += 1;
-  }
-
-  return tag.slice(valueStart, valueEnd);
-};
-
-const extractFirstImage = (html: string): string | null => {
-  const lowerHtml = html.toLowerCase();
-  let searchIndex = 0;
-
-  while (searchIndex < lowerHtml.length) {
-    const imgIndex = lowerHtml.indexOf('<img', searchIndex);
-    if (imgIndex === -1) {
-      return null;
-    }
-
-    const tagEnd = lowerHtml.indexOf('>', imgIndex);
-    if (tagEnd === -1) {
-      return null;
-    }
-
-    const tag = html.slice(imgIndex, tagEnd + 1);
-    const srcValue = extractAttributeValue(tag, 'src');
-    if (srcValue) {
-      return srcValue;
-    }
-
-    searchIndex = tagEnd + 1;
-  }
-
-  return null;
-};
-
-const calculateMediumReadingTimeMin = (html: string): number => {
-  const wordCount = stripMediumHtml(html).split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.ceil(wordCount / 265));
-};
-
-const getColorForTopic = (topic: string): (typeof TOPIC_COLORS)[number] => {
-  let hash = 0;
-  for (const char of topic) {
-    hash = (char.codePointAt(0) ?? 0) + ((hash << 5) - hash);
-  }
-  const index = Math.abs(hash) % TOPIC_COLORS.length;
-  return TOPIC_COLORS[index];
-};
-
-const normalizeMediumFeedPosts = (payload: unknown): PostSummary[] => {
-  if (!payload || typeof payload !== 'object') {
-    return [];
-  }
-
-  const items = Array.isArray((payload as { items?: unknown }).items)
-    ? ((payload as { items: unknown[] }).items ?? [])
-    : [];
-
-  return items.flatMap((item, index) => {
-    if (!item || typeof item !== 'object') {
-      return [];
-    }
-
-    const candidate = item as {
-      guid?: unknown;
-      title?: unknown;
-      pubDate?: unknown;
-      link?: unknown;
-      content?: unknown;
-      ['content:encoded']?: unknown;
-      ['content:encodedSnippet']?: unknown;
-      categories?: unknown;
-    };
-
-    const content =
-      typeof candidate['content:encoded'] === 'string'
-        ? candidate['content:encoded']
-        : typeof candidate.content === 'string'
-          ? candidate.content
-          : '';
-    const rawSummary =
-      typeof candidate['content:encodedSnippet'] === 'string'
-        ? candidate['content:encodedSnippet']
-        : stripMediumHtml(content);
-    const summary = rawSummary.length > 200 ? `${rawSummary.slice(0, 200)}...` : rawSummary;
-
-    const categories = Array.isArray(candidate.categories)
-      ? candidate.categories.filter(
-          (category): category is string => typeof category === 'string' && category.length > 0,
-        )
-      : [];
-
-    return [
-      {
-        id: typeof candidate.guid === 'string' && candidate.guid.length > 0 ? candidate.guid : `rss-${index}`,
-        title: typeof candidate.title === 'string' && candidate.title.length > 0 ? candidate.title : 'Untitled',
-        date:
-          typeof candidate.pubDate === 'string' && candidate.pubDate.length > 0
-            ? candidate.pubDate
-            : new Date().toISOString(),
-        summary,
-        searchText: buildPostSearchText({
-          title: typeof candidate.title === 'string' && candidate.title.length > 0 ? candidate.title : 'Untitled',
-          summary,
-          topics: categories.map(category => ({ id: category, name: category, color: getColorForTopic(category) })),
-        }),
-        thumbnail: extractFirstImage(content),
-        topics: categories.map(category => ({
-          id: category,
-          name: category,
-          color: getColorForTopic(category),
-          link: `https://medium.com/tag/${category}`,
-        })),
-        readingTimeMin: calculateMediumReadingTimeMin(content),
-        source: 'medium',
-        ...(typeof candidate.link === 'string' ? { link: candidate.link } : {}),
-      },
-    ];
-  });
-};
-
 const LayoutStateInitializer: React.FC = () => {
   const dispatch = useAppDispatch();
   const params = useParams<{ locale?: string | string[] }>();
@@ -310,27 +121,12 @@ const LayoutStateInitializer: React.FC = () => {
 
     const loadPublicPosts = async () => {
       try {
-        const [blogResponse, mediumResponse] = await Promise.all([
-          fetch(withBasePath(`/data/posts.${currentLocale}.json`), {
-            signal: controller.signal,
-          }),
-          fetch(withBasePath('/data/medium-feed.json'), {
-            signal: controller.signal,
-          }),
-        ]);
-
-        const blogPayload = blogResponse.ok ? ((await blogResponse.json()) as unknown) : [];
-        const mediumPayload = mediumResponse.ok ? ((await mediumResponse.json()) as unknown) : null;
-
-        const normalizedBlogPosts = Array.isArray(blogPayload) ? normalizeSearchPosts(blogPayload) : [];
-        const normalizedMediumPosts = normalizeMediumFeedPosts(mediumPayload);
-
-        const deduped = new Map<string, PostSummary>();
-        for (const post of [...normalizedBlogPosts, ...normalizedMediumPosts]) {
-          deduped.set(`${post.source ?? 'blog'}:${post.id}`, post);
-        }
-
-        dispatch(setPosts([...deduped.values()]));
+        const response = await fetch(withBasePath(`/data/posts.${currentLocale}.json`), {
+          signal: controller.signal,
+        });
+        const payload = response.ok ? ((await response.json()) as unknown) : [];
+        const normalizedPosts = Array.isArray(payload) ? normalizeSearchPosts(payload) : [];
+        dispatch(setPosts(normalizedPosts));
       } catch (error) {
         if ((error as { name?: string })?.name === 'AbortError') {
           return;

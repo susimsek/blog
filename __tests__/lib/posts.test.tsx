@@ -421,6 +421,20 @@ describe('Posts Library', () => {
       expect(result).toEqual([]);
     });
 
+    it('excludes medium-source IDs from generated post paths', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.readFileSync as jest.Mock).mockReturnValue(
+        JSON.stringify([{ id: 'blog-1' }, { id: 'medium-1', source: 'medium' }]),
+      );
+
+      const result = await getAllPostIds();
+      expect(result).toEqual([
+        { params: { id: 'blog-1', locale: 'en' } },
+        { params: { id: 'blog-1', locale: 'fr' } },
+        { params: { id: 'blog-1', locale: 'de' } },
+      ]);
+    });
+
     it('returns union of IDs found across locales', async () => {
       (fs.existsSync as jest.Mock).mockImplementation((filePath: string) => {
         if (filePath.endsWith('/public/data/posts.en.json')) return true;

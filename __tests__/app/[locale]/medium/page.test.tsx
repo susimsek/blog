@@ -14,8 +14,9 @@ const loadLocaleResourcesMock = jest.fn(async (_locale: string, _ns: string[]) =
   medium: { medium: { header: { title: 'Medium' } } },
 }));
 
-const fetchRssSummariesMock = jest.fn(async (_locale: string) => [{ id: 'medium-1' }]);
-const getSortedPostsDataMock = jest.fn(async (_locale: string) => [{ id: 'post-1' }, { id: 'post-2' }]);
+const getSortedPostsDataMock = jest.fn(async (_locale: string, _topicId?: string, source?: 'blog' | 'medium') =>
+  source === 'medium' ? [{ id: 'medium-1' }] : [{ id: 'post-1' }, { id: 'post-2' }],
+);
 const getLayoutPostsMock = jest.fn((_posts: unknown[]) => [{ id: 'post-1' }]);
 const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
 const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'topic-1' }]);
@@ -35,12 +36,9 @@ jest.mock('@/i18n/RouteI18nProvider', () => ({
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-jest.mock('@/lib/medium', () => ({
-  fetchRssSummaries: (locale: string) => fetchRssSummariesMock(locale),
-}));
-
 jest.mock('@/lib/posts', () => ({
-  getSortedPostsData: (locale: string) => getSortedPostsDataMock(locale),
+  getSortedPostsData: (locale: string, topicId?: string, source?: 'blog' | 'medium') =>
+    getSortedPostsDataMock(locale, topicId, source),
   getLayoutPosts: (posts: unknown[]) => getLayoutPostsMock(posts),
   getAllTopics: (locale: string) => getAllTopicsMock(locale),
   getTopTopicsFromPosts: (posts: unknown[], topics: unknown[]) => getTopTopicsFromPostsMock(posts, topics),
@@ -81,8 +79,8 @@ describe('App Route /[locale]/medium', () => {
     });
     render(element);
 
-    expect(fetchRssSummariesMock).toHaveBeenCalledWith('tr');
-    expect(getSortedPostsDataMock).toHaveBeenCalledWith('tr');
+    expect(getSortedPostsDataMock).toHaveBeenNthCalledWith(1, 'tr', undefined, 'medium');
+    expect(getSortedPostsDataMock).toHaveBeenNthCalledWith(2, 'tr', undefined, undefined);
     expect(loadLocaleResourcesMock).toHaveBeenCalledWith('tr', ['medium']);
     expect(mediumPageMock).toHaveBeenCalledWith({
       mediumPosts: [{ id: 'medium-1' }],

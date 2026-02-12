@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import MediumPage from '@/views/MediumPage';
-import { fetchRssSummaries } from '@/lib/medium';
 import { getAllTopics, getLayoutPosts, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/posts';
 import RouteI18nProvider from '@/i18n/RouteI18nProvider';
 import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
@@ -21,7 +20,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/medium'>
 
 export default async function MediumRoute({ params }: Readonly<PageProps<'/[locale]/medium'>>) {
   const { locale } = await params;
-  const mediumPosts = await fetchRssSummaries(locale);
+  const mediumPosts = await getSortedPostsData(locale, undefined, 'medium');
 
   const allPosts = await getSortedPostsData(locale);
   const layoutPosts = getLayoutPosts(allPosts);

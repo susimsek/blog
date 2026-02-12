@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
-import { LayoutPostSummary, Post, PostSummary, Topic } from '@/types/posts';
+import { LayoutPostSummary, Post, PostSource, PostSummary, Topic } from '@/types/posts';
 import i18nextConfig from '@/i18n/settings';
 import { createCacheStore } from '@/lib/cacheUtils';
 import { sortPosts } from '@/lib/postFilters';
@@ -38,19 +38,37 @@ const DEFAULT_TOP_TOPICS_LIMIT = 6;
 const ALL_POST_IDS_CACHE_KEY = 'all-post-ids';
 const ALL_TOPIC_IDS_CACHE_KEY = 'all-topic-ids';
 
-const readIdsFromIndexFile = async (indexPath: string, fileLabel: string): Promise<string[]> => {
+const readIdsFromIndexFile = async (
+  indexPath: string,
+  fileLabel: string,
+  options?: { source?: PostSource },
+): Promise<string[]> => {
   if (!(await fileExists(indexPath))) {
     return [];
   }
 
   try {
     const fileContents = await fsPromises.readFile(indexPath, 'utf8');
-    const parsed = JSON.parse(fileContents) as Array<{ id?: unknown }>;
+    const parsed = JSON.parse(fileContents) as Array<{ id?: unknown; source?: unknown }>;
     if (!Array.isArray(parsed)) {
       return [];
     }
 
-    return parsed.map(item => (typeof item?.id === 'string' ? item.id.trim() : '')).filter(Boolean);
+    return parsed
+      .flatMap(item => {
+        const id = typeof item?.id === 'string' ? item.id.trim() : '';
+        if (!id) {
+          return [];
+        }
+
+        if (!options?.source) {
+          return [id];
+        }
+
+        const source = item?.source === 'medium' ? 'medium' : 'blog';
+        return source === options.source ? [id] : [];
+      })
+      .filter(Boolean);
   } catch (error) {
     console.error(`Error reading/parsing ${fileLabel}:`, error);
     return [];
@@ -72,8 +90,12 @@ async function parsePostFile(filePath: string): Promise<{ data: PostSummary; con
 }
 
 // Get all posts grouped by locale
-export async function getSortedPostsData(locale: string, topicId?: string): Promise<PostSummary[]> {
-  const cacheKey = `${locale}-${topicId ?? 'all'}`;
+export async function getSortedPostsData(
+  locale: string,
+  topicId?: string,
+  source: PostSource = 'blog',
+): Promise<PostSummary[]> {
+  const cacheKey = `${locale}-${topicId ?? 'all'}-${source}`;
   const cachedData = postsCache.get(cacheKey);
   if (cachedData) {
     return cachedData;
@@ -95,6 +117,7 @@ export async function getSortedPostsData(locale: string, topicId?: string): Prom
         ...post,
         source: post.source === 'medium' ? ('medium' as const) : ('blog' as const),
       }))
+      .filter(post => post.source === source)
       .filter(post => !topicId || (Array.isArray(post.topics) && post.topics.some((t: Topic) => t.id === topicId)))
       .filter(
         post =>
@@ -205,7 +228,9 @@ export async function getAllPostIds() {
   const localizedIds = await Promise.all(
     localeList.map(async locale => {
       const postsJsonPath = path.join(postsIndexDirectory, `posts.${locale}.json`);
-      const ids = await readIdsFromIndexFile(postsJsonPath, `posts index for locale "${locale}"`);
+      const ids = await readIdsFromIndexFile(postsJsonPath, `posts index for locale "${locale}"`, {
+        source: 'blog',
+      });
       return [...new Set(ids)].map(id => ({
         params: { id, locale },
       }));
