@@ -243,7 +243,7 @@ const LayoutView: React.FC<LayoutProps> = ({
             <Container className="content-shell content-shell-inner">{children}</Container>
           </Col>
         </Row>
-        {sidebarEnabled && isMobile && (
+        {sidebarEnabled && isMobile && isMobileSidebarVisible && (
           <Sidebar
             topics={fetchedTopics}
             isMobile={isMobile}
