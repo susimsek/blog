@@ -34,6 +34,8 @@ Spring Boot, Kubernetes ile sorunsuz bir şekilde bütünleşerek konteynerleşt
 
 ## 🌟 Neden Spring Boot İçin Kubernetes Kullanmalıyız?
 
+Bu bölümde Neden Spring Boot İçin Kubernetes Kullanmalıyız? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Ölçeklenebilirlik: Trafiğe göre uygulamaları otomatik olarak ölçekleyin.
 - Kendi Kendine İyileşme: Kubernetes, başarısız olan konteynerleri otomatik olarak yeniden başlatır.
 - Deklaratif Yapılandırma: YAML dosyalarıyla altyapınızı kolayca yönetin.
@@ -58,9 +60,9 @@ Aşağıdaki araçların sisteminizde kurulu olduğundan emin olun:
 
 Spring Boot Web ve Actuator bağımlılıklarını ekleyerek uygulamanın sağlık durumu apilerini aktif edin.
 
-### Maven Yapılandırması:
+Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependencies>
     <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -73,9 +75,9 @@ Spring Boot Web ve Actuator bağımlılıklarını ekleyerek uygulamanın sağl�
 </dependencies>
 ```
 
-### Gradle Yapılandırması:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -91,7 +93,7 @@ Kubernetes üzerinde çalıştırılacak bir REST endpoint oluşturun.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="KubernetesApplication.java"
 package com.example.kubernetes;
 
 import org.springframework.boot.SpringApplication;
@@ -116,7 +118,7 @@ public class KubernetesApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="KubernetesApplication.kt"
 package com.example.kubernetes
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -145,7 +147,7 @@ fun main(args: Array<String>) {
 
 deployment.yaml dosyasını oluşturun:
 
-```yaml
+```yaml filename="deployment.yaml"
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -169,7 +171,7 @@ spec:
 
 service.yaml dosyasını oluşturun:
 
-```yaml
+```yaml filename="service.yaml"
 apiVersion: v1
 kind: Service
 metadata:
@@ -209,7 +211,7 @@ curl -X GET http://servis-adresi/hello
 
 Beklenen Çıktı:
 
-```plaintext
+```plaintext filename="snippet.txt"
 Merhaba! Spring Boot Kubernetes üzerinde çalışıyor.
 ```
 
@@ -217,4 +219,4 @@ Merhaba! Spring Boot Kubernetes üzerinde çalışıyor.
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot Kubernetes Entegrasyonu için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot Kubernetes Entegrasyonu için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

@@ -7,10 +7,12 @@ import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import { customIcons } from '@/config/customIcons';
 import markdownSchema from '@/config/markdownSchema';
+import remarkCodeFilenameAttribute from '@/lib/remarkCodeFilenameAttribute';
 
 interface MarkdownTabsRendererProps {
   content: string;
   components: Components;
+  createComponents?: (content: string) => Components;
 }
 
 const parseTabs = (content: string) => {
@@ -33,38 +35,41 @@ const parseTabs = (content: string) => {
     });
 };
 
-const MarkdownTabsRenderer: React.FC<Readonly<MarkdownTabsRendererProps>> = React.memo(({ content, components }) => {
-  const tabs = useMemo(() => parseTabs(content), [content]);
+const MarkdownTabsRenderer: React.FC<Readonly<MarkdownTabsRendererProps>> = React.memo(
+  ({ content, components, createComponents }) => {
+    const tabs = useMemo(() => parseTabs(content), [content]);
 
-  return (
-    <Tabs defaultActiveKey={tabs[0]?.key ?? 'tab-0'} className="mb-3">
-      {tabs.map(tab => {
-        const IconComponent = tab.iconName ? customIcons[tab.iconName] : null;
+    return (
+      <Tabs defaultActiveKey={tabs[0]?.key ?? 'tab-0'} className="mb-3">
+        {tabs.map(tab => {
+          const IconComponent = tab.iconName ? customIcons[tab.iconName] : null;
+          const tabComponents = createComponents ? createComponents(tab.content) : components;
 
-        return (
-          <Tab
-            eventKey={tab.key}
-            key={tab.key}
-            title={
-              <span style={{ display: 'flex', alignItems: 'center' }}>
-                {IconComponent && <IconComponent style={{ height: '20px', marginRight: '8px' }} />}
-                {tab.title}
-              </span>
-            }
-          >
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSchema]]}
-              components={components}
+          return (
+            <Tab
+              eventKey={tab.key}
+              key={tab.key}
+              title={
+                <span style={{ display: 'flex', alignItems: 'center' }}>
+                  {IconComponent && <IconComponent style={{ height: '20px', marginRight: '8px' }} />}
+                  {tab.title}
+                </span>
+              }
             >
-              {tab.content}
-            </ReactMarkdown>
-          </Tab>
-        );
-      })}
-    </Tabs>
-  );
-});
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkCodeFilenameAttribute]}
+                rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSchema]]}
+                components={tabComponents}
+              >
+                {tab.content}
+              </ReactMarkdown>
+            </Tab>
+          );
+        })}
+      </Tabs>
+    );
+  },
+);
 
 MarkdownTabsRenderer.displayName = 'MarkdownTabsRenderer';
 export default MarkdownTabsRenderer;

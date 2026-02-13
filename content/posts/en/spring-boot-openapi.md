@@ -31,6 +31,8 @@ OpenAPI simplifies API documentation and testing by providing an interactive int
 
 ## 🌟 Why Use OpenAPI?
 
+In this section, we clarify Why Use OpenAPI? and summarize the key points you will apply in implementation.
+
 - Interactive Documentation: Offers a user-friendly interface for exploring APIs.
 - Standardized Format: Generates machine-readable API definitions.
 - Ease of Testing: Provides built-in tools for testing endpoints.
@@ -54,7 +56,7 @@ To integrate OpenAPI using SpringDoc, add the following dependency to your Sprin
 
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springdoc</groupId>
   <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -64,7 +66,7 @@ To integrate OpenAPI using SpringDoc, add the following dependency to your Sprin
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
 ```
 
@@ -76,7 +78,9 @@ SpringDoc requires minimal configuration. You can customize your OpenAPI documen
 
 ### Example Configuration:
 
-```properties
+Use this configuration as a baseline and adjust values for your local or production environment.
+
+```properties filename="config.properties"
 springdoc.api-docs.path=/api-docs
 springdoc.swagger-ui.path=/swagger-ui.html
 ```
@@ -90,9 +94,9 @@ Add annotations to your REST controllers and models to generate OpenAPI document
 :::tabs
 @tab Java [icon=java]
 
-### Controller Example
+Controller Example
 
-```java
+```java filename="UserController.java"
 package com.example.openapi.controller;
 
 import com.example.openapi.model.User;
@@ -125,9 +129,9 @@ public class UserController {
 }
 ```
 
-### User Model
+User Model
 
-```java
+```java filename="User.java"
 package com.example.openapi.model;
 
 import lombok.AllArgsConstructor;
@@ -147,9 +151,9 @@ public class User {
 
 @tab Kotlin [icon=kotlin]
 
-### Controller Example
+Controller Example
 
-```kotlin
+```kotlin filename="UserController.kt"
 package com.example.openapi.controller
 
 import com.example.openapi.model.User
@@ -176,9 +180,9 @@ class UserController {
 }
 ```
 
-### User Model
+User Model
 
-```kotlin
+```kotlin filename="User.kt"
 package com.example.openapi.model
 
 data class User(
@@ -218,4 +222,4 @@ You can test the generated API documentation by exploring the Swagger UI interfa
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot with OpenAPI solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot with OpenAPI implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

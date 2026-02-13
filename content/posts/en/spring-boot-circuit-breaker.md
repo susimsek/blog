@@ -34,6 +34,8 @@ Spring Boot Circuit Breaker is a fault-tolerance mechanism used to prevent casca
 
 ## 🌟 Why Use Circuit Breaker?
 
+In this section, we clarify Why Use Circuit Breaker? and summarize the key points you will apply in implementation.
+
 - Prevents cascading failures in microservices.
 - Improves application resilience by stopping excessive failed requests.
 - Automatically recovers when services become healthy again.
@@ -55,18 +57,20 @@ Ensure you have the following:
 
 ## 🛠️ Step 1: Add Dependencies
 
-### Maven Configuration:
+In this section, we clarify Step 1: Add Dependencies and summarize the key points you will apply in implementation.
 
-```xml
+Maven:
+
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.cloud</groupId>
   <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
 </dependency>
 ```
 
-### Gradle Configuration:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
 ```
 
@@ -76,7 +80,7 @@ implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-re
 
 Define Circuit Breaker settings in `application.yml`.
 
-```yaml
+```yaml filename="config.yml"
 resilience4j:
   circuitbreaker:
     instances:
@@ -94,12 +98,16 @@ resilience4j:
 
 ## 🛠️ Step 3: Implement Circuit Breaker in a REST Service
 
+In this section, we clarify Step 3: Implement Circuit Breaker in a REST Service and summarize the key points you will apply in implementation.
+
 ### Create a Service to Call an External API
+
+The following example gives practical context for Create a Service to Call an External API and can be applied directly.
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ExternalService.java"
 package com.example.circuitbreaker.service;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -124,7 +132,7 @@ public class ExternalService {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ExternalService.kt"
 package com.example.circuitbreaker.service
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
@@ -155,7 +163,7 @@ class ExternalService {
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="CircuitBreakerController.java"
 package com.example.circuitbreaker.controller;
 
 import com.example.circuitbreaker.service.ExternalService;
@@ -182,7 +190,7 @@ public class CircuitBreakerController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="CircuitBreakerController.kt"
 package com.example.circuitbreaker.controller
 
 import com.example.circuitbreaker.service.ExternalService
@@ -231,4 +239,4 @@ curl -X GET http://localhost:8080/api/data
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot Circuit Breaker solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot Circuit Breaker implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

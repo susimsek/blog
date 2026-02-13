@@ -32,12 +32,25 @@ REST (Representational State Transfer), web servisleri tasarlamak için kullanı
 
 ### HTTP Yöntemleri
 
+Bu alt bölümde HTTP Yöntemleri için, sonraki örneği doğru okumayı kolaylaştıran kısa bir bağlam veriyoruz.
+
 | Yöntem | Açıklama                          | Örnek Endpoint |
 | ------ | --------------------------------- | -------------- |
 | GET    | Bir kaynağı alır.                 | `/api/todos`   |
 | POST   | Yeni bir kaynak oluşturur.        | `/api/todos`   |
 | PUT    | Kaynağı günceller veya oluşturur. | `/api/todos/1` |
 | DELETE | Kaynağı siler.                    | `/api/todos/1` |
+
+---
+
+## 📋 Gereksinimler
+
+Başlamadan önce aşağıdakilerin hazır olduğundan emin olun:
+
+- Java 17+
+- Maven veya Gradle
+- Bir IDE (IntelliJ IDEA, Eclipse, VS Code)
+- HTTP metodları ve JSON payload yapısı hakkında temel bilgi
 
 ---
 
@@ -61,7 +74,7 @@ Projeyi indirin, IDE'nizde açın ve çalıştırmaya hazırlanın.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="Todo.java"
 package com.example.demo.model;
 
 import lombok.Data;
@@ -76,7 +89,7 @@ public class Todo {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="Todo.kt"
 package com.example.demo.model
 
 data class Todo(
@@ -97,7 +110,7 @@ CRUD işlemlerini tanımlayan bir `TodoController` sınıfı ekleyin:
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="TodoController.java"
 package com.example.demo.controller;
 
 import com.example.demo.model.Todo;
@@ -143,7 +156,7 @@ public class TodoController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="TodoController.kt"
 package com.example.demo.controller
 
 import com.example.demo.model.Todo
@@ -218,4 +231,4 @@ curl -X DELETE http://localhost:8080/api/todos/1
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot ile REST API Geliştirme için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık REST API Geliştirme için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

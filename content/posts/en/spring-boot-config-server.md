@@ -34,6 +34,8 @@ Spring Boot Config Server enables centralized configuration management for distr
 
 ## 🌟 Why Use Config Server?
 
+In this section, we clarify Why Use Config Server? and summarize the key points you will apply in implementation.
+
 - Centralized Configuration: Manage application settings in a single place.
 - Dynamic Updates: Update configurations without restarting services.
 - Environment Profiles: Support different configurations for dev, test, and production environments.
@@ -56,18 +58,18 @@ Ensure you have the following:
 
 Add the necessary dependencies for Spring Cloud Config Server.
 
-### Maven Configuration:
+Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-config-server</artifactId>
 </dependency>
 ```
 
-### Gradle Configuration:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.cloud:spring-cloud-config-server'
 ```
 
@@ -78,7 +80,7 @@ implementation 'org.springframework.cloud:spring-cloud-config-server'
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ConfigServerApplication.java"
 package com.example.configserver;
 
 import org.springframework.boot.SpringApplication;
@@ -96,7 +98,7 @@ public class ConfigServerApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ConfigServerApplication.kt"
 package com.example.configserver
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -120,7 +122,7 @@ fun main(args: Array<String>) {
 
 Create an `application.yml` file to specify the Git repository for storing configurations.
 
-```yaml
+```yaml filename="application.yml"
 server:
   port: 8888
 spring:
@@ -140,7 +142,7 @@ spring:
 
 In your Git repository (e.g., `config-repo`), create an `application.yml` file with the following content:
 
-```yaml
+```yaml filename="config.yml"
 config.key: 'Hello from Config Server!'
 ```
 
@@ -176,7 +178,7 @@ curl -X GET http://localhost:8888/application/default
 
 Expected Output:
 
-```json
+```json filename="config.json"
 {
   "name": "application",
   "profiles": ["default"],
@@ -195,20 +197,24 @@ Expected Output:
 
 ## 🛠️ Step 5: Configure a Client Application
 
+In this section, we clarify Step 5: Configure a Client Application and summarize the key points you will apply in implementation.
+
 ### Add Dependencies
 
-### Maven:
+First, include the Config Client starter so this service can pull centralized configuration during bootstrap.
 
-```xml
+Maven:
+
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-config</artifactId>
 </dependency>
 ```
 
-### Gradle:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.cloud:spring-cloud-starter-config'
 ```
 
@@ -216,7 +222,7 @@ implementation 'org.springframework.cloud:spring-cloud-starter-config'
 
 In the client's `bootstrap.yml`, add the following:
 
-```yaml
+```yaml filename="application.yml"
 spring:
   application:
     name: config-client
@@ -227,10 +233,12 @@ spring:
 
 ### Client Application Code
 
+The sample below provides a minimal client implementation so you can validate the server integration end to end.
+
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ConfigClientApplication.java"
 package com.example.configclient;
 
 import org.springframework.boot.SpringApplication;
@@ -261,7 +269,7 @@ public class ConfigClientApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ConfigClientApplication.kt"
 package com.example.configclient
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -316,7 +324,7 @@ curl -X GET http://localhost:8080/config
 
 Expected Output:
 
-```plaintext
+```plaintext filename="snippet.txt"
 Config Value: Hello from Config Server!
 ```
 
@@ -324,4 +332,4 @@ Config Value: Hello from Config Server!
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot Config Server solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot Config Server implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

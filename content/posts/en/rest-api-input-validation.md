@@ -38,13 +38,24 @@ Validation ensures the data sent to your API adheres to expected formats and pre
 
 ---
 
+## 📋 Prerequisites
+
+Before implementing validation, make sure you have:
+
+- Java 17+ for Spring Boot examples
+- Go 1.21+ for Gin examples
+- A running Spring Boot or Gin starter project
+- Basic familiarity with DTOs, JSON payloads, and HTTP status codes
+
+---
+
 ## 🧪 Step 1: Add Validation Dependencies
 
 For Spring Boot projects, include the following dependencies:
 
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-validation</artifactId>
@@ -53,7 +64,7 @@ For Spring Boot projects, include the following dependencies:
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-validation'
 ```
 
@@ -76,7 +87,7 @@ Use annotations to define validation constraints on fields. Examples include `@N
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="TodoRequest.java"
 package com.example.demo.dto;
 
 import jakarta.validation.constraints.NotNull;
@@ -96,7 +107,7 @@ public class TodoRequest {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="TodoRequest.kt"
 package com.example.demo.dto
 
 import jakarta.validation.constraints.NotNull
@@ -113,7 +124,7 @@ data class TodoRequest(
 
 @tab Go [icon=go]
 
-```go
+```go filename="app.go"
 package dto
 
 import (
@@ -143,7 +154,7 @@ Integrate validation into your REST endpoints.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="TodoController.java"
 package com.example.demo.controller;
 
 import com.example.demo.dto.TodoRequest;
@@ -163,7 +174,7 @@ public class TodoController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="TodoController.kt"
 package com.example.demo.controller
 
 import com.example.demo.dto.TodoRequest
@@ -183,7 +194,7 @@ class TodoController {
 
 @tab Go [icon=go]
 
-```go
+```go filename="app.go"
 package controller
 
 import (
@@ -220,7 +231,7 @@ Customize error handling to return user-friendly responses.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="GlobalExceptionHandler.java"
 package com.example.demo.exception;
 
 import org.springframework.http.HttpStatus;
@@ -245,7 +256,7 @@ public class GlobalExceptionHandler {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="GlobalExceptionHandler.kt"
 package com.example.demo.exception
 
 import org.springframework.http.HttpStatus
@@ -265,7 +276,7 @@ class GlobalExceptionHandler {
 
 @tab Go [icon=go]
 
-```go
+```go filename="app.go"
 package middleware
 
 import (
@@ -288,11 +299,11 @@ func ErrorHandler() gin.HandlerFunc {
 
 ---
 
-### main.go Example
+main.go Example
 
 Here is an example of the `main.go` file for setting up a Gin application:
 
-```go
+```go filename="main.go"
 package main
 
 import (
@@ -315,8 +326,7 @@ func main() {
 
 To run the application:
 
-### Spring Boot (Java/Kotlin)
-
+Spring Boot (Java/Kotlin):
 Run the Spring Boot application from your IDE or terminal:
 
 ```bash
@@ -368,4 +378,4 @@ curl -X POST http://localhost:8080/api/todos \
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Input Validation in REST APIs solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Input Validation in REST APIs implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

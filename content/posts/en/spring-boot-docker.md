@@ -34,6 +34,8 @@ Spring Boot provides multiple ways to containerize applications efficiently usin
 
 ## 🌟 Why Use Docker for Spring Boot?
 
+In this section, we clarify Why Use Docker for Spring Boot? and summarize the key points you will apply in implementation.
+
 - Portable Deployment: Run applications consistently across environments.
 - Scalability: Easily scale and manage containerized applications.
 - Lightweight and Efficient: Optimize resource utilization with minimal overhead.
@@ -55,9 +57,9 @@ Ensure you have the following:
 
 To enable Docker support, add the Spring Boot Maven Plugin, Jib Plugin, and Spring Boot Web Starter to your build tool.
 
-### Maven Configuration:
+Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependencies>
     <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -80,9 +82,9 @@ To enable Docker support, add the Spring Boot Maven Plugin, Jib Plugin, and Spri
 </build>
 ```
 
-### Gradle Configuration:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 plugins {
     id 'org.springframework.boot' version '3.2.0'
     id 'com.google.cloud.tools.jib' version '3.3.2'
@@ -95,9 +97,9 @@ dependencies {
 
 To enable Docker support, add the Spring Boot Maven Plugin and Jib Plugin to your build tool.
 
-### Maven Configuration:
+Maven:
 
-```xml
+```xml filename="pom.xml"
 <build>
     <plugins>
         <plugin>
@@ -113,9 +115,9 @@ To enable Docker support, add the Spring Boot Maven Plugin and Jib Plugin to you
 </build>
 ```
 
-### Gradle Configuration:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 plugins {
     id 'org.springframework.boot' version '3.2.0'
     id 'com.google.cloud.tools.jib' version '3.3.2'
@@ -131,7 +133,7 @@ Define a REST endpoint to deploy inside a Docker container.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="DockerApplication.java"
 package com.example.docker;
 
 import org.springframework.boot.SpringApplication;
@@ -156,7 +158,7 @@ public class DockerApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="DockerApplication.kt"
 package com.example.docker
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -182,6 +184,8 @@ fun main(args: Array<String>) {
 ---
 
 ## ▶️ Step 3: Build and Run a Docker Image
+
+In this section, we clarify Step 3: Build and Run a Docker Image and summarize the key points you will apply in implementation.
 
 ### Option 1: Using Buildpacks
 
@@ -233,7 +237,7 @@ curl -X GET http://localhost:8080/hello
 
 Expected Output:
 
-```plaintext
+```plaintext filename="snippet.txt"
 Hello from Spring Boot running in Docker!
 ```
 
@@ -241,4 +245,4 @@ Hello from Spring Boot running in Docker!
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot Docker Integration solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot Docker Integration implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

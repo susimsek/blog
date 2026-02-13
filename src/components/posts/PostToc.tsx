@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 type TocItem = {
   id: string;
   text: string;
+  level: 2 | 3;
 };
 
 const areTocItemsEqual = (left: TocItem[], right: TocItem[]) => {
@@ -13,7 +14,11 @@ const areTocItemsEqual = (left: TocItem[], right: TocItem[]) => {
   }
 
   for (let index = 0; index < left.length; index += 1) {
-    if (left[index]?.id !== right[index]?.id || left[index]?.text !== right[index]?.text) {
+    if (
+      left[index]?.id !== right[index]?.id ||
+      left[index]?.text !== right[index]?.text ||
+      left[index]?.level !== right[index]?.level
+    ) {
       return false;
     }
   }
@@ -67,9 +72,9 @@ export default function PostToc({ content, rootRef }: Readonly<PostTocProps>) {
     }
 
     const updateTocItems = () => {
-      const headings = Array.from(root.querySelectorAll<HTMLElement>('h2')).filter(
-        heading => !heading.closest('.post-toc'),
-      );
+      const headings = Array.from(root.querySelectorAll<HTMLElement>('h2, h3')).filter(heading => {
+        return !heading.closest('.post-toc') && !heading.closest('.tab-content') && !heading.closest('.tab-pane');
+      });
 
       if (headings.length === 0) {
         setItems(previous => (previous.length === 0 ? previous : []));
@@ -88,7 +93,8 @@ export default function PostToc({ content, rootRef }: Readonly<PostTocProps>) {
           heading.id = slug(text);
         }
 
-        tocItems.push({ id: heading.id, text });
+        const level = heading.tagName.toUpperCase() === 'H3' ? 3 : 2;
+        tocItems.push({ id: heading.id, text, level });
       }
 
       setItems(previous => (areTocItemsEqual(previous, tocItems) ? previous : tocItems));
@@ -191,7 +197,7 @@ export default function PostToc({ content, rootRef }: Readonly<PostTocProps>) {
                     <li key={item.id}>
                       <a
                         href={`#${item.id}`}
-                        className={`post-toc-link d-inline-block py-1${activeId === item.id ? ' is-active' : ''}`}
+                        className={`post-toc-link d-block${item.level === 3 ? ' is-level-3' : ''}${activeId === item.id ? ' is-active' : ''}`}
                         aria-current={activeId === item.id ? 'location' : undefined}
                         onClick={e => {
                           e.preventDefault();

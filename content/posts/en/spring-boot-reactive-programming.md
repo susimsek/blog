@@ -31,6 +31,8 @@ Spring Boot with Reactive Programming enables developers to build non-blocking, 
 
 ## 🌟 Why Use Reactive Programming?
 
+In this section, we clarify Why Use Reactive Programming? and summarize the key points you will apply in implementation.
+
 - Asynchronous & Non-Blocking: Handle multiple requests efficiently without blocking threads.
 - Better Scalability: Utilize fewer resources while handling more concurrent users.
 - Event-Driven Model: Ideal for microservices, real-time applications, and streaming data.
@@ -54,7 +56,7 @@ Add the necessary dependency for Spring WebFlux in your `pom.xml` or `build.grad
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-webflux</artifactId>
@@ -63,7 +65,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-webflux'
 ```
 
@@ -76,7 +78,7 @@ Define a non-blocking REST endpoint using `Mono` and `Flux` to handle asynchrono
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ReactiveController.java"
 package com.example.reactive;
 
 import org.springframework.web.bind.annotation.*;
@@ -105,7 +107,7 @@ public class ReactiveController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ReactiveController.kt"
 package com.example.reactive
 
 import org.springframework.web.bind.annotation.*
@@ -152,7 +154,11 @@ gradle bootRun
 
 ## 🧪 Testing the API
 
+In this section, we clarify Testing the API and summarize the key points you will apply in implementation.
+
 ### Test Mono Endpoint:
+
+Run this check to validate endpoint behavior and confirm the response matches expectations.
 
 ```bash
 curl -X GET http://localhost:8080/reactive/mono
@@ -160,11 +166,13 @@ curl -X GET http://localhost:8080/reactive/mono
 
 Expected output:
 
-```plaintext
+```plaintext filename="snippet.txt"
 Hello from Reactive Mono!
 ```
 
 ### Test Flux Endpoint:
+
+Run this check to validate endpoint behavior and confirm the response matches expectations.
 
 ```bash
 curl -X GET http://localhost:8080/reactive/flux
@@ -172,7 +180,7 @@ curl -X GET http://localhost:8080/reactive/flux
 
 Expected output (delayed by 1 second per word):
 
-```plaintext
+```plaintext filename="snippet.txt"
 Hello
 from
 Reactive
@@ -183,4 +191,4 @@ Flux
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot Reactive Programming solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot Reactive Programming implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

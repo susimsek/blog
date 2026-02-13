@@ -10,7 +10,7 @@ const markdownSchema: Schema = {
     ...defaultSchema.attributes,
     '*': [...(defaultSchema.attributes?.['*'] ?? []), 'className'],
     a: [...(defaultSchema.attributes?.a ?? []), 'target', 'rel'],
-    code: [...(defaultSchema.attributes?.code ?? []), 'className'],
+    code: [...(defaultSchema.attributes?.code ?? []), 'className', 'data-filename'],
     pre: [...(defaultSchema.attributes?.pre ?? []), 'className'],
     img: [...(defaultSchema.attributes?.img ?? []), 'src', 'alt', 'title', 'width', 'height', 'loading', 'decoding'],
   },

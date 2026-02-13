@@ -34,6 +34,8 @@ Spring Boot Config Server, dağıtılmış uygulamalar için merkezi yapılandı
 
 ## 🌟 Neden Config Server Kullanmalıyız?
 
+Bu bölümde Neden Config Server Kullanmalıyız? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Merkezi Yapılandırma: Uygulama ayarlarını tek bir yerde yönetin.
 - Dinamik Güncellemeler: Yapılandırmaları hizmetleri yeniden başlatmadan güncelleyin.
 - Environment Profilleri: Geliştirme, test ve üretim ortamları için farklı yapılandırmaları destekler.
@@ -56,18 +58,18 @@ Aşağıdaki bileşenlerin sisteminizde yüklü olduğundan emin olun:
 
 Spring Cloud Config Server için gerekli bağımlılıkları ekleyin.
 
-### Maven Yapılandırması:
+Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-config-server</artifactId>
 </dependency>
 ```
 
-### Gradle Yapılandırması:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.cloud:spring-cloud-config-server'
 ```
 
@@ -78,7 +80,7 @@ implementation 'org.springframework.cloud:spring-cloud-config-server'
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ConfigServerApplication.java"
 package com.example.configserver;
 
 import org.springframework.boot.SpringApplication;
@@ -96,7 +98,7 @@ public class ConfigServerApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ConfigServerApplication.kt"
 package com.example.configserver
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -120,7 +122,7 @@ fun main(args: Array<String>) {
 
 Config ayarlarını saklamak için Git deposunu belirten bir `application.yml` dosyası oluşturun.
 
-```yaml
+```yaml filename="application.yml"
 server:
   port: 8888
 spring:
@@ -140,7 +142,7 @@ spring:
 
 Git deposunda (`config-repo`) bir `application.yml` dosyası oluşturun:
 
-```yaml
+```yaml filename="config.yml"
 config.key: 'Merhaba, Config Server!'
 ```
 
@@ -176,7 +178,7 @@ curl -X GET http://localhost:8888/application/default
 
 Beklenen Çıktı:
 
-```json
+```json filename="config.json"
 {
   "name": "application",
   "profiles": ["default"],
@@ -195,20 +197,24 @@ Beklenen Çıktı:
 
 ## 🛠️ Adım 5: İstemci Uygulamayı Yapılandırma
 
+Bu bölümde Adım 5: İstemci Uygulamayı Yapılandırma konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 ### Bağımlılıkları Ekleme
 
-### Maven:
+Bu adımda istemcinin Config Server üzerinden merkezi ayarları çekebilmesi için gerekli starter bağımlılığını ekliyoruz.
 
-```xml
+Maven:
+
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-config</artifactId>
 </dependency>
 ```
 
-### Gradle:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.cloud:spring-cloud-starter-config'
 ```
 
@@ -216,7 +222,7 @@ implementation 'org.springframework.cloud:spring-cloud-starter-config'
 
 İstemci uygulamanın `bootstrap.yml` dosyasına aşağıdaki ayarları ekleyin:
 
-```yaml
+```yaml filename="application.yml"
 spring:
   application:
     name: config-client
@@ -227,10 +233,12 @@ spring:
 
 ### İstemci Uygulama Kodu
 
+Aşağıdaki örnek, İstemci Uygulama Kodu için pratik bir bağlam sunar ve doğrudan uygulanabilir.
+
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ConfigClientApplication.java"
 package com.example.configclient;
 
 import org.springframework.boot.SpringApplication;
@@ -261,7 +269,7 @@ public class ConfigClientApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ConfigClientApplication.kt"
 package com.example.configclient
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -316,7 +324,7 @@ curl -X GET http://localhost:8080/config
 
 Beklenen Çıktı:
 
-```plaintext
+```plaintext filename="snippet.txt"
 Konfigürasyon Değeri: Merhaba, Config Server!
 ```
 
@@ -324,4 +332,4 @@ Konfigürasyon Değeri: Merhaba, Config Server!
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot Config Server için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot Config Server için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

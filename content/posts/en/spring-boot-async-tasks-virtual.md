@@ -31,6 +31,8 @@ Spring Boot 3.2+ lets you combine the simplicity of `@Async` with JDK 21 virtual
 
 ## 🌟 Why Use Virtual Thread in Spring Boot?
 
+In this section, we clarify Why Use Virtual Thread in Spring Boot? and summarize the key points you will apply in implementation.
+
 - Ultra-Lightweight: Virtual threads are thousands of times cheaper than platform threads.
 - Non-Blocking: `@Async` methods run off the main thread, improving responsiveness.
 - Scalable: Handle high concurrency with minimal resource overhead.
@@ -39,6 +41,8 @@ Spring Boot 3.2+ lets you combine the simplicity of `@Async` with JDK 21 virtual
 ---
 
 ## 📋 Prerequisites
+
+In this section, we clarify Prerequisites and summarize the key points you will apply in implementation.
 
 - ☕ Java Development Kit (JDK) 21 or higher
 - 📦 Spring Boot 3.2+
@@ -52,7 +56,7 @@ To enable async processing, include spring-boot-starter-web in your `pom.xml` or
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-web</artifactId>
@@ -61,7 +65,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-web'
 ```
 
@@ -71,14 +75,14 @@ implementation 'org.springframework.boot:spring-boot-starter-web'
 
 Add to `application.yml` or `application.properties`:
 
-```yaml
+```yaml filename="application.yml"
 spring:
   threads:
     virtual:
       enabled: true
 ```
 
-```properties
+```properties filename="application.properties"
 spring.threads.virtual.enabled=true
 ```
 
@@ -97,7 +101,7 @@ Annotate your main application class in Java or Kotlin:
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AsyncVirtualApplication.java"
 package com.example.async;
 
 import org.springframework.boot.SpringApplication;
@@ -115,7 +119,7 @@ public class AsyncVirtualApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AsyncVirtualApplication.kt"
 package com.example.async
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -142,7 +146,7 @@ Create a service with `@Async`. It will run each call on a new virtual thread.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AsyncVirtualService.java"
 package com.example.async;
 
 import lombok.extern.slf4j.Slf4j;
@@ -175,7 +179,7 @@ public class AsyncVirtualService {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AsyncVirtualService.kt"
 package com.example.async
 
 import org.slf4j.LoggerFactory
@@ -217,7 +221,7 @@ Expose endpoints to invoke your async methods:
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AsyncVirtualController.java"
 package com.example.async;
 
 import lombok.RequiredArgsConstructor;
@@ -248,7 +252,7 @@ public class AsyncVirtualController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AsyncVirtualController.kt"
 package com.example.async
 
 import org.springframework.web.bind.annotation.GetMapping
@@ -312,4 +316,4 @@ curl http://localhost:8080/async/run-return
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot Async Tasks with Virtual Thread solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot Async Tasks with Virtual Thread implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

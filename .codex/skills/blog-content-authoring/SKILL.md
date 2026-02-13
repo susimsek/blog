@@ -24,6 +24,50 @@ This repo generates content via **static export**. List pages are driven by **JS
 6. **Topic consistency**: topic `id`s must exist in topic index JSON in both locales; `name` is translated per locale; `color` must be one of the allowed values.
 7. **Icon standards**: tab icons use the `[icon=...]` format and must be from the allowed set; step headings must use the standardized emoji + label format (see below).
 
+## 2024+ Editorial Rule Set (Mandatory)
+
+Use this rule set to keep every article at a modern, professional developer-blog quality bar (Vercel/Cloudflare/Stripe/GitHub Engineering style patterns).
+
+### A) Structural contract (all posts)
+
+1. `title` is specific and searchable; `summary` clearly states outcome and stays concise.
+2. After frontmatter, include a short opening paragraph (2-4 sentences) that frames problem + value.
+3. First main section is always `## 🌟 ...` and explains either:
+   - what the reader will learn, or
+   - why this approach matters.
+4. `## 📋 Prerequisites` / `## 📋 Gereksinimler` must exist and be explicit.
+5. Implementation is step-based (`## 🛠️/🧪/▶️ Step N` or `Adım N`) with sequential numbering.
+6. Each `##` section must contain real content (no empty headings).
+7. End with a single `## 🏁 Conclusion` / `## 🏁 Sonuç`:
+   - one concise synthesis paragraph,
+   - one practical next step for production hardening.
+
+### B) Readability & prose quality
+
+1. No visual spacer hacks in markdown (remove `<span style="display:block; height:1rem;"></span>`).
+2. No language-mixing in headings (`Adım ...: Add Dependencies` is invalid).
+3. Keep heading hierarchy clean: main sections `##`, subsections `###`, avoid deeper nesting.
+4. Keep prose direct and concrete; prefer short paragraphs and scannable bullets.
+5. Avoid duplicate/redundant wording (e.g., repeated “Spring Boot” phrases in conclusions).
+
+### C) Professional editing checks
+
+1. Headings must reflect the section content; remove vague or dead headings.
+2. Keep terminology consistent across the post (same concept, same naming).
+3. Validation/testing instructions should include expected behavior (not just commands).
+4. Conclusion should not be generic filler; it must summarize the delivered architecture/pattern.
+
+### Batch standardization flow
+
+```bash
+# 1) Headings + typo/language cleanup + spacer cleanup
+node .codex/skills/blog-content-authoring/scripts/standardize-posts.mjs --dry-run
+node .codex/skills/blog-content-authoring/scripts/standardize-posts.mjs
+
+# 2) Professional, non-generic conclusions (rewrite mode)
+node .codex/skills/blog-content-authoring/scripts/standardize-conclusions.mjs --rewrite
+```
+
 ## Image Standards
 
 ## Iram City Art Direction (Thumbnails & Inline Images)
@@ -177,6 +221,7 @@ Apply these rules for all EN/TR post markdown files:
 
 - TOC is main-section oriented: keep **main sections as `##` only**.
 - Use `###` for sub-sections (examples, controller snippets, notes).
+- Every `###` heading must be followed by a short editorial lead-in (1-2 sentences) that explains intent/value before code/list blocks.
 - Do not use `####` and deeper levels; collapse them to `###`.
 - If a section title is plain (non-step/non-standard emoji), prefer making it a sub-section (`###`) rather than a new `##`.
 - Keep body/list text plain; avoid bold emphasis markers (`**text**`, `__text__`) in prose.

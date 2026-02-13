@@ -34,6 +34,8 @@ Spring Boot seamlessly integrates with Kubernetes to provide scalable, container
 
 ## 🌟 Why Use Kubernetes for Spring Boot?
 
+In this section, we clarify Why Use Kubernetes for Spring Boot? and summarize the key points you will apply in implementation.
+
 - Scalability: Automatically scale applications based on traffic.
 - Self-Healing: Kubernetes restarts failed containers automatically.
 - Declarative Configuration: Manage infrastructure with YAML configurations.
@@ -58,9 +60,9 @@ Ensure you have the following:
 
 Add the necessary dependencies for Spring Boot Web and Actuator to expose health endpoints.
 
-### Maven Configuration:
+Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependencies>
     <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -73,9 +75,9 @@ Add the necessary dependencies for Spring Boot Web and Actuator to expose health
 </dependencies>
 ```
 
-### Gradle Configuration:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -91,7 +93,7 @@ Define a REST endpoint to deploy inside Kubernetes.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="KubernetesApplication.java"
 package com.example.kubernetes;
 
 import org.springframework.boot.SpringApplication;
@@ -116,7 +118,7 @@ public class KubernetesApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="KubernetesApplication.kt"
 package com.example.kubernetes
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -145,7 +147,7 @@ fun main(args: Array<String>) {
 
 Create a deployment.yaml file:
 
-```yaml
+```yaml filename="deployment.yaml"
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -169,7 +171,7 @@ spec:
 
 Create a service.yaml file:
 
-```yaml
+```yaml filename="service.yaml"
 apiVersion: v1
 kind: Service
 metadata:
@@ -209,7 +211,7 @@ curl -X GET http://your-service-ip/hello
 
 Expected Output:
 
-```plaintext
+```plaintext filename="snippet.txt"
 Hello from Spring Boot running in Kubernetes!
 ```
 
@@ -217,4 +219,4 @@ Hello from Spring Boot running in Kubernetes!
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot Kubernetes Integration solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot Kubernetes Integration implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

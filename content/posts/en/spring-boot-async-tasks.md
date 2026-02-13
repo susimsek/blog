@@ -28,6 +28,8 @@ Spring Boot provides an easy way to run asynchronous tasks using the `@Async` an
 
 ## 🌟 Why Use @Async in Spring Boot?
 
+In this section, we clarify Why Use @Async in Spring Boot? and summarize the key points you will apply in implementation.
+
 - Non-Blocking Execution: Runs tasks asynchronously without blocking the main thread.
 - Improved Performance: Executes independent tasks in parallel.
 - Better Scalability: Frees up resources for other processes.
@@ -51,7 +53,7 @@ To enable async processing, include spring-boot-starter-web in your `pom.xml` or
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-web</artifactId>
@@ -60,7 +62,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-web'
 ```
 
@@ -73,7 +75,7 @@ Annotate your main application class with `@EnableAsync` to enable asynchronous 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AsyncApplication.java"
 package com.example.async;
 
 import org.springframework.boot.SpringApplication;
@@ -91,7 +93,7 @@ public class AsyncApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AsyncApplication.kt"
 package com.example.async
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -118,7 +120,7 @@ Define an asynchronous method using `@Async`.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AsyncTask.java"
 package com.example.async;
 
 import org.springframework.scheduling.annotation.Async;
@@ -137,7 +139,7 @@ public class AsyncTask {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AsyncTask.kt"
 package com.example.async
 
 import org.springframework.scheduling.annotation.Async
@@ -165,7 +167,7 @@ Create a REST controller to trigger the asynchronous task.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AsyncController.java"
 package com.example.async;
 
 import org.springframework.web.bind.annotation.*;
@@ -188,7 +190,7 @@ public class AsyncController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AsyncController.kt"
 package com.example.async
 
 import org.springframework.web.bind.annotation.*
@@ -229,7 +231,11 @@ gradle bootRun
 
 ## 🧪 Testing the Async Task
 
+In this section, we clarify Testing the Async Task and summarize the key points you will apply in implementation.
+
 ### Trigger Async Task:
+
+Call this endpoint to trigger the async workflow and observe execution flow in logs.
 
 ```bash
 curl -X GET http://localhost:8080/async/run
@@ -237,7 +243,9 @@ curl -X GET http://localhost:8080/async/run
 
 ### Expected Console Output:
 
-```plaintext
+Compare your console logs with this output to quickly confirm the behavior is correct.
+
+```plaintext filename="snippet.txt"
 Async task executed at: 12:00:01
 ```
 
@@ -245,4 +253,4 @@ Async task executed at: 12:00:01
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot Async Tasks solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot Async Tasks implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

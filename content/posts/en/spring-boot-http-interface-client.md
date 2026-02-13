@@ -31,6 +31,8 @@ Spring Boot 3.2+ introduces the HTTP Interface Client, enabling you to define de
 
 ## 🌟 Why HTTP Interface Client?
 
+In this section, we clarify Why HTTP Interface Client? and summarize the key points you will apply in implementation.
+
 - Declarative: Define an interface and annotate methods for HTTP calls.
 - Type-safe: Compiler catches mismatched signatures or misconfigured paths.
 - Minimal boilerplate: One bean definition, no manual proxy or template code.
@@ -39,6 +41,8 @@ Spring Boot 3.2+ introduces the HTTP Interface Client, enabling you to define de
 ---
 
 ## 📋 Prerequisites
+
+In this section, we clarify Prerequisites and summarize the key points you will apply in implementation.
 
 - ☕ Java Development Kit (JDK) 21 or higher
 - 📦 Spring Boot 3.2+
@@ -52,7 +56,7 @@ Add the Web starter to your build:
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-web</artifactId>
@@ -61,7 +65,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-web'
 ```
 
@@ -71,12 +75,12 @@ implementation 'org.springframework.boot:spring-boot-starter-web'
 
 Add to `application.yml` or `application.properties`:
 
-```yaml
+```yaml filename="config.yml"
 jsonplaceholder:
   base-url: https://jsonplaceholder.typicode.com
 ```
 
-```properties
+```properties filename="config.properties"
 jsonplaceholder.base-url=https://jsonplaceholder.typicode.com
 ```
 
@@ -87,7 +91,7 @@ jsonplaceholder.base-url=https://jsonplaceholder.typicode.com
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="PostDTO.java"
 // src/main/java/com/example/client/dto/PostDTO.java
 package com.example.client.dto;
 
@@ -120,7 +124,7 @@ public interface JsonPlaceholderClient {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="PostDTO.kt"
 // src/main/kotlin/com/example/client/dto/PostDTO.kt
 package com.example.client.dto
 
@@ -159,7 +163,7 @@ interface JsonPlaceholderClient {
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="HttpClientConfig.java"
 // src/main/java/com/example/config/HttpClientConfig.java
 package com.example.config;
 
@@ -190,7 +194,7 @@ public class HttpClientConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="HttpClientConfig.kt"
 // src/main/kotlin/com/example/config/HttpClientConfig.kt
 package com.example.config
 
@@ -228,7 +232,7 @@ class HttpClientConfig {
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="PostService.java"
 // src/main/java/com/example/service/PostService.java
 package com.example.service;
 
@@ -283,7 +287,7 @@ public class PostController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="PostService.kt"
 // src/main/kotlin/com/example/service/PostService.kt
 package com.example.service
 
@@ -342,4 +346,4 @@ curl http://localhost:8080/posts/1
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot HTTP Interface Client solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot HTTP Interface Client implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

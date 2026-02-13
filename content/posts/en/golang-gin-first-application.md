@@ -23,6 +23,16 @@ Gin simplifies the process of building high-performance web applications with Go
 
 ---
 
+## 🌟 What you'll learn
+
+In this section, we clarify What you'll learn and summarize the key points you will apply in implementation.
+
+- How to initialize a minimal Gin project structure.
+- How to build and expose your first JSON endpoint.
+- How to run and validate the service locally before adding business logic.
+
+---
+
 ## 📋 Prerequisites
 
 📋 Before starting, ensure you have the following:
@@ -58,7 +68,7 @@ Let’s write a simple endpoint to say hello:
 
 Create a file named `main.go` with the following content:
 
-```go
+```go filename="main.go"
 package main
 
 import (
@@ -82,6 +92,8 @@ func main() {
 
 ## ▶️ Step 3: Run the Application
 
+In this section, we clarify Step 3: Run the Application and summarize the key points you will apply in implementation.
+
 1. Open a terminal in the project folder.
 2. Execute the following command to run your application:
 
@@ -90,13 +102,13 @@ go run main.go
 ```
 
 3. Access the endpoint at:
-   ```
+   ```filename="snippet.txt"
    http://localhost:8080/hello
    ```
 
 Response:
 
-```json
+```json filename="config.json"
 {
   "message": "Hello, Gin!"
 }
@@ -106,4 +118,4 @@ Response:
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready guide to Gin - First Application, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Gin - First Application implementation with a clear, production-friendly structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

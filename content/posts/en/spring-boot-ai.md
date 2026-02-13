@@ -31,6 +31,8 @@ Spring AI is a framework for AI engineering that applies Spring’s portability 
 
 ## 🌟 Why Use Spring AI?
 
+In this section, we clarify Why Use Spring AI? and summarize the key points you will apply in implementation.
+
 - Provider-agnostic portability: Write code once and switch between AI providers (OpenAI, Anthropic, Azure, etc.) without changes.
 - POJO-based design: Model AI inputs and outputs as plain Java/Kotlin objects for type safety and easy integration.
 - Structured outputs: Automatically map model responses to your domain objects.
@@ -60,7 +62,7 @@ Include Spring AI starter for OpenAI, Spring Web, and Lombok.
 :::tabs
 @tab Maven [icon=maven]
 
-```xml
+```xml filename="pom.xml"
 <dependencies>
   <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -80,7 +82,7 @@ Include Spring AI starter for OpenAI, Spring Web, and Lombok.
 
 @tab Gradle [icon=gradle]
 
-```groovy
+```groovy filename="build.gradle"
 plugins {
   id 'org.springframework.boot' version '3.2.0'
 }
@@ -101,7 +103,7 @@ dependencies {
 
 In `application.yml`, configure your OpenAI key and set the ChatClient model:
 
-```yaml
+```yaml filename="application.yml"
 spring:
   ai:
     openai:
@@ -120,7 +122,7 @@ Create an `AIService` to wrap your ChatClient. Inject `ChatClient.Builder` and b
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AIService.java"
 package com.example.ai.service;
 
 import org.springframework.ai.chat.client.ChatClient;
@@ -146,7 +148,7 @@ public class AIService {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AIService.kt"
 package com.example.ai.service
 
 import org.springframework.ai.chat.client.ChatClient
@@ -176,7 +178,7 @@ Create a `ChatController` to expose your AIService over HTTP.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ChatController.java"
 package com.example.ai.controller;
 
 import com.example.ai.service.AIService;
@@ -200,7 +202,7 @@ public class ChatController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ChatController.kt"
 package com.example.ai.controller
 
 import com.example.ai.service.AIService
@@ -247,4 +249,4 @@ curl -X GET "http://localhost:8080/joke?topic=dogs"
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot AI Integration solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot AI Integration implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

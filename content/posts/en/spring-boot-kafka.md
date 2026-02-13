@@ -31,6 +31,8 @@ Apache Kafka is a distributed event streaming platform that facilitates real-tim
 
 ## 🌟 Why Use Kafka?
 
+In this section, we clarify Why Use Kafka? and summarize the key points you will apply in implementation.
+
 - Scalable Messaging: Handle large volumes of data seamlessly.
 - Fault Tolerance: Ensure data durability and high availability.
 - Real-Time Processing: Process and analyze data in real time.
@@ -55,7 +57,7 @@ To integrate Kafka into your Spring Boot project, add the following dependencies
 
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.kafka</groupId>
   <artifactId>spring-kafka</artifactId>
@@ -64,7 +66,7 @@ To integrate Kafka into your Spring Boot project, add the following dependencies
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.kafka:spring-kafka'
 ```
 
@@ -74,7 +76,7 @@ implementation 'org.springframework.kafka:spring-kafka'
 
 Set up Kafka connection in your `application.properties` or `application.yml` file:
 
-```properties
+```properties filename="application.properties"
 spring.kafka.bootstrap-servers=localhost:9092
 spring.kafka.consumer.group-id=my-group
 spring.kafka.consumer.auto-offset-reset=earliest
@@ -88,12 +90,16 @@ spring.kafka.consumer.properties.spring.json.trusted.packages=*
 
 ## 🛠️ Step 3: Create a Model for JSON Messages
 
+In this section, we clarify Step 3: Create a Model for JSON Messages and summarize the key points you will apply in implementation.
+
 ### Model Class
+
+This model defines the message contract shared across producer, consumer, and controller layers.
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="Message.java"
 package com.example.kafka.model;
 
 import lombok.AllArgsConstructor;
@@ -111,7 +117,7 @@ public class Message {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="Message.kt"
 package com.example.kafka.model
 
 data class Message(
@@ -126,12 +132,16 @@ data class Message(
 
 ## 🛠️ Step 4: Implement Kafka Producer and Consumer
 
+In this section, we clarify Step 4: Implement Kafka Producer and Consumer and summarize the key points you will apply in implementation.
+
 ### Producer Example
+
+This producer example shows how to publish messages consistently to the target topic.
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="KafkaProducer.java"
 package com.example.kafka.producer;
 
 import com.example.kafka.model.Message;
@@ -153,7 +163,7 @@ public class KafkaProducer {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="KafkaProducer.kt"
 package com.example.kafka.producer
 
 import com.example.kafka.model.Message
@@ -173,10 +183,12 @@ class KafkaProducer(private val kafkaTemplate: KafkaTemplate<String, Message>) {
 
 ### Consumer Example
 
+This consumer example demonstrates how incoming messages are read and processed.
+
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="KafkaConsumer.java"
 package com.example.kafka.consumer;
 
 import com.example.kafka.model.Message;
@@ -195,7 +207,7 @@ public class KafkaConsumer {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="KafkaConsumer.kt"
 package com.example.kafka.consumer
 
 import com.example.kafka.model.Message
@@ -218,10 +230,12 @@ class KafkaConsumer {
 
 ### Controller Example
 
+This controller exposes a simple endpoint so you can trigger and verify messaging behavior.
+
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="KafkaController.java"
 package com.example.kafka.controller;
 
 import com.example.kafka.model.Message;
@@ -246,7 +260,7 @@ public class KafkaController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="KafkaController.kt"
 package com.example.kafka.controller
 
 import com.example.kafka.model.Message
@@ -289,10 +303,8 @@ curl -X POST "http://localhost:8080/kafka/publish" \
 -d '{"id": "123", "content": "Hello Kafka!"}'
 ```
 
-Check the Kafka Consumer logs to verify that the message was received and processed.
-
 ---
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot Kafka Integration solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot Kafka Integration implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

@@ -46,18 +46,18 @@ GraphQL allows clients to request specific data, reducing over-fetching and unde
 
 Include the following dependencies in your project to enable Spring for GraphQL.
 
-- Maven:
+Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-graphql</artifactId>
 </dependency>
 ```
 
-- Gradle:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-graphql'
 ```
 
@@ -67,7 +67,7 @@ implementation 'org.springframework.boot:spring-boot-starter-graphql'
 
 Create a schema file named `schema.graphqls` under the `src/main/resources/graphql` directory.
 
-```graphql
+```graphql filename="schema.graphqls"
 type Query {
   getUser(id: ID!): User
   getUsers: [User]
@@ -89,9 +89,9 @@ Define the data model and service layer for handling queries.
 :::tabs
 @tab Java [icon=java]
 
-### Entity
+Entity
 
-```java
+```java filename="User.java"
 package com.example.demo.model;
 
 import lombok.AllArgsConstructor;
@@ -108,9 +108,9 @@ public class User {
 }
 ```
 
-### Service
+Service
 
-```java
+```java filename="UserService.java"
 package com.example.demo.service;
 
 import com.example.demo.model.User;
@@ -143,9 +143,9 @@ public class UserService {
 
 @tab Kotlin [icon=kotlin]
 
-### Entity
+Entity
 
-```kotlin
+```kotlin filename="User.kt"
 package com.example.demo.model
 
 data class User(
@@ -155,9 +155,9 @@ data class User(
 )
 ```
 
-### Service
+Service
 
-```kotlin
+```kotlin filename="UserService.kt"
 package com.example.demo.service
 
 import com.example.demo.model.User
@@ -188,7 +188,7 @@ Controllers handle GraphQL queries and mutations. Use the `@Controller` annotati
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserController.java"
 package com.example.demo.controller;
 
 import com.example.demo.model.User;
@@ -221,7 +221,7 @@ public class UserController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserController.kt"
 package com.example.demo.controller
 
 import com.example.demo.model.User
@@ -250,11 +250,12 @@ class UserController(
 
 Run the application using the following commands:
 
-- Spring Boot (Java/Kotlin):
+Spring Boot (Java/Kotlin):
+Run the application with either stack to confirm the baseline setup is working before deeper tests.
 
-  ```bash
-  ./mvnw spring-boot:run
-  ```
+```bash
+./mvnw spring-boot:run
+```
 
 Access the GraphQL Playground at `http://localhost:8080/graphiql` to test your API.
 
@@ -266,7 +267,7 @@ Here are some example queries to test your API:
 
 - Fetch a user by ID:
 
-```graphql
+```graphql filename="query.graphql"
 query {
   getUser(id: "1") {
     id
@@ -278,7 +279,7 @@ query {
 
 - Fetch all users:
 
-```graphql
+```graphql filename="query.graphql"
 query {
   getUsers {
     id
@@ -292,4 +293,4 @@ query {
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Building APIs with Spring for GraphQL solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Building APIs with Spring for GraphQL implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

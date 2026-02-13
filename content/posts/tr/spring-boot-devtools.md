@@ -52,7 +52,7 @@ DevTools'u etkinleştirmek için projenize aşağıdaki bağımlılıkları ekle
 
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-devtools</artifactId>
@@ -62,7 +62,7 @@ DevTools'u etkinleştirmek için projenize aşağıdaki bağımlılıkları ekle
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 ```
 
@@ -80,7 +80,7 @@ Canlı yeniden yükleme, IntelliJ IDEA veya Eclipse gibi desteklenen IDE'lerle D
 
 Şablonlar için önbellekleme devre dışı bırakılır:
 
-```properties
+```properties filename="application.properties"
 spring.thymeleaf.cache=false
 spring.freemarker.cache=false
 ```
@@ -89,7 +89,7 @@ spring.freemarker.cache=false
 
 Belirli dosyaları veya dizinleri yeniden başlatmadan hariç tutun:
 
-```properties
+```properties filename="application.properties"
 spring.devtools.restart.exclude=static/**,public/**
 ```
 
@@ -104,7 +104,7 @@ Spring Boot DevTools, hata ayıklamayı şu şekilde iyileştirir:
 
 Uzaktan hata ayıklamayı etkinleştirmek için:
 
-```properties
+```properties filename="application.properties"
 spring.devtools.remote.secret=benimsifre
 ```
 
@@ -140,4 +140,4 @@ Spring Boot DevTools özelliklerini aşağıdaki şekilde test edebilirsiniz:
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot DevTools için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot DevTools için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

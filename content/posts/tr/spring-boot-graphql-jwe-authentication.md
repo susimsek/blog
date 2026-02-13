@@ -36,6 +36,8 @@ Spring Boot GraphQL JWE Kimlik Doğrulaması, GraphQL’in esnekliğini, statele
 
 ## 🌟 GraphQL + JWE Kimlik Doğrulaması Neden Kullanılmalı?
 
+Bu bölümde GraphQL + JWE Kimlik Doğrulaması Neden Kullanılmalı? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Stateless Güvenlik: Tokenlar kendi içinde tüm bilgiyi barındırır ve sunucu tarafında saklama gerektirmez.
 - GraphQL Esnekliği: Her query veya mutationu tutarlı bir şekilde koruyun.
 - Veri Hassasiyeti: İstemcilerin tam olarak istediği veriyi çeker.
@@ -48,6 +50,8 @@ Spring Boot GraphQL JWE Kimlik Doğrulaması, GraphQL’in esnekliğini, statele
 
 ## 📋 Gereksinimler
 
+Bu bölümde Gereksinimler konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - ☕ JDK 17 veya üzeri
 - 📦 Spring Boot 3.2+
 - 🔤 IDE (IntelliJ IDEA, Eclipse)
@@ -55,13 +59,13 @@ Spring Boot GraphQL JWE Kimlik Doğrulaması, GraphQL’in esnekliğini, statele
 
 ---
 
-## 🛠️ Adım 1: Add Dependencies
+## 🛠️ Adım 1: Bağımlılıkları Ekle
 
 `pom.xml` veya `build.gradle` dosyanıza şunları ekleyin.
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependencies>
   <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -134,7 +138,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-starter-websocket'
@@ -189,11 +193,9 @@ Bu bölümde, Spring Boot uygulamamızı H2/PostgreSQL, JPA, Liquibase changelog
 - `META-INF/native-image/liquibase/reflect-config.json`
   GraalVM native-image oluştururken Liquibase sınıfları için gerekli reflection kurallarını tanımlar.
 
-<span style="display:block; height:1rem;"></span>
+application.yml
 
-### application.yml
-
-```yaml
+```yaml filename="application.yml"
 spring:
   datasource:
     url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
@@ -311,11 +313,9 @@ security:
         -----END PRIVATE KEY-----
 ```
 
-<span style="display:block; height:1rem;"></span>
+master.xml
 
-### master.xml
-
-```xml
+```xml filename="master.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
@@ -348,11 +348,9 @@ security:
 </databaseChangeLog>
 ```
 
-<span style="display:block; height:1rem;"></span>
+changelog-user.xml
 
-### changelog-user.xml
-
-```xml
+```xml filename="changelog-user.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
@@ -515,42 +513,34 @@ security:
 </databaseChangeLog>
 ```
 
-<span style="display:block; height:1rem;"></span>
+user.csv
 
-### user.csv
-
-```csv
+```csv filename="user.csv"
 id;username;password;email;first_name;last_name;enabled;created_at;created_by;updated_at;updated_by
 a1b2c3d4-e5f6-7890-abcd-ef1234567890;admin;$2a$10$sva6wl8pmGKJE6NIWrxwcuJK1Jaa2I/LOI43iHVpbR4YB8KjGViiK;admin@example.com;Admin;User;true;2025-05-10 12:00:00;system;2025-05-10 12:00:00;system
 09876543-21fe-dcba-0987-654321fedcba;user;$2a$10$5Py4PyteLuXEqnGpSigzfu0V55C7Hi7zX18lmh.J8Bpmft.h23voG;user@example.com;Normal;User;true;2025-05-10 12:00:00;system;2025-05-10 12:00:00;system
 ```
 
-<span style="display:block; height:1rem;"></span>
+authority.csv
 
-### authority.csv
-
-```csv
+```csv filename="authority.csv"
 id;name;description;created_at;created_by;updated_at;updated_by
 f47ac10b-58cc-4372-a567-0e02b2c3d479;ROLE_ADMIN;Administrator role;2025-05-10 12:00:00;system;2025-05-10 12:00:00;system
 9c858901-8a57-4791-81fe-4c455b099bc9;ROLE_USER;User role;2025-05-10 12:00:00;system;2025-05-10 12:00:00;system
 ```
 
-<span style="display:block; height:1rem;"></span>
+user_authority_mapping.csv
 
-### user_authority_mapping.csv
-
-```csv
+```csv filename="user_authority_mapping.csv"
 user_id;authority_id;created_at;created_by;updated_at;updated_by
 a1b2c3d4-e5f6-7890-abcd-ef1234567890;9c858901-8a57-4791-81fe-4c455b099bc9;2025-05-10 12:00:00;system;2025-05-10 12:00:00;system
 a1b2c3d4-e5f6-7890-abcd-ef1234567890;f47ac10b-58cc-4372-a567-0e02b2c3d479;2025-05-10 12:00:00;system;2025-05-10 12:00:00;system
 09876543-21fe-dcba-0987-654321fedcba;9c858901-8a57-4791-81fe-4c455b099bc9;2025-05-10 12:00:00;system;2025-05-10 12:00:00;system
 ```
 
-<span style="display:block; height:1rem;"></span>
+schema.graphqls
 
-### schema.graphqls
-
-```graphql
+```graphql filename="schema.graphqls"
 scalar Long
 scalar Date
 scalar Instant
@@ -592,11 +582,9 @@ type GreetDTO {
 }
 ```
 
-<span style="display:block; height:1rem;"></span>
+reflect-config.json
 
-### reflect-config.json
-
-```json
+```json filename="reflect-config.json"
 [
   {
     "name": "liquibase.logging.mdc.MdcManagerFactory",
@@ -758,14 +746,12 @@ Bu bölümde JWE tabanlı kimlik doğrulama, GraphQL entegrasyonu, GraalVM nativ
 - InstantScalar: GraphQL şemasında ISO-8601 uyumlu `Instant` tipini tanımlayan custom scalar.
 - NativeConfig: GraalVM native-image derlemesi için çalışma zamanı ipuçlarını (reflection ve kaynak desenleri) kaydeder.
 
-<span style="display:block; height:1rem;"></span>
-
-### SecurityJwtConfig
+SecurityJwtConfig
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="SecurityJwtConfig.java"
 package io.github.susimsek.springbootgraphqljwedemo.config;
 
 import com.nimbusds.jose.EncryptionMethod;
@@ -889,7 +875,7 @@ public class SecurityJwtConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="SecurityJwtConfig.kt"
 package io.github.susimsek.springbootgraphqljwedemo.config
 
 import com.nimbusds.jose.EncryptionMethod
@@ -1002,14 +988,12 @@ class SecurityJwtConfig(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### SecurityConfig
+SecurityConfig
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="SecurityConfig.java"
 package io.github.susimsek.springbootgraphqljwedemo.config;
 
 import io.github.susimsek.springbootgraphqljwedemo.repository.UserRepository;
@@ -1106,7 +1090,7 @@ public class SecurityConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="SecurityConfig.kt"
 package io.github.susimsek.springbootgraphqljwedemo.config
 
 import io.github.susimsek.springbootgraphqljwedemo.repository.UserRepository
@@ -1204,14 +1188,12 @@ class SecurityConfig {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### JwtProperties
+JwtProperties
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="JwtProperties.java"
 package io.github.susimsek.springbootgraphqljwedemo.config;
 
 import lombok.Data;
@@ -1241,7 +1223,7 @@ public class JwtProperties {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="JwtProperties.kt"
 package io.github.susimsek.springbootgraphqljwedemo.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -1267,14 +1249,12 @@ class JwtProperties {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### DatabaseConfig
+DatabaseConfig
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="DatabaseConfig.java"
 package io.github.susimsek.springbootgraphqljwedemo.config;
 
 import org.springframework.context.annotation.Configuration;
@@ -1293,7 +1273,7 @@ public class DatabaseConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="DatabaseConfig.kt"
 package io.github.susimsek.springbootgraphqljwedemo.config
 
 import org.springframework.context.annotation.Configuration
@@ -1310,14 +1290,12 @@ class DatabaseConfig
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### GraphQLConfig
+GraphQLConfig
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="GraphQLConfig.java"
 package io.github.susimsek.springbootgraphqljwedemo.config;
 
 import graphql.scalars.ExtendedScalars;
@@ -1341,7 +1319,7 @@ public class GraphQLConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="GraphQLConfig.kt"
 package io.github.susimsek.springbootgraphqljwedemo.config
 
 import graphql.scalars.ExtendedScalars
@@ -1367,14 +1345,12 @@ class GraphQLConfig {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### InstantScalar
+InstantScalar
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="InstantScalar.java"
 package io.github.susimsek.springbootgraphqljwedemo.scalar;
 
 import graphql.GraphQLContext;
@@ -1478,7 +1454,7 @@ public final class InstantScalar {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="InstantScalar.kt"
 package io.github.susimsek.springbootgraphqljwedemo.scalar
 
 import graphql.GraphQLContext
@@ -1561,14 +1537,12 @@ object InstantScalar {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### NativeConfig
+NativeConfig
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="NativeConfig.java"
 package io.github.susimsek.springbootgraphqljwedemo.config;
 
 import org.springframework.aot.hint.MemberCategory;
@@ -1613,7 +1587,7 @@ public class NativeConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="NativeConfig.kt"
 package io.github.susimsek.springbootgraphqljwedemo.config
 
 import org.springframework.aot.hint.MemberCategory
@@ -1664,14 +1638,12 @@ class NativeConfig {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### Main
+Main
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="SpringBootJweAuthJpaDemoApplication.java"
 package io.github.susimsek.springbootgraphqljwedemo;
 
 import io.github.susimsek.springbootgraphqljwedemo.config.NativeConfig;
@@ -1692,7 +1664,7 @@ public class SpringBootJweAuthJpaDemoApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="SpringBootJweAuthJpaDemoApplication.kt"
 package io.github.susimsek.springbootgraphqljwedemo
 
 import io.github.susimsek.springbootgraphqljwedemo.config.NativeConfig
@@ -1724,14 +1696,12 @@ Bu bölümde, kullanıcıları, rollerleri ve bunların eşlemelerini temsil ede
 - UserAuthorityMappingId: `UserAuthorityMapping` için composite anahtar sınıfı.
 - UserRepository: Entity graph kullanarak kullanıcı ve yetkilerini getiren Spring Data JPA repository.
 
-<span style="display:block; height:1rem;"></span>
-
-### BaseEntity
+BaseEntity
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="BaseEntity.java"
 package io.github.susimsek.springbootgraphqljwedemo.entity;
 
 import jakarta.persistence.Column;
@@ -1773,7 +1743,7 @@ public abstract class BaseEntity {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="BaseEntity.kt"
 package io.github.susimsek.springbootgraphqljwedemo.entity
 
 import jakarta.persistence.Column
@@ -1810,14 +1780,12 @@ abstract class BaseEntity {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### Authority
+Authority
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="Authority.java"
 package io.github.susimsek.springbootgraphqljwedemo.entity;
 
 import jakarta.persistence.Column;
@@ -1881,7 +1849,7 @@ public class Authority extends BaseEntity {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="Authority.kt"
 package io.github.susimsek.springbootgraphqljwedemo.entity
 
 import jakarta.persistence.Column
@@ -1923,14 +1891,12 @@ class Authority(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### User
+User
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="User.java"
 package io.github.susimsek.springbootgraphqljwedemo.entity;
 
 import jakarta.persistence.CascadeType;
@@ -2020,7 +1986,7 @@ public class User extends BaseEntity {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="User.kt"
 package io.github.susimsek.springbootgraphqljwedemo.entity
 
 import jakarta.persistence.CascadeType
@@ -2101,14 +2067,12 @@ class User(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### UserAuthorityMapping
+UserAuthorityMapping
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserAuthorityMapping.java"
 package io.github.susimsek.springbootgraphqljwedemo.entity;
 
 import jakarta.persistence.Column;
@@ -2178,7 +2142,7 @@ public class UserAuthorityMapping extends BaseEntity {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserAuthorityMapping.kt"
 package io.github.susimsek.springbootgraphqljwedemo.entity
 
 import jakarta.persistence.*
@@ -2230,14 +2194,12 @@ data class UserAuthorityMapping(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### UserAuthorityMappingId
+UserAuthorityMappingId
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserAuthorityMappingId.java"
 package io.github.susimsek.springbootgraphqljwedemo.entity;
 
 import java.io.Serializable;
@@ -2274,7 +2236,7 @@ public class UserAuthorityMappingId implements Serializable {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserAuthorityMappingId.kt"
 package io.github.susimsek.springbootgraphqljwedemo.entity
 
 import java.io.Serializable
@@ -2300,14 +2262,12 @@ data class UserAuthorityMappingId(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### UserRepository
+UserRepository
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserRepository.java"
 package io.github.susimsek.springbootgraphqljwedemo.repository;
 
 import io.github.susimsek.springbootgraphqljwedemo.entity.User;
@@ -2327,7 +2287,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserRepository.kt"
 package io.github.susimsek.springbootgraphqljwedemo.repository
 
 import io.github.susimsek.springbootgraphqljwedemo.entity.User
@@ -2365,12 +2325,12 @@ Bu bölümde, Spring Boot uygulamanızda JSON Web Encryption (JWE) tokenları ol
 
 Bu yardımcılar, Spring Security ile durumsuz (stateless) JWE tabanlı bir kimlik doğrulama akışının temelini oluşturur.
 
-### AuthoritiesConstants
+AuthoritiesConstants
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AuthoritiesConstants.java"
 
 package io.github.susimsek.springbootgraphqljwedemo.security;
 
@@ -2387,7 +2347,7 @@ public final class AuthoritiesConstants {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AuthoritiesConstants.kt"
 
 package io.github.susimsek.springbootgraphqljwedemo.security
 
@@ -2400,14 +2360,12 @@ object AuthoritiesConstants {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### CookieBearerTokenResolver
+CookieBearerTokenResolver
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="CookieBearerTokenResolver.java"
 package io.github.susimsek.springbootgraphqljwedemo.security;
 
 import jakarta.servlet.http.Cookie;
@@ -2509,7 +2467,7 @@ public class CookieBearerTokenResolver implements BearerTokenResolver {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="CookieBearerTokenResolver.kt"
 package io.github.susimsek.springbootgraphqljwedemo.security
 
 import jakarta.servlet.http.Cookie
@@ -2579,14 +2537,12 @@ class CookieBearerTokenResolver {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### CookieUtils
+CookieUtils
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="CookieUtils.java"
 package io.github.susimsek.springbootjweauthjpademo.security;
 
 import io.github.susimsek.springbootjweauthjpademo.dto.TokenDTO;
@@ -2639,7 +2595,7 @@ public class CookieUtils {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="CookieUtils.kt"
 package io.github.susimsek.springbootjweauthjpademo.security
 
 import io.github.susimsek.springbootjweauthjpademo.dto.TokenDTO
@@ -2682,14 +2638,12 @@ object CookieUtils {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### JweUtil
+JweUtil
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="JweUtil.java"
 package io.github.susimsek.springbootgraphqljwedemo.security;
 
 import com.nimbusds.jose.EncryptionMethod;
@@ -2766,7 +2720,7 @@ public class JweUtil {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="JweUtil.kt"
 package io.github.susimsek.springbootgraphqljwedemo.security
 
 import com.nimbusds.jose.EncryptionMethod
@@ -2837,14 +2791,12 @@ class JweUtil(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### KeyUtils
+KeyUtils
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="KeyUtils.java"
 package io.github.susimsek.springbootgraphqljwedemo.security;
 
 import com.nimbusds.jose.JWEAlgorithm;
@@ -2905,7 +2857,7 @@ public class KeyUtils {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="KeyUtils.kt"
 package io.github.susimsek.springbootgraphqljwedemo.security
 
 import com.nimbusds.jose.JWEAlgorithm
@@ -2965,14 +2917,12 @@ object KeyUtils {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### SecurityUtils
+SecurityUtils
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="SecurityUtils.java"
 package io.github.susimsek.springbootgraphqljwedemo.security;
 
 import lombok.experimental.UtilityClass;
@@ -3014,7 +2964,7 @@ public class SecurityUtils {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="SecurityUtils.kt"
 package io.github.susimsek.springbootgraphqljwedemo.security
 
 import org.springframework.security.core.Authentication
@@ -3044,14 +2994,12 @@ object SecurityUtils {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### DomainUserDetailsService
+DomainUserDetailsService
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="DomainUserDetailsService.java"
 package io.github.susimsek.springbootgraphqljwedemo.security;
 
 import io.github.susimsek.springbootgraphqljwedemo.entity.User;
@@ -3096,7 +3044,7 @@ public class DomainUserDetailsService implements UserDetailsService {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="DomainUserDetailsService.kt"
 package io.github.susimsek.springbootgraphqljwedemo.security
 
 import io.github.susimsek.springbootgraphqljwedemo.repository.UserRepository
@@ -3133,14 +3081,12 @@ class DomainUserDetailsService(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### SpringSecurityAuditorAware
+SpringSecurityAuditorAware
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="SpringSecurityAuditorAware.java"
 package io.github.susimsek.springbootgraphqljwedemo.security;
 
 import org.springframework.data.domain.AuditorAware;
@@ -3162,7 +3108,7 @@ public class SpringSecurityAuditorAware implements AuditorAware<String> {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="SpringSecurityAuditorAware.kt"
 package io.github.susimsek.springbootgraphqljwedemo.security
 
 import org.springframework.data.domain.AuditorAware
@@ -3179,14 +3125,12 @@ class SpringSecurityAuditorAware : AuditorAware<String> {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### GraphQlTokenCookieInterceptor
+GraphQlTokenCookieInterceptor
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="GraphQlTokenCookieInterceptor.java"
 package io.github.susimsek.springbootjweauthjpademo.security;
 
 import graphql.GraphQLContext;
@@ -3229,7 +3173,7 @@ public class GraphQlTokenCookieInterceptor implements WebGraphQlInterceptor {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="GraphQlTokenCookieInterceptor.kt"
 package io.github.susimsek.springbootjweauthjpademo.security
 
 import graphql.GraphQLContext
@@ -3270,14 +3214,12 @@ class GraphQlTokenCookieInterceptor : WebGraphQlInterceptor {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### CookieAuthenticationWebSocketInterceptor
+CookieAuthenticationWebSocketInterceptor
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="CookieAuthenticationWebSocketInterceptor.java"
 package io.github.susimsek.springbootgraphqljwedemo.security;
 
 import io.github.susimsek.springbootgraphqljwedemo.security.CookieUtils;
@@ -3358,7 +3300,7 @@ public class CookieAuthenticationWebSocketInterceptor implements WebSocketGraphQ
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="CookieAuthenticationWebSocketInterceptor.kt"
 package io.github.susimsek.springbootgraphqljwedemo.security
 
 import io.github.susimsek.springbootgraphqljwedemo.security.CookieUtils
@@ -3451,12 +3393,12 @@ Bu bölümde, aşağıdaki GraphQL controller ve DTO’ları tanımlıyoruz:
 
 Bu bileşenler, JWE token’ları ve JPA yı kullanarak GraphQL API’de stateless kimlik doğrulama akışını tamamlar.
 
-### AuthController
+AuthController
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AuthController.java"
 package io.github.susimsek.springbootjweauthjpademo.controller;
 
 import graphql.GraphQLContext;
@@ -3510,7 +3452,7 @@ public class AuthController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AuthController.kt"
 package io.github.susimsek.springbootjweauthjpademo.controller
 
 import graphql.GraphQLContext
@@ -3563,14 +3505,12 @@ class AuthController(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### HelloController
+HelloController
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="HelloController.java"
 package io.github.susimsek.springbootgraphqljwedemo.controller;
 
 import io.github.susimsek.springbootgraphqljwedemo.dto.GreetDTO;
@@ -3650,7 +3590,7 @@ public class HelloController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="HelloController.kt"
 package io.github.susimsek.springbootgraphqljwedemo.controller
 
 import io.github.susimsek.springbootgraphqljwedemo.dto.GreetDTO
@@ -3719,14 +3659,12 @@ class HelloController {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### LoginInput
+LoginInput
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="LoginInput.java"
 package io.github.susimsek.springbootgraphqljwedemo.dto;
 
 public record LoginInput(
@@ -3737,7 +3675,7 @@ public record LoginInput(
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="LoginInput.kt"
 package io.github.susimsek.springbootgraphqljwedemo.dto
 
 data class LoginInput(
@@ -3748,14 +3686,12 @@ data class LoginInput(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### GreetInput
+GreetInput
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="GreetInput.java"
 package io.github.susimsek.springbootgraphqljwedemo.dto;
 
 public record GreetInput(
@@ -3765,7 +3701,7 @@ public record GreetInput(
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="GreetInput.kt"
 package io.github.susimsek.springbootgraphqljwedemo.dto
 
 data class GreetInput(
@@ -3775,14 +3711,12 @@ data class GreetInput(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### GreetDTO
+GreetDTO
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="GreetDTO.java"
 package io.github.susimsek.springbootgraphqljwedemo.dto;
 
 import java.time.Instant;
@@ -3795,7 +3729,7 @@ public record GreetDTO(
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="GreetDTO.kt"
 package io.github.susimsek.springbootgraphqljwedemo.dto
 
 import java.time.Instant
@@ -3808,14 +3742,12 @@ data class GreetDTO(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### TokenDTO
+TokenDTO
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="TokenDTO.java"
 package io.github.susimsek.springbootgraphqljwedemo.dto;
 
 public record TokenDTO(
@@ -3827,7 +3759,7 @@ public record TokenDTO(
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="TokenDTO.kt"
 package io.github.susimsek.springbootgraphqljwedemo.dto
 
 data class TokenDTO(
@@ -3871,6 +3803,8 @@ upx --ultra-brute --lzma target/spring-boot-graphql-jwe-auth-demo
 
 ## 🧪 GraphQL Endpoint Testi
 
+Bu bölümde GraphQL Endpoint Testi konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 ### Admin Akışı
 
 admin olarak giriş yapın ve `Set-Cookie` başlığından JWE tokeni yakalayın:
@@ -3884,7 +3818,7 @@ curl -i -X POST http://localhost:8080/graphql \
 - Set-Cookie başlığı `accessToken=<jwe-token>` içerir
 - Yanıt:
 
-```json
+```json filename="config.json"
 {
   "data": {
     "login": {
@@ -3979,7 +3913,7 @@ Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql`
 
 1. Sorgu (Query) paneline şunu girin:
 
-   ```graphql
+   ```graphql filename="query.graphql"
    mutation Login($in: LoginInput!) {
      login(input: $in) {
        accessToken
@@ -3989,7 +3923,7 @@ Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql`
 
 1. Değişkenler (Variables) paneline geçip ekleyin:
 
-   ```json
+   ```json filename="config.json"
    {
      "in": { "username": "admin", "password": "adminpass" }
    }
@@ -3997,27 +3931,23 @@ Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql`
 
 1. ▶️ düğmesine tıklayın ve dönen yanıttaki `accessToken` değerini kopyalayın.
 
-<span style="display:block; height:1rem;"></span>
-
-2. Başlıkları (Headers) Yapılandırma
+1. Başlıkları (Headers) Yapılandırma
 
 1. Kenar çubuğunda Headers sekmesine tıklayın.
 1. Aşağıdaki JSON’u ekleyin:
 
-   ```json
+   ```json filename="config.json"
    {
      "Authorization": "Bearer <accessToken>"
    }
    ```
 
-<span style="display:block; height:1rem;"></span>
-
-3. Kullanıcı Olarak Abone Olma (greetStream)
+1. Kullanıcı Olarak Abone Olma (greetStream)
 
 1. Subscriptions paneline geçin.
 1. Aşağıdaki subscription sorgusunu girin:
 
-   ```graphql
+   ```graphql filename="query.graphql"
    subscription UserSubscribe($in: GreetInput!) {
      greetStream(input: $in) {
        greeting
@@ -4028,7 +3958,7 @@ Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql`
 
 1. Variables paneline:
 
-   ```json
+   ```json filename="config.json"
    {
      "in": { "message": "GraphiQL üzerinden merhaba!" }
    }
@@ -4036,13 +3966,11 @@ Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql`
 
 1. ▶️ düğmesine tıklayarak `greetStream` akışını dinlemeye başlayın.
 
-<span style="display:block; height:1rem;"></span>
-
-4. Admin Olarak Abone Olma (greetStreamAdmin)
+1. Admin Olarak Abone Olma (greetStreamAdmin)
 
 1. Aynı Subscriptions panelinde aşağıdaki sorguyu girin:
 
-   ```graphql
+   ```graphql filename="query.graphql"
    subscription AdminSubscribe($in: GreetInput!) {
      greetStreamAdmin(input: $in) {
        greeting
@@ -4058,4 +3986,4 @@ Subscriptionları doğrudan GraphiQL UI’ında `http://localhost:8080/graphiql`
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot GraphQL JWE Kimlik Doğrulama için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot GraphQL JWE Kimlik Doğrulama için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

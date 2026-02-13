@@ -34,9 +34,22 @@ JPA Auditing in Spring Boot allows you to automatically track who created or mod
 
 ## 🌟 Why Use JPA Auditing?
 
+In this section, we clarify Why Use JPA Auditing? and summarize the key points you will apply in implementation.
+
 - 📅 Auto track `createdDate`, `lastModifiedDate`
 - 👤 Record `createdBy`, `modifiedBy`
 - 🧼 Cleaner code by avoiding manual field setting
+
+---
+
+## 📋 Prerequisites
+
+Before you start, prepare the following:
+
+- Java 17+
+- Spring Boot 3.x project with Spring Data JPA
+- A configured datasource (H2, PostgreSQL, MySQL, etc.)
+- Basic familiarity with JPA entities and repository flow
 
 ---
 
@@ -46,7 +59,7 @@ Make sure you have the following dependencies in your project:
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -55,7 +68,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 }
@@ -70,7 +83,7 @@ Add `@EnableJpaAuditing` to your main class or a configuration class.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="DemoApplication.java"
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -86,7 +99,7 @@ public class DemoApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="DemoApplication.kt"
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
@@ -111,7 +124,7 @@ This bean tells Spring Security who the current user is. Here's a basic static u
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AuditingConfig.java"
 @Configuration
 public class AuditingConfig {
 
@@ -124,7 +137,7 @@ public class AuditingConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AuditingConfig.kt"
 @Configuration
 class AuditingConfig {
 
@@ -144,7 +157,7 @@ Use auditing annotations like `@CreatedDate`, `@LastModifiedDate`, etc.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="Article.java"
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class Article {
@@ -173,7 +186,7 @@ public class Article {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="Article.kt"
 @Entity
 @EntityListeners(AuditingEntityListener::class)
 data class Article(
@@ -214,7 +227,7 @@ You can test JPA Auditing functionality by saving an entity and checking whether
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ArticleRepositoryTest.java"
 @SpringBootTest
 @AutoConfigureTestDatabase
 @Transactional
@@ -240,7 +253,7 @@ class ArticleRepositoryTest {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ArticleRepositoryTest.kt"
 @SpringBootTest
 @AutoConfigureTestDatabase
 @Transactional
@@ -267,10 +280,8 @@ class ArticleRepositoryTest {
 
 :::
 
-Make sure your test includes the correct Spring context and that auditing is enabled during tests. You may also need to mock `SecurityContext` if you're using a dynamic user in production.
-
 ---
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot JPA Auditing solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot JPA Auditing implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

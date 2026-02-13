@@ -11,6 +11,8 @@ interface CodeBlockProps {
   children: React.ReactNode;
   theme: Theme;
   t: (key: string) => string;
+  node?: unknown;
+  fileName?: string;
 }
 
 type SyntaxHighlighterComponent = typeof import('react-syntax-highlighter').Prism;
@@ -116,6 +118,8 @@ const LANGUAGE_ALIASES: Record<string, string> = {
   yml: 'yaml',
 };
 
+const TERMINAL_LANGUAGES = new Set(['bash', 'sh', 'shell', 'zsh', 'console', 'terminal', 'powershell', 'ps1', 'cmd']);
+
 const resolveLanguage = (language: string | undefined): string | null => {
   if (!language) {
     return null;
@@ -125,6 +129,94 @@ const resolveLanguage = (language: string | undefined): string | null => {
     return null;
   }
   return LANGUAGE_ALIASES[normalized] ?? normalized;
+};
+
+const toNonEmptyString = (value: unknown): string | null => {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed.length ? trimmed : null;
+  }
+  if (Array.isArray(value)) {
+    const joined = value
+      .map(item => (typeof item === 'string' ? item.trim() : ''))
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+    return joined.length ? joined : null;
+  }
+  return null;
+};
+
+const extractCodeMeta = (node: unknown): string | null => {
+  if (!node || typeof node !== 'object') return null;
+
+  const nodeObject = node as {
+    data?: {
+      meta?: unknown;
+      hProperties?: Record<string, unknown>;
+    };
+    properties?: Record<string, unknown>;
+  };
+
+  const fromData = toNonEmptyString(nodeObject.data?.meta);
+  if (fromData) return fromData;
+
+  const candidateProps = [nodeObject.properties, nodeObject.data?.hProperties];
+  const keys = ['meta', 'metastring', 'data-meta', 'dataMeta', 'data-filename', 'dataFilename', 'data-file-name'];
+
+  for (const props of candidateProps) {
+    if (!props) continue;
+    for (const key of keys) {
+      const value = toNonEmptyString(props[key]);
+      if (value) return value;
+    }
+  }
+
+  return null;
+};
+
+const extractMetaAttribute = (meta: string, key: string): string | null => {
+  const quoted = new RegExp(`(?:^|\\s|\\{)${key}\\s*=\\s*(\"([^\"]+)\"|'([^']+)')`, 'i').exec(meta);
+  if (quoted) {
+    const value = quoted[2] ?? quoted[3];
+    return value?.trim() || null;
+  }
+
+  const unquoted = new RegExp(`(?:^|\\s|\\{)${key}\\s*=\\s*([^\\s}]+)`, 'i').exec(meta);
+  if (unquoted) {
+    return unquoted[1]?.trim() || null;
+  }
+
+  return null;
+};
+
+const extractCodeFileName = (meta: string | null): string | null => {
+  if (!meta) return null;
+
+  const keys = ['filename', 'file', 'title', 'path'];
+  for (const key of keys) {
+    const value = extractMetaAttribute(meta, key);
+    if (value) return value;
+  }
+
+  if (!meta.includes('=') && !meta.includes('{') && !meta.includes('}')) {
+    const maybePath = meta.trim();
+    if (/[./\\]/.test(maybePath)) {
+      return maybePath;
+    }
+  }
+
+  return null;
+};
+
+const isTerminalSnippet = (
+  language: string | undefined,
+  resolvedLanguage: string | null,
+  codeText: string,
+): boolean => {
+  const normalized = (resolvedLanguage ?? language ?? '').toLowerCase();
+  if (TERMINAL_LANGUAGES.has(normalized)) return true;
+  return /(^|\n)\s*(\$|PS [^\n>]*>|[A-Z]:\\[^>\n]*>)/.test(codeText);
 };
 
 const toCodeText = (node: React.ReactNode): string => {
@@ -156,7 +248,16 @@ const renderFallbackCodeBlock = (className: string | undefined, codeText: string
   </pre>
 );
 
-const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, children, theme, t, ...props }) => {
+const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({
+  inline,
+  className,
+  children,
+  theme,
+  t,
+  node,
+  fileName,
+  ...props
+}) => {
   const [isCopied, setIsCopied] = useState(false);
   const [showLineNumbers, setShowLineNumbers] = useState(false);
   const [syntaxAssets, setSyntaxAssets] = useState<SyntaxAssets | null>(null);
@@ -166,6 +267,9 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, chil
   const resolvedLanguage = resolveLanguage(language);
   const codeText = toCodeText(children).replace(/\n$/, '');
   const isMultiline = codeText.includes('\n');
+  const codeMeta = extractCodeMeta(node);
+  const displayedCodeFileName = fileName ?? extractCodeFileName(codeMeta);
+  const showFileNameBadge = Boolean(displayedCodeFileName) && !isTerminalSnippet(language, resolvedLanguage, codeText);
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'test' || inline || !hasLanguage) {
@@ -231,7 +335,12 @@ const CodeBlock: React.FC<Readonly<CodeBlockProps>> = ({ inline, className, chil
 
   return (
     <div className="code-block-container">
-      {language && <span className="code-language-badge">{language.toUpperCase()}</span>}
+      {language || showFileNameBadge ? (
+        <div className="code-meta-badges">
+          {language && <span className="code-language-badge">{language.toUpperCase()}</span>}
+          {showFileNameBadge && <span className="code-file-badge">{displayedCodeFileName}</span>}
+        </div>
+      ) : null}
       {isMultiline ? (
         <OverlayTrigger
           placement="top"

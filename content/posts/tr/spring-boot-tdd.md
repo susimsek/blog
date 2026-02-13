@@ -31,6 +31,8 @@ Test Odaklı Geliştirme (TDD), iş mantığını uygulamadan önce testler yaza
 
 ## 🌟 Neden Spring Boot ile TDD?
 
+Bu bölümde Neden Spring Boot ile TDD? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Hataları Erken Yakala: Geliştirme aşamasında problemleri fark et.
 - Temiz Tasarım: Modüler ve test edilebilir kod yapısı zorunlu olur.
 - Güvenle Refactor Et: Testler değişikliklerde güven sağlar.
@@ -54,7 +56,7 @@ Projene Spring Boot test starter'ını ekle.
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-test</artifactId>
@@ -64,7 +66,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 testImplementation 'org.springframework.boot:spring-boot-starter-test'
 ```
 
@@ -77,7 +79,7 @@ Servisi yazmadan önce basit birim test oluştur.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="GreetingServiceTest.java"
 package com.example.tdd;
 
 import org.junit.jupiter.api.Test;
@@ -96,7 +98,7 @@ class GreetingServiceTest {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="GreetingServiceTest.kt"
 package com.example.tdd
 
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -124,7 +126,7 @@ Testi geçecek şekilde `GreetingService` sınıfını oluştur.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="GreetingService.java"
 package com.example.tdd;
 
 public class GreetingService {
@@ -136,7 +138,7 @@ public class GreetingService {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="GreetingService.kt"
 package com.example.tdd
 
 class GreetingService {
@@ -180,4 +182,4 @@ Test geçtikten sonra kodu güvenle refactor edebilirsin. TDD döngüsü şöyle
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot ile Test Odaklı Geliştirme için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Test Odaklı Geliştirme için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

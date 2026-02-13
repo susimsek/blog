@@ -55,7 +55,7 @@ To enable Actuator, add the following dependency to your Spring Boot project:
 
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-actuator</artifactId>
@@ -64,7 +64,7 @@ To enable Actuator, add the following dependency to your Spring Boot project:
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-actuator'
 ```
 
@@ -76,7 +76,9 @@ By default, Actuator exposes several endpoints to provide application insights. 
 
 ### Configuration Example:
 
-```properties
+Use this configuration as a baseline and adjust values for your local or production environment.
+
+```properties filename="config.properties"
 management.endpoints.web.exposure.include=health,info,metrics
 management.endpoint.health.show-details=always
 ```
@@ -105,7 +107,7 @@ curl -X GET http://localhost:8080/actuator/health
 
 You can customize Actuator endpoints to suit your needs. For example, you can define additional metadata in the `application.properties` file for the `/actuator/info` endpoint:
 
-```properties
+```properties filename="config.properties"
 info.app.name=My Application
 info.app.version=1.0.0
 info.app.description=Spring Boot Actuator Example
@@ -120,9 +122,9 @@ For production environments, it's essential to secure Actuator endpoints. Use Sp
 :::tabs
 @tab Java [icon=java]
 
-### Example Security Configuration
+Example Security Configuration
 
-```java
+```java filename="SecurityConfig.java"
 package com.example.demo.config;
 
 import org.springframework.context.annotation.Configuration;
@@ -146,9 +148,9 @@ public class SecurityConfig {
 
 @tab Kotlin [icon=kotlin]
 
-### Example Security Configuration
+Example Security Configuration
 
-```kotlin
+```kotlin filename="SecurityConfig.kt"
 package com.example.demo.config
 
 import org.springframework.context.annotation.Bean
@@ -186,7 +188,7 @@ Run the application using the following command:
 
 Access the Actuator endpoints at:
 
-```
+```filename="snippet.txt"
 http://localhost:8080/actuator/health
 ```
 
@@ -212,4 +214,4 @@ curl -X GET http://localhost:8080/actuator/info
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot Actuator solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot Actuator implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

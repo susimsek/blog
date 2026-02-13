@@ -34,6 +34,8 @@ Spring Boot Eureka Server, mikroservis mimarisinde servis kaydı ve keşfi sağl
 
 ## 🌟 Neden Eureka Server Kullanmalıyız?
 
+Bu bölümde Neden Eureka Server Kullanmalıyız? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Servis Keşfi: Mikro servislerin otomatik olarak kaydolmasını ve keşfedilmesini sağlar.
 - Yük Dengeleme: Ribbon ile istemci taraflı yük dengeleme sağlar.
 - Hata Toleransı: Bir servis başarısız olursa alternatif örnekleri bulmaya yardımcı olur.
@@ -53,18 +55,20 @@ Aşağıdakilerin kurulu olduğundan emin olun:
 
 ## 🛠️ Adım 1: Bağımlılıkları Ekleyin
 
-### Maven Yapılandırması:
+Bu bölümde Adım 1: Bağımlılıkları Ekleyin konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
 
-```xml
+Maven:
+
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
 </dependency>
 ```
 
-### Gradle Yapılandırması:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
 ```
 
@@ -75,7 +79,7 @@ implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-se
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="EurekaServerApplication.java"
 package com.example.eurekaserver;
 
 import org.springframework.boot.SpringApplication;
@@ -93,7 +97,7 @@ public class EurekaServerApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="EurekaServerApplication.kt"
 package com.example.eurekaserver
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -117,7 +121,7 @@ fun main(args: Array<String>) {
 
 Bir `application.yml` dosyası oluşturun ve aşağıdaki yapılandırmayı ekleyin:
 
-```yaml
+```yaml filename="application.yml"
 server:
   port: 8761
 spring:
@@ -159,20 +163,24 @@ http://localhost:8761/
 
 ## 🛠️ Adım 4: Bir İstemci Uygulamasını Kaydetme
 
+Bu bölümde Adım 4: Bir İstemci Uygulamasını Kaydetme konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 ### Bağımlılıkları Ekleyin
 
-### Maven:
+Bu bağımlılık, uygulamanın Eureka sunucusuna kayıt olması ve servis keşfi sürecine katılması için gereklidir.
 
-```xml
+Maven:
+
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 </dependency>
 ```
 
-### Gradle:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 ```
 
@@ -180,7 +188,7 @@ implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-cl
 
 İstemcinin `application.yml` dosyasına aşağıdaki yapılandırmayı ekleyin:
 
-```yaml
+```yaml filename="application.yml"
 spring:
   application:
     name: eureka-client
@@ -192,10 +200,12 @@ eureka:
 
 ### İstemci Uygulama Kodu
 
+Aşağıdaki örnek, İstemci Uygulama Kodu için pratik bir bağlam sunar ve doğrudan uygulanabilir.
+
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="EurekaClientApplication.java"
 package com.example.eurekaclient;
 
 import org.springframework.boot.SpringApplication;
@@ -222,7 +232,7 @@ public class EurekaClientApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="EurekaClientApplication.kt"
 package com.example.eurekaclient
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -275,4 +285,4 @@ http://localhost:8761/
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot Eureka Server için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot Eureka Server için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

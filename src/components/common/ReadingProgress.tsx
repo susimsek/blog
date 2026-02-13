@@ -58,6 +58,7 @@ export default function ReadingProgress() {
     let scheduled = false;
     let hideTimer: number | null = null;
     let backToTopActive = false;
+    let trackingBackToTop = false;
 
     const clearHideTimer = () => {
       if (hideTimer !== null) {
@@ -68,6 +69,7 @@ export default function ReadingProgress() {
 
     const completeBackToTop = () => {
       clearHideTimer();
+      trackingBackToTop = false;
       hideTimer = win.setTimeout(() => {
         backToTopActive = false;
         setIsBackToTopActive(false);
@@ -98,6 +100,15 @@ export default function ReadingProgress() {
       clearHideTimer();
     };
 
+    const trackBackToTopProgress = () => {
+      if (!trackingBackToTop) return;
+      if (!scheduled) {
+        scheduled = true;
+        scheduleFrame(update);
+      }
+      scheduleFrame(trackBackToTopProgress);
+    };
+
     const onScroll = () => {
       if (scheduled) return;
       scheduled = true;
@@ -106,13 +117,11 @@ export default function ReadingProgress() {
 
     const onBackToTop = () => {
       backToTopActive = true;
+      trackingBackToTop = true;
       setIsBackToTopActive(true);
       clearHideTimer();
 
-      if (!scheduled) {
-        scheduled = true;
-        scheduleFrame(update);
-      }
+      trackBackToTopProgress();
     };
 
     update();
@@ -125,6 +134,7 @@ export default function ReadingProgress() {
       win.removeEventListener('resize', onScroll);
       win.removeEventListener(BACK_TO_TOP_EVENT, onBackToTop);
       clearHideTimer();
+      trackingBackToTop = false;
     };
   }, []);
 
@@ -132,7 +142,7 @@ export default function ReadingProgress() {
 
   return (
     <div
-      className={`reading-progress${progress === 0 && !isBackToTopActive ? ' is-hidden' : ''}`}
+      className={`reading-progress${progress === 0 && !isBackToTopActive ? ' is-hidden' : ''}${isBackToTopActive ? ' is-back-to-top' : ''}`}
       style={{ top: topOffset }}
     >
       <progress className="visually-hidden" max={100} value={Math.round(progress)} aria-label="Reading progress" />

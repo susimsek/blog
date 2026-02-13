@@ -142,6 +142,27 @@ const normalizeHeadingLine = (locale, line) => {
   return line;
 };
 
+const normalizeBodyLine = (locale, line) => {
+  const trimmed = line.trim();
+  if (trimmed === '<span style="display:block; height:1rem;"></span>') return '';
+  if (trimmed === "<span style='display:block; height:1rem;'></span>") return '';
+
+  if (locale !== 'tr') return line;
+
+  let next = line;
+
+  // Common Turkish typos and mixed-language section labels.
+  next = next.replace(/Bağlıml/gu, 'Bağıml');
+  next = next.replace(/Controllerı/gu, "Controller'ı");
+
+  const trAddDepsStepRe = /^(##\s+(?:🛠️|🧪|▶️)\s+Adım\s+\d+:\s*)Add Dependencies\s*$/u;
+  if (trAddDepsStepRe.test(next)) {
+    next = next.replace(trAddDepsStepRe, '$1Bağımlılıkları Ekle');
+  }
+
+  return next;
+};
+
 const standardizeFile = async (filePath, locale) => {
   const raw = await fs.readFile(filePath, 'utf8');
   const lines = raw.split(/\r?\n/);
@@ -156,9 +177,10 @@ const standardizeFile = async (filePath, locale) => {
     }
     if (inFence) return line;
 
-    const normalized = normalizeHeadingLine(locale, line);
-    if (normalized !== line) changed = true;
-    return normalized;
+    const headingNormalized = normalizeHeadingLine(locale, line);
+    const bodyNormalized = normalizeBodyLine(locale, headingNormalized);
+    if (bodyNormalized !== line) changed = true;
+    return bodyNormalized;
   });
 
   if (!changed) return { changed: false };

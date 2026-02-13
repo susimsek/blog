@@ -34,6 +34,8 @@ In this post, you’ll learn:
 
 ## 🌟 Why `@ConfigurationProperties`?
 
+In this section, we clarify Why `@ConfigurationProperties`? and summarize the key points you will apply in implementation.
+
 - ✅ Type-safe access to config (IDE autocomplete, refactoring-safe)
 - ✅ Group and document related settings under a single prefix
 - ✅ Validate misconfigurations early (fail fast on startup)
@@ -41,6 +43,8 @@ In this post, you’ll learn:
 ---
 
 ## 📋 Prerequisites
+
+In this section, we clarify Prerequisites and summarize the key points you will apply in implementation.
 
 - Java 17+
 - Spring Boot 3.x
@@ -52,7 +56,7 @@ In this post, you’ll learn:
 
 Create a namespace (prefix) for your app config, for example `app`:
 
-```yaml
+```yaml filename="application.yml"
 app:
   security:
     enabled: true
@@ -69,7 +73,7 @@ app:
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AppProperties.java"
 import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -121,7 +125,7 @@ public class AppProperties {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AppProperties.kt"
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "app")
@@ -146,7 +150,7 @@ You have two common options:
 
 1. Scan for `@ConfigurationProperties` types:
 
-```java
+```java filename="DemoApplication.java"
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
@@ -157,7 +161,7 @@ public class DemoApplication {}
 
 2. Register specific classes explicitly:
 
-```java
+```java filename="DemoApplication.java"
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
@@ -168,14 +172,14 @@ public class DemoApplication {}
 
 ---
 
-## 🛠️ Step 4: Validate properties at startup (fail fast)
+## 🧪 Step 4: Validate properties at startup (fail fast)
 
 Add validation constraints and annotate the class with `@Validated`.
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AppProperties.java"
 import java.util.List;
 
 import jakarta.validation.Valid;
@@ -218,7 +222,7 @@ public class AppProperties {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AppProperties.kt"
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
@@ -258,7 +262,7 @@ Example:
 - `application.yml` (defaults)
 - `application-prod.yml` (production overrides)
 
-```yaml
+```yaml filename="config.yml"
 # application-prod.yml
 app:
   security:
@@ -273,6 +277,8 @@ When multiple profiles are active, profile files are applied with a “last wins
 
 ## 🌟 Tips
 
+In this section, we clarify Tips and summarize the key points you will apply in implementation.
+
 - Prefer `@ConfigurationProperties` over scattered `@Value` for anything non-trivial.
 - Keep a single `AppProperties` root per bounded domain (`security`, `mail`, `storage`, etc.).
 - Add validation constraints for anything that must not be empty or must be within a safe range.
@@ -281,4 +287,4 @@ When multiple profiles are active, profile files are applied with a “last wins
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready configuration layer in Spring Boot by combining @ConfigurationProperties, startup validation with @Validated, and profile-specific overrides—making your app safer to operate across environments.
+You now have a type-safe Spring Boot configuration layer with startup validation and profile-based overrides. As a next step, externalize environment-specific secrets and add configuration tests to catch regressions early.

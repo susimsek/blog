@@ -31,6 +31,8 @@ Redis is a powerful in-memory data store often used for caching, messaging, and 
 
 ## 🌟 Why Use Redis?
 
+In this section, we clarify Why Use Redis? and summarize the key points you will apply in implementation.
+
 - High Performance: Redis provides extremely low latency for read and write operations.
 - Versatile Data Structures: Supports strings, hashes, lists, sets, and more.
 - Scalability: Ideal for distributed caching and real-time analytics.
@@ -55,7 +57,7 @@ To integrate Redis into your Spring Boot project, add the following dependencies
 
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-data-redis</artifactId>
@@ -64,7 +66,7 @@ To integrate Redis into your Spring Boot project, add the following dependencies
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 ```
 
@@ -76,14 +78,16 @@ Set up the Redis connection in your `application.properties` or `application.yml
 
 ### Example Configuration:
 
-```properties
+Use this configuration as a baseline and adjust values for your local or production environment.
+
+```properties filename="application.properties"
 spring.redis.host=localhost
 spring.redis.port=6379
 ```
 
 For advanced setups, such as password authentication or SSL, add these properties:
 
-```properties
+```properties filename="application.properties"
 spring.redis.password=yourpassword
 spring.redis.ssl=true
 ```
@@ -97,7 +101,7 @@ Add the `@EnableCaching` annotation to your main application class to enable Spr
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="RedisApplication.java"
 package com.example.redis;
 
 import org.springframework.boot.SpringApplication;
@@ -115,7 +119,7 @@ public class RedisApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="RedisApplication.kt"
 package com.example.redis
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -140,7 +144,7 @@ fun main(args: Array<String>) {
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserService.java"
 package com.example.redis.service;
 
 import org.springframework.cache.annotation.Cacheable;
@@ -167,7 +171,7 @@ public class UserService {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserService.kt"
 package com.example.redis.service
 
 import org.springframework.cache.annotation.Cacheable
@@ -196,7 +200,7 @@ class UserService {
 
 Set the cache expiration time in your `application.properties` file:
 
-```properties
+```properties filename="application.properties"
 spring.cache.redis.time-to-live=600000
 ```
 
@@ -211,7 +215,7 @@ Create a REST controller to expose the caching functionality.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserController.java"
 package com.example.redis.controller;
 
 import com.example.redis.service.UserService;
@@ -234,7 +238,7 @@ public class UserController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserController.kt"
 package com.example.redis.controller
 
 import com.example.redis.service.UserService
@@ -274,10 +278,8 @@ You can test the API using cURL or Postman:
 curl -X GET http://localhost:8080/users/1
 ```
 
-Make subsequent requests to observe faster responses due to caching.
-
 ---
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot Redis Caching solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot Redis Caching implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

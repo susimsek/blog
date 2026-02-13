@@ -34,9 +34,22 @@ Spring Boot'ta JPA Auditing, bir varlığın kim tarafından ve ne zaman oluştu
 
 ## 🌟 Neden JPA Auditing Kullanmalıyım?
 
+Bu bölümde Neden JPA Auditing Kullanmalıyım? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - 📅 `createdDate`, `lastModifiedDate` alanlarını otomatik takip edin
 - 👤 `createdBy`, `modifiedBy` bilgilerini kaydedin
 - 🧼 Alanları manuel ayarlamadan kaçınarak temiz kod yazın
+
+---
+
+## 📋 Gereksinimler
+
+Başlamadan önce aşağıdakileri hazırlayın:
+
+- Java 17+
+- Spring Data JPA içeren Spring Boot 3.x projesi
+- Yapılandırılmış bir veritabanı bağlantısı (H2, PostgreSQL, MySQL vb.)
+- JPA entity ve repository akışı hakkında temel bilgi
 
 ---
 
@@ -46,7 +59,7 @@ Projenize aşağıdaki bağımlılıkları ekleyin:
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -55,7 +68,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 }
@@ -70,7 +83,7 @@ Ana sınıfınıza veya yapılandırma sınıfınıza `@EnableJpaAuditing` ekley
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="DemoApplication.java"
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -86,7 +99,7 @@ public class DemoApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="DemoApplication.kt"
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
@@ -111,7 +124,7 @@ Bu bean, Spring'e geçerli kullanıcıyı bildirir. Statik bir kullanıcı örne
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AuditingConfig.java"
 @Configuration
 public class AuditingConfig {
 
@@ -124,7 +137,7 @@ public class AuditingConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AuditingConfig.kt"
 @Configuration
 class AuditingConfig {
 
@@ -144,7 +157,7 @@ Aşağıdaki gibi denetim anotasyonlarını kullanın: `@CreatedDate`, `@LastMod
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="Article.java"
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class Article {
@@ -173,7 +186,7 @@ public class Article {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="Article.kt"
 @Entity
 @EntityListeners(AuditingEntityListener::class)
 data class Article(
@@ -214,7 +227,7 @@ Bir entity kaydederek denetim alanlarının otomatik olarak doldurulup doldurulm
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ArticleRepositoryTest.java"
 @SpringBootTest
 @AutoConfigureTestDatabase
 @Transactional
@@ -240,7 +253,7 @@ class ArticleRepositoryTest {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ArticleRepositoryTest.kt"
 @SpringBootTest
 @AutoConfigureTestDatabase
 @Transactional
@@ -267,10 +280,8 @@ class ArticleRepositoryTest {
 
 :::
 
-Testlerin doğru Spring bağlamıyla çalıştığından ve denetlemenin testler sırasında etkin olduğundan emin olun. Gerçek kullanıcıyı kullanıyorsanız `SecurityContext`'i mock'lamak gerekebilir.
-
 ---
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot JPA Auditing için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot JPA Auditing için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

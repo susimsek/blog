@@ -38,13 +38,28 @@ Doğrulama, API’nıza gönderilen verilerin beklenen formatlara uygun olmasın
 
 ---
 
+## 📋 Gereksinimler
+
+Doğrulama katmanını uygulamadan önce şunların hazır olduğundan emin olun:
+
+- Spring Boot örnekleri için Java 17+
+- Gin örnekleri için Go 1.21+
+- Çalışan bir Spring Boot veya Gin başlangıç projesi
+- DTO, JSON payload ve HTTP durum kodları hakkında temel bilgi
+
+---
+
 ## 🧪 Adım 1: Doğrulama Bağımlılıklarını Ekleyin
+
+Bu bölümde Adım 1: Doğrulama Bağımlılıklarını Ekleyin konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
 
 ### Spring Boot Projeleri için:
 
+Önce validation starter bağımlılığını ekleyerek anotasyon tabanlı doğrulama altyapısını aktif hale getirin.
+
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-validation</artifactId>
@@ -53,11 +68,13 @@ Doğrulama, API’nıza gönderilen verilerin beklenen formatlara uygun olmasın
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-validation'
 ```
 
 ### Gin Framework (Go) için:
+
+Aşağıdaki örnek, Gin Framework (Go) için için pratik bir bağlam sunar ve doğrudan uygulanabilir.
 
 ```bash
 # Gin frameworkünü yükleyin
@@ -76,7 +93,7 @@ Alanlara doğrulama kurallarını tanımlamak için anotasyonlar kullanın. Örn
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="TodoRequest.java"
 package com.example.demo.dto;
 
 import jakarta.validation.constraints.NotNull;
@@ -96,7 +113,7 @@ public class TodoRequest {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="TodoRequest.kt"
 package com.example.demo.dto
 
 import jakarta.validation.constraints.NotNull
@@ -113,7 +130,7 @@ data class TodoRequest(
 
 @tab Go [icon=go]
 
-```go
+```go filename="app.go"
 package dto
 
 import (
@@ -143,7 +160,7 @@ Doğrulamayı REST endpoint’lerinize entegre edin.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="TodoController.java"
 package com.example.demo.controller;
 
 import com.example.demo.dto.TodoRequest;
@@ -163,7 +180,7 @@ public class TodoController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="TodoController.kt"
 package com.example.demo.controller
 
 import com.example.demo.dto.TodoRequest
@@ -183,7 +200,7 @@ class TodoController {
 
 @tab Go [icon=go]
 
-```go
+```go filename="app.go"
 package controller
 
 import (
@@ -220,7 +237,7 @@ Hata mesajlarını daha kullanıcı dostu olacak şekilde düzelleyin.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="GlobalExceptionHandler.java"
 package com.example.demo.exception;
 
 import org.springframework.http.HttpStatus;
@@ -245,7 +262,7 @@ public class GlobalExceptionHandler {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="GlobalExceptionHandler.kt"
 package com.example.demo.exception
 
 import org.springframework.http.HttpStatus
@@ -265,7 +282,7 @@ class GlobalExceptionHandler {
 
 @tab Go [icon=go]
 
-```go
+```go filename="app.go"
 package middleware
 
 import (
@@ -288,11 +305,11 @@ func ErrorHandler() gin.HandlerFunc {
 
 ---
 
-### main.go Örneği
+main.go Örneği
 
 Gin uygulaması için `main.go` dosyasının bir örneği:
 
-```go
+```go filename="main.go"
 package main
 
 import (
@@ -313,8 +330,9 @@ func main() {
 
 ## ▶️ Adım 5: Uygulamayı Çalıştırın
 
-### Spring Boot (Java/Kotlin)
+Bu bölümde Adım 5: Uygulamayı Çalıştırın konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
 
+Spring Boot (Java/Kotlin):
 Spring Boot uygulamasını terminal veya IDE’nizden çalıştırın:
 
 ```bash
@@ -368,4 +386,4 @@ curl -X POST http://localhost:8080/api/todos \
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile REST API’lerde Girdi Doğrulama için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık REST API’lerde Girdi Doğrulama için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

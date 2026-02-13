@@ -26,6 +26,16 @@ Spring Boot simplifies the process of building production-ready applications wit
 
 ---
 
+## 🌟 What you'll learn
+
+In this section, we clarify What you'll learn and summarize the key points you will apply in implementation.
+
+- How to bootstrap a Spring Boot project with Java or Kotlin.
+- How to expose your first HTTP endpoint and verify it quickly.
+- How to run the app locally and prepare a clean base for the next features.
+
+---
+
 ## 📋 Prerequisites
 
 📋 Before starting, ensure you have the following:
@@ -65,7 +75,7 @@ Let’s write a simple endpoint to say hello:
 :::tabs  
 @tab Java [icon=java]
 
-```java
+```java filename="DemoApplication.java"
 package com.example.demo;
 
 import org.springframework.boot.SpringApplication;
@@ -89,7 +99,7 @@ public class DemoApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="DemoApplication.kt"
 package com.example.demo
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -117,6 +127,8 @@ fun sayHello(): String {
 
 ## ▶️ Step 3: Run the Application
 
+In this section, we clarify Step 3: Run the Application and summarize the key points you will apply in implementation.
+
 1. Open a terminal in the project folder.
 2. Execute the command to run your application:
 
@@ -125,13 +137,13 @@ fun sayHello(): String {
 ```
 
 3. Access the endpoint at:
-   ```
+   ```filename="snippet.txt"
    http://localhost:8080/hello
    ```
 
 Response:
 
-```
+```filename="snippet.txt"
 Hello, Spring Boot!
 ```
 
@@ -139,4 +151,4 @@ Hello, Spring Boot!
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot - First Application solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot - First Application implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

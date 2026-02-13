@@ -133,6 +133,38 @@ describe('CodeBlock Component', () => {
     expect(screen.getByTestId('font-awesome-icon-eye-slash')).toBeInTheDocument();
   });
 
+  it('shows code file badge when fenced code meta contains filename', () => {
+    render(
+      <CodeBlock
+        theme="light"
+        t={mockTranslation}
+        className="language-yaml"
+        node={{ data: { meta: 'filename=\"application.yml\"' } }}
+      >
+        {'app:\n  name: demo'}
+      </CodeBlock>,
+    );
+
+    expect(screen.getByText('YAML')).toBeInTheDocument();
+    expect(screen.getByText('application.yml')).toBeInTheDocument();
+  });
+
+  it('does not show code file badge for terminal command blocks', () => {
+    render(
+      <CodeBlock
+        theme="light"
+        t={mockTranslation}
+        className="language-bash"
+        node={{ data: { meta: 'filename=\"deploy.sh\"' } }}
+      >
+        {'pnpm build && pnpm test'}
+      </CodeBlock>,
+    );
+
+    expect(screen.getByText('BASH')).toBeInTheDocument();
+    expect(screen.queryByText('deploy.sh')).not.toBeInTheDocument();
+  });
+
   it('renders inline code correctly when inline prop is true', () => {
     render(
       <CodeBlock inline theme="light" t={mockTranslation} className="language-javascript">

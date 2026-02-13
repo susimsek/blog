@@ -34,6 +34,8 @@ Bu yazıda şunları öğreneceksin:
 
 ## 🌟 Neden `@ConfigurationProperties`?
 
+Bu bölümde Neden `@ConfigurationProperties`? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - ✅ Tip-güvenli config erişimi (IDE autocomplete, refactor dostu)
 - ✅ İlgili ayarları tek bir prefix altında toplama
 - ✅ Hatalı config’i erken yakalama (uygulama açılışında)
@@ -41,6 +43,8 @@ Bu yazıda şunları öğreneceksin:
 ---
 
 ## 📋 Gereksinimler
+
+Bu bölümde Gereksinimler konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
 
 - Java 17+
 - Spring Boot 3.x
@@ -52,7 +56,7 @@ Bu yazıda şunları öğreneceksin:
 
 Uygulamaya özel bir prefix belirle (ör. `app`):
 
-```yaml
+```yaml filename="application.yml"
 app:
   security:
     enabled: true
@@ -69,7 +73,7 @@ app:
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AppProperties.java"
 import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -121,7 +125,7 @@ public class AppProperties {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AppProperties.kt"
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "app")
@@ -146,7 +150,7 @@ data class AppProperties(
 
 1. `@ConfigurationProperties` sınıflarını tara:
 
-```java
+```java filename="DemoApplication.java"
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
@@ -157,7 +161,7 @@ public class DemoApplication {}
 
 2. Sadece belirli sınıfları enable et:
 
-```java
+```java filename="DemoApplication.java"
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
@@ -168,14 +172,14 @@ public class DemoApplication {}
 
 ---
 
-## 🛠️ Adım 4: Açılışta doğrula (fail fast)
+## 🧪 Adım 4: Açılışta doğrula (fail fast)
 
 Constraint ekleyip sınıfı `@Validated` ile işaretle.
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AppProperties.java"
 import java.util.List;
 
 import jakarta.validation.Valid;
@@ -218,7 +222,7 @@ public class AppProperties {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AppProperties.kt"
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
@@ -258,7 +262,7 @@ Spring Boot önce `application.yml`’ı okur, sonra aktif profile’a göre ove
 - `application.yml` (varsayılanlar)
 - `application-prod.yml` (prod override)
 
-```yaml
+```yaml filename="config.yml"
 # application-prod.yml
 app:
   security:
@@ -273,6 +277,8 @@ Birden fazla profile aktifse “son yazan kazanır” mantığı geçerlidir (so
 
 ## 🌟 İpuçları
 
+Bu bölümde İpuçları konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Non-trivial ayarlarda `@Value` yerine `@ConfigurationProperties` kullan.
 - `security`, `mail`, `storage` gibi alanlara göre ayrı root’lar tanımla.
 - Boş olmaması gereken veya aralık kısıtı olan değerlerde doğrulama constraint’leri ekle.
@@ -281,4 +287,4 @@ Birden fazla profile aktifse “son yazan kazanır” mantığı geçerlidir (so
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot'ta @ConfigurationProperties, @Validated ile açılış doğrulaması ve profile-specific override'ları birleştirerek sağlam ve üretim‑hazır bir yapılandırma katmanı sunar; uygulamanızı farklı ortamlarda daha güvenli işletmenizi sağlar.
+Artık tip-güvenli, açılışta doğrulanan ve profile göre override edilebilen bir Spring Boot yapılandırma katmanın var. Sonraki adımda ortam bazlı gizli değerleri dışsallaştırıp regresyonları erken yakalamak için yapılandırma testleri ekleyin.

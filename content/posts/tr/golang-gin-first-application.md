@@ -23,6 +23,16 @@ Gin, Golang ile yüksek performanslı web uygulamaları oluşturma sürecini bas
 
 ---
 
+## 🌟 Bu yazıda ne öğreneceksin?
+
+Bu bölümde Bu yazıda ne öğreneceksin? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
+- Minimal bir Gin proje yapısını sıfırdan kurmayı.
+- İlk JSON endpoint’ini yazıp dışarı açmayı.
+- Servisi lokalde çalıştırıp temel doğrulamayı yapmayı.
+
+---
+
 ## 📋 Gereksinimler
 
 📋 Başlamadan önce aşağıdaki gereksinimlere sahip olduğunuzdan emin olun:
@@ -58,7 +68,7 @@ Basit bir "hello" mesajı gönderen bir endpoint yazalım:
 
 `main.go` adında bir dosya oluşturun ve aşağıdaki içeriği ekleyin:
 
-```go
+```go filename="main.go"
 package main
 
 import (
@@ -82,6 +92,8 @@ func main() {
 
 ## ▶️ Adım 3: Uygulamayı Çalıştırma
 
+Bu bölümde Adım 3: Uygulamayı Çalıştırma konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 1. Proje klasörünüzde bir terminal açın.
 2. Uygulamanızı çalıştırmak için aşağıdaki komutu çalıştırın:
 
@@ -90,13 +102,13 @@ go run main.go
 ```
 
 3. Endpoint'e şu adresten erişin:
-   ```
+   ```filename="snippet.txt"
    http://localhost:8080/hello
    ```
 
 Yanıt:
 
-```json
+```json filename="config.json"
 {
   "message": "Merhaba, Gin!"
 }
@@ -106,4 +118,4 @@ Yanıt:
 
 ## 🏁 Sonuç
 
-Bu kurulum, Gin - İlk Uygulama için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Gin - İlk Uygulama için üretim odaklı bir temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

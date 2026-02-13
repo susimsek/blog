@@ -28,6 +28,8 @@ Spring Boot, `@Async` anotasyonu ile arka planda asenkron görevler çalıştır
 
 ## 🌟 Neden Spring Boot'ta @Async Kullanmalıyız?
 
+Bu bölümde Neden Spring Boot'ta @Async Kullanmalıyız? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Engellenmeyen Çalıştırma: Görevleri ana thread'i bekletmeden çalıştırır.
 - Geliştirilmiş Performans: Bağımsız görevleri paralel olarak yürütür.
 - Daha İyi Ölçeklenebilirlik: Diğer süreçler için kaynakları serbest bırakır.
@@ -35,7 +37,7 @@ Spring Boot, `@Async` anotasyonu ile arka planda asenkron görevler çalıştır
 
 ---
 
-## 🌟 Önkoşullar
+## 📋 Gereksinimler
 
 Şu gereksinimlere sahip olduğunuzdan emin olun:
 
@@ -51,7 +53,7 @@ Asenkron işlemleri etkinleştirmek için spring-boot-starter-web bağımlılı�
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-web</artifactId>
@@ -60,7 +62,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-web'
 ```
 
@@ -73,7 +75,7 @@ Ana uygulama sınıfınıza `@EnableAsync` anotasyonunu ekleyerek asenkron çal�
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AsyncApplication.java"
 package com.example.async;
 
 import org.springframework.boot.SpringApplication;
@@ -91,7 +93,7 @@ public class AsyncApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AsyncApplication.kt"
 package com.example.async
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -118,7 +120,7 @@ fun main(args: Array<String>) {
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AsyncTask.java"
 package com.example.async;
 
 import org.springframework.scheduling.annotation.Async;
@@ -137,7 +139,7 @@ public class AsyncTask {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AsyncTask.kt"
 package com.example.async
 
 import org.springframework.scheduling.annotation.Async
@@ -165,7 +167,7 @@ Bir REST controller oluşturarak asenkron işlemi tetikleyin.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AsyncController.java"
 package com.example.async;
 
 import org.springframework.web.bind.annotation.*;
@@ -188,7 +190,7 @@ public class AsyncController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AsyncController.kt"
 package com.example.async
 
 import org.springframework.web.bind.annotation.*
@@ -228,7 +230,11 @@ gradle bootRun
 
 ## 🧪 Asenkron Görevi Test Etme
 
+Bu bölümde Asenkron Görevi Test Etme konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 ### Asenkron Görevi Tetikleme:
+
+Bu çağrı ile asenkron akışı tetikleyip görev yürütümünü loglar üzerinden takip edebilirsiniz.
 
 ```bash
 curl -X GET http://localhost:8080/async/run
@@ -236,7 +242,9 @@ curl -X GET http://localhost:8080/async/run
 
 ### Beklenen Konsol Çıktısı:
 
-```plaintext
+Kendi log çıktınızı bu örnekle karşılaştırarak davranışın doğru çalıştığını hızlıca teyit edin.
+
+```plaintext filename="snippet.txt"
 Asenkron görev çalıştırıldı: 12:00:01
 ```
 
@@ -244,4 +252,4 @@ Asenkron görev çalıştırıldı: 12:00:01
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot Asenkron Görevler için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot Asenkron Görevler için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

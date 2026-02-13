@@ -46,18 +46,18 @@ AOP enables developers to separate concerns that affect multiple parts of an app
 
 Include the following dependencies in your project:
 
-- Maven:
+Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-aop</artifactId>
 </dependency>
 ```
 
-- Gradle:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-aop'
 ```
 
@@ -70,9 +70,9 @@ Create a simple service to demonstrate AOP.
 :::tabs
 @tab Java [icon=java]
 
-### Service
+Service
 
-```java
+```java filename="UserService.java"
 package com.example.demo.service;
 
 import org.springframework.stereotype.Service;
@@ -92,9 +92,9 @@ public class UserService {
 
 @tab Kotlin [icon=kotlin]
 
-### Service
+Service
 
-```kotlin
+```kotlin filename="UserService.kt"
 package com.example.demo.service
 
 import org.springframework.stereotype.Service
@@ -123,9 +123,9 @@ Define an aspect to log method execution details.
 :::tabs
 @tab Java [icon=java]
 
-### Aspect
+Aspect
 
-```java
+```java filename="LoggingAspect.java"
 package com.example.demo.aspect;
 
 import org.aspectj.lang.annotation.Aspect;
@@ -149,9 +149,9 @@ public class LoggingAspect {
 
 @tab Kotlin [icon=kotlin]
 
-### Aspect
+Aspect
 
-```kotlin
+```kotlin filename="LoggingAspect.kt"
 package com.example.demo.aspect
 
 import org.aspectj.lang.annotation.Aspect
@@ -183,9 +183,9 @@ Expose the service methods through a REST controller.
 :::tabs
 @tab Java [icon=java]
 
-### Controller
+Controller
 
-```java
+```java filename="UserController.java"
 package com.example.demo.controller;
 
 import com.example.demo.service.UserService;
@@ -216,9 +216,9 @@ public class UserController {
 
 @tab Kotlin [icon=kotlin]
 
-### Controller
+Controller
 
-```kotlin
+```kotlin filename="UserController.kt"
 package com.example.demo.controller
 
 import com.example.demo.service.UserService
@@ -249,11 +249,12 @@ class UserController(
 
 Run the application using the following commands:
 
-- Spring Boot (Java/Kotlin):
+Spring Boot (Java/Kotlin):
+Run the application with either stack to confirm the baseline setup is working before deeper tests.
 
-  ```bash
-  ./mvnw spring-boot:run
-  ```
+```bash
+./mvnw spring-boot:run
+```
 
 Access the API at `http://localhost:8080/api/users`.
 
@@ -279,4 +280,4 @@ curl -X GET http://localhost:8080/api/users/1
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Aspect-Oriented Programming in Spring Boot solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Aspect-Oriented Programming in Spring Boot implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

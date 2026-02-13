@@ -58,7 +58,9 @@ Spring Boot projenizi daha net bir hale getirmek için aşağıdaki gibi organiz
 
 ### Örnek Klasör Yapısı:
 
-```
+Bu klasör yapısı, katmanlar arası sorumlulukları ayırarak bakım ve geliştirme hızını artırır.
+
+```filename="snippet.txt"
 src/main/java/com/example/cleanproject
 ├── controller
 ├── service
@@ -75,9 +77,11 @@ Lombok, Java'daki gereksiz kodu azaltarak sınıflarınızı daha kısa ve okuna
 
 ### Lombok Bağlılığını Ekleyin
 
+Önce Lombok bağımlılığını ekleyerek tekrar eden getter/setter ve constructor kodlarını otomatik üretime bırakın.
+
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.projectlombok</groupId>
   <artifactId>lombok</artifactId>
@@ -87,14 +91,16 @@ Lombok, Java'daki gereksiz kodu azaltarak sınıflarınızı daha kısa ve okuna
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 provided 'org.projectlombok:lombok'
 annotationProcessor 'org.projectlombok:lombok'
 ```
 
 ### Örnek: Lombok ile Entity
 
-```java
+Aşağıdaki örnek, Örnek: Lombok ile Entity için pratik bir bağlam sunar ve doğrudan uygulanabilir.
+
+```java filename="User.java"
 package com.example.cleanproject.entity;
 
 import jakarta.persistence.*;
@@ -131,7 +137,9 @@ Kotlin, modern özellikleri ile doğal olarak daha temiz kod yazılmasını sağ
 
 ### Örnek: Kotlin ile Entity
 
-```kotlin
+Aşağıdaki örnek, Örnek: Kotlin ile Entity için pratik bir bağlam sunar ve doğrudan uygulanabilir.
+
+```kotlin filename="User.kt"
 package com.example.cleanproject.entity
 
 import jakarta.persistence.*
@@ -159,10 +167,12 @@ Bileşenleri ayırmak ve test edilebilirliği arttırmak için dependency inject
 
 ### Örnek: Service Katmanı ile DI
 
+Aşağıdaki örnek, Örnek: Service Katmanı ile DI için pratik bir bağlam sunar ve doğrudan uygulanabilir.
+
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserService.java"
 package com.example.cleanproject.service;
 
 import com.example.cleanproject.entity.User;
@@ -186,7 +196,7 @@ public class UserService {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserService.kt"
 package com.example.cleanproject.service
 
 import com.example.cleanproject.entity.User
@@ -211,10 +221,12 @@ Data Transfer Object (DTO), domain ve API katmanlarını ayırarak daha iyi kaps
 
 ### Örnek: User İçin DTO
 
+Aşağıdaki örnek, Örnek: User İçin DTO için pratik bir bağlam sunar ve doğrudan uygulanabilir.
+
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserDTO.java"
 package com.example.cleanproject.dto;
 
 import lombok.Data;
@@ -228,7 +240,7 @@ public class UserDTO {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserDTO.kt"
 package com.example.cleanproject.dto
 
 data class UserDTO(
@@ -248,7 +260,7 @@ HTTP isteklerini yönetmek ve service katmanıyla etkileşim sağlamak için bir
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserController.java"
 package com.example.cleanproject.controller;
 
 import com.example.cleanproject.dto.UserDTO;
@@ -274,7 +286,7 @@ public class UserController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserController.kt"
 package com.example.cleanproject.controller
 
 import com.example.cleanproject.dto.UserDTO
@@ -322,4 +334,4 @@ curl -X GET http://localhost:8080/api/users
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot Temiz Kodlama Pratikleri için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot Temiz Kodlama Pratikleri için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

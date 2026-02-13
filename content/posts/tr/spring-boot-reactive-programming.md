@@ -31,6 +31,8 @@ Spring Boot ile Reaktif Programlama, geliştiricilere bloklamayan, olay güdüml
 
 ## 🌟 Neden Reaktif Programlama Kullanmalıyız?
 
+Bu bölümde Neden Reaktif Programlama Kullanmalıyız? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Eşzamansız & Bloklamayan İşleme: Birden fazla isteği iş parçacıklarını bloklamadan verimli bir şekilde yönetin.
 - Daha İyi Ölçeklenebilirlik: Daha az kaynak kullanarak daha fazla eşzamanlı kullanıcıyı destekleyin.
 - Olay Güdümlü Model: Mikro hizmetler, gerçek zamanlı uygulamalar ve veri akışı işleme için idealdir.
@@ -54,7 +56,7 @@ Spring WebFlux bağımlılığını `pom.xml` veya `build.gradle` dosyanıza ekl
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-webflux</artifactId>
@@ -63,7 +65,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-webflux'
 ```
 
@@ -76,7 +78,7 @@ Mono ve Flux kullanarak bloklamayan bir REST endpoint'i tanımlayın.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ReaktifController.java"
 package com.example.reaktif;
 
 import org.springframework.web.bind.annotation.*;
@@ -105,7 +107,7 @@ public class ReaktifController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ReaktifController.kt"
 package com.example.reaktif
 
 import org.springframework.web.bind.annotation.*
@@ -152,7 +154,11 @@ gradle bootRun
 
 ## 🧪 API'yi Test Etme
 
+Bu bölümde API'yi Test Etme konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 ### Mono Endpoint Testi:
+
+Bu kontrol adımı, endpoint davranışının beklenen çıktı ile uyumunu doğrulamak için kullanılır.
 
 ```bash
 curl -X GET http://localhost:8080/reaktif/mono
@@ -160,11 +166,13 @@ curl -X GET http://localhost:8080/reaktif/mono
 
 Beklenen çıktı:
 
-```plaintext
+```plaintext filename="snippet.txt"
 Reaktif Mono'dan Merhaba!
 ```
 
 ### Flux Endpoint Testi:
+
+Bu kontrol adımı, endpoint davranışının beklenen çıktı ile uyumunu doğrulamak için kullanılır.
 
 ```bash
 curl -X GET http://localhost:8080/reaktif/flux
@@ -172,7 +180,7 @@ curl -X GET http://localhost:8080/reaktif/flux
 
 Beklenen çıktı (her kelime için 1 saniyelik gecikme ile):
 
-```plaintext
+```plaintext filename="snippet.txt"
 Merhaba
 Reaktif
 Dünya
@@ -182,4 +190,4 @@ Dünya
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot Reaktif Programlama için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot Reaktif Programlama için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

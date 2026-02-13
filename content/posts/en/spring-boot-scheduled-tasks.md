@@ -28,6 +28,8 @@ Spring Boot allows developers to easily schedule and execute background tasks us
 
 ## 🌟 Why Use @Scheduled in Spring Boot?
 
+In this section, we clarify Why Use @Scheduled in Spring Boot? and summarize the key points you will apply in implementation.
+
 - Automate Tasks: Run jobs periodically without human interaction.
 - Efficient Resource Usage: Schedule tasks without blocking main threads.
 - Supports Fixed Rate, Fixed Delay, and Cron Expressions.
@@ -51,7 +53,7 @@ To enable scheduling, you need to include spring-boot-starter-web in your `pom.x
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-web</artifactId>
@@ -60,7 +62,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-web'
 ```
 
@@ -76,7 +78,7 @@ To enable scheduling, annotate your main application class with `@EnableScheduli
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ScheduledApplication.java"
 package com.example.scheduled;
 
 import org.springframework.boot.SpringApplication;
@@ -94,7 +96,7 @@ public class ScheduledApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ScheduledApplication.kt"
 package com.example.scheduled
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -121,7 +123,7 @@ Define a scheduled task using `@Scheduled`.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ScheduledTask.java"
 package com.example.scheduled;
 
 import org.springframework.scheduling.annotation.Scheduled;
@@ -140,7 +142,7 @@ public class ScheduledTask {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ScheduledTask.kt"
 package com.example.scheduled
 
 import org.springframework.scheduling.annotation.Scheduled
@@ -181,9 +183,13 @@ The scheduled task will execute every 5 seconds and print a timestamp.
 
 ## 🧪 Testing the Scheduled Task
 
+In this section, we clarify Testing the Scheduled Task and summarize the key points you will apply in implementation.
+
 ### Expected Console Output:
 
-```plaintext
+Compare your console logs with this output to quickly confirm the behavior is correct.
+
+```plaintext filename="snippet.txt"
 Scheduled task executed at: 12:00:01
 Scheduled task executed at: 12:00:06
 Scheduled task executed at: 12:00:11
@@ -193,4 +199,4 @@ Scheduled task executed at: 12:00:11
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot Scheduled Tasks solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot Scheduled Tasks implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

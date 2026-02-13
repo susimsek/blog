@@ -100,7 +100,7 @@ describe('PostToc', () => {
     expect(pushStateSpy).not.toHaveBeenCalled();
   });
 
-  it('renders only h2 headings in toc', () => {
+  it('renders h2 and h3 headings in toc', () => {
     const headings = Array.from({ length: 10 }, (_, index) => ({
       tag: (index % 2 === 0 ? 'h2' : 'h3') as 'h2' | 'h3',
       text: `Heading ${index + 1}`,
@@ -109,7 +109,27 @@ describe('PostToc', () => {
 
     render(<PostToc content="content" rootRef={{ current: root }} />);
 
-    expect(screen.getAllByRole('link')).toHaveLength(5);
+    expect(screen.getAllByRole('link')).toHaveLength(10);
+  });
+
+  it('excludes headings rendered inside tab panes', () => {
+    const root = document.createElement('article');
+    const h2 = document.createElement('h2');
+    h2.textContent = 'Main section';
+    root.appendChild(h2);
+
+    const tabPane = document.createElement('div');
+    tabPane.className = 'tab-pane';
+    const h3 = document.createElement('h3');
+    h3.textContent = 'Tab heading';
+    tabPane.appendChild(h3);
+    root.appendChild(tabPane);
+
+    document.body.appendChild(root);
+    render(<PostToc content="content" rootRef={{ current: root }} />);
+
+    expect(screen.getByRole('link', { name: 'Main section' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Tab heading' })).not.toBeInTheDocument();
   });
 
   it('updates toc when headings are added after initial mount', async () => {

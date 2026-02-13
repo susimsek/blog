@@ -34,6 +34,8 @@ Spring Boot Eureka Server is a service registry that enables service discovery i
 
 ## 🌟 Why Use Eureka Server?
 
+In this section, we clarify Why Use Eureka Server? and summarize the key points you will apply in implementation.
+
 - Service Discovery: Automatically register and discover microservices.
 - Load Balancing: Enables client-side load balancing with Ribbon.
 - Failover Support: Services can find alternative instances if one fails.
@@ -53,18 +55,20 @@ Ensure you have the following:
 
 ## 🛠️ Step 1: Add Dependencies
 
-### Maven Configuration:
+In this section, we clarify Step 1: Add Dependencies and summarize the key points you will apply in implementation.
 
-```xml
+Maven:
+
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
 </dependency>
 ```
 
-### Gradle Configuration:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
 ```
 
@@ -75,7 +79,7 @@ implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-se
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="EurekaServerApplication.java"
 package com.example.eurekaserver;
 
 import org.springframework.boot.SpringApplication;
@@ -93,7 +97,7 @@ public class EurekaServerApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="EurekaServerApplication.kt"
 package com.example.eurekaserver
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -117,7 +121,7 @@ fun main(args: Array<String>) {
 
 Create an `application.yml` file for Eureka Server configuration.
 
-```yaml
+```yaml filename="application.yml"
 server:
   port: 8761
 spring:
@@ -159,20 +163,24 @@ http://localhost:8761/
 
 ## 🛠️ Step 4: Register a Client Application
 
+In this section, we clarify Step 4: Register a Client Application and summarize the key points you will apply in implementation.
+
 ### Add Dependencies
 
-### Maven:
+Add the Eureka Client starter first so this application can register with the server and participate in service discovery.
 
-```xml
+Maven:
+
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 </dependency>
 ```
 
-### Gradle:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 ```
 
@@ -180,7 +188,7 @@ implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-cl
 
 In the client's `application.yml`, add the following:
 
-```yaml
+```yaml filename="application.yml"
 spring:
   application:
     name: eureka-client
@@ -192,10 +200,12 @@ eureka:
 
 ### Client Application Code
 
+The sample below provides a minimal client implementation so you can validate the server integration end to end.
+
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="EurekaClientApplication.java"
 package com.example.eurekaclient;
 
 import org.springframework.boot.SpringApplication;
@@ -222,7 +232,7 @@ public class EurekaClientApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="EurekaClientApplication.kt"
 package com.example.eurekaclient
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -275,4 +285,4 @@ http://localhost:8761/
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot Eureka Server solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot Eureka Server implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

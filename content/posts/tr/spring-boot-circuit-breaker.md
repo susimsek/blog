@@ -34,6 +34,8 @@ Spring Boot Circuit Breaker, mikro hizmetler mimarisinde ardışık hataların �
 
 ## 🌟 Neden Circuit Breaker Kullanmalıyız?
 
+Bu bölümde Neden Circuit Breaker Kullanmalıyız? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Mikro hizmetlerde zincirleme hataları önler.
 - Uygulama dayanıklılığını artırır, aşırı hatalı istekleri durdurur.
 - Hizmet sağlığı geri kazandığında otomatik olarak iyileşir.
@@ -55,18 +57,20 @@ Aşağıdakilere sahip olduğunuzdan emin olun:
 
 ## 🛠️ Adım 1: Bağımlılıkları Ekleyin
 
-### Maven Yapılandırması:
+Bu bölümde Adım 1: Bağımlılıkları Ekleyin konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
 
-```xml
+Maven:
+
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.cloud</groupId>
   <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
 </dependency>
 ```
 
-### Gradle Yapılandırması:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
 ```
 
@@ -76,7 +80,7 @@ implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-re
 
 `application.yml` dosyanızda Circuit Breaker ayarlarını tanımlayın.
 
-```yaml
+```yaml filename="config.yml"
 resilience4j:
   circuitbreaker:
     instances:
@@ -97,7 +101,7 @@ resilience4j:
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ExternalService.java"
 package com.example.circuitbreaker.service;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -122,7 +126,7 @@ public class ExternalService {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ExternalService.kt"
 package com.example.circuitbreaker.service
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
@@ -153,7 +157,7 @@ class ExternalService {
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="CircuitBreakerController.java"
 package com.example.circuitbreaker.controller;
 
 import com.example.circuitbreaker.service.ExternalService;
@@ -180,7 +184,7 @@ public class CircuitBreakerController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="CircuitBreakerController.kt"
 package com.example.circuitbreaker.controller
 
 import com.example.circuitbreaker.service.ExternalService
@@ -231,4 +235,4 @@ curl -X GET http://localhost:8080/api/data
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot Circuit Breaker için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot Circuit Breaker için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

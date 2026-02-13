@@ -50,18 +50,18 @@ Bağımlılık Enjeksiyonu, sınıflara bağımlılıkları manuel olarak oluşt
 
 Gerekli Spring Boot bağımlılıklarını ekleyin:
 
-- Maven:
+Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter</artifactId>
 </dependency>
 ```
 
-- Gradle:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter'
 ```
 
@@ -74,9 +74,9 @@ Bağımlılık Enjeksiyonu'nu göstermek için basit bir servis tanımlayın.
 :::tabs
 @tab Java [icon=java]
 
-### Servis
+Servis
 
-```java
+```java filename="UserService.java"
 package com.example.demo.service;
 
 import org.springframework.stereotype.Service;
@@ -96,9 +96,9 @@ public class UserService {
 
 @tab Kotlin [icon=kotlin]
 
-### Servis
+Servis
 
-```kotlin
+```kotlin filename="UserService.kt"
 package com.example.demo.service
 
 import org.springframework.stereotype.Service
@@ -127,9 +127,9 @@ Servisi diğer bileşenlere enjekte etmek için anotasyonları kullanın.
 :::tabs
 @tab Java [icon=java]
 
-### Controller
+Controller
 
-```java
+```java filename="UserController.java"
 package com.example.demo.controller;
 
 import com.example.demo.service.UserService;
@@ -160,9 +160,9 @@ public class UserController {
 
 @tab Kotlin [icon=kotlin]
 
-### Controller
+Controller
 
-```kotlin
+```kotlin filename="UserController.kt"
 package com.example.demo.controller
 
 import com.example.demo.service.UserService
@@ -193,11 +193,12 @@ class UserController(
 
 Uygulamayı aşağıdaki komutlarla çalıştırın:
 
-- Spring Boot (Java/Kotlin):
+Spring Boot (Java/Kotlin):
+Kurulumun doğru çalıştığını doğrulamak için uygulamayı tercih ettiğiniz dil yığınıyla başlatın.
 
-  ```bash
-  ./mvnw spring-boot:run
-  ```
+```bash
+./mvnw spring-boot:run
+```
 
 API'ye şu adresten erişin: `http://localhost:8080/api/users`.
 
@@ -207,13 +208,17 @@ API'ye şu adresten erişin: `http://localhost:8080/api/users`.
 
 API'yi aşağıdaki cURL komutlarıyla test edebilirsiniz:
 
-- Tüm kullanıcıları alın:
+### Tüm kullanıcıları alın
+
+Bu istekle liste endpoint’inin döndürdüğü temel veri yapısını hızlıca doğrulayabilirsiniz.
 
 ```bash
 curl -X GET http://localhost:8080/api/users
 ```
 
-- Belirli bir kullanıcıyı alın:
+### Belirli bir kullanıcıyı alın
+
+Bu istek, path parametresi ile tekil kaynak erişiminin doğru çalıştığını doğrulamak için kullanılır.
 
 ```bash
 curl -X GET http://localhost:8080/api/users/1
@@ -223,4 +228,4 @@ curl -X GET http://localhost:8080/api/users/1
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot ile Dependency Injection için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Dependency Injection için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

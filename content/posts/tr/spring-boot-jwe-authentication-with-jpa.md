@@ -36,6 +36,8 @@ Spring Boot, stateless şifrelenmiş JWT’leri (JWE) kullanarak API’lerinizi 
 
 ## 🌟 Neden JWE + JPA Kimlik Doğrulama?
 
+Bu bölümde Neden JWE + JPA Kimlik Doğrulama? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Stateless Güvenlik: Tokenlar kendi içinde tüm bilgiyi barındırır ve sunucu tarafında saklama gerektirmez.
 - Bütünlük: İmzalı tokenlar, içeriğin değiştirilmediğini garanti eder.
 - Gizlilik: Şifrelenmiş JWT’ler hassas bilgileri dışarıdan okunamaz halde tutar.
@@ -46,6 +48,8 @@ Spring Boot, stateless şifrelenmiş JWT’leri (JWE) kullanarak API’lerinizi 
 ---
 
 ## 📋 Gereksinimler
+
+Bu bölümde Gereksinimler konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
 
 - ☕ JDK 17 veya üzeri
 - 📦 Spring Boot 3.2+
@@ -60,7 +64,7 @@ Spring Boot, stateless şifrelenmiş JWT’leri (JWE) kullanarak API’lerinizi 
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-web</artifactId>
@@ -91,7 +95,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-web'
 implementation 'org.springframework.security:spring-security-oauth2-resource-server'
 implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -124,11 +128,9 @@ Bu bölümde, Spring Boot uygulamanızı H2/PostgreSQL, JPA, Liquibase değişik
 - `db/data/user_authority_mapping.csv`
   Kullanıcılar ile yetkiler arasındaki mappingler (composite birincil anahtar, zaman damgaları ve oluşturan kullanıcı bilgisi).
 
-<span style="display:block; height:1rem;"></span>
+application.yml
 
-### application.yml
-
-```yaml
+```yaml filename="application.yml"
 spring:
   datasource:
     url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
@@ -241,11 +243,9 @@ security:
         -----END PRIVATE KEY-----
 ```
 
-<span style="display:block; height:1rem;"></span>
+master.xml
 
-### master.xml
-
-```xml
+```xml filename="master.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
@@ -278,11 +278,9 @@ security:
 </databaseChangeLog>
 ```
 
-<span style="display:block; height:1rem;"></span>
+changelog-user.xml
 
-### changelog-user.xml
-
-```xml
+```xml filename="changelog-user.xml"
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
@@ -445,31 +443,25 @@ security:
 </databaseChangeLog>
 ```
 
-<span style="display:block; height:1rem;"></span>
+user.csv
 
-### user.csv
-
-```csv
+```csv filename="user.csv"
 id;username;password;email;first_name;last_name;enabled;created_at;created_by;updated_at;updated_by
 a1b2c3d4-e5f6-7890-abcd-ef1234567890;admin;$2a$10$sva6wl8pmGKJE6NIWrxwcuJK1Jaa2I/LOI43iHVpbR4YB8KjGViiK;admin@example.com;Admin;User;true;2025-05-10 12:00:00;system;2025-05-10 12:00:00;system
 09876543-21fe-dcba-0987-654321fedcba;user;$2a$10$5Py4PyteLuXEqnGpSigzfu0V55C7Hi7zX18lmh.J8Bpmft.h23voG;user@example.com;Normal;User;true;2025-05-10 12:00:00;system;2025-05-10 12:00:00;system
 ```
 
-<span style="display:block; height:1rem;"></span>
+authority.csv
 
-### authority.csv
-
-```csv
+```csv filename="authority.csv"
 id;name;description;created_at;created_by;updated_at;updated_by
 f47ac10b-58cc-4372-a567-0e02b2c3d479;ROLE_ADMIN;Administrator role;2025-05-10 12:00:00;system;2025-05-10 12:00:00;system
 9c858901-8a57-4791-81fe-4c455b099bc9;ROLE_USER;User role;2025-05-10 12:00:00;system;2025-05-10 12:00:00;system
 ```
 
-<span style="display:block; height:1rem;"></span>
+user_authority_mapping.csv
 
-### user_authority_mapping.csv
-
-```csv
+```csv filename="user_authority_mapping.csv"
 user_id;authority_id;created_at;created_by;updated_at;updated_by
 a1b2c3d4-e5f6-7890-abcd-ef1234567890;9c858901-8a57-4791-81fe-4c455b099bc9;2025-05-10 12:00:00;system;2025-05-10 12:00:00;system
 a1b2c3d4-e5f6-7890-abcd-ef1234567890;f47ac10b-58cc-4372-a567-0e02b2c3d479;2025-05-10 12:00:00;system;2025-05-10 12:00:00;system
@@ -487,14 +479,12 @@ Bu bölümde, JWE tabanlı kimlik doğrulama için RSA anahtarları, HTTP güven
 - SecurityConfig: `DomainUserDetailsService` ile entegre olur, kimlik doğrulama yöneticisi (authentication manager), password encoder ve JWE desteği ile stateless güvenlik filtre zincirini yapılandırır.
 - DatabaseConfig: JPA repository'lerini, auditing ve transaction yönetimini etkinleştirir.
 
-<span style="display:block; height:1rem;"></span>
-
-### SecurityJwtConfig
+SecurityJwtConfig
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="SecurityJwtConfig.java"
 package io.github.susimsek.springbootjweauthjpademo.config;
 
 import com.nimbusds.jose.EncryptionMethod;
@@ -609,7 +599,7 @@ public class SecurityJwtConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="SecurityJwtConfig.kt"
 package io.github.susimsek.springbootjweauthjpademo.config
 
 import com.nimbusds.jose.EncryptionMethod
@@ -708,14 +698,12 @@ class SecurityJwtConfig(private val props: JwtProperties) {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### SecurityConfig
+SecurityConfig
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="SecurityConfig.java"
 package io.github.susimsek.springbootjweauthjpademo.config;
 
 import io.github.susimsek.springbootjweauthjpademo.repository.UserRepository;
@@ -809,7 +797,7 @@ public class SecurityConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="SecurityConfig.kt"
 package io.github.susimsek.springbootjweauthjpademo.config
 
 import io.github.susimsek.springbootjweauthjpademo.repository.UserRepository
@@ -898,14 +886,12 @@ class SecurityConfig {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### JwtProperties
+JwtProperties
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="JwtProperties.java"
 package io.github.susimsek.springbootjweauthjpademo.config;
 
 import lombok.Data;
@@ -935,7 +921,7 @@ public class JwtProperties {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="JwtProperties.kt"
 package io.github.susimsek.springbootjweauthjpademo.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -961,14 +947,12 @@ class JwtProperties {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### DatabaseConfig
+DatabaseConfig
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="DatabaseConfig.java"
 package io.github.susimsek.springbootjweauthjpademo.config;
 
 import org.springframework.context.annotation.Configuration;
@@ -987,7 +971,7 @@ public class DatabaseConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="DatabaseConfig.kt"
 package io.github.susimsek.springbootjweauthjpademo.config
 
 import org.springframework.context.annotation.Configuration
@@ -1017,14 +1001,12 @@ Bu bölümde, kullanıcıları, rollerleri ve bunların eşlemelerini temsil ede
 - UserAuthorityMappingId: `UserAuthorityMapping` için composite anahtar sınıfı.
 - UserRepository: Entity graph kullanarak kullanıcı ve yetkilerini getiren Spring Data JPA repository.
 
-<span style="display:block; height:1rem;"></span>
-
-### BaseEntity
+BaseEntity
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="BaseEntity.java"
 package io.github.susimsek.springbootjweauthjpademo.entity;
 
 import jakarta.persistence.Column;
@@ -1066,7 +1048,7 @@ public abstract class BaseEntity {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="BaseEntity.kt"
 package io.github.susimsek.springbootjweauthjpademo.entity
 
 import jakarta.persistence.Column
@@ -1103,14 +1085,12 @@ abstract class BaseEntity {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### Authority
+Authority
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="Authority.java"
 package io.github.susimsek.springbootjweauthjpademo.entity;
 
 import jakarta.persistence.Column;
@@ -1174,7 +1154,7 @@ public class Authority extends BaseEntity {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="Authority.kt"
 package io.github.susimsek.springbootjweauthjpademo.entity
 
 import jakarta.persistence.Column
@@ -1216,14 +1196,12 @@ class Authority(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### User
+User
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="User.java"
 package io.github.susimsek.springbootjweauthjpademo.entity;
 
 import jakarta.persistence.CascadeType;
@@ -1313,7 +1291,7 @@ public class User extends BaseEntity {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="User.kt"
 package io.github.susimsek.springbootjweauthjpademo.entity
 
 import jakarta.persistence.CascadeType
@@ -1394,14 +1372,12 @@ class User(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### UserAuthorityMapping
+UserAuthorityMapping
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserAuthorityMapping.java"
 package io.github.susimsek.springbootjweauthjpademo.entity;
 
 import jakarta.persistence.Column;
@@ -1471,7 +1447,7 @@ public class UserAuthorityMapping extends BaseEntity {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserAuthorityMapping.kt"
 package io.github.susimsek.springbootjweauthjpademo.entity
 
 import jakarta.persistence.*
@@ -1523,14 +1499,12 @@ data class UserAuthorityMapping(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### UserAuthorityMappingId
+UserAuthorityMappingId
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserAuthorityMappingId.java"
 package io.github.susimsek.springbootjweauthjpademo.entity;
 
 import java.io.Serializable;
@@ -1567,7 +1541,7 @@ public class UserAuthorityMappingId implements Serializable {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserAuthorityMappingId.kt"
 package io.github.susimsek.springbootjweauthjpademo.entity
 
 import java.io.Serializable
@@ -1593,14 +1567,12 @@ data class UserAuthorityMappingId(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### UserRepository
+UserRepository
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserRepository.java"
 package io.github.susimsek.springbootjweauthjpademo.repository;
 
 import io.github.susimsek.springbootjweauthjpademo.entity.User;
@@ -1620,7 +1592,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserRepository.kt"
 package io.github.susimsek.springbootjweauthjpademo.repository
 
 import io.github.susimsek.springbootjweauthjpademo.entity.User
@@ -1656,12 +1628,12 @@ Bu bölümde, Spring Boot uygulamanızda JSON Web Encryption (JWE) tokenları ol
 
 Bu yardımcılar, Spring Security ile durumsuz (stateless) JWE tabanlı bir kimlik doğrulama akışının temelini oluşturur.
 
-### AuthoritiesConstants
+AuthoritiesConstants
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AuthoritiesConstants.java"
 
 package io.github.susimsek.springbootjweauthjpademo.security;
 
@@ -1678,7 +1650,7 @@ public final class AuthoritiesConstants {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AuthoritiesConstants.kt"
 
 package io.github.susimsek.springbootjweauthjpademo.security
 
@@ -1691,14 +1663,12 @@ object AuthoritiesConstants {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### CookieBearerTokenResolver
+CookieBearerTokenResolver
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="CookieBearerTokenResolver.java"
 package io.github.susimsek.springbootjweauthjpademo.security;
 
 import jakarta.servlet.http.Cookie;
@@ -1800,7 +1770,7 @@ public class CookieBearerTokenResolver implements BearerTokenResolver {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="CookieBearerTokenResolver.kt"
 package io.github.susimsek.springbootjweauthjpademo.security
 
 import jakarta.servlet.http.Cookie
@@ -1870,14 +1840,12 @@ class CookieBearerTokenResolver {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### CookieUtils
+CookieUtils
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="CookieUtils.java"
 package io.github.susimsek.springbootjweauthjpademo.security;
 
 import io.github.susimsek.springbootjweauthjpademo.dto.TokenDTO;
@@ -1903,7 +1871,7 @@ public class CookieUtils {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="CookieUtils.kt"
 package io.github.susimsek.springbootjweauthjpademo.security
 
 import io.github.susimsek.springbootjweauthjpademo.dto.TokenDTO
@@ -1927,14 +1895,12 @@ object CookieUtils {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### JweUtil
+JweUtil
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="JweUtil.java"
 package io.github.susimsek.springbootjweauthjpademo.security;
 
 import com.nimbusds.jose.EncryptionMethod;
@@ -2011,7 +1977,7 @@ public class JweUtil {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="JweUtil.kt"
 package io.github.susimsek.springbootjweauthjpademo.security
 
 import com.nimbusds.jose.EncryptionMethod
@@ -2082,14 +2048,12 @@ class JweUtil(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### KeyUtils
+KeyUtils
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="KeyUtils.java"
 package io.github.susimsek.springbootjweauthjpademo.security;
 
 import com.nimbusds.jose.JWEAlgorithm;
@@ -2150,7 +2114,7 @@ public class KeyUtils {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="KeyUtils.kt"
 package io.github.susimsek.springbootjweauthjpademo.security
 
 import com.nimbusds.jose.JWEAlgorithm
@@ -2210,14 +2174,12 @@ object KeyUtils {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### SecurityUtils
+SecurityUtils
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="SecurityUtils.java"
 package io.github.susimsek.springbootjweauthjpademo.security;
 
 import lombok.experimental.UtilityClass;
@@ -2259,7 +2221,7 @@ public class SecurityUtils {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="SecurityUtils.kt"
 package io.github.susimsek.springbootjweauthjpademo.security
 
 import org.springframework.security.core.Authentication
@@ -2289,14 +2251,12 @@ object SecurityUtils {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### DomainUserDetailsService
+DomainUserDetailsService
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="DomainUserDetailsService.java"
 package io.github.susimsek.springbootjweauthjpademo.security;
 
 import io.github.susimsek.springbootjweauthjpademo.entity.User;
@@ -2341,7 +2301,7 @@ public class DomainUserDetailsService implements UserDetailsService {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="DomainUserDetailsService.kt"
 package io.github.susimsek.springbootjweauthjpademo.security
 
 import io.github.susimsek.springbootjweauthjpademo.repository.UserRepository
@@ -2378,14 +2338,12 @@ class DomainUserDetailsService(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### SpringSecurityAuditorAware
+SpringSecurityAuditorAware
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="SpringSecurityAuditorAware.java"
 package io.github.susimsek.springbootjweauthjpademo.security;
 
 import org.springframework.data.domain.AuditorAware;
@@ -2407,7 +2365,7 @@ public class SpringSecurityAuditorAware implements AuditorAware<String> {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="SpringSecurityAuditorAware.kt"
 package io.github.susimsek.springbootjweauthjpademo.security
 
 import org.springframework.data.domain.AuditorAware
@@ -2439,12 +2397,12 @@ Bu bileşenler, login işlemi, token oluşturma, cookie yönetimi ve kaynak koru
 
 Bu bölümde, kullanıcı kimlik doğrulamasını, token oluşturmayı ve korunan kaynak erişimini yönetmek için REST controller ve DTO’ları oluşturuyoruz.
 
-### AuthController
+AuthController
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AuthController.java"
 package io.github.susimsek.springbootjweauthjpademo.controller;
 
 import io.github.susimsek.springbootjweauthjpademo.dto.LoginRequestDTO;
@@ -2494,7 +2452,7 @@ public class AuthController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AuthController.kt"
 package io.github.susimsek.springbootjweauthjpademo.controller
 
 import io.github.susimsek.springbootjweauthjpademo.dto.LoginRequestDTO
@@ -2542,14 +2500,12 @@ class AuthController(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### HelloController
+HelloController
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="HelloController.java"
 package io.github.susimsek.springbootjweauthjpademo.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -2578,7 +2534,7 @@ public class HelloController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="HelloController.kt"
 package io.github.susimsek.springbootjweauthjpademo.controller
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -2607,14 +2563,12 @@ class HelloController {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### LoginRequestDTO
+LoginRequestDTO
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="LoginRequestDTO.java"
 package io.github.susimsek.springbootjweauthjpademo.dto;
 
 public record LoginRequestDTO(
@@ -2625,7 +2579,7 @@ public record LoginRequestDTO(
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="LoginRequestDTO.kt"
 package io.github.susimsek.springbootjweauthjpademo.dto
 
 data class LoginRequestDTO(
@@ -2636,14 +2590,12 @@ data class LoginRequestDTO(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### TokenDTO
+TokenDTO
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="TokenDTO.java"
 package io.github.susimsek.springbootjweauthjpademo.dto;
 
 public record TokenDTO(
@@ -2655,7 +2607,7 @@ public record TokenDTO(
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="TokenDTO.kt"
 package io.github.susimsek.springbootjweauthjpademo.dto
 
 import kotlin.Long
@@ -2683,6 +2635,8 @@ gradle bootRun
 
 ## 🧪 Endpoint Testi
 
+Bu bölümde Endpoint Testi konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 ### Admin Akışı
 
 admin olarak giriş yapın ve `Set-Cookie` başlığından JWE tokeni yakalayın:
@@ -2696,7 +2650,7 @@ curl -i -X POST http://localhost:8080/api/auth/login \
 - Set-Cookie başlığı `accessToken=<jwe-token>` içerir
 - Yanıt:
 
-```json
+```json filename="config.json"
 {
   "accessToken": "<jwe-token>",
   "tokenType": "Bearer",
@@ -2757,4 +2711,4 @@ curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello/admi
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot JPA ile JWE Kimlik Doğrulaması için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot JPA ile JWE Kimlik Doğrulaması için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

@@ -28,6 +28,8 @@ Spring Boot, `@Scheduled` anotasyonu ile arka planda çalışan görevleri kolay
 
 ## 🌟 Neden Spring Boot @Scheduled Kullanmalıyız?
 
+Bu bölümde Neden Spring Boot @Scheduled Kullanmalıyız? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Görevleri Otomatikleştirin: İşlemleri belirli aralıklarla çalıştırın.
 - Kaynakları Verimli Kullanın: Ana iş parçacıklarını bloklamadan görevleri planlayın.
 - Farklı Zamanlama Seçenekleri: Sabit oranlı, sabit gecikmeli veya cron tabanlı zamanlamalar.
@@ -51,7 +53,7 @@ Cron desteğini etkinleştirmek için `spring-boot-starter-web` bağımlılığ�
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-web</artifactId>
@@ -60,7 +62,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-web'
 ```
 
@@ -75,7 +77,7 @@ Cron desteğini etkinleştirmek için ana uygulama sınıfınıza `@EnableSchedu
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ScheduledApplication.java"
 package com.example.scheduled;
 
 import org.springframework.boot.SpringApplication;
@@ -93,7 +95,7 @@ public class ScheduledApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ScheduledApplication.kt"
 package com.example.scheduled
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -120,7 +122,7 @@ fun main(args: Array<String>) {
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ScheduledTask.java"
 package com.example.scheduled;
 
 import org.springframework.scheduling.annotation.Scheduled;
@@ -139,7 +141,7 @@ public class ScheduledTask {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ScheduledTask.kt"
 package com.example.scheduled
 
 import org.springframework.scheduling.annotation.Scheduled
@@ -180,9 +182,13 @@ Planlanmış görev her 5 saniyede bir çalıştırılacaktır.
 
 ## 🧪 Planlanmış Görevi Test Etme
 
+Bu bölümde Planlanmış Görevi Test Etme konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 ### Beklenen Konsol Çıktısı:
 
-```plaintext
+Kendi log çıktınızı bu örnekle karşılaştırarak davranışın doğru çalıştığını hızlıca teyit edin.
+
+```plaintext filename="snippet.txt"
 Planlanmış görev çalıştırıldı: 12:00:01
 Planlanmış görev çalıştırıldı: 12:00:06
 Planlanmış görev çalıştırıldı: 12:00:11
@@ -192,4 +198,4 @@ Planlanmış görev çalıştırıldı: 12:00:11
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot Planlanmış Görevler için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot Planlanmış Görevler için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

@@ -14,6 +14,8 @@ import type { Theme } from '@/reducers/theme';
 import { useParams } from 'next/navigation';
 import i18nextConfig from '@/i18n/settings';
 import Link from '@/components/common/Link';
+import remarkCodeFilenameAttribute from '@/lib/remarkCodeFilenameAttribute';
+import { extractCodeFilenameByStartLine } from '@/lib/codeFilenameMap';
 
 const MarkdownTabsRenderer = dynamic(() => import('./MarkdownTabsRenderer'), {
   loading: () => null,
@@ -37,18 +39,41 @@ const localizeInternalPath = (href: string, locale: string) => {
   return `/${locale}${normalized}`;
 };
 
-const createMarkdownComponents = (theme: Theme, t: (key: string) => string, currentLocale: string): Components => ({
+const createMarkdownComponents = (
+  theme: Theme,
+  t: (key: string) => string,
+  currentLocale: string,
+  codeFileNameByLine?: Map<number, string>,
+): Components => ({
   code: ({
     inline,
     className,
     children,
+    node,
     ...rest
   }: {
     inline?: boolean;
     className?: string;
     children?: React.ReactNode;
+    node?: {
+      position?: {
+        start?: {
+          line?: number;
+        };
+      };
+    };
   }) => (
-    <CodeBlock inline={inline} className={className} theme={theme} t={t} {...rest}>
+    <CodeBlock
+      inline={inline}
+      className={className}
+      theme={theme}
+      t={t}
+      node={node}
+      fileName={
+        typeof node?.position?.start?.line === 'number' ? codeFileNameByLine?.get(node.position.start.line) : undefined
+      }
+      {...rest}
+    >
       {children}
     </CodeBlock>
   ),
@@ -105,8 +130,9 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
   const currentLocale = routeLocale || i18nextConfig.i18n.defaultLocale;
 
-  const MarkdownComponents = useMemo(
-    () => createMarkdownComponents(theme, t, currentLocale),
+  const createComponentsForContent = useMemo(
+    () => (segmentContent: string) =>
+      createMarkdownComponents(theme, t, currentLocale, extractCodeFilenameByStartLine(segmentContent)),
     [theme, t, currentLocale],
   );
 
@@ -116,13 +142,22 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
     <>
       {segments.map(segment => {
         if (segment.type === 'tabs') {
-          return <MarkdownTabsRenderer key={segment.id} content={segment.content} components={MarkdownComponents} />;
+          return (
+            <MarkdownTabsRenderer
+              key={segment.id}
+              content={segment.content}
+              components={createComponentsForContent(segment.content)}
+              createComponents={createComponentsForContent}
+            />
+          );
         }
+
+        const MarkdownComponents = createComponentsForContent(segment.content);
 
         return (
           <ReactMarkdown
             key={segment.id}
-            remarkPlugins={[remarkGfm]}
+            remarkPlugins={[remarkGfm, remarkCodeFilenameAttribute]}
             rehypePlugins={[rehypeRaw, [rehypeSanitize, markdownSchema]]}
             components={MarkdownComponents}
           >

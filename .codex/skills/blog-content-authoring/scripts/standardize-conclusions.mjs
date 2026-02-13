@@ -3,6 +3,9 @@ import path from 'node:path';
 
 const ROOT = process.cwd();
 const LOCALES = ['en', 'tr'];
+const OPTIONS = {
+  rewrite: process.argv.includes('--rewrite'),
+};
 
 const stripTrailingEmptyLines = lines => {
   let end = lines.length - 1;
@@ -46,24 +49,35 @@ const shortTitle = title => {
 
 const CUSTOM_CONCLUSION_BY_ID = {
   'spring-boot-configuration-properties': {
-    en: 'This setup delivers a robust, production-ready configuration layer in Spring Boot by combining @ConfigurationProperties, startup validation with @Validated, and profile-specific overrides—making your app safer to operate across environments.',
-    tr: "Bu kurulum, Spring Boot'ta @ConfigurationProperties, @Validated ile açılış doğrulaması ve profile-specific override'ları birleştirerek sağlam ve üretim‑hazır bir yapılandırma katmanı sunar; uygulamanızı farklı ortamlarda daha güvenli işletmenizi sağlar.",
+    en: 'You now have a type-safe Spring Boot configuration layer with startup validation and profile-based overrides. As a next step, externalize environment-specific secrets and add configuration tests to catch regressions early.',
+    tr: 'Artık tip-güvenli, açılışta doğrulanan ve profile göre override edilebilen bir Spring Boot yapılandırma katmanın var. Sonraki adımda ortam bazlı gizli değerleri dışsallaştırıp regresyonları erken yakalamak için yapılandırma testleri ekleyin.',
   },
 };
 
-const defaultConclusion = (locale, title, isSpringBoot) => {
+const normalizeConclusionSubject = (locale, title) => {
   const base = shortTitle(title) || (locale === 'tr' ? 'bu konu' : 'this topic');
+  if (locale === 'tr') {
+    return base
+      .replace(/^Spring Boot ile\s+/iu, '')
+      .replace(/^Spring Boot\s+ile\s+/iu, '')
+      .trim();
+  }
+  return base;
+};
+
+const defaultConclusion = (locale, title, isSpringBoot) => {
+  const base = normalizeConclusionSubject(locale, title);
   if (locale === 'en') {
     if (isSpringBoot) {
-      return `This setup delivers a robust, production-ready ${base} solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.`;
+      return `You now have a practical ${base} implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.`;
     }
-    return `This setup delivers a robust, production-ready guide to ${base}, combining best practices, clear structure, and practical examples you can adapt to your own project.`;
+    return `You now have a practical ${base} implementation with a clear, production-friendly structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.`;
   }
 
   if (isSpringBoot) {
-    return `Bu kurulum, Spring Boot ile ${base} için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.`;
+    return `Artık ${base} için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.`;
   }
-  return `Bu kurulum, ${base} için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.`;
+  return `Artık ${base} için üretim odaklı bir temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.`;
 };
 
 const hasSpringBootTopic = frontmatter => {
@@ -158,6 +172,8 @@ const isPlainParagraphBlock = blockLines => {
   if (looksLikeList) return false;
   const looksLikeFence = blockLines.some(l => /^(```|~~~)/.test(l.trim()));
   if (looksLikeFence) return false;
+  const looksLikeDirectiveFence = blockLines.some(l => /^:::+/.test(l.trim()) || /^@tab\b/.test(l.trim()));
+  if (looksLikeDirectiveFence) return false;
   const looksLikeQuote = blockLines.some(l => /^\s*>/.test(l));
   if (looksLikeQuote) return false;
   const looksLikeTable = text.includes('|') && blockLines.some(l => /^\s*\|?[\w\s:-]+\|/.test(l));
@@ -231,6 +247,33 @@ const cleanupDuplicateHrBeforeConclusion = (lines, locale) => {
   return { lines, changed: false };
 };
 
+const rewriteConclusionParagraph = (lines, locale, conclusion) => {
+  const newHeading = conclusionHeading(locale);
+  const oldHeading = locale === 'tr' ? '## 🌟 Sonuç' : '## 🌟 Conclusion';
+
+  const headingIndex = lines.findIndex(line => {
+    const t = line.trim();
+    return t === newHeading || t === oldHeading;
+  });
+  if (headingIndex === -1) return { lines, changed: false };
+
+  let start = headingIndex + 1;
+  while (start < lines.length && lines[start].trim() === '') start += 1;
+
+  let end = start;
+  while (end < lines.length && lines[end].trim() !== '') end += 1;
+
+  const current = lines.slice(start, end).join(' ').replace(/\s+/g, ' ').trim();
+  if (current === conclusion.trim()) return { lines, changed: false };
+
+  const tail = lines.slice(end);
+  while (tail.length && tail[0].trim() === '') tail.shift();
+
+  const next = [...lines.slice(0, headingIndex + 1), '', conclusion];
+  if (tail.length) next.push('', ...tail);
+  return { lines: next, changed: true };
+};
+
 const standardizeFile = async (filePath, locale) => {
   const raw = await fs.readFile(filePath, 'utf8');
   const { frontmatter, body } = splitFrontmatter(raw);
@@ -261,7 +304,17 @@ const standardizeFile = async (filePath, locale) => {
   migratedLines = cleaned3.lines;
   changed = changed || cleaned3.changed;
 
+  const id = path.basename(filePath, '.md');
+  const title = parseFrontmatterValue(frontmatter, 'title');
+  const isSpringBoot = hasSpringBootTopic(frontmatter) || (title?.includes('Spring Boot') ?? false);
+  const conclusion = CUSTOM_CONCLUSION_BY_ID[id]?.[locale] ?? defaultConclusion(locale, title, isSpringBoot);
+
   if (conclusionAlreadyPresent(migratedLines, locale)) {
+    if (OPTIONS.rewrite) {
+      const rewritten = rewriteConclusionParagraph(migratedLines, locale, conclusion);
+      migratedLines = rewritten.lines;
+      changed = changed || rewritten.changed;
+    }
     if (changed) {
       const out = `${frontmatter ?? ''}${migratedLines.join('\n')}\n`;
       await fs.writeFile(filePath, out, 'utf8');
@@ -281,11 +334,6 @@ const standardizeFile = async (filePath, locale) => {
   } else {
     nextLines = migratedLines;
   }
-
-  const id = path.basename(filePath, '.md');
-  const title = parseFrontmatterValue(frontmatter, 'title');
-  const isSpringBoot = hasSpringBootTopic(frontmatter) || (title?.includes('Spring Boot') ?? false);
-  const conclusion = CUSTOM_CONCLUSION_BY_ID[id]?.[locale] ?? defaultConclusion(locale, title, isSpringBoot);
 
   const heading = newHeading;
   const appended = [...nextLines, '', '---', '', heading, '', conclusion, ''].join('\n');

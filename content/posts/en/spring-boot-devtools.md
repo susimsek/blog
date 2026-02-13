@@ -52,7 +52,7 @@ To enable DevTools, add the following dependency to your Spring Boot project:
 
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-devtools</artifactId>
@@ -62,7 +62,7 @@ To enable DevTools, add the following dependency to your Spring Boot project:
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 ```
 
@@ -80,7 +80,7 @@ Live reload is enabled by default when using DevTools with supported IDEs like I
 
 Disable caching for templates to see changes instantly:
 
-```properties
+```properties filename="application.properties"
 spring.thymeleaf.cache=false
 spring.freemarker.cache=false
 ```
@@ -89,7 +89,7 @@ spring.freemarker.cache=false
 
 Exclude specific files or directories from triggering a restart:
 
-```properties
+```properties filename="application.properties"
 spring.devtools.restart.exclude=static/**,public/**
 ```
 
@@ -104,7 +104,7 @@ Spring Boot DevTools improves debugging by:
 
 To enable remote debugging:
 
-```properties
+```properties filename="application.properties"
 spring.devtools.remote.secret=mysecretkey
 ```
 
@@ -140,4 +140,4 @@ You can test Spring Boot DevTools features as follows:
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot DevTools solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot DevTools implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

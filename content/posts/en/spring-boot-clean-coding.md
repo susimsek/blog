@@ -58,7 +58,9 @@ Organize your Spring Boot project for better clarity:
 
 ### Example Folder Structure:
 
-```
+This structure keeps layers separated and makes future refactoring safer as the project grows.
+
+```filename="snippet.txt"
 src/main/java/com/example/cleanproject
 ├── controller
 ├── service
@@ -75,9 +77,11 @@ Lombok reduces boilerplate code in Java, making your classes more concise and re
 
 ### Add Lombok Dependency
 
+Start by adding Lombok to your build so annotations are resolved correctly before refactoring your entities and DTOs.
+
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.projectlombok</groupId>
   <artifactId>lombok</artifactId>
@@ -87,14 +91,16 @@ Lombok reduces boilerplate code in Java, making your classes more concise and re
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 provided 'org.projectlombok:lombok'
 annotationProcessor 'org.projectlombok:lombok'
 ```
 
 ### Example: Entity with Lombok
 
-```java
+The following example gives practical context for Example: Entity with Lombok and can be applied directly.
+
+```java filename="User.java"
 package com.example.cleanproject.entity;
 
 import jakarta.persistence.*;
@@ -131,7 +137,9 @@ Kotlin offers modern features that naturally lead to cleaner code:
 
 ### Example: Entity in Kotlin
 
-```kotlin
+The following example gives practical context for Example: Entity in Kotlin and can be applied directly.
+
+```kotlin filename="User.kt"
 package com.example.cleanproject.entity
 
 import jakarta.persistence.*
@@ -159,10 +167,12 @@ Use dependency injection to decouple components and improve testability.
 
 ### Example: Service Layer with DI
 
+The following example gives practical context for Example: Service Layer with DI and can be applied directly.
+
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserService.java"
 package com.example.cleanproject.service;
 
 import com.example.cleanproject.entity.User;
@@ -186,7 +196,7 @@ public class UserService {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserService.kt"
 package com.example.cleanproject.service
 
 import com.example.cleanproject.entity.User
@@ -211,10 +221,12 @@ Data Transfer Objects (DTOs) separate your domain and API layers, promoting bett
 
 ### Example: DTO for User
 
+The following example gives practical context for Example: DTO for User and can be applied directly.
+
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserDTO.java"
 package com.example.cleanproject.dto;
 
 import lombok.Data;
@@ -228,7 +240,7 @@ public class UserDTO {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserDTO.kt"
 package com.example.cleanproject.dto
 
 data class UserDTO(
@@ -248,7 +260,7 @@ Implement a controller to handle HTTP requests and interact with the service lay
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserController.java"
 package com.example.cleanproject.controller;
 
 import com.example.cleanproject.dto.UserDTO;
@@ -274,7 +286,7 @@ public class UserController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserController.kt"
 package com.example.cleanproject.controller
 
 import com.example.cleanproject.dto.UserDTO
@@ -322,4 +334,4 @@ curl -X GET http://localhost:8080/api/users
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Clean Coding Practices in Spring Boot solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Clean Coding Practices in Spring Boot implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

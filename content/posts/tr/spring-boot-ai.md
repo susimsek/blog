@@ -31,6 +31,8 @@ Spring AI, AI mühendisliği için Spring’in taşınabilirlik ve modüler tasa
 
 ## 🌟 Neden Spring AI Kullanılmalı?
 
+Bu bölümde Neden Spring AI Kullanılmalı? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Sağlayıcıdan bağımsız taşınabilirlik: Kodunuzu bir kez yazın, AI sağlayıcıları (OpenAI, Anthropic, Azure vb.) arasında değiştirmeler yapmadan geçiş yapın.
 - POJO tabanlı tasarım: AI girdi ve çıktılarınızı düz Java/Kotlin nesneleri olarak modelleyerek tür güvenliği ve kolay entegrasyon sağlayın.
 - Yapılandırılmış çıktılar: Model yanıtlarını alan nesnelerinize otomatik olarak eşleyin.
@@ -60,7 +62,7 @@ Spring AI OpenAI başlatıcısı, Spring Web ve Lombok’u projenize ekleyin.
 :::tabs
 @tab Maven [icon=maven]
 
-```xml
+```xml filename="pom.xml"
 <dependencies>
   <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -80,7 +82,7 @@ Spring AI OpenAI başlatıcısı, Spring Web ve Lombok’u projenize ekleyin.
 
 @tab Gradle [icon=gradle]
 
-```groovy
+```groovy filename="build.gradle"
 plugins {
   id 'org.springframework.boot' version '3.2.0'
 }
@@ -101,7 +103,7 @@ dependencies {
 
 `application.yml` dosyanıza OpenAI anahtarınızı ve ChatClient model ayarlarını ekleyin:
 
-```yaml
+```yaml filename="application.yml"
 spring:
   ai:
     openai:
@@ -120,7 +122,7 @@ spring:
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AIService.java"
 package com.example.ai.service;
 
 import org.springframework.ai.chat.client.ChatClient;
@@ -145,7 +147,7 @@ public class AIService {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AIService.kt"
 package com.example.ai.service
 
 import org.springframework.ai.chat.client.ChatClient
@@ -173,7 +175,7 @@ class AIService(builder: ChatClient.Builder) {
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="ChatController.java"
 package com.example.ai.controller;
 
 import com.example.ai.service.AIService;
@@ -199,7 +201,7 @@ public class ChatController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="ChatController.kt"
 package com.example.ai.controller
 
 import com.example.ai.service.AIService
@@ -244,4 +246,4 @@ curl -X GET "http://localhost:8080/joke?topic=dogs"
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot AI Entegrasyonu için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot AI Entegrasyonu için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

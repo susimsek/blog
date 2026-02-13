@@ -34,6 +34,8 @@ Spring Boot, Docker, Buildpacks ve Jib kullanarak uygulamaları verimli bir şek
 
 ## 🌟 Neden Spring Boot İçin Docker Kullanmalıyız?
 
+Bu bölümde Neden Spring Boot İçin Docker Kullanmalıyız? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Taşınabilir Dağıtım: Uygulamaları farklı ortamlar arasında tutarlı bir şekilde çalıştırın.
 - Ölçeklenebilirlik: Konteynerleştirilmiş uygulamaları kolayca ölçeklendirin ve yönetin.
 - Hafif ve Verimli: Kaynak kullanımını optimize ederek gereksiz yükü azaltın.
@@ -55,9 +57,9 @@ Aşağıdaki bileşenlere sahip olduğunuzdan emin olun:
 
 Docker desteğini etkinleştirmek için Spring Boot Maven Plugin, Jib Plugin ve Spring Boot Web Starter eklentilerini yapılandırma dosyanıza ekleyin.
 
-### Maven Yapılandırması:
+Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependencies>
     <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -80,9 +82,9 @@ Docker desteğini etkinleştirmek için Spring Boot Maven Plugin, Jib Plugin ve 
 </build>
 ```
 
-### Gradle Yapılandırması:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 plugins {
     id 'org.springframework.boot' version '3.2.0'
     id 'com.google.cloud.tools.jib' version '3.3.2'
@@ -102,7 +104,7 @@ Docker konteyneri içinde dağıtılacak bir REST uç noktası tanımlayın.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="DockerApplication.java"
 package com.example.docker;
 
 import org.springframework.boot.SpringApplication;
@@ -127,7 +129,7 @@ public class DockerApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="DockerApplication.kt"
 package com.example.docker
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -153,6 +155,8 @@ fun main(args: Array<String>) {
 ---
 
 ## ▶️ Adım 3: Docker İmajı Oluşturma ve Çalıştırma
+
+Bu bölümde Adım 3: Docker İmajı Oluşturma ve Çalıştırma konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
 
 ### Seçenek 1: Buildpacks Kullanarak
 
@@ -204,7 +208,7 @@ curl -X GET http://localhost:8080/hello
 
 Beklenen Çıktı:
 
-```plaintext
+```plaintext filename="snippet.txt"
 Docker üzerinde çalışan Spring Boot uygulamasından merhaba!
 ```
 
@@ -212,4 +216,4 @@ Docker üzerinde çalışan Spring Boot uygulamasından merhaba!
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot Docker Entegrasyonu için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot Docker Entegrasyonu için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

@@ -64,7 +64,7 @@ For Spring Boot projects, include the following dependencies in your project:
 
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -77,7 +77,7 @@ For Spring Boot projects, include the following dependencies in your project:
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 implementation 'org.postgresql:postgresql'
 ```
@@ -86,7 +86,7 @@ implementation 'org.postgresql:postgresql'
 
 Set up your PostgreSQL connection in the `application.properties` or `application.yml` file:
 
-```properties
+```properties filename="application.properties"
 spring.datasource.url=jdbc:postgresql://localhost:5432/demo
 spring.datasource.username=your_username
 spring.datasource.password=your_password
@@ -124,9 +124,9 @@ This step combines creating the entity/model, repository, and REST controllers.
 :::tabs
 @tab Java [icon=java]
 
-### Entity
+Entity
 
-```java
+```java filename="User.java"
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
@@ -146,9 +146,9 @@ public class User {
 }
 ```
 
-### Repository
+Repository
 
-```java
+```java filename="UserRepository.java"
 package com.example.demo.repository;
 
 import com.example.demo.entity.User;
@@ -158,9 +158,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 }
 ```
 
-### REST Controller
+REST Controller
 
-```java
+```java filename="UserController.java"
 package com.example.demo.controller;
 
 import com.example.demo.entity.User;
@@ -192,9 +192,9 @@ public class UserController {
 
 @tab Kotlin [icon=kotlin]
 
-### Entity
+Entity
 
-```kotlin
+```kotlin filename="User.kt"
 package com.example.demo.entity
 
 import jakarta.persistence.*
@@ -211,9 +211,9 @@ class User(
 )
 ```
 
-### Repository
+Repository
 
-```kotlin
+```kotlin filename="UserRepository.kt"
 package com.example.demo.repository
 
 import com.example.demo.entity.User
@@ -222,9 +222,9 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface UserRepository : JpaRepository<User, Long>
 ```
 
-### REST Controller
+REST Controller
 
-```kotlin
+```kotlin filename="UserController.kt"
 package com.example.demo.controller
 
 import com.example.demo.entity.User
@@ -247,9 +247,9 @@ class UserController(
 
 @tab Go [icon=go]
 
-### Model and Database Connection
+Model and Database Connection
 
-```go
+```go filename="app.go"
 package main
 
 import (
@@ -277,9 +277,9 @@ type User struct {
 }
 ```
 
-### Handlers
+Handlers
 
-```go
+```go filename="main.go"
 package main
 
 import (
@@ -319,6 +319,8 @@ func main() {
 
 ## ▶️ Running the Applications
 
+In this section, we clarify Running the Applications and summarize the key points you will apply in implementation.
+
 - Spring Boot:
 
   ```bash
@@ -355,4 +357,4 @@ curl -X POST http://localhost:8080/api/users \
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Object-Relational Mapping solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Object-Relational Mapping implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

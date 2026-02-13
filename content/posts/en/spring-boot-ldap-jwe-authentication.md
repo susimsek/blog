@@ -37,6 +37,8 @@ Spring Boot lets you combine LDAP authentication with JWE-encrypted JWTs to secu
 
 ## 🌟 Why Combine LDAP & JWE?
 
+In this section, we clarify Why Combine LDAP & JWE? and summarize the key points you will apply in implementation.
+
 - External Directory: Centralize user management with LDAP (e.g., corporate or embedded directory).
 - Integrity & Confidentiality: Sign tokens (JWS) and encrypt payloads (JWE) for secure claims transport.
 - Standards-based: Leverage JOSE (JWS & JWE) and Spring Security’s OAuth2 Resource Server.
@@ -45,6 +47,8 @@ Spring Boot lets you combine LDAP authentication with JWE-encrypted JWTs to secu
 ---
 
 ## 📋 Prerequisites
+
+In this section, we clarify Prerequisites and summarize the key points you will apply in implementation.
 
 - ☕ Java Development Kit (JDK) 17 or higher
 - 📦 Spring Boot 3.2+
@@ -59,7 +63,7 @@ Include these in your `pom.xml` or `build.gradle` file.
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-web</artifactId>
@@ -85,7 +89,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-web'
 implementation 'org.springframework.security:spring-security-oauth2-resource-server'
 implementation 'org.springframework.security:spring-security-ldap'
@@ -99,9 +103,9 @@ compileOnly 'org.projectlombok:lombok'
 
 Define your embedded LDAP directory, user/group structure, and RSA key properties in your `application.yml` and `schema.ldif`:
 
-### application.yml
+application.yml
 
-```yaml
+```yaml filename="application.yml"
 spring:
   ldap:
     embedded:
@@ -198,11 +202,9 @@ security:
         -----END PRIVATE KEY-----
 ```
 
-<span style="display:block; height:1rem;"></span>
+LDAP Schema (schema.ldif)
 
-### LDAP Schema (schema.ldif)
-
-```ldif
+```ldif filename="schema.ldif"
 # 1) Root DN
  dn: dc=suaybsimsek,dc=com
  objectClass: top
@@ -270,14 +272,12 @@ In this section, we define the beans and properties configure LDAP authenticatio
 - SecurityJwtConfig: Builds RSA JWKs, JWT encoder/decoder, authentication converter, and token resolver.
 - SecurityConfig: Defines embedded LDAP authentication, JWE resource server, and stateless security filter chain with route authorization.
 
-<span style="display:block; height:1rem;"></span>
-
-### SecurityJwtConfig
+SecurityJwtConfig
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="SecurityJwtConfig.java"
 package io.github.susimsek.springbootldapjwedemo.config;
 
 import com.nimbusds.jose.EncryptionMethod;
@@ -392,7 +392,7 @@ public class SecurityJwtConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="SecurityJwtConfig.kt"
 package io.github.susimsek.springbootldapjwedemo.config
 
 import com.nimbusds.jose.EncryptionMethod
@@ -491,14 +491,12 @@ class SecurityJwtConfig(private val props: JwtProperties) {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### SecurityConfig
+SecurityConfig
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="SecurityConfig.java"
 package io.github.susimsek.springbootldapjwedemo.config;
 
 import io.github.susimsek.springbootldapjwedemo.security.AuthoritiesConstants;
@@ -601,7 +599,7 @@ public class SecurityConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="SecurityConfig.kt"
 package io.github.susimsek.springbootldapjwedemo.config
 
 import io.github.susimsek.springbootldapjwedemo.security.AuthoritiesConstants
@@ -692,14 +690,12 @@ class SecurityConfig {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### JwtProperties
+JwtProperties
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="JwtProperties.java"
 package io.github.susimsek.springbootldapjwedemo.config;
 
 import lombok.Data;
@@ -729,7 +725,7 @@ public class JwtProperties {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="JwtProperties.kt"
 package io.github.susimsek.springbootldapjwedemo.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -770,12 +766,12 @@ In this section, we define the core utility classes and constants needed to gene
 
 These utilities form the foundation for a stateless, JWE‐based authentication flow in Spring Security.
 
-### AuthoritiesConstants
+AuthoritiesConstants
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AuthoritiesConstants.java"
 
 package io.github.susimsek.springbootldapjwedemo.security;
 
@@ -792,7 +788,7 @@ public final class AuthoritiesConstants {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AuthoritiesConstants.kt"
 
 package io.github.susimsek.springbootldapjwedemo.security
 
@@ -805,14 +801,12 @@ object AuthoritiesConstants {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### CookieBearerTokenResolver
+CookieBearerTokenResolver
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="CookieBearerTokenResolver.java"
 package io.github.susimsek.springbootldapjwedemo.security;
 
 import jakarta.servlet.http.Cookie;
@@ -914,7 +908,7 @@ public class CookieBearerTokenResolver implements BearerTokenResolver {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="CookieBearerTokenResolver.kt"
 package io.github.susimsek.springbootldapjwedemo.security
 
 import jakarta.servlet.http.Cookie
@@ -984,14 +978,12 @@ class CookieBearerTokenResolver {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### CookieUtils
+CookieUtils
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="CookieUtils.java"
 package io.github.susimsek.springbootldapjwedemo.security;
 
 import io.github.susimsek.springbootldapjwedemo.dto.TokenDTO;
@@ -1017,7 +1009,7 @@ public class CookieUtils {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="CookieUtils.kt"
 package io.github.susimsek.springbootldapjwedemo.security
 
 import io.github.susimsek.springbootldapjwedemo.dto.TokenDTO
@@ -1041,14 +1033,12 @@ object CookieUtils {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### JweUtil
+JweUtil
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="JweUtil.java"
 package io.github.susimsek.springbootldapjwedemo.security;
 
 import com.nimbusds.jose.EncryptionMethod;
@@ -1125,7 +1115,7 @@ public class JweUtil {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="JweUtil.kt"
 package io.github.susimsek.springbootldapjwedemo.security
 
 import com.nimbusds.jose.EncryptionMethod
@@ -1196,14 +1186,12 @@ class JweUtil(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### KeyUtils
+KeyUtils
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="KeyUtils.java"
 package io.github.susimsek.springbootldapjwedemo.security;
 
 import com.nimbusds.jose.JWEAlgorithm;
@@ -1264,7 +1252,7 @@ public class KeyUtils {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="KeyUtils.kt"
 package io.github.susimsek.springbootldapjwedemo.security
 
 import com.nimbusds.jose.JWEAlgorithm
@@ -1324,14 +1312,12 @@ object KeyUtils {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### SecurityUtils
+SecurityUtils
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="SecurityUtils.java"
 package io.github.susimsek.springbootldapjwedemo.security;
 
 import lombok.experimental.UtilityClass;
@@ -1373,7 +1359,7 @@ public class SecurityUtils {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="SecurityUtils.kt"
 package io.github.susimsek.springbootldapjwedemo.security
 
 import org.springframework.security.core.Authentication
@@ -1418,12 +1404,12 @@ These components complete the stateless authentication flow by handling login, t
 
 In this section, we expose REST controllers and DTOs to handle user authentication, token issuance, and protected resource access.
 
-### AuthController
+AuthController
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AuthController.java"
 package io.github.susimsek.springbootldapjwedemo.controller;
 
 import io.github.susimsek.springbootldapjwedemo.dto.LoginRequestDTO;
@@ -1473,7 +1459,7 @@ public class AuthController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AuthController.kt"
 package io.github.susimsek.springbootldapjwedemo.controller
 
 import io.github.susimsek.springbootldapjwedemo.dto.LoginRequestDTO
@@ -1521,14 +1507,12 @@ class AuthController(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### HelloController
+HelloController
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="HelloController.java"
 package io.github.susimsek.springbootldapjwedemo.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -1557,7 +1541,7 @@ public class HelloController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="HelloController.kt"
 package io.github.susimsek.springbootldapjwedemo.controller
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -1586,14 +1570,12 @@ class HelloController {
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### LoginRequestDTO
+LoginRequestDTO
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="LoginRequestDTO.java"
 package io.github.susimsek.springbootldapjwedemo.dto;
 
 public record LoginRequestDTO(
@@ -1604,7 +1586,7 @@ public record LoginRequestDTO(
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="LoginRequestDTO.kt"
 package io.github.susimsek.springbootldapjwedemo.dto
 
 data class LoginRequestDTO(
@@ -1615,14 +1597,12 @@ data class LoginRequestDTO(
 
 :::
 
-<span style="display:block; height:1rem;"></span>
-
-### TokenDTO
+TokenDTO
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="TokenDTO.java"
 package io.github.susimsek.springbootldapjwedemo.dto;
 
 public record TokenDTO(
@@ -1634,7 +1614,7 @@ public record TokenDTO(
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="TokenDTO.kt"
 package io.github.susimsek.springbootldapjwedemo.dto
 
 import kotlin.Long
@@ -1662,6 +1642,8 @@ gradle bootRun
 
 ## 🧪 Test Endpoints
 
+In this section, we clarify Test Endpoints and summarize the key points you will apply in implementation.
+
 ### Admin Flow
 
 Login as admin and capture the JWE token from the `Set-Cookie` header:
@@ -1675,7 +1657,7 @@ curl -i -X POST http://localhost:8080/api/auth/login \
 - Set-Cookie header contains `accessToken=<jwe-token>`
 - Response body:
 
-```json
+```json filename="config.json"
 {
   "accessToken": "<jwe-token>",
   "tokenType": "Bearer",
@@ -1736,4 +1718,4 @@ curl -H "Authorization: Bearer <jwe-token>" http://localhost:8080/api/hello/admi
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot LDAP and JWE Authentication solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot LDAP and JWE Authentication implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

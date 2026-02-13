@@ -28,7 +28,8 @@
     "fetch:medium": "node scripts/fetch-medium-feed.js && node scripts/sync-medium-posts.js",
     "sync:medium-posts": "node scripts/sync-medium-posts.js",
     "sync:post-metadata": "node scripts/sync-post-metadata.js",
-    "sync:reading-time": "pnpm run sync:post-metadata"
+    "sync:reading-time": "pnpm run sync:post-metadata",
+    "sync:code-filenames": "node scripts/sync-code-filename-meta.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.1.0",

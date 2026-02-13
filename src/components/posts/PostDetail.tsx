@@ -71,7 +71,7 @@ const hasSupportedMarkdownHeading = (markdown: string): boolean => {
       continue;
     }
 
-    if (/^##\s+\S+/.test(line)) {
+    if (/^##{1,2}\s+\S+/.test(line)) {
       return true;
     }
   }

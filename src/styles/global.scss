@@ -500,13 +500,51 @@ html {
   }
 
   .accordion {
-    --bs-accordion-bg: var(--main-bg);
-    --bs-accordion-color: var(--text-color);
-    --bs-accordion-border-color: var(--border-color);
-    --bs-accordion-btn-bg: var(--main-bg);
-    --bs-accordion-btn-color: var(--text-color);
-    --bs-accordion-active-bg: var(--dropdown-hover-bg);
-    --bs-accordion-active-color: var(--text-color);
+    --bs-accordion-bg: var(--toc-surface-bg);
+    --bs-accordion-color: var(--toc-title-text);
+    --bs-accordion-border-color: var(--toc-surface-border);
+    --bs-accordion-btn-bg: var(--toc-title-bg);
+    --bs-accordion-btn-color: var(--toc-title-text);
+    --bs-accordion-active-bg: var(--toc-title-bg);
+    --bs-accordion-active-color: var(--toc-title-text);
+    --bs-accordion-btn-focus-box-shadow: none;
+  }
+
+  .accordion-item {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: var(--box-shadow-sm);
+  }
+
+  .accordion-button {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    border-bottom: 1px solid transparent;
+  }
+
+  .accordion-button:not(.collapsed) {
+    border-bottom-color: var(--toc-surface-border);
+  }
+
+  .accordion-button::after {
+    background-image: none;
+    width: 1rem;
+    height: 1rem;
+    background-color: var(--toc-chevron-color);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='black' d='M1.646 5.646a.5.5 0 0 1 .708 0L8 11.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E")
+      center / 1rem 1rem no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='black' d='M1.646 5.646a.5.5 0 0 1 .708 0L8 11.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E")
+      center / 1rem 1rem no-repeat;
+    @include transition(background-color, transform);
+  }
+
+  .accordion-button:not(.collapsed)::after {
+    background-color: var(--toc-chevron-active-color);
+  }
+
+  .accordion-body {
+    background-color: var(--toc-body-bg);
+    padding: var(--space-12);
   }
 
   .accordion-button:focus {
@@ -521,24 +559,32 @@ html {
 
   .post-toc-link {
     position: relative;
-    padding-left: 0.625rem;
+    width: 100%;
     border-left: 2px solid transparent;
-    color: var(--text-color);
+    color: var(--toc-link-text);
+    border-radius: 0.375rem;
+    padding: 0.3125rem 0.5rem 0.3125rem 0.75rem;
+    line-height: 1.45;
     text-decoration: none;
     @include transition(color, border-color, background-color);
   }
 
+  .post-toc-link.is-level-3 {
+    padding-left: 1.5rem;
+    font-size: 0.95em;
+  }
+
   .post-toc-link.is-active {
-    color: var(--active-color);
-    border-left-color: var(--active-color);
+    color: var(--toc-link-active-text);
+    border-left-color: var(--toc-link-indicator);
     font-weight: 600;
-    background-color: var(--dropdown-hover-bg);
-    border-radius: 6px;
+    background-color: var(--toc-link-active-bg);
   }
 
   .post-toc-link:hover {
-    color: var(--link-hover-color);
-    text-decoration: underline;
+    color: var(--toc-link-hover-text);
+    background-color: var(--toc-link-hover-bg);
+    text-decoration: none;
   }
 
   .post-toc-link:focus-visible {
@@ -652,6 +698,10 @@ mark {
   width: 0%;
   background-color: var(--active-color);
   transition: width 0.1s linear;
+}
+
+.reading-progress.is-back-to-top .reading-progress-bar {
+  transition: none;
 }
 
 .back-to-top {
@@ -2077,11 +2127,18 @@ $state-variants: (
 .code-block-container {
   position: relative;
 
-  .code-language-badge {
+  .code-meta-badges {
     position: absolute;
     top: 8px;
     left: 8px;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: calc(100% - 132px);
+  }
+
+  .code-language-badge {
     background-color: var(--copy-button-bg);
     color: var(--text-color);
     border: none;
@@ -2089,6 +2146,21 @@ $state-variants: (
     font-size: 0.75rem;
     border-radius: 4px;
     opacity: 0.9;
+    white-space: nowrap;
+    @include transition(background-color, color);
+  }
+
+  .code-file-badge {
+    background-color: var(--copy-button-bg);
+    color: var(--text-color);
+    border: none;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    opacity: 0.9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     @include transition(background-color, color);
   }
 
@@ -2162,7 +2234,12 @@ $state-variants: (
   box-shadow: none;
   @include transition(border-color, box-shadow);
 
+  .nav-item {
+    pointer-events: none;
+  }
+
   .nav-link {
+    pointer-events: auto;
     color: var(--text-color);
     border: 1px solid transparent;
     border-radius: 0.25rem 0.25rem 0 0;

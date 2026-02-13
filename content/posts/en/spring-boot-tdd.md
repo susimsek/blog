@@ -31,6 +31,8 @@ Test-Driven Development (TDD) helps you build robust applications by writing tes
 
 ## 🌟 Why Use TDD in Spring Boot?
 
+In this section, we clarify Why Use TDD in Spring Boot? and summarize the key points you will apply in implementation.
+
 - Fail Fast: Catch issues early during development.
 - Clean Design: Forces modular, testable code structure.
 - Refactor with Confidence: Tests serve as a safety net.
@@ -54,7 +56,7 @@ Add Spring Boot's test starter to your project.
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-test</artifactId>
@@ -64,7 +66,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 testImplementation 'org.springframework.boot:spring-boot-starter-test'
 ```
 
@@ -77,7 +79,7 @@ Create a simple unit test before implementing the service.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="GreetingServiceTest.java"
 package com.example.tdd;
 
 import org.junit.jupiter.api.Test;
@@ -96,7 +98,7 @@ class GreetingServiceTest {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="GreetingServiceTest.kt"
 package com.example.tdd
 
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -124,7 +126,7 @@ Now implement the `GreetingService` to pass the test.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="GreetingService.java"
 package com.example.tdd;
 
 public class GreetingService {
@@ -136,7 +138,7 @@ public class GreetingService {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="GreetingService.kt"
 package com.example.tdd
 
 class GreetingService {
@@ -180,4 +182,4 @@ Now that your test passes, you can safely refactor your code. TDD is a loop:
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Spring Boot Test-Driven Development solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Spring Boot Test-Driven Development implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

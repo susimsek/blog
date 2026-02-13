@@ -31,6 +31,8 @@ Apache Kafka, gerçek zamanlı veri işleme olanağı sağlayan dağıtık bir o
 
 ## 🌟 Neden Kafka Kullanılmalı?
 
+Bu bölümde Neden Kafka Kullanılmalı? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Ölçeklenebilir Mesajlaşma: Büyük veri hacimlerini sorunsuz bir şekilde işleyin.
 - Hata Toleransı: Veri dayanıklılığı ve yüksek erişilebilirlik sağlar.
 - Gerçek Zamanlı Veri İşleme: Verileri anında işleyin ve analiz edin.
@@ -55,7 +57,7 @@ Kafka'yı Spring Boot projenize entegre etmek için aşağıdaki bağımlıklar�
 
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.kafka</groupId>
   <artifactId>spring-kafka</artifactId>
@@ -64,7 +66,7 @@ Kafka'yı Spring Boot projenize entegre etmek için aşağıdaki bağımlıklar�
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.kafka:spring-kafka'
 ```
 
@@ -74,7 +76,7 @@ implementation 'org.springframework.kafka:spring-kafka'
 
 Kafka bağlantısını `application.properties` veya `application.yml` dosyasında yapılandırın:
 
-```properties
+```properties filename="application.properties"
 spring.kafka.bootstrap-servers=localhost:9092
 spring.kafka.consumer.group-id=my-group
 spring.kafka.consumer.auto-offset-reset=earliest
@@ -88,12 +90,16 @@ spring.kafka.consumer.properties.spring.json.trusted.packages=*
 
 ## 🛠️ Adım 3: JSON Mesajlar için Bir Model Oluşturun
 
+Bu bölümde Adım 3: JSON Mesajlar için Bir Model Oluşturun konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 ### Model Sınıfı
+
+Bu model, producer, consumer ve controller katmanları arasında taşınan mesaj sözleşmesini tanımlar.
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="Message.java"
 package com.example.kafka.model;
 
 import lombok.AllArgsConstructor;
@@ -111,7 +117,7 @@ public class Message {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="Message.kt"
 package com.example.kafka.model
 
 data class Message(
@@ -126,12 +132,16 @@ data class Message(
 
 ## 🛠️ Adım 4: Kafka Producer ve Consumer Uygulamaları
 
+Bu bölümde Adım 4: Kafka Producer ve Consumer Uygulamaları konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 ### Producer Örneği
+
+Bu producer örneği, mesajların hedef topic’e nasıl tutarlı biçimde gönderileceğini gösterir.
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="KafkaProducer.java"
 package com.example.kafka.producer;
 
 import com.example.kafka.model.Message;
@@ -153,7 +163,7 @@ public class KafkaProducer {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="KafkaProducer.kt"
 package com.example.kafka.producer
 
 import com.example.kafka.model.Message
@@ -173,10 +183,12 @@ class KafkaProducer(private val kafkaTemplate: KafkaTemplate<String, Message>) {
 
 ### Consumer Örneği
 
+Bu consumer örneği, gelen mesajların nasıl okunup işlendiğini açıkça gösterir.
+
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="KafkaConsumer.java"
 package com.example.kafka.consumer;
 
 import com.example.kafka.model.Message;
@@ -195,7 +207,7 @@ public class KafkaConsumer {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="KafkaConsumer.kt"
 package com.example.kafka.consumer
 
 import com.example.kafka.model.Message
@@ -218,10 +230,12 @@ class KafkaConsumer {
 
 ### Controller Örneği
 
+Bu controller, mesaj akışını tetiklemek ve sonucu doğrulamak için sade bir API yüzeyi sağlar.
+
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="KafkaController.java"
 package com.example.kafka.controller;
 
 import com.example.kafka.model.Message;
@@ -246,7 +260,7 @@ public class KafkaController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="KafkaController.kt"
 package com.example.kafka.controller
 
 import com.example.kafka.model.Message
@@ -289,10 +303,8 @@ curl -X POST "http://localhost:8080/kafka/publish" \
 -d '{"id": "123", "content": "Hello Kafka!"}'
 ```
 
-Kafka Consumer loglarını kontrol ederek mesajın alındığını ve işlendiğini doğrulayın.
-
 ---
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot ile Kafka Entegrasyonu için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Kafka Entegrasyonu için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

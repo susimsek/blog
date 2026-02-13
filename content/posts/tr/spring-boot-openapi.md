@@ -31,6 +31,8 @@ OpenAPI, API dokümantasyonu ve test işlemlerini kolaylaştıran etkileşimli b
 
 ## 🌟 Neden OpenAPI Kullanmalıyız?
 
+Bu bölümde Neden OpenAPI Kullanmalıyız? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Etkileşimli Dokümantasyon: API'leri keşfetmek için kullanıcı dostu bir arayüz sağlar.
 - Standartlaştırılmış Format: Makine tarafından okunabilir API tanımları oluşturur.
 - Kolay Test: Endpoint'leri test etmek için yerleşik araçlar sunar.
@@ -54,7 +56,7 @@ SpringDoc kullanarak OpenAPI'yi entegre etmek için aşağıdaki bağımlılığ
 
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springdoc</groupId>
   <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -64,7 +66,7 @@ SpringDoc kullanarak OpenAPI'yi entegre etmek için aşağıdaki bağımlılığ
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
 ```
 
@@ -76,7 +78,9 @@ SpringDoc minimal konfigürasyon gerektirir. `application.properties` veya `appl
 
 ### Örnek Konfigürasyon:
 
-```properties
+Bu yapılandırmayı başlangıç noktası olarak alın, sonra ortamınıza göre değerleri uyarlayın.
+
+```properties filename="config.properties"
 springdoc.api-docs.path=/api-docs
 springdoc.swagger-ui.path=/swagger-ui.html
 ```
@@ -90,9 +94,9 @@ REST kontrollerinize ve modellerinize anotasyonlar ekleyerek OpenAPI dokümantas
 :::tabs
 @tab Java [icon=java]
 
-### Controller Örneği
+Controller Örneği
 
-```java
+```java filename="UserController.java"
 package com.example.openapi.controller;
 
 import com.example.openapi.model.User;
@@ -125,9 +129,9 @@ public class UserController {
 }
 ```
 
-### User Model
+User Model
 
-```java
+```java filename="User.java"
 package com.example.openapi.model;
 
 import lombok.AllArgsConstructor;
@@ -147,9 +151,9 @@ public class User {
 
 @tab Kotlin [icon=kotlin]
 
-### Controller Örneği
+Controller Örneği
 
-```kotlin
+```kotlin filename="UserController.kt"
 package com.example.openapi.controller
 
 import com.example.openapi.model.User
@@ -176,9 +180,9 @@ class UserController {
 }
 ```
 
-### User Model
+User Model
 
-```kotlin
+```kotlin filename="User.kt"
 package com.example.openapi.model
 
 data class User(
@@ -218,4 +222,4 @@ Swagger UI arayüzüne erişerek oluşturulan API dokümantasyonunu test edebili
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot ile OpenAPI için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık OpenAPI için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

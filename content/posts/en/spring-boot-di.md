@@ -50,18 +50,18 @@ Dependency Injection allows developers to manage and inject dependencies into cl
 
 Include the necessary Spring Boot dependencies:
 
-- Maven:
+Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter</artifactId>
 </dependency>
 ```
 
-- Gradle:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter'
 ```
 
@@ -74,9 +74,9 @@ Define a simple service to demonstrate DI.
 :::tabs
 @tab Java [icon=java]
 
-### Service
+Service
 
-```java
+```java filename="UserService.java"
 package com.example.demo.service;
 
 import org.springframework.stereotype.Service;
@@ -96,9 +96,9 @@ public class UserService {
 
 @tab Kotlin [icon=kotlin]
 
-### Service
+Service
 
-```kotlin
+```kotlin filename="UserService.kt"
 package com.example.demo.service
 
 import org.springframework.stereotype.Service
@@ -127,9 +127,9 @@ Use annotations to inject the service into other components.
 :::tabs
 @tab Java [icon=java]
 
-### Controller
+Controller
 
-```java
+```java filename="UserController.java"
 package com.example.demo.controller;
 
 import com.example.demo.service.UserService;
@@ -160,9 +160,9 @@ public class UserController {
 
 @tab Kotlin [icon=kotlin]
 
-### Controller
+Controller
 
-```kotlin
+```kotlin filename="UserController.kt"
 package com.example.demo.controller
 
 import com.example.demo.service.UserService
@@ -193,11 +193,12 @@ class UserController(
 
 Run the application using the following commands:
 
-- Spring Boot (Java/Kotlin):
+Spring Boot (Java/Kotlin):
+Run the application with either stack to confirm the baseline setup is working before deeper tests.
 
-  ```bash
-  ./mvnw spring-boot:run
-  ```
+```bash
+./mvnw spring-boot:run
+```
 
 Access the API at `http://localhost:8080/api/users`.
 
@@ -207,13 +208,17 @@ Access the API at `http://localhost:8080/api/users`.
 
 You can test the API using the following cURL commands:
 
-- Fetch all users:
+### Fetch all users
+
+Use this request to verify the list endpoint and validate the default response shape.
 
 ```bash
 curl -X GET http://localhost:8080/api/users
 ```
 
-- Fetch a user by ID:
+### Fetch a user by ID
+
+Use this request to validate path-variable handling and single-resource retrieval behavior.
 
 ```bash
 curl -X GET http://localhost:8080/api/users/1
@@ -223,4 +228,4 @@ curl -X GET http://localhost:8080/api/users/1
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Dependency Injection in Spring Boot solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Dependency Injection in Spring Boot implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

@@ -31,6 +31,8 @@ Spring Boot 3.2+ ile Java veya Kotlin arayüzleri üzerinden deklaratif ve tip g
 
 ## 🌟 Neden HTTP Arayüz İstemcisi?
 
+Bu bölümde Neden HTTP Arayüz İstemcisi? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Deklaratif: Bir arayüz tanımlayıp HTTP çağrılarını yöntem anotasyonlarıyla eşleyin.
 - Tip güvenli: Yanlış imzalar veya hatalı yol konfigürasyonları derleme zamanında yakalanır.
 - Azaltılmış tekrar eden kod: Tek bir bean tanımı, manuel proxy veya template koduna gerek yok.
@@ -39,6 +41,8 @@ Spring Boot 3.2+ ile Java veya Kotlin arayüzleri üzerinden deklaratif ve tip g
 ---
 
 ## 📋 Gereksinimler
+
+Bu bölümde Gereksinimler konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
 
 - ☕ Java Development Kit (JDK) 21 veya üstü
 - 📦 Spring Boot 3.2+
@@ -52,7 +56,7 @@ Projenizin yapı dosyasına Web starter’ı ekleyin:
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-web</artifactId>
@@ -61,7 +65,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-web'
 ```
 
@@ -71,12 +75,12 @@ implementation 'org.springframework.boot:spring-boot-starter-web'
 
 `application.yml` veya `application.properties` dosyanıza ekleyin:
 
-```yaml
+```yaml filename="config.yml"
 jsonplaceholder:
   base-url: https://jsonplaceholder.typicode.com
 ```
 
-```properties
+```properties filename="config.properties"
 jsonplaceholder.base-url=https://jsonplaceholder.typicode.com
 ```
 
@@ -87,7 +91,7 @@ jsonplaceholder.base-url=https://jsonplaceholder.typicode.com
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="PostDTO.java"
 // src/main/java/com/example/client/dto/PostDTO.java
 package com.example.client.dto;
 
@@ -120,7 +124,7 @@ public interface JsonPlaceholderClient {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="PostDTO.kt"
 // src/main/kotlin/com/example/client/dto/PostDTO.kt
 package com.example.client.dto
 
@@ -159,7 +163,7 @@ interface JsonPlaceholderClient {
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="HttpClientConfig.java"
 // src/main/java/com/example/config/HttpClientConfig.java
 package com.example.config;
 
@@ -190,7 +194,7 @@ public class HttpClientConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="HttpClientConfig.kt"
 // src/main/kotlin/com/example/config/HttpClientConfig.kt
 package com.example.config
 
@@ -228,7 +232,7 @@ class HttpClientConfig {
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="PostService.java"
 // src/main/java/com/example/service/PostService.java
 package com.example.service;
 
@@ -283,7 +287,7 @@ public class PostController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="PostService.kt"
 // src/main/kotlin/com/example/service/PostService.kt
 package com.example.service
 
@@ -342,4 +346,4 @@ curl http://localhost:8080/posts/1
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot HTTP Interface Client için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot HTTP Interface Client için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

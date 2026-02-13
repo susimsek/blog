@@ -64,7 +64,7 @@ Spring Boot projeleri için aşağıdaki bağımlılıkları projenize ekleyin:
 
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -77,7 +77,7 @@ Spring Boot projeleri için aşağıdaki bağımlılıkları projenize ekleyin:
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 implementation 'org.postgresql:postgresql'
 ```
@@ -86,7 +86,7 @@ implementation 'org.postgresql:postgresql'
 
 PostgreSQL bağlantınızı `application.properties` veya `application.yml` dosyasına şu şekilde ayarlayın:
 
-```properties
+```properties filename="application.properties"
 spring.datasource.url=jdbc:postgresql://localhost:5432/demo
 spring.datasource.username=kullanici_adiniz
 spring.datasource.password=sifreniz
@@ -124,9 +124,9 @@ Bu adım, entity/model, repository ve REST controller oluşturulmasını birleş
 :::tabs
 @tab Java [icon=java]
 
-### Entity
+Entity
 
-```java
+```java filename="User.java"
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
@@ -146,9 +146,9 @@ public class User {
 }
 ```
 
-### Repository
+Repository
 
-```java
+```java filename="UserRepository.java"
 package com.example.demo.repository;
 
 import com.example.demo.entity.User;
@@ -158,9 +158,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 }
 ```
 
-### REST Controller
+REST Controller
 
-```java
+```java filename="UserController.java"
 package com.example.demo.controller;
 
 import com.example.demo.entity.User;
@@ -192,9 +192,9 @@ public class UserController {
 
 @tab Kotlin [icon=kotlin]
 
-### Entity
+Entity
 
-```kotlin
+```kotlin filename="User.kt"
 package com.example.demo.entity
 
 import jakarta.persistence.*
@@ -211,9 +211,9 @@ class User(
 )
 ```
 
-### Repository
+Repository
 
-```kotlin
+```kotlin filename="UserRepository.kt"
 package com.example.demo.repository
 
 import com.example.demo.entity.User
@@ -222,9 +222,9 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface UserRepository : JpaRepository<User, Long>
 ```
 
-### REST Controller
+REST Controller
 
-```kotlin
+```kotlin filename="UserController.kt"
 package com.example.demo.controller
 
 import com.example.demo.entity.User
@@ -247,9 +247,9 @@ class UserController(
 
 @tab Go [icon=go]
 
-### Model ve Veritabanı Bağlantısı
+Model ve Veritabanı Bağlantısı
 
-```go
+```go filename="app.go"
 package main
 
 import (
@@ -277,9 +277,9 @@ type User struct {
 }
 ```
 
-### Handlerlar
+Handlerlar
 
-```go
+```go filename="main.go"
 package main
 
 import (
@@ -319,6 +319,8 @@ func main() {
 
 ## ▶️ Uygulamaları Çalıştırma
 
+Bu bölümde Uygulamaları Çalıştırma konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Spring Boot:
 
   ```bash
@@ -355,4 +357,4 @@ curl -X POST http://localhost:8080/api/users \
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Object-Relational Mapping için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Object-Relational Mapping için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

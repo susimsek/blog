@@ -42,22 +42,22 @@ GraphQL, istemcilerin sadece gerekli olan verileri talep etmesine izin vererek, 
 
 ---
 
-## 🛠️ Adım 1: Bağlımlıkları Ekleme
+## 🛠️ Adım 1: Bağımlıkları Ekleme
 
 Spring for GraphQL'i etkinleştirmek için aşağıdaki bağlımlıkları projenize ekleyin.
 
-### Maven:
+Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-graphql</artifactId>
 </dependency>
 ```
 
-### Gradle:
+Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-graphql'
 ```
 
@@ -67,7 +67,7 @@ implementation 'org.springframework.boot:spring-boot-starter-graphql'
 
 `src/main/resources/graphql` dizini altında `schema.graphqls` adlı bir dosya oluşturun.
 
-```graphql
+```graphql filename="schema.graphqls"
 type Query {
   getUser(id: ID!): User
   getUsers: [User]
@@ -89,9 +89,9 @@ Sorguları işlemek için veri modelinizi ve servis katmanını tanımlayın.
 :::tabs
 @tab Java [icon=java]
 
-### Entity
+Entity
 
-```java
+```java filename="User.java"
 package com.example.demo.model;
 
 import lombok.AllArgsConstructor;
@@ -108,9 +108,9 @@ public class User {
 }
 ```
 
-### Servis
+Servis
 
-```java
+```java filename="UserService.java"
 package com.example.demo.service;
 
 import com.example.demo.model.User;
@@ -143,9 +143,9 @@ public class UserService {
 
 @tab Kotlin [icon=kotlin]
 
-### Entity
+Entity
 
-```kotlin
+```kotlin filename="User.kt"
 package com.example.demo.model
 
 data class User(
@@ -155,9 +155,9 @@ data class User(
 )
 ```
 
-### Servis
+Servis
 
-```kotlin
+```kotlin filename="UserService.kt"
 package com.example.demo.service
 
 import com.example.demo.model.User
@@ -181,14 +181,14 @@ class UserService {
 
 ---
 
-## 🛠️ Adım 4: GraphQL Controllerı Uygulama
+## 🛠️ Adım 4: GraphQL Controller'ı Uygulama
 
 GraphQL sorgularını ve mutasyonlarını işlemek için `@Controller` anotasyonunu kullanın.
 
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserController.java"
 package com.example.demo.controller;
 
 import com.example.demo.model.User;
@@ -221,7 +221,7 @@ public class UserController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserController.kt"
 package com.example.demo.controller
 
 import com.example.demo.model.User
@@ -250,11 +250,12 @@ class UserController(
 
 Uygulamayı aşağıdaki komutlarla çalıştırın:
 
-- Spring Boot (Java/Kotlin):
+Spring Boot (Java/Kotlin):
+Kurulumun doğru çalıştığını doğrulamak için uygulamayı tercih ettiğiniz dil yığınıyla başlatın.
 
-  ```bash
-  ./mvnw spring-boot:run
-  ```
+```bash
+./mvnw spring-boot:run
+```
 
 GraphQL Playground'a erişim sağlamak için `http://localhost:8080/graphiql` adresine gidin.
 
@@ -266,7 +267,7 @@ API'nizi test etmek için aşağıdaki sorguları kullanabilirsiniz:
 
 - Bir kullanıcıyı ID'ye göre getir:
 
-```graphql
+```graphql filename="query.graphql"
 query {
   getUser(id: "1") {
     id
@@ -278,7 +279,7 @@ query {
 
 - Tüm kullanıcıları getir:
 
-```graphql
+```graphql filename="query.graphql"
 query {
   getUsers {
     id
@@ -292,4 +293,4 @@ query {
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring GraphQL ile API Oluşturma için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring GraphQL ile API Oluşturma için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

@@ -26,6 +26,16 @@ Spring Boot, Spring Framework ile üretim için hazır uygulamalar oluşturmayı
 
 ---
 
+## 🌟 Bu yazıda ne öğreneceksin?
+
+Bu bölümde Bu yazıda ne öğreneceksin? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
+- Java veya Kotlin ile temel bir Spring Boot projesi başlatmayı.
+- İlk HTTP endpoint’ini yazıp hızlıca doğrulamayı.
+- Uygulamayı lokalde çalıştırıp sonraki özellikler için temiz bir temel kurmayı.
+
+---
+
 ## 📋 Gereksinimler
 
 📋 Başlamadan önce aşağıdaki araçların kurulu olduğundan emin olun:
@@ -65,7 +75,7 @@ Bir "hello" mesajı dönen basit bir endpoint yazalım:
 :::tabs  
 @tab Java [icon=java]
 
-```java
+```java filename="DemoApplication.java"
 package com.example.demo;
 
 import org.springframework.boot.SpringApplication;
@@ -89,7 +99,7 @@ public class DemoApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="DemoApplication.kt"
 package com.example.demo
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -117,6 +127,8 @@ fun sayHello(): String {
 
 ## ▶️ Adım 3: Uygulamayı Çalıştırma
 
+Bu bölümde Adım 3: Uygulamayı Çalıştırma konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 1. Proje klasöründe bir terminal açın.
 2. Uygulamanızı çalıştırmak için şu komutu yürütün:
 
@@ -125,13 +137,13 @@ fun sayHello(): String {
 ```
 
 3. Endpoint’e şu adresten erişebilirsiniz:
-   ```
+   ```filename="snippet.txt"
    http://localhost:8080/hello
    ```
 
 Yanıt:
 
-```
+```filename="snippet.txt"
 Merhaba, Spring Boot!
 ```
 
@@ -139,4 +151,4 @@ Merhaba, Spring Boot!
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot - İlk Uygulama için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot - İlk Uygulama için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

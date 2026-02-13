@@ -31,6 +31,8 @@ Redis, genellikle önbellekleme, mesajlaşma ve gerçek zamanlı veri yönetimi 
 
 ## 🌟 Neden Redis Kullanmalıyız?
 
+Bu bölümde Neden Redis Kullanmalıyız? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Yüksek Performans: Redis, okuma ve yazma işlemleri için son derece düşük gecikme süreleri sağlar.
 - Esnek Veri Yapıları: String, hash, liste, set ve daha fazlasını destekler.
 - Ölçüklenebilirlik: Dağıtık önbellekleme ve gerçek zamanlı analitik için idealdir.
@@ -55,7 +57,7 @@ Redis'i Spring Boot projenize entegre etmek için aşağıdaki bağımlıkları 
 
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-data-redis</artifactId>
@@ -64,7 +66,7 @@ Redis'i Spring Boot projenize entegre etmek için aşağıdaki bağımlıkları 
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 ```
 
@@ -76,14 +78,16 @@ Redis bağlantısını `application.properties` veya `application.yml` dosyanız
 
 ### Örnek Yapılandırma:
 
-```properties
+Aşağıdaki örnek, Örnek Yapılandırma için pratik bir bağlam sunar ve doğrudan uygulanabilir.
+
+```properties filename="application.properties"
 spring.redis.host=localhost
 spring.redis.port=6379
 ```
 
 Parola doğrulama veya SSL gibi ileri düzey kurulumlar için şunları ekleyin:
 
-```properties
+```properties filename="application.properties"
 spring.redis.password=sifre
 spring.redis.ssl=true
 ```
@@ -97,7 +101,7 @@ Ana uygulama sınıfınıza `@EnableCaching` ekleyin:
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="RedisApplication.java"
 package com.example.redis;
 
 import org.springframework.boot.SpringApplication;
@@ -115,7 +119,7 @@ public class RedisApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="RedisApplication.kt"
 package com.example.redis
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -137,10 +141,12 @@ fun main(args: Array<String>) {
 
 ### Servis Katmanında Önbellekleme Örneği
 
+Aşağıdaki örnek, Servis Katmanında Önbellekleme Örneği için pratik bir bağlam sunar ve doğrudan uygulanabilir.
+
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserService.java"
 package com.example.redis.service;
 
 import org.springframework.cache.annotation.Cacheable;
@@ -167,7 +173,7 @@ public class UserService {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserService.kt"
 package com.example.redis.service
 
 import org.springframework.cache.annotation.Cacheable
@@ -196,7 +202,7 @@ class UserService {
 
 `application.properties` dosyasında önbellek sona erme sürelerini ayarlayın:
 
-```properties
+```properties filename="application.properties"
 spring.cache.redis.time-to-live=600000
 ```
 
@@ -211,7 +217,7 @@ Bu, zaman aşımını 10 dakika (600.000 milisaniye) olarak ayarlar.
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="UserController.java"
 package com.example.redis.controller;
 
 import com.example.redis.service.UserService;
@@ -234,7 +240,7 @@ public class UserController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="UserController.kt"
 package com.example.redis.controller
 
 import com.example.redis.service.UserService
@@ -274,10 +280,8 @@ API’yı cURL veya Postman kullanarak test edebilirsiniz:
 curl -X GET http://localhost:8080/users/1
 ```
 
-Aynı isteği tekrar ettiğinizde, yanıtların daha hızlı geldiğini gözlemleyebilirsiniz.
-
 ---
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot ile Redis Önbellekleme için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Redis Önbellekleme için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

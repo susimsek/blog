@@ -31,6 +31,8 @@ Spring Boot ile GraalVM Native, geliştiricilere daha hızlı başlatma süreler
 
 ## 🌟 Neden GraalVM ile Native Uygulama Oluşturalım?
 
+Bu bölümde Neden GraalVM ile Native Uygulama Oluşturalım? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Daha Hızlı Başlatma Süreleri: Native imajlar, JVM tabanlı uygulamalara kıyasla çok daha hızlı başlatılır.
 - Azaltılmış Kaynak Kullanımı: Native imajlar daha az bellek kullanır, bu da bulut ve konteynerize ortamlar için idealdir.
 - Artırılmış Güvenlik: Daha küçük bir runtime ve sınırlı bir yüzey alanı sunar.
@@ -54,7 +56,7 @@ Aşağıdakilere sahip olduğunuzdan emin olun:
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <plugin>
     <groupId>org.graalvm.buildtools</groupId>
     <artifactId>native-maven-plugin</artifactId>
@@ -64,7 +66,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 plugins {
     id 'org.graalvm.buildtools.native' version '0.9.20'
 }
@@ -79,7 +81,7 @@ Native imaj fonksiyonelliğini test etmek için basit bir REST endpoint oluştur
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="MyApplication.java"
 package com.example.graalvmnative;
 
 import org.springframework.boot.SpringApplication;
@@ -104,7 +106,7 @@ public class MyApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="MyApplication.kt"
 package com.example.graalvmnative
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -131,16 +133,16 @@ fun main(args: Array<String>) {
 
 ## 🛠️ Adım 3: Native İmaj Oluşturun
 
-### Maven Kullanarak
+Bu bölümde Adım 3: Native İmaj Oluşturun konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
 
+Maven:
 Native imaj oluşturmak için aşağıdaki komutu çalıştırın:
 
 ```bash
 mvn -Pnative package
 ```
 
-### Gradle Kullanarak
-
+Gradle:
 Aşağıdaki komutu çalıştırın:
 
 ```bash
@@ -153,13 +155,13 @@ gradle nativeCompile
 
 Spring Boot, native yürütülebilir dosyalarla Docker imajları oluşturmayı destekler.
 
-### Maven Komutu:
+Maven:
 
 ```bash
 mvn -Pnative spring-boot:build-image
 ```
 
-### Gradle Komutu:
+Gradle:
 
 ```bash
 gradle bootBuildImage
@@ -174,6 +176,8 @@ docker run --rm -p 8080:8080 myproject:0.0.1-SNAPSHOT
 ---
 
 ## ▶️ Uygulamayı Çalıştırma
+
+Bu bölümde Uygulamayı Çalıştırma konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
 
 ### Yerel Olarak Çalıştırma
 
@@ -203,7 +207,7 @@ curl -X GET http://localhost:8080/greeting
 
 Beklenen çıktı:
 
-```plaintext
+```plaintext filename="snippet.txt"
 Hello from GraalVM Native!
 ```
 
@@ -211,4 +215,4 @@ Hello from GraalVM Native!
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot ile GraalVM Native Uygulama için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık GraalVM Native Uygulama için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

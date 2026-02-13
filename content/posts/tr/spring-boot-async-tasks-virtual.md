@@ -31,6 +31,8 @@ Spring Boot 3.2 ve üzeri sürümler, JDK 21’in sanal thread desteğini otomat
 
 ## 🌟 Neden Spring Boot'ta Sanal Thread Kullanmalıyız?
 
+Bu bölümde Neden Spring Boot'ta Sanal Thread Kullanmalıyız? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
 - Hafif Maliyet: Sanal thread’ler, geleneksel platform thread’lere kıyasla çok daha az kaynak kullanır.
 - Bloklamasız: `@Async` ile işaretlenen metodlar ana thread’i meşgul etmeden çalışır.
 - Yüksek Ölçeklenebilirlik: Binlerce concurrent iş yükünü düşük bellek ayak iziyle yönetir.
@@ -39,6 +41,8 @@ Spring Boot 3.2 ve üzeri sürümler, JDK 21’in sanal thread desteğini otomat
 ---
 
 ## 📋 Gereksinimler
+
+Bu bölümde Gereksinimler konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
 
 - ☕ Java Development Kit (JDK) 21 veya üzeri
 - 📦 Spring Boot 3.2+
@@ -52,7 +56,7 @@ Asenkron işleme olanak tanıyan `spring-boot-starter-web` paketini projenize ek
 
 Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-web</artifactId>
@@ -61,7 +65,7 @@ Maven:
 
 Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-web'
 ```
 
@@ -71,14 +75,14 @@ implementation 'org.springframework.boot:spring-boot-starter-web'
 
 `application.yml` veya `application.properties` dosyanıza şu satırı ekleyin:
 
-```yaml
+```yaml filename="application.yml"
 spring:
   threads:
     virtual:
       enabled: true
 ```
 
-```properties
+```properties filename="application.properties"
 spring.threads.virtual.enabled=true
 ```
 
@@ -97,7 +101,7 @@ Ana uygulama sınıfınıza `@EnableAsync` ekleyin:
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AsyncVirtualApplication.java"
 package com.example.async;
 
 import org.springframework.boot.SpringApplication;
@@ -115,7 +119,7 @@ public class AsyncVirtualApplication {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AsyncVirtualApplication.kt"
 package com.example.async
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -142,7 +146,7 @@ fun main(args: Array<String>) {
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AsyncVirtualService.java"
 package com.example.async;
 
 import lombok.extern.slf4j.Slf4j;
@@ -173,7 +177,7 @@ public class AsyncVirtualService {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AsyncVirtualService.kt"
 package com.example.async
 
 import org.slf4j.LoggerFactory
@@ -213,7 +217,7 @@ Aşağıdaki endpoint’leri kullanarak servis metodlarını tetikleyin:
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="AsyncVirtualController.java"
 package com.example.async;
 
 import lombok.RequiredArgsConstructor;
@@ -244,7 +248,7 @@ public class AsyncVirtualController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="AsyncVirtualController.kt"
 package com.example.async
 
 import org.springframework.web.bind.annotation.GetMapping
@@ -308,4 +312,4 @@ curl http://localhost:8080/async/run-return
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot Sanal Thread’li Asenkron Görevler için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot Sanal Thread’li Asenkron Görevler için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.

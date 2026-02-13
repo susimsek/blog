@@ -32,12 +32,25 @@ REST (Representational State Transfer) is an architectural style for designing w
 
 ### HTTP Methods
 
+In this subsection, we frame HTTP Methods with concise context so the next example is easier to follow.
+
 | Method | Description                    | Example Endpoint |
 | ------ | ------------------------------ | ---------------- |
 | GET    | Retrieves a resource.          | `/api/todos`     |
 | POST   | Creates a new resource.        | `/api/todos`     |
 | PUT    | Updates or creates a resource. | `/api/todos/1`   |
 | DELETE | Deletes a resource.            | `/api/todos/1`   |
+
+---
+
+## 📋 Prerequisites
+
+Before you start, make sure the following are ready:
+
+- Java 17+
+- Maven or Gradle
+- An IDE (IntelliJ IDEA, Eclipse, VS Code)
+- Basic familiarity with HTTP methods and JSON payloads
 
 ---
 
@@ -61,7 +74,7 @@ Create a model class for a `Todo` object:
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="Todo.java"
 package com.example.demo.model;
 
 import lombok.Data;
@@ -76,7 +89,7 @@ public class Todo {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="Todo.kt"
 package com.example.demo.model
 
 data class Todo(
@@ -97,7 +110,7 @@ Add a `TodoController` class to define CRUD operations as REST endpoints:
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="TodoController.java"
 package com.example.demo.controller;
 
 import com.example.demo.model.Todo;
@@ -143,7 +156,7 @@ public class TodoController {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="TodoController.kt"
 package com.example.demo.controller
 
 import com.example.demo.model.Todo
@@ -218,4 +231,4 @@ curl -X DELETE http://localhost:8080/api/todos/1
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready Building a REST API with Spring Boot solution in Spring Boot, combining best practices, clear structure, and practical examples you can adapt to your own project.
+You now have a practical Building a REST API with Spring Boot implementation with a clear, production-friendly Spring Boot structure. As a next step, adapt configuration and tests to your own domain, then validate behavior under realistic traffic and failure scenarios.

@@ -55,7 +55,7 @@ Actuator'ı etkinleştirmek için, projenize aşağıdaki bağımlılıkları ek
 
 - Maven:
 
-```xml
+```xml filename="pom.xml"
 <dependency>
   <groupId>org.springframework.boot</groupId>
   <artifactId>spring-boot-starter-actuator</artifactId>
@@ -64,7 +64,7 @@ Actuator'ı etkinleştirmek için, projenize aşağıdaki bağımlılıkları ek
 
 - Gradle:
 
-```groovy
+```groovy filename="build.gradle"
 implementation 'org.springframework.boot:spring-boot-starter-actuator'
 ```
 
@@ -76,7 +76,9 @@ Varsayılan olarak, Actuator uygulama bilgilerinin sağlanması için çeşitli 
 
 ### Örnek Konfigürasyon:
 
-```properties
+Bu yapılandırmayı başlangıç noktası olarak alın, sonra ortamınıza göre değerleri uyarlayın.
+
+```properties filename="config.properties"
 management.endpoints.web.exposure.include=health,info,metrics
 management.endpoint.health.show-details=always
 ```
@@ -105,7 +107,7 @@ curl -X GET http://localhost:8080/actuator/health
 
 Actuator endpointlerini ihtiyaçlarınıza göre özelleştirin. Örneğin, `/actuator/info` endpointi için ek metadata tanımlayabilirsiniz:
 
-```properties
+```properties filename="config.properties"
 info.app.name=Benim Uygulamam
 info.app.version=1.0.0
 info.app.description=Spring Boot Actuator Örneği
@@ -120,7 +122,7 @@ Prodüksiyon ortamlarında, Actuator endpointlerinin güvenli hale getirilmesi �
 :::tabs
 @tab Java [icon=java]
 
-```java
+```java filename="SecurityConfig.java"
 package com.example.demo.config;
 
 import org.springframework.context.annotation.Configuration;
@@ -144,7 +146,7 @@ public class SecurityConfig {
 
 @tab Kotlin [icon=kotlin]
 
-```kotlin
+```kotlin filename="SecurityConfig.kt"
 package com.example.demo.config
 
 import org.springframework.context.annotation.Bean
@@ -182,7 +184,7 @@ Uygulamayı aşağıdaki komutla çalıştırın:
 
 Actuator endpointlerine erişim sağlamak için:
 
-```
+```filename="snippet.txt"
 http://localhost:8080/actuator/health
 ```
 
@@ -208,4 +210,4 @@ curl -X GET http://localhost:8080/actuator/info
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot ile Spring Boot Actuator için sağlam ve üretim‑hazır bir yaklaşım sunar; en iyi pratikleri, net bir yapı ve kendi projenize uyarlayabileceğiniz örneklerle birleştirir.
+Artık Spring Boot Actuator için üretim odaklı bir Spring Boot temeliniz var. Sonraki adımda ayarları kendi domainine uyarlayıp test ve gözlemlenebilirlik katmanını ekleyerek gerçek trafik altında doğrulayın.
