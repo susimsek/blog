@@ -78,6 +78,11 @@ interface Resources {
         };
         themeToggle: 'Toggle Theme';
         title: "Şuayb's Blog";
+        voice: {
+          disabled: 'Voice: Off';
+          enabled: 'Voice: On';
+          label: 'Voice';
+        };
       };
       language: 'Language';
       noResults: 'No results found';
