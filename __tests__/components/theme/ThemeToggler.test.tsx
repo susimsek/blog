@@ -19,21 +19,34 @@ jest.mock('react-i18next', () => ({
 }));
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
-  FontAwesomeIcon: ({ icon }: { icon: string }) => <span data-testid={`font-awesome-icon-${icon}`} />,
+  FontAwesomeIcon: ({ icon, className }: { icon: string; className?: string }) => (
+    <span data-testid={`font-awesome-icon-${icon}`} className={className} />
+  ),
 }));
 
 describe('ThemeToggler', () => {
   const mockDispatch = jest.fn();
+  const mockPlay = jest.fn().mockResolvedValue(undefined);
   const mockState = {
     theme: { theme: 'light', hasExplicitTheme: true },
+    voice: { isEnabled: true },
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (global as typeof globalThis & { Audio: jest.Mock }).Audio = jest.fn().mockImplementation(() => ({
+      currentTime: 0,
+      play: mockPlay,
+      pause: jest.fn(),
+      volume: 1,
+      playbackRate: 1,
+      preload: 'auto',
+    }));
     useAppDispatchMock.mockReturnValue(mockDispatch);
     useAppSelectorMock.mockImplementation((selector: (state: typeof mockState) => unknown) => selector(mockState));
     mockState.theme.theme = 'light';
     mockState.theme.hasExplicitTheme = true;
+    mockState.voice.isEnabled = true;
   });
 
   it('renders the dropdown with the correct icon and label', () => {
@@ -47,9 +60,6 @@ describe('ThemeToggler', () => {
   });
 
   it('renders light theme option as active when the current theme is light', async () => {
-    mockState.theme.theme = 'light';
-    mockState.theme.hasExplicitTheme = true;
-
     render(<ThemeToggler />);
 
     const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
@@ -66,7 +76,6 @@ describe('ThemeToggler', () => {
 
   it('renders dark theme option as active when the current theme is dark', async () => {
     mockState.theme.theme = 'dark';
-    mockState.theme.hasExplicitTheme = true;
 
     render(<ThemeToggler />);
 
@@ -83,9 +92,6 @@ describe('ThemeToggler', () => {
   });
 
   it('dispatches setTheme action when selecting a new theme', async () => {
-    mockState.theme.theme = 'light';
-    mockState.theme.hasExplicitTheme = true;
-
     render(<ThemeToggler />);
 
     const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
@@ -93,9 +99,7 @@ describe('ThemeToggler', () => {
       fireEvent.click(dropdownToggle);
     });
 
-    const darkOption = screen.getByRole('button', {
-      name: /common.header.theme.dark/i,
-    });
+    const darkOption = screen.getByRole('button', { name: /common.header.theme.dark/i });
     await act(async () => {
       fireEvent.click(darkOption);
     });
@@ -105,9 +109,6 @@ describe('ThemeToggler', () => {
   });
 
   it('does not dispatch setTheme if the selected theme matches the current theme', async () => {
-    mockState.theme.theme = 'light';
-    mockState.theme.hasExplicitTheme = true;
-
     render(<ThemeToggler />);
 
     const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
@@ -123,35 +124,23 @@ describe('ThemeToggler', () => {
     expect(mockDispatch).not.toHaveBeenCalled();
   });
 
-  it('renders the correct icons for light and dark options', async () => {
-    mockState.theme.theme = 'light';
-    mockState.theme.hasExplicitTheme = true;
-
+  it('renders the correct icons for theme options', async () => {
     render(<ThemeToggler />);
 
-    const dropdownToggle = screen.getByRole('button', {
-      name: /common.theme/i,
-    });
+    const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
     await act(async () => {
       fireEvent.click(dropdownToggle);
     });
 
-    const desktopIcon = screen.getByTestId('font-awesome-icon-desktop');
-    const sunIcon = screen.getByTestId('font-awesome-icon-sun');
-    const moonIcon = screen.getByTestId('font-awesome-icon-moon');
-    const waterIcon = screen.getByTestId('font-awesome-icon-water');
-    const leafIcon = screen.getByTestId('font-awesome-icon-leaf');
-
-    expect(desktopIcon).toBeInTheDocument();
-    expect(sunIcon).toBeInTheDocument();
-    expect(moonIcon).toBeInTheDocument();
-    expect(waterIcon).toBeInTheDocument();
-    expect(leafIcon).toBeInTheDocument();
+    expect(screen.getByTestId('font-awesome-icon-desktop')).toBeInTheDocument();
+    expect(screen.getByTestId('font-awesome-icon-sun')).toBeInTheDocument();
+    expect(screen.getByTestId('font-awesome-icon-moon')).toBeInTheDocument();
+    expect(screen.getByTestId('font-awesome-icon-water')).toBeInTheDocument();
+    expect(screen.getByTestId('font-awesome-icon-leaf')).toBeInTheDocument();
   });
 
   it('renders and selects the oceanic option', async () => {
     mockState.theme.theme = 'oceanic';
-    mockState.theme.hasExplicitTheme = true;
 
     render(<ThemeToggler />);
 
@@ -160,9 +149,7 @@ describe('ThemeToggler', () => {
       fireEvent.click(dropdownToggle);
     });
 
-    const oceanicOption = screen.getByRole('button', {
-      name: /common.header.theme.oceanic/i,
-    });
+    const oceanicOption = screen.getByRole('button', { name: /common.header.theme.oceanic/i });
 
     expect(oceanicOption).toBeInTheDocument();
     const checkIcon = within(oceanicOption).getByTestId('font-awesome-icon-circle-check');
@@ -172,7 +159,6 @@ describe('ThemeToggler', () => {
 
   it('renders and selects the forest option', async () => {
     mockState.theme.theme = 'forest';
-    mockState.theme.hasExplicitTheme = true;
 
     render(<ThemeToggler />);
 
@@ -181,9 +167,7 @@ describe('ThemeToggler', () => {
       fireEvent.click(dropdownToggle);
     });
 
-    const forestOption = screen.getByRole('button', {
-      name: /common.header.theme.forest/i,
-    });
+    const forestOption = screen.getByRole('button', { name: /common.header.theme.forest/i });
 
     expect(forestOption).toBeInTheDocument();
     const checkIcon = within(forestOption).getByTestId('font-awesome-icon-circle-check');
@@ -211,7 +195,6 @@ describe('ThemeToggler', () => {
 
   it('dispatches resetToSystemTheme when selecting system theme', async () => {
     mockState.theme.theme = 'dark';
-    mockState.theme.hasExplicitTheme = true;
 
     render(<ThemeToggler />);
 
@@ -226,5 +209,43 @@ describe('ThemeToggler', () => {
     });
 
     expect(mockDispatch).toHaveBeenCalledWith(resetToSystemTheme());
+  });
+
+  it('does not show voice controls inside theme menu', async () => {
+    render(<ThemeToggler />);
+
+    const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
+    await act(async () => {
+      fireEvent.click(dropdownToggle);
+    });
+
+    expect(screen.queryByRole('button', { name: /common.header.voice.enabled/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /common.header.voice.disabled/i })).not.toBeInTheDocument();
+  });
+
+  it('does not play theme-change sound when voice is disabled', async () => {
+    mockState.voice.isEnabled = false;
+
+    render(<ThemeToggler />);
+
+    const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
+    await act(async () => {
+      fireEvent.click(dropdownToggle);
+    });
+
+    const darkOption = screen.getByRole('button', { name: /common.header.theme.dark/i });
+    await act(async () => {
+      fireEvent.click(darkOption);
+    });
+
+    expect(global.Audio).not.toHaveBeenCalled();
+    expect(mockDispatch).toHaveBeenCalledWith(setTheme('dark'));
+  });
+
+  it('renders boop classes on theme icon wrapper', () => {
+    render(<ThemeToggler />);
+
+    expect(screen.getByTestId('font-awesome-icon-palette').parentElement).toHaveClass('nav-icon-boop');
+    expect(screen.getByTestId('font-awesome-icon-palette')).toHaveClass('icon-boop-target');
   });
 });

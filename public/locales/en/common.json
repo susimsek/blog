@@ -24,6 +24,11 @@
         "dark": "Dark Mode",
         "oceanic": "Oceanic Mode",
         "forest": "Forest Mode"
+      },
+      "voice": {
+        "label": "Voice",
+        "enabled": "Voice: On",
+        "disabled": "Voice: Off"
       }
     },
     "sidebar": {

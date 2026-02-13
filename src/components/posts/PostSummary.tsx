@@ -8,6 +8,8 @@ import Thumbnail from '@/components/common/Thumbnail';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { formatReadingTime } from '@/lib/readingTime';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { useAppSelector } from '@/config/store';
+import React from 'react';
 
 interface PostSummaryProps {
   post: Post;
@@ -47,6 +49,8 @@ const highlight = (text: string, query: string): React.ReactNode => {
 export default function PostSummary({ post, highlightQuery, showSource = false }: Readonly<PostSummaryProps>) {
   const { id, title, date, summary, thumbnail, topics, readingTimeMin, source, link } = post;
   const { t } = useTranslation(['post', 'common']);
+  const isVoiceEnabled = useAppSelector(state => state.voice.isEnabled);
+  const readMoreSoundRef = React.useRef<HTMLAudioElement | null>(null);
   const sourceLabel =
     source === 'medium'
       ? t('common.searchSource.medium', { ns: 'common' })
@@ -76,6 +80,51 @@ export default function PostSummary({ post, highlightQuery, showSource = false }
   const q = highlightQuery?.trim() ?? '';
   const titleNode = q ? highlight(title, q) : title;
   const summaryNode = q ? highlight(summary, q) : summary;
+
+  React.useEffect(
+    () => () => {
+      if (readMoreSoundRef.current) {
+        readMoreSoundRef.current.pause();
+        readMoreSoundRef.current = null;
+      }
+    },
+    [],
+  );
+
+  const handleReadMoreHoverStart = React.useCallback(() => {
+    if (!isVoiceEnabled || typeof globalThis.Audio === 'undefined') {
+      return;
+    }
+
+    try {
+      if (!readMoreSoundRef.current) {
+        readMoreSoundRef.current = new Audio('/sounds/rising-pops.mp3');
+        readMoreSoundRef.current.preload = 'auto';
+      }
+
+      const sound = readMoreSoundRef.current;
+      sound.volume = 0.25;
+      sound.playbackRate = 1;
+      sound.currentTime = 0;
+      const playPromise = sound.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {
+          // Ignore playback failures (autoplay restrictions / unsupported environments).
+        });
+      }
+    } catch {
+      // Ignore playback failures (autoplay restrictions / unsupported environments).
+    }
+  }, [isVoiceEnabled]);
+
+  const handleReadMoreHoverEnd = React.useCallback(() => {
+    if (!readMoreSoundRef.current) {
+      return;
+    }
+
+    readMoreSoundRef.current.pause();
+    readMoreSoundRef.current.currentTime = 0;
+  }, []);
 
   return (
     <div className="post-card d-flex align-items-center post-summary-card">
@@ -119,7 +168,12 @@ export default function PostSummary({ post, highlightQuery, showSource = false }
         )}
         <p className="post-summary-text">{summaryNode}</p>
         <div className="post-summary-cta">
-          <Link href={postLink} className="btn btn-primary">
+          <Link
+            href={postLink}
+            className="btn btn-primary"
+            onMouseEnter={handleReadMoreHoverStart}
+            onMouseLeave={handleReadMoreHoverEnd}
+          >
             {t('post.readMore')}
           </Link>
         </div>

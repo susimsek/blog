@@ -45,6 +45,8 @@ import {
   faTimesCircle,
   faTrash,
   faUser,
+  faVolumeHigh,
+  faVolumeXmark,
   faWater,
 } from '@fortawesome/free-solid-svg-icons';
 import { faSidebar } from '@/lib/icons';
@@ -102,5 +104,7 @@ export const loadIcons = () => {
     faWater,
     faLeaf,
     faDesktop,
+    faVolumeHigh,
+    faVolumeXmark,
   );
 };

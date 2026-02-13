@@ -8,10 +8,12 @@ import { SITE_LOGO } from '@/config/constants';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import useBoop from '@/hooks/useBoop';
 
 const SearchContainer = dynamic(() => import('@/components/search/SearchContainer'));
 const LanguageSwitcher = dynamic(() => import('@/components/i18n/LanguageSwitcher'));
 const ThemeToggler = dynamic(() => import('@/components/theme/ThemeToggler'));
+const VoiceToggler = dynamic(() => import('@/components/voice/VoiceToggler'));
 
 interface HeaderProps {
   searchEnabled?: boolean;
@@ -25,6 +27,8 @@ export default function Header({
   onSidebarToggle,
 }: Readonly<HeaderProps>) {
   const { t } = useTranslation('common');
+  const [searchIconStyle, triggerSearchIconBoop] = useBoop({ y: 3, rotation: 8, scale: 1.08, timing: 170 });
+  const [searchBackIconStyle, triggerSearchBackIconBoop] = useBoop({ y: 3, rotation: -8, scale: 1.08, timing: 170 });
 
   const [searchVisible, setSearchVisible] = React.useState(false);
   const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1366px)');
@@ -43,10 +47,8 @@ export default function Header({
     };
 
     const handleShortcut = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        if (isTablet && searchVisible) {
-          setSearchVisible(false);
-        }
+      if (event.key === 'Escape' && searchVisible) {
+        setSearchVisible(false);
         window.dispatchEvent(new CustomEvent('app:search-close', { detail: { clearQuery: true } }));
         return;
       }
@@ -58,7 +60,7 @@ export default function Header({
 
       event.preventDefault();
 
-      if (isTablet && !searchVisible) {
+      if (!searchVisible) {
         setSearchVisible(true);
         requestAnimationFrame(() => {
           requestAnimationFrame(focusSearchInput);
@@ -73,17 +75,18 @@ export default function Header({
     return () => {
       window.removeEventListener('keydown', handleShortcut);
     };
-  }, [searchEnabled, isTablet, searchVisible]);
+  }, [searchEnabled, searchVisible]);
 
   const renderSearchSection = () => (
     <div className="d-flex w-100 align-items-center">
       <button
         type="button"
-        className="nav-link bg-transparent border-0 p-0 d-flex align-items-center"
+        className="nav-link nav-icon-boop bg-transparent border-0 p-0 d-flex align-items-center"
         onClick={handleSearchToggle}
+        onMouseEnter={triggerSearchBackIconBoop}
         aria-label={t('common.header.actions.hideSearch')}
       >
-        <FontAwesomeIcon icon="chevron-left" className="me-3" />
+        <FontAwesomeIcon icon="chevron-left" className="me-3 icon-boop-target" style={searchBackIconStyle} />
       </button>
 
       <div className="flex-grow-1">
@@ -93,6 +96,9 @@ export default function Header({
       <Nav className="d-flex align-items-center gap-3 ms-3">
         <div className="d-flex align-items-center">
           <LanguageSwitcher />
+        </div>
+        <div className="d-flex align-items-center">
+          <VoiceToggler />
         </div>
         <div className="d-flex align-items-center me-md-64">
           <ThemeToggler />
@@ -124,52 +130,51 @@ export default function Header({
       </Navbar.Toggle>
       <Navbar.Collapse id="navbar-nav">
         <div className="d-lg-flex w-100 align-items-center flex-column flex-lg-row">
-          {/* Tablet Search Mode */}
-          {searchEnabled && isTablet && searchVisible && renderSearchSection()}
-
-          {/* Default Desktop or Non-Search Tablet View */}
-          {!isTablet && searchEnabled && <SearchContainer />}
-
-          {!(isTablet && searchVisible) && (
-            <Nav
-              className={`d-flex align-items-center ${isTablet ? 'gap-2' : 'gap-3'} ${searchEnabled ? '' : 'ms-auto'}`}
-            >
-              {/* Search toggle button on tablet */}
-              {searchEnabled && isTablet && !searchVisible && (
-                <button
-                  type="button"
-                  onClick={handleSearchToggle}
-                  className="nav-link d-flex align-items-center bg-transparent border-0"
-                  aria-label={t('common.header.actions.showSearch')}
-                >
-                  <FontAwesomeIcon icon="search" className="me-2" />
-                  {t('common.header.menu.search')}
-                </button>
-              )}
-
-              <Nav.Link as={Link} href="/" className="d-flex align-items-center">
-                <FontAwesomeIcon icon="home" className="me-2" />
-                {t('common.header.menu.home')}
-              </Nav.Link>
-              <Nav.Link as={Link} href="/medium" className="d-flex align-items-center">
-                <FontAwesomeIcon icon={['fab', 'medium']} className="me-2 medium-brand-logo" />
-                Medium
-              </Nav.Link>
-              <Nav.Link as={Link} href="/about" className="d-flex align-items-center">
-                <FontAwesomeIcon icon="info-circle" className="me-2" />
-                {t('common.header.menu.about')}
-              </Nav.Link>
-              <Nav.Link as={Link} href="/contact" className="d-flex align-items-center">
-                <FontAwesomeIcon icon="address-book" className="me-2" />
-                {t('common.header.menu.contact')}
-              </Nav.Link>
-              <div className="d-flex align-items-center">
-                <LanguageSwitcher />
-              </div>
-              <div className="d-flex align-items-center me-md-64">
-                <ThemeToggler />
-              </div>
-            </Nav>
+          {searchEnabled && searchVisible ? (
+            renderSearchSection()
+          ) : (
+            <div className="d-flex w-100 align-items-center flex-column flex-lg-row gap-2">
+              <Nav className={`d-flex align-items-center ${isTablet ? 'gap-2' : 'gap-3'} me-lg-auto`}>
+                <Nav.Link as={Link} href="/" className="d-flex align-items-center">
+                  <FontAwesomeIcon icon="home" className="me-2" />
+                  {t('common.header.menu.home')}
+                </Nav.Link>
+                <Nav.Link as={Link} href="/medium" className="d-flex align-items-center">
+                  <FontAwesomeIcon icon={['fab', 'medium']} className="me-2 medium-brand-logo" />
+                  Medium
+                </Nav.Link>
+                <Nav.Link as={Link} href="/about" className="d-flex align-items-center">
+                  <FontAwesomeIcon icon="info-circle" className="me-2" />
+                  {t('common.header.menu.about')}
+                </Nav.Link>
+                <Nav.Link as={Link} href="/contact" className="d-flex align-items-center">
+                  <FontAwesomeIcon icon="address-book" className="me-2" />
+                  {t('common.header.menu.contact')}
+                </Nav.Link>
+              </Nav>
+              <Nav className="d-flex align-items-center gap-2">
+                {searchEnabled && (
+                  <button
+                    type="button"
+                    onClick={handleSearchToggle}
+                    onMouseEnter={triggerSearchIconBoop}
+                    className="nav-link nav-icon-boop d-flex align-items-center bg-transparent border-0"
+                    aria-label={t('common.header.actions.showSearch')}
+                  >
+                    <FontAwesomeIcon icon="search" className="icon-boop-target" style={searchIconStyle} />
+                  </button>
+                )}
+                <div className="d-flex align-items-center">
+                  <LanguageSwitcher />
+                </div>
+                <div className="d-flex align-items-center">
+                  <VoiceToggler />
+                </div>
+                <div className="d-flex align-items-center">
+                  <ThemeToggler />
+                </div>
+              </Nav>
+            </div>
           )}
         </div>
       </Navbar.Collapse>

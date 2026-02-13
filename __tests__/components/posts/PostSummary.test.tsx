@@ -1,7 +1,10 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import PostSummary from '@/components/posts/PostSummary';
 import { mockPost } from '@tests/__mocks__/mockPostData';
+import { useAppSelector } from '@/config/store';
+
+const useAppSelectorMock = useAppSelector as unknown as jest.Mock;
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
@@ -17,11 +20,15 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 
 jest.mock('@/components/common/Link', () => ({
   __esModule: true,
-  default: ({ href, children }: { href: string; children: React.ReactNode }) => (
-    <a href={href} data-testid="link">
+  default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => (
+    <a href={href} data-testid="link" {...props}>
       {children}
     </a>
   ),
+}));
+
+jest.mock('@/config/store', () => ({
+  useAppSelector: jest.fn(),
 }));
 
 jest.mock('@/components/common/Thumbnail', () => ({
@@ -35,6 +42,24 @@ jest.mock('@/components/common/DateDisplay', () => ({
 }));
 
 describe('PostSummary Component', () => {
+  const mockPause = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (global as typeof globalThis & { Audio: jest.Mock }).Audio = jest.fn().mockImplementation(() => ({
+      play: jest.fn().mockResolvedValue(undefined),
+      pause: mockPause,
+      currentTime: 0,
+      volume: 1,
+      playbackRate: 1,
+      preload: 'auto',
+    }));
+
+    useAppSelectorMock.mockImplementation((selector: (state: { voice: { isEnabled: boolean } }) => unknown) =>
+      selector({ voice: { isEnabled: true } }),
+    );
+  });
+
   it('renders the post title with a link', () => {
     render(<PostSummary post={mockPost} />);
     const titleLink = screen.getByText(mockPost.title);
@@ -121,5 +146,34 @@ describe('PostSummary Component', () => {
     expect(screen.getByText('common.searchSource.medium')).toBeInTheDocument();
     expect(screen.getByTestId('icon-fab-medium')).toBeInTheDocument();
     expect(screen.queryByTestId('icon-link')).not.toBeInTheDocument();
+  });
+
+  it('plays read-more hover sound when voice is enabled', () => {
+    render(<PostSummary post={mockPost} />);
+
+    fireEvent.mouseEnter(screen.getByRole('link', { name: 'post.readMore' }));
+
+    expect(global.Audio).toHaveBeenCalledWith('/sounds/rising-pops.mp3');
+  });
+
+  it('stops read-more hover sound when mouse leaves', () => {
+    render(<PostSummary post={mockPost} />);
+
+    const readMoreLink = screen.getByRole('link', { name: 'post.readMore' });
+    fireEvent.mouseEnter(readMoreLink);
+    fireEvent.mouseLeave(readMoreLink);
+
+    expect(mockPause).toHaveBeenCalled();
+  });
+
+  it('does not play read-more hover sound when voice is disabled', () => {
+    useAppSelectorMock.mockImplementation((selector: (state: { voice: { isEnabled: boolean } }) => unknown) =>
+      selector({ voice: { isEnabled: false } }),
+    );
+
+    render(<PostSummary post={mockPost} />);
+    fireEvent.mouseEnter(screen.getByRole('link', { name: 'post.readMore' }));
+
+    expect(global.Audio).not.toHaveBeenCalled();
   });
 });

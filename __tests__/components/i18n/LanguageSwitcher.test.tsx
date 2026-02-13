@@ -15,7 +15,9 @@ jest.mock('react-i18next', () => ({
 }));
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
-  FontAwesomeIcon: ({ icon }: { icon: string }) => <i data-testid={`font-awesome-icon-${icon}`} />,
+  FontAwesomeIcon: ({ icon, className }: { icon: string; className?: string }) => (
+    <i data-testid={`font-awesome-icon-${icon}`} className={className} />
+  ),
 }));
 
 jest.mock('@/components/common/FlagIcon', () => {
@@ -65,5 +67,12 @@ describe('LanguageSwitcher', () => {
     render(<LanguageSwitchLink locale="tr" />);
     const button = screen.getByRole('button');
     expect(button).toHaveTextContent('Türkçe');
+  });
+
+  it('renders boop classes on language icon wrapper', () => {
+    render(<LanguageSwitcher />);
+
+    expect(screen.getByTestId('font-awesome-icon-globe').parentElement).toHaveClass('nav-icon-boop');
+    expect(screen.getByTestId('font-awesome-icon-globe')).toHaveClass('icon-boop-target');
   });
 });

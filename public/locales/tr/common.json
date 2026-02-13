@@ -24,6 +24,11 @@
         "dark": "Koyu Mod",
         "oceanic": "Okyanus Mod",
         "forest": "Orman Mod"
+      },
+      "voice": {
+        "label": "Voice",
+        "enabled": "Ses: Açık",
+        "disabled": "Ses: Kapalı"
       }
     },
     "sidebar": {

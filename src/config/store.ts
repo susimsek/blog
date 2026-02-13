@@ -2,10 +2,12 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import themeReducer from '@/reducers/theme';
 import postsQueryReducer from '@/reducers/postsQuery';
+import voiceReducer from '@/reducers/voice';
 import { useDispatch, useSelector } from 'react-redux';
 
 const rootReducer = combineReducers({
   theme: themeReducer,
+  voice: voiceReducer,
   postsQuery: postsQueryReducer,
 });
 

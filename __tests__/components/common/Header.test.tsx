@@ -34,9 +34,17 @@ jest.mock('@/components/theme/ThemeToggler', () => ({
   default: () => <div data-testid="theme-toggler">ThemeToggler</div>,
 }));
 
+// Mock `VoiceToggler` component
+jest.mock('@/components/voice/VoiceToggler', () => ({
+  __esModule: true,
+  default: () => <div data-testid="voice-toggler">VoiceToggler</div>,
+}));
+
 // Mock `FontAwesomeIcon` component
 jest.mock('@fortawesome/react-fontawesome', () => ({
-  FontAwesomeIcon: ({ icon }: { icon: string }) => <i data-testid={`font-awesome-icon-${icon}`} />,
+  FontAwesomeIcon: ({ icon, className }: { icon: string; className?: string }) => (
+    <i data-testid={`font-awesome-icon-${icon}`} className={className} />
+  ),
 }));
 
 jest.mock('@/components/search/SearchContainer', () => ({
@@ -74,7 +82,11 @@ describe('Header', () => {
     registerDynamicMock('ThemeToggler', themeToggler);
     registerDynamicMock('@/components/theme/ThemeToggler', themeToggler);
 
-    registerDynamicMockSequence([searchContainer, languageSwitcher, themeToggler]);
+    const voiceToggler = jest.requireMock('@/components/voice/VoiceToggler');
+    registerDynamicMock('VoiceToggler', voiceToggler);
+    registerDynamicMock('@/components/voice/VoiceToggler', voiceToggler);
+
+    registerDynamicMockSequence([searchContainer, languageSwitcher, themeToggler, voiceToggler]);
     Header = require('@/components/common/Header').default;
   });
 
@@ -117,6 +129,12 @@ describe('Header', () => {
     render(<Header />);
     const themeToggler = screen.getByTestId('theme-toggler');
     expect(themeToggler).toBeInTheDocument();
+  });
+
+  it('renders the VoiceToggler component', () => {
+    render(<Header />);
+    const voiceToggler = screen.getByTestId('voice-toggler');
+    expect(voiceToggler).toBeInTheDocument();
   });
 
   it('renders the navbar toggle button with the correct icon', () => {
@@ -180,5 +198,13 @@ describe('Header', () => {
     );
 
     dispatchSpy.mockRestore();
+  });
+
+  it('renders search icon with boop classes', () => {
+    render(<Header searchEnabled />);
+
+    const searchButton = screen.getByRole('button', { name: 'common.header.actions.showSearch' });
+    expect(searchButton).toHaveClass('nav-icon-boop');
+    expect(screen.getByTestId('font-awesome-icon-search')).toHaveClass('icon-boop-target');
   });
 });

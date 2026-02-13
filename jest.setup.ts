@@ -72,6 +72,7 @@ jest.mock('next/dynamic', () => {
   const knownModules: Record<string, string> = {
     LanguageSwitcher: '@/components/i18n/LanguageSwitcher',
     ThemeToggler: '@/components/theme/ThemeToggler',
+    VoiceToggler: '@/components/voice/VoiceToggler',
     SearchContainer: '@/components/search/SearchContainer',
     Sidebar: '@/components/common/Sidebar',
     DateRangePicker: '@/components/common/DateRangePicker',

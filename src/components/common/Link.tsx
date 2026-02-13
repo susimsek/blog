@@ -10,6 +10,7 @@ interface LinkComponentProps extends Omit<LinkProps, 'href'> {
   skipLocaleHandling?: boolean;
   locale?: string;
   onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
+  onMouseLeave?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }
 
 const isExternalUrl = (href: string) => {
