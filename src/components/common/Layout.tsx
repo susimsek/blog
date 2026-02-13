@@ -180,11 +180,13 @@ const LayoutView: React.FC<LayoutProps> = ({
   sidebarEnabled = false,
 }) => {
   const fetchedTopics = useAppSelector(state => state.postsQuery.topics);
-  const isMobile = useMediaQuery('(max-width: 768px)');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const isMobile = useMediaQuery('(max-width: 991px)');
+  const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const footerRef = useRef<HTMLDivElement>(null);
 
-  const isSidebarVisible = sidebarEnabled && !isMobile && isSidebarOpen;
+  const isDesktopSidebarVisible = sidebarEnabled && !isMobile && isDesktopSidebarOpen;
+  const isMobileSidebarVisible = sidebarEnabled && isMobile && isMobileSidebarOpen;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -211,7 +213,13 @@ const LayoutView: React.FC<LayoutProps> = ({
     };
   }, []);
 
-  const toggleSidebar = () => setIsSidebarOpen(prev => !prev);
+  const toggleSidebar = () => {
+    if (isMobile) {
+      setIsMobileSidebarOpen(previous => !previous);
+      return;
+    }
+    setIsDesktopSidebarOpen(previous => !previous);
+  };
 
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -220,21 +228,29 @@ const LayoutView: React.FC<LayoutProps> = ({
       <main className="flex-grow-1">
         <Row className="g-0">
           {/* Sidebar */}
-          {isSidebarVisible && (
+          {isDesktopSidebarVisible && (
             <Col xs={12} md={4} lg={3}>
               <Sidebar
                 topics={fetchedTopics}
                 isMobile={isMobile}
-                isVisible={isSidebarVisible}
-                onClose={() => setIsSidebarOpen(false)}
+                isVisible={isDesktopSidebarVisible}
+                onClose={() => setIsDesktopSidebarOpen(false)}
               />
             </Col>
           )}
           {/* Main Content */}
-          <Col xs={12} md={isSidebarVisible ? 8 : 12} lg={isSidebarVisible ? 9 : 12}>
+          <Col xs={12} md={isDesktopSidebarVisible ? 8 : 12} lg={isDesktopSidebarVisible ? 9 : 12}>
             <Container className="content-shell content-shell-inner">{children}</Container>
           </Col>
         </Row>
+        {sidebarEnabled && isMobile && (
+          <Sidebar
+            topics={fetchedTopics}
+            isMobile={isMobile}
+            isVisible={isMobileSidebarVisible}
+            onClose={() => setIsMobileSidebarOpen(false)}
+          />
+        )}
       </main>
       <PreFooter posts={posts} topics={topics} topTopics={preFooterTopTopics} />
       <div ref={footerRef}>

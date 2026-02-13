@@ -204,11 +204,12 @@ export default function SearchContainer() {
   }, [searchQuery]);
 
   return (
-    <div ref={searchRef} className="search-container ms-auto mt-3 mt-lg-0">
+    <div ref={searchRef} className={`search-container${shouldRenderResults ? ' is-expanded' : ''}`}>
       <SearchBar
         query={searchQuery}
         onChange={handleSearch}
         onKeyDown={handleSearchKeyDown}
+        className="search-bar--header"
         inputRef={searchInputRef}
         showShortcutHint
         expanded={shouldRenderResults}
@@ -216,7 +217,11 @@ export default function SearchContainer() {
         activeDescendantId={activeDescendantId}
       />
       {shouldRenderResults && (
-        <ListGroup id={SEARCH_RESULTS_LIST_ID} className="ms-auto w-100 search-results" role="listbox">
+        <ListGroup
+          id={SEARCH_RESULTS_LIST_ID}
+          className="ms-auto w-100 search-results header-search-results"
+          role="listbox"
+        >
           {searchResults.length > 0 ? (
             <>
               {searchResults.map((result, index) => (
@@ -226,7 +231,7 @@ export default function SearchContainer() {
                   key={`${result.source ?? 'blog'}:${result.id}`}
                   href={result.link ?? `/posts/${result.id}`}
                   id={`${SEARCH_RESULTS_LIST_ID}-option-${index}`}
-                  className={`p-3${effectiveActiveIndex === index ? ' active' : ''}`}
+                  className={`p-3 search-result-item${effectiveActiveIndex === index ? ' active' : ''}`}
                   role="option"
                   aria-selected={effectiveActiveIndex === index}
                   onMouseEnter={() => setActiveIndex(index)}
@@ -239,7 +244,9 @@ export default function SearchContainer() {
                 as={Link}
                 action
                 id={`${SEARCH_RESULTS_LIST_ID}-option-${searchResults.length}`}
-                className={`py-3 d-flex align-items-center${effectiveActiveIndex === searchResults.length ? ' active' : ''}`}
+                className={`py-3 d-flex align-items-center search-view-all${
+                  effectiveActiveIndex === searchResults.length ? ' active' : ''
+                }`}
                 role="option"
                 aria-selected={effectiveActiveIndex === searchResults.length}
                 href={`/search?q=${encodeURIComponent(normalizedQuery)}`}
@@ -251,7 +258,7 @@ export default function SearchContainer() {
               </ListGroup.Item>
             </>
           ) : (
-            <ListGroup.Item className="text-center text-muted py-3">
+            <ListGroup.Item className="text-center text-muted py-3 search-no-results">
               <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
               {t('common.noResults')}
             </ListGroup.Item>

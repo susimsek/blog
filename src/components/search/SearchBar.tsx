@@ -76,7 +76,7 @@ export default function SearchBar({
       {query && (
         <button
           type="button"
-          className="border-0 bg-transparent"
+          className="search-clear-btn border-0 bg-transparent"
           onClick={handleClear}
           aria-label={t('common.searchBar.clear')}
         >
