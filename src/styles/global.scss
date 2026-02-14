@@ -2442,15 +2442,11 @@ $state-variants: (
   }
 }
 
-// Tab Container
 .nav-tabs {
   border-bottom: 1px solid var(--tab-theme-border);
+  align-items: flex-end;
   box-shadow: none;
   @include transition(border-color, box-shadow);
-
-  .nav-item {
-    pointer-events: none;
-  }
 
   .nav-link {
     pointer-events: auto;
@@ -2494,7 +2490,6 @@ $state-variants: (
   }
 }
 
-// Tab Content
 .tab-content {
   border: 1px solid var(--border-color);
   background-color: var(--main-bg);
@@ -2910,7 +2905,7 @@ label {
       @include transition(color);
 
       &:hover {
-        color: var(--link-hover-color) !important; // Adjusted hover color
+        color: var(--link-hover-color) !important;
       }
     }
   }
