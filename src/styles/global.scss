@@ -11,6 +11,35 @@ html {
   scroll-behavior: smooth;
 }
 
+#language-selector.dropdown-toggle::after,
+#language-selector.dropdown-toggle::before,
+#language-selector.nav-link.dropdown-toggle::after,
+#language-selector.nav-link.dropdown-toggle::before,
+#theme-toggler-dropdown.dropdown-toggle::after,
+#theme-toggler-dropdown.dropdown-toggle::before,
+#theme-toggler-dropdown.nav-link.dropdown-toggle::after,
+#theme-toggler-dropdown.nav-link.dropdown-toggle::before,
+#language-selector .dropdown-toggle::after,
+#language-selector .nav-link.dropdown-toggle::after,
+#language-selector a.dropdown-toggle::after,
+#language-selector button.dropdown-toggle::after,
+#language-selector .dropdown-toggle::before,
+#language-selector .nav-link.dropdown-toggle::before,
+#language-selector a.dropdown-toggle::before,
+#language-selector button.dropdown-toggle::before,
+#theme-toggler-dropdown .dropdown-toggle::after,
+#theme-toggler-dropdown .nav-link.dropdown-toggle::after,
+#theme-toggler-dropdown a.dropdown-toggle::after,
+#theme-toggler-dropdown button.dropdown-toggle::after,
+#theme-toggler-dropdown .dropdown-toggle::before,
+#theme-toggler-dropdown .nav-link.dropdown-toggle::before,
+#theme-toggler-dropdown a.dropdown-toggle::before,
+#theme-toggler-dropdown button.dropdown-toggle::before {
+  display: none !important;
+  content: none !important;
+  border: none !important;
+}
+
 /* Semantic spacing utilities (token-first) */
 .stack {
   --stack-space: var(--space-16);
