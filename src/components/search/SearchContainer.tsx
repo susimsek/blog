@@ -9,9 +9,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAppSelector } from '@/config/store';
 import { useRouter } from 'next/navigation';
 
+type ShortcutHint = {
+  modifier: string;
+  key: string;
+};
+
+interface SearchContainerProps {
+  shortcutHint?: ShortcutHint;
+}
+
 const SEARCH_RESULTS_LIST_ID = 'header-search-results';
 
-export default function SearchContainer() {
+export default function SearchContainer({ shortcutHint }: Readonly<SearchContainerProps>) {
   const { t } = useTranslation('common');
   const router = useRouter();
   const posts = useAppSelector(state => state.postsQuery.posts);
@@ -212,6 +221,7 @@ export default function SearchContainer() {
         className="search-bar--header"
         inputRef={searchInputRef}
         showShortcutHint
+        shortcutHint={shortcutHint}
         expanded={shouldRenderResults}
         controlsId={SEARCH_RESULTS_LIST_ID}
         activeDescendantId={activeDescendantId}

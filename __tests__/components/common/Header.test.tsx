@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useTranslation } from 'react-i18next';
 import useMediaQuery from '@/hooks/useMediaQuery';
 
@@ -48,7 +48,11 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 
 jest.mock('@/components/search/SearchContainer', () => ({
   __esModule: true,
-  default: () => <div data-testid="search-container">SearchContainer</div>,
+  default: ({ shortcutHint }: any) => (
+    <div data-testid="search-container">
+      SearchContainer{shortcutHint ? ` ${shortcutHint.modifier}${shortcutHint.key}` : ''}
+    </div>
+  ),
 }));
 
 beforeAll(() => {
@@ -163,7 +167,7 @@ describe('Header', () => {
     rafSpy.mockRestore();
   });
 
-  it('closes tablet search with Escape and dispatches close event', () => {
+  it('closes tablet search with Escape and dispatches close event', async () => {
     (useMediaQuery as jest.Mock).mockReturnValue(true);
     const dispatchSpy = jest.spyOn(window, 'dispatchEvent');
 
@@ -171,6 +175,10 @@ describe('Header', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'common.header.actions.showSearch' }));
     expect(screen.getByLabelText('common.header.actions.hideSearch')).toBeInTheDocument();
+
+    await act(async () => {
+      await Promise.resolve();
+    });
 
     fireEvent.keyDown(window, { key: 'Escape' });
 

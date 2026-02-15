@@ -37,9 +37,19 @@ describe('SearchBar Component', () => {
   });
 
   it('shows shortcut hint only when enabled', () => {
-    render(<SearchBar query="" onChange={mockOnChange} showShortcutHint />);
+    render(
+      <SearchBar query="" onChange={mockOnChange} showShortcutHint shortcutHint={{ modifier: 'Ctrl', key: 'K' }} />,
+    );
 
     expect(screen.getByTestId('search-shortcut-hint')).toBeInTheDocument();
+    expect(screen.getByText('Ctrl')).toBeInTheDocument();
+    expect(screen.getByText('K')).toBeInTheDocument();
+  });
+
+  it('does not show shortcut hint when shortcutHint is not provided', () => {
+    render(<SearchBar query="" onChange={mockOnChange} showShortcutHint />);
+
+    expect(screen.queryByTestId('search-shortcut-hint')).not.toBeInTheDocument();
   });
 
   it('displays the provided query value', () => {

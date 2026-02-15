@@ -26,18 +26,32 @@ jest.mock('@/components/search/SearchBar', () => ({
     query,
     onChange,
     onKeyDown,
+    showShortcutHint,
+    shortcutHint,
+    inputRef,
   }: {
     query: string;
     onChange: (value: string) => void;
     onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+    showShortcutHint?: boolean;
+    shortcutHint?: { modifier: string; key: string };
+    inputRef?: React.Ref<HTMLInputElement>;
   }) => (
-    <input
-      data-testid="search-input"
-      value={query}
-      placeholder="common.searchBar.placeholder"
-      onChange={event => onChange(event.target.value)}
-      onKeyDown={event => onKeyDown?.(event)}
-    />
+    <div>
+      <input
+        ref={inputRef as React.RefObject<HTMLInputElement>}
+        data-testid="search-input"
+        value={query}
+        placeholder="common.searchBar.placeholder"
+        onChange={event => onChange(event.target.value)}
+        onKeyDown={event => onKeyDown?.(event)}
+      />
+      {showShortcutHint && !query && shortcutHint && (
+        <span data-testid="search-shortcut-hint">
+          {shortcutHint.modifier}+{shortcutHint.key}
+        </span>
+      )}
+    </div>
   ),
 }));
 
@@ -246,5 +260,11 @@ describe('SearchContainer', () => {
 
     expect(screen.getByTestId('search-input')).toHaveValue('');
     expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
+  });
+
+  it('renders shortcut hint when provided', () => {
+    renderWithProviders(<SearchContainer shortcutHint={{ modifier: 'Ctrl', key: 'K' }} />);
+
+    expect(screen.getByTestId('search-shortcut-hint')).toHaveTextContent('Ctrl+K');
   });
 });

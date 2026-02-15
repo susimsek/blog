@@ -9,6 +9,10 @@ interface SearchBarProps {
   className?: string;
   inputRef?: React.Ref<HTMLInputElement>;
   showShortcutHint?: boolean;
+  shortcutHint?: {
+    modifier: string;
+    key: string;
+  };
   expanded?: boolean;
   controlsId?: string;
   activeDescendantId?: string;
@@ -21,21 +25,12 @@ export default function SearchBar({
   className,
   inputRef,
   showShortcutHint = false,
+  shortcutHint,
   expanded = false,
   controlsId,
   activeDescendantId,
 }: Readonly<SearchBarProps>) {
   const { t } = useTranslation('common');
-  const shortcutHint = React.useMemo(() => {
-    if (typeof navigator === 'undefined') {
-      return { modifier: 'Ctrl', key: 'K' };
-    }
-
-    const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
-    const platform = (nav.userAgentData?.platform ?? nav.platform ?? '').toLowerCase();
-    const isApplePlatform = /(mac|iphone|ipad|ipod)/.test(platform);
-    return { modifier: isApplePlatform ? '⌘' : 'Ctrl', key: 'K' };
-  }, []);
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +62,7 @@ export default function SearchBar({
         aria-controls={controlsId}
         aria-activedescendant={activeDescendantId}
       />
-      {showShortcutHint && !query && (
+      {showShortcutHint && !query && shortcutHint && (
         <span className="search-shortcut-hint" data-testid="search-shortcut-hint" aria-hidden="true">
           <kbd>{shortcutHint.modifier}</kbd>
           <kbd>{shortcutHint.key}</kbd>

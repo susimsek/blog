@@ -35,21 +35,54 @@ export default function Header({
   const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1366px)');
   const isMobile = useMediaQuery('(max-width: 991px)');
 
+  const shortcutHint = React.useMemo(() => {
+    if (typeof navigator === 'undefined') {
+      return { modifier: 'Ctrl', key: 'K' };
+    }
+
+    const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+    const platform = (nav.userAgentData?.platform ?? nav.platform ?? '').toLowerCase();
+    const isMac = /(mac|iphone|ipad|ipod)/.test(platform);
+
+    return { modifier: isMac ? '⌘' : 'Ctrl', key: 'K' };
+  }, []);
+
   const focusSearchInput = React.useCallback(() => {
     window.dispatchEvent(new Event('app:search-focus'));
   }, []);
 
-  const handleSearchToggle = () => {
+  const searchVisibleRef = React.useRef(false);
+
+  React.useEffect(() => {
+    searchVisibleRef.current = searchVisible;
+  }, [searchVisible]);
+
+  const openSearch = React.useCallback(() => {
+    setSearchVisible(true);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(focusSearchInput);
+    });
+  }, [focusSearchInput]);
+
+  const closeSearch = React.useCallback((options?: { clearQuery?: boolean }) => {
+    const clearQuery = options?.clearQuery ?? false;
+    setSearchVisible(false);
+    window.dispatchEvent(new CustomEvent('app:search-close', { detail: { clearQuery } }));
+  }, []);
+
+  const handleSearchToggle = React.useCallback(() => {
     setSearchVisible(previous => {
       const next = !previous;
       if (next) {
         requestAnimationFrame(() => {
           requestAnimationFrame(focusSearchInput);
         });
+      } else {
+        window.dispatchEvent(new CustomEvent('app:search-close', { detail: { clearQuery: false } }));
       }
       return next;
     });
-  };
+  }, [focusSearchInput]);
 
   React.useEffect(() => {
     if (!searchVisible) {
@@ -70,9 +103,11 @@ export default function Header({
     }
 
     const handleShortcut = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && searchVisible) {
-        setSearchVisible(false);
-        window.dispatchEvent(new CustomEvent('app:search-close', { detail: { clearQuery: true } }));
+      const isSearchOpen = searchVisibleRef.current;
+
+      if (event.key === 'Escape' && isSearchOpen) {
+        event.preventDefault();
+        closeSearch({ clearQuery: true });
         return;
       }
 
@@ -81,24 +116,35 @@ export default function Header({
         return;
       }
 
+      const target = event.target as HTMLElement | null;
+      const isEditableTarget =
+        !!target &&
+        (target.isContentEditable ||
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          (target as unknown as { role?: string }).role === 'textbox');
+
+      if (isEditableTarget && !isSearchOpen) {
+        return;
+      }
+
       event.preventDefault();
 
-      if (!searchVisible) {
-        setSearchVisible(true);
-        requestAnimationFrame(() => {
-          requestAnimationFrame(focusSearchInput);
-        });
+      if (!isSearchOpen) {
+        openSearch();
         return;
       }
 
       focusSearchInput();
     };
 
-    window.addEventListener('keydown', handleShortcut);
+    const listenerOptions: AddEventListenerOptions = { capture: true };
+
+    window.addEventListener('keydown', handleShortcut, listenerOptions);
     return () => {
-      window.removeEventListener('keydown', handleShortcut);
+      window.removeEventListener('keydown', handleShortcut, listenerOptions);
     };
-  }, [focusSearchInput, searchEnabled, searchVisible]);
+  }, [closeSearch, focusSearchInput, openSearch, searchEnabled]);
 
   const renderSearchOverlay = () => (
     <div className="search-overlay" role="dialog" aria-modal="true" aria-label={t('common.searchBar.placeholder')}>
@@ -121,7 +167,7 @@ export default function Header({
 
       <div className="search-overlay-panel">
         <div className="search-overlay-content">
-          <SearchContainer />
+          <SearchContainer shortcutHint={shortcutHint} />
         </div>
       </div>
     </div>
