@@ -1,7 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useTranslation } from 'react-i18next';
 import useMediaQuery from '@/hooks/useMediaQuery';
-import { registerDynamicMock, registerDynamicMockSequence } from '@tests/utils/dynamicMockRegistry';
 
 type HeaderComponent = typeof import('@/components/common/Header').default;
 let Header: HeaderComponent;
@@ -70,23 +69,6 @@ beforeAll(() => {
 
 describe('Header', () => {
   beforeAll(() => {
-    const searchContainer = jest.requireMock('@/components/search/SearchContainer');
-    registerDynamicMock('SearchContainer', searchContainer);
-    registerDynamicMock('@/components/search/SearchContainer', searchContainer);
-
-    const languageSwitcher = jest.requireMock('@/components/i18n/LanguageSwitcher');
-    registerDynamicMock('LanguageSwitcher', languageSwitcher);
-    registerDynamicMock('@/components/i18n/LanguageSwitcher', languageSwitcher);
-
-    const themeToggler = jest.requireMock('@/components/theme/ThemeToggler');
-    registerDynamicMock('ThemeToggler', themeToggler);
-    registerDynamicMock('@/components/theme/ThemeToggler', themeToggler);
-
-    const voiceToggler = jest.requireMock('@/components/voice/VoiceToggler');
-    registerDynamicMock('VoiceToggler', voiceToggler);
-    registerDynamicMock('@/components/voice/VoiceToggler', voiceToggler);
-
-    registerDynamicMockSequence([searchContainer, languageSwitcher, themeToggler, voiceToggler]);
     Header = require('@/components/common/Header').default;
   });
 

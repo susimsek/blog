@@ -7,13 +7,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SITE_LOGO } from '@/config/constants';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import useBoop from '@/hooks/useBoop';
-
-const SearchContainer = dynamic(() => import('@/components/search/SearchContainer'));
-const LanguageSwitcher = dynamic(() => import('@/components/i18n/LanguageSwitcher'));
-const ThemeToggler = dynamic(() => import('@/components/theme/ThemeToggler'));
-const VoiceToggler = dynamic(() => import('@/components/voice/VoiceToggler'));
+import SearchContainer from '@/components/search/SearchContainer';
+import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
+import ThemeToggler from '@/components/theme/ThemeToggler';
+import VoiceToggler from '@/components/voice/VoiceToggler';
 
 interface HeaderProps {
   searchEnabled?: boolean;
@@ -111,19 +109,17 @@ export default function Header({
         aria-label={t('common.searchBar.placeholder')}
       />
 
-      <div className="search-overlay-panel">
-        <div className="search-overlay-top">
-          <button
-            type="button"
-            className="search-overlay-close nav-link nav-icon-boop bg-transparent border-0"
-            onClick={handleSearchToggle}
-            onMouseEnter={triggerSearchCloseIconBoop}
-            aria-label={t('common.header.actions.hideSearch')}
-          >
-            <FontAwesomeIcon icon="times" className="icon-boop-target" style={searchCloseIconStyle} />
-          </button>
-        </div>
+      <button
+        type="button"
+        className="search-overlay-close nav-link nav-icon-boop bg-transparent border-0"
+        onClick={handleSearchToggle}
+        onMouseEnter={triggerSearchCloseIconBoop}
+        aria-label={t('common.header.actions.hideSearch')}
+      >
+        <FontAwesomeIcon icon="times" className="icon-boop-target" style={searchCloseIconStyle} />
+      </button>
 
+      <div className="search-overlay-panel">
         <div className="search-overlay-content">
           <SearchContainer />
         </div>
