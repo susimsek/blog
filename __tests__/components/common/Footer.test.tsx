@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import Footer from '@/components/common/Footer';
 import { useTranslation } from 'react-i18next';
+import { LAUNCH_YEAR } from '@/config/constants';
 
 // Mock useTranslation
 jest.mock('react-i18next', () => ({
@@ -12,11 +13,11 @@ describe('Footer', () => {
     jest.clearAllMocks();
   });
 
-  it('renders the footer text with the current year', () => {
+  it('renders the footer text with a year range', () => {
     // Mock the translation function
     const tMock = jest.fn((key, options) => {
       if (key === 'common.footer.text') {
-        return `All rights reserved - ${options.year}`;
+        return `All rights reserved - ${options.year}-${options.currentYear}`;
       }
       return key;
     });
@@ -29,11 +30,11 @@ describe('Footer', () => {
     render(<Footer />);
 
     // Get the current year dynamically
-    const currentYear = 2024;
+    const currentYear = new Date().getFullYear();
 
     // Assert that the footer text is rendered correctly
-    expect(screen.getByText(`All rights reserved - ${currentYear}`)).toBeInTheDocument();
-    expect(tMock).toHaveBeenCalledWith('common.footer.text', { year: currentYear });
+    expect(screen.getByText(`All rights reserved - ${LAUNCH_YEAR}-${currentYear}`)).toBeInTheDocument();
+    expect(tMock).toHaveBeenCalledWith('common.footer.text', { year: LAUNCH_YEAR, currentYear });
   });
 
   it('has proper structure and accessibility', () => {

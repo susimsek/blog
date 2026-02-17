@@ -54,7 +54,7 @@ interface Resources {
         yesterday: 'Yesterday';
       };
       footer: {
-        text: "© {{year}} Şuayb's Blog. All rights reserved.";
+        text: "© {{year}}-{{currentYear}} Şuayb's Blog. All rights reserved.";
       };
       header: {
         actions: {
