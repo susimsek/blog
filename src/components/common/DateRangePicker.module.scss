@@ -70,7 +70,7 @@
 }
 
 :global(.react-datepicker__day--outside-month) {
-  color: var(--muted-bg) !important;
+  color: var(--muted-text-color) !important;
   transition: color var(--transition-speed) ease;
 }
 
@@ -118,7 +118,7 @@
 }
 
 :global(.react-datepicker__day--muted) {
-  color: var(--muted-bg) !important;
+  color: var(--muted-text-color) !important;
   pointer-events: none;
   opacity: 0.5;
 }
