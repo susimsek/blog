@@ -3,6 +3,8 @@ import { faFacebookF, faGithub, faLinkedin, faMedium, faXTwitter } from '@fortaw
 import {
   faAddressBook,
   faAngleRight,
+  faArrowRight,
+  faArrowRightLong,
   faArrowUp,
   faBars,
   faBook,
@@ -88,6 +90,8 @@ export const loadIcons = () => {
     faEnvelope,
     faAddressBook,
     faAngleRight,
+    faArrowRight,
+    faArrowRightLong,
     faCircle,
     faChevronLeft,
     faChevronRight,

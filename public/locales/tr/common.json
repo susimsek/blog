@@ -37,7 +37,7 @@
       "loading": "Daha fazla konu yükleniyor..."
     },
     "footer": {
-      "text": "© {{year}} Şuayb'in Blogu. Tüm hakları saklıdır."
+      "text": "© {{year}}-{{currentYear}} Şuayb'in Blogu. Tüm hakları saklıdır."
     },
     "preFooter": {
       "title": "Alt menü",

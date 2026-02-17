@@ -24,16 +24,30 @@ interface PreFooterSocialLinkProps {
   icon: IconProp;
   label: string;
   mailto?: boolean;
+  external?: boolean;
+  boop?: {
+    y?: number;
+    rotation?: number;
+    scale?: number;
+    timing?: number;
+  };
 }
 
-function PreFooterSocialLink({ href, icon, label, mailto = false }: Readonly<PreFooterSocialLinkProps>) {
-  const [iconStyle, triggerIconBoop] = useBoop({ y: -2, rotation: 8, scale: 1.08, timing: 170 });
+function PreFooterSocialLink({
+  href,
+  icon,
+  label,
+  mailto = false,
+  external = true,
+  boop = { y: -2, rotation: 8, scale: 1.08, timing: 170 },
+}: Readonly<PreFooterSocialLinkProps>) {
+  const [iconStyle, triggerIconBoop] = useBoop(boop);
 
   return (
     <a
       href={mailto ? `mailto:${href}` : href}
-      target={mailto ? undefined : '_blank'}
-      rel={mailto ? undefined : 'noopener noreferrer'}
+      target={mailto || !external ? undefined : '_blank'}
+      rel={mailto || !external ? undefined : 'noopener noreferrer'}
       className="text-decoration-none pre-footer-social-link nav-icon-boop"
       aria-label={label}
       onMouseEnter={triggerIconBoop}
@@ -116,7 +130,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
                     skipLocaleHandling
                     className="text-decoration-none pre-footer-latest-link"
                   >
-                    <FontAwesomeIcon icon="chevron-right" className="me-2 text-muted pre-footer-latest-icon" />
+                    <FontAwesomeIcon icon="arrow-right" className="me-2 text-muted pre-footer-latest-icon" />
                     {post.title}
                   </Link>
                 </li>
@@ -141,16 +155,15 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
           </Col>
 
           <Col xs={12} lg={4}>
-            <h3 className="pre-footer-title h5 fw-bold">{t('common.preFooter.subscribeTitle')}</h3>
-            <div className="d-flex flex-column gap-2 mb-3">
-              <Link href={`/${currentLocale}/rss.xml`} skipLocaleHandling className="text-decoration-none">
-                <FontAwesomeIcon icon="rss" className="me-2" />
-                {t('common.preFooter.rss')}
-              </Link>
-            </div>
-
-            <h4 className="h6 fw-bold mb-2">{t('common.preFooter.socialTitle')}</h4>
+            <h3 className="pre-footer-title h5 fw-bold mb-2">{t('common.preFooter.socialTitle')}</h3>
             <div className="d-flex align-items-center gap-3 flex-wrap pre-footer-social-links">
+              <PreFooterSocialLink
+                href={`/${currentLocale}/rss.xml`}
+                icon="rss"
+                label={t('common.preFooter.rss')}
+                external={false}
+                boop={{ y: 2, rotation: -10, scale: 1.08, timing: 170 }}
+              />
               <PreFooterSocialLink href={CONTACT_LINKS.github} icon={['fab', 'github']} label="GitHub" />
               <PreFooterSocialLink href={CONTACT_LINKS.linkedin} icon={['fab', 'linkedin']} label="LinkedIn" />
               <PreFooterSocialLink href={CONTACT_LINKS.medium} icon={['fab', 'medium']} label="Medium" />

@@ -37,7 +37,7 @@
       "loading": "Loading more topics..."
     },
     "footer": {
-      "text": "© {{year}} Şuayb's Blog. All rights reserved."
+      "text": "© {{year}}-{{currentYear}} Şuayb's Blog. All rights reserved."
     },
     "preFooter": {
       "title": "Footer navigation",
