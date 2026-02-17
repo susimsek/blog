@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot Reaktif Programlama'
-date: '2025-02-19'
+publishedDate: '2025-02-19'
+updatedDate: '2025-02-20'
 summary: 'Spring Boot ile Project Reactor ve WebFlux kullanarak yüksek performanslı, eşzamanlı işleme sahip reaktif uygulamalar oluşturmayı öğrenin.'
 thumbnail: '/images/spring-boot-reactive-thumbnail.webp'
 readingTime: '3 dk okuma'

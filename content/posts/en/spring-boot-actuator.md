@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot Actuator'
-date: '2024-12-18'
+publishedDate: '2024-12-18'
+updatedDate: '2024-12-19'
 summary: 'Learn how to use Spring Boot Actuator to monitor and manage your applications with ease. Includes endpoints, customization, and security examples.'
 thumbnail: '/images/spring-boot-actuator-thumbnail.webp'
 readingTime: '2 min read'

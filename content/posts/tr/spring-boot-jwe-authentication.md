@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot JWE Kimlik Doğrulama'
-date: '2025-05-03'
+publishedDate: '2025-05-03'
+updatedDate: '2025-05-04'
 summary: 'JWT’lerinizi JWE ile şifreleyerek gizlilik ve bütünlüğü sağlamak için Spring Boot API’lerinizi nasıl güvence altına alacağınızı öğrenin.'
 thumbnail: '/images/spring-boot-jwe-auth-thumbnail.webp'
 readingTime: '5 dk okuma'

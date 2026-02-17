@@ -17,7 +17,7 @@ const mockPosts: PostSummary[] = [
   {
     id: '1',
     title: 'Post 1',
-    date: '2026-01-01',
+    publishedDate: '2026-01-01',
     summary: 'Summary',
     searchText: 'post 1 summary',
     thumbnail: null,

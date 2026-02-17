@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot Kubernetes Integration'
-date: '2025-02-21'
+publishedDate: '2025-02-21'
+updatedDate: '2025-02-22'
 summary: 'Learn how to deploy Spring Boot applications on Kubernetes for scalable, containerized microservices.'
 thumbnail: '/images/spring-boot-kubernetes-thumbnail.webp'
 readingTime: '3 min read'

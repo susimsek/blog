@@ -41,8 +41,8 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/posts/[i
     type: 'article',
     openGraph: {
       type: 'article',
-      publishedTime: post.date,
-      modifiedTime: post.date,
+      publishedTime: post.publishedDate,
+      modifiedTime: post.updatedDate ?? post.publishedDate,
       authors: [AUTHOR_NAME],
       tags: keywords,
     },

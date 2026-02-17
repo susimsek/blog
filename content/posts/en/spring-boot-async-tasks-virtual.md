@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot Async Tasks with Virtual Thread'
-date: '2025-04-26'
+publishedDate: '2025-04-26'
+updatedDate: '2025-04-27'
 summary: 'Learn how to run asynchronous tasks with `@Async` on JDK 21 virtual threads in Spring Boot.'
 thumbnail: '/images/spring-boot-async-virtual-thumbnail.webp'
 readingTime: '3 min read'

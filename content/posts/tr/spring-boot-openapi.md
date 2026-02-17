@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot ile OpenAPI'
-date: '2024-12-20'
+publishedDate: '2024-12-20'
+updatedDate: '2024-12-21'
 summary: 'SpringDoc kullanarak Spring Boot uygulamanızda OpenAPI entegrasyonu ile API dokümantasyonu ve test yöntemlerini öğrenin.'
 thumbnail: '/images/spring-boot-openapi-thumbnail.webp'
 readingTime: '3 dk okuma'

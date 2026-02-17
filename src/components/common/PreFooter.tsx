@@ -43,7 +43,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
   const currentLocale = routeLocale || i18nextConfig.i18n.defaultLocale;
 
   const latestPosts = useMemo(() => {
-    const sorted = [...posts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const sorted = [...posts].sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime());
     return sorted.slice(0, 5);
   }, [posts]);
 

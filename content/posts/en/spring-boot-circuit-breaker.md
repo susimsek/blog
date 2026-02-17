@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot Circuit Breaker'
-date: '2025-03-13'
+publishedDate: '2025-03-13'
+updatedDate: '2025-03-14'
 summary: 'Learn how to implement Circuit Breaker in Spring Boot applications for resilient microservices.'
 thumbnail: '/images/spring-boot-circuit-breaker-thumbnail.webp'
 readingTime: '3 min read'

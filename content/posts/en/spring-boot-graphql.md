@@ -1,6 +1,7 @@
 ---
 title: 'Building APIs with Spring for GraphQL'
-date: '2024-12-15'
+publishedDate: '2024-12-15'
+updatedDate: '2024-12-16'
 summary: 'Learn how to build GraphQL APIs using Spring for GraphQL with Java and Kotlin. Includes schema creation, query handling, and integration.'
 thumbnail: '/images/spring-boot-graphql-thumbnail.webp'
 readingTime: '3 min read'

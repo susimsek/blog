@@ -206,7 +206,7 @@ const parseFeedItems = feedPayload => {
           : `medium-${index}`;
 
     const title = typeof item.title === 'string' && item.title.trim().length > 0 ? item.title.trim() : 'Untitled';
-    const date =
+    const publishedDate =
       typeof item.pubDate === 'string' && item.pubDate.trim().length > 0
         ? item.pubDate
         : typeof item.isoDate === 'string' && item.isoDate.trim().length > 0
@@ -216,7 +216,8 @@ const parseFeedItems = feedPayload => {
     const post = {
       id: idCandidate,
       title,
-      date,
+      publishedDate,
+      updatedDate: publishedDate,
       summary,
       thumbnail: extractFirstImage(content),
       topics: [...uniqueTopics.values()],
@@ -238,7 +239,9 @@ const parseFeedItems = feedPayload => {
     deduped.set(post.id, post);
   }
 
-  return [...deduped.values()].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  return [...deduped.values()].sort(
+    (a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime(),
+  );
 };
 
 const readJsonArray = filePath => {
@@ -262,7 +265,7 @@ const syncLocale = (locale, mediumPosts) => {
 
   const blogPosts = currentPosts.filter(post => (post?.source === 'medium' ? false : true));
   const mergedPosts = [...blogPosts, ...mediumPosts].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    (a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime(),
   );
 
   fs.writeFileSync(postsPath, JSON.stringify(mergedPosts, null, 2) + '\n', 'utf8');

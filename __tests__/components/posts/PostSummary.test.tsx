@@ -71,7 +71,7 @@ describe('PostSummary Component', () => {
     render(<PostSummary post={mockPost} />);
     const dateElement = screen.getByTestId('date-display');
     expect(dateElement).toBeInTheDocument();
-    expect(dateElement).toHaveTextContent(mockPost.date);
+    expect(dateElement).toHaveTextContent(mockPost.publishedDate);
   });
 
   it('renders the topics as badges', () => {

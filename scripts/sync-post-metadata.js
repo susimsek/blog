@@ -1,5 +1,5 @@
 // scripts/sync-post-metadata.js
-// Syncs post metadata fields (readingTimeMin, searchText) in public/data/posts.<locale>.json
+// Syncs post metadata fields (readingTimeMin, searchText, updatedDate) in public/data/posts.<locale>.json
 // by computing from content/posts/<locale>/<id>.md.
 
 const fs = require('node:fs');
@@ -55,15 +55,18 @@ const buildPostSearchText = post => {
   return normalizeSearchText(parts.join(' '));
 };
 
-const readMarkdownContent = (id, locale) => {
+const readMarkdownPost = (id, locale) => {
   const localizedPath = path.join(postsMarkdownDirectory, locale, `${id}.md`);
   if (!fs.existsSync(localizedPath)) {
     return null;
   }
 
   const raw = fs.readFileSync(localizedPath, 'utf8');
-  const { content } = matter(raw);
-  return content;
+  const parsed = matter(raw);
+  return {
+    data: parsed.data ?? {},
+    content: parsed.content ?? '',
+  };
 };
 
 const syncLocale = locale => {
@@ -127,18 +130,28 @@ const syncLocale = locale => {
       };
     }
 
-    const markdown = readMarkdownContent(post.id, locale);
-    if (markdown === null) {
+    const markdownPost = readMarkdownPost(post.id, locale);
+    if (markdownPost === null) {
       missingMarkdown += 1;
       return post;
     }
 
-    const readingTimeMin = calculateReadingTimeMin(markdown);
+    const readingTimeMin = calculateReadingTimeMin(markdownPost.content);
     const nextSearchText = buildPostSearchText(post);
+    const frontmatterUpdatedDate =
+      typeof markdownPost.data.updatedDate === 'string' && markdownPost.data.updatedDate.trim().length > 0
+        ? markdownPost.data.updatedDate.trim()
+        : null;
+    const frontmatterPublishedDate =
+      typeof markdownPost.data.publishedDate === 'string' && markdownPost.data.publishedDate.trim().length > 0
+        ? markdownPost.data.publishedDate.trim()
+        : null;
+    const updatedDate = frontmatterUpdatedDate ?? frontmatterPublishedDate ?? post.updatedDate ?? post.publishedDate;
 
     if (
       post.readingTimeMin !== readingTimeMin ||
       post.searchText !== nextSearchText ||
+      post.updatedDate !== updatedDate ||
       Object.prototype.hasOwnProperty.call(post, 'readingTime')
     ) {
       changed += 1;
@@ -149,6 +162,7 @@ const syncLocale = locale => {
 
     return {
       ...rest,
+      updatedDate,
       readingTimeMin,
       searchText: nextSearchText,
     };

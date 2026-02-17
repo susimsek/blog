@@ -15,7 +15,7 @@ const getPostDataMock = jest.fn<
     title: string;
     summary: string;
     topics: never[];
-    date: string;
+    publishedDate: string;
     readingTimeMin: number;
     thumbnail: string | null;
   } | null>,
@@ -25,7 +25,7 @@ const getPostDataMock = jest.fn<
   title: 'Post Title',
   summary: 'Post Summary',
   topics: [],
-  date: '2024-01-01',
+  publishedDate: '2024-01-01',
   readingTimeMin: 3,
   thumbnail: null,
 }));
@@ -91,7 +91,7 @@ describe('App Route /[locale]/posts/[id]', () => {
       title: 'Post Title',
       summary: 'Post Summary',
       topics: [],
-      date: '2024-01-01',
+      publishedDate: '2024-01-01',
       readingTimeMin: 3,
       thumbnail: null,
     });
@@ -153,7 +153,7 @@ describe('App Route /[locale]/posts/[id]', () => {
         title: 'Post Title',
         summary: 'Post Summary',
         topics: [],
-        date: '2024-01-01',
+        publishedDate: '2024-01-01',
         readingTimeMin: 3,
         thumbnail: null,
       },

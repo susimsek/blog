@@ -6,7 +6,12 @@ let PostDetail: typeof import('@/components/posts/PostDetail').default;
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string, options?: { date?: string }) => {
+      if (typeof options?.date === 'string') {
+        return `${key} ${options.date}`;
+      }
+      return key;
+    },
   }),
 }));
 
@@ -41,12 +46,15 @@ describe('PostDetail Component', () => {
     expect(titleElement).toHaveClass('fw-bold');
   });
 
-  it('renders the post date', () => {
+  it('renders published and updated post dates', () => {
     setup();
-    const dateElement = screen.getByText((content, element) => {
+    const dateElements = screen.getAllByText((content, element) => {
       return element?.tagName.toLowerCase() === 'span' && content.includes('December 3, 2024');
     });
-    expect(dateElement).toBeInTheDocument();
+    expect(screen.getByText('common.postMeta.published')).toBeInTheDocument();
+    expect(screen.getByText('common.postMeta.updated')).toBeInTheDocument();
+    expect(screen.getByText('common.postMeta.readingTime')).toBeInTheDocument();
+    expect(dateElements).toHaveLength(2);
   });
 
   it('renders breadcrumb with blog link and current post title', () => {
@@ -109,5 +117,23 @@ describe('PostDetail Component', () => {
     expect(markdownElements).toHaveLength(2);
     expect(markdownElements[0]).toHaveTextContent('```md');
     expect(markdownElements[1]).toHaveTextContent('## Actual section');
+  });
+
+  it('renders updated notice after article when updatedDate differs from published date', () => {
+    const updatedPost = {
+      ...mockPost,
+      updatedDate: '2025-01-05',
+    };
+
+    setup(updatedPost);
+    expect(screen.getByText('post.updatedNoticeLabel')).toBeInTheDocument();
+    const updatedDateElement = screen.getByText('January 5, 2025', { selector: 'time' });
+    expect(updatedDateElement).toBeInTheDocument();
+    expect(updatedDateElement).toHaveAttribute('datetime', '2025-01-05');
+  });
+
+  it('does not render updated notice when updatedDate is missing or same as published date', () => {
+    setup();
+    expect(screen.queryByText(content => content.startsWith('post.updatedNotice'))).not.toBeInTheDocument();
   });
 });

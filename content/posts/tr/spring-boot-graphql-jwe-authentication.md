@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot GraphQL JWE Kimlik Doğrulama'
-date: '2025-05-17'
+publishedDate: '2025-05-17'
+updatedDate: '2025-05-18'
 summary: 'Stateless şifreli JWT’ler (JWE) ile Spring Boot GraphQL API’lerinizi güvenli hale getirmeyi; kullanıcı kimliği ve rolleri JPA ile bir veritabanında saklamayı öğrenin.'
 thumbnail: '/images/spring-boot-graphql-jwe-auth-thumbnail.webp'
 readingTime: '5 dk okuma'

@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot JPA ile JWE Kimlik Doğrulaması'
-date: '2025-05-11'
+publishedDate: '2025-05-11'
+updatedDate: '2025-05-12'
 summary: 'Stateless şifreli JWT’ler (JWE) kullanarak Spring Boot API’lerinizi güvenli hale getirirken, kullanıcı kimliklerini ve rolleri JPA destekli bir veritabanında nasıl saklayacağınızı öğrenin.'
 thumbnail: '/images/spring-boot-jwe-auth-with-jpa-thumbnail.webp'
 readingTime: '5 dk okuma'

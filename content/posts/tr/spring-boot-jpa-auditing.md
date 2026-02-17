@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot JPA Auditing'
-date: '2025-04-10'
+publishedDate: '2025-04-10'
+updatedDate: '2025-04-11'
 summary: 'Spring Boot uygulamalarında JPA Auditing ile oluşturulma/değiştirilme tarihlerini ve kullanıcılarını otomatik olarak nasıl yakalayacağınızı öğrenin.'
 thumbnail: '/images/spring-boot-jpa-auditing-thumbnail.webp'
 readingTime: '1 dk okuma'

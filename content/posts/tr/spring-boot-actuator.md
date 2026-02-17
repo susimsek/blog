@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot Actuator'
-date: '2024-12-18'
+publishedDate: '2024-12-18'
+updatedDate: '2024-12-19'
 summary: 'Spring Boot Actuator kullanarak uygulamalarınızı izleme ve yönetme. Endpointler, özelleştirme ve güvenlik örneklerini içerir.'
 thumbnail: '/images/spring-boot-actuator-thumbnail.webp'
 readingTime: '2 dk okuma'

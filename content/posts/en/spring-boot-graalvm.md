@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot GraalVM Native Application'
-date: '2024-12-28'
+publishedDate: '2024-12-28'
+updatedDate: '2024-12-29'
 summary: 'Learn how to build and deploy a Spring Boot application as a GraalVM native image for improved startup time and reduced resource usage.'
 thumbnail: '/images/spring-boot-graalvm-thumbnail.webp'
 readingTime: '2 min read'

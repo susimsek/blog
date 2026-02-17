@@ -59,6 +59,7 @@ interface Resources {
       header: {
         actions: {
           hideSearch: 'Hide search';
+          openRss: 'Open RSS feed';
           showSearch: 'Show search';
           toggleSidebar: 'Toggle sidebar';
         };
@@ -89,6 +90,11 @@ interface Resources {
       pagination: {
         pageSize: 'Page size';
         showingResults: 'Showing {{start}}–{{end}} of {{total}} results';
+      };
+      postMeta: {
+        published: 'Published';
+        readingTime: 'Reading time';
+        updated: 'Updated';
       };
       preFooter: {
         aboutText: 'Articles on Spring Boot, microservices, security, and more.';
@@ -243,6 +249,7 @@ interface Resources {
         title: 'Share';
       };
       tocTitle: 'Table of contents';
+      updatedNoticeLabel: 'Last updated:';
     };
   };
   search: {

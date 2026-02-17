@@ -28,13 +28,18 @@ type LayoutProps = {
 };
 
 const normalizeSearchPost = (
-  post: Pick<PostSummary, 'id' | 'title' | 'date' | 'summary' | 'searchText' | 'readingTimeMin' | 'thumbnail'> &
+  post: Pick<
+    PostSummary,
+    'id' | 'title' | 'publishedDate' | 'summary' | 'searchText' | 'readingTimeMin' | 'thumbnail'
+  > &
+    Partial<Pick<PostSummary, 'updatedDate'>> &
     Partial<Pick<PostSummary, 'topics' | 'link' | 'source'>>,
 ): PostSummary => {
   return {
     id: post.id,
     title: post.title,
-    date: post.date,
+    publishedDate: post.publishedDate,
+    ...(typeof post.updatedDate === 'string' ? { updatedDate: post.updatedDate } : {}),
     summary: post.summary,
     searchText: post.searchText,
     thumbnail: post.thumbnail,
@@ -55,11 +60,12 @@ const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
     if (
       typeof candidate.id !== 'string' ||
       typeof candidate.title !== 'string' ||
-      typeof candidate.date !== 'string' ||
+      typeof candidate.publishedDate !== 'string' ||
       typeof candidate.summary !== 'string' ||
       typeof candidate.readingTimeMin !== 'number' ||
       !Number.isFinite(candidate.readingTimeMin) ||
       candidate.readingTimeMin <= 0 ||
+      (candidate.updatedDate !== undefined && typeof candidate.updatedDate !== 'string') ||
       typeof candidate.searchText !== 'string' ||
       (candidate.thumbnail !== null && typeof candidate.thumbnail !== 'string') ||
       (candidate.topics !== undefined && !Array.isArray(candidate.topics)) ||
@@ -73,7 +79,8 @@ const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
         ...candidate,
         id: candidate.id,
         title: candidate.title,
-        date: candidate.date,
+        publishedDate: candidate.publishedDate,
+        updatedDate: candidate.updatedDate,
         summary: candidate.summary,
         thumbnail: candidate.thumbnail,
         topics: candidate.topics,

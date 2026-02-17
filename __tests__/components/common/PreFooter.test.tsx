@@ -35,12 +35,18 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
   ),
 }));
 
-const buildPost = (id: string, date: string, topics: Array<{ id?: string; name: string; color: string }> = []) =>
+const buildPost = (
+  id: string,
+  publishedDate: string,
+  topics: Array<{ id?: string; name: string; color: string }> = [],
+) =>
   ({
     id,
     title: `Post ${id}`,
-    date,
+    publishedDate,
     summary: `Summary ${id}`,
+    searchText: `post ${id} summary`,
+    thumbnail: null,
     readingTimeMin: 3,
     topics,
   }) as PostSummary;

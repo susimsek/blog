@@ -136,7 +136,9 @@ export default function PostDetail({
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
   const locale = routeLocale ?? defaultLocale;
-  const { title, date, contentHtml, thumbnail, topics, readingTimeMin } = post;
+  const { title, publishedDate, updatedDate, contentHtml, thumbnail, topics, readingTimeMin } = post;
+  const normalizedUpdatedDate = typeof updatedDate === 'string' ? updatedDate.trim() : '';
+  const hasUpdatedNotice = normalizedUpdatedDate.length > 0 && normalizedUpdatedDate !== publishedDate;
   const articleRef = React.useRef<HTMLElement | null>(null);
   const copyTimeoutRef = React.useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
   const [isCopied, setIsCopied] = React.useState(false);
@@ -153,6 +155,22 @@ export default function PostDetail({
   })();
 
   const splitIntro = React.useMemo(() => splitMarkdownIntro(markdown), [markdown]);
+  const formattedUpdatedDate = React.useMemo(() => {
+    if (!hasUpdatedNotice) {
+      return '';
+    }
+
+    const dateValue = new Date(normalizedUpdatedDate);
+    if (Number.isNaN(dateValue.getTime())) {
+      return normalizedUpdatedDate;
+    }
+
+    return dateValue.toLocaleDateString(locale, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }, [hasUpdatedNotice, locale, normalizedUpdatedDate]);
   const hasPreviousPost = previousPost !== null;
   const hasNextPost = nextPost !== null;
   const postNavigationGridClassName = React.useMemo(
@@ -228,16 +246,39 @@ export default function PostDetail({
           </Breadcrumb>
         </nav>
         <h1 className="post-detail-title fw-bold display-4 text-center">{title}</h1>
-        <p className="post-detail-meta text-center d-flex justify-content-center align-items-center text-muted">
-          <span className="d-flex align-items-center me-3">
-            <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-            <DateDisplay date={date} />
-          </span>
-          <span className="d-flex align-items-center">
-            <FontAwesomeIcon icon="clock" className="me-2" />
-            {formatReadingTime(readingTimeMin, t)}
-          </span>
-        </p>
+        <div className="post-detail-meta">
+          <div className="post-detail-meta-item">
+            <span className="post-detail-meta-icon" aria-hidden="true">
+              <FontAwesomeIcon icon="calendar-alt" />
+            </span>
+            <div className="post-detail-meta-content">
+              <span className="post-detail-meta-label">{t('common.postMeta.published', { ns: 'common' })}</span>
+              <span className="post-detail-meta-value">
+                <DateDisplay date={publishedDate} />
+              </span>
+            </div>
+          </div>
+          <div className="post-detail-meta-item">
+            <span className="post-detail-meta-icon" aria-hidden="true">
+              <FontAwesomeIcon icon="calendar-alt" />
+            </span>
+            <div className="post-detail-meta-content">
+              <span className="post-detail-meta-label">{t('common.postMeta.updated', { ns: 'common' })}</span>
+              <span className="post-detail-meta-value">
+                <DateDisplay date={updatedDate ?? publishedDate} />
+              </span>
+            </div>
+          </div>
+          <div className="post-detail-meta-item">
+            <span className="post-detail-meta-icon" aria-hidden="true">
+              <FontAwesomeIcon icon="clock" />
+            </span>
+            <div className="post-detail-meta-content">
+              <span className="post-detail-meta-label">{t('common.postMeta.readingTime', { ns: 'common' })}</span>
+              <span className="post-detail-meta-value">{formatReadingTime(readingTimeMin, t)}</span>
+            </div>
+          </div>
+        </div>
         {topics && topics.length > 0 && (
           <div className="post-detail-topics d-flex justify-content-center flex-wrap">
             {topics.map(topic => (
@@ -322,6 +363,19 @@ export default function PostDetail({
               {splitIntro.intro && <MarkdownRenderer content={splitIntro.intro} />}
               {splitIntro.rest && <MarkdownRenderer content={splitIntro.rest} />}
             </article>
+            {hasUpdatedNotice && (
+              <aside className="post-updated-note" aria-live="polite">
+                <span className="post-updated-note-icon" aria-hidden="true">
+                  <FontAwesomeIcon icon="calendar-alt" />
+                </span>
+                <p className="post-updated-note-text">
+                  <span className="post-updated-note-label">{t('post.updatedNoticeLabel')}</span>
+                  <time className="post-updated-note-date" dateTime={normalizedUpdatedDate}>
+                    {formattedUpdatedDate}
+                  </time>
+                </p>
+              </aside>
+            )}
             {(previousPost || nextPost) && (
               <nav className="post-navigation post-detail-navigation" aria-label={t('post.navigation.title')}>
                 <div className={postNavigationGridClassName}>

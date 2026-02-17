@@ -142,7 +142,7 @@ function generatePostsSitemapXML(postsById) {
       const post = postsById[postId][locale];
       const postUrl = buildSiteUrl(basePath, locale, 'posts', post.id);
       const thumbnailUrl = toAbsoluteUrl(post.thumbnail);
-      const postLastMod = toIsoTimestamp(post.date);
+      const postLastMod = toIsoTimestamp(post.updatedDate ?? post.publishedDate);
 
       sitemap += `  <url>\n`;
       sitemap += `    <loc>${xmlEscape(postUrl)}</loc>\n`;

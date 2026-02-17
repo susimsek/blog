@@ -47,7 +47,7 @@ const highlight = (text: string, query: string): React.ReactNode => {
 };
 
 export default function PostSummary({ post, highlightQuery, showSource = false }: Readonly<PostSummaryProps>) {
-  const { id, title, date, summary, thumbnail, topics, readingTimeMin, source, link } = post;
+  const { id, title, publishedDate, summary, thumbnail, topics, readingTimeMin, source, link } = post;
   const { t } = useTranslation(['post', 'common']);
   const isVoiceEnabled = useAppSelector(state => state.voice.isEnabled);
   const readMoreSoundRef = React.useRef<HTMLAudioElement | null>(null);
@@ -137,7 +137,7 @@ export default function PostSummary({ post, highlightQuery, showSource = false }
         <p className="post-summary-meta">
           <Link href={postLink} className="link-muted d-flex align-items-center">
             <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-            <DateDisplay date={date} />
+            <DateDisplay date={publishedDate} />
           </Link>
           <span className="text-muted d-flex align-items-center">
             <FontAwesomeIcon icon="clock" className="me-2" />
@@ -178,9 +178,12 @@ export default function PostSummary({ post, highlightQuery, showSource = false }
             <span className="read-more-label">{t('post.readMore')}</span>
             <span className="visually-hidden">: {title}</span>
             <span className="read-more-icon-rail" aria-hidden="true">
-              <FontAwesomeIcon icon="chevron-right" className="read-more-arrow read-more-arrow-1" />
-              <FontAwesomeIcon icon="chevron-right" className="read-more-arrow read-more-arrow-2" />
-              <FontAwesomeIcon icon="chevron-right" className="read-more-arrow read-more-arrow-3" />
+              <span className="read-more-icon read-more-icon-front">
+                <FontAwesomeIcon icon="angle-right" />
+              </span>
+              <span className="read-more-icon read-more-icon-back">
+                <FontAwesomeIcon icon="angle-right" />
+              </span>
             </span>
           </Link>
         </div>

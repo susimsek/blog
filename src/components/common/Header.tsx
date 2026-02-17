@@ -29,6 +29,7 @@ export default function Header({
   const [searchCloseIconStyle, triggerSearchCloseIconBoop] = useBoop({ y: 3, rotation: -8, scale: 1.08, timing: 170 });
   const [sidebarIconStyle, triggerSidebarIconBoop] = useBoop({ y: 2, rotation: 8, scale: 1.08, timing: 170 });
   const [hamburgerIconStyle, triggerHamburgerIconBoop] = useBoop({ y: 2, rotation: 8, scale: 1.08, timing: 170 });
+  const [rssIconStyle, triggerRssIconBoop] = useBoop({ y: 2, rotation: -10, scale: 1.08, timing: 170 });
 
   const [searchVisible, setSearchVisible] = React.useState(false);
   const [isNavExpanded, setIsNavExpanded] = React.useState(false);
@@ -178,7 +179,7 @@ export default function Header({
       expand="lg"
       expanded={isNavExpanded}
       onToggle={(expanded: boolean) => setIsNavExpanded(Boolean(expanded))}
-      className="shadow-sm sticky-top p-2"
+      className={`shadow-sm sticky-top p-2${isNavExpanded ? ' is-mobile-nav-expanded' : ''}`}
     >
       {sidebarEnabled && (
         <button
@@ -262,9 +263,11 @@ export default function Header({
                   <FontAwesomeIcon icon="search" className="icon-boop-target" style={searchIconStyle} />
                 </button>
               )}
-              <div className="d-flex align-items-center">
-                <LanguageSwitcher />
-              </div>
+              {!isMobile && (
+                <div className="d-flex align-items-center">
+                  <LanguageSwitcher />
+                </div>
+              )}
               <div className="d-flex align-items-center">
                 <VoiceToggler />
               </div>
@@ -272,6 +275,16 @@ export default function Header({
                 <div className="d-flex align-items-center">
                   <ThemeToggler />
                 </div>
+              )}
+              {!isMobile && (
+                <Link
+                  href="/rss.xml"
+                  className="nav-link nav-icon-boop d-flex align-items-center"
+                  onMouseEnter={triggerRssIconBoop}
+                  aria-label={t('common.header.actions.openRss')}
+                >
+                  <FontAwesomeIcon icon="rss" className="icon-boop-target" style={rssIconStyle} />
+                </Link>
               )}
             </Nav>
           </div>

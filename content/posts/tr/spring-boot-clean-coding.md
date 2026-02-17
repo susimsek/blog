@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot Temiz Kodlama Pratikleri'
-date: '2024-12-19'
+publishedDate: '2024-12-19'
+updatedDate: '2024-12-20'
 summary: "Spring Boot projelerinde temiz kodlama ilkelerini uygulamayı öğrenin. En iyi uygulamalar, örnekler ve Java'da Lombok ile Kotlin temiz kodlama tekniklerinin faydaları."
 thumbnail: '/images/spring-boot-clean-coding-thumbnail.webp'
 readingTime: '3 dk okuma'

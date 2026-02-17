@@ -15,7 +15,8 @@
       "actions": {
         "hideSearch": "Hide search",
         "showSearch": "Show search",
-        "toggleSidebar": "Toggle sidebar"
+        "toggleSidebar": "Toggle sidebar",
+        "openRss": "Open RSS feed"
       },
       "themeToggle": "Toggle Theme",
       "theme": {
@@ -72,6 +73,11 @@
     "readingTime": {
       "minute": "{{count}} min read",
       "fifteenPlus": "15+ min read"
+    },
+    "postMeta": {
+      "published": "Published",
+      "updated": "Updated",
+      "readingTime": "Reading time"
     },
     "sort": {
       "newest": "Newest First",

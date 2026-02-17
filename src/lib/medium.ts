@@ -172,11 +172,13 @@ export async function fetchRssSummaries(locale: string): Promise<PostSummary[]> 
         })) ?? [];
       const id = item.guid ?? `rss-${index}`;
       const title = item.title ?? 'Untitled';
+      const publishedDate = item.pubDate ?? new Date().toISOString();
 
       return {
         id,
         title,
-        date: item.pubDate ?? new Date().toISOString(),
+        publishedDate,
+        updatedDate: publishedDate,
         summary,
         searchText: buildPostSearchText({ title, summary, topics }),
         thumbnail,

@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot Configuration Properties'
-date: '2026-02-04'
+publishedDate: '2026-02-04'
+updatedDate: '2026-02-17'
 summary: 'Learn how to use @ConfigurationProperties for type-safe configuration, validate settings with @Validated, and manage environment-specific values with profile-specific application-{profile}.yml files.'
 thumbnail: '/images/spring-boot-configuration-properties-thumbnail.webp'
 readingTime: '3 min read'

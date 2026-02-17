@@ -58,9 +58,9 @@ export default function PostPage({
           },
         }
       : {}),
-    dateCreated: post.date,
-    datePublished: post.date,
-    dateModified: post.date,
+    dateCreated: post.publishedDate,
+    datePublished: post.publishedDate,
+    dateModified: post.updatedDate ?? post.publishedDate,
     headline: post.title,
     keywords,
     name: post.title,

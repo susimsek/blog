@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot HTTP Interface Client'
-date: '2025-04-27'
+publishedDate: '2025-04-27'
+updatedDate: '2025-04-28'
 summary: 'Deklaratif, tip güvenli HTTP çağrıları için Spring Boot 3.2+ HTTP Interface Client nasıl kullanılır öğrenin.'
 thumbnail: '/images/spring-boot-http-interface-thumbnail.webp'
 readingTime: '3 dk okuma'

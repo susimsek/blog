@@ -34,7 +34,7 @@ describe('PostListItem', () => {
     title: 'Sample Post',
     summary: 'Summary',
     searchText: 'sample post summary javascript react',
-    date: '2024-05-01',
+    publishedDate: '2024-05-01',
     thumbnail: '/thumb.webp',
     topics: [
       { id: 'js', name: 'JavaScript', color: 'yellow' },
@@ -48,7 +48,7 @@ describe('PostListItem', () => {
 
     expect(screen.getByTestId('thumbnail')).toBeInTheDocument();
     expect(screen.getByText(basePost.title)).toBeInTheDocument();
-    expect(screen.getByText(basePost.date)).toBeInTheDocument();
+    expect(screen.getByText(basePost.publishedDate)).toBeInTheDocument();
     expect(screen.getByText('2 min read')).toBeInTheDocument();
     expect(screen.getByText('JavaScript')).toBeInTheDocument();
     expect(screen.getByText('React')).toBeInTheDocument();

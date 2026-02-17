@@ -2,6 +2,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faFacebookF, faGithub, faLinkedin, faMedium, faXTwitter } from '@fortawesome/free-brands-svg-icons';
 import {
   faAddressBook,
+  faAngleRight,
   faArrowUp,
   faBars,
   faBook,
@@ -86,6 +87,7 @@ export const loadIcons = () => {
     faUser,
     faEnvelope,
     faAddressBook,
+    faAngleRight,
     faCircle,
     faChevronLeft,
     faChevronRight,

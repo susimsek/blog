@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot AI Entegrasyonu'
-date: '2025-04-23'
+publishedDate: '2025-04-23'
+updatedDate: '2025-04-24'
 summary: 'Modüler, taşınabilir ve gözlemlenebilir AI iş akışları için Spring AI kullanarak Spring Boot uygulamalarına AI modellerini nasıl entegre edeceğinizi öğrenin.'
 thumbnail: '/images/spring-boot-ai-thumbnail.webp'
 readingTime: '3 dakika okuma'

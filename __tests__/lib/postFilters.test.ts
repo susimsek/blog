@@ -17,7 +17,7 @@ const mockPost: PostSummary = {
   title: 'Test Post',
   summary: 'This is a summary of the test post.',
   searchText: 'test post this is a summary of the test post topic1 topic 1 topic2 topic 2',
-  date: '2024-01-15',
+  publishedDate: '2024-01-15',
   thumbnail: null,
   readingTimeMin: 3,
   topics: [
@@ -161,8 +161,8 @@ describe('Post Filters', () => {
   describe('sortPosts', () => {
     it('sorts posts by date descending by default', () => {
       const sorted = sortPosts([
-        { ...mockPost, id: 'a', date: '2023-01-01' },
-        { ...mockPost, id: 'b', date: '2024-01-01' },
+        { ...mockPost, id: 'a', publishedDate: '2023-01-01' },
+        { ...mockPost, id: 'b', publishedDate: '2024-01-01' },
       ]);
       expect(sorted.map(post => post.id)).toEqual(['b', 'a']);
     });
@@ -170,8 +170,8 @@ describe('Post Filters', () => {
     it('sorts posts by date ascending when requested', () => {
       const sorted = sortPosts(
         [
-          { ...mockPost, id: 'a', date: '2023-01-01' },
-          { ...mockPost, id: 'b', date: '2024-01-01' },
+          { ...mockPost, id: 'a', publishedDate: '2023-01-01' },
+          { ...mockPost, id: 'b', publishedDate: '2024-01-01' },
         ],
         'asc',
       );
@@ -184,19 +184,19 @@ describe('Post Filters', () => {
       {
         ...mockPost,
         id: 'exact',
-        date: '2024-03-01',
+        publishedDate: '2024-03-01',
         searchText: 'spring boot graphql jwe authentication',
       },
       {
         ...mockPost,
         id: 'partial',
-        date: '2024-03-02',
+        publishedDate: '2024-03-02',
         searchText: 'spring security boot graphql',
       },
       {
         ...mockPost,
         id: 'typo',
-        date: '2024-03-03',
+        publishedDate: '2024-03-03',
         searchText: 'sprng but grapql auth',
       },
     ];
@@ -222,7 +222,7 @@ describe('Post Filters', () => {
       {
         ...mockPost,
         id: 'base',
-        date: '2024-01-20',
+        publishedDate: '2024-01-20',
         topics: [
           { id: 'topic1', name: 'Topic 1', color: 'red' },
           { id: 'topic2', name: 'Topic 2', color: 'blue' },
@@ -231,19 +231,19 @@ describe('Post Filters', () => {
       {
         ...mockPost,
         id: 'p1',
-        date: '2024-01-19',
+        publishedDate: '2024-01-19',
         topics: [{ id: 'topic1', name: 'Topic 1', color: 'red' }],
       },
       {
         ...mockPost,
         id: 'p2',
-        date: '2024-01-18',
+        publishedDate: '2024-01-18',
         topics: [{ id: 'topic2', name: 'Topic 2', color: 'blue' }],
       },
       {
         ...mockPost,
         id: 'p3',
-        date: '2024-01-17',
+        publishedDate: '2024-01-17',
         topics: [{ id: 'topic3', name: 'Topic 3', color: 'green' }],
       },
     ];
@@ -276,25 +276,25 @@ describe('Post Filters', () => {
         {
           ...mockPost,
           id: 'base-tie',
-          date: '2024-01-20',
+          publishedDate: '2024-01-20',
           topics: [{ id: 'topic1', name: 'Topic 1', color: 'red' }],
         },
         {
           ...mockPost,
           id: 'tie-old',
-          date: '2024-01-01',
+          publishedDate: '2024-01-01',
           topics: [{ id: 'topic1', name: 'Topic 1', color: 'red' }],
         },
         {
           ...mockPost,
           id: 'tie-new',
-          date: '2024-01-19',
+          publishedDate: '2024-01-19',
           topics: [{ id: 'topic1', name: 'Topic 1', color: 'red' }],
         },
         {
           ...mockPost,
           id: 'other',
-          date: '2024-01-10',
+          publishedDate: '2024-01-10',
           topics: [{ id: 'topic2', name: 'Topic 2', color: 'blue' }],
         },
       ];
@@ -306,9 +306,9 @@ describe('Post Filters', () => {
 
   describe('getAdjacentPosts', () => {
     const orderedPosts: PostSummary[] = [
-      { ...mockPost, id: 'p3', title: 'Newest', date: '2024-03-01' },
-      { ...mockPost, id: 'p2', title: 'Middle', date: '2024-02-01' },
-      { ...mockPost, id: 'p1', title: 'Oldest', date: '2024-01-01' },
+      { ...mockPost, id: 'p3', title: 'Newest', publishedDate: '2024-03-01' },
+      { ...mockPost, id: 'p2', title: 'Middle', publishedDate: '2024-02-01' },
+      { ...mockPost, id: 'p1', title: 'Oldest', publishedDate: '2024-01-01' },
     ];
 
     it('returns both adjacent posts for a middle item', () => {

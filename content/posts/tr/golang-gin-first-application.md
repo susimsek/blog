@@ -1,6 +1,7 @@
 ---
 title: 'Gin - İlk Uygulama'
-date: '2024-12-14'
+publishedDate: '2024-12-14'
+updatedDate: '2024-12-15'
 summary: 'Sıfırdan ilk Golang Gin uygulamanızı oluşturmanıza yardımcı olacak, yeni başlayanlar için rehber. Temelleri öğrenin ve Gin ile yolculuğunuza başlayın.'
 thumbnail: '/images/golang-gin-first-app-thumbnail.webp'
 readingTime: '1 dk okuma'

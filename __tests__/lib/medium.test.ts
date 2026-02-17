@@ -29,7 +29,7 @@ describe('medium utilities', () => {
     title: `Post ${id}`,
     summary: 'Summary',
     searchText: `post ${id} summary`,
-    date: '2024-05-01',
+    publishedDate: '2024-05-01',
     readingTimeMin: 1,
     thumbnail: null,
   });
@@ -175,6 +175,6 @@ describe('medium utilities', () => {
     expect(result[0].thumbnail).toBeNull();
     expect(result[0].id).toBe('rss-0');
     expect(result[0].title).toBe('Untitled');
-    expect(result[0].date).toBeTruthy();
+    expect(result[0].publishedDate).toBeTruthy();
   });
 });

@@ -18,7 +18,7 @@ This repo generates content via **static export**. List pages are driven by **JS
 
 1. **Slug/ID**: kebab-case (`my-new-post`). Use the same slug for both `en` and `tr`.
 2. **Post index JSON is the source of truth**: list pages / RSS / sitemap use `public/data/posts.<locale>.json`. Markdown is read for the detail page content + frontmatter metadata.
-3. **Sorting**: post index JSON should be kept in **date DESC** order (newest first).
+3. **Sorting**: post index JSON should be kept in **publishedDate DESC** order (newest first).
 4. **Images**: keep post images under `/images/` and prefer `webp` for consistency/performance.
 5. **Thumbnail**: `1200x630` (OG size), `webp`, under `public/images/` (recommended name: `<slug>-thumbnail.webp`).
 6. **Topic consistency**: topic `id`s must exist in topic index JSON in both locales; `name` is translated per locale; `color` must be one of the allowed values.
@@ -272,7 +272,7 @@ node .codex/skills/blog-content-authoring/scripts/suggest-random-post.mjs --seed
 
 It prints:
 
-- suggested `slug` + `date`
+- suggested `slug` + `publishedDate`
 - EN/TR `title` + `summary`
 - topic entries (id/name/color) for both locales
 - a minimal outline that already follows the standard heading emojis and the single Conclusion rule
@@ -352,7 +352,8 @@ Frontmatter template (example):
 ```md
 ---
 title: '...'
-date: 'YYYY-MM-DD'
+publishedDate: 'YYYY-MM-DD'
+updatedDate: 'YYYY-MM-DD'
 summary: '...'
 thumbnail: '/images/<slug>-thumbnail.webp'
 readingTime: '3 min read' # Note: computed in the app; optional/ignored as a source of truth
@@ -370,7 +371,8 @@ Notes:
   - Hard limit: **≤ 200 characters**
 - Keep `title` clean and SEO-friendly:
   - Avoid parentheses in titles (e.g. do **not** use “(Type-Safe Config + Profiles)”)
-- `date` format: `YYYY-MM-DD` (e.g. `2026-02-03`)
+- `publishedDate` format: `YYYY-MM-DD` (e.g. `2026-02-03`)
+- `updatedDate` format: `YYYY-MM-DD` and should be on/after `publishedDate`.
 - `topics` entries must be **objects** (`id/name/color`). The `id` must exist in topic index JSON.
 - `readingTime` is computed automatically; you may keep it for consistency, but it is not a reliable source of truth.
 - Content supports GitHub Flavored Markdown (tables/lists/code blocks).
@@ -414,10 +416,14 @@ Entry template:
 {
   "id": "<slug>",
   "title": "...",
-  "date": "YYYY-MM-DD",
+  "publishedDate": "YYYY-MM-DD",
+  "updatedDate": "YYYY-MM-DD",
   "summary": "...",
   "thumbnail": "/images/<slug>-thumbnail.webp",
-  "topics": [{ "id": "java", "name": "Java", "color": "red" }]
+  "topics": [{ "id": "java", "name": "Java", "color": "red" }],
+  "readingTimeMin": 3,
+  "searchText": "normalized searchable text",
+  "source": "blog"
 }
 ```
 
@@ -425,7 +431,8 @@ Notes:
 
 - `title/summary/topic.name` must be translated per locale (`en` vs `tr`).
 - `topics[].id` and `topics[].color` must remain the same across locales.
-- Sorting is done at runtime by date; still, keeping JSON roughly **newest to oldest** is practical.
+- Sorting is done at runtime by `publishedDate`; still, keeping JSON roughly **newest to oldest** is practical.
+- `updatedDate` is used for SEO/RSS/Sitemap freshness (`dateModified`, `lastmod`, `atom:updated`).
 
 ### 6) Quick validation
 
@@ -448,10 +455,10 @@ node .codex/skills/blog-content-authoring/scripts/standardize-posts.mjs --dry-ru
 node .codex/skills/blog-content-authoring/scripts/standardize-posts.mjs
 ```
 
-To sync `readingTime` from Markdown into post index JSON, run:
+To sync computed metadata (`readingTimeMin`, `searchText`, `updatedDate`) into post index JSON, run:
 
 ```bash
-pnpm run sync:reading-time
+pnpm run sync:post-metadata
 ```
 
 Then run the repo quality gates:

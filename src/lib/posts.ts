@@ -281,7 +281,8 @@ export async function getAllTopicIds() {
 const toLayoutPostSummary = (post: PostSummary): LayoutPostSummary => ({
   id: post.id,
   title: post.title,
-  date: post.date,
+  publishedDate: post.publishedDate,
+  updatedDate: post.updatedDate,
 });
 
 export const getLayoutPosts = (

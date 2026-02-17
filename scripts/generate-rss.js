@@ -12,6 +12,7 @@ const basePath = (process.env.NEXT_PUBLIC_BASE_PATH || '').replace(/^\/+|\/+$/g,
 const basePathPrefix = basePath ? `/${basePath}` : '';
 
 const buildDir = path.join(process.cwd(), 'build');
+const publicDir = path.join(process.cwd(), 'public');
 const rssLanguageByLocale = {
   en: 'en-US',
   tr: 'tr-TR',
@@ -40,6 +41,18 @@ const toAbsoluteUrl = value => {
 };
 
 const getRssLanguage = locale => rssLanguageByLocale[locale] || locale;
+
+const toValidDate = value => {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    return null;
+  }
+
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const getPostPublishedAt = post => toValidDate(post.publishedDate) ?? toValidDate(post.updatedDate) ?? new Date();
+const getPostUpdatedAt = post => toValidDate(post.updatedDate) ?? getPostPublishedAt(post);
 
 const escapeHtml = value =>
   String(value)
@@ -224,9 +237,20 @@ async function generateRSSFeedXML(posts, locale) {
 
   const alternateLocale = locale === 'en' ? 'tr' : 'en';
 
-  // Sort posts by date (newest first)
-  const sortedPosts = [...posts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  const newestPubDate = sortedPosts[0]?.date ? new Date(sortedPosts[0].date).toUTCString() : new Date().toUTCString();
+  // Sort posts by published date (newest first).
+  const sortedPosts = [...posts].sort((a, b) => getPostPublishedAt(b).getTime() - getPostPublishedAt(a).getTime());
+  const newestPublishedAt =
+    sortedPosts.length > 0
+      ? sortedPosts
+          .map(getPostPublishedAt)
+          .reduce((latest, current) => (current.getTime() > latest.getTime() ? current : latest))
+      : new Date();
+  const newestUpdatedAt =
+    sortedPosts.length > 0
+      ? sortedPosts
+          .map(getPostUpdatedAt)
+          .reduce((latest, current) => (current.getTime() > latest.getTime() ? current : latest))
+      : new Date();
 
   let rss = `<?xml version="1.0" encoding="UTF-8"?>\n`;
   rss += `<?xml-stylesheet type="text/xsl" href="${basePathPrefix}/rss.xsl"?>\n`;
@@ -238,8 +262,9 @@ async function generateRSSFeedXML(posts, locale) {
   rss += `    <docs>https://www.rssboard.org/rss-specification</docs>\n`;
   rss += `    <generator>${wrapCdata("Şuayb's Blog RSS Generator")}</generator>\n`;
   rss += `    <ttl>60</ttl>\n`;
-  rss += `    <pubDate>${newestPubDate}</pubDate>\n`;
-  rss += `    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n`;
+  rss += `    <pubDate>${newestPublishedAt.toUTCString()}</pubDate>\n`;
+  rss += `    <lastBuildDate>${newestUpdatedAt.toUTCString()}</lastBuildDate>\n`;
+  rss += `    <atom:updated>${newestUpdatedAt.toISOString()}</atom:updated>\n`;
   rss += `    <language>${getRssLanguage(locale)}</language>\n`;
   rss += `    <copyright>${wrapCdata(copyright)}</copyright>\n`;
   rss += `    <image>\n`;
@@ -253,7 +278,8 @@ async function generateRSSFeedXML(posts, locale) {
   // Add each post
   for (const post of sortedPosts) {
     const postUrl = buildSiteUrl(basePath, locale, 'posts', post.id);
-    const publishedAt = new Date(post.date);
+    const publishedAt = getPostPublishedAt(post);
+    const updatedAt = getPostUpdatedAt(post);
     const pubDate = publishedAt.toUTCString();
     const contentEncoded = await getPostContentEncoded(locale, post.id);
     rss += `    <item>\n`;
@@ -261,6 +287,7 @@ async function generateRSSFeedXML(posts, locale) {
     rss += `      <link>${postUrl}</link>\n`;
     rss += `      <description>${wrapCdata(post.summary)}</description>\n`;
     rss += `      <pubDate>${pubDate}</pubDate>\n`;
+    rss += `      <atom:updated>${updatedAt.toISOString()}</atom:updated>\n`;
     rss += `      <guid isPermaLink="true">${postUrl}</guid>\n`;
 
     if (contentEncoded) {
@@ -294,17 +321,22 @@ async function generateRSSFeedXML(posts, locale) {
  * The feed is written to build/{locale}/rss.xml.
  */
 async function generateRSSFeeds() {
+  const outputRoots = [publicDir, buildDir].filter(root => fs.existsSync(root));
+
   for (const locale of locales) {
     const posts = readPosts(locale);
     const rssXML = await generateRSSFeedXML(posts, locale);
-    // Ensure the locale directory exists under build
-    const localeDir = path.join(buildDir, locale);
-    if (!fs.existsSync(localeDir)) {
-      fs.mkdirSync(localeDir, { recursive: true });
-    }
-    const rssPath = path.join(localeDir, 'rss.xml');
-    fs.writeFileSync(rssPath, rssXML, 'utf8');
-    console.log(`RSS feed for locale "${locale}" generated at: ${rssPath}`);
+
+    outputRoots.forEach(root => {
+      const localeDir = path.join(root, locale);
+      if (!fs.existsSync(localeDir)) {
+        fs.mkdirSync(localeDir, { recursive: true });
+      }
+
+      const rssPath = path.join(localeDir, 'rss.xml');
+      fs.writeFileSync(rssPath, rssXML, 'utf8');
+      console.log(`RSS feed for locale "${locale}" generated at: ${rssPath}`);
+    });
   }
 }
 

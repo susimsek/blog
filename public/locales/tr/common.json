@@ -15,7 +15,8 @@
       "actions": {
         "hideSearch": "Aramayı gizle",
         "showSearch": "Aramayı göster",
-        "toggleSidebar": "Kenar çubuğunu aç veya kapat"
+        "toggleSidebar": "Kenar çubuğunu aç veya kapat",
+        "openRss": "RSS akışını aç"
       },
       "themeToggle": "Temayı Değiştir",
       "theme": {
@@ -72,6 +73,11 @@
     "readingTime": {
       "minute": "{{count}} dk okuma",
       "fifteenPlus": "15+ dk okuma"
+    },
+    "postMeta": {
+      "published": "İlk yayın",
+      "updated": "Son güncelleme",
+      "readingTime": "Okuma süresi"
     },
     "sort": {
       "newest": "En Yeni Önce",

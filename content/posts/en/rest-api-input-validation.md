@@ -1,6 +1,7 @@
 ---
 title: 'Input Validation in REST APIs'
-date: '2024-12-15'
+publishedDate: '2024-12-15'
+updatedDate: '2024-12-16'
 summary: 'Learn how to implement input validation in REST APIs using Java, Kotlin, and Go with frameworks like Spring Boot and Gin. Covers annotations, custom validators, and error handling.'
 thumbnail: '/images/input-validation-thumbnail.webp'
 readingTime: '4 min read'

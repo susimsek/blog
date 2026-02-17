@@ -57,7 +57,7 @@ const basePost: PostSummary = {
   title: 'First related post',
   summary: 'Summary 1',
   searchText: 'first related post summary 1 react testing',
-  date: '2026-01-01',
+  publishedDate: '2026-01-01',
   readingTimeMin: 4,
   thumbnail: '/images/post-1.webp',
   topics: [

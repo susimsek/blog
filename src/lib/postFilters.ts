@@ -55,7 +55,7 @@ const searchWithFuse = (posts: PostSummary[], query: string, limit?: number): Fu
     if (leftScore !== rightScore) {
       return leftScore - rightScore;
     }
-    return new Date(right.item.date).getTime() - new Date(left.item.date).getTime();
+    return new Date(right.item.publishedDate).getTime() - new Date(left.item.publishedDate).getTime();
   });
 };
 
@@ -110,7 +110,7 @@ export const filterBySource = (post: PostSummary, sourceFilter: SourceFilter) =>
  * Filters posts by date range.
  */
 export const filterByDateRange = (post: PostSummary, dateRange: { startDate?: string; endDate?: string }) => {
-  const postDate = new Date(post.date).getTime();
+  const postDate = new Date(post.publishedDate).getTime();
   const parseDate = (value: string): Date => {
     const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
     if (!match) {
@@ -144,8 +144,8 @@ export const filterByReadingTime = (post: PostSummary, range: 'any' | '3-7' | '8
 
 export const sortPosts = (posts: PostSummary[], sortOrder: 'asc' | 'desc' = 'desc') => {
   return [...posts].sort((a, b) => {
-    const dateA = new Date(a.date).getTime();
-    const dateB = new Date(b.date).getTime();
+    const dateA = new Date(a.publishedDate).getTime();
+    const dateB = new Date(b.publishedDate).getTime();
 
     return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
   });
@@ -196,7 +196,7 @@ export const getRelatedPosts = (post: PostSummary, allPosts: PostSummary[], limi
     if (b.sharedCount !== a.sharedCount) {
       return b.sharedCount - a.sharedCount;
     }
-    return new Date(b.candidate.date).getTime() - new Date(a.candidate.date).getTime();
+    return new Date(b.candidate.publishedDate).getTime() - new Date(a.candidate.publishedDate).getTime();
   });
 
   const strong = scoredAll.filter(item => item.score >= minScore);

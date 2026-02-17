@@ -65,7 +65,7 @@ jest.mock('gray-matter', () =>
         data: {
           id: 'post1',
           title: 'Post 1',
-          date: '2024-01-01',
+          publishedDate: '2024-01-01',
           summary: 'Summary 1',
           topics: [{ id: 'react', name: 'React', color: 'red' }],
         },
@@ -77,7 +77,7 @@ jest.mock('gray-matter', () =>
         data: {
           id: 'post2',
           title: 'Post 2',
-          date: '2024-01-01',
+          publishedDate: '2024-01-01',
           summary: 'Summary 2',
           topics: [{ id: 'nextjs', name: 'Next.js', color: 'blue' }],
         },
@@ -89,7 +89,7 @@ jest.mock('gray-matter', () =>
         data: {
           id: 'post3',
           title: 'Post 3',
-          date: '2024-01-02',
+          publishedDate: '2024-01-02',
           summary: 'Summary 3',
           topics: [{ id: 'react', name: 'React', color: 'red' }],
         },
@@ -101,7 +101,7 @@ jest.mock('gray-matter', () =>
         data: {
           id: 'post4',
           title: 'Post 4',
-          date: '2024-01-01',
+          publishedDate: '2024-01-01',
           summary: 'Summary 4',
           topics: [{ id: 'spring', name: 'Spring Boot', color: 'orange' }],
         },
@@ -112,7 +112,7 @@ jest.mock('gray-matter', () =>
       data: {
         id: mockPost.id,
         title: mockPost.title,
-        date: mockPost.date,
+        publishedDate: mockPost.publishedDate,
         summary: mockPost.summary,
         topics: mockPost.topics,
         thumbnail: mockPost.thumbnail,
@@ -159,7 +159,7 @@ describe('Posts Library', () => {
       ---
       id: ${mockPost.id}
       title: ${mockPost.title}
-      date: "${mockPost.date}"
+      publishedDate: "${mockPost.publishedDate}"
       summary: ${mockPost.summary}
       thumbnail: ${mockPost.thumbnail}
       topics: ${JSON.stringify(mockPost.topics)}
@@ -184,7 +184,7 @@ describe('Posts Library', () => {
             {
               id: 'post1',
               title: 'Post 1',
-              date: '2024-01-01',
+              publishedDate: '2024-01-01',
               summary: 'Summary 1',
               searchText: 'post 1 summary 1 react',
               readingTimeMin: 3,
@@ -194,7 +194,7 @@ describe('Posts Library', () => {
             {
               id: 'post2',
               title: 'Post 2',
-              date: '2024-01-01',
+              publishedDate: '2024-01-01',
               summary: 'Summary 2',
               searchText: 'post 2 summary 2 nextjs',
               readingTimeMin: 3,
@@ -204,7 +204,7 @@ describe('Posts Library', () => {
             {
               id: 'post3',
               title: 'Post 3',
-              date: '2024-01-02',
+              publishedDate: '2024-01-02',
               summary: 'Summary 3',
               searchText: 'post 3 summary 3 react',
               readingTimeMin: 4,
@@ -270,7 +270,7 @@ describe('Posts Library', () => {
             {
               id: 'valid-post',
               title: 'Valid Post',
-              date: '2024-01-10',
+              publishedDate: '2024-01-10',
               summary: 'Valid summary',
               searchText: 'valid post valid summary react',
               readingTimeMin: 3,
@@ -280,7 +280,7 @@ describe('Posts Library', () => {
             {
               id: 'invalid-post',
               title: 'Invalid Post',
-              date: '2024-01-09',
+              publishedDate: '2024-01-09',
               summary: 'Invalid summary',
               topics: [{ id: 'react', name: 'React', color: 'blue' }],
               thumbnail: '/thumb.jpg',
@@ -369,7 +369,7 @@ describe('Posts Library', () => {
       ---
       id: ${mockPost.id}
       title: ${mockPost.title}
-      date: "${mockPost.date}"
+      publishedDate: "${mockPost.publishedDate}"
       summary: ${mockPost.summary}
       thumbnail: ${mockPost.thumbnail}
       topics: ${JSON.stringify(mockPost.topics)}

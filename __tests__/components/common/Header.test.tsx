@@ -197,4 +197,13 @@ describe('Header', () => {
     expect(searchButton).toHaveClass('nav-icon-boop');
     expect(screen.getByTestId('font-awesome-icon-search')).toHaveClass('icon-boop-target');
   });
+
+  it('renders RSS icon link on desktop', () => {
+    render(<Header />);
+
+    const rssLink = screen.getByRole('link', { name: 'common.header.actions.openRss' });
+    expect(rssLink).toHaveAttribute('href', '/rss.xml');
+    expect(rssLink).toHaveClass('nav-icon-boop');
+    expect(screen.getByTestId('font-awesome-icon-rss')).toHaveClass('icon-boop-target');
+  });
 });

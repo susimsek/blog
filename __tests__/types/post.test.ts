@@ -5,7 +5,7 @@ describe('Post and PostSummary Types', () => {
     const postSummary: PostSummary = {
       id: '1',
       title: 'Sample Post',
-      date: '2024-12-04',
+      publishedDate: '2024-12-04',
       summary: 'This is a summary of the post.',
       searchText: 'sample post this is a summary of the post typescript testing',
       thumbnail: '/images/sample.jpg',
@@ -18,7 +18,7 @@ describe('Post and PostSummary Types', () => {
 
     expect(postSummary.id).toBe('1');
     expect(postSummary.title).toBe('Sample Post');
-    expect(postSummary.date).toBe('2024-12-04');
+    expect(postSummary.publishedDate).toBe('2024-12-04');
     expect(postSummary.summary).toBe('This is a summary of the post.');
     expect(postSummary.thumbnail).toBe('/images/sample.jpg');
     expect(postSummary.readingTimeMin).toBe(3);
@@ -35,7 +35,7 @@ describe('Post and PostSummary Types', () => {
     const postSummary: PostSummary = {
       id: '2',
       title: 'Another Post',
-      date: '2024-12-04',
+      publishedDate: '2024-12-04',
       summary: 'Another summary.',
       searchText: 'another post another summary',
       thumbnail: null,
@@ -50,7 +50,7 @@ describe('Post and PostSummary Types', () => {
     const post: Post = {
       id: '3',
       title: 'Full Post',
-      date: '2024-12-04',
+      publishedDate: '2024-12-04',
       summary: 'A detailed post summary.',
       searchText: 'full post a detailed post summary spring boot react',
       contentHtml: '<p>Full content of the post.</p>',
@@ -78,7 +78,7 @@ describe('Post and PostSummary Types', () => {
     const post: Post = {
       id: '4',
       title: 'Minimal Post',
-      date: '2024-12-04',
+      publishedDate: '2024-12-04',
       summary: 'Just the essentials.',
       searchText: 'minimal post just the essentials',
       thumbnail: null,

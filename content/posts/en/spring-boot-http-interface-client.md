@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot HTTP Interface Client'
-date: '2025-04-27'
+publishedDate: '2025-04-27'
+updatedDate: '2025-04-28'
 summary: 'Learn how to use Spring Boot 3.2+ HTTP Interface Client for declarative, type-safe HTTP calls.'
 thumbnail: '/images/spring-boot-http-interface-thumbnail.webp'
 readingTime: '3 min read'

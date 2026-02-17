@@ -126,7 +126,7 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18
 
 - When adding a new post:
   - Markdown file: `content/posts/<locale>/<slug>.md`
-  - Frontmatter fields: `title`, `date`, `summary`, `thumbnail`, `readingTime`, `topics[]`
+  - Frontmatter fields: `title`, `publishedDate`, `summary`, `thumbnail`, `readingTime`, `topics[]`
   - Update the index: `public/data/posts.<locale>.json` (lists are read from this file)
 - When adding a new topic, update `public/data/topics.<locale>.json`.
 - When adding new UI copy:

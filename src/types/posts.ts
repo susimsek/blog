@@ -10,7 +10,8 @@ export type PostSource = 'blog' | 'medium';
 export type PostSummary = {
   id: string;
   title: string;
-  date: string;
+  publishedDate: string;
+  updatedDate?: string;
   summary: string;
   searchText: string;
   thumbnail: string | null;
@@ -20,7 +21,7 @@ export type PostSummary = {
   link?: string;
 };
 
-export type LayoutPostSummary = Pick<PostSummary, 'id' | 'title' | 'date'> & {
+export type LayoutPostSummary = Pick<PostSummary, 'id' | 'title' | 'publishedDate' | 'updatedDate'> & {
   topics?: Topic[];
 };
 

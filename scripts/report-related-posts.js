@@ -51,7 +51,7 @@ const getRelated = post => {
   scoredAll.sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score;
     if (b.sharedCount !== a.sharedCount) return b.sharedCount - a.sharedCount;
-    return new Date(b.candidate.date).getTime() - new Date(a.candidate.date).getTime();
+    return new Date(b.candidate.publishedDate).getTime() - new Date(a.candidate.publishedDate).getTime();
   });
 
   const strong = scoredAll.filter(item => item.score >= minScore);

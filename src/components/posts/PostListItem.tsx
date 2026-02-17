@@ -16,7 +16,7 @@ interface PostListItemProps {
 }
 
 export default function PostListItem({ post }: Readonly<PostListItemProps>) {
-  const { title, date, thumbnail, topics, readingTimeMin, source } = post;
+  const { title, publishedDate, thumbnail, topics, readingTimeMin, source } = post;
   const { t } = useTranslation('common');
   const sourceLabel =
     source === 'medium'
@@ -47,7 +47,7 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
           <p className="post-date text-muted mb-1">
             <span className="text-muted d-block mb-1">
               <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-              <DateDisplay date={date} />
+              <DateDisplay date={publishedDate} />
             </span>
             <span className="text-muted d-block">
               <FontAwesomeIcon icon="clock" className="me-2" />

@@ -1,6 +1,7 @@
 ---
 title: 'Spring Boot Reactive Programming'
-date: '2025-02-19'
+publishedDate: '2025-02-19'
+updatedDate: '2025-02-20'
 summary: 'Learn how to build reactive applications using Spring Boot with Project Reactor and WebFlux for high-performance asynchronous processing.'
 thumbnail: '/images/spring-boot-reactive-thumbnail.webp'
 readingTime: '3 min read'

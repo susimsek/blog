@@ -75,7 +75,7 @@ export default function RelatedPosts({ posts }: Readonly<RelatedPostsProps>) {
                   <div className="text-muted small d-flex align-items-center gap-3 mb-2 flex-wrap">
                     <span className="d-flex align-items-center">
                       <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-                      <DateDisplay date={post.date} />
+                      <DateDisplay date={post.publishedDate} />
                     </span>
                     <span className="d-flex align-items-center">
                       <FontAwesomeIcon icon="clock" className="me-2" />
