@@ -10,11 +10,38 @@ import type { LayoutPostSummary, Topic } from '@/types/posts';
 import Link from '@/components/common/Link';
 import { CONTACT_LINKS } from '@/config/constants';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { IconProp } from '@fortawesome/fontawesome-svg-core';
+import useBoop from '@/hooks/useBoop';
 
 interface PreFooterProps {
   posts?: LayoutPostSummary[];
   topics?: Topic[];
   topTopics?: Topic[];
+}
+
+interface PreFooterSocialLinkProps {
+  href: string;
+  icon: IconProp;
+  label: string;
+  mailto?: boolean;
+}
+
+function PreFooterSocialLink({ href, icon, label, mailto = false }: Readonly<PreFooterSocialLinkProps>) {
+  const [iconStyle, triggerIconBoop] = useBoop({ y: -2, rotation: 8, scale: 1.08, timing: 170 });
+
+  return (
+    <a
+      href={mailto ? `mailto:${href}` : href}
+      target={mailto ? undefined : '_blank'}
+      rel={mailto ? undefined : 'noopener noreferrer'}
+      className="text-decoration-none pre-footer-social-link nav-icon-boop"
+      aria-label={label}
+      onMouseEnter={triggerIconBoop}
+      onFocus={triggerIconBoop}
+    >
+      <FontAwesomeIcon icon={icon} className="icon-boop-target pre-footer-social-icon" style={iconStyle} />
+    </a>
+  );
 }
 
 const getTopTopics = (posts: LayoutPostSummary[], topics: Topic[], limit: number) => {
@@ -62,10 +89,18 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
             <h3 className="pre-footer-title h5 fw-bold">{t('common.preFooter.aboutTitle')}</h3>
             <p className="text-muted mb-3">{t('common.preFooter.aboutText')}</p>
             <div className="d-flex flex-wrap gap-2">
-              <Link href={`/${currentLocale}/contact`} skipLocaleHandling className="btn btn-primary">
+              <Link
+                href={`/${currentLocale}/contact`}
+                skipLocaleHandling
+                className="btn pre-footer-cta pre-footer-cta-primary"
+              >
                 {t('common.preFooter.contactCta')}
               </Link>
-              <Link href={`/${currentLocale}/about`} skipLocaleHandling className="btn btn-outline-secondary">
+              <Link
+                href={`/${currentLocale}/about`}
+                skipLocaleHandling
+                className="btn pre-footer-cta pre-footer-cta-secondary"
+              >
                 {t('common.preFooter.startHereCta')}
               </Link>
             </div>
@@ -76,8 +111,12 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
             <ul className="list-unstyled mb-3">
               {latestPosts.map(post => (
                 <li key={post.id} className="mb-2">
-                  <Link href={`/${currentLocale}/posts/${post.id}`} skipLocaleHandling className="text-decoration-none">
-                    <FontAwesomeIcon icon="chevron-right" className="me-2 text-muted" />
+                  <Link
+                    href={`/${currentLocale}/posts/${post.id}`}
+                    skipLocaleHandling
+                    className="text-decoration-none pre-footer-latest-link"
+                  >
+                    <FontAwesomeIcon icon="chevron-right" className="me-2 text-muted pre-footer-latest-icon" />
                     {post.title}
                   </Link>
                 </li>
@@ -111,24 +150,11 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
             </div>
 
             <h4 className="h6 fw-bold mb-2">{t('common.preFooter.socialTitle')}</h4>
-            <div className="d-flex align-items-center gap-3 flex-wrap">
-              <a href={CONTACT_LINKS.github} target="_blank" rel="noopener noreferrer" className="text-decoration-none">
-                <FontAwesomeIcon icon={['fab', 'github']} size="lg" />
-              </a>
-              <a
-                href={CONTACT_LINKS.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-decoration-none"
-              >
-                <FontAwesomeIcon icon={['fab', 'linkedin']} size="lg" />
-              </a>
-              <a href={CONTACT_LINKS.medium} target="_blank" rel="noopener noreferrer" className="text-decoration-none">
-                <FontAwesomeIcon icon={['fab', 'medium']} size="lg" />
-              </a>
-              <a href={`mailto:${CONTACT_LINKS.email}`} className="text-decoration-none">
-                <FontAwesomeIcon icon="envelope" size="lg" />
-              </a>
+            <div className="d-flex align-items-center gap-3 flex-wrap pre-footer-social-links">
+              <PreFooterSocialLink href={CONTACT_LINKS.github} icon={['fab', 'github']} label="GitHub" />
+              <PreFooterSocialLink href={CONTACT_LINKS.linkedin} icon={['fab', 'linkedin']} label="LinkedIn" />
+              <PreFooterSocialLink href={CONTACT_LINKS.medium} icon={['fab', 'medium']} label="Medium" />
+              <PreFooterSocialLink href={CONTACT_LINKS.email} icon="envelope" label="Email" mailto />
             </div>
           </Col>
         </Row>

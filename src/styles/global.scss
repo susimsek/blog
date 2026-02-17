@@ -1131,6 +1131,92 @@ mark {
       color: var(--link-hover-color);
     }
   }
+
+  .pre-footer-cta {
+    min-height: 2.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    border: 1px solid transparent;
+    @include transition(color, background-color, border-color, box-shadow, transform);
+
+    &:hover,
+    &:focus-visible {
+      transform: translateY(-1px);
+    }
+  }
+
+  .pre-footer-cta-primary {
+    color: var(--primary-color);
+    background-color: var(--primary-bg);
+    border-color: color-mix(in srgb, var(--primary-hover) 38%, var(--primary-bg) 62%);
+    box-shadow: 0 8px 18px color-mix(in srgb, var(--primary-bg) 28%, transparent);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--primary-color);
+      background-color: var(--primary-hover);
+      border-color: var(--primary-hover);
+      box-shadow: 0 12px 24px color-mix(in srgb, var(--primary-bg) 36%, transparent);
+    }
+  }
+
+  .pre-footer-cta-secondary {
+    color: var(--text-color);
+    background-color: color-mix(in srgb, var(--main-bg) 86%, var(--dropdown-hover-bg) 14%);
+    border-color: color-mix(in srgb, var(--border-color) 80%, var(--main-bg) 20%);
+    box-shadow: 0 8px 16px color-mix(in srgb, var(--text-color) 10%, transparent);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--link-hover-color);
+      background-color: var(--dropdown-hover-bg);
+      border-color: color-mix(in srgb, var(--link-hover-color) 30%, var(--border-color) 70%);
+      box-shadow: 0 10px 20px color-mix(in srgb, var(--text-color) 16%, transparent);
+    }
+  }
+
+  .pre-footer-latest-link {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .pre-footer-latest-icon {
+    opacity: 0.76;
+    transform: translateX(0);
+    @include transition(color, opacity, transform);
+  }
+
+  .pre-footer-latest-link:hover .pre-footer-latest-icon,
+  .pre-footer-latest-link:focus-visible .pre-footer-latest-icon {
+    opacity: 1;
+    color: var(--link-hover-color) !important;
+    transform: translateX(3px);
+  }
+
+  .pre-footer-social-links {
+    gap: 0.9rem !important;
+  }
+
+  .pre-footer-social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    padding: 0.1rem;
+    @include transition(color, transform);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--link-hover-color);
+      transform: translateY(-1px);
+    }
+  }
+
+  .pre-footer-social-icon {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
 }
 
 .sidebar {
