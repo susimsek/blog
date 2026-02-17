@@ -170,11 +170,18 @@ export default function PostSummary({ post, highlightQuery, showSource = false }
         <div className="post-summary-cta">
           <Link
             href={postLink}
-            className="btn btn-primary"
+            className="btn btn-primary post-summary-read-more"
+            aria-label={t('post.readMore')}
             onMouseEnter={handleReadMoreHoverStart}
             onMouseLeave={handleReadMoreHoverEnd}
           >
-            {t('post.readMore')}
+            <span className="read-more-label">{t('post.readMore')}</span>
+            <span className="visually-hidden">: {title}</span>
+            <span className="read-more-icon-rail" aria-hidden="true">
+              <FontAwesomeIcon icon="chevron-right" className="read-more-arrow read-more-arrow-1" />
+              <FontAwesomeIcon icon="chevron-right" className="read-more-arrow read-more-arrow-2" />
+              <FontAwesomeIcon icon="chevron-right" className="read-more-arrow read-more-arrow-3" />
+            </span>
           </Link>
         </div>
       </div>
