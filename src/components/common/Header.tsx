@@ -263,14 +263,14 @@ export default function Header({
                   <FontAwesomeIcon icon="search" className="icon-boop-target" style={searchIconStyle} />
                 </button>
               )}
+              <div className="d-flex align-items-center">
+                <VoiceToggler />
+              </div>
               {!isMobile && (
                 <div className="d-flex align-items-center">
                   <LanguageSwitcher />
                 </div>
               )}
-              <div className="d-flex align-items-center">
-                <VoiceToggler />
-              </div>
               {!isMobile && (
                 <div className="d-flex align-items-center">
                   <ThemeToggler />
