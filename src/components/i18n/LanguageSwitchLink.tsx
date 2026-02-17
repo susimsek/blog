@@ -1,9 +1,9 @@
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import languageDetector from '@/lib/languageDetector';
 import { defaultLocale, isSupportedLocale } from '@/i18n/settings';
 import type { Locale } from '@/i18n/settings';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { LOCALES } from '@/config/constants';
 import FlagIcon from '@/components/common/FlagIcon';
 
@@ -15,18 +15,11 @@ interface LanguageSwitchLinkProps {
 const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href }) => {
   const router = useRouter();
   const pathname = usePathname() ?? '/';
-  const searchParams = useSearchParams();
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
   const currentLocale: Locale = routeLocale && isSupportedLocale(routeLocale) ? routeLocale : defaultLocale;
 
   const isExternalHref = href?.startsWith('http');
-
-  const sanitizedQuery = useMemo(() => {
-    const nextParams = new URLSearchParams(searchParams.toString());
-    nextParams.delete('locale');
-    return nextParams.toString();
-  }, [searchParams]);
 
   const buildLocalizedHref = () => {
     if (isExternalHref && href) {
@@ -53,6 +46,15 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
 
     const normalizedPath = basePath === '/' ? '' : basePath;
     const localizedPath = `/${locale}${normalizedPath}`;
+    const sanitizedQuery = (() => {
+      if (typeof globalThis.window === 'undefined') {
+        return '';
+      }
+      const nextParams = new URLSearchParams(globalThis.window.location.search);
+      nextParams.delete('locale');
+      return nextParams.toString();
+    })();
+
     return sanitizedQuery ? `${localizedPath}?${sanitizedQuery}` : localizedPath;
   };
 

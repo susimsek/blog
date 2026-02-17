@@ -1,6 +1,6 @@
 import React, { ReactNode, MouseEvent, forwardRef } from 'react';
 import NextLink, { LinkProps } from 'next/link';
-import { useParams, usePathname, useSearchParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import i18nextConfig from '@/i18n/settings';
 
 interface LinkComponentProps extends Omit<LinkProps, 'href'> {
@@ -68,14 +68,9 @@ const LinkComponent = forwardRef<HTMLAnchorElement, LinkComponentProps>(
   ({ children, skipLocaleHandling = false, href, locale, className, onClick, ...rest }, ref) => {
     const params = useParams<{ locale?: string | string[] }>();
     const pathname = usePathname() ?? '/';
-    const searchParams = useSearchParams();
     const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
     const activeLocale = locale ?? routeLocale ?? i18nextConfig.i18n.defaultLocale;
-    const currentPathWithQuery = (() => {
-      const query = searchParams.toString();
-      return query ? `${pathname}?${query}` : pathname;
-    })();
-    const resolvedHref = href ?? currentPathWithQuery;
+    const resolvedHref = href ?? pathname;
 
     const external = isExternalUrl(resolvedHref);
     const shouldHandleLocale = !skipLocaleHandling && !external && !!activeLocale;

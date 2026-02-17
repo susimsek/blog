@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useEffect, useRef } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { PostSummary } from '@/types/posts';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
@@ -29,7 +29,11 @@ export default function PostList({ posts, noPostsFoundMessage, highlightQuery }:
   const router = useRouter();
   const pathname = usePathname() ?? '/';
   const isSearchRoute = /(?:^|\/)search(?:\/|$)/.test(pathname);
-  const searchParams = useSearchParams();
+  const [urlSearch, setUrlSearch] = React.useState('');
+  const searchParams = useMemo(
+    () => new URLSearchParams(urlSearch.startsWith('?') ? urlSearch.slice(1) : urlSearch),
+    [urlSearch],
+  );
   const dispatch = useAppDispatch();
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const lastSyncedRouteRef = useRef<string>('');
@@ -51,6 +55,23 @@ export default function PostList({ posts, noPostsFoundMessage, highlightQuery }:
     () => fetchedPosts.filter(post => scopedPostIds.has(post.id)),
     [fetchedPosts, scopedPostIds],
   );
+
+  useEffect(() => {
+    if (typeof globalThis.window === 'undefined') {
+      return;
+    }
+
+    const syncSearchFromLocation = () => {
+      setUrlSearch(globalThis.window.location.search);
+    };
+
+    syncSearchFromLocation();
+    globalThis.window.addEventListener('popstate', syncSearchFromLocation);
+
+    return () => {
+      globalThis.window.removeEventListener('popstate', syncSearchFromLocation);
+    };
+  }, [pathname]);
 
   useEffect(() => {
     const routePageValue = searchParams.get('page');
@@ -112,7 +133,8 @@ export default function PostList({ posts, noPostsFoundMessage, highlightQuery }:
     params.set('page', String(normalizedPage));
     params.set('size', String(pageSize));
     const nextQuery = params.toString();
-    router.push(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+    const nextSearch = nextQuery ? `?${nextQuery}` : '';
+    router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
   }, [dispatch, page, pageSize, pathname, router, searchParams, totalPages]);
 
   const paginatedPosts = useMemo(
@@ -142,7 +164,9 @@ export default function PostList({ posts, noPostsFoundMessage, highlightQuery }:
       params.set('page', String(newPage));
       params.set('size', String(pageSize));
       const nextQuery = params.toString();
-      router.push(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+      const nextSearch = nextQuery ? `?${nextQuery}` : '';
+      setUrlSearch(nextSearch);
+      router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
       scrollToListStart();
     },
     [dispatch, pageSize, pathname, router, scrollToListStart, searchParams],
@@ -155,7 +179,9 @@ export default function PostList({ posts, noPostsFoundMessage, highlightQuery }:
       params.set('page', '1');
       params.set('size', String(size));
       const nextQuery = params.toString();
-      router.push(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+      const nextSearch = nextQuery ? `?${nextQuery}` : '';
+      setUrlSearch(nextSearch);
+      router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
       scrollToListStart();
     },
     [dispatch, pathname, router, scrollToListStart, searchParams],

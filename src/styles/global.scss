@@ -187,6 +187,35 @@ html {
   }
 }
 
+@media (max-width: 576px) {
+  .post-detail-breadcrumb {
+    .breadcrumb {
+      font-size: 0.875rem;
+      flex-wrap: nowrap;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .breadcrumb-item {
+      min-width: 0;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+      float: none;
+      padding-right: 0.4rem;
+    }
+
+    .breadcrumb-item.active {
+      flex: 1 1 auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+      max-width: 100%;
+    }
+  }
+}
+
 .post-detail-title {
   margin-bottom: var(--space-24);
 }
