@@ -194,15 +194,10 @@ export default function Header({
       )}
       <Navbar.Brand as={Link} href="/" className="navbar-brand link">
         <Image src={SITE_LOGO} alt={t('common.header.title')} width={40} height={40} className="rounded-circle" />
-        <span className="ms-2 fw-bold" style={{ fontSize: '1.25rem' }}>
-          {t('common.header.title')}
-        </span>
+        <span className="navbar-brand-text ms-2 fw-bold">{t('common.header.title')}</span>
       </Navbar.Brand>
       {isMobile && (
         <Nav className="mobile-header-actions d-flex align-items-center flex-nowrap ms-auto d-lg-none">
-          <div className="d-flex align-items-center mobile-theme-slot">
-            <ThemeToggler />
-          </div>
           {searchEnabled && (
             <button
               type="button"
@@ -214,6 +209,12 @@ export default function Header({
               <FontAwesomeIcon icon="search" className="icon-boop-target" style={searchIconStyle} />
             </button>
           )}
+          <div className="d-flex align-items-center mobile-language-slot">
+            <LanguageSwitcher />
+          </div>
+          <div className="d-flex align-items-center mobile-theme-slot">
+            <ThemeToggler />
+          </div>
         </Nav>
       )}
       <Navbar.Toggle

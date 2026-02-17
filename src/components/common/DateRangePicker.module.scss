@@ -1,5 +1,5 @@
 .datePickerDropdown :global(.dropdown-menu) {
-  min-width: 200px;
+  min-width: min(200px, calc(100vw - 2rem));
 }
 
 .datePickerClearButtonContainer {
@@ -62,8 +62,8 @@
 }
 
 :global(.react-datepicker__day:hover) {
-  background-color: var(--hover-brightness) !important;
-  color: var(--text-color) !important;
+  background-color: var(--dropdown-hover-bg) !important;
+  color: var(--dropdown-hover-color) !important;
   transition:
     background-color var(--transition-speed) ease,
     color var(--transition-speed) ease;

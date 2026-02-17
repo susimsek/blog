@@ -7,7 +7,6 @@ import type { PostsQueryState } from '@/reducers/postsQuery';
 
 const useRouterMock = jest.fn();
 const usePathnameMock = jest.fn();
-const useSearchParamsMock = jest.fn();
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
@@ -20,7 +19,6 @@ jest.mock('@/hooks/useDebounce', () => jest.fn((value: string) => value));
 jest.mock('next/navigation', () => ({
   useRouter: () => useRouterMock(),
   usePathname: () => usePathnameMock(),
-  useSearchParams: () => useSearchParamsMock(),
   useParams: () => ({ locale: 'en' }),
 }));
 
@@ -123,7 +121,6 @@ jest.mock('@/components/common/TopicsDropdown', () => ({
 describe('PostList Component', () => {
   const scrollIntoViewMock = jest.fn();
   let pushMock: jest.Mock;
-  let currentSearchParams: URLSearchParams;
   const basePostsQueryState: PostsQueryState = {
     query: '',
     sortOrder: 'desc',
@@ -155,10 +152,9 @@ describe('PostList Component', () => {
   beforeEach(() => {
     scrollIntoViewMock.mockClear();
     pushMock = jest.fn();
-    currentSearchParams = new URLSearchParams();
     useRouterMock.mockReturnValue({ push: pushMock });
     usePathnameMock.mockReturnValue('/');
-    useSearchParamsMock.mockImplementation(() => currentSearchParams);
+    window.history.replaceState({}, '', '/');
   });
   it('renders all components correctly', () => {
     renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
@@ -179,7 +175,7 @@ describe('PostList Component', () => {
   });
 
   it('filters posts based on route query', () => {
-    currentSearchParams = new URLSearchParams('q=Post 3');
+    window.history.replaceState({}, '', '/?q=Post%203');
     renderWithProviders(<PostList posts={mockPostSummaries} />, {
       preloadedState: buildPreloadedState({ topics: [] }),
     });
@@ -265,7 +261,7 @@ describe('PostList Component', () => {
   });
 
   it('keeps active page from route query when q is empty', async () => {
-    currentSearchParams = new URLSearchParams('page=2&size=5');
+    window.history.replaceState({}, '', '/?page=2&size=5');
 
     renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
 
@@ -283,7 +279,7 @@ describe('PostList Component', () => {
   });
 
   it('applies sort order even when search query exists', () => {
-    currentSearchParams = new URLSearchParams('q=post&page=1&size=5');
+    window.history.replaceState({}, '', '/?q=post&page=1&size=5');
 
     renderWithProviders(<PostList posts={mockPostSummaries} />, {
       preloadedState: buildPreloadedState({ topics: [] }),
@@ -297,7 +293,7 @@ describe('PostList Component', () => {
   });
 
   it('normalizes out-of-range route page and updates url', async () => {
-    currentSearchParams = new URLSearchParams('q=post&page=3&size=5');
+    window.history.replaceState({}, '', '/?q=post&page=3&size=5');
 
     renderWithProviders(<PostList posts={mockPostSummaries} />, {
       preloadedState: buildPreloadedState({ topics: [] }),

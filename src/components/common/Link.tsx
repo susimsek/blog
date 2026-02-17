@@ -70,7 +70,17 @@ const LinkComponent = forwardRef<HTMLAnchorElement, LinkComponentProps>(
     const pathname = usePathname() ?? '/';
     const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
     const activeLocale = locale ?? routeLocale ?? i18nextConfig.i18n.defaultLocale;
-    const resolvedHref = href ?? pathname;
+    const resolvedHref = React.useMemo(() => {
+      if (href) {
+        return href;
+      }
+
+      if (typeof globalThis.window === 'undefined') {
+        return pathname;
+      }
+
+      return `${pathname}${globalThis.window.location.search}${globalThis.window.location.hash}`;
+    }, [href, pathname]);
 
     const external = isExternalUrl(resolvedHref);
     const shouldHandleLocale = !skipLocaleHandling && !external && !!activeLocale;

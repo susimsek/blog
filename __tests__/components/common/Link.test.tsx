@@ -10,7 +10,6 @@ const mockNextLinkComponent = jest.fn(({ children, locale, ...props }: any) => (
 
 const useParamsMock = jest.fn();
 const usePathnameMock = jest.fn();
-const useSearchParamsMock = jest.fn();
 
 jest.mock('next/link', () => ({
   __esModule: true,
@@ -20,14 +19,13 @@ jest.mock('next/link', () => ({
 jest.mock('next/navigation', () => ({
   useParams: () => useParamsMock(),
   usePathname: () => usePathnameMock(),
-  useSearchParams: () => useSearchParamsMock(),
 }));
 
 describe('Link', () => {
   beforeEach(() => {
     useParamsMock.mockReturnValue({ locale: 'en-US' });
     usePathnameMock.mockReturnValue('/current-path');
-    useSearchParamsMock.mockReturnValue(new URLSearchParams());
+    window.history.replaceState({}, '', '/current-path');
   });
 
   afterEach(() => {
@@ -103,7 +101,7 @@ describe('Link', () => {
   });
 
   it('includes current query params when href is not provided', () => {
-    useSearchParamsMock.mockReturnValue(new URLSearchParams('page=2&q=next'));
+    window.history.replaceState({}, '', '/current-path?page=2&q=next');
 
     render(
       <Link>

@@ -19,7 +19,7 @@ interface PostFiltersProps {
 
 const DateRangePicker = dynamic(() => import('@/components/common/DateRangePicker'), {
   ssr: false,
-  loading: () => <div className="mb-2" style={{ minWidth: '220px' }} />,
+  loading: () => <div className="post-filters-date-loading mb-2" />,
 });
 
 export function PostFilters({ showSourceFilter }: Readonly<PostFiltersProps>) {
@@ -34,7 +34,7 @@ export function PostFilters({ showSourceFilter }: Readonly<PostFiltersProps>) {
 
   return (
     <div className="d-flex flex-wrap align-items-center mb-3">
-      <div className="post-filters-row d-flex flex-column flex-md-row align-items-stretch w-100 w-md-auto">
+      <div className="post-filters-row d-flex flex-column flex-md-row align-items-stretch">
         {fetchedTopics.length > 0 && (
           <TopicsDropdown
             topics={fetchedTopics}

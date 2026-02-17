@@ -24,7 +24,7 @@ const PageSizeSelector: React.FC<PageSizeSelectorProps> = ({
       <Form.Label htmlFor="postsPerPageSelect" className="me-2 mb-0 text-muted text-nowrap">
         {t('common.pagination.pageSize')}
       </Form.Label>
-      <div className="position-relative d-inline-block" style={{ width: '100px' }}>
+      <div className="page-size-select-wrap position-relative d-inline-block">
         <Form.Select
           id="postsPerPageSelect"
           className="mb-0"

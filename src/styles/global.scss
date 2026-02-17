@@ -698,6 +698,13 @@ body {
 
 .post-filters-row {
   gap: var(--space-12);
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .post-filters-row {
+    width: auto;
+  }
 }
 
 html.theme-transitioning body {
@@ -741,7 +748,7 @@ mark {
   left: 0;
   width: 100%;
   height: 4px;
-  background-color: rgba(127, 127, 127, 0.2);
+  background-color: color-mix(in srgb, var(--text-color) 20%, transparent);
   z-index: 1200;
   opacity: 1;
   transition: opacity 0.15s ease;
@@ -836,6 +843,7 @@ mark {
 
   .navbar-brand {
     color: var(--text-color);
+    min-width: 0;
     @include transition(color);
 
     &:hover {
@@ -868,6 +876,16 @@ mark {
   }
 }
 
+.navbar-brand-text {
+  display: inline-block;
+  max-width: min(56vw, 20rem);
+  font-size: 1.25rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .mobile-header-actions {
   gap: 0.2rem;
   margin-right: 0.35rem;
@@ -881,8 +899,8 @@ mark {
 
   .mobile-search-btn,
   .dropdown-toggle {
-    width: 2rem;
-    height: 2rem;
+    width: 2.5rem;
+    height: 2.5rem;
     border-radius: 999px;
     display: inline-flex;
     align-items: center;
@@ -894,12 +912,16 @@ mark {
     line-height: 1;
   }
 
-  .mobile-theme-slot {
+  .mobile-search-btn {
+    order: 1;
+  }
+
+  .mobile-language-slot {
     order: 2;
   }
 
-  .mobile-search-btn {
-    order: 1;
+  .mobile-theme-slot {
+    order: 3;
   }
 
   .dropdown-toggle::after {
@@ -930,6 +952,7 @@ mark {
     margin: 0;
   }
 
+  .mobile-language-slot,
   .mobile-theme-slot,
   .dropdown {
     position: relative;
@@ -977,9 +1000,9 @@ mark {
 }
 
 .sidebar {
-  position: sticky;
-  top: 67px;
-  height: calc(100vh - 67px);
+  position: relative;
+  top: 0;
+  height: 100%;
   overflow-y: auto;
   background-color: var(--sidebar-bg);
   color: var(--text-color);
@@ -1019,13 +1042,29 @@ mark {
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
-.footer-visible .sidebar {
-  height: calc(100vh - 67px - 57px);
+@media (min-width: 992px) {
+  .sidebar {
+    position: sticky;
+    top: 67px;
+    height: calc(100dvh - 67px);
+  }
+
+  .footer-visible .sidebar {
+    height: calc(100dvh - 67px - 57px);
+  }
+}
+
+.offcanvas .sidebar {
+  position: static;
+  top: auto;
+  height: 100%;
+  border-right: 0;
+  box-shadow: none;
 }
 
 .sidebar-toggler {
-  width: 2rem;
-  height: 2rem;
+  width: 2.5rem;
+  height: 2.5rem;
   padding: 0 !important;
   display: inline-flex;
   align-items: center;
@@ -1072,11 +1111,25 @@ mark {
 }
 
 @media (max-width: 991px) {
+  .navbar {
+    flex-wrap: nowrap;
+  }
+
+  .navbar .navbar-brand {
+    flex: 1 1 auto;
+    margin-right: 0.45rem;
+    min-width: 0;
+  }
+
+  .navbar-brand-text {
+    display: none;
+  }
+
   .navbar .navbar-toggler,
   .mobile-header-actions .mobile-search-btn,
   .mobile-header-actions .dropdown-toggle {
-    width: 2rem;
-    height: 2rem;
+    width: 2.5rem;
+    height: 2.5rem;
     padding: 0 !important;
     display: inline-flex;
     align-items: center;
@@ -1086,8 +1139,14 @@ mark {
     box-shadow: none !important;
   }
 
+  .mobile-header-actions,
+  .navbar .navbar-toggler {
+    flex-shrink: 0;
+  }
+
   .navbar .navbar-toggler {
     border-radius: 0.6rem;
+    margin-left: 0.1rem;
   }
 
   .sidebar-toggler-icon,
@@ -1111,6 +1170,17 @@ mark {
     min-width: 20px;
     min-height: 20px;
   }
+}
+
+.language-switch-flag {
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+}
+
+.sidebar-close-icon {
+  font-size: 1.25rem;
+  line-height: 1;
 }
 
 main {
@@ -1218,7 +1288,7 @@ h6 {
       &:hover {
         color: var(--link-hover-color);
         border-color: var(--link-hover-color);
-        background-color: rgba(0, 0, 0, 0.05);
+        background-color: color-mix(in srgb, var(--text-color) 8%, transparent);
       }
     }
 
@@ -1243,7 +1313,7 @@ select.form-select {
   -moz-appearance: none;
   background-image: none !important;
 
-  background-color: var(--main-bg-color);
+  background-color: var(--main-bg);
   color: var(--text-color);
   border: 1px solid var(--border-color);
   border-radius: 4px;
@@ -1253,7 +1323,7 @@ select.form-select {
   @include transition(background-color, color, border-color, box-shadow);
 
   &:focus {
-    background-color: var(--main-bg-color);
+    background-color: var(--main-bg);
     border-color: var(--link-color);
     outline: none;
     box-shadow: var(--box-shadow-focus);
@@ -2605,7 +2675,8 @@ svg {
 }
 
 .topics-dropdown .dropdown-menu {
-  min-width: 300px;
+  min-width: min(300px, calc(100vw - 2rem));
+  width: min(300px, calc(100vw - 2rem));
 }
 
 .btn-badge {
@@ -2717,6 +2788,8 @@ label {
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  min-height: 100dvh;
+  overflow-y: auto;
   padding: clamp(3.6rem, 12vh, 7.2rem) 0.9rem 1.2rem;
 }
 
@@ -2787,6 +2860,9 @@ label {
 
 .search-overlay .search-container {
   max-width: 44rem;
+  max-height: calc(100dvh - clamp(6rem, 17vh, 10rem));
+  display: flex;
+  flex-direction: column;
   border-radius: 14px;
   border: 1px solid var(--search-surface-border);
   background: linear-gradient(165deg, var(--search-surface-bg-soft), var(--search-surface-bg) 72%);
@@ -2850,7 +2926,7 @@ label {
   position: static;
   top: auto;
   margin-top: 0;
-  max-height: min(62vh, 540px);
+  max-height: min(62vh, calc(100dvh - 11rem));
   overflow-y: auto;
   border-radius: 0;
   border: 0;
@@ -2913,6 +2989,14 @@ label {
 
   .search-results {
     max-height: 52vh;
+  }
+
+  .search-overlay .search-container {
+    max-height: calc(100dvh - 5.75rem);
+  }
+
+  .search-overlay .search-results {
+    max-height: calc(100dvh - 9.3rem);
   }
 }
 
@@ -2988,6 +3072,32 @@ label {
   .me-md-64 {
     margin-right: 64px;
   }
+}
+
+.page-size-select-wrap {
+  width: 6.25rem;
+}
+
+@media (max-width: 576px) {
+  .page-size-select-wrap {
+    width: 5.5rem;
+  }
+}
+
+.post-filters-date-loading {
+  width: 100%;
+  min-width: 220px;
+  min-height: 2.75rem;
+}
+
+@media (max-width: 768px) {
+  .post-filters-date-loading {
+    min-width: 100%;
+  }
+}
+
+.loading-screen {
+  min-height: 100dvh;
 }
 
 .offcanvas {

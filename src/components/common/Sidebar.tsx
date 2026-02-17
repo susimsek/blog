@@ -88,7 +88,7 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
           aria-label="Close"
           onClick={onClose}
         >
-          <FontAwesomeIcon icon="times" style={{ fontSize: '1.5rem' }} />
+          <FontAwesomeIcon icon="times" className="sidebar-close-icon" />
         </button>
       </Offcanvas.Header>
       <Offcanvas.Body className="sidebar">{sidebarContent}</Offcanvas.Body>

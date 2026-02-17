@@ -5,13 +5,11 @@ import languageDetector from '@/lib/languageDetector';
 const replaceMock = jest.fn();
 const useRouterMock = jest.fn();
 const usePathnameMock = jest.fn();
-const useSearchParamsMock = jest.fn();
 const useParamsMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
   useRouter: () => useRouterMock(),
   usePathname: () => usePathnameMock(),
-  useSearchParams: () => useSearchParamsMock(),
   useParams: () => useParamsMock(),
 }));
 
@@ -34,8 +32,8 @@ describe('LanguageSwitchLink', () => {
     replaceMock.mockReset();
     useRouterMock.mockReturnValue({ replace: replaceMock });
     usePathnameMock.mockReturnValue('/en/post/123');
-    useSearchParamsMock.mockReturnValue(new URLSearchParams());
     useParamsMock.mockReturnValue({ locale: 'en' });
+    window.history.replaceState({}, '', '/en/post/123');
   });
 
   it('renders locale label and flag', () => {
@@ -73,7 +71,7 @@ describe('LanguageSwitchLink', () => {
   });
 
   it('keeps non-locale search params', () => {
-    useSearchParamsMock.mockReturnValue(new URLSearchParams('locale=en&page=2&tags=react&tags=ssg'));
+    window.history.replaceState({}, '', '/en/post/123?locale=en&page=2&tags=react&tags=ssg');
 
     render(<LanguageSwitchLink locale="tr" />);
     fireEvent.click(screen.getByRole('button'));

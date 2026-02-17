@@ -74,10 +74,9 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
     >
       <span className="d-flex align-items-center">
         <FlagIcon
-          className="me-2"
+          className="language-switch-flag me-2"
           code={localeEntry?.locale ?? locale}
           alt={`${localeEntry?.name ?? locale} flag`}
-          style={{ width: 20 }}
         />
         {localeEntry?.name ?? locale}
       </span>
