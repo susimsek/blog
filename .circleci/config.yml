@@ -40,7 +40,7 @@ jobs:
 
       - snyk/scan:
           fail-on-issues: false
-          additional-arguments: "--file=pnpm-lock.yaml"
+          additional-arguments: "--all-projects --exclude=go.mod"
 
       - run:
           name: Run Tests
