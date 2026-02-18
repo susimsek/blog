@@ -146,7 +146,9 @@ This repository now includes a minimal Go Vercel Function at `api/ping.go`.
 
 - Endpoint: `/api/ping`
 - Method: `GET`
-- Response: JSON `{"status":"ok","message":"pong",...}`
+- Atlas-backed health response:
+  - `200`: `{"status":"ok","message":"pong","database":"up",...}`
+  - `503`: `{"status":"error","message":"pong (mongo unavailable)","database":"down",...}`
 
 Local test command after deploy:
 
@@ -157,6 +159,7 @@ curl https://<your-domain>/api/ping
 Optional environment variable:
 
 - `API_CORS_ORIGIN`: Allowed CORS origin (default is `*`)
+- `MONGODB_URI`: MongoDB Atlas SRV URI (`mongodb+srv://...`)
 
 ### Docker Compose Deployment
 
