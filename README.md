@@ -140,6 +140,24 @@ pnpm run sonar
 
 ## 🚀 Deployment
 
+### Vercel Go API (`/api/ping`)
+
+This repository now includes a minimal Go Vercel Function at `api/ping.go`.
+
+- Endpoint: `/api/ping`
+- Method: `GET`
+- Response: JSON `{"status":"ok","message":"pong",...}`
+
+Local test command after deploy:
+
+```bash
+curl https://<your-domain>/api/ping
+```
+
+Optional environment variable:
+
+- `API_CORS_ORIGIN`: Allowed CORS origin (default is `*`)
+
 ### Docker Compose Deployment
 
 To deploy the application using Docker Compose, run the following command:
