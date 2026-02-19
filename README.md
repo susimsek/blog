@@ -140,13 +140,10 @@ pnpm run sonar
 
 ## 🚀 Deployment
 
-### Vercel Go API (`/api/ping`)
+### Vercel Go API
 
 This repository now includes Go Vercel Functions:
 
-- Health endpoint: `/api/ping` (`GET`)
-  - `200`: `{"status":"ok","message":"pong","database":"up",...}`
-  - `503`: `{"status":"error","message":"pong (mongo unavailable)","database":"down",...}`
 - Newsletter subscribe endpoint: `/api/subscribe-user` (`POST`)
 - Newsletter resend endpoint: `/api/subscribe-resend` (`POST`)
 - Newsletter confirm endpoint: `/api/subscribe-confirm?token=...` (`GET`)
@@ -156,12 +153,6 @@ This repository now includes Go Vercel Functions:
   - Dispatch uses campaign dedupe (`locale + itemKey`), recipient-level delivery logs, and retry for partial campaigns.
   - Announcement emails include `List-Unsubscribe`, `List-Unsubscribe-Post` headers and one-click unsubscribe link.
   - Frontend subscribe flow supports confirmation resend (`/api/subscribe-resend`) after initial signup.
-
-Local test command after deploy:
-
-```bash
-curl https://<your-domain>/api/ping
-```
 
 Required environment variables:
 
@@ -185,6 +176,7 @@ Optional SMTP variables:
 - `GMAIL_SMTP_PORT`: SMTP port (defaults to `587`)
 - `NEWSLETTER_UNSUBSCRIBE_SECRET`: Token signing secret for one-click unsubscribe links
 - `NEWSLETTER_MAX_RECIPIENTS_PER_RUN`: Per-locale send cap for one cron run (default `200`)
+- `NEWSLETTER_MAX_ITEM_AGE_HOURS`: Freshness filter for RSS items; items older than this are skipped (default `168`)
 - `NEWSLETTER_UNSUBSCRIBE_TOKEN_TTL_HOURS`: Unsubscribe token TTL in hours (default `8760`)
 
 ### Docker Compose Deployment

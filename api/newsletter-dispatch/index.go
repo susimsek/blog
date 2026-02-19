@@ -33,6 +33,7 @@ const (
 	defaultSMTPHost                 = "smtp.gmail.com"
 	defaultSMTPPort                 = "587"
 	defaultMaxRecipientsPerRun      = 200
+	defaultMaxItemAgeHours          = 24 * 7
 	defaultDispatchTimeout          = 8 * time.Second
 	defaultUnsubscribeTokenTTLHours = 24 * 365
 
@@ -242,6 +243,20 @@ func resolveMaxRecipientsPerRun() int {
 	return parsed
 }
 
+func resolveMaxItemAge() time.Duration {
+	value := strings.TrimSpace(os.Getenv("NEWSLETTER_MAX_ITEM_AGE_HOURS"))
+	if value == "" {
+		return time.Duration(defaultMaxItemAgeHours) * time.Hour
+	}
+
+	parsed, err := strconv.Atoi(value)
+	if err != nil || parsed <= 0 {
+		return time.Duration(defaultMaxItemAgeHours) * time.Hour
+	}
+
+	return time.Duration(parsed) * time.Hour
+}
+
 func resolveUnsubscribeTokenTTL() time.Duration {
 	value := strings.TrimSpace(os.Getenv("NEWSLETTER_UNSUBSCRIBE_TOKEN_TTL_HOURS"))
 	if value == "" {
@@ -254,6 +269,35 @@ func resolveUnsubscribeTokenTTL() time.Duration {
 	}
 
 	return time.Duration(parsed) * time.Hour
+}
+
+func parseRSSItemPubDate(value string) (time.Time, error) {
+	raw := strings.TrimSpace(value)
+	if raw == "" {
+		return time.Time{}, fmt.Errorf("missing pubDate")
+	}
+
+	layouts := []string{
+		time.RFC1123Z,
+		time.RFC1123,
+		time.RFC822Z,
+		time.RFC822,
+		time.RFC3339,
+	}
+
+	var lastErr error
+	for _, layout := range layouts {
+		parsed, err := time.Parse(layout, raw)
+		if err == nil {
+			return parsed.UTC(), nil
+		}
+		lastErr = err
+	}
+
+	if lastErr == nil {
+		lastErr = fmt.Errorf("unsupported pubDate layout")
+	}
+	return time.Time{}, lastErr
 }
 
 func resolveRSSURL(siteURL, locale string) string {
@@ -742,6 +786,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	maxRecipients := resolveMaxRecipientsPerRun()
+	maxItemAge := resolveMaxItemAge()
 	subscribersCollection := client.Database(databaseName).Collection(newsletterSubscribersCollection)
 	campaignsCollection := client.Database(databaseName).Collection(newsletterCampaignsCollection)
 	deliveriesCollection := client.Database(databaseName).Collection(newsletterDeliveriesCollection)
@@ -801,6 +846,21 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		result.PostTitle = strings.TrimSpace(item.Title)
 
 		now := time.Now().UTC()
+		publishedAt, pubDateErr := parseRSSItemPubDate(item.PubDate)
+		if pubDateErr != nil {
+			result.Skipped = true
+			result.Reason = "rss-pubdate-invalid"
+			results[locale] = result
+			continue
+		}
+
+		if now.Sub(publishedAt) > maxItemAge {
+			result.Skipped = true
+			result.Reason = "stale-item"
+			results[locale] = result
+			continue
+		}
+
 		campaignStatus, created, campaignErr := getOrCreateCampaign(campaignsCollection, locale, itemKey, *item, rssURL, now)
 		if campaignErr != nil {
 			result.Skipped = true
