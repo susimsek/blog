@@ -101,6 +101,24 @@ interface Resources {
         aboutTitle: 'About';
         contactCta: 'Contact';
         latestPostsTitle: 'Latest posts';
+        newsletter: {
+          description: 'Get practical backend + fullstack notes when new articles are published.';
+          emailLabel: 'Newsletter email';
+          errors: {
+            generic: 'Something went wrong while subscribing. Please try again.';
+            invalidEmail: 'Please enter a valid email address.';
+            rateLimited: 'Too many requests. Please wait a minute and try again.';
+            required: 'Email is required.';
+          };
+          honeypotLabel: 'Are you a human? If so, please ignore this checkbox.';
+          placeholder: 'you@domain.com';
+          resend: "Didn't get the email? Resend confirmation.";
+          resending: 'Resending...';
+          resent: 'Confirmation email sent again. Check your inbox and spam folder.';
+          submit: 'Join';
+          submitting: 'Joining...';
+          success: 'Welcome aboard. Please check your inbox for the confirmation email.';
+        };
         rss: 'RSS';
         socialTitle: 'Social';
         startHereCta: 'Start here';

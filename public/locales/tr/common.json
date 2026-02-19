@@ -48,6 +48,24 @@
       "latestPostsTitle": "Son yazılar",
       "topTopicsTitle": "Popüler konular",
       "subscribeTitle": "Abone ol",
+      "newsletter": {
+        "description": "Yeni yazılar yayınlandığında pratik backend ve fullstack notlarını al.",
+        "emailLabel": "Bülten e-posta adresi",
+        "placeholder": "eposta@alanadi.com",
+        "submit": "Katıl",
+        "submitting": "Katılınıyor...",
+        "success": "Abonelik tamamlandı. Onay e-postası için gelen kutunu kontrol et.",
+        "resent": "Onay e-postası tekrar gönderildi. Gelen kutunu ve spam klasörünü kontrol et.",
+        "resend": "E-posta gelmedi mi? Onay e-postasını tekrar gönder.",
+        "resending": "Tekrar gönderiliyor...",
+        "honeypotLabel": "Eğer insansan bu kutuyu boş bırak.",
+        "errors": {
+          "required": "E-posta alanı zorunludur.",
+          "invalidEmail": "Lütfen geçerli bir e-posta adresi gir.",
+          "rateLimited": "Çok sık denedin. Lütfen 1 dakika sonra tekrar dene.",
+          "generic": "Abone olurken bir sorun oluştu. Lütfen tekrar dene."
+        }
+      },
       "rss": "RSS",
       "socialTitle": "Sosyal"
     },

@@ -1184,15 +1184,15 @@ mark {
   }
 
   .pre-footer-latest-icon {
+    color: inherit;
     opacity: 0.76;
     transform: translateX(0);
-    @include transition(color, opacity, transform);
+    @include transition(opacity, transform);
   }
 
   .pre-footer-latest-link:hover .pre-footer-latest-icon,
   .pre-footer-latest-link:focus-visible .pre-footer-latest-icon {
     opacity: 1;
-    color: var(--link-hover-color) !important;
     transform: translateX(3px);
   }
 
@@ -1218,6 +1218,191 @@ mark {
   .pre-footer-social-icon {
     width: 1.15rem;
     height: 1.15rem;
+  }
+
+  .pre-footer-newsletter-form {
+    max-width: 28rem;
+  }
+
+  .pre-footer-newsletter-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 1rem;
+    padding: 0.35rem;
+    border: 1px solid color-mix(in srgb, var(--border-color) 88%, var(--active-color) 12%);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--main-bg) 90%, var(--input-bg-color) 10%),
+      color-mix(in srgb, var(--main-bg) 82%, var(--dropdown-hover-bg) 18%)
+    );
+    box-shadow:
+      0 10px 20px color-mix(in srgb, var(--text-color) 10%, transparent),
+      inset 0 1px 0 color-mix(in srgb, var(--main-bg) 70%, transparent);
+    @include transition(border-color, box-shadow, background-color);
+
+    &:focus-within {
+      border-color: color-mix(in srgb, var(--active-color) 68%, var(--border-color) 32%);
+      box-shadow:
+        0 12px 24px color-mix(in srgb, var(--active-color) 18%, transparent),
+        0 0 0 3px color-mix(in srgb, var(--active-color) 18%, transparent);
+    }
+
+    &.has-error {
+      border-color: color-mix(in srgb, var(--danger-bg) 72%, var(--border-color) 28%);
+      box-shadow:
+        0 8px 16px color-mix(in srgb, var(--danger-bg) 16%, transparent),
+        0 0 0 2px color-mix(in srgb, var(--danger-bg) 14%, transparent);
+    }
+  }
+
+  .pre-footer-newsletter-input {
+    min-height: 2.95rem;
+    border-radius: 0.75rem;
+    border: 0;
+    background: transparent;
+    color: var(--text-color);
+    box-shadow: none;
+    padding-inline: 0.85rem;
+    font-size: 1.06rem;
+    letter-spacing: 0.01em;
+    @include transition(color);
+
+    &::placeholder {
+      color: color-mix(in srgb, var(--muted-text-color) 85%, var(--text-color) 15%);
+    }
+
+    &:focus {
+      background: transparent;
+      color: var(--text-color);
+      box-shadow: none;
+    }
+
+    &.is-invalid {
+      border: 0;
+      background-image: none;
+      box-shadow: none;
+      padding-right: 0.85rem;
+    }
+  }
+
+  .pre-footer-newsletter-submit {
+    min-width: 3.1rem;
+    min-height: 2.95rem;
+    border-radius: 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--primary-hover) 38%, var(--primary-bg) 62%);
+    color: var(--primary-color) !important;
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--primary-bg) 94%, var(--primary-hover) 6%),
+      color-mix(in srgb, var(--primary-bg) 78%, var(--primary-hover) 22%)
+    );
+    white-space: nowrap;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 0.9rem;
+    font-size: 1.45rem;
+    @include transition(color, background-color, border-color, box-shadow);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--primary-color) !important;
+      background: linear-gradient(
+        160deg,
+        color-mix(in srgb, var(--primary-hover) 90%, var(--primary-bg) 10%),
+        color-mix(in srgb, var(--primary-hover) 76%, var(--primary-bg) 24%)
+      );
+      border-color: color-mix(in srgb, var(--primary-hover) 78%, var(--primary-bg) 22%);
+      box-shadow: 0 10px 20px color-mix(in srgb, var(--primary-bg) 34%, transparent);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      box-shadow: none;
+    }
+
+    .svg-inline--fa {
+      color: currentColor !important;
+    }
+
+    .svg-inline--fa path {
+      fill: currentColor !important;
+    }
+
+    svg {
+      color: currentColor !important;
+      opacity: 0.76;
+      transform: translateX(0);
+      @include transition(color, opacity, transform);
+    }
+
+    &:hover svg,
+    &:focus-visible svg {
+      opacity: 1;
+      transform: translateX(3px);
+    }
+  }
+
+  .pre-footer-newsletter-submit-text {
+    font-size: 0.88rem;
+    letter-spacing: 0.01em;
+  }
+
+  .pre-footer-newsletter-feedback {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 0;
+  }
+
+  .pre-footer-newsletter-resend {
+    border: 0;
+    padding: 0;
+    color: var(--muted-text-color);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-underline-offset: 0.18em;
+    @include transition(color, text-decoration-color);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--link-hover-color);
+      text-decoration: underline;
+    }
+
+    &:disabled {
+      opacity: 0.72;
+      text-decoration: none;
+      color: var(--muted-text-color);
+      cursor: not-allowed;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .pre-footer {
+    .pre-footer-newsletter-form {
+      max-width: 100%;
+    }
+
+    .pre-footer-newsletter-shell {
+      border-radius: 1rem;
+    }
+
+    .pre-footer-newsletter-submit {
+      min-width: 3rem;
+      min-height: 2.85rem;
+      font-size: 1.25rem;
+    }
+
+    .pre-footer-newsletter-input {
+      min-height: 2.6rem;
+      font-size: 1.05rem;
+      padding-inline: 0.7rem;
+    }
   }
 }
 

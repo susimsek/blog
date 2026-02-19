@@ -48,6 +48,24 @@
       "latestPostsTitle": "Latest posts",
       "topTopicsTitle": "Top topics",
       "subscribeTitle": "Subscribe",
+      "newsletter": {
+        "description": "Get practical backend + fullstack notes when new articles are published.",
+        "emailLabel": "Newsletter email",
+        "placeholder": "you@domain.com",
+        "submit": "Join",
+        "submitting": "Joining...",
+        "success": "Welcome aboard. Please check your inbox for the confirmation email.",
+        "resent": "Confirmation email sent again. Check your inbox and spam folder.",
+        "resend": "Didn't get the email? Resend confirmation.",
+        "resending": "Resending...",
+        "honeypotLabel": "Are you a human? If so, please ignore this checkbox.",
+        "errors": {
+          "required": "Email is required.",
+          "invalidEmail": "Please enter a valid email address.",
+          "rateLimited": "Too many requests. Please wait a minute and try again.",
+          "generic": "Something went wrong while subscribing. Please try again."
+        }
+      },
       "rss": "RSS",
       "socialTitle": "Social"
     },

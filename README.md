@@ -142,13 +142,20 @@ pnpm run sonar
 
 ### Vercel Go API (`/api/ping`)
 
-This repository now includes a minimal Go Vercel Function at `api/ping.go`.
+This repository now includes Go Vercel Functions:
 
-- Endpoint: `/api/ping`
-- Method: `GET`
-- Atlas-backed health response:
+- Health endpoint: `/api/ping` (`GET`)
   - `200`: `{"status":"ok","message":"pong","database":"up",...}`
   - `503`: `{"status":"error","message":"pong (mongo unavailable)","database":"down",...}`
+- Newsletter subscribe endpoint: `/api/subscribe-user` (`POST`)
+- Newsletter resend endpoint: `/api/subscribe-resend` (`POST`)
+- Newsletter confirm endpoint: `/api/subscribe-confirm?token=...` (`GET`)
+- Newsletter unsubscribe endpoint: `/api/subscribe-unsubscribe?token=...` (`GET`)
+- Newsletter dispatch endpoint: `/api/newsletter-dispatch` (`GET`, cron trigger)
+  - Locale is resolved from `Accept-Language` request header (`tr` / `en`) and confirmation flow stays localized.
+  - Dispatch uses campaign dedupe (`locale + itemKey`), recipient-level delivery logs, and retry for partial campaigns.
+  - Announcement emails include `List-Unsubscribe`, `List-Unsubscribe-Post` headers and one-click unsubscribe link.
+  - Frontend subscribe flow supports confirmation resend (`/api/subscribe-resend`) after initial signup.
 
 Local test command after deploy:
 
@@ -156,10 +163,29 @@ Local test command after deploy:
 curl https://<your-domain>/api/ping
 ```
 
-Optional environment variable:
+Required environment variables:
 
-- `API_CORS_ORIGIN`: Allowed CORS origin (default is `*`)
+- `API_CORS_ORIGIN`: Allowed CORS origin (for example `https://suaybsimsek.com`)
 - `MONGODB_URI`: MongoDB Atlas SRV URI (`mongodb+srv://...`)
+- `MONGODB_DATABASE`: Atlas database name used by API routes
+- `SITE_URL`: Public site URL used in confirmation links (for example `https://suaybsimsek.com`)
+- `GMAIL_SMTP_USER`: Gmail address used for SMTP auth
+- `GMAIL_SMTP_APP_PASSWORD`: Gmail App Password (16-char)
+- `CRON_SECRET`: Secret used by Vercel Cron Authorization header for `/api/newsletter-dispatch`
+
+Optional frontend variable:
+
+- `NEXT_PUBLIC_API_BASE_URL`: Absolute API base URL for newsletter requests (for example `https://api.suaybsimsek.com`)
+
+Optional SMTP variables:
+
+- `GMAIL_FROM_EMAIL`: From address shown in email (defaults to `GMAIL_SMTP_USER`)
+- `GMAIL_FROM_NAME`: From display name (defaults to `Suayb's Blog`)
+- `GMAIL_SMTP_HOST`: SMTP host (defaults to `smtp.gmail.com`)
+- `GMAIL_SMTP_PORT`: SMTP port (defaults to `587`)
+- `NEWSLETTER_UNSUBSCRIBE_SECRET`: Token signing secret for one-click unsubscribe links
+- `NEWSLETTER_MAX_RECIPIENTS_PER_RUN`: Per-locale send cap for one cron run (default `200`)
+- `NEWSLETTER_UNSUBSCRIBE_TOKEN_TTL_HOURS`: Unsubscribe token TTL in hours (default `8760`)
 
 ### Docker Compose Deployment
 
