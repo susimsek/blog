@@ -149,6 +149,7 @@ This repository now includes Go Vercel Functions:
 - Newsletter confirm endpoint: `/api/subscribe-confirm?token=...` (`GET`)
 - Newsletter unsubscribe endpoint: `/api/subscribe-unsubscribe?token=...` (`GET`)
 - Newsletter dispatch endpoint: `/api/newsletter-dispatch` (`GET`, cron trigger)
+  - Vercel cron schedule is UTC. To run at `07:00` Turkiye time (UTC+3), use `0 4 * * *`.
   - Locale is resolved from `Accept-Language` request header (`tr` / `en`) and confirmation flow stays localized.
   - Dispatch uses campaign dedupe (`locale + itemKey`), recipient-level delivery logs, and retry for partial campaigns.
   - Announcement emails include `List-Unsubscribe`, `List-Unsubscribe-Post` headers and one-click unsubscribe link.
