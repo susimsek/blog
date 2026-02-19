@@ -132,6 +132,24 @@ export default function NewsletterStatusPage({
     };
   }, [locale, operation, token]);
 
+  useEffect(() => {
+    if (statusKey === 'loading' || !token || typeof window === 'undefined') {
+      return;
+    }
+
+    const currentURL = new URL(window.location.href);
+    if (!currentURL.searchParams.has('token') && !currentURL.searchParams.has('locale')) {
+      return;
+    }
+
+    currentURL.searchParams.delete('token');
+    currentURL.searchParams.delete('locale');
+    const nextQuery = currentURL.searchParams.toString();
+    const nextURL = `${currentURL.pathname}${nextQuery ? `?${nextQuery}` : ''}${currentURL.hash}`;
+
+    window.history.replaceState(window.history.state, '', nextURL);
+  }, [statusKey, token]);
+
   const statusTone = useMemo<'info' | 'success' | 'warning' | 'error'>(() => {
     if (statusKey === 'loading') {
       return 'info';
