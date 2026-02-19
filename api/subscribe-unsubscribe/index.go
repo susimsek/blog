@@ -90,7 +90,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
-	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 	w.Header().Set("Vary", "Origin")
 	w.Header().Set("Cache-Control", "no-store")
@@ -100,13 +100,18 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.Method != http.MethodGet {
-		w.Header().Set("Allow", "GET, OPTIONS")
+	if r.Method != http.MethodGet && r.Method != http.MethodPost {
+		w.Header().Set("Allow", "GET, POST, OPTIONS")
 		renderPage(w, http.StatusMethodNotAllowed, locale, siteURL, newsletter.PageMethodNotAllowed, siteURL)
 		return
 	}
 
 	token := strings.TrimSpace(r.URL.Query().Get("token"))
+	if token == "" && r.Method == http.MethodPost {
+		if err := r.ParseForm(); err == nil {
+			token = strings.TrimSpace(r.FormValue("token"))
+		}
+	}
 	if token == "" {
 		renderPage(w, http.StatusBadRequest, locale, siteURL, newsletter.PageUnsubscribeInvalid, siteURL)
 		return

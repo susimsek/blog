@@ -301,6 +301,30 @@ func getOrCreateCampaign(
 	return campaign.Status, false, nil
 }
 
+func getCampaignStatus(
+	collection *mongo.Collection,
+	locale string,
+	itemKey string,
+) (status string, exists bool, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var campaign struct {
+		Status string `bson:"status"`
+	}
+	if err := collection.FindOne(ctx, bson.M{
+		"locale":  locale,
+		"itemKey": itemKey,
+	}).Decode(&campaign); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return "", false, nil
+		}
+		return "", false, err
+	}
+
+	return strings.TrimSpace(campaign.Status), true, nil
+}
+
 func truncateForStorage(value string, maxRunes int) string {
 	if maxRunes <= 0 {
 		return ""
@@ -414,7 +438,7 @@ func normalizeItemKey(item rssItem) string {
 	return hex.EncodeToString(sum[:])
 }
 
-func fetchLatestRSSItem(rssURL string) (*rssItem, error) {
+func fetchRSSItems(rssURL string) ([]rssItem, error) {
 	client := &http.Client{Timeout: defaultDispatchTimeout}
 	req, err := http.NewRequest(http.MethodGet, rssURL, nil)
 	if err != nil {
@@ -442,14 +466,14 @@ func fetchLatestRSSItem(rssURL string) (*rssItem, error) {
 		return nil, fmt.Errorf("parse rss failed: %w", err)
 	}
 
+	items := make([]rssItem, 0, len(feed.Channel.Items))
 	for _, item := range feed.Channel.Items {
 		if strings.TrimSpace(item.Link) != "" {
-			copyItem := item
-			return &copyItem, nil
+			items = append(items, item)
 		}
 	}
 
-	return nil, nil
+	return items, nil
 }
 
 func buildUnsubscribeURL(siteURL, token, locale string) (string, error) {
@@ -670,41 +694,68 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			RSSURL: rssURL,
 		}
 
-		item, fetchErr := fetchLatestRSSItem(rssURL)
+		items, fetchErr := fetchRSSItems(rssURL)
 		if fetchErr != nil {
 			result.Skipped = true
 			result.Reason = "rss-fetch-failed"
 			results[locale] = result
 			continue
 		}
-		if item == nil {
+		if len(items) == 0 {
 			result.Skipped = true
 			result.Reason = "rss-empty"
 			results[locale] = result
 			continue
 		}
 
-		itemKey := normalizeItemKey(*item)
+		scanNow := time.Now().UTC()
+		var selectedItem *rssItem
+		var itemKey string
+		selectionFailed := false
+
+		for _, candidate := range items {
+			candidateItemKey := normalizeItemKey(candidate)
+
+			publishedAt, pubDateErr := parseRSSItemPubDate(candidate.PubDate)
+			if pubDateErr != nil {
+				continue
+			}
+			if scanNow.Sub(publishedAt) > maxItemAge {
+				continue
+			}
+
+			existingStatus, exists, statusErr := getCampaignStatus(campaignsCollection, locale, candidateItemKey)
+			if statusErr != nil {
+				result.Skipped = true
+				result.Reason = "campaign-lookup-failed"
+				results[locale] = result
+				selectionFailed = true
+				break
+			}
+			if exists && existingStatus == campaignStatusSent {
+				continue
+			}
+
+			item := candidate
+			selectedItem = &item
+			itemKey = candidateItemKey
+			break
+		}
+		if selectionFailed {
+			continue
+		}
+		if selectedItem == nil {
+			result.Skipped = true
+			result.Reason = "no-pending-item"
+			results[locale] = result
+			continue
+		}
+
 		result.ItemKey = itemKey
-		result.PostTitle = strings.TrimSpace(item.Title)
+		result.PostTitle = strings.TrimSpace(selectedItem.Title)
 
 		now := time.Now().UTC()
-		publishedAt, pubDateErr := parseRSSItemPubDate(item.PubDate)
-		if pubDateErr != nil {
-			result.Skipped = true
-			result.Reason = "rss-pubdate-invalid"
-			results[locale] = result
-			continue
-		}
-
-		if now.Sub(publishedAt) > maxItemAge {
-			result.Skipped = true
-			result.Reason = "stale-item"
-			results[locale] = result
-			continue
-		}
-
-		campaignStatus, created, campaignErr := getOrCreateCampaign(campaignsCollection, locale, itemKey, *item, rssURL, now)
+		campaignStatus, created, campaignErr := getOrCreateCampaign(campaignsCollection, locale, itemKey, *selectedItem, rssURL, now)
 		if campaignErr != nil {
 			result.Skipped = true
 			result.Reason = "campaign-create-failed"
@@ -725,7 +776,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			results[locale] = dispatchLocaleResult{
 				RSSURL:    rssURL,
 				ItemKey:   itemKey,
-				PostTitle: strings.TrimSpace(item.Title),
+				PostTitle: strings.TrimSpace(selectedItem.Title),
 				Skipped:   true,
 				Reason:    "subscriber-query-failed",
 			}
@@ -734,8 +785,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 		sentCount := 0
 		failedCount := 0
+		recipientCapReached := false
 		for cursor.Next(findCtx) {
 			if sentCount+failedCount >= maxRecipients {
+				recipientCapReached = true
 				break
 			}
 
@@ -805,7 +858,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			if err := sendPostEmail(smtpCfg, email, locale, siteURL, *item, rssURL, unsubscribeURL); err != nil {
+			if err := sendPostEmail(smtpCfg, email, locale, siteURL, *selectedItem, rssURL, unsubscribeURL); err != nil {
 				failedCount++
 				_ = upsertDeliveryAttempt(
 					deliveriesCollection,
@@ -847,10 +900,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		status := campaignStatusSent
-		if totalFailed > 0 {
+		if recipientCapReached || totalFailed > 0 {
 			status = campaignStatusPartial
 		}
-		if !created && campaignStatus == campaignStatusProcessing && totalSent == 0 && totalFailed == 0 {
+		if !created && campaignStatus == campaignStatusProcessing && totalSent == 0 && totalFailed == 0 && !recipientCapReached {
 			status = campaignStatusProcessing
 		}
 
@@ -875,10 +928,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		result.SentCount = int(totalSent)
 		result.FailedCount = int(totalFailed)
 		result.Skipped = false
-		if !created && campaignStatus == campaignStatusPartial {
+		if recipientCapReached {
+			result.Reason = "recipient-cap-reached"
+		}
+		if result.Reason == "" && !created && campaignStatus == campaignStatusPartial {
 			result.Reason = "retry-partial"
 		}
-		if totalSent == 0 && totalFailed == 0 {
+		if result.Reason == "" && totalSent == 0 && totalFailed == 0 {
 			result.Reason = "no-active-subscriber"
 		}
 		results[locale] = result
