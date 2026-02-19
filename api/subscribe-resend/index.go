@@ -18,7 +18,7 @@ import (
 	"sync"
 	"time"
 
-	"suaybsimsek.com/blog-api/api/internal/newsletter"
+	"suaybsimsek.com/blog-api/internal/newsletter"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
