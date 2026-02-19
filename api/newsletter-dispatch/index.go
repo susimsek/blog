@@ -69,6 +69,13 @@ type rssItem struct {
 	GUID        string `xml:"guid"`
 	Description string `xml:"description"`
 	PubDate     string `xml:"pubDate"`
+	Enclosure   struct {
+		URL  string `xml:"url,attr"`
+		Type string `xml:"type,attr"`
+	} `xml:"enclosure"`
+	MediaThumbnail struct {
+		URL string `xml:"url,attr"`
+	} `xml:"http://search.yahoo.com/mrss/ thumbnail"`
 }
 
 type subscriber struct {
@@ -500,10 +507,22 @@ func sendPostEmail(
 	rssURL string,
 	unsubscribeURL string,
 ) error {
+	postImageURL := strings.TrimSpace(item.MediaThumbnail.URL)
+	if postImageURL == "" && strings.HasPrefix(strings.ToLower(strings.TrimSpace(item.Enclosure.Type)), "image/") {
+		postImageURL = strings.TrimSpace(item.Enclosure.URL)
+	}
+
+	publishedAt, publishedAtErr := parseRSSItemPubDate(item.PubDate)
+	if publishedAtErr != nil {
+		publishedAt = time.Time{}
+	}
+
 	subject, htmlBody, err := newsletter.PostAnnouncementEmail(
 		locale,
 		strings.TrimSpace(item.Title),
 		strings.TrimSpace(item.Description),
+		postImageURL,
+		publishedAt,
 		strings.TrimSpace(item.Link),
 		rssURL,
 		unsubscribeURL,

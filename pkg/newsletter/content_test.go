@@ -3,6 +3,7 @@ package newsletter
 import (
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestConfirmationEmailRendersTemplates(t *testing.T) {
@@ -41,6 +42,8 @@ func TestPostAnnouncementEmailStripsSummaryHTML(t *testing.T) {
 		LocaleEN,
 		"Launch update",
 		"<p><strong>New release</strong> is now available.</p>",
+		"https://example.com/images/launch-update.webp",
+		time.Date(2026, time.February, 4, 0, 0, 0, 0, time.UTC),
 		"https://example.com/posts/launch-update",
 		"https://example.com/en/rss.xml",
 		"https://example.com/api/subscribe-unsubscribe?token=abc",
@@ -72,5 +75,42 @@ func TestPostAnnouncementEmailStripsSummaryHTML(t *testing.T) {
 
 	if !strings.Contains(htmlBody, "https://example.com/api/subscribe-unsubscribe?token=abc") {
 		t.Fatalf("html body does not contain unsubscribe URL: %q", htmlBody)
+	}
+
+	if !strings.Contains(htmlBody, "src=\"https://example.com/images/launch-update.webp\"") {
+		t.Fatalf("html body does not contain post image URL: %q", htmlBody)
+	}
+
+	if strings.Count(htmlBody, "https://example.com/posts/launch-update") < 3 {
+		t.Fatalf("post URL should be used for heading, image, and CTA links: %q", htmlBody)
+	}
+
+	if !strings.Contains(htmlBody, "Published: February 4, 2026") {
+		t.Fatalf("html body does not contain formatted EN published date: %q", htmlBody)
+	}
+
+	if !strings.Contains(htmlBody, "&#128197;") {
+		t.Fatalf("html body does not contain calendar icon: %q", htmlBody)
+	}
+}
+
+func TestPostAnnouncementEmailFormatsTurkishPublishedDate(t *testing.T) {
+	_, htmlBody, err := PostAnnouncementEmail(
+		LocaleTR,
+		"Deneme yazi",
+		"Test ozeti",
+		"",
+		time.Date(2026, time.February, 4, 0, 0, 0, 0, time.UTC),
+		"https://example.com/tr/posts/deneme-yazi",
+		"https://example.com/tr/rss.xml",
+		"https://example.com/api/subscribe-unsubscribe?token=abc",
+		"https://example.com",
+	)
+	if err != nil {
+		t.Fatalf("PostAnnouncementEmail returned error: %v", err)
+	}
+
+	if !strings.Contains(htmlBody, "Yayim tarihi: 4 Subat 2026") {
+		t.Fatalf("html body does not contain formatted TR published date: %q", htmlBody)
 	}
 }

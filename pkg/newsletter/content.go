@@ -7,6 +7,7 @@ import (
 	htmltemplate "html/template"
 	"strings"
 	"sync"
+	"time"
 )
 
 const (
@@ -16,6 +17,7 @@ const (
 
 type emailContent struct {
 	Subject      string
+	EyebrowLabel string
 	Title        string
 	Heading      string
 	Body         string
@@ -33,16 +35,19 @@ type pageContent struct {
 type postEmailContent struct {
 	SubjectPrefix    string
 	Title            string
-	HeadingPrefix    string
 	Body             string
+	NewsletterLabel  string
 	ButtonLabel      string
+	PublishedLabel   string
 	RSSLabel         string
 	UnsubscribeLabel string
+	FooterNote       string
 }
 
 type confirmationEmailTemplateData struct {
 	Lang         string
 	FaviconURL   string
+	EyebrowLabel string
 	Title        string
 	Heading      string
 	Body         string
@@ -56,16 +61,20 @@ type postAnnouncementEmailTemplateData struct {
 	FaviconURL       string
 	Subject          string
 	Title            string
-	Heading          string
 	Body             string
+	NewsletterLabel  string
 	PostTitle        string
 	PostSummary      string
+	PostImageURL     string
+	PublishedLabel   string
+	PublishedDate    string
 	ButtonLabel      string
 	PostURL          string
 	RSSLabel         string
 	RSSURL           string
 	UnsubscribeLabel string
 	UnsubscribeURL   string
+	FooterNote       string
 }
 
 type PageKey string
@@ -86,6 +95,7 @@ const (
 var emailByLocale = map[string]emailContent{
 	LocaleEN: {
 		Subject:      "Confirm your newsletter subscription",
+		EyebrowLabel: "Newsletter",
 		Title:        "Suayb's Blog",
 		Heading:      "Complete your subscription",
 		Body:         "Click the button below to confirm your newsletter subscription. If you did not request this, you can ignore this email.",
@@ -94,6 +104,7 @@ var emailByLocale = map[string]emailContent{
 	},
 	LocaleTR: {
 		Subject:      "Bulten aboneliginizi onaylayin",
+		EyebrowLabel: "Bulten",
 		Title:        "Suayb's Blog",
 		Heading:      "Aboneliginizi tamamlayin",
 		Body:         "Newsletter aboneliginizi onaylamak icin asagidaki butona tiklayin. Bu islemi siz yapmadiysaniz bu e-postayi yok sayabilirsiniz.",
@@ -233,21 +244,53 @@ var postEmailByLocale = map[string]postEmailContent{
 	LocaleEN: {
 		SubjectPrefix:    "New post",
 		Title:            "Suayb's Blog",
-		HeadingPrefix:    "Fresh article",
 		Body:             "A new article is live on the blog. Read it from the link below.",
+		NewsletterLabel:  "New post",
 		ButtonLabel:      "Read article",
+		PublishedLabel:   "Published",
 		RSSLabel:         "RSS feed",
 		UnsubscribeLabel: "Unsubscribe",
+		FooterNote:       "You are receiving this email because you subscribed to Suayb's Blog newsletter.",
 	},
 	LocaleTR: {
 		SubjectPrefix:    "Yeni yazi",
 		Title:            "Suayb's Blog",
-		HeadingPrefix:    "Yeni makale",
 		Body:             "Blogda yeni bir yazi yayinda. Asagidaki baglantidan okuyabilirsin.",
+		NewsletterLabel:  "Yeni yazi",
 		ButtonLabel:      "Yaziyi oku",
+		PublishedLabel:   "Yayim tarihi",
 		RSSLabel:         "RSS akisi",
 		UnsubscribeLabel: "Abonelikten cik",
+		FooterNote:       "Bu e-postayi Suayb's Blog newsletter aboneliginiz oldugu icin aliyorsunuz.",
 	},
+}
+
+func formatPublishedDate(locale string, publishedAt time.Time) string {
+	if publishedAt.IsZero() {
+		return ""
+	}
+
+	normalized := publishedAt.UTC()
+	if locale == LocaleTR {
+		months := [...]string{
+			"Ocak",
+			"Subat",
+			"Mart",
+			"Nisan",
+			"Mayis",
+			"Haziran",
+			"Temmuz",
+			"Agustos",
+			"Eylul",
+			"Ekim",
+			"Kasim",
+			"Aralik",
+		}
+		month := months[int(normalized.Month())-1]
+		return fmt.Sprintf("%d %s %d", normalized.Day(), month, normalized.Year())
+	}
+
+	return normalized.Format("January 2, 2006")
 }
 
 //go:embed templates/*.tmpl
@@ -317,6 +360,7 @@ func ConfirmationEmail(locale string, confirmURL string, siteURL string) (subjec
 	data := confirmationEmailTemplateData{
 		Lang:         resolved,
 		FaviconURL:   BuildFaviconURL(siteURL),
+		EyebrowLabel: content.EyebrowLabel,
 		Title:        content.Title,
 		Heading:      content.Heading,
 		Body:         content.Body,
@@ -382,6 +426,8 @@ func PostAnnouncementEmail(
 	locale string,
 	postTitle string,
 	postSummary string,
+	postImageURL string,
+	publishedAt time.Time,
 	postURL string,
 	rssURL string,
 	unsubscribeURL string,
@@ -409,16 +455,20 @@ func PostAnnouncementEmail(
 		FaviconURL:       BuildFaviconURL(siteURL),
 		Subject:          subject,
 		Title:            content.Title,
-		Heading:          fmt.Sprintf("%s: %s", content.HeadingPrefix, postTitle),
 		Body:             cleanSummary,
+		NewsletterLabel:  content.NewsletterLabel,
 		PostTitle:        strings.TrimSpace(postTitle),
 		PostSummary:      cleanSummary,
+		PostImageURL:     strings.TrimSpace(postImageURL),
+		PublishedLabel:   content.PublishedLabel,
+		PublishedDate:    formatPublishedDate(resolved, publishedAt),
 		ButtonLabel:      content.ButtonLabel,
 		PostURL:          strings.TrimSpace(postURL),
 		RSSLabel:         content.RSSLabel,
 		RSSURL:           strings.TrimSpace(rssURL),
 		UnsubscribeLabel: content.UnsubscribeLabel,
 		UnsubscribeURL:   strings.TrimSpace(unsubscribeURL),
+		FooterNote:       content.FooterNote,
 	}
 
 	htmlBody, err = renderHTMLTemplate(postHTMLTmpl, data)

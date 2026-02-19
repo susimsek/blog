@@ -29,7 +29,8 @@
     "sync:medium-posts": "node scripts/sync-medium-posts.js",
     "sync:post-metadata": "node scripts/sync-post-metadata.js",
     "sync:reading-time": "pnpm run sync:post-metadata",
-    "sync:code-filenames": "node scripts/sync-code-filename-meta.js"
+    "sync:code-filenames": "node scripts/sync-code-filename-meta.js",
+    "backend:start": "go run ./scripts/local-go-api/main.go"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
