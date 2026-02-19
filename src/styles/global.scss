@@ -835,21 +835,16 @@ body {
 .newsletter-status-shell {
   width: min(100%, 760px);
   margin-inline: auto;
-  padding: clamp(1rem, 2vw, 1.5rem);
+  padding: clamp(1.2rem, 2.4vw, 2rem);
   border: 1px solid color-mix(in srgb, var(--border-color) 88%, var(--active-color) 12%);
-  border-radius: 1rem;
-  background:
-    radial-gradient(circle at top right, color-mix(in srgb, var(--active-color) 9%, transparent), transparent 50%),
-    linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--main-bg) 90%, var(--dropdown-hover-bg) 10%),
-      color-mix(in srgb, var(--main-bg) 96%, var(--input-bg-color) 4%)
-    );
-  box-shadow: var(--box-shadow-sm);
+  border-radius: 1.1rem;
+  background: var(--main-bg);
+  box-shadow: var(--box-shadow-primary);
 }
 
 .newsletter-status-header {
   margin: 0;
+  gap: var(--space-12);
 }
 
 .newsletter-status-eyebrow {
@@ -858,23 +853,63 @@ body {
   letter-spacing: 0.08em;
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--active-color);
+  color: var(--muted-text-color);
 }
 
 .newsletter-status-title {
   margin: 0;
   line-height: 1.25;
-  font-size: clamp(1.5rem, 2vw + 1rem, 2rem);
+  font-size: clamp(1.55rem, 2.1vw + 1rem, 2.15rem);
 }
 
-.newsletter-status-alert {
-  border-radius: 0.9rem;
-  box-shadow: none;
+.newsletter-status-result {
+  border: 1px solid var(--border-color);
+  border-radius: 0.95rem;
+  padding: 1.1rem 1.15rem;
+}
+
+.newsletter-status-result-title {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.15rem, 1rem + 0.45vw, 1.5rem);
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.newsletter-status-result-message {
+  margin: 0;
+  color: var(--muted-text-color);
+  font-size: 1.07rem;
+  line-height: 1.62;
+}
+
+.newsletter-status-result.is-info {
+  border-color: color-mix(in srgb, var(--active-color) 42%, var(--border-color) 58%);
+  background-color: color-mix(in srgb, var(--active-color) 12%, var(--main-bg) 88%);
+}
+
+.newsletter-status-result.is-success {
+  border-color: color-mix(in srgb, #28a745 44%, var(--border-color) 56%);
+  background-color: color-mix(in srgb, #28a745 14%, var(--main-bg) 86%);
+}
+
+.newsletter-status-result.is-warning {
+  border-color: color-mix(in srgb, #ffc107 48%, var(--border-color) 52%);
+  background-color: color-mix(in srgb, #ffc107 14%, var(--main-bg) 86%);
+}
+
+.newsletter-status-result.is-error {
+  border-color: color-mix(in srgb, #dc3545 46%, var(--border-color) 54%);
+  background-color: color-mix(in srgb, #dc3545 14%, var(--main-bg) 86%);
 }
 
 .newsletter-status-actions {
+  margin-top: var(--space-16);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+
   .btn {
-    min-height: 2.75rem;
+    min-height: 2.85rem;
   }
 }
 
@@ -885,13 +920,15 @@ body {
 
   .newsletter-status-shell {
     border-radius: 0.85rem;
-    padding: 0.95rem;
+    padding: 1rem;
   }
 
   .newsletter-status-actions {
-    .btn {
-      flex: 1 1 100%;
-    }
+    flex-direction: column;
+  }
+
+  .newsletter-status-actions .btn {
+    width: 100%;
   }
 }
 

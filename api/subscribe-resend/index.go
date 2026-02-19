@@ -171,11 +171,10 @@ func buildConfirmURL(siteURL, token, locale string) (string, error) {
 		return "", fmt.Errorf("invalid SITE_URL")
 	}
 
-	parsed.Path = strings.TrimRight(parsed.Path, "/") + "/" + strings.TrimSpace(locale) + "/newsletter-status"
+	parsed.Path = strings.TrimRight(parsed.Path, "/") + "/" + strings.TrimSpace(locale) + "/callback"
 	query := parsed.Query()
 	query.Set("token", token)
 	query.Set("operation", "confirm")
-	query.Set("locale", locale)
 	parsed.RawQuery = query.Encode()
 
 	return parsed.String(), nil

@@ -5,7 +5,7 @@ import RouteI18nProvider from '@/i18n/RouteI18nProvider';
 import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';
 
-export async function generateMetadata({ params }: PageProps<'/[locale]/newsletter-status'>): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<'/[locale]/callback'>): Promise<Metadata> {
   const { locale } = await params;
   const { t } = await getServerTranslator(locale, ['common']);
 
@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/newslett
     locale,
     title: t('common.newsletterStatus.meta.title'),
     description: t('common.newsletterStatus.meta.description'),
-    path: 'newsletter-status',
+    path: 'callback',
     robots: {
       index: false,
       follow: false,
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/newslett
   });
 }
 
-export default async function NewsletterStatusRoute({ params }: Readonly<PageProps<'/[locale]/newsletter-status'>>) {
+export default async function NewsletterStatusRoute({ params }: Readonly<PageProps<'/[locale]/callback'>>) {
   const { locale } = await params;
 
   const allPosts = await getSortedPostsData(locale);

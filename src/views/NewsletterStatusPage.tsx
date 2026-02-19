@@ -90,7 +90,6 @@ export default function NewsletterStatusPage({
       const endpoint = operation === 'unsubscribe' ? '/api/subscribe-unsubscribe' : '/api/subscribe-confirm';
       const query = new URLSearchParams({
         token,
-        locale,
       });
 
       try {
@@ -133,17 +132,17 @@ export default function NewsletterStatusPage({
     };
   }, [locale, operation, token]);
 
-  const alertClass = useMemo(() => {
+  const statusTone = useMemo<'info' | 'success' | 'warning' | 'error'>(() => {
     if (statusKey === 'loading') {
-      return 'alert-info';
+      return 'info';
     }
     if (statusKey === 'success') {
-      return 'alert-success';
+      return 'success';
     }
     if (statusKey === 'service-unavailable' || statusKey === 'config-error') {
-      return 'alert-warning';
+      return 'warning';
     }
-    return 'alert-danger';
+    return 'error';
   }, [statusKey]);
 
   return (
@@ -160,23 +159,23 @@ export default function NewsletterStatusPage({
             <p className="newsletter-status-eyebrow">{t('common.newsletterStatus.eyebrow')}</p>
             <h1 className="newsletter-status-title fw-bold">{t(`common.newsletterStatus.${operation}.title`)}</h1>
           </header>
-          <div className={`alert newsletter-status-alert ${alertClass} mb-0`} role="status" aria-live="polite">
-            <h2 className="h4 mb-2">
+          <div className={`newsletter-status-result is-${statusTone}`} role="status" aria-live="polite">
+            <h2 className="newsletter-status-result-title">
               {statusKey === 'loading'
                 ? t('common.newsletterStatus.loading.title')
                 : t(`common.newsletterStatus.${operation}.status.${statusKey}.title`)}
             </h2>
-            <p className="mb-0">
+            <p className="newsletter-status-result-message">
               {statusKey === 'loading'
                 ? t('common.newsletterStatus.loading.message')
                 : t(`common.newsletterStatus.${operation}.status.${statusKey}.message`)}
             </p>
           </div>
-          <div className="newsletter-status-actions d-flex flex-wrap gap-2">
+          <div className="newsletter-status-actions">
             <Link href={`/${locale}`} skipLocaleHandling className="btn btn-primary">
               {t('common.newsletterStatus.actions.goHome')}
             </Link>
-            <Link href={`/${locale}`} skipLocaleHandling className="btn btn-outline-secondary">
+            <Link href={`/${locale}`} skipLocaleHandling className="btn btn-secondary">
               {t('common.newsletterStatus.actions.subscribeAgain')}
             </Link>
           </div>
