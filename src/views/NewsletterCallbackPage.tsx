@@ -3,11 +3,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Layout from '@/components/common/Layout';
 import Link from '@/components/common/Link';
 import type { LayoutPostSummary, Topic } from '@/types/posts';
 
-type NewsletterStatusPageProps = {
+type NewsletterCallbackPageProps = {
   locale: string;
   layoutPosts: LayoutPostSummary[];
   topics: Topic[];
@@ -63,12 +64,12 @@ const resolveStatusKey = (operation: Operation, status: string | null): StatusKe
   return 'failed';
 };
 
-export default function NewsletterStatusPage({
+export default function NewsletterCallbackPage({
   locale,
   layoutPosts,
   topics,
   preFooterTopTopics,
-}: Readonly<NewsletterStatusPageProps>) {
+}: Readonly<NewsletterCallbackPageProps>) {
   const { t } = useTranslation('common');
   const searchParams = useSearchParams();
   const [statusKey, setStatusKey] = useState<StatusKey>('loading');
@@ -171,30 +172,32 @@ export default function NewsletterStatusPage({
       searchEnabled={false}
       sidebarEnabled={false}
     >
-      <section className="newsletter-status-page">
-        <div className="newsletter-status-shell stack stack-16">
-          <header className="newsletter-status-header stack stack-8">
-            <p className="newsletter-status-eyebrow">{t('common.newsletterStatus.eyebrow')}</p>
-            <h1 className="newsletter-status-title fw-bold">{t(`common.newsletterStatus.${operation}.title`)}</h1>
+      <section className="newsletter-callback-page">
+        <div className="newsletter-callback-shell stack stack-16">
+          <header className="newsletter-callback-header stack stack-8">
+            <p className="newsletter-callback-eyebrow">{t('common.newsletterCallback.eyebrow')}</p>
+            <h1 className="newsletter-callback-title fw-bold">{t(`common.newsletterCallback.${operation}.title`)}</h1>
           </header>
-          <div className={`newsletter-status-result is-${statusTone}`} role="status" aria-live="polite">
-            <h2 className="newsletter-status-result-title">
+          <div className={`newsletter-callback-result is-${statusTone}`} role="status" aria-live="polite">
+            <h2 className="newsletter-callback-result-title">
               {statusKey === 'loading'
-                ? t('common.newsletterStatus.loading.title')
-                : t(`common.newsletterStatus.${operation}.status.${statusKey}.title`)}
+                ? t('common.newsletterCallback.loading.title')
+                : t(`common.newsletterCallback.${operation}.status.${statusKey}.title`)}
             </h2>
-            <p className="newsletter-status-result-message">
+            <p className="newsletter-callback-result-message">
               {statusKey === 'loading'
-                ? t('common.newsletterStatus.loading.message')
-                : t(`common.newsletterStatus.${operation}.status.${statusKey}.message`)}
+                ? t('common.newsletterCallback.loading.message')
+                : t(`common.newsletterCallback.${operation}.status.${statusKey}.message`)}
             </p>
           </div>
-          <div className="newsletter-status-actions">
+          <div className="newsletter-callback-actions">
             <Link href={`/${locale}`} skipLocaleHandling className="btn btn-primary">
-              {t('common.newsletterStatus.actions.goHome')}
+              <FontAwesomeIcon icon="home" className="me-2" />
+              {t('common.newsletterCallback.actions.goHome')}
             </Link>
             <Link href={`/${locale}`} skipLocaleHandling className="btn btn-secondary">
-              {t('common.newsletterStatus.actions.subscribeAgain')}
+              <FontAwesomeIcon icon="envelope" className="me-2" />
+              {t('common.newsletterCallback.actions.subscribeAgain')}
             </Link>
           </div>
         </div>

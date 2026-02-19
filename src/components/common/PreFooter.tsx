@@ -34,7 +34,7 @@ interface PreFooterSocialLinkProps {
   };
 }
 
-type NewsletterStatus = 'idle' | 'success' | 'resent' | 'error';
+type SubscriptionStatus = 'idle' | 'success' | 'resent' | 'error';
 type NewsletterErrorStatus = 'invalid-email' | 'rate-limited' | 'unknown-error' | 'unreachable-server';
 type NewsletterClientErrorStatus = 'required' | 'invalid-email';
 
@@ -129,7 +129,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
   const currentLocale = routeLocale || i18nextConfig.i18n.defaultLocale;
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterHoneypotChecked, setNewsletterHoneypotChecked] = useState(false);
-  const [newsletterStatus, setNewsletterStatus] = useState<NewsletterStatus>('idle');
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus>('idle');
   const [newsletterErrorStatus, setNewsletterErrorStatus] = useState<NewsletterErrorStatus | null>(null);
   const [newsletterClientErrorStatus, setNewsletterClientErrorStatus] = useState<NewsletterClientErrorStatus | null>(
     null,
@@ -202,17 +202,17 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
       const nextValue = event.currentTarget.value;
       setNewsletterEmail(nextValue);
 
-      if (newsletterStatus === 'error') {
-        setNewsletterStatus('idle');
+      if (subscriptionStatus === 'error') {
+        setSubscriptionStatus('idle');
         setNewsletterErrorStatus(null);
         setNewsletterClientErrorStatus(null);
       }
 
-      if (newsletterStatus === 'success' || newsletterStatus === 'resent') {
-        setNewsletterStatus('idle');
+      if (subscriptionStatus === 'success' || subscriptionStatus === 'resent') {
+        setSubscriptionStatus('idle');
       }
     },
-    [newsletterStatus],
+    [subscriptionStatus],
   );
 
   const submitNewsletter = useCallback(
@@ -227,7 +227,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
       if (clientError) {
         setNewsletterClientErrorStatus(clientError);
         setNewsletterErrorStatus(null);
-        setNewsletterStatus('error');
+        setSubscriptionStatus('error');
         return;
       }
 
@@ -252,7 +252,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
           return;
         }
 
-        setNewsletterStatus('success');
+        setSubscriptionStatus('success');
         setLastNewsletterEmail(normalizedEmail);
         setNewsletterEmail('');
         setNewsletterHoneypotChecked(false);
@@ -262,7 +262,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
       }
 
       setNewsletterErrorStatus(mapNewsletterErrorStatus(result?.status));
-      setNewsletterStatus('error');
+      setSubscriptionStatus('error');
       setIsNewsletterSubmitting(false);
     },
     [
@@ -285,14 +285,14 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
     if (clientError) {
       setNewsletterClientErrorStatus(clientError);
       setNewsletterErrorStatus(null);
-      setNewsletterStatus('error');
+      setSubscriptionStatus('error');
       return;
     }
 
     setIsNewsletterResending(true);
     setNewsletterErrorStatus(null);
     setNewsletterClientErrorStatus(null);
-    setNewsletterStatus('idle');
+    setSubscriptionStatus('idle');
 
     const result = await sendNewsletterRequest('/api/subscribe-resend', {
       email: emailForResend,
@@ -300,7 +300,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
     });
 
     if (result?.status === 'success') {
-      setNewsletterStatus('resent');
+      setSubscriptionStatus('resent');
       setLastNewsletterEmail(emailForResend);
       setNewsletterErrorStatus(null);
       setNewsletterClientErrorStatus(null);
@@ -309,7 +309,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
     }
 
     setNewsletterErrorStatus(mapNewsletterErrorStatus(result?.status));
-    setNewsletterStatus('error');
+    setSubscriptionStatus('error');
     setIsNewsletterResending(false);
   }, [
     getNewsletterClientError,
@@ -329,14 +329,14 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
       return t('common.preFooter.newsletter.errors.invalidEmail');
     }
 
-    if (newsletterStatus === 'success') {
+    if (subscriptionStatus === 'success') {
       return t('common.preFooter.newsletter.success');
     }
-    if (newsletterStatus === 'resent') {
+    if (subscriptionStatus === 'resent') {
       return t('common.preFooter.newsletter.resent');
     }
 
-    if (newsletterStatus !== 'error' || !newsletterErrorStatus) {
+    if (subscriptionStatus !== 'error' || !newsletterErrorStatus) {
       return null;
     }
 
@@ -348,7 +348,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
       default:
         return t('common.preFooter.newsletter.errors.generic');
     }
-  }, [newsletterClientErrorStatus, newsletterErrorStatus, newsletterStatus, t]);
+  }, [newsletterClientErrorStatus, newsletterErrorStatus, subscriptionStatus, t]);
 
   const hasNewsletterError = newsletterClientErrorStatus !== null || newsletterErrorStatus !== null;
 
@@ -472,7 +472,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
             </form>
 
             {newsletterFeedbackMessage &&
-              (newsletterStatus === 'success' || newsletterStatus === 'resent' ? (
+              (subscriptionStatus === 'success' || subscriptionStatus === 'resent' ? (
                 <p
                   id="pre-footer-newsletter-feedback"
                   className="pre-footer-newsletter-feedback form-text text-success mb-3"
@@ -489,7 +489,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
                   {newsletterFeedbackMessage}
                 </div>
               ))}
-            {(newsletterStatus === 'success' || newsletterStatus === 'resent') && lastNewsletterEmail ? (
+            {(subscriptionStatus === 'success' || subscriptionStatus === 'resent') && lastNewsletterEmail ? (
               <button
                 type="button"
                 className="btn btn-link pre-footer-newsletter-resend mb-3"

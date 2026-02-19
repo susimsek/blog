@@ -69,7 +69,7 @@
       "rss": "RSS",
       "socialTitle": "Sosyal"
     },
-    "newsletterStatus": {
+    "newsletterCallback": {
       "meta": {
         "title": "Bulten durumu",
         "description": "Bulten onaylama veya abonelikten cikma isleminin durumu."

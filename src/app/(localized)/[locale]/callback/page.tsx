@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import NewsletterStatusPage from '@/views/NewsletterStatusPage';
+import NewsletterCallbackPage from '@/views/NewsletterCallbackPage';
 import { getAllTopics, getLayoutPosts, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/posts';
 import RouteI18nProvider from '@/i18n/RouteI18nProvider';
 import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
@@ -11,8 +11,8 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/callback
 
   return buildPageMetadata({
     locale,
-    title: t('common.newsletterStatus.meta.title'),
-    description: t('common.newsletterStatus.meta.description'),
+    title: t('common.newsletterCallback.meta.title'),
+    description: t('common.newsletterCallback.meta.description'),
     path: 'callback',
     robots: {
       index: false,
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/callback
   });
 }
 
-export default async function NewsletterStatusRoute({ params }: Readonly<PageProps<'/[locale]/callback'>>) {
+export default async function NewsletterCallbackRoute({ params }: Readonly<PageProps<'/[locale]/callback'>>) {
   const { locale } = await params;
 
   const allPosts = await getSortedPostsData(locale);
@@ -32,7 +32,7 @@ export default async function NewsletterStatusRoute({ params }: Readonly<PagePro
 
   return (
     <RouteI18nProvider locale={locale} resources={resources}>
-      <NewsletterStatusPage
+      <NewsletterCallbackPage
         locale={locale}
         layoutPosts={layoutPosts}
         topics={topics}

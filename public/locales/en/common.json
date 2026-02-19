@@ -69,7 +69,7 @@
       "rss": "RSS",
       "socialTitle": "Social"
     },
-    "newsletterStatus": {
+    "newsletterCallback": {
       "meta": {
         "title": "Newsletter status",
         "description": "Status of your newsletter confirmation or unsubscribe action."

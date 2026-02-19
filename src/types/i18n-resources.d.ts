@@ -86,7 +86,7 @@ interface Resources {
         };
       };
       language: 'Language';
-      newsletterStatus: {
+      newsletterCallback: {
         actions: {
           goHome: 'Go to blog';
           subscribeAgain: 'Subscribe again';
