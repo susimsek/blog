@@ -1351,6 +1351,10 @@ mark {
     letter-spacing: 0.01em;
   }
 
+  .pre-footer-newsletter-spinner {
+    color: color-mix(in srgb, var(--primary-color) 92%, var(--main-bg) 8%);
+  }
+
   .pre-footer-newsletter-feedback {
     font-size: 0.9rem;
     line-height: 1.4;
@@ -1379,6 +1383,10 @@ mark {
       color: var(--muted-text-color);
       cursor: not-allowed;
     }
+  }
+
+  .pre-footer-newsletter-resend-spinner {
+    color: currentColor;
   }
 }
 

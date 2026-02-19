@@ -440,9 +440,14 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
                   aria-label={t('common.preFooter.newsletter.submit')}
                 >
                   {isNewsletterSubmitting ? (
-                    <span className="pre-footer-newsletter-submit-text">
-                      {t('common.preFooter.newsletter.submitting')}
-                    </span>
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm pre-footer-newsletter-spinner"
+                        role="status"
+                        aria-hidden="true"
+                      />
+                      <span className="visually-hidden">{t('common.preFooter.newsletter.submitting')}</span>
+                    </>
                   ) : (
                     <>
                       <FontAwesomeIcon icon="arrow-right" />
@@ -491,9 +496,18 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
                 onClick={resendNewsletterConfirmation}
                 disabled={isNewsletterSubmitting || isNewsletterResending}
               >
-                {isNewsletterResending
-                  ? t('common.preFooter.newsletter.resending')
-                  : t('common.preFooter.newsletter.resend')}
+                {isNewsletterResending ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2 align-text-bottom pre-footer-newsletter-resend-spinner"
+                      role="status"
+                      aria-hidden="true"
+                    />
+                    {t('common.preFooter.newsletter.resending')}
+                  </>
+                ) : (
+                  t('common.preFooter.newsletter.resend')
+                )}
               </button>
             ) : null}
 
