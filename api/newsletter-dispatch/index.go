@@ -26,9 +26,12 @@ const (
 	newsletterSubscribersCollection = "newsletter_subscribers"
 	newsletterCampaignsCollection   = "newsletter_campaigns"
 	newsletterDeliveriesCollection  = "newsletter_deliveries"
+	newsletterPostsCollection       = "newsletter_posts"
+	newsletterTopicsCollection      = "newsletter_topics"
 	defaultMaxRecipientsPerRun      = 200
 	defaultMaxItemAgeHours          = 24 * 7
 	defaultDispatchTimeout          = 8 * time.Second
+	defaultSyncTimeout              = 12 * time.Second
 	defaultUnsubscribeTokenTTLHours = 24 * 365
 
 	campaignStatusProcessing = "processing"
@@ -64,11 +67,12 @@ type rssChannel struct {
 }
 
 type rssItem struct {
-	Title       string `xml:"title"`
-	Link        string `xml:"link"`
-	GUID        string `xml:"guid"`
-	Description string `xml:"description"`
-	PubDate     string `xml:"pubDate"`
+	Title       string   `xml:"title"`
+	Link        string   `xml:"link"`
+	GUID        string   `xml:"guid"`
+	Description string   `xml:"description"`
+	PubDate     string   `xml:"pubDate"`
+	Categories  []string `xml:"category"`
 	Enclosure   struct {
 		URL  string `xml:"url,attr"`
 		Type string `xml:"type,attr"`
@@ -83,17 +87,117 @@ type subscriber struct {
 	Locale string `bson:"locale,omitempty"`
 }
 
+type siteTopic struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Color string `json:"color"`
+}
+
+type sitePost struct {
+	ID             string      `json:"id"`
+	Title          string      `json:"title"`
+	Summary        string      `json:"summary"`
+	Thumbnail      string      `json:"thumbnail"`
+	Topics         []siteTopic `json:"topics"`
+	ReadingTimeMin int         `json:"readingTimeMin"`
+	PublishedDate  string      `json:"publishedDate"`
+	UpdatedDate    string      `json:"updatedDate"`
+}
+
+type syncedPostTopic struct {
+	ID    string `bson:"id"`
+	Name  string `bson:"name"`
+	Color string `bson:"color"`
+}
+
+type postEmailMetadata struct {
+	Topics         []newsletter.PostTopicBadge
+	ReadingTimeMin int
+	ThumbnailURL   string
+}
+
+type topicBadgeStyle struct {
+	BgColor     string
+	TextColor   string
+	BorderColor string
+}
+
 var (
 	dispatchClient  *mongo.Client
 	dispatchInitErr error
 	dispatchOnce    sync.Once
+
+	dispatchSubscriberIndexOnce sync.Once
+	dispatchSubscriberIndexErr  error
 
 	dispatchIndexOnce sync.Once
 	dispatchIndexErr  error
 
 	dispatchDeliveryIndexOnce sync.Once
 	dispatchDeliveryIndexErr  error
+
+	dispatchContentIndexOnce sync.Once
+	dispatchContentIndexErr  error
 )
+
+var defaultTopicBadgeStyle = topicBadgeStyle{
+	BgColor:     "#f8fafc",
+	TextColor:   "#334155",
+	BorderColor: "#dbe4ef",
+}
+
+var topicBadgeStyles = map[string]topicBadgeStyle{
+	"red": {
+		BgColor:     "#fee2e2",
+		TextColor:   "#b91c1c",
+		BorderColor: "#fca5a5",
+	},
+	"green": {
+		BgColor:     "#dcfce7",
+		TextColor:   "#166534",
+		BorderColor: "#86efac",
+	},
+	"blue": {
+		BgColor:     "#dbeafe",
+		TextColor:   "#1d4ed8",
+		BorderColor: "#93c5fd",
+	},
+	"orange": {
+		BgColor:     "#ffedd5",
+		TextColor:   "#c2410c",
+		BorderColor: "#fdba74",
+	},
+	"yellow": {
+		BgColor:     "#fef9c3",
+		TextColor:   "#a16207",
+		BorderColor: "#fde047",
+	},
+	"purple": {
+		BgColor:     "#ede9fe",
+		TextColor:   "#6d28d9",
+		BorderColor: "#c4b5fd",
+	},
+	"gray": {
+		BgColor:     "#f1f5f9",
+		TextColor:   "#475569",
+		BorderColor: "#cbd5e1",
+	},
+	"brown": {
+		BgColor:     "#efebe9",
+		TextColor:   "#5d4037",
+		BorderColor: "#bcaaa4",
+	},
+	"pink": {
+		BgColor:     "#fce7f3",
+		TextColor:   "#be185d",
+		BorderColor: "#f9a8d4",
+	},
+	"cyan": {
+		BgColor:     "#cffafe",
+		TextColor:   "#0e7490",
+		BorderColor: "#67e8f9",
+	},
+}
 
 func resolveDispatchLocalesFromSubscribers(collection *mongo.Collection) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -227,6 +331,31 @@ func ensureCampaignIndexes(collection *mongo.Collection) error {
 	return dispatchIndexErr
 }
 
+func ensureDispatchSubscriberIndexes(collection *mongo.Collection) error {
+	dispatchSubscriberIndexOnce.Do(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		indexes := []mongo.IndexModel{
+			{
+				Keys: bson.D{
+					{Key: "status", Value: 1},
+					{Key: "locale", Value: 1},
+				},
+				Options: options.Index().
+					SetName("idx_newsletter_status_locale"),
+			},
+		}
+
+		_, err := collection.Indexes().CreateMany(ctx, indexes)
+		if err != nil {
+			dispatchSubscriberIndexErr = fmt.Errorf("create subscriber index failed: %w", err)
+		}
+	})
+
+	return dispatchSubscriberIndexErr
+}
+
 func ensureDeliveryIndexes(collection *mongo.Collection) error {
 	dispatchDeliveryIndexOnce.Do(func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -243,6 +372,15 @@ func ensureDeliveryIndexes(collection *mongo.Collection) error {
 					SetUnique(true).
 					SetName("uniq_newsletter_delivery_locale_item_email"),
 			},
+			{
+				Keys: bson.D{
+					{Key: "locale", Value: 1},
+					{Key: "itemKey", Value: 1},
+					{Key: "status", Value: 1},
+				},
+				Options: options.Index().
+					SetName("idx_newsletter_delivery_locale_item_status"),
+			},
 		}
 
 		_, err := collection.Indexes().CreateMany(ctx, indexes)
@@ -252,6 +390,47 @@ func ensureDeliveryIndexes(collection *mongo.Collection) error {
 	})
 
 	return dispatchDeliveryIndexErr
+}
+
+func ensureContentIndexes(postsCollection *mongo.Collection, topicsCollection *mongo.Collection) error {
+	dispatchContentIndexOnce.Do(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		postIndexes := []mongo.IndexModel{
+			{
+				Keys: bson.D{
+					{Key: "locale", Value: 1},
+					{Key: "id", Value: 1},
+				},
+				Options: options.Index().
+					SetUnique(true).
+					SetName("uniq_newsletter_post_locale_id"),
+			},
+		}
+		if _, err := postsCollection.Indexes().CreateMany(ctx, postIndexes); err != nil {
+			dispatchContentIndexErr = fmt.Errorf("create post index failed: %w", err)
+			return
+		}
+
+		topicIndexes := []mongo.IndexModel{
+			{
+				Keys: bson.D{
+					{Key: "locale", Value: 1},
+					{Key: "id", Value: 1},
+				},
+				Options: options.Index().
+					SetUnique(true).
+					SetName("uniq_newsletter_topic_locale_id"),
+			},
+		}
+		if _, err := topicsCollection.Indexes().CreateMany(ctx, topicIndexes); err != nil {
+			dispatchContentIndexErr = fmt.Errorf("create topic index failed: %w", err)
+			return
+		}
+	})
+
+	return dispatchContentIndexErr
 }
 
 func getOrCreateCampaign(
@@ -483,6 +662,378 @@ func fetchRSSItems(rssURL string) ([]rssItem, error) {
 	return items, nil
 }
 
+func fetchJSON(requestURL string, target any) error {
+	client := &http.Client{Timeout: defaultSyncTimeout}
+	req, err := http.NewRequest(http.MethodGet, requestURL, nil)
+	if err != nil {
+		return fmt.Errorf("create request failed: %w", err)
+	}
+	req.Header.Set("User-Agent", "suayb-blog-newsletter-dispatch/1.0")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("request failed: status=%d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 4<<20))
+	if err != nil {
+		return fmt.Errorf("read response failed: %w", err)
+	}
+
+	if err := json.Unmarshal(body, target); err != nil {
+		return fmt.Errorf("parse response failed: %w", err)
+	}
+
+	return nil
+}
+
+func normalizeSiteTopic(raw siteTopic) siteTopic {
+	id := strings.TrimSpace(raw.ID)
+	name := strings.TrimSpace(raw.Name)
+	color := strings.ToLower(strings.TrimSpace(raw.Color))
+
+	if id == "" {
+		return siteTopic{}
+	}
+	if name == "" {
+		name = id
+	}
+
+	return siteTopic{
+		ID:    id,
+		Name:  name,
+		Color: color,
+	}
+}
+
+func resolveSiteDataURL(siteURL string, locale string, fileName string) string {
+	return fmt.Sprintf("%s/data/%s.%s.json", strings.TrimRight(siteURL, "/"), fileName, locale)
+}
+
+func syncSiteContentForLocale(
+	siteURL string,
+	locale string,
+	postsCollection *mongo.Collection,
+	topicsCollection *mongo.Collection,
+) error {
+	postsURL := resolveSiteDataURL(siteURL, locale, "posts")
+	topicsURL := resolveSiteDataURL(siteURL, locale, "topics")
+
+	var posts []sitePost
+	if err := fetchJSON(postsURL, &posts); err != nil {
+		return fmt.Errorf("fetch posts failed: %w", err)
+	}
+
+	var topics []siteTopic
+	if err := fetchJSON(topicsURL, &topics); err != nil {
+		return fmt.Errorf("fetch topics failed: %w", err)
+	}
+
+	now := time.Now().UTC()
+	topicByID := make(map[string]siteTopic, len(topics))
+
+	for _, raw := range topics {
+		topic := normalizeSiteTopic(raw)
+		if topic.ID == "" {
+			continue
+		}
+		topicByID[topic.ID] = topic
+	}
+
+	for _, post := range posts {
+		for _, rawTopic := range post.Topics {
+			topic := normalizeSiteTopic(rawTopic)
+			if topic.ID == "" {
+				continue
+			}
+			existing, exists := topicByID[topic.ID]
+			if !exists {
+				topicByID[topic.ID] = topic
+				continue
+			}
+			if existing.Name == "" && topic.Name != "" {
+				existing.Name = topic.Name
+			}
+			if existing.Color == "" && topic.Color != "" {
+				existing.Color = topic.Color
+			}
+			topicByID[topic.ID] = existing
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	for _, topic := range topicByID {
+		_, err := topicsCollection.UpdateOne(
+			ctx,
+			bson.M{
+				"locale": locale,
+				"id":     topic.ID,
+			},
+			bson.M{
+				"$set": bson.M{
+					"locale":    locale,
+					"id":        topic.ID,
+					"name":      topic.Name,
+					"color":     topic.Color,
+					"updatedAt": now,
+					"syncedAt":  now,
+				},
+				"$setOnInsert": bson.M{
+					"createdAt": now,
+				},
+			},
+			options.Update().SetUpsert(true),
+		)
+		if err != nil {
+			return fmt.Errorf("upsert topic failed: %w", err)
+		}
+	}
+
+	for _, rawPost := range posts {
+		postID := strings.TrimSpace(rawPost.ID)
+		if postID == "" {
+			continue
+		}
+
+		postTopics := make([]bson.M, 0, len(rawPost.Topics))
+		for _, rawTopic := range rawPost.Topics {
+			topic := normalizeSiteTopic(rawTopic)
+			if topic.ID == "" {
+				continue
+			}
+			if topic.Color == "" {
+				if definedTopic, exists := topicByID[topic.ID]; exists {
+					topic.Color = definedTopic.Color
+				}
+			}
+			postTopics = append(postTopics, bson.M{
+				"id":    topic.ID,
+				"name":  topic.Name,
+				"color": topic.Color,
+			})
+		}
+
+		_, err := postsCollection.UpdateOne(
+			ctx,
+			bson.M{
+				"locale": locale,
+				"id":     postID,
+			},
+			bson.M{
+				"$set": bson.M{
+					"locale":         locale,
+					"id":             postID,
+					"title":          strings.TrimSpace(rawPost.Title),
+					"summary":        strings.TrimSpace(rawPost.Summary),
+					"thumbnail":      strings.TrimSpace(rawPost.Thumbnail),
+					"topics":         postTopics,
+					"readingTimeMin": rawPost.ReadingTimeMin,
+					"publishedDate":  strings.TrimSpace(rawPost.PublishedDate),
+					"updatedDate":    strings.TrimSpace(rawPost.UpdatedDate),
+					"updatedAt":      now,
+					"syncedAt":       now,
+				},
+				"$setOnInsert": bson.M{
+					"createdAt": now,
+				},
+			},
+			options.Update().SetUpsert(true),
+		)
+		if err != nil {
+			return fmt.Errorf("upsert post failed: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func extractPostIDFromLink(postURL string) string {
+	rawURL := strings.TrimSpace(postURL)
+	if rawURL == "" {
+		return ""
+	}
+
+	parsed, err := url.Parse(rawURL)
+	pathValue := rawURL
+	if err == nil {
+		pathValue = parsed.Path
+	}
+
+	trimmedPath := strings.Trim(pathValue, "/")
+	if trimmedPath == "" {
+		return ""
+	}
+
+	parts := strings.Split(trimmedPath, "/")
+	for index := 0; index < len(parts)-1; index++ {
+		if parts[index] != "posts" {
+			continue
+		}
+		decoded, decodeErr := url.PathUnescape(parts[index+1])
+		if decodeErr != nil {
+			return strings.TrimSpace(parts[index+1])
+		}
+		return strings.TrimSpace(decoded)
+	}
+
+	decoded, decodeErr := url.PathUnescape(parts[len(parts)-1])
+	if decodeErr != nil {
+		return strings.TrimSpace(parts[len(parts)-1])
+	}
+	return strings.TrimSpace(decoded)
+}
+
+func resolveAbsoluteURL(siteURL string, value string) string {
+	trimmedValue := strings.TrimSpace(value)
+	if trimmedValue == "" {
+		return ""
+	}
+	if strings.HasPrefix(trimmedValue, "http://") || strings.HasPrefix(trimmedValue, "https://") {
+		return trimmedValue
+	}
+
+	baseURL, err := url.Parse(strings.TrimSpace(siteURL))
+	if err != nil {
+		return trimmedValue
+	}
+	refURL, err := url.Parse(trimmedValue)
+	if err != nil {
+		return trimmedValue
+	}
+
+	return baseURL.ResolveReference(refURL).String()
+}
+
+func resolveTopicBadgeStyle(color string) topicBadgeStyle {
+	style, exists := topicBadgeStyles[strings.ToLower(strings.TrimSpace(color))]
+	if !exists {
+		return defaultTopicBadgeStyle
+	}
+	return style
+}
+
+func buildTopicURL(siteURL string, locale string, topicID string) string {
+	trimmedTopicID := strings.TrimSpace(topicID)
+	if trimmedTopicID == "" {
+		return ""
+	}
+	escapedTopicID := url.PathEscape(trimmedTopicID)
+	baseURL := strings.TrimRight(strings.TrimSpace(siteURL), "/")
+	if baseURL == "" {
+		return ""
+	}
+	return fmt.Sprintf("%s/%s/topics/%s", baseURL, locale, escapedTopicID)
+}
+
+func buildTopicBadgesFromCategories(categories []string) []newsletter.PostTopicBadge {
+	if len(categories) == 0 {
+		return nil
+	}
+
+	style := defaultTopicBadgeStyle
+	badges := make([]newsletter.PostTopicBadge, 0, len(categories))
+	for _, category := range categories {
+		name := strings.TrimSpace(category)
+		if name == "" {
+			continue
+		}
+		badges = append(badges, newsletter.PostTopicBadge{
+			Name:        name,
+			BgColor:     style.BgColor,
+			TextColor:   style.TextColor,
+			BorderColor: style.BorderColor,
+		})
+	}
+
+	return badges
+}
+
+func buildTopicBadgesFromSyncedTopics(topics []syncedPostTopic, siteURL string, locale string) []newsletter.PostTopicBadge {
+	if len(topics) == 0 {
+		return nil
+	}
+
+	badges := make([]newsletter.PostTopicBadge, 0, len(topics))
+	for _, topic := range topics {
+		name := strings.TrimSpace(topic.Name)
+		if name == "" {
+			continue
+		}
+		style := resolveTopicBadgeStyle(topic.Color)
+		badges = append(badges, newsletter.PostTopicBadge{
+			Name:        name,
+			URL:         buildTopicURL(siteURL, locale, topic.ID),
+			BgColor:     style.BgColor,
+			TextColor:   style.TextColor,
+			BorderColor: style.BorderColor,
+		})
+	}
+
+	return badges
+}
+
+func resolvePostEmailMetadata(
+	postsCollection *mongo.Collection,
+	locale string,
+	siteURL string,
+	item rssItem,
+) (postEmailMetadata, error) {
+	postImageURL := strings.TrimSpace(item.MediaThumbnail.URL)
+	if postImageURL == "" && strings.HasPrefix(strings.ToLower(strings.TrimSpace(item.Enclosure.Type)), "image/") {
+		postImageURL = strings.TrimSpace(item.Enclosure.URL)
+	}
+
+	fallback := postEmailMetadata{
+		Topics:         buildTopicBadgesFromCategories(item.Categories),
+		ReadingTimeMin: 0,
+		ThumbnailURL:   postImageURL,
+	}
+
+	postID := extractPostIDFromLink(item.Link)
+	if postID == "" {
+		return fallback, nil
+	}
+
+	var syncedPost struct {
+		ReadingTimeMin int               `bson:"readingTimeMin"`
+		Thumbnail      string            `bson:"thumbnail"`
+		Topics         []syncedPostTopic `bson:"topics"`
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+	defer cancel()
+
+	err := postsCollection.FindOne(ctx, bson.M{
+		"locale": locale,
+		"id":     postID,
+	}).Decode(&syncedPost)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return fallback, nil
+		}
+		return fallback, err
+	}
+
+	if syncedPost.ReadingTimeMin > 0 {
+		fallback.ReadingTimeMin = syncedPost.ReadingTimeMin
+	}
+	if badges := buildTopicBadgesFromSyncedTopics(syncedPost.Topics, siteURL, locale); len(badges) > 0 {
+		fallback.Topics = badges
+	}
+	if strings.TrimSpace(fallback.ThumbnailURL) == "" {
+		fallback.ThumbnailURL = resolveAbsoluteURL(siteURL, syncedPost.Thumbnail)
+	}
+
+	return fallback, nil
+}
+
 func buildUnsubscribeURL(siteURL, token, locale string) (string, error) {
 	parsed, err := url.Parse(siteURL)
 	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
@@ -506,12 +1057,8 @@ func sendPostEmail(
 	item rssItem,
 	rssURL string,
 	unsubscribeURL string,
+	postMetadata postEmailMetadata,
 ) error {
-	postImageURL := strings.TrimSpace(item.MediaThumbnail.URL)
-	if postImageURL == "" && strings.HasPrefix(strings.ToLower(strings.TrimSpace(item.Enclosure.Type)), "image/") {
-		postImageURL = strings.TrimSpace(item.Enclosure.URL)
-	}
-
 	publishedAt, publishedAtErr := parseRSSItemPubDate(item.PubDate)
 	if publishedAtErr != nil {
 		publishedAt = time.Time{}
@@ -521,8 +1068,10 @@ func sendPostEmail(
 		locale,
 		strings.TrimSpace(item.Title),
 		strings.TrimSpace(item.Description),
-		postImageURL,
+		postMetadata.ThumbnailURL,
+		postMetadata.Topics,
 		publishedAt,
+		postMetadata.ReadingTimeMin,
 		strings.TrimSpace(item.Link),
 		rssURL,
 		unsubscribeURL,
@@ -676,6 +1225,16 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	subscribersCollection := client.Database(databaseName).Collection(newsletterSubscribersCollection)
 	campaignsCollection := client.Database(databaseName).Collection(newsletterCampaignsCollection)
 	deliveriesCollection := client.Database(databaseName).Collection(newsletterDeliveriesCollection)
+	postsCollection := client.Database(databaseName).Collection(newsletterPostsCollection)
+	if err := ensureDispatchSubscriberIndexes(subscribersCollection); err != nil {
+		writeJSON(w, http.StatusServiceUnavailable, dispatchResponse{
+			Status:    "error",
+			Message:   "subscriber index error",
+			Timestamp: time.Now().UTC().Format(time.RFC3339),
+			Locales:   map[string]dispatchLocaleResult{},
+		})
+		return
+	}
 	if err := ensureCampaignIndexes(campaignsCollection); err != nil {
 		writeJSON(w, http.StatusServiceUnavailable, dispatchResponse{
 			Status:    "error",
@@ -772,6 +1331,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 		result.ItemKey = itemKey
 		result.PostTitle = strings.TrimSpace(selectedItem.Title)
+		postMetadata, _ := resolvePostEmailMetadata(postsCollection, locale, siteURL, *selectedItem)
 
 		now := time.Now().UTC()
 		campaignStatus, created, campaignErr := getOrCreateCampaign(campaignsCollection, locale, itemKey, *selectedItem, rssURL, now)
@@ -877,7 +1437,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			if err := sendPostEmail(smtpCfg, email, locale, siteURL, *selectedItem, rssURL, unsubscribeURL); err != nil {
+			if err := sendPostEmail(smtpCfg, email, locale, siteURL, *selectedItem, rssURL, unsubscribeURL, postMetadata); err != nil {
 				failedCount++
 				_ = upsertDeliveryAttempt(
 					deliveriesCollection,

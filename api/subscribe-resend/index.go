@@ -229,6 +229,13 @@ func ensureSubscriberIndexes(collection *mongo.Collection) error {
 				Options: options.Index().SetUnique(true).SetName("uniq_newsletter_email"),
 			},
 			{
+				Keys: bson.D{
+					{Key: "status", Value: 1},
+					{Key: "locale", Value: 1},
+				},
+				Options: options.Index().SetName("idx_newsletter_status_locale"),
+			},
+			{
 				Keys:    bson.D{{Key: "confirmTokenHash", Value: 1}},
 				Options: options.Index().SetName("idx_confirm_token_hash"),
 			},

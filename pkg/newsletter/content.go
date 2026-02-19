@@ -39,10 +39,25 @@ type postEmailContent struct {
 	NewsletterLabel  string
 	ButtonLabel      string
 	PublishedLabel   string
+	ReadingTimeLabel string
 	RSSLabel         string
 	UnsubscribeLabel string
 	FooterNote       string
 }
+
+type PostTopicBadge struct {
+	Name        string
+	URL         string
+	BgColor     string
+	TextColor   string
+	BorderColor string
+}
+
+const (
+	defaultTopicBadgeBgColor     = "#f8fafc"
+	defaultTopicBadgeTextColor   = "#334155"
+	defaultTopicBadgeBorderColor = "#dbe4ef"
+)
 
 type confirmationEmailTemplateData struct {
 	Lang         string
@@ -65,9 +80,12 @@ type postAnnouncementEmailTemplateData struct {
 	NewsletterLabel  string
 	PostTitle        string
 	PostSummary      string
+	PostTopics       []PostTopicBadge
 	PostImageURL     string
 	PublishedLabel   string
 	PublishedDate    string
+	ReadingTimeLabel string
+	ReadingTimeText  string
 	ButtonLabel      string
 	PostURL          string
 	RSSLabel         string
@@ -248,6 +266,7 @@ var postEmailByLocale = map[string]postEmailContent{
 		NewsletterLabel:  "New post",
 		ButtonLabel:      "Read article",
 		PublishedLabel:   "Published",
+		ReadingTimeLabel: "Reading time",
 		RSSLabel:         "RSS feed",
 		UnsubscribeLabel: "Unsubscribe",
 		FooterNote:       "You are receiving this email because you subscribed to Suayb's Blog newsletter.",
@@ -259,6 +278,7 @@ var postEmailByLocale = map[string]postEmailContent{
 		NewsletterLabel:  "Yeni yazi",
 		ButtonLabel:      "Yaziyi oku",
 		PublishedLabel:   "Yayim tarihi",
+		ReadingTimeLabel: "Okuma suresi",
 		RSSLabel:         "RSS akisi",
 		UnsubscribeLabel: "Abonelikten cik",
 		FooterNote:       "Bu e-postayi Suayb's Blog newsletter aboneliginiz oldugu icin aliyorsunuz.",
@@ -422,12 +442,62 @@ func truncateText(value string, maxRunes int) string {
 	return strings.TrimSpace(string(runes[:maxRunes])) + "..."
 }
 
+func normalizeTopics(topics []PostTopicBadge) []PostTopicBadge {
+	seen := make(map[string]struct{}, len(topics))
+	result := make([]PostTopicBadge, 0, len(topics))
+	for _, raw := range topics {
+		trimmedName := strings.TrimSpace(raw.Name)
+		if trimmedName == "" {
+			continue
+		}
+		key := strings.ToLower(trimmedName)
+		if _, exists := seen[key]; exists {
+			continue
+		}
+		seen[key] = struct{}{}
+		bgColor := strings.TrimSpace(raw.BgColor)
+		if bgColor == "" {
+			bgColor = defaultTopicBadgeBgColor
+		}
+		textColor := strings.TrimSpace(raw.TextColor)
+		if textColor == "" {
+			textColor = defaultTopicBadgeTextColor
+		}
+		borderColor := strings.TrimSpace(raw.BorderColor)
+		if borderColor == "" {
+			borderColor = defaultTopicBadgeBorderColor
+		}
+		result = append(result, PostTopicBadge{
+			Name:        trimmedName,
+			URL:         strings.TrimSpace(raw.URL),
+			BgColor:     bgColor,
+			TextColor:   textColor,
+			BorderColor: borderColor,
+		})
+	}
+	return result
+}
+
+func formatReadingTime(locale string, readingTimeMin int) string {
+	if readingTimeMin <= 0 {
+		return ""
+	}
+
+	if locale == LocaleTR {
+		return fmt.Sprintf("%d dk", readingTimeMin)
+	}
+
+	return fmt.Sprintf("%d min read", readingTimeMin)
+}
+
 func PostAnnouncementEmail(
 	locale string,
 	postTitle string,
 	postSummary string,
 	postImageURL string,
+	postTopics []PostTopicBadge,
 	publishedAt time.Time,
+	readingTimeMin int,
 	postURL string,
 	rssURL string,
 	unsubscribeURL string,
@@ -459,9 +529,12 @@ func PostAnnouncementEmail(
 		NewsletterLabel:  content.NewsletterLabel,
 		PostTitle:        strings.TrimSpace(postTitle),
 		PostSummary:      cleanSummary,
+		PostTopics:       normalizeTopics(postTopics),
 		PostImageURL:     strings.TrimSpace(postImageURL),
 		PublishedLabel:   content.PublishedLabel,
 		PublishedDate:    formatPublishedDate(resolved, publishedAt),
+		ReadingTimeLabel: content.ReadingTimeLabel,
+		ReadingTimeText:  formatReadingTime(resolved, readingTimeMin),
 		ButtonLabel:      content.ButtonLabel,
 		PostURL:          strings.TrimSpace(postURL),
 		RSSLabel:         content.RSSLabel,
