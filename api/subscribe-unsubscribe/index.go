@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -50,42 +51,32 @@ func getUnsubscribeClient() (*mongo.Client, error) {
 	return unsubscribeClient, nil
 }
 
-func renderPage(w http.ResponseWriter, statusCode int, locale string, siteURL string, page newsletter.PageKey, buttonHref string) {
-	content := newsletter.ConfirmationPage(locale, page)
-	if err := newsletter.RenderStatusPage(
-		w,
-		statusCode,
-		locale,
-		siteURL,
-		content.Title,
-		content.Heading,
-		content.Message,
-		buttonHref,
-		content.ButtonLabel,
-	); err != nil {
-		http.Error(w, "failed to render page", http.StatusInternalServerError)
-	}
+type unsubscribeResponse struct {
+	Status string `json:"status"`
+}
+
+func writeJSON(w http.ResponseWriter, statusCode int, payload unsubscribeResponse) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(statusCode)
+	_ = json.NewEncoder(w).Encode(payload)
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	locale := newsletter.ResolveLocale(strings.TrimSpace(r.URL.Query().Get("locale")), r.Header.Get("Accept-Language"))
-	siteURL := newsletter.ResolveSiteURLOrRoot()
-
 	allowedOrigin, corsErr := newsletter.ResolveAllowedOriginRequired()
 	if corsErr != nil {
-		renderPage(w, http.StatusInternalServerError, locale, siteURL, newsletter.PageConfigError, "/")
+		writeJSON(w, http.StatusInternalServerError, unsubscribeResponse{Status: "config-error"})
 		return
 	}
 
 	databaseName, databaseErr := newsletter.ResolveDatabaseName()
 	if databaseErr != nil {
-		renderPage(w, http.StatusInternalServerError, locale, siteURL, newsletter.PageConfigError, "/")
+		writeJSON(w, http.StatusInternalServerError, unsubscribeResponse{Status: "config-error"})
 		return
 	}
 
 	unsubscribeSecret, secretErr := newsletter.ResolveUnsubscribeSecret()
 	if secretErr != nil {
-		renderPage(w, http.StatusInternalServerError, locale, siteURL, newsletter.PageConfigError, "/")
+		writeJSON(w, http.StatusInternalServerError, unsubscribeResponse{Status: "config-error"})
 		return
 	}
 
@@ -102,7 +93,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet && r.Method != http.MethodPost {
 		w.Header().Set("Allow", "GET, POST, OPTIONS")
-		renderPage(w, http.StatusMethodNotAllowed, locale, siteURL, newsletter.PageMethodNotAllowed, siteURL)
+		writeJSON(w, http.StatusMethodNotAllowed, unsubscribeResponse{Status: "method-not-allowed"})
 		return
 	}
 
@@ -113,19 +104,19 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if token == "" {
-		renderPage(w, http.StatusBadRequest, locale, siteURL, newsletter.PageUnsubscribeInvalid, siteURL)
+		writeJSON(w, http.StatusBadRequest, unsubscribeResponse{Status: "invalid-link"})
 		return
 	}
 
 	email, tokenErr := newsletter.ParseUnsubscribeToken(token, unsubscribeSecret, time.Now().UTC())
 	if tokenErr != nil {
-		renderPage(w, http.StatusBadRequest, locale, siteURL, newsletter.PageUnsubscribeInvalid, siteURL)
+		writeJSON(w, http.StatusBadRequest, unsubscribeResponse{Status: "invalid-link"})
 		return
 	}
 
 	client, err := getUnsubscribeClient()
 	if err != nil {
-		renderPage(w, http.StatusServiceUnavailable, locale, siteURL, newsletter.PageUnsubscribeFailed, siteURL)
+		writeJSON(w, http.StatusServiceUnavailable, unsubscribeResponse{Status: "service-unavailable"})
 		return
 	}
 
@@ -150,9 +141,9 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	_, err = collection.UpdateOne(ctx, bson.M{"email": email}, update)
 	if err != nil {
-		renderPage(w, http.StatusServiceUnavailable, locale, siteURL, newsletter.PageUnsubscribeFailed, siteURL)
+		writeJSON(w, http.StatusInternalServerError, unsubscribeResponse{Status: "failed"})
 		return
 	}
 
-	renderPage(w, http.StatusOK, locale, siteURL, newsletter.PageUnsubscribeSuccess, siteURL)
+	writeJSON(w, http.StatusOK, unsubscribeResponse{Status: "success"})
 }

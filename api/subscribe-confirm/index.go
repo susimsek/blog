@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"crypto/sha256"
+	"encoding/json"
 	"encoding/hex"
 	"fmt"
 	"net/http"
@@ -60,36 +61,26 @@ func hashValue(value string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-func renderPage(w http.ResponseWriter, statusCode int, locale string, siteURL string, page newsletter.PageKey, buttonHref string) {
-	content := newsletter.ConfirmationPage(locale, page)
-	if err := newsletter.RenderStatusPage(
-		w,
-		statusCode,
-		locale,
-		siteURL,
-		content.Title,
-		content.Heading,
-		content.Message,
-		buttonHref,
-		content.ButtonLabel,
-	); err != nil {
-		http.Error(w, "failed to render page", http.StatusInternalServerError)
-	}
+type confirmResponse struct {
+	Status string `json:"status"`
+}
+
+func writeJSON(w http.ResponseWriter, statusCode int, payload confirmResponse) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(statusCode)
+	_ = json.NewEncoder(w).Encode(payload)
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	locale := newsletter.ResolveLocale(strings.TrimSpace(r.URL.Query().Get("locale")), r.Header.Get("Accept-Language"))
-	siteURL := newsletter.ResolveSiteURLOrRoot()
-
 	allowedOrigin, corsErr := newsletter.ResolveAllowedOriginRequired()
 	if corsErr != nil {
-		renderPage(w, http.StatusInternalServerError, locale, siteURL, newsletter.PageConfigError, "/")
+		writeJSON(w, http.StatusInternalServerError, confirmResponse{Status: "config-error"})
 		return
 	}
 
 	databaseName, databaseErr := newsletter.ResolveDatabaseName()
 	if databaseErr != nil {
-		renderPage(w, http.StatusInternalServerError, locale, siteURL, newsletter.PageConfigError, "/")
+		writeJSON(w, http.StatusInternalServerError, confirmResponse{Status: "config-error"})
 		return
 	}
 
@@ -106,19 +97,19 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {
 		w.Header().Set("Allow", "GET, OPTIONS")
-		renderPage(w, http.StatusMethodNotAllowed, locale, siteURL, newsletter.PageMethodNotAllowed, siteURL)
+		writeJSON(w, http.StatusMethodNotAllowed, confirmResponse{Status: "method-not-allowed"})
 		return
 	}
 
 	token := strings.TrimSpace(r.URL.Query().Get("token"))
 	if token == "" {
-		renderPage(w, http.StatusBadRequest, locale, siteURL, newsletter.PageMissingToken, siteURL)
+		writeJSON(w, http.StatusBadRequest, confirmResponse{Status: "invalid-link"})
 		return
 	}
 
 	client, err := getConfirmClient()
 	if err != nil {
-		renderPage(w, http.StatusServiceUnavailable, locale, siteURL, newsletter.PageServiceDown, siteURL)
+		writeJSON(w, http.StatusServiceUnavailable, confirmResponse{Status: "service-unavailable"})
 		return
 	}
 
@@ -149,14 +140,14 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	result, err := collection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		renderPage(w, http.StatusServiceUnavailable, locale, siteURL, newsletter.PageConfirmFailed, siteURL)
+		writeJSON(w, http.StatusInternalServerError, confirmResponse{Status: "failed"})
 		return
 	}
 
 	if result.MatchedCount == 0 {
-		renderPage(w, http.StatusBadRequest, locale, siteURL, newsletter.PageTokenExpired, siteURL)
+		writeJSON(w, http.StatusGone, confirmResponse{Status: "expired"})
 		return
 	}
 
-	renderPage(w, http.StatusOK, locale, siteURL, newsletter.PageSuccess, siteURL)
+	writeJSON(w, http.StatusOK, confirmResponse{Status: "success"})
 }

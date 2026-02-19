@@ -69,6 +69,83 @@
       "rss": "RSS",
       "socialTitle": "Social"
     },
+    "newsletterStatus": {
+      "meta": {
+        "title": "Newsletter status",
+        "description": "Status of your newsletter confirmation or unsubscribe action."
+      },
+      "eyebrow": "Newsletter",
+      "loading": {
+        "title": "Processing your request",
+        "message": "Please wait while we process this newsletter action."
+      },
+      "confirm": {
+        "title": "Subscription confirmation",
+        "status": {
+          "success": {
+            "title": "Subscription confirmed",
+            "message": "Your email is now confirmed. You will receive newsletter updates."
+          },
+          "expired": {
+            "title": "Link expired",
+            "message": "This confirmation link is expired or invalid. Please subscribe again."
+          },
+          "invalid-link": {
+            "title": "Invalid link",
+            "message": "The confirmation link is missing or invalid."
+          },
+          "failed": {
+            "title": "Confirmation failed",
+            "message": "We could not confirm your subscription. Please try again."
+          },
+          "service-unavailable": {
+            "title": "Service unavailable",
+            "message": "The confirmation service is temporarily unavailable. Try again in a few minutes."
+          },
+          "config-error": {
+            "title": "Configuration error",
+            "message": "Newsletter confirmation is not configured correctly."
+          },
+          "method-not-allowed": {
+            "title": "Invalid request",
+            "message": "This endpoint only supports GET requests."
+          }
+        }
+      },
+      "unsubscribe": {
+        "title": "Unsubscribe",
+        "status": {
+          "success": {
+            "title": "Unsubscribed",
+            "message": "You have been unsubscribed successfully. You will no longer receive newsletter emails."
+          },
+          "invalid-link": {
+            "title": "Invalid link",
+            "message": "This unsubscribe link is invalid or expired."
+          },
+          "failed": {
+            "title": "Unsubscribe failed",
+            "message": "We could not complete the unsubscribe request. Please try again."
+          },
+          "service-unavailable": {
+            "title": "Service unavailable",
+            "message": "The unsubscribe service is temporarily unavailable. Try again in a few minutes."
+          },
+          "config-error": {
+            "title": "Configuration error",
+            "message": "Unsubscribe flow is not configured correctly."
+          },
+          "method-not-allowed": {
+            "title": "Invalid request",
+            "message": "This endpoint only supports GET or POST requests."
+          }
+        }
+      },
+      "actions": {
+        "goHome": "Go to blog",
+        "subscribeAgain": "Subscribe again"
+      }
+    },
     "pagination": {
       "pageSize": "Page size",
       "showingResults": "Showing {{start}}–{{end}} of {{total}} results"

@@ -86,6 +86,83 @@ interface Resources {
         };
       };
       language: 'Language';
+      newsletterStatus: {
+        actions: {
+          goHome: 'Go to blog';
+          subscribeAgain: 'Subscribe again';
+        };
+        confirm: {
+          status: {
+            'config-error': {
+              message: 'Newsletter confirmation is not configured correctly.';
+              title: 'Configuration error';
+            };
+            expired: {
+              message: 'This confirmation link is expired or invalid. Please subscribe again.';
+              title: 'Link expired';
+            };
+            failed: {
+              message: 'We could not confirm your subscription. Please try again.';
+              title: 'Confirmation failed';
+            };
+            'invalid-link': {
+              message: 'The confirmation link is missing or invalid.';
+              title: 'Invalid link';
+            };
+            'method-not-allowed': {
+              message: 'This endpoint only supports GET requests.';
+              title: 'Invalid request';
+            };
+            'service-unavailable': {
+              message: 'The confirmation service is temporarily unavailable. Try again in a few minutes.';
+              title: 'Service unavailable';
+            };
+            success: {
+              message: 'Your email is now confirmed. You will receive newsletter updates.';
+              title: 'Subscription confirmed';
+            };
+          };
+          title: 'Subscription confirmation';
+        };
+        eyebrow: 'Newsletter';
+        loading: {
+          message: 'Please wait while we process this newsletter action.';
+          title: 'Processing your request';
+        };
+        meta: {
+          description: 'Status of your newsletter confirmation or unsubscribe action.';
+          title: 'Newsletter status';
+        };
+        unsubscribe: {
+          status: {
+            'config-error': {
+              message: 'Unsubscribe flow is not configured correctly.';
+              title: 'Configuration error';
+            };
+            failed: {
+              message: 'We could not complete the unsubscribe request. Please try again.';
+              title: 'Unsubscribe failed';
+            };
+            'invalid-link': {
+              message: 'This unsubscribe link is invalid or expired.';
+              title: 'Invalid link';
+            };
+            'method-not-allowed': {
+              message: 'This endpoint only supports GET or POST requests.';
+              title: 'Invalid request';
+            };
+            'service-unavailable': {
+              message: 'The unsubscribe service is temporarily unavailable. Try again in a few minutes.';
+              title: 'Service unavailable';
+            };
+            success: {
+              message: 'You have been unsubscribed successfully. You will no longer receive newsletter emails.';
+              title: 'Unsubscribed';
+            };
+          };
+          title: 'Unsubscribe';
+        };
+      };
       noResults: 'No results found';
       pagination: {
         pageSize: 'Page size';

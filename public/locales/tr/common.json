@@ -69,6 +69,83 @@
       "rss": "RSS",
       "socialTitle": "Sosyal"
     },
+    "newsletterStatus": {
+      "meta": {
+        "title": "Bulten durumu",
+        "description": "Bulten onaylama veya abonelikten cikma isleminin durumu."
+      },
+      "eyebrow": "Bulten",
+      "loading": {
+        "title": "Isteğin isleniyor",
+        "message": "Bulten islemi tamamlanirken lutfen bekleyin."
+      },
+      "confirm": {
+        "title": "Abonelik onayi",
+        "status": {
+          "success": {
+            "title": "Abonelik onaylandi",
+            "message": "E-posta adresin dogrulandi. Artik bulten guncellemelerini alacaksin."
+          },
+          "expired": {
+            "title": "Link suresi dolmus",
+            "message": "Bu onay linki gecersiz veya suresi dolmus. Lutfen yeniden abone ol."
+          },
+          "invalid-link": {
+            "title": "Gecersiz link",
+            "message": "Onay linki eksik veya gecersiz."
+          },
+          "failed": {
+            "title": "Onay basarisiz",
+            "message": "Aboneligin onaylanamadi. Lutfen tekrar dene."
+          },
+          "service-unavailable": {
+            "title": "Servis kullanilamiyor",
+            "message": "Onay servisi su an gecici olarak kullanilamiyor. Birkac dakika sonra tekrar dene."
+          },
+          "config-error": {
+            "title": "Yapilandirma hatasi",
+            "message": "Bulten onay akisi dogru sekilde yapilandirilmamis."
+          },
+          "method-not-allowed": {
+            "title": "Gecersiz istek",
+            "message": "Bu endpoint sadece GET isteklerini destekler."
+          }
+        }
+      },
+      "unsubscribe": {
+        "title": "Abonelikten cik",
+        "status": {
+          "success": {
+            "title": "Abonelikten cikildi",
+            "message": "Aboneligin basariyla iptal edildi. Artik bulten e-postasi almayacaksin."
+          },
+          "invalid-link": {
+            "title": "Gecersiz link",
+            "message": "Bu cikis linki gecersiz veya suresi dolmus."
+          },
+          "failed": {
+            "title": "Cikis islemi basarisiz",
+            "message": "Abonelikten cikis islemi tamamlanamadi. Lutfen tekrar dene."
+          },
+          "service-unavailable": {
+            "title": "Servis kullanilamiyor",
+            "message": "Cikis servisi su an gecici olarak kullanilamiyor. Birkac dakika sonra tekrar dene."
+          },
+          "config-error": {
+            "title": "Yapilandirma hatasi",
+            "message": "Abonelikten cikis akisi dogru sekilde yapilandirilmamis."
+          },
+          "method-not-allowed": {
+            "title": "Gecersiz istek",
+            "message": "Bu endpoint sadece GET veya POST isteklerini destekler."
+          }
+        }
+      },
+      "actions": {
+        "goHome": "Bloga git",
+        "subscribeAgain": "Yeniden abone ol"
+      }
+    },
     "pagination": {
       "pageSize": "Sayfa Boyutu",
       "showingResults": "{{start}}–{{end}} arası {{total}} sonuç"
