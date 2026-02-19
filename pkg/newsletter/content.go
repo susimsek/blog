@@ -1,9 +1,12 @@
 package newsletter
 
 import (
+	"bytes"
+	"embed"
 	"fmt"
-	"html"
+	htmltemplate "html/template"
 	"strings"
+	"sync"
 )
 
 const (
@@ -35,6 +38,34 @@ type postEmailContent struct {
 	ButtonLabel      string
 	RSSLabel         string
 	UnsubscribeLabel string
+}
+
+type confirmationEmailTemplateData struct {
+	Lang         string
+	FaviconURL   string
+	Title        string
+	Heading      string
+	Body         string
+	ButtonLabel  string
+	FallbackLead string
+	ConfirmURL   string
+}
+
+type postAnnouncementEmailTemplateData struct {
+	Lang             string
+	FaviconURL       string
+	Subject          string
+	Title            string
+	Heading          string
+	Body             string
+	PostTitle        string
+	PostSummary      string
+	ButtonLabel      string
+	PostURL          string
+	RSSLabel         string
+	RSSURL           string
+	UnsubscribeLabel string
+	UnsubscribeURL   string
 }
 
 type PageKey string
@@ -219,6 +250,17 @@ var postEmailByLocale = map[string]postEmailContent{
 	},
 }
 
+//go:embed templates/*.tmpl
+var newsletterTemplateFS embed.FS
+
+var (
+	emailTemplatesOnce sync.Once
+	emailTemplatesErr  error
+
+	confirmationHTMLTmpl *htmltemplate.Template
+	postHTMLTmpl         *htmltemplate.Template
+)
+
 func ResolveLocale(explicitLocale string, acceptLanguageHeader string) string {
 	explicit := strings.ToLower(strings.TrimSpace(explicitLocale))
 	if explicit == LocaleTR || explicit == LocaleEN {
@@ -233,49 +275,62 @@ func ResolveLocale(explicitLocale string, acceptLanguageHeader string) string {
 	return LocaleEN
 }
 
-func ConfirmationEmail(locale string, confirmURL string) (subject string, plainBody string, htmlBody string) {
+func ensureEmailTemplates() error {
+	emailTemplatesOnce.Do(func() {
+		var err error
+
+		confirmationHTMLTmpl, err = htmltemplate.ParseFS(newsletterTemplateFS, "templates/confirmation_email.html.tmpl")
+		if err != nil {
+			emailTemplatesErr = fmt.Errorf("parse confirmation html template: %w", err)
+			return
+		}
+
+		postHTMLTmpl, err = htmltemplate.ParseFS(newsletterTemplateFS, "templates/post_announcement_email.html.tmpl")
+		if err != nil {
+			emailTemplatesErr = fmt.Errorf("parse post html template: %w", err)
+			return
+		}
+	})
+
+	return emailTemplatesErr
+}
+
+func renderHTMLTemplate(tmpl *htmltemplate.Template, data any) (string, error) {
+	var buffer bytes.Buffer
+	if err := tmpl.Execute(&buffer, data); err != nil {
+		return "", err
+	}
+	return buffer.String(), nil
+}
+
+func ConfirmationEmail(locale string, confirmURL string, siteURL string) (subject string, htmlBody string, err error) {
+	if err := ensureEmailTemplates(); err != nil {
+		return "", "", err
+	}
+
 	resolved := ResolveLocale(locale, "")
 	content, ok := emailByLocale[resolved]
 	if !ok {
 		content = emailByLocale[LocaleEN]
 	}
 
-	escapedURL := html.EscapeString(confirmURL)
-	plainBody = fmt.Sprintf("%s: %s", content.ButtonLabel, confirmURL)
-	htmlBody = fmt.Sprintf(`<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>%s</title>
-  </head>
-  <body style="margin:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
-    <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="padding:24px 12px;">
-      <tr>
-        <td align="center">
-          <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;padding:28px;">
-            <tr><td style="font-size:40px;line-height:1;font-weight:800;color:#111827;padding-bottom:8px;">%s</td></tr>
-            <tr><td style="font-size:34px;line-height:1.2;font-weight:700;color:#111827;padding:10px 0 10px;">%s</td></tr>
-            <tr><td style="font-size:18px;line-height:1.7;color:#374151;padding-bottom:18px;">%s</td></tr>
-            <tr>
-              <td style="padding:8px 0 24px;">
-                <a href="%s" style="display:inline-block;background:#1677ff;color:#ffffff;text-decoration:none;font-weight:700;border-radius:999px;padding:14px 26px;font-size:18px;">%s</a>
-              </td>
-            </tr>
-            <tr>
-              <td style="font-size:14px;line-height:1.6;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:18px;word-break:break-word;">
-                %s<br/>
-                <a href="%s" style="color:#2563eb;">%s</a>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>`, html.EscapeString(content.Subject), html.EscapeString(content.Title), html.EscapeString(content.Heading), html.EscapeString(content.Body), escapedURL, html.EscapeString(content.ButtonLabel), html.EscapeString(content.FallbackLead), escapedURL, escapedURL)
+	data := confirmationEmailTemplateData{
+		Lang:         resolved,
+		FaviconURL:   BuildFaviconURL(siteURL),
+		Title:        content.Title,
+		Heading:      content.Heading,
+		Body:         content.Body,
+		ButtonLabel:  content.ButtonLabel,
+		FallbackLead: content.FallbackLead,
+		ConfirmURL:   strings.TrimSpace(confirmURL),
+	}
 
-	return content.Subject, plainBody, htmlBody
+	htmlBody, err = renderHTMLTemplate(confirmationHTMLTmpl, data)
+	if err != nil {
+		return "", "", fmt.Errorf("render confirmation html template: %w", err)
+	}
+
+	return content.Subject, htmlBody, nil
 }
 
 func ConfirmationPage(locale string, key PageKey) pageContent {
@@ -330,7 +385,12 @@ func PostAnnouncementEmail(
 	postURL string,
 	rssURL string,
 	unsubscribeURL string,
-) (subject string, plainBody string, htmlBody string) {
+	siteURL string,
+) (subject string, htmlBody string, err error) {
+	if err := ensureEmailTemplates(); err != nil {
+		return "", "", err
+	}
+
 	resolved := ResolveLocale(locale, "")
 	content, ok := postEmailByLocale[resolved]
 	if !ok {
@@ -342,71 +402,29 @@ func PostAnnouncementEmail(
 		cleanSummary = content.Body
 	}
 
-	escapedPostURL := html.EscapeString(postURL)
-	escapedRSSURL := html.EscapeString(rssURL)
-	escapedUnsubscribeURL := html.EscapeString(unsubscribeURL)
-	escapedTitle := html.EscapeString(postTitle)
-	escapedSummary := html.EscapeString(cleanSummary)
-
 	subject = fmt.Sprintf("%s: %s", content.SubjectPrefix, postTitle)
-	plainBody = fmt.Sprintf(
-		"%s\n\n%s\n%s: %s\n%s: %s",
-		postTitle,
-		cleanSummary,
-		content.ButtonLabel,
-		postURL,
-		content.UnsubscribeLabel,
-		unsubscribeURL,
-	)
 
-	htmlBody = fmt.Sprintf(`<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>%s</title>
-  </head>
-  <body style="margin:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
-    <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="padding:24px 12px;">
-      <tr>
-        <td align="center">
-          <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;padding:28px;">
-            <tr><td style="font-size:40px;line-height:1;font-weight:800;color:#111827;padding-bottom:8px;">%s</td></tr>
-            <tr><td style="font-size:30px;line-height:1.2;font-weight:700;color:#111827;padding:10px 0 10px;">%s: %s</td></tr>
-            <tr><td style="font-size:16px;line-height:1.7;color:#374151;padding-bottom:18px;">%s</td></tr>
-            <tr><td style="font-size:26px;line-height:1.35;font-weight:700;color:#111827;padding-bottom:16px;">%s</td></tr>
-            <tr>
-              <td style="padding:8px 0 24px;">
-                <a href="%s" style="display:inline-block;background:#1677ff;color:#ffffff;text-decoration:none;font-weight:700;border-radius:999px;padding:14px 26px;font-size:18px;">%s</a>
-              </td>
-            </tr>
-            <tr>
-              <td style="font-size:14px;line-height:1.6;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:18px;word-break:break-word;">
-                %s: <a href="%s" style="color:#2563eb;">%s</a><br/>
-                %s: <a href="%s" style="color:#2563eb;">%s</a>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>`,
-		html.EscapeString(subject),
-		html.EscapeString(content.Title),
-		html.EscapeString(content.HeadingPrefix),
-		escapedTitle,
-		escapedSummary,
-		escapedTitle,
-		escapedPostURL,
-		html.EscapeString(content.ButtonLabel),
-		html.EscapeString(content.RSSLabel),
-		escapedRSSURL,
-		escapedRSSURL,
-		html.EscapeString(content.UnsubscribeLabel),
-		escapedUnsubscribeURL,
-		escapedUnsubscribeURL,
-	)
+	data := postAnnouncementEmailTemplateData{
+		Lang:             resolved,
+		FaviconURL:       BuildFaviconURL(siteURL),
+		Subject:          subject,
+		Title:            content.Title,
+		Heading:          fmt.Sprintf("%s: %s", content.HeadingPrefix, postTitle),
+		Body:             cleanSummary,
+		PostTitle:        strings.TrimSpace(postTitle),
+		PostSummary:      cleanSummary,
+		ButtonLabel:      content.ButtonLabel,
+		PostURL:          strings.TrimSpace(postURL),
+		RSSLabel:         content.RSSLabel,
+		RSSURL:           strings.TrimSpace(rssURL),
+		UnsubscribeLabel: content.UnsubscribeLabel,
+		UnsubscribeURL:   strings.TrimSpace(unsubscribeURL),
+	}
 
-	return subject, plainBody, htmlBody
+	htmlBody, err = renderHTMLTemplate(postHTMLTmpl, data)
+	if err != nil {
+		return "", "", fmt.Errorf("render post html template: %w", err)
+	}
+
+	return subject, htmlBody, nil
 }

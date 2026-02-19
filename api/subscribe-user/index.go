@@ -11,9 +11,7 @@ import (
 	"net"
 	"net/http"
 	"net/mail"
-	"net/smtp"
 	"net/url"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -31,8 +29,6 @@ const (
 	defaultNewsletterSourceName = "pre-footer"
 
 	newsletterConfirmTokenTTL = 24 * time.Hour
-	defaultSMTPHost           = "smtp.gmail.com"
-	defaultSMTPPort           = "587"
 )
 
 var defaultNewsletterTags = []string{"preFooterNewsletter"}
@@ -47,15 +43,6 @@ type subscribeRequest struct {
 type subscribeResponse struct {
 	Status    string `json:"status"`
 	ForwardTo string `json:"forwardTo,omitempty"`
-}
-
-type smtpConfig struct {
-	Host     string
-	Port     string
-	Username string
-	Password string
-	FromName string
-	FromMail string
 }
 
 type subscribeRateLimiter struct {
@@ -139,79 +126,6 @@ var (
 	subscriberIndexesOnce sync.Once
 	subscriberIndexesErr  error
 )
-
-func resolveAllowedOrigin() (string, error) {
-	value := os.Getenv("API_CORS_ORIGIN")
-	if value == "" {
-		return "", fmt.Errorf("missing required env: API_CORS_ORIGIN")
-	}
-	return value, nil
-}
-
-func resolveDatabaseName() (string, error) {
-	value := os.Getenv("MONGODB_DATABASE")
-	if value == "" {
-		return "", fmt.Errorf("missing required env: MONGODB_DATABASE")
-	}
-	return value, nil
-}
-
-func resolveMongoURI() (string, error) {
-	value := strings.TrimSpace(os.Getenv("MONGODB_URI"))
-	if value == "" {
-		return "", fmt.Errorf("missing required env: MONGODB_URI")
-	}
-	return value, nil
-}
-
-func resolveSiteURL() (string, error) {
-	value := strings.TrimSpace(os.Getenv("SITE_URL"))
-	if value == "" {
-		return "", fmt.Errorf("missing required env: SITE_URL")
-	}
-	return strings.TrimRight(value, "/"), nil
-}
-
-func resolveSMTPConfig() (smtpConfig, error) {
-	username := strings.TrimSpace(os.Getenv("GMAIL_SMTP_USER"))
-	if username == "" {
-		return smtpConfig{}, fmt.Errorf("missing required env: GMAIL_SMTP_USER")
-	}
-
-	password := strings.TrimSpace(os.Getenv("GMAIL_SMTP_APP_PASSWORD"))
-	if password == "" {
-		return smtpConfig{}, fmt.Errorf("missing required env: GMAIL_SMTP_APP_PASSWORD")
-	}
-
-	host := strings.TrimSpace(os.Getenv("GMAIL_SMTP_HOST"))
-	if host == "" {
-		host = defaultSMTPHost
-	}
-
-	port := strings.TrimSpace(os.Getenv("GMAIL_SMTP_PORT"))
-	if port == "" {
-		port = defaultSMTPPort
-	}
-
-	fromMail := strings.TrimSpace(os.Getenv("GMAIL_FROM_EMAIL"))
-	if fromMail == "" {
-		fromMail = username
-	}
-
-	fromName := strings.TrimSpace(os.Getenv("GMAIL_FROM_NAME"))
-	if fromName == "" {
-		fromName = "Suayb's Blog"
-	}
-
-	return smtpConfig{
-		Host:     host,
-		Port:     port,
-		Username: username,
-		Password: password,
-		FromName: fromName,
-		FromMail: fromMail,
-	}, nil
-}
 
 func normalizeEmail(value string) (string, error) {
 	email := strings.ToLower(strings.TrimSpace(value))
@@ -313,39 +227,18 @@ func buildConfirmURL(siteURL, token, locale string) (string, error) {
 	return parsed.String(), nil
 }
 
-func sendConfirmationEmail(cfg smtpConfig, recipientEmail, confirmURL, locale string) error {
-	subject, plainBody, htmlBody := newsletter.ConfirmationEmail(locale, confirmURL)
-	boundary := fmt.Sprintf("newsletter-boundary-%d", time.Now().UnixNano())
-
-	fromHeader := fmt.Sprintf("%s <%s>", cfg.FromName, cfg.FromMail)
-
-	message := strings.Builder{}
-	message.WriteString(fmt.Sprintf("From: %s\r\n", fromHeader))
-	message.WriteString(fmt.Sprintf("To: %s\r\n", recipientEmail))
-	message.WriteString(fmt.Sprintf("Subject: %s\r\n", subject))
-	message.WriteString("MIME-Version: 1.0\r\n")
-	message.WriteString(fmt.Sprintf("Content-Type: multipart/alternative; boundary=%s\r\n", boundary))
-	message.WriteString("\r\n")
-	message.WriteString(fmt.Sprintf("--%s\r\n", boundary))
-	message.WriteString("Content-Type: text/plain; charset=\"UTF-8\"\r\n\r\n")
-	message.WriteString(plainBody + "\r\n")
-	message.WriteString(fmt.Sprintf("--%s\r\n", boundary))
-	message.WriteString("Content-Type: text/html; charset=\"UTF-8\"\r\n\r\n")
-	message.WriteString(htmlBody + "\r\n")
-	message.WriteString(fmt.Sprintf("--%s--\r\n", boundary))
-
-	auth := smtp.PlainAuth("", cfg.Username, cfg.Password, cfg.Host)
-	serverAddr := net.JoinHostPort(cfg.Host, cfg.Port)
-	if err := smtp.SendMail(serverAddr, auth, cfg.FromMail, []string{recipientEmail}, []byte(message.String())); err != nil {
-		return fmt.Errorf("smtp send failed: %w", err)
+func sendConfirmationEmail(cfg newsletter.SMTPConfig, recipientEmail, confirmURL, locale, siteURL string) error {
+	subject, htmlBody, err := newsletter.ConfirmationEmail(locale, confirmURL, siteURL)
+	if err != nil {
+		return fmt.Errorf("build confirmation email failed: %w", err)
 	}
 
-	return nil
+	return newsletter.SendHTMLEmail(cfg, recipientEmail, subject, htmlBody, nil)
 }
 
 func getSubscriberClient() (*mongo.Client, error) {
 	subscriberOnce.Do(func() {
-		uri, err := resolveMongoURI()
+		uri, err := newsletter.ResolveMongoURI()
 		if err != nil {
 			subscriberInitErr = err
 			return
@@ -407,25 +300,25 @@ func writeJSON(w http.ResponseWriter, statusCode int, payload subscribeResponse)
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	allowedOrigin, corsErr := resolveAllowedOrigin()
+	allowedOrigin, corsErr := newsletter.ResolveAllowedOriginRequired()
 	if corsErr != nil {
 		writeJSON(w, http.StatusInternalServerError, subscribeResponse{Status: "unknown-error"})
 		return
 	}
 
-	databaseName, databaseErr := resolveDatabaseName()
+	databaseName, databaseErr := newsletter.ResolveDatabaseName()
 	if databaseErr != nil {
 		writeJSON(w, http.StatusInternalServerError, subscribeResponse{Status: "unknown-error"})
 		return
 	}
 
-	siteURL, siteErr := resolveSiteURL()
+	siteURL, siteErr := newsletter.ResolveSiteURL()
 	if siteErr != nil {
 		writeJSON(w, http.StatusInternalServerError, subscribeResponse{Status: "unknown-error"})
 		return
 	}
 
-	smtpCfg, smtpErr := resolveSMTPConfig()
+	smtpCfg, smtpErr := newsletter.ResolveSMTPConfig()
 	if smtpErr != nil {
 		writeJSON(w, http.StatusInternalServerError, subscribeResponse{Status: "unknown-error"})
 		return
@@ -552,7 +445,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := sendConfirmationEmail(smtpCfg, email, confirmURL, locale); err != nil {
+	if err := sendConfirmationEmail(smtpCfg, email, confirmURL, locale, siteURL); err != nil {
 		writeJSON(w, http.StatusServiceUnavailable, subscribeResponse{Status: "unknown-error"})
 		return
 	}

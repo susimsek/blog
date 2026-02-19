@@ -8,13 +8,9 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/mail"
-	"net/smtp"
 	"net/url"
-	"os"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -30,8 +26,6 @@ const (
 	newsletterSubscribersCollection = "newsletter_subscribers"
 	newsletterCampaignsCollection   = "newsletter_campaigns"
 	newsletterDeliveriesCollection  = "newsletter_deliveries"
-	defaultSMTPHost                 = "smtp.gmail.com"
-	defaultSMTPPort                 = "587"
 	defaultMaxRecipientsPerRun      = 200
 	defaultMaxItemAgeHours          = 24 * 7
 	defaultDispatchTimeout          = 8 * time.Second
@@ -59,15 +53,6 @@ type dispatchLocaleResult struct {
 	FailedCount int    `json:"failedCount"`
 	Skipped     bool   `json:"skipped"`
 	Reason      string `json:"reason,omitempty"`
-}
-
-type smtpConfig struct {
-	Host     string
-	Port     string
-	Username string
-	Password string
-	FromName string
-	FromMail string
 }
 
 type rssFeed struct {
@@ -102,92 +87,6 @@ var (
 	dispatchDeliveryIndexOnce sync.Once
 	dispatchDeliveryIndexErr  error
 )
-
-func resolveAllowedOrigin() string {
-	return strings.TrimSpace(os.Getenv("API_CORS_ORIGIN"))
-}
-
-func resolveDatabaseName() (string, error) {
-	value := strings.TrimSpace(os.Getenv("MONGODB_DATABASE"))
-	if value == "" {
-		return "", fmt.Errorf("missing required env: MONGODB_DATABASE")
-	}
-	return value, nil
-}
-
-func resolveMongoURI() (string, error) {
-	value := strings.TrimSpace(os.Getenv("MONGODB_URI"))
-	if value == "" {
-		return "", fmt.Errorf("missing required env: MONGODB_URI")
-	}
-	return value, nil
-}
-
-func resolveSiteURL() (string, error) {
-	value := strings.TrimSpace(os.Getenv("SITE_URL"))
-	if value == "" {
-		return "", fmt.Errorf("missing required env: SITE_URL")
-	}
-	return strings.TrimRight(value, "/"), nil
-}
-
-func resolveCronSecret() (string, error) {
-	value := strings.TrimSpace(os.Getenv("CRON_SECRET"))
-	if value == "" {
-		return "", fmt.Errorf("missing required env: CRON_SECRET")
-	}
-	return value, nil
-}
-
-func resolveUnsubscribeSecret() (string, error) {
-	value := strings.TrimSpace(os.Getenv("NEWSLETTER_UNSUBSCRIBE_SECRET"))
-	if value != "" {
-		return value, nil
-	}
-
-	return "", fmt.Errorf("missing required env: NEWSLETTER_UNSUBSCRIBE_SECRET")
-}
-
-func resolveSMTPConfig() (smtpConfig, error) {
-	username := strings.TrimSpace(os.Getenv("GMAIL_SMTP_USER"))
-	if username == "" {
-		return smtpConfig{}, fmt.Errorf("missing required env: GMAIL_SMTP_USER")
-	}
-
-	password := strings.TrimSpace(os.Getenv("GMAIL_SMTP_APP_PASSWORD"))
-	if password == "" {
-		return smtpConfig{}, fmt.Errorf("missing required env: GMAIL_SMTP_APP_PASSWORD")
-	}
-
-	host := strings.TrimSpace(os.Getenv("GMAIL_SMTP_HOST"))
-	if host == "" {
-		host = defaultSMTPHost
-	}
-
-	port := strings.TrimSpace(os.Getenv("GMAIL_SMTP_PORT"))
-	if port == "" {
-		port = defaultSMTPPort
-	}
-
-	fromMail := strings.TrimSpace(os.Getenv("GMAIL_FROM_EMAIL"))
-	if fromMail == "" {
-		fromMail = username
-	}
-
-	fromName := strings.TrimSpace(os.Getenv("GMAIL_FROM_NAME"))
-	if fromName == "" {
-		fromName = "Suayb's Blog"
-	}
-
-	return smtpConfig{
-		Host:     host,
-		Port:     port,
-		Username: username,
-		Password: password,
-		FromName: fromName,
-		FromMail: fromMail,
-	}, nil
-}
 
 func resolveDispatchLocalesFromSubscribers(collection *mongo.Collection) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -227,48 +126,6 @@ func resolveDispatchLocalesFromSubscribers(collection *mongo.Collection) ([]stri
 	}
 
 	return locales, nil
-}
-
-func resolveMaxRecipientsPerRun() int {
-	value := strings.TrimSpace(os.Getenv("NEWSLETTER_MAX_RECIPIENTS_PER_RUN"))
-	if value == "" {
-		return defaultMaxRecipientsPerRun
-	}
-
-	parsed, err := strconv.Atoi(value)
-	if err != nil || parsed <= 0 {
-		return defaultMaxRecipientsPerRun
-	}
-
-	return parsed
-}
-
-func resolveMaxItemAge() time.Duration {
-	value := strings.TrimSpace(os.Getenv("NEWSLETTER_MAX_ITEM_AGE_HOURS"))
-	if value == "" {
-		return time.Duration(defaultMaxItemAgeHours) * time.Hour
-	}
-
-	parsed, err := strconv.Atoi(value)
-	if err != nil || parsed <= 0 {
-		return time.Duration(defaultMaxItemAgeHours) * time.Hour
-	}
-
-	return time.Duration(parsed) * time.Hour
-}
-
-func resolveUnsubscribeTokenTTL() time.Duration {
-	value := strings.TrimSpace(os.Getenv("NEWSLETTER_UNSUBSCRIBE_TOKEN_TTL_HOURS"))
-	if value == "" {
-		return time.Duration(defaultUnsubscribeTokenTTLHours) * time.Hour
-	}
-
-	parsed, err := strconv.Atoi(value)
-	if err != nil || parsed <= 0 {
-		return time.Duration(defaultUnsubscribeTokenTTLHours) * time.Hour
-	}
-
-	return time.Duration(parsed) * time.Hour
 }
 
 func parseRSSItemPubDate(value string) (time.Time, error) {
@@ -312,7 +169,7 @@ func resolveRSSURL(siteURL, locale string) string {
 
 func getDispatchClient() (*mongo.Client, error) {
 	dispatchOnce.Do(func() {
-		uri, err := resolveMongoURI()
+		uri, err := newsletter.ResolveMongoURI()
 		if err != nil {
 			dispatchInitErr = err
 			return
@@ -611,50 +468,32 @@ func buildUnsubscribeURL(siteURL, token, locale string) (string, error) {
 }
 
 func sendPostEmail(
-	cfg smtpConfig,
+	cfg newsletter.SMTPConfig,
 	recipientEmail string,
 	locale string,
+	siteURL string,
 	item rssItem,
 	rssURL string,
 	unsubscribeURL string,
 ) error {
-	subject, plainBody, htmlBody := newsletter.PostAnnouncementEmail(
+	subject, htmlBody, err := newsletter.PostAnnouncementEmail(
 		locale,
 		strings.TrimSpace(item.Title),
 		strings.TrimSpace(item.Description),
 		strings.TrimSpace(item.Link),
 		rssURL,
 		unsubscribeURL,
+		siteURL,
 	)
-
-	boundary := fmt.Sprintf("newsletter-boundary-%d", time.Now().UnixNano())
-	fromHeader := fmt.Sprintf("%s <%s>", cfg.FromName, cfg.FromMail)
-
-	message := strings.Builder{}
-	message.WriteString(fmt.Sprintf("From: %s\r\n", fromHeader))
-	message.WriteString(fmt.Sprintf("To: %s\r\n", recipientEmail))
-	message.WriteString(fmt.Sprintf("Subject: %s\r\n", subject))
-	message.WriteString(fmt.Sprintf("List-Unsubscribe: <%s>, <mailto:%s?subject=%s>\r\n", unsubscribeURL, cfg.FromMail, url.QueryEscape("unsubscribe")))
-	message.WriteString("List-Unsubscribe-Post: List-Unsubscribe=One-Click\r\n")
-	message.WriteString("Precedence: bulk\r\n")
-	message.WriteString("MIME-Version: 1.0\r\n")
-	message.WriteString(fmt.Sprintf("Content-Type: multipart/alternative; boundary=%s\r\n", boundary))
-	message.WriteString("\r\n")
-	message.WriteString(fmt.Sprintf("--%s\r\n", boundary))
-	message.WriteString("Content-Type: text/plain; charset=\"UTF-8\"\r\n\r\n")
-	message.WriteString(plainBody + "\r\n")
-	message.WriteString(fmt.Sprintf("--%s\r\n", boundary))
-	message.WriteString("Content-Type: text/html; charset=\"UTF-8\"\r\n\r\n")
-	message.WriteString(htmlBody + "\r\n")
-	message.WriteString(fmt.Sprintf("--%s--\r\n", boundary))
-
-	auth := smtp.PlainAuth("", cfg.Username, cfg.Password, cfg.Host)
-	serverAddr := net.JoinHostPort(cfg.Host, cfg.Port)
-	if err := smtp.SendMail(serverAddr, auth, cfg.FromMail, []string{recipientEmail}, []byte(message.String())); err != nil {
-		return fmt.Errorf("smtp send failed: %w", err)
+	if err != nil {
+		return fmt.Errorf("build post email failed: %w", err)
 	}
 
-	return nil
+	return newsletter.SendHTMLEmail(cfg, recipientEmail, subject, htmlBody, map[string]string{
+		"List-Unsubscribe":      fmt.Sprintf("<%s>, <mailto:%s?subject=%s>", unsubscribeURL, cfg.FromMail, url.QueryEscape("unsubscribe")),
+		"List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+		"Precedence":            "bulk",
+	})
 }
 
 func buildSubscriberFilter(locale string) bson.M {
@@ -682,7 +521,7 @@ func authorizeCronRequest(r *http.Request, secret string) bool {
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	allowedOrigin := resolveAllowedOrigin()
+	allowedOrigin := newsletter.ResolveAllowedOriginOptional()
 	if allowedOrigin != "" {
 		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 		w.Header().Set("Vary", "Origin")
@@ -707,7 +546,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cronSecret, err := resolveCronSecret()
+	cronSecret, err := newsletter.ResolveCronSecret()
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, dispatchResponse{
 			Status:    "error",
@@ -728,7 +567,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	siteURL, err := resolveSiteURL()
+	siteURL, err := newsletter.ResolveSiteURL()
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, dispatchResponse{
 			Status:    "error",
@@ -739,7 +578,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	unsubscribeSecret, err := resolveUnsubscribeSecret()
+	unsubscribeSecret, err := newsletter.ResolveUnsubscribeSecret()
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, dispatchResponse{
 			Status:    "error",
@@ -750,9 +589,11 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	unsubscribeTokenTTL := resolveUnsubscribeTokenTTL()
+	unsubscribeTokenTTL := time.Duration(
+		newsletter.ResolvePositiveIntEnv("NEWSLETTER_UNSUBSCRIBE_TOKEN_TTL_HOURS", defaultUnsubscribeTokenTTLHours),
+	) * time.Hour
 
-	databaseName, err := resolveDatabaseName()
+	databaseName, err := newsletter.ResolveDatabaseName()
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, dispatchResponse{
 			Status:    "error",
@@ -763,7 +604,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	smtpCfg, err := resolveSMTPConfig()
+	smtpCfg, err := newsletter.ResolveSMTPConfig()
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, dispatchResponse{
 			Status:    "error",
@@ -785,8 +626,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	maxRecipients := resolveMaxRecipientsPerRun()
-	maxItemAge := resolveMaxItemAge()
+	maxRecipients := newsletter.ResolvePositiveIntEnv("NEWSLETTER_MAX_RECIPIENTS_PER_RUN", defaultMaxRecipientsPerRun)
+	maxItemAge := time.Duration(
+		newsletter.ResolvePositiveIntEnv("NEWSLETTER_MAX_ITEM_AGE_HOURS", defaultMaxItemAgeHours),
+	) * time.Hour
 	subscribersCollection := client.Database(databaseName).Collection(newsletterSubscribersCollection)
 	campaignsCollection := client.Database(databaseName).Collection(newsletterCampaignsCollection)
 	deliveriesCollection := client.Database(databaseName).Collection(newsletterDeliveriesCollection)
@@ -962,7 +805,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			if err := sendPostEmail(smtpCfg, email, locale, *item, rssURL, unsubscribeURL); err != nil {
+			if err := sendPostEmail(smtpCfg, email, locale, siteURL, *item, rssURL, unsubscribeURL); err != nil {
 				failedCount++
 				_ = upsertDeliveryAttempt(
 					deliveriesCollection,

@@ -5,9 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"html"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -27,41 +25,9 @@ var (
 	confirmOnce    sync.Once
 )
 
-func resolveAllowedOrigin() (string, error) {
-	value := os.Getenv("API_CORS_ORIGIN")
-	if value == "" {
-		return "", fmt.Errorf("missing required env: API_CORS_ORIGIN")
-	}
-	return value, nil
-}
-
-func resolveDatabaseName() (string, error) {
-	value := os.Getenv("MONGODB_DATABASE")
-	if value == "" {
-		return "", fmt.Errorf("missing required env: MONGODB_DATABASE")
-	}
-	return value, nil
-}
-
-func resolveMongoURI() (string, error) {
-	value := strings.TrimSpace(os.Getenv("MONGODB_URI"))
-	if value == "" {
-		return "", fmt.Errorf("missing required env: MONGODB_URI")
-	}
-	return value, nil
-}
-
-func resolveSiteURL() string {
-	value := strings.TrimSpace(os.Getenv("SITE_URL"))
-	if value == "" {
-		return "/"
-	}
-	return strings.TrimRight(value, "/")
-}
-
 func getConfirmClient() (*mongo.Client, error) {
 	confirmOnce.Do(func() {
-		uri, err := resolveMongoURI()
+		uri, err := newsletter.ResolveMongoURI()
 		if err != nil {
 			confirmInitErr = err
 			return
@@ -94,73 +60,36 @@ func hashValue(value string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-func renderHTMLPage(w http.ResponseWriter, statusCode int, title, heading, message, buttonHref, buttonLabel string) {
-	escapedTitle := html.EscapeString(title)
-	escapedHeading := html.EscapeString(heading)
-	escapedMessage := html.EscapeString(message)
-	escapedButtonHref := html.EscapeString(buttonHref)
-	escapedButtonLabel := html.EscapeString(buttonLabel)
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.WriteHeader(statusCode)
-	_, _ = fmt.Fprintf(w, `<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>%s</title>
-  </head>
-  <body style="margin:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#111827;">
-    <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="padding:24px 12px;">
-      <tr>
-        <td align="center">
-          <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:28px;">
-            <tr><td style="font-size:38px;font-weight:800;padding-bottom:8px;">Suayb's Blog</td></tr>
-            <tr><td style="font-size:32px;line-height:1.2;font-weight:700;padding:8px 0 10px;">%s</td></tr>
-            <tr><td style="font-size:18px;line-height:1.7;color:#374151;padding-bottom:20px;">%s</td></tr>
-            <tr>
-              <td>
-                <a href="%s" style="display:inline-block;background:#1677ff;color:#fff;text-decoration:none;font-weight:700;border-radius:999px;padding:13px 24px;font-size:17px;">%s</a>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>`, escapedTitle, escapedHeading, escapedMessage, escapedButtonHref, escapedButtonLabel)
+func renderPage(w http.ResponseWriter, statusCode int, locale string, siteURL string, page newsletter.PageKey, buttonHref string) {
+	content := newsletter.ConfirmationPage(locale, page)
+	if err := newsletter.RenderStatusPage(
+		w,
+		statusCode,
+		locale,
+		siteURL,
+		content.Title,
+		content.Heading,
+		content.Message,
+		buttonHref,
+		content.ButtonLabel,
+	); err != nil {
+		http.Error(w, "failed to render page", http.StatusInternalServerError)
+	}
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	locale := newsletter.ResolveLocale(strings.TrimSpace(r.URL.Query().Get("locale")), r.Header.Get("Accept-Language"))
+	siteURL := newsletter.ResolveSiteURLOrRoot()
 
-	allowedOrigin, corsErr := resolveAllowedOrigin()
+	allowedOrigin, corsErr := newsletter.ResolveAllowedOriginRequired()
 	if corsErr != nil {
-		page := newsletter.ConfirmationPage(locale, newsletter.PageConfigError)
-		renderHTMLPage(
-			w,
-			http.StatusInternalServerError,
-			page.Title,
-			page.Heading,
-			page.Message,
-			"/",
-			page.ButtonLabel,
-		)
+		renderPage(w, http.StatusInternalServerError, locale, siteURL, newsletter.PageConfigError, "/")
 		return
 	}
 
-	databaseName, databaseErr := resolveDatabaseName()
+	databaseName, databaseErr := newsletter.ResolveDatabaseName()
 	if databaseErr != nil {
-		page := newsletter.ConfirmationPage(locale, newsletter.PageConfigError)
-		renderHTMLPage(
-			w,
-			http.StatusInternalServerError,
-			page.Title,
-			page.Heading,
-			page.Message,
-			"/",
-			page.ButtonLabel,
-		)
+		renderPage(w, http.StatusInternalServerError, locale, siteURL, newsletter.PageConfigError, "/")
 		return
 	}
 
@@ -177,46 +106,19 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {
 		w.Header().Set("Allow", "GET, OPTIONS")
-		page := newsletter.ConfirmationPage(locale, newsletter.PageMethodNotAllowed)
-		renderHTMLPage(
-			w,
-			http.StatusMethodNotAllowed,
-			page.Title,
-			page.Heading,
-			page.Message,
-			resolveSiteURL(),
-			page.ButtonLabel,
-		)
+		renderPage(w, http.StatusMethodNotAllowed, locale, siteURL, newsletter.PageMethodNotAllowed, siteURL)
 		return
 	}
 
 	token := strings.TrimSpace(r.URL.Query().Get("token"))
 	if token == "" {
-		page := newsletter.ConfirmationPage(locale, newsletter.PageMissingToken)
-		renderHTMLPage(
-			w,
-			http.StatusBadRequest,
-			page.Title,
-			page.Heading,
-			page.Message,
-			resolveSiteURL(),
-			page.ButtonLabel,
-		)
+		renderPage(w, http.StatusBadRequest, locale, siteURL, newsletter.PageMissingToken, siteURL)
 		return
 	}
 
 	client, err := getConfirmClient()
 	if err != nil {
-		page := newsletter.ConfirmationPage(locale, newsletter.PageServiceDown)
-		renderHTMLPage(
-			w,
-			http.StatusServiceUnavailable,
-			page.Title,
-			page.Heading,
-			page.Message,
-			resolveSiteURL(),
-			page.ButtonLabel,
-		)
+		renderPage(w, http.StatusServiceUnavailable, locale, siteURL, newsletter.PageServiceDown, siteURL)
 		return
 	}
 
@@ -247,41 +149,14 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	result, err := collection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		page := newsletter.ConfirmationPage(locale, newsletter.PageConfirmFailed)
-		renderHTMLPage(
-			w,
-			http.StatusServiceUnavailable,
-			page.Title,
-			page.Heading,
-			page.Message,
-			resolveSiteURL(),
-			page.ButtonLabel,
-		)
+		renderPage(w, http.StatusServiceUnavailable, locale, siteURL, newsletter.PageConfirmFailed, siteURL)
 		return
 	}
 
 	if result.MatchedCount == 0 {
-		page := newsletter.ConfirmationPage(locale, newsletter.PageTokenExpired)
-		renderHTMLPage(
-			w,
-			http.StatusBadRequest,
-			page.Title,
-			page.Heading,
-			page.Message,
-			resolveSiteURL(),
-			page.ButtonLabel,
-		)
+		renderPage(w, http.StatusBadRequest, locale, siteURL, newsletter.PageTokenExpired, siteURL)
 		return
 	}
 
-	page := newsletter.ConfirmationPage(locale, newsletter.PageSuccess)
-	renderHTMLPage(
-		w,
-		http.StatusOK,
-		page.Title,
-		page.Heading,
-		page.Message,
-		resolveSiteURL(),
-		page.ButtonLabel,
-	)
+	renderPage(w, http.StatusOK, locale, siteURL, newsletter.PageSuccess, siteURL)
 }
