@@ -7,16 +7,23 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'next/navigation';
 import { fetchPosts, incrementPostLike } from '@/lib/contentApi';
 import { defaultLocale } from '@/i18n/settings';
+import { useAppSelector } from '@/config/store';
 
 type PostLikeProps = {
   postId: string;
 };
+
+const LIKE_SOUND_CONFIG = {
+  src: '/sounds/pop-light.mp3',
+  volume: 0.25,
+} as const;
 
 export default function PostLike({ postId }: Readonly<PostLikeProps>) {
   const { t, i18n } = useTranslation('post');
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
   const locale = routeLocale ?? defaultLocale;
+  const isVoiceEnabled = useAppSelector(state => state.voice.isEnabled);
   const [likes, setLikes] = React.useState<number>(0);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -80,22 +87,40 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
 
   const formattedLikes = numberFormatter.format(Math.max(0, likes));
 
+  const playSound = React.useCallback((src: string, volume = 1) => {
+    try {
+      const sound = new Audio(src);
+      sound.preload = 'auto';
+      sound.volume = volume;
+      sound.currentTime = 0;
+      const playPromise = sound.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {
+          // Ignore playback failures (autoplay restrictions / unsupported environments).
+        });
+      }
+    } catch {
+      // Ignore playback failures (autoplay restrictions / unsupported environments).
+    }
+  }, []);
+
+  const playLikeSound = React.useCallback(() => {
+    if (!isVoiceEnabled || typeof globalThis.Audio === 'undefined') {
+      return;
+    }
+    playSound(LIKE_SOUND_CONFIG.src, LIKE_SOUND_CONFIG.volume);
+  }, [isVoiceEnabled, playSound]);
+
   const handleLike = React.useCallback(async () => {
     if (isSubmitting) {
       return;
     }
 
+    const previousLikes = likes;
     setIsSubmitting(true);
     setHasError(false);
-
-    const result = await incrementPostLike(postId);
-    if (typeof result !== 'number') {
-      setHasError(true);
-      setIsSubmitting(false);
-      return;
-    }
-
-    setLikes(result);
+    playLikeSound();
+    setLikes(previous => previous + 1);
     setPlusOneToken(previous => previous + 1);
     setPlusOneVisible(true);
     setIsCountPopping(true);
@@ -114,8 +139,17 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
       setIsCountPopping(false);
     }, 280);
 
+    const result = await incrementPostLike(postId);
+    if (typeof result !== 'number') {
+      setLikes(previousLikes);
+      setHasError(true);
+      setIsSubmitting(false);
+      return;
+    }
+
+    setLikes(result);
     setIsSubmitting(false);
-  }, [isSubmitting, postId]);
+  }, [isSubmitting, likes, playLikeSound, postId]);
 
   const busy = isLoading || isSubmitting;
 
@@ -143,7 +177,7 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
       <p className={`post-like-status${hasError ? ' is-error' : ''}`}>
         {hasError ? (
           t('post.like.error')
-        ) : isLoading ? (
+        ) : busy ? (
           <span className="d-inline-flex align-items-center">
             <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
             <span className="visually-hidden">{t('post.like.loading')}</span>
