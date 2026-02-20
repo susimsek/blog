@@ -2,6 +2,8 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import PostToc from '@/components/posts/PostToc';
 
+jest.mock('@/components/posts/PostLike', () => () => <div data-testid="post-like" />);
+
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
     t: jest.fn((key: string) => key),
@@ -36,15 +38,16 @@ describe('PostToc', () => {
     jest.restoreAllMocks();
   });
 
-  it('returns null when there are no supported headings', () => {
+  it('renders like block when there are no supported headings', () => {
     const root = document.createElement('article');
     const paragraph = document.createElement('p');
     paragraph.textContent = 'Just paragraph';
     root.appendChild(paragraph);
     document.body.appendChild(root);
-    render(<PostToc content="content" rootRef={{ current: root }} />);
+    render(<PostToc postId="sample-post" content="content" rootRef={{ current: root }} />);
 
     expect(screen.queryByText('post.tocTitle')).not.toBeInTheDocument();
+    expect(screen.getByTestId('post-like')).toBeInTheDocument();
   });
 
   it('creates slugs from h2 headings and updates hash on click', () => {
@@ -62,7 +65,7 @@ describe('PostToc', () => {
 
     const pushStateSpy = jest.spyOn(window.history, 'pushState');
 
-    render(<PostToc content="content" rootRef={{ current: root }} />);
+    render(<PostToc postId="sample-post" content="content" rootRef={{ current: root }} />);
 
     const sectionHeadings = root.querySelectorAll('h2');
     expect(sectionHeadings[0].id).toBe('section');
@@ -82,7 +85,7 @@ describe('PostToc', () => {
     ]);
 
     const pushStateSpy = jest.spyOn(window.history, 'pushState');
-    render(<PostToc content="content" rootRef={{ current: root }} />);
+    render(<PostToc postId="sample-post" content="content" rootRef={{ current: root }} />);
 
     const links = screen.getAllByRole('link');
     const target = root.querySelector('#section-b');
@@ -107,7 +110,7 @@ describe('PostToc', () => {
     }));
     const root = createRoot(headings);
 
-    render(<PostToc content="content" rootRef={{ current: root }} />);
+    render(<PostToc postId="sample-post" content="content" rootRef={{ current: root }} />);
 
     expect(screen.getAllByRole('link')).toHaveLength(10);
   });
@@ -126,7 +129,7 @@ describe('PostToc', () => {
     root.appendChild(tabPane);
 
     document.body.appendChild(root);
-    render(<PostToc content="content" rootRef={{ current: root }} />);
+    render(<PostToc postId="sample-post" content="content" rootRef={{ current: root }} />);
 
     expect(screen.getByRole('link', { name: 'Main section' })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Tab heading' })).not.toBeInTheDocument();
@@ -155,7 +158,7 @@ describe('PostToc', () => {
 
     const root = createRoot([]);
     try {
-      render(<PostToc content="content" rootRef={{ current: root }} />);
+      render(<PostToc postId="sample-post" content="content" rootRef={{ current: root }} />);
 
       expect(screen.queryByText('post.tocTitle')).not.toBeInTheDocument();
 

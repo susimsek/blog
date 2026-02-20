@@ -788,6 +788,165 @@ html {
   }
 }
 
+.post-like-widget {
+  margin-top: var(--space-16);
+  padding-left: var(--space-4);
+}
+
+.post-like-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 0;
+  background: transparent;
+  color: var(--post-like-count-color);
+  padding: 0;
+  font-weight: 800;
+  line-height: 1;
+  @include transition(opacity);
+
+  &:disabled {
+    opacity: 0.85;
+    cursor: wait;
+  }
+}
+
+.post-like-heart {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  @include transition(transform);
+}
+
+.post-like-heart-icon {
+  display: block;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--post-like-heart-end) !important;
+  filter: none;
+  @include transition(transform, color);
+}
+
+.post-like-heart-icon path {
+  fill: currentColor !important;
+}
+
+.post-like-heart.is-burst {
+  animation: post-like-heart-burst 260ms cubic-bezier(0.16, 0.84, 0.32, 1.2);
+}
+
+.post-like-count-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  min-width: 2.8ch;
+}
+
+.post-like-plus-one {
+  position: absolute;
+  right: 0;
+  top: -0.85rem;
+  transform: translateX(38%);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  color: var(--post-like-plus-one-color);
+  pointer-events: none;
+  animation: post-like-plus-one-float 820ms cubic-bezier(0.2, 0.78, 0.28, 1);
+}
+
+.post-like-count {
+  font-size: clamp(1.9rem, 2.1vw, 2.3rem);
+  letter-spacing: 0.01em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--post-like-count-color);
+}
+
+.post-like-count.is-pop {
+  animation: post-like-count-pop 250ms cubic-bezier(0.14, 0.94, 0.35, 1.12);
+}
+
+.post-like-button:not(:disabled):hover .post-like-heart,
+.post-like-button:not(:disabled):focus-visible .post-like-heart {
+  transform: translateY(-1px);
+}
+
+.post-like-button:not(:disabled):hover .post-like-heart-icon,
+.post-like-button:not(:disabled):focus-visible .post-like-heart-icon {
+  color: color-mix(in srgb, var(--post-like-heart-mid) 35%, var(--post-like-heart-end)) !important;
+  animation: post-like-heart-hover 900ms cubic-bezier(0.26, 0.9, 0.34, 1) infinite;
+}
+
+.post-like-status {
+  margin: 0.55rem 0 0;
+  color: var(--muted-text-color);
+  font-size: 0.85rem;
+}
+
+.post-like-status.is-error {
+  color: var(--danger-bg);
+}
+
+@keyframes post-like-heart-burst {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.16);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes post-like-count-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.16);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes post-like-plus-one-float {
+  0% {
+    opacity: 0;
+    transform: translateX(38%) translateY(6px) scale(0.88);
+  }
+  18% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(38%) translateY(-18px) scale(1.03);
+  }
+}
+
+@keyframes post-like-heart-hover {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-2px) scale(1.08);
+  }
+  75% {
+    transform: translateY(0) scale(1.02);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
 body {
   margin: 0;
   word-wrap: anywhere;
@@ -975,6 +1134,15 @@ html.theme-transitioning body {
   .thumbnail-wrapper img,
   .post-thumbnail img,
   .back-to-top {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .post-like-heart,
+  .post-like-heart-icon,
+  .post-like-plus-one,
+  .post-like-count {
+    animation: none !important;
     transition: none !important;
     transform: none !important;
   }
@@ -2001,6 +2169,30 @@ input.form-control {
   flex-wrap: wrap;
   gap: var(--space-16);
   margin-bottom: var(--space-16);
+}
+
+.post-summary-like-meta {
+  gap: 0.38rem;
+  line-height: 1;
+}
+
+.post-summary-like-meta .spinner-border-sm {
+  width: 0.78rem;
+  height: 0.78rem;
+}
+
+.post-summary-like-icon {
+  font-size: 0.92rem;
+  color: var(--post-like-heart-end) !important;
+}
+
+.post-summary-like-icon path {
+  fill: currentColor !important;
+}
+
+.post-summary-like-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .post-summary-topics {

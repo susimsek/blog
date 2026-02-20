@@ -10,11 +10,15 @@ import { formatReadingTime } from '@/lib/readingTime';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { useAppSelector } from '@/config/store';
 import React from 'react';
+import PostLikeCount from '@/components/posts/PostLikeCount';
 
 interface PostSummaryProps {
   post: Post;
   highlightQuery?: string;
   showSource?: boolean;
+  showLikes?: boolean;
+  likeCount?: number | null;
+  likeCountLoading?: boolean;
 }
 
 const escapeRegExp = (value: string) => value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
@@ -46,7 +50,14 @@ const highlight = (text: string, query: string): React.ReactNode => {
   });
 };
 
-export default function PostSummary({ post, highlightQuery, showSource = false }: Readonly<PostSummaryProps>) {
+export default function PostSummary({
+  post,
+  highlightQuery,
+  showSource = false,
+  showLikes = false,
+  likeCount = null,
+  likeCountLoading = false,
+}: Readonly<PostSummaryProps>) {
   const { id, title, publishedDate, summary, thumbnail, topics, readingTimeMin, source, link } = post;
   const { t } = useTranslation(['post', 'common']);
   const isVoiceEnabled = useAppSelector(state => state.voice.isEnabled);
@@ -58,6 +69,7 @@ export default function PostSummary({ post, highlightQuery, showSource = false }
   const sourceIcon: IconProp = source === 'medium' ? (['fab', 'medium'] as IconProp) : 'book';
 
   const postLink = link ?? `/posts/${id}`;
+  const shouldRenderLikeMeta = showLikes && (likeCountLoading || likeCount !== null);
   const resolveThumbnailSrc = (value: string) => {
     if (/^https?:\/\//i.test(value)) {
       return value;
@@ -143,6 +155,11 @@ export default function PostSummary({ post, highlightQuery, showSource = false }
             <FontAwesomeIcon icon="clock" className="me-2" />
             {formatReadingTime(readingTimeMin, t)}
           </span>
+          {shouldRenderLikeMeta && (
+            <Link href={postLink} className="link-muted d-flex align-items-center">
+              <PostLikeCount likes={likeCount} isLoading={likeCountLoading} />
+            </Link>
+          )}
           {showSource && (
             <span className="text-muted d-flex align-items-center">
               <FontAwesomeIcon icon={sourceIcon} className="me-2" />

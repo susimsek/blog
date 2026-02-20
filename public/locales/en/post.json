@@ -5,6 +5,13 @@
     "updatedNoticeLabel": "Last updated:",
     "relatedPostsTitle": "Related posts",
     "tocTitle": "Table of contents",
+    "like": {
+      "sidebarLabel": "Article likes",
+      "button": "Like this article",
+      "countLabel": "Tap the heart to like",
+      "loading": "Loading likes...",
+      "error": "Like service is temporarily unavailable."
+    },
     "share": {
       "title": "Share",
       "onX": "Share on X",

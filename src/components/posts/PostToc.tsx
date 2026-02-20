@@ -1,6 +1,7 @@
 import React from 'react';
 import Accordion from 'react-bootstrap/Accordion';
 import { useTranslation } from 'react-i18next';
+import PostLike from '@/components/posts/PostLike';
 
 type TocItem = {
   id: string;
@@ -54,11 +55,12 @@ const createSlugger = () => {
 };
 
 interface PostTocProps {
+  postId: string;
   content: string;
   rootRef: React.RefObject<HTMLElement | null>;
 }
 
-export default function PostToc({ content, rootRef }: Readonly<PostTocProps>) {
+export default function PostToc({ postId, content, rootRef }: Readonly<PostTocProps>) {
   const { t } = useTranslation('post');
   const [items, setItems] = React.useState<TocItem[]>([]);
   const [activeId, setActiveId] = React.useState<string | null>(null);
@@ -178,48 +180,47 @@ export default function PostToc({ content, rootRef }: Readonly<PostTocProps>) {
     };
   }, [items, rootRef]);
 
-  if (items.length === 0) {
-    return null;
-  }
-
   const tocTitle = t('post.tocTitle');
 
   return (
     <div className="post-toc mb-4">
-      <Accordion defaultActiveKey="0">
-        <Accordion.Item eventKey="0">
-          <Accordion.Header>{tocTitle}</Accordion.Header>
-          <Accordion.Body>
-            <nav aria-label={tocTitle}>
-              <ul className="list-unstyled mb-0">
-                {items.map(item => {
-                  return (
-                    <li key={item.id}>
-                      <a
-                        href={`#${item.id}`}
-                        className={`post-toc-link d-block${item.level === 3 ? ' is-level-3' : ''}${activeId === item.id ? ' is-active' : ''}`}
-                        aria-current={activeId === item.id ? 'location' : undefined}
-                        onClick={e => {
-                          e.preventDefault();
-                          const root = rootRef.current;
-                          const el = document.getElementById(item.id);
-                          if (root && el && !root.contains(el)) return;
-                          if (!el) return;
+      {items.length > 0 && (
+        <Accordion defaultActiveKey="0">
+          <Accordion.Item eventKey="0">
+            <Accordion.Header>{tocTitle}</Accordion.Header>
+            <Accordion.Body>
+              <nav aria-label={tocTitle}>
+                <ul className="list-unstyled mb-0">
+                  {items.map(item => {
+                    return (
+                      <li key={item.id}>
+                        <a
+                          href={`#${item.id}`}
+                          className={`post-toc-link d-block${item.level === 3 ? ' is-level-3' : ''}${activeId === item.id ? ' is-active' : ''}`}
+                          aria-current={activeId === item.id ? 'location' : undefined}
+                          onClick={e => {
+                            e.preventDefault();
+                            const root = rootRef.current;
+                            const el = document.getElementById(item.id);
+                            if (root && el && !root.contains(el)) return;
+                            if (!el) return;
 
-                          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                          globalThis.window?.history.pushState(null, '', `#${item.id}`);
-                        }}
-                      >
-                        {item.text}
-                      </a>
-                    </li>
-                  );
-                })}
-              </ul>
-            </nav>
-          </Accordion.Body>
-        </Accordion.Item>
-      </Accordion>
+                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            globalThis.window?.history.pushState(null, '', `#${item.id}`);
+                          }}
+                        >
+                          {item.text}
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </nav>
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
+      )}
+      <PostLike postId={postId} />
     </div>
   );
 }

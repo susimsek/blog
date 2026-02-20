@@ -10,6 +10,7 @@ import (
 	"time"
 
 	newsletterdispatch "suaybsimsek.com/blog-api/api/newsletter-dispatch"
+	postlikes "suaybsimsek.com/blog-api/api/post-likes"
 	subscribeconfirm "suaybsimsek.com/blog-api/api/subscribe-confirm"
 	subscriberesend "suaybsimsek.com/blog-api/api/subscribe-resend"
 	subscribeunsubscribe "suaybsimsek.com/blog-api/api/subscribe-unsubscribe"
@@ -54,6 +55,7 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/api/post-likes", postlikes.Handler)
 	mux.HandleFunc("/api/subscribe-user", subscribeuser.Handler)
 	mux.HandleFunc("/api/subscribe-resend", subscriberesend.Handler)
 	mux.HandleFunc("/api/subscribe-confirm", subscribeconfirm.Handler)

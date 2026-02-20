@@ -322,6 +322,13 @@ interface Resources {
         };
         title: 'Written by';
       };
+      like: {
+        button: 'Like this article';
+        countLabel: 'Tap the heart to like';
+        error: 'Like service is temporarily unavailable.';
+        loading: 'Loading likes...';
+        sidebarLabel: 'Article likes';
+      };
       navigation: {
         next: 'Next article';
         previous: 'Previous article';

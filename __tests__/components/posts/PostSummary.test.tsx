@@ -41,6 +41,13 @@ jest.mock('@/components/common/DateDisplay', () => ({
   default: ({ date }: { date: string }) => <span data-testid="date-display">{date}</span>,
 }));
 
+jest.mock('@/components/posts/PostLikeCount', () => ({
+  __esModule: true,
+  default: ({ likes, isLoading }: { likes: number | null; isLoading?: boolean }) => (
+    <span data-testid="post-like-count">{isLoading ? 'loading' : (likes ?? 'none')}</span>
+  ),
+}));
+
 describe('PostSummary Component', () => {
   const mockPause = jest.fn();
 
@@ -146,6 +153,12 @@ describe('PostSummary Component', () => {
     expect(screen.getByText('common.searchSource.medium')).toBeInTheDocument();
     expect(screen.getByTestId('icon-fab-medium')).toBeInTheDocument();
     expect(screen.queryByTestId('icon-link')).not.toBeInTheDocument();
+  });
+
+  it('shows like count when enabled', () => {
+    render(<PostSummary post={mockPost} showLikes likeCount={123} />);
+
+    expect(screen.getByTestId('post-like-count')).toHaveTextContent('123');
   });
 
   it('plays read-more hover sound when voice is enabled', () => {

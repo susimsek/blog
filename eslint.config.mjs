@@ -30,6 +30,7 @@ export default defineConfig([
       'node/**',
       'node_modules/**',
       '.next/**',
+      '.vercel/output/**',
       'out/**',
       'build/**',
       'dist/**',

@@ -5,6 +5,13 @@
     "updatedNoticeLabel": "Son güncelleme:",
     "relatedPostsTitle": "Benzer yazılar",
     "tocTitle": "İçindekiler",
+    "like": {
+      "sidebarLabel": "Yazı beğenileri",
+      "button": "Bu yazıyı beğen",
+      "countLabel": "Beğenmek için kalbe dokun",
+      "loading": "Beğeni yükleniyor...",
+      "error": "Beğeni servisine şu anda ulaşılamıyor."
+    },
     "share": {
       "title": "Paylaş",
       "onX": "X'te paylaş",

@@ -17,19 +17,52 @@ import { PostFilters } from './PostFilters';
 import useDebounce from '@/hooks/useDebounce';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { setPage, setPageSize, setQuery } from '@/reducers/postsQuery';
+import { withBasePath } from '@/lib/basePath';
+
+type PostLikesBatchResponse = {
+  status?: string;
+  likesByPostId?: Record<string, number>;
+};
+
+const LIKE_BATCH_REQUEST_TIMEOUT_MS = 8000;
+
+const normalizeApiBaseUrl = (value: string | undefined) => value?.trim().replace(/\/+$/g, '') ?? '';
+
+const getLikeEndpoints = (apiPath: string) => {
+  const prefixedEndpoint = withBasePath(apiPath);
+  const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
+  const endpoints = new Set<string>();
+
+  if (apiBaseUrl) {
+    endpoints.add(`${apiBaseUrl}${apiPath}`);
+    endpoints.add(`${apiBaseUrl}${prefixedEndpoint}`);
+  }
+
+  endpoints.add(prefixedEndpoint);
+  endpoints.add(apiPath);
+  return [...endpoints];
+};
 
 interface PostListProps {
   posts: PostSummary[];
   noPostsFoundMessage?: string;
   highlightQuery?: string;
+  showLikes?: boolean;
 }
 
-export default function PostList({ posts, noPostsFoundMessage, highlightQuery }: Readonly<PostListProps>) {
+export default function PostList({
+  posts,
+  noPostsFoundMessage,
+  highlightQuery,
+  showLikes = false,
+}: Readonly<PostListProps>) {
   const { t } = useTranslation(['post', 'common']);
   const router = useRouter();
   const pathname = usePathname() ?? '/';
   const isSearchRoute = /(?:^|\/)search(?:\/|$)/.test(pathname);
   const [urlSearch, setUrlSearch] = React.useState('');
+  const [likesByPostId, setLikesByPostId] = React.useState<Record<string, number>>({});
+  const [loadingLikePostIds, setLoadingLikePostIds] = React.useState<Record<string, boolean>>({});
   const searchParams = useMemo(
     () => new URLSearchParams(urlSearch.startsWith('?') ? urlSearch.slice(1) : urlSearch),
     [urlSearch],
@@ -142,6 +175,94 @@ export default function PostList({ posts, noPostsFoundMessage, highlightQuery }:
     [sortedPosts, page, pageSize],
   );
 
+  const pendingLikePostIds = useMemo(() => {
+    if (!showLikes) {
+      return [];
+    }
+
+    return paginatedPosts.map(post => post.id).filter(postId => likesByPostId[postId] === undefined);
+  }, [likesByPostId, paginatedPosts, showLikes]);
+
+  useEffect(() => {
+    if (!showLikes || pendingLikePostIds.length === 0) {
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadLikes = async () => {
+      setLoadingLikePostIds(previous => {
+        const next = { ...previous };
+        pendingLikePostIds.forEach(postId => {
+          next[postId] = true;
+        });
+        return next;
+      });
+
+      const postIdsParam = encodeURIComponent(pendingLikePostIds.join(','));
+      const endpoints = getLikeEndpoints(`/api/post-likes?postIds=${postIdsParam}`);
+      let loadedLikes: Record<string, number> | null = null;
+
+      for (const endpoint of endpoints) {
+        const controller = new AbortController();
+        const timeoutID = globalThis.setTimeout(() => controller.abort(), LIKE_BATCH_REQUEST_TIMEOUT_MS);
+
+        try {
+          const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: { Accept: 'application/json' },
+            signal: controller.signal,
+          });
+          const payload = (await response.json().catch(() => null)) as PostLikesBatchResponse | null;
+          if (!response.ok || payload?.status !== 'success' || !payload.likesByPostId) {
+            continue;
+          }
+
+          const normalizedLikes = Object.entries(payload.likesByPostId).reduce<Record<string, number>>(
+            (result, [postId, likes]) => {
+              if (typeof likes !== 'number' || Number.isNaN(likes)) {
+                return result;
+              }
+
+              result[postId] = Math.max(0, Math.trunc(likes));
+              return result;
+            },
+            {},
+          );
+
+          loadedLikes = normalizedLikes;
+          break;
+        } catch {
+          // Try next endpoint candidate.
+        } finally {
+          globalThis.clearTimeout(timeoutID);
+        }
+      }
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (loadedLikes) {
+        setLikesByPostId(previous => ({ ...previous, ...loadedLikes }));
+      }
+
+      setLoadingLikePostIds(previous => {
+        const next = { ...previous };
+        pendingLikePostIds.forEach(postId => {
+          delete next[postId];
+        });
+        return next;
+      });
+    };
+
+    void loadLikes();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [pendingLikePostIds, showLikes]);
+
   const scrollToListStart = useCallback(() => {
     const target = listTopRef.current;
     if (!target) {
@@ -198,6 +319,9 @@ export default function PostList({ posts, noPostsFoundMessage, highlightQuery }:
             post={post}
             highlightQuery={highlightQuery?.trim() ? highlightQuery : undefined}
             showSource={isSearchRoute}
+            showLikes={showLikes}
+            likeCount={likesByPostId[post.id] ?? null}
+            likeCountLoading={showLikes && likesByPostId[post.id] === undefined && Boolean(loadingLikePostIds[post.id])}
           />
         ))
       ) : (

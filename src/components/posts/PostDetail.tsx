@@ -144,6 +144,7 @@ export default function PostDetail({
   const [isCopied, setIsCopied] = React.useState(false);
   const markdown = contentHtml ?? '';
   const hasToc = React.useMemo(() => hasSupportedMarkdownHeading(markdown), [markdown]);
+  const hasSideRail = true;
   const thumbnailSrc = (() => {
     if (!thumbnail) return null;
     try {
@@ -352,10 +353,10 @@ export default function PostDetail({
         {thumbnailSrc && (
           <Thumbnail src={thumbnailSrc} alt={title} width={1200} height={630} className="post-hero-image" priority />
         )}
-        <div className={`post-detail-layout${hasToc ? ' has-toc' : ''}`}>
-          {hasToc && (
-            <aside className="post-toc-rail" aria-label={t('post.tocTitle')}>
-              <PostToc content={markdown} rootRef={articleRef} />
+        <div className={`post-detail-layout${hasSideRail ? ' has-toc' : ''}`}>
+          {hasSideRail && (
+            <aside className="post-toc-rail" aria-label={hasToc ? t('post.tocTitle') : t('post.like.sidebarLabel')}>
+              <PostToc postId={post.id} content={markdown} rootRef={articleRef} />
             </aside>
           )}
           <div className="post-detail-main">
