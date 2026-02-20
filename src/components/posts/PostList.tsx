@@ -1,47 +1,16 @@
-import React, { useMemo, useCallback, useEffect, useRef } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import React, { useMemo, useCallback, useEffect, useRef, useState } from 'react';
+import { usePathname, useRouter, useParams } from 'next/navigation';
 import { PostSummary } from '@/types/posts';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  filterByTopics,
-  filterBySource,
-  filterByDateRange,
-  filterByReadingTime,
-  sortPosts,
-  searchPostsByRelevance,
-} from '@/lib/postFilters';
 import { PostFilters } from './PostFilters';
 import useDebounce from '@/hooks/useDebounce';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { setPage, setPageSize, setQuery } from '@/reducers/postsQuery';
-import { withBasePath } from '@/lib/basePath';
-
-type PostLikesBatchResponse = {
-  status?: string;
-  likesByPostId?: Record<string, number>;
-};
-
-const LIKE_BATCH_REQUEST_TIMEOUT_MS = 8000;
-
-const normalizeApiBaseUrl = (value: string | undefined) => value?.trim().replace(/\/+$/g, '') ?? '';
-
-const getLikeEndpoints = (apiPath: string) => {
-  const prefixedEndpoint = withBasePath(apiPath);
-  const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
-  const endpoints = new Set<string>();
-
-  if (apiBaseUrl) {
-    endpoints.add(`${apiBaseUrl}${apiPath}`);
-    endpoints.add(`${apiBaseUrl}${prefixedEndpoint}`);
-  }
-
-  endpoints.add(prefixedEndpoint);
-  endpoints.add(apiPath);
-  return [...endpoints];
-};
+import { fetchPostLikes, fetchPosts } from '@/lib/contentApi';
+import { defaultLocale } from '@/i18n/settings';
 
 interface PostListProps {
   posts: PostSummary[];
@@ -49,6 +18,47 @@ interface PostListProps {
   highlightQuery?: string;
   showLikes?: boolean;
 }
+
+const normalizeServerPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
+  posts.flatMap(post => {
+    if (!post || typeof post !== 'object') {
+      return [];
+    }
+
+    const candidate = post as Partial<PostSummary>;
+    if (
+      typeof candidate.id !== 'string' ||
+      typeof candidate.title !== 'string' ||
+      typeof candidate.publishedDate !== 'string' ||
+      typeof candidate.summary !== 'string' ||
+      typeof candidate.readingTimeMin !== 'number' ||
+      !Number.isFinite(candidate.readingTimeMin) ||
+      candidate.readingTimeMin <= 0 ||
+      (candidate.updatedDate !== undefined && typeof candidate.updatedDate !== 'string') ||
+      typeof candidate.searchText !== 'string' ||
+      (candidate.thumbnail !== null && typeof candidate.thumbnail !== 'string') ||
+      (candidate.topics !== undefined && !Array.isArray(candidate.topics)) ||
+      (candidate.source !== undefined && candidate.source !== 'blog' && candidate.source !== 'medium')
+    ) {
+      return [];
+    }
+
+    return [
+      {
+        id: candidate.id,
+        title: candidate.title,
+        publishedDate: candidate.publishedDate,
+        ...(typeof candidate.updatedDate === 'string' ? { updatedDate: candidate.updatedDate } : {}),
+        summary: candidate.summary,
+        thumbnail: candidate.thumbnail,
+        topics: candidate.topics,
+        readingTimeMin: candidate.readingTimeMin,
+        searchText: candidate.searchText,
+        source: candidate.source === 'medium' ? 'medium' : 'blog',
+        ...(typeof candidate.link === 'string' ? { link: candidate.link } : {}),
+      },
+    ];
+  });
 
 export default function PostList({
   posts,
@@ -59,10 +69,19 @@ export default function PostList({
   const { t } = useTranslation(['post', 'common']);
   const router = useRouter();
   const pathname = usePathname() ?? '/';
+  const routeParams = useParams<{ locale?: string | string[] }>();
+  const routeLocale = Array.isArray(routeParams?.locale) ? routeParams?.locale[0] : routeParams?.locale;
+  const currentLocale = routeLocale ?? defaultLocale;
   const isSearchRoute = /(?:^|\/)search(?:\/|$)/.test(pathname);
-  const [urlSearch, setUrlSearch] = React.useState('');
-  const [likesByPostId, setLikesByPostId] = React.useState<Record<string, number>>({});
-  const [loadingLikePostIds, setLoadingLikePostIds] = React.useState<Record<string, boolean>>({});
+  const isMediumRoute = /(?:^|\/)medium(?:\/|$)/.test(pathname);
+  const isHomeRoute = /^\/(?:[a-z]{2})?$/.test(pathname);
+  const shouldUseScope = /(?:^|\/)topics(?:\/|$)/.test(pathname);
+  const showSourceFilter = isSearchRoute;
+  const [urlSearch, setUrlSearch] = useState('');
+  const [likesByPostId, setLikesByPostId] = useState<Record<string, number>>({});
+  const [serverPosts, setServerPosts] = useState<PostSummary[]>([]);
+  const [totalResults, setTotalResults] = useState(0);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const searchParams = useMemo(
     () => new URLSearchParams(urlSearch.startsWith('?') ? urlSearch.slice(1) : urlSearch),
     [urlSearch],
@@ -70,24 +89,11 @@ export default function PostList({
   const dispatch = useAppDispatch();
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const lastSyncedRouteRef = useRef<string>('');
-  const {
-    query,
-    sortOrder,
-    selectedTopics,
-    sourceFilter,
-    dateRange,
-    readingTimeRange,
-    page,
-    pageSize,
-    posts: fetchedPosts,
-  } = useAppSelector(state => state.postsQuery);
+  const { query, sortOrder, selectedTopics, sourceFilter, dateRange, readingTimeRange, page, pageSize } =
+    useAppSelector(state => state.postsQuery);
+  const effectiveSourceFilter = isSearchRoute ? sourceFilter : isMediumRoute ? 'medium' : isHomeRoute ? 'blog' : 'all';
   const debouncedSearchQuery = useDebounce(query, 500);
-
-  const scopedPostIds = useMemo(() => new Set(posts.map(post => post.id)), [posts]);
-  const sourcePosts = useMemo(
-    () => fetchedPosts.filter(post => scopedPostIds.has(post.id)),
-    [fetchedPosts, scopedPostIds],
-  );
+  const scopedPostIds = useMemo(() => posts.map(post => post.id), [posts]);
 
   useEffect(() => {
     if (typeof globalThis.window === 'undefined') {
@@ -122,66 +128,104 @@ export default function PostList({
     }
     lastSyncedRouteRef.current = routeKey;
 
-    // URL is the source of truth for pagination/search state.
     dispatch(setQuery(routeQuery));
     dispatch(setPageSize(routeSize));
     dispatch(setPage(routePage));
   }, [dispatch, pathname, searchParams]);
 
-  const filteredPosts = useMemo(
-    () =>
-      sourcePosts.filter(
-        post =>
-          filterByTopics(post, selectedTopics) &&
-          filterBySource(post, isSearchRoute ? sourceFilter : 'all') &&
-          filterByDateRange(post, dateRange) &&
-          filterByReadingTime(post, readingTimeRange),
-      ),
-    [sourcePosts, selectedTopics, sourceFilter, dateRange, readingTimeRange, isSearchRoute],
-  );
-
-  const sortedPosts = useMemo(() => {
-    const query = debouncedSearchQuery.trim();
-    if (!query) {
-      return sortPosts(filteredPosts, sortOrder);
-    }
-
-    const matchedPosts = searchPostsByRelevance(filteredPosts, query);
-    return sortPosts(matchedPosts, sortOrder);
-  }, [filteredPosts, debouncedSearchQuery, sortOrder]);
-
-  const totalPages = useMemo(
-    () => Math.max(1, Math.ceil(sortedPosts.length / pageSize)),
-    [sortedPosts.length, pageSize],
-  );
-
   useEffect(() => {
-    const normalizedPage = Math.min(Math.max(page, 1), totalPages);
-    if (page === normalizedPage) {
-      return;
-    }
+    const controller = new AbortController();
 
-    dispatch(setPage(normalizedPage));
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('page', String(normalizedPage));
-    params.set('size', String(pageSize));
-    const nextQuery = params.toString();
-    const nextSearch = nextQuery ? `?${nextQuery}` : '';
-    router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
-  }, [dispatch, page, pageSize, pathname, router, searchParams, totalPages]);
+    const loadPosts = async () => {
+      setIsLoadingPosts(true);
+      const payload = await fetchPosts(
+        currentLocale,
+        {
+          q: debouncedSearchQuery.trim() || undefined,
+          page,
+          size: pageSize,
+          sort: sortOrder,
+          topics: selectedTopics,
+          source: effectiveSourceFilter,
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate,
+          readingTime: readingTimeRange,
+          scopeIds: shouldUseScope ? scopedPostIds : undefined,
+        },
+        { signal: controller.signal },
+      );
 
-  const paginatedPosts = useMemo(
-    () => sortedPosts.slice((page - 1) * pageSize, page * pageSize),
-    [sortedPosts, page, pageSize],
-  );
+      if (controller.signal.aborted) {
+        return;
+      }
+
+      if (!payload || payload.status !== 'success') {
+        setServerPosts([]);
+        setTotalResults(0);
+        setIsLoadingPosts(false);
+        return;
+      }
+
+      const normalizedPosts = Array.isArray(payload.posts) ? normalizeServerPosts(payload.posts) : [];
+      const resolvedTotal =
+        typeof payload.total === 'number' && Number.isFinite(payload.total) && payload.total >= 0
+          ? Math.trunc(payload.total)
+          : normalizedPosts.length;
+      const resolvedPage =
+        typeof payload.page === 'number' && Number.isFinite(payload.page) && payload.page > 0
+          ? Math.trunc(payload.page)
+          : page;
+
+      setServerPosts(normalizedPosts);
+      setTotalResults(resolvedTotal);
+      setIsLoadingPosts(false);
+
+      if (resolvedPage !== page) {
+        dispatch(setPage(resolvedPage));
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('page', String(resolvedPage));
+        params.set('size', String(pageSize));
+        const nextQuery = params.toString();
+        const nextSearch = nextQuery ? `?${nextQuery}` : '';
+        setUrlSearch(nextSearch);
+        router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
+      }
+    };
+
+    void loadPosts();
+
+    return () => {
+      controller.abort();
+    };
+  }, [
+    currentLocale,
+    dateRange.endDate,
+    dateRange.startDate,
+    debouncedSearchQuery,
+    dispatch,
+    effectiveSourceFilter,
+    isSearchRoute,
+    page,
+    pageSize,
+    pathname,
+    readingTimeRange,
+    router,
+    scopedPostIds,
+    searchParams,
+    selectedTopics,
+    shouldUseScope,
+    sortOrder,
+    sourceFilter,
+  ]);
+
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(totalResults / pageSize)), [totalResults, pageSize]);
 
   const pendingLikePostIds = useMemo(() => {
     if (!showLikes) {
       return [];
     }
-
-    return paginatedPosts.map(post => post.id).filter(postId => likesByPostId[postId] === undefined);
-  }, [likesByPostId, paginatedPosts, showLikes]);
+    return serverPosts.map(post => post.id).filter(postId => likesByPostId[postId] === undefined);
+  }, [likesByPostId, serverPosts, showLikes]);
 
   useEffect(() => {
     if (!showLikes || pendingLikePostIds.length === 0) {
@@ -191,53 +235,7 @@ export default function PostList({
     let isMounted = true;
 
     const loadLikes = async () => {
-      setLoadingLikePostIds(previous => {
-        const next = { ...previous };
-        pendingLikePostIds.forEach(postId => {
-          next[postId] = true;
-        });
-        return next;
-      });
-
-      const postIdsParam = encodeURIComponent(pendingLikePostIds.join(','));
-      const endpoints = getLikeEndpoints(`/api/post-likes?postIds=${postIdsParam}`);
-      let loadedLikes: Record<string, number> | null = null;
-
-      for (const endpoint of endpoints) {
-        const controller = new AbortController();
-        const timeoutID = globalThis.setTimeout(() => controller.abort(), LIKE_BATCH_REQUEST_TIMEOUT_MS);
-
-        try {
-          const response = await fetch(endpoint, {
-            method: 'GET',
-            headers: { Accept: 'application/json' },
-            signal: controller.signal,
-          });
-          const payload = (await response.json().catch(() => null)) as PostLikesBatchResponse | null;
-          if (!response.ok || payload?.status !== 'success' || !payload.likesByPostId) {
-            continue;
-          }
-
-          const normalizedLikes = Object.entries(payload.likesByPostId).reduce<Record<string, number>>(
-            (result, [postId, likes]) => {
-              if (typeof likes !== 'number' || Number.isNaN(likes)) {
-                return result;
-              }
-
-              result[postId] = Math.max(0, Math.trunc(likes));
-              return result;
-            },
-            {},
-          );
-
-          loadedLikes = normalizedLikes;
-          break;
-        } catch {
-          // Try next endpoint candidate.
-        } finally {
-          globalThis.clearTimeout(timeoutID);
-        }
-      }
+      const loadedLikes = await fetchPostLikes(pendingLikePostIds);
 
       if (!isMounted) {
         return;
@@ -246,14 +244,6 @@ export default function PostList({
       if (loadedLikes) {
         setLikesByPostId(previous => ({ ...previous, ...loadedLikes }));
       }
-
-      setLoadingLikePostIds(previous => {
-        const next = { ...previous };
-        pendingLikePostIds.forEach(postId => {
-          delete next[postId];
-        });
-        return next;
-      });
     };
 
     void loadLikes();
@@ -311,9 +301,16 @@ export default function PostList({
   return (
     <section className="post-list-section">
       <div ref={listTopRef} />
-      <PostFilters showSourceFilter={isSearchRoute} />
-      {paginatedPosts.length > 0 ? (
-        paginatedPosts.map(post => (
+      <PostFilters showSourceFilter={showSourceFilter} />
+      {isLoadingPosts ? (
+        <div className="post-card d-flex align-items-center post-list-empty">
+          <div className="post-card-content flex-grow-1 text-center text-muted px-4 py-4">
+            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+            {t('post.like.loading')}
+          </div>
+        </div>
+      ) : serverPosts.length > 0 ? (
+        serverPosts.map(post => (
           <PostCard
             key={post.id}
             post={post}
@@ -321,7 +318,6 @@ export default function PostList({
             showSource={isSearchRoute}
             showLikes={showLikes}
             likeCount={likesByPostId[post.id] ?? null}
-            likeCountLoading={showLikes && likesByPostId[post.id] === undefined && Boolean(loadingLikePostIds[post.id])}
           />
         ))
       ) : (
@@ -334,14 +330,14 @@ export default function PostList({
           </div>
         </div>
       )}
-      {sortedPosts.length > 0 && (
+      {totalResults > 0 && (
         <PaginationBar
           currentPage={page}
           totalPages={totalPages}
           size={pageSize}
           onPageChange={handlePageChange}
           onSizeChange={handleSizeChange}
-          totalResults={sortedPosts.length}
+          totalResults={totalResults}
         />
       )}
     </section>

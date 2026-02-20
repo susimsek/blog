@@ -322,6 +322,12 @@ interface Resources {
         };
         title: 'Written by';
       };
+      hit: {
+        aria: '{{count}} article hits';
+        error: 'Hit counter is temporarily unavailable.';
+        loading: 'Loading hits...';
+        title: 'Total views';
+      };
       like: {
         button: 'Like this article';
         countLabel: 'Tap the heart to like';
@@ -351,7 +357,7 @@ interface Resources {
         title: 'Share';
       };
       tocTitle: 'Table of contents';
-      updatedNoticeLabel: 'Last updated:';
+      updatedNoticeLabel: 'Last updated';
     };
   };
   search: {

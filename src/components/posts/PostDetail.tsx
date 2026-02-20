@@ -14,6 +14,7 @@ import RelatedPosts from '@/components/posts/RelatedPosts';
 import ReadingProgress from '@/components/common/ReadingProgress';
 import BackToTop from '@/components/common/BackToTop';
 import PostToc from '@/components/posts/PostToc';
+import PostHit from '@/components/posts/PostHit';
 import PostAuthorBox from '@/components/posts/PostAuthorBox';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'next/navigation';
@@ -364,19 +365,22 @@ export default function PostDetail({
               {splitIntro.intro && <MarkdownRenderer content={splitIntro.intro} />}
               {splitIntro.rest && <MarkdownRenderer content={splitIntro.rest} />}
             </article>
-            {hasUpdatedNotice && (
-              <aside className="post-updated-note" aria-live="polite">
-                <span className="post-updated-note-icon" aria-hidden="true">
-                  <FontAwesomeIcon icon="calendar-alt" />
-                </span>
-                <p className="post-updated-note-text">
-                  <span className="post-updated-note-label">{t('post.updatedNoticeLabel')}</span>
-                  <time className="post-updated-note-date" dateTime={normalizedUpdatedDate}>
-                    {formattedUpdatedDate}
-                  </time>
-                </p>
-              </aside>
-            )}
+            <div className={`post-postscript${hasUpdatedNotice ? ' has-updated' : ''}`}>
+              {hasUpdatedNotice && (
+                <aside className="post-updated-note" aria-live="polite">
+                  <span className="post-updated-note-icon" aria-hidden="true">
+                    <FontAwesomeIcon icon="calendar-alt" />
+                  </span>
+                  <p className="post-updated-note-text">
+                    <span className="post-updated-note-label">{t('post.updatedNoticeLabel')}</span>
+                    <time className="post-updated-note-date" dateTime={normalizedUpdatedDate}>
+                      {formattedUpdatedDate}
+                    </time>
+                  </p>
+                </aside>
+              )}
+              <PostHit postId={post.id} />
+            </div>
             {(previousPost || nextPost) && (
               <nav className="post-navigation post-detail-navigation" aria-label={t('post.navigation.title')}>
                 <div className={postNavigationGridClassName}>

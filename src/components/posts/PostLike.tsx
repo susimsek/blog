@@ -4,38 +4,19 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import { withBasePath } from '@/lib/basePath';
+import { useParams } from 'next/navigation';
+import { fetchPosts, incrementPostLike } from '@/lib/contentApi';
+import { defaultLocale } from '@/i18n/settings';
 
 type PostLikeProps = {
   postId: string;
 };
 
-type PostLikeResponse = {
-  status?: string;
-  likes?: number;
-};
-
-const LIKE_REQUEST_TIMEOUT_MS = 8000;
-
-const normalizeApiBaseUrl = (value: string | undefined) => value?.trim().replace(/\/+$/g, '') ?? '';
-
-const getLikeEndpoints = (apiPath: string) => {
-  const prefixedEndpoint = withBasePath(apiPath);
-  const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
-  const endpoints = new Set<string>();
-
-  if (apiBaseUrl) {
-    endpoints.add(`${apiBaseUrl}${apiPath}`);
-    endpoints.add(`${apiBaseUrl}${prefixedEndpoint}`);
-  }
-
-  endpoints.add(prefixedEndpoint);
-  endpoints.add(apiPath);
-  return [...endpoints];
-};
-
 export default function PostLike({ postId }: Readonly<PostLikeProps>) {
   const { t, i18n } = useTranslation('post');
+  const params = useParams<{ locale?: string | string[] }>();
+  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
+  const locale = routeLocale ?? defaultLocale;
   const [likes, setLikes] = React.useState<number>(0);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -51,51 +32,6 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
     return new Intl.NumberFormat(language);
   }, [i18n.language, i18n.resolvedLanguage]);
 
-  const callLikesAPI = React.useCallback(
-    async (method: 'GET' | 'POST') => {
-      const basePath = '/api/post-likes';
-      const query = new URLSearchParams({ postId }).toString();
-      const endpointPath = method === 'GET' ? `${basePath}?${query}` : basePath;
-      const endpoints = getLikeEndpoints(endpointPath);
-
-      for (const endpoint of endpoints) {
-        const controller = new AbortController();
-        const timeoutID = globalThis.setTimeout(() => controller.abort(), LIKE_REQUEST_TIMEOUT_MS);
-
-        try {
-          const response = await fetch(endpoint, {
-            method,
-            headers:
-              method === 'POST'
-                ? {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                  }
-                : {
-                    Accept: 'application/json',
-                  },
-            body: method === 'POST' ? JSON.stringify({ postId }) : undefined,
-            signal: controller.signal,
-          });
-
-          const payload = (await response.json().catch(() => null)) as PostLikeResponse | null;
-          if (!response.ok || payload?.status !== 'success') {
-            continue;
-          }
-
-          return payload;
-        } catch {
-          // Try next endpoint candidate.
-        } finally {
-          globalThis.clearTimeout(timeoutID);
-        }
-      }
-
-      return null;
-    },
-    [postId],
-  );
-
   React.useEffect(() => {
     let isMounted = true;
 
@@ -103,18 +39,23 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
       setIsLoading(true);
       setHasError(false);
 
-      const result = await callLikesAPI('GET');
+      const payload = await fetchPosts(locale, {
+        page: 1,
+        size: 1,
+        scopeIds: [postId],
+      });
       if (!isMounted) {
         return;
       }
 
-      if (!result || typeof result.likes !== 'number') {
+      const result = payload?.status === 'success' ? payload.likesByPostId?.[postId] : null;
+      if (typeof result !== 'number') {
         setHasError(true);
         setIsLoading(false);
         return;
       }
 
-      setLikes(result.likes);
+      setLikes(result);
       setIsLoading(false);
     };
 
@@ -123,7 +64,7 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
     return () => {
       isMounted = false;
     };
-  }, [callLikesAPI]);
+  }, [locale, postId]);
 
   React.useEffect(
     () => () => {
@@ -147,14 +88,14 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
     setIsSubmitting(true);
     setHasError(false);
 
-    const result = await callLikesAPI('POST');
-    if (!result || typeof result.likes !== 'number') {
+    const result = await incrementPostLike(postId);
+    if (typeof result !== 'number') {
       setHasError(true);
       setIsSubmitting(false);
       return;
     }
 
-    setLikes(result.likes);
+    setLikes(result);
     setPlusOneToken(previous => previous + 1);
     setPlusOneVisible(true);
     setIsCountPopping(true);
@@ -174,7 +115,7 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
     }, 280);
 
     setIsSubmitting(false);
-  }, [callLikesAPI, isSubmitting]);
+  }, [isSubmitting, postId]);
 
   const busy = isLoading || isSubmitting;
 

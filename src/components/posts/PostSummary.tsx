@@ -18,7 +18,6 @@ interface PostSummaryProps {
   showSource?: boolean;
   showLikes?: boolean;
   likeCount?: number | null;
-  likeCountLoading?: boolean;
 }
 
 const escapeRegExp = (value: string) => value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
@@ -56,7 +55,6 @@ export default function PostSummary({
   showSource = false,
   showLikes = false,
   likeCount = null,
-  likeCountLoading = false,
 }: Readonly<PostSummaryProps>) {
   const { id, title, publishedDate, summary, thumbnail, topics, readingTimeMin, source, link } = post;
   const { t } = useTranslation(['post', 'common']);
@@ -69,7 +67,7 @@ export default function PostSummary({
   const sourceIcon: IconProp = source === 'medium' ? (['fab', 'medium'] as IconProp) : 'book';
 
   const postLink = link ?? `/posts/${id}`;
-  const shouldRenderLikeMeta = showLikes && (likeCountLoading || likeCount !== null);
+  const shouldRenderLikeMeta = showLikes && likeCount !== null;
   const resolveThumbnailSrc = (value: string) => {
     if (/^https?:\/\//i.test(value)) {
       return value;
@@ -157,7 +155,7 @@ export default function PostSummary({
           </span>
           {shouldRenderLikeMeta && (
             <Link href={postLink} className="link-muted d-flex align-items-center">
-              <PostLikeCount likes={likeCount} isLoading={likeCountLoading} />
+              <PostLikeCount likes={likeCount} />
             </Link>
           )}
           {showSource && (

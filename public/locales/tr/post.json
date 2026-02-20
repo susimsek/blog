@@ -2,7 +2,7 @@
   "post": {
     "noPostsFound": "Hiçbir gönderi bulunamadı.",
     "readMore": "Daha Fazla Oku",
-    "updatedNoticeLabel": "Son güncelleme:",
+    "updatedNoticeLabel": "Son güncelleme",
     "relatedPostsTitle": "Benzer yazılar",
     "tocTitle": "İçindekiler",
     "like": {
@@ -11,6 +11,12 @@
       "countLabel": "Beğenmek için kalbe dokun",
       "loading": "Beğeni yükleniyor...",
       "error": "Beğeni servisine şu anda ulaşılamıyor."
+    },
+    "hit": {
+      "title": "Toplam görüntülenme",
+      "aria": "{{count}} yazı görüntülenmesi",
+      "loading": "Görüntülenme yükleniyor...",
+      "error": "Görüntülenme sayacı şu anda kullanılamıyor."
     },
     "share": {
       "title": "Paylaş",

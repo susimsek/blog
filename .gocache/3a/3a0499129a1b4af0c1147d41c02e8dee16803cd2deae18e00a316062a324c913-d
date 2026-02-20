@@ -1,0 +1,9 @@
+./assets.go
+./config.go
+./content.go
+./mailer.go
+./status_page.go
+./unsubscribe_token.go
+./content_test.go
+./status_page_test.go
+./unsubscribe_token_test.go

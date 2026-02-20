@@ -2,12 +2,22 @@ import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import SearchContainer from '@/components/search/SearchContainer';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
-import { setPosts } from '@/reducers/postsQuery';
+import { fetchPosts } from '@/lib/contentApi';
 
 const routerPushMock = jest.fn();
+const fetchPostsMock = fetchPosts as jest.MockedFunction<typeof fetchPosts>;
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: routerPushMock }),
+}));
+
+jest.mock('@/lib/contentApi', () => ({
+  fetchPosts: jest.fn(),
+}));
+
+jest.mock('@/hooks/useDebounce', () => ({
+  __esModule: true,
+  default: (value: unknown) => value,
 }));
 
 jest.mock('react-i18next', () => ({
@@ -84,43 +94,50 @@ describe('SearchContainer', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     routerPushMock.mockReset();
+    fetchPostsMock.mockReset();
   });
 
-  it('renders filtered search results and limits to 5 items', () => {
-    const { store } = renderWithProviders(<SearchContainer />);
-    act(() => {
-      store.dispatch(setPosts(posts));
-    });
+  it('renders filtered search results and limits to 5 items', async () => {
+    fetchPostsMock.mockResolvedValue({
+      status: 'success',
+      posts,
+    } as never);
+
+    renderWithProviders(<SearchContainer />);
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
 
-    expect(screen.getAllByTestId('post-item')).toHaveLength(5);
+    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
     expect(screen.getByRole('option', { name: /common.viewAllResults:Post/i })).toBeInTheDocument();
   });
 
-  it('hides results when clicking outside', () => {
-    const { store } = renderWithProviders(<SearchContainer />);
-    act(() => {
-      store.dispatch(setPosts(posts));
-    });
+  it('hides results when clicking outside', async () => {
+    fetchPostsMock.mockResolvedValue({
+      status: 'success',
+      posts,
+    } as never);
+
+    renderWithProviders(<SearchContainer />);
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post 1' } });
-    expect(screen.getByText('Post 1')).toBeInTheDocument();
+    expect(await screen.findByText('Post 1')).toBeInTheDocument();
 
     fireEvent.mouseDown(document.body);
 
     expect(screen.queryByText('Post 1')).not.toBeInTheDocument();
   });
 
-  it('closes results when "view all" link is clicked and preserves encoded query', () => {
-    const { store } = renderWithProviders(<SearchContainer />);
-    act(() => {
-      store.dispatch(setPosts(posts));
-    });
+  it('closes results when "view all" link is clicked and preserves encoded query', async () => {
+    fetchPostsMock.mockResolvedValue({
+      status: 'success',
+      posts,
+    } as never);
+
+    renderWithProviders(<SearchContainer />);
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
 
-    const viewAllLink = screen.getByRole('option', { name: /common.viewAllResults:Post/i });
+    const viewAllLink = await screen.findByRole('option', { name: /common.viewAllResults:Post/i });
     expect(viewAllLink).toHaveAttribute('href', '/search?q=Post');
 
     fireEvent.click(viewAllLink);
@@ -129,77 +146,75 @@ describe('SearchContainer', () => {
   });
 
   it('does not show results panel for single-character query', () => {
-    const { store } = renderWithProviders(<SearchContainer />);
-    act(() => {
-      store.dispatch(setPosts(posts));
-    });
+    renderWithProviders(<SearchContainer />);
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'j' } });
 
     expect(screen.queryByText('common.noResults')).not.toBeInTheDocument();
     expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
+    expect(fetchPostsMock).not.toHaveBeenCalled();
   });
 
-  it('does not show temporary no-results flash when typing second character', () => {
-    const { store } = renderWithProviders(<SearchContainer />);
-    act(() => {
-      store.dispatch(
-        setPosts([
-          {
-            id: 'java-post',
-            title: 'Java Tips',
-            summary: 'Useful Java tips',
-            searchText: 'java tips useful java tips',
-            publishedDate: '2024-05-01',
-            thumbnail: null,
-            topics: [],
-            readingTimeMin: 1,
-          },
-        ]),
-      );
-    });
+  it('does not show temporary no-results flash when typing second character', async () => {
+    fetchPostsMock.mockResolvedValue({
+      status: 'success',
+      posts: [
+        {
+          id: 'java-post',
+          title: 'Java Tips',
+          summary: 'Useful Java tips',
+          searchText: 'java tips useful java tips',
+          publishedDate: '2024-05-01',
+          thumbnail: null,
+          topics: [],
+          readingTimeMin: 1,
+        },
+      ],
+    } as never);
+
+    renderWithProviders(<SearchContainer />);
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'ja' } });
 
     expect(screen.queryByText('common.noResults')).not.toBeInTheDocument();
-    expect(screen.getByText('Java Tips')).toBeInTheDocument();
+    expect(await screen.findByText('Java Tips')).toBeInTheDocument();
   });
 
-  it('prioritizes blog results over medium results and keeps medium external links', () => {
-    const { store } = renderWithProviders(<SearchContainer />);
-    act(() => {
-      store.dispatch(
-        setPosts([
-          {
-            id: 'medium-java',
-            title: 'Medium Java Post',
-            summary: 'Medium summary',
-            searchText: 'java medium post',
-            publishedDate: '2024-05-01',
-            thumbnail: null,
-            topics: [],
-            readingTimeMin: 1,
-            source: 'medium',
-            link: 'https://medium.com/example/java',
-          },
-          {
-            id: 'blog-java',
-            title: 'Blog Java Post',
-            summary: 'Blog summary',
-            searchText: 'java blog post',
-            publishedDate: '2024-05-02',
-            thumbnail: null,
-            topics: [],
-            readingTimeMin: 1,
-            source: 'blog',
-          },
-        ]),
-      );
-    });
+  it('prioritizes blog results over medium results and keeps medium external links', async () => {
+    fetchPostsMock.mockResolvedValue({
+      status: 'success',
+      posts: [
+        {
+          id: 'medium-java',
+          title: 'Medium Java Post',
+          summary: 'Medium summary',
+          searchText: 'java medium post',
+          publishedDate: '2024-05-01',
+          thumbnail: null,
+          topics: [],
+          readingTimeMin: 1,
+          source: 'medium',
+          link: 'https://medium.com/example/java',
+        },
+        {
+          id: 'blog-java',
+          title: 'Blog Java Post',
+          summary: 'Blog summary',
+          searchText: 'java blog post',
+          publishedDate: '2024-05-02',
+          thumbnail: null,
+          topics: [],
+          readingTimeMin: 1,
+          source: 'blog',
+        },
+      ],
+    } as never);
+
+    renderWithProviders(<SearchContainer />);
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'java' } });
 
-    const orderedItems = screen.getAllByTestId('post-item');
+    const orderedItems = await screen.findAllByTestId('post-item');
     expect(orderedItems[0]).toHaveTextContent('Blog Java Post');
     expect(orderedItems[1]).toHaveTextContent('Medium Java Post');
     expect(screen.getByRole('option', { name: /Medium Java Post/i })).toHaveAttribute(
@@ -208,15 +223,17 @@ describe('SearchContainer', () => {
     );
   });
 
-  it('closes open results and clears query when app:search-close requests clear', () => {
-    const { store } = renderWithProviders(<SearchContainer />);
-    act(() => {
-      store.dispatch(setPosts(posts));
-    });
+  it('closes open results and clears query when app:search-close requests clear', async () => {
+    fetchPostsMock.mockResolvedValue({
+      status: 'success',
+      posts,
+    } as never);
+
+    renderWithProviders(<SearchContainer />);
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
     expect(screen.getByTestId('search-input')).toHaveValue('Post');
-    expect(screen.getAllByTestId('post-item')).toHaveLength(5);
+    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
 
     act(() => {
       window.dispatchEvent(new CustomEvent('app:search-close', { detail: { clearQuery: true } }));
@@ -226,14 +243,17 @@ describe('SearchContainer', () => {
     expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
   });
 
-  it('supports ArrowDown navigation and Enter selection', () => {
-    const { store } = renderWithProviders(<SearchContainer />);
-    act(() => {
-      store.dispatch(setPosts(posts));
-    });
+  it('supports ArrowDown navigation and Enter selection', async () => {
+    fetchPostsMock.mockResolvedValue({
+      status: 'success',
+      posts,
+    } as never);
+
+    renderWithProviders(<SearchContainer />);
 
     const input = screen.getByTestId('search-input');
     fireEvent.change(input, { target: { value: 'Post' } });
+    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
     fireEvent.keyDown(input, { key: 'ArrowDown' });
 
     const firstResultLink = screen.getByRole('option', { name: /Post 0/i });
@@ -246,15 +266,17 @@ describe('SearchContainer', () => {
     expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
   });
 
-  it('closes dropdown and clears query on Escape', () => {
-    const { store } = renderWithProviders(<SearchContainer />);
-    act(() => {
-      store.dispatch(setPosts(posts));
-    });
+  it('closes dropdown and clears query on Escape', async () => {
+    fetchPostsMock.mockResolvedValue({
+      status: 'success',
+      posts,
+    } as never);
+
+    renderWithProviders(<SearchContainer />);
 
     const input = screen.getByTestId('search-input');
     fireEvent.change(input, { target: { value: 'Post' } });
-    expect(screen.getAllByTestId('post-item')).toHaveLength(5);
+    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
 
     fireEvent.keyDown(input, { key: 'Escape' });
 

@@ -14,7 +14,7 @@ import { defaultLocale } from '@/i18n/settings';
 import { setPosts, setLocale, setTopics } from '@/reducers/postsQuery';
 import PreFooter from '@/components/common/PreFooter';
 import dynamic from 'next/dynamic';
-import { withBasePath } from '@/lib/basePath';
+import { fetchPosts, fetchTopics } from '@/lib/contentApi';
 
 const Sidebar = dynamic(() => import('@/components/common/Sidebar'));
 
@@ -126,49 +126,28 @@ const LayoutStateInitializer: React.FC = () => {
   useEffect(() => {
     const controller = new AbortController();
 
-    const loadPublicPosts = async () => {
-      try {
-        const response = await fetch(withBasePath(`/data/posts.${currentLocale}.json`), {
-          signal: controller.signal,
-        });
-        const payload = response.ok ? ((await response.json()) as unknown) : [];
-        const normalizedPosts = Array.isArray(payload) ? normalizeSearchPosts(payload) : [];
-        dispatch(setPosts(normalizedPosts));
-      } catch (error) {
-        if ((error as { name?: string })?.name === 'AbortError') {
-          return;
-        }
+    const loadBootstrapData = async () => {
+      const [postsPayload, topicsPayload] = await Promise.all([
+        fetchPosts(currentLocale, {}, { signal: controller.signal }),
+        fetchTopics(currentLocale, { signal: controller.signal }),
+      ]);
+
+      if (!postsPayload || postsPayload.status !== 'success') {
         dispatch(setPosts([]));
+      } else {
+        const normalizedPosts = Array.isArray(postsPayload.posts) ? normalizeSearchPosts(postsPayload.posts) : [];
+        dispatch(setPosts(normalizedPosts));
       }
-    };
 
-    const loadPublicTopics = async () => {
-      try {
-        const response = await fetch(withBasePath(`/data/topics.${currentLocale}.json`), {
-          signal: controller.signal,
-        });
-        if (!response.ok) {
-          dispatch(setTopics([]));
-          return;
-        }
-
-        const payload = (await response.json()) as unknown;
-        if (!Array.isArray(payload)) {
-          dispatch(setTopics([]));
-          return;
-        }
-
-        const normalized = normalizeSearchTopics(payload);
-        dispatch(setTopics(normalized));
-      } catch (error) {
-        if ((error as { name?: string })?.name === 'AbortError') {
-          return;
-        }
+      if (!topicsPayload || topicsPayload.status !== 'success') {
         dispatch(setTopics([]));
+      } else {
+        const normalizedTopics = Array.isArray(topicsPayload.topics) ? normalizeSearchTopics(topicsPayload.topics) : [];
+        dispatch(setTopics(normalizedTopics));
       }
     };
 
-    void Promise.all([loadPublicPosts(), loadPublicTopics()]);
+    void loadBootstrapData();
 
     return () => {
       controller.abort();

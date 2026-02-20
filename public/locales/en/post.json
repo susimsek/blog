@@ -2,7 +2,7 @@
   "post": {
     "readMore": "Read More",
     "noPostsFound": "No posts found.",
-    "updatedNoticeLabel": "Last updated:",
+    "updatedNoticeLabel": "Last updated",
     "relatedPostsTitle": "Related posts",
     "tocTitle": "Table of contents",
     "like": {
@@ -11,6 +11,12 @@
       "countLabel": "Tap the heart to like",
       "loading": "Loading likes...",
       "error": "Like service is temporarily unavailable."
+    },
+    "hit": {
+      "title": "Total views",
+      "aria": "{{count}} article hits",
+      "loading": "Loading hits...",
+      "error": "Hit counter is temporarily unavailable."
     },
     "share": {
       "title": "Share",

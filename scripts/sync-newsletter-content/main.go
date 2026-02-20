@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -28,20 +29,24 @@ const (
 )
 
 type siteTopic struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Color string `json:"color"`
+	ID    string  `json:"id"`
+	Name  string  `json:"name"`
+	Color string  `json:"color"`
+	Link  *string `json:"link,omitempty"`
 }
 
 type sitePost struct {
 	ID             string      `json:"id"`
 	Title          string      `json:"title"`
 	Summary        string      `json:"summary"`
-	Thumbnail      string      `json:"thumbnail"`
+	Thumbnail      *string     `json:"thumbnail"`
 	Topics         []siteTopic `json:"topics"`
 	ReadingTimeMin int         `json:"readingTimeMin"`
 	PublishedDate  string      `json:"publishedDate"`
 	UpdatedDate    string      `json:"updatedDate"`
+	SearchText     string      `json:"searchText"`
+	Source         string      `json:"source"`
+	Link           *string     `json:"link,omitempty"`
 }
 
 func loadDotEnv(path string) {
@@ -109,7 +114,7 @@ func fetchJSON(requestURL string, target any) error {
 	if err != nil {
 		return fmt.Errorf("request create failed: %w", err)
 	}
-	req.Header.Set("User-Agent", "suayb-blog-newsletter-content-sync/1.0")
+	req.Header.Set("User-Agent", "suayb-blog-content-sync/1.0")
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -169,60 +174,230 @@ func fetchLocaleData(siteURL string, locale string, dataType string, target any)
 	return nil
 }
 
-func normalizeTopic(raw siteTopic) siteTopic {
-	id := strings.TrimSpace(raw.ID)
-	name := strings.TrimSpace(raw.Name)
-	color := strings.ToLower(strings.TrimSpace(raw.Color))
+func normalizeID(raw string) string {
+	return strings.ToLower(strings.TrimSpace(raw))
+}
 
+func normalizeOptionalString(raw *string) *string {
+	if raw == nil {
+		return nil
+	}
+	trimmed := strings.TrimSpace(*raw)
+	if trimmed == "" {
+		return nil
+	}
+	return &trimmed
+}
+
+func normalizeTopic(raw siteTopic) siteTopic {
+	id := normalizeID(raw.ID)
 	if id == "" {
 		return siteTopic{}
 	}
+
+	name := strings.TrimSpace(raw.Name)
 	if name == "" {
 		name = id
+	}
+
+	color := strings.ToLower(strings.TrimSpace(raw.Color))
+	if color == "" {
+		color = "blue"
 	}
 
 	return siteTopic{
 		ID:    id,
 		Name:  name,
 		Color: color,
+		Link:  normalizeOptionalString(raw.Link),
 	}
+}
+
+func normalizeSource(raw string) string {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case "medium":
+		return "medium"
+	default:
+		return "blog"
+	}
+}
+
+func parseDate(raw string) (time.Time, bool) {
+	trimmed := strings.TrimSpace(raw)
+	if trimmed == "" {
+		return time.Time{}, false
+	}
+
+	layouts := []string{
+		"2006-01-02",
+		time.RFC3339,
+		time.RFC3339Nano,
+		"2006-01-02T15:04:05",
+	}
+	for _, layout := range layouts {
+		parsed, err := time.Parse(layout, trimmed)
+		if err != nil {
+			continue
+		}
+		return parsed.UTC(), true
+	}
+
+	return time.Time{}, false
+}
+
+func buildDataURL(siteURL string, locale string, dataType string) string {
+	return fmt.Sprintf("%s/data/%s.%s.json", strings.TrimRight(siteURL, "/"), dataType, locale)
+}
+
+func normalizeSearchText(raw string, title string, summary string, topics []siteTopic) string {
+	trimmed := strings.ToLower(strings.TrimSpace(raw))
+	if trimmed != "" {
+		return trimmed
+	}
+
+	parts := make([]string, 0, len(topics)+2)
+	if value := strings.TrimSpace(title); value != "" {
+		parts = append(parts, value)
+	}
+	if value := strings.TrimSpace(summary); value != "" {
+		parts = append(parts, value)
+	}
+	for _, topic := range topics {
+		if topic.Name != "" {
+			parts = append(parts, topic.Name)
+		}
+	}
+
+	return strings.ToLower(strings.Join(parts, " "))
+}
+
+func normalizePostTopics(rawTopics []siteTopic, topicByID map[string]siteTopic) ([]bson.M, []string) {
+	if len(rawTopics) == 0 {
+		return []bson.M{}, []string{}
+	}
+
+	postTopics := make([]bson.M, 0, len(rawTopics))
+	topicIDs := make([]string, 0, len(rawTopics))
+	seen := make(map[string]struct{}, len(rawTopics))
+
+	for _, rawTopic := range rawTopics {
+		topic := normalizeTopic(rawTopic)
+		if topic.ID == "" {
+			continue
+		}
+		if existing, exists := topicByID[topic.ID]; exists {
+			if topic.Name == "" {
+				topic.Name = existing.Name
+			}
+			if topic.Color == "" {
+				topic.Color = existing.Color
+			}
+			if topic.Link == nil {
+				topic.Link = existing.Link
+			}
+		}
+		if _, exists := seen[topic.ID]; exists {
+			continue
+		}
+		seen[topic.ID] = struct{}{}
+		topicByID[topic.ID] = topic
+
+		topicIDs = append(topicIDs, topic.ID)
+
+		var link any = nil
+		if topic.Link != nil {
+			link = *topic.Link
+		}
+
+		postTopics = append(postTopics, bson.M{
+			"id":    topic.ID,
+			"name":  topic.Name,
+			"color": topic.Color,
+			"link":  link,
+		})
+	}
+
+	slices.Sort(topicIDs)
+	return postTopics, topicIDs
 }
 
 func ensureIndexes(postsCollection *mongo.Collection, topicsCollection *mongo.Collection) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	_, err := postsCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: bson.D{
-			{Key: "locale", Value: 1},
-			{Key: "id", Value: 1},
+	postIndexes := []mongo.IndexModel{
+		{
+			Keys: bson.D{
+				{Key: "locale", Value: 1},
+				{Key: "id", Value: 1},
+			},
+			Options: options.Index().
+				SetName("uniq_newsletter_post_locale_id").
+				SetUnique(true),
 		},
-		Options: options.Index().
-			SetName("uniq_newsletter_post_locale_id").
-			SetUnique(true),
-	})
-	if err != nil {
+		{
+			Keys: bson.D{
+				{Key: "locale", Value: 1},
+				{Key: "publishedAt", Value: -1},
+			},
+			Options: options.Index().
+				SetName("idx_newsletter_post_locale_published_at"),
+		},
+		{
+			Keys: bson.D{
+				{Key: "locale", Value: 1},
+				{Key: "source", Value: 1},
+				{Key: "publishedAt", Value: -1},
+			},
+			Options: options.Index().
+				SetName("idx_newsletter_post_locale_source_published_at"),
+		},
+		{
+			Keys: bson.D{
+				{Key: "locale", Value: 1},
+				{Key: "topicIds", Value: 1},
+				{Key: "publishedAt", Value: -1},
+			},
+			Options: options.Index().
+				SetName("idx_newsletter_post_locale_topic_ids_published_at"),
+		},
+		{
+			Keys: bson.D{
+				{Key: "locale", Value: 1},
+				{Key: "readingTimeMin", Value: 1},
+			},
+			Options: options.Index().
+				SetName("idx_newsletter_post_locale_reading_time"),
+		},
+	}
+	if _, err := postsCollection.Indexes().CreateMany(ctx, postIndexes); err != nil {
 		return fmt.Errorf("post index create failed: %w", err)
 	}
 
-	_, err = topicsCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys: bson.D{
-			{Key: "locale", Value: 1},
-			{Key: "id", Value: 1},
+	topicIndexes := []mongo.IndexModel{
+		{
+			Keys: bson.D{
+				{Key: "locale", Value: 1},
+				{Key: "id", Value: 1},
+			},
+			Options: options.Index().
+				SetName("uniq_newsletter_topic_locale_id").
+				SetUnique(true),
 		},
-		Options: options.Index().
-			SetName("uniq_newsletter_topic_locale_id").
-			SetUnique(true),
-	})
-	if err != nil {
+		{
+			Keys: bson.D{
+				{Key: "locale", Value: 1},
+				{Key: "name", Value: 1},
+			},
+			Options: options.Index().
+				SetName("idx_newsletter_topic_locale_name"),
+		},
+	}
+	if _, err := topicsCollection.Indexes().CreateMany(ctx, topicIndexes); err != nil {
 		return fmt.Errorf("topic index create failed: %w", err)
 	}
 
 	return nil
-}
-
-func buildDataURL(siteURL string, locale string, dataType string) string {
-	return fmt.Sprintf("%s/data/%s.%s.json", strings.TrimRight(siteURL, "/"), dataType, locale)
 }
 
 func syncLocale(
@@ -243,6 +418,8 @@ func syncLocale(
 
 	now := time.Now().UTC()
 	topicByID := make(map[string]siteTopic, len(topics))
+	activeTopicIDs := make(map[string]struct{}, len(topics))
+	activePostIDs := make(map[string]struct{}, len(posts))
 
 	for _, raw := range topics {
 		topic := normalizeTopic(raw)
@@ -250,6 +427,7 @@ func syncLocale(
 			continue
 		}
 		topicByID[topic.ID] = topic
+		activeTopicIDs[topic.ID] = struct{}{}
 	}
 
 	for _, post := range posts {
@@ -265,17 +443,30 @@ func syncLocale(
 				if existing.Color == "" {
 					existing.Color = topic.Color
 				}
+				if existing.Link == nil {
+					existing.Link = topic.Link
+				}
 				topicByID[topic.ID] = existing
-				continue
+			} else {
+				topicByID[topic.ID] = topic
 			}
-			topicByID[topic.ID] = topic
+			activeTopicIDs[topic.ID] = struct{}{}
 		}
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 40*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 70*time.Second)
 	defer cancel()
 
 	for _, topic := range topicByID {
+		if topic.ID == "" {
+			continue
+		}
+
+		var link any = nil
+		if topic.Link != nil {
+			link = *topic.Link
+		}
+
 		_, err := topicsCollection.UpdateOne(
 			ctx,
 			bson.M{"locale": locale, "id": topic.ID},
@@ -285,6 +476,7 @@ func syncLocale(
 					"id":        topic.ID,
 					"name":      topic.Name,
 					"color":     topic.Color,
+					"link":      link,
 					"updatedAt": now,
 					"syncedAt":  now,
 				},
@@ -301,27 +493,47 @@ func syncLocale(
 	}
 
 	for _, rawPost := range posts {
-		postID := strings.TrimSpace(rawPost.ID)
+		postID := normalizeID(rawPost.ID)
 		if postID == "" {
 			continue
 		}
 
-		postTopics := make([]bson.M, 0, len(rawPost.Topics))
-		for _, rawTopic := range rawPost.Topics {
-			topic := normalizeTopic(rawTopic)
-			if topic.ID == "" {
-				continue
-			}
-			if topic.Color == "" {
-				if fromIndex, exists := topicByID[topic.ID]; exists {
-					topic.Color = fromIndex.Color
-				}
-			}
-			postTopics = append(postTopics, bson.M{
-				"id":    topic.ID,
-				"name":  topic.Name,
-				"color": topic.Color,
-			})
+		postTopics, topicIDs := normalizePostTopics(rawPost.Topics, topicByID)
+		for _, topicID := range topicIDs {
+			activeTopicIDs[topicID] = struct{}{}
+		}
+
+		source := normalizeSource(rawPost.Source)
+		title := strings.TrimSpace(rawPost.Title)
+		summary := strings.TrimSpace(rawPost.Summary)
+		searchText := normalizeSearchText(rawPost.SearchText, title, summary, rawPost.Topics)
+		readingTimeMin := rawPost.ReadingTimeMin
+		if readingTimeMin < 0 {
+			readingTimeMin = 0
+		}
+
+		publishedDate := strings.TrimSpace(rawPost.PublishedDate)
+		parsedPublishedAt, publishedOK := parseDate(publishedDate)
+		if !publishedOK {
+			parsedPublishedAt = now
+		}
+
+		updatedDate := strings.TrimSpace(rawPost.UpdatedDate)
+		parsedUpdatedAt, updatedOK := parseDate(updatedDate)
+		var updatedAtDate any = nil
+		if updatedOK {
+			updatedAtDate = parsedUpdatedAt
+		}
+
+		link := normalizeOptionalString(rawPost.Link)
+		thumbnail := normalizeOptionalString(rawPost.Thumbnail)
+		var linkValue any = nil
+		if link != nil {
+			linkValue = *link
+		}
+		var thumbnailValue any = nil
+		if thumbnail != nil {
+			thumbnailValue = *thumbnail
 		}
 
 		_, err := postsCollection.UpdateOne(
@@ -331,13 +543,19 @@ func syncLocale(
 				"$set": bson.M{
 					"locale":         locale,
 					"id":             postID,
-					"title":          strings.TrimSpace(rawPost.Title),
-					"summary":        strings.TrimSpace(rawPost.Summary),
-					"thumbnail":      strings.TrimSpace(rawPost.Thumbnail),
+					"title":          title,
+					"summary":        summary,
+					"searchText":     searchText,
+					"thumbnail":      thumbnailValue,
 					"topics":         postTopics,
-					"readingTimeMin": rawPost.ReadingTimeMin,
-					"publishedDate":  strings.TrimSpace(rawPost.PublishedDate),
-					"updatedDate":    strings.TrimSpace(rawPost.UpdatedDate),
+					"topicIds":       topicIDs,
+					"readingTimeMin": readingTimeMin,
+					"publishedDate":  publishedDate,
+					"publishedAt":    parsedPublishedAt,
+					"updatedDate":    updatedDate,
+					"updatedAtDate":  updatedAtDate,
+					"source":         source,
+					"link":           linkValue,
 					"updatedAt":      now,
 					"syncedAt":       now,
 				},
@@ -350,7 +568,34 @@ func syncLocale(
 		if err != nil {
 			return 0, 0, fmt.Errorf("post upsert failed: %w", err)
 		}
+		activePostIDs[postID] = struct{}{}
 		postCount++
+	}
+
+	activePostIDList := make([]string, 0, len(activePostIDs))
+	for postID := range activePostIDs {
+		activePostIDList = append(activePostIDList, postID)
+	}
+
+	activeTopicIDList := make([]string, 0, len(activeTopicIDs))
+	for topicID := range activeTopicIDs {
+		activeTopicIDList = append(activeTopicIDList, topicID)
+	}
+
+	postDeleteFilter := bson.M{"locale": locale}
+	if len(activePostIDList) > 0 {
+		postDeleteFilter["id"] = bson.M{"$nin": activePostIDList}
+	}
+	if _, err := postsCollection.DeleteMany(ctx, postDeleteFilter); err != nil {
+		return 0, 0, fmt.Errorf("stale post cleanup failed: %w", err)
+	}
+
+	topicDeleteFilter := bson.M{"locale": locale}
+	if len(activeTopicIDList) > 0 {
+		topicDeleteFilter["id"] = bson.M{"$nin": activeTopicIDList}
+	}
+	if _, err := topicsCollection.DeleteMany(ctx, topicDeleteFilter); err != nil {
+		return 0, 0, fmt.Errorf("stale topic cleanup failed: %w", err)
 	}
 
 	return postCount, topicCount, nil
@@ -375,7 +620,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI).SetAppName("blog-newsletter-content-sync-script"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI).SetAppName("blog-content-sync-script"))
 	if err != nil {
 		log.Fatalf("mongodb connect failed: %v", err)
 	}
