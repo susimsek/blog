@@ -4,6 +4,7 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
+import { defaultLocale } from '@/i18n/settings';
 
 type PostLikeCountProps = {
   likes: number | null;
@@ -13,10 +14,8 @@ type PostLikeCountProps = {
 export default function PostLikeCount({ likes, isLoading = false }: Readonly<PostLikeCountProps>) {
   const { i18n, t } = useTranslation('post');
 
-  const numberFormatter = React.useMemo(() => {
-    const language = i18n.resolvedLanguage ?? i18n.language ?? 'en';
-    return new Intl.NumberFormat(language);
-  }, [i18n.language, i18n.resolvedLanguage]);
+  const resolvedLanguage = i18n?.resolvedLanguage ?? i18n?.language ?? defaultLocale;
+  const numberFormatter = React.useMemo(() => new Intl.NumberFormat(resolvedLanguage), [resolvedLanguage]);
 
   if (isLoading && likes === null) {
     return (

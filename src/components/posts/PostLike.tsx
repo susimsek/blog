@@ -34,10 +34,8 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
   const plusOneTimeoutRef = React.useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
   const countPopTimeoutRef = React.useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
 
-  const numberFormatter = React.useMemo(() => {
-    const language = i18n.resolvedLanguage ?? i18n.language ?? 'en';
-    return new Intl.NumberFormat(language);
-  }, [i18n.language, i18n.resolvedLanguage]);
+  const resolvedLanguage = i18n?.resolvedLanguage ?? i18n?.language ?? defaultLocale;
+  const numberFormatter = React.useMemo(() => new Intl.NumberFormat(resolvedLanguage), [resolvedLanguage]);
 
   React.useEffect(() => {
     let isMounted = true;
@@ -152,6 +150,7 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
   }, [isSubmitting, likes, playLikeSound, postId]);
 
   const busy = isLoading || isSubmitting;
+  const showLoading = isLoading;
 
   return (
     <div className="post-like-widget" aria-live="polite">
@@ -177,7 +176,7 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
       <p className={`post-like-status${hasError ? ' is-error' : ''}`}>
         {hasError ? (
           t('post.like.error')
-        ) : busy ? (
+        ) : showLoading ? (
           <span className="d-inline-flex align-items-center">
             <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
             <span className="visually-hidden">{t('post.like.loading')}</span>

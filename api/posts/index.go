@@ -19,6 +19,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/text/unicode/norm"
 )
 
 const (
@@ -30,6 +31,8 @@ const (
 	defaultPageSize         = 20
 	maxPageSize             = 100
 	maxFuzzyCandidates      = 3000
+	fuseScoreThreshold      = 0.34
+	fuseMinMatchCharLength  = 2
 )
 
 var (
@@ -649,7 +652,7 @@ func normalizePostForResponse(post postRecord) postRecord {
 }
 
 func tokenizeSearchValue(value string) []string {
-	normalized := strings.ToLower(strings.TrimSpace(value))
+	normalized := normalizeSearchValue(value)
 	if normalized == "" {
 		return nil
 	}
@@ -667,6 +670,9 @@ func tokenizeSearchValue(value string) []string {
 		if token == "" {
 			continue
 		}
+		if len([]rune(token)) < fuseMinMatchCharLength {
+			continue
+		}
 		if _, exists := seen[token]; exists {
 			continue
 		}
@@ -674,6 +680,37 @@ func tokenizeSearchValue(value string) []string {
 		result = append(result, token)
 	}
 	return result
+}
+
+func normalizeSearchValue(value string) string {
+	normalized := strings.ToLowerSpecial(unicode.TurkishCase, strings.TrimSpace(value))
+	if normalized == "" {
+		return ""
+	}
+
+	normalized = strings.ReplaceAll(normalized, "ı", "i")
+	decomposed := norm.NFKD.String(normalized)
+
+	builder := strings.Builder{}
+	builder.Grow(len(decomposed))
+
+	previousWasSpace := false
+	for _, char := range decomposed {
+		if unicode.Is(unicode.Mn, char) {
+			continue
+		}
+		if unicode.IsLetter(char) || unicode.IsDigit(char) {
+			builder.WriteRune(char)
+			previousWasSpace = false
+			continue
+		}
+		if !previousWasSpace {
+			builder.WriteRune(' ')
+			previousWasSpace = true
+		}
+	}
+
+	return strings.TrimSpace(builder.String())
 }
 
 func levenshteinDistance(left string, right string) int {
@@ -725,26 +762,46 @@ func minInt(values ...int) int {
 	return result
 }
 
-func fuzzyTokenScore(queryToken string, candidateToken string) float64 {
+func fuzzyTokenDistance(queryToken string, candidateToken string) float64 {
 	if queryToken == candidateToken {
-		return 1
+		return 0
 	}
 
-	if strings.Contains(candidateToken, queryToken) || strings.Contains(queryToken, candidateToken) {
-		return 0.95
+	if strings.Contains(candidateToken, queryToken) {
+		queryLength := len([]rune(queryToken))
+		candidateLength := len([]rune(candidateToken))
+		if queryLength <= 0 || candidateLength <= 0 {
+			return 1
+		}
+		if queryLength <= 2 && !strings.HasPrefix(candidateToken, queryToken) {
+			return 1
+		}
+
+		extraLengthRatio := float64(candidateLength-queryLength) / float64(candidateLength)
+		if extraLengthRatio < 0 {
+			extraLengthRatio = 0
+		}
+		if extraLengthRatio > 1 {
+			extraLengthRatio = 1
+		}
+
+		return extraLengthRatio * 0.2
 	}
 
 	queryLength := len([]rune(queryToken))
 	candidateLength := len([]rune(candidateToken))
 	if queryLength == 0 || candidateLength == 0 {
-		return 0
+		return 1
 	}
 
 	distance := levenshteinDistance(queryToken, candidateToken)
 	maxLength := maxInt(queryLength, candidateLength)
-	score := 1 - (float64(distance) / float64(maxLength))
+	score := float64(distance) / float64(maxLength)
 	if score < 0 {
 		return 0
+	}
+	if score > 1 {
+		return 1
 	}
 	return score
 }
@@ -759,74 +816,48 @@ func maxInt(left int, right int) int {
 func fuzzySearchTextScore(searchText string, query string) float64 {
 	queryTokens := tokenizeSearchValue(query)
 	if len(queryTokens) == 0 {
-		return 0
+		return 1
 	}
 
 	searchTokens := tokenizeSearchValue(searchText)
 	if len(searchTokens) == 0 {
-		return 0
-	}
-
-	totalScore := 0.0
-	strongMatches := 0
-
-	for _, queryToken := range queryTokens {
-		best := 0.0
-		for _, searchToken := range searchTokens {
-			score := fuzzyTokenScore(queryToken, searchToken)
-			if score > best {
-				best = score
-			}
-		}
-		if best >= 0.7 {
-			strongMatches++
-		}
-		totalScore += best
-	}
-
-	average := totalScore / float64(len(queryTokens))
-	coverage := float64(strongMatches) / float64(len(queryTokens))
-	score := average*0.8 + coverage*0.2
-
-	normalizedSearchText := strings.ToLower(strings.TrimSpace(searchText))
-	normalizedQuery := strings.ToLower(strings.TrimSpace(query))
-	if normalizedSearchText != "" && normalizedQuery != "" && strings.Contains(normalizedSearchText, normalizedQuery) {
-		score += 0.15
-	}
-
-	if score > 1 {
 		return 1
 	}
+
+	totalDistance := 0.0
+
+	for _, queryToken := range queryTokens {
+		best := 1.0
+		for _, searchToken := range searchTokens {
+			distance := fuzzyTokenDistance(queryToken, searchToken)
+			if distance < best {
+				best = distance
+			}
+			if best == 0 {
+				break
+			}
+		}
+		if best > fuseScoreThreshold {
+			return 1
+		}
+		totalDistance += best
+	}
+
+	score := totalDistance / float64(len(queryTokens))
+
+	normalizedSearchText := normalizeSearchValue(searchText)
+	normalizedQuery := normalizeSearchValue(query)
+	if normalizedSearchText != "" && normalizedQuery != "" && strings.Contains(normalizedSearchText, normalizedQuery) {
+		score *= 0.7
+	}
+
 	if score < 0 {
 		return 0
 	}
-	return score
-}
-
-func fuzzyScoreThreshold(query string) float64 {
-	tokens := tokenizeSearchValue(query)
-	if len(tokens) == 0 {
+	if score > 1 {
 		return 1
 	}
-
-	longestTokenLength := 0
-	for _, token := range tokens {
-		tokenLength := len([]rune(token))
-		if tokenLength > longestTokenLength {
-			longestTokenLength = tokenLength
-		}
-	}
-
-	switch {
-	case longestTokenLength <= 2:
-		return 0.95
-	case longestTokenLength <= 4:
-		return 0.82
-	case longestTokenLength <= 7:
-		return 0.70
-	default:
-		return 0.62
-	}
+	return score
 }
 
 type scoredPost struct {
@@ -835,7 +866,10 @@ type scoredPost struct {
 }
 
 func applyFuzzySearch(posts []postRecord, query string, sortOrder string) []postRecord {
-	threshold := fuzzyScoreThreshold(query)
+	queryTokens := tokenizeSearchValue(query)
+	if len(queryTokens) == 0 {
+		return []postRecord{}
+	}
 	scored := make([]scoredPost, 0, len(posts))
 
 	for _, post := range posts {
@@ -845,7 +879,7 @@ func applyFuzzySearch(posts []postRecord, query string, sortOrder string) []post
 		}
 
 		score := fuzzySearchTextScore(searchText, query)
-		if score < threshold {
+		if score > fuseScoreThreshold {
 			continue
 		}
 
@@ -859,7 +893,7 @@ func applyFuzzySearch(posts []postRecord, query string, sortOrder string) []post
 		leftScore := scored[left].Score
 		rightScore := scored[right].Score
 		if leftScore != rightScore {
-			return leftScore > rightScore
+			return leftScore < rightScore
 		}
 
 		leftPublishedAt := scored[left].Post.PublishedAt

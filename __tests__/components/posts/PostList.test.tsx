@@ -4,9 +4,24 @@ import PostList from '@/components/posts/PostList';
 import { mockPostSummaries, mockTopics } from '@tests/__mocks__/mockPostData';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
 import type { PostsQueryState } from '@/reducers/postsQuery';
+import type { PostSummary } from '@/types/posts';
 
 const useRouterMock = jest.fn();
 const usePathnameMock = jest.fn();
+const useSearchParamsMock = jest.fn();
+const fetchPostsMock = jest.fn();
+const fetchPostLikesMock = jest.fn();
+let currentApiPosts: PostSummary[] = [...mockPostSummaries];
+
+type FetchPostsParams = {
+  q?: string;
+  page?: number;
+  size?: number;
+  sort?: 'asc' | 'desc';
+  topics?: string[];
+  source?: 'all' | 'blog' | 'medium';
+  scopeIds?: string[];
+};
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
@@ -16,10 +31,16 @@ jest.mock('react-i18next', () => ({
 
 jest.mock('@/hooks/useDebounce', () => jest.fn((value: string) => value));
 
+jest.mock('@/lib/contentApi', () => ({
+  fetchPosts: (...args: unknown[]) => fetchPostsMock(...args),
+  fetchPostLikes: (...args: unknown[]) => fetchPostLikesMock(...args),
+}));
+
 jest.mock('next/navigation', () => ({
   useRouter: () => useRouterMock(),
   usePathname: () => usePathnameMock(),
   useParams: () => ({ locale: 'en' }),
+  useSearchParams: () => useSearchParamsMock(),
 }));
 
 jest.mock('@/components/pagination/PaginationBar', () => ({
@@ -150,19 +171,72 @@ describe('PostList Component', () => {
   });
 
   beforeEach(() => {
+    currentApiPosts = [...mockPostSummaries];
     scrollIntoViewMock.mockClear();
     pushMock = jest.fn();
     useRouterMock.mockReturnValue({ push: pushMock });
     usePathnameMock.mockReturnValue('/');
     window.history.replaceState({}, '', '/');
+    useSearchParamsMock.mockImplementation(() => new URLSearchParams(window.location.search));
+    fetchPostLikesMock.mockResolvedValue({});
+    fetchPostsMock.mockImplementation(async (_locale: string, params: FetchPostsParams = {}) => {
+      const query = (params.q ?? '').trim().toLowerCase();
+      const selectedTopics = params.topics ?? [];
+      const source = params.source ?? 'all';
+      const sort = params.sort ?? 'desc';
+      const page = Math.max(1, params.page ?? 1);
+      const size = Math.max(1, params.size ?? 5);
+      const scopeIds = params.scopeIds ?? [];
+
+      const filtered = currentApiPosts
+        .filter(post => (scopeIds.length > 0 ? scopeIds.includes(post.id) : true))
+        .filter(post => {
+          if (!query) {
+            return true;
+          }
+          const haystack = `${post.title} ${post.summary} ${post.searchText}`.toLowerCase();
+          return haystack.includes(query);
+        })
+        .filter(post => {
+          if (selectedTopics.length === 0) {
+            return true;
+          }
+          const postTopicIds = (post.topics ?? []).map(topic => topic.id);
+          return selectedTopics.every(topicId => postTopicIds.includes(topicId));
+        })
+        .filter(post => {
+          if (source === 'all') {
+            return true;
+          }
+          return (post.source ?? 'blog') === source;
+        })
+        .sort((a, b) => {
+          const left = new Date(a.publishedDate).getTime();
+          const right = new Date(b.publishedDate).getTime();
+          return sort === 'asc' ? left - right : right - left;
+        });
+
+      const total = filtered.length;
+      const totalPages = Math.max(1, Math.ceil(total / size));
+      const normalizedPage = Math.min(page, totalPages);
+      const start = (normalizedPage - 1) * size;
+      const posts = filtered.slice(start, start + size);
+
+      return {
+        status: 'success',
+        posts,
+        total,
+        page: normalizedPage,
+      };
+    });
   });
-  it('renders all components correctly', () => {
+  it('renders all components correctly', async () => {
     renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
 
+    await waitFor(() => expect(screen.getAllByTestId('post-card')).toHaveLength(5));
     expect(screen.getByTestId('sort-dropdown')).toBeInTheDocument();
     expect(screen.getByTestId('topics-dropdown')).toBeInTheDocument();
     expect(screen.queryByTestId('source-dropdown')).not.toBeInTheDocument();
-    expect(screen.getAllByTestId('post-card')).toHaveLength(5);
     expect(screen.getByTestId('pagination-bar')).toBeInTheDocument();
   });
 
@@ -174,90 +248,106 @@ describe('PostList Component', () => {
     expect(screen.queryByTestId('topics-dropdown')).not.toBeInTheDocument();
   });
 
-  it('filters posts based on route query', () => {
+  it('filters posts based on route query', async () => {
     window.history.replaceState({}, '', '/?q=Post%203');
     renderWithProviders(<PostList posts={mockPostSummaries} />, {
       preloadedState: buildPreloadedState({ topics: [] }),
     });
 
-    expect(screen.getByText('Post 3')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('Post 3')).toBeInTheDocument());
   });
 
-  it('filters posts by topic', () => {
+  it('filters posts by topic', async () => {
     renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
+    await waitFor(() => expect(screen.getByText('Post 1')).toBeInTheDocument());
     const reactTopic = screen.getByText('React');
     fireEvent.click(reactTopic);
 
-    expect(screen.getByText('Post 1')).toBeInTheDocument();
-    expect(screen.queryByText('Post 2')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Post 1')).toBeInTheDocument();
+      expect(screen.queryByText('Post 2')).not.toBeInTheDocument();
+    });
   });
 
-  it('filters posts by source filter', () => {
+  it('filters posts by source filter', async () => {
     usePathnameMock.mockReturnValue('/search');
     const mixedPosts = [
       { ...mockPostSummaries[0], id: 'blog-1', title: 'Blog Post', source: 'blog' as const },
       { ...mockPostSummaries[1], id: 'medium-1', title: 'Medium Post', source: 'medium' as const },
     ];
+    currentApiPosts = mixedPosts;
 
     renderWithProviders(<PostList posts={mixedPosts} />, {
       preloadedState: buildPreloadedState({ topics: [], posts: mixedPosts, sourceFilter: 'all' }),
     });
 
+    await waitFor(() => expect(screen.getByText('Blog Post')).toBeInTheDocument());
     fireEvent.click(screen.getByText('Source Medium'));
 
-    expect(screen.queryByText('Blog Post')).not.toBeInTheDocument();
-    expect(screen.getByText('Medium Post')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('Blog Post')).not.toBeInTheDocument();
+      expect(screen.getByText('Medium Post')).toBeInTheDocument();
+    });
   });
 
-  it('ignores source filter on non-search routes', () => {
+  it('ignores source filter on non-search routes', async () => {
     const mixedPosts = [
       { ...mockPostSummaries[0], id: 'blog-1', title: 'Blog Post', source: 'blog' as const },
       { ...mockPostSummaries[1], id: 'medium-1', title: 'Medium Post', source: 'medium' as const },
     ];
+    currentApiPosts = mixedPosts;
 
     renderWithProviders(<PostList posts={mixedPosts} />, {
       preloadedState: buildPreloadedState({ topics: [], posts: mixedPosts, sourceFilter: 'medium' }),
     });
 
+    await waitFor(() => expect(screen.getByText('Blog Post')).toBeInTheDocument());
     expect(screen.queryByTestId('source-dropdown')).not.toBeInTheDocument();
     expect(screen.getByText('Blog Post')).toBeInTheDocument();
-    expect(screen.getByText('Medium Post')).toBeInTheDocument();
+    expect(screen.queryByText('Medium Post')).not.toBeInTheDocument();
   });
 
-  it('sorts posts in ascending order', () => {
+  it('sorts posts in ascending order', async () => {
     renderWithProviders(<PostList posts={mockPostSummaries} />, {
       preloadedState: buildPreloadedState({ topics: [] }),
     });
+    await waitFor(() => expect(screen.getAllByTestId('post-card')).toHaveLength(5));
     const sortAscending = screen.getByText('Sort Ascending');
     fireEvent.click(sortAscending);
 
-    const posts = screen.getAllByTestId('post-card');
-    expect(posts[0]).toHaveTextContent('Post 6');
-    expect(posts[4]).toHaveTextContent('Post 2');
+    await waitFor(() => {
+      const posts = screen.getAllByTestId('post-card');
+      expect(posts[0]).toHaveTextContent('Post 6');
+      expect(posts[4]).toHaveTextContent('Post 2');
+    });
   });
 
-  it('returns all posts when route query is empty', () => {
+  it('returns all posts when route query is empty', async () => {
     renderWithProviders(<PostList posts={mockPostSummaries} />, {
       preloadedState: buildPreloadedState({ topics: [] }),
     });
 
-    expect(screen.getAllByTestId('post-card')).toHaveLength(5);
+    await waitFor(() => expect(screen.getAllByTestId('post-card')).toHaveLength(5));
   });
 
-  it('handles empty posts gracefully', () => {
+  it('handles empty posts gracefully', async () => {
+    currentApiPosts = [];
     renderWithProviders(<PostList posts={[]} />, { preloadedState: buildPreloadedState({ posts: [], topics: [] }) });
-    expect(screen.getByText('post.noPostsFound')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('post.noPostsFound')).toBeInTheDocument());
   });
 
-  it('resets pagination when sort order is changed', () => {
+  it('resets pagination when sort order is changed', async () => {
     renderWithProviders(<PostList posts={mockPostSummaries} />, {
       preloadedState: buildPreloadedState({ topics: [] }),
     });
+    await waitFor(() => expect(screen.getByText('Post 1')).toBeInTheDocument());
     const sortAscending = screen.getByText('Sort Ascending');
     fireEvent.click(sortAscending);
 
-    const previousButton = screen.getByText('Previous');
-    expect(previousButton).toBeDisabled();
+    await waitFor(() => {
+      const previousButton = screen.getByText('Previous');
+      expect(previousButton).toBeDisabled();
+    });
   });
 
   it('keeps active page from route query when q is empty', async () => {
@@ -270,26 +360,30 @@ describe('PostList Component', () => {
     });
   });
 
-  it('scrolls list start into view when page changes', () => {
+  it('scrolls list start into view when page changes', async () => {
     renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
 
+    await waitFor(() => expect(screen.getByLabelText('Next')).toBeInTheDocument());
     fireEvent.click(screen.getByLabelText('Next'));
 
     expect(scrollIntoViewMock).toHaveBeenCalledTimes(1);
   });
 
-  it('applies sort order even when search query exists', () => {
+  it('applies sort order even when search query exists', async () => {
     window.history.replaceState({}, '', '/?q=post&page=1&size=5');
 
     renderWithProviders(<PostList posts={mockPostSummaries} />, {
       preloadedState: buildPreloadedState({ topics: [] }),
     });
 
+    await waitFor(() => expect(screen.getAllByTestId('post-card')).toHaveLength(5));
     fireEvent.click(screen.getByText('Sort Ascending'));
 
-    const posts = screen.getAllByTestId('post-card');
-    expect(posts[0]).toHaveTextContent('Post 6');
-    expect(posts[4]).toHaveTextContent('Post 2');
+    await waitFor(() => {
+      const posts = screen.getAllByTestId('post-card');
+      expect(posts[0]).toHaveTextContent('Post 6');
+      expect(posts[4]).toHaveTextContent('Post 2');
+    });
   });
 
   it('normalizes out-of-range route page and updates url', async () => {

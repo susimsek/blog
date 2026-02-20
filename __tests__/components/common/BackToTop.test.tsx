@@ -1,16 +1,27 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import BackToTop from '@/components/common/BackToTop';
 import { BACK_TO_TOP_EVENT } from '@/lib/scrollEvents';
+import { renderWithProviders } from '@tests/utils/renderWithProviders';
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: () => <span data-testid="icon-arrow-up" />,
 }));
 
 describe('BackToTop', () => {
+  let playSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    playSpy = jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => Promise.resolve());
+  });
+
+  afterEach(() => {
+    playSpy.mockRestore();
+  });
+
   it('toggles visibility based on scroll position', () => {
     Object.defineProperty(window, 'scrollY', { value: 100, writable: true });
-    render(<BackToTop />);
+    renderWithProviders(<BackToTop />);
 
     const button = screen.getByRole('button', { name: 'common.backToTop' });
     expect(button.className).not.toContain('show');
@@ -28,7 +39,7 @@ describe('BackToTop', () => {
     });
     window.scrollTo = scrollTo as unknown as typeof window.scrollTo;
 
-    render(<BackToTop />);
+    renderWithProviders(<BackToTop />);
     fireEvent.click(screen.getByRole('button', { name: 'common.backToTop' }));
 
     expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
@@ -39,7 +50,7 @@ describe('BackToTop', () => {
     const listener = jest.fn();
     window.addEventListener(BACK_TO_TOP_EVENT, listener);
 
-    render(<BackToTop />);
+    renderWithProviders(<BackToTop />);
     fireEvent.click(screen.getByRole('button', { name: 'common.backToTop' }));
 
     expect(listener).toHaveBeenCalledTimes(1);

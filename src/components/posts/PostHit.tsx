@@ -24,10 +24,11 @@ export default function PostHit({ postId }: Readonly<PostHitProps>) {
   const [hasError, setHasError] = React.useState(false);
   const trackedRef = React.useRef(false);
 
-  const numberFormatter = React.useMemo(() => {
-    const language = i18n.resolvedLanguage ?? i18n.language ?? 'en';
-    return new Intl.NumberFormat(language, { useGrouping: false });
-  }, [i18n.language, i18n.resolvedLanguage]);
+  const resolvedLanguage = i18n?.resolvedLanguage ?? i18n?.language ?? defaultLocale;
+  const numberFormatter = React.useMemo(
+    () => new Intl.NumberFormat(resolvedLanguage, { useGrouping: false }),
+    [resolvedLanguage],
+  );
 
   React.useEffect(() => {
     let isMounted = true;

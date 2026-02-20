@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { mockPost, mockPostWithoutContent } from '@tests/__mocks__/mockPostData';
 import { registerDynamicMock } from '@tests/utils/dynamicMockRegistry';
+import { renderWithProviders } from '@tests/utils/renderWithProviders';
 
 let PostDetail: typeof import('@/components/posts/PostDetail').default;
 
@@ -37,7 +38,7 @@ describe('PostDetail Component', () => {
     PostDetail = require('@/components/posts/PostDetail').default;
   });
 
-  const setup = (post = mockPost) => render(<PostDetail post={post} />);
+  const setup = (post = mockPost) => renderWithProviders(<PostDetail post={post} />);
 
   it('renders the post title', () => {
     setup();

@@ -10,7 +10,7 @@ import useDebounce from '@/hooks/useDebounce';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { setPage, setPageSize, setQuery, setSourceFilter } from '@/reducers/postsQuery';
 import { fetchPostLikes, fetchPosts } from '@/lib/contentApi';
-import { defaultLocale } from '@/i18n/settings';
+import i18nextConfig from '@/i18n/settings';
 
 interface PostListProps {
   posts: PostSummary[];
@@ -71,7 +71,6 @@ export default function PostList({
   const pathname = usePathname() ?? '/';
   const routeParams = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(routeParams?.locale) ? routeParams?.locale[0] : routeParams?.locale;
-  const currentLocale = routeLocale ?? defaultLocale;
   const isSearchRoute = /(?:^|\/)search(?:\/|$)/.test(pathname);
   const isMediumRoute = /(?:^|\/)medium(?:\/|$)/.test(pathname);
   const isHomeRoute = /^\/(?:[a-z]{2})?$/.test(pathname);
@@ -87,8 +86,9 @@ export default function PostList({
   const dispatch = useAppDispatch();
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const lastSyncedRouteRef = useRef<string>('');
-  const { query, sortOrder, selectedTopics, sourceFilter, dateRange, readingTimeRange, page, pageSize } =
+  const { query, sortOrder, selectedTopics, sourceFilter, dateRange, readingTimeRange, page, pageSize, locale } =
     useAppSelector(state => state.postsQuery);
+  const currentLocale = locale ?? routeLocale ?? i18nextConfig.i18n.defaultLocale;
   const effectiveSourceFilter = isSearchRoute ? sourceFilter : isMediumRoute ? 'medium' : isHomeRoute ? 'blog' : 'all';
   const debouncedSearchQuery = useDebounce(query, 500);
   const scopedPostIds = useMemo(() => posts.map(post => post.id), [posts]);
