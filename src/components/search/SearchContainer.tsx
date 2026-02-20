@@ -369,7 +369,12 @@ export default function SearchContainer({ shortcutHint }: Readonly<SearchContain
               <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
               {t('common.noResults')}
             </ListGroup.Item>
-          ) : null}
+          ) : (
+            <ListGroup.Item className="text-center text-muted py-3 search-no-results">
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+              <span className="visually-hidden">{t('common.sidebar.loading')}</span>
+            </ListGroup.Item>
+          )}
         </ListGroup>
       )}
     </div>

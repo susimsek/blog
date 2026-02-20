@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useEffect, useRef, useState } from 'react';
-import { usePathname, useRouter, useParams } from 'next/navigation';
+import { usePathname, useRouter, useParams, useSearchParams } from 'next/navigation';
 import { PostSummary } from '@/types/posts';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PostFilters } from './PostFilters';
 import useDebounce from '@/hooks/useDebounce';
 import { useAppDispatch, useAppSelector } from '@/config/store';
-import { setPage, setPageSize, setQuery } from '@/reducers/postsQuery';
+import { setPage, setPageSize, setQuery, setSourceFilter } from '@/reducers/postsQuery';
 import { fetchPostLikes, fetchPosts } from '@/lib/contentApi';
 import { defaultLocale } from '@/i18n/settings';
 
@@ -77,15 +77,13 @@ export default function PostList({
   const isHomeRoute = /^\/(?:[a-z]{2})?$/.test(pathname);
   const shouldUseScope = /(?:^|\/)topics(?:\/|$)/.test(pathname);
   const showSourceFilter = isSearchRoute;
-  const [urlSearch, setUrlSearch] = useState('');
+  const routeSearchParams = useSearchParams();
+  const routeSearchParamsString = routeSearchParams?.toString() ?? '';
   const [likesByPostId, setLikesByPostId] = useState<Record<string, number>>({});
   const [serverPosts, setServerPosts] = useState<PostSummary[]>([]);
   const [totalResults, setTotalResults] = useState(0);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
-  const searchParams = useMemo(
-    () => new URLSearchParams(urlSearch.startsWith('?') ? urlSearch.slice(1) : urlSearch),
-    [urlSearch],
-  );
+  const searchParams = useMemo(() => new URLSearchParams(routeSearchParamsString), [routeSearchParamsString]);
   const dispatch = useAppDispatch();
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const lastSyncedRouteRef = useRef<string>('');
@@ -94,23 +92,6 @@ export default function PostList({
   const effectiveSourceFilter = isSearchRoute ? sourceFilter : isMediumRoute ? 'medium' : isHomeRoute ? 'blog' : 'all';
   const debouncedSearchQuery = useDebounce(query, 500);
   const scopedPostIds = useMemo(() => posts.map(post => post.id), [posts]);
-
-  useEffect(() => {
-    if (typeof globalThis.window === 'undefined') {
-      return;
-    }
-
-    const syncSearchFromLocation = () => {
-      setUrlSearch(globalThis.window.location.search);
-    };
-
-    syncSearchFromLocation();
-    globalThis.window.addEventListener('popstate', syncSearchFromLocation);
-
-    return () => {
-      globalThis.window.removeEventListener('popstate', syncSearchFromLocation);
-    };
-  }, [pathname]);
 
   useEffect(() => {
     const routePageValue = searchParams.get('page');
@@ -122,7 +103,12 @@ export default function PostList({
     const routeSize = Number.isFinite(parsedSize) && parsedSize > 0 ? parsedSize : 5;
 
     const routeQuery = searchParams.get('q') ?? '';
-    const routeKey = `${pathname}|${routePage}|${routeSize}|${routeQuery}`;
+    const routeSourceValue = searchParams.get('source');
+    const routeSource =
+      routeSourceValue === 'blog' || routeSourceValue === 'medium' || routeSourceValue === 'all'
+        ? routeSourceValue
+        : 'all';
+    const routeKey = `${pathname}|${routePage}|${routeSize}|${routeQuery}|${routeSource}`;
     if (lastSyncedRouteRef.current === routeKey) {
       return;
     }
@@ -131,7 +117,36 @@ export default function PostList({
     dispatch(setQuery(routeQuery));
     dispatch(setPageSize(routeSize));
     dispatch(setPage(routePage));
-  }, [dispatch, pathname, searchParams]);
+    if (isSearchRoute) {
+      dispatch(setSourceFilter(routeSource));
+    }
+  }, [dispatch, isSearchRoute, pathname, searchParams]);
+
+  useEffect(() => {
+    if (!isSearchRoute) {
+      return;
+    }
+
+    const currentSource = searchParams.get('source');
+    const normalizedCurrentSource =
+      currentSource === 'blog' || currentSource === 'medium' || currentSource === 'all' ? currentSource : 'all';
+
+    if (normalizedCurrentSource === sourceFilter) {
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+    if (sourceFilter === 'all') {
+      params.delete('source');
+    } else {
+      params.set('source', sourceFilter);
+    }
+    params.set('page', '1');
+    params.set('size', String(pageSize));
+    const nextQuery = params.toString();
+    const nextSearch = nextQuery ? `?${nextQuery}` : '';
+    router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
+  }, [isSearchRoute, pageSize, pathname, router, searchParams, sourceFilter]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -187,7 +202,6 @@ export default function PostList({
         params.set('size', String(pageSize));
         const nextQuery = params.toString();
         const nextSearch = nextQuery ? `?${nextQuery}` : '';
-        setUrlSearch(nextSearch);
         router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
       }
     };
@@ -276,7 +290,6 @@ export default function PostList({
       params.set('size', String(pageSize));
       const nextQuery = params.toString();
       const nextSearch = nextQuery ? `?${nextQuery}` : '';
-      setUrlSearch(nextSearch);
       router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
       scrollToListStart();
     },
@@ -291,7 +304,6 @@ export default function PostList({
       params.set('size', String(size));
       const nextQuery = params.toString();
       const nextSearch = nextQuery ? `?${nextQuery}` : '';
-      setUrlSearch(nextSearch);
       router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
       scrollToListStart();
     },
@@ -305,8 +317,8 @@ export default function PostList({
       {isLoadingPosts ? (
         <div className="post-card d-flex align-items-center post-list-empty">
           <div className="post-card-content flex-grow-1 text-center text-muted px-4 py-4">
-            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
-            {t('post.like.loading')}
+            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+            <span className="visually-hidden">{t('post.like.loading')}</span>
           </div>
         </div>
       ) : serverPosts.length > 0 ? (
@@ -318,6 +330,7 @@ export default function PostList({
             showSource={isSearchRoute}
             showLikes={showLikes}
             likeCount={likesByPostId[post.id] ?? null}
+            likeCountLoading={showLikes && likesByPostId[post.id] === undefined}
           />
         ))
       ) : (

@@ -144,9 +144,9 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
         {hasError ? (
           t('post.like.error')
         ) : isLoading ? (
-          <span className="d-inline-flex align-items-center gap-2">
+          <span className="d-inline-flex align-items-center">
             <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-            <span>{t('post.like.loading')}</span>
+            <span className="visually-hidden">{t('post.like.loading')}</span>
           </span>
         ) : (
           t('post.like.countLabel')

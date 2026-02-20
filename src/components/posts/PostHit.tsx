@@ -104,9 +104,9 @@ export default function PostHit({ postId }: Readonly<PostHitProps>) {
             aria-label={t('post.hit.aria', { count: Math.max(0, hits ?? 0) })}
           >
             {isLoading && hits === null ? (
-              <span className="d-inline-flex align-items-center gap-2 post-hit-loading">
+              <span className="d-inline-flex align-items-center post-hit-loading">
                 <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-                <span>{t('post.hit.loading')}</span>
+                <span className="visually-hidden">{t('post.hit.loading')}</span>
               </span>
             ) : (
               hitDigits
