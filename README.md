@@ -169,6 +169,7 @@ Required environment variables:
 Optional frontend variable:
 
 - `NEXT_PUBLIC_API_BASE_URL`: Absolute API base URL for GraphQL requests (for example `https://api.suaybsimsek.com`)
+- `NEXT_PUBLIC_SITE_URL`: Public site base URL used by client-side structured data (for example `https://suaybsimsek.com`, local: `http://localhost:3000`)
 
 Optional SMTP variables:
 
