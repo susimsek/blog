@@ -1,15 +1,20 @@
 package handler
 
 import (
+	"context"
 	"net/http"
 
+	"github.com/99designs/gqlgen/graphql"
+	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/vektah/gqlparser/v2/ast"
-	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
+	"github.com/vektah/gqlparser/v2/gqlerror"
+	"suaybsimsek.com/blog-api/pkg/apperrors"
 	"suaybsimsek.com/blog-api/pkg/graph"
 	"suaybsimsek.com/blog-api/pkg/graph/generated"
+	"suaybsimsek.com/blog-api/pkg/httpapi"
 	"suaybsimsek.com/blog-api/pkg/newsletter"
 )
 
@@ -29,6 +34,21 @@ func newGraphQLServer() *graphqlhandler.Server {
 	server.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New[string](100),
 	})
+	server.SetErrorPresenter(func(ctx context.Context, err error) *gqlerror.Error {
+		gqlErr := graphql.DefaultErrorPresenter(ctx, err)
+		appErr := apperrors.From(err)
+
+		gqlErr.Message = appErr.Message
+		if gqlErr.Extensions == nil {
+			gqlErr.Extensions = map[string]any{}
+		}
+		gqlErr.Extensions["code"] = appErr.Code
+
+		return gqlErr
+	})
+	server.SetRecoverFunc(func(_ context.Context, recovered any) error {
+		return apperrors.Internal("Internal server error", nil)
+	})
 
 	return server
 }
@@ -36,7 +56,7 @@ func newGraphQLServer() *graphqlhandler.Server {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	allowedOrigin, corsErr := newsletter.ResolveAllowedOriginRequired()
 	if corsErr != nil {
-		http.Error(w, "config-error", http.StatusInternalServerError)
+		httpapi.WriteError(w, apperrors.Config("configuration error", corsErr))
 		return
 	}
 
@@ -53,7 +73,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet && r.Method != http.MethodPost {
 		w.Header().Set("Allow", "GET, POST, OPTIONS")
-		http.Error(w, "method-not-allowed", http.StatusMethodNotAllowed)
+		httpapi.WriteError(w, apperrors.MethodNotAllowed("method not allowed"))
 		return
 	}
 

@@ -7,6 +7,7 @@ import ThemeProvider from '@/components/theme/ThemeProvider';
 import I18nProvider from '@/i18n/provider';
 import type { LocaleResources } from '@/i18n/server';
 import { loadIcons } from '@/config/iconLoader';
+import AppErrorToasts from '@/components/common/AppErrorToasts';
 
 loadIcons();
 
@@ -22,7 +23,10 @@ export default function AppProviders({ locale, resources, children }: Readonly<A
   return (
     <Provider store={store}>
       <I18nProvider locale={locale} resources={resources}>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <AppErrorToasts />
+        </ThemeProvider>
       </I18nProvider>
     </Provider>
   );

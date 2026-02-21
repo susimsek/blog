@@ -15,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	"suaybsimsek.com/blog-api/pkg/apperrors"
 	"suaybsimsek.com/blog-api/pkg/newsletter"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -43,6 +44,7 @@ const (
 
 type dispatchResponse struct {
 	Status    string                          `json:"status"`
+	Code      string                          `json:"code,omitempty"`
 	Message   string                          `json:"message"`
 	Timestamp string                          `json:"timestamp"`
 	Locales   map[string]dispatchLocaleResult `json:"locales"`
@@ -1108,6 +1110,17 @@ func writeJSON(w http.ResponseWriter, statusCode int, payload dispatchResponse) 
 	_ = json.NewEncoder(w).Encode(payload)
 }
 
+func writeDispatchError(w http.ResponseWriter, err error) {
+	appErr := apperrors.From(err)
+	writeJSON(w, appErr.HTTPStatus, dispatchResponse{
+		Status:    "error",
+		Code:      appErr.Code,
+		Message:   appErr.Message,
+		Timestamp: time.Now().UTC().Format(time.RFC3339),
+		Locales:   map[string]dispatchLocaleResult{},
+	})
+}
+
 func authorizeCronRequest(r *http.Request, secret string) bool {
 	return strings.TrimSpace(r.Header.Get("Authorization")) == fmt.Sprintf("Bearer %s", secret)
 }
@@ -1129,55 +1142,30 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {
 		w.Header().Set("Allow", "GET, OPTIONS")
-		writeJSON(w, http.StatusMethodNotAllowed, dispatchResponse{
-			Status:    "error",
-			Message:   "method not allowed",
-			Timestamp: time.Now().UTC().Format(time.RFC3339),
-			Locales:   map[string]dispatchLocaleResult{},
-		})
+		writeDispatchError(w, apperrors.MethodNotAllowed("method not allowed"))
 		return
 	}
 
 	cronSecret, err := newsletter.ResolveCronSecret()
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, dispatchResponse{
-			Status:    "error",
-			Message:   "configuration error",
-			Timestamp: time.Now().UTC().Format(time.RFC3339),
-			Locales:   map[string]dispatchLocaleResult{},
-		})
+		writeDispatchError(w, apperrors.Config("configuration error", err))
 		return
 	}
 
 	if !authorizeCronRequest(r, cronSecret) {
-		writeJSON(w, http.StatusUnauthorized, dispatchResponse{
-			Status:    "error",
-			Message:   "unauthorized",
-			Timestamp: time.Now().UTC().Format(time.RFC3339),
-			Locales:   map[string]dispatchLocaleResult{},
-		})
+		writeDispatchError(w, apperrors.Unauthorized("unauthorized"))
 		return
 	}
 
 	siteURL, err := newsletter.ResolveSiteURL()
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, dispatchResponse{
-			Status:    "error",
-			Message:   "configuration error",
-			Timestamp: time.Now().UTC().Format(time.RFC3339),
-			Locales:   map[string]dispatchLocaleResult{},
-		})
+		writeDispatchError(w, apperrors.Config("configuration error", err))
 		return
 	}
 
 	unsubscribeSecret, err := newsletter.ResolveUnsubscribeSecret()
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, dispatchResponse{
-			Status:    "error",
-			Message:   "configuration error",
-			Timestamp: time.Now().UTC().Format(time.RFC3339),
-			Locales:   map[string]dispatchLocaleResult{},
-		})
+		writeDispatchError(w, apperrors.Config("configuration error", err))
 		return
 	}
 
@@ -1187,34 +1175,19 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	databaseName, err := newsletter.ResolveDatabaseName()
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, dispatchResponse{
-			Status:    "error",
-			Message:   "configuration error",
-			Timestamp: time.Now().UTC().Format(time.RFC3339),
-			Locales:   map[string]dispatchLocaleResult{},
-		})
+		writeDispatchError(w, apperrors.Config("configuration error", err))
 		return
 	}
 
 	smtpCfg, err := newsletter.ResolveSMTPConfig()
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, dispatchResponse{
-			Status:    "error",
-			Message:   "smtp configuration error",
-			Timestamp: time.Now().UTC().Format(time.RFC3339),
-			Locales:   map[string]dispatchLocaleResult{},
-		})
+		writeDispatchError(w, apperrors.Config("smtp configuration error", err))
 		return
 	}
 
 	client, err := getDispatchClient()
 	if err != nil {
-		writeJSON(w, http.StatusServiceUnavailable, dispatchResponse{
-			Status:    "error",
-			Message:   "database unavailable",
-			Timestamp: time.Now().UTC().Format(time.RFC3339),
-			Locales:   map[string]dispatchLocaleResult{},
-		})
+		writeDispatchError(w, apperrors.ServiceUnavailable("database unavailable", err))
 		return
 	}
 
@@ -1227,42 +1200,22 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	deliveriesCollection := client.Database(databaseName).Collection(newsletterDeliveriesCollection)
 	postsCollection := client.Database(databaseName).Collection(newsletterPostsCollection)
 	if err := ensureDispatchSubscriberIndexes(subscribersCollection); err != nil {
-		writeJSON(w, http.StatusServiceUnavailable, dispatchResponse{
-			Status:    "error",
-			Message:   "subscriber index error",
-			Timestamp: time.Now().UTC().Format(time.RFC3339),
-			Locales:   map[string]dispatchLocaleResult{},
-		})
+		writeDispatchError(w, apperrors.ServiceUnavailable("subscriber index error", err))
 		return
 	}
 	if err := ensureCampaignIndexes(campaignsCollection); err != nil {
-		writeJSON(w, http.StatusServiceUnavailable, dispatchResponse{
-			Status:    "error",
-			Message:   "campaign index error",
-			Timestamp: time.Now().UTC().Format(time.RFC3339),
-			Locales:   map[string]dispatchLocaleResult{},
-		})
+		writeDispatchError(w, apperrors.ServiceUnavailable("campaign index error", err))
 		return
 	}
 	if err := ensureDeliveryIndexes(deliveriesCollection); err != nil {
-		writeJSON(w, http.StatusServiceUnavailable, dispatchResponse{
-			Status:    "error",
-			Message:   "delivery index error",
-			Timestamp: time.Now().UTC().Format(time.RFC3339),
-			Locales:   map[string]dispatchLocaleResult{},
-		})
+		writeDispatchError(w, apperrors.ServiceUnavailable("delivery index error", err))
 		return
 	}
 
 	results := make(map[string]dispatchLocaleResult)
 	locales, localeResolveErr := resolveDispatchLocalesFromSubscribers(subscribersCollection)
 	if localeResolveErr != nil {
-		writeJSON(w, http.StatusServiceUnavailable, dispatchResponse{
-			Status:    "error",
-			Message:   "subscriber locale query failed",
-			Timestamp: time.Now().UTC().Format(time.RFC3339),
-			Locales:   map[string]dispatchLocaleResult{},
-		})
+		writeDispatchError(w, apperrors.ServiceUnavailable("subscriber locale query failed", localeResolveErr))
 		return
 	}
 
