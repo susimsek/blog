@@ -12,7 +12,10 @@ import { CONTACT_LINKS } from '@/config/constants';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import useBoop from '@/hooks/useBoop';
-import { withBasePath } from '@/lib/basePath';
+import {
+  resendNewsletterConfirmation as resendNewsletterConfirmationMutation,
+  subscribeNewsletter as subscribeNewsletterMutation,
+} from '@/lib/newsletterApi';
 
 interface PreFooterProps {
   posts?: LayoutPostSummary[];
@@ -38,26 +41,10 @@ type SubscriptionStatus = 'idle' | 'success' | 'resent' | 'error';
 type NewsletterErrorStatus = 'invalid-email' | 'rate-limited' | 'unknown-error' | 'unreachable-server';
 type NewsletterClientErrorStatus = 'required' | 'invalid-email';
 
-type NewsletterApiResponse = {
-  status?: string;
-  forwardTo?: string;
-};
-
 const NEWSLETTER_FORM_NAME = 'preFooterNewsletter';
 const NEWSLETTER_TAGS = ['preFooterNewsletter'];
 const NEWSLETTER_EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const NEWSLETTER_REQUEST_TIMEOUT_MS = 8000;
-
-const normalizeApiBaseUrl = (value: string | undefined) => value?.trim().replace(/\/+$/g, '') ?? '';
-
-const getNewsletterEndpoint = (apiPath: string) => {
-  const prefixedEndpoint = withBasePath(apiPath);
-  const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
-  if (apiBaseUrl) {
-    return `${apiBaseUrl}${apiPath}`;
-  }
-  return prefixedEndpoint;
-};
 
 const mapNewsletterErrorStatus = (status: string | undefined): NewsletterErrorStatus => {
   switch (status) {
@@ -158,34 +145,6 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
     return null;
   }, []);
 
-  const sendNewsletterRequest = useCallback(
-    async (apiPath: string, payload: Record<string, unknown>): Promise<NewsletterApiResponse | null> => {
-      const endpoint = getNewsletterEndpoint(apiPath);
-      const controller = new AbortController();
-      const timeoutId = globalThis.setTimeout(() => {
-        controller.abort();
-      }, NEWSLETTER_REQUEST_TIMEOUT_MS);
-
-      try {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept-Language': currentLocale,
-          },
-          body: JSON.stringify(payload),
-          signal: controller.signal,
-        });
-        return (await response.json()) as NewsletterApiResponse;
-      } catch {
-        return null;
-      } finally {
-        globalThis.clearTimeout(timeoutId);
-      }
-    },
-    [currentLocale],
-  );
-
   const handleNewsletterEmailChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const nextValue = event.currentTarget.value;
@@ -221,18 +180,20 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
       }
 
       const normalizedEmail = newsletterEmail.trim();
-      const payload = {
-        email: normalizedEmail,
-        terms: newsletterHoneypotChecked,
-        tags: NEWSLETTER_TAGS,
-        formName: NEWSLETTER_FORM_NAME,
-      };
-
       setIsNewsletterSubmitting(true);
       setNewsletterErrorStatus(null);
       setNewsletterClientErrorStatus(null);
 
-      const result = await sendNewsletterRequest('/api/subscribe-user', payload);
+      const result = await subscribeNewsletterMutation(
+        {
+          locale: currentLocale,
+          email: normalizedEmail,
+          terms: newsletterHoneypotChecked,
+          tags: NEWSLETTER_TAGS,
+          formName: NEWSLETTER_FORM_NAME,
+        },
+        { timeoutMs: NEWSLETTER_REQUEST_TIMEOUT_MS },
+      );
 
       if (result?.status === 'success') {
         if (typeof result.forwardTo === 'string' && result.forwardTo.length > 0) {
@@ -260,7 +221,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
       isNewsletterSubmitting,
       newsletterEmail,
       newsletterHoneypotChecked,
-      sendNewsletterRequest,
+      currentLocale,
     ],
   );
 
@@ -283,10 +244,14 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
     setNewsletterClientErrorStatus(null);
     setSubscriptionStatus('idle');
 
-    const result = await sendNewsletterRequest('/api/subscribe-resend', {
-      email: emailForResend,
-      terms: false,
-    });
+    const result = await resendNewsletterConfirmationMutation(
+      {
+        locale: currentLocale,
+        email: emailForResend,
+        terms: false,
+      },
+      { timeoutMs: NEWSLETTER_REQUEST_TIMEOUT_MS },
+    );
 
     if (result?.status === 'success') {
       setSubscriptionStatus('resent');
@@ -306,7 +271,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
     isNewsletterSubmitting,
     lastNewsletterEmail,
     newsletterEmail,
-    sendNewsletterRequest,
+    currentLocale,
   ]);
 
   const newsletterFeedbackMessage = useMemo(() => {

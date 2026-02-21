@@ -47,8 +47,17 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		IncrementPostHit  func(childComplexity int, postID string) int
-		IncrementPostLike func(childComplexity int, postID string) int
+		ConfirmNewsletterSubscription func(childComplexity int, token string) int
+		IncrementPostHit              func(childComplexity int, postID string) int
+		IncrementPostLike             func(childComplexity int, postID string) int
+		ResendNewsletterConfirmation  func(childComplexity int, input model.NewsletterResendInput) int
+		SubscribeNewsletter           func(childComplexity int, input model.NewsletterSubscribeInput) int
+		UnsubscribeNewsletter         func(childComplexity int, token string) int
+	}
+
+	NewsletterMutationResult struct {
+		ForwardTo func(childComplexity int) int
+		Status    func(childComplexity int) int
 	}
 
 	Post struct {
@@ -113,6 +122,10 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	IncrementPostLike(ctx context.Context, postID string) (*model.PostMetricResult, error)
 	IncrementPostHit(ctx context.Context, postID string) (*model.PostMetricResult, error)
+	SubscribeNewsletter(ctx context.Context, input model.NewsletterSubscribeInput) (*model.NewsletterMutationResult, error)
+	ResendNewsletterConfirmation(ctx context.Context, input model.NewsletterResendInput) (*model.NewsletterMutationResult, error)
+	ConfirmNewsletterSubscription(ctx context.Context, token string) (*model.NewsletterMutationResult, error)
+	UnsubscribeNewsletter(ctx context.Context, token string) (*model.NewsletterMutationResult, error)
 }
 type QueryResolver interface {
 	Posts(ctx context.Context, locale string, input *model.PostsQueryInput) (*model.PostConnection, error)
@@ -138,6 +151,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	_ = ec
 	switch typeName + "." + field {
 
+	case "Mutation.confirmNewsletterSubscription":
+		if e.complexity.Mutation.ConfirmNewsletterSubscription == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_confirmNewsletterSubscription_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ConfirmNewsletterSubscription(childComplexity, args["token"].(string)), true
 	case "Mutation.incrementPostHit":
 		if e.complexity.Mutation.IncrementPostHit == nil {
 			break
@@ -160,6 +184,52 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.IncrementPostLike(childComplexity, args["postId"].(string)), true
+	case "Mutation.resendNewsletterConfirmation":
+		if e.complexity.Mutation.ResendNewsletterConfirmation == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_resendNewsletterConfirmation_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ResendNewsletterConfirmation(childComplexity, args["input"].(model.NewsletterResendInput)), true
+	case "Mutation.subscribeNewsletter":
+		if e.complexity.Mutation.SubscribeNewsletter == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_subscribeNewsletter_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SubscribeNewsletter(childComplexity, args["input"].(model.NewsletterSubscribeInput)), true
+	case "Mutation.unsubscribeNewsletter":
+		if e.complexity.Mutation.UnsubscribeNewsletter == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_unsubscribeNewsletter_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UnsubscribeNewsletter(childComplexity, args["token"].(string)), true
+
+	case "NewsletterMutationResult.forwardTo":
+		if e.complexity.NewsletterMutationResult.ForwardTo == nil {
+			break
+		}
+
+		return e.complexity.NewsletterMutationResult.ForwardTo(childComplexity), true
+	case "NewsletterMutationResult.status":
+		if e.complexity.NewsletterMutationResult.Status == nil {
+			break
+		}
+
+		return e.complexity.NewsletterMutationResult.Status(childComplexity), true
 
 	case "Post.id":
 		if e.complexity.Post.ID == nil {
@@ -408,6 +478,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputNewsletterResendInput,
+		ec.unmarshalInputNewsletterSubscribeInput,
 		ec.unmarshalInputPostsQueryInput,
 	)
 	first := true
@@ -519,6 +591,10 @@ type Query {
 type Mutation {
   incrementPostLike(postId: ID!): PostMetricResult!
   incrementPostHit(postId: ID!): PostMetricResult!
+  subscribeNewsletter(input: NewsletterSubscribeInput!): NewsletterMutationResult!
+  resendNewsletterConfirmation(input: NewsletterResendInput!): NewsletterMutationResult!
+  confirmNewsletterSubscription(token: String!): NewsletterMutationResult!
+  unsubscribeNewsletter(token: String!): NewsletterMutationResult!
 }
 
 input PostsQueryInput {
@@ -532,6 +608,20 @@ input PostsQueryInput {
   endDate: String
   readingTime: ReadingTimeRange
   scopeIds: [ID!]
+}
+
+input NewsletterSubscribeInput {
+  locale: String!
+  email: String!
+  terms: Boolean!
+  tags: [String!]
+  formName: String
+}
+
+input NewsletterResendInput {
+  locale: String!
+  email: String!
+  terms: Boolean!
 }
 
 enum SortOrder {
@@ -583,6 +673,11 @@ type PostMetricResult {
   hits: Int
 }
 
+type NewsletterMutationResult {
+  status: String!
+  forwardTo: String
+}
+
 type Post {
   id: ID!
   slug: String!
@@ -612,6 +707,17 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) field_Mutation_confirmNewsletterSubscription_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "token", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["token"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_incrementPostHit_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -631,6 +737,39 @@ func (ec *executionContext) field_Mutation_incrementPostLike_args(ctx context.Co
 		return nil, err
 	}
 	args["postId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_resendNewsletterConfirmation_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNNewsletterResendInput2suaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterResendInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_subscribeNewsletter_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNNewsletterSubscribeInput2suaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterSubscribeInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_unsubscribeNewsletter_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "token", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["token"] = arg0
 	return args, nil
 }
 
@@ -822,6 +961,252 @@ func (ec *executionContext) fieldContext_Mutation_incrementPostHit(ctx context.C
 	if fc.Args, err = ec.field_Mutation_incrementPostHit_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_subscribeNewsletter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_subscribeNewsletter,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().SubscribeNewsletter(ctx, fc.Args["input"].(model.NewsletterSubscribeInput))
+		},
+		nil,
+		ec.marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_subscribeNewsletter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "status":
+				return ec.fieldContext_NewsletterMutationResult_status(ctx, field)
+			case "forwardTo":
+				return ec.fieldContext_NewsletterMutationResult_forwardTo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type NewsletterMutationResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_subscribeNewsletter_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_resendNewsletterConfirmation(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_resendNewsletterConfirmation,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().ResendNewsletterConfirmation(ctx, fc.Args["input"].(model.NewsletterResendInput))
+		},
+		nil,
+		ec.marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_resendNewsletterConfirmation(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "status":
+				return ec.fieldContext_NewsletterMutationResult_status(ctx, field)
+			case "forwardTo":
+				return ec.fieldContext_NewsletterMutationResult_forwardTo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type NewsletterMutationResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_resendNewsletterConfirmation_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_confirmNewsletterSubscription(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_confirmNewsletterSubscription,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().ConfirmNewsletterSubscription(ctx, fc.Args["token"].(string))
+		},
+		nil,
+		ec.marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_confirmNewsletterSubscription(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "status":
+				return ec.fieldContext_NewsletterMutationResult_status(ctx, field)
+			case "forwardTo":
+				return ec.fieldContext_NewsletterMutationResult_forwardTo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type NewsletterMutationResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_confirmNewsletterSubscription_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_unsubscribeNewsletter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_unsubscribeNewsletter,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().UnsubscribeNewsletter(ctx, fc.Args["token"].(string))
+		},
+		nil,
+		ec.marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_unsubscribeNewsletter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "status":
+				return ec.fieldContext_NewsletterMutationResult_status(ctx, field)
+			case "forwardTo":
+				return ec.fieldContext_NewsletterMutationResult_forwardTo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type NewsletterMutationResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_unsubscribeNewsletter_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NewsletterMutationResult_status(ctx context.Context, field graphql.CollectedField, obj *model.NewsletterMutationResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_NewsletterMutationResult_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_NewsletterMutationResult_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NewsletterMutationResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NewsletterMutationResult_forwardTo(ctx context.Context, field graphql.CollectedField, obj *model.NewsletterMutationResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_NewsletterMutationResult_forwardTo,
+		func(ctx context.Context) (any, error) {
+			return obj.ForwardTo, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_NewsletterMutationResult_forwardTo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "NewsletterMutationResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
 	}
 	return fc, nil
 }
@@ -3559,6 +3944,102 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputNewsletterResendInput(ctx context.Context, obj any) (model.NewsletterResendInput, error) {
+	var it model.NewsletterResendInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"locale", "email", "terms"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "locale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locale = data
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "terms":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("terms"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Terms = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNewsletterSubscribeInput(ctx context.Context, obj any) (model.NewsletterSubscribeInput, error) {
+	var it model.NewsletterSubscribeInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"locale", "email", "terms", "tags", "formName"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "locale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locale = data
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "terms":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("terms"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Terms = data
+		case "tags":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tags"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Tags = data
+		case "formName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("formName"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FormName = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputPostsQueryInput(ctx context.Context, obj any) (model.PostsQueryInput, error) {
 	var it model.PostsQueryInput
 	asMap := map[string]any{}
@@ -3690,6 +4171,75 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "subscribeNewsletter":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_subscribeNewsletter(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "resendNewsletterConfirmation":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_resendNewsletterConfirmation(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "confirmNewsletterSubscription":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_confirmNewsletterSubscription(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "unsubscribeNewsletter":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_unsubscribeNewsletter(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var newsletterMutationResultImplementors = []string{"NewsletterMutationResult"}
+
+func (ec *executionContext) _NewsletterMutationResult(ctx context.Context, sel ast.SelectionSet, obj *model.NewsletterMutationResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, newsletterMutationResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("NewsletterMutationResult")
+		case "status":
+			out.Values[i] = ec._NewsletterMutationResult_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "forwardTo":
+			out.Values[i] = ec._NewsletterMutationResult_forwardTo(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4533,6 +5083,30 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
+func (ec *executionContext) marshalNNewsletterMutationResult2suaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult(ctx context.Context, sel ast.SelectionSet, v model.NewsletterMutationResult) graphql.Marshaler {
+	return ec._NewsletterMutationResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult(ctx context.Context, sel ast.SelectionSet, v *model.NewsletterMutationResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._NewsletterMutationResult(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNNewsletterResendInput2suaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterResendInput(ctx context.Context, v any) (model.NewsletterResendInput, error) {
+	res, err := ec.unmarshalInputNewsletterResendInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNNewsletterSubscribeInput2suaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterSubscribeInput(ctx context.Context, v any) (model.NewsletterSubscribeInput, error) {
+	res, err := ec.unmarshalInputNewsletterSubscribeInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNPost2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Post) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -5144,6 +5718,42 @@ func (ec *executionContext) marshalOSortOrder2ᚖsuaybsimsekᚗcomᚋblogᚑapi�
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v any) (*string, error) {

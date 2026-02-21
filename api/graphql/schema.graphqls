@@ -11,6 +11,10 @@ type Query {
 type Mutation {
   incrementPostLike(postId: ID!): PostMetricResult!
   incrementPostHit(postId: ID!): PostMetricResult!
+  subscribeNewsletter(input: NewsletterSubscribeInput!): NewsletterMutationResult!
+  resendNewsletterConfirmation(input: NewsletterResendInput!): NewsletterMutationResult!
+  confirmNewsletterSubscription(token: String!): NewsletterMutationResult!
+  unsubscribeNewsletter(token: String!): NewsletterMutationResult!
 }
 
 input PostsQueryInput {
@@ -24,6 +28,20 @@ input PostsQueryInput {
   endDate: String
   readingTime: ReadingTimeRange
   scopeIds: [ID!]
+}
+
+input NewsletterSubscribeInput {
+  locale: String!
+  email: String!
+  terms: Boolean!
+  tags: [String!]
+  formName: String
+}
+
+input NewsletterResendInput {
+  locale: String!
+  email: String!
+  terms: Boolean!
 }
 
 enum SortOrder {
@@ -73,6 +91,11 @@ type PostMetricResult {
   postId: ID!
   likes: Int
   hits: Int
+}
+
+type NewsletterMutationResult {
+  status: String!
+  forwardTo: String
 }
 
 type Post {

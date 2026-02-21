@@ -39,5 +39,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	graphQLServer.ServeHTTP(w, r)
+	requestWithMetadata := r.WithContext(graph.WithRequestMetadata(r.Context(), r))
+	graphQLServer.ServeHTTP(w, requestWithMetadata)
 }

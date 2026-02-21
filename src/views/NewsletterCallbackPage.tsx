@@ -7,6 +7,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Layout from '@/components/common/Layout';
 import Link from '@/components/common/Link';
 import type { LayoutPostSummary, Topic } from '@/types/posts';
+import {
+  confirmNewsletterSubscription as confirmNewsletterSubscriptionMutation,
+  unsubscribeNewsletter as unsubscribeNewsletterMutation,
+} from '@/lib/newsletterApi';
 
 type NewsletterCallbackPageProps = {
   locale: string;
@@ -88,34 +92,13 @@ export default function NewsletterCallbackPage({
 
       setStatusKey('loading');
 
-      const endpoint = operation === 'unsubscribe' ? '/api/subscribe-unsubscribe' : '/api/subscribe-confirm';
-      const query = new URLSearchParams({
-        token,
-      });
-
       try {
-        const response = await fetch(`${endpoint}?${query.toString()}`, {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-          },
-          cache: 'no-store',
-          signal: controller.signal,
-        });
-
-        const payload = (await response.json().catch(() => null)) as { status?: string } | null;
+        const payload =
+          operation === 'unsubscribe'
+            ? await unsubscribeNewsletterMutation(token, { signal: controller.signal })
+            : await confirmNewsletterSubscriptionMutation(token, { signal: controller.signal });
         const backendStatus =
-          typeof payload?.status === 'string' && payload.status.trim() !== ''
-            ? payload.status
-            : response.status === 503
-              ? 'service-unavailable'
-              : response.status === 405
-                ? 'method-not-allowed'
-                : response.status === 500
-                  ? 'config-error'
-                  : response.status === 400 || response.status === 410
-                    ? 'invalid-link'
-                    : 'failed';
+          typeof payload?.status === 'string' && payload.status.trim() !== '' ? payload.status : 'service-unavailable';
 
         setStatusKey(resolveStatusKey(operation, backendStatus));
       } catch {

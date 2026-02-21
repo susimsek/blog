@@ -17,8 +17,16 @@ export type Scalars = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  confirmNewsletterSubscription: NewsletterMutationResult;
   incrementPostHit: PostMetricResult;
   incrementPostLike: PostMetricResult;
+  resendNewsletterConfirmation: NewsletterMutationResult;
+  subscribeNewsletter: NewsletterMutationResult;
+  unsubscribeNewsletter: NewsletterMutationResult;
+};
+
+export type MutationConfirmNewsletterSubscriptionArgs = {
+  token: Scalars['String']['input'];
 };
 
 export type MutationIncrementPostHitArgs = {
@@ -27,6 +35,38 @@ export type MutationIncrementPostHitArgs = {
 
 export type MutationIncrementPostLikeArgs = {
   postId: Scalars['ID']['input'];
+};
+
+export type MutationResendNewsletterConfirmationArgs = {
+  input: NewsletterResendInput;
+};
+
+export type MutationSubscribeNewsletterArgs = {
+  input: NewsletterSubscribeInput;
+};
+
+export type MutationUnsubscribeNewsletterArgs = {
+  token: Scalars['String']['input'];
+};
+
+export type NewsletterMutationResult = {
+  __typename?: 'NewsletterMutationResult';
+  forwardTo?: Maybe<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
+};
+
+export type NewsletterResendInput = {
+  email: Scalars['String']['input'];
+  locale: Scalars['String']['input'];
+  terms: Scalars['Boolean']['input'];
+};
+
+export type NewsletterSubscribeInput = {
+  email: Scalars['String']['input'];
+  formName?: InputMaybe<Scalars['String']['input']>;
+  locale: Scalars['String']['input'];
+  tags?: InputMaybe<Array<Scalars['String']['input']>>;
+  terms: Scalars['Boolean']['input'];
 };
 
 export type Post = {
@@ -211,6 +251,42 @@ export type IncrementPostHitMutation = {
     likes?: number | null;
     hits?: number | null;
   };
+};
+
+export type SubscribeNewsletterMutationVariables = Exact<{
+  input: NewsletterSubscribeInput;
+}>;
+
+export type SubscribeNewsletterMutation = {
+  __typename?: 'Mutation';
+  subscribeNewsletter: { __typename?: 'NewsletterMutationResult'; status: string; forwardTo?: string | null };
+};
+
+export type ResendNewsletterConfirmationMutationVariables = Exact<{
+  input: NewsletterResendInput;
+}>;
+
+export type ResendNewsletterConfirmationMutation = {
+  __typename?: 'Mutation';
+  resendNewsletterConfirmation: { __typename?: 'NewsletterMutationResult'; status: string; forwardTo?: string | null };
+};
+
+export type ConfirmNewsletterSubscriptionMutationVariables = Exact<{
+  token: Scalars['String']['input'];
+}>;
+
+export type ConfirmNewsletterSubscriptionMutation = {
+  __typename?: 'Mutation';
+  confirmNewsletterSubscription: { __typename?: 'NewsletterMutationResult'; status: string; forwardTo?: string | null };
+};
+
+export type UnsubscribeNewsletterMutationVariables = Exact<{
+  token: Scalars['String']['input'];
+}>;
+
+export type UnsubscribeNewsletterMutation = {
+  __typename?: 'Mutation';
+  unsubscribeNewsletter: { __typename?: 'NewsletterMutationResult'; status: string; forwardTo?: string | null };
 };
 
 export const PostsDocument = {
@@ -450,3 +526,169 @@ export const IncrementPostHitDocument = {
     },
   ],
 } as unknown as DocumentNode<IncrementPostHitMutation, IncrementPostHitMutationVariables>;
+export const SubscribeNewsletterDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'subscribeNewsletter' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'NewsletterSubscribeInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'subscribeNewsletter' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'forwardTo' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<SubscribeNewsletterMutation, SubscribeNewsletterMutationVariables>;
+export const ResendNewsletterConfirmationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'resendNewsletterConfirmation' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'NewsletterResendInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'resendNewsletterConfirmation' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'forwardTo' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ResendNewsletterConfirmationMutation, ResendNewsletterConfirmationMutationVariables>;
+export const ConfirmNewsletterSubscriptionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'confirmNewsletterSubscription' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'token' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'confirmNewsletterSubscription' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'token' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'token' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'forwardTo' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ConfirmNewsletterSubscriptionMutation, ConfirmNewsletterSubscriptionMutationVariables>;
+export const UnsubscribeNewsletterDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'unsubscribeNewsletter' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'token' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'unsubscribeNewsletter' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'token' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'token' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'forwardTo' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UnsubscribeNewsletterMutation, UnsubscribeNewsletterMutationVariables>;

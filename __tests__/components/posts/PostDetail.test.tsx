@@ -30,6 +30,36 @@ jest.mock('@/components/common/MarkdownRenderer', () => {
   return jest.fn(({ content }: { content: string }) => <div data-testid="markdown-renderer">{content}</div>);
 });
 
+jest.mock('@/components/posts/PostHit', () => ({
+  __esModule: true,
+  default: () => <div data-testid="post-hit" />,
+}));
+
+jest.mock('@/components/posts/PostToc', () => ({
+  __esModule: true,
+  default: () => <div data-testid="post-toc" />,
+}));
+
+jest.mock('@/components/common/ReadingProgress', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('@/components/common/BackToTop', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('@/components/posts/PostAuthorBox', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('@/components/posts/RelatedPosts', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
 describe('PostDetail Component', () => {
   beforeAll(() => {
     const markdownRenderer = jest.requireMock('@/components/common/MarkdownRenderer');

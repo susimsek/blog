@@ -144,16 +144,17 @@ pnpm run sonar
 
 This repository now includes Go Vercel Functions:
 
-- Newsletter subscribe endpoint: `/api/subscribe-user` (`POST`)
-- Newsletter resend endpoint: `/api/subscribe-resend` (`POST`)
-- Newsletter confirm endpoint: `/api/subscribe-confirm?token=...` (`GET`)
-- Newsletter unsubscribe endpoint: `/api/subscribe-unsubscribe?token=...` (`GET`)
+- GraphQL endpoint: `/graphql` (`POST`)
+  - `subscribeNewsletter(input: NewsletterSubscribeInput!)`
+  - `resendNewsletterConfirmation(input: NewsletterResendInput!)`
+  - `confirmNewsletterSubscription(token: String!)`
+  - `unsubscribeNewsletter(token: String!)`
 - Newsletter dispatch endpoint: `/api/newsletter-dispatch` (`GET`, cron trigger)
   - Vercel cron schedule is UTC. To run at `07:00` Turkiye time (UTC+3), use `0 4 * * *`.
   - Locale is resolved from `Accept-Language` request header (`tr` / `en`) and confirmation flow stays localized.
   - Dispatch uses campaign dedupe (`locale + itemKey`), recipient-level delivery logs, and retry for partial campaigns.
   - Announcement emails include `List-Unsubscribe`, `List-Unsubscribe-Post` headers and one-click unsubscribe link.
-  - Frontend subscribe flow supports confirmation resend (`/api/subscribe-resend`) after initial signup.
+  - Frontend subscribe flow supports confirmation resend via GraphQL mutation.
 
 Required environment variables:
 
@@ -167,7 +168,7 @@ Required environment variables:
 
 Optional frontend variable:
 
-- `NEXT_PUBLIC_API_BASE_URL`: Absolute API base URL for newsletter requests (for example `https://api.suaybsimsek.com`)
+- `NEXT_PUBLIC_API_BASE_URL`: Absolute API base URL for GraphQL requests (for example `https://api.suaybsimsek.com`)
 
 Optional SMTP variables:
 

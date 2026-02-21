@@ -32,9 +32,32 @@ const createRoot = (headings: Array<{ tag: 'h2' | 'h3'; text: string; id?: strin
   return root;
 };
 
+const originalMutationObserver = globalThis.MutationObserver;
+
 describe('PostToc', () => {
+  beforeEach(() => {
+    class NoopMutationObserver {
+      observe() {}
+      disconnect() {}
+      takeRecords() {
+        return [];
+      }
+    }
+
+    Object.defineProperty(globalThis, 'MutationObserver', {
+      configurable: true,
+      writable: true,
+      value: NoopMutationObserver,
+    });
+  });
+
   afterEach(() => {
     document.body.innerHTML = '';
+    Object.defineProperty(globalThis, 'MutationObserver', {
+      configurable: true,
+      writable: true,
+      value: originalMutationObserver,
+    });
     jest.restoreAllMocks();
   });
 
@@ -136,7 +159,6 @@ describe('PostToc', () => {
   });
 
   it('updates toc when headings are added after initial mount', async () => {
-    const originalMutationObserver = globalThis.MutationObserver;
     let mutationCallback: MutationCallback | null = null;
 
     class MockMutationObserver {

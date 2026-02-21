@@ -11,6 +11,7 @@ import (
 
 	"suaybsimsek.com/blog-api/api/graphql/graph/generated"
 	"suaybsimsek.com/blog-api/api/graphql/graph/model"
+	newslettersvc "suaybsimsek.com/blog-api/internal/newsletter"
 	postsapi "suaybsimsek.com/blog-api/internal/posts"
 	topicsapi "suaybsimsek.com/blog-api/internal/topics"
 )
@@ -165,6 +166,71 @@ func (r *mutationResolver) IncrementPostHit(ctx context.Context, postID string) 
 	return result, nil
 }
 
+// SubscribeNewsletter is the resolver for the subscribeNewsletter field.
+func (r *mutationResolver) SubscribeNewsletter(
+	ctx context.Context,
+	input model.NewsletterSubscribeInput,
+) (*model.NewsletterMutationResult, error) {
+	payload := newslettersvc.Subscribe(
+		ctx,
+		newslettersvc.SubscribeInput{
+			Locale:   strings.TrimSpace(input.Locale),
+			Email:    strings.TrimSpace(input.Email),
+			Terms:    input.Terms,
+			Tags:     append([]string{}, input.Tags...),
+			FormName: strings.TrimSpace(toOptionalStringValue(input.FormName)),
+		},
+		getRequestMetadata(ctx),
+	)
+
+	return &model.NewsletterMutationResult{
+		Status:    strings.TrimSpace(payload.Status),
+		ForwardTo: toOptionalString(payload.ForwardTo),
+	}, nil
+}
+
+// ResendNewsletterConfirmation is the resolver for the resendNewsletterConfirmation field.
+func (r *mutationResolver) ResendNewsletterConfirmation(
+	ctx context.Context,
+	input model.NewsletterResendInput,
+) (*model.NewsletterMutationResult, error) {
+	payload := newslettersvc.Resend(
+		ctx,
+		newslettersvc.ResendInput{
+			Locale: strings.TrimSpace(input.Locale),
+			Email:  strings.TrimSpace(input.Email),
+			Terms:  input.Terms,
+		},
+		getRequestMetadata(ctx),
+	)
+
+	return &model.NewsletterMutationResult{
+		Status: strings.TrimSpace(payload.Status),
+	}, nil
+}
+
+// ConfirmNewsletterSubscription is the resolver for the confirmNewsletterSubscription field.
+func (r *mutationResolver) ConfirmNewsletterSubscription(
+	ctx context.Context,
+	token string,
+) (*model.NewsletterMutationResult, error) {
+	payload := newslettersvc.Confirm(ctx, strings.TrimSpace(token))
+	return &model.NewsletterMutationResult{
+		Status: strings.TrimSpace(payload.Status),
+	}, nil
+}
+
+// UnsubscribeNewsletter is the resolver for the unsubscribeNewsletter field.
+func (r *mutationResolver) UnsubscribeNewsletter(
+	ctx context.Context,
+	token string,
+) (*model.NewsletterMutationResult, error) {
+	payload := newslettersvc.Unsubscribe(ctx, strings.TrimSpace(token))
+	return &model.NewsletterMutationResult{
+		Status: strings.TrimSpace(payload.Status),
+	}, nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
@@ -173,3 +239,10 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+func toOptionalStringValue(value *string) string {
+	if value == nil {
+		return ""
+	}
+	return *value
+}

@@ -11,10 +11,6 @@ import (
 
 	graphqlapi "suaybsimsek.com/blog-api/api/graphql"
 	newsletterdispatch "suaybsimsek.com/blog-api/api/newsletter-dispatch"
-	subscribeconfirm "suaybsimsek.com/blog-api/api/subscribe-confirm"
-	subscriberesend "suaybsimsek.com/blog-api/api/subscribe-resend"
-	subscribeunsubscribe "suaybsimsek.com/blog-api/api/subscribe-unsubscribe"
-	subscribeuser "suaybsimsek.com/blog-api/api/subscribe-user"
 )
 
 func loadDotEnv(path string) {
@@ -57,10 +53,6 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/graphql", graphqlapi.Handler)
 	mux.HandleFunc("/api/graphql", graphqlapi.Handler)
-	mux.HandleFunc("/api/subscribe-user", subscribeuser.Handler)
-	mux.HandleFunc("/api/subscribe-resend", subscriberesend.Handler)
-	mux.HandleFunc("/api/subscribe-confirm", subscribeconfirm.Handler)
-	mux.HandleFunc("/api/subscribe-unsubscribe", subscribeunsubscribe.Handler)
 	mux.HandleFunc("/api/newsletter-dispatch", newsletterdispatch.Handler)
 	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")

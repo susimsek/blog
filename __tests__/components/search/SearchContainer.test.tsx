@@ -67,8 +67,24 @@ jest.mock('@/components/posts/PostListItem', () => ({
 
 jest.mock('@/components/common/Link', () => ({
   __esModule: true,
-  default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
-    <a href={href} {...rest}>
+  default: ({
+    href,
+    children,
+    onClick,
+    ...rest
+  }: {
+    href: string;
+    children: React.ReactNode;
+    onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
+  }) => (
+    <a
+      href={href}
+      onClick={event => {
+        event.preventDefault();
+        onClick?.(event);
+      }}
+      {...rest}
+    >
       {children}
     </a>
   ),

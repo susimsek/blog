@@ -12,6 +12,25 @@ import (
 type Mutation struct {
 }
 
+type NewsletterMutationResult struct {
+	Status    string  `json:"status"`
+	ForwardTo *string `json:"forwardTo,omitempty"`
+}
+
+type NewsletterResendInput struct {
+	Locale string `json:"locale"`
+	Email  string `json:"email"`
+	Terms  bool   `json:"terms"`
+}
+
+type NewsletterSubscribeInput struct {
+	Locale   string   `json:"locale"`
+	Email    string   `json:"email"`
+	Terms    bool     `json:"terms"`
+	Tags     []string `json:"tags,omitempty"`
+	FormName *string  `json:"formName,omitempty"`
+}
+
 type Post struct {
 	ID            string   `json:"id"`
 	Slug          string   `json:"slug"`

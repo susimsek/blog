@@ -64,3 +64,31 @@ mutation incrementPostHit($postId: ID!) {
     hits
   }
 }
+
+mutation subscribeNewsletter($input: NewsletterSubscribeInput!) {
+  subscribeNewsletter(input: $input) {
+    status
+    forwardTo
+  }
+}
+
+mutation resendNewsletterConfirmation($input: NewsletterResendInput!) {
+  resendNewsletterConfirmation(input: $input) {
+    status
+    forwardTo
+  }
+}
+
+mutation confirmNewsletterSubscription($token: String!) {
+  confirmNewsletterSubscription(token: $token) {
+    status
+    forwardTo
+  }
+}
+
+mutation unsubscribeNewsletter($token: String!) {
+  unsubscribeNewsletter(token: $token) {
+    status
+    forwardTo
+  }
+}

@@ -19,6 +19,10 @@ interface PostListProps {
   showLikes?: boolean;
 }
 
+const TRACKABLE_POST_ID_PATTERN = /^[a-z0-9][a-z0-9-]{1,127}$/;
+
+const isTrackablePostId = (postId: string) => TRACKABLE_POST_ID_PATTERN.test(postId);
+
 export default function PostList({
   posts,
   noPostsFoundMessage,
@@ -37,7 +41,7 @@ export default function PostList({
   const showSourceFilter = isSearchRoute;
   const routeSearchParams = useSearchParams();
   const routeSearchParamsString = routeSearchParams?.toString() ?? '';
-  const [likesByPostId, setLikesByPostId] = useState<Record<string, number>>({});
+  const [likesByPostId, setLikesByPostId] = useState<Record<string, number | null>>({});
   const searchParams = useMemo(() => new URLSearchParams(routeSearchParamsString), [routeSearchParamsString]);
   const routePage = useMemo(() => {
     const routePageValue = searchParams.get('page');
@@ -76,13 +80,39 @@ export default function PostList({
     lastSyncedRouteRef.current = routeKey;
     routeSyncPendingRef.current = true;
 
-    dispatch(setQuery(routeQuery));
-    dispatch(setPageSize(routeSize));
-    dispatch(setPage(routePage));
-    if (isSearchRoute) {
+    const shouldSyncSource = isSearchRoute && sourceFilter !== routeSource;
+    const shouldSyncQuery = query !== routeQuery;
+    const shouldSyncPageSize = pageSize !== routeSize;
+    const shouldSyncPage = page !== routePage || shouldSyncSource || shouldSyncQuery || shouldSyncPageSize;
+
+    if (shouldSyncSource) {
       dispatch(setSourceFilter(routeSource));
     }
-  }, [dispatch, isSearchRoute, pathname, routePage, routeQuery, routeSize, routeSource]);
+
+    if (shouldSyncQuery) {
+      dispatch(setQuery(routeQuery));
+    }
+
+    if (shouldSyncPageSize) {
+      dispatch(setPageSize(routeSize));
+    }
+
+    if (shouldSyncPage) {
+      dispatch(setPage(routePage));
+    }
+  }, [
+    dispatch,
+    isSearchRoute,
+    page,
+    pageSize,
+    pathname,
+    query,
+    routePage,
+    routeQuery,
+    routeSize,
+    routeSource,
+    sourceFilter,
+  ]);
 
   useEffect(() => {
     if (!routeSyncPendingRef.current) {
@@ -244,7 +274,9 @@ export default function PostList({
     if (!showLikes) {
       return [];
     }
-    return renderedPosts.map(post => post.id).filter(postId => likesByPostId[postId] === undefined);
+    return renderedPosts
+      .map(post => post.id)
+      .filter(postId => isTrackablePostId(postId) && likesByPostId[postId] === undefined);
   }, [likesByPostId, renderedPosts, showLikes]);
 
   useEffect(() => {
@@ -261,9 +293,19 @@ export default function PostList({
         return;
       }
 
-      if (loadedLikes) {
-        setLikesByPostId(previous => ({ ...previous, ...loadedLikes }));
-      }
+      setLikesByPostId(previous => {
+        const next = { ...previous };
+        for (const postId of pendingLikePostIds) {
+          if (loadedLikes === null) {
+            next[postId] = null;
+            continue;
+          }
+
+          const likes = loadedLikes[postId];
+          next[postId] = typeof likes === 'number' && Number.isFinite(likes) ? likes : 0;
+        }
+        return next;
+      });
     };
 
     void loadLikes();
@@ -329,7 +371,7 @@ export default function PostList({
             showSource={isSearchRoute}
             showLikes={showLikes}
             likeCount={likesByPostId[post.id] ?? null}
-            likeCountLoading={showLikes && likesByPostId[post.id] === undefined}
+            likeCountLoading={showLikes && isTrackablePostId(post.id) && likesByPostId[post.id] === undefined}
           />
         ))
       ) : (
