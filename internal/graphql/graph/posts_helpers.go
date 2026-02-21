@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"suaybsimsek.com/blog-api/api/graphql/graph/model"
+	"suaybsimsek.com/blog-api/internal/graphql/graph/model"
 	postsapi "suaybsimsek.com/blog-api/internal/posts"
 	topicsapi "suaybsimsek.com/blog-api/internal/topics"
 )

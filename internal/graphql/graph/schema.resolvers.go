@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"strings"
 
-	"suaybsimsek.com/blog-api/api/graphql/graph/generated"
-	"suaybsimsek.com/blog-api/api/graphql/graph/model"
+	"suaybsimsek.com/blog-api/internal/graphql/graph/generated"
+	"suaybsimsek.com/blog-api/internal/graphql/graph/model"
 	newslettersvc "suaybsimsek.com/blog-api/internal/newsletter"
 	postsapi "suaybsimsek.com/blog-api/internal/posts"
 	topicsapi "suaybsimsek.com/blog-api/internal/topics"

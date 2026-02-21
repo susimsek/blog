@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
-	"suaybsimsek.com/blog-api/api/graphql/graph"
-	"suaybsimsek.com/blog-api/api/graphql/graph/generated"
+	"suaybsimsek.com/blog-api/internal/graphql/graph"
+	"suaybsimsek.com/blog-api/internal/graphql/graph/generated"
 	"suaybsimsek.com/blog-api/pkg/newsletter"
 )
 

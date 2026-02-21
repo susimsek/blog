@@ -15,7 +15,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/introspection"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
-	"suaybsimsek.com/blog-api/api/graphql/graph/model"
+	"suaybsimsek.com/blog-api/internal/graphql/graph/model"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -578,7 +578,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../../schema.graphqls", Input: `schema {
+	{Name: "../../../../api/graphql/schema.graphqls", Input: `schema {
   query: Query
   mutation: Mutation
 }
@@ -743,7 +743,7 @@ func (ec *executionContext) field_Mutation_incrementPostLike_args(ctx context.Co
 func (ec *executionContext) field_Mutation_resendNewsletterConfirmation_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNNewsletterResendInput2suaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterResendInput)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNNewsletterResendInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐNewsletterResendInput)
 	if err != nil {
 		return nil, err
 	}
@@ -754,7 +754,7 @@ func (ec *executionContext) field_Mutation_resendNewsletterConfirmation_args(ctx
 func (ec *executionContext) field_Mutation_subscribeNewsletter_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNNewsletterSubscribeInput2suaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterSubscribeInput)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNNewsletterSubscribeInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐNewsletterSubscribeInput)
 	if err != nil {
 		return nil, err
 	}
@@ -792,7 +792,7 @@ func (ec *executionContext) field_Query_posts_args(ctx context.Context, rawArgs 
 		return nil, err
 	}
 	args["locale"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalOPostsQueryInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostsQueryInput)
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalOPostsQueryInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostsQueryInput)
 	if err != nil {
 		return nil, err
 	}
@@ -874,7 +874,7 @@ func (ec *executionContext) _Mutation_incrementPostLike(ctx context.Context, fie
 			return ec.resolvers.Mutation().IncrementPostLike(ctx, fc.Args["postId"].(string))
 		},
 		nil,
-		ec.marshalNPostMetricResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostMetricResult,
+		ec.marshalNPostMetricResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostMetricResult,
 		true,
 		true,
 	)
@@ -925,7 +925,7 @@ func (ec *executionContext) _Mutation_incrementPostHit(ctx context.Context, fiel
 			return ec.resolvers.Mutation().IncrementPostHit(ctx, fc.Args["postId"].(string))
 		},
 		nil,
-		ec.marshalNPostMetricResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostMetricResult,
+		ec.marshalNPostMetricResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostMetricResult,
 		true,
 		true,
 	)
@@ -976,7 +976,7 @@ func (ec *executionContext) _Mutation_subscribeNewsletter(ctx context.Context, f
 			return ec.resolvers.Mutation().SubscribeNewsletter(ctx, fc.Args["input"].(model.NewsletterSubscribeInput))
 		},
 		nil,
-		ec.marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult,
+		ec.marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult,
 		true,
 		true,
 	)
@@ -1023,7 +1023,7 @@ func (ec *executionContext) _Mutation_resendNewsletterConfirmation(ctx context.C
 			return ec.resolvers.Mutation().ResendNewsletterConfirmation(ctx, fc.Args["input"].(model.NewsletterResendInput))
 		},
 		nil,
-		ec.marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult,
+		ec.marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult,
 		true,
 		true,
 	)
@@ -1070,7 +1070,7 @@ func (ec *executionContext) _Mutation_confirmNewsletterSubscription(ctx context.
 			return ec.resolvers.Mutation().ConfirmNewsletterSubscription(ctx, fc.Args["token"].(string))
 		},
 		nil,
-		ec.marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult,
+		ec.marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult,
 		true,
 		true,
 	)
@@ -1117,7 +1117,7 @@ func (ec *executionContext) _Mutation_unsubscribeNewsletter(ctx context.Context,
 			return ec.resolvers.Mutation().UnsubscribeNewsletter(ctx, fc.Args["token"].(string))
 		},
 		nil,
-		ec.marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult,
+		ec.marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult,
 		true,
 		true,
 	)
@@ -1453,7 +1453,7 @@ func (ec *executionContext) _Post_topics(ctx context.Context, field graphql.Coll
 			return obj.Topics, nil
 		},
 		nil,
-		ec.marshalOTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐTopicᚄ,
+		ec.marshalOTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐTopicᚄ,
 		true,
 		false,
 	)
@@ -1637,7 +1637,7 @@ func (ec *executionContext) _PostConnection_nodes(ctx context.Context, field gra
 			return obj.Nodes, nil
 		},
 		nil,
-		ec.marshalNPost2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostᚄ,
+		ec.marshalNPost2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostᚄ,
 		true,
 		true,
 	)
@@ -1692,7 +1692,7 @@ func (ec *executionContext) _PostConnection_engagement(ctx context.Context, fiel
 			return obj.Engagement, nil
 		},
 		nil,
-		ec.marshalNPostEngagement2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostEngagementᚄ,
+		ec.marshalNPostEngagement2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostEngagementᚄ,
 		true,
 		true,
 	)
@@ -2078,7 +2078,7 @@ func (ec *executionContext) _Query_posts(ctx context.Context, field graphql.Coll
 			return ec.resolvers.Query().Posts(ctx, fc.Args["locale"].(string), fc.Args["input"].(*model.PostsQueryInput))
 		},
 		nil,
-		ec.marshalNPostConnection2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostConnection,
+		ec.marshalNPostConnection2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostConnection,
 		true,
 		true,
 	)
@@ -2139,7 +2139,7 @@ func (ec *executionContext) _Query_topics(ctx context.Context, field graphql.Col
 			return ec.resolvers.Query().Topics(ctx, fc.Args["locale"].(string))
 		},
 		nil,
-		ec.marshalNTopicConnection2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐTopicConnection,
+		ec.marshalNTopicConnection2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐTopicConnection,
 		true,
 		true,
 	)
@@ -2469,7 +2469,7 @@ func (ec *executionContext) _TopicConnection_nodes(ctx context.Context, field gr
 			return obj.Nodes, nil
 		},
 		nil,
-		ec.marshalNTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐTopicᚄ,
+		ec.marshalNTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐTopicᚄ,
 		true,
 		true,
 	)
@@ -4077,7 +4077,7 @@ func (ec *executionContext) unmarshalInputPostsQueryInput(ctx context.Context, o
 			it.Size = data
 		case "sort":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
-			data, err := ec.unmarshalOSortOrder2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐSortOrder(ctx, v)
+			data, err := ec.unmarshalOSortOrder2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐSortOrder(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4091,7 +4091,7 @@ func (ec *executionContext) unmarshalInputPostsQueryInput(ctx context.Context, o
 			it.Topics = data
 		case "source":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("source"))
-			data, err := ec.unmarshalOPostSourceFilter2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostSourceFilter(ctx, v)
+			data, err := ec.unmarshalOPostSourceFilter2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostSourceFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4112,7 +4112,7 @@ func (ec *executionContext) unmarshalInputPostsQueryInput(ctx context.Context, o
 			it.EndDate = data
 		case "readingTime":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("readingTime"))
-			data, err := ec.unmarshalOReadingTimeRange2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐReadingTimeRange(ctx, v)
+			data, err := ec.unmarshalOReadingTimeRange2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐReadingTimeRange(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5083,11 +5083,11 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNNewsletterMutationResult2suaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult(ctx context.Context, sel ast.SelectionSet, v model.NewsletterMutationResult) graphql.Marshaler {
+func (ec *executionContext) marshalNNewsletterMutationResult2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult(ctx context.Context, sel ast.SelectionSet, v model.NewsletterMutationResult) graphql.Marshaler {
 	return ec._NewsletterMutationResult(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult(ctx context.Context, sel ast.SelectionSet, v *model.NewsletterMutationResult) graphql.Marshaler {
+func (ec *executionContext) marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐNewsletterMutationResult(ctx context.Context, sel ast.SelectionSet, v *model.NewsletterMutationResult) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5097,17 +5097,17 @@ func (ec *executionContext) marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗco
 	return ec._NewsletterMutationResult(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNNewsletterResendInput2suaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterResendInput(ctx context.Context, v any) (model.NewsletterResendInput, error) {
+func (ec *executionContext) unmarshalNNewsletterResendInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐNewsletterResendInput(ctx context.Context, v any) (model.NewsletterResendInput, error) {
 	res, err := ec.unmarshalInputNewsletterResendInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNNewsletterSubscribeInput2suaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐNewsletterSubscribeInput(ctx context.Context, v any) (model.NewsletterSubscribeInput, error) {
+func (ec *executionContext) unmarshalNNewsletterSubscribeInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐNewsletterSubscribeInput(ctx context.Context, v any) (model.NewsletterSubscribeInput, error) {
 	res, err := ec.unmarshalInputNewsletterSubscribeInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNPost2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Post) graphql.Marshaler {
+func (ec *executionContext) marshalNPost2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Post) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -5131,7 +5131,7 @@ func (ec *executionContext) marshalNPost2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPost(ctx, sel, v[i])
+			ret[i] = ec.marshalNPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPost(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5151,7 +5151,7 @@ func (ec *executionContext) marshalNPost2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPost(ctx context.Context, sel ast.SelectionSet, v *model.Post) graphql.Marshaler {
+func (ec *executionContext) marshalNPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPost(ctx context.Context, sel ast.SelectionSet, v *model.Post) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5161,11 +5161,11 @@ func (ec *executionContext) marshalNPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapi
 	return ec._Post(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPostConnection2suaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostConnection(ctx context.Context, sel ast.SelectionSet, v model.PostConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNPostConnection2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostConnection(ctx context.Context, sel ast.SelectionSet, v model.PostConnection) graphql.Marshaler {
 	return ec._PostConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPostConnection2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostConnection(ctx context.Context, sel ast.SelectionSet, v *model.PostConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNPostConnection2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostConnection(ctx context.Context, sel ast.SelectionSet, v *model.PostConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5175,7 +5175,7 @@ func (ec *executionContext) marshalNPostConnection2ᚖsuaybsimsekᚗcomᚋblog�
 	return ec._PostConnection(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPostEngagement2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostEngagementᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.PostEngagement) graphql.Marshaler {
+func (ec *executionContext) marshalNPostEngagement2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostEngagementᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.PostEngagement) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -5199,7 +5199,7 @@ func (ec *executionContext) marshalNPostEngagement2ᚕᚖsuaybsimsekᚗcomᚋblo
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNPostEngagement2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostEngagement(ctx, sel, v[i])
+			ret[i] = ec.marshalNPostEngagement2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostEngagement(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5219,7 +5219,7 @@ func (ec *executionContext) marshalNPostEngagement2ᚕᚖsuaybsimsekᚗcomᚋblo
 	return ret
 }
 
-func (ec *executionContext) marshalNPostEngagement2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostEngagement(ctx context.Context, sel ast.SelectionSet, v *model.PostEngagement) graphql.Marshaler {
+func (ec *executionContext) marshalNPostEngagement2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostEngagement(ctx context.Context, sel ast.SelectionSet, v *model.PostEngagement) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5229,11 +5229,11 @@ func (ec *executionContext) marshalNPostEngagement2ᚖsuaybsimsekᚗcomᚋblog�
 	return ec._PostEngagement(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPostMetricResult2suaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostMetricResult(ctx context.Context, sel ast.SelectionSet, v model.PostMetricResult) graphql.Marshaler {
+func (ec *executionContext) marshalNPostMetricResult2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostMetricResult(ctx context.Context, sel ast.SelectionSet, v model.PostMetricResult) graphql.Marshaler {
 	return ec._PostMetricResult(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPostMetricResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostMetricResult(ctx context.Context, sel ast.SelectionSet, v *model.PostMetricResult) graphql.Marshaler {
+func (ec *executionContext) marshalNPostMetricResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostMetricResult(ctx context.Context, sel ast.SelectionSet, v *model.PostMetricResult) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5259,7 +5259,7 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐTopicᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Topic) graphql.Marshaler {
+func (ec *executionContext) marshalNTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐTopicᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Topic) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -5283,7 +5283,7 @@ func (ec *executionContext) marshalNTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapi�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTopic2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐTopic(ctx, sel, v[i])
+			ret[i] = ec.marshalNTopic2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐTopic(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5303,7 +5303,7 @@ func (ec *executionContext) marshalNTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNTopic2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐTopic(ctx context.Context, sel ast.SelectionSet, v *model.Topic) graphql.Marshaler {
+func (ec *executionContext) marshalNTopic2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐTopic(ctx context.Context, sel ast.SelectionSet, v *model.Topic) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5313,11 +5313,11 @@ func (ec *executionContext) marshalNTopic2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋap
 	return ec._Topic(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTopicConnection2suaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐTopicConnection(ctx context.Context, sel ast.SelectionSet, v model.TopicConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNTopicConnection2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐTopicConnection(ctx context.Context, sel ast.SelectionSet, v model.TopicConnection) graphql.Marshaler {
 	return ec._TopicConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTopicConnection2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐTopicConnection(ctx context.Context, sel ast.SelectionSet, v *model.TopicConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNTopicConnection2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐTopicConnection(ctx context.Context, sel ast.SelectionSet, v *model.TopicConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5664,7 +5664,7 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
-func (ec *executionContext) unmarshalOPostSourceFilter2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostSourceFilter(ctx context.Context, v any) (*model.PostSourceFilter, error) {
+func (ec *executionContext) unmarshalOPostSourceFilter2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostSourceFilter(ctx context.Context, v any) (*model.PostSourceFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -5673,14 +5673,14 @@ func (ec *executionContext) unmarshalOPostSourceFilter2ᚖsuaybsimsekᚗcomᚋbl
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOPostSourceFilter2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostSourceFilter(ctx context.Context, sel ast.SelectionSet, v *model.PostSourceFilter) graphql.Marshaler {
+func (ec *executionContext) marshalOPostSourceFilter2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostSourceFilter(ctx context.Context, sel ast.SelectionSet, v *model.PostSourceFilter) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return v
 }
 
-func (ec *executionContext) unmarshalOPostsQueryInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐPostsQueryInput(ctx context.Context, v any) (*model.PostsQueryInput, error) {
+func (ec *executionContext) unmarshalOPostsQueryInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐPostsQueryInput(ctx context.Context, v any) (*model.PostsQueryInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -5688,7 +5688,7 @@ func (ec *executionContext) unmarshalOPostsQueryInput2ᚖsuaybsimsekᚗcomᚋblo
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOReadingTimeRange2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐReadingTimeRange(ctx context.Context, v any) (*model.ReadingTimeRange, error) {
+func (ec *executionContext) unmarshalOReadingTimeRange2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐReadingTimeRange(ctx context.Context, v any) (*model.ReadingTimeRange, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -5697,14 +5697,14 @@ func (ec *executionContext) unmarshalOReadingTimeRange2ᚖsuaybsimsekᚗcomᚋbl
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOReadingTimeRange2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐReadingTimeRange(ctx context.Context, sel ast.SelectionSet, v *model.ReadingTimeRange) graphql.Marshaler {
+func (ec *executionContext) marshalOReadingTimeRange2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐReadingTimeRange(ctx context.Context, sel ast.SelectionSet, v *model.ReadingTimeRange) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return v
 }
 
-func (ec *executionContext) unmarshalOSortOrder2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐSortOrder(ctx context.Context, v any) (*model.SortOrder, error) {
+func (ec *executionContext) unmarshalOSortOrder2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐSortOrder(ctx context.Context, v any) (*model.SortOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -5713,7 +5713,7 @@ func (ec *executionContext) unmarshalOSortOrder2ᚖsuaybsimsekᚗcomᚋblogᚑap
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOSortOrder2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐSortOrder(ctx context.Context, sel ast.SelectionSet, v *model.SortOrder) graphql.Marshaler {
+func (ec *executionContext) marshalOSortOrder2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐSortOrder(ctx context.Context, sel ast.SelectionSet, v *model.SortOrder) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -5774,7 +5774,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalOTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐTopicᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Topic) graphql.Marshaler {
+func (ec *executionContext) marshalOTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐTopicᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Topic) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -5801,7 +5801,7 @@ func (ec *executionContext) marshalOTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapi�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTopic2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋapiᚋgraphqlᚋgraphᚋmodelᚐTopic(ctx, sel, v[i])
+			ret[i] = ec.marshalNTopic2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋgraphᚋmodelᚐTopic(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
