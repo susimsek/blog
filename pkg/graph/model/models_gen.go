@@ -87,12 +87,6 @@ type Topic struct {
 	Link  *string `json:"link,omitempty"`
 }
 
-type TopicConnection struct {
-	Status string   `json:"status"`
-	Locale *string  `json:"locale,omitempty"`
-	Nodes  []*Topic `json:"nodes"`
-}
-
 type SortOrder string
 
 const (

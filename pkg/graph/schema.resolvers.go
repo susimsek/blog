@@ -11,7 +11,6 @@ import (
 
 	newslettersvc "suaybsimsek.com/blog-api/internal/newsletter"
 	postsapi "suaybsimsek.com/blog-api/internal/posts"
-	topicsapi "suaybsimsek.com/blog-api/internal/topics"
 	"suaybsimsek.com/blog-api/pkg/graph/generated"
 	"suaybsimsek.com/blog-api/pkg/graph/model"
 )
@@ -72,26 +71,6 @@ func (r *queryResolver) Posts(ctx context.Context, locale string, input *model.P
 		Page:       page,
 		Size:       size,
 		Sort:       toOptionalString(payload.Sort),
-	}, nil
-}
-
-// Topics is the resolver for the topics field.
-func (r *queryResolver) Topics(ctx context.Context, locale string) (*model.TopicConnection, error) {
-	normalizedLocale := strings.TrimSpace(locale)
-	if normalizedLocale == "" {
-		return nil, fmt.Errorf("locale is required")
-	}
-
-	payload := topicsapi.QueryTopics(ctx, normalizedLocale)
-	status := strings.TrimSpace(payload.Status)
-	if status == "" {
-		status = "success"
-	}
-
-	return &model.TopicConnection{
-		Status: status,
-		Locale: toOptionalString(payload.Locale),
-		Nodes:  mapTopicsFromTopicRecords(payload.Topics),
 	}, nil
 }
 

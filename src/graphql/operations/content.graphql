@@ -33,19 +33,6 @@ query posts($locale: String!, $input: PostsQueryInput) {
   }
 }
 
-query topics($locale: String!) {
-  topics(locale: $locale) {
-    status
-    locale
-    nodes {
-      id
-      name
-      color
-      link
-    }
-  }
-}
-
 mutation incrementPostLike($postId: ID!) {
   incrementPostLike(postId: $postId) {
     status

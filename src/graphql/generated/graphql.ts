@@ -122,15 +122,10 @@ export type PostsQueryInput = {
 export type Query = {
   __typename?: 'Query';
   posts: PostConnection;
-  topics: TopicConnection;
 };
 
 export type QueryPostsArgs = {
   input?: InputMaybe<PostsQueryInput>;
-  locale: Scalars['String']['input'];
-};
-
-export type QueryTopicsArgs = {
   locale: Scalars['String']['input'];
 };
 
@@ -145,13 +140,6 @@ export type Topic = {
   id: Scalars['ID']['output'];
   link?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
-};
-
-export type TopicConnection = {
-  __typename?: 'TopicConnection';
-  locale?: Maybe<Scalars['String']['output']>;
-  nodes: Array<Topic>;
-  status: Scalars['String']['output'];
 };
 
 export type PostsQueryVariables = Exact<{
@@ -185,20 +173,6 @@ export type PostsQuery = {
       url?: string | null;
       topics?: Array<{ __typename?: 'Topic'; id: string; name: string; color: string; link?: string | null }> | null;
     }>;
-  };
-};
-
-export type TopicsQueryVariables = Exact<{
-  locale: Scalars['String']['input'];
-}>;
-
-export type TopicsQuery = {
-  __typename?: 'Query';
-  topics: {
-    __typename?: 'TopicConnection';
-    status: string;
-    locale?: string | null;
-    nodes: Array<{ __typename?: 'Topic'; id: string; name: string; color: string; link?: string | null }>;
   };
 };
 
@@ -367,59 +341,6 @@ export const PostsDocument = {
     },
   ],
 } as unknown as DocumentNode<PostsQuery, PostsQueryVariables>;
-export const TopicsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'topics' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'locale' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'topics' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'locale' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'locale' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'nodes' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'color' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'link' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<TopicsQuery, TopicsQueryVariables>;
 export const IncrementPostLikeDocument = {
   kind: 'Document',
   definitions: [

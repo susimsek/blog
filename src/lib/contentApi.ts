@@ -4,7 +4,6 @@ import {
   PostsDocument,
   PostsQueryInput,
   SortOrder,
-  TopicsDocument,
 } from '@/graphql/generated/graphql';
 import { mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
 
@@ -30,11 +29,6 @@ type PostsResponse = {
   page?: number;
   size?: number;
   sort?: string;
-};
-
-type TopicsResponse = {
-  status?: string;
-  topics?: unknown[];
 };
 
 type ContentLikeResponse = {
@@ -166,31 +160,6 @@ export const fetchPosts = async (
     page: payload.page,
     size: payload.size,
     ...(typeof payload.sort === 'string' ? { sort: payload.sort } : {}),
-  };
-};
-
-export const fetchTopics = async (locale: string, options: ContentApiOptions = {}): Promise<TopicsResponse | null> => {
-  const normalizedLocale = locale.trim();
-  if (normalizedLocale.length === 0) {
-    return null;
-  }
-
-  const result = await queryGraphQL(
-    TopicsDocument,
-    {
-      locale: normalizedLocale,
-    },
-    options,
-  );
-
-  const payload = result?.topics;
-  if (!payload) {
-    return null;
-  }
-
-  return {
-    status: payload.status,
-    topics: payload.nodes,
   };
 };
 

@@ -100,8 +100,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Posts  func(childComplexity int, locale string, input *model.PostsQueryInput) int
-		Topics func(childComplexity int, locale string) int
+		Posts func(childComplexity int, locale string, input *model.PostsQueryInput) int
 	}
 
 	Topic struct {
@@ -109,12 +108,6 @@ type ComplexityRoot struct {
 		ID    func(childComplexity int) int
 		Link  func(childComplexity int) int
 		Name  func(childComplexity int) int
-	}
-
-	TopicConnection struct {
-		Locale func(childComplexity int) int
-		Nodes  func(childComplexity int) int
-		Status func(childComplexity int) int
 	}
 }
 
@@ -128,7 +121,6 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Posts(ctx context.Context, locale string, input *model.PostsQueryInput) (*model.PostConnection, error)
-	Topics(ctx context.Context, locale string) (*model.TopicConnection, error)
 }
 
 type executableSchema struct {
@@ -407,17 +399,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.Posts(childComplexity, args["locale"].(string), args["input"].(*model.PostsQueryInput)), true
-	case "Query.topics":
-		if e.complexity.Query.Topics == nil {
-			break
-		}
-
-		args, err := ec.field_Query_topics_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Topics(childComplexity, args["locale"].(string)), true
 
 	case "Topic.color":
 		if e.complexity.Topic.Color == nil {
@@ -443,25 +424,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Topic.Name(childComplexity), true
-
-	case "TopicConnection.locale":
-		if e.complexity.TopicConnection.Locale == nil {
-			break
-		}
-
-		return e.complexity.TopicConnection.Locale(childComplexity), true
-	case "TopicConnection.nodes":
-		if e.complexity.TopicConnection.Nodes == nil {
-			break
-		}
-
-		return e.complexity.TopicConnection.Nodes(childComplexity), true
-	case "TopicConnection.status":
-		if e.complexity.TopicConnection.Status == nil {
-			break
-		}
-
-		return e.complexity.TopicConnection.Status(childComplexity), true
 
 	}
 	return 0, false
@@ -578,7 +540,6 @@ var sources = []*ast.Source{
 
 type Query {
   posts(locale: String!, input: PostsQueryInput): PostConnection!
-  topics(locale: String!): TopicConnection!
 }
 
 type Mutation {
@@ -625,12 +586,6 @@ type PostConnection {
   page: Int!
   size: Int!
   sort: String
-}
-
-type TopicConnection {
-  status: String!
-  locale: String
-  nodes: [Topic!]!
 }
 
 type PostEngagement {
@@ -770,17 +725,6 @@ func (ec *executionContext) field_Query_posts_args(ctx context.Context, rawArgs 
 		return nil, err
 	}
 	args["input"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_topics_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalNString2string)
-	if err != nil {
-		return nil, err
-	}
-	args["locale"] = arg0
 	return args, nil
 }
 
@@ -2070,55 +2014,6 @@ func (ec *executionContext) fieldContext_Query_posts(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_topics(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_Query_topics,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Topics(ctx, fc.Args["locale"].(string))
-		},
-		nil,
-		ec.marshalNTopicConnection2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐTopicConnection,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_Query_topics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "status":
-				return ec.fieldContext_TopicConnection_status(ctx, field)
-			case "locale":
-				return ec.fieldContext_TopicConnection_locale(ctx, field)
-			case "nodes":
-				return ec.fieldContext_TopicConnection_nodes(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TopicConnection", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_topics_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2338,103 +2233,6 @@ func (ec *executionContext) fieldContext_Topic_link(_ context.Context, field gra
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TopicConnection_status(ctx context.Context, field graphql.CollectedField, obj *model.TopicConnection) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_TopicConnection_status,
-		func(ctx context.Context) (any, error) {
-			return obj.Status, nil
-		},
-		nil,
-		ec.marshalNString2string,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_TopicConnection_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TopicConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TopicConnection_locale(ctx context.Context, field graphql.CollectedField, obj *model.TopicConnection) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_TopicConnection_locale,
-		func(ctx context.Context) (any, error) {
-			return obj.Locale, nil
-		},
-		nil,
-		ec.marshalOString2ᚖstring,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_TopicConnection_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TopicConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TopicConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *model.TopicConnection) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_TopicConnection_nodes,
-		func(ctx context.Context) (any, error) {
-			return obj.Nodes, nil
-		},
-		nil,
-		ec.marshalNTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐTopicᚄ,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_TopicConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TopicConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Topic_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Topic_name(ctx, field)
-			case "color":
-				return ec.fieldContext_Topic_color(ctx, field)
-			case "link":
-				return ec.fieldContext_Topic_link(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Topic", field.Name)
 		},
 	}
 	return fc, nil
@@ -4448,28 +4246,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "topics":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_topics(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "__type":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -4529,52 +4305,6 @@ func (ec *executionContext) _Topic(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "link":
 			out.Values[i] = ec._Topic_link(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var topicConnectionImplementors = []string{"TopicConnection"}
-
-func (ec *executionContext) _TopicConnection(ctx context.Context, sel ast.SelectionSet, obj *model.TopicConnection) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, topicConnectionImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TopicConnection")
-		case "status":
-			out.Values[i] = ec._TopicConnection_status(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "locale":
-			out.Values[i] = ec._TopicConnection_locale(ctx, field, obj)
-		case "nodes":
-			out.Values[i] = ec._TopicConnection_nodes(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5157,50 +4887,6 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐTopicᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Topic) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTopic2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐTopic(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
 func (ec *executionContext) marshalNTopic2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐTopic(ctx context.Context, sel ast.SelectionSet, v *model.Topic) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -5209,20 +4895,6 @@ func (ec *executionContext) marshalNTopic2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpk
 		return graphql.Null
 	}
 	return ec._Topic(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNTopicConnection2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐTopicConnection(ctx context.Context, sel ast.SelectionSet, v model.TopicConnection) graphql.Marshaler {
-	return ec._TopicConnection(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNTopicConnection2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐTopicConnection(ctx context.Context, sel ast.SelectionSet, v *model.TopicConnection) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TopicConnection(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

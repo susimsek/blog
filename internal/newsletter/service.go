@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net/mail"
 	"net/url"
@@ -13,14 +14,9 @@ import (
 	"time"
 
 	newsletterpkg "suaybsimsek.com/blog-api/pkg/newsletter"
-
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
-	newsletterCollectionName    = "newsletter_subscribers"
 	defaultNewsletterFormName   = "preFooterNewsletter"
 	defaultNewsletterSourceName = "pre-footer"
 	newsletterConfirmTokenTTL   = 24 * time.Hour
@@ -125,15 +121,9 @@ func (limit *rateLimiter) allow(clientID string) bool {
 }
 
 var (
-	subscribeLimiter = newRateLimiter(5, time.Minute)
-	resendLimiter    = newRateLimiter(5, time.Minute)
-
-	mongoClient     *mongo.Client
-	mongoInitErr    error
-	mongoClientOnce sync.Once
-
-	indexesOnce sync.Once
-	indexesErr  error
+	subscribeLimiter                = newRateLimiter(5, time.Minute)
+	resendLimiter                   = newRateLimiter(5, time.Minute)
+	newsletterRepository Repository = NewMongoRepository()
 )
 
 func normalizeEmail(value string) (string, error) {
@@ -222,90 +212,6 @@ func sendConfirmationEmail(cfg newsletterpkg.SMTPConfig, recipientEmail, confirm
 	return newsletterpkg.SendHTMLEmail(cfg, recipientEmail, subject, htmlBody, nil)
 }
 
-func getMongoClient() (*mongo.Client, error) {
-	mongoClientOnce.Do(func() {
-		uri, err := newsletterpkg.ResolveMongoURI()
-		if err != nil {
-			mongoInitErr = err
-			return
-		}
-
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri).SetAppName("blog-api-newsletter"))
-		if err != nil {
-			mongoInitErr = fmt.Errorf("mongodb connect failed: %w", err)
-			return
-		}
-
-		mongoClient = client
-	})
-
-	if mongoInitErr != nil {
-		return nil, mongoInitErr
-	}
-
-	return mongoClient, nil
-}
-
-func ensureSubscriberIndexes(collection *mongo.Collection) error {
-	indexesOnce.Do(func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		indexes := []mongo.IndexModel{
-			{
-				Keys:    bson.D{{Key: "email", Value: 1}},
-				Options: options.Index().SetUnique(true).SetName("uniq_newsletter_email"),
-			},
-			{
-				Keys: bson.D{
-					{Key: "status", Value: 1},
-					{Key: "locale", Value: 1},
-				},
-				Options: options.Index().SetName("idx_newsletter_status_locale"),
-			},
-			{
-				Keys:    bson.D{{Key: "confirmTokenHash", Value: 1}},
-				Options: options.Index().SetName("idx_confirm_token_hash"),
-			},
-			{
-				Keys: bson.D{{Key: "confirmTokenExpiresAt", Value: 1}},
-				Options: options.Index().
-					SetName("ttl_confirm_token_expiry").
-					SetExpireAfterSeconds(0),
-			},
-		}
-
-		_, err := collection.Indexes().CreateMany(ctx, indexes)
-		if err != nil {
-			indexesErr = fmt.Errorf("create index failed: %w", err)
-		}
-	})
-
-	return indexesErr
-}
-
-func getCollection() (*mongo.Collection, error) {
-	databaseName, err := newsletterpkg.ResolveDatabaseName()
-	if err != nil {
-		return nil, err
-	}
-
-	client, err := getMongoClient()
-	if err != nil {
-		return nil, err
-	}
-
-	collection := client.Database(databaseName).Collection(newsletterCollectionName)
-	if err := ensureSubscriberIndexes(collection); err != nil {
-		return nil, err
-	}
-
-	return collection, nil
-}
-
 func Subscribe(ctx context.Context, input SubscribeInput, meta RequestMetadata) Result {
 	if input.Terms {
 		return Result{Status: "success"}
@@ -332,23 +238,15 @@ func Subscribe(ctx context.Context, input SubscribeInput, meta RequestMetadata) 
 		return Result{Status: "rate-limited"}
 	}
 
-	collection, err := getCollection()
+	lookupCtx, lookupCancel := context.WithTimeout(ctx, 5*time.Second)
+	defer lookupCancel()
+
+	existingStatus, found, err := newsletterRepository.GetStatusByEmail(lookupCtx, email)
 	if err != nil {
 		return Result{Status: "unknown-error"}
 	}
 
-	lookupCtx, lookupCancel := context.WithTimeout(ctx, 5*time.Second)
-	defer lookupCancel()
-
-	var existing struct {
-		Status string `bson:"status"`
-	}
-	err = collection.FindOne(lookupCtx, bson.M{"email": email}).Decode(&existing)
-	if err != nil && err != mongo.ErrNoDocuments {
-		return Result{Status: "unknown-error"}
-	}
-
-	if err == nil && existing.Status == "active" {
+	if found && existingStatus == "active" {
 		return Result{Status: "success"}
 	}
 
@@ -363,30 +261,24 @@ func Subscribe(ctx context.Context, input SubscribeInput, meta RequestMetadata) 
 	}
 
 	now := time.Now().UTC()
-	update := bson.M{
-		"$set": bson.M{
-			"email":                 email,
-			"locale":                locale,
-			"status":                "pending",
-			"tags":                  normalizeTags(input.Tags),
-			"formName":              normalizeFormName(input.FormName),
-			"source":                defaultNewsletterSourceName,
-			"updatedAt":             now,
-			"ipHash":                hashValue(strings.TrimSpace(meta.ClientIP)),
-			"userAgent":             strings.TrimSpace(meta.UserAgent),
-			"confirmTokenHash":      hashValue(confirmToken),
-			"confirmTokenExpiresAt": now.Add(newsletterConfirmTokenTTL),
-			"confirmRequestedAt":    now,
-		},
-		"$setOnInsert": bson.M{
-			"createdAt": now,
-		},
-	}
-
+	createdAt := now
 	updateCtx, updateCancel := context.WithTimeout(ctx, 10*time.Second)
 	defer updateCancel()
 
-	_, err = collection.UpdateOne(updateCtx, bson.M{"email": email}, update, options.Update().SetUpsert(true))
+	err = newsletterRepository.UpsertPendingSubscription(updateCtx, PendingSubscription{
+		Email:                 email,
+		Locale:                locale,
+		Tags:                  normalizeTags(input.Tags),
+		FormName:              normalizeFormName(input.FormName),
+		Source:                defaultNewsletterSourceName,
+		UpdatedAt:             now,
+		IPHash:                hashValue(strings.TrimSpace(meta.ClientIP)),
+		UserAgent:             strings.TrimSpace(meta.UserAgent),
+		ConfirmTokenHash:      hashValue(confirmToken),
+		ConfirmTokenExpiresAt: now.Add(newsletterConfirmTokenTTL),
+		ConfirmRequestedAt:    now,
+		CreatedAt:             &createdAt,
+	})
 	if err != nil {
 		return Result{Status: "unknown-error"}
 	}
@@ -424,26 +316,18 @@ func Resend(ctx context.Context, input ResendInput, meta RequestMetadata) Result
 		return Result{Status: "rate-limited"}
 	}
 
-	collection, err := getCollection()
-	if err != nil {
-		return Result{Status: "unknown-error"}
-	}
-
 	lookupCtx, lookupCancel := context.WithTimeout(ctx, 5*time.Second)
 	defer lookupCancel()
 
-	var existing struct {
-		Status string `bson:"status"`
-	}
-	err = collection.FindOne(lookupCtx, bson.M{"email": email}).Decode(&existing)
-	if err == mongo.ErrNoDocuments {
-		return Result{Status: "success"}
-	}
+	existingStatus, found, err := newsletterRepository.GetStatusByEmail(lookupCtx, email)
 	if err != nil {
 		return Result{Status: "unknown-error"}
 	}
+	if !found {
+		return Result{Status: "success"}
+	}
 
-	if existing.Status == "active" {
+	if existingStatus == "active" {
 		return Result{Status: "success"}
 	}
 
@@ -458,23 +342,19 @@ func Resend(ctx context.Context, input ResendInput, meta RequestMetadata) Result
 	}
 
 	now := time.Now().UTC()
-	update := bson.M{
-		"$set": bson.M{
-			"locale":                locale,
-			"status":                "pending",
-			"updatedAt":             now,
-			"ipHash":                hashValue(strings.TrimSpace(meta.ClientIP)),
-			"userAgent":             strings.TrimSpace(meta.UserAgent),
-			"confirmTokenHash":      hashValue(confirmToken),
-			"confirmTokenExpiresAt": now.Add(newsletterConfirmTokenTTL),
-			"confirmRequestedAt":    now,
-		},
-	}
-
 	updateCtx, updateCancel := context.WithTimeout(ctx, 10*time.Second)
 	defer updateCancel()
 
-	_, err = collection.UpdateOne(updateCtx, bson.M{"email": email}, update)
+	err = newsletterRepository.UpdatePendingSubscription(updateCtx, PendingSubscription{
+		Email:                 email,
+		Locale:                locale,
+		UpdatedAt:             now,
+		IPHash:                hashValue(strings.TrimSpace(meta.ClientIP)),
+		UserAgent:             strings.TrimSpace(meta.UserAgent),
+		ConfirmTokenHash:      hashValue(confirmToken),
+		ConfirmTokenExpiresAt: now.Add(newsletterConfirmTokenTTL),
+		ConfirmRequestedAt:    now,
+	})
 	if err != nil {
 		return Result{Status: "unknown-error"}
 	}
@@ -496,38 +376,18 @@ func Confirm(ctx context.Context, token string) Result {
 		return Result{Status: "config-error"}
 	}
 
-	collection, err := getCollection()
-	if err != nil {
-		return Result{Status: "service-unavailable"}
-	}
-
 	now := time.Now().UTC()
-	filter := bson.M{
-		"confirmTokenHash":      hashValue(strings.TrimSpace(token)),
-		"status":                "pending",
-		"confirmTokenExpiresAt": bson.M{"$gt": now},
-	}
-	update := bson.M{
-		"$set": bson.M{
-			"status":      "active",
-			"confirmedAt": now,
-			"updatedAt":   now,
-		},
-		"$unset": bson.M{
-			"confirmTokenHash":      "",
-			"confirmTokenExpiresAt": "",
-			"confirmRequestedAt":    "",
-		},
-	}
-
 	updateCtx, updateCancel := context.WithTimeout(ctx, 10*time.Second)
 	defer updateCancel()
 
-	result, err := collection.UpdateOne(updateCtx, filter, update)
+	matched, err := newsletterRepository.ConfirmByTokenHash(updateCtx, hashValue(strings.TrimSpace(token)), now)
 	if err != nil {
+		if errors.Is(err, errRepositoryUnavailable) {
+			return Result{Status: "service-unavailable"}
+		}
 		return Result{Status: "failed"}
 	}
-	if result.MatchedCount == 0 {
+	if !matched {
 		return Result{Status: "expired"}
 	}
 
@@ -554,30 +414,15 @@ func Unsubscribe(ctx context.Context, token string) Result {
 		return Result{Status: "invalid-link"}
 	}
 
-	collection, err := getCollection()
-	if err != nil {
-		return Result{Status: "service-unavailable"}
-	}
-
 	now := time.Now().UTC()
-	update := bson.M{
-		"$set": bson.M{
-			"status":         "unsubscribed",
-			"updatedAt":      now,
-			"unsubscribedAt": now,
-		},
-		"$unset": bson.M{
-			"confirmTokenHash":      "",
-			"confirmTokenExpiresAt": "",
-			"confirmRequestedAt":    "",
-		},
-	}
-
 	updateCtx, updateCancel := context.WithTimeout(ctx, 10*time.Second)
 	defer updateCancel()
 
-	_, err = collection.UpdateOne(updateCtx, bson.M{"email": email}, update)
+	err = newsletterRepository.UnsubscribeByEmail(updateCtx, email, now)
 	if err != nil {
+		if errors.Is(err, errRepositoryUnavailable) {
+			return Result{Status: "service-unavailable"}
+		}
 		return Result{Status: "failed"}
 	}
 

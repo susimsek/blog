@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"math"
 	"strings"
 	"time"
@@ -12,6 +13,8 @@ import (
 type TopicRecord = topicRecord
 type PostRecord = postRecord
 type ContentResponse = contentResponse
+
+var postsRepository Repository = NewMongoRepository()
 
 // ContentQueryInput represents posts query options used by GraphQL and internal callers.
 type ContentQueryInput struct {
@@ -24,11 +27,6 @@ type ContentQueryInput struct {
 
 // QueryContent returns posts, engagement, and pagination metadata without HTTP routing.
 func QueryContent(ctx context.Context, input ContentQueryInput) contentResponse {
-	collection, err := getPostsCollection()
-	if err != nil {
-		return contentResponse{Status: "service-unavailable"}
-	}
-
 	locale := newsletter.ResolveLocale(strings.TrimSpace(input.Locale), "")
 	sortOrder := normalizeSortOrder(input.Sort)
 
@@ -48,11 +46,13 @@ func QueryContent(ctx context.Context, input ContentQueryInput) contentResponse 
 	resolvedPage := 1
 	total := 0
 
-	total64, countErr := collection.CountDocuments(operationCtx.ctx, filter)
+	total, countErr := postsRepository.CountPosts(operationCtx.ctx, filter)
 	if countErr != nil {
+		if errors.Is(countErr, errRepositoryUnavailable) {
+			return contentResponse{Status: "service-unavailable"}
+		}
 		return contentResponse{Status: "failed"}
 	}
-	total = int(total64)
 	if total == 0 {
 		return contentResponse{
 			Status: "success",
@@ -77,8 +77,11 @@ func QueryContent(ctx context.Context, input ContentQueryInput) contentResponse 
 	limit := int64(size)
 	skip := int64((resolvedPage - 1) * size)
 
-	posts, queryErr := queryPosts(operationCtx.ctx, collection, filter, sortOrder, skip, limit)
+	posts, queryErr := postsRepository.FindPosts(operationCtx.ctx, filter, sortOrder, skip, limit)
 	if queryErr != nil {
+		if errors.Is(queryErr, errRepositoryUnavailable) {
+			return contentResponse{Status: "service-unavailable"}
+		}
 		return contentResponse{Status: "failed"}
 	}
 
@@ -86,8 +89,8 @@ func QueryContent(ctx context.Context, input ContentQueryInput) contentResponse 
 		Status:        "success",
 		Locale:        locale,
 		Posts:         posts,
-		LikesByPostID: resolveLikesByPostID(operationCtx.ctx, posts),
-		HitsByPostID:  resolveHitsByPostID(operationCtx.ctx, posts),
+		LikesByPostID: postsRepository.ResolveLikesByPostID(operationCtx.ctx, posts),
+		HitsByPostID:  postsRepository.ResolveHitsByPostID(operationCtx.ctx, posts),
 		Total:         total,
 		Page:          resolvedPage,
 		Size:          size,
@@ -102,16 +105,14 @@ func IncrementLike(ctx context.Context, postID string) contentResponse {
 		return contentResponse{Status: "invalid-post-id"}
 	}
 
-	collection, err := getLikesCollection()
-	if err != nil {
-		return contentResponse{Status: "service-unavailable"}
-	}
-
 	operationCtx := withTimeoutContext(ctx, 10*time.Second)
 	defer operationCtx.cancel()
 
-	likes, incrementErr := incrementPostLike(operationCtx.ctx, collection, normalizedPostID, time.Now().UTC())
+	likes, incrementErr := postsRepository.IncrementPostLike(operationCtx.ctx, normalizedPostID, time.Now().UTC())
 	if incrementErr != nil {
+		if errors.Is(incrementErr, errRepositoryUnavailable) {
+			return contentResponse{Status: "service-unavailable", PostID: normalizedPostID}
+		}
 		return contentResponse{Status: "failed", PostID: normalizedPostID}
 	}
 
@@ -129,16 +130,14 @@ func IncrementHit(ctx context.Context, postID string) contentResponse {
 		return contentResponse{Status: "invalid-post-id"}
 	}
 
-	collection, err := getHitsCollection()
-	if err != nil {
-		return contentResponse{Status: "service-unavailable"}
-	}
-
 	operationCtx := withTimeoutContext(ctx, 10*time.Second)
 	defer operationCtx.cancel()
 
-	hits, incrementErr := incrementPostHit(operationCtx.ctx, collection, normalizedPostID, time.Now().UTC())
+	hits, incrementErr := postsRepository.IncrementPostHit(operationCtx.ctx, normalizedPostID, time.Now().UTC())
 	if incrementErr != nil {
+		if errors.Is(incrementErr, errRepositoryUnavailable) {
+			return contentResponse{Status: "service-unavailable", PostID: normalizedPostID}
+		}
 		return contentResponse{Status: "failed", PostID: normalizedPostID}
 	}
 

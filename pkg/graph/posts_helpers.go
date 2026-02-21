@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	postsapi "suaybsimsek.com/blog-api/internal/posts"
-	topicsapi "suaybsimsek.com/blog-api/internal/topics"
 	"suaybsimsek.com/blog-api/pkg/graph/model"
 )
 
@@ -66,31 +65,6 @@ func mapEngagement(likes map[string]int64, hits map[string]int64) []*model.PostE
 }
 
 func mapTopicsFromPostTopics(topics []postsapi.TopicRecord) []*model.Topic {
-	if len(topics) == 0 {
-		return []*model.Topic{}
-	}
-
-	result := make([]*model.Topic, 0, len(topics))
-	for _, topic := range topics {
-		id := strings.TrimSpace(topic.ID)
-		name := strings.TrimSpace(topic.Name)
-		color := strings.TrimSpace(topic.Color)
-		if id == "" || name == "" || color == "" {
-			continue
-		}
-
-		result = append(result, &model.Topic{
-			ID:    id,
-			Name:  name,
-			Color: color,
-			Link:  toOptionalString(derefString(topic.Link)),
-		})
-	}
-
-	return result
-}
-
-func mapTopicsFromTopicRecords(topics []topicsapi.TopicRecord) []*model.Topic {
 	if len(topics) == 0 {
 		return []*model.Topic{}
 	}

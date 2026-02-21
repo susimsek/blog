@@ -5,7 +5,6 @@ schema {
 
 type Query {
   posts(locale: String!, input: PostsQueryInput): PostConnection!
-  topics(locale: String!): TopicConnection!
 }
 
 type Mutation {
@@ -52,12 +51,6 @@ type PostConnection {
   page: Int!
   size: Int!
   sort: String
-}
-
-type TopicConnection {
-  status: String!
-  locale: String
-  nodes: [Topic!]!
 }
 
 type PostEngagement {
