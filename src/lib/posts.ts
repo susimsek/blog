@@ -37,6 +37,7 @@ const DEFAULT_LAYOUT_POSTS_LIMIT = 12;
 const DEFAULT_TOP_TOPICS_LIMIT = 6;
 const ALL_POST_IDS_CACHE_KEY = 'all-post-ids';
 const ALL_TOPIC_IDS_CACHE_KEY = 'all-topic-ids';
+const ALL_SOURCES_POSTS_CACHE_KEY_SUFFIX = 'all-sources';
 
 const readIdsFromIndexFile = async (
   indexPath: string,
@@ -89,6 +90,46 @@ async function parsePostFile(filePath: string): Promise<{ data: PostSummary; con
   return { data: postSummary, content };
 }
 
+export async function getAllPostsData(locale: string): Promise<PostSummary[]> {
+  const cacheKey = `${locale}-${ALL_SOURCES_POSTS_CACHE_KEY_SUFFIX}`;
+  const cachedData = postsCache.get(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+
+  const postsJsonPath = path.join(postsIndexDirectory, `posts.${locale}.json`);
+  if (!(await fileExists(postsJsonPath))) {
+    console.error(`Posts index not found for locale "${locale}": ${postsJsonPath}`);
+    postsCache.set(cacheKey, []);
+    return [];
+  }
+
+  try {
+    const fileContents = await fsPromises.readFile(postsJsonPath, 'utf8');
+    const allPosts = JSON.parse(fileContents) as PostSummary[];
+    const normalizedPosts = allPosts
+      .map(post => ({
+        ...post,
+        source: post.source === 'medium' ? ('medium' as const) : ('blog' as const),
+      }))
+      .filter(
+        post =>
+          typeof post.readingTimeMin === 'number' &&
+          Number.isFinite(post.readingTimeMin) &&
+          post.readingTimeMin > 0 &&
+          typeof post.searchText === 'string',
+      );
+
+    const sortedPosts = sortPosts(normalizedPosts);
+    postsCache.set(cacheKey, sortedPosts);
+    return sortedPosts;
+  } catch (error) {
+    console.error(`Error reading/parsing posts index for locale "${locale}":`, error);
+    postsCache.set(cacheKey, []);
+    return [];
+  }
+}
+
 // Get all posts grouped by locale
 export async function getSortedPostsData(
   locale: string,
@@ -101,40 +142,13 @@ export async function getSortedPostsData(
     return cachedData;
   }
 
-  const postsJsonPath = path.join(postsIndexDirectory, `posts.${locale}.json`);
+  const allPosts = await getAllPostsData(locale);
+  const filteredPosts = allPosts
+    .filter(post => post.source === source)
+    .filter(post => !topicId || (Array.isArray(post.topics) && post.topics.some((t: Topic) => t.id === topicId)));
 
-  if (!(await fileExists(postsJsonPath))) {
-    console.error(`Posts index not found for locale "${locale}": ${postsJsonPath}`);
-    postsCache.set(cacheKey, []);
-    return [];
-  }
-
-  try {
-    const fileContents = await fsPromises.readFile(postsJsonPath, 'utf8');
-    const allPosts = JSON.parse(fileContents) as PostSummary[];
-    const filteredPosts = allPosts
-      .map(post => ({
-        ...post,
-        source: post.source === 'medium' ? ('medium' as const) : ('blog' as const),
-      }))
-      .filter(post => post.source === source)
-      .filter(post => !topicId || (Array.isArray(post.topics) && post.topics.some((t: Topic) => t.id === topicId)))
-      .filter(
-        post =>
-          typeof post.readingTimeMin === 'number' &&
-          Number.isFinite(post.readingTimeMin) &&
-          post.readingTimeMin > 0 &&
-          typeof post.searchText === 'string',
-      );
-
-    const sortedPosts = sortPosts(filteredPosts);
-    postsCache.set(cacheKey, sortedPosts);
-    return sortedPosts;
-  } catch (error) {
-    console.error(`Error reading/parsing posts index for locale "${locale}":`, error);
-    postsCache.set(cacheKey, []);
-    return [];
-  }
+  postsCache.set(cacheKey, filteredPosts);
+  return filteredPosts;
 }
 
 // Get a specific post for locale

@@ -23,6 +23,7 @@ export interface PostsQueryState {
   locale: string | null;
   posts: PostSummary[];
   topics: Topic[];
+  topicsLoading: boolean;
 }
 
 const initialState: PostsQueryState = {
@@ -37,6 +38,7 @@ const initialState: PostsQueryState = {
   locale: null,
   posts: [],
   topics: [],
+  topicsLoading: false,
 };
 
 const postsQuerySlice = createSlice({
@@ -48,6 +50,9 @@ const postsQuerySlice = createSlice({
     },
     setTopics: (state, action: PayloadAction<Topic[]>) => {
       state.topics = action.payload;
+    },
+    setTopicsLoading: (state, action: PayloadAction<boolean>) => {
+      state.topicsLoading = action.payload;
     },
     setQuery: (state, action: PayloadAction<string>) => {
       state.query = action.payload;
@@ -83,6 +88,11 @@ const postsQuerySlice = createSlice({
     setLocale: (state, action: PayloadAction<string | null>) => {
       state.locale = action.payload;
     },
+    clearNonSearchFilters: state => {
+      state.selectedTopics = [];
+      state.dateRange = {};
+      state.readingTimeRange = 'any';
+    },
     resetFilters: state => {
       state.query = '';
       state.selectedTopics = [];
@@ -98,6 +108,7 @@ const postsQuerySlice = createSlice({
 export const {
   setPosts,
   setTopics,
+  setTopicsLoading,
   setQuery,
   setSortOrder,
   setPage,
@@ -107,6 +118,7 @@ export const {
   setDateRange,
   setReadingTimeRange,
   setLocale,
+  clearNonSearchFilters,
   resetFilters,
 } = postsQuerySlice.actions;
 

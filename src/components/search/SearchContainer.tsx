@@ -3,7 +3,6 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import SearchBar from '@/components/search/SearchBar';
 import PostListItem from '@/components/posts/PostListItem';
 import Link from '@/components/common/Link';
-import { fetchPosts } from '@/lib/contentApi';
 import useDebounce from '@/hooks/useDebounce';
 import { defaultLocale } from '@/i18n/settings';
 import { PostSummary } from '@/types/posts';
@@ -11,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAppSelector } from '@/config/store';
 import { useRouter } from 'next/navigation';
+import { withBasePath } from '@/lib/basePath';
 
 type ShortcutHint = {
   modifier: string;
@@ -22,6 +22,14 @@ interface SearchContainerProps {
 }
 
 const SEARCH_RESULTS_LIST_ID = 'header-search-results';
+const MAX_RESULTS = 5;
+const localePostsCache = new Map<string, PostSummary[]>();
+const localePostsPromiseCache = new Map<string, Promise<PostSummary[]>>();
+
+export const __resetSearchContainerCacheForTests = () => {
+  localePostsCache.clear();
+  localePostsPromiseCache.clear();
+};
 
 const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
   posts.flatMap(post => {
@@ -39,10 +47,15 @@ const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
       typeof candidate.readingTimeMin !== 'number' ||
       !Number.isFinite(candidate.readingTimeMin) ||
       candidate.readingTimeMin <= 0 ||
-      (candidate.updatedDate !== undefined && typeof candidate.updatedDate !== 'string') ||
+      (candidate.updatedDate !== undefined &&
+        candidate.updatedDate !== null &&
+        typeof candidate.updatedDate !== 'string') ||
       (candidate.thumbnail !== null && typeof candidate.thumbnail !== 'string') ||
-      (candidate.topics !== undefined && !Array.isArray(candidate.topics)) ||
-      (candidate.source !== undefined && candidate.source !== 'blog' && candidate.source !== 'medium')
+      (candidate.topics !== undefined && candidate.topics !== null && !Array.isArray(candidate.topics)) ||
+      (candidate.source !== undefined &&
+        candidate.source !== null &&
+        candidate.source !== 'blog' &&
+        candidate.source !== 'medium')
     ) {
       return [];
     }
@@ -56,13 +69,69 @@ const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
         summary: candidate.summary,
         searchText: candidate.searchText,
         thumbnail: candidate.thumbnail,
-        topics: candidate.topics,
+        topics: Array.isArray(candidate.topics) ? candidate.topics : undefined,
         readingTimeMin: candidate.readingTimeMin,
         source: candidate.source === 'medium' ? 'medium' : 'blog',
         ...(typeof candidate.link === 'string' ? { link: candidate.link } : {}),
       },
     ];
   });
+
+const getStaticLocalePosts = async (locale: string): Promise<PostSummary[]> => {
+  const normalizedLocale = locale.trim();
+  if (normalizedLocale.length === 0) {
+    return [];
+  }
+
+  const cachedPosts = localePostsCache.get(normalizedLocale);
+  if (cachedPosts) {
+    return cachedPosts;
+  }
+
+  const inFlightRequest = localePostsPromiseCache.get(normalizedLocale);
+  if (inFlightRequest) {
+    return inFlightRequest;
+  }
+
+  const request = (async () => {
+    try {
+      const response = await fetch(withBasePath(`/data/posts.${normalizedLocale}.json`), {
+        cache: 'force-cache',
+      });
+      if (!response.ok) {
+        return [];
+      }
+
+      const payload = (await response.json()) as unknown;
+      const normalizedPosts = Array.isArray(payload) ? normalizeSearchPosts(payload) : [];
+      localePostsCache.set(normalizedLocale, normalizedPosts);
+      return normalizedPosts;
+    } catch {
+      return [];
+    } finally {
+      localePostsPromiseCache.delete(normalizedLocale);
+    }
+  })();
+
+  localePostsPromiseCache.set(normalizedLocale, request);
+  return request;
+};
+
+const filterSearchResults = (posts: PostSummary[], query: string) => {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (normalizedQuery.length === 0) {
+    return [];
+  }
+
+  const filteredPosts = posts.filter(post => {
+    const searchArea = `${post.title} ${post.summary} ${post.searchText}`.toLowerCase();
+    return searchArea.includes(normalizedQuery);
+  });
+  const blogPosts = filteredPosts.filter(post => (post.source ?? 'blog') === 'blog');
+  const mediumPosts = filteredPosts.filter(post => (post.source ?? 'blog') === 'medium');
+
+  return [...blogPosts, ...mediumPosts].slice(0, MAX_RESULTS);
+};
 
 export default function SearchContainer({ shortcutHint }: Readonly<SearchContainerProps>) {
   const { t } = useTranslation('common');
@@ -107,42 +176,23 @@ export default function SearchContainer({ shortcutHint }: Readonly<SearchContain
       return;
     }
 
-    const controller = new AbortController();
+    let isMounted = true;
 
     const loadSearchResults = async () => {
-      const payload = await fetchPosts(
-        locale,
-        {
-          q: debouncedQuery,
-          page: 1,
-          size: 20,
-          sort: 'desc',
-          source: 'all',
-        },
-        { signal: controller.signal },
-      );
+      const localePosts = await getStaticLocalePosts(locale);
 
-      if (controller.signal.aborted) {
+      if (!isMounted) {
         return;
       }
 
-      if (!payload || payload.status !== 'success' || !Array.isArray(payload.posts)) {
-        setSearchResults([]);
-        setIsLoadingResults(false);
-        return;
-      }
-
-      const normalizedPosts = normalizeSearchPosts(payload.posts);
-      const blogPosts = normalizedPosts.filter(post => (post.source ?? 'blog') === 'blog');
-      const mediumPosts = normalizedPosts.filter(post => (post.source ?? 'blog') === 'medium');
-      setSearchResults([...blogPosts, ...mediumPosts].slice(0, 5));
+      setSearchResults(filterSearchResults(localePosts, debouncedQuery));
       setIsLoadingResults(false);
     };
 
     void loadSearchResults();
 
     return () => {
-      controller.abort();
+      isMounted = false;
     };
   }, [debouncedQuery, locale, normalizedQuery, showResults]);
 

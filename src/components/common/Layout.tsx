@@ -4,17 +4,16 @@ import Footer from '@/components/common/Footer';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { LayoutPostSummary, PostSummary, Topic } from '@/types/posts';
+import { LayoutPostSummary, Topic } from '@/types/posts';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { GA_ID } from '@/config/constants';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { useParams } from 'next/navigation';
 import { defaultLocale } from '@/i18n/settings';
-import { setPosts, setLocale, setTopics } from '@/reducers/postsQuery';
+import { setLocale, setTopics, setTopicsLoading } from '@/reducers/postsQuery';
 import PreFooter from '@/components/common/PreFooter';
 import dynamic from 'next/dynamic';
-import { fetchPosts, fetchTopics } from '@/lib/contentApi';
 
 const Sidebar = dynamic(() => import('@/components/common/Sidebar'));
 
@@ -26,71 +25,6 @@ type LayoutProps = {
   searchEnabled?: boolean;
   sidebarEnabled?: boolean;
 };
-
-const normalizeSearchPost = (
-  post: Pick<
-    PostSummary,
-    'id' | 'title' | 'publishedDate' | 'summary' | 'searchText' | 'readingTimeMin' | 'thumbnail'
-  > &
-    Partial<Pick<PostSummary, 'updatedDate'>> &
-    Partial<Pick<PostSummary, 'topics' | 'link' | 'source'>>,
-): PostSummary => {
-  return {
-    id: post.id,
-    title: post.title,
-    publishedDate: post.publishedDate,
-    ...(typeof post.updatedDate === 'string' ? { updatedDate: post.updatedDate } : {}),
-    summary: post.summary,
-    searchText: post.searchText,
-    thumbnail: post.thumbnail,
-    topics: post.topics,
-    readingTimeMin: post.readingTimeMin,
-    source: post.source === 'medium' ? 'medium' : 'blog',
-    ...(typeof post.link === 'string' ? { link: post.link } : {}),
-  };
-};
-
-const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
-  posts.flatMap(post => {
-    if (!post || typeof post !== 'object') {
-      return [];
-    }
-
-    const candidate = post as Partial<PostSummary>;
-    if (
-      typeof candidate.id !== 'string' ||
-      typeof candidate.title !== 'string' ||
-      typeof candidate.publishedDate !== 'string' ||
-      typeof candidate.summary !== 'string' ||
-      typeof candidate.readingTimeMin !== 'number' ||
-      !Number.isFinite(candidate.readingTimeMin) ||
-      candidate.readingTimeMin <= 0 ||
-      (candidate.updatedDate !== undefined && typeof candidate.updatedDate !== 'string') ||
-      typeof candidate.searchText !== 'string' ||
-      (candidate.thumbnail !== null && typeof candidate.thumbnail !== 'string') ||
-      (candidate.topics !== undefined && !Array.isArray(candidate.topics)) ||
-      (candidate.source !== undefined && candidate.source !== 'blog' && candidate.source !== 'medium')
-    ) {
-      return [];
-    }
-
-    return [
-      normalizeSearchPost({
-        ...candidate,
-        id: candidate.id,
-        title: candidate.title,
-        publishedDate: candidate.publishedDate,
-        updatedDate: candidate.updatedDate,
-        summary: candidate.summary,
-        thumbnail: candidate.thumbnail,
-        topics: candidate.topics,
-        readingTimeMin: candidate.readingTimeMin,
-        searchText: candidate.searchText,
-        source: candidate.source === 'medium' ? 'medium' : 'blog',
-        ...(typeof candidate.link === 'string' ? { link: candidate.link } : {}),
-      }),
-    ];
-  });
 
 const normalizeSearchTopics = (topics: ReadonlyArray<unknown>): Topic[] =>
   topics.flatMap(topic => {
@@ -113,7 +47,11 @@ const normalizeSearchTopics = (topics: ReadonlyArray<unknown>): Topic[] =>
     ];
   });
 
-const LayoutStateInitializer: React.FC = () => {
+type LayoutStateInitializerProps = {
+  topics: Topic[];
+};
+
+const LayoutStateInitializer: React.FC<LayoutStateInitializerProps> = ({ topics }) => {
   const dispatch = useAppDispatch();
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
@@ -124,35 +62,9 @@ const LayoutStateInitializer: React.FC = () => {
   }, [currentLocale, dispatch]);
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    const loadBootstrapData = async () => {
-      const [postsPayload, topicsPayload] = await Promise.all([
-        fetchPosts(currentLocale, {}, { signal: controller.signal }),
-        fetchTopics(currentLocale, { signal: controller.signal }),
-      ]);
-
-      if (!postsPayload || postsPayload.status !== 'success') {
-        dispatch(setPosts([]));
-      } else {
-        const normalizedPosts = Array.isArray(postsPayload.posts) ? normalizeSearchPosts(postsPayload.posts) : [];
-        dispatch(setPosts(normalizedPosts));
-      }
-
-      if (!topicsPayload || topicsPayload.status !== 'success') {
-        dispatch(setTopics([]));
-      } else {
-        const normalizedTopics = Array.isArray(topicsPayload.topics) ? normalizeSearchTopics(topicsPayload.topics) : [];
-        dispatch(setTopics(normalizedTopics));
-      }
-    };
-
-    void loadBootstrapData();
-
-    return () => {
-      controller.abort();
-    };
-  }, [currentLocale, dispatch]);
+    dispatch(setTopics(normalizeSearchTopics(topics)));
+    dispatch(setTopicsLoading(false));
+  }, [currentLocale, dispatch, topics]);
 
   return null;
 };
@@ -166,6 +78,9 @@ const LayoutView: React.FC<LayoutProps> = ({
   sidebarEnabled = false,
 }) => {
   const fetchedTopics = useAppSelector(state => state.postsQuery.topics);
+  const isTopicsLoading = useAppSelector(state => state.postsQuery.topicsLoading);
+  const sidebarTopics = fetchedTopics.length > 0 ? fetchedTopics : topics;
+  const shouldShowTopicsLoading = isTopicsLoading && sidebarTopics.length === 0;
   const isMobile = useMediaQuery('(max-width: 991px)');
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -217,7 +132,8 @@ const LayoutView: React.FC<LayoutProps> = ({
           {isDesktopSidebarVisible && (
             <Col xs={12} md={4} lg={3}>
               <Sidebar
-                topics={fetchedTopics}
+                topics={sidebarTopics}
+                isLoading={shouldShowTopicsLoading}
                 isMobile={isMobile}
                 isVisible={isDesktopSidebarVisible}
                 onClose={() => setIsDesktopSidebarOpen(false)}
@@ -231,7 +147,8 @@ const LayoutView: React.FC<LayoutProps> = ({
         </Row>
         {sidebarEnabled && isMobile && isMobileSidebarVisible && (
           <Sidebar
-            topics={fetchedTopics}
+            topics={sidebarTopics}
+            isLoading={shouldShowTopicsLoading}
             isMobile={isMobile}
             isVisible={isMobileSidebarVisible}
             onClose={() => setIsMobileSidebarOpen(false)}
@@ -249,7 +166,7 @@ const LayoutView: React.FC<LayoutProps> = ({
 const Layout: React.FC<LayoutProps> = props => {
   return (
     <>
-      <LayoutStateInitializer />
+      <LayoutStateInitializer topics={props.topics ?? []} />
       <LayoutView {...props} />
     </>
   );

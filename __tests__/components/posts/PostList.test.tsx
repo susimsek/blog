@@ -4,24 +4,11 @@ import PostList from '@/components/posts/PostList';
 import { mockPostSummaries, mockTopics } from '@tests/__mocks__/mockPostData';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
 import type { PostsQueryState } from '@/reducers/postsQuery';
-import type { PostSummary } from '@/types/posts';
 
 const useRouterMock = jest.fn();
 const usePathnameMock = jest.fn();
 const useSearchParamsMock = jest.fn();
-const fetchPostsMock = jest.fn();
 const fetchPostLikesMock = jest.fn();
-let currentApiPosts: PostSummary[] = [...mockPostSummaries];
-
-type FetchPostsParams = {
-  q?: string;
-  page?: number;
-  size?: number;
-  sort?: 'asc' | 'desc';
-  topics?: string[];
-  source?: 'all' | 'blog' | 'medium';
-  scopeIds?: string[];
-};
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
@@ -32,7 +19,6 @@ jest.mock('react-i18next', () => ({
 jest.mock('@/hooks/useDebounce', () => jest.fn((value: string) => value));
 
 jest.mock('@/lib/contentApi', () => ({
-  fetchPosts: (...args: unknown[]) => fetchPostsMock(...args),
   fetchPostLikes: (...args: unknown[]) => fetchPostLikesMock(...args),
 }));
 
@@ -74,7 +60,7 @@ jest.mock('@/components/pagination/PaginationBar', () => ({
 
 jest.mock('@/components/posts/PostSummary', () => ({
   __esModule: true,
-  default: ({ post }: { post: any }) => (
+  default: ({ post }: { post: { title: string; summary: string } }) => (
     <div data-testid="post-card">
       <h2>{post.title}</h2>
       <p>{post.summary}</p>
@@ -154,6 +140,7 @@ describe('PostList Component', () => {
     locale: 'en',
     posts: mockPostSummaries,
     topics: mockTopics,
+    topicsLoading: false,
   };
 
   const buildPreloadedState = (overrides: Partial<PostsQueryState> = {}) => ({
@@ -171,7 +158,6 @@ describe('PostList Component', () => {
   });
 
   beforeEach(() => {
-    currentApiPosts = [...mockPostSummaries];
     scrollIntoViewMock.mockClear();
     pushMock = jest.fn();
     useRouterMock.mockReturnValue({ push: pushMock });
@@ -179,56 +165,6 @@ describe('PostList Component', () => {
     window.history.replaceState({}, '', '/');
     useSearchParamsMock.mockImplementation(() => new URLSearchParams(window.location.search));
     fetchPostLikesMock.mockResolvedValue({});
-    fetchPostsMock.mockImplementation(async (_locale: string, params: FetchPostsParams = {}) => {
-      const query = (params.q ?? '').trim().toLowerCase();
-      const selectedTopics = params.topics ?? [];
-      const source = params.source ?? 'all';
-      const sort = params.sort ?? 'desc';
-      const page = Math.max(1, params.page ?? 1);
-      const size = Math.max(1, params.size ?? 5);
-      const scopeIds = params.scopeIds ?? [];
-
-      const filtered = currentApiPosts
-        .filter(post => (scopeIds.length > 0 ? scopeIds.includes(post.id) : true))
-        .filter(post => {
-          if (!query) {
-            return true;
-          }
-          const haystack = `${post.title} ${post.summary} ${post.searchText}`.toLowerCase();
-          return haystack.includes(query);
-        })
-        .filter(post => {
-          if (selectedTopics.length === 0) {
-            return true;
-          }
-          const postTopicIds = (post.topics ?? []).map(topic => topic.id);
-          return selectedTopics.every(topicId => postTopicIds.includes(topicId));
-        })
-        .filter(post => {
-          if (source === 'all') {
-            return true;
-          }
-          return (post.source ?? 'blog') === source;
-        })
-        .sort((a, b) => {
-          const left = new Date(a.publishedDate).getTime();
-          const right = new Date(b.publishedDate).getTime();
-          return sort === 'asc' ? left - right : right - left;
-        });
-
-      const total = filtered.length;
-      const totalPages = Math.max(1, Math.ceil(total / size));
-      const normalizedPage = Math.min(page, totalPages);
-      const start = (normalizedPage - 1) * size;
-      const posts = filtered.slice(start, start + size);
-
-      return {
-        status: 'success',
-        posts,
-        total,
-        page: normalizedPage,
-      };
-    });
   });
   it('renders all components correctly', async () => {
     renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
@@ -249,12 +185,23 @@ describe('PostList Component', () => {
   });
 
   it('filters posts based on route query', async () => {
+    usePathnameMock.mockReturnValue('/search');
     window.history.replaceState({}, '', '/?q=Post%203');
     renderWithProviders(<PostList posts={mockPostSummaries} />, {
       preloadedState: buildPreloadedState({ topics: [] }),
     });
 
     await waitFor(() => expect(screen.getByText('Post 3')).toBeInTheDocument());
+  });
+
+  it('ignores route query on non-search routes', async () => {
+    usePathnameMock.mockReturnValue('/en');
+    window.history.replaceState({}, '', '/en?q=Post%203');
+    renderWithProviders(<PostList posts={mockPostSummaries} />, {
+      preloadedState: buildPreloadedState({ topics: [] }),
+    });
+
+    await waitFor(() => expect(screen.getAllByTestId('post-card')).toHaveLength(5));
   });
 
   it('filters posts by topic', async () => {
@@ -275,7 +222,6 @@ describe('PostList Component', () => {
       { ...mockPostSummaries[0], id: 'blog-1', title: 'Blog Post', source: 'blog' as const },
       { ...mockPostSummaries[1], id: 'medium-1', title: 'Medium Post', source: 'medium' as const },
     ];
-    currentApiPosts = mixedPosts;
 
     renderWithProviders(<PostList posts={mixedPosts} />, {
       preloadedState: buildPreloadedState({ topics: [], posts: mixedPosts, sourceFilter: 'all' }),
@@ -295,7 +241,6 @@ describe('PostList Component', () => {
       { ...mockPostSummaries[0], id: 'blog-1', title: 'Blog Post', source: 'blog' as const },
       { ...mockPostSummaries[1], id: 'medium-1', title: 'Medium Post', source: 'medium' as const },
     ];
-    currentApiPosts = mixedPosts;
 
     renderWithProviders(<PostList posts={mixedPosts} />, {
       preloadedState: buildPreloadedState({ topics: [], posts: mixedPosts, sourceFilter: 'medium' }),
@@ -331,7 +276,6 @@ describe('PostList Component', () => {
   });
 
   it('handles empty posts gracefully', async () => {
-    currentApiPosts = [];
     renderWithProviders(<PostList posts={[]} />, { preloadedState: buildPreloadedState({ posts: [], topics: [] }) });
     await waitFor(() => expect(screen.getByText('post.noPostsFound')).toBeInTheDocument());
   });

@@ -76,6 +76,7 @@ describe('PostFilters Component', () => {
       { id: '1', name: 'Topic 1', color: 'red' },
       { id: '2', name: 'Topic 2', color: 'blue' },
     ],
+    topicsLoading: false,
   };
 
   const buildPreloadedState = (overrides: Partial<PostsQueryState> = {}) => ({

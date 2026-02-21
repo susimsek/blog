@@ -1,0 +1,66 @@
+query posts($locale: String!, $input: PostsQueryInput) {
+  posts(locale: $locale, input: $input) {
+    status
+    locale
+    total
+    page
+    size
+    sort
+    searchQuery
+    engagement {
+      postId
+      likes
+      hits
+    }
+    nodes {
+      id
+      slug
+      title
+      publishedDate
+      updatedDate
+      summary
+      searchText
+      thumbnail
+      readingTime
+      source
+      url
+      topics {
+        id
+        name
+        color
+        link
+      }
+    }
+  }
+}
+
+query topics($locale: String!) {
+  topics(locale: $locale) {
+    status
+    locale
+    nodes {
+      id
+      name
+      color
+      link
+    }
+  }
+}
+
+mutation incrementPostLike($postId: ID!) {
+  incrementPostLike(postId: $postId) {
+    status
+    postId
+    likes
+    hits
+  }
+}
+
+mutation incrementPostHit($postId: ID!) {
+  incrementPostHit(postId: $postId) {
+    status
+    postId
+    likes
+    hits
+  }
+}

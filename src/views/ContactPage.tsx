@@ -42,7 +42,7 @@ export default function ContactPage({ layoutPosts, topics, preFooterTopTopics }:
       topics={topics}
       preFooterTopTopics={preFooterTopTopics}
       searchEnabled={true}
-      sidebarEnabled={true}
+      sidebarEnabled={false}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
       <section className="py-5">

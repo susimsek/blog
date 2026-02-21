@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import SearchPage from '@/views/SearchPage';
-import { getAllTopics } from '@/lib/posts';
+import { getAllPostsData, getAllTopics } from '@/lib/posts';
 import RouteI18nProvider from '@/i18n/RouteI18nProvider';
 import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';
@@ -25,12 +25,13 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/search'>
 export default async function SearchRoute({ params }: Readonly<PageProps<'/[locale]/search'>>) {
   const { locale } = await params;
 
+  const posts = await getAllPostsData(locale);
   const topics = await getAllTopics(locale);
   const resources = await loadLocaleResources(locale, ['search']);
 
   return (
     <RouteI18nProvider locale={locale} resources={resources}>
-      <SearchPage topics={topics} />
+      <SearchPage posts={posts} topics={topics} />
     </RouteI18nProvider>
   );
 }

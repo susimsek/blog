@@ -31,6 +31,10 @@ const nextConfig: NextConfig = {
         async rewrites() {
           return [
             {
+              source: '/graphql',
+              destination: `${devApiOrigin}/graphql`,
+            },
+            {
               source: '/api/:path*',
               destination: `${devApiOrigin}/api/:path*`,
             },

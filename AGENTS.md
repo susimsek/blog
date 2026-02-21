@@ -163,6 +163,17 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18
   - `@tests/*` → `__tests__/*`
   - `@root/*` → repo root (`./*`)
 
+### Clean Coding Standards
+
+- Keep feature flows **single-path and explicit** (one endpoint/transport/path per feature unless requirement says otherwise).
+- Do **not** add fallback logic by default; only add it when explicitly required and documented in the PR.
+- Prefer clear boundaries: UI in `components/views`, state in `reducers/store`, domain logic in `lib`, API/integration in dedicated modules.
+- Remove dead code, unused exports, and stale branches during refactors; avoid “just in case” code.
+- Fail loudly and observably: avoid silent `catch {}` blocks; return actionable errors and keep logs meaningful.
+- Write small, focused functions with descriptive names; avoid deep nesting and large “god” functions/components.
+- Keep types strict and explicit; avoid `any`, implicit `unknown` casts, and ad-hoc runtime shapes.
+- Add/adjust tests with behavior changes, especially for filtering/sorting, i18n paths, and API contract changes.
+
 ## Testing Guidelines
 
 - Jest + Testing Library: tests live under `__tests__/`.

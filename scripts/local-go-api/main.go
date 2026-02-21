@@ -9,13 +9,12 @@ import (
 	"strings"
 	"time"
 
+	graphqlapi "suaybsimsek.com/blog-api/api/graphql"
 	newsletterdispatch "suaybsimsek.com/blog-api/api/newsletter-dispatch"
-	posts "suaybsimsek.com/blog-api/api/posts"
 	subscribeconfirm "suaybsimsek.com/blog-api/api/subscribe-confirm"
 	subscriberesend "suaybsimsek.com/blog-api/api/subscribe-resend"
 	subscribeunsubscribe "suaybsimsek.com/blog-api/api/subscribe-unsubscribe"
 	subscribeuser "suaybsimsek.com/blog-api/api/subscribe-user"
-	topics "suaybsimsek.com/blog-api/api/topics"
 )
 
 func loadDotEnv(path string) {
@@ -56,8 +55,8 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/posts", posts.Handler)
-	mux.HandleFunc("/api/topics", topics.Handler)
+	mux.HandleFunc("/graphql", graphqlapi.Handler)
+	mux.HandleFunc("/api/graphql", graphqlapi.Handler)
 	mux.HandleFunc("/api/subscribe-user", subscribeuser.Handler)
 	mux.HandleFunc("/api/subscribe-resend", subscriberesend.Handler)
 	mux.HandleFunc("/api/subscribe-confirm", subscribeconfirm.Handler)

@@ -1,18 +1,13 @@
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
-import SearchContainer from '@/components/search/SearchContainer';
+import SearchContainer, { __resetSearchContainerCacheForTests } from '@/components/search/SearchContainer';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
-import { fetchPosts } from '@/lib/contentApi';
+import type { PostsQueryState } from '@/reducers/postsQuery';
 
 const routerPushMock = jest.fn();
-const fetchPostsMock = fetchPosts as jest.MockedFunction<typeof fetchPosts>;
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: routerPushMock }),
-}));
-
-jest.mock('@/lib/contentApi', () => ({
-  fetchPosts: jest.fn(),
 }));
 
 jest.mock('@/hooks/useDebounce', () => ({
@@ -80,6 +75,21 @@ jest.mock('@/components/common/Link', () => ({
 }));
 
 describe('SearchContainer', () => {
+  const basePostsQueryState: PostsQueryState = {
+    query: '',
+    sortOrder: 'desc',
+    page: 1,
+    pageSize: 5,
+    selectedTopics: [],
+    sourceFilter: 'all',
+    dateRange: {},
+    readingTimeRange: 'any',
+    locale: 'en',
+    posts: [],
+    topics: [],
+    topicsLoading: false,
+  };
+
   const posts = Array.from({ length: 6 }).map((_, index) => ({
     id: `post-${index}`,
     title: `Post ${index}`,
@@ -91,33 +101,40 @@ describe('SearchContainer', () => {
     readingTimeMin: 1,
   }));
 
+  const mockStaticPosts = (payload: unknown) => {
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => payload,
+    });
+  };
+
+  const renderSearch = () =>
+    renderWithProviders(<SearchContainer />, {
+      preloadedState: {
+        postsQuery: basePostsQueryState,
+      },
+    });
+
   beforeEach(() => {
     jest.clearAllMocks();
     routerPushMock.mockReset();
-    fetchPostsMock.mockReset();
+    __resetSearchContainerCacheForTests();
+    (global.fetch as unknown) = jest.fn();
+    mockStaticPosts(posts);
   });
 
   it('renders filtered search results and limits to 5 items', async () => {
-    fetchPostsMock.mockResolvedValue({
-      status: 'success',
-      posts,
-    } as never);
-
-    renderWithProviders(<SearchContainer />);
+    renderSearch();
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
 
     expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
     expect(screen.getByRole('option', { name: /common.viewAllResults:Post/i })).toBeInTheDocument();
+    expect(global.fetch).toHaveBeenCalledWith('/data/posts.en.json', { cache: 'force-cache' });
   });
 
   it('hides results when clicking outside', async () => {
-    fetchPostsMock.mockResolvedValue({
-      status: 'success',
-      posts,
-    } as never);
-
-    renderWithProviders(<SearchContainer />);
+    renderSearch();
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post 1' } });
     expect(await screen.findByText('Post 1')).toBeInTheDocument();
@@ -128,12 +145,7 @@ describe('SearchContainer', () => {
   });
 
   it('closes results when "view all" link is clicked and preserves encoded query', async () => {
-    fetchPostsMock.mockResolvedValue({
-      status: 'success',
-      posts,
-    } as never);
-
-    renderWithProviders(<SearchContainer />);
+    renderSearch();
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
 
@@ -146,33 +158,30 @@ describe('SearchContainer', () => {
   });
 
   it('does not show results panel for single-character query', () => {
-    renderWithProviders(<SearchContainer />);
+    renderSearch();
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'j' } });
 
     expect(screen.queryByText('common.noResults')).not.toBeInTheDocument();
     expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
-    expect(fetchPostsMock).not.toHaveBeenCalled();
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
   it('does not show temporary no-results flash when typing second character', async () => {
-    fetchPostsMock.mockResolvedValue({
-      status: 'success',
-      posts: [
-        {
-          id: 'java-post',
-          title: 'Java Tips',
-          summary: 'Useful Java tips',
-          searchText: 'java tips useful java tips',
-          publishedDate: '2024-05-01',
-          thumbnail: null,
-          topics: [],
-          readingTimeMin: 1,
-        },
-      ],
-    } as never);
+    mockStaticPosts([
+      {
+        id: 'java-post',
+        title: 'Java Tips',
+        summary: 'Useful Java tips',
+        searchText: 'java tips useful java tips',
+        publishedDate: '2024-05-01',
+        thumbnail: null,
+        topics: [],
+        readingTimeMin: 1,
+      },
+    ]);
 
-    renderWithProviders(<SearchContainer />);
+    renderSearch();
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'ja' } });
 
@@ -181,36 +190,33 @@ describe('SearchContainer', () => {
   });
 
   it('prioritizes blog results over medium results and keeps medium external links', async () => {
-    fetchPostsMock.mockResolvedValue({
-      status: 'success',
-      posts: [
-        {
-          id: 'medium-java',
-          title: 'Medium Java Post',
-          summary: 'Medium summary',
-          searchText: 'java medium post',
-          publishedDate: '2024-05-01',
-          thumbnail: null,
-          topics: [],
-          readingTimeMin: 1,
-          source: 'medium',
-          link: 'https://medium.com/example/java',
-        },
-        {
-          id: 'blog-java',
-          title: 'Blog Java Post',
-          summary: 'Blog summary',
-          searchText: 'java blog post',
-          publishedDate: '2024-05-02',
-          thumbnail: null,
-          topics: [],
-          readingTimeMin: 1,
-          source: 'blog',
-        },
-      ],
-    } as never);
+    mockStaticPosts([
+      {
+        id: 'medium-java',
+        title: 'Medium Java Post',
+        summary: 'Medium summary',
+        searchText: 'java medium post',
+        publishedDate: '2024-05-01',
+        thumbnail: null,
+        topics: [],
+        readingTimeMin: 1,
+        source: 'medium',
+        link: 'https://medium.com/example/java',
+      },
+      {
+        id: 'blog-java',
+        title: 'Blog Java Post',
+        summary: 'Blog summary',
+        searchText: 'java blog post',
+        publishedDate: '2024-05-02',
+        thumbnail: null,
+        topics: [],
+        readingTimeMin: 1,
+        source: 'blog',
+      },
+    ]);
 
-    renderWithProviders(<SearchContainer />);
+    renderSearch();
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'java' } });
 
@@ -224,12 +230,7 @@ describe('SearchContainer', () => {
   });
 
   it('closes open results and clears query when app:search-close requests clear', async () => {
-    fetchPostsMock.mockResolvedValue({
-      status: 'success',
-      posts,
-    } as never);
-
-    renderWithProviders(<SearchContainer />);
+    renderSearch();
 
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
     expect(screen.getByTestId('search-input')).toHaveValue('Post');
@@ -244,12 +245,7 @@ describe('SearchContainer', () => {
   });
 
   it('supports ArrowDown navigation and Enter selection', async () => {
-    fetchPostsMock.mockResolvedValue({
-      status: 'success',
-      posts,
-    } as never);
-
-    renderWithProviders(<SearchContainer />);
+    renderSearch();
 
     const input = screen.getByTestId('search-input');
     fireEvent.change(input, { target: { value: 'Post' } });
@@ -267,12 +263,7 @@ describe('SearchContainer', () => {
   });
 
   it('closes dropdown and clears query on Escape', async () => {
-    fetchPostsMock.mockResolvedValue({
-      status: 'success',
-      posts,
-    } as never);
-
-    renderWithProviders(<SearchContainer />);
+    renderSearch();
 
     const input = screen.getByTestId('search-input');
     fireEvent.change(input, { target: { value: 'Post' } });

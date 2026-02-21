@@ -37,7 +37,7 @@ export default function AboutPage({ layoutPosts, topics, preFooterTopTopics }: R
       topics={topics}
       preFooterTopTopics={preFooterTopTopics}
       searchEnabled={true}
-      sidebarEnabled={true}
+      sidebarEnabled={false}
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }} />
       <section className="about-page-section stack stack-24">

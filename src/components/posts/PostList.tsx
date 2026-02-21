@@ -8,8 +8,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PostFilters } from './PostFilters';
 import useDebounce from '@/hooks/useDebounce';
 import { useAppDispatch, useAppSelector } from '@/config/store';
-import { setPage, setPageSize, setQuery, setSourceFilter } from '@/reducers/postsQuery';
-import { fetchPostLikes, fetchPosts } from '@/lib/contentApi';
+import { clearNonSearchFilters, setPage, setPageSize, setQuery, setSourceFilter } from '@/reducers/postsQuery';
+import { fetchPostLikes } from '@/lib/contentApi';
 import i18nextConfig from '@/i18n/settings';
 
 interface PostListProps {
@@ -18,47 +18,6 @@ interface PostListProps {
   highlightQuery?: string;
   showLikes?: boolean;
 }
-
-const normalizeServerPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
-  posts.flatMap(post => {
-    if (!post || typeof post !== 'object') {
-      return [];
-    }
-
-    const candidate = post as Partial<PostSummary>;
-    if (
-      typeof candidate.id !== 'string' ||
-      typeof candidate.title !== 'string' ||
-      typeof candidate.publishedDate !== 'string' ||
-      typeof candidate.summary !== 'string' ||
-      typeof candidate.readingTimeMin !== 'number' ||
-      !Number.isFinite(candidate.readingTimeMin) ||
-      candidate.readingTimeMin <= 0 ||
-      (candidate.updatedDate !== undefined && typeof candidate.updatedDate !== 'string') ||
-      typeof candidate.searchText !== 'string' ||
-      (candidate.thumbnail !== null && typeof candidate.thumbnail !== 'string') ||
-      (candidate.topics !== undefined && !Array.isArray(candidate.topics)) ||
-      (candidate.source !== undefined && candidate.source !== 'blog' && candidate.source !== 'medium')
-    ) {
-      return [];
-    }
-
-    return [
-      {
-        id: candidate.id,
-        title: candidate.title,
-        publishedDate: candidate.publishedDate,
-        ...(typeof candidate.updatedDate === 'string' ? { updatedDate: candidate.updatedDate } : {}),
-        summary: candidate.summary,
-        thumbnail: candidate.thumbnail,
-        topics: candidate.topics,
-        readingTimeMin: candidate.readingTimeMin,
-        searchText: candidate.searchText,
-        source: candidate.source === 'medium' ? 'medium' : 'blog',
-        ...(typeof candidate.link === 'string' ? { link: candidate.link } : {}),
-      },
-    ];
-  });
 
 export default function PostList({
   posts,
@@ -79,13 +38,29 @@ export default function PostList({
   const routeSearchParams = useSearchParams();
   const routeSearchParamsString = routeSearchParams?.toString() ?? '';
   const [likesByPostId, setLikesByPostId] = useState<Record<string, number>>({});
-  const [serverPosts, setServerPosts] = useState<PostSummary[]>([]);
-  const [totalResults, setTotalResults] = useState(0);
-  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const searchParams = useMemo(() => new URLSearchParams(routeSearchParamsString), [routeSearchParamsString]);
+  const routePage = useMemo(() => {
+    const routePageValue = searchParams.get('page');
+    const parsedPage = Number.parseInt(routePageValue ?? '', 10);
+    return Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+  }, [searchParams]);
+  const routeSize = useMemo(() => {
+    const routeSizeValue = searchParams.get('size');
+    const parsedSize = Number.parseInt(routeSizeValue ?? '', 10);
+    return Number.isFinite(parsedSize) && parsedSize > 0 ? parsedSize : 5;
+  }, [searchParams]);
+  const routeQuery = useMemo(() => searchParams.get('q') ?? '', [searchParams]);
+  const routeSource = useMemo(() => {
+    const routeSourceValue = searchParams.get('source');
+    return routeSourceValue === 'blog' || routeSourceValue === 'medium' || routeSourceValue === 'all'
+      ? routeSourceValue
+      : 'all';
+  }, [searchParams]);
   const dispatch = useAppDispatch();
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const lastSyncedRouteRef = useRef<string>('');
+  const routeSyncPendingRef = useRef(false);
+  const lastFilterResetPathRef = useRef<string>('');
   const { query, sortOrder, selectedTopics, sourceFilter, dateRange, readingTimeRange, page, pageSize, locale } =
     useAppSelector(state => state.postsQuery);
   const currentLocale = locale ?? routeLocale ?? i18nextConfig.i18n.defaultLocale;
@@ -94,25 +69,12 @@ export default function PostList({
   const scopedPostIds = useMemo(() => posts.map(post => post.id), [posts]);
 
   useEffect(() => {
-    const routePageValue = searchParams.get('page');
-    const parsedPage = Number.parseInt(routePageValue ?? '', 10);
-    const routePage = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
-
-    const routeSizeValue = searchParams.get('size');
-    const parsedSize = Number.parseInt(routeSizeValue ?? '', 10);
-    const routeSize = Number.isFinite(parsedSize) && parsedSize > 0 ? parsedSize : 5;
-
-    const routeQuery = searchParams.get('q') ?? '';
-    const routeSourceValue = searchParams.get('source');
-    const routeSource =
-      routeSourceValue === 'blog' || routeSourceValue === 'medium' || routeSourceValue === 'all'
-        ? routeSourceValue
-        : 'all';
     const routeKey = `${pathname}|${routePage}|${routeSize}|${routeQuery}|${routeSource}`;
     if (lastSyncedRouteRef.current === routeKey) {
       return;
     }
     lastSyncedRouteRef.current = routeKey;
+    routeSyncPendingRef.current = true;
 
     dispatch(setQuery(routeQuery));
     dispatch(setPageSize(routeSize));
@@ -120,7 +82,45 @@ export default function PostList({
     if (isSearchRoute) {
       dispatch(setSourceFilter(routeSource));
     }
-  }, [dispatch, isSearchRoute, pathname, searchParams]);
+  }, [dispatch, isSearchRoute, pathname, routePage, routeQuery, routeSize, routeSource]);
+
+  useEffect(() => {
+    if (!routeSyncPendingRef.current) {
+      return;
+    }
+
+    const isSourceSynced = !isSearchRoute || sourceFilter === routeSource;
+    if (query === routeQuery && page === routePage && pageSize === routeSize && isSourceSynced) {
+      routeSyncPendingRef.current = false;
+    }
+  }, [isSearchRoute, page, pageSize, query, routePage, routeQuery, routeSize, routeSource, sourceFilter]);
+
+  useEffect(() => {
+    if (isSearchRoute || pathname === lastFilterResetPathRef.current) {
+      return;
+    }
+
+    const hasStaleFilters =
+      selectedTopics.length > 0 ||
+      typeof dateRange.startDate === 'string' ||
+      typeof dateRange.endDate === 'string' ||
+      readingTimeRange !== 'any';
+    if (!hasStaleFilters) {
+      lastFilterResetPathRef.current = pathname;
+      return;
+    }
+
+    lastFilterResetPathRef.current = pathname;
+    dispatch(clearNonSearchFilters());
+  }, [
+    dateRange.endDate,
+    dateRange.startDate,
+    dispatch,
+    isSearchRoute,
+    pathname,
+    readingTimeRange,
+    selectedTopics.length,
+  ]);
 
   useEffect(() => {
     if (!isSearchRoute) {
@@ -148,98 +148,104 @@ export default function PostList({
     router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
   }, [isSearchRoute, pageSize, pathname, router, searchParams, sourceFilter]);
 
-  useEffect(() => {
-    const controller = new AbortController();
+  const filteredPosts = useMemo(() => {
+    const normalizedQuery = isSearchRoute ? debouncedSearchQuery.trim().toLowerCase() : '';
+    const startDateMs = dateRange.startDate ? new Date(dateRange.startDate).getTime() : null;
+    const endDateMs = dateRange.endDate ? new Date(dateRange.endDate).getTime() : null;
+    const scopedIdSet = shouldUseScope ? new Set(scopedPostIds) : null;
 
-    const loadPosts = async () => {
-      setIsLoadingPosts(true);
-      const payload = await fetchPosts(
-        currentLocale,
-        {
-          q: debouncedSearchQuery.trim() || undefined,
-          page,
-          size: pageSize,
-          sort: sortOrder,
-          topics: selectedTopics,
-          source: effectiveSourceFilter,
-          startDate: dateRange.startDate,
-          endDate: dateRange.endDate,
-          readingTime: readingTimeRange,
-          scopeIds: shouldUseScope ? scopedPostIds : undefined,
-        },
-        { signal: controller.signal },
-      );
+    return posts
+      .filter(post => {
+        if (scopedIdSet && !scopedIdSet.has(post.id)) {
+          return false;
+        }
 
-      if (controller.signal.aborted) {
-        return;
-      }
+        if (normalizedQuery.length > 0) {
+          const searchArea = `${post.title} ${post.summary} ${post.searchText}`.toLowerCase();
+          if (!searchArea.includes(normalizedQuery)) {
+            return false;
+          }
+        }
 
-      if (!payload || payload.status !== 'success') {
-        setServerPosts([]);
-        setTotalResults(0);
-        setIsLoadingPosts(false);
-        return;
-      }
+        if (selectedTopics.length > 0) {
+          const postTopicIds = new Set((post.topics ?? []).map(topic => topic.id));
+          if (!selectedTopics.every(topicId => postTopicIds.has(topicId))) {
+            return false;
+          }
+        }
 
-      const normalizedPosts = Array.isArray(payload.posts) ? normalizeServerPosts(payload.posts) : [];
-      const resolvedTotal =
-        typeof payload.total === 'number' && Number.isFinite(payload.total) && payload.total >= 0
-          ? Math.trunc(payload.total)
-          : normalizedPosts.length;
-      const resolvedPage =
-        typeof payload.page === 'number' && Number.isFinite(payload.page) && payload.page > 0
-          ? Math.trunc(payload.page)
-          : page;
+        const postSource = post.source ?? 'blog';
+        if (effectiveSourceFilter !== 'all' && postSource !== effectiveSourceFilter) {
+          return false;
+        }
 
-      setServerPosts(normalizedPosts);
-      setTotalResults(resolvedTotal);
-      setIsLoadingPosts(false);
+        const postDateMs = new Date(post.publishedDate).getTime();
+        if (startDateMs !== null && Number.isFinite(startDateMs) && postDateMs < startDateMs) {
+          return false;
+        }
+        if (endDateMs !== null && Number.isFinite(endDateMs) && postDateMs > endDateMs) {
+          return false;
+        }
 
-      if (resolvedPage !== page) {
-        dispatch(setPage(resolvedPage));
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('page', String(resolvedPage));
-        params.set('size', String(pageSize));
-        const nextQuery = params.toString();
-        const nextSearch = nextQuery ? `?${nextQuery}` : '';
-        router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
-      }
-    };
+        if (readingTimeRange === '3-7' && (post.readingTimeMin < 3 || post.readingTimeMin > 7)) {
+          return false;
+        }
+        if (readingTimeRange === '8-12' && (post.readingTimeMin < 8 || post.readingTimeMin > 12)) {
+          return false;
+        }
+        if (readingTimeRange === '15+' && post.readingTimeMin < 15) {
+          return false;
+        }
 
-    void loadPosts();
-
-    return () => {
-      controller.abort();
-    };
+        return true;
+      })
+      .sort((left, right) => {
+        const leftDate = new Date(left.publishedDate).getTime();
+        const rightDate = new Date(right.publishedDate).getTime();
+        return sortOrder === 'asc' ? leftDate - rightDate : rightDate - leftDate;
+      });
   }, [
-    currentLocale,
     dateRange.endDate,
     dateRange.startDate,
     debouncedSearchQuery,
-    dispatch,
     effectiveSourceFilter,
     isSearchRoute,
-    page,
-    pageSize,
-    pathname,
+    posts,
     readingTimeRange,
-    router,
     scopedPostIds,
-    searchParams,
     selectedTopics,
     shouldUseScope,
     sortOrder,
-    sourceFilter,
   ]);
 
-  const totalPages = useMemo(() => Math.max(1, Math.ceil(totalResults / pageSize)), [totalResults, pageSize]);
+  const totalResults = filteredPosts.length;
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(totalResults / pageSize)), [pageSize, totalResults]);
+  const resolvedPage = Math.min(page, totalPages);
+  const renderedPosts = useMemo(() => {
+    const startIndex = Math.max(0, (resolvedPage - 1) * pageSize);
+    return filteredPosts.slice(startIndex, startIndex + pageSize);
+  }, [filteredPosts, pageSize, resolvedPage]);
+
+  useEffect(() => {
+    if (routeSyncPendingRef.current || page <= totalPages) {
+      return;
+    }
+
+    dispatch(setPage(totalPages));
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', String(totalPages));
+    params.set('size', String(pageSize));
+    const nextQuery = params.toString();
+    const nextSearch = nextQuery ? `?${nextQuery}` : '';
+    router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
+  }, [dispatch, page, pageSize, pathname, router, searchParams, totalPages]);
 
   const pendingLikePostIds = useMemo(() => {
     if (!showLikes) {
       return [];
     }
-    return serverPosts.map(post => post.id).filter(postId => likesByPostId[postId] === undefined);
-  }, [likesByPostId, serverPosts, showLikes]);
+    return renderedPosts.map(post => post.id).filter(postId => likesByPostId[postId] === undefined);
+  }, [likesByPostId, renderedPosts, showLikes]);
 
   useEffect(() => {
     if (!showLikes || pendingLikePostIds.length === 0) {
@@ -249,7 +255,7 @@ export default function PostList({
     let isMounted = true;
 
     const loadLikes = async () => {
-      const loadedLikes = await fetchPostLikes(pendingLikePostIds);
+      const loadedLikes = await fetchPostLikes(currentLocale, pendingLikePostIds);
 
       if (!isMounted) {
         return;
@@ -265,7 +271,7 @@ export default function PostList({
     return () => {
       isMounted = false;
     };
-  }, [pendingLikePostIds, showLikes]);
+  }, [currentLocale, pendingLikePostIds, showLikes]);
 
   const scrollToListStart = useCallback(() => {
     const target = listTopRef.current;
@@ -314,15 +320,8 @@ export default function PostList({
     <section className="post-list-section">
       <div ref={listTopRef} />
       <PostFilters showSourceFilter={showSourceFilter} />
-      {isLoadingPosts ? (
-        <div className="post-card d-flex align-items-center post-list-empty">
-          <div className="post-card-content flex-grow-1 text-center text-muted px-4 py-4">
-            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-            <span className="visually-hidden">{t('post.like.loading')}</span>
-          </div>
-        </div>
-      ) : serverPosts.length > 0 ? (
-        serverPosts.map(post => (
+      {renderedPosts.length > 0 ? (
+        renderedPosts.map(post => (
           <PostCard
             key={post.id}
             post={post}
@@ -345,7 +344,7 @@ export default function PostList({
       )}
       {totalResults > 0 && (
         <PaginationBar
-          currentPage={page}
+          currentPage={resolvedPage}
           totalPages={totalPages}
           size={pageSize}
           onPageChange={handlePageChange}

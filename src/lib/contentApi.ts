@@ -1,4 +1,14 @@
-import { withBasePath } from '@/lib/basePath';
+import {
+  IncrementPostHitDocument,
+  IncrementPostLikeDocument,
+  PostSourceFilter,
+  PostsDocument,
+  PostsQueryInput,
+  ReadingTimeRange,
+  SortOrder,
+  TopicsDocument,
+} from '@/graphql/generated/graphql';
+import { mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
 
 type ContentApiOptions = {
   signal?: AbortSignal;
@@ -39,75 +49,159 @@ type TopicsResponse = {
 type ContentLikeResponse = {
   status?: string;
   likes?: number;
-  likesByPostId?: Record<string, number>;
   hits?: number;
-  hitsByPostId?: Record<string, number>;
 };
 
-const DEFAULT_REQUEST_TIMEOUT_MS = 8000;
-const CONTENT_API_PATH = '/api/posts';
-const TOPICS_API_PATH = '/api/topics';
-
-const normalizeApiBaseUrl = (value: string | undefined) => value?.trim().replace(/\/+$/g, '') ?? '';
-
-const getContentEndpoints = (apiPath: string) => {
-  const prefixedEndpoint = withBasePath(apiPath);
-  const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
-  const endpoints = new Set<string>();
-
-  if (apiBaseUrl) {
-    endpoints.add(`${apiBaseUrl}${apiPath}`);
-    endpoints.add(`${apiBaseUrl}${prefixedEndpoint}`);
-  }
-
-  endpoints.add(prefixedEndpoint);
-  endpoints.add(apiPath);
-  return [...endpoints];
+type EngagementMetric = {
+  postId: string;
+  likes: number;
+  hits: number;
 };
 
-const fetchFromEndpoints = async <TResponse>(
-  endpoints: string[],
-  init: RequestInit,
-  options: ContentApiOptions,
-): Promise<TResponse | null> => {
-  for (const endpoint of endpoints) {
-    const controller = new AbortController();
-    const timeoutMs = options.timeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS;
-    const timeoutId = globalThis.setTimeout(() => controller.abort(), timeoutMs);
+const mapSortOrder = (value: FetchPostsParams['sort']) => {
+  if (value === 'asc') {
+    return SortOrder.Asc;
+  }
+  if (value === 'desc') {
+    return SortOrder.Desc;
+  }
+  return undefined;
+};
 
-    let removeAbortListener: (() => void) | undefined;
-    if (options.signal) {
-      if (options.signal.aborted) {
-        controller.abort();
-      } else {
-        const onAbort = () => controller.abort();
-        options.signal.addEventListener('abort', onAbort, { once: true });
-        removeAbortListener = () => options.signal?.removeEventListener('abort', onAbort);
+const mapSourceFilter = (value: FetchPostsParams['source']) => {
+  if (value === 'blog') {
+    return PostSourceFilter.Blog;
+  }
+  if (value === 'medium') {
+    return PostSourceFilter.Medium;
+  }
+  if (value === 'all') {
+    return PostSourceFilter.All;
+  }
+  return undefined;
+};
+
+const mapReadingTime = (value: FetchPostsParams['readingTime']) => {
+  if (value === '3-7') {
+    return ReadingTimeRange.Min_3Max_7;
+  }
+  if (value === '8-12') {
+    return ReadingTimeRange.Min_8Max_12;
+  }
+  if (value === '15+') {
+    return ReadingTimeRange.Min_15Plus;
+  }
+  if (value === 'any') {
+    return ReadingTimeRange.Any;
+  }
+  return undefined;
+};
+
+const mapEngagementToRecords = (metrics: ReadonlyArray<EngagementMetric>) =>
+  metrics.reduce<{
+    likesByPostId: Record<string, number>;
+    hitsByPostId: Record<string, number>;
+  }>(
+    (result, metric) => {
+      if (typeof metric.postId !== 'string' || metric.postId.trim() === '') {
+        return result;
       }
+
+      const postId = metric.postId.trim();
+      if (typeof metric.likes === 'number' && Number.isFinite(metric.likes)) {
+        result.likesByPostId[postId] = Math.max(0, Math.trunc(metric.likes));
+      }
+      if (typeof metric.hits === 'number' && Number.isFinite(metric.hits)) {
+        result.hitsByPostId[postId] = Math.max(0, Math.trunc(metric.hits));
+      }
+
+      return result;
+    },
+    {
+      likesByPostId: {},
+      hitsByPostId: {},
+    },
+  );
+
+const normalizeGraphQLPosts = (posts: unknown[] | undefined): unknown[] =>
+  (posts ?? []).map(post => {
+    if (!post || typeof post !== 'object') {
+      return post;
     }
 
-    try {
-      const response = await fetch(endpoint, {
-        ...init,
-        signal: controller.signal,
-      });
-      if (!response.ok) {
-        continue;
-      }
-      const payload = (await response.json().catch(() => null)) as TResponse | null;
-      if (!payload) {
-        continue;
-      }
-      return payload;
-    } catch {
-      // Try next endpoint candidate.
-    } finally {
-      globalThis.clearTimeout(timeoutId);
-      removeAbortListener?.();
+    const candidate = post as Record<string, unknown>;
+    const normalized = { ...candidate };
+
+    if (typeof candidate.readingTime === 'number' && !('readingTimeMin' in normalized)) {
+      normalized.readingTimeMin = candidate.readingTime;
+    }
+    if (typeof candidate.url === 'string' && !('link' in normalized)) {
+      normalized.link = candidate.url;
+    }
+
+    return normalized;
+  });
+
+const buildPostsQueryInput = (params: FetchPostsParams): PostsQueryInput | undefined => {
+  const input: PostsQueryInput = {};
+  let hasInput = false;
+
+  if (typeof params.q === 'string' && params.q.trim().length > 0) {
+    input.q = params.q.trim();
+    hasInput = true;
+  }
+  if (typeof params.page === 'number' && Number.isFinite(params.page) && params.page > 0) {
+    input.page = Math.trunc(params.page);
+    hasInput = true;
+  }
+  if (typeof params.size === 'number' && Number.isFinite(params.size) && params.size > 0) {
+    input.size = Math.trunc(params.size);
+    hasInput = true;
+  }
+
+  const sortOrder = mapSortOrder(params.sort);
+  if (sortOrder) {
+    input.sort = sortOrder;
+    hasInput = true;
+  }
+
+  if (Array.isArray(params.topics) && params.topics.length > 0) {
+    input.topics = params.topics.map(topic => topic.trim()).filter(topic => topic.length > 0);
+    if (input.topics.length > 0) {
+      hasInput = true;
     }
   }
 
-  return null;
+  const source = mapSourceFilter(params.source);
+  if (source) {
+    input.source = source;
+    hasInput = true;
+  }
+
+  if (typeof params.startDate === 'string' && params.startDate.trim().length > 0) {
+    input.startDate = params.startDate.trim();
+    hasInput = true;
+  }
+
+  if (typeof params.endDate === 'string' && params.endDate.trim().length > 0) {
+    input.endDate = params.endDate.trim();
+    hasInput = true;
+  }
+
+  const readingTime = mapReadingTime(params.readingTime);
+  if (readingTime) {
+    input.readingTime = readingTime;
+    hasInput = true;
+  }
+
+  if (Array.isArray(params.scopeIds) && params.scopeIds.length > 0) {
+    input.scopeIds = params.scopeIds.map(postId => postId.trim()).filter(postId => postId.length > 0);
+    if (input.scopeIds.length > 0) {
+      hasInput = true;
+    }
+  }
+
+  return hasInput ? input : undefined;
 };
 
 export const fetchPosts = async (
@@ -115,69 +209,65 @@ export const fetchPosts = async (
   params: FetchPostsParams = {},
   options: ContentApiOptions = {},
 ): Promise<PostsResponse | null> => {
-  const queryParams = new URLSearchParams({ locale });
-  if (typeof params.q === 'string' && params.q.trim().length > 0) {
-    queryParams.set('q', params.q.trim());
-  }
-  if (typeof params.page === 'number' && Number.isFinite(params.page) && params.page > 0) {
-    queryParams.set('page', String(Math.trunc(params.page)));
-  }
-  if (typeof params.size === 'number' && Number.isFinite(params.size) && params.size > 0) {
-    queryParams.set('size', String(Math.trunc(params.size)));
-  }
-  if (params.sort === 'asc' || params.sort === 'desc') {
-    queryParams.set('sort', params.sort);
-  }
-  if (Array.isArray(params.topics) && params.topics.length > 0) {
-    queryParams.set('topics', params.topics.join(','));
-  }
-  if (params.source === 'all' || params.source === 'blog' || params.source === 'medium') {
-    queryParams.set('source', params.source);
-  }
-  if (typeof params.startDate === 'string' && params.startDate.trim().length > 0) {
-    queryParams.set('startDate', params.startDate.trim());
-  }
-  if (typeof params.endDate === 'string' && params.endDate.trim().length > 0) {
-    queryParams.set('endDate', params.endDate.trim());
-  }
-  if (
-    params.readingTime === 'any' ||
-    params.readingTime === '3-7' ||
-    params.readingTime === '8-12' ||
-    params.readingTime === '15+'
-  ) {
-    queryParams.set('readingTime', params.readingTime);
-  }
-  if (Array.isArray(params.scopeIds) && params.scopeIds.length > 0) {
-    queryParams.set('scopeIds', params.scopeIds.join(','));
+  const normalizedLocale = locale.trim();
+  if (normalizedLocale.length === 0) {
+    return null;
   }
 
-  const query = queryParams.toString();
-  const endpoints = getContentEndpoints(`${CONTENT_API_PATH}?${query}`);
-  return fetchFromEndpoints<PostsResponse>(
-    endpoints,
+  const result = await queryGraphQL(
+    PostsDocument,
     {
-      method: 'GET',
-      headers: { Accept: 'application/json' },
+      locale: normalizedLocale,
+      input: buildPostsQueryInput(params),
     },
     options,
   );
+
+  const payload = result?.posts;
+  if (!payload) {
+    return null;
+  }
+
+  return {
+    status: payload.status,
+    ...(typeof payload.locale === 'string' ? { locale: payload.locale } : {}),
+    posts: normalizeGraphQLPosts(payload.nodes),
+    ...mapEngagementToRecords(payload.engagement ?? []),
+    total: payload.total,
+    page: payload.page,
+    size: payload.size,
+    ...(typeof payload.sort === 'string' ? { sort: payload.sort } : {}),
+    ...(typeof payload.searchQuery === 'string' ? { query: payload.searchQuery } : {}),
+  };
 };
 
 export const fetchTopics = async (locale: string, options: ContentApiOptions = {}): Promise<TopicsResponse | null> => {
-  const query = new URLSearchParams({ locale }).toString();
-  const endpoints = getContentEndpoints(`${TOPICS_API_PATH}?${query}`);
-  return fetchFromEndpoints<TopicsResponse>(
-    endpoints,
+  const normalizedLocale = locale.trim();
+  if (normalizedLocale.length === 0) {
+    return null;
+  }
+
+  const result = await queryGraphQL(
+    TopicsDocument,
     {
-      method: 'GET',
-      headers: { Accept: 'application/json' },
+      locale: normalizedLocale,
     },
     options,
   );
+
+  const payload = result?.topics;
+  if (!payload) {
+    return null;
+  }
+
+  return {
+    status: payload.status,
+    topics: payload.nodes,
+  };
 };
 
 export const fetchPostLikes = async (
+  locale: string,
   postIds: string[],
   options: ContentApiOptions = {},
 ): Promise<Record<string, number> | null> => {
@@ -185,13 +275,12 @@ export const fetchPostLikes = async (
     return {};
   }
 
-  const query = new URLSearchParams({ postIds: postIds.join(',') }).toString();
-  const endpoints = getContentEndpoints(`${CONTENT_API_PATH}?${query}`);
-  const payload = await fetchFromEndpoints<ContentLikeResponse>(
-    endpoints,
+  const payload = await fetchPosts(
+    locale,
     {
-      method: 'GET',
-      headers: { Accept: 'application/json' },
+      page: 1,
+      size: Math.max(1, postIds.length),
+      scopeIds: postIds,
     },
     options,
   );
@@ -210,45 +299,23 @@ export const fetchPostLikes = async (
 };
 
 export const incrementPostLike = async (postId: string, options: ContentApiOptions = {}): Promise<number | null> => {
-  const endpoints = getContentEndpoints(CONTENT_API_PATH);
-  const payload = await fetchFromEndpoints<ContentLikeResponse>(
-    endpoints,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({ postId }),
-    },
-    options,
-  );
+  const payload = await mutateGraphQL(IncrementPostLikeDocument, { postId }, options);
+  const result = payload?.incrementPostLike as ContentLikeResponse | undefined;
 
-  if (!payload || payload.status !== 'success' || typeof payload.likes !== 'number' || Number.isNaN(payload.likes)) {
+  if (!result || result.status !== 'success' || typeof result.likes !== 'number' || Number.isNaN(result.likes)) {
     return null;
   }
 
-  return Math.max(0, Math.trunc(payload.likes));
+  return Math.max(0, Math.trunc(result.likes));
 };
 
 export const incrementPostHit = async (postId: string, options: ContentApiOptions = {}): Promise<number | null> => {
-  const endpoints = getContentEndpoints(CONTENT_API_PATH);
-  const payload = await fetchFromEndpoints<ContentLikeResponse>(
-    endpoints,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({ postId, action: 'hit' }),
-    },
-    options,
-  );
+  const payload = await mutateGraphQL(IncrementPostHitDocument, { postId }, options);
+  const result = payload?.incrementPostHit as ContentLikeResponse | undefined;
 
-  if (!payload || payload.status !== 'success' || typeof payload.hits !== 'number' || Number.isNaN(payload.hits)) {
+  if (!result || result.status !== 'success' || typeof result.hits !== 'number' || Number.isNaN(result.hits)) {
     return null;
   }
 
-  return Math.max(0, Math.trunc(payload.hits));
+  return Math.max(0, Math.trunc(result.hits));
 };

@@ -1,0 +1,98 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  posts(locale: String!, input: PostsQueryInput): PostConnection!
+  topics(locale: String!): TopicConnection!
+}
+
+type Mutation {
+  incrementPostLike(postId: ID!): PostMetricResult!
+  incrementPostHit(postId: ID!): PostMetricResult!
+}
+
+input PostsQueryInput {
+  q: String
+  page: Int
+  size: Int
+  sort: SortOrder
+  topics: [ID!]
+  source: PostSourceFilter
+  startDate: String
+  endDate: String
+  readingTime: ReadingTimeRange
+  scopeIds: [ID!]
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+enum PostSourceFilter {
+  ALL
+  BLOG
+  MEDIUM
+}
+
+enum ReadingTimeRange {
+  ANY
+  MIN_3_MAX_7
+  MIN_8_MAX_12
+  MIN_15_PLUS
+}
+
+type PostConnection {
+  status: String!
+  locale: String
+  nodes: [Post!]!
+  engagement: [PostEngagement!]!
+  total: Int!
+  page: Int!
+  size: Int!
+  sort: String
+  searchQuery: String
+}
+
+type TopicConnection {
+  status: String!
+  locale: String
+  nodes: [Topic!]!
+}
+
+type PostEngagement {
+  postId: ID!
+  likes: Int!
+  hits: Int!
+}
+
+type PostMetricResult {
+  status: String!
+  postId: ID!
+  likes: Int
+  hits: Int
+}
+
+type Post {
+  id: ID!
+  slug: String!
+  title: String!
+  publishedDate: String!
+  updatedDate: String
+  summary: String!
+  searchText: String!
+  thumbnail: String
+  topics: [Topic!]
+  readingTime: Int!
+  source: String
+  url: String
+}
+
+type Topic {
+  id: ID!
+  name: String!
+  color: String!
+  link: String
+}

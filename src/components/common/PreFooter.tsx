@@ -50,19 +50,13 @@ const NEWSLETTER_REQUEST_TIMEOUT_MS = 8000;
 
 const normalizeApiBaseUrl = (value: string | undefined) => value?.trim().replace(/\/+$/g, '') ?? '';
 
-const getNewsletterEndpoints = (apiPath: string) => {
+const getNewsletterEndpoint = (apiPath: string) => {
   const prefixedEndpoint = withBasePath(apiPath);
   const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
-  const endpoints = new Set<string>();
-
   if (apiBaseUrl) {
-    endpoints.add(`${apiBaseUrl}${apiPath}`);
-    endpoints.add(`${apiBaseUrl}${prefixedEndpoint}`);
+    return `${apiBaseUrl}${apiPath}`;
   }
-
-  endpoints.add(prefixedEndpoint);
-  endpoints.add(apiPath);
-  return [...endpoints];
+  return prefixedEndpoint;
 };
 
 const mapNewsletterErrorStatus = (status: string | undefined): NewsletterErrorStatus => {
@@ -166,33 +160,28 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
 
   const sendNewsletterRequest = useCallback(
     async (apiPath: string, payload: Record<string, unknown>): Promise<NewsletterApiResponse | null> => {
-      let result: NewsletterApiResponse | null = null;
-      for (const endpoint of getNewsletterEndpoints(apiPath)) {
-        const controller = new AbortController();
-        const timeoutId = globalThis.setTimeout(() => {
-          controller.abort();
-        }, NEWSLETTER_REQUEST_TIMEOUT_MS);
+      const endpoint = getNewsletterEndpoint(apiPath);
+      const controller = new AbortController();
+      const timeoutId = globalThis.setTimeout(() => {
+        controller.abort();
+      }, NEWSLETTER_REQUEST_TIMEOUT_MS);
 
-        try {
-          const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept-Language': currentLocale,
-            },
-            body: JSON.stringify(payload),
-            signal: controller.signal,
-          });
-          result = (await response.json()) as NewsletterApiResponse;
-          break;
-        } catch {
-          // Try the next endpoint candidate.
-        } finally {
-          globalThis.clearTimeout(timeoutId);
-        }
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept-Language': currentLocale,
+          },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
+        return (await response.json()) as NewsletterApiResponse;
+      } catch {
+        return null;
+      } finally {
+        globalThis.clearTimeout(timeoutId);
       }
-
-      return result;
     },
     [currentLocale],
   );

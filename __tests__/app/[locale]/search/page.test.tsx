@@ -14,8 +14,11 @@ const loadLocaleResourcesMock = jest.fn(async (_locale: string, _ns: string[]) =
   search: { search: { title: 'Search' } },
 }));
 
+const getAllPostsDataMock = jest.fn(async (_locale: string) => [{ id: 'post-1' }]);
 const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
-const searchPageMock = jest.fn((_props: { topics: unknown[] }) => <div data-testid="search-page">search-page</div>);
+const searchPageMock = jest.fn((_props: { posts: unknown[]; topics: unknown[] }) => (
+  <div data-testid="search-page">search-page</div>
+));
 
 jest.mock('@/i18n/server', () => ({
   getServerTranslator: (locale: string, ns: string[]) => getServerTranslatorMock(locale, ns),
@@ -28,12 +31,13 @@ jest.mock('@/i18n/RouteI18nProvider', () => ({
 }));
 
 jest.mock('@/lib/posts', () => ({
+  getAllPostsData: (locale: string) => getAllPostsDataMock(locale),
   getAllTopics: (locale: string) => getAllTopicsMock(locale),
 }));
 
 jest.mock('@/views/SearchPage', () => ({
   __esModule: true,
-  default: (props: { topics: unknown[] }) => searchPageMock(props),
+  default: (props: { posts: unknown[]; topics: unknown[] }) => searchPageMock(props),
 }));
 
 describe('App Route /[locale]/search', () => {
@@ -65,9 +69,11 @@ describe('App Route /[locale]/search', () => {
     });
     render(element);
 
+    expect(getAllPostsDataMock).toHaveBeenCalledWith('tr');
     expect(getAllTopicsMock).toHaveBeenCalledWith('tr');
     expect(loadLocaleResourcesMock).toHaveBeenCalledWith('tr', ['search']);
     expect(searchPageMock).toHaveBeenCalledWith({
+      posts: [{ id: 'post-1' }],
       topics: [{ id: 'topic-1' }],
     });
     expect(screen.getByTestId('search-page')).toBeInTheDocument();

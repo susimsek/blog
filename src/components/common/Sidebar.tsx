@@ -13,12 +13,13 @@ import { topicMatchesQuery } from '@/lib/searchText';
 
 type SidebarProps = {
   topics?: Topic[];
+  isLoading?: boolean;
   isMobile: boolean;
   isVisible: boolean;
   onClose: () => void;
 };
 
-const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ topics = [], isLoading = false, isMobile, isVisible, onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const { t } = useTranslation();
 
@@ -37,8 +38,17 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
   }, [isMobile, onClose]);
 
   const renderTopics = useMemo(() => {
-    return filteredTopics.length > 0 ? (
-      filteredTopics.map(topic => (
+    if (isLoading) {
+      return (
+        <div className="text-muted px-4 py-2 d-flex align-items-center">
+          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+          <span className="visually-hidden">Loading</span>
+        </div>
+      );
+    }
+
+    if (filteredTopics.length > 0) {
+      return filteredTopics.map(topic => (
         <Nav.Link
           as={Link}
           key={topic.id}
@@ -48,14 +58,16 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isMobile, isVisible, onC
         >
           {topic.name}
         </Nav.Link>
-      ))
-    ) : (
+      ));
+    }
+
+    return (
       <div className="text-muted px-4 py-2">
         <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
         {t('topic:topic.noTopicFound')}
       </div>
     );
-  }, [filteredTopics, t, handleTopicClick]);
+  }, [filteredTopics, handleTopicClick, isLoading, t]);
 
   const sidebarContent = (
     <div className="sidebar-content px-4 py-3">

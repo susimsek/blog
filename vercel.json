@@ -8,6 +8,12 @@
       "maxDuration": 10
     }
   },
+  "rewrites": [
+    {
+      "source": "/graphql",
+      "destination": "/api/graphql"
+    }
+  ],
   "crons": [
     {
       "path": "/api/newsletter-dispatch",
