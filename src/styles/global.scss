@@ -2826,29 +2826,21 @@ $state-variants: (
   }
 }
 
-.app-error-toast-container {
+.toast-container {
   width: min(100vw - 1rem, 420px);
-  z-index: 1080;
 }
 
-.app-error-toast {
-  border: 1px solid var(--border-color);
-  border-left-width: 4px;
+.toast {
+  --bs-toast-bg: var(--main-bg);
+  --bs-toast-color: var(--text-color);
+  --bs-toast-border-color: var(--border-color);
+  --bs-toast-box-shadow: var(--box-shadow-sm);
+  --bs-toast-header-bg: color-mix(in srgb, var(--main-bg) 86%, var(--dropdown-hover-bg) 14%);
+  --bs-toast-header-color: var(--text-color);
+  --bs-toast-header-border-color: color-mix(in srgb, var(--border-color) 70%, transparent);
+  border-left: 4px solid var(--active-color);
   border-radius: 0.75rem;
-  background-color: var(--main-bg);
-  color: var(--text-color);
-  box-shadow: var(--box-shadow-sm);
   @include transition(background-color, color, border-color, box-shadow);
-
-  .toast-header {
-    border-bottom: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
-    background-color: color-mix(in srgb, var(--main-bg) 86%, var(--dropdown-hover-bg) 14%);
-    color: var(--text-color);
-  }
-
-  .toast-body {
-    color: var(--text-color);
-  }
 
   .btn-close {
     filter: none;
@@ -2860,25 +2852,25 @@ $state-variants: (
   }
 }
 
-.app-error-toast--danger {
+.toast-tone-danger {
   border-left-color: var(--danger-bg);
 }
 
-.app-error-toast--warning {
+.toast-tone-warning {
   border-left-color: var(--warning-bg);
 }
 
-.app-error-toast--info {
+.toast-tone-info {
   border-left-color: var(--active-color);
 }
 
-.app-error-toast__header {
+.toast-theme-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.app-error-toast__dot {
+.toast-theme-dot {
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 999px;
@@ -2886,19 +2878,19 @@ $state-variants: (
   flex: 0 0 auto;
 }
 
-.app-error-toast__dot--danger {
+.toast-theme-dot--danger {
   background-color: var(--danger-bg);
 }
 
-.app-error-toast__dot--warning {
+.toast-theme-dot--warning {
   background-color: var(--warning-bg);
 }
 
-.app-error-toast__dot--info {
+.toast-theme-dot--info {
   background-color: var(--active-color);
 }
 
-.app-error-toast__source {
+.toast-theme-source {
   color: var(--muted-text-color);
 }
 

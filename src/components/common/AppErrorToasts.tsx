@@ -72,19 +72,19 @@ export default function AppErrorToasts() {
   }
 
   return (
-    <ToastContainer className="app-error-toast-container p-3" position="top-end" style={{ zIndex: 1080 }}>
+    <ToastContainer className="p-3" position="top-end" style={{ zIndex: 1080 }}>
       {items.map(item => (
         <Toast
           key={item.id}
           autohide
           delay={AUTO_HIDE_DELAY_MS}
           onClose={() => setItems(previous => previous.filter(entry => entry.id !== item.id))}
-          className={`app-error-toast app-error-toast--${item.tone}`}
+          className={`toast-tone-${item.tone}`}
         >
-          <Toast.Header className="app-error-toast__header">
-            <span className={`app-error-toast__dot app-error-toast__dot--${item.tone}`} aria-hidden="true" />
+          <Toast.Header className="toast-theme-header">
+            <span className={`toast-theme-dot toast-theme-dot--${item.tone}`} aria-hidden="true" />
             <strong className="me-auto">{item.title}</strong>
-            <small className="app-error-toast__source">{item.event.context?.source ?? 'client'}</small>
+            <small className="toast-theme-source">{item.event.context?.source ?? 'client'}</small>
           </Toast.Header>
           <Toast.Body>{item.event.error.message}</Toast.Body>
         </Toast>
