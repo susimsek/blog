@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"hash/fnv"
-	"math"
 	"regexp"
 	"strings"
 	"sync"
@@ -25,9 +24,6 @@ const (
 	maxScopePostIDs         = 5000
 	defaultPageSize         = 20
 	maxPageSize             = 100
-	maxFuzzyCandidates      = 3000
-	fuseScoreThreshold      = 0.42
-	fuseMinMatchCharLength  = 2
 )
 
 var (
@@ -80,7 +76,6 @@ type contentResponse struct {
 	Page  int          `json:"page,omitempty"`
 	Size  int          `json:"size,omitempty"`
 	Sort  string       `json:"sort,omitempty"`
-	Query string       `json:"query,omitempty"`
 
 	PostID        string           `json:"postId,omitempty"`
 	Likes         int64            `json:"likes,omitempty"`
@@ -473,32 +468,6 @@ func incrementPostHit(ctx context.Context, collection *mongo.Collection, postID 
 	return updated.Hits, nil
 }
 
-func parseDateBoundary(value string, endOfDay bool) (time.Time, bool) {
-	raw := strings.TrimSpace(value)
-	if raw == "" {
-		return time.Time{}, false
-	}
-
-	if parsed, err := time.Parse(time.RFC3339, raw); err == nil {
-		return parsed.UTC(), true
-	}
-
-	if parsed, err := time.Parse("2006-01-02", raw); err == nil {
-		if endOfDay {
-			parsed = time.Date(parsed.Year(), parsed.Month(), parsed.Day(), 23, 59, 59, int(time.Second-time.Nanosecond), time.UTC)
-		} else {
-			parsed = time.Date(parsed.Year(), parsed.Month(), parsed.Day(), 0, 0, 0, 0, time.UTC)
-		}
-		return parsed, true
-	}
-
-	if parsed, err := time.Parse("2006-01-02T15:04:05", raw); err == nil {
-		return parsed.UTC(), true
-	}
-
-	return time.Time{}, false
-}
-
 func normalizeSortOrder(value string) string {
 	switch strings.ToLower(strings.TrimSpace(value)) {
 	case "asc":
@@ -547,29 +516,6 @@ func normalizePostForResponse(post postRecord) postRecord {
 	}
 
 	return post
-}
-
-func paginatePosts(posts []postRecord, page int, size int) ([]postRecord, int, int) {
-	total := len(posts)
-	if total == 0 {
-		return []postRecord{}, 1, 0
-	}
-
-	totalPages := int(math.Ceil(float64(total) / float64(size)))
-	if page > totalPages {
-		page = totalPages
-	}
-	if page < 1 {
-		page = 1
-	}
-
-	start := (page - 1) * size
-	end := start + size
-	if end > total {
-		end = total
-	}
-
-	return posts[start:end], page, total
 }
 
 func queryPosts(
@@ -690,11 +636,6 @@ func resolveHitsByPostID(ctx context.Context, posts []postRecord) map[string]int
 
 func buildContentFilter(
 	locale string,
-	sourceFilter string,
-	readingTimeRange string,
-	startDateRaw string,
-	endDateRaw string,
-	topicIDs []string,
 	scopeIDs []string,
 ) bson.M {
 	filter := bson.M{
@@ -703,36 +644,6 @@ func buildContentFilter(
 
 	if len(scopeIDs) > 0 {
 		filter["id"] = bson.M{"$in": scopeIDs}
-	}
-
-	if len(topicIDs) > 0 {
-		filter["topicIds"] = bson.M{"$in": topicIDs}
-	}
-
-	if sourceFilter != "all" {
-		filter["source"] = sourceFilter
-	}
-
-	switch strings.TrimSpace(readingTimeRange) {
-	case "3-7":
-		filter["readingTimeMin"] = bson.M{"$gte": 3, "$lte": 7}
-	case "8-12":
-		filter["readingTimeMin"] = bson.M{"$gte": 8, "$lte": 12}
-	case "15+":
-		filter["readingTimeMin"] = bson.M{"$gte": 15}
-	}
-
-	startDate, hasStart := parseDateBoundary(startDateRaw, false)
-	endDate, hasEnd := parseDateBoundary(endDateRaw, true)
-	if hasStart || hasEnd {
-		dateFilter := bson.M{}
-		if hasStart {
-			dateFilter["$gte"] = startDate
-		}
-		if hasEnd {
-			dateFilter["$lte"] = endDate
-		}
-		filter["publishedAt"] = dateFilter
 	}
 
 	return filter

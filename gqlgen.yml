@@ -1,17 +1,17 @@
 schema:
-  - api/graphql/schema.graphqls
+  - pkg/graph/schema.graphqls
 
 exec:
-  filename: internal/graphql/graph/generated/generated.go
+  filename: pkg/graph/generated/generated.go
   package: generated
 
 model:
-  filename: internal/graphql/graph/model/models_gen.go
+  filename: pkg/graph/model/models_gen.go
   package: model
 
 resolver:
   layout: follow-schema
-  dir: internal/graphql/graph
+  dir: pkg/graph
   package: graph
   filename_template: '{name}.resolvers.go'
   preserve_resolver: true

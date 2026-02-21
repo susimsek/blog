@@ -18,15 +18,9 @@ type Mutation {
 }
 
 input PostsQueryInput {
-  q: String
   page: Int
   size: Int
   sort: SortOrder
-  topics: [ID!]
-  source: PostSourceFilter
-  startDate: String
-  endDate: String
-  readingTime: ReadingTimeRange
   scopeIds: [ID!]
 }
 
@@ -49,19 +43,6 @@ enum SortOrder {
   DESC
 }
 
-enum PostSourceFilter {
-  ALL
-  BLOG
-  MEDIUM
-}
-
-enum ReadingTimeRange {
-  ANY
-  MIN_3_MAX_7
-  MIN_8_MAX_12
-  MIN_15_PLUS
-}
-
 type PostConnection {
   status: String!
   locale: String
@@ -71,7 +52,6 @@ type PostConnection {
   page: Int!
   size: Int!
   sort: String
-  searchQuery: String
 }
 
 type TopicConnection {

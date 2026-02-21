@@ -15,17 +15,11 @@ type ContentResponse = contentResponse
 
 // ContentQueryInput represents posts query options used by GraphQL and internal callers.
 type ContentQueryInput struct {
-	Locale      string
-	Query       string
-	Sort        string
-	Source      string
-	ReadingTime string
-	StartDate   string
-	EndDate     string
-	Topics      []string
-	ScopeIDs    []string
-	Page        *int
-	Size        *int
+	Locale   string
+	Sort     string
+	ScopeIDs []string
+	Page     *int
+	Size     *int
 }
 
 // QueryContent returns posts, engagement, and pagination metadata without HTTP routing.
@@ -36,143 +30,56 @@ func QueryContent(ctx context.Context, input ContentQueryInput) contentResponse 
 	}
 
 	locale := newsletter.ResolveLocale(strings.TrimSpace(input.Locale), "")
-	query := strings.TrimSpace(input.Query)
 	sortOrder := normalizeSortOrder(input.Sort)
-	sourceFilter := normalizeSource(input.Source)
-	readingTimeRange := strings.TrimSpace(input.ReadingTime)
-	startDate := strings.TrimSpace(input.StartDate)
-	endDate := strings.TrimSpace(input.EndDate)
-
-	topicIDs, topicsOK := normalizePostIDSlice(input.Topics, maxScopePostIDs)
-	if !topicsOK {
-		return contentResponse{Status: "invalid-topics"}
-	}
 
 	scopeIDs, scopeOK := normalizePostIDSlice(input.ScopeIDs, maxScopePostIDs)
 	if !scopeOK {
 		return contentResponse{Status: "invalid-scope-ids"}
 	}
 
-	hasPagination := input.Page != nil || input.Size != nil
 	page := clampPositiveInt(input.Page, 1, 100000)
 	size := clampPositiveInt(input.Size, defaultPageSize, maxPageSize)
 
-	filter := buildContentFilter(
-		locale,
-		sourceFilter,
-		readingTimeRange,
-		startDate,
-		endDate,
-		topicIDs,
-		scopeIDs,
-	)
+	filter := buildContentFilter(locale, scopeIDs)
 
 	operationCtx := withTimeoutContext(ctx, 15*time.Second)
 	defer operationCtx.cancel()
 
 	resolvedPage := 1
 	total := 0
-	queryProvided := query != ""
 
-	if queryProvided {
-		posts, queryErr := queryPosts(operationCtx.ctx, collection, filter, sortOrder, 0, maxFuzzyCandidates)
-		if queryErr != nil {
-			return contentResponse{Status: "failed"}
-		}
-
-		fuzzyFiltered := applyFuzzySearch(posts, query, sortOrder)
-		pagedPosts := fuzzyFiltered
-		resolvedPage = 1
-		total = len(fuzzyFiltered)
-
-		if total == 0 {
-			return contentResponse{
-				Status: "success",
-				Locale: locale,
-				Posts:  []postRecord{},
-				Total:  0,
-				Page:   1,
-				Size:   size,
-				Sort:   sortOrder,
-				Query:  query,
-			}
-		}
-
-		if hasPagination {
-			var resolvedTotal int
-			pagedPosts, resolvedPage, resolvedTotal = paginatePosts(fuzzyFiltered, page, size)
-			total = resolvedTotal
-		} else {
-			size = total
-		}
-		if size <= 0 {
-			size = 1
-		}
-
+	total64, countErr := collection.CountDocuments(operationCtx.ctx, filter)
+	if countErr != nil {
+		return contentResponse{Status: "failed"}
+	}
+	total = int(total64)
+	if total == 0 {
 		return contentResponse{
-			Status:        "success",
-			Locale:        locale,
-			Posts:         pagedPosts,
-			LikesByPostID: resolveLikesByPostID(operationCtx.ctx, pagedPosts),
-			HitsByPostID:  resolveHitsByPostID(operationCtx.ctx, pagedPosts),
-			Total:         total,
-			Page:          resolvedPage,
-			Size:          size,
-			Sort:          sortOrder,
-			Query:         query,
+			Status: "success",
+			Locale: locale,
+			Posts:  []postRecord{},
+			Total:  0,
+			Page:   1,
+			Size:   size,
+			Sort:   sortOrder,
 		}
 	}
 
-	if hasPagination {
-		total64, countErr := collection.CountDocuments(operationCtx.ctx, filter)
-		if countErr != nil {
-			return contentResponse{Status: "failed"}
-		}
-		total = int(total64)
-		if total == 0 {
-			return contentResponse{
-				Status: "success",
-				Locale: locale,
-				Posts:  []postRecord{},
-				Total:  0,
-				Page:   1,
-				Size:   size,
-				Sort:   sortOrder,
-				Query:  query,
-			}
-		}
-
-		totalPages := int(math.Ceil(float64(total) / float64(size)))
-		resolvedPage = page
-		if resolvedPage > totalPages {
-			resolvedPage = totalPages
-		}
-		if resolvedPage < 1 {
-			resolvedPage = 1
-		}
+	totalPages := int(math.Ceil(float64(total) / float64(size)))
+	resolvedPage = page
+	if resolvedPage > totalPages {
+		resolvedPage = totalPages
+	}
+	if resolvedPage < 1 {
+		resolvedPage = 1
 	}
 
-	limit := int64(0)
-	if hasPagination {
-		limit = int64(size)
-	}
-	skip := int64(0)
-	if hasPagination {
-		skip = int64((resolvedPage - 1) * size)
-	}
+	limit := int64(size)
+	skip := int64((resolvedPage - 1) * size)
 
 	posts, queryErr := queryPosts(operationCtx.ctx, collection, filter, sortOrder, skip, limit)
 	if queryErr != nil {
 		return contentResponse{Status: "failed"}
-	}
-
-	if !hasPagination {
-		total = len(posts)
-		resolvedPage = 1
-		size = len(posts)
-		if size <= 0 {
-			size = 1
-		}
 	}
 
 	return contentResponse{
@@ -185,7 +92,6 @@ func QueryContent(ctx context.Context, input ContentQueryInput) contentResponse 
 		Page:          resolvedPage,
 		Size:          size,
 		Sort:          sortOrder,
-		Query:         query,
 	}
 }
 

@@ -91,7 +91,6 @@ export type PostConnection = {
   locale?: Maybe<Scalars['String']['output']>;
   nodes: Array<Post>;
   page: Scalars['Int']['output'];
-  searchQuery?: Maybe<Scalars['String']['output']>;
   size: Scalars['Int']['output'];
   sort?: Maybe<Scalars['String']['output']>;
   status: Scalars['String']['output'];
@@ -113,23 +112,11 @@ export type PostMetricResult = {
   status: Scalars['String']['output'];
 };
 
-export enum PostSourceFilter {
-  All = 'ALL',
-  Blog = 'BLOG',
-  Medium = 'MEDIUM',
-}
-
 export type PostsQueryInput = {
-  endDate?: InputMaybe<Scalars['String']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  q?: InputMaybe<Scalars['String']['input']>;
-  readingTime?: InputMaybe<ReadingTimeRange>;
   scopeIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   size?: InputMaybe<Scalars['Int']['input']>;
   sort?: InputMaybe<SortOrder>;
-  source?: InputMaybe<PostSourceFilter>;
-  startDate?: InputMaybe<Scalars['String']['input']>;
-  topics?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
 export type Query = {
@@ -146,13 +133,6 @@ export type QueryPostsArgs = {
 export type QueryTopicsArgs = {
   locale: Scalars['String']['input'];
 };
-
-export enum ReadingTimeRange {
-  Any = 'ANY',
-  Min_3Max_7 = 'MIN_3_MAX_7',
-  Min_8Max_12 = 'MIN_8_MAX_12',
-  Min_15Plus = 'MIN_15_PLUS',
-}
 
 export enum SortOrder {
   Asc = 'ASC',
@@ -189,7 +169,6 @@ export type PostsQuery = {
     page: number;
     size: number;
     sort?: string | null;
-    searchQuery?: string | null;
     engagement: Array<{ __typename?: 'PostEngagement'; postId: string; likes: number; hits: number }>;
     nodes: Array<{
       __typename?: 'Post';
@@ -335,7 +314,6 @@ export const PostsDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'page' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'size' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'sort' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'searchQuery' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'engagement' },

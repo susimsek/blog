@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"strings"
 
-	"suaybsimsek.com/blog-api/internal/graphql/graph/generated"
-	"suaybsimsek.com/blog-api/internal/graphql/graph/model"
 	newslettersvc "suaybsimsek.com/blog-api/internal/newsletter"
 	postsapi "suaybsimsek.com/blog-api/internal/posts"
 	topicsapi "suaybsimsek.com/blog-api/internal/topics"
+	"suaybsimsek.com/blog-api/pkg/graph/generated"
+	"suaybsimsek.com/blog-api/pkg/graph/model"
 )
 
 // Posts is the resolver for the posts field.
@@ -27,9 +27,6 @@ func (r *queryResolver) Posts(ctx context.Context, locale string, input *model.P
 		Locale: normalizedLocale,
 	}
 	if input != nil {
-		if input.Q != nil {
-			queryInput.Query = strings.TrimSpace(*input.Q)
-		}
 		if input.Page != nil {
 			queryInput.Page = input.Page
 		}
@@ -39,19 +36,6 @@ func (r *queryResolver) Posts(ctx context.Context, locale string, input *model.P
 		if sortOrder := mapSortOrder(input.Sort); sortOrder != "" {
 			queryInput.Sort = sortOrder
 		}
-		if sourceFilter := mapSourceFilter(input.Source); sourceFilter != "" {
-			queryInput.Source = sourceFilter
-		}
-		if readingTime := mapReadingTime(input.ReadingTime); readingTime != "" {
-			queryInput.ReadingTime = readingTime
-		}
-		if input.StartDate != nil {
-			queryInput.StartDate = strings.TrimSpace(*input.StartDate)
-		}
-		if input.EndDate != nil {
-			queryInput.EndDate = strings.TrimSpace(*input.EndDate)
-		}
-		queryInput.Topics = append([]string{}, input.Topics...)
 		queryInput.ScopeIDs = append([]string{}, input.ScopeIds...)
 	}
 
@@ -80,15 +64,14 @@ func (r *queryResolver) Posts(ctx context.Context, locale string, input *model.P
 	}
 
 	return &model.PostConnection{
-		Status:      status,
-		Locale:      toOptionalString(payload.Locale),
-		Nodes:       mapPosts(payload.Posts),
-		Engagement:  mapEngagement(payload.LikesByPostID, payload.HitsByPostID),
-		Total:       total,
-		Page:        page,
-		Size:        size,
-		Sort:        toOptionalString(payload.Sort),
-		SearchQuery: toOptionalString(payload.Query),
+		Status:     status,
+		Locale:     toOptionalString(payload.Locale),
+		Nodes:      mapPosts(payload.Posts),
+		Engagement: mapEngagement(payload.LikesByPostID, payload.HitsByPostID),
+		Total:      total,
+		Page:       page,
+		Size:       size,
+		Sort:       toOptionalString(payload.Sort),
 	}, nil
 }
 

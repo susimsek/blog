@@ -5,9 +5,9 @@ import (
 	"sort"
 	"strings"
 
-	"suaybsimsek.com/blog-api/internal/graphql/graph/model"
 	postsapi "suaybsimsek.com/blog-api/internal/posts"
 	topicsapi "suaybsimsek.com/blog-api/internal/topics"
+	"suaybsimsek.com/blog-api/pkg/graph/model"
 )
 
 func toOptionalString(value string) *string {
@@ -172,37 +172,5 @@ func mapSortOrder(value *model.SortOrder) string {
 		return "asc"
 	default:
 		return "desc"
-	}
-}
-
-func mapSourceFilter(value *model.PostSourceFilter) string {
-	if value == nil {
-		return ""
-	}
-
-	switch *value {
-	case model.PostSourceFilterBlog:
-		return "blog"
-	case model.PostSourceFilterMedium:
-		return "medium"
-	default:
-		return "all"
-	}
-}
-
-func mapReadingTime(value *model.ReadingTimeRange) string {
-	if value == nil {
-		return ""
-	}
-
-	switch *value {
-	case model.ReadingTimeRangeMin3Max7:
-		return "3-7"
-	case model.ReadingTimeRangeMin8Max12:
-		return "8-12"
-	case model.ReadingTimeRangeMin15Plus:
-		return "15+"
-	default:
-		return "any"
 	}
 }

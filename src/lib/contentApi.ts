@@ -1,10 +1,8 @@
 import {
   IncrementPostHitDocument,
   IncrementPostLikeDocument,
-  PostSourceFilter,
   PostsDocument,
   PostsQueryInput,
-  ReadingTimeRange,
   SortOrder,
   TopicsDocument,
 } from '@/graphql/generated/graphql';
@@ -16,15 +14,9 @@ type ContentApiOptions = {
 };
 
 export type FetchPostsParams = {
-  q?: string;
   page?: number;
   size?: number;
   sort?: 'asc' | 'desc';
-  topics?: string[];
-  source?: 'all' | 'blog' | 'medium';
-  startDate?: string;
-  endDate?: string;
-  readingTime?: 'any' | '3-7' | '8-12' | '15+';
   scopeIds?: string[];
 };
 
@@ -38,7 +30,6 @@ type PostsResponse = {
   page?: number;
   size?: number;
   sort?: string;
-  query?: string;
 };
 
 type TopicsResponse = {
@@ -64,35 +55,6 @@ const mapSortOrder = (value: FetchPostsParams['sort']) => {
   }
   if (value === 'desc') {
     return SortOrder.Desc;
-  }
-  return undefined;
-};
-
-const mapSourceFilter = (value: FetchPostsParams['source']) => {
-  if (value === 'blog') {
-    return PostSourceFilter.Blog;
-  }
-  if (value === 'medium') {
-    return PostSourceFilter.Medium;
-  }
-  if (value === 'all') {
-    return PostSourceFilter.All;
-  }
-  return undefined;
-};
-
-const mapReadingTime = (value: FetchPostsParams['readingTime']) => {
-  if (value === '3-7') {
-    return ReadingTimeRange.Min_3Max_7;
-  }
-  if (value === '8-12') {
-    return ReadingTimeRange.Min_8Max_12;
-  }
-  if (value === '15+') {
-    return ReadingTimeRange.Min_15Plus;
-  }
-  if (value === 'any') {
-    return ReadingTimeRange.Any;
   }
   return undefined;
 };
@@ -146,10 +108,6 @@ const buildPostsQueryInput = (params: FetchPostsParams): PostsQueryInput | undef
   const input: PostsQueryInput = {};
   let hasInput = false;
 
-  if (typeof params.q === 'string' && params.q.trim().length > 0) {
-    input.q = params.q.trim();
-    hasInput = true;
-  }
   if (typeof params.page === 'number' && Number.isFinite(params.page) && params.page > 0) {
     input.page = Math.trunc(params.page);
     hasInput = true;
@@ -162,35 +120,6 @@ const buildPostsQueryInput = (params: FetchPostsParams): PostsQueryInput | undef
   const sortOrder = mapSortOrder(params.sort);
   if (sortOrder) {
     input.sort = sortOrder;
-    hasInput = true;
-  }
-
-  if (Array.isArray(params.topics) && params.topics.length > 0) {
-    input.topics = params.topics.map(topic => topic.trim()).filter(topic => topic.length > 0);
-    if (input.topics.length > 0) {
-      hasInput = true;
-    }
-  }
-
-  const source = mapSourceFilter(params.source);
-  if (source) {
-    input.source = source;
-    hasInput = true;
-  }
-
-  if (typeof params.startDate === 'string' && params.startDate.trim().length > 0) {
-    input.startDate = params.startDate.trim();
-    hasInput = true;
-  }
-
-  if (typeof params.endDate === 'string' && params.endDate.trim().length > 0) {
-    input.endDate = params.endDate.trim();
-    hasInput = true;
-  }
-
-  const readingTime = mapReadingTime(params.readingTime);
-  if (readingTime) {
-    input.readingTime = readingTime;
     hasInput = true;
   }
 
@@ -237,7 +166,6 @@ export const fetchPosts = async (
     page: payload.page,
     size: payload.size,
     ...(typeof payload.sort === 'string' ? { sort: payload.sort } : {}),
-    ...(typeof payload.searchQuery === 'string' ? { query: payload.searchQuery } : {}),
   };
 };
 

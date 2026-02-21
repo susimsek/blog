@@ -6,7 +6,6 @@ query posts($locale: String!, $input: PostsQueryInput) {
     page
     size
     sort
-    searchQuery
     engagement {
       postId
       likes
