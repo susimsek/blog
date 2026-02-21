@@ -25,6 +25,11 @@ type ContentQueryInput struct {
 	Size     *int
 }
 
+type PostQueryInput struct {
+	Locale string
+	PostID string
+}
+
 // QueryContent returns posts, engagement, and pagination metadata without HTTP routing.
 func QueryContent(ctx context.Context, input ContentQueryInput) contentResponse {
 	locale := newsletter.ResolveLocale(strings.TrimSpace(input.Locale), "")
@@ -95,6 +100,39 @@ func QueryContent(ctx context.Context, input ContentQueryInput) contentResponse 
 		Page:          resolvedPage,
 		Size:          size,
 		Sort:          sortOrder,
+	}
+}
+
+// QueryPost returns a single post and its engagement metrics.
+func QueryPost(ctx context.Context, input PostQueryInput) contentResponse {
+	locale := newsletter.ResolveLocale(strings.TrimSpace(input.Locale), "")
+	postID, ok := normalizePostID(input.PostID)
+	if !ok {
+		return contentResponse{Status: "invalid-post-id", Locale: locale}
+	}
+
+	operationCtx := withTimeoutContext(ctx, 15*time.Second)
+	defer operationCtx.cancel()
+
+	post, queryErr := postsRepository.FindPostByID(operationCtx.ctx, locale, postID)
+	if queryErr != nil {
+		if errors.Is(queryErr, errRepositoryUnavailable) {
+			return contentResponse{Status: "service-unavailable", Locale: locale, PostID: postID}
+		}
+		return contentResponse{Status: "failed", Locale: locale, PostID: postID}
+	}
+	if post == nil {
+		return contentResponse{Status: "not-found", Locale: locale, PostID: postID}
+	}
+
+	posts := []postRecord{*post}
+	return contentResponse{
+		Status:        "success",
+		Locale:        locale,
+		Posts:         posts,
+		PostID:        postID,
+		LikesByPostID: postsRepository.ResolveLikesByPostID(operationCtx.ctx, posts),
+		HitsByPostID:  postsRepository.ResolveHitsByPostID(operationCtx.ctx, posts),
 	}
 }
 

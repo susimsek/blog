@@ -15,6 +15,7 @@ var errRepositoryUnavailable = errors.New("posts repository unavailable")
 type Repository interface {
 	CountPosts(ctx context.Context, filter bson.M) (int, error)
 	FindPosts(ctx context.Context, filter bson.M, sortOrder string, skip int64, limit int64) ([]postRecord, error)
+	FindPostByID(ctx context.Context, locale string, postID string) (*postRecord, error)
 	ResolveLikesByPostID(ctx context.Context, posts []postRecord) map[string]int64
 	ResolveHitsByPostID(ctx context.Context, posts []postRecord) map[string]int64
 	IncrementPostLike(ctx context.Context, postID string, now time.Time) (int64, error)
@@ -55,6 +56,15 @@ func (r *mongoRepository) FindPosts(
 	}
 
 	return queryPosts(ctx, collection, filter, sortOrder, skip, limit)
+}
+
+func (r *mongoRepository) FindPostByID(ctx context.Context, locale string, postID string) (*postRecord, error) {
+	collection, err := getPostsCollection()
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", errRepositoryUnavailable, err)
+	}
+
+	return queryPostByID(ctx, collection, locale, postID)
 }
 
 func (r *mongoRepository) ResolveLikesByPostID(ctx context.Context, posts []postRecord) map[string]int64 {

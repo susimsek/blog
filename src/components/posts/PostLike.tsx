@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'next/navigation';
-import { fetchPosts, incrementPostLike } from '@/lib/contentApi';
+import { fetchPost, incrementPostLike } from '@/lib/contentApi';
 import { defaultLocale } from '@/i18n/settings';
 import { useAppSelector } from '@/config/store';
 
@@ -44,16 +44,12 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
       setIsLoading(true);
       setHasError(false);
 
-      const payload = await fetchPosts(locale, {
-        page: 1,
-        size: 1,
-        scopeIds: [postId],
-      });
+      const payload = await fetchPost(locale, postId);
       if (!isMounted) {
         return;
       }
 
-      const result = payload?.status === 'success' ? payload.likesByPostId?.[postId] : null;
+      const result = payload?.status === 'success' ? payload.likes : null;
       if (typeof result !== 'number') {
         setHasError(true);
         setIsLoading(false);

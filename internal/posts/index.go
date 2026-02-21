@@ -565,6 +565,23 @@ func queryPosts(
 	return posts, nil
 }
 
+func queryPostByID(ctx context.Context, collection *mongo.Collection, locale string, postID string) (*postRecord, error) {
+	var post postRecord
+	err := collection.FindOne(ctx, bson.M{
+		"locale": locale,
+		"id":     postID,
+	}).Decode(&post)
+	if err == mongo.ErrNoDocuments {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	normalizedPost := normalizePostForResponse(post)
+	return &normalizedPost, nil
+}
+
 func collectPostIDs(posts []postRecord) []string {
 	if len(posts) == 0 {
 		return nil

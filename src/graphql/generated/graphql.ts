@@ -112,6 +112,14 @@ export type PostMetricResult = {
   status: Scalars['String']['output'];
 };
 
+export type PostResult = {
+  __typename?: 'PostResult';
+  engagement?: Maybe<PostEngagement>;
+  locale?: Maybe<Scalars['String']['output']>;
+  node?: Maybe<Post>;
+  status: Scalars['String']['output'];
+};
+
 export type PostsQueryInput = {
   page?: InputMaybe<Scalars['Int']['input']>;
   scopeIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -121,7 +129,13 @@ export type PostsQueryInput = {
 
 export type Query = {
   __typename?: 'Query';
+  post: PostResult;
   posts: PostConnection;
+};
+
+export type QueryPostArgs = {
+  id: Scalars['ID']['input'];
+  locale: Scalars['String']['input'];
 };
 
 export type QueryPostsArgs = {
@@ -173,6 +187,36 @@ export type PostsQuery = {
       url?: string | null;
       topics?: Array<{ __typename?: 'Topic'; id: string; name: string; color: string; link?: string | null }> | null;
     }>;
+  };
+};
+
+export type PostQueryVariables = Exact<{
+  locale: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+}>;
+
+export type PostQuery = {
+  __typename?: 'Query';
+  post: {
+    __typename?: 'PostResult';
+    status: string;
+    locale?: string | null;
+    node?: {
+      __typename?: 'Post';
+      id: string;
+      slug: string;
+      title: string;
+      publishedDate: string;
+      updatedDate?: string | null;
+      summary: string;
+      searchText: string;
+      thumbnail?: string | null;
+      readingTime: number;
+      source?: string | null;
+      url?: string | null;
+      topics?: Array<{ __typename?: 'Topic'; id: string; name: string; color: string; link?: string | null }> | null;
+    } | null;
+    engagement?: { __typename?: 'PostEngagement'; postId: string; likes: number; hits: number } | null;
   };
 };
 
@@ -341,6 +385,101 @@ export const PostsDocument = {
     },
   ],
 } as unknown as DocumentNode<PostsQuery, PostsQueryVariables>;
+export const PostDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'post' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'locale' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'post' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'locale' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'locale' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'node' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'slug' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'publishedDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'summary' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'searchText' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'thumbnail' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'readingTime' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'source' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'topics' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'color' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'link' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'engagement' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'postId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'likes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'hits' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<PostQuery, PostQueryVariables>;
 export const IncrementPostLikeDocument = {
   kind: 'Document',
   definitions: [

@@ -74,6 +74,47 @@ func (r *queryResolver) Posts(ctx context.Context, locale string, input *model.P
 	}, nil
 }
 
+// Post is the resolver for the post field.
+func (r *queryResolver) Post(ctx context.Context, locale string, id string) (*model.PostResult, error) {
+	normalizedLocale := strings.TrimSpace(locale)
+	if normalizedLocale == "" {
+		return nil, fmt.Errorf("locale is required")
+	}
+
+	normalizedID := strings.TrimSpace(id)
+	if normalizedID == "" {
+		return nil, fmt.Errorf("id is required")
+	}
+
+	payload := postsapi.QueryPost(ctx, postsapi.PostQueryInput{
+		Locale: normalizedLocale,
+		PostID: normalizedID,
+	})
+	status := strings.TrimSpace(payload.Status)
+	if status == "" {
+		status = "failed"
+	}
+
+	var node *model.Post
+	mappedNodes := mapPosts(payload.Posts)
+	if len(mappedNodes) > 0 {
+		node = mappedNodes[0]
+	}
+
+	var engagement *model.PostEngagement
+	mappedEngagement := mapEngagement(payload.LikesByPostID, payload.HitsByPostID)
+	if len(mappedEngagement) > 0 {
+		engagement = mappedEngagement[0]
+	}
+
+	return &model.PostResult{
+		Status:     status,
+		Locale:     toOptionalString(payload.Locale),
+		Node:       node,
+		Engagement: engagement,
+	}, nil
+}
+
 // IncrementPostLike is the resolver for the incrementPostLike field.
 func (r *mutationResolver) IncrementPostLike(ctx context.Context, postID string) (*model.PostMetricResult, error) {
 	payload := postsapi.IncrementLike(ctx, postID)

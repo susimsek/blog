@@ -70,6 +70,13 @@ type PostMetricResult struct {
 	Hits   *int   `json:"hits,omitempty"`
 }
 
+type PostResult struct {
+	Status     string          `json:"status"`
+	Locale     *string         `json:"locale,omitempty"`
+	Node       *Post           `json:"node,omitempty"`
+	Engagement *PostEngagement `json:"engagement,omitempty"`
+}
+
 type PostsQueryInput struct {
 	Page     *int       `json:"page,omitempty"`
 	Size     *int       `json:"size,omitempty"`

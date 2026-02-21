@@ -33,6 +33,37 @@ query posts($locale: String!, $input: PostsQueryInput) {
   }
 }
 
+query post($locale: String!, $id: ID!) {
+  post(locale: $locale, id: $id) {
+    status
+    locale
+    node {
+      id
+      slug
+      title
+      publishedDate
+      updatedDate
+      summary
+      searchText
+      thumbnail
+      readingTime
+      source
+      url
+      topics {
+        id
+        name
+        color
+        link
+      }
+    }
+    engagement {
+      postId
+      likes
+      hits
+    }
+  }
+}
+
 mutation incrementPostLike($postId: ID!) {
   incrementPostLike(postId: $postId) {
     status

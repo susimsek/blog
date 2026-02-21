@@ -1,6 +1,7 @@
 import {
   IncrementPostHitDocument,
   IncrementPostLikeDocument,
+  PostDocument,
   PostsDocument,
   PostsQueryInput,
   SortOrder,
@@ -29,6 +30,14 @@ type PostsResponse = {
   page?: number;
   size?: number;
   sort?: string;
+};
+
+type PostResponse = {
+  status?: string;
+  locale?: string;
+  post?: unknown | null;
+  likes?: number;
+  hits?: number;
 };
 
 type ContentLikeResponse = {
@@ -160,6 +169,44 @@ export const fetchPosts = async (
     page: payload.page,
     size: payload.size,
     ...(typeof payload.sort === 'string' ? { sort: payload.sort } : {}),
+  };
+};
+
+export const fetchPost = async (
+  locale: string,
+  id: string,
+  options: ContentApiOptions = {},
+): Promise<PostResponse | null> => {
+  const normalizedLocale = locale.trim();
+  const normalizedID = id.trim();
+  if (normalizedLocale.length === 0 || normalizedID.length === 0) {
+    return null;
+  }
+
+  const result = await queryGraphQL(
+    PostDocument,
+    {
+      locale: normalizedLocale,
+      id: normalizedID,
+    },
+    options,
+  );
+
+  const payload = result?.post;
+  if (!payload) {
+    return null;
+  }
+
+  const normalizedPost = payload.node ? normalizeGraphQLPosts([payload.node])[0] : null;
+  const likes = payload.engagement?.likes;
+  const hits = payload.engagement?.hits;
+
+  return {
+    status: payload.status,
+    ...(typeof payload.locale === 'string' ? { locale: payload.locale } : {}),
+    post: normalizedPost,
+    ...(typeof likes === 'number' && Number.isFinite(likes) ? { likes: Math.max(0, Math.trunc(likes)) } : {}),
+    ...(typeof hits === 'number' && Number.isFinite(hits) ? { hits: Math.max(0, Math.trunc(hits)) } : {}),
   };
 };
 

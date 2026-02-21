@@ -99,7 +99,15 @@ type ComplexityRoot struct {
 		Status func(childComplexity int) int
 	}
 
+	PostResult struct {
+		Engagement func(childComplexity int) int
+		Locale     func(childComplexity int) int
+		Node       func(childComplexity int) int
+		Status     func(childComplexity int) int
+	}
+
 	Query struct {
+		Post  func(childComplexity int, locale string, id string) int
 		Posts func(childComplexity int, locale string, input *model.PostsQueryInput) int
 	}
 
@@ -121,6 +129,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Posts(ctx context.Context, locale string, input *model.PostsQueryInput) (*model.PostConnection, error)
+	Post(ctx context.Context, locale string, id string) (*model.PostResult, error)
 }
 
 type executableSchema struct {
@@ -388,6 +397,42 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PostMetricResult.Status(childComplexity), true
 
+	case "PostResult.engagement":
+		if e.complexity.PostResult.Engagement == nil {
+			break
+		}
+
+		return e.complexity.PostResult.Engagement(childComplexity), true
+	case "PostResult.locale":
+		if e.complexity.PostResult.Locale == nil {
+			break
+		}
+
+		return e.complexity.PostResult.Locale(childComplexity), true
+	case "PostResult.node":
+		if e.complexity.PostResult.Node == nil {
+			break
+		}
+
+		return e.complexity.PostResult.Node(childComplexity), true
+	case "PostResult.status":
+		if e.complexity.PostResult.Status == nil {
+			break
+		}
+
+		return e.complexity.PostResult.Status(childComplexity), true
+
+	case "Query.post":
+		if e.complexity.Query.Post == nil {
+			break
+		}
+
+		args, err := ec.field_Query_post_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Post(childComplexity, args["locale"].(string), args["id"].(string)), true
 	case "Query.posts":
 		if e.complexity.Query.Posts == nil {
 			break
@@ -540,6 +585,7 @@ var sources = []*ast.Source{
 
 type Query {
   posts(locale: String!, input: PostsQueryInput): PostConnection!
+  post(locale: String!, id: ID!): PostResult!
 }
 
 type Mutation {
@@ -586,6 +632,13 @@ type PostConnection {
   page: Int!
   size: Int!
   sort: String
+}
+
+type PostResult {
+  status: String!
+  locale: String
+  node: Post
+  engagement: PostEngagement
 }
 
 type PostEngagement {
@@ -709,6 +762,22 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_post_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["locale"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNID2string)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg1
 	return args, nil
 }
 
@@ -1955,6 +2024,156 @@ func (ec *executionContext) fieldContext_PostMetricResult_hits(_ context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _PostResult_status(ctx context.Context, field graphql.CollectedField, obj *model.PostResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostResult_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostResult_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostResult_locale(ctx context.Context, field graphql.CollectedField, obj *model.PostResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostResult_locale,
+		func(ctx context.Context) (any, error) {
+			return obj.Locale, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostResult_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostResult_node(ctx context.Context, field graphql.CollectedField, obj *model.PostResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostResult_node,
+		func(ctx context.Context) (any, error) {
+			return obj.Node, nil
+		},
+		nil,
+		ec.marshalOPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPost,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostResult_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Post_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Post_slug(ctx, field)
+			case "title":
+				return ec.fieldContext_Post_title(ctx, field)
+			case "publishedDate":
+				return ec.fieldContext_Post_publishedDate(ctx, field)
+			case "updatedDate":
+				return ec.fieldContext_Post_updatedDate(ctx, field)
+			case "summary":
+				return ec.fieldContext_Post_summary(ctx, field)
+			case "searchText":
+				return ec.fieldContext_Post_searchText(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_Post_thumbnail(ctx, field)
+			case "topics":
+				return ec.fieldContext_Post_topics(ctx, field)
+			case "readingTime":
+				return ec.fieldContext_Post_readingTime(ctx, field)
+			case "source":
+				return ec.fieldContext_Post_source(ctx, field)
+			case "url":
+				return ec.fieldContext_Post_url(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostResult_engagement(ctx context.Context, field graphql.CollectedField, obj *model.PostResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostResult_engagement,
+		func(ctx context.Context) (any, error) {
+			return obj.Engagement, nil
+		},
+		nil,
+		ec.marshalOPostEngagement2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostEngagement,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostResult_engagement(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "postId":
+				return ec.fieldContext_PostEngagement_postId(ctx, field)
+			case "likes":
+				return ec.fieldContext_PostEngagement_likes(ctx, field)
+			case "hits":
+				return ec.fieldContext_PostEngagement_hits(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PostEngagement", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_posts(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2008,6 +2227,57 @@ func (ec *executionContext) fieldContext_Query_posts(ctx context.Context, field 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_posts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_post(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_post,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().Post(ctx, fc.Args["locale"].(string), fc.Args["id"].(string))
+		},
+		nil,
+		ec.marshalNPostResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostResult,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_post(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "status":
+				return ec.fieldContext_PostResult_status(ctx, field)
+			case "locale":
+				return ec.fieldContext_PostResult_locale(ctx, field)
+			case "node":
+				return ec.fieldContext_PostResult_node(ctx, field)
+			case "engagement":
+				return ec.fieldContext_PostResult_engagement(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PostResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_post_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -4205,6 +4475,51 @@ func (ec *executionContext) _PostMetricResult(ctx context.Context, sel ast.Selec
 	return out
 }
 
+var postResultImplementors = []string{"PostResult"}
+
+func (ec *executionContext) _PostResult(ctx context.Context, sel ast.SelectionSet, obj *model.PostResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostResult")
+		case "status":
+			out.Values[i] = ec._PostResult_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "locale":
+			out.Values[i] = ec._PostResult_locale(ctx, field, obj)
+		case "node":
+			out.Values[i] = ec._PostResult_node(ctx, field, obj)
+		case "engagement":
+			out.Values[i] = ec._PostResult_engagement(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -4234,6 +4549,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_posts(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "post":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_post(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4871,6 +5208,20 @@ func (ec *executionContext) marshalNPostMetricResult2ᚖsuaybsimsekᚗcomᚋblog
 	return ec._PostMetricResult(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNPostResult2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostResult(ctx context.Context, sel ast.SelectionSet, v model.PostResult) graphql.Marshaler {
+	return ec._PostResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostResult(ctx context.Context, sel ast.SelectionSet, v *model.PostResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostResult(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5232,6 +5583,20 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	_ = ctx
 	res := graphql.MarshalInt(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPost(ctx context.Context, sel ast.SelectionSet, v *model.Post) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Post(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPostEngagement2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostEngagement(ctx context.Context, sel ast.SelectionSet, v *model.PostEngagement) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PostEngagement(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOPostsQueryInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostsQueryInput(ctx context.Context, v any) (*model.PostsQueryInput, error) {

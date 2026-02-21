@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
-import { fetchPosts, incrementPostHit } from '@/lib/contentApi';
+import { fetchPost, incrementPostHit } from '@/lib/contentApi';
 import { defaultLocale } from '@/i18n/settings';
 
 type PostHitProps = {
@@ -38,17 +38,13 @@ export default function PostHit({ postId }: Readonly<PostHitProps>) {
       setIsLoading(true);
       setHasError(false);
 
-      const payload = await fetchPosts(locale, {
-        page: 1,
-        size: 1,
-        scopeIds: [postId],
-      });
+      const payload = await fetchPost(locale, postId);
 
       if (!isMounted) {
         return;
       }
 
-      const initialHits = payload?.status === 'success' ? payload.hitsByPostId?.[postId] : null;
+      const initialHits = payload?.status === 'success' ? payload.hits : null;
       if (typeof initialHits !== 'number') {
         setHasError(true);
         setIsLoading(false);
