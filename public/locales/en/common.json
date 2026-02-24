@@ -8,6 +8,7 @@
       "title": "Şuayb's Blog",
       "menu": {
         "home": "Home",
+        "categories": "Categories",
         "about": "About",
         "contact": "Contact",
         "search": "Search"
@@ -164,6 +165,9 @@
       "all": "All Sources",
       "blog": "Blog",
       "medium": "Medium"
+    },
+    "categoryFilter": {
+      "all": "All Categories"
     },
     "readingTime": {
       "minute": "{{count}} min read",

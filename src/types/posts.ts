@@ -5,11 +5,24 @@ export type Topic = {
   link?: string;
 };
 
+export type Category = {
+  id: string;
+  name: string;
+  color: string;
+  link?: string;
+};
+
+export type PostCategoryRef = {
+  id: string;
+  name: string;
+};
+
 export type PostSource = 'blog' | 'medium';
 
 export type PostSummary = {
   id: string;
   title: string;
+  category?: PostCategoryRef;
   publishedDate: string;
   updatedDate?: string;
   summary: string;

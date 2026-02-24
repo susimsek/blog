@@ -23,9 +23,11 @@ import (
 )
 
 const (
-	postsCollectionName  = "newsletter_posts"
-	topicsCollectionName = "newsletter_topics"
-	httpTimeout          = 12 * time.Second
+	postsCollectionName      = "newsletter_posts"
+	topicsCollectionName     = "newsletter_topics"
+	categoriesCollectionName = "newsletter_categories"
+	httpTimeout              = 12 * time.Second
+	sourceBlog               = "blog"
 )
 
 type siteTopic struct {
@@ -35,18 +37,31 @@ type siteTopic struct {
 	Link  *string `json:"link,omitempty"`
 }
 
+type siteCategory struct {
+	ID    string  `json:"id"`
+	Name  string  `json:"name"`
+	Color string  `json:"color"`
+	Link  *string `json:"link,omitempty"`
+}
+
+type sitePostCategory struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
 type sitePost struct {
-	ID             string      `json:"id"`
-	Title          string      `json:"title"`
-	Summary        string      `json:"summary"`
-	Thumbnail      *string     `json:"thumbnail"`
-	Topics         []siteTopic `json:"topics"`
-	ReadingTimeMin int         `json:"readingTimeMin"`
-	PublishedDate  string      `json:"publishedDate"`
-	UpdatedDate    string      `json:"updatedDate"`
-	SearchText     string      `json:"searchText"`
-	Source         string      `json:"source"`
-	Link           *string     `json:"link,omitempty"`
+	ID             string           `json:"id"`
+	Title          string           `json:"title"`
+	Category       sitePostCategory `json:"category"`
+	Summary        string           `json:"summary"`
+	Thumbnail      *string          `json:"thumbnail"`
+	Topics         []siteTopic      `json:"topics"`
+	ReadingTimeMin int              `json:"readingTimeMin"`
+	PublishedDate  string           `json:"publishedDate"`
+	UpdatedDate    string           `json:"updatedDate"`
+	SearchText     string           `json:"searchText"`
+	Source         string           `json:"source"`
+	Link           *string          `json:"link,omitempty"`
 }
 
 func loadDotEnv(path string) {
@@ -213,6 +228,49 @@ func normalizeTopic(raw siteTopic) siteTopic {
 	}
 }
 
+func normalizeCategory(raw siteCategory) siteCategory {
+	id := normalizeID(raw.ID)
+	if id == "" {
+		return siteCategory{}
+	}
+
+	name := strings.TrimSpace(raw.Name)
+	if name == "" {
+		name = id
+	}
+
+	color := strings.ToLower(strings.TrimSpace(raw.Color))
+	switch color {
+	case "red", "green", "blue", "orange", "yellow", "purple", "gray", "brown", "pink", "cyan":
+	default:
+		color = "blue"
+	}
+
+	return siteCategory{
+		ID:    id,
+		Name:  name,
+		Color: color,
+		Link:  normalizeOptionalString(raw.Link),
+	}
+}
+
+func normalizePostCategory(raw sitePostCategory) *sitePostCategory {
+	id := normalizeID(raw.ID)
+	if id == "" {
+		return nil
+	}
+
+	name := strings.TrimSpace(raw.Name)
+	if name == "" {
+		return nil
+	}
+
+	return &sitePostCategory{
+		ID:   id,
+		Name: name,
+	}
+}
+
 func normalizeSource(raw string) string {
 	switch strings.ToLower(strings.TrimSpace(raw)) {
 	case "medium":
@@ -300,8 +358,6 @@ func normalizePostTopics(rawTopics []siteTopic, topicByID map[string]siteTopic) 
 			continue
 		}
 		seen[topic.ID] = struct{}{}
-		topicByID[topic.ID] = topic
-
 		topicIDs = append(topicIDs, topic.ID)
 
 		var link any = nil
@@ -321,7 +377,11 @@ func normalizePostTopics(rawTopics []siteTopic, topicByID map[string]siteTopic) 
 	return postTopics, topicIDs
 }
 
-func ensureIndexes(postsCollection *mongo.Collection, topicsCollection *mongo.Collection) error {
+func ensureIndexes(
+	postsCollection *mongo.Collection,
+	topicsCollection *mongo.Collection,
+	categoriesCollection *mongo.Collection,
+) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -397,6 +457,29 @@ func ensureIndexes(postsCollection *mongo.Collection, topicsCollection *mongo.Co
 		return fmt.Errorf("topic index create failed: %w", err)
 	}
 
+	categoryIndexes := []mongo.IndexModel{
+		{
+			Keys: bson.D{
+				{Key: "locale", Value: 1},
+				{Key: "id", Value: 1},
+			},
+			Options: options.Index().
+				SetName("uniq_newsletter_category_locale_id").
+				SetUnique(true),
+		},
+		{
+			Keys: bson.D{
+				{Key: "locale", Value: 1},
+				{Key: "name", Value: 1},
+			},
+			Options: options.Index().
+				SetName("idx_newsletter_category_locale_name"),
+		},
+	}
+	if _, err := categoriesCollection.Indexes().CreateMany(ctx, categoryIndexes); err != nil {
+		return fmt.Errorf("category index create failed: %w", err)
+	}
+
 	return nil
 }
 
@@ -405,20 +488,29 @@ func syncLocale(
 	siteURL string,
 	postsCollection *mongo.Collection,
 	topicsCollection *mongo.Collection,
-) (postCount int, topicCount int, err error) {
+	categoriesCollection *mongo.Collection,
+) (postCount int, topicCount int, categoryCount int, err error) {
 	var posts []sitePost
 	if err := fetchLocaleData(siteURL, locale, "posts", &posts); err != nil {
-		return 0, 0, fmt.Errorf("posts fetch failed: %w", err)
+		return 0, 0, 0, fmt.Errorf("posts fetch failed: %w", err)
 	}
 
 	var topics []siteTopic
 	if err := fetchLocaleData(siteURL, locale, "topics", &topics); err != nil {
-		return 0, 0, fmt.Errorf("topics fetch failed: %w", err)
+		return 0, 0, 0, fmt.Errorf("topics fetch failed: %w", err)
+	}
+
+	var categories []siteCategory
+	if err := fetchLocaleData(siteURL, locale, "categories", &categories); err != nil {
+		return 0, 0, 0, fmt.Errorf("categories fetch failed: %w", err)
 	}
 
 	now := time.Now().UTC()
+	siteTopicByID := make(map[string]siteTopic, len(topics))
 	topicByID := make(map[string]siteTopic, len(topics))
+	categoryByID := make(map[string]siteCategory, len(categories))
 	activeTopicIDs := make(map[string]struct{}, len(topics))
+	activeCategoryIDs := make(map[string]struct{}, len(categories))
 	activePostIDs := make(map[string]struct{}, len(posts))
 
 	for _, raw := range topics {
@@ -426,32 +518,17 @@ func syncLocale(
 		if topic.ID == "" {
 			continue
 		}
+		siteTopicByID[topic.ID] = topic
 		topicByID[topic.ID] = topic
 		activeTopicIDs[topic.ID] = struct{}{}
 	}
-
-	for _, post := range posts {
-		for _, rawTopic := range post.Topics {
-			topic := normalizeTopic(rawTopic)
-			if topic.ID == "" {
-				continue
-			}
-			if existing, exists := topicByID[topic.ID]; exists {
-				if existing.Name == "" {
-					existing.Name = topic.Name
-				}
-				if existing.Color == "" {
-					existing.Color = topic.Color
-				}
-				if existing.Link == nil {
-					existing.Link = topic.Link
-				}
-				topicByID[topic.ID] = existing
-			} else {
-				topicByID[topic.ID] = topic
-			}
-			activeTopicIDs[topic.ID] = struct{}{}
+	for _, raw := range categories {
+		category := normalizeCategory(raw)
+		if category.ID == "" {
+			continue
 		}
+		categoryByID[category.ID] = category
+		activeCategoryIDs[category.ID] = struct{}{}
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 70*time.Second)
@@ -487,9 +564,44 @@ func syncLocale(
 			options.Update().SetUpsert(true),
 		)
 		if err != nil {
-			return 0, 0, fmt.Errorf("topic upsert failed: %w", err)
+			return 0, 0, 0, fmt.Errorf("topic upsert failed: %w", err)
 		}
 		topicCount++
+	}
+
+	for _, category := range categoryByID {
+		if category.ID == "" {
+			continue
+		}
+
+		var link any = nil
+		if category.Link != nil {
+			link = *category.Link
+		}
+
+		_, err := categoriesCollection.UpdateOne(
+			ctx,
+			bson.M{"locale": locale, "id": category.ID},
+			bson.M{
+				"$set": bson.M{
+					"locale":    locale,
+					"id":        category.ID,
+					"name":      category.Name,
+					"color":     category.Color,
+					"link":      link,
+					"updatedAt": now,
+					"syncedAt":  now,
+				},
+				"$setOnInsert": bson.M{
+					"createdAt": now,
+				},
+			},
+			options.Update().SetUpsert(true),
+		)
+		if err != nil {
+			return 0, 0, 0, fmt.Errorf("category upsert failed: %w", err)
+		}
+		categoryCount++
 	}
 
 	for _, rawPost := range posts {
@@ -498,13 +610,32 @@ func syncLocale(
 			continue
 		}
 
-		postTopics, topicIDs := normalizePostTopics(rawPost.Topics, topicByID)
-		for _, topicID := range topicIDs {
-			activeTopicIDs[topicID] = struct{}{}
-		}
-
 		source := normalizeSource(rawPost.Source)
+		topicLookup := topicByID
+		if source != sourceBlog {
+			topicLookup = make(map[string]siteTopic, len(rawPost.Topics))
+			for _, rawTopic := range rawPost.Topics {
+				topic := normalizeTopic(rawTopic)
+				if topic.ID == "" {
+					continue
+				}
+				if existingFromSite, exists := siteTopicByID[topic.ID]; exists {
+					if topic.Name == "" {
+						topic.Name = existingFromSite.Name
+					}
+					if topic.Color == "" {
+						topic.Color = existingFromSite.Color
+					}
+					if topic.Link == nil {
+						topic.Link = existingFromSite.Link
+					}
+				}
+				topicLookup[topic.ID] = topic
+			}
+		}
+		postTopics, topicIDs := normalizePostTopics(rawPost.Topics, topicLookup)
 		title := strings.TrimSpace(rawPost.Title)
+		category := normalizePostCategory(rawPost.Category)
 		summary := strings.TrimSpace(rawPost.Summary)
 		searchText := normalizeSearchText(rawPost.SearchText, title, summary, rawPost.Topics)
 		readingTimeMin := rawPost.ReadingTimeMin
@@ -536,6 +667,14 @@ func syncLocale(
 			thumbnailValue = *thumbnail
 		}
 
+		var categoryValue any = nil
+		if category != nil {
+			categoryValue = bson.M{
+				"id":   category.ID,
+				"name": category.Name,
+			}
+		}
+
 		_, err := postsCollection.UpdateOne(
 			ctx,
 			bson.M{"locale": locale, "id": postID},
@@ -544,6 +683,7 @@ func syncLocale(
 					"locale":         locale,
 					"id":             postID,
 					"title":          title,
+					"category":       categoryValue,
 					"summary":        summary,
 					"searchText":     searchText,
 					"thumbnail":      thumbnailValue,
@@ -566,7 +706,7 @@ func syncLocale(
 			options.Update().SetUpsert(true),
 		)
 		if err != nil {
-			return 0, 0, fmt.Errorf("post upsert failed: %w", err)
+			return 0, 0, 0, fmt.Errorf("post upsert failed: %w", err)
 		}
 		activePostIDs[postID] = struct{}{}
 		postCount++
@@ -581,13 +721,17 @@ func syncLocale(
 	for topicID := range activeTopicIDs {
 		activeTopicIDList = append(activeTopicIDList, topicID)
 	}
+	activeCategoryIDList := make([]string, 0, len(activeCategoryIDs))
+	for categoryID := range activeCategoryIDs {
+		activeCategoryIDList = append(activeCategoryIDList, categoryID)
+	}
 
 	postDeleteFilter := bson.M{"locale": locale}
 	if len(activePostIDList) > 0 {
 		postDeleteFilter["id"] = bson.M{"$nin": activePostIDList}
 	}
 	if _, err := postsCollection.DeleteMany(ctx, postDeleteFilter); err != nil {
-		return 0, 0, fmt.Errorf("stale post cleanup failed: %w", err)
+		return 0, 0, 0, fmt.Errorf("stale post cleanup failed: %w", err)
 	}
 
 	topicDeleteFilter := bson.M{"locale": locale}
@@ -595,10 +739,18 @@ func syncLocale(
 		topicDeleteFilter["id"] = bson.M{"$nin": activeTopicIDList}
 	}
 	if _, err := topicsCollection.DeleteMany(ctx, topicDeleteFilter); err != nil {
-		return 0, 0, fmt.Errorf("stale topic cleanup failed: %w", err)
+		return 0, 0, 0, fmt.Errorf("stale topic cleanup failed: %w", err)
 	}
 
-	return postCount, topicCount, nil
+	categoryDeleteFilter := bson.M{"locale": locale}
+	if len(activeCategoryIDList) > 0 {
+		categoryDeleteFilter["id"] = bson.M{"$nin": activeCategoryIDList}
+	}
+	if _, err := categoriesCollection.DeleteMany(ctx, categoryDeleteFilter); err != nil {
+		return 0, 0, 0, fmt.Errorf("stale category cleanup failed: %w", err)
+	}
+
+	return postCount, topicCount, categoryCount, nil
 }
 
 func main() {
@@ -633,17 +785,24 @@ func main() {
 	db := client.Database(databaseName)
 	postsCollection := db.Collection(postsCollectionName)
 	topicsCollection := db.Collection(topicsCollectionName)
+	categoriesCollection := db.Collection(categoriesCollectionName)
 
-	if err := ensureIndexes(postsCollection, topicsCollection); err != nil {
+	if err := ensureIndexes(postsCollection, topicsCollection, categoriesCollection); err != nil {
 		log.Fatalf("index ensure failed: %v", err)
 	}
 
 	locales := resolveLocales()
 	for _, locale := range locales {
-		postCount, topicCount, err := syncLocale(locale, siteURL, postsCollection, topicsCollection)
+		postCount, topicCount, categoryCount, err := syncLocale(
+			locale,
+			siteURL,
+			postsCollection,
+			topicsCollection,
+			categoriesCollection,
+		)
 		if err != nil {
 			log.Fatalf("sync failed for locale=%s: %v", locale, err)
 		}
-		log.Printf("sync completed locale=%s posts=%d topics=%d", locale, postCount, topicCount)
+		log.Printf("sync completed locale=%s posts=%d topics=%d categories=%d", locale, postCount, topicCount, categoryCount)
 	}
 }

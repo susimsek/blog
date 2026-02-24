@@ -34,7 +34,19 @@ html {
 #theme-toggler-dropdown .dropdown-toggle::before,
 #theme-toggler-dropdown .nav-link.dropdown-toggle::before,
 #theme-toggler-dropdown a.dropdown-toggle::before,
-#theme-toggler-dropdown button.dropdown-toggle::before {
+#theme-toggler-dropdown button.dropdown-toggle::before,
+#categories-nav-dropdown.dropdown-toggle::after,
+#categories-nav-dropdown.dropdown-toggle::before,
+#categories-nav-dropdown.nav-link.dropdown-toggle::after,
+#categories-nav-dropdown.nav-link.dropdown-toggle::before,
+#categories-nav-dropdown .dropdown-toggle::after,
+#categories-nav-dropdown .nav-link.dropdown-toggle::after,
+#categories-nav-dropdown a.dropdown-toggle::after,
+#categories-nav-dropdown button.dropdown-toggle::after,
+#categories-nav-dropdown .dropdown-toggle::before,
+#categories-nav-dropdown .nav-link.dropdown-toggle::before,
+#categories-nav-dropdown a.dropdown-toggle::before,
+#categories-nav-dropdown button.dropdown-toggle::before {
   display: none !important;
   content: none !important;
   border: none !important;
@@ -163,6 +175,7 @@ html {
 
   .breadcrumb {
     --bs-breadcrumb-padding-x: 0;
+    --bs-breadcrumb-divider: '›';
     --bs-breadcrumb-divider-color: var(--muted-text-color);
     --bs-breadcrumb-item-active-color: var(--muted-text-color);
     margin-left: 0;
@@ -191,13 +204,32 @@ html {
   .post-detail-breadcrumb {
     .breadcrumb {
       font-size: 0.875rem;
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       align-items: center;
       min-width: 0;
+      row-gap: 0.2rem;
     }
 
     .breadcrumb-item {
       min-width: 0;
+      max-width: 100%;
+      width: auto;
+      display: inline;
+      overflow: visible;
+      text-overflow: clip;
+      white-space: nowrap;
+      overflow-wrap: normal;
+    }
+
+    .breadcrumb-item > a {
+      display: inline;
+      min-width: 0;
+      max-width: 100%;
+      overflow: visible;
+      text-overflow: clip;
+      white-space: nowrap;
+      overflow-wrap: normal;
+      vertical-align: bottom;
     }
 
     .breadcrumb-item + .breadcrumb-item::before {
@@ -206,18 +238,29 @@ html {
     }
 
     .breadcrumb-item.active {
-      flex: 1 1 auto;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      display: inline-block;
-      max-width: 100%;
+      display: none;
     }
   }
 }
 
 .post-detail-title {
-  margin-bottom: var(--space-24);
+  max-width: $post-content-max-width;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: var(--space-8);
+}
+
+.post-detail-category-row {
+  max-width: $post-content-max-width;
+  margin: 0 auto var(--space-20);
+  text-align: center;
+
+  .post-category-link {
+    max-width: min(22ch, 80vw);
+    font-size: 1rem;
+    line-height: 1.2;
+    font-weight: 700;
+  }
 }
 
 .post-detail-meta {
@@ -306,6 +349,11 @@ html {
 .post-detail-topics {
   gap: var(--space-8);
   margin-bottom: var(--space-24);
+}
+
+.post-detail-category {
+  gap: var(--space-8);
+  margin-bottom: var(--space-12);
 }
 
 .post-detail-share {
@@ -1197,14 +1245,58 @@ body {
   margin-top: var(--space-32);
 }
 
-.post-filters-row {
+.post-filters-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-12);
   width: 100%;
 }
 
+.post-filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--space-12);
+  width: 100%;
+  flex: 0 0 auto;
+
+  > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  > .mb-2 {
+    margin-bottom: 0 !important;
+  }
+}
+
+.post-filters-sort-slot {
+  width: 100%;
+
+  > * {
+    width: 100%;
+  }
+
+  > .mb-2 {
+    margin-bottom: 0 !important;
+  }
+}
+
 @media (min-width: 768px) {
-  .post-filters-row {
+  .post-filters-sort-slot {
     width: auto;
+    margin-left: 0;
+    align-self: flex-start;
+
+    > * {
+      width: auto;
+    }
+  }
+
+  .post-filters-row {
+    width: 100%;
+    flex: 0 0 auto;
   }
 }
 
@@ -1982,6 +2074,36 @@ mark {
     padding-left: 0.1rem;
     padding-right: 0.1rem;
   }
+
+  .navbar .navbar-collapse,
+  .navbar .navbar-collapse .navbar-nav,
+  .navbar .navbar-collapse .navbar-nav .dropdown {
+    overflow: visible;
+  }
+
+  .navbar .navbar-collapse .navbar-nav .dropdown {
+    position: relative;
+  }
+
+  .navbar .navbar-collapse .navbar-nav .dropdown-menu {
+    position: absolute !important;
+    top: calc(100% + 0.35rem);
+    left: 50%;
+    right: auto;
+    inset-inline-start: 50%;
+    inset-inline-end: auto;
+    transform: translateX(-50%) !important;
+    float: none;
+    width: max-content;
+    max-width: min(22rem, calc(100vw - 2rem));
+    min-width: min(18rem, calc(100vw - 2rem));
+    margin: 0;
+    z-index: 1050;
+  }
+
+  .navbar .navbar-collapse .navbar-nav .dropdown-menu .dropdown-item {
+    text-align: center;
+  }
 }
 
 .language-switch-flag {
@@ -2257,6 +2379,29 @@ input.form-control {
 
 .post-summary-title {
   margin-bottom: var(--space-24);
+}
+
+.post-summary-title-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-8);
+  margin-bottom: var(--space-16);
+  min-width: 0;
+
+  .post-category-link {
+    max-width: min(26ch, 100%);
+    font-size: 1rem;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+
+  .post-summary-title {
+    width: 100%;
+    flex: 0 0 auto;
+    min-width: 0;
+    margin-bottom: 0;
+  }
 }
 
 .post-summary-meta {
@@ -2813,6 +2958,49 @@ $state-variants: (
   }
 }
 
+.post-category-link {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 800;
+  font-size: 0.86rem;
+  line-height: 1.15;
+  text-decoration: none;
+  text-underline-offset: 0.18em;
+  box-shadow: none !important;
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: none;
+  }
+
+  @each $name, $values in $state-variants {
+    $accent: list.nth($values, 1);
+    $hover: list.nth($values, 4);
+
+    &.post-category-link-#{'' + $name} {
+      // Keep the same variant family (red/blue/green/etc.) but mix with theme text color
+      // so plain category links stay readable in all themes.
+      color: color-mix(in srgb, $hover 72%, var(--text-color) 28%);
+
+      &:hover,
+      &:focus-visible {
+        color: $hover;
+      }
+    }
+  }
+}
+
+.post-category-link--truncated {
+  max-width: min(18ch, 42vw);
+}
+
 .alert {
   @include transition(background-color, color, border-color);
 
@@ -3086,6 +3274,16 @@ $state-variants: (
 
   &:focus {
     color: var(--dropdown-hover-color);
+  }
+}
+
+#categories-nav-dropdown {
+  .dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    line-height: inherit;
+    white-space: nowrap;
+    padding-right: var(--bs-nav-link-padding-x, 0.5rem);
   }
 }
 
@@ -3381,6 +3579,23 @@ $state-variants: (
   @include transition(background-color, color);
 }
 
+.post-carousel-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+
+  h3 {
+    min-width: 0;
+  }
+
+  .post-category-link {
+    max-width: min(18ch, 52vw);
+    text-shadow: 0 1px 2px rgb(0 0 0 / 45%);
+  }
+}
+
 @media (max-width: 768px) {
   .carousel-caption {
     padding: 3px !important;
@@ -3399,6 +3614,15 @@ $state-variants: (
     font-size: 8px !important;
     margin-bottom: 2px !important;
     white-space: nowrap !important;
+  }
+
+  .post-carousel-title-row {
+    gap: 0.35rem;
+
+    .post-category-link {
+      font-size: 0.6rem;
+      max-width: min(16ch, 58vw);
+    }
   }
 }
 
@@ -3693,6 +3917,7 @@ label {
 @media (max-width: 768px) {
   #sort-dropdown,
   #topics-dropdown,
+  #category-dropdown,
   #source-dropdown,
   #date-range-dropdown,
   #reading-time-dropdown {
@@ -4034,6 +4259,27 @@ label {
   margin-bottom: 0.5rem; /* mb-1 */
 }
 
+.post-list-title-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  min-width: 0;
+
+  .post-category-link {
+    max-width: min(22ch, 100%);
+    font-size: 0.92rem;
+    line-height: 1.15;
+    font-weight: 700;
+  }
+
+  .post-title {
+    width: 100%;
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+}
+
 .post-date {
   font-size: 0.875rem;
   line-height: 1.2;
@@ -4048,6 +4294,22 @@ label {
   font-size: 0.75rem;
   margin-right: 0.5rem; /* me-1 */
   margin-bottom: 0.25rem; /* mb-1 */
+}
+
+.related-post-title-row {
+  min-width: 0;
+}
+
+.related-post-title-main {
+  min-width: 0;
+
+  .post-category-link {
+    max-width: min(14ch, 42vw);
+  }
+}
+
+.related-post-title {
+  min-width: 0;
 }
 
 .me-md-64 {

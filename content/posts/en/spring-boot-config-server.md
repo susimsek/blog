@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot Config Server'
 publishedDate: '2025-02-22'
+category:
+  id: programming
+  name: Programming
 updatedDate: '2025-02-23'
 summary: 'Learn how to use Spring Boot Config Server to centralize and manage application configurations efficiently.'
 thumbnail: '/images/spring-boot-config-server-thumbnail.webp'

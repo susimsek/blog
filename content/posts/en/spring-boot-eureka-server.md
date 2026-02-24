@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot Eureka Server'
 publishedDate: '2025-02-23'
+category:
+  id: programming
+  name: Programming
 updatedDate: '2025-02-24'
 summary: 'Learn how to set up and configure a Spring Boot Eureka Server for service discovery in microservices architecture.'
 thumbnail: '/images/spring-boot-eureka-server-thumbnail.webp'

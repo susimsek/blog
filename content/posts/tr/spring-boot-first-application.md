@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot - İlk Uygulama'
 publishedDate: '2024-12-10'
+category:
+  id: programming
+  name: Programlama
 updatedDate: '2024-12-11'
 summary: 'Spring Boot ile ilk uygulamanızı sıfırdan oluşturmak için başlangıç seviyesinde bir rehber. Temel bilgileri öğrenin ve Spring Boot ile yolculuğunuza başlayın.'
 thumbnail: '/images/spring-boot-first-app-thumbnail.webp'

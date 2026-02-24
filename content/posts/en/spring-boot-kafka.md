@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot Kafka Integration'
 publishedDate: '2024-12-25'
+category:
+  id: programming
+  name: Programming
 updatedDate: '2024-12-26'
 summary: 'Learn how to integrate Apache Kafka with Spring Boot to send and consume JSON messages through Kafka topics.'
 thumbnail: '/images/spring-boot-kafka-thumbnail.webp'

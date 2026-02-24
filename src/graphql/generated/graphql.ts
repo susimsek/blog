@@ -71,6 +71,7 @@ export type NewsletterSubscribeInput = {
 
 export type Post = {
   __typename?: 'Post';
+  category?: Maybe<PostCategory>;
   id: Scalars['ID']['output'];
   publishedDate: Scalars['String']['output'];
   readingTime: Scalars['Int']['output'];
@@ -83,6 +84,12 @@ export type Post = {
   topics?: Maybe<Array<Topic>>;
   updatedDate?: Maybe<Scalars['String']['output']>;
   url?: Maybe<Scalars['String']['output']>;
+};
+
+export type PostCategory = {
+  __typename?: 'PostCategory';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type PostConnection = {
@@ -185,6 +192,7 @@ export type PostsQuery = {
       readingTime: number;
       source?: string | null;
       url?: string | null;
+      category?: { __typename?: 'PostCategory'; id: string; name: string } | null;
       topics?: Array<{ __typename?: 'Topic'; id: string; name: string; color: string; link?: string | null }> | null;
     }>;
   };
@@ -214,6 +222,7 @@ export type PostQuery = {
       readingTime: number;
       source?: string | null;
       url?: string | null;
+      category?: { __typename?: 'PostCategory'; id: string; name: string } | null;
       topics?: Array<{ __typename?: 'Topic'; id: string; name: string; color: string; link?: string | null }> | null;
     } | null;
     engagement?: { __typename?: 'PostEngagement'; postId: string; likes: number; hits: number } | null;
@@ -353,6 +362,17 @@ export const PostsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'slug' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'category' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'publishedDate' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedDate' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'summary' } },
@@ -436,6 +456,17 @@ export const PostDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'slug' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'category' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'publishedDate' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedDate' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'summary' } },

@@ -89,6 +89,23 @@ func mapTopicsFromPostTopics(topics []postsapi.TopicRecord) []*model.Topic {
 	return result
 }
 
+func mapCategoryFromPostCategory(category *postsapi.CategoryRecord) *model.PostCategory {
+	if category == nil {
+		return nil
+	}
+
+	id := strings.TrimSpace(category.ID)
+	name := strings.TrimSpace(category.Name)
+	if id == "" || name == "" {
+		return nil
+	}
+
+	return &model.PostCategory{
+		ID:   id,
+		Name: name,
+	}
+}
+
 func mapPosts(posts []postsapi.PostRecord) []*model.Post {
 	if len(posts) == 0 {
 		return []*model.Post{}
@@ -114,6 +131,7 @@ func mapPosts(posts []postsapi.PostRecord) []*model.Post {
 			ID:            id,
 			Slug:          id,
 			Title:         title,
+			Category:      mapCategoryFromPostCategory(post.Category),
 			PublishedDate: publishedDate,
 			UpdatedDate:   toOptionalString(derefString(post.UpdatedDate)),
 			Summary:       summary,

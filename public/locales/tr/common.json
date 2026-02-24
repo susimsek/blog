@@ -8,6 +8,7 @@
       "title": "Şuayb'in Blogu",
       "menu": {
         "home": "Ana Sayfa",
+        "categories": "Kategoriler",
         "about": "Hakkında",
         "contact": "İletişim",
         "search": "Ara"
@@ -164,6 +165,9 @@
       "all": "Tüm Kaynaklar",
       "blog": "Blog",
       "medium": "Medium"
+    },
+    "categoryFilter": {
+      "all": "Tüm Kategoriler"
     },
     "readingTime": {
       "minute": "{{count}} dk okuma",

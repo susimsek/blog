@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot Scheduled Tasks'
 publishedDate: '2025-02-20'
+category:
+  id: programming
+  name: Programming
 updatedDate: '2025-02-21'
 summary: 'Learn how to use @Scheduled in Spring Boot to run background tasks at fixed intervals or cron expressions.'
 thumbnail: '/images/spring-boot-scheduled-thumbnail.webp'

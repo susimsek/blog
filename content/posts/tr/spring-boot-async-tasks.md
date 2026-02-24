@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot Asenkron Görevler'
 publishedDate: '2025-02-20'
+category:
+  id: programming
+  name: Programlama
 updatedDate: '2025-02-21'
 summary: 'Spring Boot ile @Async kullanarak görevleri ana threadi engellemeden asenkron olarak nasıl çalıştıracağınızı öğrenin.'
 thumbnail: '/images/spring-boot-async-thumbnail.webp'

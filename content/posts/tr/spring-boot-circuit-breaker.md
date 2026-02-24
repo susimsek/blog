@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot Circuit Breaker'
 publishedDate: '2025-03-13'
+category:
+  id: programming
+  name: Programlama
 updatedDate: '2025-03-14'
 summary: 'Spring Boot uygulamalarında dayanıklı mikro hizmetler için Circuit Breaker nasıl uygulanır öğrenin.'
 thumbnail: '/images/spring-boot-circuit-breaker-thumbnail.webp'

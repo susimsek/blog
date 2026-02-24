@@ -10,13 +10,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { formatReadingTime } from '@/lib/readingTime';
 import { useTranslation } from 'react-i18next';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
+import PostCategoryBadge from '@/components/posts/PostCategoryBadge';
 
 interface PostListItemProps {
   post: PostSummary;
 }
 
 export default function PostListItem({ post }: Readonly<PostListItemProps>) {
-  const { title, publishedDate, thumbnail, topics, readingTimeMin, source } = post;
+  const { title, publishedDate, thumbnail, topics, readingTimeMin, source, category } = post;
   const { t } = useTranslation('common');
   const sourceLabel =
     source === 'medium'
@@ -43,7 +44,12 @@ export default function PostListItem({ post }: Readonly<PostListItemProps>) {
       {/* Content */}
       <Col xs={7} md={7} className="d-flex flex-column justify-content-between">
         <div>
-          <h6 className="post-title mb-1">{title}</h6>
+          <div className="post-list-title-row mb-1">
+            {category && (
+              <PostCategoryBadge category={category} className="post-category-link--truncated" linked={false} />
+            )}
+            <h6 className="post-title mb-0">{title}</h6>
+          </div>
           <p className="post-date text-muted mb-1">
             <span className="text-muted d-block mb-1">
               <FontAwesomeIcon icon="calendar-alt" className="me-2" />

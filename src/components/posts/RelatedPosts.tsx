@@ -12,6 +12,7 @@ import Badge from 'react-bootstrap/Badge';
 import Image from 'next/image';
 import { assetPrefix } from '@/config/constants';
 import { formatReadingTime } from '@/lib/readingTime';
+import PostCategoryBadge from '@/components/posts/PostCategoryBadge';
 
 interface RelatedPostsProps {
   posts: PostSummary[];
@@ -65,8 +66,17 @@ export default function RelatedPosts({ posts }: Readonly<RelatedPostsProps>) {
                 )}
 
                 <div className="p-3">
-                  <div className="d-flex justify-content-between align-items-start gap-2">
-                    <h3 className="h6 fw-bold mb-2 related-post-title">{post.title}</h3>
+                  <div className="d-flex justify-content-between align-items-start gap-2 related-post-title-row mb-2">
+                    <div className="related-post-title-main d-flex align-items-center gap-2 flex-grow-1">
+                      {post.category && (
+                        <PostCategoryBadge
+                          category={post.category}
+                          className="post-category-link--truncated"
+                          linked={false}
+                        />
+                      )}
+                      <h3 className="h6 fw-bold mb-0 related-post-title">{post.title}</h3>
+                    </div>
                     <FontAwesomeIcon icon="chevron-right" className="text-muted mt-1 flex-shrink-0" />
                   </div>
 

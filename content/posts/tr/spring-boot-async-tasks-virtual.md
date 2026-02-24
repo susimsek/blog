@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot Sanal Thread’li Asenkron Görevler'
 publishedDate: '2025-04-26'
+category:
+  id: programming
+  name: Programlama
 updatedDate: '2025-04-27'
 summary: 'Spring Boot’ta JDK 21 sanal thread’leri ve `@Async` anotasyonunu kullanarak hafif ve ölçeklenebilir asenkron görevleri nasıl oluşturacağınızı öğrenin.'
 thumbnail: '/images/spring-boot-async-virtual-thumbnail.webp'

@@ -19,7 +19,18 @@ const i18nextConfig = {
   },
 } as const;
 
-export const allNamespaces = ['404', 'about', 'common', 'contact', 'home', 'medium', 'post', 'search', 'topic'];
+export const allNamespaces = [
+  '404',
+  'about',
+  'category',
+  'common',
+  'contact',
+  'home',
+  'medium',
+  'post',
+  'search',
+  'topic',
+];
 export const layoutNamespaces = ['404', 'common', 'post', 'topic'] as const;
 
 export const isSupportedLocale = (value: string): value is Locale => locales.includes(value as Locale);

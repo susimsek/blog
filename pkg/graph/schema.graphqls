@@ -83,6 +83,7 @@ type Post {
   id: ID!
   slug: String!
   title: String!
+  category: PostCategory
   publishedDate: String!
   updatedDate: String
   summary: String!
@@ -92,6 +93,11 @@ type Post {
   readingTime: Int!
   source: String
   url: String
+}
+
+type PostCategory {
+  id: ID!
+  name: String!
 }
 
 type Topic {

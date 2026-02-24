@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot ile Redis Önbellekleme'
 publishedDate: '2024-12-22'
+category:
+  id: programming
+  name: Programlama
 updatedDate: '2024-12-23'
 summary: 'Spring Boot uygulamanıza Redis önbellekleme uygulayarak performansını ve verimliliğini artırmayı öğrenin.'
 thumbnail: '/images/spring-boot-redis-thumbnail.webp'

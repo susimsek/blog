@@ -9,6 +9,7 @@ const dictionaries = {
   en: {
     '404': () => import('@root/public/locales/en/404.json').then(module => module.default as NamespaceResource),
     about: () => import('@root/public/locales/en/about.json').then(module => module.default as NamespaceResource),
+    category: () => import('@root/public/locales/en/category.json').then(module => module.default as NamespaceResource),
     common: () => import('@root/public/locales/en/common.json').then(module => module.default as NamespaceResource),
     contact: () => import('@root/public/locales/en/contact.json').then(module => module.default as NamespaceResource),
     home: () => import('@root/public/locales/en/home.json').then(module => module.default as NamespaceResource),
@@ -20,6 +21,7 @@ const dictionaries = {
   tr: {
     '404': () => import('@root/public/locales/tr/404.json').then(module => module.default as NamespaceResource),
     about: () => import('@root/public/locales/tr/about.json').then(module => module.default as NamespaceResource),
+    category: () => import('@root/public/locales/tr/category.json').then(module => module.default as NamespaceResource),
     common: () => import('@root/public/locales/tr/common.json').then(module => module.default as NamespaceResource),
     contact: () => import('@root/public/locales/tr/contact.json').then(module => module.default as NamespaceResource),
     home: () => import('@root/public/locales/tr/home.json').then(module => module.default as NamespaceResource),

@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot Eureka Server'
 publishedDate: '2025-02-23'
+category:
+  id: programming
+  name: Programlama
 updatedDate: '2025-02-24'
 summary: 'Mikro hizmet mimarisinde servis keşfi için Spring Boot Eureka serverın nasıl kurulacağını ve yapılandırılacağını öğrenin.'
 thumbnail: '/images/spring-boot-eureka-server-thumbnail.webp'

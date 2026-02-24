@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot Docker Integration'
 publishedDate: '2025-02-21'
+category:
+  id: programming
+  name: Programming
 updatedDate: '2025-02-22'
 summary: 'Learn how to build and deploy Spring Boot applications using Docker with Buildpacks and Jib for efficient containerization.'
 thumbnail: '/images/spring-boot-docker-thumbnail.webp'

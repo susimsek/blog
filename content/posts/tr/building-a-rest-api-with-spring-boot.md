@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot ile REST API Geliştirme'
 publishedDate: '2024-12-10'
+category:
+  id: programming
+  name: Programlama
 updatedDate: '2024-12-11'
 summary: 'Spring Boot kullanarak REST API nasıl geliştirilir? HTTP metodları, JSON veri işleme, Lombok entegrasyonu ve curl ile test etme.'
 thumbnail: '/images/spring-boot-rest-api-thumbnail.webp'

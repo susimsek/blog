@@ -10,6 +10,7 @@ export type DateRange = {
 
 export type ReadingTimeRange = 'any' | '3-7' | '8-12' | '15+';
 export type SourceFilter = 'all' | 'blog' | 'medium';
+export type CategoryFilter = 'all' | string;
 
 export interface PostsQueryState {
   query: string;
@@ -17,6 +18,7 @@ export interface PostsQueryState {
   page: number;
   pageSize: number;
   selectedTopics: string[];
+  categoryFilter: CategoryFilter;
   sourceFilter: SourceFilter;
   dateRange: DateRange;
   readingTimeRange: ReadingTimeRange;
@@ -32,6 +34,7 @@ const initialState: PostsQueryState = {
   page: 1,
   pageSize: 5,
   selectedTopics: [],
+  categoryFilter: 'all',
   sourceFilter: 'all',
   dateRange: {},
   readingTimeRange: 'any',
@@ -73,6 +76,10 @@ const postsQuerySlice = createSlice({
       state.selectedTopics = action.payload;
       state.page = 1;
     },
+    setCategoryFilter: (state, action: PayloadAction<CategoryFilter>) => {
+      state.categoryFilter = action.payload;
+      state.page = 1;
+    },
     setSourceFilter: (state, action: PayloadAction<SourceFilter>) => {
       state.sourceFilter = action.payload;
       state.page = 1;
@@ -90,12 +97,14 @@ const postsQuerySlice = createSlice({
     },
     clearNonSearchFilters: state => {
       state.selectedTopics = [];
+      state.categoryFilter = 'all';
       state.dateRange = {};
       state.readingTimeRange = 'any';
     },
     resetFilters: state => {
       state.query = '';
       state.selectedTopics = [];
+      state.categoryFilter = 'all';
       state.sourceFilter = 'all';
       state.dateRange = {};
       state.readingTimeRange = 'any';
@@ -114,6 +123,7 @@ export const {
   setPage,
   setPageSize,
   setSelectedTopics,
+  setCategoryFilter,
   setSourceFilter,
   setDateRange,
   setReadingTimeRange,

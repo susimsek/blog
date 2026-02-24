@@ -1,0 +1,11 @@
+{
+  "category": {
+    "title": "{{category}} Kategorisindeki Yazılar",
+    "subtitle": "{{category}} kategorisindeki en son yazılara göz atın.",
+    "no_posts": "{{category}} kategorisinde yazı bulunamadı.",
+    "meta": {
+      "description": "{{category}} kategorisindeki en son yazıları keşfedin.",
+      "keywords": "{{category}}, {{category}} kategorisi, {{category}} yazıları"
+    }
+  }
+}

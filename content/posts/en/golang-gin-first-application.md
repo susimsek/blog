@@ -1,6 +1,9 @@
 ---
 title: 'Gin - First Application'
 publishedDate: '2024-12-14'
+category:
+  id: programming
+  name: Programming
 updatedDate: '2024-12-15'
 summary: 'A beginner-friendly guide to creating your first Golang Gin application from scratch. Learn the basics and start your journey with Gin.'
 thumbnail: '/images/golang-gin-first-app-thumbnail.webp'

@@ -97,6 +97,7 @@ describe('SearchContainer', () => {
     page: 1,
     pageSize: 5,
     selectedTopics: [],
+    categoryFilter: 'all',
     sourceFilter: 'all',
     dateRange: {},
     readingTimeRange: 'any',

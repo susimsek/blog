@@ -1,0 +1,11 @@
+{
+  "category": {
+    "title": "Posts in {{category}}",
+    "subtitle": "Explore the latest posts in the {{category}} category.",
+    "no_posts": "No posts found in the {{category}} category.",
+    "meta": {
+      "description": "Explore the latest posts in the {{category}} category.",
+      "keywords": "{{category}}, {{category}} category, {{category}} posts"
+    }
+  }
+}

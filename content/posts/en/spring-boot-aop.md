@@ -1,6 +1,9 @@
 ---
 title: 'Aspect-Oriented Programming in Spring Boot'
 publishedDate: '2024-12-18'
+category:
+  id: programming
+  name: Programming
 updatedDate: '2024-12-19'
 summary: 'Learn how to implement Aspect-Oriented Programming (AOP) in Spring Boot using Java and Kotlin. Covers core concepts, use cases, and practical examples.'
 thumbnail: '/images/spring-boot-aop-thumbnail.webp'

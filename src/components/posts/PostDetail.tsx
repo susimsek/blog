@@ -137,7 +137,7 @@ export default function PostDetail({
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
   const locale = routeLocale ?? defaultLocale;
-  const { title, publishedDate, updatedDate, contentHtml, thumbnail, topics, readingTimeMin } = post;
+  const { title, publishedDate, updatedDate, contentHtml, thumbnail, topics, readingTimeMin, category } = post;
   const normalizedUpdatedDate = typeof updatedDate === 'string' ? updatedDate.trim() : '';
   const hasUpdatedNotice = normalizedUpdatedDate.length > 0 && normalizedUpdatedDate !== publishedDate;
   const articleRef = React.useRef<HTMLElement | null>(null);
@@ -182,6 +182,10 @@ export default function PostDetail({
 
   const postUrl = React.useMemo(() => buildLocalizedAbsoluteUrl(locale, `posts/${post.id}`), [locale, post.id]);
   const blogLabel = t('common.searchSource.blog', { ns: 'common' });
+  const categoryHref = React.useMemo(() => {
+    const rawID = typeof category?.id === 'string' ? category.id.trim().toLowerCase() : '';
+    return rawID ? `/categories/${rawID}` : null;
+  }, [category?.id]);
 
   const xShareUrl = React.useMemo(() => {
     const params = new URLSearchParams({
@@ -244,6 +248,11 @@ export default function PostDetail({
             <Breadcrumb.Item linkAs={Link} href="/">
               {blogLabel}
             </Breadcrumb.Item>
+            {categoryHref && category?.name && (
+              <Breadcrumb.Item linkAs={Link} href={categoryHref}>
+                {category.name}
+              </Breadcrumb.Item>
+            )}
             <Breadcrumb.Item active>{title}</Breadcrumb.Item>
           </Breadcrumb>
         </nav>

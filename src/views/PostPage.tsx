@@ -9,6 +9,7 @@ import { resolvePostContent } from '@/lib/contentCompression';
 import { buildLocalizedAbsoluteUrl, toAbsoluteSiteUrl } from '@/lib/metadata';
 import type { AdjacentPostLink } from '@/lib/postFilters';
 import { useTranslation } from 'react-i18next';
+import { getPostCategoryLabel } from '@/lib/postCategories';
 
 type PostPageProps = {
   post: Post;
@@ -35,7 +36,10 @@ export default function PostPage({
     return { ...post, contentHtml };
   }, [post]);
 
-  const keywords = (post.topics ?? []).map(topic => topic.name).join(', ');
+  const categoryLabel = getPostCategoryLabel(post.category, locale);
+  const keywords = [...(categoryLabel ? [categoryLabel] : []), ...(post.topics ?? []).map(topic => topic.name)].join(
+    ', ',
+  );
   const siteRootUrl = toAbsoluteSiteUrl('/');
   const homeUrl = buildLocalizedAbsoluteUrl(locale);
   const postUrl = buildLocalizedAbsoluteUrl(locale, `posts/${post.id}`);
@@ -62,6 +66,7 @@ export default function PostPage({
     datePublished: post.publishedDate,
     dateModified: post.updatedDate ?? post.publishedDate,
     headline: post.title,
+    ...(categoryLabel ? { articleSection: categoryLabel } : {}),
     keywords,
     name: post.title,
     description: post.summary,
@@ -86,24 +91,38 @@ export default function PostPage({
   };
 
   const blogLabel = t('common.searchSource.blog', { ns: 'common' });
+  const categoryID = typeof post.category?.id === 'string' ? post.category.id.trim().toLowerCase() : '';
+  const categoryUrl = categoryID ? buildLocalizedAbsoluteUrl(locale, `categories/${categoryID}`) : '';
+
+  const breadcrumbItems = [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: blogLabel,
+      item: homeUrl,
+    },
+    ...(categoryLabel && categoryID
+      ? [
+          {
+            '@type': 'ListItem' as const,
+            position: 2,
+            name: categoryLabel,
+            item: categoryUrl,
+          },
+        ]
+      : []),
+    {
+      '@type': 'ListItem',
+      position: categoryLabel && categoryID ? 3 : 2,
+      name: post.title,
+      item: postUrl,
+    },
+  ];
 
   const breadcrumbJsonLdData = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: blogLabel,
-        item: homeUrl,
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: post.title,
-        item: postUrl,
-      },
-    ],
+    itemListElement: breadcrumbItems,
   };
 
   return (

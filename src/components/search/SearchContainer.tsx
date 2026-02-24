@@ -38,6 +38,16 @@ const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
     }
 
     const candidate = post as Partial<PostSummary>;
+    const normalizedCategory =
+      candidate.category &&
+      typeof candidate.category === 'object' &&
+      typeof candidate.category.id === 'string' &&
+      typeof candidate.category.name === 'string'
+        ? {
+            id: candidate.category.id.trim().toLowerCase(),
+            name: candidate.category.name.trim(),
+          }
+        : undefined;
     if (
       typeof candidate.id !== 'string' ||
       typeof candidate.title !== 'string' ||
@@ -69,6 +79,9 @@ const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
         summary: candidate.summary,
         searchText: candidate.searchText,
         thumbnail: candidate.thumbnail,
+        ...(normalizedCategory && normalizedCategory.id && normalizedCategory.name
+          ? { category: normalizedCategory }
+          : {}),
         topics: Array.isArray(candidate.topics) ? candidate.topics : undefined,
         readingTimeMin: candidate.readingTimeMin,
         source: candidate.source === 'medium' ? 'medium' : 'blog',

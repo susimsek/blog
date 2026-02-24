@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot ile Test Odaklı Geliştirme'
 publishedDate: '2025-04-09'
+category:
+  id: programming
+  name: Programlama
 updatedDate: '2025-04-10'
 summary: 'Spring Boot ile TDD yaklaşımını uygulamayı; önce test yazarak, iş mantığını geliştirerek ve testlerle kaliteyi garanti altına alarak öğrenin.'
 thumbnail: '/images/spring-boot-tdd-thumbnail.webp'

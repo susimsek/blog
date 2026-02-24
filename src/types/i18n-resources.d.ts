@@ -25,10 +25,24 @@ interface Resources {
       title: 'About Me';
     };
   };
+  category: {
+    category: {
+      meta: {
+        description: 'Explore the latest posts in the {{category}} category.';
+        keywords: '{{category}}, {{category}} category, {{category}} posts';
+      };
+      no_posts: 'No posts found in the {{category}} category.';
+      subtitle: 'Explore the latest posts in the {{category}} category.';
+      title: 'Posts in {{category}}';
+    };
+  };
   common: {
     common: {
       andMore: 'and {{count}} more';
       backToTop: 'Back to top';
+      categoryFilter: {
+        all: 'All Categories';
+      };
       clearAll: 'Clear All';
       codeBlock: {
         copied: 'Copied!';
@@ -66,6 +80,7 @@ interface Resources {
         logoAlt: "Şuayb's Blog Logo";
         menu: {
           about: 'About';
+          categories: 'Categories';
           contact: 'Contact';
           home: 'Home';
           search: 'Search';

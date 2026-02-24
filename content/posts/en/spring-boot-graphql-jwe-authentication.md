@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot GraphQL JWE Authentication'
 publishedDate: '2025-05-17'
+category:
+  id: programming
+  name: Programming
 updatedDate: '2025-05-18'
 summary: 'Learn how to secure your Spring Boot GraphQL APIs with stateless encrypted JWTs (JWE) while persisting user identities and roles in a JPA-backed database.'
 thumbnail: '/images/spring-boot-graphql-jwe-auth-thumbnail.webp'

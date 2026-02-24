@@ -37,8 +37,10 @@ export default function PostList({
   const isSearchRoute = /(?:^|\/)search(?:\/|$)/.test(pathname);
   const isMediumRoute = /(?:^|\/)medium(?:\/|$)/.test(pathname);
   const isHomeRoute = /^\/(?:[a-z]{2})?$/.test(pathname);
+  const isCategoryRoute = /(?:^|\/)categories(?:\/|$)/.test(pathname);
   const shouldUseScope = /(?:^|\/)topics(?:\/|$)/.test(pathname);
   const showSourceFilter = isSearchRoute;
+  const showCategoryFilter = !isCategoryRoute;
   const routeSearchParams = useSearchParams();
   const routeSearchParamsString = routeSearchParams?.toString() ?? '';
   const [likesByPostId, setLikesByPostId] = useState<Record<string, number | null>>({});
@@ -65,8 +67,18 @@ export default function PostList({
   const lastSyncedRouteRef = useRef<string>('');
   const routeSyncPendingRef = useRef(false);
   const lastFilterResetPathRef = useRef<string>('');
-  const { query, sortOrder, selectedTopics, sourceFilter, dateRange, readingTimeRange, page, pageSize, locale } =
-    useAppSelector(state => state.postsQuery);
+  const {
+    query,
+    sortOrder,
+    selectedTopics,
+    categoryFilter,
+    sourceFilter,
+    dateRange,
+    readingTimeRange,
+    page,
+    pageSize,
+    locale,
+  } = useAppSelector(state => state.postsQuery);
   const currentLocale = locale ?? routeLocale ?? i18nextConfig.i18n.defaultLocale;
   const effectiveSourceFilter = isSearchRoute ? sourceFilter : isMediumRoute ? 'medium' : isHomeRoute ? 'blog' : 'all';
   const debouncedSearchQuery = useDebounce(query, 500);
@@ -132,6 +144,7 @@ export default function PostList({
 
     const hasStaleFilters =
       selectedTopics.length > 0 ||
+      categoryFilter !== 'all' ||
       typeof dateRange.startDate === 'string' ||
       typeof dateRange.endDate === 'string' ||
       readingTimeRange !== 'any';
@@ -145,6 +158,7 @@ export default function PostList({
   }, [
     dateRange.endDate,
     dateRange.startDate,
+    categoryFilter,
     dispatch,
     isSearchRoute,
     pathname,
@@ -204,6 +218,13 @@ export default function PostList({
           }
         }
 
+        if (categoryFilter !== 'all') {
+          const postCategoryId = typeof post.category?.id === 'string' ? post.category.id.trim().toLowerCase() : '';
+          if (postCategoryId !== categoryFilter) {
+            return false;
+          }
+        }
+
         const postSource = post.source ?? 'blog';
         if (effectiveSourceFilter !== 'all' && postSource !== effectiveSourceFilter) {
           return false;
@@ -241,6 +262,7 @@ export default function PostList({
     effectiveSourceFilter,
     isSearchRoute,
     posts,
+    categoryFilter,
     readingTimeRange,
     scopedPostIds,
     selectedTopics,
@@ -361,7 +383,7 @@ export default function PostList({
   return (
     <section className="post-list-section">
       <div ref={listTopRef} />
-      <PostFilters showSourceFilter={showSourceFilter} />
+      <PostFilters showSourceFilter={showSourceFilter} showCategoryFilter={showCategoryFilter} />
       {renderedPosts.length > 0 ? (
         renderedPosts.map(post => (
           <PostCard

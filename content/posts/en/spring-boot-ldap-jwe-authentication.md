@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot LDAP and JWE Authentication'
 publishedDate: '2025-05-10'
+category:
+  id: programming
+  name: Programming
 updatedDate: '2025-05-11'
 summary: 'Learn how to use LDAP authentication with JWE-encrypted JWTs to secure your Spring Boot APIs with both external directory integration and token confidentiality.'
 thumbnail: '/images/spring-boot-ldap-jwe-auth-thumbnail.webp'

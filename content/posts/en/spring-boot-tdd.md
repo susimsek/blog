@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot Test-Driven Development'
 publishedDate: '2025-04-09'
+category:
+  id: programming
+  name: Programming
 updatedDate: '2025-04-10'
 summary: 'Learn how to apply TDD in Spring Boot by writing unit tests first, implementing logic, and ensuring code quality through testing.'
 thumbnail: '/images/spring-boot-tdd-thumbnail.webp'

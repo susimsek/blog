@@ -96,14 +96,20 @@ type siteTopic struct {
 }
 
 type sitePost struct {
-	ID             string      `json:"id"`
-	Title          string      `json:"title"`
-	Summary        string      `json:"summary"`
-	Thumbnail      string      `json:"thumbnail"`
-	Topics         []siteTopic `json:"topics"`
-	ReadingTimeMin int         `json:"readingTimeMin"`
-	PublishedDate  string      `json:"publishedDate"`
-	UpdatedDate    string      `json:"updatedDate"`
+	ID             string           `json:"id"`
+	Title          string           `json:"title"`
+	Category       sitePostCategory `json:"category"`
+	Summary        string           `json:"summary"`
+	Thumbnail      string           `json:"thumbnail"`
+	Topics         []siteTopic      `json:"topics"`
+	ReadingTimeMin int              `json:"readingTimeMin"`
+	PublishedDate  string           `json:"publishedDate"`
+	UpdatedDate    string           `json:"updatedDate"`
+}
+
+type sitePostCategory struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type syncedPostTopic struct {
@@ -833,6 +839,7 @@ func syncSiteContentForLocale(
 					"locale":         locale,
 					"id":             postID,
 					"title":          strings.TrimSpace(rawPost.Title),
+					"category":       buildNewsletterPostCategoryDoc(rawPost.Category),
 					"summary":        strings.TrimSpace(rawPost.Summary),
 					"thumbnail":      strings.TrimSpace(rawPost.Thumbnail),
 					"topics":         postTopics,
@@ -854,6 +861,19 @@ func syncSiteContentForLocale(
 	}
 
 	return nil
+}
+
+func buildNewsletterPostCategoryDoc(raw sitePostCategory) any {
+	id := strings.ToLower(strings.TrimSpace(raw.ID))
+	name := strings.TrimSpace(raw.Name)
+	if id == "" || name == "" {
+		return nil
+	}
+
+	return bson.M{
+		"id":   id,
+		"name": name,
+	}
 }
 
 func extractPostIDFromLink(postURL string) string {

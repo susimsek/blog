@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot LDAP ve JWE Kimlik Doğrulama'
 publishedDate: '2025-05-10'
+category:
+  id: programming
+  name: Programlama
 updatedDate: '2025-05-11'
 summary: 'LDAP kimlik doğrulama ve JWE şifreli JWT’lerle Spring Boot API’lerinizi external directory entegrasyonu ve token gizliliği ile nasıl güvene alacağınızı öğrenin.'
 thumbnail: '/images/spring-boot-ldap-jwe-auth-thumbnail.webp'

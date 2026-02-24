@@ -11,6 +11,7 @@ import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { useAppSelector } from '@/config/store';
 import React from 'react';
 import PostLikeCount from '@/components/posts/PostLikeCount';
+import PostCategoryBadge from '@/components/posts/PostCategoryBadge';
 
 interface PostSummaryProps {
   post: Post;
@@ -58,7 +59,7 @@ export default function PostSummary({
   likeCount = null,
   likeCountLoading = false,
 }: Readonly<PostSummaryProps>) {
-  const { id, title, publishedDate, summary, thumbnail, topics, readingTimeMin, source, link } = post;
+  const { id, title, publishedDate, summary, thumbnail, topics, readingTimeMin, source, link, category } = post;
   const { t } = useTranslation(['post', 'common']);
   const isVoiceEnabled = useAppSelector(state => state.voice.isEnabled);
   const readMoreSoundRef = React.useRef<HTMLAudioElement | null>(null);
@@ -141,11 +142,14 @@ export default function PostSummary({
   return (
     <div className="post-card d-flex align-items-center post-summary-card">
       <div className="post-card-content flex-grow-1">
-        <h2 className="fw-bold post-summary-title">
-          <Link href={postLink} className="link">
-            {titleNode}
-          </Link>
-        </h2>
+        <div className="post-summary-title-row">
+          {category && <PostCategoryBadge category={category} className="post-category-link--truncated" />}
+          <h2 className="fw-bold post-summary-title">
+            <Link href={postLink} className="link">
+              {titleNode}
+            </Link>
+          </h2>
+        </div>
         <p className="post-summary-meta">
           <Link href={postLink} className="link-muted d-flex align-items-center">
             <FontAwesomeIcon icon="calendar-alt" className="me-2" />

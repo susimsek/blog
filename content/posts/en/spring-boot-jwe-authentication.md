@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot JWE Authentication'
 publishedDate: '2025-05-03'
+category:
+  id: programming
+  name: Programming
 updatedDate: '2025-05-04'
 summary: 'Learn how to use JWE to encrypt your JWTs and secure your Spring Boot APIs for confidentiality and integrity.'
 thumbnail: '/images/spring-boot-jwe-auth-thumbnail.webp'

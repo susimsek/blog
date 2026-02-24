@@ -15,6 +15,10 @@ query posts($locale: String!, $input: PostsQueryInput) {
       id
       slug
       title
+      category {
+        id
+        name
+      }
       publishedDate
       updatedDate
       summary
@@ -41,6 +45,10 @@ query post($locale: String!, $id: ID!) {
       id
       slug
       title
+      category {
+        id
+        name
+      }
       publishedDate
       updatedDate
       summary

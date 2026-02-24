@@ -34,7 +34,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot configuration properties learn how to use configurationproperties for type safe configuration validate settings with validated and manage environment specific values with profile specific application profile yml files java kotlin spring boot configuration programming",
     "updatedDate": "2026-02-17",
-    "publishedDate": "2026-02-04"
+    "publishedDate": "2026-02-04",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-graphql-jwe-authentication",
@@ -86,7 +90,11 @@
     "readingTimeMin": 6,
     "searchText": "spring boot graphql jwe authentication learn how to secure your spring boot graphql apis with stateless encrypted jwts jwe while persisting user identities and roles in a jpa backed database java kotlin spring boot security jwt jwe graphql programming",
     "updatedDate": "2025-05-18",
-    "publishedDate": "2025-05-17"
+    "publishedDate": "2025-05-17",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-jwe-authentication-with-jpa",
@@ -138,7 +146,11 @@
     "readingTimeMin": 4,
     "searchText": "spring boot jwe authentication with jpa learn how to use stateless encrypted jwts jwe to secure your spring boot apis while persisting user identities and roles in a jpa backed database java kotlin spring boot security jwt jwe jpa programming",
     "updatedDate": "2025-05-12",
-    "publishedDate": "2025-05-11"
+    "publishedDate": "2025-05-11",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-ldap-jwe-authentication",
@@ -190,7 +202,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot ldap and jwe authentication learn how to use ldap authentication with jwe encrypted jwts to secure your spring boot apis with both external directory integration and token confidentiality java kotlin spring boot security jwt jwe ldap programming",
     "updatedDate": "2025-05-11",
-    "publishedDate": "2025-05-10"
+    "publishedDate": "2025-05-10",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-jwe-authentication",
@@ -237,7 +253,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot jwe authentication learn how to use jwe to encrypt your jwts and secure your spring boot apis for confidentiality and integrity java kotlin spring boot security jwt jwe programming",
     "updatedDate": "2025-05-04",
-    "publishedDate": "2025-05-03"
+    "publishedDate": "2025-05-03",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-http-interface-client",
@@ -279,7 +299,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot http interface client learn how to use spring boot 3 2 http interface client for declarative type safe http calls java kotlin spring boot rest api rest client programming",
     "updatedDate": "2025-04-28",
-    "publishedDate": "2025-04-27"
+    "publishedDate": "2025-04-27",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-async-tasks-virtual",
@@ -321,7 +345,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot async tasks with virtual thread learn how to run asynchronous tasks with async on jdk 21 virtual threads in spring boot java kotlin spring boot async tasks virtual thread programming",
     "updatedDate": "2025-04-27",
-    "publishedDate": "2025-04-26"
+    "publishedDate": "2025-04-26",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-ai",
@@ -363,7 +391,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot ai integration learn how to integrate ai models into spring boot applications using spring ai for modular portable and observable ai workflows java kotlin spring boot spring ai artificial intelligence programming",
     "updatedDate": "2025-04-24",
-    "publishedDate": "2025-04-23"
+    "publishedDate": "2025-04-23",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "https://medium.com/p/3703a3b9fd29",
@@ -406,7 +438,11 @@
     "source": "medium",
     "link": "https://medium.com/yapi-kredi-teknoloji/spring-boot-graalvm-native-image-3703a3b9fd29?source=rss-bda589f2335a------2",
     "searchText": "spring boot graalvm native image introduction java applications often suffer from long startup times and high memory consumption making modern software development more challenging however graalvm native image offers a groundbr upx kubernetes spring boot native image graalvm",
-    "publishedDate": "Tue, 22 Apr 2025 08:02:29 GMT"
+    "publishedDate": "Tue, 22 Apr 2025 08:02:29 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-jpa-auditing",
@@ -453,7 +489,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot jpa auditing learn how to automatically track created and modified fields in your spring boot applications using jpa auditing java kotlin spring boot spring data jpa auditing programming",
     "updatedDate": "2025-04-11",
-    "publishedDate": "2025-04-10"
+    "publishedDate": "2025-04-10",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-tdd",
@@ -495,7 +535,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot test driven development learn how to apply tdd in spring boot by writing unit tests first implementing logic and ensuring code quality through testing java kotlin spring boot tdd testing programming",
     "updatedDate": "2025-04-10",
-    "publishedDate": "2025-04-09"
+    "publishedDate": "2025-04-09",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-circuit-breaker",
@@ -542,7 +586,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot circuit breaker learn how to implement circuit breaker in spring boot applications for resilient microservices java kotlin spring boot spring cloud circuit breaker microservice programming",
     "updatedDate": "2025-03-14",
-    "publishedDate": "2025-03-13"
+    "publishedDate": "2025-03-13",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-eureka-server",
@@ -589,7 +637,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot eureka server learn how to set up and configure a spring boot eureka server for service discovery in microservices architecture java kotlin spring boot spring cloud eureka server microservice programming",
     "updatedDate": "2025-02-24",
-    "publishedDate": "2025-02-23"
+    "publishedDate": "2025-02-23",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-config-server",
@@ -636,7 +688,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot config server learn how to use spring boot config server to centralize and manage application configurations efficiently java kotlin spring boot spring cloud config server microservice programming",
     "updatedDate": "2025-02-23",
-    "publishedDate": "2025-02-22"
+    "publishedDate": "2025-02-22",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-docker",
@@ -683,7 +739,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot docker integration learn how to build and deploy spring boot applications using docker with buildpacks and jib for efficient containerization java kotlin spring boot docker containerization jib programming",
     "updatedDate": "2025-02-22",
-    "publishedDate": "2025-02-21"
+    "publishedDate": "2025-02-21",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-kubernetes",
@@ -730,7 +790,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot kubernetes integration learn how to deploy spring boot applications on kubernetes for scalable containerized microservices java kotlin spring boot kubernetes microservice containerization programming",
     "updatedDate": "2025-02-22",
-    "publishedDate": "2025-02-21"
+    "publishedDate": "2025-02-21",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-async-tasks",
@@ -767,7 +831,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot async tasks learn how to use async in spring boot to execute tasks asynchronously without blocking the main thread java kotlin spring boot async tasks programming",
     "updatedDate": "2025-02-21",
-    "publishedDate": "2025-02-20"
+    "publishedDate": "2025-02-20",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-scheduled-tasks",
@@ -804,7 +872,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot scheduled tasks learn how to use scheduled in spring boot to run background tasks at fixed intervals or cron expressions java kotlin spring boot scheduled tasks programming",
     "updatedDate": "2025-02-21",
-    "publishedDate": "2025-02-20"
+    "publishedDate": "2025-02-20",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-reactive-programming",
@@ -846,7 +918,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot reactive programming learn how to build reactive applications using spring boot with project reactor and webflux for high performance asynchronous processing java kotlin spring boot reactive programming spring webflux programming",
     "updatedDate": "2025-02-20",
-    "publishedDate": "2025-02-19"
+    "publishedDate": "2025-02-19",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-graalvm",
@@ -888,7 +964,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot graalvm native application learn how to build and deploy a spring boot application as a graalvm native image for improved startup time and reduced resource usage java kotlin spring boot graalvm native image programming",
     "updatedDate": "2024-12-29",
-    "publishedDate": "2024-12-28"
+    "publishedDate": "2024-12-28",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-kafka",
@@ -930,7 +1010,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot kafka integration learn how to integrate apache kafka with spring boot to send and consume json messages through kafka topics java kotlin spring boot kafka messaging programming",
     "updatedDate": "2024-12-26",
-    "publishedDate": "2024-12-25"
+    "publishedDate": "2024-12-25",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-redis-caching",
@@ -972,7 +1056,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot redis caching learn how to implement redis caching in your spring boot application to improve performance and efficiency java kotlin spring boot redis caching programming",
     "updatedDate": "2024-12-23",
-    "publishedDate": "2024-12-22"
+    "publishedDate": "2024-12-22",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-openapi",
@@ -1014,7 +1102,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot with openapi learn how to integrate openapi into your spring boot application for api documentation and testing using springdoc java kotlin spring boot openapi documentation programming",
     "updatedDate": "2024-12-21",
-    "publishedDate": "2024-12-20"
+    "publishedDate": "2024-12-20",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-clean-coding",
@@ -1051,7 +1143,11 @@
     "readingTimeMin": 3,
     "searchText": "clean coding practices in spring boot learn how to apply clean coding principles in spring boot projects includes best practices examples and benefits of using lombok in java and kotlin clean code techniques java kotlin spring boot clean coding programming",
     "updatedDate": "2024-12-20",
-    "publishedDate": "2024-12-19"
+    "publishedDate": "2024-12-19",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-devtools",
@@ -1088,7 +1184,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot devtools learn how to utilize spring boot devtools for rapid development includes live reload caching and debugging tips java kotlin spring boot dev tools programming",
     "updatedDate": "2024-12-20",
-    "publishedDate": "2024-12-19"
+    "publishedDate": "2024-12-19",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-actuator",
@@ -1130,7 +1230,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot actuator learn how to use spring boot actuator to monitor and manage your applications with ease includes endpoints customization and security examples java kotlin spring boot actuator monitoring programming",
     "updatedDate": "2024-12-19",
-    "publishedDate": "2024-12-18"
+    "publishedDate": "2024-12-18",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-aop",
@@ -1167,7 +1271,11 @@
     "readingTimeMin": 3,
     "searchText": "aspect oriented programming in spring boot learn how to implement aspect oriented programming aop in spring boot using java and kotlin covers core concepts use cases and practical examples java kotlin spring boot aop programming",
     "updatedDate": "2024-12-19",
-    "publishedDate": "2024-12-18"
+    "publishedDate": "2024-12-18",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-di",
@@ -1204,7 +1312,11 @@
     "readingTimeMin": 3,
     "searchText": "dependency injection in spring boot learn how dependency injection di works in spring boot including examples in java and kotlin covers key concepts annotations and practical use cases java kotlin spring boot dependency injection programming",
     "updatedDate": "2024-12-19",
-    "publishedDate": "2024-12-18"
+    "publishedDate": "2024-12-18",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "object-relational-mapping",
@@ -1251,7 +1363,11 @@
     "readingTimeMin": 3,
     "searchText": "object relational mapping learn how to set up an orm based application with spring boot using java kotlin and go gin includes postgresql integration and basic crud operations java kotlin go spring boot gin orm programming",
     "updatedDate": "2024-12-17",
-    "publishedDate": "2024-12-16"
+    "publishedDate": "2024-12-16",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "rest-api-input-validation",
@@ -1298,7 +1414,11 @@
     "readingTimeMin": 3,
     "searchText": "input validation in rest apis learn how to implement input validation in rest apis using java kotlin and go with frameworks like spring boot and gin covers annotations custom validators and error handling java kotlin go spring boot gin validation programming",
     "updatedDate": "2024-12-16",
-    "publishedDate": "2024-12-15"
+    "publishedDate": "2024-12-15",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-graphql",
@@ -1335,7 +1455,11 @@
     "readingTimeMin": 3,
     "searchText": "building apis with spring for graphql learn how to build graphql apis using spring for graphql with java and kotlin includes schema creation query handling and integration java kotlin graphql spring boot programming",
     "updatedDate": "2024-12-16",
-    "publishedDate": "2024-12-15"
+    "publishedDate": "2024-12-15",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "golang-gin-first-application",
@@ -1367,7 +1491,11 @@
     "readingTimeMin": 3,
     "searchText": "gin first application a beginner friendly guide to creating your first golang gin application from scratch learn the basics and start your journey with gin go gin beginner guide programming",
     "updatedDate": "2024-12-15",
-    "publishedDate": "2024-12-14"
+    "publishedDate": "2024-12-14",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "building-a-rest-api-with-spring-boot",
@@ -1404,7 +1532,11 @@
     "readingTimeMin": 3,
     "searchText": "building a rest api with spring boot learn how to create a rest api using spring boot includes http methods json handling lombok integration and curl for testing java kotlin spring boot rest api programming",
     "updatedDate": "2024-12-12",
-    "publishedDate": "2024-12-11"
+    "publishedDate": "2024-12-11",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "spring-boot-first-application",
@@ -1441,7 +1573,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot first application a beginner friendly guide to creating your first spring boot application from scratch learn the basics and start your journey with spring boot java kotlin spring boot beginner guide programming",
     "updatedDate": "2024-12-11",
-    "publishedDate": "2024-12-10"
+    "publishedDate": "2024-12-10",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "https://medium.com/p/eb227e1a748b",
@@ -1484,7 +1620,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/react-spring-boot-graphql-fullstack-microservice-application-on-kubernetes-eb227e1a748b?source=rss-bda589f2335a------2",
     "searchText": "react spring boot graphql fullstack microservice application on kubernetes hello everyone in this article we will develop a fullstack graphql microservice application using react and spring boot and deploy this application on kubernetes graphql graphql is a query language microservices spring boot graphql kubernetes react",
-    "publishedDate": "Sun, 28 Aug 2022 16:29:12 GMT"
+    "publishedDate": "Sun, 28 Aug 2022 16:29:12 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "https://medium.com/p/7ea33894d12b",
@@ -1527,7 +1667,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/react-spring-boot-hateoas-driven-fullstack-application-on-kubernetes-7ea33894d12b?source=rss-bda589f2335a------2",
     "searchText": "react spring boot hateoas driven fullstack application on kubernetes hello everyone in this article we will develop a hateoas driven fullstack application using react and spring boot and deploy this application on kubernetes richardson maturity model leonard richar kubernetes spring boot hateoas react spring native",
-    "publishedDate": "Tue, 15 Mar 2022 19:22:26 GMT"
+    "publishedDate": "Tue, 15 Mar 2022 19:22:26 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "https://medium.com/p/b82662ada0a4",
@@ -1570,7 +1714,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-6-b82662ada0a4?source=rss-bda589f2335a------2",
     "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 6 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 6 orderer hello everyone through this article series we will the hyperledger fabric integration wi orderer blockchain kubernetes spring boot hyperledger fabric",
-    "publishedDate": "Mon, 10 Jan 2022 20:01:06 GMT"
+    "publishedDate": "Mon, 10 Jan 2022 20:01:06 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "https://medium.com/p/1723502770e7",
@@ -1613,7 +1761,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-5-1723502770e7?source=rss-bda589f2335a------2",
     "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 5 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 5 kafka hello everyone through this article series we will the hyperledger fabric integration with hyperledger fabric kubernetes blockchain spring boot kafka",
-    "publishedDate": "Mon, 27 Dec 2021 19:30:57 GMT"
+    "publishedDate": "Mon, 27 Dec 2021 19:30:57 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "https://medium.com/p/daf84e4f9227",
@@ -1656,7 +1808,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/reducing-spring-native-and-golang-docker-image-size-by-70-with-upx-daf84e4f9227?source=rss-bda589f2335a------2",
     "searchText": "reducing spring native and golang docker image size by 70 with upx reducing docker image size by 70 in spring native and golang projects with upx hi in this article i will explain how we can reduce the docker image size by 70 using upx in spring native and golan upx golang docker spring boot spring native",
-    "publishedDate": "Mon, 20 Dec 2021 18:03:04 GMT"
+    "publishedDate": "Mon, 20 Dec 2021 18:03:04 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "https://medium.com/p/d6583a57153c",
@@ -1699,7 +1855,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-4-d6583a57153c?source=rss-bda589f2335a------2",
     "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 4 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 4 generating certificates and artifacts hello everyone through this article series we will the hyp blockchain kubernetes hyperledger hyperledger fabric spring boot",
-    "publishedDate": "Sat, 27 Nov 2021 13:47:38 GMT"
+    "publishedDate": "Sat, 27 Nov 2021 13:47:38 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "https://medium.com/p/7eb2fc75ba60",
@@ -1742,7 +1902,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-3-7eb2fc75ba60?source=rss-bda589f2335a------2",
     "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 3 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 3 fabric ca server hello everyone through this article series we will the hyperledger fabric integ spring boot hyperledger fabric blockchain fabric ca server kubernetes",
-    "publishedDate": "Sun, 21 Nov 2021 14:33:12 GMT"
+    "publishedDate": "Sun, 21 Nov 2021 14:33:12 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "https://medium.com/p/ddce8d25858d",
@@ -1785,7 +1949,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-ddce8d25858d?source=rss-bda589f2335a------2",
     "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 2 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 2 kubernetes cluster setup hello everyone through this article series we will the hyperledger fabr blockchain kubernetes spring boot vagrant hyperledger fabric",
-    "publishedDate": "Sun, 31 Oct 2021 18:04:46 GMT"
+    "publishedDate": "Sun, 31 Oct 2021 18:04:46 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   },
   {
     "id": "https://medium.com/p/c8f7c87d60eb",
@@ -1828,6 +1996,10 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-1-c8f7c87d60eb?source=rss-bda589f2335a------2",
     "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 1 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 1 introduction hello everyone through this article series we will the hyperledger fabric integrati hyperledger fabric blockchain spring spring boot hyperledger explorer",
-    "publishedDate": "Sun, 17 Oct 2021 17:59:32 GMT"
+    "publishedDate": "Sun, 17 Oct 2021 17:59:32 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programming"
+    }
   }
 ]

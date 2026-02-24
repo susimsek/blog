@@ -50,20 +50,26 @@ type topicRecord struct {
 	Link  *string `json:"link,omitempty" bson:"link,omitempty"`
 }
 
+type categoryRecord struct {
+	ID   string `json:"id" bson:"id"`
+	Name string `json:"name" bson:"name"`
+}
+
 type postRecord struct {
-	ID             string        `json:"id" bson:"id"`
-	Title          string        `json:"title" bson:"title"`
-	PublishedDate  string        `json:"publishedDate" bson:"publishedDate"`
-	UpdatedDate    *string       `json:"updatedDate,omitempty" bson:"updatedDate,omitempty"`
-	Summary        string        `json:"summary" bson:"summary"`
-	SearchText     string        `json:"searchText" bson:"searchText"`
-	Thumbnail      *string       `json:"thumbnail" bson:"thumbnail,omitempty"`
-	Topics         []topicRecord `json:"topics,omitempty" bson:"topics,omitempty"`
-	TopicIDs       []string      `json:"-" bson:"topicIds,omitempty"`
-	ReadingTimeMin int           `json:"readingTimeMin" bson:"readingTimeMin"`
-	Source         string        `json:"source,omitempty" bson:"source,omitempty"`
-	Link           *string       `json:"link,omitempty" bson:"link,omitempty"`
-	PublishedAt    time.Time     `json:"-" bson:"publishedAt,omitempty"`
+	ID             string          `json:"id" bson:"id"`
+	Title          string          `json:"title" bson:"title"`
+	Category       *categoryRecord `json:"category,omitempty" bson:"category,omitempty"`
+	PublishedDate  string          `json:"publishedDate" bson:"publishedDate"`
+	UpdatedDate    *string         `json:"updatedDate,omitempty" bson:"updatedDate,omitempty"`
+	Summary        string          `json:"summary" bson:"summary"`
+	SearchText     string          `json:"searchText" bson:"searchText"`
+	Thumbnail      *string         `json:"thumbnail" bson:"thumbnail,omitempty"`
+	Topics         []topicRecord   `json:"topics,omitempty" bson:"topics,omitempty"`
+	TopicIDs       []string        `json:"-" bson:"topicIds,omitempty"`
+	ReadingTimeMin int             `json:"readingTimeMin" bson:"readingTimeMin"`
+	Source         string          `json:"source,omitempty" bson:"source,omitempty"`
+	Link           *string         `json:"link,omitempty" bson:"link,omitempty"`
+	PublishedAt    time.Time       `json:"-" bson:"publishedAt,omitempty"`
 }
 
 type contentResponse struct {
@@ -512,6 +518,14 @@ func normalizePostForResponse(post postRecord) postRecord {
 		for index := range post.Topics {
 			post.Topics[index].Color = strings.ToLower(strings.TrimSpace(post.Topics[index].Color))
 			post.Topics[index].Link = normalizeOptionalString(post.Topics[index].Link)
+		}
+	}
+
+	if post.Category != nil {
+		post.Category.ID = strings.ToLower(strings.TrimSpace(post.Category.ID))
+		post.Category.Name = strings.TrimSpace(post.Category.Name)
+		if post.Category.ID == "" || post.Category.Name == "" {
+			post.Category = nil
 		}
 	}
 

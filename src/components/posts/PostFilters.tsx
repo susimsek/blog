@@ -6,15 +6,18 @@ import { useAppDispatch, useAppSelector } from '@/config/store';
 import {
   setSortOrder,
   setSelectedTopics,
+  setCategoryFilter,
   setDateRange,
   setReadingTimeRange,
   setSourceFilter,
 } from '@/reducers/postsQuery';
 import ReadingTimeDropdown from '@/components/common/ReadingTimeDropdown';
 import SourceDropdown from '@/components/common/SourceDropdown';
+import CategoryDropdown from '@/components/common/CategoryDropdown';
 
 interface PostFiltersProps {
   showSourceFilter: boolean;
+  showCategoryFilter?: boolean;
 }
 
 const DateRangePicker = dynamic(() => import('@/components/common/DateRangePicker'), {
@@ -22,19 +25,23 @@ const DateRangePicker = dynamic(() => import('@/components/common/DateRangePicke
   loading: () => <div className="post-filters-date-loading mb-2" />,
 });
 
-export function PostFilters({ showSourceFilter }: Readonly<PostFiltersProps>) {
+export function PostFilters({ showSourceFilter, showCategoryFilter = true }: Readonly<PostFiltersProps>) {
   const dispatch = useAppDispatch();
   const {
     sortOrder,
     selectedTopics,
+    categoryFilter,
     sourceFilter,
     readingTimeRange,
     topics: fetchedTopics,
   } = useAppSelector(state => state.postsQuery);
 
   return (
-    <div className="d-flex flex-wrap align-items-center mb-3">
+    <div className="post-filters-layout mb-3">
       <div className="post-filters-row d-flex flex-column flex-md-row align-items-stretch">
+        {showCategoryFilter && (
+          <CategoryDropdown value={categoryFilter} onChange={value => dispatch(setCategoryFilter(value))} />
+        )}
         {fetchedTopics.length > 0 && (
           <TopicsDropdown
             topics={fetchedTopics}
@@ -51,6 +58,8 @@ export function PostFilters({ showSourceFilter }: Readonly<PostFiltersProps>) {
           maxDate={new Date()}
         />
         <ReadingTimeDropdown value={readingTimeRange} onChange={value => dispatch(setReadingTimeRange(value))} />
+      </div>
+      <div className="post-filters-sort-slot d-flex align-items-stretch">
         <SortDropdown sortOrder={sortOrder} onChange={order => dispatch(setSortOrder(order))} />
       </div>
     </div>

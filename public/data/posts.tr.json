@@ -34,7 +34,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot configuration properties configurationproperties ile tip guvenli yapilandirma tanimlamayi validated ile ayarlari dogrulamayi ve profile specific application profile yml dosyalariyla ortama gore deger yonetimini ogrenin java kotlin spring boot yapilandirma programlama",
     "updatedDate": "2026-02-17",
-    "publishedDate": "2026-02-04"
+    "publishedDate": "2026-02-04",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-graphql-jwe-authentication",
@@ -86,7 +90,11 @@
     "readingTimeMin": 6,
     "searchText": "spring boot graphql jwe kimlik dogrulama stateless sifreli jwt ler jwe ile spring boot graphql api lerinizi guvenli hale getirmeyi kullanici kimligi ve rolleri jpa ile bir veritabaninda saklamayi ogrenin java kotlin spring boot guvenlik jwt jwe graphql programlama",
     "updatedDate": "2025-05-18",
-    "publishedDate": "2025-05-17"
+    "publishedDate": "2025-05-17",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-jwe-authentication-with-jpa",
@@ -138,7 +146,11 @@
     "readingTimeMin": 4,
     "searchText": "spring boot jpa ile jwe kimlik dogrulamasi stateless sifreli jwt ler jwe kullanarak spring boot api lerinizi guvenli hale getirirken kullanici kimliklerini ve rolleri jpa destekli bir veritabaninda nasil saklayacaginizi ogrenin java kotlin spring boot guvenlik jwt jwe jpa programlama",
     "updatedDate": "2025-05-12",
-    "publishedDate": "2025-05-11"
+    "publishedDate": "2025-05-11",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-ldap-jwe-authentication",
@@ -190,7 +202,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot ldap ve jwe kimlik dogrulama ldap kimlik dogrulama ve jwe sifreli jwt lerle spring boot api lerinizi external directory entegrasyonu ve token gizliligi ile nasil guvene alacaginizi ogrenin java kotlin spring boot guvenlik jwt jwe ldap programlama",
     "updatedDate": "2025-05-11",
-    "publishedDate": "2025-05-10"
+    "publishedDate": "2025-05-10",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-jwe-authentication",
@@ -237,7 +253,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot jwe kimlik dogrulama jwt lerinizi jwe ile sifreleyerek gizlilik ve butunlugu saglamak icin spring boot api lerinizi nasil guvence altina alacaginizi ogrenin java kotlin spring boot guvenlik jwt jwe programlama",
     "updatedDate": "2025-05-04",
-    "publishedDate": "2025-05-03"
+    "publishedDate": "2025-05-03",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-http-interface-client",
@@ -279,7 +299,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot http interface client deklaratif tip guvenli http cagrilari icin spring boot 3 2 http interface client nasil kullanilir ogrenin java kotlin spring boot rest api rest client programlama",
     "updatedDate": "2025-04-28",
-    "publishedDate": "2025-04-27"
+    "publishedDate": "2025-04-27",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-async-tasks-virtual",
@@ -321,7 +345,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot sanal thread li asenkron gorevler spring boot ta jdk 21 sanal thread leri ve async anotasyonunu kullanarak hafif ve olceklenebilir asenkron gorevleri nasil olusturacaginizi ogrenin java kotlin spring boot asenkron gorevler sanal thread programlama",
     "updatedDate": "2025-04-27",
-    "publishedDate": "2025-04-26"
+    "publishedDate": "2025-04-26",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-ai",
@@ -363,7 +391,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot ai entegrasyonu moduler tasinabilir ve gozlemlenebilir ai is akislari icin spring ai kullanarak spring boot uygulamalarina ai modellerini nasil entegre edeceginizi ogrenin java kotlin spring boot spring ai yapay zeka programlama",
     "updatedDate": "2025-04-24",
-    "publishedDate": "2025-04-23"
+    "publishedDate": "2025-04-23",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "https://medium.com/p/3703a3b9fd29",
@@ -406,7 +438,11 @@
     "source": "medium",
     "link": "https://medium.com/yapi-kredi-teknoloji/spring-boot-graalvm-native-image-3703a3b9fd29?source=rss-bda589f2335a------2",
     "searchText": "spring boot graalvm native image introduction java applications often suffer from long startup times and high memory consumption making modern software development more challenging however graalvm native image offers a groundbr upx kubernetes spring boot native image graalvm",
-    "publishedDate": "Tue, 22 Apr 2025 08:02:29 GMT"
+    "publishedDate": "Tue, 22 Apr 2025 08:02:29 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-jpa-auditing",
@@ -453,7 +489,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot jpa auditing spring boot uygulamalarinda jpa auditing ile olusturulma degistirilme tarihlerini ve kullanicilarini otomatik olarak nasil yakalayacaginizi ogrenin java kotlin spring boot spring data jpa auditing programlama",
     "updatedDate": "2025-04-11",
-    "publishedDate": "2025-04-10"
+    "publishedDate": "2025-04-10",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-tdd",
@@ -495,7 +535,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot ile test odakli gelistirme spring boot ile tdd yaklasimini uygulamayi once test yazarak is mantigini gelistirerek ve testlerle kaliteyi garanti altina alarak ogrenin java kotlin spring boot tdd test programlama",
     "updatedDate": "2025-04-10",
-    "publishedDate": "2025-04-09"
+    "publishedDate": "2025-04-09",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-circuit-breaker",
@@ -542,7 +586,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot circuit breaker spring boot uygulamalarinda circuit breaker kullanimini ogrenerek mikro hizmetlerin dayanikliligini artirin java kotlin spring boot spring cloud circuit breaker mikroservis programlama",
     "updatedDate": "2025-03-14",
-    "publishedDate": "2025-03-13"
+    "publishedDate": "2025-03-13",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-eureka-server",
@@ -589,7 +637,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot eureka server mikro hizmet mimarisinde servis kesfi icin spring boot eureka serverin nasil kurulacagini ve yapilandirilacagini ogrenin java kotlin spring boot spring cloud eureka server mikroservis programlama",
     "updatedDate": "2025-02-24",
-    "publishedDate": "2025-02-23"
+    "publishedDate": "2025-02-23",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-config-server",
@@ -636,7 +688,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot config server spring boot config server kullanarak merkezi yapilandirma yonetimini nasil gerceklestireceginizi ogrenin java kotlin spring boot spring cloud config server mikroservis programlama",
     "updatedDate": "2025-02-23",
-    "publishedDate": "2025-02-22"
+    "publishedDate": "2025-02-22",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-docker",
@@ -683,7 +739,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot docker entegrasyonu spring boot uygulamalarini docker kullanarak buildpacks ve jib ile nasil olusturup dagitabileceginizi ogrenin java kotlin spring boot docker konteynerizasyon jib programlama",
     "updatedDate": "2025-02-22",
-    "publishedDate": "2025-02-21"
+    "publishedDate": "2025-02-21",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-kubernetes",
@@ -730,7 +790,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot kubernetes entegrasyonu spring boot uygulamalarini kubernetes uzerinde nasil olceklenebilir ve konteyner tabanli olarak dagitabileceginizi ogrenin java kotlin spring boot kubernetes mikroservis konteynerizasyon programlama",
     "updatedDate": "2025-02-22",
-    "publishedDate": "2025-02-21"
+    "publishedDate": "2025-02-21",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-async-tasks",
@@ -767,7 +831,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot asenkron gorevler spring boot ile async kullanarak gorevleri ana threadi engellemeden asenkron olarak nasil calistiracaginizi ogrenin java kotlin spring boot asenkron gorevler programlama",
     "updatedDate": "2025-02-21",
-    "publishedDate": "2025-02-20"
+    "publishedDate": "2025-02-20",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-scheduled-tasks",
@@ -804,7 +872,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot planlanmis gorevler spring boot ile scheduled anotasyonunu kullanarak belirli araliklarla veya cron ifadeleriyle arka plan gorevlerini nasil calistiracaginizi ogrenin java kotlin spring boot planlanmis gorevler programlama",
     "updatedDate": "2025-02-21",
-    "publishedDate": "2025-02-20"
+    "publishedDate": "2025-02-20",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-reactive-programming",
@@ -846,7 +918,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot reaktif programlama spring boot ile project reactor ve webflux kullanarak yuksek performansli eszamanli isleme sahip reaktif uygulamalar olusturmayi ogrenin java kotlin spring boot reaktif programlama spring webflux programlama",
     "updatedDate": "2025-02-20",
-    "publishedDate": "2025-02-19"
+    "publishedDate": "2025-02-19",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-graalvm",
@@ -888,7 +964,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot ile graalvm native uygulama spring boot uygulamalarinizi graalvm native imaji olarak derleyerek daha hizli baslatma sureleri ve azaltilmis kaynak kullanimi elde etmeyi ogrenin java kotlin spring boot graalvm native imaj programlama",
     "updatedDate": "2024-12-29",
-    "publishedDate": "2024-12-28"
+    "publishedDate": "2024-12-28",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-kafka",
@@ -930,7 +1010,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot ile kafka entegrasyonu spring boot uygulamanizin kafka topicleri araciligiyla json mesajlari gondermesini ve tuketmesini nasil entegre edeceginizi ogrenin java kotlin spring boot kafka mesajlasma programlama",
     "updatedDate": "2024-12-26",
-    "publishedDate": "2024-12-25"
+    "publishedDate": "2024-12-25",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-redis-caching",
@@ -972,7 +1056,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot ile redis onbellekleme spring boot uygulamaniza redis onbellekleme uygulayarak performansini ve verimliligini artirmayi ogrenin java kotlin spring boot redis onbellekleme programlama",
     "updatedDate": "2024-12-23",
-    "publishedDate": "2024-12-22"
+    "publishedDate": "2024-12-22",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-openapi",
@@ -1014,7 +1102,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot ile openapi springdoc kullanarak spring boot uygulamanizda openapi entegrasyonu ile api dokumantasyonu ve test yontemlerini ogrenin java kotlin spring boot openapi dokumantasyon programlama",
     "updatedDate": "2024-12-21",
-    "publishedDate": "2024-12-20"
+    "publishedDate": "2024-12-20",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-clean-coding",
@@ -1051,7 +1143,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot temiz kodlama pratikleri spring boot projelerinde temiz kodlama ilkelerini uygulamayi ogrenin en iyi uygulamalar ornekler ve java da lombok ile kotlin temiz kodlama tekniklerinin faydalari java kotlin spring boot temiz kodlama programlama",
     "updatedDate": "2024-12-20",
-    "publishedDate": "2024-12-19"
+    "publishedDate": "2024-12-19",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-devtools",
@@ -1088,7 +1184,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot devtools spring boot devtools ile hizli gelistirme surecinizi nasil hizlandirabileceginizi kesfedin canli yeniden yukleme onbellekleme ve hata ayiklama ipuclari icerir java kotlin spring boot gelistirme araclari programlama",
     "updatedDate": "2024-12-20",
-    "publishedDate": "2024-12-19"
+    "publishedDate": "2024-12-19",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-actuator",
@@ -1130,7 +1230,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot actuator spring boot actuator kullanarak uygulamalarinizi izleme ve yonetme endpointler ozellestirme ve guvenlik orneklerini icerir java kotlin spring boot actuator izleme programlama",
     "updatedDate": "2024-12-19",
-    "publishedDate": "2024-12-18"
+    "publishedDate": "2024-12-18",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-aop",
@@ -1167,7 +1271,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot ile aspect oriented programming spring boot ile aop uygulamasini nasil yapacaginizi ogrenin java ve kotlin ornekleri ile temel kavramlar ve uygulamalar java kotlin spring boot aop programlama",
     "updatedDate": "2024-12-19",
-    "publishedDate": "2024-12-18"
+    "publishedDate": "2024-12-18",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-di",
@@ -1204,7 +1312,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot ile dependency injection spring boot ile bagimlilik enjeksiyonu dependency injection di nasil calisir java ve kotlin ornekleriyle temel kavramlar anotasyonlar ve pratik kullanim senaryolarini ogrenin java kotlin spring boot bagimlilik enjeksiyonu programlama",
     "updatedDate": "2024-12-19",
-    "publishedDate": "2024-12-18"
+    "publishedDate": "2024-12-18",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "object-relational-mapping",
@@ -1251,7 +1363,11 @@
     "readingTimeMin": 3,
     "searchText": "object relational mapping spring boot kullanarak java kotlin ve go gin ile postgresql entegrasyonu ve temel crud islemlerini iceren bir orm tabanli uygulamanin nasil kurulacagini ogrenin java kotlin go spring boot gin orm programlama",
     "updatedDate": "2024-12-17",
-    "publishedDate": "2024-12-16"
+    "publishedDate": "2024-12-16",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "rest-api-input-validation",
@@ -1298,7 +1414,11 @@
     "readingTimeMin": 3,
     "searchText": "rest api lerde girdi dogrulama spring boot ve gin ile java kotlin ve go da rest api girdi dogrulamasini uygulamayi ogrenin anotasyon ozel dogrulama ve hata yonetimi ornekleri icerir java kotlin go spring boot gin dogrulama programlama",
     "updatedDate": "2024-12-16",
-    "publishedDate": "2024-12-15"
+    "publishedDate": "2024-12-15",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-graphql",
@@ -1335,7 +1455,11 @@
     "readingTimeMin": 3,
     "searchText": "spring graphql ile api olusturma java ve kotlin kullanarak spring for graphql ile graphql api u201leri nasil olusturacaginizi ogrenin sema olusturma sorgu isleme ve entegrasyonu icerir java kotlin spring boot graphql programlama",
     "updatedDate": "2024-12-16",
-    "publishedDate": "2024-12-15"
+    "publishedDate": "2024-12-15",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "golang-gin-first-application",
@@ -1367,7 +1491,11 @@
     "readingTimeMin": 3,
     "searchText": "gin ilk uygulama sifirdan ilk golang gin uygulamanizi olusturmaniza yardimci olacak yeni baslayanlar icin rehber temelleri ogrenin ve gin ile yolculugunuza baslayin go gin baslangic rehberi programlama",
     "updatedDate": "2024-12-15",
-    "publishedDate": "2024-12-14"
+    "publishedDate": "2024-12-14",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "building-a-rest-api-with-spring-boot",
@@ -1404,7 +1532,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot ile rest api gelistirme spring boot kullanarak rest api nasil gelistirilir http metodlari json veri isleme lombok entegrasyonu ve curl ile test etme java kotlin spring boot rest api programlama",
     "updatedDate": "2024-12-11",
-    "publishedDate": "2024-12-10"
+    "publishedDate": "2024-12-10",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "spring-boot-first-application",
@@ -1441,7 +1573,11 @@
     "readingTimeMin": 3,
     "searchText": "spring boot ilk uygulama spring boot ile ilk uygulamanizi sifirdan olusturmak icin baslangic seviyesinde bir rehber temel bilgileri ogrenin ve spring boot ile yolculugunuza baslayin java kotlin spring boot baslangic rehberi programlama",
     "updatedDate": "2024-12-11",
-    "publishedDate": "2024-12-10"
+    "publishedDate": "2024-12-10",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "https://medium.com/p/eb227e1a748b",
@@ -1484,7 +1620,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/react-spring-boot-graphql-fullstack-microservice-application-on-kubernetes-eb227e1a748b?source=rss-bda589f2335a------2",
     "searchText": "react spring boot graphql fullstack microservice application on kubernetes hello everyone in this article we will develop a fullstack graphql microservice application using react and spring boot and deploy this application on kubernetes graphql graphql is a query language microservices spring boot graphql kubernetes react",
-    "publishedDate": "Sun, 28 Aug 2022 16:29:12 GMT"
+    "publishedDate": "Sun, 28 Aug 2022 16:29:12 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "https://medium.com/p/7ea33894d12b",
@@ -1527,7 +1667,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/react-spring-boot-hateoas-driven-fullstack-application-on-kubernetes-7ea33894d12b?source=rss-bda589f2335a------2",
     "searchText": "react spring boot hateoas driven fullstack application on kubernetes hello everyone in this article we will develop a hateoas driven fullstack application using react and spring boot and deploy this application on kubernetes richardson maturity model leonard richar kubernetes spring boot hateoas react spring native",
-    "publishedDate": "Tue, 15 Mar 2022 19:22:26 GMT"
+    "publishedDate": "Tue, 15 Mar 2022 19:22:26 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "https://medium.com/p/b82662ada0a4",
@@ -1570,7 +1714,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-6-b82662ada0a4?source=rss-bda589f2335a------2",
     "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 6 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 6 orderer hello everyone through this article series we will the hyperledger fabric integration wi orderer blockchain kubernetes spring boot hyperledger fabric",
-    "publishedDate": "Mon, 10 Jan 2022 20:01:06 GMT"
+    "publishedDate": "Mon, 10 Jan 2022 20:01:06 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "https://medium.com/p/1723502770e7",
@@ -1613,7 +1761,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-5-1723502770e7?source=rss-bda589f2335a------2",
     "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 5 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 5 kafka hello everyone through this article series we will the hyperledger fabric integration with hyperledger fabric kubernetes blockchain spring boot kafka",
-    "publishedDate": "Mon, 27 Dec 2021 19:30:57 GMT"
+    "publishedDate": "Mon, 27 Dec 2021 19:30:57 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "https://medium.com/p/daf84e4f9227",
@@ -1656,7 +1808,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/reducing-spring-native-and-golang-docker-image-size-by-70-with-upx-daf84e4f9227?source=rss-bda589f2335a------2",
     "searchText": "reducing spring native and golang docker image size by 70 with upx reducing docker image size by 70 in spring native and golang projects with upx hi in this article i will explain how we can reduce the docker image size by 70 using upx in spring native and golan upx golang docker spring boot spring native",
-    "publishedDate": "Mon, 20 Dec 2021 18:03:04 GMT"
+    "publishedDate": "Mon, 20 Dec 2021 18:03:04 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "https://medium.com/p/d6583a57153c",
@@ -1699,7 +1855,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-4-d6583a57153c?source=rss-bda589f2335a------2",
     "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 4 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 4 generating certificates and artifacts hello everyone through this article series we will the hyp blockchain kubernetes hyperledger hyperledger fabric spring boot",
-    "publishedDate": "Sat, 27 Nov 2021 13:47:38 GMT"
+    "publishedDate": "Sat, 27 Nov 2021 13:47:38 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "https://medium.com/p/7eb2fc75ba60",
@@ -1742,7 +1902,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-3-7eb2fc75ba60?source=rss-bda589f2335a------2",
     "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 3 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 3 fabric ca server hello everyone through this article series we will the hyperledger fabric integ spring boot hyperledger fabric blockchain fabric ca server kubernetes",
-    "publishedDate": "Sun, 21 Nov 2021 14:33:12 GMT"
+    "publishedDate": "Sun, 21 Nov 2021 14:33:12 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "https://medium.com/p/ddce8d25858d",
@@ -1785,7 +1949,11 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-ddce8d25858d?source=rss-bda589f2335a------2",
     "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 2 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 2 kubernetes cluster setup hello everyone through this article series we will the hyperledger fabr blockchain kubernetes spring boot vagrant hyperledger fabric",
-    "publishedDate": "Sun, 31 Oct 2021 18:04:46 GMT"
+    "publishedDate": "Sun, 31 Oct 2021 18:04:46 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   },
   {
     "id": "https://medium.com/p/c8f7c87d60eb",
@@ -1828,6 +1996,10 @@
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-1-c8f7c87d60eb?source=rss-bda589f2335a------2",
     "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 1 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 1 introduction hello everyone through this article series we will the hyperledger fabric integrati hyperledger fabric blockchain spring spring boot hyperledger explorer",
-    "publishedDate": "Sun, 17 Oct 2021 17:59:32 GMT"
+    "publishedDate": "Sun, 17 Oct 2021 17:59:32 GMT",
+    "category": {
+      "id": "programming",
+      "name": "Programlama"
+    }
   }
 ]

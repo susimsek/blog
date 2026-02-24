@@ -1,5 +1,6 @@
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
+import NavDropdown from 'react-bootstrap/NavDropdown';
 import { useTranslation } from 'react-i18next';
 import Link from '@/components/common/Link';
 import React from 'react';
@@ -12,6 +13,7 @@ import SearchContainer from '@/components/search/SearchContainer';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import ThemeToggler from '@/components/theme/ThemeToggler';
 import VoiceToggler from '@/components/voice/VoiceToggler';
+import { getAllPostCategories } from '@/lib/postCategories';
 
 interface HeaderProps {
   searchEnabled?: boolean;
@@ -24,7 +26,7 @@ export default function Header({
   sidebarEnabled = false,
   onSidebarToggle,
 }: Readonly<HeaderProps>) {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const [searchIconStyle, triggerSearchIconBoop] = useBoop({ y: 3, rotation: 8, scale: 1.08, timing: 170 });
   const [searchCloseIconStyle, triggerSearchCloseIconBoop] = useBoop({ y: 3, rotation: -8, scale: 1.08, timing: 170 });
   const [sidebarIconStyle, triggerSidebarIconBoop] = useBoop({ y: 2, rotation: 8, scale: 1.08, timing: 170 });
@@ -35,6 +37,8 @@ export default function Header({
   const [isNavExpanded, setIsNavExpanded] = React.useState(false);
   const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1366px)');
   const isMobile = useMediaQuery('(max-width: 991px)');
+  const resolvedLanguage = i18n?.resolvedLanguage ?? i18n?.language ?? 'en';
+  const categories = React.useMemo(() => getAllPostCategories(resolvedLanguage), [resolvedLanguage]);
 
   const shortcutHint = React.useMemo(() => {
     if (typeof navigator === 'undefined') {
@@ -238,6 +242,26 @@ export default function Header({
                 <FontAwesomeIcon icon="home" className="me-2" />
                 {t('common.header.menu.home')}
               </Nav.Link>
+              {categories.length > 0 && (
+                <NavDropdown
+                  id="categories-nav-dropdown"
+                  title={
+                    <span className="d-inline-flex align-items-center">
+                      <FontAwesomeIcon icon="layer-group" className="me-2" />
+                      <span>{t('common.header.menu.categories')}</span>
+                    </span>
+                  }
+                >
+                  {categories.map(category => (
+                    <NavDropdown.Item key={category.id} as={Link} href={`/categories/${category.id}`}>
+                      <span className="d-inline-flex align-items-center">
+                        {category.id === 'programming' && <FontAwesomeIcon icon="code" className="me-2" />}
+                        <span>{category.name}</span>
+                      </span>
+                    </NavDropdown.Item>
+                  ))}
+                </NavDropdown>
+              )}
               <Nav.Link as={Link} href="/medium" className="d-flex align-items-center">
                 <FontAwesomeIcon icon={['fab', 'medium']} className="me-2 medium-brand-logo" />
                 Medium

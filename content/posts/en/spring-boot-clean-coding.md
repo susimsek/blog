@@ -1,6 +1,9 @@
 ---
 title: 'Clean Coding Practices in Spring Boot'
 publishedDate: '2024-12-19'
+category:
+  id: programming
+  name: Programming
 updatedDate: '2024-12-20'
 summary: 'Learn how to apply clean coding principles in Spring Boot projects. Includes best practices, examples, and benefits of using Lombok in Java and Kotlin clean code techniques.'
 thumbnail: '/images/spring-boot-clean-coding-thumbnail.webp'

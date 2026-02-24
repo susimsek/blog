@@ -61,6 +61,7 @@ type ComplexityRoot struct {
 	}
 
 	Post struct {
+		Category      func(childComplexity int) int
 		ID            func(childComplexity int) int
 		PublishedDate func(childComplexity int) int
 		ReadingTime   func(childComplexity int) int
@@ -73,6 +74,11 @@ type ComplexityRoot struct {
 		Topics        func(childComplexity int) int
 		URL           func(childComplexity int) int
 		UpdatedDate   func(childComplexity int) int
+	}
+
+	PostCategory struct {
+		ID   func(childComplexity int) int
+		Name func(childComplexity int) int
 	}
 
 	PostConnection struct {
@@ -231,6 +237,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.NewsletterMutationResult.Status(childComplexity), true
 
+	case "Post.category":
+		if e.complexity.Post.Category == nil {
+			break
+		}
+
+		return e.complexity.Post.Category(childComplexity), true
 	case "Post.id":
 		if e.complexity.Post.ID == nil {
 			break
@@ -303,6 +315,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Post.UpdatedDate(childComplexity), true
+
+	case "PostCategory.id":
+		if e.complexity.PostCategory.ID == nil {
+			break
+		}
+
+		return e.complexity.PostCategory.ID(childComplexity), true
+	case "PostCategory.name":
+		if e.complexity.PostCategory.Name == nil {
+			break
+		}
+
+		return e.complexity.PostCategory.Name(childComplexity), true
 
 	case "PostConnection.engagement":
 		if e.complexity.PostConnection.Engagement == nil {
@@ -663,6 +688,7 @@ type Post {
   id: ID!
   slug: String!
   title: String!
+  category: PostCategory
   publishedDate: String!
   updatedDate: String
   summary: String!
@@ -672,6 +698,11 @@ type Post {
   readingTime: Int!
   source: String
   url: String
+}
+
+type PostCategory {
+  id: ID!
+  name: String!
 }
 
 type Topic {
@@ -1284,6 +1315,41 @@ func (ec *executionContext) fieldContext_Post_title(_ context.Context, field gra
 	return fc, nil
 }
 
+func (ec *executionContext) _Post_category(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Post_category,
+		func(ctx context.Context) (any, error) {
+			return obj.Category, nil
+		},
+		nil,
+		ec.marshalOPostCategory2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostCategory,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Post_category(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PostCategory_id(ctx, field)
+			case "name":
+				return ec.fieldContext_PostCategory_name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PostCategory", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Post_publishedDate(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1555,6 +1621,64 @@ func (ec *executionContext) fieldContext_Post_url(_ context.Context, field graph
 	return fc, nil
 }
 
+func (ec *executionContext) _PostCategory_id(ctx context.Context, field graphql.CollectedField, obj *model.PostCategory) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostCategory_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNID2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostCategory_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostCategory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostCategory_name(ctx context.Context, field graphql.CollectedField, obj *model.PostCategory) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostCategory_name,
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostCategory_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostCategory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PostConnection_status(ctx context.Context, field graphql.CollectedField, obj *model.PostConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1643,6 +1767,8 @@ func (ec *executionContext) fieldContext_PostConnection_nodes(_ context.Context,
 				return ec.fieldContext_Post_slug(ctx, field)
 			case "title":
 				return ec.fieldContext_Post_title(ctx, field)
+			case "category":
+				return ec.fieldContext_Post_category(ctx, field)
 			case "publishedDate":
 				return ec.fieldContext_Post_publishedDate(ctx, field)
 			case "updatedDate":
@@ -2112,6 +2238,8 @@ func (ec *executionContext) fieldContext_PostResult_node(_ context.Context, fiel
 				return ec.fieldContext_Post_slug(ctx, field)
 			case "title":
 				return ec.fieldContext_Post_title(ctx, field)
+			case "category":
+				return ec.fieldContext_Post_category(ctx, field)
 			case "publishedDate":
 				return ec.fieldContext_Post_publishedDate(ctx, field)
 			case "updatedDate":
@@ -4257,6 +4385,8 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "category":
+			out.Values[i] = ec._Post_category(ctx, field, obj)
 		case "publishedDate":
 			out.Values[i] = ec._Post_publishedDate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4287,6 +4417,50 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Post_source(ctx, field, obj)
 		case "url":
 			out.Values[i] = ec._Post_url(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postCategoryImplementors = []string{"PostCategory"}
+
+func (ec *executionContext) _PostCategory(ctx context.Context, sel ast.SelectionSet, obj *model.PostCategory) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postCategoryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostCategory")
+		case "id":
+			out.Values[i] = ec._PostCategory_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._PostCategory_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5590,6 +5764,13 @@ func (ec *executionContext) marshalOPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkg
 		return graphql.Null
 	}
 	return ec._Post(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPostCategory2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostCategory(ctx context.Context, sel ast.SelectionSet, v *model.PostCategory) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PostCategory(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOPostEngagement2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostEngagement(ctx context.Context, sel ast.SelectionSet, v *model.PostEngagement) graphql.Marshaler {

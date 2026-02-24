@@ -32,18 +32,24 @@ type NewsletterSubscribeInput struct {
 }
 
 type Post struct {
-	ID            string   `json:"id"`
-	Slug          string   `json:"slug"`
-	Title         string   `json:"title"`
-	PublishedDate string   `json:"publishedDate"`
-	UpdatedDate   *string  `json:"updatedDate,omitempty"`
-	Summary       string   `json:"summary"`
-	SearchText    string   `json:"searchText"`
-	Thumbnail     *string  `json:"thumbnail,omitempty"`
-	Topics        []*Topic `json:"topics,omitempty"`
-	ReadingTime   int      `json:"readingTime"`
-	Source        *string  `json:"source,omitempty"`
-	URL           *string  `json:"url,omitempty"`
+	ID            string        `json:"id"`
+	Slug          string        `json:"slug"`
+	Title         string        `json:"title"`
+	Category      *PostCategory `json:"category,omitempty"`
+	PublishedDate string        `json:"publishedDate"`
+	UpdatedDate   *string       `json:"updatedDate,omitempty"`
+	Summary       string        `json:"summary"`
+	SearchText    string        `json:"searchText"`
+	Thumbnail     *string       `json:"thumbnail,omitempty"`
+	Topics        []*Topic      `json:"topics,omitempty"`
+	ReadingTime   int           `json:"readingTime"`
+	Source        *string       `json:"source,omitempty"`
+	URL           *string       `json:"url,omitempty"`
+}
+
+type PostCategory struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type PostConnection struct {

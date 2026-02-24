@@ -11,6 +11,7 @@ import (
 )
 
 type TopicRecord = topicRecord
+type CategoryRecord = categoryRecord
 type PostRecord = postRecord
 type ContentResponse = contentResponse
 

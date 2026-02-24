@@ -1,6 +1,9 @@
 ---
 title: 'Spring Boot ile Aspect-Oriented Programming'
 publishedDate: '2024-12-18'
+category:
+  id: programming
+  name: Programlama
 updatedDate: '2024-12-19'
 summary: 'Spring Boot ile AOP uygulamasını nasıl yapacağınızı öğrenin. Java ve Kotlin örnekleri ile temel kavramlar ve uygulamalar.'
 thumbnail: '/images/spring-boot-aop-thumbnail.webp'
