@@ -130,7 +130,7 @@ const LayoutView: React.FC<LayoutProps> = ({
         <Row className="g-0">
           {/* Sidebar */}
           {isDesktopSidebarVisible && (
-            <Col xs={12} md={4} lg={3}>
+            <Col xs={12} md={4} lg={3} xl={2} className="layout-desktop-sidebar-col">
               <Sidebar
                 topics={sidebarTopics}
                 isLoading={shouldShowTopicsLoading}
@@ -141,8 +141,20 @@ const LayoutView: React.FC<LayoutProps> = ({
             </Col>
           )}
           {/* Main Content */}
-          <Col xs={12} md={isDesktopSidebarVisible ? 8 : 12} lg={isDesktopSidebarVisible ? 9 : 12}>
-            <Container className="content-shell content-shell-inner">{children}</Container>
+          <Col
+            xs={12}
+            md={isDesktopSidebarVisible ? 8 : 12}
+            lg={isDesktopSidebarVisible ? 9 : 12}
+            xl={isDesktopSidebarVisible ? 10 : 12}
+            className={isDesktopSidebarVisible ? 'layout-main-col layout-main-col-with-sidebar' : 'layout-main-col'}
+          >
+            <Container
+              className={`content-shell content-shell-inner${
+                isDesktopSidebarVisible ? ' content-shell-with-desktop-sidebar' : ''
+              }`}
+            >
+              {children}
+            </Container>
           </Col>
         </Row>
         {sidebarEnabled && isMobile && isMobileSidebarVisible && (

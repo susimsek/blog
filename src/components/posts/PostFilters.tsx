@@ -18,6 +18,7 @@ import CategoryDropdown from '@/components/common/CategoryDropdown';
 interface PostFiltersProps {
   showSourceFilter: boolean;
   showCategoryFilter?: boolean;
+  showSortFilter?: boolean;
 }
 
 const DateRangePicker = dynamic(() => import('@/components/common/DateRangePicker'), {
@@ -25,7 +26,11 @@ const DateRangePicker = dynamic(() => import('@/components/common/DateRangePicke
   loading: () => <div className="post-filters-date-loading mb-2" />,
 });
 
-export function PostFilters({ showSourceFilter, showCategoryFilter = true }: Readonly<PostFiltersProps>) {
+export function PostFilters({
+  showSourceFilter,
+  showCategoryFilter = true,
+  showSortFilter = true,
+}: Readonly<PostFiltersProps>) {
   const dispatch = useAppDispatch();
   const {
     sortOrder,
@@ -38,7 +43,7 @@ export function PostFilters({ showSourceFilter, showCategoryFilter = true }: Rea
 
   return (
     <div className="post-filters-layout mb-3">
-      <div className="post-filters-row d-flex flex-column flex-md-row align-items-stretch">
+      <div className="post-filters-main-grid">
         {showCategoryFilter && (
           <CategoryDropdown value={categoryFilter} onChange={value => dispatch(setCategoryFilter(value))} />
         )}
@@ -59,9 +64,11 @@ export function PostFilters({ showSourceFilter, showCategoryFilter = true }: Rea
         />
         <ReadingTimeDropdown value={readingTimeRange} onChange={value => dispatch(setReadingTimeRange(value))} />
       </div>
-      <div className="post-filters-sort-slot d-flex align-items-stretch">
-        <SortDropdown sortOrder={sortOrder} onChange={order => dispatch(setSortOrder(order))} />
-      </div>
+      {showSortFilter && (
+        <div className="post-filters-sort-slot">
+          <SortDropdown sortOrder={sortOrder} onChange={order => dispatch(setSortOrder(order))} />
+        </div>
+      )}
     </div>
   );
 }

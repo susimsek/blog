@@ -383,39 +383,45 @@ export default function PostList({
   return (
     <section className="post-list-section">
       <div ref={listTopRef} />
-      <PostFilters showSourceFilter={showSourceFilter} showCategoryFilter={showCategoryFilter} />
-      {renderedPosts.length > 0 ? (
-        renderedPosts.map(post => (
-          <PostCard
-            key={post.id}
-            post={post}
-            highlightQuery={highlightQuery?.trim() ? highlightQuery : undefined}
-            showSource={isSearchRoute}
-            showLikes={showLikes}
-            likeCount={likesByPostId[post.id] ?? null}
-            likeCountLoading={showLikes && isTrackablePostId(post.id) && likesByPostId[post.id] === undefined}
-          />
-        ))
-      ) : (
-        <div className="post-card d-flex align-items-center post-list-empty">
-          <div className="post-card-content flex-grow-1 text-center">
-            <div className="text-muted px-4 py-2">
-              <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
-              {noPostsFoundMessage ?? t('post.noPostsFound')}
-            </div>
+      <div className="post-list-layout">
+        <div className="post-list-content-col">
+          <div className="post-list-filters-inline">
+            <PostFilters showSourceFilter={showSourceFilter} showCategoryFilter={showCategoryFilter} />
           </div>
+          {renderedPosts.length > 0 ? (
+            renderedPosts.map(post => (
+              <PostCard
+                key={post.id}
+                post={post}
+                highlightQuery={highlightQuery?.trim() ? highlightQuery : undefined}
+                showSource={isSearchRoute}
+                showLikes={showLikes}
+                likeCount={likesByPostId[post.id] ?? null}
+                likeCountLoading={showLikes && isTrackablePostId(post.id) && likesByPostId[post.id] === undefined}
+              />
+            ))
+          ) : (
+            <div className="post-card d-flex align-items-center post-list-empty">
+              <div className="post-card-content flex-grow-1 text-center">
+                <div className="text-muted px-4 py-2">
+                  <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
+                  {noPostsFoundMessage ?? t('post.noPostsFound')}
+                </div>
+              </div>
+            </div>
+          )}
+          {totalResults > 0 && (
+            <PaginationBar
+              currentPage={resolvedPage}
+              totalPages={totalPages}
+              size={pageSize}
+              onPageChange={handlePageChange}
+              onSizeChange={handleSizeChange}
+              totalResults={totalResults}
+            />
+          )}
         </div>
-      )}
-      {totalResults > 0 && (
-        <PaginationBar
-          currentPage={resolvedPage}
-          totalPages={totalPages}
-          size={pageSize}
-          onPageChange={handlePageChange}
-          onSizeChange={handleSizeChange}
-          totalResults={totalResults}
-        />
-      )}
+      </div>
     </section>
   );
 }
