@@ -809,7 +809,6 @@ func syncSiteContentForLocale(
 		if postID == "" {
 			continue
 		}
-
 		postTopics := make([]bson.M, 0, len(rawPost.Topics))
 		for _, rawTopic := range rawPost.Topics {
 			topic := normalizeSiteTopic(rawTopic)

@@ -1463,6 +1463,58 @@ body {
   }
 }
 
+@media (min-width: 1200px) {
+  .post-filters-layout {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 0.65rem;
+    flex-wrap: nowrap;
+  }
+
+  .post-filters-main-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: start;
+    gap: 0.55rem;
+    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+
+    > * {
+      width: 100%;
+      min-width: 0;
+      max-width: none;
+      flex: none;
+    }
+  }
+
+  .post-filters-main-grid > form,
+  .post-filters-main-grid > form .dropdown,
+  .post-filters-main-grid > form .dropdown > .btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .post-filters-sort-slot {
+    flex: 0 0 auto;
+    margin-left: auto;
+    justify-self: auto;
+  }
+
+  .post-filters-main-grid .dropdown > .btn,
+  .post-filters-sort-slot .dropdown > .btn {
+    min-height: 2.55rem;
+    padding-inline: 0.55rem;
+    font-size: 0.86rem;
+  }
+
+  .post-filters-main-grid .dropdown > .btn > span,
+  .post-filters-sort-slot .dropdown > .btn > span {
+    gap: 0.3rem;
+  }
+}
+
 html.theme-transitioning body {
   animation: theme-transition var(--transition-speed) ease-in-out;
 }

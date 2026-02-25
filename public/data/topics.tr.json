@@ -8,7 +8,6 @@
   { "id": "docker", "name": "Docker", "color": "blue" },
   { "id": "kubernetes", "name": "Kubernetes", "color": "blue" },
   { "id": "rest-api", "name": "REST API", "color": "blue" },
-  { "id": "programming", "name": "Programlama", "color": "brown" },
   { "id": "gin", "name": "Gin", "color": "green" },
   { "id": "beginner-guide", "name": "Başlangıç Rehberi", "color": "orange" },
   { "id": "orm", "name": "ORM", "color": "orange" },

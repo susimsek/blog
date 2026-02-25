@@ -633,9 +633,9 @@ func syncLocale(
 				topicLookup[topic.ID] = topic
 			}
 		}
+		category := normalizePostCategory(rawPost.Category)
 		postTopics, topicIDs := normalizePostTopics(rawPost.Topics, topicLookup)
 		title := strings.TrimSpace(rawPost.Title)
-		category := normalizePostCategory(rawPost.Category)
 		summary := strings.TrimSpace(rawPost.Summary)
 		searchText := normalizeSearchText(rawPost.SearchText, title, summary, rawPost.Topics)
 		readingTimeMin := rawPost.ReadingTimeMin

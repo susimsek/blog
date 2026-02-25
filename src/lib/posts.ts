@@ -128,11 +128,14 @@ export async function getAllPostsData(locale: string): Promise<PostSummary[]> {
     const fileContents = await fsPromises.readFile(postsJsonPath, 'utf8');
     const allPosts = JSON.parse(fileContents) as PostSummary[];
     const normalizedPosts = allPosts
-      .map(post => ({
-        ...post,
-        category: normalizePostCategoryRef(post.category),
-        source: post.source === 'medium' ? ('medium' as const) : ('blog' as const),
-      }))
+      .map(post => {
+        const category = normalizePostCategoryRef(post.category);
+        return {
+          ...post,
+          category,
+          source: post.source === 'medium' ? ('medium' as const) : ('blog' as const),
+        };
+      })
       .filter(
         post =>
           typeof post.readingTimeMin === 'number' &&
