@@ -277,6 +277,7 @@ interface Resources {
       viewDensity: {
         default: 'Default view';
         editorial: 'Editorial view';
+        grid: 'Grid view';
         label: 'Density';
       };
     };
