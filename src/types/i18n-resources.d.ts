@@ -274,6 +274,11 @@ interface Resources {
         url: 'Please enter a valid URL.';
       };
       viewAllResults: 'See all results for "{{query}}"';
+      viewDensity: {
+        default: 'Default view';
+        editorial: 'Editorial view';
+        label: 'Density';
+      };
     };
   };
   contact: {

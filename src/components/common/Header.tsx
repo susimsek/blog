@@ -14,6 +14,8 @@ import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import ThemeToggler from '@/components/theme/ThemeToggler';
 import VoiceToggler from '@/components/voice/VoiceToggler';
 import { getAllPostCategories } from '@/lib/postCategories';
+import { useAppSelector } from '@/config/store';
+import useHoverSound from '@/hooks/useHoverSound';
 
 interface HeaderProps {
   searchEnabled?: boolean;
@@ -37,8 +39,19 @@ export default function Header({
   const [isNavExpanded, setIsNavExpanded] = React.useState(false);
   const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1366px)');
   const isMobile = useMediaQuery('(max-width: 991px)');
+  const isVoiceEnabled = useAppSelector(state => state.voice.isEnabled);
   const resolvedLanguage = i18n?.resolvedLanguage ?? i18n?.language ?? 'en';
   const categories = React.useMemo(() => getAllPostCategories(resolvedLanguage), [resolvedLanguage]);
+  const playCategoriesOpenSound = useHoverSound({
+    src: '/sounds/menu-open-softer.mp3',
+    enabled: isVoiceEnabled,
+    volume: 0.6,
+  });
+  const playCategoriesCloseSound = useHoverSound({
+    src: '/sounds/menu-close.mp3',
+    enabled: isVoiceEnabled,
+    volume: 0.6,
+  });
 
   const shortcutHint = React.useMemo(() => {
     if (typeof navigator === 'undefined') {
@@ -245,6 +258,13 @@ export default function Header({
               {categories.length > 0 && (
                 <NavDropdown
                   id="categories-nav-dropdown"
+                  onToggle={(nextShow: boolean) => {
+                    if (nextShow) {
+                      playCategoriesOpenSound();
+                      return;
+                    }
+                    playCategoriesCloseSound();
+                  }}
                   title={
                     <span className="d-inline-flex align-items-center">
                       <FontAwesomeIcon icon="layer-group" className="me-2" />
