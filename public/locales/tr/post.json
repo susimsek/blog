@@ -5,6 +5,9 @@
     "updatedNoticeLabel": "Son güncelleme",
     "relatedPostsTitle": "Benzer yazılar",
     "tocTitle": "İçindekiler",
+    "readingProgress": {
+      "ariaLabel": "Okuma ilerlemesi"
+    },
     "like": {
       "sidebarLabel": "Yazı beğenileri",
       "button": "Bu yazıyı beğen",

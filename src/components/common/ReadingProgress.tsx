@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BACK_TO_TOP_EVENT } from '@/lib/scrollEvents';
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
@@ -19,6 +20,7 @@ const scheduleFrame = (cb: FrameRequestCallback) => {
 };
 
 export default function ReadingProgress() {
+  const { t } = useTranslation('post');
   const [progress, setProgress] = useState(0);
   const [topOffset, setTopOffset] = useState(0);
   const [isReady, setIsReady] = useState(false);
@@ -145,7 +147,12 @@ export default function ReadingProgress() {
       className={`reading-progress${progress === 0 && !isBackToTopActive ? ' is-hidden' : ''}${isBackToTopActive ? ' is-back-to-top' : ''}`}
       style={{ top: topOffset }}
     >
-      <progress className="visually-hidden" max={100} value={Math.round(progress)} aria-label="Reading progress" />
+      <progress
+        className="visually-hidden"
+        max={100}
+        value={Math.round(progress)}
+        aria-label={t('post.readingProgress.ariaLabel')}
+      />
       <div className="reading-progress-bar" style={{ width: `${progress}%` }} />
     </div>
   );

@@ -363,6 +363,9 @@ interface Resources {
       };
       noPostsFound: 'No posts found.';
       readMore: 'Read More';
+      readingProgress: {
+        ariaLabel: 'Reading progress';
+      };
       relatedPostsTitle: 'Related posts';
       share: {
         copied: 'Copied';

@@ -54,6 +54,14 @@ const createSlugger = () => {
   };
 };
 
+const getScrollBehavior = (): ScrollBehavior => {
+  if (typeof globalThis.window?.matchMedia !== 'function') {
+    return 'smooth';
+  }
+
+  return globalThis.window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+};
+
 interface PostTocProps {
   postId: string;
   content: string;
@@ -205,7 +213,7 @@ export default function PostToc({ postId, content, rootRef }: Readonly<PostTocPr
                             if (root && el && !root.contains(el)) return;
                             if (!el) return;
 
-                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            el.scrollIntoView({ behavior: getScrollBehavior(), block: 'start' });
                             globalThis.window?.history.pushState(null, '', `#${item.id}`);
                           }}
                         >

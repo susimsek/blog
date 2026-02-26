@@ -5,6 +5,9 @@
     "updatedNoticeLabel": "Last updated",
     "relatedPostsTitle": "Related posts",
     "tocTitle": "Table of contents",
+    "readingProgress": {
+      "ariaLabel": "Reading progress"
+    },
     "like": {
       "sidebarLabel": "Article likes",
       "button": "Like this article",
