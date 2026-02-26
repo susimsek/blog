@@ -1398,6 +1398,9 @@ body {
 }
 
 .post-density-toggle {
+  --post-density-toggle-icon-color: var(--text-color);
+  --post-density-toggle-icon-color-hover: var(--link-hover-color);
+  --post-density-toggle-icon-color-active: var(--text-color);
   flex: 0 0 auto;
   border: 1px solid var(--border-color);
   border-radius: 0.75rem;
@@ -1412,35 +1415,53 @@ body {
     0 1px 2px color-mix(in srgb, var(--text-color) 5%, transparent);
 
   > .btn {
+    --bs-btn-color: var(--post-density-toggle-icon-color);
+    --bs-btn-hover-color: var(--post-density-toggle-icon-color-hover);
+    --bs-btn-active-color: var(--post-density-toggle-icon-color-active);
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
     border: 0 !important;
     background: transparent !important;
-    color: color-mix(in srgb, var(--text-color) 82%, var(--main-bg)) !important;
+    color: var(--post-density-toggle-icon-color) !important;
     border-radius: 0.55rem !important;
     min-width: 2.15rem;
     min-height: 2rem;
     padding: 0.35rem 0.5rem;
     font-size: 0.82rem;
     font-weight: 600;
+    line-height: 1;
     box-shadow: none !important;
     position: relative;
     @include transition(background-color, color, box-shadow, transform);
 
     .svg-inline--fa,
     svg {
+      display: block;
       color: currentColor !important;
       fill: currentColor;
+      stroke: none !important;
+      --fa-primary-color: currentColor;
+      --fa-secondary-color: currentColor;
+      vertical-align: 0;
       opacity: 0.96;
       @include transition(color, opacity);
     }
 
+    .svg-inline--fa path,
+    svg path {
+      fill: currentColor !important;
+      stroke: none !important;
+    }
+
     &:hover,
     &:focus-visible {
-      color: color-mix(in srgb, var(--text-color) 94%, var(--active-color) 6%) !important;
+      color: var(--post-density-toggle-icon-color-hover) !important;
       background: color-mix(in srgb, var(--sidebar-bg) 62%, transparent) !important;
     }
 
     &.is-active {
-      color: color-mix(in srgb, var(--text-color) 96%, var(--active-color) 4%) !important;
+      color: var(--post-density-toggle-icon-color-active) !important;
       background: linear-gradient(
         180deg,
         color-mix(in srgb, var(--active-color) 12%, var(--main-bg)),
@@ -1462,8 +1483,54 @@ body {
   }
 }
 
+.post-density-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  line-height: 1;
+  color: inherit !important;
+
+  .svg-inline--fa,
+  svg {
+    width: 1rem;
+    height: 1rem;
+    display: block;
+    color: inherit !important;
+  }
+
+  .svg-inline--fa path,
+  svg path {
+    fill: currentColor !important;
+    stroke: currentColor;
+  }
+}
+
+.post-density-toggle > .post-density-toggle-grid-btn {
+  display: none !important;
+}
+
+.post-density-toggle > .btn .post-density-toggle-icon {
+  color: var(--post-density-toggle-icon-color) !important;
+}
+
+.post-density-toggle > .btn:hover .post-density-toggle-icon,
+.post-density-toggle > .btn:focus-visible .post-density-toggle-icon {
+  color: var(--post-density-toggle-icon-color-hover) !important;
+}
+
+.post-density-toggle > .btn.is-active .post-density-toggle-icon {
+  color: var(--post-density-toggle-icon-color-active) !important;
+}
+
 .post-list-results {
   width: 100%;
+}
+
+.post-list-results--grid {
+  width: 100%;
+  margin-bottom: var(--space-16);
 }
 
 .post-list-results--editorial {
@@ -1774,6 +1841,27 @@ body {
 }
 
 @media (min-width: 1200px) {
+  .post-density-toggle > .post-density-toggle-grid-btn {
+    display: inline-flex !important;
+  }
+
+  .post-list-results--grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+    align-items: start;
+
+    .post-summary-card {
+      margin-bottom: 0;
+      height: 100%;
+      align-items: stretch !important;
+    }
+
+    .post-card-content {
+      height: 100%;
+    }
+  }
+
   .post-filters-main-grid {
     gap: 0.55rem;
   }

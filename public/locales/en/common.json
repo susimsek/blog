@@ -185,7 +185,8 @@
     "viewDensity": {
       "label": "Density",
       "default": "Default view",
-      "editorial": "Editorial view"
+      "editorial": "Editorial view",
+      "grid": "Grid view"
     },
     "contactInfo": {
       "email": "Email"

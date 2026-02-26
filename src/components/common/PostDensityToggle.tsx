@@ -1,10 +1,9 @@
 import React from 'react';
-import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
-export type PostDensityMode = 'default' | 'editorial';
+export type PostDensityMode = 'default' | 'editorial' | 'grid';
 
 interface PostDensityToggleProps {
   value: PostDensityMode;
@@ -18,28 +17,42 @@ export default function PostDensityToggle({ value, onChange }: Readonly<PostDens
   return (
     <div className="post-density-control" aria-label={label}>
       <ButtonGroup className="post-density-toggle" aria-label={label}>
-        <Button
+        <button
           type="button"
-          variant="light"
-          className={value === 'default' ? 'is-active' : undefined}
+          className={`btn${value === 'default' ? ' is-active' : ''}`}
           aria-pressed={value === 'default'}
           aria-label={t('common.viewDensity.default')}
           title={t('common.viewDensity.default')}
           onClick={() => onChange('default')}
         >
-          <FontAwesomeIcon icon="desktop" />
-        </Button>
-        <Button
+          <span className="post-density-toggle-icon" aria-hidden="true">
+            <FontAwesomeIcon icon="desktop" fixedWidth />
+          </span>
+        </button>
+        <button
           type="button"
-          variant="light"
-          className={value === 'editorial' ? 'is-active' : undefined}
+          className={`btn${value === 'editorial' ? ' is-active' : ''}`}
           aria-pressed={value === 'editorial'}
           aria-label={t('common.viewDensity.editorial')}
           title={t('common.viewDensity.editorial')}
           onClick={() => onChange('editorial')}
         >
-          <FontAwesomeIcon icon="clipboard-list" />
-        </Button>
+          <span className="post-density-toggle-icon" aria-hidden="true">
+            <FontAwesomeIcon icon="clipboard-list" fixedWidth />
+          </span>
+        </button>
+        <button
+          type="button"
+          className={`btn post-density-toggle-grid-btn${value === 'grid' ? ' is-active' : ''}`}
+          aria-pressed={value === 'grid'}
+          aria-label={t('common.viewDensity.grid')}
+          title={t('common.viewDensity.grid')}
+          onClick={() => onChange('grid')}
+        >
+          <span className="post-density-toggle-icon" aria-hidden="true">
+            <FontAwesomeIcon icon="table-cells" fixedWidth />
+          </span>
+        </button>
       </ButtonGroup>
     </div>
   );

@@ -185,7 +185,8 @@
     "viewDensity": {
       "label": "Yoğunluk",
       "default": "Varsayılan görünüm",
-      "editorial": "Editoryal görünüm"
+      "editorial": "Editoryal görünüm",
+      "grid": "Izgara görünüm"
     },
     "contactInfo": {
       "email": "E-posta"

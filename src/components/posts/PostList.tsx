@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PostFilters } from './PostFilters';
 import useDebounce from '@/hooks/useDebounce';
+import useMediaQuery from '@/hooks/useMediaQuery';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { clearNonSearchFilters, setPage, setPageSize, setQuery, setSourceFilter } from '@/reducers/postsQuery';
 import { fetchPostLikes } from '@/lib/contentApi';
@@ -46,6 +47,8 @@ export default function PostList({
   const routeSearchParamsString = routeSearchParams?.toString() ?? '';
   const [likesByPostId, setLikesByPostId] = useState<Record<string, number | null>>({});
   const [densityMode, setDensityMode] = useState<PostDensityMode>('default');
+  const canUseGridDensity = useMediaQuery('(min-width: 1200px)');
+  const resolvedDensityMode: PostDensityMode = canUseGridDensity || densityMode !== 'grid' ? densityMode : 'default';
   const searchParams = useMemo(() => new URLSearchParams(routeSearchParamsString), [routeSearchParamsString]);
   const routePage = useMemo(() => {
     const routePageValue = searchParams.get('page');
@@ -391,12 +394,12 @@ export default function PostList({
             <PostFilters
               showSourceFilter={showSourceFilter}
               showCategoryFilter={showCategoryFilter}
-              densityMode={densityMode}
-              onDensityModeChange={setDensityMode}
+              densityMode={resolvedDensityMode}
+              onDensityModeChange={mode => setDensityMode(!canUseGridDensity && mode === 'grid' ? 'default' : mode)}
             />
           </div>
           {renderedPosts.length > 0 ? (
-            <div className={`post-list-results post-list-results--${densityMode}`}>
+            <div className={`post-list-results post-list-results--${resolvedDensityMode}`}>
               {renderedPosts.map(post => (
                 <PostCard
                   key={post.id}

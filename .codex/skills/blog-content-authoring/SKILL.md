@@ -5,13 +5,14 @@ description: Create/update Markdown blog posts and topic metadata for this Next.
 
 # Blog Content Authoring (en/tr)
 
-This repo generates content via **static export**. List pages are driven by **JSON index** files, while the post detail page is driven by the **Markdown** file. Therefore, when adding a new post you must update Markdown + post index JSON + thumbnail + (if needed) topics index JSON together.
+This repo generates content via **static export**. List pages are driven by **JSON index** files, while the post detail page is driven by the **Markdown** file. Therefore, when adding a new post you must update Markdown + post index JSON + thumbnail + (if needed) topics/category index JSON together.
 
 ## File/Folder Map
 
 - Posts (Markdown): `content/posts/<locale>/<slug>.md` (`<locale>`: `en` or `tr`)
 - Post list index: `public/data/posts.<locale>.json`
 - Topic list: `public/data/topics.<locale>.json`
+- Category list: `public/data/categories.<locale>.json`
 - Thumbnails: `public/images/*.webp` (referenced as `/images/<file>.webp` in Markdown/JSON)
 
 ## Non-Negotiable Rules (Summary)
@@ -22,7 +23,9 @@ This repo generates content via **static export**. List pages are driven by **JS
 4. **Images**: keep post images under `/images/` and prefer `webp` for consistency/performance.
 5. **Thumbnail**: `1200x630` (OG size), `webp`, under `public/images/` (recommended name: `<slug>-thumbnail.webp`).
 6. **Topic consistency**: topic `id`s must exist in topic index JSON in both locales; `name` is translated per locale; `color` must be one of the allowed values.
-7. **Icon standards**: tab icons use the `[icon=...]` format and must be from the allowed set; step headings must use the standardized emoji + label format (see below).
+7. **Category consistency**: every post must have a `category` object (`id`, `name`) in Markdown frontmatter and post index JSON; category values come from `public/data/categories.<locale>.json`.
+8. **Category/Topic separation**: do not duplicate the post category as a topic (e.g. `programming` belongs to `category`, not `topics[]`).
+9. **Icon standards**: tab icons use the `[icon=...]` format and must be from the allowed set; step headings must use the standardized emoji + label format (see below).
 
 ## 2024+ Editorial Rule Set (Mandatory)
 
@@ -281,8 +284,9 @@ After picking an idea:
 
 1. Create `content/posts/en/<slug>.md` and `content/posts/tr/<slug>.md`
 2. Add the post to `public/data/posts.en.json` and `public/data/posts.tr.json`
-3. Create `public/images/<slug>-thumbnail.webp` (1200x630) using the Iram art direction
-4. Run the checker: `node .codex/skills/blog-content-authoring/scripts/check-content.mjs`
+3. Ensure the post `category` exists in `public/data/categories.en.json` and `public/data/categories.tr.json`
+4. Create `public/images/<slug>-thumbnail.webp` (1200x630) using the Iram art direction
+5. Run the checker: `node .codex/skills/blog-content-authoring/scripts/check-content.mjs`
 
 ## Documentation Source (Context7 MCP Required)
 
@@ -321,7 +325,27 @@ node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs \
 - To see existing topics:
   - `public/data/topics.en.json`
   - `public/data/topics.tr.json`
+- To see existing categories (post `category` source-of-truth):
+  - `public/data/categories.en.json`
+  - `public/data/categories.tr.json`
 - If you need a new topic, follow “Add a New Topic” below, then use it in the post.
+- If you need a new category, add it to both category files first, then use it in the post.
+
+## Add a New Category (Step-by-Step)
+
+When you introduce a new category, it must be added to **both** locale files and then referenced by posts via the `category` field.
+
+1. Pick a stable category `id` (kebab-case), e.g. `gaming`
+2. Add it to `public/data/categories.en.json`:
+   - `id`: the same id
+   - `name`: English display name (e.g. `Gaming`)
+   - `color`: pick a UI color variant (same family used by topics/category links)
+3. Add it to `public/data/categories.tr.json`:
+   - `id`: the same id
+   - `name`: Turkish display name (localized or project-preferred label)
+   - `color`: **must match** the EN color
+4. Use it in both Markdown frontmatter and post index JSON as `category: { id, name }`
+5. Keep categories and topics separate (do not also add the category as a topic).
 
 ## Add a New Topic (Step-by-Step)
 
@@ -337,6 +361,7 @@ When you introduce a new topic (e.g. `redis`, `kafka`), it must be added to **bo
    - `name`: Turkish display name (e.g. `Spring AI` or a localized equivalent)
    - `color`: **must match** the EN color
 4. Use the topic in both `public/data/posts.en.json` and `public/data/posts.tr.json` entries (topic object must include `id/name/color`)
+   - Do **not** use a category id (e.g. `programming`) as a topic.
 5. Re-run the checker:
    - `node .codex/skills/blog-content-authoring/scripts/check-content.mjs`
 
@@ -353,6 +378,9 @@ Frontmatter template (example):
 ---
 title: '...'
 publishedDate: 'YYYY-MM-DD'
+category:
+  id: programming
+  name: Programming
 updatedDate: 'YYYY-MM-DD'
 summary: '...'
 thumbnail: '/images/<slug>-thumbnail.webp'
@@ -373,7 +401,10 @@ Notes:
   - Avoid parentheses in titles (e.g. do **not** use “(Type-Safe Config + Profiles)”)
 - `publishedDate` format: `YYYY-MM-DD` (e.g. `2026-02-03`)
 - `updatedDate` format: `YYYY-MM-DD` and should be on/after `publishedDate`.
+- `category` is required and must be an **object** with `id/name` (do not use a plain string category).
+- `category.id`/`category.name` must match `public/data/categories.<locale>.json` for the current locale.
 - `topics` entries must be **objects** (`id/name/color`). The `id` must exist in topic index JSON.
+- Do not include the category as a topic (example: do **not** add `programming` under `topics` when `category.id = programming`).
 - `readingTime` is computed automatically; you may keep it for consistency, but it is not a reliable source of truth.
 - Content supports GitHub Flavored Markdown (tables/lists/code blocks).
 - If you want tabbed blocks:
@@ -418,6 +449,7 @@ Entry template:
   "title": "...",
   "publishedDate": "YYYY-MM-DD",
   "updatedDate": "YYYY-MM-DD",
+  "category": { "id": "programming", "name": "Programming" },
   "summary": "...",
   "thumbnail": "/images/<slug>-thumbnail.webp",
   "topics": [{ "id": "java", "name": "Java", "color": "red" }],
@@ -430,7 +462,9 @@ Entry template:
 Notes:
 
 - `title/summary/topic.name` must be translated per locale (`en` vs `tr`).
+- `category.name` must be translated per locale (`en` vs `tr`); `category.id` must remain stable across locales.
 - `topics[].id` and `topics[].color` must remain the same across locales.
+- Keep `category` separate from `topics`; do not duplicate the category in `topics[]`.
 - Sorting is done at runtime by `publishedDate`; still, keeping JSON roughly **newest to oldest** is practical.
 - `updatedDate` is used for SEO/RSS/Sitemap freshness (`dateModified`, `lastmod`, `atom:updated`).
 
@@ -489,6 +523,7 @@ pnpm build
    - the Markdown frontmatter `topics` list
    - the post index JSON `topics` list
      for the relevant posts.
+   - Keep category separate; do not duplicate the post category in `topics`.
 
 ## Common Mistakes
 
@@ -496,4 +531,5 @@ pnpm build
 - Mismatched `id` vs filename (post index `id` != `<slug>.md`).
 - Putting the thumbnail outside `public/images/` or referencing it with a path not starting with `/images/...`.
 - Adding a topic in only one locale (topic pages/build become inconsistent).
+- Adding the post category (e.g. `programming`) into `topics[]` as well (category and topics are separate fields).
 - Using emojis/special characters in `@tab` titles (tab parsing may break).
