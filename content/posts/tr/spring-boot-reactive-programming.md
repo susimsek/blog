@@ -24,9 +24,6 @@ topics:
   - id: 'webflux'
     name: 'Spring WebFlux'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot ile Reaktif Programlama, geliştiricilere bloklamayan, olay güdümlü ve yüksek ölçeklenebilir uygulamalar oluşturma imkanı sunar. Spring WebFlux ve Project Reactor kullanarak eşzamanlı istekleri düşük kaynak kullanımıyla yönetebilir, mikro hizmetler ve gerçek zamanlı uygulamalar geliştirebilirsiniz.

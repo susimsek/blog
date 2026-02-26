@@ -21,9 +21,6 @@ topics:
   - id: 'beginner-guide'
     name: 'Başlangıç Rehberi'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 Spring Boot, Spring Framework ile üretim için hazır uygulamalar oluşturmayı kolaylaştırır. Bu rehberde, adım adım ilk Spring Boot uygulamanızı oluşturmayı öğreneceksiniz.

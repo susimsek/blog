@@ -29,9 +29,6 @@ topics:
   - id: 'jpa'
     name: 'JPA'
     color: 'blue'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot, stateless şifrelenmiş JWT’leri (JWE) kullanarak API’lerinizi güvence altına almanızı ve kullanıcı kimliklerini ile rollerini JPA tabanlı bir veritabanında saklamanızı sağlar.

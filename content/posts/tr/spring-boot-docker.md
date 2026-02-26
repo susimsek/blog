@@ -27,9 +27,6 @@ topics:
   - id: 'jib'
     name: 'Jib'
     color: 'pink'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot, Docker, Buildpacks ve Jib kullanarak uygulamaları verimli bir şekilde konteynerleştirmek için birden fazla yöntem sunar. Bu kılavuz, Spring Boot uygulamalarını Docker kullanarak oluşturma ve dağıtma süreçlerini ele almaktadır.

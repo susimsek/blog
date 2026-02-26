@@ -21,9 +21,6 @@ topics:
   - id: 'devtools'
     name: 'Dev Tools'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'blue'
 ---
 
 Spring Boot DevTools is a must-have tool for developers looking to speed up their development process. This guide will walk you through the features and setup of DevTools, including live reload, caching, and debugging enhancements.

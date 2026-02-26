@@ -21,9 +21,6 @@ topics:
   - id: 'configuration'
     name: 'Yapılandırma'
     color: 'blue'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Çok sayıda `@Value` ve dağınık ayarlarla uğraşıyorsan, `@ConfigurationProperties` Spring Boot’ta yapılandırmayı tip-güvenli, düzenli ve doğrulanabilir hale getirmenin en iyi yoludur.

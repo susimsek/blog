@@ -27,9 +27,6 @@ topics:
   - id: 'microservice'
     name: 'Microservice'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring Boot Eureka Server is a service registry that enables service discovery in a microservices architecture. It allows microservices to register themselves and discover other services dynamically. This guide will walk you through setting up and configuring a Spring Boot Eureka Server.

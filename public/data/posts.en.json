@@ -24,11 +24,6 @@
         "id": "configuration",
         "name": "Configuration",
         "color": "blue"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -80,11 +75,6 @@
         "id": "graphql",
         "name": "GraphQL",
         "color": "pink"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 6,
@@ -136,11 +126,6 @@
         "id": "jpa",
         "name": "JPA",
         "color": "blue"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 4,
@@ -192,11 +177,6 @@
         "id": "ldap",
         "name": "LDAP",
         "color": "red"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -243,11 +223,6 @@
         "id": "jwe",
         "name": "JWE",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -289,11 +264,6 @@
         "id": "rest-client",
         "name": "Rest Client",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -335,11 +305,6 @@
         "id": "virtual-thread",
         "name": "Virtual Thread",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -381,11 +346,6 @@
         "id": "ai",
         "name": "Artificial Intelligence",
         "color": "pink"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -479,11 +439,6 @@
         "id": "auditing",
         "name": "Auditing",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -525,11 +480,6 @@
         "id": "testing",
         "name": "Testing",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -576,11 +526,6 @@
         "id": "microservice",
         "name": "Microservice",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -627,11 +572,6 @@
         "id": "microservice",
         "name": "Microservice",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -678,11 +618,6 @@
         "id": "microservice",
         "name": "Microservice",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -729,11 +664,6 @@
         "id": "jib",
         "name": "Jib",
         "color": "pink"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -780,11 +710,6 @@
         "id": "containerization",
         "name": "Containerization",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -821,11 +746,6 @@
         "id": "async-tasks",
         "name": "Async Tasks",
         "color": "blue"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -862,11 +782,6 @@
         "id": "scheduled-tasks",
         "name": "Scheduled Tasks",
         "color": "blue"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -908,11 +823,6 @@
         "id": "webflux",
         "name": "Spring WebFlux",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -954,11 +864,6 @@
         "id": "native-image",
         "name": "Native Image",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -999,11 +904,6 @@
       {
         "id": "messaging",
         "name": "Messaging",
-        "color": "brown"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
         "color": "brown"
       }
     ],
@@ -1046,11 +946,6 @@
         "id": "caching",
         "name": "Caching",
         "color": "brown"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -1092,11 +987,6 @@
         "id": "documentation",
         "name": "Documentation",
         "color": "brown"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -1133,11 +1023,6 @@
         "id": "clean-coding",
         "name": "Clean Coding",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -1174,11 +1059,6 @@
         "id": "devtools",
         "name": "Dev Tools",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -1220,11 +1100,6 @@
         "id": "monitoring",
         "name": "Monitoring",
         "color": "purple"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -1261,11 +1136,6 @@
         "id": "aop",
         "name": "AOP",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -1302,11 +1172,6 @@
         "id": "dependency-injection",
         "name": "Dependency Injection",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -1353,11 +1218,6 @@
         "id": "orm",
         "name": "ORM",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -1404,11 +1264,6 @@
         "id": "validation",
         "name": "Validation",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -1445,11 +1300,6 @@
         "id": "spring-boot",
         "name": "Spring Boot",
         "color": "green"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -1481,11 +1331,6 @@
         "id": "beginner-guide",
         "name": "Beginner Guide",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -1522,11 +1367,6 @@
         "id": "rest-api",
         "name": "REST API",
         "color": "blue"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,
@@ -1563,11 +1403,6 @@
         "id": "beginner-guide",
         "name": "Beginner Guide",
         "color": "orange"
-      },
-      {
-        "id": "programming",
-        "name": "Programming",
-        "color": "brown"
       }
     ],
     "readingTimeMin": 3,

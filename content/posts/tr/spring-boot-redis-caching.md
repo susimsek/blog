@@ -24,9 +24,6 @@ topics:
   - id: 'caching'
     name: 'Önbellekleme'
     color: 'brown'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 Redis, genellikle önbellekleme, mesajlaşma ve gerçek zamanlı veri yönetimi için kullanılan güçlü bir bellek içi veri deposudur. Bu kılavuz, Redis'i hem Java hem de Kotlin kullanarak bir Spring Boot uygulamasına nasıl entegre edeceğinizi açıklar.

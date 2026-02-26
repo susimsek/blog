@@ -27,9 +27,6 @@ topics:
   - id: 'auditing'
     name: 'Auditing'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot'ta JPA Auditing, bir varlığın kim tarafından ve ne zaman oluşturulduğunu veya değiştirildiğini otomatik olarak izlemenizi sağlar. Bu, denetim kayıtları, geçmiş izleme ve hata ayıklama için oldukça kullanışlıdır.

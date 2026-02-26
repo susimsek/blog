@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '@/config/store';
 import { clearNonSearchFilters, setPage, setPageSize, setQuery, setSourceFilter } from '@/reducers/postsQuery';
 import { fetchPostLikes } from '@/lib/contentApi';
 import i18nextConfig from '@/i18n/settings';
+import type { PostDensityMode } from '@/components/common/PostDensityToggle';
 
 interface PostListProps {
   posts: PostSummary[];
@@ -44,6 +45,7 @@ export default function PostList({
   const routeSearchParams = useSearchParams();
   const routeSearchParamsString = routeSearchParams?.toString() ?? '';
   const [likesByPostId, setLikesByPostId] = useState<Record<string, number | null>>({});
+  const [densityMode, setDensityMode] = useState<PostDensityMode>('default');
   const searchParams = useMemo(() => new URLSearchParams(routeSearchParamsString), [routeSearchParamsString]);
   const routePage = useMemo(() => {
     const routePageValue = searchParams.get('page');
@@ -386,20 +388,27 @@ export default function PostList({
       <div className="post-list-layout">
         <div className="post-list-content-col">
           <div className="post-list-filters-inline">
-            <PostFilters showSourceFilter={showSourceFilter} showCategoryFilter={showCategoryFilter} />
+            <PostFilters
+              showSourceFilter={showSourceFilter}
+              showCategoryFilter={showCategoryFilter}
+              densityMode={densityMode}
+              onDensityModeChange={setDensityMode}
+            />
           </div>
           {renderedPosts.length > 0 ? (
-            renderedPosts.map(post => (
-              <PostCard
-                key={post.id}
-                post={post}
-                highlightQuery={highlightQuery?.trim() ? highlightQuery : undefined}
-                showSource={isSearchRoute}
-                showLikes={showLikes}
-                likeCount={likesByPostId[post.id] ?? null}
-                likeCountLoading={showLikes && isTrackablePostId(post.id) && likesByPostId[post.id] === undefined}
-              />
-            ))
+            <div className={`post-list-results post-list-results--${densityMode}`}>
+              {renderedPosts.map(post => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  highlightQuery={highlightQuery?.trim() ? highlightQuery : undefined}
+                  showSource={isSearchRoute}
+                  showLikes={showLikes}
+                  likeCount={likesByPostId[post.id] ?? null}
+                  likeCountLoading={showLikes && isTrackablePostId(post.id) && likesByPostId[post.id] === undefined}
+                />
+              ))}
+            </div>
           ) : (
             <div className="post-card d-flex align-items-center post-list-empty">
               <div className="post-card-content flex-grow-1 text-center">

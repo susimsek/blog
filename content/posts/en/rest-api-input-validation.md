@@ -27,9 +27,6 @@ topics:
   - id: 'validation'
     name: 'Validation'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'blue'
 ---
 
 Input validation is crucial for building secure and robust REST APIs. In this article, we will explore how to implement input validation in Spring Boot using Java, Kotlin, and Go (with Gin).

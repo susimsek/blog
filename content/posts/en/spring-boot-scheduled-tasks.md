@@ -21,9 +21,6 @@ topics:
   - id: 'scheduled-tasks'
     name: 'Scheduled Tasks'
     color: 'blue'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring Boot allows developers to easily schedule and execute background tasks using the `@Scheduled` annotation. This is useful for running periodic jobs, automation tasks, and batch processing without manual intervention.

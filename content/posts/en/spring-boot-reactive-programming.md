@@ -24,9 +24,6 @@ topics:
   - id: 'webflux'
     name: 'Spring WebFlux'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring Boot with Reactive Programming enables developers to build non-blocking, event-driven applications that scale efficiently. By leveraging Spring WebFlux and Project Reactor, developers can handle large amounts of concurrent requests with minimal resource consumption, making it ideal for microservices and real-time applications.

@@ -24,9 +24,6 @@ topics:
   - id: 'messaging'
     name: 'Mesajlaşma'
     color: 'brown'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 Apache Kafka, gerçek zamanlı veri işleme olanağı sağlayan dağıtık bir olay akışı platformudur. Bu kılavuz, Spring Boot uygulamasında Kafka kullanarak JSON mesajlarının nasıl gönderilip tüketileceğini göstermektedir.

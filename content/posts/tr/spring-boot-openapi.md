@@ -24,9 +24,6 @@ topics:
   - id: 'documentation'
     name: 'Dokümantasyon'
     color: 'brown'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 OpenAPI, API dokümantasyonu ve test işlemlerini kolaylaştıran etkileşimli bir arayüz ve makine tarafından okunabilir belgeler sağlar. Bu kılavuz, SpringDoc kullanarak OpenAPI'yi Spring Boot uygulamanıza entegre etmenin yollarını gösterecektir.

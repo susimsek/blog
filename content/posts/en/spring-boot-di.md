@@ -21,9 +21,6 @@ topics:
   - id: 'dependency-injection'
     name: 'Dependency Injection'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'blue'
 ---
 
 Dependency Injection (DI) is a fundamental concept in Spring Boot that helps achieve loose coupling and increased testability. This guide demonstrates how to use DI in Spring Boot with practical examples in Java and Kotlin.

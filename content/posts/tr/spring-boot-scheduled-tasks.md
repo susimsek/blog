@@ -21,9 +21,6 @@ topics:
   - id: 'scheduled-tasks'
     name: 'Planlanmış Görevler'
     color: 'blue'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot, `@Scheduled` anotasyonu ile arka planda çalışan görevleri kolayca planlamanızı sağlar. Bu yöntem, periyodik görevleri, otomasyon süreçlerini ve toplu işlemleri manuel müdahaleye gerek kalmadan yürütmek için idealdir.

@@ -30,9 +30,6 @@ topics:
   - id: 'ldap'
     name: 'LDAP'
     color: 'red'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot, LDAP kimlik doğrulamasını JWE ile şifrelenmiş JWT’lerle birleştirerek API’larınızı hem external directory hem de token gizliliğiyle güvence altına almanızı sağlar.

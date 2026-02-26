@@ -18,9 +18,6 @@ topics:
   - id: 'beginner-guide'
     name: 'Beginner Guide'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'blue'
 ---
 
 Gin simplifies the process of building high-performance web applications with Golang. In this guide, we’ll walk through creating your first Gin application step by step.

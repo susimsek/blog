@@ -21,9 +21,6 @@ topics:
   - id: 'clean-coding'
     name: 'Temiz Kodlama'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 Temiz kodlama pratikleri, Spring Boot uygulamalarınızın bakımını kolaylaştırır, okunabilirliğini artırır ve geliştirilebilirliğini sağlar. Bu rehber, hem Java hem de Kotlin'de daha temiz ve verimli kod yazmanıza yardımcı olacak temel ipuçları ve kod örneklerini sunar.

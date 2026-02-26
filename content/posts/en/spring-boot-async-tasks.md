@@ -21,9 +21,6 @@ topics:
   - id: 'async-tasks'
     name: 'Async Tasks'
     color: 'blue'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring Boot provides an easy way to run asynchronous tasks using the `@Async` annotation. This is useful for executing tasks in the background, improving performance, and avoiding blocking the main thread.

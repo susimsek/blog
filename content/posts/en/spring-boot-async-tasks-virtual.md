@@ -24,9 +24,6 @@ topics:
   - id: 'virtual-thread'
     name: 'Virtual Thread'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring Boot 3.2+ lets you combine the simplicity of `@Async` with JDK 21 virtual threads for ultra-lightweight concurrency. Offload work to isolated virtual threads without complex pool configs.

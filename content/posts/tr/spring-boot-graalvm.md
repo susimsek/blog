@@ -24,9 +24,6 @@ topics:
   - id: 'native-image'
     name: 'Native İmaj'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 Spring Boot ile GraalVM Native, geliştiricilere daha hızlı başlatma süreleri, azaltılmış bellek tüketimi ve artırılmış güvenlik sunan uygulamalar oluşturma imkânı tanır. Native imaj desteği sayesinde, Spring Boot uygulamalarınız kaynak kısıtlı ortamlarda etkin bir şekilde çalışabilir ve modern bulut tabanlı mimariler için ideal bir seçenek haline gelir.

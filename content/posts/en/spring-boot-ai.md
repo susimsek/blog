@@ -24,9 +24,6 @@ topics:
   - id: 'ai'
     name: 'Artificial Intelligence'
     color: 'pink'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring AI is a framework for AI engineering that applies Spring’s portability and modular design principles to AI workloads. It lets you build AI-driven applications using familiar Spring idioms and POJOs.

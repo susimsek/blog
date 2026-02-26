@@ -24,9 +24,6 @@ topics:
   - id: 'documentation'
     name: 'Documentation'
     color: 'brown'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'blue'
 ---
 
 OpenAPI simplifies API documentation and testing by providing an interactive interface and machine-readable documentation. This guide will show you how to integrate OpenAPI into your Spring Boot application using SpringDoc.

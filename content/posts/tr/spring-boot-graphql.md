@@ -21,9 +21,6 @@ topics:
   - id: 'graphql'
     name: 'GraphQL'
     color: 'pink'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 Spring for GraphQL, Spring Boot ile entegre çalışan GraphQL API'lerinin geliştirilmesini kolaylaştırır. Bu rehber, Java ve Kotlin kullanarak bir GraphQL API'si oluşturmanızı, şema tanımlamayı, sorgu işleme ve bağlımlıkların enjekte edilmesini adım adım açıklıyor.

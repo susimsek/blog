@@ -24,9 +24,6 @@ topics:
   - id: 'testing'
     name: 'Testing'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Test-Driven Development (TDD) helps you build robust applications by writing tests before implementing business logic. With Spring Boot, writing unit tests is fast, clean, and efficient.

@@ -24,9 +24,6 @@ topics:
   - id: 'ai'
     name: 'Yapay Zeka'
     color: 'pink'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring AI, AI mühendisliği için Spring’in taşınabilirlik ve modüler tasarım ilkelerini AI iş yüklerine uygulayan bir çerçevedir. Tanıdık Spring kalıpları ve POJO’ları kullanarak AI odaklı uygulamalar geliştirmenizi sağlar.

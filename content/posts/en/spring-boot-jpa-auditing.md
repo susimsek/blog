@@ -27,9 +27,6 @@ topics:
   - id: 'auditing'
     name: 'Auditing'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 JPA Auditing in Spring Boot allows you to automatically track who created or modified an entity and when. This is extremely useful for audit logs, history tracking, and debugging.

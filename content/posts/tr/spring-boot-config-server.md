@@ -27,9 +27,6 @@ topics:
   - id: 'microservice'
     name: 'Mikroservis'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot Config Server, dağıtılmış uygulamalar için merkezi yapılandırma yönetimi sağlar ve hizmetlerin yeniden başlatılmasına gerek kalmadan dinamik yapılandırma güncellemelerine olanak tanır. Bu kılavuz, Spring Boot Config Server'ı nasıl kuracağınızı ve etkin bir şekilde kullanacağınızı açıklar.

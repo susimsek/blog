@@ -27,9 +27,6 @@ topics:
   - id: 'jib'
     name: 'Jib'
     color: 'pink'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring Boot provides multiple ways to containerize applications efficiently using Docker, Buildpacks, and Jib. This guide explores different approaches to building and deploying Spring Boot applications with Docker.

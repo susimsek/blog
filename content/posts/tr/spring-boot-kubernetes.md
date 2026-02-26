@@ -27,9 +27,6 @@ topics:
   - id: 'containerization'
     name: 'Konteynerizasyon'
     color: 'pink'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot, Kubernetes ile sorunsuz bir şekilde bütünleşerek konteynerleştirilmiş, ölçeklenebilir uygulamalar oluşturmanıza olanak tanır. Bu rehberde, Spring Boot uygulamalarının Kubernetes kümesi içinde nasıl dağıtılacağını ve yönetileceğini öğreneceksiniz.

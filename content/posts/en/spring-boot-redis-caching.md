@@ -24,9 +24,6 @@ topics:
   - id: 'caching'
     name: 'Caching'
     color: 'brown'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'blue'
 ---
 
 Redis is a powerful in-memory data store often used for caching, messaging, and real-time data management. This guide explains how to integrate Redis into a Spring Boot application using both Java and Kotlin.

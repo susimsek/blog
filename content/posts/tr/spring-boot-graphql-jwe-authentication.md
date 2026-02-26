@@ -29,9 +29,6 @@ topics:
   - id: 'graphql'
     name: 'GraphQL'
     color: 'pink'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot GraphQL JWE Kimlik Doğrulaması, GraphQL’in esnekliğini, stateless şifreli JWT’leri (JWE) ve JPA'yı birleştirerek güvenli ve ölçeklendirilebilir bir API sunar.

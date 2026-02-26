@@ -27,9 +27,6 @@ topics:
   - id: 'microservice'
     name: 'Mikroservis'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot Eureka Server, mikroservis mimarisinde servis kaydı ve keşfi sağlayan bir servis kayıt merkezi olarak çalışır. Mikroservislerin kendilerini otomatik olarak kaydetmelerine ve diğer servisleri dinamik olarak keşfetmelerine olanak tanır. Bu kılavuzda, Spring Boot ile Eureka serverın nasıl kurulacağını ve yapılandırılacağını öğreneceksiniz.

@@ -21,9 +21,6 @@ topics:
   - id: 'aop'
     name: 'AOP'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 Aspect-Oriented Programming (AOP), logging, transaction management ve güvenlik gibi birçok alana yayılan kesme noktalarını modüler hale getiren bir yaklaşımdır. Bu kılavuzda, Spring Boot kullanarak AOP uygulaması yapmayı Java ve Kotlin ile göstereceğiz.

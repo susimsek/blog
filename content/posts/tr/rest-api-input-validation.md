@@ -27,9 +27,6 @@ topics:
   - id: 'validation'
     name: 'Doğrulama'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 REST API’lerde girdi doğrulama, güvenli ve sağlam web servisleri oluşturmak için çok önemlidir. Bu makalede, Spring Boot kullanarak Java ve Kotlin’de, Gin framework’ü ile Go’da doğrulamanın nasıl yapılacağını adım adım inceleyeceğiz.

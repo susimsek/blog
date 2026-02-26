@@ -24,9 +24,6 @@ topics:
   - id: 'monitoring'
     name: 'Monitoring'
     color: 'purple'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'blue'
 ---
 
 Spring Boot Actuator provides production-ready features to monitor and manage your applications. This guide explores Actuator's capabilities, how to enable it, and secure its endpoints.

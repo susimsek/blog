@@ -21,9 +21,6 @@ topics:
   - id: 'aop'
     name: 'AOP'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'blue'
 ---
 
 Aspect-Oriented Programming (AOP) provides a way to modularize cross-cutting concerns, such as logging, transaction management, and security. This guide demonstrates how to implement AOP in Spring Boot with examples in Java and Kotlin.

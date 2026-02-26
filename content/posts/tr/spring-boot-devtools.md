@@ -21,9 +21,6 @@ topics:
   - id: 'devtools'
     name: 'Geliştirme Araçları'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 Spring Boot DevTools, geliştirme sürecinizi hızlandırmak isteyen geliştiriciler için olmazsa olmaz bir aracıdır. Bu kılavuz, canlı yeniden yükleme, önbellekleme ve hata ayıklama iyileştirmeleri dahil olmak üzere DevTools'ın özelliklerini ve kurulumunu anlatmaktadır.

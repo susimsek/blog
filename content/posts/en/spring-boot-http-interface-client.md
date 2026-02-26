@@ -24,9 +24,6 @@ topics:
   - id: 'rest-client'
     name: 'Rest Client'
     color: 'purple'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring Boot 3.2+ introduces the HTTP Interface Client, enabling you to define declarative, type-safe HTTP clients with simple Java or Kotlin interfaces. In this article, you’ll learn to set it up from scratch using the JSONPlaceholder API.

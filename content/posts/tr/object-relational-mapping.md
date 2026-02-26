@@ -27,9 +27,6 @@ topics:
   - id: 'orm'
     name: 'ORM'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 Object-Relational Mapping (ORM), modern uygulamalarda veritabanı işlemlerini basitleştirir. Bu kılavuzda, Spring Boot ve Gin çerçevesini kullanarak PostgreSQL ile ORM nasıl kurulacağını öğreneceksiniz.

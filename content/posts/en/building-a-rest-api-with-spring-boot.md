@@ -21,9 +21,6 @@ topics:
   - id: 'rest-api'
     name: 'REST API'
     color: 'blue'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'orange'
 ---
 
 Spring Boot is an excellent tool for quickly developing RESTful web services. In this article, we’ll walk through creating a REST API step by step using Spring Boot.

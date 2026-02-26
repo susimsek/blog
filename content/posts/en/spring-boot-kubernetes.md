@@ -27,9 +27,6 @@ topics:
   - id: 'containerization'
     name: 'Containerization'
     color: 'pink'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring Boot seamlessly integrates with Kubernetes to provide scalable, containerized applications. This guide explores how to deploy and manage Spring Boot applications in a Kubernetes cluster.

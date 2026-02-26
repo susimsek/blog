@@ -21,9 +21,6 @@ topics:
   - id: 'rest-api'
     name: 'REST API'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 Spring Boot, RESTful web servislerini hızlı ve kolay bir şekilde geliştirmek için mükemmel bir araçtır. Bu yazıda, Spring Boot kullanarak bir REST API'nin nasıl oluşturulacağını adım adım göreceğiz.

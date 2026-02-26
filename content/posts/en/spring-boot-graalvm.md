@@ -24,9 +24,6 @@ topics:
   - id: 'native-image'
     name: 'Native Image'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'blue'
 ---
 
 Spring Boot with GraalVM Native enables developers to create applications that offer lightning-fast startup times, reduced memory consumption, and enhanced security. With native image support, your Spring Boot applications can efficiently run in resource-constrained environments, making them ideal for modern cloud-native architectures.

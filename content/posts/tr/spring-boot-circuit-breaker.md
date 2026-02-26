@@ -27,9 +27,6 @@ topics:
   - id: 'microservice'
     name: 'Mikroservis'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot Circuit Breaker, mikro hizmetler mimarisinde ardışık hataların önlenmesi için kullanılan bir hata toleransı mekanizmasıdır. Hataları algılayarak ve sağlıksız hizmetlere aşırı istekleri durdurarak uygulamaların hataları zarif bir şekilde yönetmesine yardımcı olur. Bu kılavuz, Spring Boot'ta Resilience4j kullanarak Circuit Breaker uygulamasını adım adım açıklamaktadır.

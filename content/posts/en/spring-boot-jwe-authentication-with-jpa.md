@@ -29,9 +29,6 @@ topics:
   - id: 'jpa'
     name: 'JPA'
     color: 'blue'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring Boot lets you use stateless encrypted JWTs (JWE) to secure your APIs, while persisting user identities and roles in a JPA-backed database.

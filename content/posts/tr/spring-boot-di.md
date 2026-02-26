@@ -21,9 +21,6 @@ topics:
   - id: 'dependency-injection'
     name: 'Bağımlılık Enjeksiyonu'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 Bağımlılık Enjeksiyonu (Dependency Injection - DI), Spring Boot'un temel konseptlerinden biridir ve daha gevşek bağlılık ve artan test edilebilirlik sağlar. Bu kılavuz, Java ve Kotlin ile Spring Boot'ta DI kullanımını pratik örneklerle açıklar.

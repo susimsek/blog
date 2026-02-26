@@ -24,9 +24,6 @@ topics:
   - id: 'messaging'
     name: 'Messaging'
     color: 'brown'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'blue'
 ---
 
 Apache Kafka is a distributed event streaming platform that facilitates real-time data processing. This guide demonstrates how to send and consume JSON messages in a Spring Boot application using Kafka.

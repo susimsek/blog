@@ -21,9 +21,6 @@ topics:
   - id: 'configuration'
     name: 'Configuration'
     color: 'blue'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 If you’ve ever ended up with a dozen `@Value` annotations and no idea which settings are required, `@ConfigurationProperties` is the Spring Boot way to make configuration type-safe, structured, and validatable.

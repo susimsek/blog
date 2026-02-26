@@ -14,11 +14,14 @@ import {
 import ReadingTimeDropdown from '@/components/common/ReadingTimeDropdown';
 import SourceDropdown from '@/components/common/SourceDropdown';
 import CategoryDropdown from '@/components/common/CategoryDropdown';
+import PostDensityToggle, { type PostDensityMode } from '@/components/common/PostDensityToggle';
 
 interface PostFiltersProps {
   showSourceFilter: boolean;
   showCategoryFilter?: boolean;
   showSortFilter?: boolean;
+  densityMode?: PostDensityMode;
+  onDensityModeChange?: (mode: PostDensityMode) => void;
 }
 
 const DateRangePicker = dynamic(() => import('@/components/common/DateRangePicker'), {
@@ -30,6 +33,8 @@ export function PostFilters({
   showSourceFilter,
   showCategoryFilter = true,
   showSortFilter = true,
+  densityMode = 'default',
+  onDensityModeChange,
 }: Readonly<PostFiltersProps>) {
   const dispatch = useAppDispatch();
   const {
@@ -67,6 +72,11 @@ export function PostFilters({
       {showSortFilter && (
         <div className="post-filters-sort-slot">
           <SortDropdown sortOrder={sortOrder} onChange={order => dispatch(setSortOrder(order))} />
+        </div>
+      )}
+      {onDensityModeChange && (
+        <div className="post-filters-density-slot">
+          <PostDensityToggle value={densityMode} onChange={onDensityModeChange} />
         </div>
       )}
     </div>

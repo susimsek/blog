@@ -21,9 +21,6 @@ topics:
   - id: 'clean-coding'
     name: 'Clean Coding'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'blue'
 ---
 
 Clean coding practices ensure that your Spring Boot applications are maintainable, readable, and scalable. This guide provides essential tips and code examples to help you write cleaner and more efficient code in both Java and Kotlin.

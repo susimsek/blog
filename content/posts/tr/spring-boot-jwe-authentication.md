@@ -27,9 +27,6 @@ topics:
   - id: 'jwe'
     name: 'JWE'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot, mikroservislerinizdeki JWT’lerin bütünlüğünü ve gizliliğini korumak için JWS imzalama ile JWE şifrelemeyi bir arada kullanmanıza olanak tanır.

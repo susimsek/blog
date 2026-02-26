@@ -182,6 +182,11 @@
       "newest": "En Yeni Önce",
       "oldest": "En Eski Önce"
     },
+    "viewDensity": {
+      "label": "Yoğunluk",
+      "default": "Varsayılan görünüm",
+      "editorial": "Editoryal görünüm"
+    },
     "contactInfo": {
       "email": "E-posta"
     },

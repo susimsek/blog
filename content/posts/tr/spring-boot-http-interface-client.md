@@ -24,9 +24,6 @@ topics:
   - id: 'rest-client'
     name: 'Rest Client'
     color: 'purple'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot 3.2+ ile Java veya Kotlin arayüzleri üzerinden deklaratif ve tip güvenli HTTP istemcileri tanımlayabilirsiniz. Bu makalede JSONPlaceholder API örneği ile baştan sona nasıl yapılandıracağınızı öğreneceksiniz.

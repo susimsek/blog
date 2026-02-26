@@ -27,9 +27,6 @@ topics:
   - id: 'orm'
     name: 'ORM'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'blue'
 ---
 
 Object-Relational Mapping (ORM) simplifies database operations in modern applications. This guide will show you how to set up ORM with PostgreSQL using Spring Boot and the Gin framework.

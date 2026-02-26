@@ -27,9 +27,6 @@ topics:
   - id: 'microservice'
     name: 'Microservice'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring Boot Circuit Breaker is a fault-tolerance mechanism used to prevent cascading failures in a microservices architecture. It helps applications handle failures gracefully by detecting failures and stopping excessive requests to unhealthy services. This guide will walk you through implementing Circuit Breaker using Resilience4j in Spring Boot.

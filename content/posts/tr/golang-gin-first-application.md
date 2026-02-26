@@ -18,9 +18,6 @@ topics:
   - id: 'beginner-guide'
     name: 'Başlangıç Rehberi'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 Gin, Golang ile yüksek performanslı web uygulamaları oluşturma sürecini basitleştirir. Bu rehberde, adım adım ilk Gin uygulamanızı nasıl oluşturacağınızı göstereceğiz.

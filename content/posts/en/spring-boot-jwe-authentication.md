@@ -27,9 +27,6 @@ topics:
   - id: 'jwe'
     name: 'JWE'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring Boot lets you combine JWS signing with JWE encryption to protect both the integrity and confidentiality of your JWTs in Spring-powered microservices.

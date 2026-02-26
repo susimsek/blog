@@ -30,9 +30,6 @@ topics:
   - id: 'ldap'
     name: 'LDAP'
     color: 'red'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring Boot lets you combine LDAP authentication with JWE-encrypted JWTs to secure your Spring Boot APIs with both external directory integration and token confidentiality.

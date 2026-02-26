@@ -21,9 +21,6 @@ topics:
   - id: 'beginner-guide'
     name: 'Beginner Guide'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'blue'
 ---
 
 Spring Boot simplifies the process of building production-ready applications with the Spring Framework. In this guide, we’ll walk through creating your first Spring Boot application step by step.

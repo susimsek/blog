@@ -24,9 +24,6 @@ topics:
   - id: 'monitoring'
     name: 'İzleme'
     color: 'purple'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'blue'
 ---
 
 Spring Boot Actuator, uygulamalarınızı izlemek ve yönetmek için prodüksiyon seviyesinde hazır özellikler sunar. Bu rehber, Actuator'ın yeteneklerini, nasıl etkinleştirileceğini ve endpointlerin nasıl güvenlik altına alınacağını incelemektedir.

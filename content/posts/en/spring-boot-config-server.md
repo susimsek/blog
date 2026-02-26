@@ -27,9 +27,6 @@ topics:
   - id: 'microservice'
     name: 'Microservice'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring Boot Config Server enables centralized configuration management for distributed applications, allowing dynamic configuration updates without requiring service restarts. This guide covers how to set up and use Spring Boot Config Server efficiently.

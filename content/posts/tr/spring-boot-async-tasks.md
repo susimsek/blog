@@ -21,9 +21,6 @@ topics:
   - id: 'async-tasks'
     name: 'Asenkron Görevler'
     color: 'blue'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot, `@Async` anotasyonu ile arka planda asenkron görevler çalıştırmayı kolaylaştırır. Bu, ana threadi engellemeden görevleri çalıştırarak uygulamanın performansını artırmak ve yanıt süresini optimize etmek için kullanılır.

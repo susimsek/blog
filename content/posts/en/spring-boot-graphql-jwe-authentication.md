@@ -29,9 +29,6 @@ topics:
   - id: 'graphql'
     name: 'GraphQL'
     color: 'pink'
-  - id: 'programming'
-    name: 'Programming'
-    color: 'brown'
 ---
 
 Spring Boot GraphQL JWE Authentication combines the flexibility of GraphQL with stateless encrypted JWTs (JWE) and a JPA-backed user store to deliver a secure, scalable API.

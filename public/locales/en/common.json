@@ -182,6 +182,11 @@
       "newest": "Newest First",
       "oldest": "Oldest First"
     },
+    "viewDensity": {
+      "label": "Density",
+      "default": "Default view",
+      "editorial": "Editorial view"
+    },
     "contactInfo": {
       "email": "Email"
     },

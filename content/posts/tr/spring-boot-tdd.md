@@ -24,9 +24,6 @@ topics:
   - id: 'testing'
     name: 'Test'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Test Odaklı Geliştirme (TDD), iş mantığını uygulamadan önce testler yazarak sağlam uygulamalar geliştirmeni sağlar. Spring Boot ile birim testler yazmak hızlı, temiz ve etkilidir.

@@ -24,9 +24,6 @@ topics:
   - id: 'virtual-thread'
     name: 'Sanal Thread'
     color: 'orange'
-  - id: 'programming'
-    name: 'Programlama'
-    color: 'brown'
 ---
 
 Spring Boot 3.2 ve üzeri sürümler, JDK 21’in sanal thread desteğini otomatik olarak yapılandırarak `@Async` anotasyonuyla basit ve yüksek performanslı asenkron işlemler yapmanıza imkan tanır.
