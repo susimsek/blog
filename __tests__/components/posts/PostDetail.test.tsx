@@ -116,7 +116,7 @@ describe('PostDetail Component', () => {
     setup();
     const thumbnailElement = screen.getByAltText(mockPost.title);
     expect(thumbnailElement).toBeInTheDocument();
-    expect(thumbnailElement).toHaveAttribute('src', expect.stringContaining(encodeURIComponent(mockPost.thumbnail!)));
+    expect(thumbnailElement).toHaveAttribute('src', expect.stringContaining(mockPost.thumbnail!));
   });
 
   it('renders an empty article when contentHtml is null or undefined', () => {
