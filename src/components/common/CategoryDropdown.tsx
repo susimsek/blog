@@ -19,7 +19,7 @@ export default function CategoryDropdown({ value, onChange }: Readonly<CategoryD
   const selectedCategory = categories.find(category => category.id === value);
   const title = selectedCategory?.name ?? t('common.categoryFilter.all');
   const variant = 'red';
-  const titleIcon = selectedCategory?.id === 'programming' ? 'code' : 'layer-group';
+  const titleIcon = selectedCategory?.icon ?? 'layer-group';
 
   if (categories.length === 0) {
     return null;
@@ -47,7 +47,7 @@ export default function CategoryDropdown({ value, onChange }: Readonly<CategoryD
       </Dropdown.Item>
       {categories.map(category => (
         <Dropdown.Item key={category.id} eventKey={category.id}>
-          {category.id === 'programming' ? <FontAwesomeIcon icon="code" className="me-2" /> : null}
+          {category.icon ? <FontAwesomeIcon icon={category.icon} className="me-2" /> : null}
           {category.name}
           {value === category.id && <FontAwesomeIcon icon="circle-check" className="ms-2 circle-check" />}
         </Dropdown.Item>

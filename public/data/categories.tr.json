@@ -1,3 +1,4 @@
 [
-  { "id": "programming", "name": "Programlama", "color": "blue" }
+  { "id": "programming", "name": "Programlama", "color": "blue", "icon": "code" },
+  { "id": "gaming", "name": "Oyun", "color": "red", "icon": "gamepad" }
 ]

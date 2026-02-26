@@ -7,18 +7,21 @@ type CategoryRecord = {
   id: string;
   name: string;
   color: string;
+  icon?: string;
 };
 
 type CategoryPresentation = {
   slug: string;
   label: string;
   color: string;
+  icon?: string;
 };
 
 export type PostCategoryItem = {
   id: string;
   name: string;
   color: string;
+  icon?: string;
 };
 
 const allowedCategoryColors = new Set([
@@ -41,10 +44,11 @@ const toCategoryMap = (raw: CategoryRecord[]): Map<string, CategoryRecord> => {
     const id = typeof item?.id === 'string' ? item.id.trim().toLowerCase() : '';
     const name = typeof item?.name === 'string' ? item.name.trim() : '';
     const color = typeof item?.color === 'string' ? item.color.trim().toLowerCase() : '';
+    const icon = typeof item?.icon === 'string' ? item.icon.trim() : '';
     if (!id || !name || !allowedCategoryColors.has(color)) {
       continue;
     }
-    map.set(id, { id, name, color });
+    map.set(id, { id, name, color, icon: icon || undefined });
   }
 
   return map;
@@ -60,11 +64,13 @@ const categoryListByLocale: Record<Locale, PostCategoryItem[]> = {
     id: category.id,
     name: category.name,
     color: category.color,
+    icon: category.icon,
   })),
   tr: [...categoryMapByLocale.tr.values()].map(category => ({
     id: category.id,
     name: category.name,
     color: category.color,
+    icon: category.icon,
   })),
 };
 
@@ -102,6 +108,7 @@ export const getPostCategoryPresentation = (
     slug: categoryRecord.id,
     label: categoryRecord.name,
     color: categoryRecord.color,
+    icon: categoryRecord.icon,
   };
 
   return presentation;

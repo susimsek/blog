@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import { Post } from '@/types/posts';
 import Badge from 'react-bootstrap/Badge';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
-import { assetPrefix, SITE_URL } from '@/config/constants';
+import { assetPrefix } from '@/config/constants';
 import DateDisplay from '@/components/common/DateDisplay';
 import Thumbnail from '@/components/common/Thumbnail';
 import Link from '@/components/common/Link';
@@ -148,12 +148,18 @@ export default function PostDetail({
   const hasSideRail = true;
   const thumbnailSrc = (() => {
     if (!thumbnail) return null;
-    try {
-      const base = assetPrefix || SITE_URL;
-      return new URL(thumbnail, base).toString();
-    } catch {
+
+    if (/^https?:\/\//i.test(thumbnail)) {
       return thumbnail;
     }
+
+    const normalizedPath = thumbnail.startsWith('/') ? thumbnail : `/${thumbnail}`;
+    if (!assetPrefix) {
+      return normalizedPath;
+    }
+
+    const normalizedPrefix = assetPrefix.endsWith('/') ? assetPrefix.slice(0, -1) : assetPrefix;
+    return `${normalizedPrefix}${normalizedPath}`;
   })();
 
   const splitIntro = React.useMemo(() => splitMarkdownIntro(markdown), [markdown]);

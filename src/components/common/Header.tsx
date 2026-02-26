@@ -275,7 +275,7 @@ export default function Header({
                   {categories.map(category => (
                     <NavDropdown.Item key={category.id} as={Link} href={`/categories/${category.id}`}>
                       <span className="d-inline-flex align-items-center">
-                        {category.id === 'programming' && <FontAwesomeIcon icon="code" className="me-2" />}
+                        {category.icon && <FontAwesomeIcon icon={category.icon} className="me-2" />}
                         <span>{category.name}</span>
                       </span>
                     </NavDropdown.Item>

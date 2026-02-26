@@ -1,5 +1,37 @@
 [
   {
+    "id": "captain-tsubasa-2-world-fighters",
+    "title": "Captain Tsubasa 2: World Fighters",
+    "summary": "A detailed breakdown of Captain Tsubasa 2: World Fighters from Bandai Namco’s official page and community tracking, covering platforms, gameplay scale, known details, and open questions before launch.",
+    "thumbnail": "/images/captain-tsubasa-2-world-fighters-thumbnail.webp",
+    "topics": [
+      {
+        "id": "captain-tsubasa",
+        "name": "Captain Tsubasa",
+        "color": "orange"
+      },
+      {
+        "id": "anime-game",
+        "name": "Anime Game",
+        "color": "purple"
+      },
+      {
+        "id": "sports-game",
+        "name": "Sports Game",
+        "color": "blue"
+      }
+    ],
+    "readingTimeMin": 5,
+    "searchText": "captain tsubasa 2 world fighters a detailed breakdown of captain tsubasa 2 world fighters from bandai namcos official page and community tracking covering platforms gameplay scale known details and open questions before launch captain tsubasa anime game sports game gaming bandai namco tamsoft 2026 ps5 xbox series x s steam nintendo switch",
+    "updatedDate": "2026-02-26",
+    "publishedDate": "2026-02-26",
+    "source": "blog",
+    "category": {
+      "id": "gaming",
+      "name": "Gaming"
+    }
+  },
+  {
     "id": "spring-boot-configuration-properties",
     "title": "Spring Boot Configuration Properties",
     "summary": "Learn how to use @ConfigurationProperties for type-safe configuration, validate settings with @Validated, and manage environment-specific values with profile-specific application-{profile}.yml files.",

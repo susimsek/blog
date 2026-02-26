@@ -5,8 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
 	"io"
 	"log"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -26,6 +28,8 @@ const (
 	postsCollectionName      = "newsletter_posts"
 	topicsCollectionName     = "newsletter_topics"
 	categoriesCollectionName = "newsletter_categories"
+	postLikesCollectionName  = "post_likes"
+	postHitsCollectionName   = "post_hits"
 	httpTimeout              = 12 * time.Second
 	sourceBlog               = "blog"
 )
@@ -62,6 +66,13 @@ type sitePost struct {
 	SearchText     string           `json:"searchText"`
 	Source         string           `json:"source"`
 	Link           *string          `json:"link,omitempty"`
+}
+
+type postSeedInput struct {
+	ID             string
+	PublishedAt    time.Time
+	UpdatedAt      time.Time
+	ReadingTimeMin int
 }
 
 func loadDotEnv(path string) {
@@ -303,6 +314,99 @@ func parseDate(raw string) (time.Time, bool) {
 	return time.Time{}, false
 }
 
+func stableHash(postID string) uint32 {
+	hasher := fnv.New32a()
+	_, _ = hasher.Write([]byte(postID))
+	return hasher.Sum32()
+}
+
+func computeRealisticLikes(post postSeedInput, now time.Time) int64 {
+	hash := stableHash(post.ID)
+
+	published := post.PublishedAt
+	if published.IsZero() {
+		published = now.AddDate(0, -6, 0)
+	}
+
+	ageDays := int(now.Sub(published).Hours() / 24)
+	if ageDays < 1 {
+		ageDays = 1
+	}
+
+	reading := post.ReadingTimeMin
+	if reading < 1 {
+		reading = 4
+	}
+
+	ageScore := int(math.Sqrt(float64(ageDays))*8.5) + 20
+	if ageScore > 420 {
+		ageScore = 420
+	}
+
+	readingBoost := reading * 3
+	if readingBoost > 36 {
+		readingBoost = 36
+	}
+
+	noise := int(hash%71) - 25 // -25..45
+	likes := ageScore + readingBoost + noise
+	if likes < 12 {
+		likes = 12
+	}
+
+	return int64(likes)
+}
+
+func computeRealisticHits(post postSeedInput, now time.Time) int64 {
+	hash := stableHash(post.ID)
+
+	published := post.PublishedAt
+	if published.IsZero() {
+		published = now.AddDate(0, -6, 0)
+	}
+
+	ageDays := int(now.Sub(published).Hours() / 24)
+	if ageDays < 1 {
+		ageDays = 1
+	}
+
+	reading := post.ReadingTimeMin
+	if reading < 1 {
+		reading = 4
+	}
+
+	likeAgeScore := int(math.Sqrt(float64(ageDays))*8.5) + 20
+	if likeAgeScore > 420 {
+		likeAgeScore = 420
+	}
+
+	likeReadingBoost := reading * 3
+	if likeReadingBoost > 36 {
+		likeReadingBoost = 36
+	}
+
+	likeNoise := int(hash%71) - 25 // -25..45
+	likeEstimate := likeAgeScore + likeReadingBoost + likeNoise
+	if likeEstimate < 12 {
+		likeEstimate = 12
+	}
+
+	hitMultiplier := int64(16 + (hash % 17)) // 16..32
+	reachNoise := int64(hash%1800) - 450     // -450..1349
+
+	recencyBoost := int64(0)
+	if ageDays < 21 {
+		recencyBoost = 320 + int64(hash%640)
+	}
+
+	hits := int64(likeEstimate)*hitMultiplier + 420 + reachNoise + recencyBoost
+	if hits < 700 {
+		hits = 700
+	}
+
+	return hits
+}
+
 func buildDataURL(siteURL string, locale string, dataType string) string {
 	return fmt.Sprintf("%s/data/%s.%s.json", strings.TrimRight(siteURL, "/"), dataType, locale)
 }
@@ -381,6 +485,8 @@ func ensureIndexes(
 	postsCollection *mongo.Collection,
 	topicsCollection *mongo.Collection,
 	categoriesCollection *mongo.Collection,
+	likesCollection *mongo.Collection,
+	hitsCollection *mongo.Collection,
 ) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -480,6 +586,83 @@ func ensureIndexes(
 		return fmt.Errorf("category index create failed: %w", err)
 	}
 
+	if _, err := likesCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys:    bson.D{{Key: "postId", Value: 1}},
+		Options: options.Index().SetName("uniq_post_likes_post_id").SetUnique(true),
+	}); err != nil {
+		return fmt.Errorf("post_likes index create failed: %w", err)
+	}
+
+	if _, err := hitsCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys:    bson.D{{Key: "postId", Value: 1}},
+		Options: options.Index().SetName("uniq_post_hits_post_id").SetUnique(true),
+	}); err != nil {
+		return fmt.Errorf("post_hits index create failed: %w", err)
+	}
+
+	return nil
+}
+
+func seedInitialEngagementForPost(
+	ctx context.Context,
+	likesCollection *mongo.Collection,
+	hitsCollection *mongo.Collection,
+	post postSeedInput,
+	now time.Time,
+) error {
+	publishedDate := ""
+	if !post.PublishedAt.IsZero() {
+		publishedDate = post.PublishedAt.Format(time.RFC3339)
+	}
+
+	updatedDate := ""
+	if !post.UpdatedAt.IsZero() {
+		updatedDate = post.UpdatedAt.Format(time.RFC3339)
+	}
+
+	likes := computeRealisticLikes(post, now)
+	hits := computeRealisticHits(post, now)
+
+	if _, err := likesCollection.UpdateOne(
+		ctx,
+		bson.M{"postId": post.ID},
+		bson.M{
+			"$setOnInsert": bson.M{
+				"postId":        post.ID,
+				"likes":         likes,
+				"seededAt":      now,
+				"seedModel":     "realistic-v2",
+				"publishedDate": publishedDate,
+				"updatedDate":   updatedDate,
+				"readingTimeMin": post.ReadingTimeMin,
+				"createdAt":     now,
+			},
+		},
+		options.Update().SetUpsert(true),
+	); err != nil {
+		return fmt.Errorf("likes seed failed: %w", err)
+	}
+
+	if _, err := hitsCollection.UpdateOne(
+		ctx,
+		bson.M{"postId": post.ID},
+		bson.M{
+			"$setOnInsert": bson.M{
+				"postId":        post.ID,
+				"hits":          hits,
+				"seededAt":      now,
+				"seedModel":     "realistic-v2",
+				"publishedDate": publishedDate,
+				"updatedDate":   updatedDate,
+				"readingTimeMin": post.ReadingTimeMin,
+				"createdAt":     now,
+			},
+		},
+		options.Update().SetUpsert(true),
+	); err != nil {
+		return fmt.Errorf("hits seed failed: %w", err)
+	}
+
 	return nil
 }
 
@@ -489,6 +672,8 @@ func syncLocale(
 	postsCollection *mongo.Collection,
 	topicsCollection *mongo.Collection,
 	categoriesCollection *mongo.Collection,
+	likesCollection *mongo.Collection,
+	hitsCollection *mongo.Collection,
 ) (postCount int, topicCount int, categoryCount int, err error) {
 	var posts []sitePost
 	if err := fetchLocaleData(siteURL, locale, "posts", &posts); err != nil {
@@ -708,6 +893,22 @@ func syncLocale(
 		if err != nil {
 			return 0, 0, 0, fmt.Errorf("post upsert failed: %w", err)
 		}
+
+		if source == sourceBlog {
+			seedInput := postSeedInput{
+				ID:             postID,
+				PublishedAt:    parsedPublishedAt,
+				ReadingTimeMin: readingTimeMin,
+			}
+			if updatedOK {
+				seedInput.UpdatedAt = parsedUpdatedAt
+			}
+
+			if err := seedInitialEngagementForPost(ctx, likesCollection, hitsCollection, seedInput, now); err != nil {
+				return 0, 0, 0, fmt.Errorf("engagement seed failed for postId=%s: %w", postID, err)
+			}
+		}
+
 		activePostIDs[postID] = struct{}{}
 		postCount++
 	}
@@ -786,8 +987,10 @@ func main() {
 	postsCollection := db.Collection(postsCollectionName)
 	topicsCollection := db.Collection(topicsCollectionName)
 	categoriesCollection := db.Collection(categoriesCollectionName)
+	likesCollection := db.Collection(postLikesCollectionName)
+	hitsCollection := db.Collection(postHitsCollectionName)
 
-	if err := ensureIndexes(postsCollection, topicsCollection, categoriesCollection); err != nil {
+	if err := ensureIndexes(postsCollection, topicsCollection, categoriesCollection, likesCollection, hitsCollection); err != nil {
 		log.Fatalf("index ensure failed: %v", err)
 	}
 
@@ -799,6 +1002,8 @@ func main() {
 			postsCollection,
 			topicsCollection,
 			categoriesCollection,
+			likesCollection,
+			hitsCollection,
 		)
 		if err != nil {
 			log.Fatalf("sync failed for locale=%s: %v", locale, err)

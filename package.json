@@ -33,9 +33,7 @@
     "graphql:generate": "GOCACHE=/tmp/go-build go run github.com/99designs/gqlgen generate",
     "graphql:codegen": "graphql-codegen --config codegen.ts",
     "backend:start": "go run ./scripts/local-go-api/main.go",
-    "backend:sync-content": "go run ./scripts/sync-newsletter-content/main.go",
-    "backend:sync-likes": "go run ./scripts/sync-post-likes/main.go",
-    "backend:sync-hits": "go run ./scripts/sync-post-hits/main.go"
+    "backend:sync-content": "go run ./scripts/sync-newsletter-content/main.go"
   },
   "dependencies": {
     "@apollo/client": "^4.1.5",

@@ -49,5 +49,8 @@
   { "id": "security", "name": "Security", "color": "blue" },
   { "id": "jwt", "name": "JWT", "color": "pink" },
   { "id": "jwe", "name": "JWE", "color": "orange" },
-  { "id": "ldap", "name": "LDAP", "color": "red" }
+  { "id": "ldap", "name": "LDAP", "color": "red" },
+  { "id": "captain-tsubasa", "name": "Captain Tsubasa", "color": "orange" },
+  { "id": "anime-game", "name": "Anime Game", "color": "purple" },
+  { "id": "sports-game", "name": "Sports Game", "color": "blue" }
 ]

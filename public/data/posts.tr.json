@@ -1,5 +1,37 @@
 [
   {
+    "id": "captain-tsubasa-2-world-fighters",
+    "title": "Captain Tsubasa 2: World Fighters",
+    "summary": "Captain Tsubasa 2: World Fighters için Bandai Namco resmi sayfası ve topluluk takibine dayalı detaylı bir inceleme: platformlar, oynanış ölçeği, bilinen bilgiler ve çıkış öncesi açık noktalar.",
+    "thumbnail": "/images/captain-tsubasa-2-world-fighters-thumbnail.webp",
+    "topics": [
+      {
+        "id": "captain-tsubasa",
+        "name": "Captain Tsubasa",
+        "color": "orange"
+      },
+      {
+        "id": "anime-game",
+        "name": "Anime Oyunu",
+        "color": "purple"
+      },
+      {
+        "id": "sports-game",
+        "name": "Spor Oyunu",
+        "color": "blue"
+      }
+    ],
+    "readingTimeMin": 5,
+    "searchText": "captain tsubasa 2 world fighters captain tsubasa 2 world fighters icin bandai namco resmi sayfasi ve topluluk takibine dayali detayli bir inceleme platformlar oynanis olcegi bilinen bilgiler ve cikis oncesi acik noktalar captain tsubasa anime oyunu spor oyunu oyun bandai namco tamsoft 2026 ps5 xbox series x s steam nintendo switch",
+    "updatedDate": "2026-02-26",
+    "publishedDate": "2026-02-26",
+    "source": "blog",
+    "category": {
+      "id": "gaming",
+      "name": "Oyun"
+    }
+  },
+  {
     "id": "spring-boot-configuration-properties",
     "title": "Spring Boot Configuration Properties",
     "summary": "@ConfigurationProperties ile tip-güvenli yapılandırma tanımlamayı, @Validated ile ayarları doğrulamayı ve profile-specific application-{profile}.yml dosyalarıyla ortama göre değer yönetimini öğrenin.",

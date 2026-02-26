@@ -1,5 +1,6 @@
 'use client';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 import { defaultLocale } from '@/i18n/settings';
 import { getPostCategoryPresentation } from '@/lib/postCategories';
@@ -25,18 +26,26 @@ export default function PostCategoryBadge({ category, className, linked = true }
     .filter(Boolean)
     .join(' ');
   const label = presentation.label;
+  const content = (
+    <>
+      {presentation.icon ? (
+        <FontAwesomeIcon icon={presentation.icon} className="post-category-link-icon" fixedWidth aria-hidden="true" />
+      ) : null}
+      <span className="post-category-link-label">{label}</span>
+    </>
+  );
 
   if (!linked) {
     return (
       <span className={classNames} title={label}>
-        {label}
+        {content}
       </span>
     );
   }
 
   return (
     <Link href={`/categories/${presentation.slug}`} className={classNames}>
-      {label}
+      {content}
     </Link>
   );
 }

@@ -146,6 +146,39 @@ node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs \
   --out public/images/<slug>-thumbnail.webp
 ```
 
+If `sharp` is not available locally, use the Cloudinary fallback helper (upload -> transformed URL -> local `webp`):
+
+```bash
+# Signed upload (recommended when unsigned preset is not enabled)
+CLOUDINARY_CLOUD_NAME=<cloud_name> \
+CLOUDINARY_API_KEY=<api_key> \
+CLOUDINARY_API_SECRET=<api_secret> \
+CLOUDINARY_UPLOAD_PRESET=<upload_preset> \
+node .codex/skills/blog-content-authoring/scripts/make-thumbnail-cloudinary.mjs \
+  --in /path/to/source.png \
+  --out public/images/<slug>-thumbnail.webp
+```
+
+Remote image URL input is also supported:
+
+```bash
+node .codex/skills/blog-content-authoring/scripts/make-thumbnail-cloudinary.mjs \
+  --in "https://example.com/source.jpg" \
+  --out public/images/<slug>-thumbnail.webp \
+  --cloud-name <cloud_name> \
+  --upload-preset <unsigned_or_signed_preset> \
+  --api-key <api_key> \
+  --api-secret <api_secret>
+```
+
+Notes:
+
+- Defaults to `w_1200,h_630,c_fill,f_webp,q_auto`
+- Prints both the uploaded asset URL and the transformed delivery URL
+- If `--public-id` is not provided, the script derives it from `--out` (e.g. `public/images/my-post-thumbnail.webp` -> `my-post-thumbnail`)
+- If using only `--upload-preset`, the preset must allow unsigned uploads
+- Do not commit Cloudinary secrets to the repo; use environment variables
+
 ### 2) Inline post images (optional)
 
 If you add images inside the post body (Markdown/HTML):
