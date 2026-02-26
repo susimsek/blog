@@ -21,6 +21,7 @@ const scheduleFrame = (cb: FrameRequestCallback) => {
 
 export default function ReadingProgress() {
   const { t } = useTranslation('post');
+  const progressAriaLabel = t('readingProgress.ariaLabel');
   const [progress, setProgress] = useState(0);
   const [topOffset, setTopOffset] = useState(0);
   const [isReady, setIsReady] = useState(false);
@@ -151,7 +152,7 @@ export default function ReadingProgress() {
         className="visually-hidden"
         max={100}
         value={Math.round(progress)}
-        aria-label={t('post.readingProgress.ariaLabel')}
+        aria-label={progressAriaLabel === 'readingProgress.ariaLabel' ? 'Reading progress' : progressAriaLabel}
       />
       <div className="reading-progress-bar" style={{ width: `${progress}%` }} />
     </div>
