@@ -1,6 +1,7 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { useTranslation } from 'react-i18next';
 import useMediaQuery from '@/hooks/useMediaQuery';
+import { renderWithProviders } from '@tests/utils/renderWithProviders';
 
 type HeaderComponent = typeof import('@/components/common/Header').default;
 let Header: HeaderComponent;
@@ -84,7 +85,7 @@ describe('Header', () => {
   });
 
   it('renders the navigation links with icons', () => {
-    render(<Header />);
+    renderWithProviders(<Header />);
 
     // Verify the "home" link and its associated icon
     const homeLink = screen.getByText('common.header.menu.home').closest('a');
@@ -106,25 +107,25 @@ describe('Header', () => {
   });
 
   it('renders the LanguageSwitcher component', () => {
-    render(<Header />);
+    renderWithProviders(<Header />);
     const languageSwitcher = screen.getByTestId('language-switcher');
     expect(languageSwitcher).toBeInTheDocument();
   });
 
   it('renders the ThemeToggler component', () => {
-    render(<Header />);
+    renderWithProviders(<Header />);
     const themeToggler = screen.getByTestId('theme-toggler');
     expect(themeToggler).toBeInTheDocument();
   });
 
   it('renders the VoiceToggler component', () => {
-    render(<Header />);
+    renderWithProviders(<Header />);
     const voiceToggler = screen.getByTestId('voice-toggler');
     expect(voiceToggler).toBeInTheDocument();
   });
 
   it('renders the navbar toggle button with the correct icon', () => {
-    render(<Header />);
+    renderWithProviders(<Header />);
 
     // Ensure the toggle button is present
     const toggleButton = screen.getByRole('button', { name: /toggle navigation/i });
@@ -137,7 +138,7 @@ describe('Header', () => {
 
   it('toggles tablet search mode when search button is clicked', () => {
     (useMediaQuery as jest.Mock).mockReturnValue(true);
-    render(<Header searchEnabled />);
+    renderWithProviders(<Header searchEnabled />);
 
     const openSearchBtn = screen.getByRole('button', { name: 'common.header.actions.showSearch' });
     fireEvent.click(openSearchBtn);
@@ -157,7 +158,7 @@ describe('Header', () => {
     });
     const dispatchSpy = jest.spyOn(window, 'dispatchEvent');
 
-    render(<Header searchEnabled />);
+    renderWithProviders(<Header searchEnabled />);
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
 
     expect(screen.getByLabelText('common.header.actions.hideSearch')).toBeInTheDocument();
@@ -171,7 +172,7 @@ describe('Header', () => {
     (useMediaQuery as jest.Mock).mockReturnValue(true);
     const dispatchSpy = jest.spyOn(window, 'dispatchEvent');
 
-    render(<Header searchEnabled />);
+    renderWithProviders(<Header searchEnabled />);
 
     fireEvent.click(screen.getByRole('button', { name: 'common.header.actions.showSearch' }));
     expect(screen.getByLabelText('common.header.actions.hideSearch')).toBeInTheDocument();
@@ -191,7 +192,7 @@ describe('Header', () => {
   });
 
   it('renders search icon with boop classes', () => {
-    render(<Header searchEnabled />);
+    renderWithProviders(<Header searchEnabled />);
 
     const searchButton = screen.getByRole('button', { name: 'common.header.actions.showSearch' });
     expect(searchButton).toHaveClass('nav-icon-boop');
@@ -199,7 +200,7 @@ describe('Header', () => {
   });
 
   it('renders RSS icon link on desktop', () => {
-    render(<Header />);
+    renderWithProviders(<Header />);
 
     const rssLink = screen.getByRole('link', { name: 'common.header.actions.openRss' });
     expect(rssLink).toHaveAttribute('href', '/rss.xml');
