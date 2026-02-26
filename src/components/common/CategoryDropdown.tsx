@@ -1,6 +1,7 @@
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
+import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 import type { CategoryFilter } from '@/reducers/postsQuery';
@@ -19,7 +20,7 @@ export default function CategoryDropdown({ value, onChange }: Readonly<CategoryD
   const selectedCategory = categories.find(category => category.id === value);
   const title = selectedCategory?.name ?? t('common.categoryFilter.all');
   const variant = 'red';
-  const titleIcon = selectedCategory?.icon ?? 'layer-group';
+  const titleIcon: IconProp = (selectedCategory?.icon ?? 'layer-group') as IconProp;
 
   if (categories.length === 0) {
     return null;
@@ -47,7 +48,7 @@ export default function CategoryDropdown({ value, onChange }: Readonly<CategoryD
       </Dropdown.Item>
       {categories.map(category => (
         <Dropdown.Item key={category.id} eventKey={category.id}>
-          {category.icon ? <FontAwesomeIcon icon={category.icon} className="me-2" /> : null}
+          {category.icon ? <FontAwesomeIcon icon={category.icon as IconProp} className="me-2" /> : null}
           {category.name}
           {value === category.id && <FontAwesomeIcon icon="circle-check" className="ms-2 circle-check" />}
         </Dropdown.Item>

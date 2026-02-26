@@ -4,6 +4,7 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import { useTranslation } from 'react-i18next';
 import Link from '@/components/common/Link';
 import React from 'react';
+import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SITE_LOGO } from '@/config/constants';
 import useMediaQuery from '@/hooks/useMediaQuery';
@@ -275,7 +276,7 @@ export default function Header({
                   {categories.map(category => (
                     <NavDropdown.Item key={category.id} as={Link} href={`/categories/${category.id}`}>
                       <span className="d-inline-flex align-items-center">
-                        {category.icon && <FontAwesomeIcon icon={category.icon} className="me-2" />}
+                        {category.icon && <FontAwesomeIcon icon={category.icon as IconProp} className="me-2" />}
                         <span>{category.name}</span>
                       </span>
                     </NavDropdown.Item>

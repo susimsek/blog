@@ -1,5 +1,6 @@
 'use client';
 
+import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 import { defaultLocale } from '@/i18n/settings';
@@ -29,7 +30,12 @@ export default function PostCategoryBadge({ category, className, linked = true }
   const content = (
     <>
       {presentation.icon ? (
-        <FontAwesomeIcon icon={presentation.icon} className="post-category-link-icon" fixedWidth aria-hidden="true" />
+        <FontAwesomeIcon
+          icon={presentation.icon as IconProp}
+          className="post-category-link-icon"
+          fixedWidth
+          aria-hidden="true"
+        />
       ) : null}
       <span className="post-category-link-label">{label}</span>
     </>
