@@ -13,7 +13,8 @@
         "schulteTable": "Schulte Tablosu",
         "about": "Hakkında",
         "contact": "İletişim",
-        "search": "Ara"
+        "search": "Ara",
+        "stroopTest": "Stroop Testi"
       },
       "actions": {
         "hideSearch": "Aramayı gizle",

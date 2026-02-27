@@ -307,6 +307,12 @@ export default function Header({
                     <span>{t('common.header.menu.schulteTable')}</span>
                   </span>
                 </NavDropdown.Item>
+                <NavDropdown.Item as={Link} href="/games/stroop-test">
+                  <span className="d-inline-flex align-items-center">
+                    <FontAwesomeIcon icon="palette" className="me-2" />
+                    <span>{t('common.header.menu.stroopTest')}</span>
+                  </span>
+                </NavDropdown.Item>
               </NavDropdown>
               <Nav.Link as={Link} href="/medium" className="d-flex align-items-center">
                 <FontAwesomeIcon icon={['fab', 'medium']} className="me-2 medium-brand-logo" />

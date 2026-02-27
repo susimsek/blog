@@ -86,6 +86,7 @@ interface Resources {
           home: 'Home';
           schulteTable: 'Schulte Table';
           search: 'Search';
+          stroopTest: 'Stroop Test';
         };
         theme: {
           dark: 'Dark Mode';
@@ -361,6 +362,100 @@ interface Resources {
         whyUse: {
           body1: 'Schulte Tables are commonly used as a visual search and attention exercise. They are popular in reading and concentration practice because they force structured scanning across a grid.';
           body2: 'Treat this as a practice tool, not a medical or diagnostic tool. Improvements in this game do not automatically guarantee broad cognitive improvement in everyday tasks.';
+          title: 'Why People Use It';
+        };
+      };
+      stroop: {
+        badge: 'Brain Exercise';
+        colors: {
+          blue: 'Blue';
+          green: 'Green';
+          orange: 'Orange';
+          purple: 'Purple';
+          red: 'Red';
+          yellow: 'Yellow';
+        };
+        howToPlay: {
+          step1: 'Pick a mode from the left panel, then start a fresh round when you are ready.';
+          step2: 'Look at the ink color of the word, not the word itself, and tap the matching color button.';
+          step3: 'Use Restart to replay the current mode immediately, or switch modes for a different pace and trial count.';
+          step4: 'Track score, mistakes, accuracy, and average reaction time together instead of chasing speed alone.';
+          title: 'How To Play';
+        };
+        kickerNote: 'Color-word interference and reaction control practice';
+        meta: {
+          description: 'Play a Stroop Test online in your browser with practice, standard, and timed modes, plus score, accuracy, and reaction-time tracking.';
+          keywords: 'stroop test, stroop effect, brain exercise, reaction game, cognitive control, online game';
+          title: 'Stroop Test (Play Online)';
+        };
+        notes: {
+          item1: 'Short sessions usually work better than long streaks when the goal is clean focus and consistent responses.';
+          item2: 'If you start guessing, slow down and re-center on the ink color before continuing.';
+          item3: 'Use accuracy and reaction time together. Fast mistakes are still weak reps.';
+          title: 'Practice Notes';
+        };
+        research: {
+          body1: 'The Stroop effect is a classic interference task: reading is automatic, while naming the ink color requires more control. That conflict is why the task is still used in attention and executive-control research.';
+          body2: 'As with other cognitive-training tasks, improvement inside the game is easy to measure, but transfer to broader cognitive benefits is more nuanced and depends on context, study design, and outcome measures.';
+          sources: {
+            automaticity: 'Interference and automaticity review context (PMC)';
+            background: 'Background overview (Stroop effect)';
+            taskReference: 'Stroop Color-Word Task reference (NIDA)';
+          };
+          title: 'Research Notes';
+        };
+        subtitle: 'Play a browser-based Stroop Test to challenge cognitive control, reaction speed, and focus by matching the ink color instead of the written word.';
+        title: 'Stroop Test';
+        trainer: {
+          accuracy: 'Accuracy';
+          actions: 'Actions';
+          avgReaction: 'Avg reaction';
+          bestScore: 'Best score';
+          choiceGroup: 'Color choices';
+          clearBest: 'Clear best';
+          completeMessage: 'Round complete. Score {{score}}, accuracy {{accuracy}}, average reaction {{avgMs}} ms.';
+          controls: 'Game controls';
+          currentPrompt: 'Current prompt';
+          hideControls: 'Hide controls';
+          inkHint: 'Ink color: {{color}}';
+          mistakes: 'Mistakes';
+          mode: 'Mode';
+          modeLabel: 'Mode';
+          modes: {
+            practice: {
+              copy: '20 prompts, lighter interference';
+              title: 'Practice';
+            };
+            standard: {
+              copy: '30 prompts, balanced difficulty';
+              title: 'Standard';
+            };
+            timed: {
+              copy: '60 seconds, keep the pace up';
+              title: 'Timed';
+            };
+          };
+          newRound: 'New round';
+          noBestYet: 'No best yet';
+          restart: 'Restart';
+          rule: 'Match the color of the text, not the word you read.';
+          score: 'Score';
+          showControls: 'Show controls';
+          showHint: 'Show rule reminder';
+          status: {
+            completed: 'Completed';
+            idle: 'Ready';
+            running: 'Running';
+          };
+          statusLabel: 'Status';
+          timer: 'Timer';
+          tip: 'Tip: if the word pulls your attention, pause for a beat and answer the ink color only.';
+          tipWithHint: 'Tip: keep your eyes on the ink color first. The hint line is there to reinforce the rule while you warm up.';
+          wordSays: 'Word says: {{word}}';
+        };
+        whyUse: {
+          body1: 'The Stroop task is widely used as a cognitive-control exercise because it forces you to suppress the automatic urge to read the word and respond to the font color instead.';
+          body2: 'Treat this as a fast attention and inhibition practice tool, not a medical or diagnostic assessment. Better game scores do not automatically mean broad real-world cognitive gains.';
           title: 'Why People Use It';
         };
       };

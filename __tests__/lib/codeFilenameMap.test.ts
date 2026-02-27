@@ -39,4 +39,30 @@ a: b
     expect(map.get(5)).toBe('config.yml');
     expect(map.get(8)).toBe('src/config/app.json');
   });
+
+  it('accepts a bare path-like meta value as the filename', () => {
+    const markdown = `
+\`\`\`ts src/lib/example.ts
+export const demo = true;
+\`\`\`
+`;
+
+    const map = extractCodeFilenameByStartLine(markdown);
+    expect(map.get(2)).toBe('src/lib/example.ts');
+  });
+
+  it('ignores bare meta values that are not path-like', () => {
+    const markdown = `
+\`\`\`ts filename
+export const demo = true;
+\`\`\`
+`;
+
+    const map = extractCodeFilenameByStartLine(markdown);
+    expect(map.size).toBe(0);
+  });
+
+  it('returns an empty map for blank markdown', () => {
+    expect(extractCodeFilenameByStartLine('   \n')).toEqual(new Map());
+  });
 });

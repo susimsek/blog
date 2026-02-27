@@ -64,6 +64,100 @@
           "completed": "Completed"
         }
       }
+    },
+    "stroop": {
+      "badge": "Brain Exercise",
+      "kickerNote": "Color-word interference and reaction control practice",
+      "title": "Stroop Test",
+      "subtitle": "Play a browser-based Stroop Test to challenge cognitive control, reaction speed, and focus by matching the ink color instead of the written word.",
+      "meta": {
+        "title": "Stroop Test (Play Online)",
+        "description": "Play a Stroop Test online in your browser with practice, standard, and timed modes, plus score, accuracy, and reaction-time tracking.",
+        "keywords": "stroop test, stroop effect, brain exercise, reaction game, cognitive control, online game"
+      },
+      "colors": {
+        "red": "Red",
+        "blue": "Blue",
+        "green": "Green",
+        "yellow": "Yellow",
+        "purple": "Purple",
+        "orange": "Orange"
+      },
+      "howToPlay": {
+        "title": "How To Play",
+        "step1": "Pick a mode from the left panel, then start a fresh round when you are ready.",
+        "step2": "Look at the ink color of the word, not the word itself, and tap the matching color button.",
+        "step3": "Use Restart to replay the current mode immediately, or switch modes for a different pace and trial count.",
+        "step4": "Track score, mistakes, accuracy, and average reaction time together instead of chasing speed alone."
+      },
+      "whyUse": {
+        "title": "Why People Use It",
+        "body1": "The Stroop task is widely used as a cognitive-control exercise because it forces you to suppress the automatic urge to read the word and respond to the font color instead.",
+        "body2": "Treat this as a fast attention and inhibition practice tool, not a medical or diagnostic assessment. Better game scores do not automatically mean broad real-world cognitive gains."
+      },
+      "notes": {
+        "title": "Practice Notes",
+        "item1": "Short sessions usually work better than long streaks when the goal is clean focus and consistent responses.",
+        "item2": "If you start guessing, slow down and re-center on the ink color before continuing.",
+        "item3": "Use accuracy and reaction time together. Fast mistakes are still weak reps."
+      },
+      "research": {
+        "title": "Research Notes",
+        "body1": "The Stroop effect is a classic interference task: reading is automatic, while naming the ink color requires more control. That conflict is why the task is still used in attention and executive-control research.",
+        "body2": "As with other cognitive-training tasks, improvement inside the game is easy to measure, but transfer to broader cognitive benefits is more nuanced and depends on context, study design, and outcome measures.",
+        "sources": {
+          "background": "Background overview (Stroop effect)",
+          "automaticity": "Interference and automaticity review context (PMC)",
+          "taskReference": "Stroop Color-Word Task reference (NIDA)"
+        }
+      },
+      "trainer": {
+        "timer": "Timer",
+        "score": "Score",
+        "mistakes": "Mistakes",
+        "mode": "Mode",
+        "modeLabel": "Mode",
+        "controls": "Game controls",
+        "showControls": "Show controls",
+        "hideControls": "Hide controls",
+        "actions": "Actions",
+        "newRound": "New round",
+        "restart": "Restart",
+        "clearBest": "Clear best",
+        "showHint": "Show rule reminder",
+        "statusLabel": "Status",
+        "bestScore": "Best score",
+        "noBestYet": "No best yet",
+        "currentPrompt": "Current prompt",
+        "rule": "Match the color of the text, not the word you read.",
+        "wordSays": "Word says: {{word}}",
+        "inkHint": "Ink color: {{color}}",
+        "choiceGroup": "Color choices",
+        "tip": "Tip: if the word pulls your attention, pause for a beat and answer the ink color only.",
+        "tipWithHint": "Tip: keep your eyes on the ink color first. The hint line is there to reinforce the rule while you warm up.",
+        "completeMessage": "Round complete. Score {{score}}, accuracy {{accuracy}}, average reaction {{avgMs}} ms.",
+        "accuracy": "Accuracy",
+        "avgReaction": "Avg reaction",
+        "modes": {
+          "practice": {
+            "title": "Practice",
+            "copy": "20 prompts, lighter interference"
+          },
+          "standard": {
+            "title": "Standard",
+            "copy": "30 prompts, balanced difficulty"
+          },
+          "timed": {
+            "title": "Timed",
+            "copy": "60 seconds, keep the pace up"
+          }
+        },
+        "status": {
+          "idle": "Ready",
+          "running": "Running",
+          "completed": "Completed"
+        }
+      }
     }
   }
 }

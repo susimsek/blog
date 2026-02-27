@@ -324,6 +324,18 @@ function getPagesData() {
         },
       },
     },
+    {
+      slug: 'games/stroop-test',
+      changefreq: 'weekly',
+      sourceFile: 'src/app/(localized)/[locale]/games/stroop-test/page.tsx',
+      image: {
+        loc: '/images/stroop-test-thumbnail.webp',
+        title: {
+          en: 'Stroop Test (Play Online)',
+          tr: 'Stroop Testi (Online Oyna)',
+        },
+      },
+    },
   ];
 }
 

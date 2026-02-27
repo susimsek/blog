@@ -79,6 +79,31 @@ describe('theme reducer', () => {
       expect(initialState.theme).toBe('light');
       expect(initialState.hasExplicitTheme).toBe(false);
     });
+
+    it('should initialize with dark theme from system preference when no explicit theme exists', () => {
+      getItemMock.mockReturnValue(null);
+      const originalMatchMedia = window.matchMedia;
+      Object.defineProperty(window, 'matchMedia', {
+        configurable: true,
+        value: jest.fn().mockImplementation(() => ({
+          matches: true,
+          addEventListener: jest.fn(),
+          removeEventListener: jest.fn(),
+        })),
+      });
+
+      jest.resetModules();
+      const themeReducer = require('@/reducers/theme').default;
+      const initialState = themeReducer(undefined, { type: '@@INIT' });
+
+      expect(initialState.theme).toBe('dark');
+      expect(initialState.hasExplicitTheme).toBe(false);
+
+      Object.defineProperty(window, 'matchMedia', {
+        configurable: true,
+        value: originalMatchMedia,
+      });
+    });
   });
 
   describe('toggleTheme', () => {

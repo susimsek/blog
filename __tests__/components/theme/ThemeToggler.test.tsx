@@ -211,6 +211,58 @@ describe('ThemeToggler', () => {
     expect(mockDispatch).toHaveBeenCalledWith(resetToSystemTheme());
   });
 
+  it('does not dispatch resetToSystemTheme when the system theme is already active', async () => {
+    mockState.theme.theme = 'dark';
+    mockState.theme.hasExplicitTheme = false;
+
+    render(<ThemeToggler />);
+
+    const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
+    await act(async () => {
+      fireEvent.click(dropdownToggle);
+    });
+
+    const systemOption = screen.getByRole('button', { name: /common.header.theme.system/i });
+    await act(async () => {
+      fireEvent.click(systemOption);
+    });
+
+    expect(mockDispatch).not.toHaveBeenCalled();
+  });
+
+  it('resolves the system theme from matchMedia before resetting', async () => {
+    const originalMatchMedia = window.matchMedia;
+    mockState.theme.theme = 'light';
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: jest.fn().mockImplementation(() => ({
+        matches: true,
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+      })),
+    });
+
+    render(<ThemeToggler />);
+
+    const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
+    await act(async () => {
+      fireEvent.click(dropdownToggle);
+    });
+
+    const systemOption = screen.getByRole('button', { name: /common.header.theme.system/i });
+    await act(async () => {
+      fireEvent.click(systemOption);
+    });
+
+    expect(global.Audio).toHaveBeenCalledWith('/sounds/switch-off.mp3');
+    expect(mockDispatch).toHaveBeenCalledWith(resetToSystemTheme());
+
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: originalMatchMedia,
+    });
+  });
+
   it('does not show voice controls inside theme menu', async () => {
     render(<ThemeToggler />);
 
@@ -239,6 +291,24 @@ describe('ThemeToggler', () => {
     });
 
     expect(global.Audio).not.toHaveBeenCalled();
+    expect(mockDispatch).toHaveBeenCalledWith(setTheme('dark'));
+  });
+
+  it('swallows rejected audio playback promises when switching themes', async () => {
+    mockPlay.mockReset().mockRejectedValueOnce(new Error('blocked'));
+    render(<ThemeToggler />);
+
+    const dropdownToggle = screen.getByRole('button', { name: /common.theme/i });
+    await act(async () => {
+      fireEvent.click(dropdownToggle);
+    });
+
+    const darkOption = screen.getByRole('button', { name: /common.header.theme.dark/i });
+    await act(async () => {
+      fireEvent.click(darkOption);
+      await Promise.resolve();
+    });
+
     expect(mockDispatch).toHaveBeenCalledWith(setTheme('dark'));
   });
 

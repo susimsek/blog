@@ -66,4 +66,11 @@ describe('SourceDropdown', () => {
     expect(screen.getAllByTestId('icon-fab-medium').length).toBeGreaterThan(0);
     expect(screen.queryByTestId('icon-link')).not.toBeInTheDocument();
   });
+
+  it('shows the blog title and icon when blog is selected', () => {
+    render(<SourceDropdown value="blog" onChange={jest.fn()} />);
+
+    expect(screen.getByTestId('source-title')).toHaveTextContent('common.sourceFilter.blog');
+    expect(screen.getAllByTestId('icon-book').length).toBeGreaterThan(0);
+  });
 });

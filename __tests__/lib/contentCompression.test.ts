@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import { compressContentForPayload, CONTENT_COMPRESSION_ENCODING, resolvePostContent } from '@/lib/contentCompression';
 
 describe('contentCompression', () => {
@@ -15,6 +16,12 @@ describe('contentCompression', () => {
     expect(result.contentCompressed).toBeDefined();
     expect(result.contentEncoding).toBe(CONTENT_COMPRESSION_ENCODING);
     expect(result.contentHtml).toBeUndefined();
+  });
+
+  it('falls back to plain content when compression is not beneficial', () => {
+    const content = randomBytes(18_050).toString('base64url');
+
+    expect(compressContentForPayload(content)).toEqual({ contentHtml: content });
   });
 
   it('resolves plain content directly', () => {

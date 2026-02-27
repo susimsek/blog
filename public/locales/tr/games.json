@@ -64,6 +64,100 @@
           "completed": "Tamamlandı"
         }
       }
+    },
+    "stroop": {
+      "badge": "Beyin Egzersizi",
+      "kickerNote": "Renk-kelime çakışması ve tepki kontrolü çalışması",
+      "title": "Stroop Testi",
+      "subtitle": "Yazının kendisine değil, mürekkep rengine odaklanarak bilişsel kontrolü, tepki hızını ve dikkati zorlayan tarayıcı içi bir Stroop Testi oynayın.",
+      "meta": {
+        "title": "Stroop Testi (Online Oyna)",
+        "description": "Tarayıcı içinde çalışan Stroop Testi oyununu pratik, standart ve süreli modlarla; skor, doğruluk ve tepki süresi takibiyle oynayın.",
+        "keywords": "stroop testi, stroop effect, beyin egzersizi, tepki oyunu, bilişsel kontrol, online oyun"
+      },
+      "colors": {
+        "red": "Kırmızı",
+        "blue": "Mavi",
+        "green": "Yeşil",
+        "yellow": "Sarı",
+        "purple": "Mor",
+        "orange": "Turuncu"
+      },
+      "howToPlay": {
+        "title": "Nasıl Oynanır",
+        "step1": "Soldaki panelden bir mod seçin ve hazır olduğunuzda yeni bir tur başlatın.",
+        "step2": "Kelimenin anlamına değil, yazının rengine bakın ve eşleşen renk düğmesine dokunun.",
+        "step3": "Aynı modda hemen yeniden başlamak için Yeniden başlat seçeneğini kullanın; farklı tempo için mod değiştirebilirsiniz.",
+        "step4": "Sadece hıza değil; skor, hata, doğruluk ve ortalama tepki süresine birlikte bakın."
+      },
+      "whyUse": {
+        "title": "Neden Kullanılır",
+        "body1": "Stroop görevi, kelimeyi okuma dürtüsünü bastırıp yazı rengine cevap vermeyi zorladığı için bilişsel kontrol ve dikkat çalışmaları içinde sık kullanılır.",
+        "body2": "Bu deneyimi hızlı bir dikkat ve inhibisyon egzersizi olarak görün; tıbbi ya da tanısal bir araç değildir. Oyunda iyileşmek, günlük hayatta otomatik olarak genel bilişsel kazanç anlamına gelmez."
+      },
+      "notes": {
+        "title": "Çalışma Notları",
+        "item1": "Temiz odak ve tutarlılık için kısa seanslar genelde uzun denemelerden daha verimlidir.",
+        "item2": "Tahmin etmeye başladığınızı hissederseniz bir an durup yeniden sadece renge odaklanın.",
+        "item3": "Doğruluk ve tepki süresini birlikte değerlendirin. Hızlı ama hatalı cevaplar güçlü tekrar sayılmaz."
+      },
+      "research": {
+        "title": "Araştırma Notları",
+        "body1": "Stroop etkisi klasik bir girişim görevdir: kelimeyi okumak otomatikleşmiştir, mürekkep rengini adlandırmak ise daha fazla kontrol ister. Bu çatışma, görevin dikkat ve yürütücü kontrol araştırmalarında hâlâ kullanılmasının temel nedenidir.",
+        "body2": "Diğer bilişsel antrenman görevlerinde olduğu gibi oyun içi gelişim ölçülebilir; ancak bunun daha geniş bilişsel faydalara ne kadar taşındığı bağlama, çalışma tasarımına ve ölçümlere göre değişir.",
+        "sources": {
+          "background": "Arka plan özeti (Stroop etkisi)",
+          "automaticity": "Girişim ve otomatiklik bağlamı (PMC)",
+          "taskReference": "Stroop Color-Word Task referansı (NIDA)"
+        }
+      },
+      "trainer": {
+        "timer": "Süre",
+        "score": "Skor",
+        "mistakes": "Hata",
+        "mode": "Mod",
+        "modeLabel": "Mod",
+        "controls": "Oyun kontrolleri",
+        "showControls": "Kontrolleri aç",
+        "hideControls": "Kontrolleri kapat",
+        "actions": "Aksiyonlar",
+        "newRound": "Yeni tur",
+        "restart": "Yeniden başlat",
+        "clearBest": "En iyiyi sil",
+        "showHint": "Kural hatırlatmasını göster",
+        "statusLabel": "Durum",
+        "bestScore": "En iyi skor",
+        "noBestYet": "Henüz yok",
+        "currentPrompt": "Aktif görev",
+        "rule": "Okuduğun kelimeyi değil, yazının rengini eşleştir.",
+        "wordSays": "Kelime: {{word}}",
+        "inkHint": "Yazı rengi: {{color}}",
+        "choiceGroup": "Renk seçenekleri",
+        "tip": "İpucu: kelime dikkatinizi çekiyorsa bir an durup yalnızca mürekkep rengine cevap verin.",
+        "tipWithHint": "İpucu: önce yazı rengine odaklanın. Isınma aşamasında kural satırı bunu pekiştirmek için açık kalabilir.",
+        "completeMessage": "Tur tamamlandı. Skor {{score}}, doğruluk {{accuracy}}, ortalama tepki {{avgMs}} ms.",
+        "accuracy": "Doğruluk",
+        "avgReaction": "Ort. tepki",
+        "modes": {
+          "practice": {
+            "title": "Pratik",
+            "copy": "20 görev, daha hafif girişim"
+          },
+          "standard": {
+            "title": "Standart",
+            "copy": "30 görev, dengeli zorluk"
+          },
+          "timed": {
+            "title": "Süreli",
+            "copy": "60 saniye, tempoyu koru"
+          }
+        },
+        "status": {
+          "idle": "Hazır",
+          "running": "Devam ediyor",
+          "completed": "Tamamlandı"
+        }
+      }
     }
   }
 }

@@ -13,7 +13,8 @@
         "schulteTable": "Schulte Table",
         "about": "About",
         "contact": "Contact",
-        "search": "Search"
+        "search": "Search",
+        "stroopTest": "Stroop Test"
       },
       "actions": {
         "hideSearch": "Hide search",

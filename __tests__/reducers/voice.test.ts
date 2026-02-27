@@ -76,4 +76,18 @@ describe('voice reducer', () => {
     const initialState: VoiceState = { isEnabled: true };
     expect(() => voiceReducer(initialState, setVoiceEnabled(false))).not.toThrow();
   });
+
+  it('defaults to enabled when initialized outside the browser', () => {
+    jest.resetModules();
+
+    jest.doMock('@/config/constants', () => ({
+      ...jest.requireActual('@/config/constants'),
+      isBrowser: false,
+    }));
+
+    const isolatedVoiceReducer = require('@/reducers/voice').default;
+    const initialState = isolatedVoiceReducer(undefined, { type: '@@INIT' });
+
+    expect(initialState.isEnabled).toBe(true);
+  });
 });

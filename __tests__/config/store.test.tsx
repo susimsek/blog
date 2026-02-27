@@ -2,9 +2,10 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import { makeStore, useAppSelector, useAppDispatch } from '@/config/store';
+import { makeStore, rootReducer, useAppSelector, useAppDispatch } from '@/config/store';
 import themeReducer from '@/reducers/theme';
 import voiceReducer from '@/reducers/voice';
+import postsQueryReducer from '@/reducers/postsQuery';
 
 describe('Redux Store', () => {
   it('should initialize with the correct state shape', () => {
@@ -26,6 +27,14 @@ describe('Redux Store', () => {
     const store = makeStore();
     const initialState = voiceReducer(undefined, { type: '@@INIT' });
     expect(store.getState().voice).toEqual(initialState);
+  });
+
+  it('should export the combined root reducer', () => {
+    const reduced = rootReducer(undefined, { type: '@@INIT' });
+
+    expect(reduced.theme).toEqual(themeReducer(undefined, { type: '@@INIT' }));
+    expect(reduced.voice).toEqual(voiceReducer(undefined, { type: '@@INIT' }));
+    expect(reduced.postsQuery).toEqual(postsQueryReducer(undefined, { type: '@@INIT' }));
   });
 
   it('should allow useAppSelector to access state', () => {

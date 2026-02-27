@@ -38,6 +38,7 @@ const customJestConfig = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/', '/__mocks__/', '<rootDir>/__tests__/utils/'],
+  coveragePathIgnorePatterns: ['<rootDir>/__tests__/utils/'],
   coverageDirectory: './coverage',
 };
 
@@ -61,5 +62,12 @@ module.exports = async (...args) => {
       },
     ],
   ];
+  config.coverageThreshold = {
+    global: {
+      statements: 95,
+      functions: 95,
+      lines: 95,
+    },
+  };
   return config;
 };

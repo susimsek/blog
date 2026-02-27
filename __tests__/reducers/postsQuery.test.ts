@@ -1,10 +1,14 @@
 import postsQueryReducer, {
+  clearNonSearchFilters,
   resetFilters,
+  setCategoryFilter,
   setDateRange,
   setLocale,
   setPage,
   setPageSize,
   setPosts,
+  setTopics,
+  setTopicsLoading,
   setQuery,
   setReadingTimeRange,
   setSelectedTopics,
@@ -63,6 +67,10 @@ describe('postsQuery reducer', () => {
     expect(state.selectedTopics).toEqual(['react', 'nextjs']);
     expect(state.page).toBe(1);
 
+    state = postsQueryReducer(state, setCategoryFilter('frontend'));
+    expect(state.categoryFilter).toBe('frontend');
+    expect(state.page).toBe(1);
+
     state = postsQueryReducer(state, setSourceFilter('medium'));
     expect(state.sourceFilter).toBe('medium');
     expect(state.page).toBe(1);
@@ -86,5 +94,25 @@ describe('postsQuery reducer', () => {
     expect(state.readingTimeRange).toBe('any');
     expect(state.page).toBe(1);
     expect(state.sortOrder).toBe('desc');
+  });
+
+  it('updates topics state and clears non-search filters without resetting the query', () => {
+    let state = postsQueryReducer(undefined, setQuery('next'));
+    state = postsQueryReducer(state, setTopicsLoading(true));
+    state = postsQueryReducer(state, setTopics([{ id: 'frontend', name: 'Frontend', color: '#fff' }]));
+    state = postsQueryReducer(state, setSelectedTopics(['frontend']));
+    state = postsQueryReducer(state, setCategoryFilter('frontend'));
+    state = postsQueryReducer(state, setDateRange({ startDate: '2026-02-01' }));
+    state = postsQueryReducer(state, setReadingTimeRange('8-12'));
+
+    state = postsQueryReducer(state, clearNonSearchFilters());
+
+    expect(state.query).toBe('next');
+    expect(state.topicsLoading).toBe(true);
+    expect(state.topics).toEqual([{ id: 'frontend', name: 'Frontend', color: '#fff' }]);
+    expect(state.selectedTopics).toEqual([]);
+    expect(state.categoryFilter).toBe('all');
+    expect(state.dateRange).toEqual({});
+    expect(state.readingTimeRange).toBe('any');
   });
 });
