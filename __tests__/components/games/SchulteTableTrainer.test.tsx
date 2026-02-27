@@ -87,4 +87,17 @@ describe('SchulteTableTrainer', () => {
     expect(screen.getByRole('radio', { name: '3×3' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByRole('radio', { name: '5×5' })).toHaveAttribute('aria-checked', 'false');
   });
+
+  it('persists the show hint preference across refreshes', () => {
+    const { unmount } = render(<SchulteTableTrainer />);
+
+    fireEvent.click(screen.getByLabelText('games.schulte.trainer.showNextHint'));
+
+    expect(window.localStorage.getItem('schulte-table-show-hint-v1')).toBe('false');
+
+    unmount();
+    render(<SchulteTableTrainer />);
+
+    expect(screen.getByLabelText('games.schulte.trainer.showNextHint')).not.toBeChecked();
+  });
 });

@@ -24,6 +24,7 @@ const GRID_SIZES: readonly GridSize[] = [3, 4, 5, 6, 7, 8, 9] as const;
 const DEFAULT_GRID_SIZE: GridSize = 5;
 const STORAGE_KEY = 'schulte-table-best-times-v1';
 const GRID_SIZE_STORAGE_KEY = 'schulte-table-grid-size-v1';
+const SHOW_HINT_STORAGE_KEY = 'schulte-table-show-hint-v1';
 const CELL_PALETTE: readonly CellPaletteItem[] = [
   { bg: '#2b83c6', fg: '#ffffff', border: '#2f6f99' },
   { bg: '#46b68b', fg: '#ffffff', border: '#2f8f6d' },
@@ -96,6 +97,22 @@ const parseStoredGridSize = (raw: string | null): GridSize | null => {
 
   const parsed = Number(raw);
   return GRID_SIZES.includes(parsed as GridSize) ? (parsed as GridSize) : null;
+};
+
+const parseStoredShowHint = (raw: string | null): boolean | null => {
+  if (raw === null) {
+    return null;
+  }
+
+  if (raw === 'true') {
+    return true;
+  }
+
+  if (raw === 'false') {
+    return false;
+  }
+
+  return null;
 };
 
 export default function SchulteTableTrainer() {
@@ -188,10 +205,14 @@ export default function SchulteTableTrainer() {
 
     const storedBestTimes = parseStoredBestTimes(window.localStorage.getItem(STORAGE_KEY));
     const storedGridSize = parseStoredGridSize(window.localStorage.getItem(GRID_SIZE_STORAGE_KEY)) ?? DEFAULT_GRID_SIZE;
+    const storedShowHint = parseStoredShowHint(window.localStorage.getItem(SHOW_HINT_STORAGE_KEY));
 
     setBestTimes(storedBestTimes);
     setSize(storedGridSize);
     setCells(createBoard(storedGridSize));
+    if (storedShowHint !== null) {
+      setShowNextHint(storedShowHint);
+    }
     resetRoundState({ preserveHint: true });
   }, [resetRoundState]);
 
@@ -200,6 +221,14 @@ export default function SchulteTableTrainer() {
       setIsMobileControlsOpen(false);
     }
   }, [isMobile]);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.localStorage.setItem(SHOW_HINT_STORAGE_KEY, String(showNextHint));
+  }, [showNextHint]);
 
   const handleSizeChange = (nextSize: GridSize) => {
     setSize(nextSize);
