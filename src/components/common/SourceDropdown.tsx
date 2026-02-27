@@ -11,17 +11,34 @@ interface SourceDropdownProps {
   onChange: (value: SourceFilter) => void;
 }
 
+const getSourceTitle = (value: SourceFilter, translate: (key: string) => string) => {
+  if (value === 'blog') {
+    return translate('common.sourceFilter.blog');
+  }
+
+  if (value === 'medium') {
+    return translate('common.sourceFilter.medium');
+  }
+
+  return translate('common.sourceFilter.all');
+};
+
+const getSourceIcon = (value: SourceFilter): IconProp => {
+  if (value === 'blog') {
+    return 'book';
+  }
+
+  if (value === 'medium') {
+    return ['fab', 'medium'] as IconProp;
+  }
+
+  return 'layer-group';
+};
+
 export default function SourceDropdown({ value, onChange }: Readonly<SourceDropdownProps>) {
   const { t } = useTranslation('common');
-
-  const title = (() => {
-    if (value === 'blog') return t('common.sourceFilter.blog');
-    if (value === 'medium') return t('common.sourceFilter.medium');
-    return t('common.sourceFilter.all');
-  })();
-
-  const titleIcon: IconProp =
-    value === 'blog' ? 'book' : value === 'medium' ? (['fab', 'medium'] as IconProp) : 'layer-group';
+  const title = getSourceTitle(value, t);
+  const titleIcon = getSourceIcon(value);
 
   return (
     <DropdownButton

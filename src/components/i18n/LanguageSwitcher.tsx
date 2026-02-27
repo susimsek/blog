@@ -12,8 +12,10 @@ const LanguageSwitcher = () => {
 
   return (
     <NavDropdown
+      onMouseEnter={triggerLanguageIconBoop}
+      onFocus={triggerLanguageIconBoop}
       title={
-        <span className="nav-icon-boop" onMouseEnter={triggerLanguageIconBoop}>
+        <span className="nav-icon-boop">
           <FontAwesomeIcon icon="globe" className="icon-boop-target" style={languageIconStyle} />
           <span className="visually-hidden">{t('common.language')}</span>
         </span>

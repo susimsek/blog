@@ -362,11 +362,11 @@ export default function SearchContainer({ shortcutHint }: Readonly<SearchContain
       }
     };
 
-    window.addEventListener('app:search-focus', handleSearchFocus as EventListener);
-    window.addEventListener('app:search-close', handleSearchClose as EventListener);
+    globalThis.addEventListener('app:search-focus', handleSearchFocus as EventListener);
+    globalThis.addEventListener('app:search-close', handleSearchClose as EventListener);
     return () => {
-      window.removeEventListener('app:search-focus', handleSearchFocus as EventListener);
-      window.removeEventListener('app:search-close', handleSearchClose as EventListener);
+      globalThis.removeEventListener('app:search-focus', handleSearchFocus as EventListener);
+      globalThis.removeEventListener('app:search-close', handleSearchClose as EventListener);
     };
   }, [searchQuery]);
 

@@ -62,6 +62,48 @@ const getScrollBehavior = (): ScrollBehavior => {
   return globalThis.window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
 };
 
+const shouldIncludeTocHeading = (heading: HTMLElement) => {
+  return !heading.closest('.post-toc') && !heading.closest('.tab-content') && !heading.closest('.tab-pane');
+};
+
+const buildTocItems = (root: HTMLElement) => {
+  const headings = Array.from(root.querySelectorAll<HTMLElement>('h2, h3')).filter(shouldIncludeTocHeading);
+  if (headings.length === 0) {
+    return [];
+  }
+
+  const slug = createSlugger();
+  const tocItems: TocItem[] = [];
+
+  for (const heading of headings) {
+    const text = (heading.textContent ?? '').trim();
+    if (!text) {
+      continue;
+    }
+
+    if (!heading.id) {
+      heading.id = slug(text);
+    }
+
+    const level = heading.tagName.toUpperCase() === 'H3' ? 3 : 2;
+    tocItems.push({ id: heading.id, text, level });
+  }
+
+  return tocItems;
+};
+
+const resolveActiveTocItemId = (previous: string | null, tocItems: readonly TocItem[]) => {
+  if (tocItems.length === 0) {
+    return null;
+  }
+
+  if (previous && tocItems.some(item => item.id === previous)) {
+    return previous;
+  }
+
+  return tocItems[0]?.id ?? null;
+};
+
 interface PostTocProps {
   postId: string;
   content: string;
@@ -82,41 +124,15 @@ export default function PostToc({ postId, content, rootRef }: Readonly<PostTocPr
     }
 
     const updateTocItems = () => {
-      const headings = Array.from(root.querySelectorAll<HTMLElement>('h2, h3')).filter(heading => {
-        return !heading.closest('.post-toc') && !heading.closest('.tab-content') && !heading.closest('.tab-pane');
-      });
-
-      if (headings.length === 0) {
+      const tocItems = buildTocItems(root);
+      if (tocItems.length === 0) {
         setItems(previous => (previous.length === 0 ? previous : []));
         setActiveId(null);
         return;
       }
 
-      const slug = createSlugger();
-      const tocItems: TocItem[] = [];
-
-      for (const heading of headings) {
-        const text = (heading.textContent ?? '').trim();
-        if (!text) continue;
-
-        if (!heading.id) {
-          heading.id = slug(text);
-        }
-
-        const level = heading.tagName.toUpperCase() === 'H3' ? 3 : 2;
-        tocItems.push({ id: heading.id, text, level });
-      }
-
       setItems(previous => (areTocItemsEqual(previous, tocItems) ? previous : tocItems));
-      setActiveId(previous => {
-        if (tocItems.length === 0) {
-          return null;
-        }
-        if (previous && tocItems.some(item => item.id === previous)) {
-          return previous;
-        }
-        return tocItems[0]?.id ?? null;
-      });
+      setActiveId(previous => resolveActiveTocItemId(previous, tocItems));
     };
 
     updateTocItems();

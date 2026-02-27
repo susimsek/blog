@@ -58,6 +58,13 @@ const shuffle = (values: number[]): number[] => {
 const createOrderedBoard = (size: GridSize): number[] => Array.from({ length: size * size }, (_, index) => index + 1);
 const createBoard = (size: GridSize): number[] => shuffle(Array.from({ length: size * size }, (_, index) => index + 1));
 const getCurrentTimeMs = (): number => Date.now();
+const chunkBoardRows = (values: readonly number[], size: GridSize): number[][] => {
+  const rows: number[][] = [];
+  for (let index = 0; index < values.length; index += size) {
+    rows.push(values.slice(index, index + size));
+  }
+  return rows;
+};
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -138,11 +145,11 @@ export default function SchulteTableTrainer() {
       return;
     }
 
-    const interval = window.setInterval(() => {
+    const interval = globalThis.setInterval(() => {
       setElapsedMs(Date.now() - startedAtMs);
     }, 50);
 
-    return () => window.clearInterval(interval);
+    return () => globalThis.clearInterval(interval);
   }, [startedAtMs, status]);
 
   React.useEffect(() => {
@@ -150,8 +157,8 @@ export default function SchulteTableTrainer() {
       return;
     }
 
-    const timeout = window.setTimeout(() => setLastWrongNumber(null), 220);
-    return () => window.clearTimeout(timeout);
+    const timeout = globalThis.setTimeout(() => setLastWrongNumber(null), 220);
+    return () => globalThis.clearTimeout(timeout);
   }, [lastWrongNumber]);
 
   const totalCells = size * size;
@@ -160,12 +167,13 @@ export default function SchulteTableTrainer() {
   const progressPercent = (foundNumbers.length / totalCells) * 100;
   const displayTime = isCompleted ? (lastResultMs ?? elapsedMs) : elapsedMs;
   const currentBest = bestTimes[size] ?? null;
+  const cellRows = React.useMemo(() => chunkBoardRows(cells, size), [cells, size]);
 
   const persistBestTimes = React.useCallback((updater: BestTimesUpdater) => {
     setBestTimes(currentBestTimes => {
       const nextBestTimes = typeof updater === 'function' ? updater(currentBestTimes) : updater;
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextBestTimes));
+      if (globalThis.localStorage !== undefined) {
+        globalThis.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextBestTimes));
       }
       return nextBestTimes;
     });
@@ -199,13 +207,14 @@ export default function SchulteTableTrainer() {
   };
 
   React.useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (globalThis.localStorage === undefined) {
       return;
     }
 
-    const storedBestTimes = parseStoredBestTimes(window.localStorage.getItem(STORAGE_KEY));
-    const storedGridSize = parseStoredGridSize(window.localStorage.getItem(GRID_SIZE_STORAGE_KEY)) ?? DEFAULT_GRID_SIZE;
-    const storedShowHint = parseStoredShowHint(window.localStorage.getItem(SHOW_HINT_STORAGE_KEY));
+    const storedBestTimes = parseStoredBestTimes(globalThis.localStorage.getItem(STORAGE_KEY));
+    const storedGridSize =
+      parseStoredGridSize(globalThis.localStorage.getItem(GRID_SIZE_STORAGE_KEY)) ?? DEFAULT_GRID_SIZE;
+    const storedShowHint = parseStoredShowHint(globalThis.localStorage.getItem(SHOW_HINT_STORAGE_KEY));
 
     setBestTimes(storedBestTimes);
     setSize(storedGridSize);
@@ -223,19 +232,19 @@ export default function SchulteTableTrainer() {
   }, [isMobile]);
 
   React.useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (globalThis.localStorage === undefined) {
       return;
     }
 
-    window.localStorage.setItem(SHOW_HINT_STORAGE_KEY, String(showNextHint));
+    globalThis.localStorage.setItem(SHOW_HINT_STORAGE_KEY, String(showNextHint));
   }, [showNextHint]);
 
   const handleSizeChange = (nextSize: GridSize) => {
     setSize(nextSize);
     resetRound(nextSize, { preserveHint: true });
     setIsMobileControlsOpen(false);
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(GRID_SIZE_STORAGE_KEY, String(nextSize));
+    if (globalThis.localStorage !== undefined) {
+      globalThis.localStorage.setItem(GRID_SIZE_STORAGE_KEY, String(nextSize));
     }
   };
 
@@ -290,12 +299,10 @@ export default function SchulteTableTrainer() {
 
   const nextHintNumber = status === 'completed' ? null : target;
   const actionsLabel = t('games.schulte.trainer.actions');
-  const resolvedActionsLabel =
-    actionsLabel === 'games.schulte.trainer.actions'
-      ? i18n.resolvedLanguage?.startsWith('tr')
-        ? 'Aksiyonlar'
-        : 'Actions'
-      : actionsLabel;
+  let resolvedActionsLabel = actionsLabel;
+  if (actionsLabel === 'games.schulte.trainer.actions') {
+    resolvedActionsLabel = i18n.resolvedLanguage?.startsWith('tr') ? 'Aksiyonlar' : 'Actions';
+  }
   const mobileControlsToggleLabel = isMobileControlsOpen
     ? t('games.schulte.trainer.hideControls')
     : t('games.schulte.trainer.showControls');
@@ -411,7 +418,7 @@ export default function SchulteTableTrainer() {
           )}
 
           <div className="schulte-trainer-main">
-            <div className="schulte-trainer-stats" role="status" aria-live="polite">
+            <div className="schulte-trainer-stats" aria-live="polite">
               <div className="schulte-stat-tile">
                 <span className="schulte-stat-label">
                   <FontAwesomeIcon icon="clock" className="me-2" />
@@ -440,42 +447,48 @@ export default function SchulteTableTrainer() {
             </div>
 
             <div className="schulte-grid-shell">
-              <div className="schulte-grid" style={{ ['--schulte-grid-size' as string]: String(size) }} role="grid">
-                {cells.map(value => {
-                  const isFound = foundSet.has(value);
-                  const isTarget = nextHintNumber === value && showNextHint;
-                  const isWrongPulse = lastWrongNumber === value;
-                  const palette = CELL_PALETTE[(value - 1) % CELL_PALETTE.length];
-                  const cellStyle = {
-                    ['--schulte-cell-bg' as string]: palette.bg,
-                    ['--schulte-cell-fg' as string]: palette.fg,
-                    ['--schulte-cell-border' as string]: palette.border,
-                  } as React.CSSProperties;
+              <table className="schulte-grid" style={{ ['--schulte-grid-size' as string]: String(size) }}>
+                <tbody>
+                  {cellRows.map(row => (
+                    <tr key={row.join('-')}>
+                      {row.map(value => {
+                        const isFound = foundSet.has(value);
+                        const isTarget = nextHintNumber === value && showNextHint;
+                        const isWrongPulse = lastWrongNumber === value;
+                        const palette = CELL_PALETTE[(value - 1) % CELL_PALETTE.length];
+                        const cellStyle = {
+                          ['--schulte-cell-bg' as string]: palette.bg,
+                          ['--schulte-cell-fg' as string]: palette.fg,
+                          ['--schulte-cell-border' as string]: palette.border,
+                        } as React.CSSProperties;
 
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      role="gridcell"
-                      className={[
-                        'schulte-cell',
-                        isFound ? 'is-found' : '',
-                        isTarget ? 'is-target' : '',
-                        isWrongPulse ? 'is-wrong' : '',
-                      ]
-                        .filter(Boolean)
-                        .join(' ')}
-                      style={cellStyle}
-                      onClick={() => handleCellClick(value)}
-                      aria-label={t('games.schulte.trainer.cellAriaLabel', { number: value })}
-                      aria-disabled={isFound ? 'true' : undefined}
-                      disabled={isFound}
-                    >
-                      <span>{value}</span>
-                    </button>
-                  );
-                })}
-              </div>
+                        return (
+                          <td key={value} className="schulte-grid-cell">
+                            <button
+                              type="button"
+                              className={[
+                                'schulte-cell',
+                                isFound ? 'is-found' : '',
+                                isTarget ? 'is-target' : '',
+                                isWrongPulse ? 'is-wrong' : '',
+                              ]
+                                .filter(Boolean)
+                                .join(' ')}
+                              style={cellStyle}
+                              onClick={() => handleCellClick(value)}
+                              aria-label={t('games.schulte.trainer.cellAriaLabel', { number: value })}
+                              aria-disabled={isFound ? 'true' : undefined}
+                              disabled={isFound}
+                            >
+                              <span>{value}</span>
+                            </button>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
             <div className="schulte-trainer-footer">

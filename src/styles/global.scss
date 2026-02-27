@@ -4463,6 +4463,14 @@ $state-variants: (
 }
 
 .schulte-trainer-card {
+  --schulte-tile-palette-strength: 88%;
+  --schulte-tile-accent-strength: 6%;
+  --schulte-tile-surface-strength: 92%;
+  --schulte-tile-gloss-main-bg-strength: 16%;
+  --schulte-tile-highlight-line: 20%;
+  --schulte-tile-shadow-line: 10%;
+  --schulte-tile-hover-saturate: 1.04;
+  --schulte-tile-hover-brightness: 1.02;
   border: 1px solid var(--border-color);
   background: color-mix(in srgb, var(--main-bg) 90%, var(--bg-color) 10%);
   box-shadow: var(--box-shadow-primary);
@@ -4725,17 +4733,6 @@ $state-variants: (
   overflow: hidden;
 }
 
-.schulte-trainer-card {
-  --schulte-tile-palette-strength: 88%;
-  --schulte-tile-accent-strength: 6%;
-  --schulte-tile-surface-strength: 92%;
-  --schulte-tile-gloss-main-bg-strength: 16%;
-  --schulte-tile-highlight-line: 20%;
-  --schulte-tile-shadow-line: 10%;
-  --schulte-tile-hover-saturate: 1.04;
-  --schulte-tile-hover-brightness: 1.02;
-}
-
 .dark-theme .schulte-trainer-card,
 .oceanic-theme .schulte-trainer-card,
 .forest-theme .schulte-trainer-card {
@@ -4768,12 +4765,18 @@ $state-variants: (
 
 .schulte-grid {
   --schulte-grid-size: 5;
+  --schulte-grid-gap: clamp(0.2rem, calc(0.85rem - (var(--schulte-grid-size) * 0.045rem)), 0.55rem);
   width: min(100%, 760px);
   max-width: calc(100vw - 2rem);
   margin-inline: auto;
-  display: grid;
-  grid-template-columns: repeat(var(--schulte-grid-size), minmax(0, 1fr));
-  gap: clamp(0.2rem, calc(0.85rem - (var(--schulte-grid-size) * 0.045rem)), 0.55rem);
+  border-collapse: separate;
+  border-spacing: var(--schulte-grid-gap);
+  table-layout: fixed;
+}
+
+.schulte-grid-cell {
+  padding: 0;
+  vertical-align: top;
 }
 
 .schulte-cell {
@@ -4818,6 +4821,7 @@ $state-variants: (
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   font-weight: 800;
   font-size: clamp(0.68rem, calc(1.48rem - (var(--schulte-grid-size) * 0.07rem)), 1.28rem);
   line-height: 1;
@@ -5011,14 +5015,11 @@ $state-variants: (
 
   .schulte-cell {
     border-radius: 7px;
+    font-size: clamp(0.56rem, calc(1.02rem - (var(--schulte-grid-size) * 0.045rem)), 0.95rem);
   }
 
   .schulte-grid {
-    gap: clamp(0.14rem, calc(0.5rem - (var(--schulte-grid-size) * 0.024rem)), 0.3rem);
-  }
-
-  .schulte-cell {
-    font-size: clamp(0.56rem, calc(1.02rem - (var(--schulte-grid-size) * 0.045rem)), 0.95rem);
+    --schulte-grid-gap: clamp(0.14rem, calc(0.5rem - (var(--schulte-grid-size) * 0.024rem)), 0.3rem);
   }
 
   .schulte-trainer-body {
@@ -5100,7 +5101,7 @@ $state-variants: (
   .schulte-grid {
     width: min(100%, calc(100vw - 1.45rem));
     max-width: calc(100vw - 1.45rem);
-    gap: clamp(0.12rem, calc(0.42rem - (var(--schulte-grid-size) * 0.022rem)), 0.24rem);
+    --schulte-grid-gap: clamp(0.12rem, calc(0.42rem - (var(--schulte-grid-size) * 0.022rem)), 0.24rem);
   }
 
   .schulte-cell {
@@ -5445,6 +5446,10 @@ label {
 
   position: fixed;
   inset: 0;
+  margin: 0;
+  max-width: none;
+  max-height: none;
+  border: 0;
   z-index: 1300;
   display: flex;
   justify-content: center;
@@ -5452,6 +5457,11 @@ label {
   min-height: 100dvh;
   overflow-y: auto;
   padding: clamp(3.6rem, 12vh, 7.2rem) 0.9rem 1.2rem;
+  background: transparent;
+
+  &::backdrop {
+    background: transparent;
+  }
 }
 
 .search-overlay-backdrop {

@@ -68,42 +68,74 @@ const matchesReadingTimeRange = (readingTimeMin: number, readingTimeRange: Readi
   return true;
 };
 
+const matchesSearchQuery = (post: PostSummary, normalizedQuery: string) => {
+  if (normalizedQuery.length === 0) {
+    return true;
+  }
+
+  const searchArea = `${post.title} ${post.summary} ${post.searchText}`.toLowerCase();
+  return searchArea.includes(normalizedQuery);
+};
+
+const matchesSelectedTopics = (post: PostSummary, selectedTopics: readonly string[]) => {
+  if (selectedTopics.length === 0) {
+    return true;
+  }
+
+  const postTopicIds = new Set((post.topics ?? []).map(topic => topic.id));
+  return selectedTopics.every(topicId => postTopicIds.has(topicId));
+};
+
+const matchesCategoryFilter = (post: PostSummary, categoryFilter: string) => {
+  if (categoryFilter === 'all') {
+    return true;
+  }
+
+  const postCategoryId = typeof post.category?.id === 'string' ? post.category.id.trim().toLowerCase() : '';
+  return postCategoryId === categoryFilter;
+};
+
+const matchesSourceFilter = (post: PostSummary, effectiveSourceFilter: SourceFilter) => {
+  const postSource = post.source ?? 'blog';
+  return effectiveSourceFilter === 'all' || postSource === effectiveSourceFilter;
+};
+
+const matchesPublishedDateRange = (post: PostSummary, startDateMs: number | null, endDateMs: number | null) => {
+  const postDateMs = new Date(post.publishedDate).getTime();
+
+  if (startDateMs !== null && Number.isFinite(startDateMs) && postDateMs < startDateMs) {
+    return false;
+  }
+
+  if (endDateMs !== null && Number.isFinite(endDateMs) && postDateMs > endDateMs) {
+    return false;
+  }
+
+  return true;
+};
+
 const matchesPostListFilters = (post: PostSummary, criteria: Readonly<PostListFilterCriteria>) => {
   if (criteria.scopedIdSet && !criteria.scopedIdSet.has(post.id)) {
     return false;
   }
 
-  if (criteria.normalizedQuery.length > 0) {
-    const searchArea = `${post.title} ${post.summary} ${post.searchText}`.toLowerCase();
-    if (!searchArea.includes(criteria.normalizedQuery)) {
-      return false;
-    }
-  }
-
-  if (criteria.selectedTopics.length > 0) {
-    const postTopicIds = new Set((post.topics ?? []).map(topic => topic.id));
-    if (!criteria.selectedTopics.every(topicId => postTopicIds.has(topicId))) {
-      return false;
-    }
-  }
-
-  if (criteria.categoryFilter !== 'all') {
-    const postCategoryId = typeof post.category?.id === 'string' ? post.category.id.trim().toLowerCase() : '';
-    if (postCategoryId !== criteria.categoryFilter) {
-      return false;
-    }
-  }
-
-  const postSource = post.source ?? 'blog';
-  if (criteria.effectiveSourceFilter !== 'all' && postSource !== criteria.effectiveSourceFilter) {
+  if (!matchesSearchQuery(post, criteria.normalizedQuery)) {
     return false;
   }
 
-  const postDateMs = new Date(post.publishedDate).getTime();
-  if (criteria.startDateMs !== null && Number.isFinite(criteria.startDateMs) && postDateMs < criteria.startDateMs) {
+  if (!matchesSelectedTopics(post, criteria.selectedTopics)) {
     return false;
   }
-  if (criteria.endDateMs !== null && Number.isFinite(criteria.endDateMs) && postDateMs > criteria.endDateMs) {
+
+  if (!matchesCategoryFilter(post, criteria.categoryFilter)) {
+    return false;
+  }
+
+  if (!matchesSourceFilter(post, criteria.effectiveSourceFilter)) {
+    return false;
+  }
+
+  if (!matchesPublishedDateRange(post, criteria.startDateMs, criteria.endDateMs)) {
     return false;
   }
 

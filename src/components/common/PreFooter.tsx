@@ -164,7 +164,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
   );
 
   const submitNewsletter = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
+    async (event: React.SyntheticEvent<HTMLFormElement>) => {
       event.preventDefault();
 
       if (isNewsletterSubmitting || isNewsletterResending) {
@@ -198,7 +198,7 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
       if (result?.status === 'success') {
         if (typeof result.forwardTo === 'string' && result.forwardTo.length > 0) {
           setIsNewsletterSubmitting(false);
-          window.location.href = result.forwardTo;
+          globalThis.window.location.href = result.forwardTo;
           return;
         }
 
@@ -397,7 +397,6 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
                     <>
                       <span
                         className="spinner-border spinner-border-sm pre-footer-newsletter-spinner"
-                        role="status"
                         aria-hidden="true"
                       />
                       <span className="visually-hidden">{t('common.preFooter.newsletter.submitting')}</span>
@@ -427,21 +426,21 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
 
             {newsletterFeedbackMessage &&
               (subscriptionStatus === 'success' || subscriptionStatus === 'resent' ? (
-                <p
+                <output
                   id="pre-footer-newsletter-feedback"
-                  className="pre-footer-newsletter-feedback form-text text-success mb-3"
-                  role="status"
+                  className="pre-footer-newsletter-feedback form-text text-success d-block mb-3"
+                  aria-live="polite"
                 >
                   {newsletterFeedbackMessage}
-                </p>
+                </output>
               ) : (
-                <div
+                <output
                   id="pre-footer-newsletter-feedback"
                   className="pre-footer-newsletter-feedback invalid-feedback d-block mb-3"
-                  role="status"
+                  aria-live="polite"
                 >
                   {newsletterFeedbackMessage}
-                </div>
+                </output>
               ))}
             {(subscriptionStatus === 'success' || subscriptionStatus === 'resent') && lastNewsletterEmail ? (
               <button
@@ -454,7 +453,6 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
                   <>
                     <span
                       className="spinner-border spinner-border-sm me-2 align-text-bottom pre-footer-newsletter-resend-spinner"
-                      role="status"
                       aria-hidden="true"
                     />
                     {t('common.preFooter.newsletter.resending')}

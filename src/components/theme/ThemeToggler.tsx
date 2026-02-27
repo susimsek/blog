@@ -79,8 +79,10 @@ const ThemeToggler = () => {
 
   return (
     <NavDropdown
+      onMouseEnter={triggerThemeIconBoop}
+      onFocus={triggerThemeIconBoop}
       title={
-        <span className="nav-icon-boop" onMouseEnter={triggerThemeIconBoop}>
+        <span className="nav-icon-boop">
           <FontAwesomeIcon icon="palette" className="icon-boop-target" style={themeIconStyle} />
           <span className="visually-hidden">{t('common.theme')}</span>
         </span>

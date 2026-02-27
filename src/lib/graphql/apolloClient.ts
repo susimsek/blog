@@ -22,7 +22,7 @@ const getGraphQLEndpoint = () => {
   const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
   const localApiOrigin = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_DEV_API_ORIGIN) || DEFAULT_LOCAL_API_ORIGIN;
 
-  if (typeof globalThis.window !== 'undefined') {
+  if (globalThis.window !== undefined) {
     const browserOrigin = normalizeApiBaseUrl(globalThis.window.location.origin);
     const shouldUseLocalApiOrigin =
       isLocalHttpOrigin(browserOrigin) && (apiBaseUrl.length === 0 || apiBaseUrl === browserOrigin);
@@ -63,7 +63,7 @@ const toGraphQLAppError = (error: unknown): AppError => {
   }
 
   if (ServerError.is(error)) {
-    const statusCode = typeof error.statusCode === 'number' ? error.statusCode : undefined;
+    const statusCode = error.statusCode ?? undefined;
     return new AppError(error.message || 'Server request failed', mapHttpStatusToCode(statusCode), statusCode, error);
   }
 

@@ -117,7 +117,7 @@ export default function NewsletterCallbackPage({
   }, [locale, operation, token]);
 
   useEffect(() => {
-    if (statusKey === 'loading' || !token || typeof globalThis.window === 'undefined') {
+    if (statusKey === 'loading' || !token || globalThis.window === undefined) {
       return;
     }
 
@@ -162,7 +162,7 @@ export default function NewsletterCallbackPage({
             <p className="newsletter-callback-eyebrow">{t('common.newsletterCallback.eyebrow')}</p>
             <h1 className="newsletter-callback-title fw-bold">{t(`common.newsletterCallback.${operation}.title`)}</h1>
           </header>
-          <div className={`newsletter-callback-result is-${statusTone}`} role="status" aria-live="polite">
+          <section className={`newsletter-callback-result is-${statusTone}`} aria-live="polite">
             <h2 className="newsletter-callback-result-title">
               {statusKey === 'loading'
                 ? t('common.newsletterCallback.loading.title')
@@ -173,7 +173,7 @@ export default function NewsletterCallbackPage({
                 ? t('common.newsletterCallback.loading.message')
                 : t(`common.newsletterCallback.${operation}.status.${statusKey}.message`)}
             </p>
-          </div>
+          </section>
           <div className="newsletter-callback-actions">
             <Link href={`/${locale}`} skipLocaleHandling className="btn btn-primary">
               <FontAwesomeIcon icon="home" className="me-2" />

@@ -55,19 +55,20 @@ export default function Header({
   });
 
   const shortcutHint = React.useMemo(() => {
-    if (typeof navigator === 'undefined') {
+    const currentNavigator = globalThis.navigator;
+    if (!currentNavigator) {
       return { modifier: 'Ctrl', key: 'K' };
     }
 
-    const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
-    const platform = (nav.userAgentData?.platform ?? nav.platform ?? '').toLowerCase();
+    const nav = currentNavigator as Navigator & { userAgentData?: { platform?: string } };
+    const platform = (nav.userAgentData?.platform ?? currentNavigator.userAgent).toLowerCase();
     const isMac = /(mac|iphone|ipad|ipod)/.test(platform);
 
     return { modifier: isMac ? '⌘' : 'Ctrl', key: 'K' };
   }, []);
 
   const focusSearchInput = React.useCallback(() => {
-    window.dispatchEvent(new Event('app:search-focus'));
+    globalThis.dispatchEvent(new Event('app:search-focus'));
   }, []);
 
   const searchVisibleRef = React.useRef(false);
@@ -86,7 +87,7 @@ export default function Header({
   const closeSearch = React.useCallback((options?: { clearQuery?: boolean }) => {
     const clearQuery = options?.clearQuery ?? false;
     setSearchVisible(false);
-    window.dispatchEvent(new CustomEvent('app:search-close', { detail: { clearQuery } }));
+    globalThis.dispatchEvent(new CustomEvent('app:search-close', { detail: { clearQuery } }));
   }, []);
 
   const handleSearchToggle = React.useCallback(() => {
@@ -97,7 +98,7 @@ export default function Header({
           requestAnimationFrame(focusSearchInput);
         });
       } else {
-        window.dispatchEvent(new CustomEvent('app:search-close', { detail: { clearQuery: false } }));
+        globalThis.dispatchEvent(new CustomEvent('app:search-close', { detail: { clearQuery: false } }));
       }
       return next;
     });
@@ -159,14 +160,22 @@ export default function Header({
 
     const listenerOptions: AddEventListenerOptions = { capture: true };
 
-    window.addEventListener('keydown', handleShortcut, listenerOptions);
+    globalThis.addEventListener('keydown', handleShortcut, listenerOptions);
     return () => {
-      window.removeEventListener('keydown', handleShortcut, listenerOptions);
+      globalThis.removeEventListener('keydown', handleShortcut, listenerOptions);
     };
   }, [closeSearch, focusSearchInput, openSearch, searchEnabled]);
 
   const renderSearchOverlay = () => (
-    <div className="search-overlay" role="dialog" aria-modal="true" aria-label={t('common.searchBar.placeholder')}>
+    <dialog
+      open
+      className="search-overlay"
+      aria-label={t('common.searchBar.placeholder')}
+      onCancel={event => {
+        event.preventDefault();
+        handleSearchToggle();
+      }}
+    >
       <button
         type="button"
         className="search-overlay-backdrop"
@@ -189,7 +198,7 @@ export default function Header({
           <SearchContainer shortcutHint={shortcutHint} />
         </div>
       </div>
-    </div>
+    </dialog>
   );
 
   return (

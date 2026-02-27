@@ -25,7 +25,7 @@ describe('SchulteTableTrainer', () => {
   const completeBoard = (gridSize: 3 | 5, finishMs: number) => {
     fireEvent.click(screen.getByRole('radio', { name: `${gridSize}×${gridSize}` }));
 
-    const grid = screen.getByRole('grid');
+    const grid = screen.getByRole('table');
     nowMs += 1000;
 
     for (let value = 1; value <= gridSize * gridSize; value += 1) {
