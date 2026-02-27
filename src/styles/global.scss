@@ -4760,6 +4760,7 @@ $state-variants: (
 }
 
 .schulte-grid-shell {
+  width: 100%;
   display: flex;
   justify-content: center;
 }
@@ -5009,6 +5010,14 @@ $state-variants: (
     border-radius: 7px;
   }
 
+  .schulte-grid {
+    gap: clamp(0.14rem, calc(0.5rem - (var(--schulte-grid-size) * 0.024rem)), 0.3rem);
+  }
+
+  .schulte-cell {
+    font-size: clamp(0.56rem, calc(1.02rem - (var(--schulte-grid-size) * 0.045rem)), 0.95rem);
+  }
+
   .schulte-trainer-body {
     padding: 0.85rem;
   }
@@ -5028,6 +5037,21 @@ $state-variants: (
 
   .schulte-action-list {
     grid-template-columns: 1fr;
+  }
+
+  .schulte-size-list {
+    grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+  }
+
+  .schulte-size-option {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.82rem;
+  }
+
+  .schulte-action-list .btn {
+    padding: 0.48rem 0.6rem;
+    font-size: clamp(0.72rem, 2.8vw, 0.82rem);
+    white-space: nowrap;
   }
 }
 
