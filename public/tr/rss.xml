@@ -8,9 +8,9 @@
     <docs>https://www.rssboard.org/rss-specification</docs>
     <generator><![CDATA[Şuayb's Blog RSS Generator]]></generator>
     <ttl>60</ttl>
-    <pubDate>Wed, 04 Feb 2026 00:00:00 GMT</pubDate>
-    <lastBuildDate>Tue, 17 Feb 2026 00:00:00 GMT</lastBuildDate>
-    <atom:updated>2026-02-17T00:00:00.000Z</atom:updated>
+    <pubDate>Fri, 27 Feb 2026 00:00:00 GMT</pubDate>
+    <lastBuildDate>Fri, 27 Feb 2026 00:00:00 GMT</lastBuildDate>
+    <atom:updated>2026-02-27T00:00:00.000Z</atom:updated>
     <language>tr-TR</language>
     <copyright><![CDATA[© 2026 Şuayb Şimşek. Tüm hakları saklıdır.]]></copyright>
     <image>
@@ -20,6 +20,337 @@
     </image>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
     <atom:link rel="alternate" hreflang="en" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
+    <item>
+      <title><![CDATA[Captain Tsubasa 2: World Fighters]]></title>
+      <link>https://suaybsimsek.com/tr/posts/captain-tsubasa-2-world-fighters</link>
+      <description><![CDATA[Captain Tsubasa 2: World Fighters için Bandai Namco resmi sayfası ve topluluk takibine dayalı detaylı bir inceleme: platformlar, oynanış ölçeği, bilinen bilgiler ve çıkış öncesi açık noktalar.]]></description>
+      <pubDate>Fri, 27 Feb 2026 00:00:00 GMT</pubDate>
+      <atom:updated>2026-02-26T00:00:00.000Z</atom:updated>
+      <guid isPermaLink="true">https://suaybsimsek.com/tr/posts/captain-tsubasa-2-world-fighters</guid>
+      <content:encoded><![CDATA[<p>Captain Tsubasa serisine yeni ve büyük ölçekli bir oyun geliyor; ilk resmi tanıtım da beklentinin üzerinde bir kapsam hedeflendiğini gösteriyor. <code>Captain Tsubasa 2: World Fighters</code>, güçlü anime kimliği ve geniş oynanabilir kadrosuyla yüksek tempolu bir arcade futbol deneyimi olarak sunuluyor.</p>
+<p>Bu yazıda, Bandai Namco’nun resmi sayfasındaki doğrulanmış bilgileri erken dönem varsayımlardan ayırıyor; topluluk takibini ise ikincil bir referans olarak kullanarak çıkış öncesi netleşmesi gereken noktaları özetliyorum.</p>
+<hr>
+<h2>🌟 Bu Duyuru Neden Önemli?</h2>
+<p>Bu duyuruyu önemli kılan şey yalnızca bir devam oyunu olması değil; resmi tanıtımın daha geniş platform dağılımı, daha büyük karakter havuzu ve daha sinematik bir maç sunumu hedeflediğini göstermesi.</p>
+<ul>
+<li>Resmi sayfada <code>2026</code> çıkış penceresi yer alıyor</li>
+<li>Konsol + PC (<code>Steam</code>) platform dağılımı var</li>
+<li>Tanıtım dili ölçeği vurguluyor: takım sayısı, karakter sayısı, sinematik sahneler</li>
+<li>Oynanış açıklamaları sadece kadro güncellemesi değil, sistemsel geliştirme de işaret ediyor</li>
+</ul>
+<hr>
+<h2>📋 Gereksinimler</h2>
+<p>Bu inceleme, <code>Captain Tsubasa</code> evrenine aşina olup şu an hangi bilgilerin gerçekten doğrulandığını hızlı ve net biçimde görmek isteyen okurlar için hazırlandı.</p>
+<ul>
+<li>Anime futbol / arcade spor oyunu yapısına temel aşinalık</li>
+<li>Çıkış platformu planlaması ilgisi (<code>PS5</code>, <code>Xbox Series X|S</code>, <code>Switch</code>, <code>PC</code>)</li>
+<li>Erken duyuru sayfalarının zaman içinde güncellenebileceği beklentisi</li>
+</ul>
+<hr>
+<h2>🛠️ Resmi Bilgiler</h2>
+<p>Temel bilgiler için başlangıç noktası Bandai Namco’nun resmi oyun sayfası olmalı. Çıkış penceresi, platformlar ve yayımlayıcı tarafındaki metadata için bu aşamada en güvenilir kaynak burası.</p>
+<p>Kaynaklar:</p>
+<ul>
+<li><a href="https://www.bandainamcoent.com/games/captain-tsubasa-2-world-fighters">Bandai Namco - CAPTAIN TSUBASA 2: WORLD FIGHTERS</a></li>
+<li><a href="https://captaintsubasa.fandom.com/wiki/Captain_Tsubasa_2:_World_Fighters">Captain Tsubasa Fandom Wiki sayfası</a></li>
+<li><a href="https://youtu.be/oXf50MRXfM8">Duyuru Fragmanı (YouTube)</a></li>
+</ul>
+<p>Resmi sayfada görünen doğrulanmış bilgiler:</p>
+<ul>
+<li>Oyun adı: <code>CAPTAIN TSUBASA 2: WORLD FIGHTERS</code></li>
+<li>Çıkış penceresi: <code>2026</code></li>
+<li>Geliştirici: <code>Tamsoft Corporation</code></li>
+<li>Tür etiketi: <code>Sport (Arcade)</code></li>
+<li>Özellik etiketi: <code>Single-player</code></li>
+<li>Platformlar: <code>PlayStation 5</code>, <code>Xbox Series X|S</code>, <code>Steam</code>, <code>Nintendo Switch</code></li>
+</ul>
+<p>Aynı sayfa ayrıca wishlist/mağaza yönlendirmeleri, medya içerikleri ve <code>5 Şubat 2026</code> tarihli duyuru haber kartını da içeriyor.</p>
+<hr>
+<h2>🛠️ Oynanış Vaatleri</h2>
+<p>Detaylı oynanış analizi henüz yayınlanmamış olsa da resmi sayfadaki metinler oyunun nasıl bir deneyim hedeflediğini anlamak için yeterli ipucu veriyor.</p>
+<p>Resmi genel bakış bölümünde öne çıkanlar:</p>
+<ul>
+<li><code>22 milli takım</code></li>
+<li><code>110+ oynanabilir karakter</code></li>
+<li>Süper insan hareketlerle akışı sürekli değişen “super action soccer” yapısı</li>
+</ul>
+<p>Özellik bölümünde ek olarak:</p>
+<ul>
+<li>Saha içi hareketleri öne çıkaran <code>150+</code> kesit/sahne</li>
+<li>Pas, dripling, müdahale ve blok aksiyonlarında yeni süper hareketler</li>
+<li>Süper şutlar ve bloklar için kaleci-vuruşçu karşılaşmasını öne çıkaran yeni sistem</li>
+</ul>
+<p>Bu tablo, oyunun anime gösterişini korurken özellikle şut-kurtarış anlarını daha yapılandırılmış ve taktik hissi veren bir düzene taşımayı hedeflediğini düşündürüyor.</p>
+<hr>
+<h2>🛠️ Topluluk Kaynakları</h2>
+<p>Fandom sayfası hızlı güncellenen iyi bir takip noktası, ancak resmi açıklamalar gelmeden satın alma veya çıkış planı için tek başına yeterli kaynak olarak görülmemeli.</p>
+<p><code>26 Şubat 2026</code> itibarıyla Fandom sayfası güncellemeleri takip etmek için faydalı olsa da bazı alanlar hâlâ gelişim aşamasında görünüyor:</p>
+<ul>
+<li>Hikâye bölümlerinin bazı kısımları hâlâ tamamlanma aşamasında</li>
+<li>Takım listeleri mevcut olsa da kapsam zamanla genişleyebilir</li>
+<li>Galeri/medya ve metadata alanları yeni fragmanlarla hızlı güncellenebilir</li>
+</ul>
+<p>Yeni duyurulan oyunlar için bu durum normaldir. Doğru yaklaşım, topluluk sayfasını değişimleri takip etmek için kullanırken kritik bilgileri resmi kaynaklarla yeniden doğrulamaktır.</p>
+<hr>
+<h2>🧪 Kritik Belirsizlikler</h2>
+<p>Duyuru sayfaları önce pazarlama çerçevesini netleştirir; satın alma kararını etkileyen detaylar ise çoğu zaman daha sonra gelir. Bu nedenle aşağıdaki başlıkları takip etmek önemli:</p>
+<ul>
+<li>Net çıkış tarihi (resmi sayfada şu an sadece <code>2026</code> var)</li>
+<li>Tam mod listesi (<code>single-player</code> etiketi var, çevrimiçi/yerel modlar açıkça doğrulanmalı)</li>
+<li>Platform bazlı fiyat ve sürüm detayları</li>
+<li><code>Switch</code> ile <code>PS5/Xbox Series X|S/PC</code> arasında performans hedefleri</li>
+<li>Mikro ödeme/mağaza yapısı (resmi sayfada ESRB tarafında <code>In-Game Purchases</code> ibaresi görünüyor)</li>
+<li>Bölgesel çıkış ve dil desteği detayları</li>
+</ul>
+<p>Resmi sayfa ayrıca ABD derecelendirme bağlamı için <code>Mild Violence</code> ve <code>Mild Language</code> gibi ESRB tanımlarını da gösteriyor.</p>
+<hr>
+<h2>▶️ Güncellemeleri Takip Et</h2>
+<p>Her güncellemenin peşinden koşmadan sağlıklı takip yapmak için şu sıra en verimli akışı sağlar:</p>
+<ol>
+<li>Resmi Bandai Namco oyun sayfası (çıkış tarihi/platform metadata değişimleri)</li>
+<li>Resmi fragmanlar ve medya galerisi</li>
+<li>Fandom/topluluk sayfası (kadro, takım, hikâye derleme takibi)</li>
+<li>Mağaza sayfaları (<code>Steam</code> ve konsol mağazaları) fiyat/sürüm/sistem bilgileri</li>
+</ol>
+<p>Çıkışta satın almayı düşünüyorsan oyunu tercih ettiğin platformda wishlist’e ekle ve her yeni fragman/duyuru sonrasında resmi sayfayı yeniden kontrol et.</p>
+<hr>
+<h2>🎬 Medya</h2>
+<p>Bu medya bölümünü iki parçaya ayırdım: önce resmi fragmanı hızlıca izleyebilir, ardından galeri görselleriyle oyunun görsel tonuna bakabilirsiniz.</p>
+<h3>Fragman</h3>
+
+  <a href="https://youtu.be/oXf50MRXfM8" target="_blank" rel="noopener noreferrer">
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/announcement-trailer.webp" alt="Captain Tsubasa 2 World Fighters duyuru fragmanı görseli" width="1200" height="675">
+  </a>
+  
+    Duyuru Fragmanı
+    <br>
+    <a class="" href="https://youtu.be/oXf50MRXfM8" target="_blank" rel="noopener noreferrer">YouTube'da izle</a>
+  
+
+<h3>Galeri</h3>
+<p>Bu galeride oyunun görsel tarzını, karakter sunumunu ve maç içi efektlerini çıkış öncesinde hızlıca inceleyebilir; tanıtımın genel tonunu daha net hissedebilirsiniz.</p>
+<p>Kaynak galeri: <a href="https://captaintsubasa.fandom.com/wiki/Captain_Tsubasa_2:_World_Fighters">Captain Tsubasa Fandom Wiki sayfası</a></p>
+<div class="post-media-grid">
+  
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-cover.webp" alt="Captain Tsubasa 2 World Fighters kapak görseli" width="1200" height="630">
+    Kapak görseli
+  
+  
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-flying-drive-shot.webp" alt="Tsubasa Flying Drive Shot ekran görüntüsü" width="1200" height="630">
+    Flying Drive Shot sahnesi
+  
+  
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-wakabayashi.webp" alt="Wakabayashi Genzo karakter görseli" width="1200" height="630">
+    Wakabayashi Genzo karakter görseli
+  
+  
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-jito-hiroshi.webp" alt="Jito Hiroshi karakter görseli" width="1200" height="630">
+    Jito Hiroshi karakter görseli
+  
+  
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-hayabusa-volley.webp" alt="Hayabusa Volley ekran görüntüsü" width="1200" height="630">
+    Hayabusa Volley sahnesi
+  
+  
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-neo-tiger-shot.webp" alt="Neo Tiger Shot ekran görüntüsü" width="1200" height="630">
+    Neo Tiger Shot sahnesi
+  
+  
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-tsubasa-ozora.webp" alt="Tsubasa Ozora karakter görseli" width="1200" height="630">
+    Tsubasa Ozora karakter görseli
+  
+  
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-misugi-jun.webp" alt="Misugi Jun karakter görseli" width="1200" height="630">
+    Misugi Jun karakter görseli
+  
+  
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-heel-lift-vs-santana.webp" alt="Heel Lift ve Santana sahnesi ekran görüntüsü" width="1200" height="630">
+    Heel Lift karşılaşma sahnesi
+  
+  
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-drive-shot.webp" alt="Drive Shot ekran görüntüsü" width="1200" height="630">
+    Drive Shot sahnesi
+  
+</div>
+<hr>
+<h2>🏁 Sonuç</h2>
+<p>Mevcut tanıtım materyallerine göre <code>Captain Tsubasa 2: World Fighters</code>, geniş platform desteği, büyük karakter havuzu ve daha sinematik arcade futbol odağıyla serinin ölçeğini belirgin biçimde büyütmeyi hedefliyor. En doğru sonraki adım, resmi Bandai Namco sayfasını takip ederek net çıkış tarihi ve tam mod listesini doğrulayıp platform kararını buna göre vermek olacaktır.</p>]]></content:encoded>
+      <category><![CDATA[Captain Tsubasa]]></category>
+      <category><![CDATA[Anime Oyunu]]></category>
+      <category><![CDATA[Spor Oyunu]]></category>
+      <media:thumbnail url="https://suaybsimsek.com/images/captain-tsubasa-2-world-fighters-thumbnail.webp" />
+    </item>
+    <item>
+      <title><![CDATA[Captain Tsubasa: Rise of New Champions]]></title>
+      <link>https://suaybsimsek.com/tr/posts/captain-tsubasa-rise-of-new-champions</link>
+      <description><![CDATA[World Fighters gelmeden önce Rise of New Champions, Captain Tsubasa’nın modern konsol kimliğini en net gösteren oyun olarak öne çıkıyor: hızlı, gösterişli ve bütünüyle anime futbolu ruhuna yaslanan bir yapım.]]></description>
+      <pubDate>Thu, 26 Feb 2026 00:00:00 GMT</pubDate>
+      <atom:updated>2026-02-27T00:00:00.000Z</atom:updated>
+      <guid isPermaLink="true">https://suaybsimsek.com/tr/posts/captain-tsubasa-rise-of-new-champions</guid>
+      <content:encoded><![CDATA[<p><code>Captain Tsubasa 2: World Fighters</code> çıkmadan önce, <code>Captain Tsubasa: Rise of New Champions</code> hâlâ modern Captain Tsubasa konsol oyununun temel referans noktası olarak duruyor. Bandai Namco ve Tamsoft’un seriyi hızlı, gösterişli ve anime ağırlıklı bir arcade futbol yapısına nasıl taşıdığını en net gösteren yapım bu oyun oldu.</p>
+<p>Bu yazıda oyuna bugünden bakıyorum: çıkış döneminde resmi olarak neler doğrulandı, sürüm ve DLC yapısı ne anlatıyor, bugün seriye geri dönen biri için oyun neden hâlâ önemli.</p>
+<hr>
+<h2>🌟 Bu Oyun Hâlâ Neden Önemli?</h2>
+<p><code>Rise of New Champions</code>, yaklaşık on yıllık aranın ardından gelen yeni Captain Tsubasa konsol oyunu olarak konumlandırıldı ve bu bağlam bugün de önemini koruyor. Çünkü serinin daha sonra nereye gideceğine dair temel şablonu bu oyun kurdu: animeye sadık sunum, abartılı süper hareketler ve simülasyondan çok arcade tempoya yaslanan maç akışı.</p>
+<ul>
+<li>Bandai Namco Europe sayfasında resmi çıkış tarihi <code>28 Ağustos 2020</code> olarak yer alıyor</li>
+<li>Resmi sayfa geliştiriciyi <code>TAMSOFT</code>, türü ise <code>Arcade</code> olarak listeliyor</li>
+<li>Platform listesi <code>PlayStation 4</code>, <code>Nintendo Switch</code> ve <code>Steam</code></li>
+<li>Güncel resmi sayfa hâlâ geniş sürüm ve DLC yapısını gösterdiği için, sonraki Captain Tsubasa oyunlarıyla kıyas yaparken güçlü bir referans olmaya devam ediyor</li>
+</ul>
+<hr>
+<h2>📋 Gereksinimler</h2>
+<p>Bu inceleme, oyunu sadece nostaljiyle değil; bugün gerçekten nasıl değerlendirmek gerektiği açısından görmek isteyen okurlar için hazırlandı.</p>
+<ul>
+<li><code>Captain Tsubasa</code> anime/manga evrenine temel aşinalık</li>
+<li>Gerçekçi futbol simülasyonu yerine anime tarzı arcade futbol beklentisi</li>
+<li>Sürüm/mağaza detaylarını dikkatle kontrol etme isteği; çünkü oyunun içerik yapısı temel oyun paketinin ötesine uzanıyor</li>
+</ul>
+<hr>
+<h2>🛠️ Resmi Bilgiler</h2>
+<p>Çıkış tarihi, platform desteği ve ürün çerçevesi için ilk durak Bandai Namco Europe sayfası olmalı. Temel metadata açısından en güvenilir birincil kaynak hâlâ burası.</p>
+<p>Kaynaklar:</p>
+<ul>
+<li><a href="https://en.bandainamcoent.eu/captain-tsubasa/captain-tsubasa-rise-of-new-champions">Bandai Namco Europe - CAPTAIN TSUBASA: RISE OF NEW CHAMPIONS</a></li>
+<li><a href="https://captaintsubasa.fandom.com/wiki/Captain_Tsubasa:_Rise_of_New_Champions">Captain Tsubasa Fandom Wiki sayfası</a></li>
+<li><a href="https://captaintsubasa.fandom.com/wiki/Captain_Tsubasa:_Rise_of_New_Champions/Gallery#Art">Fandom Art galerisi</a></li>
+<li><a href="https://captaintsubasa.fandom.com/wiki/Captain_Tsubasa:_Rise_of_New_Champions/Gallery#Japan">Fandom Japan galeri referansı</a></li>
+<li><a href="https://youtu.be/WHBQO6tH4Dk">Bandai sayfasındaki resmi fragman (YouTube)</a></li>
+</ul>
+<p>Resmi sayfada doğrulanan bilgiler:</p>
+<ul>
+<li>Oyun adı: <code>CAPTAIN TSUBASA: RISE OF NEW CHAMPIONS</code></li>
+<li>Çıkış tarihi: <code>28/08/2020</code></li>
+<li>Geliştirici: <code>TAMSOFT</code></li>
+<li>Tür: <code>Arcade</code></li>
+<li>Platformlar: <code>PlayStation 4</code>, <code>Nintendo Switch</code>, <code>Steam</code></li>
+</ul>
+<p>Resmi açıklama ayrıca oyunu yaklaşık on yıllık aradan sonra gelen yeni Captain Tsubasa konsol yapımı olarak konumlandırıyor ve anime gösterişini güncel görsel sunumla birleştirmeyi vurguluyor.</p>
+<hr>
+<h2>🛠️ Oynanış Yaklaşımı</h2>
+<p>Resmi özellik bölümü oyunun yönünü çok açık biçimde tarif ediyor: bu bir futbol simülasyonu değil, anime temposuna yaslanan bir aksiyon futbol oyunu.</p>
+<p>Resmi sayfada öne çıkan başlıklar:</p>
+<ul>
+<li>Toon shading ile daha gerçekçi efektleri birleştiren görsel stil</li>
+<li>Karakterlere özgü stilleri öne çıkaran detaylı sunum</li>
+<li>Yüksek tempolu <code>arcade football action</code></li>
+<li>Özel hareketleri ve öne çıkan anları erişilebilir kılan basit kontrol yapısı</li>
+</ul>
+<p>Bu çerçeve, oyunun gücünü ve sınırını aynı anda anlatıyor. Daha taktik ve simülasyon ağırlıklı bir futbol deneyimi arıyorsan bu doğru başlangıç noktası değil. Ama animeye yakın, hızlı, sert ve gösterişli maç akışı istiyorsan oyun tam olarak bunu hedefliyor.</p>
+<hr>
+<h2>🛠️ Sürüm ve DLC Yapısı</h2>
+<p>Resmi sayfanın bugün hâlâ en faydalı taraflarından biri, oyunun çıkış sonrası içerik yapısını görünür biçimde koruması.</p>
+<p>Sayfada görünen sürüm ve içerik başlıkları arasında şunlar var:</p>
+<ul>
+<li><code>Champions Edition</code></li>
+<li><code>Collector's Edition</code></li>
+<li><code>Deluxe Edition</code></li>
+<li><code>Legends Edition</code></li>
+<li><code>New Hero Edition</code></li>
+<li><code>Character Pass: 9 DLC players</code></li>
+<li><code>Season Pass Bonus: New Champions Uniform Set</code></li>
+<li><code>Deluxe Edition Bonus: V Jump Collaboration Uniform Set</code></li>
+</ul>
+<p>Oyuncu açısından bu detaylar pazarlama süsü değil; bugün oyunu satın alırken veya yeniden değerlendirirken hangi paketin ne sunduğunu doğrudan etkiliyor.</p>
+<p>Resmi sayfa ayrıca <code>EPISODE: RISING STARS</code> gibi daha sonraki DLC/haber başlıklarını da göstermeye devam ediyor. Bu da oyunun destek sürecinin yalnızca ilk çıkış dönemiyle sınırlı kalmadığını gösteriyor.</p>
+<hr>
+<h2>🛠️ Topluluk Kaynakları</h2>
+<p>Fandom sayfası özellikle kadro referansları, hikâye yapısı özetleri ve arşivlenmiş tanıtım görselleri için hâlâ değerli. <code>Art</code> ve <code>Japan</code> galeri bölümleri de resmi medya blokları zaman içinde değişse bile görsel referans toplamaya yardımcı oluyor.</p>
+<p>Şu amaçlarla kullanışlı:</p>
+<ul>
+<li>Kadro ve takım referanslarını toplu görmek</li>
+<li>Hikâye/karakter yapısını hızlı taramak</li>
+<li>Arşivlenmiş galeri görselleri ve bölgesel kapak referanslarına bakmak</li>
+</ul>
+<p>Şu konularda önce resmi kaynaklara dönmek gerekir:</p>
+<ul>
+<li>Çıkış tarihi ve platform doğrulaması</li>
+<li>Sürüm/mağaza metadata’sı</li>
+<li>Güncel DLC ve mağaza yönlendirmeleri</li>
+</ul>
+<p>Doğru yaklaşım basit: satın alma ve resmi ürün bilgisi için Bandai Namco; bağlam ve arşiv takibi için topluluk kaynakları.</p>
+<hr>
+<h2>▶️ Bugün Neyi Kontrol Etmeli?</h2>
+<p>Bu oyun 2020 çıkışlı ve katmanlı bir sürüm yapısına sahip olduğu için, bugün sorulması gereken sorular çıkış günündekilerden farklı.</p>
+<p>Önce şu başlıkları netleştir:</p>
+<ol>
+<li>Bugün senin platformunda gerçekten hangi sürüm mevcut</li>
+<li><code>Character Pass</code> ve sonraki DLC içerikleri pakete dahil mi, ayrı mı</li>
+<li>Oyunu asıl olarak arcade maç deneyimi, seri atmosferi ya da koleksiyon değeri için mi istediğin</li>
+<li>Uzun vadede oynamak istediğin platformun gerçekten <code>PS4</code>, <code>Switch</code> ya da <code>Steam</code> tarafında hangisi olduğu</li>
+</ol>
+<p>Amacın <code>World Fighters</code> öncesi modern Captain Tsubasa oyun formülünü anlamaksa bu oyun hâlâ güçlü bir referans. Ama en dolu paketi almak istiyorsan mağaza listelerini birbirinin aynısı varsaymak doğru yaklaşım olmaz.</p>
+<hr>
+<h2>🎬 Medya</h2>
+<p>Bu medya bölümünde önce resmi fragman var, ardından da statik export içinde stabil çalışan resmi görsellerden oluşturulmuş kısa bir galeri geliyor. Ek arşiv görselleri ve Japan cover referansı için yukarıdaki Fandom galeri bağlantıları iyi yardımcı kaynaklar olmaya devam ediyor.</p>
+<h3>Fragman</h3>
+
+  <a href="https://youtu.be/WHBQO6tH4Dk" target="_blank" rel="noopener noreferrer">
+    <img src="/images/posts/captain-tsubasa-rise-of-new-champions/announcement-trailer.webp" alt="Captain Tsubasa Rise of New Champions fragman görseli" width="1200" height="675">
+  </a>
+  
+    Resmi Fragman
+    <br>
+    <a class="" href="https://youtu.be/WHBQO6tH4Dk" target="_blank" rel="noopener noreferrer">YouTube'da izle</a>
+  
+
+<h3>Galeri</h3>
+<p>Bu galeri oyunun görsel kimliğini hızlıca okumaya yardımcı oluyor: animeye sadık tanıtım görselleri, maç sunumunu gösteren kareler ve çıkış döneminin sürüm paketleri.</p>
+<p>Ek referans bağlantıları:</p>
+<ul>
+<li><a href="https://captaintsubasa.fandom.com/wiki/Captain_Tsubasa:_Rise_of_New_Champions/Gallery#Art">Fandom Art galerisi</a></li>
+<li><a href="https://captaintsubasa.fandom.com/wiki/Captain_Tsubasa:_Rise_of_New_Champions/Gallery#Japan">Fandom Japan cover referansı</a></li>
+</ul>
+<div class="post-media-grid">
+  
+    <img src="/images/posts/captain-tsubasa-rise-of-new-champions/gallery-drive-shot.webp" alt="Captain Tsubasa Rise of New Champions Tsubasa&#x27;nın Drive Shot görseli" width="1200" height="630">
+    Tsubasa'nın Drive Shot'ı
+  
+  
+    <img src="/images/posts/captain-tsubasa-rise-of-new-champions/gallery-key-art.webp" alt="Captain Tsubasa Rise of New Champions Tsubasa&#x27;nın Neo Drive Shot görseli" width="1200" height="630">
+    Tsubasa'nın Neo Drive Shot'ı
+  
+  
+    <img src="/images/posts/captain-tsubasa-rise-of-new-champions/gallery-breakthrough.webp" alt="Captain Tsubasa Rise of New Champions Hyuga&#x27;nın Straight Line Dribble görseli" width="1200" height="630">
+    Hyuga'nın Straight Line Dribble'ı
+  
+  
+    <img src="/images/posts/captain-tsubasa-rise-of-new-champions/gallery-key-feature-1.webp" alt="Captain Tsubasa Rise of New Champions Hyuga&#x27;nın Neo Tiger Shot görseli" width="1200" height="630">
+    Hyuga'nın Neo Tiger Shot'ı
+  
+  
+    <img src="/images/posts/captain-tsubasa-rise-of-new-champions/gallery-key-feature-2.webp" alt="Captain Tsubasa Rise of New Champions Hyuga ve Tsubasa&#x27;nın Neo Drive Tiger Twin Shot görseli" width="1200" height="630">
+    Hyuga ve Tsubasa'nın Neo Drive Tiger Twin Shot'ı
+  
+  
+    <img src="/images/posts/captain-tsubasa-rise-of-new-champions/gallery-champions-edition.webp" alt="Captain Tsubasa Rise of New Champions Schneider&#x27;in Fire Shot görseli" width="1200" height="630">
+    Schneider'in Fire Shot'ı
+  
+  
+    <img src="/images/posts/captain-tsubasa-rise-of-new-champions/gallery-new-hero-edition.webp" alt="Captain Tsubasa Rise of New Champions Wakabayashi&#x27;nin kurtarış görseli" width="1200" height="630">
+    Wakabayashi'nin kurtarışı
+  
+  
+    <img src="/images/posts/captain-tsubasa-rise-of-new-champions/gallery-packshot.webp" alt="Captain Tsubasa Rise of New Champions Misugi&#x27;nin Slice Shot görseli" width="1200" height="630">
+    Misugi'nin Slice Shot'ı
+  
+  
+    <img src="/images/posts/captain-tsubasa-rise-of-new-champions/gallery-sky-rocket-volley.webp" alt="Captain Tsubasa Rise of New Champions Misugi&#x27;nin Crystal Overhead görseli" width="1200" height="630">
+    Misugi'nin Crystal Overhead'i
+  
+  
+    <img src="/images/posts/captain-tsubasa-rise-of-new-champions/gallery-carlos-turn.webp" alt="Captain Tsubasa Rise of New Champions Carlos Turn görseli" width="1200" height="630">
+    Carlos Turn
+  
+</div>
+<hr>
+<h2>🏁 Sonuç</h2>
+<p><code>Captain Tsubasa: Rise of New Champions</code>, <code>World Fighters</code> öncesi serinin modern konsol yönünü anlamak için hâlâ en net referans: hızlı arcade tempo, animeye sadık gösteriş ve sürüm/DLC ağırlıklı bir ürün yapısı. Bugün seriye geri dönüyorsan en akıllı yaklaşım önce sürüm içeriklerini doğrulamak, sonra bu oyunu oynanacak giriş noktası mı, koleksiyon ürünü mü, yoksa bir karşılaştırma zemini mi olarak istediğine karar vermek.</p>]]></content:encoded>
+      <category><![CDATA[Captain Tsubasa]]></category>
+      <category><![CDATA[Anime Oyunu]]></category>
+      <category><![CDATA[Spor Oyunu]]></category>
+      <media:thumbnail url="https://suaybsimsek.com/images/captain-tsubasa-rise-of-new-champions-thumbnail.webp" />
+    </item>
     <item>
       <title><![CDATA[Spring Boot Configuration Properties]]></title>
       <link>https://suaybsimsek.com/tr/posts/spring-boot-configuration-properties</link>
@@ -248,7 +579,6 @@ app:
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Yapılandırma]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-configuration-properties-thumbnail.webp" />
     </item>
     <item>
@@ -3841,7 +4171,6 @@ gradle bootRun
       <category><![CDATA[JWT]]></category>
       <category><![CDATA[JWE]]></category>
       <category><![CDATA[GraphQL]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graphql-jwe-auth-thumbnail.webp" />
     </item>
     <item>
@@ -6247,7 +6576,6 @@ gradle bootRun
       <category><![CDATA[JWT]]></category>
       <category><![CDATA[JWE]]></category>
       <category><![CDATA[JPA]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-jwe-auth-with-jpa-thumbnail.webp" />
     </item>
     <item>
@@ -7783,7 +8111,6 @@ gradle bootRun
       <category><![CDATA[JWT]]></category>
       <category><![CDATA[JWE]]></category>
       <category><![CDATA[LDAP]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-ldap-jwe-auth-thumbnail.webp" />
     </item>
     <item>
@@ -9258,7 +9585,6 @@ gradle bootRun
       <category><![CDATA[Güvenlik]]></category>
       <category><![CDATA[JWT]]></category>
       <category><![CDATA[JWE]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-jwe-auth-thumbnail.webp" />
     </item>
     <item>
@@ -9531,7 +9857,6 @@ curl http://localhost:8080/posts/1
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[REST API]]></category>
       <category><![CDATA[Rest Client]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-http-interface-thumbnail.webp" />
     </item>
     <item>
@@ -9762,7 +10087,6 @@ gradle bootRun
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Asenkron Görevler]]></category>
       <category><![CDATA[Sanal Thread]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-async-virtual-thumbnail.webp" />
     </item>
     <item>
@@ -9941,7 +10265,6 @@ gradle bootRun
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Spring AI]]></category>
       <category><![CDATA[Yapay Zeka]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-ai-thumbnail.webp" />
     </item>
     <item>
@@ -10147,7 +10470,6 @@ class ArticleRepositoryTest {
       <category><![CDATA[Spring Data]]></category>
       <category><![CDATA[JPA]]></category>
       <category><![CDATA[Auditing]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-jpa-auditing-thumbnail.webp" />
     </item>
     <item>
@@ -10269,7 +10591,6 @@ class GreetingService {
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[TDD]]></category>
       <category><![CDATA[Test]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-tdd-thumbnail.webp" />
     </item>
     <item>
@@ -10437,7 +10758,6 @@ class CircuitBreakerController(private val externalService: ExternalService) {
       <category><![CDATA[Spring Cloud]]></category>
       <category><![CDATA[Circuit Breaker]]></category>
       <category><![CDATA[Mikroservis]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-circuit-breaker-thumbnail.webp" />
     </item>
     <item>
@@ -10632,7 +10952,6 @@ fun main(args: Array&#x3C;String>) {
       <category><![CDATA[Spring Cloud]]></category>
       <category><![CDATA[Eureka Server]]></category>
       <category><![CDATA[Mikroservis]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-eureka-server-thumbnail.webp" />
     </item>
     <item>
@@ -10860,7 +11179,6 @@ fun main(args: Array&#x3C;String>) {
       <category><![CDATA[Spring Cloud]]></category>
       <category><![CDATA[Config Server]]></category>
       <category><![CDATA[Mikroservis]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-config-server-thumbnail.webp" />
     </item>
     <item>
@@ -11007,7 +11325,6 @@ fun main(args: Array&#x3C;String>) {
       <category><![CDATA[Docker]]></category>
       <category><![CDATA[Konteynerizasyon]]></category>
       <category><![CDATA[Jib]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-docker-thumbnail.webp" />
     </item>
     <item>
@@ -11165,7 +11482,6 @@ kubectl apply -f service.yaml
       <category><![CDATA[Kubernetes]]></category>
       <category><![CDATA[Mikroservis]]></category>
       <category><![CDATA[Konteynerizasyon]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kubernetes-thumbnail.webp" />
     </item>
     <item>
@@ -11339,7 +11655,6 @@ class AsyncController(
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Asenkron Görevler]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-async-thumbnail.webp" />
     </item>
     <item>
@@ -11475,7 +11790,6 @@ Planlanmış görev çalıştırıldı: 12:00:11
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Planlanmış Görevler]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-scheduled-thumbnail.webp" />
     </item>
     <item>
@@ -11603,7 +11917,6 @@ Dünya
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Reaktif Programlama]]></category>
       <category><![CDATA[Spring WebFlux]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-reactive-thumbnail.webp" />
     </item>
     <item>
@@ -11741,7 +12054,6 @@ Aşağıdaki komutu çalıştırın:</p>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[GraalVM]]></category>
       <category><![CDATA[Native İmaj]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graalvm-thumbnail.webp" />
     </item>
     <item>
@@ -11961,7 +12273,6 @@ class KafkaController(private val kafkaProducer: KafkaProducer) {
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Kafka]]></category>
       <category><![CDATA[Mesajlaşma]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-kafka-thumbnail.webp" />
     </item>
     <item>
@@ -12163,7 +12474,6 @@ class UserController(
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Redis]]></category>
       <category><![CDATA[Önbellekleme]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-redis-thumbnail.webp" />
     </item>
     <item>
@@ -12330,7 +12640,6 @@ data class User(
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[OpenAPI]]></category>
       <category><![CDATA[Dokümantasyon]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-openapi-thumbnail.webp" />
     </item>
     <item>
@@ -12576,7 +12885,6 @@ class UserController(
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Temiz Kodlama]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-clean-coding-thumbnail.webp" />
     </item>
     <item>
@@ -12668,7 +12976,6 @@ spring.freemarker.cache=false
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Geliştirme Araçları]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-devtools-thumbnail.webp" />
     </item>
     <item>
@@ -12814,7 +13121,6 @@ class SecurityConfig {
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Actuator]]></category>
       <category><![CDATA[İzleme]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-actuator-thumbnail.webp" />
     </item>
     <item>
@@ -13016,7 +13322,6 @@ Kurulumun doğru çalıştığını doğrulamak için uygulamayı tercih ettiği
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[AOP]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-aop-thumbnail.webp" />
     </item>
     <item>
@@ -13175,7 +13480,6 @@ Kurulumun doğru çalıştığını doğrulamak için uygulamayı tercih ettiği
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Bağımlılık Enjeksiyonu]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-di-thumbnail.webp" />
     </item>
     <item>
@@ -13454,7 +13758,6 @@ func main() {
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[ORM]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/orm-thumbnail.webp" />
     </item>
     <item>
@@ -13741,7 +14044,6 @@ Spring Boot uygulamasını terminal veya IDE’nizden çalıştırın:</p>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[Doğrulama]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/input-validation-thumbnail.webp" />
     </item>
     <item>
@@ -13959,7 +14261,6 @@ Kurulumun doğru çalıştığını doğrulamak için uygulamayı tercih ettiği
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[GraphQL]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-graphql-thumbnail.webp" />
     </item>
     <item>
@@ -14048,7 +14349,6 @@ func main() {
       <category><![CDATA[Go]]></category>
       <category><![CDATA[Gin]]></category>
       <category><![CDATA[Başlangıç Rehberi]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/golang-gin-first-app-thumbnail.webp" />
     </item>
     <item>
@@ -14252,7 +14552,6 @@ class TodoController {
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[REST API]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-rest-api-thumbnail.webp" />
     </item>
     <item>
@@ -14375,7 +14674,6 @@ fun sayHello(): String {
       <category><![CDATA[Kotlin]]></category>
       <category><![CDATA[Spring Boot]]></category>
       <category><![CDATA[Başlangıç Rehberi]]></category>
-      <category><![CDATA[Programlama]]></category>
       <media:thumbnail url="https://suaybsimsek.com/images/spring-boot-first-app-thumbnail.webp" />
     </item>
   </channel>
