@@ -82,7 +82,9 @@ interface Resources {
           about: 'About';
           categories: 'Categories';
           contact: 'Contact';
+          games: 'Games';
           home: 'Home';
+          schulteTable: 'Schulte Table';
           search: 'Search';
         };
         theme: {
@@ -293,6 +295,75 @@ interface Resources {
         title: 'Contact Information';
       };
       title: 'Contact Information';
+    };
+  };
+  games: {
+    games: {
+      schulte: {
+        badge: 'Brain Exercise';
+        howToPlay: {
+          step1: 'Pick a grid size from 3×3 up to 9×9 in the left panel, then start with a fresh board.';
+          step2: 'Find and click the numbers in ascending order, starting from 1 and following the Next indicator.';
+          step3: 'Use Restart to replay the same layout, New board for a reshuffle, and Highlight next number if you want an easier practice mode.';
+          step4: 'Watch your timer, mistakes, and best time together, then move up to a larger grid once your accuracy stays consistent.';
+          title: 'How To Play';
+        };
+        kickerNote: 'Interactive focus and visual scanning practice';
+        meta: {
+          description: 'Play a Schulte Table online in your browser with timer, mistakes, best times, and multiple grid sizes for focus and visual scanning practice.';
+          keywords: 'schulte table, focus game, brain exercise, visual scanning, attention training, online game';
+          title: 'Schulte Table (Play Online)';
+        };
+        notes: {
+          item1: 'Short rounds (1-3 minutes) usually work better than long sessions when your goal is consistency and focus.';
+          item2: 'If your eyes feel tired, stop and take a short break before the next round.';
+          item3: 'Use mistakes + time together. Faster is only meaningful if accuracy stays stable.';
+          title: 'Practice Notes';
+        };
+        research: {
+          body1: 'Schulte Tables are best understood as a structured visual-search and attention exercise. They are useful because they give a repeatable task with measurable outcomes (time + errors).';
+          body2: 'Research on attention and cognitive training is more nuanced than many productivity claims suggest. Task performance can improve with practice, but transfer to broader cognitive outcomes may be limited or mixed depending on study design and outcome measures.';
+          sources: {
+            erpStudy: 'Schulte grid training study (attention-related ERP changes; PubMed)';
+            origin: 'Background / origin context (Schulte table overview)';
+            transferCaveat: 'Cognitive training transfer limitations (review context; PubMed)';
+            visualSearchContext: 'Visual search performance and training context (open-access review/article; PMC)';
+          };
+          title: 'Research Notes';
+        };
+        subtitle: 'Play a browser-based Schulte Table trainer to practice visual search speed, attention switching, and steady scanning without leaving the site.';
+        title: 'Schulte Table';
+        trainer: {
+          actions: 'Actions';
+          bestTime: 'Best time';
+          cellAriaLabel: 'Cell {{number}}';
+          clearBestForSize: 'Clear best';
+          completeMessage: 'Completed in {{time}} with {{mistakes}} mistake(s).';
+          controls: 'Game controls';
+          gridSize: 'Grid size';
+          hideControls: 'Hide controls';
+          mistakes: 'Mistakes';
+          newBoard: 'New board';
+          next: 'Next';
+          noBestYet: 'No best yet';
+          restart: 'Restart';
+          showControls: 'Show controls';
+          showNextHint: 'Highlight next number';
+          status: {
+            completed: 'Completed';
+            idle: 'Ready';
+            running: 'Running';
+          };
+          statusLabel: 'Status';
+          timer: 'Timer';
+          tip: 'Tip: prioritize a smooth scanning rhythm over random fast clicks.';
+        };
+        whyUse: {
+          body1: 'Schulte Tables are commonly used as a visual search and attention exercise. They are popular in reading and concentration practice because they force structured scanning across a grid.';
+          body2: 'Treat this as a practice tool, not a medical or diagnostic tool. Improvements in this game do not automatically guarantee broad cognitive improvement in everyday tasks.';
+          title: 'Why People Use It';
+        };
+      };
     };
   };
   home: {

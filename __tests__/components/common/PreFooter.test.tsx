@@ -4,6 +4,7 @@ import PreFooter from '@/components/common/PreFooter';
 import type { PostSummary, Topic } from '@/types/posts';
 import { CONTACT_LINKS } from '@/config/constants';
 import { resendNewsletterConfirmation, subscribeNewsletter } from '@/lib/newsletterApi';
+import type { NewsletterMutationResponse } from '@/lib/newsletterApi';
 
 const useParamsMock = jest.fn();
 
@@ -291,7 +292,7 @@ describe('PreFooter', () => {
   });
 
   it('prevents duplicate submit while a newsletter request is pending', async () => {
-    let resolveSubscribe: ((value: unknown) => void) | undefined;
+    let resolveSubscribe: ((value: NewsletterMutationResponse | null) => void) | undefined;
     subscribeNewsletterMock.mockReturnValue(
       new Promise(resolve => {
         resolveSubscribe = resolve;

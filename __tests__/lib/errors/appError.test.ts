@@ -53,7 +53,10 @@ describe('appError utilities', () => {
 
   it('does not report to console in production', () => {
     const previousNodeEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      configurable: true,
+      value: 'production',
+    });
     jest.resetModules();
 
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -65,7 +68,10 @@ describe('appError utilities', () => {
     expect(consoleSpy).not.toHaveBeenCalled();
 
     consoleSpy.mockRestore();
-    process.env.NODE_ENV = previousNodeEnv;
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      configurable: true,
+      value: previousNodeEnv,
+    });
     jest.resetModules();
   });
 

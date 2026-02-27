@@ -1,4 +1,11 @@
 import { buildPostSearchText, normalizeSearchText, topicMatchesQuery } from '@/lib/searchText';
+import type { Topic } from '@/types/posts';
+
+const createTopic = (name: string): Topic => ({
+  id: name.toLowerCase().replace(/\s+/g, '-'),
+  name,
+  color: 'blue',
+});
 
 describe('searchText helpers', () => {
   it('normalizes Turkish characters and punctuation', () => {
@@ -9,7 +16,7 @@ describe('searchText helpers', () => {
     const searchText = buildPostSearchText({
       title: 'React 19',
       summary: 'Compiler updates',
-      topics: [null as unknown as { name: string }, { name: '' } as { name: string }, { name: 'Hooks' }],
+      topics: [null as unknown as Topic, createTopic(''), createTopic('Hooks')],
     });
 
     expect(searchText).toBe('react 19 compiler updates hooks');
@@ -26,8 +33,8 @@ describe('searchText helpers', () => {
   });
 
   it('matches topics with normalized queries and treats empty query as wildcard', () => {
-    expect(topicMatchesQuery({ name: 'Çeşme İpuçları' }, 'cesme')).toBe(true);
-    expect(topicMatchesQuery({ name: 'React' }, '')).toBe(true);
-    expect(topicMatchesQuery({ name: 'React' }, 'vue')).toBe(false);
+    expect(topicMatchesQuery(createTopic('Çeşme İpuçları'), 'cesme')).toBe(true);
+    expect(topicMatchesQuery(createTopic('React'), '')).toBe(true);
+    expect(topicMatchesQuery(createTopic('React'), 'vue')).toBe(false);
   });
 });
