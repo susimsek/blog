@@ -31,7 +31,7 @@ export const __resetSearchContainerCacheForTests = () => {
   localePostsPromiseCache.clear();
 };
 
-const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
+export const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
   posts.flatMap(post => {
     if (!post || typeof post !== 'object') {
       return [];
@@ -88,7 +88,7 @@ const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
     ];
   });
 
-const getStaticLocalePosts = async (locale: string): Promise<PostSummary[]> => {
+export const getStaticLocalePosts = async (locale: string): Promise<PostSummary[]> => {
   const normalizedLocale = locale.trim();
   if (normalizedLocale.length === 0) {
     return [];
@@ -128,7 +128,7 @@ const getStaticLocalePosts = async (locale: string): Promise<PostSummary[]> => {
   return request;
 };
 
-const filterSearchResults = (posts: PostSummary[], query: string) => {
+export const filterSearchResults = (posts: PostSummary[], query: string) => {
   const normalizedQuery = query.trim().toLowerCase();
   if (normalizedQuery.length === 0) {
     return [];

@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BACK_TO_TOP_EVENT } from '@/lib/scrollEvents';
 
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+export const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const BACK_TO_TOP_HIDE_DELAY_MS = 200;
-const scheduleFrame = (cb: FrameRequestCallback) => {
+export const scheduleFrame = (cb: FrameRequestCallback) => {
   const win = globalThis.window;
   if (!win) {
     globalThis.setTimeout(() => cb(performance.now()), 0);

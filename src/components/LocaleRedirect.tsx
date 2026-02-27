@@ -14,15 +14,15 @@ type RedirectProps = {
   to?: string;
 };
 
-const resolveLocale = () => {
+export const resolveLocale = () => {
   const detected = languageDetector.detect();
   return typeof detected === 'string' && isSupportedLocale(detected) ? detected : defaultLocale;
 };
 
-const getNormalizedBasePath = () =>
+export const getNormalizedBasePath = () =>
   (process.env.NEXT_PUBLIC_BASE_PATH ?? '').replaceAll(/^\/+/g, '').replaceAll(/\/+$/g, '');
 
-const splitHref = (target: string) => {
+export const splitHref = (target: string) => {
   const normalizedTarget = target.startsWith('/') ? target : `/${target}`;
   const [pathAndQuery, hash = ''] = normalizedTarget.split('#');
   const [pathname = '/', query = ''] = pathAndQuery.split('?');
@@ -34,7 +34,7 @@ const splitHref = (target: string) => {
   };
 };
 
-const stripBasePathFromPathname = (pathname: string) => {
+export const stripBasePathFromPathname = (pathname: string) => {
   const basePath = getNormalizedBasePath();
   if (!basePath) {
     return pathname;
@@ -51,13 +51,13 @@ const stripBasePathFromPathname = (pathname: string) => {
   return pathname;
 };
 
-const hasLocalePrefix = (pathname: string) => {
+export const hasLocalePrefix = (pathname: string) => {
   return locales.some(
     supportedLocale => pathname === `/${supportedLocale}` || pathname.startsWith(`/${supportedLocale}/`),
   );
 };
 
-const normalizeTarget = (target: string, locale: string) => {
+export const normalizeTarget = (target: string, locale: string) => {
   const { pathname, query, hash } = splitHref(target);
   const basePathAwarePath = stripBasePathFromPathname(pathname);
   let localizedPath = basePathAwarePath;

@@ -22,9 +22,9 @@ interface PostSummaryProps {
   likeCountLoading?: boolean;
 }
 
-const escapeRegExp = (value: string) => value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+export const escapeRegExp = (value: string) => value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 
-const highlight = (text: string, query: string): React.ReactNode => {
+export const highlight = (text: string, query: string): React.ReactNode => {
   const tokens = query
     .trim()
     .split(/\s+/)
@@ -51,6 +51,20 @@ const highlight = (text: string, query: string): React.ReactNode => {
   });
 };
 
+export const resolvePostThumbnailSrc = (value: string, currentAssetPrefix = assetPrefix) => {
+  if (/^https?:\/\//i.test(value)) {
+    return value;
+  }
+
+  const normalizedPath = value.startsWith('/') ? value : `/${value}`;
+  if (!currentAssetPrefix) {
+    return normalizedPath;
+  }
+
+  const normalizedPrefix = currentAssetPrefix.endsWith('/') ? currentAssetPrefix.slice(0, -1) : currentAssetPrefix;
+  return `${normalizedPrefix}${normalizedPath}`;
+};
+
 export default function PostSummary({
   post,
   highlightQuery,
@@ -71,24 +85,11 @@ export default function PostSummary({
 
   const postLink = link ?? `/posts/${id}`;
   const shouldRenderLikeMeta = showLikes && (likeCount !== null || likeCountLoading);
-  const resolveThumbnailSrc = (value: string) => {
-    if (/^https?:\/\//i.test(value)) {
-      return value;
-    }
-
-    const normalizedPath = value.startsWith('/') ? value : `/${value}`;
-    if (!assetPrefix) {
-      return normalizedPath;
-    }
-
-    const normalizedPrefix = assetPrefix.endsWith('/') ? assetPrefix.slice(0, -1) : assetPrefix;
-    return `${normalizedPrefix}${normalizedPath}`;
-  };
   const thumbnailSrc = (() => {
     if (!thumbnail) {
       return null;
     }
-    return resolveThumbnailSrc(thumbnail);
+    return resolvePostThumbnailSrc(thumbnail);
   })();
   const q = highlightQuery?.trim() ?? '';
   const titleNode = q ? highlight(title, q) : title;

@@ -15,10 +15,10 @@ const DEFAULT_REQUEST_TIMEOUT_MS = 8000;
 const GRAPHQL_PATH = '/graphql';
 const DEFAULT_LOCAL_API_ORIGIN = 'http://localhost:8080';
 
-const normalizeApiBaseUrl = (value: string | undefined) => value?.trim().replaceAll(/\/+$/g, '') ?? '';
-const isLocalHttpOrigin = (value: string) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(value);
+export const normalizeApiBaseUrl = (value: string | undefined) => value?.trim().replaceAll(/\/+$/g, '') ?? '';
+export const isLocalHttpOrigin = (value: string) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(value);
 
-const getGraphQLEndpoint = () => {
+export const getGraphQLEndpoint = () => {
   const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
   const localApiOrigin = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_DEV_API_ORIGIN) || DEFAULT_LOCAL_API_ORIGIN;
 
@@ -41,7 +41,7 @@ const getGraphQLEndpoint = () => {
 
 const clientsByEndpoint = new Map<string, ApolloClient>();
 
-const mapHttpStatusToCode = (status?: number): AppErrorCode => {
+export const mapHttpStatusToCode = (status?: number): AppErrorCode => {
   if (status === 400) return 'BAD_REQUEST';
   if (status === 401) return 'UNAUTHORIZED';
   if (status === 403) return 'FORBIDDEN';
@@ -54,7 +54,7 @@ const mapHttpStatusToCode = (status?: number): AppErrorCode => {
   return 'UNKNOWN_ERROR';
 };
 
-const toGraphQLAppError = (error: unknown): AppError => {
+export const toGraphQLAppError = (error: unknown): AppError => {
   if (CombinedGraphQLErrors.is(error)) {
     const primary = error.errors[0];
     const extensionCode = typeof primary?.extensions?.code === 'string' ? primary.extensions.code.toUpperCase() : '';

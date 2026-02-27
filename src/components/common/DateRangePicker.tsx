@@ -29,11 +29,116 @@ type DateRangeErrors = {
   endDate?: string;
 };
 
-const toISODateString = (value: Date): string => {
+export const toISODateString = (value: Date): string => {
   const year = value.getFullYear();
   const month = String(value.getMonth() + 1).padStart(2, '0');
   const day = String(value.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+};
+
+export const getDatePickerLocale = (routeLocale?: string | string[]) => {
+  const normalizedLocale = Array.isArray(routeLocale) ? routeLocale[0] : routeLocale;
+  return normalizedLocale && isSupportedLocale(normalizedLocale) ? normalizedLocale : defaultLocale;
+};
+
+export const validateDateRangeValues = (
+  formValues: Readonly<DateRangeFormValues>,
+  t: (key: string) => string,
+): DateRangeErrors => {
+  const nextErrors: DateRangeErrors = {};
+  const { startDate, endDate } = formValues;
+
+  if (!startDate) {
+    nextErrors.startDate = t('common.validation.required');
+  } else if (Number.isNaN(startDate.getTime())) {
+    nextErrors.startDate = t('common.validation.datetimelocal');
+  }
+
+  if (!endDate) {
+    nextErrors.endDate = t('common.validation.required');
+  } else if (Number.isNaN(endDate.getTime())) {
+    nextErrors.endDate = t('common.validation.datetimelocal');
+  }
+
+  if (startDate && endDate && startDate > endDate) {
+    nextErrors.startDate = t('common.validation.startDateAfterEndDate');
+    nextErrors.endDate = t('common.validation.endDateBeforeStartDate');
+  }
+
+  return nextErrors;
+};
+
+export const resolveSelectedDateRange = (
+  option: string,
+  today: Date,
+  formValues: Readonly<DateRangeFormValues>,
+): { startDate?: string; endDate?: string } => {
+  let startDate: string | undefined;
+  let endDate: string | undefined;
+
+  switch (option) {
+    case 'today': {
+      const todayDate = toISODateString(today);
+      startDate = todayDate;
+      endDate = todayDate;
+      break;
+    }
+
+    case 'yesterday': {
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      startDate = toISODateString(yesterday);
+      endDate = toISODateString(yesterday);
+      break;
+    }
+
+    case 'last7Days': {
+      const lastWeek = new Date(today);
+      lastWeek.setDate(today.getDate() - 7);
+      startDate = toISODateString(lastWeek);
+      endDate = toISODateString(today);
+      break;
+    }
+
+    case 'last30Days': {
+      const lastMonth = new Date(today);
+      lastMonth.setDate(today.getDate() - 30);
+      startDate = toISODateString(lastMonth);
+      endDate = toISODateString(today);
+      break;
+    }
+
+    case 'customDate': {
+      const { startDate: rawStartDate, endDate: rawEndDate } = formValues;
+      startDate = rawStartDate ? toISODateString(rawStartDate) : undefined;
+      endDate = rawEndDate ? toISODateString(rawEndDate) : undefined;
+      break;
+    }
+
+    default:
+      break;
+  }
+
+  return { startDate, endDate };
+};
+
+export const getDateRangeDropdownTitle = (
+  selectedOption: string | null,
+  isConfirmed: boolean,
+  formValues: Readonly<DateRangeFormValues>,
+  currentLocale: string,
+  translate: (key: string) => string,
+) => {
+  if (selectedOption === 'customDate') {
+    if (isConfirmed) {
+      const { startDate, endDate } = formValues;
+      const start = startDate ? startDate.toLocaleDateString(currentLocale) : '';
+      const end = endDate ? endDate.toLocaleDateString(currentLocale) : '';
+      return start && end ? `${start} - ${end}` : translate('customDate');
+    }
+    return translate('customDate');
+  }
+  return selectedOption ? translate(selectedOption) : translate('selectDate');
 };
 
 export default function DateRangePicker({
@@ -43,8 +148,7 @@ export default function DateRangePicker({
 }: Readonly<DateRangePickerProps>) {
   const { t } = useTranslation('common');
   const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
-  const currentLocale = routeLocale && isSupportedLocale(routeLocale) ? routeLocale : defaultLocale;
+  const currentLocale = getDatePickerLocale(params?.locale);
 
   // Locale Mapping
   const localeMap = { en: enUS, tr };
@@ -67,18 +171,10 @@ export default function DateRangePicker({
   const [showDropdown, setShowDropdown] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
 
-  const dropdownTitle = useMemo(() => {
-    if (selectedOption === 'customDate') {
-      if (isConfirmed) {
-        const { startDate, endDate } = formValues;
-        const start = startDate ? startDate.toLocaleDateString(currentLocale) : '';
-        const end = endDate ? endDate.toLocaleDateString(currentLocale) : '';
-        return start && end ? `${start} - ${end}` : translate('customDate');
-      }
-      return translate('customDate');
-    }
-    return selectedOption ? translate(selectedOption) : translate('selectDate');
-  }, [selectedOption, isConfirmed, formValues, translate, currentLocale]);
+  const dropdownTitle = useMemo(
+    () => getDateRangeDropdownTitle(selectedOption, isConfirmed, formValues, currentLocale, translate),
+    [currentLocale, formValues, isConfirmed, selectedOption, translate],
+  );
 
   const handleToggle = (isOpen: boolean) => {
     setShowDropdown(isOpen);
@@ -88,26 +184,7 @@ export default function DateRangePicker({
   };
 
   const validateCustomDateRange = useCallback((): boolean => {
-    const nextErrors: DateRangeErrors = {};
-    const { startDate, endDate } = formValues;
-
-    if (!startDate) {
-      nextErrors.startDate = t('common.validation.required');
-    } else if (Number.isNaN(startDate.getTime())) {
-      nextErrors.startDate = t('common.validation.datetimelocal');
-    }
-
-    if (!endDate) {
-      nextErrors.endDate = t('common.validation.required');
-    } else if (Number.isNaN(endDate.getTime())) {
-      nextErrors.endDate = t('common.validation.datetimelocal');
-    }
-
-    if (startDate && endDate && startDate > endDate) {
-      nextErrors.startDate = t('common.validation.startDateAfterEndDate');
-      nextErrors.endDate = t('common.validation.endDateBeforeStartDate');
-    }
-
+    const nextErrors = validateDateRangeValues(formValues, t);
     setFormErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   }, [formValues, t]);
@@ -163,53 +240,7 @@ export default function DateRangePicker({
     }
     setSelectedOption(option);
 
-    const today = new Date();
-    let startDate: string | undefined;
-    let endDate: string | undefined;
-
-    switch (option) {
-      case 'today': {
-        const todayDate = toISODateString(today);
-        startDate = todayDate;
-        endDate = todayDate;
-        break;
-      }
-
-      case 'yesterday': {
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-        startDate = toISODateString(yesterday);
-        endDate = toISODateString(yesterday);
-        break;
-      }
-
-      case 'last7Days': {
-        const lastWeek = new Date(today);
-        lastWeek.setDate(today.getDate() - 7);
-        startDate = toISODateString(lastWeek);
-        endDate = toISODateString(today);
-        break;
-      }
-
-      case 'last30Days': {
-        const lastMonth = new Date(today);
-        lastMonth.setDate(today.getDate() - 30);
-        startDate = toISODateString(lastMonth);
-        endDate = toISODateString(today);
-        break;
-      }
-
-      case 'customDate': {
-        const { startDate: rawStartDate, endDate: rawEndDate } = formValues;
-        startDate = rawStartDate ? toISODateString(rawStartDate) : undefined;
-        endDate = rawEndDate ? toISODateString(rawEndDate) : undefined;
-        break;
-      }
-
-      default:
-        break;
-    }
-
+    const { startDate, endDate } = resolveSelectedDateRange(option, new Date(), formValues);
     onRangeChange({ startDate, endDate });
   };
 

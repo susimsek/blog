@@ -120,7 +120,7 @@ const LANGUAGE_ALIASES: Record<string, string> = {
 
 const TERMINAL_LANGUAGES = new Set(['bash', 'sh', 'shell', 'zsh', 'console', 'terminal', 'powershell', 'ps1', 'cmd']);
 
-const resolveLanguage = (language: string | undefined): string | null => {
+export const resolveLanguage = (language: string | undefined): string | null => {
   if (!language) {
     return null;
   }
@@ -131,7 +131,7 @@ const resolveLanguage = (language: string | undefined): string | null => {
   return LANGUAGE_ALIASES[normalized] ?? normalized;
 };
 
-const toNonEmptyString = (value: unknown): string | null => {
+export const toNonEmptyString = (value: unknown): string | null => {
   if (typeof value === 'string') {
     const trimmed = value.trim();
     return trimmed.length ? trimmed : null;
@@ -147,7 +147,7 @@ const toNonEmptyString = (value: unknown): string | null => {
   return null;
 };
 
-const extractCodeMeta = (node: unknown): string | null => {
+export const extractCodeMeta = (node: unknown): string | null => {
   if (!node || typeof node !== 'object') return null;
 
   const nodeObject = node as {
@@ -175,7 +175,7 @@ const extractCodeMeta = (node: unknown): string | null => {
   return null;
 };
 
-const extractMetaAttribute = (meta: string, key: string): string | null => {
+export const extractMetaAttribute = (meta: string, key: string): string | null => {
   const quoted = new RegExp(String.raw`(?:^|\s|\{)${key}\s*=\s*("([^"]+)"|'([^']+)')`, 'i').exec(meta);
   if (quoted) {
     const value = quoted[2] ?? quoted[3];
@@ -190,7 +190,7 @@ const extractMetaAttribute = (meta: string, key: string): string | null => {
   return null;
 };
 
-const extractCodeFileName = (meta: string | null): string | null => {
+export const extractCodeFileName = (meta: string | null): string | null => {
   if (!meta) return null;
 
   const keys = ['filename', 'file', 'title', 'path'];
@@ -209,7 +209,7 @@ const extractCodeFileName = (meta: string | null): string | null => {
   return null;
 };
 
-const isTerminalSnippet = (
+export const isTerminalSnippet = (
   language: string | undefined,
   resolvedLanguage: string | null,
   codeText: string,
@@ -219,7 +219,7 @@ const isTerminalSnippet = (
   return /(^|\n)\s*(\$|PS [^\n>]*>|[A-Z]:\\[^>\n]*>)/.test(codeText);
 };
 
-const toCodeText = (node: React.ReactNode): string => {
+export const toCodeText = (node: React.ReactNode): string => {
   if (typeof node === 'string' || typeof node === 'number') {
     return String(node);
   }
@@ -229,7 +229,7 @@ const toCodeText = (node: React.ReactNode): string => {
   return '';
 };
 
-const getSyntaxTheme = (theme: Theme, themes: SyntaxAssets['themes']): SyntaxTheme => {
+export const getSyntaxTheme = (theme: Theme, themes: SyntaxAssets['themes']): SyntaxTheme => {
   switch (theme) {
     case 'dark':
       return themes.dark;

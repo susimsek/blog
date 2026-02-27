@@ -9,7 +9,7 @@ type TocItem = {
   level: 2 | 3;
 };
 
-const areTocItemsEqual = (left: TocItem[], right: TocItem[]) => {
+export const areTocItemsEqual = (left: TocItem[], right: TocItem[]) => {
   if (left.length !== right.length) {
     return false;
   }
@@ -27,7 +27,7 @@ const areTocItemsEqual = (left: TocItem[], right: TocItem[]) => {
   return true;
 };
 
-const slugify = (value: string) => {
+export const slugify = (value: string) => {
   const normalized = value
     .trim()
     .toLowerCase()
@@ -44,7 +44,7 @@ const slugify = (value: string) => {
   return collapsed || 'section';
 };
 
-const createSlugger = () => {
+export const createSlugger = () => {
   const counts = new Map<string, number>();
   return (text: string) => {
     const base = slugify(text);
@@ -54,7 +54,7 @@ const createSlugger = () => {
   };
 };
 
-const getScrollBehavior = (): ScrollBehavior => {
+export const getScrollBehavior = (): ScrollBehavior => {
   if (typeof globalThis.window?.matchMedia !== 'function') {
     return 'smooth';
   }
@@ -62,11 +62,11 @@ const getScrollBehavior = (): ScrollBehavior => {
   return globalThis.window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
 };
 
-const shouldIncludeTocHeading = (heading: HTMLElement) => {
+export const shouldIncludeTocHeading = (heading: HTMLElement) => {
   return !heading.closest('.post-toc') && !heading.closest('.tab-content') && !heading.closest('.tab-pane');
 };
 
-const buildTocItems = (root: HTMLElement) => {
+export const buildTocItems = (root: HTMLElement) => {
   const headings = Array.from(root.querySelectorAll<HTMLElement>('h2, h3')).filter(shouldIncludeTocHeading);
   if (headings.length === 0) {
     return [];
@@ -92,7 +92,7 @@ const buildTocItems = (root: HTMLElement) => {
   return tocItems;
 };
 
-const resolveActiveTocItemId = (previous: string | null, tocItems: readonly TocItem[]) => {
+export const resolveActiveTocItemId = (previous: string | null, tocItems: readonly TocItem[]) => {
   if (tocItems.length === 0) {
     return null;
   }

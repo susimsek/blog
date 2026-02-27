@@ -24,9 +24,9 @@ interface PostListProps {
 
 const TRACKABLE_POST_ID_PATTERN = /^[a-z0-9][a-z0-9-]{1,127}$/;
 
-const isTrackablePostId = (postId: string) => TRACKABLE_POST_ID_PATTERN.test(postId);
+export const isTrackablePostId = (postId: string) => TRACKABLE_POST_ID_PATTERN.test(postId);
 
-const resolveEffectiveSourceFilter = (
+export const resolveEffectiveSourceFilter = (
   isSearchRoute: boolean,
   isMediumRoute: boolean,
   isHomeRoute: boolean,
@@ -55,7 +55,7 @@ type PostListFilterCriteria = {
   scopedIdSet: Set<string> | null;
 };
 
-const matchesReadingTimeRange = (readingTimeMin: number, readingTimeRange: ReadingTimeRange) => {
+export const matchesReadingTimeRange = (readingTimeMin: number, readingTimeRange: ReadingTimeRange) => {
   if (readingTimeRange === '3-7') {
     return readingTimeMin >= 3 && readingTimeMin <= 7;
   }
@@ -68,7 +68,7 @@ const matchesReadingTimeRange = (readingTimeMin: number, readingTimeRange: Readi
   return true;
 };
 
-const matchesSearchQuery = (post: PostSummary, normalizedQuery: string) => {
+export const matchesSearchQuery = (post: PostSummary, normalizedQuery: string) => {
   if (normalizedQuery.length === 0) {
     return true;
   }
@@ -77,7 +77,7 @@ const matchesSearchQuery = (post: PostSummary, normalizedQuery: string) => {
   return searchArea.includes(normalizedQuery);
 };
 
-const matchesSelectedTopics = (post: PostSummary, selectedTopics: readonly string[]) => {
+export const matchesSelectedTopics = (post: PostSummary, selectedTopics: readonly string[]) => {
   if (selectedTopics.length === 0) {
     return true;
   }
@@ -86,7 +86,7 @@ const matchesSelectedTopics = (post: PostSummary, selectedTopics: readonly strin
   return selectedTopics.every(topicId => postTopicIds.has(topicId));
 };
 
-const matchesCategoryFilter = (post: PostSummary, categoryFilter: string) => {
+export const matchesCategoryFilter = (post: PostSummary, categoryFilter: string) => {
   if (categoryFilter === 'all') {
     return true;
   }
@@ -95,12 +95,12 @@ const matchesCategoryFilter = (post: PostSummary, categoryFilter: string) => {
   return postCategoryId === categoryFilter;
 };
 
-const matchesSourceFilter = (post: PostSummary, effectiveSourceFilter: SourceFilter) => {
+export const matchesSourceFilter = (post: PostSummary, effectiveSourceFilter: SourceFilter) => {
   const postSource = post.source ?? 'blog';
   return effectiveSourceFilter === 'all' || postSource === effectiveSourceFilter;
 };
 
-const matchesPublishedDateRange = (post: PostSummary, startDateMs: number | null, endDateMs: number | null) => {
+export const matchesPublishedDateRange = (post: PostSummary, startDateMs: number | null, endDateMs: number | null) => {
   const postDateMs = new Date(post.publishedDate).getTime();
 
   if (startDateMs !== null && Number.isFinite(startDateMs) && postDateMs < startDateMs) {
@@ -114,7 +114,7 @@ const matchesPublishedDateRange = (post: PostSummary, startDateMs: number | null
   return true;
 };
 
-const matchesPostListFilters = (post: PostSummary, criteria: Readonly<PostListFilterCriteria>) => {
+export const matchesPostListFilters = (post: PostSummary, criteria: Readonly<PostListFilterCriteria>) => {
   if (criteria.scopedIdSet && !criteria.scopedIdSet.has(post.id)) {
     return false;
   }
@@ -142,13 +142,13 @@ const matchesPostListFilters = (post: PostSummary, criteria: Readonly<PostListFi
   return matchesReadingTimeRange(post.readingTimeMin, criteria.readingTimeRange);
 };
 
-const sortPostsByPublishedDate = (left: PostSummary, right: PostSummary, sortOrder: SortOrder) => {
+export const sortPostsByPublishedDate = (left: PostSummary, right: PostSummary, sortOrder: SortOrder) => {
   const leftDate = new Date(left.publishedDate).getTime();
   const rightDate = new Date(right.publishedDate).getTime();
   return sortOrder === 'asc' ? leftDate - rightDate : rightDate - leftDate;
 };
 
-const filterAndSortPosts = (
+export const filterAndSortPosts = (
   posts: ReadonlyArray<PostSummary>,
   criteria: Readonly<PostListFilterCriteria>,
   sortOrder: SortOrder,
@@ -157,7 +157,7 @@ const filterAndSortPosts = (
     .filter(post => matchesPostListFilters(post, criteria))
     .sort((left, right) => sortPostsByPublishedDate(left, right, sortOrder));
 
-const mergeLoadedLikesByPostId = (
+export const mergeLoadedLikesByPostId = (
   previous: Readonly<Record<string, number | null>>,
   pendingLikePostIds: ReadonlyArray<string>,
   loadedLikes: Record<string, number> | null,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { act, screen, fireEvent, waitFor } from '@testing-library/react';
 import PostList from '@/components/posts/PostList';
 import { mockPostSummaries, mockTopics } from '@tests/__mocks__/mockPostData';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
@@ -368,6 +368,55 @@ describe('PostList Component', () => {
     expect(screen.getByText('Post 6')).toBeInTheDocument();
   });
 
+  it('syncs route source and page size back into store state', async () => {
+    usePathnameMock.mockReturnValue('/search');
+    window.history.replaceState({}, '', '/search?source=blog&page=1&size=10');
+
+    const { store } = renderWithProviders(<PostList posts={mockPostSummaries} />, {
+      preloadedState: buildPreloadedState({ sourceFilter: 'all', pageSize: 5 }),
+    });
+
+    await waitFor(() => {
+      const state = store.getState().postsQuery;
+      expect(state.sourceFilter).toBe('blog');
+      expect(state.pageSize).toBe(10);
+    });
+  });
+
+  it('passes a trimmed highlight query and falls back when pathname or search params are missing', async () => {
+    usePathnameMock.mockReturnValue(undefined);
+    useSearchParamsMock.mockReturnValue(undefined);
+
+    renderWithProviders(<PostList posts={mockPostSummaries} highlightQuery="React" />, {
+      preloadedState: buildPreloadedState(),
+    });
+
+    await waitFor(() => expect(screen.getAllByTestId('post-card')).toHaveLength(5));
+    expect(screen.getAllByTestId('post-card')[0]).toHaveAttribute('data-highlight-query', 'React');
+  });
+
+  it('does not update likes after unmount when like loading resolves late', async () => {
+    let resolveLikes: ((value: Record<string, number> | null) => void) | undefined;
+    fetchPostLikesMock.mockReturnValue(
+      new Promise(resolve => {
+        resolveLikes = resolve;
+      }),
+    );
+
+    const likePosts = mockPostSummaries.slice(0, 2).map((post, index) => ({ ...post, id: `post-${index + 1}` }));
+    const rendered = renderWithProviders(<PostList posts={likePosts} showLikes />, {
+      preloadedState: buildPreloadedState(),
+    });
+
+    await waitFor(() => expect(fetchPostLikesMock).toHaveBeenCalled());
+    rendered.unmount();
+
+    await act(async () => {
+      resolveLikes?.({ [mockPostSummaries[0].id]: 5 });
+      await Promise.resolve();
+    });
+  });
+
   it('removes source param from url when source filter is reset to all', async () => {
     usePathnameMock.mockReturnValue('/search');
     window.history.replaceState({}, '', '/search?source=blog&page=2&size=5');
@@ -484,5 +533,91 @@ describe('PostList Component', () => {
 
     fireEvent.click(screen.getByLabelText('common.viewDensity.editorial'));
     expect(document.querySelector('.post-list-results')).toHaveClass('post-list-results--editorial');
+  });
+
+  it('filters by reading time, category, and published date range from store state', async () => {
+    usePathnameMock.mockReturnValue('/search');
+
+    const filteredPosts = [
+      {
+        ...mockPostSummaries[0],
+        id: 'short-post',
+        title: 'Short Post',
+        readingTimeMin: 2,
+        publishedDate: '2024-05-01',
+        category: { id: 'frontend', name: 'Frontend' },
+      },
+      {
+        ...mockPostSummaries[1],
+        id: 'matching-post',
+        title: 'Matching Post',
+        readingTimeMin: 9,
+        publishedDate: '2024-06-15',
+        category: { id: 'frontend', name: 'Frontend' },
+      },
+      {
+        ...mockPostSummaries[2],
+        id: 'long-post',
+        title: 'Long Post',
+        readingTimeMin: 16,
+        publishedDate: '2024-07-20',
+        category: { id: 'backend', name: 'Backend' },
+      },
+    ];
+
+    renderWithProviders(<PostList posts={filteredPosts} />, {
+      preloadedState: buildPreloadedState({
+        posts: filteredPosts,
+        topics: [],
+        categoryFilter: 'frontend',
+        readingTimeRange: '8-12',
+        dateRange: { startDate: '2024-06-01', endDate: '2024-06-30' },
+      }),
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Matching Post')).toBeInTheDocument();
+      expect(screen.queryByText('Short Post')).not.toBeInTheDocument();
+      expect(screen.queryByText('Long Post')).not.toBeInTheDocument();
+    });
+  });
+
+  it('forces medium results on medium route and blog results on home route', async () => {
+    const mixedPosts = [
+      { ...mockPostSummaries[0], id: 'blog-1', title: 'Blog Post', source: 'blog' as const },
+      { ...mockPostSummaries[1], id: 'medium-1', title: 'Medium Post', source: 'medium' as const },
+    ];
+
+    usePathnameMock.mockReturnValue('/medium');
+    const mediumRender = renderWithProviders(<PostList posts={mixedPosts} />, {
+      preloadedState: buildPreloadedState({ posts: mixedPosts, topics: [], sourceFilter: 'all' }),
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Medium Post')).toBeInTheDocument();
+      expect(screen.queryByText('Blog Post')).not.toBeInTheDocument();
+    });
+
+    mediumRender.unmount();
+
+    usePathnameMock.mockReturnValue('/en');
+    renderWithProviders(<PostList posts={mixedPosts} />, {
+      preloadedState: buildPreloadedState({ posts: mixedPosts, topics: [], sourceFilter: 'medium' }),
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Blog Post')).toBeInTheDocument();
+      expect(screen.queryByText('Medium Post')).not.toBeInTheDocument();
+    });
+  });
+
+  it('uses the custom empty-state message when provided', async () => {
+    renderWithProviders(<PostList posts={[]} noPostsFoundMessage="Nothing here" />, {
+      preloadedState: buildPreloadedState({ posts: [], topics: [] }),
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Nothing here')).toBeInTheDocument();
+    });
   });
 });

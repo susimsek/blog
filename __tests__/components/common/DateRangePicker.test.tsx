@@ -300,4 +300,38 @@ describe('DateRangePicker', () => {
       });
     });
   });
+
+  it('does nothing when the form is submitted without selecting custom date', async () => {
+    const { container } = render(<DateRangePicker {...defaultProps} />);
+    const form = container.querySelector('form');
+
+    if (!form) {
+      throw new Error('Form not found');
+    }
+
+    await act(async () => {
+      fireEvent.submit(form);
+    });
+
+    expect(mockOnRangeChange).not.toHaveBeenCalled();
+  });
+
+  it('shows validation errors for missing and reversed custom dates', async () => {
+    render(<DateRangePicker {...defaultProps} />);
+    await click(screen.getByRole('button', { name: /common.datePicker.selectDate/i }));
+    await click(screen.getByText(/common.datePicker.customDate/i));
+    await click(screen.getByRole('button', { name: /common.datePicker.applySelection/i }));
+
+    expect(screen.getAllByText('common.validation.required')).toHaveLength(2);
+
+    await change(screen.getByPlaceholderText(/common.datePicker.startDatePlaceholder/i), '6/5/2024');
+    await change(screen.getByPlaceholderText(/common.datePicker.endDatePlaceholder/i), '6/1/2024');
+    await click(screen.getByRole('button', { name: /common.datePicker.applySelection/i }));
+
+    expect(screen.getByText('common.validation.startDateAfterEndDate')).toBeInTheDocument();
+    expect(screen.getByText('common.validation.endDateBeforeStartDate')).toBeInTheDocument();
+
+    await change(screen.getByPlaceholderText(/common.datePicker.startDatePlaceholder/i), '5/30/2024');
+    expect(screen.queryByText('common.validation.endDateBeforeStartDate')).not.toBeInTheDocument();
+  });
 });

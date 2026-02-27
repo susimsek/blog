@@ -7,13 +7,13 @@ type MarkdownNode = {
   };
 };
 
-const toTrimmed = (value: string | null | undefined): string | null => {
+export const toTrimmed = (value: string | null | undefined): string | null => {
   if (typeof value !== 'string') return null;
   const trimmed = value.trim();
   return trimmed.length ? trimmed : null;
 };
 
-const extractMetaAttribute = (meta: string, key: string): string | null => {
+export const extractMetaAttribute = (meta: string, key: string): string | null => {
   const quoted = new RegExp(String.raw`(?:^|\s|\{)${key}\s*=\s*("([^"]+)"|'([^']+)')`, 'i').exec(meta);
   if (quoted) {
     return toTrimmed(quoted[2] ?? quoted[3]);
@@ -23,7 +23,7 @@ const extractMetaAttribute = (meta: string, key: string): string | null => {
   return toTrimmed(unquoted?.[1] ?? null);
 };
 
-const extractFilename = (meta: string | null | undefined): string | null => {
+export const extractFilename = (meta: string | null | undefined): string | null => {
   const normalizedMeta = toTrimmed(meta);
   if (!normalizedMeta) return null;
 
@@ -42,7 +42,7 @@ const extractFilename = (meta: string | null | undefined): string | null => {
   return null;
 };
 
-const visit = (node: MarkdownNode): void => {
+export const visit = (node: MarkdownNode): void => {
   if (node.type === 'code') {
     const filename = extractFilename(node.meta);
     if (filename) {

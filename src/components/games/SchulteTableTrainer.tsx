@@ -46,7 +46,7 @@ const CELL_PALETTE: readonly CellPaletteItem[] = [
   { bg: '#2e9f83', fg: '#ffffff', border: '#237a65' },
 ] as const;
 
-const shuffle = (values: number[]): number[] => {
+export const shuffle = (values: number[]): number[] => {
   const result = [...values];
   for (let i = result.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -55,10 +55,12 @@ const shuffle = (values: number[]): number[] => {
   return result;
 };
 
-const createOrderedBoard = (size: GridSize): number[] => Array.from({ length: size * size }, (_, index) => index + 1);
-const createBoard = (size: GridSize): number[] => shuffle(Array.from({ length: size * size }, (_, index) => index + 1));
-const getCurrentTimeMs = (): number => Date.now();
-const chunkBoardRows = (values: readonly number[], size: GridSize): number[][] => {
+export const createOrderedBoard = (size: GridSize): number[] =>
+  Array.from({ length: size * size }, (_, index) => index + 1);
+export const createBoard = (size: GridSize): number[] =>
+  shuffle(Array.from({ length: size * size }, (_, index) => index + 1));
+export const getCurrentTimeMs = (): number => Date.now();
+export const chunkBoardRows = (values: readonly number[], size: GridSize): number[][] => {
   const rows: number[][] = [];
   for (let index = 0; index < values.length; index += size) {
     rows.push(values.slice(index, index + size));
@@ -66,9 +68,9 @@ const chunkBoardRows = (values: readonly number[], size: GridSize): number[][] =
   return rows;
 };
 
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+export const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
-const formatDuration = (ms: number) => {
+export const formatDuration = (ms: number) => {
   const safe = Math.max(0, Math.round(ms));
   const minutes = Math.floor(safe / 60000);
   const seconds = Math.floor((safe % 60000) / 1000);
@@ -77,7 +79,7 @@ const formatDuration = (ms: number) => {
   return `${parts.join(':')}.${centiseconds.toString().padStart(2, '0')}`;
 };
 
-const parseStoredBestTimes = (raw: string | null): BestTimes => {
+export const parseStoredBestTimes = (raw: string | null): BestTimes => {
   if (!raw) {
     return {};
   }
@@ -97,7 +99,7 @@ const parseStoredBestTimes = (raw: string | null): BestTimes => {
   }
 };
 
-const parseStoredGridSize = (raw: string | null): GridSize | null => {
+export const parseStoredGridSize = (raw: string | null): GridSize | null => {
   if (!raw) {
     return null;
   }
@@ -106,7 +108,7 @@ const parseStoredGridSize = (raw: string | null): GridSize | null => {
   return GRID_SIZES.includes(parsed as GridSize) ? (parsed as GridSize) : null;
 };
 
-const parseStoredShowHint = (raw: string | null): boolean | null => {
+export const parseStoredShowHint = (raw: string | null): boolean | null => {
   if (raw === null) {
     return null;
   }

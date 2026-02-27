@@ -11,7 +11,7 @@ import { buildPostSearchText } from '@/lib/searchText';
 
 const fsPromises = fs.promises;
 
-const normalizePostCategoryRef = (value: unknown): PostCategoryRef | undefined => {
+export const normalizePostCategoryRef = (value: unknown): PostCategoryRef | undefined => {
   if (!value || typeof value !== 'object') {
     return undefined;
   }
@@ -26,7 +26,7 @@ const normalizePostCategoryRef = (value: unknown): PostCategoryRef | undefined =
   return { id, name };
 };
 
-const fileExists = async (filePath: string): Promise<boolean> => {
+export const fileExists = async (filePath: string): Promise<boolean> => {
   try {
     await fsPromises.access(filePath, fs.constants.F_OK);
     return true;
@@ -58,7 +58,7 @@ const ALL_TOPIC_IDS_CACHE_KEY = 'all-topic-ids';
 const ALL_CATEGORY_IDS_CACHE_KEY = 'all-category-ids';
 const ALL_SOURCES_POSTS_CACHE_KEY_SUFFIX = 'all-sources';
 
-const readIdsFromIndexFile = async (
+export const readIdsFromIndexFile = async (
   indexPath: string,
   fileLabel: string,
   options?: { source?: PostSource },
@@ -384,7 +384,7 @@ export async function getAllCategoryIds() {
   return categoryIds;
 }
 
-const toLayoutPostSummary = (post: PostSummary): LayoutPostSummary => ({
+export const toLayoutPostSummary = (post: PostSummary): LayoutPostSummary => ({
   id: post.id,
   title: post.title,
   publishedDate: post.publishedDate,

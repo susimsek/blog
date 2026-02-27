@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { mockPost, mockPostWithoutContent } from '@tests/__mocks__/mockPostData';
 import { registerDynamicMock } from '@tests/utils/dynamicMockRegistry';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
@@ -69,6 +69,14 @@ describe('PostDetail Component', () => {
   });
 
   const setup = (post = mockPost) => renderWithProviders(<PostDetail post={post} />);
+
+  beforeEach(() => {
+    Object.assign(navigator, {
+      clipboard: {
+        writeText: jest.fn().mockResolvedValue(undefined),
+      },
+    });
+  });
 
   it('renders the post title', () => {
     setup();
@@ -166,5 +174,67 @@ describe('PostDetail Component', () => {
   it('does not render updated notice when updatedDate is missing or same as published date', () => {
     setup();
     expect(screen.queryByText(content => content.startsWith('post.updatedNotice'))).not.toBeInTheDocument();
+  });
+
+  it('renders category breadcrumb, adjacent navigation, and copies the share link', async () => {
+    const post = {
+      ...mockPost,
+      category: { id: 'Frontend', name: 'Frontend' },
+    };
+
+    renderWithProviders(
+      <PostDetail
+        post={post}
+        previousPost={{ id: 'prev-post', title: 'Previous post' }}
+        nextPost={{ id: 'next-post', title: 'Next post' }}
+      />,
+    );
+
+    expect(screen.getByRole('link', { name: 'Frontend' })).toHaveAttribute('href', '/en/categories/frontend');
+    expect(screen.getByRole('link', { name: /post.navigation.previous/i })).toHaveAttribute(
+      'href',
+      '/en/posts/prev-post',
+    );
+    expect(screen.getByRole('link', { name: /post.navigation.next/i })).toHaveAttribute('href', '/en/posts/next-post');
+
+    fireEvent.click(screen.getByRole('button', { name: 'post.share.copyLink' }));
+
+    await waitFor(() => {
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('/en/posts/1'));
+      expect(screen.getByRole('button', { name: 'post.share.copied' })).toBeInTheDocument();
+    });
+  });
+
+  it('renders raw updated date, no thumbnail, and single-side navigation when metadata is sparse', () => {
+    const sparsePost = {
+      ...mockPost,
+      thumbnail: null,
+      topics: undefined,
+      category: undefined,
+      updatedDate: 'not-a-date',
+      contentHtml: 'Plain intro without headings',
+    };
+
+    renderWithProviders(
+      <PostDetail post={sparsePost} previousPost={{ id: 'prev-post', title: 'Previous post' }} nextPost={null} />,
+    );
+
+    expect(screen.queryByAltText(sparsePost.title)).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Frontend' })).not.toBeInTheDocument();
+    expect(screen.getByText('not-a-date')).toBeInTheDocument();
+    expect(document.querySelector('.post-navigation-grid')).toHaveClass('has-only-previous');
+  });
+
+  it('does not treat tilde code fences as real headings', () => {
+    const post = {
+      ...mockPost,
+      contentHtml: '~~~md\n## In code\n~~~\n\n### Actual section\nBody',
+    };
+
+    setup(post);
+    const markdownElements = screen.getAllByTestId('markdown-renderer');
+    expect(markdownElements).toHaveLength(2);
+    expect(markdownElements[0]).toHaveTextContent('~~~md');
+    expect(markdownElements[1]).toHaveTextContent('### Actual section');
   });
 });

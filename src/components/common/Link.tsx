@@ -13,7 +13,7 @@ interface LinkComponentProps extends Omit<LinkProps, 'href'> {
   onMouseLeave?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }
 
-const isExternalUrl = (href: string) => {
+export const isExternalUrl = (href: string) => {
   try {
     const base = globalThis.window ? globalThis.window.location.origin : 'http://localhost';
     const url = new URL(href, base);
@@ -23,10 +23,10 @@ const isExternalUrl = (href: string) => {
   }
 };
 
-const hasLocalePrefix = (pathname: string) =>
+export const hasLocalePrefix = (pathname: string) =>
   i18nextConfig.i18n.locales.some(locale => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`));
 
-const localizePathname = (pathname: string, locale: string): string => {
+export const localizePathname = (pathname: string, locale: string): string => {
   if (hasLocalePrefix(pathname) || pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
     return pathname;
   }
@@ -36,7 +36,7 @@ const localizePathname = (pathname: string, locale: string): string => {
   return `/${locale}${pathname}`;
 };
 
-const localizeHref = (href: string, locale: string): string => {
+export const localizeHref = (href: string, locale: string): string => {
   if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) {
     return href;
   }

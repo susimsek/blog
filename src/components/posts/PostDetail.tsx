@@ -36,7 +36,7 @@ interface PostDetailProps {
 
 type FenceToken = '```' | '~~~';
 
-const getFenceToken = (line: string): FenceToken | null => {
+export const getFenceToken = (line: string): FenceToken | null => {
   const trimmed = line.trimStart();
   if (trimmed.startsWith('```')) {
     return '```';
@@ -47,7 +47,7 @@ const getFenceToken = (line: string): FenceToken | null => {
   return null;
 };
 
-const hasSupportedMarkdownHeading = (markdown: string): boolean => {
+export const hasSupportedMarkdownHeading = (markdown: string): boolean => {
   if (!markdown) {
     return false;
   }
@@ -80,7 +80,7 @@ const hasSupportedMarkdownHeading = (markdown: string): boolean => {
   return false;
 };
 
-const splitMarkdownIntro = (markdown: string): { intro: string; rest: string } => {
+export const splitMarkdownIntro = (markdown: string): { intro: string; rest: string } => {
   if (!markdown) {
     return { intro: '', rest: '' };
   }
@@ -113,7 +113,7 @@ const splitMarkdownIntro = (markdown: string): { intro: string; rest: string } =
   return { intro: markdown.trim(), rest: '' };
 };
 
-const buildPostNavigationGridClassName = (hasPreviousPost: boolean, hasNextPost: boolean): string => {
+export const buildPostNavigationGridClassName = (hasPreviousPost: boolean, hasNextPost: boolean): string => {
   const classNames = ['post-navigation-grid'];
 
   if (hasPreviousPost === false) {
@@ -125,6 +125,27 @@ const buildPostNavigationGridClassName = (hasPreviousPost: boolean, hasNextPost:
   }
 
   return classNames.join(' ');
+};
+
+export const resolvePostDetailThumbnailSrc = (
+  thumbnail: string | null | undefined,
+  currentAssetPrefix = assetPrefix,
+) => {
+  if (!thumbnail) {
+    return null;
+  }
+
+  if (/^https?:\/\//i.test(thumbnail)) {
+    return thumbnail;
+  }
+
+  const normalizedPath = thumbnail.startsWith('/') ? thumbnail : `/${thumbnail}`;
+  if (!currentAssetPrefix) {
+    return normalizedPath;
+  }
+
+  const normalizedPrefix = currentAssetPrefix.endsWith('/') ? currentAssetPrefix.slice(0, -1) : currentAssetPrefix;
+  return `${normalizedPrefix}${normalizedPath}`;
 };
 
 export default function PostDetail({
@@ -146,21 +167,7 @@ export default function PostDetail({
   const markdown = contentHtml ?? '';
   const hasToc = React.useMemo(() => hasSupportedMarkdownHeading(markdown), [markdown]);
   const hasSideRail = true;
-  const thumbnailSrc = (() => {
-    if (!thumbnail) return null;
-
-    if (/^https?:\/\//i.test(thumbnail)) {
-      return thumbnail;
-    }
-
-    const normalizedPath = thumbnail.startsWith('/') ? thumbnail : `/${thumbnail}`;
-    if (!assetPrefix) {
-      return normalizedPath;
-    }
-
-    const normalizedPrefix = assetPrefix.endsWith('/') ? assetPrefix.slice(0, -1) : assetPrefix;
-    return `${normalizedPrefix}${normalizedPath}`;
-  })();
+  const thumbnailSrc = resolvePostDetailThumbnailSrc(thumbnail);
 
   const splitIntro = React.useMemo(() => splitMarkdownIntro(markdown), [markdown]);
   const formattedUpdatedDate = React.useMemo(() => {

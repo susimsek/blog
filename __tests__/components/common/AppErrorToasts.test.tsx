@@ -66,4 +66,25 @@ describe('AppErrorToasts', () => {
 
     expect(screen.queryByTestId('toast')).not.toBeInTheDocument();
   });
+
+  it('limits visible toasts, maps tones, and falls back to client source', () => {
+    render(<AppErrorToasts />);
+
+    act(() => {
+      publishAppError(new AppError('Too many', 'RATE_LIMITED'));
+      publishAppError(new AppError('Timed out', 'TIMEOUT'));
+      publishAppError(new AppError('Graph broken', 'GRAPHQL_ERROR'));
+      publishAppError(new AppError('Forbidden', 'FORBIDDEN'));
+      publishAppError(new AppError('Overflow', 'CONFLICT'));
+    });
+
+    const toasts = screen.getAllByTestId('toast');
+    expect(toasts).toHaveLength(4);
+    expect(screen.getByText('Request timeout')).toBeInTheDocument();
+    expect(screen.getByText('GraphQL error')).toBeInTheDocument();
+    expect(screen.getAllByText('Forbidden').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Conflict').length).toBeGreaterThan(0);
+    expect(screen.queryByText('Rate limited')).not.toBeInTheDocument();
+    expect(screen.getAllByText('client').length).toBeGreaterThan(0);
+  });
 });

@@ -85,10 +85,10 @@ const BEST_RESULTS_STORAGE_KEY = 'stroop-test-best-results-v1';
 const MODE_STORAGE_KEY = 'stroop-test-mode-v1';
 const HINT_STORAGE_KEY = 'stroop-test-show-hint-v1';
 
-const getCurrentTimeMs = (): number => Date.now();
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+export const getCurrentTimeMs = (): number => Date.now();
+export const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
-const shuffle = <T,>(values: readonly T[]): T[] => {
+export const shuffle = <T,>(values: readonly T[]): T[] => {
   const result = [...values];
   for (let i = result.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -97,7 +97,7 @@ const shuffle = <T,>(values: readonly T[]): T[] => {
   return result;
 };
 
-const formatDuration = (ms: number) => {
+export const formatDuration = (ms: number) => {
   const safe = Math.max(0, Math.round(ms));
   const minutes = Math.floor(safe / 60000);
   const seconds = Math.floor((safe % 60000) / 1000);
@@ -106,14 +106,14 @@ const formatDuration = (ms: number) => {
   return `${parts.join(':')}.${centiseconds.toString().padStart(2, '0')}`;
 };
 
-const formatAccuracy = (value: number) => `${Math.round(value)}%`;
-const getAverageReactionMs = (reactionTimes: readonly number[]) =>
+export const formatAccuracy = (value: number) => `${Math.round(value)}%`;
+export const getAverageReactionMs = (reactionTimes: readonly number[]) =>
   reactionTimes.length > 0 ? reactionTimes.reduce((sum, value) => sum + value, 0) / reactionTimes.length : 0;
 
-const getAccuracy = (correctCount: number, answeredCount: number) =>
+export const getAccuracy = (correctCount: number, answeredCount: number) =>
   answeredCount > 0 ? (correctCount / answeredCount) * 100 : 100;
 
-const getProgressPercent = (
+export const getProgressPercent = (
   completedRounds: number,
   roundsTarget: number | null,
   elapsedMs: number,
@@ -130,7 +130,7 @@ const getProgressPercent = (
   return 0;
 };
 
-const getDisplayedElapsedMs = (elapsedMs: number, timeLimitMs: number | null, status: TrainerStatus) => {
+export const getDisplayedElapsedMs = (elapsedMs: number, timeLimitMs: number | null, status: TrainerStatus) => {
   if (timeLimitMs === null || status === 'completed') {
     return elapsedMs;
   }
@@ -138,7 +138,7 @@ const getDisplayedElapsedMs = (elapsedMs: number, timeLimitMs: number | null, st
   return Math.min(elapsedMs, timeLimitMs);
 };
 
-const getChoiceReactionMs = (taskStartedAtMs: number | null) => {
+export const getChoiceReactionMs = (taskStartedAtMs: number | null) => {
   if (taskStartedAtMs === null) {
     return 0;
   }
@@ -146,7 +146,7 @@ const getChoiceReactionMs = (taskStartedAtMs: number | null) => {
   return clamp(getCurrentTimeMs() - taskStartedAtMs, 0, 60 * 1000);
 };
 
-const createResult = (
+export const createResult = (
   correctCount: number,
   mistakes: number,
   answeredCount: number,
@@ -157,14 +157,14 @@ const createResult = (
   avgReactionMs: Math.round(getAverageReactionMs(reactionTimes)),
 });
 
-const createNextProgress = (current: RoundProgress, reactionMs: number, isCorrect: boolean): RoundProgress => ({
+export const createNextProgress = (current: RoundProgress, reactionMs: number, isCorrect: boolean): RoundProgress => ({
   correctCount: current.correctCount + (isCorrect ? 1 : 0),
   mistakes: current.mistakes + (isCorrect ? 0 : 1),
   completedRounds: current.completedRounds + 1,
   reactionTimes: [...current.reactionTimes, reactionMs],
 });
 
-const getUpdatedBestResults = (
+export const getUpdatedBestResults = (
   currentBestResults: BestResults,
   mode: StroopMode,
   nextResult: BestResult,
@@ -177,7 +177,7 @@ const getUpdatedBestResults = (
   return { ...currentBestResults, [mode]: nextResult };
 };
 
-const getTaskCardClassName = (congruent: boolean, lastChoiceState: 'correct' | 'wrong' | null) =>
+export const getTaskCardClassName = (congruent: boolean, lastChoiceState: 'correct' | 'wrong' | null) =>
   [
     'stroop-task-card',
     congruent ? 'is-congruent' : 'is-incongruent',
@@ -187,20 +187,20 @@ const getTaskCardClassName = (congruent: boolean, lastChoiceState: 'correct' | '
     .filter(Boolean)
     .join(' ');
 
-const parseStoredMode = (raw: string | null): StroopMode | null => {
+export const parseStoredMode = (raw: string | null): StroopMode | null => {
   if (raw === 'practice' || raw === 'standard' || raw === 'timed') {
     return raw;
   }
   return null;
 };
 
-const parseStoredShowHint = (raw: string | null): boolean | null => {
+export const parseStoredShowHint = (raw: string | null): boolean | null => {
   if (raw === 'true') return true;
   if (raw === 'false') return false;
   return null;
 };
 
-const parseStoredBestResults = (raw: string | null): BestResults => {
+export const parseStoredBestResults = (raw: string | null): BestResults => {
   if (!raw) {
     return {};
   }
@@ -229,9 +229,9 @@ const parseStoredBestResults = (raw: string | null): BestResults => {
   }
 };
 
-const getModeConfig = (mode: StroopMode) => MODE_CONFIGS[mode];
+export const getModeConfig = (mode: StroopMode) => MODE_CONFIGS[mode];
 
-const createDeterministicTask = (mode: StroopMode): StroopTask => {
+export const createDeterministicTask = (mode: StroopMode): StroopTask => {
   const palette = [...getModeConfig(mode).palette];
   return {
     word: palette[0],
@@ -241,7 +241,7 @@ const createDeterministicTask = (mode: StroopMode): StroopTask => {
   };
 };
 
-const createTask = (mode: StroopMode): StroopTask => {
+export const createTask = (mode: StroopMode): StroopTask => {
   const { palette, congruentChance } = getModeConfig(mode);
   const ink = palette[Math.floor(Math.random() * palette.length)] ?? palette[0];
   const congruent = Math.random() < congruentChance;
@@ -260,7 +260,7 @@ const createTask = (mode: StroopMode): StroopTask => {
   };
 };
 
-const getScore = (correctCount: number, mistakes: number) => Math.max(0, correctCount * 100 - mistakes * 25);
+export const getScore = (correctCount: number, mistakes: number) => Math.max(0, correctCount * 100 - mistakes * 25);
 
 export default function StroopTestTrainer() {
   const { t } = useTranslation('games');
