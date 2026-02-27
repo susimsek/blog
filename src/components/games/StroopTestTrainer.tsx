@@ -43,6 +43,13 @@ type ModeConfig = {
   congruentChance: number;
 };
 
+type RoundProgress = {
+  correctCount: number;
+  mistakes: number;
+  completedRounds: number;
+  reactionTimes: number[];
+};
+
 const STROOP_COLORS: readonly StroopColor[] = [
   { id: 'red', hex: '#e53935', bg: '#fbe3e1', border: '#e8b5b2' },
   { id: 'blue', hex: '#1e6de0', bg: '#e2ecfd', border: '#b6cbef' },
@@ -100,6 +107,85 @@ const formatDuration = (ms: number) => {
 };
 
 const formatAccuracy = (value: number) => `${Math.round(value)}%`;
+const getAverageReactionMs = (reactionTimes: readonly number[]) =>
+  reactionTimes.length > 0 ? reactionTimes.reduce((sum, value) => sum + value, 0) / reactionTimes.length : 0;
+
+const getAccuracy = (correctCount: number, answeredCount: number) =>
+  answeredCount > 0 ? (correctCount / answeredCount) * 100 : 100;
+
+const getProgressPercent = (
+  completedRounds: number,
+  roundsTarget: number | null,
+  elapsedMs: number,
+  timeLimitMs: number | null,
+) => {
+  if (roundsTarget !== null) {
+    return (completedRounds / roundsTarget) * 100;
+  }
+
+  if (timeLimitMs !== null) {
+    return (elapsedMs / timeLimitMs) * 100;
+  }
+
+  return 0;
+};
+
+const getDisplayedElapsedMs = (elapsedMs: number, timeLimitMs: number | null, status: TrainerStatus) => {
+  if (timeLimitMs === null || status === 'completed') {
+    return elapsedMs;
+  }
+
+  return Math.min(elapsedMs, timeLimitMs);
+};
+
+const getChoiceReactionMs = (taskStartedAtMs: number | null) => {
+  if (taskStartedAtMs === null) {
+    return 0;
+  }
+
+  return clamp(getCurrentTimeMs() - taskStartedAtMs, 0, 60 * 1000);
+};
+
+const createResult = (
+  correctCount: number,
+  mistakes: number,
+  answeredCount: number,
+  reactionTimes: readonly number[],
+): BestResult => ({
+  score: getScore(correctCount, mistakes),
+  accuracy: getAccuracy(correctCount, answeredCount),
+  avgReactionMs: Math.round(getAverageReactionMs(reactionTimes)),
+});
+
+const createNextProgress = (current: RoundProgress, reactionMs: number, isCorrect: boolean): RoundProgress => ({
+  correctCount: current.correctCount + (isCorrect ? 1 : 0),
+  mistakes: current.mistakes + (isCorrect ? 0 : 1),
+  completedRounds: current.completedRounds + 1,
+  reactionTimes: [...current.reactionTimes, reactionMs],
+});
+
+const getUpdatedBestResults = (
+  currentBestResults: BestResults,
+  mode: StroopMode,
+  nextResult: BestResult,
+): BestResults => {
+  const previousBest = currentBestResults[mode];
+  if (previousBest && previousBest.score >= nextResult.score) {
+    return currentBestResults;
+  }
+
+  return { ...currentBestResults, [mode]: nextResult };
+};
+
+const getTaskCardClassName = (congruent: boolean, lastChoiceState: 'correct' | 'wrong' | null) =>
+  [
+    'stroop-task-card',
+    congruent ? 'is-congruent' : 'is-incongruent',
+    lastChoiceState === 'correct' ? 'is-correct' : '',
+    lastChoiceState === 'wrong' ? 'is-wrong' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
 const parseStoredMode = (raw: string | null): StroopMode | null => {
   if (raw === 'practice' || raw === 'standard' || raw === 'timed') {
@@ -200,20 +286,17 @@ export default function StroopTestTrainer() {
   const currentBest = bestResults[mode] ?? null;
   const currentScore = getScore(correctCount, mistakes);
   const answeredCount = correctCount + mistakes;
-  const accuracy = answeredCount > 0 ? (correctCount / answeredCount) * 100 : 100;
-  const averageReactionMs =
-    reactionTimes.length > 0 ? reactionTimes.reduce((sum, value) => sum + value, 0) / reactionTimes.length : 0;
+  const accuracy = getAccuracy(correctCount, answeredCount);
+  const averageReactionMs = getAverageReactionMs(reactionTimes);
   const roundsTarget = modeConfig.totalRounds;
   const timeLimitMs = modeConfig.timeLimitMs;
-  const progressPercent = roundsTarget
-    ? (completedRounds / roundsTarget) * 100
-    : timeLimitMs
-      ? (elapsedMs / timeLimitMs) * 100
-      : 0;
+  const progressPercent = getProgressPercent(completedRounds, roundsTarget, elapsedMs, timeLimitMs);
   const choices = task.options
     .map(optionId => STROOP_COLORS.find(color => color.id === optionId))
     .filter(Boolean) as StroopColor[];
   const wordColor = STROOP_COLORS.find(color => color.id === task.ink) ?? STROOP_COLORS[0];
+  const displayElapsedMs = getDisplayedElapsedMs(elapsedMs, timeLimitMs, status);
+  const taskCardClassName = getTaskCardClassName(task.congruent, lastChoiceState);
 
   const persistBestResults = React.useCallback((updater: BestResultsUpdater) => {
     setBestResults(currentBestResults => {
@@ -259,25 +342,12 @@ export default function StroopTestTrainer() {
       const limit = getModeConfig(mode).timeLimitMs;
       if (limit !== null && nextElapsed >= limit) {
         const safeElapsed = clamp(limit, 0, 60 * 60 * 1000);
-        const nextAccuracy = answeredCount > 0 ? (correctCount / answeredCount) * 100 : 100;
-        const avgReaction =
-          reactionTimes.length > 0 ? reactionTimes.reduce((sum, value) => sum + value, 0) / reactionTimes.length : 0;
-        const nextResult = {
-          score: getScore(correctCount, mistakes),
-          accuracy: nextAccuracy,
-          avgReactionMs: Math.round(avgReaction),
-        };
+        const nextResult = createResult(correctCount, mistakes, answeredCount, reactionTimes);
 
         setStatus('completed');
         setElapsedMs(safeElapsed);
         setLastResult(nextResult);
-        persistBestResults(currentBestResults => {
-          const previousBest = currentBestResults[mode];
-          if (previousBest && previousBest.score >= nextResult.score) {
-            return currentBestResults;
-          }
-          return { ...currentBestResults, [mode]: nextResult };
-        });
+        persistBestResults(currentBestResults => getUpdatedBestResults(currentBestResults, mode, nextResult));
       }
     }, 50);
 
@@ -327,23 +397,13 @@ export default function StroopTestTrainer() {
 
   const completeRound = React.useCallback(
     (finalElapsedMs: number) => {
-      const nextResult = {
-        score: getScore(correctCount, mistakes),
-        accuracy,
-        avgReactionMs: Math.round(averageReactionMs),
-      };
+      const nextResult = createResult(correctCount, mistakes, answeredCount, reactionTimes);
       setStatus('completed');
       setElapsedMs(finalElapsedMs);
       setLastResult(nextResult);
-      persistBestResults(currentBestResults => {
-        const previousBest = currentBestResults[mode];
-        if (previousBest && previousBest.score >= nextResult.score) {
-          return currentBestResults;
-        }
-        return { ...currentBestResults, [mode]: nextResult };
-      });
+      persistBestResults(currentBestResults => getUpdatedBestResults(currentBestResults, mode, nextResult));
     },
-    [accuracy, averageReactionMs, correctCount, mistakes, mode, persistBestResults],
+    [answeredCount, correctCount, mistakes, mode, persistBestResults, reactionTimes],
   );
 
   const startTimerIfNeeded = () => {
@@ -360,6 +420,55 @@ export default function StroopTestTrainer() {
     setTask(createTask(nextMode));
     setTaskStartedAtMs(getCurrentTimeMs());
   };
+
+  const recordChoice = React.useCallback((isCorrect: boolean, reactionMs: number, nextCompletedRounds: number) => {
+    setReactionTimes(currentReactionTimes => [...currentReactionTimes, reactionMs]);
+    setLastChoiceState(isCorrect ? 'correct' : 'wrong');
+
+    if (isCorrect) {
+      setCorrectCount(previous => previous + 1);
+      setCompletedRounds(nextCompletedRounds);
+      return;
+    }
+
+    setMistakes(previous => previous + 1);
+    setCompletedRounds(nextCompletedRounds);
+  }, []);
+
+  const completeWithProgress = React.useCallback(
+    (finalElapsedMs: number, nextProgress: RoundProgress) => {
+      const nextResult = createResult(
+        nextProgress.correctCount,
+        nextProgress.mistakes,
+        nextProgress.completedRounds,
+        nextProgress.reactionTimes,
+      );
+
+      setStatus('completed');
+      setElapsedMs(finalElapsedMs);
+      setLastResult(nextResult);
+      persistBestResults(currentBestResults => getUpdatedBestResults(currentBestResults, mode, nextResult));
+    },
+    [mode, persistBestResults],
+  );
+
+  const syncTimedModeProgress = React.useCallback(
+    (currentStartedAtMs: number | null) => {
+      if (timeLimitMs === null || currentStartedAtMs === null) {
+        return false;
+      }
+
+      const nextElapsed = clamp(getCurrentTimeMs() - currentStartedAtMs, 0, timeLimitMs);
+      setElapsedMs(nextElapsed);
+      if (nextElapsed < timeLimitMs) {
+        return false;
+      }
+
+      completeRound(timeLimitMs);
+      return true;
+    },
+    [completeRound, timeLimitMs],
+  );
 
   const handleModeChange = (nextMode: StroopMode) => {
     setMode(nextMode);
@@ -381,56 +490,24 @@ export default function StroopTestTrainer() {
     }
 
     const effectiveStartMs = startTimerIfNeeded();
-    const reactionMs = taskStartedAtMs !== null ? clamp(getCurrentTimeMs() - taskStartedAtMs, 0, 60 * 1000) : 0;
+    const reactionMs = getChoiceReactionMs(taskStartedAtMs);
     const isCorrect = choice === task.ink;
+    const nextProgress = createNextProgress(
+      { correctCount, mistakes, completedRounds, reactionTimes },
+      reactionMs,
+      isCorrect,
+    );
 
-    setReactionTimes(currentReactionTimes => [...currentReactionTimes, reactionMs]);
-    setLastChoiceState(isCorrect ? 'correct' : 'wrong');
+    recordChoice(isCorrect, reactionMs, nextProgress.completedRounds);
 
-    if (isCorrect) {
-      setCorrectCount(previous => previous + 1);
-    } else {
-      setMistakes(previous => previous + 1);
-    }
-
-    const nextCompletedRounds = completedRounds + 1;
-    setCompletedRounds(nextCompletedRounds);
-
-    if (modeConfig.totalRounds !== null && nextCompletedRounds >= modeConfig.totalRounds) {
+    if (modeConfig.totalRounds !== null && nextProgress.completedRounds >= modeConfig.totalRounds) {
       const finishMs = clamp(getCurrentTimeMs() - effectiveStartMs, 0, 60 * 60 * 1000);
-      const nextCorrect = correctCount + (isCorrect ? 1 : 0);
-      const nextMistakes = mistakes + (isCorrect ? 0 : 1);
-      const nextReactionTimes = [...reactionTimes, reactionMs];
-      const nextAccuracy = nextCompletedRounds > 0 ? (nextCorrect / nextCompletedRounds) * 100 : 100;
-      const nextAverage =
-        nextReactionTimes.length > 0
-          ? nextReactionTimes.reduce((sum, value) => sum + value, 0) / nextReactionTimes.length
-          : 0;
-      const nextResult = {
-        score: getScore(nextCorrect, nextMistakes),
-        accuracy: nextAccuracy,
-        avgReactionMs: Math.round(nextAverage),
-      };
-      setStatus('completed');
-      setElapsedMs(finishMs);
-      setLastResult(nextResult);
-      persistBestResults(currentBestResults => {
-        const previousBest = currentBestResults[mode];
-        if (previousBest && previousBest.score >= nextResult.score) {
-          return currentBestResults;
-        }
-        return { ...currentBestResults, [mode]: nextResult };
-      });
+      completeWithProgress(finishMs, nextProgress);
       return;
     }
 
-    if (modeConfig.timeLimitMs !== null && startedAtMs !== null) {
-      const nextElapsed = clamp(getCurrentTimeMs() - startedAtMs, 0, modeConfig.timeLimitMs);
-      setElapsedMs(nextElapsed);
-      if (nextElapsed >= modeConfig.timeLimitMs) {
-        completeRound(modeConfig.timeLimitMs);
-        return;
-      }
+    if (syncTimedModeProgress(startedAtMs)) {
+      return;
     }
 
     queueNextTask(mode);
@@ -550,13 +627,7 @@ export default function StroopTestTrainer() {
                   <FontAwesomeIcon icon="clock" className="me-2" />
                   {t('games.stroop.trainer.timer')}
                 </span>
-                <strong className="stroop-stat-value tabular-nums">
-                  {formatDuration(
-                    modeConfig.timeLimitMs !== null && status !== 'completed'
-                      ? Math.min(elapsedMs, modeConfig.timeLimitMs)
-                      : elapsedMs,
-                  )}
-                </strong>
+                <strong className="stroop-stat-value tabular-nums">{formatDuration(displayElapsedMs)}</strong>
               </div>
               <div className="stroop-stat-tile">
                 <span className="stroop-stat-label">
@@ -578,16 +649,7 @@ export default function StroopTestTrainer() {
               <div className="stroop-progress-bar" style={{ width: `${Math.min(progressPercent, 100)}%` }} />
             </div>
 
-            <div
-              className={[
-                'stroop-task-card',
-                task.congruent ? 'is-congruent' : 'is-incongruent',
-                lastChoiceState === 'correct' ? 'is-correct' : '',
-                lastChoiceState === 'wrong' ? 'is-wrong' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-            >
+            <div className={taskCardClassName}>
               <div className="stroop-task-header">
                 <span className="stroop-task-eyebrow">{t('games.stroop.trainer.currentPrompt')}</span>
                 <strong className="stroop-task-rule">{t('games.stroop.trainer.rule')}</strong>
@@ -603,7 +665,8 @@ export default function StroopTestTrainer() {
               </div>
             </div>
 
-            <div className="stroop-choice-grid" role="group" aria-label={t('games.stroop.trainer.choiceGroup')}>
+            <fieldset className="stroop-choice-grid">
+              <legend className="visually-hidden">{t('games.stroop.trainer.choiceGroup')}</legend>
               {choices.map(choice => (
                 <button
                   key={choice.id}
@@ -622,7 +685,7 @@ export default function StroopTestTrainer() {
                   <span className="stroop-choice-label">{t(`games.stroop.colors.${choice.id}`)}</span>
                 </button>
               ))}
-            </div>
+            </fieldset>
 
             <div className="stroop-trainer-footer">
               {lastResult ? (
