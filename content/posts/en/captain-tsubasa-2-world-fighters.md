@@ -4,7 +4,7 @@ publishedDate: '2026-02-26'
 category:
   id: gaming
   name: Gaming
-updatedDate: '2026-02-26'
+updatedDate: '2026-02-27'
 summary: 'A detailed breakdown of Captain Tsubasa 2: World Fighters from Bandai Namco’s official page and community tracking, covering platforms, gameplay scale, known details, and open questions before launch.'
 thumbnail: '/images/captain-tsubasa-2-world-fighters-thumbnail.webp'
 readingTime: '5 min read'
@@ -47,7 +47,7 @@ This breakdown is written for readers who already know the `Captain Tsubasa` ani
 
 ---
 
-## 🛠️ Step 1: Confirm the facts
+## 🛠️ Official Facts
 
 Start with the official Bandai Namco page. At this stage, it is the most reliable source for release-window, platform, and publisher-facing metadata.
 
@@ -70,7 +70,7 @@ The page also includes wishlist/store entry points, media assets, and a news car
 
 ---
 
-## 🛠️ Step 2: Read the gameplay pitch
+## 🛠️ Gameplay Pitch
 
 Even without a full gameplay breakdown, the wording on the official page is enough to outline the intended player experience.
 
@@ -90,7 +90,7 @@ Taken together, these points suggest a cinematic arcade formula that leans into 
 
 ---
 
-## 🛠️ Step 3: Use community references
+## 🛠️ Community References
 
 The Fandom page is useful as a fast-moving reference hub, but it should still be treated as a secondary source until the official site and storefront pages publish fuller details.
 
@@ -104,7 +104,7 @@ That is normal for a newly announced title. Use the wiki to monitor changes, but
 
 ---
 
-## 🧪 Step 4: Watch the key unknowns
+## 🧪 Key Unknowns
 
 Reveal pages usually lock in the marketing pitch first, while the most purchase-relevant details arrive later. These are the key items to watch next.
 
@@ -119,7 +119,7 @@ The official page also lists ESRB-related descriptors such as `Mild Violence` an
 
 ---
 
-## ▶️ Step 5: Track updates efficiently
+## ▶️ Tracking Updates
 
 If you want to stay updated without chasing every rumor, this order keeps the signal-to-noise ratio high:
 
@@ -132,7 +132,7 @@ If you plan to buy at launch, wishlist the game on your preferred platform and r
 
 ---
 
-## 🛠️ Step 6: Media
+## 🎬 Media
 
 This media section is split into two parts so you can quickly check the official trailer first, then browse the visual gallery snapshots.
 
@@ -164,43 +164,43 @@ Source gallery: [Captain Tsubasa Fandom Wiki page](https://captaintsubasa.fandom
 
 <div class="post-media-grid">
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-cover.webp" alt="Captain Tsubasa 2 World Fighters cover art" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-cover.webp" alt="Captain Tsubasa 2 World Fighters cover art" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Cover art</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-flying-drive-shot.webp" alt="Tsubasa Flying Drive Shot screenshot" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-flying-drive-shot.webp" alt="Tsubasa Flying Drive Shot screenshot" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Flying Drive Shot scene</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-wakabayashi.webp" alt="Wakabayashi Genzo artwork" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-wakabayashi.webp" alt="Wakabayashi Genzo artwork" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Wakabayashi Genzo character art</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-jito-hiroshi.webp" alt="Jito Hiroshi artwork" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-jito-hiroshi.webp" alt="Jito Hiroshi artwork" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Jito Hiroshi character art</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-hayabusa-volley.webp" alt="Hayabusa Volley screenshot" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-hayabusa-volley.webp" alt="Hayabusa Volley screenshot" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Hayabusa Volley scene</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-neo-tiger-shot.webp" alt="Neo Tiger Shot screenshot" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-neo-tiger-shot.webp" alt="Neo Tiger Shot screenshot" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Neo Tiger Shot scene</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-tsubasa-ozora.webp" alt="Tsubasa Ozora artwork" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-tsubasa-ozora.webp" alt="Tsubasa Ozora artwork" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Tsubasa Ozora character art</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-misugi-jun.webp" alt="Misugi Jun artwork" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-misugi-jun.webp" alt="Misugi Jun artwork" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Misugi Jun character art</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-heel-lift-vs-santana.webp" alt="Heel Lift versus Santana screenshot" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-heel-lift-vs-santana.webp" alt="Heel Lift versus Santana screenshot" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Heel Lift confrontation scene</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-drive-shot.webp" alt="Drive Shot screenshot" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-drive-shot.webp" alt="Drive Shot screenshot" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Drive Shot scene</figcaption>
   </figure>
 </div>

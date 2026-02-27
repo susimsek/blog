@@ -4763,11 +4763,14 @@ $state-variants: (
   width: 100%;
   display: flex;
   justify-content: center;
+  overflow-x: clip;
 }
 
 .schulte-grid {
   --schulte-grid-size: 5;
   width: min(100%, 760px);
+  max-width: calc(100vw - 2rem);
+  margin-inline: auto;
   display: grid;
   grid-template-columns: repeat(var(--schulte-grid-size), minmax(0, 1fr));
   gap: clamp(0.2rem, calc(0.85rem - (var(--schulte-grid-size) * 0.045rem)), 0.55rem);
@@ -5051,7 +5054,86 @@ $state-variants: (
   .schulte-action-list .btn {
     padding: 0.48rem 0.6rem;
     font-size: clamp(0.72rem, 2.8vw, 0.82rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .schulte-trainer-card {
+    overflow: hidden;
+  }
+
+  .schulte-trainer-body {
+    gap: 0.85rem;
+    padding: 0.72rem;
+  }
+
+  .schulte-mobile-controls-toggle {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.68rem 0.75rem;
+  }
+
+  .schulte-mobile-controls-toggle-label {
+    font-size: 0.86rem;
+  }
+
+  .schulte-mobile-controls-toggle-state {
+    font-size: 0.75rem;
+  }
+
+  .schulte-stat-tile {
+    padding: 0.58rem 0.65rem;
+  }
+
+  .schulte-stat-label {
+    font-size: 0.75rem;
+  }
+
+  .schulte-stat-value {
+    font-size: 0.96rem;
+  }
+
+  .schulte-grid {
+    width: min(100%, calc(100vw - 1.45rem));
+    max-width: calc(100vw - 1.45rem);
+    gap: clamp(0.12rem, calc(0.42rem - (var(--schulte-grid-size) * 0.022rem)), 0.24rem);
+  }
+
+  .schulte-cell {
+    border-radius: 6px;
+    font-size: clamp(0.52rem, calc(0.94rem - (var(--schulte-grid-size) * 0.04rem)), 0.9rem);
+  }
+
+  .schulte-size-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .schulte-size-option {
+    min-height: 44px;
+    justify-content: center;
+    padding: 0.45rem 0.55rem;
+    text-align: center;
+  }
+
+  .schulte-action-list .btn {
+    justify-content: center;
+    min-height: 44px;
+    padding: 0.5rem 0.7rem;
+  }
+
+  .schulte-controls-offcanvas.offcanvas-bottom {
+    height: auto;
+    max-height: min(82vh, 34rem);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+  }
+
+  .schulte-controls-offcanvas.offcanvas-bottom .offcanvas-body {
+    padding: 0.9rem 0.9rem calc(0.95rem + env(safe-area-inset-bottom));
   }
 }
 

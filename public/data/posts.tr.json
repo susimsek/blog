@@ -1,5 +1,37 @@
 [
   {
+    "id": "captain-tsubasa-rise-of-new-champions",
+    "title": "Captain Tsubasa: Rise of New Champions",
+    "summary": "World Fighters gelmeden önce Rise of New Champions, Captain Tsubasa’nın modern konsol kimliğini en net gösteren oyun olarak öne çıkıyor: hızlı, gösterişli ve bütünüyle anime futbolu ruhuna yaslanan bir yapım.",
+    "thumbnail": "/images/captain-tsubasa-rise-of-new-champions-thumbnail.webp",
+    "topics": [
+      {
+        "id": "captain-tsubasa",
+        "name": "Captain Tsubasa",
+        "color": "orange"
+      },
+      {
+        "id": "anime-game",
+        "name": "Anime Oyunu",
+        "color": "purple"
+      },
+      {
+        "id": "sports-game",
+        "name": "Spor Oyunu",
+        "color": "blue"
+      }
+    ],
+    "readingTimeMin": 5,
+    "searchText": "captain tsubasa rise of new champions captain tsubasa rise of new champions icin 2020 cikisi arcade oynanis kimligi surum yapisi dlc destegi ve bugun neden hala onemli oldugu uzerine editoryel bir inceleme captain tsubasa anime oyunu spor oyunu oyun bandai namco tamsoft arcade futbol 2020 ps4 nintendo switch steam character pass new hero edition",
+    "updatedDate": "2026-02-27",
+    "publishedDate": "2026-02-27",
+    "source": "blog",
+    "category": {
+      "id": "gaming",
+      "name": "Oyun"
+    }
+  },
+  {
     "id": "captain-tsubasa-2-world-fighters",
     "title": "Captain Tsubasa 2: World Fighters",
     "summary": "Captain Tsubasa 2: World Fighters için Bandai Namco resmi sayfası ve topluluk takibine dayalı detaylı bir inceleme: platformlar, oynanış ölçeği, bilinen bilgiler ve çıkış öncesi açık noktalar.",

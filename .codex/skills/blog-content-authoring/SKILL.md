@@ -39,9 +39,10 @@ Use this rule set to keep every article at a modern, professional developer-blog
    - what the reader will learn, or
    - why this approach matters.
 4. `## 📋 Prerequisites` / `## 📋 Gereksinimler` must exist and be explicit.
-5. Implementation is step-based (`## 🛠️/🧪/▶️ Step N` or `Adım N`) with sequential numbering.
-6. Each `##` section must contain real content (no empty headings).
-7. End with a single `## 🏁 Conclusion` / `## 🏁 Sonuç`:
+5. Tutorial / implementation posts use sequential step headings (`## 🛠️/🧪/▶️ Step N` or `Adım N`).
+6. `gaming` category posts do not use `Step N` / `Adım N` in headings. Use short editorial section titles instead (for example `## 🛠️ Official Facts`, `## 🛠️ Gameplay Pitch`, `## 🎬 Media`).
+7. Each `##` section must contain real content (no empty headings).
+8. End with a single `## 🏁 Conclusion` / `## 🏁 Sonuç`:
    - one concise synthesis paragraph,
    - one practical next step for production hardening.
 
@@ -187,6 +188,15 @@ If you add images inside the post body (Markdown/HTML):
 - **Location**: `public/images/posts/<slug>/`
 - **Reference path**: `/images/posts/<slug>/<name>.webp`
 
+#### Gaming gallery standard (mandatory for `category.id: gaming`)
+
+- If a gaming post includes a visual gallery, gallery cards use a consistent landscape ratio
+- **Required output**: `1200x630`
+- **Format**: `webp`
+- **Use the same rendered dimensions in markdown**: `width="1200"` and `height="630"`
+- Keep all gallery cards in the same post on the same ratio; do not mix square and landscape assets
+- Trailer cards can stay feature-sized, but regular gallery cards should all follow the same `1200x630` standard
+
 Generate (keeps aspect ratio, resizes to a max width):
 
 ```bash
@@ -248,6 +258,11 @@ Keep headings consistent across posts:
     - TR: `## 🛠️ Adım N: ...`
   - Testing/verification step: `## 🧪 Step N: ...` / `## 🧪 Adım N: ...`
   - Run/start step: `## ▶️ Step N: ...` / `## ▶️ Adım N: ...`
+- **Gaming posts (`category.id: gaming`)**
+  - Do not use numbered `Step N` / `Adım N` headings
+  - Use short editorial `##` headings instead
+    - EN: `## 🛠️ Official Facts`, `## 🛠️ Gameplay Pitch`, `## 🎬 Media`
+    - TR: `## 🛠️ Resmi Bilgiler`, `## 🛠️ Oynanış Yaklaşımı`, `## 🎬 Medya`
 
 Note: Avoid “random” emojis in headings. Prefer the small set above so posts feel consistent.
 

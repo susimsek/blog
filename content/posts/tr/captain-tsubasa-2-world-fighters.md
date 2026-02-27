@@ -4,7 +4,7 @@ publishedDate: '2026-02-26'
 category:
   id: gaming
   name: Oyun
-updatedDate: '2026-02-26'
+updatedDate: '2026-02-27'
 summary: 'Captain Tsubasa 2: World Fighters için Bandai Namco resmi sayfası ve topluluk takibine dayalı detaylı bir inceleme: platformlar, oynanış ölçeği, bilinen bilgiler ve çıkış öncesi açık noktalar.'
 thumbnail: '/images/captain-tsubasa-2-world-fighters-thumbnail.webp'
 readingTime: '5 dk okuma'
@@ -47,7 +47,7 @@ Bu inceleme, `Captain Tsubasa` evrenine aşina olup şu an hangi bilgilerin ger�
 
 ---
 
-## 🛠️ Adım 1: Resmi bilgileri doğrula
+## 🛠️ Resmi Bilgiler
 
 Temel bilgiler için başlangıç noktası Bandai Namco’nun resmi oyun sayfası olmalı. Çıkış penceresi, platformlar ve yayımlayıcı tarafındaki metadata için bu aşamada en güvenilir kaynak burası.
 
@@ -70,7 +70,7 @@ Aynı sayfa ayrıca wishlist/mağaza yönlendirmeleri, medya içerikleri ve `5 �
 
 ---
 
-## 🛠️ Adım 2: Oynanış vaatlerini incele
+## 🛠️ Oynanış Vaatleri
 
 Detaylı oynanış analizi henüz yayınlanmamış olsa da resmi sayfadaki metinler oyunun nasıl bir deneyim hedeflediğini anlamak için yeterli ipucu veriyor.
 
@@ -90,7 +90,7 @@ Bu tablo, oyunun anime gösterişini korurken özellikle şut-kurtarış anları
 
 ---
 
-## 🛠️ Adım 3: Topluluk kaynaklarını kullan
+## 🛠️ Topluluk Kaynakları
 
 Fandom sayfası hızlı güncellenen iyi bir takip noktası, ancak resmi açıklamalar gelmeden satın alma veya çıkış planı için tek başına yeterli kaynak olarak görülmemeli.
 
@@ -104,7 +104,7 @@ Yeni duyurulan oyunlar için bu durum normaldir. Doğru yaklaşım, topluluk say
 
 ---
 
-## 🧪 Adım 4: Kritik belirsizlikleri izle
+## 🧪 Kritik Belirsizlikler
 
 Duyuru sayfaları önce pazarlama çerçevesini netleştirir; satın alma kararını etkileyen detaylar ise çoğu zaman daha sonra gelir. Bu nedenle aşağıdaki başlıkları takip etmek önemli:
 
@@ -119,7 +119,7 @@ Resmi sayfa ayrıca ABD derecelendirme bağlamı için `Mild Violence` ve `Mild 
 
 ---
 
-## ▶️ Adım 5: Güncellemeleri takip et
+## ▶️ Güncellemeleri Takip Et
 
 Her güncellemenin peşinden koşmadan sağlıklı takip yapmak için şu sıra en verimli akışı sağlar:
 
@@ -132,7 +132,7 @@ Her güncellemenin peşinden koşmadan sağlıklı takip yapmak için şu sıra 
 
 ---
 
-## 🛠️ Adım 6: Medya
+## 🎬 Medya
 
 Bu medya bölümünü iki parçaya ayırdım: önce resmi fragmanı hızlıca izleyebilir, ardından galeri görselleriyle oyunun görsel tonuna bakabilirsiniz.
 
@@ -164,43 +164,43 @@ Kaynak galeri: [Captain Tsubasa Fandom Wiki sayfası](https://captaintsubasa.fan
 
 <div class="post-media-grid">
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-cover.webp" alt="Captain Tsubasa 2 World Fighters kapak görseli" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-cover.webp" alt="Captain Tsubasa 2 World Fighters kapak görseli" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Kapak görseli</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-flying-drive-shot.webp" alt="Tsubasa Flying Drive Shot ekran görüntüsü" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-flying-drive-shot.webp" alt="Tsubasa Flying Drive Shot ekran görüntüsü" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Flying Drive Shot sahnesi</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-wakabayashi.webp" alt="Wakabayashi Genzo karakter görseli" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-wakabayashi.webp" alt="Wakabayashi Genzo karakter görseli" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Wakabayashi Genzo karakter görseli</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-jito-hiroshi.webp" alt="Jito Hiroshi karakter görseli" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-jito-hiroshi.webp" alt="Jito Hiroshi karakter görseli" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Jito Hiroshi karakter görseli</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-hayabusa-volley.webp" alt="Hayabusa Volley ekran görüntüsü" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-hayabusa-volley.webp" alt="Hayabusa Volley ekran görüntüsü" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Hayabusa Volley sahnesi</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-neo-tiger-shot.webp" alt="Neo Tiger Shot ekran görüntüsü" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-neo-tiger-shot.webp" alt="Neo Tiger Shot ekran görüntüsü" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Neo Tiger Shot sahnesi</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-tsubasa-ozora.webp" alt="Tsubasa Ozora karakter görseli" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-tsubasa-ozora.webp" alt="Tsubasa Ozora karakter görseli" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Tsubasa Ozora karakter görseli</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-misugi-jun.webp" alt="Misugi Jun karakter görseli" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-misugi-jun.webp" alt="Misugi Jun karakter görseli" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Misugi Jun karakter görseli</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-heel-lift-vs-santana.webp" alt="Heel Lift ve Santana sahnesi ekran görüntüsü" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-heel-lift-vs-santana.webp" alt="Heel Lift ve Santana sahnesi ekran görüntüsü" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Heel Lift karşılaşma sahnesi</figcaption>
   </figure>
   <figure class="post-media-card">
-    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-drive-shot.webp" alt="Drive Shot ekran görüntüsü" width="1200" height="1200" loading="lazy" decoding="async" />
+    <img src="/images/posts/captain-tsubasa-2-world-fighters/gallery-drive-shot.webp" alt="Drive Shot ekran görüntüsü" width="1200" height="630" loading="lazy" decoding="async" />
     <figcaption>Drive Shot sahnesi</figcaption>
   </figure>
 </div>

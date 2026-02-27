@@ -13,6 +13,7 @@ type GridSize = 3 | 4 | 5 | 6 | 7 | 8 | 9;
 type TrainerStatus = 'idle' | 'running' | 'completed';
 
 type BestTimes = Partial<Record<GridSize, number>>;
+type BestTimesUpdater = BestTimes | ((current: BestTimes) => BestTimes);
 type CellPaletteItem = {
   bg: string;
   fg: string;
@@ -22,6 +23,7 @@ type CellPaletteItem = {
 const GRID_SIZES: readonly GridSize[] = [3, 4, 5, 6, 7, 8, 9] as const;
 const DEFAULT_GRID_SIZE: GridSize = 5;
 const STORAGE_KEY = 'schulte-table-best-times-v1';
+const GRID_SIZE_STORAGE_KEY = 'schulte-table-grid-size-v1';
 const CELL_PALETTE: readonly CellPaletteItem[] = [
   { bg: '#2b83c6', fg: '#ffffff', border: '#2f6f99' },
   { bg: '#46b68b', fg: '#ffffff', border: '#2f8f6d' },
@@ -87,9 +89,19 @@ const parseStoredBestTimes = (raw: string | null): BestTimes => {
   }
 };
 
+const parseStoredGridSize = (raw: string | null): GridSize | null => {
+  if (!raw) {
+    return null;
+  }
+
+  const parsed = Number(raw);
+  return GRID_SIZES.includes(parsed as GridSize) ? (parsed as GridSize) : null;
+};
+
 export default function SchulteTableTrainer() {
   const { t, i18n } = useTranslation('games');
   const isMobile = useMediaQuery('(max-width: 991px)');
+  const isCompactMobile = useMediaQuery('(max-width: 575px)');
   const [size, setSize] = React.useState<GridSize>(DEFAULT_GRID_SIZE);
   const [cells, setCells] = React.useState<number[]>(() => createOrderedBoard(DEFAULT_GRID_SIZE));
   const [isMobileControlsOpen, setIsMobileControlsOpen] = React.useState(false);
@@ -103,13 +115,6 @@ export default function SchulteTableTrainer() {
   const [lastResultMs, setLastResultMs] = React.useState<number | null>(null);
   const [bestTimes, setBestTimes] = React.useState<BestTimes>({});
   const [lastWrongNumber, setLastWrongNumber] = React.useState<number | null>(null);
-
-  React.useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-    setBestTimes(parseStoredBestTimes(window.localStorage.getItem(STORAGE_KEY)));
-  }, []);
 
   React.useEffect(() => {
     if (status !== 'running' || startedAtMs === null) {
@@ -139,13 +144,15 @@ export default function SchulteTableTrainer() {
   const displayTime = isCompleted ? (lastResultMs ?? elapsedMs) : elapsedMs;
   const currentBest = bestTimes[size] ?? null;
 
-  const persistBestTimes = (nextBestTimes: BestTimes) => {
-    setBestTimes(nextBestTimes);
-    if (typeof window === 'undefined') {
-      return;
-    }
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextBestTimes));
-  };
+  const persistBestTimes = React.useCallback((updater: BestTimesUpdater) => {
+    setBestTimes(currentBestTimes => {
+      const nextBestTimes = typeof updater === 'function' ? updater(currentBestTimes) : updater;
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextBestTimes));
+      }
+      return nextBestTimes;
+    });
+  }, []);
 
   const resetRoundState = React.useCallback((options?: { preserveHint?: boolean }) => {
     setTarget(1);
@@ -175,8 +182,18 @@ export default function SchulteTableTrainer() {
   };
 
   React.useEffect(() => {
-    resetRound(DEFAULT_GRID_SIZE, { preserveHint: true });
-  }, [resetRound]);
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const storedBestTimes = parseStoredBestTimes(window.localStorage.getItem(STORAGE_KEY));
+    const storedGridSize = parseStoredGridSize(window.localStorage.getItem(GRID_SIZE_STORAGE_KEY)) ?? DEFAULT_GRID_SIZE;
+
+    setBestTimes(storedBestTimes);
+    setSize(storedGridSize);
+    setCells(createBoard(storedGridSize));
+    resetRoundState({ preserveHint: true });
+  }, [resetRoundState]);
 
   React.useEffect(() => {
     if (!isMobile) {
@@ -188,6 +205,9 @@ export default function SchulteTableTrainer() {
     setSize(nextSize);
     resetRound(nextSize, { preserveHint: true });
     setIsMobileControlsOpen(false);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(GRID_SIZE_STORAGE_KEY, String(nextSize));
+    }
   };
 
   const startTimerIfNeeded = () => {
@@ -205,11 +225,13 @@ export default function SchulteTableTrainer() {
     setStatus('completed');
     setElapsedMs(finishMs);
     setLastResultMs(finishMs);
-
-    const previousBest = bestTimes[size];
-    if (previousBest === undefined || finishMs < previousBest) {
-      persistBestTimes({ ...bestTimes, [size]: finishMs });
-    }
+    persistBestTimes(currentBestTimes => {
+      const previousBest = currentBestTimes[size];
+      if (previousBest !== undefined && finishMs >= previousBest) {
+        return currentBestTimes;
+      }
+      return { ...currentBestTimes, [size]: finishMs };
+    });
   };
 
   const handleCellClick = (value: number) => {
@@ -309,9 +331,11 @@ export default function SchulteTableTrainer() {
             variant="danger"
             size="sm"
             onClick={() => {
-              const nextBestTimes = { ...bestTimes };
-              delete nextBestTimes[size];
-              persistBestTimes(nextBestTimes);
+              persistBestTimes(currentBestTimes => {
+                const nextBestTimes = { ...currentBestTimes };
+                delete nextBestTimes[size];
+                return nextBestTimes;
+              });
               setIsMobileControlsOpen(false);
             }}
           >
@@ -446,7 +470,7 @@ export default function SchulteTableTrainer() {
         <Offcanvas
           show={isMobileControlsOpen}
           onHide={() => setIsMobileControlsOpen(false)}
-          placement="start"
+          placement={isCompactMobile ? 'bottom' : 'start'}
           className="schulte-controls-offcanvas"
         >
           <Offcanvas.Header closeButton>

@@ -1,5 +1,37 @@
 [
   {
+    "id": "captain-tsubasa-rise-of-new-champions",
+    "title": "Captain Tsubasa: Rise of New Champions",
+    "summary": "Before World Fighters arrives, Rise of New Champions remains the clearest snapshot of Captain Tsubasa’s modern console identity: fast, theatrical, and built around pure anime football spectacle.",
+    "thumbnail": "/images/captain-tsubasa-rise-of-new-champions-thumbnail.webp",
+    "topics": [
+      {
+        "id": "captain-tsubasa",
+        "name": "Captain Tsubasa",
+        "color": "orange"
+      },
+      {
+        "id": "anime-game",
+        "name": "Anime Game",
+        "color": "purple"
+      },
+      {
+        "id": "sports-game",
+        "name": "Sports Game",
+        "color": "blue"
+      }
+    ],
+    "readingTimeMin": 5,
+    "searchText": "captain tsubasa rise of new champions an editorial breakdown of captain tsubasa rise of new champions covering its 2020 release arcade gameplay identity editions dlc support and what still makes it relevant today captain tsubasa anime game sports game gaming bandai namco tamsoft arcade football 2020 ps4 nintendo switch steam character pass new hero edition",
+    "updatedDate": "2026-02-27",
+    "publishedDate": "2026-02-27",
+    "source": "blog",
+    "category": {
+      "id": "gaming",
+      "name": "Gaming"
+    }
+  },
+  {
     "id": "captain-tsubasa-2-world-fighters",
     "title": "Captain Tsubasa 2: World Fighters",
     "summary": "A detailed breakdown of Captain Tsubasa 2: World Fighters from Bandai Namco’s official page and community tracking, covering platforms, gameplay scale, known details, and open questions before launch.",
