@@ -4,7 +4,7 @@ publishedDate: '2026-02-26'
 category:
   id: gaming
   name: Oyun
-updatedDate: '2026-02-28'
+updatedDate: '2026-02-27'
 summary: 'World Fighters gelmeden önce Rise of New Champions, Captain Tsubasa’nın modern konsol kimliğini en net gösteren oyun olarak öne çıkıyor: hızlı, gösterişli ve bütünüyle anime futbolu ruhuna yaslanan bir yapım.'
 thumbnail: '/images/captain-tsubasa-rise-of-new-champions-thumbnail.webp'
 readingTime: '5 dk okuma'

@@ -4,7 +4,7 @@ publishedDate: '2026-02-27'
 category:
   id: gaming
   name: Oyun
-updatedDate: '2026-02-27'
+updatedDate: '2026-02-28'
 summary: 'Captain Tsubasa 2: World Fighters için Bandai Namco resmi sayfası ve topluluk takibine dayalı detaylı bir inceleme: platformlar, oynanış ölçeği, bilinen bilgiler ve çıkış öncesi açık noktalar.'
 thumbnail: '/images/captain-tsubasa-2-world-fighters-thumbnail.webp'
 readingTime: '5 dk okuma'
