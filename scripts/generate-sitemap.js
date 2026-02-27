@@ -312,6 +312,18 @@ function getPagesData() {
         },
       },
     },
+    {
+      slug: 'games/schulte-table',
+      changefreq: 'weekly',
+      sourceFile: 'src/app/(localized)/[locale]/games/schulte-table/page.tsx',
+      image: {
+        loc: '/images/schulte-table-thumbnail.webp',
+        title: {
+          en: 'Schulte Table (Play Online)',
+          tr: 'Schulte Tablosu (Online Oyna)',
+        },
+      },
+    },
   ];
 }
 

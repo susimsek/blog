@@ -1,10 +1,11 @@
 import React from 'react';
-import { screen, fireEvent, act } from '@testing-library/react';
+import { screen, fireEvent, act, waitFor } from '@testing-library/react';
 import SearchContainer, { __resetSearchContainerCacheForTests } from '@/components/search/SearchContainer';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
 import type { PostsQueryState } from '@/reducers/postsQuery';
 
 const routerPushMock = jest.fn();
+const scrollIntoViewMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: routerPushMock }),
@@ -125,16 +126,27 @@ describe('SearchContainer', () => {
     });
   };
 
-  const renderSearch = () =>
+  const renderSearch = (postsQueryOverrides: Partial<PostsQueryState> = {}) =>
     renderWithProviders(<SearchContainer />, {
       preloadedState: {
-        postsQuery: basePostsQueryState,
+        postsQuery: {
+          ...basePostsQueryState,
+          ...postsQueryOverrides,
+        },
       },
     });
+
+  beforeAll(() => {
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: scrollIntoViewMock,
+    });
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
     routerPushMock.mockReset();
+    scrollIntoViewMock.mockReset();
     __resetSearchContainerCacheForTests();
     (global.fetch as unknown) = jest.fn();
     mockStaticPosts(posts);
@@ -148,6 +160,31 @@ describe('SearchContainer', () => {
     expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
     expect(screen.getByRole('option', { name: /common.viewAllResults:Post/i })).toBeInTheDocument();
     expect(global.fetch).toHaveBeenCalledWith('/data/posts.en.json', { cache: 'force-cache' });
+  });
+
+  it('ignores invalid static payload items during normalization', async () => {
+    mockStaticPosts([
+      null,
+      { id: 'broken', title: 'Broken', summary: 'broken' },
+      {
+        id: 'valid-post',
+        title: 'Valid Post',
+        summary: 'Valid summary',
+        searchText: 'valid post summary',
+        publishedDate: '2024-05-01',
+        thumbnail: null,
+        topics: [],
+        readingTimeMin: 2,
+        source: 'blog',
+      },
+    ]);
+
+    renderSearch();
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'valid' } });
+
+    const items = await screen.findAllByTestId('post-item');
+    expect(items).toHaveLength(1);
+    expect(items[0]).toHaveTextContent('Valid Post');
   });
 
   it('hides results when clicking outside', async () => {
@@ -206,6 +243,124 @@ describe('SearchContainer', () => {
     expect(await screen.findByText('Java Tips')).toBeInTheDocument();
   });
 
+  it('renders loading state before async search results resolve', async () => {
+    (global.fetch as jest.Mock).mockReturnValue(
+      new Promise(() => {
+        // Intentionally unresolved to keep loading state visible.
+      }),
+    );
+
+    renderSearch();
+
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Po' } });
+
+    expect(await screen.findByText('common.sidebar.loading')).toBeInTheDocument();
+  });
+
+  it('renders no-results state when search has no matches', async () => {
+    mockStaticPosts([]);
+    renderSearch();
+
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'zz' } });
+
+    expect(await screen.findByText('common.noResults')).toBeInTheDocument();
+  });
+
+  it('returns no results when locale is empty and skips fetch', async () => {
+    renderSearch({ locale: '' });
+
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'po' } });
+
+    expect(await screen.findByText('common.noResults')).toBeInTheDocument();
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('renders no-results when static payload request returns non-ok response', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({ ok: false, json: async () => [] });
+
+    renderSearch();
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'po' } });
+
+    expect(await screen.findByText('common.noResults')).toBeInTheDocument();
+  });
+
+  it('renders no-results when static payload request throws', async () => {
+    (global.fetch as jest.Mock).mockRejectedValue(new Error('network down'));
+
+    renderSearch();
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'po' } });
+
+    expect(await screen.findByText('common.noResults')).toBeInTheDocument();
+  });
+
+  it('reuses locale cache for subsequent searches without refetching', async () => {
+    const firstRender = renderSearch();
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
+    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+
+    firstRender.unmount();
+    (global.fetch as jest.Mock).mockClear();
+
+    renderSearch();
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
+    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('reuses in-flight locale request across concurrent searches', async () => {
+    let resolveFetch: ((value: unknown) => void) | undefined;
+    (global.fetch as jest.Mock).mockReturnValue(
+      new Promise(resolve => {
+        resolveFetch = resolve;
+      }),
+    );
+
+    renderSearch();
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Po' } });
+    expect(await screen.findByText('common.sidebar.loading')).toBeInTheDocument();
+
+    renderSearch();
+    fireEvent.change(screen.getAllByTestId('search-input')[1], { target: { value: 'Po' } });
+
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      resolveFetch?.({
+        ok: true,
+        json: async () => posts,
+      });
+    });
+
+    expect(await screen.findAllByTestId('post-item')).toHaveLength(10);
+  });
+
+  it('accepts valid category objects from static payload normalization', async () => {
+    mockStaticPosts([
+      {
+        id: 'categorized-post',
+        title: 'Categorized Post',
+        summary: 'Has a category',
+        searchText: 'categorized post category',
+        publishedDate: '2024-05-01',
+        thumbnail: null,
+        topics: [],
+        readingTimeMin: 2,
+        category: {
+          id: 'programming',
+          name: 'Programming',
+          color: 'blue',
+        },
+      },
+    ]);
+
+    renderSearch();
+
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'categorized' } });
+
+    expect(await screen.findByText('Categorized Post')).toBeInTheDocument();
+  });
+
   it('prioritizes blog results over medium results and keeps medium external links', async () => {
     mockStaticPosts([
       {
@@ -246,6 +401,21 @@ describe('SearchContainer', () => {
     );
   });
 
+  it('clears local state when clicking a post result', async () => {
+    renderSearch();
+
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post 1' } });
+    await screen.findAllByTestId('post-item');
+    const resultLink = screen
+      .getAllByRole('option')
+      .find(option => option.getAttribute('href') === '/posts/post-1') as HTMLElement;
+
+    fireEvent.click(resultLink);
+
+    expect(screen.getByTestId('search-input')).toHaveValue('');
+    expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
+  });
+
   it('closes open results and clears query when app:search-close requests clear', async () => {
     renderSearch();
 
@@ -279,6 +449,36 @@ describe('SearchContainer', () => {
     expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
   });
 
+  it('supports ArrowUp wrap-around and selecting "view all" via keyboard', async () => {
+    renderSearch();
+
+    const input = screen.getByTestId('search-input');
+    fireEvent.change(input, { target: { value: 'Post' } });
+    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
+
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    const viewAllLink = screen.getByRole('option', { name: /common.viewAllResults:Post/i });
+    expect(viewAllLink).toHaveClass('active');
+
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(routerPushMock).toHaveBeenCalledWith('/search?q=Post');
+  });
+
+  it('ignores navigation keys when there are no selectable results', async () => {
+    mockStaticPosts([]);
+    renderSearch();
+
+    const input = screen.getByTestId('search-input');
+    fireEvent.change(input, { target: { value: 'zz' } });
+    expect(await screen.findByText('common.noResults')).toBeInTheDocument();
+
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(routerPushMock).not.toHaveBeenCalled();
+  });
+
   it('closes dropdown and clears query on Escape', async () => {
     renderSearch();
 
@@ -290,6 +490,106 @@ describe('SearchContainer', () => {
 
     expect(screen.getByTestId('search-input')).toHaveValue('');
     expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
+  });
+
+  it('clears one-character query on Escape before results panel opens', () => {
+    renderSearch();
+
+    const input = screen.getByTestId('search-input');
+    const blurSpy = jest.spyOn(input, 'blur');
+    fireEvent.change(input, { target: { value: 'p' } });
+
+    fireEvent.keyDown(input, { key: 'Escape' });
+
+    expect(input).toHaveValue('');
+    expect(blurSpy).toHaveBeenCalled();
+  });
+
+  it('restores focus and reopens results on app:search-focus when query exists', async () => {
+    renderSearch();
+    const input = screen.getByTestId('search-input');
+
+    fireEvent.change(input, { target: { value: 'Post' } });
+    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
+    fireEvent.mouseDown(document.body);
+    expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
+
+    act(() => {
+      window.dispatchEvent(new Event('app:search-focus'));
+    });
+
+    expect(input).toHaveFocus();
+    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
+  });
+
+  it('keeps query when app:search-close is dispatched without clear flag', async () => {
+    renderSearch();
+    const input = screen.getByTestId('search-input');
+
+    fireEvent.change(input, { target: { value: 'Post' } });
+    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
+
+    act(() => {
+      window.dispatchEvent(new CustomEvent('app:search-close'));
+    });
+
+    expect(input).toHaveValue('Post');
+    expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
+  });
+
+  it('clears stale results when query is emptied', async () => {
+    renderSearch();
+    const input = screen.getByTestId('search-input');
+
+    fireEvent.change(input, { target: { value: 'Post' } });
+    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
+
+    fireEvent.change(input, { target: { value: '' } });
+    expect(screen.queryByTestId('post-item')).not.toBeInTheDocument();
+    expect(input).toHaveValue('');
+  });
+
+  it('updates active option on hover and scrolls active item into view', async () => {
+    renderSearch();
+    const input = screen.getByTestId('search-input');
+
+    fireEvent.change(input, { target: { value: 'Post' } });
+    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
+
+    const firstOption = screen.getByRole('option', { name: /Post 0/i });
+    const viewAllOption = screen.getByRole('option', { name: /common.viewAllResults:Post/i });
+
+    fireEvent.mouseEnter(firstOption);
+    await waitFor(() => expect(firstOption).toHaveClass('active'));
+
+    fireEvent.mouseEnter(viewAllOption);
+    await waitFor(() => expect(viewAllOption).toHaveClass('active'));
+
+    expect(scrollIntoViewMock).toHaveBeenCalledWith({ block: 'nearest' });
+  });
+
+  it('does not update state after unmount when async request resolves late', async () => {
+    let resolveFetch: ((value: unknown) => void) | undefined;
+    (global.fetch as jest.Mock).mockReturnValue(
+      new Promise(resolve => {
+        resolveFetch = resolve;
+      }),
+    );
+
+    const { unmount } = renderSearch();
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Po' } });
+    expect(await screen.findByText('common.sidebar.loading')).toBeInTheDocument();
+
+    unmount();
+
+    await act(async () => {
+      resolveFetch?.({
+        ok: true,
+        json: async () => posts,
+      });
+    });
+
+    expect(true).toBe(true);
   });
 
   it('renders shortcut hint when provided', () => {

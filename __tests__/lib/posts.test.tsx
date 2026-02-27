@@ -1,15 +1,24 @@
 import {
+  getAllPostsData,
   getAllPostIds,
   getSortedPostsData,
   getPostData,
   getTopicData,
   getAllTopicIds,
   getAllTopics,
+  getAllCategories,
+  getCategoryData,
+  getAllCategoryIds,
+  getLayoutPosts,
+  getTopTopicsFromPosts,
   postsCache,
   postDataCache,
   topicsCache,
+  categoriesCache,
+  categoryDataCache,
   postIdsCache,
   topicIdsCache,
+  categoryIdsCache,
   readingTimeCache,
 } from '@/lib/posts';
 import fs from 'fs';
@@ -35,8 +44,11 @@ const clearCaches = () => {
   postsCache.clear();
   postDataCache.clear();
   topicsCache.clear();
+  categoriesCache.clear();
+  categoryDataCache.clear();
   postIdsCache.clear();
   topicIdsCache.clear();
+  categoryIdsCache.clear();
   readingTimeCache.clear();
 };
 
@@ -311,6 +323,54 @@ describe('Posts Library', () => {
     });
   });
 
+  describe('getAllPostsData', () => {
+    it('normalizes category ids and source values from index metadata', async () => {
+      (fs.existsSync as jest.Mock).mockImplementation((filePath: string) =>
+        filePath.endsWith('/public/data/posts.en.json'),
+      );
+      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
+        if (filePath.endsWith('/public/data/posts.en.json')) {
+          return JSON.stringify([
+            {
+              id: 'normalized-medium',
+              title: 'Normalized Medium',
+              publishedDate: '2024-03-01',
+              summary: 'summary',
+              searchText: 'normalized medium summary',
+              readingTimeMin: 6,
+              thumbnail: null,
+              source: 'medium',
+              category: { id: '  JavaScript  ', name: ' JavaScript ' },
+            },
+            {
+              id: 'fallback-blog',
+              title: 'Fallback Blog',
+              publishedDate: '2024-02-01',
+              summary: 'summary',
+              searchText: 'fallback blog summary',
+              readingTimeMin: 4,
+              thumbnail: null,
+              source: 'rss',
+              category: { id: ' ', name: 'Empty Id' },
+            },
+          ]);
+        }
+        return '';
+      });
+
+      const result = await getAllPostsData('en');
+      expect(result).toHaveLength(2);
+
+      const mediumPost = result.find(post => post.id === 'normalized-medium');
+      const blogPost = result.find(post => post.id === 'fallback-blog');
+
+      expect(mediumPost?.source).toBe('medium');
+      expect(mediumPost?.category).toEqual({ id: 'javascript', name: 'JavaScript' });
+      expect(blogPost?.source).toBe('blog');
+      expect(blogPost?.category).toBeUndefined();
+    });
+  });
+
   describe('getPostData', () => {
     it('uses localizedPath if it exists', async () => {
       (fs.existsSync as jest.Mock).mockImplementation((p: string) => p.includes('en/mock-post.md'));
@@ -536,6 +596,102 @@ describe('Posts Library', () => {
     });
   });
 
+  describe('getAllCategories / getCategoryData / getAllCategoryIds', () => {
+    const mockEnglishCategories = [
+      { id: 'frontend', name: 'Frontend', color: 'blue' },
+      { id: 'backend', name: 'Backend', color: 'green' },
+    ];
+    const mockFrenchCategories = [{ id: 'frontend', name: 'Interface', color: 'bleu' }];
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('returns categories from locale file and caches category lookups', async () => {
+      (fs.existsSync as jest.Mock).mockImplementation((filePath: string) =>
+        filePath.endsWith('/public/data/categories.en.json'),
+      );
+      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
+        if (filePath.endsWith('/public/data/categories.en.json')) {
+          return JSON.stringify(mockEnglishCategories);
+        }
+        return '';
+      });
+
+      const categories = await getAllCategories('en');
+      expect(categories).toEqual(mockEnglishCategories);
+
+      const category = await getCategoryData('en', 'frontend');
+      expect(category).toEqual(mockEnglishCategories[0]);
+
+      (fs.readFileSync as jest.Mock).mockImplementation(() => {
+        throw new Error('should use cache');
+      });
+
+      const cachedCategory = await getCategoryData('en', 'frontend');
+      expect(cachedCategory).toEqual(mockEnglishCategories[0]);
+    });
+
+    it('returns null when requested category is missing', async () => {
+      (fs.existsSync as jest.Mock).mockImplementation((filePath: string) =>
+        filePath.endsWith('/public/data/categories.en.json'),
+      );
+      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
+        if (filePath.endsWith('/public/data/categories.en.json')) {
+          return JSON.stringify(mockEnglishCategories);
+        }
+        return '';
+      });
+
+      const category = await getCategoryData('en', 'missing');
+      expect(category).toBeNull();
+    });
+
+    it('returns empty array on missing or malformed category index', async () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+      expect(await getAllCategories('en')).toEqual([]);
+
+      clearCaches();
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.readFileSync as jest.Mock).mockReturnValue('{ invalid json }');
+      expect(await getAllCategories('en')).toEqual([]);
+      expect(console.error).toHaveBeenCalledWith('Error reading or parsing categories index:', expect.any(SyntaxError));
+    });
+
+    it('builds category IDs union across locales', async () => {
+      (fs.existsSync as jest.Mock).mockImplementation((filePath: string) => {
+        if (filePath.endsWith('/public/data/categories.en.json')) return true;
+        if (filePath.endsWith('/public/data/categories.fr.json')) return true;
+        if (filePath.endsWith('/public/data/categories.de.json')) return false;
+        return false;
+      });
+      (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
+        if (filePath.endsWith('/public/data/categories.en.json')) {
+          return JSON.stringify(mockEnglishCategories);
+        }
+        if (filePath.endsWith('/public/data/categories.fr.json')) {
+          return JSON.stringify(mockFrenchCategories);
+        }
+        return '';
+      });
+
+      const ids = await getAllCategoryIds();
+      expect(ids).toEqual([
+        { params: { id: 'backend', locale: 'en' } },
+        { params: { id: 'backend', locale: 'fr' } },
+        { params: { id: 'backend', locale: 'de' } },
+        { params: { id: 'frontend', locale: 'en' } },
+        { params: { id: 'frontend', locale: 'fr' } },
+        { params: { id: 'frontend', locale: 'de' } },
+      ]);
+    });
+  });
+
   describe('getAllTopicIds', () => {
     const mockEnglishTopics = [
       { id: 'react', name: 'React', color: 'red' },
@@ -710,6 +866,62 @@ describe('Posts Library', () => {
             locale: 'de',
           },
         },
+      ]);
+    });
+  });
+
+  describe('layout helpers', () => {
+    it('maps layout posts and clamps invalid limits', () => {
+      const posts = [
+        { ...mockPostSummary, id: 'a', updatedDate: '2024-01-01' },
+        { ...mockPostSummary, id: 'b', title: 'B' },
+      ];
+
+      expect(getLayoutPosts(posts, 1.9)).toEqual([
+        {
+          id: 'a',
+          title: 'Test Post',
+          publishedDate: '2024-12-03',
+          updatedDate: '2024-01-01',
+        },
+      ]);
+      expect(getLayoutPosts(posts, -3)).toEqual([]);
+      expect(getLayoutPosts(posts, Number.NaN)).toHaveLength(2);
+    });
+
+    it('returns top topics sorted by frequency then name and skips unknown topics', () => {
+      const posts = [
+        {
+          ...mockPostSummary,
+          id: '1',
+          topics: [
+            { id: 'react', name: 'React', color: 'red' },
+            { id: 'nextjs', name: 'Next.js', color: 'blue' },
+          ],
+        },
+        {
+          ...mockPostSummary,
+          id: '2',
+          topics: [
+            { id: 'nextjs', name: 'Next.js', color: 'blue' },
+            { id: 'unknown', name: 'Unknown', color: 'gray' },
+          ],
+        },
+        {
+          ...mockPostSummary,
+          id: '3',
+          topics: [{ id: 'angular', name: 'Angular', color: 'red' }],
+        },
+      ];
+      const topics = [
+        { id: 'angular', name: 'Angular', color: 'red' },
+        { id: 'nextjs', name: 'Next.js', color: 'blue' },
+        { id: 'react', name: 'React', color: 'red' },
+      ];
+
+      expect(getTopTopicsFromPosts(posts, topics, 2)).toEqual([
+        { id: 'nextjs', name: 'Next.js', color: 'blue' },
+        { id: 'angular', name: 'Angular', color: 'red' },
       ]);
     });
   });

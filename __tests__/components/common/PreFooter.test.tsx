@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import PreFooter from '@/components/common/PreFooter';
 import type { PostSummary, Topic } from '@/types/posts';
 import { CONTACT_LINKS } from '@/config/constants';
@@ -112,6 +112,16 @@ describe('PreFooter', () => {
     expect(screen.getByRole('link', { name: 'common.preFooter.rss' })).toHaveAttribute('href', '/en/rss.xml');
   });
 
+  it('prefers provided topTopics over derived topic frequency', () => {
+    const posts: PostSummary[] = [buildPost('1', '2026-01-01', [{ id: 'react', name: 'React', color: 'red' }])];
+    const topTopics: Topic[] = [{ id: 'curated', name: 'Curated', color: 'purple' }];
+
+    render(<PreFooter posts={posts} topics={[{ id: 'react', name: 'React', color: 'red' }]} topTopics={topTopics} />);
+
+    expect(screen.getByRole('link', { name: 'Curated' })).toHaveAttribute('href', '/tr/topics/curated');
+    expect(screen.queryByRole('link', { name: 'React' })).not.toBeInTheDocument();
+  });
+
   it('renders social links from contact constants', () => {
     const { container } = render(<PreFooter posts={[]} topics={[]} />);
 
@@ -149,6 +159,45 @@ describe('PreFooter', () => {
     await waitFor(() => {
       expect(screen.getByText('common.preFooter.newsletter.success')).toBeInTheDocument();
     });
+  });
+
+  it('submits newsletter with honeypot checkbox state', async () => {
+    subscribeNewsletterMock.mockResolvedValue({ status: 'success' });
+
+    render(<PreFooter posts={[]} topics={[]} />);
+
+    fireEvent.click(screen.getByLabelText('common.preFooter.newsletter.honeypotLabel'));
+    fireEvent.change(screen.getByLabelText('common.preFooter.newsletter.emailLabel'), {
+      target: { value: 'reader@example.com' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'common.preFooter.newsletter.submit' }));
+
+    await waitFor(() => expect(subscribeNewsletterMock).toHaveBeenCalled());
+    expect(subscribeNewsletterMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terms: true,
+      }),
+      { timeoutMs: 8000 },
+    );
+  });
+
+  it('redirects to forwardTo url on successful newsletter response', async () => {
+    const originalHref = window.location.href;
+    subscribeNewsletterMock.mockResolvedValue({ status: 'success', forwardTo: '#newsletter-confirmed' });
+
+    render(<PreFooter posts={[]} topics={[]} />);
+    fireEvent.change(screen.getByLabelText('common.preFooter.newsletter.emailLabel'), {
+      target: { value: 'reader@example.com' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'common.preFooter.newsletter.submit' }));
+
+    await waitFor(() => expect(subscribeNewsletterMock).toHaveBeenCalled());
+    await waitFor(() => expect(window.location.href).toContain('#newsletter-confirmed'));
+    expect(screen.queryByText('common.preFooter.newsletter.success')).not.toBeInTheDocument();
+
+    window.location.hash = '';
+    expect(window.location.href).toBeTruthy();
+    window.history.replaceState({}, '', originalHref);
   });
 
   it('resends confirmation email after a successful subscription', async () => {
@@ -200,6 +249,70 @@ describe('PreFooter', () => {
     expect(subscribeNewsletterMock).not.toHaveBeenCalled();
   });
 
+  it('shows required error when newsletter email is empty', async () => {
+    render(<PreFooter posts={[]} topics={[]} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'common.preFooter.newsletter.submit' }));
+
+    expect(await screen.findByText('common.preFooter.newsletter.errors.required')).toBeInTheDocument();
+    expect(subscribeNewsletterMock).not.toHaveBeenCalled();
+  });
+
+  it('clears newsletter error state when typing after error', async () => {
+    subscribeNewsletterMock.mockResolvedValue({ status: 'rate-limited' });
+    render(<PreFooter posts={[]} topics={[]} />);
+
+    fireEvent.change(screen.getByLabelText('common.preFooter.newsletter.emailLabel'), {
+      target: { value: 'reader@example.com' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'common.preFooter.newsletter.submit' }));
+    expect(await screen.findByText('common.preFooter.newsletter.errors.rateLimited')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('common.preFooter.newsletter.emailLabel'), {
+      target: { value: 'reader2@example.com' },
+    });
+    expect(screen.queryByText('common.preFooter.newsletter.errors.rateLimited')).not.toBeInTheDocument();
+  });
+
+  it('clears success message when typing after successful subscribe', async () => {
+    subscribeNewsletterMock.mockResolvedValue({ status: 'success' });
+    render(<PreFooter posts={[]} topics={[]} />);
+
+    fireEvent.change(screen.getByLabelText('common.preFooter.newsletter.emailLabel'), {
+      target: { value: 'reader@example.com' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'common.preFooter.newsletter.submit' }));
+    expect(await screen.findByText('common.preFooter.newsletter.success')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('common.preFooter.newsletter.emailLabel'), {
+      target: { value: 'next@example.com' },
+    });
+    expect(screen.queryByText('common.preFooter.newsletter.success')).not.toBeInTheDocument();
+  });
+
+  it('prevents duplicate submit while a newsletter request is pending', async () => {
+    let resolveSubscribe: ((value: unknown) => void) | undefined;
+    subscribeNewsletterMock.mockReturnValue(
+      new Promise(resolve => {
+        resolveSubscribe = resolve;
+      }) as ReturnType<typeof subscribeNewsletter>,
+    );
+
+    const { container } = render(<PreFooter posts={[]} topics={[]} />);
+
+    fireEvent.change(screen.getByLabelText('common.preFooter.newsletter.emailLabel'), {
+      target: { value: 'reader@example.com' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'common.preFooter.newsletter.submit' }));
+    fireEvent.submit(container.querySelector('form') as HTMLFormElement);
+
+    expect(subscribeNewsletterMock).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      resolveSubscribe?.({ status: 'success' });
+    });
+  });
+
   it('shows rate-limited message when api responds with rate-limited status', async () => {
     subscribeNewsletterMock.mockResolvedValue({ status: 'rate-limited' });
 
@@ -213,6 +326,32 @@ describe('PreFooter', () => {
     expect(await screen.findByText('common.preFooter.newsletter.errors.rateLimited')).toBeInTheDocument();
   });
 
+  it('shows invalid-email server error message when api returns invalid-email status', async () => {
+    subscribeNewsletterMock.mockResolvedValue({ status: 'invalid-email' });
+
+    render(<PreFooter posts={[]} topics={[]} />);
+
+    fireEvent.change(screen.getByLabelText('common.preFooter.newsletter.emailLabel'), {
+      target: { value: 'reader@example.com' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'common.preFooter.newsletter.submit' }));
+
+    expect(await screen.findByText('common.preFooter.newsletter.errors.invalidEmail')).toBeInTheDocument();
+  });
+
+  it('shows generic error when api returns unknown-error status', async () => {
+    subscribeNewsletterMock.mockResolvedValue({ status: 'unknown-error' });
+
+    render(<PreFooter posts={[]} topics={[]} />);
+
+    fireEvent.change(screen.getByLabelText('common.preFooter.newsletter.emailLabel'), {
+      target: { value: 'reader@example.com' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'common.preFooter.newsletter.submit' }));
+
+    expect(await screen.findByText('common.preFooter.newsletter.errors.generic')).toBeInTheDocument();
+  });
+
   it('shows generic error when api is unreachable', async () => {
     subscribeNewsletterMock.mockResolvedValue(null);
 
@@ -223,6 +362,24 @@ describe('PreFooter', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'common.preFooter.newsletter.submit' }));
 
+    expect(await screen.findByText('common.preFooter.newsletter.errors.generic')).toBeInTheDocument();
+  });
+
+  it('shows resend error feedback when resend API fails after success', async () => {
+    subscribeNewsletterMock.mockResolvedValue({ status: 'success' });
+    resendNewsletterConfirmationMock.mockResolvedValue({ status: 'unknown-error' });
+
+    render(<PreFooter posts={[]} topics={[]} />);
+
+    fireEvent.change(screen.getByLabelText('common.preFooter.newsletter.emailLabel'), {
+      target: { value: 'reader@example.com' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'common.preFooter.newsletter.submit' }));
+    expect(await screen.findByText('common.preFooter.newsletter.success')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'common.preFooter.newsletter.resend' }));
+
+    await waitFor(() => expect(resendNewsletterConfirmationMock).toHaveBeenCalledTimes(1));
     expect(await screen.findByText('common.preFooter.newsletter.errors.generic')).toBeInTheDocument();
   });
 });

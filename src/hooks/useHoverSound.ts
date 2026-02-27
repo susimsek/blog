@@ -11,7 +11,7 @@ const useHoverSound = ({ src, enabled, volume = 1, playbackRate = 1 }: UseHoverS
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const play = useCallback(() => {
-    if (!enabled || typeof globalThis.Audio === 'undefined') {
+    if (!enabled || globalThis.Audio === undefined) {
       return;
     }
 
@@ -28,7 +28,7 @@ const useHoverSound = ({ src, enabled, volume = 1, playbackRate = 1 }: UseHoverS
       sound.currentTime = 0;
 
       const playPromise = sound.play();
-      if (playPromise && typeof playPromise.catch === 'function') {
+      if (playPromise !== undefined) {
         playPromise.catch(() => {
           // Ignore playback failures (autoplay restrictions / unsupported environments).
         });

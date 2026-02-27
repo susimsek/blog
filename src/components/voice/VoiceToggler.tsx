@@ -24,7 +24,7 @@ const VoiceToggler = () => {
       sound.volume = config.volume;
       sound.currentTime = 0;
       const playPromise = sound.play();
-      if (playPromise && typeof playPromise.catch === 'function') {
+      if (playPromise !== undefined) {
         playPromise.catch(() => {
           // Ignore playback failures (autoplay restrictions / unsupported environments).
         });

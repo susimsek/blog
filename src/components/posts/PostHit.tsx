@@ -86,6 +86,15 @@ export default function PostHit({ postId }: Readonly<PostHitProps>) {
 
   const rawDigits = numberFormatter.format(Math.max(0, hits ?? 0));
   const hitDigits = rawDigits.padStart(DIGIT_PAD_LENGTH, '0');
+  const isLoadingState = isLoading && hits === null;
+  const hitDisplay = isLoadingState ? (
+    <span className="d-inline-flex align-items-center post-hit-loading">
+      <span className="spinner-border spinner-border-sm" aria-hidden="true" />
+      <output className="visually-hidden">{t('post.hit.loading')}</output>
+    </span>
+  ) : (
+    hitDigits
+  );
 
   return (
     <aside className="post-hit-widget" aria-live="polite">
@@ -95,20 +104,9 @@ export default function PostHit({ postId }: Readonly<PostHitProps>) {
         </span>
         <p className="post-updated-note-text">
           <span className="post-updated-note-label">{t('post.hit.title')}</span>
-          <span
-            className="post-updated-note-date"
-            role="status"
-            aria-label={t('post.hit.aria', { count: Math.max(0, hits ?? 0) })}
-          >
-            {isLoading && hits === null ? (
-              <span className="d-inline-flex align-items-center post-hit-loading">
-                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-                <span className="visually-hidden">{t('post.hit.loading')}</span>
-              </span>
-            ) : (
-              hitDigits
-            )}
-          </span>
+          <output className="post-updated-note-date" aria-label={t('post.hit.aria', { count: Math.max(0, hits ?? 0) })}>
+            {hitDisplay}
+          </output>
         </p>
       </div>
       {hasError && <p className="post-hit-status is-error">{t('post.hit.error')}</p>}

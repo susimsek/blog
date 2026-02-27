@@ -79,9 +79,7 @@ const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
         summary: candidate.summary,
         searchText: candidate.searchText,
         thumbnail: candidate.thumbnail,
-        ...(normalizedCategory && normalizedCategory.id && normalizedCategory.name
-          ? { category: normalizedCategory }
-          : {}),
+        ...(normalizedCategory?.id && normalizedCategory.name ? { category: normalizedCategory } : {}),
         topics: Array.isArray(candidate.topics) ? candidate.topics : undefined,
         readingTimeMin: candidate.readingTimeMin,
         source: candidate.source === 'medium' ? 'medium' : 'blog',
@@ -301,7 +299,7 @@ export default function SearchContainer({ shortcutHint }: Readonly<SearchContain
           return;
         }
         event.preventDefault();
-        const targetIndex = effectiveActiveIndex >= 0 ? effectiveActiveIndex : 0;
+        const targetIndex = Math.max(effectiveActiveIndex, 0);
         handleSelectOption(targetIndex);
         return;
       }
@@ -372,6 +370,60 @@ export default function SearchContainer({ shortcutHint }: Readonly<SearchContain
     };
   }, [searchQuery]);
 
+  let resultsContent: React.ReactNode;
+  if (searchResults.length > 0) {
+    resultsContent = (
+      <>
+        {searchResults.map((result, index) => (
+          <ListGroup.Item
+            as={Link}
+            action
+            key={`${result.source ?? 'blog'}:${result.id}`}
+            href={result.link ?? `/posts/${result.id}`}
+            id={`${SEARCH_RESULTS_LIST_ID}-option-${index}`}
+            className={`p-3 search-result-item${effectiveActiveIndex === index ? ' active' : ''}`}
+            role="option"
+            aria-selected={effectiveActiveIndex === index}
+            onMouseEnter={() => setActiveIndex(index)}
+            onClick={handlePostResultClick}
+          >
+            <PostListItem post={result} />
+          </ListGroup.Item>
+        ))}
+        <ListGroup.Item
+          as={Link}
+          action
+          id={`${SEARCH_RESULTS_LIST_ID}-option-${searchResults.length}`}
+          className={`py-3 d-flex align-items-center search-view-all${
+            effectiveActiveIndex === searchResults.length ? ' active' : ''
+          }`}
+          role="option"
+          aria-selected={effectiveActiveIndex === searchResults.length}
+          href={`/search?q=${encodeURIComponent(normalizedQuery)}`}
+          onMouseEnter={() => setActiveIndex(searchResults.length)}
+          onClick={handleViewAllResults}
+        >
+          <FontAwesomeIcon icon="search" className="me-2" />
+          {t('common.viewAllResults', { query: normalizedQuery })}
+        </ListGroup.Item>
+      </>
+    );
+  } else if (isWaitingForResults) {
+    resultsContent = (
+      <ListGroup.Item className="text-center text-muted py-3 search-no-results">
+        <span className="spinner-border spinner-border-sm" aria-hidden="true" />
+        <output className="visually-hidden">{t('common.sidebar.loading')}</output>
+      </ListGroup.Item>
+    );
+  } else {
+    resultsContent = (
+      <ListGroup.Item className="text-center text-muted py-3 search-no-results">
+        <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
+        {t('common.noResults')}
+      </ListGroup.Item>
+    );
+  }
+
   return (
     <div ref={searchRef} className={`search-container${shouldRenderResults ? ' is-expanded' : ''}`}>
       <SearchBar
@@ -392,52 +444,7 @@ export default function SearchContainer({ shortcutHint }: Readonly<SearchContain
           className="ms-auto w-100 search-results header-search-results"
           role="listbox"
         >
-          {searchResults.length > 0 ? (
-            <>
-              {searchResults.map((result, index) => (
-                <ListGroup.Item
-                  as={Link}
-                  action
-                  key={`${result.source ?? 'blog'}:${result.id}`}
-                  href={result.link ?? `/posts/${result.id}`}
-                  id={`${SEARCH_RESULTS_LIST_ID}-option-${index}`}
-                  className={`p-3 search-result-item${effectiveActiveIndex === index ? ' active' : ''}`}
-                  role="option"
-                  aria-selected={effectiveActiveIndex === index}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  onClick={handlePostResultClick}
-                >
-                  <PostListItem post={result} />
-                </ListGroup.Item>
-              ))}
-              <ListGroup.Item
-                as={Link}
-                action
-                id={`${SEARCH_RESULTS_LIST_ID}-option-${searchResults.length}`}
-                className={`py-3 d-flex align-items-center search-view-all${
-                  effectiveActiveIndex === searchResults.length ? ' active' : ''
-                }`}
-                role="option"
-                aria-selected={effectiveActiveIndex === searchResults.length}
-                href={`/search?q=${encodeURIComponent(normalizedQuery)}`}
-                onMouseEnter={() => setActiveIndex(searchResults.length)}
-                onClick={handleViewAllResults}
-              >
-                <FontAwesomeIcon icon="search" className="me-2" />
-                {t('common.viewAllResults', { query: normalizedQuery })}
-              </ListGroup.Item>
-            </>
-          ) : !isWaitingForResults ? (
-            <ListGroup.Item className="text-center text-muted py-3 search-no-results">
-              <FontAwesomeIcon icon="exclamation-circle" className="me-2" />
-              {t('common.noResults')}
-            </ListGroup.Item>
-          ) : (
-            <ListGroup.Item className="text-center text-muted py-3 search-no-results">
-              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-              <span className="visually-hidden">{t('common.sidebar.loading')}</span>
-            </ListGroup.Item>
-          )}
+          {resultsContent}
         </ListGroup>
       )}
     </div>

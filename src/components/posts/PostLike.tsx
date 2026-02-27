@@ -88,7 +88,7 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
       sound.volume = volume;
       sound.currentTime = 0;
       const playPromise = sound.play();
-      if (playPromise && typeof playPromise.catch === 'function') {
+      if (playPromise !== undefined) {
         playPromise.catch(() => {
           // Ignore playback failures (autoplay restrictions / unsupported environments).
         });
@@ -99,7 +99,7 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
   }, []);
 
   const playLikeSound = React.useCallback(() => {
-    if (!isVoiceEnabled || typeof globalThis.Audio === 'undefined') {
+    if (!isVoiceEnabled || globalThis.Audio === undefined) {
       return;
     }
     playSound(LIKE_SOUND_CONFIG.src, LIKE_SOUND_CONFIG.volume);
@@ -147,6 +147,18 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
 
   const busy = isLoading || isSubmitting;
   const showLoading = isLoading;
+  let statusContent: React.ReactNode = t('post.like.countLabel');
+
+  if (hasError) {
+    statusContent = t('post.like.error');
+  } else if (showLoading) {
+    statusContent = (
+      <span className="d-inline-flex align-items-center">
+        <span className="spinner-border spinner-border-sm" aria-hidden="true" />
+        <output className="visually-hidden">{t('post.like.loading')}</output>
+      </span>
+    );
+  }
 
   return (
     <div className="post-like-widget" aria-live="polite">
@@ -169,18 +181,7 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
           <span className={`post-like-count${isCountPopping ? ' is-pop' : ''}`}>{formattedLikes}</span>
         </span>
       </button>
-      <p className={`post-like-status${hasError ? ' is-error' : ''}`}>
-        {hasError ? (
-          t('post.like.error')
-        ) : showLoading ? (
-          <span className="d-inline-flex align-items-center">
-            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-            <span className="visually-hidden">{t('post.like.loading')}</span>
-          </span>
-        ) : (
-          t('post.like.countLabel')
-        )}
-      </p>
+      <p className={`post-like-status${hasError ? ' is-error' : ''}`}>{statusContent}</p>
     </div>
   );
 }

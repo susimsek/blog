@@ -32,8 +32,7 @@ export default function PostCategoryBadge({ category, className, linked = true }
       {presentation.icon ? (
         <FontAwesomeIcon
           icon={presentation.icon as IconProp}
-          className="post-category-link-icon"
-          fixedWidth
+          className="post-category-link-icon fa-fw"
           aria-hidden="true"
         />
       ) : null}

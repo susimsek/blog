@@ -1,4 +1,4 @@
-import { ApolloClient, HttpLink, InMemoryCache, from } from '@apollo/client/core';
+import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from '@apollo/client/core';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { ErrorLink } from '@apollo/client/link/error';
 import { CombinedGraphQLErrors, ServerError, ServerParseError } from '@apollo/client/errors';
@@ -15,15 +15,15 @@ const DEFAULT_REQUEST_TIMEOUT_MS = 8000;
 const GRAPHQL_PATH = '/graphql';
 const DEFAULT_LOCAL_API_ORIGIN = 'http://localhost:8080';
 
-const normalizeApiBaseUrl = (value: string | undefined) => value?.trim().replace(/\/+$/g, '') ?? '';
+const normalizeApiBaseUrl = (value: string | undefined) => value?.trim().replaceAll(/\/+$/g, '') ?? '';
 const isLocalHttpOrigin = (value: string) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(value);
 
 const getGraphQLEndpoint = () => {
   const apiBaseUrl = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
   const localApiOrigin = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_DEV_API_ORIGIN) || DEFAULT_LOCAL_API_ORIGIN;
 
-  if (typeof window !== 'undefined') {
-    const browserOrigin = normalizeApiBaseUrl(window.location.origin);
+  if (typeof globalThis.window !== 'undefined') {
+    const browserOrigin = normalizeApiBaseUrl(globalThis.window.location.origin);
     const shouldUseLocalApiOrigin =
       isLocalHttpOrigin(browserOrigin) && (apiBaseUrl.length === 0 || apiBaseUrl === browserOrigin);
 
@@ -108,7 +108,7 @@ const getClient = (endpoint: string) => {
 
   const client = new ApolloClient({
     cache: new InMemoryCache(),
-    link: from([
+    link: ApolloLink.from([
       errorLink,
       new HttpLink({
         uri: endpoint,

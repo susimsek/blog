@@ -117,11 +117,11 @@ export default function NewsletterCallbackPage({
   }, [locale, operation, token]);
 
   useEffect(() => {
-    if (statusKey === 'loading' || !token || typeof window === 'undefined') {
+    if (statusKey === 'loading' || !token || typeof globalThis.window === 'undefined') {
       return;
     }
 
-    const currentURL = new URL(window.location.href);
+    const currentURL = new URL(globalThis.window.location.href);
     if (!currentURL.searchParams.has('token') && !currentURL.searchParams.has('locale')) {
       return;
     }
@@ -129,9 +129,10 @@ export default function NewsletterCallbackPage({
     currentURL.searchParams.delete('token');
     currentURL.searchParams.delete('locale');
     const nextQuery = currentURL.searchParams.toString();
-    const nextURL = `${currentURL.pathname}${nextQuery ? `?${nextQuery}` : ''}${currentURL.hash}`;
+    const querySuffix = nextQuery ? `?${nextQuery}` : '';
+    const nextURL = `${currentURL.pathname}${querySuffix}${currentURL.hash}`;
 
-    window.history.replaceState(window.history.state, '', nextURL);
+    globalThis.window.history.replaceState(globalThis.window.history.state, '', nextURL);
   }, [statusKey, token]);
 
   const statusTone = useMemo<'info' | 'success' | 'warning' | 'error'>(() => {

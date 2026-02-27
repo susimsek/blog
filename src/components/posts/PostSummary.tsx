@@ -105,7 +105,7 @@ export default function PostSummary({
   );
 
   const handleReadMoreHoverStart = React.useCallback(() => {
-    if (!isVoiceEnabled || typeof globalThis.Audio === 'undefined') {
+    if (!isVoiceEnabled || globalThis.Audio === undefined) {
       return;
     }
 
@@ -120,7 +120,7 @@ export default function PostSummary({
       sound.playbackRate = 1;
       sound.currentTime = 0;
       const playPromise = sound.play();
-      if (playPromise && typeof playPromise.catch === 'function') {
+      if (playPromise !== undefined) {
         playPromise.catch(() => {
           // Ignore playback failures (autoplay restrictions / unsupported environments).
         });

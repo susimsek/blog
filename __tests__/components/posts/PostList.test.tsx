@@ -8,6 +8,7 @@ import type { PostsQueryState } from '@/reducers/postsQuery';
 const useRouterMock = jest.fn();
 const usePathnameMock = jest.fn();
 const useSearchParamsMock = jest.fn();
+const useMediaQueryMock = jest.fn();
 const fetchPostLikesMock = jest.fn();
 
 jest.mock('react-i18next', () => ({
@@ -17,6 +18,7 @@ jest.mock('react-i18next', () => ({
 }));
 
 jest.mock('@/hooks/useDebounce', () => jest.fn((value: string) => value));
+jest.mock('@/hooks/useMediaQuery', () => jest.fn((...args: unknown[]) => useMediaQueryMock(...args)));
 
 jest.mock('@/lib/contentApi', () => ({
   fetchPostLikes: (...args: unknown[]) => fetchPostLikesMock(...args),
@@ -60,8 +62,26 @@ jest.mock('@/components/pagination/PaginationBar', () => ({
 
 jest.mock('@/components/posts/PostSummary', () => ({
   __esModule: true,
-  default: ({ post }: { post: { title: string; summary: string } }) => (
-    <div data-testid="post-card">
+  default: ({
+    post,
+    likeCount,
+    likeCountLoading,
+    highlightQuery,
+    showSource,
+  }: {
+    post: { title: string; summary: string };
+    likeCount?: number | null;
+    likeCountLoading?: boolean;
+    highlightQuery?: string;
+    showSource?: boolean;
+  }) => (
+    <div
+      data-testid="post-card"
+      data-like-count={likeCount === null || likeCount === undefined ? 'null' : String(likeCount)}
+      data-like-loading={String(Boolean(likeCountLoading))}
+      data-highlight-query={highlightQuery ?? ''}
+      data-show-source={String(Boolean(showSource))}
+    >
       <h2>{post.title}</h2>
       <p>{post.summary}</p>
     </div>
@@ -164,6 +184,7 @@ describe('PostList Component', () => {
     useRouterMock.mockReturnValue({ push: pushMock });
     usePathnameMock.mockReturnValue('/');
     window.history.replaceState({}, '', '/');
+    useMediaQueryMock.mockReturnValue(true);
     useSearchParamsMock.mockImplementation(() => new URLSearchParams(window.location.search));
     fetchPostLikesMock.mockResolvedValue({});
   });
@@ -235,6 +256,7 @@ describe('PostList Component', () => {
       expect(screen.queryByText('Blog Post')).not.toBeInTheDocument();
       expect(screen.getByText('Medium Post')).toBeInTheDocument();
     });
+    expect(pushMock).toHaveBeenCalledWith('/search?source=medium&page=1&size=5', { scroll: false });
   });
 
   it('ignores source filter on non-search routes', async () => {
@@ -344,5 +366,123 @@ describe('PostList Component', () => {
 
     expect(screen.getAllByTestId('post-card')).toHaveLength(1);
     expect(screen.getByText('Post 6')).toBeInTheDocument();
+  });
+
+  it('removes source param from url when source filter is reset to all', async () => {
+    usePathnameMock.mockReturnValue('/search');
+    window.history.replaceState({}, '', '/search?source=blog&page=2&size=5');
+
+    renderWithProviders(<PostList posts={mockPostSummaries} />, {
+      preloadedState: buildPreloadedState({ sourceFilter: 'blog' }),
+    });
+
+    await waitFor(() => expect(screen.getByText('Source All')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('Source All'));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalledWith('/search?page=1&size=5', { scroll: false });
+    });
+  });
+
+  it('loads likes for trackable post ids and normalizes invalid values', async () => {
+    const likePosts = [
+      { ...mockPostSummaries[0], id: 'blog-post-1', title: 'Trackable One' },
+      { ...mockPostSummaries[1], id: 'Bad_ID', title: 'Untrackable Id' },
+      { ...mockPostSummaries[2], id: 'blog-post-2', title: 'Trackable Two' },
+    ];
+    fetchPostLikesMock.mockResolvedValue({
+      'blog-post-1': 7,
+      'blog-post-2': 'not-a-number',
+    });
+
+    renderWithProviders(<PostList posts={likePosts} showLikes />, {
+      preloadedState: buildPreloadedState({ posts: likePosts, topics: [] }),
+    });
+
+    await waitFor(() => {
+      expect(fetchPostLikesMock).toHaveBeenCalledWith('en', ['blog-post-1', 'blog-post-2']);
+    });
+
+    const trackableOneCard = screen.getByText('Trackable One').closest('[data-testid="post-card"]');
+    const untrackableCard = screen.getByText('Untrackable Id').closest('[data-testid="post-card"]');
+    const trackableTwoCard = screen.getByText('Trackable Two').closest('[data-testid="post-card"]');
+
+    await waitFor(() => {
+      expect(trackableOneCard).toHaveAttribute('data-like-count', '7');
+      expect(trackableOneCard).toHaveAttribute('data-like-loading', 'false');
+      expect(trackableTwoCard).toHaveAttribute('data-like-count', '0');
+      expect(untrackableCard).toHaveAttribute('data-like-loading', 'false');
+    });
+  });
+
+  it('marks pending likes as null when likes api returns null', async () => {
+    const likePosts = [{ ...mockPostSummaries[0], id: 'blog-post-1', title: 'Trackable One' }];
+    fetchPostLikesMock.mockResolvedValue(null);
+
+    renderWithProviders(<PostList posts={likePosts} showLikes />, {
+      preloadedState: buildPreloadedState({ posts: likePosts, topics: [] }),
+    });
+
+    const card = screen.getByText('Trackable One').closest('[data-testid="post-card"]');
+    expect(card).toHaveAttribute('data-like-loading', 'true');
+
+    await waitFor(() => {
+      expect(card).toHaveAttribute('data-like-loading', 'false');
+      expect(card).toHaveAttribute('data-like-count', 'null');
+    });
+  });
+
+  it('clears stale non-search filters on non-search routes', async () => {
+    usePathnameMock.mockReturnValue('/en/posts');
+
+    const { store } = renderWithProviders(<PostList posts={mockPostSummaries} />, {
+      preloadedState: buildPreloadedState({
+        selectedTopics: ['react'],
+        categoryFilter: 'frontend',
+        dateRange: { startDate: '2024-01-01', endDate: '2024-12-31' },
+        readingTimeRange: '8-12',
+      }),
+    });
+
+    await waitFor(() => {
+      const state = store.getState().postsQuery;
+      expect(state.selectedTopics).toEqual([]);
+      expect(state.categoryFilter).toBe('all');
+      expect(state.dateRange).toEqual({});
+      expect(state.readingTimeRange).toBe('any');
+    });
+  });
+
+  it('uses auto scroll behavior when reduced motion is preferred', async () => {
+    const originalMatchMedia = window.matchMedia;
+    window.matchMedia = jest.fn().mockReturnValue({ matches: true }) as unknown as typeof window.matchMedia;
+
+    renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
+
+    await waitFor(() => expect(screen.getByLabelText('Next')).toBeInTheDocument());
+    fireEvent.click(screen.getByLabelText('Next'));
+
+    expect(scrollIntoViewMock).toHaveBeenLastCalledWith({ behavior: 'auto', block: 'start' });
+
+    window.matchMedia = originalMatchMedia;
+  });
+
+  it('falls back from grid density on small screens', async () => {
+    useMediaQueryMock.mockReturnValue(false);
+
+    renderWithProviders(<PostList posts={mockPostSummaries} />, {
+      preloadedState: buildPreloadedState({ topics: [] }),
+    });
+
+    await waitFor(() => expect(screen.getAllByTestId('post-card')).toHaveLength(5));
+
+    const results = document.querySelector('.post-list-results');
+    expect(results).toHaveClass('post-list-results--default');
+
+    fireEvent.click(screen.getByLabelText('common.viewDensity.grid'));
+    expect(document.querySelector('.post-list-results')).toHaveClass('post-list-results--default');
+
+    fireEvent.click(screen.getByLabelText('common.viewDensity.editorial'));
+    expect(document.querySelector('.post-list-results')).toHaveClass('post-list-results--editorial');
   });
 });

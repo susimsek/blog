@@ -35,6 +35,8 @@ const createRoot = (headings: Array<{ tag: 'h2' | 'h3'; text: string; id?: strin
 const originalMutationObserver = globalThis.MutationObserver;
 
 describe('PostToc', () => {
+  const originalIntersectionObserver = globalThis.IntersectionObserver;
+
   beforeEach(() => {
     class NoopMutationObserver {
       observe() {}
@@ -49,6 +51,24 @@ describe('PostToc', () => {
       writable: true,
       value: NoopMutationObserver,
     });
+
+    class NoopIntersectionObserver {
+      observe() {}
+      disconnect() {}
+      unobserve() {}
+      takeRecords() {
+        return [];
+      }
+      root = null;
+      rootMargin = '0px';
+      thresholds = [];
+    }
+
+    Object.defineProperty(globalThis, 'IntersectionObserver', {
+      configurable: true,
+      writable: true,
+      value: NoopIntersectionObserver,
+    });
   });
 
   afterEach(() => {
@@ -58,7 +78,19 @@ describe('PostToc', () => {
       writable: true,
       value: originalMutationObserver,
     });
+    Object.defineProperty(globalThis, 'IntersectionObserver', {
+      configurable: true,
+      writable: true,
+      value: originalIntersectionObserver,
+    });
     jest.restoreAllMocks();
+  });
+
+  it('handles missing root ref gracefully', () => {
+    render(<PostToc postId="sample-post" content="content" rootRef={{ current: null }} />);
+
+    expect(screen.queryByText('post.tocTitle')).not.toBeInTheDocument();
+    expect(screen.getByTestId('post-like')).toBeInTheDocument();
   });
 
   it('renders like block when there are no supported headings', () => {
@@ -99,6 +131,23 @@ describe('PostToc', () => {
 
     expect(scrollIntoViewMock).toHaveBeenCalled();
     expect(pushStateSpy).toHaveBeenCalledWith(null, '', '#section-1');
+  });
+
+  it('uses auto scroll behavior when reduced motion is preferred', () => {
+    const root = createRoot([{ tag: 'h2', text: 'Section' }]);
+    const scrollIntoViewMock = jest.fn();
+    const originalMatchMedia = window.matchMedia;
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: scrollIntoViewMock,
+    });
+    window.matchMedia = jest.fn().mockReturnValue({ matches: true }) as unknown as typeof window.matchMedia;
+
+    render(<PostToc postId="sample-post" content="content" rootRef={{ current: root }} />);
+    fireEvent.click(screen.getByRole('link', { name: 'Section' }));
+
+    expect(scrollIntoViewMock).toHaveBeenCalledWith({ behavior: 'auto', block: 'start' });
+    window.matchMedia = originalMatchMedia;
   });
 
   it('skips hash update when target is outside root or missing', () => {
@@ -203,5 +252,70 @@ describe('PostToc', () => {
         value: originalMutationObserver,
       });
     }
+  });
+
+  it('works without MutationObserver support', () => {
+    delete (globalThis as { MutationObserver?: unknown }).MutationObserver;
+    const root = createRoot([{ tag: 'h2', text: 'No Observer Heading' }]);
+
+    render(<PostToc postId="sample-post" content="content" rootRef={{ current: root }} />);
+
+    expect(screen.getByRole('link', { name: 'No Observer Heading' })).toBeInTheDocument();
+  });
+
+  it('tracks active heading and observes headings when IntersectionObserver is available', async () => {
+    const root = createRoot([
+      { tag: 'h2', text: 'First' },
+      { tag: 'h2', text: 'Second' },
+    ]);
+    const [first, second] = Array.from(root.querySelectorAll('h2'));
+
+    let firstTop = 80;
+    let secondTop = 200;
+    jest.spyOn(first, 'getBoundingClientRect').mockImplementation(() => ({ top: firstTop }) as DOMRect);
+    jest.spyOn(second, 'getBoundingClientRect').mockImplementation(() => ({ top: secondTop }) as DOMRect);
+
+    const observe = jest.fn();
+    const disconnect = jest.fn();
+    Object.defineProperty(globalThis, 'IntersectionObserver', {
+      configurable: true,
+      writable: true,
+      value: jest.fn(() => ({ observe, disconnect })),
+    });
+
+    const { unmount } = render(<PostToc postId="sample-post" content="content" rootRef={{ current: root }} />);
+
+    const firstLink = screen.getByRole('link', { name: 'First' });
+    const secondLink = screen.getByRole('link', { name: 'Second' });
+    expect(firstLink).toHaveClass('is-active');
+    expect(observe).toHaveBeenCalledTimes(2);
+
+    firstTop = 80;
+    secondTop = 100;
+    act(() => {
+      window.dispatchEvent(new Event('scroll'));
+    });
+
+    await waitFor(() => {
+      expect(secondLink).toHaveClass('is-active');
+    });
+
+    unmount();
+    expect(disconnect).toHaveBeenCalled();
+  });
+
+  it('clears active heading when heading ids cannot be resolved', async () => {
+    const root = createRoot([{ tag: 'h2', text: 'Section' }]);
+    const getElementByIdSpy = jest.spyOn(document, 'getElementById').mockImplementation(() => null);
+
+    render(<PostToc postId="sample-post" content="content" rootRef={{ current: root }} />);
+
+    await waitFor(() => {
+      const link = screen.getByRole('link', { name: 'Section' });
+      expect(link).not.toHaveClass('is-active');
+      expect(link).not.toHaveAttribute('aria-current');
+    });
+
+    getElementByIdSpy.mockRestore();
   });
 });

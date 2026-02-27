@@ -25,6 +25,7 @@ export const allNamespaces = [
   'category',
   'common',
   'contact',
+  'games',
   'home',
   'medium',
   'post',

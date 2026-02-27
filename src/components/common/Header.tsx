@@ -283,6 +283,22 @@ export default function Header({
                   ))}
                 </NavDropdown>
               )}
+              <NavDropdown
+                id="games-nav-dropdown"
+                title={
+                  <span className="d-inline-flex align-items-center">
+                    <FontAwesomeIcon icon="gamepad" className="me-2" />
+                    <span>{t('common.header.menu.games')}</span>
+                  </span>
+                }
+              >
+                <NavDropdown.Item as={Link} href="/games/schulte-table">
+                  <span className="d-inline-flex align-items-center">
+                    <FontAwesomeIcon icon="table-cells" className="me-2" />
+                    <span>{t('common.header.menu.schulteTable')}</span>
+                  </span>
+                </NavDropdown.Item>
+              </NavDropdown>
               <Nav.Link as={Link} href="/medium" className="d-flex align-items-center">
                 <FontAwesomeIcon icon={['fab', 'medium']} className="me-2 medium-brand-logo" />
                 Medium

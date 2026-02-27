@@ -176,4 +176,78 @@ describe('Link', () => {
     expect(link).toHaveAttribute('href', '/en/about');
     expect(link).toHaveAttribute('data-locale', 'en');
   });
+
+  it('keeps already-localized href unchanged', () => {
+    render(
+      <Link href="/en/about">
+        <span>Localized About</span>
+      </Link>,
+    );
+
+    expect(screen.getByText('Localized About').closest('a')).toHaveAttribute('href', '/en/about');
+  });
+
+  it('does not localize hash/mailto/tel href values', () => {
+    render(
+      <>
+        <Link href="#section">
+          <span>Hash Link</span>
+        </Link>
+        <Link href="mailto:test@example.com">
+          <span>Mail Link</span>
+        </Link>
+        <Link href="tel:+123">
+          <span>Tel Link</span>
+        </Link>
+      </>,
+    );
+
+    expect(screen.getByText('Hash Link').closest('a')).toHaveAttribute('href', '#section');
+    expect(screen.getByText('Mail Link').closest('a')).toHaveAttribute('href', 'mailto:test@example.com');
+    expect(screen.getByText('Tel Link').closest('a')).toHaveAttribute('href', 'tel:+123');
+  });
+
+  it('localizes same-origin absolute URLs and preserves query/hash', () => {
+    render(
+      <Link href="http://localhost/docs?page=1#intro">
+        <span>Absolute Local</span>
+      </Link>,
+    );
+
+    expect(screen.getByText('Absolute Local').closest('a')).toHaveAttribute('href', '/en-US/docs?page=1#intro');
+  });
+
+  it('returns malformed absolute URLs unchanged', () => {
+    render(
+      <Link href="https://%">
+        <span>Malformed Absolute</span>
+      </Link>,
+    );
+
+    expect(screen.getByText('Malformed Absolute').closest('a')).toHaveAttribute('href', 'https://%');
+  });
+
+  it('localizes root pathname to active locale', () => {
+    render(
+      <Link href="/">
+        <span>Root Link</span>
+      </Link>,
+    );
+
+    const link = screen.getByText('Root Link').closest('a');
+    expect(link).toHaveAttribute('href', '/en-US');
+    expect(link).toHaveAttribute('data-locale', 'en-US');
+  });
+
+  it('keeps relative href values unchanged while preserving locale attribute', () => {
+    render(
+      <Link href="relative/path">
+        <span>Relative Link</span>
+      </Link>,
+    );
+
+    const link = screen.getByText('Relative Link').closest('a');
+    expect(link).toHaveAttribute('href', 'relative/path');
+    expect(link).toHaveAttribute('data-locale', 'en-US');
+  });
 });

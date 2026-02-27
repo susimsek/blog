@@ -9,6 +9,8 @@
       "menu": {
         "home": "Home",
         "categories": "Categories",
+        "games": "Games",
+        "schulteTable": "Schulte Table",
         "about": "About",
         "contact": "Contact",
         "search": "Search"

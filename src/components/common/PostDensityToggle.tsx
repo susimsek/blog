@@ -26,7 +26,7 @@ export default function PostDensityToggle({ value, onChange }: Readonly<PostDens
           onClick={() => onChange('default')}
         >
           <span className="post-density-toggle-icon" aria-hidden="true">
-            <FontAwesomeIcon icon="desktop" fixedWidth />
+            <FontAwesomeIcon icon="desktop" className="fa-fw" />
           </span>
         </button>
         <button
@@ -38,7 +38,7 @@ export default function PostDensityToggle({ value, onChange }: Readonly<PostDens
           onClick={() => onChange('editorial')}
         >
           <span className="post-density-toggle-icon" aria-hidden="true">
-            <FontAwesomeIcon icon="clipboard-list" fixedWidth />
+            <FontAwesomeIcon icon="clipboard-list" className="fa-fw" />
           </span>
         </button>
         <button
@@ -50,7 +50,7 @@ export default function PostDensityToggle({ value, onChange }: Readonly<PostDens
           onClick={() => onChange('grid')}
         >
           <span className="post-density-toggle-icon" aria-hidden="true">
-            <FontAwesomeIcon icon="table-cells" fixedWidth />
+            <FontAwesomeIcon icon="table-cells" className="fa-fw" />
           </span>
         </button>
       </ButtonGroup>

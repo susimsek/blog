@@ -9,7 +9,7 @@ type ErrorPageProps = {
   reset: () => void;
 };
 
-export default function Error({ error, reset }: Readonly<ErrorPageProps>) {
+export default function SegmentErrorPage({ error, reset }: Readonly<ErrorPageProps>) {
   useEffect(() => {
     const appError = unknownAppError(error, 'Unexpected render error');
     const context = {

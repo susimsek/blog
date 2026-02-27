@@ -10,7 +10,7 @@ export type DateRange = {
 
 export type ReadingTimeRange = 'any' | '3-7' | '8-12' | '15+';
 export type SourceFilter = 'all' | 'blog' | 'medium';
-export type CategoryFilter = 'all' | string;
+export type CategoryFilter = 'all' | (string & {});
 
 export interface PostsQueryState {
   query: string;

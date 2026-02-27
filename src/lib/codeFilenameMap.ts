@@ -20,12 +20,12 @@ const toTrimmed = (value: string | null | undefined): string | null => {
 };
 
 const extractMetaAttribute = (meta: string, key: string): string | null => {
-  const quoted = new RegExp(`(?:^|\\s|\\{)${key}\\s*=\\s*(\"([^\"]+)\"|'([^']+)')`, 'i').exec(meta);
+  const quoted = new RegExp(String.raw`(?:^|\s|\{)${key}\s*=\s*("([^"]+)"|'([^']+)')`, 'i').exec(meta);
   if (quoted) {
     return toTrimmed(quoted[2] ?? quoted[3]);
   }
 
-  const unquoted = new RegExp(`(?:^|\\s|\\{)${key}\\s*=\\s*([^\\s}]+)`, 'i').exec(meta);
+  const unquoted = new RegExp(String.raw`(?:^|\s|\{)${key}\s*=\s*([^\s}]+)`, 'i').exec(meta);
   return toTrimmed(unquoted?.[1] ?? null);
 };
 

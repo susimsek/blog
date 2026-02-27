@@ -33,14 +33,14 @@ export default function BackToTop() {
     const win = globalThis.window;
     if (!win) return;
 
-    if (isVoiceEnabled && typeof globalThis.Audio !== 'undefined') {
+    if (isVoiceEnabled && globalThis.Audio !== undefined) {
       try {
         const sound = new Audio(BACK_TO_TOP_SOUND_CONFIG.src);
         sound.preload = 'auto';
         sound.volume = BACK_TO_TOP_SOUND_CONFIG.volume;
         sound.currentTime = 0;
         const playPromise = sound.play();
-        if (playPromise && typeof playPromise.catch === 'function') {
+        if (playPromise !== undefined) {
           playPromise.catch(() => {
             // Ignore playback failures (autoplay restrictions / unsupported environments).
           });

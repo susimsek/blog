@@ -39,16 +39,24 @@ const toTitle = (code: AppErrorCode) => {
   return 'Unexpected error';
 };
 
+const withoutToastItem = (items: ToastItem[], id: number) => items.filter(entry => entry.id !== id);
+const appendToastItem = (items: ToastItem[], item: ToastItem) => [item, ...items].slice(0, MAX_VISIBLE_TOASTS);
+
 export default function AppErrorToasts() {
   const [items, setItems] = useState<ToastItem[]>([]);
   const lastSignatureRef = useRef<{ signature: string; occurredAt: number } | null>(null);
   const nextIdRef = useRef(1);
+  const handleToastClose = (id: number) => {
+    setItems(previous => withoutToastItem(previous, id));
+  };
 
   useEffect(() => {
     return subscribeAppErrors(event => {
       const signature = `${event.error.code}:${event.error.message}:${event.context?.source ?? 'unknown'}`;
       const last = lastSignatureRef.current;
-      const isDuplicate = last && last.signature === signature && event.occurredAt - last.occurredAt <= DEDUP_WINDOW_MS;
+      const isDuplicate =
+        last?.signature === signature &&
+        event.occurredAt - (last?.occurredAt ?? Number.NEGATIVE_INFINITY) <= DEDUP_WINDOW_MS;
 
       if (isDuplicate) {
         return;
@@ -63,7 +71,7 @@ export default function AppErrorToasts() {
         title: toTitle(event.error.code),
       };
 
-      setItems(previous => [item, ...previous].slice(0, MAX_VISIBLE_TOASTS));
+      setItems(previous => appendToastItem(previous, item));
     });
   }, []);
 
@@ -78,7 +86,7 @@ export default function AppErrorToasts() {
           key={item.id}
           autohide
           delay={AUTO_HIDE_DELAY_MS}
-          onClose={() => setItems(previous => previous.filter(entry => entry.id !== item.id))}
+          onClose={() => handleToastClose(item.id)}
           className={`toast-tone-${item.tone}`}
         >
           <Toast.Header className="toast-theme-header">

@@ -41,8 +41,8 @@ const Sidebar: React.FC<SidebarProps> = ({ topics = [], isLoading = false, isMob
     if (isLoading) {
       return (
         <div className="text-muted px-4 py-2 d-flex align-items-center">
-          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
-          <span className="visually-hidden">Loading</span>
+          <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
+          <output className="visually-hidden">Loading</output>
         </div>
       );
     }

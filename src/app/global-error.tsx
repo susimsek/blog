@@ -20,7 +20,7 @@ export default function GlobalError({ error, reset }: Readonly<GlobalErrorPagePr
   }, [error]);
 
   return (
-    <html>
+    <html lang="en">
       <body>
         <main className="container py-5">
           <h1 className="h3 fw-bold mb-3">Application error</h1>

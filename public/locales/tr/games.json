@@ -1,0 +1,69 @@
+{
+  "games": {
+    "schulte": {
+      "badge": "Beyin Egzersizi",
+      "kickerNote": "Etkileşimli odak ve görsel tarama çalışması",
+      "title": "Schulte Tablosu",
+      "subtitle": "Tarayıcı içinde çalışan Schulte Tablosu antrenörü ile görsel arama hızını, dikkat geçişini ve düzenli tarama alışkanlığını site içinde pratik edin.",
+      "meta": {
+        "title": "Schulte Tablosu (Online Oyna)",
+        "description": "Tarayıcı içinde çalışan Schulte Tablosu oyununu zamanlayıcı, hata sayacı, en iyi derece ve farklı grid boyutlarıyla oynayın.",
+        "keywords": "schulte tablosu, odak oyunu, beyin egzersizi, görsel tarama, dikkat antrenmanı, online oyun"
+      },
+      "howToPlay": {
+        "title": "Nasıl Oynanır",
+        "step1": "Sol panelden 3×3 ile 9×9 arasında bir grid boyutu seçin ve yeni bir tablo ile başlayın.",
+        "step2": "1’den başlayarak sayıları artan sırayla bulun ve Sıradaki göstergesini takip edin.",
+        "step3": "Aynı düzeni yeniden denemek için Yeniden başlat, yeni karışım için Yeni tablo, daha kolay pratik için de Sıradaki sayıyı vurgula seçeneğini kullanın.",
+        "step4": "Süre, hata ve en iyi dereceyi birlikte takip edin; doğruluğunuz oturduğunda daha büyük grid boyutlarına geçin."
+      },
+      "whyUse": {
+        "title": "Neden Kullanılır",
+        "body1": "Schulte tabloları genellikle görsel arama ve dikkat egzersizi olarak kullanılır. Düzenli grid taraması gerektirdiği için odak ve okuma çalışmaları içinde popülerdir.",
+        "body2": "Bu aracı bir pratik oyunu olarak değerlendirin; tıbbi veya tanısal bir araç değildir. Oyunda ilerleme, günlük hayatta genel bilişsel performansın otomatik olarak artacağı anlamına gelmez."
+      },
+      "notes": {
+        "title": "Çalışma Notları",
+        "item1": "Odak ve tutarlılık için genelde kısa turlar (1-3 dakika) uzun seanslardan daha verimlidir.",
+        "item2": "Gözlerde yorgunluk hissederseniz kısa ara verip sonra devam edin.",
+        "item3": "Sadece hıza değil, hata oranına da bakın. Doğruluk korunmuyorsa hız tek başına anlamlı değildir."
+      },
+      "research": {
+        "title": "Araştırma Notları",
+        "body1": "Schulte tablolarını en doğru şekilde, yapılandırılmış bir görsel arama ve dikkat egzersizi olarak değerlendirmek gerekir. Tekrarlanabilir bir görev olduğu için süre ve hata üzerinden ölçülebilir bir pratik sunar.",
+        "body2": "Dikkat ve bilişsel antrenman araştırmaları, popüler verimlilik söylemlerinden daha nüanslıdır. Görev içi performans pratikle gelişebilir; ancak daha geniş bilişsel alanlara transfer etkisi çalışma tasarımına ve ölçümlere göre sınırlı veya karışık olabilir.",
+        "sources": {
+          "origin": "Arka plan / köken bilgisi (Schulte tablosu genel bakış)",
+          "erpStudy": "Schulte grid antrenmanı çalışması (dikkat ilişkili ERP değişimleri; PubMed)",
+          "visualSearchContext": "Görsel arama performansı ve antrenman bağlamı (açık erişimli makale/derleme; PMC)",
+          "transferCaveat": "Bilişsel antrenmanda transfer sınırları (derleme bağlamı; PubMed)"
+        }
+      },
+      "trainer": {
+        "timer": "Süre",
+        "next": "Sıradaki",
+        "mistakes": "Hata",
+        "gridSize": "Grid boyutu",
+        "controls": "Oyun kontrolleri",
+        "showControls": "Kontrolleri aç",
+        "hideControls": "Kontrolleri kapat",
+        "actions": "Aksiyonlar",
+        "newBoard": "Yeni tablo",
+        "restart": "Yeniden başlat",
+        "clearBestForSize": "En iyi dereceyi sil",
+        "showNextHint": "Sıradaki sayıyı vurgula",
+        "statusLabel": "Durum",
+        "bestTime": "En iyi süre",
+        "noBestYet": "Henüz yok",
+        "tip": "İpucu: Rastgele hızlı tıklamak yerine akıcı ve düzenli bir tarama ritmi kurun.",
+        "completeMessage": "{{time}} sürede {{mistakes}} hata ile tamamlandı.",
+        "cellAriaLabel": "Hücre {{number}}",
+        "status": {
+          "idle": "Hazır",
+          "running": "Devam ediyor",
+          "completed": "Tamamlandı"
+        }
+      }
+    }
+  }
+}

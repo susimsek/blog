@@ -35,7 +35,7 @@ type PostsResponse = {
 type PostResponse = {
   status?: string;
   locale?: string;
-  post?: unknown | null;
+  post?: unknown;
   likes?: number;
   hits?: number;
 };
@@ -229,7 +229,7 @@ export const fetchPostLikes = async (
     options,
   );
 
-  if (!payload || payload.status !== 'success' || !payload.likesByPostId) {
+  if (payload?.status !== 'success' || !payload.likesByPostId) {
     return null;
   }
 
@@ -246,7 +246,7 @@ export const incrementPostLike = async (postId: string, options: ContentApiOptio
   const payload = await mutateGraphQL(IncrementPostLikeDocument, { postId }, options);
   const result = payload?.incrementPostLike as ContentLikeResponse | undefined;
 
-  if (!result || result.status !== 'success' || typeof result.likes !== 'number' || Number.isNaN(result.likes)) {
+  if (result?.status !== 'success' || typeof result.likes !== 'number' || Number.isNaN(result.likes)) {
     return null;
   }
 
@@ -257,7 +257,7 @@ export const incrementPostHit = async (postId: string, options: ContentApiOption
   const payload = await mutateGraphQL(IncrementPostHitDocument, { postId }, options);
   const result = payload?.incrementPostHit as ContentLikeResponse | undefined;
 
-  if (!result || result.status !== 'success' || typeof result.hits !== 'number' || Number.isNaN(result.hits)) {
+  if (result?.status !== 'success' || typeof result.hits !== 'number' || Number.isNaN(result.hits)) {
     return null;
   }
 

@@ -1,4 +1,10 @@
-import { calculateReadingTime, formatReadingTime, getWordsFromMarkdown } from '@/lib/readingTime';
+import {
+  calculateReadingTime,
+  calculateReadingTimeMinutes,
+  formatReadingTime,
+  getWordsFromMarkdown,
+  parseReadingTimeToMinutes,
+} from '@/lib/readingTime';
 
 describe('readingTime utilities', () => {
   const t = ((key: string, options?: { count?: number; ns?: string }) => {
@@ -69,6 +75,32 @@ Inline \`code\` should be removed.
     it('calculates reading time from markdown content', () => {
       const words = Array.from({ length: 1000 }, () => 'word').join(' ');
       expect(calculateReadingTime(words, t)).toBe('4 min read');
+    });
+  });
+
+  describe('parseReadingTimeToMinutes', () => {
+    it('parses numeric reading time labels', () => {
+      expect(parseReadingTimeToMinutes('15+ min read')).toBe(15);
+      expect(parseReadingTimeToMinutes(' 8 dk okuma ')).toBe(8);
+    });
+
+    it('returns null for empty or invalid labels', () => {
+      expect(parseReadingTimeToMinutes('')).toBeNull();
+      expect(parseReadingTimeToMinutes('  ')).toBeNull();
+      expect(parseReadingTimeToMinutes('minutes')).toBeNull();
+      expect(parseReadingTimeToMinutes('0 min')).toBeNull();
+      expect(parseReadingTimeToMinutes('no estimate')).toBeNull();
+    });
+  });
+
+  describe('calculateReadingTimeMinutes', () => {
+    it('respects minimum minutes for short content', () => {
+      expect(calculateReadingTimeMinutes('short content', 3)).toBe(3);
+    });
+
+    it('returns computed minutes when above minimum', () => {
+      const words = Array.from({ length: 501 }, () => 'word').join(' ');
+      expect(calculateReadingTimeMinutes(words, 1)).toBe(3);
     });
   });
 });

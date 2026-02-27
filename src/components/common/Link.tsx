@@ -75,7 +75,7 @@ const LinkComponent = forwardRef<HTMLAnchorElement, LinkComponentProps>(
         return href;
       }
 
-      if (typeof globalThis.window === 'undefined') {
+      if (globalThis.window === undefined) {
         return pathname;
       }
 

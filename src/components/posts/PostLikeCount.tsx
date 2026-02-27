@@ -20,7 +20,7 @@ export default function PostLikeCount({ likes, isLoading = false }: Readonly<Pos
   if (isLoading && likes === null) {
     return (
       <span className="text-muted d-inline-flex align-items-center post-summary-like-meta">
-        <span className="spinner-border spinner-border-sm" role="status" aria-label={t('post.like.loading')} />
+        <output className="spinner-border spinner-border-sm" aria-label={t('post.like.loading')} />
       </span>
     );
   }

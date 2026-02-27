@@ -56,4 +56,25 @@ describe('BackToTop', () => {
     expect(listener).toHaveBeenCalledTimes(1);
     window.removeEventListener(BACK_TO_TOP_EVENT, listener);
   });
+
+  it('plays sound when voice is enabled', () => {
+    const audioPlay = jest.fn().mockResolvedValue(undefined);
+    (global as typeof globalThis & { Audio: jest.Mock }).Audio = jest.fn().mockImplementation(() => ({
+      play: audioPlay,
+      preload: 'auto',
+      volume: 1,
+      currentTime: 0,
+    }));
+
+    renderWithProviders(<BackToTop />, {
+      preloadedState: {
+        voice: { isEnabled: true },
+      },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'common.backToTop' }));
+
+    expect(global.Audio).toHaveBeenCalledWith('/sounds/up-whoosh.mp3');
+    expect(audioPlay).toHaveBeenCalled();
+  });
 });

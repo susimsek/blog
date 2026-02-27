@@ -176,13 +176,13 @@ const extractCodeMeta = (node: unknown): string | null => {
 };
 
 const extractMetaAttribute = (meta: string, key: string): string | null => {
-  const quoted = new RegExp(`(?:^|\\s|\\{)${key}\\s*=\\s*(\"([^\"]+)\"|'([^']+)')`, 'i').exec(meta);
+  const quoted = new RegExp(String.raw`(?:^|\s|\{)${key}\s*=\s*("([^"]+)"|'([^']+)')`, 'i').exec(meta);
   if (quoted) {
     const value = quoted[2] ?? quoted[3];
     return value?.trim() || null;
   }
 
-  const unquoted = new RegExp(`(?:^|\\s|\\{)${key}\\s*=\\s*([^\\s}]+)`, 'i').exec(meta);
+  const unquoted = new RegExp(String.raw`(?:^|\s|\{)${key}\s*=\s*([^\s}]+)`, 'i').exec(meta);
   if (unquoted) {
     return unquoted[1]?.trim() || null;
   }

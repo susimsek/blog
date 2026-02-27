@@ -10,6 +10,7 @@ import useDebounce from '@/hooks/useDebounce';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { clearNonSearchFilters, setPage, setPageSize, setQuery, setSourceFilter } from '@/reducers/postsQuery';
+import type { ReadingTimeRange, SortOrder, SourceFilter } from '@/reducers/postsQuery';
 import { fetchPostLikes } from '@/lib/contentApi';
 import i18nextConfig from '@/i18n/settings';
 import type { PostDensityMode } from '@/components/common/PostDensityToggle';
@@ -24,6 +25,123 @@ interface PostListProps {
 const TRACKABLE_POST_ID_PATTERN = /^[a-z0-9][a-z0-9-]{1,127}$/;
 
 const isTrackablePostId = (postId: string) => TRACKABLE_POST_ID_PATTERN.test(postId);
+
+const resolveEffectiveSourceFilter = (
+  isSearchRoute: boolean,
+  isMediumRoute: boolean,
+  isHomeRoute: boolean,
+  sourceFilter: SourceFilter,
+): SourceFilter => {
+  if (isSearchRoute) {
+    return sourceFilter;
+  }
+  if (isMediumRoute) {
+    return 'medium';
+  }
+  if (isHomeRoute) {
+    return 'blog';
+  }
+  return 'all';
+};
+
+type PostListFilterCriteria = {
+  normalizedQuery: string;
+  selectedTopics: readonly string[];
+  categoryFilter: string;
+  effectiveSourceFilter: SourceFilter;
+  startDateMs: number | null;
+  endDateMs: number | null;
+  readingTimeRange: ReadingTimeRange;
+  scopedIdSet: Set<string> | null;
+};
+
+const matchesReadingTimeRange = (readingTimeMin: number, readingTimeRange: ReadingTimeRange) => {
+  if (readingTimeRange === '3-7') {
+    return readingTimeMin >= 3 && readingTimeMin <= 7;
+  }
+  if (readingTimeRange === '8-12') {
+    return readingTimeMin >= 8 && readingTimeMin <= 12;
+  }
+  if (readingTimeRange === '15+') {
+    return readingTimeMin >= 15;
+  }
+  return true;
+};
+
+const matchesPostListFilters = (post: PostSummary, criteria: Readonly<PostListFilterCriteria>) => {
+  if (criteria.scopedIdSet && !criteria.scopedIdSet.has(post.id)) {
+    return false;
+  }
+
+  if (criteria.normalizedQuery.length > 0) {
+    const searchArea = `${post.title} ${post.summary} ${post.searchText}`.toLowerCase();
+    if (!searchArea.includes(criteria.normalizedQuery)) {
+      return false;
+    }
+  }
+
+  if (criteria.selectedTopics.length > 0) {
+    const postTopicIds = new Set((post.topics ?? []).map(topic => topic.id));
+    if (!criteria.selectedTopics.every(topicId => postTopicIds.has(topicId))) {
+      return false;
+    }
+  }
+
+  if (criteria.categoryFilter !== 'all') {
+    const postCategoryId = typeof post.category?.id === 'string' ? post.category.id.trim().toLowerCase() : '';
+    if (postCategoryId !== criteria.categoryFilter) {
+      return false;
+    }
+  }
+
+  const postSource = post.source ?? 'blog';
+  if (criteria.effectiveSourceFilter !== 'all' && postSource !== criteria.effectiveSourceFilter) {
+    return false;
+  }
+
+  const postDateMs = new Date(post.publishedDate).getTime();
+  if (criteria.startDateMs !== null && Number.isFinite(criteria.startDateMs) && postDateMs < criteria.startDateMs) {
+    return false;
+  }
+  if (criteria.endDateMs !== null && Number.isFinite(criteria.endDateMs) && postDateMs > criteria.endDateMs) {
+    return false;
+  }
+
+  return matchesReadingTimeRange(post.readingTimeMin, criteria.readingTimeRange);
+};
+
+const sortPostsByPublishedDate = (left: PostSummary, right: PostSummary, sortOrder: SortOrder) => {
+  const leftDate = new Date(left.publishedDate).getTime();
+  const rightDate = new Date(right.publishedDate).getTime();
+  return sortOrder === 'asc' ? leftDate - rightDate : rightDate - leftDate;
+};
+
+const filterAndSortPosts = (
+  posts: ReadonlyArray<PostSummary>,
+  criteria: Readonly<PostListFilterCriteria>,
+  sortOrder: SortOrder,
+) =>
+  posts
+    .filter(post => matchesPostListFilters(post, criteria))
+    .sort((left, right) => sortPostsByPublishedDate(left, right, sortOrder));
+
+const mergeLoadedLikesByPostId = (
+  previous: Readonly<Record<string, number | null>>,
+  pendingLikePostIds: ReadonlyArray<string>,
+  loadedLikes: Record<string, number> | null,
+) => {
+  const next = { ...previous };
+  for (const postId of pendingLikePostIds) {
+    if (loadedLikes === null) {
+      next[postId] = null;
+      continue;
+    }
+
+    const likes = loadedLikes[postId];
+    next[postId] = typeof likes === 'number' && Number.isFinite(likes) ? likes : 0;
+  }
+  return next;
+};
 
 export default function PostList({
   posts,
@@ -85,7 +203,7 @@ export default function PostList({
     locale,
   } = useAppSelector(state => state.postsQuery);
   const currentLocale = locale ?? routeLocale ?? i18nextConfig.i18n.defaultLocale;
-  const effectiveSourceFilter = isSearchRoute ? sourceFilter : isMediumRoute ? 'medium' : isHomeRoute ? 'blog' : 'all';
+  const effectiveSourceFilter = resolveEffectiveSourceFilter(isSearchRoute, isMediumRoute, isHomeRoute, sourceFilter);
   const debouncedSearchQuery = useDebounce(query, 500);
   const scopedPostIds = useMemo(() => posts.map(post => post.id), [posts]);
 
@@ -198,68 +316,18 @@ export default function PostList({
   }, [isSearchRoute, pageSize, pathname, router, searchParams, sourceFilter]);
 
   const filteredPosts = useMemo(() => {
-    const normalizedQuery = isSearchRoute ? debouncedSearchQuery.trim().toLowerCase() : '';
-    const startDateMs = dateRange.startDate ? new Date(dateRange.startDate).getTime() : null;
-    const endDateMs = dateRange.endDate ? new Date(dateRange.endDate).getTime() : null;
-    const scopedIdSet = shouldUseScope ? new Set(scopedPostIds) : null;
+    const criteria: PostListFilterCriteria = {
+      normalizedQuery: isSearchRoute ? debouncedSearchQuery.trim().toLowerCase() : '',
+      startDateMs: dateRange.startDate ? new Date(dateRange.startDate).getTime() : null,
+      endDateMs: dateRange.endDate ? new Date(dateRange.endDate).getTime() : null,
+      scopedIdSet: shouldUseScope ? new Set(scopedPostIds) : null,
+      selectedTopics,
+      categoryFilter,
+      effectiveSourceFilter,
+      readingTimeRange,
+    };
 
-    return posts
-      .filter(post => {
-        if (scopedIdSet && !scopedIdSet.has(post.id)) {
-          return false;
-        }
-
-        if (normalizedQuery.length > 0) {
-          const searchArea = `${post.title} ${post.summary} ${post.searchText}`.toLowerCase();
-          if (!searchArea.includes(normalizedQuery)) {
-            return false;
-          }
-        }
-
-        if (selectedTopics.length > 0) {
-          const postTopicIds = new Set((post.topics ?? []).map(topic => topic.id));
-          if (!selectedTopics.every(topicId => postTopicIds.has(topicId))) {
-            return false;
-          }
-        }
-
-        if (categoryFilter !== 'all') {
-          const postCategoryId = typeof post.category?.id === 'string' ? post.category.id.trim().toLowerCase() : '';
-          if (postCategoryId !== categoryFilter) {
-            return false;
-          }
-        }
-
-        const postSource = post.source ?? 'blog';
-        if (effectiveSourceFilter !== 'all' && postSource !== effectiveSourceFilter) {
-          return false;
-        }
-
-        const postDateMs = new Date(post.publishedDate).getTime();
-        if (startDateMs !== null && Number.isFinite(startDateMs) && postDateMs < startDateMs) {
-          return false;
-        }
-        if (endDateMs !== null && Number.isFinite(endDateMs) && postDateMs > endDateMs) {
-          return false;
-        }
-
-        if (readingTimeRange === '3-7' && (post.readingTimeMin < 3 || post.readingTimeMin > 7)) {
-          return false;
-        }
-        if (readingTimeRange === '8-12' && (post.readingTimeMin < 8 || post.readingTimeMin > 12)) {
-          return false;
-        }
-        if (readingTimeRange === '15+' && post.readingTimeMin < 15) {
-          return false;
-        }
-
-        return true;
-      })
-      .sort((left, right) => {
-        const leftDate = new Date(left.publishedDate).getTime();
-        const rightDate = new Date(right.publishedDate).getTime();
-        return sortOrder === 'asc' ? leftDate - rightDate : rightDate - leftDate;
-      });
+    return filterAndSortPosts(posts, criteria, sortOrder);
   }, [
     dateRange.endDate,
     dateRange.startDate,
@@ -321,17 +389,7 @@ export default function PostList({
       }
 
       setLikesByPostId(previous => {
-        const next = { ...previous };
-        for (const postId of pendingLikePostIds) {
-          if (loadedLikes === null) {
-            next[postId] = null;
-            continue;
-          }
-
-          const likes = loadedLikes[postId];
-          next[postId] = typeof likes === 'number' && Number.isFinite(likes) ? likes : 0;
-        }
-        return next;
+        return mergeLoadedLikesByPostId(previous, pendingLikePostIds, loadedLikes);
       });
     };
 

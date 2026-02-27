@@ -47,7 +47,7 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
     const normalizedPath = basePath === '/' ? '' : basePath;
     const localizedPath = `/${locale}${normalizedPath}`;
     const sanitizedQuery = (() => {
-      if (typeof globalThis.window === 'undefined') {
+      if (globalThis.window === undefined) {
         return '';
       }
       const nextParams = new URLSearchParams(globalThis.window.location.search);

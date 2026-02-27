@@ -35,7 +35,32 @@ jest.mock('@/components/common/Footer', () => ({
 
 jest.mock('@/components/common/Sidebar', () => ({
   __esModule: true,
-  default: ({ isVisible }: { isVisible: boolean }) => <aside data-testid="sidebar">{String(isVisible)}</aside>,
+  default: ({
+    isVisible,
+    isMobile,
+    isLoading,
+    topics,
+    onClose,
+  }: {
+    isVisible: boolean;
+    isMobile?: boolean;
+    isLoading?: boolean;
+    topics?: Array<{ id: string }>;
+    onClose?: () => void;
+  }) => (
+    <aside
+      data-testid="sidebar"
+      data-visible={String(isVisible)}
+      data-mobile={String(Boolean(isMobile))}
+      data-loading={String(Boolean(isLoading))}
+      data-topic-ids={(topics ?? []).map(topic => topic.id).join(',')}
+    >
+      {String(isVisible)}
+      <button type="button" onClick={onClose}>
+        close-sidebar
+      </button>
+    </aside>
+  ),
 }));
 
 jest.mock('@/components/common/PreFooter', () => ({
@@ -98,6 +123,7 @@ describe('Layout Component', () => {
 
     expect(screen.getByTestId('sidebar')).toBeInTheDocument();
     expect(screen.getByText('true')).toBeInTheDocument();
+    expect(screen.getByTestId('sidebar')).toHaveAttribute('data-mobile', 'false');
   });
 
   it('hides sidebar on mobile', () => {
@@ -112,6 +138,26 @@ describe('Layout Component', () => {
     expect(screen.queryByTestId('sidebar')).not.toBeInTheDocument();
   });
 
+  it('opens and closes mobile sidebar via header toggle and sidebar close action', () => {
+    (useMediaQuery as jest.Mock).mockReturnValue(true);
+
+    renderWithProviders(
+      <Layout sidebarEnabled topics={[]}>
+        <div>Content</div>
+      </Layout>,
+    );
+
+    expect(screen.queryByTestId('sidebar')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /toggle-sidebar/i }));
+    const mobileSidebar = screen.getByTestId('sidebar');
+    expect(mobileSidebar).toHaveAttribute('data-mobile', 'true');
+    expect(mobileSidebar).toHaveAttribute('data-visible', 'true');
+
+    fireEvent.click(screen.getByRole('button', { name: /close-sidebar/i }));
+    expect(screen.queryByTestId('sidebar')).not.toBeInTheDocument();
+  });
+
   it('toggles sidebar visibility from header action', () => {
     renderWithProviders(
       <Layout sidebarEnabled topics={[]}>
@@ -121,6 +167,39 @@ describe('Layout Component', () => {
 
     expect(screen.getByTestId('sidebar')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /toggle-sidebar/i }));
+    expect(screen.queryByTestId('sidebar')).not.toBeInTheDocument();
+  });
+
+  it('normalizes topics in initializer and stores route locale', () => {
+    const { store } = renderWithProviders(
+      <Layout
+        topics={
+          [
+            null,
+            { id: 'missing-color', name: 'Missing Color' },
+            { id: 'react', name: 'React', color: 'red', link: '/topics/react' },
+          ] as unknown as Array<{ id: string; name: string; color: string; link?: string }>
+        }
+      >
+        <div>Content</div>
+      </Layout>,
+    );
+
+    const state = store.getState().postsQuery;
+    expect(state.locale).toBe('en');
+    expect(state.topicsLoading).toBe(false);
+    expect(state.topics).toEqual([{ id: 'react', name: 'React', color: 'red', link: '/topics/react' }]);
+  });
+
+  it('closes desktop sidebar via sidebar onClose action', () => {
+    renderWithProviders(
+      <Layout sidebarEnabled topics={[]}>
+        <div>Content</div>
+      </Layout>,
+    );
+
+    expect(screen.getByTestId('sidebar')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /close-sidebar/i }));
     expect(screen.queryByTestId('sidebar')).not.toBeInTheDocument();
   });
 

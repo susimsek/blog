@@ -9,9 +9,8 @@ import {
   getSortedPostsData,
   getTopTopicsFromPosts,
 } from '@/lib/posts';
-import { getServerTranslator } from '@/i18n/server';
 import RouteI18nProvider from '@/i18n/RouteI18nProvider';
-import { loadLocaleResources } from '@/i18n/server';
+import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
 import { buildNotFoundMetadata, buildPageMetadata } from '@/lib/metadata';
 
 export async function generateStaticParams() {

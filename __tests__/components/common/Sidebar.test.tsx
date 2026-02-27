@@ -110,4 +110,10 @@ describe('Sidebar', () => {
     expect(onClose).toHaveBeenCalled();
     expect(screen.getByTestId('offcanvas')).toBeInTheDocument();
   });
+
+  it('renders loading indicator output when loading topics', () => {
+    render(<Sidebar topics={[]} isLoading isMobile={false} isVisible onClose={jest.fn()} />);
+
+    expect(screen.getByText('Loading')).toBeInTheDocument();
+  });
 });

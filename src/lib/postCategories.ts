@@ -24,6 +24,8 @@ export type PostCategoryItem = {
   icon?: string;
 };
 
+type PostCategoryInput = PostCategoryRef | string | null | undefined;
+
 const allowedCategoryColors = new Set([
   'red',
   'green',
@@ -74,13 +76,14 @@ const categoryListByLocale: Record<Locale, PostCategoryItem[]> = {
   })),
 };
 
-export const normalizePostCategory = (value?: PostCategoryRef | string | null): string | null => {
-  const rawID =
-    typeof value === 'string'
-      ? value
-      : value && typeof value === 'object' && typeof value.id === 'string'
-        ? value.id
-        : null;
+export const normalizePostCategory = (value?: PostCategoryInput): string | null => {
+  let rawID: string | null = null;
+  if (typeof value === 'string') {
+    rawID = value;
+  } else if (value && typeof value === 'object' && typeof value.id === 'string') {
+    rawID = value.id;
+  }
+
   if (typeof rawID !== 'string') {
     return null;
   }
@@ -89,10 +92,7 @@ export const normalizePostCategory = (value?: PostCategoryRef | string | null): 
   return normalized.length > 0 ? normalized : null;
 };
 
-export const getPostCategoryPresentation = (
-  category?: PostCategoryRef | string | null,
-  locale: string = defaultLocale,
-) => {
+export const getPostCategoryPresentation = (category?: PostCategoryInput, locale: string = defaultLocale) => {
   const normalized = normalizePostCategory(category);
   if (!normalized) {
     return null;
