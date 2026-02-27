@@ -1,6 +1,6 @@
 ---
 title: 'Captain Tsubasa: Rise of New Champions'
-publishedDate: '2026-02-27'
+publishedDate: '2026-02-26'
 category:
   id: gaming
   name: Oyun

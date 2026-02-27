@@ -1,6 +1,6 @@
 ---
 title: 'Captain Tsubasa 2: World Fighters'
-publishedDate: '2026-02-26'
+publishedDate: '2026-02-27'
 category:
   id: gaming
   name: Gaming
