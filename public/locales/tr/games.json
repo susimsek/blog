@@ -218,6 +218,7 @@
         "currentRound": "Aktif tur",
         "idleRule": "İlk deseni görmek için yeni tur başlatın.",
         "memorizeRule": "{{count}} vurgulu karoyu ezberleyin.",
+        "failRevealRule": "Tur bitmeden önce {{count}} karoluk deseni tekrar görün.",
         "recallRule": "{{count}} karoluk deseni hafızadan yeniden kurun.",
         "gridHint": "Grid: {{size}}×{{size}}",
         "patternHint": "Desen boyutu: {{count}} karo",
@@ -225,7 +226,7 @@
         "rememberedTiles": "Hatırlanan karo",
         "tip": "İpucu: Tek tek karelere değil, önce bütün desenin formuna bakın.",
         "tipWithHint": "İpucu: karo sayısını sabitlemek için ipucu satırını kullanın, sonra tek kareler yerine kümeleri hatırlayın.",
-        "completeMessage": "Koşu tamamlandı. {{level}}. seviyeye ulaştınız, {{score}} skor yaptınız ve {{tiles}} karo hatırladınız.",
+        "completeMessage": "{{level}}. seviyede elendiniz, {{score}} skor yaptınız, {{tiles}} karo hatırladınız ve {{mistakes}} hata yaptınız.",
         "cellAriaLabel": "Hafıza hücresi {{index}}",
         "modes": {
           "easy": {
@@ -245,8 +246,15 @@
           "idle": "Hazır",
           "memorize": "Ezberle",
           "guess": "Hatırla",
-          "completed": "Tamamlandı"
-        }
+          "revealFail": "Gözden geçir",
+          "gameOver": "Oyun bitti"
+        },
+        "lives": "Can",
+        "startRound": "Turu başlat",
+        "playAgain": "Tekrar oyna",
+        "gameOverTitle": "Oyun bitti",
+        "gameOverRule": "Koşu sona erdi. Yeni bir tur başlatın veya modu tekrar oynayın.",
+        "livesHint": "Kalan can: {{count}}"
       }
     }
   }

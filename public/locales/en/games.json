@@ -218,6 +218,7 @@
         "currentRound": "Current round",
         "idleRule": "Start a new round to reveal the first pattern.",
         "memorizeRule": "Memorize {{count}} highlighted tile(s).",
+        "failRevealRule": "Review the {{count}}-tile pattern before the round ends.",
         "recallRule": "Rebuild the {{count}}-tile pattern from memory.",
         "gridHint": "Grid: {{size}}×{{size}}",
         "patternHint": "Pattern size: {{count}} tile(s)",
@@ -225,7 +226,7 @@
         "rememberedTiles": "Remembered tiles",
         "tip": "Tip: scan the whole pattern as one shape before you start tapping individual tiles.",
         "tipWithHint": "Tip: use the hint line to anchor the tile count, then memorize clusters instead of isolated squares.",
-        "completeMessage": "Run complete. Reached level {{level}}, scored {{score}}, and rebuilt {{tiles}} tile(s).",
+        "completeMessage": "You went out on level {{level}}, scored {{score}}, rebuilt {{tiles}} tile(s), and made {{mistakes}} mistake(s).",
         "cellAriaLabel": "Memory cell {{index}}",
         "modes": {
           "easy": {
@@ -245,8 +246,15 @@
           "idle": "Ready",
           "memorize": "Memorize",
           "guess": "Recall",
-          "completed": "Completed"
-        }
+          "revealFail": "Review",
+          "gameOver": "Game over"
+        },
+        "lives": "Lives",
+        "startRound": "Start round",
+        "playAgain": "Play again",
+        "gameOverTitle": "Game over",
+        "gameOverRule": "The run ended. Start a fresh round or replay the mode.",
+        "livesHint": "Lives left: {{count}}"
       }
     }
   }

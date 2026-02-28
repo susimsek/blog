@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import useMediaQuery from '@/hooks/useMediaQuery';
 
 type VisualMemoryMode = 'easy' | 'standard' | 'expert';
-type TrainerStatus = 'idle' | 'memorize' | 'guess' | 'completed';
+type TrainerStatus = 'idle' | 'memorize' | 'guess' | 'revealFail' | 'gameOver';
 type BestResult = {
   level: number;
   score: number;
@@ -50,6 +50,7 @@ const MODE_CONFIGS: Readonly<Record<VisualMemoryMode, ModeConfig>> = {
 } as const;
 
 const DEFAULT_MODE: VisualMemoryMode = 'standard';
+const MAX_LIVES = 3;
 const BEST_RESULTS_STORAGE_KEY = 'visual-memory-best-results-v1';
 const MODE_STORAGE_KEY = 'visual-memory-mode-v1';
 const HINT_STORAGE_KEY = 'visual-memory-show-hint-v1';
@@ -168,6 +169,7 @@ export default function VisualMemoryTrainer() {
   const [level, setLevel] = React.useState(1);
   const [score, setScore] = React.useState(0);
   const [mistakes, setMistakes] = React.useState(0);
+  const [lives, setLives] = React.useState(MAX_LIVES);
   const [elapsedMs, setElapsedMs] = React.useState(0);
   const [startedAtMs, setStartedAtMs] = React.useState<number | null>(null);
   const [activePattern, setActivePattern] = React.useState<number[]>(() => createDeterministicPattern(DEFAULT_MODE));
@@ -185,6 +187,7 @@ export default function VisualMemoryTrainer() {
   const currentBest = bestResults[mode] ?? null;
   const progressPercent = activePattern.length > 0 ? (selectedCells.length / activePattern.length) * 100 : 0;
   const rememberedTiles = Math.max(0, score / 100);
+  const remainingLives = Math.max(0, lives);
   const statusLabel = t(`games.visualMemory.trainer.status.${status}`);
   const modeOptions = Object.keys(MODE_CONFIGS) as VisualMemoryMode[];
   const mobileControlsToggleLabel = isMobileControlsOpen
@@ -222,6 +225,7 @@ export default function VisualMemoryTrainer() {
       setLevel(1);
       setScore(0);
       setMistakes(0);
+      setLives(MAX_LIVES);
       setElapsedMs(0);
       setStartedAtMs(null);
       setActivePattern(createDeterministicPattern(nextMode));
@@ -233,7 +237,7 @@ export default function VisualMemoryTrainer() {
   );
 
   React.useEffect(() => {
-    if (status === 'idle' || status === 'completed' || startedAtMs === null) {
+    if (status === 'idle' || status === 'revealFail' || status === 'gameOver' || startedAtMs === null) {
       return;
     }
 
@@ -249,9 +253,9 @@ export default function VisualMemoryTrainer() {
       return;
     }
 
-    const timeout = globalThis.setTimeout(() => setLastMissedCell(null), 240);
+    const timeout = globalThis.setTimeout(() => setLastMissedCell(null), status === 'revealFail' ? 720 : 240);
     return () => globalThis.clearTimeout(timeout);
-  }, [lastMissedCell]);
+  }, [lastMissedCell, status]);
 
   const prepareRound = React.useCallback(
     (nextMode: VisualMemoryMode, nextLevel: number, existingPattern?: number[]) => {
@@ -277,6 +281,7 @@ export default function VisualMemoryTrainer() {
       setLevel(1);
       setScore(0);
       setMistakes(0);
+      setLives(MAX_LIVES);
       setElapsedMs(0);
       setLastResult(null);
       setStartedAtMs(getCurrentTimeMs());
@@ -293,6 +298,7 @@ export default function VisualMemoryTrainer() {
     }
     setElapsedMs(0);
     setMistakes(0);
+    setLives(MAX_LIVES);
     setStartedAtMs(getCurrentTimeMs());
     prepareRound(mode, level, activePattern);
     setIsMobileControlsOpen(false);
@@ -330,17 +336,20 @@ export default function VisualMemoryTrainer() {
   }, [showHint]);
 
   const completeGame = React.useCallback(
-    (nextMistakes: number) => {
+    (nextMistakes: number, elapsedOverride?: number) => {
       clearTimers();
-      const elapsed = startedAtMs === null ? elapsedMs : clamp(getCurrentTimeMs() - startedAtMs, 0, 60 * 60 * 1000);
+      const elapsed =
+        elapsedOverride ??
+        (startedAtMs === null ? elapsedMs : clamp(getCurrentTimeMs() - startedAtMs, 0, 60 * 60 * 1000));
       const result = {
         level,
         score,
         rememberedTiles,
       } satisfies BestResult;
       setElapsedMs(elapsed);
+      setStartedAtMs(null);
       setMistakes(nextMistakes);
-      setStatus('completed');
+      setStatus('gameOver');
       setLastResult(result);
       persistBestResults(currentBestResults => getUpdatedBestResults(currentBestResults, mode, result));
     },
@@ -362,8 +371,28 @@ export default function VisualMemoryTrainer() {
 
     if (!activePatternSet.has(cellIndex)) {
       const nextMistakes = mistakes + 1;
+      const nextLives = Math.max(0, lives - 1);
       setLastMissedCell(cellIndex);
-      completeGame(nextMistakes);
+      setMistakes(nextMistakes);
+      setLives(nextLives);
+
+      if (nextLives <= 0) {
+        clearTimers();
+        const elapsed = startedAtMs === null ? elapsedMs : clamp(getCurrentTimeMs() - startedAtMs, 0, 60 * 60 * 1000);
+        setElapsedMs(elapsed);
+        setStartedAtMs(null);
+        setSelectedCells([]);
+        setStatus('revealFail');
+        nextRoundTimeoutRef.current = globalThis.setTimeout(() => {
+          completeGame(nextMistakes, elapsed);
+        }, 720);
+        return;
+      }
+
+      setStatus('memorize');
+      nextRoundTimeoutRef.current = globalThis.setTimeout(() => {
+        prepareRound(mode, level, activePattern);
+      }, 420);
       return;
     }
 
@@ -494,17 +523,17 @@ export default function VisualMemoryTrainer() {
             <div className="visual-memory-trainer-stats" aria-live="polite">
               <div className="visual-memory-stat-tile">
                 <span className="visual-memory-stat-label">
-                  <FontAwesomeIcon icon="clock" className="me-2" />
-                  {t('games.visualMemory.trainer.timer')}
-                </span>
-                <strong className="visual-memory-stat-value tabular-nums">{formatDuration(elapsedMs)}</strong>
-              </div>
-              <div className="visual-memory-stat-tile">
-                <span className="visual-memory-stat-label">
                   <FontAwesomeIcon icon="layer-group" className="me-2" />
                   {t('games.visualMemory.trainer.level')}
                 </span>
                 <strong className="visual-memory-stat-value tabular-nums">{level}</strong>
+              </div>
+              <div className="visual-memory-stat-tile">
+                <span className="visual-memory-stat-label">
+                  <FontAwesomeIcon icon="heart" className="me-2" />
+                  {t('games.visualMemory.trainer.lives')}
+                </span>
+                <strong className="visual-memory-stat-value tabular-nums">{remainingLives}</strong>
               </div>
               <div className="visual-memory-stat-tile">
                 <span className="visual-memory-stat-label">
@@ -513,12 +542,14 @@ export default function VisualMemoryTrainer() {
                 </span>
                 <strong className="visual-memory-stat-value tabular-nums">{score}</strong>
               </div>
-              <div className="visual-memory-stat-tile">
+              <div className="visual-memory-stat-tile is-secondary">
                 <span className="visual-memory-stat-label">
-                  <FontAwesomeIcon icon="clipboard-list" className="me-2" />
-                  {t('games.visualMemory.trainer.mistakes')}
+                  <FontAwesomeIcon icon="clock" className="me-2" />
+                  {t('games.visualMemory.trainer.timer')}
                 </span>
-                <strong className="visual-memory-stat-value tabular-nums">{mistakes}</strong>
+                <strong className="visual-memory-stat-value visual-memory-stat-value-timer tabular-nums">
+                  {formatDuration(elapsedMs)}
+                </strong>
               </div>
             </div>
 
@@ -534,16 +565,31 @@ export default function VisualMemoryTrainer() {
                     ? t('games.visualMemory.trainer.idleRule')
                     : status === 'memorize'
                       ? t('games.visualMemory.trainer.memorizeRule', { count: activePattern.length })
-                      : t('games.visualMemory.trainer.recallRule', { count: activePattern.length })}
+                      : status === 'revealFail'
+                        ? t('games.visualMemory.trainer.failRevealRule', { count: activePattern.length })
+                        : status === 'guess'
+                          ? t('games.visualMemory.trainer.recallRule', { count: activePattern.length })
+                          : t('games.visualMemory.trainer.gameOverRule')}
                 </strong>
               </div>
 
               <div className="visual-memory-board-meta">
                 <span>{t('games.visualMemory.trainer.gridHint', { size: modeConfig.size })}</span>
+                <span>{t('games.visualMemory.trainer.livesHint', { count: remainingLives })}</span>
                 {showHint && (
                   <span>{t('games.visualMemory.trainer.patternHint', { count: activePattern.length })}</span>
                 )}
               </div>
+
+              {(status === 'idle' || status === 'gameOver') && (
+                <div className="visual-memory-board-cta">
+                  <Button type="button" variant="primary" onClick={() => startNewGame(mode)}>
+                    {status === 'idle'
+                      ? t('games.visualMemory.trainer.startRound')
+                      : t('games.visualMemory.trainer.playAgain')}
+                  </Button>
+                </div>
+              )}
 
               <div
                 className="visual-memory-grid"
@@ -556,7 +602,7 @@ export default function VisualMemoryTrainer() {
                   const revealAccent = getRevealAccent(index);
                   const className = [
                     'visual-memory-cell',
-                    status === 'memorize' && isPatternCell ? 'is-pattern' : '',
+                    (status === 'memorize' || status === 'revealFail') && isPatternCell ? 'is-pattern' : '',
                     isSelected ? 'is-selected' : '',
                     isMissed ? 'is-missed' : '',
                     status === 'guess' ? 'is-clickable' : '',
@@ -570,7 +616,7 @@ export default function VisualMemoryTrainer() {
                       type="button"
                       className={className}
                       style={
-                        status === 'memorize' && isPatternCell
+                        (status === 'memorize' || status === 'revealFail') && isPatternCell
                           ? ({
                               ['--visual-memory-cell-accent' as string]: revealAccent.bg,
                               ['--visual-memory-cell-accent-border' as string]: revealAccent.border,
@@ -592,12 +638,18 @@ export default function VisualMemoryTrainer() {
             <div className="visual-memory-trainer-footer">
               {lastResult ? (
                 <div className="visual-memory-trainer-complete">
-                  <FontAwesomeIcon icon="check-circle" className="me-2" />
-                  {t('games.visualMemory.trainer.completeMessage', {
-                    level: lastResult.level,
-                    score: lastResult.score,
-                    tiles: lastResult.rememberedTiles,
-                  })}
+                  <div className="visual-memory-trainer-complete-title">
+                    <FontAwesomeIcon icon="bullseye" className="me-2" />
+                    {t('games.visualMemory.trainer.gameOverTitle')}
+                  </div>
+                  <p className="mb-0">
+                    {t('games.visualMemory.trainer.completeMessage', {
+                      level: lastResult.level,
+                      score: lastResult.score,
+                      tiles: lastResult.rememberedTiles,
+                      mistakes,
+                    })}
+                  </p>
                 </div>
               ) : (
                 <p className="visual-memory-trainer-tip mb-0">
@@ -611,6 +663,9 @@ export default function VisualMemoryTrainer() {
                 </span>
                 <span>
                   <strong>{t('games.visualMemory.trainer.rememberedTiles')}:</strong> {rememberedTiles}
+                </span>
+                <span>
+                  <strong>{t('games.visualMemory.trainer.mistakes')}:</strong> {mistakes}
                 </span>
                 <span>
                   <strong>{t('games.visualMemory.trainer.modeLabel')}:</strong>{' '}
