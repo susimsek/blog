@@ -250,7 +250,10 @@ describe('Posts Library', () => {
         return 'Some markdown content';
       });
 
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       const result = await getSortedPostsData('fr', 'non_existing_topic');
+      consoleSpy.mockRestore();
+
       expect(result).toEqual([]);
     });
 

@@ -179,7 +179,7 @@ describe('PostDetail Component', () => {
   it('renders category breadcrumb, adjacent navigation, and copies the share link', async () => {
     const post = {
       ...mockPost,
-      category: { id: 'Frontend', name: 'Frontend' },
+      category: { id: 'frontend', name: 'Frontend', color: 'blue' },
     };
 
     renderWithProviders(

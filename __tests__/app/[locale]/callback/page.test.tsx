@@ -2,19 +2,21 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import NewsletterCallbackRoute, { generateMetadata } from '@/app/(localized)/[locale]/callback/page';
 
-const getServerTranslatorMock = jest.fn(async () => ({
+const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) => ({
   t: (key: string) =>
     ({
       'common.newsletterCallback.meta.title': 'Callback Title',
       'common.newsletterCallback.meta.description': 'Callback Description',
     })[key] ?? key,
 }));
-const loadLocaleResourcesMock = jest.fn(async () => ({ common: { common: { newsletterCallback: {} } } }));
-const getSortedPostsDataMock = jest.fn(async () => [{ id: 'post-1' }]);
-const getAllTopicsMock = jest.fn(async () => [{ id: 'topic-1' }]);
-const getTopTopicsFromPostsMock = jest.fn(() => [{ id: 'topic-1' }]);
-const getLayoutPostsMock = jest.fn(() => [{ id: 'post-1' }]);
-const callbackPageMock = jest.fn(() => <div data-testid="callback-page">callback-page</div>);
+const loadLocaleResourcesMock = jest.fn(async (_locale: string, _ns: string[]) => ({
+  common: { common: { newsletterCallback: {} } },
+}));
+const getSortedPostsDataMock = jest.fn(async (_locale: string) => [{ id: 'post-1' }]);
+const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
+const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'topic-1' }]);
+const getLayoutPostsMock = jest.fn((_posts: unknown[]) => [{ id: 'post-1' }]);
+const callbackPageMock = jest.fn((_props: unknown) => <div data-testid="callback-page">callback-page</div>);
 
 jest.mock('@/i18n/server', () => ({
   getServerTranslator: (locale: string, ns: string[]) => getServerTranslatorMock(locale, ns),

@@ -58,6 +58,7 @@ describe('posts helpers', () => {
         updatedDate: '2024-01-02',
         summary: 'Summary',
         searchText: 'summary',
+        thumbnail: null,
         readingTimeMin: 5,
         source: 'blog',
       }),

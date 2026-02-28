@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import SchulteTableRoute, { generateMetadata } from '@/app/(localized)/[locale]/games/schulte-table/page';
 
-const getServerTranslatorMock = jest.fn(async () => ({
+const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) => ({
   t: (key: string) =>
     ({
       'games.schulte.meta.title': 'Schulte Meta Title',
@@ -10,12 +10,14 @@ const getServerTranslatorMock = jest.fn(async () => ({
       'games.schulte.meta.keywords': 'schulte,meta,keywords',
     })[key] ?? key,
 }));
-const loadLocaleResourcesMock = jest.fn(async () => ({ games: { games: { schulte: { title: 'Schulte' } } } }));
-const getSortedPostsDataMock = jest.fn(async () => [{ id: 'post-1' }, { id: 'post-2' }]);
-const getAllTopicsMock = jest.fn(async () => [{ id: 'topic-1' }]);
-const getTopTopicsFromPostsMock = jest.fn(() => [{ id: 'topic-1' }]);
-const getLayoutPostsMock = jest.fn(() => [{ id: 'post-1' }]);
-const schultePageMock = jest.fn(() => <div data-testid="schulte-page">schulte-page</div>);
+const loadLocaleResourcesMock = jest.fn(async (_locale: string, _ns: string[]) => ({
+  games: { games: { schulte: { title: 'Schulte' } } },
+}));
+const getSortedPostsDataMock = jest.fn(async (_locale: string) => [{ id: 'post-1' }, { id: 'post-2' }]);
+const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
+const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'topic-1' }]);
+const getLayoutPostsMock = jest.fn((_posts: unknown[]) => [{ id: 'post-1' }]);
+const schultePageMock = jest.fn((_props: unknown) => <div data-testid="schulte-page">schulte-page</div>);
 
 jest.mock('@/i18n/server', () => ({
   getServerTranslator: (locale: string, ns: string[]) => getServerTranslatorMock(locale, ns),
@@ -47,7 +49,6 @@ describe('App Route /[locale]/games/schulte-table', () => {
   it('builds schulte metadata from i18n translator', async () => {
     const metadata = await generateMetadata({
       params: Promise.resolve({ locale: 'en' }),
-      searchParams: Promise.resolve({}),
     });
 
     expect(metadata).toMatchObject({
@@ -60,7 +61,6 @@ describe('App Route /[locale]/games/schulte-table', () => {
   it('loads route data and renders SchulteTablePage', async () => {
     const element = await SchulteTableRoute({
       params: Promise.resolve({ locale: 'tr' }),
-      searchParams: Promise.resolve({}),
     });
     render(element);
 

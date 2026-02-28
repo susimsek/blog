@@ -158,6 +158,96 @@
           "completed": "Tamamlandı"
         }
       }
+    },
+    "visualMemory": {
+      "badge": "Beyin Egzersizi",
+      "kickerNote": "Desen hatırlama ve kısa süreli görsel hafıza çalışması",
+      "title": "Görsel Hafıza",
+      "subtitle": "Tarayıcı içinde çalışan bu görsel hafıza oyununda, kısa süre görünen karo desenini ezberleyip kaybolduktan sonra yeniden kurarak seviyeleri yükseltin.",
+      "meta": {
+        "title": "Görsel Hafıza (Online Oyna)",
+        "description": "Tarayıcı içinde çalışan görsel hafıza oyununu seviye ilerlemesi, en iyi derece takibi, farklı grid boyutları ve responsive kontrollerle oynayın.",
+        "keywords": "görsel hafıza, hafıza oyunu, beyin egzersizi, desen hatırlama, online oyun, kısa süreli hafıza"
+      },
+      "howToPlay": {
+        "title": "Nasıl Oynanır",
+        "step1": "Sol panelden bir mod seçin. Her mod grid boyutunu ve desenin ne kadar hızlı kaybolacağını değiştirir.",
+        "step2": "Parlayan karolar görünür durumdayken deseni ezberleyin, sonra tablo sıfırlandığında aynı karolara dokunun.",
+        "step3": "Her başarılı tur bir karo daha ekler; böylece zorluk seviye yükseldikçe doğal şekilde artar.",
+        "step4": "Aynı deseni tekrar denemek için Yeniden başlat, koşuyu baştan almak için Yeni tur seçeneğini kullanın."
+      },
+      "whyUse": {
+        "title": "Neden Kullanılır",
+        "body1": "Görsel hafıza egzersizleri, kısa süreli desen hatırlamayı sade ve ölçülebilir bir göreve dönüştürdüğü için popülerdir. Tek oturumda seviye, hata ve hatırlanan toplam karo sayısını izleyebilirsiniz.",
+        "body2": "Bunu bir pratik aracı olarak değerlendirin; tıbbi ya da tanısal bir iddia değildir. Oyun içindeki ilerleme, gündelik hayatta geniş çaplı bilişsel aktarım olacağı anlamına gelmez."
+      },
+      "notes": {
+        "title": "Çalışma Notları",
+        "item1": "Hatırlama kalitesi düşmeye başladığında genelde kısa ve odaklı seanslar daha verimli olur.",
+        "item2": "Karoları tek tek ezberlemek yerine desenin genel formunu yakalamaya çalışın.",
+        "item3": "Bir seviye dağınık geliyorsa dokunmadan önce kısa bir an durun. Temiz hatırlama, telaşlı hızdan daha değerlidir."
+      },
+      "research": {
+        "title": "Araştırma Notları",
+        "body1": "Görsel hafıza görevleri genelde dikkat ile çalışma belleği arasındaki bölgede konumlanır. Tekrarlanması ve puanlanması kolay olduğu için hafif kişisel takip için uygundur.",
+        "body2": "Görsel çalışma belleği araştırmaları çoğunlukla kapasite sınırları, desenin korunması ve değişim algısı etrafında şekillenir. Görev içi gelişim net olabilir; daha geniş aktarım etkisi ise daha nüanslıdır.",
+        "sources": {
+          "background": "Arka plan özeti (Görsel hafıza)",
+          "capacityReview": "Görsel çalışma belleği kapasitesi bağlamı (PMC)",
+          "changeDetection": "Değişim algısı ve görsel hafıza bağlamı (PMC)"
+        }
+      },
+      "trainer": {
+        "timer": "Süre",
+        "level": "Seviye",
+        "score": "Skor",
+        "mistakes": "Hata",
+        "mode": "Mod",
+        "modeLabel": "Mod",
+        "controls": "Oyun kontrolleri",
+        "showControls": "Kontrolleri aç",
+        "hideControls": "Kontrolleri kapat",
+        "actions": "Aksiyonlar",
+        "newRound": "Yeni tur",
+        "restart": "Yeniden başlat",
+        "clearBest": "En iyiyi sil",
+        "showHint": "Hatırlatma ipucunu göster",
+        "statusLabel": "Durum",
+        "bestLevel": "En iyi seviye",
+        "noBestYet": "Henüz yok",
+        "currentRound": "Aktif tur",
+        "idleRule": "İlk deseni görmek için yeni tur başlatın.",
+        "memorizeRule": "{{count}} vurgulu karoyu ezberleyin.",
+        "recallRule": "{{count}} karoluk deseni hafızadan yeniden kurun.",
+        "gridHint": "Grid: {{size}}×{{size}}",
+        "patternHint": "Desen boyutu: {{count}} karo",
+        "targetTiles": "Hedef karo",
+        "rememberedTiles": "Hatırlanan karo",
+        "tip": "İpucu: Tek tek karelere değil, önce bütün desenin formuna bakın.",
+        "tipWithHint": "İpucu: karo sayısını sabitlemek için ipucu satırını kullanın, sonra tek kareler yerine kümeleri hatırlayın.",
+        "completeMessage": "Koşu tamamlandı. {{level}}. seviyeye ulaştınız, {{score}} skor yaptınız ve {{tiles}} karo hatırladınız.",
+        "cellAriaLabel": "Hafıza hücresi {{index}}",
+        "modes": {
+          "easy": {
+            "title": "Kolay",
+            "copy": "3×3 grid, daha yavaş gösterim"
+          },
+          "standard": {
+            "title": "Standart",
+            "copy": "4×4 grid, dengeli hatırlama"
+          },
+          "expert": {
+            "title": "Uzman",
+            "copy": "5×5 grid, daha hızlı kaybolan desen"
+          }
+        },
+        "status": {
+          "idle": "Hazır",
+          "memorize": "Ezberle",
+          "guess": "Hatırla",
+          "completed": "Tamamlandı"
+        }
+      }
     }
   }
 }

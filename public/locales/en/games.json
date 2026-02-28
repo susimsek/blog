@@ -158,6 +158,96 @@
           "completed": "Completed"
         }
       }
+    },
+    "visualMemory": {
+      "badge": "Brain Exercise",
+      "kickerNote": "Pattern recall and short-term visual memory practice",
+      "title": "Visual Memory",
+      "subtitle": "Play a browser-based visual memory game that flashes a tile pattern, hides it, and asks you to rebuild it from memory before moving to the next level.",
+      "meta": {
+        "title": "Visual Memory (Play Online)",
+        "description": "Play a visual memory game online in your browser with level progression, best score tracking, multiple grid sizes, and responsive controls.",
+        "keywords": "visual memory game, memory game, brain exercise, pattern recall, online game, short term memory"
+      },
+      "howToPlay": {
+        "title": "How To Play",
+        "step1": "Pick a mode from the left panel. Each mode changes grid size and how quickly the highlighted pattern disappears.",
+        "step2": "Memorize the glowing tiles while the pattern is visible, then tap the same tiles after the board resets.",
+        "step3": "Every completed round adds one more tile to remember, so the game scales naturally as your level rises.",
+        "step4": "Use Restart to replay the same pattern, or New round to reset the run and start fresh from level one."
+      },
+      "whyUse": {
+        "title": "Why People Use It",
+        "body1": "Visual memory drills are popular because they turn short-term pattern recall into a simple, measurable task. You can track level growth, mistake count, and total remembered tiles in one session.",
+        "body2": "Treat this as a practice tool, not a medical or diagnostic claim. Better in-game memory patterns do not automatically guarantee broad real-world cognitive transfer."
+      },
+      "notes": {
+        "title": "Practice Notes",
+        "item1": "Short focused sessions usually work better than long runs when recall quality starts to slip.",
+        "item2": "Look for the overall shape of the pattern instead of memorizing isolated squares one by one.",
+        "item3": "When a level feels noisy, pause for a beat before tapping. Clean recall matters more than frantic speed."
+      },
+      "research": {
+        "title": "Research Notes",
+        "body1": "Visual memory tasks usually sit near the border of attention and working-memory practice. They are easy to repeat and score, which makes them useful for lightweight self-tracking.",
+        "body2": "Research on visual working memory often focuses on capacity limits, pattern maintenance, and change detection. Improvement inside a task can be clear, while wider transfer remains more nuanced.",
+        "sources": {
+          "background": "Background overview (Visual memory)",
+          "capacityReview": "Visual working-memory capacity review context (PMC)",
+          "changeDetection": "Change detection and visual memory context (PMC)"
+        }
+      },
+      "trainer": {
+        "timer": "Timer",
+        "level": "Level",
+        "score": "Score",
+        "mistakes": "Mistakes",
+        "mode": "Mode",
+        "modeLabel": "Mode",
+        "controls": "Game controls",
+        "showControls": "Show controls",
+        "hideControls": "Hide controls",
+        "actions": "Actions",
+        "newRound": "New round",
+        "restart": "Restart",
+        "clearBest": "Clear best",
+        "showHint": "Show recall hint",
+        "statusLabel": "Status",
+        "bestLevel": "Best level",
+        "noBestYet": "No best yet",
+        "currentRound": "Current round",
+        "idleRule": "Start a new round to reveal the first pattern.",
+        "memorizeRule": "Memorize {{count}} highlighted tile(s).",
+        "recallRule": "Rebuild the {{count}}-tile pattern from memory.",
+        "gridHint": "Grid: {{size}}×{{size}}",
+        "patternHint": "Pattern size: {{count}} tile(s)",
+        "targetTiles": "Target tiles",
+        "rememberedTiles": "Remembered tiles",
+        "tip": "Tip: scan the whole pattern as one shape before you start tapping individual tiles.",
+        "tipWithHint": "Tip: use the hint line to anchor the tile count, then memorize clusters instead of isolated squares.",
+        "completeMessage": "Run complete. Reached level {{level}}, scored {{score}}, and rebuilt {{tiles}} tile(s).",
+        "cellAriaLabel": "Memory cell {{index}}",
+        "modes": {
+          "easy": {
+            "title": "Easy",
+            "copy": "3×3 grid, slower reveal"
+          },
+          "standard": {
+            "title": "Standard",
+            "copy": "4×4 grid, balanced recall"
+          },
+          "expert": {
+            "title": "Expert",
+            "copy": "5×5 grid, faster pattern fade"
+          }
+        },
+        "status": {
+          "idle": "Ready",
+          "memorize": "Memorize",
+          "guess": "Recall",
+          "completed": "Completed"
+        }
+      }
     }
   }
 }

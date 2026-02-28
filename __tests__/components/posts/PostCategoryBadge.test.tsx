@@ -45,7 +45,7 @@ describe('PostCategoryBadge', () => {
       icon: 'code',
     });
 
-    render(<PostCategoryBadge category={{ id: 'programming', name: 'Programming' }} />);
+    render(<PostCategoryBadge category={{ id: 'programming', name: 'Programming', color: 'blue' }} />);
 
     expect(screen.getByRole('link', { name: /programming/i })).toHaveAttribute('href', '/categories/programming');
     expect(screen.getByTestId('category-icon')).toHaveClass('fa-fw');
@@ -59,14 +59,14 @@ describe('PostCategoryBadge', () => {
       icon: undefined,
     });
     const { rerender, container } = render(
-      <PostCategoryBadge category={{ id: 'gaming', name: 'Gaming' }} linked={false} />,
+      <PostCategoryBadge category={{ id: 'gaming', name: 'Gaming', color: 'red' }} linked={false} />,
     );
 
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
     expect(container.querySelector('span.post-category-link')).toBeInTheDocument();
 
     getPostCategoryPresentationMock.mockReturnValue(null);
-    rerender(<PostCategoryBadge category={{ id: 'unknown', name: 'Unknown' }} />);
+    rerender(<PostCategoryBadge category={{ id: 'unknown', name: 'Unknown', color: 'gray' }} />);
     expect(container).toBeEmptyDOMElement();
   });
 });

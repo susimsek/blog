@@ -11,18 +11,20 @@ import SearchPage from '@/views/SearchPage';
 import SchulteTablePage from '@/views/SchulteTablePage';
 import StroopTestPage from '@/views/StroopTestPage';
 import TopicPage from '@/views/TopicPage';
+import VisualMemoryPage from '@/views/VisualMemoryPage';
 import { useAppSelector } from '@/config/store';
 
 const layoutMock = jest.fn(({ children }: { children?: React.ReactNode }) => (
   <div data-testid="layout">{children}</div>
 ));
-const postListMock = jest.fn(() => <div data-testid="post-list">post-list</div>);
-const postCarouselMock = jest.fn(() => <div data-testid="post-carousel">post-carousel</div>);
-const postDetailMock = jest.fn(() => <div data-testid="post-detail">post-detail</div>);
+const postListMock = jest.fn((_props: unknown) => <div data-testid="post-list">post-list</div>);
+const postCarouselMock = jest.fn((_props: unknown) => <div data-testid="post-carousel">post-carousel</div>);
+const postDetailMock = jest.fn((_props: unknown) => <div data-testid="post-detail">post-detail</div>);
 const contactInfoMock = jest.fn(() => <div data-testid="contact-info">contact-info</div>);
-const thumbnailMock = jest.fn(() => <div data-testid="thumbnail">thumbnail</div>);
+const thumbnailMock = jest.fn((_props: unknown) => <div data-testid="thumbnail">thumbnail</div>);
 const schulteTrainerMock = jest.fn(() => <div data-testid="schulte-trainer">schulte-trainer</div>);
 const stroopTrainerMock = jest.fn(() => <div data-testid="stroop-trainer">stroop-trainer</div>);
+const visualMemoryTrainerMock = jest.fn(() => <div data-testid="visual-memory-trainer">visual-memory-trainer</div>);
 const linkMock = jest.fn(({ children, href }: { children: React.ReactNode; href: string }) => (
   <a href={href}>{children}</a>
 ));
@@ -68,6 +70,11 @@ jest.mock('@/components/games/StroopTestTrainer', () => ({
   default: () => stroopTrainerMock(),
 }));
 
+jest.mock('@/components/games/VisualMemoryTrainer', () => ({
+  __esModule: true,
+  default: () => visualMemoryTrainerMock(),
+}));
+
 jest.mock('@/components/common/Link', () => ({
   __esModule: true,
   default: (props: { children: React.ReactNode; href: string }) => linkMock(props),
@@ -110,6 +117,7 @@ const posts = [
     id: 'post-1',
     title: 'Post 1',
     summary: 'Summary',
+    searchText: 'summary post 1',
     publishedDate: '2025-01-01',
     readingTimeMin: 3,
     thumbnail: null,
@@ -201,6 +209,7 @@ describe('View pages', () => {
           id: 'post-1',
           title: 'Post Title',
           summary: 'Summary',
+          searchText: 'summary post title',
           publishedDate: '2025-01-01',
           readingTimeMin: 4,
           thumbnail: null,
@@ -232,12 +241,13 @@ describe('View pages', () => {
           id: 'post-2',
           title: 'Rich Post',
           summary: 'Rich Summary',
+          searchText: 'rich summary post',
           publishedDate: '2025-02-01',
           updatedDate: '2025-02-02',
           readingTimeMin: 5,
           thumbnail: '/images/rich-post.jpg',
           topics,
-          category: { id: 'programming', name: 'Programming' },
+          category: { id: 'programming', name: 'Programming', color: 'blue' },
           contentHtml: '<p>Rich content</p>',
         }}
       />,
@@ -259,13 +269,15 @@ describe('View pages', () => {
     );
   });
 
-  it('renders SchulteTablePage and StroopTestPage with thumbnails and trainers', () => {
+  it('renders SchulteTablePage, StroopTestPage, and VisualMemoryPage with thumbnails and trainers', () => {
     render(<SchulteTablePage layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={topics} />);
     render(<StroopTestPage layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={topics} />);
+    render(<VisualMemoryPage layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={topics} />);
 
-    expect(screen.getAllByTestId('thumbnail').length).toBeGreaterThan(1);
+    expect(screen.getAllByTestId('thumbnail').length).toBeGreaterThan(2);
     expect(screen.getByTestId('schulte-trainer')).toBeInTheDocument();
     expect(screen.getByTestId('stroop-trainer')).toBeInTheDocument();
+    expect(screen.getByTestId('visual-memory-trainer')).toBeInTheDocument();
   });
 
   it('renders the locale not found page with a localized home link', () => {

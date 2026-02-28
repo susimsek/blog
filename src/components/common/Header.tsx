@@ -314,6 +314,12 @@ export default function Header({
                     <span>{t('common.header.menu.schulteTable')}</span>
                   </span>
                 </NavDropdown.Item>
+                <NavDropdown.Item as={Link} href="/games/visual-memory">
+                  <span className="d-inline-flex align-items-center">
+                    <FontAwesomeIcon icon="eye" className="me-2" />
+                    <span>{t('common.header.menu.visualMemory')}</span>
+                  </span>
+                </NavDropdown.Item>
                 <NavDropdown.Item as={Link} href="/games/stroop-test">
                   <span className="d-inline-flex align-items-center">
                     <FontAwesomeIcon icon="bullseye" className="me-2" />

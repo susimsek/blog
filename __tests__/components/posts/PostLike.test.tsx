@@ -4,7 +4,12 @@ import PostLike from '@/components/posts/PostLike';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
 import { fetchPost, incrementPostLike } from '@/lib/contentApi';
 
-const useParamsMock = jest.fn(() => ({ locale: 'en' }));
+const useParamsMock = jest.fn<
+  {
+    locale?: string | string[];
+  },
+  []
+>(() => ({ locale: 'en' }));
 
 jest.mock('next/navigation', () => ({
   useParams: () => useParamsMock(),
@@ -48,7 +53,7 @@ describe('PostLike', () => {
   });
 
   it('falls back to the default locale and i18n language branches', async () => {
-    useParamsMock.mockReturnValue({ locale: ['en', 'tr'] });
+    useParamsMock.mockReturnValue({ locale: undefined });
 
     renderWithProviders(<PostLike postId="post-array" />, {
       preloadedState: {
@@ -81,7 +86,6 @@ describe('PostLike', () => {
   it('shows an error state when the initial like count cannot be loaded', async () => {
     fetchPostMock.mockResolvedValue({
       status: 'failed',
-      likes: null,
       post: null,
     });
 

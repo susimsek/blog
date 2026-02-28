@@ -9,19 +9,21 @@ const getAllCategoryIdsMock = jest.fn(async () => [{ params: { locale: 'en', id:
 const getCategoryDataMock = jest.fn(async (_locale: string, id: string) =>
   id === 'frontend' ? { id: 'frontend', name: 'Frontend', color: '#fff' } : null,
 );
-const getAllTopicsMock = jest.fn(async () => [{ id: 'topic-1' }]);
-const getSortedPostsDataMock = jest.fn(async () => [
+const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'topic-1' }]);
+const getSortedPostsDataMock = jest.fn(async (_locale: string) => [
   { id: 'post-1', category: { id: 'frontend' } },
   { id: 'post-2', category: { id: 'backend' } },
 ]);
-const getLayoutPostsMock = jest.fn(() => [{ id: 'post-1' }]);
-const getTopTopicsFromPostsMock = jest.fn(() => [{ id: 'topic-1' }]);
-const getServerTranslatorMock = jest.fn(async () => ({
+const getLayoutPostsMock = jest.fn((_posts: unknown[]) => [{ id: 'post-1' }]);
+const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'topic-1' }]);
+const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) => ({
   t: (key: string, options?: Record<string, string>) =>
     key === 'category.title' ? `Category ${options?.category}` : key,
 }));
-const loadLocaleResourcesMock = jest.fn(async () => ({ category: { title: 'Category' } }));
-const categoryPageMock = jest.fn(() => <div data-testid="category-page">category-page</div>);
+const loadLocaleResourcesMock = jest.fn(async (_locale: string, _ns: string[]) => ({
+  category: { title: 'Category' },
+}));
+const categoryPageMock = jest.fn((_props: unknown) => <div data-testid="category-page">category-page</div>);
 
 jest.mock('next/navigation', () => ({
   notFound: () => notFoundMock(),

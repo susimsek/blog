@@ -87,6 +87,7 @@ interface Resources {
           schulteTable: 'Schulte Table';
           search: 'Search';
           stroopTest: 'Stroop Test';
+          visualMemory: 'Visual Memory';
         };
         theme: {
           dark: 'Dark Mode';
@@ -456,6 +457,96 @@ interface Resources {
         whyUse: {
           body1: 'The Stroop task is widely used as a cognitive-control exercise because it forces you to suppress the automatic urge to read the word and respond to the font color instead.';
           body2: 'Treat this as a fast attention and inhibition practice tool, not a medical or diagnostic assessment. Better game scores do not automatically mean broad real-world cognitive gains.';
+          title: 'Why People Use It';
+        };
+      };
+      visualMemory: {
+        badge: 'Brain Exercise';
+        howToPlay: {
+          step1: 'Pick a mode from the left panel. Each mode changes grid size and how quickly the highlighted pattern disappears.';
+          step2: 'Memorize the glowing tiles while the pattern is visible, then tap the same tiles after the board resets.';
+          step3: 'Every completed round adds one more tile to remember, so the game scales naturally as your level rises.';
+          step4: 'Use Restart to replay the same pattern, or New round to reset the run and start fresh from level one.';
+          title: 'How To Play';
+        };
+        kickerNote: 'Pattern recall and short-term visual memory practice';
+        meta: {
+          description: 'Play a visual memory game online in your browser with level progression, best score tracking, multiple grid sizes, and responsive controls.';
+          keywords: 'visual memory game, memory game, brain exercise, pattern recall, online game, short term memory';
+          title: 'Visual Memory (Play Online)';
+        };
+        notes: {
+          item1: 'Short focused sessions usually work better than long runs when recall quality starts to slip.';
+          item2: 'Look for the overall shape of the pattern instead of memorizing isolated squares one by one.';
+          item3: 'When a level feels noisy, pause for a beat before tapping. Clean recall matters more than frantic speed.';
+          title: 'Practice Notes';
+        };
+        research: {
+          body1: 'Visual memory tasks usually sit near the border of attention and working-memory practice. They are easy to repeat and score, which makes them useful for lightweight self-tracking.';
+          body2: 'Research on visual working memory often focuses on capacity limits, pattern maintenance, and change detection. Improvement inside a task can be clear, while wider transfer remains more nuanced.';
+          sources: {
+            background: 'Background overview (Visual memory)';
+            capacityReview: 'Visual working-memory capacity review context (PMC)';
+            changeDetection: 'Change detection and visual memory context (PMC)';
+          };
+          title: 'Research Notes';
+        };
+        subtitle: 'Play a browser-based visual memory game that flashes a tile pattern, hides it, and asks you to rebuild it from memory before moving to the next level.';
+        title: 'Visual Memory';
+        trainer: {
+          actions: 'Actions';
+          bestLevel: 'Best level';
+          cellAriaLabel: 'Memory cell {{index}}';
+          clearBest: 'Clear best';
+          completeMessage: 'Run complete. Reached level {{level}}, scored {{score}}, and rebuilt {{tiles}} tile(s).';
+          controls: 'Game controls';
+          currentRound: 'Current round';
+          gridHint: 'Grid: {{size}}×{{size}}';
+          hideControls: 'Hide controls';
+          idleRule: 'Start a new round to reveal the first pattern.';
+          level: 'Level';
+          memorizeRule: 'Memorize {{count}} highlighted tile(s).';
+          mistakes: 'Mistakes';
+          mode: 'Mode';
+          modeLabel: 'Mode';
+          modes: {
+            easy: {
+              copy: '3×3 grid, slower reveal';
+              title: 'Easy';
+            };
+            expert: {
+              copy: '5×5 grid, faster pattern fade';
+              title: 'Expert';
+            };
+            standard: {
+              copy: '4×4 grid, balanced recall';
+              title: 'Standard';
+            };
+          };
+          newRound: 'New round';
+          noBestYet: 'No best yet';
+          patternHint: 'Pattern size: {{count}} tile(s)';
+          recallRule: 'Rebuild the {{count}}-tile pattern from memory.';
+          rememberedTiles: 'Remembered tiles';
+          restart: 'Restart';
+          score: 'Score';
+          showControls: 'Show controls';
+          showHint: 'Show recall hint';
+          status: {
+            completed: 'Completed';
+            guess: 'Recall';
+            idle: 'Ready';
+            memorize: 'Memorize';
+          };
+          statusLabel: 'Status';
+          targetTiles: 'Target tiles';
+          timer: 'Timer';
+          tip: 'Tip: scan the whole pattern as one shape before you start tapping individual tiles.';
+          tipWithHint: 'Tip: use the hint line to anchor the tile count, then memorize clusters instead of isolated squares.';
+        };
+        whyUse: {
+          body1: 'Visual memory drills are popular because they turn short-term pattern recall into a simple, measurable task. You can track level growth, mistake count, and total remembered tiles in one session.';
+          body2: 'Treat this as a practice tool, not a medical or diagnostic claim. Better in-game memory patterns do not automatically guarantee broad real-world cognitive transfer.';
           title: 'Why People Use It';
         };
       };

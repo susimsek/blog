@@ -336,6 +336,18 @@ function getPagesData() {
         },
       },
     },
+    {
+      slug: 'games/visual-memory',
+      changefreq: 'weekly',
+      sourceFile: 'src/app/(localized)/[locale]/games/visual-memory/page.tsx',
+      image: {
+        loc: '/images/visual-memory-thumbnail.webp',
+        title: {
+          en: 'Visual Memory (Play Online)',
+          tr: 'Görsel Hafıza (Online Oyna)',
+        },
+      },
+    },
   ];
 }
 

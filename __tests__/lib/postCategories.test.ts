@@ -8,8 +8,8 @@ import {
 describe('postCategories', () => {
   it('normalizes category ids from string and object inputs', () => {
     expect(normalizePostCategory(' Programming ')).toBe('programming');
-    expect(normalizePostCategory({ id: ' Gaming ', name: 'Gaming' })).toBe('gaming');
-    expect(normalizePostCategory({ id: '', name: 'Empty' })).toBeNull();
+    expect(normalizePostCategory({ id: ' Gaming ', name: 'Gaming', color: 'red' })).toBe('gaming');
+    expect(normalizePostCategory({ id: '', name: 'Empty', color: 'gray' })).toBeNull();
     expect(normalizePostCategory(null)).toBeNull();
     expect(normalizePostCategory(undefined)).toBeNull();
   });
@@ -22,7 +22,7 @@ describe('postCategories', () => {
       icon: 'code',
     });
 
-    expect(getPostCategoryPresentation({ id: 'programming', name: 'Programming' }, 'tr')).toMatchObject({
+    expect(getPostCategoryPresentation({ id: 'programming', name: 'Programming', color: 'blue' }, 'tr')).toMatchObject({
       slug: 'programming',
       label: 'Programlama',
       color: 'blue',

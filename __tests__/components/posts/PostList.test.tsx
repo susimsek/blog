@@ -545,7 +545,7 @@ describe('PostList Component', () => {
         title: 'Short Post',
         readingTimeMin: 2,
         publishedDate: '2024-05-01',
-        category: { id: 'frontend', name: 'Frontend' },
+        category: { id: 'frontend', name: 'Frontend', color: 'blue' },
       },
       {
         ...mockPostSummaries[1],
@@ -553,7 +553,7 @@ describe('PostList Component', () => {
         title: 'Matching Post',
         readingTimeMin: 9,
         publishedDate: '2024-06-15',
-        category: { id: 'frontend', name: 'Frontend' },
+        category: { id: 'frontend', name: 'Frontend', color: 'blue' },
       },
       {
         ...mockPostSummaries[2],
@@ -561,7 +561,7 @@ describe('PostList Component', () => {
         title: 'Long Post',
         readingTimeMin: 16,
         publishedDate: '2024-07-20',
-        category: { id: 'backend', name: 'Backend' },
+        category: { id: 'backend', name: 'Backend', color: 'green' },
       },
     ];
 
