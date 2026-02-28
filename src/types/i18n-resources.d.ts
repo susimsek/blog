@@ -496,6 +496,25 @@ interface Resources {
       };
       visualMemory: {
         badge: 'Brain Exercise';
+        benchmark: {
+          building: {
+            copy: 'You are still locking in the pattern-reading rhythm. Focus on clean recalls and stable lives.';
+            label: 'Building';
+            time: 'Levels 1-5';
+          };
+          fast: {
+            copy: 'A genuinely strong run for a casual browser session. Public benchmark-style profiles often start to look competitive in the low teens.';
+            label: 'Strong';
+            time: 'Level 11+';
+          };
+          steady: {
+            copy: 'A solid range for regular practice. At this point shape recognition matters more than raw tapping speed.';
+            label: 'Steady';
+            time: 'Levels 6-10';
+          };
+          subtitle: 'Use these ranges as lightweight context for browser-style visual memory runs, not as a diagnostic score.';
+          title: 'Run Guide';
+        };
         howToPlay: {
           step1: 'Pick a mode from the left panel. Each mode changes grid size and how quickly the highlighted pattern disappears.';
           step2: 'Memorize the glowing tiles while the pattern is visible, then tap the same tiles after the board resets.';
@@ -530,6 +549,8 @@ interface Resources {
         trainer: {
           actions: 'Actions';
           bestLevel: 'Best level';
+          bestScore: 'Best score';
+          bestTiles: 'Best tiles';
           cellAriaLabel: 'Memory cell {{index}}';
           clearBest: 'Clear best';
           completeMessage: 'You went out on level {{level}}, scored {{score}}, rebuilt {{tiles}} tile(s), and made {{mistakes}} mistake(s).';
@@ -564,9 +585,17 @@ interface Resources {
           };
           newRound: 'New round';
           noBestYet: 'No best yet';
+          noRecentRuns: 'No runs yet';
           patternHint: 'Pattern size: {{count}} tile(s)';
           playAgain: 'Play again';
           recallRule: 'Rebuild the {{count}}-tile pattern from memory.';
+          recentRunLabel: 'Level {{level}}';
+          recentRunMistakes_one: '{{count}} mistake';
+          recentRunMistakes_other: '{{count}} mistakes';
+          recentRunScore: 'Score {{score}}';
+          recentRunTiles_one: '{{count}} tile';
+          recentRunTiles_other: '{{count}} tiles';
+          recentRuns: 'Recent runs';
           rememberedTiles: 'Remembered tiles';
           restart: 'Restart';
           score: 'Score';

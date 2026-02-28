@@ -85,6 +85,34 @@ export default function VisualMemoryPage({ layoutPosts, topics, preFooterTopTopi
           </Card.Body>
         </Card>
 
+        <Card className="visual-memory-info-card visual-memory-benchmark-card">
+          <Card.Body>
+            <h2 className="h4 fw-bold mb-2">{t('games.visualMemory.benchmark.title')}</h2>
+            <p className="mb-3 visual-memory-benchmark-copy">{t('games.visualMemory.benchmark.subtitle')}</p>
+            <div className="visual-memory-benchmark-list">
+              <div className="visual-memory-benchmark-item is-building">
+                <span className="visual-memory-benchmark-tier">{t('games.visualMemory.benchmark.building.label')}</span>
+                <strong className="visual-memory-benchmark-time">
+                  {t('games.visualMemory.benchmark.building.time')}
+                </strong>
+                <span className="visual-memory-benchmark-copy">{t('games.visualMemory.benchmark.building.copy')}</span>
+              </div>
+              <div className="visual-memory-benchmark-item is-steady">
+                <span className="visual-memory-benchmark-tier">{t('games.visualMemory.benchmark.steady.label')}</span>
+                <strong className="visual-memory-benchmark-time">
+                  {t('games.visualMemory.benchmark.steady.time')}
+                </strong>
+                <span className="visual-memory-benchmark-copy">{t('games.visualMemory.benchmark.steady.copy')}</span>
+              </div>
+              <div className="visual-memory-benchmark-item is-fast">
+                <span className="visual-memory-benchmark-tier">{t('games.visualMemory.benchmark.fast.label')}</span>
+                <strong className="visual-memory-benchmark-time">{t('games.visualMemory.benchmark.fast.time')}</strong>
+                <span className="visual-memory-benchmark-copy">{t('games.visualMemory.benchmark.fast.copy')}</span>
+              </div>
+            </div>
+          </Card.Body>
+        </Card>
+
         <Card className="visual-memory-info-card">
           <Card.Body>
             <h2 className="h4 fw-bold mb-3">{t('games.visualMemory.research.title')}</h2>

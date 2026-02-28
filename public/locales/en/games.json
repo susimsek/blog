@@ -221,6 +221,25 @@
         "item2": "Look for the overall shape of the pattern instead of memorizing isolated squares one by one.",
         "item3": "When a level feels noisy, pause for a beat before tapping. Clean recall matters more than frantic speed."
       },
+      "benchmark": {
+        "title": "Run Guide",
+        "subtitle": "Use these ranges as lightweight context for browser-style visual memory runs, not as a diagnostic score.",
+        "building": {
+          "label": "Building",
+          "time": "Levels 1-5",
+          "copy": "You are still locking in the pattern-reading rhythm. Focus on clean recalls and stable lives."
+        },
+        "steady": {
+          "label": "Steady",
+          "time": "Levels 6-10",
+          "copy": "A solid range for regular practice. At this point shape recognition matters more than raw tapping speed."
+        },
+        "fast": {
+          "label": "Strong",
+          "time": "Level 11+",
+          "copy": "A genuinely strong run for a casual browser session. Public benchmark-style profiles often start to look competitive in the low teens."
+        }
+      },
       "research": {
         "title": "Research Notes",
         "body1": "Visual memory tasks usually sit near the border of attention and working-memory practice. They are easy to repeat and score, which makes them useful for lightweight self-tracking.",
@@ -248,7 +267,11 @@
         "showHint": "Show recall hint",
         "statusLabel": "Status",
         "bestLevel": "Best level",
+        "bestScore": "Best score",
+        "bestTiles": "Best tiles",
         "noBestYet": "No best yet",
+        "recentRuns": "Recent runs",
+        "noRecentRuns": "No runs yet",
         "currentRound": "Current round",
         "idleRule": "Start a new round to reveal the first pattern.",
         "memorizeRule": "Memorize {{count}} highlighted tile(s).",
@@ -258,6 +281,12 @@
         "patternHint": "Pattern size: {{count}} tile(s)",
         "targetTiles": "Target tiles",
         "rememberedTiles": "Remembered tiles",
+        "recentRunLabel": "Level {{level}}",
+        "recentRunScore": "Score {{score}}",
+        "recentRunTiles_one": "{{count}} tile",
+        "recentRunTiles_other": "{{count}} tiles",
+        "recentRunMistakes_one": "{{count}} mistake",
+        "recentRunMistakes_other": "{{count}} mistakes",
         "tip": "Tip: scan the whole pattern as one shape before you start tapping individual tiles.",
         "tipWithHint": "Tip: use the hint line to anchor the tile count, then memorize clusters instead of isolated squares.",
         "completeMessage": "You went out on level {{level}}, scored {{score}}, rebuilt {{tiles}} tile(s), and made {{mistakes}} mistake(s).",

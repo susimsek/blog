@@ -7242,6 +7242,10 @@ label {
   border-color: color-mix(in srgb, var(--border-color) 74%, transparent);
 }
 
+.visual-memory-stat-tile.is-level-up-pulse {
+  animation: visual-memory-level-pulse 560ms ease-out;
+}
+
 .visual-memory-stat-label {
   display: block;
   color: var(--muted-text-color);
@@ -7463,6 +7467,49 @@ label {
     font-size: 0.9rem;
     line-height: 1.3;
   }
+}
+
+.visual-memory-recent-runs-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.visual-memory-recent-run-item {
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--main-bg) 90%, var(--bg-color) 10%);
+  padding: 0.68rem 0.75rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.visual-memory-recent-run-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+
+  strong {
+    color: var(--text-color);
+    font-size: 0.94rem;
+    line-height: 1.2;
+  }
+
+  span {
+    color: var(--muted-text-color);
+    font-size: 0.8rem;
+    line-height: 1.2;
+    text-align: right;
+  }
+}
+
+.visual-memory-recent-run-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.65rem;
+  color: var(--muted-text-color);
+  font-size: 0.79rem;
+  line-height: 1.35;
 }
 
 .visual-memory-controls-offcanvas {
@@ -7698,6 +7745,10 @@ label {
     0 16px 28px rgba(37, 99, 235, 0.2);
 }
 
+.visual-memory-cell.is-selected-recent {
+  animation: visual-memory-cell-correct-pop 160ms ease-out;
+}
+
 .dark-theme .visual-memory-cell.is-pattern,
 .oceanic-theme .visual-memory-cell.is-pattern,
 .forest-theme .visual-memory-cell.is-pattern {
@@ -7759,6 +7810,42 @@ label {
   }
 }
 
+@keyframes visual-memory-cell-correct-pop {
+  0% {
+    transform: scale(1);
+    filter: saturate(1) brightness(1);
+  }
+  40% {
+    transform: scale(0.96);
+    filter: saturate(1.08) brightness(0.98);
+  }
+  72% {
+    transform: scale(1.02);
+    filter: saturate(1.02) brightness(1.04);
+  }
+  100% {
+    transform: scale(1);
+    filter: saturate(1) brightness(1);
+  }
+}
+
+@keyframes visual-memory-level-pulse {
+  0% {
+    transform: translateY(0) scale(1);
+    box-shadow: var(--box-shadow-sm);
+  }
+  36% {
+    transform: translateY(-1px) scale(1.015);
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--active-color) 12%, transparent),
+      var(--box-shadow-sm-hover);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    box-shadow: var(--box-shadow-sm);
+  }
+}
+
 .visual-memory-trainer-footer {
   border-top: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
   padding-top: 0.9rem;
@@ -7801,6 +7888,10 @@ label {
   line-height: 1.55;
 }
 
+.visual-memory-trainer-complete.is-reveal-visible {
+  animation: visual-memory-summary-reveal 700ms ease-out;
+}
+
 .dark-theme .visual-memory-trainer-complete,
 .oceanic-theme .visual-memory-trainer-complete,
 .forest-theme .visual-memory-trainer-complete {
@@ -7809,6 +7900,26 @@ label {
     color-mix(in srgb, var(--main-bg) 88%, var(--dropdown-hover-bg) 12%),
     color-mix(in srgb, var(--main-bg) 82%, var(--bg-color) 18%)
   );
+}
+
+@keyframes visual-memory-summary-reveal {
+  0% {
+    opacity: 0.65;
+    transform: translateY(6px) scale(0.985);
+    box-shadow: var(--box-shadow-sm);
+  }
+  52% {
+    opacity: 1;
+    transform: translateY(0) scale(1.006);
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--active-color) 10%, transparent),
+      var(--box-shadow-sm-hover);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    box-shadow: var(--box-shadow-sm);
+  }
 }
 
 .visual-memory-trainer-tip {
@@ -7858,6 +7969,74 @@ label {
   padding-left: 1.15rem;
 }
 
+.visual-memory-benchmark-card {
+  grid-column: 1 / -1;
+}
+
+.visual-memory-benchmark-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.visual-memory-benchmark-item {
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 92%, var(--bg-color) 8%);
+  border-radius: 14px;
+  padding: 0.9rem 0.95rem;
+  display: grid;
+  gap: 0.28rem;
+  box-shadow: var(--box-shadow-sm);
+}
+
+.visual-memory-benchmark-tier {
+  color: var(--muted-text-color);
+  font-size: 0.77rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.visual-memory-benchmark-time {
+  color: var(--text-color);
+  font-size: 1.08rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.visual-memory-benchmark-copy {
+  color: var(--muted-text-color);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.visual-memory-benchmark-item.is-fast {
+  border-color: color-mix(in srgb, #16a34a 26%, var(--border-color) 74%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #16a34a 8%, var(--main-bg) 92%),
+    color-mix(in srgb, #16a34a 4%, var(--bg-color) 96%)
+  );
+}
+
+.visual-memory-benchmark-item.is-steady {
+  border-color: color-mix(in srgb, #2563eb 24%, var(--border-color) 76%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #2563eb 8%, var(--main-bg) 92%),
+    color-mix(in srgb, #2563eb 4%, var(--bg-color) 96%)
+  );
+}
+
+.visual-memory-benchmark-item.is-building {
+  border-color: color-mix(in srgb, #f59e0b 26%, var(--border-color) 74%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #f59e0b 9%, var(--main-bg) 91%),
+    color-mix(in srgb, #f59e0b 5%, var(--bg-color) 95%)
+  );
+}
+
 @media (max-width: 991.98px) {
   .visual-memory-mobile-controls-toggle {
     display: inline-flex;
@@ -7868,6 +8047,10 @@ label {
   }
 
   .visual-memory-page-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .visual-memory-benchmark-list {
     grid-template-columns: 1fr;
   }
 }
@@ -7883,6 +8066,15 @@ label {
   .visual-memory-page-kicker-wrap {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .visual-memory-recent-run-main {
+    flex-direction: column;
+    align-items: flex-start;
+
+    span {
+      text-align: left;
+    }
   }
 
   .visual-memory-controls-offcanvas.offcanvas-bottom {
@@ -8006,7 +8198,10 @@ label {
 @media (prefers-reduced-motion: reduce) {
   .visual-memory-progress-bar,
   .visual-memory-cell,
-  .visual-memory-mode-option {
+  .visual-memory-mode-option,
+  .visual-memory-stat-tile,
+  .visual-memory-trainer-complete {
     transition: none !important;
+    animation: none !important;
   }
 }

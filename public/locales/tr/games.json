@@ -221,6 +221,25 @@
         "item2": "Karoları tek tek ezberlemek yerine desenin genel formunu yakalamaya çalışın.",
         "item3": "Bir seviye dağınık geliyorsa dokunmadan önce kısa bir an durun. Temiz hatırlama, telaşlı hızdan daha değerlidir."
       },
+      "benchmark": {
+        "title": "Koşu Rehberi",
+        "subtitle": "Bu aralıkları tarayıcı tabanlı görsel hafıza turları için hafif bir bağlam olarak kullanın; tanısal bir puan gibi düşünmeyin.",
+        "building": {
+          "label": "Gelişim aşaması",
+          "time": "1-5. seviyeler",
+          "copy": "Desen okuma ritmini yeni oturtuyorsunuz. Önce temiz hatırlamaya ve canları korumaya odaklanın."
+        },
+        "steady": {
+          "label": "Dengeli",
+          "time": "6-10. seviyeler",
+          "copy": "Düzenli pratik için sağlam bir aralık. Bu noktada ham hızdan çok desenin formunu okumak önemlidir."
+        },
+        "fast": {
+          "label": "Güçlü",
+          "time": "11+ seviye",
+          "copy": "Sıradan bir tarayıcı oturumu için güçlü bir sonuç. Açık benchmark profillerinde rekabetçi sonuçlar genelde düşük çift hanelerde görünmeye başlar."
+        }
+      },
       "research": {
         "title": "Araştırma Notları",
         "body1": "Görsel hafıza görevleri genelde dikkat ile çalışma belleği arasındaki bölgede konumlanır. Tekrarlanması ve puanlanması kolay olduğu için hafif kişisel takip için uygundur.",
@@ -248,7 +267,11 @@
         "showHint": "Hatırlatma ipucunu göster",
         "statusLabel": "Durum",
         "bestLevel": "En iyi seviye",
+        "bestScore": "En iyi skor",
+        "bestTiles": "En iyi karo",
         "noBestYet": "Henüz yok",
+        "recentRuns": "Son turlar",
+        "noRecentRuns": "Henüz tur yok",
         "currentRound": "Aktif tur",
         "idleRule": "İlk deseni görmek için yeni tur başlatın.",
         "memorizeRule": "{{count}} vurgulu karoyu ezberleyin.",
@@ -258,6 +281,12 @@
         "patternHint": "Desen boyutu: {{count}} karo",
         "targetTiles": "Hedef karo",
         "rememberedTiles": "Hatırlanan karo",
+        "recentRunLabel": "{{level}}. seviye",
+        "recentRunScore": "{{score}} skor",
+        "recentRunTiles_one": "{{count}} karo",
+        "recentRunTiles_other": "{{count}} karo",
+        "recentRunMistakes_one": "{{count}} hata",
+        "recentRunMistakes_other": "{{count}} hata",
         "tip": "İpucu: Tek tek karelere değil, önce bütün desenin formuna bakın.",
         "tipWithHint": "İpucu: karo sayısını sabitlemek için ipucu satırını kullanın, sonra tek kareler yerine kümeleri hatırlayın.",
         "completeMessage": "{{level}}. seviyede elendiniz, {{score}} skor yaptınız, {{tiles}} karo hatırladınız ve {{mistakes}} hata yaptınız.",

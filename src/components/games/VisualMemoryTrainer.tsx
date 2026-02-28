@@ -18,6 +18,15 @@ type BestResult = {
 };
 type BestResults = Partial<Record<VisualMemoryMode, BestResult>>;
 type BestResultsUpdater = BestResults | ((current: BestResults) => BestResults);
+type RecentRun = {
+  mode: VisualMemoryMode;
+  level: number;
+  score: number;
+  rememberedTiles: number;
+  mistakes: number;
+  durationMs: number;
+};
+type RecentRuns = RecentRun[];
 
 type ModeConfig = {
   size: 3 | 4 | 5;
@@ -54,6 +63,8 @@ const MAX_LIVES = 3;
 const BEST_RESULTS_STORAGE_KEY = 'visual-memory-best-results-v1';
 const MODE_STORAGE_KEY = 'visual-memory-mode-v1';
 const HINT_STORAGE_KEY = 'visual-memory-show-hint-v1';
+const RECENT_RUNS_STORAGE_KEY = 'visual-memory-recent-runs-v1';
+const MAX_RECENT_RUNS = 5;
 const REVEAL_ACCENTS: readonly RevealAccent[] = [
   { bg: '#f59e0b', border: '#d97706', glow: '#fbbf24' },
   { bg: '#14b8a6', border: '#0f766e', glow: '#2dd4bf' },
@@ -117,6 +128,47 @@ export const parseStoredBestResults = (raw: string | null): BestResults => {
   }
 };
 
+export const parseStoredRecentRuns = (raw: string | null): RecentRuns => {
+  if (!raw) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as RecentRun[];
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed
+      .filter(
+        run =>
+          (run?.mode === 'easy' || run?.mode === 'standard' || run?.mode === 'expert') &&
+          typeof run?.level === 'number' &&
+          run.level >= 1 &&
+          typeof run?.score === 'number' &&
+          run.score >= 0 &&
+          typeof run?.rememberedTiles === 'number' &&
+          run.rememberedTiles >= 0 &&
+          typeof run?.mistakes === 'number' &&
+          run.mistakes >= 0 &&
+          typeof run?.durationMs === 'number' &&
+          run.durationMs > 0,
+      )
+      .slice(0, MAX_RECENT_RUNS)
+      .map(run => ({
+        mode: run.mode,
+        level: Math.round(run.level),
+        score: Math.round(run.score),
+        rememberedTiles: Math.round(run.rememberedTiles),
+        mistakes: Math.round(run.mistakes),
+        durationMs: Math.round(run.durationMs),
+      }));
+  } catch {
+    return [];
+  }
+};
+
 export const createDeterministicPattern = (mode: VisualMemoryMode): number[] => {
   const { size, baseRevealCount } = MODE_CONFIGS[mode];
   return Array.from({ length: baseRevealCount }, (_, index) => index % (size * size));
@@ -175,8 +227,12 @@ export default function VisualMemoryTrainer() {
   const [activePattern, setActivePattern] = React.useState<number[]>(() => createDeterministicPattern(DEFAULT_MODE));
   const [selectedCells, setSelectedCells] = React.useState<number[]>([]);
   const [lastMissedCell, setLastMissedCell] = React.useState<number | null>(null);
+  const [lastSelectedCell, setLastSelectedCell] = React.useState<number | null>(null);
   const [bestResults, setBestResults] = React.useState<BestResults>({});
+  const [recentRuns, setRecentRuns] = React.useState<RecentRuns>([]);
   const [lastResult, setLastResult] = React.useState<BestResult | null>(null);
+  const [isLevelPulseVisible, setIsLevelPulseVisible] = React.useState(false);
+  const [isGameOverRevealVisible, setIsGameOverRevealVisible] = React.useState(false);
   const hidePatternTimeoutRef = React.useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
   const nextRoundTimeoutRef = React.useRef<ReturnType<typeof globalThis.setTimeout> | null>(null);
 
@@ -201,6 +257,16 @@ export default function VisualMemoryTrainer() {
         globalThis.localStorage.setItem(BEST_RESULTS_STORAGE_KEY, JSON.stringify(nextBestResults));
       }
       return nextBestResults;
+    });
+  }, []);
+
+  const persistRecentRuns = React.useCallback((updater: RecentRuns | ((current: RecentRuns) => RecentRuns)) => {
+    setRecentRuns(currentRecentRuns => {
+      const nextRecentRuns = typeof updater === 'function' ? updater(currentRecentRuns) : updater;
+      if (globalThis.localStorage !== undefined) {
+        globalThis.localStorage.setItem(RECENT_RUNS_STORAGE_KEY, JSON.stringify(nextRecentRuns));
+      }
+      return nextRecentRuns;
     });
   }, []);
 
@@ -231,7 +297,10 @@ export default function VisualMemoryTrainer() {
       setActivePattern(createDeterministicPattern(nextMode));
       setSelectedCells([]);
       setLastMissedCell(null);
+      setLastSelectedCell(null);
       setLastResult(null);
+      setIsLevelPulseVisible(false);
+      setIsGameOverRevealVisible(false);
     },
     [clearTimers],
   );
@@ -257,6 +326,33 @@ export default function VisualMemoryTrainer() {
     return () => globalThis.clearTimeout(timeout);
   }, [lastMissedCell, status]);
 
+  React.useEffect(() => {
+    if (lastSelectedCell === null) {
+      return;
+    }
+
+    const timeout = globalThis.setTimeout(() => setLastSelectedCell(null), 180);
+    return () => globalThis.clearTimeout(timeout);
+  }, [lastSelectedCell]);
+
+  React.useEffect(() => {
+    if (!isLevelPulseVisible) {
+      return;
+    }
+
+    const timeout = globalThis.setTimeout(() => setIsLevelPulseVisible(false), 560);
+    return () => globalThis.clearTimeout(timeout);
+  }, [isLevelPulseVisible]);
+
+  React.useEffect(() => {
+    if (!isGameOverRevealVisible) {
+      return;
+    }
+
+    const timeout = globalThis.setTimeout(() => setIsGameOverRevealVisible(false), 700);
+    return () => globalThis.clearTimeout(timeout);
+  }, [isGameOverRevealVisible]);
+
   const prepareRound = React.useCallback(
     (nextMode: VisualMemoryMode, nextLevel: number, existingPattern?: number[]) => {
       clearTimers();
@@ -264,7 +360,10 @@ export default function VisualMemoryTrainer() {
       setActivePattern(pattern);
       setSelectedCells([]);
       setLastMissedCell(null);
+      setLastSelectedCell(null);
       setLastResult(null);
+      setIsLevelPulseVisible(false);
+      setIsGameOverRevealVisible(false);
       setStatus('memorize');
 
       hidePatternTimeoutRef.current = globalThis.setTimeout(() => {
@@ -312,9 +411,11 @@ export default function VisualMemoryTrainer() {
 
     const storedMode = parseStoredMode(globalThis.localStorage.getItem(MODE_STORAGE_KEY)) ?? DEFAULT_MODE;
     const storedBestResults = parseStoredBestResults(globalThis.localStorage.getItem(BEST_RESULTS_STORAGE_KEY));
+    const storedRecentRuns = parseStoredRecentRuns(globalThis.localStorage.getItem(RECENT_RUNS_STORAGE_KEY));
     const storedShowHint = parseStoredShowHint(globalThis.localStorage.getItem(HINT_STORAGE_KEY));
 
     setBestResults(storedBestResults);
+    setRecentRuns(storedRecentRuns);
     if (storedShowHint !== null) {
       setShowHint(storedShowHint);
     }
@@ -346,14 +447,28 @@ export default function VisualMemoryTrainer() {
         score,
         rememberedTiles,
       } satisfies BestResult;
+      persistRecentRuns(currentRecentRuns =>
+        [
+          {
+            mode,
+            level,
+            score,
+            rememberedTiles,
+            mistakes: nextMistakes,
+            durationMs: elapsed,
+          },
+          ...currentRecentRuns,
+        ].slice(0, MAX_RECENT_RUNS),
+      );
       setElapsedMs(elapsed);
       setStartedAtMs(null);
       setMistakes(nextMistakes);
       setStatus('gameOver');
       setLastResult(result);
+      setIsGameOverRevealVisible(true);
       persistBestResults(currentBestResults => getUpdatedBestResults(currentBestResults, mode, result));
     },
-    [clearTimers, elapsedMs, level, mode, persistBestResults, rememberedTiles, score, startedAtMs],
+    [clearTimers, elapsedMs, level, mode, persistBestResults, persistRecentRuns, rememberedTiles, score, startedAtMs],
   );
 
   const handleModeChange = (nextMode: VisualMemoryMode) => {
@@ -398,6 +513,7 @@ export default function VisualMemoryTrainer() {
 
     const nextSelectedCells = [...selectedCells, cellIndex];
     setSelectedCells(nextSelectedCells);
+    setLastSelectedCell(cellIndex);
 
     if (nextSelectedCells.length < activePattern.length) {
       return;
@@ -407,6 +523,7 @@ export default function VisualMemoryTrainer() {
     const nextScore = score + activePattern.length * 100;
     setScore(nextScore);
     setLevel(nextLevel);
+    setIsLevelPulseVisible(true);
     setStatus('memorize');
     nextRoundTimeoutRef.current = globalThis.setTimeout(() => {
       prepareRound(mode, nextLevel);
@@ -452,6 +569,14 @@ export default function VisualMemoryTrainer() {
             <span>{t('games.visualMemory.trainer.bestLevel')}</span>
             <strong>{currentBest ? currentBest.level : t('games.visualMemory.trainer.noBestYet')}</strong>
           </div>
+          <div className="visual-memory-sidebar-meta-item">
+            <span>{t('games.visualMemory.trainer.bestScore')}</span>
+            <strong>{currentBest ? currentBest.score : t('games.visualMemory.trainer.noBestYet')}</strong>
+          </div>
+          <div className="visual-memory-sidebar-meta-item">
+            <span>{t('games.visualMemory.trainer.bestTiles')}</span>
+            <strong>{currentBest ? currentBest.rememberedTiles : t('games.visualMemory.trainer.noBestYet')}</strong>
+          </div>
         </div>
       </div>
 
@@ -491,6 +616,37 @@ export default function VisualMemoryTrainer() {
           label={t('games.visualMemory.trainer.showHint')}
         />
       </div>
+
+      <div className="visual-memory-sidebar-section stack stack-8">
+        <span className="visual-memory-control-label">{t('games.visualMemory.trainer.recentRuns')}</span>
+        {recentRuns.length > 0 ? (
+          <div className="visual-memory-recent-runs-list">
+            {recentRuns.map((run, index) => (
+              <div
+                key={`${run.mode}-${run.level}-${run.score}-${run.durationMs}-${index}`}
+                className="visual-memory-recent-run-item"
+              >
+                <div className="visual-memory-recent-run-main">
+                  <strong>{t('games.visualMemory.trainer.recentRunLabel', { level: run.level })}</strong>
+                  <span>{t(`games.visualMemory.trainer.modes.${run.mode}.title`)}</span>
+                </div>
+                <div className="visual-memory-recent-run-meta">
+                  <span>{t('games.visualMemory.trainer.recentRunScore', { score: run.score })}</span>
+                  <span>{t('games.visualMemory.trainer.recentRunTiles', { count: run.rememberedTiles })}</span>
+                  <span>{t('games.visualMemory.trainer.recentRunMistakes', { count: run.mistakes })}</span>
+                  <span>{formatDuration(run.durationMs)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="visual-memory-sidebar-meta">
+            <div className="visual-memory-sidebar-meta-item">
+              <strong>{t('games.visualMemory.trainer.noRecentRuns')}</strong>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 
@@ -521,7 +677,11 @@ export default function VisualMemoryTrainer() {
 
           <div className="visual-memory-trainer-main">
             <div className="visual-memory-trainer-stats" aria-live="polite">
-              <div className="visual-memory-stat-tile">
+              <div
+                className={['visual-memory-stat-tile', isLevelPulseVisible ? 'is-level-up-pulse' : '']
+                  .filter(Boolean)
+                  .join(' ')}
+              >
                 <span className="visual-memory-stat-label">
                   <FontAwesomeIcon icon="layer-group" className="me-2" />
                   {t('games.visualMemory.trainer.level')}
@@ -599,11 +759,13 @@ export default function VisualMemoryTrainer() {
                   const isPatternCell = activePatternSet.has(index);
                   const isSelected = selectedCellSet.has(index);
                   const isMissed = lastMissedCell === index;
+                  const isRecentlySelected = lastSelectedCell === index;
                   const revealAccent = getRevealAccent(index);
                   const className = [
                     'visual-memory-cell',
                     (status === 'memorize' || status === 'revealFail') && isPatternCell ? 'is-pattern' : '',
                     isSelected ? 'is-selected' : '',
+                    isRecentlySelected ? 'is-selected-recent' : '',
                     isMissed ? 'is-missed' : '',
                     status === 'guess' ? 'is-clickable' : '',
                   ]
@@ -637,7 +799,11 @@ export default function VisualMemoryTrainer() {
 
             <div className="visual-memory-trainer-footer">
               {lastResult ? (
-                <div className="visual-memory-trainer-complete">
+                <div
+                  className={['visual-memory-trainer-complete', isGameOverRevealVisible ? 'is-reveal-visible' : '']
+                    .filter(Boolean)
+                    .join(' ')}
+                >
                   <div className="visual-memory-trainer-complete-title">
                     <FontAwesomeIcon icon="bullseye" className="me-2" />
                     {t('games.visualMemory.trainer.gameOverTitle')}
