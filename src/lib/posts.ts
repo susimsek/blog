@@ -12,6 +12,8 @@ import { normalizePostCategoryRef } from '@/lib/postCategoryRef';
 
 const fsPromises = fs.promises;
 
+export { normalizePostCategoryRef } from '@/lib/postCategoryRef';
+
 export const fileExists = async (filePath: string): Promise<boolean> => {
   try {
     await fsPromises.access(filePath, fs.constants.F_OK);
