@@ -1,15 +1,18 @@
 import {
   clamp,
+  createEmptySplitStats,
   createDeterministicTask,
   createNextProgress,
   createResult,
   createTask,
   formatAccuracy,
   formatDuration,
+  formatSignedMs,
   getAccuracy,
   getAverageReactionMs,
   getChoiceReactionMs,
   getDisplayedElapsedMs,
+  getInterferenceMs,
   getModeConfig,
   getProgressPercent,
   getScore,
@@ -17,6 +20,7 @@ import {
   getUpdatedBestResults,
   parseStoredBestResults,
   parseStoredMode,
+  parseStoredRecentRuns,
   parseStoredShowHint,
   shuffle,
 } from '@/components/games/StroopTestTrainer';
@@ -27,6 +31,8 @@ describe('StroopTestTrainer helpers', () => {
     expect(formatDuration(61543)).toBe('01:01.54');
     expect(formatDuration(-1)).toBe('00:00.00');
     expect(formatAccuracy(83.6)).toBe('84%');
+    expect(formatSignedMs(120)).toBe('+120 ms');
+    expect(formatSignedMs(-30)).toBe('-30 ms');
   });
 
   it('computes averages, scores, accuracy, progress, and elapsed time', () => {
@@ -45,28 +51,85 @@ describe('StroopTestTrainer helpers', () => {
   });
 
   it('builds results, next progress, best results, and task card classes', () => {
-    expect(createResult(3, 1, 4, [100, 200])).toEqual({
+    const splitStats = {
+      congruent: { answeredCount: 2, correctCount: 2, reactionTimes: [100, 200] },
+      incongruent: { answeredCount: 2, correctCount: 1, reactionTimes: [350, 450] },
+    };
+
+    expect(createResult(3, 1, 4, [100, 200], splitStats)).toEqual({
       score: 275,
       accuracy: 75,
       avgReactionMs: 150,
+      congruentAvgReactionMs: 150,
+      incongruentAvgReactionMs: 400,
+      interferenceMs: 250,
     });
     expect(
-      createNextProgress({ correctCount: 1, mistakes: 1, completedRounds: 1, reactionTimes: [100] }, 200, false),
+      createNextProgress(
+        {
+          correctCount: 1,
+          mistakes: 1,
+          completedRounds: 1,
+          reactionTimes: [100],
+          splitStats: createEmptySplitStats(),
+        },
+        200,
+        false,
+        true,
+      ),
     ).toEqual({
       correctCount: 1,
       mistakes: 2,
       completedRounds: 2,
       reactionTimes: [100, 200],
+      splitStats: {
+        congruent: { answeredCount: 1, correctCount: 0, reactionTimes: [200] },
+        incongruent: { answeredCount: 0, correctCount: 0, reactionTimes: [] },
+      },
     });
 
-    const currentBest = { standard: { score: 500, accuracy: 90, avgReactionMs: 400 } };
-    expect(getUpdatedBestResults(currentBest, 'standard', { score: 450, accuracy: 95, avgReactionMs: 300 })).toBe(
-      currentBest,
-    );
-    expect(getUpdatedBestResults(currentBest, 'timed', { score: 600, accuracy: 95, avgReactionMs: 300 })).toEqual({
+    const currentBest = {
+      standard: {
+        score: 500,
+        accuracy: 90,
+        avgReactionMs: 400,
+        congruentAvgReactionMs: 350,
+        incongruentAvgReactionMs: 480,
+        interferenceMs: 130,
+      },
+    };
+    expect(
+      getUpdatedBestResults(currentBest, 'standard', {
+        score: 450,
+        accuracy: 95,
+        avgReactionMs: 300,
+        congruentAvgReactionMs: 280,
+        incongruentAvgReactionMs: 390,
+        interferenceMs: 110,
+      }),
+    ).toBe(currentBest);
+    expect(
+      getUpdatedBestResults(currentBest, 'timed', {
+        score: 600,
+        accuracy: 95,
+        avgReactionMs: 300,
+        congruentAvgReactionMs: 250,
+        incongruentAvgReactionMs: 360,
+        interferenceMs: 110,
+      }),
+    ).toEqual({
       ...currentBest,
-      timed: { score: 600, accuracy: 95, avgReactionMs: 300 },
+      timed: {
+        score: 600,
+        accuracy: 95,
+        avgReactionMs: 300,
+        congruentAvgReactionMs: 250,
+        incongruentAvgReactionMs: 360,
+        interferenceMs: 110,
+      },
     });
+
+    expect(getInterferenceMs(splitStats)).toBe(250);
 
     expect(getTaskCardClassName(true, 'correct')).toContain('is-congruent');
     expect(getTaskCardClassName(false, 'wrong')).toContain('is-wrong');
@@ -81,15 +144,75 @@ describe('StroopTestTrainer helpers', () => {
     expect(
       parseStoredBestResults(
         JSON.stringify({
-          practice: { score: 123.8, accuracy: 120, avgReactionMs: -20 },
-          standard: { score: 400, accuracy: 85, avgReactionMs: 350.4 },
+          practice: {
+            score: 123.8,
+            accuracy: 120,
+            avgReactionMs: -20,
+            congruentAvgReactionMs: -10,
+            incongruentAvgReactionMs: 180.5,
+            interferenceMs: 190.2,
+          },
+          standard: {
+            score: 400,
+            accuracy: 85,
+            avgReactionMs: 350.4,
+            congruentAvgReactionMs: 310.2,
+            incongruentAvgReactionMs: 450.8,
+            interferenceMs: 140.6,
+          },
         }),
       ),
     ).toEqual({
-      practice: { score: 124, accuracy: 100, avgReactionMs: 0 },
-      standard: { score: 400, accuracy: 85, avgReactionMs: 350 },
+      practice: {
+        score: 124,
+        accuracy: 100,
+        avgReactionMs: 0,
+        congruentAvgReactionMs: 0,
+        incongruentAvgReactionMs: 181,
+        interferenceMs: 190,
+      },
+      standard: {
+        score: 400,
+        accuracy: 85,
+        avgReactionMs: 350,
+        congruentAvgReactionMs: 310,
+        incongruentAvgReactionMs: 451,
+        interferenceMs: 141,
+      },
     });
     expect(parseStoredBestResults('{')).toEqual({});
+    expect(
+      parseStoredRecentRuns(
+        JSON.stringify([
+          {
+            mode: 'timed',
+            score: 800,
+            accuracy: 81.7,
+            avgReactionMs: 520.2,
+            congruentAvgReactionMs: 470.1,
+            incongruentAvgReactionMs: 610.7,
+            interferenceMs: 141.2,
+            completedRounds: 19.4,
+            mistakes: 2.1,
+            durationMs: 60000.4,
+          },
+        ]),
+      ),
+    ).toEqual([
+      {
+        mode: 'timed',
+        score: 800,
+        accuracy: 81.7,
+        avgReactionMs: 520,
+        congruentAvgReactionMs: 470,
+        incongruentAvgReactionMs: 611,
+        interferenceMs: 141,
+        completedRounds: 19,
+        mistakes: 2,
+        durationMs: 60000,
+      },
+    ]);
+    expect(parseStoredRecentRuns('{')).toEqual([]);
 
     jest.spyOn(Date, 'now').mockReturnValue(2500);
     expect(getChoiceReactionMs(null)).toBe(0);

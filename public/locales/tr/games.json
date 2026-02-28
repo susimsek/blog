@@ -161,6 +161,9 @@
         "showHint": "Kural hatırlatmasını göster",
         "statusLabel": "Durum",
         "bestScore": "En iyi skor",
+        "bestInterference": "En iyi interference",
+        "recentRuns": "Son turlar",
+        "noRecentRuns": "Henüz tur yok",
         "noBestYet": "Henüz yok",
         "currentPrompt": "Aktif görev",
         "rule": "Okuduğun kelimeyi değil, yazının rengini eşleştir.",
@@ -172,6 +175,13 @@
         "completeMessage": "Tur tamamlandı. Skor {{score}}, doğruluk {{accuracy}}, ortalama tepki {{avgMs}} ms.",
         "accuracy": "Doğruluk",
         "avgReaction": "Ort. tepki",
+        "congruentAvg": "Congruent ort.",
+        "incongruentAvg": "Incongruent ort.",
+        "interference": "Interference",
+        "recentRunLabel": "Skor {{score}}",
+        "recentRunAccuracy": "Doğruluk {{accuracy}}",
+        "recentRunAvg": "Ort. {{avgMs}} ms",
+        "recentRunInterference": "Interference {{deltaMs}}",
         "modes": {
           "practice": {
             "title": "Pratik",

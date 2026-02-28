@@ -161,6 +161,9 @@
         "showHint": "Show rule reminder",
         "statusLabel": "Status",
         "bestScore": "Best score",
+        "bestInterference": "Best interference",
+        "recentRuns": "Recent runs",
+        "noRecentRuns": "No runs yet",
         "noBestYet": "No best yet",
         "currentPrompt": "Current prompt",
         "rule": "Match the color of the text, not the word you read.",
@@ -172,6 +175,13 @@
         "completeMessage": "Round complete. Score {{score}}, accuracy {{accuracy}}, average reaction {{avgMs}} ms.",
         "accuracy": "Accuracy",
         "avgReaction": "Avg reaction",
+        "congruentAvg": "Congruent avg",
+        "incongruentAvg": "Incongruent avg",
+        "interference": "Interference",
+        "recentRunLabel": "Score {{score}}",
+        "recentRunAccuracy": "Accuracy {{accuracy}}",
+        "recentRunAvg": "Avg {{avgMs}} ms",
+        "recentRunInterference": "Interference {{deltaMs}}",
         "modes": {
           "practice": {
             "title": "Practice",

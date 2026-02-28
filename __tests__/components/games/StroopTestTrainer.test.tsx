@@ -22,6 +22,22 @@ jest.mock('react-i18next', () => ({
         return `complete:${String(options?.score ?? '')}:${String(options?.accuracy ?? '')}:${String(options?.avgMs ?? '')}`;
       }
 
+      if (key === 'games.stroop.trainer.recentRunLabel') {
+        return `score:${String(options?.score ?? '')}`;
+      }
+
+      if (key === 'games.stroop.trainer.recentRunAccuracy') {
+        return `accuracy:${String(options?.accuracy ?? '')}`;
+      }
+
+      if (key === 'games.stroop.trainer.recentRunAvg') {
+        return `avg:${String(options?.avgMs ?? '')}`;
+      }
+
+      if (key === 'games.stroop.trainer.recentRunInterference') {
+        return `interference:${String(options?.deltaMs ?? '')}`;
+      }
+
       if (key === 'games.stroop.trainer.modes.practice.title') return 'Practice';
       if (key === 'games.stroop.trainer.modes.standard.title') return 'Standard';
       if (key === 'games.stroop.trainer.modes.timed.title') return 'Timed';
@@ -127,8 +143,32 @@ describe('StroopTestTrainer', () => {
     window.localStorage.setItem(
       'stroop-test-best-results-v1',
       JSON.stringify({
-        timed: { score: 4200, accuracy: 88, avgReactionMs: 620 },
+        timed: {
+          score: 4200,
+          accuracy: 88,
+          avgReactionMs: 620,
+          congruentAvgReactionMs: 510,
+          incongruentAvgReactionMs: 690,
+          interferenceMs: 180,
+        },
       }),
+    );
+    window.localStorage.setItem(
+      'stroop-test-recent-runs-v1',
+      JSON.stringify([
+        {
+          mode: 'timed',
+          score: 3800,
+          accuracy: 86,
+          avgReactionMs: 640,
+          congruentAvgReactionMs: 520,
+          incongruentAvgReactionMs: 710,
+          interferenceMs: 190,
+          completedRounds: 18,
+          mistakes: 2,
+          durationMs: 60000,
+        },
+      ]),
     );
     window.localStorage.setItem('stroop-test-mode-v1', 'timed');
     window.localStorage.setItem('stroop-test-show-hint-v1', 'false');
@@ -138,6 +178,7 @@ describe('StroopTestTrainer', () => {
     expect(screen.getByRole('radio', { name: /Timed/i })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByLabelText('games.stroop.trainer.showHint')).not.toBeChecked();
     expect(getBestScoreValue()).toHaveTextContent('4200');
+    expect(screen.getByText('score:3800')).toBeInTheDocument();
   });
 
   it('falls back to defaults when stored values are invalid', () => {
@@ -188,8 +229,36 @@ describe('StroopTestTrainer', () => {
 
     expect(getBestScoreValue()).toHaveTextContent('2000');
     expect(JSON.parse(window.localStorage.getItem('stroop-test-best-results-v1') ?? '{}')).toMatchObject({
-      practice: { score: 2000 },
+      practice: { score: 2000, interferenceMs: expect.any(Number) },
     });
+  });
+
+  it('tracks congruent and incongruent reaction stats and stores recent runs', async () => {
+    render(<StroopTestTrainer />);
+    fireEvent.click(screen.getByRole('radio', { name: /Practice/i }));
+
+    answerCurrentTask({ deltaMs: 300 });
+    answerCurrentTask({ deltaMs: 500 });
+
+    expect(getAverageReactionValue()).toContain('games.stroop.trainer.congruentAvg:');
+    expect(getAverageReactionValue()).toContain('games.stroop.trainer.incongruentAvg:');
+    expect(getAverageReactionValue()).toContain('games.stroop.trainer.interference:');
+
+    for (let round = 0; round < 18; round += 1) {
+      answerCurrentTask();
+    }
+
+    await waitFor(() => {
+      const recentRuns = JSON.parse(window.localStorage.getItem('stroop-test-recent-runs-v1') ?? '[]');
+      expect(recentRuns[0]).toMatchObject({
+        mode: 'practice',
+        score: expect.any(Number),
+        congruentAvgReactionMs: expect.any(Number),
+        incongruentAvgReactionMs: expect.any(Number),
+        interferenceMs: expect.any(Number),
+      });
+    });
+    expect(screen.getByText(/^score:/)).toBeInTheDocument();
   });
 
   it('restarts the current prompt instead of generating a new one', () => {

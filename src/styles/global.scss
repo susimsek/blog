@@ -6382,6 +6382,10 @@ label {
   border-radius: 12px;
   padding: 0.65rem 0.75rem;
   min-width: 0;
+
+  &.is-score-pulse {
+    animation: stroop-score-pulse 180ms ease-out;
+  }
 }
 
 .stroop-stat-label {
@@ -6597,6 +6601,50 @@ label {
   }
 }
 
+.stroop-recent-runs-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.stroop-recent-run-item {
+  border: 1px solid color-mix(in srgb, var(--border-color) 78%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 92%, var(--bg-color) 8%);
+  border-radius: 12px;
+  padding: 0.75rem 0.8rem;
+  display: grid;
+  gap: 0.32rem;
+  box-shadow: var(--box-shadow-sm);
+}
+
+.stroop-recent-run-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.65rem;
+  align-items: baseline;
+
+  strong {
+    color: var(--text-color);
+    font-size: 0.94rem;
+    line-height: 1.2;
+  }
+
+  span {
+    color: var(--muted-text-color);
+    font-size: 0.8rem;
+    line-height: 1.2;
+    text-align: right;
+  }
+}
+
+.stroop-recent-run-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.65rem;
+  color: var(--muted-text-color);
+  font-size: 0.82rem;
+  line-height: 1.3;
+}
+
 .stroop-controls-offcanvas {
   .offcanvas-header {
     border-bottom: 1px solid var(--border-color);
@@ -6713,6 +6761,10 @@ label {
     box-shadow:
       0 0 0 3px color-mix(in srgb, var(--danger-bg) 12%, transparent),
       var(--box-shadow-sm);
+  }
+
+  &.is-prompt-transition .stroop-task-word {
+    animation: stroop-prompt-fade 140ms ease-out;
   }
 }
 
@@ -6903,6 +6955,65 @@ label {
   border-radius: 10px;
   padding: 0.65rem 0.8rem;
   font-weight: 600;
+
+  &.is-reveal-visible {
+    animation: stroop-complete-reveal 700ms ease-out;
+  }
+}
+
+@keyframes stroop-score-pulse {
+  0% {
+    box-shadow: var(--box-shadow-sm);
+    transform: scale(1);
+  }
+
+  45% {
+    box-shadow:
+      0 0 0 3px color-mix(in srgb, var(--active-color) 14%, transparent),
+      var(--box-shadow-sm-hover);
+    transform: scale(1.015);
+  }
+
+  100% {
+    box-shadow: var(--box-shadow-sm);
+    transform: scale(1);
+  }
+}
+
+@keyframes stroop-prompt-fade {
+  0% {
+    filter: blur(3px);
+    opacity: 0.2;
+    transform: translateY(4px) scale(0.985);
+  }
+
+  100% {
+    filter: blur(0);
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes stroop-complete-reveal {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success-bg) 0%, transparent);
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  65% {
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--success-bg) 12%, transparent),
+      var(--box-shadow-sm-hover);
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    box-shadow: var(--box-shadow-sm);
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .stroop-trainer-tip {
@@ -6983,6 +7094,15 @@ label {
 
   .stroop-choice-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stroop-recent-run-main {
+    flex-direction: column;
+    align-items: flex-start;
+
+    span {
+      text-align: left;
+    }
   }
 
   .stroop-trainer-body {
@@ -7089,8 +7209,12 @@ label {
 @media (prefers-reduced-motion: reduce) {
   .stroop-progress-bar,
   .stroop-choice-button,
-  .stroop-task-card {
+  .stroop-task-card,
+  .stroop-stat-tile,
+  .stroop-task-word,
+  .stroop-trainer-complete {
     transition: none !important;
+    animation: none !important;
   }
 }
 
