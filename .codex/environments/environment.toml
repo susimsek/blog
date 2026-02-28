@@ -19,3 +19,8 @@ command = "pnpm test"
 name = "Build"
 icon = "build"
 command = "pnpm run build"
+
+[[actions]]
+name = "Backend Start"
+icon = "run"
+command = "pnpm run backend:start"

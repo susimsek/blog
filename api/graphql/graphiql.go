@@ -23,31 +23,8 @@ var graphiqlPageTemplate = template.Must(template.New("graphiql").Parse(`<!docty
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>GraphiQL</title>
     <style>
-      :root {
-        color-scheme: light;
-      }
       body {
         margin: 0;
-        background:
-          radial-gradient(circle at top, rgba(19, 194, 194, 0.16), transparent 36%),
-          linear-gradient(180deg, #f8fbfd 0%, #eef4f8 100%);
-      }
-      #graphiql .graphiql-container {
-        --color-primary: 173, 80%, 28%;
-        --color-secondary: 188, 84%, 42%;
-        --color-tertiary: 210, 35%, 96%;
-        --color-base: 210, 36%, 99%;
-        --color-neutral: 210, 22%, 91%;
-        --color-text: 210, 38%, 18%;
-        --color-text-subtle: 210, 18%, 42%;
-        --font-family:
-          "IBM Plex Sans",
-          "Segoe UI",
-          sans-serif;
-        --font-family-mono:
-          "JetBrains Mono",
-          "SFMono-Regular",
-          monospace;
       }
       #graphiql {
         height: 100dvh;
@@ -58,31 +35,21 @@ var graphiqlPageTemplate = template.Must(template.New("graphiql").Parse(`<!docty
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 18px;
-        color: #16324f;
-        font-family:
-          "IBM Plex Sans",
-          "Segoe UI",
-          sans-serif;
+        gap: 16px;
+        color: #495057;
+        background: #ffffff;
       }
       .loading-spinner {
-        width: 68px;
-        height: 68px;
+        width: 56px;
+        height: 56px;
         border-radius: 999px;
-        border: 4px solid rgba(22, 50, 79, 0.12);
-        border-top-color: #0f766e;
-        border-right-color: #14b8a6;
-        box-shadow:
-          0 12px 28px rgba(15, 118, 110, 0.14),
-          inset 0 0 0 1px rgba(255, 255, 255, 0.65);
+        border: 3px solid rgba(0, 0, 0, 0.08);
+        border-top-color: #f26b38;
         animation: graphiql-spin 0.9s linear infinite;
       }
       .loading-label {
-        font-size: 0.95rem;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        opacity: 0.78;
+        font-size: 0.9rem;
+        font-weight: 500;
       }
       @keyframes graphiql-spin {
         to {
@@ -99,15 +66,14 @@ var graphiqlPageTemplate = template.Must(template.New("graphiql").Parse(`<!docty
         align-items: center;
         gap: 10px;
         font-weight: 700;
-        color: #16324f;
+        color: inherit;
         letter-spacing: 0.01em;
       }
       .graphiql-brand-mark {
         width: 12px;
         height: 12px;
         border-radius: 999px;
-        background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
-        box-shadow: 0 0 0 6px rgba(20, 184, 166, 0.12);
+        background: #f26b38;
       }
       .graphiql-footer {
         display: flex;
@@ -117,23 +83,16 @@ var graphiqlPageTemplate = template.Must(template.New("graphiql").Parse(`<!docty
         gap: 10px 18px;
         padding: 10px 14px;
         font-size: 12px;
-        color: #486581;
-        background: rgba(255, 255, 255, 0.86);
-        border-top: 1px solid rgba(15, 118, 110, 0.12);
+        color: inherit;
       }
       .graphiql-footer strong {
-        color: #16324f;
+        color: inherit;
       }
       .graphiql-footer-code {
-        font-family:
-          "JetBrains Mono",
-          "SFMono-Regular",
-          monospace;
         font-size: 11px;
-        padding: 3px 6px;
-        border-radius: 999px;
-        background: rgba(15, 118, 110, 0.08);
-        color: #0f766e;
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.06);
       }
     </style>
     <link rel="stylesheet" href="https://esm.sh/graphiql@{{ .GraphiQLVersion }}/dist/style.css" />
@@ -173,7 +132,7 @@ var graphiqlPageTemplate = template.Must(template.New("graphiql").Parse(`<!docty
       import 'graphiql/setup-workers/esm.sh';
 
       const endpoint = {{ .EndpointJSON }};
-      const storageNamespace = 'suayb-blog:graphiql';
+      const storageNamespace = 'suayb-blog:graphiql:v2';
       const defaultQuery = {{ .DefaultQueryJSON }};
       const defaultHeaders = {{ .DefaultHeadersJSON }};
       const singlePostQuery = {{ .SinglePostQueryJSON }};
