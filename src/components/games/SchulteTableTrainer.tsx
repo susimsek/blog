@@ -206,6 +206,8 @@ export default function SchulteTableTrainer() {
   const [bestTimes, setBestTimes] = React.useState<BestTimes>({});
   const [recentRuns, setRecentRuns] = React.useState<RecentRun[]>([]);
   const [lastWrongNumber, setLastWrongNumber] = React.useState<number | null>(null);
+  const [lastFoundNumber, setLastFoundNumber] = React.useState<number | null>(null);
+  const [isCompletionFlashVisible, setIsCompletionFlashVisible] = React.useState(false);
 
   React.useEffect(() => {
     if (status !== 'running' || startedAtMs === null) {
@@ -227,6 +229,24 @@ export default function SchulteTableTrainer() {
     const timeout = globalThis.setTimeout(() => setLastWrongNumber(null), 220);
     return () => globalThis.clearTimeout(timeout);
   }, [lastWrongNumber]);
+
+  React.useEffect(() => {
+    if (lastFoundNumber === null) {
+      return;
+    }
+
+    const timeout = globalThis.setTimeout(() => setLastFoundNumber(null), 180);
+    return () => globalThis.clearTimeout(timeout);
+  }, [lastFoundNumber]);
+
+  React.useEffect(() => {
+    if (!isCompletionFlashVisible) {
+      return;
+    }
+
+    const timeout = globalThis.setTimeout(() => setIsCompletionFlashVisible(false), 650);
+    return () => globalThis.clearTimeout(timeout);
+  }, [isCompletionFlashVisible]);
 
   const totalCells = size * size;
   const foundSet = React.useMemo(() => new Set(foundNumbers), [foundNumbers]);
@@ -266,6 +286,8 @@ export default function SchulteTableTrainer() {
       setMistakes(0);
       setLastResultMs(null);
       setLastWrongNumber(null);
+      setLastFoundNumber(null);
+      setIsCompletionFlashVisible(false);
       if (options?.preserveHint !== true) {
         setShowNextHint(true);
       }
@@ -357,6 +379,7 @@ export default function SchulteTableTrainer() {
     setStatus('completed');
     setElapsedMs(finishMs);
     setLastResultMs(finishMs);
+    setIsCompletionFlashVisible(true);
     persistRecentRuns(currentRecentRuns =>
       [{ size, mode, durationMs: finishMs, mistakes }, ...currentRecentRuns].slice(0, MAX_RECENT_RUNS),
     );
@@ -385,6 +408,7 @@ export default function SchulteTableTrainer() {
 
     const nextFound = [...foundNumbers, value];
     setFoundNumbers(nextFound);
+    setLastFoundNumber(value);
 
     if (nextFound.length >= totalCells) {
       const finishMs = clamp(getCurrentTimeMs() - effectiveStartMs, 0, 60 * 60 * 1000);
@@ -596,7 +620,12 @@ export default function SchulteTableTrainer() {
             </div>
 
             <div className="schulte-progress" aria-hidden="true">
-              <div className="schulte-progress-bar" style={{ width: `${progressPercent}%` }} />
+              <div
+                className={['schulte-progress-bar', isCompletionFlashVisible ? 'is-complete-flash' : '']
+                  .filter(Boolean)
+                  .join(' ')}
+                style={{ width: `${progressPercent}%` }}
+              />
             </div>
 
             <div className="schulte-grid-shell">
@@ -608,6 +637,7 @@ export default function SchulteTableTrainer() {
                         const isFound = foundSet.has(value);
                         const isTarget = nextHintNumber === value && showNextHint;
                         const isWrongPulse = lastWrongNumber === value;
+                        const isFoundRecent = lastFoundNumber === value;
                         const palette = CELL_PALETTE[(value - 1) % CELL_PALETTE.length];
                         const cellStyle = {
                           ['--schulte-cell-bg' as string]: palette.bg,
@@ -622,6 +652,7 @@ export default function SchulteTableTrainer() {
                               className={[
                                 'schulte-cell',
                                 isFound ? 'is-found' : '',
+                                isFoundRecent ? 'is-found-recent' : '',
                                 isTarget ? 'is-target' : '',
                                 isWrongPulse ? 'is-wrong' : '',
                               ]
@@ -646,7 +677,11 @@ export default function SchulteTableTrainer() {
 
             <div className="schulte-trainer-footer">
               {isCompleted ? (
-                <div className="schulte-trainer-complete">
+                <div
+                  className={['schulte-trainer-complete', isCompletionFlashVisible ? 'is-complete-flash' : '']
+                    .filter(Boolean)
+                    .join(' ')}
+                >
                   <FontAwesomeIcon icon="check-circle" className="me-2" />
                   {t('games.schulte.trainer.completeMessage', {
                     time: formatDuration(displayTime),

@@ -4903,6 +4903,10 @@ $state-variants: (
     color-mix(in srgb, var(--active-color) 85%, #7c4dff 15%)
   );
   transition: width 140ms linear;
+
+  &.is-complete-flash {
+    animation: schulte-progress-complete-flash 640ms ease-out;
+  }
 }
 
 .schulte-grid-shell {
@@ -5032,14 +5036,36 @@ $state-variants: (
     filter: saturate(0.45);
   }
 
+  &.is-found-recent {
+    animation: schulte-cell-found-pop 160ms ease-out;
+  }
+
   &.is-wrong {
     border-color: color-mix(in srgb, var(--danger-bg) 65%, var(--border-color) 35%);
     box-shadow:
       0 0 0 2px color-mix(in srgb, var(--danger-bg) 22%, transparent),
+      0 0 0 5px color-mix(in srgb, var(--danger-bg) 10%, transparent),
       0 1px 0 color-mix(in srgb, var(--main-bg) 14%, transparent),
       0 -1px 0 color-mix(in srgb, var(--text-color) 12%, transparent) inset,
       var(--box-shadow-sm);
-    animation: schulte-cell-shake 180ms ease;
+    animation: schulte-cell-wrong-feedback 180ms ease;
+  }
+}
+
+@keyframes schulte-cell-found-pop {
+  0% {
+    transform: scale(1);
+    filter: saturate(1) brightness(1);
+  }
+
+  45% {
+    transform: scale(0.92);
+    filter: saturate(1.12) brightness(1.08);
+  }
+
+  100% {
+    transform: scale(1);
+    filter: saturate(1) brightness(1);
   }
 }
 
@@ -5055,6 +5081,32 @@ $state-variants: (
   }
   100% {
     transform: translateX(0);
+  }
+}
+
+@keyframes schulte-cell-wrong-feedback {
+  0% {
+    transform: translateX(0);
+    filter: saturate(1) brightness(1);
+  }
+
+  20% {
+    transform: translateX(-2px);
+    filter: saturate(1.05) brightness(1.02);
+  }
+
+  40% {
+    transform: translateX(2px);
+    filter: saturate(1.1) brightness(1.04);
+  }
+
+  65% {
+    transform: translateX(-1px);
+  }
+
+  100% {
+    transform: translateX(0);
+    filter: saturate(1) brightness(1);
   }
 }
 
@@ -5107,6 +5159,49 @@ $state-variants: (
   border-radius: 10px;
   padding: 0.65rem 0.8rem;
   font-weight: 600;
+
+  &.is-complete-flash {
+    animation: schulte-complete-flash 640ms ease-out;
+  }
+}
+
+@keyframes schulte-progress-complete-flash {
+  0% {
+    filter: saturate(1) brightness(1);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--active-color) 0%, transparent);
+  }
+
+  45% {
+    filter: saturate(1.2) brightness(1.08);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--active-color) 16%, transparent);
+  }
+
+  100% {
+    filter: saturate(1) brightness(1);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--active-color) 0%, transparent);
+  }
+}
+
+@keyframes schulte-complete-flash {
+  0% {
+    transform: translateY(0);
+    box-shadow: var(--box-shadow-sm);
+    filter: saturate(1) brightness(1);
+  }
+
+  45% {
+    transform: translateY(-1px);
+    box-shadow:
+      0 0 0 3px color-mix(in srgb, var(--success-bg) 18%, transparent),
+      var(--box-shadow-sm-hover);
+    filter: saturate(1.06) brightness(1.02);
+  }
+
+  100% {
+    transform: translateY(0);
+    box-shadow: var(--box-shadow-sm);
+    filter: saturate(1) brightness(1);
+  }
 }
 
 .schulte-trainer-tip {
