@@ -10,10 +10,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useMediaQuery from '@/hooks/useMediaQuery';
 
 type GridSize = 3 | 4 | 5 | 6 | 7 | 8 | 9;
+type PlayMode = 'classic' | 'reverse';
 type TrainerStatus = 'idle' | 'running' | 'completed';
-
-type BestTimes = Partial<Record<GridSize, number>>;
+type BestTimeKey = `${GridSize}-${PlayMode}`;
+type BestTimes = Partial<Record<BestTimeKey, number>>;
 type BestTimesUpdater = BestTimes | ((current: BestTimes) => BestTimes);
+type RecentRun = {
+  size: GridSize;
+  mode: PlayMode;
+  durationMs: number;
+  mistakes: number;
+};
 type CellPaletteItem = {
   bg: string;
   fg: string;
@@ -22,9 +29,13 @@ type CellPaletteItem = {
 
 const GRID_SIZES: readonly GridSize[] = [3, 4, 5, 6, 7, 8, 9] as const;
 const DEFAULT_GRID_SIZE: GridSize = 5;
+const DEFAULT_PLAY_MODE: PlayMode = 'classic';
 const STORAGE_KEY = 'schulte-table-best-times-v1';
 const GRID_SIZE_STORAGE_KEY = 'schulte-table-grid-size-v1';
+const PLAY_MODE_STORAGE_KEY = 'schulte-table-play-mode-v1';
 const SHOW_HINT_STORAGE_KEY = 'schulte-table-show-hint-v1';
+const RECENT_RUNS_STORAGE_KEY = 'schulte-table-recent-runs-v1';
+const MAX_RECENT_RUNS = 5;
 const CELL_PALETTE: readonly CellPaletteItem[] = [
   { bg: '#2b83c6', fg: '#ffffff', border: '#2f6f99' },
   { bg: '#46b68b', fg: '#ffffff', border: '#2f8f6d' },
@@ -60,6 +71,9 @@ export const createOrderedBoard = (size: GridSize): number[] =>
 export const createBoard = (size: GridSize): number[] =>
   shuffle(Array.from({ length: size * size }, (_, index) => index + 1));
 export const getCurrentTimeMs = (): number => Date.now();
+export const getBestTimeKey = (size: GridSize, mode: PlayMode): BestTimeKey => `${size}-${mode}`;
+export const getInitialTarget = (size: GridSize, mode: PlayMode) => (mode === 'reverse' ? size * size : 1);
+export const getNextTarget = (target: number, mode: PlayMode) => target + (mode === 'reverse' ? -1 : 1);
 export const chunkBoardRows = (values: readonly number[], size: GridSize): number[][] => {
   const rows: number[][] = [];
   for (let index = 0; index < values.length; index += size) {
@@ -88,9 +102,16 @@ export const parseStoredBestTimes = (raw: string | null): BestTimes => {
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     const next: BestTimes = {};
     for (const size of GRID_SIZES) {
-      const candidate = parsed[String(size)];
-      if (typeof candidate === 'number' && Number.isFinite(candidate) && candidate > 0) {
-        next[size] = Math.round(candidate);
+      const legacyCandidate = parsed[String(size)];
+      if (typeof legacyCandidate === 'number' && Number.isFinite(legacyCandidate) && legacyCandidate > 0) {
+        next[getBestTimeKey(size, 'classic')] = Math.round(legacyCandidate);
+      }
+
+      for (const mode of ['classic', 'reverse'] as const) {
+        const candidate = parsed[getBestTimeKey(size, mode)];
+        if (typeof candidate === 'number' && Number.isFinite(candidate) && candidate > 0) {
+          next[getBestTimeKey(size, mode)] = Math.round(candidate);
+        }
       }
     }
     return next;
@@ -106,6 +127,14 @@ export const parseStoredGridSize = (raw: string | null): GridSize | null => {
 
   const parsed = Number(raw);
   return GRID_SIZES.includes(parsed as GridSize) ? (parsed as GridSize) : null;
+};
+
+export const parseStoredPlayMode = (raw: string | null): PlayMode | null => {
+  if (raw === 'classic' || raw === 'reverse') {
+    return raw;
+  }
+
+  return null;
 };
 
 export const parseStoredShowHint = (raw: string | null): boolean | null => {
@@ -124,14 +153,49 @@ export const parseStoredShowHint = (raw: string | null): boolean | null => {
   return null;
 };
 
+export const parseStoredRecentRuns = (raw: string | null): RecentRun[] => {
+  if (!raw) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as RecentRun[];
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed
+      .filter(
+        run =>
+          typeof run?.durationMs === 'number' &&
+          run.durationMs > 0 &&
+          typeof run?.mistakes === 'number' &&
+          run.mistakes >= 0 &&
+          GRID_SIZES.includes(run?.size) &&
+          (run?.mode === 'classic' || run?.mode === 'reverse'),
+      )
+      .slice(0, MAX_RECENT_RUNS)
+      .map(run => ({
+        size: run.size,
+        mode: run.mode,
+        durationMs: Math.round(run.durationMs),
+        mistakes: Math.round(run.mistakes),
+      }));
+  } catch {
+    return [];
+  }
+};
+
 export default function SchulteTableTrainer() {
   const { t, i18n } = useTranslation('games');
   const isMobile = useMediaQuery('(max-width: 991px)');
   const isCompactMobile = useMediaQuery('(max-width: 575px)');
   const [size, setSize] = React.useState<GridSize>(DEFAULT_GRID_SIZE);
+  const [mode, setMode] = React.useState<PlayMode>(DEFAULT_PLAY_MODE);
   const [cells, setCells] = React.useState<number[]>(() => createOrderedBoard(DEFAULT_GRID_SIZE));
   const [isMobileControlsOpen, setIsMobileControlsOpen] = React.useState(false);
-  const [target, setTarget] = React.useState(1);
+  const [target, setTarget] = React.useState(getInitialTarget(DEFAULT_GRID_SIZE, DEFAULT_PLAY_MODE));
   const [foundNumbers, setFoundNumbers] = React.useState<number[]>([]);
   const [status, setStatus] = React.useState<TrainerStatus>('idle');
   const [startedAtMs, setStartedAtMs] = React.useState<number | null>(null);
@@ -140,6 +204,7 @@ export default function SchulteTableTrainer() {
   const [showNextHint, setShowNextHint] = React.useState(true);
   const [lastResultMs, setLastResultMs] = React.useState<number | null>(null);
   const [bestTimes, setBestTimes] = React.useState<BestTimes>({});
+  const [recentRuns, setRecentRuns] = React.useState<RecentRun[]>([]);
   const [lastWrongNumber, setLastWrongNumber] = React.useState<number | null>(null);
 
   React.useEffect(() => {
@@ -168,7 +233,7 @@ export default function SchulteTableTrainer() {
   const isCompleted = status === 'completed';
   const progressPercent = (foundNumbers.length / totalCells) * 100;
   const displayTime = isCompleted ? (lastResultMs ?? elapsedMs) : elapsedMs;
-  const currentBest = bestTimes[size] ?? null;
+  const currentBest = bestTimes[getBestTimeKey(size, mode)] ?? null;
   const cellRows = React.useMemo(() => chunkBoardRows(cells, size), [cells, size]);
 
   const persistBestTimes = React.useCallback((updater: BestTimesUpdater) => {
@@ -181,30 +246,43 @@ export default function SchulteTableTrainer() {
     });
   }, []);
 
-  const resetRoundState = React.useCallback((options?: { preserveHint?: boolean }) => {
-    setTarget(1);
-    setFoundNumbers([]);
-    setStatus('idle');
-    setStartedAtMs(null);
-    setElapsedMs(0);
-    setMistakes(0);
-    setLastResultMs(null);
-    setLastWrongNumber(null);
-    if (options?.preserveHint !== true) {
-      setShowNextHint(true);
-    }
+  const persistRecentRuns = React.useCallback((updater: RecentRun[] | ((current: RecentRun[]) => RecentRun[])) => {
+    setRecentRuns(currentRecentRuns => {
+      const nextRecentRuns = typeof updater === 'function' ? updater(currentRecentRuns) : updater;
+      if (globalThis.localStorage !== undefined) {
+        globalThis.localStorage.setItem(RECENT_RUNS_STORAGE_KEY, JSON.stringify(nextRecentRuns));
+      }
+      return nextRecentRuns;
+    });
   }, []);
 
+  const resetRoundState = React.useCallback(
+    (nextSize: GridSize, nextMode: PlayMode, options?: { preserveHint?: boolean }) => {
+      setTarget(getInitialTarget(nextSize, nextMode));
+      setFoundNumbers([]);
+      setStatus('idle');
+      setStartedAtMs(null);
+      setElapsedMs(0);
+      setMistakes(0);
+      setLastResultMs(null);
+      setLastWrongNumber(null);
+      if (options?.preserveHint !== true) {
+        setShowNextHint(true);
+      }
+    },
+    [],
+  );
+
   const resetRound = React.useCallback(
-    (nextSize: GridSize, options?: { preserveHint?: boolean }) => {
+    (nextSize: GridSize, nextMode: PlayMode, options?: { preserveHint?: boolean }) => {
       setCells(createBoard(nextSize));
-      resetRoundState(options);
+      resetRoundState(nextSize, nextMode, options);
     },
     [resetRoundState],
   );
 
   const restartCurrentBoard = () => {
-    resetRoundState({ preserveHint: true });
+    resetRoundState(size, mode, { preserveHint: true });
     setIsMobileControlsOpen(false);
   };
 
@@ -216,15 +294,20 @@ export default function SchulteTableTrainer() {
     const storedBestTimes = parseStoredBestTimes(globalThis.localStorage.getItem(STORAGE_KEY));
     const storedGridSize =
       parseStoredGridSize(globalThis.localStorage.getItem(GRID_SIZE_STORAGE_KEY)) ?? DEFAULT_GRID_SIZE;
+    const storedPlayMode =
+      parseStoredPlayMode(globalThis.localStorage.getItem(PLAY_MODE_STORAGE_KEY)) ?? DEFAULT_PLAY_MODE;
     const storedShowHint = parseStoredShowHint(globalThis.localStorage.getItem(SHOW_HINT_STORAGE_KEY));
+    const storedRecentRuns = parseStoredRecentRuns(globalThis.localStorage.getItem(RECENT_RUNS_STORAGE_KEY));
 
     setBestTimes(storedBestTimes);
+    setRecentRuns(storedRecentRuns);
     setSize(storedGridSize);
+    setMode(storedPlayMode);
     setCells(createBoard(storedGridSize));
     if (storedShowHint !== null) {
       setShowNextHint(storedShowHint);
     }
-    resetRoundState({ preserveHint: true });
+    resetRoundState(storedGridSize, storedPlayMode, { preserveHint: true });
   }, [resetRoundState]);
 
   React.useEffect(() => {
@@ -243,10 +326,19 @@ export default function SchulteTableTrainer() {
 
   const handleSizeChange = (nextSize: GridSize) => {
     setSize(nextSize);
-    resetRound(nextSize, { preserveHint: true });
+    resetRound(nextSize, mode, { preserveHint: true });
     setIsMobileControlsOpen(false);
     if (globalThis.localStorage !== undefined) {
       globalThis.localStorage.setItem(GRID_SIZE_STORAGE_KEY, String(nextSize));
+    }
+  };
+
+  const handleModeChange = (nextMode: PlayMode) => {
+    setMode(nextMode);
+    resetRound(size, nextMode, { preserveHint: true });
+    setIsMobileControlsOpen(false);
+    if (globalThis.localStorage !== undefined) {
+      globalThis.localStorage.setItem(PLAY_MODE_STORAGE_KEY, nextMode);
     }
   };
 
@@ -265,12 +357,16 @@ export default function SchulteTableTrainer() {
     setStatus('completed');
     setElapsedMs(finishMs);
     setLastResultMs(finishMs);
+    persistRecentRuns(currentRecentRuns =>
+      [{ size, mode, durationMs: finishMs, mistakes }, ...currentRecentRuns].slice(0, MAX_RECENT_RUNS),
+    );
     persistBestTimes(currentBestTimes => {
-      const previousBest = currentBestTimes[size];
+      const bestTimeKey = getBestTimeKey(size, mode);
+      const previousBest = currentBestTimes[bestTimeKey];
       if (previousBest !== undefined && finishMs >= previousBest) {
         return currentBestTimes;
       }
-      return { ...currentBestTimes, [size]: finishMs };
+      return { ...currentBestTimes, [bestTimeKey]: finishMs };
     });
   };
 
@@ -290,13 +386,13 @@ export default function SchulteTableTrainer() {
     const nextFound = [...foundNumbers, value];
     setFoundNumbers(nextFound);
 
-    if (value >= totalCells) {
+    if (nextFound.length >= totalCells) {
       const finishMs = clamp(getCurrentTimeMs() - effectiveStartMs, 0, 60 * 60 * 1000);
       completeRound(finishMs);
       return;
     }
 
-    setTarget(value + 1);
+    setTarget(getNextTarget(value, mode));
   };
 
   const nextHintNumber = status === 'completed' ? null : target;
@@ -310,6 +406,31 @@ export default function SchulteTableTrainer() {
     : t('games.schulte.trainer.showControls');
   const controlsPanel = (
     <div className="schulte-trainer-controls stack stack-16">
+      <div className="schulte-sidebar-section stack stack-8">
+        <span className="schulte-control-label">{t('games.schulte.trainer.mode')}</span>
+        <div className="schulte-mode-list" role="radiogroup" aria-label={t('games.schulte.trainer.mode')}>
+          {(['classic', 'reverse'] as const).map(modeOption => {
+            const isActive = modeOption === mode;
+
+            return (
+              <button
+                key={modeOption}
+                type="button"
+                role="radio"
+                aria-checked={isActive}
+                className={['schulte-mode-option', isActive ? 'is-active' : ''].filter(Boolean).join(' ')}
+                onClick={() => handleModeChange(modeOption)}
+              >
+                <span className="schulte-mode-option-title">
+                  {t(`games.schulte.trainer.modes.${modeOption}.title`)}
+                </span>
+                <span className="schulte-mode-option-copy">{t(`games.schulte.trainer.modes.${modeOption}.copy`)}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="schulte-sidebar-section stack stack-8">
         <span className="schulte-control-label">{t('games.schulte.trainer.gridSize')}</span>
         <div className="schulte-size-list" role="radiogroup" aria-label={t('games.schulte.trainer.gridSize')}>
@@ -355,7 +476,7 @@ export default function SchulteTableTrainer() {
             variant="primary"
             size="sm"
             onClick={() => {
-              resetRound(size, { preserveHint: true });
+              resetRound(size, mode, { preserveHint: true });
               setIsMobileControlsOpen(false);
             }}
           >
@@ -371,7 +492,7 @@ export default function SchulteTableTrainer() {
             onClick={() => {
               persistBestTimes(currentBestTimes => {
                 const nextBestTimes = { ...currentBestTimes };
-                delete nextBestTimes[size];
+                delete nextBestTimes[getBestTimeKey(size, mode)];
                 return nextBestTimes;
               });
               setIsMobileControlsOpen(false);
@@ -380,6 +501,36 @@ export default function SchulteTableTrainer() {
             {t('games.schulte.trainer.clearBestForSize')}
           </Button>
         </div>
+      </div>
+
+      <div className="schulte-sidebar-section stack stack-8">
+        <span className="schulte-control-label">{t('games.schulte.trainer.recentRuns')}</span>
+        {recentRuns.length > 0 ? (
+          <div className="schulte-recent-runs-list">
+            {recentRuns.map((run, index) => (
+              <div
+                key={`${run.size}-${run.mode}-${run.durationMs}-${run.mistakes}-${index}`}
+                className="schulte-recent-run-item"
+              >
+                <div className="schulte-recent-run-main">
+                  <strong>{formatDuration(run.durationMs)}</strong>
+                  <span>
+                    {run.size}×{run.size} · {t(`games.schulte.trainer.modes.${run.mode}.title`)}
+                  </span>
+                </div>
+                <span className="schulte-recent-run-meta">
+                  {t('games.schulte.trainer.recentRunMistakes', { count: run.mistakes })}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="schulte-sidebar-meta">
+            <div className="schulte-sidebar-meta-item">
+              <strong>{t('games.schulte.trainer.noRecentRuns')}</strong>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="schulte-sidebar-section schulte-sidebar-switch">

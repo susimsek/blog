@@ -68,8 +68,17 @@ describe('StroopTestTrainer', () => {
     return hint.textContent!.replace('hint:', '');
   };
 
+  const getCurrentWord = () => document.querySelector('.stroop-task-word')?.textContent ?? '';
+
   const getChoiceButtons = () =>
     screen.getAllByRole('button').filter(button => button.className.includes('stroop-choice-button'));
+
+  const getAverageReactionValue = () => {
+    const meta = document.querySelector('.stroop-trainer-meta');
+
+    expect(meta).not.toBeNull();
+    return meta?.textContent ?? '';
+  };
 
   const answerCurrentTask = ({ correct = true, deltaMs = 300 }: { correct?: boolean; deltaMs?: number } = {}) => {
     nowMs += deltaMs;
@@ -181,6 +190,30 @@ describe('StroopTestTrainer', () => {
     expect(JSON.parse(window.localStorage.getItem('stroop-test-best-results-v1') ?? '{}')).toMatchObject({
       practice: { score: 2000 },
     });
+  });
+
+  it('restarts the current prompt instead of generating a new one', () => {
+    render(<StroopTestTrainer />);
+
+    answerCurrentTask({ correct: false, deltaMs: 250 });
+    const promptWordBeforeRestart = getCurrentWord();
+    const hintBeforeRestart = getHintColor();
+
+    fireEvent.click(screen.getByText('games.stroop.trainer.restart'));
+
+    expect(getCurrentWord()).toBe(promptWordBeforeRestart);
+    expect(getHintColor()).toBe(hintBeforeRestart);
+    expect(screen.getByText('games.stroop.trainer.score').closest('.stroop-stat-tile')).toHaveTextContent('0');
+    expect(screen.getByText('games.stroop.trainer.mistakes').closest('.stroop-stat-tile')).toHaveTextContent('0');
+  });
+
+  it('does not count idle wait time toward the first reaction measurement', () => {
+    render(<StroopTestTrainer />);
+
+    nowMs = 5000;
+    answerCurrentTask({ deltaMs: 0 });
+
+    expect(getAverageReactionValue()).toContain('0 ms');
   });
 
   it('can clear the best score for the active mode', () => {

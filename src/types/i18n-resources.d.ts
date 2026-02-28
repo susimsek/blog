@@ -303,9 +303,28 @@ interface Resources {
     games: {
       schulte: {
         badge: 'Brain Exercise';
+        benchmark: {
+          building: {
+            copy: 'Slow down and scan in lanes. Accuracy matters more than forcing pace too early.';
+            label: 'Building';
+            time: '75+ sec';
+          };
+          fast: {
+            copy: 'Your scan is already efficient. Keep mistakes near zero before moving up in size.';
+            label: 'Fast';
+            time: 'Under 45 sec';
+          };
+          steady: {
+            copy: 'A solid working range for regular practice. Focus on rhythm before chasing extra speed.';
+            label: 'Steady';
+            time: '45-75 sec';
+          };
+          subtitle: 'Use these ranges as a practical training reference for the classic 5×5 board, not as a strict diagnostic score.';
+          title: '5×5 Speed Guide';
+        };
         howToPlay: {
           step1: 'Pick a grid size from 3×3 up to 9×9 in the left panel, then start with a fresh board.';
-          step2: 'Find and click the numbers in ascending order, starting from 1 and following the Next indicator.';
+          step2: 'Use Classic mode to scan upward from 1, or switch to Reverse mode if you want to work downward from the highest number.';
           step3: 'Use Restart to replay the same layout, New board for a reshuffle, and Highlight next number if you want an easier practice mode.';
           step4: 'Watch your timer, mistakes, and best time together, then move up to a larger grid once your accuracy stays consistent.';
           title: 'How To Play';
@@ -345,9 +364,24 @@ interface Resources {
           gridSize: 'Grid size';
           hideControls: 'Hide controls';
           mistakes: 'Mistakes';
+          mode: 'Mode';
+          modes: {
+            classic: {
+              copy: 'Count upward from 1';
+              title: 'Classic';
+            };
+            reverse: {
+              copy: 'Count down from the top value';
+              title: 'Reverse';
+            };
+          };
           newBoard: 'New board';
           next: 'Next';
           noBestYet: 'No best yet';
+          noRecentRuns: 'No runs yet';
+          recentRunMistakes_one: '{{count}} mistake';
+          recentRunMistakes_other: '{{count}} mistakes';
+          recentRuns: 'Recent runs';
           restart: 'Restart';
           showControls: 'Show controls';
           showNextHint: 'Highlight next number';

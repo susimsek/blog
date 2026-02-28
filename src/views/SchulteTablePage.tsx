@@ -72,6 +72,30 @@ export default function SchulteTablePage({ layoutPosts, topics, preFooterTopTopi
               <p className="mb-0">{t('games.schulte.whyUse.body2')}</p>
             </Card.Body>
           </Card>
+
+          <Card className="schulte-info-card schulte-benchmark-card">
+            <Card.Body>
+              <h2 className="h4 fw-bold mb-2">{t('games.schulte.benchmark.title')}</h2>
+              <p className="mb-3">{t('games.schulte.benchmark.subtitle')}</p>
+              <div className="schulte-benchmark-list">
+                <div className="schulte-benchmark-item is-fast">
+                  <span className="schulte-benchmark-tier">{t('games.schulte.benchmark.fast.label')}</span>
+                  <strong className="schulte-benchmark-time">{t('games.schulte.benchmark.fast.time')}</strong>
+                  <span className="schulte-benchmark-copy">{t('games.schulte.benchmark.fast.copy')}</span>
+                </div>
+                <div className="schulte-benchmark-item is-steady">
+                  <span className="schulte-benchmark-tier">{t('games.schulte.benchmark.steady.label')}</span>
+                  <strong className="schulte-benchmark-time">{t('games.schulte.benchmark.steady.time')}</strong>
+                  <span className="schulte-benchmark-copy">{t('games.schulte.benchmark.steady.copy')}</span>
+                </div>
+                <div className="schulte-benchmark-item is-building">
+                  <span className="schulte-benchmark-tier">{t('games.schulte.benchmark.building.label')}</span>
+                  <strong className="schulte-benchmark-time">{t('games.schulte.benchmark.building.time')}</strong>
+                  <span className="schulte-benchmark-copy">{t('games.schulte.benchmark.building.copy')}</span>
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
         </div>
 
         <Card className="schulte-info-card">

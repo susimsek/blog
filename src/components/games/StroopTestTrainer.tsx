@@ -312,7 +312,7 @@ export default function StroopTestTrainer() {
     setStatus('idle');
     setStartedAtMs(null);
     setElapsedMs(0);
-    setTaskStartedAtMs(getCurrentTimeMs());
+    setTaskStartedAtMs(null);
     setCorrectCount(0);
     setMistakes(0);
     setCompletedRounds(0);
@@ -328,6 +328,10 @@ export default function StroopTestTrainer() {
     },
     [resetRoundState],
   );
+
+  const restartCurrentTask = React.useCallback(() => {
+    resetRoundState();
+  }, [resetRoundState]);
 
   React.useEffect(() => {
     if (status !== 'running' || startedAtMs === null) {
@@ -406,14 +410,26 @@ export default function StroopTestTrainer() {
     [answeredCount, correctCount, mistakes, mode, persistBestResults, reactionTimes],
   );
 
-  const startTimerIfNeeded = () => {
-    if (status !== 'idle') {
-      return startedAtMs ?? getCurrentTimeMs();
-    }
+  const startRunIfNeeded = () => {
     const now = getCurrentTimeMs();
+
+    if (status !== 'idle') {
+      return {
+        roundStartedAtMs: startedAtMs ?? now,
+        taskStartedAtMs: taskStartedAtMs ?? now,
+        now,
+      };
+    }
+
     setStatus('running');
     setStartedAtMs(now);
-    return now;
+    setTaskStartedAtMs(now);
+
+    return {
+      roundStartedAtMs: now,
+      taskStartedAtMs: now,
+      now,
+    };
   };
 
   const queueNextTask = (nextMode: StroopMode) => {
@@ -480,6 +496,11 @@ export default function StroopTestTrainer() {
   };
 
   const handleRestart = () => {
+    restartCurrentTask();
+    setIsMobileControlsOpen(false);
+  };
+
+  const handleNewRound = () => {
     resetRound(mode);
     setIsMobileControlsOpen(false);
   };
@@ -489,8 +510,8 @@ export default function StroopTestTrainer() {
       return;
     }
 
-    const effectiveStartMs = startTimerIfNeeded();
-    const reactionMs = getChoiceReactionMs(taskStartedAtMs);
+    const { roundStartedAtMs, taskStartedAtMs: effectiveTaskStartedAtMs, now } = startRunIfNeeded();
+    const reactionMs = getChoiceReactionMs(effectiveTaskStartedAtMs);
     const isCorrect = choice === task.ink;
     const nextProgress = createNextProgress(
       { correctCount, mistakes, completedRounds, reactionTimes },
@@ -501,7 +522,7 @@ export default function StroopTestTrainer() {
     recordChoice(isCorrect, reactionMs, nextProgress.completedRounds);
 
     if (modeConfig.totalRounds !== null && nextProgress.completedRounds >= modeConfig.totalRounds) {
-      const finishMs = clamp(getCurrentTimeMs() - effectiveStartMs, 0, 60 * 60 * 1000);
+      const finishMs = clamp(now - roundStartedAtMs, 0, 60 * 60 * 1000);
       completeWithProgress(finishMs, nextProgress);
       return;
     }
@@ -563,7 +584,7 @@ export default function StroopTestTrainer() {
       <div className="stroop-sidebar-section stack stack-8">
         <span className="stroop-control-label">{t('games.stroop.trainer.actions')}</span>
         <div className="stroop-action-list">
-          <Button type="button" variant="primary" size="sm" onClick={() => handleRestart()}>
+          <Button type="button" variant="primary" size="sm" onClick={handleNewRound}>
             {t('games.stroop.trainer.newRound')}
           </Button>
           <Button type="button" variant="secondary" size="sm" onClick={handleRestart}>

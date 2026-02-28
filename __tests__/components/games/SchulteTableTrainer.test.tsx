@@ -44,14 +44,21 @@ describe('SchulteTableTrainer', () => {
     expect(within(bestTimeContainer as HTMLElement).getByText(expected)).toBeInTheDocument();
   };
 
-  const completeBoard = (gridSize: 3 | 5, finishMs: number) => {
+  const completeBoard = (gridSize: 3 | 5, finishMs: number, mode: 'classic' | 'reverse' = 'classic') => {
     fireEvent.click(screen.getByRole('radio', { name: `${gridSize}×${gridSize}` }));
+    fireEvent.click(
+      screen.getByRole('radio', { name: new RegExp(`games\\.schulte\\.trainer\\.modes\\.${mode}\\.title`) }),
+    );
 
     const grid = getTable();
     nowMs += 1000;
+    const values =
+      mode === 'reverse'
+        ? Array.from({ length: gridSize * gridSize }, (_, index) => gridSize * gridSize - index)
+        : Array.from({ length: gridSize * gridSize }, (_, index) => index + 1);
 
-    for (let value = 1; value <= gridSize * gridSize; value += 1) {
-      if (value === gridSize * gridSize) {
+    for (const value of values) {
+      if (value === values[values.length - 1]) {
         nowMs += finishMs;
       }
 
@@ -101,8 +108,8 @@ describe('SchulteTableTrainer', () => {
 
     expectBestTimeToBe('00:01.30');
     expect(JSON.parse(window.localStorage.getItem('schulte-table-best-times-v1') ?? '{}')).toEqual({
-      3: 1300,
-      5: 4000,
+      '3-classic': 1300,
+      '5-classic': 4000,
     });
   });
 
@@ -110,17 +117,22 @@ describe('SchulteTableTrainer', () => {
     window.localStorage.setItem(
       'schulte-table-best-times-v1',
       JSON.stringify({
-        3: 1300,
-        5: 4000,
+        '3-reverse': 1300,
+        '5-classic': 4000,
       }),
     );
     window.localStorage.setItem('schulte-table-grid-size-v1', '3');
+    window.localStorage.setItem('schulte-table-play-mode-v1', 'reverse');
 
     render(<SchulteTableTrainer />);
 
     expectBestTimeToBe('00:01.30');
     expect(screen.getByRole('radio', { name: '3×3' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByRole('radio', { name: '5×5' })).toHaveAttribute('aria-checked', 'false');
+    expect(screen.getByRole('radio', { name: /games\.schulte\.trainer\.modes\.reverse\.title/ })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
   });
 
   it('persists the show hint preference across refreshes', () => {
@@ -139,13 +151,30 @@ describe('SchulteTableTrainer', () => {
   it('falls back to defaults when stored values are invalid', () => {
     window.localStorage.setItem('schulte-table-best-times-v1', '{invalid-json');
     window.localStorage.setItem('schulte-table-grid-size-v1', '42');
+    window.localStorage.setItem('schulte-table-play-mode-v1', 'sideways');
     window.localStorage.setItem('schulte-table-show-hint-v1', 'maybe');
 
     render(<SchulteTableTrainer />);
 
     expect(screen.getByRole('radio', { name: '5×5' })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByRole('radio', { name: /games\.schulte\.trainer\.modes\.classic\.title/ })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
     expect(screen.getByLabelText('games.schulte.trainer.showNextHint')).toBeChecked();
     expectBestTimeToBe('games.schulte.trainer.noBestYet');
+  });
+
+  it('supports reverse mode and starts from the largest value', () => {
+    render(<SchulteTableTrainer />);
+
+    fireEvent.click(screen.getByRole('radio', { name: '3×3' }));
+    fireEvent.click(screen.getByRole('radio', { name: /games\.schulte\.trainer\.modes\.reverse\.title/ }));
+
+    expect(getStatValue('games.schulte.trainer.next')).toHaveTextContent('9');
+
+    fireEvent.click(getCellButton(9));
+    expect(getStatValue('games.schulte.trainer.next')).toHaveTextContent('8');
   });
 
   it('tracks mistakes and clears the wrong pulse after the timeout', () => {
@@ -182,6 +211,37 @@ describe('SchulteTableTrainer', () => {
     fireEvent.click(screen.getByText('games.schulte.trainer.clearBestForSize'));
     expectBestTimeToBe('games.schulte.trainer.noBestYet');
     expect(JSON.parse(window.localStorage.getItem('schulte-table-best-times-v1') ?? '{}')).toEqual({});
+  });
+
+  it('stores best times separately for classic and reverse mode', () => {
+    render(<SchulteTableTrainer />);
+
+    completeBoard(3, 1300, 'classic');
+    expectBestTimeToBe('00:01.30');
+
+    completeBoard(3, 1500, 'reverse');
+    expectBestTimeToBe('00:01.50');
+
+    fireEvent.click(screen.getByRole('radio', { name: /games\.schulte\.trainer\.modes\.classic\.title/ }));
+    expectBestTimeToBe('00:01.30');
+
+    expect(JSON.parse(window.localStorage.getItem('schulte-table-best-times-v1') ?? '{}')).toEqual({
+      '3-classic': 1300,
+      '3-reverse': 1500,
+    });
+  });
+
+  it('stores recent runs with mode and keeps the latest entries first', () => {
+    render(<SchulteTableTrainer />);
+
+    completeBoard(3, 1300, 'classic');
+    completeBoard(3, 1400, 'reverse');
+
+    expect(JSON.parse(window.localStorage.getItem('schulte-table-recent-runs-v1') ?? '[]')).toEqual([
+      { size: 3, mode: 'reverse', durationMs: 1400, mistakes: 0 },
+      { size: 3, mode: 'classic', durationMs: 1300, mistakes: 0 },
+    ]);
+    expect(screen.getByText('games.schulte.trainer.recentRuns')).toBeInTheDocument();
   });
 
   it('can render mobile controls in an offcanvas and close them after selecting a size', () => {

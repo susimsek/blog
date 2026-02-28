@@ -4597,6 +4597,68 @@ $state-variants: (
   gap: 0.42rem;
 }
 
+.schulte-mode-list {
+  display: grid;
+  gap: 0.48rem;
+}
+
+.schulte-mode-option {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--border-color) 78%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 90%, var(--bg-color) 10%);
+  color: var(--text-color);
+  border-radius: 12px;
+  padding: 0.62rem 0.75rem;
+  width: 100%;
+  text-align: left;
+  display: grid;
+  gap: 0.18rem;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--main-bg) 25%, transparent);
+  transition:
+    background-color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease,
+    transform var(--transition-speed) ease,
+    box-shadow var(--transition-speed) ease,
+    color var(--transition-speed) ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--active-color) 28%, var(--border-color) 72%);
+    background: color-mix(in srgb, var(--main-bg) 82%, var(--dropdown-hover-bg) 18%);
+    box-shadow: var(--box-shadow-sm-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--active-color);
+    outline-offset: 2px;
+  }
+
+  &.is-active {
+    border-color: color-mix(in srgb, var(--active-color) 55%, var(--border-color) 45%);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--active-color) 20%, var(--main-bg) 80%),
+      color-mix(in srgb, var(--active-color) 12%, var(--main-bg) 88%)
+    );
+    color: color-mix(in srgb, var(--active-color) 68%, var(--text-color) 32%);
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--active-color) 12%, transparent),
+      var(--box-shadow-sm);
+  }
+}
+
+.schulte-mode-option-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.schulte-mode-option-copy {
+  color: var(--muted-text-color);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
 .schulte-size-option {
   appearance: none;
   border: 1px solid color-mix(in srgb, var(--border-color) 78%, transparent);
@@ -4653,6 +4715,44 @@ $state-variants: (
 .schulte-sidebar-meta {
   display: grid;
   gap: 0.5rem;
+}
+
+.schulte-recent-runs-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.schulte-recent-run-item {
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 90%, var(--bg-color) 10%);
+  border-radius: 12px;
+  padding: 0.62rem 0.7rem;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.schulte-recent-run-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+
+  strong {
+    color: var(--text-color);
+    font-size: 0.95rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  span {
+    color: var(--muted-text-color);
+    font-size: 0.8rem;
+    text-align: right;
+  }
+}
+
+.schulte-recent-run-meta {
+  color: var(--muted-text-color);
+  font-size: 0.8rem;
 }
 
 .schulte-sidebar-meta-item {
@@ -4915,6 +5015,7 @@ $state-variants: (
       var(--box-shadow-sm),
       0 0 0 2px color-mix(in srgb, var(--active-color) 22%, transparent);
     filter: saturate(1.12) brightness(1.06);
+    animation: schulte-cell-target-pulse 1.25s ease-in-out infinite;
   }
 
   &.is-found {
@@ -4954,6 +5055,27 @@ $state-variants: (
   }
   100% {
     transform: translateX(0);
+  }
+}
+
+@keyframes schulte-cell-target-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 1px 0 color-mix(in srgb, var(--main-bg) 24%, transparent),
+      0 -1px 0 color-mix(in srgb, var(--text-color) 16%, transparent) inset,
+      var(--box-shadow-sm),
+      0 0 0 2px color-mix(in srgb, var(--active-color) 16%, transparent);
+    filter: saturate(1.08) brightness(1.03);
+  }
+
+  50% {
+    box-shadow:
+      0 1px 0 color-mix(in srgb, var(--main-bg) 28%, transparent),
+      0 -1px 0 color-mix(in srgb, var(--text-color) 18%, transparent) inset,
+      var(--box-shadow-sm-hover),
+      0 0 0 4px color-mix(in srgb, var(--active-color) 22%, transparent);
+    filter: saturate(1.16) brightness(1.08);
   }
 }
 
@@ -5025,6 +5147,74 @@ $state-variants: (
   padding-left: 1.15rem;
 }
 
+.schulte-benchmark-card {
+  grid-column: 1 / -1;
+}
+
+.schulte-benchmark-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.schulte-benchmark-item {
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 92%, var(--bg-color) 8%);
+  border-radius: 14px;
+  padding: 0.9rem 0.95rem;
+  display: grid;
+  gap: 0.28rem;
+  box-shadow: var(--box-shadow-sm);
+}
+
+.schulte-benchmark-tier {
+  color: var(--muted-text-color);
+  font-size: 0.77rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.schulte-benchmark-time {
+  color: var(--text-color);
+  font-size: 1.08rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.schulte-benchmark-copy {
+  color: var(--muted-text-color);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.schulte-benchmark-item.is-fast {
+  border-color: color-mix(in srgb, #16a34a 26%, var(--border-color) 74%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #16a34a 8%, var(--main-bg) 92%),
+    color-mix(in srgb, #16a34a 4%, var(--bg-color) 96%)
+  );
+}
+
+.schulte-benchmark-item.is-steady {
+  border-color: color-mix(in srgb, #2563eb 24%, var(--border-color) 76%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #2563eb 8%, var(--main-bg) 92%),
+    color-mix(in srgb, #2563eb 4%, var(--bg-color) 96%)
+  );
+}
+
+.schulte-benchmark-item.is-building {
+  border-color: color-mix(in srgb, #f59e0b 26%, var(--border-color) 74%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #f59e0b 9%, var(--main-bg) 91%),
+    color-mix(in srgb, #f59e0b 5%, var(--bg-color) 95%)
+  );
+}
+
 .schulte-page-article-link {
   font-size: 0.95rem;
 }
@@ -5042,11 +5232,19 @@ $state-variants: (
     grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
   }
 
+  .schulte-mode-list {
+    grid-template-columns: 1fr;
+  }
+
   .schulte-action-list {
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   }
 
   .schulte-page-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .schulte-benchmark-list {
     grid-template-columns: 1fr;
   }
 }
@@ -5094,6 +5292,10 @@ $state-variants: (
 
   .schulte-size-list {
     grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+  }
+
+  .schulte-mode-option {
+    padding: 0.56rem 0.64rem;
   }
 
   .schulte-size-option {
@@ -5160,6 +5362,15 @@ $state-variants: (
 
   .schulte-size-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .schulte-recent-run-main {
+    flex-direction: column;
+    align-items: flex-start;
+
+    span {
+      text-align: left;
+    }
   }
 
   .schulte-size-option {
