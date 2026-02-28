@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAppSelector } from '@/config/store';
 import { useRouter } from 'next/navigation';
 import { withBasePath } from '@/lib/basePath';
+import { normalizePostCategoryRef } from '@/lib/postCategoryRef';
 
 type ShortcutHint = {
   modifier: string;
@@ -38,16 +39,7 @@ export const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary
     }
 
     const candidate = post as Partial<PostSummary>;
-    const normalizedCategory =
-      candidate.category &&
-      typeof candidate.category === 'object' &&
-      typeof candidate.category.id === 'string' &&
-      typeof candidate.category.name === 'string'
-        ? {
-            id: candidate.category.id.trim().toLowerCase(),
-            name: candidate.category.name.trim(),
-          }
-        : undefined;
+    const normalizedCategory = normalizePostCategoryRef(candidate.category);
     if (
       typeof candidate.id !== 'string' ||
       typeof candidate.title !== 'string' ||

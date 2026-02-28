@@ -46,7 +46,7 @@ describe('SearchContainer helpers', () => {
       expect.objectContaining({
         id: 'post-1',
         source: 'medium',
-        category: { id: 'frontend', name: 'Frontend' },
+        category: { id: 'frontend', name: 'Frontend', color: 'blue' },
       }),
     ]);
   });
