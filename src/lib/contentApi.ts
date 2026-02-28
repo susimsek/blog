@@ -2,11 +2,19 @@ import {
   IncrementPostHitDocument,
   IncrementPostLikeDocument,
   PostDocument,
+  PostMetricStatus,
   PostsDocument,
   PostsQueryInput,
   SortOrder,
 } from '@/graphql/generated/graphql';
 import { mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
+import {
+  fromContentQueryStatus,
+  fromGraphQLLocale,
+  fromGraphQLSortOrder,
+  fromPostMetricStatus,
+  toGraphQLLocale,
+} from '@/lib/graphql/enumMappers';
 
 type ContentApiOptions = {
   signal?: AbortSignal;
@@ -142,14 +150,15 @@ export const fetchPosts = async (
   options: ContentApiOptions = {},
 ): Promise<PostsResponse | null> => {
   const normalizedLocale = locale.trim();
-  if (normalizedLocale.length === 0) {
+  const graphQLLocale = toGraphQLLocale(normalizedLocale);
+  if (!graphQLLocale) {
     return null;
   }
 
   const result = await queryGraphQL(
     PostsDocument,
     {
-      locale: normalizedLocale,
+      locale: graphQLLocale,
       input: buildPostsQueryInput(params),
     },
     options,
@@ -161,14 +170,14 @@ export const fetchPosts = async (
   }
 
   return {
-    status: payload.status,
-    ...(typeof payload.locale === 'string' ? { locale: payload.locale } : {}),
+    ...(fromContentQueryStatus(payload.status) ? { status: fromContentQueryStatus(payload.status) } : {}),
+    ...(fromGraphQLLocale(payload.locale) ? { locale: fromGraphQLLocale(payload.locale) } : {}),
     posts: normalizeGraphQLPosts(payload.nodes),
     ...mapEngagementToRecords(payload.engagement ?? []),
     total: payload.total,
     page: payload.page,
     size: payload.size,
-    ...(typeof payload.sort === 'string' ? { sort: payload.sort } : {}),
+    ...(fromGraphQLSortOrder(payload.sort) ? { sort: fromGraphQLSortOrder(payload.sort) } : {}),
   };
 };
 
@@ -179,14 +188,15 @@ export const fetchPost = async (
 ): Promise<PostResponse | null> => {
   const normalizedLocale = locale.trim();
   const normalizedID = id.trim();
-  if (normalizedLocale.length === 0 || normalizedID.length === 0) {
+  const graphQLLocale = toGraphQLLocale(normalizedLocale);
+  if (!graphQLLocale || normalizedID.length === 0) {
     return null;
   }
 
   const result = await queryGraphQL(
     PostDocument,
     {
-      locale: normalizedLocale,
+      locale: graphQLLocale,
       id: normalizedID,
     },
     options,
@@ -202,8 +212,8 @@ export const fetchPost = async (
   const hits = payload.engagement?.hits;
 
   return {
-    status: payload.status,
-    ...(typeof payload.locale === 'string' ? { locale: payload.locale } : {}),
+    ...(fromContentQueryStatus(payload.status) ? { status: fromContentQueryStatus(payload.status) } : {}),
+    ...(fromGraphQLLocale(payload.locale) ? { locale: fromGraphQLLocale(payload.locale) } : {}),
     post: normalizedPost,
     ...(typeof likes === 'number' && Number.isFinite(likes) ? { likes: Math.max(0, Math.trunc(likes)) } : {}),
     ...(typeof hits === 'number' && Number.isFinite(hits) ? { hits: Math.max(0, Math.trunc(hits)) } : {}),
@@ -246,7 +256,11 @@ export const incrementPostLike = async (postId: string, options: ContentApiOptio
   const payload = await mutateGraphQL(IncrementPostLikeDocument, { postId }, options);
   const result = payload?.incrementPostLike as ContentLikeResponse | undefined;
 
-  if (result?.status !== 'success' || typeof result.likes !== 'number' || Number.isNaN(result.likes)) {
+  if (
+    fromPostMetricStatus((result as { status?: PostMetricStatus } | undefined)?.status) !== 'success' ||
+    typeof result?.likes !== 'number' ||
+    Number.isNaN(result.likes)
+  ) {
     return null;
   }
 
@@ -257,7 +271,11 @@ export const incrementPostHit = async (postId: string, options: ContentApiOption
   const payload = await mutateGraphQL(IncrementPostHitDocument, { postId }, options);
   const result = payload?.incrementPostHit as ContentLikeResponse | undefined;
 
-  if (result?.status !== 'success' || typeof result.hits !== 'number' || Number.isNaN(result.hits)) {
+  if (
+    fromPostMetricStatus((result as { status?: PostMetricStatus } | undefined)?.status) !== 'success' ||
+    typeof result?.hits !== 'number' ||
+    Number.isNaN(result.hits)
+  ) {
     return null;
   }
 

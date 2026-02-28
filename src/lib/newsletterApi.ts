@@ -1,16 +1,26 @@
 import {
   ConfirmNewsletterSubscriptionDocument,
+  NewsletterMutationStatus,
   ResendNewsletterConfirmationDocument,
   SubscribeNewsletterDocument,
   UnsubscribeNewsletterDocument,
-  type NewsletterResendInput,
-  type NewsletterSubscribeInput,
+  type NewsletterResendInput as GraphQLNewsletterResendInput,
+  type NewsletterSubscribeInput as GraphQLNewsletterSubscribeInput,
 } from '@/graphql/generated/graphql';
 import { mutateGraphQL } from '@/lib/graphql/apolloClient';
+import { fromNewsletterMutationStatus, toGraphQLLocale } from '@/lib/graphql/enumMappers';
 
 type NewsletterApiOptions = {
   signal?: AbortSignal;
   timeoutMs?: number;
+};
+
+type NewsletterSubscribeInput = Omit<GraphQLNewsletterSubscribeInput, 'locale'> & {
+  locale: string;
+};
+
+type NewsletterResendInput = Omit<GraphQLNewsletterResendInput, 'locale'> & {
+  locale: string;
 };
 
 export type NewsletterMutationResponse = {
@@ -26,7 +36,9 @@ const normalizeNewsletterResult = (
   }
 
   return {
-    ...(typeof payload.status === 'string' ? { status: payload.status } : {}),
+    ...(fromNewsletterMutationStatus((payload as { status?: NewsletterMutationStatus }).status)
+      ? { status: fromNewsletterMutationStatus((payload as { status?: NewsletterMutationStatus }).status) }
+      : {}),
     ...(typeof payload.forwardTo === 'string' ? { forwardTo: payload.forwardTo } : {}),
   };
 };
@@ -35,10 +47,18 @@ export const subscribeNewsletter = async (
   input: NewsletterSubscribeInput,
   options: NewsletterApiOptions = {},
 ): Promise<NewsletterMutationResponse | null> => {
+  const locale = toGraphQLLocale(input.locale);
+  if (!locale) {
+    return null;
+  }
+
   const payload = await mutateGraphQL(
     SubscribeNewsletterDocument,
     {
-      input,
+      input: {
+        ...input,
+        locale,
+      },
     },
     options,
   );
@@ -49,10 +69,18 @@ export const resendNewsletterConfirmation = async (
   input: NewsletterResendInput,
   options: NewsletterApiOptions = {},
 ): Promise<NewsletterMutationResponse | null> => {
+  const locale = toGraphQLLocale(input.locale);
+  if (!locale) {
+    return null;
+  }
+
   const payload = await mutateGraphQL(
     ResendNewsletterConfirmationDocument,
     {
-      input,
+      input: {
+        ...input,
+        locale,
+      },
     },
     options,
   );

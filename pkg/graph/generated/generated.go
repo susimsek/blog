@@ -115,8 +115,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Post  func(childComplexity int, locale string, id string) int
-		Posts func(childComplexity int, locale string, input *model.PostsQueryInput) int
+		Post  func(childComplexity int, locale model.Locale, id string) int
+		Posts func(childComplexity int, locale model.Locale, input *model.PostsQueryInput) int
 	}
 
 	Topic struct {
@@ -136,8 +136,8 @@ type MutationResolver interface {
 	UnsubscribeNewsletter(ctx context.Context, token string) (*model.NewsletterMutationResult, error)
 }
 type QueryResolver interface {
-	Posts(ctx context.Context, locale string, input *model.PostsQueryInput) (*model.PostConnection, error)
-	Post(ctx context.Context, locale string, id string) (*model.PostResult, error)
+	Posts(ctx context.Context, locale model.Locale, input *model.PostsQueryInput) (*model.PostConnection, error)
+	Post(ctx context.Context, locale model.Locale, id string) (*model.PostResult, error)
 }
 
 type executableSchema struct {
@@ -471,7 +471,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Post(childComplexity, args["locale"].(string), args["id"].(string)), true
+		return e.complexity.Query.Post(childComplexity, args["locale"].(model.Locale), args["id"].(string)), true
 	case "Query.posts":
 		if e.complexity.Query.Posts == nil {
 			break
@@ -482,7 +482,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Posts(childComplexity, args["locale"].(string), args["input"].(*model.PostsQueryInput)), true
+		return e.complexity.Query.Posts(childComplexity, args["locale"].(model.Locale), args["input"].(*model.PostsQueryInput)), true
 
 	case "Topic.color":
 		if e.complexity.Topic.Color == nil {
@@ -617,114 +617,526 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema.graphqls", Input: `schema {
+	{Name: "../schema.graphqls", Input: `"""
+Top-level operations exposed by the blog GraphQL API.
+"""
+schema {
   query: Query
   mutation: Mutation
 }
 
+"""
+Read-only operations for blog content discovery.
+"""
 type Query {
-  posts(locale: String!, input: PostsQueryInput): PostConnection!
-  post(locale: String!, id: ID!): PostResult!
+  """
+  Returns a paginated list of posts for the given locale with engagement data.
+  """
+  posts(locale: Locale!, input: PostsQueryInput): PostConnection!
+
+  """
+  Returns one post and its engagement details for the given locale and post identifier.
+  """
+  post(locale: Locale!, id: ID!): PostResult!
 }
 
+"""
+Write operations for engagement counters and newsletter flows.
+"""
 type Mutation {
+  """
+  Increments the like counter for a post and returns the updated metric payload.
+  """
   incrementPostLike(postId: ID!): PostMetricResult!
+
+  """
+  Increments the hit counter for a post and returns the updated metric payload.
+  """
   incrementPostHit(postId: ID!): PostMetricResult!
+
+  """
+  Starts the newsletter subscription flow for an email address.
+  """
   subscribeNewsletter(input: NewsletterSubscribeInput!): NewsletterMutationResult!
+
+  """
+  Resends a pending newsletter confirmation email.
+  """
   resendNewsletterConfirmation(input: NewsletterResendInput!): NewsletterMutationResult!
+
+  """
+  Confirms a newsletter subscription by using a previously issued confirmation token.
+  """
   confirmNewsletterSubscription(token: String!): NewsletterMutationResult!
+
+  """
+  Cancels a newsletter subscription by using a signed unsubscribe token.
+  """
   unsubscribeNewsletter(token: String!): NewsletterMutationResult!
 }
 
+"""
+Pagination and filtering controls for the posts query.
+"""
 input PostsQueryInput {
+  """
+  One-based page index. Values below 1 fall back to the default page.
+  """
   page: Int
+
+  """
+  Number of posts to return for the current page.
+  """
   size: Int
+
+  """
+  Published date sort direction for the result set.
+  """
   sort: SortOrder
+
+  """
+  Optional list of post, topic, or category scope identifiers used to constrain the result set.
+  """
   scopeIds: [ID!]
 }
 
+"""
+Input payload used when a visitor subscribes to the newsletter.
+"""
 input NewsletterSubscribeInput {
-  locale: String!
+  """
+  Locale used for content and outgoing email copy.
+  """
+  locale: Locale!
+
+  """
+  Subscriber email address.
+  """
   email: String!
+
+  """
+  Consent checkbox value captured from the client form.
+  """
   terms: Boolean!
+
+  """
+  Optional tags attached to the subscription source.
+  """
   tags: [String!]
+
+  """
+  Optional frontend form name for analytics and diagnostics.
+  """
   formName: String
 }
 
+"""
+Input payload used when resending a newsletter confirmation email.
+"""
 input NewsletterResendInput {
-  locale: String!
+  """
+  Locale used for the resend response and email copy.
+  """
+  locale: Locale!
+
+  """
+  Subscriber email address.
+  """
   email: String!
+
+  """
+  Consent checkbox value captured from the client form.
+  """
   terms: Boolean!
 }
 
+"""
+Supported application locales.
+"""
+enum Locale {
+  """
+  English locale.
+  """
+  EN
+
+  """
+  Turkish locale.
+  """
+  TR
+}
+
+"""
+Supported published date sort directions.
+"""
 enum SortOrder {
+  """
+  Ascending order.
+  """
   ASC
+
+  """
+  Descending order.
+  """
   DESC
 }
 
-type PostConnection {
-  status: String!
-  locale: String
-  nodes: [Post!]!
-  engagement: [PostEngagement!]!
-  total: Int!
-  page: Int!
-  size: Int!
-  sort: String
+"""
+Status values returned by content read operations.
+"""
+enum ContentQueryStatus {
+  """
+  The operation completed successfully.
+  """
+  SUCCESS
+
+  """
+  The operation failed unexpectedly.
+  """
+  FAILED
+
+  """
+  The backing service or repository is temporarily unavailable.
+  """
+  SERVICE_UNAVAILABLE
+
+  """
+  The supplied scope identifiers were invalid or exceeded validation limits.
+  """
+  INVALID_SCOPE_IDS
+
+  """
+  The supplied post identifier was invalid.
+  """
+  INVALID_POST_ID
+
+  """
+  The requested resource could not be found.
+  """
+  NOT_FOUND
 }
 
+"""
+Status values returned by post metric mutations.
+"""
+enum PostMetricStatus {
+  """
+  The operation completed successfully.
+  """
+  SUCCESS
+
+  """
+  The operation failed unexpectedly.
+  """
+  FAILED
+
+  """
+  The backing service or repository is temporarily unavailable.
+  """
+  SERVICE_UNAVAILABLE
+
+  """
+  The supplied post identifier was invalid.
+  """
+  INVALID_POST_ID
+}
+
+"""
+Status values returned by newsletter mutations.
+"""
+enum NewsletterMutationStatus {
+  """
+  The operation completed successfully.
+  """
+  SUCCESS
+
+  """
+  The request could not be completed because of an unexpected internal condition.
+  """
+  UNKNOWN_ERROR
+
+  """
+  The supplied email address was invalid.
+  """
+  INVALID_EMAIL
+
+  """
+  The caller exceeded the allowed request rate.
+  """
+  RATE_LIMITED
+
+  """
+  The supplied confirmation or unsubscribe link was invalid.
+  """
+  INVALID_LINK
+
+  """
+  The server configuration is incomplete or invalid for this workflow.
+  """
+  CONFIG_ERROR
+
+  """
+  The operation failed unexpectedly.
+  """
+  FAILED
+
+  """
+  The backing service or repository is temporarily unavailable.
+  """
+  SERVICE_UNAVAILABLE
+
+  """
+  The supplied link or token has expired.
+  """
+  EXPIRED
+}
+
+"""
+Paginated result for the posts query.
+"""
+type PostConnection {
+  """
+  Operation status such as success or a domain-specific failure code.
+  """
+  status: ContentQueryStatus!
+
+  """
+  Locale used to resolve the response.
+  """
+  locale: Locale!
+
+  """
+  Posts for the current page.
+  """
+  nodes: [Post!]!
+
+  """
+  Engagement metrics keyed by post identifier for the returned posts.
+  """
+  engagement: [PostEngagement!]!
+
+  """
+  Total number of posts that matched the filter before pagination.
+  """
+  total: Int!
+
+  """
+  Resolved page number after clamping.
+  """
+  page: Int!
+
+  """
+  Resolved page size after clamping.
+  """
+  size: Int!
+
+  """
+  Effective sort direction applied by the service.
+  """
+  sort: SortOrder
+}
+
+"""
+Single-post query result.
+"""
 type PostResult {
-  status: String!
-  locale: String
+  """
+  Operation status such as success, not-found, or failed.
+  """
+  status: ContentQueryStatus!
+
+  """
+  Locale used to resolve the response.
+  """
+  locale: Locale!
+
+  """
+  Resolved post when found.
+  """
   node: Post
+
+  """
+  Engagement counters for the resolved post when available.
+  """
   engagement: PostEngagement
 }
 
+"""
+Engagement counters for a post.
+"""
 type PostEngagement {
+  """
+  Post identifier.
+  """
   postId: ID!
+
+  """
+  Total number of likes.
+  """
   likes: Int!
+
+  """
+  Total number of hits.
+  """
   hits: Int!
 }
 
+"""
+Mutation result for a post metric update.
+"""
 type PostMetricResult {
-  status: String!
+  """
+  Operation status such as success or failed.
+  """
+  status: PostMetricStatus!
+
+  """
+  Post identifier used by the metric update.
+  """
   postId: ID!
+
+  """
+  Updated like count when the mutation affects likes.
+  """
   likes: Int
+
+  """
+  Updated hit count when the mutation affects hits.
+  """
   hits: Int
 }
 
+"""
+Mutation result for newsletter subscription workflows.
+"""
 type NewsletterMutationResult {
-  status: String!
+  """
+  Operation status such as success, invalid-email, rate-limited, invalid-link, or config-error.
+  """
+  status: NewsletterMutationStatus!
+
+  """
+  Optional client route that the frontend should navigate to after the operation.
+  """
   forwardTo: String
 }
 
+"""
+Blog post summary returned by content queries.
+"""
 type Post {
+  """
+  Stable post identifier used by routes and engagement records.
+  """
   id: ID!
+
+  """
+  Human-readable URL slug for the post.
+  """
   slug: String!
+
+  """
+  Display title.
+  """
   title: String!
+
+  """
+  Optional category badge for the post.
+  """
   category: PostCategory
+
+  """
+  Original publication timestamp as an ISO-like string.
+  """
   publishedDate: String!
+
+  """
+  Last update timestamp as an ISO-like string when available.
+  """
   updatedDate: String
+
+  """
+  Short summary used in cards, SEO, and previews.
+  """
   summary: String!
+
+  """
+  Full-text search index string generated for client-side search.
+  """
   searchText: String!
+
+  """
+  Thumbnail image path.
+  """
   thumbnail: String
+
+  """
+  Topic badges linked to the post.
+  """
   topics: [Topic!]
+
+  """
+  Estimated reading time in minutes.
+  """
   readingTime: Int!
+
+  """
+  Content source such as local or medium.
+  """
   source: String
+
+  """
+  Canonical source URL when the post originates from an external feed.
+  """
   url: String
 }
 
+"""
+Category badge metadata displayed with a post.
+"""
 type PostCategory {
+  """
+  Stable category identifier.
+  """
   id: ID!
+
+  """
+  Display name.
+  """
   name: String!
+
+  """
+  Badge color token.
+  """
   color: String!
+
+  """
+  Optional icon identifier.
+  """
   icon: String
 }
 
+"""
+Topic badge metadata displayed with a post.
+"""
 type Topic {
+  """
+  Stable topic identifier.
+  """
   id: ID!
+
+  """
+  Display name.
+  """
   name: String!
+
+  """
+  Badge color token.
+  """
   color: String!
+
+  """
+  Optional topic route or external link.
+  """
   link: String
 }
 `, BuiltIn: false},
@@ -815,7 +1227,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_post_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalNString2string)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐLocale)
 	if err != nil {
 		return nil, err
 	}
@@ -831,7 +1243,7 @@ func (ec *executionContext) field_Query_post_args(ctx context.Context, rawArgs m
 func (ec *executionContext) field_Query_posts_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalNString2string)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐLocale)
 	if err != nil {
 		return nil, err
 	}
@@ -1196,7 +1608,7 @@ func (ec *executionContext) _NewsletterMutationResult_status(ctx context.Context
 			return obj.Status, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNNewsletterMutationStatus2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐNewsletterMutationStatus,
 		true,
 		true,
 	)
@@ -1209,7 +1621,7 @@ func (ec *executionContext) fieldContext_NewsletterMutationResult_status(_ conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type NewsletterMutationStatus does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1767,7 +2179,7 @@ func (ec *executionContext) _PostConnection_status(ctx context.Context, field gr
 			return obj.Status, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNContentQueryStatus2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐContentQueryStatus,
 		true,
 		true,
 	)
@@ -1780,7 +2192,7 @@ func (ec *executionContext) fieldContext_PostConnection_status(_ context.Context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type ContentQueryStatus does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1796,9 +2208,9 @@ func (ec *executionContext) _PostConnection_locale(ctx context.Context, field gr
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐLocale,
 		true,
-		false,
+		true,
 	)
 }
 
@@ -1809,7 +2221,7 @@ func (ec *executionContext) fieldContext_PostConnection_locale(_ context.Context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Locale does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2006,7 +2418,7 @@ func (ec *executionContext) _PostConnection_sort(ctx context.Context, field grap
 			return obj.Sort, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOSortOrder2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐSortOrder,
 		true,
 		false,
 	)
@@ -2019,7 +2431,7 @@ func (ec *executionContext) fieldContext_PostConnection_sort(_ context.Context, 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type SortOrder does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2122,7 +2534,7 @@ func (ec *executionContext) _PostMetricResult_status(ctx context.Context, field 
 			return obj.Status, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNPostMetricStatus2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostMetricStatus,
 		true,
 		true,
 	)
@@ -2135,7 +2547,7 @@ func (ec *executionContext) fieldContext_PostMetricResult_status(_ context.Conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type PostMetricStatus does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2238,7 +2650,7 @@ func (ec *executionContext) _PostResult_status(ctx context.Context, field graphq
 			return obj.Status, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNContentQueryStatus2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐContentQueryStatus,
 		true,
 		true,
 	)
@@ -2251,7 +2663,7 @@ func (ec *executionContext) fieldContext_PostResult_status(_ context.Context, fi
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type ContentQueryStatus does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2267,9 +2679,9 @@ func (ec *executionContext) _PostResult_locale(ctx context.Context, field graphq
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐLocale,
 		true,
-		false,
+		true,
 	)
 }
 
@@ -2280,7 +2692,7 @@ func (ec *executionContext) fieldContext_PostResult_locale(_ context.Context, fi
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Locale does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2388,7 +2800,7 @@ func (ec *executionContext) _Query_posts(ctx context.Context, field graphql.Coll
 		ec.fieldContext_Query_posts,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Posts(ctx, fc.Args["locale"].(string), fc.Args["input"].(*model.PostsQueryInput))
+			return ec.resolvers.Query().Posts(ctx, fc.Args["locale"].(model.Locale), fc.Args["input"].(*model.PostsQueryInput))
 		},
 		nil,
 		ec.marshalNPostConnection2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostConnection,
@@ -2447,7 +2859,7 @@ func (ec *executionContext) _Query_post(ctx context.Context, field graphql.Colle
 		ec.fieldContext_Query_post,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Post(ctx, fc.Args["locale"].(string), fc.Args["id"].(string))
+			return ec.resolvers.Query().Post(ctx, fc.Args["locale"].(model.Locale), fc.Args["id"].(string))
 		},
 		nil,
 		ec.marshalNPostResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostResult,
@@ -4176,7 +4588,7 @@ func (ec *executionContext) unmarshalInputNewsletterResendInput(ctx context.Cont
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4217,7 +4629,7 @@ func (ec *executionContext) unmarshalInputNewsletterSubscribeInput(ctx context.C
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4587,6 +4999,9 @@ func (ec *executionContext) _PostConnection(ctx context.Context, sel ast.Selecti
 			}
 		case "locale":
 			out.Values[i] = ec._PostConnection_locale(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "nodes":
 			out.Values[i] = ec._PostConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4752,6 +5167,9 @@ func (ec *executionContext) _PostResult(ctx context.Context, sel ast.SelectionSe
 			}
 		case "locale":
 			out.Values[i] = ec._PostResult_locale(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "node":
 			out.Values[i] = ec._PostResult_node(ctx, field, obj)
 		case "engagement":
@@ -5275,6 +5693,16 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNContentQueryStatus2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐContentQueryStatus(ctx context.Context, v any) (model.ContentQueryStatus, error) {
+	var res model.ContentQueryStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNContentQueryStatus2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐContentQueryStatus(ctx context.Context, sel ast.SelectionSet, v model.ContentQueryStatus) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5307,6 +5735,16 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
+func (ec *executionContext) unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐLocale(ctx context.Context, v any) (model.Locale, error) {
+	var res model.Locale
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐLocale(ctx context.Context, sel ast.SelectionSet, v model.Locale) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNNewsletterMutationResult2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐNewsletterMutationResult(ctx context.Context, sel ast.SelectionSet, v model.NewsletterMutationResult) graphql.Marshaler {
 	return ec._NewsletterMutationResult(ctx, sel, &v)
 }
@@ -5319,6 +5757,16 @@ func (ec *executionContext) marshalNNewsletterMutationResult2ᚖsuaybsimsekᚗco
 		return graphql.Null
 	}
 	return ec._NewsletterMutationResult(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNNewsletterMutationStatus2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐNewsletterMutationStatus(ctx context.Context, v any) (model.NewsletterMutationStatus, error) {
+	var res model.NewsletterMutationStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNNewsletterMutationStatus2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐNewsletterMutationStatus(ctx context.Context, sel ast.SelectionSet, v model.NewsletterMutationStatus) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNNewsletterResendInput2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐNewsletterResendInput(ctx context.Context, v any) (model.NewsletterResendInput, error) {
@@ -5465,6 +5913,16 @@ func (ec *executionContext) marshalNPostMetricResult2ᚖsuaybsimsekᚗcomᚋblog
 		return graphql.Null
 	}
 	return ec._PostMetricResult(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNPostMetricStatus2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostMetricStatus(ctx context.Context, v any) (model.PostMetricStatus, error) {
+	var res model.PostMetricStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPostMetricStatus2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostMetricStatus(ctx context.Context, sel ast.SelectionSet, v model.PostMetricStatus) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNPostResult2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphᚋmodelᚐPostResult(ctx context.Context, sel ast.SelectionSet, v model.PostResult) graphql.Marshaler {

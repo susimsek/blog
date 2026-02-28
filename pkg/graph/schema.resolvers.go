@@ -16,8 +16,8 @@ import (
 )
 
 // Posts is the resolver for the posts field.
-func (r *queryResolver) Posts(ctx context.Context, locale string, input *model.PostsQueryInput) (*model.PostConnection, error) {
-	normalizedLocale := strings.TrimSpace(locale)
+func (r *queryResolver) Posts(ctx context.Context, locale model.Locale, input *model.PostsQueryInput) (*model.PostConnection, error) {
+	normalizedLocale := strings.TrimSpace(mapLocaleInput(locale))
 	if normalizedLocale == "" {
 		return nil, fmt.Errorf("locale is required")
 	}
@@ -39,11 +39,6 @@ func (r *queryResolver) Posts(ctx context.Context, locale string, input *model.P
 	}
 
 	payload := postsapi.QueryContent(ctx, queryInput)
-	status := strings.TrimSpace(payload.Status)
-	if status == "" {
-		status = "success"
-	}
-
 	total := payload.Total
 	if total < 0 {
 		total = 0
@@ -63,20 +58,20 @@ func (r *queryResolver) Posts(ctx context.Context, locale string, input *model.P
 	}
 
 	return &model.PostConnection{
-		Status:     status,
-		Locale:     toOptionalString(payload.Locale),
+		Status:     mapContentQueryStatus(payload.Status),
+		Locale:     mapLocaleOutput(payload.Locale),
 		Nodes:      mapPosts(payload.Posts),
 		Engagement: mapEngagement(payload.LikesByPostID, payload.HitsByPostID),
 		Total:      total,
 		Page:       page,
 		Size:       size,
-		Sort:       toOptionalString(payload.Sort),
+		Sort:       mapResolvedSortOrder(payload.Sort),
 	}, nil
 }
 
 // Post is the resolver for the post field.
-func (r *queryResolver) Post(ctx context.Context, locale string, id string) (*model.PostResult, error) {
-	normalizedLocale := strings.TrimSpace(locale)
+func (r *queryResolver) Post(ctx context.Context, locale model.Locale, id string) (*model.PostResult, error) {
+	normalizedLocale := strings.TrimSpace(mapLocaleInput(locale))
 	if normalizedLocale == "" {
 		return nil, fmt.Errorf("locale is required")
 	}
@@ -90,11 +85,6 @@ func (r *queryResolver) Post(ctx context.Context, locale string, id string) (*mo
 		Locale: normalizedLocale,
 		PostID: normalizedID,
 	})
-	status := strings.TrimSpace(payload.Status)
-	if status == "" {
-		status = "failed"
-	}
-
 	var node *model.Post
 	mappedNodes := mapPosts(payload.Posts)
 	if len(mappedNodes) > 0 {
@@ -108,8 +98,8 @@ func (r *queryResolver) Post(ctx context.Context, locale string, id string) (*mo
 	}
 
 	return &model.PostResult{
-		Status:     status,
-		Locale:     toOptionalString(payload.Locale),
+		Status:     mapContentQueryStatus(payload.Status),
+		Locale:     mapLocaleOutput(payload.Locale),
 		Node:       node,
 		Engagement: engagement,
 	}, nil
@@ -124,17 +114,14 @@ func (r *mutationResolver) IncrementPostLike(ctx context.Context, postID string)
 	}
 
 	result := &model.PostMetricResult{
-		Status: strings.TrimSpace(payload.Status),
+		Status: mapPostMetricStatus(payload.Status),
 		PostID: resolvedPostID,
 	}
-	if result.Status == "" {
-		result.Status = "failed"
-	}
-	if payload.Likes > 0 || result.Status == "success" {
+	if payload.Likes > 0 || result.Status == model.PostMetricStatusSuccess {
 		likes := toGraphQLInt(payload.Likes)
 		result.Likes = &likes
 	}
-	if payload.Hits > 0 || result.Status == "success" {
+	if payload.Hits > 0 || result.Status == model.PostMetricStatusSuccess {
 		hits := toGraphQLInt(payload.Hits)
 		result.Hits = &hits
 	}
@@ -151,17 +138,14 @@ func (r *mutationResolver) IncrementPostHit(ctx context.Context, postID string) 
 	}
 
 	result := &model.PostMetricResult{
-		Status: strings.TrimSpace(payload.Status),
+		Status: mapPostMetricStatus(payload.Status),
 		PostID: resolvedPostID,
 	}
-	if result.Status == "" {
-		result.Status = "failed"
-	}
-	if payload.Likes > 0 || result.Status == "success" {
+	if payload.Likes > 0 || result.Status == model.PostMetricStatusSuccess {
 		likes := toGraphQLInt(payload.Likes)
 		result.Likes = &likes
 	}
-	if payload.Hits > 0 || result.Status == "success" {
+	if payload.Hits > 0 || result.Status == model.PostMetricStatusSuccess {
 		hits := toGraphQLInt(payload.Hits)
 		result.Hits = &hits
 	}
@@ -177,7 +161,7 @@ func (r *mutationResolver) SubscribeNewsletter(
 	payload := newslettersvc.Subscribe(
 		ctx,
 		newslettersvc.SubscribeInput{
-			Locale:   strings.TrimSpace(input.Locale),
+			Locale:   strings.TrimSpace(mapLocaleInput(input.Locale)),
 			Email:    strings.TrimSpace(input.Email),
 			Terms:    input.Terms,
 			Tags:     append([]string{}, input.Tags...),
@@ -187,7 +171,7 @@ func (r *mutationResolver) SubscribeNewsletter(
 	)
 
 	return &model.NewsletterMutationResult{
-		Status:    strings.TrimSpace(payload.Status),
+		Status:    mapNewsletterMutationStatus(payload.Status),
 		ForwardTo: toOptionalString(payload.ForwardTo),
 	}, nil
 }
@@ -200,7 +184,7 @@ func (r *mutationResolver) ResendNewsletterConfirmation(
 	payload := newslettersvc.Resend(
 		ctx,
 		newslettersvc.ResendInput{
-			Locale: strings.TrimSpace(input.Locale),
+			Locale: strings.TrimSpace(mapLocaleInput(input.Locale)),
 			Email:  strings.TrimSpace(input.Email),
 			Terms:  input.Terms,
 		},
@@ -208,7 +192,7 @@ func (r *mutationResolver) ResendNewsletterConfirmation(
 	)
 
 	return &model.NewsletterMutationResult{
-		Status: strings.TrimSpace(payload.Status),
+		Status: mapNewsletterMutationStatus(payload.Status),
 	}, nil
 }
 
@@ -219,7 +203,7 @@ func (r *mutationResolver) ConfirmNewsletterSubscription(
 ) (*model.NewsletterMutationResult, error) {
 	payload := newslettersvc.Confirm(ctx, strings.TrimSpace(token))
 	return &model.NewsletterMutationResult{
-		Status: strings.TrimSpace(payload.Status),
+		Status: mapNewsletterMutationStatus(payload.Status),
 	}, nil
 }
 
@@ -230,7 +214,7 @@ func (r *mutationResolver) UnsubscribeNewsletter(
 ) (*model.NewsletterMutationResult, error) {
 	payload := newslettersvc.Unsubscribe(ctx, strings.TrimSpace(token))
 	return &model.NewsletterMutationResult{
-		Status: strings.TrimSpace(payload.Status),
+		Status: mapNewsletterMutationStatus(payload.Status),
 	}, nil
 }
 

@@ -3,6 +3,8 @@ package handler
 import (
 	"context"
 	"net/http"
+	"strings"
+	"sync"
 
 	"github.com/99designs/gqlgen/graphql"
 	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
@@ -18,7 +20,10 @@ import (
 	"suaybsimsek.com/blog-api/pkg/newsletter"
 )
 
-var graphQLServer = newGraphQLServer()
+var (
+	graphQLServer     *graphqlhandler.Server
+	graphQLServerOnce sync.Once
+)
 
 func newGraphQLServer() *graphqlhandler.Server {
 	server := graphqlhandler.New(
@@ -30,7 +35,9 @@ func newGraphQLServer() *graphqlhandler.Server {
 	server.AddTransport(transport.GET{})
 	server.AddTransport(transport.POST{})
 	server.SetQueryCache(lru.New[*ast.QueryDocument](1000))
-	server.Use(extension.Introspection{})
+	if IsGraphQLIntrospectionEnabled() {
+		server.Use(extension.Introspection{})
+	}
 	server.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New[string](100),
 	})
@@ -53,7 +60,20 @@ func newGraphQLServer() *graphqlhandler.Server {
 	return server
 }
 
+func getGraphQLServer() *graphqlhandler.Server {
+	graphQLServerOnce.Do(func() {
+		graphQLServer = newGraphQLServer()
+	})
+
+	return graphQLServer
+}
+
 func Handler(w http.ResponseWriter, r *http.Request) {
+	if shouldServeGraphiQL(r) {
+		GraphiQLHandler(w, r)
+		return
+	}
+
 	allowedOrigin, corsErr := newsletter.ResolveAllowedOriginRequired()
 	if corsErr != nil {
 		httpapi.WriteError(w, apperrors.Config("configuration error", corsErr))
@@ -78,5 +98,14 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	requestWithMetadata := r.WithContext(graph.WithRequestMetadata(r.Context(), r))
-	graphQLServer.ServeHTTP(w, requestWithMetadata)
+	getGraphQLServer().ServeHTTP(w, requestWithMetadata)
+}
+
+func shouldServeGraphiQL(r *http.Request) bool {
+	if r == nil {
+		return false
+	}
+
+	path := strings.TrimSpace(r.URL.Path)
+	return path == "/graphiql"
 }

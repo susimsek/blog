@@ -1,4 +1,4 @@
-query posts($locale: String!, $input: PostsQueryInput) {
+query posts($locale: Locale!, $input: PostsQueryInput) {
   posts(locale: $locale, input: $input) {
     status
     locale
@@ -39,7 +39,7 @@ query posts($locale: String!, $input: PostsQueryInput) {
   }
 }
 
-query post($locale: String!, $id: ID!) {
+query post($locale: Locale!, $id: ID!) {
   post(locale: $locale, id: $id) {
     status
     locale

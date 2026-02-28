@@ -2,6 +2,7 @@ import { fetchPost, fetchPostLikes, fetchPosts, incrementPostHit, incrementPostL
 import {
   IncrementPostHitDocument,
   IncrementPostLikeDocument,
+  Locale,
   PostDocument,
   PostsDocument,
 } from '@/graphql/generated/graphql';
@@ -89,7 +90,7 @@ describe('contentApi', () => {
     expect(queryGraphQLMock).toHaveBeenCalledWith(
       PostsDocument,
       {
-        locale: 'en',
+        locale: Locale.En,
         input: {
           page: 2,
           size: 10,
@@ -143,7 +144,7 @@ describe('contentApi', () => {
     expect(queryGraphQLMock).toHaveBeenCalledWith(
       PostDocument,
       {
-        locale: 'tr',
+        locale: Locale.Tr,
         id: 'post-2',
       },
       {},
@@ -177,7 +178,7 @@ describe('contentApi', () => {
     expect(queryGraphQLMock).toHaveBeenCalledWith(
       PostsDocument,
       {
-        locale: 'en',
+        locale: Locale.En,
         input: {
           page: 1,
           size: 3,

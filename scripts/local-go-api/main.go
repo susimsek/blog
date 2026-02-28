@@ -53,6 +53,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/graphql", graphqlapi.Handler)
 	mux.HandleFunc("/api/graphql", graphqlapi.Handler)
+	mux.HandleFunc("/graphiql", graphqlapi.Handler)
 	mux.HandleFunc("/api/newsletter-dispatch", newsletterdispatch.Handler)
 	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")

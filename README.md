@@ -145,10 +145,19 @@ pnpm run sonar
 This repository now includes Go Vercel Functions:
 
 - GraphQL endpoint: `/graphql` (`POST`)
+  - Introspection can be toggled with environment variables for IDE access.
   - `subscribeNewsletter(input: NewsletterSubscribeInput!)`
   - `resendNewsletterConfirmation(input: NewsletterResendInput!)`
   - `confirmNewsletterSubscription(token: String!)`
   - `unsubscribeNewsletter(token: String!)`
+- GraphiQL endpoint: `/graphiql` (`GET`, optional)
+  - Enable with `GRAPHIQL_ENABLED=true`.
+  - Served directly by the backend GraphQL handler; there is no separate GraphiQL API function.
+  - The schema docs panel is powered by descriptions in `pkg/graph/schema.graphqls`.
+  - Introspection is enabled automatically when GraphiQL is enabled, unless you explicitly override it with `GRAPHQL_INTROSPECTION_ENABLED`.
+  - Implementation follows the official modern GraphiQL ESM embedding approach with `createGraphiQLFetcher`.
+  - The page enables the built-in history plugin, the explorer plugin, the headers editor, persisted headers, and a custom storage namespace to avoid `localStorage` collisions with other GraphiQL instances on the same origin.
+  - GraphiQL is intended for trusted environments. Keep it disabled in production unless you explicitly want a public IDE surface.
 - Newsletter dispatch endpoint: `/api/newsletter-dispatch` (`GET`, cron trigger)
   - Vercel cron schedule is UTC. To run at `07:00` Turkiye time (UTC+3), use `0 4 * * *`.
   - Locale is resolved from `Accept-Language` request header (`tr` / `en`) and confirmation flow stays localized.
@@ -181,6 +190,36 @@ Optional SMTP variables:
 - `NEWSLETTER_MAX_RECIPIENTS_PER_RUN`: Per-locale send cap for one cron run (default `200`)
 - `NEWSLETTER_MAX_ITEM_AGE_HOURS`: Freshness filter for RSS items; items older than this are skipped (default `168`)
 - `NEWSLETTER_UNSUBSCRIBE_TOKEN_TTL_HOURS`: Unsubscribe token TTL in hours (default `8760`)
+
+Optional GraphQL IDE variables:
+
+- `GRAPHIQL_ENABLED`: Enables the `/graphiql` endpoint when set to `true`, `1`, `yes`, or `on` (default `false`)
+- `GRAPHQL_INTROSPECTION_ENABLED`: Explicitly enables or disables GraphQL introspection. When unset, it follows `GRAPHIQL_ENABLED`.
+
+### Local GraphQL development
+
+If you want to run the Go API locally together with the Next.js app:
+
+```bash
+# Terminal 1
+pnpm run backend:start
+
+# Terminal 2
+pnpm dev
+```
+
+Useful local endpoints:
+
+- App: [http://localhost:3000](http://localhost:3000)
+- GraphQL API: [http://localhost:8080/graphql](http://localhost:8080/graphql)
+- GraphiQL: [http://localhost:8080/graphiql](http://localhost:8080/graphiql) when `GRAPHIQL_ENABLED=true`
+
+GraphiQL implementation notes:
+
+- The GraphiQL page is served by the Go backend at `/graphiql`; Next.js does not render this page.
+- The docs explorer content comes from GraphQL schema descriptions, so keep `pkg/graph/schema.graphqls` field and type descriptions up to date when the API evolves.
+- The embedded IDE targets modern browsers, matching the official GraphiQL browser bundle guidance.
+- Default headers are seeded via `initialHeaders`, not the removed `headers` prop.
 
 ### Docker Compose Deployment
 

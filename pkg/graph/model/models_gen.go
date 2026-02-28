@@ -9,103 +9,444 @@ import (
 	"strconv"
 )
 
+// Write operations for engagement counters and newsletter flows.
 type Mutation struct {
 }
 
+// Mutation result for newsletter subscription workflows.
 type NewsletterMutationResult struct {
-	Status    string  `json:"status"`
+	// Operation status such as success, invalid-email, rate-limited, invalid-link, or config-error.
+	Status NewsletterMutationStatus `json:"status"`
+	// Optional client route that the frontend should navigate to after the operation.
 	ForwardTo *string `json:"forwardTo,omitempty"`
 }
 
+// Input payload used when resending a newsletter confirmation email.
 type NewsletterResendInput struct {
-	Locale string `json:"locale"`
-	Email  string `json:"email"`
-	Terms  bool   `json:"terms"`
+	// Locale used for the resend response and email copy.
+	Locale Locale `json:"locale"`
+	// Subscriber email address.
+	Email string `json:"email"`
+	// Consent checkbox value captured from the client form.
+	Terms bool `json:"terms"`
 }
 
+// Input payload used when a visitor subscribes to the newsletter.
 type NewsletterSubscribeInput struct {
-	Locale   string   `json:"locale"`
-	Email    string   `json:"email"`
-	Terms    bool     `json:"terms"`
-	Tags     []string `json:"tags,omitempty"`
-	FormName *string  `json:"formName,omitempty"`
+	// Locale used for content and outgoing email copy.
+	Locale Locale `json:"locale"`
+	// Subscriber email address.
+	Email string `json:"email"`
+	// Consent checkbox value captured from the client form.
+	Terms bool `json:"terms"`
+	// Optional tags attached to the subscription source.
+	Tags []string `json:"tags,omitempty"`
+	// Optional frontend form name for analytics and diagnostics.
+	FormName *string `json:"formName,omitempty"`
 }
 
+// Blog post summary returned by content queries.
 type Post struct {
-	ID            string        `json:"id"`
-	Slug          string        `json:"slug"`
-	Title         string        `json:"title"`
-	Category      *PostCategory `json:"category,omitempty"`
-	PublishedDate string        `json:"publishedDate"`
-	UpdatedDate   *string       `json:"updatedDate,omitempty"`
-	Summary       string        `json:"summary"`
-	SearchText    string        `json:"searchText"`
-	Thumbnail     *string       `json:"thumbnail,omitempty"`
-	Topics        []*Topic      `json:"topics,omitempty"`
-	ReadingTime   int           `json:"readingTime"`
-	Source        *string       `json:"source,omitempty"`
-	URL           *string       `json:"url,omitempty"`
+	// Stable post identifier used by routes and engagement records.
+	ID string `json:"id"`
+	// Human-readable URL slug for the post.
+	Slug string `json:"slug"`
+	// Display title.
+	Title string `json:"title"`
+	// Optional category badge for the post.
+	Category *PostCategory `json:"category,omitempty"`
+	// Original publication timestamp as an ISO-like string.
+	PublishedDate string `json:"publishedDate"`
+	// Last update timestamp as an ISO-like string when available.
+	UpdatedDate *string `json:"updatedDate,omitempty"`
+	// Short summary used in cards, SEO, and previews.
+	Summary string `json:"summary"`
+	// Full-text search index string generated for client-side search.
+	SearchText string `json:"searchText"`
+	// Thumbnail image path.
+	Thumbnail *string `json:"thumbnail,omitempty"`
+	// Topic badges linked to the post.
+	Topics []*Topic `json:"topics,omitempty"`
+	// Estimated reading time in minutes.
+	ReadingTime int `json:"readingTime"`
+	// Content source such as local or medium.
+	Source *string `json:"source,omitempty"`
+	// Canonical source URL when the post originates from an external feed.
+	URL *string `json:"url,omitempty"`
 }
 
+// Category badge metadata displayed with a post.
 type PostCategory struct {
-	ID    string  `json:"id"`
-	Name  string  `json:"name"`
-	Color string  `json:"color"`
-	Icon  *string `json:"icon,omitempty"`
+	// Stable category identifier.
+	ID string `json:"id"`
+	// Display name.
+	Name string `json:"name"`
+	// Badge color token.
+	Color string `json:"color"`
+	// Optional icon identifier.
+	Icon *string `json:"icon,omitempty"`
 }
 
+// Paginated result for the posts query.
 type PostConnection struct {
-	Status     string            `json:"status"`
-	Locale     *string           `json:"locale,omitempty"`
-	Nodes      []*Post           `json:"nodes"`
+	// Operation status such as success or a domain-specific failure code.
+	Status ContentQueryStatus `json:"status"`
+	// Locale used to resolve the response.
+	Locale Locale `json:"locale"`
+	// Posts for the current page.
+	Nodes []*Post `json:"nodes"`
+	// Engagement metrics keyed by post identifier for the returned posts.
 	Engagement []*PostEngagement `json:"engagement"`
-	Total      int               `json:"total"`
-	Page       int               `json:"page"`
-	Size       int               `json:"size"`
-	Sort       *string           `json:"sort,omitempty"`
+	// Total number of posts that matched the filter before pagination.
+	Total int `json:"total"`
+	// Resolved page number after clamping.
+	Page int `json:"page"`
+	// Resolved page size after clamping.
+	Size int `json:"size"`
+	// Effective sort direction applied by the service.
+	Sort *SortOrder `json:"sort,omitempty"`
 }
 
+// Engagement counters for a post.
 type PostEngagement struct {
+	// Post identifier.
 	PostID string `json:"postId"`
-	Likes  int    `json:"likes"`
-	Hits   int    `json:"hits"`
+	// Total number of likes.
+	Likes int `json:"likes"`
+	// Total number of hits.
+	Hits int `json:"hits"`
 }
 
+// Mutation result for a post metric update.
 type PostMetricResult struct {
-	Status string `json:"status"`
+	// Operation status such as success or failed.
+	Status PostMetricStatus `json:"status"`
+	// Post identifier used by the metric update.
 	PostID string `json:"postId"`
-	Likes  *int   `json:"likes,omitempty"`
-	Hits   *int   `json:"hits,omitempty"`
+	// Updated like count when the mutation affects likes.
+	Likes *int `json:"likes,omitempty"`
+	// Updated hit count when the mutation affects hits.
+	Hits *int `json:"hits,omitempty"`
 }
 
+// Single-post query result.
 type PostResult struct {
-	Status     string          `json:"status"`
-	Locale     *string         `json:"locale,omitempty"`
-	Node       *Post           `json:"node,omitempty"`
+	// Operation status such as success, not-found, or failed.
+	Status ContentQueryStatus `json:"status"`
+	// Locale used to resolve the response.
+	Locale Locale `json:"locale"`
+	// Resolved post when found.
+	Node *Post `json:"node,omitempty"`
+	// Engagement counters for the resolved post when available.
 	Engagement *PostEngagement `json:"engagement,omitempty"`
 }
 
+// Pagination and filtering controls for the posts query.
 type PostsQueryInput struct {
-	Page     *int       `json:"page,omitempty"`
-	Size     *int       `json:"size,omitempty"`
-	Sort     *SortOrder `json:"sort,omitempty"`
-	ScopeIds []string   `json:"scopeIds,omitempty"`
+	// One-based page index. Values below 1 fall back to the default page.
+	Page *int `json:"page,omitempty"`
+	// Number of posts to return for the current page.
+	Size *int `json:"size,omitempty"`
+	// Published date sort direction for the result set.
+	Sort *SortOrder `json:"sort,omitempty"`
+	// Optional list of post, topic, or category scope identifiers used to constrain the result set.
+	ScopeIds []string `json:"scopeIds,omitempty"`
 }
 
+// Read-only operations for blog content discovery.
 type Query struct {
 }
 
+// Topic badge metadata displayed with a post.
 type Topic struct {
-	ID    string  `json:"id"`
-	Name  string  `json:"name"`
-	Color string  `json:"color"`
-	Link  *string `json:"link,omitempty"`
+	// Stable topic identifier.
+	ID string `json:"id"`
+	// Display name.
+	Name string `json:"name"`
+	// Badge color token.
+	Color string `json:"color"`
+	// Optional topic route or external link.
+	Link *string `json:"link,omitempty"`
 }
 
+// Status values returned by content read operations.
+type ContentQueryStatus string
+
+const (
+	// The operation completed successfully.
+	ContentQueryStatusSuccess ContentQueryStatus = "SUCCESS"
+	// The operation failed unexpectedly.
+	ContentQueryStatusFailed ContentQueryStatus = "FAILED"
+	// The backing service or repository is temporarily unavailable.
+	ContentQueryStatusServiceUnavailable ContentQueryStatus = "SERVICE_UNAVAILABLE"
+	// The supplied scope identifiers were invalid or exceeded validation limits.
+	ContentQueryStatusInvalidScopeIDS ContentQueryStatus = "INVALID_SCOPE_IDS"
+	// The supplied post identifier was invalid.
+	ContentQueryStatusInvalidPostID ContentQueryStatus = "INVALID_POST_ID"
+	// The requested resource could not be found.
+	ContentQueryStatusNotFound ContentQueryStatus = "NOT_FOUND"
+)
+
+var AllContentQueryStatus = []ContentQueryStatus{
+	ContentQueryStatusSuccess,
+	ContentQueryStatusFailed,
+	ContentQueryStatusServiceUnavailable,
+	ContentQueryStatusInvalidScopeIDS,
+	ContentQueryStatusInvalidPostID,
+	ContentQueryStatusNotFound,
+}
+
+func (e ContentQueryStatus) IsValid() bool {
+	switch e {
+	case ContentQueryStatusSuccess, ContentQueryStatusFailed, ContentQueryStatusServiceUnavailable, ContentQueryStatusInvalidScopeIDS, ContentQueryStatusInvalidPostID, ContentQueryStatusNotFound:
+		return true
+	}
+	return false
+}
+
+func (e ContentQueryStatus) String() string {
+	return string(e)
+}
+
+func (e *ContentQueryStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ContentQueryStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ContentQueryStatus", str)
+	}
+	return nil
+}
+
+func (e ContentQueryStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ContentQueryStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ContentQueryStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Supported application locales.
+type Locale string
+
+const (
+	// English locale.
+	LocaleEn Locale = "EN"
+	// Turkish locale.
+	LocaleTr Locale = "TR"
+)
+
+var AllLocale = []Locale{
+	LocaleEn,
+	LocaleTr,
+}
+
+func (e Locale) IsValid() bool {
+	switch e {
+	case LocaleEn, LocaleTr:
+		return true
+	}
+	return false
+}
+
+func (e Locale) String() string {
+	return string(e)
+}
+
+func (e *Locale) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Locale(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Locale", str)
+	}
+	return nil
+}
+
+func (e Locale) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *Locale) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e Locale) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Status values returned by newsletter mutations.
+type NewsletterMutationStatus string
+
+const (
+	// The operation completed successfully.
+	NewsletterMutationStatusSuccess NewsletterMutationStatus = "SUCCESS"
+	// The request could not be completed because of an unexpected internal condition.
+	NewsletterMutationStatusUnknownError NewsletterMutationStatus = "UNKNOWN_ERROR"
+	// The supplied email address was invalid.
+	NewsletterMutationStatusInvalidEmail NewsletterMutationStatus = "INVALID_EMAIL"
+	// The caller exceeded the allowed request rate.
+	NewsletterMutationStatusRateLimited NewsletterMutationStatus = "RATE_LIMITED"
+	// The supplied confirmation or unsubscribe link was invalid.
+	NewsletterMutationStatusInvalidLink NewsletterMutationStatus = "INVALID_LINK"
+	// The server configuration is incomplete or invalid for this workflow.
+	NewsletterMutationStatusConfigError NewsletterMutationStatus = "CONFIG_ERROR"
+	// The operation failed unexpectedly.
+	NewsletterMutationStatusFailed NewsletterMutationStatus = "FAILED"
+	// The backing service or repository is temporarily unavailable.
+	NewsletterMutationStatusServiceUnavailable NewsletterMutationStatus = "SERVICE_UNAVAILABLE"
+	// The supplied link or token has expired.
+	NewsletterMutationStatusExpired NewsletterMutationStatus = "EXPIRED"
+)
+
+var AllNewsletterMutationStatus = []NewsletterMutationStatus{
+	NewsletterMutationStatusSuccess,
+	NewsletterMutationStatusUnknownError,
+	NewsletterMutationStatusInvalidEmail,
+	NewsletterMutationStatusRateLimited,
+	NewsletterMutationStatusInvalidLink,
+	NewsletterMutationStatusConfigError,
+	NewsletterMutationStatusFailed,
+	NewsletterMutationStatusServiceUnavailable,
+	NewsletterMutationStatusExpired,
+}
+
+func (e NewsletterMutationStatus) IsValid() bool {
+	switch e {
+	case NewsletterMutationStatusSuccess, NewsletterMutationStatusUnknownError, NewsletterMutationStatusInvalidEmail, NewsletterMutationStatusRateLimited, NewsletterMutationStatusInvalidLink, NewsletterMutationStatusConfigError, NewsletterMutationStatusFailed, NewsletterMutationStatusServiceUnavailable, NewsletterMutationStatusExpired:
+		return true
+	}
+	return false
+}
+
+func (e NewsletterMutationStatus) String() string {
+	return string(e)
+}
+
+func (e *NewsletterMutationStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = NewsletterMutationStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid NewsletterMutationStatus", str)
+	}
+	return nil
+}
+
+func (e NewsletterMutationStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *NewsletterMutationStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e NewsletterMutationStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Status values returned by post metric mutations.
+type PostMetricStatus string
+
+const (
+	// The operation completed successfully.
+	PostMetricStatusSuccess PostMetricStatus = "SUCCESS"
+	// The operation failed unexpectedly.
+	PostMetricStatusFailed PostMetricStatus = "FAILED"
+	// The backing service or repository is temporarily unavailable.
+	PostMetricStatusServiceUnavailable PostMetricStatus = "SERVICE_UNAVAILABLE"
+	// The supplied post identifier was invalid.
+	PostMetricStatusInvalidPostID PostMetricStatus = "INVALID_POST_ID"
+)
+
+var AllPostMetricStatus = []PostMetricStatus{
+	PostMetricStatusSuccess,
+	PostMetricStatusFailed,
+	PostMetricStatusServiceUnavailable,
+	PostMetricStatusInvalidPostID,
+}
+
+func (e PostMetricStatus) IsValid() bool {
+	switch e {
+	case PostMetricStatusSuccess, PostMetricStatusFailed, PostMetricStatusServiceUnavailable, PostMetricStatusInvalidPostID:
+		return true
+	}
+	return false
+}
+
+func (e PostMetricStatus) String() string {
+	return string(e)
+}
+
+func (e *PostMetricStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PostMetricStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PostMetricStatus", str)
+	}
+	return nil
+}
+
+func (e PostMetricStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *PostMetricStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e PostMetricStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Supported published date sort directions.
 type SortOrder string
 
 const (
-	SortOrderAsc  SortOrder = "ASC"
+	// Ascending order.
+	SortOrderAsc SortOrder = "ASC"
+	// Descending order.
 	SortOrderDesc SortOrder = "DESC"
 )
 
