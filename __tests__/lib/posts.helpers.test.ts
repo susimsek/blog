@@ -7,6 +7,7 @@ describe('posts helpers', () => {
   it('normalizes category references safely', () => {
     expect(normalizePostCategoryRef(null)).toBeUndefined();
     expect(normalizePostCategoryRef({ id: ' Frontend ', name: ' Frontend ' })).toEqual({
+      color: 'blue',
       id: 'frontend',
       name: 'Frontend',
     });

@@ -365,7 +365,7 @@ describe('Posts Library', () => {
       const blogPost = result.find(post => post.id === 'fallback-blog');
 
       expect(mediumPost?.source).toBe('medium');
-      expect(mediumPost?.category).toEqual({ id: 'javascript', name: 'JavaScript' });
+      expect(mediumPost?.category).toEqual({ id: 'javascript', name: 'JavaScript', color: 'blue' });
       expect(blogPost?.source).toBe('blog');
       expect(blogPost?.category).toBeUndefined();
     });
