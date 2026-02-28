@@ -16,6 +16,7 @@ import (
 	"suaybsimsek.com/blog-api/pkg/apperrors"
 	"suaybsimsek.com/blog-api/pkg/graph"
 	"suaybsimsek.com/blog-api/pkg/graph/generated"
+	graphqlapi "suaybsimsek.com/blog-api/pkg/graphql"
 	"suaybsimsek.com/blog-api/pkg/httpapi"
 	"suaybsimsek.com/blog-api/pkg/newsletter"
 )
@@ -35,7 +36,7 @@ func newGraphQLServer() *graphqlhandler.Server {
 	server.AddTransport(transport.GET{})
 	server.AddTransport(transport.POST{})
 	server.SetQueryCache(lru.New[*ast.QueryDocument](1000))
-	if IsGraphQLIntrospectionEnabled() {
+	if graphqlapi.IsGraphQLIntrospectionEnabled() {
 		server.Use(extension.Introspection{})
 	}
 	server.Use(extension.AutomaticPersistedQuery{
@@ -70,7 +71,7 @@ func getGraphQLServer() *graphqlhandler.Server {
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	if shouldServeGraphiQL(r) {
-		GraphiQLHandler(w, r)
+		graphqlapi.GraphiQLHandler(w, r)
 		return
 	}
 

@@ -395,4 +395,17 @@ describe('Header', () => {
 
     expect(playCategoriesCloseSound).toHaveBeenCalled();
   });
+
+  it('plays game menu open and close sounds when the dropdown is toggled', () => {
+    renderWithProviders(<Header />);
+
+    const dropdownToggle = screen.getByRole('button', { name: /common.header.menu.games/i });
+    fireEvent.click(dropdownToggle);
+    expect(playCategoriesOpenSound).toHaveBeenCalled();
+
+    playCategoriesCloseSound.mockClear();
+    fireEvent.click(dropdownToggle);
+
+    expect(playCategoriesCloseSound).toHaveBeenCalled();
+  });
 });

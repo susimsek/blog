@@ -294,6 +294,13 @@ export default function Header({
               )}
               <NavDropdown
                 id="games-nav-dropdown"
+                onToggle={(nextShow: boolean) => {
+                  if (nextShow) {
+                    playCategoriesOpenSound();
+                    return;
+                  }
+                  playCategoriesCloseSound();
+                }}
                 title={
                   <span className="d-inline-flex align-items-center">
                     <FontAwesomeIcon icon="gamepad" className="me-2" />

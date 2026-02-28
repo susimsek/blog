@@ -1,4 +1,4 @@
-package handler
+package graphqlapi
 
 import (
 	"net/http"
@@ -86,29 +86,4 @@ func TestGraphiQLHandler(t *testing.T) {
 		}
 	})
 
-	t.Run("main handler serves graphiql on graphiql route", func(t *testing.T) {
-		getenv = func(name string) string {
-			switch name {
-			case "GRAPHIQL_ENABLED":
-				return "true"
-			case "API_CORS_ORIGIN":
-				return "http://localhost:3000"
-			default:
-				return ""
-			}
-		}
-
-		request := httptest.NewRequest(http.MethodGet, "/graphiql", nil)
-		recorder := httptest.NewRecorder()
-
-		Handler(recorder, request)
-
-		if recorder.Code != http.StatusOK {
-			t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
-		}
-
-		if got := recorder.Header().Get("Content-Type"); got != "text/html; charset=utf-8" {
-			t.Fatalf("content type = %q, want %q", got, "text/html; charset=utf-8")
-		}
-	})
 }
