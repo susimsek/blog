@@ -4,6 +4,8 @@ publishedDate: '2024-12-10'
 category:
   id: programming
   name: Programlama
+  color: blue
+  icon: code
 updatedDate: '2024-12-11'
 summary: 'Spring Boot kullanarak REST API nasıl geliştirilir? HTTP metodları, JSON veri işleme, Lombok entegrasyonu ve curl ile test etme.'
 thumbnail: '/images/spring-boot-rest-api-thumbnail.webp'

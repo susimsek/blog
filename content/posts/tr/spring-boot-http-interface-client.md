@@ -4,6 +4,8 @@ publishedDate: '2025-04-27'
 category:
   id: programming
   name: Programlama
+  color: blue
+  icon: code
 updatedDate: '2025-04-28'
 summary: 'Deklaratif, tip güvenli HTTP çağrıları için Spring Boot 3.2+ HTTP Interface Client nasıl kullanılır öğrenin.'
 thumbnail: '/images/spring-boot-http-interface-thumbnail.webp'

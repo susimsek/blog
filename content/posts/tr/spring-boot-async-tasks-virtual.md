@@ -4,6 +4,8 @@ publishedDate: '2025-04-26'
 category:
   id: programming
   name: Programlama
+  color: blue
+  icon: code
 updatedDate: '2025-04-27'
 summary: 'Spring Boot’ta JDK 21 sanal thread’leri ve `@Async` anotasyonunu kullanarak hafif ve ölçeklenebilir asenkron görevleri nasıl oluşturacağınızı öğrenin.'
 thumbnail: '/images/spring-boot-async-virtual-thumbnail.webp'

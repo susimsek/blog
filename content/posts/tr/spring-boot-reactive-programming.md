@@ -4,6 +4,8 @@ publishedDate: '2025-02-19'
 category:
   id: programming
   name: Programlama
+  color: blue
+  icon: code
 updatedDate: '2025-02-20'
 summary: 'Spring Boot ile Project Reactor ve WebFlux kullanarak yüksek performanslı, eşzamanlı işleme sahip reaktif uygulamalar oluşturmayı öğrenin.'
 thumbnail: '/images/spring-boot-reactive-thumbnail.webp'

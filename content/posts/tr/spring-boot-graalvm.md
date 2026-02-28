@@ -4,6 +4,8 @@ publishedDate: '2024-12-28'
 category:
   id: programming
   name: Programlama
+  color: blue
+  icon: code
 updatedDate: '2024-12-29'
 summary: 'Spring Boot uygulamalarınızı GraalVM native imajı olarak derleyerek daha hızlı başlatma süreleri ve azaltılmış kaynak kullanımı elde etmeyi öğrenin.'
 thumbnail: '/images/spring-boot-graalvm-thumbnail.webp'

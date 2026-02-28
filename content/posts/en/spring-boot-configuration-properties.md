@@ -4,6 +4,8 @@ publishedDate: '2026-02-04'
 category:
   id: programming
   name: Programming
+  color: blue
+  icon: code
 updatedDate: '2026-02-17'
 summary: 'Learn how to use @ConfigurationProperties for type-safe configuration, validate settings with @Validated, and manage environment-specific values with profile-specific application-{profile}.yml files.'
 thumbnail: '/images/spring-boot-configuration-properties-thumbnail.webp'

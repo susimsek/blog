@@ -4,6 +4,8 @@ publishedDate: '2024-12-11'
 category:
   id: programming
   name: Programming
+  color: blue
+  icon: code
 updatedDate: '2024-12-12'
 summary: 'Learn how to create a REST API using Spring Boot. Includes HTTP methods, JSON handling, Lombok integration, and curl for testing.'
 thumbnail: '/images/spring-boot-rest-api-thumbnail.webp'

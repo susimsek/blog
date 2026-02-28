@@ -4,6 +4,8 @@ publishedDate: '2026-02-26'
 category:
   id: gaming
   name: Gaming
+  color: red
+  icon: gamepad
 updatedDate: '2026-02-27'
 summary: 'Before World Fighters arrives, Rise of New Champions remains the clearest snapshot of Captain Tsubasa’s modern console identity: fast, theatrical, and built around pure anime football spectacle.'
 thumbnail: '/images/captain-tsubasa-rise-of-new-champions-thumbnail.webp'

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	htmltemplate "html/template"
 	"io"
 	"net/http"
 	"net/mail"
@@ -108,8 +109,10 @@ type sitePost struct {
 }
 
 type sitePostCategory struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Color string `json:"color"`
+	Icon  string `json:"icon,omitempty"`
 }
 
 type syncedPostTopic struct {
@@ -119,6 +122,7 @@ type syncedPostTopic struct {
 }
 
 type postEmailMetadata struct {
+	Category       *newsletter.PostCategoryBadge
 	Topics         []newsletter.PostTopicBadge
 	ReadingTimeMin int
 	ThumbnailURL   string
@@ -953,6 +957,46 @@ func buildTopicURL(siteURL string, locale string, topicID string) string {
 	return fmt.Sprintf("%s/%s/topics/%s", baseURL, locale, escapedTopicID)
 }
 
+func buildCategoryURL(siteURL string, locale string, categoryID string) string {
+	trimmedCategoryID := strings.TrimSpace(categoryID)
+	if trimmedCategoryID == "" {
+		return ""
+	}
+	escapedCategoryID := url.PathEscape(trimmedCategoryID)
+	baseURL := strings.TrimRight(strings.TrimSpace(siteURL), "/")
+	if baseURL == "" {
+		return ""
+	}
+	return fmt.Sprintf("%s/%s/categories/%s", baseURL, locale, escapedCategoryID)
+}
+
+func buildCategoryIconHTML(icon string) htmltemplate.HTML {
+	switch strings.ToLower(strings.TrimSpace(icon)) {
+	case "gamepad":
+		return htmltemplate.HTML("&#127918;")
+	case "code":
+		return htmltemplate.HTML("&#60;/&#62;")
+	default:
+		return ""
+	}
+}
+
+func resolveCategoryIcon(icon string, categoryID string) string {
+	trimmedIcon := strings.TrimSpace(icon)
+	if trimmedIcon != "" {
+		return trimmedIcon
+	}
+
+	switch strings.ToLower(strings.TrimSpace(categoryID)) {
+	case "gaming":
+		return "gamepad"
+	case "programming":
+		return "code"
+	default:
+		return ""
+	}
+}
+
 func buildTopicBadgesFromCategories(categories []string) []newsletter.PostTopicBadge {
 	if len(categories) == 0 {
 		return nil
@@ -1000,6 +1044,28 @@ func buildTopicBadgesFromSyncedTopics(topics []syncedPostTopic, siteURL string, 
 	return badges
 }
 
+func buildPostCategoryBadge(category *sitePostCategory, siteURL string, locale string) *newsletter.PostCategoryBadge {
+	if category == nil {
+		return nil
+	}
+
+	id := strings.TrimSpace(category.ID)
+	name := strings.TrimSpace(category.Name)
+	if id == "" || name == "" {
+		return nil
+	}
+
+	style := resolveTopicBadgeStyle(category.Color)
+	return &newsletter.PostCategoryBadge{
+		Name:        name,
+		URL:         buildCategoryURL(siteURL, locale, id),
+		IconHTML:    buildCategoryIconHTML(resolveCategoryIcon(category.Icon, id)),
+		BgColor:     style.BgColor,
+		TextColor:   style.TextColor,
+		BorderColor: style.BorderColor,
+	}
+}
+
 func resolvePostEmailMetadata(
 	postsCollection *mongo.Collection,
 	locale string,
@@ -1012,6 +1078,7 @@ func resolvePostEmailMetadata(
 	}
 
 	fallback := postEmailMetadata{
+		Category:       nil,
 		Topics:         buildTopicBadgesFromCategories(item.Categories),
 		ReadingTimeMin: 0,
 		ThumbnailURL:   postImageURL,
@@ -1025,6 +1092,7 @@ func resolvePostEmailMetadata(
 	var syncedPost struct {
 		ReadingTimeMin int               `bson:"readingTimeMin"`
 		Thumbnail      string            `bson:"thumbnail"`
+		Category       *sitePostCategory `bson:"category"`
 		Topics         []syncedPostTopic `bson:"topics"`
 	}
 
@@ -1045,6 +1113,7 @@ func resolvePostEmailMetadata(
 	if syncedPost.ReadingTimeMin > 0 {
 		fallback.ReadingTimeMin = syncedPost.ReadingTimeMin
 	}
+	fallback.Category = buildPostCategoryBadge(syncedPost.Category, siteURL, locale)
 	if badges := buildTopicBadgesFromSyncedTopics(syncedPost.Topics, siteURL, locale); len(badges) > 0 {
 		fallback.Topics = badges
 	}
@@ -1090,6 +1159,7 @@ func sendPostEmail(
 		strings.TrimSpace(item.Title),
 		strings.TrimSpace(item.Description),
 		postMetadata.ThumbnailURL,
+		postMetadata.Category,
 		postMetadata.Topics,
 		publishedAt,
 		postMetadata.ReadingTimeMin,

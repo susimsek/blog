@@ -148,6 +148,8 @@ export default function NewsletterCallbackPage({
     return 'error';
   }, [statusKey]);
 
+  const showSubscribeAgain = !(operation === 'confirm' && statusKey === 'success');
+
   return (
     <Layout
       posts={layoutPosts}
@@ -179,10 +181,12 @@ export default function NewsletterCallbackPage({
               <FontAwesomeIcon icon="home" className="me-2" />
               {t('common.newsletterCallback.actions.goHome')}
             </Link>
-            <Link href={`/${locale}`} skipLocaleHandling className="btn btn-secondary">
-              <FontAwesomeIcon icon="envelope" className="me-2" />
-              {t('common.newsletterCallback.actions.subscribeAgain')}
-            </Link>
+            {showSubscribeAgain ? (
+              <Link href={`/${locale}`} skipLocaleHandling className="btn btn-secondary">
+                <FontAwesomeIcon icon="envelope" className="me-2" />
+                {t('common.newsletterCallback.actions.subscribeAgain')}
+              </Link>
+            ) : null}
           </div>
         </div>
       </section>

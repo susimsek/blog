@@ -4,6 +4,8 @@ publishedDate: '2024-12-18'
 category:
   id: programming
   name: Programming
+  color: blue
+  icon: code
 updatedDate: '2024-12-19'
 summary: 'Learn how to use Spring Boot Actuator to monitor and manage your applications with ease. Includes endpoints, customization, and security examples.'
 thumbnail: '/images/spring-boot-actuator-thumbnail.webp'

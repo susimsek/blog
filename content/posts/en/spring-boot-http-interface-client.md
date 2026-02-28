@@ -4,6 +4,8 @@ publishedDate: '2025-04-27'
 category:
   id: programming
   name: Programming
+  color: blue
+  icon: code
 updatedDate: '2025-04-28'
 summary: 'Learn how to use Spring Boot 3.2+ HTTP Interface Client for declarative, type-safe HTTP calls.'
 thumbnail: '/images/spring-boot-http-interface-thumbnail.webp'

@@ -4,6 +4,8 @@ publishedDate: '2024-12-25'
 category:
   id: programming
   name: Programlama
+  color: blue
+  icon: code
 updatedDate: '2024-12-26'
 summary: 'Spring Boot uygulamanızın Kafka topicleri aracılığıyla JSON mesajları göndermesini ve tüketmesini nasıl entegre edeceğinizi öğrenin.'
 thumbnail: '/images/spring-boot-kafka-thumbnail.webp'

@@ -21,14 +21,16 @@
         "color": "blue"
       }
     ],
-    "readingTimeMin": 5,
-    "searchText": "captain tsubasa rise of new champions captain tsubasa rise of new champions icin 2020 cikisi arcade oynanis kimligi surum yapisi dlc destegi ve bugun neden hala onemli oldugu uzerine editoryel bir inceleme captain tsubasa anime oyunu spor oyunu oyun bandai namco tamsoft arcade futbol 2020 ps4 nintendo switch steam character pass new hero edition",
+    "readingTimeMin": 4,
+    "searchText": "captain tsubasa rise of new champions world fighters gelmeden once rise of new champions captain tsubasa nin modern konsol kimligini en net gosteren oyun olarak one cikiyor hizli gosterisli ve butunuyle anime futbolu ruhuna yaslanan bir yapim captain tsubasa anime oyunu spor oyunu",
     "updatedDate": "2026-02-27",
     "publishedDate": "2026-02-26",
     "source": "blog",
     "category": {
       "id": "gaming",
-      "name": "Oyun"
+      "name": "Oyun",
+      "color": "red",
+      "icon": "gamepad"
     }
   },
   {
@@ -53,14 +55,16 @@
         "color": "blue"
       }
     ],
-    "readingTimeMin": 5,
-    "searchText": "captain tsubasa 2 world fighters captain tsubasa 2 world fighters icin bandai namco resmi sayfasi ve topluluk takibine dayali detayli bir inceleme platformlar oynanis olcegi bilinen bilgiler ve cikis oncesi acik noktalar captain tsubasa anime oyunu spor oyunu oyun bandai namco tamsoft 2026 ps5 xbox series x s steam nintendo switch",
+    "readingTimeMin": 3,
+    "searchText": "captain tsubasa 2 world fighters captain tsubasa 2 world fighters icin bandai namco resmi sayfasi ve topluluk takibine dayali detayli bir inceleme platformlar oynanis olcegi bilinen bilgiler ve cikis oncesi acik noktalar captain tsubasa anime oyunu spor oyunu",
     "updatedDate": "2026-02-28",
     "publishedDate": "2026-02-27",
     "source": "blog",
     "category": {
       "id": "gaming",
-      "name": "Oyun"
+      "name": "Oyun",
+      "color": "red",
+      "icon": "gamepad"
     }
   },
   {
@@ -91,12 +95,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot configuration properties configurationproperties ile tip guvenli yapilandirma tanimlamayi validated ile ayarlari dogrulamayi ve profile specific application profile yml dosyalariyla ortama gore deger yonetimini ogrenin java kotlin spring boot yapilandirma programlama",
+    "searchText": "spring boot configuration properties configurationproperties ile tip guvenli yapilandirma tanimlamayi validated ile ayarlari dogrulamayi ve profile specific application profile yml dosyalariyla ortama gore deger yonetimini ogrenin java kotlin spring boot yapilandirma",
     "updatedDate": "2026-02-17",
     "publishedDate": "2026-02-04",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -142,12 +148,14 @@
       }
     ],
     "readingTimeMin": 6,
-    "searchText": "spring boot graphql jwe kimlik dogrulama stateless sifreli jwt ler jwe ile spring boot graphql api lerinizi guvenli hale getirmeyi kullanici kimligi ve rolleri jpa ile bir veritabaninda saklamayi ogrenin java kotlin spring boot guvenlik jwt jwe graphql programlama",
+    "searchText": "spring boot graphql jwe kimlik dogrulama stateless sifreli jwt ler jwe ile spring boot graphql api lerinizi guvenli hale getirmeyi kullanici kimligi ve rolleri jpa ile bir veritabaninda saklamayi ogrenin java kotlin spring boot guvenlik jwt jwe graphql",
     "updatedDate": "2025-05-18",
     "publishedDate": "2025-05-17",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -193,12 +201,14 @@
       }
     ],
     "readingTimeMin": 4,
-    "searchText": "spring boot jpa ile jwe kimlik dogrulamasi stateless sifreli jwt ler jwe kullanarak spring boot api lerinizi guvenli hale getirirken kullanici kimliklerini ve rolleri jpa destekli bir veritabaninda nasil saklayacaginizi ogrenin java kotlin spring boot guvenlik jwt jwe jpa programlama",
+    "searchText": "spring boot jpa ile jwe kimlik dogrulamasi stateless sifreli jwt ler jwe kullanarak spring boot api lerinizi guvenli hale getirirken kullanici kimliklerini ve rolleri jpa destekli bir veritabaninda nasil saklayacaginizi ogrenin java kotlin spring boot guvenlik jwt jwe jpa",
     "updatedDate": "2025-05-12",
     "publishedDate": "2025-05-11",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -244,12 +254,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot ldap ve jwe kimlik dogrulama ldap kimlik dogrulama ve jwe sifreli jwt lerle spring boot api lerinizi external directory entegrasyonu ve token gizliligi ile nasil guvene alacaginizi ogrenin java kotlin spring boot guvenlik jwt jwe ldap programlama",
+    "searchText": "spring boot ldap ve jwe kimlik dogrulama ldap kimlik dogrulama ve jwe sifreli jwt lerle spring boot api lerinizi external directory entegrasyonu ve token gizliligi ile nasil guvene alacaginizi ogrenin java kotlin spring boot guvenlik jwt jwe ldap",
     "updatedDate": "2025-05-11",
     "publishedDate": "2025-05-10",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -290,12 +302,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot jwe kimlik dogrulama jwt lerinizi jwe ile sifreleyerek gizlilik ve butunlugu saglamak icin spring boot api lerinizi nasil guvence altina alacaginizi ogrenin java kotlin spring boot guvenlik jwt jwe programlama",
+    "searchText": "spring boot jwe kimlik dogrulama jwt lerinizi jwe ile sifreleyerek gizlilik ve butunlugu saglamak icin spring boot api lerinizi nasil guvence altina alacaginizi ogrenin java kotlin spring boot guvenlik jwt jwe",
     "updatedDate": "2025-05-04",
     "publishedDate": "2025-05-03",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -331,12 +345,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot http interface client deklaratif tip guvenli http cagrilari icin spring boot 3 2 http interface client nasil kullanilir ogrenin java kotlin spring boot rest api rest client programlama",
+    "searchText": "spring boot http interface client deklaratif tip guvenli http cagrilari icin spring boot 3 2 http interface client nasil kullanilir ogrenin java kotlin spring boot rest api rest client",
     "updatedDate": "2025-04-28",
     "publishedDate": "2025-04-27",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -372,12 +388,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot sanal thread li asenkron gorevler spring boot ta jdk 21 sanal thread leri ve async anotasyonunu kullanarak hafif ve olceklenebilir asenkron gorevleri nasil olusturacaginizi ogrenin java kotlin spring boot asenkron gorevler sanal thread programlama",
+    "searchText": "spring boot sanal thread li asenkron gorevler spring boot ta jdk 21 sanal thread leri ve async anotasyonunu kullanarak hafif ve olceklenebilir asenkron gorevleri nasil olusturacaginizi ogrenin java kotlin spring boot asenkron gorevler sanal thread",
     "updatedDate": "2025-04-27",
     "publishedDate": "2025-04-26",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -413,12 +431,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot ai entegrasyonu moduler tasinabilir ve gozlemlenebilir ai is akislari icin spring ai kullanarak spring boot uygulamalarina ai modellerini nasil entegre edeceginizi ogrenin java kotlin spring boot spring ai yapay zeka programlama",
+    "searchText": "spring boot ai entegrasyonu moduler tasinabilir ve gozlemlenebilir ai is akislari icin spring ai kullanarak spring boot uygulamalarina ai modellerini nasil entegre edeceginizi ogrenin java kotlin spring boot spring ai yapay zeka",
     "updatedDate": "2025-04-24",
     "publishedDate": "2025-04-23",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -506,12 +526,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot jpa auditing spring boot uygulamalarinda jpa auditing ile olusturulma degistirilme tarihlerini ve kullanicilarini otomatik olarak nasil yakalayacaginizi ogrenin java kotlin spring boot spring data jpa auditing programlama",
+    "searchText": "spring boot jpa auditing spring boot uygulamalarinda jpa auditing ile olusturulma degistirilme tarihlerini ve kullanicilarini otomatik olarak nasil yakalayacaginizi ogrenin java kotlin spring boot spring data jpa auditing",
     "updatedDate": "2025-04-11",
     "publishedDate": "2025-04-10",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -547,12 +569,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot ile test odakli gelistirme spring boot ile tdd yaklasimini uygulamayi once test yazarak is mantigini gelistirerek ve testlerle kaliteyi garanti altina alarak ogrenin java kotlin spring boot tdd test programlama",
+    "searchText": "spring boot ile test odakli gelistirme spring boot ile tdd yaklasimini uygulamayi once test yazarak is mantigini gelistirerek ve testlerle kaliteyi garanti altina alarak ogrenin java kotlin spring boot tdd test",
     "updatedDate": "2025-04-10",
     "publishedDate": "2025-04-09",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -593,12 +617,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot circuit breaker spring boot uygulamalarinda circuit breaker kullanimini ogrenerek mikro hizmetlerin dayanikliligini artirin java kotlin spring boot spring cloud circuit breaker mikroservis programlama",
+    "searchText": "spring boot circuit breaker spring boot uygulamalarinda circuit breaker kullanimini ogrenerek mikro hizmetlerin dayanikliligini artirin java kotlin spring boot spring cloud circuit breaker mikroservis",
     "updatedDate": "2025-03-14",
     "publishedDate": "2025-03-13",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -639,12 +665,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot eureka server mikro hizmet mimarisinde servis kesfi icin spring boot eureka serverin nasil kurulacagini ve yapilandirilacagini ogrenin java kotlin spring boot spring cloud eureka server mikroservis programlama",
+    "searchText": "spring boot eureka server mikro hizmet mimarisinde servis kesfi icin spring boot eureka serverin nasil kurulacagini ve yapilandirilacagini ogrenin java kotlin spring boot spring cloud eureka server mikroservis",
     "updatedDate": "2025-02-24",
     "publishedDate": "2025-02-23",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -685,12 +713,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot config server spring boot config server kullanarak merkezi yapilandirma yonetimini nasil gerceklestireceginizi ogrenin java kotlin spring boot spring cloud config server mikroservis programlama",
+    "searchText": "spring boot config server spring boot config server kullanarak merkezi yapilandirma yonetimini nasil gerceklestireceginizi ogrenin java kotlin spring boot spring cloud config server mikroservis",
     "updatedDate": "2025-02-23",
     "publishedDate": "2025-02-22",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -731,12 +761,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot docker entegrasyonu spring boot uygulamalarini docker kullanarak buildpacks ve jib ile nasil olusturup dagitabileceginizi ogrenin java kotlin spring boot docker konteynerizasyon jib programlama",
+    "searchText": "spring boot docker entegrasyonu spring boot uygulamalarini docker kullanarak buildpacks ve jib ile nasil olusturup dagitabileceginizi ogrenin java kotlin spring boot docker konteynerizasyon jib",
     "updatedDate": "2025-02-22",
     "publishedDate": "2025-02-21",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -777,12 +809,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot kubernetes entegrasyonu spring boot uygulamalarini kubernetes uzerinde nasil olceklenebilir ve konteyner tabanli olarak dagitabileceginizi ogrenin java kotlin spring boot kubernetes mikroservis konteynerizasyon programlama",
+    "searchText": "spring boot kubernetes entegrasyonu spring boot uygulamalarini kubernetes uzerinde nasil olceklenebilir ve konteyner tabanli olarak dagitabileceginizi ogrenin java kotlin spring boot kubernetes mikroservis konteynerizasyon",
     "updatedDate": "2025-02-22",
     "publishedDate": "2025-02-21",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -813,12 +847,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot asenkron gorevler spring boot ile async kullanarak gorevleri ana threadi engellemeden asenkron olarak nasil calistiracaginizi ogrenin java kotlin spring boot asenkron gorevler programlama",
+    "searchText": "spring boot asenkron gorevler spring boot ile async kullanarak gorevleri ana threadi engellemeden asenkron olarak nasil calistiracaginizi ogrenin java kotlin spring boot asenkron gorevler",
     "updatedDate": "2025-02-21",
     "publishedDate": "2025-02-20",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -849,12 +885,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot planlanmis gorevler spring boot ile scheduled anotasyonunu kullanarak belirli araliklarla veya cron ifadeleriyle arka plan gorevlerini nasil calistiracaginizi ogrenin java kotlin spring boot planlanmis gorevler programlama",
+    "searchText": "spring boot planlanmis gorevler spring boot ile scheduled anotasyonunu kullanarak belirli araliklarla veya cron ifadeleriyle arka plan gorevlerini nasil calistiracaginizi ogrenin java kotlin spring boot planlanmis gorevler",
     "updatedDate": "2025-02-21",
     "publishedDate": "2025-02-20",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -890,12 +928,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot reaktif programlama spring boot ile project reactor ve webflux kullanarak yuksek performansli eszamanli isleme sahip reaktif uygulamalar olusturmayi ogrenin java kotlin spring boot reaktif programlama spring webflux programlama",
+    "searchText": "spring boot reaktif programlama spring boot ile project reactor ve webflux kullanarak yuksek performansli eszamanli isleme sahip reaktif uygulamalar olusturmayi ogrenin java kotlin spring boot reaktif programlama spring webflux",
     "updatedDate": "2025-02-20",
     "publishedDate": "2025-02-19",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -931,12 +971,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot ile graalvm native uygulama spring boot uygulamalarinizi graalvm native imaji olarak derleyerek daha hizli baslatma sureleri ve azaltilmis kaynak kullanimi elde etmeyi ogrenin java kotlin spring boot graalvm native imaj programlama",
+    "searchText": "spring boot ile graalvm native uygulama spring boot uygulamalarinizi graalvm native imaji olarak derleyerek daha hizli baslatma sureleri ve azaltilmis kaynak kullanimi elde etmeyi ogrenin java kotlin spring boot graalvm native imaj",
     "updatedDate": "2024-12-29",
     "publishedDate": "2024-12-28",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -972,12 +1014,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot ile kafka entegrasyonu spring boot uygulamanizin kafka topicleri araciligiyla json mesajlari gondermesini ve tuketmesini nasil entegre edeceginizi ogrenin java kotlin spring boot kafka mesajlasma programlama",
+    "searchText": "spring boot ile kafka entegrasyonu spring boot uygulamanizin kafka topicleri araciligiyla json mesajlari gondermesini ve tuketmesini nasil entegre edeceginizi ogrenin java kotlin spring boot kafka mesajlasma",
     "updatedDate": "2024-12-26",
     "publishedDate": "2024-12-25",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1013,12 +1057,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot ile redis onbellekleme spring boot uygulamaniza redis onbellekleme uygulayarak performansini ve verimliligini artirmayi ogrenin java kotlin spring boot redis onbellekleme programlama",
+    "searchText": "spring boot ile redis onbellekleme spring boot uygulamaniza redis onbellekleme uygulayarak performansini ve verimliligini artirmayi ogrenin java kotlin spring boot redis onbellekleme",
     "updatedDate": "2024-12-23",
     "publishedDate": "2024-12-22",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1054,12 +1100,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot ile openapi springdoc kullanarak spring boot uygulamanizda openapi entegrasyonu ile api dokumantasyonu ve test yontemlerini ogrenin java kotlin spring boot openapi dokumantasyon programlama",
+    "searchText": "spring boot ile openapi springdoc kullanarak spring boot uygulamanizda openapi entegrasyonu ile api dokumantasyonu ve test yontemlerini ogrenin java kotlin spring boot openapi dokumantasyon",
     "updatedDate": "2024-12-21",
     "publishedDate": "2024-12-20",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1090,12 +1138,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot temiz kodlama pratikleri spring boot projelerinde temiz kodlama ilkelerini uygulamayi ogrenin en iyi uygulamalar ornekler ve java da lombok ile kotlin temiz kodlama tekniklerinin faydalari java kotlin spring boot temiz kodlama programlama",
+    "searchText": "spring boot temiz kodlama pratikleri spring boot projelerinde temiz kodlama ilkelerini uygulamayi ogrenin en iyi uygulamalar ornekler ve java da lombok ile kotlin temiz kodlama tekniklerinin faydalari java kotlin spring boot temiz kodlama",
     "updatedDate": "2024-12-20",
     "publishedDate": "2024-12-19",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1126,12 +1176,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot devtools spring boot devtools ile hizli gelistirme surecinizi nasil hizlandirabileceginizi kesfedin canli yeniden yukleme onbellekleme ve hata ayiklama ipuclari icerir java kotlin spring boot gelistirme araclari programlama",
+    "searchText": "spring boot devtools spring boot devtools ile hizli gelistirme surecinizi nasil hizlandirabileceginizi kesfedin canli yeniden yukleme onbellekleme ve hata ayiklama ipuclari icerir java kotlin spring boot gelistirme araclari",
     "updatedDate": "2024-12-20",
     "publishedDate": "2024-12-19",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1167,12 +1219,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot actuator spring boot actuator kullanarak uygulamalarinizi izleme ve yonetme endpointler ozellestirme ve guvenlik orneklerini icerir java kotlin spring boot actuator izleme programlama",
+    "searchText": "spring boot actuator spring boot actuator kullanarak uygulamalarinizi izleme ve yonetme endpointler ozellestirme ve guvenlik orneklerini icerir java kotlin spring boot actuator izleme",
     "updatedDate": "2024-12-19",
     "publishedDate": "2024-12-18",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1203,12 +1257,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot ile aspect oriented programming spring boot ile aop uygulamasini nasil yapacaginizi ogrenin java ve kotlin ornekleri ile temel kavramlar ve uygulamalar java kotlin spring boot aop programlama",
+    "searchText": "spring boot ile aspect oriented programming spring boot ile aop uygulamasini nasil yapacaginizi ogrenin java ve kotlin ornekleri ile temel kavramlar ve uygulamalar java kotlin spring boot aop",
     "updatedDate": "2024-12-19",
     "publishedDate": "2024-12-18",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1239,12 +1295,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot ile dependency injection spring boot ile bagimlilik enjeksiyonu dependency injection di nasil calisir java ve kotlin ornekleriyle temel kavramlar anotasyonlar ve pratik kullanim senaryolarini ogrenin java kotlin spring boot bagimlilik enjeksiyonu programlama",
+    "searchText": "spring boot ile dependency injection spring boot ile bagimlilik enjeksiyonu dependency injection di nasil calisir java ve kotlin ornekleriyle temel kavramlar anotasyonlar ve pratik kullanim senaryolarini ogrenin java kotlin spring boot bagimlilik enjeksiyonu",
     "updatedDate": "2024-12-19",
     "publishedDate": "2024-12-18",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1285,12 +1343,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "object relational mapping spring boot kullanarak java kotlin ve go gin ile postgresql entegrasyonu ve temel crud islemlerini iceren bir orm tabanli uygulamanin nasil kurulacagini ogrenin java kotlin go spring boot gin orm programlama",
+    "searchText": "object relational mapping spring boot kullanarak java kotlin ve go gin ile postgresql entegrasyonu ve temel crud islemlerini iceren bir orm tabanli uygulamanin nasil kurulacagini ogrenin java kotlin go spring boot gin orm",
     "updatedDate": "2024-12-17",
     "publishedDate": "2024-12-16",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1331,12 +1391,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "rest api lerde girdi dogrulama spring boot ve gin ile java kotlin ve go da rest api girdi dogrulamasini uygulamayi ogrenin anotasyon ozel dogrulama ve hata yonetimi ornekleri icerir java kotlin go spring boot gin dogrulama programlama",
+    "searchText": "rest api lerde girdi dogrulama spring boot ve gin ile java kotlin ve go da rest api girdi dogrulamasini uygulamayi ogrenin anotasyon ozel dogrulama ve hata yonetimi ornekleri icerir java kotlin go spring boot gin dogrulama",
     "updatedDate": "2024-12-16",
     "publishedDate": "2024-12-15",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1367,12 +1429,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring graphql ile api olusturma java ve kotlin kullanarak spring for graphql ile graphql api u201leri nasil olusturacaginizi ogrenin sema olusturma sorgu isleme ve entegrasyonu icerir java kotlin spring boot graphql programlama",
+    "searchText": "spring graphql ile api olusturma java ve kotlin kullanarak spring for graphql ile graphql api u201leri nasil olusturacaginizi ogrenin sema olusturma sorgu isleme ve entegrasyonu icerir java kotlin spring boot graphql",
     "updatedDate": "2024-12-16",
     "publishedDate": "2024-12-15",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1398,12 +1462,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "gin ilk uygulama sifirdan ilk golang gin uygulamanizi olusturmaniza yardimci olacak yeni baslayanlar icin rehber temelleri ogrenin ve gin ile yolculugunuza baslayin go gin baslangic rehberi programlama",
+    "searchText": "gin ilk uygulama sifirdan ilk golang gin uygulamanizi olusturmaniza yardimci olacak yeni baslayanlar icin rehber temelleri ogrenin ve gin ile yolculugunuza baslayin go gin baslangic rehberi",
     "updatedDate": "2024-12-15",
     "publishedDate": "2024-12-14",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1434,12 +1500,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot ile rest api gelistirme spring boot kullanarak rest api nasil gelistirilir http metodlari json veri isleme lombok entegrasyonu ve curl ile test etme java kotlin spring boot rest api programlama",
+    "searchText": "spring boot ile rest api gelistirme spring boot kullanarak rest api nasil gelistirilir http metodlari json veri isleme lombok entegrasyonu ve curl ile test etme java kotlin spring boot rest api",
     "updatedDate": "2024-12-11",
     "publishedDate": "2024-12-10",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1470,12 +1538,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot ilk uygulama spring boot ile ilk uygulamanizi sifirdan olusturmak icin baslangic seviyesinde bir rehber temel bilgileri ogrenin ve spring boot ile yolculugunuza baslayin java kotlin spring boot baslangic rehberi programlama",
+    "searchText": "spring boot ilk uygulama spring boot ile ilk uygulamanizi sifirdan olusturmak icin baslangic seviyesinde bir rehber temel bilgileri ogrenin ve spring boot ile yolculugunuza baslayin java kotlin spring boot baslangic rehberi",
     "updatedDate": "2024-12-11",
     "publishedDate": "2024-12-10",
     "category": {
       "id": "programming",
-      "name": "Programlama"
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {

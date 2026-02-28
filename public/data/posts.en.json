@@ -21,14 +21,16 @@
         "color": "blue"
       }
     ],
-    "readingTimeMin": 5,
-    "searchText": "captain tsubasa rise of new champions an editorial breakdown of captain tsubasa rise of new champions covering its 2020 release arcade gameplay identity editions dlc support and what still makes it relevant today captain tsubasa anime game sports game gaming bandai namco tamsoft arcade football 2020 ps4 nintendo switch steam character pass new hero edition",
+    "readingTimeMin": 4,
+    "searchText": "captain tsubasa rise of new champions before world fighters arrives rise of new champions remains the clearest snapshot of captain tsubasa s modern console identity fast theatrical and built around pure anime football spectacle captain tsubasa anime game sports game",
     "updatedDate": "2026-02-27",
     "publishedDate": "2026-02-26",
     "source": "blog",
     "category": {
       "id": "gaming",
-      "name": "Gaming"
+      "name": "Gaming",
+      "color": "red",
+      "icon": "gamepad"
     }
   },
   {
@@ -53,14 +55,16 @@
         "color": "blue"
       }
     ],
-    "readingTimeMin": 5,
-    "searchText": "captain tsubasa 2 world fighters a detailed breakdown of captain tsubasa 2 world fighters from bandai namcos official page and community tracking covering platforms gameplay scale known details and open questions before launch captain tsubasa anime game sports game gaming bandai namco tamsoft 2026 ps5 xbox series x s steam nintendo switch",
+    "readingTimeMin": 4,
+    "searchText": "captain tsubasa 2 world fighters a detailed breakdown of captain tsubasa 2 world fighters from bandai namco s official page and community tracking covering platforms gameplay scale known details and open questions before launch captain tsubasa anime game sports game",
     "updatedDate": "2026-02-28",
     "publishedDate": "2026-02-27",
     "source": "blog",
     "category": {
       "id": "gaming",
-      "name": "Gaming"
+      "name": "Gaming",
+      "color": "red",
+      "icon": "gamepad"
     }
   },
   {
@@ -91,12 +95,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot configuration properties learn how to use configurationproperties for type safe configuration validate settings with validated and manage environment specific values with profile specific application profile yml files java kotlin spring boot configuration programming",
+    "searchText": "spring boot configuration properties learn how to use configurationproperties for type safe configuration validate settings with validated and manage environment specific values with profile specific application profile yml files java kotlin spring boot configuration",
     "updatedDate": "2026-02-17",
     "publishedDate": "2026-02-04",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -142,12 +148,14 @@
       }
     ],
     "readingTimeMin": 6,
-    "searchText": "spring boot graphql jwe authentication learn how to secure your spring boot graphql apis with stateless encrypted jwts jwe while persisting user identities and roles in a jpa backed database java kotlin spring boot security jwt jwe graphql programming",
+    "searchText": "spring boot graphql jwe authentication learn how to secure your spring boot graphql apis with stateless encrypted jwts jwe while persisting user identities and roles in a jpa backed database java kotlin spring boot security jwt jwe graphql",
     "updatedDate": "2025-05-18",
     "publishedDate": "2025-05-17",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -193,12 +201,14 @@
       }
     ],
     "readingTimeMin": 4,
-    "searchText": "spring boot jwe authentication with jpa learn how to use stateless encrypted jwts jwe to secure your spring boot apis while persisting user identities and roles in a jpa backed database java kotlin spring boot security jwt jwe jpa programming",
+    "searchText": "spring boot jwe authentication with jpa learn how to use stateless encrypted jwts jwe to secure your spring boot apis while persisting user identities and roles in a jpa backed database java kotlin spring boot security jwt jwe jpa",
     "updatedDate": "2025-05-12",
     "publishedDate": "2025-05-11",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -244,12 +254,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot ldap and jwe authentication learn how to use ldap authentication with jwe encrypted jwts to secure your spring boot apis with both external directory integration and token confidentiality java kotlin spring boot security jwt jwe ldap programming",
+    "searchText": "spring boot ldap and jwe authentication learn how to use ldap authentication with jwe encrypted jwts to secure your spring boot apis with both external directory integration and token confidentiality java kotlin spring boot security jwt jwe ldap",
     "updatedDate": "2025-05-11",
     "publishedDate": "2025-05-10",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -290,12 +302,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot jwe authentication learn how to use jwe to encrypt your jwts and secure your spring boot apis for confidentiality and integrity java kotlin spring boot security jwt jwe programming",
+    "searchText": "spring boot jwe authentication learn how to use jwe to encrypt your jwts and secure your spring boot apis for confidentiality and integrity java kotlin spring boot security jwt jwe",
     "updatedDate": "2025-05-04",
     "publishedDate": "2025-05-03",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -331,12 +345,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot http interface client learn how to use spring boot 3 2 http interface client for declarative type safe http calls java kotlin spring boot rest api rest client programming",
+    "searchText": "spring boot http interface client learn how to use spring boot 3 2 http interface client for declarative type safe http calls java kotlin spring boot rest api rest client",
     "updatedDate": "2025-04-28",
     "publishedDate": "2025-04-27",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -372,12 +388,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot async tasks with virtual thread learn how to run asynchronous tasks with async on jdk 21 virtual threads in spring boot java kotlin spring boot async tasks virtual thread programming",
+    "searchText": "spring boot async tasks with virtual thread learn how to run asynchronous tasks with async on jdk 21 virtual threads in spring boot java kotlin spring boot async tasks virtual thread",
     "updatedDate": "2025-04-27",
     "publishedDate": "2025-04-26",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -413,12 +431,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot ai integration learn how to integrate ai models into spring boot applications using spring ai for modular portable and observable ai workflows java kotlin spring boot spring ai artificial intelligence programming",
+    "searchText": "spring boot ai integration learn how to integrate ai models into spring boot applications using spring ai for modular portable and observable ai workflows java kotlin spring boot spring ai artificial intelligence",
     "updatedDate": "2025-04-24",
     "publishedDate": "2025-04-23",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -506,12 +526,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot jpa auditing learn how to automatically track created and modified fields in your spring boot applications using jpa auditing java kotlin spring boot spring data jpa auditing programming",
+    "searchText": "spring boot jpa auditing learn how to automatically track created and modified fields in your spring boot applications using jpa auditing java kotlin spring boot spring data jpa auditing",
     "updatedDate": "2025-04-11",
     "publishedDate": "2025-04-10",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -547,12 +569,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot test driven development learn how to apply tdd in spring boot by writing unit tests first implementing logic and ensuring code quality through testing java kotlin spring boot tdd testing programming",
+    "searchText": "spring boot test driven development learn how to apply tdd in spring boot by writing unit tests first implementing logic and ensuring code quality through testing java kotlin spring boot tdd testing",
     "updatedDate": "2025-04-10",
     "publishedDate": "2025-04-09",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -593,12 +617,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot circuit breaker learn how to implement circuit breaker in spring boot applications for resilient microservices java kotlin spring boot spring cloud circuit breaker microservice programming",
+    "searchText": "spring boot circuit breaker learn how to implement circuit breaker in spring boot applications for resilient microservices java kotlin spring boot spring cloud circuit breaker microservice",
     "updatedDate": "2025-03-14",
     "publishedDate": "2025-03-13",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -639,12 +665,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot eureka server learn how to set up and configure a spring boot eureka server for service discovery in microservices architecture java kotlin spring boot spring cloud eureka server microservice programming",
+    "searchText": "spring boot eureka server learn how to set up and configure a spring boot eureka server for service discovery in microservices architecture java kotlin spring boot spring cloud eureka server microservice",
     "updatedDate": "2025-02-24",
     "publishedDate": "2025-02-23",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -685,12 +713,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot config server learn how to use spring boot config server to centralize and manage application configurations efficiently java kotlin spring boot spring cloud config server microservice programming",
+    "searchText": "spring boot config server learn how to use spring boot config server to centralize and manage application configurations efficiently java kotlin spring boot spring cloud config server microservice",
     "updatedDate": "2025-02-23",
     "publishedDate": "2025-02-22",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -731,12 +761,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot docker integration learn how to build and deploy spring boot applications using docker with buildpacks and jib for efficient containerization java kotlin spring boot docker containerization jib programming",
+    "searchText": "spring boot docker integration learn how to build and deploy spring boot applications using docker with buildpacks and jib for efficient containerization java kotlin spring boot docker containerization jib",
     "updatedDate": "2025-02-22",
     "publishedDate": "2025-02-21",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -777,12 +809,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot kubernetes integration learn how to deploy spring boot applications on kubernetes for scalable containerized microservices java kotlin spring boot kubernetes microservice containerization programming",
+    "searchText": "spring boot kubernetes integration learn how to deploy spring boot applications on kubernetes for scalable containerized microservices java kotlin spring boot kubernetes microservice containerization",
     "updatedDate": "2025-02-22",
     "publishedDate": "2025-02-21",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -813,12 +847,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot async tasks learn how to use async in spring boot to execute tasks asynchronously without blocking the main thread java kotlin spring boot async tasks programming",
+    "searchText": "spring boot async tasks learn how to use async in spring boot to execute tasks asynchronously without blocking the main thread java kotlin spring boot async tasks",
     "updatedDate": "2025-02-21",
     "publishedDate": "2025-02-20",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -849,12 +885,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot scheduled tasks learn how to use scheduled in spring boot to run background tasks at fixed intervals or cron expressions java kotlin spring boot scheduled tasks programming",
+    "searchText": "spring boot scheduled tasks learn how to use scheduled in spring boot to run background tasks at fixed intervals or cron expressions java kotlin spring boot scheduled tasks",
     "updatedDate": "2025-02-21",
     "publishedDate": "2025-02-20",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -890,12 +928,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot reactive programming learn how to build reactive applications using spring boot with project reactor and webflux for high performance asynchronous processing java kotlin spring boot reactive programming spring webflux programming",
+    "searchText": "spring boot reactive programming learn how to build reactive applications using spring boot with project reactor and webflux for high performance asynchronous processing java kotlin spring boot reactive programming spring webflux",
     "updatedDate": "2025-02-20",
     "publishedDate": "2025-02-19",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -931,12 +971,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot graalvm native application learn how to build and deploy a spring boot application as a graalvm native image for improved startup time and reduced resource usage java kotlin spring boot graalvm native image programming",
+    "searchText": "spring boot graalvm native application learn how to build and deploy a spring boot application as a graalvm native image for improved startup time and reduced resource usage java kotlin spring boot graalvm native image",
     "updatedDate": "2024-12-29",
     "publishedDate": "2024-12-28",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -972,12 +1014,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot kafka integration learn how to integrate apache kafka with spring boot to send and consume json messages through kafka topics java kotlin spring boot kafka messaging programming",
+    "searchText": "spring boot kafka integration learn how to integrate apache kafka with spring boot to send and consume json messages through kafka topics java kotlin spring boot kafka messaging",
     "updatedDate": "2024-12-26",
     "publishedDate": "2024-12-25",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1013,12 +1057,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot redis caching learn how to implement redis caching in your spring boot application to improve performance and efficiency java kotlin spring boot redis caching programming",
+    "searchText": "spring boot redis caching learn how to implement redis caching in your spring boot application to improve performance and efficiency java kotlin spring boot redis caching",
     "updatedDate": "2024-12-23",
     "publishedDate": "2024-12-22",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1054,12 +1100,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot with openapi learn how to integrate openapi into your spring boot application for api documentation and testing using springdoc java kotlin spring boot openapi documentation programming",
+    "searchText": "spring boot with openapi learn how to integrate openapi into your spring boot application for api documentation and testing using springdoc java kotlin spring boot openapi documentation",
     "updatedDate": "2024-12-21",
     "publishedDate": "2024-12-20",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1090,12 +1138,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "clean coding practices in spring boot learn how to apply clean coding principles in spring boot projects includes best practices examples and benefits of using lombok in java and kotlin clean code techniques java kotlin spring boot clean coding programming",
+    "searchText": "clean coding practices in spring boot learn how to apply clean coding principles in spring boot projects includes best practices examples and benefits of using lombok in java and kotlin clean code techniques java kotlin spring boot clean coding",
     "updatedDate": "2024-12-20",
     "publishedDate": "2024-12-19",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1126,12 +1176,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot devtools learn how to utilize spring boot devtools for rapid development includes live reload caching and debugging tips java kotlin spring boot dev tools programming",
+    "searchText": "spring boot devtools learn how to utilize spring boot devtools for rapid development includes live reload caching and debugging tips java kotlin spring boot dev tools",
     "updatedDate": "2024-12-20",
     "publishedDate": "2024-12-19",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1167,12 +1219,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot actuator learn how to use spring boot actuator to monitor and manage your applications with ease includes endpoints customization and security examples java kotlin spring boot actuator monitoring programming",
+    "searchText": "spring boot actuator learn how to use spring boot actuator to monitor and manage your applications with ease includes endpoints customization and security examples java kotlin spring boot actuator monitoring",
     "updatedDate": "2024-12-19",
     "publishedDate": "2024-12-18",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1203,12 +1257,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "aspect oriented programming in spring boot learn how to implement aspect oriented programming aop in spring boot using java and kotlin covers core concepts use cases and practical examples java kotlin spring boot aop programming",
+    "searchText": "aspect oriented programming in spring boot learn how to implement aspect oriented programming aop in spring boot using java and kotlin covers core concepts use cases and practical examples java kotlin spring boot aop",
     "updatedDate": "2024-12-19",
     "publishedDate": "2024-12-18",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1239,12 +1295,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "dependency injection in spring boot learn how dependency injection di works in spring boot including examples in java and kotlin covers key concepts annotations and practical use cases java kotlin spring boot dependency injection programming",
+    "searchText": "dependency injection in spring boot learn how dependency injection di works in spring boot including examples in java and kotlin covers key concepts annotations and practical use cases java kotlin spring boot dependency injection",
     "updatedDate": "2024-12-19",
     "publishedDate": "2024-12-18",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1285,12 +1343,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "object relational mapping learn how to set up an orm based application with spring boot using java kotlin and go gin includes postgresql integration and basic crud operations java kotlin go spring boot gin orm programming",
+    "searchText": "object relational mapping learn how to set up an orm based application with spring boot using java kotlin and go gin includes postgresql integration and basic crud operations java kotlin go spring boot gin orm",
     "updatedDate": "2024-12-17",
     "publishedDate": "2024-12-16",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1331,12 +1391,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "input validation in rest apis learn how to implement input validation in rest apis using java kotlin and go with frameworks like spring boot and gin covers annotations custom validators and error handling java kotlin go spring boot gin validation programming",
+    "searchText": "input validation in rest apis learn how to implement input validation in rest apis using java kotlin and go with frameworks like spring boot and gin covers annotations custom validators and error handling java kotlin go spring boot gin validation",
     "updatedDate": "2024-12-16",
     "publishedDate": "2024-12-15",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1367,12 +1429,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "building apis with spring for graphql learn how to build graphql apis using spring for graphql with java and kotlin includes schema creation query handling and integration java kotlin graphql spring boot programming",
+    "searchText": "building apis with spring for graphql learn how to build graphql apis using spring for graphql with java and kotlin includes schema creation query handling and integration java kotlin graphql spring boot",
     "updatedDate": "2024-12-16",
     "publishedDate": "2024-12-15",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1398,12 +1462,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "gin first application a beginner friendly guide to creating your first golang gin application from scratch learn the basics and start your journey with gin go gin beginner guide programming",
+    "searchText": "gin first application a beginner friendly guide to creating your first golang gin application from scratch learn the basics and start your journey with gin go gin beginner guide",
     "updatedDate": "2024-12-15",
     "publishedDate": "2024-12-14",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1434,12 +1500,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "building a rest api with spring boot learn how to create a rest api using spring boot includes http methods json handling lombok integration and curl for testing java kotlin spring boot rest api programming",
+    "searchText": "building a rest api with spring boot learn how to create a rest api using spring boot includes http methods json handling lombok integration and curl for testing java kotlin spring boot rest api",
     "updatedDate": "2024-12-12",
     "publishedDate": "2024-12-11",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {
@@ -1470,12 +1538,14 @@
       }
     ],
     "readingTimeMin": 3,
-    "searchText": "spring boot first application a beginner friendly guide to creating your first spring boot application from scratch learn the basics and start your journey with spring boot java kotlin spring boot beginner guide programming",
+    "searchText": "spring boot first application a beginner friendly guide to creating your first spring boot application from scratch learn the basics and start your journey with spring boot java kotlin spring boot beginner guide",
     "updatedDate": "2024-12-11",
     "publishedDate": "2024-12-10",
     "category": {
       "id": "programming",
-      "name": "Programming"
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
     }
   },
   {

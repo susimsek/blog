@@ -88,6 +88,8 @@ export type Post = {
 
 export type PostCategory = {
   __typename?: 'PostCategory';
+  color: Scalars['String']['output'];
+  icon?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
 };
@@ -192,7 +194,7 @@ export type PostsQuery = {
       readingTime: number;
       source?: string | null;
       url?: string | null;
-      category?: { __typename?: 'PostCategory'; id: string; name: string } | null;
+      category?: { __typename?: 'PostCategory'; id: string; name: string; color: string; icon?: string | null } | null;
       topics?: Array<{ __typename?: 'Topic'; id: string; name: string; color: string; link?: string | null }> | null;
     }>;
   };
@@ -222,7 +224,7 @@ export type PostQuery = {
       readingTime: number;
       source?: string | null;
       url?: string | null;
-      category?: { __typename?: 'PostCategory'; id: string; name: string } | null;
+      category?: { __typename?: 'PostCategory'; id: string; name: string; color: string; icon?: string | null } | null;
       topics?: Array<{ __typename?: 'Topic'; id: string; name: string; color: string; link?: string | null }> | null;
     } | null;
     engagement?: { __typename?: 'PostEngagement'; postId: string; likes: number; hits: number } | null;
@@ -370,6 +372,8 @@ export const PostsDocument = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'color' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'icon' } },
                           ],
                         },
                       },
@@ -464,6 +468,8 @@ export const PostDocument = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'color' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'icon' } },
                           ],
                         },
                       },

@@ -4,6 +4,8 @@ publishedDate: '2025-02-19'
 category:
   id: programming
   name: Programming
+  color: blue
+  icon: code
 updatedDate: '2025-02-20'
 summary: 'Learn how to build reactive applications using Spring Boot with Project Reactor and WebFlux for high-performance asynchronous processing.'
 thumbnail: '/images/spring-boot-reactive-thumbnail.webp'

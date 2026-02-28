@@ -4,6 +4,8 @@ publishedDate: '2025-04-23'
 category:
   id: programming
   name: Programming
+  color: blue
+  icon: code
 updatedDate: '2025-04-24'
 summary: 'Learn how to integrate AI models into Spring Boot applications using Spring AI for modular, portable, and observable AI workflows.'
 thumbnail: '/images/spring-boot-ai-thumbnail.webp'

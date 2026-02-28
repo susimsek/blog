@@ -4,6 +4,8 @@ publishedDate: '2025-02-20'
 category:
   id: programming
   name: Programming
+  color: blue
+  icon: code
 updatedDate: '2025-02-21'
 summary: 'Learn how to use @Async in Spring Boot to execute tasks asynchronously without blocking the main thread.'
 thumbnail: '/images/spring-boot-async-thumbnail.webp'

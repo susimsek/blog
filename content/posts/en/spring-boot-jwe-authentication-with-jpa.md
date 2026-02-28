@@ -4,6 +4,8 @@ publishedDate: '2025-05-11'
 category:
   id: programming
   name: Programming
+  color: blue
+  icon: code
 updatedDate: '2025-05-12'
 summary: 'Learn how to use stateless encrypted JWTs (JWE) to secure your Spring Boot APIs while persisting user identities and roles in a JPA-backed database.'
 thumbnail: '/images/spring-boot-jwe-auth-with-jpa-thumbnail.webp'

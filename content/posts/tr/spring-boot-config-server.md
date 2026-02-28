@@ -4,6 +4,8 @@ publishedDate: '2025-02-22'
 category:
   id: programming
   name: Programlama
+  color: blue
+  icon: code
 updatedDate: '2025-02-23'
 summary: 'Spring Boot Config Server kullanarak merkezi yapılandırma yönetimini nasıl gerçekleştireceğinizi öğrenin.'
 thumbnail: '/images/spring-boot-config-server-thumbnail.webp'

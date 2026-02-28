@@ -43,6 +43,14 @@ func TestPostAnnouncementEmailStripsSummaryHTML(t *testing.T) {
 		"Launch update",
 		"<p><strong>New release</strong> is now available.</p>",
 		"https://example.com/images/launch-update.webp",
+		&PostCategoryBadge{
+			Name:        "Gaming",
+			URL:         "https://example.com/en/categories/gaming",
+			IconHTML:    "&#127918;",
+			BgColor:     "#fee2e2",
+			TextColor:   "#b91c1c",
+			BorderColor: "#fca5a5",
+		},
 		[]PostTopicBadge{
 			{
 				Name:        "Spring Boot",
@@ -96,7 +104,7 @@ func TestPostAnnouncementEmailStripsSummaryHTML(t *testing.T) {
 		t.Fatalf("post URL should be used for heading, image, and CTA links: %q", htmlBody)
 	}
 
-	if !strings.Contains(htmlBody, "Published: February 4, 2026") {
+	if !strings.Contains(htmlBody, "&#128197; February 4, 2026") {
 		t.Fatalf("html body does not contain formatted EN published date: %q", htmlBody)
 	}
 
@@ -108,12 +116,24 @@ func TestPostAnnouncementEmailStripsSummaryHTML(t *testing.T) {
 		t.Fatalf("html body does not contain topic badges: %q", htmlBody)
 	}
 
-	if !strings.Contains(htmlBody, "&#9201; Reading time: 3 min read") {
+	if !strings.Contains(htmlBody, "&#9201; 3 min read") {
 		t.Fatalf("html body does not contain reading time metadata: %q", htmlBody)
 	}
 
 	if !strings.Contains(htmlBody, "background:#dcfce7") || !strings.Contains(htmlBody, "color:#166534") {
 		t.Fatalf("html body does not contain topic badge colors: %q", htmlBody)
+	}
+
+	if !strings.Contains(htmlBody, ">Gaming<") || !strings.Contains(htmlBody, "color:#b91c1c") {
+		t.Fatalf("html body does not contain category badge: %q", htmlBody)
+	}
+
+	if !strings.Contains(htmlBody, "href=\"https://example.com/en/categories/gaming\"") {
+		t.Fatalf("html body does not contain category URL: %q", htmlBody)
+	}
+
+	if !strings.Contains(htmlBody, "&#127918;") {
+		t.Fatalf("html body does not contain category icon html: %q", htmlBody)
 	}
 
 	if !strings.Contains(htmlBody, "href=\"https://example.com/en/topics/spring-boot\"") {
@@ -128,6 +148,7 @@ func TestPostAnnouncementEmailFormatsTurkishPublishedDate(t *testing.T) {
 		"Test ozeti",
 		"",
 		nil,
+		nil,
 		time.Date(2026, time.February, 4, 0, 0, 0, 0, time.UTC),
 		8,
 		"https://example.com/tr/posts/deneme-yazi",
@@ -139,11 +160,11 @@ func TestPostAnnouncementEmailFormatsTurkishPublishedDate(t *testing.T) {
 		t.Fatalf("PostAnnouncementEmail returned error: %v", err)
 	}
 
-	if !strings.Contains(htmlBody, "Yayim tarihi: 4 Subat 2026") {
+	if !strings.Contains(htmlBody, "&#128197; 4 Subat 2026") {
 		t.Fatalf("html body does not contain formatted TR published date: %q", htmlBody)
 	}
 
-	if !strings.Contains(htmlBody, "&#9201; Okuma suresi: 8 dk") {
+	if !strings.Contains(htmlBody, "&#9201; 8 dk") {
 		t.Fatalf("html body does not contain formatted TR reading time: %q", htmlBody)
 	}
 }

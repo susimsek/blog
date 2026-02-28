@@ -53,6 +53,15 @@ type PostTopicBadge struct {
 	BorderColor string
 }
 
+type PostCategoryBadge struct {
+	Name        string
+	URL         string
+	IconHTML    htmltemplate.HTML
+	BgColor     string
+	TextColor   string
+	BorderColor string
+}
+
 const (
 	defaultTopicBadgeBgColor     = "#f8fafc"
 	defaultTopicBadgeTextColor   = "#334155"
@@ -78,6 +87,7 @@ type postAnnouncementEmailTemplateData struct {
 	Title            string
 	Body             string
 	NewsletterLabel  string
+	PostCategory     *PostCategoryBadge
 	PostTitle        string
 	PostSummary      string
 	PostTopics       []PostTopicBadge
@@ -495,6 +505,7 @@ func PostAnnouncementEmail(
 	postTitle string,
 	postSummary string,
 	postImageURL string,
+	postCategory *PostCategoryBadge,
 	postTopics []PostTopicBadge,
 	publishedAt time.Time,
 	readingTimeMin int,
@@ -527,6 +538,7 @@ func PostAnnouncementEmail(
 		Title:            content.Title,
 		Body:             cleanSummary,
 		NewsletterLabel:  content.NewsletterLabel,
+		PostCategory:     normalizeCategory(postCategory),
 		PostTitle:        strings.TrimSpace(postTitle),
 		PostSummary:      cleanSummary,
 		PostTopics:       normalizeTopics(postTopics),
@@ -550,4 +562,38 @@ func PostAnnouncementEmail(
 	}
 
 	return subject, htmlBody, nil
+}
+
+func normalizeCategory(category *PostCategoryBadge) *PostCategoryBadge {
+	if category == nil {
+		return nil
+	}
+
+	name := strings.TrimSpace(category.Name)
+	if name == "" {
+		return nil
+	}
+	url := strings.TrimSpace(category.URL)
+
+	bgColor := strings.TrimSpace(category.BgColor)
+	if bgColor == "" {
+		bgColor = defaultTopicBadgeBgColor
+	}
+	textColor := strings.TrimSpace(category.TextColor)
+	if textColor == "" {
+		textColor = defaultTopicBadgeTextColor
+	}
+	borderColor := strings.TrimSpace(category.BorderColor)
+	if borderColor == "" {
+		borderColor = defaultTopicBadgeBorderColor
+	}
+
+	return &PostCategoryBadge{
+		Name:        name,
+		URL:         url,
+		IconHTML:    category.IconHTML,
+		BgColor:     bgColor,
+		TextColor:   textColor,
+		BorderColor: borderColor,
+	}
 }

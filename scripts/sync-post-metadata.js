@@ -10,6 +10,33 @@ const { locales } = require('../i18n.config.json');
 
 const postsIndexDirectory = path.join(process.cwd(), 'public', 'data');
 const postsMarkdownDirectory = path.join(process.cwd(), 'content', 'posts');
+const categoriesIndexDirectory = path.join(process.cwd(), 'public', 'data');
+
+const readCategories = locale => {
+  const categoriesPath = path.join(categoriesIndexDirectory, `categories.${locale}.json`);
+  if (!fs.existsSync(categoriesPath)) {
+    return new Map();
+  }
+
+  try {
+    const parsed = JSON.parse(fs.readFileSync(categoriesPath, 'utf8'));
+    if (!Array.isArray(parsed)) {
+      return new Map();
+    }
+
+    return new Map(
+      parsed.flatMap(category => {
+        const id = typeof category?.id === 'string' ? category.id.trim().toLowerCase() : '';
+        const color = typeof category?.color === 'string' ? category.color.trim().toLowerCase() : '';
+        const icon = typeof category?.icon === 'string' ? category.icon.trim() : '';
+        return id && color ? [[id, { color, icon: icon || undefined }]] : [];
+      }),
+    );
+  } catch (error) {
+    console.error(`[sync-post-metadata] failed to parse categories for locale "${locale}":`, error);
+    return new Map();
+  }
+};
 
 const getWordsFromMarkdown = markdown => {
   const withoutCodeBlocks = markdown
@@ -71,6 +98,7 @@ const readMarkdownPost = (id, locale) => {
 
 const syncLocale = locale => {
   const postsPath = path.join(postsIndexDirectory, `posts.${locale}.json`);
+  const categoriesByID = readCategories(locale);
   if (!fs.existsSync(postsPath)) {
     console.warn(`[sync-post-metadata] posts index not found for locale "${locale}": ${postsPath}`);
     return;
@@ -147,11 +175,44 @@ const syncLocale = locale => {
         ? markdownPost.data.publishedDate.trim()
         : null;
     const updatedDate = frontmatterUpdatedDate ?? frontmatterPublishedDate ?? post.updatedDate ?? post.publishedDate;
+    const frontmatterCategory =
+      markdownPost.data?.category && typeof markdownPost.data.category === 'object' ? markdownPost.data.category : null;
+    const categoryID =
+      typeof frontmatterCategory?.id === 'string'
+        ? frontmatterCategory.id.trim().toLowerCase()
+        : typeof post.category?.id === 'string'
+          ? post.category.id.trim().toLowerCase()
+          : '';
+    const categoryName =
+      typeof frontmatterCategory?.name === 'string'
+        ? frontmatterCategory.name.trim()
+        : typeof post.category?.name === 'string'
+          ? post.category.name.trim()
+          : '';
+    const categoryMeta = categoriesByID.get(categoryID);
+    const categoryColor =
+      typeof frontmatterCategory?.color === 'string' && frontmatterCategory.color.trim().length > 0
+        ? frontmatterCategory.color.trim().toLowerCase()
+        : (categoryMeta?.color ?? (typeof post.category?.color === 'string' ? post.category.color : 'blue'));
+    const categoryIcon =
+      typeof frontmatterCategory?.icon === 'string' && frontmatterCategory.icon.trim().length > 0
+        ? frontmatterCategory.icon.trim()
+        : (categoryMeta?.icon ?? (typeof post.category?.icon === 'string' ? post.category.icon : undefined));
+    const category =
+      categoryID && categoryName
+        ? {
+            id: categoryID,
+            name: categoryName,
+            color: categoryColor || 'blue',
+            ...(categoryIcon ? { icon: categoryIcon } : {}),
+          }
+        : post.category;
 
     if (
       post.readingTimeMin !== readingTimeMin ||
       post.searchText !== nextSearchText ||
       post.updatedDate !== updatedDate ||
+      JSON.stringify(post.category ?? null) !== JSON.stringify(category ?? null) ||
       Object.prototype.hasOwnProperty.call(post, 'readingTime')
     ) {
       changed += 1;
@@ -162,6 +223,7 @@ const syncLocale = locale => {
 
     return {
       ...rest,
+      ...(category ? { category } : {}),
       updatedDate,
       readingTimeMin,
       searchText: nextSearchText,

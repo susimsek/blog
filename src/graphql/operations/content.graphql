@@ -18,6 +18,8 @@ query posts($locale: String!, $input: PostsQueryInput) {
       category {
         id
         name
+        color
+        icon
       }
       publishedDate
       updatedDate
@@ -48,6 +50,8 @@ query post($locale: String!, $id: ID!) {
       category {
         id
         name
+        color
+        icon
       }
       publishedDate
       updatedDate

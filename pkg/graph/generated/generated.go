@@ -77,8 +77,10 @@ type ComplexityRoot struct {
 	}
 
 	PostCategory struct {
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
+		Color func(childComplexity int) int
+		ID    func(childComplexity int) int
+		Icon  func(childComplexity int) int
+		Name  func(childComplexity int) int
 	}
 
 	PostConnection struct {
@@ -316,12 +318,24 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Post.UpdatedDate(childComplexity), true
 
+	case "PostCategory.color":
+		if e.complexity.PostCategory.Color == nil {
+			break
+		}
+
+		return e.complexity.PostCategory.Color(childComplexity), true
 	case "PostCategory.id":
 		if e.complexity.PostCategory.ID == nil {
 			break
 		}
 
 		return e.complexity.PostCategory.ID(childComplexity), true
+	case "PostCategory.icon":
+		if e.complexity.PostCategory.Icon == nil {
+			break
+		}
+
+		return e.complexity.PostCategory.Icon(childComplexity), true
 	case "PostCategory.name":
 		if e.complexity.PostCategory.Name == nil {
 			break
@@ -703,6 +717,8 @@ type Post {
 type PostCategory {
   id: ID!
   name: String!
+  color: String!
+  icon: String
 }
 
 type Topic {
@@ -1343,6 +1359,10 @@ func (ec *executionContext) fieldContext_Post_category(_ context.Context, field 
 				return ec.fieldContext_PostCategory_id(ctx, field)
 			case "name":
 				return ec.fieldContext_PostCategory_name(ctx, field)
+			case "color":
+				return ec.fieldContext_PostCategory_color(ctx, field)
+			case "icon":
+				return ec.fieldContext_PostCategory_icon(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PostCategory", field.Name)
 		},
@@ -1667,6 +1687,64 @@ func (ec *executionContext) _PostCategory_name(ctx context.Context, field graphq
 }
 
 func (ec *executionContext) fieldContext_PostCategory_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostCategory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostCategory_color(ctx context.Context, field graphql.CollectedField, obj *model.PostCategory) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostCategory_color,
+		func(ctx context.Context) (any, error) {
+			return obj.Color, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostCategory_color(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostCategory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostCategory_icon(ctx context.Context, field graphql.CollectedField, obj *model.PostCategory) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostCategory_icon,
+		func(ctx context.Context) (any, error) {
+			return obj.Icon, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostCategory_icon(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PostCategory",
 		Field:      field,
@@ -4461,6 +4539,13 @@ func (ec *executionContext) _PostCategory(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "color":
+			out.Values[i] = ec._PostCategory_color(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "icon":
+			out.Values[i] = ec._PostCategory_icon(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

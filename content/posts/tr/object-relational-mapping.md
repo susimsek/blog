@@ -4,6 +4,8 @@ publishedDate: '2024-12-16'
 category:
   id: programming
   name: Programlama
+  color: blue
+  icon: code
 updatedDate: '2024-12-17'
 summary: 'Spring Boot kullanarak Java, Kotlin ve Go (Gin) ile PostgreSQL entegrasyonu ve temel CRUD işlemlerini içeren bir ORM tabanlı uygulamanın nasıl kurulacağını öğrenin.'
 thumbnail: '/images/orm-thumbnail.webp'

@@ -4,6 +4,8 @@ publishedDate: '2026-02-27'
 category:
   id: gaming
   name: Gaming
+  color: red
+  icon: gamepad
 updatedDate: '2026-02-28'
 summary: 'A detailed breakdown of Captain Tsubasa 2: World Fighters from Bandai Namco’s official page and community tracking, covering platforms, gameplay scale, known details, and open questions before launch.'
 thumbnail: '/images/captain-tsubasa-2-world-fighters-thumbnail.webp'

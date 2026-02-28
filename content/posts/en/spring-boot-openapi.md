@@ -4,6 +4,8 @@ publishedDate: '2024-12-20'
 category:
   id: programming
   name: Programming
+  color: blue
+  icon: code
 updatedDate: '2024-12-21'
 summary: 'Learn how to integrate OpenAPI into your Spring Boot application for API documentation and testing using SpringDoc.'
 thumbnail: '/images/spring-boot-openapi-thumbnail.webp'

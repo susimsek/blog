@@ -17,19 +17,31 @@
               <td style="padding:24px 24px 10px;">
                 <div style="font-size:34px;line-height:1.12;font-weight:800;color:#0f172a;margin:0 0 14px;">{{.Title}}</div>
                 <div style="font-size:11px;line-height:1.2;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#2563eb;margin:0 0 12px;">{{.NewsletterLabel}}</div>
+                {{if .PostCategory}}
+                <div style="margin:0 0 12px;">
+                  <a href="{{.PostCategory.URL}}" style="display:inline-block;color:{{.PostCategory.TextColor}};font-size:14px;line-height:1.2;font-weight:700;text-decoration:none;">
+                    <span style="display:inline-flex;align-items:center;text-decoration:none;">
+                      {{if .PostCategory.IconHTML}}
+                      <span style="display:inline-block;color:#475569;font-size:16px;line-height:1;vertical-align:middle;padding-right:6px;">{{.PostCategory.IconHTML}}</span>
+                      {{end}}
+                      <span>{{.PostCategory.Name}}</span>
+                    </span>
+                  </a>
+                </div>
+                {{end}}
                 <div style="font-size:34px;line-height:1.2;font-weight:800;color:#0f172a;margin:0 0 12px;">
                   <a href="{{.PostURL}}" style="color:#0f172a;text-decoration:none;">{{.PostTitle}}</a>
                 </div>
                 {{if or .PublishedDate .ReadingTimeText}}
                 <div style="font-size:13px;line-height:1.6;font-weight:600;color:#64748b;margin:0 0 12px;">
                   {{if .PublishedDate}}
-                  <span>&#128197; {{.PublishedLabel}}: {{.PublishedDate}}</span>
-                  {{end}}
-                  {{if and .PublishedDate .ReadingTimeText}}
-                  <span style="padding:0 8px;color:#94a3b8;">&bull;</span>
+                  <span>&#128197; {{.PublishedDate}}</span>
                   {{end}}
                   {{if .ReadingTimeText}}
-                  <span>&#9201; {{.ReadingTimeLabel}}: {{.ReadingTimeText}}</span>
+                  {{if .PublishedDate}}
+                  <span style="display:inline-block;width:12px;"></span>
+                  {{end}}
+                  <span>&#9201; {{.ReadingTimeText}}</span>
                   {{end}}
                 </div>
                 {{end}}

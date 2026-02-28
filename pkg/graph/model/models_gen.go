@@ -48,8 +48,10 @@ type Post struct {
 }
 
 type PostCategory struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID    string  `json:"id"`
+	Name  string  `json:"name"`
+	Color string  `json:"color"`
+	Icon  *string `json:"icon,omitempty"`
 }
 
 type PostConnection struct {

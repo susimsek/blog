@@ -4,6 +4,8 @@ publishedDate: '2025-04-10'
 category:
   id: programming
   name: Programming
+  color: blue
+  icon: code
 updatedDate: '2025-04-11'
 summary: 'Learn how to automatically capture created/modified timestamps and users with JPA Auditing in Spring Boot applications.'
 thumbnail: '/images/spring-boot-jpa-auditing-thumbnail.webp'

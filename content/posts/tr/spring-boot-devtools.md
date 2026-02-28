@@ -4,6 +4,8 @@ publishedDate: '2024-12-19'
 category:
   id: programming
   name: Programlama
+  color: blue
+  icon: code
 updatedDate: '2024-12-20'
 summary: 'Spring Boot DevTools ile hızlı geliştirme sürecinizi nasıl hızlandırabileceğinizi keşfedin. Canlı yeniden yükleme, önbellekleme ve hata ayıklama ipuçları içerir.'
 thumbnail: '/images/spring-boot-devtools-thumbnail.webp'

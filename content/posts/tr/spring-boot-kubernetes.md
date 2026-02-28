@@ -4,6 +4,8 @@ publishedDate: '2025-02-21'
 category:
   id: programming
   name: Programlama
+  color: blue
+  icon: code
 updatedDate: '2025-02-22'
 summary: 'Spring Boot uygulamalarını Kubernetes üzerinde nasıl ölçeklenebilir ve konteyner tabanlı olarak dağıtabileceğinizi öğrenin.'
 thumbnail: '/images/spring-boot-kubernetes-thumbnail.webp'

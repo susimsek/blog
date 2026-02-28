@@ -9,12 +9,15 @@ export type Category = {
   id: string;
   name: string;
   color: string;
+  icon?: string;
   link?: string;
 };
 
 export type PostCategoryRef = {
   id: string;
   name: string;
+  color: string;
+  icon?: string;
 };
 
 export type PostSource = 'blog' | 'medium';

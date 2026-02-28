@@ -4,6 +4,8 @@ publishedDate: '2024-12-28'
 category:
   id: programming
   name: Programming
+  color: blue
+  icon: code
 updatedDate: '2024-12-29'
 summary: 'Learn how to build and deploy a Spring Boot application as a GraalVM native image for improved startup time and reduced resource usage.'
 thumbnail: '/images/spring-boot-graalvm-thumbnail.webp'

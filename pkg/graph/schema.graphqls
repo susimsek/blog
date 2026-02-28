@@ -98,6 +98,8 @@ type Post {
 type PostCategory {
   id: ID!
   name: String!
+  color: String!
+  icon: String
 }
 
 type Topic {

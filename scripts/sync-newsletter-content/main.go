@@ -45,12 +45,15 @@ type siteCategory struct {
 	ID    string  `json:"id"`
 	Name  string  `json:"name"`
 	Color string  `json:"color"`
+	Icon  string  `json:"icon,omitempty"`
 	Link  *string `json:"link,omitempty"`
 }
 
 type sitePostCategory struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Color string `json:"color"`
+	Icon  string `json:"icon,omitempty"`
 }
 
 type sitePost struct {
@@ -251,34 +254,67 @@ func normalizeCategory(raw siteCategory) siteCategory {
 	}
 
 	color := strings.ToLower(strings.TrimSpace(raw.Color))
+	icon := strings.TrimSpace(raw.Icon)
 	switch color {
 	case "red", "green", "blue", "orange", "yellow", "purple", "gray", "brown", "pink", "cyan":
 	default:
 		color = "blue"
+	}
+	switch icon {
+	case "gamepad", "code":
+	default:
+		icon = ""
 	}
 
 	return siteCategory{
 		ID:    id,
 		Name:  name,
 		Color: color,
+		Icon:  icon,
 		Link:  normalizeOptionalString(raw.Link),
 	}
 }
 
-func normalizePostCategory(raw sitePostCategory) *sitePostCategory {
+func normalizePostCategory(raw sitePostCategory, definedCategories map[string]siteCategory) *sitePostCategory {
 	id := normalizeID(raw.ID)
 	if id == "" {
 		return nil
 	}
 
 	name := strings.TrimSpace(raw.Name)
+	color := strings.ToLower(strings.TrimSpace(raw.Color))
+	icon := strings.TrimSpace(raw.Icon)
+	if definedCategory, exists := definedCategories[id]; exists {
+		if name == "" {
+			name = definedCategory.Name
+		}
+		if color == "" {
+			color = definedCategory.Color
+		}
+		if icon == "" {
+			icon = definedCategory.Icon
+		}
+	}
 	if name == "" {
 		return nil
 	}
 
+	switch color {
+	case "red", "green", "blue", "orange", "yellow", "purple", "gray", "brown", "pink", "cyan":
+	default:
+		color = "blue"
+	}
+	switch icon {
+	case "gamepad", "code":
+	default:
+		icon = ""
+	}
+
 	return &sitePostCategory{
-		ID:   id,
-		Name: name,
+		ID:    id,
+		Name:  name,
+		Color: color,
+		Icon:  icon,
 	}
 }
 
@@ -628,14 +664,14 @@ func seedInitialEngagementForPost(
 		bson.M{"postId": post.ID},
 		bson.M{
 			"$setOnInsert": bson.M{
-				"postId":        post.ID,
-				"likes":         likes,
-				"seededAt":      now,
-				"seedModel":     "realistic-v2",
-				"publishedDate": publishedDate,
-				"updatedDate":   updatedDate,
+				"postId":         post.ID,
+				"likes":          likes,
+				"seededAt":       now,
+				"seedModel":      "realistic-v2",
+				"publishedDate":  publishedDate,
+				"updatedDate":    updatedDate,
 				"readingTimeMin": post.ReadingTimeMin,
-				"createdAt":     now,
+				"createdAt":      now,
 			},
 		},
 		options.Update().SetUpsert(true),
@@ -648,14 +684,14 @@ func seedInitialEngagementForPost(
 		bson.M{"postId": post.ID},
 		bson.M{
 			"$setOnInsert": bson.M{
-				"postId":        post.ID,
-				"hits":          hits,
-				"seededAt":      now,
-				"seedModel":     "realistic-v2",
-				"publishedDate": publishedDate,
-				"updatedDate":   updatedDate,
+				"postId":         post.ID,
+				"hits":           hits,
+				"seededAt":       now,
+				"seedModel":      "realistic-v2",
+				"publishedDate":  publishedDate,
+				"updatedDate":    updatedDate,
 				"readingTimeMin": post.ReadingTimeMin,
-				"createdAt":     now,
+				"createdAt":      now,
 			},
 		},
 		options.Update().SetUpsert(true),
@@ -773,6 +809,7 @@ func syncLocale(
 					"id":        category.ID,
 					"name":      category.Name,
 					"color":     category.Color,
+					"icon":      category.Icon,
 					"link":      link,
 					"updatedAt": now,
 					"syncedAt":  now,
@@ -818,7 +855,7 @@ func syncLocale(
 				topicLookup[topic.ID] = topic
 			}
 		}
-		category := normalizePostCategory(rawPost.Category)
+		category := normalizePostCategory(rawPost.Category, categoryByID)
 		postTopics, topicIDs := normalizePostTopics(rawPost.Topics, topicLookup)
 		title := strings.TrimSpace(rawPost.Title)
 		summary := strings.TrimSpace(rawPost.Summary)
@@ -855,8 +892,10 @@ func syncLocale(
 		var categoryValue any = nil
 		if category != nil {
 			categoryValue = bson.M{
-				"id":   category.ID,
-				"name": category.Name,
+				"id":    category.ID,
+				"name":  category.Name,
+				"color": category.Color,
+				"icon":  category.Icon,
 			}
 		}
 

@@ -51,8 +51,10 @@ type topicRecord struct {
 }
 
 type categoryRecord struct {
-	ID   string `json:"id" bson:"id"`
-	Name string `json:"name" bson:"name"`
+	ID    string `json:"id" bson:"id"`
+	Name  string `json:"name" bson:"name"`
+	Color string `json:"color" bson:"color"`
+	Icon  string `json:"icon,omitempty" bson:"icon,omitempty"`
 }
 
 type postRecord struct {

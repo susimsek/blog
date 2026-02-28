@@ -96,13 +96,20 @@ func mapCategoryFromPostCategory(category *postsapi.CategoryRecord) *model.PostC
 
 	id := strings.TrimSpace(category.ID)
 	name := strings.TrimSpace(category.Name)
+	color := strings.TrimSpace(category.Color)
+	icon := strings.TrimSpace(category.Icon)
 	if id == "" || name == "" {
 		return nil
 	}
+	if color == "" {
+		color = "blue"
+	}
 
 	return &model.PostCategory{
-		ID:   id,
-		Name: name,
+		ID:    id,
+		Name:  name,
+		Color: color,
+		Icon:  toOptionalString(icon),
 	}
 }
 

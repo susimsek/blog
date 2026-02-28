@@ -4,6 +4,8 @@ publishedDate: '2024-12-18'
 category:
   id: programming
   name: Programming
+  color: blue
+  icon: code
 updatedDate: '2024-12-19'
 summary: 'Learn how Dependency Injection (DI) works in Spring Boot, including examples in Java and Kotlin. Covers key concepts, annotations, and practical use cases.'
 thumbnail: '/images/spring-boot-di-thumbnail.webp'

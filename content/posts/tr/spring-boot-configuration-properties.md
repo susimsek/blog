@@ -4,6 +4,8 @@ publishedDate: '2026-02-04'
 category:
   id: programming
   name: Programlama
+  color: blue
+  icon: code
 updatedDate: '2026-02-17'
 summary: '@ConfigurationProperties ile tip-güvenli yapılandırma tanımlamayı, @Validated ile ayarları doğrulamayı ve profile-specific application-{profile}.yml dosyalarıyla ortama göre değer yönetimini öğrenin.'
 thumbnail: '/images/spring-boot-configuration-properties-thumbnail.webp'

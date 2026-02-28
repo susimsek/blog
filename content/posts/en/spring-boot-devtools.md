@@ -4,6 +4,8 @@ publishedDate: '2024-12-19'
 category:
   id: programming
   name: Programming
+  color: blue
+  icon: code
 updatedDate: '2024-12-20'
 summary: 'Learn how to utilize Spring Boot DevTools for rapid development. Includes live reload, caching, and debugging tips.'
 thumbnail: '/images/spring-boot-devtools-thumbnail.webp'
