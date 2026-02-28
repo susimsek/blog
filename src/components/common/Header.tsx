@@ -316,7 +316,7 @@ export default function Header({
                 </NavDropdown.Item>
                 <NavDropdown.Item as={Link} href="/games/stroop-test">
                   <span className="d-inline-flex align-items-center">
-                    <FontAwesomeIcon icon="palette" className="me-2" />
+                    <FontAwesomeIcon icon="eye" className="me-2" />
                     <span>{t('common.header.menu.stroopTest')}</span>
                   </span>
                 </NavDropdown.Item>
