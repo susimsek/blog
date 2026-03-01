@@ -48,6 +48,26 @@ type PostTopic = domain.PostTopic
 type PostCategory = domain.PostCategory
 type PostRecord = domain.PostRecord
 
+type postCounter interface {
+	CountDocuments(context.Context, interface{}, ...*options.CountOptions) (int64, error)
+}
+
+type postFinder interface {
+	Find(context.Context, interface{}, ...*options.FindOptions) (*mongo.Cursor, error)
+}
+
+type postSingleFinder interface {
+	FindOne(context.Context, interface{}, ...*options.FindOneOptions) *mongo.SingleResult
+}
+
+type postBulkWriter interface {
+	BulkWrite(context.Context, []mongo.WriteModel, ...*options.BulkWriteOptions) (*mongo.BulkWriteResult, error)
+}
+
+type postSingleUpdater interface {
+	FindOneAndUpdate(context.Context, interface{}, interface{}, ...*options.FindOneAndUpdateOptions) *mongo.SingleResult
+}
+
 func normalizePostID(value string) (string, bool) {
 	normalized := strings.ToLower(strings.TrimSpace(value))
 	if !postIDPattern.MatchString(normalized) {
@@ -248,7 +268,7 @@ func getPostContentCollection() (*mongo.Collection, error) {
 	return collection, nil
 }
 
-func ensurePostLikeDocuments(ctx context.Context, collection *mongo.Collection, postIDs []string, now time.Time) error {
+func ensurePostLikeDocuments(ctx context.Context, collection postBulkWriter, postIDs []string, now time.Time) error {
 	if len(postIDs) == 0 {
 		return nil
 	}
@@ -273,7 +293,7 @@ func ensurePostLikeDocuments(ctx context.Context, collection *mongo.Collection, 
 	return err
 }
 
-func ensurePostHitDocuments(ctx context.Context, collection *mongo.Collection, postIDs []string, now time.Time) error {
+func ensurePostHitDocuments(ctx context.Context, collection postBulkWriter, postIDs []string, now time.Time) error {
 	if len(postIDs) == 0 {
 		return nil
 	}
@@ -298,7 +318,7 @@ func ensurePostHitDocuments(ctx context.Context, collection *mongo.Collection, p
 	return err
 }
 
-func fetchPostLikesByIDs(ctx context.Context, collection *mongo.Collection, postIDs []string) (map[string]int64, error) {
+func fetchPostLikesByIDs(ctx context.Context, collection postFinder, postIDs []string) (map[string]int64, error) {
 	if len(postIDs) == 0 {
 		return map[string]int64{}, nil
 	}
@@ -338,7 +358,7 @@ func fetchPostLikesByIDs(ctx context.Context, collection *mongo.Collection, post
 	return likesByPostID, nil
 }
 
-func fetchPostHitsByIDs(ctx context.Context, collection *mongo.Collection, postIDs []string) (map[string]int64, error) {
+func fetchPostHitsByIDs(ctx context.Context, collection postFinder, postIDs []string) (map[string]int64, error) {
 	if len(postIDs) == 0 {
 		return map[string]int64{}, nil
 	}
@@ -378,7 +398,10 @@ func fetchPostHitsByIDs(ctx context.Context, collection *mongo.Collection, postI
 	return hitsByPostID, nil
 }
 
-func incrementPostLikeValue(ctx context.Context, collection *mongo.Collection, postID string, now time.Time) (int64, error) {
+func incrementPostLikeValue(ctx context.Context, collection interface {
+	postBulkWriter
+	postSingleUpdater
+}, postID string, now time.Time) (int64, error) {
 	if err := ensurePostLikeDocuments(ctx, collection, []string{postID}, now); err != nil {
 		return 0, err
 	}
@@ -405,7 +428,10 @@ func incrementPostLikeValue(ctx context.Context, collection *mongo.Collection, p
 	return updated.Likes, nil
 }
 
-func incrementPostHitValue(ctx context.Context, collection *mongo.Collection, postID string, now time.Time) (int64, error) {
+func incrementPostHitValue(ctx context.Context, collection interface {
+	postBulkWriter
+	postSingleUpdater
+}, postID string, now time.Time) (int64, error) {
 	if err := ensurePostHitDocuments(ctx, collection, []string{postID}, now); err != nil {
 		return 0, err
 	}
@@ -490,14 +516,7 @@ func normalizePostForResponse(post PostRecord) PostRecord {
 	return post
 }
 
-func queryPostRecords(
-	ctx context.Context,
-	collection *mongo.Collection,
-	filter bson.M,
-	sortOrder string,
-	skip int64,
-	limit int64,
-) ([]PostRecord, error) {
+func queryPostRecords(ctx context.Context, collection postFinder, filter bson.M, sortOrder string, skip int64, limit int64) ([]PostRecord, error) {
 	sortDirection := int32(-1)
 	if sortOrder == "asc" {
 		sortDirection = 1
@@ -537,7 +556,7 @@ func queryPostRecords(
 	return posts, nil
 }
 
-func queryPostRecordByID(ctx context.Context, collection *mongo.Collection, locale string, postID string) (*PostRecord, error) {
+func queryPostRecordByID(ctx context.Context, collection postSingleFinder, locale string, postID string) (*PostRecord, error) {
 	var post PostRecord
 	err := collection.FindOne(ctx, bson.M{
 		"locale": locale,
@@ -586,17 +605,15 @@ func resolvePostLikesByPostID(ctx context.Context, posts []PostRecord) map[strin
 		return nil
 	}
 
-	now := time.Now().UTC()
-	if err := ensurePostLikeDocuments(ctx, likesCollection, postIDs, now); err != nil {
+	if ensurePostLikeDocuments(ctx, likesCollection, postIDs, time.Now().UTC()) != nil {
 		return nil
 	}
 
-	likesByPostID, err := fetchPostLikesByIDs(ctx, likesCollection, postIDs)
-	if err != nil {
-		return nil
+	if likesByPostID, err := fetchPostLikesByIDs(ctx, likesCollection, postIDs); err == nil {
+		return likesByPostID
 	}
 
-	return likesByPostID
+	return nil
 }
 
 func resolvePostHitsByPostID(ctx context.Context, posts []PostRecord) map[string]int64 {
@@ -610,17 +627,15 @@ func resolvePostHitsByPostID(ctx context.Context, posts []PostRecord) map[string
 		return nil
 	}
 
-	now := time.Now().UTC()
-	if err := ensurePostHitDocuments(ctx, hitsCollection, postIDs, now); err != nil {
+	if ensurePostHitDocuments(ctx, hitsCollection, postIDs, time.Now().UTC()) != nil {
 		return nil
 	}
 
-	hitsByPostID, err := fetchPostHitsByIDs(ctx, hitsCollection, postIDs)
-	if err != nil {
-		return nil
+	if hitsByPostID, err := fetchPostHitsByIDs(ctx, hitsCollection, postIDs); err == nil {
+		return hitsByPostID
 	}
 
-	return hitsByPostID
+	return nil
 }
 
 func buildContentFilter(

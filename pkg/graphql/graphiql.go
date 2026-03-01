@@ -296,24 +296,20 @@ func GraphiQLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pageData, err := buildGraphiQLPageData(graphQLConfig)
-	if err != nil {
-		http.Error(w, "failed to render GraphiQL", http.StatusInternalServerError)
-		return
-	}
+	pageData := buildGraphiQLPageData(graphQLConfig)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Header().Set("Cache-Control", "no-store")
 	_ = graphiqlPageTemplate.Execute(w, pageData)
 }
 
-func buildGraphiQLPageData(graphQLConfig appconfig.GraphQLConfig) (graphiqlPageData, error) {
-	endpointJSON, err := json.Marshal(graphQLConfig.PublicPath)
-	if err != nil {
-		return graphiqlPageData{}, err
-	}
+func marshalGraphiQLJSON(value string) template.JS {
+	payload, _ := json.Marshal(value)
+	return template.JS(payload)
+}
 
-	defaultQueryJSON, err := json.Marshal(`query PostsExample {
+func buildGraphiQLPageData(graphQLConfig appconfig.GraphQLConfig) graphiqlPageData {
+	defaultQueryJSON := marshalGraphiQLJSON(`query PostsExample {
   posts(locale: EN, input: { page: 1, size: 5, sort: DESC }) {
     status
     locale
@@ -334,18 +330,12 @@ func buildGraphiQLPageData(graphQLConfig appconfig.GraphQLConfig) (graphiqlPageD
   }
 }
 `)
-	if err != nil {
-		return graphiqlPageData{}, err
-	}
 
-	defaultHeadersJSON, err := json.Marshal(`{
+	defaultHeadersJSON := marshalGraphiQLJSON(`{
   "Accept-Language": "en"
 }`)
-	if err != nil {
-		return graphiqlPageData{}, err
-	}
 
-	singlePostQueryJSON, err := json.Marshal(`query SinglePostExample($id: ID!) {
+	singlePostQueryJSON := marshalGraphiQLJSON(`query SinglePostExample($id: ID!) {
   post(locale: EN, id: $id) {
     status
     locale
@@ -362,29 +352,20 @@ func buildGraphiQLPageData(graphQLConfig appconfig.GraphQLConfig) (graphiqlPageD
   }
 }
 `)
-	if err != nil {
-		return graphiqlPageData{}, err
-	}
 
-	singlePostVariablesJSON, err := json.Marshal(`{
+	singlePostVariablesJSON := marshalGraphiQLJSON(`{
   "id": "spring-boot-graphql"
 }`)
-	if err != nil {
-		return graphiqlPageData{}, err
-	}
 
-	subscribeNewsletterMutationJSON, err := json.Marshal(`mutation SubscribeNewsletterExample($input: NewsletterSubscribeInput!) {
+	subscribeNewsletterMutationJSON := marshalGraphiQLJSON(`mutation SubscribeNewsletterExample($input: NewsletterSubscribeInput!) {
   subscribeNewsletter(input: $input) {
     status
     forwardTo
   }
 }
 `)
-	if err != nil {
-		return graphiqlPageData{}, err
-	}
 
-	subscribeNewsletterVariablesJSON, err := json.Marshal(`{
+	subscribeNewsletterVariablesJSON := marshalGraphiQLJSON(`{
   "input": {
     "locale": "EN",
     "email": "reader@example.com",
@@ -393,14 +374,11 @@ func buildGraphiQLPageData(graphQLConfig appconfig.GraphQLConfig) (graphiqlPageD
     "formName": "preFooterNewsletter"
   }
 }`)
-	if err != nil {
-		return graphiqlPageData{}, err
-	}
 
 	return graphiqlPageData{
 		DefaultHeadersJSON:               template.JS(defaultHeadersJSON),
 		DefaultQueryJSON:                 template.JS(defaultQueryJSON),
-		EndpointJSON:                     template.JS(endpointJSON),
+		EndpointJSON:                     marshalGraphiQLJSON(graphQLConfig.PublicPath),
 		GraphiQLExplorerVersion:          graphiqlExplorerVersion,
 		GraphiQLReactVersion:             graphiqlReactVersion,
 		GraphQLVersion:                   graphqlVersion,
@@ -412,5 +390,5 @@ func buildGraphiQLPageData(graphQLConfig appconfig.GraphQLConfig) (graphiqlPageD
 		SinglePostVariablesJSON:          template.JS(singlePostVariablesJSON),
 		SubscribeNewsletterMutationJSON:  template.JS(subscribeNewsletterMutationJSON),
 		SubscribeNewsletterVariablesJSON: template.JS(subscribeNewsletterVariablesJSON),
-	}, nil
+	}
 }

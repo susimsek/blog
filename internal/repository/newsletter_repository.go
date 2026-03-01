@@ -19,7 +19,17 @@ const newsletterCollectionName = "newsletter_subscribers"
 
 var ErrNewsletterRepositoryUnavailable = errors.New("newsletter repository unavailable")
 
+const newsletterRepositoryUnavailableFormat = "%w: %v"
+
 type NewsletterPendingSubscription = domain.NewsletterPendingSubscription
+
+type newsletterSingleFinder interface {
+	FindOne(context.Context, interface{}, ...*options.FindOneOptions) *mongo.SingleResult
+}
+
+type newsletterUpdater interface {
+	UpdateOne(context.Context, interface{}, interface{}, ...*options.UpdateOptions) (*mongo.UpdateResult, error)
+}
 
 type NewsletterRepository interface {
 	GetStatusByEmail(ctx context.Context, email string) (status string, found bool, err error)
@@ -131,13 +141,17 @@ func getNewsletterCollection() (*mongo.Collection, error) {
 func (r *newsletterMongoRepository) GetStatusByEmail(ctx context.Context, email string) (string, bool, error) {
 	collection, err := getNewsletterCollection()
 	if err != nil {
-		return "", false, fmt.Errorf("%w: %v", ErrNewsletterRepositoryUnavailable, err)
+		return "", false, fmt.Errorf(newsletterRepositoryUnavailableFormat, ErrNewsletterRepositoryUnavailable, err)
 	}
 
+	return getStatusByEmailFromCollection(ctx, collection, email)
+}
+
+func getStatusByEmailFromCollection(ctx context.Context, collection newsletterSingleFinder, email string) (string, bool, error) {
 	var existing struct {
 		Status string `bson:"status"`
 	}
-	err = collection.FindOne(ctx, bson.M{"email": email}).Decode(&existing)
+	err := collection.FindOne(ctx, bson.M{"email": email}).Decode(&existing)
 	if err == mongo.ErrNoDocuments {
 		return "", false, nil
 	}
@@ -151,9 +165,17 @@ func (r *newsletterMongoRepository) GetStatusByEmail(ctx context.Context, email 
 func (r *newsletterMongoRepository) UpsertPendingSubscription(ctx context.Context, input NewsletterPendingSubscription) error {
 	collection, err := getNewsletterCollection()
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrNewsletterRepositoryUnavailable, err)
+		return fmt.Errorf(newsletterRepositoryUnavailableFormat, ErrNewsletterRepositoryUnavailable, err)
 	}
 
+	return upsertPendingSubscriptionInCollection(ctx, collection, input)
+}
+
+func upsertPendingSubscriptionInCollection(
+	ctx context.Context,
+	collection newsletterUpdater,
+	input NewsletterPendingSubscription,
+) error {
 	setFields := bson.M{
 		"email":                 input.Email,
 		"locale":                input.Locale,
@@ -178,16 +200,24 @@ func (r *newsletterMongoRepository) UpsertPendingSubscription(ctx context.Contex
 		}
 	}
 
-	_, err = collection.UpdateOne(ctx, bson.M{"email": input.Email}, update, options.Update().SetUpsert(true))
+	_, err := collection.UpdateOne(ctx, bson.M{"email": input.Email}, update, options.Update().SetUpsert(true))
 	return err
 }
 
 func (r *newsletterMongoRepository) UpdatePendingSubscription(ctx context.Context, input NewsletterPendingSubscription) error {
 	collection, err := getNewsletterCollection()
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrNewsletterRepositoryUnavailable, err)
+		return fmt.Errorf(newsletterRepositoryUnavailableFormat, ErrNewsletterRepositoryUnavailable, err)
 	}
 
+	return updatePendingSubscriptionInCollection(ctx, collection, input)
+}
+
+func updatePendingSubscriptionInCollection(
+	ctx context.Context,
+	collection newsletterUpdater,
+	input NewsletterPendingSubscription,
+) error {
 	update := bson.M{
 		"$set": bson.M{
 			"locale":                input.Locale,
@@ -201,16 +231,25 @@ func (r *newsletterMongoRepository) UpdatePendingSubscription(ctx context.Contex
 		},
 	}
 
-	_, err = collection.UpdateOne(ctx, bson.M{"email": input.Email}, update)
+	_, err := collection.UpdateOne(ctx, bson.M{"email": input.Email}, update)
 	return err
 }
 
 func (r *newsletterMongoRepository) ConfirmByTokenHash(ctx context.Context, tokenHash string, now time.Time) (bool, error) {
 	collection, err := getNewsletterCollection()
 	if err != nil {
-		return false, fmt.Errorf("%w: %v", ErrNewsletterRepositoryUnavailable, err)
+		return false, fmt.Errorf(newsletterRepositoryUnavailableFormat, ErrNewsletterRepositoryUnavailable, err)
 	}
 
+	return confirmByTokenHashInCollection(ctx, collection, tokenHash, now)
+}
+
+func confirmByTokenHashInCollection(
+	ctx context.Context,
+	collection newsletterUpdater,
+	tokenHash string,
+	now time.Time,
+) (bool, error) {
 	filter := bson.M{
 		"confirmTokenHash":      tokenHash,
 		"status":                "pending",
@@ -240,9 +279,13 @@ func (r *newsletterMongoRepository) ConfirmByTokenHash(ctx context.Context, toke
 func (r *newsletterMongoRepository) UnsubscribeByEmail(ctx context.Context, email string, now time.Time) error {
 	collection, err := getNewsletterCollection()
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrNewsletterRepositoryUnavailable, err)
+		return fmt.Errorf(newsletterRepositoryUnavailableFormat, ErrNewsletterRepositoryUnavailable, err)
 	}
 
+	return unsubscribeByEmailInCollection(ctx, collection, email, now)
+}
+
+func unsubscribeByEmailInCollection(ctx context.Context, collection newsletterUpdater, email string, now time.Time) error {
 	update := bson.M{
 		"$set": bson.M{
 			"status":         "unsubscribed",
@@ -256,6 +299,6 @@ func (r *newsletterMongoRepository) UnsubscribeByEmail(ctx context.Context, emai
 		},
 	}
 
-	_, err = collection.UpdateOne(ctx, bson.M{"email": email}, update)
+	_, err := collection.UpdateOne(ctx, bson.M{"email": email}, update)
 	return err
 }

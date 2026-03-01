@@ -1,6 +1,9 @@
 package config
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestResolveRequiredEnvHelpers(t *testing.T) {
 	t.Setenv("API_CORS_ORIGIN", " https://example.com ")
@@ -93,5 +96,32 @@ func TestResolveBoolEnv(t *testing.T) {
 				t.Fatalf("resolveBoolEnv() = %v, want %v", got, testCase.want)
 			}
 		})
+	}
+}
+
+func TestDatabaseHelpers(t *testing.T) {
+	t.Setenv("MONGODB_DATABASE", "blog")
+	t.Setenv("MONGODB_URI", "mongodb://localhost:27017")
+
+	if got, err := ResolveDatabaseName(); err != nil || got != "blog" {
+		t.Fatalf("ResolveDatabaseName() = %q, %v", got, err)
+	}
+	if got, err := ResolveMongoURI(); err != nil || got != "mongodb://localhost:27017" {
+		t.Fatalf("ResolveMongoURI() = %q, %v", got, err)
+	}
+
+	clientOptions := BuildMongoClientOptions(DatabaseConfig{
+		URI:                    "mongodb://localhost:27017",
+		ConnectTimeout:         3 * time.Second,
+		ServerSelectionTimeout: 4 * time.Second,
+	}, "blog-api-test")
+	if clientOptions.AppName == nil || *clientOptions.AppName != "blog-api-test" {
+		t.Fatalf("BuildMongoClientOptions().AppName = %#v", clientOptions.AppName)
+	}
+	if clientOptions.ConnectTimeout == nil || *clientOptions.ConnectTimeout != 3*time.Second {
+		t.Fatalf("BuildMongoClientOptions().ConnectTimeout = %#v", clientOptions.ConnectTimeout)
+	}
+	if clientOptions.ServerSelectionTimeout == nil || *clientOptions.ServerSelectionTimeout != 4*time.Second {
+		t.Fatalf("BuildMongoClientOptions().ServerSelectionTimeout = %#v", clientOptions.ServerSelectionTimeout)
 	}
 }
