@@ -83,10 +83,9 @@ For backend architecture, prefer a layered Go package structure similar in spiri
 
 - `api/graphql/index.go`: GraphQL + GraphiQL HTTP handler
 - `api/newsletter-dispatch/index.go`: newsletter dispatch endpoint
-- `internal/service/post`: post service layer
-- `internal/service/newsletter`: newsletter service layer
-- `internal/repository/post`: Mongo-backed post repository layer
-- `internal/repository/newsletter`: Mongo-backed newsletter repository layer
+- `internal/domain`: domain entities and shared backend records
+- `internal/service`: business service orchestration
+- `internal/repository`: Mongo-backed repository implementations
 - `pkg/graphql`: GraphiQL page and GraphQL env/config helpers
 - `pkg/graph`: gqlgen schema, resolvers, generated code, mapping helpers
 - `pkg/newsletter`: SMTP config, templates, unsubscribe tokens, status pages
@@ -242,13 +241,12 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
 - Current Sonar scope in `sonar-project.properties` includes:
   - `src/**`
   - `api/graphql/**`
-  - `internal/service/post/service.go`
-  - `internal/service/newsletter/service.go`
+  - `internal/**`
   - `pkg/apperrors/**`
   - `pkg/httpapi/**`
   - `pkg/graphql/**`
   - `pkg/newsletter/**`
-  - `pkg/graph/*.go`
+  - `pkg/graph/**`
 
 ## Testing Guidelines
 

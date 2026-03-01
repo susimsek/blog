@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	postsapi "suaybsimsek.com/blog-api/internal/service/post"
+	appservice "suaybsimsek.com/blog-api/internal/service"
 	"suaybsimsek.com/blog-api/pkg/graph/model"
 )
 
@@ -64,7 +64,7 @@ func mapEngagement(likes, hits map[string]int64) []*model.PostEngagement {
 	return engagement
 }
 
-func mapTopicsFromPostTopics(topics []postsapi.TopicRecord) []*model.Topic {
+func mapTopicsFromPostTopics(topics []appservice.TopicRecord) []*model.Topic {
 	if len(topics) == 0 {
 		return []*model.Topic{}
 	}
@@ -89,7 +89,7 @@ func mapTopicsFromPostTopics(topics []postsapi.TopicRecord) []*model.Topic {
 	return result
 }
 
-func mapCategoryFromPostCategory(category *postsapi.CategoryRecord) *model.PostCategory {
+func mapCategoryFromPostCategory(category *appservice.CategoryRecord) *model.PostCategory {
 	if category == nil {
 		return nil
 	}
@@ -113,7 +113,7 @@ func mapCategoryFromPostCategory(category *postsapi.CategoryRecord) *model.PostC
 	}
 }
 
-func mapPosts(posts []postsapi.PostRecord) []*model.Post {
+func mapPosts(posts []appservice.PostRecord) []*model.Post {
 	if len(posts) == 0 {
 		return []*model.Post{}
 	}

@@ -9,21 +9,20 @@ import (
 	"fmt"
 	"strings"
 
-	newslettersvc "suaybsimsek.com/blog-api/internal/service/newsletter"
-	postsapi "suaybsimsek.com/blog-api/internal/service/post"
+	appservice "suaybsimsek.com/blog-api/internal/service"
 	"suaybsimsek.com/blog-api/pkg/graph/generated"
 	"suaybsimsek.com/blog-api/pkg/graph/model"
 )
 
 var (
-	queryContentFn  = postsapi.QueryContent
-	queryPostFn     = postsapi.QueryPost
-	incrementLikeFn = postsapi.IncrementLike
-	incrementHitFn  = postsapi.IncrementHit
-	subscribeFn     = newslettersvc.Subscribe
-	resendFn        = newslettersvc.Resend
-	confirmFn       = newslettersvc.Confirm
-	unsubscribeFn   = newslettersvc.Unsubscribe
+	queryContentFn  = appservice.QueryContent
+	queryPostFn     = appservice.QueryPost
+	incrementLikeFn = appservice.IncrementLike
+	incrementHitFn  = appservice.IncrementHit
+	subscribeFn     = appservice.Subscribe
+	resendFn        = appservice.Resend
+	confirmFn       = appservice.Confirm
+	unsubscribeFn   = appservice.Unsubscribe
 )
 
 // Posts is the resolver for the posts field.
@@ -33,7 +32,7 @@ func (r *queryResolver) Posts(ctx context.Context, locale model.Locale, input *m
 		return nil, fmt.Errorf("locale is required")
 	}
 
-	queryInput := postsapi.ContentQueryInput{
+	queryInput := appservice.ContentQueryInput{
 		Locale: normalizedLocale,
 	}
 	if input != nil {
@@ -92,7 +91,7 @@ func (r *queryResolver) Post(ctx context.Context, locale model.Locale, id string
 		return nil, fmt.Errorf("id is required")
 	}
 
-	payload := queryPostFn(ctx, postsapi.PostQueryInput{
+	payload := queryPostFn(ctx, appservice.PostQueryInput{
 		Locale: normalizedLocale,
 		PostID: normalizedID,
 	})
@@ -171,7 +170,7 @@ func (r *mutationResolver) SubscribeNewsletter(
 ) (*model.NewsletterMutationResult, error) {
 	payload := subscribeFn(
 		ctx,
-		newslettersvc.SubscribeInput{
+		appservice.SubscribeInput{
 			Locale:   strings.TrimSpace(mapLocaleInput(input.Locale)),
 			Email:    strings.TrimSpace(input.Email),
 			Terms:    input.Terms,
@@ -194,7 +193,7 @@ func (r *mutationResolver) ResendNewsletterConfirmation(
 ) (*model.NewsletterMutationResult, error) {
 	payload := resendFn(
 		ctx,
-		newslettersvc.ResendInput{
+		appservice.ResendInput{
 			Locale: strings.TrimSpace(mapLocaleInput(input.Locale)),
 			Email:  strings.TrimSpace(input.Email),
 			Terms:  input.Terms,

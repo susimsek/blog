@@ -1,4 +1,4 @@
-package post
+package repository
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/pkg/newsletter"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -29,68 +30,23 @@ const (
 var (
 	postIDPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{1,127}$`)
 
-	mongoClient  *mongo.Client
-	mongoInitErr error
-	mongoOnce    sync.Once
+	postMongoClient  *mongo.Client
+	postMongoInitErr error
+	postMongoOnce    sync.Once
 
-	likesIndexesOnce sync.Once
-	likesIndexesErr  error
+	postLikesIndexesOnce sync.Once
+	postLikesIndexesErr  error
 
-	hitsIndexesOnce sync.Once
-	hitsIndexesErr  error
+	postHitsIndexesOnce sync.Once
+	postHitsIndexesErr  error
 
-	contentIndexesOnce sync.Once
-	contentIndexesErr  error
+	postContentIndexesOnce sync.Once
+	postContentIndexesErr  error
 )
 
-type TopicRecord struct {
-	ID    string  `json:"id" bson:"id"`
-	Name  string  `json:"name" bson:"name"`
-	Color string  `json:"color" bson:"color"`
-	Link  *string `json:"link,omitempty" bson:"link,omitempty"`
-}
-
-type CategoryRecord struct {
-	ID    string `json:"id" bson:"id"`
-	Name  string `json:"name" bson:"name"`
-	Color string `json:"color" bson:"color"`
-	Icon  string `json:"icon,omitempty" bson:"icon,omitempty"`
-}
-
-type PostRecord struct {
-	ID             string          `json:"id" bson:"id"`
-	Title          string          `json:"title" bson:"title"`
-	Category       *CategoryRecord `json:"category,omitempty" bson:"category,omitempty"`
-	PublishedDate  string          `json:"publishedDate" bson:"publishedDate"`
-	UpdatedDate    *string         `json:"updatedDate,omitempty" bson:"updatedDate,omitempty"`
-	Summary        string          `json:"summary" bson:"summary"`
-	SearchText     string          `json:"searchText" bson:"searchText"`
-	Thumbnail      *string         `json:"thumbnail" bson:"thumbnail,omitempty"`
-	Topics         []TopicRecord   `json:"topics,omitempty" bson:"topics,omitempty"`
-	TopicIDs       []string        `json:"-" bson:"topicIds,omitempty"`
-	ReadingTimeMin int             `json:"readingTimeMin" bson:"readingTimeMin"`
-	Source         string          `json:"source,omitempty" bson:"source,omitempty"`
-	Link           *string         `json:"link,omitempty" bson:"link,omitempty"`
-	PublishedAt    time.Time       `json:"-" bson:"publishedAt,omitempty"`
-}
-
-type ContentResponse struct {
-	Status string `json:"status"`
-
-	Locale string `json:"locale,omitempty"`
-
-	Posts []PostRecord `json:"posts,omitempty"`
-	Total int          `json:"total,omitempty"`
-	Page  int          `json:"page,omitempty"`
-	Size  int          `json:"size,omitempty"`
-	Sort  string       `json:"sort,omitempty"`
-
-	PostID        string           `json:"postId,omitempty"`
-	Likes         int64            `json:"likes,omitempty"`
-	LikesByPostID map[string]int64 `json:"likesByPostId,omitempty"`
-	Hits          int64            `json:"hits,omitempty"`
-	HitsByPostID  map[string]int64 `json:"hitsByPostId,omitempty"`
-}
+type PostTopic = domain.PostTopic
+type PostCategory = domain.PostCategory
+type PostRecord = domain.PostRecord
 
 func normalizePostID(value string) (string, bool) {
 	normalized := strings.ToLower(strings.TrimSpace(value))
@@ -122,11 +78,11 @@ func computeInitialHits(postID string) int64 {
 	return hits
 }
 
-func getMongoClient() (*mongo.Client, error) {
-	mongoOnce.Do(func() {
+func getPostMongoClient() (*mongo.Client, error) {
+	postMongoOnce.Do(func() {
 		uri, err := newsletter.ResolveMongoURI()
 		if err != nil {
-			mongoInitErr = err
+			postMongoInitErr = err
 			return
 		}
 
@@ -135,27 +91,27 @@ func getMongoClient() (*mongo.Client, error) {
 
 		client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri).SetAppName("blog-api-posts"))
 		if err != nil {
-			mongoInitErr = fmt.Errorf("mongodb connect failed: %w", err)
+			postMongoInitErr = fmt.Errorf("mongodb connect failed: %w", err)
 			return
 		}
 
-		mongoClient = client
+		postMongoClient = client
 	})
 
-	if mongoInitErr != nil {
-		return nil, mongoInitErr
+	if postMongoInitErr != nil {
+		return nil, postMongoInitErr
 	}
 
-	return mongoClient, nil
+	return postMongoClient, nil
 }
 
-func getCollection(name string) (*mongo.Collection, error) {
+func getPostCollection(name string) (*mongo.Collection, error) {
 	databaseName, databaseErr := newsletter.ResolveDatabaseName()
 	if databaseErr != nil {
 		return nil, databaseErr
 	}
 
-	client, err := getMongoClient()
+	client, err := getPostMongoClient()
 	if err != nil {
 		return nil, err
 	}
@@ -163,8 +119,8 @@ func getCollection(name string) (*mongo.Collection, error) {
 	return client.Database(databaseName).Collection(name), nil
 }
 
-func ensureLikeIndexes(likesCollection *mongo.Collection) error {
-	likesIndexesOnce.Do(func() {
+func ensurePostLikeIndexes(likesCollection *mongo.Collection) error {
+	postLikesIndexesOnce.Do(func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
@@ -176,16 +132,16 @@ func ensureLikeIndexes(likesCollection *mongo.Collection) error {
 		}
 
 		if _, err := likesCollection.Indexes().CreateMany(ctx, indexes); err != nil {
-			likesIndexesErr = fmt.Errorf("post_likes index create failed: %w", err)
+			postLikesIndexesErr = fmt.Errorf("post_likes index create failed: %w", err)
 			return
 		}
 	})
 
-	return likesIndexesErr
+	return postLikesIndexesErr
 }
 
-func ensureHitIndexes(hitsCollection *mongo.Collection) error {
-	hitsIndexesOnce.Do(func() {
+func ensurePostHitIndexes(hitsCollection *mongo.Collection) error {
+	postHitsIndexesOnce.Do(func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
@@ -197,16 +153,16 @@ func ensureHitIndexes(hitsCollection *mongo.Collection) error {
 		}
 
 		if _, err := hitsCollection.Indexes().CreateMany(ctx, indexes); err != nil {
-			hitsIndexesErr = fmt.Errorf("post_hits index create failed: %w", err)
+			postHitsIndexesErr = fmt.Errorf("post_hits index create failed: %w", err)
 			return
 		}
 	})
 
-	return hitsIndexesErr
+	return postHitsIndexesErr
 }
 
-func ensureContentIndexes(postsCollection *mongo.Collection) error {
-	contentIndexesOnce.Do(func() {
+func ensurePostContentIndexes(postsCollection *mongo.Collection) error {
+	postContentIndexesOnce.Do(func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
@@ -251,48 +207,48 @@ func ensureContentIndexes(postsCollection *mongo.Collection) error {
 		}
 
 		if _, err := postsCollection.Indexes().CreateMany(ctx, indexes); err != nil {
-			contentIndexesErr = fmt.Errorf("content index create failed: %w", err)
+			postContentIndexesErr = fmt.Errorf("content index create failed: %w", err)
 			return
 		}
 	})
 
-	return contentIndexesErr
+	return postContentIndexesErr
 }
 
-func getLikesCollection() (*mongo.Collection, error) {
-	collection, err := getCollection(postLikesCollectionName)
+func getPostLikesCollection() (*mongo.Collection, error) {
+	collection, err := getPostCollection(postLikesCollectionName)
 	if err != nil {
 		return nil, err
 	}
-	if err := ensureLikeIndexes(collection); err != nil {
+	if err := ensurePostLikeIndexes(collection); err != nil {
 		return nil, err
 	}
 	return collection, nil
 }
 
-func getHitsCollection() (*mongo.Collection, error) {
-	collection, err := getCollection(postHitsCollectionName)
+func getPostHitsCollection() (*mongo.Collection, error) {
+	collection, err := getPostCollection(postHitsCollectionName)
 	if err != nil {
 		return nil, err
 	}
-	if err := ensureHitIndexes(collection); err != nil {
+	if err := ensurePostHitIndexes(collection); err != nil {
 		return nil, err
 	}
 	return collection, nil
 }
 
-func getPostsCollection() (*mongo.Collection, error) {
-	collection, err := getCollection(postsCollectionName)
+func getPostContentCollection() (*mongo.Collection, error) {
+	collection, err := getPostCollection(postsCollectionName)
 	if err != nil {
 		return nil, err
 	}
-	if err := ensureContentIndexes(collection); err != nil {
+	if err := ensurePostContentIndexes(collection); err != nil {
 		return nil, err
 	}
 	return collection, nil
 }
 
-func ensurePostLikesDocuments(ctx context.Context, collection *mongo.Collection, postIDs []string, now time.Time) error {
+func ensurePostLikeDocuments(ctx context.Context, collection *mongo.Collection, postIDs []string, now time.Time) error {
 	if len(postIDs) == 0 {
 		return nil
 	}
@@ -317,7 +273,7 @@ func ensurePostLikesDocuments(ctx context.Context, collection *mongo.Collection,
 	return err
 }
 
-func ensurePostHitsDocuments(ctx context.Context, collection *mongo.Collection, postIDs []string, now time.Time) error {
+func ensurePostHitDocuments(ctx context.Context, collection *mongo.Collection, postIDs []string, now time.Time) error {
 	if len(postIDs) == 0 {
 		return nil
 	}
@@ -342,7 +298,7 @@ func ensurePostHitsDocuments(ctx context.Context, collection *mongo.Collection, 
 	return err
 }
 
-func fetchLikesByPostIDs(ctx context.Context, collection *mongo.Collection, postIDs []string) (map[string]int64, error) {
+func fetchPostLikesByIDs(ctx context.Context, collection *mongo.Collection, postIDs []string) (map[string]int64, error) {
 	if len(postIDs) == 0 {
 		return map[string]int64{}, nil
 	}
@@ -382,7 +338,7 @@ func fetchLikesByPostIDs(ctx context.Context, collection *mongo.Collection, post
 	return likesByPostID, nil
 }
 
-func fetchHitsByPostIDs(ctx context.Context, collection *mongo.Collection, postIDs []string) (map[string]int64, error) {
+func fetchPostHitsByIDs(ctx context.Context, collection *mongo.Collection, postIDs []string) (map[string]int64, error) {
 	if len(postIDs) == 0 {
 		return map[string]int64{}, nil
 	}
@@ -422,8 +378,8 @@ func fetchHitsByPostIDs(ctx context.Context, collection *mongo.Collection, postI
 	return hitsByPostID, nil
 }
 
-func incrementPostLike(ctx context.Context, collection *mongo.Collection, postID string, now time.Time) (int64, error) {
-	if err := ensurePostLikesDocuments(ctx, collection, []string{postID}, now); err != nil {
+func incrementPostLikeValue(ctx context.Context, collection *mongo.Collection, postID string, now time.Time) (int64, error) {
+	if err := ensurePostLikeDocuments(ctx, collection, []string{postID}, now); err != nil {
 		return 0, err
 	}
 
@@ -449,8 +405,8 @@ func incrementPostLike(ctx context.Context, collection *mongo.Collection, postID
 	return updated.Likes, nil
 }
 
-func incrementPostHit(ctx context.Context, collection *mongo.Collection, postID string, now time.Time) (int64, error) {
-	if err := ensurePostHitsDocuments(ctx, collection, []string{postID}, now); err != nil {
+func incrementPostHitValue(ctx context.Context, collection *mongo.Collection, postID string, now time.Time) (int64, error) {
+	if err := ensurePostHitDocuments(ctx, collection, []string{postID}, now); err != nil {
 		return 0, err
 	}
 
@@ -534,7 +490,7 @@ func normalizePostForResponse(post PostRecord) PostRecord {
 	return post
 }
 
-func queryPosts(
+func queryPostRecords(
 	ctx context.Context,
 	collection *mongo.Collection,
 	filter bson.M,
@@ -581,7 +537,7 @@ func queryPosts(
 	return posts, nil
 }
 
-func queryPostByID(ctx context.Context, collection *mongo.Collection, locale string, postID string) (*PostRecord, error) {
+func queryPostRecordByID(ctx context.Context, collection *mongo.Collection, locale string, postID string) (*PostRecord, error) {
 	var post PostRecord
 	err := collection.FindOne(ctx, bson.M{
 		"locale": locale,
@@ -619,23 +575,23 @@ func collectPostIDs(posts []PostRecord) []string {
 	return postIDs
 }
 
-func resolveLikesByPostID(ctx context.Context, posts []PostRecord) map[string]int64 {
+func resolvePostLikesByPostID(ctx context.Context, posts []PostRecord) map[string]int64 {
 	postIDs := collectPostIDs(posts)
 	if len(postIDs) == 0 {
 		return nil
 	}
 
-	likesCollection, err := getLikesCollection()
+	likesCollection, err := getPostLikesCollection()
 	if err != nil {
 		return nil
 	}
 
 	now := time.Now().UTC()
-	if err := ensurePostLikesDocuments(ctx, likesCollection, postIDs, now); err != nil {
+	if err := ensurePostLikeDocuments(ctx, likesCollection, postIDs, now); err != nil {
 		return nil
 	}
 
-	likesByPostID, err := fetchLikesByPostIDs(ctx, likesCollection, postIDs)
+	likesByPostID, err := fetchPostLikesByIDs(ctx, likesCollection, postIDs)
 	if err != nil {
 		return nil
 	}
@@ -643,23 +599,23 @@ func resolveLikesByPostID(ctx context.Context, posts []PostRecord) map[string]in
 	return likesByPostID
 }
 
-func resolveHitsByPostID(ctx context.Context, posts []PostRecord) map[string]int64 {
+func resolvePostHitsByPostID(ctx context.Context, posts []PostRecord) map[string]int64 {
 	postIDs := collectPostIDs(posts)
 	if len(postIDs) == 0 {
 		return nil
 	}
 
-	hitsCollection, err := getHitsCollection()
+	hitsCollection, err := getPostHitsCollection()
 	if err != nil {
 		return nil
 	}
 
 	now := time.Now().UTC()
-	if err := ensurePostHitsDocuments(ctx, hitsCollection, postIDs, now); err != nil {
+	if err := ensurePostHitDocuments(ctx, hitsCollection, postIDs, now); err != nil {
 		return nil
 	}
 
-	hitsByPostID, err := fetchHitsByPostIDs(ctx, hitsCollection, postIDs)
+	hitsByPostID, err := fetchPostHitsByIDs(ctx, hitsCollection, postIDs)
 	if err != nil {
 		return nil
 	}

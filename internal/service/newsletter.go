@@ -1,4 +1,4 @@
-package newsletter
+package service
 
 import (
 	"context"
@@ -13,7 +13,8 @@ import (
 	"sync"
 	"time"
 
-	newsletterrepo "suaybsimsek.com/blog-api/internal/repository/newsletter"
+	"suaybsimsek.com/blog-api/internal/domain"
+	"suaybsimsek.com/blog-api/internal/repository"
 	newsletterpkg "suaybsimsek.com/blog-api/pkg/newsletter"
 )
 
@@ -53,7 +54,7 @@ type Result struct {
 	ForwardTo string
 }
 
-type PendingSubscription = newsletterrepo.PendingSubscription
+type PendingSubscription = domain.NewsletterPendingSubscription
 
 type rateLimiter struct {
 	mu              sync.Mutex
@@ -127,18 +128,18 @@ func (limit *rateLimiter) allow(clientID string) bool {
 }
 
 var (
-	subscribeLimiter                                     = newRateLimiter(5, time.Minute)
-	resendLimiter                                        = newRateLimiter(5, time.Minute)
-	newsletterRepository       newsletterrepo.Repository = newsletterrepo.NewMongoRepository()
-	resolveSiteURLFn                                     = newsletterpkg.ResolveSiteURL
-	resolveSMTPConfigFn                                  = newsletterpkg.ResolveSMTPConfig
-	resolveDatabaseNameFn                                = newsletterpkg.ResolveDatabaseName
-	resolveUnsubscribeSecretFn                           = newsletterpkg.ResolveUnsubscribeSecret
-	parseUnsubscribeTokenFn                              = newsletterpkg.ParseUnsubscribeToken
-	sendConfirmationEmailFn                              = sendConfirmationEmail
-	generateConfirmTokenFn                               = generateConfirmToken
-	nowUTCFn                                             = func() time.Time { return time.Now().UTC() }
-	errRepositoryUnavailable                             = newsletterrepo.ErrRepositoryUnavailable
+	subscribeLimiter                                           = newRateLimiter(5, time.Minute)
+	resendLimiter                                              = newRateLimiter(5, time.Minute)
+	newsletterRepository       repository.NewsletterRepository = repository.NewNewsletterMongoRepository()
+	resolveSiteURLFn                                           = newsletterpkg.ResolveSiteURL
+	resolveSMTPConfigFn                                        = newsletterpkg.ResolveSMTPConfig
+	resolveDatabaseNameFn                                      = newsletterpkg.ResolveDatabaseName
+	resolveUnsubscribeSecretFn                                 = newsletterpkg.ResolveUnsubscribeSecret
+	parseUnsubscribeTokenFn                                    = newsletterpkg.ParseUnsubscribeToken
+	sendConfirmationEmailFn                                    = sendConfirmationEmail
+	generateConfirmTokenFn                                     = generateConfirmToken
+	nowUTCFn                                                   = func() time.Time { return time.Now().UTC() }
+	errRepositoryUnavailable                                   = repository.ErrNewsletterRepositoryUnavailable
 )
 
 func normalizeEmail(value string) (string, error) {
@@ -280,7 +281,7 @@ func Subscribe(ctx context.Context, input SubscribeInput, meta RequestMetadata) 
 	updateCtx, updateCancel := context.WithTimeout(ctx, 10*time.Second)
 	defer updateCancel()
 
-	err = newsletterRepository.UpsertPendingSubscription(updateCtx, newsletterrepo.PendingSubscription{
+	err = newsletterRepository.UpsertPendingSubscription(updateCtx, domain.NewsletterPendingSubscription{
 		Email:                 email,
 		Locale:                locale,
 		Tags:                  normalizeTags(input.Tags),
@@ -360,7 +361,7 @@ func Resend(ctx context.Context, input ResendInput, meta RequestMetadata) Result
 	updateCtx, updateCancel := context.WithTimeout(ctx, 10*time.Second)
 	defer updateCancel()
 
-	err = newsletterRepository.UpdatePendingSubscription(updateCtx, newsletterrepo.PendingSubscription{
+	err = newsletterRepository.UpdatePendingSubscription(updateCtx, domain.NewsletterPendingSubscription{
 		Email:                 email,
 		Locale:                locale,
 		UpdatedAt:             now,
@@ -397,7 +398,7 @@ func Confirm(ctx context.Context, token string) Result {
 
 	matched, err := newsletterRepository.ConfirmByTokenHash(updateCtx, hashValue(strings.TrimSpace(token)), now)
 	if err != nil {
-		if errors.Is(err, newsletterrepo.ErrRepositoryUnavailable) {
+		if errors.Is(err, repository.ErrNewsletterRepositoryUnavailable) {
 			return Result{Status: "service-unavailable"}
 		}
 		return Result{Status: "failed"}
@@ -435,7 +436,7 @@ func Unsubscribe(ctx context.Context, token string) Result {
 
 	err = newsletterRepository.UnsubscribeByEmail(updateCtx, email, now)
 	if err != nil {
-		if errors.Is(err, newsletterrepo.ErrRepositoryUnavailable) {
+		if errors.Is(err, repository.ErrNewsletterRepositoryUnavailable) {
 			return Result{Status: "service-unavailable"}
 		}
 		return Result{Status: "failed"}

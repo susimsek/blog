@@ -68,10 +68,9 @@ pnpm run backend:cover
 
 - [`api/graphql/index.go`](/Users/T097315/Documents/MyProject/blog/api/graphql/index.go): GraphQL and GraphiQL HTTP handler
 - [`api/newsletter-dispatch/index.go`](/Users/T097315/Documents/MyProject/blog/api/newsletter-dispatch/index.go): newsletter dispatch endpoint
-- [`internal/service/post`](/Users/T097315/Documents/MyProject/blog/internal/service/post): post query service layer
-- [`internal/service/newsletter`](/Users/T097315/Documents/MyProject/blog/internal/service/newsletter): newsletter subscribe/confirm/unsubscribe service layer
-- [`internal/repository/post`](/Users/T097315/Documents/MyProject/blog/internal/repository/post): Mongo-backed post repository layer
-- [`internal/repository/newsletter`](/Users/T097315/Documents/MyProject/blog/internal/repository/newsletter): Mongo-backed newsletter repository layer
+- [`internal/domain`](/Users/T097315/Documents/MyProject/blog/internal/domain): domain entities and shared backend records
+- [`internal/service`](/Users/T097315/Documents/MyProject/blog/internal/service): business service orchestration
+- [`internal/repository`](/Users/T097315/Documents/MyProject/blog/internal/repository): Mongo-backed repository implementations
 - [`pkg/graphql`](/Users/T097315/Documents/MyProject/blog/pkg/graphql): GraphiQL page and GraphQL env helpers
 - [`pkg/graph`](/Users/T097315/Documents/MyProject/blog/pkg/graph): gqlgen schema, resolvers, and mapping helpers
 - [`pkg/newsletter`](/Users/T097315/Documents/MyProject/blog/pkg/newsletter): SMTP config, templates, unsubscribe tokens, status pages
@@ -82,8 +81,9 @@ pnpm run backend:cover
 Preferred backend layering:
 
 - `api/*`: transport and HTTP entrypoints
-- `internal/service/*`: business service orchestration
-- `internal/repository/*`: persistence and repository implementations
+- `internal/domain`: domain entities and shared backend records
+- `internal/service`: business service orchestration
+- `internal/repository`: persistence and repository implementations
 - `pkg/*`: reusable shared packages, templates, schemas, and cross-cutting helpers
 
 Avoid introducing new Go package trees that are organized primarily by product feature. Keep package boundaries technical and layered.

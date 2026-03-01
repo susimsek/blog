@@ -1,4 +1,4 @@
-package post
+package service
 
 import (
 	"context"
@@ -6,52 +6,53 @@ import (
 	"testing"
 	"time"
 
-	postsrepo "suaybsimsek.com/blog-api/internal/repository/post"
+	"suaybsimsek.com/blog-api/internal/domain"
+	"suaybsimsek.com/blog-api/internal/repository"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type stubRepository struct {
+type postStubRepository struct {
 	countPosts           func(context.Context, bson.M) (int, error)
-	findPosts            func(context.Context, bson.M, string, int64, int64) ([]postsrepo.PostRecord, error)
-	findPostByID         func(context.Context, string, string) (*postsrepo.PostRecord, error)
-	resolveLikesByPostID func(context.Context, []postsrepo.PostRecord) map[string]int64
-	resolveHitsByPostID  func(context.Context, []postsrepo.PostRecord) map[string]int64
+	findPosts            func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error)
+	findPostByID         func(context.Context, string, string) (*domain.PostRecord, error)
+	resolveLikesByPostID func(context.Context, []domain.PostRecord) map[string]int64
+	resolveHitsByPostID  func(context.Context, []domain.PostRecord) map[string]int64
 	incrementPostLike    func(context.Context, string, time.Time) (int64, error)
 	incrementPostHit     func(context.Context, string, time.Time) (int64, error)
 }
 
-func (stub stubRepository) CountPosts(ctx context.Context, filter bson.M) (int, error) {
+func (stub postStubRepository) CountPosts(ctx context.Context, filter bson.M) (int, error) {
 	return stub.countPosts(ctx, filter)
 }
 
-func (stub stubRepository) FindPosts(
+func (stub postStubRepository) FindPosts(
 	ctx context.Context,
 	filter bson.M,
 	sortOrder string,
 	skip int64,
 	limit int64,
-) ([]postsrepo.PostRecord, error) {
+) ([]domain.PostRecord, error) {
 	return stub.findPosts(ctx, filter, sortOrder, skip, limit)
 }
 
-func (stub stubRepository) FindPostByID(ctx context.Context, locale string, postID string) (*postsrepo.PostRecord, error) {
+func (stub postStubRepository) FindPostByID(ctx context.Context, locale string, postID string) (*domain.PostRecord, error) {
 	return stub.findPostByID(ctx, locale, postID)
 }
 
-func (stub stubRepository) ResolveLikesByPostID(ctx context.Context, posts []postsrepo.PostRecord) map[string]int64 {
+func (stub postStubRepository) ResolveLikesByPostID(ctx context.Context, posts []domain.PostRecord) map[string]int64 {
 	return stub.resolveLikesByPostID(ctx, posts)
 }
 
-func (stub stubRepository) ResolveHitsByPostID(ctx context.Context, posts []postsrepo.PostRecord) map[string]int64 {
+func (stub postStubRepository) ResolveHitsByPostID(ctx context.Context, posts []domain.PostRecord) map[string]int64 {
 	return stub.resolveHitsByPostID(ctx, posts)
 }
 
-func (stub stubRepository) IncrementPostLike(ctx context.Context, postID string, now time.Time) (int64, error) {
+func (stub postStubRepository) IncrementPostLike(ctx context.Context, postID string, now time.Time) (int64, error) {
 	return stub.incrementPostLike(ctx, postID, now)
 }
 
-func (stub stubRepository) IncrementPostHit(ctx context.Context, postID string, now time.Time) (int64, error) {
+func (stub postStubRepository) IncrementPostHit(ctx context.Context, postID string, now time.Time) (int64, error) {
 	return stub.incrementPostHit(ctx, postID, now)
 }
 
@@ -61,27 +62,27 @@ func TestQueryContent(t *testing.T) {
 		postsRepository = originalRepository
 	})
 
-	postsRepository = stubRepository{
+	postsRepository = postStubRepository{
 		countPosts: func(_ context.Context, filter bson.M) (int, error) {
 			if filter["locale"] != "tr" {
 				t.Fatalf("locale filter = %#v", filter)
 			}
 			return 2, nil
 		},
-		findPosts: func(_ context.Context, _ bson.M, sortOrder string, skip int64, limit int64) ([]postsrepo.PostRecord, error) {
+		findPosts: func(_ context.Context, _ bson.M, sortOrder string, skip int64, limit int64) ([]domain.PostRecord, error) {
 			if sortOrder != "asc" || skip != 0 || limit != 2 {
 				t.Fatalf("query args = %q %d %d", sortOrder, skip, limit)
 			}
-			return []postsrepo.PostRecord{
+			return []domain.PostRecord{
 				{ID: "alpha-post", Title: "Alpha", PublishedDate: "2026-03-01", Summary: "Summary", SearchText: "alpha", ReadingTimeMin: 3},
 				{ID: "beta-post", Title: "Beta", PublishedDate: "2026-03-02", Summary: "Summary", SearchText: "beta", ReadingTimeMin: 4},
 			}, nil
 		},
-		findPostByID: func(context.Context, string, string) (*postsrepo.PostRecord, error) { return nil, nil },
-		resolveLikesByPostID: func(_ context.Context, posts []postsrepo.PostRecord) map[string]int64 {
+		findPostByID: func(context.Context, string, string) (*domain.PostRecord, error) { return nil, nil },
+		resolveLikesByPostID: func(_ context.Context, posts []domain.PostRecord) map[string]int64 {
 			return map[string]int64{posts[0].ID: 10}
 		},
-		resolveHitsByPostID: func(_ context.Context, posts []postsrepo.PostRecord) map[string]int64 {
+		resolveHitsByPostID: func(_ context.Context, posts []domain.PostRecord) map[string]int64 {
 			return map[string]int64{posts[1].ID: 20}
 		},
 		incrementPostLike: func(context.Context, string, time.Time) (int64, error) { return 0, nil },
@@ -112,14 +113,14 @@ func TestQueryContentBranches(t *testing.T) {
 		postsRepository = originalRepository
 	})
 
-	postsRepository = stubRepository{
+	postsRepository = postStubRepository{
 		countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
-		findPosts: func(context.Context, bson.M, string, int64, int64) ([]postsrepo.PostRecord, error) {
+		findPosts: func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) {
 			return nil, errors.New("should not be called")
 		},
-		findPostByID:         func(context.Context, string, string) (*postsrepo.PostRecord, error) { return nil, nil },
-		resolveLikesByPostID: func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
-		resolveHitsByPostID:  func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
+		findPostByID:         func(context.Context, string, string) (*domain.PostRecord, error) { return nil, nil },
+		resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
+		resolveHitsByPostID:  func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
 		incrementPostLike:    func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 		incrementPostHit:     func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 	}
@@ -133,14 +134,14 @@ func TestQueryContentBranches(t *testing.T) {
 		t.Fatalf("empty result = %#v", result)
 	}
 
-	postsRepository = stubRepository{
-		countPosts: func(context.Context, bson.M) (int, error) { return 0, postsrepo.ErrRepositoryUnavailable },
-		findPosts: func(context.Context, bson.M, string, int64, int64) ([]postsrepo.PostRecord, error) {
+	postsRepository = postStubRepository{
+		countPosts: func(context.Context, bson.M) (int, error) { return 0, repository.ErrPostRepositoryUnavailable },
+		findPosts: func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) {
 			return nil, nil
 		},
-		findPostByID:         func(context.Context, string, string) (*postsrepo.PostRecord, error) { return nil, nil },
-		resolveLikesByPostID: func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
-		resolveHitsByPostID:  func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
+		findPostByID:         func(context.Context, string, string) (*domain.PostRecord, error) { return nil, nil },
+		resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
+		resolveHitsByPostID:  func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
 		incrementPostLike:    func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 		incrementPostHit:     func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 	}
@@ -156,19 +157,19 @@ func TestQueryPostAndMetrics(t *testing.T) {
 	})
 
 	now := time.Now().UTC()
-	postsRepository = stubRepository{
+	postsRepository = postStubRepository{
 		countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
-		findPosts:  func(context.Context, bson.M, string, int64, int64) ([]postsrepo.PostRecord, error) { return nil, nil },
-		findPostByID: func(_ context.Context, locale string, postID string) (*postsrepo.PostRecord, error) {
+		findPosts:  func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
+		findPostByID: func(_ context.Context, locale string, postID string) (*domain.PostRecord, error) {
 			if locale != "en" || postID != "alpha-post" {
 				t.Fatalf("FindPostByID args = %q %q", locale, postID)
 			}
-			return &postsrepo.PostRecord{ID: postID, Title: "Alpha", PublishedDate: "2026-03-01", Summary: "Summary", SearchText: "alpha", ReadingTimeMin: 3}, nil
+			return &domain.PostRecord{ID: postID, Title: "Alpha", PublishedDate: "2026-03-01", Summary: "Summary", SearchText: "alpha", ReadingTimeMin: 3}, nil
 		},
-		resolveLikesByPostID: func(context.Context, []postsrepo.PostRecord) map[string]int64 {
+		resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 {
 			return map[string]int64{"alpha-post": 12}
 		},
-		resolveHitsByPostID: func(context.Context, []postsrepo.PostRecord) map[string]int64 {
+		resolveHitsByPostID: func(context.Context, []domain.PostRecord) map[string]int64 {
 			return map[string]int64{"alpha-post": 42}
 		},
 		incrementPostLike: func(_ context.Context, postID string, received time.Time) (int64, error) {
@@ -210,16 +211,18 @@ func TestQueryPostAndMetricBranches(t *testing.T) {
 		postsRepository = originalRepository
 	})
 
-	postsRepository = stubRepository{
+	postsRepository = postStubRepository{
 		countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
-		findPosts:  func(context.Context, bson.M, string, int64, int64) ([]postsrepo.PostRecord, error) { return nil, nil },
-		findPostByID: func(context.Context, string, string) (*postsrepo.PostRecord, error) {
-			return nil, postsrepo.ErrRepositoryUnavailable
+		findPosts:  func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
+		findPostByID: func(context.Context, string, string) (*domain.PostRecord, error) {
+			return nil, repository.ErrPostRepositoryUnavailable
 		},
-		resolveLikesByPostID: func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
-		resolveHitsByPostID:  func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
-		incrementPostLike:    func(context.Context, string, time.Time) (int64, error) { return 0, postsrepo.ErrRepositoryUnavailable },
-		incrementPostHit:     func(context.Context, string, time.Time) (int64, error) { return 0, errors.New("boom") },
+		resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
+		resolveHitsByPostID:  func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
+		incrementPostLike: func(context.Context, string, time.Time) (int64, error) {
+			return 0, repository.ErrPostRepositoryUnavailable
+		},
+		incrementPostHit: func(context.Context, string, time.Time) (int64, error) { return 0, errors.New("boom") },
 	}
 
 	if result := QueryPost(context.Background(), PostQueryInput{Locale: "en", PostID: "bad id"}); result.Status != "invalid-post-id" {
@@ -281,12 +284,12 @@ func TestPostServiceAdditionalBranches(t *testing.T) {
 	})
 
 	t.Run("query content returns failed when repository count fails generically", func(t *testing.T) {
-		postsRepository = stubRepository{
+		postsRepository = postStubRepository{
 			countPosts:           func(context.Context, bson.M) (int, error) { return 0, errors.New("boom") },
-			findPosts:            func(context.Context, bson.M, string, int64, int64) ([]postsrepo.PostRecord, error) { return nil, nil },
-			findPostByID:         func(context.Context, string, string) (*postsrepo.PostRecord, error) { return nil, nil },
-			resolveLikesByPostID: func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
-			resolveHitsByPostID:  func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
+			findPosts:            func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
+			findPostByID:         func(context.Context, string, string) (*domain.PostRecord, error) { return nil, nil },
+			resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
+			resolveHitsByPostID:  func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
 			incrementPostLike:    func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 			incrementPostHit:     func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 		}
@@ -297,14 +300,14 @@ func TestPostServiceAdditionalBranches(t *testing.T) {
 	})
 
 	t.Run("query content returns failed when fetch fails generically", func(t *testing.T) {
-		postsRepository = stubRepository{
+		postsRepository = postStubRepository{
 			countPosts: func(context.Context, bson.M) (int, error) { return 1, nil },
-			findPosts: func(context.Context, bson.M, string, int64, int64) ([]postsrepo.PostRecord, error) {
+			findPosts: func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) {
 				return nil, errors.New("boom")
 			},
-			findPostByID:         func(context.Context, string, string) (*postsrepo.PostRecord, error) { return nil, nil },
-			resolveLikesByPostID: func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
-			resolveHitsByPostID:  func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
+			findPostByID:         func(context.Context, string, string) (*domain.PostRecord, error) { return nil, nil },
+			resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
+			resolveHitsByPostID:  func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
 			incrementPostLike:    func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 			incrementPostHit:     func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 		}
@@ -315,14 +318,14 @@ func TestPostServiceAdditionalBranches(t *testing.T) {
 	})
 
 	t.Run("query post returns not found and failed branches", func(t *testing.T) {
-		postsRepository = stubRepository{
+		postsRepository = postStubRepository{
 			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
-			findPosts:  func(context.Context, bson.M, string, int64, int64) ([]postsrepo.PostRecord, error) { return nil, nil },
-			findPostByID: func(context.Context, string, string) (*postsrepo.PostRecord, error) {
+			findPosts:  func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
+			findPostByID: func(context.Context, string, string) (*domain.PostRecord, error) {
 				return nil, nil
 			},
-			resolveLikesByPostID: func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
-			resolveHitsByPostID:  func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
+			resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
+			resolveHitsByPostID:  func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
 			incrementPostLike:    func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 			incrementPostHit:     func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 		}
@@ -331,14 +334,14 @@ func TestPostServiceAdditionalBranches(t *testing.T) {
 			t.Fatalf("not found post result = %#v", result)
 		}
 
-		postsRepository = stubRepository{
+		postsRepository = postStubRepository{
 			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
-			findPosts:  func(context.Context, bson.M, string, int64, int64) ([]postsrepo.PostRecord, error) { return nil, nil },
-			findPostByID: func(context.Context, string, string) (*postsrepo.PostRecord, error) {
+			findPosts:  func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
+			findPostByID: func(context.Context, string, string) (*domain.PostRecord, error) {
 				return nil, errors.New("boom")
 			},
-			resolveLikesByPostID: func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
-			resolveHitsByPostID:  func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
+			resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
+			resolveHitsByPostID:  func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
 			incrementPostLike:    func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 			incrementPostHit:     func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 		}
@@ -349,14 +352,16 @@ func TestPostServiceAdditionalBranches(t *testing.T) {
 	})
 
 	t.Run("metric mutations cover remaining invalid and generic failures", func(t *testing.T) {
-		postsRepository = stubRepository{
+		postsRepository = postStubRepository{
 			countPosts:           func(context.Context, bson.M) (int, error) { return 0, nil },
-			findPosts:            func(context.Context, bson.M, string, int64, int64) ([]postsrepo.PostRecord, error) { return nil, nil },
-			findPostByID:         func(context.Context, string, string) (*postsrepo.PostRecord, error) { return nil, nil },
-			resolveLikesByPostID: func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
-			resolveHitsByPostID:  func(context.Context, []postsrepo.PostRecord) map[string]int64 { return nil },
+			findPosts:            func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
+			findPostByID:         func(context.Context, string, string) (*domain.PostRecord, error) { return nil, nil },
+			resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
+			resolveHitsByPostID:  func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
 			incrementPostLike:    func(context.Context, string, time.Time) (int64, error) { return 0, errors.New("boom") },
-			incrementPostHit:     func(context.Context, string, time.Time) (int64, error) { return 0, postsrepo.ErrRepositoryUnavailable },
+			incrementPostHit: func(context.Context, string, time.Time) (int64, error) {
+				return 0, repository.ErrPostRepositoryUnavailable
+			},
 		}
 
 		if result := IncrementLike(context.Background(), "alpha-post"); result.Status != "failed" {

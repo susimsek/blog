@@ -13,6 +13,8 @@ executors:
 jobs:
   build-and-deploy:
     executor: node-executor
+    environment:
+      GO_VERSION: "1.24.0"
     steps:
       - checkout
 
@@ -20,6 +22,11 @@ jobs:
           keys:
             - v2-pnpm-store-{{ checksum "pnpm-lock.yaml" }}
             - v2-pnpm-store-
+
+      - restore_cache:
+          keys:
+            - v1-go-cache-{{ checksum "go.sum" }}
+            - v1-go-cache-
 
       - run:
           name: Enable Corepack (pnpm)
@@ -33,6 +40,22 @@ jobs:
           name: Install Dependencies (pnpm)
           command: pnpm install --frozen-lockfile
 
+      - run:
+          name: Install Go
+          command: |
+            curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tar.gz
+            rm -rf "${HOME}/.go"
+            tar -C "${HOME}" -xzf /tmp/go.tar.gz
+            mv "${HOME}/go" "${HOME}/.go"
+            {
+              echo 'export GOROOT="${HOME}/.go"'
+              echo 'export GOPATH="${HOME}/go-workspace"'
+              echo 'export PATH="${GOROOT}/bin:${GOPATH}/bin:${PATH}"'
+            } >> "${BASH_ENV}"
+            . "${BASH_ENV}"
+            mkdir -p "${GOPATH}" "${HOME}/.cache/go-build"
+            go version
+
       - save_cache:
           key: v2-pnpm-store-{{ checksum "pnpm-lock.yaml" }}
           paths:
@@ -43,8 +66,26 @@ jobs:
           additional-arguments: "--all-projects --exclude=go.mod"
 
       - run:
-          name: Run Tests
+          name: Run Frontend Tests
           command: pnpm test
+
+      - run:
+          name: Run Backend Tests
+          command: |
+            . "${BASH_ENV}"
+            pnpm run backend:test
+
+      - run:
+          name: Build Go Coverage For Sonar
+          command: |
+            . "${BASH_ENV}"
+            pnpm run backend:cover
+
+      - save_cache:
+          key: v1-go-cache-{{ checksum "go.sum" }}
+          paths:
+            - ~/go-workspace/pkg/mod
+            - ~/.cache/go-build
 
       - sonarcloud/scan
 

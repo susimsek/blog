@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	newslettersvc "suaybsimsek.com/blog-api/internal/service/newsletter"
+	appservice "suaybsimsek.com/blog-api/internal/service"
 )
 
 type requestMetadataKey struct{}
@@ -16,7 +16,7 @@ func WithRequestMetadata(ctx context.Context, request *http.Request) context.Con
 		return ctx
 	}
 
-	metadata := newslettersvc.RequestMetadata{
+	metadata := appservice.RequestMetadata{
 		ClientIP:       resolveClientIP(request),
 		UserAgent:      strings.TrimSpace(request.UserAgent()),
 		AcceptLanguage: strings.TrimSpace(request.Header.Get("Accept-Language")),
@@ -25,14 +25,14 @@ func WithRequestMetadata(ctx context.Context, request *http.Request) context.Con
 	return context.WithValue(ctx, requestMetadataKey{}, metadata)
 }
 
-func getRequestMetadata(ctx context.Context) newslettersvc.RequestMetadata {
+func getRequestMetadata(ctx context.Context) appservice.RequestMetadata {
 	if ctx == nil {
-		return newslettersvc.RequestMetadata{}
+		return appservice.RequestMetadata{}
 	}
 
-	metadata, ok := ctx.Value(requestMetadataKey{}).(newslettersvc.RequestMetadata)
+	metadata, ok := ctx.Value(requestMetadataKey{}).(appservice.RequestMetadata)
 	if !ok {
-		return newslettersvc.RequestMetadata{}
+		return appservice.RequestMetadata{}
 	}
 
 	return metadata

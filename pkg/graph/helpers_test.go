@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	postsapi "suaybsimsek.com/blog-api/internal/service/post"
+	appservice "suaybsimsek.com/blog-api/internal/service"
 	"suaybsimsek.com/blog-api/pkg/graph/model"
 )
 
@@ -87,7 +87,7 @@ func TestPostMappingHelpers(t *testing.T) {
 	thumbnail := "/thumb.webp"
 	postLink := "https://example.com/post"
 
-	topics := mapTopicsFromPostTopics([]postsapi.TopicRecord{
+	topics := mapTopicsFromPostTopics([]appservice.TopicRecord{
 		{ID: "react", Name: "React", Color: "blue", Link: &link},
 		{ID: "", Name: "Ignored", Color: "gray"},
 	})
@@ -95,25 +95,25 @@ func TestPostMappingHelpers(t *testing.T) {
 		t.Fatalf("topics = %#v", topics)
 	}
 
-	category := mapCategoryFromPostCategory(&postsapi.CategoryRecord{ID: "programming", Name: "Programming"})
+	category := mapCategoryFromPostCategory(&appservice.CategoryRecord{ID: "programming", Name: "Programming"})
 	if category == nil || category.Color != "blue" {
 		t.Fatalf("category = %#v", category)
 	}
-	if got := mapCategoryFromPostCategory(&postsapi.CategoryRecord{}); got != nil {
+	if got := mapCategoryFromPostCategory(&appservice.CategoryRecord{}); got != nil {
 		t.Fatalf("empty category = %#v", got)
 	}
 
-	posts := mapPosts([]postsapi.PostRecord{
+	posts := mapPosts([]appservice.PostRecord{
 		{
 			ID:             "alpha-post",
 			Title:          "Alpha",
-			Category:       &postsapi.CategoryRecord{ID: "programming", Name: "Programming", Color: "green", Icon: "code"},
+			Category:       &appservice.CategoryRecord{ID: "programming", Name: "Programming", Color: "green", Icon: "code"},
 			PublishedDate:  "2026-03-01",
 			UpdatedDate:    &updatedDate,
 			Summary:        "Summary",
 			SearchText:     "alpha summary",
 			Thumbnail:      &thumbnail,
-			Topics:         []postsapi.TopicRecord{{ID: "react", Name: "React", Color: "blue"}},
+			Topics:         []appservice.TopicRecord{{ID: "react", Name: "React", Color: "blue"}},
 			ReadingTimeMin: 0,
 			Source:         "blog",
 			Link:           &postLink,

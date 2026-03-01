@@ -1,4 +1,4 @@
-package post
+package service
 
 import (
 	"context"
@@ -8,20 +8,21 @@ import (
 	"strings"
 	"time"
 
-	postsrepo "suaybsimsek.com/blog-api/internal/repository/post"
+	"suaybsimsek.com/blog-api/internal/domain"
+	"suaybsimsek.com/blog-api/internal/repository"
 	"suaybsimsek.com/blog-api/pkg/newsletter"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type TopicRecord = postsrepo.TopicRecord
-type CategoryRecord = postsrepo.CategoryRecord
-type PostRecord = postsrepo.PostRecord
-type ContentResponse = postsrepo.ContentResponse
+type TopicRecord = domain.PostTopic
+type CategoryRecord = domain.PostCategory
+type PostRecord = domain.PostRecord
+type ContentResponse = domain.PostContentResponse
 
 var (
-	postIDPattern                        = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{1,127}$`)
-	postsRepository postsrepo.Repository = postsrepo.NewMongoRepository()
+	postIDPattern                             = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{1,127}$`)
+	postsRepository repository.PostRepository = repository.NewPostMongoRepository()
 )
 
 const (
@@ -69,7 +70,7 @@ func QueryContent(ctx context.Context, input ContentQueryInput) ContentResponse 
 
 	total, countErr := postsRepository.CountPosts(operationCtx, filter)
 	if countErr != nil {
-		if errors.Is(countErr, postsrepo.ErrRepositoryUnavailable) {
+		if errors.Is(countErr, repository.ErrPostRepositoryUnavailable) {
 			return ContentResponse{Status: statusServiceUnavailable}
 		}
 		return ContentResponse{Status: "failed"}
@@ -100,7 +101,7 @@ func QueryContent(ctx context.Context, input ContentQueryInput) ContentResponse 
 
 	posts, queryErr := postsRepository.FindPosts(operationCtx, filter, sortOrder, skip, limit)
 	if queryErr != nil {
-		if errors.Is(queryErr, postsrepo.ErrRepositoryUnavailable) {
+		if errors.Is(queryErr, repository.ErrPostRepositoryUnavailable) {
 			return ContentResponse{Status: statusServiceUnavailable}
 		}
 		return ContentResponse{Status: "failed"}
@@ -132,7 +133,7 @@ func QueryPost(ctx context.Context, input PostQueryInput) ContentResponse {
 
 	post, queryErr := postsRepository.FindPostByID(operationCtx, locale, postID)
 	if queryErr != nil {
-		if errors.Is(queryErr, postsrepo.ErrRepositoryUnavailable) {
+		if errors.Is(queryErr, repository.ErrPostRepositoryUnavailable) {
 			return ContentResponse{Status: statusServiceUnavailable, Locale: locale, PostID: postID}
 		}
 		return ContentResponse{Status: "failed", Locale: locale, PostID: postID}
@@ -164,7 +165,7 @@ func IncrementLike(ctx context.Context, postID string) ContentResponse {
 
 	likes, incrementErr := postsRepository.IncrementPostLike(operationCtx, normalizedPostID, time.Now().UTC())
 	if incrementErr != nil {
-		if errors.Is(incrementErr, postsrepo.ErrRepositoryUnavailable) {
+		if errors.Is(incrementErr, repository.ErrPostRepositoryUnavailable) {
 			return ContentResponse{Status: statusServiceUnavailable, PostID: normalizedPostID}
 		}
 		return ContentResponse{Status: "failed", PostID: normalizedPostID}
@@ -189,7 +190,7 @@ func IncrementHit(ctx context.Context, postID string) ContentResponse {
 
 	hits, incrementErr := postsRepository.IncrementPostHit(operationCtx, normalizedPostID, time.Now().UTC())
 	if incrementErr != nil {
-		if errors.Is(incrementErr, postsrepo.ErrRepositoryUnavailable) {
+		if errors.Is(incrementErr, repository.ErrPostRepositoryUnavailable) {
 			return ContentResponse{Status: statusServiceUnavailable, PostID: normalizedPostID}
 		}
 		return ContentResponse{Status: "failed", PostID: normalizedPostID}

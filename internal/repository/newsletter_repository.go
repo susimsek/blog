@@ -1,4 +1,4 @@
-package newsletter
+package repository
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"suaybsimsek.com/blog-api/internal/domain"
 	newsletterpkg "suaybsimsek.com/blog-api/pkg/newsletter"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -16,51 +17,38 @@ import (
 
 const newsletterCollectionName = "newsletter_subscribers"
 
-var ErrRepositoryUnavailable = errors.New("newsletter repository unavailable")
+var ErrNewsletterRepositoryUnavailable = errors.New("newsletter repository unavailable")
 
-type PendingSubscription struct {
-	Email                 string
-	Locale                string
-	Tags                  []string
-	FormName              string
-	Source                string
-	UpdatedAt             time.Time
-	IPHash                string
-	UserAgent             string
-	ConfirmTokenHash      string
-	ConfirmTokenExpiresAt time.Time
-	ConfirmRequestedAt    time.Time
-	CreatedAt             *time.Time
-}
+type NewsletterPendingSubscription = domain.NewsletterPendingSubscription
 
-type Repository interface {
+type NewsletterRepository interface {
 	GetStatusByEmail(ctx context.Context, email string) (status string, found bool, err error)
-	UpsertPendingSubscription(ctx context.Context, input PendingSubscription) error
-	UpdatePendingSubscription(ctx context.Context, input PendingSubscription) error
+	UpsertPendingSubscription(ctx context.Context, input NewsletterPendingSubscription) error
+	UpdatePendingSubscription(ctx context.Context, input NewsletterPendingSubscription) error
 	ConfirmByTokenHash(ctx context.Context, tokenHash string, now time.Time) (matched bool, err error)
 	UnsubscribeByEmail(ctx context.Context, email string, now time.Time) error
 }
 
-type mongoRepository struct{}
+type newsletterMongoRepository struct{}
 
 var (
-	mongoClient     *mongo.Client
-	mongoInitErr    error
-	mongoClientOnce sync.Once
+	newsletterMongoClient     *mongo.Client
+	newsletterMongoInitErr    error
+	newsletterMongoClientOnce sync.Once
 
-	indexesOnce sync.Once
-	indexesErr  error
+	newsletterIndexesOnce sync.Once
+	newsletterIndexesErr  error
 )
 
-func NewMongoRepository() Repository {
-	return &mongoRepository{}
+func NewNewsletterMongoRepository() NewsletterRepository {
+	return &newsletterMongoRepository{}
 }
 
-func getMongoClient() (*mongo.Client, error) {
-	mongoClientOnce.Do(func() {
+func getNewsletterMongoClient() (*mongo.Client, error) {
+	newsletterMongoClientOnce.Do(func() {
 		uri, err := newsletterpkg.ResolveMongoURI()
 		if err != nil {
-			mongoInitErr = err
+			newsletterMongoInitErr = err
 			return
 		}
 
@@ -69,22 +57,22 @@ func getMongoClient() (*mongo.Client, error) {
 
 		client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri).SetAppName("blog-api-newsletter"))
 		if err != nil {
-			mongoInitErr = fmt.Errorf("mongodb connect failed: %w", err)
+			newsletterMongoInitErr = fmt.Errorf("mongodb connect failed: %w", err)
 			return
 		}
 
-		mongoClient = client
+		newsletterMongoClient = client
 	})
 
-	if mongoInitErr != nil {
-		return nil, mongoInitErr
+	if newsletterMongoInitErr != nil {
+		return nil, newsletterMongoInitErr
 	}
 
-	return mongoClient, nil
+	return newsletterMongoClient, nil
 }
 
-func ensureSubscriberIndexes(collection *mongo.Collection) error {
-	indexesOnce.Do(func() {
+func ensureNewsletterSubscriberIndexes(collection *mongo.Collection) error {
+	newsletterIndexesOnce.Do(func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
@@ -114,36 +102,36 @@ func ensureSubscriberIndexes(collection *mongo.Collection) error {
 
 		_, err := collection.Indexes().CreateMany(ctx, indexes)
 		if err != nil {
-			indexesErr = fmt.Errorf("create index failed: %w", err)
+			newsletterIndexesErr = fmt.Errorf("create index failed: %w", err)
 		}
 	})
 
-	return indexesErr
+	return newsletterIndexesErr
 }
 
-func getCollection() (*mongo.Collection, error) {
+func getNewsletterCollection() (*mongo.Collection, error) {
 	databaseName, err := newsletterpkg.ResolveDatabaseName()
 	if err != nil {
 		return nil, err
 	}
 
-	client, err := getMongoClient()
+	client, err := getNewsletterMongoClient()
 	if err != nil {
 		return nil, err
 	}
 
 	collection := client.Database(databaseName).Collection(newsletterCollectionName)
-	if err := ensureSubscriberIndexes(collection); err != nil {
+	if err := ensureNewsletterSubscriberIndexes(collection); err != nil {
 		return nil, err
 	}
 
 	return collection, nil
 }
 
-func (r *mongoRepository) GetStatusByEmail(ctx context.Context, email string) (string, bool, error) {
-	collection, err := getCollection()
+func (r *newsletterMongoRepository) GetStatusByEmail(ctx context.Context, email string) (string, bool, error) {
+	collection, err := getNewsletterCollection()
 	if err != nil {
-		return "", false, fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
+		return "", false, fmt.Errorf("%w: %v", ErrNewsletterRepositoryUnavailable, err)
 	}
 
 	var existing struct {
@@ -160,10 +148,10 @@ func (r *mongoRepository) GetStatusByEmail(ctx context.Context, email string) (s
 	return existing.Status, true, nil
 }
 
-func (r *mongoRepository) UpsertPendingSubscription(ctx context.Context, input PendingSubscription) error {
-	collection, err := getCollection()
+func (r *newsletterMongoRepository) UpsertPendingSubscription(ctx context.Context, input NewsletterPendingSubscription) error {
+	collection, err := getNewsletterCollection()
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
+		return fmt.Errorf("%w: %v", ErrNewsletterRepositoryUnavailable, err)
 	}
 
 	setFields := bson.M{
@@ -194,10 +182,10 @@ func (r *mongoRepository) UpsertPendingSubscription(ctx context.Context, input P
 	return err
 }
 
-func (r *mongoRepository) UpdatePendingSubscription(ctx context.Context, input PendingSubscription) error {
-	collection, err := getCollection()
+func (r *newsletterMongoRepository) UpdatePendingSubscription(ctx context.Context, input NewsletterPendingSubscription) error {
+	collection, err := getNewsletterCollection()
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
+		return fmt.Errorf("%w: %v", ErrNewsletterRepositoryUnavailable, err)
 	}
 
 	update := bson.M{
@@ -217,10 +205,10 @@ func (r *mongoRepository) UpdatePendingSubscription(ctx context.Context, input P
 	return err
 }
 
-func (r *mongoRepository) ConfirmByTokenHash(ctx context.Context, tokenHash string, now time.Time) (bool, error) {
-	collection, err := getCollection()
+func (r *newsletterMongoRepository) ConfirmByTokenHash(ctx context.Context, tokenHash string, now time.Time) (bool, error) {
+	collection, err := getNewsletterCollection()
 	if err != nil {
-		return false, fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
+		return false, fmt.Errorf("%w: %v", ErrNewsletterRepositoryUnavailable, err)
 	}
 
 	filter := bson.M{
@@ -249,10 +237,10 @@ func (r *mongoRepository) ConfirmByTokenHash(ctx context.Context, tokenHash stri
 	return result.MatchedCount > 0, nil
 }
 
-func (r *mongoRepository) UnsubscribeByEmail(ctx context.Context, email string, now time.Time) error {
-	collection, err := getCollection()
+func (r *newsletterMongoRepository) UnsubscribeByEmail(ctx context.Context, email string, now time.Time) error {
+	collection, err := getNewsletterCollection()
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
+		return fmt.Errorf("%w: %v", ErrNewsletterRepositoryUnavailable, err)
 	}
 
 	update := bson.M{

@@ -5,8 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	newslettersvc "suaybsimsek.com/blog-api/internal/service/newsletter"
-	postsapi "suaybsimsek.com/blog-api/internal/service/post"
+	appservice "suaybsimsek.com/blog-api/internal/service"
 	"suaybsimsek.com/blog-api/pkg/graph/model"
 )
 
@@ -18,14 +17,14 @@ func TestQueryResolverPostsAndPost(t *testing.T) {
 		queryPostFn = originalQueryPostFn
 	})
 
-	queryContentFn = func(_ context.Context, input postsapi.ContentQueryInput) postsapi.ContentResponse {
+	queryContentFn = func(_ context.Context, input appservice.ContentQueryInput) appservice.ContentResponse {
 		if input.Locale != "tr" || input.Sort != "asc" || len(input.ScopeIDs) != 1 || input.ScopeIDs[0] != "alpha-post" {
 			t.Fatalf("query content input = %#v", input)
 		}
-		return postsapi.ContentResponse{
+		return appservice.ContentResponse{
 			Status:        "success",
 			Locale:        "tr",
-			Posts:         []postsapi.PostRecord{{ID: "alpha-post", Title: "Alpha", PublishedDate: "2026-03-01", Summary: "Summary", SearchText: "alpha", ReadingTimeMin: 3}},
+			Posts:         []appservice.PostRecord{{ID: "alpha-post", Title: "Alpha", PublishedDate: "2026-03-01", Summary: "Summary", SearchText: "alpha", ReadingTimeMin: 3}},
 			LikesByPostID: map[string]int64{"alpha-post": 4},
 			HitsByPostID:  map[string]int64{"alpha-post": 8},
 			Total:         -1,
@@ -34,14 +33,14 @@ func TestQueryResolverPostsAndPost(t *testing.T) {
 			Sort:          "desc",
 		}
 	}
-	queryPostFn = func(_ context.Context, input postsapi.PostQueryInput) postsapi.ContentResponse {
+	queryPostFn = func(_ context.Context, input appservice.PostQueryInput) appservice.ContentResponse {
 		if input.Locale != "tr" || input.PostID != "alpha-post" {
 			t.Fatalf("query post input = %#v", input)
 		}
-		return postsapi.ContentResponse{
+		return appservice.ContentResponse{
 			Status:        "success",
 			Locale:        "tr",
-			Posts:         []postsapi.PostRecord{{ID: "alpha-post", Title: "Alpha", PublishedDate: "2026-03-01", Summary: "Summary", SearchText: "alpha", ReadingTimeMin: 3}},
+			Posts:         []appservice.PostRecord{{ID: "alpha-post", Title: "Alpha", PublishedDate: "2026-03-01", Summary: "Summary", SearchText: "alpha", ReadingTimeMin: 3}},
 			LikesByPostID: map[string]int64{"alpha-post": 4},
 		}
 	}
@@ -90,26 +89,26 @@ func TestMutationResolverMetricsAndNewsletter(t *testing.T) {
 		unsubscribeFn = originalUnsubscribeFn
 	})
 
-	incrementLikeFn = func(context.Context, string) postsapi.ContentResponse {
-		return postsapi.ContentResponse{Status: "success", PostID: "", Likes: 7}
+	incrementLikeFn = func(context.Context, string) appservice.ContentResponse {
+		return appservice.ContentResponse{Status: "success", PostID: "", Likes: 7}
 	}
-	incrementHitFn = func(context.Context, string) postsapi.ContentResponse {
-		return postsapi.ContentResponse{Status: "failed", PostID: "alpha-post", Hits: 9}
+	incrementHitFn = func(context.Context, string) appservice.ContentResponse {
+		return appservice.ContentResponse{Status: "failed", PostID: "alpha-post", Hits: 9}
 	}
-	subscribeFn = func(_ context.Context, input newslettersvc.SubscribeInput, meta newslettersvc.RequestMetadata) newslettersvc.Result {
+	subscribeFn = func(_ context.Context, input appservice.SubscribeInput, meta appservice.RequestMetadata) appservice.Result {
 		if input.Locale != "tr" || input.Email != "reader@example.com" || input.FormName != "footer" || meta.ClientIP != "203.0.113.5" {
 			t.Fatalf("subscribe input = %#v %#v", input, meta)
 		}
-		return newslettersvc.Result{Status: "success", ForwardTo: "/tr/thanks"}
+		return appservice.Result{Status: "success", ForwardTo: "/tr/thanks"}
 	}
-	resendFn = func(_ context.Context, input newslettersvc.ResendInput, meta newslettersvc.RequestMetadata) newslettersvc.Result {
+	resendFn = func(_ context.Context, input appservice.ResendInput, meta appservice.RequestMetadata) appservice.Result {
 		if input.Locale != "tr" || input.Email != "reader@example.com" || meta.AcceptLanguage != "tr-TR" {
 			t.Fatalf("resend input = %#v %#v", input, meta)
 		}
-		return newslettersvc.Result{Status: "rate-limited"}
+		return appservice.Result{Status: "rate-limited"}
 	}
-	confirmFn = func(context.Context, string) newslettersvc.Result { return newslettersvc.Result{Status: "expired"} }
-	unsubscribeFn = func(context.Context, string) newslettersvc.Result { return newslettersvc.Result{Status: "success"} }
+	confirmFn = func(context.Context, string) appservice.Result { return appservice.Result{Status: "expired"} }
+	unsubscribeFn = func(context.Context, string) appservice.Result { return appservice.Result{Status: "success"} }
 
 	request := httptest.NewRequest("POST", "/graphql", nil)
 	request.RemoteAddr = "203.0.113.5:8080"

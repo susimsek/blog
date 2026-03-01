@@ -1,4 +1,4 @@
-package newsletter
+package service
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	newsletterpkg "suaybsimsek.com/blog-api/pkg/newsletter"
 )
 
-type stubRepository struct {
+type newsletterStubRepository struct {
 	getStatusByEmail          func(context.Context, string) (string, bool, error)
 	upsertPendingSubscription func(context.Context, PendingSubscription) error
 	updatePendingSubscription func(context.Context, PendingSubscription) error
@@ -17,23 +17,23 @@ type stubRepository struct {
 	unsubscribeByEmail        func(context.Context, string, time.Time) error
 }
 
-func (stub stubRepository) GetStatusByEmail(ctx context.Context, email string) (string, bool, error) {
+func (stub newsletterStubRepository) GetStatusByEmail(ctx context.Context, email string) (string, bool, error) {
 	return stub.getStatusByEmail(ctx, email)
 }
 
-func (stub stubRepository) UpsertPendingSubscription(ctx context.Context, input PendingSubscription) error {
+func (stub newsletterStubRepository) UpsertPendingSubscription(ctx context.Context, input PendingSubscription) error {
 	return stub.upsertPendingSubscription(ctx, input)
 }
 
-func (stub stubRepository) UpdatePendingSubscription(ctx context.Context, input PendingSubscription) error {
+func (stub newsletterStubRepository) UpdatePendingSubscription(ctx context.Context, input PendingSubscription) error {
 	return stub.updatePendingSubscription(ctx, input)
 }
 
-func (stub stubRepository) ConfirmByTokenHash(ctx context.Context, tokenHash string, now time.Time) (bool, error) {
+func (stub newsletterStubRepository) ConfirmByTokenHash(ctx context.Context, tokenHash string, now time.Time) (bool, error) {
 	return stub.confirmByTokenHash(ctx, tokenHash, now)
 }
 
-func (stub stubRepository) UnsubscribeByEmail(ctx context.Context, email string, now time.Time) error {
+func (stub newsletterStubRepository) UnsubscribeByEmail(ctx context.Context, email string, now time.Time) error {
 	return stub.unsubscribeByEmail(ctx, email, now)
 }
 
@@ -158,7 +158,7 @@ func TestSubscribeAndResend(t *testing.T) {
 
 	var stored PendingSubscription
 	var updated PendingSubscription
-	newsletterRepository = stubRepository{
+	newsletterRepository = newsletterStubRepository{
 		getStatusByEmail: func(_ context.Context, email string) (string, bool, error) {
 			if email != "reader@example.com" {
 				t.Fatalf("email lookup = %q", email)
@@ -245,7 +245,7 @@ func TestNewsletterServiceBranches(t *testing.T) {
 	subscribeLimiter = newRateLimiter(1, time.Hour)
 	resendLimiter = newRateLimiter(1, time.Hour)
 
-	newsletterRepository = stubRepository{
+	newsletterRepository = newsletterStubRepository{
 		getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "", false, errRepositoryUnavailable },
 		upsertPendingSubscription: func(context.Context, PendingSubscription) error { return errors.New("boom") },
 		updatePendingSubscription: func(context.Context, PendingSubscription) error { return errors.New("boom") },
@@ -283,7 +283,7 @@ func TestNewsletterServiceBranches(t *testing.T) {
 		t.Fatalf("rate limited subscribe = %#v", result)
 	}
 
-	newsletterRepository = stubRepository{
+	newsletterRepository = newsletterStubRepository{
 		getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "active", true, nil },
 		upsertPendingSubscription: func(context.Context, PendingSubscription) error { return nil },
 		updatePendingSubscription: func(context.Context, PendingSubscription) error { return nil },
@@ -316,7 +316,7 @@ func TestNewsletterServiceBranches(t *testing.T) {
 	if result := Confirm(context.Background(), "token"); result.Status != "expired" {
 		t.Fatalf("expired confirm = %#v", result)
 	}
-	newsletterRepository = stubRepository{
+	newsletterRepository = newsletterStubRepository{
 		getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "", false, nil },
 		upsertPendingSubscription: func(context.Context, PendingSubscription) error { return nil },
 		updatePendingSubscription: func(context.Context, PendingSubscription) error { return nil },
@@ -341,7 +341,7 @@ func TestNewsletterServiceBranches(t *testing.T) {
 	}
 
 	parseUnsubscribeTokenFn = func(string, string, time.Time) (string, error) { return "reader@example.com", nil }
-	newsletterRepository = stubRepository{
+	newsletterRepository = newsletterStubRepository{
 		getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "", false, nil },
 		upsertPendingSubscription: func(context.Context, PendingSubscription) error { return nil },
 		updatePendingSubscription: func(context.Context, PendingSubscription) error { return nil },
@@ -351,7 +351,7 @@ func TestNewsletterServiceBranches(t *testing.T) {
 	if result := Unsubscribe(context.Background(), "token"); result.Status != "service-unavailable" {
 		t.Fatalf("service unavailable unsubscribe = %#v", result)
 	}
-	newsletterRepository = stubRepository{
+	newsletterRepository = newsletterStubRepository{
 		getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "", false, nil },
 		upsertPendingSubscription: func(context.Context, PendingSubscription) error { return nil },
 		updatePendingSubscription: func(context.Context, PendingSubscription) error { return nil },
@@ -406,7 +406,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 			return nil
 		}
 		subscribeLimiter = newRateLimiter(5, time.Minute)
-		newsletterRepository = stubRepository{
+		newsletterRepository = newsletterStubRepository{
 			getStatusByEmail: func(context.Context, string) (string, bool, error) { return "active", true, nil },
 			upsertPendingSubscription: func(context.Context, PendingSubscription) error {
 				t.Fatal("upsert should not be called")
@@ -424,7 +424,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 
 	t.Run("subscribe returns unknown error when confirmation setup fails", func(t *testing.T) {
 		subscribeLimiter = newRateLimiter(5, time.Minute)
-		newsletterRepository = stubRepository{
+		newsletterRepository = newsletterStubRepository{
 			getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "", false, nil },
 			upsertPendingSubscription: func(context.Context, PendingSubscription) error { return nil },
 			updatePendingSubscription: func(context.Context, PendingSubscription) error { return nil },
@@ -445,7 +445,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 		}
 
 		resolveSiteURLFn = func() (string, error) { return "https://example.com", nil }
-		newsletterRepository = stubRepository{
+		newsletterRepository = newsletterStubRepository{
 			getStatusByEmail: func(context.Context, string) (string, bool, error) { return "", false, nil },
 			upsertPendingSubscription: func(context.Context, PendingSubscription) error {
 				return errors.New("db failure")
@@ -458,7 +458,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 			t.Fatalf("upsert failure subscribe = %#v", result)
 		}
 
-		newsletterRepository = stubRepository{
+		newsletterRepository = newsletterStubRepository{
 			getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "", false, nil },
 			upsertPendingSubscription: func(context.Context, PendingSubscription) error { return nil },
 			updatePendingSubscription: func(context.Context, PendingSubscription) error { return nil },
@@ -479,7 +479,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 		generateConfirmTokenFn = func() (string, error) { return "token", nil }
 		sendConfirmationEmailFn = func(newsletterpkg.SMTPConfig, string, string, string, string) error { return nil }
 
-		newsletterRepository = stubRepository{
+		newsletterRepository = newsletterStubRepository{
 			getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "", false, nil },
 			upsertPendingSubscription: func(context.Context, PendingSubscription) error { return nil },
 			updatePendingSubscription: func(context.Context, PendingSubscription) error { return nil },
@@ -490,7 +490,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 			t.Fatalf("not found resend = %#v", result)
 		}
 
-		newsletterRepository = stubRepository{
+		newsletterRepository = newsletterStubRepository{
 			getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "pending", true, nil },
 			upsertPendingSubscription: func(context.Context, PendingSubscription) error { return nil },
 			updatePendingSubscription: func(context.Context, PendingSubscription) error { return nil },
@@ -509,7 +509,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 		}
 
 		resolveSiteURLFn = func() (string, error) { return "https://example.com", nil }
-		newsletterRepository = stubRepository{
+		newsletterRepository = newsletterStubRepository{
 			getStatusByEmail: func(context.Context, string) (string, bool, error) { return "pending", true, nil },
 			upsertPendingSubscription: func(context.Context, PendingSubscription) error {
 				return nil
@@ -524,7 +524,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 			t.Fatalf("update failure resend = %#v", result)
 		}
 
-		newsletterRepository = stubRepository{
+		newsletterRepository = newsletterStubRepository{
 			getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "pending", true, nil },
 			upsertPendingSubscription: func(context.Context, PendingSubscription) error { return nil },
 			updatePendingSubscription: func(context.Context, PendingSubscription) error { return nil },
@@ -542,7 +542,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 	t.Run("confirm and unsubscribe return failed for generic repository errors", func(t *testing.T) {
 		resolveSiteURLFn = func() (string, error) { return "https://example.com", nil }
 		sendConfirmationEmailFn = func(newsletterpkg.SMTPConfig, string, string, string, string) error { return nil }
-		newsletterRepository = stubRepository{
+		newsletterRepository = newsletterStubRepository{
 			getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "", false, nil },
 			upsertPendingSubscription: func(context.Context, PendingSubscription) error { return nil },
 			updatePendingSubscription: func(context.Context, PendingSubscription) error { return nil },
