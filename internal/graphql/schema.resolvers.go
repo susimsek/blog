@@ -1,4 +1,4 @@
-package graph
+package graphql
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -9,9 +9,8 @@ import (
 	"fmt"
 	"strings"
 
+	"suaybsimsek.com/blog-api/internal/graphql/model"
 	appservice "suaybsimsek.com/blog-api/internal/service"
-	"suaybsimsek.com/blog-api/pkg/graph/generated"
-	"suaybsimsek.com/blog-api/pkg/graph/model"
 )
 
 var (
@@ -228,11 +227,11 @@ func (r *mutationResolver) UnsubscribeNewsletter(
 	}, nil
 }
 
-// Mutation returns generated.MutationResolver implementation.
-func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
-// Query returns generated.QueryResolver implementation.
-func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
+// Query returns QueryResolver implementation.
+func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

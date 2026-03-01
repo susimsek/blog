@@ -46,7 +46,7 @@ func NewNewsletterMongoRepository() NewsletterRepository {
 
 func getNewsletterMongoClient() (*mongo.Client, error) {
 	newsletterMongoClientOnce.Do(func() {
-		uri, err := appconfig.ResolveMongoURI()
+		databaseConfig, err := appconfig.ResolveDatabaseConfig()
 		if err != nil {
 			newsletterMongoInitErr = err
 			return
@@ -55,7 +55,7 @@ func getNewsletterMongoClient() (*mongo.Client, error) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri).SetAppName("blog-api-newsletter"))
+		client, err := mongo.Connect(ctx, appconfig.BuildMongoClientOptions(databaseConfig, "blog-api-newsletter"))
 		if err != nil {
 			newsletterMongoInitErr = fmt.Errorf("mongodb connect failed: %w", err)
 			return
@@ -110,7 +110,7 @@ func ensureNewsletterSubscriberIndexes(collection *mongo.Collection) error {
 }
 
 func getNewsletterCollection() (*mongo.Collection, error) {
-	databaseName, err := appconfig.ResolveDatabaseName()
+	databaseConfig, err := appconfig.ResolveDatabaseConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func getNewsletterCollection() (*mongo.Collection, error) {
 		return nil, err
 	}
 
-	collection := client.Database(databaseName).Collection(newsletterCollectionName)
+	collection := client.Database(databaseConfig.Name).Collection(newsletterCollectionName)
 	if err := ensureNewsletterSubscriberIndexes(collection); err != nil {
 		return nil, err
 	}

@@ -18,14 +18,12 @@ func TestResolveRequiredEnvHelpers(t *testing.T) {
 		t.Fatalf("ResolveAllowedOriginOptional() mismatch")
 	}
 
-	databaseName, err := ResolveDatabaseName()
-	if err != nil || databaseName != "blog" {
-		t.Fatalf("ResolveDatabaseName() = %q, %v", databaseName, err)
+	databaseConfig, err := ResolveDatabaseConfig()
+	if err != nil {
+		t.Fatalf("ResolveDatabaseConfig() error = %v", err)
 	}
-
-	mongoURI, err := ResolveMongoURI()
-	if err != nil || mongoURI != "mongodb://localhost" {
-		t.Fatalf("ResolveMongoURI() = %q, %v", mongoURI, err)
+	if databaseConfig.Name != "blog" || databaseConfig.URI != "mongodb://localhost" {
+		t.Fatalf("ResolveDatabaseConfig() = %#v", databaseConfig)
 	}
 
 	siteURL, err := ResolveSiteURL()
@@ -66,38 +64,6 @@ func TestResolveSiteURLOrRootAndPositiveIntFallbacks(t *testing.T) {
 	}
 }
 
-func TestResolveSMTPConfig(t *testing.T) {
-	t.Setenv("GMAIL_SMTP_USER", "sender@example.com")
-	t.Setenv("GMAIL_SMTP_APP_PASSWORD", "app-password")
-
-	cfg, err := ResolveSMTPConfig()
-	if err != nil {
-		t.Fatalf("ResolveSMTPConfig() error = %v", err)
-	}
-	if cfg.Host != DefaultSMTPHost || cfg.Port != DefaultSMTPPort {
-		t.Fatalf("default smtp config = %#v", cfg)
-	}
-	if cfg.FromMail != "sender@example.com" || cfg.FromName != "Suayb's Blog" {
-		t.Fatalf("default sender config = %#v", cfg)
-	}
-
-	t.Setenv("GMAIL_SMTP_HOST", "smtp.example.com")
-	t.Setenv("GMAIL_SMTP_PORT", "2525")
-	t.Setenv("GMAIL_FROM_EMAIL", "noreply@example.com")
-	t.Setenv("GMAIL_FROM_NAME", "Blog Mailer")
-
-	cfg, err = ResolveSMTPConfig()
-	if err != nil {
-		t.Fatalf("ResolveSMTPConfig() error = %v", err)
-	}
-	if cfg.Host != "smtp.example.com" || cfg.Port != "2525" {
-		t.Fatalf("custom smtp config = %#v", cfg)
-	}
-	if cfg.FromMail != "noreply@example.com" || cfg.FromName != "Blog Mailer" {
-		t.Fatalf("custom sender config = %#v", cfg)
-	}
-}
-
 func TestResolveBoolEnv(t *testing.T) {
 	originalGetenv := getenv
 	t.Cleanup(func() {
@@ -128,41 +94,4 @@ func TestResolveBoolEnv(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestIsGraphQLIntrospectionEnabled(t *testing.T) {
-	originalGetenv := getenv
-	t.Cleanup(func() {
-		getenv = originalGetenv
-	})
-
-	t.Run("inherits GraphiQL flag when explicit introspection flag is absent", func(t *testing.T) {
-		getenv = func(name string) string {
-			if name == "GRAPHIQL_ENABLED" {
-				return "true"
-			}
-			return ""
-		}
-
-		if !IsGraphQLIntrospectionEnabled() {
-			t.Fatal("expected introspection to be enabled when GraphiQL is enabled")
-		}
-	})
-
-	t.Run("prefers explicit introspection flag", func(t *testing.T) {
-		getenv = func(name string) string {
-			switch name {
-			case "GRAPHIQL_ENABLED":
-				return "true"
-			case "GRAPHQL_INTROSPECTION_ENABLED":
-				return "false"
-			default:
-				return ""
-			}
-		}
-
-		if IsGraphQLIntrospectionEnabled() {
-			t.Fatal("expected explicit introspection flag to override GraphiQL flag")
-		}
-	})
 }

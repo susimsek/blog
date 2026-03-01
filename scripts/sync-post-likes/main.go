@@ -261,14 +261,9 @@ func upsertPostLike(
 func main() {
 	loadDotEnv(filepath.Join(".", ".env.local"))
 
-	mongoURI, err := appconfig.ResolveMongoURI()
+	databaseConfig, err := appconfig.ResolveDatabaseConfig()
 	if err != nil {
-		log.Fatalf("MONGODB_URI error: %v", err)
-	}
-
-	databaseName, err := appconfig.ResolveDatabaseName()
-	if err != nil {
-		log.Fatalf("MONGODB_DATABASE error: %v", err)
+		log.Fatalf("database config error: %v", err)
 	}
 
 	postsByID, err := readPosts([]string{newsletter.LocaleEN, newsletter.LocaleTR})
@@ -279,7 +274,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI).SetAppName("blog-post-likes-sync-script"))
+	client, err := mongo.Connect(ctx, appconfig.BuildMongoClientOptions(databaseConfig, "blog-post-likes-sync-script"))
 	if err != nil {
 		log.Fatalf("mongodb connect failed: %v", err)
 	}
@@ -289,7 +284,7 @@ func main() {
 		_ = client.Disconnect(disconnectCtx)
 	}()
 
-	collection := client.Database(databaseName).Collection(likesCollectionName)
+	collection := client.Database(databaseConfig.Name).Collection(likesCollectionName)
 	if err := ensureLikesIndex(collection); err != nil {
 		log.Fatalf("ensure index failed: %v", err)
 	}

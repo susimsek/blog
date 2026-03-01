@@ -1,9 +1,9 @@
-package graph
+package graphql
 
 import (
 	"strings"
 
-	"suaybsimsek.com/blog-api/pkg/graph/model"
+	"suaybsimsek.com/blog-api/internal/graphql/model"
 )
 
 const (

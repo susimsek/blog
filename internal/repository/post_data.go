@@ -80,7 +80,7 @@ func computeInitialHits(postID string) int64 {
 
 func getPostMongoClient() (*mongo.Client, error) {
 	postMongoOnce.Do(func() {
-		uri, err := appconfig.ResolveMongoURI()
+		databaseConfig, err := appconfig.ResolveDatabaseConfig()
 		if err != nil {
 			postMongoInitErr = err
 			return
@@ -89,7 +89,7 @@ func getPostMongoClient() (*mongo.Client, error) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri).SetAppName("blog-api-posts"))
+		client, err := mongo.Connect(ctx, appconfig.BuildMongoClientOptions(databaseConfig, "blog-api-posts"))
 		if err != nil {
 			postMongoInitErr = fmt.Errorf("mongodb connect failed: %w", err)
 			return
@@ -106,7 +106,7 @@ func getPostMongoClient() (*mongo.Client, error) {
 }
 
 func getPostCollection(name string) (*mongo.Collection, error) {
-	databaseName, databaseErr := appconfig.ResolveDatabaseName()
+	databaseConfig, databaseErr := appconfig.ResolveDatabaseConfig()
 	if databaseErr != nil {
 		return nil, databaseErr
 	}
@@ -116,7 +116,7 @@ func getPostCollection(name string) (*mongo.Collection, error) {
 		return nil, err
 	}
 
-	return client.Database(databaseName).Collection(name), nil
+	return client.Database(databaseConfig.Name).Collection(name), nil
 }
 
 func ensurePostLikeIndexes(likesCollection *mongo.Collection) error {

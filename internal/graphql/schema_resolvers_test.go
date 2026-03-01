@@ -1,12 +1,12 @@
-package graph
+package graphql
 
 import (
 	"context"
 	"net/http/httptest"
 	"testing"
 
+	"suaybsimsek.com/blog-api/internal/graphql/model"
 	appservice "suaybsimsek.com/blog-api/internal/service"
-	"suaybsimsek.com/blog-api/pkg/graph/model"
 )
 
 func TestQueryResolverPostsAndPost(t *testing.T) {

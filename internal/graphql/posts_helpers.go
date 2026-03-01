@@ -1,12 +1,12 @@
-package graph
+package graphql
 
 import (
 	"math"
 	"sort"
 	"strings"
 
+	"suaybsimsek.com/blog-api/internal/graphql/model"
 	appservice "suaybsimsek.com/blog-api/internal/service"
-	"suaybsimsek.com/blog-api/pkg/graph/model"
 )
 
 func toOptionalString(value string) *string {

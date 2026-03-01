@@ -284,7 +284,8 @@ type graphiqlPageData struct {
 }
 
 func GraphiQLHandler(w http.ResponseWriter, r *http.Request) {
-	if !appconfig.IsGraphiQLEnabled() {
+	graphQLConfig := appconfig.ResolveGraphQLConfig()
+	if !graphQLConfig.GraphiQLEnabled {
 		http.NotFound(w, r)
 		return
 	}
@@ -295,7 +296,7 @@ func GraphiQLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pageData, err := buildGraphiQLPageData()
+	pageData, err := buildGraphiQLPageData(graphQLConfig)
 	if err != nil {
 		http.Error(w, "failed to render GraphiQL", http.StatusInternalServerError)
 		return
@@ -306,8 +307,8 @@ func GraphiQLHandler(w http.ResponseWriter, r *http.Request) {
 	_ = graphiqlPageTemplate.Execute(w, pageData)
 }
 
-func buildGraphiQLPageData() (graphiqlPageData, error) {
-	endpointJSON, err := json.Marshal(appconfig.PublicGraphQLPath)
+func buildGraphiQLPageData(graphQLConfig appconfig.GraphQLConfig) (graphiqlPageData, error) {
+	endpointJSON, err := json.Marshal(graphQLConfig.PublicPath)
 	if err != nil {
 		return graphiqlPageData{}, err
 	}

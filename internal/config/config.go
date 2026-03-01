@@ -7,21 +7,6 @@ import (
 	"strings"
 )
 
-const (
-	DefaultSMTPHost   = "smtp.gmail.com"
-	DefaultSMTPPort   = "587"
-	PublicGraphQLPath = "/graphql"
-)
-
-type SMTPConfig struct {
-	Host     string
-	Port     string
-	Username string
-	Password string
-	FromName string
-	FromMail string
-}
-
 var getenv = os.Getenv
 
 func requiredEnv(name string) (string, error) {
@@ -38,14 +23,6 @@ func ResolveAllowedOriginRequired() (string, error) {
 
 func ResolveAllowedOriginOptional() string {
 	return strings.TrimSpace(getenv("API_CORS_ORIGIN"))
-}
-
-func ResolveDatabaseName() (string, error) {
-	return requiredEnv("MONGODB_DATABASE")
-}
-
-func ResolveMongoURI() (string, error) {
-	return requiredEnv("MONGODB_URI")
 }
 
 func ResolveSiteURL() (string, error) {
@@ -72,47 +49,6 @@ func ResolveUnsubscribeSecret() (string, error) {
 	return requiredEnv("NEWSLETTER_UNSUBSCRIBE_SECRET")
 }
 
-func ResolveSMTPConfig() (SMTPConfig, error) {
-	username, err := requiredEnv("GMAIL_SMTP_USER")
-	if err != nil {
-		return SMTPConfig{}, err
-	}
-
-	password, err := requiredEnv("GMAIL_SMTP_APP_PASSWORD")
-	if err != nil {
-		return SMTPConfig{}, err
-	}
-
-	host := strings.TrimSpace(getenv("GMAIL_SMTP_HOST"))
-	if host == "" {
-		host = DefaultSMTPHost
-	}
-
-	port := strings.TrimSpace(getenv("GMAIL_SMTP_PORT"))
-	if port == "" {
-		port = DefaultSMTPPort
-	}
-
-	fromMail := strings.TrimSpace(getenv("GMAIL_FROM_EMAIL"))
-	if fromMail == "" {
-		fromMail = username
-	}
-
-	fromName := strings.TrimSpace(getenv("GMAIL_FROM_NAME"))
-	if fromName == "" {
-		fromName = "Suayb's Blog"
-	}
-
-	return SMTPConfig{
-		Host:     host,
-		Port:     port,
-		Username: username,
-		Password: password,
-		FromName: fromName,
-		FromMail: fromMail,
-	}, nil
-}
-
 func ResolvePositiveIntEnv(name string, fallback int) int {
 	value := strings.TrimSpace(getenv(name))
 	if value == "" {
@@ -125,18 +61,6 @@ func ResolvePositiveIntEnv(name string, fallback int) int {
 	}
 
 	return parsed
-}
-
-func IsGraphiQLEnabled() bool {
-	return resolveBoolEnv("GRAPHIQL_ENABLED", false)
-}
-
-func IsGraphQLIntrospectionEnabled() bool {
-	if value, ok := resolveOptionalBoolEnv("GRAPHQL_INTROSPECTION_ENABLED"); ok {
-		return value
-	}
-
-	return IsGraphiQLEnabled()
 }
 
 func resolveOptionalBoolEnv(name string) (bool, bool) {

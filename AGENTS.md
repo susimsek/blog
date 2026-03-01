@@ -85,10 +85,10 @@ For backend architecture, prefer a layered Go package structure similar in spiri
 - `api/newsletter-dispatch/index.go`: newsletter dispatch endpoint
 - `internal/config`: private backend env/config resolution
 - `internal/domain`: domain entities and shared backend records
+- `internal/graphql`: gqlgen schema, generated execution code, resolvers, and mapping helpers
 - `internal/service`: business service orchestration
 - `internal/repository`: Mongo-backed repository implementations
 - `pkg/graphql`: GraphiQL page handler
-- `pkg/graph`: gqlgen schema, resolvers, generated code, mapping helpers
 - `pkg/newsletter`: templates, unsubscribe tokens, status pages, mailer
 - `pkg/apperrors`: normalized backend errors
 - `pkg/httpapi`: JSON error response helpers
@@ -167,12 +167,12 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
 - Module: `suaybsimsek.com/blog-api`
 - Go version: `1.24.0`
 - GraphQL schema/resolver work:
-  - schema and generated layer under `pkg/graph`
+  - schema and generated layer under `internal/graphql`
   - regenerate with `pnpm run graphql:generate`
 - Backend GraphQL IDE layer:
   - `pkg/graphql/graphiql.go`
 - Backend env/config layer:
-  - `internal/config/config.go`
+  - `internal/config/*.go`
 - Newsletter email/content helpers:
   - `pkg/newsletter/*`
 
@@ -248,7 +248,6 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
   - `pkg/httpapi/**`
   - `pkg/graphql/**`
   - `pkg/newsletter/**`
-  - `pkg/graph/**`
 
 ## Testing Guidelines
 
@@ -366,4 +365,4 @@ Suggested scopes:
 - Forgetting that frontend is static-exported
 - Forgetting dev rewrites depend on `NEXT_PUBLIC_DEV_API_ORIGIN`
 - Running Sonar without generating `coverage/go-cover.out`
-- Assuming `pkg/graphql/**` is automatically covered if it is not included in the Go coverage command
+- Assuming GraphQL packages are automatically covered if they are not included in the Go coverage command

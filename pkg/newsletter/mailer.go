@@ -2,7 +2,6 @@ package newsletter
 
 import (
 	"fmt"
-	"net"
 	"net/mail"
 	"net/smtp"
 	"strings"
@@ -13,7 +12,7 @@ import (
 var smtpSendMail = smtp.SendMail
 
 func SendHTMLEmail(
-	cfg appconfig.SMTPConfig,
+	cfg appconfig.MailConfig,
 	recipientEmail string,
 	subject string,
 	htmlBody string,
@@ -42,7 +41,7 @@ func SendHTMLEmail(
 	message.WriteString("\r\n")
 
 	auth := smtp.PlainAuth("", cfg.Username, cfg.Password, cfg.Host)
-	serverAddr := net.JoinHostPort(cfg.Host, cfg.Port)
+	serverAddr := appconfig.BuildSMTPServerAddress(cfg)
 	if err := smtpSendMail(serverAddr, auth, cfg.FromMail, []string{recipientEmail}, []byte(message.String())); err != nil {
 		return fmt.Errorf("smtp send failed: %w", err)
 	}

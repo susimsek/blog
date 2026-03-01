@@ -1001,19 +1001,15 @@ func main() {
 	if err != nil {
 		log.Fatalf("SITE_URL error: %v", err)
 	}
-	mongoURI, err := appconfig.ResolveMongoURI()
+	databaseConfig, err := appconfig.ResolveDatabaseConfig()
 	if err != nil {
-		log.Fatalf("MONGODB_URI error: %v", err)
-	}
-	databaseName, err := appconfig.ResolveDatabaseName()
-	if err != nil {
-		log.Fatalf("MONGODB_DATABASE error: %v", err)
+		log.Fatalf("database config error: %v", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI).SetAppName("blog-content-sync-script"))
+	client, err := mongo.Connect(ctx, appconfig.BuildMongoClientOptions(databaseConfig, "blog-content-sync-script"))
 	if err != nil {
 		log.Fatalf("mongodb connect failed: %v", err)
 	}
@@ -1023,7 +1019,7 @@ func main() {
 		_ = client.Disconnect(disconnectCtx)
 	}()
 
-	db := client.Database(databaseName)
+	db := client.Database(databaseConfig.Name)
 	postsCollection := db.Collection(postsCollectionName)
 	topicsCollection := db.Collection(topicsCollectionName)
 	categoriesCollection := db.Collection(categoriesCollectionName)

@@ -44,7 +44,7 @@ func TestSendHTMLEmail(t *testing.T) {
 	}
 
 	err := SendHTMLEmail(
-		appconfig.SMTPConfig{
+		appconfig.MailConfig{
 			Host:     "smtp.example.com",
 			Port:     "2525",
 			Username: "user",
@@ -76,7 +76,7 @@ func TestSendHTMLEmailReturnsSMTPError(t *testing.T) {
 	}
 
 	err := SendHTMLEmail(
-		appconfig.SMTPConfig{Host: "smtp.example.com", Port: "2525", Username: "user", Password: "pass", FromMail: "noreply@example.com"},
+		appconfig.MailConfig{Host: "smtp.example.com", Port: "2525", Username: "user", Password: "pass", FromMail: "noreply@example.com"},
 		"reader@example.com",
 		"Welcome",
 		"<strong>Hello</strong>",

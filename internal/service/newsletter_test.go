@@ -104,7 +104,7 @@ func TestRateLimiterPrunesStaleEntries(t *testing.T) {
 
 func TestSendConfirmationEmailReturnsSMTPError(t *testing.T) {
 	err := sendConfirmationEmail(
-		appconfig.SMTPConfig{
+		appconfig.MailConfig{
 			Host:     "127.0.0.1",
 			Port:     "1",
 			Username: "user",
@@ -124,7 +124,7 @@ func TestSendConfirmationEmailReturnsSMTPError(t *testing.T) {
 func TestSubscribeAndResend(t *testing.T) {
 	originalRepository := newsletterRepository
 	originalResolveSiteURLFn := resolveSiteURLFn
-	originalResolveSMTPConfigFn := resolveSMTPConfigFn
+	originalResolveMailConfigFn := resolveMailConfigFn
 	originalSendConfirmationEmailFn := sendConfirmationEmailFn
 	originalGenerateConfirmTokenFn := generateConfirmTokenFn
 	originalNowUTCFn := nowUTCFn
@@ -133,7 +133,7 @@ func TestSubscribeAndResend(t *testing.T) {
 	t.Cleanup(func() {
 		newsletterRepository = originalRepository
 		resolveSiteURLFn = originalResolveSiteURLFn
-		resolveSMTPConfigFn = originalResolveSMTPConfigFn
+		resolveMailConfigFn = originalResolveMailConfigFn
 		sendConfirmationEmailFn = originalSendConfirmationEmailFn
 		generateConfirmTokenFn = originalGenerateConfirmTokenFn
 		nowUTCFn = originalNowUTCFn
@@ -143,10 +143,10 @@ func TestSubscribeAndResend(t *testing.T) {
 
 	fixedNow := time.Date(2026, time.March, 1, 12, 0, 0, 0, time.UTC)
 	resolveSiteURLFn = func() (string, error) { return "https://example.com", nil }
-	resolveSMTPConfigFn = func() (appconfig.SMTPConfig, error) {
-		return appconfig.SMTPConfig{Host: "smtp.example.com", Port: "2525"}, nil
+	resolveMailConfigFn = func() (appconfig.MailConfig, error) {
+		return appconfig.MailConfig{Host: "smtp.example.com", Port: "2525"}, nil
 	}
-	sendConfirmationEmailFn = func(cfg appconfig.SMTPConfig, recipientEmail, confirmURL, locale, siteURL string) error {
+	sendConfirmationEmailFn = func(cfg appconfig.MailConfig, recipientEmail, confirmURL, locale, siteURL string) error {
 		if recipientEmail != "reader@example.com" || locale != "tr" || siteURL != "https://example.com" || confirmURL == "" {
 			t.Fatalf("sendConfirmationEmailFn args = %#v %q %q %q", cfg, recipientEmail, confirmURL, locale)
 		}
@@ -212,8 +212,8 @@ func TestSubscribeAndResend(t *testing.T) {
 func TestNewsletterServiceBranches(t *testing.T) {
 	originalRepository := newsletterRepository
 	originalResolveSiteURLFn := resolveSiteURLFn
-	originalResolveSMTPConfigFn := resolveSMTPConfigFn
-	originalResolveDatabaseNameFn := resolveDatabaseNameFn
+	originalResolveMailConfigFn := resolveMailConfigFn
+	originalResolveDatabaseConfigFn := resolveDatabaseConfigFn
 	originalResolveUnsubscribeSecretFn := resolveUnsubscribeSecretFn
 	originalParseUnsubscribeTokenFn := parseUnsubscribeTokenFn
 	originalSendConfirmationEmailFn := sendConfirmationEmailFn
@@ -224,8 +224,8 @@ func TestNewsletterServiceBranches(t *testing.T) {
 	t.Cleanup(func() {
 		newsletterRepository = originalRepository
 		resolveSiteURLFn = originalResolveSiteURLFn
-		resolveSMTPConfigFn = originalResolveSMTPConfigFn
-		resolveDatabaseNameFn = originalResolveDatabaseNameFn
+		resolveMailConfigFn = originalResolveMailConfigFn
+		resolveDatabaseConfigFn = originalResolveDatabaseConfigFn
 		resolveUnsubscribeSecretFn = originalResolveUnsubscribeSecretFn
 		parseUnsubscribeTokenFn = originalParseUnsubscribeTokenFn
 		sendConfirmationEmailFn = originalSendConfirmationEmailFn
@@ -236,11 +236,13 @@ func TestNewsletterServiceBranches(t *testing.T) {
 	})
 
 	resolveSiteURLFn = func() (string, error) { return "", errors.New("missing") }
-	resolveSMTPConfigFn = func() (appconfig.SMTPConfig, error) { return appconfig.SMTPConfig{}, nil }
-	resolveDatabaseNameFn = func() (string, error) { return "blog", nil }
+	resolveMailConfigFn = func() (appconfig.MailConfig, error) { return appconfig.MailConfig{}, nil }
+	resolveDatabaseConfigFn = func() (appconfig.DatabaseConfig, error) {
+		return appconfig.DatabaseConfig{Name: "blog"}, nil
+	}
 	resolveUnsubscribeSecretFn = func() (string, error) { return "secret", nil }
 	parseUnsubscribeTokenFn = func(string, string, time.Time) (string, error) { return "reader@example.com", nil }
-	sendConfirmationEmailFn = func(appconfig.SMTPConfig, string, string, string, string) error { return nil }
+	sendConfirmationEmailFn = func(appconfig.MailConfig, string, string, string, string) error { return nil }
 	generateConfirmTokenFn = func() (string, error) { return "token", nil }
 	nowUTCFn = func() time.Time { return time.Date(2026, time.March, 1, 12, 0, 0, 0, time.UTC) }
 	subscribeLimiter = newRateLimiter(1, time.Hour)
@@ -266,14 +268,14 @@ func TestNewsletterServiceBranches(t *testing.T) {
 	}
 
 	resolveSiteURLFn = func() (string, error) { return "https://example.com", nil }
-	resolveSMTPConfigFn = func() (appconfig.SMTPConfig, error) {
-		return appconfig.SMTPConfig{}, errors.New("missing smtp")
+	resolveMailConfigFn = func() (appconfig.MailConfig, error) {
+		return appconfig.MailConfig{}, errors.New("missing smtp")
 	}
 	if result := Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{}); result.Status != "unknown-error" {
 		t.Fatalf("smtp subscribe = %#v", result)
 	}
 
-	resolveSMTPConfigFn = func() (appconfig.SMTPConfig, error) { return appconfig.SMTPConfig{}, nil }
+	resolveMailConfigFn = func() (appconfig.MailConfig, error) { return appconfig.MailConfig{}, nil }
 	if result := Subscribe(context.Background(), SubscribeInput{Email: "bad-email"}, RequestMetadata{}); result.Status != "invalid-email" {
 		t.Fatalf("invalid email subscribe = %#v", result)
 	}
@@ -305,7 +307,7 @@ func TestNewsletterServiceBranches(t *testing.T) {
 		t.Fatalf("rate limited resend = %#v", result)
 	}
 
-	resolveDatabaseNameFn = func() (string, error) { return "", errors.New("missing db") }
+	resolveDatabaseConfigFn = func() (appconfig.DatabaseConfig, error) { return appconfig.DatabaseConfig{}, errors.New("missing db") }
 	if result := Confirm(context.Background(), ""); result.Status != "invalid-link" {
 		t.Fatalf("empty confirm = %#v", result)
 	}
@@ -313,7 +315,9 @@ func TestNewsletterServiceBranches(t *testing.T) {
 		t.Fatalf("config confirm = %#v", result)
 	}
 
-	resolveDatabaseNameFn = func() (string, error) { return "blog", nil }
+	resolveDatabaseConfigFn = func() (appconfig.DatabaseConfig, error) {
+		return appconfig.DatabaseConfig{Name: "blog"}, nil
+	}
 	if result := Confirm(context.Background(), "token"); result.Status != "expired" {
 		t.Fatalf("expired confirm = %#v", result)
 	}
@@ -367,8 +371,8 @@ func TestNewsletterServiceBranches(t *testing.T) {
 func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 	originalRepository := newsletterRepository
 	originalResolveSiteURLFn := resolveSiteURLFn
-	originalResolveSMTPConfigFn := resolveSMTPConfigFn
-	originalResolveDatabaseNameFn := resolveDatabaseNameFn
+	originalResolveMailConfigFn := resolveMailConfigFn
+	originalResolveDatabaseConfigFn := resolveDatabaseConfigFn
 	originalResolveUnsubscribeSecretFn := resolveUnsubscribeSecretFn
 	originalParseUnsubscribeTokenFn := parseUnsubscribeTokenFn
 	originalSendConfirmationEmailFn := sendConfirmationEmailFn
@@ -379,8 +383,8 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 	t.Cleanup(func() {
 		newsletterRepository = originalRepository
 		resolveSiteURLFn = originalResolveSiteURLFn
-		resolveSMTPConfigFn = originalResolveSMTPConfigFn
-		resolveDatabaseNameFn = originalResolveDatabaseNameFn
+		resolveMailConfigFn = originalResolveMailConfigFn
+		resolveDatabaseConfigFn = originalResolveDatabaseConfigFn
 		resolveUnsubscribeSecretFn = originalResolveUnsubscribeSecretFn
 		parseUnsubscribeTokenFn = originalParseUnsubscribeTokenFn
 		sendConfirmationEmailFn = originalSendConfirmationEmailFn
@@ -391,10 +395,12 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 	})
 
 	fixedNow := time.Date(2026, time.March, 1, 12, 0, 0, 0, time.UTC)
-	resolveSMTPConfigFn = func() (appconfig.SMTPConfig, error) {
-		return appconfig.SMTPConfig{Host: "smtp.example.com", Port: "2525"}, nil
+	resolveMailConfigFn = func() (appconfig.MailConfig, error) {
+		return appconfig.MailConfig{Host: "smtp.example.com", Port: "2525"}, nil
 	}
-	resolveDatabaseNameFn = func() (string, error) { return "blog", nil }
+	resolveDatabaseConfigFn = func() (appconfig.DatabaseConfig, error) {
+		return appconfig.DatabaseConfig{Name: "blog"}, nil
+	}
 	resolveUnsubscribeSecretFn = func() (string, error) { return "secret", nil }
 	parseUnsubscribeTokenFn = func(string, string, time.Time) (string, error) { return "reader@example.com", nil }
 	nowUTCFn = func() time.Time { return fixedNow }
@@ -402,7 +408,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 	t.Run("subscribe returns success for active subscriber", func(t *testing.T) {
 		resolveSiteURLFn = func() (string, error) { return "https://example.com", nil }
 		generateConfirmTokenFn = func() (string, error) { return "token", nil }
-		sendConfirmationEmailFn = func(appconfig.SMTPConfig, string, string, string, string) error {
+		sendConfirmationEmailFn = func(appconfig.MailConfig, string, string, string, string) error {
 			t.Fatal("sendConfirmationEmailFn should not be called")
 			return nil
 		}
@@ -466,7 +472,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 			confirmByTokenHash:        func(context.Context, string, time.Time) (bool, error) { return false, nil },
 			unsubscribeByEmail:        func(context.Context, string, time.Time) error { return nil },
 		}
-		sendConfirmationEmailFn = func(appconfig.SMTPConfig, string, string, string, string) error {
+		sendConfirmationEmailFn = func(appconfig.MailConfig, string, string, string, string) error {
 			return errors.New("smtp failure")
 		}
 		if result := Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.5"}); result.Status != statusUnknownError {
@@ -478,7 +484,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 		resendLimiter = newRateLimiter(5, time.Minute)
 		resolveSiteURLFn = func() (string, error) { return "https://example.com", nil }
 		generateConfirmTokenFn = func() (string, error) { return "token", nil }
-		sendConfirmationEmailFn = func(appconfig.SMTPConfig, string, string, string, string) error { return nil }
+		sendConfirmationEmailFn = func(appconfig.MailConfig, string, string, string, string) error { return nil }
 
 		newsletterRepository = newsletterStubRepository{
 			getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "", false, nil },
@@ -532,7 +538,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 			confirmByTokenHash:        func(context.Context, string, time.Time) (bool, error) { return false, nil },
 			unsubscribeByEmail:        func(context.Context, string, time.Time) error { return nil },
 		}
-		sendConfirmationEmailFn = func(appconfig.SMTPConfig, string, string, string, string) error {
+		sendConfirmationEmailFn = func(appconfig.MailConfig, string, string, string, string) error {
 			return errors.New("smtp failure")
 		}
 		if result := Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.14"}); result.Status != statusUnknownError {
@@ -542,7 +548,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 
 	t.Run("confirm and unsubscribe return failed for generic repository errors", func(t *testing.T) {
 		resolveSiteURLFn = func() (string, error) { return "https://example.com", nil }
-		sendConfirmationEmailFn = func(appconfig.SMTPConfig, string, string, string, string) error { return nil }
+		sendConfirmationEmailFn = func(appconfig.MailConfig, string, string, string, string) error { return nil }
 		newsletterRepository = newsletterStubRepository{
 			getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "", false, nil },
 			upsertPendingSubscription: func(context.Context, PendingSubscription) error { return nil },

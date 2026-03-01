@@ -133,8 +133,8 @@ var (
 	resendLimiter                                              = newRateLimiter(5, time.Minute)
 	newsletterRepository       repository.NewsletterRepository = repository.NewNewsletterMongoRepository()
 	resolveSiteURLFn                                           = appconfig.ResolveSiteURL
-	resolveSMTPConfigFn                                        = appconfig.ResolveSMTPConfig
-	resolveDatabaseNameFn                                      = appconfig.ResolveDatabaseName
+	resolveMailConfigFn                                        = appconfig.ResolveMailConfig
+	resolveDatabaseConfigFn                                    = appconfig.ResolveDatabaseConfig
 	resolveUnsubscribeSecretFn                                 = appconfig.ResolveUnsubscribeSecret
 	parseUnsubscribeTokenFn                                    = newsletterpkg.ParseUnsubscribeToken
 	sendConfirmationEmailFn                                    = sendConfirmationEmail
@@ -220,7 +220,7 @@ func buildConfirmURL(siteURL, token, locale string) (string, error) {
 	return parsed.String(), nil
 }
 
-func sendConfirmationEmail(cfg appconfig.SMTPConfig, recipientEmail, confirmURL, locale, siteURL string) error {
+func sendConfirmationEmail(cfg appconfig.MailConfig, recipientEmail, confirmURL, locale, siteURL string) error {
 	subject, htmlBody, err := newsletterpkg.ConfirmationEmail(locale, confirmURL, siteURL)
 	if err != nil {
 		return fmt.Errorf("build confirmation email failed: %w", err)
@@ -239,7 +239,7 @@ func Subscribe(ctx context.Context, input SubscribeInput, meta RequestMetadata) 
 		return Result{Status: statusUnknownError}
 	}
 
-	smtpCfg, err := resolveSMTPConfigFn()
+	mailCfg, err := resolveMailConfigFn()
 	if err != nil {
 		return Result{Status: statusUnknownError}
 	}
@@ -300,7 +300,7 @@ func Subscribe(ctx context.Context, input SubscribeInput, meta RequestMetadata) 
 		return Result{Status: statusUnknownError}
 	}
 
-	if sendConfirmationEmailFn(smtpCfg, email, confirmURL, locale, siteURL) != nil {
+	if sendConfirmationEmailFn(mailCfg, email, confirmURL, locale, siteURL) != nil {
 		return Result{Status: statusUnknownError}
 	}
 
@@ -317,7 +317,7 @@ func Resend(ctx context.Context, input ResendInput, meta RequestMetadata) Result
 		return Result{Status: statusUnknownError}
 	}
 
-	smtpCfg, err := resolveSMTPConfigFn()
+	mailCfg, err := resolveMailConfigFn()
 	if err != nil {
 		return Result{Status: statusUnknownError}
 	}
@@ -376,7 +376,7 @@ func Resend(ctx context.Context, input ResendInput, meta RequestMetadata) Result
 		return Result{Status: statusUnknownError}
 	}
 
-	if sendConfirmationEmailFn(smtpCfg, email, confirmURL, locale, siteURL) != nil {
+	if sendConfirmationEmailFn(mailCfg, email, confirmURL, locale, siteURL) != nil {
 		return Result{Status: statusUnknownError}
 	}
 
@@ -388,7 +388,7 @@ func Confirm(ctx context.Context, token string) Result {
 		return Result{Status: statusInvalidLink}
 	}
 
-	_, dbErr := resolveDatabaseNameFn()
+	_, dbErr := resolveDatabaseConfigFn()
 	if dbErr != nil {
 		return Result{Status: statusConfigError}
 	}
@@ -416,7 +416,7 @@ func Unsubscribe(ctx context.Context, token string) Result {
 		return Result{Status: statusInvalidLink}
 	}
 
-	_, dbErr := resolveDatabaseNameFn()
+	_, dbErr := resolveDatabaseConfigFn()
 	if dbErr != nil {
 		return Result{Status: statusConfigError}
 	}
