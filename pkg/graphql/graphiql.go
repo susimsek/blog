@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"html/template"
 	"net/http"
+
+	appconfig "suaybsimsek.com/blog-api/internal/config"
 )
 
 const (
@@ -282,7 +284,7 @@ type graphiqlPageData struct {
 }
 
 func GraphiQLHandler(w http.ResponseWriter, r *http.Request) {
-	if !IsGraphiQLEnabled() {
+	if !appconfig.IsGraphiQLEnabled() {
 		http.NotFound(w, r)
 		return
 	}
@@ -305,7 +307,7 @@ func GraphiQLHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func buildGraphiQLPageData() (graphiqlPageData, error) {
-	endpointJSON, err := json.Marshal(publicGraphQLPath)
+	endpointJSON, err := json.Marshal(appconfig.PublicGraphQLPath)
 	if err != nil {
 		return graphiqlPageData{}, err
 	}

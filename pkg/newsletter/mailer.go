@@ -6,12 +6,14 @@ import (
 	"net/mail"
 	"net/smtp"
 	"strings"
+
+	appconfig "suaybsimsek.com/blog-api/internal/config"
 )
 
 var smtpSendMail = smtp.SendMail
 
 func SendHTMLEmail(
-	cfg SMTPConfig,
+	cfg appconfig.SMTPConfig,
 	recipientEmail string,
 	subject string,
 	htmlBody string,

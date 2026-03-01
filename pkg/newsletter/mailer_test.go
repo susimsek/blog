@@ -5,6 +5,8 @@ import (
 	"net/smtp"
 	"strings"
 	"testing"
+
+	appconfig "suaybsimsek.com/blog-api/internal/config"
 )
 
 func TestSendHTMLEmail(t *testing.T) {
@@ -42,7 +44,7 @@ func TestSendHTMLEmail(t *testing.T) {
 	}
 
 	err := SendHTMLEmail(
-		SMTPConfig{
+		appconfig.SMTPConfig{
 			Host:     "smtp.example.com",
 			Port:     "2525",
 			Username: "user",
@@ -74,7 +76,7 @@ func TestSendHTMLEmailReturnsSMTPError(t *testing.T) {
 	}
 
 	err := SendHTMLEmail(
-		SMTPConfig{Host: "smtp.example.com", Port: "2525", Username: "user", Password: "pass", FromMail: "noreply@example.com"},
+		appconfig.SMTPConfig{Host: "smtp.example.com", Port: "2525", Username: "user", Password: "pass", FromMail: "noreply@example.com"},
 		"reader@example.com",
 		"Welcome",
 		"<strong>Hello</strong>",

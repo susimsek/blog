@@ -68,12 +68,13 @@ pnpm run backend:cover
 
 - [`api/graphql/index.go`](/Users/T097315/Documents/MyProject/blog/api/graphql/index.go): GraphQL and GraphiQL HTTP handler
 - [`api/newsletter-dispatch/index.go`](/Users/T097315/Documents/MyProject/blog/api/newsletter-dispatch/index.go): newsletter dispatch endpoint
+- [`internal/config`](/Users/T097315/Documents/MyProject/blog/internal/config): backend-only env/config resolution
 - [`internal/domain`](/Users/T097315/Documents/MyProject/blog/internal/domain): domain entities and shared backend records
 - [`internal/service`](/Users/T097315/Documents/MyProject/blog/internal/service): business service orchestration
 - [`internal/repository`](/Users/T097315/Documents/MyProject/blog/internal/repository): Mongo-backed repository implementations
-- [`pkg/graphql`](/Users/T097315/Documents/MyProject/blog/pkg/graphql): GraphiQL page and GraphQL env helpers
+- [`pkg/graphql`](/Users/T097315/Documents/MyProject/blog/pkg/graphql): GraphiQL page handler
 - [`pkg/graph`](/Users/T097315/Documents/MyProject/blog/pkg/graph): gqlgen schema, resolvers, and mapping helpers
-- [`pkg/newsletter`](/Users/T097315/Documents/MyProject/blog/pkg/newsletter): SMTP config, templates, unsubscribe tokens, status pages
+- [`pkg/newsletter`](/Users/T097315/Documents/MyProject/blog/pkg/newsletter): templates, unsubscribe tokens, status pages, mailer
 - [`pkg/apperrors`](/Users/T097315/Documents/MyProject/blog/pkg/apperrors): normalized backend errors
 - [`pkg/httpapi`](/Users/T097315/Documents/MyProject/blog/pkg/httpapi): backend JSON error helpers
 - [`scripts/local-go-api/main.go`](/Users/T097315/Documents/MyProject/blog/scripts/local-go-api/main.go): local backend server entrypoint
@@ -81,6 +82,7 @@ pnpm run backend:cover
 Preferred backend layering:
 
 - `api/*`: transport and HTTP entrypoints
+- `internal/config`: private backend configuration loading
 - `internal/domain`: domain entities and shared backend records
 - `internal/service`: business service orchestration
 - `internal/repository`: persistence and repository implementations
@@ -152,6 +154,8 @@ Related environment variables:
 
 - `GRAPHIQL_ENABLED`
 - `GRAPHQL_INTROSPECTION_ENABLED`
+
+These backend env flags are resolved in [`internal/config/config.go`](/Users/T097315/Documents/MyProject/blog/internal/config/config.go), not under `pkg`.
 
 ### Newsletter dispatch
 

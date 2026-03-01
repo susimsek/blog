@@ -8,16 +8,7 @@ import (
 )
 
 func TestGraphiQLHandler(t *testing.T) {
-	originalGetenv := getenv
-	t.Cleanup(func() {
-		getenv = originalGetenv
-	})
-
 	t.Run("returns 404 when disabled", func(t *testing.T) {
-		getenv = func(_ string) string {
-			return ""
-		}
-
 		request := httptest.NewRequest(http.MethodGet, "/graphiql", nil)
 		recorder := httptest.NewRecorder()
 
@@ -29,12 +20,7 @@ func TestGraphiQLHandler(t *testing.T) {
 	})
 
 	t.Run("returns HTML page when enabled", func(t *testing.T) {
-		getenv = func(name string) string {
-			if name == "GRAPHIQL_ENABLED" {
-				return "true"
-			}
-			return ""
-		}
+		t.Setenv("GRAPHIQL_ENABLED", "true")
 
 		request := httptest.NewRequest(http.MethodGet, "/graphiql", nil)
 		recorder := httptest.NewRecorder()
@@ -65,12 +51,7 @@ func TestGraphiQLHandler(t *testing.T) {
 	})
 
 	t.Run("rejects unsupported methods", func(t *testing.T) {
-		getenv = func(name string) string {
-			if name == "GRAPHIQL_ENABLED" {
-				return "true"
-			}
-			return ""
-		}
+		t.Setenv("GRAPHIQL_ENABLED", "true")
 
 		request := httptest.NewRequest(http.MethodPost, "/graphiql", nil)
 		recorder := httptest.NewRecorder()
@@ -85,5 +66,4 @@ func TestGraphiQLHandler(t *testing.T) {
 			t.Fatalf("allow = %q, want %q", got, "GET, HEAD")
 		}
 	})
-
 }

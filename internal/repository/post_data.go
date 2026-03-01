@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
+	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/internal/domain"
-	"suaybsimsek.com/blog-api/pkg/newsletter"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -80,7 +80,7 @@ func computeInitialHits(postID string) int64 {
 
 func getPostMongoClient() (*mongo.Client, error) {
 	postMongoOnce.Do(func() {
-		uri, err := newsletter.ResolveMongoURI()
+		uri, err := appconfig.ResolveMongoURI()
 		if err != nil {
 			postMongoInitErr = err
 			return
@@ -106,7 +106,7 @@ func getPostMongoClient() (*mongo.Client, error) {
 }
 
 func getPostCollection(name string) (*mongo.Collection, error) {
-	databaseName, databaseErr := newsletter.ResolveDatabaseName()
+	databaseName, databaseErr := appconfig.ResolveDatabaseName()
 	if databaseErr != nil {
 		return nil, databaseErr
 	}

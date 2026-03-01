@@ -1,4 +1,4 @@
-package newsletter
+package config
 
 import (
 	"fmt"
@@ -8,8 +8,9 @@ import (
 )
 
 const (
-	defaultSMTPHost = "smtp.gmail.com"
-	defaultSMTPPort = "587"
+	DefaultSMTPHost   = "smtp.gmail.com"
+	DefaultSMTPPort   = "587"
+	PublicGraphQLPath = "/graphql"
 )
 
 type SMTPConfig struct {
@@ -21,8 +22,10 @@ type SMTPConfig struct {
 	FromMail string
 }
 
+var getenv = os.Getenv
+
 func requiredEnv(name string) (string, error) {
-	value := strings.TrimSpace(os.Getenv(name))
+	value := strings.TrimSpace(getenv(name))
 	if value == "" {
 		return "", fmt.Errorf("missing required env: %s", name)
 	}
@@ -34,7 +37,7 @@ func ResolveAllowedOriginRequired() (string, error) {
 }
 
 func ResolveAllowedOriginOptional() string {
-	return strings.TrimSpace(os.Getenv("API_CORS_ORIGIN"))
+	return strings.TrimSpace(getenv("API_CORS_ORIGIN"))
 }
 
 func ResolveDatabaseName() (string, error) {
@@ -54,7 +57,7 @@ func ResolveSiteURL() (string, error) {
 }
 
 func ResolveSiteURLOrRoot() string {
-	value := strings.TrimSpace(os.Getenv("SITE_URL"))
+	value := strings.TrimSpace(getenv("SITE_URL"))
 	if value == "" {
 		return "/"
 	}
@@ -80,22 +83,22 @@ func ResolveSMTPConfig() (SMTPConfig, error) {
 		return SMTPConfig{}, err
 	}
 
-	host := strings.TrimSpace(os.Getenv("GMAIL_SMTP_HOST"))
+	host := strings.TrimSpace(getenv("GMAIL_SMTP_HOST"))
 	if host == "" {
-		host = defaultSMTPHost
+		host = DefaultSMTPHost
 	}
 
-	port := strings.TrimSpace(os.Getenv("GMAIL_SMTP_PORT"))
+	port := strings.TrimSpace(getenv("GMAIL_SMTP_PORT"))
 	if port == "" {
-		port = defaultSMTPPort
+		port = DefaultSMTPPort
 	}
 
-	fromMail := strings.TrimSpace(os.Getenv("GMAIL_FROM_EMAIL"))
+	fromMail := strings.TrimSpace(getenv("GMAIL_FROM_EMAIL"))
 	if fromMail == "" {
 		fromMail = username
 	}
 
-	fromName := strings.TrimSpace(os.Getenv("GMAIL_FROM_NAME"))
+	fromName := strings.TrimSpace(getenv("GMAIL_FROM_NAME"))
 	if fromName == "" {
 		fromName = "Suayb's Blog"
 	}
@@ -111,7 +114,7 @@ func ResolveSMTPConfig() (SMTPConfig, error) {
 }
 
 func ResolvePositiveIntEnv(name string, fallback int) int {
-	value := strings.TrimSpace(os.Getenv(name))
+	value := strings.TrimSpace(getenv(name))
 	if value == "" {
 		return fallback
 	}
@@ -122,4 +125,40 @@ func ResolvePositiveIntEnv(name string, fallback int) int {
 	}
 
 	return parsed
+}
+
+func IsGraphiQLEnabled() bool {
+	return resolveBoolEnv("GRAPHIQL_ENABLED", false)
+}
+
+func IsGraphQLIntrospectionEnabled() bool {
+	if value, ok := resolveOptionalBoolEnv("GRAPHQL_INTROSPECTION_ENABLED"); ok {
+		return value
+	}
+
+	return IsGraphiQLEnabled()
+}
+
+func resolveOptionalBoolEnv(name string) (bool, bool) {
+	rawValue := strings.TrimSpace(getenv(name))
+	if rawValue == "" {
+		return false, false
+	}
+
+	switch strings.ToLower(rawValue) {
+	case "1", "true", "yes", "on":
+		return true, true
+	case "0", "false", "no", "off":
+		return false, true
+	default:
+		return false, false
+	}
+}
+
+func resolveBoolEnv(name string, fallback bool) bool {
+	if value, ok := resolveOptionalBoolEnv(name); ok {
+		return value
+	}
+
+	return fallback
 }

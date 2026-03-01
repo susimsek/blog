@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/pkg/newsletter"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -996,15 +997,15 @@ func syncLocale(
 func main() {
 	loadDotEnv(filepath.Join(".", ".env.local"))
 
-	siteURL, err := newsletter.ResolveSiteURL()
+	siteURL, err := appconfig.ResolveSiteURL()
 	if err != nil {
 		log.Fatalf("SITE_URL error: %v", err)
 	}
-	mongoURI, err := newsletter.ResolveMongoURI()
+	mongoURI, err := appconfig.ResolveMongoURI()
 	if err != nil {
 		log.Fatalf("MONGODB_URI error: %v", err)
 	}
-	databaseName, err := newsletter.ResolveDatabaseName()
+	databaseName, err := appconfig.ResolveDatabaseName()
 	if err != nil {
 		log.Fatalf("MONGODB_DATABASE error: %v", err)
 	}

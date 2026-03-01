@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
+	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/internal/domain"
-	newsletterpkg "suaybsimsek.com/blog-api/pkg/newsletter"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -46,7 +46,7 @@ func NewNewsletterMongoRepository() NewsletterRepository {
 
 func getNewsletterMongoClient() (*mongo.Client, error) {
 	newsletterMongoClientOnce.Do(func() {
-		uri, err := newsletterpkg.ResolveMongoURI()
+		uri, err := appconfig.ResolveMongoURI()
 		if err != nil {
 			newsletterMongoInitErr = err
 			return
@@ -110,7 +110,7 @@ func ensureNewsletterSubscriberIndexes(collection *mongo.Collection) error {
 }
 
 func getNewsletterCollection() (*mongo.Collection, error) {
-	databaseName, err := newsletterpkg.ResolveDatabaseName()
+	databaseName, err := appconfig.ResolveDatabaseName()
 	if err != nil {
 		return nil, err
 	}

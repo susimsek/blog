@@ -13,12 +13,12 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
+	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/pkg/apperrors"
 	"suaybsimsek.com/blog-api/pkg/graph"
 	"suaybsimsek.com/blog-api/pkg/graph/generated"
 	graphqlapi "suaybsimsek.com/blog-api/pkg/graphql"
 	"suaybsimsek.com/blog-api/pkg/httpapi"
-	"suaybsimsek.com/blog-api/pkg/newsletter"
 )
 
 var (
@@ -36,7 +36,7 @@ func newGraphQLServer() *graphqlhandler.Server {
 	server.AddTransport(transport.GET{})
 	server.AddTransport(transport.POST{})
 	server.SetQueryCache(lru.New[*ast.QueryDocument](1000))
-	if graphqlapi.IsGraphQLIntrospectionEnabled() {
+	if appconfig.IsGraphQLIntrospectionEnabled() {
 		server.Use(extension.Introspection{})
 	}
 	server.Use(extension.AutomaticPersistedQuery{
@@ -75,7 +75,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	allowedOrigin, corsErr := newsletter.ResolveAllowedOriginRequired()
+	allowedOrigin, corsErr := appconfig.ResolveAllowedOriginRequired()
 	if corsErr != nil {
 		httpapi.WriteError(w, apperrors.Config("configuration error", corsErr))
 		return

@@ -13,7 +13,7 @@ This package keeps newsletter behavior in a small set of focused modules:
 
 Handlers under `api/*` should:
 
-1. Resolve env/config from `pkg/newsletter/config.go`.
+1. Resolve env/config from `internal/config/config.go`.
 2. Build content using `pkg/newsletter/content.go`.
 3. Send via `pkg/newsletter/mailer.go`.
 4. Render user-facing status pages via `pkg/newsletter/status_page.go`.

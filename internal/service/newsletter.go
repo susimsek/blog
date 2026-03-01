@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/repository"
 	newsletterpkg "suaybsimsek.com/blog-api/pkg/newsletter"
@@ -131,10 +132,10 @@ var (
 	subscribeLimiter                                           = newRateLimiter(5, time.Minute)
 	resendLimiter                                              = newRateLimiter(5, time.Minute)
 	newsletterRepository       repository.NewsletterRepository = repository.NewNewsletterMongoRepository()
-	resolveSiteURLFn                                           = newsletterpkg.ResolveSiteURL
-	resolveSMTPConfigFn                                        = newsletterpkg.ResolveSMTPConfig
-	resolveDatabaseNameFn                                      = newsletterpkg.ResolveDatabaseName
-	resolveUnsubscribeSecretFn                                 = newsletterpkg.ResolveUnsubscribeSecret
+	resolveSiteURLFn                                           = appconfig.ResolveSiteURL
+	resolveSMTPConfigFn                                        = appconfig.ResolveSMTPConfig
+	resolveDatabaseNameFn                                      = appconfig.ResolveDatabaseName
+	resolveUnsubscribeSecretFn                                 = appconfig.ResolveUnsubscribeSecret
 	parseUnsubscribeTokenFn                                    = newsletterpkg.ParseUnsubscribeToken
 	sendConfirmationEmailFn                                    = sendConfirmationEmail
 	generateConfirmTokenFn                                     = generateConfirmToken
@@ -219,7 +220,7 @@ func buildConfirmURL(siteURL, token, locale string) (string, error) {
 	return parsed.String(), nil
 }
 
-func sendConfirmationEmail(cfg newsletterpkg.SMTPConfig, recipientEmail, confirmURL, locale, siteURL string) error {
+func sendConfirmationEmail(cfg appconfig.SMTPConfig, recipientEmail, confirmURL, locale, siteURL string) error {
 	subject, htmlBody, err := newsletterpkg.ConfirmationEmail(locale, confirmURL, siteURL)
 	if err != nil {
 		return fmt.Errorf("build confirmation email failed: %w", err)

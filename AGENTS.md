@@ -83,12 +83,13 @@ For backend architecture, prefer a layered Go package structure similar in spiri
 
 - `api/graphql/index.go`: GraphQL + GraphiQL HTTP handler
 - `api/newsletter-dispatch/index.go`: newsletter dispatch endpoint
+- `internal/config`: private backend env/config resolution
 - `internal/domain`: domain entities and shared backend records
 - `internal/service`: business service orchestration
 - `internal/repository`: Mongo-backed repository implementations
-- `pkg/graphql`: GraphiQL page and GraphQL env/config helpers
+- `pkg/graphql`: GraphiQL page handler
 - `pkg/graph`: gqlgen schema, resolvers, generated code, mapping helpers
-- `pkg/newsletter`: SMTP config, templates, unsubscribe tokens, status pages
+- `pkg/newsletter`: templates, unsubscribe tokens, status pages, mailer
 - `pkg/apperrors`: normalized backend errors
 - `pkg/httpapi`: JSON error response helpers
 - `scripts/local-go-api/main.go`: local backend entrypoint
@@ -97,7 +98,7 @@ For backend architecture, prefer a layered Go package structure similar in spiri
 Preferred Go layering:
 
 - `api/*`: HTTP transport and entrypoints
-- `internal/*`: service and repository logic
+- `internal/*`: private app config, domain, service, and repository logic
 - `pkg/*`: reusable shared libraries, templates, schemas, and helpers
 
 Do not add new package structures organized mainly by feature domain. Prefer layering by technical responsibility.
@@ -170,7 +171,8 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
   - regenerate with `pnpm run graphql:generate`
 - Backend GraphQL IDE layer:
   - `pkg/graphql/graphiql.go`
-  - `pkg/graphql/config.go`
+- Backend env/config layer:
+  - `internal/config/config.go`
 - Newsletter email/content helpers:
   - `pkg/newsletter/*`
 

@@ -16,6 +16,7 @@ import (
 	"sync"
 	"time"
 
+	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/pkg/apperrors"
 	"suaybsimsek.com/blog-api/pkg/newsletter"
 
@@ -292,7 +293,7 @@ func resolveRSSURL(siteURL, locale string) string {
 
 func getDispatchClient() (*mongo.Client, error) {
 	dispatchOnce.Do(func() {
-		uri, err := newsletter.ResolveMongoURI()
+		uri, err := appconfig.ResolveMongoURI()
 		if err != nil {
 			dispatchInitErr = err
 			return
@@ -1140,7 +1141,7 @@ func buildUnsubscribeURL(siteURL, token, locale string) (string, error) {
 }
 
 func sendPostEmail(
-	cfg newsletter.SMTPConfig,
+	cfg appconfig.SMTPConfig,
 	recipientEmail string,
 	locale string,
 	siteURL string,
@@ -1215,7 +1216,7 @@ func authorizeCronRequest(r *http.Request, secret string) bool {
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	allowedOrigin := newsletter.ResolveAllowedOriginOptional()
+	allowedOrigin := appconfig.ResolveAllowedOriginOptional()
 	if allowedOrigin != "" {
 		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 		w.Header().Set("Vary", "Origin")
@@ -1235,7 +1236,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cronSecret, err := newsletter.ResolveCronSecret()
+	cronSecret, err := appconfig.ResolveCronSecret()
 	if err != nil {
 		writeDispatchError(w, apperrors.Config("configuration error", err))
 		return
@@ -1246,29 +1247,29 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	siteURL, err := newsletter.ResolveSiteURL()
+	siteURL, err := appconfig.ResolveSiteURL()
 	if err != nil {
 		writeDispatchError(w, apperrors.Config("configuration error", err))
 		return
 	}
 
-	unsubscribeSecret, err := newsletter.ResolveUnsubscribeSecret()
+	unsubscribeSecret, err := appconfig.ResolveUnsubscribeSecret()
 	if err != nil {
 		writeDispatchError(w, apperrors.Config("configuration error", err))
 		return
 	}
 
 	unsubscribeTokenTTL := time.Duration(
-		newsletter.ResolvePositiveIntEnv("NEWSLETTER_UNSUBSCRIBE_TOKEN_TTL_HOURS", defaultUnsubscribeTokenTTLHours),
+		appconfig.ResolvePositiveIntEnv("NEWSLETTER_UNSUBSCRIBE_TOKEN_TTL_HOURS", defaultUnsubscribeTokenTTLHours),
 	) * time.Hour
 
-	databaseName, err := newsletter.ResolveDatabaseName()
+	databaseName, err := appconfig.ResolveDatabaseName()
 	if err != nil {
 		writeDispatchError(w, apperrors.Config("configuration error", err))
 		return
 	}
 
-	smtpCfg, err := newsletter.ResolveSMTPConfig()
+	smtpCfg, err := appconfig.ResolveSMTPConfig()
 	if err != nil {
 		writeDispatchError(w, apperrors.Config("smtp configuration error", err))
 		return
@@ -1280,9 +1281,9 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	maxRecipients := newsletter.ResolvePositiveIntEnv("NEWSLETTER_MAX_RECIPIENTS_PER_RUN", defaultMaxRecipientsPerRun)
+	maxRecipients := appconfig.ResolvePositiveIntEnv("NEWSLETTER_MAX_RECIPIENTS_PER_RUN", defaultMaxRecipientsPerRun)
 	maxItemAge := time.Duration(
-		newsletter.ResolvePositiveIntEnv("NEWSLETTER_MAX_ITEM_AGE_HOURS", defaultMaxItemAgeHours),
+		appconfig.ResolvePositiveIntEnv("NEWSLETTER_MAX_ITEM_AGE_HOURS", defaultMaxItemAgeHours),
 	) * time.Hour
 	subscribersCollection := client.Database(databaseName).Collection(newsletterSubscribersCollection)
 	campaignsCollection := client.Database(databaseName).Collection(newsletterCampaignsCollection)
