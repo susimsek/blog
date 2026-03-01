@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+var smtpSendMail = smtp.SendMail
+
 func SendHTMLEmail(
 	cfg SMTPConfig,
 	recipientEmail string,
@@ -39,7 +41,7 @@ func SendHTMLEmail(
 
 	auth := smtp.PlainAuth("", cfg.Username, cfg.Password, cfg.Host)
 	serverAddr := net.JoinHostPort(cfg.Host, cfg.Port)
-	if err := smtp.SendMail(serverAddr, auth, cfg.FromMail, []string{recipientEmail}, []byte(message.String())); err != nil {
+	if err := smtpSendMail(serverAddr, auth, cfg.FromMail, []string{recipientEmail}, []byte(message.String())); err != nil {
 		return fmt.Errorf("smtp send failed: %w", err)
 	}
 

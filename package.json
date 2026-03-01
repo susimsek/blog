@@ -22,6 +22,8 @@
     "webapp:build:prod": "next build",
     "clean-www": "rimraf build",
     "sonar": "pnpm exec sonar-scanner",
+    "backend:test": "go test ./...",
+    "backend:cover": "go test ./... -coverprofile=coverage/go-cover.out",
     "jest": "jest --coverage --maxWorkers=2 --config jest.config.js",
     "test": "pnpm run jest --",
     "test:watch": "pnpm run jest -- --watch",

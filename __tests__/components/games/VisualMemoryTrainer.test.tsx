@@ -149,6 +149,21 @@ describe('VisualMemoryTrainer', () => {
     expect(screen.getByText('level:8')).toBeInTheDocument();
   });
 
+  it('renders idle defaults, empty recent runs, and persists hint toggles', () => {
+    render(<VisualMemoryTrainer />);
+
+    expect(screen.getByText('games.visualMemory.trainer.noRecentRuns')).toBeInTheDocument();
+    expect(screen.getByText('games.visualMemory.trainer.tipWithHint')).toBeInTheDocument();
+    expect(screen.getByText('pattern:4')).toBeInTheDocument();
+    expect(screen.getByText('games.visualMemory.trainer.startRound')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('games.visualMemory.trainer.showHint'));
+
+    expect(window.localStorage.getItem('visual-memory-show-hint-v1')).toBe('false');
+    expect(screen.queryByText('pattern:4')).not.toBeInTheDocument();
+    expect(screen.getByText('games.visualMemory.trainer.tip')).toBeInTheDocument();
+  });
+
   it('starts a round, advances to the next level, and tracks score', () => {
     jest
       .spyOn(Math, 'random')
@@ -234,6 +249,7 @@ describe('VisualMemoryTrainer', () => {
     });
 
     expect(screen.getByText(/^complete:/)).toBeInTheDocument();
+    expect(screen.getByText('games.visualMemory.trainer.playAgain')).toBeInTheDocument();
     expect(getSidebarValue('games.visualMemory.trainer.bestLevel')).not.toHaveTextContent(
       'games.visualMemory.trainer.noBestYet',
     );
@@ -277,5 +293,47 @@ describe('VisualMemoryTrainer', () => {
       'aria-expanded',
       'false',
     );
+  });
+
+  it('switches mode from the desktop controls and uses the new deterministic hint', () => {
+    render(<VisualMemoryTrainer />);
+
+    fireEvent.click(screen.getByRole('radio', { name: /Easy/i }));
+
+    expect(screen.getByRole('radio', { name: /Easy/i })).toHaveAttribute('aria-checked', 'true');
+    expect(window.localStorage.getItem('visual-memory-mode-v1')).toBe('easy');
+    expect(screen.getByText('grid:3')).toBeInTheDocument();
+    expect(screen.getByText('pattern:3')).toBeInTheDocument();
+  });
+
+  it('starts a round from the restart action when the trainer is idle', () => {
+    render(<VisualMemoryTrainer />);
+
+    fireEvent.click(screen.getByText('games.visualMemory.trainer.restart'));
+
+    expect(screen.queryByText('games.visualMemory.trainer.startRound')).not.toBeInTheDocument();
+    expect(screen.getByText(/games\.visualMemory\.trainer\.memorizeRule/)).toBeInTheDocument();
+  });
+
+  it('handles environments without localStorage', () => {
+    const originalLocalStorage = globalThis.localStorage;
+
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: undefined,
+    });
+
+    try {
+      render(<VisualMemoryTrainer />);
+
+      expect(screen.getByText('pattern:4')).toBeInTheDocument();
+      fireEvent.click(screen.getByLabelText('games.visualMemory.trainer.showHint'));
+      expect(screen.queryByText('pattern:4')).not.toBeInTheDocument();
+    } finally {
+      Object.defineProperty(globalThis, 'localStorage', {
+        configurable: true,
+        value: originalLocalStorage,
+      });
+    }
   });
 });

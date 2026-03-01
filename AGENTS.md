@@ -1,7 +1,10 @@
 # AI Agent Guidelines
 
-This repo is a blog application built with **Next.js (static export)**. It reads content from Markdown and supports **multiple languages (en/tr)**.
-Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18next, Bootstrap/Sass, ESLint (flat config), Jest + Testing Library.
+This repo is a multilingual blog platform with a **Next.js static-export frontend** and a **Go backend** for GraphQL, GraphiQL, newsletter confirmation, and newsletter dispatch.
+
+Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18next, Bootstrap/Sass, Go 1.24, gqlgen, MongoDB driver, ESLint (flat config), Jest + Testing Library, SonarCloud.
+
+For backend architecture, prefer a layered Go package structure similar in spirit to the frontend's clear separation of responsibilities. Do not introduce new feature-first Go package layouts.
 
 ## Table of Contents
 
@@ -10,285 +13,357 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18
 3. [Prerequisites](#prerequisites)
 4. [Project Structure](#project-structure)
 5. [Static Export](#static-export)
-6. [Internationalization](#internationalization)
-7. [SEO](#seo)
+6. [Backend Runtime](#backend-runtime)
+7. [Internationalization](#internationalization)
 8. [TypeScript](#typescript)
-9. [Code Style & Quality Gates](#code-style--quality-gates)
-10. [Testing Guidelines](#testing-guidelines)
-11. [Deployment](#deployment)
-12. [Pull Request & Commit Guidelines](#pull-request--commit-guidelines)
-13. [Review Process & What Reviewers Look For](#review-process--what-reviewers-look-for)
-14. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+9. [Go Backend](#go-backend)
+10. [Code Style & Quality Gates](#code-style--quality-gates)
+11. [Testing Guidelines](#testing-guidelines)
+12. [Deployment](#deployment)
+13. [Pull Request & Commit Guidelines](#pull-request--commit-guidelines)
+14. [Review Process & What Reviewers Look For](#review-process--what-reviewers-look-for)
+15. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
 
 ## Agent MCP Usage Guidelines
 
-- Always use the Context7 MCP server when you need library/API documentation (e.g., Next.js, React, TypeScript, Redux Toolkit, i18next/react-i18next, Jest, Testing Library, Bootstrap/Sass), code generation, setup or configuration steps without me having to explicitly ask.
+- Always use the Context7 MCP server when you need library/API documentation without the user having to explicitly ask.
+- Typical libraries in this repo: Next.js, React, TypeScript, Redux Toolkit, i18next/react-i18next, Jest, Testing Library, gqlgen, GraphQL, and Bootstrap/Sass.
 
 ## Quick Reference
 
-| Action                 | Command                                                            |
-| ---------------------- | ------------------------------------------------------------------ |
-| Install                | `pnpm install --frozen-lockfile`                                   |
-| Dev                    | `pnpm dev`                                                         |
-| Build (prod export)    | `pnpm build`                                                       |
-| Preview (static)       | `pnpm build` then `pnpm dlx serve build`                           |
-| Unit tests             | `pnpm test`                                                        |
-| Single test file       | `pnpm test -- __tests__/lib/posts.test.tsx`                        |
-| Lint                   | `pnpm run lint`                                                    |
-| Lint fix               | `pnpm run lint:fix`                                                |
-| Format                 | `pnpm run prettier:format`                                         |
-| Format check           | `pnpm run prettier:check`                                          |
-| Typecheck              | `pnpm run typecheck`                                               |
-| I18n types (interface) | `pnpm run i18n:interface`                                          |
-| Sonar (local)          | `pnpm run sonar`                                                   |
-| Update Medium feed     | `pnpm run fetch:medium`                                            |
-| Docker Compose deploy  | `docker-compose -f deploy/docker-compose/docker-compose.yml up -d` |
-| Helm deploy            | `helm install blog deploy/helm/blog`                               |
+| Action                | Command                                                            |
+| --------------------- | ------------------------------------------------------------------ |
+| Install               | `pnpm install --frozen-lockfile`                                   |
+| Frontend dev          | `pnpm dev`                                                         |
+| Local Go backend      | `pnpm run backend:start`                                           |
+| Build                 | `pnpm build`                                                       |
+| Preview static build  | `pnpm build` then `pnpm dlx serve build`                           |
+| Frontend tests        | `pnpm test`                                                        |
+| Single Jest file      | `pnpm test -- __tests__/lib/posts.test.tsx`                        |
+| Go tests              | `pnpm run backend:test`                                            |
+| Go coverage for Sonar | `pnpm run backend:cover`                                           |
+| Lint                  | `pnpm run lint`                                                    |
+| Lint fix              | `pnpm run lint:fix`                                                |
+| Format                | `pnpm run prettier:format`                                         |
+| Format check          | `pnpm run prettier:check`                                          |
+| Typecheck             | `pnpm run typecheck`                                               |
+| I18n types            | `pnpm run i18n:interface`                                          |
+| Sonar scan            | `pnpm run sonar`                                                   |
+| Update Medium feed    | `pnpm run fetch:medium`                                            |
+| Sync Medium posts     | `pnpm run sync:medium-posts`                                       |
+| Sync post metadata    | `pnpm run sync:post-metadata`                                      |
+| Sync code filenames   | `pnpm run sync:code-filenames`                                     |
+| gqlgen generation     | `pnpm run graphql:generate`                                        |
+| TS GraphQL codegen    | `pnpm run graphql:codegen`                                         |
+| Backend content sync  | `pnpm run backend:sync-content`                                    |
+| Docker Compose deploy | `docker-compose -f deploy/docker-compose/docker-compose.yml up -d` |
+| Helm deploy           | `helm install blog deploy/helm/blog`                               |
 
 ## Prerequisites
 
-- Node.js: `>= 24.13.0` (see `package.json#engines`)
-- Package manager: `pnpm` (lockfile: `pnpm-lock.yaml`; use Corepack)
+- Node.js: `>= 24.13.0`
+- pnpm via Corepack
+- Go: `1.24.x`
 
 ## Project Structure
 
 ### Frontend
 
-- Application: `src`
-  - `app`: routing (App Router)
-    - `[locale]`: locale-prefixed routes (static export outputs `/en/.../index.html`, etc.)
-    - top-level route shims (`about`, `contact`, `medium`, `search`, `posts/[id]`, `topics/[id]`) redirect to `/{locale}/...`
-    - `layout.tsx`: root metadata and global style entry
-    - `[locale]/layout.tsx`: locale providers + static params
-    - `not-found.tsx` and `[locale]/not-found.tsx`: 404 surfaces
-  - `views`: route-level UI (page views used by App Router)
-  - `components`: shared UI components
-    - `LocaleRedirect.tsx`: locale redirect helpers (used by root/shim pages)
-  - `config`: app config + Redux store + validation/schema helpers
-    - `store.ts`: Redux store setup
-    - `constants.ts`: app constants
-    - `createValidationSchema.ts`: form/validation schema helpers
-    - `markdownSchema.ts`: Markdown-related schema/config
-    - `iconLoader.ts`: icon loading utilities
-  - `reducers`: Redux slices/reducers (`postsQuery.ts`, `theme.ts`)
-  - `lib`: shared frontend code
-    - `languageDetector.ts`: locale detection + cache
-    - `posts.ts`: Markdown/index readers for posts
-    - `postFilters.ts`: post filtering/sorting helpers
-    - `markdownUtils.ts`: Markdown utilities
-    - `medium.ts`: Medium feed helpers (reads `content/external/medium-feed.json`)
-    - `cacheUtils.ts`: caching helpers
-    - `icons/*`: icon registry/helpers
-  - `hooks`: shared React hooks
-  - `styles`: global Sass/CSS
-  - `types`: shared TypeScript types and declarations
-- Public assets: `public`
-  - `locales/<lng>/<ns>.json`: i18n translation files
-- Tests: `__tests__` (Jest + Testing Library)
-- Frontend config:
-  - `next.config.ts`: Next config (static export: `output: 'export'`, output dir: `build/`)
-  - `i18n.config.json`: locale source-of-truth for app/runtime scripts
+- `src/app`: App Router routes, layouts, localized pages
+- `src/views`: route-level page components
+- `src/components`: shared UI and game components
+- `src/config`: store, constants, validation helpers
+- `src/reducers`: Redux slices
+- `src/lib`: frontend domain helpers, content parsing, metadata, GraphQL client helpers
+- `src/i18n`: locale runtime and translation loading
+- `src/styles`: global Sass
+- `public/locales/<lng>`: translation namespaces
+
+### Backend
+
+- `api/graphql/index.go`: GraphQL + GraphiQL HTTP handler
+- `api/newsletter-dispatch/index.go`: newsletter dispatch endpoint
+- `internal/service/post`: post service layer
+- `internal/service/newsletter`: newsletter service layer
+- `internal/repository/post`: Mongo-backed post repository layer
+- `internal/repository/newsletter`: Mongo-backed newsletter repository layer
+- `pkg/graphql`: GraphiQL page and GraphQL env/config helpers
+- `pkg/graph`: gqlgen schema, resolvers, generated code, mapping helpers
+- `pkg/newsletter`: SMTP config, templates, unsubscribe tokens, status pages
+- `pkg/apperrors`: normalized backend errors
+- `pkg/httpapi`: JSON error response helpers
+- `scripts/local-go-api/main.go`: local backend entrypoint
+- `scripts/sync-newsletter-content/main.go`: newsletter content sync utility
+
+Preferred Go layering:
+
+- `api/*`: HTTP transport and entrypoints
+- `internal/*`: service and repository logic
+- `pkg/*`: reusable shared libraries, templates, schemas, and helpers
+
+Do not add new package structures organized mainly by feature domain. Prefer layering by technical responsibility.
 
 ### Content
 
-- Posts:
-  - Markdown: `content/posts/<locale>/*.md`
-  - Index: `public/data/posts.<locale>.json`
-- Topics index: `public/data/topics.<locale>.json`
-- Medium cache: `content/external/medium-feed.json` (generated by `pnpm run fetch:medium`)
+- `content/posts/en/*.md`
+- `content/posts/tr/*.md`
+- `public/data/posts.<locale>.json`
+- `public/data/topics.<locale>.json`
+- `public/data/categories.<locale>.json`
+- `content/external/medium-feed.json`
 
-### Build & Deploy
+### Build and Deploy
 
-- Build output: `build/` (generated; served by NGINX in deploy)
-- NGINX template: `nginx/nginx.conf.template`
-- Docker image: `Dockerfile`
-- Docker Compose: `deploy/docker-compose/docker-compose.yml`
-- Helm chart: `deploy/helm/blog`
+- `build/`: generated static output
+- `nginx/nginx.conf.template`
+- `deploy/docker-compose/docker-compose.yml`
+- `deploy/helm/blog`
 
 ## Static Export
 
-- `next.config.ts`:
-  - `output: 'export'` → static export; avoid server-only runtime patterns.
-  - `distDir: 'build'` → build/export output lives under `build/`.
-  - `basePath` and `assetPrefix` are controlled via environment.
-  - `images.unoptimized: true` → use static images; avoid relying on Next image optimization.
-  - `turbopack.rules['*.svg']` → SVG imports are handled via `@svgr/webpack` (Turbopack).
-- Static export constraints:
-  - Avoid `getServerSideProps`, API routes, and other server-runtime-only features.
-  - Keep code browser-safe: don’t access `window`/`document` at module scope unless guarded.
-- Environment variables:
-  - `NEXT_PUBLIC_BASE_PATH`: subpath deploy (e.g. `/blog`)
-  - `NEXT_PUBLIC_ASSET_PREFIX`: CDN/prefix (e.g. `https://cdn...`)
-  - `NEXT_PUBLIC_GA_ID`: Google Analytics id
-  - `SITE_URL`: base URL for sitemap/rss generation and SEO
+- `next.config.ts` uses:
+  - `output: 'export'`
+  - `distDir: 'build'`
+  - `images.unoptimized: true`
+  - Turbopack SVG handling via `@svgr/webpack`
+- In development, `next.config.ts` rewrites:
+  - `/graphql` -> `NEXT_PUBLIC_DEV_API_ORIGIN/graphql`
+  - `/api/:path*` -> `NEXT_PUBLIC_DEV_API_ORIGIN/api/:path*`
+- Avoid server-only Next.js patterns in frontend code.
+
+## Backend Runtime
+
+- Start local backend with `pnpm run backend:start`
+- Default port: `8080`
+- Override port with `LOCAL_GO_API_PORT`
+- Local backend endpoints:
+  - `/graphql`
+  - `/graphiql`
+  - `/api/newsletter-dispatch`
+  - `/health`
+- GraphiQL toggles:
+  - `GRAPHIQL_ENABLED`
+  - `GRAPHQL_INTROSPECTION_ENABLED`
 
 ## Internationalization
 
-- When adding a new post:
-  - Markdown file: `content/posts/<locale>/<slug>.md`
-  - Frontmatter fields: `title`, `publishedDate`, `summary`, `thumbnail`, `readingTime`, `topics[]`
-  - Update the index: `public/data/posts.<locale>.json` (lists are read from this file)
-- When adding a new topic, update `public/data/topics.<locale>.json`.
-- When adding new UI copy:
-  - Update both locale namespaces: `public/locales/en/*.json` and `public/locales/tr/*.json`
-  - Ensure route metadata/translator usage includes needed namespaces (see `src/i18n/server.ts` and route `generateMetadata` files).
+- Supported locales: `en`, `tr`
+- When adding UI copy:
+  - update both `public/locales/en/*.json` and `public/locales/tr/*.json`
+- When adding a post:
+  - create `content/posts/<locale>/<slug>.md`
+  - update `public/data/posts.<locale>.json`
+  - update topics/categories indexes if needed
 
 ## TypeScript
 
-- Typecheck: `pnpm run typecheck`
-- Use `strict` TypeScript settings; avoid `any` in new code unless required.
-- Keep `src/types/` for shared type declarations and generated type outputs.
-- Generate i18n types after updating locale JSON: `pnpm run i18n:interface`
+- Typecheck with `pnpm run typecheck`
+- Keep `strict` TypeScript assumptions
+- Regenerate i18n types after locale JSON changes:
+  - `pnpm run i18n:interface`
+
+## Go Backend
+
+- Module: `suaybsimsek.com/blog-api`
+- Go version: `1.24.0`
+- GraphQL schema/resolver work:
+  - schema and generated layer under `pkg/graph`
+  - regenerate with `pnpm run graphql:generate`
+- Backend GraphQL IDE layer:
+  - `pkg/graphql/graphiql.go`
+  - `pkg/graphql/config.go`
+- Newsletter email/content helpers:
+  - `pkg/newsletter/*`
+
+### Package structure rule
+
+- Follow layered packages, not feature-first packages
+- Keep transport in `api/*`
+- Keep business and persistence flow in `internal/*`
+- Keep reusable/shared helpers in `pkg/*`
+- Avoid creating new feature-rooted package trees for backend code
+
+### Common backend environment
+
+- Required in most backend flows:
+  - `API_CORS_ORIGIN`
+  - `MONGODB_URI`
+  - `MONGODB_DATABASE`
+  - `SITE_URL`
+  - `GMAIL_SMTP_USER`
+  - `GMAIL_SMTP_APP_PASSWORD`
+  - `CRON_SECRET`
+- Optional:
+  - `GMAIL_FROM_EMAIL`
+  - `GMAIL_FROM_NAME`
+  - `GMAIL_SMTP_HOST`
+  - `GMAIL_SMTP_PORT`
+  - `NEWSLETTER_UNSUBSCRIBE_SECRET`
+  - `NEWSLETTER_MAX_RECIPIENTS_PER_RUN`
+  - `NEWSLETTER_MAX_ITEM_AGE_HOURS`
+  - `NEWSLETTER_UNSUBSCRIBE_TOKEN_TTL_HOURS`
 
 ## Code Style & Quality Gates
 
-- Lint: ESLint (flat config; see `eslint.config.mjs`). Note: Next.js 16 removed `next lint`, so linting is done via `eslint`.
-  - Check: `pnpm run lint`
-  - Fix: `pnpm run lint:fix`
-- Format: Prettier (see `.prettierrc.json`)
-  - Apply: `pnpm run prettier:format`
-- EditorConfig: `.editorconfig` (LF, no trailing whitespace, indent=2)
-- Import/alias:
-  - `@/*` → `src/*`
-  - `@assets/*` → `src/assets/*`
-  - `@components/*` → `src/components/*`
-  - `@config/*` → `src/config/*`
-  - `@hooks/*` → `src/hooks/*`
-  - `@lib/*` → `src/lib/*`
-  - `@pages/*` → `src/pages/*`
-  - `@reducers/*` → `src/reducers/*`
-  - `@styles/*` → `src/styles/*`
-  - `@types/*` → `src/types/*`
-  - `@views/*` → `src/views/*`
-  - `@tests/*` → `__tests__/*`
-  - `@root/*` → repo root (`./*`)
+- Lint with ESLint:
+  - `pnpm run lint`
+  - `pnpm run lint:fix`
+- Format with Prettier:
+  - `pnpm run prettier:format`
+  - `pnpm run prettier:check`
+- EditorConfig:
+  - LF
+  - no trailing whitespace
+  - indent size `2`
 
-### Clean Coding Standards
+### Import aliases
 
-- Keep feature flows **single-path and explicit** (one endpoint/transport/path per feature unless requirement says otherwise).
-- Do **not** add fallback logic by default; only add it when explicitly required and documented in the PR.
-- Prefer clear boundaries: UI in `components/views`, state in `reducers/store`, domain logic in `lib`, API/integration in dedicated modules.
-- Remove dead code, unused exports, and stale branches during refactors; avoid “just in case” code.
-- Fail loudly and observably: avoid silent `catch {}` blocks; return actionable errors and keep logs meaningful.
-- Write small, focused functions with descriptive names; avoid deep nesting and large “god” functions/components.
-- Keep types strict and explicit; avoid `any`, implicit `unknown` casts, and ad-hoc runtime shapes.
-- Add/adjust tests with behavior changes, especially for filtering/sorting, i18n paths, and API contract changes.
+- `@/*` -> `src/*`
+- `@assets/*` -> `src/assets/*`
+- `@components/*` -> `src/components/*`
+- `@config/*` -> `src/config/*`
+- `@hooks/*` -> `src/hooks/*`
+- `@lib/*` -> `src/lib/*`
+- `@pages/*` -> `src/pages/*`
+- `@reducers/*` -> `src/reducers/*`
+- `@styles/*` -> `src/styles/*`
+- `@types/*` -> `src/types/*`
+- `@views/*` -> `src/views/*`
+- `@tests/*` -> `__tests__/*`
+- `@root/*` -> repo root
+
+### SonarCloud
+
+- Scanner command: `pnpm run sonar`
+- Coverage inputs:
+  - `coverage/lcov.info`
+  - `coverage/test-report.xml`
+  - `coverage/go-cover.out`
+- Current Sonar scope in `sonar-project.properties` includes:
+  - `src/**`
+  - `api/graphql/**`
+  - `internal/service/post/service.go`
+  - `internal/service/newsletter/service.go`
+  - `pkg/apperrors/**`
+  - `pkg/httpapi/**`
+  - `pkg/graphql/**`
+  - `pkg/newsletter/**`
+  - `pkg/graph/*.go`
 
 ## Testing Guidelines
 
-- Jest + Testing Library: tests live under `__tests__/`.
-- Recommended pattern:
-  - For components that need Redux, use `__tests__/utils/renderWithProviders.tsx`.
-- Coverage output: `coverage/` (reporter: `jest-sonar` writes `coverage/test-report.xml`)
+- Frontend tests live under `__tests__/`
+- Backend tests live next to Go packages as `*_test.go`
+- Recommended React test helper:
+  - `__tests__/utils/renderWithProviders.tsx`
+- Jest config:
+  - environment: `jsdom`
+  - coverage report directory: `coverage/`
+  - sonar test report: `coverage/test-report.xml`
+- Jest global coverage thresholds:
+  - statements: `95`
+  - functions: `95`
+  - lines: `95`
+
+### What to run
+
+- Frontend-only change:
+  - `pnpm test`
+  - `pnpm run lint`
+  - `pnpm run typecheck`
+- Backend Go change:
+  - `pnpm run backend:test`
+  - `pnpm run backend:cover`
+- Export/build-sensitive change:
+  - `pnpm build`
+- Sonar-sensitive change:
+  - produce coverage
+  - `pnpm run sonar`
 
 ## Deployment
 
-- The Docker image serves the static `build/` output with NGINX (health endpoint: `/health`).
-- `deploy/docker-compose/docker-compose.yml` runs the `suayb/blog:main` image as a single service.
-- The Helm chart supports subpath/host-based deploys via `app.basePath` and ingress settings (see `deploy/helm/blog/values.yaml`).
+- Static frontend is served from `build/`
+- Docker Compose deployment:
+  - `deploy/docker-compose/docker-compose.yml`
+- Helm deployment:
+  - `deploy/helm/blog`
+- Docker image repository defaults to `suayb/blog:main`
+- Helm chart supports base path and ingress configuration through `deploy/helm/blog/values.yaml`
 
 ## Pull Request & Commit Guidelines
 
 ### General
 
-- Keep changes focused; avoid drive-by refactors in the same PR.
-- Prefer small, logically grouped commits; avoid `WIP` / “fix typo” noise.
-- Never include secrets (e.g., API keys, tokens) in commits/PRs; prefer env vars and document required setup in `README.md`.
-- Never commit generated output (`build/`, `.next/`) or local artifacts (`coverage/`, `node_modules/`).
+- Keep changes focused
+- Avoid drive-by refactors
+- Never commit secrets
+- Never commit generated folders like `build/`, `.next/`, or local artifacts like `coverage/`
 
 ### Conventional Commits
 
-- Use **Conventional Commits**:
-  - `feat`: new feature
-  - `fix`: bug fix
-  - `docs`: documentation only
-  - `test`: adding or fixing tests
-  - `chore`: tooling/build changes
-  - `perf`: performance improvement
-  - `refactor`: code changes without feature or fix
-  - `build`: changes that affect build/export/deploy artifacts
-  - `ci`: CI configuration
-  - `style`: formatting-only changes
-  - `types`: type-only changes
-  - `revert`: reverts a previous commit
+- `feat`
+- `fix`
+- `docs`
+- `test`
+- `chore`
+- `perf`
+- `refactor`
+- `build`
+- `ci`
+- `style`
+- `types`
+- `revert`
 
-### Commit Message Format
+### Commit format
 
-```
+```text
 <type>(<scope>): <short summary>
-
-Optional longer description.
 ```
 
-- Keep summary under 80 characters. Use imperative present tense.
-- Suggested scopes: `content`, `i18n`, `seo`, `ui`, `routing`, `redux`, `build`, `deploy`.
+Suggested scopes:
 
-### Before Opening a PR
-
-- Always apply formatting and run at least unit checks:
-  - Format: `pnpm run prettier:format`
-  - Lint: `pnpm run lint`
-  - Unit tests: `pnpm test`
-- When output/export behavior can change, also run:
-  - Production build + export hooks: `pnpm build` (runs `postbuild` sitemap/RSS generation)
-- Note: pre-commit runs `lint-staged` (ESLint `--fix` + Prettier) via Husky, but still run the commands above before opening a PR.
-
-### PR Title & Description
-
-- PR title: use a Conventional Commit-style title (same as commit summary).
-- PR description should include:
-  - What changed and why
-  - How to verify (exact commands and/or steps)
-  - Any risks, rollback notes, or follow-ups
-
-### Call Out Cross-Cutting Impacts
-
-- Content/index changes:
-  - New/updated posts: `content/posts/<locale>/*.md` and `public/data/posts.<locale>.json`
-  - New/updated topics: `public/data/topics.<locale>.json`
-- i18n changes: `public/locales/en/*.json` and `public/locales/tr/*.json`
-- SEO/feeds:
-  - Sitemap/RSS output changes (verify `SITE_URL` assumptions)
-  - `scripts/generate-sitemap.js` / `scripts/generate-rss.js` changes
-- Export/deploy routing:
-  - `NEXT_PUBLIC_BASE_PATH` / `NEXT_PUBLIC_ASSET_PREFIX` behavior changes
-  - NGINX routing changes: `nginx/nginx.conf.template`
-  - Docker/Helm changes under `deploy/`
+- `content`
+- `i18n`
+- `seo`
+- `ui`
+- `routing`
+- `redux`
+- `backend`
+- `graphql`
+- `newsletter`
+- `build`
+- `deploy`
 
 ## Review Process & What Reviewers Look For
 
-### General (Applies to All PRs)
+### General
 
-- ✅ Automated checks pass (`pnpm run lint`, `pnpm test`; and `pnpm build` when relevant).
-- ✅ Changes are focused and minimal; no unrelated refactors or drive-by cleanups.
-- ✅ Commit history is clean, logical, and follows Conventional Commits.
-- ✅ No secrets, credentials, or environment-specific values are committed.
-- ✅ PR description clearly explains:
-  - What changed and why
-  - How to verify
-  - Risks or follow-ups (if any)
+- `pnpm run lint` passes
+- `pnpm test` passes when frontend code changes
+- `pnpm run backend:test` passes when backend code changes
+- `pnpm build` passes when export behavior may change
+- Sonar-sensitive changes keep quality and coverage within target
 
-### Frontend Review Checklist
+### Frontend review
 
-- ✅ Next.js static export constraints are respected (`output: 'export'`): no server-only patterns added.
-- ✅ Build, lint, and tests pass when UI/logic is touched (`pnpm build`, `pnpm run lint`, `pnpm test`).
-- ✅ UI/UX changes include brief notes or screenshots when behavior/visuals change.
-- ✅ TypeScript stays strict and consistent (avoid `any`, keep props types readonly where applicable).
-- ✅ No unsafe rendering patterns are introduced (avoid `dangerouslySetInnerHTML`; keep Markdown sanitization in place).
+- Next.js static export constraints are respected
+- TypeScript remains strict
+- i18n changes are made in both locales
+- Markdown/content changes update the related JSON indexes
 
-### Content & i18n Review Checklist
+### Backend review
 
-- ✅ New/edited post/topic updates include the corresponding JSON index updates.
-- ✅ i18n keys are added/updated in both locales (en/tr) and namespaces remain consistent.
-- ✅ URLs and metadata are consistent across locales (titles, summaries, topics).
-- ✅ SEO artifacts remain correct after build (`build/` includes updated sitemap/RSS when `pnpm build` is run).
+- GraphQL schema/resolvers stay coherent
+- Newsletter flows remain explicit and test-covered
+- Mongo and SMTP config handling stays observable
+- New backend logic gets `*_test.go` coverage
 
 ## Common Mistakes to Avoid
 
-- Editing generated folders (`build/`, `.next/`) instead of source code.
-- Adding a new post/topic but forgetting to update the post/topic indexes (`public/data/posts.<locale>.json` and `public/data/topics.<locale>.json`).
-- Adding an i18n key but updating only one locale file.
-- Introducing server-only APIs or runtime dependencies in an `output: 'export'` environment.
-- Using `NEXT_PUBLIC_BASE_PATH` without accounting for asset paths and NGINX 404 routing.
-- If Sass deprecation warnings appear in CI: prefer `@use` over `@import`, and keep `next.config.ts` `sassOptions.quietDeps` enabled to silence dependency noise.
-- Ignoring large-page-data warnings: large static payloads from locale/post preloads can impact performance.
+- Editing generated folders instead of source files
+- Updating only one locale file
+- Adding a post/topic without updating indexes
+- Forgetting that frontend is static-exported
+- Forgetting dev rewrites depend on `NEXT_PUBLIC_DEV_API_ORIGIN`
+- Running Sonar without generating `coverage/go-cover.out`
+- Assuming `pkg/graphql/**` is automatically covered if it is not included in the Go coverage command

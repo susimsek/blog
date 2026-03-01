@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	newsletterrepo "suaybsimsek.com/blog-api/internal/repository/newsletter"
 	newsletterpkg "suaybsimsek.com/blog-api/pkg/newsletter"
 )
 
@@ -20,6 +21,9 @@ const (
 	defaultNewsletterFormName   = "preFooterNewsletter"
 	defaultNewsletterSourceName = "pre-footer"
 	newsletterConfirmTokenTTL   = 24 * time.Hour
+	statusUnknownError          = "unknown-error"
+	statusInvalidLink           = "invalid-link"
+	statusConfigError           = "config-error"
 )
 
 var defaultNewsletterTags = []string{"preFooterNewsletter"}
@@ -48,6 +52,8 @@ type Result struct {
 	Status    string
 	ForwardTo string
 }
+
+type PendingSubscription = newsletterrepo.PendingSubscription
 
 type rateLimiter struct {
 	mu              sync.Mutex
@@ -121,9 +127,18 @@ func (limit *rateLimiter) allow(clientID string) bool {
 }
 
 var (
-	subscribeLimiter                = newRateLimiter(5, time.Minute)
-	resendLimiter                   = newRateLimiter(5, time.Minute)
-	newsletterRepository Repository = NewMongoRepository()
+	subscribeLimiter                                     = newRateLimiter(5, time.Minute)
+	resendLimiter                                        = newRateLimiter(5, time.Minute)
+	newsletterRepository       newsletterrepo.Repository = newsletterrepo.NewMongoRepository()
+	resolveSiteURLFn                                     = newsletterpkg.ResolveSiteURL
+	resolveSMTPConfigFn                                  = newsletterpkg.ResolveSMTPConfig
+	resolveDatabaseNameFn                                = newsletterpkg.ResolveDatabaseName
+	resolveUnsubscribeSecretFn                           = newsletterpkg.ResolveUnsubscribeSecret
+	parseUnsubscribeTokenFn                              = newsletterpkg.ParseUnsubscribeToken
+	sendConfirmationEmailFn                              = sendConfirmationEmail
+	generateConfirmTokenFn                               = generateConfirmToken
+	nowUTCFn                                             = func() time.Time { return time.Now().UTC() }
+	errRepositoryUnavailable                             = newsletterrepo.ErrRepositoryUnavailable
 )
 
 func normalizeEmail(value string) (string, error) {
@@ -217,14 +232,14 @@ func Subscribe(ctx context.Context, input SubscribeInput, meta RequestMetadata) 
 		return Result{Status: "success"}
 	}
 
-	siteURL, err := newsletterpkg.ResolveSiteURL()
+	siteURL, err := resolveSiteURLFn()
 	if err != nil {
-		return Result{Status: "unknown-error"}
+		return Result{Status: statusUnknownError}
 	}
 
-	smtpCfg, err := newsletterpkg.ResolveSMTPConfig()
+	smtpCfg, err := resolveSMTPConfigFn()
 	if err != nil {
-		return Result{Status: "unknown-error"}
+		return Result{Status: statusUnknownError}
 	}
 
 	locale := newsletterpkg.ResolveLocale(input.Locale, meta.AcceptLanguage)
@@ -243,29 +258,29 @@ func Subscribe(ctx context.Context, input SubscribeInput, meta RequestMetadata) 
 
 	existingStatus, found, err := newsletterRepository.GetStatusByEmail(lookupCtx, email)
 	if err != nil {
-		return Result{Status: "unknown-error"}
+		return Result{Status: statusUnknownError}
 	}
 
 	if found && existingStatus == "active" {
 		return Result{Status: "success"}
 	}
 
-	confirmToken, err := generateConfirmToken()
+	confirmToken, err := generateConfirmTokenFn()
 	if err != nil {
-		return Result{Status: "unknown-error"}
+		return Result{Status: statusUnknownError}
 	}
 
 	confirmURL, err := buildConfirmURL(siteURL, confirmToken, locale)
 	if err != nil {
-		return Result{Status: "unknown-error"}
+		return Result{Status: statusUnknownError}
 	}
 
-	now := time.Now().UTC()
+	now := nowUTCFn()
 	createdAt := now
 	updateCtx, updateCancel := context.WithTimeout(ctx, 10*time.Second)
 	defer updateCancel()
 
-	err = newsletterRepository.UpsertPendingSubscription(updateCtx, PendingSubscription{
+	err = newsletterRepository.UpsertPendingSubscription(updateCtx, newsletterrepo.PendingSubscription{
 		Email:                 email,
 		Locale:                locale,
 		Tags:                  normalizeTags(input.Tags),
@@ -280,11 +295,11 @@ func Subscribe(ctx context.Context, input SubscribeInput, meta RequestMetadata) 
 		CreatedAt:             &createdAt,
 	})
 	if err != nil {
-		return Result{Status: "unknown-error"}
+		return Result{Status: statusUnknownError}
 	}
 
-	if err := sendConfirmationEmail(smtpCfg, email, confirmURL, locale, siteURL); err != nil {
-		return Result{Status: "unknown-error"}
+	if sendConfirmationEmailFn(smtpCfg, email, confirmURL, locale, siteURL) != nil {
+		return Result{Status: statusUnknownError}
 	}
 
 	return Result{Status: "success"}
@@ -295,14 +310,14 @@ func Resend(ctx context.Context, input ResendInput, meta RequestMetadata) Result
 		return Result{Status: "success"}
 	}
 
-	siteURL, err := newsletterpkg.ResolveSiteURL()
+	siteURL, err := resolveSiteURLFn()
 	if err != nil {
-		return Result{Status: "unknown-error"}
+		return Result{Status: statusUnknownError}
 	}
 
-	smtpCfg, err := newsletterpkg.ResolveSMTPConfig()
+	smtpCfg, err := resolveSMTPConfigFn()
 	if err != nil {
-		return Result{Status: "unknown-error"}
+		return Result{Status: statusUnknownError}
 	}
 
 	locale := newsletterpkg.ResolveLocale(input.Locale, meta.AcceptLanguage)
@@ -321,7 +336,7 @@ func Resend(ctx context.Context, input ResendInput, meta RequestMetadata) Result
 
 	existingStatus, found, err := newsletterRepository.GetStatusByEmail(lookupCtx, email)
 	if err != nil {
-		return Result{Status: "unknown-error"}
+		return Result{Status: statusUnknownError}
 	}
 	if !found {
 		return Result{Status: "success"}
@@ -331,21 +346,21 @@ func Resend(ctx context.Context, input ResendInput, meta RequestMetadata) Result
 		return Result{Status: "success"}
 	}
 
-	confirmToken, err := generateConfirmToken()
+	confirmToken, err := generateConfirmTokenFn()
 	if err != nil {
-		return Result{Status: "unknown-error"}
+		return Result{Status: statusUnknownError}
 	}
 
 	confirmURL, err := buildConfirmURL(siteURL, confirmToken, locale)
 	if err != nil {
-		return Result{Status: "unknown-error"}
+		return Result{Status: statusUnknownError}
 	}
 
-	now := time.Now().UTC()
+	now := nowUTCFn()
 	updateCtx, updateCancel := context.WithTimeout(ctx, 10*time.Second)
 	defer updateCancel()
 
-	err = newsletterRepository.UpdatePendingSubscription(updateCtx, PendingSubscription{
+	err = newsletterRepository.UpdatePendingSubscription(updateCtx, newsletterrepo.PendingSubscription{
 		Email:                 email,
 		Locale:                locale,
 		UpdatedAt:             now,
@@ -356,11 +371,11 @@ func Resend(ctx context.Context, input ResendInput, meta RequestMetadata) Result
 		ConfirmRequestedAt:    now,
 	})
 	if err != nil {
-		return Result{Status: "unknown-error"}
+		return Result{Status: statusUnknownError}
 	}
 
-	if err := sendConfirmationEmail(smtpCfg, email, confirmURL, locale, siteURL); err != nil {
-		return Result{Status: "unknown-error"}
+	if sendConfirmationEmailFn(smtpCfg, email, confirmURL, locale, siteURL) != nil {
+		return Result{Status: statusUnknownError}
 	}
 
 	return Result{Status: "success"}
@@ -368,21 +383,21 @@ func Resend(ctx context.Context, input ResendInput, meta RequestMetadata) Result
 
 func Confirm(ctx context.Context, token string) Result {
 	if strings.TrimSpace(token) == "" {
-		return Result{Status: "invalid-link"}
+		return Result{Status: statusInvalidLink}
 	}
 
-	_, dbErr := newsletterpkg.ResolveDatabaseName()
+	_, dbErr := resolveDatabaseNameFn()
 	if dbErr != nil {
-		return Result{Status: "config-error"}
+		return Result{Status: statusConfigError}
 	}
 
-	now := time.Now().UTC()
+	now := nowUTCFn()
 	updateCtx, updateCancel := context.WithTimeout(ctx, 10*time.Second)
 	defer updateCancel()
 
 	matched, err := newsletterRepository.ConfirmByTokenHash(updateCtx, hashValue(strings.TrimSpace(token)), now)
 	if err != nil {
-		if errors.Is(err, errRepositoryUnavailable) {
+		if errors.Is(err, newsletterrepo.ErrRepositoryUnavailable) {
 			return Result{Status: "service-unavailable"}
 		}
 		return Result{Status: "failed"}
@@ -396,31 +411,31 @@ func Confirm(ctx context.Context, token string) Result {
 
 func Unsubscribe(ctx context.Context, token string) Result {
 	if strings.TrimSpace(token) == "" {
-		return Result{Status: "invalid-link"}
+		return Result{Status: statusInvalidLink}
 	}
 
-	_, dbErr := newsletterpkg.ResolveDatabaseName()
+	_, dbErr := resolveDatabaseNameFn()
 	if dbErr != nil {
-		return Result{Status: "config-error"}
+		return Result{Status: statusConfigError}
 	}
 
-	unsubscribeSecret, err := newsletterpkg.ResolveUnsubscribeSecret()
+	unsubscribeSecret, err := resolveUnsubscribeSecretFn()
 	if err != nil {
-		return Result{Status: "config-error"}
+		return Result{Status: statusConfigError}
 	}
 
-	email, tokenErr := newsletterpkg.ParseUnsubscribeToken(strings.TrimSpace(token), unsubscribeSecret, time.Now().UTC())
+	email, tokenErr := parseUnsubscribeTokenFn(strings.TrimSpace(token), unsubscribeSecret, nowUTCFn())
 	if tokenErr != nil {
-		return Result{Status: "invalid-link"}
+		return Result{Status: statusInvalidLink}
 	}
 
-	now := time.Now().UTC()
+	now := nowUTCFn()
 	updateCtx, updateCancel := context.WithTimeout(ctx, 10*time.Second)
 	defer updateCancel()
 
 	err = newsletterRepository.UnsubscribeByEmail(updateCtx, email, now)
 	if err != nil {
-		if errors.Is(err, errRepositoryUnavailable) {
+		if errors.Is(err, newsletterrepo.ErrRepositoryUnavailable) {
 			return Result{Status: "service-unavailable"}
 		}
 		return Result{Status: "failed"}

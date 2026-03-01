@@ -20,6 +20,12 @@ describe('PostLikeCount', () => {
     expect(screen.getByLabelText('post.like.loading')).toBeInTheDocument();
   });
 
+  it('renders nothing when likes are unavailable and not loading', () => {
+    const { container } = render(<PostLikeCount likes={null} />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it('renders formatted likes when available', () => {
     render(<PostLikeCount likes={1234} />);
 

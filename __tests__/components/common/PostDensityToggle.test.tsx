@@ -26,4 +26,19 @@ describe('PostDensityToggle', () => {
     fireEvent.click(screen.getByRole('button', { name: 'common.viewDensity.editorial' }));
     expect(onChange).toHaveBeenCalledWith('editorial');
   });
+
+  it('marks the active density button for editorial and grid layouts', () => {
+    const { rerender } = render(<PostDensityToggle value="editorial" onChange={jest.fn()} />);
+
+    expect(screen.getByRole('button', { name: 'common.viewDensity.editorial' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: 'common.viewDensity.default' })).toHaveAttribute('aria-pressed', 'false');
+
+    rerender(<PostDensityToggle value="grid" onChange={jest.fn()} />);
+
+    expect(screen.getByRole('button', { name: 'common.viewDensity.grid' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'common.viewDensity.grid' })).toHaveClass('post-density-toggle-grid-btn');
+  });
 });

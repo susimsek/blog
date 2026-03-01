@@ -9,10 +9,21 @@ import (
 	"fmt"
 	"strings"
 
-	newslettersvc "suaybsimsek.com/blog-api/internal/newsletter"
-	postsapi "suaybsimsek.com/blog-api/internal/posts"
+	newslettersvc "suaybsimsek.com/blog-api/internal/service/newsletter"
+	postsapi "suaybsimsek.com/blog-api/internal/service/post"
 	"suaybsimsek.com/blog-api/pkg/graph/generated"
 	"suaybsimsek.com/blog-api/pkg/graph/model"
+)
+
+var (
+	queryContentFn  = postsapi.QueryContent
+	queryPostFn     = postsapi.QueryPost
+	incrementLikeFn = postsapi.IncrementLike
+	incrementHitFn  = postsapi.IncrementHit
+	subscribeFn     = newslettersvc.Subscribe
+	resendFn        = newslettersvc.Resend
+	confirmFn       = newslettersvc.Confirm
+	unsubscribeFn   = newslettersvc.Unsubscribe
 )
 
 // Posts is the resolver for the posts field.
@@ -38,7 +49,7 @@ func (r *queryResolver) Posts(ctx context.Context, locale model.Locale, input *m
 		queryInput.ScopeIDs = append([]string{}, input.ScopeIds...)
 	}
 
-	payload := postsapi.QueryContent(ctx, queryInput)
+	payload := queryContentFn(ctx, queryInput)
 	total := payload.Total
 	if total < 0 {
 		total = 0
@@ -81,7 +92,7 @@ func (r *queryResolver) Post(ctx context.Context, locale model.Locale, id string
 		return nil, fmt.Errorf("id is required")
 	}
 
-	payload := postsapi.QueryPost(ctx, postsapi.PostQueryInput{
+	payload := queryPostFn(ctx, postsapi.PostQueryInput{
 		Locale: normalizedLocale,
 		PostID: normalizedID,
 	})
@@ -107,7 +118,7 @@ func (r *queryResolver) Post(ctx context.Context, locale model.Locale, id string
 
 // IncrementPostLike is the resolver for the incrementPostLike field.
 func (r *mutationResolver) IncrementPostLike(ctx context.Context, postID string) (*model.PostMetricResult, error) {
-	payload := postsapi.IncrementLike(ctx, postID)
+	payload := incrementLikeFn(ctx, postID)
 	resolvedPostID := strings.TrimSpace(payload.PostID)
 	if resolvedPostID == "" {
 		resolvedPostID = strings.TrimSpace(postID)
@@ -131,7 +142,7 @@ func (r *mutationResolver) IncrementPostLike(ctx context.Context, postID string)
 
 // IncrementPostHit is the resolver for the incrementPostHit field.
 func (r *mutationResolver) IncrementPostHit(ctx context.Context, postID string) (*model.PostMetricResult, error) {
-	payload := postsapi.IncrementHit(ctx, postID)
+	payload := incrementHitFn(ctx, postID)
 	resolvedPostID := strings.TrimSpace(payload.PostID)
 	if resolvedPostID == "" {
 		resolvedPostID = strings.TrimSpace(postID)
@@ -158,7 +169,7 @@ func (r *mutationResolver) SubscribeNewsletter(
 	ctx context.Context,
 	input model.NewsletterSubscribeInput,
 ) (*model.NewsletterMutationResult, error) {
-	payload := newslettersvc.Subscribe(
+	payload := subscribeFn(
 		ctx,
 		newslettersvc.SubscribeInput{
 			Locale:   strings.TrimSpace(mapLocaleInput(input.Locale)),
@@ -181,7 +192,7 @@ func (r *mutationResolver) ResendNewsletterConfirmation(
 	ctx context.Context,
 	input model.NewsletterResendInput,
 ) (*model.NewsletterMutationResult, error) {
-	payload := newslettersvc.Resend(
+	payload := resendFn(
 		ctx,
 		newslettersvc.ResendInput{
 			Locale: strings.TrimSpace(mapLocaleInput(input.Locale)),
@@ -201,7 +212,7 @@ func (r *mutationResolver) ConfirmNewsletterSubscription(
 	ctx context.Context,
 	token string,
 ) (*model.NewsletterMutationResult, error) {
-	payload := newslettersvc.Confirm(ctx, strings.TrimSpace(token))
+	payload := confirmFn(ctx, strings.TrimSpace(token))
 	return &model.NewsletterMutationResult{
 		Status: mapNewsletterMutationStatus(payload.Status),
 	}, nil
@@ -212,7 +223,7 @@ func (r *mutationResolver) UnsubscribeNewsletter(
 	ctx context.Context,
 	token string,
 ) (*model.NewsletterMutationResult, error) {
-	payload := newslettersvc.Unsubscribe(ctx, strings.TrimSpace(token))
+	payload := unsubscribeFn(ctx, strings.TrimSpace(token))
 	return &model.NewsletterMutationResult{
 		Status: mapNewsletterMutationStatus(payload.Status),
 	}, nil

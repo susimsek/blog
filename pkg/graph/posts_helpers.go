@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	postsapi "suaybsimsek.com/blog-api/internal/posts"
+	postsapi "suaybsimsek.com/blog-api/internal/service/post"
 	"suaybsimsek.com/blog-api/pkg/graph/model"
 )
 
@@ -27,7 +27,7 @@ func toGraphQLInt(value int64) int {
 	return int(value)
 }
 
-func mapEngagement(likes map[string]int64, hits map[string]int64) []*model.PostEngagement {
+func mapEngagement(likes, hits map[string]int64) []*model.PostEngagement {
 	if len(likes) == 0 && len(hits) == 0 {
 		return []*model.PostEngagement{}
 	}

@@ -1,4 +1,4 @@
-package handler
+package post
 
 import (
 	"context"
@@ -43,30 +43,30 @@ var (
 	contentIndexesErr  error
 )
 
-type topicRecord struct {
+type TopicRecord struct {
 	ID    string  `json:"id" bson:"id"`
 	Name  string  `json:"name" bson:"name"`
 	Color string  `json:"color" bson:"color"`
 	Link  *string `json:"link,omitempty" bson:"link,omitempty"`
 }
 
-type categoryRecord struct {
+type CategoryRecord struct {
 	ID    string `json:"id" bson:"id"`
 	Name  string `json:"name" bson:"name"`
 	Color string `json:"color" bson:"color"`
 	Icon  string `json:"icon,omitempty" bson:"icon,omitempty"`
 }
 
-type postRecord struct {
+type PostRecord struct {
 	ID             string          `json:"id" bson:"id"`
 	Title          string          `json:"title" bson:"title"`
-	Category       *categoryRecord `json:"category,omitempty" bson:"category,omitempty"`
+	Category       *CategoryRecord `json:"category,omitempty" bson:"category,omitempty"`
 	PublishedDate  string          `json:"publishedDate" bson:"publishedDate"`
 	UpdatedDate    *string         `json:"updatedDate,omitempty" bson:"updatedDate,omitempty"`
 	Summary        string          `json:"summary" bson:"summary"`
 	SearchText     string          `json:"searchText" bson:"searchText"`
 	Thumbnail      *string         `json:"thumbnail" bson:"thumbnail,omitempty"`
-	Topics         []topicRecord   `json:"topics,omitempty" bson:"topics,omitempty"`
+	Topics         []TopicRecord   `json:"topics,omitempty" bson:"topics,omitempty"`
 	TopicIDs       []string        `json:"-" bson:"topicIds,omitempty"`
 	ReadingTimeMin int             `json:"readingTimeMin" bson:"readingTimeMin"`
 	Source         string          `json:"source,omitempty" bson:"source,omitempty"`
@@ -74,12 +74,12 @@ type postRecord struct {
 	PublishedAt    time.Time       `json:"-" bson:"publishedAt,omitempty"`
 }
 
-type contentResponse struct {
+type ContentResponse struct {
 	Status string `json:"status"`
 
 	Locale string `json:"locale,omitempty"`
 
-	Posts []postRecord `json:"posts,omitempty"`
+	Posts []PostRecord `json:"posts,omitempty"`
 	Total int          `json:"total,omitempty"`
 	Page  int          `json:"page,omitempty"`
 	Size  int          `json:"size,omitempty"`
@@ -507,7 +507,7 @@ func normalizeOptionalString(value *string) *string {
 	return &trimmed
 }
 
-func normalizePostForResponse(post postRecord) postRecord {
+func normalizePostForResponse(post PostRecord) PostRecord {
 	post.UpdatedDate = normalizeOptionalString(post.UpdatedDate)
 	post.Thumbnail = normalizeOptionalString(post.Thumbnail)
 	post.Link = normalizeOptionalString(post.Link)
@@ -541,7 +541,7 @@ func queryPosts(
 	sortOrder string,
 	skip int64,
 	limit int64,
-) ([]postRecord, error) {
+) ([]PostRecord, error) {
 	sortDirection := int32(-1)
 	if sortOrder == "asc" {
 		sortDirection = 1
@@ -565,9 +565,9 @@ func queryPosts(
 	}
 	defer cursor.Close(ctx)
 
-	posts := make([]postRecord, 0)
+	posts := make([]PostRecord, 0)
 	for cursor.Next(ctx) {
-		var post postRecord
+		var post PostRecord
 		if decodeErr := cursor.Decode(&post); decodeErr != nil {
 			return nil, decodeErr
 		}
@@ -581,8 +581,8 @@ func queryPosts(
 	return posts, nil
 }
 
-func queryPostByID(ctx context.Context, collection *mongo.Collection, locale string, postID string) (*postRecord, error) {
-	var post postRecord
+func queryPostByID(ctx context.Context, collection *mongo.Collection, locale string, postID string) (*PostRecord, error) {
+	var post PostRecord
 	err := collection.FindOne(ctx, bson.M{
 		"locale": locale,
 		"id":     postID,
@@ -598,7 +598,7 @@ func queryPostByID(ctx context.Context, collection *mongo.Collection, locale str
 	return &normalizedPost, nil
 }
 
-func collectPostIDs(posts []postRecord) []string {
+func collectPostIDs(posts []PostRecord) []string {
 	if len(posts) == 0 {
 		return nil
 	}
@@ -619,7 +619,7 @@ func collectPostIDs(posts []postRecord) []string {
 	return postIDs
 }
 
-func resolveLikesByPostID(ctx context.Context, posts []postRecord) map[string]int64 {
+func resolveLikesByPostID(ctx context.Context, posts []PostRecord) map[string]int64 {
 	postIDs := collectPostIDs(posts)
 	if len(postIDs) == 0 {
 		return nil
@@ -643,7 +643,7 @@ func resolveLikesByPostID(ctx context.Context, posts []postRecord) map[string]in
 	return likesByPostID
 }
 
-func resolveHitsByPostID(ctx context.Context, posts []postRecord) map[string]int64 {
+func resolveHitsByPostID(ctx context.Context, posts []PostRecord) map[string]int64 {
 	postIDs := collectPostIDs(posts)
 	if len(postIDs) == 0 {
 		return nil

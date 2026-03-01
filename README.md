@@ -1,323 +1,267 @@
 # Blog Application
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/susimsek/blog/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/susimsek/blog/tree/main)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=blog)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=coverage)](https://sonarcloud.io/summary/new_code?id=blog)
-![Top Language](https://img.shields.io/github/languages/top/susimsek/blog)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=alert_status)](https://sonarcloud.io/summary/overall?id=blog&branch=main)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=coverage)](https://sonarcloud.io/summary/overall?id=blog&branch=main)
 
-Welcome to **Blog Application** – a sleek, modern, and fully-featured blogging platform built with:
+This repository contains a multilingual blog platform with:
 
-![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)  
-![React-Bootstrap](https://img.shields.io/badge/React--Bootstrap-563D7C?logo=bootstrap&logoColor=white)  
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)
+- a statically exported Next.js frontend
+- a Go backend for GraphQL, GraphiQL, newsletter confirmation, and newsletter dispatch
+- Markdown-based content in English and Turkish
+- SonarCloud coverage and quality checks across frontend and backend scopes
 
-Explore seamless navigation, robust state management, and responsive design for modern blogging needs. 🚀
+Go code in this repo is expected to follow a layered package approach, not a feature-first package layout. New backend work should prefer handler/service/repository/helper boundaries under the existing `api`, `internal`, and `pkg` layers instead of introducing new feature-rooted package trees.
 
-## 🚀 Quick Links
+## Tech Stack
 
-- 🌐 [Live Demo](#-live-demo)
-- 📖 [Features](#-features)
-- 📰 [RSS Feed](#-rss-feed)
-- 🧑‍💻 [Development Setup](#-development-setup)
-- 🧪 [Testing](#-testing)
-- 🏗️ [Build](#️-build)
-- 📏 [ESLint](#-eslint)
-- 🎨 [Prettier](#-prettier)
-- 🛡️ [Code Quality](#️-code-quality)
-- 🚀 [Deployment](#-deployment)
-- 🛠️ [Used Technologies](#️-used-technologies)
+- Frontend: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next, Sass, Bootstrap
+- Backend: Go 1.24, gqlgen, net/http, MongoDB driver
+- Tooling: pnpm, ESLint, Prettier, Jest, SonarCloud
 
-## 🌐 Live Demo
-
-You can explore the live version of the blog application at [https://suaybsimsek.com](https://suaybsimsek.com).
-
-Enjoy reading blog posts and experience seamless navigation between different sections of the site!
-
-![Introduction](https://github.com/susimsek/blog/blob/main/images/introduction.png)
-
-## 📖 Features
-
-- 🌗 **Theme Switching**: Light and dark modes for a seamless user experience.
-- 🌍 **Multilingual Support**: Available in **English** and **Turkish**.
-- 📱 **Responsive Design**: Optimized for all devices.
-- ✅ **High Test Coverage**: Ensures reliability with comprehensive unit tests.
-- 📝 **Markdown Rendering**: Write your posts in Markdown.
-- 🛠️ **Redux Integration**: Powerful state management.
-- 📰 **RSS Support**: Automatically generates and updates an RSS feed for your blog posts.
-- ✍️ **Medium Integration**: Displays your latest Medium posts with smart caching.
-- 🎨 **Code Style Enforcements**: With **Prettier** and **ESLint**.
-- 🔍 **SonarQube Integration**: Continuous code quality monitoring.
-
-## 📰 RSS Feed
-
-Stay updated with the latest blog posts via our RSS feeds. We offer separate feeds for English and Turkish content so you can follow your preferred language:
-
-- **English Feed:**  
-  Subscribe to the English feed to receive updates on the newest posts directly in your RSS reader.  
-  [https://suaybsimsek.com/en/rss.xml](https://suaybsimsek.com/en/rss.xml)
-
-- **Turkish Feed:**  
-  For Turkish content, use the Turkish RSS feed to stay informed about all the latest posts.  
-  [https://suaybsimsek.com/tr/rss.xml](https://suaybsimsek.com/tr/rss.xml)
-
-Simply add these links to your favorite RSS reader or news aggregator, and enjoy a seamless reading experience!
-
-## 🎥 Demo Preview
-
-Below is a quick preview of the Blog Application:
-
-![Blog Application Preview](https://github.com/susimsek/blog/blob/main/images/webapp.png)
-
-## 🧑‍💻 Development Setup
-
-To clone and run this application locally:
+## Quick Commands
 
 ```bash
-# Clone the repository
-git clone https://github.com/susimsek/blog.git
-
-# Navigate to the project directory
-cd blog
-
-# Enable pnpm via Corepack (recommended)
 corepack enable
-
-# Install dependencies
-pnpm install
-
-# Start the development server
+pnpm install --frozen-lockfile
 pnpm dev
-
-# Open the application in your browser
-http://localhost:3000
-```
-
-## 🧪 Testing
-
-To run the tests and ensure the application is functioning correctly:
-
-```bash
+pnpm run backend:start
 pnpm test
-```
-
-## 🏗️ Build
-
-To build the application for production:
-
-```bash
-pnpm build
-```
-
-## 📏 ESLint
-
-To check the JavaScript and TypeScript code style using ESLint, execute:
-
-```bash
+pnpm run backend:test
+pnpm run backend:cover
 pnpm run lint
-```
-
-To automatically fix linting issues, execute:
-
-```bash
-pnpm run lint:fix
-```
-
-## 🎨 Prettier
-
-To format the code using Prettier, execute:
-
-```bash
-pnpm run prettier:format
-```
-
-## 🛡️ Code Quality
-
-To assess code quality locally using SonarQube, execute:
-
-```bash
+pnpm run typecheck
+pnpm build
 pnpm run sonar
 ```
 
-## 🚀 Deployment
-
-### Vercel Go API
-
-This repository now includes Go Vercel Functions:
-
-- GraphQL endpoint: `/graphql` (`POST`)
-  - Introspection can be toggled with environment variables for IDE access.
-  - `subscribeNewsletter(input: NewsletterSubscribeInput!)`
-  - `resendNewsletterConfirmation(input: NewsletterResendInput!)`
-  - `confirmNewsletterSubscription(token: String!)`
-  - `unsubscribeNewsletter(token: String!)`
-- GraphiQL endpoint: `/graphiql` (`GET`, optional)
-  - Enable with `GRAPHIQL_ENABLED=true`.
-  - Served directly by the backend GraphQL handler; there is no separate GraphiQL API function.
-  - The schema docs panel is powered by descriptions in `pkg/graph/schema.graphqls`.
-  - Introspection is enabled automatically when GraphiQL is enabled, unless you explicitly override it with `GRAPHQL_INTROSPECTION_ENABLED`.
-  - Implementation follows the official modern GraphiQL ESM embedding approach with `createGraphiQLFetcher`.
-  - The page enables the built-in history plugin, the explorer plugin, the headers editor, persisted headers, and a custom storage namespace to avoid `localStorage` collisions with other GraphiQL instances on the same origin.
-  - GraphiQL is intended for trusted environments. Keep it disabled in production unless you explicitly want a public IDE surface.
-- Newsletter dispatch endpoint: `/api/newsletter-dispatch` (`GET`, cron trigger)
-  - Vercel cron schedule is UTC. To run at `07:00` Turkiye time (UTC+3), use `0 4 * * *`.
-  - Locale is resolved from `Accept-Language` request header (`tr` / `en`) and confirmation flow stays localized.
-  - Dispatch uses campaign dedupe (`locale + itemKey`), recipient-level delivery logs, and retry for partial campaigns.
-  - Announcement emails include `List-Unsubscribe`, `List-Unsubscribe-Post` headers and one-click unsubscribe link.
-  - Frontend subscribe flow supports confirmation resend via GraphQL mutation.
-
-Required environment variables:
-
-- `API_CORS_ORIGIN`: Allowed CORS origin (for example `https://suaybsimsek.com`)
-- `MONGODB_URI`: MongoDB Atlas SRV URI (`mongodb+srv://...`)
-- `MONGODB_DATABASE`: Atlas database name used by API routes
-- `SITE_URL`: Public site URL used in confirmation links (for example `https://suaybsimsek.com`)
-- `GMAIL_SMTP_USER`: Gmail address used for SMTP auth
-- `GMAIL_SMTP_APP_PASSWORD`: Gmail App Password (16-char)
-- `CRON_SECRET`: Secret used by Vercel Cron Authorization header for `/api/newsletter-dispatch`
-
-Optional frontend variable:
-
-- `NEXT_PUBLIC_API_BASE_URL`: Absolute API base URL for GraphQL requests (for example `https://api.suaybsimsek.com`)
-- `NEXT_PUBLIC_SITE_URL`: Public site base URL used by client-side structured data (for example `https://suaybsimsek.com`, local: `http://localhost:3000`)
-
-Optional SMTP variables:
-
-- `GMAIL_FROM_EMAIL`: From address shown in email (defaults to `GMAIL_SMTP_USER`)
-- `GMAIL_FROM_NAME`: From display name (defaults to `Suayb's Blog`)
-- `GMAIL_SMTP_HOST`: SMTP host (defaults to `smtp.gmail.com`)
-- `GMAIL_SMTP_PORT`: SMTP port (defaults to `587`)
-- `NEWSLETTER_UNSUBSCRIBE_SECRET`: Token signing secret for one-click unsubscribe links
-- `NEWSLETTER_MAX_RECIPIENTS_PER_RUN`: Per-locale send cap for one cron run (default `200`)
-- `NEWSLETTER_MAX_ITEM_AGE_HOURS`: Freshness filter for RSS items; items older than this are skipped (default `168`)
-- `NEWSLETTER_UNSUBSCRIBE_TOKEN_TTL_HOURS`: Unsubscribe token TTL in hours (default `8760`)
-
-Optional GraphQL IDE variables:
-
-- `GRAPHIQL_ENABLED`: Enables the `/graphiql` endpoint when set to `true`, `1`, `yes`, or `on` (default `false`)
-- `GRAPHQL_INTROSPECTION_ENABLED`: Explicitly enables or disables GraphQL introspection. When unset, it follows `GRAPHIQL_ENABLED`.
-
-### Local GraphQL development
-
-If you want to run the Go API locally together with the Next.js app:
+Additional project commands:
 
 ```bash
-# Terminal 1
+pnpm run fetch:medium
+pnpm run sync:medium-posts
+pnpm run sync:post-metadata
+pnpm run sync:code-filenames
+pnpm run graphql:generate
+pnpm run graphql:codegen
+pnpm run backend:sync-content
+```
+
+Go coverage command used by Sonar:
+
+```bash
+pnpm run backend:cover
+```
+
+## Repository Layout
+
+### Frontend
+
+- [`src/app`](/Users/T097315/Documents/MyProject/blog/src/app): App Router routes and layouts
+- [`src/views`](/Users/T097315/Documents/MyProject/blog/src/views): route-level page views
+- [`src/components`](/Users/T097315/Documents/MyProject/blog/src/components): shared UI and game components
+- [`src/lib`](/Users/T097315/Documents/MyProject/blog/src/lib): frontend helpers, Markdown/content utilities, metadata helpers
+- [`src/i18n`](/Users/T097315/Documents/MyProject/blog/src/i18n): locale runtime and translation loading
+- [`public/locales`](/Users/T097315/Documents/MyProject/blog/public/locales): translation namespaces
+
+### Backend
+
+- [`api/graphql/index.go`](/Users/T097315/Documents/MyProject/blog/api/graphql/index.go): GraphQL and GraphiQL HTTP handler
+- [`api/newsletter-dispatch/index.go`](/Users/T097315/Documents/MyProject/blog/api/newsletter-dispatch/index.go): newsletter dispatch endpoint
+- [`internal/service/post`](/Users/T097315/Documents/MyProject/blog/internal/service/post): post query service layer
+- [`internal/service/newsletter`](/Users/T097315/Documents/MyProject/blog/internal/service/newsletter): newsletter subscribe/confirm/unsubscribe service layer
+- [`internal/repository/post`](/Users/T097315/Documents/MyProject/blog/internal/repository/post): Mongo-backed post repository layer
+- [`internal/repository/newsletter`](/Users/T097315/Documents/MyProject/blog/internal/repository/newsletter): Mongo-backed newsletter repository layer
+- [`pkg/graphql`](/Users/T097315/Documents/MyProject/blog/pkg/graphql): GraphiQL page and GraphQL env helpers
+- [`pkg/graph`](/Users/T097315/Documents/MyProject/blog/pkg/graph): gqlgen schema, resolvers, and mapping helpers
+- [`pkg/newsletter`](/Users/T097315/Documents/MyProject/blog/pkg/newsletter): SMTP config, templates, unsubscribe tokens, status pages
+- [`pkg/apperrors`](/Users/T097315/Documents/MyProject/blog/pkg/apperrors): normalized backend errors
+- [`pkg/httpapi`](/Users/T097315/Documents/MyProject/blog/pkg/httpapi): backend JSON error helpers
+- [`scripts/local-go-api/main.go`](/Users/T097315/Documents/MyProject/blog/scripts/local-go-api/main.go): local backend server entrypoint
+
+Preferred backend layering:
+
+- `api/*`: transport and HTTP entrypoints
+- `internal/service/*`: business service orchestration
+- `internal/repository/*`: persistence and repository implementations
+- `pkg/*`: reusable shared packages, templates, schemas, and cross-cutting helpers
+
+Avoid introducing new Go package trees that are organized primarily by product feature. Keep package boundaries technical and layered.
+
+### Content and Generated Data
+
+- [`content/posts/en`](/Users/T097315/Documents/MyProject/blog/content/posts/en)
+- [`content/posts/tr`](/Users/T097315/Documents/MyProject/blog/content/posts/tr)
+- [`public/data/posts.en.json`](/Users/T097315/Documents/MyProject/blog/public/data/posts.en.json)
+- [`public/data/posts.tr.json`](/Users/T097315/Documents/MyProject/blog/public/data/posts.tr.json)
+- [`public/data/topics.en.json`](/Users/T097315/Documents/MyProject/blog/public/data/topics.en.json)
+- [`public/data/topics.tr.json`](/Users/T097315/Documents/MyProject/blog/public/data/topics.tr.json)
+- [`content/external/medium-feed.json`](/Users/T097315/Documents/MyProject/blog/content/external/medium-feed.json)
+
+## Local Development
+
+### Frontend only
+
+```bash
+pnpm dev
+```
+
+Frontend runs at `http://localhost:3000`.
+
+### Frontend + backend
+
+```bash
+# terminal 1
 pnpm run backend:start
 
-# Terminal 2
+# terminal 2
 pnpm dev
 ```
 
 Useful local endpoints:
 
-- App: [http://localhost:3000](http://localhost:3000)
-- GraphQL API: [http://localhost:8080/graphql](http://localhost:8080/graphql)
-- GraphiQL: [http://localhost:8080/graphiql](http://localhost:8080/graphiql) when `GRAPHIQL_ENABLED=true`
+- App: `http://localhost:3000`
+- GraphQL: `http://localhost:8080/graphql`
+- GraphiQL: `http://localhost:8080/graphiql`
+- Newsletter dispatch: `http://localhost:8080/api/newsletter-dispatch`
+- Health: `http://localhost:8080/health`
 
-GraphiQL implementation notes:
+In development, [`next.config.ts`](/Users/T097315/Documents/MyProject/blog/next.config.ts) rewrites `/graphql` and `/api/:path*` to the Go backend. The default target is `http://localhost:8080` and can be overridden with `NEXT_PUBLIC_DEV_API_ORIGIN`.
 
-- The GraphiQL page is served by the Go backend at `/graphiql`; Next.js does not render this page.
-- The docs explorer content comes from GraphQL schema descriptions, so keep `pkg/graph/schema.graphqls` field and type descriptions up to date when the API evolves.
-- The embedded IDE targets modern browsers, matching the official GraphiQL browser bundle guidance.
-- Default headers are seeded via `initialHeaders`, not the removed `headers` prop.
+## Backend Endpoints
 
-### Docker Compose Deployment
+### GraphQL
 
-To deploy the application using Docker Compose, run the following command:
+Served by [`api/graphql/index.go`](/Users/T097315/Documents/MyProject/blog/api/graphql/index.go):
+
+- `GET /graphql`
+- `POST /graphql`
+- `OPTIONS /graphql`
+
+Supported flows include:
+
+- post list and post detail queries
+- post like and hit mutations
+- newsletter subscribe, resend confirmation, confirm, and unsubscribe mutations
+
+### GraphiQL
+
+Served at `/graphiql` by the same backend handler.
+
+Related environment variables:
+
+- `GRAPHIQL_ENABLED`
+- `GRAPHQL_INTROSPECTION_ENABLED`
+
+### Newsletter dispatch
+
+Served by [`api/newsletter-dispatch/index.go`](/Users/T097315/Documents/MyProject/blog/api/newsletter-dispatch/index.go):
+
+- `GET /api/newsletter-dispatch`
+
+This endpoint reads RSS feeds, syncs post metadata, deduplicates campaigns, and sends announcement emails to active subscribers.
+
+## Environment Variables
+
+### Frontend
+
+- `NEXT_PUBLIC_BASE_PATH`
+- `NEXT_PUBLIC_ASSET_PREFIX`
+- `NEXT_PUBLIC_GA_ID`
+- `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_DEV_API_ORIGIN`
+
+### Shared
+
+- `SITE_URL`
+
+### Backend and newsletter
+
+- `API_CORS_ORIGIN`
+- `MONGODB_URI`
+- `MONGODB_DATABASE`
+- `GMAIL_SMTP_USER`
+- `GMAIL_SMTP_APP_PASSWORD`
+- `GMAIL_FROM_EMAIL`
+- `GMAIL_FROM_NAME`
+- `GMAIL_SMTP_HOST`
+- `GMAIL_SMTP_PORT`
+- `NEWSLETTER_UNSUBSCRIBE_SECRET`
+- `NEWSLETTER_MAX_RECIPIENTS_PER_RUN`
+- `NEWSLETTER_MAX_ITEM_AGE_HOURS`
+- `NEWSLETTER_UNSUBSCRIBE_TOKEN_TTL_HOURS`
+- `CRON_SECRET`
+- `GRAPHIQL_ENABLED`
+- `GRAPHQL_INTROSPECTION_ENABLED`
+- `LOCAL_GO_API_PORT`
+
+### SonarCloud
+
+- `SONAR_TOKEN`
+- `SONARQUBE_TOKEN`
+
+## Testing and Quality
+
+### Frontend
+
+```bash
+pnpm test
+pnpm run lint
+pnpm run typecheck
+```
+
+Jest coverage thresholds are configured in [`jest.config.js`](/Users/T097315/Documents/MyProject/blog/jest.config.js):
+
+- statements: `95`
+- functions: `95`
+- lines: `95`
+
+### Backend
+
+```bash
+pnpm run backend:test
+pnpm run backend:cover
+```
+
+### SonarCloud
+
+```bash
+pnpm run sonar
+```
+
+SonarCloud consumes:
+
+- `coverage/lcov.info`
+- `coverage/test-report.xml`
+- `coverage/go-cover.out`
+
+The Sonar source scope is configured in [`sonar-project.properties`](/Users/T097315/Documents/MyProject/blog/sonar-project.properties) and currently includes both frontend code and selected backend packages.
+
+## Build and Deployment
+
+### Static build
+
+```bash
+pnpm build
+```
+
+Build output is written to [`build`](/Users/T097315/Documents/MyProject/blog/build). `postbuild` also generates sitemap, RSS, and robots assets.
+
+### Docker Compose
 
 ```bash
 docker-compose -f deploy/docker-compose/docker-compose.yml up -d
-```
-
-To stop and remove the Docker Compose deployment:
-
-```bash
 docker-compose -f deploy/docker-compose/docker-compose.yml down
 ```
 
-You can access the blog directly at [http://localhost](http://localhost).
-
-### Kubernetes Deployment using Helm
-
-To deploy the application on Kubernetes using Helm, run the following command:
+### Helm
 
 ```bash
 helm install blog deploy/helm/blog
-```
-
-To uninstall the Helm deployment:
-
-```bash
 helm uninstall blog
 ```
 
-You can access the blog directly at [http://blog.local](http://blog.local).
+Deployment configuration lives under:
 
-This will deploy the **Blog Application** on your **Kubernetes cluster** using the Helm chart located at `deploy/helm/blog`.
-
-In `values.yaml`, ensure the following configuration is set for Ingress, with an appropriate ingress class name (e.g., `nginx`, `traefik`, or another available option):
-
-```yaml
-ingress:
-  ingressClassName: 'nginx'
-```
-
-Additionally, to ensure proper local access, add the following entry to your **hosts** file:
-
-On **Linux/macOS**:
-
-```bash
-sudo nano /etc/hosts
-```
-
-Add this line:
-
-```
-127.0.0.1 blog.local
-```
-
-Save and exit.
-
-On **Windows**:
-
-Edit the file:
-
-```
-C:\Windows\System32\drivers\etc\hosts
-```
-
-Add this line:
-
-```
-127.0.0.1 blog.local
-```
-
-Save and restart your browser.
-
-## 🛠️ Used Technologies
-
-![Node.js](https://img.shields.io/badge/Node.js-24.0-green?logo=node.js&logoColor=white)  
-![CircleCI](https://img.shields.io/badge/CircleCI-343434?logo=circleci&logoColor=white)  
-![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)  
-![Next.js](https://img.shields.io/badge/Next.js-000?logo=next.js&logoColor=white)  
-![Next.js Third Parties](https://img.shields.io/badge/Next.js_Third_Parties-000?logo=next.js&logoColor=white)  
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)  
-![RSS](https://img.shields.io/badge/RSS-Supported-FF6600?logo=rss&logoColor=white)  
-![RSS Parser](https://img.shields.io/badge/RSS_Parser-F26522?logo=rss&logoColor=white)  
-![ESLint](https://img.shields.io/badge/ESLint-4B32C3?logo=eslint&logoColor=white)  
-![Prettier](https://img.shields.io/badge/Prettier-F7B93E?logo=prettier&logoColor=white)  
-![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?logo=sonarqube&logoColor=white)  
-![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)  
-![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white)  
-![Helm](https://img.shields.io/badge/Helm-0F1689?logo=helm&logoColor=white)  
-![Jest](https://img.shields.io/badge/Jest-C21325?logo=jest&logoColor=white)  
-![Husky](https://img.shields.io/badge/Husky-4B32C3?logo=github&logoColor=white)  
-![Redux](https://img.shields.io/badge/Redux-764ABC?logo=redux&logoColor=white)  
-![Next i18next](https://img.shields.io/badge/Next_i18next-000000?logo=next.js&logoColor=white)  
-![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=white)  
-![Font Awesome](https://img.shields.io/badge/Font_Awesome-339AF0?logo=font-awesome&logoColor=white)  
-![Sass](https://img.shields.io/badge/Sass-CC6699?logo=sass&logoColor=white)  
-![Gray Matter](https://img.shields.io/badge/Gray_Matter-FFB6C1?logo=markdown&logoColor=black)  
-![React Markdown](https://img.shields.io/badge/React_Markdown-61DAFB?logo=react&logoColor=black)  
-![React Datepicker](https://img.shields.io/badge/React_Datepicker-61DAFB?logo=react&logoColor=black)  
-![Date-fns](https://img.shields.io/badge/Date--fns-007ACC?logo=javascript&logoColor=white)
+- [`deploy/docker-compose/docker-compose.yml`](/Users/T097315/Documents/MyProject/blog/deploy/docker-compose/docker-compose.yml)
+- [`deploy/helm/blog`](/Users/T097315/Documents/MyProject/blog/deploy/helm/blog)

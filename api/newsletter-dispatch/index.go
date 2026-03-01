@@ -1154,20 +1154,20 @@ func sendPostEmail(
 		publishedAt = time.Time{}
 	}
 
-	subject, htmlBody, err := newsletter.PostAnnouncementEmail(
-		locale,
-		strings.TrimSpace(item.Title),
-		strings.TrimSpace(item.Description),
-		postMetadata.ThumbnailURL,
-		postMetadata.Category,
-		postMetadata.Topics,
-		publishedAt,
-		postMetadata.ReadingTimeMin,
-		strings.TrimSpace(item.Link),
-		rssURL,
-		unsubscribeURL,
-		siteURL,
-	)
+	subject, htmlBody, err := newsletter.PostAnnouncementEmail(newsletter.PostAnnouncementInput{
+		Locale:         locale,
+		PostTitle:      strings.TrimSpace(item.Title),
+		PostSummary:    strings.TrimSpace(item.Description),
+		PostImageURL:   postMetadata.ThumbnailURL,
+		PostCategory:   postMetadata.Category,
+		PostTopics:     postMetadata.Topics,
+		PublishedAt:    publishedAt,
+		ReadingTimeMin: postMetadata.ReadingTimeMin,
+		PostURL:        strings.TrimSpace(item.Link),
+		RSSURL:         rssURL,
+		UnsubscribeURL: unsubscribeURL,
+		SiteURL:        siteURL,
+	})
 	if err != nil {
 		return fmt.Errorf("build post email failed: %w", err)
 	}

@@ -3,6 +3,8 @@ import {
   createDeterministicPattern,
   createPattern,
   formatDuration,
+  getBoardRuleText,
+  getRoundCtaLabel,
   getRevealAccent,
   getUpdatedBestResults,
   parseStoredBestResults,
@@ -21,10 +23,13 @@ describe('VisualMemoryTrainer helpers', () => {
 
   it('parses stored mode, hint, best results, and recent runs safely', () => {
     expect(parseStoredMode('standard')).toBe('standard');
+    expect(parseStoredMode(null)).toBeNull();
     expect(parseStoredMode('invalid')).toBeNull();
     expect(parseStoredShowHint('true')).toBe(true);
     expect(parseStoredShowHint('false')).toBe(false);
+    expect(parseStoredShowHint(null)).toBeNull();
     expect(parseStoredShowHint('invalid')).toBeNull();
+    expect(parseStoredBestResults(null)).toEqual({});
     expect(
       parseStoredBestResults(
         JSON.stringify({
@@ -50,11 +55,13 @@ describe('VisualMemoryTrainer helpers', () => {
       { mode: 'standard', level: 6, score: 900, rememberedTiles: 10, mistakes: 1, durationMs: 3235 },
       { mode: 'expert', level: 8, score: 1500, rememberedTiles: 12, mistakes: 0, durationMs: 5510 },
     ]);
+    expect(parseStoredRecentRuns(JSON.stringify({ mode: 'standard' }))).toEqual([]);
     expect(parseStoredRecentRuns('{')).toEqual([]);
   });
 
   it('creates deterministic and randomized patterns and updates best results correctly', () => {
     expect(createDeterministicPattern('easy')).toEqual([0, 1, 2]);
+    expect(createDeterministicPattern('expert')).toEqual([0, 1, 2, 3, 4]);
 
     jest
       .spyOn(Math, 'random')
@@ -88,6 +95,27 @@ describe('VisualMemoryTrainer helpers', () => {
       standard: { level: 5, score: 800, rememberedTiles: 8 },
       expert: { level: 6, score: 900, rememberedTiles: 9 },
     });
+    expect(
+      getUpdatedBestResults({ standard: { level: 5, score: 800, rememberedTiles: 8 } }, 'standard', {
+        level: 5,
+        score: 801,
+        rememberedTiles: 8,
+      }),
+    ).toEqual({
+      standard: { level: 5, score: 801, rememberedTiles: 8 },
+    });
     (Math.random as jest.Mock).mockRestore();
+  });
+
+  it('derives board copy and round CTA text from trainer status', () => {
+    const t = (key: string, options?: Record<string, unknown>) => `${key}:${String(options?.count ?? '')}`;
+
+    expect(getBoardRuleText('idle', 4, t)).toBe('games.visualMemory.trainer.idleRule:');
+    expect(getBoardRuleText('memorize', 4, t)).toBe('games.visualMemory.trainer.memorizeRule:4');
+    expect(getBoardRuleText('revealFail', 4, t)).toBe('games.visualMemory.trainer.failRevealRule:4');
+    expect(getBoardRuleText('guess', 4, t)).toBe('games.visualMemory.trainer.recallRule:4');
+    expect(getBoardRuleText('gameOver', 4, t)).toBe('games.visualMemory.trainer.gameOverRule:');
+    expect(getRoundCtaLabel('idle', t)).toBe('games.visualMemory.trainer.startRound:');
+    expect(getRoundCtaLabel('gameOver', t)).toBe('games.visualMemory.trainer.playAgain:');
   });
 });

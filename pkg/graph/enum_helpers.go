@@ -6,6 +6,11 @@ import (
 	"suaybsimsek.com/blog-api/pkg/graph/model"
 )
 
+const (
+	statusServiceUnavailable = "service-unavailable"
+	statusInvalidPostID      = "invalid-post-id"
+)
+
 func mapLocaleInput(value model.Locale) string {
 	switch value {
 	case model.LocaleTr:
@@ -41,11 +46,11 @@ func mapContentQueryStatus(value string) model.ContentQueryStatus {
 	switch strings.ToLower(strings.TrimSpace(value)) {
 	case "success":
 		return model.ContentQueryStatusSuccess
-	case "service-unavailable":
+	case statusServiceUnavailable:
 		return model.ContentQueryStatusServiceUnavailable
 	case "invalid-scope-ids":
 		return model.ContentQueryStatusInvalidScopeIDS
-	case "invalid-post-id":
+	case statusInvalidPostID:
 		return model.ContentQueryStatusInvalidPostID
 	case "not-found":
 		return model.ContentQueryStatusNotFound
@@ -58,9 +63,9 @@ func mapPostMetricStatus(value string) model.PostMetricStatus {
 	switch strings.ToLower(strings.TrimSpace(value)) {
 	case "success":
 		return model.PostMetricStatusSuccess
-	case "service-unavailable":
+	case statusServiceUnavailable:
 		return model.PostMetricStatusServiceUnavailable
-	case "invalid-post-id":
+	case statusInvalidPostID:
 		return model.PostMetricStatusInvalidPostID
 	default:
 		return model.PostMetricStatusFailed
@@ -79,7 +84,7 @@ func mapNewsletterMutationStatus(value string) model.NewsletterMutationStatus {
 		return model.NewsletterMutationStatusInvalidLink
 	case "config-error":
 		return model.NewsletterMutationStatusConfigError
-	case "service-unavailable":
+	case statusServiceUnavailable:
 		return model.NewsletterMutationStatusServiceUnavailable
 	case "expired":
 		return model.NewsletterMutationStatusExpired

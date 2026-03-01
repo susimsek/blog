@@ -18,6 +18,16 @@ type statusPageTemplateData struct {
 	ButtonLabel string
 }
 
+type StatusPageInput struct {
+	Locale      string
+	SiteURL     string
+	Title       string
+	Heading     string
+	Message     string
+	ButtonHref  string
+	ButtonLabel string
+}
+
 var (
 	statusPageTemplateOnce sync.Once
 	statusPageTemplateErr  error
@@ -37,29 +47,19 @@ func ensureStatusPageTemplate() error {
 	return statusPageTemplateErr
 }
 
-func RenderStatusPage(
-	w http.ResponseWriter,
-	statusCode int,
-	locale string,
-	siteURL string,
-	title string,
-	heading string,
-	message string,
-	buttonHref string,
-	buttonLabel string,
-) error {
+func RenderStatusPage(w http.ResponseWriter, statusCode int, input StatusPageInput) error {
 	if err := ensureStatusPageTemplate(); err != nil {
 		return err
 	}
 
 	data := statusPageTemplateData{
-		Lang:        ResolveLocale(locale, ""),
-		FaviconURL:  BuildFaviconURL(siteURL),
-		Title:       title,
-		Heading:     heading,
-		Message:     message,
-		ButtonHref:  buttonHref,
-		ButtonLabel: buttonLabel,
+		Lang:        ResolveLocale(input.Locale, ""),
+		FaviconURL:  BuildFaviconURL(input.SiteURL),
+		Title:       input.Title,
+		Heading:     input.Heading,
+		Message:     input.Message,
+		ButtonHref:  input.ButtonHref,
+		ButtonLabel: input.ButtonLabel,
 	}
 
 	var buffer bytes.Buffer

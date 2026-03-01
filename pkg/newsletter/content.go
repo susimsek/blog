@@ -11,8 +11,11 @@ import (
 )
 
 const (
-	LocaleEN = "en"
-	LocaleTR = "tr"
+	LocaleEN   = "en"
+	LocaleTR   = "tr"
+	blogTitle  = "Suayb's Blog"
+	goToBlogEN = "Go to blog"
+	goToBlogTR = "Bloga git"
 )
 
 type emailContent struct {
@@ -105,6 +108,21 @@ type postAnnouncementEmailTemplateData struct {
 	FooterNote       string
 }
 
+type PostAnnouncementInput struct {
+	Locale         string
+	PostTitle      string
+	PostSummary    string
+	PostImageURL   string
+	PostCategory   *PostCategoryBadge
+	PostTopics     []PostTopicBadge
+	PublishedAt    time.Time
+	ReadingTimeMin int
+	PostURL        string
+	RSSURL         string
+	UnsubscribeURL string
+	SiteURL        string
+}
+
 type PageKey string
 
 const (
@@ -124,7 +142,7 @@ var emailByLocale = map[string]emailContent{
 	LocaleEN: {
 		Subject:      "Confirm your newsletter subscription",
 		EyebrowLabel: "Newsletter",
-		Title:        "Suayb's Blog",
+		Title:        blogTitle,
 		Heading:      "Complete your subscription",
 		Body:         "Click the button below to confirm your newsletter subscription. If you did not request this, you can ignore this email.",
 		ButtonLabel:  "Confirm now",
@@ -133,7 +151,7 @@ var emailByLocale = map[string]emailContent{
 	LocaleTR: {
 		Subject:      "Bulten aboneliginizi onaylayin",
 		EyebrowLabel: "Bulten",
-		Title:        "Suayb's Blog",
+		Title:        blogTitle,
 		Heading:      "Aboneliginizi tamamlayin",
 		Body:         "Newsletter aboneliginizi onaylamak icin asagidaki butona tiklayin. Bu islemi siz yapmadiysaniz bu e-postayi yok sayabilirsiniz.",
 		ButtonLabel:  "Simdi onayla",
@@ -153,55 +171,55 @@ var pageByLocale = map[string]map[PageKey]pageContent{
 			Title:       "Method not allowed",
 			Heading:     "Invalid method",
 			Message:     "This endpoint only supports GET.",
-			ButtonLabel: "Go to blog",
+			ButtonLabel: goToBlogEN,
 		},
 		PageMissingToken: {
 			Title:       "Invalid confirmation link",
 			Heading:     "Invalid confirmation link",
 			Message:     "The confirmation link is missing a token.",
-			ButtonLabel: "Go to blog",
+			ButtonLabel: goToBlogEN,
 		},
 		PageServiceDown: {
 			Title:       "Confirmation unavailable",
 			Heading:     "Service unavailable",
 			Message:     "Please try again in a few minutes.",
-			ButtonLabel: "Go to blog",
+			ButtonLabel: goToBlogEN,
 		},
 		PageConfirmFailed: {
 			Title:       "Confirmation failed",
 			Heading:     "Could not confirm subscription",
 			Message:     "Please try subscribing again.",
-			ButtonLabel: "Go to blog",
+			ButtonLabel: goToBlogEN,
 		},
 		PageTokenExpired: {
 			Title:       "Link expired",
 			Heading:     "Confirmation link expired or invalid",
 			Message:     "Please subscribe again to receive a fresh confirmation email.",
-			ButtonLabel: "Go to blog",
+			ButtonLabel: goToBlogEN,
 		},
 		PageSuccess: {
 			Title:       "Subscription confirmed",
 			Heading:     "Subscription confirmed",
 			Message:     "Your email is now confirmed. You will receive new newsletter updates.",
-			ButtonLabel: "Go to blog",
+			ButtonLabel: goToBlogEN,
 		},
 		PageUnsubscribeSuccess: {
 			Title:       "Unsubscribed",
 			Heading:     "You are unsubscribed",
 			Message:     "You will no longer receive newsletter emails.",
-			ButtonLabel: "Go to blog",
+			ButtonLabel: goToBlogEN,
 		},
 		PageUnsubscribeInvalid: {
 			Title:       "Invalid unsubscribe link",
 			Heading:     "Invalid or expired link",
 			Message:     "Please use a valid unsubscribe link from your email.",
-			ButtonLabel: "Go to blog",
+			ButtonLabel: goToBlogEN,
 		},
 		PageUnsubscribeFailed: {
 			Title:       "Unsubscribe failed",
 			Heading:     "Could not complete request",
 			Message:     "Please try again in a few minutes.",
-			ButtonLabel: "Go to blog",
+			ButtonLabel: goToBlogEN,
 		},
 	},
 	LocaleTR: {
@@ -215,55 +233,55 @@ var pageByLocale = map[string]map[PageKey]pageContent{
 			Title:       "Gecersiz istek metodu",
 			Heading:     "Gecersiz metod",
 			Message:     "Bu endpoint sadece GET metodunu destekler.",
-			ButtonLabel: "Bloga git",
+			ButtonLabel: goToBlogTR,
 		},
 		PageMissingToken: {
 			Title:       "Gecersiz onay linki",
 			Heading:     "Gecersiz onay linki",
 			Message:     "Onay linkinde token bulunamadi.",
-			ButtonLabel: "Bloga git",
+			ButtonLabel: goToBlogTR,
 		},
 		PageServiceDown: {
 			Title:       "Onay servisi kullanilamiyor",
 			Heading:     "Servis su an kullanilamiyor",
 			Message:     "Lutfen birkac dakika sonra tekrar deneyin.",
-			ButtonLabel: "Bloga git",
+			ButtonLabel: goToBlogTR,
 		},
 		PageConfirmFailed: {
 			Title:       "Onay basarisiz",
 			Heading:     "Abonelik onaylanamadi",
 			Message:     "Lutfen tekrar abone olmayi deneyin.",
-			ButtonLabel: "Bloga git",
+			ButtonLabel: goToBlogTR,
 		},
 		PageTokenExpired: {
 			Title:       "Link suresi dolmus",
 			Heading:     "Onay linki gecersiz veya suresi dolmus",
 			Message:     "Yeni bir onay e-postasi icin tekrar abone olun.",
-			ButtonLabel: "Bloga git",
+			ButtonLabel: goToBlogTR,
 		},
 		PageSuccess: {
 			Title:       "Abonelik onaylandi",
 			Heading:     "Abonelik onaylandi",
 			Message:     "E-posta adresiniz dogrulandi. Yeni newsletter guncellemelerini alacaksiniz.",
-			ButtonLabel: "Bloga git",
+			ButtonLabel: goToBlogTR,
 		},
 		PageUnsubscribeSuccess: {
 			Title:       "Abonelikten cikildi",
 			Heading:     "Abonelik iptal edildi",
 			Message:     "Artik newsletter e-postalari almayacaksiniz.",
-			ButtonLabel: "Bloga git",
+			ButtonLabel: goToBlogTR,
 		},
 		PageUnsubscribeInvalid: {
 			Title:       "Gecersiz cikis linki",
 			Heading:     "Gecersiz veya suresi dolmus link",
 			Message:     "Lutfen e-postadaki gecerli cikis linkini kullanin.",
-			ButtonLabel: "Bloga git",
+			ButtonLabel: goToBlogTR,
 		},
 		PageUnsubscribeFailed: {
 			Title:       "Cikis islemi basarisiz",
 			Heading:     "Islem tamamlanamadi",
 			Message:     "Lutfen birkac dakika sonra tekrar deneyin.",
-			ButtonLabel: "Bloga git",
+			ButtonLabel: goToBlogTR,
 		},
 	},
 }
@@ -271,7 +289,7 @@ var pageByLocale = map[string]map[PageKey]pageContent{
 var postEmailByLocale = map[string]postEmailContent{
 	LocaleEN: {
 		SubjectPrefix:    "New post",
-		Title:            "Suayb's Blog",
+		Title:            blogTitle,
 		Body:             "A new article is live on the blog. Read it from the link below.",
 		NewsletterLabel:  "New post",
 		ButtonLabel:      "Read article",
@@ -283,7 +301,7 @@ var postEmailByLocale = map[string]postEmailContent{
 	},
 	LocaleTR: {
 		SubjectPrefix:    "Yeni yazi",
-		Title:            "Suayb's Blog",
+		Title:            blogTitle,
 		Body:             "Blogda yeni bir yazi yayinda. Asagidaki baglantidan okuyabilirsin.",
 		NewsletterLabel:  "Yeni yazi",
 		ButtonLabel:      "Yaziyi oku",
@@ -334,7 +352,7 @@ var (
 	postHTMLTmpl         *htmltemplate.Template
 )
 
-func ResolveLocale(explicitLocale string, acceptLanguageHeader string) string {
+func ResolveLocale(explicitLocale, acceptLanguageHeader string) string {
 	explicit := strings.ToLower(strings.TrimSpace(explicitLocale))
 	if explicit == LocaleTR || explicit == LocaleEN {
 		return explicit
@@ -376,7 +394,7 @@ func renderHTMLTemplate(tmpl *htmltemplate.Template, data any) (string, error) {
 	return buffer.String(), nil
 }
 
-func ConfirmationEmail(locale string, confirmURL string, siteURL string) (subject string, htmlBody string, err error) {
+func ConfirmationEmail(locale, confirmURL, siteURL string) (subject string, htmlBody string, err error) {
 	if err := ensureEmailTemplates(); err != nil {
 		return "", "", err
 	}
@@ -500,59 +518,46 @@ func formatReadingTime(locale string, readingTimeMin int) string {
 	return fmt.Sprintf("%d min read", readingTimeMin)
 }
 
-func PostAnnouncementEmail(
-	locale string,
-	postTitle string,
-	postSummary string,
-	postImageURL string,
-	postCategory *PostCategoryBadge,
-	postTopics []PostTopicBadge,
-	publishedAt time.Time,
-	readingTimeMin int,
-	postURL string,
-	rssURL string,
-	unsubscribeURL string,
-	siteURL string,
-) (subject string, htmlBody string, err error) {
+func PostAnnouncementEmail(input PostAnnouncementInput) (subject string, htmlBody string, err error) {
 	if err := ensureEmailTemplates(); err != nil {
 		return "", "", err
 	}
 
-	resolved := ResolveLocale(locale, "")
+	resolved := ResolveLocale(input.Locale, "")
 	content, ok := postEmailByLocale[resolved]
 	if !ok {
 		content = postEmailByLocale[LocaleEN]
 	}
 
-	cleanSummary := truncateText(stripHTMLTags(postSummary), 240)
+	cleanSummary := truncateText(stripHTMLTags(input.PostSummary), 240)
 	if cleanSummary == "" {
 		cleanSummary = content.Body
 	}
 
-	subject = fmt.Sprintf("%s: %s", content.SubjectPrefix, postTitle)
+	subject = fmt.Sprintf("%s: %s", content.SubjectPrefix, input.PostTitle)
 
 	data := postAnnouncementEmailTemplateData{
 		Lang:             resolved,
-		FaviconURL:       BuildFaviconURL(siteURL),
+		FaviconURL:       BuildFaviconURL(input.SiteURL),
 		Subject:          subject,
 		Title:            content.Title,
 		Body:             cleanSummary,
 		NewsletterLabel:  content.NewsletterLabel,
-		PostCategory:     normalizeCategory(postCategory),
-		PostTitle:        strings.TrimSpace(postTitle),
+		PostCategory:     normalizeCategory(input.PostCategory),
+		PostTitle:        strings.TrimSpace(input.PostTitle),
 		PostSummary:      cleanSummary,
-		PostTopics:       normalizeTopics(postTopics),
-		PostImageURL:     strings.TrimSpace(postImageURL),
+		PostTopics:       normalizeTopics(input.PostTopics),
+		PostImageURL:     strings.TrimSpace(input.PostImageURL),
 		PublishedLabel:   content.PublishedLabel,
-		PublishedDate:    formatPublishedDate(resolved, publishedAt),
+		PublishedDate:    formatPublishedDate(resolved, input.PublishedAt),
 		ReadingTimeLabel: content.ReadingTimeLabel,
-		ReadingTimeText:  formatReadingTime(resolved, readingTimeMin),
+		ReadingTimeText:  formatReadingTime(resolved, input.ReadingTimeMin),
 		ButtonLabel:      content.ButtonLabel,
-		PostURL:          strings.TrimSpace(postURL),
+		PostURL:          strings.TrimSpace(input.PostURL),
 		RSSLabel:         content.RSSLabel,
-		RSSURL:           strings.TrimSpace(rssURL),
+		RSSURL:           strings.TrimSpace(input.RSSURL),
 		UnsubscribeLabel: content.UnsubscribeLabel,
-		UnsubscribeURL:   strings.TrimSpace(unsubscribeURL),
+		UnsubscribeURL:   strings.TrimSpace(input.UnsubscribeURL),
 		FooterNote:       content.FooterNote,
 	}
 

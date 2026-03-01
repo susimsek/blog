@@ -1,4 +1,4 @@
-package handler
+package post
 
 import (
 	"context"
@@ -9,15 +9,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-var errRepositoryUnavailable = errors.New("posts repository unavailable")
+var ErrRepositoryUnavailable = errors.New("posts repository unavailable")
 
 // Repository defines data access methods for posts and engagement data.
 type Repository interface {
 	CountPosts(ctx context.Context, filter bson.M) (int, error)
-	FindPosts(ctx context.Context, filter bson.M, sortOrder string, skip int64, limit int64) ([]postRecord, error)
-	FindPostByID(ctx context.Context, locale string, postID string) (*postRecord, error)
-	ResolveLikesByPostID(ctx context.Context, posts []postRecord) map[string]int64
-	ResolveHitsByPostID(ctx context.Context, posts []postRecord) map[string]int64
+	FindPosts(ctx context.Context, filter bson.M, sortOrder string, skip int64, limit int64) ([]PostRecord, error)
+	FindPostByID(ctx context.Context, locale string, postID string) (*PostRecord, error)
+	ResolveLikesByPostID(ctx context.Context, posts []PostRecord) map[string]int64
+	ResolveHitsByPostID(ctx context.Context, posts []PostRecord) map[string]int64
 	IncrementPostLike(ctx context.Context, postID string, now time.Time) (int64, error)
 	IncrementPostHit(ctx context.Context, postID string, now time.Time) (int64, error)
 }
@@ -32,7 +32,7 @@ func NewMongoRepository() Repository {
 func (r *mongoRepository) CountPosts(ctx context.Context, filter bson.M) (int, error) {
 	collection, err := getPostsCollection()
 	if err != nil {
-		return 0, fmt.Errorf("%w: %v", errRepositoryUnavailable, err)
+		return 0, fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
 	}
 
 	total, err := collection.CountDocuments(ctx, filter)
@@ -49,36 +49,36 @@ func (r *mongoRepository) FindPosts(
 	sortOrder string,
 	skip int64,
 	limit int64,
-) ([]postRecord, error) {
+) ([]PostRecord, error) {
 	collection, err := getPostsCollection()
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", errRepositoryUnavailable, err)
+		return nil, fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
 	}
 
 	return queryPosts(ctx, collection, filter, sortOrder, skip, limit)
 }
 
-func (r *mongoRepository) FindPostByID(ctx context.Context, locale string, postID string) (*postRecord, error) {
+func (r *mongoRepository) FindPostByID(ctx context.Context, locale string, postID string) (*PostRecord, error) {
 	collection, err := getPostsCollection()
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", errRepositoryUnavailable, err)
+		return nil, fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
 	}
 
 	return queryPostByID(ctx, collection, locale, postID)
 }
 
-func (r *mongoRepository) ResolveLikesByPostID(ctx context.Context, posts []postRecord) map[string]int64 {
+func (r *mongoRepository) ResolveLikesByPostID(ctx context.Context, posts []PostRecord) map[string]int64 {
 	return resolveLikesByPostID(ctx, posts)
 }
 
-func (r *mongoRepository) ResolveHitsByPostID(ctx context.Context, posts []postRecord) map[string]int64 {
+func (r *mongoRepository) ResolveHitsByPostID(ctx context.Context, posts []PostRecord) map[string]int64 {
 	return resolveHitsByPostID(ctx, posts)
 }
 
 func (r *mongoRepository) IncrementPostLike(ctx context.Context, postID string, now time.Time) (int64, error) {
 	collection, err := getLikesCollection()
 	if err != nil {
-		return 0, fmt.Errorf("%w: %v", errRepositoryUnavailable, err)
+		return 0, fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
 	}
 
 	return incrementPostLike(ctx, collection, postID, now)
@@ -87,7 +87,7 @@ func (r *mongoRepository) IncrementPostLike(ctx context.Context, postID string, 
 func (r *mongoRepository) IncrementPostHit(ctx context.Context, postID string, now time.Time) (int64, error) {
 	collection, err := getHitsCollection()
 	if err != nil {
-		return 0, fmt.Errorf("%w: %v", errRepositoryUnavailable, err)
+		return 0, fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
 	}
 
 	return incrementPostHit(ctx, collection, postID, now)

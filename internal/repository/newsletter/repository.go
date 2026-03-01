@@ -16,7 +16,7 @@ import (
 
 const newsletterCollectionName = "newsletter_subscribers"
 
-var errRepositoryUnavailable = errors.New("newsletter repository unavailable")
+var ErrRepositoryUnavailable = errors.New("newsletter repository unavailable")
 
 type PendingSubscription struct {
 	Email                 string
@@ -143,7 +143,7 @@ func getCollection() (*mongo.Collection, error) {
 func (r *mongoRepository) GetStatusByEmail(ctx context.Context, email string) (string, bool, error) {
 	collection, err := getCollection()
 	if err != nil {
-		return "", false, fmt.Errorf("%w: %v", errRepositoryUnavailable, err)
+		return "", false, fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
 	}
 
 	var existing struct {
@@ -163,7 +163,7 @@ func (r *mongoRepository) GetStatusByEmail(ctx context.Context, email string) (s
 func (r *mongoRepository) UpsertPendingSubscription(ctx context.Context, input PendingSubscription) error {
 	collection, err := getCollection()
 	if err != nil {
-		return fmt.Errorf("%w: %v", errRepositoryUnavailable, err)
+		return fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
 	}
 
 	setFields := bson.M{
@@ -197,7 +197,7 @@ func (r *mongoRepository) UpsertPendingSubscription(ctx context.Context, input P
 func (r *mongoRepository) UpdatePendingSubscription(ctx context.Context, input PendingSubscription) error {
 	collection, err := getCollection()
 	if err != nil {
-		return fmt.Errorf("%w: %v", errRepositoryUnavailable, err)
+		return fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
 	}
 
 	update := bson.M{
@@ -220,7 +220,7 @@ func (r *mongoRepository) UpdatePendingSubscription(ctx context.Context, input P
 func (r *mongoRepository) ConfirmByTokenHash(ctx context.Context, tokenHash string, now time.Time) (bool, error) {
 	collection, err := getCollection()
 	if err != nil {
-		return false, fmt.Errorf("%w: %v", errRepositoryUnavailable, err)
+		return false, fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
 	}
 
 	filter := bson.M{
@@ -252,7 +252,7 @@ func (r *mongoRepository) ConfirmByTokenHash(ctx context.Context, tokenHash stri
 func (r *mongoRepository) UnsubscribeByEmail(ctx context.Context, email string, now time.Time) error {
 	collection, err := getCollection()
 	if err != nil {
-		return fmt.Errorf("%w: %v", errRepositoryUnavailable, err)
+		return fmt.Errorf("%w: %v", ErrRepositoryUnavailable, err)
 	}
 
 	update := bson.M{

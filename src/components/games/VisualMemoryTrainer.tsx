@@ -210,6 +210,29 @@ export const getUpdatedBestResults = (
   return { ...currentBestResults, [mode]: nextResult };
 };
 
+export const getBoardRuleText = (
+  status: TrainerStatus,
+  activePatternLength: number,
+  t: ReturnType<typeof useTranslation>['t'],
+) => {
+  switch (status) {
+    case 'idle':
+      return t('games.visualMemory.trainer.idleRule');
+    case 'memorize':
+      return t('games.visualMemory.trainer.memorizeRule', { count: activePatternLength });
+    case 'revealFail':
+      return t('games.visualMemory.trainer.failRevealRule', { count: activePatternLength });
+    case 'guess':
+      return t('games.visualMemory.trainer.recallRule', { count: activePatternLength });
+    default:
+      return t('games.visualMemory.trainer.gameOverRule');
+  }
+};
+
+export const getRoundCtaLabel = (status: TrainerStatus, t: ReturnType<typeof useTranslation>['t']) => {
+  return status === 'idle' ? t('games.visualMemory.trainer.startRound') : t('games.visualMemory.trainer.playAgain');
+};
+
 export default function VisualMemoryTrainer() {
   const { t } = useTranslation('games');
   const isMobile = useMediaQuery('(max-width: 991px)');
@@ -249,6 +272,8 @@ export default function VisualMemoryTrainer() {
   const mobileControlsToggleLabel = isMobileControlsOpen
     ? t('games.visualMemory.trainer.hideControls')
     : t('games.visualMemory.trainer.showControls');
+  const boardRuleText = getBoardRuleText(status, activePattern.length, t);
+  const roundCtaLabel = getRoundCtaLabel(status, t);
 
   const persistBestResults = React.useCallback((updater: BestResultsUpdater) => {
     setBestResults(currentBestResults => {
@@ -720,17 +745,7 @@ export default function VisualMemoryTrainer() {
             <div className="visual-memory-board-card">
               <div className="visual-memory-board-header">
                 <span className="visual-memory-board-eyebrow">{t('games.visualMemory.trainer.currentRound')}</span>
-                <strong className="visual-memory-board-rule">
-                  {status === 'idle'
-                    ? t('games.visualMemory.trainer.idleRule')
-                    : status === 'memorize'
-                      ? t('games.visualMemory.trainer.memorizeRule', { count: activePattern.length })
-                      : status === 'revealFail'
-                        ? t('games.visualMemory.trainer.failRevealRule', { count: activePattern.length })
-                        : status === 'guess'
-                          ? t('games.visualMemory.trainer.recallRule', { count: activePattern.length })
-                          : t('games.visualMemory.trainer.gameOverRule')}
-                </strong>
+                <strong className="visual-memory-board-rule">{boardRuleText}</strong>
               </div>
 
               <div className="visual-memory-board-meta">
@@ -744,9 +759,7 @@ export default function VisualMemoryTrainer() {
               {(status === 'idle' || status === 'gameOver') && (
                 <div className="visual-memory-board-cta">
                   <Button type="button" variant="primary" onClick={() => startNewGame(mode)}>
-                    {status === 'idle'
-                      ? t('games.visualMemory.trainer.startRound')
-                      : t('games.visualMemory.trainer.playAgain')}
+                    {roundCtaLabel}
                   </Button>
                 </div>
               )}

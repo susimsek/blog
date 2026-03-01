@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
-import { Category, LayoutPostSummary, Post, PostCategoryRef, PostSource, PostSummary, Topic } from '@/types/posts';
+import { Category, LayoutPostSummary, Post, PostSource, PostSummary, Topic } from '@/types/posts';
 import i18nextConfig from '@/i18n/settings';
 import { createCacheStore } from '@/lib/cacheUtils';
 import { sortPosts } from '@/lib/postFilters';

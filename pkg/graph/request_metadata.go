@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	newslettersvc "suaybsimsek.com/blog-api/internal/newsletter"
+	newslettersvc "suaybsimsek.com/blog-api/internal/service/newsletter"
 )
 
 type requestMetadataKey struct{}

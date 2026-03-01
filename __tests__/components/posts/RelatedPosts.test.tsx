@@ -107,4 +107,22 @@ describe('RelatedPosts', () => {
     expect(screen.queryByAltText('No media post')).not.toBeInTheDocument();
     expect(screen.queryByText('React')).not.toBeInTheDocument();
   });
+
+  it('supports locale arrays and leaves absolute thumbnail URLs unchanged', () => {
+    useParamsMock.mockReturnValue({ locale: ['tr', 'ignored'] });
+    const absoluteThumbnailPost: PostSummary = {
+      ...basePost,
+      id: '3',
+      title: 'Absolute thumbnail post',
+      thumbnail: 'https://cdn.example.com/post-3.webp',
+    };
+
+    render(<RelatedPosts posts={[absoluteThumbnailPost]} />);
+
+    expect(screen.getByRole('link', { name: /Absolute thumbnail post/i })).toHaveAttribute('href', '/tr/posts/3');
+    expect(screen.getByAltText('Absolute thumbnail post')).toHaveAttribute(
+      'src',
+      'https://cdn.example.com/post-3.webp',
+    );
+  });
 });

@@ -612,35 +612,6 @@ export default function StroopTestTrainer() {
     globalThis.localStorage.setItem(HINT_STORAGE_KEY, String(showHint));
   }, [showHint]);
 
-  const completeRound = React.useCallback(
-    (finalElapsedMs: number) => {
-      const nextResult = createResult(correctCount, mistakes, answeredCount, reactionTimes, splitStats);
-      persistRecentRuns(currentRecentRuns =>
-        [
-          {
-            mode,
-            score: nextResult.score,
-            accuracy: nextResult.accuracy,
-            avgReactionMs: nextResult.avgReactionMs,
-            congruentAvgReactionMs: nextResult.congruentAvgReactionMs,
-            incongruentAvgReactionMs: nextResult.incongruentAvgReactionMs,
-            interferenceMs: nextResult.interferenceMs,
-            completedRounds: answeredCount,
-            mistakes,
-            durationMs: finalElapsedMs,
-          },
-          ...currentRecentRuns,
-        ].slice(0, MAX_RECENT_RUNS),
-      );
-      setStatus('completed');
-      setElapsedMs(finalElapsedMs);
-      setLastResult(nextResult);
-      setIsCompleteRevealVisible(true);
-      persistBestResults(currentBestResults => getUpdatedBestResults(currentBestResults, mode, nextResult));
-    },
-    [answeredCount, correctCount, mistakes, mode, persistBestResults, persistRecentRuns, reactionTimes, splitStats],
-  );
-
   const startRunIfNeeded = () => {
     const now = getCurrentTimeMs();
 
