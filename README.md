@@ -28,7 +28,7 @@ pnpm dev
 pnpm run backend:start
 pnpm test
 pnpm run backend:test
-pnpm run backend:cover
+pnpm run backend:ci
 pnpm run lint
 pnpm run typecheck
 pnpm build
@@ -50,7 +50,7 @@ pnpm run backend:sync-content
 Go coverage command used by Sonar:
 
 ```bash
-pnpm run backend:cover
+pnpm run backend:ci
 ```
 
 ## Repository Layout
@@ -225,7 +225,7 @@ Jest coverage thresholds are configured in [`jest.config.js`](/Users/T097315/Doc
 
 ```bash
 pnpm run backend:test
-pnpm run backend:cover
+pnpm run backend:ci
 ```
 
 ### SonarCloud

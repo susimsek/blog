@@ -41,7 +41,7 @@ For backend architecture, prefer a layered Go package structure similar in spiri
 | Frontend tests        | `pnpm test`                                                        |
 | Single Jest file      | `pnpm test -- __tests__/lib/posts.test.tsx`                        |
 | Go tests              | `pnpm run backend:test`                                            |
-| Go coverage for Sonar | `pnpm run backend:cover`                                           |
+| Backend CI            | `pnpm run backend:ci`                                              |
 | Lint                  | `pnpm run lint`                                                    |
 | Lint fix              | `pnpm run lint:fix`                                                |
 | Format                | `pnpm run prettier:format`                                         |
@@ -272,7 +272,7 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
   - `pnpm run typecheck`
 - Backend Go change:
   - `pnpm run backend:test`
-  - `pnpm run backend:cover`
+  - `pnpm run backend:ci`
 - Export/build-sensitive change:
   - `pnpm build`
 - Sonar-sensitive change:
