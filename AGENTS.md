@@ -247,7 +247,7 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
   - `coverage/lcov.info`
   - `coverage/test-report.xml`
   - `coverage/go-cover.out`
-  - `coverage/golangci-lint-report.xml`
+  - `golangci-lint-report.xml`
 - Current Sonar scope in `sonar-project.properties` includes:
   - `src/**`
   - `api/graphql/**`

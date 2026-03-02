@@ -61,7 +61,7 @@ pnpm run backend:lint
 pnpm run backend:lint:checkstyle
 ```
 
-Sonar also imports Go lint findings from `coverage/golangci-lint-report.xml`.
+Sonar also imports Go lint findings from `golangci-lint-report.xml`.
 
 ## Repository Layout
 
@@ -233,7 +233,7 @@ pnpm run backend:test
 pnpm run backend:ci
 ```
 
-`backend:lint` uses a pinned `golangci-lint` version directly from the package script. `backend:lint:checkstyle` also writes [`coverage/golangci-lint-report.xml`](/Users/T097315/Documents/MyProject/blog/coverage/golangci-lint-report.xml) for CI artifact or Checkstyle-style consumption.
+`backend:lint` uses a pinned `golangci-lint` version directly from the package script. `backend:lint:checkstyle` also writes [`golangci-lint-report.xml`](/Users/T097315/Documents/MyProject/blog/golangci-lint-report.xml) in the repo root for Sonar and Checkstyle-style consumption.
 
 Jest coverage thresholds are configured in [`jest.config.js`](/Users/T097315/Documents/MyProject/blog/jest.config.js):
 
@@ -259,7 +259,7 @@ SonarCloud consumes:
 - `coverage/lcov.info`
 - `coverage/test-report.xml`
 - `coverage/go-cover.out`
-- `coverage/golangci-lint-report.xml`
+- `golangci-lint-report.xml`
 
 The Sonar source scope is configured in [`sonar-project.properties`](/Users/T097315/Documents/MyProject/blog/sonar-project.properties) and currently includes both frontend code and selected backend packages.
 

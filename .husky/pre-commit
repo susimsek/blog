@@ -1,2 +1,8 @@
 #!/bin/sh
 pnpm exec lint-staged --config .lintstagedrc
+
+GO_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '(^|/).+\.go$|^go\.mod$|^go\.sum$|^\.golangci\.yml$' || true)
+
+if [ -n "${GO_FILES}" ]; then
+  pnpm run backend:lint
+fi
