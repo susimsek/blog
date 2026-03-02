@@ -77,7 +77,7 @@ pnpm run backend:ci
 - [`pkg/newsletter`](/Users/T097315/Documents/MyProject/blog/pkg/newsletter): templates, unsubscribe tokens, status pages, mailer
 - [`pkg/apperrors`](/Users/T097315/Documents/MyProject/blog/pkg/apperrors): normalized backend errors
 - [`pkg/httpapi`](/Users/T097315/Documents/MyProject/blog/pkg/httpapi): backend JSON error helpers
-- [`scripts/local-go-api/main.go`](/Users/T097315/Documents/MyProject/blog/scripts/local-go-api/main.go): local backend server entrypoint
+- [`cmd/app/main.go`](/Users/T097315/Documents/MyProject/blog/cmd/app/main.go): local backend server entrypoint
 
 Preferred backend layering:
 

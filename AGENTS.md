@@ -92,7 +92,7 @@ For backend architecture, prefer a layered Go package structure similar in spiri
 - `pkg/newsletter`: templates, unsubscribe tokens, status pages, mailer
 - `pkg/apperrors`: normalized backend errors
 - `pkg/httpapi`: JSON error response helpers
-- `scripts/local-go-api/main.go`: local backend entrypoint
+- `cmd/app/main.go`: local backend entrypoint
 - `scripts/sync-newsletter-content/main.go`: newsletter content sync utility
 
 Preferred Go layering:
