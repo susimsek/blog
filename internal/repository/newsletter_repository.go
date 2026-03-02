@@ -65,7 +65,7 @@ func getNewsletterMongoClient() (*mongo.Client, error) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		client, err := mongo.Connect(ctx, appconfig.BuildMongoClientOptions(databaseConfig, "blog-api-newsletter"))
+		client, err := appconfig.NewMongoClient(ctx, databaseConfig, "blog-api-newsletter")
 		if err != nil {
 			newsletterMongoInitErr = fmt.Errorf("mongodb connect failed: %w", err)
 			return

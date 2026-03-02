@@ -31,11 +31,8 @@ const (
 	newsletterDeliveriesCollection  = "newsletter_deliveries"
 	newsletterPostsCollection       = "newsletter_posts"
 	newsletterTopicsCollection      = "newsletter_topics"
-	defaultMaxRecipientsPerRun      = 200
-	defaultMaxItemAgeHours          = 24 * 7
 	defaultDispatchTimeout          = 8 * time.Second
 	defaultSyncTimeout              = 12 * time.Second
-	defaultUnsubscribeTokenTTLHours = 24 * 365
 
 	campaignStatusProcessing = "processing"
 	campaignStatusPartial    = "partial"
@@ -302,7 +299,7 @@ func getDispatchClient() (*mongo.Client, error) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		client, err := mongo.Connect(ctx, appconfig.BuildMongoClientOptions(databaseConfig, "blog-api-newsletter-dispatch"))
+		client, err := appconfig.NewMongoClient(ctx, databaseConfig, "blog-api-newsletter-dispatch")
 		if err != nil {
 			dispatchInitErr = fmt.Errorf("mongodb connect failed: %w", err)
 			return
@@ -1216,9 +1213,9 @@ func authorizeCronRequest(r *http.Request, secret string) bool {
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	allowedOrigin := appconfig.ResolveAllowedOriginOptional()
-	if allowedOrigin != "" {
-		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
+	httpConfig := appconfig.ResolveHTTPConfig()
+	if httpConfig.AllowedOrigin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", httpConfig.AllowedOrigin)
 		w.Header().Set("Vary", "Origin")
 	}
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
@@ -1236,32 +1233,16 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cronSecret, err := appconfig.ResolveCronSecret()
+	newsletterConfig, err := appconfig.ResolveNewsletterConfig()
 	if err != nil {
 		writeDispatchError(w, apperrors.Config("configuration error", err))
 		return
 	}
 
-	if !authorizeCronRequest(r, cronSecret) {
+	if !authorizeCronRequest(r, newsletterConfig.CronSecret) {
 		writeDispatchError(w, apperrors.Unauthorized("unauthorized"))
 		return
 	}
-
-	siteURL, err := appconfig.ResolveSiteURL()
-	if err != nil {
-		writeDispatchError(w, apperrors.Config("configuration error", err))
-		return
-	}
-
-	unsubscribeSecret, err := appconfig.ResolveUnsubscribeSecret()
-	if err != nil {
-		writeDispatchError(w, apperrors.Config("configuration error", err))
-		return
-	}
-
-	unsubscribeTokenTTL := time.Duration(
-		appconfig.ResolvePositiveIntEnv("NEWSLETTER_UNSUBSCRIBE_TOKEN_TTL_HOURS", defaultUnsubscribeTokenTTLHours),
-	) * time.Hour
 
 	databaseConfig, err := appconfig.ResolveDatabaseConfig()
 	if err != nil {
@@ -1281,10 +1262,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	maxRecipients := appconfig.ResolvePositiveIntEnv("NEWSLETTER_MAX_RECIPIENTS_PER_RUN", defaultMaxRecipientsPerRun)
-	maxItemAge := time.Duration(
-		appconfig.ResolvePositiveIntEnv("NEWSLETTER_MAX_ITEM_AGE_HOURS", defaultMaxItemAgeHours),
-	) * time.Hour
 	subscribersCollection := client.Database(databaseConfig.Name).Collection(newsletterSubscribersCollection)
 	campaignsCollection := client.Database(databaseConfig.Name).Collection(newsletterCampaignsCollection)
 	deliveriesCollection := client.Database(databaseConfig.Name).Collection(newsletterDeliveriesCollection)
@@ -1310,7 +1287,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, locale := range locales {
-		rssURL := resolveRSSURL(siteURL, locale)
+		rssURL := resolveRSSURL(newsletterConfig.SiteURL, locale)
 		result := dispatchLocaleResult{
 			RSSURL: rssURL,
 		}
@@ -1341,7 +1318,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			if pubDateErr != nil {
 				continue
 			}
-			if scanNow.Sub(publishedAt) > maxItemAge {
+			if scanNow.Sub(publishedAt) > newsletterConfig.MaxItemAge {
 				continue
 			}
 
@@ -1374,7 +1351,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 		result.ItemKey = itemKey
 		result.PostTitle = strings.TrimSpace(selectedItem.Title)
-		postMetadata, _ := resolvePostEmailMetadata(postsCollection, locale, siteURL, *selectedItem)
+		postMetadata, _ := resolvePostEmailMetadata(postsCollection, locale, newsletterConfig.SiteURL, *selectedItem)
 
 		now := time.Now().UTC()
 		campaignStatus, created, campaignErr := getOrCreateCampaign(campaignsCollection, locale, itemKey, *selectedItem, rssURL, now)
@@ -1409,7 +1386,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		failedCount := 0
 		recipientCapReached := false
 		for cursor.Next(findCtx) {
-			if sentCount+failedCount >= maxRecipients {
+			if sentCount+failedCount >= newsletterConfig.MaxRecipientsPerRun {
 				recipientCapReached = true
 				break
 			}
@@ -1447,9 +1424,9 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 			unsubscribeToken, tokenErr := newsletter.BuildUnsubscribeToken(
 				email,
-				unsubscribeSecret,
+				newsletterConfig.UnsubscribeSecret,
 				time.Now().UTC(),
-				unsubscribeTokenTTL,
+				newsletterConfig.UnsubscribeTokenTTL,
 			)
 			if tokenErr != nil {
 				failedCount++
@@ -1465,7 +1442,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			unsubscribeURL, unsubscribeURLErr := buildUnsubscribeURL(siteURL, unsubscribeToken, locale)
+			unsubscribeURL, unsubscribeURLErr := buildUnsubscribeURL(newsletterConfig.SiteURL, unsubscribeToken, locale)
 			if unsubscribeURLErr != nil {
 				failedCount++
 				_ = upsertDeliveryAttempt(
@@ -1480,7 +1457,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			if err := sendPostEmail(mailCfg, email, locale, siteURL, *selectedItem, rssURL, unsubscribeURL, postMetadata); err != nil {
+			if err := sendPostEmail(mailCfg, email, locale, newsletterConfig.SiteURL, *selectedItem, rssURL, unsubscribeURL, postMetadata); err != nil {
 				failedCount++
 				_ = upsertDeliveryAttempt(
 					deliveriesCollection,

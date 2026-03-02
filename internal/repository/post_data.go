@@ -109,7 +109,7 @@ func getPostMongoClient() (*mongo.Client, error) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		client, err := mongo.Connect(ctx, appconfig.BuildMongoClientOptions(databaseConfig, "blog-api-posts"))
+		client, err := appconfig.NewMongoClient(ctx, databaseConfig, "blog-api-posts")
 		if err != nil {
 			postMongoInitErr = fmt.Errorf("mongodb connect failed: %w", err)
 			return

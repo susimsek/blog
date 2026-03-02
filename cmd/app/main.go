@@ -7,10 +7,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	graphqlapi "suaybsimsek.com/blog-api/api/graphql"
 	newsletterdispatch "suaybsimsek.com/blog-api/api/newsletter-dispatch"
+	appconfig "suaybsimsek.com/blog-api/internal/config"
 )
 
 func loadDotEnv(path string) {
@@ -44,11 +44,7 @@ func loadDotEnv(path string) {
 
 func main() {
 	loadDotEnv(filepath.Join(".", ".env.local"))
-
-	port := strings.TrimSpace(os.Getenv("LOCAL_GO_API_PORT"))
-	if port == "" {
-		port = "8080"
-	}
+	httpConfig := appconfig.ResolveHTTPConfig()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/graphql", graphqlapi.Handler)
@@ -61,12 +57,12 @@ func main() {
 	})
 
 	server := &http.Server{
-		Addr:              ":" + port,
+		Addr:              ":" + httpConfig.LocalPort,
 		Handler:           mux,
-		ReadHeaderTimeout: 10 * time.Second,
+		ReadHeaderTimeout: httpConfig.ReadHeaderTimeout,
 	}
 
-	log.Printf("local go api listening on http://localhost:%s", port)
+	log.Printf("local go api listening on http://localhost:%s", httpConfig.LocalPort)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}

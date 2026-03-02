@@ -76,13 +76,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	allowedOrigin, corsErr := appconfig.ResolveAllowedOriginRequired()
-	if corsErr != nil {
-		httpapi.WriteError(w, apperrors.Config("configuration error", corsErr))
+	httpConfig := appconfig.ResolveHTTPConfig()
+	if httpConfig.AllowedOrigin == "" {
+		httpapi.WriteError(w, apperrors.Config("configuration error", nil))
 		return
 	}
 
-	w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
+	w.Header().Set("Access-Control-Allow-Origin", httpConfig.AllowedOrigin)
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept-Language")
 	w.Header().Set("Vary", "Origin")

@@ -1009,7 +1009,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, appconfig.BuildMongoClientOptions(databaseConfig, "blog-content-sync-script"))
+	client, err := appconfig.NewMongoClient(ctx, databaseConfig, "blog-content-sync-script")
 	if err != nil {
 		log.Fatalf("mongodb connect failed: %v", err)
 	}

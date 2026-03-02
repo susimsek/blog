@@ -17,14 +17,6 @@ func requiredEnv(name string) (string, error) {
 	return value, nil
 }
 
-func ResolveAllowedOriginRequired() (string, error) {
-	return requiredEnv("API_CORS_ORIGIN")
-}
-
-func ResolveAllowedOriginOptional() string {
-	return strings.TrimSpace(getenv("API_CORS_ORIGIN"))
-}
-
 func ResolveSiteURL() (string, error) {
 	value, err := requiredEnv("SITE_URL")
 	if err != nil {
