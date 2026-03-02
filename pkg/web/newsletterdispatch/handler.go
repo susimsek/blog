@@ -646,7 +646,9 @@ func fetchRSSItems(rssURL string) ([]rssItem, error) {
 	if err != nil {
 		return nil, fmt.Errorf("rss fetch failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("rss fetch failed: status=%d", resp.StatusCode)
@@ -684,7 +686,9 @@ func fetchJSON(requestURL string, target any) error {
 	if err != nil {
 		return fmt.Errorf("request failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("request failed: status=%d", resp.StatusCode)

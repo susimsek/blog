@@ -331,7 +331,9 @@ func fetchPostLikesByIDs(ctx context.Context, collection postFinder, postIDs []s
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(ctx)
+	defer func() {
+		_ = cursor.Close(ctx)
+	}()
 
 	likesByPostID := make(map[string]int64, len(postIDs))
 	for cursor.Next(ctx) {
@@ -371,7 +373,9 @@ func fetchPostHitsByIDs(ctx context.Context, collection postFinder, postIDs []st
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(ctx)
+	defer func() {
+		_ = cursor.Close(ctx)
+	}()
 
 	hitsByPostID := make(map[string]int64, len(postIDs))
 	for cursor.Next(ctx) {
@@ -538,7 +542,9 @@ func queryPostRecords(ctx context.Context, collection postFinder, filter bson.M,
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(ctx)
+	defer func() {
+		_ = cursor.Close(ctx)
+	}()
 
 	posts := make([]PostRecord, 0)
 	for cursor.Next(ctx) {

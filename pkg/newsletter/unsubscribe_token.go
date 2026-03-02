@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func normalizeSubscriberEmail(value string) (string, error) {
+func NormalizeSubscriberEmail(value string) (string, error) {
 	email := strings.ToLower(strings.TrimSpace(value))
 	parsed, err := mail.ParseAddress(email)
 	if err != nil || parsed.Address != email {
@@ -29,7 +29,7 @@ func BuildUnsubscribeToken(email, secret string, now time.Time, ttl time.Duratio
 		return "", fmt.Errorf("invalid ttl")
 	}
 
-	normalizedEmail, err := normalizeSubscriberEmail(email)
+	normalizedEmail, err := NormalizeSubscriberEmail(email)
 	if err != nil {
 		return "", err
 	}
@@ -87,5 +87,5 @@ func ParseUnsubscribeToken(token, secret string, now time.Time) (string, error) 
 		return "", fmt.Errorf("invalid token payload")
 	}
 
-	return normalizeSubscriberEmail(string(rawEmail))
+	return NormalizeSubscriberEmail(string(rawEmail))
 }

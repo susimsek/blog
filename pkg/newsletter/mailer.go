@@ -24,15 +24,15 @@ func SendHTMLEmail(
 	}).String()
 
 	message := strings.Builder{}
-	message.WriteString(fmt.Sprintf("From: %s\r\n", fromHeader))
-	message.WriteString(fmt.Sprintf("To: %s\r\n", strings.TrimSpace(recipientEmail)))
-	message.WriteString(fmt.Sprintf("Subject: %s\r\n", strings.TrimSpace(subject)))
+	_, _ = fmt.Fprintf(&message, "From: %s\r\n", fromHeader)
+	_, _ = fmt.Fprintf(&message, "To: %s\r\n", strings.TrimSpace(recipientEmail))
+	_, _ = fmt.Fprintf(&message, "Subject: %s\r\n", strings.TrimSpace(subject))
 	for key, value := range extraHeaders {
 		trimmedKey := strings.TrimSpace(key)
 		if trimmedKey == "" {
 			continue
 		}
-		message.WriteString(fmt.Sprintf("%s: %s\r\n", trimmedKey, strings.TrimSpace(value)))
+		_, _ = fmt.Fprintf(&message, "%s: %s\r\n", trimmedKey, strings.TrimSpace(value))
 	}
 	message.WriteString("MIME-Version: 1.0\r\n")
 	message.WriteString("Content-Type: text/html; charset=\"UTF-8\"\r\n")

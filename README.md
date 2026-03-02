@@ -27,6 +27,7 @@ pnpm install --frozen-lockfile
 pnpm dev
 pnpm run backend:start
 pnpm test
+pnpm run backend:lint
 pnpm run backend:test
 pnpm run backend:ci
 pnpm run lint
@@ -52,6 +53,15 @@ Go coverage command used by Sonar:
 ```bash
 pnpm run backend:ci
 ```
+
+Go lint commands:
+
+```bash
+pnpm run backend:lint
+pnpm run backend:lint:checkstyle
+```
+
+Sonar also imports Go lint findings from `coverage/golangci-lint-report.xml`.
 
 ## Repository Layout
 
@@ -215,6 +225,16 @@ pnpm run lint
 pnpm run typecheck
 ```
 
+### Backend
+
+```bash
+pnpm run backend:lint
+pnpm run backend:test
+pnpm run backend:ci
+```
+
+`backend:lint` uses a pinned `golangci-lint` version directly from the package script. `backend:lint:checkstyle` also writes [`coverage/golangci-lint-report.xml`](/Users/T097315/Documents/MyProject/blog/coverage/golangci-lint-report.xml) for CI artifact or Checkstyle-style consumption.
+
 Jest coverage thresholds are configured in [`jest.config.js`](/Users/T097315/Documents/MyProject/blog/jest.config.js):
 
 - statements: `95`
@@ -239,6 +259,7 @@ SonarCloud consumes:
 - `coverage/lcov.info`
 - `coverage/test-report.xml`
 - `coverage/go-cover.out`
+- `coverage/golangci-lint-report.xml`
 
 The Sonar source scope is configured in [`sonar-project.properties`](/Users/T097315/Documents/MyProject/blog/sonar-project.properties) and currently includes both frontend code and selected backend packages.
 

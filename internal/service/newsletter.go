@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"net/mail"
 	"net/url"
 	"strings"
 	"sync"
@@ -144,12 +143,7 @@ var (
 )
 
 func normalizeEmail(value string) (string, error) {
-	email := strings.ToLower(strings.TrimSpace(value))
-	parsed, err := mail.ParseAddress(email)
-	if err != nil || parsed.Address != email {
-		return "", fmt.Errorf("invalid email")
-	}
-	return email, nil
+	return newsletterpkg.NormalizeSubscriberEmail(value)
 }
 
 func normalizeFormName(value string) string {
@@ -229,36 +223,86 @@ func sendConfirmationEmail(cfg appconfig.MailConfig, recipientEmail, confirmURL,
 	return newsletterpkg.SendHTMLEmail(cfg, recipientEmail, subject, htmlBody, nil)
 }
 
+type confirmationContext struct {
+	siteURL string
+	mailCfg appconfig.MailConfig
+	locale  string
+	email   string
+}
+
+type confirmationDispatch struct {
+	confirmToken string
+	confirmURL   string
+	requestedAt  time.Time
+	ipHash       string
+	userAgent    string
+	tokenHash    string
+}
+
+func resolveConfirmationContext(inputLocale, inputEmail string, meta RequestMetadata, limiter *rateLimiter) (confirmationContext, Result, bool) {
+	siteURL, err := resolveSiteURLFn()
+	if err != nil {
+		return confirmationContext{}, Result{Status: statusUnknownError}, false
+	}
+
+	mailCfg, err := resolveMailConfigFn()
+	if err != nil {
+		return confirmationContext{}, Result{Status: statusUnknownError}, false
+	}
+
+	email, err := newsletterpkg.NormalizeSubscriberEmail(inputEmail)
+	if err != nil {
+		return confirmationContext{}, Result{Status: "invalid-email"}, false
+	}
+
+	if !limiter.allow(strings.TrimSpace(meta.ClientIP)) {
+		return confirmationContext{}, Result{Status: "rate-limited"}, false
+	}
+
+	return confirmationContext{
+		siteURL: siteURL,
+		mailCfg: mailCfg,
+		locale:  newsletterpkg.ResolveLocale(inputLocale, meta.AcceptLanguage),
+		email:   email,
+	}, Result{}, true
+}
+
+func newConfirmationDispatch(siteURL, locale string, meta RequestMetadata) (confirmationDispatch, error) {
+	confirmToken, err := generateConfirmTokenFn()
+	if err != nil {
+		return confirmationDispatch{}, err
+	}
+
+	confirmURL, err := buildConfirmURL(siteURL, confirmToken, locale)
+	if err != nil {
+		return confirmationDispatch{}, err
+	}
+
+	requestedAt := nowUTCFn()
+	return confirmationDispatch{
+		confirmToken: confirmToken,
+		confirmURL:   confirmURL,
+		requestedAt:  requestedAt,
+		ipHash:       hashValue(strings.TrimSpace(meta.ClientIP)),
+		userAgent:    strings.TrimSpace(meta.UserAgent),
+		tokenHash:    hashValue(confirmToken),
+	}, nil
+}
+
 func Subscribe(ctx context.Context, input SubscribeInput, meta RequestMetadata) Result {
 	if input.Terms {
 		return Result{Status: "success"}
 	}
 
-	siteURL, err := resolveSiteURLFn()
-	if err != nil {
-		return Result{Status: statusUnknownError}
-	}
-
-	mailCfg, err := resolveMailConfigFn()
-	if err != nil {
-		return Result{Status: statusUnknownError}
-	}
-
-	locale := newsletterpkg.ResolveLocale(input.Locale, meta.AcceptLanguage)
-
-	email, err := normalizeEmail(input.Email)
-	if err != nil {
-		return Result{Status: "invalid-email"}
-	}
-
-	if !subscribeLimiter.allow(strings.TrimSpace(meta.ClientIP)) {
-		return Result{Status: "rate-limited"}
+	confirmationCtx, result, ok := resolveConfirmationContext(input.Locale, input.Email, meta, subscribeLimiter)
+	if !ok {
+		return result
 	}
 
 	lookupCtx, lookupCancel := context.WithTimeout(ctx, 5*time.Second)
 	defer lookupCancel()
 
-	existingStatus, found, err := newsletterRepository.GetStatusByEmail(lookupCtx, email)
+	existingStatus, found, err := newsletterRepository.GetStatusByEmail(lookupCtx, confirmationCtx.email)
 	if err != nil {
 		return Result{Status: statusUnknownError}
 	}
@@ -267,40 +311,34 @@ func Subscribe(ctx context.Context, input SubscribeInput, meta RequestMetadata) 
 		return Result{Status: "success"}
 	}
 
-	confirmToken, err := generateConfirmTokenFn()
+	dispatch, err := newConfirmationDispatch(confirmationCtx.siteURL, confirmationCtx.locale, meta)
 	if err != nil {
 		return Result{Status: statusUnknownError}
 	}
 
-	confirmURL, err := buildConfirmURL(siteURL, confirmToken, locale)
-	if err != nil {
-		return Result{Status: statusUnknownError}
-	}
-
-	now := nowUTCFn()
-	createdAt := now
 	updateCtx, updateCancel := context.WithTimeout(ctx, 10*time.Second)
 	defer updateCancel()
+	createdAt := dispatch.requestedAt
 
 	err = newsletterRepository.UpsertPendingSubscription(updateCtx, domain.NewsletterPendingSubscription{
-		Email:                 email,
-		Locale:                locale,
+		Email:                 confirmationCtx.email,
+		Locale:                confirmationCtx.locale,
 		Tags:                  normalizeTags(input.Tags),
 		FormName:              normalizeFormName(input.FormName),
 		Source:                defaultNewsletterSourceName,
-		UpdatedAt:             now,
-		IPHash:                hashValue(strings.TrimSpace(meta.ClientIP)),
-		UserAgent:             strings.TrimSpace(meta.UserAgent),
-		ConfirmTokenHash:      hashValue(confirmToken),
-		ConfirmTokenExpiresAt: now.Add(newsletterConfirmTokenTTL),
-		ConfirmRequestedAt:    now,
+		UpdatedAt:             dispatch.requestedAt,
+		IPHash:                dispatch.ipHash,
+		UserAgent:             dispatch.userAgent,
+		ConfirmTokenHash:      dispatch.tokenHash,
+		ConfirmTokenExpiresAt: dispatch.requestedAt.Add(newsletterConfirmTokenTTL),
+		ConfirmRequestedAt:    dispatch.requestedAt,
 		CreatedAt:             &createdAt,
 	})
 	if err != nil {
 		return Result{Status: statusUnknownError}
 	}
 
-	if sendConfirmationEmailFn(mailCfg, email, confirmURL, locale, siteURL) != nil {
+	if sendConfirmationEmailFn(confirmationCtx.mailCfg, confirmationCtx.email, dispatch.confirmURL, confirmationCtx.locale, confirmationCtx.siteURL) != nil {
 		return Result{Status: statusUnknownError}
 	}
 
@@ -312,31 +350,15 @@ func Resend(ctx context.Context, input ResendInput, meta RequestMetadata) Result
 		return Result{Status: "success"}
 	}
 
-	siteURL, err := resolveSiteURLFn()
-	if err != nil {
-		return Result{Status: statusUnknownError}
-	}
-
-	mailCfg, err := resolveMailConfigFn()
-	if err != nil {
-		return Result{Status: statusUnknownError}
-	}
-
-	locale := newsletterpkg.ResolveLocale(input.Locale, meta.AcceptLanguage)
-
-	email, err := normalizeEmail(input.Email)
-	if err != nil {
-		return Result{Status: "invalid-email"}
-	}
-
-	if !resendLimiter.allow(strings.TrimSpace(meta.ClientIP)) {
-		return Result{Status: "rate-limited"}
+	confirmationCtx, result, ok := resolveConfirmationContext(input.Locale, input.Email, meta, resendLimiter)
+	if !ok {
+		return result
 	}
 
 	lookupCtx, lookupCancel := context.WithTimeout(ctx, 5*time.Second)
 	defer lookupCancel()
 
-	existingStatus, found, err := newsletterRepository.GetStatusByEmail(lookupCtx, email)
+	existingStatus, found, err := newsletterRepository.GetStatusByEmail(lookupCtx, confirmationCtx.email)
 	if err != nil {
 		return Result{Status: statusUnknownError}
 	}
@@ -348,35 +370,29 @@ func Resend(ctx context.Context, input ResendInput, meta RequestMetadata) Result
 		return Result{Status: "success"}
 	}
 
-	confirmToken, err := generateConfirmTokenFn()
+	dispatch, err := newConfirmationDispatch(confirmationCtx.siteURL, confirmationCtx.locale, meta)
 	if err != nil {
 		return Result{Status: statusUnknownError}
 	}
 
-	confirmURL, err := buildConfirmURL(siteURL, confirmToken, locale)
-	if err != nil {
-		return Result{Status: statusUnknownError}
-	}
-
-	now := nowUTCFn()
 	updateCtx, updateCancel := context.WithTimeout(ctx, 10*time.Second)
 	defer updateCancel()
 
 	err = newsletterRepository.UpdatePendingSubscription(updateCtx, domain.NewsletterPendingSubscription{
-		Email:                 email,
-		Locale:                locale,
-		UpdatedAt:             now,
-		IPHash:                hashValue(strings.TrimSpace(meta.ClientIP)),
-		UserAgent:             strings.TrimSpace(meta.UserAgent),
-		ConfirmTokenHash:      hashValue(confirmToken),
-		ConfirmTokenExpiresAt: now.Add(newsletterConfirmTokenTTL),
-		ConfirmRequestedAt:    now,
+		Email:                 confirmationCtx.email,
+		Locale:                confirmationCtx.locale,
+		UpdatedAt:             dispatch.requestedAt,
+		IPHash:                dispatch.ipHash,
+		UserAgent:             dispatch.userAgent,
+		ConfirmTokenHash:      dispatch.tokenHash,
+		ConfirmTokenExpiresAt: dispatch.requestedAt.Add(newsletterConfirmTokenTTL),
+		ConfirmRequestedAt:    dispatch.requestedAt,
 	})
 	if err != nil {
 		return Result{Status: statusUnknownError}
 	}
 
-	if sendConfirmationEmailFn(mailCfg, email, confirmURL, locale, siteURL) != nil {
+	if sendConfirmationEmailFn(confirmationCtx.mailCfg, confirmationCtx.email, dispatch.confirmURL, confirmationCtx.locale, confirmationCtx.siteURL) != nil {
 		return Result{Status: statusUnknownError}
 	}
 

@@ -40,6 +40,8 @@ For backend architecture, prefer a layered Go package structure similar in spiri
 | Preview static build  | `pnpm build` then `pnpm dlx serve build`                           |
 | Frontend tests        | `pnpm test`                                                        |
 | Single Jest file      | `pnpm test -- __tests__/lib/posts.test.tsx`                        |
+| Backend lint          | `pnpm run backend:lint`                                            |
+| Backend lint report   | `pnpm run backend:lint:checkstyle`                                 |
 | Go tests              | `pnpm run backend:test`                                            |
 | Backend CI            | `pnpm run backend:ci`                                              |
 | Lint                  | `pnpm run lint`                                                    |
@@ -209,6 +211,11 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
 - Lint with ESLint:
   - `pnpm run lint`
   - `pnpm run lint:fix`
+- Lint Go with golangci-lint:
+  - `pnpm run backend:lint`
+  - `pnpm run backend:lint:checkstyle`
+  - config file: `.golangci.yml`
+  - version is pinned in `package.json`
 - Format with Prettier:
   - `pnpm run prettier:format`
   - `pnpm run prettier:check`
@@ -240,6 +247,7 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
   - `coverage/lcov.info`
   - `coverage/test-report.xml`
   - `coverage/go-cover.out`
+  - `coverage/golangci-lint-report.xml`
 - Current Sonar scope in `sonar-project.properties` includes:
   - `src/**`
   - `api/graphql/**`
@@ -271,6 +279,7 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
   - `pnpm run lint`
   - `pnpm run typecheck`
 - Backend Go change:
+  - `pnpm run backend:lint`
   - `pnpm run backend:test`
   - `pnpm run backend:ci`
 - Export/build-sensitive change:

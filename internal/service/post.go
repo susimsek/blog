@@ -65,9 +65,6 @@ func QueryContent(ctx context.Context, input ContentQueryInput) ContentResponse 
 	operationCtx, cancel := withTimeoutContext(ctx, 15*time.Second)
 	defer cancel()
 
-	resolvedPage := 1
-	total := 0
-
 	total, countErr := postsRepository.CountPosts(operationCtx, filter)
 	if countErr != nil {
 		if errors.Is(countErr, repository.ErrPostRepositoryUnavailable) {
@@ -88,7 +85,7 @@ func QueryContent(ctx context.Context, input ContentQueryInput) ContentResponse 
 	}
 
 	totalPages := int(math.Ceil(float64(total) / float64(size)))
-	resolvedPage = page
+	resolvedPage := page
 	if resolvedPage > totalPages {
 		resolvedPage = totalPages
 	}
@@ -155,31 +152,20 @@ func QueryPost(ctx context.Context, input PostQueryInput) ContentResponse {
 
 // IncrementLike increases like count for a post.
 func IncrementLike(ctx context.Context, postID string) ContentResponse {
-	normalizedPostID, ok := normalizePostID(postID)
-	if !ok {
-		return ContentResponse{Status: statusInvalidPostID}
-	}
-
-	operationCtx, cancel := withTimeoutContext(ctx, 10*time.Second)
-	defer cancel()
-
-	likes, incrementErr := postsRepository.IncrementPostLike(operationCtx, normalizedPostID, time.Now().UTC())
-	if incrementErr != nil {
-		if errors.Is(incrementErr, repository.ErrPostRepositoryUnavailable) {
-			return ContentResponse{Status: statusServiceUnavailable, PostID: normalizedPostID}
-		}
-		return ContentResponse{Status: "failed", PostID: normalizedPostID}
-	}
-
-	return ContentResponse{
-		Status: "success",
-		PostID: normalizedPostID,
-		Likes:  likes,
-	}
+	return incrementPostMetric(ctx, postID, postsRepository.IncrementPostLike, true)
 }
 
 // IncrementHit increases hit count for a post.
 func IncrementHit(ctx context.Context, postID string) ContentResponse {
+	return incrementPostMetric(ctx, postID, postsRepository.IncrementPostHit, false)
+}
+
+func incrementPostMetric(
+	ctx context.Context,
+	postID string,
+	incrementFn func(context.Context, string, time.Time) (int64, error),
+	updateLikes bool,
+) ContentResponse {
 	normalizedPostID, ok := normalizePostID(postID)
 	if !ok {
 		return ContentResponse{Status: statusInvalidPostID}
@@ -188,7 +174,7 @@ func IncrementHit(ctx context.Context, postID string) ContentResponse {
 	operationCtx, cancel := withTimeoutContext(ctx, 10*time.Second)
 	defer cancel()
 
-	hits, incrementErr := postsRepository.IncrementPostHit(operationCtx, normalizedPostID, time.Now().UTC())
+	value, incrementErr := incrementFn(operationCtx, normalizedPostID, time.Now().UTC())
 	if incrementErr != nil {
 		if errors.Is(incrementErr, repository.ErrPostRepositoryUnavailable) {
 			return ContentResponse{Status: statusServiceUnavailable, PostID: normalizedPostID}
@@ -196,11 +182,17 @@ func IncrementHit(ctx context.Context, postID string) ContentResponse {
 		return ContentResponse{Status: "failed", PostID: normalizedPostID}
 	}
 
-	return ContentResponse{
+	response := ContentResponse{
 		Status: "success",
 		PostID: normalizedPostID,
-		Hits:   hits,
 	}
+	if updateLikes {
+		response.Likes = value
+		return response
+	}
+
+	response.Hits = value
+	return response
 }
 
 func withTimeoutContext(parent context.Context, timeout time.Duration) (context.Context, context.CancelFunc) {
