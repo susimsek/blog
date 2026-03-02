@@ -1,0 +1,19 @@
+root = "."
+tmp_dir = ".air"
+
+[build]
+cmd = "go build -o ./.air/backend-app ./cmd/app"
+bin = "./.air/backend-app"
+full_bin = "./.air/backend-app"
+delay = 300
+exclude_dir = ["node_modules", "build", "coverage", ".git", ".next", ".air"]
+exclude_file = ["golangci-lint-report.xml"]
+include_ext = ["go", "tmpl", "tpl"]
+include_file = [".env.local"]
+stop_on_error = true
+
+[log]
+time = true
+
+[misc]
+clean_on_exit = true

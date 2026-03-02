@@ -25,6 +25,7 @@ Go code in this repo is expected to follow a layered package approach, not a fea
 corepack enable
 pnpm install --frozen-lockfile
 pnpm dev
+pnpm run backend:dev
 pnpm run backend:start
 pnpm test
 pnpm run backend:lint
@@ -125,11 +126,13 @@ Frontend runs at `http://localhost:3000`.
 
 ```bash
 # terminal 1
-pnpm run backend:start
+pnpm run backend:dev
 
 # terminal 2
 pnpm dev
 ```
+
+`backend:dev` uses [`air`](https://github.com/air-verse/air) for hot reload, similar to a Spring Boot DevTools workflow for the Go backend. `backend:start` remains the plain one-shot Go process.
 
 Useful local endpoints:
 

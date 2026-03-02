@@ -35,6 +35,7 @@ For backend architecture, prefer a layered Go package structure similar in spiri
 | --------------------- | ------------------------------------------------------------------ |
 | Install               | `pnpm install --frozen-lockfile`                                   |
 | Frontend dev          | `pnpm dev`                                                         |
+| Backend dev           | `pnpm run backend:dev`                                             |
 | Local Go backend      | `pnpm run backend:start`                                           |
 | Build                 | `pnpm build`                                                       |
 | Preview static build  | `pnpm build` then `pnpm dlx serve build`                           |
@@ -135,7 +136,8 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
 
 ## Backend Runtime
 
-- Start local backend with `pnpm run backend:start`
+- Start live-reload backend with `pnpm run backend:dev`
+- Start one-shot backend with `pnpm run backend:start`
 - Default port: `8080`
 - Override port with `LOCAL_GO_API_PORT`
 - Local backend endpoints:

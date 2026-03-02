@@ -36,6 +36,7 @@
     "sync:code-filenames": "node scripts/sync-code-filename-meta.js",
     "graphql:generate": "GOCACHE=/tmp/go-build go run github.com/99designs/gqlgen generate",
     "graphql:codegen": "graphql-codegen --config codegen.ts",
+    "backend:dev": "go run github.com/air-verse/air@v1.64.5 -c .air.toml",
     "backend:start": "go run ./cmd/app",
     "backend:sync-content": "go run ./scripts/sync-newsletter-content/main.go"
   },
