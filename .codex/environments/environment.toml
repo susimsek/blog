@@ -21,6 +21,6 @@ icon = "build"
 command = "pnpm run build"
 
 [[actions]]
-name = "Backend Start"
+name = "Backend Run"
 icon = "run"
-command = "pnpm run backend:start"
+command = "pnpm run backend:dev"
