@@ -3,13 +3,13 @@ tmp_dir = ".air"
 
 [build]
 cmd = "go build -o ./.air/backend-app ./cmd/app"
-bin = "./.air/backend-app"
-full_bin = "./.air/backend-app"
+entrypoint = ["./.air/backend-app"]
 delay = 300
-exclude_dir = ["node_modules", "build", "coverage", ".git", ".next", ".air"]
+include_dir = ["api", "cmd", "internal", "pkg"]
 exclude_file = ["golangci-lint-report.xml"]
-include_ext = ["go", "tmpl", "tpl"]
-include_file = [".env.local"]
+exclude_dir = ["node_modules", "build", "coverage", ".air"]
+include_ext = ["go", "graphqls", "html", "tmpl", "tpl"]
+include_file = [".air.toml", ".env.local", "go.mod", "go.sum", "gqlgen.yml"]
 stop_on_error = true
 
 [log]
