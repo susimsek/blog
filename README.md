@@ -59,7 +59,7 @@ Go lint commands:
 
 ```bash
 pnpm run backend:lint
-pnpm run backend:lint:checkstyle
+pnpm run backend:lint:report
 ```
 
 Sonar also imports Go lint findings from `golangci-lint-report.xml`.
@@ -236,7 +236,7 @@ pnpm run backend:test
 pnpm run backend:ci
 ```
 
-`backend:lint` uses a pinned `golangci-lint` version directly from the package script. `backend:lint:checkstyle` also writes [`golangci-lint-report.xml`](/Users/T097315/Documents/MyProject/blog/golangci-lint-report.xml) in the repo root for Sonar and Checkstyle-style consumption.
+`backend:lint` uses a pinned `golangci-lint` version directly from the package script. `backend:lint:report` also writes [`golangci-lint-report.xml`](/Users/T097315/Documents/MyProject/blog/golangci-lint-report.xml) in the repo root for Sonar and Checkstyle-style consumption.
 
 Jest coverage thresholds are configured in [`jest.config.js`](/Users/T097315/Documents/MyProject/blog/jest.config.js):
 

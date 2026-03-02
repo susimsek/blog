@@ -6,6 +6,11 @@ out
 next-env.d.ts
 next.config.js
 .cache
+.air
+.vercel
+.scannerwork
+.sonar
+.sonarqube
 
 # Build and distribution directories
 build
@@ -19,7 +24,8 @@ yarn.lock
 public
 
 # API and GraphQL generated files
-src/generated/*
+src/graphql/generated
+golangci-lint-report.xml
 
 .git
 target/classes/static/

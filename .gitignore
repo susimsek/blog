@@ -10,6 +10,7 @@
 !.yarn/releases
 !.yarn/versions
 npm-debug.log*
+pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
@@ -17,6 +18,7 @@ yarn-error.log*
 # Code coverage
 ######################
 /coverage/
+/golangci-lint-report.xml
 /.nyc_output/
 
 ######################
@@ -28,6 +30,7 @@ yarn-error.log*
 
 # production
 /build
+/.air/
 
 # env files (can opt-in for committing if needed)
 .env*
@@ -92,5 +95,3 @@ Desktop.ini
 .sonar
 .sonarqube
 .scannerwork
-
-

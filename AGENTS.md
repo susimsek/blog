@@ -42,7 +42,7 @@ For backend architecture, prefer a layered Go package structure similar in spiri
 | Frontend tests        | `pnpm test`                                                        |
 | Single Jest file      | `pnpm test -- __tests__/lib/posts.test.tsx`                        |
 | Backend lint          | `pnpm run backend:lint`                                            |
-| Backend lint report   | `pnpm run backend:lint:checkstyle`                                 |
+| Backend lint report   | `pnpm run backend:lint:report`                                     |
 | Go tests              | `pnpm run backend:test`                                            |
 | Backend CI            | `pnpm run backend:ci`                                              |
 | Lint                  | `pnpm run lint`                                                    |
@@ -215,7 +215,7 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
   - `pnpm run lint:fix`
 - Lint Go with golangci-lint:
   - `pnpm run backend:lint`
-  - `pnpm run backend:lint:checkstyle`
+  - `pnpm run backend:lint:report`
   - config file: `.golangci.yml`
   - version is pinned in `package.json`
 - Format with Prettier:

@@ -55,7 +55,7 @@ jobs:
       - run:
           name: Run Backend Lint
           command: |
-            pnpm run backend:lint:checkstyle
+            pnpm run backend:lint:report
 
       - run:
           name: Run Backend Tests
