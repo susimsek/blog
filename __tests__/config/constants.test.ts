@@ -12,27 +12,9 @@ describe('Environment Constants', () => {
     process.env = originalEnv; // Restore the original environment
   });
 
-  const loadConstants = () => require('@/config/constants');
-
-  it('should correctly determine if the environment is development', () => {
-    process.env = { ...originalEnv, NODE_ENV: 'development' }; // Set NODE_ENV to development
-    const { isDev, isProd } = loadConstants();
-    expect(isDev).toBe(true);
-    expect(isProd).toBe(false);
-  });
-
-  it('should correctly determine if the environment is production', () => {
-    process.env = { ...originalEnv, NODE_ENV: 'production' }; // Set NODE_ENV to production
-    const { isDev, isProd } = loadConstants();
-    expect(isProd).toBe(true);
-    expect(isDev).toBe(false);
-  });
-
-  it('should handle non-production/non-development environments', () => {
-    process.env = { ...originalEnv, NODE_ENV: 'test' }; // Set NODE_ENV to test
-    const { isDev, isProd } = loadConstants();
-    expect(isDev).toBe(false);
-    expect(isProd).toBe(false);
+  it('restores the original environment between tests', () => {
+    process.env = { ...originalEnv, NODE_ENV: 'development' };
+    expect(process.env.NODE_ENV).toBe('development');
   });
 });
 

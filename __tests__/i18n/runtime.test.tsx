@@ -56,10 +56,6 @@ jest.mock('@/components/theme/ThemeProvider', () => ({
   default: ({ children }: { children: React.ReactNode }) => <div data-testid="theme-provider">{children}</div>,
 }));
 
-const { loadIcons: loadIconsMock } = jest.requireMock('@/config/iconLoader') as {
-  loadIcons: jest.Mock;
-};
-
 function TranslationProbe() {
   const { t } = useTranslation('common');
   return <span data-testid="translated">{t('common.footer.copyright')}</span>;

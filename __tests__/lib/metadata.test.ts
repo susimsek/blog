@@ -35,7 +35,7 @@ describe('metadata helpers', () => {
 
   it('falls back to string concatenation when URL construction fails in toAbsoluteSiteUrl', () => {
     const metadata = loadMetadataModule('');
-    const urlMock = jest.fn((value: string, base?: string) => {
+    const urlMock = jest.fn((_value: string, base?: string) => {
       if (!base) {
         throw new Error('invalid');
       }

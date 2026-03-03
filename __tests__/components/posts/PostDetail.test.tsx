@@ -76,6 +76,7 @@ describe('PostDetail Component', () => {
         writeText: jest.fn().mockResolvedValue(undefined),
       },
     });
+    window.history.replaceState({}, '', '/');
   });
 
   it('renders the post title', () => {

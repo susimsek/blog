@@ -6241,7 +6241,8 @@ label {
 }
 
 .github-brand-logo {
-  background-color: var(--github-brand-logo-bg);
+  color: var(--github-brand-logo-color) !important;
+  @include transition(color);
 }
 
 .email-logo {

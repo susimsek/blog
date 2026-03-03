@@ -2,6 +2,7 @@ import React from 'react';
 import Accordion from 'react-bootstrap/Accordion';
 import { useTranslation } from 'react-i18next';
 import PostLike from '@/components/posts/PostLike';
+import { createHeadingSlugger, slugifyHeading } from '@/lib/markdownHeadings';
 
 type TocItem = {
   id: string;
@@ -28,30 +29,11 @@ export const areTocItemsEqual = (left: TocItem[], right: TocItem[]) => {
 };
 
 export const slugify = (value: string) => {
-  const normalized = value
-    .trim()
-    .toLowerCase()
-    .normalize('NFKD')
-    .replaceAll(/[\u0300-\u036f]/g, '');
-
-  const collapsed = normalized
-    .replaceAll(/['"]/g, '')
-    .replaceAll(/[^a-z0-9]+/g, '-')
-    .replaceAll(/^-+/g, '')
-    .replaceAll(/-+$/g, '')
-    .replaceAll(/-+/g, '-');
-
-  return collapsed || 'section';
+  return slugifyHeading(value);
 };
 
 export const createSlugger = () => {
-  const counts = new Map<string, number>();
-  return (text: string) => {
-    const base = slugify(text);
-    const current = counts.get(base) ?? 0;
-    counts.set(base, current + 1);
-    return current === 0 ? base : `${base}-${current}`;
-  };
+  return createHeadingSlugger();
 };
 
 export const getScrollBehavior = (): ScrollBehavior => {

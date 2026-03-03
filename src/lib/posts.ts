@@ -3,7 +3,6 @@ import path from 'node:path';
 import matter from 'gray-matter';
 import { Category, LayoutPostSummary, Post, PostSource, PostSummary, Topic } from '@/types/posts';
 import i18nextConfig from '@/i18n/settings';
-import { createCacheStore } from '@/lib/cacheUtils';
 import { sortPosts } from '@/lib/postFilters';
 import { calculateReadingTimeMinutes } from '@/lib/readingTime';
 import { compressContentForPayload } from '@/lib/contentCompression';
@@ -28,23 +27,8 @@ const postsMarkdownDirectory = path.join(process.cwd(), 'content/posts');
 const postsIndexDirectory = path.join(process.cwd(), 'public/data');
 const topicsIndexDirectory = path.join(process.cwd(), 'public/data');
 
-export const postsCache = createCacheStore<PostSummary[]>('getSortedPostsData');
-export const postDataCache = createCacheStore<Post | null>('getPostData');
-export const topicsCache = createCacheStore<Topic[]>('getAllTopics');
-export const topicDataCache = createCacheStore<Topic | null>('getTopicData');
-export const categoriesCache = createCacheStore<Category[]>('getAllCategories');
-export const categoryDataCache = createCacheStore<Category | null>('getCategoryData');
-export const postIdsCache = createCacheStore<{ params: { id: string; locale: string } }[]>('getAllPostIds');
-export const topicIdsCache = createCacheStore<{ params: { id: string; locale: string } }[]>('getAllTopicIds');
-export const categoryIdsCache = createCacheStore<{ params: { id: string; locale: string } }[]>('getAllCategoryIds');
-export const readingTimeCache = createCacheStore<number>('getReadingTime');
-
 const DEFAULT_LAYOUT_POSTS_LIMIT = 12;
 const DEFAULT_TOP_TOPICS_LIMIT = 6;
-const ALL_POST_IDS_CACHE_KEY = 'all-post-ids';
-const ALL_TOPIC_IDS_CACHE_KEY = 'all-topic-ids';
-const ALL_CATEGORY_IDS_CACHE_KEY = 'all-category-ids';
-const ALL_SOURCES_POSTS_CACHE_KEY_SUFFIX = 'all-sources';
 
 export const readIdsFromIndexFile = async (
   indexPath: string,
@@ -99,16 +83,9 @@ async function parsePostFile(filePath: string): Promise<{ data: PostSummary; con
 }
 
 export async function getAllPostsData(locale: string): Promise<PostSummary[]> {
-  const cacheKey = `${locale}-${ALL_SOURCES_POSTS_CACHE_KEY_SUFFIX}`;
-  const cachedData = postsCache.get(cacheKey);
-  if (cachedData) {
-    return cachedData;
-  }
-
   const postsJsonPath = path.join(postsIndexDirectory, `posts.${locale}.json`);
   if (!(await fileExists(postsJsonPath))) {
     console.error(`Posts index not found for locale "${locale}": ${postsJsonPath}`);
-    postsCache.set(cacheKey, []);
     return [];
   }
 
@@ -133,11 +110,9 @@ export async function getAllPostsData(locale: string): Promise<PostSummary[]> {
       );
 
     const sortedPosts = sortPosts(normalizedPosts);
-    postsCache.set(cacheKey, sortedPosts);
     return sortedPosts;
   } catch (error) {
     console.error(`Error reading/parsing posts index for locale "${locale}":`, error);
-    postsCache.set(cacheKey, []);
     return [];
   }
 }
@@ -148,34 +123,17 @@ export async function getSortedPostsData(
   topicId?: string,
   source: PostSource = 'blog',
 ): Promise<PostSummary[]> {
-  const cacheKey = `${locale}-${topicId ?? 'all'}-${source}`;
-  const cachedData = postsCache.get(cacheKey);
-  if (cachedData) {
-    return cachedData;
-  }
-
   const allPosts = await getAllPostsData(locale);
-  const filteredPosts = allPosts
+  return allPosts
     .filter(post => post.source === source)
     .filter(post => !topicId || (Array.isArray(post.topics) && post.topics.some((t: Topic) => t.id === topicId)));
-
-  postsCache.set(cacheKey, filteredPosts);
-  return filteredPosts;
 }
 
 // Get a specific post for locale
 export async function getPostData(id: string, locale: string): Promise<Post | null> {
-  const cacheKey = `${locale}-${id}`;
-
-  const cachedData = postDataCache.get(cacheKey);
-  if (cachedData) {
-    return cachedData;
-  }
-
   // Localized path
   const localizedPath = path.join(postsMarkdownDirectory, locale, `${id}.md`);
   if (!(await fileExists(localizedPath))) {
-    postDataCache.set(cacheKey, null);
     return null;
   }
 
@@ -198,99 +156,56 @@ export async function getPostData(id: string, locale: string): Promise<Post | nu
     ...serializedContent,
   };
 
-  postDataCache.set(cacheKey, post);
-
   return post;
 }
 
 export async function getTopicData(locale: string, topicId: string): Promise<Topic | null> {
-  const cacheKey = `${locale}-${topicId}`;
-
-  const cachedData = topicDataCache.get(cacheKey);
-  if (cachedData) return cachedData;
-
   const topics = await getAllTopics(locale);
-  const topic = topics.find(item => item.id === topicId) || null;
-
-  topicDataCache.set(cacheKey, topic);
-  return topic;
+  return topics.find(item => item.id === topicId) || null;
 }
 
 export async function getCategoryData(locale: string, categoryId: string): Promise<Category | null> {
-  const cacheKey = `${locale}-${categoryId}`;
-
-  const cachedData = categoryDataCache.get(cacheKey);
-  if (cachedData) return cachedData;
-
   const categories = await getAllCategories(locale);
-  const category = categories.find(item => item.id === categoryId) || null;
-
-  categoryDataCache.set(cacheKey, category);
-  return category;
+  return categories.find(item => item.id === categoryId) || null;
 }
 
 // Get all topics from the topics index
 export async function getAllTopics(locale: string): Promise<Topic[]> {
-  const cachedData = topicsCache.get(locale);
-  if (cachedData) {
-    return cachedData;
-  }
-
   const topicsFilePath = path.join(topicsIndexDirectory, `topics.${locale}.json`);
 
   if (!(await fileExists(topicsFilePath))) {
     console.error(`Topics index not found for locale "${locale}": ${topicsFilePath}`);
-    topicsCache.set(locale, []);
     return [];
   }
 
   try {
     const fileContents = await fsPromises.readFile(topicsFilePath, 'utf8');
-    const topics = JSON.parse(fileContents) as Topic[];
-
-    topicsCache.set(locale, topics);
-
-    return topics;
+    return JSON.parse(fileContents) as Topic[];
   } catch (error) {
     console.error('Error reading or parsing topics index:', error);
-    topicsCache.set(locale, []);
     return [];
   }
 }
 
 export async function getAllCategories(locale: string): Promise<Category[]> {
-  const cachedData = categoriesCache.get(locale);
-  if (cachedData) {
-    return cachedData;
-  }
-
   const categoriesFilePath = path.join(topicsIndexDirectory, `categories.${locale}.json`);
 
   if (!(await fileExists(categoriesFilePath))) {
     console.error(`Categories index not found for locale "${locale}": ${categoriesFilePath}`);
-    categoriesCache.set(locale, []);
     return [];
   }
 
   try {
     const fileContents = await fsPromises.readFile(categoriesFilePath, 'utf8');
-    const categories = JSON.parse(fileContents) as Category[];
-
-    categoriesCache.set(locale, categories);
-
-    return categories;
+    return JSON.parse(fileContents) as Category[];
   } catch (error) {
     console.error('Error reading or parsing categories index:', error);
-    categoriesCache.set(locale, []);
     return [];
   }
 }
 
 // Generate all post IDs for static paths
 export async function getAllPostIds() {
-  const cachedData = postIdsCache.get(ALL_POST_IDS_CACHE_KEY);
-  if (cachedData) return cachedData;
-
   const localeList = i18nextConfig.i18n.locales;
   const localizedIds = await Promise.all(
     localeList.map(async locale => {
@@ -313,15 +228,10 @@ export async function getAllPostIds() {
         (localeOrder.get(a.params.locale) ?? Number.MAX_SAFE_INTEGER) -
           (localeOrder.get(b.params.locale) ?? Number.MAX_SAFE_INTEGER),
     );
-
-  postIdsCache.set(ALL_POST_IDS_CACHE_KEY, postIds);
   return postIds;
 }
 
 export async function getAllTopicIds() {
-  const cachedData = topicIdsCache.get(ALL_TOPIC_IDS_CACHE_KEY);
-  if (cachedData) return cachedData;
-
   const localeList = i18nextConfig.i18n.locales;
   const topicIdSet = new Set<string>();
 
@@ -340,15 +250,10 @@ export async function getAllTopicIds() {
         params: { id, locale },
       })),
     );
-
-  topicIdsCache.set(ALL_TOPIC_IDS_CACHE_KEY, topicIds);
   return topicIds;
 }
 
 export async function getAllCategoryIds() {
-  const cachedData = categoryIdsCache.get(ALL_CATEGORY_IDS_CACHE_KEY);
-  if (cachedData) return cachedData;
-
   const localeList = i18nextConfig.i18n.locales;
   const categoryIDSet = new Set<string>();
 
@@ -367,8 +272,6 @@ export async function getAllCategoryIds() {
         params: { id, locale },
       })),
     );
-
-  categoryIdsCache.set(ALL_CATEGORY_IDS_CACHE_KEY, categoryIds);
   return categoryIds;
 }
 

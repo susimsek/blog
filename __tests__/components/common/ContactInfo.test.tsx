@@ -11,7 +11,9 @@ jest.mock('react-i18next', () => ({
 
 // Mock `FontAwesomeIcon` component
 jest.mock('@fortawesome/react-fontawesome', () => ({
-  FontAwesomeIcon: ({ icon }: { icon: string }) => <i data-testid={`font-awesome-icon-${icon}`} />,
+  FontAwesomeIcon: ({ icon, className }: { icon: string; className?: string }) => (
+    <i data-testid={`font-awesome-icon-${icon}`} className={className} />
+  ),
 }));
 
 describe('ContactInfo Component', () => {
@@ -66,6 +68,6 @@ describe('ContactInfo Component', () => {
     expect(screen.getByTestId('font-awesome-icon-envelope')).toBeInTheDocument();
     expect(screen.getByTestId('font-awesome-icon-fab,linkedin')).toBeInTheDocument();
     expect(screen.getByTestId('font-awesome-icon-fab,medium')).toBeInTheDocument();
-    expect(screen.getByTestId('font-awesome-icon-fab,github')).toBeInTheDocument();
+    expect(screen.getByTestId('font-awesome-icon-fab,github')).toHaveClass('github-brand-logo');
   });
 });

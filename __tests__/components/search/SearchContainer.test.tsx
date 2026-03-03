@@ -1,6 +1,6 @@
 import React from 'react';
 import { screen, fireEvent, act, waitFor } from '@testing-library/react';
-import SearchContainer, { __resetSearchContainerCacheForTests } from '@/components/search/SearchContainer';
+import SearchContainer from '@/components/search/SearchContainer';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
 import type { PostsQueryState } from '@/reducers/postsQuery';
 
@@ -147,7 +147,6 @@ describe('SearchContainer', () => {
     jest.clearAllMocks();
     routerPushMock.mockReset();
     scrollIntoViewMock.mockReset();
-    __resetSearchContainerCacheForTests();
     (global.fetch as unknown) = jest.fn();
     mockStaticPosts(posts);
   });
@@ -291,48 +290,6 @@ describe('SearchContainer', () => {
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'po' } });
 
     expect(await screen.findByText('common.noResults')).toBeInTheDocument();
-  });
-
-  it('reuses locale cache for subsequent searches without refetching', async () => {
-    const firstRender = renderSearch();
-    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
-    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-
-    firstRender.unmount();
-    (global.fetch as jest.Mock).mockClear();
-
-    renderSearch();
-    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Post' } });
-    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
-    expect(global.fetch).not.toHaveBeenCalled();
-  });
-
-  it('reuses in-flight locale request across concurrent searches', async () => {
-    let resolveFetch: ((value: unknown) => void) | undefined;
-    (global.fetch as jest.Mock).mockReturnValue(
-      new Promise(resolve => {
-        resolveFetch = resolve;
-      }),
-    );
-
-    renderSearch();
-    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'Po' } });
-    expect(await screen.findByText('common.sidebar.loading')).toBeInTheDocument();
-
-    renderSearch();
-    fireEvent.change(screen.getAllByTestId('search-input')[1], { target: { value: 'Po' } });
-
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-
-    await act(async () => {
-      resolveFetch?.({
-        ok: true,
-        json: async () => posts,
-      });
-    });
-
-    expect(await screen.findAllByTestId('post-item')).toHaveLength(10);
   });
 
   it('accepts valid category objects from static payload normalization', async () => {

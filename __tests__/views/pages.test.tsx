@@ -12,7 +12,6 @@ import SchulteTablePage from '@/views/SchulteTablePage';
 import StroopTestPage from '@/views/StroopTestPage';
 import TopicPage from '@/views/TopicPage';
 import VisualMemoryPage from '@/views/VisualMemoryPage';
-import { useAppSelector } from '@/config/store';
 
 const layoutMock = jest.fn(({ children }: { children?: React.ReactNode }) => (
   <div data-testid="layout">{children}</div>
@@ -28,7 +27,7 @@ const visualMemoryTrainerMock = jest.fn(() => <div data-testid="visual-memory-tr
 const linkMock = jest.fn(({ children, href }: { children: React.ReactNode; href: string }) => (
   <a href={href}>{children}</a>
 ));
-const useAppSelectorMock = useAppSelector as unknown as jest.Mock;
+const useSearchParamsMock = jest.fn();
 
 jest.mock('@/components/common/Layout', () => ({
   __esModule: true,
@@ -106,8 +105,8 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
-jest.mock('@/config/store', () => ({
-  useAppSelector: jest.fn(),
+jest.mock('next/navigation', () => ({
+  useSearchParams: () => useSearchParamsMock(),
 }));
 
 const layoutPosts = [{ id: 'layout-post', title: 'Layout', publishedDate: '2025-01-01' }];
@@ -127,9 +126,7 @@ const posts = [
 describe('View pages', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useAppSelectorMock.mockImplementation((selector: (state: { postsQuery: { query: string } }) => unknown) =>
-      selector({ postsQuery: { query: ' react ' } }),
-    );
+    useSearchParamsMock.mockReturnValue(new URLSearchParams('q=react'));
   });
 
   it('renders AboutPage with person schema and contact section', () => {
@@ -162,7 +159,7 @@ describe('View pages', () => {
     expect(document.querySelector('script[type="application/ld+json"]')).toHaveTextContent('"@type":"WebSite"');
   });
 
-  it('renders SearchPage with trimmed query from store', () => {
+  it('renders SearchPage with trimmed query from route search params', () => {
     render(<SearchPage posts={posts} topics={topics} />);
 
     expect(screen.getByText('search.subtitle')).toBeInTheDocument();

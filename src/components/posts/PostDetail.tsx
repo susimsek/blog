@@ -251,6 +251,36 @@ export default function PostDetail({
     [],
   );
 
+  React.useEffect(() => {
+    const hash = globalThis.window?.location.hash;
+    if (!hash) {
+      return;
+    }
+
+    let headingId = '';
+    try {
+      headingId = globalThis.decodeURIComponent(hash.slice(1));
+    } catch {
+      return;
+    }
+    if (!headingId) {
+      return;
+    }
+
+    const target = document.getElementById(headingId);
+    if (!target || (articleRef.current && !articleRef.current.contains(target))) {
+      return;
+    }
+
+    const frameId = globalThis.window.requestAnimationFrame(() => {
+      target.scrollIntoView({ behavior: 'auto', block: 'start' });
+    });
+
+    return () => {
+      globalThis.window.cancelAnimationFrame(frameId);
+    };
+  }, [markdown]);
+
   return (
     <>
       <ReadingProgress />

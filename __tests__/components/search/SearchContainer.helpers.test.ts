@@ -1,9 +1,4 @@
-import {
-  __resetSearchContainerCacheForTests,
-  filterSearchResults,
-  getStaticLocalePosts,
-  normalizeSearchPosts,
-} from '@/components/search/SearchContainer';
+import { filterSearchResults, getStaticLocalePosts, normalizeSearchPosts } from '@/components/search/SearchContainer';
 
 jest.mock('@/lib/basePath', () => ({
   withBasePath: (value: string) => `/base${value}`,
@@ -11,7 +6,6 @@ jest.mock('@/lib/basePath', () => ({
 
 describe('SearchContainer helpers', () => {
   beforeEach(() => {
-    __resetSearchContainerCacheForTests();
     global.fetch = jest.fn() as unknown as typeof fetch;
   });
 
@@ -51,7 +45,7 @@ describe('SearchContainer helpers', () => {
     ]);
   });
 
-  it('caches locale post fetches and handles empty or failed responses', async () => {
+  it('fetches locale posts and handles empty or failed responses', async () => {
     const fetchMock = global.fetch as jest.MockedFunction<typeof fetch>;
     fetchMock.mockResolvedValue({
       ok: true,
@@ -71,7 +65,7 @@ describe('SearchContainer helpers', () => {
 
     await expect(getStaticLocalePosts('en')).resolves.toHaveLength(1);
     await expect(getStaticLocalePosts('en')).resolves.toHaveLength(1);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
 
     fetchMock.mockResolvedValueOnce({ ok: false } as Response);
     await expect(getStaticLocalePosts('tr')).resolves.toEqual([]);

@@ -32,8 +32,8 @@ jest.mock('@/components/common/Link', () => ({
 }));
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
-  FontAwesomeIcon: ({ icon }: { icon: string | string[] }) => (
-    <span data-testid={`icon-${Array.isArray(icon) ? icon.join('-') : icon}`} />
+  FontAwesomeIcon: ({ icon, className }: { icon: string | string[]; className?: string }) => (
+    <span data-testid={`icon-${Array.isArray(icon) ? icon.join('-') : icon}`} className={className} />
   ),
 }));
 
@@ -130,6 +130,7 @@ describe('PreFooter', () => {
     expect(container.querySelector(`a[href="${CONTACT_LINKS.linkedin}"]`)).toBeInTheDocument();
     expect(container.querySelector(`a[href="${CONTACT_LINKS.medium}"]`)).toBeInTheDocument();
     expect(container.querySelector(`a[href="mailto:${CONTACT_LINKS.email}"]`)).toBeInTheDocument();
+    expect(screen.getByTestId('icon-fab-github')).toBeInTheDocument();
   });
 
   it('submits newsletter form and shows success feedback', async () => {

@@ -1,4 +1,3 @@
-import type { PostSummary } from '@/types/posts';
 import * as mediumModule from '@/lib/medium';
 import fs from 'fs';
 
@@ -10,7 +9,7 @@ jest.mock('fs', () => ({
   },
 }));
 
-const { mediumPostsCache, fetchRssSummaries } = mediumModule;
+const { fetchRssSummaries } = mediumModule;
 
 const fsMock = fs as jest.Mocked<typeof fs>;
 const readFileMock = fsMock.promises.readFile as jest.Mock;
@@ -18,43 +17,21 @@ const readFileMock = fsMock.promises.readFile as jest.Mock;
 describe('medium utilities', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mediumPostsCache.clear();
     readFileMock.mockImplementation((filePath: string, encoding: string) =>
       Promise.resolve(fsMock.readFileSync(filePath, encoding as BufferEncoding)),
     );
   });
 
-  const makeCachedPost = (id: string): PostSummary => ({
-    id,
-    title: `Post ${id}`,
-    summary: 'Summary',
-    searchText: `post ${id} summary`,
-    publishedDate: '2024-05-01',
-    readingTimeMin: 1,
-    thumbnail: null,
-  });
-
-  it('returns cached summaries when present', async () => {
-    const cachedPosts = [makeCachedPost('cached')];
-    mediumPostsCache.set('en-all', cachedPosts);
-
-    const result = await fetchRssSummaries('en');
-
-    expect(result).toEqual(cachedPosts);
-    expect(fsMock.existsSync).not.toHaveBeenCalled();
-  });
-
-  it('returns empty list and stores it when feed file is missing', async () => {
+  it('returns empty list when feed file is missing', async () => {
     fsMock.existsSync.mockReturnValueOnce(false);
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const result = await fetchRssSummaries('en');
     consoleSpy.mockRestore();
 
     expect(result).toEqual([]);
-    expect(mediumPostsCache.get('en-all')).toEqual([]);
   });
 
-  it('parses feed items and stores them in cache', async () => {
+  it('parses feed items', async () => {
     fsMock.existsSync.mockReturnValueOnce(true);
 
     const feed = {
@@ -95,8 +72,6 @@ describe('medium utilities', () => {
     expect(second.thumbnail).toBeNull();
     expect(second.summary).toBe('Snippet summary');
     expect(second.topics).toEqual([]);
-
-    expect(mediumPostsCache.get('en-all')).toEqual(result);
   });
 
   it('calculates numeric reading time minutes', async () => {
@@ -118,7 +93,6 @@ describe('medium utilities', () => {
 
     const result = await fetchRssSummaries('tr');
     expect(result[0].readingTimeMin).toBe(3);
-    expect(mediumPostsCache.get('tr-all')).toEqual(result);
   });
 
   it('handles JSON parse errors gracefully', async () => {
@@ -129,7 +103,6 @@ describe('medium utilities', () => {
     consoleSpy.mockRestore();
 
     expect(result).toEqual([]);
-    expect(mediumPostsCache.get('en-all')).toEqual([]);
   });
 
   it('continues scanning image tags when first img has no src', async () => {

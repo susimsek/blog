@@ -6,7 +6,6 @@ import PostCard from '@/components/posts/PostSummary';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PostFilters } from './PostFilters';
-import useDebounce from '@/hooks/useDebounce';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { clearNonSearchFilters, setPage, setPageSize, setQuery, setSourceFilter } from '@/reducers/postsQuery';
@@ -236,7 +235,7 @@ export default function PostList({
   } = useAppSelector(state => state.postsQuery);
   const currentLocale = locale ?? routeLocale ?? i18nextConfig.i18n.defaultLocale;
   const effectiveSourceFilter = resolveEffectiveSourceFilter(isSearchRoute, isMediumRoute, isHomeRoute, sourceFilter);
-  const debouncedSearchQuery = useDebounce(query, 500);
+  const effectiveSearchQuery = isSearchRoute ? routeQuery : '';
   const scopedPostIds = useMemo(() => posts.map(post => post.id), [posts]);
 
   useEffect(() => {
@@ -349,7 +348,7 @@ export default function PostList({
 
   const filteredPosts = useMemo(() => {
     const criteria: PostListFilterCriteria = {
-      normalizedQuery: isSearchRoute ? debouncedSearchQuery.trim().toLowerCase() : '',
+      normalizedQuery: effectiveSearchQuery.trim().toLowerCase(),
       startDateMs: dateRange.startDate ? new Date(dateRange.startDate).getTime() : null,
       endDateMs: dateRange.endDate ? new Date(dateRange.endDate).getTime() : null,
       scopedIdSet: shouldUseScope ? new Set(scopedPostIds) : null,
@@ -363,9 +362,8 @@ export default function PostList({
   }, [
     dateRange.endDate,
     dateRange.startDate,
-    debouncedSearchQuery,
+    effectiveSearchQuery,
     effectiveSourceFilter,
-    isSearchRoute,
     posts,
     categoryFilter,
     readingTimeRange,

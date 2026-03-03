@@ -16,6 +16,7 @@ import i18nextConfig from '@/i18n/settings';
 import Link from '@/components/common/Link';
 import remarkCodeFilenameAttribute from '@/lib/remarkCodeFilenameAttribute';
 import { extractCodeFilenameByStartLine } from '@/lib/codeFilenameMap';
+import { buildHeadingIdMap, flattenHeadingText, slugifyHeading } from '@/lib/markdownHeadings';
 
 const MarkdownTabsRenderer = dynamic(() => import('./MarkdownTabsRenderer'), {
   loading: () => null,
@@ -43,6 +44,7 @@ const createMarkdownComponents = (
   theme: Theme,
   t: (key: string) => string,
   currentLocale: string,
+  resolveHeadingId: (line: number | undefined, text: string) => string,
   codeFileNameByLine?: Map<number, string>,
 ): Components => ({
   code: ({
@@ -121,6 +123,60 @@ const createMarkdownComponents = (
       </Link>
     );
   },
+  h1: ({ children, node, ...props }) => {
+    const headingText = flattenHeadingText(children).trim();
+    const id = headingText ? resolveHeadingId(node?.position?.start?.line, headingText) : undefined;
+    return (
+      <h1 id={id} {...props}>
+        {children}
+      </h1>
+    );
+  },
+  h2: ({ children, node, ...props }) => {
+    const headingText = flattenHeadingText(children).trim();
+    const id = headingText ? resolveHeadingId(node?.position?.start?.line, headingText) : undefined;
+    return (
+      <h2 id={id} {...props}>
+        {children}
+      </h2>
+    );
+  },
+  h3: ({ children, node, ...props }) => {
+    const headingText = flattenHeadingText(children).trim();
+    const id = headingText ? resolveHeadingId(node?.position?.start?.line, headingText) : undefined;
+    return (
+      <h3 id={id} {...props}>
+        {children}
+      </h3>
+    );
+  },
+  h4: ({ children, node, ...props }) => {
+    const headingText = flattenHeadingText(children).trim();
+    const id = headingText ? resolveHeadingId(node?.position?.start?.line, headingText) : undefined;
+    return (
+      <h4 id={id} {...props}>
+        {children}
+      </h4>
+    );
+  },
+  h5: ({ children, node, ...props }) => {
+    const headingText = flattenHeadingText(children).trim();
+    const id = headingText ? resolveHeadingId(node?.position?.start?.line, headingText) : undefined;
+    return (
+      <h5 id={id} {...props}>
+        {children}
+      </h5>
+    );
+  },
+  h6: ({ children, node, ...props }) => {
+    const headingText = flattenHeadingText(children).trim();
+    const id = headingText ? resolveHeadingId(node?.position?.start?.line, headingText) : undefined;
+    return (
+      <h6 id={id} {...props}>
+        {children}
+      </h6>
+    );
+  },
 });
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
@@ -129,11 +185,21 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
   const currentLocale = routeLocale || i18nextConfig.i18n.defaultLocale;
+  const headingIdMap = useMemo(() => buildHeadingIdMap(content), [content]);
 
   const createComponentsForContent = useMemo(
     () => (segmentContent: string) =>
-      createMarkdownComponents(theme, t, currentLocale, extractCodeFilenameByStartLine(segmentContent)),
-    [theme, t, currentLocale],
+      createMarkdownComponents(
+        theme,
+        t,
+        currentLocale,
+        (line, headingText) =>
+          typeof line === 'number'
+            ? (headingIdMap.get(line) ?? slugifyHeading(headingText))
+            : slugifyHeading(headingText),
+        extractCodeFilenameByStartLine(segmentContent),
+      ),
+    [currentLocale, headingIdMap, t, theme],
   );
 
   const segments = splitContentWithTabs(content);

@@ -11,15 +11,6 @@ import {
   getAllCategoryIds,
   getLayoutPosts,
   getTopTopicsFromPosts,
-  postsCache,
-  postDataCache,
-  topicsCache,
-  categoriesCache,
-  categoryDataCache,
-  postIdsCache,
-  topicIdsCache,
-  categoryIdsCache,
-  readingTimeCache,
 } from '@/lib/posts';
 import fs from 'fs';
 import path from 'path';
@@ -39,18 +30,6 @@ jest.mock('fs', () => ({
     readFile: jest.fn(),
   },
 }));
-
-const clearCaches = () => {
-  postsCache.clear();
-  postDataCache.clear();
-  topicsCache.clear();
-  categoriesCache.clear();
-  categoryDataCache.clear();
-  postIdsCache.clear();
-  topicIdsCache.clear();
-  categoryIdsCache.clear();
-  readingTimeCache.clear();
-};
 
 const fsMock = fs as unknown as {
   existsSync: jest.Mock;
@@ -144,7 +123,6 @@ jest.mock('@/i18n/settings', () => ({
 describe('Posts Library', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    clearCaches();
 
     fsMock.existsSync.mockReturnValue(true);
     fsMock.promises.access.mockImplementation((filePath: string) => {
@@ -255,18 +233,6 @@ describe('Posts Library', () => {
       consoleSpy.mockRestore();
 
       expect(result).toEqual([]);
-    });
-
-    it('returns cached posts without re-reading files', async () => {
-      const first = await getSortedPostsData('en');
-      expect(first).toHaveLength(1);
-
-      (fs.readFileSync as jest.Mock).mockImplementation(() => {
-        throw new Error('should not read from fs when cached');
-      });
-
-      const second = await getSortedPostsData('en');
-      expect(second).toEqual(first);
     });
 
     it('uses index metadata directly without markdown fallback', async () => {
@@ -407,18 +373,6 @@ describe('Posts Library', () => {
       (fs.existsSync as jest.Mock).mockReturnValue(false);
       const result = await getPostData('missing-post', 'en');
       expect(result).toBeNull();
-    });
-
-    it('returns cached post data without fs access', async () => {
-      const first = await getPostData('mock-post', 'en');
-      expect(first).toBeTruthy();
-
-      (fs.readFileSync as jest.Mock).mockImplementation(() => {
-        throw new Error('should not read when cached');
-      });
-
-      const second = await getPostData('mock-post', 'en');
-      expect(second).toEqual(first);
     });
   });
 
@@ -586,17 +540,6 @@ describe('Posts Library', () => {
       const result = await getAllTopics('unsupported-locale');
       expect(result).toEqual([]);
     });
-
-    it('returns cached topics on repeated calls', async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify([{ id: 'react', name: 'React', color: 'red' }]));
-
-      const first = await getAllTopics('en');
-      (fs.existsSync as jest.Mock).mockReturnValue(false);
-
-      const second = await getAllTopics('en');
-      expect(second).toEqual(first);
-    });
   });
 
   describe('getAllCategories / getCategoryData / getAllCategoryIds', () => {
@@ -615,7 +558,7 @@ describe('Posts Library', () => {
       jest.restoreAllMocks();
     });
 
-    it('returns categories from locale file and caches category lookups', async () => {
+    it('returns categories from locale file and resolves category lookup', async () => {
       (fs.existsSync as jest.Mock).mockImplementation((filePath: string) =>
         filePath.endsWith('/public/data/categories.en.json'),
       );
@@ -631,13 +574,6 @@ describe('Posts Library', () => {
 
       const category = await getCategoryData('en', 'frontend');
       expect(category).toEqual(mockEnglishCategories[0]);
-
-      (fs.readFileSync as jest.Mock).mockImplementation(() => {
-        throw new Error('should use cache');
-      });
-
-      const cachedCategory = await getCategoryData('en', 'frontend');
-      expect(cachedCategory).toEqual(mockEnglishCategories[0]);
     });
 
     it('returns null when requested category is missing', async () => {
@@ -659,7 +595,6 @@ describe('Posts Library', () => {
       (fs.existsSync as jest.Mock).mockReturnValue(false);
       expect(await getAllCategories('en')).toEqual([]);
 
-      clearCaches();
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.readFileSync as jest.Mock).mockReturnValue('{ invalid json }');
       expect(await getAllCategories('en')).toEqual([]);

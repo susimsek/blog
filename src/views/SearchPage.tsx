@@ -5,7 +5,7 @@ import PostList from '@/components/posts/PostList';
 import type { PostSummary, Topic } from '@/types/posts';
 import Layout from '@/components/common/Layout';
 import { useTranslation } from 'react-i18next';
-import { useAppSelector } from '@/config/store';
+import { useSearchParams } from 'next/navigation';
 
 interface SearchPageProps {
   posts: PostSummary[];
@@ -14,8 +14,8 @@ interface SearchPageProps {
 
 export default function SearchPage({ posts, topics }: Readonly<SearchPageProps>) {
   const { t } = useTranslation(['search']);
-  const { query } = useAppSelector(state => state.postsQuery);
-  const routeQuery = query.trim();
+  const searchParams = useSearchParams();
+  const routeQuery = (searchParams?.get('q') ?? '').trim();
 
   return (
     <Layout posts={posts} topics={topics} sidebarEnabled={true} searchEnabled={true}>

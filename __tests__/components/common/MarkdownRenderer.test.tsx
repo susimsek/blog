@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { registerDynamicMock } from '@tests/utils/dynamicMockRegistry';
+import { buildHeadingIdMap, flattenHeadingText } from '@/lib/markdownHeadings';
 
 let MarkdownRenderer: typeof import('@/components/common/MarkdownRenderer').default;
 
@@ -160,5 +161,14 @@ describe('MarkdownRenderer Component', () => {
     expect(screen.getByText('localized-path').closest('a')).toHaveAttribute('href', '/tr/about');
     expect(screen.getByText('internal').closest('a')).toHaveAttribute('href', '/en/about');
     expect(container.querySelectorAll('a').length).toBeGreaterThanOrEqual(8);
+  });
+
+  it('builds stable heading ids and flattens nested heading content', () => {
+    const headingIdMap = buildHeadingIdMap('## Overview\n## Overview\n### Nested **Title**');
+
+    expect(headingIdMap.get(1)).toBe('overview');
+    expect(headingIdMap.get(2)).toBe('overview-1');
+    expect(headingIdMap.get(3)).toBe('nested-title');
+    expect(flattenHeadingText(['Nested ', <strong key="title">Title</strong>])).toBe('Nested Title');
   });
 });

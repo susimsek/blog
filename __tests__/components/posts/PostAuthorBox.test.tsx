@@ -8,7 +8,9 @@ jest.mock('next/image', () => ({
 }));
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
-  FontAwesomeIcon: ({ icon }: { icon: [string, string] }) => <span data-testid={`icon-${icon[1]}`} />,
+  FontAwesomeIcon: ({ icon, className }: { icon: [string, string]; className?: string }) => (
+    <span data-testid={`icon-${icon[1]}`} className={className} />
+  ),
 }));
 
 jest.mock('react-i18next', () => ({

@@ -24,13 +24,6 @@ interface SearchContainerProps {
 
 const SEARCH_RESULTS_LIST_ID = 'header-search-results';
 const MAX_RESULTS = 5;
-const localePostsCache = new Map<string, PostSummary[]>();
-const localePostsPromiseCache = new Map<string, Promise<PostSummary[]>>();
-
-export const __resetSearchContainerCacheForTests = () => {
-  localePostsCache.clear();
-  localePostsPromiseCache.clear();
-};
 
 export const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
   posts.flatMap(post => {
@@ -86,38 +79,19 @@ export const getStaticLocalePosts = async (locale: string): Promise<PostSummary[
     return [];
   }
 
-  const cachedPosts = localePostsCache.get(normalizedLocale);
-  if (cachedPosts) {
-    return cachedPosts;
-  }
-
-  const inFlightRequest = localePostsPromiseCache.get(normalizedLocale);
-  if (inFlightRequest) {
-    return inFlightRequest;
-  }
-
-  const request = (async () => {
-    try {
-      const response = await fetch(withBasePath(`/data/posts.${normalizedLocale}.json`), {
-        cache: 'force-cache',
-      });
-      if (!response.ok) {
-        return [];
-      }
-
-      const payload = (await response.json()) as unknown;
-      const normalizedPosts = Array.isArray(payload) ? normalizeSearchPosts(payload) : [];
-      localePostsCache.set(normalizedLocale, normalizedPosts);
-      return normalizedPosts;
-    } catch {
+  try {
+    const response = await fetch(withBasePath(`/data/posts.${normalizedLocale}.json`), {
+      cache: 'force-cache',
+    });
+    if (!response.ok) {
       return [];
-    } finally {
-      localePostsPromiseCache.delete(normalizedLocale);
     }
-  })();
 
-  localePostsPromiseCache.set(normalizedLocale, request);
-  return request;
+    const payload = (await response.json()) as unknown;
+    return Array.isArray(payload) ? normalizeSearchPosts(payload) : [];
+  } catch {
+    return [];
+  }
 };
 
 export const filterSearchResults = (posts: PostSummary[], query: string) => {
