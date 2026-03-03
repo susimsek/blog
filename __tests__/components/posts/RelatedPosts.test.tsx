@@ -60,6 +60,10 @@ const basePost: PostSummary = {
   publishedDate: '2026-01-01',
   readingTimeMin: 4,
   thumbnail: '/images/post-1.webp',
+  category: {
+    id: 'programming',
+    name: 'Programming',
+  },
   topics: [
     { id: 'react', name: 'React', color: 'red' },
     { id: 'testing', name: 'Testing', color: 'green' },
@@ -77,7 +81,7 @@ describe('RelatedPosts', () => {
   });
 
   it('renders related posts with localized links, thumbnail and topic badges', () => {
-    render(<RelatedPosts posts={[basePost]} />);
+    const { container } = render(<RelatedPosts posts={[basePost]} />);
 
     expect(screen.getByRole('region', { name: 'post.relatedPostsTitle' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /First related post/i })).toHaveAttribute('href', '/tr/posts/1');
@@ -89,6 +93,13 @@ describe('RelatedPosts', () => {
     expect(screen.getByText('Testing')).toBeInTheDocument();
     expect(screen.getByText('4 dk okuma')).toBeInTheDocument();
     expect(screen.getByText('2026-01-01')).toBeInTheDocument();
+    expect(screen.getByText('Programming')).toBeInTheDocument();
+
+    const category = container.querySelector('.related-post-category-row');
+    const title = container.querySelector('.related-post-title-row');
+    expect(category).not.toBeNull();
+    expect(title).not.toBeNull();
+    expect(category?.compareDocumentPosition(title as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('falls back to default locale and handles posts without thumbnail/topics', () => {

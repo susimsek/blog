@@ -6114,12 +6114,16 @@ label {
   min-width: 0;
 }
 
-.related-post-title-main {
+.related-post-category-row {
   min-width: 0;
 
   .post-category-link {
     max-width: min(14ch, 42vw);
   }
+}
+
+.related-post-title-main {
+  min-width: 0;
 }
 
 .related-post-title {
