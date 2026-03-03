@@ -354,20 +354,13 @@ describe('Header', () => {
     expect(screen.queryByLabelText('common.header.actions.hideSearch')).not.toBeInTheDocument();
   });
 
-  it('closes the search overlay on cancel and restores body scroll', () => {
+  it('closes the search overlay and restores body scroll', () => {
     renderWithProviders(<Header searchEnabled />);
 
     fireEvent.click(screen.getByRole('button', { name: 'common.header.actions.showSearch' }));
     expect(document.body.style.overflow).toBe('hidden');
 
-    const dialog = screen.getByRole('dialog', { name: 'common.searchBar.placeholder' });
-    fireEvent(
-      dialog,
-      new Event('cancel', {
-        bubbles: true,
-        cancelable: true,
-      }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: 'common.searchBar.placeholder' }));
 
     expect(screen.queryByRole('dialog', { name: 'common.searchBar.placeholder' })).not.toBeInTheDocument();
     expect(document.body.style.overflow).toBe('');

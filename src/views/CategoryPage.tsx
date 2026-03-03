@@ -91,7 +91,11 @@ export default function CategoryPage({
           <h1 className="page-header-title fw-bold">{categoryTitle}</h1>
           <p className="page-header-subtitle text-muted fs-4">{t('category.subtitle', { category: category.name })}</p>
         </header>
-        <PostList posts={posts} noPostsFoundMessage={t('category.no_posts', { category: category.name })} />
+        <PostList
+          posts={posts}
+          topics={topics}
+          noPostsFoundMessage={t('category.no_posts', { category: category.name })}
+        />
       </div>
     </Layout>
   );

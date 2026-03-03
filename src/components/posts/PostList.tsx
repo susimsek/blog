@@ -8,14 +8,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PostFilters } from './PostFilters';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { useAppDispatch, useAppSelector } from '@/config/store';
-import { clearNonSearchFilters, setPage, setPageSize, setQuery, setSourceFilter } from '@/reducers/postsQuery';
+import { clearNonSearchFilters } from '@/reducers/postsQuery';
 import type { ReadingTimeRange, SortOrder, SourceFilter } from '@/reducers/postsQuery';
 import { fetchPostLikes } from '@/lib/contentApi';
 import i18nextConfig from '@/i18n/settings';
 import type { PostDensityMode } from '@/components/common/PostDensityToggle';
+import type { Topic } from '@/types/posts';
 
 interface PostListProps {
   posts: PostSummary[];
+  topics?: Topic[];
   noPostsFoundMessage?: string;
   highlightQuery?: string;
   showLikes?: boolean;
@@ -176,6 +178,7 @@ export const mergeLoadedLikesByPostId = (
 
 export default function PostList({
   posts,
+  topics = [],
   noPostsFoundMessage,
   highlightQuery,
   showLikes = false,
@@ -218,78 +221,14 @@ export default function PostList({
   }, [searchParams]);
   const dispatch = useAppDispatch();
   const listTopRef = useRef<HTMLDivElement | null>(null);
-  const lastSyncedRouteRef = useRef<string>('');
-  const routeSyncPendingRef = useRef(false);
   const lastFilterResetPathRef = useRef<string>('');
-  const {
-    query,
-    sortOrder,
-    selectedTopics,
-    categoryFilter,
-    sourceFilter,
-    dateRange,
-    readingTimeRange,
-    page,
-    pageSize,
-    locale,
-  } = useAppSelector(state => state.postsQuery);
+  const { sortOrder, selectedTopics, categoryFilter, dateRange, readingTimeRange, locale } = useAppSelector(
+    state => state.postsQuery,
+  );
   const currentLocale = locale ?? routeLocale ?? i18nextConfig.i18n.defaultLocale;
-  const effectiveSourceFilter = resolveEffectiveSourceFilter(isSearchRoute, isMediumRoute, isHomeRoute, sourceFilter);
+  const effectiveSourceFilter = resolveEffectiveSourceFilter(isSearchRoute, isMediumRoute, isHomeRoute, routeSource);
   const effectiveSearchQuery = isSearchRoute ? routeQuery : '';
   const scopedPostIds = useMemo(() => posts.map(post => post.id), [posts]);
-
-  useEffect(() => {
-    const routeKey = `${pathname}|${routePage}|${routeSize}|${routeQuery}|${routeSource}`;
-    if (lastSyncedRouteRef.current === routeKey) {
-      return;
-    }
-    lastSyncedRouteRef.current = routeKey;
-    routeSyncPendingRef.current = true;
-
-    const shouldSyncSource = isSearchRoute && sourceFilter !== routeSource;
-    const shouldSyncQuery = query !== routeQuery;
-    const shouldSyncPageSize = pageSize !== routeSize;
-    const shouldSyncPage = page !== routePage || shouldSyncSource || shouldSyncQuery || shouldSyncPageSize;
-
-    if (shouldSyncSource) {
-      dispatch(setSourceFilter(routeSource));
-    }
-
-    if (shouldSyncQuery) {
-      dispatch(setQuery(routeQuery));
-    }
-
-    if (shouldSyncPageSize) {
-      dispatch(setPageSize(routeSize));
-    }
-
-    if (shouldSyncPage) {
-      dispatch(setPage(routePage));
-    }
-  }, [
-    dispatch,
-    isSearchRoute,
-    page,
-    pageSize,
-    pathname,
-    query,
-    routePage,
-    routeQuery,
-    routeSize,
-    routeSource,
-    sourceFilter,
-  ]);
-
-  useEffect(() => {
-    if (!routeSyncPendingRef.current) {
-      return;
-    }
-
-    const isSourceSynced = !isSearchRoute || sourceFilter === routeSource;
-    if (query === routeQuery && page === routePage && pageSize === routeSize && isSourceSynced) {
-      routeSyncPendingRef.current = false;
-    }
-  }, [isSearchRoute, page, pageSize, query, routePage, routeQuery, routeSize, routeSource, sourceFilter]);
 
   useEffect(() => {
     if (isSearchRoute || pathname === lastFilterResetPathRef.current) {
@@ -320,32 +259,6 @@ export default function PostList({
     selectedTopics.length,
   ]);
 
-  useEffect(() => {
-    if (!isSearchRoute) {
-      return;
-    }
-
-    const currentSource = searchParams.get('source');
-    const normalizedCurrentSource =
-      currentSource === 'blog' || currentSource === 'medium' || currentSource === 'all' ? currentSource : 'all';
-
-    if (normalizedCurrentSource === sourceFilter) {
-      return;
-    }
-
-    const params = new URLSearchParams(searchParams.toString());
-    if (sourceFilter === 'all') {
-      params.delete('source');
-    } else {
-      params.set('source', sourceFilter);
-    }
-    params.set('page', '1');
-    params.set('size', String(pageSize));
-    const nextQuery = params.toString();
-    const nextSearch = nextQuery ? `?${nextQuery}` : '';
-    router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
-  }, [isSearchRoute, pageSize, pathname, router, searchParams, sourceFilter]);
-
   const filteredPosts = useMemo(() => {
     const criteria: PostListFilterCriteria = {
       normalizedQuery: effectiveSearchQuery.trim().toLowerCase(),
@@ -374,26 +287,25 @@ export default function PostList({
   ]);
 
   const totalResults = filteredPosts.length;
-  const totalPages = useMemo(() => Math.max(1, Math.ceil(totalResults / pageSize)), [pageSize, totalResults]);
-  const resolvedPage = Math.min(page, totalPages);
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(totalResults / routeSize)), [routeSize, totalResults]);
+  const resolvedPage = Math.min(routePage, totalPages);
   const renderedPosts = useMemo(() => {
-    const startIndex = Math.max(0, (resolvedPage - 1) * pageSize);
-    return filteredPosts.slice(startIndex, startIndex + pageSize);
-  }, [filteredPosts, pageSize, resolvedPage]);
+    const startIndex = Math.max(0, (resolvedPage - 1) * routeSize);
+    return filteredPosts.slice(startIndex, startIndex + routeSize);
+  }, [filteredPosts, resolvedPage, routeSize]);
 
   useEffect(() => {
-    if (routeSyncPendingRef.current || page <= totalPages) {
+    if (routePage <= totalPages) {
       return;
     }
 
-    dispatch(setPage(totalPages));
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', String(totalPages));
-    params.set('size', String(pageSize));
+    params.set('size', String(routeSize));
     const nextQuery = params.toString();
     const nextSearch = nextQuery ? `?${nextQuery}` : '';
     router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
-  }, [dispatch, page, pageSize, pathname, router, searchParams, totalPages]);
+  }, [pathname, routePage, routeSize, router, searchParams, totalPages]);
 
   const pendingLikePostIds = useMemo(() => {
     if (!showLikes) {
@@ -447,21 +359,19 @@ export default function PostList({
 
   const handlePageChange = useCallback(
     (newPage: number) => {
-      dispatch(setPage(newPage));
       const params = new URLSearchParams(searchParams.toString());
       params.set('page', String(newPage));
-      params.set('size', String(pageSize));
+      params.set('size', String(routeSize));
       const nextQuery = params.toString();
       const nextSearch = nextQuery ? `?${nextQuery}` : '';
       router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
       scrollToListStart();
     },
-    [dispatch, pageSize, pathname, router, scrollToListStart, searchParams],
+    [pathname, routeSize, router, scrollToListStart, searchParams],
   );
 
   const handleSizeChange = useCallback(
     (size: number) => {
-      dispatch(setPageSize(size));
       const params = new URLSearchParams(searchParams.toString());
       params.set('page', '1');
       params.set('size', String(size));
@@ -470,7 +380,25 @@ export default function PostList({
       router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
       scrollToListStart();
     },
-    [dispatch, pathname, router, scrollToListStart, searchParams],
+    [pathname, router, scrollToListStart, searchParams],
+  );
+
+  const handleSourceFilterChange = useCallback(
+    (nextSource: SourceFilter) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (nextSource === 'all') {
+        params.delete('source');
+      } else {
+        params.set('source', nextSource);
+      }
+      params.set('page', '1');
+      params.set('size', String(routeSize));
+      const nextQuery = params.toString();
+      const nextSearch = nextQuery ? `?${nextQuery}` : '';
+      router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
+      scrollToListStart();
+    },
+    [pathname, routeSize, router, scrollToListStart, searchParams],
   );
 
   return (
@@ -480,10 +408,13 @@ export default function PostList({
         <div className="post-list-content-col">
           <div className="post-list-filters-inline">
             <PostFilters
+              topics={topics}
+              sourceFilter={routeSource}
               showSourceFilter={showSourceFilter}
               showCategoryFilter={showCategoryFilter}
               densityMode={resolvedDensityMode}
               onDensityModeChange={mode => setDensityMode(!canUseGridDensity && mode === 'grid' ? 'default' : mode)}
+              onSourceFilterChange={handleSourceFilterChange}
             />
           </div>
           {renderedPosts.length > 0 ? (
@@ -514,7 +445,7 @@ export default function PostList({
             <PaginationBar
               currentPage={resolvedPage}
               totalPages={totalPages}
-              size={pageSize}
+              size={routeSize}
               onPageChange={handlePageChange}
               onSizeChange={handleSizeChange}
               totalResults={totalResults}

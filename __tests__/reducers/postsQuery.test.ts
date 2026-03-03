@@ -4,102 +4,50 @@ import postsQueryReducer, {
   setCategoryFilter,
   setDateRange,
   setLocale,
-  setPage,
-  setPageSize,
-  setPosts,
-  setTopics,
-  setTopicsLoading,
-  setQuery,
   setReadingTimeRange,
   setSelectedTopics,
-  setSourceFilter,
   setSortOrder,
 } from '@/reducers/postsQuery';
-import type { PostSummary } from '@/types/posts';
-
-const mockPosts: PostSummary[] = [
-  {
-    id: '1',
-    title: 'Post 1',
-    publishedDate: '2026-01-01',
-    summary: 'Summary',
-    searchText: 'post 1 summary',
-    thumbnail: null,
-    readingTimeMin: 3,
-  },
-];
 
 describe('postsQuery reducer', () => {
   it('returns the initial state', () => {
     const state = postsQueryReducer(undefined, { type: 'unknown' });
-    expect(state.query).toBe('');
     expect(state.sortOrder).toBe('desc');
-    expect(state.page).toBe(1);
-    expect(state.pageSize).toBe(5);
     expect(state.selectedTopics).toEqual([]);
-    expect(state.sourceFilter).toBe('all');
     expect(state.dateRange).toEqual({});
     expect(state.readingTimeRange).toBe('any');
     expect(state.locale).toBeNull();
-    expect(state.posts).toEqual([]);
   });
 
   it('handles all action reducers', () => {
-    let state = postsQueryReducer(undefined, setPosts(mockPosts));
-    expect(state.posts).toEqual(mockPosts);
+    let state = postsQueryReducer(undefined, setSortOrder('asc'));
 
-    state = postsQueryReducer(state, setQuery('react'));
-    expect(state.query).toBe('react');
-    expect(state.page).toBe(1);
-
-    state = postsQueryReducer(state, setSortOrder('asc'));
     expect(state.sortOrder).toBe('asc');
-    expect(state.page).toBe(1);
-
-    state = postsQueryReducer(state, setPage(3));
-    expect(state.page).toBe(3);
-
-    state = postsQueryReducer(state, setPageSize(10));
-    expect(state.pageSize).toBe(10);
-    expect(state.page).toBe(1);
 
     state = postsQueryReducer(state, setSelectedTopics(['react', 'nextjs']));
     expect(state.selectedTopics).toEqual(['react', 'nextjs']);
-    expect(state.page).toBe(1);
 
     state = postsQueryReducer(state, setCategoryFilter('frontend'));
     expect(state.categoryFilter).toBe('frontend');
-    expect(state.page).toBe(1);
-
-    state = postsQueryReducer(state, setSourceFilter('medium'));
-    expect(state.sourceFilter).toBe('medium');
-    expect(state.page).toBe(1);
 
     state = postsQueryReducer(state, setDateRange({ startDate: '2026-01-01', endDate: '2026-01-31' }));
     expect(state.dateRange).toEqual({ startDate: '2026-01-01', endDate: '2026-01-31' });
-    expect(state.page).toBe(1);
 
     state = postsQueryReducer(state, setReadingTimeRange('15+'));
     expect(state.readingTimeRange).toBe('15+');
-    expect(state.page).toBe(1);
 
     state = postsQueryReducer(state, setLocale('en'));
     expect(state.locale).toBe('en');
 
     state = postsQueryReducer(state, resetFilters());
-    expect(state.query).toBe('');
     expect(state.selectedTopics).toEqual([]);
-    expect(state.sourceFilter).toBe('all');
     expect(state.dateRange).toEqual({});
     expect(state.readingTimeRange).toBe('any');
-    expect(state.page).toBe(1);
     expect(state.sortOrder).toBe('desc');
   });
 
-  it('updates topics state and clears non-search filters without resetting the query', () => {
-    let state = postsQueryReducer(undefined, setQuery('next'));
-    state = postsQueryReducer(state, setTopicsLoading(true));
-    state = postsQueryReducer(state, setTopics([{ id: 'frontend', name: 'Frontend', color: '#fff' }]));
+  it('clears non-search filters without touching locale', () => {
+    let state = postsQueryReducer(undefined, setLocale('en'));
     state = postsQueryReducer(state, setSelectedTopics(['frontend']));
     state = postsQueryReducer(state, setCategoryFilter('frontend'));
     state = postsQueryReducer(state, setDateRange({ startDate: '2026-02-01' }));
@@ -107,9 +55,7 @@ describe('postsQuery reducer', () => {
 
     state = postsQueryReducer(state, clearNonSearchFilters());
 
-    expect(state.query).toBe('next');
-    expect(state.topicsLoading).toBe(true);
-    expect(state.topics).toEqual([{ id: 'frontend', name: 'Frontend', color: '#fff' }]);
+    expect(state.locale).toBe('en');
     expect(state.selectedTopics).toEqual([]);
     expect(state.categoryFilter).toBe('all');
     expect(state.dateRange).toEqual({});

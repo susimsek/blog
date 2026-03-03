@@ -41,7 +41,7 @@ export default function MediumPage({
         <h1 className="page-header-title fw-bold">{t('medium.header.title')}</h1>
         <p className="page-header-subtitle text-muted fs-4">{t('medium.header.subtitle')}</p>
       </header>
-      <PostList posts={mediumPosts} />
+      <PostList posts={mediumPosts} topics={topics} />
     </Layout>
   );
 }

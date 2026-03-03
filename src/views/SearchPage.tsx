@@ -24,7 +24,12 @@ export default function SearchPage({ posts, topics }: Readonly<SearchPageProps>)
           <h1 className="page-header-title fw-bold">{t('search.title')}</h1>
           <p className="page-header-subtitle text-muted fs-4">{t('search.subtitle', { query: routeQuery })}</p>
         </header>
-        <PostList posts={posts} noPostsFoundMessage={t('search.no_results', { query: routeQuery })} showLikes />
+        <PostList
+          posts={posts}
+          topics={topics}
+          noPostsFoundMessage={t('search.no_results', { query: routeQuery })}
+          showLikes
+        />
       </div>
     </Layout>
   );

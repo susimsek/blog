@@ -9,8 +9,6 @@ const mockNextLinkComponent = jest.fn(({ children, locale, ...props }: any) => (
 ));
 
 const useParamsMock = jest.fn();
-const usePathnameMock = jest.fn();
-
 jest.mock('next/link', () => ({
   __esModule: true,
   default: (props: any) => mockNextLinkComponent(props),
@@ -18,13 +16,11 @@ jest.mock('next/link', () => ({
 
 jest.mock('next/navigation', () => ({
   useParams: () => useParamsMock(),
-  usePathname: () => usePathnameMock(),
 }));
 
 describe('Link', () => {
   beforeEach(() => {
     useParamsMock.mockReturnValue({ locale: 'en-US' });
-    usePathnameMock.mockReturnValue('/current-path');
     window.history.replaceState({}, '', '/current-path');
   });
 
@@ -86,31 +82,6 @@ describe('Link', () => {
     const link = screen.getByText('About Us').closest('a');
     expect(link).toHaveAttribute('href', '/about');
     expect(link).toHaveAttribute('data-locale', 'false');
-  });
-
-  it('falls back to router.asPath when href is not provided', () => {
-    render(
-      <Link>
-        <span>Current Path</span>
-      </Link>,
-    );
-
-    const link = screen.getByText('Current Path').closest('a');
-    expect(link).toHaveAttribute('href', '/en-US/current-path');
-    expect(link).toHaveAttribute('data-locale', 'en-US');
-  });
-
-  it('includes current query params when href is not provided', () => {
-    window.history.replaceState({}, '', '/current-path?page=2&q=next');
-
-    render(
-      <Link>
-        <span>Current Path With Query</span>
-      </Link>,
-    );
-
-    const link = screen.getByText('Current Path With Query').closest('a');
-    expect(link).toHaveAttribute('href', '/en-US/current-path?page=2&q=next');
   });
 
   it('calls onClick handler when clicked', () => {

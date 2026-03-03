@@ -8,10 +8,10 @@ import { LayoutPostSummary, Topic } from '@/types/posts';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { GA_ID } from '@/config/constants';
-import { useAppDispatch, useAppSelector } from '@/config/store';
+import { useAppDispatch } from '@/config/store';
 import { useParams } from 'next/navigation';
 import { defaultLocale } from '@/i18n/settings';
-import { setLocale, setTopics, setTopicsLoading } from '@/reducers/postsQuery';
+import { setLocale } from '@/reducers/postsQuery';
 import PreFooter from '@/components/common/PreFooter';
 import dynamic from 'next/dynamic';
 
@@ -26,32 +26,7 @@ type LayoutProps = {
   sidebarEnabled?: boolean;
 };
 
-const normalizeSearchTopics = (topics: ReadonlyArray<unknown>): Topic[] =>
-  topics.flatMap(topic => {
-    if (!topic || typeof topic !== 'object') {
-      return [];
-    }
-
-    const candidate = topic as Partial<Topic>;
-    if (typeof candidate.id !== 'string' || typeof candidate.name !== 'string' || typeof candidate.color !== 'string') {
-      return [];
-    }
-
-    return [
-      {
-        id: candidate.id,
-        name: candidate.name,
-        color: candidate.color,
-        ...(typeof candidate.link === 'string' ? { link: candidate.link } : {}),
-      },
-    ];
-  });
-
-type LayoutStateInitializerProps = {
-  topics: Topic[];
-};
-
-const LayoutStateInitializer: React.FC<LayoutStateInitializerProps> = ({ topics }) => {
+const LayoutStateInitializer: React.FC = () => {
   const dispatch = useAppDispatch();
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
@@ -60,11 +35,6 @@ const LayoutStateInitializer: React.FC<LayoutStateInitializerProps> = ({ topics 
   useEffect(() => {
     dispatch(setLocale(currentLocale));
   }, [currentLocale, dispatch]);
-
-  useEffect(() => {
-    dispatch(setTopics(normalizeSearchTopics(topics)));
-    dispatch(setTopicsLoading(false));
-  }, [currentLocale, dispatch, topics]);
 
   return null;
 };
@@ -77,10 +47,6 @@ const LayoutView: React.FC<LayoutProps> = ({
   searchEnabled = false,
   sidebarEnabled = false,
 }) => {
-  const fetchedTopics = useAppSelector(state => state.postsQuery.topics);
-  const isTopicsLoading = useAppSelector(state => state.postsQuery.topicsLoading);
-  const sidebarTopics = fetchedTopics.length > 0 ? fetchedTopics : topics;
-  const shouldShowTopicsLoading = isTopicsLoading && sidebarTopics.length === 0;
   const isMobile = useMediaQuery('(max-width: 991px)');
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -132,8 +98,7 @@ const LayoutView: React.FC<LayoutProps> = ({
           {isDesktopSidebarVisible && (
             <Col xs={12} md={4} lg={3} xl={2} className="layout-desktop-sidebar-col">
               <Sidebar
-                topics={sidebarTopics}
-                isLoading={shouldShowTopicsLoading}
+                topics={topics}
                 isMobile={isMobile}
                 isVisible={isDesktopSidebarVisible}
                 onClose={() => setIsDesktopSidebarOpen(false)}
@@ -159,8 +124,7 @@ const LayoutView: React.FC<LayoutProps> = ({
         </Row>
         {sidebarEnabled && isMobile && isMobileSidebarVisible && (
           <Sidebar
-            topics={sidebarTopics}
-            isLoading={shouldShowTopicsLoading}
+            topics={topics}
             isMobile={isMobile}
             isVisible={isMobileSidebarVisible}
             onClose={() => setIsMobileSidebarOpen(false)}
@@ -178,7 +142,7 @@ const LayoutView: React.FC<LayoutProps> = ({
 const Layout: React.FC<LayoutProps> = props => {
   return (
     <>
-      <LayoutStateInitializer topics={props.topics ?? []} />
+      <LayoutStateInitializer />
       <LayoutView {...props} />
     </>
   );

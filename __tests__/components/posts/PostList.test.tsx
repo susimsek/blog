@@ -149,19 +149,12 @@ describe('PostList Component', () => {
   const scrollIntoViewMock = jest.fn();
   let pushMock: jest.Mock;
   const basePostsQueryState: PostsQueryState = {
-    query: '',
     sortOrder: 'desc',
-    page: 1,
-    pageSize: 5,
     selectedTopics: [],
     categoryFilter: 'all',
-    sourceFilter: 'all',
     dateRange: {},
     readingTimeRange: 'any',
     locale: 'en',
-    posts: mockPostSummaries,
-    topics: mockTopics,
-    topicsLoading: false,
   };
 
   const buildPreloadedState = (overrides: Partial<PostsQueryState> = {}) => ({
@@ -189,7 +182,9 @@ describe('PostList Component', () => {
     fetchPostLikesMock.mockResolvedValue({});
   });
   it('renders all components correctly', async () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />, {
+      preloadedState: buildPreloadedState(),
+    });
 
     await waitFor(() => expect(screen.getAllByTestId('post-card')).toHaveLength(5));
     expect(screen.getByTestId('sort-dropdown')).toBeInTheDocument();
@@ -199,8 +194,8 @@ describe('PostList Component', () => {
   });
 
   it('handles topics dropdown absence gracefully', () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} />, {
-      preloadedState: buildPreloadedState({ topics: [] }),
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />, {
+      preloadedState: buildPreloadedState(),
     });
 
     expect(screen.queryByTestId('topics-dropdown')).not.toBeInTheDocument();
@@ -209,8 +204,8 @@ describe('PostList Component', () => {
   it('filters posts based on route query', async () => {
     usePathnameMock.mockReturnValue('/search');
     window.history.replaceState({}, '', '/?q=Post%203');
-    renderWithProviders(<PostList posts={mockPostSummaries} />, {
-      preloadedState: buildPreloadedState({ topics: [] }),
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />, {
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => expect(screen.getByText('Post 3')).toBeInTheDocument());
@@ -219,15 +214,17 @@ describe('PostList Component', () => {
   it('ignores route query on non-search routes', async () => {
     usePathnameMock.mockReturnValue('/en');
     window.history.replaceState({}, '', '/en?q=Post%203');
-    renderWithProviders(<PostList posts={mockPostSummaries} />, {
-      preloadedState: buildPreloadedState({ topics: [] }),
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />, {
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => expect(screen.getAllByTestId('post-card')).toHaveLength(5));
   });
 
   it('filters posts by topic', async () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />, {
+      preloadedState: buildPreloadedState(),
+    });
     await waitFor(() => expect(screen.getByText('Post 1')).toBeInTheDocument());
     const reactTopic = screen.getByText('React');
     fireEvent.click(reactTopic);
@@ -238,24 +235,20 @@ describe('PostList Component', () => {
     });
   });
 
-  it('filters posts by source filter', async () => {
+  it('pushes the expected url when source filter changes', async () => {
     usePathnameMock.mockReturnValue('/search');
     const mixedPosts = [
       { ...mockPostSummaries[0], id: 'blog-1', title: 'Blog Post', source: 'blog' as const },
       { ...mockPostSummaries[1], id: 'medium-1', title: 'Medium Post', source: 'medium' as const },
     ];
 
-    renderWithProviders(<PostList posts={mixedPosts} />, {
-      preloadedState: buildPreloadedState({ topics: [], posts: mixedPosts, sourceFilter: 'all' }),
+    renderWithProviders(<PostList posts={mixedPosts} topics={[]} />, {
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => expect(screen.getByText('Blog Post')).toBeInTheDocument());
     fireEvent.click(screen.getByText('Source Medium'));
 
-    await waitFor(() => {
-      expect(screen.queryByText('Blog Post')).not.toBeInTheDocument();
-      expect(screen.getByText('Medium Post')).toBeInTheDocument();
-    });
     expect(pushMock).toHaveBeenCalledWith('/search?source=medium&page=1&size=5', { scroll: false });
   });
 
@@ -265,8 +258,8 @@ describe('PostList Component', () => {
       { ...mockPostSummaries[1], id: 'medium-1', title: 'Medium Post', source: 'medium' as const },
     ];
 
-    renderWithProviders(<PostList posts={mixedPosts} />, {
-      preloadedState: buildPreloadedState({ topics: [], posts: mixedPosts, sourceFilter: 'medium' }),
+    renderWithProviders(<PostList posts={mixedPosts} topics={[]} />, {
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => expect(screen.getByText('Blog Post')).toBeInTheDocument());
@@ -276,8 +269,8 @@ describe('PostList Component', () => {
   });
 
   it('sorts posts in ascending order', async () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} />, {
-      preloadedState: buildPreloadedState({ topics: [] }),
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />, {
+      preloadedState: buildPreloadedState(),
     });
     await waitFor(() => expect(screen.getAllByTestId('post-card')).toHaveLength(5));
     const sortAscending = screen.getByText('Sort Ascending');
@@ -291,21 +284,21 @@ describe('PostList Component', () => {
   });
 
   it('returns all posts when route query is empty', async () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} />, {
-      preloadedState: buildPreloadedState({ topics: [] }),
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />, {
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => expect(screen.getAllByTestId('post-card')).toHaveLength(5));
   });
 
   it('handles empty posts gracefully', async () => {
-    renderWithProviders(<PostList posts={[]} />, { preloadedState: buildPreloadedState({ posts: [], topics: [] }) });
+    renderWithProviders(<PostList posts={[]} topics={[]} />, { preloadedState: buildPreloadedState() });
     await waitFor(() => expect(screen.getByText('post.noPostsFound')).toBeInTheDocument());
   });
 
   it('resets pagination when sort order is changed', async () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} />, {
-      preloadedState: buildPreloadedState({ topics: [] }),
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />, {
+      preloadedState: buildPreloadedState(),
     });
     await waitFor(() => expect(screen.getByText('Post 1')).toBeInTheDocument());
     const sortAscending = screen.getByText('Sort Ascending');
@@ -320,7 +313,9 @@ describe('PostList Component', () => {
   it('keeps active page from route query when q is empty', async () => {
     window.history.replaceState({}, '', '/?page=2&size=5');
 
-    renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />, {
+      preloadedState: buildPreloadedState(),
+    });
 
     await waitFor(() => {
       expect(screen.getByLabelText('Previous')).not.toBeDisabled();
@@ -328,7 +323,9 @@ describe('PostList Component', () => {
   });
 
   it('scrolls list start into view when page changes', async () => {
-    renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />, {
+      preloadedState: buildPreloadedState(),
+    });
 
     await waitFor(() => expect(screen.getByLabelText('Next')).toBeInTheDocument());
     fireEvent.click(screen.getByLabelText('Next'));
@@ -339,8 +336,8 @@ describe('PostList Component', () => {
   it('applies sort order even when search query exists', async () => {
     window.history.replaceState({}, '', '/?q=post&page=1&size=5');
 
-    renderWithProviders(<PostList posts={mockPostSummaries} />, {
-      preloadedState: buildPreloadedState({ topics: [] }),
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />, {
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => expect(screen.getAllByTestId('post-card')).toHaveLength(5));
@@ -356,8 +353,8 @@ describe('PostList Component', () => {
   it('normalizes out-of-range route page and updates url', async () => {
     window.history.replaceState({}, '', '/?q=post&page=3&size=5');
 
-    renderWithProviders(<PostList posts={mockPostSummaries} />, {
-      preloadedState: buildPreloadedState({ topics: [] }),
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />, {
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => {
@@ -368,18 +365,17 @@ describe('PostList Component', () => {
     expect(screen.getByText('Post 6')).toBeInTheDocument();
   });
 
-  it('syncs route source and page size back into store state', async () => {
+  it('uses route source and page size directly from the url', async () => {
     usePathnameMock.mockReturnValue('/search');
     window.history.replaceState({}, '', '/search?source=blog&page=1&size=10');
 
-    const { store } = renderWithProviders(<PostList posts={mockPostSummaries} />, {
-      preloadedState: buildPreloadedState({ sourceFilter: 'all', pageSize: 5 }),
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />, {
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => {
-      const state = store.getState().postsQuery;
-      expect(state.sourceFilter).toBe('blog');
-      expect(state.pageSize).toBe(10);
+      expect(screen.queryByTestId('source-dropdown')).toBeInTheDocument();
+      expect(screen.getAllByTestId('post-card')).toHaveLength(6);
     });
   });
 
@@ -387,7 +383,7 @@ describe('PostList Component', () => {
     usePathnameMock.mockReturnValue(undefined);
     useSearchParamsMock.mockReturnValue(undefined);
 
-    renderWithProviders(<PostList posts={mockPostSummaries} highlightQuery="React" />, {
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} highlightQuery="React" />, {
       preloadedState: buildPreloadedState(),
     });
 
@@ -404,7 +400,7 @@ describe('PostList Component', () => {
     );
 
     const likePosts = mockPostSummaries.slice(0, 2).map((post, index) => ({ ...post, id: `post-${index + 1}` }));
-    const rendered = renderWithProviders(<PostList posts={likePosts} showLikes />, {
+    const rendered = renderWithProviders(<PostList posts={likePosts} topics={mockTopics} showLikes />, {
       preloadedState: buildPreloadedState(),
     });
 
@@ -421,8 +417,8 @@ describe('PostList Component', () => {
     usePathnameMock.mockReturnValue('/search');
     window.history.replaceState({}, '', '/search?source=blog&page=2&size=5');
 
-    renderWithProviders(<PostList posts={mockPostSummaries} />, {
-      preloadedState: buildPreloadedState({ sourceFilter: 'blog' }),
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />, {
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => expect(screen.getByText('Source All')).toBeInTheDocument());
@@ -444,8 +440,8 @@ describe('PostList Component', () => {
       'blog-post-2': 'not-a-number',
     });
 
-    renderWithProviders(<PostList posts={likePosts} showLikes />, {
-      preloadedState: buildPreloadedState({ posts: likePosts, topics: [] }),
+    renderWithProviders(<PostList posts={likePosts} topics={[]} showLikes />, {
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => {
@@ -468,8 +464,8 @@ describe('PostList Component', () => {
     const likePosts = [{ ...mockPostSummaries[0], id: 'blog-post-1', title: 'Trackable One' }];
     fetchPostLikesMock.mockResolvedValue(null);
 
-    renderWithProviders(<PostList posts={likePosts} showLikes />, {
-      preloadedState: buildPreloadedState({ posts: likePosts, topics: [] }),
+    renderWithProviders(<PostList posts={likePosts} topics={[]} showLikes />, {
+      preloadedState: buildPreloadedState(),
     });
 
     const card = screen.getByText('Trackable One').closest('[data-testid="post-card"]');
@@ -484,7 +480,7 @@ describe('PostList Component', () => {
   it('clears stale non-search filters on non-search routes', async () => {
     usePathnameMock.mockReturnValue('/en/posts');
 
-    const { store } = renderWithProviders(<PostList posts={mockPostSummaries} />, {
+    const { store } = renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />, {
       preloadedState: buildPreloadedState({
         selectedTopics: ['react'],
         categoryFilter: 'frontend',
@@ -506,7 +502,9 @@ describe('PostList Component', () => {
     const originalMatchMedia = window.matchMedia;
     window.matchMedia = jest.fn().mockReturnValue({ matches: true }) as unknown as typeof window.matchMedia;
 
-    renderWithProviders(<PostList posts={mockPostSummaries} />, { preloadedState: buildPreloadedState() });
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />, {
+      preloadedState: buildPreloadedState(),
+    });
 
     await waitFor(() => expect(screen.getByLabelText('Next')).toBeInTheDocument());
     fireEvent.click(screen.getByLabelText('Next'));
@@ -519,8 +517,8 @@ describe('PostList Component', () => {
   it('falls back from grid density on small screens', async () => {
     useMediaQueryMock.mockReturnValue(false);
 
-    renderWithProviders(<PostList posts={mockPostSummaries} />, {
-      preloadedState: buildPreloadedState({ topics: [] }),
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={[]} />, {
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => expect(screen.getAllByTestId('post-card')).toHaveLength(5));
@@ -565,10 +563,8 @@ describe('PostList Component', () => {
       },
     ];
 
-    renderWithProviders(<PostList posts={filteredPosts} />, {
+    renderWithProviders(<PostList posts={filteredPosts} topics={[]} />, {
       preloadedState: buildPreloadedState({
-        posts: filteredPosts,
-        topics: [],
         categoryFilter: 'frontend',
         readingTimeRange: '8-12',
         dateRange: { startDate: '2024-06-01', endDate: '2024-06-30' },
@@ -589,8 +585,8 @@ describe('PostList Component', () => {
     ];
 
     usePathnameMock.mockReturnValue('/medium');
-    const mediumRender = renderWithProviders(<PostList posts={mixedPosts} />, {
-      preloadedState: buildPreloadedState({ posts: mixedPosts, topics: [], sourceFilter: 'all' }),
+    const mediumRender = renderWithProviders(<PostList posts={mixedPosts} topics={[]} />, {
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => {
@@ -601,8 +597,8 @@ describe('PostList Component', () => {
     mediumRender.unmount();
 
     usePathnameMock.mockReturnValue('/en');
-    renderWithProviders(<PostList posts={mixedPosts} />, {
-      preloadedState: buildPreloadedState({ posts: mixedPosts, topics: [], sourceFilter: 'medium' }),
+    renderWithProviders(<PostList posts={mixedPosts} topics={[]} />, {
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => {
@@ -612,8 +608,8 @@ describe('PostList Component', () => {
   });
 
   it('uses the custom empty-state message when provided', async () => {
-    renderWithProviders(<PostList posts={[]} noPostsFoundMessage="Nothing here" />, {
-      preloadedState: buildPreloadedState({ posts: [], topics: [] }),
+    renderWithProviders(<PostList posts={[]} topics={[]} noPostsFoundMessage="Nothing here" />, {
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => {

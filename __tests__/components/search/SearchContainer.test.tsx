@@ -93,19 +93,12 @@ jest.mock('@/components/common/Link', () => ({
 
 describe('SearchContainer', () => {
   const basePostsQueryState: PostsQueryState = {
-    query: '',
     sortOrder: 'desc',
-    page: 1,
-    pageSize: 5,
     selectedTopics: [],
     categoryFilter: 'all',
-    sourceFilter: 'all',
     dateRange: {},
     readingTimeRange: 'any',
     locale: 'en',
-    posts: [],
-    topics: [],
-    topicsLoading: false,
   };
 
   const posts = Array.from({ length: 6 }).map((_, index) => ({

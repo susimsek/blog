@@ -9,19 +9,23 @@ import {
   setCategoryFilter,
   setDateRange,
   setReadingTimeRange,
-  setSourceFilter,
+  type SourceFilter,
 } from '@/reducers/postsQuery';
 import ReadingTimeDropdown from '@/components/common/ReadingTimeDropdown';
 import SourceDropdown from '@/components/common/SourceDropdown';
 import CategoryDropdown from '@/components/common/CategoryDropdown';
 import PostDensityToggle, { type PostDensityMode } from '@/components/common/PostDensityToggle';
+import type { Topic } from '@/types/posts';
 
 interface PostFiltersProps {
+  topics?: Topic[];
+  sourceFilter?: SourceFilter;
   showSourceFilter: boolean;
   showCategoryFilter?: boolean;
   showSortFilter?: boolean;
   densityMode?: PostDensityMode;
   onDensityModeChange?: (mode: PostDensityMode) => void;
+  onSourceFilterChange?: (value: SourceFilter) => void;
 }
 
 const DateRangePicker = dynamic(() => import('@/components/common/DateRangePicker'), {
@@ -30,21 +34,17 @@ const DateRangePicker = dynamic(() => import('@/components/common/DateRangePicke
 });
 
 export function PostFilters({
+  topics = [],
+  sourceFilter = 'all',
   showSourceFilter,
   showCategoryFilter = true,
   showSortFilter = true,
   densityMode = 'default',
   onDensityModeChange,
+  onSourceFilterChange,
 }: Readonly<PostFiltersProps>) {
   const dispatch = useAppDispatch();
-  const {
-    sortOrder,
-    selectedTopics,
-    categoryFilter,
-    sourceFilter,
-    readingTimeRange,
-    topics: fetchedTopics,
-  } = useAppSelector(state => state.postsQuery);
+  const { sortOrder, selectedTopics, categoryFilter, readingTimeRange } = useAppSelector(state => state.postsQuery);
 
   return (
     <div className="post-filters-layout mb-3">
@@ -52,16 +52,14 @@ export function PostFilters({
         {showCategoryFilter && (
           <CategoryDropdown value={categoryFilter} onChange={value => dispatch(setCategoryFilter(value))} />
         )}
-        {fetchedTopics.length > 0 && (
+        {topics.length > 0 && (
           <TopicsDropdown
-            topics={fetchedTopics}
+            topics={topics}
             selectedTopics={selectedTopics}
             onTopicsChange={topicIds => dispatch(setSelectedTopics(topicIds))}
           />
         )}
-        {showSourceFilter && (
-          <SourceDropdown value={sourceFilter} onChange={value => dispatch(setSourceFilter(value))} />
-        )}
+        {showSourceFilter && <SourceDropdown value={sourceFilter} onChange={value => onSourceFilterChange?.(value)} />}
         <DateRangePicker
           onRangeChange={dates => dispatch(setDateRange(dates))}
           minDate={new Date('2024-01-01')}

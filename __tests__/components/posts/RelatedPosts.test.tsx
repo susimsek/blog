@@ -63,6 +63,7 @@ const basePost: PostSummary = {
   category: {
     id: 'programming',
     name: 'Programming',
+    color: 'blue',
   },
   topics: [
     { id: 'react', name: 'React', color: 'red' },
@@ -99,7 +100,9 @@ describe('RelatedPosts', () => {
     const title = container.querySelector('.related-post-title-row');
     expect(category).not.toBeNull();
     expect(title).not.toBeNull();
-    expect(category?.compareDocumentPosition(title as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(
+      category && title && category.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it('falls back to default locale and handles posts without thumbnail/topics', () => {

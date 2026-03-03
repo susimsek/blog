@@ -62,23 +62,18 @@ jest.mock('@/components/common/SourceDropdown', () => ({
 
 describe('PostFilters Component', () => {
   const basePostsQueryState: PostsQueryState = {
-    query: '',
     sortOrder: 'desc',
-    page: 1,
-    pageSize: 5,
     selectedTopics: [],
     categoryFilter: 'all',
-    sourceFilter: 'all',
     dateRange: {},
     readingTimeRange: 'any',
     locale: 'en',
-    posts: [],
-    topics: [
-      { id: '1', name: 'Topic 1', color: 'red' },
-      { id: '2', name: 'Topic 2', color: 'blue' },
-    ],
-    topicsLoading: false,
   };
+  const topics = [
+    { id: '1', name: 'Topic 1', color: 'red' },
+    { id: '2', name: 'Topic 2', color: 'blue' },
+  ];
+  const onSourceFilterChangeMock = jest.fn();
 
   const buildPreloadedState = (overrides: Partial<PostsQueryState> = {}) => ({
     postsQuery: {
@@ -97,10 +92,21 @@ describe('PostFilters Component', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    onSourceFilterChangeMock.mockReset();
   });
 
   test('renders all mocked components', async () => {
-    renderWithProviders(<PostFilters showSourceFilter />, { preloadedState: buildPreloadedState() });
+    renderWithProviders(
+      <PostFilters
+        topics={topics}
+        showSourceFilter
+        sourceFilter="all"
+        onSourceFilterChange={onSourceFilterChangeMock}
+      />,
+      {
+        preloadedState: buildPreloadedState(),
+      },
+    );
 
     expect(screen.getByTestId('topics-dropdown')).toBeInTheDocument();
     expect(screen.getByTestId('source-dropdown')).toBeInTheDocument();
@@ -109,7 +115,17 @@ describe('PostFilters Component', () => {
   });
 
   test('calls onTopicsChange when a topic is clicked', () => {
-    const { store } = renderWithProviders(<PostFilters showSourceFilter />, { preloadedState: buildPreloadedState() });
+    const { store } = renderWithProviders(
+      <PostFilters
+        topics={topics}
+        showSourceFilter
+        sourceFilter="all"
+        onSourceFilterChange={onSourceFilterChangeMock}
+      />,
+      {
+        preloadedState: buildPreloadedState(),
+      },
+    );
 
     const topicButton = screen.getByText('Topic 1');
     fireEvent.click(topicButton);
@@ -118,7 +134,17 @@ describe('PostFilters Component', () => {
   });
 
   test('calls onDateRangeChange when date range button is clicked', async () => {
-    const { store } = renderWithProviders(<PostFilters showSourceFilter />, { preloadedState: buildPreloadedState() });
+    const { store } = renderWithProviders(
+      <PostFilters
+        topics={topics}
+        showSourceFilter
+        sourceFilter="all"
+        onSourceFilterChange={onSourceFilterChangeMock}
+      />,
+      {
+        preloadedState: buildPreloadedState(),
+      },
+    );
 
     const datePickerButton = await screen.findByTestId('date-picker');
     fireEvent.click(datePickerButton);
@@ -127,15 +153,35 @@ describe('PostFilters Component', () => {
   });
 
   test('calls onSourceFilterChange when source filter button is clicked', () => {
-    const { store } = renderWithProviders(<PostFilters showSourceFilter />, { preloadedState: buildPreloadedState() });
+    renderWithProviders(
+      <PostFilters
+        topics={topics}
+        showSourceFilter
+        sourceFilter="all"
+        onSourceFilterChange={onSourceFilterChangeMock}
+      />,
+      {
+        preloadedState: buildPreloadedState(),
+      },
+    );
 
     fireEvent.click(screen.getByTestId('source-dropdown'));
 
-    expect(store.getState().postsQuery.sourceFilter).toBe('medium');
+    expect(onSourceFilterChangeMock).toHaveBeenCalledWith('medium');
   });
 
   test('calls onSortChange when sort dropdown button is clicked', () => {
-    const { store } = renderWithProviders(<PostFilters showSourceFilter />, { preloadedState: buildPreloadedState() });
+    const { store } = renderWithProviders(
+      <PostFilters
+        topics={topics}
+        showSourceFilter
+        sourceFilter="all"
+        onSourceFilterChange={onSourceFilterChangeMock}
+      />,
+      {
+        preloadedState: buildPreloadedState(),
+      },
+    );
 
     const sortButton = screen.getByTestId('sort-dropdown');
     fireEvent.click(sortButton);
@@ -144,13 +190,26 @@ describe('PostFilters Component', () => {
   });
 
   test('does not render TopicsDropdown when topics are empty', () => {
-    renderWithProviders(<PostFilters showSourceFilter />, { preloadedState: buildPreloadedState({ topics: [] }) });
+    renderWithProviders(
+      <PostFilters topics={[]} showSourceFilter sourceFilter="all" onSourceFilterChange={onSourceFilterChangeMock} />,
+      { preloadedState: buildPreloadedState() },
+    );
 
     expect(screen.queryByTestId('topics-dropdown')).not.toBeInTheDocument();
   });
 
   test('does not render SourceDropdown when source filter is disabled', () => {
-    renderWithProviders(<PostFilters showSourceFilter={false} />, { preloadedState: buildPreloadedState() });
+    renderWithProviders(
+      <PostFilters
+        topics={topics}
+        showSourceFilter={false}
+        sourceFilter="all"
+        onSourceFilterChange={onSourceFilterChangeMock}
+      />,
+      {
+        preloadedState: buildPreloadedState(),
+      },
+    );
 
     expect(screen.queryByTestId('source-dropdown')).not.toBeInTheDocument();
   });

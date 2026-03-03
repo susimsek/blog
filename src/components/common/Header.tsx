@@ -4,6 +4,7 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import { useTranslation } from 'react-i18next';
 import Link from '@/components/common/Link';
 import React from 'react';
+import { createPortal } from 'react-dom';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SITE_LOGO } from '@/config/constants';
@@ -167,15 +168,7 @@ export default function Header({
   }, [closeSearch, focusSearchInput, openSearch, searchEnabled]);
 
   const renderSearchOverlay = () => (
-    <dialog
-      open
-      className="search-overlay"
-      aria-label={t('common.searchBar.placeholder')}
-      onCancel={event => {
-        event.preventDefault();
-        handleSearchToggle();
-      }}
-    >
+    <div className="search-overlay" role="dialog" aria-modal="true" aria-label={t('common.searchBar.placeholder')}>
       <button
         type="button"
         className="search-overlay-backdrop"
@@ -198,7 +191,7 @@ export default function Header({
           <SearchContainer shortcutHint={shortcutHint} />
         </div>
       </div>
-    </dialog>
+    </div>
   );
 
   return (
@@ -379,7 +372,9 @@ export default function Header({
           </div>
         </div>
       </Navbar.Collapse>
-      {searchEnabled && searchVisible && renderSearchOverlay()}
+      {searchEnabled && searchVisible && typeof document !== 'undefined'
+        ? createPortal(renderSearchOverlay(), document.body)
+        : null}
     </Navbar>
   );
 }

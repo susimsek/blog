@@ -1,11 +1,11 @@
 import React, { ReactNode, MouseEvent, forwardRef } from 'react';
 import NextLink, { LinkProps } from 'next/link';
-import { useParams, usePathname } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import i18nextConfig from '@/i18n/settings';
 
-interface LinkComponentProps extends Omit<LinkProps, 'href'> {
+interface LinkComponentProps extends Omit<LinkProps, 'href' | 'locale'> {
   children: ReactNode;
-  href?: string;
+  href: string;
   className?: string;
   skipLocaleHandling?: boolean;
   locale?: string;
@@ -67,28 +67,11 @@ export const localizeHref = (href: string, locale: string): string => {
 const LinkComponent = forwardRef<HTMLAnchorElement, LinkComponentProps>(
   ({ children, skipLocaleHandling = false, href, locale, className, onClick, ...rest }, ref) => {
     const params = useParams<{ locale?: string | string[] }>();
-    const pathname = usePathname() ?? '/';
     const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
     const activeLocale = locale ?? routeLocale ?? i18nextConfig.i18n.defaultLocale;
-    const resolvedHref = React.useMemo(() => {
-      if (href) {
-        return href;
-      }
-
-      if (globalThis.window === undefined) {
-        return pathname;
-      }
-
-      return `${pathname}${globalThis.window.location.search}${globalThis.window.location.hash}`;
-    }, [href, pathname]);
-
-    const external = isExternalUrl(resolvedHref);
+    const external = isExternalUrl(href);
     const shouldHandleLocale = !skipLocaleHandling && !external && !!activeLocale;
-    const localizedHref = shouldHandleLocale ? localizeHref(resolvedHref, activeLocale) : resolvedHref;
-
-    const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
-      onClick?.(event);
-    };
+    const localizedHref = shouldHandleLocale ? localizeHref(href, activeLocale) : href;
 
     const defaultClassName = 'link';
     const combinedClassName = className ? `${defaultClassName} ${className}` : defaultClassName;
@@ -100,7 +83,7 @@ const LinkComponent = forwardRef<HTMLAnchorElement, LinkComponentProps>(
         ref={ref}
         href={localizedHref}
         className={combinedClassName}
-        onClick={handleClick}
+        onClick={onClick}
         data-locale={localeAttr}
         {...rest}
       >

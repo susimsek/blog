@@ -12,6 +12,7 @@ import {
   parseStoredRecentRuns,
   parseStoredShowHint,
 } from '@/components/games/VisualMemoryTrainer';
+import type { TFunction } from 'i18next';
 
 describe('VisualMemoryTrainer helpers', () => {
   it('formats durations and clamps values', () => {
@@ -108,7 +109,8 @@ describe('VisualMemoryTrainer helpers', () => {
   });
 
   it('derives board copy and round CTA text from trainer status', () => {
-    const t = (key: string, options?: Record<string, unknown>) => `${key}:${String(options?.count ?? '')}`;
+    const t = ((key: string, options?: Record<string, unknown>) =>
+      `${key}:${String(options?.count ?? '')}`) as TFunction;
 
     expect(getBoardRuleText('idle', 4, t)).toBe('games.visualMemory.trainer.idleRule:');
     expect(getBoardRuleText('memorize', 4, t)).toBe('games.visualMemory.trainer.memorizeRule:4');

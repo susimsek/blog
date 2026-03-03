@@ -91,7 +91,7 @@ export default function TopicPage({
           <h1 className="page-header-title fw-bold">{topicTitle}</h1>
           <p className="page-header-subtitle text-muted fs-4">{t('topic.subtitle', { topic: topic.name })}</p>
         </header>
-        <PostList posts={posts} noPostsFoundMessage={t('topic.no_posts', { topic: topic.name })} />
+        <PostList posts={posts} topics={topics} noPostsFoundMessage={t('topic.no_posts', { topic: topic.name })} />
       </div>
     </Layout>
   );

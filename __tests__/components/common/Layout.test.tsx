@@ -38,13 +38,11 @@ jest.mock('@/components/common/Sidebar', () => ({
   default: ({
     isVisible,
     isMobile,
-    isLoading,
     topics,
     onClose,
   }: {
     isVisible: boolean;
     isMobile?: boolean;
-    isLoading?: boolean;
     topics?: Array<{ id: string }>;
     onClose?: () => void;
   }) => (
@@ -52,7 +50,6 @@ jest.mock('@/components/common/Sidebar', () => ({
       data-testid="sidebar"
       data-visible={String(isVisible)}
       data-mobile={String(Boolean(isMobile))}
-      data-loading={String(Boolean(isLoading))}
       data-topic-ids={(topics ?? []).map(topic => topic.id).join(',')}
     >
       {String(isVisible)}
@@ -170,25 +167,15 @@ describe('Layout Component', () => {
     expect(screen.queryByTestId('sidebar')).not.toBeInTheDocument();
   });
 
-  it('normalizes topics in initializer and stores route locale', () => {
+  it('stores route locale from the initializer', () => {
     const { store } = renderWithProviders(
-      <Layout
-        topics={
-          [
-            null,
-            { id: 'missing-color', name: 'Missing Color' },
-            { id: 'react', name: 'React', color: 'red', link: '/topics/react' },
-          ] as unknown as Array<{ id: string; name: string; color: string; link?: string }>
-        }
-      >
+      <Layout topics={[{ id: 'react', name: 'React', color: 'red', link: '/topics/react' }]}>
         <div>Content</div>
       </Layout>,
     );
 
     const state = store.getState().postsQuery;
     expect(state.locale).toBe('en');
-    expect(state.topicsLoading).toBe(false);
-    expect(state.topics).toEqual([{ id: 'react', name: 'React', color: 'red', link: '/topics/react' }]);
   });
 
   it('closes desktop sidebar via sidebar onClose action', () => {

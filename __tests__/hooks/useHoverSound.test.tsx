@@ -19,7 +19,7 @@ function TestHoverSoundButton() {
 
 describe('useHoverSound', () => {
   afterEach(() => {
-    delete (global as typeof globalThis & { Audio?: jest.Mock }).Audio;
+    Reflect.deleteProperty(global, 'Audio');
     jest.restoreAllMocks();
   });
 
@@ -68,7 +68,7 @@ describe('useHoverSound', () => {
     fireEvent.mouseEnter(screen.getByRole('button', { name: /disabled hover/i }));
     expect(global.Audio).not.toHaveBeenCalled();
 
-    delete (global as typeof globalThis & { Audio?: jest.Mock }).Audio;
+    Reflect.deleteProperty(global, 'Audio');
 
     rerender(<TestHoverSoundButton />);
     fireEvent.mouseEnter(screen.getByRole('button', { name: /hover me/i }));
