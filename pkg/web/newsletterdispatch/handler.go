@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	htmltemplate "html/template"
 	"io"
@@ -88,24 +89,6 @@ type subscriber struct {
 	Locale string `bson:"locale,omitempty"`
 }
 
-type siteTopic struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Color string `json:"color"`
-}
-
-type sitePost struct {
-	ID             string           `json:"id"`
-	Title          string           `json:"title"`
-	Category       sitePostCategory `json:"category"`
-	Summary        string           `json:"summary"`
-	Thumbnail      string           `json:"thumbnail"`
-	Topics         []siteTopic      `json:"topics"`
-	ReadingTimeMin int              `json:"readingTimeMin"`
-	PublishedDate  string           `json:"publishedDate"`
-	UpdatedDate    string           `json:"updatedDate"`
-}
-
 type sitePostCategory struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
@@ -145,9 +128,6 @@ var (
 
 	dispatchDeliveryIndexOnce sync.Once
 	dispatchDeliveryIndexErr  error
-
-	dispatchContentIndexOnce sync.Once
-	dispatchContentIndexErr  error
 )
 
 var defaultTopicBadgeStyle = topicBadgeStyle{
@@ -402,47 +382,6 @@ func ensureDeliveryIndexes(collection *mongo.Collection) error {
 	return dispatchDeliveryIndexErr
 }
 
-func ensureContentIndexes(postsCollection *mongo.Collection, topicsCollection *mongo.Collection) error {
-	dispatchContentIndexOnce.Do(func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		postIndexes := []mongo.IndexModel{
-			{
-				Keys: bson.D{
-					{Key: "locale", Value: 1},
-					{Key: "id", Value: 1},
-				},
-				Options: options.Index().
-					SetUnique(true).
-					SetName("uniq_newsletter_post_locale_id"),
-			},
-		}
-		if _, err := postsCollection.Indexes().CreateMany(ctx, postIndexes); err != nil {
-			dispatchContentIndexErr = fmt.Errorf("create post index failed: %w", err)
-			return
-		}
-
-		topicIndexes := []mongo.IndexModel{
-			{
-				Keys: bson.D{
-					{Key: "locale", Value: 1},
-					{Key: "id", Value: 1},
-				},
-				Options: options.Index().
-					SetUnique(true).
-					SetName("uniq_newsletter_topic_locale_id"),
-			},
-		}
-		if _, err := topicsCollection.Indexes().CreateMany(ctx, topicIndexes); err != nil {
-			dispatchContentIndexErr = fmt.Errorf("create topic index failed: %w", err)
-			return
-		}
-	})
-
-	return dispatchContentIndexErr
-}
-
 func getOrCreateCampaign(
 	collection *mongo.Collection,
 	locale string,
@@ -512,7 +451,7 @@ func getCampaignStatus(
 		"locale":  locale,
 		"itemKey": itemKey,
 	}).Decode(&campaign); err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			return "", false, nil
 		}
 		return "", false, err
@@ -599,7 +538,7 @@ func isAlreadyDelivered(
 	if err == nil {
 		return true, nil
 	}
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		return false, nil
 	}
 	return false, err
@@ -674,213 +613,6 @@ func fetchRSSItems(rssURL string) ([]rssItem, error) {
 	return items, nil
 }
 
-func fetchJSON(requestURL string, target any) error {
-	client := &http.Client{Timeout: defaultSyncTimeout}
-	req, err := http.NewRequest(http.MethodGet, requestURL, nil)
-	if err != nil {
-		return fmt.Errorf("create request failed: %w", err)
-	}
-	req.Header.Set("User-Agent", "suayb-blog-newsletter-dispatch/1.0")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return fmt.Errorf("request failed: %w", err)
-	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("request failed: status=%d", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(io.LimitReader(resp.Body, 4<<20))
-	if err != nil {
-		return fmt.Errorf("read response failed: %w", err)
-	}
-
-	if err := json.Unmarshal(body, target); err != nil {
-		return fmt.Errorf("parse response failed: %w", err)
-	}
-
-	return nil
-}
-
-func normalizeSiteTopic(raw siteTopic) siteTopic {
-	id := strings.TrimSpace(raw.ID)
-	name := strings.TrimSpace(raw.Name)
-	color := strings.ToLower(strings.TrimSpace(raw.Color))
-
-	if id == "" {
-		return siteTopic{}
-	}
-	if name == "" {
-		name = id
-	}
-
-	return siteTopic{
-		ID:    id,
-		Name:  name,
-		Color: color,
-	}
-}
-
-func resolveSiteDataURL(siteURL string, locale string, fileName string) string {
-	return fmt.Sprintf("%s/data/%s.%s.json", strings.TrimRight(siteURL, "/"), fileName, locale)
-}
-
-func syncSiteContentForLocale(
-	siteURL string,
-	locale string,
-	postsCollection *mongo.Collection,
-	topicsCollection *mongo.Collection,
-) error {
-	postsURL := resolveSiteDataURL(siteURL, locale, "posts")
-	topicsURL := resolveSiteDataURL(siteURL, locale, "topics")
-
-	var posts []sitePost
-	if err := fetchJSON(postsURL, &posts); err != nil {
-		return fmt.Errorf("fetch posts failed: %w", err)
-	}
-
-	var topics []siteTopic
-	if err := fetchJSON(topicsURL, &topics); err != nil {
-		return fmt.Errorf("fetch topics failed: %w", err)
-	}
-
-	now := time.Now().UTC()
-	topicByID := make(map[string]siteTopic, len(topics))
-
-	for _, raw := range topics {
-		topic := normalizeSiteTopic(raw)
-		if topic.ID == "" {
-			continue
-		}
-		topicByID[topic.ID] = topic
-	}
-
-	for _, post := range posts {
-		for _, rawTopic := range post.Topics {
-			topic := normalizeSiteTopic(rawTopic)
-			if topic.ID == "" {
-				continue
-			}
-			existing, exists := topicByID[topic.ID]
-			if !exists {
-				topicByID[topic.ID] = topic
-				continue
-			}
-			if existing.Name == "" && topic.Name != "" {
-				existing.Name = topic.Name
-			}
-			if existing.Color == "" && topic.Color != "" {
-				existing.Color = topic.Color
-			}
-			topicByID[topic.ID] = existing
-		}
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	for _, topic := range topicByID {
-		_, err := topicsCollection.UpdateOne(
-			ctx,
-			bson.M{
-				"locale": locale,
-				"id":     topic.ID,
-			},
-			bson.M{
-				"$set": bson.M{
-					"locale":    locale,
-					"id":        topic.ID,
-					"name":      topic.Name,
-					"color":     topic.Color,
-					"updatedAt": now,
-					"syncedAt":  now,
-				},
-				"$setOnInsert": bson.M{
-					"createdAt": now,
-				},
-			},
-			options.Update().SetUpsert(true),
-		)
-		if err != nil {
-			return fmt.Errorf("upsert topic failed: %w", err)
-		}
-	}
-
-	for _, rawPost := range posts {
-		postID := strings.TrimSpace(rawPost.ID)
-		if postID == "" {
-			continue
-		}
-		postTopics := make([]bson.M, 0, len(rawPost.Topics))
-		for _, rawTopic := range rawPost.Topics {
-			topic := normalizeSiteTopic(rawTopic)
-			if topic.ID == "" {
-				continue
-			}
-			if topic.Color == "" {
-				if definedTopic, exists := topicByID[topic.ID]; exists {
-					topic.Color = definedTopic.Color
-				}
-			}
-			postTopics = append(postTopics, bson.M{
-				"id":    topic.ID,
-				"name":  topic.Name,
-				"color": topic.Color,
-			})
-		}
-
-		_, err := postsCollection.UpdateOne(
-			ctx,
-			bson.M{
-				"locale": locale,
-				"id":     postID,
-			},
-			bson.M{
-				"$set": bson.M{
-					"locale":         locale,
-					"id":             postID,
-					"title":          strings.TrimSpace(rawPost.Title),
-					"category":       buildNewsletterPostCategoryDoc(rawPost.Category),
-					"summary":        strings.TrimSpace(rawPost.Summary),
-					"thumbnail":      strings.TrimSpace(rawPost.Thumbnail),
-					"topics":         postTopics,
-					"readingTimeMin": rawPost.ReadingTimeMin,
-					"publishedDate":  strings.TrimSpace(rawPost.PublishedDate),
-					"updatedDate":    strings.TrimSpace(rawPost.UpdatedDate),
-					"updatedAt":      now,
-					"syncedAt":       now,
-				},
-				"$setOnInsert": bson.M{
-					"createdAt": now,
-				},
-			},
-			options.Update().SetUpsert(true),
-		)
-		if err != nil {
-			return fmt.Errorf("upsert post failed: %w", err)
-		}
-	}
-
-	return nil
-}
-
-func buildNewsletterPostCategoryDoc(raw sitePostCategory) any {
-	id := strings.ToLower(strings.TrimSpace(raw.ID))
-	name := strings.TrimSpace(raw.Name)
-	if id == "" || name == "" {
-		return nil
-	}
-
-	return bson.M{
-		"id":   id,
-		"name": name,
-	}
-}
-
 func extractPostIDFromLink(postURL string) string {
 	rawURL := strings.TrimSpace(postURL)
 	if rawURL == "" {
@@ -917,7 +649,7 @@ func extractPostIDFromLink(postURL string) string {
 	return strings.TrimSpace(decoded)
 }
 
-func resolveAbsoluteURL(siteURL string, value string) string {
+func resolveAbsoluteURL(siteURL, value string) string {
 	trimmedValue := strings.TrimSpace(value)
 	if trimmedValue == "" {
 		return ""
@@ -946,7 +678,7 @@ func resolveTopicBadgeStyle(color string) topicBadgeStyle {
 	return style
 }
 
-func buildTopicURL(siteURL string, locale string, topicID string) string {
+func buildTopicURL(siteURL, locale, topicID string) string {
 	trimmedTopicID := strings.TrimSpace(topicID)
 	if trimmedTopicID == "" {
 		return ""
@@ -959,7 +691,7 @@ func buildTopicURL(siteURL string, locale string, topicID string) string {
 	return fmt.Sprintf("%s/%s/topics/%s", baseURL, locale, escapedTopicID)
 }
 
-func buildCategoryURL(siteURL string, locale string, categoryID string) string {
+func buildCategoryURL(siteURL, locale, categoryID string) string {
 	trimmedCategoryID := strings.TrimSpace(categoryID)
 	if trimmedCategoryID == "" {
 		return ""
@@ -983,7 +715,7 @@ func buildCategoryIconHTML(icon string) htmltemplate.HTML {
 	}
 }
 
-func resolveCategoryIcon(icon string, categoryID string) string {
+func resolveCategoryIcon(icon, categoryID string) string {
 	trimmedIcon := strings.TrimSpace(icon)
 	if trimmedIcon != "" {
 		return trimmedIcon
@@ -1022,7 +754,7 @@ func buildTopicBadgesFromCategories(categories []string) []newsletter.PostTopicB
 	return badges
 }
 
-func buildTopicBadgesFromSyncedTopics(topics []syncedPostTopic, siteURL string, locale string) []newsletter.PostTopicBadge {
+func buildTopicBadgesFromSyncedTopics(topics []syncedPostTopic, siteURL, locale string) []newsletter.PostTopicBadge {
 	if len(topics) == 0 {
 		return nil
 	}
@@ -1046,7 +778,7 @@ func buildTopicBadgesFromSyncedTopics(topics []syncedPostTopic, siteURL string, 
 	return badges
 }
 
-func buildPostCategoryBadge(category *sitePostCategory, siteURL string, locale string) *newsletter.PostCategoryBadge {
+func buildPostCategoryBadge(category *sitePostCategory, siteURL, locale string) *newsletter.PostCategoryBadge {
 	if category == nil {
 		return nil
 	}
@@ -1106,7 +838,7 @@ func resolvePostEmailMetadata(
 		"id":     postID,
 	}).Decode(&syncedPost)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			return fallback, nil
 		}
 		return fallback, err

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"hash/fnv"
 	"regexp"
@@ -44,13 +45,11 @@ var (
 	postContentIndexesErr  error
 )
 
-type PostTopic = domain.PostTopic
-type PostCategory = domain.PostCategory
-type PostRecord = domain.PostRecord
-
-type postCounter interface {
-	CountDocuments(context.Context, interface{}, ...*options.CountOptions) (int64, error)
-}
+type (
+	PostTopic    = domain.PostTopic
+	PostCategory = domain.PostCategory
+	PostRecord   = domain.PostRecord
+)
 
 type postFinder interface {
 	Find(context.Context, interface{}, ...*options.FindOptions) (*mongo.Cursor, error)
@@ -405,7 +404,8 @@ func fetchPostHitsByIDs(ctx context.Context, collection postFinder, postIDs []st
 func incrementPostLikeValue(ctx context.Context, collection interface {
 	postBulkWriter
 	postSingleUpdater
-}, postID string, now time.Time) (int64, error) {
+}, postID string, now time.Time,
+) (int64, error) {
 	if err := ensurePostLikeDocuments(ctx, collection, []string{postID}, now); err != nil {
 		return 0, err
 	}
@@ -435,7 +435,8 @@ func incrementPostLikeValue(ctx context.Context, collection interface {
 func incrementPostHitValue(ctx context.Context, collection interface {
 	postBulkWriter
 	postSingleUpdater
-}, postID string, now time.Time) (int64, error) {
+}, postID string, now time.Time,
+) (int64, error) {
 	if err := ensurePostHitDocuments(ctx, collection, []string{postID}, now); err != nil {
 		return 0, err
 	}
@@ -520,7 +521,7 @@ func normalizePostForResponse(post PostRecord) PostRecord {
 	return post
 }
 
-func queryPostRecords(ctx context.Context, collection postFinder, filter bson.M, sortOrder string, skip int64, limit int64) ([]PostRecord, error) {
+func queryPostRecords(ctx context.Context, collection postFinder, filter bson.M, sortOrder string, skip, limit int64) ([]PostRecord, error) {
 	sortDirection := int32(-1)
 	if sortOrder == "asc" {
 		sortDirection = 1
@@ -562,13 +563,13 @@ func queryPostRecords(ctx context.Context, collection postFinder, filter bson.M,
 	return posts, nil
 }
 
-func queryPostRecordByID(ctx context.Context, collection postSingleFinder, locale string, postID string) (*PostRecord, error) {
+func queryPostRecordByID(ctx context.Context, collection postSingleFinder, locale, postID string) (*PostRecord, error) {
 	var post PostRecord
 	err := collection.FindOne(ctx, bson.M{
 		"locale": locale,
 		"id":     postID,
 	}).Decode(&post)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		return nil, nil
 	}
 	if err != nil {

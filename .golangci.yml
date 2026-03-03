@@ -1,18 +1,103 @@
 version: '2'
 
 run:
-  timeout: 5m
+  timeout: 10m
+  modules-download-mode: readonly
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+output:
+  show-stats: false
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  settings:
+    gofumpt:
+      extra-rules: true
+    goimports:
+      local-prefixes:
+        - suaybsimsek.com/blog-api
 
 linters:
   default: none
   enable:
+    - bodyclose
+    - depguard
     - errcheck
+    - errorlint
     - govet
     - ineffassign
+    - misspell
+    - revive
     - staticcheck
+    - unconvert
+    - unused
   exclusions:
+    generated: lax
+    paths:
+      - node_modules
+      - public
+      - third_party$
+      - builtin$
+      - examples$
     rules:
-      - path: '(.+)_test\.go'
+      - path: _test\.go
         linters:
           - govet
           - staticcheck
+          - errcheck
+  settings:
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: io/ioutil
+              desc: use io or os instead
+            - pkg: github.com/pkg/errors
+              desc: use errors or fmt instead
+            - pkg: gopkg.in/yaml.v2
+              desc: use go.yaml.in/yaml/v2 instead
+            - pkg: gopkg.in/yaml.v3
+              desc: use go.yaml.in/yaml/v3 instead
+    errcheck:
+      exclude-functions:
+        - io.Copy
+        - io.WriteString
+        - (net/http.ResponseWriter).Write
+        - (*net/http.Server).Shutdown
+    govet:
+      disable:
+        - shadow
+        - fieldalignment
+      enable-all: true
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+          arguments:
+            - allowTypesBefore: '*testing.T,testing.TB'
+        - name: context-keys-type
+        - name: dot-imports
+        - name: early-return
+          arguments:
+            - preserveScope
+        - name: error-return
+        - name: error-strings
+        - name: errorf
+        - name: increment-decrement
+        - name: indent-error-flow
+          arguments:
+            - preserveScope
+        - name: range
+        - name: receiver-naming
+        - name: redefines-builtin-id
+        - name: superfluous-else
+          arguments:
+            - preserveScope
+        - name: time-naming
+        - name: unreachable-code
+        - name: unused-receiver

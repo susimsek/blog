@@ -394,7 +394,7 @@ func renderHTMLTemplate(tmpl *htmltemplate.Template, data any) (string, error) {
 	return buffer.String(), nil
 }
 
-func ConfirmationEmail(locale, confirmURL, siteURL string) (subject string, htmlBody string, err error) {
+func ConfirmationEmail(locale, confirmURL, siteURL string) (subject, htmlBody string, err error) {
 	if err := ensureEmailTemplates(); err != nil {
 		return "", "", err
 	}
@@ -518,7 +518,7 @@ func formatReadingTime(locale string, readingTimeMin int) string {
 	return fmt.Sprintf("%d min read", readingTimeMin)
 }
 
-func PostAnnouncementEmail(input PostAnnouncementInput) (subject string, htmlBody string, err error) {
+func PostAnnouncementEmail(input PostAnnouncementInput) (subject, htmlBody string, err error) {
 	if err := ensureEmailTemplates(); err != nil {
 		return "", "", err
 	}

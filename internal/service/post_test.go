@@ -36,7 +36,7 @@ func (stub postStubRepository) FindPosts(
 	return stub.findPosts(ctx, filter, sortOrder, skip, limit)
 }
 
-func (stub postStubRepository) FindPostByID(ctx context.Context, locale string, postID string) (*domain.PostRecord, error) {
+func (stub postStubRepository) FindPostByID(ctx context.Context, locale, postID string) (*domain.PostRecord, error) {
 	return stub.findPostByID(ctx, locale, postID)
 }
 
@@ -69,7 +69,7 @@ func TestQueryContent(t *testing.T) {
 			}
 			return 2, nil
 		},
-		findPosts: func(_ context.Context, _ bson.M, sortOrder string, skip int64, limit int64) ([]domain.PostRecord, error) {
+		findPosts: func(_ context.Context, _ bson.M, sortOrder string, skip, limit int64) ([]domain.PostRecord, error) {
 			if sortOrder != "asc" || skip != 0 || limit != 2 {
 				t.Fatalf("query args = %q %d %d", sortOrder, skip, limit)
 			}
@@ -160,7 +160,7 @@ func TestQueryPostAndMetrics(t *testing.T) {
 	postsRepository = postStubRepository{
 		countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
 		findPosts:  func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
-		findPostByID: func(_ context.Context, locale string, postID string) (*domain.PostRecord, error) {
+		findPostByID: func(_ context.Context, locale, postID string) (*domain.PostRecord, error) {
 			if locale != "en" || postID != "alpha-post" {
 				t.Fatalf("FindPostByID args = %q %q", locale, postID)
 			}

@@ -138,7 +138,7 @@ func getNewsletterCollection() (*mongo.Collection, error) {
 	return collection, nil
 }
 
-func (r *newsletterMongoRepository) GetStatusByEmail(ctx context.Context, email string) (string, bool, error) {
+func (*newsletterMongoRepository) GetStatusByEmail(ctx context.Context, email string) (string, bool, error) {
 	collection, err := getNewsletterCollection()
 	if err != nil {
 		return "", false, fmt.Errorf(newsletterRepositoryUnavailableFormat, ErrNewsletterRepositoryUnavailable, err)
@@ -152,7 +152,7 @@ func getStatusByEmailFromCollection(ctx context.Context, collection newsletterSi
 		Status string `bson:"status"`
 	}
 	err := collection.FindOne(ctx, bson.M{"email": email}).Decode(&existing)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		return "", false, nil
 	}
 	if err != nil {
@@ -162,7 +162,7 @@ func getStatusByEmailFromCollection(ctx context.Context, collection newsletterSi
 	return existing.Status, true, nil
 }
 
-func (r *newsletterMongoRepository) UpsertPendingSubscription(ctx context.Context, input NewsletterPendingSubscription) error {
+func (*newsletterMongoRepository) UpsertPendingSubscription(ctx context.Context, input NewsletterPendingSubscription) error {
 	collection, err := getNewsletterCollection()
 	if err != nil {
 		return fmt.Errorf(newsletterRepositoryUnavailableFormat, ErrNewsletterRepositoryUnavailable, err)
@@ -204,7 +204,7 @@ func upsertPendingSubscriptionInCollection(
 	return err
 }
 
-func (r *newsletterMongoRepository) UpdatePendingSubscription(ctx context.Context, input NewsletterPendingSubscription) error {
+func (*newsletterMongoRepository) UpdatePendingSubscription(ctx context.Context, input NewsletterPendingSubscription) error {
 	collection, err := getNewsletterCollection()
 	if err != nil {
 		return fmt.Errorf(newsletterRepositoryUnavailableFormat, ErrNewsletterRepositoryUnavailable, err)
@@ -235,7 +235,7 @@ func updatePendingSubscriptionInCollection(
 	return err
 }
 
-func (r *newsletterMongoRepository) ConfirmByTokenHash(ctx context.Context, tokenHash string, now time.Time) (bool, error) {
+func (*newsletterMongoRepository) ConfirmByTokenHash(ctx context.Context, tokenHash string, now time.Time) (bool, error) {
 	collection, err := getNewsletterCollection()
 	if err != nil {
 		return false, fmt.Errorf(newsletterRepositoryUnavailableFormat, ErrNewsletterRepositoryUnavailable, err)
@@ -276,7 +276,7 @@ func confirmByTokenHashInCollection(
 	return result.MatchedCount > 0, nil
 }
 
-func (r *newsletterMongoRepository) UnsubscribeByEmail(ctx context.Context, email string, now time.Time) error {
+func (*newsletterMongoRepository) UnsubscribeByEmail(ctx context.Context, email string, now time.Time) error {
 	collection, err := getNewsletterCollection()
 	if err != nil {
 		return fmt.Errorf(newsletterRepositoryUnavailableFormat, ErrNewsletterRepositoryUnavailable, err)

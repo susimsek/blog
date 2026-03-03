@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+
 	"suaybsimsek.com/blog-api/internal/domain"
 )
 
@@ -17,8 +18,8 @@ const postRepositoryUnavailableFormat = "%w: %v"
 // PostRepository defines data access methods for posts and engagement data.
 type PostRepository interface {
 	CountPosts(ctx context.Context, filter bson.M) (int, error)
-	FindPosts(ctx context.Context, filter bson.M, sortOrder string, skip int64, limit int64) ([]domain.PostRecord, error)
-	FindPostByID(ctx context.Context, locale string, postID string) (*domain.PostRecord, error)
+	FindPosts(ctx context.Context, filter bson.M, sortOrder string, skip, limit int64) ([]domain.PostRecord, error)
+	FindPostByID(ctx context.Context, locale, postID string) (*domain.PostRecord, error)
 	ResolveLikesByPostID(ctx context.Context, posts []domain.PostRecord) map[string]int64
 	ResolveHitsByPostID(ctx context.Context, posts []domain.PostRecord) map[string]int64
 	IncrementPostLike(ctx context.Context, postID string, now time.Time) (int64, error)
@@ -32,7 +33,7 @@ func NewPostMongoRepository() PostRepository {
 	return &postMongoRepository{}
 }
 
-func (r *postMongoRepository) CountPosts(ctx context.Context, filter bson.M) (int, error) {
+func (*postMongoRepository) CountPosts(ctx context.Context, filter bson.M) (int, error) {
 	collection, err := getPostContentCollection()
 	if err != nil {
 		return 0, fmt.Errorf(postRepositoryUnavailableFormat, ErrPostRepositoryUnavailable, err)
@@ -46,7 +47,7 @@ func (r *postMongoRepository) CountPosts(ctx context.Context, filter bson.M) (in
 	return int(total), nil
 }
 
-func (r *postMongoRepository) FindPosts(
+func (*postMongoRepository) FindPosts(
 	ctx context.Context,
 	filter bson.M,
 	sortOrder string,
@@ -61,7 +62,7 @@ func (r *postMongoRepository) FindPosts(
 	return queryPostRecords(ctx, collection, filter, sortOrder, skip, limit)
 }
 
-func (r *postMongoRepository) FindPostByID(ctx context.Context, locale string, postID string) (*domain.PostRecord, error) {
+func (*postMongoRepository) FindPostByID(ctx context.Context, locale, postID string) (*domain.PostRecord, error) {
 	collection, err := getPostContentCollection()
 	if err != nil {
 		return nil, fmt.Errorf(postRepositoryUnavailableFormat, ErrPostRepositoryUnavailable, err)
@@ -70,15 +71,15 @@ func (r *postMongoRepository) FindPostByID(ctx context.Context, locale string, p
 	return queryPostRecordByID(ctx, collection, locale, postID)
 }
 
-func (r *postMongoRepository) ResolveLikesByPostID(ctx context.Context, posts []domain.PostRecord) map[string]int64 {
+func (*postMongoRepository) ResolveLikesByPostID(ctx context.Context, posts []domain.PostRecord) map[string]int64 {
 	return resolvePostLikesByPostID(ctx, posts)
 }
 
-func (r *postMongoRepository) ResolveHitsByPostID(ctx context.Context, posts []domain.PostRecord) map[string]int64 {
+func (*postMongoRepository) ResolveHitsByPostID(ctx context.Context, posts []domain.PostRecord) map[string]int64 {
 	return resolvePostHitsByPostID(ctx, posts)
 }
 
-func (r *postMongoRepository) IncrementPostLike(ctx context.Context, postID string, now time.Time) (int64, error) {
+func (*postMongoRepository) IncrementPostLike(ctx context.Context, postID string, now time.Time) (int64, error) {
 	collection, err := getPostLikesCollection()
 	if err != nil {
 		return 0, fmt.Errorf(postRepositoryUnavailableFormat, ErrPostRepositoryUnavailable, err)
@@ -87,7 +88,7 @@ func (r *postMongoRepository) IncrementPostLike(ctx context.Context, postID stri
 	return incrementPostLikeValue(ctx, collection, postID, now)
 }
 
-func (r *postMongoRepository) IncrementPostHit(ctx context.Context, postID string, now time.Time) (int64, error) {
+func (*postMongoRepository) IncrementPostHit(ctx context.Context, postID string, now time.Time) (int64, error) {
 	collection, err := getPostHitsCollection()
 	if err != nil {
 		return 0, fmt.Errorf(postRepositoryUnavailableFormat, ErrPostRepositoryUnavailable, err)

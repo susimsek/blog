@@ -191,7 +191,7 @@ func shouldUseLocalDataFallback(siteURL string) bool {
 	return host == "localhost" || host == "127.0.0.1"
 }
 
-func fetchLocaleData(siteURL string, locale string, dataType string, target any) error {
+func fetchLocaleData(siteURL, locale, dataType string, target any) error {
 	requestURL := buildDataURL(siteURL, locale, dataType)
 	err := fetchJSON(requestURL, target)
 	if err == nil {
@@ -203,7 +203,7 @@ func fetchLocaleData(siteURL string, locale string, dataType string, target any)
 
 	localPath := filepath.Join(".", "public", "data", fmt.Sprintf("%s.%s.json", dataType, locale))
 	if fallbackErr := readJSONFile(localPath, target); fallbackErr != nil {
-		return fmt.Errorf("%v; fallback failed: %w", err, fallbackErr)
+		return fmt.Errorf("%w; fallback failed: %w", err, fallbackErr)
 	}
 	return nil
 }
@@ -448,11 +448,11 @@ func computeRealisticHits(post postSeedInput, now time.Time) int64 {
 	return hits
 }
 
-func buildDataURL(siteURL string, locale string, dataType string) string {
+func buildDataURL(siteURL, locale, dataType string) string {
 	return fmt.Sprintf("%s/data/%s.%s.json", strings.TrimRight(siteURL, "/"), dataType, locale)
 }
 
-func normalizeSearchText(raw string, title string, summary string, topics []siteTopic) string {
+func normalizeSearchText(raw, title, summary string, topics []siteTopic) string {
 	trimmed := strings.ToLower(strings.TrimSpace(raw))
 	if trimmed != "" {
 		return trimmed
@@ -715,7 +715,7 @@ func syncLocale(
 	categoriesCollection *mongo.Collection,
 	likesCollection *mongo.Collection,
 	hitsCollection *mongo.Collection,
-) (postCount int, topicCount int, categoryCount int, err error) {
+) (postCount, topicCount, categoryCount int, err error) {
 	var posts []sitePost
 	if err := fetchLocaleData(siteURL, locale, "posts", &posts); err != nil {
 		return 0, 0, 0, fmt.Errorf("posts fetch failed: %w", err)

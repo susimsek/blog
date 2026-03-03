@@ -376,8 +376,8 @@ func buildGraphiQLPageData(graphQLConfig appconfig.GraphQLConfig) graphiqlPageDa
 }`)
 
 	return graphiqlPageData{
-		DefaultHeadersJSON:               template.JS(defaultHeadersJSON),
-		DefaultQueryJSON:                 template.JS(defaultQueryJSON),
+		DefaultHeadersJSON:               defaultHeadersJSON,
+		DefaultQueryJSON:                 defaultQueryJSON,
 		EndpointJSON:                     marshalGraphiQLJSON(graphQLConfig.PublicPath),
 		GraphiQLExplorerVersion:          graphiqlExplorerVersion,
 		GraphiQLReactVersion:             graphiqlReactVersion,
@@ -386,9 +386,9 @@ func buildGraphiQLPageData(graphQLConfig appconfig.GraphQLConfig) graphiqlPageDa
 		GraphiQLVersion:                  graphiqlVersion,
 		ReactDOMVersion:                  reactDOMVersion,
 		ReactVersion:                     reactVersion,
-		SinglePostQueryJSON:              template.JS(singlePostQueryJSON),
-		SinglePostVariablesJSON:          template.JS(singlePostVariablesJSON),
-		SubscribeNewsletterMutationJSON:  template.JS(subscribeNewsletterMutationJSON),
-		SubscribeNewsletterVariablesJSON: template.JS(subscribeNewsletterVariablesJSON),
+		SinglePostQueryJSON:              singlePostQueryJSON,
+		SinglePostVariablesJSON:          singlePostVariablesJSON,
+		SubscribeNewsletterMutationJSON:  subscribeNewsletterMutationJSON,
+		SubscribeNewsletterVariablesJSON: subscribeNewsletterVariablesJSON,
 	}
 }

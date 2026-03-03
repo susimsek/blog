@@ -15,10 +15,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type TopicRecord = domain.PostTopic
-type CategoryRecord = domain.PostCategory
-type PostRecord = domain.PostRecord
-type ContentResponse = domain.PostContentResponse
+type (
+	TopicRecord     = domain.PostTopic
+	CategoryRecord  = domain.PostCategory
+	PostRecord      = domain.PostRecord
+	ContentResponse = domain.PostContentResponse
+)
 
 var (
 	postIDPattern                             = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{1,127}$`)
@@ -202,15 +204,15 @@ func withTimeoutContext(parent context.Context, timeout time.Duration) (context.
 	return context.WithTimeout(parent, timeout)
 }
 
-func clampPositiveInt(value *int, fallback int, max int) int {
+func clampPositiveInt(value *int, fallback, maxValue int) int {
 	if value == nil {
 		return fallback
 	}
 	if *value <= 0 {
 		return fallback
 	}
-	if max > 0 && *value > max {
-		return max
+	if maxValue > 0 && *value > maxValue {
+		return maxValue
 	}
 	return *value
 }
