@@ -218,6 +218,8 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
   - `pnpm run backend:lint:report`
   - config file: `.golangci.yml`
   - version is pinned in `package.json`
+  - prefer low-noise, high-signal rules
+  - favor correctness, error handling, modernization, and dead-code checks over comment-enforcement rules
 - Format with Prettier:
   - `pnpm run prettier:format`
   - `pnpm run prettier:check`

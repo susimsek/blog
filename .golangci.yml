@@ -32,8 +32,11 @@ linters:
     - govet
     - ineffassign
     - misspell
+    - modernize
+    - perfsprint
     - revive
     - staticcheck
+    - testifylint
     - unconvert
     - unused
   exclusions:
@@ -74,6 +77,12 @@ linters:
         - shadow
         - fieldalignment
       enable-all: true
+    modernize:
+      disable:
+        - omitzero
+        - newexpr
+    perfsprint:
+      concat-loop: false
     revive:
       rules:
         - name: blank-imports
@@ -101,3 +110,7 @@ linters:
         - name: time-naming
         - name: unreachable-code
         - name: unused-receiver
+    testifylint:
+      disable:
+        - go-require
+        - require-error

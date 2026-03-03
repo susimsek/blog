@@ -5,7 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
-	"fmt"
+	"errors"
 	"net/mail"
 	"strconv"
 	"strings"
@@ -16,17 +16,17 @@ func NormalizeSubscriberEmail(value string) (string, error) {
 	email := strings.ToLower(strings.TrimSpace(value))
 	parsed, err := mail.ParseAddress(email)
 	if err != nil || parsed.Address != email {
-		return "", fmt.Errorf("invalid email")
+		return "", errors.New("invalid email")
 	}
 	return email, nil
 }
 
 func BuildUnsubscribeToken(email, secret string, now time.Time, ttl time.Duration) (string, error) {
 	if strings.TrimSpace(secret) == "" {
-		return "", fmt.Errorf("missing secret")
+		return "", errors.New("missing secret")
 	}
 	if ttl <= 0 {
-		return "", fmt.Errorf("invalid ttl")
+		return "", errors.New("invalid ttl")
 	}
 
 	normalizedEmail, err := NormalizeSubscriberEmail(email)
@@ -48,12 +48,12 @@ func BuildUnsubscribeToken(email, secret string, now time.Time, ttl time.Duratio
 
 func ParseUnsubscribeToken(token, secret string, now time.Time) (string, error) {
 	if strings.TrimSpace(secret) == "" {
-		return "", fmt.Errorf("missing secret")
+		return "", errors.New("missing secret")
 	}
 
 	parts := strings.Split(strings.TrimSpace(token), ".")
 	if len(parts) != 3 {
-		return "", fmt.Errorf("invalid token")
+		return "", errors.New("invalid token")
 	}
 
 	encodedEmail := parts[0]
@@ -67,24 +67,24 @@ func ParseUnsubscribeToken(token, secret string, now time.Time) (string, error) 
 
 	providedSignature, err := hex.DecodeString(providedSignatureHex)
 	if err != nil {
-		return "", fmt.Errorf("invalid token signature")
+		return "", errors.New("invalid token signature")
 	}
 
 	if !hmac.Equal(providedSignature, expectedSignature) {
-		return "", fmt.Errorf("invalid token signature")
+		return "", errors.New("invalid token signature")
 	}
 
 	expUnix, err := strconv.ParseInt(expString, 10, 64)
 	if err != nil {
-		return "", fmt.Errorf("invalid token expiration")
+		return "", errors.New("invalid token expiration")
 	}
 	if now.UTC().Unix() > expUnix {
-		return "", fmt.Errorf("token expired")
+		return "", errors.New("token expired")
 	}
 
 	rawEmail, err := base64.RawURLEncoding.DecodeString(encodedEmail)
 	if err != nil {
-		return "", fmt.Errorf("invalid token payload")
+		return "", errors.New("invalid token payload")
 	}
 
 	return NormalizeSubscriberEmail(string(rawEmail))

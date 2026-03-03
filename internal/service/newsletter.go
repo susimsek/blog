@@ -202,7 +202,7 @@ func generateConfirmToken() (string, error) {
 func buildConfirmURL(siteURL, token, locale string) (string, error) {
 	parsed, err := url.Parse(siteURL)
 	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
-		return "", fmt.Errorf("invalid SITE_URL")
+		return "", errors.New("invalid SITE_URL")
 	}
 
 	parsed.Path = strings.TrimRight(parsed.Path, "/") + "/" + strings.TrimSpace(locale) + "/callback"

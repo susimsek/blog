@@ -104,9 +104,7 @@ func computeRealisticLikes(post postSeedInput, now time.Time) int64 {
 	}
 
 	ageDays := int(now.Sub(published).Hours() / 24)
-	if ageDays < 1 {
-		ageDays = 1
-	}
+	ageDays = max(ageDays, 1)
 
 	reading := post.ReadingTimeMin
 	if reading < 1 {
@@ -114,20 +112,14 @@ func computeRealisticLikes(post postSeedInput, now time.Time) int64 {
 	}
 
 	ageScore := int(math.Sqrt(float64(ageDays))*8.5) + 20
-	if ageScore > 420 {
-		ageScore = 420
-	}
+	ageScore = min(ageScore, 420)
 
 	readingBoost := reading * 3
-	if readingBoost > 36 {
-		readingBoost = 36
-	}
+	readingBoost = min(readingBoost, 36)
 
 	noise := int(hash%71) - 25 // -25..45
 	likes := ageScore + readingBoost + noise
-	if likes < 12 {
-		likes = 12
-	}
+	likes = max(likes, 12)
 
 	return int64(likes)
 }

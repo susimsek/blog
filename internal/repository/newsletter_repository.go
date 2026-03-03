@@ -24,11 +24,11 @@ const newsletterRepositoryUnavailableFormat = "%w: %v"
 type NewsletterPendingSubscription = domain.NewsletterPendingSubscription
 
 type newsletterSingleFinder interface {
-	FindOne(context.Context, interface{}, ...*options.FindOneOptions) *mongo.SingleResult
+	FindOne(context.Context, any, ...*options.FindOneOptions) *mongo.SingleResult
 }
 
 type newsletterUpdater interface {
-	UpdateOne(context.Context, interface{}, interface{}, ...*options.UpdateOptions) (*mongo.UpdateResult, error)
+	UpdateOne(context.Context, any, any, ...*options.UpdateOptions) (*mongo.UpdateResult, error)
 }
 
 type NewsletterRepository interface {

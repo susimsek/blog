@@ -88,12 +88,7 @@ func QueryContent(ctx context.Context, input ContentQueryInput) ContentResponse 
 
 	totalPages := int(math.Ceil(float64(total) / float64(size)))
 	resolvedPage := page
-	if resolvedPage > totalPages {
-		resolvedPage = totalPages
-	}
-	if resolvedPage < 1 {
-		resolvedPage = 1
-	}
+	resolvedPage = max(1, min(resolvedPage, totalPages))
 
 	limit := int64(size)
 	skip := int64((resolvedPage - 1) * size)

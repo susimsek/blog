@@ -370,9 +370,7 @@ func computeRealisticLikes(post postSeedInput, now time.Time) int64 {
 	}
 
 	ageDays := int(now.Sub(published).Hours() / 24)
-	if ageDays < 1 {
-		ageDays = 1
-	}
+	ageDays = max(ageDays, 1)
 
 	reading := post.ReadingTimeMin
 	if reading < 1 {
@@ -380,20 +378,14 @@ func computeRealisticLikes(post postSeedInput, now time.Time) int64 {
 	}
 
 	ageScore := int(math.Sqrt(float64(ageDays))*8.5) + 20
-	if ageScore > 420 {
-		ageScore = 420
-	}
+	ageScore = min(ageScore, 420)
 
 	readingBoost := reading * 3
-	if readingBoost > 36 {
-		readingBoost = 36
-	}
+	readingBoost = min(readingBoost, 36)
 
 	noise := int(hash%71) - 25 // -25..45
 	likes := ageScore + readingBoost + noise
-	if likes < 12 {
-		likes = 12
-	}
+	likes = max(likes, 12)
 
 	return int64(likes)
 }
@@ -407,9 +399,7 @@ func computeRealisticHits(post postSeedInput, now time.Time) int64 {
 	}
 
 	ageDays := int(now.Sub(published).Hours() / 24)
-	if ageDays < 1 {
-		ageDays = 1
-	}
+	ageDays = max(ageDays, 1)
 
 	reading := post.ReadingTimeMin
 	if reading < 1 {
@@ -417,20 +407,14 @@ func computeRealisticHits(post postSeedInput, now time.Time) int64 {
 	}
 
 	likeAgeScore := int(math.Sqrt(float64(ageDays))*8.5) + 20
-	if likeAgeScore > 420 {
-		likeAgeScore = 420
-	}
+	likeAgeScore = min(likeAgeScore, 420)
 
 	likeReadingBoost := reading * 3
-	if likeReadingBoost > 36 {
-		likeReadingBoost = 36
-	}
+	likeReadingBoost = min(likeReadingBoost, 36)
 
 	likeNoise := int(hash%71) - 25 // -25..45
 	likeEstimate := likeAgeScore + likeReadingBoost + likeNoise
-	if likeEstimate < 12 {
-		likeEstimate = 12
-	}
+	likeEstimate = max(likeEstimate, 12)
 
 	hitMultiplier := int64(16 + (hash % 17)) // 16..32
 	reachNoise := int64(hash%1800) - 450     // -450..1349
@@ -441,9 +425,7 @@ func computeRealisticHits(post postSeedInput, now time.Time) int64 {
 	}
 
 	hits := int64(likeEstimate)*hitMultiplier + 420 + reachNoise + recencyBoost
-	if hits < 700 {
-		hits = 700
-	}
+	hits = max(hits, 700)
 
 	return hits
 }
@@ -866,9 +848,7 @@ func syncLocale(
 		summary := strings.TrimSpace(rawPost.Summary)
 		searchText := normalizeSearchText(rawPost.SearchText, title, summary, rawPost.Topics)
 		readingTimeMin := rawPost.ReadingTimeMin
-		if readingTimeMin < 0 {
-			readingTimeMin = 0
-		}
+		readingTimeMin = max(readingTimeMin, 0)
 
 		publishedDate := strings.TrimSpace(rawPost.PublishedDate)
 		parsedPublishedAt, publishedOK := parseDate(publishedDate)

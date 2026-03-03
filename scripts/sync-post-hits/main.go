@@ -104,9 +104,7 @@ func computeRealisticHits(post postSeedInput, now time.Time) int64 {
 	}
 
 	ageDays := int(now.Sub(published).Hours() / 24)
-	if ageDays < 1 {
-		ageDays = 1
-	}
+	ageDays = max(ageDays, 1)
 
 	reading := post.ReadingTimeMin
 	if reading < 1 {
@@ -114,20 +112,14 @@ func computeRealisticHits(post postSeedInput, now time.Time) int64 {
 	}
 
 	likeAgeScore := int(math.Sqrt(float64(ageDays))*8.5) + 20
-	if likeAgeScore > 420 {
-		likeAgeScore = 420
-	}
+	likeAgeScore = min(likeAgeScore, 420)
 
 	likeReadingBoost := reading * 3
-	if likeReadingBoost > 36 {
-		likeReadingBoost = 36
-	}
+	likeReadingBoost = min(likeReadingBoost, 36)
 
 	likeNoise := int(hash%71) - 25 // -25..45
 	likeEstimate := likeAgeScore + likeReadingBoost + likeNoise
-	if likeEstimate < 12 {
-		likeEstimate = 12
-	}
+	likeEstimate = max(likeEstimate, 12)
 
 	hitMultiplier := int64(16 + (hash % 17)) // 16..32
 	reachNoise := int64(hash%1800) - 450     // -450..1349
@@ -138,9 +130,7 @@ func computeRealisticHits(post postSeedInput, now time.Time) int64 {
 	}
 
 	hits := int64(likeEstimate)*hitMultiplier + 420 + reachNoise + recencyBoost
-	if hits < 700 {
-		hits = 700
-	}
+	hits = max(hits, 700)
 
 	return hits
 }

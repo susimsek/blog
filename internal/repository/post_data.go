@@ -52,11 +52,11 @@ type (
 )
 
 type postFinder interface {
-	Find(context.Context, interface{}, ...*options.FindOptions) (*mongo.Cursor, error)
+	Find(context.Context, any, ...*options.FindOptions) (*mongo.Cursor, error)
 }
 
 type postSingleFinder interface {
-	FindOne(context.Context, interface{}, ...*options.FindOneOptions) *mongo.SingleResult
+	FindOne(context.Context, any, ...*options.FindOneOptions) *mongo.SingleResult
 }
 
 type postBulkWriter interface {
@@ -64,7 +64,7 @@ type postBulkWriter interface {
 }
 
 type postSingleUpdater interface {
-	FindOneAndUpdate(context.Context, interface{}, interface{}, ...*options.FindOneAndUpdateOptions) *mongo.SingleResult
+	FindOneAndUpdate(context.Context, any, any, ...*options.FindOneAndUpdateOptions) *mongo.SingleResult
 }
 
 func normalizePostID(value string) (string, bool) {
@@ -90,11 +90,7 @@ func computeInitialHits(postID string) int64 {
 	noise := int64(hash%900) - 220        // -220..679
 
 	hits := likes*multiplier + 350 + noise
-	if hits < 700 {
-		hits = 700
-	}
-
-	return hits
+	return max(hits, 700)
 }
 
 func getPostMongoClient() (*mongo.Client, error) {

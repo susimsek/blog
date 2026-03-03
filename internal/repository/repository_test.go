@@ -65,7 +65,7 @@ type findMock struct {
 	err  error
 }
 
-func (mock *findMock) Find(_ context.Context, _ interface{}, _ ...*options.FindOptions) (*mongo.Cursor, error) {
+func (mock *findMock) Find(_ context.Context, _ any, _ ...*options.FindOptions) (*mongo.Cursor, error) {
 	if mock.err != nil {
 		return nil, mock.err
 	}
@@ -78,7 +78,7 @@ type singleFindMock struct {
 	err error
 }
 
-func (mock *singleFindMock) FindOne(_ context.Context, _ interface{}, _ ...*options.FindOneOptions) *mongo.SingleResult {
+func (mock *singleFindMock) FindOne(_ context.Context, _ any, _ ...*options.FindOneOptions) *mongo.SingleResult {
 	return mongo.NewSingleResultFromDocument(mock.doc, mock.err, nil)
 }
 
@@ -90,8 +90,8 @@ type metricCollectionMock struct {
 
 func (mock *metricCollectionMock) FindOneAndUpdate(
 	_ context.Context,
-	_ interface{},
-	_ interface{},
+	_ any,
+	_ any,
 	_ ...*options.FindOneAndUpdateOptions,
 ) *mongo.SingleResult {
 	return mongo.NewSingleResultFromDocument(mock.updatedDoc, mock.updateErr, nil)
@@ -108,8 +108,8 @@ type updateOneMock struct {
 
 func (mock *updateOneMock) UpdateOne(
 	_ context.Context,
-	filter interface{},
-	update interface{},
+	filter any,
+	update any,
 	opts ...*options.UpdateOptions,
 ) (*mongo.UpdateResult, error) {
 	mock.updateCount++

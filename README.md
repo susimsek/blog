@@ -238,6 +238,8 @@ pnpm run backend:ci
 
 `backend:lint` uses a pinned `golangci-lint` version directly from the package script. `backend:lint:report` also writes [`golangci-lint-report.xml`](/Users/T097315/Documents/MyProject/blog/golangci-lint-report.xml) in the repo root for Sonar and Checkstyle-style consumption.
 
+Backend lint policy prefers low-noise, high-signal rules. Focus on correctness, error handling, modernization, dead-code cleanup, and safe formatting instead of comment-enforcement or documentation-only rules.
+
 Jest coverage thresholds are configured in [`jest.config.js`](/Users/T097315/Documents/MyProject/blog/jest.config.js):
 
 - statements: `95`

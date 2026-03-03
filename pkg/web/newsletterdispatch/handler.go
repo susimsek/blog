@@ -232,7 +232,7 @@ func resolveDispatchLocalesFromSubscribers(collection *mongo.Collection) ([]stri
 func parseRSSItemPubDate(value string) (time.Time, error) {
 	raw := strings.TrimSpace(value)
 	if raw == "" {
-		return time.Time{}, fmt.Errorf("missing pubDate")
+		return time.Time{}, errors.New("missing pubDate")
 	}
 
 	layouts := []string{
@@ -253,7 +253,7 @@ func parseRSSItemPubDate(value string) (time.Time, error) {
 	}
 
 	if lastErr == nil {
-		lastErr = fmt.Errorf("unsupported pubDate layout")
+		lastErr = errors.New("unsupported pubDate layout")
 	}
 	return time.Time{}, lastErr
 }
@@ -861,7 +861,7 @@ func resolvePostEmailMetadata(
 func buildUnsubscribeURL(siteURL, token, locale string) (string, error) {
 	parsed, err := url.Parse(siteURL)
 	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
-		return "", fmt.Errorf("invalid SITE_URL")
+		return "", errors.New("invalid SITE_URL")
 	}
 
 	parsed.Path = strings.TrimRight(parsed.Path, "/") + "/" + strings.TrimSpace(locale) + "/callback"
@@ -945,7 +945,7 @@ func writeDispatchError(w http.ResponseWriter, err error) {
 }
 
 func authorizeCronRequest(r *http.Request, secret string) bool {
-	return strings.TrimSpace(r.Header.Get("Authorization")) == fmt.Sprintf("Bearer %s", secret)
+	return strings.TrimSpace(r.Header.Get("Authorization")) == "Bearer "+secret
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
