@@ -1,0 +1,29 @@
+{
+  "adminLogin": {
+    "meta": {
+      "title": "Yönetici girişi",
+      "description": "Blog yönetim paneline erişmek için kimlik doğrulayın."
+    },
+    "eyebrow": "Güvenli erişim",
+    "title": "Yönetici girişi",
+    "subtitle": "Tanımlı yönetici bilgileri ile oturum açın.",
+    "emailPlaceholder": "ornek@eposta.com",
+    "email": "E-posta",
+    "passwordPlaceholder": "Parolanızı girin",
+    "password": "Parola",
+    "rememberMe": "Beni hatırla",
+    "showPassword": "Parolayı göster",
+    "hidePassword": "Parolayı gizle",
+    "submit": "Giriş yap",
+    "submitting": "Giriş yapılıyor...",
+    "errorFallback": "Giriş başarısız. Bilgileri ve yönetici yapılandırmasını kontrol edin.",
+    "invalidCredentials": "E-posta veya parola hatalı.",
+    "sessionExpired": "Oturumunuz sona erdi. Yeniden giriş yapın.",
+    "help": "Oturumunuz güvenli cookie'lerde tutulur. Erişim süresi biterse yeniden giriş yapın.",
+    "validation": {
+      "emailRequired": "E-posta adresinizi girin.",
+      "emailInvalid": "Geçerli bir e-posta adresi girin.",
+      "passwordRequired": "Parolanızı girin."
+    }
+  }
+}

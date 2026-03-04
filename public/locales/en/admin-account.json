@@ -1,0 +1,45 @@
+{
+  "adminAccount": {
+    "meta": {
+      "title": "Change password",
+      "description": "Update your admin password and rotate your active sessions."
+    },
+    "eyebrow": "Password security",
+    "title": "Change password",
+    "subtitle": "Update your admin password and sign back in with the new credentials.",
+    "errorFallback": "Password change failed. Check your inputs and try again.",
+    "success": "Password updated. Sign in again with your new password.",
+    "currentPasswordIncorrect": "Your current password is incorrect.",
+    "strength": {
+      "title": "Password strength",
+      "idle": "Not set",
+      "weak": "Weak",
+      "fair": "Fair",
+      "good": "Good",
+      "strong": "Strong",
+      "excellent": "Excellent"
+    },
+    "form": {
+      "copy": "Changing your password revokes existing refresh sessions and sends you back to login.",
+      "currentPassword": "Current password",
+      "currentPasswordPlaceholder": "Enter your current password",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "Create a new password",
+      "confirmPassword": "Confirm new password",
+      "confirmPasswordPlaceholder": "Repeat your new password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "passwordHint": "Use at least {{count}} characters.",
+      "submit": "Update password",
+      "submitting": "Updating password..."
+    },
+    "validation": {
+      "currentPasswordRequired": "Enter your current password.",
+      "newPasswordRequired": "Enter a new password.",
+      "newPasswordMin": "Use at least {{count}} characters.",
+      "newPasswordDifferent": "Choose a password different from the current one.",
+      "confirmPasswordRequired": "Confirm your new password.",
+      "confirmPasswordMismatch": "Password confirmation does not match."
+    }
+  }
+}

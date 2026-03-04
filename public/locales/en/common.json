@@ -41,6 +41,9 @@
       "title": "Topics",
       "loading": "Loading more topics..."
     },
+    "status": {
+      "loading": "Loading..."
+    },
     "footer": {
       "text": "© {{year}}-{{currentYear}} Şuayb's Blog. All rights reserved."
     },

@@ -1,0 +1,23 @@
+{
+  "adminCommon": {
+    "title": "Admin",
+    "brand": "Blog Admin",
+    "nav": {
+      "site": "Site",
+      "login": "Login",
+      "dashboard": "Dashboard",
+      "account": "Account"
+    },
+    "actions": {
+      "logout": "Logout",
+      "changePassword": "Password",
+      "toggleSidebar": "Toggle sidebar"
+    },
+    "user": {
+      "label": "Admin"
+    },
+    "status": {
+      "loading": "Loading admin session..."
+    }
+  }
+}

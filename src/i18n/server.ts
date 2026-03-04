@@ -9,6 +9,14 @@ const dictionaries = {
   en: {
     '404': () => import('@root/public/locales/en/404.json').then(module => module.default as NamespaceResource),
     about: () => import('@root/public/locales/en/about.json').then(module => module.default as NamespaceResource),
+    'admin-account': () =>
+      import('@root/public/locales/en/admin-account.json').then(module => module.default as NamespaceResource),
+    'admin-common': () =>
+      import('@root/public/locales/en/admin-common.json').then(module => module.default as NamespaceResource),
+    'admin-dashboard': () =>
+      import('@root/public/locales/en/admin-dashboard.json').then(module => module.default as NamespaceResource),
+    'admin-login': () =>
+      import('@root/public/locales/en/admin-login.json').then(module => module.default as NamespaceResource),
     category: () => import('@root/public/locales/en/category.json').then(module => module.default as NamespaceResource),
     common: () => import('@root/public/locales/en/common.json').then(module => module.default as NamespaceResource),
     contact: () => import('@root/public/locales/en/contact.json').then(module => module.default as NamespaceResource),
@@ -22,6 +30,14 @@ const dictionaries = {
   tr: {
     '404': () => import('@root/public/locales/tr/404.json').then(module => module.default as NamespaceResource),
     about: () => import('@root/public/locales/tr/about.json').then(module => module.default as NamespaceResource),
+    'admin-account': () =>
+      import('@root/public/locales/tr/admin-account.json').then(module => module.default as NamespaceResource),
+    'admin-common': () =>
+      import('@root/public/locales/tr/admin-common.json').then(module => module.default as NamespaceResource),
+    'admin-dashboard': () =>
+      import('@root/public/locales/tr/admin-dashboard.json').then(module => module.default as NamespaceResource),
+    'admin-login': () =>
+      import('@root/public/locales/tr/admin-login.json').then(module => module.default as NamespaceResource),
     category: () => import('@root/public/locales/tr/category.json').then(module => module.default as NamespaceResource),
     common: () => import('@root/public/locales/tr/common.json').then(module => module.default as NamespaceResource),
     contact: () => import('@root/public/locales/tr/contact.json').then(module => module.default as NamespaceResource),

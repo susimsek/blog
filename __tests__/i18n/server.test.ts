@@ -5,6 +5,10 @@ describe('i18n server', () => {
     const namespaces = [
       '404',
       'about',
+      'admin-account',
+      'admin-common',
+      'admin-dashboard',
+      'admin-login',
       'category',
       'common',
       'contact',

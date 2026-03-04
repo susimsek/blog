@@ -25,6 +25,176 @@ interface Resources {
       title: 'About Me';
     };
   };
+  'admin-account': {
+    adminAccount: {
+      currentPasswordIncorrect: 'Your current password is incorrect.';
+      errorFallback: 'Password change failed. Check your inputs and try again.';
+      eyebrow: 'Password security';
+      form: {
+        confirmPassword: 'Confirm new password';
+        confirmPasswordPlaceholder: 'Repeat your new password';
+        copy: 'Changing your password revokes existing refresh sessions and sends you back to login.';
+        currentPassword: 'Current password';
+        currentPasswordPlaceholder: 'Enter your current password';
+        hidePassword: 'Hide password';
+        newPassword: 'New password';
+        newPasswordPlaceholder: 'Create a new password';
+        passwordHint: 'Use at least {{count}} characters.';
+        showPassword: 'Show password';
+        submit: 'Update password';
+        submitting: 'Updating password...';
+      };
+      meta: {
+        description: 'Update your admin password and rotate your active sessions.';
+        title: 'Change password';
+      };
+      strength: {
+        excellent: 'Excellent';
+        fair: 'Fair';
+        good: 'Good';
+        idle: 'Not set';
+        strong: 'Strong';
+        title: 'Password strength';
+        weak: 'Weak';
+      };
+      subtitle: 'Update your admin password and sign back in with the new credentials.';
+      success: 'Password updated. Sign in again with your new password.';
+      title: 'Change password';
+      validation: {
+        confirmPasswordMismatch: 'Password confirmation does not match.';
+        confirmPasswordRequired: 'Confirm your new password.';
+        currentPasswordRequired: 'Enter your current password.';
+        newPasswordDifferent: 'Choose a password different from the current one.';
+        newPasswordMin: 'Use at least {{count}} characters.';
+        newPasswordRequired: 'Enter a new password.';
+      };
+    };
+  };
+  'admin-common': {
+    adminCommon: {
+      actions: {
+        changePassword: 'Password';
+        logout: 'Logout';
+        toggleSidebar: 'Toggle sidebar';
+      };
+      brand: 'Blog Admin';
+      nav: {
+        account: 'Account';
+        dashboard: 'Dashboard';
+        login: 'Login';
+        site: 'Site';
+      };
+      status: {
+        loading: 'Loading admin session...';
+      };
+      title: 'Admin';
+      user: {
+        label: 'Admin';
+      };
+    };
+  };
+  'admin-dashboard': {
+    adminDashboard: {
+      analytics: {
+        subtitle: 'A quick read on the posts currently carrying the strongest visibility.';
+        title: 'Traffic momentum';
+      };
+      cards: {
+        identity: {
+          body: 'Signed in as {{email}}.';
+          title: 'Identity';
+        };
+        posts: {
+          title: 'Posts';
+        };
+        session: {
+          body: 'Authenticated via admin GraphQL and HttpOnly JWT cookie.';
+          title: 'Session';
+        };
+        subscribers: {
+          title: 'Subscribers';
+        };
+      };
+      contentHealth: {
+        localePairs: 'Locale pair coverage';
+        missingThumbnails: 'Missing thumbnails';
+        missingTranslations: 'Missing translations';
+        subtitle: 'Translation parity, media coverage, and recently updated posts.';
+        title: 'Content health';
+      };
+      curation: {
+        bestFeedback: 'Best feedback';
+        dominantCategory: 'Dominant category';
+        leadStory: 'Lead story';
+        subtitle: 'What should lead the homepage and what deserves extra amplification.';
+        title: 'Editorial curation';
+      };
+      details: {
+        email: 'Email';
+        role: 'Role';
+        session: 'Session';
+      };
+      hero: {
+        badge: 'Secure session';
+      };
+      lists: {
+        topLiked: 'Top liked posts';
+        topLikedHint: 'Posts with the strongest reader feedback right now.';
+        topViewed: 'Top viewed posts';
+        topViewedHint: 'Posts currently pulling the most traffic across locales.';
+      };
+      meta: {
+        description: 'Overview of the blog admin panel.';
+        title: 'Admin dashboard';
+      };
+      sidebar: {
+        analytics: 'Analytics';
+        contentHealth: 'Content health';
+        copy: 'Operations, performance, and editorial signals in one place.';
+        curation: 'Curation';
+        label: 'Dashboard sections';
+        overview: 'Overview';
+      };
+      subtitle: 'Admin access is active. More operational modules will be added here next.';
+      table: {
+        locale: 'Locale';
+        metricHits: 'Hits';
+        metricLikes: 'Likes';
+        post: 'Post';
+      };
+      title: 'Dashboard';
+      unauthorized: 'Your admin session is missing or expired.';
+    };
+  };
+  'admin-login': {
+    adminLogin: {
+      email: 'Email';
+      emailPlaceholder: 'you@example.com';
+      errorFallback: 'Login failed. Check your credentials and admin configuration.';
+      eyebrow: 'Secure access';
+      help: 'Your session is kept in secure cookies. If access expires, sign in again.';
+      hidePassword: 'Hide password';
+      invalidCredentials: 'Invalid email or password.';
+      meta: {
+        description: 'Authenticate to access the blog admin panel.';
+        title: 'Admin login';
+      };
+      password: 'Password';
+      passwordPlaceholder: 'Enter your password';
+      rememberMe: 'Remember me';
+      sessionExpired: 'Your session expired. Sign in again.';
+      showPassword: 'Show password';
+      submit: 'Sign in';
+      submitting: 'Signing in...';
+      subtitle: 'Sign in with your configured admin credentials.';
+      title: 'Admin login';
+      validation: {
+        emailInvalid: 'Enter a valid email address.';
+        emailRequired: 'Enter your email address.';
+        passwordRequired: 'Enter your password.';
+      };
+    };
+  };
   category: {
     category: {
       meta: {
@@ -255,6 +425,9 @@ interface Resources {
         all: 'All Sources';
         blog: 'Blog';
         medium: 'Medium';
+      };
+      status: {
+        loading: 'Loading...';
       };
       theme: 'Theme';
       validation: {

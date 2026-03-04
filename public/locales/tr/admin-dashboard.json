@@ -1,0 +1,73 @@
+{
+  "adminDashboard": {
+    "meta": {
+      "title": "Yönetim paneli",
+      "description": "Blog yönetim paneli genel görünümü."
+    },
+    "title": "Panel",
+    "subtitle": "Yönetici erişimi aktif. Sonraki adımda operasyon modülleri buraya eklenecek.",
+    "hero": {
+      "badge": "Güvenli oturum"
+    },
+    "sidebar": {
+      "label": "Panel bölümleri",
+      "copy": "Operasyon, performans ve editoryal sinyaller tek ekranda.",
+      "overview": "Genel görünüm",
+      "analytics": "Analitik",
+      "contentHealth": "İçerik sağlığı",
+      "curation": "Kürasyon"
+    },
+    "analytics": {
+      "title": "Trafik momentumu",
+      "subtitle": "Şu anda görünürlüğü en güçlü şekilde taşıyan yazıların hızlı özeti."
+    },
+    "contentHealth": {
+      "title": "İçerik sağlığı",
+      "subtitle": "Çeviri eşleşmesi, medya kapsaması ve son güncellenen içerikler.",
+      "localePairs": "Dil eşleşme oranı",
+      "missingTranslations": "Eksik çeviri",
+      "missingThumbnails": "Eksik thumbnail"
+    },
+    "curation": {
+      "title": "Editoryal kürasyon",
+      "subtitle": "Ana sayfada öne çıkması ve ekstra görünürlük alması gereken içerikler.",
+      "leadStory": "Öne çıkan hikaye",
+      "bestFeedback": "En iyi geri bildirim",
+      "dominantCategory": "Baskın kategori"
+    },
+    "cards": {
+      "session": {
+        "title": "Oturum",
+        "body": "Kimlik doğrulama admin GraphQL ve HttpOnly JWT cookie üzerinden çalışıyor."
+      },
+      "identity": {
+        "title": "Kimlik",
+        "body": "{{email}} hesabı ile oturum açık."
+      },
+      "posts": {
+        "title": "Yazılar"
+      },
+      "subscribers": {
+        "title": "Aboneler"
+      }
+    },
+    "lists": {
+      "topViewed": "En çok görüntülenen yazılar",
+      "topViewedHint": "Diller genelinde şu anda en çok trafik çeken yazılar.",
+      "topLiked": "En çok beğenilen yazılar",
+      "topLikedHint": "Okuyucu geri bildirimi en güçlü olan yazılar."
+    },
+    "details": {
+      "email": "E-posta",
+      "role": "Rol",
+      "session": "Oturum"
+    },
+    "table": {
+      "post": "Yazı",
+      "locale": "Dil",
+      "metricHits": "Görüntülenme",
+      "metricLikes": "Beğeni"
+    },
+    "unauthorized": "Yönetici oturumu yok veya süresi dolmuş."
+  }
+}

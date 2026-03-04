@@ -1,0 +1,45 @@
+{
+  "adminAccount": {
+    "meta": {
+      "title": "Parola değiştir",
+      "description": "Yönetici parolanı güncelle ve aktif oturumlarını yenile."
+    },
+    "eyebrow": "Parola güvenliği",
+    "title": "Parola değiştir",
+    "subtitle": "Yönetici parolanı güncelle ve yeni bilgilerle tekrar giriş yap.",
+    "errorFallback": "Parola güncellenemedi. Bilgileri kontrol edip tekrar dene.",
+    "success": "Parola güncellendi. Yeni parolanla tekrar giriş yap.",
+    "currentPasswordIncorrect": "Mevcut parola hatalı.",
+    "strength": {
+      "title": "Parola gücü",
+      "idle": "Belirtilmedi",
+      "weak": "Zayıf",
+      "fair": "Orta",
+      "good": "İyi",
+      "strong": "Güçlü",
+      "excellent": "Çok güçlü"
+    },
+    "form": {
+      "copy": "Parola değiştiğinde mevcut refresh oturumları iptal edilir ve tekrar giriş ekranına dönersin.",
+      "currentPassword": "Mevcut parola",
+      "currentPasswordPlaceholder": "Mevcut parolanı gir",
+      "newPassword": "Yeni parola",
+      "newPasswordPlaceholder": "Yeni bir parola oluştur",
+      "confirmPassword": "Yeni parolayı doğrula",
+      "confirmPasswordPlaceholder": "Yeni parolanı tekrar gir",
+      "showPassword": "Parolayı göster",
+      "hidePassword": "Parolayı gizle",
+      "passwordHint": "En az {{count}} karakter kullan.",
+      "submit": "Parolayı güncelle",
+      "submitting": "Parola güncelleniyor..."
+    },
+    "validation": {
+      "currentPasswordRequired": "Mevcut parolanı gir.",
+      "newPasswordRequired": "Yeni parola gir.",
+      "newPasswordMin": "En az {{count}} karakter kullan.",
+      "newPasswordDifferent": "Mevcut paroladan farklı bir parola seç.",
+      "confirmPasswordRequired": "Yeni parolayı doğrula.",
+      "confirmPasswordMismatch": "Parola doğrulaması eşleşmiyor."
+    }
+  }
+}

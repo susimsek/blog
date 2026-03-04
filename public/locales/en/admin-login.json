@@ -1,0 +1,29 @@
+{
+  "adminLogin": {
+    "meta": {
+      "title": "Admin login",
+      "description": "Authenticate to access the blog admin panel."
+    },
+    "eyebrow": "Secure access",
+    "title": "Admin login",
+    "subtitle": "Sign in with your configured admin credentials.",
+    "emailPlaceholder": "you@example.com",
+    "email": "Email",
+    "passwordPlaceholder": "Enter your password",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "errorFallback": "Login failed. Check your credentials and admin configuration.",
+    "invalidCredentials": "Invalid email or password.",
+    "sessionExpired": "Your session expired. Sign in again.",
+    "help": "Your session is kept in secure cookies. If access expires, sign in again.",
+    "validation": {
+      "emailRequired": "Enter your email address.",
+      "emailInvalid": "Enter a valid email address.",
+      "passwordRequired": "Enter your password."
+    }
+  }
+}

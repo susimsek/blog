@@ -1,0 +1,19 @@
+schema:
+  - internal/graphql/admin/schema.graphqls
+
+exec:
+  filename: internal/graphql/admin/generated.go
+  package: admingraphql
+
+model:
+  filename: internal/graphql/admin/model/models_gen.go
+  package: model
+
+resolver:
+  layout: follow-schema
+  dir: internal/graphql/admin
+  package: admingraphql
+  filename_template: '{name}.resolvers.go'
+  preserve_resolver: true
+
+skip_mod_tidy: true

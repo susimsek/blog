@@ -1,0 +1,73 @@
+{
+  "adminDashboard": {
+    "meta": {
+      "title": "Admin dashboard",
+      "description": "Overview of the blog admin panel."
+    },
+    "title": "Dashboard",
+    "subtitle": "Admin access is active. More operational modules will be added here next.",
+    "hero": {
+      "badge": "Secure session"
+    },
+    "sidebar": {
+      "label": "Dashboard sections",
+      "copy": "Operations, performance, and editorial signals in one place.",
+      "overview": "Overview",
+      "analytics": "Analytics",
+      "contentHealth": "Content health",
+      "curation": "Curation"
+    },
+    "analytics": {
+      "title": "Traffic momentum",
+      "subtitle": "A quick read on the posts currently carrying the strongest visibility."
+    },
+    "contentHealth": {
+      "title": "Content health",
+      "subtitle": "Translation parity, media coverage, and recently updated posts.",
+      "localePairs": "Locale pair coverage",
+      "missingTranslations": "Missing translations",
+      "missingThumbnails": "Missing thumbnails"
+    },
+    "curation": {
+      "title": "Editorial curation",
+      "subtitle": "What should lead the homepage and what deserves extra amplification.",
+      "leadStory": "Lead story",
+      "bestFeedback": "Best feedback",
+      "dominantCategory": "Dominant category"
+    },
+    "cards": {
+      "session": {
+        "title": "Session",
+        "body": "Authenticated via admin GraphQL and HttpOnly JWT cookie."
+      },
+      "identity": {
+        "title": "Identity",
+        "body": "Signed in as {{email}}."
+      },
+      "posts": {
+        "title": "Posts"
+      },
+      "subscribers": {
+        "title": "Subscribers"
+      }
+    },
+    "lists": {
+      "topViewed": "Top viewed posts",
+      "topViewedHint": "Posts currently pulling the most traffic across locales.",
+      "topLiked": "Top liked posts",
+      "topLikedHint": "Posts with the strongest reader feedback right now."
+    },
+    "details": {
+      "email": "Email",
+      "role": "Role",
+      "session": "Session"
+    },
+    "table": {
+      "post": "Post",
+      "locale": "Locale",
+      "metricHits": "Hits",
+      "metricLikes": "Likes"
+    },
+    "unauthorized": "Your admin session is missing or expired."
+  }
+}

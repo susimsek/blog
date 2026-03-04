@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	admingraphqlapi "suaybsimsek.com/blog-api/api/admin-graphql"
 	graphqlapi "suaybsimsek.com/blog-api/api/graphql"
 	newsletterdispatch "suaybsimsek.com/blog-api/api/newsletter-dispatch"
 	appconfig "suaybsimsek.com/blog-api/internal/config"
@@ -51,6 +52,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/graphql", graphqlapi.Handler)
 	mux.HandleFunc("/api/graphql", graphqlapi.Handler)
+	mux.HandleFunc("/api/admin/graphql", admingraphqlapi.Handler)
 	mux.HandleFunc("/graphiql", graphqlapi.Handler)
 	mux.HandleFunc("/api/newsletter-dispatch", newsletterdispatch.Handler)
 	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {

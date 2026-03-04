@@ -60,6 +60,33 @@ jest.mock('@/components/common/SourceDropdown', () => ({
   )),
 }));
 
+jest.mock('@/components/common/CategoryDropdown', () => ({
+  __esModule: true,
+  default: jest.fn(({ onChange }) => (
+    <button onClick={() => onChange('programming')} data-testid="category-dropdown">
+      Category
+    </button>
+  )),
+}));
+
+jest.mock('@/components/common/ReadingTimeDropdown', () => ({
+  __esModule: true,
+  default: jest.fn(({ onChange }) => (
+    <button onClick={() => onChange('short')} data-testid="reading-time-dropdown">
+      Reading Time
+    </button>
+  )),
+}));
+
+jest.mock('@/components/common/PostDensityToggle', () => ({
+  __esModule: true,
+  default: jest.fn(({ onChange }) => (
+    <button onClick={() => onChange('grid')} data-testid="density-toggle">
+      Density
+    </button>
+  )),
+}));
+
 describe('PostFilters Component', () => {
   const basePostsQueryState: PostsQueryState = {
     sortOrder: 'desc',
@@ -212,5 +239,57 @@ describe('PostFilters Component', () => {
     );
 
     expect(screen.queryByTestId('source-dropdown')).not.toBeInTheDocument();
+  });
+
+  test('updates category and reading time filters via dispatch', async () => {
+    const { store } = renderWithProviders(
+      <PostFilters
+        topics={topics}
+        showSourceFilter
+        sourceFilter="all"
+        onSourceFilterChange={onSourceFilterChangeMock}
+      />,
+      { preloadedState: buildPreloadedState() },
+    );
+
+    fireEvent.click(screen.getByTestId('category-dropdown'));
+    fireEvent.click(screen.getByTestId('reading-time-dropdown'));
+
+    expect(store.getState().postsQuery.categoryFilter).toBe('programming');
+    expect(store.getState().postsQuery.readingTimeRange).toBe('short');
+  });
+
+  test('renders density toggle when handler is provided and forwards selected mode', () => {
+    const onDensityModeChange = jest.fn();
+
+    renderWithProviders(
+      <PostFilters
+        topics={topics}
+        showSourceFilter
+        sourceFilter="all"
+        onSourceFilterChange={onSourceFilterChangeMock}
+        densityMode="default"
+        onDensityModeChange={onDensityModeChange}
+      />,
+      { preloadedState: buildPreloadedState() },
+    );
+
+    fireEvent.click(screen.getByTestId('density-toggle'));
+    expect(onDensityModeChange).toHaveBeenCalledWith('grid');
+  });
+
+  test('does not render sort slot when sort filter is disabled', () => {
+    renderWithProviders(
+      <PostFilters
+        topics={topics}
+        showSourceFilter
+        sourceFilter="all"
+        onSourceFilterChange={onSourceFilterChangeMock}
+        showSortFilter={false}
+      />,
+      { preloadedState: buildPreloadedState() },
+    );
+
+    expect(screen.queryByTestId('sort-dropdown')).not.toBeInTheDocument();
   });
 });

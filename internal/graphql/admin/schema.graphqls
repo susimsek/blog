@@ -1,0 +1,91 @@
+schema {
+  query: AdminQuery
+  mutation: AdminMutation
+}
+
+type AdminQuery {
+  me: AdminMe!
+  dashboard: AdminDashboard!
+}
+
+type AdminMutation {
+  login(input: AdminLoginInput!): AdminAuthPayload!
+  refreshAdminSession: AdminAuthPayload!
+  logout: AdminLogoutPayload!
+  changePassword(input: AdminChangePasswordInput!): AdminPasswordChangePayload!
+}
+
+input AdminLoginInput {
+  email: String!
+  password: String!
+  rememberMe: Boolean
+}
+
+input AdminChangePasswordInput {
+  currentPassword: String!
+  newPassword: String!
+  confirmPassword: String!
+}
+
+type AdminMe {
+  authenticated: Boolean!
+  user: AdminUser
+}
+
+type AdminUser {
+  id: ID!
+  username: String
+  email: String!
+  roles: [String!]!
+}
+
+type AdminAuthPayload {
+  success: Boolean!
+  user: AdminUser
+}
+
+type AdminLogoutPayload {
+  success: Boolean!
+}
+
+type AdminPasswordChangePayload {
+  success: Boolean!
+}
+
+type AdminDashboard {
+  totalPosts: Int!
+  totalSubscribers: Int!
+  topViewedPosts: [AdminDashboardPost!]!
+  topLikedPosts: [AdminDashboardPost!]!
+  contentHealth: AdminDashboardContentHealth!
+}
+
+type AdminDashboardPost {
+  postId: ID!
+  title: String!
+  locale: String!
+  publishedDate: String!
+  hits: Int!
+  likes: Int!
+}
+
+type AdminDashboardContentHealth {
+  localePairCoverage: Int!
+  missingTranslations: Int!
+  missingThumbnails: Int!
+  latestUpdatedPosts: [AdminDashboardUpdatedPost!]!
+  dominantCategory: AdminDashboardCategory
+}
+
+type AdminDashboardUpdatedPost {
+  id: ID!
+  title: String!
+  date: String!
+  category: String!
+}
+
+type AdminDashboardCategory {
+  id: ID!
+  name: String!
+  count: Int!
+}

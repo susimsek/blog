@@ -1,0 +1,23 @@
+{
+  "adminCommon": {
+    "title": "Yönetim",
+    "brand": "Blog Yönetim",
+    "nav": {
+      "site": "Site",
+      "login": "Giriş",
+      "dashboard": "Panel",
+      "account": "Hesap"
+    },
+    "actions": {
+      "logout": "Çıkış yap",
+      "changePassword": "Parola",
+      "toggleSidebar": "Kenar çubuğunu aç veya kapat"
+    },
+    "user": {
+      "label": "Yönetici"
+    },
+    "status": {
+      "loading": "Yönetici oturumu yükleniyor..."
+    }
+  }
+}

@@ -41,6 +41,9 @@
       "title": "Konular",
       "loading": "Daha fazla konu yükleniyor..."
     },
+    "status": {
+      "loading": "Yükleniyor..."
+    },
     "footer": {
       "text": "© {{year}}-{{currentYear}} Şuayb'in Blogu. Tüm hakları saklıdır."
     },
