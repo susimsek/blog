@@ -2,12 +2,13 @@ package main
 
 import (
 	"bufio"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
+	adminavatarapi "suaybsimsek.com/blog-api/api/admin-avatar"
 	admingraphqlapi "suaybsimsek.com/blog-api/api/admin-graphql"
 	graphqlapi "suaybsimsek.com/blog-api/api/graphql"
 	newsletterdispatch "suaybsimsek.com/blog-api/api/newsletter-dispatch"
@@ -46,6 +47,8 @@ func loadDotEnv(path string) {
 }
 
 func main() {
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
+
 	loadDotEnv(filepath.Join(".", ".env.local"))
 	httpConfig := appconfig.ResolveHTTPConfig()
 
@@ -53,6 +56,7 @@ func main() {
 	mux.HandleFunc("/graphql", graphqlapi.Handler)
 	mux.HandleFunc("/api/graphql", graphqlapi.Handler)
 	mux.HandleFunc("/api/admin/graphql", admingraphqlapi.Handler)
+	mux.HandleFunc("/api/admin-avatar", adminavatarapi.Handler)
 	mux.HandleFunc("/graphiql", graphqlapi.Handler)
 	mux.HandleFunc("/api/newsletter-dispatch", newsletterdispatch.Handler)
 	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
@@ -66,8 +70,9 @@ func main() {
 		ReadHeaderTimeout: httpConfig.ReadHeaderTimeout,
 	}
 
-	log.Printf("local go api listening on http://localhost:%s", httpConfig.LocalPort)
+	slog.Info("local go api listening", "url", "http://localhost:"+httpConfig.LocalPort)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatal(err)
+		slog.Error("local go api terminated", "error", err)
+		os.Exit(1)
 	}
 }

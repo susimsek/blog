@@ -1,8 +1,8 @@
 {
   "adminAccount": {
     "meta": {
-      "title": "Change password",
-      "description": "Update your admin password and rotate your active sessions."
+      "title": "Settings",
+      "description": "Manage your admin security settings, sessions, and password."
     },
     "eyebrow": "Password security",
     "title": "Change password",
@@ -10,6 +10,113 @@
     "errorFallback": "Password change failed. Check your inputs and try again.",
     "success": "Password updated. Sign in again with your new password.",
     "currentPasswordIncorrect": "Your current password is incorrect.",
+    "tabs": {
+      "sessions": "Active sessions",
+      "password": "Change password"
+    },
+    "settings": {
+      "title": "Settings",
+      "copy": "Manage your profile, account controls, security, and active sessions.",
+      "navLabel": "Settings navigation",
+      "profile": "Profile",
+      "account": "Account",
+      "appearance": "Appearance",
+      "sessions": "Sessions",
+      "security": "Security"
+    },
+    "profile": {
+      "title": "Profile",
+      "copy": "Review your admin identity and account metadata.",
+      "avatar": {
+        "title": "Profile picture",
+        "copy": "Upload a PNG, JPEG, or WebP image up to {{sizeMB}}MB.",
+        "edit": "Edit picture",
+        "remove": "Remove picture",
+        "uploading": "Uploading...",
+        "crop": {
+          "title": "Crop your new profile picture",
+          "copy": "Drag the photo and use corner handles to adjust the crop.",
+          "zoom": "Zoom",
+          "cancel": "Cancel",
+          "save": "Set new profile picture",
+          "saving": "Saving..."
+        },
+        "states": {
+          "custom": "Custom image",
+          "default": "Default image"
+        },
+        "success": {
+          "updated": "Profile picture updated."
+        },
+        "errors": {
+          "update": "Profile picture could not be updated right now.",
+          "invalidFormat": "Use PNG, JPEG, or WebP image.",
+          "invalidSize": "Use an image up to {{sizeMB}}MB.",
+          "invalidImage": "Selected file is not a valid image."
+        }
+      },
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter your name",
+        "submit": "Update name",
+        "submitting": "Updating name..."
+      },
+      "success": {
+        "nameUpdated": "Name updated."
+      },
+      "errors": {
+        "nameUpdate": "Name could not be updated right now."
+      },
+      "notSet": "Not set",
+      "labels": {
+        "name": "Name",
+        "username": "Username",
+        "picture": "Profile picture",
+        "email": "Email",
+        "role": "Role",
+        "id": "Account ID"
+      }
+    },
+    "account": {
+      "appearance": {
+        "title": "Appearance",
+        "copy": "Choose how the admin panel looks for your account on this browser.",
+        "options": {
+          "system": "System",
+          "light": "Light mode",
+          "dark": "Dark mode",
+          "oceanic": "Oceanic mode",
+          "forest": "Forest mode"
+        }
+      },
+      "username": {
+        "title": "Change username",
+        "copy": "Update your username for your admin account.",
+        "label": "New username",
+        "placeholder": "Enter a new username",
+        "submit": "Update username",
+        "submitting": "Updating username..."
+      },
+      "delete": {
+        "title": "Delete account",
+        "copy": "Permanently disable this admin account. This action cannot be undone.",
+        "currentPassword": "Current password",
+        "currentPasswordPlaceholder": "Enter your current password",
+        "confirmLabel": "Type confirmation",
+        "confirmPlaceholder": "Type {{value}} to confirm",
+        "submit": "Delete account",
+        "submitting": "Deleting account..."
+      },
+      "success": {
+        "usernameUpdated": "Username updated.",
+        "deleted": "Account deleted. You are being signed out."
+      },
+      "errors": {
+        "usernameUpdate": "Username could not be updated right now.",
+        "usernameTaken": "This username is already in use.",
+        "deleteAccount": "Account could not be deleted right now."
+      }
+    },
     "strength": {
       "title": "Password strength",
       "idle": "Not set",
@@ -33,13 +140,49 @@
       "submit": "Update password",
       "submitting": "Updating password..."
     },
+    "sessions": {
+      "title": "Active sessions",
+      "copy": "Review signed-in devices and revoke sessions you no longer trust.",
+      "loading": "Loading active sessions...",
+      "empty": "No active sessions found.",
+      "labels": {
+        "current": "Current",
+        "remembered": "Remembered",
+        "ip": "IP: {{value}}",
+        "country": "Seen in {{value}}",
+        "lastActivity": "Last activity: {{value}}",
+        "expires": "Expires: {{value}}"
+      },
+      "actions": {
+        "revokeAll": "Revoke all",
+        "revokingAll": "Revoking...",
+        "revokeSingle_other": "Revoke",
+        "revokeSingle_current": "Sign out this device",
+        "revokingSingle": "Revoking..."
+      },
+      "success": {
+        "revokeSingle": "Session revoked."
+      },
+      "errors": {
+        "load": "Active sessions could not be loaded right now.",
+        "revokeSingle": "Session could not be revoked.",
+        "revokeAll": "Sessions could not be revoked."
+      }
+    },
     "validation": {
       "currentPasswordRequired": "Enter your current password.",
       "newPasswordRequired": "Enter a new password.",
       "newPasswordMin": "Use at least {{count}} characters.",
       "newPasswordDifferent": "Choose a password different from the current one.",
       "confirmPasswordRequired": "Confirm your new password.",
-      "confirmPasswordMismatch": "Password confirmation does not match."
+      "confirmPasswordMismatch": "Password confirmation does not match.",
+      "usernameRequired": "Enter a username.",
+      "nameRequired": "Enter a name.",
+      "nameLength": "Name must be between {{min}} and {{max}} characters.",
+      "usernameLength": "Username must be between {{min}} and {{max}} characters.",
+      "usernamePattern": "Use letters, numbers, dot, underscore, or dash only.",
+      "usernameDifferent": "Choose a username different from the current one.",
+      "deleteConfirmation": "Type {{value}} to confirm account deletion."
     }
   }
 }

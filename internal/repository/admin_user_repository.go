@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -21,11 +23,16 @@ type AdminUserRepository interface {
 	FindByID(ctx context.Context, id string) (*domain.AdminUserRecord, error)
 	FindByUsername(ctx context.Context, username string) (*domain.AdminUserRecord, error)
 	UpdatePasswordHashByID(ctx context.Context, id, passwordHash string) error
+	UpdateNameByID(ctx context.Context, id, name string) error
+	UpdateUsernameByID(ctx context.Context, id, username string) error
+	UpdateAvatarByID(ctx context.Context, id, avatarURL, avatarDigest string, avatarVersion int64) error
+	DisableByID(ctx context.Context, id string) error
 }
 
 var (
 	ErrAdminUserRepositoryUnavailable = errors.New("admin user repository unavailable")
 	ErrAdminUserNotFound              = errors.New("admin user not found")
+	ErrAdminUsernameAlreadyExists     = errors.New("admin username already exists")
 )
 
 const (
@@ -97,6 +104,133 @@ func (*adminMongoRepository) UpdatePasswordHashByID(ctx context.Context, id, pas
 		bson.M{
 			"$set": bson.M{
 				"passwordHash": strings.TrimSpace(passwordHash),
+			},
+			"$inc": bson.M{
+				"passwordVersion": 1,
+			},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrAdminUserNotFound
+	}
+
+	return nil
+}
+
+func (*adminMongoRepository) UpdateNameByID(ctx context.Context, id, name string) error {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	result, err := collection.UpdateOne(
+		ctx,
+		bson.M{
+			"id":     strings.TrimSpace(id),
+			"status": bson.M{"$ne": "disabled"},
+		},
+		bson.M{
+			"$set": bson.M{
+				"name": strings.TrimSpace(name),
+			},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrAdminUserNotFound
+	}
+
+	return nil
+}
+
+func (*adminMongoRepository) UpdateUsernameByID(ctx context.Context, id, username string) error {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	result, err := collection.UpdateOne(
+		ctx,
+		bson.M{
+			"id":     strings.TrimSpace(id),
+			"status": bson.M{"$ne": "disabled"},
+		},
+		bson.M{
+			"$set": bson.M{
+				"username": strings.TrimSpace(username),
+			},
+		},
+	)
+	if err != nil {
+		if mongo.IsDuplicateKeyError(err) {
+			return ErrAdminUsernameAlreadyExists
+		}
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrAdminUserNotFound
+	}
+
+	return nil
+}
+
+func (*adminMongoRepository) UpdateAvatarByID(
+	ctx context.Context,
+	id,
+	avatarURL,
+	avatarDigest string,
+	avatarVersion int64,
+) error {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	result, err := collection.UpdateOne(
+		ctx,
+		bson.M{
+			"id":     strings.TrimSpace(id),
+			"status": bson.M{"$ne": "disabled"},
+		},
+		bson.M{
+			"$set": bson.M{
+				"avatarUrl":     strings.TrimSpace(avatarURL),
+				"avatarDigest":  strings.TrimSpace(avatarDigest),
+				"avatarVersion": avatarVersion,
+			},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrAdminUserNotFound
+	}
+
+	return nil
+}
+
+func (*adminMongoRepository) DisableByID(ctx context.Context, id string) error {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	result, err := collection.UpdateOne(
+		ctx,
+		bson.M{
+			"id":     strings.TrimSpace(id),
+			"status": bson.M{"$ne": "disabled"},
+		},
+		bson.M{
+			"$set": bson.M{
+				"status":     "disabled",
+				"disabledAt": time.Now().UTC(),
 			},
 			"$inc": bson.M{
 				"passwordVersion": 1,
@@ -202,7 +336,11 @@ func ensureAdminUserIndexes(collection *mongo.Collection) error {
 func findAdminUser(ctx context.Context, collection *mongo.Collection, filter bson.M) (*domain.AdminUserRecord, error) {
 	var doc struct {
 		ID              string   `bson:"id"`
+		Name            string   `bson:"name"`
 		Username        string   `bson:"username"`
+		AvatarURL       string   `bson:"avatarUrl"`
+		AvatarDigest    string   `bson:"avatarDigest"`
+		AvatarVersion   int64    `bson:"avatarVersion"`
 		Email           string   `bson:"email"`
 		PasswordHash    string   `bson:"passwordHash"`
 		PasswordVersion int64    `bson:"passwordVersion"`
@@ -228,12 +366,32 @@ func findAdminUser(ctx context.Context, collection *mongo.Collection, filter bso
 
 	return &domain.AdminUserRecord{
 		AdminUser: domain.AdminUser{
-			ID:       doc.ID,
-			Username: strings.TrimSpace(doc.Username),
-			Email:    strings.TrimSpace(strings.ToLower(doc.Email)),
-			Roles:    roles,
+			ID:            doc.ID,
+			Name:          strings.TrimSpace(doc.Name),
+			Username:      strings.TrimSpace(doc.Username),
+			AvatarURL:     resolveAdminAvatarURL(doc.ID, doc.AvatarDigest, doc.AvatarVersion, doc.AvatarURL),
+			AvatarDigest:  strings.TrimSpace(doc.AvatarDigest),
+			AvatarVersion: doc.AvatarVersion,
+			Email:         strings.TrimSpace(strings.ToLower(doc.Email)),
+			Roles:         roles,
 		},
 		PasswordHash:    strings.TrimSpace(doc.PasswordHash),
 		PasswordVersion: doc.PasswordVersion,
 	}, nil
+}
+
+func resolveAdminAvatarURL(userID, digest string, version int64, legacyAvatarURL string) string {
+	resolvedUserID := strings.TrimSpace(userID)
+	resolvedDigest := strings.TrimSpace(digest)
+	if resolvedUserID == "" || resolvedDigest == "" || version <= 0 {
+		return strings.TrimSpace(legacyAvatarURL)
+	}
+
+	query := url.Values{}
+	query.Set("id", resolvedUserID)
+	query.Set("s", strconv.Itoa(256))
+	query.Set("u", resolvedDigest)
+	query.Set("v", strconv.FormatInt(version, 10))
+
+	return "/api/admin-avatar?" + query.Encode()
 }

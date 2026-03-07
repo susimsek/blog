@@ -8,12 +8,14 @@ import (
 	"context"
 	"net/http"
 	"strings"
+	"time"
 
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/graphql/admin/model"
 	appservice "suaybsimsek.com/blog-api/internal/service"
 	"suaybsimsek.com/blog-api/pkg/apperrors"
+	"suaybsimsek.com/blog-api/pkg/httpapi"
 	"suaybsimsek.com/blog-api/pkg/httpauth"
 )
 
@@ -44,10 +46,32 @@ func (r *adminQueryResolver) Dashboard(ctx context.Context) (*model.AdminDashboa
 	return mapAdminDashboard(payload), nil
 }
 
+// ActiveSessions is the resolver for the activeSessions field.
+func (r *adminQueryResolver) ActiveSessions(ctx context.Context) ([]*model.AdminSession, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	sessions, err := appservice.ListActiveAdminSessions(ctx, adminUser)
+	if err != nil {
+		return nil, err
+	}
+
+	currentSessionID := resolveCurrentRefreshSessionID(ctx)
+	return mapAdminSessions(sessions, currentSessionID), nil
+}
+
 // Login is the resolver for the login field.
 func (r *adminMutationResolver) Login(ctx context.Context, input model.AdminLoginInput) (*model.AdminAuthPayload, error) {
 	rememberMe := input.RememberMe != nil && *input.RememberMe
-	payload, err := appservice.LoginAdmin(ctx, strings.TrimSpace(input.Email), input.Password, rememberMe)
+	payload, err := appservice.LoginAdmin(
+		ctx,
+		strings.TrimSpace(input.Email),
+		input.Password,
+		rememberMe,
+		resolveAdminSessionMetadata(ctx, getRequest(ctx)),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +106,11 @@ func (r *adminMutationResolver) RefreshAdminSession(ctx context.Context) (*model
 		return nil, apperrors.Unauthorized("invalid admin session")
 	}
 
-	payload, err := appservice.RefreshAdminSession(ctx, strings.TrimSpace(refreshCookie.Value))
+	payload, err := appservice.RefreshAdminSession(
+		ctx,
+		strings.TrimSpace(refreshCookie.Value),
+		resolveAdminSessionMetadata(ctx, request),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -115,11 +143,93 @@ func (r *adminMutationResolver) Logout(ctx context.Context) (*model.AdminLogoutP
 			}
 		}
 	}
-	httpauth.ClearCookie(responseWriter, config.AccessCookieName, config.SecureCookies, "/")
-	httpauth.ClearCookie(responseWriter, config.RefreshCookieName, config.SecureCookies, "/api/admin")
-	httpauth.ClearClientCookie(responseWriter, config.CSRFCookieName, config.SecureCookies, "/")
+	clearAdminSessionCookies(responseWriter, config)
 
 	return &model.AdminLogoutPayload{Success: true}, nil
+}
+
+// ChangeName is the resolver for the changeName field.
+func (r *adminMutationResolver) ChangeName(
+	ctx context.Context,
+	input model.AdminChangeNameInput,
+) (*model.AdminAuthPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedAdminUser, err := appservice.ChangeAdminName(ctx, adminUser, input.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AdminAuthPayload{
+		Success: true,
+		User:    mapAdminUser(updatedAdminUser),
+	}, nil
+}
+
+// ChangeAvatar is the resolver for the changeAvatar field.
+func (r *adminMutationResolver) ChangeAvatar(
+	ctx context.Context,
+	input model.AdminChangeAvatarInput,
+) (*model.AdminAuthPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedAdminUser, err := appservice.ChangeAdminAvatar(ctx, adminUser, input.AvatarURL)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AdminAuthPayload{
+		Success: true,
+		User:    mapAdminUser(updatedAdminUser),
+	}, nil
+}
+
+// ChangeUsername is the resolver for the changeUsername field.
+func (r *adminMutationResolver) ChangeUsername(
+	ctx context.Context,
+	input model.AdminChangeUsernameInput,
+) (*model.AdminAuthPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedAdminUser, err := appservice.ChangeAdminUsername(ctx, adminUser, input.NewUsername)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AdminAuthPayload{
+		Success: true,
+		User:    mapAdminUser(updatedAdminUser),
+	}, nil
+}
+
+// DeleteAccount is the resolver for the deleteAccount field.
+func (r *adminMutationResolver) DeleteAccount(
+	ctx context.Context,
+	input model.AdminDeleteAccountInput,
+) (*model.AdminAccountDeletePayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := appservice.DeleteAdminAccount(ctx, adminUser, input.CurrentPassword); err != nil {
+		return nil, err
+	}
+
+	responseWriter := getResponseWriter(ctx)
+	config := appconfig.ResolveAdminConfig()
+	clearAdminSessionCookies(responseWriter, config)
+
+	return &model.AdminAccountDeletePayload{Success: true}, nil
 }
 
 // ChangePassword is the resolver for the changePassword field.
@@ -141,11 +251,46 @@ func (r *adminMutationResolver) ChangePassword(ctx context.Context, input model.
 
 	responseWriter := getResponseWriter(ctx)
 	config := appconfig.ResolveAdminConfig()
-	httpauth.ClearCookie(responseWriter, config.AccessCookieName, config.SecureCookies, "/")
-	httpauth.ClearCookie(responseWriter, config.RefreshCookieName, config.SecureCookies, "/api/admin")
-	httpauth.ClearClientCookie(responseWriter, config.CSRFCookieName, config.SecureCookies, "/")
+	clearAdminSessionCookies(responseWriter, config)
 
 	return &model.AdminPasswordChangePayload{Success: true}, nil
+}
+
+// RevokeSession is the resolver for the revokeSession field.
+func (r *adminMutationResolver) RevokeSession(ctx context.Context, sessionID string) (*model.AdminSessionRevokePayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	revoked, err := appservice.RevokeAdminSession(ctx, adminUser, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	if !revoked {
+		return nil, apperrors.BadRequest("session not found")
+	}
+
+	if strings.TrimSpace(sessionID) == resolveCurrentRefreshSessionID(ctx) {
+		clearAdminSessionCookies(getResponseWriter(ctx), appconfig.ResolveAdminConfig())
+	}
+
+	return &model.AdminSessionRevokePayload{Success: true}, nil
+}
+
+// RevokeAllSessions is the resolver for the revokeAllSessions field.
+func (r *adminMutationResolver) RevokeAllSessions(ctx context.Context) (*model.AdminSessionRevokePayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := appservice.RevokeAllAdminSessions(ctx, adminUser); err != nil {
+		return nil, err
+	}
+
+	clearAdminSessionCookies(getResponseWriter(ctx), appconfig.ResolveAdminConfig())
+	return &model.AdminSessionRevokePayload{Success: true}, nil
 }
 
 // AdminMutation returns AdminMutationResolver implementation.
@@ -165,14 +310,34 @@ func mapAdminUser(user *domain.AdminUser) *model.AdminUser {
 	}
 
 	return &model.AdminUser{
-		ID:       user.ID,
-		Username: toOptionalAdminUsername(user.Username),
-		Email:    user.Email,
-		Roles:    append([]string{}, user.Roles...),
+		ID:        user.ID,
+		Name:      toOptionalAdminProfileName(user.Name),
+		Username:  toOptionalAdminUsername(user.Username),
+		AvatarURL: toOptionalAdminAvatarURL(user.AvatarURL),
+		Email:     user.Email,
+		Roles:     append([]string{}, user.Roles...),
 	}
 }
 
+func toOptionalAdminProfileName(value string) *string {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return nil
+	}
+
+	return &trimmed
+}
+
 func toOptionalAdminUsername(value string) *string {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return nil
+	}
+
+	return &trimmed
+}
+
+func toOptionalAdminAvatarURL(value string) *string {
 	trimmed := strings.TrimSpace(value)
 	if trimmed == "" {
 		return nil
@@ -245,6 +410,176 @@ func mapAdminDashboardCategory(value *domain.AdminDashboardCategory) *model.Admi
 		Name:  value.Name,
 		Count: value.Count,
 	}
+}
+
+func mapAdminSessions(items []domain.AdminSessionRecord, currentSessionID string) []*model.AdminSession {
+	mapped := make([]*model.AdminSession, 0, len(items))
+	for _, item := range items {
+		mapped = append(mapped, &model.AdminSession{
+			ID:             item.ID,
+			Device:         resolveAdminDeviceLabel(item.UserAgent),
+			IPAddress:      resolveAdminIPAddressLabel(item.RemoteIP),
+			CountryCode:    resolveAdminCountryCodeLabel(item.CountryCode),
+			LastActivityAt: item.LastSeenAt.UTC().Format(time.RFC3339),
+			CreatedAt:      item.CreatedAt.UTC().Format(time.RFC3339),
+			ExpiresAt:      item.ExpiresAt.UTC().Format(time.RFC3339),
+			Persistent:     item.Persistent,
+			Current:        strings.TrimSpace(item.ID) != "" && strings.TrimSpace(item.ID) == strings.TrimSpace(currentSessionID),
+		})
+	}
+
+	return mapped
+}
+
+func resolveAdminDeviceLabel(userAgent string) string {
+	normalized := strings.ToLower(strings.TrimSpace(userAgent))
+	if normalized == "" {
+		return "Unknown device"
+	}
+
+	browser := resolveBrowserLabel(normalized)
+	os := resolveOSLabel(normalized)
+	switch {
+	case browser != "" && os != "":
+		return browser + " on " + os
+	case browser != "":
+		return browser
+	case os != "":
+		return os
+	case strings.Contains(normalized, "iphone"),
+		strings.Contains(normalized, "android"),
+		strings.Contains(normalized, "mobile"):
+		return "Mobile browser"
+	case strings.Contains(normalized, "ipad"),
+		strings.Contains(normalized, "tablet"):
+		return "Tablet browser"
+	case strings.Contains(normalized, "macintosh"),
+		strings.Contains(normalized, "windows"),
+		strings.Contains(normalized, "linux"),
+		strings.Contains(normalized, "x11"):
+		return "Desktop browser"
+	default:
+		return "Browser"
+	}
+}
+
+func resolveBrowserLabel(userAgent string) string {
+	switch {
+	case strings.Contains(userAgent, "edg/"):
+		return "Edge"
+	case strings.Contains(userAgent, "opr/"), strings.Contains(userAgent, "opera/"):
+		return "Opera"
+	case strings.Contains(userAgent, "firefox/"):
+		return "Firefox"
+	case strings.Contains(userAgent, "chrome/"):
+		return "Chrome"
+	case strings.Contains(userAgent, "safari/"), strings.Contains(userAgent, "version/"):
+		return "Safari"
+	case strings.Contains(userAgent, "chromium/"):
+		return "Chromium"
+	default:
+		return ""
+	}
+}
+
+func resolveOSLabel(userAgent string) string {
+	switch {
+	case strings.Contains(userAgent, "iphone"), strings.Contains(userAgent, "ipad"), strings.Contains(userAgent, "ios"):
+		return "iOS"
+	case strings.Contains(userAgent, "android"):
+		return "Android"
+	case strings.Contains(userAgent, "mac os x"), strings.Contains(userAgent, "macintosh"):
+		return "macOS"
+	case strings.Contains(userAgent, "windows nt"):
+		return "Windows"
+	case strings.Contains(userAgent, "cros"):
+		return "ChromeOS"
+	case strings.Contains(userAgent, "linux"), strings.Contains(userAgent, "x11"):
+		return "Linux"
+	default:
+		return ""
+	}
+}
+
+func resolveAdminIPAddressLabel(ipAddress string) string {
+	trimmed := strings.TrimSpace(ipAddress)
+	if trimmed == "" {
+		return "Unknown"
+	}
+
+	return trimmed
+}
+
+func resolveAdminCountryCodeLabel(countryCode string) string {
+	trimmed := strings.TrimSpace(strings.ToUpper(countryCode))
+	if len(trimmed) != 2 {
+		return "Unknown"
+	}
+
+	return trimmed
+}
+
+func resolveCurrentRefreshSessionID(ctx context.Context) string {
+	request := getRequest(ctx)
+	if request == nil {
+		return ""
+	}
+
+	config := appconfig.ResolveAdminConfig()
+	if strings.TrimSpace(config.JWTSecret) == "" {
+		return ""
+	}
+
+	refreshCookie, err := request.Cookie(config.RefreshCookieName)
+	if err != nil {
+		return ""
+	}
+
+	claims, err := httpauth.VerifyHS256JWT(strings.TrimSpace(refreshCookie.Value), config.JWTSecret, "refresh", time.Now().UTC())
+	if err != nil {
+		return ""
+	}
+
+	return strings.TrimSpace(claims.ID)
+}
+
+func resolveAdminSessionMetadata(ctx context.Context, request *http.Request) appservice.AdminSessionMetadata {
+	metadata := appservice.AdminSessionMetadata{}
+	if trace, ok := httpapi.RequestTraceFromContext(ctx); ok {
+		metadata.RemoteIP = strings.TrimSpace(trace.RemoteIP)
+		metadata.UserAgent = strings.TrimSpace(trace.UserAgent)
+		metadata.CountryCode = strings.TrimSpace(strings.ToUpper(trace.CountryCode))
+	}
+
+	if request != nil && strings.TrimSpace(metadata.UserAgent) == "" {
+		metadata.UserAgent = strings.TrimSpace(request.UserAgent())
+	}
+	if request != nil && strings.TrimSpace(metadata.CountryCode) == "" {
+		metadata.CountryCode = resolveCountryCodeFromRequest(request)
+	}
+
+	return metadata
+}
+
+func resolveCountryCodeFromRequest(request *http.Request) string {
+	if request == nil {
+		return ""
+	}
+
+	for _, header := range []string{"CF-IPCountry", "X-Country-Code", "X-AppEngine-Country"} {
+		value := strings.TrimSpace(strings.ToUpper(request.Header.Get(header)))
+		if len(value) == 2 {
+			return value
+		}
+	}
+
+	return ""
+}
+
+func clearAdminSessionCookies(responseWriter http.ResponseWriter, config appconfig.AdminConfig) {
+	httpauth.ClearCookie(responseWriter, config.AccessCookieName, config.SecureCookies, "/")
+	httpauth.ClearCookie(responseWriter, config.RefreshCookieName, config.SecureCookies, "/api/admin")
+	httpauth.ClearClientCookie(responseWriter, config.CSRFCookieName, config.SecureCookies, "/")
 }
 
 func setAdminRefreshCookie(

@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -45,5 +46,21 @@ func TestWriteErrorWrapsUnknownErrors(t *testing.T) {
 	}
 	if recorder.Body.String() == "" {
 		t.Fatal("expected response body")
+	}
+}
+
+func TestWriteErrorWithContextIncludesRequestID(t *testing.T) {
+	recorder := httptest.NewRecorder()
+	ctx := WithRequestID(context.Background(), "req-test-1")
+
+	WriteErrorWithContext(ctx, recorder, apperrors.BadRequest("invalid request"))
+
+	var payload ErrorResponse
+	if err := json.Unmarshal(recorder.Body.Bytes(), &payload); err != nil {
+		t.Fatalf("unmarshal failed: %v", err)
+	}
+
+	if payload.RequestID != "req-test-1" {
+		t.Fatalf("requestId = %q", payload.RequestID)
 	}
 }

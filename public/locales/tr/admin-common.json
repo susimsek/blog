@@ -10,6 +10,7 @@
     },
     "actions": {
       "logout": "Çıkış yap",
+      "settings": "Ayarlar",
       "changePassword": "Parola",
       "toggleSidebar": "Kenar çubuğunu aç veya kapat"
     },

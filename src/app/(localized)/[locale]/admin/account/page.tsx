@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/admin/ac
     locale,
     title: t('adminAccount.meta.title', { ns: 'admin-account' }),
     description: t('adminAccount.meta.description', { ns: 'admin-account' }),
-    path: 'admin/change-password',
+    path: 'admin/settings/account',
     robots: {
       index: false,
       follow: false,
@@ -21,5 +21,5 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/admin/ac
 
 export default async function AdminAccountRoute({ params }: Readonly<PageProps<'/[locale]/admin/account'>>) {
   const { locale } = await params;
-  redirect(`/${locale}/admin/change-password`);
+  redirect(`/${locale}/admin/settings/account`);
 }

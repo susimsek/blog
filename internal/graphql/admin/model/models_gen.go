@@ -2,15 +2,31 @@
 
 package model
 
+type AdminAccountDeletePayload struct {
+	Success bool `json:"success"`
+}
+
 type AdminAuthPayload struct {
 	Success bool       `json:"success"`
 	User    *AdminUser `json:"user,omitempty"`
+}
+
+type AdminChangeAvatarInput struct {
+	AvatarURL *string `json:"avatarUrl,omitempty"`
+}
+
+type AdminChangeNameInput struct {
+	Name string `json:"name"`
 }
 
 type AdminChangePasswordInput struct {
 	CurrentPassword string `json:"currentPassword"`
 	NewPassword     string `json:"newPassword"`
 	ConfirmPassword string `json:"confirmPassword"`
+}
+
+type AdminChangeUsernameInput struct {
+	NewUsername string `json:"newUsername"`
 }
 
 type AdminDashboard struct {
@@ -51,6 +67,10 @@ type AdminDashboardUpdatedPost struct {
 	Category string `json:"category"`
 }
 
+type AdminDeleteAccountInput struct {
+	CurrentPassword string `json:"currentPassword"`
+}
+
 type AdminLoginInput struct {
 	Email      string `json:"email"`
 	Password   string `json:"password"`
@@ -76,9 +96,27 @@ type AdminPasswordChangePayload struct {
 type AdminQuery struct {
 }
 
+type AdminSession struct {
+	ID             string `json:"id"`
+	Device         string `json:"device"`
+	IPAddress      string `json:"ipAddress"`
+	CountryCode    string `json:"countryCode"`
+	LastActivityAt string `json:"lastActivityAt"`
+	CreatedAt      string `json:"createdAt"`
+	ExpiresAt      string `json:"expiresAt"`
+	Persistent     bool   `json:"persistent"`
+	Current        bool   `json:"current"`
+}
+
+type AdminSessionRevokePayload struct {
+	Success bool `json:"success"`
+}
+
 type AdminUser struct {
-	ID       string   `json:"id"`
-	Username *string  `json:"username,omitempty"`
-	Email    string   `json:"email"`
-	Roles    []string `json:"roles"`
+	ID        string   `json:"id"`
+	Name      *string  `json:"name,omitempty"`
+	Username  *string  `json:"username,omitempty"`
+	AvatarURL *string  `json:"avatarUrl,omitempty"`
+	Email     string   `json:"email"`
+	Roles     []string `json:"roles"`
 }

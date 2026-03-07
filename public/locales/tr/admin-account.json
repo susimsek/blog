@@ -1,8 +1,8 @@
 {
   "adminAccount": {
     "meta": {
-      "title": "Parola değiştir",
-      "description": "Yönetici parolanı güncelle ve aktif oturumlarını yenile."
+      "title": "Ayarlar",
+      "description": "Yönetici güvenlik ayarlarını, oturumları ve parolanı yönet."
     },
     "eyebrow": "Parola güvenliği",
     "title": "Parola değiştir",
@@ -10,6 +10,113 @@
     "errorFallback": "Parola güncellenemedi. Bilgileri kontrol edip tekrar dene.",
     "success": "Parola güncellendi. Yeni parolanla tekrar giriş yap.",
     "currentPasswordIncorrect": "Mevcut parola hatalı.",
+    "tabs": {
+      "sessions": "Aktif oturumlar",
+      "password": "Parola değiştir"
+    },
+    "settings": {
+      "title": "Ayarlar",
+      "copy": "Profilini, hesap işlemlerini, güvenliği ve aktif oturumları yönet.",
+      "navLabel": "Ayarlar gezintisi",
+      "profile": "Profil",
+      "account": "Hesap",
+      "appearance": "Görünüm",
+      "sessions": "Oturumlar",
+      "security": "Güvenlik"
+    },
+    "profile": {
+      "title": "Profil",
+      "copy": "Yönetici kimliğini ve hesap bilgilerini görüntüle.",
+      "avatar": {
+        "title": "Profil fotoğrafı",
+        "copy": "En fazla {{sizeMB}}MB olacak şekilde PNG, JPEG veya WebP yükle.",
+        "edit": "Fotoğrafı düzenle",
+        "remove": "Fotoğrafı kaldır",
+        "uploading": "Yükleniyor...",
+        "crop": {
+          "title": "Yeni profil fotoğrafını kırp",
+          "copy": "Fotoğrafı sürükleyip köşe tutamaçlarıyla kırpma alanını ayarla.",
+          "zoom": "Yakınlaştırma",
+          "cancel": "Vazgeç",
+          "save": "Yeni profil fotoğrafını ayarla",
+          "saving": "Kaydediliyor..."
+        },
+        "states": {
+          "custom": "Özel görsel",
+          "default": "Varsayılan görsel"
+        },
+        "success": {
+          "updated": "Profil fotoğrafı güncellendi."
+        },
+        "errors": {
+          "update": "Profil fotoğrafı şu anda güncellenemedi.",
+          "invalidFormat": "PNG, JPEG veya WebP görsel kullan.",
+          "invalidSize": "En fazla {{sizeMB}}MB görsel kullan.",
+          "invalidImage": "Seçilen dosya geçerli bir görsel değil."
+        }
+      },
+      "name": {
+        "label": "İsim",
+        "placeholder": "İsmini gir",
+        "submit": "İsmi güncelle",
+        "submitting": "İsim güncelleniyor..."
+      },
+      "success": {
+        "nameUpdated": "İsim güncellendi."
+      },
+      "errors": {
+        "nameUpdate": "İsim şu anda güncellenemedi."
+      },
+      "notSet": "Belirtilmedi",
+      "labels": {
+        "name": "İsim",
+        "username": "Kullanıcı adı",
+        "picture": "Profil fotoğrafı",
+        "email": "E-posta",
+        "role": "Rol",
+        "id": "Hesap ID"
+      }
+    },
+    "account": {
+      "appearance": {
+        "title": "Görünüm",
+        "copy": "Bu tarayıcıda yönetim panelinin nasıl görüneceğini seç.",
+        "options": {
+          "system": "Sistem",
+          "light": "Açık mod",
+          "dark": "Koyu mod",
+          "oceanic": "Okyanus mod",
+          "forest": "Orman mod"
+        }
+      },
+      "username": {
+        "title": "Kullanıcı adı değiştir",
+        "copy": "Yönetici hesabındaki kullanıcı adını güncelle.",
+        "label": "Yeni kullanıcı adı",
+        "placeholder": "Yeni kullanıcı adını gir",
+        "submit": "Kullanıcı adını güncelle",
+        "submitting": "Kullanıcı adı güncelleniyor..."
+      },
+      "delete": {
+        "title": "Hesabı sil",
+        "copy": "Bu yönetici hesabını kalıcı olarak devre dışı bırakır. Bu işlem geri alınamaz.",
+        "currentPassword": "Mevcut parola",
+        "currentPasswordPlaceholder": "Mevcut parolanı gir",
+        "confirmLabel": "Onay metnini yaz",
+        "confirmPlaceholder": "Onay için {{value}} yaz",
+        "submit": "Hesabı sil",
+        "submitting": "Hesap siliniyor..."
+      },
+      "success": {
+        "usernameUpdated": "Kullanıcı adı güncellendi.",
+        "deleted": "Hesap silindi. Oturum kapatılıyor."
+      },
+      "errors": {
+        "usernameUpdate": "Kullanıcı adı şu anda güncellenemedi.",
+        "usernameTaken": "Bu kullanıcı adı zaten kullanımda.",
+        "deleteAccount": "Hesap şu anda silinemedi."
+      }
+    },
     "strength": {
       "title": "Parola gücü",
       "idle": "Belirtilmedi",
@@ -33,13 +140,49 @@
       "submit": "Parolayı güncelle",
       "submitting": "Parola güncelleniyor..."
     },
+    "sessions": {
+      "title": "Aktif oturumlar",
+      "copy": "Açık cihaz oturumlarını incele ve güvenmediğin oturumları kapat.",
+      "loading": "Aktif oturumlar yükleniyor...",
+      "empty": "Aktif oturum bulunamadı.",
+      "labels": {
+        "current": "Bu cihaz",
+        "remembered": "Beni hatırla",
+        "ip": "IP: {{value}}",
+        "country": "{{value}} bölgesinden",
+        "lastActivity": "Son aktivite: {{value}}",
+        "expires": "Bitiş: {{value}}"
+      },
+      "actions": {
+        "revokeAll": "Tümünü kapat",
+        "revokingAll": "Kapatılıyor...",
+        "revokeSingle_other": "Kapat",
+        "revokeSingle_current": "Bu cihazdan çık",
+        "revokingSingle": "Kapatılıyor..."
+      },
+      "success": {
+        "revokeSingle": "Oturum kapatıldı."
+      },
+      "errors": {
+        "load": "Aktif oturumlar şu anda yüklenemiyor.",
+        "revokeSingle": "Oturum kapatılamadı.",
+        "revokeAll": "Oturumlar kapatılamadı."
+      }
+    },
     "validation": {
       "currentPasswordRequired": "Mevcut parolanı gir.",
       "newPasswordRequired": "Yeni parola gir.",
       "newPasswordMin": "En az {{count}} karakter kullan.",
       "newPasswordDifferent": "Mevcut paroladan farklı bir parola seç.",
       "confirmPasswordRequired": "Yeni parolayı doğrula.",
-      "confirmPasswordMismatch": "Parola doğrulaması eşleşmiyor."
+      "confirmPasswordMismatch": "Parola doğrulaması eşleşmiyor.",
+      "usernameRequired": "Kullanıcı adını gir.",
+      "nameRequired": "İsim gir.",
+      "nameLength": "İsim {{min}} ile {{max}} karakter arasında olmalı.",
+      "usernameLength": "Kullanıcı adı {{min}} ile {{max}} karakter arasında olmalı.",
+      "usernamePattern": "Sadece harf, rakam, nokta, alt çizgi ve tire kullan.",
+      "usernameDifferent": "Mevcut kullanıcı adından farklı bir kullanıcı adı seç.",
+      "deleteConfirmation": "Hesabı silmeyi onaylamak için {{value}} yaz."
     }
   }
 }

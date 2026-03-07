@@ -1,10 +1,10 @@
 import { Suspense } from 'react';
 import LocaleRedirect from '@/components/LocaleRedirect';
 
-export default function AdminDashboardRedirectPage() {
+export default function AdminSettingsPasswordRedirectPage() {
   return (
     <Suspense fallback={null}>
-      <LocaleRedirect path="/admin/dashboard" />
+      <LocaleRedirect path="/admin/settings/security" />
     </Suspense>
   );
 }

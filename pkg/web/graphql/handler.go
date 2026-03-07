@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -45,6 +46,8 @@ func newGraphQLServer() *graphqlhandler.Server {
 		Cache: lru.New[string](graphQLConfig.APQCacheSize),
 	})
 	server.SetErrorPresenter(func(ctx context.Context, err error) *gqlerror.Error {
+		httpapi.LogError(ctx, "graphql execution failed", err, "component", "graphql")
+
 		gqlErr := graphql.DefaultErrorPresenter(ctx, err)
 		appErr := apperrors.From(err)
 
@@ -53,10 +56,20 @@ func newGraphQLServer() *graphqlhandler.Server {
 			gqlErr.Extensions = map[string]any{}
 		}
 		gqlErr.Extensions["code"] = appErr.Code
+		if requestID := httpapi.RequestIDFromContext(ctx); requestID != "" {
+			gqlErr.Extensions["requestId"] = requestID
+		}
 
 		return gqlErr
 	})
-	server.SetRecoverFunc(func(_ context.Context, recovered any) error {
+	server.SetRecoverFunc(func(ctx context.Context, recovered any) error {
+		httpapi.LogError(
+			ctx,
+			"graphql panic recovered",
+			apperrors.Internal("Internal server error", fmt.Errorf("panic: %v", recovered)),
+			"component",
+			"graphql",
+		)
 		return apperrors.Internal("Internal server error", nil)
 	})
 
@@ -72,6 +85,12 @@ func getGraphQLServer() *graphqlhandler.Server {
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
+	r = httpapi.EnsureRequestContext(w, r)
+	if r == nil {
+		httpapi.WriteErrorWithContext(context.Background(), w, apperrors.Internal("invalid request context", nil))
+		return
+	}
+
 	if shouldServeGraphiQL(r) {
 		graphqlapi.GraphiQLHandler(w, r)
 		return
@@ -79,7 +98,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	httpConfig := appconfig.ResolveHTTPConfig()
 	if httpConfig.AllowedOrigin == "" {
-		httpapi.WriteError(w, apperrors.Config("configuration error", nil))
+		httpapi.WriteErrorWithContext(r.Context(), w, apperrors.Config("configuration error", nil))
 		return
 	}
 
@@ -96,7 +115,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet && r.Method != http.MethodPost {
 		w.Header().Set("Allow", "GET, POST, OPTIONS")
-		httpapi.WriteError(w, apperrors.MethodNotAllowed("method not allowed"))
+		httpapi.WriteErrorWithContext(r.Context(), w, apperrors.MethodNotAllowed("method not allowed"))
 		return
 	}
 

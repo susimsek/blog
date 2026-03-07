@@ -58,7 +58,19 @@ html {
 #games-nav-dropdown .dropdown-toggle::before,
 #games-nav-dropdown .nav-link.dropdown-toggle::before,
 #games-nav-dropdown a.dropdown-toggle::before,
-#games-nav-dropdown button.dropdown-toggle::before {
+#games-nav-dropdown button.dropdown-toggle::before,
+#admin-user-dropdown.dropdown-toggle::after,
+#admin-user-dropdown.dropdown-toggle::before,
+#admin-user-dropdown.nav-link.dropdown-toggle::after,
+#admin-user-dropdown.nav-link.dropdown-toggle::before,
+#admin-user-dropdown .dropdown-toggle::after,
+#admin-user-dropdown .nav-link.dropdown-toggle::after,
+#admin-user-dropdown a.dropdown-toggle::after,
+#admin-user-dropdown button.dropdown-toggle::after,
+#admin-user-dropdown .dropdown-toggle::before,
+#admin-user-dropdown .nav-link.dropdown-toggle::before,
+#admin-user-dropdown a.dropdown-toggle::before,
+#admin-user-dropdown button.dropdown-toggle::before {
   display: none !important;
   content: none !important;
   border: none !important;
@@ -2870,6 +2882,11 @@ h6 {
 .spinner-grow {
   color: var(--spinner-color);
   @include transition(color);
+}
+
+.admin-action-spinner.spinner-border,
+.admin-action-spinner.spinner-grow {
+  color: currentColor !important;
 }
 
 .pagination-grid {
@@ -8513,8 +8530,8 @@ label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 32px;
+  height: 32px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
   background: color-mix(in srgb, var(--main-bg) 78%, var(--dropdown-hover-bg) 22%);
@@ -8535,21 +8552,60 @@ label {
   padding-inline: 0.35rem;
 }
 
+.admin-user-dropdown .dropdown-menu {
+  width: min(256px, calc(100vw - 1rem));
+  min-width: min(256px, calc(100vw - 1rem));
+}
+
 .admin-user-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+  padding-block: 0.55rem;
+}
+
+.admin-user-dropdown-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 78%, var(--dropdown-hover-bg) 22%);
+  color: var(--muted-text-color);
+}
+
+.admin-user-dropdown-meta {
   display: grid;
-  gap: 0.2rem;
+  gap: 0.08rem;
+  min-width: 0;
+  width: 100%;
 }
 
 .admin-user-dropdown-title {
   color: var(--text-color);
-  font-size: 0.92rem;
-  font-weight: 700;
+  font-size: 1.08rem;
+  font-weight: 800;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .admin-user-dropdown-subtitle {
   color: var(--muted-text-color);
-  font-size: 0.8rem;
-  word-break: break-word;
+  font-size: 0.86rem;
+  font-weight: 650;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.admin-user-dropdown-divider {
+  margin-top: 0.25rem;
 }
 
 .admin-dashboard-shell {
@@ -9151,6 +9207,8 @@ label {
 
 .admin-account-shell {
   padding-top: var(--space-24);
+  max-width: min(1320px, 100%);
+  margin-inline: auto;
 }
 
 .admin-account-grid {
@@ -9158,7 +9216,564 @@ label {
   margin-inline: auto;
 }
 
+.admin-settings-layout {
+  display: grid;
+  grid-template-columns: clamp(248px, 23vw, 292px) minmax(0, 1fr);
+  column-gap: clamp(1rem, 2vw, 1.5rem);
+  row-gap: 1rem;
+  align-items: start;
+}
+
+.admin-settings-sidebar {
+  position: sticky;
+  top: calc(var(--header-height, 74px) + 1rem);
+  min-height: clamp(24rem, calc(100vh - var(--header-height, 74px) - 2rem), 44rem);
+
+  .post-card-content {
+    min-height: inherit;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.admin-settings-profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.85rem;
+  margin-bottom: 0.85rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
+}
+
+.admin-settings-profile-avatar {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 88%, var(--dropdown-hover-bg) 12%);
+  color: var(--muted-text-color);
+}
+
+.admin-settings-profile-meta {
+  min-width: 0;
+}
+
+.admin-settings-profile-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  min-width: 0;
+  font-size: 1.01rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-color);
+
+  span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.admin-settings-profile-username {
+  color: var(--muted-text-color);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-settings-nav {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.admin-settings-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.58rem 0.72rem;
+  border-radius: 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 92%, var(--dropdown-hover-bg) 8%);
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 0.94rem;
+  font-weight: 600;
+  line-height: 1.2;
+  transition:
+    color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease,
+    background-color var(--transition-speed) ease,
+    box-shadow var(--transition-speed) ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--text-color);
+    border-color: color-mix(in srgb, var(--active-color) 35%, var(--border-color) 65%);
+    background: color-mix(in srgb, var(--main-bg) 86%, var(--dropdown-hover-bg) 14%);
+    box-shadow: var(--box-shadow-sm);
+  }
+
+  &.is-active {
+    border-color: color-mix(in srgb, var(--active-color) 42%, var(--border-color) 58%);
+    background: color-mix(in srgb, var(--active-color) 16%, var(--main-bg) 84%);
+    color: var(--text-color);
+    box-shadow: var(--box-shadow-sm);
+  }
+}
+
+.admin-settings-nav-icon {
+  width: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-text-color);
+  transition: color var(--transition-speed) ease;
+}
+
+.admin-settings-nav-label {
+  min-width: 0;
+}
+
+.admin-settings-nav-link.is-active .admin-settings-nav-icon {
+  color: color-mix(in srgb, var(--active-color) 78%, var(--text-color) 22%);
+}
+
+.admin-settings-content {
+  min-width: 0;
+  width: 100%;
+  max-width: min(980px, 100%);
+  justify-self: start;
+}
+
+.admin-account-section-stack {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.admin-account-avatar-card {
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 93%, var(--dropdown-hover-bg) 7%);
+  box-shadow: var(--box-shadow-sm);
+  color: var(--text-color);
+}
+
+.admin-account-avatar-frame {
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 84%, var(--dropdown-hover-bg) 16%);
+  box-shadow: var(--box-shadow-sm);
+}
+
+.admin-account-avatar-placeholder {
+  color: var(--muted-text-color);
+}
+
+.admin-avatar-crop-backdrop {
+  --bs-backdrop-bg: #0d1117;
+  --bs-backdrop-opacity: 0.68;
+}
+
+.admin-avatar-crop-dialog {
+  max-width: min(96vw, 580px);
+  --admin-avatar-crop-surface: color-mix(in srgb, var(--main-bg) 96%, var(--dropdown-hover-bg) 4%);
+  --admin-avatar-crop-border: color-mix(in srgb, var(--border-color) 82%, transparent);
+  --admin-avatar-crop-stage-surface: color-mix(in srgb, #1f2328 78%, var(--main-bg) 22%);
+  --admin-avatar-crop-stage-border: color-mix(in srgb, #30363d 74%, var(--border-color) 26%);
+  --admin-avatar-crop-mask-ring: color-mix(in srgb, var(--text-color) 64%, var(--main-bg) 36%);
+  --admin-avatar-crop-mask-overlay: color-mix(in srgb, #0d1117 28%, transparent);
+  --admin-avatar-crop-handle-bg: #f0f6fc;
+  --admin-avatar-crop-handle-border: color-mix(in srgb, var(--border-color) 72%, transparent);
+
+  --bs-modal-bg: var(--admin-avatar-crop-surface);
+  --bs-modal-color: var(--text-color);
+  --bs-modal-border-color: var(--admin-avatar-crop-border);
+  --bs-modal-header-border-color: color-mix(in srgb, var(--admin-avatar-crop-border) 90%, transparent);
+  --bs-modal-footer-border-color: color-mix(in srgb, var(--admin-avatar-crop-border) 90%, transparent);
+  --bs-modal-border-radius: 0.85rem;
+  --bs-modal-box-shadow: var(--box-shadow-lg);
+}
+
+.dark-theme .admin-avatar-crop-backdrop,
+.oceanic-theme .admin-avatar-crop-backdrop,
+.forest-theme .admin-avatar-crop-backdrop {
+  --bs-backdrop-opacity: 0.76;
+}
+
+.dark-theme .admin-avatar-crop-dialog,
+.oceanic-theme .admin-avatar-crop-dialog,
+.forest-theme .admin-avatar-crop-dialog {
+  --admin-avatar-crop-surface: color-mix(in srgb, var(--main-bg) 94%, var(--dropdown-hover-bg) 6%);
+  --admin-avatar-crop-border: color-mix(in srgb, var(--border-color) 68%, transparent);
+  --admin-avatar-crop-stage-surface: color-mix(in srgb, #1f2328 92%, var(--main-bg) 8%);
+  --admin-avatar-crop-stage-border: color-mix(in srgb, #30363d 82%, var(--border-color) 18%);
+  --admin-avatar-crop-mask-overlay: color-mix(in srgb, #010409 42%, transparent);
+}
+
+.admin-avatar-crop-dialog .modal-content {
+  border-color: var(--admin-avatar-crop-border);
+  box-shadow: var(--box-shadow-lg);
+}
+
+.admin-avatar-crop-dialog .modal-header,
+.admin-avatar-crop-dialog .modal-footer {
+  border-color: color-mix(in srgb, var(--admin-avatar-crop-border) 90%, transparent);
+}
+
+.admin-avatar-crop-dialog .btn-close {
+  --bs-btn-close-opacity: 0.72;
+  --bs-btn-close-hover-opacity: 1;
+  --bs-btn-close-focus-opacity: 1;
+  width: 1.15rem;
+  height: 1.15rem;
+  padding: 0.25rem;
+  margin: 0 0 0 auto;
+  border: 0;
+  background-color: transparent;
+  box-shadow: none;
+  @include transition(opacity, box-shadow);
+}
+
+.admin-avatar-crop-dialog .btn-close:hover,
+.admin-avatar-crop-dialog .btn-close:focus-visible {
+  opacity: 1;
+}
+
+.admin-avatar-crop-dialog .btn-close:focus-visible {
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--active-color) 24%, transparent);
+  border-radius: 0.35rem;
+}
+
+.dark-theme .admin-avatar-crop-dialog .btn-close,
+.oceanic-theme .admin-avatar-crop-dialog .btn-close,
+.forest-theme .admin-avatar-crop-dialog .btn-close {
+  filter: invert(1) grayscale(100%) brightness(220%);
+}
+
+.admin-avatar-crop-stage {
+  --avatar-crop-mask-size: 260px;
+  max-width: 100%;
+  border: 0;
+  background: transparent;
+  touch-action: none;
+  cursor: grab;
+}
+
+.admin-avatar-crop-stage.is-dragging {
+  cursor: grabbing;
+}
+
+.admin-avatar-crop-stage.is-resizing {
+  cursor: nwse-resize;
+}
+
+.admin-avatar-crop-stage .crop-box {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--avatar-crop-mask-size);
+  height: var(--avatar-crop-mask-size);
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  box-shadow: 0 0 0 9999px var(--admin-avatar-crop-mask-overlay);
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.admin-avatar-crop-stage .crop-outline {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 2px dashed var(--admin-avatar-crop-mask-ring);
+}
+
+.admin-avatar-crop-stage .crop-box .handle {
+  position: absolute;
+  z-index: 3;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid var(--admin-avatar-crop-handle-border);
+  background: var(--admin-avatar-crop-handle-bg);
+  box-shadow: var(--box-shadow-sm);
+  transform: translate(-50%, -50%);
+  padding: 0;
+  pointer-events: auto;
+  @include transition(border-color, transform, box-shadow, background-color);
+}
+
+.admin-avatar-crop-stage .crop-box .handle:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.admin-avatar-crop-stage .crop-box .handle:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--active-color) 72%, var(--text-color) 28%);
+  outline-offset: 1px;
+}
+
+.admin-avatar-crop-stage .crop-box .handle.nw {
+  left: 0;
+  top: 0;
+  cursor: nwse-resize;
+}
+
+.admin-avatar-crop-stage .crop-box .handle.ne {
+  left: 100%;
+  top: 0;
+  cursor: nesw-resize;
+}
+
+.admin-avatar-crop-stage .crop-box .handle.sw {
+  left: 0;
+  top: 100%;
+  cursor: nesw-resize;
+}
+
+.admin-avatar-crop-stage .crop-box .handle.se {
+  left: 100%;
+  top: 100%;
+  cursor: nwse-resize;
+}
+
+.admin-avatar-crop-submit {
+  width: 100%;
+  font-weight: 700;
+}
+
+.admin-avatar-crop-footer {
+  justify-content: stretch;
+}
+
+.admin-account-delete-section {
+  padding-top: 1.15rem;
+  border-top: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
+}
+
+.admin-account-appearance-section {
+  padding-top: 1.15rem;
+  border-top: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
+
+  &.is-standalone {
+    padding-top: 0;
+    border-top: 0;
+  }
+}
+
+.admin-account-appearance-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+@media (max-width: 1199.98px) {
+  .admin-account-appearance-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767.98px) {
+  .admin-account-appearance-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.admin-account-appearance-option {
+  --admin-appearance-card-bg: color-mix(in srgb, var(--main-bg) 88%, var(--dropdown-hover-bg) 12%);
+  --admin-appearance-card-border: color-mix(in srgb, var(--border-color) 78%, transparent);
+  --admin-appearance-preview-bg: color-mix(in srgb, var(--main-bg) 96%, var(--dropdown-hover-bg) 4%);
+  --admin-appearance-preview-surface: color-mix(in srgb, var(--main-bg) 90%, var(--dropdown-hover-bg) 10%);
+  --admin-appearance-preview-muted: color-mix(in srgb, var(--muted-text-color) 34%, transparent);
+  --admin-appearance-preview-accent: var(--active-color);
+  --admin-appearance-footer-bg: color-mix(in srgb, var(--main-bg) 94%, var(--dropdown-hover-bg) 6%);
+  --admin-appearance-footer-text: var(--text-color);
+  --admin-appearance-footer-muted: color-mix(in srgb, var(--text-color) 62%, var(--muted-text-color) 38%);
+  --admin-appearance-footer-radio: color-mix(in srgb, var(--active-color) 78%, var(--text-color) 22%);
+  --admin-appearance-footer-meta-icon: color-mix(in srgb, var(--text-color) 76%, var(--active-color) 24%);
+  --admin-appearance-footer-meta-bg: color-mix(in srgb, var(--main-bg) 82%, var(--dropdown-hover-bg) 18%);
+  --admin-appearance-footer-meta-border: color-mix(in srgb, var(--border-color) 72%, transparent);
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  border-radius: 0.85rem;
+  padding: 0;
+  color: var(--text-color);
+  border: 1px solid var(--admin-appearance-card-border);
+  background: var(--admin-appearance-card-bg);
+  overflow: hidden;
+  text-align: left;
+  transition:
+    background-color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease,
+    box-shadow var(--transition-speed) ease,
+    transform var(--transition-speed) ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: color-mix(in srgb, var(--active-color) 35%, var(--admin-appearance-card-border) 65%);
+    box-shadow:
+      0 12px 24px color-mix(in srgb, var(--active-color) 10%, transparent),
+      var(--box-shadow-sm);
+    transform: translateY(-2px);
+  }
+
+  &.is-active {
+    border-color: color-mix(in srgb, var(--active-color) 48%, var(--admin-appearance-card-border) 52%);
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, var(--active-color) 20%, transparent),
+      var(--box-shadow-sm);
+  }
+}
+
+.admin-account-appearance-option--system {
+  --admin-appearance-preview-accent: color-mix(in srgb, var(--active-color) 60%, #22c55e 40%);
+}
+
+.admin-account-appearance-option--light {
+  --admin-appearance-preview-bg: #f7f8fa;
+  --admin-appearance-preview-surface: #ffffff;
+  --admin-appearance-preview-muted: #c6cdd6;
+  --admin-appearance-preview-accent: #3b82f6;
+}
+
+.admin-account-appearance-option--dark {
+  --admin-appearance-preview-bg: #0f172a;
+  --admin-appearance-preview-surface: #111827;
+  --admin-appearance-preview-muted: #4b5563;
+  --admin-appearance-preview-accent: #60a5fa;
+}
+
+.admin-account-appearance-option--oceanic {
+  --admin-appearance-preview-bg: #0b1f2f;
+  --admin-appearance-preview-surface: #143852;
+  --admin-appearance-preview-muted: #4f86a8;
+  --admin-appearance-preview-accent: #38bdf8;
+}
+
+.admin-account-appearance-option--forest {
+  --admin-appearance-preview-bg: #102019;
+  --admin-appearance-preview-surface: #173224;
+  --admin-appearance-preview-muted: #6d8f7b;
+  --admin-appearance-preview-accent: #4ade80;
+}
+
+.admin-account-appearance-preview {
+  display: grid;
+  gap: 0.65rem;
+  min-height: 118px;
+  padding: 0.85rem 0.85rem 0.75rem;
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--admin-appearance-preview-bg) 94%, white 6%),
+    var(--admin-appearance-preview-bg)
+  );
+  border-bottom: 1px solid color-mix(in srgb, var(--admin-appearance-card-border) 84%, transparent);
+}
+
+.admin-account-appearance-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+
+  span {
+    display: inline-flex;
+    height: 0.35rem;
+    border-radius: 999px;
+    background: var(--admin-appearance-preview-muted);
+    opacity: 0.9;
+  }
+
+  span:nth-child(1) {
+    width: 2.1rem;
+  }
+
+  span:nth-child(2) {
+    width: 1.7rem;
+  }
+
+  span:nth-child(3) {
+    width: 1.85rem;
+  }
+}
+
+.admin-account-appearance-preview-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 2.2rem;
+  gap: 0.55rem;
+}
+
+.admin-account-appearance-preview-title {
+  grid-column: 1 / 3;
+  width: 4.6rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: var(--admin-appearance-preview-muted);
+}
+
+.admin-account-appearance-preview-main {
+  position: relative;
+  min-height: 3rem;
+  border-radius: 0.58rem;
+  background: var(--admin-appearance-preview-surface);
+  border: 1px solid color-mix(in srgb, var(--admin-appearance-preview-muted) 35%, transparent);
+}
+
+.admin-account-appearance-preview-main-accent {
+  position: absolute;
+  left: 0.5rem;
+  top: 0.5rem;
+  width: 62%;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: var(--admin-appearance-preview-accent);
+}
+
+.admin-account-appearance-preview-side {
+  min-height: 3rem;
+  border-radius: 0.58rem;
+  background: color-mix(
+    in srgb,
+    var(--admin-appearance-preview-surface) 88%,
+    var(--admin-appearance-preview-muted) 12%
+  );
+}
+
+.admin-account-appearance-option-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.72rem 0.82rem;
+  background: var(--admin-appearance-footer-bg);
+  color: var(--admin-appearance-footer-text);
+}
+
+.admin-account-appearance-option-radio {
+  flex: 0 0 auto;
+  color: var(--admin-appearance-footer-radio);
+}
+
+.admin-account-appearance-option-label {
+  font-weight: 700;
+  line-height: 1.25;
+  min-width: 0;
+  color: inherit;
+}
+
+.admin-account-appearance-option-meta {
+  margin-left: auto;
+  display: inline-block;
+  color: var(--admin-appearance-footer-meta-icon);
+  font-size: 0.9rem;
+}
+
+.admin-account-appearance-option.is-active .admin-account-appearance-option-meta {
+  color: color-mix(in srgb, var(--admin-appearance-footer-meta-icon) 82%, white 18%);
+}
+
 .admin-account-card {
+  align-items: stretch;
   border-color: color-mix(in srgb, var(--border-color) 82%, transparent);
   box-shadow: var(--box-shadow-sm);
   background: linear-gradient(
@@ -9179,6 +9794,111 @@ label {
 
 .admin-account-form-card {
   width: 100%;
+  min-height: clamp(26rem, 62vh, 52rem);
+}
+
+.admin-account-tabs {
+  border-bottom-color: color-mix(in srgb, var(--border-color) 82%, transparent);
+
+  .nav-link {
+    color: var(--muted-text-color);
+    border-color: transparent;
+    border-radius: 0.75rem 0.75rem 0 0;
+    font-weight: 700;
+    padding: 0.65rem 1rem;
+  }
+
+  .nav-link:hover,
+  .nav-link:focus-visible {
+    color: var(--text-color);
+    border-color: transparent;
+  }
+
+  .nav-link.active {
+    color: var(--text-color);
+    background: color-mix(in srgb, var(--main-bg) 94%, var(--dropdown-hover-bg) 6%);
+    border-color: color-mix(in srgb, var(--border-color) 82%, transparent);
+    border-bottom-color: transparent;
+  }
+}
+
+.admin-account-sessions-loading {
+  min-height: 7rem;
+  display: grid;
+  place-items: center;
+}
+
+.admin-session-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.admin-session-item {
+  border: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
+  border-radius: 0.95rem;
+  padding: 0.85rem 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  background: color-mix(in srgb, var(--main-bg) 95%, var(--dropdown-hover-bg) 5%);
+}
+
+.admin-session-icon {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.62rem;
+  flex: 0 0 auto;
+  color: var(--muted-text-color);
+  border: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 85%, var(--dropdown-hover-bg) 15%);
+}
+
+.admin-session-main {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.admin-session-item .btn {
+  margin-inline-start: auto;
+  flex-shrink: 0;
+}
+
+.admin-session-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.2rem;
+}
+
+.admin-session-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.12rem 0.52rem;
+  border: 1px solid color-mix(in srgb, var(--border-color) 80%, transparent);
+  color: var(--muted-text-color);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.admin-session-chip-current {
+  border-color: color-mix(in srgb, var(--active-color) 42%, var(--border-color) 58%);
+  color: color-mix(in srgb, var(--active-color) 72%, var(--text-color) 28%);
+}
+
+.admin-session-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  color: var(--muted-text-color);
+  font-size: 0.82rem;
 }
 
 .admin-password-strength {
@@ -9327,6 +10047,24 @@ label {
   .admin-dashboard-main {
     padding-top: 0;
   }
+
+  .admin-settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-settings-sidebar {
+    position: static;
+    top: auto;
+    min-height: auto;
+  }
+
+  .admin-settings-content {
+    max-width: 100%;
+  }
+
+  .admin-account-form-card {
+    min-height: 0;
+  }
 }
 
 @media (max-width: 767.98px) {
@@ -9385,5 +10123,20 @@ label {
 
   .admin-account-grid {
     max-width: 100%;
+  }
+
+  .admin-session-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-session-item .btn,
+  .admin-account-form-card .post-summary-cta .btn {
+    margin-inline-start: 0;
+    width: 100%;
+  }
+
+  .admin-account-appearance-option-footer {
+    padding: 0.66rem 0.72rem;
   }
 }

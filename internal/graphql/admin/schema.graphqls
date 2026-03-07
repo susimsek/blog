@@ -6,13 +6,20 @@ schema {
 type AdminQuery {
   me: AdminMe!
   dashboard: AdminDashboard!
+  activeSessions: [AdminSession!]!
 }
 
 type AdminMutation {
   login(input: AdminLoginInput!): AdminAuthPayload!
   refreshAdminSession: AdminAuthPayload!
   logout: AdminLogoutPayload!
+  changeName(input: AdminChangeNameInput!): AdminAuthPayload!
+  changeAvatar(input: AdminChangeAvatarInput!): AdminAuthPayload!
+  changeUsername(input: AdminChangeUsernameInput!): AdminAuthPayload!
+  deleteAccount(input: AdminDeleteAccountInput!): AdminAccountDeletePayload!
   changePassword(input: AdminChangePasswordInput!): AdminPasswordChangePayload!
+  revokeSession(sessionId: ID!): AdminSessionRevokePayload!
+  revokeAllSessions: AdminSessionRevokePayload!
 }
 
 input AdminLoginInput {
@@ -27,6 +34,22 @@ input AdminChangePasswordInput {
   confirmPassword: String!
 }
 
+input AdminChangeUsernameInput {
+  newUsername: String!
+}
+
+input AdminChangeNameInput {
+  name: String!
+}
+
+input AdminChangeAvatarInput {
+  avatarUrl: String
+}
+
+input AdminDeleteAccountInput {
+  currentPassword: String!
+}
+
 type AdminMe {
   authenticated: Boolean!
   user: AdminUser
@@ -34,7 +57,9 @@ type AdminMe {
 
 type AdminUser {
   id: ID!
+  name: String
   username: String
+  avatarUrl: String
   email: String!
   roles: [String!]!
 }
@@ -49,6 +74,26 @@ type AdminLogoutPayload {
 }
 
 type AdminPasswordChangePayload {
+  success: Boolean!
+}
+
+type AdminAccountDeletePayload {
+  success: Boolean!
+}
+
+type AdminSession {
+  id: ID!
+  device: String!
+  ipAddress: String!
+  countryCode: String!
+  lastActivityAt: String!
+  createdAt: String!
+  expiresAt: String!
+  persistent: Boolean!
+  current: Boolean!
+}
+
+type AdminSessionRevokePayload {
   success: Boolean!
 }
 

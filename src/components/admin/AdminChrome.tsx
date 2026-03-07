@@ -6,6 +6,7 @@ import Link from '@/components/common/Link';
 import LanguageSwitcher from '@/components/i18n/LanguageSwitcher';
 import ThemeToggler from '@/components/theme/ThemeToggler';
 import VoiceToggler from '@/components/voice/VoiceToggler';
+import useBoop from '@/hooks/useBoop';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +17,7 @@ import Nav from 'react-bootstrap/Nav';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { fetchAdminMe, logoutAdmin } from '@/lib/adminApi';
+import { withAdminAvatarSize } from '@/lib/adminAvatar';
 import { defaultLocale } from '@/i18n/settings';
 
 type AdminChromeProps = {
@@ -30,39 +32,57 @@ export default function AdminChrome({ children }: Readonly<AdminChromeProps>) {
   const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
   const locale = routeLocale ?? defaultLocale;
   const isMobile = useMediaQuery('(max-width: 991px)');
+  const [adminIconStyle, triggerAdminIconBoop] = useBoop({ x: 2, rotation: 8, scale: 1.08, timing: 170 });
   const [isNavExpanded, setIsNavExpanded] = React.useState(false);
   const [adminUser, setAdminUser] = React.useState<{
     id: string;
+    name: string | null;
     username: string | null;
+    avatarUrl: string | null;
     email: string;
     roles: string[];
   } | null>(null);
-  const showSidebarToggle = pathname?.includes('/admin/dashboard') ?? false;
+  const showSidebarToggle = Boolean(pathname && /\/admin\/?$/.test(pathname));
+
+  const loadAdminUser = React.useCallback(async () => {
+    try {
+      const me = await fetchAdminMe();
+      setAdminUser(me.authenticated ? me.user : null);
+    } catch {
+      setAdminUser(null);
+    }
+  }, []);
 
   React.useEffect(() => {
-    let isMounted = true;
-
-    const loadAdminUser = async () => {
-      try {
-        const me = await fetchAdminMe();
-        if (!isMounted) {
-          return;
-        }
-
-        setAdminUser(me.authenticated ? me.user : null);
-      } catch {
-        if (isMounted) {
-          setAdminUser(null);
-        }
-      }
-    };
-
     void loadAdminUser();
+  }, [loadAdminUser, locale, pathname]);
 
-    return () => {
-      isMounted = false;
+  React.useEffect(() => {
+    const handleAdminUserUpdated = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        user?: {
+          id: string;
+          name: string | null;
+          username: string | null;
+          avatarUrl: string | null;
+          email: string;
+          roles: string[];
+        } | null;
+      }>;
+
+      if (customEvent.detail?.user) {
+        setAdminUser(customEvent.detail.user);
+        return;
+      }
+
+      void loadAdminUser();
     };
-  }, [locale, pathname]);
+
+    globalThis.addEventListener('admin:user-updated', handleAdminUserUpdated);
+    return () => {
+      globalThis.removeEventListener('admin:user-updated', handleAdminUserUpdated);
+    };
+  }, [loadAdminUser]);
 
   const handleLogout = React.useCallback(async () => {
     await logoutAdmin();
@@ -76,6 +96,13 @@ export default function AdminChrome({ children }: Readonly<AdminChromeProps>) {
   }, []);
 
   const adminLabel = adminUser?.username?.trim() || adminUser?.email || t('adminCommon.user.label');
+  const adminMenuAvatarUrl = React.useMemo(() => withAdminAvatarSize(adminUser?.avatarUrl, 32), [adminUser?.avatarUrl]);
+  const adminDropdownAvatarUrl = React.useMemo(
+    () => withAdminAvatarSize(adminUser?.avatarUrl, 32),
+    [adminUser?.avatarUrl],
+  );
+  const adminDropdownUsername = adminUser?.username?.trim() || adminUser?.email;
+  const adminDropdownName = adminUser?.name?.trim() || adminUser?.email;
 
   return (
     <div className="min-vh-100 d-flex flex-column">
@@ -95,7 +122,7 @@ export default function AdminChrome({ children }: Readonly<AdminChromeProps>) {
             <FontAwesomeIcon icon="sidebar" className="sidebar-toggler-icon" />
           </button>
         ) : null}
-        <Navbar.Brand as={Link} href="/admin/dashboard" className="navbar-brand link">
+        <Navbar.Brand as={Link} href="/admin" className="navbar-brand link">
           <Image src={SITE_LOGO} alt={t('adminCommon.brand')} width={40} height={40} className="rounded-circle" />
           <span className="navbar-brand-text ms-2 fw-bold">{t('adminCommon.brand')}</span>
         </Navbar.Brand>
@@ -135,26 +162,57 @@ export default function AdminChrome({ children }: Readonly<AdminChromeProps>) {
                 )}
                 {adminUser ? (
                   <NavDropdown
+                    onMouseEnter={triggerAdminIconBoop}
+                    onFocus={triggerAdminIconBoop}
                     id="admin-user-dropdown"
                     align="end"
                     title={
                       <span className="admin-user-trigger">
                         <span className="admin-user-trigger-icon">
-                          <FontAwesomeIcon icon="user" />
+                          {adminMenuAvatarUrl ? (
+                            <Image
+                              src={adminMenuAvatarUrl}
+                              alt={adminLabel}
+                              width={32}
+                              height={32}
+                              unoptimized
+                              className="w-100 h-100 rounded-circle object-fit-cover icon-boop-target"
+                              style={adminIconStyle}
+                            />
+                          ) : (
+                            <FontAwesomeIcon icon="user" className="icon-boop-target" style={adminIconStyle} />
+                          )}
                         </span>
-                        <span className="admin-user-trigger-label">{adminLabel}</span>
                       </span>
                     }
-                    className="text-center admin-user-dropdown"
+                    className="admin-user-dropdown"
                   >
                     <NavDropdown.Header className="admin-user-dropdown-header">
-                      <span className="admin-user-dropdown-title">{adminLabel}</span>
-                      <span className="admin-user-dropdown-subtitle">{adminUser.email}</span>
+                      <span className="admin-user-dropdown-avatar">
+                        {adminDropdownAvatarUrl ? (
+                          <Image
+                            src={adminDropdownAvatarUrl}
+                            alt={adminLabel}
+                            width={32}
+                            height={32}
+                            sizes="32px"
+                            unoptimized
+                            className="w-100 h-100 rounded-circle object-fit-cover"
+                          />
+                        ) : (
+                          <FontAwesomeIcon icon="user" />
+                        )}
+                      </span>
+                      <span className="admin-user-dropdown-meta">
+                        <span className="admin-user-dropdown-title">{adminDropdownUsername}</span>
+                        <span className="admin-user-dropdown-subtitle">{adminDropdownName}</span>
+                      </span>
                     </NavDropdown.Header>
-                    <NavDropdown.Item as={Link} href="/admin/change-password" onClick={() => setIsNavExpanded(false)}>
+                    <NavDropdown.Divider className="admin-user-dropdown-divider" />
+                    <NavDropdown.Item as={Link} href="/admin/settings/profile" onClick={() => setIsNavExpanded(false)}>
                       <span className="d-inline-flex align-items-center gap-2">
-                        <FontAwesomeIcon icon="lock" fixedWidth />
-                        <span>{t('adminCommon.actions.changePassword')}</span>
+                        <FontAwesomeIcon icon="gear" fixedWidth />
+                        <span>{t('adminCommon.actions.settings')}</span>
                       </span>
                     </NavDropdown.Item>
                     <NavDropdown.Divider />

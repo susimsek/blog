@@ -142,8 +142,8 @@ const AdminSidebar = ({ isMobile, isVisible, onClose }: Readonly<AdminSidebarPro
     return (
       <Offcanvas show={isVisible} onHide={onClose} placement="start" className="admin-dashboard-offcanvas">
         <Offcanvas.Header closeButton={false}>
-          <div className="d-flex align-items-center brand">
-            <Link href="/" onClick={onClose}>
+          <Link href="/admin" onClick={onClose} className="d-flex align-items-center brand text-decoration-none">
+            <span className="d-inline-flex align-items-center">
               <Image
                 src={SITE_LOGO}
                 alt={t('adminCommon.brand', { ns: 'admin-common' })}
@@ -151,9 +151,9 @@ const AdminSidebar = ({ isMobile, isVisible, onClose }: Readonly<AdminSidebarPro
                 height={40}
                 className="rounded-circle me-2"
               />
-            </Link>
+            </span>
             <h5 className="fw-bold m-0 d-flex align-items-center">{t('adminCommon.brand', { ns: 'admin-common' })}</h5>
-          </div>
+          </Link>
           <button
             type="button"
             className="btn-close-custom position-absolute top-0 end-0 m-3"
@@ -253,7 +253,7 @@ export default function AdminDashboardPage() {
 
         setDashboard(dashboardPayload);
         setContentSummary(buildContentSummary(dashboardPayload));
-      } catch (error) {
+      } catch {
         if (!isMounted) {
           return;
         }

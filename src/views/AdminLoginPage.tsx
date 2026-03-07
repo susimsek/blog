@@ -62,7 +62,7 @@ export default function AdminLoginPage() {
       try {
         const me = await fetchAdminMe();
         if (isMounted && me.authenticated) {
-          router.replace(`/${locale}/admin/dashboard`);
+          router.replace(`/${locale}/admin`);
           return;
         }
       } catch {
@@ -101,7 +101,7 @@ export default function AdminLoginPage() {
         if (!payload.success) {
           throw new Error(t('adminLogin.errorFallback', { ns: 'admin-login' }));
         }
-        router.replace(`/${locale}/admin/dashboard`);
+        router.replace(`/${locale}/admin`);
       } catch (error) {
         const fallbackMessage = t('adminLogin.errorFallback', { ns: 'admin-login' });
         const resolvedMessage =

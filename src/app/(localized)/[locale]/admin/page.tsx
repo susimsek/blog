@@ -4,7 +4,7 @@ import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';
 import AdminDashboardPage from '@/views/AdminDashboardPage';
 
-export async function generateMetadata({ params }: PageProps<'/[locale]/admin/dashboard'>): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<'/[locale]/admin'>): Promise<Metadata> {
   const { locale } = await params;
   const { t } = await getServerTranslator(locale, ['admin-dashboard']);
 
@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/admin/da
     locale,
     title: t('adminDashboard.meta.title', { ns: 'admin-dashboard' }),
     description: t('adminDashboard.meta.description', { ns: 'admin-dashboard' }),
-    path: 'admin/dashboard',
+    path: 'admin',
     robots: {
       index: false,
       follow: false,
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/admin/da
   });
 }
 
-export default async function AdminDashboardRoute({ params }: Readonly<PageProps<'/[locale]/admin/dashboard'>>) {
+export default async function AdminRoute({ params }: Readonly<PageProps<'/[locale]/admin'>>) {
   const { locale } = await params;
   const resources = await loadLocaleResources(locale, ['admin-dashboard']);
 

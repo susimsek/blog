@@ -3,30 +3,213 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
+import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { changeAdminPassword, fetchAdminMe } from '@/lib/adminApi';
+import {
+  changeAdminAvatar,
+  changeAdminName,
+  changeAdminPassword,
+  changeAdminUsername,
+  deleteAdminAccount,
+  fetchAdminActiveSessions,
+  fetchAdminMe,
+  revokeAdminSession,
+  revokeAllAdminSessions,
+} from '@/lib/adminApi';
+import { withAdminAvatarSize } from '@/lib/adminAvatar';
 import { defaultLocale } from '@/i18n/settings';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
+import Link from '@/components/common/Link';
+import { useAppDispatch, useAppSelector } from '@/config/store';
+import { resetToSystemTheme, setTheme, type Theme } from '@/reducers/theme';
+import { THEMES } from '@/config/constants';
+
+type AdminAccountPageProps = {
+  section: 'profile' | 'account' | 'appearance' | 'sessions' | 'security';
+};
 
 type AdminIdentity = {
   id: string;
+  name: string | null;
   username: string | null;
+  avatarUrl: string | null;
   email: string;
   roles: string[];
 } | null;
 
+type AdminSession = {
+  id: string;
+  device: string;
+  ipAddress: string;
+  countryCode: string;
+  lastActivityAt: string;
+  createdAt: string;
+  expiresAt: string;
+  persistent: boolean;
+  current: boolean;
+};
+
 const MIN_PASSWORD_LENGTH = 8;
 const STRONG_PASSWORD_LENGTH = 12;
+const MIN_NAME_LENGTH = 2;
+const MAX_NAME_LENGTH = 80;
+const MIN_USERNAME_LENGTH = 3;
+const MAX_USERNAME_LENGTH = 32;
+const DELETE_CONFIRMATION_VALUE = 'DELETE';
+const USERNAME_PATTERN = /^[A-Za-z0-9._-]+$/;
+const INVALID_ADMIN_SESSION_ERROR = 'invalid admin session';
+const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
+const MAX_AVATAR_FILE_BYTES = 2 * 1024 * 1024;
+const MAX_AVATAR_FILE_SIZE_MB = Math.floor(MAX_AVATAR_FILE_BYTES / (1024 * 1024));
+const AVATAR_CROP_VIEWPORT_SIZE = 260;
+const AVATAR_CROP_MIN_SIZE = 96;
+const DEFAULT_AVATAR_EXPORT_SIZE = 512;
+const MIN_AVATAR_EXPORT_SIZE = 128;
+const MIN_AVATAR_EXPORT_QUALITY = 0.5;
+const ALLOWED_AVATAR_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
+
+type AvatarCropOffset = {
+  x: number;
+  y: number;
+};
+
+type AvatarCropResizeState = {
+  pointerID: number;
+  centerX: number;
+  centerY: number;
+  startDistance: number;
+  startCropSize: number;
+};
+
+const parseDateValue = (value: string) => {
+  const parsed = Date.parse(value);
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+
+  return new Date(parsed);
+};
+
+const loadImageFromSource = (source: string) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new window.Image();
+    image.onload = () => {
+      resolve(image);
+    };
+    image.onerror = () => {
+      reject(new Error('invalid image file'));
+    };
+    image.src = source;
+  });
+
+const estimateDataURLBytes = (dataURL: string) => {
+  const encoded = dataURL.split(',', 2)[1] ?? '';
+  return Math.floor((encoded.length * 3) / 4);
+};
+
+const clampAvatarCropOffset = (
+  offset: AvatarCropOffset,
+  options: {
+    imageWidth: number;
+    imageHeight: number;
+    zoom: number;
+    cropSize: number;
+  },
+) => {
+  const { imageWidth, imageHeight, zoom, cropSize } = options;
+  if (imageWidth <= 0 || imageHeight <= 0 || zoom <= 0 || cropSize <= 0) {
+    return { x: 0, y: 0 };
+  }
+
+  const displayWidth = imageWidth * zoom;
+  const displayHeight = imageHeight * zoom;
+  const maxOffsetX = Math.max(0, (displayWidth - cropSize) / 2);
+  const maxOffsetY = Math.max(0, (displayHeight - cropSize) / 2);
+
+  return {
+    x: Math.min(maxOffsetX, Math.max(-maxOffsetX, offset.x)),
+    y: Math.min(maxOffsetY, Math.max(-maxOffsetY, offset.y)),
+  };
+};
+
+const toCroppedAvatarDataURL = async (options: {
+  source: string;
+  imageWidth: number;
+  imageHeight: number;
+  zoom: number;
+  offset: AvatarCropOffset;
+  cropSize: number;
+}) => {
+  const image = await loadImageFromSource(options.source);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  if (!ctx) {
+    throw new Error('image render failed');
+  }
+
+  let exportSize = DEFAULT_AVATAR_EXPORT_SIZE;
+  while (exportSize >= MIN_AVATAR_EXPORT_SIZE) {
+    canvas.width = exportSize;
+    canvas.height = exportSize;
+    ctx.clearRect(0, 0, exportSize, exportSize);
+
+    const exportScale = exportSize / options.cropSize;
+    const displayWidth = options.imageWidth * options.zoom;
+    const displayHeight = options.imageHeight * options.zoom;
+    const left = (options.cropSize - displayWidth) / 2 - options.offset.x;
+    const top = (options.cropSize - displayHeight) / 2 - options.offset.y;
+
+    ctx.drawImage(
+      image,
+      left * exportScale,
+      top * exportScale,
+      displayWidth * exportScale,
+      displayHeight * exportScale,
+    );
+
+    let quality = 0.92;
+    let dataURL = canvas.toDataURL('image/webp', quality);
+    while (estimateDataURLBytes(dataURL) > MAX_AVATAR_FILE_BYTES && quality >= MIN_AVATAR_EXPORT_QUALITY) {
+      quality = Number((quality - 0.08).toFixed(2));
+      dataURL = canvas.toDataURL('image/webp', quality);
+    }
+
+    if (estimateDataURLBytes(dataURL) <= MAX_AVATAR_FILE_BYTES) {
+      return dataURL;
+    }
+
+    exportSize = Math.floor(exportSize * 0.8);
+  }
+
+  throw new Error('avatar image too large');
+};
+
+const resolveSessionDeviceIcon = (deviceLabel: string) => {
+  const normalized = deviceLabel.toLowerCase();
+  if (normalized.includes('iphone') || normalized.includes('android') || normalized.includes('mobile')) {
+    return 'mobile-screen-button';
+  }
+  if (normalized.includes('ipad') || normalized.includes('tablet')) {
+    return 'tablet-screen-button';
+  }
+  if (normalized.includes('mac') || normalized.includes('windows') || normalized.includes('linux')) {
+    return 'laptop';
+  }
+
+  return 'desktop';
+};
 
 const getPasswordStrength = (password: string) => {
   const value = password;
   if (value === '') {
-    return { score: 0, tone: 'idle' as const, labelKey: 'adminAccount.strength.idle' };
+    return { score: 0, tone: 'idle' as const };
   }
 
   const characterGroups = [
@@ -43,34 +226,72 @@ const getPasswordStrength = (password: string) => {
   if (characterGroups >= 3) score += 1;
 
   if (score <= 1) {
-    return { score, tone: 'weak' as const, labelKey: 'adminAccount.strength.weak' };
+    return { score, tone: 'weak' as const };
   }
   if (score === 2) {
-    return { score, tone: 'fair' as const, labelKey: 'adminAccount.strength.fair' };
+    return { score, tone: 'fair' as const };
   }
   if (score === 3) {
-    return { score, tone: 'good' as const, labelKey: 'adminAccount.strength.good' };
+    return { score, tone: 'good' as const };
   }
   if (score === 4) {
-    return { score, tone: 'strong' as const, labelKey: 'adminAccount.strength.strong' };
+    return { score, tone: 'strong' as const };
   }
 
-  return { score, tone: 'excellent' as const, labelKey: 'adminAccount.strength.excellent' };
+  return { score, tone: 'excellent' as const };
 };
 
-export default function AdminAccountPage() {
+const resolveAppearanceCardClass = (value: Theme | 'system') => {
+  switch (value) {
+    case 'light':
+      return 'admin-account-appearance-option--light';
+    case 'dark':
+      return 'admin-account-appearance-option--dark';
+    case 'oceanic':
+      return 'admin-account-appearance-option--oceanic';
+    case 'forest':
+      return 'admin-account-appearance-option--forest';
+    default:
+      return 'admin-account-appearance-option--system';
+  }
+};
+
+const resolveAppearanceMetaIcon = (value: Theme | 'system') => {
+  switch (value) {
+    case 'light':
+      return 'sun';
+    case 'dark':
+      return 'moon';
+    case 'oceanic':
+      return 'water';
+    case 'forest':
+      return 'leaf';
+    default:
+      return 'desktop';
+  }
+};
+
+export default function AdminAccountPage({ section }: Readonly<AdminAccountPageProps>) {
   const { t } = useTranslation(['admin-account', 'admin-common']);
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
   const locale = routeLocale ?? defaultLocale;
+  const isProfileSection = section === 'profile';
+  const isAccountSection = section === 'account';
+  const isAppearanceSection = section === 'appearance';
+  const isSessionsSection = section === 'sessions';
+  const isSecuritySection = section === 'security';
+
   const [adminUser, setAdminUser] = React.useState<AdminIdentity>(null);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState('');
-  const [successMessage, setSuccessMessage] = React.useState('');
-  const [hasSubmitted, setHasSubmitted] = React.useState(false);
-  const [touchedFields, setTouchedFields] = React.useState({
+
+  const [isSecuritySubmitting, setIsSecuritySubmitting] = React.useState(false);
+  const [securityErrorMessage, setSecurityErrorMessage] = React.useState('');
+  const [securitySuccessMessage, setSecuritySuccessMessage] = React.useState('');
+  const [hasSecuritySubmitted, setHasSecuritySubmitted] = React.useState(false);
+  const [securityTouchedFields, setSecurityTouchedFields] = React.useState({
     currentPassword: false,
     newPassword: false,
     confirmPassword: false,
@@ -81,6 +302,73 @@ export default function AdminAccountPage() {
   const [showCurrentPassword, setShowCurrentPassword] = React.useState(false);
   const [showNewPassword, setShowNewPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+
+  const [activeSessions, setActiveSessions] = React.useState<AdminSession[]>([]);
+  const [isSessionsLoading, setIsSessionsLoading] = React.useState(isSessionsSection);
+  const [sessionErrorMessage, setSessionErrorMessage] = React.useState('');
+  const [sessionSuccessMessage, setSessionSuccessMessage] = React.useState('');
+  const [revokingSessionID, setRevokingSessionID] = React.useState('');
+  const [isRevokingAllSessions, setIsRevokingAllSessions] = React.useState(false);
+
+  const [usernameInput, setUsernameInput] = React.useState('');
+  const [isUsernameSubmitting, setIsUsernameSubmitting] = React.useState(false);
+  const [usernameSubmitted, setUsernameSubmitted] = React.useState(false);
+  const [usernameErrorMessage, setUsernameErrorMessage] = React.useState('');
+  const [usernameSuccessMessage, setUsernameSuccessMessage] = React.useState('');
+  const [nameInput, setNameInput] = React.useState('');
+  const [isNameSubmitting, setIsNameSubmitting] = React.useState(false);
+  const [nameSubmitted, setNameSubmitted] = React.useState(false);
+  const [nameErrorMessage, setNameErrorMessage] = React.useState('');
+  const [nameSuccessMessage, setNameSuccessMessage] = React.useState('');
+  const [isAvatarSubmitting, setIsAvatarSubmitting] = React.useState(false);
+  const [avatarPendingAction, setAvatarPendingAction] = React.useState<'upload' | 'remove' | null>(null);
+  const [avatarErrorMessage, setAvatarErrorMessage] = React.useState('');
+  const [avatarSuccessMessage, setAvatarSuccessMessage] = React.useState('');
+  const [isAvatarCropModalOpen, setIsAvatarCropModalOpen] = React.useState(false);
+  const [avatarCropSource, setAvatarCropSource] = React.useState('');
+  const [avatarCropImageSize, setAvatarCropImageSize] = React.useState({ width: 0, height: 0 });
+  const [avatarCropOffset, setAvatarCropOffset] = React.useState<AvatarCropOffset>({ x: 0, y: 0 });
+  const [avatarCropZoom, setAvatarCropZoom] = React.useState(1);
+  const [avatarCropSize, setAvatarCropSize] = React.useState(AVATAR_CROP_VIEWPORT_SIZE);
+  const [avatarCropSizeBounds, setAvatarCropSizeBounds] = React.useState({
+    min: AVATAR_CROP_MIN_SIZE,
+    max: AVATAR_CROP_VIEWPORT_SIZE,
+  });
+  const [isAvatarCropSaving, setIsAvatarCropSaving] = React.useState(false);
+  const [isAvatarCropDragging, setIsAvatarCropDragging] = React.useState(false);
+  const [isAvatarCropResizing, setIsAvatarCropResizing] = React.useState(false);
+  const avatarCropStageRef = React.useRef<HTMLDivElement | null>(null);
+  const avatarCropDragRef = React.useRef<{
+    pointerId: number;
+    startClientX: number;
+    startClientY: number;
+    startOffsetX: number;
+    startOffsetY: number;
+  } | null>(null);
+  const avatarCropResizeRef = React.useRef<AvatarCropResizeState | null>(null);
+  const avatarFileInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  const [deleteCurrentPassword, setDeleteCurrentPassword] = React.useState('');
+  const [deleteConfirmation, setDeleteConfirmation] = React.useState('');
+  const [showDeletePassword, setShowDeletePassword] = React.useState(false);
+  const [isDeleteSubmitting, setIsDeleteSubmitting] = React.useState(false);
+  const [deleteSubmitted, setDeleteSubmitted] = React.useState(false);
+  const [deleteErrorMessage, setDeleteErrorMessage] = React.useState('');
+  const [deleteSuccessMessage, setDeleteSuccessMessage] = React.useState('');
+  const selectedTheme = useAppSelector(state => state.theme.theme);
+  const hasExplicitTheme = useAppSelector(state => state.theme.hasExplicitTheme);
+
+  const sessionDateFormatter = React.useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale === 'tr' ? 'tr-TR' : 'en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    [locale],
+  );
 
   React.useEffect(() => {
     let isMounted = true;
@@ -98,6 +386,35 @@ export default function AdminAccountPage() {
         }
 
         setAdminUser(me.user);
+        setNameInput(me.user.name ?? '');
+        setUsernameInput(me.user.username ?? '');
+        if (!isSessionsSection) {
+          return;
+        }
+
+        setIsSessionsLoading(true);
+        try {
+          const sessions = await fetchAdminActiveSessions();
+          if (!isMounted) {
+            return;
+          }
+          setActiveSessions(sessions);
+          setSessionErrorMessage('');
+        } catch (error) {
+          if (!isMounted) {
+            return;
+          }
+          const normalizedMessage = error instanceof Error ? error.message.trim().toLowerCase() : '';
+          if (normalizedMessage === INVALID_ADMIN_SESSION_ERROR) {
+            router.replace(`/${locale}/admin/login`);
+            return;
+          }
+          setSessionErrorMessage(t('adminAccount.sessions.errors.load', { ns: 'admin-account' }));
+        } finally {
+          if (isMounted) {
+            setIsSessionsLoading(false);
+          }
+        }
       } catch {
         if (isMounted) {
           router.replace(`/${locale}/admin/login`);
@@ -114,12 +431,105 @@ export default function AdminAccountPage() {
     return () => {
       isMounted = false;
     };
-  }, [locale, router]);
+  }, [isSessionsSection, locale, router, t]);
 
-  const currentPasswordError =
+  React.useEffect(() => {
+    if (!nameSuccessMessage) {
+      return;
+    }
+
+    const timeoutID = globalThis.setTimeout(() => {
+      setNameSuccessMessage('');
+    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [nameSuccessMessage]);
+
+  React.useEffect(() => {
+    if (!usernameSuccessMessage) {
+      return;
+    }
+
+    const timeoutID = globalThis.setTimeout(() => {
+      setUsernameSuccessMessage('');
+    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [usernameSuccessMessage]);
+
+  React.useEffect(() => {
+    if (!sessionSuccessMessage) {
+      return;
+    }
+
+    const timeoutID = globalThis.setTimeout(() => {
+      setSessionSuccessMessage('');
+    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [sessionSuccessMessage]);
+
+  React.useEffect(() => {
+    if (!securitySuccessMessage) {
+      return;
+    }
+
+    const timeoutID = globalThis.setTimeout(() => {
+      setSecuritySuccessMessage('');
+    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [securitySuccessMessage]);
+
+  React.useEffect(() => {
+    if (!deleteSuccessMessage) {
+      return;
+    }
+
+    const timeoutID = globalThis.setTimeout(() => {
+      setDeleteSuccessMessage('');
+    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [deleteSuccessMessage]);
+
+  React.useEffect(() => {
+    if (!avatarSuccessMessage) {
+      return;
+    }
+
+    const timeoutID = globalThis.setTimeout(() => {
+      setAvatarSuccessMessage('');
+    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [avatarSuccessMessage]);
+
+  React.useEffect(
+    () => () => {
+      if (avatarCropSource) {
+        URL.revokeObjectURL(avatarCropSource);
+      }
+    },
+    [avatarCropSource],
+  );
+
+  const securityCurrentPasswordError =
     currentPassword === '' ? t('adminAccount.validation.currentPasswordRequired', { ns: 'admin-account' }) : '';
-  const currentPasswordIncorrectMessage = t('adminAccount.currentPasswordIncorrect', { ns: 'admin-account' });
-  const newPasswordError =
+  const securityCurrentPasswordIncorrectMessage = t('adminAccount.currentPasswordIncorrect', { ns: 'admin-account' });
+  const securityNewPasswordError =
     newPassword === ''
       ? t('adminAccount.validation.newPasswordRequired', { ns: 'admin-account' })
       : newPassword.length < MIN_PASSWORD_LENGTH
@@ -127,74 +537,407 @@ export default function AdminAccountPage() {
         : currentPassword !== '' && currentPassword === newPassword
           ? t('adminAccount.validation.newPasswordDifferent', { ns: 'admin-account' })
           : '';
-  const confirmPasswordError =
+  const securityConfirmPasswordError =
     confirmPassword === ''
       ? t('adminAccount.validation.confirmPasswordRequired', { ns: 'admin-account' })
       : confirmPassword !== newPassword
         ? t('adminAccount.validation.confirmPasswordMismatch', { ns: 'admin-account' })
         : '';
   const passwordStrength = getPasswordStrength(newPassword);
-  const showCurrentPasswordError = (hasSubmitted || touchedFields.currentPassword) && currentPasswordError !== '';
-  const showNewPasswordError = (hasSubmitted || touchedFields.newPassword) && newPasswordError !== '';
-  const showConfirmPasswordError = (hasSubmitted || touchedFields.confirmPassword) && confirmPasswordError !== '';
-  const clearSuccessMessage = React.useCallback(() => {
-    if (successMessage) {
-      setSuccessMessage('');
+  const showCurrentPasswordError =
+    (hasSecuritySubmitted || securityTouchedFields.currentPassword) && securityCurrentPasswordError !== '';
+  const showNewPasswordError =
+    (hasSecuritySubmitted || securityTouchedFields.newPassword) && securityNewPasswordError !== '';
+  const showConfirmPasswordError =
+    (hasSecuritySubmitted || securityTouchedFields.confirmPassword) && securityConfirmPasswordError !== '';
+
+  const resolvedUsernameInput = usernameInput.trim();
+  const resolvedNameInput = nameInput.trim();
+  const profileName = adminUser?.name?.trim() ?? '';
+  const profileUsername = adminUser?.username?.trim() ?? '';
+  const profileAvatarURL = withAdminAvatarSize(adminUser?.avatarUrl, 200);
+  const settingsSidebarAvatarURL = withAdminAvatarSize(adminUser?.avatarUrl, 48);
+  const profileRoles = adminUser?.roles?.join(', ') ?? '';
+  const isNameDirty = resolvedNameInput !== profileName;
+  const isUsernameDirty = resolvedUsernameInput.toLowerCase() !== profileUsername.toLowerCase();
+  const nameValidationError =
+    resolvedNameInput === ''
+      ? t('adminAccount.validation.nameRequired', { ns: 'admin-account' })
+      : resolvedNameInput.length < MIN_NAME_LENGTH || resolvedNameInput.length > MAX_NAME_LENGTH
+        ? t('adminAccount.validation.nameLength', {
+            ns: 'admin-account',
+            min: MIN_NAME_LENGTH,
+            max: MAX_NAME_LENGTH,
+          })
+        : '';
+  const showNameValidationError = (nameSubmitted || isNameDirty) && nameValidationError !== '';
+  const usernameValidationError =
+    resolvedUsernameInput === ''
+      ? t('adminAccount.validation.usernameRequired', { ns: 'admin-account' })
+      : resolvedUsernameInput.length < MIN_USERNAME_LENGTH || resolvedUsernameInput.length > MAX_USERNAME_LENGTH
+        ? t('adminAccount.validation.usernameLength', {
+            ns: 'admin-account',
+            min: MIN_USERNAME_LENGTH,
+            max: MAX_USERNAME_LENGTH,
+          })
+        : !USERNAME_PATTERN.test(resolvedUsernameInput)
+          ? t('adminAccount.validation.usernamePattern', { ns: 'admin-account' })
+          : profileUsername.toLowerCase() === resolvedUsernameInput.toLowerCase()
+            ? t('adminAccount.validation.usernameDifferent', { ns: 'admin-account' })
+            : '';
+  const showUsernameValidationError = (usernameSubmitted || isUsernameDirty) && usernameValidationError !== '';
+
+  const deletePasswordError =
+    deleteCurrentPassword === '' ? t('adminAccount.validation.currentPasswordRequired', { ns: 'admin-account' }) : '';
+  const deleteConfirmError =
+    deleteConfirmation.trim().toUpperCase() !== DELETE_CONFIRMATION_VALUE
+      ? t('adminAccount.validation.deleteConfirmation', { ns: 'admin-account', value: DELETE_CONFIRMATION_VALUE })
+      : '';
+  const showDeletePasswordError = deleteSubmitted && deletePasswordError !== '';
+  const showDeleteConfirmError = deleteSubmitted && deleteConfirmError !== '';
+  const activeAppearance = hasExplicitTheme ? selectedTheme : 'system';
+  const avatarCropDisplayWidth = avatarCropImageSize.width * avatarCropZoom;
+  const avatarCropDisplayHeight = avatarCropImageSize.height * avatarCropZoom;
+  const avatarCropImageStyle = React.useMemo<React.CSSProperties>(
+    () => ({
+      width: `${avatarCropDisplayWidth}px`,
+      height: `${avatarCropDisplayHeight}px`,
+      transform: 'translate(-50%, -50%)',
+    }),
+    [avatarCropDisplayHeight, avatarCropDisplayWidth],
+  );
+  const avatarCropBoxStyle = React.useMemo<React.CSSProperties>(
+    () => ({
+      transform: `translate(calc(-50% + ${avatarCropOffset.x}px), calc(-50% + ${avatarCropOffset.y}px))`,
+    }),
+    [avatarCropOffset.x, avatarCropOffset.y],
+  );
+  const avatarCropStageStyle = React.useMemo<React.CSSProperties>(
+    () =>
+      ({
+        '--avatar-crop-mask-size': `${avatarCropSize}px`,
+        width: `${Math.max(1, Math.round(avatarCropDisplayWidth))}px`,
+        height: `${Math.max(1, Math.round(avatarCropDisplayHeight))}px`,
+      }) as React.CSSProperties,
+    [avatarCropDisplayHeight, avatarCropDisplayWidth, avatarCropSize],
+  );
+
+  const resolveClampedAvatarCropOffset = React.useCallback(
+    (offset: AvatarCropOffset, cropSize = avatarCropSize, zoom = avatarCropZoom) =>
+      clampAvatarCropOffset(offset, {
+        imageWidth: avatarCropImageSize.width,
+        imageHeight: avatarCropImageSize.height,
+        zoom,
+        cropSize,
+      }),
+    [avatarCropImageSize.height, avatarCropImageSize.width, avatarCropSize, avatarCropZoom],
+  );
+
+  const closeAvatarCropModal = React.useCallback(() => {
+    setIsAvatarCropModalOpen(false);
+    setIsAvatarCropSaving(false);
+    setIsAvatarCropDragging(false);
+    setIsAvatarCropResizing(false);
+    avatarCropDragRef.current = null;
+    avatarCropResizeRef.current = null;
+    setAvatarCropOffset({ x: 0, y: 0 });
+    setAvatarCropZoom(1);
+    setAvatarCropSize(AVATAR_CROP_VIEWPORT_SIZE);
+    setAvatarCropSizeBounds({
+      min: AVATAR_CROP_MIN_SIZE,
+      max: AVATAR_CROP_VIEWPORT_SIZE,
+    });
+    setAvatarCropImageSize({ width: 0, height: 0 });
+    setAvatarCropSource(previous => {
+      if (previous) {
+        URL.revokeObjectURL(previous);
+      }
+      return '';
+    });
+  }, []);
+
+  const handleAvatarCropPointerDown = React.useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (!avatarCropSource || isAvatarCropSaving || isAvatarSubmitting || isAvatarCropResizing) {
+        return;
+      }
+
+      event.preventDefault();
+      event.currentTarget.setPointerCapture(event.pointerId);
+      avatarCropDragRef.current = {
+        pointerId: event.pointerId,
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        startOffsetX: avatarCropOffset.x,
+        startOffsetY: avatarCropOffset.y,
+      };
+      setIsAvatarCropDragging(true);
+    },
+    [
+      avatarCropOffset.x,
+      avatarCropOffset.y,
+      avatarCropSource,
+      isAvatarCropResizing,
+      isAvatarCropSaving,
+      isAvatarSubmitting,
+    ],
+  );
+
+  const handleAvatarCropPointerMove = React.useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (isAvatarCropResizing) {
+        return;
+      }
+
+      const activeDrag = avatarCropDragRef.current;
+      if (!activeDrag || activeDrag.pointerId !== event.pointerId) {
+        return;
+      }
+
+      event.preventDefault();
+      const nextOffset = resolveClampedAvatarCropOffset({
+        x: activeDrag.startOffsetX + (event.clientX - activeDrag.startClientX),
+        y: activeDrag.startOffsetY + (event.clientY - activeDrag.startClientY),
+      });
+
+      setAvatarCropOffset(nextOffset);
+    },
+    [isAvatarCropResizing, resolveClampedAvatarCropOffset],
+  );
+
+  const endAvatarCropDrag = React.useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    const activeDrag = avatarCropDragRef.current;
+    if (!activeDrag || activeDrag.pointerId !== event.pointerId) {
+      return;
     }
-  }, [successMessage]);
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    avatarCropDragRef.current = null;
+    setIsAvatarCropDragging(false);
+  }, []);
+
+  const handleAvatarCropResizeStart = React.useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (!avatarCropSource || isAvatarCropSaving || isAvatarSubmitting) {
+        return;
+      }
+
+      const stageElement = avatarCropStageRef.current;
+      if (!stageElement) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const stageRect = stageElement.getBoundingClientRect();
+      const centerX = stageRect.left + stageRect.width / 2;
+      const centerY = stageRect.top + stageRect.height / 2;
+      const cropCenterX = centerX + avatarCropOffset.x;
+      const cropCenterY = centerY + avatarCropOffset.y;
+      const startDistance = Math.hypot(event.clientX - cropCenterX, event.clientY - cropCenterY);
+
+      if (startDistance <= 0) {
+        return;
+      }
+
+      avatarCropResizeRef.current = {
+        pointerID: event.pointerId,
+        centerX: cropCenterX,
+        centerY: cropCenterY,
+        startDistance,
+        startCropSize: avatarCropSize,
+      };
+      setIsAvatarCropResizing(true);
+    },
+    [avatarCropOffset.x, avatarCropOffset.y, avatarCropSize, avatarCropSource, isAvatarCropSaving, isAvatarSubmitting],
+  );
+
+  React.useEffect(() => {
+    if (!isAvatarCropResizing) {
+      return;
+    }
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const activeResize = avatarCropResizeRef.current;
+      if (!activeResize || activeResize.pointerID !== event.pointerId) {
+        return;
+      }
+
+      const currentDistance = Math.hypot(event.clientX - activeResize.centerX, event.clientY - activeResize.centerY);
+      if (!Number.isFinite(currentDistance) || currentDistance <= 0) {
+        return;
+      }
+
+      const distanceRatio = currentDistance / activeResize.startDistance;
+      const unclampedCropSize = activeResize.startCropSize * distanceRatio;
+      const nextCropSize = Math.min(avatarCropSizeBounds.max, Math.max(avatarCropSizeBounds.min, unclampedCropSize));
+      setAvatarCropSize(nextCropSize);
+      setAvatarCropOffset(previous => resolveClampedAvatarCropOffset(previous, nextCropSize));
+    };
+
+    const handlePointerUp = (event: PointerEvent) => {
+      const activeResize = avatarCropResizeRef.current;
+      if (!activeResize || activeResize.pointerID !== event.pointerId) {
+        return;
+      }
+
+      avatarCropResizeRef.current = null;
+      setIsAvatarCropResizing(false);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
+    };
+  }, [avatarCropSizeBounds.max, avatarCropSizeBounds.min, isAvatarCropResizing, resolveClampedAvatarCropOffset]);
+
+  const clearSecuritySuccessMessage = React.useCallback(() => {
+    if (securitySuccessMessage) {
+      setSecuritySuccessMessage('');
+    }
+  }, [securitySuccessMessage]);
+
   const handleCurrentPasswordChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const nextValue = event.currentTarget.value;
       setCurrentPassword(nextValue);
-      setTouchedFields(previous => ({ ...previous, currentPassword: true }));
-      if (errorMessage) {
-        setErrorMessage('');
+      setSecurityTouchedFields(previous => ({ ...previous, currentPassword: true }));
+      if (securityErrorMessage) {
+        setSecurityErrorMessage('');
       }
-      clearSuccessMessage();
+      clearSecuritySuccessMessage();
     },
-    [clearSuccessMessage, errorMessage],
+    [clearSecuritySuccessMessage, securityErrorMessage],
   );
+
   const handleNewPasswordChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const nextValue = event.currentTarget.value;
       setNewPassword(nextValue);
-      setTouchedFields(previous => ({ ...previous, newPassword: true }));
-      if (errorMessage && errorMessage !== currentPasswordIncorrectMessage) {
-        setErrorMessage('');
+      setSecurityTouchedFields(previous => ({ ...previous, newPassword: true }));
+      if (securityErrorMessage && securityErrorMessage !== securityCurrentPasswordIncorrectMessage) {
+        setSecurityErrorMessage('');
       }
-      clearSuccessMessage();
+      clearSecuritySuccessMessage();
     },
-    [clearSuccessMessage, currentPasswordIncorrectMessage, errorMessage],
+    [clearSecuritySuccessMessage, securityCurrentPasswordIncorrectMessage, securityErrorMessage],
   );
+
   const handleConfirmPasswordChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const nextValue = event.currentTarget.value;
       setConfirmPassword(nextValue);
-      setTouchedFields(previous => ({ ...previous, confirmPassword: true }));
-      if (errorMessage && errorMessage !== currentPasswordIncorrectMessage) {
-        setErrorMessage('');
+      setSecurityTouchedFields(previous => ({ ...previous, confirmPassword: true }));
+      if (securityErrorMessage && securityErrorMessage !== securityCurrentPasswordIncorrectMessage) {
+        setSecurityErrorMessage('');
       }
-      clearSuccessMessage();
+      clearSecuritySuccessMessage();
     },
-    [clearSuccessMessage, currentPasswordIncorrectMessage, errorMessage],
+    [clearSecuritySuccessMessage, securityCurrentPasswordIncorrectMessage, securityErrorMessage],
   );
 
-  const handleSubmit = React.useCallback(
+  const formatSessionDate = React.useCallback(
+    (value: string) => {
+      const parsed = parseDateValue(value);
+      if (!parsed) {
+        return value;
+      }
+
+      return sessionDateFormatter.format(parsed);
+    },
+    [sessionDateFormatter],
+  );
+
+  const handleRevokeSession = React.useCallback(
+    async (sessionItem: AdminSession) => {
+      if (revokingSessionID || isRevokingAllSessions) {
+        return;
+      }
+
+      setSessionErrorMessage('');
+      setSessionSuccessMessage('');
+      setRevokingSessionID(sessionItem.id);
+
+      try {
+        const success = await revokeAdminSession(sessionItem.id);
+        if (!success) {
+          throw new Error(t('adminAccount.sessions.errors.revokeSingle', { ns: 'admin-account' }));
+        }
+
+        if (sessionItem.current) {
+          router.replace(`/${locale}/admin/login`);
+          return;
+        }
+
+        setActiveSessions(previous => previous.filter(candidate => candidate.id !== sessionItem.id));
+        setSessionSuccessMessage(t('adminAccount.sessions.success.revokeSingle', { ns: 'admin-account' }));
+      } catch (error) {
+        const normalizedMessage = error instanceof Error ? error.message.trim().toLowerCase() : '';
+        if (normalizedMessage === INVALID_ADMIN_SESSION_ERROR) {
+          router.replace(`/${locale}/admin/login`);
+          return;
+        }
+        setSessionErrorMessage(t('adminAccount.sessions.errors.revokeSingle', { ns: 'admin-account' }));
+      } finally {
+        setRevokingSessionID('');
+      }
+    },
+    [isRevokingAllSessions, locale, revokingSessionID, router, t],
+  );
+
+  const handleRevokeAllSessions = React.useCallback(async () => {
+    if (isRevokingAllSessions || revokingSessionID) {
+      return;
+    }
+
+    setSessionErrorMessage('');
+    setSessionSuccessMessage('');
+    setIsRevokingAllSessions(true);
+
+    try {
+      const success = await revokeAllAdminSessions();
+      if (!success) {
+        throw new Error(t('adminAccount.sessions.errors.revokeAll', { ns: 'admin-account' }));
+      }
+
+      router.replace(`/${locale}/admin/login`);
+    } catch (error) {
+      const normalizedMessage = error instanceof Error ? error.message.trim().toLowerCase() : '';
+      if (normalizedMessage === INVALID_ADMIN_SESSION_ERROR) {
+        router.replace(`/${locale}/admin/login`);
+        return;
+      }
+      setSessionErrorMessage(t('adminAccount.sessions.errors.revokeAll', { ns: 'admin-account' }));
+    } finally {
+      setIsRevokingAllSessions(false);
+    }
+  }, [isRevokingAllSessions, locale, revokingSessionID, router, t]);
+
+  const handleSecuritySubmit = React.useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      if (isSubmitting) {
+      if (isSecuritySubmitting) {
         return;
       }
 
-      setHasSubmitted(true);
-      setErrorMessage('');
-      setSuccessMessage('');
+      setHasSecuritySubmitted(true);
+      setSecurityErrorMessage('');
+      setSecuritySuccessMessage('');
 
-      if (currentPasswordError || newPasswordError || confirmPasswordError) {
+      if (securityCurrentPasswordError || securityNewPasswordError || securityConfirmPasswordError) {
         return;
       }
 
-      setIsSubmitting(true);
+      setIsSecuritySubmitting(true);
       try {
         const payload = await changeAdminPassword({
           currentPassword,
@@ -206,12 +949,12 @@ export default function AdminAccountPage() {
           throw new Error(t('adminAccount.errorFallback', { ns: 'admin-account' }));
         }
 
-        setSuccessMessage(t('adminAccount.success', { ns: 'admin-account' }));
+        setSecuritySuccessMessage(t('adminAccount.success', { ns: 'admin-account' }));
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
-        setHasSubmitted(false);
-        setTouchedFields({
+        setHasSecuritySubmitted(false);
+        setSecurityTouchedFields({
           currentPassword: false,
           newPassword: false,
           confirmPassword: false,
@@ -222,7 +965,7 @@ export default function AdminAccountPage() {
       } catch (error) {
         const message = error instanceof Error ? error.message.trim() : '';
         const normalized = message.toLowerCase();
-        setErrorMessage(
+        setSecurityErrorMessage(
           normalized === 'current password is incorrect'
             ? t('adminAccount.currentPasswordIncorrect', { ns: 'admin-account' })
             : normalized === 'new password must be at least 8 characters'
@@ -234,38 +977,483 @@ export default function AdminAccountPage() {
                   : message || t('adminAccount.errorFallback', { ns: 'admin-account' }),
         );
       } finally {
-        setIsSubmitting(false);
+        setIsSecuritySubmitting(false);
       }
     },
     [
       confirmPassword,
-      confirmPasswordError,
       currentPassword,
-      currentPasswordError,
-      isSubmitting,
+      isSecuritySubmitting,
       locale,
       newPassword,
-      newPasswordError,
       router,
+      securityConfirmPasswordError,
+      securityCurrentPasswordError,
+      securityNewPasswordError,
       t,
     ],
+  );
+
+  const handleUsernameSubmit = React.useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (isUsernameSubmitting) {
+        return;
+      }
+
+      setUsernameSubmitted(true);
+      setUsernameErrorMessage('');
+      setUsernameSuccessMessage('');
+      if (usernameValidationError) {
+        return;
+      }
+
+      setIsUsernameSubmitting(true);
+      try {
+        const payload = await changeAdminUsername({ newUsername: resolvedUsernameInput });
+        if (!payload.success) {
+          throw new Error(t('adminAccount.account.errors.usernameUpdate', { ns: 'admin-account' }));
+        }
+
+        const nextUsername = payload.user?.username ?? resolvedUsernameInput;
+        const updatedUser: AdminIdentity =
+          payload.user ??
+          (adminUser
+            ? {
+                ...adminUser,
+                username: nextUsername,
+              }
+            : null);
+
+        setAdminUser(updatedUser);
+        setUsernameInput(nextUsername);
+        setUsernameSubmitted(false);
+        setUsernameSuccessMessage(t('adminAccount.account.success.usernameUpdated', { ns: 'admin-account' }));
+        globalThis.dispatchEvent(new CustomEvent('admin:user-updated', { detail: { user: updatedUser } }));
+      } catch (error) {
+        const message = error instanceof Error ? error.message.trim() : '';
+        const normalized = message.toLowerCase();
+        if (normalized === INVALID_ADMIN_SESSION_ERROR) {
+          router.replace(`/${locale}/admin/login`);
+          return;
+        }
+        setUsernameErrorMessage(
+          normalized === 'username is already in use'
+            ? t('adminAccount.account.errors.usernameTaken', { ns: 'admin-account' })
+            : normalized === 'new username must be different from current username'
+              ? t('adminAccount.validation.usernameDifferent', { ns: 'admin-account' })
+              : normalized === 'username can include letters, numbers, dot, underscore, and dash only'
+                ? t('adminAccount.validation.usernamePattern', { ns: 'admin-account' })
+                : normalized === 'username must be between 3 and 32 characters'
+                  ? t('adminAccount.validation.usernameLength', {
+                      ns: 'admin-account',
+                      min: MIN_USERNAME_LENGTH,
+                      max: MAX_USERNAME_LENGTH,
+                    })
+                  : message || t('adminAccount.account.errors.usernameUpdate', { ns: 'admin-account' }),
+        );
+      } finally {
+        setIsUsernameSubmitting(false);
+      }
+    },
+    [adminUser, isUsernameSubmitting, locale, resolvedUsernameInput, router, t, usernameValidationError],
+  );
+
+  const handleNameSubmit = React.useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (isNameSubmitting) {
+        return;
+      }
+
+      setNameSubmitted(true);
+      setNameErrorMessage('');
+      setNameSuccessMessage('');
+      if (nameValidationError) {
+        return;
+      }
+
+      setIsNameSubmitting(true);
+      try {
+        const payload = await changeAdminName({ name: resolvedNameInput });
+        if (!payload.success) {
+          throw new Error(t('adminAccount.profile.errors.nameUpdate', { ns: 'admin-account' }));
+        }
+
+        const nextName = payload.user?.name ?? resolvedNameInput;
+        setAdminUser(previous =>
+          previous
+            ? {
+                ...previous,
+                name: nextName,
+              }
+            : previous,
+        );
+        setNameInput(nextName);
+        setNameSubmitted(false);
+        setNameSuccessMessage(t('adminAccount.profile.success.nameUpdated', { ns: 'admin-account' }));
+      } catch (error) {
+        const message = error instanceof Error ? error.message.trim() : '';
+        const normalized = message.toLowerCase();
+        if (normalized === INVALID_ADMIN_SESSION_ERROR) {
+          router.replace(`/${locale}/admin/login`);
+          return;
+        }
+        setNameErrorMessage(
+          normalized === 'name must be between 2 and 80 characters'
+            ? t('adminAccount.validation.nameLength', {
+                ns: 'admin-account',
+                min: MIN_NAME_LENGTH,
+                max: MAX_NAME_LENGTH,
+              })
+            : message || t('adminAccount.profile.errors.nameUpdate', { ns: 'admin-account' }),
+        );
+      } finally {
+        setIsNameSubmitting(false);
+      }
+    },
+    [isNameSubmitting, locale, nameValidationError, resolvedNameInput, router, t],
+  );
+
+  const handleAvatarUpdate = React.useCallback(
+    async (avatarUrl: string | null, action: 'upload' | 'remove') => {
+      if (isAvatarSubmitting) {
+        return false;
+      }
+
+      setAvatarErrorMessage('');
+      setAvatarSuccessMessage('');
+      setAvatarPendingAction(action);
+      setIsAvatarSubmitting(true);
+
+      try {
+        const payload = await changeAdminAvatar({ avatarUrl });
+        if (!payload.success) {
+          throw new Error(t('adminAccount.profile.avatar.errors.update', { ns: 'admin-account' }));
+        }
+
+        const nextUser: AdminIdentity =
+          payload.user ??
+          (adminUser
+            ? {
+                ...adminUser,
+                avatarUrl: avatarUrl ?? null,
+              }
+            : null);
+
+        setAdminUser(nextUser);
+        setAvatarSuccessMessage(t('adminAccount.profile.avatar.success.updated', { ns: 'admin-account' }));
+        globalThis.dispatchEvent(new CustomEvent('admin:user-updated', { detail: { user: nextUser } }));
+        return true;
+      } catch (error) {
+        const message = error instanceof Error ? error.message.trim() : '';
+        const normalized = message.toLowerCase();
+        if (normalized === INVALID_ADMIN_SESSION_ERROR) {
+          router.replace(`/${locale}/admin/login`);
+          return false;
+        }
+        setAvatarErrorMessage(
+          normalized === 'avatar format must be png, jpeg, jpg, or webp'
+            ? t('adminAccount.profile.avatar.errors.invalidFormat', { ns: 'admin-account' })
+            : normalized === 'avatar image must be 2mb or smaller'
+              ? t('adminAccount.profile.avatar.errors.invalidSize', {
+                  ns: 'admin-account',
+                  sizeMB: MAX_AVATAR_FILE_SIZE_MB,
+                })
+              : normalized === 'avatar must be a valid base64 image'
+                ? t('adminAccount.profile.avatar.errors.invalidImage', { ns: 'admin-account' })
+                : message || t('adminAccount.profile.avatar.errors.update', { ns: 'admin-account' }),
+        );
+        return false;
+      } finally {
+        setIsAvatarSubmitting(false);
+        setAvatarPendingAction(null);
+      }
+    },
+    [adminUser, isAvatarSubmitting, locale, router, t],
+  );
+
+  const handleAvatarFileChange = React.useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const input = event.currentTarget;
+      const file = input.files?.[0];
+      if (!file) {
+        return;
+      }
+
+      if (!ALLOWED_AVATAR_MIME_TYPES.has(file.type)) {
+        setAvatarErrorMessage(t('adminAccount.profile.avatar.errors.invalidFormat', { ns: 'admin-account' }));
+        setAvatarSuccessMessage('');
+        input.value = '';
+        return;
+      }
+
+      const objectURL = URL.createObjectURL(file);
+      try {
+        const image = await loadImageFromSource(objectURL);
+        const imageWidth = image.naturalWidth || image.width;
+        const imageHeight = image.naturalHeight || image.height;
+
+        if (imageWidth <= 0 || imageHeight <= 0) {
+          throw new Error('invalid image file');
+        }
+
+        const minZoom = Math.max(AVATAR_CROP_VIEWPORT_SIZE / imageWidth, AVATAR_CROP_VIEWPORT_SIZE / imageHeight);
+        const maxCropSize = Math.min(AVATAR_CROP_VIEWPORT_SIZE, imageWidth * minZoom, imageHeight * minZoom);
+        const minCropSize = Math.min(maxCropSize, Math.max(AVATAR_CROP_MIN_SIZE, maxCropSize * 0.45));
+
+        setAvatarCropSource(previous => {
+          if (previous) {
+            URL.revokeObjectURL(previous);
+          }
+          return objectURL;
+        });
+        setAvatarCropImageSize({ width: imageWidth, height: imageHeight });
+        setAvatarCropZoom(minZoom);
+        setAvatarCropSizeBounds({ min: minCropSize, max: maxCropSize });
+        setAvatarCropSize(maxCropSize);
+        setAvatarCropOffset({ x: 0, y: 0 });
+        setIsAvatarCropModalOpen(true);
+        setAvatarErrorMessage('');
+        setAvatarSuccessMessage('');
+      } catch (error) {
+        URL.revokeObjectURL(objectURL);
+        const message = error instanceof Error ? error.message.trim().toLowerCase() : '';
+        setAvatarErrorMessage(
+          message === 'avatar image too large'
+            ? t('adminAccount.profile.avatar.errors.invalidSize', {
+                ns: 'admin-account',
+                sizeMB: MAX_AVATAR_FILE_SIZE_MB,
+              })
+            : t('adminAccount.profile.avatar.errors.invalidImage', { ns: 'admin-account' }),
+        );
+        setAvatarSuccessMessage('');
+      } finally {
+        input.value = '';
+      }
+    },
+    [t],
+  );
+
+  const handleAvatarCropSave = React.useCallback(async () => {
+    if (!avatarCropSource || isAvatarSubmitting || isAvatarCropSaving) {
+      return;
+    }
+
+    setAvatarErrorMessage('');
+    setIsAvatarCropSaving(true);
+
+    try {
+      const avatarDataURL = await toCroppedAvatarDataURL({
+        source: avatarCropSource,
+        imageWidth: avatarCropImageSize.width,
+        imageHeight: avatarCropImageSize.height,
+        zoom: avatarCropZoom,
+        offset: avatarCropOffset,
+        cropSize: avatarCropSize,
+      });
+
+      const success = await handleAvatarUpdate(avatarDataURL, 'upload');
+      if (success) {
+        closeAvatarCropModal();
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message.trim().toLowerCase() : '';
+      setAvatarErrorMessage(
+        message === 'avatar image too large'
+          ? t('adminAccount.profile.avatar.errors.invalidSize', {
+              ns: 'admin-account',
+              sizeMB: MAX_AVATAR_FILE_SIZE_MB,
+            })
+          : t('adminAccount.profile.avatar.errors.invalidImage', { ns: 'admin-account' }),
+      );
+      setAvatarSuccessMessage('');
+    } finally {
+      setIsAvatarCropSaving(false);
+    }
+  }, [
+    avatarCropImageSize.height,
+    avatarCropImageSize.width,
+    avatarCropOffset,
+    avatarCropSource,
+    avatarCropSize,
+    avatarCropZoom,
+    closeAvatarCropModal,
+    handleAvatarUpdate,
+    isAvatarCropSaving,
+    isAvatarSubmitting,
+    t,
+  ]);
+
+  const handleDeleteSubmit = React.useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (isDeleteSubmitting) {
+        return;
+      }
+
+      setDeleteSubmitted(true);
+      setDeleteErrorMessage('');
+      setDeleteSuccessMessage('');
+      if (deletePasswordError || deleteConfirmError) {
+        return;
+      }
+
+      setIsDeleteSubmitting(true);
+      try {
+        const payload = await deleteAdminAccount({ currentPassword: deleteCurrentPassword });
+        if (!payload.success) {
+          throw new Error(t('adminAccount.account.errors.deleteAccount', { ns: 'admin-account' }));
+        }
+
+        setDeleteSuccessMessage(t('adminAccount.account.success.deleted', { ns: 'admin-account' }));
+        globalThis.setTimeout(() => {
+          router.replace(`/${locale}/admin/login`);
+        }, 900);
+      } catch (error) {
+        const message = error instanceof Error ? error.message.trim() : '';
+        const normalized = message.toLowerCase();
+        if (normalized === INVALID_ADMIN_SESSION_ERROR) {
+          router.replace(`/${locale}/admin/login`);
+          return;
+        }
+        setDeleteErrorMessage(
+          normalized === 'current password is incorrect'
+            ? t('adminAccount.currentPasswordIncorrect', { ns: 'admin-account' })
+            : normalized === 'current password is required'
+              ? t('adminAccount.validation.currentPasswordRequired', { ns: 'admin-account' })
+              : message || t('adminAccount.account.errors.deleteAccount', { ns: 'admin-account' }),
+        );
+      } finally {
+        setIsDeleteSubmitting(false);
+      }
+    },
+    [deleteConfirmError, deleteCurrentPassword, deletePasswordError, isDeleteSubmitting, locale, router, t],
+  );
+
+  const handleAppearanceChange = React.useCallback(
+    (value: Theme | 'system') => {
+      if (value === 'system') {
+        dispatch(resetToSystemTheme());
+        return;
+      }
+
+      dispatch(setTheme(value));
+    },
+    [dispatch],
+  );
+
+  const settingsSidebar = (
+    <aside className="post-card admin-account-card admin-settings-sidebar">
+      <div className="post-card-content">
+        {adminUser ? (
+          <div className="admin-settings-profile-summary">
+            <div className="admin-settings-profile-avatar rounded-circle overflow-hidden d-flex align-items-center justify-content-center">
+              {settingsSidebarAvatarURL ? (
+                <Image
+                  src={settingsSidebarAvatarURL}
+                  alt={profileName || profileUsername || adminUser.email}
+                  width={48}
+                  height={48}
+                  sizes="48px"
+                  unoptimized
+                  className="w-100 h-100 object-fit-cover"
+                />
+              ) : (
+                <FontAwesomeIcon icon="user" />
+              )}
+            </div>
+            <div className="admin-settings-profile-meta">
+              <div className="admin-settings-profile-title">
+                <span>{profileName || profileUsername || adminUser.email}</span>
+                {profileUsername ? <span className="admin-settings-profile-username">({profileUsername})</span> : null}
+              </div>
+            </div>
+          </div>
+        ) : null}
+        <h2 className="admin-dashboard-panel-title mb-2">
+          {t('adminAccount.settings.title', { ns: 'admin-account' })}
+        </h2>
+        <p className="admin-dashboard-panel-copy mb-3">{t('adminAccount.settings.copy', { ns: 'admin-account' })}</p>
+        <nav className="admin-settings-nav" aria-label={t('adminAccount.settings.navLabel', { ns: 'admin-account' })}>
+          <Link
+            href="/admin/settings/profile"
+            className={`admin-settings-nav-link${isProfileSection ? ' is-active' : ''}`}
+          >
+            <span className="admin-settings-nav-icon" aria-hidden="true">
+              <FontAwesomeIcon icon="user" fixedWidth />
+            </span>
+            <span className="admin-settings-nav-label">
+              {t('adminAccount.settings.profile', { ns: 'admin-account' })}
+            </span>
+          </Link>
+          <Link
+            href="/admin/settings/account"
+            className={`admin-settings-nav-link${isAccountSection ? ' is-active' : ''}`}
+          >
+            <span className="admin-settings-nav-icon" aria-hidden="true">
+              <FontAwesomeIcon icon="gear" fixedWidth />
+            </span>
+            <span className="admin-settings-nav-label">
+              {t('adminAccount.settings.account', { ns: 'admin-account' })}
+            </span>
+          </Link>
+          <Link
+            href="/admin/settings/appearance"
+            className={`admin-settings-nav-link${isAppearanceSection ? ' is-active' : ''}`}
+          >
+            <span className="admin-settings-nav-icon" aria-hidden="true">
+              <FontAwesomeIcon icon="palette" fixedWidth />
+            </span>
+            <span className="admin-settings-nav-label">
+              {t('adminAccount.settings.appearance', { ns: 'admin-account' })}
+            </span>
+          </Link>
+          <Link
+            href="/admin/settings/sessions"
+            className={`admin-settings-nav-link${isSessionsSection ? ' is-active' : ''}`}
+          >
+            <span className="admin-settings-nav-icon" aria-hidden="true">
+              <FontAwesomeIcon icon="desktop" fixedWidth />
+            </span>
+            <span className="admin-settings-nav-label">
+              {t('adminAccount.settings.sessions', { ns: 'admin-account' })}
+            </span>
+          </Link>
+          <Link
+            href="/admin/settings/security"
+            className={`admin-settings-nav-link${isSecuritySection ? ' is-active' : ''}`}
+          >
+            <span className="admin-settings-nav-icon" aria-hidden="true">
+              <FontAwesomeIcon icon="lock" fixedWidth />
+            </span>
+            <span className="admin-settings-nav-label">
+              {t('adminAccount.settings.security', { ns: 'admin-account' })}
+            </span>
+          </Link>
+        </nav>
+      </div>
+    </aside>
   );
 
   if (isLoading) {
     return (
       <section className="admin-account-shell">
-        <div className="post-card admin-account-card admin-account-loading-card">
-          <div className="post-card-content admin-account-loading-panel">
-            <AdminLoadingState
-              className="admin-loading-stack"
-              ariaLabel={t('adminCommon.status.loading', { ns: 'admin-common' })}
-            />
-            <div className="admin-loading-line admin-loading-line-lg" />
-            <div className="admin-loading-line admin-loading-line-md" />
-            <div className="admin-account-loading-fields">
-              <div className="admin-account-loading-field" />
-              <div className="admin-account-loading-field" />
-              <div className="admin-account-loading-field" />
+        <div className="admin-settings-layout">
+          {settingsSidebar}
+          <div className="post-card admin-account-card admin-account-loading-card">
+            <div className="post-card-content admin-account-loading-panel">
+              <AdminLoadingState
+                className="admin-loading-stack"
+                ariaLabel={t('adminCommon.status.loading', { ns: 'admin-common' })}
+              />
+              <div className="admin-loading-line admin-loading-line-lg" />
+              <div className="admin-loading-line admin-loading-line-md" />
+              <div className="admin-account-loading-fields">
+                <div className="admin-account-loading-field" />
+                <div className="admin-account-loading-field" />
+                <div className="admin-account-loading-field" />
+              </div>
             </div>
           </div>
         </div>
@@ -279,155 +1467,865 @@ export default function AdminAccountPage() {
 
   return (
     <section className="admin-account-shell">
-      <div className="admin-account-grid">
-        <div className="post-card admin-account-card admin-account-form-card">
-          <div className="post-card-content">
-            <h2 className="admin-dashboard-panel-title mb-3">
-              {t('adminCommon.actions.changePassword', { ns: 'admin-common' })}
-            </h2>
-            <p className="admin-dashboard-panel-copy">{t('adminAccount.form.copy', { ns: 'admin-account' })}</p>
+      <div className="admin-settings-layout">
+        {settingsSidebar}
 
-            {errorMessage ? (
-              <Alert variant="danger" className="mb-4 px-4 py-3 lh-base">
-                {errorMessage}
-              </Alert>
-            ) : null}
-            {successMessage ? (
-              <Alert variant="success" className="mb-4 px-4 py-3 lh-base">
-                {successMessage}
-              </Alert>
-            ) : null}
+        <div className="admin-settings-content">
+          <div className="post-card admin-account-card admin-account-form-card">
+            <div className="post-card-content">
+              {isProfileSection ? (
+                <>
+                  <h3 className="admin-dashboard-panel-title mb-3">
+                    {t('adminAccount.profile.title', { ns: 'admin-account' })}
+                  </h3>
+                  <p className="admin-dashboard-panel-copy mb-3">
+                    {t('adminAccount.profile.copy', { ns: 'admin-account' })}
+                  </p>
+                  {nameErrorMessage ? (
+                    <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
+                      {nameErrorMessage}
+                    </Alert>
+                  ) : null}
+                  {avatarErrorMessage ? (
+                    <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
+                      {avatarErrorMessage}
+                    </Alert>
+                  ) : null}
+                  {nameSuccessMessage ? (
+                    <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
+                      {nameSuccessMessage}
+                    </Alert>
+                  ) : null}
+                  {avatarSuccessMessage ? (
+                    <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
+                      {avatarSuccessMessage}
+                    </Alert>
+                  ) : null}
 
-            <Form noValidate onSubmit={handleSubmit}>
-              <Form.Group className="mb-3" controlId="admin-account-current-password">
-                <Form.Label>{t('adminAccount.form.currentPassword', { ns: 'admin-account' })}</Form.Label>
-                <InputGroup>
-                  <Form.Control
-                    type={showCurrentPassword ? 'text' : 'password'}
-                    value={currentPassword}
-                    onChange={handleCurrentPasswordChange}
-                    placeholder={t('adminAccount.form.currentPasswordPlaceholder', { ns: 'admin-account' })}
-                    autoComplete="current-password"
-                    isInvalid={showCurrentPasswordError}
-                    required
-                    autoFocus
-                  />
-                  <Button
-                    variant="outline-secondary"
-                    type="button"
-                    onClick={() => setShowCurrentPassword(previous => !previous)}
-                    aria-label={
-                      showCurrentPassword
-                        ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
-                        : t('adminAccount.form.showPassword', { ns: 'admin-account' })
-                    }
-                  >
-                    <FontAwesomeIcon icon={showCurrentPassword ? 'eye-slash' : 'eye'} />
-                  </Button>
-                </InputGroup>
-                <Form.Control.Feedback type="invalid" className={showCurrentPasswordError ? 'd-block' : ''}>
-                  {currentPasswordError}
-                </Form.Control.Feedback>
-              </Form.Group>
+                  <div className="row g-3 align-items-start mb-4">
+                    <aside className="col-12 col-lg-4 col-xl-3 order-1 order-lg-2">
+                      <div className="admin-account-avatar-card rounded-4 p-3 h-100">
+                        <h4 className="admin-dashboard-panel-title mb-2">
+                          {t('adminAccount.profile.avatar.title', { ns: 'admin-account' })}
+                        </h4>
+                        <p className="admin-dashboard-panel-copy mb-3">
+                          {t('adminAccount.profile.avatar.copy', {
+                            ns: 'admin-account',
+                            sizeMB: MAX_AVATAR_FILE_SIZE_MB,
+                          })}
+                        </p>
+                        <div
+                          className="admin-account-avatar-frame position-relative mx-auto rounded-circle overflow-hidden d-flex align-items-center justify-content-center"
+                          style={{ width: '200px', height: '200px', maxWidth: '100%' }}
+                        >
+                          {profileAvatarURL ? (
+                            <Image
+                              src={profileAvatarURL}
+                              alt={profileName || profileUsername || adminUser.email}
+                              width={200}
+                              height={200}
+                              sizes="(max-width: 576px) 160px, 200px"
+                              unoptimized
+                              className="w-100 h-100 object-fit-cover"
+                            />
+                          ) : (
+                            <span className="admin-account-avatar-placeholder fs-1" aria-hidden="true">
+                              <FontAwesomeIcon icon="user" />
+                            </span>
+                          )}
+                        </div>
+                        <div className="d-flex flex-wrap gap-2 mt-3 justify-content-center">
+                          <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            disabled={isAvatarSubmitting}
+                            onClick={() => avatarFileInputRef.current?.click()}
+                          >
+                            {isAvatarSubmitting && avatarPendingAction === 'upload' ? (
+                              <span className="d-inline-flex align-items-center gap-2">
+                                <Spinner
+                                  as="span"
+                                  animation="border"
+                                  size="sm"
+                                  className="me-2 flex-shrink-0 admin-action-spinner"
+                                  aria-hidden="true"
+                                />
+                                <span>{t('adminAccount.profile.avatar.uploading', { ns: 'admin-account' })}</span>
+                              </span>
+                            ) : (
+                              t('adminAccount.profile.avatar.edit', { ns: 'admin-account' })
+                            )}
+                          </Button>
+                          {profileAvatarURL ? (
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              disabled={isAvatarSubmitting}
+                              onClick={() => {
+                                void handleAvatarUpdate(null, 'remove');
+                              }}
+                            >
+                              {isAvatarSubmitting && avatarPendingAction === 'remove' ? (
+                                <span className="d-inline-flex align-items-center gap-2">
+                                  <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    className="me-2 flex-shrink-0 admin-action-spinner"
+                                    aria-hidden="true"
+                                  />
+                                  <span>{t('adminAccount.profile.avatar.remove', { ns: 'admin-account' })}</span>
+                                </span>
+                              ) : (
+                                t('adminAccount.profile.avatar.remove', { ns: 'admin-account' })
+                              )}
+                            </Button>
+                          ) : null}
+                        </div>
+                        <input
+                          ref={avatarFileInputRef}
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp"
+                          onChange={event => {
+                            void handleAvatarFileChange(event);
+                          }}
+                          className="d-none"
+                        />
+                      </div>
+                    </aside>
 
-              <Form.Group className="mb-3" controlId="admin-account-new-password">
-                <Form.Label>{t('adminAccount.form.newPassword', { ns: 'admin-account' })}</Form.Label>
-                <InputGroup>
-                  <Form.Control
-                    type={showNewPassword ? 'text' : 'password'}
-                    value={newPassword}
-                    onChange={handleNewPasswordChange}
-                    placeholder={t('adminAccount.form.newPasswordPlaceholder', { ns: 'admin-account' })}
-                    autoComplete="new-password"
-                    isInvalid={showNewPasswordError}
-                    required
-                    minLength={MIN_PASSWORD_LENGTH}
-                  />
-                  <Button
-                    variant="outline-secondary"
-                    type="button"
-                    onClick={() => setShowNewPassword(previous => !previous)}
-                    aria-label={
-                      showNewPassword
-                        ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
-                        : t('adminAccount.form.showPassword', { ns: 'admin-account' })
-                    }
-                  >
-                    <FontAwesomeIcon icon={showNewPassword ? 'eye-slash' : 'eye'} />
-                  </Button>
-                </InputGroup>
-                <div
-                  className={`admin-password-strength admin-password-strength-${passwordStrength.tone}`}
-                  aria-live="polite"
-                >
-                  <div className="admin-password-strength-head">
-                    <span>{t('adminAccount.strength.title', { ns: 'admin-account' })}</span>
+                    <div className="col-12 col-lg-8 col-xl-9 order-2 order-lg-1">
+                      <Form noValidate onSubmit={handleNameSubmit}>
+                        <Form.Group className="mb-3" controlId="admin-profile-name">
+                          <Form.Label>{t('adminAccount.profile.name.label', { ns: 'admin-account' })}</Form.Label>
+                          <Form.Control
+                            type="text"
+                            value={nameInput}
+                            onChange={event => {
+                              setNameInput(event.currentTarget.value);
+                              if (nameErrorMessage) {
+                                setNameErrorMessage('');
+                              }
+                              if (nameSuccessMessage) {
+                                setNameSuccessMessage('');
+                              }
+                            }}
+                            placeholder={t('adminAccount.profile.name.placeholder', { ns: 'admin-account' })}
+                            autoComplete="name"
+                            isInvalid={showNameValidationError}
+                            required
+                            minLength={MIN_NAME_LENGTH}
+                            maxLength={MAX_NAME_LENGTH}
+                          />
+                          <Form.Control.Feedback type="invalid" className={showNameValidationError ? 'd-block' : ''}>
+                            {nameValidationError}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+
+                        <div className="post-summary-cta mb-0">
+                          <Button type="submit" className="post-summary-read-more" disabled={isNameSubmitting}>
+                            {isNameSubmitting ? (
+                              <span className="d-inline-flex align-items-center gap-2">
+                                <Spinner
+                                  as="span"
+                                  animation="border"
+                                  size="sm"
+                                  className="me-2 flex-shrink-0 admin-action-spinner"
+                                  aria-hidden="true"
+                                />
+                                <span className="read-more-label">
+                                  {t('adminAccount.profile.name.submitting', { ns: 'admin-account' })}
+                                </span>
+                              </span>
+                            ) : (
+                              <span className="read-more-label">
+                                {t('adminAccount.profile.name.submit', { ns: 'admin-account' })}
+                              </span>
+                            )}
+                          </Button>
+                        </div>
+                      </Form>
+
+                      <dl className="admin-dashboard-meta-list mb-0 mt-3 pt-3 border-top">
+                        <div>
+                          <dt>{t('adminAccount.profile.labels.name', { ns: 'admin-account' })}</dt>
+                          <dd>{profileName || t('adminAccount.profile.notSet', { ns: 'admin-account' })}</dd>
+                        </div>
+                        <div>
+                          <dt>{t('adminAccount.profile.labels.username', { ns: 'admin-account' })}</dt>
+                          <dd>{profileUsername || t('adminAccount.profile.notSet', { ns: 'admin-account' })}</dd>
+                        </div>
+                        <div>
+                          <dt>{t('adminAccount.profile.labels.email', { ns: 'admin-account' })}</dt>
+                          <dd>{adminUser.email}</dd>
+                        </div>
+                        <div>
+                          <dt>{t('adminAccount.profile.labels.role', { ns: 'admin-account' })}</dt>
+                          <dd>{profileRoles || t('adminAccount.profile.notSet', { ns: 'admin-account' })}</dd>
+                        </div>
+                        <div>
+                          <dt>{t('adminAccount.profile.labels.id', { ns: 'admin-account' })}</dt>
+                          <dd>{adminUser.id}</dd>
+                        </div>
+                        <div>
+                          <dt>{t('adminAccount.profile.labels.picture', { ns: 'admin-account' })}</dt>
+                          <dd>
+                            {profileAvatarURL
+                              ? t('adminAccount.profile.avatar.states.custom', { ns: 'admin-account' })
+                              : t('adminAccount.profile.avatar.states.default', { ns: 'admin-account' })}
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
                   </div>
-                  <div className="admin-password-strength-track" aria-hidden="true">
-                    {Array.from({ length: 5 }, (_, index) => (
-                      <span
-                        key={`strength:${index + 1}`}
-                        className={`admin-password-strength-segment${
-                          index < passwordStrength.score ? ' is-active' : ''
-                        }`}
-                      />
-                    ))}
-                  </div>
+                </>
+              ) : null}
+
+              {isAccountSection ? (
+                <div className="admin-account-section-stack">
+                  <section>
+                    <h3 className="admin-dashboard-panel-title mb-2">
+                      {t('adminAccount.account.username.title', { ns: 'admin-account' })}
+                    </h3>
+                    <p className="admin-dashboard-panel-copy">
+                      {t('adminAccount.account.username.copy', { ns: 'admin-account' })}
+                    </p>
+
+                    {usernameErrorMessage ? (
+                      <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
+                        {usernameErrorMessage}
+                      </Alert>
+                    ) : null}
+                    {usernameSuccessMessage ? (
+                      <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
+                        {usernameSuccessMessage}
+                      </Alert>
+                    ) : null}
+
+                    <Form noValidate onSubmit={handleUsernameSubmit}>
+                      <Form.Group className="mb-3" controlId="admin-account-username">
+                        <Form.Label>{t('adminAccount.account.username.label', { ns: 'admin-account' })}</Form.Label>
+                        <Form.Control
+                          type="text"
+                          value={usernameInput}
+                          onChange={event => {
+                            setUsernameInput(event.currentTarget.value);
+                            if (usernameErrorMessage) {
+                              setUsernameErrorMessage('');
+                            }
+                            if (usernameSuccessMessage) {
+                              setUsernameSuccessMessage('');
+                            }
+                          }}
+                          placeholder={t('adminAccount.account.username.placeholder', { ns: 'admin-account' })}
+                          autoComplete="username"
+                          isInvalid={showUsernameValidationError}
+                          required
+                          minLength={MIN_USERNAME_LENGTH}
+                          maxLength={MAX_USERNAME_LENGTH}
+                        />
+                        <Form.Control.Feedback type="invalid" className={showUsernameValidationError ? 'd-block' : ''}>
+                          {usernameValidationError}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+
+                      <div className="post-summary-cta mb-0">
+                        <Button type="submit" className="post-summary-read-more" disabled={isUsernameSubmitting}>
+                          {isUsernameSubmitting ? (
+                            <span className="d-inline-flex align-items-center gap-2">
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                className="me-2 flex-shrink-0 admin-action-spinner"
+                                aria-hidden="true"
+                              />
+                              <span className="read-more-label">
+                                {t('adminAccount.account.username.submitting', { ns: 'admin-account' })}
+                              </span>
+                            </span>
+                          ) : (
+                            <span className="read-more-label">
+                              {t('adminAccount.account.username.submit', { ns: 'admin-account' })}
+                            </span>
+                          )}
+                        </Button>
+                      </div>
+                    </Form>
+                  </section>
+
+                  <section className="admin-account-delete-section">
+                    <h3 className="admin-dashboard-panel-title mb-2">
+                      {t('adminAccount.account.delete.title', { ns: 'admin-account' })}
+                    </h3>
+                    <p className="admin-dashboard-panel-copy">
+                      {t('adminAccount.account.delete.copy', { ns: 'admin-account' })}
+                    </p>
+
+                    {deleteErrorMessage ? (
+                      <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
+                        {deleteErrorMessage}
+                      </Alert>
+                    ) : null}
+                    {deleteSuccessMessage ? (
+                      <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
+                        {deleteSuccessMessage}
+                      </Alert>
+                    ) : null}
+
+                    <Form noValidate onSubmit={handleDeleteSubmit}>
+                      <Form.Group className="mb-3" controlId="admin-account-delete-password">
+                        <Form.Label>
+                          {t('adminAccount.account.delete.currentPassword', { ns: 'admin-account' })}
+                        </Form.Label>
+                        <InputGroup>
+                          <Form.Control
+                            type={showDeletePassword ? 'text' : 'password'}
+                            value={deleteCurrentPassword}
+                            onChange={event => {
+                              setDeleteCurrentPassword(event.currentTarget.value);
+                              if (deleteErrorMessage) {
+                                setDeleteErrorMessage('');
+                              }
+                              if (deleteSuccessMessage) {
+                                setDeleteSuccessMessage('');
+                              }
+                            }}
+                            placeholder={t('adminAccount.account.delete.currentPasswordPlaceholder', {
+                              ns: 'admin-account',
+                            })}
+                            autoComplete="current-password"
+                            isInvalid={showDeletePasswordError}
+                            required
+                          />
+                          <Button
+                            variant="outline-secondary"
+                            type="button"
+                            onClick={() => setShowDeletePassword(previous => !previous)}
+                            aria-label={
+                              showDeletePassword
+                                ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
+                                : t('adminAccount.form.showPassword', { ns: 'admin-account' })
+                            }
+                          >
+                            <FontAwesomeIcon icon={showDeletePassword ? 'eye-slash' : 'eye'} />
+                          </Button>
+                        </InputGroup>
+                        <Form.Control.Feedback type="invalid" className={showDeletePasswordError ? 'd-block' : ''}>
+                          {deletePasswordError}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+
+                      <Form.Group className="mb-4" controlId="admin-account-delete-confirm">
+                        <Form.Label>
+                          {t('adminAccount.account.delete.confirmLabel', { ns: 'admin-account' })}
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          value={deleteConfirmation}
+                          onChange={event => {
+                            setDeleteConfirmation(event.currentTarget.value);
+                            if (deleteErrorMessage) {
+                              setDeleteErrorMessage('');
+                            }
+                            if (deleteSuccessMessage) {
+                              setDeleteSuccessMessage('');
+                            }
+                          }}
+                          placeholder={t('adminAccount.account.delete.confirmPlaceholder', {
+                            ns: 'admin-account',
+                            value: DELETE_CONFIRMATION_VALUE,
+                          })}
+                          isInvalid={showDeleteConfirmError}
+                          required
+                        />
+                        <Form.Control.Feedback type="invalid" className={showDeleteConfirmError ? 'd-block' : ''}>
+                          {deleteConfirmError}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+
+                      <div className="post-summary-cta mb-0">
+                        <Button
+                          type="submit"
+                          variant="danger"
+                          className="post-summary-read-more admin-account-danger-action"
+                          disabled={isDeleteSubmitting}
+                        >
+                          {isDeleteSubmitting ? (
+                            <span className="d-inline-flex align-items-center gap-2">
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                className="me-2 flex-shrink-0 admin-action-spinner"
+                                aria-hidden="true"
+                              />
+                              <span className="read-more-label">
+                                {t('adminAccount.account.delete.submitting', { ns: 'admin-account' })}
+                              </span>
+                            </span>
+                          ) : (
+                            <span className="read-more-label">
+                              {t('adminAccount.account.delete.submit', { ns: 'admin-account' })}
+                            </span>
+                          )}
+                        </Button>
+                      </div>
+                    </Form>
+                  </section>
                 </div>
-                <Form.Control.Feedback type="invalid" className={showNewPasswordError ? 'd-block' : ''}>
-                  {newPasswordError}
-                </Form.Control.Feedback>
-              </Form.Group>
+              ) : null}
 
-              <Form.Group className="mb-4" controlId="admin-account-confirm-password">
-                <Form.Label>{t('adminAccount.form.confirmPassword', { ns: 'admin-account' })}</Form.Label>
-                <InputGroup>
-                  <Form.Control
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={handleConfirmPasswordChange}
-                    placeholder={t('adminAccount.form.confirmPasswordPlaceholder', { ns: 'admin-account' })}
-                    autoComplete="new-password"
-                    isInvalid={showConfirmPasswordError}
-                    required
-                    minLength={MIN_PASSWORD_LENGTH}
-                  />
-                  <Button
-                    variant="outline-secondary"
-                    type="button"
-                    onClick={() => setShowConfirmPassword(previous => !previous)}
-                    aria-label={
-                      showConfirmPassword
-                        ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
-                        : t('adminAccount.form.showPassword', { ns: 'admin-account' })
-                    }
+              {isAppearanceSection ? (
+                <section className="admin-account-appearance-section is-standalone">
+                  <h3 className="admin-dashboard-panel-title mb-2">
+                    {t('adminAccount.account.appearance.title', { ns: 'admin-account' })}
+                  </h3>
+                  <p className="admin-dashboard-panel-copy">
+                    {t('adminAccount.account.appearance.copy', { ns: 'admin-account' })}
+                  </p>
+                  <div
+                    className="admin-account-appearance-options"
+                    role="radiogroup"
+                    aria-label={t('adminAccount.account.appearance.title', { ns: 'admin-account' })}
                   >
-                    <FontAwesomeIcon icon={showConfirmPassword ? 'eye-slash' : 'eye'} />
-                  </Button>
-                </InputGroup>
-                <Form.Control.Feedback type="invalid" className={showConfirmPasswordError ? 'd-block' : ''}>
-                  {confirmPasswordError}
-                </Form.Control.Feedback>
-              </Form.Group>
+                    {(
+                      [
+                        {
+                          key: 'system',
+                          label: t('adminAccount.account.appearance.options.system', { ns: 'admin-account' }),
+                          value: 'system' as const,
+                        },
+                        ...THEMES.map(option => ({
+                          key: option.key,
+                          label: t(`adminAccount.account.appearance.options.${option.key}`, { ns: 'admin-account' }),
+                          value: option.key,
+                        })),
+                      ] as const
+                    ).map(option => {
+                      const isActive = activeAppearance === option.value;
 
-              <div className="post-summary-cta">
-                <Button type="submit" className="read-more-btn" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <span className="d-inline-flex align-items-center gap-2">
-                      <Spinner animation="border" size="sm" />
-                      <span className="read-more-label">
-                        {t('adminAccount.form.submitting', { ns: 'admin-account' })}
-                      </span>
-                    </span>
+                      return (
+                        <button
+                          key={option.key}
+                          type="button"
+                          className={`admin-account-appearance-option ${resolveAppearanceCardClass(option.value)}${
+                            isActive ? ' is-active' : ''
+                          }`}
+                          onClick={() => handleAppearanceChange(option.value)}
+                          role="radio"
+                          aria-checked={isActive}
+                        >
+                          <span className="admin-account-appearance-preview" aria-hidden="true">
+                            <span className="admin-account-appearance-preview-header">
+                              <span />
+                              <span />
+                              <span />
+                            </span>
+                            <span className="admin-account-appearance-preview-body">
+                              <span className="admin-account-appearance-preview-title" />
+                              <span className="admin-account-appearance-preview-main">
+                                <span className="admin-account-appearance-preview-main-accent" />
+                              </span>
+                              <span className="admin-account-appearance-preview-side" />
+                            </span>
+                          </span>
+
+                          <span className="admin-account-appearance-option-footer">
+                            <FontAwesomeIcon
+                              icon={isActive ? 'circle-check' : 'circle'}
+                              className="admin-account-appearance-option-radio"
+                            />
+                            <span className="admin-account-appearance-option-label">{option.label}</span>
+                            <FontAwesomeIcon
+                              icon={resolveAppearanceMetaIcon(option.value)}
+                              className="admin-account-appearance-option-meta"
+                            />
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              ) : null}
+
+              {isSessionsSection ? (
+                <>
+                  <h3 className="admin-dashboard-panel-title mb-3">
+                    {t('adminAccount.sessions.title', { ns: 'admin-account' })}
+                  </h3>
+                  <p className="admin-dashboard-panel-copy mb-3">
+                    {t('adminAccount.sessions.copy', { ns: 'admin-account' })}
+                  </p>
+
+                  <div className="d-flex justify-content-end mb-3">
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      onClick={() => {
+                        void handleRevokeAllSessions();
+                      }}
+                      disabled={
+                        isSessionsLoading ||
+                        activeSessions.length === 0 ||
+                        isRevokingAllSessions ||
+                        revokingSessionID !== ''
+                      }
+                    >
+                      {isRevokingAllSessions ? (
+                        <span className="d-inline-flex align-items-center gap-2">
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            className="me-2 flex-shrink-0 admin-action-spinner"
+                            aria-hidden="true"
+                          />
+                          <span>{t('adminAccount.sessions.actions.revokingAll', { ns: 'admin-account' })}</span>
+                        </span>
+                      ) : (
+                        t('adminAccount.sessions.actions.revokeAll', { ns: 'admin-account' })
+                      )}
+                    </Button>
+                  </div>
+
+                  {sessionErrorMessage ? (
+                    <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
+                      {sessionErrorMessage}
+                    </Alert>
+                  ) : null}
+                  {sessionSuccessMessage ? (
+                    <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
+                      {sessionSuccessMessage}
+                    </Alert>
+                  ) : null}
+
+                  {isSessionsLoading ? (
+                    <div className="admin-account-sessions-loading">
+                      <AdminLoadingState
+                        className="admin-loading-stack"
+                        ariaLabel={t('adminAccount.sessions.loading', { ns: 'admin-account' })}
+                      />
+                    </div>
+                  ) : activeSessions.length === 0 ? (
+                    <p className="small text-muted mb-0">{t('adminAccount.sessions.empty', { ns: 'admin-account' })}</p>
                   ) : (
-                    <span className="read-more-label">{t('adminAccount.form.submit', { ns: 'admin-account' })}</span>
+                    <div className="admin-session-list">
+                      {activeSessions.map(sessionItem => (
+                        <div key={sessionItem.id} className="admin-session-item">
+                          <div className="admin-session-icon" aria-hidden="true">
+                            <FontAwesomeIcon icon={resolveSessionDeviceIcon(sessionItem.device)} fixedWidth />
+                          </div>
+                          <div className="admin-session-main">
+                            <div className="admin-session-title-row">
+                              <strong>{sessionItem.device}</strong>
+                              {sessionItem.current ? (
+                                <span className="admin-session-chip admin-session-chip-current">
+                                  {t('adminAccount.sessions.labels.current', { ns: 'admin-account' })}
+                                </span>
+                              ) : null}
+                              {sessionItem.persistent ? (
+                                <span className="admin-session-chip">
+                                  {t('adminAccount.sessions.labels.remembered', { ns: 'admin-account' })}
+                                </span>
+                              ) : null}
+                            </div>
+                            <div className="admin-session-meta">
+                              <span>
+                                {t('adminAccount.sessions.labels.ip', {
+                                  ns: 'admin-account',
+                                  value: sessionItem.ipAddress,
+                                })}
+                              </span>
+                              <span>
+                                {t('adminAccount.sessions.labels.country', {
+                                  ns: 'admin-account',
+                                  value: sessionItem.countryCode,
+                                })}
+                              </span>
+                              <span>
+                                {t('adminAccount.sessions.labels.lastActivity', {
+                                  ns: 'admin-account',
+                                  value: formatSessionDate(sessionItem.lastActivityAt),
+                                })}
+                              </span>
+                              <span>
+                                {t('adminAccount.sessions.labels.expires', {
+                                  ns: 'admin-account',
+                                  value: formatSessionDate(sessionItem.expiresAt),
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                          <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            disabled={isRevokingAllSessions || revokingSessionID === sessionItem.id}
+                            onClick={() => {
+                              void handleRevokeSession(sessionItem);
+                            }}
+                          >
+                            {revokingSessionID === sessionItem.id ? (
+                              <span className="d-inline-flex align-items-center gap-2">
+                                <Spinner
+                                  as="span"
+                                  animation="border"
+                                  size="sm"
+                                  className="me-2 flex-shrink-0 admin-action-spinner"
+                                  aria-hidden="true"
+                                />
+                                <span>
+                                  {t('adminAccount.sessions.actions.revokingSingle', { ns: 'admin-account' })}
+                                </span>
+                              </span>
+                            ) : (
+                              t('adminAccount.sessions.actions.revokeSingle', {
+                                ns: 'admin-account',
+                                context: sessionItem.current ? 'current' : 'other',
+                              })
+                            )}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
                   )}
-                </Button>
-              </div>
-            </Form>
+                </>
+              ) : null}
+
+              {isSecuritySection ? (
+                <>
+                  <h3 className="admin-dashboard-panel-title mb-3">
+                    {t('adminCommon.actions.changePassword', { ns: 'admin-common' })}
+                  </h3>
+                  <p className="admin-dashboard-panel-copy">{t('adminAccount.form.copy', { ns: 'admin-account' })}</p>
+
+                  {securityErrorMessage ? (
+                    <Alert variant="danger" className="mb-4 px-4 py-3 lh-base">
+                      {securityErrorMessage}
+                    </Alert>
+                  ) : null}
+                  {securitySuccessMessage ? (
+                    <Alert variant="success" className="mb-4 px-4 py-3 lh-base">
+                      {securitySuccessMessage}
+                    </Alert>
+                  ) : null}
+
+                  <Form noValidate onSubmit={handleSecuritySubmit}>
+                    <Form.Group className="mb-3" controlId="admin-account-current-password">
+                      <Form.Label>{t('adminAccount.form.currentPassword', { ns: 'admin-account' })}</Form.Label>
+                      <InputGroup>
+                        <Form.Control
+                          type={showCurrentPassword ? 'text' : 'password'}
+                          value={currentPassword}
+                          onChange={handleCurrentPasswordChange}
+                          placeholder={t('adminAccount.form.currentPasswordPlaceholder', { ns: 'admin-account' })}
+                          autoComplete="current-password"
+                          isInvalid={showCurrentPasswordError}
+                          required
+                          autoFocus
+                        />
+                        <Button
+                          variant="outline-secondary"
+                          type="button"
+                          onClick={() => setShowCurrentPassword(previous => !previous)}
+                          aria-label={
+                            showCurrentPassword
+                              ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
+                              : t('adminAccount.form.showPassword', { ns: 'admin-account' })
+                          }
+                        >
+                          <FontAwesomeIcon icon={showCurrentPassword ? 'eye-slash' : 'eye'} />
+                        </Button>
+                      </InputGroup>
+                      <Form.Control.Feedback type="invalid" className={showCurrentPasswordError ? 'd-block' : ''}>
+                        {securityCurrentPasswordError}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group className="mb-3" controlId="admin-account-new-password">
+                      <Form.Label>{t('adminAccount.form.newPassword', { ns: 'admin-account' })}</Form.Label>
+                      <InputGroup>
+                        <Form.Control
+                          type={showNewPassword ? 'text' : 'password'}
+                          value={newPassword}
+                          onChange={handleNewPasswordChange}
+                          placeholder={t('adminAccount.form.newPasswordPlaceholder', { ns: 'admin-account' })}
+                          autoComplete="new-password"
+                          isInvalid={showNewPasswordError}
+                          required
+                          minLength={MIN_PASSWORD_LENGTH}
+                        />
+                        <Button
+                          variant="outline-secondary"
+                          type="button"
+                          onClick={() => setShowNewPassword(previous => !previous)}
+                          aria-label={
+                            showNewPassword
+                              ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
+                              : t('adminAccount.form.showPassword', { ns: 'admin-account' })
+                          }
+                        >
+                          <FontAwesomeIcon icon={showNewPassword ? 'eye-slash' : 'eye'} />
+                        </Button>
+                      </InputGroup>
+                      <div
+                        className={`admin-password-strength admin-password-strength-${passwordStrength.tone}`}
+                        aria-live="polite"
+                      >
+                        <div className="admin-password-strength-head">
+                          <span>{t('adminAccount.strength.title', { ns: 'admin-account' })}</span>
+                        </div>
+                        <div className="admin-password-strength-track" aria-hidden="true">
+                          {Array.from({ length: 5 }, (_, index) => (
+                            <span
+                              key={`strength:${index + 1}`}
+                              className={`admin-password-strength-segment${
+                                index < passwordStrength.score ? ' is-active' : ''
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <Form.Control.Feedback type="invalid" className={showNewPasswordError ? 'd-block' : ''}>
+                        {securityNewPasswordError}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group className="mb-4" controlId="admin-account-confirm-password">
+                      <Form.Label>{t('adminAccount.form.confirmPassword', { ns: 'admin-account' })}</Form.Label>
+                      <InputGroup>
+                        <Form.Control
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          value={confirmPassword}
+                          onChange={handleConfirmPasswordChange}
+                          placeholder={t('adminAccount.form.confirmPasswordPlaceholder', { ns: 'admin-account' })}
+                          autoComplete="new-password"
+                          isInvalid={showConfirmPasswordError}
+                          required
+                          minLength={MIN_PASSWORD_LENGTH}
+                        />
+                        <Button
+                          variant="outline-secondary"
+                          type="button"
+                          onClick={() => setShowConfirmPassword(previous => !previous)}
+                          aria-label={
+                            showConfirmPassword
+                              ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
+                              : t('adminAccount.form.showPassword', { ns: 'admin-account' })
+                          }
+                        >
+                          <FontAwesomeIcon icon={showConfirmPassword ? 'eye-slash' : 'eye'} />
+                        </Button>
+                      </InputGroup>
+                      <Form.Control.Feedback type="invalid" className={showConfirmPasswordError ? 'd-block' : ''}>
+                        {securityConfirmPasswordError}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <div className="post-summary-cta">
+                      <Button type="submit" className="post-summary-read-more" disabled={isSecuritySubmitting}>
+                        {isSecuritySubmitting ? (
+                          <span className="d-inline-flex align-items-center gap-2">
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              className="me-2 flex-shrink-0 admin-action-spinner"
+                              aria-hidden="true"
+                            />
+                            <span className="read-more-label">
+                              {t('adminAccount.form.submitting', { ns: 'admin-account' })}
+                            </span>
+                          </span>
+                        ) : (
+                          <span className="read-more-label">
+                            {t('adminAccount.form.submit', { ns: 'admin-account' })}
+                          </span>
+                        )}
+                      </Button>
+                    </div>
+                  </Form>
+                </>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
+
+      <Modal
+        show={isAvatarCropModalOpen}
+        onHide={closeAvatarCropModal}
+        centered
+        backdrop="static"
+        backdropClassName="admin-avatar-crop-backdrop"
+        dialogClassName="admin-avatar-crop-dialog"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{t('adminAccount.profile.avatar.crop.title', { ns: 'admin-account' })}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="small text-body-secondary mb-3">
+            {t('adminAccount.profile.avatar.crop.copy', { ns: 'admin-account' })}
+          </p>
+          <div
+            className={`admin-avatar-crop-stage crop-container position-relative mx-auto overflow-hidden${
+              isAvatarCropDragging ? ' is-dragging' : isAvatarCropResizing ? ' is-resizing' : ''
+            }`}
+            ref={avatarCropStageRef}
+            style={avatarCropStageStyle}
+            onPointerDown={handleAvatarCropPointerDown}
+            onPointerMove={handleAvatarCropPointerMove}
+            onPointerUp={endAvatarCropDrag}
+            onPointerCancel={endAvatarCropDrag}
+            onLostPointerCapture={endAvatarCropDrag}
+            role="presentation"
+          >
+            {avatarCropSource ? (
+              <Image
+                src={avatarCropSource}
+                alt={t('adminAccount.profile.avatar.title', { ns: 'admin-account' })}
+                width={Math.max(1, avatarCropImageSize.width)}
+                height={Math.max(1, avatarCropImageSize.height)}
+                unoptimized
+                draggable={false}
+                className="position-absolute top-50 start-50 user-select-none pe-none"
+                style={avatarCropImageStyle}
+              />
+            ) : null}
+            <div data-crop-box="" className="crop-box" style={avatarCropBoxStyle}>
+              <div className="crop-outline" />
+              {(['nw', 'ne', 'sw', 'se'] as const).map(direction => (
+                <button
+                  key={`avatar-crop-handle:${direction}`}
+                  type="button"
+                  data-direction={direction}
+                  className={`handle ${direction}`}
+                  onPointerDown={handleAvatarCropResizeStart}
+                  disabled={isAvatarCropSaving || isAvatarSubmitting}
+                  aria-label={t('adminAccount.profile.avatar.crop.zoom', { ns: 'admin-account' })}
+                />
+              ))}
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer className="admin-avatar-crop-footer">
+          <Button
+            variant="success"
+            className="admin-avatar-crop-submit"
+            onClick={() => void handleAvatarCropSave()}
+            disabled={isAvatarCropSaving || isAvatarSubmitting}
+          >
+            {isAvatarCropSaving || (isAvatarSubmitting && avatarPendingAction === 'upload') ? (
+              <span className="d-inline-flex align-items-center gap-2">
+                <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
+                <span>{t('adminAccount.profile.avatar.crop.saving', { ns: 'admin-account' })}</span>
+              </span>
+            ) : (
+              t('adminAccount.profile.avatar.crop.save', { ns: 'admin-account' })
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </section>
   );
 }

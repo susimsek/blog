@@ -27,6 +27,46 @@ interface Resources {
   };
   'admin-account': {
     adminAccount: {
+      account: {
+        appearance: {
+          copy: 'Choose how the admin panel looks for your account on this browser.';
+          options: {
+            dark: 'Dark mode';
+            forest: 'Forest mode';
+            light: 'Light mode';
+            oceanic: 'Oceanic mode';
+            system: 'System';
+          };
+          title: 'Appearance';
+        };
+        delete: {
+          confirmLabel: 'Type confirmation';
+          confirmPlaceholder: 'Type {{value}} to confirm';
+          copy: 'Permanently disable this admin account. This action cannot be undone.';
+          currentPassword: 'Current password';
+          currentPasswordPlaceholder: 'Enter your current password';
+          submit: 'Delete account';
+          submitting: 'Deleting account...';
+          title: 'Delete account';
+        };
+        errors: {
+          deleteAccount: 'Account could not be deleted right now.';
+          usernameTaken: 'This username is already in use.';
+          usernameUpdate: 'Username could not be updated right now.';
+        };
+        success: {
+          deleted: 'Account deleted. You are being signed out.';
+          usernameUpdated: 'Username updated.';
+        };
+        username: {
+          copy: 'Update your username for your admin account.';
+          label: 'New username';
+          placeholder: 'Enter a new username';
+          submit: 'Update username';
+          submitting: 'Updating username...';
+          title: 'Change username';
+        };
+      };
       currentPasswordIncorrect: 'Your current password is incorrect.';
       errorFallback: 'Password change failed. Check your inputs and try again.';
       eyebrow: 'Password security';
@@ -45,8 +85,100 @@ interface Resources {
         submitting: 'Updating password...';
       };
       meta: {
-        description: 'Update your admin password and rotate your active sessions.';
-        title: 'Change password';
+        description: 'Manage your admin security settings, sessions, and password.';
+        title: 'Settings';
+      };
+      profile: {
+        avatar: {
+          copy: 'Upload a PNG, JPEG, or WebP image up to {{sizeMB}}MB.';
+          crop: {
+            cancel: 'Cancel';
+            copy: 'Drag the photo and use corner handles to adjust the crop.';
+            save: 'Set new profile picture';
+            saving: 'Saving...';
+            title: 'Crop your new profile picture';
+            zoom: 'Zoom';
+          };
+          edit: 'Edit picture';
+          errors: {
+            invalidFormat: 'Use PNG, JPEG, or WebP image.';
+            invalidImage: 'Selected file is not a valid image.';
+            invalidSize: 'Use an image up to {{sizeMB}}MB.';
+            update: 'Profile picture could not be updated right now.';
+          };
+          remove: 'Remove picture';
+          states: {
+            custom: 'Custom image';
+            default: 'Default image';
+          };
+          success: {
+            updated: 'Profile picture updated.';
+          };
+          title: 'Profile picture';
+          uploading: 'Uploading...';
+        };
+        copy: 'Review your admin identity and account metadata.';
+        errors: {
+          nameUpdate: 'Name could not be updated right now.';
+        };
+        labels: {
+          email: 'Email';
+          id: 'Account ID';
+          name: 'Name';
+          picture: 'Profile picture';
+          role: 'Role';
+          username: 'Username';
+        };
+        name: {
+          label: 'Name';
+          placeholder: 'Enter your name';
+          submit: 'Update name';
+          submitting: 'Updating name...';
+        };
+        notSet: 'Not set';
+        success: {
+          nameUpdated: 'Name updated.';
+        };
+        title: 'Profile';
+      };
+      sessions: {
+        actions: {
+          revokeAll: 'Revoke all';
+          revokeSingle_current: 'Sign out this device';
+          revokeSingle_other: 'Revoke';
+          revokingAll: 'Revoking...';
+          revokingSingle: 'Revoking...';
+        };
+        copy: 'Review signed-in devices and revoke sessions you no longer trust.';
+        empty: 'No active sessions found.';
+        errors: {
+          load: 'Active sessions could not be loaded right now.';
+          revokeAll: 'Sessions could not be revoked.';
+          revokeSingle: 'Session could not be revoked.';
+        };
+        labels: {
+          country: 'Seen in {{value}}';
+          current: 'Current';
+          expires: 'Expires: {{value}}';
+          ip: 'IP: {{value}}';
+          lastActivity: 'Last activity: {{value}}';
+          remembered: 'Remembered';
+        };
+        loading: 'Loading active sessions...';
+        success: {
+          revokeSingle: 'Session revoked.';
+        };
+        title: 'Active sessions';
+      };
+      settings: {
+        account: 'Account';
+        appearance: 'Appearance';
+        copy: 'Manage your profile, account controls, security, and active sessions.';
+        navLabel: 'Settings navigation';
+        profile: 'Profile';
+        security: 'Security';
+        sessions: 'Sessions';
+        title: 'Settings';
       };
       strength: {
         excellent: 'Excellent';
@@ -59,14 +191,25 @@ interface Resources {
       };
       subtitle: 'Update your admin password and sign back in with the new credentials.';
       success: 'Password updated. Sign in again with your new password.';
+      tabs: {
+        password: 'Change password';
+        sessions: 'Active sessions';
+      };
       title: 'Change password';
       validation: {
         confirmPasswordMismatch: 'Password confirmation does not match.';
         confirmPasswordRequired: 'Confirm your new password.';
         currentPasswordRequired: 'Enter your current password.';
+        deleteConfirmation: 'Type {{value}} to confirm account deletion.';
+        nameLength: 'Name must be between {{min}} and {{max}} characters.';
+        nameRequired: 'Enter a name.';
         newPasswordDifferent: 'Choose a password different from the current one.';
         newPasswordMin: 'Use at least {{count}} characters.';
         newPasswordRequired: 'Enter a new password.';
+        usernameDifferent: 'Choose a username different from the current one.';
+        usernameLength: 'Username must be between {{min}} and {{max}} characters.';
+        usernamePattern: 'Use letters, numbers, dot, underscore, or dash only.';
+        usernameRequired: 'Enter a username.';
       };
     };
   };
@@ -75,6 +218,7 @@ interface Resources {
       actions: {
         changePassword: 'Password';
         logout: 'Logout';
+        settings: 'Settings';
         toggleSidebar: 'Toggle sidebar';
       };
       brand: 'Blog Admin';
