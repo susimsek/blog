@@ -31,8 +31,16 @@ jest.mock('@apollo/client/core', () => ({
 
     constructor(_config: unknown) {}
   },
-  ApolloLink: {
-    from: (links: unknown[]) => apolloLinkFromMock(links),
+  ApolloLink: class ApolloLink {
+    request?: (operation: unknown, forward: unknown) => unknown;
+
+    constructor(request?: (operation: unknown, forward: unknown) => unknown) {
+      this.request = request;
+    }
+
+    static from(links: unknown[]) {
+      return apolloLinkFromMock(links);
+    }
   },
   HttpLink: class HttpLink {
     constructor(config: unknown) {
@@ -394,6 +402,126 @@ describe('apolloClient', () => {
         code: 'SERVICE_UNAVAILABLE',
       }),
     );
+  });
+
+  it('applies Accept-Language from persisted locale on Apollo link', async () => {
+    queryMock.mockResolvedValue({ data: { ok: true } });
+
+    const getItem = jest.fn(() => ' EN ');
+    (globalThis as { window?: unknown }).window = {
+      location: { origin: 'http://localhost:3000' },
+      localStorage: { getItem },
+    };
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: { getItem },
+    });
+
+    const { queryGraphQL } = await importApolloClient();
+    await queryGraphQL({} as never, { id: 'locale' });
+
+    const links = apolloLinkFromMock.mock.calls[0]?.[0] as Array<{
+      request?: (operation: unknown, forward: unknown) => unknown;
+    }>;
+    const localeHeaderLink = links?.[1];
+    expect(localeHeaderLink?.request).toBeDefined();
+
+    let computedContext: Record<string, unknown> | undefined;
+    const operation = {
+      setContext: (updater: (ctx: Record<string, unknown>) => Record<string, unknown>) => {
+        computedContext = updater({ headers: { 'X-Test': '1' } });
+      },
+    };
+    const forward = jest.fn(() => 'forward-result');
+    const result = localeHeaderLink.request?.(operation, forward);
+
+    expect(result).toBe('forward-result');
+    expect(forward).toHaveBeenCalledWith(operation);
+    expect(computedContext).toEqual({
+      headers: {
+        'X-Test': '1',
+        'Accept-Language': 'en',
+      },
+    });
+  });
+
+  it('falls back to html lang and default locale when persisted locale is unavailable', async () => {
+    queryMock.mockResolvedValue({ data: { ok: true } });
+
+    const getItem = jest.fn(() => {
+      throw new Error('storage blocked');
+    });
+    const documentRef = globalThis.document as { documentElement?: { lang?: string } } | undefined;
+    const originalLang = documentRef?.documentElement?.lang ?? '';
+    if (documentRef?.documentElement) {
+      documentRef.documentElement.lang = 'TR';
+    }
+    (globalThis as { window?: unknown }).window = {
+      location: { origin: 'http://localhost:3000' },
+      localStorage: { getItem },
+    };
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: { getItem },
+    });
+
+    const { queryGraphQL } = await importApolloClient();
+    await queryGraphQL({} as never, { id: 'html-fallback' });
+    const links = apolloLinkFromMock.mock.calls[0]?.[0] as Array<{
+      request?: (operation: unknown, forward: unknown) => unknown;
+    }>;
+    const localeHeaderLink = links?.[1];
+
+    let computedHtmlContext: Record<string, unknown> | undefined;
+    localeHeaderLink.request?.(
+      {
+        setContext: (updater: (ctx: Record<string, unknown>) => Record<string, unknown>) => {
+          computedHtmlContext = updater({});
+        },
+      },
+      jest.fn(() => null),
+    );
+    expect(computedHtmlContext).toEqual({
+      headers: {
+        'Accept-Language': 'tr',
+      },
+    });
+
+    if (documentRef?.documentElement) {
+      documentRef.documentElement.lang = '';
+    }
+
+    let computedDefaultContext: Record<string, unknown> | undefined;
+    localeHeaderLink.request?.(
+      {
+        setContext: (updater: (ctx: Record<string, unknown>) => Record<string, unknown>) => {
+          computedDefaultContext = updater({});
+        },
+      },
+      jest.fn(() => null),
+    );
+    expect(computedDefaultContext).toEqual({
+      headers: {
+        'Accept-Language': 'en',
+      },
+    });
+
+    if (documentRef?.documentElement) {
+      documentRef.documentElement.lang = originalLang;
+    }
+  });
+
+  it('uses default local api origin when running on localhost without env overrides', async () => {
+    delete process.env.NEXT_PUBLIC_API_BASE_URL;
+    delete process.env.NEXT_PUBLIC_DEV_API_ORIGIN;
+    (globalThis as { window?: unknown }).window = {
+      location: {
+        origin: 'http://localhost:3000',
+      },
+    };
+
+    const { getGraphQLEndpoint } = await importApolloClient();
+    expect(getGraphQLEndpoint()).toBe('http://localhost:8080/graphql');
   });
 });
 /** @jest-environment node */
