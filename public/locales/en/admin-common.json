@@ -19,6 +19,9 @@
     },
     "status": {
       "loading": "Loading admin session..."
+    },
+    "errors": {
+      "network": "Unable to connect to admin service. Check your connection and try again."
     }
   }
 }

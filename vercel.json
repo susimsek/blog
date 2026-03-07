@@ -12,6 +12,10 @@
     {
       "source": "/graphql",
       "destination": "/api/graphql"
+    },
+    {
+      "source": "/api/admin/graphql",
+      "destination": "/api/admin-graphql"
     }
   ],
   "crons": [

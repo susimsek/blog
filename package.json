@@ -38,7 +38,8 @@
     "graphql:codegen": "graphql-codegen --config codegen.ts",
     "backend:dev": "go run github.com/air-verse/air@v1.64.5 -c .air.toml",
     "backend:start": "go run ./cmd/app",
-    "backend:sync-content": "go run ./scripts/sync-newsletter-content/main.go"
+    "backend:sync-content": "go run ./scripts/sync-newsletter-content/main.go",
+    "backend:sync-admin-error-messages": "go run ./scripts/sync-admin-error-messages/main.go"
   },
   "dependencies": {
     "@apollo/client": "^4.1.5",

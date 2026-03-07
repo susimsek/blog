@@ -4,6 +4,7 @@ import { ErrorLink } from '@apollo/client/link/error';
 import { CombinedGraphQLErrors, ServerError, ServerParseError } from '@apollo/client/errors';
 import { withBasePath } from '@/lib/basePath';
 import { AppError, AppErrorCode, publishAppError, reportAppError, unknownAppError } from '@/lib/errors/appError';
+import { defaultLocale } from '@/i18n/settings';
 
 type GraphQLOptions = {
   signal?: AbortSignal;
@@ -88,6 +89,28 @@ const notifyGraphQLError = (error: AppError, options: GraphQLOptions, operationN
   reportAppError(error, context);
 };
 
+const resolveRequestLocale = () => {
+  if (globalThis.window === undefined) {
+    return defaultLocale;
+  }
+
+  try {
+    const persistedLocale = globalThis.localStorage.getItem('i18nextLng')?.trim().toLowerCase();
+    if (persistedLocale) {
+      return persistedLocale;
+    }
+  } catch {
+    // Ignore localStorage access errors.
+  }
+
+  const htmlLang = globalThis.document?.documentElement?.lang?.trim().toLowerCase() ?? '';
+  if (htmlLang) {
+    return htmlLang;
+  }
+
+  return defaultLocale;
+};
+
 const getClient = (endpoint: string) => {
   const cachedClient = clientsByEndpoint.get(endpoint);
   if (cachedClient) {
@@ -106,10 +129,24 @@ const getClient = (endpoint: string) => {
     });
   });
 
+  const localeHeaderLink = new ApolloLink((operation, forward) => {
+    const locale = resolveRequestLocale();
+    operation.setContext(previousContext => ({
+      ...previousContext,
+      headers: {
+        ...(previousContext?.headers ?? {}),
+        'Accept-Language': locale,
+      },
+    }));
+
+    return forward(operation);
+  });
+
   const client = new ApolloClient({
     cache: new InMemoryCache(),
     link: ApolloLink.from([
       errorLink,
+      localeHeaderLink,
       new HttpLink({
         uri: endpoint,
         fetch: globalThis.fetch.bind(globalThis),

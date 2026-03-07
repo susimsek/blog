@@ -19,6 +19,9 @@
     },
     "status": {
       "loading": "Yönetici oturumu yükleniyor..."
+    },
+    "errors": {
+      "network": "Yönetim servisine bağlanılamadı. Bağlantınızı kontrol edip yeniden deneyin."
     }
   }
 }

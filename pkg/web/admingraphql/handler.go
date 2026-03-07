@@ -49,13 +49,15 @@ func newAdminGraphQLServer() *graphqlhandler.Server {
 		httpapi.LogError(ctx, "admin graphql execution failed", err, "component", "admin_graphql")
 
 		gqlErr := graphql.DefaultErrorPresenter(ctx, err)
-		appErr := apperrors.From(err)
+		presentedErr := presentAdminError(ctx, err)
 
-		gqlErr.Message = appErr.Message
+		gqlErr.Message = presentedErr.Message
 		if gqlErr.Extensions == nil {
 			gqlErr.Extensions = map[string]any{}
 		}
-		gqlErr.Extensions["code"] = appErr.Code
+		gqlErr.Extensions["code"] = presentedErr.Code
+		gqlErr.Extensions["httpStatus"] = presentedErr.HTTPStatus
+		gqlErr.Extensions["retryable"] = isRetryableAdminError(presentedErr)
 		if requestID := httpapi.RequestIDFromContext(ctx); requestID != "" {
 			gqlErr.Extensions["requestId"] = requestID
 		}
@@ -87,13 +89,13 @@ func getAdminGraphQLServer() *graphqlhandler.Server {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	r = httpapi.EnsureRequestContext(w, r)
 	if r == nil {
-		httpapi.WriteErrorWithContext(context.Background(), w, apperrors.Internal("invalid request context", nil))
+		writeAdminErrorWithContext(context.Background(), w, apperrors.Internal("invalid request context", nil))
 		return
 	}
 
 	httpConfig := appconfig.ResolveHTTPConfig()
 	if httpConfig.AllowedOrigin == "" {
-		httpapi.WriteErrorWithContext(r.Context(), w, apperrors.Config("configuration error", nil))
+		writeAdminErrorWithContext(r.Context(), w, apperrors.Config("configuration error", nil))
 		return
 	}
 
@@ -111,29 +113,29 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet && r.Method != http.MethodPost {
 		w.Header().Set("Allow", "GET, POST, OPTIONS")
-		httpapi.WriteErrorWithContext(r.Context(), w, apperrors.MethodNotAllowed("method not allowed"))
+		writeAdminErrorWithContext(r.Context(), w, apperrors.MethodNotAllowed("method not allowed"))
 		return
 	}
 
 	adminConfig := appconfig.ResolveAdminConfig()
 	if _, err := httpauth.EnsureCSRFCookie(w, r, adminConfig.CSRFCookieName, adminConfig.SecureCookies, "/"); err != nil {
-		httpapi.WriteErrorWithContext(r.Context(), w, apperrors.Internal("failed to initialize csrf token", err))
+		writeAdminErrorWithContext(r.Context(), w, apperrors.Internal("failed to initialize csrf token", err))
 		return
 	}
 
 	if isMutation, err := isAdminMutationRequest(r); err != nil {
-		httpapi.WriteErrorWithContext(r.Context(), w, apperrors.BadRequest("invalid GraphQL request payload"))
+		writeAdminErrorWithContext(r.Context(), w, apperrors.BadRequest("invalid GraphQL request payload"))
 		return
 	} else if isMutation && !isCSRFExemptOperation(r) {
 		if err := httpauth.ValidateDoubleSubmitCSRF(r, adminConfig.CSRFCookieName); err != nil {
-			httpapi.WriteErrorWithContext(r.Context(), w, apperrors.Unauthorized("invalid csrf token"))
+			writeAdminErrorWithContext(r.Context(), w, apperrors.Unauthorized("invalid csrf token"))
 			return
 		}
 	}
 
 	requestWithContext, err := admingraphql.WithAdminRequestContext(r.Context(), r, w)
 	if err != nil {
-		httpapi.WriteErrorWithContext(r.Context(), w, apperrors.Internal("failed to resolve admin auth", err))
+		writeAdminErrorWithContext(r.Context(), w, apperrors.Internal("failed to resolve admin auth", err))
 		return
 	}
 

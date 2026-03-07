@@ -21,6 +21,7 @@ type RequestTrace struct {
 	Path        string
 	RemoteIP    string
 	CountryCode string
+	AcceptLang  string
 	UserAgent   string
 }
 
@@ -129,6 +130,7 @@ func resolveRequestTrace(r *http.Request) RequestTrace {
 		Path:        path,
 		RemoteIP:    resolveRemoteIP(r),
 		CountryCode: resolveCountryCode(r),
+		AcceptLang:  strings.TrimSpace(r.Header.Get("Accept-Language")),
 		UserAgent:   strings.TrimSpace(r.UserAgent()),
 	}
 }

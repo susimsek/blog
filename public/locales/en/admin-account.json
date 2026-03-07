@@ -9,7 +9,6 @@
     "subtitle": "Update your admin password and sign back in with the new credentials.",
     "errorFallback": "Password change failed. Check your inputs and try again.",
     "success": "Password updated. Sign in again with your new password.",
-    "currentPasswordIncorrect": "Your current password is incorrect.",
     "tabs": {
       "sessions": "Active sessions",
       "password": "Change password"
@@ -113,7 +112,6 @@
       },
       "errors": {
         "usernameUpdate": "Username could not be updated right now.",
-        "usernameTaken": "This username is already in use.",
         "deleteAccount": "Account could not be deleted right now."
       }
     },

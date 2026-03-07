@@ -9,7 +9,6 @@
     "subtitle": "Yönetici parolanı güncelle ve yeni bilgilerle tekrar giriş yap.",
     "errorFallback": "Parola güncellenemedi. Bilgileri kontrol edip tekrar dene.",
     "success": "Parola güncellendi. Yeni parolanla tekrar giriş yap.",
-    "currentPasswordIncorrect": "Mevcut parola hatalı.",
     "tabs": {
       "sessions": "Aktif oturumlar",
       "password": "Parola değiştir"
@@ -113,7 +112,6 @@
       },
       "errors": {
         "usernameUpdate": "Kullanıcı adı şu anda güncellenemedi.",
-        "usernameTaken": "Bu kullanıcı adı zaten kullanımda.",
         "deleteAccount": "Hesap şu anda silinemedi."
       }
     },

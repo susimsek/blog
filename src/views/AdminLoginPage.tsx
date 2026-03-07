@@ -9,7 +9,7 @@ import Alert from 'react-bootstrap/Alert';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Spinner from 'react-bootstrap/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { fetchAdminMe, loginAdmin } from '@/lib/adminApi';
+import { fetchAdminMe, loginAdmin, resolveAdminError } from '@/lib/adminApi';
 import { defaultLocale } from '@/i18n/settings';
 import { useAppSelector } from '@/config/store';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
@@ -103,17 +103,16 @@ export default function AdminLoginPage() {
         }
         router.replace(`/${locale}/admin`);
       } catch (error) {
-        const fallbackMessage = t('adminLogin.errorFallback', { ns: 'admin-login' });
-        const resolvedMessage =
-          error instanceof Error && error.message.trim() !== '' ? error.message.trim() : fallbackMessage;
-
-        setErrorMessage(
-          resolvedMessage.toLowerCase() === 'invalid admin session'
-            ? t('adminLogin.sessionExpired', { ns: 'admin-login' })
-            : resolvedMessage.toLowerCase() === 'invalid credentials'
-              ? t('adminLogin.invalidCredentials', { ns: 'admin-login' })
-              : resolvedMessage,
-        );
+        const resolvedError = resolveAdminError(error);
+        if (resolvedError.kind === 'network') {
+          setErrorMessage(t('adminCommon.errors.network', { ns: 'admin-common' }));
+        } else {
+          setErrorMessage(
+            resolvedError.message.trim() !== ''
+              ? resolvedError.message
+              : t('adminLogin.errorFallback', { ns: 'admin-login' }),
+          );
+        }
       } finally {
         setIsSubmitting(false);
       }

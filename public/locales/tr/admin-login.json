@@ -17,8 +17,6 @@
     "submit": "Giriş yap",
     "submitting": "Giriş yapılıyor...",
     "errorFallback": "Giriş başarısız. Bilgileri ve yönetici yapılandırmasını kontrol edin.",
-    "invalidCredentials": "E-posta veya parola hatalı.",
-    "sessionExpired": "Oturumunuz sona erdi. Yeniden giriş yapın.",
     "help": "Oturumunuz güvenli cookie'lerde tutulur. Erişim süresi biterse yeniden giriş yapın.",
     "validation": {
       "emailRequired": "E-posta adresinizi girin.",

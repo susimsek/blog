@@ -17,8 +17,6 @@
     "submit": "Sign in",
     "submitting": "Signing in...",
     "errorFallback": "Login failed. Check your credentials and admin configuration.",
-    "invalidCredentials": "Invalid email or password.",
-    "sessionExpired": "Your session expired. Sign in again.",
     "help": "Your session is kept in secure cookies. If access expires, sign in again.",
     "validation": {
       "emailRequired": "Enter your email address.",

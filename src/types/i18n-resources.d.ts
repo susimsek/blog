@@ -51,7 +51,6 @@ interface Resources {
         };
         errors: {
           deleteAccount: 'Account could not be deleted right now.';
-          usernameTaken: 'This username is already in use.';
           usernameUpdate: 'Username could not be updated right now.';
         };
         success: {
@@ -67,7 +66,6 @@ interface Resources {
           title: 'Change username';
         };
       };
-      currentPasswordIncorrect: 'Your current password is incorrect.';
       errorFallback: 'Password change failed. Check your inputs and try again.';
       eyebrow: 'Password security';
       form: {
@@ -222,6 +220,9 @@ interface Resources {
         toggleSidebar: 'Toggle sidebar';
       };
       brand: 'Blog Admin';
+      errors: {
+        network: 'Unable to connect to admin service. Check your connection and try again.';
+      };
       nav: {
         account: 'Account';
         dashboard: 'Dashboard';
@@ -318,7 +319,6 @@ interface Resources {
       eyebrow: 'Secure access';
       help: 'Your session is kept in secure cookies. If access expires, sign in again.';
       hidePassword: 'Hide password';
-      invalidCredentials: 'Invalid email or password.';
       meta: {
         description: 'Authenticate to access the blog admin panel.';
         title: 'Admin login';
@@ -326,7 +326,6 @@ interface Resources {
       password: 'Password';
       passwordPlaceholder: 'Enter your password';
       rememberMe: 'Remember me';
-      sessionExpired: 'Your session expired. Sign in again.';
       showPassword: 'Show password';
       submit: 'Sign in';
       submitting: 'Signing in...';

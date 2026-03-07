@@ -19,6 +19,8 @@ import {
   deleteAdminAccount,
   fetchAdminActiveSessions,
   fetchAdminMe,
+  isAdminSessionError,
+  resolveAdminError,
   revokeAdminSession,
   revokeAllAdminSessions,
 } from '@/lib/adminApi';
@@ -63,7 +65,6 @@ const MIN_USERNAME_LENGTH = 3;
 const MAX_USERNAME_LENGTH = 32;
 const DELETE_CONFIRMATION_VALUE = 'DELETE';
 const USERNAME_PATTERN = /^[A-Za-z0-9._-]+$/;
-const INVALID_ADMIN_SESSION_ERROR = 'invalid admin session';
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 const MAX_AVATAR_FILE_BYTES = 2 * 1024 * 1024;
 const MAX_AVATAR_FILE_SIZE_MB = Math.floor(MAX_AVATAR_FILE_BYTES / (1024 * 1024));
@@ -404,12 +405,16 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
           if (!isMounted) {
             return;
           }
-          const normalizedMessage = error instanceof Error ? error.message.trim().toLowerCase() : '';
-          if (normalizedMessage === INVALID_ADMIN_SESSION_ERROR) {
+          if (isAdminSessionError(error)) {
             router.replace(`/${locale}/admin/login`);
             return;
           }
-          setSessionErrorMessage(t('adminAccount.sessions.errors.load', { ns: 'admin-account' }));
+          const resolvedError = resolveAdminError(error);
+          setSessionErrorMessage(
+            resolvedError.kind === 'network'
+              ? t('adminCommon.errors.network', { ns: 'admin-common' })
+              : resolvedError.message || t('adminAccount.sessions.errors.load', { ns: 'admin-account' }),
+          );
         } finally {
           if (isMounted) {
             setIsSessionsLoading(false);
@@ -528,7 +533,6 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
 
   const securityCurrentPasswordError =
     currentPassword === '' ? t('adminAccount.validation.currentPasswordRequired', { ns: 'admin-account' }) : '';
-  const securityCurrentPasswordIncorrectMessage = t('adminAccount.currentPasswordIncorrect', { ns: 'admin-account' });
   const securityNewPasswordError =
     newPassword === ''
       ? t('adminAccount.validation.newPasswordRequired', { ns: 'admin-account' })
@@ -824,12 +828,12 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
       const nextValue = event.currentTarget.value;
       setNewPassword(nextValue);
       setSecurityTouchedFields(previous => ({ ...previous, newPassword: true }));
-      if (securityErrorMessage && securityErrorMessage !== securityCurrentPasswordIncorrectMessage) {
+      if (securityErrorMessage) {
         setSecurityErrorMessage('');
       }
       clearSecuritySuccessMessage();
     },
-    [clearSecuritySuccessMessage, securityCurrentPasswordIncorrectMessage, securityErrorMessage],
+    [clearSecuritySuccessMessage, securityErrorMessage],
   );
 
   const handleConfirmPasswordChange = React.useCallback(
@@ -837,12 +841,12 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
       const nextValue = event.currentTarget.value;
       setConfirmPassword(nextValue);
       setSecurityTouchedFields(previous => ({ ...previous, confirmPassword: true }));
-      if (securityErrorMessage && securityErrorMessage !== securityCurrentPasswordIncorrectMessage) {
+      if (securityErrorMessage) {
         setSecurityErrorMessage('');
       }
       clearSecuritySuccessMessage();
     },
-    [clearSecuritySuccessMessage, securityCurrentPasswordIncorrectMessage, securityErrorMessage],
+    [clearSecuritySuccessMessage, securityErrorMessage],
   );
 
   const formatSessionDate = React.useCallback(
@@ -881,12 +885,14 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
         setActiveSessions(previous => previous.filter(candidate => candidate.id !== sessionItem.id));
         setSessionSuccessMessage(t('adminAccount.sessions.success.revokeSingle', { ns: 'admin-account' }));
       } catch (error) {
-        const normalizedMessage = error instanceof Error ? error.message.trim().toLowerCase() : '';
-        if (normalizedMessage === INVALID_ADMIN_SESSION_ERROR) {
+        if (isAdminSessionError(error)) {
           router.replace(`/${locale}/admin/login`);
           return;
         }
-        setSessionErrorMessage(t('adminAccount.sessions.errors.revokeSingle', { ns: 'admin-account' }));
+        const resolvedError = resolveAdminError(error);
+        setSessionErrorMessage(
+          resolvedError.message || t('adminAccount.sessions.errors.revokeSingle', { ns: 'admin-account' }),
+        );
       } finally {
         setRevokingSessionID('');
       }
@@ -911,12 +917,14 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
 
       router.replace(`/${locale}/admin/login`);
     } catch (error) {
-      const normalizedMessage = error instanceof Error ? error.message.trim().toLowerCase() : '';
-      if (normalizedMessage === INVALID_ADMIN_SESSION_ERROR) {
+      if (isAdminSessionError(error)) {
         router.replace(`/${locale}/admin/login`);
         return;
       }
-      setSessionErrorMessage(t('adminAccount.sessions.errors.revokeAll', { ns: 'admin-account' }));
+      const resolvedError = resolveAdminError(error);
+      setSessionErrorMessage(
+        resolvedError.message || t('adminAccount.sessions.errors.revokeAll', { ns: 'admin-account' }),
+      );
     } finally {
       setIsRevokingAllSessions(false);
     }
@@ -963,19 +971,12 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
           router.replace(`/${locale}/admin/login`);
         }, 900);
       } catch (error) {
-        const message = error instanceof Error ? error.message.trim() : '';
-        const normalized = message.toLowerCase();
-        setSecurityErrorMessage(
-          normalized === 'current password is incorrect'
-            ? t('adminAccount.currentPasswordIncorrect', { ns: 'admin-account' })
-            : normalized === 'new password must be at least 8 characters'
-              ? t('adminAccount.validation.newPasswordMin', { ns: 'admin-account', count: MIN_PASSWORD_LENGTH })
-              : normalized === 'new password confirmation does not match'
-                ? t('adminAccount.validation.confirmPasswordMismatch', { ns: 'admin-account' })
-                : normalized === 'new password must be different from current password'
-                  ? t('adminAccount.validation.newPasswordDifferent', { ns: 'admin-account' })
-                  : message || t('adminAccount.errorFallback', { ns: 'admin-account' }),
-        );
+        if (isAdminSessionError(error)) {
+          router.replace(`/${locale}/admin/login`);
+          return;
+        }
+        const resolvedError = resolveAdminError(error);
+        setSecurityErrorMessage(resolvedError.message || t('adminAccount.errorFallback', { ns: 'admin-account' }));
       } finally {
         setIsSecuritySubmitting(false);
       }
@@ -1031,26 +1032,13 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
         setUsernameSuccessMessage(t('adminAccount.account.success.usernameUpdated', { ns: 'admin-account' }));
         globalThis.dispatchEvent(new CustomEvent('admin:user-updated', { detail: { user: updatedUser } }));
       } catch (error) {
-        const message = error instanceof Error ? error.message.trim() : '';
-        const normalized = message.toLowerCase();
-        if (normalized === INVALID_ADMIN_SESSION_ERROR) {
+        if (isAdminSessionError(error)) {
           router.replace(`/${locale}/admin/login`);
           return;
         }
+        const resolvedError = resolveAdminError(error);
         setUsernameErrorMessage(
-          normalized === 'username is already in use'
-            ? t('adminAccount.account.errors.usernameTaken', { ns: 'admin-account' })
-            : normalized === 'new username must be different from current username'
-              ? t('adminAccount.validation.usernameDifferent', { ns: 'admin-account' })
-              : normalized === 'username can include letters, numbers, dot, underscore, and dash only'
-                ? t('adminAccount.validation.usernamePattern', { ns: 'admin-account' })
-                : normalized === 'username must be between 3 and 32 characters'
-                  ? t('adminAccount.validation.usernameLength', {
-                      ns: 'admin-account',
-                      min: MIN_USERNAME_LENGTH,
-                      max: MAX_USERNAME_LENGTH,
-                    })
-                  : message || t('adminAccount.account.errors.usernameUpdate', { ns: 'admin-account' }),
+          resolvedError.message || t('adminAccount.account.errors.usernameUpdate', { ns: 'admin-account' }),
         );
       } finally {
         setIsUsernameSubmitting(false);
@@ -1093,20 +1081,13 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
         setNameSubmitted(false);
         setNameSuccessMessage(t('adminAccount.profile.success.nameUpdated', { ns: 'admin-account' }));
       } catch (error) {
-        const message = error instanceof Error ? error.message.trim() : '';
-        const normalized = message.toLowerCase();
-        if (normalized === INVALID_ADMIN_SESSION_ERROR) {
+        if (isAdminSessionError(error)) {
           router.replace(`/${locale}/admin/login`);
           return;
         }
+        const resolvedError = resolveAdminError(error);
         setNameErrorMessage(
-          normalized === 'name must be between 2 and 80 characters'
-            ? t('adminAccount.validation.nameLength', {
-                ns: 'admin-account',
-                min: MIN_NAME_LENGTH,
-                max: MAX_NAME_LENGTH,
-              })
-            : message || t('adminAccount.profile.errors.nameUpdate', { ns: 'admin-account' }),
+          resolvedError.message || t('adminAccount.profile.errors.nameUpdate', { ns: 'admin-account' }),
         );
       } finally {
         setIsNameSubmitting(false);
@@ -1146,23 +1127,13 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
         globalThis.dispatchEvent(new CustomEvent('admin:user-updated', { detail: { user: nextUser } }));
         return true;
       } catch (error) {
-        const message = error instanceof Error ? error.message.trim() : '';
-        const normalized = message.toLowerCase();
-        if (normalized === INVALID_ADMIN_SESSION_ERROR) {
+        if (isAdminSessionError(error)) {
           router.replace(`/${locale}/admin/login`);
           return false;
         }
+        const resolvedError = resolveAdminError(error);
         setAvatarErrorMessage(
-          normalized === 'avatar format must be png, jpeg, jpg, or webp'
-            ? t('adminAccount.profile.avatar.errors.invalidFormat', { ns: 'admin-account' })
-            : normalized === 'avatar image must be 2mb or smaller'
-              ? t('adminAccount.profile.avatar.errors.invalidSize', {
-                  ns: 'admin-account',
-                  sizeMB: MAX_AVATAR_FILE_SIZE_MB,
-                })
-              : normalized === 'avatar must be a valid base64 image'
-                ? t('adminAccount.profile.avatar.errors.invalidImage', { ns: 'admin-account' })
-                : message || t('adminAccount.profile.avatar.errors.update', { ns: 'admin-account' }),
+          resolvedError.message || t('adminAccount.profile.avatar.errors.update', { ns: 'admin-account' }),
         );
         return false;
       } finally {
@@ -1311,18 +1282,13 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
           router.replace(`/${locale}/admin/login`);
         }, 900);
       } catch (error) {
-        const message = error instanceof Error ? error.message.trim() : '';
-        const normalized = message.toLowerCase();
-        if (normalized === INVALID_ADMIN_SESSION_ERROR) {
+        if (isAdminSessionError(error)) {
           router.replace(`/${locale}/admin/login`);
           return;
         }
+        const resolvedError = resolveAdminError(error);
         setDeleteErrorMessage(
-          normalized === 'current password is incorrect'
-            ? t('adminAccount.currentPasswordIncorrect', { ns: 'admin-account' })
-            : normalized === 'current password is required'
-              ? t('adminAccount.validation.currentPasswordRequired', { ns: 'admin-account' })
-              : message || t('adminAccount.account.errors.deleteAccount', { ns: 'admin-account' }),
+          resolvedError.message || t('adminAccount.account.errors.deleteAccount', { ns: 'admin-account' }),
         );
       } finally {
         setIsDeleteSubmitting(false);
