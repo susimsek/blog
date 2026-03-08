@@ -341,6 +341,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const [errorUpdateMessage, setErrorUpdateMessage] = React.useState('');
   const [isErrorUpdateSubmitting, setIsErrorUpdateSubmitting] = React.useState(false);
   const [isErrorDeleteSubmitting, setIsErrorDeleteSubmitting] = React.useState(false);
+  const [deletingErrorMessageKey, setDeletingErrorMessageKey] = React.useState('');
   const [pendingErrorMessageDelete, setPendingErrorMessageDelete] = React.useState<AdminErrorMessageItem | null>(null);
 
   const [usernameInput, setUsernameInput] = React.useState('');
@@ -382,6 +383,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const avatarCropResizeRef = React.useRef<AvatarCropResizeState | null>(null);
   const avatarFileInputRef = React.useRef<HTMLInputElement | null>(null);
   const selectedErrorMessageKeyRef = React.useRef('');
+  const errorMessagesRequestIDRef = React.useRef(0);
 
   const [deleteCurrentPassword, setDeleteCurrentPassword] = React.useState('');
   const [deleteConfirmation, setDeleteConfirmation] = React.useState('');
@@ -957,11 +959,13 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     [sessionDateFormatter],
   );
 
-  const loadAdminErrorMessages = React.useCallback(async () => {
+  const loadAdminErrorMessages = React.useCallback(async (): Promise<AdminErrorMessageItem[]> => {
     if (!isErrorsSection || !adminUser) {
-      return;
+      return [];
     }
 
+    const requestID = errorMessagesRequestIDRef.current + 1;
+    errorMessagesRequestIDRef.current = requestID;
     setIsErrorMessagesLoading(true);
     setErrorMessagesErrorMessage('');
 
@@ -970,6 +974,10 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
         locale: errorFilterLocale === 'all' ? undefined : errorFilterLocale,
         query: errorFilterQueryDebounced,
       });
+
+      if (requestID !== errorMessagesRequestIDRef.current) {
+        return [];
+      }
 
       const items = payload.items ?? [];
       setErrorMessages(items);
@@ -987,10 +995,14 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
       const nextSelectedItem = items.find(item => toAdminErrorMessageKey(item) === nextSelectedKey) ?? null;
       setErrorUpdateMessage((nextSelectedItem?.message ?? '').trim());
       setErrorMessagesErrorMessage('');
+      return items;
     } catch (error) {
+      if (requestID !== errorMessagesRequestIDRef.current) {
+        return [];
+      }
       if (isAdminSessionError(error)) {
         router.replace(`/${locale}/admin/login`);
-        return;
+        return [];
       }
       const resolvedError = resolveAdminError(error);
       setErrorMessagesErrorMessage(
@@ -998,8 +1010,11 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
           ? t('adminCommon.errors.network', { ns: 'admin-common' })
           : resolvedError.message || t('adminAccount.errorsCatalog.errors.load', { ns: 'admin-account' }),
       );
+      return [];
     } finally {
-      setIsErrorMessagesLoading(false);
+      if (requestID === errorMessagesRequestIDRef.current) {
+        setIsErrorMessagesLoading(false);
+      }
     }
   }, [adminUser, errorFilterLocale, errorFilterQueryDebounced, isErrorsSection, locale, router, t]);
 
@@ -1064,7 +1079,11 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
       const createdKey = toAdminErrorMessageKey(created);
       setSelectedErrorMessageKey(createdKey);
       selectedErrorMessageKeyRef.current = createdKey;
-      await loadAdminErrorMessages();
+      const refreshedItems = await loadAdminErrorMessages();
+      const createdIndex = refreshedItems.findIndex(item => toAdminErrorMessageKey(item) === createdKey);
+      if (createdIndex >= 0) {
+        setErrorMessagesPage(Math.floor(createdIndex / errorMessagesPageSize) + 1);
+      }
       setErrorCrudTab('update');
       setErrorCreateCode('');
       setErrorCreateMessage('');
@@ -1087,6 +1106,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   }, [
     canCreateErrorMessage,
     errorCreateLocale,
+    errorMessagesPageSize,
     loadAdminErrorMessages,
     locale,
     normalizedErrorCreateCode,
@@ -1159,6 +1179,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     }
 
     setIsErrorDeleteSubmitting(true);
+    setDeletingErrorMessageKey(toAdminErrorMessageKey(item));
     setErrorMessagesErrorMessage('');
     setErrorMessagesSuccessMessage('');
 
@@ -1194,6 +1215,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
       );
     } finally {
       setIsErrorDeleteSubmitting(false);
+      setDeletingErrorMessageKey('');
     }
   }, [
     isErrorDeleteSubmitting,
@@ -2541,6 +2563,8 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                               {pagedErrorMessages.map(item => {
                                 const itemKey = toAdminErrorMessageKey(item);
                                 const previewMessage = item.message;
+                                const isDeletingCurrentItem =
+                                  isErrorDeleteSubmitting && deletingErrorMessageKey === itemKey;
 
                                 return (
                                   <div key={itemKey} className="border rounded-3 p-3">
@@ -2615,10 +2639,10 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                                             openDeleteErrorMessageConfirm(item);
                                           }}
                                         >
-                                          {!isErrorDeleteSubmitting ? (
+                                          {!isDeletingCurrentItem ? (
                                             <FontAwesomeIcon icon="trash" className="me-2" />
                                           ) : null}
-                                          {isErrorDeleteSubmitting ? (
+                                          {isDeletingCurrentItem ? (
                                             <span className="d-inline-flex align-items-center gap-2">
                                               <Spinner
                                                 as="span"
