@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -2166,7 +2167,7 @@ func (ec *executionContext) _AdminErrorMessage_updatedAt(ctx context.Context, fi
 			return obj.UpdatedAt, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalODateTime2ᚖtimeᚐTime,
 		true,
 		false,
 	)
@@ -2179,7 +2180,7 @@ func (ec *executionContext) fieldContext_AdminErrorMessage_updatedAt(_ context.C
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type DateTime does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2630,7 +2631,7 @@ func (ec *executionContext) _AdminErrorMessageAuditLog_createdAt(ctx context.Con
 			return obj.CreatedAt, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNDateTime2timeᚐTime,
 		true,
 		true,
 	)
@@ -2643,7 +2644,7 @@ func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_createdAt(_ c
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type DateTime does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3967,7 +3968,7 @@ func (ec *executionContext) _AdminSession_lastActivityAt(ctx context.Context, fi
 			return obj.LastActivityAt, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNDateTime2timeᚐTime,
 		true,
 		true,
 	)
@@ -3980,7 +3981,7 @@ func (ec *executionContext) fieldContext_AdminSession_lastActivityAt(_ context.C
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type DateTime does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3996,7 +3997,7 @@ func (ec *executionContext) _AdminSession_createdAt(ctx context.Context, field g
 			return obj.CreatedAt, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNDateTime2timeᚐTime,
 		true,
 		true,
 	)
@@ -4009,7 +4010,7 @@ func (ec *executionContext) fieldContext_AdminSession_createdAt(_ context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type DateTime does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4025,7 +4026,7 @@ func (ec *executionContext) _AdminSession_expiresAt(ctx context.Context, field g
 			return obj.ExpiresAt, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNDateTime2timeᚐTime,
 		true,
 		true,
 	)
@@ -4038,7 +4039,7 @@ func (ec *executionContext) fieldContext_AdminSession_expiresAt(_ context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type DateTime does not have child fields")
 		},
 	}
 	return fc, nil
@@ -8119,6 +8120,15 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNDateTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {
+	res, err := ec.unmarshalInputDateTime(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDateTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	return ec._DateTime(ctx, sel, &v)
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -8500,6 +8510,21 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	_ = ctx
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalODateTime2ᚖtimeᚐTime(ctx context.Context, v any) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputDateTime(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalODateTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DateTime(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v any) (*int, error) {

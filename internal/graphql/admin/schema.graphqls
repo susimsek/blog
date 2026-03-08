@@ -3,6 +3,8 @@ schema {
   mutation: AdminMutation
 }
 
+scalar DateTime
+
 type AdminQuery {
   me: AdminMe!
   dashboard: AdminDashboard!
@@ -115,9 +117,9 @@ type AdminSession {
   device: String!
   ipAddress: String!
   countryCode: String!
-  lastActivityAt: String!
-  createdAt: String!
-  expiresAt: String!
+  lastActivityAt: DateTime!
+  createdAt: DateTime!
+  expiresAt: DateTime!
   persistent: Boolean!
   current: Boolean!
 }
@@ -135,7 +137,7 @@ type AdminErrorMessage {
   locale: String!
   code: String!
   message: String!
-  updatedAt: String
+  updatedAt: DateTime
 }
 
 type AdminErrorMessageListPayload {
@@ -161,7 +163,7 @@ type AdminErrorMessageAuditLog {
   remoteIp: String
   countryCode: String
   userAgent: String
-  createdAt: String!
+  createdAt: DateTime!
 }
 
 type AdminDashboard {

@@ -2,6 +2,10 @@
 
 package model
 
+import (
+	"time"
+)
+
 type AdminAccountDeletePayload struct {
 	Success bool `json:"success"`
 }
@@ -81,30 +85,30 @@ type AdminDeletePayload struct {
 }
 
 type AdminErrorMessage struct {
-	Scope     string  `json:"scope"`
-	Locale    string  `json:"locale"`
-	Code      string  `json:"code"`
-	Message   string  `json:"message"`
-	UpdatedAt *string `json:"updatedAt,omitempty"`
+	Scope     string     `json:"scope"`
+	Locale    string     `json:"locale"`
+	Code      string     `json:"code"`
+	Message   string     `json:"message"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
 type AdminErrorMessageAuditLog struct {
-	ID          string  `json:"id"`
-	ActorID     string  `json:"actorId"`
-	ActorEmail  string  `json:"actorEmail"`
-	Action      string  `json:"action"`
-	Scope       string  `json:"scope"`
-	Locale      string  `json:"locale"`
-	Code        string  `json:"code"`
-	BeforeValue string  `json:"beforeValue"`
-	AfterValue  string  `json:"afterValue"`
-	Status      string  `json:"status"`
-	FailureCode *string `json:"failureCode,omitempty"`
-	RequestID   *string `json:"requestId,omitempty"`
-	RemoteIP    *string `json:"remoteIp,omitempty"`
-	CountryCode *string `json:"countryCode,omitempty"`
-	UserAgent   *string `json:"userAgent,omitempty"`
-	CreatedAt   string  `json:"createdAt"`
+	ID          string    `json:"id"`
+	ActorID     string    `json:"actorId"`
+	ActorEmail  string    `json:"actorEmail"`
+	Action      string    `json:"action"`
+	Scope       string    `json:"scope"`
+	Locale      string    `json:"locale"`
+	Code        string    `json:"code"`
+	BeforeValue string    `json:"beforeValue"`
+	AfterValue  string    `json:"afterValue"`
+	Status      string    `json:"status"`
+	FailureCode *string   `json:"failureCode,omitempty"`
+	RequestID   *string   `json:"requestId,omitempty"`
+	RemoteIP    *string   `json:"remoteIp,omitempty"`
+	CountryCode *string   `json:"countryCode,omitempty"`
+	UserAgent   *string   `json:"userAgent,omitempty"`
+	CreatedAt   time.Time `json:"createdAt"`
 }
 
 type AdminErrorMessageFilterInput struct {
@@ -154,15 +158,15 @@ type AdminQuery struct {
 }
 
 type AdminSession struct {
-	ID             string `json:"id"`
-	Device         string `json:"device"`
-	IPAddress      string `json:"ipAddress"`
-	CountryCode    string `json:"countryCode"`
-	LastActivityAt string `json:"lastActivityAt"`
-	CreatedAt      string `json:"createdAt"`
-	ExpiresAt      string `json:"expiresAt"`
-	Persistent     bool   `json:"persistent"`
-	Current        bool   `json:"current"`
+	ID             string    `json:"id"`
+	Device         string    `json:"device"`
+	IPAddress      string    `json:"ipAddress"`
+	CountryCode    string    `json:"countryCode"`
+	LastActivityAt time.Time `json:"lastActivityAt"`
+	CreatedAt      time.Time `json:"createdAt"`
+	ExpiresAt      time.Time `json:"expiresAt"`
+	Persistent     bool      `json:"persistent"`
+	Current        bool      `json:"current"`
 }
 
 type AdminSessionRevokePayload struct {

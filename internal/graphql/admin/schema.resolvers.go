@@ -549,9 +549,9 @@ func mapAdminSessions(items []domain.AdminSessionRecord, currentSessionID string
 			Device:         resolveAdminDeviceLabel(item.UserAgent),
 			IPAddress:      resolveAdminIPAddressLabel(item.RemoteIP),
 			CountryCode:    resolveAdminCountryCodeLabel(item.CountryCode),
-			LastActivityAt: item.LastSeenAt.UTC().Format(time.RFC3339),
-			CreatedAt:      item.CreatedAt.UTC().Format(time.RFC3339),
-			ExpiresAt:      item.ExpiresAt.UTC().Format(time.RFC3339),
+			LastActivityAt: item.LastSeenAt.UTC(),
+			CreatedAt:      item.CreatedAt.UTC(),
+			ExpiresAt:      item.ExpiresAt.UTC(),
 			Persistent:     item.Persistent,
 			Current:        strings.TrimSpace(item.ID) != "" && strings.TrimSpace(item.ID) == strings.TrimSpace(currentSessionID),
 		})
@@ -597,16 +597,16 @@ func mapAdminErrorMessage(item *domain.AdminErrorMessageView) *model.AdminErrorM
 		Locale:    item.Locale,
 		Code:      item.Code,
 		Message:   item.Message,
-		UpdatedAt: toOptionalAdminRFC3339(item.UpdatedAt),
+		UpdatedAt: toOptionalAdminTime(item.UpdatedAt),
 	}
 }
 
 func mapAdminAuditLogs(items []domain.AdminAuditLogRecord) []*model.AdminErrorMessageAuditLog {
 	mapped := make([]*model.AdminErrorMessageAuditLog, 0, len(items))
 	for _, item := range items {
-		createdAt := item.CreatedAt.UTC().Format(time.RFC3339)
-		if strings.TrimSpace(createdAt) == "" {
-			createdAt = time.Now().UTC().Format(time.RFC3339)
+		createdAt := item.CreatedAt.UTC()
+		if createdAt.IsZero() {
+			createdAt = time.Now().UTC()
 		}
 
 		mapped = append(mapped, &model.AdminErrorMessageAuditLog{
@@ -654,17 +654,13 @@ func toOptionalAdminString(value string) *string {
 	return &trimmed
 }
 
-func toOptionalAdminRFC3339(value time.Time) *string {
+func toOptionalAdminTime(value time.Time) *time.Time {
 	if value.IsZero() {
 		return nil
 	}
 
-	formatted := strings.TrimSpace(value.UTC().Format(time.RFC3339))
-	if formatted == "" {
-		return nil
-	}
-
-	return &formatted
+	normalized := value.UTC()
+	return &normalized
 }
 
 func resolveAdminDeviceLabel(userAgent string) string {

@@ -17,3 +17,8 @@ resolver:
   preserve_resolver: true
 
 skip_mod_tidy: true
+
+models:
+  DateTime:
+    model:
+      - time.Time
