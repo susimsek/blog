@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getServerTranslator } from '@/i18n/server';
+import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
 import { buildPageMetadata } from '@/lib/metadata';
 
 type AdminSettingsPageProps = {
@@ -27,5 +28,5 @@ export async function generateMetadata({ params }: AdminSettingsPageProps): Prom
 
 export default async function AdminSettingsRoute({ params }: Readonly<AdminSettingsPageProps>) {
   const { locale } = await params;
-  redirect(`/${locale}/admin/settings/profile`);
+  redirect(withAdminLocalePath(locale, ADMIN_ROUTES.settings.profile));
 }

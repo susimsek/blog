@@ -111,6 +111,8 @@ type AdminErrorMessageFilterInput struct {
 	Locale *string `json:"locale,omitempty"`
 	Code   *string `json:"code,omitempty"`
 	Query  *string `json:"query,omitempty"`
+	Page   *int    `json:"page,omitempty"`
+	Size   *int    `json:"size,omitempty"`
 }
 
 type AdminErrorMessageKeyInput struct {
@@ -122,6 +124,8 @@ type AdminErrorMessageKeyInput struct {
 type AdminErrorMessageListPayload struct {
 	Items []*AdminErrorMessage `json:"items"`
 	Total int                  `json:"total"`
+	Page  int                  `json:"page"`
+	Size  int                  `json:"size"`
 }
 
 type AdminLoginInput struct {

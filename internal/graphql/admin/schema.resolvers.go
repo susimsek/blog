@@ -83,6 +83,12 @@ func (r *adminQueryResolver) ErrorMessages(
 		if filter.Query != nil {
 			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
 		}
+		if filter.Page != nil {
+			resolvedFilter.Page = filter.Page
+		}
+		if filter.Size != nil {
+			resolvedFilter.Size = filter.Size
+		}
 	}
 
 	payload, err := appservice.ListAdminErrorMessages(ctx, adminUser, resolvedFilter)
@@ -559,12 +565,16 @@ func mapAdminErrorMessageListPayload(payload *domain.AdminErrorMessageListResult
 		return &model.AdminErrorMessageListPayload{
 			Items: []*model.AdminErrorMessage{},
 			Total: 0,
+			Page:  1,
+			Size:  20,
 		}
 	}
 
 	return &model.AdminErrorMessageListPayload{
 		Items: mapAdminErrorMessages(payload.Items),
 		Total: payload.Total,
+		Page:  payload.Page,
+		Size:  payload.Size,
 	}
 }
 

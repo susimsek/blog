@@ -25,11 +25,15 @@ type AdminErrorMessageFilter struct {
 	Locale string
 	Code   string
 	Query  string
+	Page   *int
+	Size   *int
 }
 
 type AdminErrorMessageListResult struct {
 	Items []AdminErrorMessageView
 	Total int
+	Page  int
+	Size  int
 }
 
 type AdminAuditLogRecord struct {

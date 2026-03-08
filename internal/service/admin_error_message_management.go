@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"math"
 	"regexp"
 	"slices"
 	"strings"
@@ -15,6 +16,8 @@ import (
 
 const (
 	adminErrorMessageMaxLength     = 500
+	adminErrorMessageDefaultSize   = 20
+	adminErrorMessageMaxSize       = 100
 	adminErrorMessageAuditResource = "admin_error_messages"
 	adminAuditStatusSuccess        = "success"
 )
@@ -41,6 +44,8 @@ func ListAdminErrorMessages(
 	filterLocale := strings.TrimSpace(strings.ToLower(filter.Locale))
 	filterCode := strings.TrimSpace(strings.ToUpper(filter.Code))
 	filterQuery := strings.TrimSpace(strings.ToLower(filter.Query))
+	page := clampPositiveInt(filter.Page, 1, 100000)
+	size := clampPositiveInt(filter.Size, adminErrorMessageDefaultSize, adminErrorMessageMaxSize)
 
 	items := make([]domain.AdminErrorMessageView, 0, len(records))
 	for _, record := range records {
@@ -61,9 +66,27 @@ func ListAdminErrorMessages(
 		return strings.Compare(left.Code, right.Code)
 	})
 
+	total := len(items)
+	if total == 0 {
+		return &domain.AdminErrorMessageListResult{
+			Items: []domain.AdminErrorMessageView{},
+			Total: 0,
+			Page:  1,
+			Size:  size,
+		}, nil
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(size)))
+	resolvedPage := max(1, min(page, totalPages))
+	startIndex := (resolvedPage - 1) * size
+	endIndex := min(startIndex+size, total)
+	pagedItems := items[startIndex:endIndex]
+
 	return &domain.AdminErrorMessageListResult{
-		Items: items,
-		Total: len(items),
+		Items: pagedItems,
+		Total: total,
+		Page:  resolvedPage,
+		Size:  size,
 	}, nil
 }
 

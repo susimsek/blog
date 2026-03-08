@@ -31,6 +31,8 @@ input AdminErrorMessageFilterInput {
   locale: String
   code: String
   query: String
+  page: Int
+  size: Int
 }
 
 input AdminErrorMessageKeyInput {
@@ -139,6 +141,8 @@ type AdminErrorMessage {
 type AdminErrorMessageListPayload {
   items: [AdminErrorMessage!]!
   total: Int!
+  page: Int!
+  size: Int!
 }
 
 type AdminErrorMessageAuditLog {

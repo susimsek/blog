@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getServerTranslator } from '@/i18n/server';
+import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
 import { buildPageMetadata } from '@/lib/metadata';
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/admin/account'>): Promise<Metadata> {
@@ -21,5 +22,5 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/admin/ac
 
 export default async function AdminAccountRoute({ params }: Readonly<PageProps<'/[locale]/admin/account'>>) {
   const { locale } = await params;
-  redirect(`/${locale}/admin/settings/account`);
+  redirect(withAdminLocalePath(locale, ADMIN_ROUTES.settings.account));
 }

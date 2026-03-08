@@ -18,6 +18,7 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { fetchAdminMe, logoutAdmin } from '@/lib/adminApi';
 import { withAdminAvatarSize } from '@/lib/adminAvatar';
+import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
 import { defaultLocale } from '@/i18n/settings';
 
 type AdminChromeProps = {
@@ -88,7 +89,7 @@ export default function AdminChrome({ children }: Readonly<AdminChromeProps>) {
     await logoutAdmin();
     setAdminUser(null);
     setIsNavExpanded(false);
-    router.replace(`/${locale}/admin/login`);
+    router.replace(withAdminLocalePath(locale, ADMIN_ROUTES.login));
   }, [locale, router]);
 
   const handleSidebarToggle = React.useCallback(() => {
@@ -122,7 +123,7 @@ export default function AdminChrome({ children }: Readonly<AdminChromeProps>) {
             <FontAwesomeIcon icon="sidebar" className="sidebar-toggler-icon" />
           </button>
         ) : null}
-        <Navbar.Brand as={Link} href="/admin" className="navbar-brand link">
+        <Navbar.Brand as={Link} href={ADMIN_ROUTES.root} className="navbar-brand link">
           <Image src={SITE_LOGO} alt={t('adminCommon.brand')} width={40} height={40} className="rounded-circle" />
           <span className="navbar-brand-text ms-2 fw-bold">{t('adminCommon.brand')}</span>
         </Navbar.Brand>
@@ -209,7 +210,11 @@ export default function AdminChrome({ children }: Readonly<AdminChromeProps>) {
                       </span>
                     </NavDropdown.Header>
                     <NavDropdown.Divider className="admin-user-dropdown-divider" />
-                    <NavDropdown.Item as={Link} href="/admin/settings/profile" onClick={() => setIsNavExpanded(false)}>
+                    <NavDropdown.Item
+                      as={Link}
+                      href={ADMIN_ROUTES.settings.profile}
+                      onClick={() => setIsNavExpanded(false)}
+                    >
                       <span className="d-inline-flex align-items-center gap-2">
                         <FontAwesomeIcon icon="gear" fixedWidth />
                         <span>{t('adminCommon.actions.settings')}</span>

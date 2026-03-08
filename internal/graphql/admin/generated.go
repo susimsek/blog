@@ -127,6 +127,8 @@ type ComplexityRoot struct {
 
 	AdminErrorMessageListPayload struct {
 		Items func(childComplexity int) int
+		Page  func(childComplexity int) int
+		Size  func(childComplexity int) int
 		Total func(childComplexity int) int
 	}
 
@@ -539,6 +541,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminErrorMessageListPayload.Items(childComplexity), true
+	case "AdminErrorMessageListPayload.page":
+		if e.complexity.AdminErrorMessageListPayload.Page == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageListPayload.Page(childComplexity), true
+	case "AdminErrorMessageListPayload.size":
+		if e.complexity.AdminErrorMessageListPayload.Size == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageListPayload.Size(childComplexity), true
 	case "AdminErrorMessageListPayload.total":
 		if e.complexity.AdminErrorMessageListPayload.Total == nil {
 			break
@@ -2705,6 +2719,64 @@ func (ec *executionContext) fieldContext_AdminErrorMessageListPayload_total(_ co
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminErrorMessageListPayload_page(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageListPayload_page,
+		func(ctx context.Context) (any, error) {
+			return obj.Page, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageListPayload_page(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageListPayload_size(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageListPayload_size,
+		func(ctx context.Context) (any, error) {
+			return obj.Size, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageListPayload_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminLogoutPayload_success(ctx context.Context, field graphql.CollectedField, obj *model.AdminLogoutPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -3564,6 +3636,10 @@ func (ec *executionContext) fieldContext_AdminQuery_errorMessages(ctx context.Co
 				return ec.fieldContext_AdminErrorMessageListPayload_items(ctx, field)
 			case "total":
 				return ec.fieldContext_AdminErrorMessageListPayload_total(ctx, field)
+			case "page":
+				return ec.fieldContext_AdminErrorMessageListPayload_page(ctx, field)
+			case "size":
+				return ec.fieldContext_AdminErrorMessageListPayload_size(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminErrorMessageListPayload", field.Name)
 		},
@@ -5865,7 +5941,7 @@ func (ec *executionContext) unmarshalInputAdminErrorMessageFilterInput(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"locale", "code", "query"}
+	fieldsInOrder := [...]string{"locale", "code", "query", "page", "size"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5893,6 +5969,20 @@ func (ec *executionContext) unmarshalInputAdminErrorMessageFilterInput(ctx conte
 				return it, err
 			}
 			it.Query = data
+		case "page":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Page = data
+		case "size":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("size"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Size = data
 		}
 	}
 
@@ -6597,6 +6687,16 @@ func (ec *executionContext) _AdminErrorMessageListPayload(ctx context.Context, s
 			}
 		case "total":
 			out.Values[i] = ec._AdminErrorMessageListPayload_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "page":
+			out.Values[i] = ec._AdminErrorMessageListPayload_page(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "size":
+			out.Values[i] = ec._AdminErrorMessageListPayload_size(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

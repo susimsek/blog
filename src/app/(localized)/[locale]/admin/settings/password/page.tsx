@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getServerTranslator } from '@/i18n/server';
+import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
 import { buildPageMetadata } from '@/lib/metadata';
 
 type AdminSettingsPasswordPageProps = {
@@ -27,5 +28,5 @@ export async function generateMetadata({ params }: AdminSettingsPasswordPageProp
 
 export default async function AdminSettingsPasswordRoute({ params }: Readonly<AdminSettingsPasswordPageProps>) {
   const { locale } = await params;
-  redirect(`/${locale}/admin/settings/security`);
+  redirect(withAdminLocalePath(locale, ADMIN_ROUTES.settings.security));
 }

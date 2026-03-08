@@ -175,6 +175,8 @@ type AdminErrorMessagesPayload = {
   errorMessages: {
     items: AdminErrorMessageItem[];
     total: number;
+    page: number;
+    size: number;
   };
 };
 
@@ -414,6 +416,8 @@ const ADMIN_ERROR_MESSAGES_QUERY = gql`
         updatedAt
       }
       total
+      page
+      size
     }
   }
 `;
@@ -1022,10 +1026,19 @@ export const revokeAllAdminSessions = async () => {
   return payload.revokeAllSessions?.success === true;
 };
 
-export const fetchAdminErrorMessages = async (filter?: { locale?: string; code?: string; query?: string }) => {
+export const fetchAdminErrorMessages = async (filter?: {
+  locale?: string;
+  code?: string;
+  query?: string;
+  page?: number;
+  size?: number;
+}) => {
   const resolvedLocale = filter?.locale?.trim().toLowerCase() ?? '';
   const resolvedCode = filter?.code?.trim().toUpperCase() ?? '';
   const resolvedQuery = filter?.query?.trim() ?? '';
+  const resolvedPage = filter?.page && Number.isFinite(filter.page) && filter.page > 0 ? Math.trunc(filter.page) : 1;
+  const resolvedSize =
+    filter?.size && Number.isFinite(filter.size) && filter.size > 0 ? Math.trunc(filter.size) : undefined;
 
   const payload = await executeAdminGraphQL<
     AdminErrorMessagesPayload,
@@ -1034,6 +1047,8 @@ export const fetchAdminErrorMessages = async (filter?: { locale?: string; code?:
         locale?: string;
         code?: string;
         query?: string;
+        page?: number;
+        size?: number;
       };
     }
   >(
@@ -1043,6 +1058,8 @@ export const fetchAdminErrorMessages = async (filter?: { locale?: string; code?:
         ...(resolvedLocale ? { locale: resolvedLocale } : {}),
         ...(resolvedCode ? { code: resolvedCode } : {}),
         ...(resolvedQuery ? { query: resolvedQuery } : {}),
+        ...(resolvedPage ? { page: resolvedPage } : {}),
+        ...(resolvedSize ? { size: resolvedSize } : {}),
       },
     },
     {

@@ -32,6 +32,7 @@ import {
   type AdminErrorMessageItem,
 } from '@/lib/adminApi';
 import { withAdminAvatarSize } from '@/lib/adminAvatar';
+import { ADMIN_ROUTES } from '@/lib/adminRoutes';
 import { defaultLocale } from '@/i18n/settings';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
 import Link from '@/components/common/Link';
@@ -334,6 +335,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const [selectedErrorMessageKey, setSelectedErrorMessageKey] = React.useState('');
   const [errorMessagesPage, setErrorMessagesPage] = React.useState(1);
   const [errorMessagesPageSize, setErrorMessagesPageSize] = React.useState(5);
+  const [totalErrorMessages, setTotalErrorMessages] = React.useState(0);
   const [errorCreateLocale, setErrorCreateLocale] = React.useState<'en' | 'tr'>('en');
   const [errorCreateCode, setErrorCreateCode] = React.useState('');
   const [errorCreateMessage, setErrorCreateMessage] = React.useState('');
@@ -672,17 +674,25 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     () => errorMessages.find(item => toAdminErrorMessageKey(item) === selectedErrorMessageKey) ?? null,
     [errorMessages, selectedErrorMessageKey],
   );
-  const totalErrorMessages = errorMessages.length;
   const totalErrorMessagePages = Math.max(1, Math.ceil(totalErrorMessages / errorMessagesPageSize));
-  const pagedErrorMessages = React.useMemo(() => {
-    const startIndex = (errorMessagesPage - 1) * errorMessagesPageSize;
-    return errorMessages.slice(startIndex, startIndex + errorMessagesPageSize);
-  }, [errorMessages, errorMessagesPage, errorMessagesPageSize]);
-  React.useEffect(() => {
-    if (errorMessagesPage > totalErrorMessagePages) {
-      setErrorMessagesPage(totalErrorMessagePages);
-    }
-  }, [errorMessagesPage, totalErrorMessagePages]);
+  const doesErrorMessageMatchFilters = React.useCallback(
+    (item: Pick<AdminErrorMessageItem, 'scope' | 'locale' | 'code' | 'message'>) => {
+      const normalizedLocale = item.locale.trim().toLowerCase();
+      if (errorFilterLocale !== 'all' && normalizedLocale !== errorFilterLocale) {
+        return false;
+      }
+
+      if (!errorFilterQueryDebounced) {
+        return true;
+      }
+
+      const normalizedQuery = errorFilterQueryDebounced.toLowerCase();
+      return [item.scope, item.locale, item.code, item.message].some(part =>
+        part.trim().toLowerCase().includes(normalizedQuery),
+      );
+    },
+    [errorFilterLocale, errorFilterQueryDebounced],
+  );
   const normalizedErrorCreateCode = errorCreateCode.trim().toUpperCase();
   const normalizedErrorCreateMessage = errorCreateMessage.trim();
   const normalizedErrorUpdateMessage = errorUpdateMessage.trim();
@@ -959,64 +969,91 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     [sessionDateFormatter],
   );
 
-  const loadAdminErrorMessages = React.useCallback(async (): Promise<AdminErrorMessageItem[]> => {
-    if (!isErrorsSection || !adminUser) {
-      return [];
-    }
-
-    const requestID = errorMessagesRequestIDRef.current + 1;
-    errorMessagesRequestIDRef.current = requestID;
-    setIsErrorMessagesLoading(true);
-    setErrorMessagesErrorMessage('');
-
-    try {
-      const payload = await fetchAdminErrorMessages({
-        locale: errorFilterLocale === 'all' ? undefined : errorFilterLocale,
-        query: errorFilterQueryDebounced,
-      });
-
-      if (requestID !== errorMessagesRequestIDRef.current) {
+  const loadAdminErrorMessages = React.useCallback(
+    async (options?: { page?: number; preferredSelectedKey?: string }): Promise<AdminErrorMessageItem[]> => {
+      if (!isErrorsSection || !adminUser) {
         return [];
       }
 
-      const items = payload.items ?? [];
-      setErrorMessages(items);
-
-      const currentSelectedKey = selectedErrorMessageKeyRef.current;
-      const hasCurrentSelection = items.some(item => toAdminErrorMessageKey(item) === currentSelectedKey);
-      const nextSelectedKey = hasCurrentSelection
-        ? currentSelectedKey
-        : items[0]
-          ? toAdminErrorMessageKey(items[0])
-          : '';
-      setSelectedErrorMessageKey(nextSelectedKey);
-      selectedErrorMessageKeyRef.current = nextSelectedKey;
-
-      const nextSelectedItem = items.find(item => toAdminErrorMessageKey(item) === nextSelectedKey) ?? null;
-      setErrorUpdateMessage((nextSelectedItem?.message ?? '').trim());
+      const requestedPage = options?.page && options.page > 0 ? options.page : errorMessagesPage;
+      const requestID = errorMessagesRequestIDRef.current + 1;
+      errorMessagesRequestIDRef.current = requestID;
+      setIsErrorMessagesLoading(true);
       setErrorMessagesErrorMessage('');
-      return items;
-    } catch (error) {
-      if (requestID !== errorMessagesRequestIDRef.current) {
+
+      try {
+        const payload = await fetchAdminErrorMessages({
+          locale: errorFilterLocale === 'all' ? undefined : errorFilterLocale,
+          query: errorFilterQueryDebounced,
+          page: requestedPage,
+          size: errorMessagesPageSize,
+        });
+
+        if (requestID !== errorMessagesRequestIDRef.current) {
+          return [];
+        }
+
+        const items = payload.items ?? [];
+        setErrorMessages(items);
+        setTotalErrorMessages(payload.total ?? 0);
+
+        const resolvedPage = payload.page > 0 ? payload.page : requestedPage;
+        if (resolvedPage !== errorMessagesPage) {
+          setErrorMessagesPage(resolvedPage);
+        }
+
+        if (payload.size > 0 && payload.size !== errorMessagesPageSize) {
+          setErrorMessagesPageSize(payload.size);
+        }
+
+        const preferredSelectedKey = options?.preferredSelectedKey?.trim() ?? '';
+        const currentSelectedKey = preferredSelectedKey || selectedErrorMessageKeyRef.current;
+        const hasCurrentSelection = items.some(item => toAdminErrorMessageKey(item) === currentSelectedKey);
+        const nextSelectedKey = hasCurrentSelection
+          ? currentSelectedKey
+          : items[0]
+            ? toAdminErrorMessageKey(items[0])
+            : '';
+        setSelectedErrorMessageKey(nextSelectedKey);
+        selectedErrorMessageKeyRef.current = nextSelectedKey;
+
+        const nextSelectedItem = items.find(item => toAdminErrorMessageKey(item) === nextSelectedKey) ?? null;
+        setErrorUpdateMessage((nextSelectedItem?.message ?? '').trim());
+        setErrorMessagesErrorMessage('');
+        return items;
+      } catch (error) {
+        if (requestID !== errorMessagesRequestIDRef.current) {
+          return [];
+        }
+        if (isAdminSessionError(error)) {
+          router.replace(`/${locale}/admin/login`);
+          return [];
+        }
+        const resolvedError = resolveAdminError(error);
+        setErrorMessagesErrorMessage(
+          resolvedError.kind === 'network'
+            ? t('adminCommon.errors.network', { ns: 'admin-common' })
+            : resolvedError.message || t('adminAccount.errorsCatalog.errors.load', { ns: 'admin-account' }),
+        );
         return [];
+      } finally {
+        if (requestID === errorMessagesRequestIDRef.current) {
+          setIsErrorMessagesLoading(false);
+        }
       }
-      if (isAdminSessionError(error)) {
-        router.replace(`/${locale}/admin/login`);
-        return [];
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessagesErrorMessage(
-        resolvedError.kind === 'network'
-          ? t('adminCommon.errors.network', { ns: 'admin-common' })
-          : resolvedError.message || t('adminAccount.errorsCatalog.errors.load', { ns: 'admin-account' }),
-      );
-      return [];
-    } finally {
-      if (requestID === errorMessagesRequestIDRef.current) {
-        setIsErrorMessagesLoading(false);
-      }
-    }
-  }, [adminUser, errorFilterLocale, errorFilterQueryDebounced, isErrorsSection, locale, router, t]);
+    },
+    [
+      adminUser,
+      errorFilterLocale,
+      errorFilterQueryDebounced,
+      errorMessagesPage,
+      errorMessagesPageSize,
+      isErrorsSection,
+      locale,
+      router,
+      t,
+    ],
+  );
 
   React.useEffect(() => {
     if (!isErrorsSection || !adminUser) {
@@ -1024,23 +1061,16 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     }
 
     void loadAdminErrorMessages();
-  }, [adminUser, isErrorsSection, loadAdminErrorMessages]);
+  }, [adminUser, errorMessagesPage, errorMessagesPageSize, isErrorsSection, loadAdminErrorMessages]);
 
-  const handleSelectErrorMessage = React.useCallback(
-    (item: AdminErrorMessageItem) => {
-      const key = toAdminErrorMessageKey(item);
-      setSelectedErrorMessageKey(key);
-      setErrorCrudTab('update');
-      setErrorUpdateMessage(item.message.trim());
-      const selectedIndex = errorMessages.findIndex(candidate => toAdminErrorMessageKey(candidate) === key);
-      if (selectedIndex >= 0) {
-        setErrorMessagesPage(Math.floor(selectedIndex / errorMessagesPageSize) + 1);
-      }
-      setErrorMessagesSuccessMessage('');
-      setErrorMessagesErrorMessage('');
-    },
-    [errorMessages, errorMessagesPageSize],
-  );
+  const handleSelectErrorMessage = React.useCallback((item: AdminErrorMessageItem) => {
+    const key = toAdminErrorMessageKey(item);
+    setSelectedErrorMessageKey(key);
+    setErrorCrudTab('update');
+    setErrorUpdateMessage(item.message.trim());
+    setErrorMessagesSuccessMessage('');
+    setErrorMessagesErrorMessage('');
+  }, []);
 
   const scrollToErrorMessagesListStart = React.useCallback(() => {
     const target = errorMessagesListTopRef.current;
@@ -1077,18 +1107,21 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
       });
 
       const createdKey = toAdminErrorMessageKey(created);
-      setSelectedErrorMessageKey(createdKey);
-      selectedErrorMessageKeyRef.current = createdKey;
-      const refreshedItems = await loadAdminErrorMessages();
-      const createdIndex = refreshedItems.findIndex(item => toAdminErrorMessageKey(item) === createdKey);
-      if (createdIndex >= 0) {
-        setErrorMessagesPage(Math.floor(createdIndex / errorMessagesPageSize) + 1);
-      }
       setErrorCrudTab('update');
       setErrorCreateCode('');
       setErrorCreateMessage('');
       setErrorMessagesSuccessMessage(t('adminAccount.errorsCatalog.success.created', { ns: 'admin-account' }));
       setIsErrorEditorModalOpen(false);
+
+      if (doesErrorMessageMatchFilters(created)) {
+        setSelectedErrorMessageKey(createdKey);
+        selectedErrorMessageKeyRef.current = createdKey;
+        setTotalErrorMessages(previous => previous + 1);
+        await loadAdminErrorMessages({
+          page: errorMessagesPage,
+          preferredSelectedKey: createdKey,
+        });
+      }
     } catch (error) {
       if (isAdminSessionError(error)) {
         router.replace(`/${locale}/admin/login`);
@@ -1105,8 +1138,9 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     }
   }, [
     canCreateErrorMessage,
+    doesErrorMessageMatchFilters,
     errorCreateLocale,
-    errorMessagesPageSize,
+    errorMessagesPage,
     loadAdminErrorMessages,
     locale,
     normalizedErrorCreateCode,
@@ -1125,7 +1159,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     setErrorMessagesSuccessMessage('');
 
     try {
-      await updateAdminErrorMessage({
+      const updated = await updateAdminErrorMessage({
         key: {
           scope: selectedErrorMessage.scope,
           locale: selectedErrorMessage.locale,
@@ -1133,7 +1167,25 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
         },
         message: normalizedErrorUpdateMessage,
       });
-      await loadAdminErrorMessages();
+
+      if (doesErrorMessageMatchFilters(updated)) {
+        const updatedKey = toAdminErrorMessageKey(updated);
+        setErrorMessages(previous =>
+          previous.map(item => (toAdminErrorMessageKey(item) === updatedKey ? updated : item)),
+        );
+        if (selectedErrorMessageKeyRef.current === updatedKey) {
+          setErrorUpdateMessage(updated.message.trim());
+        }
+      } else {
+        const updatedKey = toAdminErrorMessageKey(updated);
+        setErrorMessages(previous => previous.filter(item => toAdminErrorMessageKey(item) !== updatedKey));
+        setTotalErrorMessages(previous => Math.max(0, previous - 1));
+        await loadAdminErrorMessages({
+          page: errorMessagesPage,
+          preferredSelectedKey: selectedErrorMessageKeyRef.current,
+        });
+      }
+
       setErrorMessagesSuccessMessage(t('adminAccount.errorsCatalog.success.updated', { ns: 'admin-account' }));
       setIsErrorEditorModalOpen(false);
     } catch (error) {
@@ -1152,6 +1204,8 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     }
   }, [
     canUpdateErrorMessage,
+    doesErrorMessageMatchFilters,
+    errorMessagesPage,
     loadAdminErrorMessages,
     locale,
     normalizedErrorUpdateMessage,
@@ -1194,11 +1248,34 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
         throw new Error(t('adminAccount.errorsCatalog.errors.delete', { ns: 'admin-account' }));
       }
 
-      if (selectedErrorMessageKeyRef.current === selectedKey) {
-        selectedErrorMessageKeyRef.current = '';
-        setSelectedErrorMessageKey('');
+      const remainingItems = errorMessages.filter(candidate => toAdminErrorMessageKey(candidate) !== selectedKey);
+      const nextTotal = Math.max(0, totalErrorMessages - 1);
+      const nextTotalPages = Math.max(1, Math.ceil(nextTotal / errorMessagesPageSize));
+      const nextPage = Math.min(errorMessagesPage, nextTotalPages);
+      const fallbackSelectionKey = remainingItems[0] ? toAdminErrorMessageKey(remainingItems[0]) : '';
+      const preferredSelectedKey =
+        selectedErrorMessageKeyRef.current === selectedKey ? fallbackSelectionKey : selectedErrorMessageKeyRef.current;
+
+      setErrorMessages(remainingItems);
+      setTotalErrorMessages(nextTotal);
+      setSelectedErrorMessageKey(preferredSelectedKey);
+      selectedErrorMessageKeyRef.current = preferredSelectedKey;
+      setErrorUpdateMessage(
+        (
+          remainingItems.find(candidate => toAdminErrorMessageKey(candidate) === preferredSelectedKey)?.message ?? ''
+        ).trim(),
+      );
+      if (nextPage !== errorMessagesPage) {
+        setErrorMessagesPage(nextPage);
       }
-      await loadAdminErrorMessages();
+
+      if (nextTotal > 0) {
+        await loadAdminErrorMessages({
+          page: nextPage,
+          preferredSelectedKey,
+        });
+      }
+
       setErrorMessagesSuccessMessage(t('adminAccount.errorsCatalog.success.deleted', { ns: 'admin-account' }));
       setIsErrorEditorModalOpen(false);
       setPendingErrorMessageDelete(null);
@@ -1218,12 +1295,16 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
       setDeletingErrorMessageKey('');
     }
   }, [
+    errorMessages,
+    errorMessagesPage,
+    errorMessagesPageSize,
     isErrorDeleteSubmitting,
     isErrorUpdateSubmitting,
     loadAdminErrorMessages,
     locale,
     pendingErrorMessageDelete,
     router,
+    totalErrorMessages,
     t,
   ]);
 
@@ -1709,7 +1790,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
         <p className="admin-dashboard-panel-copy mb-3">{t('adminAccount.settings.copy', { ns: 'admin-account' })}</p>
         <nav className="admin-settings-nav" aria-label={t('adminAccount.settings.navLabel', { ns: 'admin-account' })}>
           <Link
-            href="/admin/settings/profile"
+            href={ADMIN_ROUTES.settings.profile}
             className={`admin-settings-nav-link${isProfileSection ? ' is-active' : ''}`}
           >
             <span className="admin-settings-nav-icon" aria-hidden="true">
@@ -1720,7 +1801,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
             </span>
           </Link>
           <Link
-            href="/admin/settings/account"
+            href={ADMIN_ROUTES.settings.account}
             className={`admin-settings-nav-link${isAccountSection ? ' is-active' : ''}`}
           >
             <span className="admin-settings-nav-icon" aria-hidden="true">
@@ -1731,7 +1812,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
             </span>
           </Link>
           <Link
-            href="/admin/settings/appearance"
+            href={ADMIN_ROUTES.settings.appearance}
             className={`admin-settings-nav-link${isAppearanceSection ? ' is-active' : ''}`}
           >
             <span className="admin-settings-nav-icon" aria-hidden="true">
@@ -1742,7 +1823,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
             </span>
           </Link>
           <Link
-            href="/admin/settings/sessions"
+            href={ADMIN_ROUTES.settings.sessions}
             className={`admin-settings-nav-link${isSessionsSection ? ' is-active' : ''}`}
           >
             <span className="admin-settings-nav-icon" aria-hidden="true">
@@ -1753,7 +1834,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
             </span>
           </Link>
           <Link
-            href="/admin/settings/errors"
+            href={ADMIN_ROUTES.settings.errors}
             className={`admin-settings-nav-link${isErrorsSection ? ' is-active' : ''}`}
           >
             <span className="admin-settings-nav-icon" aria-hidden="true">
@@ -1764,7 +1845,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
             </span>
           </Link>
           <Link
-            href="/admin/settings/security"
+            href={ADMIN_ROUTES.settings.security}
             className={`admin-settings-nav-link${isSecuritySection ? ' is-active' : ''}`}
           >
             <span className="admin-settings-nav-icon" aria-hidden="true">
@@ -2553,14 +2634,14 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                               ariaLabel={t('adminAccount.errorsCatalog.loading', { ns: 'admin-account' })}
                             />
                           </div>
-                        ) : errorMessages.length === 0 ? (
+                        ) : totalErrorMessages === 0 ? (
                           <p className="small text-muted mb-0">
                             {t('adminAccount.errorsCatalog.empty', { ns: 'admin-account' })}
                           </p>
                         ) : (
                           <>
                             <div className="d-grid gap-2">
-                              {pagedErrorMessages.map(item => {
+                              {errorMessages.map(item => {
                                 const itemKey = toAdminErrorMessageKey(item);
                                 const previewMessage = item.message;
                                 const isDeletingCurrentItem =
@@ -2670,7 +2751,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                           </>
                         )}
                       </div>
-                      {!isErrorMessagesLoading && errorMessages.length > 0 ? (
+                      {!isErrorMessagesLoading && totalErrorMessages > 0 ? (
                         <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top border-bottom">
                           <PaginationBar
                             className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"

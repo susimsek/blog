@@ -33,8 +33,6 @@ func (stubErrorMessageRepository) DeleteByKey(context.Context, string, string, s
 }
 
 func TestResolveAdminErrorMessageUsesLocaleDefaults(t *testing.T) {
-	t.Parallel()
-
 	previousRepository := adminErrorMessageRepository
 	previousCache := adminErrorCatalogCache
 	previousExpiry := adminErrorCatalogExpiry
@@ -60,8 +58,6 @@ func TestResolveAdminErrorMessageUsesLocaleDefaults(t *testing.T) {
 }
 
 func TestResolveAdminErrorMessageUsesRepositoryOverride(t *testing.T) {
-	t.Parallel()
-
 	previousRepository := adminErrorMessageRepository
 	previousCache := adminErrorCatalogCache
 	previousExpiry := adminErrorCatalogExpiry
@@ -94,8 +90,6 @@ func TestResolveAdminErrorMessageUsesRepositoryOverride(t *testing.T) {
 }
 
 func TestResolveAdminErrorMessageFallsBackToInputMessage(t *testing.T) {
-	t.Parallel()
-
 	previousRepository := adminErrorMessageRepository
 	previousCache := adminErrorCatalogCache
 	previousExpiry := adminErrorCatalogExpiry
