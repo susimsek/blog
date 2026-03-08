@@ -17,12 +17,13 @@
       "title": "Settings",
       "copy": "Manage your profile, account controls, security, and active sessions.",
       "navLabel": "Settings navigation",
-      "profile": "Profile",
-      "account": "Account",
-      "appearance": "Appearance",
-      "sessions": "Sessions",
-      "security": "Security"
-    },
+    "profile": "Profile",
+    "account": "Account",
+    "appearance": "Appearance",
+    "sessions": "Sessions",
+    "errors": "Error messages",
+    "security": "Security"
+  },
     "profile": {
       "title": "Profile",
       "copy": "Review your admin identity and account metadata.",
@@ -138,7 +139,7 @@
       "submit": "Update password",
       "submitting": "Updating password..."
     },
-    "sessions": {
+  "sessions": {
       "title": "Active sessions",
       "copy": "Review signed-in devices and revoke sessions you no longer trust.",
       "loading": "Loading active sessions...",
@@ -164,10 +165,104 @@
       "errors": {
         "load": "Active sessions could not be loaded right now.",
         "revokeSingle": "Session could not be revoked.",
-        "revokeAll": "Sessions could not be revoked."
+      "revokeAll": "Sessions could not be revoked."
+    }
+  },
+  "errorsCatalog": {
+    "title": "Error messages",
+    "copy": "List, filter, create, update, and delete admin API error messages.",
+    "loading": "Loading error messages...",
+    "empty": "No error messages found for the current filter.",
+    "actions": {
+      "refresh": "Refresh",
+      "create": "Create",
+      "creating": "Creating...",
+      "update": "Update",
+      "updating": "Updating...",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "confirmDelete": "Delete {{code}} ({{locale}})?"
+    },
+    "filters": {
+      "locale": "Locale",
+      "query": "Search",
+      "queryPlaceholder": "Search by code or message",
+      "locales": {
+        "all": "All locales",
+        "en": "English",
+        "tr": "Turkish"
       }
     },
-    "validation": {
+    "tabs": {
+      "create": "Create",
+      "update": "Update"
+    },
+    "deleteConfirm": {
+      "title": "Delete error message"
+    },
+    "list": {
+      "updatedAt": "Updated: {{value}}"
+    },
+    "create": {
+      "copy": "Add a new localized message by code.",
+      "locale": "Locale",
+      "code": "Code",
+      "codePlaceholder": "Example: INVALID_CREDENTIALS",
+      "codeValidation": "Use only uppercase letters, numbers, and underscore (2-120 chars).",
+      "message": "Message",
+      "messageHint": "Maximum {{count}} characters."
+    },
+    "update": {
+      "copy": "Edit or delete the currently selected message.",
+      "empty": "Select an error message to edit.",
+      "notAvailable": "Not available",
+      "message": "Message",
+      "messageHint": "Maximum {{count}} characters.",
+      "labels": {
+        "code": "Code",
+        "scope": "Scope",
+        "locale": "Locale",
+        "updatedAt": "Updated at"
+      }
+    },
+    "success": {
+      "created": "Error message created.",
+      "updated": "Error message updated.",
+      "deleted": "Error message deleted."
+    },
+    "errors": {
+      "load": "Error messages could not be loaded.",
+      "create": "Error message could not be created.",
+      "update": "Error message could not be updated.",
+      "delete": "Error message could not be deleted."
+    },
+    "audit": {
+      "title": "Audit log",
+      "copy": "Every create, update, and delete action is recorded.",
+      "loading": "Loading audit log...",
+      "empty": "No audit events found.",
+      "columns": {
+        "createdAt": "Created at",
+        "actor": "Actor",
+        "action": "Action",
+        "code": "Code",
+        "status": "Status"
+      },
+      "actions": {
+        "created": "Created",
+        "updated": "Updated",
+        "deleted": "Deleted"
+      },
+      "statuses": {
+        "success": "Success",
+        "failed": "Failed"
+      },
+      "errors": {
+        "load": "Audit log could not be loaded."
+      }
+    }
+  },
+  "validation": {
       "currentPasswordRequired": "Enter your current password.",
       "newPasswordRequired": "Enter a new password.",
       "newPasswordMin": "Use at least {{count}} characters.",

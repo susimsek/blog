@@ -227,6 +227,9 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
   - LF
   - no trailing whitespace
   - indent size `2`
+- Admin UI standardization:
+  - Prefer standard React-Bootstrap components and utilities (`Button`, `Alert`, `Card`, `Spinner`, `Modal`, grid classes/components)
+  - Do not add custom width/alignment overrides for these primitives unless a real product requirement cannot be met with Bootstrap defaults
 
 ### Import aliases
 

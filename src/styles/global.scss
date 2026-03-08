@@ -3055,6 +3055,39 @@ select.form-select {
   }
 }
 
+input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+input[type='search']::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  opacity: 0.86;
+  background: none;
+  box-shadow: none;
+  color: var(--muted-text-color);
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 4l8 8M12 4l-8 8' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")
+    no-repeat center / 0.8rem 0.8rem;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 4l8 8M12 4l-8 8' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")
+    no-repeat center / 0.8rem 0.8rem;
+  transition:
+    opacity var(--transition-speed) ease,
+    background-color var(--transition-speed) ease;
+}
+
+input[type='search']::-webkit-search-cancel-button:hover {
+  opacity: 1;
+  background-color: var(--text-color);
+}
+
 .form-label {
   color: var(--text-color);
   font-size: 0.84rem;
@@ -4345,6 +4378,12 @@ $state-variants: (
   background-color: var(--main-bg);
   box-shadow: none;
   @include transition(border-color, background-color, box-shadow);
+}
+
+.pagination-bar .pagination-page-size-label {
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: normal;
 }
 
 .text-nowrap {
@@ -9797,29 +9836,28 @@ label {
   min-height: clamp(26rem, 62vh, 52rem);
 }
 
-.admin-account-tabs {
-  border-bottom-color: color-mix(in srgb, var(--border-color) 82%, transparent);
+.admin-error-editor-modal {
+  --bs-modal-bg: color-mix(in srgb, var(--main-bg) 96%, var(--dropdown-hover-bg) 4%);
+  --bs-modal-color: var(--text-color);
+  --bs-modal-border-color: color-mix(in srgb, var(--border-color) 86%, transparent);
+  --bs-modal-header-border-color: color-mix(in srgb, var(--border-color) 76%, transparent);
+  --bs-modal-footer-border-color: color-mix(in srgb, var(--border-color) 76%, transparent);
+}
 
-  .nav-link {
-    color: var(--muted-text-color);
-    border-color: transparent;
-    border-radius: 0.75rem 0.75rem 0 0;
-    font-weight: 700;
-    padding: 0.65rem 1rem;
-  }
+.admin-error-editor-modal .modal-content {
+  border-radius: 0.9rem;
+  box-shadow: var(--box-shadow-lg);
+}
 
-  .nav-link:hover,
-  .nav-link:focus-visible {
-    color: var(--text-color);
-    border-color: transparent;
-  }
+.admin-error-editor-modal .modal-header,
+.admin-error-editor-modal .modal-footer {
+  background: color-mix(in srgb, var(--main-bg) 94%, var(--dropdown-hover-bg) 6%);
+}
 
-  .nav-link.active {
-    color: var(--text-color);
-    background: color-mix(in srgb, var(--main-bg) 94%, var(--dropdown-hover-bg) 6%);
-    border-color: color-mix(in srgb, var(--border-color) 82%, transparent);
-    border-bottom-color: transparent;
-  }
+.dark-theme .admin-error-editor-modal .btn-close,
+.oceanic-theme .admin-error-editor-modal .btn-close,
+.forest-theme .admin-error-editor-modal .btn-close {
+  filter: invert(1) grayscale(1) brightness(1.65);
 }
 
 .admin-account-sessions-loading {
@@ -10138,5 +10176,30 @@ label {
 
   .admin-account-appearance-option-footer {
     padding: 0.66rem 0.72rem;
+  }
+
+  .admin-error-editor-modal .modal-body,
+  .admin-error-editor-modal .modal-footer {
+    padding: 0.9rem;
+  }
+
+  .admin-error-editor-modal .row > dt,
+  .admin-error-editor-modal .row > dd {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .admin-error-editor-modal .row > dt {
+    margin-bottom: 0.12rem;
+  }
+
+  .admin-error-editor-modal .row > dd {
+    margin-bottom: 0.62rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .admin-error-editor-modal {
+    --bs-modal-margin: 0.55rem;
   }
 }

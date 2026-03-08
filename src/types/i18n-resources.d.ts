@@ -67,6 +67,100 @@ interface Resources {
         };
       };
       errorFallback: 'Password change failed. Check your inputs and try again.';
+      errorsCatalog: {
+        actions: {
+          confirmDelete: 'Delete {{code}} ({{locale}})?';
+          create: 'Create';
+          creating: 'Creating...';
+          delete: 'Delete';
+          deleting: 'Deleting...';
+          refresh: 'Refresh';
+          update: 'Update';
+          updating: 'Updating...';
+        };
+        audit: {
+          actions: {
+            created: 'Created';
+            deleted: 'Deleted';
+            updated: 'Updated';
+          };
+          columns: {
+            action: 'Action';
+            actor: 'Actor';
+            code: 'Code';
+            createdAt: 'Created at';
+            status: 'Status';
+          };
+          copy: 'Every create, update, and delete action is recorded.';
+          empty: 'No audit events found.';
+          errors: {
+            load: 'Audit log could not be loaded.';
+          };
+          loading: 'Loading audit log...';
+          statuses: {
+            failed: 'Failed';
+            success: 'Success';
+          };
+          title: 'Audit log';
+        };
+        copy: 'List, filter, create, update, and delete admin API error messages.';
+        create: {
+          code: 'Code';
+          codePlaceholder: 'Example: INVALID_CREDENTIALS';
+          codeValidation: 'Use only uppercase letters, numbers, and underscore (2-120 chars).';
+          copy: 'Add a new localized message by code.';
+          locale: 'Locale';
+          message: 'Message';
+          messageHint: 'Maximum {{count}} characters.';
+        };
+        deleteConfirm: {
+          title: 'Delete error message';
+        };
+        empty: 'No error messages found for the current filter.';
+        errors: {
+          create: 'Error message could not be created.';
+          delete: 'Error message could not be deleted.';
+          load: 'Error messages could not be loaded.';
+          update: 'Error message could not be updated.';
+        };
+        filters: {
+          locale: 'Locale';
+          locales: {
+            all: 'All locales';
+            en: 'English';
+            tr: 'Turkish';
+          };
+          query: 'Search';
+          queryPlaceholder: 'Search by code or message';
+        };
+        list: {
+          updatedAt: 'Updated: {{value}}';
+        };
+        loading: 'Loading error messages...';
+        success: {
+          created: 'Error message created.';
+          deleted: 'Error message deleted.';
+          updated: 'Error message updated.';
+        };
+        tabs: {
+          create: 'Create';
+          update: 'Update';
+        };
+        title: 'Error messages';
+        update: {
+          copy: 'Edit or delete the currently selected message.';
+          empty: 'Select an error message to edit.';
+          labels: {
+            code: 'Code';
+            locale: 'Locale';
+            scope: 'Scope';
+            updatedAt: 'Updated at';
+          };
+          message: 'Message';
+          messageHint: 'Maximum {{count}} characters.';
+          notAvailable: 'Not available';
+        };
+      };
       eyebrow: 'Password security';
       form: {
         confirmPassword: 'Confirm new password';
@@ -172,6 +266,7 @@ interface Resources {
         account: 'Account';
         appearance: 'Appearance';
         copy: 'Manage your profile, account controls, security, and active sessions.';
+        errors: 'Error messages';
         navLabel: 'Settings navigation';
         profile: 'Profile';
         security: 'Security';

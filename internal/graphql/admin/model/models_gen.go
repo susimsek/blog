@@ -29,6 +29,11 @@ type AdminChangeUsernameInput struct {
 	NewUsername string `json:"newUsername"`
 }
 
+type AdminCreateErrorMessageInput struct {
+	Key     *AdminErrorMessageKeyInput `json:"key"`
+	Message string                     `json:"message"`
+}
+
 type AdminDashboard struct {
 	TotalPosts       int                          `json:"totalPosts"`
 	TotalSubscribers int                          `json:"totalSubscribers"`
@@ -71,6 +76,54 @@ type AdminDeleteAccountInput struct {
 	CurrentPassword string `json:"currentPassword"`
 }
 
+type AdminDeletePayload struct {
+	Success bool `json:"success"`
+}
+
+type AdminErrorMessage struct {
+	Scope     string  `json:"scope"`
+	Locale    string  `json:"locale"`
+	Code      string  `json:"code"`
+	Message   string  `json:"message"`
+	UpdatedAt *string `json:"updatedAt,omitempty"`
+}
+
+type AdminErrorMessageAuditLog struct {
+	ID          string  `json:"id"`
+	ActorID     string  `json:"actorId"`
+	ActorEmail  string  `json:"actorEmail"`
+	Action      string  `json:"action"`
+	Scope       string  `json:"scope"`
+	Locale      string  `json:"locale"`
+	Code        string  `json:"code"`
+	BeforeValue string  `json:"beforeValue"`
+	AfterValue  string  `json:"afterValue"`
+	Status      string  `json:"status"`
+	FailureCode *string `json:"failureCode,omitempty"`
+	RequestID   *string `json:"requestId,omitempty"`
+	RemoteIP    *string `json:"remoteIp,omitempty"`
+	CountryCode *string `json:"countryCode,omitempty"`
+	UserAgent   *string `json:"userAgent,omitempty"`
+	CreatedAt   string  `json:"createdAt"`
+}
+
+type AdminErrorMessageFilterInput struct {
+	Locale *string `json:"locale,omitempty"`
+	Code   *string `json:"code,omitempty"`
+	Query  *string `json:"query,omitempty"`
+}
+
+type AdminErrorMessageKeyInput struct {
+	Scope  *string `json:"scope,omitempty"`
+	Locale string  `json:"locale"`
+	Code   string  `json:"code"`
+}
+
+type AdminErrorMessageListPayload struct {
+	Items []*AdminErrorMessage `json:"items"`
+	Total int                  `json:"total"`
+}
+
 type AdminLoginInput struct {
 	Email      string `json:"email"`
 	Password   string `json:"password"`
@@ -110,6 +163,11 @@ type AdminSession struct {
 
 type AdminSessionRevokePayload struct {
 	Success bool `json:"success"`
+}
+
+type AdminUpdateErrorMessageInput struct {
+	Key     *AdminErrorMessageKeyInput `json:"key"`
+	Message string                     `json:"message"`
 }
 
 type AdminUser struct {

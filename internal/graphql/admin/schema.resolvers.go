@@ -62,6 +62,60 @@ func (r *adminQueryResolver) ActiveSessions(ctx context.Context) ([]*model.Admin
 	return mapAdminSessions(sessions, currentSessionID), nil
 }
 
+// ErrorMessages is the resolver for the errorMessages field.
+func (r *adminQueryResolver) ErrorMessages(
+	ctx context.Context,
+	filter *model.AdminErrorMessageFilterInput,
+) (*model.AdminErrorMessageListPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedFilter := domain.AdminErrorMessageFilter{}
+	if filter != nil {
+		if filter.Locale != nil {
+			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
+		}
+		if filter.Code != nil {
+			resolvedFilter.Code = strings.TrimSpace(*filter.Code)
+		}
+		if filter.Query != nil {
+			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
+		}
+	}
+
+	payload, err := appservice.ListAdminErrorMessages(ctx, adminUser, resolvedFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminErrorMessageListPayload(payload), nil
+}
+
+// ErrorMessageAuditLogs is the resolver for the errorMessageAuditLogs field.
+func (r *adminQueryResolver) ErrorMessageAuditLogs(
+	ctx context.Context,
+	limit *int,
+) ([]*model.AdminErrorMessageAuditLog, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedLimit := 0
+	if limit != nil {
+		resolvedLimit = *limit
+	}
+
+	records, err := appservice.ListAdminErrorMessageAuditLogs(ctx, adminUser, resolvedLimit)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminAuditLogs(records), nil
+}
+
 // Login is the resolver for the login field.
 func (r *adminMutationResolver) Login(ctx context.Context, input model.AdminLoginInput) (*model.AdminAuthPayload, error) {
 	rememberMe := input.RememberMe != nil && *input.RememberMe
@@ -293,6 +347,75 @@ func (r *adminMutationResolver) RevokeAllSessions(ctx context.Context) (*model.A
 	return &model.AdminSessionRevokePayload{Success: true}, nil
 }
 
+// CreateErrorMessage is the resolver for the createErrorMessage field.
+func (r *adminMutationResolver) CreateErrorMessage(
+	ctx context.Context,
+	input model.AdminCreateErrorMessageInput,
+) (*model.AdminErrorMessage, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if input.Key == nil {
+		return nil, apperrors.BadRequest("error message key is required")
+	}
+
+	saved, err := appservice.CreateAdminErrorMessage(
+		ctx,
+		adminUser,
+		mapAdminErrorMessageKey(*input.Key),
+		input.Message,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminErrorMessage(saved), nil
+}
+
+// UpdateErrorMessage is the resolver for the updateErrorMessage field.
+func (r *adminMutationResolver) UpdateErrorMessage(
+	ctx context.Context,
+	input model.AdminUpdateErrorMessageInput,
+) (*model.AdminErrorMessage, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if input.Key == nil {
+		return nil, apperrors.BadRequest("error message key is required")
+	}
+
+	updated, err := appservice.UpdateAdminErrorMessage(
+		ctx,
+		adminUser,
+		mapAdminErrorMessageKey(*input.Key),
+		input.Message,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminErrorMessage(updated), nil
+}
+
+// DeleteErrorMessage is the resolver for the deleteErrorMessage field.
+func (r *adminMutationResolver) DeleteErrorMessage(
+	ctx context.Context,
+	input model.AdminErrorMessageKeyInput,
+) (*model.AdminDeletePayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := appservice.DeleteAdminErrorMessage(ctx, adminUser, mapAdminErrorMessageKey(input)); err != nil {
+		return nil, err
+	}
+
+	return &model.AdminDeletePayload{Success: true}, nil
+}
+
 // AdminMutation returns AdminMutationResolver implementation.
 func (r *Resolver) AdminMutation() AdminMutationResolver { return &adminMutationResolver{r} }
 
@@ -429,6 +552,109 @@ func mapAdminSessions(items []domain.AdminSessionRecord, currentSessionID string
 	}
 
 	return mapped
+}
+
+func mapAdminErrorMessageListPayload(payload *domain.AdminErrorMessageListResult) *model.AdminErrorMessageListPayload {
+	if payload == nil {
+		return &model.AdminErrorMessageListPayload{
+			Items: []*model.AdminErrorMessage{},
+			Total: 0,
+		}
+	}
+
+	return &model.AdminErrorMessageListPayload{
+		Items: mapAdminErrorMessages(payload.Items),
+		Total: payload.Total,
+	}
+}
+
+func mapAdminErrorMessages(items []domain.AdminErrorMessageView) []*model.AdminErrorMessage {
+	mapped := make([]*model.AdminErrorMessage, 0, len(items))
+	for _, item := range items {
+		mapped = append(mapped, mapAdminErrorMessage(&item))
+	}
+
+	return mapped
+}
+
+func mapAdminErrorMessage(item *domain.AdminErrorMessageView) *model.AdminErrorMessage {
+	if item == nil {
+		return nil
+	}
+
+	return &model.AdminErrorMessage{
+		Scope:     item.Scope,
+		Locale:    item.Locale,
+		Code:      item.Code,
+		Message:   item.Message,
+		UpdatedAt: toOptionalAdminRFC3339(item.UpdatedAt),
+	}
+}
+
+func mapAdminAuditLogs(items []domain.AdminAuditLogRecord) []*model.AdminErrorMessageAuditLog {
+	mapped := make([]*model.AdminErrorMessageAuditLog, 0, len(items))
+	for _, item := range items {
+		createdAt := item.CreatedAt.UTC().Format(time.RFC3339)
+		if strings.TrimSpace(createdAt) == "" {
+			createdAt = time.Now().UTC().Format(time.RFC3339)
+		}
+
+		mapped = append(mapped, &model.AdminErrorMessageAuditLog{
+			ID:          item.ID,
+			ActorID:     item.ActorID,
+			ActorEmail:  item.ActorEmail,
+			Action:      item.Action,
+			Scope:       item.Scope,
+			Locale:      item.Locale,
+			Code:        item.Code,
+			BeforeValue: item.BeforeValue,
+			AfterValue:  item.AfterValue,
+			Status:      item.Status,
+			FailureCode: toOptionalAdminString(item.FailureCode),
+			RequestID:   toOptionalAdminString(item.RequestID),
+			RemoteIP:    toOptionalAdminString(item.RemoteIP),
+			CountryCode: toOptionalAdminString(item.CountryCode),
+			UserAgent:   toOptionalAdminString(item.UserAgent),
+			CreatedAt:   createdAt,
+		})
+	}
+
+	return mapped
+}
+
+func mapAdminErrorMessageKey(input model.AdminErrorMessageKeyInput) domain.AdminErrorMessageKey {
+	scope := ""
+	if input.Scope != nil {
+		scope = strings.TrimSpace(*input.Scope)
+	}
+
+	return domain.AdminErrorMessageKey{
+		Scope:  scope,
+		Locale: strings.TrimSpace(input.Locale),
+		Code:   strings.TrimSpace(input.Code),
+	}
+}
+
+func toOptionalAdminString(value string) *string {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return nil
+	}
+
+	return &trimmed
+}
+
+func toOptionalAdminRFC3339(value time.Time) *string {
+	if value.IsZero() {
+		return nil
+	}
+
+	formatted := strings.TrimSpace(value.UTC().Format(time.RFC3339))
+	if formatted == "" {
+		return nil
+	}
+
+	return &formatted
 }
 
 func resolveAdminDeviceLabel(userAgent string) string {

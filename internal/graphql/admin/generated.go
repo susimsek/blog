@@ -94,6 +94,42 @@ type ComplexityRoot struct {
 		Title    func(childComplexity int) int
 	}
 
+	AdminDeletePayload struct {
+		Success func(childComplexity int) int
+	}
+
+	AdminErrorMessage struct {
+		Code      func(childComplexity int) int
+		Locale    func(childComplexity int) int
+		Message   func(childComplexity int) int
+		Scope     func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+	}
+
+	AdminErrorMessageAuditLog struct {
+		Action      func(childComplexity int) int
+		ActorEmail  func(childComplexity int) int
+		ActorID     func(childComplexity int) int
+		AfterValue  func(childComplexity int) int
+		BeforeValue func(childComplexity int) int
+		Code        func(childComplexity int) int
+		CountryCode func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		FailureCode func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Locale      func(childComplexity int) int
+		RemoteIP    func(childComplexity int) int
+		RequestID   func(childComplexity int) int
+		Scope       func(childComplexity int) int
+		Status      func(childComplexity int) int
+		UserAgent   func(childComplexity int) int
+	}
+
+	AdminErrorMessageListPayload struct {
+		Items func(childComplexity int) int
+		Total func(childComplexity int) int
+	}
+
 	AdminLogoutPayload struct {
 		Success func(childComplexity int) int
 	}
@@ -108,12 +144,15 @@ type ComplexityRoot struct {
 		ChangeName          func(childComplexity int, input model.AdminChangeNameInput) int
 		ChangePassword      func(childComplexity int, input model.AdminChangePasswordInput) int
 		ChangeUsername      func(childComplexity int, input model.AdminChangeUsernameInput) int
+		CreateErrorMessage  func(childComplexity int, input model.AdminCreateErrorMessageInput) int
 		DeleteAccount       func(childComplexity int, input model.AdminDeleteAccountInput) int
+		DeleteErrorMessage  func(childComplexity int, input model.AdminErrorMessageKeyInput) int
 		Login               func(childComplexity int, input model.AdminLoginInput) int
 		Logout              func(childComplexity int) int
 		RefreshAdminSession func(childComplexity int) int
 		RevokeAllSessions   func(childComplexity int) int
 		RevokeSession       func(childComplexity int, sessionID string) int
+		UpdateErrorMessage  func(childComplexity int, input model.AdminUpdateErrorMessageInput) int
 	}
 
 	AdminPasswordChangePayload struct {
@@ -121,9 +160,11 @@ type ComplexityRoot struct {
 	}
 
 	AdminQuery struct {
-		ActiveSessions func(childComplexity int) int
-		Dashboard      func(childComplexity int) int
-		Me             func(childComplexity int) int
+		ActiveSessions        func(childComplexity int) int
+		Dashboard             func(childComplexity int) int
+		ErrorMessageAuditLogs func(childComplexity int, limit *int) int
+		ErrorMessages         func(childComplexity int, filter *model.AdminErrorMessageFilterInput) int
+		Me                    func(childComplexity int) int
 	}
 
 	AdminSession struct {
@@ -163,11 +204,16 @@ type AdminMutationResolver interface {
 	ChangePassword(ctx context.Context, input model.AdminChangePasswordInput) (*model.AdminPasswordChangePayload, error)
 	RevokeSession(ctx context.Context, sessionID string) (*model.AdminSessionRevokePayload, error)
 	RevokeAllSessions(ctx context.Context) (*model.AdminSessionRevokePayload, error)
+	CreateErrorMessage(ctx context.Context, input model.AdminCreateErrorMessageInput) (*model.AdminErrorMessage, error)
+	UpdateErrorMessage(ctx context.Context, input model.AdminUpdateErrorMessageInput) (*model.AdminErrorMessage, error)
+	DeleteErrorMessage(ctx context.Context, input model.AdminErrorMessageKeyInput) (*model.AdminDeletePayload, error)
 }
 type AdminQueryResolver interface {
 	Me(ctx context.Context) (*model.AdminMe, error)
 	Dashboard(ctx context.Context) (*model.AdminDashboard, error)
 	ActiveSessions(ctx context.Context) ([]*model.AdminSession, error)
+	ErrorMessages(ctx context.Context, filter *model.AdminErrorMessageFilterInput) (*model.AdminErrorMessageListPayload, error)
+	ErrorMessageAuditLogs(ctx context.Context, limit *int) ([]*model.AdminErrorMessageAuditLog, error)
 }
 
 type executableSchema struct {
@@ -352,6 +398,154 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.AdminDashboardUpdatedPost.Title(childComplexity), true
 
+	case "AdminDeletePayload.success":
+		if e.complexity.AdminDeletePayload.Success == nil {
+			break
+		}
+
+		return e.complexity.AdminDeletePayload.Success(childComplexity), true
+
+	case "AdminErrorMessage.code":
+		if e.complexity.AdminErrorMessage.Code == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessage.Code(childComplexity), true
+	case "AdminErrorMessage.locale":
+		if e.complexity.AdminErrorMessage.Locale == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessage.Locale(childComplexity), true
+	case "AdminErrorMessage.message":
+		if e.complexity.AdminErrorMessage.Message == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessage.Message(childComplexity), true
+	case "AdminErrorMessage.scope":
+		if e.complexity.AdminErrorMessage.Scope == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessage.Scope(childComplexity), true
+	case "AdminErrorMessage.updatedAt":
+		if e.complexity.AdminErrorMessage.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessage.UpdatedAt(childComplexity), true
+
+	case "AdminErrorMessageAuditLog.action":
+		if e.complexity.AdminErrorMessageAuditLog.Action == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.Action(childComplexity), true
+	case "AdminErrorMessageAuditLog.actorEmail":
+		if e.complexity.AdminErrorMessageAuditLog.ActorEmail == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.ActorEmail(childComplexity), true
+	case "AdminErrorMessageAuditLog.actorId":
+		if e.complexity.AdminErrorMessageAuditLog.ActorID == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.ActorID(childComplexity), true
+	case "AdminErrorMessageAuditLog.afterValue":
+		if e.complexity.AdminErrorMessageAuditLog.AfterValue == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.AfterValue(childComplexity), true
+	case "AdminErrorMessageAuditLog.beforeValue":
+		if e.complexity.AdminErrorMessageAuditLog.BeforeValue == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.BeforeValue(childComplexity), true
+	case "AdminErrorMessageAuditLog.code":
+		if e.complexity.AdminErrorMessageAuditLog.Code == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.Code(childComplexity), true
+	case "AdminErrorMessageAuditLog.countryCode":
+		if e.complexity.AdminErrorMessageAuditLog.CountryCode == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.CountryCode(childComplexity), true
+	case "AdminErrorMessageAuditLog.createdAt":
+		if e.complexity.AdminErrorMessageAuditLog.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.CreatedAt(childComplexity), true
+	case "AdminErrorMessageAuditLog.failureCode":
+		if e.complexity.AdminErrorMessageAuditLog.FailureCode == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.FailureCode(childComplexity), true
+	case "AdminErrorMessageAuditLog.id":
+		if e.complexity.AdminErrorMessageAuditLog.ID == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.ID(childComplexity), true
+	case "AdminErrorMessageAuditLog.locale":
+		if e.complexity.AdminErrorMessageAuditLog.Locale == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.Locale(childComplexity), true
+	case "AdminErrorMessageAuditLog.remoteIp":
+		if e.complexity.AdminErrorMessageAuditLog.RemoteIP == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.RemoteIP(childComplexity), true
+	case "AdminErrorMessageAuditLog.requestId":
+		if e.complexity.AdminErrorMessageAuditLog.RequestID == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.RequestID(childComplexity), true
+	case "AdminErrorMessageAuditLog.scope":
+		if e.complexity.AdminErrorMessageAuditLog.Scope == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.Scope(childComplexity), true
+	case "AdminErrorMessageAuditLog.status":
+		if e.complexity.AdminErrorMessageAuditLog.Status == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.Status(childComplexity), true
+	case "AdminErrorMessageAuditLog.userAgent":
+		if e.complexity.AdminErrorMessageAuditLog.UserAgent == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageAuditLog.UserAgent(childComplexity), true
+
+	case "AdminErrorMessageListPayload.items":
+		if e.complexity.AdminErrorMessageListPayload.Items == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageListPayload.Items(childComplexity), true
+	case "AdminErrorMessageListPayload.total":
+		if e.complexity.AdminErrorMessageListPayload.Total == nil {
+			break
+		}
+
+		return e.complexity.AdminErrorMessageListPayload.Total(childComplexity), true
+
 	case "AdminLogoutPayload.success":
 		if e.complexity.AdminLogoutPayload.Success == nil {
 			break
@@ -416,6 +610,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.ChangeUsername(childComplexity, args["input"].(model.AdminChangeUsernameInput)), true
+	case "AdminMutation.createErrorMessage":
+		if e.complexity.AdminMutation.CreateErrorMessage == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_createErrorMessage_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.CreateErrorMessage(childComplexity, args["input"].(model.AdminCreateErrorMessageInput)), true
 	case "AdminMutation.deleteAccount":
 		if e.complexity.AdminMutation.DeleteAccount == nil {
 			break
@@ -427,6 +632,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.DeleteAccount(childComplexity, args["input"].(model.AdminDeleteAccountInput)), true
+	case "AdminMutation.deleteErrorMessage":
+		if e.complexity.AdminMutation.DeleteErrorMessage == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_deleteErrorMessage_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.DeleteErrorMessage(childComplexity, args["input"].(model.AdminErrorMessageKeyInput)), true
 	case "AdminMutation.login":
 		if e.complexity.AdminMutation.Login == nil {
 			break
@@ -467,6 +683,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.RevokeSession(childComplexity, args["sessionId"].(string)), true
+	case "AdminMutation.updateErrorMessage":
+		if e.complexity.AdminMutation.UpdateErrorMessage == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_updateErrorMessage_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.UpdateErrorMessage(childComplexity, args["input"].(model.AdminUpdateErrorMessageInput)), true
 
 	case "AdminPasswordChangePayload.success":
 		if e.complexity.AdminPasswordChangePayload.Success == nil {
@@ -487,6 +714,28 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminQuery.Dashboard(childComplexity), true
+	case "AdminQuery.errorMessageAuditLogs":
+		if e.complexity.AdminQuery.ErrorMessageAuditLogs == nil {
+			break
+		}
+
+		args, err := ec.field_AdminQuery_errorMessageAuditLogs_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminQuery.ErrorMessageAuditLogs(childComplexity, args["limit"].(*int)), true
+	case "AdminQuery.errorMessages":
+		if e.complexity.AdminQuery.ErrorMessages == nil {
+			break
+		}
+
+		args, err := ec.field_AdminQuery_errorMessages_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminQuery.ErrorMessages(childComplexity, args["filter"].(*model.AdminErrorMessageFilterInput)), true
 	case "AdminQuery.me":
 		if e.complexity.AdminQuery.Me == nil {
 			break
@@ -605,8 +854,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAdminChangeNameInput,
 		ec.unmarshalInputAdminChangePasswordInput,
 		ec.unmarshalInputAdminChangeUsernameInput,
+		ec.unmarshalInputAdminCreateErrorMessageInput,
 		ec.unmarshalInputAdminDeleteAccountInput,
+		ec.unmarshalInputAdminErrorMessageFilterInput,
+		ec.unmarshalInputAdminErrorMessageKeyInput,
 		ec.unmarshalInputAdminLoginInput,
+		ec.unmarshalInputAdminUpdateErrorMessageInput,
 	)
 	first := true
 
@@ -767,10 +1020,32 @@ func (ec *executionContext) field_AdminMutation_changeUsername_args(ctx context.
 	return args, nil
 }
 
+func (ec *executionContext) field_AdminMutation_createErrorMessage_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminCreateErrorMessageInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCreateErrorMessageInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_AdminMutation_deleteAccount_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminDeleteAccountInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDeleteAccountInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminMutation_deleteErrorMessage_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminErrorMessageKeyInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageKeyInput)
 	if err != nil {
 		return nil, err
 	}
@@ -800,6 +1075,17 @@ func (ec *executionContext) field_AdminMutation_revokeSession_args(ctx context.C
 	return args, nil
 }
 
+func (ec *executionContext) field_AdminMutation_updateErrorMessage_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminUpdateErrorMessageInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUpdateErrorMessageInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_AdminQuery___type_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -808,6 +1094,28 @@ func (ec *executionContext) field_AdminQuery___type_args(ctx context.Context, ra
 		return nil, err
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminQuery_errorMessageAuditLogs_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "limit", ec.unmarshalOInt2ᚖint)
+	if err != nil {
+		return nil, err
+	}
+	args["limit"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminQuery_errorMessages_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOAdminErrorMessageFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageFilterInput)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg0
 	return args, nil
 }
 
@@ -1689,6 +1997,714 @@ func (ec *executionContext) fieldContext_AdminDashboardUpdatedPost_category(_ co
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminDeletePayload_success(ctx context.Context, field graphql.CollectedField, obj *model.AdminDeletePayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminDeletePayload_success,
+		func(ctx context.Context) (any, error) {
+			return obj.Success, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminDeletePayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminDeletePayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessage_scope(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessage_scope,
+		func(ctx context.Context) (any, error) {
+			return obj.Scope, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessage_scope(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessage_locale(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessage_locale,
+		func(ctx context.Context) (any, error) {
+			return obj.Locale, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessage_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessage_code(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessage_code,
+		func(ctx context.Context) (any, error) {
+			return obj.Code, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessage_code(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessage_message(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessage_message,
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessage_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessage_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessage_updatedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedAt, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessage_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_id(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNID2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_actorId(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_actorId,
+		func(ctx context.Context) (any, error) {
+			return obj.ActorID, nil
+		},
+		nil,
+		ec.marshalNID2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_actorId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_actorEmail(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_actorEmail,
+		func(ctx context.Context) (any, error) {
+			return obj.ActorEmail, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_actorEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_action(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_action,
+		func(ctx context.Context) (any, error) {
+			return obj.Action, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_action(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_scope(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_scope,
+		func(ctx context.Context) (any, error) {
+			return obj.Scope, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_scope(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_locale(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_locale,
+		func(ctx context.Context) (any, error) {
+			return obj.Locale, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_code(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_code,
+		func(ctx context.Context) (any, error) {
+			return obj.Code, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_code(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_beforeValue(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_beforeValue,
+		func(ctx context.Context) (any, error) {
+			return obj.BeforeValue, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_beforeValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_afterValue(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_afterValue,
+		func(ctx context.Context) (any, error) {
+			return obj.AfterValue, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_afterValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_status(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_failureCode(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_failureCode,
+		func(ctx context.Context) (any, error) {
+			return obj.FailureCode, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_failureCode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_requestId(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_requestId,
+		func(ctx context.Context) (any, error) {
+			return obj.RequestID, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_requestId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_remoteIp(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_remoteIp,
+		func(ctx context.Context) (any, error) {
+			return obj.RemoteIP, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_remoteIp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_countryCode(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_countryCode,
+		func(ctx context.Context) (any, error) {
+			return obj.CountryCode, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_countryCode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_userAgent(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_userAgent,
+		func(ctx context.Context) (any, error) {
+			return obj.UserAgent, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_userAgent(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageAuditLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageAuditLog_createdAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageAuditLog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageListPayload_items(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageListPayload_items,
+		func(ctx context.Context) (any, error) {
+			return obj.Items, nil
+		},
+		nil,
+		ec.marshalNAdminErrorMessage2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageListPayload_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "scope":
+				return ec.fieldContext_AdminErrorMessage_scope(ctx, field)
+			case "locale":
+				return ec.fieldContext_AdminErrorMessage_locale(ctx, field)
+			case "code":
+				return ec.fieldContext_AdminErrorMessage_code(ctx, field)
+			case "message":
+				return ec.fieldContext_AdminErrorMessage_message(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminErrorMessage_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminErrorMessage", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminErrorMessageListPayload_total(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessageListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminErrorMessageListPayload_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminErrorMessageListPayload_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminErrorMessageListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminLogoutPayload_success(ctx context.Context, field graphql.CollectedField, obj *model.AdminLogoutPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2214,6 +3230,157 @@ func (ec *executionContext) fieldContext_AdminMutation_revokeAllSessions(_ conte
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminMutation_createErrorMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_createErrorMessage,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().CreateErrorMessage(ctx, fc.Args["input"].(model.AdminCreateErrorMessageInput))
+		},
+		nil,
+		ec.marshalNAdminErrorMessage2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessage,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_createErrorMessage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "scope":
+				return ec.fieldContext_AdminErrorMessage_scope(ctx, field)
+			case "locale":
+				return ec.fieldContext_AdminErrorMessage_locale(ctx, field)
+			case "code":
+				return ec.fieldContext_AdminErrorMessage_code(ctx, field)
+			case "message":
+				return ec.fieldContext_AdminErrorMessage_message(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminErrorMessage_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminErrorMessage", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_createErrorMessage_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_updateErrorMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_updateErrorMessage,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().UpdateErrorMessage(ctx, fc.Args["input"].(model.AdminUpdateErrorMessageInput))
+		},
+		nil,
+		ec.marshalNAdminErrorMessage2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessage,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_updateErrorMessage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "scope":
+				return ec.fieldContext_AdminErrorMessage_scope(ctx, field)
+			case "locale":
+				return ec.fieldContext_AdminErrorMessage_locale(ctx, field)
+			case "code":
+				return ec.fieldContext_AdminErrorMessage_code(ctx, field)
+			case "message":
+				return ec.fieldContext_AdminErrorMessage_message(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminErrorMessage_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminErrorMessage", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_updateErrorMessage_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_deleteErrorMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_deleteErrorMessage,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().DeleteErrorMessage(ctx, fc.Args["input"].(model.AdminErrorMessageKeyInput))
+		},
+		nil,
+		ec.marshalNAdminDeletePayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDeletePayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_deleteErrorMessage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_AdminDeletePayload_success(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminDeletePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_deleteErrorMessage_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminPasswordChangePayload_success(ctx context.Context, field graphql.CollectedField, obj *model.AdminPasswordChangePayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2364,6 +3531,128 @@ func (ec *executionContext) fieldContext_AdminQuery_activeSessions(_ context.Con
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminSession", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminQuery_errorMessages(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminQuery_errorMessages,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminQuery().ErrorMessages(ctx, fc.Args["filter"].(*model.AdminErrorMessageFilterInput))
+		},
+		nil,
+		ec.marshalNAdminErrorMessageListPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageListPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminQuery_errorMessages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "items":
+				return ec.fieldContext_AdminErrorMessageListPayload_items(ctx, field)
+			case "total":
+				return ec.fieldContext_AdminErrorMessageListPayload_total(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminErrorMessageListPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminQuery_errorMessages_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminQuery_errorMessageAuditLogs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminQuery_errorMessageAuditLogs,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminQuery().ErrorMessageAuditLogs(ctx, fc.Args["limit"].(*int))
+		},
+		nil,
+		ec.marshalNAdminErrorMessageAuditLog2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageAuditLogᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminQuery_errorMessageAuditLogs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AdminErrorMessageAuditLog_id(ctx, field)
+			case "actorId":
+				return ec.fieldContext_AdminErrorMessageAuditLog_actorId(ctx, field)
+			case "actorEmail":
+				return ec.fieldContext_AdminErrorMessageAuditLog_actorEmail(ctx, field)
+			case "action":
+				return ec.fieldContext_AdminErrorMessageAuditLog_action(ctx, field)
+			case "scope":
+				return ec.fieldContext_AdminErrorMessageAuditLog_scope(ctx, field)
+			case "locale":
+				return ec.fieldContext_AdminErrorMessageAuditLog_locale(ctx, field)
+			case "code":
+				return ec.fieldContext_AdminErrorMessageAuditLog_code(ctx, field)
+			case "beforeValue":
+				return ec.fieldContext_AdminErrorMessageAuditLog_beforeValue(ctx, field)
+			case "afterValue":
+				return ec.fieldContext_AdminErrorMessageAuditLog_afterValue(ctx, field)
+			case "status":
+				return ec.fieldContext_AdminErrorMessageAuditLog_status(ctx, field)
+			case "failureCode":
+				return ec.fieldContext_AdminErrorMessageAuditLog_failureCode(ctx, field)
+			case "requestId":
+				return ec.fieldContext_AdminErrorMessageAuditLog_requestId(ctx, field)
+			case "remoteIp":
+				return ec.fieldContext_AdminErrorMessageAuditLog_remoteIp(ctx, field)
+			case "countryCode":
+				return ec.fieldContext_AdminErrorMessageAuditLog_countryCode(ctx, field)
+			case "userAgent":
+				return ec.fieldContext_AdminErrorMessageAuditLog_userAgent(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AdminErrorMessageAuditLog_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminErrorMessageAuditLog", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminQuery_errorMessageAuditLogs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -4508,6 +5797,40 @@ func (ec *executionContext) unmarshalInputAdminChangeUsernameInput(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAdminCreateErrorMessageInput(ctx context.Context, obj any) (model.AdminCreateErrorMessageInput, error) {
+	var it model.AdminCreateErrorMessageInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"key", "message"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "key":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+			data, err := ec.unmarshalNAdminErrorMessageKeyInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageKeyInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Key = data
+		case "message":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("message"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Message = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAdminDeleteAccountInput(ctx context.Context, obj any) (model.AdminDeleteAccountInput, error) {
 	var it model.AdminDeleteAccountInput
 	asMap := map[string]any{}
@@ -4529,6 +5852,88 @@ func (ec *executionContext) unmarshalInputAdminDeleteAccountInput(ctx context.Co
 				return it, err
 			}
 			it.CurrentPassword = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputAdminErrorMessageFilterInput(ctx context.Context, obj any) (model.AdminErrorMessageFilterInput, error) {
+	var it model.AdminErrorMessageFilterInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"locale", "code", "query"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "locale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locale = data
+		case "code":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Code = data
+		case "query":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Query = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputAdminErrorMessageKeyInput(ctx context.Context, obj any) (model.AdminErrorMessageKeyInput, error) {
+	var it model.AdminErrorMessageKeyInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"scope", "locale", "code"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "scope":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scope"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Scope = data
+		case "locale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locale = data
+		case "code":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Code = data
 		}
 	}
 
@@ -4570,6 +5975,40 @@ func (ec *executionContext) unmarshalInputAdminLoginInput(ctx context.Context, o
 				return it, err
 			}
 			it.RememberMe = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputAdminUpdateErrorMessageInput(ctx context.Context, obj any) (model.AdminUpdateErrorMessageInput, error) {
+	var it model.AdminUpdateErrorMessageInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"key", "message"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "key":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
+			data, err := ec.unmarshalNAdminErrorMessageKeyInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageKeyInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Key = data
+		case "message":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("message"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Message = data
 		}
 	}
 
@@ -4946,6 +6385,244 @@ func (ec *executionContext) _AdminDashboardUpdatedPost(ctx context.Context, sel 
 	return out
 }
 
+var adminDeletePayloadImplementors = []string{"AdminDeletePayload"}
+
+func (ec *executionContext) _AdminDeletePayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminDeletePayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminDeletePayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminDeletePayload")
+		case "success":
+			out.Values[i] = ec._AdminDeletePayload_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminErrorMessageImplementors = []string{"AdminErrorMessage"}
+
+func (ec *executionContext) _AdminErrorMessage(ctx context.Context, sel ast.SelectionSet, obj *model.AdminErrorMessage) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminErrorMessageImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminErrorMessage")
+		case "scope":
+			out.Values[i] = ec._AdminErrorMessage_scope(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "locale":
+			out.Values[i] = ec._AdminErrorMessage_locale(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "code":
+			out.Values[i] = ec._AdminErrorMessage_code(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._AdminErrorMessage_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._AdminErrorMessage_updatedAt(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminErrorMessageAuditLogImplementors = []string{"AdminErrorMessageAuditLog"}
+
+func (ec *executionContext) _AdminErrorMessageAuditLog(ctx context.Context, sel ast.SelectionSet, obj *model.AdminErrorMessageAuditLog) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminErrorMessageAuditLogImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminErrorMessageAuditLog")
+		case "id":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actorId":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_actorId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "actorEmail":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_actorEmail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "action":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_action(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "scope":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_scope(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "locale":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_locale(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "code":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_code(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "beforeValue":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_beforeValue(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "afterValue":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_afterValue(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "status":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "failureCode":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_failureCode(ctx, field, obj)
+		case "requestId":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_requestId(ctx, field, obj)
+		case "remoteIp":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_remoteIp(ctx, field, obj)
+		case "countryCode":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_countryCode(ctx, field, obj)
+		case "userAgent":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_userAgent(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._AdminErrorMessageAuditLog_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminErrorMessageListPayloadImplementors = []string{"AdminErrorMessageListPayload"}
+
+func (ec *executionContext) _AdminErrorMessageListPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminErrorMessageListPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminErrorMessageListPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminErrorMessageListPayload")
+		case "items":
+			out.Values[i] = ec._AdminErrorMessageListPayload_items(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._AdminErrorMessageListPayload_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var adminLogoutPayloadImplementors = []string{"AdminLogoutPayload"}
 
 func (ec *executionContext) _AdminLogoutPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminLogoutPayload) graphql.Marshaler {
@@ -5115,6 +6792,27 @@ func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createErrorMessage":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_createErrorMessage(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateErrorMessage":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_updateErrorMessage(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteErrorMessage":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_deleteErrorMessage(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5250,6 +6948,50 @@ func (ec *executionContext) _AdminQuery(ctx context.Context, sel ast.SelectionSe
 					}
 				}()
 				res = ec._AdminQuery_activeSessions(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "errorMessages":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AdminQuery_errorMessages(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "errorMessageAuditLogs":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AdminQuery_errorMessageAuditLogs(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5849,6 +7591,11 @@ func (ec *executionContext) unmarshalNAdminChangeUsernameInput2suaybsimsekᚗcom
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNAdminCreateErrorMessageInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCreateErrorMessageInput(ctx context.Context, v any) (model.AdminCreateErrorMessageInput, error) {
+	res, err := ec.unmarshalInputAdminCreateErrorMessageInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNAdminDashboard2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDashboard(ctx context.Context, sel ast.SelectionSet, v model.AdminDashboard) graphql.Marshaler {
 	return ec._AdminDashboard(ctx, sel, &v)
 }
@@ -5986,6 +7733,156 @@ func (ec *executionContext) unmarshalNAdminDeleteAccountInput2suaybsimsekᚗcom�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNAdminDeletePayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDeletePayload(ctx context.Context, sel ast.SelectionSet, v model.AdminDeletePayload) graphql.Marshaler {
+	return ec._AdminDeletePayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminDeletePayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDeletePayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminDeletePayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminDeletePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminErrorMessage2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessage(ctx context.Context, sel ast.SelectionSet, v model.AdminErrorMessage) graphql.Marshaler {
+	return ec._AdminErrorMessage(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminErrorMessage2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminErrorMessage) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAdminErrorMessage2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessage(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNAdminErrorMessage2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessage(ctx context.Context, sel ast.SelectionSet, v *model.AdminErrorMessage) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminErrorMessage(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminErrorMessageAuditLog2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageAuditLogᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminErrorMessageAuditLog) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAdminErrorMessageAuditLog2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageAuditLog(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNAdminErrorMessageAuditLog2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageAuditLog(ctx context.Context, sel ast.SelectionSet, v *model.AdminErrorMessageAuditLog) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminErrorMessageAuditLog(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAdminErrorMessageKeyInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageKeyInput(ctx context.Context, v any) (model.AdminErrorMessageKeyInput, error) {
+	res, err := ec.unmarshalInputAdminErrorMessageKeyInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNAdminErrorMessageKeyInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageKeyInput(ctx context.Context, v any) (*model.AdminErrorMessageKeyInput, error) {
+	res, err := ec.unmarshalInputAdminErrorMessageKeyInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAdminErrorMessageListPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageListPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminErrorMessageListPayload) graphql.Marshaler {
+	return ec._AdminErrorMessageListPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminErrorMessageListPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageListPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminErrorMessageListPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminErrorMessageListPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNAdminLoginInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminLoginInput(ctx context.Context, v any) (model.AdminLoginInput, error) {
 	res, err := ec.unmarshalInputAdminLoginInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -6099,6 +7996,11 @@ func (ec *executionContext) marshalNAdminSessionRevokePayload2ᚖsuaybsimsekᚗc
 		return graphql.Null
 	}
 	return ec._AdminSessionRevokePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAdminUpdateErrorMessageInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUpdateErrorMessageInput(ctx context.Context, v any) (model.AdminUpdateErrorMessageInput, error) {
+	res, err := ec.unmarshalInputAdminUpdateErrorMessageInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v any) (bool, error) {
@@ -6455,6 +8357,14 @@ func (ec *executionContext) marshalOAdminDashboardCategory2ᚖsuaybsimsekᚗcom�
 	return ec._AdminDashboardCategory(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOAdminErrorMessageFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageFilterInput(ctx context.Context, v any) (*model.AdminErrorMessageFilterInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputAdminErrorMessageFilterInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalOAdminUser2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUser(ctx context.Context, sel ast.SelectionSet, v *model.AdminUser) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -6489,6 +8399,24 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	_ = sel
 	_ = ctx
 	res := graphql.MarshalBoolean(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v any) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalInt(*v)
 	return res
 }
 

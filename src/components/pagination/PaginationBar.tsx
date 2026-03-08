@@ -10,6 +10,7 @@ interface PaginationBarProps {
   totalPages: number;
   totalResults: number;
   size: number;
+  className?: string;
   pageSizeOptions?: number[];
   maxPagesToShow?: number;
   onPageChange: (page: number) => void;
@@ -21,6 +22,7 @@ export default function PaginationBar({
   totalPages,
   totalResults,
   size,
+  className = '',
   pageSizeOptions = [5, 10, 20],
   maxPagesToShow = 5,
   onPageChange,
@@ -32,7 +34,7 @@ export default function PaginationBar({
   const end = Math.min(currentPage * size, totalResults);
 
   return (
-    <Container className="pagination-bar">
+    <Container className={`pagination-bar ${className}`.trim()}>
       <Row className="pagination-grid">
         <Col xs={12} md className="d-flex align-items-center justify-content-center justify-content-md-start">
           <p className="text-muted mb-0 text-nowrap">

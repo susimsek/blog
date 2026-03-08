@@ -17,12 +17,13 @@
       "title": "Ayarlar",
       "copy": "Profilini, hesap işlemlerini, güvenliği ve aktif oturumları yönet.",
       "navLabel": "Ayarlar gezintisi",
-      "profile": "Profil",
-      "account": "Hesap",
-      "appearance": "Görünüm",
-      "sessions": "Oturumlar",
-      "security": "Güvenlik"
-    },
+    "profile": "Profil",
+    "account": "Hesap",
+    "appearance": "Görünüm",
+    "sessions": "Oturumlar",
+    "errors": "Hata mesajları",
+    "security": "Güvenlik"
+  },
     "profile": {
       "title": "Profil",
       "copy": "Yönetici kimliğini ve hesap bilgilerini görüntüle.",
@@ -138,7 +139,7 @@
       "submit": "Parolayı güncelle",
       "submitting": "Parola güncelleniyor..."
     },
-    "sessions": {
+  "sessions": {
       "title": "Aktif oturumlar",
       "copy": "Açık cihaz oturumlarını incele ve güvenmediğin oturumları kapat.",
       "loading": "Aktif oturumlar yükleniyor...",
@@ -164,10 +165,104 @@
       "errors": {
         "load": "Aktif oturumlar şu anda yüklenemiyor.",
         "revokeSingle": "Oturum kapatılamadı.",
-        "revokeAll": "Oturumlar kapatılamadı."
+      "revokeAll": "Oturumlar kapatılamadı."
+    }
+  },
+  "errorsCatalog": {
+    "title": "Hata mesajları",
+    "copy": "Yönetim API hata mesajlarını listele, filtrele, oluştur, güncelle ve sil.",
+    "loading": "Hata mesajları yükleniyor...",
+    "empty": "Seçili filtre için hata mesajı bulunamadı.",
+    "actions": {
+      "refresh": "Yenile",
+      "create": "Oluştur",
+      "creating": "Oluşturuluyor...",
+      "update": "Güncelle",
+      "updating": "Güncelleniyor...",
+      "delete": "Sil",
+      "deleting": "Siliniyor...",
+      "confirmDelete": "{{code}} ({{locale}}) silinsin mi?"
+    },
+    "filters": {
+      "locale": "Dil",
+      "query": "Ara",
+      "queryPlaceholder": "Kod veya mesaja göre ara",
+      "locales": {
+        "all": "Tüm diller",
+        "en": "İngilizce",
+        "tr": "Türkçe"
       }
     },
-    "validation": {
+    "tabs": {
+      "create": "Oluştur",
+      "update": "Güncelle"
+    },
+    "deleteConfirm": {
+      "title": "Hata mesajını sil"
+    },
+    "list": {
+      "updatedAt": "Güncelleme: {{value}}"
+    },
+    "create": {
+      "copy": "Koda bağlı yeni yerelleştirilmiş hata mesajı ekle.",
+      "locale": "Dil",
+      "code": "Kod",
+      "codePlaceholder": "Örnek: INVALID_CREDENTIALS",
+      "codeValidation": "Yalnızca büyük harf, rakam ve alt çizgi kullan (2-120 karakter).",
+      "message": "Mesaj",
+      "messageHint": "En fazla {{count}} karakter."
+    },
+    "update": {
+      "copy": "Seçili mesajı güncelle veya sil.",
+      "empty": "Düzenlemek için bir hata mesajı seç.",
+      "notAvailable": "Bulunmuyor",
+      "message": "Mesaj",
+      "messageHint": "En fazla {{count}} karakter.",
+      "labels": {
+        "code": "Kod",
+        "scope": "Kapsam",
+        "locale": "Dil",
+        "updatedAt": "Güncellenme"
+      }
+    },
+    "success": {
+      "created": "Hata mesajı oluşturuldu.",
+      "updated": "Hata mesajı güncellendi.",
+      "deleted": "Hata mesajı silindi."
+    },
+    "errors": {
+      "load": "Hata mesajları yüklenemedi.",
+      "create": "Hata mesajı oluşturulamadı.",
+      "update": "Hata mesajı güncellenemedi.",
+      "delete": "Hata mesajı silinemedi."
+    },
+    "audit": {
+      "title": "Denetim kaydı",
+      "copy": "Her oluşturma, güncelleme ve silme işlemi kayıt altına alınır.",
+      "loading": "Denetim kaydı yükleniyor...",
+      "empty": "Denetim kaydı bulunamadı.",
+      "columns": {
+        "createdAt": "Zaman",
+        "actor": "Kullanıcı",
+        "action": "İşlem",
+        "code": "Kod",
+        "status": "Durum"
+      },
+      "actions": {
+        "created": "Oluşturuldu",
+        "updated": "Güncellendi",
+        "deleted": "Silindi"
+      },
+      "statuses": {
+        "success": "Başarılı",
+        "failed": "Başarısız"
+      },
+      "errors": {
+        "load": "Denetim kaydı yüklenemedi."
+      }
+    }
+  },
+  "validation": {
       "currentPasswordRequired": "Mevcut parolanı gir.",
       "newPasswordRequired": "Yeni parola gir.",
       "newPasswordMin": "En az {{count}} karakter kullan.",

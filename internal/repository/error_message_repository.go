@@ -19,6 +19,7 @@ import (
 type ErrorMessageRepository interface {
 	ListByScope(ctx context.Context, scope string) ([]domain.ErrorMessageRecord, error)
 	UpsertMany(ctx context.Context, records []domain.ErrorMessageRecord) error
+	DeleteByKey(ctx context.Context, scope, locale, code string) (bool, error)
 }
 
 var ErrErrorMessageRepositoryUnavailable = errors.New("error message repository unavailable")
@@ -143,6 +144,31 @@ func (*errorMessageMongoRepository) UpsertMany(ctx context.Context, records []do
 
 	_, err = collection.BulkWrite(ctx, models, options.BulkWrite().SetOrdered(false))
 	return err
+}
+
+func (*errorMessageMongoRepository) DeleteByKey(ctx context.Context, scope, locale, code string) (bool, error) {
+	collection, err := getErrorMessagesCollection()
+	if err != nil {
+		return false, fmt.Errorf(errorMessageUnavailableErrorFormat, ErrErrorMessageRepositoryUnavailable, err)
+	}
+
+	resolvedScope := strings.TrimSpace(scope)
+	resolvedLocale := strings.TrimSpace(strings.ToLower(locale))
+	resolvedCode := strings.TrimSpace(strings.ToUpper(code))
+	if resolvedScope == "" || resolvedLocale == "" || resolvedCode == "" {
+		return false, errors.New("invalid error message key")
+	}
+
+	result, err := collection.DeleteOne(ctx, bson.M{
+		"scope":  resolvedScope,
+		"locale": resolvedLocale,
+		"code":   resolvedCode,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return result.DeletedCount > 0, nil
 }
 
 func getErrorMessageMongoClient() (*mongo.Client, error) {

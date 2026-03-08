@@ -138,6 +138,14 @@ func lookupAdminErrorMessage(catalog map[string]map[string]string, locale, code 
 	return strings.TrimSpace(localeCatalog[code])
 }
 
+func InvalidateAdminErrorCatalogCache() {
+	adminErrorCatalogMu.Lock()
+	defer adminErrorCatalogMu.Unlock()
+
+	adminErrorCatalogCache = nil
+	adminErrorCatalogExpiry = time.Time{}
+}
+
 func cloneAdminErrorCatalog(source map[string]map[string]string) map[string]map[string]string {
 	cloned := make(map[string]map[string]string, len(source))
 	for locale, items := range source {

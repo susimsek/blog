@@ -28,6 +28,10 @@ func (stubErrorMessageRepository) UpsertMany(context.Context, []domain.ErrorMess
 	return nil
 }
 
+func (stubErrorMessageRepository) DeleteByKey(context.Context, string, string, string) (bool, error) {
+	return false, nil
+}
+
 func TestResolveAdminErrorMessageUsesLocaleDefaults(t *testing.T) {
 	t.Parallel()
 

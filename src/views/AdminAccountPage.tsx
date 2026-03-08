@@ -11,18 +11,25 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import PaginationBar from '@/components/pagination/PaginationBar';
+import FlagIcon from '@/components/common/FlagIcon';
 import {
   changeAdminAvatar,
   changeAdminName,
   changeAdminPassword,
   changeAdminUsername,
+  createAdminErrorMessage,
+  deleteAdminErrorMessage,
   deleteAdminAccount,
   fetchAdminActiveSessions,
+  fetchAdminErrorMessages,
   fetchAdminMe,
   isAdminSessionError,
   resolveAdminError,
   revokeAdminSession,
   revokeAllAdminSessions,
+  updateAdminErrorMessage,
+  type AdminErrorMessageItem,
 } from '@/lib/adminApi';
 import { withAdminAvatarSize } from '@/lib/adminAvatar';
 import { defaultLocale } from '@/i18n/settings';
@@ -30,10 +37,10 @@ import AdminLoadingState from '@/components/admin/AdminLoadingState';
 import Link from '@/components/common/Link';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { resetToSystemTheme, setTheme, type Theme } from '@/reducers/theme';
-import { THEMES } from '@/config/constants';
+import { LOCALES, THEMES } from '@/config/constants';
 
 type AdminAccountPageProps = {
-  section: 'profile' | 'account' | 'appearance' | 'sessions' | 'security';
+  section: 'profile' | 'account' | 'appearance' | 'sessions' | 'security' | 'errors';
 };
 
 type AdminIdentity = {
@@ -65,6 +72,7 @@ const MIN_USERNAME_LENGTH = 3;
 const MAX_USERNAME_LENGTH = 32;
 const DELETE_CONFIRMATION_VALUE = 'DELETE';
 const USERNAME_PATTERN = /^[A-Za-z0-9._-]+$/;
+const ERROR_MESSAGE_CODE_PATTERN = /^[A-Z0-9_]{2,120}$/;
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 const MAX_AVATAR_FILE_BYTES = 2 * 1024 * 1024;
 const MAX_AVATAR_FILE_SIZE_MB = Math.floor(MAX_AVATAR_FILE_BYTES / (1024 * 1024));
@@ -272,6 +280,9 @@ const resolveAppearanceMetaIcon = (value: Theme | 'system') => {
   }
 };
 
+const toAdminErrorMessageKey = (item: Pick<AdminErrorMessageItem, 'scope' | 'locale' | 'code'>) =>
+  `${item.scope}|${item.locale}|${item.code}`;
+
 export default function AdminAccountPage({ section }: Readonly<AdminAccountPageProps>) {
   const { t } = useTranslation(['admin-account', 'admin-common']);
   const dispatch = useAppDispatch();
@@ -284,6 +295,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const isAppearanceSection = section === 'appearance';
   const isSessionsSection = section === 'sessions';
   const isSecuritySection = section === 'security';
+  const isErrorsSection = section === 'errors';
 
   const [adminUser, setAdminUser] = React.useState<AdminIdentity>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -310,6 +322,26 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const [sessionSuccessMessage, setSessionSuccessMessage] = React.useState('');
   const [revokingSessionID, setRevokingSessionID] = React.useState('');
   const [isRevokingAllSessions, setIsRevokingAllSessions] = React.useState(false);
+  const [errorMessages, setErrorMessages] = React.useState<AdminErrorMessageItem[]>([]);
+  const [isErrorMessagesLoading, setIsErrorMessagesLoading] = React.useState(isErrorsSection);
+  const [errorMessagesErrorMessage, setErrorMessagesErrorMessage] = React.useState('');
+  const [errorMessagesSuccessMessage, setErrorMessagesSuccessMessage] = React.useState('');
+  const [errorFilterLocale, setErrorFilterLocale] = React.useState<'all' | 'en' | 'tr'>('all');
+  const [errorFilterQuery, setErrorFilterQuery] = React.useState('');
+  const [errorFilterQueryDebounced, setErrorFilterQueryDebounced] = React.useState('');
+  const [errorCrudTab, setErrorCrudTab] = React.useState<'create' | 'update'>('update');
+  const [isErrorEditorModalOpen, setIsErrorEditorModalOpen] = React.useState(false);
+  const [selectedErrorMessageKey, setSelectedErrorMessageKey] = React.useState('');
+  const [errorMessagesPage, setErrorMessagesPage] = React.useState(1);
+  const [errorMessagesPageSize, setErrorMessagesPageSize] = React.useState(5);
+  const [errorCreateLocale, setErrorCreateLocale] = React.useState<'en' | 'tr'>('en');
+  const [errorCreateCode, setErrorCreateCode] = React.useState('');
+  const [errorCreateMessage, setErrorCreateMessage] = React.useState('');
+  const [isErrorCreateSubmitting, setIsErrorCreateSubmitting] = React.useState(false);
+  const [errorUpdateMessage, setErrorUpdateMessage] = React.useState('');
+  const [isErrorUpdateSubmitting, setIsErrorUpdateSubmitting] = React.useState(false);
+  const [isErrorDeleteSubmitting, setIsErrorDeleteSubmitting] = React.useState(false);
+  const [pendingErrorMessageDelete, setPendingErrorMessageDelete] = React.useState<AdminErrorMessageItem | null>(null);
 
   const [usernameInput, setUsernameInput] = React.useState('');
   const [isUsernameSubmitting, setIsUsernameSubmitting] = React.useState(false);
@@ -339,6 +371,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const [isAvatarCropDragging, setIsAvatarCropDragging] = React.useState(false);
   const [isAvatarCropResizing, setIsAvatarCropResizing] = React.useState(false);
   const avatarCropStageRef = React.useRef<HTMLDivElement | null>(null);
+  const errorMessagesListTopRef = React.useRef<HTMLDivElement | null>(null);
   const avatarCropDragRef = React.useRef<{
     pointerId: number;
     startClientX: number;
@@ -348,6 +381,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   } | null>(null);
   const avatarCropResizeRef = React.useRef<AvatarCropResizeState | null>(null);
   const avatarFileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const selectedErrorMessageKeyRef = React.useRef('');
 
   const [deleteCurrentPassword, setDeleteCurrentPassword] = React.useState('');
   const [deleteConfirmation, setDeleteConfirmation] = React.useState('');
@@ -522,6 +556,38 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     };
   }, [avatarSuccessMessage]);
 
+  React.useEffect(() => {
+    const timeoutID = globalThis.setTimeout(() => {
+      setErrorFilterQueryDebounced(errorFilterQuery.trim());
+    }, 220);
+
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [errorFilterQuery]);
+
+  React.useEffect(() => {
+    if (!errorMessagesSuccessMessage) {
+      return;
+    }
+
+    const timeoutID = globalThis.setTimeout(() => {
+      setErrorMessagesSuccessMessage('');
+    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [errorMessagesSuccessMessage]);
+
+  React.useEffect(() => {
+    selectedErrorMessageKeyRef.current = selectedErrorMessageKey;
+  }, [selectedErrorMessageKey]);
+
+  React.useEffect(() => {
+    setErrorMessagesPage(1);
+  }, [errorFilterLocale, errorFilterQueryDebounced]);
+
   React.useEffect(
     () => () => {
       if (avatarCropSource) {
@@ -600,6 +666,36 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const showDeletePasswordError = deleteSubmitted && deletePasswordError !== '';
   const showDeleteConfirmError = deleteSubmitted && deleteConfirmError !== '';
   const activeAppearance = hasExplicitTheme ? selectedTheme : 'system';
+  const selectedErrorMessage = React.useMemo(
+    () => errorMessages.find(item => toAdminErrorMessageKey(item) === selectedErrorMessageKey) ?? null,
+    [errorMessages, selectedErrorMessageKey],
+  );
+  const totalErrorMessages = errorMessages.length;
+  const totalErrorMessagePages = Math.max(1, Math.ceil(totalErrorMessages / errorMessagesPageSize));
+  const pagedErrorMessages = React.useMemo(() => {
+    const startIndex = (errorMessagesPage - 1) * errorMessagesPageSize;
+    return errorMessages.slice(startIndex, startIndex + errorMessagesPageSize);
+  }, [errorMessages, errorMessagesPage, errorMessagesPageSize]);
+  React.useEffect(() => {
+    if (errorMessagesPage > totalErrorMessagePages) {
+      setErrorMessagesPage(totalErrorMessagePages);
+    }
+  }, [errorMessagesPage, totalErrorMessagePages]);
+  const normalizedErrorCreateCode = errorCreateCode.trim().toUpperCase();
+  const normalizedErrorCreateMessage = errorCreateMessage.trim();
+  const normalizedErrorUpdateMessage = errorUpdateMessage.trim();
+  const isErrorCreateCodeValid = ERROR_MESSAGE_CODE_PATTERN.test(normalizedErrorCreateCode);
+  const canCreateErrorMessage =
+    normalizedErrorCreateCode !== '' &&
+    isErrorCreateCodeValid &&
+    normalizedErrorCreateMessage !== '' &&
+    !isErrorCreateSubmitting;
+  const canUpdateErrorMessage =
+    selectedErrorMessage !== null &&
+    normalizedErrorUpdateMessage !== '' &&
+    normalizedErrorUpdateMessage !== selectedErrorMessage.message &&
+    !isErrorUpdateSubmitting &&
+    !isErrorDeleteSubmitting;
   const avatarCropDisplayWidth = avatarCropImageSize.width * avatarCropZoom;
   const avatarCropDisplayHeight = avatarCropImageSize.height * avatarCropZoom;
   const avatarCropImageStyle = React.useMemo<React.CSSProperties>(
@@ -860,6 +956,254 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     },
     [sessionDateFormatter],
   );
+
+  const loadAdminErrorMessages = React.useCallback(async () => {
+    if (!isErrorsSection || !adminUser) {
+      return;
+    }
+
+    setIsErrorMessagesLoading(true);
+    setErrorMessagesErrorMessage('');
+
+    try {
+      const payload = await fetchAdminErrorMessages({
+        locale: errorFilterLocale === 'all' ? undefined : errorFilterLocale,
+        query: errorFilterQueryDebounced,
+      });
+
+      const items = payload.items ?? [];
+      setErrorMessages(items);
+
+      const currentSelectedKey = selectedErrorMessageKeyRef.current;
+      const hasCurrentSelection = items.some(item => toAdminErrorMessageKey(item) === currentSelectedKey);
+      const nextSelectedKey = hasCurrentSelection
+        ? currentSelectedKey
+        : items[0]
+          ? toAdminErrorMessageKey(items[0])
+          : '';
+      setSelectedErrorMessageKey(nextSelectedKey);
+      selectedErrorMessageKeyRef.current = nextSelectedKey;
+
+      const nextSelectedItem = items.find(item => toAdminErrorMessageKey(item) === nextSelectedKey) ?? null;
+      setErrorUpdateMessage((nextSelectedItem?.message ?? '').trim());
+      setErrorMessagesErrorMessage('');
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        router.replace(`/${locale}/admin/login`);
+        return;
+      }
+      const resolvedError = resolveAdminError(error);
+      setErrorMessagesErrorMessage(
+        resolvedError.kind === 'network'
+          ? t('adminCommon.errors.network', { ns: 'admin-common' })
+          : resolvedError.message || t('adminAccount.errorsCatalog.errors.load', { ns: 'admin-account' }),
+      );
+    } finally {
+      setIsErrorMessagesLoading(false);
+    }
+  }, [adminUser, errorFilterLocale, errorFilterQueryDebounced, isErrorsSection, locale, router, t]);
+
+  React.useEffect(() => {
+    if (!isErrorsSection || !adminUser) {
+      return;
+    }
+
+    void loadAdminErrorMessages();
+  }, [adminUser, isErrorsSection, loadAdminErrorMessages]);
+
+  const handleSelectErrorMessage = React.useCallback(
+    (item: AdminErrorMessageItem) => {
+      const key = toAdminErrorMessageKey(item);
+      setSelectedErrorMessageKey(key);
+      setErrorCrudTab('update');
+      setErrorUpdateMessage(item.message.trim());
+      const selectedIndex = errorMessages.findIndex(candidate => toAdminErrorMessageKey(candidate) === key);
+      if (selectedIndex >= 0) {
+        setErrorMessagesPage(Math.floor(selectedIndex / errorMessagesPageSize) + 1);
+      }
+      setErrorMessagesSuccessMessage('');
+      setErrorMessagesErrorMessage('');
+    },
+    [errorMessages, errorMessagesPageSize],
+  );
+
+  const scrollToErrorMessagesListStart = React.useCallback(() => {
+    const target = errorMessagesListTopRef.current;
+    if (!target) {
+      return;
+    }
+
+    const currentWindow = globalThis.window;
+    const prefersReducedMotion = currentWindow?.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
+    target.scrollIntoView({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  }, []);
+
+  const handleCreateErrorMessageSubmit = React.useCallback(async () => {
+    if (!canCreateErrorMessage) {
+      return;
+    }
+
+    setIsErrorCreateSubmitting(true);
+    setErrorMessagesErrorMessage('');
+    setErrorMessagesSuccessMessage('');
+
+    try {
+      const created = await createAdminErrorMessage({
+        key: {
+          scope: 'admin_graphql',
+          locale: errorCreateLocale,
+          code: normalizedErrorCreateCode,
+        },
+        message: normalizedErrorCreateMessage,
+      });
+
+      const createdKey = toAdminErrorMessageKey(created);
+      setSelectedErrorMessageKey(createdKey);
+      selectedErrorMessageKeyRef.current = createdKey;
+      await loadAdminErrorMessages();
+      setErrorCrudTab('update');
+      setErrorCreateCode('');
+      setErrorCreateMessage('');
+      setErrorMessagesSuccessMessage(t('adminAccount.errorsCatalog.success.created', { ns: 'admin-account' }));
+      setIsErrorEditorModalOpen(false);
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        router.replace(`/${locale}/admin/login`);
+        return;
+      }
+      const resolvedError = resolveAdminError(error);
+      setErrorMessagesErrorMessage(
+        resolvedError.kind === 'network'
+          ? t('adminCommon.errors.network', { ns: 'admin-common' })
+          : resolvedError.message || t('adminAccount.errorsCatalog.errors.create', { ns: 'admin-account' }),
+      );
+    } finally {
+      setIsErrorCreateSubmitting(false);
+    }
+  }, [
+    canCreateErrorMessage,
+    errorCreateLocale,
+    loadAdminErrorMessages,
+    locale,
+    normalizedErrorCreateCode,
+    normalizedErrorCreateMessage,
+    router,
+    t,
+  ]);
+
+  const handleUpdateErrorMessageSubmit = React.useCallback(async () => {
+    if (!selectedErrorMessage || !canUpdateErrorMessage) {
+      return;
+    }
+
+    setIsErrorUpdateSubmitting(true);
+    setErrorMessagesErrorMessage('');
+    setErrorMessagesSuccessMessage('');
+
+    try {
+      await updateAdminErrorMessage({
+        key: {
+          scope: selectedErrorMessage.scope,
+          locale: selectedErrorMessage.locale,
+          code: selectedErrorMessage.code,
+        },
+        message: normalizedErrorUpdateMessage,
+      });
+      await loadAdminErrorMessages();
+      setErrorMessagesSuccessMessage(t('adminAccount.errorsCatalog.success.updated', { ns: 'admin-account' }));
+      setIsErrorEditorModalOpen(false);
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        router.replace(`/${locale}/admin/login`);
+        return;
+      }
+      const resolvedError = resolveAdminError(error);
+      setErrorMessagesErrorMessage(
+        resolvedError.kind === 'network'
+          ? t('adminCommon.errors.network', { ns: 'admin-common' })
+          : resolvedError.message || t('adminAccount.errorsCatalog.errors.update', { ns: 'admin-account' }),
+      );
+    } finally {
+      setIsErrorUpdateSubmitting(false);
+    }
+  }, [
+    canUpdateErrorMessage,
+    loadAdminErrorMessages,
+    locale,
+    normalizedErrorUpdateMessage,
+    router,
+    selectedErrorMessage,
+    t,
+  ]);
+
+  const openDeleteErrorMessageConfirm = React.useCallback(
+    (targetItem?: AdminErrorMessageItem) => {
+      const item = targetItem ?? selectedErrorMessage;
+      if (!item || isErrorDeleteSubmitting || isErrorUpdateSubmitting) {
+        return;
+      }
+
+      setPendingErrorMessageDelete(item);
+    },
+    [isErrorDeleteSubmitting, isErrorUpdateSubmitting, selectedErrorMessage],
+  );
+
+  const handleDeleteErrorMessageSubmit = React.useCallback(async () => {
+    const item = pendingErrorMessageDelete;
+    if (!item || isErrorDeleteSubmitting || isErrorUpdateSubmitting) {
+      return;
+    }
+
+    setIsErrorDeleteSubmitting(true);
+    setErrorMessagesErrorMessage('');
+    setErrorMessagesSuccessMessage('');
+
+    try {
+      const selectedKey = toAdminErrorMessageKey(item);
+      const deleted = await deleteAdminErrorMessage({
+        scope: item.scope,
+        locale: item.locale,
+        code: item.code,
+      });
+      if (!deleted) {
+        throw new Error(t('adminAccount.errorsCatalog.errors.delete', { ns: 'admin-account' }));
+      }
+
+      if (selectedErrorMessageKeyRef.current === selectedKey) {
+        selectedErrorMessageKeyRef.current = '';
+        setSelectedErrorMessageKey('');
+      }
+      await loadAdminErrorMessages();
+      setErrorMessagesSuccessMessage(t('adminAccount.errorsCatalog.success.deleted', { ns: 'admin-account' }));
+      setIsErrorEditorModalOpen(false);
+      setPendingErrorMessageDelete(null);
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        router.replace(`/${locale}/admin/login`);
+        return;
+      }
+      const resolvedError = resolveAdminError(error);
+      setErrorMessagesErrorMessage(
+        resolvedError.kind === 'network'
+          ? t('adminCommon.errors.network', { ns: 'admin-common' })
+          : resolvedError.message || t('adminAccount.errorsCatalog.errors.delete', { ns: 'admin-account' }),
+      );
+    } finally {
+      setIsErrorDeleteSubmitting(false);
+    }
+  }, [
+    isErrorDeleteSubmitting,
+    isErrorUpdateSubmitting,
+    loadAdminErrorMessages,
+    locale,
+    pendingErrorMessageDelete,
+    router,
+    t,
+  ]);
 
   const handleRevokeSession = React.useCallback(
     async (sessionItem: AdminSession) => {
@@ -1384,6 +1728,17 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
             </span>
             <span className="admin-settings-nav-label">
               {t('adminAccount.settings.sessions', { ns: 'admin-account' })}
+            </span>
+          </Link>
+          <Link
+            href="/admin/settings/errors"
+            className={`admin-settings-nav-link${isErrorsSection ? ' is-active' : ''}`}
+          >
+            <span className="admin-settings-nav-icon" aria-hidden="true">
+              <FontAwesomeIcon icon="exclamation-triangle" fixedWidth />
+            </span>
+            <span className="admin-settings-nav-label">
+              {t('adminAccount.settings.errors', { ns: 'admin-account' })}
             </span>
           </Link>
           <Link
@@ -2055,6 +2410,549 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                       ))}
                     </div>
                   )}
+                </>
+              ) : null}
+
+              {isErrorsSection ? (
+                <>
+                  <h3 className="admin-dashboard-panel-title mb-3">
+                    {t('adminAccount.errorsCatalog.title', { ns: 'admin-account' })}
+                  </h3>
+                  <p className="admin-dashboard-panel-copy mb-3">
+                    {t('adminAccount.errorsCatalog.copy', { ns: 'admin-account' })}
+                  </p>
+
+                  <div className="d-flex mb-3">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="d-inline-flex align-items-center"
+                      disabled={isErrorMessagesLoading || isErrorCreateSubmitting}
+                      onClick={() => {
+                        setErrorCrudTab('create');
+                        setErrorMessagesErrorMessage('');
+                        setErrorMessagesSuccessMessage('');
+                        setIsErrorEditorModalOpen(true);
+                      }}
+                    >
+                      <FontAwesomeIcon icon="plus" className="me-2" />
+                      {t('adminAccount.errorsCatalog.actions.create', { ns: 'admin-account' })}
+                    </Button>
+                  </div>
+
+                  {errorMessagesErrorMessage ? (
+                    <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
+                      {errorMessagesErrorMessage}
+                    </Alert>
+                  ) : null}
+                  {errorMessagesSuccessMessage ? (
+                    <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
+                      {errorMessagesSuccessMessage}
+                    </Alert>
+                  ) : null}
+
+                  <div className="d-grid gap-3">
+                    <div ref={errorMessagesListTopRef} />
+                    <div className="card shadow-sm d-block">
+                      <div className="card-body p-3 w-100">
+                        <div className="row g-3">
+                          <div className="col-12 col-md-4">
+                            <Form.Group controlId="admin-error-filter-locale">
+                              <Form.Label className="small fw-semibold mb-1">
+                                {t('adminAccount.errorsCatalog.filters.locale', { ns: 'admin-account' })}
+                              </Form.Label>
+                              <Form.Select
+                                value={errorFilterLocale}
+                                onChange={event => {
+                                  setErrorFilterLocale(event.currentTarget.value as 'all' | 'en' | 'tr');
+                                  setErrorMessagesErrorMessage('');
+                                  setErrorMessagesSuccessMessage('');
+                                }}
+                              >
+                                <option value="all">
+                                  {t('adminAccount.errorsCatalog.filters.locales.all', { ns: 'admin-account' })}
+                                </option>
+                                <option value="en">
+                                  {t('adminAccount.errorsCatalog.filters.locales.en', { ns: 'admin-account' })}
+                                </option>
+                                <option value="tr">
+                                  {t('adminAccount.errorsCatalog.filters.locales.tr', { ns: 'admin-account' })}
+                                </option>
+                              </Form.Select>
+                            </Form.Group>
+                          </div>
+                          <div className="col-12 col-md-8">
+                            <Form.Group controlId="admin-error-filter-query">
+                              <Form.Label className="small fw-semibold mb-1">
+                                {t('adminAccount.errorsCatalog.filters.query', { ns: 'admin-account' })}
+                              </Form.Label>
+                              <div className="search-bar w-100 d-flex align-items-center">
+                                <div className="search-icon">
+                                  <FontAwesomeIcon icon="search" />
+                                </div>
+                                <Form.Control
+                                  type="text"
+                                  className="search-input form-control"
+                                  value={errorFilterQuery}
+                                  onChange={event => {
+                                    setErrorFilterQuery(event.currentTarget.value);
+                                    setErrorMessagesErrorMessage('');
+                                  }}
+                                  placeholder={t('adminAccount.errorsCatalog.filters.queryPlaceholder', {
+                                    ns: 'admin-account',
+                                  })}
+                                />
+                                {errorFilterQuery ? (
+                                  <button
+                                    type="button"
+                                    className="search-clear-btn border-0 bg-transparent"
+                                    onClick={() => {
+                                      setErrorFilterQuery('');
+                                      setErrorMessagesErrorMessage('');
+                                    }}
+                                    aria-label={t('adminAccount.errorsCatalog.filters.query', { ns: 'admin-account' })}
+                                  >
+                                    <FontAwesomeIcon icon="times-circle" className="clear-icon" />
+                                  </button>
+                                ) : null}
+                              </div>
+                            </Form.Group>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="card shadow-sm d-block">
+                      <div className="card-body p-3 w-100">
+                        {isErrorMessagesLoading ? (
+                          <div className="admin-account-sessions-loading">
+                            <AdminLoadingState
+                              className="admin-loading-stack"
+                              ariaLabel={t('adminAccount.errorsCatalog.loading', { ns: 'admin-account' })}
+                            />
+                          </div>
+                        ) : errorMessages.length === 0 ? (
+                          <p className="small text-muted mb-0">
+                            {t('adminAccount.errorsCatalog.empty', { ns: 'admin-account' })}
+                          </p>
+                        ) : (
+                          <>
+                            <div className="d-grid gap-2">
+                              {pagedErrorMessages.map(item => {
+                                const itemKey = toAdminErrorMessageKey(item);
+                                const previewMessage = item.message;
+
+                                return (
+                                  <div key={itemKey} className="border rounded-3 p-3">
+                                    <button
+                                      type="button"
+                                      className="btn btn-link p-0 text-start text-reset text-decoration-none w-100"
+                                      onClick={() => {
+                                        handleSelectErrorMessage(item);
+                                      }}
+                                    >
+                                      <div className="fw-bold fs-5 text-break">{item.code}</div>
+                                      <div className="mt-2 d-flex align-items-center flex-wrap gap-2">
+                                        <span className="d-inline-flex align-items-center gap-2 text-muted">
+                                          {item.locale.toLowerCase() === 'en' || item.locale.toLowerCase() === 'tr' ? (
+                                            <FlagIcon
+                                              className="flex-shrink-0"
+                                              code={item.locale.toLowerCase()}
+                                              alt={`${LOCALES[item.locale.toLowerCase() as 'en' | 'tr'].name} flag`}
+                                              width={18}
+                                              height={18}
+                                            />
+                                          ) : (
+                                            <FontAwesomeIcon icon="globe" className="text-muted" />
+                                          )}
+                                          <span>
+                                            {item.locale.toLowerCase() === 'en'
+                                              ? LOCALES.en.name
+                                              : item.locale.toLowerCase() === 'tr'
+                                                ? LOCALES.tr.name
+                                                : item.locale.toUpperCase()}
+                                          </span>
+                                        </span>
+                                      </div>
+                                      <div className="small mt-2 text-break text-muted">{previewMessage}</div>
+                                      {item.updatedAt ? (
+                                        <div className="small mt-2 text-muted d-flex align-items-center flex-wrap">
+                                          <FontAwesomeIcon icon="calendar-alt" className="me-2" />
+                                          {t('adminAccount.errorsCatalog.list.updatedAt', {
+                                            ns: 'admin-account',
+                                            value: formatSessionDate(item.updatedAt),
+                                          })}
+                                        </div>
+                                      ) : null}
+                                    </button>
+
+                                    <div className="row g-2 mt-3">
+                                      <div className="col-12 col-md-auto">
+                                        <Button
+                                          type="button"
+                                          size="sm"
+                                          variant="primary"
+                                          className="w-100"
+                                          onClick={() => {
+                                            handleSelectErrorMessage(item);
+                                            setErrorCrudTab('update');
+                                            setIsErrorEditorModalOpen(true);
+                                          }}
+                                        >
+                                          <FontAwesomeIcon icon="save" className="me-2" />
+                                          {t('adminAccount.errorsCatalog.actions.update', { ns: 'admin-account' })}
+                                        </Button>
+                                      </div>
+                                      <div className="col-12 col-md-auto">
+                                        <Button
+                                          type="button"
+                                          size="sm"
+                                          variant="danger"
+                                          className="w-100"
+                                          disabled={isErrorDeleteSubmitting || isErrorUpdateSubmitting}
+                                          onClick={() => {
+                                            handleSelectErrorMessage(item);
+                                            openDeleteErrorMessageConfirm(item);
+                                          }}
+                                        >
+                                          {!isErrorDeleteSubmitting ? (
+                                            <FontAwesomeIcon icon="trash" className="me-2" />
+                                          ) : null}
+                                          {isErrorDeleteSubmitting ? (
+                                            <span className="d-inline-flex align-items-center gap-2">
+                                              <Spinner
+                                                as="span"
+                                                animation="border"
+                                                size="sm"
+                                                className="me-2 flex-shrink-0 admin-action-spinner"
+                                                aria-hidden="true"
+                                              />
+                                              <span>
+                                                {t('adminAccount.errorsCatalog.actions.deleting', {
+                                                  ns: 'admin-account',
+                                                })}
+                                              </span>
+                                            </span>
+                                          ) : (
+                                            t('adminAccount.errorsCatalog.actions.delete', { ns: 'admin-account' })
+                                          )}
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      {!isErrorMessagesLoading && errorMessages.length > 0 ? (
+                        <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top border-bottom">
+                          <PaginationBar
+                            className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"
+                            currentPage={errorMessagesPage}
+                            totalPages={totalErrorMessagePages}
+                            totalResults={totalErrorMessages}
+                            size={errorMessagesPageSize}
+                            onPageChange={page => {
+                              setErrorMessagesPage(page);
+                              scrollToErrorMessagesListStart();
+                            }}
+                            onSizeChange={size => {
+                              setErrorMessagesPageSize(size);
+                              setErrorMessagesPage(1);
+                              scrollToErrorMessagesListStart();
+                            }}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  <Modal
+                    show={isErrorEditorModalOpen}
+                    onHide={() => {
+                      if (isErrorCreateSubmitting || isErrorUpdateSubmitting || isErrorDeleteSubmitting) {
+                        return;
+                      }
+                      setIsErrorEditorModalOpen(false);
+                    }}
+                    centered
+                    dialogClassName="admin-error-editor-modal"
+                  >
+                    <Modal.Header closeButton>
+                      <Modal.Title>
+                        {errorCrudTab === 'create'
+                          ? t('adminAccount.errorsCatalog.tabs.create', { ns: 'admin-account' })
+                          : t('adminAccount.errorsCatalog.tabs.update', { ns: 'admin-account' })}
+                      </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                      {errorCrudTab === 'create' ? (
+                        <>
+                          <p className="small text-muted mb-3">
+                            {t('adminAccount.errorsCatalog.create.copy', { ns: 'admin-account' })}
+                          </p>
+                          <div className="row g-2 mb-3">
+                            <div className="col-12 col-sm-4">
+                              <Form.Group controlId="admin-error-create-locale">
+                                <Form.Label className="small fw-semibold mb-1">
+                                  {t('adminAccount.errorsCatalog.create.locale', { ns: 'admin-account' })}
+                                </Form.Label>
+                                <Form.Select
+                                  value={errorCreateLocale}
+                                  onChange={event => {
+                                    setErrorCreateLocale(event.currentTarget.value as 'en' | 'tr');
+                                    setErrorMessagesErrorMessage('');
+                                    setErrorMessagesSuccessMessage('');
+                                  }}
+                                >
+                                  <option value="en">
+                                    {t('adminAccount.errorsCatalog.filters.locales.en', { ns: 'admin-account' })}
+                                  </option>
+                                  <option value="tr">
+                                    {t('adminAccount.errorsCatalog.filters.locales.tr', { ns: 'admin-account' })}
+                                  </option>
+                                </Form.Select>
+                              </Form.Group>
+                            </div>
+                            <div className="col-12 col-sm-8">
+                              <Form.Group controlId="admin-error-create-code">
+                                <Form.Label className="small fw-semibold mb-1">
+                                  {t('adminAccount.errorsCatalog.create.code', { ns: 'admin-account' })}
+                                </Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  value={errorCreateCode}
+                                  placeholder={t('adminAccount.errorsCatalog.create.codePlaceholder', {
+                                    ns: 'admin-account',
+                                  })}
+                                  onChange={event => {
+                                    setErrorCreateCode(event.currentTarget.value);
+                                    setErrorMessagesErrorMessage('');
+                                    setErrorMessagesSuccessMessage('');
+                                  }}
+                                  autoCapitalize="characters"
+                                  maxLength={120}
+                                />
+                                {normalizedErrorCreateCode !== '' && !isErrorCreateCodeValid ? (
+                                  <Form.Text className="text-danger">
+                                    {t('adminAccount.errorsCatalog.create.codeValidation', { ns: 'admin-account' })}
+                                  </Form.Text>
+                                ) : null}
+                              </Form.Group>
+                            </div>
+                          </div>
+
+                          <Form.Group controlId="admin-error-create-message">
+                            <Form.Label>
+                              {t('adminAccount.errorsCatalog.create.message', { ns: 'admin-account' })}
+                            </Form.Label>
+                            <Form.Control
+                              as="textarea"
+                              rows={5}
+                              value={errorCreateMessage}
+                              onChange={event => {
+                                setErrorCreateMessage(event.currentTarget.value);
+                                setErrorMessagesErrorMessage('');
+                                setErrorMessagesSuccessMessage('');
+                              }}
+                              maxLength={500}
+                            />
+                            <Form.Text className="text-muted">
+                              {t('adminAccount.errorsCatalog.create.messageHint', { ns: 'admin-account', count: 500 })}
+                            </Form.Text>
+                          </Form.Group>
+                        </>
+                      ) : selectedErrorMessage ? (
+                        <>
+                          <p className="small text-muted mb-3">
+                            {t('adminAccount.errorsCatalog.update.copy', { ns: 'admin-account' })}
+                          </p>
+                          <dl className="row mb-3 small">
+                            <dt className="col-4 text-uppercase text-muted">
+                              {t('adminAccount.errorsCatalog.update.labels.code', { ns: 'admin-account' })}
+                            </dt>
+                            <dd className="col-8 mb-2">{selectedErrorMessage.code}</dd>
+                            <dt className="col-4 text-uppercase text-muted">
+                              {t('adminAccount.errorsCatalog.update.labels.scope', { ns: 'admin-account' })}
+                            </dt>
+                            <dd className="col-8 mb-2">{selectedErrorMessage.scope}</dd>
+                            <dt className="col-4 text-uppercase text-muted">
+                              {t('adminAccount.errorsCatalog.update.labels.locale', { ns: 'admin-account' })}
+                            </dt>
+                            <dd className="col-8 mb-2">{selectedErrorMessage.locale}</dd>
+                          </dl>
+
+                          <Form.Group controlId="admin-error-update-message">
+                            <Form.Label>
+                              {t('adminAccount.errorsCatalog.update.message', { ns: 'admin-account' })}
+                            </Form.Label>
+                            <Form.Control
+                              as="textarea"
+                              rows={5}
+                              value={errorUpdateMessage}
+                              onChange={event => {
+                                setErrorUpdateMessage(event.currentTarget.value);
+                                setErrorMessagesErrorMessage('');
+                                setErrorMessagesSuccessMessage('');
+                              }}
+                              maxLength={500}
+                            />
+                            <Form.Text className="text-muted">
+                              {t('adminAccount.errorsCatalog.update.messageHint', { ns: 'admin-account', count: 500 })}
+                            </Form.Text>
+                          </Form.Group>
+                        </>
+                      ) : (
+                        <p className="small text-muted mb-0">
+                          {t('adminAccount.errorsCatalog.update.empty', { ns: 'admin-account' })}
+                        </p>
+                      )}
+                    </Modal.Body>
+                    <Modal.Footer className="justify-content-between">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => {
+                          setIsErrorEditorModalOpen(false);
+                        }}
+                        disabled={isErrorCreateSubmitting || isErrorUpdateSubmitting || isErrorDeleteSubmitting}
+                      >
+                        {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
+                      </Button>
+
+                      <div className="d-flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="primary"
+                          disabled={errorCrudTab === 'create' ? !canCreateErrorMessage : !canUpdateErrorMessage}
+                          onClick={() => {
+                            if (errorCrudTab === 'create') {
+                              void handleCreateErrorMessageSubmit();
+                              return;
+                            }
+                            void handleUpdateErrorMessageSubmit();
+                          }}
+                        >
+                          {errorCrudTab === 'create' ? (
+                            isErrorCreateSubmitting ? (
+                              <span className="d-inline-flex align-items-center gap-2">
+                                <Spinner
+                                  as="span"
+                                  animation="border"
+                                  size="sm"
+                                  className="me-2 flex-shrink-0 admin-action-spinner"
+                                  aria-hidden="true"
+                                />
+                                <span>{t('adminAccount.errorsCatalog.actions.creating', { ns: 'admin-account' })}</span>
+                              </span>
+                            ) : (
+                              <>
+                                <FontAwesomeIcon icon="plus" className="me-2" />
+                                {t('adminAccount.errorsCatalog.actions.create', { ns: 'admin-account' })}
+                              </>
+                            )
+                          ) : isErrorUpdateSubmitting ? (
+                            <span className="d-inline-flex align-items-center gap-2">
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                className="me-2 flex-shrink-0 admin-action-spinner"
+                                aria-hidden="true"
+                              />
+                              <span>{t('adminAccount.errorsCatalog.actions.updating', { ns: 'admin-account' })}</span>
+                            </span>
+                          ) : (
+                            <>
+                              <FontAwesomeIcon icon="save" className="me-2" />
+                              {t('adminAccount.errorsCatalog.actions.update', { ns: 'admin-account' })}
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </Modal.Footer>
+                  </Modal>
+
+                  <Modal
+                    show={pendingErrorMessageDelete !== null}
+                    onHide={() => {
+                      if (isErrorDeleteSubmitting) {
+                        return;
+                      }
+                      setPendingErrorMessageDelete(null);
+                    }}
+                    centered
+                    dialogClassName="admin-error-editor-modal"
+                  >
+                    <Modal.Header closeButton>
+                      <Modal.Title>
+                        {t('adminAccount.errorsCatalog.actions.delete', { ns: 'admin-account' })}
+                      </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <p className="small text-muted mb-3">
+                        {t('adminAccount.errorsCatalog.actions.confirmDelete', {
+                          ns: 'admin-account',
+                          code: pendingErrorMessageDelete?.code ?? '',
+                          locale: pendingErrorMessageDelete?.locale ?? '',
+                        })}
+                      </p>
+                      <dl className="row mb-0 small">
+                        <dt className="col-4 text-uppercase text-muted">
+                          {t('adminAccount.errorsCatalog.update.labels.code', { ns: 'admin-account' })}
+                        </dt>
+                        <dd className="col-8 mb-2">{pendingErrorMessageDelete?.code ?? '-'}</dd>
+                        <dt className="col-4 text-uppercase text-muted">
+                          {t('adminAccount.errorsCatalog.update.labels.scope', { ns: 'admin-account' })}
+                        </dt>
+                        <dd className="col-8 mb-2">{pendingErrorMessageDelete?.scope ?? '-'}</dd>
+                        <dt className="col-4 text-uppercase text-muted">
+                          {t('adminAccount.errorsCatalog.update.labels.locale', { ns: 'admin-account' })}
+                        </dt>
+                        <dd className="col-8 mb-0">{pendingErrorMessageDelete?.locale ?? '-'}</dd>
+                      </dl>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        disabled={isErrorDeleteSubmitting}
+                        onClick={() => {
+                          setPendingErrorMessageDelete(null);
+                        }}
+                      >
+                        {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        disabled={pendingErrorMessageDelete === null || isErrorDeleteSubmitting}
+                        onClick={() => {
+                          void handleDeleteErrorMessageSubmit();
+                        }}
+                      >
+                        {isErrorDeleteSubmitting ? (
+                          <span className="d-inline-flex align-items-center gap-2">
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              className="me-2 flex-shrink-0 admin-action-spinner"
+                              aria-hidden="true"
+                            />
+                            <span>{t('adminAccount.errorsCatalog.actions.deleting', { ns: 'admin-account' })}</span>
+                          </span>
+                        ) : (
+                          <>
+                            <FontAwesomeIcon icon="trash" className="me-2" />
+                            {t('adminAccount.errorsCatalog.actions.delete', { ns: 'admin-account' })}
+                          </>
+                        )}
+                      </Button>
+                    </Modal.Footer>
+                  </Modal>
                 </>
               ) : null}
 

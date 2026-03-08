@@ -7,6 +7,8 @@ type AdminQuery {
   me: AdminMe!
   dashboard: AdminDashboard!
   activeSessions: [AdminSession!]!
+  errorMessages(filter: AdminErrorMessageFilterInput): AdminErrorMessageListPayload!
+  errorMessageAuditLogs(limit: Int): [AdminErrorMessageAuditLog!]!
 }
 
 type AdminMutation {
@@ -20,6 +22,31 @@ type AdminMutation {
   changePassword(input: AdminChangePasswordInput!): AdminPasswordChangePayload!
   revokeSession(sessionId: ID!): AdminSessionRevokePayload!
   revokeAllSessions: AdminSessionRevokePayload!
+  createErrorMessage(input: AdminCreateErrorMessageInput!): AdminErrorMessage!
+  updateErrorMessage(input: AdminUpdateErrorMessageInput!): AdminErrorMessage!
+  deleteErrorMessage(input: AdminErrorMessageKeyInput!): AdminDeletePayload!
+}
+
+input AdminErrorMessageFilterInput {
+  locale: String
+  code: String
+  query: String
+}
+
+input AdminErrorMessageKeyInput {
+  scope: String
+  locale: String!
+  code: String!
+}
+
+input AdminCreateErrorMessageInput {
+  key: AdminErrorMessageKeyInput!
+  message: String!
+}
+
+input AdminUpdateErrorMessageInput {
+  key: AdminErrorMessageKeyInput!
+  message: String!
 }
 
 input AdminLoginInput {
@@ -95,6 +122,42 @@ type AdminSession {
 
 type AdminSessionRevokePayload {
   success: Boolean!
+}
+
+type AdminDeletePayload {
+  success: Boolean!
+}
+
+type AdminErrorMessage {
+  scope: String!
+  locale: String!
+  code: String!
+  message: String!
+  updatedAt: String
+}
+
+type AdminErrorMessageListPayload {
+  items: [AdminErrorMessage!]!
+  total: Int!
+}
+
+type AdminErrorMessageAuditLog {
+  id: ID!
+  actorId: ID!
+  actorEmail: String!
+  action: String!
+  scope: String!
+  locale: String!
+  code: String!
+  beforeValue: String!
+  afterValue: String!
+  status: String!
+  failureCode: String
+  requestId: String
+  remoteIp: String
+  countryCode: String
+  userAgent: String
+  createdAt: String!
 }
 
 type AdminDashboard {
