@@ -15,15 +15,16 @@
     },
     "settings": {
       "title": "Settings",
-      "copy": "Manage your profile, account controls, security, and active sessions.",
+      "copy": "Manage your profile, account controls, security, active sessions, and newsletter subscribers.",
       "navLabel": "Settings navigation",
-    "profile": "Profile",
-    "account": "Account",
-    "appearance": "Appearance",
-    "sessions": "Sessions",
-    "errors": "Error messages",
-    "security": "Security"
-  },
+      "profile": "Profile",
+      "account": "Account",
+      "appearance": "Appearance",
+      "sessions": "Sessions",
+      "newsletter": "Newsletter",
+      "errors": "Error messages",
+      "security": "Security"
+    },
     "profile": {
       "title": "Profile",
       "copy": "Review your admin identity and account metadata.",
@@ -139,7 +140,7 @@
       "submit": "Update password",
       "submitting": "Updating password..."
     },
-  "sessions": {
+    "sessions": {
       "title": "Active sessions",
       "copy": "Review signed-in devices and revoke sessions you no longer trust.",
       "loading": "Loading active sessions...",
@@ -165,10 +166,59 @@
       "errors": {
         "load": "Active sessions could not be loaded right now.",
         "revokeSingle": "Session could not be revoked.",
-      "revokeAll": "Sessions could not be revoked."
+        "revokeAll": "Sessions could not be revoked."
+      }
+    },
+    "newsletter": {
+      "title": "Newsletter management",
+      "copy": "Filter subscribers, update subscription status, and remove subscribers.",
+      "loading": "Loading newsletter subscribers...",
+      "empty": "No newsletter subscribers found for the current filter.",
+      "filters": {
+        "locale": "Locale",
+        "status": "Status",
+        "query": "Search",
+        "queryPlaceholder": "Search by email",
+        "locales": {
+          "all": "All locales",
+          "en": "English",
+          "tr": "Turkish"
+        },
+        "statuses": {
+          "all": "All statuses",
+          "pending": "Pending",
+          "active": "Active",
+          "unsubscribed": "Unsubscribed"
+        }
+      },
+      "list": {
+        "updatedAt": "Updated: {{value}}",
+        "meta": "Source: {{source}} · Form: {{formName}} · Tags: {{tags}}"
+      },
+      "actions": {
+        "setActive": "Set active",
+        "unsubscribe": "Unsubscribe",
+        "update": "Update",
+        "updating": "Updating...",
+        "delete": "Delete",
+        "deleting": "Deleting..."
+      },
+      "success": {
+        "statusUpdated": "Subscriber updated: {{email}}",
+        "deleted": "Subscriber deleted: {{email}}"
+      },
+      "errors": {
+        "load": "Newsletter subscribers could not be loaded.",
+        "statusUpdate": "Subscriber status could not be updated.",
+        "delete": "Subscriber could not be deleted."
+      },
+      "deleteConfirm": {
+        "title": "Delete subscriber",
+        "copy": "Delete newsletter subscriber {{email}}?"
+      }
     }
-  },
-  "errorsCatalog": {
+    ,
+    "errorsCatalog": {
     "title": "Error messages",
     "copy": "List, filter, create, update, and delete admin API error messages.",
     "loading": "Loading error messages...",

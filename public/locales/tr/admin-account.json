@@ -15,15 +15,16 @@
     },
     "settings": {
       "title": "Ayarlar",
-      "copy": "Profilini, hesap işlemlerini, güvenliği ve aktif oturumları yönet.",
+      "copy": "Profilini, hesap işlemlerini, güvenliği, aktif oturumları ve bülten abonelerini yönet.",
       "navLabel": "Ayarlar gezintisi",
-    "profile": "Profil",
-    "account": "Hesap",
-    "appearance": "Görünüm",
-    "sessions": "Oturumlar",
-    "errors": "Hata mesajları",
-    "security": "Güvenlik"
-  },
+      "profile": "Profil",
+      "account": "Hesap",
+      "appearance": "Görünüm",
+      "sessions": "Oturumlar",
+      "newsletter": "Bülten",
+      "errors": "Hata mesajları",
+      "security": "Güvenlik"
+    },
     "profile": {
       "title": "Profil",
       "copy": "Yönetici kimliğini ve hesap bilgilerini görüntüle.",
@@ -139,7 +140,7 @@
       "submit": "Parolayı güncelle",
       "submitting": "Parola güncelleniyor..."
     },
-  "sessions": {
+    "sessions": {
       "title": "Aktif oturumlar",
       "copy": "Açık cihaz oturumlarını incele ve güvenmediğin oturumları kapat.",
       "loading": "Aktif oturumlar yükleniyor...",
@@ -165,10 +166,59 @@
       "errors": {
         "load": "Aktif oturumlar şu anda yüklenemiyor.",
         "revokeSingle": "Oturum kapatılamadı.",
-      "revokeAll": "Oturumlar kapatılamadı."
+        "revokeAll": "Oturumlar kapatılamadı."
+      }
+    },
+    "newsletter": {
+      "title": "Bülten yönetimi",
+      "copy": "Aboneleri filtrele, abonelik durumunu güncelle ve aboneleri sil.",
+      "loading": "Bülten aboneleri yükleniyor...",
+      "empty": "Seçili filtre için bülten abonesi bulunamadı.",
+      "filters": {
+        "locale": "Dil",
+        "status": "Durum",
+        "query": "Ara",
+        "queryPlaceholder": "E-postaya göre ara",
+        "locales": {
+          "all": "Tüm diller",
+          "en": "İngilizce",
+          "tr": "Türkçe"
+        },
+        "statuses": {
+          "all": "Tüm durumlar",
+          "pending": "Beklemede",
+          "active": "Aktif",
+          "unsubscribed": "Abonelikten çıktı"
+        }
+      },
+      "list": {
+        "updatedAt": "Güncelleme: {{value}}",
+        "meta": "Kaynak: {{source}} · Form: {{formName}} · Etiketler: {{tags}}"
+      },
+      "actions": {
+        "setActive": "Aktif yap",
+        "unsubscribe": "Abonelikten çıkar",
+        "update": "Güncelle",
+        "updating": "Güncelleniyor...",
+        "delete": "Sil",
+        "deleting": "Siliniyor..."
+      },
+      "success": {
+        "statusUpdated": "Abone güncellendi: {{email}}",
+        "deleted": "Abone silindi: {{email}}"
+      },
+      "errors": {
+        "load": "Bülten aboneleri yüklenemedi.",
+        "statusUpdate": "Abone durumu güncellenemedi.",
+        "delete": "Abone silinemedi."
+      },
+      "deleteConfirm": {
+        "title": "Aboneyi sil",
+        "copy": "{{email}} bülten abonesi silinsin mi?"
+      }
     }
-  },
-  "errorsCatalog": {
+    ,
+    "errorsCatalog": {
     "title": "Hata mesajları",
     "copy": "Yönetim API hata mesajlarını listele, filtrele, oluştur, güncelle ve sil.",
     "loading": "Hata mesajları yükleniyor...",

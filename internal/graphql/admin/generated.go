@@ -143,19 +143,41 @@ type ComplexityRoot struct {
 	}
 
 	AdminMutation struct {
-		ChangeAvatar        func(childComplexity int, input model.AdminChangeAvatarInput) int
-		ChangeName          func(childComplexity int, input model.AdminChangeNameInput) int
-		ChangePassword      func(childComplexity int, input model.AdminChangePasswordInput) int
-		ChangeUsername      func(childComplexity int, input model.AdminChangeUsernameInput) int
-		CreateErrorMessage  func(childComplexity int, input model.AdminCreateErrorMessageInput) int
-		DeleteAccount       func(childComplexity int, input model.AdminDeleteAccountInput) int
-		DeleteErrorMessage  func(childComplexity int, input model.AdminErrorMessageKeyInput) int
-		Login               func(childComplexity int, input model.AdminLoginInput) int
-		Logout              func(childComplexity int) int
-		RefreshAdminSession func(childComplexity int) int
-		RevokeAllSessions   func(childComplexity int) int
-		RevokeSession       func(childComplexity int, sessionID string) int
-		UpdateErrorMessage  func(childComplexity int, input model.AdminUpdateErrorMessageInput) int
+		ChangeAvatar                     func(childComplexity int, input model.AdminChangeAvatarInput) int
+		ChangeName                       func(childComplexity int, input model.AdminChangeNameInput) int
+		ChangePassword                   func(childComplexity int, input model.AdminChangePasswordInput) int
+		ChangeUsername                   func(childComplexity int, input model.AdminChangeUsernameInput) int
+		CreateErrorMessage               func(childComplexity int, input model.AdminCreateErrorMessageInput) int
+		DeleteAccount                    func(childComplexity int, input model.AdminDeleteAccountInput) int
+		DeleteErrorMessage               func(childComplexity int, input model.AdminErrorMessageKeyInput) int
+		DeleteNewsletterSubscriber       func(childComplexity int, input model.AdminDeleteNewsletterSubscriberInput) int
+		Login                            func(childComplexity int, input model.AdminLoginInput) int
+		Logout                           func(childComplexity int) int
+		RefreshAdminSession              func(childComplexity int) int
+		RevokeAllSessions                func(childComplexity int) int
+		RevokeSession                    func(childComplexity int, sessionID string) int
+		UpdateErrorMessage               func(childComplexity int, input model.AdminUpdateErrorMessageInput) int
+		UpdateNewsletterSubscriberStatus func(childComplexity int, input model.AdminUpdateNewsletterSubscriberStatusInput) int
+	}
+
+	AdminNewsletterSubscriber struct {
+		ConfirmedAt    func(childComplexity int) int
+		CreatedAt      func(childComplexity int) int
+		Email          func(childComplexity int) int
+		FormName       func(childComplexity int) int
+		Locale         func(childComplexity int) int
+		Source         func(childComplexity int) int
+		Status         func(childComplexity int) int
+		Tags           func(childComplexity int) int
+		UnsubscribedAt func(childComplexity int) int
+		UpdatedAt      func(childComplexity int) int
+	}
+
+	AdminNewsletterSubscriberListPayload struct {
+		Items func(childComplexity int) int
+		Page  func(childComplexity int) int
+		Size  func(childComplexity int) int
+		Total func(childComplexity int) int
 	}
 
 	AdminPasswordChangePayload struct {
@@ -168,6 +190,7 @@ type ComplexityRoot struct {
 		ErrorMessageAuditLogs func(childComplexity int, limit *int) int
 		ErrorMessages         func(childComplexity int, filter *model.AdminErrorMessageFilterInput) int
 		Me                    func(childComplexity int) int
+		NewsletterSubscribers func(childComplexity int, filter *model.AdminNewsletterSubscriberFilterInput) int
 	}
 
 	AdminSession struct {
@@ -207,6 +230,8 @@ type AdminMutationResolver interface {
 	ChangePassword(ctx context.Context, input model.AdminChangePasswordInput) (*model.AdminPasswordChangePayload, error)
 	RevokeSession(ctx context.Context, sessionID string) (*model.AdminSessionRevokePayload, error)
 	RevokeAllSessions(ctx context.Context) (*model.AdminSessionRevokePayload, error)
+	UpdateNewsletterSubscriberStatus(ctx context.Context, input model.AdminUpdateNewsletterSubscriberStatusInput) (*model.AdminNewsletterSubscriber, error)
+	DeleteNewsletterSubscriber(ctx context.Context, input model.AdminDeleteNewsletterSubscriberInput) (*model.AdminDeletePayload, error)
 	CreateErrorMessage(ctx context.Context, input model.AdminCreateErrorMessageInput) (*model.AdminErrorMessage, error)
 	UpdateErrorMessage(ctx context.Context, input model.AdminUpdateErrorMessageInput) (*model.AdminErrorMessage, error)
 	DeleteErrorMessage(ctx context.Context, input model.AdminErrorMessageKeyInput) (*model.AdminDeletePayload, error)
@@ -215,6 +240,7 @@ type AdminQueryResolver interface {
 	Me(ctx context.Context) (*model.AdminMe, error)
 	Dashboard(ctx context.Context) (*model.AdminDashboard, error)
 	ActiveSessions(ctx context.Context) ([]*model.AdminSession, error)
+	NewsletterSubscribers(ctx context.Context, filter *model.AdminNewsletterSubscriberFilterInput) (*model.AdminNewsletterSubscriberListPayload, error)
 	ErrorMessages(ctx context.Context, filter *model.AdminErrorMessageFilterInput) (*model.AdminErrorMessageListPayload, error)
 	ErrorMessageAuditLogs(ctx context.Context, limit *int) ([]*model.AdminErrorMessageAuditLog, error)
 }
@@ -658,6 +684,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.DeleteErrorMessage(childComplexity, args["input"].(model.AdminErrorMessageKeyInput)), true
+	case "AdminMutation.deleteNewsletterSubscriber":
+		if e.complexity.AdminMutation.DeleteNewsletterSubscriber == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_deleteNewsletterSubscriber_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.DeleteNewsletterSubscriber(childComplexity, args["input"].(model.AdminDeleteNewsletterSubscriberInput)), true
 	case "AdminMutation.login":
 		if e.complexity.AdminMutation.Login == nil {
 			break
@@ -709,6 +746,103 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.UpdateErrorMessage(childComplexity, args["input"].(model.AdminUpdateErrorMessageInput)), true
+	case "AdminMutation.updateNewsletterSubscriberStatus":
+		if e.complexity.AdminMutation.UpdateNewsletterSubscriberStatus == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_updateNewsletterSubscriberStatus_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.UpdateNewsletterSubscriberStatus(childComplexity, args["input"].(model.AdminUpdateNewsletterSubscriberStatusInput)), true
+
+	case "AdminNewsletterSubscriber.confirmedAt":
+		if e.complexity.AdminNewsletterSubscriber.ConfirmedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterSubscriber.ConfirmedAt(childComplexity), true
+	case "AdminNewsletterSubscriber.createdAt":
+		if e.complexity.AdminNewsletterSubscriber.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterSubscriber.CreatedAt(childComplexity), true
+	case "AdminNewsletterSubscriber.email":
+		if e.complexity.AdminNewsletterSubscriber.Email == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterSubscriber.Email(childComplexity), true
+	case "AdminNewsletterSubscriber.formName":
+		if e.complexity.AdminNewsletterSubscriber.FormName == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterSubscriber.FormName(childComplexity), true
+	case "AdminNewsletterSubscriber.locale":
+		if e.complexity.AdminNewsletterSubscriber.Locale == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterSubscriber.Locale(childComplexity), true
+	case "AdminNewsletterSubscriber.source":
+		if e.complexity.AdminNewsletterSubscriber.Source == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterSubscriber.Source(childComplexity), true
+	case "AdminNewsletterSubscriber.status":
+		if e.complexity.AdminNewsletterSubscriber.Status == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterSubscriber.Status(childComplexity), true
+	case "AdminNewsletterSubscriber.tags":
+		if e.complexity.AdminNewsletterSubscriber.Tags == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterSubscriber.Tags(childComplexity), true
+	case "AdminNewsletterSubscriber.unsubscribedAt":
+		if e.complexity.AdminNewsletterSubscriber.UnsubscribedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterSubscriber.UnsubscribedAt(childComplexity), true
+	case "AdminNewsletterSubscriber.updatedAt":
+		if e.complexity.AdminNewsletterSubscriber.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterSubscriber.UpdatedAt(childComplexity), true
+
+	case "AdminNewsletterSubscriberListPayload.items":
+		if e.complexity.AdminNewsletterSubscriberListPayload.Items == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterSubscriberListPayload.Items(childComplexity), true
+	case "AdminNewsletterSubscriberListPayload.page":
+		if e.complexity.AdminNewsletterSubscriberListPayload.Page == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterSubscriberListPayload.Page(childComplexity), true
+	case "AdminNewsletterSubscriberListPayload.size":
+		if e.complexity.AdminNewsletterSubscriberListPayload.Size == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterSubscriberListPayload.Size(childComplexity), true
+	case "AdminNewsletterSubscriberListPayload.total":
+		if e.complexity.AdminNewsletterSubscriberListPayload.Total == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterSubscriberListPayload.Total(childComplexity), true
 
 	case "AdminPasswordChangePayload.success":
 		if e.complexity.AdminPasswordChangePayload.Success == nil {
@@ -757,6 +891,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminQuery.Me(childComplexity), true
+	case "AdminQuery.newsletterSubscribers":
+		if e.complexity.AdminQuery.NewsletterSubscribers == nil {
+			break
+		}
+
+		args, err := ec.field_AdminQuery_newsletterSubscribers_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminQuery.NewsletterSubscribers(childComplexity, args["filter"].(*model.AdminNewsletterSubscriberFilterInput)), true
 
 	case "AdminSession.countryCode":
 		if e.complexity.AdminSession.CountryCode == nil {
@@ -871,10 +1016,13 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAdminChangeUsernameInput,
 		ec.unmarshalInputAdminCreateErrorMessageInput,
 		ec.unmarshalInputAdminDeleteAccountInput,
+		ec.unmarshalInputAdminDeleteNewsletterSubscriberInput,
 		ec.unmarshalInputAdminErrorMessageFilterInput,
 		ec.unmarshalInputAdminErrorMessageKeyInput,
 		ec.unmarshalInputAdminLoginInput,
+		ec.unmarshalInputAdminNewsletterSubscriberFilterInput,
 		ec.unmarshalInputAdminUpdateErrorMessageInput,
+		ec.unmarshalInputAdminUpdateNewsletterSubscriberStatusInput,
 	)
 	first := true
 
@@ -1068,6 +1216,17 @@ func (ec *executionContext) field_AdminMutation_deleteErrorMessage_args(ctx cont
 	return args, nil
 }
 
+func (ec *executionContext) field_AdminMutation_deleteNewsletterSubscriber_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminDeleteNewsletterSubscriberInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDeleteNewsletterSubscriberInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_AdminMutation_login_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -1101,6 +1260,17 @@ func (ec *executionContext) field_AdminMutation_updateErrorMessage_args(ctx cont
 	return args, nil
 }
 
+func (ec *executionContext) field_AdminMutation_updateNewsletterSubscriberStatus_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminUpdateNewsletterSubscriberStatusInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUpdateNewsletterSubscriberStatusInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_AdminQuery___type_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -1127,6 +1297,17 @@ func (ec *executionContext) field_AdminQuery_errorMessages_args(ctx context.Cont
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOAdminErrorMessageFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageFilterInput)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminQuery_newsletterSubscribers_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOAdminNewsletterSubscriberFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberFilterInput)
 	if err != nil {
 		return nil, err
 	}
@@ -3303,6 +3484,114 @@ func (ec *executionContext) fieldContext_AdminMutation_revokeAllSessions(_ conte
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminMutation_updateNewsletterSubscriberStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_updateNewsletterSubscriberStatus,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().UpdateNewsletterSubscriberStatus(ctx, fc.Args["input"].(model.AdminUpdateNewsletterSubscriberStatusInput))
+		},
+		nil,
+		ec.marshalNAdminNewsletterSubscriber2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriber,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_updateNewsletterSubscriberStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "email":
+				return ec.fieldContext_AdminNewsletterSubscriber_email(ctx, field)
+			case "locale":
+				return ec.fieldContext_AdminNewsletterSubscriber_locale(ctx, field)
+			case "status":
+				return ec.fieldContext_AdminNewsletterSubscriber_status(ctx, field)
+			case "tags":
+				return ec.fieldContext_AdminNewsletterSubscriber_tags(ctx, field)
+			case "formName":
+				return ec.fieldContext_AdminNewsletterSubscriber_formName(ctx, field)
+			case "source":
+				return ec.fieldContext_AdminNewsletterSubscriber_source(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminNewsletterSubscriber_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AdminNewsletterSubscriber_createdAt(ctx, field)
+			case "confirmedAt":
+				return ec.fieldContext_AdminNewsletterSubscriber_confirmedAt(ctx, field)
+			case "unsubscribedAt":
+				return ec.fieldContext_AdminNewsletterSubscriber_unsubscribedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminNewsletterSubscriber", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_updateNewsletterSubscriberStatus_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_deleteNewsletterSubscriber(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_deleteNewsletterSubscriber,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().DeleteNewsletterSubscriber(ctx, fc.Args["input"].(model.AdminDeleteNewsletterSubscriberInput))
+		},
+		nil,
+		ec.marshalNAdminDeletePayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDeletePayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_deleteNewsletterSubscriber(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_AdminDeletePayload_success(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminDeletePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_deleteNewsletterSubscriber_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminMutation_createErrorMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -3450,6 +3739,434 @@ func (ec *executionContext) fieldContext_AdminMutation_deleteErrorMessage(ctx co
 	if fc.Args, err = ec.field_AdminMutation_deleteErrorMessage_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterSubscriber_email(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriber) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterSubscriber_email,
+		func(ctx context.Context) (any, error) {
+			return obj.Email, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterSubscriber_email(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterSubscriber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterSubscriber_locale(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriber) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterSubscriber_locale,
+		func(ctx context.Context) (any, error) {
+			return obj.Locale, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterSubscriber_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterSubscriber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterSubscriber_status(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriber) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterSubscriber_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalNAdminNewsletterSubscriberStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberStatus,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterSubscriber_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterSubscriber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AdminNewsletterSubscriberStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterSubscriber_tags(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriber) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterSubscriber_tags,
+		func(ctx context.Context) (any, error) {
+			return obj.Tags, nil
+		},
+		nil,
+		ec.marshalNString2ᚕstringᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterSubscriber_tags(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterSubscriber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterSubscriber_formName(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriber) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterSubscriber_formName,
+		func(ctx context.Context) (any, error) {
+			return obj.FormName, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterSubscriber_formName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterSubscriber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterSubscriber_source(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriber) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterSubscriber_source,
+		func(ctx context.Context) (any, error) {
+			return obj.Source, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterSubscriber_source(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterSubscriber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterSubscriber_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriber) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterSubscriber_updatedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterSubscriber_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterSubscriber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterSubscriber_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriber) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterSubscriber_createdAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterSubscriber_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterSubscriber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterSubscriber_confirmedAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriber) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterSubscriber_confirmedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.ConfirmedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterSubscriber_confirmedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterSubscriber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterSubscriber_unsubscribedAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriber) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterSubscriber_unsubscribedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.UnsubscribedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterSubscriber_unsubscribedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterSubscriber",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterSubscriberListPayload_items(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriberListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterSubscriberListPayload_items,
+		func(ctx context.Context) (any, error) {
+			return obj.Items, nil
+		},
+		nil,
+		ec.marshalNAdminNewsletterSubscriber2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterSubscriberListPayload_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterSubscriberListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "email":
+				return ec.fieldContext_AdminNewsletterSubscriber_email(ctx, field)
+			case "locale":
+				return ec.fieldContext_AdminNewsletterSubscriber_locale(ctx, field)
+			case "status":
+				return ec.fieldContext_AdminNewsletterSubscriber_status(ctx, field)
+			case "tags":
+				return ec.fieldContext_AdminNewsletterSubscriber_tags(ctx, field)
+			case "formName":
+				return ec.fieldContext_AdminNewsletterSubscriber_formName(ctx, field)
+			case "source":
+				return ec.fieldContext_AdminNewsletterSubscriber_source(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminNewsletterSubscriber_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AdminNewsletterSubscriber_createdAt(ctx, field)
+			case "confirmedAt":
+				return ec.fieldContext_AdminNewsletterSubscriber_confirmedAt(ctx, field)
+			case "unsubscribedAt":
+				return ec.fieldContext_AdminNewsletterSubscriber_unsubscribedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminNewsletterSubscriber", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterSubscriberListPayload_total(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriberListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterSubscriberListPayload_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterSubscriberListPayload_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterSubscriberListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterSubscriberListPayload_page(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriberListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterSubscriberListPayload_page,
+		func(ctx context.Context) (any, error) {
+			return obj.Page, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterSubscriberListPayload_page(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterSubscriberListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterSubscriberListPayload_size(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriberListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterSubscriberListPayload_size,
+		func(ctx context.Context) (any, error) {
+			return obj.Size, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterSubscriberListPayload_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterSubscriberListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
 	}
 	return fc, nil
 }
@@ -3604,6 +4321,57 @@ func (ec *executionContext) fieldContext_AdminQuery_activeSessions(_ context.Con
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminSession", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminQuery_newsletterSubscribers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminQuery_newsletterSubscribers,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminQuery().NewsletterSubscribers(ctx, fc.Args["filter"].(*model.AdminNewsletterSubscriberFilterInput))
+		},
+		nil,
+		ec.marshalNAdminNewsletterSubscriberListPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberListPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminQuery_newsletterSubscribers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "items":
+				return ec.fieldContext_AdminNewsletterSubscriberListPayload_items(ctx, field)
+			case "total":
+				return ec.fieldContext_AdminNewsletterSubscriberListPayload_total(ctx, field)
+			case "page":
+				return ec.fieldContext_AdminNewsletterSubscriberListPayload_page(ctx, field)
+			case "size":
+				return ec.fieldContext_AdminNewsletterSubscriberListPayload_size(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminNewsletterSubscriberListPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminQuery_newsletterSubscribers_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -5935,6 +6703,33 @@ func (ec *executionContext) unmarshalInputAdminDeleteAccountInput(ctx context.Co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAdminDeleteNewsletterSubscriberInput(ctx context.Context, obj any) (model.AdminDeleteNewsletterSubscriberInput, error) {
+	var it model.AdminDeleteNewsletterSubscriberInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAdminErrorMessageFilterInput(ctx context.Context, obj any) (model.AdminErrorMessageFilterInput, error) {
 	var it model.AdminErrorMessageFilterInput
 	asMap := map[string]any{}
@@ -6072,6 +6867,61 @@ func (ec *executionContext) unmarshalInputAdminLoginInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAdminNewsletterSubscriberFilterInput(ctx context.Context, obj any) (model.AdminNewsletterSubscriberFilterInput, error) {
+	var it model.AdminNewsletterSubscriberFilterInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"locale", "status", "query", "page", "size"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "locale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locale = data
+		case "status":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			data, err := ec.unmarshalOAdminNewsletterSubscriberStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Status = data
+		case "query":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Query = data
+		case "page":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Page = data
+		case "size":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("size"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Size = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAdminUpdateErrorMessageInput(ctx context.Context, obj any) (model.AdminUpdateErrorMessageInput, error) {
 	var it model.AdminUpdateErrorMessageInput
 	asMap := map[string]any{}
@@ -6100,6 +6950,40 @@ func (ec *executionContext) unmarshalInputAdminUpdateErrorMessageInput(ctx conte
 				return it, err
 			}
 			it.Message = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputAdminUpdateNewsletterSubscriberStatusInput(ctx context.Context, obj any) (model.AdminUpdateNewsletterSubscriberStatusInput, error) {
+	var it model.AdminUpdateNewsletterSubscriberStatusInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email", "status"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "status":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			data, err := ec.unmarshalNAdminNewsletterSubscriberStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Status = data
 		}
 	}
 
@@ -6893,6 +7777,20 @@ func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "updateNewsletterSubscriberStatus":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_updateNewsletterSubscriberStatus(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteNewsletterSubscriber":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_deleteNewsletterSubscriber(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createErrorMessage":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._AdminMutation_createErrorMessage(ctx, field)
@@ -6911,6 +7809,126 @@ func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.Selectio
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._AdminMutation_deleteErrorMessage(ctx, field)
 			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminNewsletterSubscriberImplementors = []string{"AdminNewsletterSubscriber"}
+
+func (ec *executionContext) _AdminNewsletterSubscriber(ctx context.Context, sel ast.SelectionSet, obj *model.AdminNewsletterSubscriber) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminNewsletterSubscriberImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminNewsletterSubscriber")
+		case "email":
+			out.Values[i] = ec._AdminNewsletterSubscriber_email(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "locale":
+			out.Values[i] = ec._AdminNewsletterSubscriber_locale(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "status":
+			out.Values[i] = ec._AdminNewsletterSubscriber_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "tags":
+			out.Values[i] = ec._AdminNewsletterSubscriber_tags(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "formName":
+			out.Values[i] = ec._AdminNewsletterSubscriber_formName(ctx, field, obj)
+		case "source":
+			out.Values[i] = ec._AdminNewsletterSubscriber_source(ctx, field, obj)
+		case "updatedAt":
+			out.Values[i] = ec._AdminNewsletterSubscriber_updatedAt(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._AdminNewsletterSubscriber_createdAt(ctx, field, obj)
+		case "confirmedAt":
+			out.Values[i] = ec._AdminNewsletterSubscriber_confirmedAt(ctx, field, obj)
+		case "unsubscribedAt":
+			out.Values[i] = ec._AdminNewsletterSubscriber_unsubscribedAt(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminNewsletterSubscriberListPayloadImplementors = []string{"AdminNewsletterSubscriberListPayload"}
+
+func (ec *executionContext) _AdminNewsletterSubscriberListPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminNewsletterSubscriberListPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminNewsletterSubscriberListPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminNewsletterSubscriberListPayload")
+		case "items":
+			out.Values[i] = ec._AdminNewsletterSubscriberListPayload_items(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._AdminNewsletterSubscriberListPayload_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "page":
+			out.Values[i] = ec._AdminNewsletterSubscriberListPayload_page(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "size":
+			out.Values[i] = ec._AdminNewsletterSubscriberListPayload_size(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -7049,6 +8067,28 @@ func (ec *executionContext) _AdminQuery(ctx context.Context, sel ast.SelectionSe
 					}
 				}()
 				res = ec._AdminQuery_activeSessions(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "newsletterSubscribers":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AdminQuery_newsletterSubscribers(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -7834,6 +8874,11 @@ func (ec *executionContext) unmarshalNAdminDeleteAccountInput2suaybsimsekᚗcom�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNAdminDeleteNewsletterSubscriberInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDeleteNewsletterSubscriberInput(ctx context.Context, v any) (model.AdminDeleteNewsletterSubscriberInput, error) {
+	res, err := ec.unmarshalInputAdminDeleteNewsletterSubscriberInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNAdminDeletePayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDeletePayload(ctx context.Context, sel ast.SelectionSet, v model.AdminDeletePayload) graphql.Marshaler {
 	return ec._AdminDeletePayload(ctx, sel, &v)
 }
@@ -8017,6 +9062,88 @@ func (ec *executionContext) marshalNAdminMe2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋ
 	return ec._AdminMe(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAdminNewsletterSubscriber2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriber(ctx context.Context, sel ast.SelectionSet, v model.AdminNewsletterSubscriber) graphql.Marshaler {
+	return ec._AdminNewsletterSubscriber(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterSubscriber2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminNewsletterSubscriber) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAdminNewsletterSubscriber2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriber(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNAdminNewsletterSubscriber2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriber(ctx context.Context, sel ast.SelectionSet, v *model.AdminNewsletterSubscriber) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminNewsletterSubscriber(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterSubscriberListPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberListPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminNewsletterSubscriberListPayload) graphql.Marshaler {
+	return ec._AdminNewsletterSubscriberListPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterSubscriberListPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberListPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminNewsletterSubscriberListPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminNewsletterSubscriberListPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAdminNewsletterSubscriberStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberStatus(ctx context.Context, v any) (model.AdminNewsletterSubscriberStatus, error) {
+	var res model.AdminNewsletterSubscriberStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterSubscriberStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberStatus(ctx context.Context, sel ast.SelectionSet, v model.AdminNewsletterSubscriberStatus) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNAdminPasswordChangePayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminPasswordChangePayload(ctx context.Context, sel ast.SelectionSet, v model.AdminPasswordChangePayload) graphql.Marshaler {
 	return ec._AdminPasswordChangePayload(ctx, sel, &v)
 }
@@ -8101,6 +9228,11 @@ func (ec *executionContext) marshalNAdminSessionRevokePayload2ᚖsuaybsimsekᚗc
 
 func (ec *executionContext) unmarshalNAdminUpdateErrorMessageInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUpdateErrorMessageInput(ctx context.Context, v any) (model.AdminUpdateErrorMessageInput, error) {
 	res, err := ec.unmarshalInputAdminUpdateErrorMessageInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNAdminUpdateNewsletterSubscriberStatusInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUpdateNewsletterSubscriberStatusInput(ctx context.Context, v any) (model.AdminUpdateNewsletterSubscriberStatusInput, error) {
+	res, err := ec.unmarshalInputAdminUpdateNewsletterSubscriberStatusInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -8473,6 +9605,30 @@ func (ec *executionContext) unmarshalOAdminErrorMessageFilterInput2ᚖsuaybsimse
 	}
 	res, err := ec.unmarshalInputAdminErrorMessageFilterInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOAdminNewsletterSubscriberFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberFilterInput(ctx context.Context, v any) (*model.AdminNewsletterSubscriberFilterInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputAdminNewsletterSubscriberFilterInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOAdminNewsletterSubscriberStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberStatus(ctx context.Context, v any) (*model.AdminNewsletterSubscriberStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.AdminNewsletterSubscriberStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAdminNewsletterSubscriberStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberStatus(ctx context.Context, sel ast.SelectionSet, v *model.AdminNewsletterSubscriberStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) marshalOAdminUser2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUser(ctx context.Context, sel ast.SelectionSet, v *model.AdminUser) graphql.Marshaler {

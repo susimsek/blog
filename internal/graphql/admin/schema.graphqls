@@ -9,6 +9,7 @@ type AdminQuery {
   me: AdminMe!
   dashboard: AdminDashboard!
   activeSessions: [AdminSession!]!
+  newsletterSubscribers(filter: AdminNewsletterSubscriberFilterInput): AdminNewsletterSubscriberListPayload!
   errorMessages(filter: AdminErrorMessageFilterInput): AdminErrorMessageListPayload!
   errorMessageAuditLogs(limit: Int): [AdminErrorMessageAuditLog!]!
 }
@@ -24,9 +25,34 @@ type AdminMutation {
   changePassword(input: AdminChangePasswordInput!): AdminPasswordChangePayload!
   revokeSession(sessionId: ID!): AdminSessionRevokePayload!
   revokeAllSessions: AdminSessionRevokePayload!
+  updateNewsletterSubscriberStatus(input: AdminUpdateNewsletterSubscriberStatusInput!): AdminNewsletterSubscriber!
+  deleteNewsletterSubscriber(input: AdminDeleteNewsletterSubscriberInput!): AdminDeletePayload!
   createErrorMessage(input: AdminCreateErrorMessageInput!): AdminErrorMessage!
   updateErrorMessage(input: AdminUpdateErrorMessageInput!): AdminErrorMessage!
   deleteErrorMessage(input: AdminErrorMessageKeyInput!): AdminDeletePayload!
+}
+
+enum AdminNewsletterSubscriberStatus {
+  PENDING
+  ACTIVE
+  UNSUBSCRIBED
+}
+
+input AdminNewsletterSubscriberFilterInput {
+  locale: String
+  status: AdminNewsletterSubscriberStatus
+  query: String
+  page: Int
+  size: Int
+}
+
+input AdminUpdateNewsletterSubscriberStatusInput {
+  email: String!
+  status: AdminNewsletterSubscriberStatus!
+}
+
+input AdminDeleteNewsletterSubscriberInput {
+  email: String!
 }
 
 input AdminErrorMessageFilterInput {
@@ -130,6 +156,26 @@ type AdminSessionRevokePayload {
 
 type AdminDeletePayload {
   success: Boolean!
+}
+
+type AdminNewsletterSubscriber {
+  email: String!
+  locale: String!
+  status: AdminNewsletterSubscriberStatus!
+  tags: [String!]!
+  formName: String
+  source: String
+  updatedAt: DateTime
+  createdAt: DateTime
+  confirmedAt: DateTime
+  unsubscribedAt: DateTime
+}
+
+type AdminNewsletterSubscriberListPayload {
+  items: [AdminNewsletterSubscriber!]!
+  total: Int!
+  page: Int!
+  size: Int!
 }
 
 type AdminErrorMessage {

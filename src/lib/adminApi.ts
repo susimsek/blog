@@ -198,6 +198,38 @@ type AdminDeleteErrorMessagePayload = {
   };
 };
 
+export type AdminNewsletterSubscriberItem = {
+  email: string;
+  locale: string;
+  status: 'PENDING' | 'ACTIVE' | 'UNSUBSCRIBED';
+  tags: string[];
+  formName: string | null;
+  source: string | null;
+  updatedAt: string | null;
+  createdAt: string | null;
+  confirmedAt: string | null;
+  unsubscribedAt: string | null;
+};
+
+type AdminNewsletterSubscribersPayload = {
+  newsletterSubscribers: {
+    items: AdminNewsletterSubscriberItem[];
+    total: number;
+    page: number;
+    size: number;
+  };
+};
+
+type AdminUpdateNewsletterSubscriberStatusPayload = {
+  updateNewsletterSubscriberStatus: AdminNewsletterSubscriberItem;
+};
+
+type AdminDeleteNewsletterSubscriberPayload = {
+  deleteNewsletterSubscriber: {
+    success: boolean;
+  };
+};
+
 export class AdminGraphQLRequestError extends Error {
   code?: string;
   status?: number;
@@ -472,6 +504,53 @@ const ADMIN_UPDATE_ERROR_MESSAGE_MUTATION = gql`
 const ADMIN_DELETE_ERROR_MESSAGE_MUTATION = gql`
   mutation AdminDeleteErrorMessage($input: AdminErrorMessageKeyInput!) {
     deleteErrorMessage(input: $input) {
+      success
+    }
+  }
+`;
+
+const ADMIN_NEWSLETTER_SUBSCRIBERS_QUERY = gql`
+  query AdminNewsletterSubscribers($filter: AdminNewsletterSubscriberFilterInput) {
+    newsletterSubscribers(filter: $filter) {
+      items {
+        email
+        locale
+        status
+        tags
+        formName
+        source
+        updatedAt
+        createdAt
+        confirmedAt
+        unsubscribedAt
+      }
+      total
+      page
+      size
+    }
+  }
+`;
+
+const ADMIN_UPDATE_NEWSLETTER_SUBSCRIBER_STATUS_MUTATION = gql`
+  mutation AdminUpdateNewsletterSubscriberStatus($input: AdminUpdateNewsletterSubscriberStatusInput!) {
+    updateNewsletterSubscriberStatus(input: $input) {
+      email
+      locale
+      status
+      tags
+      formName
+      source
+      updatedAt
+      createdAt
+      confirmedAt
+      unsubscribedAt
+    }
+  }
+`;
+
+const ADMIN_DELETE_NEWSLETTER_SUBSCRIBER_MUTATION = gql`
+  mutation AdminDeleteNewsletterSubscriber($input: AdminDeleteNewsletterSubscriberInput!) {
+    deleteNewsletterSubscriber(input: $input) {
       success
     }
   }
@@ -1194,4 +1273,110 @@ export const deleteAdminErrorMessage = async (input: { scope?: string | null; lo
   );
 
   return payload.deleteErrorMessage?.success === true;
+};
+
+export const fetchAdminNewsletterSubscribers = async (filter?: {
+  locale?: string;
+  status?: 'pending' | 'active' | 'unsubscribed';
+  query?: string;
+  page?: number;
+  size?: number;
+}) => {
+  const resolvedLocale = filter?.locale?.trim().toLowerCase() ?? '';
+  const resolvedStatus = filter?.status?.trim().toLowerCase() ?? '';
+  const resolvedQuery = filter?.query?.trim() ?? '';
+  const resolvedPage = filter?.page && Number.isFinite(filter.page) && filter.page > 0 ? Math.trunc(filter.page) : 1;
+  const resolvedSize =
+    filter?.size && Number.isFinite(filter.size) && filter.size > 0 ? Math.trunc(filter.size) : undefined;
+
+  const statusEnum =
+    resolvedStatus === 'active'
+      ? 'ACTIVE'
+      : resolvedStatus === 'unsubscribed'
+        ? 'UNSUBSCRIBED'
+        : resolvedStatus === 'pending'
+          ? 'PENDING'
+          : undefined;
+
+  const payload = await executeAdminGraphQL<
+    AdminNewsletterSubscribersPayload,
+    {
+      filter?: {
+        locale?: string;
+        status?: 'PENDING' | 'ACTIVE' | 'UNSUBSCRIBED';
+        query?: string;
+        page?: number;
+        size?: number;
+      };
+    }
+  >(
+    ADMIN_NEWSLETTER_SUBSCRIBERS_QUERY,
+    {
+      filter: {
+        ...(resolvedLocale ? { locale: resolvedLocale } : {}),
+        ...(statusEnum ? { status: statusEnum } : {}),
+        ...(resolvedQuery ? { query: resolvedQuery } : {}),
+        ...(resolvedPage ? { page: resolvedPage } : {}),
+        ...(resolvedSize ? { size: resolvedSize } : {}),
+      },
+    },
+    {
+      operationName: 'AdminNewsletterSubscribers',
+    },
+  );
+
+  return payload.newsletterSubscribers;
+};
+
+export const updateAdminNewsletterSubscriberStatus = async (input: {
+  email: string;
+  status: 'active' | 'unsubscribed';
+}) => {
+  const status = input.status.trim().toLowerCase() === 'active' ? 'ACTIVE' : 'UNSUBSCRIBED';
+
+  const payload = await executeAdminGraphQL<
+    AdminUpdateNewsletterSubscriberStatusPayload,
+    {
+      input: {
+        email: string;
+        status: 'ACTIVE' | 'UNSUBSCRIBED';
+      };
+    }
+  >(
+    ADMIN_UPDATE_NEWSLETTER_SUBSCRIBER_STATUS_MUTATION,
+    {
+      input: {
+        email: input.email.trim().toLowerCase(),
+        status,
+      },
+    },
+    {
+      operationName: 'AdminUpdateNewsletterSubscriberStatus',
+    },
+  );
+
+  return payload.updateNewsletterSubscriberStatus;
+};
+
+export const deleteAdminNewsletterSubscriber = async (input: { email: string }) => {
+  const payload = await executeAdminGraphQL<
+    AdminDeleteNewsletterSubscriberPayload,
+    {
+      input: {
+        email: string;
+      };
+    }
+  >(
+    ADMIN_DELETE_NEWSLETTER_SUBSCRIBER_MUTATION,
+    {
+      input: {
+        email: input.email.trim().toLowerCase(),
+      },
+    },
+    {
+      operationName: 'AdminDeleteNewsletterSubscriber',
+    },
+  );
+
+  return payload.deleteNewsletterSubscriber?.success === true;
 };

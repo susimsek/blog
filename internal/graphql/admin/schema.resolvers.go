@@ -62,6 +62,43 @@ func (r *adminQueryResolver) ActiveSessions(ctx context.Context) ([]*model.Admin
 	return mapAdminSessions(sessions, currentSessionID), nil
 }
 
+// NewsletterSubscribers is the resolver for the newsletterSubscribers field.
+func (r *adminQueryResolver) NewsletterSubscribers(
+	ctx context.Context,
+	filter *model.AdminNewsletterSubscriberFilterInput,
+) (*model.AdminNewsletterSubscriberListPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedFilter := domain.AdminNewsletterSubscriberFilter{}
+	if filter != nil {
+		if filter.Locale != nil {
+			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
+		}
+		if filter.Status != nil {
+			resolvedFilter.Status = mapAdminNewsletterStatusInput(*filter.Status)
+		}
+		if filter.Query != nil {
+			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
+		}
+		if filter.Page != nil {
+			resolvedFilter.Page = filter.Page
+		}
+		if filter.Size != nil {
+			resolvedFilter.Size = filter.Size
+		}
+	}
+
+	payload, err := appservice.ListAdminNewsletterSubscribers(ctx, adminUser, resolvedFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminNewsletterSubscriberListPayload(payload), nil
+}
+
 // ErrorMessages is the resolver for the errorMessages field.
 func (r *adminQueryResolver) ErrorMessages(
 	ctx context.Context,
@@ -353,6 +390,46 @@ func (r *adminMutationResolver) RevokeAllSessions(ctx context.Context) (*model.A
 	return &model.AdminSessionRevokePayload{Success: true}, nil
 }
 
+// UpdateNewsletterSubscriberStatus is the resolver for the updateNewsletterSubscriberStatus field.
+func (r *adminMutationResolver) UpdateNewsletterSubscriberStatus(
+	ctx context.Context,
+	input model.AdminUpdateNewsletterSubscriberStatusInput,
+) (*model.AdminNewsletterSubscriber, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	updated, err := appservice.UpdateAdminNewsletterSubscriberStatus(
+		ctx,
+		adminUser,
+		input.Email,
+		mapAdminNewsletterStatusInput(input.Status),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminNewsletterSubscriber(updated), nil
+}
+
+// DeleteNewsletterSubscriber is the resolver for the deleteNewsletterSubscriber field.
+func (r *adminMutationResolver) DeleteNewsletterSubscriber(
+	ctx context.Context,
+	input model.AdminDeleteNewsletterSubscriberInput,
+) (*model.AdminDeletePayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := appservice.DeleteAdminNewsletterSubscriber(ctx, adminUser, input.Email); err != nil {
+		return nil, err
+	}
+
+	return &model.AdminDeletePayload{Success: true}, nil
+}
+
 // CreateErrorMessage is the resolver for the createErrorMessage field.
 func (r *adminMutationResolver) CreateErrorMessage(
 	ctx context.Context,
@@ -560,6 +637,54 @@ func mapAdminSessions(items []domain.AdminSessionRecord, currentSessionID string
 	return mapped
 }
 
+func mapAdminNewsletterSubscriberListPayload(
+	payload *domain.AdminNewsletterSubscriberListResult,
+) *model.AdminNewsletterSubscriberListPayload {
+	if payload == nil {
+		return &model.AdminNewsletterSubscriberListPayload{
+			Items: []*model.AdminNewsletterSubscriber{},
+			Total: 0,
+			Page:  1,
+			Size:  20,
+		}
+	}
+
+	return &model.AdminNewsletterSubscriberListPayload{
+		Items: mapAdminNewsletterSubscribers(payload.Items),
+		Total: payload.Total,
+		Page:  payload.Page,
+		Size:  payload.Size,
+	}
+}
+
+func mapAdminNewsletterSubscribers(items []domain.AdminNewsletterSubscriberRecord) []*model.AdminNewsletterSubscriber {
+	mapped := make([]*model.AdminNewsletterSubscriber, 0, len(items))
+	for _, item := range items {
+		mapped = append(mapped, mapAdminNewsletterSubscriber(&item))
+	}
+
+	return mapped
+}
+
+func mapAdminNewsletterSubscriber(item *domain.AdminNewsletterSubscriberRecord) *model.AdminNewsletterSubscriber {
+	if item == nil {
+		return nil
+	}
+
+	return &model.AdminNewsletterSubscriber{
+		Email:          item.Email,
+		Locale:         item.Locale,
+		Status:         mapAdminNewsletterStatusOutput(item.Status),
+		Tags:           append([]string{}, item.Tags...),
+		FormName:       toOptionalAdminString(item.FormName),
+		Source:         toOptionalAdminString(item.Source),
+		UpdatedAt:      toOptionalAdminTime(item.UpdatedAt),
+		CreatedAt:      toOptionalAdminTime(item.CreatedAt),
+		ConfirmedAt:    toOptionalAdminTimePointer(item.ConfirmedAt),
+		UnsubscribedAt: toOptionalAdminTimePointer(item.UnsubscribedAt),
+	}
+}
+
 func mapAdminErrorMessageListPayload(payload *domain.AdminErrorMessageListResult) *model.AdminErrorMessageListPayload {
 	if payload == nil {
 		return &model.AdminErrorMessageListPayload{
@@ -661,6 +786,35 @@ func toOptionalAdminTime(value time.Time) *time.Time {
 
 	normalized := value.UTC()
 	return &normalized
+}
+
+func toOptionalAdminTimePointer(value *time.Time) *time.Time {
+	if value == nil {
+		return nil
+	}
+	return toOptionalAdminTime(*value)
+}
+
+func mapAdminNewsletterStatusInput(value model.AdminNewsletterSubscriberStatus) string {
+	switch value {
+	case model.AdminNewsletterSubscriberStatusActive:
+		return "active"
+	case model.AdminNewsletterSubscriberStatusUnsubscribed:
+		return "unsubscribed"
+	default:
+		return "pending"
+	}
+}
+
+func mapAdminNewsletterStatusOutput(value string) model.AdminNewsletterSubscriberStatus {
+	switch strings.TrimSpace(strings.ToLower(value)) {
+	case "active":
+		return model.AdminNewsletterSubscriberStatusActive
+	case "unsubscribed":
+		return model.AdminNewsletterSubscriberStatusUnsubscribed
+	default:
+		return model.AdminNewsletterSubscriberStatusPending
+	}
 }
 
 func resolveAdminDeviceLabel(userAgent string) string {

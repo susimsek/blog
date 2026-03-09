@@ -27,7 +27,7 @@ const PageSizeSelector: React.FC<PageSizeSelectorProps> = ({
       <div className="page-size-select-wrap position-relative d-inline-block">
         <Form.Select
           id="postsPerPageSelect"
-          className="mb-0"
+          className="mb-0 pagination-page-size-select"
           value={size}
           onChange={e => onSizeChange(Number(e.target.value))}
         >

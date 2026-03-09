@@ -7,6 +7,7 @@ export const ADMIN_ROUTES = {
     account: '/admin/settings/account',
     appearance: '/admin/settings/appearance',
     sessions: '/admin/settings/sessions',
+    newsletter: '/admin/settings/newsletter',
     errors: '/admin/settings/errors',
     security: '/admin/settings/security',
     passwordLegacy: '/admin/settings/password',

@@ -4386,6 +4386,14 @@ $state-variants: (
   letter-spacing: normal;
 }
 
+.pagination-bar .pagination-page-size-select.form-select {
+  min-height: 2.25rem;
+  height: 2.25rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-right: 2rem;
+}
+
 .text-nowrap {
   white-space: nowrap;
   overflow-wrap: normal;
@@ -9051,6 +9059,13 @@ label {
   margin-bottom: 1rem;
 }
 
+.admin-section-divider {
+  margin: 0 0 1rem;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--border-color) 78%, transparent);
+  opacity: 1;
+}
+
 .admin-dashboard-meta-list {
   display: grid;
   gap: 0.95rem;
@@ -9074,6 +9089,13 @@ label {
     color: var(--text-color);
     font-weight: 600;
     word-break: break-word;
+  }
+}
+
+.admin-dashboard-meta-list-no-first-divider {
+  div:first-child {
+    border-top: 0;
+    padding-top: 0;
   }
 }
 

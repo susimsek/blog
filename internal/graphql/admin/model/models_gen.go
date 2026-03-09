@@ -3,6 +3,10 @@
 package model
 
 import (
+	"bytes"
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 )
 
@@ -80,6 +84,10 @@ type AdminDeleteAccountInput struct {
 	CurrentPassword string `json:"currentPassword"`
 }
 
+type AdminDeleteNewsletterSubscriberInput struct {
+	Email string `json:"email"`
+}
+
 type AdminDeletePayload struct {
 	Success bool `json:"success"`
 }
@@ -150,6 +158,34 @@ type AdminMe struct {
 type AdminMutation struct {
 }
 
+type AdminNewsletterSubscriber struct {
+	Email          string                          `json:"email"`
+	Locale         string                          `json:"locale"`
+	Status         AdminNewsletterSubscriberStatus `json:"status"`
+	Tags           []string                        `json:"tags"`
+	FormName       *string                         `json:"formName,omitempty"`
+	Source         *string                         `json:"source,omitempty"`
+	UpdatedAt      *time.Time                      `json:"updatedAt,omitempty"`
+	CreatedAt      *time.Time                      `json:"createdAt,omitempty"`
+	ConfirmedAt    *time.Time                      `json:"confirmedAt,omitempty"`
+	UnsubscribedAt *time.Time                      `json:"unsubscribedAt,omitempty"`
+}
+
+type AdminNewsletterSubscriberFilterInput struct {
+	Locale *string                          `json:"locale,omitempty"`
+	Status *AdminNewsletterSubscriberStatus `json:"status,omitempty"`
+	Query  *string                          `json:"query,omitempty"`
+	Page   *int                             `json:"page,omitempty"`
+	Size   *int                             `json:"size,omitempty"`
+}
+
+type AdminNewsletterSubscriberListPayload struct {
+	Items []*AdminNewsletterSubscriber `json:"items"`
+	Total int                          `json:"total"`
+	Page  int                          `json:"page"`
+	Size  int                          `json:"size"`
+}
+
 type AdminPasswordChangePayload struct {
 	Success bool `json:"success"`
 }
@@ -178,6 +214,11 @@ type AdminUpdateErrorMessageInput struct {
 	Message string                     `json:"message"`
 }
 
+type AdminUpdateNewsletterSubscriberStatusInput struct {
+	Email  string                          `json:"email"`
+	Status AdminNewsletterSubscriberStatus `json:"status"`
+}
+
 type AdminUser struct {
 	ID        string   `json:"id"`
 	Name      *string  `json:"name,omitempty"`
@@ -185,4 +226,61 @@ type AdminUser struct {
 	AvatarURL *string  `json:"avatarUrl,omitempty"`
 	Email     string   `json:"email"`
 	Roles     []string `json:"roles"`
+}
+
+type AdminNewsletterSubscriberStatus string
+
+const (
+	AdminNewsletterSubscriberStatusPending      AdminNewsletterSubscriberStatus = "PENDING"
+	AdminNewsletterSubscriberStatusActive       AdminNewsletterSubscriberStatus = "ACTIVE"
+	AdminNewsletterSubscriberStatusUnsubscribed AdminNewsletterSubscriberStatus = "UNSUBSCRIBED"
+)
+
+var AllAdminNewsletterSubscriberStatus = []AdminNewsletterSubscriberStatus{
+	AdminNewsletterSubscriberStatusPending,
+	AdminNewsletterSubscriberStatusActive,
+	AdminNewsletterSubscriberStatusUnsubscribed,
+}
+
+func (e AdminNewsletterSubscriberStatus) IsValid() bool {
+	switch e {
+	case AdminNewsletterSubscriberStatusPending, AdminNewsletterSubscriberStatusActive, AdminNewsletterSubscriberStatusUnsubscribed:
+		return true
+	}
+	return false
+}
+
+func (e AdminNewsletterSubscriberStatus) String() string {
+	return string(e)
+}
+
+func (e *AdminNewsletterSubscriberStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AdminNewsletterSubscriberStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AdminNewsletterSubscriberStatus", str)
+	}
+	return nil
+}
+
+func (e AdminNewsletterSubscriberStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AdminNewsletterSubscriberStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AdminNewsletterSubscriberStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
