@@ -2,6 +2,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faFacebookF, faGithub, faLinkedin, faMedium, faXTwitter } from '@fortawesome/free-brands-svg-icons';
 import {
   faAddressBook,
+  faArrowLeft,
   faAngleRight,
   faArrowRight,
   faArrowRightLong,
@@ -52,6 +53,7 @@ import {
   faSignOutAlt,
   faSort,
   faSun,
+  faTag,
   faTags,
   faTableCells,
   faTabletScreenButton,
@@ -111,6 +113,7 @@ export const loadIcons = () => {
     faUser,
     faEnvelope,
     faAddressBook,
+    faArrowLeft,
     faAngleRight,
     faArrowRight,
     faArrowRightLong,
@@ -126,6 +129,7 @@ export const loadIcons = () => {
     faCalendarAlt,
     faChartLine,
     faSort,
+    faTag,
     faTags,
     faTableCells,
     faTabletScreenButton,

@@ -9268,13 +9268,14 @@ label {
 
 .admin-account-shell {
   padding-top: var(--space-24);
-  max-width: min(1320px, 100%);
-  margin-inline: auto;
+  max-width: none;
+  margin-inline: 0;
 }
 
 .admin-account-grid {
-  max-width: 960px;
-  margin-inline: auto;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
 }
 
 .admin-settings-layout {
@@ -9405,8 +9406,8 @@ label {
 .admin-settings-content {
   min-width: 0;
   width: 100%;
-  max-width: min(980px, 100%);
-  justify-self: start;
+  max-width: none;
+  justify-self: stretch;
 }
 
 .admin-account-section-stack {
@@ -9853,9 +9854,224 @@ label {
   }
 }
 
+.admin-content-topic-card .post-summary-date,
+.admin-content-category-card .post-summary-date {
+  grid-area: topics;
+  margin-bottom: 0;
+}
+
+.admin-content-topic-card .post-summary-cta,
+.admin-content-category-card .post-summary-cta {
+  margin-top: 0.85rem;
+}
+
+.admin-content-meta-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid color-mix(in srgb, var(--border-color) 84%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 86%, var(--dropdown-hover-bg) 14%);
+  color: var(--text-color);
+  box-shadow: none;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+}
+
+.admin-content-meta-badge--topic {
+  border-color: color-mix(in srgb, var(--border-color) 78%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 80%, var(--dropdown-hover-bg) 20%);
+  color: color-mix(in srgb, var(--text-color) 90%, var(--muted-text-color) 10%);
+}
+
+@media (min-width: 992px) {
+  .admin-content-post-meta-list {
+    flex-wrap: nowrap;
+  }
+
+  .admin-content-post-meta-list > span {
+    white-space: nowrap;
+  }
+}
+
 .admin-account-form-card {
   width: 100%;
   min-height: clamp(26rem, 62vh, 52rem);
+}
+
+.admin-content-post-detail-body {
+  max-width: 76rem;
+  margin-inline: auto;
+}
+
+.admin-content-back-link {
+  --bs-btn-color: var(--text-color);
+  --bs-btn-border-color: color-mix(in srgb, var(--border-color) 84%, transparent);
+  --bs-btn-hover-color: var(--text-color);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--active-color) 42%, var(--border-color) 58%);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--main-bg) 88%, var(--dropdown-hover-bg) 12%);
+  --bs-btn-active-color: var(--text-color);
+  --bs-btn-active-border-color: color-mix(in srgb, var(--active-color) 50%, var(--border-color) 50%);
+  --bs-btn-active-bg: color-mix(in srgb, var(--active-color) 12%, var(--main-bg) 88%);
+  --bs-btn-disabled-color: color-mix(in srgb, var(--muted-text-color) 82%, var(--text-color) 18%);
+  --bs-btn-disabled-border-color: color-mix(in srgb, var(--border-color) 68%, transparent);
+}
+
+.admin-content-post-tab-pane {
+  padding-inline: clamp(0.85rem, 1.5vw, 1.2rem);
+  padding-bottom: clamp(0.85rem, 1.5vw, 1.2rem);
+}
+
+.admin-content-post-actions {
+  border-top: 1px solid color-mix(in srgb, var(--border-color) 86%, transparent);
+}
+
+.admin-content-tabs + .tab-content {
+  border: 0;
+  background: transparent;
+}
+
+.admin-content-post-split-row {
+  --admin-content-split-height: clamp(22rem, 56vh, 34rem);
+}
+
+@media (max-width: 1199.98px) {
+  .admin-content-post-split-row {
+    --admin-content-split-height: clamp(16rem, 44vh, 22rem);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .admin-content-post-split-row {
+    --admin-content-split-height: clamp(14rem, 42vh, 18.5rem);
+  }
+}
+
+.admin-content-post-split-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.admin-content-post-split-editor {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.admin-content-post-split-editor .admin-markdown-editor-shell {
+  height: var(--admin-content-split-height);
+}
+
+.admin-content-post-split-editor .admin-markdown-editor-gutter {
+  overflow: hidden;
+}
+
+.admin-content-post-split-editor .admin-markdown-editor-textarea.form-control {
+  height: 100%;
+  min-height: 0;
+  resize: none;
+}
+
+.admin-markdown-editor-textarea.form-control,
+.admin-post-content-preview--split {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+.admin-markdown-editor-textarea.form-control::-webkit-scrollbar,
+.admin-post-content-preview--split::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.admin-markdown-editor-textarea.form-control::-webkit-scrollbar-track,
+.admin-post-content-preview--split::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+.admin-markdown-editor-textarea.form-control::-webkit-scrollbar-thumb,
+.admin-post-content-preview--split::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.admin-markdown-editor-textarea.form-control::-webkit-scrollbar-thumb:hover,
+.admin-post-content-preview--split::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+.admin-markdown-editor-shell {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  border: 1px solid color-mix(in srgb, var(--border-color) 84%, transparent);
+  border-radius: 0.8rem;
+  background: color-mix(in srgb, var(--main-bg) 94%, var(--dropdown-hover-bg) 6%);
+  overflow: hidden;
+  transition:
+    border-color var(--transition-speed) ease,
+    box-shadow var(--transition-speed) ease;
+}
+
+.admin-markdown-editor-shell:focus-within {
+  border-color: color-mix(in srgb, var(--active-color) 28%, var(--border-color) 72%);
+  box-shadow: 0 0 0 0.12rem color-mix(in srgb, var(--active-color) 12%, transparent);
+}
+
+.admin-markdown-editor-gutter {
+  overflow: hidden;
+  user-select: none;
+  border-inline-end: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 86%, var(--dropdown-hover-bg) 14%);
+}
+
+.admin-markdown-editor-gutter-lines {
+  display: grid;
+  min-width: 3.1rem;
+  padding: 0.75rem 0.6rem;
+  font-family: var(--bs-font-monospace);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.58;
+  color: var(--muted-text-color);
+  text-align: right;
+  pointer-events: none;
+}
+
+.admin-markdown-editor-gutter-lines span {
+  display: block;
+  padding-inline: 0.2rem;
+  border-radius: 0.35rem;
+  transition:
+    color var(--transition-speed) ease,
+    background-color var(--transition-speed) ease;
+}
+
+.admin-markdown-editor-gutter-lines span.is-active {
+  color: color-mix(in srgb, var(--active-color) 70%, var(--text-color) 30%);
+  background: color-mix(in srgb, var(--active-color) 16%, transparent);
+}
+
+.admin-markdown-editor-textarea.form-control {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-color);
+  font-family: var(--bs-font-monospace);
+  font-size: 0.95rem;
+  line-height: 1.58;
+  white-space: pre;
+  overflow-wrap: normal;
+  word-break: normal;
+  padding: 0.75rem 0.85rem;
+  box-shadow: none;
+  resize: vertical;
+}
+
+.admin-markdown-editor-textarea.form-control:focus {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
 }
 
 .admin-error-editor-modal {
@@ -9880,6 +10096,132 @@ label {
 .oceanic-theme .admin-error-editor-modal .btn-close,
 .forest-theme .admin-error-editor-modal .btn-close {
   filter: invert(1) grayscale(1) brightness(1.65);
+}
+
+.admin-content-post-editor-modal {
+  --bs-modal-bg: color-mix(in srgb, var(--main-bg) 96%, var(--dropdown-hover-bg) 4%);
+  --bs-modal-color: var(--text-color);
+  --bs-modal-border-color: color-mix(in srgb, var(--border-color) 86%, transparent);
+  --bs-modal-header-border-color: color-mix(in srgb, var(--border-color) 76%, transparent);
+  --bs-modal-footer-border-color: color-mix(in srgb, var(--border-color) 76%, transparent);
+}
+
+.admin-content-post-editor-modal .modal-content {
+  border-radius: 0.9rem;
+  box-shadow: var(--box-shadow-lg);
+}
+
+.admin-content-post-editor-modal .modal-header,
+.admin-content-post-editor-modal .modal-footer {
+  background: color-mix(in srgb, var(--main-bg) 94%, var(--dropdown-hover-bg) 6%);
+}
+
+.dark-theme .admin-content-post-editor-modal .btn-close,
+.oceanic-theme .admin-content-post-editor-modal .btn-close,
+.forest-theme .admin-content-post-editor-modal .btn-close {
+  filter: invert(1) grayscale(1) brightness(1.65);
+}
+
+.admin-post-content-preview {
+  min-height: 14rem;
+  max-height: none;
+  overflow: visible;
+  min-width: 0;
+}
+
+.admin-post-content-preview--split {
+  height: var(--admin-content-split-height);
+  min-height: var(--admin-content-split-height);
+  max-height: var(--admin-content-split-height);
+  overflow: auto;
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  border-radius: 0.8rem;
+  background: color-mix(in srgb, var(--main-bg) 97%, var(--dropdown-hover-bg) 3%);
+  padding: 0.85rem;
+}
+
+.admin-post-content-preview--boxed {
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  border-radius: 0.8rem;
+  background: color-mix(in srgb, var(--main-bg) 97%, var(--dropdown-hover-bg) 3%);
+  padding: 0.85rem;
+}
+
+.admin-post-content-preview--split .post-article {
+  margin-bottom: 0;
+}
+
+.admin-post-content-preview--split .post-summary-text:last-child {
+  margin-bottom: 0;
+}
+
+.admin-post-content-preview--boxed .post-article {
+  margin-bottom: 0;
+}
+
+.admin-post-content-preview--boxed .post-summary-text:last-child {
+  margin-bottom: 0;
+}
+
+.admin-post-content-preview-pane,
+.admin-content-post-editor-grid > [class*='col-'] {
+  min-width: 0;
+}
+
+.admin-post-content-preview .post-list-results {
+  display: block;
+}
+
+.admin-post-content-preview .post-card,
+.admin-post-content-preview .post-card-content {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.admin-post-content-preview-markdown {
+  overflow-wrap: anywhere;
+}
+
+.admin-post-content-preview-markdown.post-article {
+  max-width: none;
+  margin-inline: 0;
+}
+
+.admin-post-content-preview-markdown * {
+  max-width: 100%;
+}
+
+.admin-post-content-preview-markdown .post-media-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.admin-post-content-preview-markdown img,
+.admin-post-content-preview-markdown video,
+.admin-post-content-preview-markdown canvas,
+.admin-post-content-preview-markdown iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.admin-post-content-preview-markdown table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.admin-post-content-preview-markdown pre,
+.admin-post-content-preview-markdown code {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 767.98px) {
+  .admin-post-content-preview-markdown .post-media-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .admin-account-sessions-loading {

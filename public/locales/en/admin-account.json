@@ -15,7 +15,7 @@
     },
     "settings": {
       "title": "Settings",
-      "copy": "Manage your profile, account controls, security, active sessions, and newsletter subscribers.",
+      "copy": "Manage your profile, account controls, appearance, active sessions, newsletter subscribers, and content metadata.",
       "navLabel": "Settings navigation",
       "profile": "Profile",
       "account": "Account",
@@ -23,6 +23,7 @@
       "sessions": "Sessions",
       "newsletter": "Newsletter",
       "errors": "Error messages",
+      "content": "Content",
       "security": "Security"
     },
     "profile": {
@@ -216,8 +217,163 @@
         "title": "Delete subscriber",
         "copy": "Delete newsletter subscriber {{email}}?"
       }
-    }
-    ,
+    },
+  "content": {
+    "title": "Content management",
+    "copy": "List posts, filter by locale/topic/category, update metadata, and manage topic/category taxonomies.",
+    "loading": {
+      "posts": "Loading posts...",
+      "taxonomy": "Loading taxonomy...",
+      "postContent": "Loading post content..."
+    },
+      "empty": {
+        "posts": "No posts found for the current filters.",
+        "topics": "No topics found.",
+        "categories": "No categories found."
+      },
+      "filters": {
+        "locale": "Locale",
+        "source": "Source",
+        "category": "Category",
+        "topic": "Topic",
+        "query": "Search",
+        "queryPlaceholder": "Search by id or title",
+        "locales": {
+          "all": "All locales",
+          "en": "English",
+          "tr": "Turkish"
+        },
+        "categories": {
+          "all": "All categories"
+        },
+        "sources": {
+          "all": "All sources"
+        },
+        "topics": {
+          "all": "All topics"
+        }
+      },
+      "tabs": {
+        "posts": "Posts",
+        "topics": "Topics",
+        "categories": "Categories"
+      },
+      "list": {
+        "updatedAt": "Updated: {{value}}",
+        "localeValue": "Locale: {{value}}",
+        "colorValue": "Color: {{value}}",
+        "iconValue": "Icon: {{value}}"
+      },
+      "topics": {
+        "title": "Topics"
+      },
+      "categories": {
+        "title": "Categories"
+      },
+      "actions": {
+        "create": "Create",
+        "createTopic": "Create topic",
+      "createCategory": "Create category",
+      "update": "Update",
+      "updatePost": "Update post",
+      "updatePostContent": "Save content",
+      "backToPosts": "Back to posts",
+      "delete": "Delete",
+      "deletePost": "Delete post",
+        "saving": "Saving...",
+        "updating": "Updating...",
+        "deleting": "Deleting..."
+      },
+      "success": {
+      "postUpdated": "Post metadata updated: {{id}}",
+      "postContentUpdated": "Post content updated: {{id}}",
+      "postDeleted": "Post deleted: {{id}}",
+        "topicCreated": "Topic created: {{id}}",
+        "topicUpdated": "Topic updated: {{id}}",
+        "topicDeleted": "Topic deleted: {{id}}",
+        "categoryCreated": "Category created: {{id}}",
+        "categoryUpdated": "Category updated: {{id}}",
+        "categoryDeleted": "Category deleted: {{id}}"
+      },
+      "errors": {
+        "taxonomyLoad": "Topics and categories could not be loaded.",
+        "postLoad": "Posts could not be loaded.",
+      "postUpdate": "Post metadata could not be updated.",
+      "postContentUpdate": "Post content could not be updated.",
+      "postDelete": "Post could not be deleted.",
+        "topicCreate": "Topic could not be created.",
+        "topicUpdate": "Topic could not be updated.",
+        "topicDelete": "Topic could not be deleted.",
+        "categoryCreate": "Category could not be created.",
+        "categoryUpdate": "Category could not be updated.",
+        "categoryDelete": "Category could not be deleted."
+      },
+      "validation": {
+        "id": "Use lowercase letters, numbers, and dash only (2-128 chars)."
+      },
+    "modals": {
+      "post": {
+        "title": "Update post metadata",
+        "empty": "No post selected.",
+        "tabs": {
+          "metadata": "Metadata",
+          "content": "Content"
+        },
+        "category": "Category",
+        "categoryNone": "No category",
+        "topics": "Topics",
+        "topicsEmpty": "No topics found for this locale.",
+        "contentLabel": "Markdown content",
+      "contentHint": "Supports standard Markdown syntax.",
+      "previewTitle": "Preview",
+      "previewEmpty": "No content to preview.",
+      "modes": {
+        "editor": "Editor",
+        "split": "Editor + Preview",
+        "preview": "Preview"
+      },
+      "meta": {
+        "published": "Published",
+        "updated": "Updated"
+      },
+      "labels": {
+        "id": "Post id: {{value}}",
+        "locale": "Locale: {{value}}"
+      }
+        },
+        "deletePost": {
+          "title": "Delete post",
+          "copy": "Delete post {{id}}?"
+        },
+        "topic": {
+          "createTitle": "Create topic",
+          "updateTitle": "Update topic",
+          "locale": "Locale",
+          "id": "Topic id",
+          "name": "Name",
+          "color": "Color",
+          "link": "Link"
+        },
+        "deleteTopic": {
+          "title": "Delete topic",
+          "copy": "Delete topic {{id}}?"
+        },
+        "category": {
+          "createTitle": "Create category",
+          "updateTitle": "Update category",
+          "locale": "Locale",
+          "id": "Category id",
+          "name": "Name",
+          "color": "Color",
+          "icon": "Icon",
+          "link": "Link"
+        },
+        "deleteCategory": {
+          "title": "Delete category",
+          "copy": "Delete category {{id}}?"
+        }
+      }
+    },
     "errorsCatalog": {
     "title": "Error messages",
     "copy": "List, filter, create, update, and delete admin API error messages.",

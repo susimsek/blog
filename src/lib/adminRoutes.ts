@@ -9,6 +9,7 @@ export const ADMIN_ROUTES = {
     sessions: '/admin/settings/sessions',
     newsletter: '/admin/settings/newsletter',
     errors: '/admin/settings/errors',
+    content: '/admin/settings/content',
     security: '/admin/settings/security',
     passwordLegacy: '/admin/settings/password',
   },
@@ -19,3 +20,6 @@ export const ADMIN_ROUTES = {
 } as const;
 
 export const withAdminLocalePath = (locale: string, route: string) => `/${locale}${route}`;
+
+export const buildAdminContentPostDetailRoute = (postLocale: string, postId: string) =>
+  `${ADMIN_ROUTES.settings.content}/posts/${encodeURIComponent(postLocale.trim().toLowerCase())}/${encodeURIComponent(postId)}`;

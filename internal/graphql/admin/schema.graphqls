@@ -11,6 +11,12 @@ type AdminQuery {
   activeSessions: [AdminSession!]!
   newsletterSubscribers(filter: AdminNewsletterSubscriberFilterInput): AdminNewsletterSubscriberListPayload!
   errorMessages(filter: AdminErrorMessageFilterInput): AdminErrorMessageListPayload!
+  contentPosts(filter: AdminContentPostFilterInput): AdminContentPostListPayload!
+  contentPost(input: AdminContentEntityKeyInput!): AdminContentPost
+  contentTopicsPage(filter: AdminContentTaxonomyFilterInput): AdminContentTopicListPayload!
+  contentCategoriesPage(filter: AdminContentTaxonomyFilterInput): AdminContentCategoryListPayload!
+  contentTopics(locale: String): [AdminContentTopic!]!
+  contentCategories(locale: String): [AdminContentCategory!]!
   errorMessageAuditLogs(limit: Int): [AdminErrorMessageAuditLog!]!
 }
 
@@ -30,6 +36,15 @@ type AdminMutation {
   createErrorMessage(input: AdminCreateErrorMessageInput!): AdminErrorMessage!
   updateErrorMessage(input: AdminUpdateErrorMessageInput!): AdminErrorMessage!
   deleteErrorMessage(input: AdminErrorMessageKeyInput!): AdminDeletePayload!
+  updateContentPostMetadata(input: AdminUpdateContentPostMetadataInput!): AdminContentPost!
+  updateContentPostContent(input: AdminUpdateContentPostContentInput!): AdminContentPost!
+  deleteContentPost(input: AdminContentEntityKeyInput!): AdminDeletePayload!
+  createContentTopic(input: AdminContentTopicInput!): AdminContentTopic!
+  updateContentTopic(input: AdminContentTopicInput!): AdminContentTopic!
+  deleteContentTopic(input: AdminContentEntityKeyInput!): AdminDeletePayload!
+  createContentCategory(input: AdminContentCategoryInput!): AdminContentCategory!
+  updateContentCategory(input: AdminContentCategoryInput!): AdminContentCategory!
+  deleteContentCategory(input: AdminContentEntityKeyInput!): AdminDeletePayload!
 }
 
 enum AdminNewsletterSubscriberStatus {
@@ -77,6 +92,58 @@ input AdminCreateErrorMessageInput {
 input AdminUpdateErrorMessageInput {
   key: AdminErrorMessageKeyInput!
   message: String!
+}
+
+input AdminContentPostFilterInput {
+  locale: String
+  source: String
+  query: String
+  categoryId: String
+  topicId: String
+  page: Int
+  size: Int
+}
+
+input AdminContentTaxonomyFilterInput {
+  locale: String
+  query: String
+  page: Int
+  size: Int
+}
+
+input AdminContentEntityKeyInput {
+  locale: String!
+  id: ID!
+}
+
+input AdminUpdateContentPostMetadataInput {
+  locale: String!
+  id: ID!
+  categoryId: String
+  topicIds: [String!]!
+}
+
+input AdminUpdateContentPostContentInput {
+  locale: String!
+  id: ID!
+  content: String!
+}
+
+input AdminContentTopicInput {
+  locale: String!
+  id: String!
+  name: String!
+  color: String!
+  link: String
+}
+
+input AdminContentCategoryInput {
+  locale: String!
+  id: String!
+  name: String!
+  color: String!
+  icon: String
+  link: String
 }
 
 input AdminLoginInput {
@@ -210,6 +277,65 @@ type AdminErrorMessageAuditLog {
   countryCode: String
   userAgent: String
   createdAt: DateTime!
+}
+
+type AdminContentPost {
+  locale: String!
+  id: ID!
+  title: String!
+  summary: String
+  content: String
+  contentMode: String
+  thumbnail: String
+  source: String!
+  publishedDate: String!
+  updatedDate: String
+  categoryId: String
+  categoryName: String
+  topicIds: [String!]!
+  topicNames: [String!]!
+  contentUpdatedAt: DateTime
+  updatedAt: DateTime
+}
+
+type AdminContentPostListPayload {
+  items: [AdminContentPost!]!
+  total: Int!
+  page: Int!
+  size: Int!
+}
+
+type AdminContentTopicListPayload {
+  items: [AdminContentTopic!]!
+  total: Int!
+  page: Int!
+  size: Int!
+}
+
+type AdminContentCategoryListPayload {
+  items: [AdminContentCategory!]!
+  total: Int!
+  page: Int!
+  size: Int!
+}
+
+type AdminContentTopic {
+  locale: String!
+  id: ID!
+  name: String!
+  color: String!
+  link: String
+  updatedAt: DateTime
+}
+
+type AdminContentCategory {
+  locale: String!
+  id: ID!
+  name: String!
+  color: String!
+  icon: String
+  link: String
+  updatedAt: DateTime
 }
 
 type AdminDashboard {

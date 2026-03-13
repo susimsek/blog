@@ -144,6 +144,125 @@ type AdminSessionRevokePayload = {
   };
 };
 
+export type AdminContentPostItem = {
+  locale: string;
+  id: string;
+  title: string;
+  summary: string | null;
+  content: string | null;
+  contentMode: string | null;
+  thumbnail: string | null;
+  source: string;
+  publishedDate: string;
+  updatedDate: string | null;
+  categoryId: string | null;
+  categoryName: string | null;
+  topicIds: string[];
+  topicNames: string[];
+  contentUpdatedAt: string | null;
+  updatedAt: string | null;
+};
+
+export type AdminContentTopicItem = {
+  locale: string;
+  id: string;
+  name: string;
+  color: string;
+  link: string | null;
+  updatedAt: string | null;
+};
+
+export type AdminContentCategoryItem = {
+  locale: string;
+  id: string;
+  name: string;
+  color: string;
+  icon: string | null;
+  link: string | null;
+  updatedAt: string | null;
+};
+
+type AdminContentPostsPayload = {
+  contentPosts: {
+    items: AdminContentPostItem[];
+    total: number;
+    page: number;
+    size: number;
+  };
+};
+
+type AdminContentPostPayload = {
+  contentPost: AdminContentPostItem | null;
+};
+
+type AdminContentTopicsPayload = {
+  contentTopics: AdminContentTopicItem[];
+};
+
+type AdminContentCategoriesPayload = {
+  contentCategories: AdminContentCategoryItem[];
+};
+
+type AdminContentTopicsPagePayload = {
+  contentTopicsPage: {
+    items: AdminContentTopicItem[];
+    total: number;
+    page: number;
+    size: number;
+  };
+};
+
+type AdminContentCategoriesPagePayload = {
+  contentCategoriesPage: {
+    items: AdminContentCategoryItem[];
+    total: number;
+    page: number;
+    size: number;
+  };
+};
+
+type AdminUpdateContentPostMetadataPayload = {
+  updateContentPostMetadata: AdminContentPostItem;
+};
+
+type AdminUpdateContentPostContentPayload = {
+  updateContentPostContent: AdminContentPostItem;
+};
+
+type AdminDeleteContentPostPayload = {
+  deleteContentPost: {
+    success: boolean;
+  };
+};
+
+type AdminCreateContentTopicPayload = {
+  createContentTopic: AdminContentTopicItem;
+};
+
+type AdminUpdateContentTopicPayload = {
+  updateContentTopic: AdminContentTopicItem;
+};
+
+type AdminDeleteContentTopicPayload = {
+  deleteContentTopic: {
+    success: boolean;
+  };
+};
+
+type AdminCreateContentCategoryPayload = {
+  createContentCategory: AdminContentCategoryItem;
+};
+
+type AdminUpdateContentCategoryPayload = {
+  updateContentCategory: AdminContentCategoryItem;
+};
+
+type AdminDeleteContentCategoryPayload = {
+  deleteContentCategory: {
+    success: boolean;
+  };
+};
+
 export type AdminErrorMessageItem = {
   scope: string;
   locale: string;
@@ -432,6 +551,242 @@ const ADMIN_REVOKE_SESSION_MUTATION = gql`
 const ADMIN_REVOKE_ALL_SESSIONS_MUTATION = gql`
   mutation RevokeAllAdminSessions {
     revokeAllSessions {
+      success
+    }
+  }
+`;
+
+const ADMIN_CONTENT_POSTS_QUERY = gql`
+  query AdminContentPosts($filter: AdminContentPostFilterInput) {
+    contentPosts(filter: $filter) {
+      items {
+        locale
+        id
+        title
+        summary
+        thumbnail
+        source
+        publishedDate
+        updatedDate
+        categoryId
+        categoryName
+        topicIds
+        topicNames
+        updatedAt
+      }
+      total
+      page
+      size
+    }
+  }
+`;
+
+const ADMIN_CONTENT_POST_QUERY = gql`
+  query AdminContentPost($input: AdminContentEntityKeyInput!) {
+    contentPost(input: $input) {
+      locale
+      id
+      title
+      summary
+      content
+      contentMode
+      thumbnail
+      source
+      publishedDate
+      updatedDate
+      categoryId
+      categoryName
+      topicIds
+      topicNames
+      contentUpdatedAt
+      updatedAt
+    }
+  }
+`;
+
+const ADMIN_CONTENT_TOPICS_QUERY = gql`
+  query AdminContentTopics($locale: String) {
+    contentTopics(locale: $locale) {
+      locale
+      id
+      name
+      color
+      link
+      updatedAt
+    }
+  }
+`;
+
+const ADMIN_CONTENT_CATEGORIES_QUERY = gql`
+  query AdminContentCategories($locale: String) {
+    contentCategories(locale: $locale) {
+      locale
+      id
+      name
+      color
+      icon
+      link
+      updatedAt
+    }
+  }
+`;
+
+const ADMIN_CONTENT_TOPICS_PAGE_QUERY = gql`
+  query AdminContentTopicsPage($filter: AdminContentTaxonomyFilterInput) {
+    contentTopicsPage(filter: $filter) {
+      items {
+        locale
+        id
+        name
+        color
+        link
+        updatedAt
+      }
+      total
+      page
+      size
+    }
+  }
+`;
+
+const ADMIN_CONTENT_CATEGORIES_PAGE_QUERY = gql`
+  query AdminContentCategoriesPage($filter: AdminContentTaxonomyFilterInput) {
+    contentCategoriesPage(filter: $filter) {
+      items {
+        locale
+        id
+        name
+        color
+        icon
+        link
+        updatedAt
+      }
+      total
+      page
+      size
+    }
+  }
+`;
+
+const ADMIN_UPDATE_CONTENT_POST_METADATA_MUTATION = gql`
+  mutation AdminUpdateContentPostMetadata($input: AdminUpdateContentPostMetadataInput!) {
+    updateContentPostMetadata(input: $input) {
+      locale
+      id
+      title
+      summary
+      content
+      contentMode
+      thumbnail
+      source
+      publishedDate
+      updatedDate
+      categoryId
+      categoryName
+      topicIds
+      topicNames
+      contentUpdatedAt
+      updatedAt
+    }
+  }
+`;
+
+const ADMIN_UPDATE_CONTENT_POST_CONTENT_MUTATION = gql`
+  mutation AdminUpdateContentPostContent($input: AdminUpdateContentPostContentInput!) {
+    updateContentPostContent(input: $input) {
+      locale
+      id
+      title
+      summary
+      content
+      contentMode
+      thumbnail
+      source
+      publishedDate
+      updatedDate
+      categoryId
+      categoryName
+      topicIds
+      topicNames
+      contentUpdatedAt
+      updatedAt
+    }
+  }
+`;
+
+const ADMIN_DELETE_CONTENT_POST_MUTATION = gql`
+  mutation AdminDeleteContentPost($input: AdminContentEntityKeyInput!) {
+    deleteContentPost(input: $input) {
+      success
+    }
+  }
+`;
+
+const ADMIN_CREATE_CONTENT_TOPIC_MUTATION = gql`
+  mutation AdminCreateContentTopic($input: AdminContentTopicInput!) {
+    createContentTopic(input: $input) {
+      locale
+      id
+      name
+      color
+      link
+      updatedAt
+    }
+  }
+`;
+
+const ADMIN_UPDATE_CONTENT_TOPIC_MUTATION = gql`
+  mutation AdminUpdateContentTopic($input: AdminContentTopicInput!) {
+    updateContentTopic(input: $input) {
+      locale
+      id
+      name
+      color
+      link
+      updatedAt
+    }
+  }
+`;
+
+const ADMIN_DELETE_CONTENT_TOPIC_MUTATION = gql`
+  mutation AdminDeleteContentTopic($input: AdminContentEntityKeyInput!) {
+    deleteContentTopic(input: $input) {
+      success
+    }
+  }
+`;
+
+const ADMIN_CREATE_CONTENT_CATEGORY_MUTATION = gql`
+  mutation AdminCreateContentCategory($input: AdminContentCategoryInput!) {
+    createContentCategory(input: $input) {
+      locale
+      id
+      name
+      color
+      icon
+      link
+      updatedAt
+    }
+  }
+`;
+
+const ADMIN_UPDATE_CONTENT_CATEGORY_MUTATION = gql`
+  mutation AdminUpdateContentCategory($input: AdminContentCategoryInput!) {
+    updateContentCategory(input: $input) {
+      locale
+      id
+      name
+      color
+      icon
+      link
+      updatedAt
+    }
+  }
+`;
+
+const ADMIN_DELETE_CONTENT_CATEGORY_MUTATION = gql`
+  mutation AdminDeleteContentCategory($input: AdminContentEntityKeyInput!) {
+    deleteContentCategory(input: $input) {
       success
     }
   }
@@ -1103,6 +1458,493 @@ export const revokeAllAdminSessions = async () => {
   });
 
   return payload.revokeAllSessions?.success === true;
+};
+
+export const fetchAdminContentPosts = async (filter?: {
+  locale?: string;
+  source?: 'blog' | 'medium';
+  query?: string;
+  categoryId?: string;
+  topicId?: string;
+  page?: number;
+  size?: number;
+}) => {
+  const resolvedLocale = filter?.locale?.trim().toLowerCase() ?? '';
+  const resolvedSourceRaw = filter?.source?.trim().toLowerCase() ?? '';
+  const resolvedSource: 'blog' | 'medium' | '' =
+    resolvedSourceRaw === 'medium' ? 'medium' : resolvedSourceRaw === 'blog' ? 'blog' : '';
+  const resolvedQuery = filter?.query?.trim() ?? '';
+  const resolvedCategoryID = filter?.categoryId?.trim().toLowerCase() ?? '';
+  const resolvedTopicID = filter?.topicId?.trim().toLowerCase() ?? '';
+  const resolvedPage = filter?.page && Number.isFinite(filter.page) && filter.page > 0 ? Math.trunc(filter.page) : 1;
+  const resolvedSize =
+    filter?.size && Number.isFinite(filter.size) && filter.size > 0 ? Math.trunc(filter.size) : undefined;
+
+  const payload = await executeAdminGraphQL<
+    AdminContentPostsPayload,
+    {
+      filter?: {
+        locale?: string;
+        source?: 'blog' | 'medium';
+        query?: string;
+        categoryId?: string;
+        topicId?: string;
+        page?: number;
+        size?: number;
+      };
+    }
+  >(
+    ADMIN_CONTENT_POSTS_QUERY,
+    {
+      filter: {
+        ...(resolvedLocale ? { locale: resolvedLocale } : {}),
+        ...(resolvedSource ? { source: resolvedSource } : {}),
+        ...(resolvedQuery ? { query: resolvedQuery } : {}),
+        ...(resolvedCategoryID ? { categoryId: resolvedCategoryID } : {}),
+        ...(resolvedTopicID ? { topicId: resolvedTopicID } : {}),
+        ...(resolvedPage ? { page: resolvedPage } : {}),
+        ...(resolvedSize ? { size: resolvedSize } : {}),
+      },
+    },
+    {
+      operationName: 'AdminContentPosts',
+    },
+  );
+
+  return payload.contentPosts;
+};
+
+export const fetchAdminContentPost = async (input: { locale: string; id: string }) => {
+  const payload = await executeAdminGraphQL<
+    AdminContentPostPayload,
+    {
+      input: {
+        locale: string;
+        id: string;
+      };
+    }
+  >(
+    ADMIN_CONTENT_POST_QUERY,
+    {
+      input: {
+        locale: input.locale.trim().toLowerCase(),
+        id: input.id.trim().toLowerCase(),
+      },
+    },
+    {
+      operationName: 'AdminContentPost',
+    },
+  );
+
+  return payload.contentPost;
+};
+
+export const fetchAdminContentTopics = async (locale?: string) => {
+  const resolvedLocale = locale?.trim().toLowerCase() ?? '';
+  const payload = await executeAdminGraphQL<
+    AdminContentTopicsPayload,
+    {
+      locale?: string;
+    }
+  >(
+    ADMIN_CONTENT_TOPICS_QUERY,
+    {
+      ...(resolvedLocale ? { locale: resolvedLocale } : {}),
+    },
+    {
+      operationName: 'AdminContentTopics',
+    },
+  );
+
+  return payload.contentTopics;
+};
+
+export const fetchAdminContentCategories = async (locale?: string) => {
+  const resolvedLocale = locale?.trim().toLowerCase() ?? '';
+  const payload = await executeAdminGraphQL<
+    AdminContentCategoriesPayload,
+    {
+      locale?: string;
+    }
+  >(
+    ADMIN_CONTENT_CATEGORIES_QUERY,
+    {
+      ...(resolvedLocale ? { locale: resolvedLocale } : {}),
+    },
+    {
+      operationName: 'AdminContentCategories',
+    },
+  );
+
+  return payload.contentCategories;
+};
+
+export const fetchAdminContentTopicsPage = async (params?: {
+  locale?: string;
+  query?: string;
+  page?: number;
+  size?: number;
+}) => {
+  const resolvedLocale = params?.locale?.trim().toLowerCase() ?? '';
+  const resolvedQuery = params?.query?.trim() ?? '';
+  const resolvedPage = Number.isFinite(params?.page) ? (params?.page as number) : undefined;
+  const resolvedSize = Number.isFinite(params?.size) ? (params?.size as number) : undefined;
+
+  const payload = await executeAdminGraphQL<
+    AdminContentTopicsPagePayload,
+    {
+      filter?: {
+        locale?: string;
+        query?: string;
+        page?: number;
+        size?: number;
+      };
+    }
+  >(
+    ADMIN_CONTENT_TOPICS_PAGE_QUERY,
+    {
+      filter: {
+        ...(resolvedLocale ? { locale: resolvedLocale } : {}),
+        ...(resolvedQuery ? { query: resolvedQuery } : {}),
+        ...(resolvedPage ? { page: resolvedPage } : {}),
+        ...(resolvedSize ? { size: resolvedSize } : {}),
+      },
+    },
+    {
+      operationName: 'AdminContentTopicsPage',
+    },
+  );
+
+  return payload.contentTopicsPage;
+};
+
+export const fetchAdminContentCategoriesPage = async (params?: {
+  locale?: string;
+  query?: string;
+  page?: number;
+  size?: number;
+}) => {
+  const resolvedLocale = params?.locale?.trim().toLowerCase() ?? '';
+  const resolvedQuery = params?.query?.trim() ?? '';
+  const resolvedPage = Number.isFinite(params?.page) ? (params?.page as number) : undefined;
+  const resolvedSize = Number.isFinite(params?.size) ? (params?.size as number) : undefined;
+
+  const payload = await executeAdminGraphQL<
+    AdminContentCategoriesPagePayload,
+    {
+      filter?: {
+        locale?: string;
+        query?: string;
+        page?: number;
+        size?: number;
+      };
+    }
+  >(
+    ADMIN_CONTENT_CATEGORIES_PAGE_QUERY,
+    {
+      filter: {
+        ...(resolvedLocale ? { locale: resolvedLocale } : {}),
+        ...(resolvedQuery ? { query: resolvedQuery } : {}),
+        ...(resolvedPage ? { page: resolvedPage } : {}),
+        ...(resolvedSize ? { size: resolvedSize } : {}),
+      },
+    },
+    {
+      operationName: 'AdminContentCategoriesPage',
+    },
+  );
+
+  return payload.contentCategoriesPage;
+};
+
+export const updateAdminContentPostMetadata = async (input: {
+  locale: string;
+  id: string;
+  categoryId?: string | null;
+  topicIds: string[];
+}) => {
+  const payload = await executeAdminGraphQL<
+    AdminUpdateContentPostMetadataPayload,
+    {
+      input: {
+        locale: string;
+        id: string;
+        categoryId?: string;
+        topicIds: string[];
+      };
+    }
+  >(
+    ADMIN_UPDATE_CONTENT_POST_METADATA_MUTATION,
+    {
+      input: {
+        locale: input.locale.trim().toLowerCase(),
+        id: input.id.trim().toLowerCase(),
+        ...(input.categoryId?.trim() ? { categoryId: input.categoryId.trim().toLowerCase() } : {}),
+        topicIds: input.topicIds.map(item => item.trim().toLowerCase()).filter(item => item !== ''),
+      },
+    },
+    {
+      operationName: 'AdminUpdateContentPostMetadata',
+    },
+  );
+
+  return payload.updateContentPostMetadata;
+};
+
+export const updateAdminContentPostContent = async (input: { locale: string; id: string; content: string }) => {
+  const payload = await executeAdminGraphQL<
+    AdminUpdateContentPostContentPayload,
+    {
+      input: {
+        locale: string;
+        id: string;
+        content: string;
+      };
+    }
+  >(
+    ADMIN_UPDATE_CONTENT_POST_CONTENT_MUTATION,
+    {
+      input: {
+        locale: input.locale.trim().toLowerCase(),
+        id: input.id.trim().toLowerCase(),
+        content: input.content,
+      },
+    },
+    {
+      operationName: 'AdminUpdateContentPostContent',
+    },
+  );
+
+  return payload.updateContentPostContent;
+};
+
+export const deleteAdminContentPost = async (input: { locale: string; id: string }) => {
+  const payload = await executeAdminGraphQL<
+    AdminDeleteContentPostPayload,
+    {
+      input: {
+        locale: string;
+        id: string;
+      };
+    }
+  >(
+    ADMIN_DELETE_CONTENT_POST_MUTATION,
+    {
+      input: {
+        locale: input.locale.trim().toLowerCase(),
+        id: input.id.trim().toLowerCase(),
+      },
+    },
+    {
+      operationName: 'AdminDeleteContentPost',
+    },
+  );
+
+  return payload.deleteContentPost?.success === true;
+};
+
+export const createAdminContentTopic = async (input: {
+  locale: string;
+  id: string;
+  name: string;
+  color: string;
+  link?: string | null;
+}) => {
+  const payload = await executeAdminGraphQL<
+    AdminCreateContentTopicPayload,
+    {
+      input: {
+        locale: string;
+        id: string;
+        name: string;
+        color: string;
+        link?: string;
+      };
+    }
+  >(
+    ADMIN_CREATE_CONTENT_TOPIC_MUTATION,
+    {
+      input: {
+        locale: input.locale.trim().toLowerCase(),
+        id: input.id.trim().toLowerCase(),
+        name: input.name.trim(),
+        color: input.color.trim().toLowerCase(),
+        ...(input.link?.trim() ? { link: input.link.trim() } : {}),
+      },
+    },
+    {
+      operationName: 'AdminCreateContentTopic',
+    },
+  );
+
+  return payload.createContentTopic;
+};
+
+export const updateAdminContentTopic = async (input: {
+  locale: string;
+  id: string;
+  name: string;
+  color: string;
+  link?: string | null;
+}) => {
+  const payload = await executeAdminGraphQL<
+    AdminUpdateContentTopicPayload,
+    {
+      input: {
+        locale: string;
+        id: string;
+        name: string;
+        color: string;
+        link?: string;
+      };
+    }
+  >(
+    ADMIN_UPDATE_CONTENT_TOPIC_MUTATION,
+    {
+      input: {
+        locale: input.locale.trim().toLowerCase(),
+        id: input.id.trim().toLowerCase(),
+        name: input.name.trim(),
+        color: input.color.trim().toLowerCase(),
+        ...(input.link?.trim() ? { link: input.link.trim() } : {}),
+      },
+    },
+    {
+      operationName: 'AdminUpdateContentTopic',
+    },
+  );
+
+  return payload.updateContentTopic;
+};
+
+export const deleteAdminContentTopic = async (input: { locale: string; id: string }) => {
+  const payload = await executeAdminGraphQL<
+    AdminDeleteContentTopicPayload,
+    {
+      input: {
+        locale: string;
+        id: string;
+      };
+    }
+  >(
+    ADMIN_DELETE_CONTENT_TOPIC_MUTATION,
+    {
+      input: {
+        locale: input.locale.trim().toLowerCase(),
+        id: input.id.trim().toLowerCase(),
+      },
+    },
+    {
+      operationName: 'AdminDeleteContentTopic',
+    },
+  );
+
+  return payload.deleteContentTopic?.success === true;
+};
+
+export const createAdminContentCategory = async (input: {
+  locale: string;
+  id: string;
+  name: string;
+  color: string;
+  icon?: string | null;
+  link?: string | null;
+}) => {
+  const payload = await executeAdminGraphQL<
+    AdminCreateContentCategoryPayload,
+    {
+      input: {
+        locale: string;
+        id: string;
+        name: string;
+        color: string;
+        icon?: string;
+        link?: string;
+      };
+    }
+  >(
+    ADMIN_CREATE_CONTENT_CATEGORY_MUTATION,
+    {
+      input: {
+        locale: input.locale.trim().toLowerCase(),
+        id: input.id.trim().toLowerCase(),
+        name: input.name.trim(),
+        color: input.color.trim().toLowerCase(),
+        ...(input.icon?.trim() ? { icon: input.icon.trim() } : {}),
+        ...(input.link?.trim() ? { link: input.link.trim() } : {}),
+      },
+    },
+    {
+      operationName: 'AdminCreateContentCategory',
+    },
+  );
+
+  return payload.createContentCategory;
+};
+
+export const updateAdminContentCategory = async (input: {
+  locale: string;
+  id: string;
+  name: string;
+  color: string;
+  icon?: string | null;
+  link?: string | null;
+}) => {
+  const payload = await executeAdminGraphQL<
+    AdminUpdateContentCategoryPayload,
+    {
+      input: {
+        locale: string;
+        id: string;
+        name: string;
+        color: string;
+        icon?: string;
+        link?: string;
+      };
+    }
+  >(
+    ADMIN_UPDATE_CONTENT_CATEGORY_MUTATION,
+    {
+      input: {
+        locale: input.locale.trim().toLowerCase(),
+        id: input.id.trim().toLowerCase(),
+        name: input.name.trim(),
+        color: input.color.trim().toLowerCase(),
+        ...(input.icon?.trim() ? { icon: input.icon.trim() } : {}),
+        ...(input.link?.trim() ? { link: input.link.trim() } : {}),
+      },
+    },
+    {
+      operationName: 'AdminUpdateContentCategory',
+    },
+  );
+
+  return payload.updateContentCategory;
+};
+
+export const deleteAdminContentCategory = async (input: { locale: string; id: string }) => {
+  const payload = await executeAdminGraphQL<
+    AdminDeleteContentCategoryPayload,
+    {
+      input: {
+        locale: string;
+        id: string;
+      };
+    }
+  >(
+    ADMIN_DELETE_CONTENT_CATEGORY_MUTATION,
+    {
+      input: {
+        locale: input.locale.trim().toLowerCase(),
+        id: input.id.trim().toLowerCase(),
+      },
+    },
+    {
+      operationName: 'AdminDeleteContentCategory',
+    },
+  );
+
+  return payload.deleteContentCategory?.success === true;
 };
 
 export const fetchAdminErrorMessages = async (filter?: {

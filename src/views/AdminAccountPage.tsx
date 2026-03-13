@@ -13,6 +13,7 @@ import Spinner from 'react-bootstrap/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import FlagIcon from '@/components/common/FlagIcon';
+import AdminContentManagementPanel from '@/components/admin/AdminContentManagementPanel';
 import {
   changeAdminAvatar,
   changeAdminName,
@@ -45,7 +46,7 @@ import { resetToSystemTheme, setTheme, type Theme } from '@/reducers/theme';
 import { LOCALES, THEMES } from '@/config/constants';
 
 type AdminAccountPageProps = {
-  section: 'profile' | 'account' | 'appearance' | 'sessions' | 'newsletter' | 'security' | 'errors';
+  section: 'profile' | 'account' | 'appearance' | 'sessions' | 'newsletter' | 'security' | 'errors' | 'content';
 };
 
 type AdminIdentity = {
@@ -302,6 +303,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const isNewsletterSection = section === 'newsletter';
   const isSecuritySection = section === 'security';
   const isErrorsSection = section === 'errors';
+  const isContentSection = section === 'content';
 
   const [adminUser, setAdminUser] = React.useState<AdminIdentity>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -2114,6 +2116,17 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
             </span>
           </Link>
           <Link
+            href={ADMIN_ROUTES.settings.content}
+            className={`admin-settings-nav-link${isContentSection ? ' is-active' : ''}`}
+          >
+            <span className="admin-settings-nav-icon" aria-hidden="true">
+              <FontAwesomeIcon icon="layer-group" fixedWidth />
+            </span>
+            <span className="admin-settings-nav-label">
+              {t('adminAccount.settings.content', { ns: 'admin-account' })}
+            </span>
+          </Link>
+          <Link
             href={ADMIN_ROUTES.settings.security}
             className={`admin-settings-nav-link${isSecuritySection ? ' is-active' : ''}`}
           >
@@ -3718,6 +3731,15 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                     </Modal.Footer>
                   </Modal>
                 </>
+              ) : null}
+
+              {isContentSection ? (
+                <AdminContentManagementPanel
+                  formatDate={formatSessionDate}
+                  onSessionExpired={() => {
+                    router.replace(`/${locale}/admin/login`);
+                  }}
+                />
               ) : null}
 
               {isSecuritySection ? (

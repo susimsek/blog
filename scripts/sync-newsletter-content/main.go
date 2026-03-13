@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"hash/fnv"
@@ -13,6 +15,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -34,6 +37,8 @@ const (
 	httpTimeout              = 12 * time.Second
 	sourceBlog               = "blog"
 )
+
+var markdownPostIDPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{1,127}$`)
 
 type siteTopic struct {
 	ID    string  `json:"id"`
@@ -77,6 +82,13 @@ type postSeedInput struct {
 	PublishedAt    time.Time
 	UpdatedAt      time.Time
 	ReadingTimeMin int
+}
+
+type markdownPostRecord struct {
+	Locale  string
+	ID      string
+	Content string
+	Hash    string
 }
 
 func loadDotEnv(path string) {
@@ -210,6 +222,159 @@ func fetchLocaleData(siteURL, locale, dataType string, target any) error {
 
 func normalizeID(raw string) string {
 	return strings.ToLower(strings.TrimSpace(raw))
+}
+
+func loadMarkdownPostRecords(locale string) ([]markdownPostRecord, error) {
+	localeDir := filepath.Join(".", "content", "posts", locale)
+	entries, err := os.ReadDir(localeDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []markdownPostRecord{}, nil
+		}
+		return nil, fmt.Errorf("read locale markdown directory %s: %w", locale, err)
+	}
+
+	records := make([]markdownPostRecord, 0, len(entries))
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(strings.ToLower(entry.Name()), ".md") {
+			continue
+		}
+
+		postID := strings.TrimSpace(strings.ToLower(strings.TrimSuffix(entry.Name(), filepath.Ext(entry.Name()))))
+		if !markdownPostIDPattern.MatchString(postID) {
+			continue
+		}
+
+		filePath := filepath.Join(localeDir, entry.Name())
+		body, err := extractMarkdownBodyFromFile(filePath)
+		if err != nil {
+			return nil, fmt.Errorf("read markdown body %s: %w", filePath, err)
+		}
+
+		records = append(records, markdownPostRecord{
+			Locale:  locale,
+			ID:      postID,
+			Content: body,
+			Hash:    sha256Hex(body),
+		})
+	}
+
+	slices.SortFunc(records, func(a, b markdownPostRecord) int {
+		return strings.Compare(a.ID, b.ID)
+	})
+	return records, nil
+}
+
+func extractMarkdownBodyFromFile(filePath string) (string, error) {
+	raw, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+
+	normalized := strings.ReplaceAll(string(raw), "\r\n", "\n")
+	normalized = strings.TrimPrefix(normalized, "\uFEFF")
+	if !strings.HasPrefix(normalized, "---\n") {
+		return strings.TrimSpace(normalized), nil
+	}
+
+	rest := normalized[len("---\n"):]
+	if _, content, ok := strings.Cut(rest, "\n---\n"); ok {
+		return strings.TrimSpace(content), nil
+	}
+	if _, content, ok := strings.Cut(rest, "\n...\n"); ok {
+		return strings.TrimSpace(content), nil
+	}
+
+	return strings.TrimSpace(normalized), nil
+}
+
+func sha256Hex(value string) string {
+	hash := sha256.Sum256([]byte(value))
+	return hex.EncodeToString(hash[:])
+}
+
+func syncMarkdownPostContent(
+	ctx context.Context,
+	postsCollection *mongo.Collection,
+	locale string,
+	records []markdownPostRecord,
+	now time.Time,
+) (markdownUpdated, contentUpdated int64, err error) {
+	if len(records) == 0 {
+		return 0, 0, nil
+	}
+
+	markdownModels := make([]mongo.WriteModel, 0, len(records))
+	contentModels := make([]mongo.WriteModel, 0, len(records))
+
+	for _, record := range records {
+		if record.ID == "" {
+			continue
+		}
+
+		markdownModels = append(markdownModels, mongo.NewUpdateOneModel().
+			SetFilter(bson.M{
+				"locale": locale,
+				"id":     record.ID,
+				"source": sourceBlog,
+				"$or": bson.A{
+					bson.M{"markdownContentHash": bson.M{"$exists": false}},
+					bson.M{"markdownContentHash": bson.M{"$ne": record.Hash}},
+				},
+			}).
+			SetUpdate(bson.M{
+				"$set": bson.M{
+					"markdownContent":          record.Content,
+					"markdownContentHash":      record.Hash,
+					"markdownContentUpdatedAt": now,
+					"syncedAt":                 now,
+					"updatedAt":                now,
+				},
+			}))
+
+		contentModels = append(contentModels, mongo.NewUpdateOneModel().
+			SetFilter(bson.M{
+				"locale": locale,
+				"id":     record.ID,
+				"source": sourceBlog,
+				"contentMode": bson.M{
+					"$ne": "admin",
+				},
+				"$or": bson.A{
+					bson.M{"contentHash": bson.M{"$exists": false}},
+					bson.M{"contentHash": bson.M{"$ne": record.Hash}},
+					bson.M{"content": bson.M{"$exists": false}},
+				},
+			}).
+			SetUpdate(bson.M{
+				"$set": bson.M{
+					"content":          record.Content,
+					"contentHash":      record.Hash,
+					"contentMode":      "markdown",
+					"contentUpdatedAt": now,
+					"syncedAt":         now,
+					"updatedAt":        now,
+				},
+			}))
+	}
+
+	if len(markdownModels) > 0 {
+		result, writeErr := postsCollection.BulkWrite(ctx, markdownModels, options.BulkWrite().SetOrdered(false))
+		if writeErr != nil {
+			return 0, 0, fmt.Errorf("markdown content bulk update failed: %w", writeErr)
+		}
+		markdownUpdated = result.ModifiedCount
+	}
+
+	if len(contentModels) > 0 {
+		result, writeErr := postsCollection.BulkWrite(ctx, contentModels, options.BulkWrite().SetOrdered(false))
+		if writeErr != nil {
+			return 0, 0, fmt.Errorf("post content bulk update failed: %w", writeErr)
+		}
+		contentUpdated = result.ModifiedCount
+	}
+
+	return markdownUpdated, contentUpdated, nil
 }
 
 func normalizeOptionalString(raw *string) *string {
@@ -712,6 +877,10 @@ func syncLocale(
 	if err := fetchLocaleData(siteURL, locale, "categories", &categories); err != nil {
 		return 0, 0, 0, fmt.Errorf("categories fetch failed: %w", err)
 	}
+	markdownRecords, err := loadMarkdownPostRecords(locale)
+	if err != nil {
+		return 0, 0, 0, fmt.Errorf("markdown load failed: %w", err)
+	}
 
 	now := time.Now().UTC()
 	siteTopicByID := make(map[string]siteTopic, len(topics))
@@ -739,7 +908,7 @@ func syncLocale(
 		activeCategoryIDs[category.ID] = struct{}{}
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 70*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
 	for _, topic := range topicByID {
@@ -936,6 +1105,18 @@ func syncLocale(
 		activePostIDs[postID] = struct{}{}
 		postCount++
 	}
+
+	markdownUpdated, contentUpdated, err := syncMarkdownPostContent(ctx, postsCollection, locale, markdownRecords, now)
+	if err != nil {
+		return 0, 0, 0, fmt.Errorf("markdown sync failed: %w", err)
+	}
+	log.Printf(
+		"markdown sync locale=%s files=%d markdownUpdated=%d contentUpdated=%d",
+		locale,
+		len(markdownRecords),
+		markdownUpdated,
+		contentUpdated,
+	)
 
 	activePostIDList := make([]string, 0, len(activePostIDs))
 	for postID := range activePostIDs {

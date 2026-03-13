@@ -15,7 +15,7 @@
     },
     "settings": {
       "title": "Ayarlar",
-      "copy": "Profilini, hesap işlemlerini, güvenliği, aktif oturumları ve bülten abonelerini yönet.",
+      "copy": "Profilini, hesap işlemlerini, görünümü, aktif oturumları, bülten abonelerini ve içerik metadata bilgilerini yönet.",
       "navLabel": "Ayarlar gezintisi",
       "profile": "Profil",
       "account": "Hesap",
@@ -23,6 +23,7 @@
       "sessions": "Oturumlar",
       "newsletter": "Bülten",
       "errors": "Hata mesajları",
+      "content": "İçerik",
       "security": "Güvenlik"
     },
     "profile": {
@@ -216,8 +217,163 @@
         "title": "Aboneyi sil",
         "copy": "{{email}} bülten abonesi silinsin mi?"
       }
-    }
-    ,
+    },
+  "content": {
+    "title": "İçerik yönetimi",
+    "copy": "Postları listele, dil/topic/category filtresi uygula, metadata güncelle ve topic/category taksonomilerini yönet.",
+    "loading": {
+      "posts": "Postlar yükleniyor...",
+      "taxonomy": "Taksonomi yükleniyor...",
+      "postContent": "Post içeriği yükleniyor..."
+    },
+      "empty": {
+        "posts": "Seçili filtreler için post bulunamadı.",
+        "topics": "Topic bulunamadı.",
+        "categories": "Kategori bulunamadı."
+      },
+      "filters": {
+        "locale": "Dil",
+        "source": "Kaynak",
+        "category": "Kategori",
+        "topic": "Topic",
+        "query": "Ara",
+        "queryPlaceholder": "ID veya başlığa göre ara",
+        "locales": {
+          "all": "Tüm diller",
+          "en": "İngilizce",
+          "tr": "Türkçe"
+        },
+        "categories": {
+          "all": "Tüm kategoriler"
+        },
+        "sources": {
+          "all": "Tüm kaynaklar"
+        },
+        "topics": {
+          "all": "Tüm topicler"
+        }
+      },
+      "tabs": {
+        "posts": "Postlar",
+        "topics": "Topicler",
+        "categories": "Kategoriler"
+      },
+      "list": {
+        "updatedAt": "Güncelleme: {{value}}",
+        "localeValue": "Dil: {{value}}",
+        "colorValue": "Renk: {{value}}",
+        "iconValue": "İkon: {{value}}"
+      },
+      "topics": {
+        "title": "Topicler"
+      },
+      "categories": {
+        "title": "Kategoriler"
+      },
+      "actions": {
+        "create": "Oluştur",
+        "createTopic": "Topic oluştur",
+      "createCategory": "Kategori oluştur",
+      "update": "Güncelle",
+      "updatePost": "Postu güncelle",
+      "updatePostContent": "İçeriği kaydet",
+      "backToPosts": "Postlara dön",
+      "delete": "Sil",
+      "deletePost": "Postu sil",
+        "saving": "Kaydediliyor...",
+        "updating": "Güncelleniyor...",
+        "deleting": "Siliniyor..."
+      },
+      "success": {
+      "postUpdated": "Post metadata güncellendi: {{id}}",
+      "postContentUpdated": "Post içeriği güncellendi: {{id}}",
+      "postDeleted": "Post silindi: {{id}}",
+        "topicCreated": "Topic oluşturuldu: {{id}}",
+        "topicUpdated": "Topic güncellendi: {{id}}",
+        "topicDeleted": "Topic silindi: {{id}}",
+        "categoryCreated": "Kategori oluşturuldu: {{id}}",
+        "categoryUpdated": "Kategori güncellendi: {{id}}",
+        "categoryDeleted": "Kategori silindi: {{id}}"
+      },
+      "errors": {
+        "taxonomyLoad": "Topic ve kategoriler yüklenemedi.",
+        "postLoad": "Postlar yüklenemedi.",
+      "postUpdate": "Post metadata güncellenemedi.",
+      "postContentUpdate": "Post içeriği güncellenemedi.",
+      "postDelete": "Post silinemedi.",
+        "topicCreate": "Topic oluşturulamadı.",
+        "topicUpdate": "Topic güncellenemedi.",
+        "topicDelete": "Topic silinemedi.",
+        "categoryCreate": "Kategori oluşturulamadı.",
+        "categoryUpdate": "Kategori güncellenemedi.",
+        "categoryDelete": "Kategori silinemedi."
+      },
+      "validation": {
+        "id": "Sadece küçük harf, rakam ve tire kullan (2-128 karakter)."
+      },
+    "modals": {
+      "post": {
+        "title": "Post metadata güncelle",
+        "empty": "Post seçilmedi.",
+        "tabs": {
+          "metadata": "Metadata",
+          "content": "İçerik"
+        },
+        "category": "Kategori",
+        "categoryNone": "Kategori yok",
+        "topics": "Topicler",
+        "topicsEmpty": "Bu dil için topic bulunamadı.",
+        "contentLabel": "Markdown içerik",
+      "contentHint": "Standart Markdown sözdizimi desteklenir.",
+      "previewTitle": "Önizleme",
+      "previewEmpty": "Önizleme için içerik yok.",
+      "modes": {
+        "editor": "Editör",
+        "split": "Editör + Önizleme",
+        "preview": "Önizleme"
+      },
+      "meta": {
+        "published": "Yayın",
+        "updated": "Güncelleme"
+      },
+      "labels": {
+        "id": "Post ID: {{value}}",
+        "locale": "Dil: {{value}}"
+      }
+        },
+        "deletePost": {
+          "title": "Postu sil",
+          "copy": "{{id}} postu silinsin mi?"
+        },
+        "topic": {
+          "createTitle": "Topic oluştur",
+          "updateTitle": "Topic güncelle",
+          "locale": "Dil",
+          "id": "Topic ID",
+          "name": "Ad",
+          "color": "Renk",
+          "link": "Link"
+        },
+        "deleteTopic": {
+          "title": "Topic sil",
+          "copy": "{{id}} topic silinsin mi?"
+        },
+        "category": {
+          "createTitle": "Kategori oluştur",
+          "updateTitle": "Kategori güncelle",
+          "locale": "Dil",
+          "id": "Kategori ID",
+          "name": "Ad",
+          "color": "Renk",
+          "icon": "İkon",
+          "link": "Link"
+        },
+        "deleteCategory": {
+          "title": "Kategori sil",
+          "copy": "{{id}} kategori silinsin mi?"
+        }
+      }
+    },
     "errorsCatalog": {
     "title": "Hata mesajları",
     "copy": "Yönetim API hata mesajlarını listele, filtrele, oluştur, güncelle ve sil.",

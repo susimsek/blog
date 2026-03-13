@@ -230,6 +230,9 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
 - Admin UI standardization:
   - Prefer standard React-Bootstrap components and utilities (`Button`, `Alert`, `Card`, `Spinner`, `Modal`, grid classes/components)
   - Do not add custom width/alignment overrides for these primitives unless a real product requirement cannot be met with Bootstrap defaults
+- Agent workflow:
+  - After writing code, always run relevant lint command(s) for changed areas before finalizing (at minimum `pnpm run lint` for frontend/TS and `pnpm run backend:lint` for Go/backend changes)
+  - Fix lint errors before asking for commit
 
 ### Import aliases
 

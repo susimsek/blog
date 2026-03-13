@@ -37,6 +37,104 @@ type AdminChangeUsernameInput struct {
 	NewUsername string `json:"newUsername"`
 }
 
+type AdminContentCategory struct {
+	Locale    string     `json:"locale"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Color     string     `json:"color"`
+	Icon      *string    `json:"icon,omitempty"`
+	Link      *string    `json:"link,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+type AdminContentCategoryInput struct {
+	Locale string  `json:"locale"`
+	ID     string  `json:"id"`
+	Name   string  `json:"name"`
+	Color  string  `json:"color"`
+	Icon   *string `json:"icon,omitempty"`
+	Link   *string `json:"link,omitempty"`
+}
+
+type AdminContentCategoryListPayload struct {
+	Items []*AdminContentCategory `json:"items"`
+	Total int                     `json:"total"`
+	Page  int                     `json:"page"`
+	Size  int                     `json:"size"`
+}
+
+type AdminContentEntityKeyInput struct {
+	Locale string `json:"locale"`
+	ID     string `json:"id"`
+}
+
+type AdminContentPost struct {
+	Locale           string     `json:"locale"`
+	ID               string     `json:"id"`
+	Title            string     `json:"title"`
+	Summary          *string    `json:"summary,omitempty"`
+	Content          *string    `json:"content,omitempty"`
+	ContentMode      *string    `json:"contentMode,omitempty"`
+	Thumbnail        *string    `json:"thumbnail,omitempty"`
+	Source           string     `json:"source"`
+	PublishedDate    string     `json:"publishedDate"`
+	UpdatedDate      *string    `json:"updatedDate,omitempty"`
+	CategoryID       *string    `json:"categoryId,omitempty"`
+	CategoryName     *string    `json:"categoryName,omitempty"`
+	TopicIds         []string   `json:"topicIds"`
+	TopicNames       []string   `json:"topicNames"`
+	ContentUpdatedAt *time.Time `json:"contentUpdatedAt,omitempty"`
+	UpdatedAt        *time.Time `json:"updatedAt,omitempty"`
+}
+
+type AdminContentPostFilterInput struct {
+	Locale     *string `json:"locale,omitempty"`
+	Source     *string `json:"source,omitempty"`
+	Query      *string `json:"query,omitempty"`
+	CategoryID *string `json:"categoryId,omitempty"`
+	TopicID    *string `json:"topicId,omitempty"`
+	Page       *int    `json:"page,omitempty"`
+	Size       *int    `json:"size,omitempty"`
+}
+
+type AdminContentPostListPayload struct {
+	Items []*AdminContentPost `json:"items"`
+	Total int                 `json:"total"`
+	Page  int                 `json:"page"`
+	Size  int                 `json:"size"`
+}
+
+type AdminContentTaxonomyFilterInput struct {
+	Locale *string `json:"locale,omitempty"`
+	Query  *string `json:"query,omitempty"`
+	Page   *int    `json:"page,omitempty"`
+	Size   *int    `json:"size,omitempty"`
+}
+
+type AdminContentTopic struct {
+	Locale    string     `json:"locale"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Color     string     `json:"color"`
+	Link      *string    `json:"link,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+type AdminContentTopicInput struct {
+	Locale string  `json:"locale"`
+	ID     string  `json:"id"`
+	Name   string  `json:"name"`
+	Color  string  `json:"color"`
+	Link   *string `json:"link,omitempty"`
+}
+
+type AdminContentTopicListPayload struct {
+	Items []*AdminContentTopic `json:"items"`
+	Total int                  `json:"total"`
+	Page  int                  `json:"page"`
+	Size  int                  `json:"size"`
+}
+
 type AdminCreateErrorMessageInput struct {
 	Key     *AdminErrorMessageKeyInput `json:"key"`
 	Message string                     `json:"message"`
@@ -207,6 +305,19 @@ type AdminSession struct {
 
 type AdminSessionRevokePayload struct {
 	Success bool `json:"success"`
+}
+
+type AdminUpdateContentPostContentInput struct {
+	Locale  string `json:"locale"`
+	ID      string `json:"id"`
+	Content string `json:"content"`
+}
+
+type AdminUpdateContentPostMetadataInput struct {
+	Locale     string   `json:"locale"`
+	ID         string   `json:"id"`
+	CategoryID *string  `json:"categoryId,omitempty"`
+	TopicIds   []string `json:"topicIds"`
 }
 
 type AdminUpdateErrorMessageInput struct {

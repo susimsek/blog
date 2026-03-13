@@ -136,6 +136,183 @@ func (r *adminQueryResolver) ErrorMessages(
 	return mapAdminErrorMessageListPayload(payload), nil
 }
 
+// ContentPosts is the resolver for the contentPosts field.
+func (r *adminQueryResolver) ContentPosts(
+	ctx context.Context,
+	filter *model.AdminContentPostFilterInput,
+) (*model.AdminContentPostListPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedFilter := domain.AdminContentPostFilter{}
+	if filter != nil {
+		if filter.Locale != nil {
+			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
+		}
+		if filter.Source != nil {
+			resolvedFilter.Source = strings.TrimSpace(*filter.Source)
+		}
+		if filter.Query != nil {
+			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
+		}
+		if filter.CategoryID != nil {
+			resolvedFilter.CategoryID = strings.TrimSpace(*filter.CategoryID)
+		}
+		if filter.TopicID != nil {
+			resolvedFilter.TopicID = strings.TrimSpace(*filter.TopicID)
+		}
+		if filter.Page != nil {
+			resolvedFilter.Page = filter.Page
+		}
+		if filter.Size != nil {
+			resolvedFilter.Size = filter.Size
+		}
+	}
+
+	payload, err := appservice.ListAdminContentPosts(ctx, adminUser, resolvedFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminContentPostListPayload(payload), nil
+}
+
+// ContentPost is the resolver for the contentPost field.
+func (r *adminQueryResolver) ContentPost(
+	ctx context.Context,
+	input model.AdminContentEntityKeyInput,
+) (*model.AdminContentPost, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	record, err := appservice.GetAdminContentPost(
+		ctx,
+		adminUser,
+		strings.TrimSpace(input.Locale),
+		strings.TrimSpace(input.ID),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminContentPost(record), nil
+}
+
+// ContentTopicsPage is the resolver for the contentTopicsPage field.
+func (r *adminQueryResolver) ContentTopicsPage(
+	ctx context.Context,
+	filter *model.AdminContentTaxonomyFilterInput,
+) (*model.AdminContentTopicListPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedFilter := domain.AdminContentTaxonomyFilter{}
+	if filter != nil {
+		if filter.Locale != nil {
+			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
+		}
+		if filter.Query != nil {
+			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
+		}
+		if filter.Page != nil {
+			resolvedFilter.Page = filter.Page
+		}
+		if filter.Size != nil {
+			resolvedFilter.Size = filter.Size
+		}
+	}
+
+	payload, err := appservice.ListAdminContentTopicsPage(ctx, adminUser, resolvedFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminContentTopicListPayload(payload), nil
+}
+
+// ContentCategoriesPage is the resolver for the contentCategoriesPage field.
+func (r *adminQueryResolver) ContentCategoriesPage(
+	ctx context.Context,
+	filter *model.AdminContentTaxonomyFilterInput,
+) (*model.AdminContentCategoryListPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedFilter := domain.AdminContentTaxonomyFilter{}
+	if filter != nil {
+		if filter.Locale != nil {
+			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
+		}
+		if filter.Query != nil {
+			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
+		}
+		if filter.Page != nil {
+			resolvedFilter.Page = filter.Page
+		}
+		if filter.Size != nil {
+			resolvedFilter.Size = filter.Size
+		}
+	}
+
+	payload, err := appservice.ListAdminContentCategoriesPage(ctx, adminUser, resolvedFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminContentCategoryListPayload(payload), nil
+}
+
+// ContentTopics is the resolver for the contentTopics field.
+func (r *adminQueryResolver) ContentTopics(ctx context.Context, locale *string) ([]*model.AdminContentTopic, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedLocale := ""
+	if locale != nil {
+		resolvedLocale = strings.TrimSpace(*locale)
+	}
+
+	records, err := appservice.ListAdminContentTopics(ctx, adminUser, resolvedLocale)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminContentTopics(records), nil
+}
+
+// ContentCategories is the resolver for the contentCategories field.
+func (r *adminQueryResolver) ContentCategories(
+	ctx context.Context,
+	locale *string,
+) ([]*model.AdminContentCategory, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedLocale := ""
+	if locale != nil {
+		resolvedLocale = strings.TrimSpace(*locale)
+	}
+
+	records, err := appservice.ListAdminContentCategories(ctx, adminUser, resolvedLocale)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminContentCategories(records), nil
+}
+
 // ErrorMessageAuditLogs is the resolver for the errorMessageAuditLogs field.
 func (r *adminQueryResolver) ErrorMessageAuditLogs(
 	ctx context.Context,
@@ -499,6 +676,189 @@ func (r *adminMutationResolver) DeleteErrorMessage(
 	return &model.AdminDeletePayload{Success: true}, nil
 }
 
+// UpdateContentPostMetadata is the resolver for the updateContentPostMetadata field.
+func (r *adminMutationResolver) UpdateContentPostMetadata(
+	ctx context.Context,
+	input model.AdminUpdateContentPostMetadataInput,
+) (*model.AdminContentPost, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	updated, err := appservice.UpdateAdminContentPostMetadata(ctx, adminUser, domain.AdminContentPostMetadataInput{
+		Locale:     strings.TrimSpace(input.Locale),
+		ID:         strings.TrimSpace(input.ID),
+		CategoryID: strings.TrimSpace(stringPointerValue(input.CategoryID)),
+		TopicIDs:   mapAdminContentTopicIDs(input.TopicIds),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminContentPost(updated), nil
+}
+
+// UpdateContentPostContent is the resolver for the updateContentPostContent field.
+func (r *adminMutationResolver) UpdateContentPostContent(
+	ctx context.Context,
+	input model.AdminUpdateContentPostContentInput,
+) (*model.AdminContentPost, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	updated, err := appservice.UpdateAdminContentPostContent(ctx, adminUser, domain.AdminContentPostContentInput{
+		Locale:  strings.TrimSpace(input.Locale),
+		ID:      strings.TrimSpace(input.ID),
+		Content: input.Content,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminContentPost(updated), nil
+}
+
+// DeleteContentPost is the resolver for the deleteContentPost field.
+func (r *adminMutationResolver) DeleteContentPost(
+	ctx context.Context,
+	input model.AdminContentEntityKeyInput,
+) (*model.AdminDeletePayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := appservice.DeleteAdminContentPost(
+		ctx,
+		adminUser,
+		strings.TrimSpace(input.Locale),
+		strings.TrimSpace(input.ID),
+	); err != nil {
+		return nil, err
+	}
+
+	return &model.AdminDeletePayload{Success: true}, nil
+}
+
+// CreateContentTopic is the resolver for the createContentTopic field.
+func (r *adminMutationResolver) CreateContentTopic(
+	ctx context.Context,
+	input model.AdminContentTopicInput,
+) (*model.AdminContentTopic, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	saved, err := appservice.CreateAdminContentTopic(ctx, adminUser, mapAdminContentTopicInput(input))
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminContentTopic(saved), nil
+}
+
+// UpdateContentTopic is the resolver for the updateContentTopic field.
+func (r *adminMutationResolver) UpdateContentTopic(
+	ctx context.Context,
+	input model.AdminContentTopicInput,
+) (*model.AdminContentTopic, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	saved, err := appservice.UpdateAdminContentTopic(ctx, adminUser, mapAdminContentTopicInput(input))
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminContentTopic(saved), nil
+}
+
+// DeleteContentTopic is the resolver for the deleteContentTopic field.
+func (r *adminMutationResolver) DeleteContentTopic(
+	ctx context.Context,
+	input model.AdminContentEntityKeyInput,
+) (*model.AdminDeletePayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := appservice.DeleteAdminContentTopic(
+		ctx,
+		adminUser,
+		strings.TrimSpace(input.Locale),
+		strings.TrimSpace(input.ID),
+	); err != nil {
+		return nil, err
+	}
+
+	return &model.AdminDeletePayload{Success: true}, nil
+}
+
+// CreateContentCategory is the resolver for the createContentCategory field.
+func (r *adminMutationResolver) CreateContentCategory(
+	ctx context.Context,
+	input model.AdminContentCategoryInput,
+) (*model.AdminContentCategory, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	saved, err := appservice.CreateAdminContentCategory(ctx, adminUser, mapAdminContentCategoryInput(input))
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminContentCategory(saved), nil
+}
+
+// UpdateContentCategory is the resolver for the updateContentCategory field.
+func (r *adminMutationResolver) UpdateContentCategory(
+	ctx context.Context,
+	input model.AdminContentCategoryInput,
+) (*model.AdminContentCategory, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	saved, err := appservice.UpdateAdminContentCategory(ctx, adminUser, mapAdminContentCategoryInput(input))
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminContentCategory(saved), nil
+}
+
+// DeleteContentCategory is the resolver for the deleteContentCategory field.
+func (r *adminMutationResolver) DeleteContentCategory(
+	ctx context.Context,
+	input model.AdminContentEntityKeyInput,
+) (*model.AdminDeletePayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := appservice.DeleteAdminContentCategory(
+		ctx,
+		adminUser,
+		strings.TrimSpace(input.Locale),
+		strings.TrimSpace(input.ID),
+	); err != nil {
+		return nil, err
+	}
+
+	return &model.AdminDeletePayload{Success: true}, nil
+}
+
 // AdminMutation returns AdminMutationResolver implementation.
 func (r *Resolver) AdminMutation() AdminMutationResolver { return &adminMutationResolver{r} }
 
@@ -726,6 +1086,147 @@ func mapAdminErrorMessage(item *domain.AdminErrorMessageView) *model.AdminErrorM
 	}
 }
 
+func mapAdminContentPostListPayload(payload *domain.AdminContentPostListResult) *model.AdminContentPostListPayload {
+	if payload == nil {
+		return &model.AdminContentPostListPayload{
+			Items: []*model.AdminContentPost{},
+			Total: 0,
+			Page:  1,
+			Size:  20,
+		}
+	}
+
+	return &model.AdminContentPostListPayload{
+		Items: mapAdminContentPosts(payload.Items),
+		Total: payload.Total,
+		Page:  payload.Page,
+		Size:  payload.Size,
+	}
+}
+
+func mapAdminContentPosts(items []domain.AdminContentPostRecord) []*model.AdminContentPost {
+	mapped := make([]*model.AdminContentPost, 0, len(items))
+	for _, item := range items {
+		copyItem := item
+		mapped = append(mapped, mapAdminContentPost(&copyItem))
+	}
+	return mapped
+}
+
+func mapAdminContentTopicListPayload(
+	payload *domain.AdminContentTopicListResult,
+) *model.AdminContentTopicListPayload {
+	if payload == nil {
+		return &model.AdminContentTopicListPayload{
+			Items: []*model.AdminContentTopic{},
+			Total: 0,
+			Page:  1,
+			Size:  20,
+		}
+	}
+
+	return &model.AdminContentTopicListPayload{
+		Items: mapAdminContentTopics(payload.Items),
+		Total: payload.Total,
+		Page:  payload.Page,
+		Size:  payload.Size,
+	}
+}
+
+func mapAdminContentCategoryListPayload(
+	payload *domain.AdminContentCategoryListResult,
+) *model.AdminContentCategoryListPayload {
+	if payload == nil {
+		return &model.AdminContentCategoryListPayload{
+			Items: []*model.AdminContentCategory{},
+			Total: 0,
+			Page:  1,
+			Size:  20,
+		}
+	}
+
+	return &model.AdminContentCategoryListPayload{
+		Items: mapAdminContentCategories(payload.Items),
+		Total: payload.Total,
+		Page:  payload.Page,
+		Size:  payload.Size,
+	}
+}
+
+func mapAdminContentPost(item *domain.AdminContentPostRecord) *model.AdminContentPost {
+	if item == nil {
+		return nil
+	}
+
+	return &model.AdminContentPost{
+		Locale:        item.Locale,
+		ID:            item.ID,
+		Title:         item.Title,
+		Summary:       toOptionalAdminString(item.Summary),
+		Content:       toOptionalAdminString(item.Content),
+		ContentMode:   toOptionalAdminString(item.ContentMode),
+		Thumbnail:     toOptionalAdminString(item.Thumbnail),
+		Source:        item.Source,
+		PublishedDate: item.PublishedDate,
+		UpdatedDate:   toOptionalAdminString(item.UpdatedDate),
+		CategoryID:    toOptionalAdminString(item.CategoryID),
+		CategoryName:  toOptionalAdminString(item.CategoryName),
+		TopicIds:      append([]string{}, item.TopicIDs...),
+		TopicNames:    append([]string{}, item.TopicNames...),
+		ContentUpdatedAt: toOptionalAdminTime(item.ContentUpdatedAt),
+		UpdatedAt:     toOptionalAdminTime(item.UpdatedAt),
+	}
+}
+
+func mapAdminContentTopics(items []domain.AdminContentTopicRecord) []*model.AdminContentTopic {
+	mapped := make([]*model.AdminContentTopic, 0, len(items))
+	for _, item := range items {
+		copyItem := item
+		mapped = append(mapped, mapAdminContentTopic(&copyItem))
+	}
+	return mapped
+}
+
+func mapAdminContentTopic(item *domain.AdminContentTopicRecord) *model.AdminContentTopic {
+	if item == nil {
+		return nil
+	}
+
+	return &model.AdminContentTopic{
+		Locale:    item.Locale,
+		ID:        item.ID,
+		Name:      item.Name,
+		Color:     item.Color,
+		Link:      toOptionalAdminString(item.Link),
+		UpdatedAt: toOptionalAdminTime(item.UpdatedAt),
+	}
+}
+
+func mapAdminContentCategories(items []domain.AdminContentCategoryRecord) []*model.AdminContentCategory {
+	mapped := make([]*model.AdminContentCategory, 0, len(items))
+	for _, item := range items {
+		copyItem := item
+		mapped = append(mapped, mapAdminContentCategory(&copyItem))
+	}
+	return mapped
+}
+
+func mapAdminContentCategory(item *domain.AdminContentCategoryRecord) *model.AdminContentCategory {
+	if item == nil {
+		return nil
+	}
+
+	return &model.AdminContentCategory{
+		Locale:    item.Locale,
+		ID:        item.ID,
+		Name:      item.Name,
+		Color:     item.Color,
+		Icon:      toOptionalAdminString(item.Icon),
+		Link:      toOptionalAdminString(item.Link),
+		UpdatedAt: toOptionalAdminTime(item.UpdatedAt),
+	}
+}
+
 func mapAdminAuditLogs(items []domain.AdminAuditLogRecord) []*model.AdminErrorMessageAuditLog {
 	mapped := make([]*model.AdminErrorMessageAuditLog, 0, len(items))
 	for _, item := range items {
@@ -768,6 +1269,51 @@ func mapAdminErrorMessageKey(input model.AdminErrorMessageKeyInput) domain.Admin
 		Locale: strings.TrimSpace(input.Locale),
 		Code:   strings.TrimSpace(input.Code),
 	}
+}
+
+func mapAdminContentTopicInput(input model.AdminContentTopicInput) domain.AdminContentTopicInput {
+	return domain.AdminContentTopicInput{
+		Locale: strings.TrimSpace(input.Locale),
+		ID:     strings.TrimSpace(input.ID),
+		Name:   strings.TrimSpace(input.Name),
+		Color:  strings.TrimSpace(input.Color),
+		Link:   strings.TrimSpace(stringPointerValue(input.Link)),
+	}
+}
+
+func mapAdminContentCategoryInput(input model.AdminContentCategoryInput) domain.AdminContentCategoryInput {
+	return domain.AdminContentCategoryInput{
+		Locale: strings.TrimSpace(input.Locale),
+		ID:     strings.TrimSpace(input.ID),
+		Name:   strings.TrimSpace(input.Name),
+		Color:  strings.TrimSpace(input.Color),
+		Icon:   strings.TrimSpace(stringPointerValue(input.Icon)),
+		Link:   strings.TrimSpace(stringPointerValue(input.Link)),
+	}
+}
+
+func mapAdminContentTopicIDs(values []string) []string {
+	if len(values) == 0 {
+		return []string{}
+	}
+
+	ids := make([]string, 0, len(values))
+	for _, value := range values {
+		trimmed := strings.TrimSpace(value)
+		if trimmed == "" {
+			continue
+		}
+		ids = append(ids, trimmed)
+	}
+
+	return ids
+}
+
+func stringPointerValue(value *string) string {
+	if value == nil {
+		return ""
+	}
+	return *value
 }
 
 func toOptionalAdminString(value string) *string {

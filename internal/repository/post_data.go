@@ -19,13 +19,15 @@ import (
 )
 
 const (
-	postLikesCollectionName = "post_likes"
-	postHitsCollectionName  = "post_hits"
-	postsCollectionName     = "newsletter_posts"
-	maxBatchPostIDs         = 60
-	maxScopePostIDs         = 5000
-	defaultPageSize         = 20
-	maxPageSize             = 100
+	postLikesCollectionName  = "post_likes"
+	postHitsCollectionName   = "post_hits"
+	postsCollectionName      = "newsletter_posts"
+	topicsCollectionName     = "newsletter_topics"
+	categoriesCollectionName = "newsletter_categories"
+	maxBatchPostIDs          = 60
+	maxScopePostIDs          = 5000
+	defaultPageSize          = 20
+	maxPageSize              = 100
 )
 
 var (
@@ -43,6 +45,12 @@ var (
 
 	postContentIndexesOnce sync.Once
 	postContentIndexesErr  error
+
+	postTopicIndexesOnce sync.Once
+	postTopicIndexesErr  error
+
+	postCategoryIndexesOnce sync.Once
+	postCategoryIndexesErr  error
 )
 
 type (
@@ -230,6 +238,66 @@ func ensurePostContentIndexes(postsCollection *mongo.Collection) error {
 	return postContentIndexesErr
 }
 
+func ensurePostTopicIndexes(topicsCollection *mongo.Collection) error {
+	postTopicIndexesOnce.Do(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		indexes := []mongo.IndexModel{
+			{
+				Keys: bson.D{
+					{Key: "locale", Value: 1},
+					{Key: "id", Value: 1},
+				},
+				Options: options.Index().SetName("uniq_newsletter_topic_locale_id").SetUnique(true),
+			},
+			{
+				Keys: bson.D{
+					{Key: "locale", Value: 1},
+					{Key: "name", Value: 1},
+				},
+				Options: options.Index().SetName("idx_newsletter_topic_locale_name"),
+			},
+		}
+
+		if _, err := topicsCollection.Indexes().CreateMany(ctx, indexes); err != nil {
+			postTopicIndexesErr = fmt.Errorf("newsletter_topics index create failed: %w", err)
+		}
+	})
+
+	return postTopicIndexesErr
+}
+
+func ensurePostCategoryIndexes(categoriesCollection *mongo.Collection) error {
+	postCategoryIndexesOnce.Do(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		indexes := []mongo.IndexModel{
+			{
+				Keys: bson.D{
+					{Key: "locale", Value: 1},
+					{Key: "id", Value: 1},
+				},
+				Options: options.Index().SetName("uniq_newsletter_category_locale_id").SetUnique(true),
+			},
+			{
+				Keys: bson.D{
+					{Key: "locale", Value: 1},
+					{Key: "name", Value: 1},
+				},
+				Options: options.Index().SetName("idx_newsletter_category_locale_name"),
+			},
+		}
+
+		if _, err := categoriesCollection.Indexes().CreateMany(ctx, indexes); err != nil {
+			postCategoryIndexesErr = fmt.Errorf("newsletter_categories index create failed: %w", err)
+		}
+	})
+
+	return postCategoryIndexesErr
+}
+
 func getPostLikesCollection() (*mongo.Collection, error) {
 	collection, err := getPostCollection(postLikesCollectionName)
 	if err != nil {
@@ -258,6 +326,28 @@ func getPostContentCollection() (*mongo.Collection, error) {
 		return nil, err
 	}
 	if err := ensurePostContentIndexes(collection); err != nil {
+		return nil, err
+	}
+	return collection, nil
+}
+
+func getPostTopicsCollection() (*mongo.Collection, error) {
+	collection, err := getPostCollection(topicsCollectionName)
+	if err != nil {
+		return nil, err
+	}
+	if err := ensurePostTopicIndexes(collection); err != nil {
+		return nil, err
+	}
+	return collection, nil
+}
+
+func getPostCategoriesCollection() (*mongo.Collection, error) {
+	collection, err := getPostCollection(categoriesCollectionName)
+	if err != nil {
+		return nil, err
+	}
+	if err := ensurePostCategoryIndexes(collection); err != nil {
 		return nil, err
 	}
 	return collection, nil

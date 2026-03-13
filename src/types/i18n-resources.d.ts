@@ -66,6 +66,162 @@ interface Resources {
           title: 'Change username';
         };
       };
+      content: {
+        actions: {
+          backToPosts: 'Back to posts';
+          create: 'Create';
+          createCategory: 'Create category';
+          createTopic: 'Create topic';
+          delete: 'Delete';
+          deletePost: 'Delete post';
+          deleting: 'Deleting...';
+          saving: 'Saving...';
+          update: 'Update';
+          updatePost: 'Update post';
+          updatePostContent: 'Save content';
+          updating: 'Updating...';
+        };
+        categories: {
+          title: 'Categories';
+        };
+        copy: 'List posts, filter by locale/topic/category, update metadata, and manage topic/category taxonomies.';
+        empty: {
+          categories: 'No categories found.';
+          posts: 'No posts found for the current filters.';
+          topics: 'No topics found.';
+        };
+        errors: {
+          categoryCreate: 'Category could not be created.';
+          categoryDelete: 'Category could not be deleted.';
+          categoryUpdate: 'Category could not be updated.';
+          postContentUpdate: 'Post content could not be updated.';
+          postDelete: 'Post could not be deleted.';
+          postLoad: 'Posts could not be loaded.';
+          postUpdate: 'Post metadata could not be updated.';
+          taxonomyLoad: 'Topics and categories could not be loaded.';
+          topicCreate: 'Topic could not be created.';
+          topicDelete: 'Topic could not be deleted.';
+          topicUpdate: 'Topic could not be updated.';
+        };
+        filters: {
+          categories: {
+            all: 'All categories';
+          };
+          category: 'Category';
+          locale: 'Locale';
+          locales: {
+            all: 'All locales';
+            en: 'English';
+            tr: 'Turkish';
+          };
+          query: 'Search';
+          queryPlaceholder: 'Search by id or title';
+          source: 'Source';
+          sources: {
+            all: 'All sources';
+          };
+          topic: 'Topic';
+          topics: {
+            all: 'All topics';
+          };
+        };
+        list: {
+          colorValue: 'Color: {{value}}';
+          iconValue: 'Icon: {{value}}';
+          localeValue: 'Locale: {{value}}';
+          updatedAt: 'Updated: {{value}}';
+        };
+        loading: {
+          postContent: 'Loading post content...';
+          posts: 'Loading posts...';
+          taxonomy: 'Loading taxonomy...';
+        };
+        modals: {
+          category: {
+            color: 'Color';
+            createTitle: 'Create category';
+            icon: 'Icon';
+            id: 'Category id';
+            link: 'Link';
+            locale: 'Locale';
+            name: 'Name';
+            updateTitle: 'Update category';
+          };
+          deleteCategory: {
+            copy: 'Delete category {{id}}?';
+            title: 'Delete category';
+          };
+          deletePost: {
+            copy: 'Delete post {{id}}?';
+            title: 'Delete post';
+          };
+          deleteTopic: {
+            copy: 'Delete topic {{id}}?';
+            title: 'Delete topic';
+          };
+          post: {
+            category: 'Category';
+            categoryNone: 'No category';
+            contentHint: 'Supports standard Markdown syntax.';
+            contentLabel: 'Markdown content';
+            empty: 'No post selected.';
+            labels: {
+              id: 'Post id: {{value}}';
+              locale: 'Locale: {{value}}';
+            };
+            meta: {
+              published: 'Published';
+              updated: 'Updated';
+            };
+            modes: {
+              editor: 'Editor';
+              preview: 'Preview';
+              split: 'Editor + Preview';
+            };
+            previewEmpty: 'No content to preview.';
+            previewTitle: 'Preview';
+            tabs: {
+              content: 'Content';
+              metadata: 'Metadata';
+            };
+            title: 'Update post metadata';
+            topics: 'Topics';
+            topicsEmpty: 'No topics found for this locale.';
+          };
+          topic: {
+            color: 'Color';
+            createTitle: 'Create topic';
+            id: 'Topic id';
+            link: 'Link';
+            locale: 'Locale';
+            name: 'Name';
+            updateTitle: 'Update topic';
+          };
+        };
+        success: {
+          categoryCreated: 'Category created: {{id}}';
+          categoryDeleted: 'Category deleted: {{id}}';
+          categoryUpdated: 'Category updated: {{id}}';
+          postContentUpdated: 'Post content updated: {{id}}';
+          postDeleted: 'Post deleted: {{id}}';
+          postUpdated: 'Post metadata updated: {{id}}';
+          topicCreated: 'Topic created: {{id}}';
+          topicDeleted: 'Topic deleted: {{id}}';
+          topicUpdated: 'Topic updated: {{id}}';
+        };
+        tabs: {
+          categories: 'Categories';
+          posts: 'Posts';
+          topics: 'Topics';
+        };
+        title: 'Content management';
+        topics: {
+          title: 'Topics';
+        };
+        validation: {
+          id: 'Use lowercase letters, numbers, and dash only (2-128 chars).';
+        };
+      };
       errorFallback: 'Password change failed. Check your inputs and try again.';
       errorsCatalog: {
         actions: {
@@ -180,6 +336,54 @@ interface Resources {
         description: 'Manage your admin security settings, sessions, and password.';
         title: 'Settings';
       };
+      newsletter: {
+        actions: {
+          delete: 'Delete';
+          deleting: 'Deleting...';
+          setActive: 'Set active';
+          unsubscribe: 'Unsubscribe';
+          update: 'Update';
+          updating: 'Updating...';
+        };
+        copy: 'Filter subscribers, update subscription status, and remove subscribers.';
+        deleteConfirm: {
+          copy: 'Delete newsletter subscriber {{email}}?';
+          title: 'Delete subscriber';
+        };
+        empty: 'No newsletter subscribers found for the current filter.';
+        errors: {
+          delete: 'Subscriber could not be deleted.';
+          load: 'Newsletter subscribers could not be loaded.';
+          statusUpdate: 'Subscriber status could not be updated.';
+        };
+        filters: {
+          locale: 'Locale';
+          locales: {
+            all: 'All locales';
+            en: 'English';
+            tr: 'Turkish';
+          };
+          query: 'Search';
+          queryPlaceholder: 'Search by email';
+          status: 'Status';
+          statuses: {
+            active: 'Active';
+            all: 'All statuses';
+            pending: 'Pending';
+            unsubscribed: 'Unsubscribed';
+          };
+        };
+        list: {
+          meta: 'Source: {{source}} · Form: {{formName}} · Tags: {{tags}}';
+          updatedAt: 'Updated: {{value}}';
+        };
+        loading: 'Loading newsletter subscribers...';
+        success: {
+          deleted: 'Subscriber deleted: {{email}}';
+          statusUpdated: 'Subscriber updated: {{email}}';
+        };
+        title: 'Newsletter management';
+      };
       profile: {
         avatar: {
           copy: 'Upload a PNG, JPEG, or WebP image up to {{sizeMB}}MB.';
@@ -265,9 +469,11 @@ interface Resources {
       settings: {
         account: 'Account';
         appearance: 'Appearance';
-        copy: 'Manage your profile, account controls, security, and active sessions.';
+        content: 'Content';
+        copy: 'Manage your profile, account controls, appearance, active sessions, newsletter subscribers, and content metadata.';
         errors: 'Error messages';
         navLabel: 'Settings navigation';
+        newsletter: 'Newsletter';
         profile: 'Profile';
         security: 'Security';
         sessions: 'Sessions';
