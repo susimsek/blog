@@ -163,6 +163,14 @@ export type AdminContentPostItem = {
   updatedAt: string | null;
 };
 
+export type AdminContentPostGroupItem = {
+  id: string;
+  source: string;
+  preferred: AdminContentPostItem;
+  en: AdminContentPostItem | null;
+  tr: AdminContentPostItem | null;
+};
+
 export type AdminContentTopicItem = {
   locale: string;
   id: string;
@@ -170,6 +178,13 @@ export type AdminContentTopicItem = {
   color: string;
   link: string | null;
   updatedAt: string | null;
+};
+
+export type AdminContentTopicGroupItem = {
+  id: string;
+  preferred: AdminContentTopicItem;
+  en: AdminContentTopicItem | null;
+  tr: AdminContentTopicItem | null;
 };
 
 export type AdminContentCategoryItem = {
@@ -182,9 +197,16 @@ export type AdminContentCategoryItem = {
   updatedAt: string | null;
 };
 
+export type AdminContentCategoryGroupItem = {
+  id: string;
+  preferred: AdminContentCategoryItem;
+  en: AdminContentCategoryItem | null;
+  tr: AdminContentCategoryItem | null;
+};
+
 type AdminContentPostsPayload = {
   contentPosts: {
-    items: AdminContentPostItem[];
+    items: AdminContentPostGroupItem[];
     total: number;
     page: number;
     size: number;
@@ -205,7 +227,7 @@ type AdminContentCategoriesPayload = {
 
 type AdminContentTopicsPagePayload = {
   contentTopicsPage: {
-    items: AdminContentTopicItem[];
+    items: AdminContentTopicGroupItem[];
     total: number;
     page: number;
     size: number;
@@ -214,7 +236,7 @@ type AdminContentTopicsPagePayload = {
 
 type AdminContentCategoriesPagePayload = {
   contentCategoriesPage: {
-    items: AdminContentCategoryItem[];
+    items: AdminContentCategoryGroupItem[];
     total: number;
     page: number;
     size: number;
@@ -560,19 +582,62 @@ const ADMIN_CONTENT_POSTS_QUERY = gql`
   query AdminContentPosts($filter: AdminContentPostFilterInput) {
     contentPosts(filter: $filter) {
       items {
-        locale
         id
-        title
-        summary
-        thumbnail
         source
-        publishedDate
-        updatedDate
-        categoryId
-        categoryName
-        topicIds
-        topicNames
-        updatedAt
+        preferred {
+          locale
+          id
+          title
+          summary
+          content
+          contentMode
+          thumbnail
+          source
+          publishedDate
+          updatedDate
+          categoryId
+          categoryName
+          topicIds
+          topicNames
+          contentUpdatedAt
+          updatedAt
+        }
+        en {
+          locale
+          id
+          title
+          summary
+          content
+          contentMode
+          thumbnail
+          source
+          publishedDate
+          updatedDate
+          categoryId
+          categoryName
+          topicIds
+          topicNames
+          contentUpdatedAt
+          updatedAt
+        }
+        tr {
+          locale
+          id
+          title
+          summary
+          content
+          contentMode
+          thumbnail
+          source
+          publishedDate
+          updatedDate
+          categoryId
+          categoryName
+          topicIds
+          topicNames
+          contentUpdatedAt
+          updatedAt
+        }
       }
       total
       page
@@ -635,12 +700,31 @@ const ADMIN_CONTENT_TOPICS_PAGE_QUERY = gql`
   query AdminContentTopicsPage($filter: AdminContentTaxonomyFilterInput) {
     contentTopicsPage(filter: $filter) {
       items {
-        locale
         id
-        name
-        color
-        link
-        updatedAt
+        preferred {
+          locale
+          id
+          name
+          color
+          link
+          updatedAt
+        }
+        en {
+          locale
+          id
+          name
+          color
+          link
+          updatedAt
+        }
+        tr {
+          locale
+          id
+          name
+          color
+          link
+          updatedAt
+        }
       }
       total
       page
@@ -653,13 +737,34 @@ const ADMIN_CONTENT_CATEGORIES_PAGE_QUERY = gql`
   query AdminContentCategoriesPage($filter: AdminContentTaxonomyFilterInput) {
     contentCategoriesPage(filter: $filter) {
       items {
-        locale
         id
-        name
-        color
-        icon
-        link
-        updatedAt
+        preferred {
+          locale
+          id
+          name
+          color
+          icon
+          link
+          updatedAt
+        }
+        en {
+          locale
+          id
+          name
+          color
+          icon
+          link
+          updatedAt
+        }
+        tr {
+          locale
+          id
+          name
+          color
+          icon
+          link
+          updatedAt
+        }
       }
       total
       page
@@ -1462,6 +1567,7 @@ export const revokeAllAdminSessions = async () => {
 
 export const fetchAdminContentPosts = async (filter?: {
   locale?: string;
+  preferredLocale?: string;
   source?: 'blog' | 'medium';
   query?: string;
   categoryId?: string;
@@ -1470,6 +1576,7 @@ export const fetchAdminContentPosts = async (filter?: {
   size?: number;
 }) => {
   const resolvedLocale = filter?.locale?.trim().toLowerCase() ?? '';
+  const resolvedPreferredLocale = filter?.preferredLocale?.trim().toLowerCase() ?? '';
   const resolvedSourceRaw = filter?.source?.trim().toLowerCase() ?? '';
   const resolvedSource: 'blog' | 'medium' | '' =
     resolvedSourceRaw === 'medium' ? 'medium' : resolvedSourceRaw === 'blog' ? 'blog' : '';
@@ -1485,6 +1592,7 @@ export const fetchAdminContentPosts = async (filter?: {
     {
       filter?: {
         locale?: string;
+        preferredLocale?: string;
         source?: 'blog' | 'medium';
         query?: string;
         categoryId?: string;
@@ -1498,6 +1606,7 @@ export const fetchAdminContentPosts = async (filter?: {
     {
       filter: {
         ...(resolvedLocale ? { locale: resolvedLocale } : {}),
+        ...(resolvedPreferredLocale ? { preferredLocale: resolvedPreferredLocale } : {}),
         ...(resolvedSource ? { source: resolvedSource } : {}),
         ...(resolvedQuery ? { query: resolvedQuery } : {}),
         ...(resolvedCategoryID ? { categoryId: resolvedCategoryID } : {}),
@@ -1581,11 +1690,13 @@ export const fetchAdminContentCategories = async (locale?: string) => {
 
 export const fetchAdminContentTopicsPage = async (params?: {
   locale?: string;
+  preferredLocale?: string;
   query?: string;
   page?: number;
   size?: number;
 }) => {
   const resolvedLocale = params?.locale?.trim().toLowerCase() ?? '';
+  const resolvedPreferredLocale = params?.preferredLocale?.trim().toLowerCase() ?? '';
   const resolvedQuery = params?.query?.trim() ?? '';
   const resolvedPage = Number.isFinite(params?.page) ? (params?.page as number) : undefined;
   const resolvedSize = Number.isFinite(params?.size) ? (params?.size as number) : undefined;
@@ -1595,6 +1706,7 @@ export const fetchAdminContentTopicsPage = async (params?: {
     {
       filter?: {
         locale?: string;
+        preferredLocale?: string;
         query?: string;
         page?: number;
         size?: number;
@@ -1605,6 +1717,7 @@ export const fetchAdminContentTopicsPage = async (params?: {
     {
       filter: {
         ...(resolvedLocale ? { locale: resolvedLocale } : {}),
+        ...(resolvedPreferredLocale ? { preferredLocale: resolvedPreferredLocale } : {}),
         ...(resolvedQuery ? { query: resolvedQuery } : {}),
         ...(resolvedPage ? { page: resolvedPage } : {}),
         ...(resolvedSize ? { size: resolvedSize } : {}),
@@ -1620,11 +1733,13 @@ export const fetchAdminContentTopicsPage = async (params?: {
 
 export const fetchAdminContentCategoriesPage = async (params?: {
   locale?: string;
+  preferredLocale?: string;
   query?: string;
   page?: number;
   size?: number;
 }) => {
   const resolvedLocale = params?.locale?.trim().toLowerCase() ?? '';
+  const resolvedPreferredLocale = params?.preferredLocale?.trim().toLowerCase() ?? '';
   const resolvedQuery = params?.query?.trim() ?? '';
   const resolvedPage = Number.isFinite(params?.page) ? (params?.page as number) : undefined;
   const resolvedSize = Number.isFinite(params?.size) ? (params?.size as number) : undefined;
@@ -1634,6 +1749,7 @@ export const fetchAdminContentCategoriesPage = async (params?: {
     {
       filter?: {
         locale?: string;
+        preferredLocale?: string;
         query?: string;
         page?: number;
         size?: number;
@@ -1644,6 +1760,7 @@ export const fetchAdminContentCategoriesPage = async (params?: {
     {
       filter: {
         ...(resolvedLocale ? { locale: resolvedLocale } : {}),
+        ...(resolvedPreferredLocale ? { preferredLocale: resolvedPreferredLocale } : {}),
         ...(resolvedQuery ? { query: resolvedQuery } : {}),
         ...(resolvedPage ? { page: resolvedPage } : {}),
         ...(resolvedSize ? { size: resolvedSize } : {}),
@@ -1660,6 +1777,11 @@ export const fetchAdminContentCategoriesPage = async (params?: {
 export const updateAdminContentPostMetadata = async (input: {
   locale: string;
   id: string;
+  title?: string;
+  summary?: string;
+  thumbnail?: string;
+  publishedDate?: string;
+  updatedDate?: string;
   categoryId?: string | null;
   topicIds: string[];
 }) => {
@@ -1669,6 +1791,11 @@ export const updateAdminContentPostMetadata = async (input: {
       input: {
         locale: string;
         id: string;
+        title?: string;
+        summary?: string;
+        thumbnail?: string;
+        publishedDate?: string;
+        updatedDate?: string;
         categoryId?: string;
         topicIds: string[];
       };
@@ -1679,6 +1806,11 @@ export const updateAdminContentPostMetadata = async (input: {
       input: {
         locale: input.locale.trim().toLowerCase(),
         id: input.id.trim().toLowerCase(),
+        ...(typeof input.title === 'string' ? { title: input.title.trim() } : {}),
+        ...(typeof input.summary === 'string' ? { summary: input.summary.trim() } : {}),
+        ...(typeof input.thumbnail === 'string' ? { thumbnail: input.thumbnail.trim() } : {}),
+        ...(typeof input.publishedDate === 'string' ? { publishedDate: input.publishedDate.trim() } : {}),
+        ...(typeof input.updatedDate === 'string' ? { updatedDate: input.updatedDate.trim() } : {}),
         ...(input.categoryId?.trim() ? { categoryId: input.categoryId.trim().toLowerCase() } : {}),
         topicIds: input.topicIds.map(item => item.trim().toLowerCase()).filter(item => item !== ''),
       },

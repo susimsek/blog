@@ -96,6 +96,7 @@ input AdminUpdateErrorMessageInput {
 
 input AdminContentPostFilterInput {
   locale: String
+  preferredLocale: String
   source: String
   query: String
   categoryId: String
@@ -106,6 +107,7 @@ input AdminContentPostFilterInput {
 
 input AdminContentTaxonomyFilterInput {
   locale: String
+  preferredLocale: String
   query: String
   page: Int
   size: Int
@@ -119,6 +121,11 @@ input AdminContentEntityKeyInput {
 input AdminUpdateContentPostMetadataInput {
   locale: String!
   id: ID!
+  title: String
+  summary: String
+  thumbnail: String
+  publishedDate: String
+  updatedDate: String
   categoryId: String
   topicIds: [String!]!
 }
@@ -299,24 +306,46 @@ type AdminContentPost {
 }
 
 type AdminContentPostListPayload {
-  items: [AdminContentPost!]!
+  items: [AdminContentPostGroup!]!
   total: Int!
   page: Int!
   size: Int!
 }
 
+type AdminContentPostGroup {
+  id: ID!
+  source: String!
+  preferred: AdminContentPost!
+  en: AdminContentPost
+  tr: AdminContentPost
+}
+
 type AdminContentTopicListPayload {
-  items: [AdminContentTopic!]!
+  items: [AdminContentTopicGroup!]!
   total: Int!
   page: Int!
   size: Int!
 }
 
 type AdminContentCategoryListPayload {
-  items: [AdminContentCategory!]!
+  items: [AdminContentCategoryGroup!]!
   total: Int!
   page: Int!
   size: Int!
+}
+
+type AdminContentTopicGroup {
+  id: ID!
+  preferred: AdminContentTopic!
+  en: AdminContentTopic
+  tr: AdminContentTopic
+}
+
+type AdminContentCategoryGroup {
+  id: ID!
+  preferred: AdminContentCategory!
+  en: AdminContentCategory
+  tr: AdminContentCategory
 }
 
 type AdminContentTopic {

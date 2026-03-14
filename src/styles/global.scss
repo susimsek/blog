@@ -134,6 +134,55 @@ html {
   --cluster-space: var(--space-24);
 }
 
+.admin-locale-pill {
+  --admin-locale-pill-bg: var(--main-bg);
+  --admin-locale-pill-border: var(--border-color);
+  --admin-locale-pill-text: var(--text-color);
+  --admin-locale-pill-hover-bg: var(--main-bg);
+  --admin-locale-pill-hover-border: var(--text-color);
+
+  background-color: var(--admin-locale-pill-bg) !important;
+  border-color: var(--admin-locale-pill-border) !important;
+  color: var(--admin-locale-pill-text) !important;
+  box-shadow: none !important;
+}
+
+.admin-locale-pill:hover,
+.admin-locale-pill:focus,
+.admin-locale-pill:focus-visible,
+.admin-locale-pill:active {
+  background-color: var(--admin-locale-pill-hover-bg) !important;
+  border-color: var(--admin-locale-pill-hover-border) !important;
+  color: var(--admin-locale-pill-text) !important;
+  box-shadow: none !important;
+}
+
+.admin-locale-pill--active {
+  --admin-locale-pill-bg: color-mix(in srgb, var(--active-color) 10%, var(--main-bg));
+  --admin-locale-pill-border: color-mix(in srgb, var(--active-color) 28%, var(--border-color));
+  --admin-locale-pill-text: var(--text-color);
+  --admin-locale-pill-hover-bg: color-mix(in srgb, var(--active-color) 14%, var(--main-bg));
+  --admin-locale-pill-hover-border: color-mix(in srgb, var(--active-color) 36%, var(--border-color));
+}
+
+.admin-locale-pill--available {
+  --admin-locale-pill-bg: color-mix(in srgb, var(--active-color) 4%, var(--main-bg));
+  --admin-locale-pill-border: var(--border-color);
+  --admin-locale-pill-text: var(--text-color);
+  --admin-locale-pill-hover-bg: color-mix(in srgb, var(--active-color) 8%, var(--main-bg));
+  --admin-locale-pill-hover-border: color-mix(in srgb, var(--active-color) 20%, var(--border-color));
+}
+
+.admin-locale-pill--missing {
+  --admin-locale-pill-bg: var(--main-bg);
+  --admin-locale-pill-border: var(--border-color);
+  --admin-locale-pill-text: var(--muted-text-color);
+  --admin-locale-pill-hover-bg: color-mix(in srgb, var(--active-color) 6%, var(--main-bg));
+  --admin-locale-pill-hover-border: color-mix(in srgb, var(--active-color) 18%, var(--border-color));
+
+  opacity: 0.82;
+}
+
 .about-page-section {
   margin-block: var(--space-32);
 }
@@ -9919,6 +9968,70 @@ label {
 .admin-content-post-tab-pane {
   padding-inline: clamp(0.85rem, 1.5vw, 1.2rem);
   padding-bottom: clamp(0.85rem, 1.5vw, 1.2rem);
+}
+
+.admin-content-post-tab-pane .react-datepicker-wrapper,
+.admin-content-post-tab-pane .react-datepicker__input-container {
+  display: block;
+}
+
+.admin-content-post-tab-pane .react-datepicker {
+  border: 1px solid color-mix(in srgb, var(--border-color) 84%, transparent);
+  border-radius: 0.8rem;
+  background: color-mix(in srgb, var(--main-bg) 90%, var(--dropdown-hover-bg) 10%);
+  color: var(--text-color);
+  box-shadow: var(--box-shadow-sm);
+}
+
+.admin-content-post-tab-pane .react-datepicker__header {
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 84%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 86%, var(--dropdown-hover-bg) 14%);
+}
+
+.admin-content-post-tab-pane .react-datepicker__current-month,
+.admin-content-post-tab-pane .react-datepicker__day-name,
+.admin-content-post-tab-pane .react-datepicker-time__header,
+.admin-content-post-tab-pane .react-datepicker-year-header {
+  color: var(--text-color);
+}
+
+.admin-content-post-tab-pane .react-datepicker__day,
+.admin-content-post-tab-pane .react-datepicker__time-name {
+  color: var(--text-color);
+}
+
+.admin-content-post-tab-pane .react-datepicker__day:hover,
+.admin-content-post-tab-pane .react-datepicker__month-text:hover,
+.admin-content-post-tab-pane .react-datepicker__quarter-text:hover,
+.admin-content-post-tab-pane .react-datepicker__year-text:hover {
+  background: color-mix(in srgb, var(--dropdown-hover-bg) 70%, var(--main-bg) 30%);
+}
+
+.admin-content-post-tab-pane .react-datepicker__day--outside-month {
+  color: var(--muted-text-color);
+}
+
+.admin-content-post-tab-pane .react-datepicker__day--keyboard-selected {
+  background: color-mix(in srgb, var(--active-color) 18%, var(--main-bg) 82%);
+  color: var(--text-color);
+}
+
+.admin-content-post-tab-pane .react-datepicker__day--selected,
+.admin-content-post-tab-pane .react-datepicker__day--in-selecting-range,
+.admin-content-post-tab-pane .react-datepicker__day--in-range,
+.admin-content-post-tab-pane .react-datepicker__month-text--selected,
+.admin-content-post-tab-pane .react-datepicker__quarter-text--selected,
+.admin-content-post-tab-pane .react-datepicker__year-text--selected {
+  background: var(--active-color);
+  color: var(--active-text-color, #fff);
+}
+
+.admin-content-post-tab-pane .react-datepicker__navigation-icon::before {
+  border-color: var(--text-color);
+}
+
+.admin-content-post-tab-pane .react-datepicker-popper {
+  z-index: 12;
 }
 
 .admin-content-post-actions {

@@ -25,18 +25,20 @@ var (
 
 const adminContentRepositoryUnavailableFormat = "%w: %v"
 
+const (
+	adminContentLocaleEN = "en"
+	adminContentLocaleTR = "tr"
+)
+
 type AdminContentRepository interface {
-	ListPosts(
-		ctx context.Context,
-		filter domain.AdminContentPostFilter,
-		page int,
-		size int,
-	) (*domain.AdminContentPostListResult, error)
+	ListPostGroups(ctx context.Context, filter domain.AdminContentPostFilter) (*domain.AdminContentPostListResult, error)
+	ListAllPosts(ctx context.Context, filter domain.AdminContentPostFilter) ([]domain.AdminContentPostRecord, error)
 	FindPostByLocaleAndID(ctx context.Context, locale, postID string) (*domain.AdminContentPostRecord, error)
 	UpdatePostMetadata(
 		ctx context.Context,
 		locale string,
 		postID string,
+		fields domain.AdminContentPostMetadataFields,
 		category *domain.AdminContentCategoryRecord,
 		topics []domain.AdminContentTopicRecord,
 		now time.Time,
@@ -50,24 +52,16 @@ type AdminContentRepository interface {
 	) (*domain.AdminContentPostRecord, error)
 	DeletePostByLocaleAndID(ctx context.Context, locale, postID string) (bool, error)
 	ListTopics(ctx context.Context, locale string) ([]domain.AdminContentTopicRecord, error)
-	ListTopicsPage(
-		ctx context.Context,
-		filter domain.AdminContentTaxonomyFilter,
-		page int,
-		size int,
-	) (*domain.AdminContentTopicListResult, error)
+	ListTopicGroups(ctx context.Context, filter domain.AdminContentTaxonomyFilter) (*domain.AdminContentTopicListResult, error)
+	ListAllTopics(ctx context.Context, filter domain.AdminContentTaxonomyFilter) ([]domain.AdminContentTopicRecord, error)
 	FindTopicByLocaleAndID(ctx context.Context, locale, topicID string) (*domain.AdminContentTopicRecord, error)
 	UpsertTopic(ctx context.Context, record domain.AdminContentTopicRecord, now time.Time) (*domain.AdminContentTopicRecord, error)
 	DeleteTopicByLocaleAndID(ctx context.Context, locale, topicID string) (bool, error)
 	SyncTopicOnPosts(ctx context.Context, record domain.AdminContentTopicRecord, now time.Time) error
 	RemoveTopicFromPosts(ctx context.Context, locale, topicID string, now time.Time) error
 	ListCategories(ctx context.Context, locale string) ([]domain.AdminContentCategoryRecord, error)
-	ListCategoriesPage(
-		ctx context.Context,
-		filter domain.AdminContentTaxonomyFilter,
-		page int,
-		size int,
-	) (*domain.AdminContentCategoryListResult, error)
+	ListCategoryGroups(ctx context.Context, filter domain.AdminContentTaxonomyFilter) (*domain.AdminContentCategoryListResult, error)
+	ListAllCategories(ctx context.Context, filter domain.AdminContentTaxonomyFilter) ([]domain.AdminContentCategoryRecord, error)
 	FindCategoryByLocaleAndID(ctx context.Context, locale, categoryID string) (*domain.AdminContentCategoryRecord, error)
 	UpsertCategory(
 		ctx context.Context,
@@ -83,35 +77,85 @@ type adminContentMongoRepository struct{}
 
 func NewAdminContentRepository() AdminContentRepository { return &adminContentMongoRepository{} }
 
-func (*adminContentMongoRepository) ListPosts(
+func (*adminContentMongoRepository) ListPostGroups(
 	ctx context.Context,
 	filter domain.AdminContentPostFilter,
-	page int,
-	size int,
 ) (*domain.AdminContentPostListResult, error) {
 	postsCollection, err := getPostContentCollection()
 	if err != nil {
 		return nil, fmt.Errorf(adminContentRepositoryUnavailableFormat, ErrAdminContentRepositoryUnavailable, err)
 	}
 
-	query := buildAdminContentPostFilter(filter)
-	total, err := postsCollection.CountDocuments(ctx, query)
+	resolvedPreferredLocale := strings.TrimSpace(strings.ToLower(filter.PreferredLocale))
+	if resolvedPreferredLocale == "" {
+		resolvedPreferredLocale = adminContentLocaleEN
+	}
+
+	basePipeline := buildAdminContentPostGroupPipeline(filter)
+	total, err := aggregateAdminContentTotal(ctx, postsCollection, basePipeline)
 	if err != nil {
 		return nil, err
 	}
+
+	resolvedPage, resolvedSize, skip := resolveAdminContentPagination(filter.Page, filter.Size, total)
 	if total == 0 {
 		return &domain.AdminContentPostListResult{
-			Items: []domain.AdminContentPostRecord{},
+			Items: []domain.AdminContentPostGroupRecord{},
 			Total: 0,
-			Page:  1,
-			Size:  size,
+			Page:  resolvedPage,
+			Size:  resolvedSize,
 		}, nil
 	}
 
-	totalPages := int((total + int64(size) - 1) / int64(size))
-	resolvedPage := max(1, min(page, totalPages))
-	skip := int64((resolvedPage - 1) * size)
+	itemsPipeline := append(mongo.Pipeline{}, basePipeline...)
+	itemsPipeline = append(itemsPipeline,
+		bson.D{{Key: "$skip", Value: skip}},
+		bson.D{{Key: "$limit", Value: resolvedSize}},
+	)
 
+	cursor, err := postsCollection.Aggregate(ctx, itemsPipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = cursor.Close(ctx)
+	}()
+
+	items := make([]domain.AdminContentPostGroupRecord, 0, resolvedSize)
+	for cursor.Next(ctx) {
+		var doc adminContentPostGroupAggregateDocument
+		if decodeErr := cursor.Decode(&doc); decodeErr != nil {
+			return nil, decodeErr
+		}
+
+		item, ok := mapAdminContentPostGroupAggregateDocument(doc, resolvedPreferredLocale)
+		if !ok {
+			continue
+		}
+		items = append(items, item)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return &domain.AdminContentPostListResult{
+		Items: items,
+		Total: total,
+		Page:  resolvedPage,
+		Size:  resolvedSize,
+	}, nil
+}
+
+func (*adminContentMongoRepository) ListAllPosts(
+	ctx context.Context,
+	filter domain.AdminContentPostFilter,
+) ([]domain.AdminContentPostRecord, error) {
+	postsCollection, err := getPostContentCollection()
+	if err != nil {
+		return nil, fmt.Errorf(adminContentRepositoryUnavailableFormat, ErrAdminContentRepositoryUnavailable, err)
+	}
+
+	query := buildAdminContentPostFilter(filter)
 	cursor, err := postsCollection.Find(
 		ctx,
 		query,
@@ -120,8 +164,6 @@ func (*adminContentMongoRepository) ListPosts(
 				{Key: "publishedAt", Value: -1},
 				{Key: "id", Value: 1},
 			}).
-			SetSkip(skip).
-			SetLimit(int64(size)).
 			SetProjection(bson.M{
 				"locale":        1,
 				"id":            1,
@@ -129,6 +171,7 @@ func (*adminContentMongoRepository) ListPosts(
 				"summary":       1,
 				"thumbnail":     1,
 				"source":        1,
+				"publishedAt":   1,
 				"publishedDate": 1,
 				"updatedDate":   1,
 				"category":      1,
@@ -144,7 +187,7 @@ func (*adminContentMongoRepository) ListPosts(
 		_ = cursor.Close(ctx)
 	}()
 
-	items := make([]domain.AdminContentPostRecord, 0, size)
+	items := make([]domain.AdminContentPostRecord, 0)
 	for cursor.Next(ctx) {
 		var doc adminContentPostDocument
 		if decodeErr := cursor.Decode(&doc); decodeErr != nil {
@@ -157,12 +200,7 @@ func (*adminContentMongoRepository) ListPosts(
 		return nil, err
 	}
 
-	return &domain.AdminContentPostListResult{
-		Items: items,
-		Total: int(total),
-		Page:  resolvedPage,
-		Size:  size,
-	}, nil
+	return items, nil
 }
 
 func (*adminContentMongoRepository) FindPostByLocaleAndID(
@@ -215,6 +253,7 @@ func (*adminContentMongoRepository) UpdatePostMetadata(
 	ctx context.Context,
 	locale string,
 	postID string,
+	fields domain.AdminContentPostMetadataFields,
 	category *domain.AdminContentCategoryRecord,
 	topics []domain.AdminContentTopicRecord,
 	now time.Time,
@@ -270,10 +309,15 @@ func (*adminContentMongoRepository) UpdatePostMetadata(
 		},
 		bson.M{
 			"$set": bson.M{
-				"category":  categoryValue,
-				"topics":    topicValues,
-				"topicIds":  topicIDs,
-				"updatedAt": resolvedNow,
+				"title":         strings.TrimSpace(fields.Title),
+				"summary":       strings.TrimSpace(fields.Summary),
+				"thumbnail":     strings.TrimSpace(fields.Thumbnail),
+				"publishedDate": strings.TrimSpace(fields.PublishedDate),
+				"updatedDate":   strings.TrimSpace(fields.UpdatedDate),
+				"category":      categoryValue,
+				"topics":        topicValues,
+				"topicIds":      topicIDs,
+				"updatedAt":     resolvedNow,
 			},
 		},
 		options.FindOneAndUpdate().
@@ -470,35 +514,16 @@ func (*adminContentMongoRepository) ListTopics(ctx context.Context, locale strin
 	return items, nil
 }
 
-func (*adminContentMongoRepository) ListTopicsPage(
+func (*adminContentMongoRepository) ListAllTopics(
 	ctx context.Context,
 	filter domain.AdminContentTaxonomyFilter,
-	page int,
-	size int,
-) (*domain.AdminContentTopicListResult, error) {
+) ([]domain.AdminContentTopicRecord, error) {
 	topicsCollection, err := getPostTopicsCollection()
 	if err != nil {
 		return nil, fmt.Errorf(adminContentRepositoryUnavailableFormat, ErrAdminContentRepositoryUnavailable, err)
 	}
 
 	query := buildAdminContentTopicFilter(filter)
-	total, err := topicsCollection.CountDocuments(ctx, query)
-	if err != nil {
-		return nil, err
-	}
-	if total == 0 {
-		return &domain.AdminContentTopicListResult{
-			Items: []domain.AdminContentTopicRecord{},
-			Total: 0,
-			Page:  1,
-			Size:  size,
-		}, nil
-	}
-
-	totalPages := int((total + int64(size) - 1) / int64(size))
-	resolvedPage := max(1, min(page, totalPages))
-	skip := int64((resolvedPage - 1) * size)
-
 	cursor, err := topicsCollection.Find(
 		ctx,
 		query,
@@ -508,8 +533,6 @@ func (*adminContentMongoRepository) ListTopicsPage(
 				{Key: "name", Value: 1},
 				{Key: "id", Value: 1},
 			}).
-			SetSkip(skip).
-			SetLimit(int64(size)).
 			SetProjection(bson.M{
 				"locale":    1,
 				"id":        1,
@@ -526,7 +549,7 @@ func (*adminContentMongoRepository) ListTopicsPage(
 		_ = cursor.Close(ctx)
 	}()
 
-	items := make([]domain.AdminContentTopicRecord, 0, size)
+	items := make([]domain.AdminContentTopicRecord, 0, 32)
 	for cursor.Next(ctx) {
 		var doc struct {
 			Locale    string    `bson:"locale"`
@@ -558,11 +581,75 @@ func (*adminContentMongoRepository) ListTopicsPage(
 		return nil, err
 	}
 
+	return items, nil
+}
+
+func (*adminContentMongoRepository) ListTopicGroups(
+	ctx context.Context,
+	filter domain.AdminContentTaxonomyFilter,
+) (*domain.AdminContentTopicListResult, error) {
+	topicsCollection, err := getPostTopicsCollection()
+	if err != nil {
+		return nil, fmt.Errorf(adminContentRepositoryUnavailableFormat, ErrAdminContentRepositoryUnavailable, err)
+	}
+
+	resolvedPreferredLocale := strings.TrimSpace(strings.ToLower(filter.PreferredLocale))
+	if resolvedPreferredLocale == "" {
+		resolvedPreferredLocale = adminContentLocaleEN
+	}
+
+	basePipeline := buildAdminContentTopicGroupPipeline(filter)
+	total, err := aggregateAdminContentTotal(ctx, topicsCollection, basePipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedPage, resolvedSize, skip := resolveAdminContentPagination(filter.Page, filter.Size, total)
+	if total == 0 {
+		return &domain.AdminContentTopicListResult{
+			Items: []domain.AdminContentTopicGroupRecord{},
+			Total: 0,
+			Page:  resolvedPage,
+			Size:  resolvedSize,
+		}, nil
+	}
+
+	itemsPipeline := append(mongo.Pipeline{}, basePipeline...)
+	itemsPipeline = append(itemsPipeline,
+		bson.D{{Key: "$skip", Value: skip}},
+		bson.D{{Key: "$limit", Value: resolvedSize}},
+	)
+
+	cursor, err := topicsCollection.Aggregate(ctx, itemsPipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = cursor.Close(ctx)
+	}()
+
+	items := make([]domain.AdminContentTopicGroupRecord, 0, resolvedSize)
+	for cursor.Next(ctx) {
+		var doc adminContentTopicGroupAggregateDocument
+		if decodeErr := cursor.Decode(&doc); decodeErr != nil {
+			return nil, decodeErr
+		}
+
+		item, ok := mapAdminContentTopicGroupAggregateDocument(doc, resolvedPreferredLocale)
+		if !ok {
+			continue
+		}
+		items = append(items, item)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
 	return &domain.AdminContentTopicListResult{
 		Items: items,
-		Total: int(total),
+		Total: total,
 		Page:  resolvedPage,
-		Size:  size,
+		Size:  resolvedSize,
 	}, nil
 }
 
@@ -817,35 +904,16 @@ func (*adminContentMongoRepository) ListCategories(
 	return items, nil
 }
 
-func (*adminContentMongoRepository) ListCategoriesPage(
+func (*adminContentMongoRepository) ListAllCategories(
 	ctx context.Context,
 	filter domain.AdminContentTaxonomyFilter,
-	page int,
-	size int,
-) (*domain.AdminContentCategoryListResult, error) {
+) ([]domain.AdminContentCategoryRecord, error) {
 	categoriesCollection, err := getPostCategoriesCollection()
 	if err != nil {
 		return nil, fmt.Errorf(adminContentRepositoryUnavailableFormat, ErrAdminContentRepositoryUnavailable, err)
 	}
 
 	query := buildAdminContentCategoryFilter(filter)
-	total, err := categoriesCollection.CountDocuments(ctx, query)
-	if err != nil {
-		return nil, err
-	}
-	if total == 0 {
-		return &domain.AdminContentCategoryListResult{
-			Items: []domain.AdminContentCategoryRecord{},
-			Total: 0,
-			Page:  1,
-			Size:  size,
-		}, nil
-	}
-
-	totalPages := int((total + int64(size) - 1) / int64(size))
-	resolvedPage := max(1, min(page, totalPages))
-	skip := int64((resolvedPage - 1) * size)
-
 	cursor, err := categoriesCollection.Find(
 		ctx,
 		query,
@@ -855,8 +923,6 @@ func (*adminContentMongoRepository) ListCategoriesPage(
 				{Key: "name", Value: 1},
 				{Key: "id", Value: 1},
 			}).
-			SetSkip(skip).
-			SetLimit(int64(size)).
 			SetProjection(bson.M{
 				"locale":    1,
 				"id":        1,
@@ -874,7 +940,7 @@ func (*adminContentMongoRepository) ListCategoriesPage(
 		_ = cursor.Close(ctx)
 	}()
 
-	items := make([]domain.AdminContentCategoryRecord, 0, size)
+	items := make([]domain.AdminContentCategoryRecord, 0, 32)
 	for cursor.Next(ctx) {
 		var doc struct {
 			Locale    string    `bson:"locale"`
@@ -908,11 +974,75 @@ func (*adminContentMongoRepository) ListCategoriesPage(
 		return nil, err
 	}
 
+	return items, nil
+}
+
+func (*adminContentMongoRepository) ListCategoryGroups(
+	ctx context.Context,
+	filter domain.AdminContentTaxonomyFilter,
+) (*domain.AdminContentCategoryListResult, error) {
+	categoriesCollection, err := getPostCategoriesCollection()
+	if err != nil {
+		return nil, fmt.Errorf(adminContentRepositoryUnavailableFormat, ErrAdminContentRepositoryUnavailable, err)
+	}
+
+	resolvedPreferredLocale := strings.TrimSpace(strings.ToLower(filter.PreferredLocale))
+	if resolvedPreferredLocale == "" {
+		resolvedPreferredLocale = adminContentLocaleEN
+	}
+
+	basePipeline := buildAdminContentCategoryGroupPipeline(filter)
+	total, err := aggregateAdminContentTotal(ctx, categoriesCollection, basePipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedPage, resolvedSize, skip := resolveAdminContentPagination(filter.Page, filter.Size, total)
+	if total == 0 {
+		return &domain.AdminContentCategoryListResult{
+			Items: []domain.AdminContentCategoryGroupRecord{},
+			Total: 0,
+			Page:  resolvedPage,
+			Size:  resolvedSize,
+		}, nil
+	}
+
+	itemsPipeline := append(mongo.Pipeline{}, basePipeline...)
+	itemsPipeline = append(itemsPipeline,
+		bson.D{{Key: "$skip", Value: skip}},
+		bson.D{{Key: "$limit", Value: resolvedSize}},
+	)
+
+	cursor, err := categoriesCollection.Aggregate(ctx, itemsPipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = cursor.Close(ctx)
+	}()
+
+	items := make([]domain.AdminContentCategoryGroupRecord, 0, resolvedSize)
+	for cursor.Next(ctx) {
+		var doc adminContentCategoryGroupAggregateDocument
+		if decodeErr := cursor.Decode(&doc); decodeErr != nil {
+			return nil, decodeErr
+		}
+
+		item, ok := mapAdminContentCategoryGroupAggregateDocument(doc, resolvedPreferredLocale)
+		if !ok {
+			continue
+		}
+		items = append(items, item)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
 	return &domain.AdminContentCategoryListResult{
 		Items: items,
-		Total: int(total),
+		Total: total,
 		Page:  resolvedPage,
-		Size:  size,
+		Size:  resolvedSize,
 	}, nil
 }
 
@@ -1101,16 +1231,17 @@ func (*adminContentMongoRepository) ClearCategoryFromPosts(
 }
 
 type adminContentPostDocument struct {
-	Locale        string `bson:"locale"`
-	ID            string `bson:"id"`
-	Title         string `bson:"title"`
-	Summary       string `bson:"summary"`
-	Content       string `bson:"content"`
-	ContentMode   string `bson:"contentMode"`
-	Thumbnail     string `bson:"thumbnail"`
-	Source        string `bson:"source"`
-	PublishedDate string `bson:"publishedDate"`
-	UpdatedDate   string `bson:"updatedDate"`
+	Locale        string    `bson:"locale"`
+	ID            string    `bson:"id"`
+	Title         string    `bson:"title"`
+	Summary       string    `bson:"summary"`
+	Content       string    `bson:"content"`
+	ContentMode   string    `bson:"contentMode"`
+	Thumbnail     string    `bson:"thumbnail"`
+	Source        string    `bson:"source"`
+	PublishedAt   time.Time `bson:"publishedAt"`
+	PublishedDate string    `bson:"publishedDate"`
+	UpdatedDate   string    `bson:"updatedDate"`
 	Category      *struct {
 		ID   string `bson:"id"`
 		Name string `bson:"name"`
@@ -1122,6 +1253,41 @@ type adminContentPostDocument struct {
 	TopicIDs         []string  `bson:"topicIds"`
 	ContentUpdatedAt time.Time `bson:"contentUpdatedAt"`
 	UpdatedAt        time.Time `bson:"updatedAt"`
+}
+
+type adminContentPostGroupAggregateDocument struct {
+	ID       string                     `bson:"id"`
+	Source   string                     `bson:"source"`
+	Variants []adminContentPostDocument `bson:"variants"`
+}
+
+type adminContentTopicAggregateVariantDocument struct {
+	Locale    string    `bson:"locale"`
+	ID        string    `bson:"id"`
+	Name      string    `bson:"name"`
+	Color     string    `bson:"color"`
+	Link      string    `bson:"link"`
+	UpdatedAt time.Time `bson:"updatedAt"`
+}
+
+type adminContentTopicGroupAggregateDocument struct {
+	ID       string                                      `bson:"id"`
+	Variants []adminContentTopicAggregateVariantDocument `bson:"variants"`
+}
+
+type adminContentCategoryAggregateVariantDocument struct {
+	Locale    string    `bson:"locale"`
+	ID        string    `bson:"id"`
+	Name      string    `bson:"name"`
+	Color     string    `bson:"color"`
+	Icon      string    `bson:"icon"`
+	Link      string    `bson:"link"`
+	UpdatedAt time.Time `bson:"updatedAt"`
+}
+
+type adminContentCategoryGroupAggregateDocument struct {
+	ID       string                                         `bson:"id"`
+	Variants []adminContentCategoryAggregateVariantDocument `bson:"variants"`
 }
 
 func mapAdminContentPostDocument(doc adminContentPostDocument) domain.AdminContentPostRecord {
@@ -1165,6 +1331,7 @@ func mapAdminContentPostDocument(doc adminContentPostDocument) domain.AdminConte
 		ContentMode:      strings.TrimSpace(strings.ToLower(doc.ContentMode)),
 		Thumbnail:        strings.TrimSpace(doc.Thumbnail),
 		Source:           strings.TrimSpace(strings.ToLower(doc.Source)),
+		PublishedAt:      doc.PublishedAt,
 		PublishedDate:    strings.TrimSpace(doc.PublishedDate),
 		UpdatedDate:      strings.TrimSpace(doc.UpdatedDate),
 		CategoryID:       categoryID,
@@ -1174,6 +1341,108 @@ func mapAdminContentPostDocument(doc adminContentPostDocument) domain.AdminConte
 		ContentUpdatedAt: doc.ContentUpdatedAt,
 		UpdatedAt:        doc.UpdatedAt,
 	}
+}
+
+func mapAdminContentPostGroupAggregateDocument(
+	doc adminContentPostGroupAggregateDocument,
+	preferredLocale string,
+) (domain.AdminContentPostGroupRecord, bool) {
+	group := domain.AdminContentPostGroupRecord{
+		ID:     strings.TrimSpace(strings.ToLower(doc.ID)),
+		Source: strings.TrimSpace(strings.ToLower(doc.Source)),
+	}
+
+	for _, variant := range doc.Variants {
+		mapped := mapAdminContentPostDocument(variant)
+		switch mapped.Locale {
+		case adminContentLocaleEN:
+			if group.EN == nil {
+				group.EN = &mapped
+			}
+		case adminContentLocaleTR:
+			if group.TR == nil {
+				group.TR = &mapped
+			}
+		}
+	}
+
+	assignAdminContentPreferredPost(&group, preferredLocale)
+	if strings.TrimSpace(group.Preferred.ID) == "" {
+		return domain.AdminContentPostGroupRecord{}, false
+	}
+
+	return group, true
+}
+
+func mapAdminContentTopicGroupAggregateDocument(
+	doc adminContentTopicGroupAggregateDocument,
+	preferredLocale string,
+) (domain.AdminContentTopicGroupRecord, bool) {
+	group := domain.AdminContentTopicGroupRecord{ID: strings.TrimSpace(strings.ToLower(doc.ID))}
+
+	for _, variant := range doc.Variants {
+		mapped := domain.AdminContentTopicRecord{
+			Locale:    strings.TrimSpace(strings.ToLower(variant.Locale)),
+			ID:        strings.TrimSpace(strings.ToLower(variant.ID)),
+			Name:      strings.TrimSpace(variant.Name),
+			Color:     strings.TrimSpace(strings.ToLower(variant.Color)),
+			Link:      strings.TrimSpace(variant.Link),
+			UpdatedAt: variant.UpdatedAt,
+		}
+		switch mapped.Locale {
+		case adminContentLocaleEN:
+			if group.EN == nil {
+				group.EN = &mapped
+			}
+		case adminContentLocaleTR:
+			if group.TR == nil {
+				group.TR = &mapped
+			}
+		}
+	}
+
+	assignAdminContentPreferredTopic(&group, preferredLocale)
+	if strings.TrimSpace(group.Preferred.ID) == "" {
+		return domain.AdminContentTopicGroupRecord{}, false
+	}
+
+	return group, true
+}
+
+func mapAdminContentCategoryGroupAggregateDocument(
+	doc adminContentCategoryGroupAggregateDocument,
+	preferredLocale string,
+) (domain.AdminContentCategoryGroupRecord, bool) {
+	group := domain.AdminContentCategoryGroupRecord{ID: strings.TrimSpace(strings.ToLower(doc.ID))}
+
+	for _, variant := range doc.Variants {
+		mapped := domain.AdminContentCategoryRecord{
+			Locale:    strings.TrimSpace(strings.ToLower(variant.Locale)),
+			ID:        strings.TrimSpace(strings.ToLower(variant.ID)),
+			Name:      strings.TrimSpace(variant.Name),
+			Color:     strings.TrimSpace(strings.ToLower(variant.Color)),
+			Icon:      strings.TrimSpace(variant.Icon),
+			Link:      strings.TrimSpace(variant.Link),
+			UpdatedAt: variant.UpdatedAt,
+		}
+		switch mapped.Locale {
+		case adminContentLocaleEN:
+			if group.EN == nil {
+				group.EN = &mapped
+			}
+		case adminContentLocaleTR:
+			if group.TR == nil {
+				group.TR = &mapped
+			}
+		}
+	}
+
+	assignAdminContentPreferredCategory(&group, preferredLocale)
+	if strings.TrimSpace(group.Preferred.ID) == "" {
+		return domain.AdminContentCategoryGroupRecord{}, false
+	}
+
+	return group, true
 }
 
 func buildAdminContentPostFilter(filter domain.AdminContentPostFilter) bson.M {
@@ -1216,6 +1485,83 @@ func buildAdminContentPostFilter(filter domain.AdminContentPostFilter) bson.M {
 	return query
 }
 
+func buildAdminContentPostGroupPipeline(filter domain.AdminContentPostFilter) mongo.Pipeline {
+	query := buildAdminContentPostFilter(filter)
+
+	return mongo.Pipeline{
+		bson.D{{Key: "$match", Value: query}},
+		bson.D{{Key: "$project", Value: bson.M{
+			"locale":        1,
+			"id":            1,
+			"title":         1,
+			"summary":       1,
+			"thumbnail":     1,
+			"source":        1,
+			"publishedAt":   1,
+			"publishedDate": 1,
+			"updatedDate":   1,
+			"category":      1,
+			"topics":        1,
+			"topicIds":      1,
+			"updatedAt":     1,
+			"sortPublishedAt": bson.M{
+				"$ifNull": bson.A{
+					"$publishedAt",
+					bson.M{
+						"$dateFromString": bson.M{
+							"dateString": "$publishedDate",
+							"format":     "%Y-%m-%d",
+							"onError":    nil,
+							"onNull":     nil,
+						},
+					},
+				},
+			},
+		}}},
+		bson.D{{Key: "$sort", Value: bson.D{
+			{Key: "sortPublishedAt", Value: -1},
+			{Key: "id", Value: 1},
+			{Key: "source", Value: 1},
+			{Key: "locale", Value: 1},
+		}}},
+		bson.D{{Key: "$group", Value: bson.M{
+			"_id": bson.M{
+				"id":     "$id",
+				"source": "$source",
+			},
+			"id":              bson.M{"$first": "$id"},
+			"source":          bson.M{"$first": "$source"},
+			"sortPublishedAt": bson.M{"$first": "$sortPublishedAt"},
+			"variants": bson.M{"$push": bson.M{
+				"locale":        "$locale",
+				"id":            "$id",
+				"title":         "$title",
+				"summary":       "$summary",
+				"thumbnail":     "$thumbnail",
+				"source":        "$source",
+				"publishedAt":   "$publishedAt",
+				"publishedDate": "$publishedDate",
+				"updatedDate":   "$updatedDate",
+				"category":      "$category",
+				"topics":        "$topics",
+				"topicIds":      "$topicIds",
+				"updatedAt":     "$updatedAt",
+			}},
+		}}},
+		bson.D{{Key: "$sort", Value: bson.D{
+			{Key: "sortPublishedAt", Value: -1},
+			{Key: "id", Value: 1},
+			{Key: "source", Value: 1},
+		}}},
+		bson.D{{Key: "$project", Value: bson.M{
+			"_id":      0,
+			"id":       1,
+			"source":   1,
+			"variants": 1,
+		}}},
+	}
+}
+
 func buildAdminContentTopicFilter(filter domain.AdminContentTaxonomyFilter) bson.M {
 	query := bson.M{}
 
@@ -1237,6 +1583,51 @@ func buildAdminContentTopicFilter(filter domain.AdminContentTaxonomyFilter) bson
 	}
 
 	return query
+}
+
+func buildAdminContentTopicGroupPipeline(filter domain.AdminContentTaxonomyFilter) mongo.Pipeline {
+	query := buildAdminContentTopicFilter(filter)
+	sortName := buildAdminContentPreferredNameExpression(strings.TrimSpace(strings.ToLower(filter.PreferredLocale)))
+
+	return mongo.Pipeline{
+		bson.D{{Key: "$match", Value: query}},
+		bson.D{{Key: "$group", Value: bson.M{
+			"_id": "$id",
+			"id":  bson.M{"$first": "$id"},
+			"variants": bson.M{"$push": bson.M{
+				"locale":    "$locale",
+				"id":        "$id",
+				"name":      "$name",
+				"color":     "$color",
+				"link":      "$link",
+				"updatedAt": "$updatedAt",
+			}},
+			"enName": bson.M{"$max": bson.M{
+				"$cond": bson.A{
+					bson.M{"$eq": bson.A{"$locale", adminContentLocaleEN}},
+					"$name",
+					"",
+				},
+			}},
+			"trName": bson.M{"$max": bson.M{
+				"$cond": bson.A{
+					bson.M{"$eq": bson.A{"$locale", adminContentLocaleTR}},
+					"$name",
+					"",
+				},
+			}},
+		}}},
+		bson.D{{Key: "$addFields", Value: bson.M{"sortName": sortName}}},
+		bson.D{{Key: "$sort", Value: bson.D{
+			{Key: "sortName", Value: 1},
+			{Key: "id", Value: 1},
+		}}},
+		bson.D{{Key: "$project", Value: bson.M{
+			"_id":      0,
+			"id":       1,
+			"variants": 1,
+		}}},
+	}
 }
 
 func buildAdminContentCategoryFilter(filter domain.AdminContentTaxonomyFilter) bson.M {
@@ -1261,4 +1652,202 @@ func buildAdminContentCategoryFilter(filter domain.AdminContentTaxonomyFilter) b
 	}
 
 	return query
+}
+
+func buildAdminContentCategoryGroupPipeline(filter domain.AdminContentTaxonomyFilter) mongo.Pipeline {
+	query := buildAdminContentCategoryFilter(filter)
+	sortName := buildAdminContentPreferredNameExpression(strings.TrimSpace(strings.ToLower(filter.PreferredLocale)))
+
+	return mongo.Pipeline{
+		bson.D{{Key: "$match", Value: query}},
+		bson.D{{Key: "$group", Value: bson.M{
+			"_id": "$id",
+			"id":  bson.M{"$first": "$id"},
+			"variants": bson.M{"$push": bson.M{
+				"locale":    "$locale",
+				"id":        "$id",
+				"name":      "$name",
+				"color":     "$color",
+				"icon":      "$icon",
+				"link":      "$link",
+				"updatedAt": "$updatedAt",
+			}},
+			"enName": bson.M{"$max": bson.M{
+				"$cond": bson.A{
+					bson.M{"$eq": bson.A{"$locale", adminContentLocaleEN}},
+					"$name",
+					"",
+				},
+			}},
+			"trName": bson.M{"$max": bson.M{
+				"$cond": bson.A{
+					bson.M{"$eq": bson.A{"$locale", adminContentLocaleTR}},
+					"$name",
+					"",
+				},
+			}},
+		}}},
+		bson.D{{Key: "$addFields", Value: bson.M{"sortName": sortName}}},
+		bson.D{{Key: "$sort", Value: bson.D{
+			{Key: "sortName", Value: 1},
+			{Key: "id", Value: 1},
+		}}},
+		bson.D{{Key: "$project", Value: bson.M{
+			"_id":      0,
+			"id":       1,
+			"variants": 1,
+		}}},
+	}
+}
+
+func buildAdminContentPreferredNameExpression(preferredLocale string) bson.M {
+	if preferredLocale == adminContentLocaleTR {
+		return bson.M{
+			"$cond": bson.A{
+				bson.M{"$ne": bson.A{"$trName", ""}},
+				"$trName",
+				"$enName",
+			},
+		}
+	}
+
+	return bson.M{
+		"$cond": bson.A{
+			bson.M{"$ne": bson.A{"$enName", ""}},
+			"$enName",
+			"$trName",
+		},
+	}
+}
+
+func resolveAdminContentPagination(page, size *int, total int) (int, int, int64) {
+	resolvedPage := 1
+	resolvedSize := total
+	if resolvedSize <= 0 {
+		resolvedSize = 1
+	}
+
+	if size != nil && *size > 0 {
+		resolvedSize = *size
+	}
+	if page != nil && *page > 0 {
+		resolvedPage = *page
+	}
+
+	if total == 0 {
+		return 1, resolvedSize, 0
+	}
+
+	totalPages := max(1, (total+resolvedSize-1)/resolvedSize)
+	if resolvedPage > totalPages {
+		resolvedPage = totalPages
+	}
+
+	return resolvedPage, resolvedSize, int64((resolvedPage - 1) * resolvedSize)
+}
+
+func aggregateAdminContentTotal(
+	ctx context.Context,
+	collection *mongo.Collection,
+	basePipeline mongo.Pipeline,
+) (int, error) {
+	countPipeline := append(mongo.Pipeline{}, basePipeline...)
+	countPipeline = append(countPipeline, bson.D{{Key: "$count", Value: "total"}})
+
+	cursor, err := collection.Aggregate(ctx, countPipeline)
+	if err != nil {
+		return 0, err
+	}
+	defer func() {
+		_ = cursor.Close(ctx)
+	}()
+
+	var countDoc struct {
+		Total int `bson:"total"`
+	}
+	if cursor.Next(ctx) {
+		if decodeErr := cursor.Decode(&countDoc); decodeErr != nil {
+			return 0, decodeErr
+		}
+	}
+	if err := cursor.Err(); err != nil {
+		return 0, err
+	}
+
+	return countDoc.Total, nil
+}
+
+func assignAdminContentPreferredPost(group *domain.AdminContentPostGroupRecord, preferredLocale string) {
+	if group == nil {
+		return
+	}
+
+	if preferredLocale == adminContentLocaleTR {
+		if group.TR != nil {
+			group.Preferred = *group.TR
+			return
+		}
+		if group.EN != nil {
+			group.Preferred = *group.EN
+			return
+		}
+	}
+
+	if group.EN != nil {
+		group.Preferred = *group.EN
+		return
+	}
+	if group.TR != nil {
+		group.Preferred = *group.TR
+	}
+}
+
+func assignAdminContentPreferredTopic(group *domain.AdminContentTopicGroupRecord, preferredLocale string) {
+	if group == nil {
+		return
+	}
+
+	if preferredLocale == adminContentLocaleTR {
+		if group.TR != nil {
+			group.Preferred = *group.TR
+			return
+		}
+		if group.EN != nil {
+			group.Preferred = *group.EN
+			return
+		}
+	}
+
+	if group.EN != nil {
+		group.Preferred = *group.EN
+		return
+	}
+	if group.TR != nil {
+		group.Preferred = *group.TR
+	}
+}
+
+func assignAdminContentPreferredCategory(group *domain.AdminContentCategoryGroupRecord, preferredLocale string) {
+	if group == nil {
+		return
+	}
+
+	if preferredLocale == adminContentLocaleTR {
+		if group.TR != nil {
+			group.Preferred = *group.TR
+			return
+		}
+		if group.EN != nil {
+			group.Preferred = *group.EN
+			return
+		}
+	}
+
+	if group.EN != nil {
+		group.Preferred = *group.EN
+		return
+	}
+	if group.TR != nil {
+		group.Preferred = *group.TR
+	}
 }

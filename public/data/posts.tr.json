@@ -1,39 +1,5 @@
 [
   {
-    "id": "captain-tsubasa-rise-of-new-champions",
-    "title": "Captain Tsubasa: Rise of New Champions",
-    "summary": "World Fighters gelmeden önce Rise of New Champions, Captain Tsubasa’nın modern konsol kimliğini en net gösteren oyun olarak öne çıkıyor: hızlı, gösterişli ve bütünüyle anime futbolu ruhuna yaslanan bir yapım.",
-    "thumbnail": "/images/captain-tsubasa-rise-of-new-champions-thumbnail.webp",
-    "topics": [
-      {
-        "id": "captain-tsubasa",
-        "name": "Captain Tsubasa",
-        "color": "orange"
-      },
-      {
-        "id": "anime-game",
-        "name": "Anime Oyunu",
-        "color": "purple"
-      },
-      {
-        "id": "sports-game",
-        "name": "Spor Oyunu",
-        "color": "blue"
-      }
-    ],
-    "readingTimeMin": 4,
-    "searchText": "captain tsubasa rise of new champions world fighters gelmeden once rise of new champions captain tsubasa nin modern konsol kimligini en net gosteren oyun olarak one cikiyor hizli gosterisli ve butunuyle anime futbolu ruhuna yaslanan bir yapim captain tsubasa anime oyunu spor oyunu",
-    "updatedDate": "2026-02-27",
-    "publishedDate": "2026-02-26",
-    "source": "blog",
-    "category": {
-      "id": "gaming",
-      "name": "Oyun",
-      "color": "red",
-      "icon": "gamepad"
-    }
-  },
-  {
     "id": "captain-tsubasa-2-world-fighters",
     "title": "Captain Tsubasa 2: World Fighters",
     "summary": "Captain Tsubasa 2: World Fighters için Bandai Namco resmi sayfası ve topluluk takibine dayalı detaylı bir inceleme: platformlar, oynanış ölçeği, bilinen bilgiler ve çıkış öncesi açık noktalar.",
@@ -59,6 +25,40 @@
     "searchText": "captain tsubasa 2 world fighters captain tsubasa 2 world fighters icin bandai namco resmi sayfasi ve topluluk takibine dayali detayli bir inceleme platformlar oynanis olcegi bilinen bilgiler ve cikis oncesi acik noktalar captain tsubasa anime oyunu spor oyunu",
     "updatedDate": "2026-02-28",
     "publishedDate": "2026-02-27",
+    "source": "blog",
+    "category": {
+      "id": "gaming",
+      "name": "Oyun",
+      "color": "red",
+      "icon": "gamepad"
+    }
+  },
+  {
+    "id": "captain-tsubasa-rise-of-new-champions",
+    "title": "Captain Tsubasa: Rise of New Champions",
+    "summary": "World Fighters gelmeden önce Rise of New Champions, Captain Tsubasa’nın modern konsol kimliğini en net gösteren oyun olarak öne çıkıyor: hızlı, gösterişli ve bütünüyle anime futbolu ruhuna yaslanan bir yapım.",
+    "thumbnail": "/images/captain-tsubasa-rise-of-new-champions-thumbnail.webp",
+    "topics": [
+      {
+        "id": "captain-tsubasa",
+        "name": "Captain Tsubasa",
+        "color": "orange"
+      },
+      {
+        "id": "anime-game",
+        "name": "Anime Oyunu",
+        "color": "purple"
+      },
+      {
+        "id": "sports-game",
+        "name": "Spor Oyunu",
+        "color": "blue"
+      }
+    ],
+    "readingTimeMin": 4,
+    "searchText": "captain tsubasa rise of new champions world fighters gelmeden once rise of new champions captain tsubasa nin modern konsol kimligini en net gosteren oyun olarak one cikiyor hizli gosterisli ve butunuyle anime futbolu ruhuna yaslanan bir yapim captain tsubasa anime oyunu spor oyunu",
+    "updatedDate": "2026-02-27",
+    "publishedDate": "2026-02-26",
     "source": "blog",
     "category": {
       "id": "gaming",
@@ -444,6 +444,8 @@
   {
     "id": "https://medium.com/p/3703a3b9fd29",
     "title": "Spring Boot GraalVM Native Image",
+    "publishedDate": "2025-04-22",
+    "updatedDate": "2025-04-22",
     "summary": "📖 Introduction\nJava applications often suffer from long startup times and high memory consumption, making modern software development more challenging. However, GraalVM Native Image offers a groundbr...",
     "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*07CXmp711t--05EF398hwQ.jpeg",
     "topics": [
@@ -481,12 +483,7 @@
     "readingTimeMin": 2,
     "source": "medium",
     "link": "https://medium.com/yapi-kredi-teknoloji/spring-boot-graalvm-native-image-3703a3b9fd29?source=rss-bda589f2335a------2",
-    "searchText": "spring boot graalvm native image introduction java applications often suffer from long startup times and high memory consumption making modern software development more challenging however graalvm native image offers a groundbr upx kubernetes spring boot native image graalvm",
-    "publishedDate": "Tue, 22 Apr 2025 08:02:29 GMT",
-    "category": {
-      "id": "programming",
-      "name": "Programlama"
-    }
+    "searchText": "spring boot graalvm native image introduction java applications often suffer from long startup times and high memory consumption making modern software development more challenging however graalvm native image offers a groundbr upx kubernetes spring boot native image graalvm"
   },
   {
     "id": "spring-boot-jpa-auditing",
@@ -1551,6 +1548,8 @@
   {
     "id": "https://medium.com/p/eb227e1a748b",
     "title": "React & Spring Boot Graphql Fullstack Microservice Application on Kubernetes",
+    "publishedDate": "2022-08-28",
+    "updatedDate": "2022-08-28",
     "summary": "Hello everyone, In this article, we will develop a fullstack graphql microservice application using React and Spring Boot and deploy this application on Kubernetes.\nGraphQL\nGraphQL is a query language...",
     "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*PGprMpt9l9D_eUGYW1tzSA.png",
     "topics": [
@@ -1588,16 +1587,13 @@
     "readingTimeMin": 5,
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/react-spring-boot-graphql-fullstack-microservice-application-on-kubernetes-eb227e1a748b?source=rss-bda589f2335a------2",
-    "searchText": "react spring boot graphql fullstack microservice application on kubernetes hello everyone in this article we will develop a fullstack graphql microservice application using react and spring boot and deploy this application on kubernetes graphql graphql is a query language microservices spring boot graphql kubernetes react",
-    "publishedDate": "Sun, 28 Aug 2022 16:29:12 GMT",
-    "category": {
-      "id": "programming",
-      "name": "Programlama"
-    }
+    "searchText": "react spring boot graphql fullstack microservice application on kubernetes hello everyone in this article we will develop a fullstack graphql microservice application using react and spring boot and deploy this application on kubernetes graphql graphql is a query language microservices spring boot graphql kubernetes react"
   },
   {
     "id": "https://medium.com/p/7ea33894d12b",
     "title": "React & Spring Boot Hateoas Driven Fullstack Application on Kubernetes",
+    "publishedDate": "2022-03-15",
+    "updatedDate": "2022-03-15",
     "summary": "Hello everyone, In this article, we will develop a hateoas driven fullstack application using React and Spring Boot and deploy this application on Kubernetes.\nRichardson Maturity Model\n\nLeonard Richar...",
     "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*mbUH1UeaKybgUMKTP1ou5w.png",
     "topics": [
@@ -1635,16 +1631,13 @@
     "readingTimeMin": 6,
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/react-spring-boot-hateoas-driven-fullstack-application-on-kubernetes-7ea33894d12b?source=rss-bda589f2335a------2",
-    "searchText": "react spring boot hateoas driven fullstack application on kubernetes hello everyone in this article we will develop a hateoas driven fullstack application using react and spring boot and deploy this application on kubernetes richardson maturity model leonard richar kubernetes spring boot hateoas react spring native",
-    "publishedDate": "Tue, 15 Mar 2022 19:22:26 GMT",
-    "category": {
-      "id": "programming",
-      "name": "Programlama"
-    }
+    "searchText": "react spring boot hateoas driven fullstack application on kubernetes hello everyone in this article we will develop a hateoas driven fullstack application using react and spring boot and deploy this application on kubernetes richardson maturity model leonard richar kubernetes spring boot hateoas react spring native"
   },
   {
     "id": "https://medium.com/p/b82662ada0a4",
     "title": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 6)",
+    "publishedDate": "2022-01-10",
+    "updatedDate": "2022-01-10",
     "summary": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 6) — Orderer\n\nHello everyone, through this article series we will the Hyperledger Fabric integration wi...",
     "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*268MMjpMXhKeCJKmo74BWA.png",
     "topics": [
@@ -1682,16 +1675,13 @@
     "readingTimeMin": 6,
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-6-b82662ada0a4?source=rss-bda589f2335a------2",
-    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 6 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 6 orderer hello everyone through this article series we will the hyperledger fabric integration wi orderer blockchain kubernetes spring boot hyperledger fabric",
-    "publishedDate": "Mon, 10 Jan 2022 20:01:06 GMT",
-    "category": {
-      "id": "programming",
-      "name": "Programlama"
-    }
+    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 6 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 6 orderer hello everyone through this article series we will the hyperledger fabric integration wi orderer blockchain kubernetes spring boot hyperledger fabric"
   },
   {
     "id": "https://medium.com/p/1723502770e7",
     "title": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 5)",
+    "publishedDate": "2021-12-27",
+    "updatedDate": "2021-12-27",
     "summary": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 5) — Kafka\n\nHello everyone, through this article series we will the Hyperledger Fabric integration with...",
     "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*cN6xIURs0Xub9a7A38II-g.png",
     "topics": [
@@ -1729,16 +1719,13 @@
     "readingTimeMin": 7,
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-5-1723502770e7?source=rss-bda589f2335a------2",
-    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 5 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 5 kafka hello everyone through this article series we will the hyperledger fabric integration with hyperledger fabric kubernetes blockchain spring boot kafka",
-    "publishedDate": "Mon, 27 Dec 2021 19:30:57 GMT",
-    "category": {
-      "id": "programming",
-      "name": "Programlama"
-    }
+    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 5 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 5 kafka hello everyone through this article series we will the hyperledger fabric integration with hyperledger fabric kubernetes blockchain spring boot kafka"
   },
   {
     "id": "https://medium.com/p/daf84e4f9227",
     "title": "Reducing Spring Native and Golang Docker Image Size by 70% with Upx",
+    "publishedDate": "2021-12-20",
+    "updatedDate": "2021-12-20",
     "summary": "Reducing Docker Image Size by 70% in Spring Native and Golang Projects with Upx\n\nHi, In this article, I will explain how we can reduce the docker image size by 70% using upx in spring native and golan...",
     "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*ssImHh3iXkYz014MF6ukrw.png",
     "topics": [
@@ -1776,16 +1763,13 @@
     "readingTimeMin": 3,
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/reducing-spring-native-and-golang-docker-image-size-by-70-with-upx-daf84e4f9227?source=rss-bda589f2335a------2",
-    "searchText": "reducing spring native and golang docker image size by 70 with upx reducing docker image size by 70 in spring native and golang projects with upx hi in this article i will explain how we can reduce the docker image size by 70 using upx in spring native and golan upx golang docker spring boot spring native",
-    "publishedDate": "Mon, 20 Dec 2021 18:03:04 GMT",
-    "category": {
-      "id": "programming",
-      "name": "Programlama"
-    }
+    "searchText": "reducing spring native and golang docker image size by 70 with upx reducing docker image size by 70 in spring native and golang projects with upx hi in this article i will explain how we can reduce the docker image size by 70 using upx in spring native and golan upx golang docker spring boot spring native"
   },
   {
     "id": "https://medium.com/p/d6583a57153c",
     "title": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 4)",
+    "publishedDate": "2021-11-27",
+    "updatedDate": "2021-11-27",
     "summary": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 4) — Generating Certificates and Artifacts\n\nHello everyone, through this article series we will the Hyp...",
     "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*RynSwoXhv_P64QKrH4q2ZQ.png",
     "topics": [
@@ -1823,16 +1807,13 @@
     "readingTimeMin": 6,
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-4-d6583a57153c?source=rss-bda589f2335a------2",
-    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 4 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 4 generating certificates and artifacts hello everyone through this article series we will the hyp blockchain kubernetes hyperledger hyperledger fabric spring boot",
-    "publishedDate": "Sat, 27 Nov 2021 13:47:38 GMT",
-    "category": {
-      "id": "programming",
-      "name": "Programlama"
-    }
+    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 4 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 4 generating certificates and artifacts hello everyone through this article series we will the hyp blockchain kubernetes hyperledger hyperledger fabric spring boot"
   },
   {
     "id": "https://medium.com/p/7eb2fc75ba60",
     "title": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 3)",
+    "publishedDate": "2021-11-21",
+    "updatedDate": "2021-11-21",
     "summary": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 3) — Fabric CA Server\n\nHello everyone, through this article series we will the Hyperledger Fabric integ...",
     "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*S9G4q0odpEbDjhcIowUDQw.png",
     "topics": [
@@ -1870,16 +1851,13 @@
     "readingTimeMin": 7,
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-3-7eb2fc75ba60?source=rss-bda589f2335a------2",
-    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 3 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 3 fabric ca server hello everyone through this article series we will the hyperledger fabric integ spring boot hyperledger fabric blockchain fabric ca server kubernetes",
-    "publishedDate": "Sun, 21 Nov 2021 14:33:12 GMT",
-    "category": {
-      "id": "programming",
-      "name": "Programlama"
-    }
+    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 3 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 3 fabric ca server hello everyone through this article series we will the hyperledger fabric integ spring boot hyperledger fabric blockchain fabric ca server kubernetes"
   },
   {
     "id": "https://medium.com/p/ddce8d25858d",
     "title": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 2)",
+    "publishedDate": "2021-10-31",
+    "updatedDate": "2021-10-31",
     "summary": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 2) — Kubernetes Cluster Setup\n\nHello everyone, through this article series we will the Hyperledger Fabr...",
     "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*9wP-lyvH_YZXzgJHWQRfCw.png",
     "topics": [
@@ -1917,16 +1895,13 @@
     "readingTimeMin": 7,
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-ddce8d25858d?source=rss-bda589f2335a------2",
-    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 2 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 2 kubernetes cluster setup hello everyone through this article series we will the hyperledger fabr blockchain kubernetes spring boot vagrant hyperledger fabric",
-    "publishedDate": "Sun, 31 Oct 2021 18:04:46 GMT",
-    "category": {
-      "id": "programming",
-      "name": "Programlama"
-    }
+    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 2 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 2 kubernetes cluster setup hello everyone through this article series we will the hyperledger fabr blockchain kubernetes spring boot vagrant hyperledger fabric"
   },
   {
     "id": "https://medium.com/p/c8f7c87d60eb",
     "title": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 1)",
+    "publishedDate": "2021-10-17",
+    "updatedDate": "2021-10-17",
     "summary": "Spring Boot Fullstack Blockchain Application With Hyperledger Fabric running on Kubernetes (Part 1) — Introduction\n\nHello everyone, through this article series we will the Hyperledger Fabric integrati...",
     "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*R9q34HnrsGeQiExwr54NYA.png",
     "topics": [
@@ -1964,11 +1939,6 @@
     "readingTimeMin": 6,
     "source": "medium",
     "link": "https://suaybsimsek58.medium.com/spring-boot-fullstack-blockchain-application-with-hyperledger-fabric-running-on-kubernetes-part-1-c8f7c87d60eb?source=rss-bda589f2335a------2",
-    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 1 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 1 introduction hello everyone through this article series we will the hyperledger fabric integrati hyperledger fabric blockchain spring spring boot hyperledger explorer",
-    "publishedDate": "Sun, 17 Oct 2021 17:59:32 GMT",
-    "category": {
-      "id": "programming",
-      "name": "Programlama"
-    }
+    "searchText": "spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 1 spring boot fullstack blockchain application with hyperledger fabric running on kubernetes part 1 introduction hello everyone through this article series we will the hyperledger fabric integrati hyperledger fabric blockchain spring spring boot hyperledger explorer"
   }
 ]

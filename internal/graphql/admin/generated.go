@@ -67,6 +67,13 @@ type ComplexityRoot struct {
 		UpdatedAt func(childComplexity int) int
 	}
 
+	AdminContentCategoryGroup struct {
+		En        func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Preferred func(childComplexity int) int
+		Tr        func(childComplexity int) int
+	}
+
 	AdminContentCategoryListPayload struct {
 		Items func(childComplexity int) int
 		Page  func(childComplexity int) int
@@ -93,6 +100,14 @@ type ComplexityRoot struct {
 		UpdatedDate      func(childComplexity int) int
 	}
 
+	AdminContentPostGroup struct {
+		En        func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Preferred func(childComplexity int) int
+		Source    func(childComplexity int) int
+		Tr        func(childComplexity int) int
+	}
+
 	AdminContentPostListPayload struct {
 		Items func(childComplexity int) int
 		Page  func(childComplexity int) int
@@ -107,6 +122,13 @@ type ComplexityRoot struct {
 		Locale    func(childComplexity int) int
 		Name      func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
+	}
+
+	AdminContentTopicGroup struct {
+		En        func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Preferred func(childComplexity int) int
+		Tr        func(childComplexity int) int
 	}
 
 	AdminContentTopicListPayload struct {
@@ -416,6 +438,31 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.AdminContentCategory.UpdatedAt(childComplexity), true
 
+	case "AdminContentCategoryGroup.en":
+		if e.complexity.AdminContentCategoryGroup.En == nil {
+			break
+		}
+
+		return e.complexity.AdminContentCategoryGroup.En(childComplexity), true
+	case "AdminContentCategoryGroup.id":
+		if e.complexity.AdminContentCategoryGroup.ID == nil {
+			break
+		}
+
+		return e.complexity.AdminContentCategoryGroup.ID(childComplexity), true
+	case "AdminContentCategoryGroup.preferred":
+		if e.complexity.AdminContentCategoryGroup.Preferred == nil {
+			break
+		}
+
+		return e.complexity.AdminContentCategoryGroup.Preferred(childComplexity), true
+	case "AdminContentCategoryGroup.tr":
+		if e.complexity.AdminContentCategoryGroup.Tr == nil {
+			break
+		}
+
+		return e.complexity.AdminContentCategoryGroup.Tr(childComplexity), true
+
 	case "AdminContentCategoryListPayload.items":
 		if e.complexity.AdminContentCategoryListPayload.Items == nil {
 			break
@@ -538,6 +585,37 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.AdminContentPost.UpdatedDate(childComplexity), true
 
+	case "AdminContentPostGroup.en":
+		if e.complexity.AdminContentPostGroup.En == nil {
+			break
+		}
+
+		return e.complexity.AdminContentPostGroup.En(childComplexity), true
+	case "AdminContentPostGroup.id":
+		if e.complexity.AdminContentPostGroup.ID == nil {
+			break
+		}
+
+		return e.complexity.AdminContentPostGroup.ID(childComplexity), true
+	case "AdminContentPostGroup.preferred":
+		if e.complexity.AdminContentPostGroup.Preferred == nil {
+			break
+		}
+
+		return e.complexity.AdminContentPostGroup.Preferred(childComplexity), true
+	case "AdminContentPostGroup.source":
+		if e.complexity.AdminContentPostGroup.Source == nil {
+			break
+		}
+
+		return e.complexity.AdminContentPostGroup.Source(childComplexity), true
+	case "AdminContentPostGroup.tr":
+		if e.complexity.AdminContentPostGroup.Tr == nil {
+			break
+		}
+
+		return e.complexity.AdminContentPostGroup.Tr(childComplexity), true
+
 	case "AdminContentPostListPayload.items":
 		if e.complexity.AdminContentPostListPayload.Items == nil {
 			break
@@ -599,6 +677,31 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminContentTopic.UpdatedAt(childComplexity), true
+
+	case "AdminContentTopicGroup.en":
+		if e.complexity.AdminContentTopicGroup.En == nil {
+			break
+		}
+
+		return e.complexity.AdminContentTopicGroup.En(childComplexity), true
+	case "AdminContentTopicGroup.id":
+		if e.complexity.AdminContentTopicGroup.ID == nil {
+			break
+		}
+
+		return e.complexity.AdminContentTopicGroup.ID(childComplexity), true
+	case "AdminContentTopicGroup.preferred":
+		if e.complexity.AdminContentTopicGroup.Preferred == nil {
+			break
+		}
+
+		return e.complexity.AdminContentTopicGroup.Preferred(childComplexity), true
+	case "AdminContentTopicGroup.tr":
+		if e.complexity.AdminContentTopicGroup.Tr == nil {
+			break
+		}
+
+		return e.complexity.AdminContentTopicGroup.Tr(childComplexity), true
 
 	case "AdminContentTopicListPayload.items":
 		if e.complexity.AdminContentTopicListPayload.Items == nil {
@@ -2349,25 +2452,54 @@ func (ec *executionContext) fieldContext_AdminContentCategory_updatedAt(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _AdminContentCategoryListPayload_items(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentCategoryListPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _AdminContentCategoryGroup_id(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentCategoryGroup) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_AdminContentCategoryListPayload_items,
+		ec.fieldContext_AdminContentCategoryGroup_id,
 		func(ctx context.Context) (any, error) {
-			return obj.Items, nil
+			return obj.ID, nil
 		},
 		nil,
-		ec.marshalNAdminContentCategory2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentCategoryᚄ,
+		ec.marshalNID2string,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_AdminContentCategoryListPayload_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AdminContentCategoryGroup_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AdminContentCategoryListPayload",
+		Object:     "AdminContentCategoryGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentCategoryGroup_preferred(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentCategoryGroup) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentCategoryGroup_preferred,
+		func(ctx context.Context) (any, error) {
+			return obj.Preferred, nil
+		},
+		nil,
+		ec.marshalNAdminContentCategory2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentCategory,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentCategoryGroup_preferred(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentCategoryGroup",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2389,6 +2521,135 @@ func (ec *executionContext) fieldContext_AdminContentCategoryListPayload_items(_
 				return ec.fieldContext_AdminContentCategory_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminContentCategory", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentCategoryGroup_en(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentCategoryGroup) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentCategoryGroup_en,
+		func(ctx context.Context) (any, error) {
+			return obj.En, nil
+		},
+		nil,
+		ec.marshalOAdminContentCategory2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentCategory,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentCategoryGroup_en(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentCategoryGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "locale":
+				return ec.fieldContext_AdminContentCategory_locale(ctx, field)
+			case "id":
+				return ec.fieldContext_AdminContentCategory_id(ctx, field)
+			case "name":
+				return ec.fieldContext_AdminContentCategory_name(ctx, field)
+			case "color":
+				return ec.fieldContext_AdminContentCategory_color(ctx, field)
+			case "icon":
+				return ec.fieldContext_AdminContentCategory_icon(ctx, field)
+			case "link":
+				return ec.fieldContext_AdminContentCategory_link(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminContentCategory_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminContentCategory", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentCategoryGroup_tr(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentCategoryGroup) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentCategoryGroup_tr,
+		func(ctx context.Context) (any, error) {
+			return obj.Tr, nil
+		},
+		nil,
+		ec.marshalOAdminContentCategory2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentCategory,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentCategoryGroup_tr(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentCategoryGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "locale":
+				return ec.fieldContext_AdminContentCategory_locale(ctx, field)
+			case "id":
+				return ec.fieldContext_AdminContentCategory_id(ctx, field)
+			case "name":
+				return ec.fieldContext_AdminContentCategory_name(ctx, field)
+			case "color":
+				return ec.fieldContext_AdminContentCategory_color(ctx, field)
+			case "icon":
+				return ec.fieldContext_AdminContentCategory_icon(ctx, field)
+			case "link":
+				return ec.fieldContext_AdminContentCategory_link(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminContentCategory_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminContentCategory", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentCategoryListPayload_items(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentCategoryListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentCategoryListPayload_items,
+		func(ctx context.Context) (any, error) {
+			return obj.Items, nil
+		},
+		nil,
+		ec.marshalNAdminContentCategoryGroup2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentCategoryGroupᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentCategoryListPayload_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentCategoryListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AdminContentCategoryGroup_id(ctx, field)
+			case "preferred":
+				return ec.fieldContext_AdminContentCategoryGroup_preferred(ctx, field)
+			case "en":
+				return ec.fieldContext_AdminContentCategoryGroup_en(ctx, field)
+			case "tr":
+				return ec.fieldContext_AdminContentCategoryGroup_tr(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminContentCategoryGroup", field.Name)
 		},
 	}
 	return fc, nil
@@ -2945,25 +3206,83 @@ func (ec *executionContext) fieldContext_AdminContentPost_updatedAt(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _AdminContentPostListPayload_items(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentPostListPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _AdminContentPostGroup_id(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentPostGroup) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_AdminContentPostListPayload_items,
+		ec.fieldContext_AdminContentPostGroup_id,
 		func(ctx context.Context) (any, error) {
-			return obj.Items, nil
+			return obj.ID, nil
 		},
 		nil,
-		ec.marshalNAdminContentPost2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPostᚄ,
+		ec.marshalNID2string,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_AdminContentPostListPayload_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AdminContentPostGroup_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AdminContentPostListPayload",
+		Object:     "AdminContentPostGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentPostGroup_source(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentPostGroup) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentPostGroup_source,
+		func(ctx context.Context) (any, error) {
+			return obj.Source, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentPostGroup_source(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentPostGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentPostGroup_preferred(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentPostGroup) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentPostGroup_preferred,
+		func(ctx context.Context) (any, error) {
+			return obj.Preferred, nil
+		},
+		nil,
+		ec.marshalNAdminContentPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPost,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentPostGroup_preferred(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentPostGroup",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -3003,6 +3322,173 @@ func (ec *executionContext) fieldContext_AdminContentPostListPayload_items(_ con
 				return ec.fieldContext_AdminContentPost_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminContentPost", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentPostGroup_en(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentPostGroup) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentPostGroup_en,
+		func(ctx context.Context) (any, error) {
+			return obj.En, nil
+		},
+		nil,
+		ec.marshalOAdminContentPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPost,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentPostGroup_en(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentPostGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "locale":
+				return ec.fieldContext_AdminContentPost_locale(ctx, field)
+			case "id":
+				return ec.fieldContext_AdminContentPost_id(ctx, field)
+			case "title":
+				return ec.fieldContext_AdminContentPost_title(ctx, field)
+			case "summary":
+				return ec.fieldContext_AdminContentPost_summary(ctx, field)
+			case "content":
+				return ec.fieldContext_AdminContentPost_content(ctx, field)
+			case "contentMode":
+				return ec.fieldContext_AdminContentPost_contentMode(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_AdminContentPost_thumbnail(ctx, field)
+			case "source":
+				return ec.fieldContext_AdminContentPost_source(ctx, field)
+			case "publishedDate":
+				return ec.fieldContext_AdminContentPost_publishedDate(ctx, field)
+			case "updatedDate":
+				return ec.fieldContext_AdminContentPost_updatedDate(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_AdminContentPost_categoryId(ctx, field)
+			case "categoryName":
+				return ec.fieldContext_AdminContentPost_categoryName(ctx, field)
+			case "topicIds":
+				return ec.fieldContext_AdminContentPost_topicIds(ctx, field)
+			case "topicNames":
+				return ec.fieldContext_AdminContentPost_topicNames(ctx, field)
+			case "contentUpdatedAt":
+				return ec.fieldContext_AdminContentPost_contentUpdatedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminContentPost_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminContentPost", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentPostGroup_tr(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentPostGroup) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentPostGroup_tr,
+		func(ctx context.Context) (any, error) {
+			return obj.Tr, nil
+		},
+		nil,
+		ec.marshalOAdminContentPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPost,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentPostGroup_tr(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentPostGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "locale":
+				return ec.fieldContext_AdminContentPost_locale(ctx, field)
+			case "id":
+				return ec.fieldContext_AdminContentPost_id(ctx, field)
+			case "title":
+				return ec.fieldContext_AdminContentPost_title(ctx, field)
+			case "summary":
+				return ec.fieldContext_AdminContentPost_summary(ctx, field)
+			case "content":
+				return ec.fieldContext_AdminContentPost_content(ctx, field)
+			case "contentMode":
+				return ec.fieldContext_AdminContentPost_contentMode(ctx, field)
+			case "thumbnail":
+				return ec.fieldContext_AdminContentPost_thumbnail(ctx, field)
+			case "source":
+				return ec.fieldContext_AdminContentPost_source(ctx, field)
+			case "publishedDate":
+				return ec.fieldContext_AdminContentPost_publishedDate(ctx, field)
+			case "updatedDate":
+				return ec.fieldContext_AdminContentPost_updatedDate(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_AdminContentPost_categoryId(ctx, field)
+			case "categoryName":
+				return ec.fieldContext_AdminContentPost_categoryName(ctx, field)
+			case "topicIds":
+				return ec.fieldContext_AdminContentPost_topicIds(ctx, field)
+			case "topicNames":
+				return ec.fieldContext_AdminContentPost_topicNames(ctx, field)
+			case "contentUpdatedAt":
+				return ec.fieldContext_AdminContentPost_contentUpdatedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminContentPost_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminContentPost", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentPostListPayload_items(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentPostListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentPostListPayload_items,
+		func(ctx context.Context) (any, error) {
+			return obj.Items, nil
+		},
+		nil,
+		ec.marshalNAdminContentPostGroup2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPostGroupᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentPostListPayload_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentPostListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AdminContentPostGroup_id(ctx, field)
+			case "source":
+				return ec.fieldContext_AdminContentPostGroup_source(ctx, field)
+			case "preferred":
+				return ec.fieldContext_AdminContentPostGroup_preferred(ctx, field)
+			case "en":
+				return ec.fieldContext_AdminContentPostGroup_en(ctx, field)
+			case "tr":
+				return ec.fieldContext_AdminContentPostGroup_tr(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminContentPostGroup", field.Name)
 		},
 	}
 	return fc, nil
@@ -3269,25 +3755,54 @@ func (ec *executionContext) fieldContext_AdminContentTopic_updatedAt(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _AdminContentTopicListPayload_items(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentTopicListPayload) (ret graphql.Marshaler) {
+func (ec *executionContext) _AdminContentTopicGroup_id(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentTopicGroup) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_AdminContentTopicListPayload_items,
+		ec.fieldContext_AdminContentTopicGroup_id,
 		func(ctx context.Context) (any, error) {
-			return obj.Items, nil
+			return obj.ID, nil
 		},
 		nil,
-		ec.marshalNAdminContentTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentTopicᚄ,
+		ec.marshalNID2string,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_AdminContentTopicListPayload_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AdminContentTopicGroup_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AdminContentTopicListPayload",
+		Object:     "AdminContentTopicGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentTopicGroup_preferred(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentTopicGroup) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentTopicGroup_preferred,
+		func(ctx context.Context) (any, error) {
+			return obj.Preferred, nil
+		},
+		nil,
+		ec.marshalNAdminContentTopic2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentTopic,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentTopicGroup_preferred(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentTopicGroup",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -3307,6 +3822,131 @@ func (ec *executionContext) fieldContext_AdminContentTopicListPayload_items(_ co
 				return ec.fieldContext_AdminContentTopic_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminContentTopic", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentTopicGroup_en(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentTopicGroup) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentTopicGroup_en,
+		func(ctx context.Context) (any, error) {
+			return obj.En, nil
+		},
+		nil,
+		ec.marshalOAdminContentTopic2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentTopic,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentTopicGroup_en(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentTopicGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "locale":
+				return ec.fieldContext_AdminContentTopic_locale(ctx, field)
+			case "id":
+				return ec.fieldContext_AdminContentTopic_id(ctx, field)
+			case "name":
+				return ec.fieldContext_AdminContentTopic_name(ctx, field)
+			case "color":
+				return ec.fieldContext_AdminContentTopic_color(ctx, field)
+			case "link":
+				return ec.fieldContext_AdminContentTopic_link(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminContentTopic_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminContentTopic", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentTopicGroup_tr(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentTopicGroup) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentTopicGroup_tr,
+		func(ctx context.Context) (any, error) {
+			return obj.Tr, nil
+		},
+		nil,
+		ec.marshalOAdminContentTopic2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentTopic,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentTopicGroup_tr(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentTopicGroup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "locale":
+				return ec.fieldContext_AdminContentTopic_locale(ctx, field)
+			case "id":
+				return ec.fieldContext_AdminContentTopic_id(ctx, field)
+			case "name":
+				return ec.fieldContext_AdminContentTopic_name(ctx, field)
+			case "color":
+				return ec.fieldContext_AdminContentTopic_color(ctx, field)
+			case "link":
+				return ec.fieldContext_AdminContentTopic_link(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminContentTopic_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminContentTopic", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentTopicListPayload_items(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentTopicListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentTopicListPayload_items,
+		func(ctx context.Context) (any, error) {
+			return obj.Items, nil
+		},
+		nil,
+		ec.marshalNAdminContentTopicGroup2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentTopicGroupᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentTopicListPayload_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentTopicListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AdminContentTopicGroup_id(ctx, field)
+			case "preferred":
+				return ec.fieldContext_AdminContentTopicGroup_preferred(ctx, field)
+			case "en":
+				return ec.fieldContext_AdminContentTopicGroup_en(ctx, field)
+			case "tr":
+				return ec.fieldContext_AdminContentTopicGroup_tr(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminContentTopicGroup", field.Name)
 		},
 	}
 	return fc, nil
@@ -9525,7 +10165,7 @@ func (ec *executionContext) unmarshalInputAdminContentPostFilterInput(ctx contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"locale", "source", "query", "categoryId", "topicId", "page", "size"}
+	fieldsInOrder := [...]string{"locale", "preferredLocale", "source", "query", "categoryId", "topicId", "page", "size"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -9539,6 +10179,13 @@ func (ec *executionContext) unmarshalInputAdminContentPostFilterInput(ctx contex
 				return it, err
 			}
 			it.Locale = data
+		case "preferredLocale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("preferredLocale"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PreferredLocale = data
 		case "source":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("source"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -9594,7 +10241,7 @@ func (ec *executionContext) unmarshalInputAdminContentTaxonomyFilterInput(ctx co
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"locale", "query", "page", "size"}
+	fieldsInOrder := [...]string{"locale", "preferredLocale", "query", "page", "size"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -9608,6 +10255,13 @@ func (ec *executionContext) unmarshalInputAdminContentTaxonomyFilterInput(ctx co
 				return it, err
 			}
 			it.Locale = data
+		case "preferredLocale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("preferredLocale"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PreferredLocale = data
 		case "query":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -10018,7 +10672,7 @@ func (ec *executionContext) unmarshalInputAdminUpdateContentPostMetadataInput(ct
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"locale", "id", "categoryId", "topicIds"}
+	fieldsInOrder := [...]string{"locale", "id", "title", "summary", "thumbnail", "publishedDate", "updatedDate", "categoryId", "topicIds"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10039,6 +10693,41 @@ func (ec *executionContext) unmarshalInputAdminUpdateContentPostMetadataInput(ct
 				return it, err
 			}
 			it.ID = data
+		case "title":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Title = data
+		case "summary":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("summary"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Summary = data
+		case "thumbnail":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("thumbnail"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Thumbnail = data
+		case "publishedDate":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishedDate"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PublishedDate = data
+		case "updatedDate":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedDate"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedDate = data
 		case "categoryId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -10275,6 +10964,54 @@ func (ec *executionContext) _AdminContentCategory(ctx context.Context, sel ast.S
 	return out
 }
 
+var adminContentCategoryGroupImplementors = []string{"AdminContentCategoryGroup"}
+
+func (ec *executionContext) _AdminContentCategoryGroup(ctx context.Context, sel ast.SelectionSet, obj *model.AdminContentCategoryGroup) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminContentCategoryGroupImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminContentCategoryGroup")
+		case "id":
+			out.Values[i] = ec._AdminContentCategoryGroup_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "preferred":
+			out.Values[i] = ec._AdminContentCategoryGroup_preferred(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "en":
+			out.Values[i] = ec._AdminContentCategoryGroup_en(ctx, field, obj)
+		case "tr":
+			out.Values[i] = ec._AdminContentCategoryGroup_tr(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var adminContentCategoryListPayloadImplementors = []string{"AdminContentCategoryListPayload"}
 
 func (ec *executionContext) _AdminContentCategoryListPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminContentCategoryListPayload) graphql.Marshaler {
@@ -10416,6 +11153,59 @@ func (ec *executionContext) _AdminContentPost(ctx context.Context, sel ast.Selec
 	return out
 }
 
+var adminContentPostGroupImplementors = []string{"AdminContentPostGroup"}
+
+func (ec *executionContext) _AdminContentPostGroup(ctx context.Context, sel ast.SelectionSet, obj *model.AdminContentPostGroup) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminContentPostGroupImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminContentPostGroup")
+		case "id":
+			out.Values[i] = ec._AdminContentPostGroup_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "source":
+			out.Values[i] = ec._AdminContentPostGroup_source(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "preferred":
+			out.Values[i] = ec._AdminContentPostGroup_preferred(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "en":
+			out.Values[i] = ec._AdminContentPostGroup_en(ctx, field, obj)
+		case "tr":
+			out.Values[i] = ec._AdminContentPostGroup_tr(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var adminContentPostListPayloadImplementors = []string{"AdminContentPostListPayload"}
 
 func (ec *executionContext) _AdminContentPostListPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminContentPostListPayload) graphql.Marshaler {
@@ -10505,6 +11295,54 @@ func (ec *executionContext) _AdminContentTopic(ctx context.Context, sel ast.Sele
 			out.Values[i] = ec._AdminContentTopic_link(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._AdminContentTopic_updatedAt(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminContentTopicGroupImplementors = []string{"AdminContentTopicGroup"}
+
+func (ec *executionContext) _AdminContentTopicGroup(ctx context.Context, sel ast.SelectionSet, obj *model.AdminContentTopicGroup) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminContentTopicGroupImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminContentTopicGroup")
+		case "id":
+			out.Values[i] = ec._AdminContentTopicGroup_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "preferred":
+			out.Values[i] = ec._AdminContentTopicGroup_preferred(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "en":
+			out.Values[i] = ec._AdminContentTopicGroup_en(ctx, field, obj)
+		case "tr":
+			out.Values[i] = ec._AdminContentTopicGroup_tr(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12486,6 +13324,60 @@ func (ec *executionContext) marshalNAdminContentCategory2ᚖsuaybsimsekᚗcomᚋ
 	return ec._AdminContentCategory(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAdminContentCategoryGroup2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentCategoryGroupᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminContentCategoryGroup) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAdminContentCategoryGroup2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentCategoryGroup(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNAdminContentCategoryGroup2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentCategoryGroup(ctx context.Context, sel ast.SelectionSet, v *model.AdminContentCategoryGroup) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminContentCategoryGroup(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNAdminContentCategoryInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentCategoryInput(ctx context.Context, v any) (model.AdminContentCategoryInput, error) {
 	res, err := ec.unmarshalInputAdminContentCategoryInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -12514,7 +13406,17 @@ func (ec *executionContext) marshalNAdminContentPost2suaybsimsekᚗcomᚋblogᚑ
 	return ec._AdminContentPost(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAdminContentPost2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPostᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminContentPost) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminContentPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPost(ctx context.Context, sel ast.SelectionSet, v *model.AdminContentPost) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminContentPost(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminContentPostGroup2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPostGroupᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminContentPostGroup) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -12538,7 +13440,7 @@ func (ec *executionContext) marshalNAdminContentPost2ᚕᚖsuaybsimsekᚗcomᚋb
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAdminContentPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPost(ctx, sel, v[i])
+			ret[i] = ec.marshalNAdminContentPostGroup2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPostGroup(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -12558,14 +13460,14 @@ func (ec *executionContext) marshalNAdminContentPost2ᚕᚖsuaybsimsekᚗcomᚋb
 	return ret
 }
 
-func (ec *executionContext) marshalNAdminContentPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPost(ctx context.Context, sel ast.SelectionSet, v *model.AdminContentPost) graphql.Marshaler {
+func (ec *executionContext) marshalNAdminContentPostGroup2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPostGroup(ctx context.Context, sel ast.SelectionSet, v *model.AdminContentPostGroup) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._AdminContentPost(ctx, sel, v)
+	return ec._AdminContentPostGroup(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNAdminContentPostListPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPostListPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminContentPostListPayload) graphql.Marshaler {
@@ -12638,6 +13540,60 @@ func (ec *executionContext) marshalNAdminContentTopic2ᚖsuaybsimsekᚗcomᚋblo
 		return graphql.Null
 	}
 	return ec._AdminContentTopic(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminContentTopicGroup2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentTopicGroupᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminContentTopicGroup) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAdminContentTopicGroup2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentTopicGroup(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNAdminContentTopicGroup2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentTopicGroup(ctx context.Context, sel ast.SelectionSet, v *model.AdminContentTopicGroup) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminContentTopicGroup(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNAdminContentTopicInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentTopicInput(ctx context.Context, v any) (model.AdminContentTopicInput, error) {
@@ -13529,6 +14485,13 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) marshalOAdminContentCategory2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentCategory(ctx context.Context, sel ast.SelectionSet, v *model.AdminContentCategory) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AdminContentCategory(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOAdminContentPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPost(ctx context.Context, sel ast.SelectionSet, v *model.AdminContentPost) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -13550,6 +14513,13 @@ func (ec *executionContext) unmarshalOAdminContentTaxonomyFilterInput2ᚖsuaybsi
 	}
 	res, err := ec.unmarshalInputAdminContentTaxonomyFilterInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAdminContentTopic2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentTopic(ctx context.Context, sel ast.SelectionSet, v *model.AdminContentTopic) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AdminContentTopic(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOAdminDashboardCategory2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDashboardCategory(ctx context.Context, sel ast.SelectionSet, v *model.AdminDashboardCategory) graphql.Marshaler {

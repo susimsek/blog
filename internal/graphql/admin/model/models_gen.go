@@ -47,6 +47,13 @@ type AdminContentCategory struct {
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
+type AdminContentCategoryGroup struct {
+	ID        string                `json:"id"`
+	Preferred *AdminContentCategory `json:"preferred"`
+	En        *AdminContentCategory `json:"en,omitempty"`
+	Tr        *AdminContentCategory `json:"tr,omitempty"`
+}
+
 type AdminContentCategoryInput struct {
 	Locale string  `json:"locale"`
 	ID     string  `json:"id"`
@@ -57,10 +64,10 @@ type AdminContentCategoryInput struct {
 }
 
 type AdminContentCategoryListPayload struct {
-	Items []*AdminContentCategory `json:"items"`
-	Total int                     `json:"total"`
-	Page  int                     `json:"page"`
-	Size  int                     `json:"size"`
+	Items []*AdminContentCategoryGroup `json:"items"`
+	Total int                          `json:"total"`
+	Page  int                          `json:"page"`
+	Size  int                          `json:"size"`
 }
 
 type AdminContentEntityKeyInput struct {
@@ -88,27 +95,37 @@ type AdminContentPost struct {
 }
 
 type AdminContentPostFilterInput struct {
-	Locale     *string `json:"locale,omitempty"`
-	Source     *string `json:"source,omitempty"`
-	Query      *string `json:"query,omitempty"`
-	CategoryID *string `json:"categoryId,omitempty"`
-	TopicID    *string `json:"topicId,omitempty"`
-	Page       *int    `json:"page,omitempty"`
-	Size       *int    `json:"size,omitempty"`
+	Locale          *string `json:"locale,omitempty"`
+	PreferredLocale *string `json:"preferredLocale,omitempty"`
+	Source          *string `json:"source,omitempty"`
+	Query           *string `json:"query,omitempty"`
+	CategoryID      *string `json:"categoryId,omitempty"`
+	TopicID         *string `json:"topicId,omitempty"`
+	Page            *int    `json:"page,omitempty"`
+	Size            *int    `json:"size,omitempty"`
+}
+
+type AdminContentPostGroup struct {
+	ID        string            `json:"id"`
+	Source    string            `json:"source"`
+	Preferred *AdminContentPost `json:"preferred"`
+	En        *AdminContentPost `json:"en,omitempty"`
+	Tr        *AdminContentPost `json:"tr,omitempty"`
 }
 
 type AdminContentPostListPayload struct {
-	Items []*AdminContentPost `json:"items"`
-	Total int                 `json:"total"`
-	Page  int                 `json:"page"`
-	Size  int                 `json:"size"`
+	Items []*AdminContentPostGroup `json:"items"`
+	Total int                      `json:"total"`
+	Page  int                      `json:"page"`
+	Size  int                      `json:"size"`
 }
 
 type AdminContentTaxonomyFilterInput struct {
-	Locale *string `json:"locale,omitempty"`
-	Query  *string `json:"query,omitempty"`
-	Page   *int    `json:"page,omitempty"`
-	Size   *int    `json:"size,omitempty"`
+	Locale          *string `json:"locale,omitempty"`
+	PreferredLocale *string `json:"preferredLocale,omitempty"`
+	Query           *string `json:"query,omitempty"`
+	Page            *int    `json:"page,omitempty"`
+	Size            *int    `json:"size,omitempty"`
 }
 
 type AdminContentTopic struct {
@@ -120,6 +137,13 @@ type AdminContentTopic struct {
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
+type AdminContentTopicGroup struct {
+	ID        string             `json:"id"`
+	Preferred *AdminContentTopic `json:"preferred"`
+	En        *AdminContentTopic `json:"en,omitempty"`
+	Tr        *AdminContentTopic `json:"tr,omitempty"`
+}
+
 type AdminContentTopicInput struct {
 	Locale string  `json:"locale"`
 	ID     string  `json:"id"`
@@ -129,10 +153,10 @@ type AdminContentTopicInput struct {
 }
 
 type AdminContentTopicListPayload struct {
-	Items []*AdminContentTopic `json:"items"`
-	Total int                  `json:"total"`
-	Page  int                  `json:"page"`
-	Size  int                  `json:"size"`
+	Items []*AdminContentTopicGroup `json:"items"`
+	Total int                       `json:"total"`
+	Page  int                       `json:"page"`
+	Size  int                       `json:"size"`
 }
 
 type AdminCreateErrorMessageInput struct {
@@ -314,10 +338,15 @@ type AdminUpdateContentPostContentInput struct {
 }
 
 type AdminUpdateContentPostMetadataInput struct {
-	Locale     string   `json:"locale"`
-	ID         string   `json:"id"`
-	CategoryID *string  `json:"categoryId,omitempty"`
-	TopicIds   []string `json:"topicIds"`
+	Locale        string   `json:"locale"`
+	ID            string   `json:"id"`
+	Title         *string  `json:"title,omitempty"`
+	Summary       *string  `json:"summary,omitempty"`
+	Thumbnail     *string  `json:"thumbnail,omitempty"`
+	PublishedDate *string  `json:"publishedDate,omitempty"`
+	UpdatedDate   *string  `json:"updatedDate,omitempty"`
+	CategoryID    *string  `json:"categoryId,omitempty"`
+	TopicIds      []string `json:"topicIds"`
 }
 
 type AdminUpdateErrorMessageInput struct {

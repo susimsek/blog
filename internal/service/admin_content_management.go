@@ -6,7 +6,7 @@ import (
 	"errors"
 	"net/url"
 	"regexp"
-	"slices"
+	"sort"
 	"strings"
 	"time"
 
@@ -17,14 +17,17 @@ import (
 )
 
 const (
-	adminContentDefaultPageSize = 20
-	adminContentMaxPageSize     = 100
-	adminContentIDMaxLength     = 128
-	adminContentNameMaxLength   = 120
-	adminContentColorMaxLength  = 32
-	adminContentIconMaxLength   = 64
-	adminContentLinkMaxLength   = 512
-	adminContentBodyMaxLength   = 400000
+	adminContentDefaultPageSize    = 20
+	adminContentMaxPageSize        = 100
+	adminContentIDMaxLength        = 128
+	adminContentNameMaxLength      = 120
+	adminContentTitleMaxLength     = 240
+	adminContentSummaryMaxLength   = 4000
+	adminContentColorMaxLength     = 32
+	adminContentIconMaxLength      = 64
+	adminContentLinkMaxLength      = 512
+	adminContentThumbnailMaxLength = 1024
+	adminContentBodyMaxLength      = 400000
 
 	adminContentAuditResource      = "admin_content_management"
 	adminContentAuditStatusSuccess = "success"
@@ -50,6 +53,13 @@ func ListAdminContentPosts(
 	if err != nil {
 		return nil, err
 	}
+	resolvedPreferredLocale, err := normalizeAdminContentLocale(filter.PreferredLocale, true)
+	if err != nil {
+		return nil, err
+	}
+	if resolvedPreferredLocale == "" {
+		resolvedPreferredLocale = adminErrorLocaleEN
+	}
 	resolvedSource, err := normalizeAdminContentSource(filter.Source, true)
 	if err != nil {
 		return nil, err
@@ -69,20 +79,26 @@ func ListAdminContentPosts(
 		}
 	}
 
-	result, err := adminContentRepository.ListPosts(
-		ctx,
-		domain.AdminContentPostFilter{
-			Locale:     resolvedLocale,
-			Source:     resolvedSource,
-			Query:      strings.TrimSpace(filter.Query),
-			CategoryID: resolvedCategoryID,
-			TopicID:    resolvedTopicID,
-		},
-		page,
-		size,
-	)
+	result, err := adminContentRepository.ListPostGroups(ctx, domain.AdminContentPostFilter{
+		Locale:          resolvedLocale,
+		PreferredLocale: resolvedPreferredLocale,
+		Source:          resolvedSource,
+		Query:           strings.TrimSpace(filter.Query),
+		CategoryID:      resolvedCategoryID,
+		TopicID:         resolvedTopicID,
+		Page:            &page,
+		Size:            &size,
+	})
 	if err != nil {
 		return nil, toAdminContentError(err, "failed to list content posts")
+	}
+	if result == nil {
+		return &domain.AdminContentPostListResult{
+			Items: []domain.AdminContentPostGroupRecord{},
+			Total: 0,
+			Page:  1,
+			Size:  size,
+		}, nil
 	}
 
 	return result, nil
@@ -128,18 +144,31 @@ func ListAdminContentTopicsPage(
 	if err != nil {
 		return nil, err
 	}
+	resolvedPreferredLocale, err := normalizeAdminContentLocale(filter.PreferredLocale, true)
+	if err != nil {
+		return nil, err
+	}
 
-	result, err := adminContentRepository.ListTopicsPage(
+	result, err := adminContentRepository.ListTopicGroups(
 		ctx,
 		domain.AdminContentTaxonomyFilter{
-			Locale: resolvedLocale,
-			Query:  strings.TrimSpace(filter.Query),
+			Locale:          resolvedLocale,
+			PreferredLocale: resolvedPreferredLocale,
+			Query:           strings.TrimSpace(filter.Query),
+			Page:            &page,
+			Size:            &size,
 		},
-		page,
-		size,
 	)
 	if err != nil {
 		return nil, toAdminContentError(err, "failed to list content topics")
+	}
+	if result == nil {
+		return &domain.AdminContentTopicListResult{
+			Items: []domain.AdminContentTopicGroupRecord{},
+			Total: 0,
+			Page:  1,
+			Size:  size,
+		}, nil
 	}
 
 	return result, nil
@@ -185,18 +214,31 @@ func ListAdminContentCategoriesPage(
 	if err != nil {
 		return nil, err
 	}
+	resolvedPreferredLocale, err := normalizeAdminContentLocale(filter.PreferredLocale, true)
+	if err != nil {
+		return nil, err
+	}
 
-	result, err := adminContentRepository.ListCategoriesPage(
+	result, err := adminContentRepository.ListCategoryGroups(
 		ctx,
 		domain.AdminContentTaxonomyFilter{
-			Locale: resolvedLocale,
-			Query:  strings.TrimSpace(filter.Query),
+			Locale:          resolvedLocale,
+			PreferredLocale: resolvedPreferredLocale,
+			Query:           strings.TrimSpace(filter.Query),
+			Page:            &page,
+			Size:            &size,
 		},
-		page,
-		size,
 	)
 	if err != nil {
 		return nil, toAdminContentError(err, "failed to list content categories")
+	}
+	if result == nil {
+		return &domain.AdminContentCategoryListResult{
+			Items: []domain.AdminContentCategoryGroupRecord{},
+			Total: 0,
+			Page:  1,
+			Size:  size,
+		}, nil
 	}
 
 	return result, nil
@@ -226,6 +268,11 @@ func UpdateAdminContentPostMetadata(
 	}
 	if before == nil {
 		return nil, apperrors.BadRequest("content post not found")
+	}
+
+	metadataFields, err := normalizeAdminContentPostMetadataFields(input, *before)
+	if err != nil {
+		return nil, err
 	}
 
 	resolvedCategoryID := strings.TrimSpace(strings.ToLower(input.CategoryID))
@@ -267,6 +314,7 @@ func UpdateAdminContentPostMetadata(
 		ctx,
 		resolvedLocale,
 		resolvedPostID,
+		metadataFields,
 		category,
 		topics,
 		now,
@@ -806,6 +854,129 @@ func normalizeAdminContentCategoryInput(
 	}, nil
 }
 
+func normalizeAdminContentPostMetadataFields(
+	input domain.AdminContentPostMetadataInput,
+	before domain.AdminContentPostRecord,
+) (domain.AdminContentPostMetadataFields, error) {
+	title := strings.TrimSpace(before.Title)
+	if input.Title != nil {
+		resolvedTitle, err := normalizeAdminContentPostTitle(*input.Title)
+		if err != nil {
+			return domain.AdminContentPostMetadataFields{}, err
+		}
+		title = resolvedTitle
+	}
+
+	summary := strings.TrimSpace(before.Summary)
+	if input.Summary != nil {
+		resolvedSummary, err := normalizeAdminContentPostSummary(*input.Summary)
+		if err != nil {
+			return domain.AdminContentPostMetadataFields{}, err
+		}
+		summary = resolvedSummary
+	}
+
+	thumbnail := strings.TrimSpace(before.Thumbnail)
+	if input.Thumbnail != nil {
+		resolvedThumbnail, err := normalizeAdminContentThumbnail(*input.Thumbnail)
+		if err != nil {
+			return domain.AdminContentPostMetadataFields{}, err
+		}
+		thumbnail = resolvedThumbnail
+	}
+
+	publishedDate := strings.TrimSpace(before.PublishedDate)
+	if input.PublishedDate != nil {
+		resolvedPublishedDate, err := normalizeAdminContentRequiredDate(*input.PublishedDate, "published date")
+		if err != nil {
+			return domain.AdminContentPostMetadataFields{}, err
+		}
+		publishedDate = resolvedPublishedDate
+	}
+
+	updatedDate := strings.TrimSpace(before.UpdatedDate)
+	if input.UpdatedDate != nil {
+		resolvedUpdatedDate, err := normalizeAdminContentOptionalDate(*input.UpdatedDate, "updated date")
+		if err != nil {
+			return domain.AdminContentPostMetadataFields{}, err
+		}
+		updatedDate = resolvedUpdatedDate
+	}
+
+	return domain.AdminContentPostMetadataFields{
+		Title:         title,
+		Summary:       summary,
+		Thumbnail:     thumbnail,
+		PublishedDate: publishedDate,
+		UpdatedDate:   updatedDate,
+	}, nil
+}
+
+func normalizeAdminContentPostTitle(value string) (string, error) {
+	resolved := strings.TrimSpace(value)
+	if resolved == "" {
+		return "", apperrors.BadRequest("post title is required")
+	}
+	if len(resolved) > adminContentTitleMaxLength {
+		return "", apperrors.BadRequest("post title is too long")
+	}
+	return resolved, nil
+}
+
+func normalizeAdminContentPostSummary(value string) (string, error) {
+	resolved := strings.TrimSpace(value)
+	if len(resolved) > adminContentSummaryMaxLength {
+		return "", apperrors.BadRequest("post summary is too long")
+	}
+	return resolved, nil
+}
+
+func normalizeAdminContentThumbnail(value string) (string, error) {
+	resolved := strings.TrimSpace(value)
+	if resolved == "" {
+		return "", nil
+	}
+	if len(resolved) > adminContentThumbnailMaxLength {
+		return "", apperrors.BadRequest("post thumbnail is too long")
+	}
+	if strings.HasPrefix(resolved, "/") {
+		return resolved, nil
+	}
+
+	parsed, err := url.Parse(resolved)
+	if err != nil {
+		return "", apperrors.BadRequest("invalid post thumbnail")
+	}
+	scheme := strings.ToLower(strings.TrimSpace(parsed.Scheme))
+	if (scheme != "http" && scheme != "https") || strings.TrimSpace(parsed.Host) == "" {
+		return "", apperrors.BadRequest("invalid post thumbnail")
+	}
+
+	return resolved, nil
+}
+
+func normalizeAdminContentRequiredDate(value, field string) (string, error) {
+	resolved := strings.TrimSpace(value)
+	if resolved == "" {
+		return "", apperrors.BadRequest(field + " is required")
+	}
+	if _, err := time.Parse("2006-01-02", resolved); err != nil {
+		return "", apperrors.BadRequest("invalid " + field)
+	}
+	return resolved, nil
+}
+
+func normalizeAdminContentOptionalDate(value, field string) (string, error) {
+	resolved := strings.TrimSpace(value)
+	if resolved == "" {
+		return "", nil
+	}
+	if _, err := time.Parse("2006-01-02", resolved); err != nil {
+		return "", apperrors.BadRequest("invalid " + field)
+	}
+	return resolved, nil
+}
+
 func normalizeAdminContentLocale(value string, allowAll bool) (string, error) {
 	resolved := strings.TrimSpace(strings.ToLower(value))
 	switch resolved {
@@ -876,7 +1047,7 @@ func normalizeAdminContentIDs(values []string, field string) ([]string, error) {
 		ids = append(ids, id)
 	}
 
-	slices.Sort(ids)
+	sort.Strings(ids)
 	return ids, nil
 }
 

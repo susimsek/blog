@@ -121,6 +121,19 @@ const calculateReadingTimeMin = html => {
   return Math.max(1, Math.ceil(words.length / wordsPerMinute));
 };
 
+const normalizePublishedDate = value => {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  return parsed.toISOString().slice(0, 10);
+};
+
 const normalizeSearchText = value => {
   const lowered = value.toLocaleLowerCase('tr');
   const dotlessNormalized = lowered.replaceAll('ı', 'i');
@@ -206,12 +219,13 @@ const parseFeedItems = feedPayload => {
           : `medium-${index}`;
 
     const title = typeof item.title === 'string' && item.title.trim().length > 0 ? item.title.trim() : 'Untitled';
-    const publishedDate =
+    const rawPublishedDate =
       typeof item.pubDate === 'string' && item.pubDate.trim().length > 0
         ? item.pubDate
         : typeof item.isoDate === 'string' && item.isoDate.trim().length > 0
           ? item.isoDate
           : new Date().toISOString();
+    const publishedDate = normalizePublishedDate(rawPublishedDate);
 
     const post = {
       id: idCandidate,

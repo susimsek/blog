@@ -321,6 +321,14 @@
         },
         "category": "Category",
         "categoryNone": "No category",
+        "metadataFields": {
+          "title": "Title",
+          "summary": "Description",
+          "publishedDate": "Published date",
+          "updatedDate": "Updated date",
+          "updatedDateHint": "Leave empty to clear updated date.",
+          "thumbnail": "Thumbnail URL"
+        },
         "topics": "Topics",
         "topicsEmpty": "No topics found for this locale.",
         "contentLabel": "Markdown content",

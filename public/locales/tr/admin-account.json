@@ -321,6 +321,14 @@
         },
         "category": "Kategori",
         "categoryNone": "Kategori yok",
+        "metadataFields": {
+          "title": "Başlık",
+          "summary": "Açıklama",
+          "publishedDate": "Yayın tarihi",
+          "updatedDate": "Güncelleme tarihi",
+          "updatedDateHint": "Güncelleme tarihini temizlemek için boş bırakın.",
+          "thumbnail": "Küçük görsel URL"
+        },
         "topics": "Topicler",
         "topicsEmpty": "Bu dil için topic bulunamadı.",
         "contentLabel": "Markdown içerik",

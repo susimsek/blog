@@ -14,9 +14,13 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import { enUS } from 'date-fns/locale/en-US';
+import { tr } from 'date-fns/locale/tr';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
 import AdminMarkdownEditor, { type AdminMarkdownEditorViewport } from '@/components/admin/AdminMarkdownEditor';
+import { getDatePickerLocale, toISODateString } from '@/components/common/DateRangePicker';
 import FlagIcon from '@/components/common/FlagIcon';
 import PostDensityToggle, { type PostDensityMode } from '@/components/common/PostDensityToggle';
 import PostCategoryBadge from '@/components/posts/PostCategoryBadge';
@@ -42,12 +46,16 @@ import {
   updateAdminContentPostMetadata,
   updateAdminContentTopic,
   type AdminContentCategoryItem,
+  type AdminContentCategoryGroupItem,
+  type AdminContentPostGroupItem,
   type AdminContentPostItem,
   type AdminContentTopicItem,
+  type AdminContentTopicGroupItem,
 } from '@/lib/adminApi';
 import { ADMIN_ROUTES, buildAdminContentPostDetailRoute } from '@/lib/adminRoutes';
 import { assetPrefix, LOCALES } from '@/config/constants';
 import type { PostCategoryRef } from '@/types/posts';
+import 'react-datepicker/dist/react-datepicker.css';
 
 type AdminContentManagementPanelProps = {
   onSessionExpired: () => void;
@@ -61,9 +69,11 @@ type CategoryEditorMode = 'create' | 'update';
 type ContentSectionTab = 'posts' | 'topics' | 'categories';
 type PostEditorTab = 'metadata' | 'content';
 type PostContentViewMode = 'editor' | 'split' | 'preview';
-
+type SupportedContentLocale = 'en' | 'tr';
+type AdminLocalePillTone = 'active' | 'available' | 'missing';
 const CONTENT_ID_PATTERN = /^[a-z0-9][a-z0-9-]{1,127}$/;
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
+const CONTENT_LOCALES: SupportedContentLocale[] = ['en', 'tr'];
 const BOOTSTRAP_THEME_COLORS = new Set([
   'primary',
   'secondary',
@@ -91,6 +101,79 @@ const resolveLocaleLabel = (value: string) => {
 
 const resolveLocaleOptionLabel = (item: { locale: string; name: string }) =>
   `[${item.locale.toUpperCase()}] ${item.name}`;
+
+const resolveLocalePillClassName = (tone: AdminLocalePillTone) => {
+  const baseClassName =
+    'admin-locale-pill rounded-pill d-inline-flex align-items-center gap-1 px-3 py-2 fw-semibold text-uppercase shadow-none';
+
+  if (tone === 'active') {
+    return `${baseClassName} admin-locale-pill--active`;
+  }
+
+  if (tone === 'available') {
+    return `${baseClassName} admin-locale-pill--available`;
+  }
+
+  return `${baseClassName} admin-locale-pill--missing`;
+};
+
+type AdminLocalePillProps = {
+  href?: string;
+  locale: SupportedContentLocale;
+  navigationLocale?: SupportedContentLocale;
+  onClick?: () => void;
+  available: boolean;
+  active?: boolean;
+};
+
+const AdminLocalePill = ({
+  href,
+  locale,
+  navigationLocale,
+  onClick,
+  available,
+  active = false,
+}: AdminLocalePillProps) => {
+  const tone: AdminLocalePillTone = available ? (active ? 'active' : 'available') : 'missing';
+  const content = (
+    <>
+      <FlagIcon
+        code={locale}
+        className="flex-shrink-0"
+        alt={`${resolveLocaleLabel(locale)} flag`}
+        width={14}
+        height={14}
+      />
+      <span>{locale}</span>
+      {!available ? <FontAwesomeIcon icon="plus" /> : null}
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        locale={navigationLocale}
+        className={`btn btn-light btn-sm ${resolveLocalePillClassName(tone)}`}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <Button
+      type="button"
+      variant="light"
+      size="sm"
+      className={resolveLocalePillClassName(tone)}
+      onClick={onClick}
+      disabled={!available && !onClick}
+    >
+      {content}
+    </Button>
+  );
+};
 
 const toTaxonomyKey = (item: { locale: string; id: string }) => `${item.locale.toLowerCase()}|${item.id.toLowerCase()}`;
 
@@ -134,6 +217,33 @@ const resolveAdminContentAccentColor = (value: string) => {
   return trimmed;
 };
 
+const parseISODateInput = (value: string): Date | null => {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+  const matched = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed);
+  if (!matched) {
+    return null;
+  }
+
+  const [, yearRaw, monthRaw, dayRaw] = matched;
+  const year = Number(yearRaw);
+  const month = Number(monthRaw);
+  const day = Number(dayRaw);
+  const parsed = new Date(year, month - 1, day);
+  if (
+    Number.isNaN(parsed.getTime()) ||
+    parsed.getFullYear() !== year ||
+    parsed.getMonth() !== month - 1 ||
+    parsed.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return parsed;
+};
+
 export default function AdminContentManagementPanel({
   onSessionExpired,
   formatDate,
@@ -141,7 +251,7 @@ export default function AdminContentManagementPanel({
   const { t } = useTranslation(['admin-account', 'admin-common']);
 
   const [isLoading, setIsLoading] = React.useState(true);
-  const [posts, setPosts] = React.useState<AdminContentPostItem[]>([]);
+  const [posts, setPosts] = React.useState<AdminContentPostGroupItem[]>([]);
   const [topics, setTopics] = React.useState<AdminContentTopicItem[]>([]);
   const [categories, setCategories] = React.useState<AdminContentCategoryItem[]>([]);
   const [errorMessage, setErrorMessage] = React.useState('');
@@ -158,6 +268,11 @@ export default function AdminContentManagementPanel({
   const [postDensityMode, setPostDensityMode] = React.useState<PostDensityMode>('default');
 
   const [editingPost, setEditingPost] = React.useState<AdminContentPostItem | null>(null);
+  const [postEditorTitle, setPostEditorTitle] = React.useState('');
+  const [postEditorSummary, setPostEditorSummary] = React.useState('');
+  const [postEditorThumbnail, setPostEditorThumbnail] = React.useState('');
+  const [postEditorPublishedDate, setPostEditorPublishedDate] = React.useState('');
+  const [postEditorUpdatedDate, setPostEditorUpdatedDate] = React.useState('');
   const [postEditorCategoryID, setPostEditorCategoryID] = React.useState('');
   const [postEditorTopicIDs, setPostEditorTopicIDs] = React.useState<string[]>([]);
   const [postEditorTab, setPostEditorTab] = React.useState<PostEditorTab>('content');
@@ -182,7 +297,7 @@ export default function AdminContentManagementPanel({
   const [topicFilterQueryDebounced, setTopicFilterQueryDebounced] = React.useState('');
   const [topicPage, setTopicPage] = React.useState(1);
   const [topicPageSize, setTopicPageSize] = React.useState(10);
-  const [topicListItems, setTopicListItems] = React.useState<AdminContentTopicItem[]>([]);
+  const [topicListItems, setTopicListItems] = React.useState<AdminContentTopicGroupItem[]>([]);
   const [topicListTotal, setTopicListTotal] = React.useState(0);
   const [isTopicListLoading, setIsTopicListLoading] = React.useState(false);
   const [isTopicSubmitting, setIsTopicSubmitting] = React.useState(false);
@@ -202,7 +317,7 @@ export default function AdminContentManagementPanel({
   const [categoryFilterQueryDebounced, setCategoryFilterQueryDebounced] = React.useState('');
   const [categoryPage, setCategoryPage] = React.useState(1);
   const [categoryPageSize, setCategoryPageSize] = React.useState(10);
-  const [categoryListItems, setCategoryListItems] = React.useState<AdminContentCategoryItem[]>([]);
+  const [categoryListItems, setCategoryListItems] = React.useState<AdminContentCategoryGroupItem[]>([]);
   const [categoryListTotal, setCategoryListTotal] = React.useState(0);
   const [isCategoryListLoading, setIsCategoryListLoading] = React.useState(false);
   const [isCategorySubmitting, setIsCategorySubmitting] = React.useState(false);
@@ -213,6 +328,7 @@ export default function AdminContentManagementPanel({
   const resolvedPostDensityMode: PostDensityMode =
     canUsePostGridDensity || postDensityMode !== 'grid' ? postDensityMode : 'default';
   const params = useParams<{
+    locale?: string | string[];
     postLocale?: string | string[];
     postId?: string | string[];
   }>();
@@ -221,6 +337,8 @@ export default function AdminContentManagementPanel({
     .toLowerCase();
   const routePostID = (Array.isArray(params.postId) ? params.postId[0] : params.postId)?.trim();
   const isPostDetailRoute = Boolean(routePostLocale && routePostID);
+  const currentDatePickerLocale = getDatePickerLocale(params?.locale);
+  const datePickerLocaleConfig = currentDatePickerLocale === 'tr' ? tr : enUS;
 
   const listTopRef = React.useRef<HTMLDivElement | null>(null);
   const splitPreviewRef = React.useRef<HTMLDivElement | null>(null);
@@ -249,6 +367,31 @@ export default function AdminContentManagementPanel({
     if (!editingPost || isPostContentLoading) {
       return false;
     }
+    const currentTitle = editingPost.title.trim();
+    const nextTitle = postEditorTitle.trim();
+    if (currentTitle !== nextTitle) {
+      return true;
+    }
+    const currentSummary = (editingPost.summary ?? '').trim();
+    const nextSummary = postEditorSummary.trim();
+    if (currentSummary !== nextSummary) {
+      return true;
+    }
+    const currentThumbnail = (editingPost.thumbnail ?? '').trim();
+    const nextThumbnail = postEditorThumbnail.trim();
+    if (currentThumbnail !== nextThumbnail) {
+      return true;
+    }
+    const currentPublishedDate = editingPost.publishedDate.trim();
+    const nextPublishedDate = postEditorPublishedDate.trim();
+    if (currentPublishedDate !== nextPublishedDate) {
+      return true;
+    }
+    const currentUpdatedDate = (editingPost.updatedDate ?? '').trim();
+    const nextUpdatedDate = postEditorUpdatedDate.trim();
+    if (currentUpdatedDate !== nextUpdatedDate) {
+      return true;
+    }
     const currentCategory = (editingPost.categoryId ?? '').trim().toLowerCase();
     const nextCategory = postEditorCategoryID.trim().toLowerCase();
     if (currentCategory !== nextCategory) {
@@ -257,7 +400,17 @@ export default function AdminContentManagementPanel({
     const currentTopics = [...(editingPost.topicIds ?? [])].map(item => item.trim().toLowerCase()).sort();
     const nextTopics = [...postEditorTopicIDs].map(item => item.trim().toLowerCase()).sort();
     return currentTopics.join('|') !== nextTopics.join('|');
-  }, [editingPost, isPostContentLoading, postEditorCategoryID, postEditorTopicIDs]);
+  }, [
+    editingPost,
+    isPostContentLoading,
+    postEditorCategoryID,
+    postEditorPublishedDate,
+    postEditorSummary,
+    postEditorThumbnail,
+    postEditorTitle,
+    postEditorTopicIDs,
+    postEditorUpdatedDate,
+  ]);
 
   const filteredTopics = React.useMemo(
     () => (filterLocale === 'all' ? topics : topics.filter(item => item.locale === filterLocale)),
@@ -271,6 +424,15 @@ export default function AdminContentManagementPanel({
   );
   const categoryTotal = categoryListTotal;
   const categoryTabTotalPages = Math.max(1, Math.ceil(categoryTotal / categoryPageSize));
+  const preferredContentLocale: SupportedContentLocale = React.useMemo(() => {
+    if (filterLocale === 'tr') {
+      return 'tr';
+    }
+    if (filterLocale === 'en') {
+      return 'en';
+    }
+    return currentDatePickerLocale === 'tr' ? 'tr' : 'en';
+  }, [currentDatePickerLocale, filterLocale]);
 
   const categoriesByLocaleAndID = React.useMemo(() => {
     const indexed = new Map<string, AdminContentCategoryItem>();
@@ -383,6 +545,11 @@ export default function AdminContentManagementPanel({
     },
     [postContentViewMode, syncSplitPreviewScroll],
   );
+
+  React.useEffect(() => {
+    registerLocale('en', enUS);
+    registerLocale('tr', tr);
+  }, []);
 
   React.useEffect(() => {
     const timeoutID = globalThis.setTimeout(() => {
@@ -560,6 +727,7 @@ export default function AdminContentManagementPanel({
     try {
       const payload = await fetchAdminContentPosts({
         locale: filterLocale === 'all' ? undefined : filterLocale,
+        preferredLocale: preferredContentLocale,
         source: filterSource === 'all' ? undefined : filterSource,
         query: filterQueryDebounced,
         categoryId: filterCategoryID || undefined,
@@ -609,6 +777,7 @@ export default function AdminContentManagementPanel({
     onSessionExpired,
     page,
     pageSize,
+    preferredContentLocale,
     t,
   ]);
 
@@ -620,6 +789,7 @@ export default function AdminContentManagementPanel({
     try {
       const payload = await fetchAdminContentTopicsPage({
         locale: topicFilterLocale === 'all' ? undefined : topicFilterLocale,
+        preferredLocale: preferredContentLocale,
         query: topicFilterQueryDebounced,
         page: topicPage,
         size: topicPageSize,
@@ -657,7 +827,15 @@ export default function AdminContentManagementPanel({
         setIsTopicListLoading(false);
       }
     }
-  }, [onSessionExpired, t, topicFilterLocale, topicFilterQueryDebounced, topicPage, topicPageSize]);
+  }, [
+    onSessionExpired,
+    preferredContentLocale,
+    t,
+    topicFilterLocale,
+    topicFilterQueryDebounced,
+    topicPage,
+    topicPageSize,
+  ]);
 
   const loadCategoriesPage = React.useCallback(async () => {
     const requestID = categoriesPageRequestIDRef.current + 1;
@@ -667,6 +845,7 @@ export default function AdminContentManagementPanel({
     try {
       const payload = await fetchAdminContentCategoriesPage({
         locale: categoryFilterLocale === 'all' ? undefined : categoryFilterLocale,
+        preferredLocale: preferredContentLocale,
         query: categoryFilterQueryDebounced,
         page: categoryPage,
         size: categoryPageSize,
@@ -704,7 +883,15 @@ export default function AdminContentManagementPanel({
         setIsCategoryListLoading(false);
       }
     }
-  }, [categoryFilterLocale, categoryFilterQueryDebounced, categoryPage, categoryPageSize, onSessionExpired, t]);
+  }, [
+    categoryFilterLocale,
+    categoryFilterQueryDebounced,
+    categoryPage,
+    categoryPageSize,
+    onSessionExpired,
+    preferredContentLocale,
+    t,
+  ]);
 
   React.useEffect(() => {
     void loadTaxonomies();
@@ -734,6 +921,11 @@ export default function AdminContentManagementPanel({
       const normalizedID = options.id.trim();
       if (!normalizedLocale || !normalizedID) {
         setEditingPost(null);
+        setPostEditorTitle('');
+        setPostEditorSummary('');
+        setPostEditorThumbnail('');
+        setPostEditorPublishedDate('');
+        setPostEditorUpdatedDate('');
         setPostEditorCategoryID('');
         setPostEditorTopicIDs([]);
         setPostContentViewMode('editor');
@@ -743,6 +935,11 @@ export default function AdminContentManagementPanel({
       }
 
       setEditingPost(null);
+      setPostEditorTitle('');
+      setPostEditorSummary('');
+      setPostEditorThumbnail('');
+      setPostEditorPublishedDate('');
+      setPostEditorUpdatedDate('');
       setPostEditorCategoryID('');
       setPostEditorTopicIDs([]);
       setPostContentViewMode('editor');
@@ -764,6 +961,11 @@ export default function AdminContentManagementPanel({
         }
 
         setEditingPost(detail);
+        setPostEditorTitle(detail.title ?? '');
+        setPostEditorSummary(detail.summary ?? '');
+        setPostEditorThumbnail(detail.thumbnail ?? '');
+        setPostEditorPublishedDate(detail.publishedDate ?? '');
+        setPostEditorUpdatedDate(detail.updatedDate ?? '');
         setPostEditorCategoryID(detail.categoryId ?? '');
         setPostEditorTopicIDs(detail.topicIds ?? []);
         const resolvedContent = detail.content ?? '';
@@ -792,6 +994,11 @@ export default function AdminContentManagementPanel({
   React.useEffect(() => {
     if (!isPostDetailRoute) {
       setEditingPost(null);
+      setPostEditorTitle('');
+      setPostEditorSummary('');
+      setPostEditorThumbnail('');
+      setPostEditorPublishedDate('');
+      setPostEditorUpdatedDate('');
       setPostEditorCategoryID('');
       setPostEditorTopicIDs([]);
       setPostContentViewMode('editor');
@@ -835,10 +1042,20 @@ export default function AdminContentManagementPanel({
       const updated = await updateAdminContentPostMetadata({
         locale: editingPost.locale,
         id: editingPost.id,
+        title: postEditorTitle,
+        summary: postEditorSummary,
+        thumbnail: postEditorThumbnail,
+        publishedDate: postEditorPublishedDate,
+        updatedDate: postEditorUpdatedDate,
         categoryId: postEditorCategoryID || null,
         topicIds: postEditorTopicIDs,
       });
       setEditingPost(updated);
+      setPostEditorTitle(updated.title ?? '');
+      setPostEditorSummary(updated.summary ?? '');
+      setPostEditorThumbnail(updated.thumbnail ?? '');
+      setPostEditorPublishedDate(updated.publishedDate ?? '');
+      setPostEditorUpdatedDate(updated.updatedDate ?? '');
       setPostEditorCategoryID(updated.categoryId ?? '');
       setPostEditorTopicIDs(updated.topicIds ?? []);
       await loadPosts();
@@ -865,7 +1082,12 @@ export default function AdminContentManagementPanel({
     loadPosts,
     onSessionExpired,
     postEditorCategoryID,
+    postEditorPublishedDate,
+    postEditorSummary,
+    postEditorThumbnail,
+    postEditorTitle,
     postEditorTopicIDs,
+    postEditorUpdatedDate,
     t,
   ]);
 
@@ -981,6 +1203,32 @@ export default function AdminContentManagementPanel({
     setErrorMessage('');
     setSuccessMessage('');
   }, []);
+
+  const handleOpenTopicByLocale = React.useCallback(
+    (id: string, locale: SupportedContentLocale) => {
+      const idKey = id.trim().toLowerCase();
+      const exact = topicsByLocaleAndID.get(`${locale}|${idKey}`);
+      if (exact) {
+        handleOpenUpdateTopic(exact);
+        return;
+      }
+      const base =
+        topicsByLocaleAndID.get(`en|${idKey}`) ??
+        topicsByLocaleAndID.get(`tr|${idKey}`) ??
+        topics.find(item => item.id.toLowerCase() === idKey) ??
+        null;
+      setTopicEditorMode('create');
+      setTopicLocale(locale);
+      setTopicID(idKey);
+      setTopicName(base?.name ?? '');
+      setTopicColor(base?.color ?? '');
+      setTopicLink(base?.link ?? '');
+      setIsTopicEditorOpen(true);
+      setErrorMessage('');
+      setSuccessMessage('');
+    },
+    [handleOpenUpdateTopic, topics, topicsByLocaleAndID],
+  );
 
   const handleSubmitTopic = React.useCallback(async () => {
     if (!canSubmitTopic || isTopicSubmitting) {
@@ -1117,6 +1365,33 @@ export default function AdminContentManagementPanel({
     setSuccessMessage('');
   }, []);
 
+  const handleOpenCategoryByLocale = React.useCallback(
+    (id: string, locale: SupportedContentLocale) => {
+      const idKey = id.trim().toLowerCase();
+      const exact = categoriesByLocaleAndID.get(`${locale}|${idKey}`);
+      if (exact) {
+        handleOpenUpdateCategory(exact);
+        return;
+      }
+      const base =
+        categoriesByLocaleAndID.get(`en|${idKey}`) ??
+        categoriesByLocaleAndID.get(`tr|${idKey}`) ??
+        categories.find(item => item.id.toLowerCase() === idKey) ??
+        null;
+      setCategoryEditorMode('create');
+      setCategoryLocale(locale);
+      setCategoryID(idKey);
+      setCategoryName(base?.name ?? '');
+      setCategoryColor(base?.color ?? '');
+      setCategoryIcon(base?.icon ?? '');
+      setCategoryLink(base?.link ?? '');
+      setIsCategoryEditorOpen(true);
+      setErrorMessage('');
+      setSuccessMessage('');
+    },
+    [categories, categoriesByLocaleAndID, handleOpenUpdateCategory],
+  );
+
   const handleSubmitCategory = React.useCallback(async () => {
     if (!canSubmitCategory || isCategorySubmitting) {
       return;
@@ -1243,9 +1518,8 @@ export default function AdminContentManagementPanel({
     window.history.replaceState(window.history.state, '', nextURL);
   }, []);
 
-  const showInlinePostContentFeedback =
-    isPostDetailRoute && editingPost?.source === 'blog' && postEditorTab === 'content';
-  const showTopFeedback = !showInlinePostContentFeedback;
+  const showInlinePostFeedback = isPostDetailRoute && Boolean(editingPost);
+  const showTopFeedback = !showInlinePostFeedback;
 
   return (
     <>
@@ -1317,6 +1591,99 @@ export default function AdminContentManagementPanel({
                       title={t('adminAccount.content.modals.post.tabs.metadata', { ns: 'admin-account' })}
                     >
                       <div className="admin-content-post-tab-pane pt-3">
+                        <Form.Group className="mb-3" controlId="admin-content-post-title">
+                          <Form.Label>
+                            {t('adminAccount.content.modals.post.metadataFields.title', { ns: 'admin-account' })}
+                          </Form.Label>
+                          <Form.Control
+                            type="text"
+                            value={postEditorTitle}
+                            onChange={event => {
+                              setPostEditorTitle(event.currentTarget.value);
+                            }}
+                          />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="admin-content-post-summary">
+                          <Form.Label>
+                            {t('adminAccount.content.modals.post.metadataFields.summary', { ns: 'admin-account' })}
+                          </Form.Label>
+                          <Form.Control
+                            as="textarea"
+                            rows={4}
+                            value={postEditorSummary}
+                            onChange={event => {
+                              setPostEditorSummary(event.currentTarget.value);
+                            }}
+                          />
+                        </Form.Group>
+
+                        <div className="row g-3 mb-3">
+                          <div className="col-12 col-lg-6">
+                            <Form.Group controlId="admin-content-post-published-date">
+                              <Form.Label>
+                                {t('adminAccount.content.modals.post.metadataFields.publishedDate', {
+                                  ns: 'admin-account',
+                                })}
+                              </Form.Label>
+                              <DatePicker
+                                selected={parseISODateInput(postEditorPublishedDate)}
+                                onChange={(date: Date | null) => {
+                                  setPostEditorPublishedDate(date ? toISODateString(date) : '');
+                                }}
+                                dateFormat="P"
+                                locale={datePickerLocaleConfig}
+                                className="form-control"
+                                wrapperClassName="d-block"
+                                placeholderText={t('adminAccount.content.modals.post.metadataFields.publishedDate', {
+                                  ns: 'admin-account',
+                                })}
+                              />
+                            </Form.Group>
+                          </div>
+                          <div className="col-12 col-lg-6">
+                            <Form.Group controlId="admin-content-post-updated-date">
+                              <Form.Label>
+                                {t('adminAccount.content.modals.post.metadataFields.updatedDate', {
+                                  ns: 'admin-account',
+                                })}
+                              </Form.Label>
+                              <DatePicker
+                                selected={parseISODateInput(postEditorUpdatedDate)}
+                                onChange={(date: Date | null) => {
+                                  setPostEditorUpdatedDate(date ? toISODateString(date) : '');
+                                }}
+                                dateFormat="P"
+                                locale={datePickerLocaleConfig}
+                                className="form-control"
+                                wrapperClassName="d-block"
+                                isClearable
+                                placeholderText={t('adminAccount.content.modals.post.metadataFields.updatedDate', {
+                                  ns: 'admin-account',
+                                })}
+                              />
+                              <Form.Text className="text-muted">
+                                {t('adminAccount.content.modals.post.metadataFields.updatedDateHint', {
+                                  ns: 'admin-account',
+                                })}
+                              </Form.Text>
+                            </Form.Group>
+                          </div>
+                        </div>
+
+                        <Form.Group className="mb-3" controlId="admin-content-post-thumbnail">
+                          <Form.Label>
+                            {t('adminAccount.content.modals.post.metadataFields.thumbnail', { ns: 'admin-account' })}
+                          </Form.Label>
+                          <Form.Control
+                            type="text"
+                            value={postEditorThumbnail}
+                            onChange={event => {
+                              setPostEditorThumbnail(event.currentTarget.value);
+                            }}
+                          />
+                        </Form.Group>
+
                         <Form.Group className="mb-3" controlId="admin-content-post-category">
                           <Form.Label>
                             {t('adminAccount.content.modals.post.category', { ns: 'admin-account' })}
@@ -1342,25 +1709,31 @@ export default function AdminContentManagementPanel({
                           <Form.Label>
                             {t('adminAccount.content.modals.post.topics', { ns: 'admin-account' })}
                           </Form.Label>
-                          <div className="border rounded-3 p-2">
+                          <div
+                            className="border rounded-3 bg-body-tertiary overflow-auto"
+                            style={{ maxHeight: '18rem' }}
+                          >
                             {editablePostTopics.length === 0 ? (
-                              <div className="small text-muted">
+                              <div className="small text-muted p-3">
                                 {t('adminAccount.content.modals.post.topicsEmpty', { ns: 'admin-account' })}
                               </div>
                             ) : (
-                              editablePostTopics.map(item => (
-                                <Form.Check
-                                  key={toTaxonomyKey(item)}
-                                  type="checkbox"
-                                  id={`admin-content-post-topic-${toTaxonomyKey(item)}`}
-                                  className="mb-1"
-                                  label={item.name}
-                                  checked={postEditorTopicIDs.includes(item.id)}
-                                  onChange={event => {
-                                    handlePostTopicToggle(item.id, event.currentTarget.checked);
-                                  }}
-                                />
-                              ))
+                              <div className="list-group list-group-flush">
+                                {editablePostTopics.map(item => (
+                                  <div key={toTaxonomyKey(item)} className="list-group-item bg-transparent py-2">
+                                    <Form.Check
+                                      type="checkbox"
+                                      id={`admin-content-post-topic-${toTaxonomyKey(item)}`}
+                                      className="mb-0"
+                                      label={item.name}
+                                      checked={postEditorTopicIDs.includes(item.id)}
+                                      onChange={event => {
+                                        handlePostTopicToggle(item.id, event.currentTarget.checked);
+                                      }}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
                             )}
                           </div>
                         </Form.Group>
@@ -1395,9 +1768,7 @@ export default function AdminContentManagementPanel({
                                     <span className="post-detail-meta-label">
                                       {t('adminAccount.content.modals.post.meta.published', { ns: 'admin-account' })}
                                     </span>
-                                    <span className="post-detail-meta-value">
-                                      {formatDate(editingPost.publishedDate)}
-                                    </span>
+                                    <span className="post-detail-meta-value">{editingPost.publishedDate}</span>
                                   </div>
                                 </div>
 
@@ -1593,12 +1964,12 @@ export default function AdminContentManagementPanel({
                     ) : null}
                   </Tabs>
 
-                  {showInlinePostContentFeedback && errorMessage ? (
+                  {showInlinePostFeedback && errorMessage ? (
                     <Alert variant="danger" className="mt-3 mb-0 px-3 py-2 lh-base">
                       {errorMessage}
                     </Alert>
                   ) : null}
-                  {showInlinePostContentFeedback && successMessage ? (
+                  {showInlinePostFeedback && successMessage ? (
                     <Alert variant="success" className="mt-3 mb-0 px-3 py-2 lh-base">
                       {successMessage}
                     </Alert>
@@ -1765,13 +2136,13 @@ export default function AdminContentManagementPanel({
                       </p>
                     ) : (
                       <div className="post-list-results post-list-results--editorial">
-                        {categoryListItems.map(item => {
+                        {categoryListItems.map(group => {
+                          const item = group.preferred;
                           const accentColor = resolveAdminContentAccentColor(item.color);
                           const localeCode = item.locale.toLowerCase();
-                          const localeLabel = resolveLocaleLabel(localeCode);
                           return (
                             <div
-                              key={toTaxonomyKey(item)}
+                              key={group.id.toLowerCase()}
                               className="post-card d-flex align-items-center post-summary-card admin-account-card admin-content-category-card"
                               style={
                                 {
@@ -1782,19 +2153,19 @@ export default function AdminContentManagementPanel({
                               <div className="post-card-content flex-grow-1">
                                 <div className="post-summary-title-row">
                                   <h4 className="fw-bold post-summary-title fs-4 mb-0 text-break">{item.name}</h4>
-                                  <div className="d-inline-flex align-items-center gap-2">
-                                    {localeCode === 'en' || localeCode === 'tr' ? (
-                                      <FlagIcon
-                                        className="flex-shrink-0"
-                                        code={localeCode}
-                                        alt={`${localeLabel} flag`}
-                                        width={18}
-                                        height={18}
-                                      />
-                                    ) : (
-                                      <FontAwesomeIcon icon="globe" className="text-muted" />
-                                    )}
-                                    <span>{localeLabel}</span>
+                                  <div className="d-inline-flex align-items-center flex-wrap gap-2">
+                                    {CONTENT_LOCALES.map(locale => {
+                                      const variant = locale === 'en' ? group.en : group.tr;
+                                      return (
+                                        <AdminLocalePill
+                                          key={`${group.id}-${locale}`}
+                                          locale={locale}
+                                          available={Boolean(variant)}
+                                          active={localeCode === locale && Boolean(variant)}
+                                          onClick={() => handleOpenCategoryByLocale(group.id, locale)}
+                                        />
+                                      );
+                                    })}
                                   </div>
                                 </div>
 
@@ -1831,24 +2202,6 @@ export default function AdminContentManagementPanel({
                                   </div>
                                 ) : null}
 
-                                <div className="post-summary-thumbnail">
-                                  <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
-                                    <div
-                                      className="w-100 h-100 d-flex align-items-end p-3"
-                                      style={{
-                                        background: `linear-gradient(135deg, color-mix(in srgb, ${accentColor} 90%, var(--main-bg) 10%) 0%, color-mix(in srgb, ${accentColor} 58%, var(--main-bg) 42%) 100%)`,
-                                      }}
-                                    >
-                                      <div className="w-100 d-flex align-items-center justify-content-between gap-2">
-                                        <span className="badge rounded-pill text-bg-dark">{item.id}</span>
-                                        <span className="badge border border-light-subtle text-bg-light text-dark">
-                                          {t('adminAccount.content.categories.title', { ns: 'admin-account' })}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-
                                 <div className="post-summary-cta d-flex flex-wrap gap-2 mt-3">
                                   <Button
                                     type="button"
@@ -1870,6 +2223,24 @@ export default function AdminContentManagementPanel({
                                     <FontAwesomeIcon icon="trash" className="me-2" />
                                     {t('adminAccount.content.actions.delete', { ns: 'admin-account' })}
                                   </Button>
+                                </div>
+
+                                <div className="post-summary-thumbnail">
+                                  <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
+                                    <div
+                                      className="w-100 h-100 d-flex align-items-end p-3"
+                                      style={{
+                                        background: `linear-gradient(135deg, color-mix(in srgb, ${accentColor} 90%, var(--main-bg) 10%) 0%, color-mix(in srgb, ${accentColor} 58%, var(--main-bg) 42%) 100%)`,
+                                      }}
+                                    >
+                                      <div className="w-100 d-flex align-items-center justify-content-between gap-2">
+                                        <span className="badge rounded-pill text-bg-dark">{item.id}</span>
+                                        <span className="badge border border-light-subtle text-bg-light text-dark">
+                                          {t('adminAccount.content.categories.title', { ns: 'admin-account' })}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -1984,13 +2355,13 @@ export default function AdminContentManagementPanel({
                       </p>
                     ) : (
                       <div className="post-list-results post-list-results--editorial">
-                        {topicListItems.map(item => {
+                        {topicListItems.map(group => {
+                          const item = group.preferred;
                           const accentColor = resolveAdminContentAccentColor(item.color);
                           const localeCode = item.locale.toLowerCase();
-                          const localeLabel = resolveLocaleLabel(localeCode);
                           return (
                             <div
-                              key={toTaxonomyKey(item)}
+                              key={group.id.toLowerCase()}
                               className="post-card d-flex align-items-center post-summary-card admin-account-card admin-content-topic-card"
                               style={
                                 {
@@ -2001,19 +2372,19 @@ export default function AdminContentManagementPanel({
                               <div className="post-card-content flex-grow-1">
                                 <div className="post-summary-title-row">
                                   <h4 className="fw-bold post-summary-title fs-4 mb-0 text-break">{item.name}</h4>
-                                  <div className="d-inline-flex align-items-center gap-2">
-                                    {localeCode === 'en' || localeCode === 'tr' ? (
-                                      <FlagIcon
-                                        className="flex-shrink-0"
-                                        code={localeCode}
-                                        alt={`${localeLabel} flag`}
-                                        width={18}
-                                        height={18}
-                                      />
-                                    ) : (
-                                      <FontAwesomeIcon icon="globe" className="text-muted" />
-                                    )}
-                                    <span>{localeLabel}</span>
+                                  <div className="d-inline-flex align-items-center flex-wrap gap-2">
+                                    {CONTENT_LOCALES.map(locale => {
+                                      const variant = locale === 'en' ? group.en : group.tr;
+                                      return (
+                                        <AdminLocalePill
+                                          key={`${group.id}-${locale}`}
+                                          locale={locale}
+                                          available={Boolean(variant)}
+                                          active={localeCode === locale && Boolean(variant)}
+                                          onClick={() => handleOpenTopicByLocale(group.id, locale)}
+                                        />
+                                      );
+                                    })}
                                   </div>
                                 </div>
 
@@ -2040,24 +2411,6 @@ export default function AdminContentManagementPanel({
                                   </div>
                                 ) : null}
 
-                                <div className="post-summary-thumbnail">
-                                  <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
-                                    <div
-                                      className="w-100 h-100 d-flex align-items-end p-3"
-                                      style={{
-                                        background: `linear-gradient(135deg, color-mix(in srgb, ${accentColor} 90%, var(--main-bg) 10%) 0%, color-mix(in srgb, ${accentColor} 58%, var(--main-bg) 42%) 100%)`,
-                                      }}
-                                    >
-                                      <div className="w-100 d-flex align-items-center justify-content-between gap-2">
-                                        <span className="badge rounded-pill text-bg-dark">{item.id}</span>
-                                        <span className="badge border border-light-subtle text-bg-light text-dark">
-                                          {t('adminAccount.content.topics.title', { ns: 'admin-account' })}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-
                                 <div className="post-summary-cta d-flex flex-wrap gap-2 mt-3">
                                   <Button
                                     type="button"
@@ -2079,6 +2432,24 @@ export default function AdminContentManagementPanel({
                                     <FontAwesomeIcon icon="trash" className="me-2" />
                                     {t('adminAccount.content.actions.delete', { ns: 'admin-account' })}
                                   </Button>
+                                </div>
+
+                                <div className="post-summary-thumbnail">
+                                  <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
+                                    <div
+                                      className="w-100 h-100 d-flex align-items-end p-3"
+                                      style={{
+                                        background: `linear-gradient(135deg, color-mix(in srgb, ${accentColor} 90%, var(--main-bg) 10%) 0%, color-mix(in srgb, ${accentColor} 58%, var(--main-bg) 42%) 100%)`,
+                                      }}
+                                    >
+                                      <div className="w-100 d-flex align-items-center justify-content-between gap-2">
+                                        <span className="badge rounded-pill text-bg-dark">{item.id}</span>
+                                        <span className="badge border border-light-subtle text-bg-light text-dark">
+                                          {t('adminAccount.content.topics.title', { ns: 'admin-account' })}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -2264,9 +2635,9 @@ export default function AdminContentManagementPanel({
                       </p>
                     ) : (
                       <div className={`post-list-results post-list-results--${resolvedPostDensityMode}`}>
-                        {posts.map(item => {
+                        {posts.map(group => {
+                          const item = group.preferred;
                           const localeCode = item.locale.toLowerCase();
-                          const localeLabel = resolveLocaleLabel(localeCode);
                           const thumbnailSrc = resolveAdminContentThumbnailSrc(item.thumbnail);
                           const resolvedSummary = item.summary?.trim() ?? '';
                           const normalizedSource = item.source === 'medium' ? 'medium' : 'blog';
@@ -2304,7 +2675,7 @@ export default function AdminContentManagementPanel({
                               : [];
                           return (
                             <div
-                              key={`${item.locale}|${item.id}`}
+                              key={`${group.source.toLowerCase()}-${group.id.toLowerCase()}`}
                               className="post-card d-flex align-items-center post-summary-card"
                             >
                               <div className="post-card-content flex-grow-1">
@@ -2330,24 +2701,36 @@ export default function AdminContentManagementPanel({
                                     )}
                                   </h4>
                                   <div className="d-flex flex-wrap align-items-center gap-3 text-muted">
-                                    <span className="d-inline-flex align-items-center gap-2">
-                                      {localeCode === 'en' || localeCode === 'tr' ? (
-                                        <FlagIcon
-                                          className="flex-shrink-0"
-                                          code={localeCode}
-                                          alt={`${localeLabel} flag`}
-                                          width={18}
-                                          height={18}
-                                        />
-                                      ) : (
-                                        <FontAwesomeIcon icon="globe" className="text-muted" />
-                                      )}
-                                      <span>{localeLabel}</span>
-                                    </span>
+                                    {canEditPostContent ? (
+                                      <div className="d-inline-flex align-items-center flex-wrap gap-2">
+                                        {CONTENT_LOCALES.map(locale => {
+                                          const variant = locale === 'en' ? group.en : group.tr;
+                                          return (
+                                            <AdminLocalePill
+                                              key={`${group.id}-${locale}`}
+                                              href={
+                                                variant ? buildAdminContentPostDetailRoute(locale, group.id) : undefined
+                                              }
+                                              locale={locale}
+                                              navigationLocale={locale}
+                                              available={Boolean(variant)}
+                                              active={localeCode === locale && Boolean(variant)}
+                                            />
+                                          );
+                                        })}
+                                      </div>
+                                    ) : null}
                                     <span className="d-inline-flex align-items-center">
                                       <FontAwesomeIcon icon={sourceIcon} className="me-2" />
                                       {sourceLabel}
                                     </span>
+                                  </div>
+                                  <div className="small text-muted d-inline-flex align-items-center">
+                                    <FontAwesomeIcon icon="tags" className="me-2" />
+                                    {t('adminAccount.content.modals.post.labels.id', {
+                                      ns: 'admin-account',
+                                      value: item.id,
+                                    })}
                                   </div>
                                 </div>
 

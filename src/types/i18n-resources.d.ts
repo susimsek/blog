@@ -173,6 +173,14 @@ interface Resources {
               published: 'Published';
               updated: 'Updated';
             };
+            metadataFields: {
+              publishedDate: 'Published date';
+              summary: 'Description';
+              thumbnail: 'Thumbnail URL';
+              title: 'Title';
+              updatedDate: 'Updated date';
+              updatedDateHint: 'Leave empty to clear updated date.';
+            };
             modes: {
               editor: 'Editor';
               preview: 'Preview';

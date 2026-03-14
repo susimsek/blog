@@ -151,6 +151,9 @@ func (r *adminQueryResolver) ContentPosts(
 		if filter.Locale != nil {
 			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
 		}
+		if filter.PreferredLocale != nil {
+			resolvedFilter.PreferredLocale = strings.TrimSpace(*filter.PreferredLocale)
+		}
 		if filter.Source != nil {
 			resolvedFilter.Source = strings.TrimSpace(*filter.Source)
 		}
@@ -217,6 +220,9 @@ func (r *adminQueryResolver) ContentTopicsPage(
 		if filter.Locale != nil {
 			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
 		}
+		if filter.PreferredLocale != nil {
+			resolvedFilter.PreferredLocale = strings.TrimSpace(*filter.PreferredLocale)
+		}
 		if filter.Query != nil {
 			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
 		}
@@ -250,6 +256,9 @@ func (r *adminQueryResolver) ContentCategoriesPage(
 	if filter != nil {
 		if filter.Locale != nil {
 			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
+		}
+		if filter.PreferredLocale != nil {
+			resolvedFilter.PreferredLocale = strings.TrimSpace(*filter.PreferredLocale)
 		}
 		if filter.Query != nil {
 			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
@@ -687,10 +696,15 @@ func (r *adminMutationResolver) UpdateContentPostMetadata(
 	}
 
 	updated, err := appservice.UpdateAdminContentPostMetadata(ctx, adminUser, domain.AdminContentPostMetadataInput{
-		Locale:     strings.TrimSpace(input.Locale),
-		ID:         strings.TrimSpace(input.ID),
-		CategoryID: strings.TrimSpace(stringPointerValue(input.CategoryID)),
-		TopicIDs:   mapAdminContentTopicIDs(input.TopicIds),
+		Locale:        strings.TrimSpace(input.Locale),
+		ID:            strings.TrimSpace(input.ID),
+		Title:         toOptionalTrimmedInputString(input.Title),
+		Summary:       toOptionalTrimmedInputString(input.Summary),
+		Thumbnail:     toOptionalTrimmedInputString(input.Thumbnail),
+		PublishedDate: toOptionalTrimmedInputString(input.PublishedDate),
+		UpdatedDate:   toOptionalTrimmedInputString(input.UpdatedDate),
+		CategoryID:    strings.TrimSpace(stringPointerValue(input.CategoryID)),
+		TopicIDs:      mapAdminContentTopicIDs(input.TopicIds),
 	})
 	if err != nil {
 		return nil, err
@@ -1089,7 +1103,7 @@ func mapAdminErrorMessage(item *domain.AdminErrorMessageView) *model.AdminErrorM
 func mapAdminContentPostListPayload(payload *domain.AdminContentPostListResult) *model.AdminContentPostListPayload {
 	if payload == nil {
 		return &model.AdminContentPostListPayload{
-			Items: []*model.AdminContentPost{},
+			Items: []*model.AdminContentPostGroup{},
 			Total: 0,
 			Page:  1,
 			Size:  20,
@@ -1097,20 +1111,34 @@ func mapAdminContentPostListPayload(payload *domain.AdminContentPostListResult) 
 	}
 
 	return &model.AdminContentPostListPayload{
-		Items: mapAdminContentPosts(payload.Items),
+		Items: mapAdminContentPostGroups(payload.Items),
 		Total: payload.Total,
 		Page:  payload.Page,
 		Size:  payload.Size,
 	}
 }
 
-func mapAdminContentPosts(items []domain.AdminContentPostRecord) []*model.AdminContentPost {
-	mapped := make([]*model.AdminContentPost, 0, len(items))
+func mapAdminContentPostGroups(items []domain.AdminContentPostGroupRecord) []*model.AdminContentPostGroup {
+	mapped := make([]*model.AdminContentPostGroup, 0, len(items))
 	for _, item := range items {
 		copyItem := item
-		mapped = append(mapped, mapAdminContentPost(&copyItem))
+		mapped = append(mapped, mapAdminContentPostGroup(&copyItem))
 	}
 	return mapped
+}
+
+func mapAdminContentPostGroup(item *domain.AdminContentPostGroupRecord) *model.AdminContentPostGroup {
+	if item == nil {
+		return nil
+	}
+
+	return &model.AdminContentPostGroup{
+		ID:        item.ID,
+		Source:    item.Source,
+		Preferred: mapAdminContentPost(&item.Preferred),
+		En:        mapAdminContentPost(item.EN),
+		Tr:        mapAdminContentPost(item.TR),
+	}
 }
 
 func mapAdminContentTopicListPayload(
@@ -1118,7 +1146,7 @@ func mapAdminContentTopicListPayload(
 ) *model.AdminContentTopicListPayload {
 	if payload == nil {
 		return &model.AdminContentTopicListPayload{
-			Items: []*model.AdminContentTopic{},
+			Items: []*model.AdminContentTopicGroup{},
 			Total: 0,
 			Page:  1,
 			Size:  20,
@@ -1126,7 +1154,7 @@ func mapAdminContentTopicListPayload(
 	}
 
 	return &model.AdminContentTopicListPayload{
-		Items: mapAdminContentTopics(payload.Items),
+		Items: mapAdminContentTopicGroups(payload.Items),
 		Total: payload.Total,
 		Page:  payload.Page,
 		Size:  payload.Size,
@@ -1138,7 +1166,7 @@ func mapAdminContentCategoryListPayload(
 ) *model.AdminContentCategoryListPayload {
 	if payload == nil {
 		return &model.AdminContentCategoryListPayload{
-			Items: []*model.AdminContentCategory{},
+			Items: []*model.AdminContentCategoryGroup{},
 			Total: 0,
 			Page:  1,
 			Size:  20,
@@ -1146,10 +1174,54 @@ func mapAdminContentCategoryListPayload(
 	}
 
 	return &model.AdminContentCategoryListPayload{
-		Items: mapAdminContentCategories(payload.Items),
+		Items: mapAdminContentCategoryGroups(payload.Items),
 		Total: payload.Total,
 		Page:  payload.Page,
 		Size:  payload.Size,
+	}
+}
+
+func mapAdminContentTopicGroups(items []domain.AdminContentTopicGroupRecord) []*model.AdminContentTopicGroup {
+	mapped := make([]*model.AdminContentTopicGroup, 0, len(items))
+	for _, item := range items {
+		copyItem := item
+		mapped = append(mapped, mapAdminContentTopicGroup(&copyItem))
+	}
+	return mapped
+}
+
+func mapAdminContentTopicGroup(item *domain.AdminContentTopicGroupRecord) *model.AdminContentTopicGroup {
+	if item == nil {
+		return nil
+	}
+
+	return &model.AdminContentTopicGroup{
+		ID:        item.ID,
+		Preferred: mapAdminContentTopic(&item.Preferred),
+		En:        mapAdminContentTopic(item.EN),
+		Tr:        mapAdminContentTopic(item.TR),
+	}
+}
+
+func mapAdminContentCategoryGroups(items []domain.AdminContentCategoryGroupRecord) []*model.AdminContentCategoryGroup {
+	mapped := make([]*model.AdminContentCategoryGroup, 0, len(items))
+	for _, item := range items {
+		copyItem := item
+		mapped = append(mapped, mapAdminContentCategoryGroup(&copyItem))
+	}
+	return mapped
+}
+
+func mapAdminContentCategoryGroup(item *domain.AdminContentCategoryGroupRecord) *model.AdminContentCategoryGroup {
+	if item == nil {
+		return nil
+	}
+
+	return &model.AdminContentCategoryGroup{
+		ID:        item.ID,
+		Preferred: mapAdminContentCategory(&item.Preferred),
+		En:        mapAdminContentCategory(item.EN),
+		Tr:        mapAdminContentCategory(item.TR),
 	}
 }
 
@@ -1159,22 +1231,22 @@ func mapAdminContentPost(item *domain.AdminContentPostRecord) *model.AdminConten
 	}
 
 	return &model.AdminContentPost{
-		Locale:        item.Locale,
-		ID:            item.ID,
-		Title:         item.Title,
-		Summary:       toOptionalAdminString(item.Summary),
-		Content:       toOptionalAdminString(item.Content),
-		ContentMode:   toOptionalAdminString(item.ContentMode),
-		Thumbnail:     toOptionalAdminString(item.Thumbnail),
-		Source:        item.Source,
-		PublishedDate: item.PublishedDate,
-		UpdatedDate:   toOptionalAdminString(item.UpdatedDate),
-		CategoryID:    toOptionalAdminString(item.CategoryID),
-		CategoryName:  toOptionalAdminString(item.CategoryName),
-		TopicIds:      append([]string{}, item.TopicIDs...),
-		TopicNames:    append([]string{}, item.TopicNames...),
+		Locale:           item.Locale,
+		ID:               item.ID,
+		Title:            item.Title,
+		Summary:          toOptionalAdminString(item.Summary),
+		Content:          toOptionalAdminString(item.Content),
+		ContentMode:      toOptionalAdminString(item.ContentMode),
+		Thumbnail:        toOptionalAdminString(item.Thumbnail),
+		Source:           item.Source,
+		PublishedDate:    item.PublishedDate,
+		UpdatedDate:      toOptionalAdminString(item.UpdatedDate),
+		CategoryID:       toOptionalAdminString(item.CategoryID),
+		CategoryName:     toOptionalAdminString(item.CategoryName),
+		TopicIds:         append([]string{}, item.TopicIDs...),
+		TopicNames:       append([]string{}, item.TopicNames...),
 		ContentUpdatedAt: toOptionalAdminTime(item.ContentUpdatedAt),
-		UpdatedAt:     toOptionalAdminTime(item.UpdatedAt),
+		UpdatedAt:        toOptionalAdminTime(item.UpdatedAt),
 	}
 }
 
@@ -1314,6 +1386,14 @@ func stringPointerValue(value *string) string {
 		return ""
 	}
 	return *value
+}
+
+func toOptionalTrimmedInputString(value *string) *string {
+	if value == nil {
+		return nil
+	}
+	trimmed := strings.TrimSpace(*value)
+	return &trimmed
 }
 
 func toOptionalAdminString(value string) *string {
