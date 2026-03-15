@@ -7,6 +7,7 @@ scalar DateTime
 
 type AdminQuery {
   me: AdminMe!
+  googleAuthStatus: AdminGoogleAuthStatus!
   dashboard: AdminDashboard!
   comments(filter: AdminCommentFilterInput): AdminCommentListPayload!
   activeSessions: [AdminSession!]!
@@ -27,9 +28,12 @@ type AdminMutation {
   login(input: AdminLoginInput!): AdminAuthPayload!
   refreshAdminSession: AdminAuthPayload!
   logout: AdminLogoutPayload!
+  startGoogleConnect(input: AdminStartGoogleConnectInput!): AdminGoogleConnectPayload!
+  disconnectGoogle: AdminGoogleDisconnectPayload!
   changeName(input: AdminChangeNameInput!): AdminAuthPayload!
   changeAvatar(input: AdminChangeAvatarInput!): AdminAuthPayload!
   changeUsername(input: AdminChangeUsernameInput!): AdminAuthPayload!
+  requestEmailChange(input: AdminRequestEmailChangeInput!): AdminEmailChangeRequestPayload!
   deleteAccount(input: AdminDeleteAccountInput!): AdminAccountDeletePayload!
   changePassword(input: AdminChangePasswordInput!): AdminPasswordChangePayload!
   revokeSession(sessionId: ID!): AdminSessionRevokePayload!
@@ -230,6 +234,16 @@ input AdminChangeAvatarInput {
   avatarUrl: String
 }
 
+input AdminStartGoogleConnectInput {
+  locale: String
+}
+
+input AdminRequestEmailChangeInput {
+  newEmail: String!
+  currentPassword: String!
+  locale: String
+}
+
 input AdminDeleteAccountInput {
   currentPassword: String!
 }
@@ -245,7 +259,26 @@ type AdminUser {
   username: String
   avatarUrl: String
   email: String!
+  pendingEmail: String
+  pendingEmailExpiresAt: DateTime
+  googleLinked: Boolean!
+  googleEmail: String
+  googleLinkedAt: DateTime
   roles: [String!]!
+}
+
+type AdminGoogleAuthStatus {
+  enabled: Boolean!
+  loginAvailable: Boolean!
+}
+
+type AdminGoogleConnectPayload {
+  url: String!
+}
+
+type AdminGoogleDisconnectPayload {
+  success: Boolean!
+  user: AdminUser
 }
 
 type AdminAuthPayload {
@@ -255,6 +288,12 @@ type AdminAuthPayload {
 
 type AdminLogoutPayload {
   success: Boolean!
+}
+
+type AdminEmailChangeRequestPayload {
+  success: Boolean!
+  pendingEmail: String!
+  expiresAt: DateTime!
 }
 
 type AdminPasswordChangePayload {

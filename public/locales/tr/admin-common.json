@@ -9,6 +9,7 @@
       "account": "Hesap"
     },
     "actions": {
+      "cancel": "Vazgeç",
       "logout": "Çıkış yap",
       "settings": "Ayarlar",
       "changePassword": "Parola",

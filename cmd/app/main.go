@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	adminavatarapi "suaybsimsek.com/blog-api/api/admin-avatar"
+	adminemailchangeapi "suaybsimsek.com/blog-api/api/admin-email-change"
+	admingoogleapi "suaybsimsek.com/blog-api/api/admin-google"
 	admingraphqlapi "suaybsimsek.com/blog-api/api/admin-graphql"
 	graphqlapi "suaybsimsek.com/blog-api/api/graphql"
 	newsletterdispatch "suaybsimsek.com/blog-api/api/newsletter-dispatch"
@@ -57,6 +59,9 @@ func main() {
 	mux.HandleFunc("/api/graphql", graphqlapi.Handler)
 	mux.HandleFunc("/api/admin/graphql", admingraphqlapi.Handler)
 	mux.HandleFunc("/api/admin-avatar", adminavatarapi.Handler)
+	mux.HandleFunc("/api/admin-email-change/confirm", adminemailchangeapi.Handler)
+	mux.HandleFunc("/api/admin-google/connect", admingoogleapi.Handler)
+	mux.HandleFunc("/api/admin-google/callback", admingoogleapi.Handler)
 	mux.HandleFunc("/graphiql", graphqlapi.Handler)
 	mux.HandleFunc("/api/newsletter-dispatch", newsletterdispatch.Handler)
 	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {

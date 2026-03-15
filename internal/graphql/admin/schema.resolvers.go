@@ -32,6 +32,23 @@ func (r *adminQueryResolver) Me(ctx context.Context) (*model.AdminMe, error) {
 	}, nil
 }
 
+// GoogleAuthStatus is the resolver for the googleAuthStatus field.
+func (r *adminQueryResolver) GoogleAuthStatus(ctx context.Context) (*model.AdminGoogleAuthStatus, error) {
+	payload, err := appservice.QueryAdminGoogleAuthStatus(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if payload == nil {
+		return &model.AdminGoogleAuthStatus{}, nil
+	}
+
+	return &model.AdminGoogleAuthStatus{
+		Enabled:        payload.Enabled,
+		LoginAvailable: payload.LoginAvailable,
+	}, nil
+}
+
 // Dashboard is the resolver for the dashboard field.
 func (r *adminQueryResolver) Dashboard(ctx context.Context) (*model.AdminDashboard, error) {
 	if _, err := requireAdminUser(ctx); err != nil {
@@ -482,6 +499,46 @@ func (r *adminMutationResolver) Login(ctx context.Context, input model.AdminLogi
 	}, nil
 }
 
+// StartGoogleConnect is the resolver for the startGoogleConnect field.
+func (r *adminMutationResolver) StartGoogleConnect(
+	ctx context.Context,
+	input model.AdminStartGoogleConnectInput,
+) (*model.AdminGoogleConnectPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	payload, err := appservice.StartAdminGoogleConnect(
+		ctx,
+		adminUser,
+		stringPointerValue(input.Locale),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AdminGoogleConnectPayload{URL: payload.URL}, nil
+}
+
+// DisconnectGoogle is the resolver for the disconnectGoogle field.
+func (r *adminMutationResolver) DisconnectGoogle(ctx context.Context) (*model.AdminGoogleDisconnectPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedUser, err := appservice.DisconnectAdminGoogleAccount(ctx, adminUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AdminGoogleDisconnectPayload{
+		Success: true,
+		User:    mapAdminUser(updatedUser),
+	}, nil
+}
+
 // RefreshAdminSession is the resolver for the refreshAdminSession field.
 func (r *adminMutationResolver) RefreshAdminSession(ctx context.Context) (*model.AdminAuthPayload, error) {
 	request := getRequest(ctx)
@@ -597,6 +654,34 @@ func (r *adminMutationResolver) ChangeUsername(
 	return &model.AdminAuthPayload{
 		Success: true,
 		User:    mapAdminUser(updatedAdminUser),
+	}, nil
+}
+
+// RequestEmailChange is the resolver for the requestEmailChange field.
+func (r *adminMutationResolver) RequestEmailChange(
+	ctx context.Context,
+	input model.AdminRequestEmailChangeInput,
+) (*model.AdminEmailChangeRequestPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	payload, err := appservice.RequestAdminEmailChange(
+		ctx,
+		adminUser,
+		input.NewEmail,
+		input.CurrentPassword,
+		stringPointerValue(input.Locale),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AdminEmailChangeRequestPayload{
+		Success:      payload.Success,
+		PendingEmail: payload.PendingEmail,
+		ExpiresAt:    payload.ExpiresAt,
 	}, nil
 }
 
@@ -1077,12 +1162,17 @@ func mapAdminUser(user *domain.AdminUser) *model.AdminUser {
 	}
 
 	return &model.AdminUser{
-		ID:        user.ID,
-		Name:      toOptionalAdminProfileName(user.Name),
-		Username:  toOptionalAdminUsername(user.Username),
-		AvatarURL: toOptionalAdminAvatarURL(user.AvatarURL),
-		Email:     user.Email,
-		Roles:     append([]string{}, user.Roles...),
+		ID:                    user.ID,
+		Name:                  toOptionalAdminProfileName(user.Name),
+		Username:              toOptionalAdminUsername(user.Username),
+		AvatarURL:             toOptionalAdminAvatarURL(user.AvatarURL),
+		Email:                 user.Email,
+		PendingEmail:          toOptionalAdminEmail(user.PendingEmail),
+		PendingEmailExpiresAt: user.PendingEmailExpiresAt,
+		GoogleLinked:          strings.TrimSpace(user.GoogleSubject) != "",
+		GoogleEmail:           toOptionalAdminEmail(user.GoogleEmail),
+		GoogleLinkedAt:        user.GoogleLinkedAt,
+		Roles:                 append([]string{}, user.Roles...),
 	}
 }
 
@@ -1097,6 +1187,15 @@ func toOptionalAdminProfileName(value string) *string {
 
 func toOptionalAdminUsername(value string) *string {
 	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return nil
+	}
+
+	return &trimmed
+}
+
+func toOptionalAdminEmail(value string) *string {
+	trimmed := strings.TrimSpace(strings.ToLower(value))
 	if trimmed == "" {
 		return nil
 	}

@@ -49,12 +49,30 @@ interface Resources {
           submitting: 'Deleting account...';
           title: 'Delete account';
         };
+        email: {
+          copy: 'Verify a new email address before it becomes active for your admin account.';
+          currentLabel: 'Current email';
+          currentPassword: 'Current password';
+          currentPasswordPlaceholder: 'Enter your current password';
+          label: 'New email';
+          pending: {
+            copy: 'Confirmation is waiting for {{email}}.';
+            expiresAt: 'Expires: {{value}}';
+            title: 'Pending email change';
+          };
+          placeholder: 'Enter a new email address';
+          submit: 'Send verification email';
+          submitting: 'Sending verification email...';
+          title: 'Change email';
+        };
         errors: {
           deleteAccount: 'Account could not be deleted right now.';
+          emailUpdate: 'Email change could not be started right now.';
           usernameUpdate: 'Username could not be updated right now.';
         };
         success: {
           deleted: 'Account deleted. You are being signed out.';
+          emailChangeRequested: 'Verification email sent to {{email}}.';
           usernameUpdated: 'Username updated.';
         };
         username: {
@@ -125,6 +143,43 @@ interface Resources {
           spam: 'Comment marked as spam: {{author}}';
         };
         title: 'Comment moderation';
+      };
+      connectedAccounts: {
+        actions: {
+          hide: 'Hide';
+          manage: 'Manage';
+        };
+        copy: 'Manage how you sign in to the admin panel from one place.';
+        google: {
+          connect: 'Connect Google';
+          connectConfirmCopy: 'Link a Google account to this admin user.';
+          connectConfirmTitle: 'Connect Google account';
+          connectedBadge: 'Connected';
+          connectedCopy: 'Connected as {{email}}.';
+          connecting: 'Connecting...';
+          disconnect: 'Disconnect Google';
+          disconnectConfirmCopy: 'Disconnect {{email}} from this admin account.';
+          disconnectConfirmTitle: 'Disconnect Google account';
+          disconnectedCopy: 'Link a Google account first. After that, Continue with Google appears on the login screen.';
+          disconnecting: 'Disconnecting...';
+          linkedAt: 'Linked: {{value}}';
+          loginEnabled: 'Google sign-in is now available on the admin login screen.';
+          messages: {
+            cancelled: 'Google connection was cancelled.';
+            conflict: 'This Google account is already linked to another admin user.';
+            connected: 'Google account connected.';
+            disconnected: 'Google account disconnected.';
+            failed: 'Google connection could not be completed right now.';
+            notLinked: 'This Google account is not linked to an admin user.';
+          };
+          title: 'Google';
+          unavailableBadge: 'Unavailable';
+        };
+        password: {
+          action: 'Change password';
+          copy: 'Use your password to sign in to the admin panel.';
+        };
+        title: 'Sign-in methods';
       };
       content: {
         actions: {
@@ -616,6 +671,7 @@ interface Resources {
         comments: 'Comments';
         content: 'Content';
         copy: 'Manage your profile, account controls, appearance, active sessions, newsletter, comment moderation, and content metadata.';
+        email: 'Email';
         errors: 'Error messages';
         navLabel: 'Settings navigation';
         newsletter: 'Newsletter';
@@ -646,6 +702,9 @@ interface Resources {
         confirmPasswordRequired: 'Confirm your new password.';
         currentPasswordRequired: 'Enter your current password.';
         deleteConfirmation: 'Type {{value}} to confirm account deletion.';
+        emailDifferent: 'Use an email different from the current one.';
+        emailInvalid: 'Enter a valid email address.';
+        emailRequired: 'Enter a new email address.';
         nameLength: 'Name must be between {{min}} and {{max}} characters.';
         nameRequired: 'Enter a name.';
         newPasswordDifferent: 'Choose a password different from the current one.';
@@ -661,6 +720,7 @@ interface Resources {
   'admin-common': {
     adminCommon: {
       actions: {
+        cancel: 'Cancel';
         changePassword: 'Password';
         logout: 'Logout';
         settings: 'Settings';
@@ -776,6 +836,13 @@ interface Resources {
       emailPlaceholder: 'you@example.com';
       errorFallback: 'Login failed. Check your credentials and admin configuration.';
       eyebrow: 'Secure access';
+      google: {
+        cancelled: 'Google sign-in was cancelled.';
+        failed: 'Google sign-in could not be completed right now.';
+        notLinked: 'This Google account is not linked to an admin user.';
+        or: 'or';
+        submit: 'Continue with Google';
+      };
       help: 'Your session is kept in secure cookies. If access expires, sign in again.';
       hidePassword: 'Hide password';
       meta: {
@@ -1490,6 +1557,8 @@ interface Resources {
           submitReply: 'Post reply';
           submitting: 'Submitting...';
         };
+        hideReplies_one: 'Hide 1 reply';
+        hideReplies_other: 'Hide {{count}} replies';
         loading: 'Loading comments...';
         moderationNote: 'New comments are reviewed before they appear.';
         postedAt: 'Posted {{date}}';
@@ -1503,6 +1572,8 @@ interface Resources {
         };
         title_one: '1 comment';
         title_other: '{{count}} comments';
+        viewReplies_one: 'View 1 reply';
+        viewReplies_other: 'View {{count}} replies';
       };
       hit: {
         aria: '{{count}} article hits';

@@ -5,6 +5,7 @@ export const ADMIN_ROUTES = {
     root: '/admin/settings',
     profile: '/admin/settings/profile',
     account: '/admin/settings/account',
+    email: '/admin/settings/email',
     appearance: '/admin/settings/appearance',
     sessions: '/admin/settings/sessions',
     newsletter: '/admin/settings/newsletter',

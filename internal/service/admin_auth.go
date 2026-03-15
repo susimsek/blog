@@ -23,8 +23,10 @@ import (
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/repository"
+	adminmailpkg "suaybsimsek.com/blog-api/pkg/adminmail"
 	"suaybsimsek.com/blog-api/pkg/apperrors"
 	"suaybsimsek.com/blog-api/pkg/httpauth"
+	newsletterpkg "suaybsimsek.com/blog-api/pkg/newsletter"
 
 	"golang.org/x/crypto/bcrypt"
 	xdraw "golang.org/x/image/draw"
@@ -46,6 +48,17 @@ type AdminSessionMetadata struct {
 	CountryCode string
 }
 
+type AdminEmailChangeRequestResult struct {
+	Success      bool
+	PendingEmail string
+	ExpiresAt    time.Time
+}
+
+type AdminEmailChangeConfirmResult struct {
+	Status string
+	Locale string
+}
+
 const (
 	minAdminPasswordLength = 8
 	maxActiveAdminSessions = 20
@@ -57,14 +70,17 @@ const (
 	minAdminAvatarSize     = 16
 	maxAdminAvatarSize     = 1024
 	adminAvatarDefaultSize = 256
+	adminEmailChangeTTL    = time.Hour
 )
 
 var adminUsernamePattern = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
 
 var (
-	adminUsersRepository         repository.AdminUserRepository         = repository.NewAdminUserRepository()
-	adminRefreshTokensRepository repository.AdminRefreshTokenRepository = repository.NewAdminRefreshTokenMongoRepository()
-	adminAvatarRepository        repository.AdminAvatarRepository       = repository.NewAdminAvatarRepository()
+	adminUsersRepository                    repository.AdminUserRepository         = repository.NewAdminUserRepository()
+	adminRefreshTokensRepository            repository.AdminRefreshTokenRepository = repository.NewAdminRefreshTokenMongoRepository()
+	adminAvatarRepository                   repository.AdminAvatarRepository       = repository.NewAdminAvatarRepository()
+	sendAdminEmailChangeConfirmationEmailFn                                        = sendAdminEmailChangeConfirmationEmail
+	sendAdminEmailChangeNoticeEmailFn                                              = sendAdminEmailChangeNoticeEmail
 )
 
 func LoginAdmin(
@@ -256,6 +272,168 @@ func ChangeAdminUsername(ctx context.Context, adminUser *domain.AdminUser, newUs
 	}
 
 	return &updatedUserRecord.AdminUser, nil
+}
+
+func RequestAdminEmailChange(
+	ctx context.Context,
+	adminUser *domain.AdminUser,
+	newEmail string,
+	currentPassword string,
+	locale string,
+) (*AdminEmailChangeRequestResult, error) {
+	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
+		return nil, apperrors.Unauthorized("admin authentication required")
+	}
+	if strings.TrimSpace(currentPassword) == "" {
+		return nil, apperrors.BadRequest("current password is required")
+	}
+
+	userRecord, err := adminUsersRepository.FindByID(ctx, adminUser.ID)
+	if err != nil {
+		return nil, apperrors.Internal("failed to load admin user", err)
+	}
+	if userRecord == nil {
+		return nil, apperrors.Unauthorized("admin authentication required")
+	}
+	if err := verifyAdminPassword(userRecord, currentPassword); err != nil {
+		return nil, apperrors.BadRequest("current password is incorrect")
+	}
+
+	resolvedEmail, err := newsletterpkg.NormalizeSubscriberEmail(newEmail)
+	if err != nil {
+		return nil, apperrors.BadRequest("new email is invalid")
+	}
+	if strings.EqualFold(strings.TrimSpace(userRecord.Email), resolvedEmail) {
+		return nil, apperrors.BadRequest("new email must be different from current email")
+	}
+
+	existingUser, err := adminUsersRepository.FindByEmail(ctx, resolvedEmail)
+	if err != nil {
+		return nil, apperrors.Internal("failed to validate admin email", err)
+	}
+	if existingUser != nil && existingUser.ID != userRecord.ID {
+		return nil, apperrors.BadRequest("email is already in use")
+	}
+
+	siteURL, err := resolveSiteURLFn()
+	if err != nil {
+		return nil, apperrors.Config("admin email change site url is not configured", err)
+	}
+
+	mailCfg, err := resolveMailConfigFn()
+	if err != nil {
+		return nil, apperrors.Config("admin email change mail transport is not configured", err)
+	}
+
+	token, err := generateConfirmTokenFn()
+	if err != nil {
+		return nil, apperrors.Internal("failed to issue admin email change token", err)
+	}
+
+	now := nowUTCFn()
+	expiresAt := now.Add(adminEmailChangeTTL)
+	resolvedLocale := newsletterpkg.ResolveLocale(locale, "")
+	confirmURL, err := buildAdminEmailChangeConfirmURL(siteURL, token, resolvedLocale)
+	if err != nil {
+		return nil, apperrors.Config("admin email change confirm url is invalid", err)
+	}
+
+	pending := domain.AdminPendingEmailChange{
+		NewEmail:    resolvedEmail,
+		TokenHash:   hashValue(token),
+		Locale:      resolvedLocale,
+		RequestedAt: now,
+		ExpiresAt:   expiresAt,
+	}
+
+	if err := adminUsersRepository.SetPendingEmailChangeByID(ctx, userRecord.ID, pending); err != nil {
+		if errors.Is(err, repository.ErrAdminUserNotFound) {
+			return nil, apperrors.Unauthorized("admin authentication required")
+		}
+		return nil, apperrors.Internal("failed to store admin email change request", err)
+	}
+
+	if err := sendAdminEmailChangeConfirmationEmailFn(mailCfg, resolvedEmail, confirmURL, resolvedLocale, siteURL); err != nil {
+		_ = adminUsersRepository.ClearPendingEmailChangeByID(ctx, userRecord.ID)
+		return nil, apperrors.ServiceUnavailable("failed to send email change confirmation", err)
+	}
+
+	_ = sendAdminEmailChangeNoticeEmailFn(mailCfg, userRecord.Email, resolvedLocale, siteURL)
+
+	return &AdminEmailChangeRequestResult{
+		Success:      true,
+		PendingEmail: resolvedEmail,
+		ExpiresAt:    expiresAt,
+	}, nil
+}
+
+func ConfirmAdminEmailChange(
+	ctx context.Context,
+	token string,
+	localeHint string,
+) (*AdminEmailChangeConfirmResult, error) {
+	resolvedToken := strings.TrimSpace(token)
+	resolvedLocale := newsletterpkg.ResolveLocale(localeHint, "")
+	if resolvedToken == "" {
+		return &AdminEmailChangeConfirmResult{
+			Status: string(adminmailpkg.StatusInvalidLink),
+			Locale: resolvedLocale,
+		}, nil
+	}
+
+	userRecord, err := adminUsersRepository.FindByPendingEmailChangeTokenHash(ctx, hashValue(resolvedToken))
+	if err != nil {
+		return nil, apperrors.Internal("failed to load admin email change request", err)
+	}
+	if userRecord == nil || userRecord.PendingEmailChange == nil {
+		return &AdminEmailChangeConfirmResult{
+			Status: string(adminmailpkg.StatusInvalidLink),
+			Locale: resolvedLocale,
+		}, nil
+	}
+
+	pending := userRecord.PendingEmailChange
+	if pending.Locale != "" {
+		resolvedLocale = newsletterpkg.ResolveLocale(pending.Locale, "")
+	}
+
+	now := nowUTCFn()
+	if now.After(pending.ExpiresAt) {
+		if clearErr := adminUsersRepository.ClearPendingEmailChangeByID(ctx, userRecord.ID); clearErr != nil &&
+			!errors.Is(clearErr, repository.ErrAdminUserNotFound) {
+			return nil, apperrors.Internal("failed to clear expired admin email change request", clearErr)
+		}
+		return &AdminEmailChangeConfirmResult{
+			Status: string(adminmailpkg.StatusExpired),
+			Locale: resolvedLocale,
+		}, nil
+	}
+
+	if err := adminUsersRepository.UpdateEmailByID(ctx, userRecord.ID, pending.NewEmail); err != nil {
+		if errors.Is(err, repository.ErrAdminEmailAlreadyExists) {
+			_ = adminUsersRepository.ClearPendingEmailChangeByID(ctx, userRecord.ID)
+			return &AdminEmailChangeConfirmResult{
+				Status: string(adminmailpkg.StatusFailed),
+				Locale: resolvedLocale,
+			}, nil
+		}
+		if errors.Is(err, repository.ErrAdminUserNotFound) {
+			return &AdminEmailChangeConfirmResult{
+				Status: string(adminmailpkg.StatusInvalidLink),
+				Locale: resolvedLocale,
+			}, nil
+		}
+		return nil, apperrors.Internal("failed to update admin email", err)
+	}
+
+	if err := adminRefreshTokensRepository.RevokeAllByUserID(ctx, userRecord.ID, now); err != nil {
+		return nil, toAdminSessionError(err)
+	}
+
+	return &AdminEmailChangeConfirmResult{
+		Status: string(adminmailpkg.StatusSuccess),
+		Locale: resolvedLocale,
+	}, nil
 }
 
 func ChangeAdminName(ctx context.Context, adminUser *domain.AdminUser, name string) (*domain.AdminUser, error) {
@@ -606,6 +784,50 @@ func issueAdminTokens(
 		RememberMe:   rememberMe,
 		RefreshTTL:   refreshTTL,
 	}, nil
+}
+
+func buildAdminEmailChangeConfirmURL(siteURL, token, locale string) (string, error) {
+	parsed, err := url.Parse(siteURL)
+	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
+		return "", errors.New("invalid SITE_URL")
+	}
+
+	parsed.Path = strings.TrimRight(parsed.Path, "/") + "/api/admin-email-change/confirm"
+	query := parsed.Query()
+	query.Set("token", strings.TrimSpace(token))
+	query.Set("locale", newsletterpkg.ResolveLocale(locale, ""))
+	parsed.RawQuery = query.Encode()
+
+	return parsed.String(), nil
+}
+
+func sendAdminEmailChangeConfirmationEmail(
+	cfg appconfig.MailConfig,
+	recipientEmail,
+	confirmURL,
+	locale,
+	siteURL string,
+) error {
+	subject, htmlBody, err := adminmailpkg.ConfirmationEmail(locale, confirmURL, siteURL)
+	if err != nil {
+		return fmt.Errorf("build admin email change confirmation email failed: %w", err)
+	}
+
+	return newsletterpkg.SendHTMLEmail(cfg, recipientEmail, subject, htmlBody, nil)
+}
+
+func sendAdminEmailChangeNoticeEmail(
+	cfg appconfig.MailConfig,
+	recipientEmail,
+	locale,
+	siteURL string,
+) error {
+	subject, htmlBody, err := adminmailpkg.ChangeRequestedNoticeEmail(locale, siteURL)
+	if err != nil {
+		return fmt.Errorf("build admin email change notice email failed: %w", err)
+	}
+
+	return newsletterpkg.SendHTMLEmail(cfg, recipientEmail, subject, htmlBody, nil)
 }
 
 func verifyAdminPassword(userRecord *domain.AdminUserRecord, rawPassword string) error {

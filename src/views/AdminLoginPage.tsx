@@ -2,14 +2,15 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Spinner from 'react-bootstrap/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { fetchAdminMe, loginAdmin, resolveAdminError } from '@/lib/adminApi';
+import { fetchAdminGoogleAuthStatus, fetchAdminMe, loginAdmin, resolveAdminError } from '@/lib/adminApi';
+import { withBasePath } from '@/lib/basePath';
 import { defaultLocale } from '@/i18n/settings';
 import { useAppSelector } from '@/config/store';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
@@ -19,6 +20,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function AdminLoginPage() {
   const { t } = useTranslation(['admin-login', 'admin-common']);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
   const locale = routeLocale ?? defaultLocale;
@@ -32,6 +34,10 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [hasSubmitted, setHasSubmitted] = React.useState(false);
   const [rememberMe, setRememberMe] = React.useState(false);
+  const [googleAuthStatus, setGoogleAuthStatus] = React.useState({
+    enabled: false,
+    loginAvailable: false,
+  });
 
   const trimmedEmail = email.trim();
   const emailError =
@@ -80,6 +86,64 @@ export default function AdminLoginPage() {
       isMounted = false;
     };
   }, [locale, router]);
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    void fetchAdminGoogleAuthStatus()
+      .then(payload => {
+        if (!isMounted) {
+          return;
+        }
+        setGoogleAuthStatus(payload);
+      })
+      .catch(() => {
+        if (!isMounted) {
+          return;
+        }
+        setGoogleAuthStatus({
+          enabled: false,
+          loginAvailable: false,
+        });
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (!searchParams) {
+      return;
+    }
+
+    const googleStatus = (searchParams.get('google') ?? '').trim().toLowerCase();
+    if (googleStatus === '') {
+      return;
+    }
+
+    switch (googleStatus) {
+      case 'cancelled':
+        setErrorMessage(t('adminLogin.google.cancelled', { ns: 'admin-login' }));
+        break;
+      case 'not-linked':
+        setErrorMessage(t('adminLogin.google.notLinked', { ns: 'admin-login' }));
+        break;
+      default:
+        setErrorMessage(t('adminLogin.google.failed', { ns: 'admin-login' }));
+        break;
+    }
+  }, [searchParams, t]);
+
+  const handleGoogleLogin = React.useCallback(() => {
+    globalThis.location.assign(
+      withBasePath(
+        `/api/admin-google/connect?intent=login&locale=${encodeURIComponent(locale)}&rememberMe=${
+          rememberMe ? '1' : '0'
+        }`,
+      ),
+    );
+  }, [locale, rememberMe]);
 
   const handleSubmit = React.useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
@@ -266,10 +330,10 @@ export default function AdminLoginPage() {
                   />
                 </Form.Group>
 
-                <div className="post-summary-cta">
+                <div className="mb-4">
                   <Button
                     type="submit"
-                    className="post-summary-read-more"
+                    className="post-summary-read-more w-100 justify-content-center"
                     disabled={isSubmitting}
                     onMouseEnter={handleSubmitHoverStart}
                     onMouseLeave={handleSubmitHoverEnd}
@@ -287,7 +351,10 @@ export default function AdminLoginPage() {
                       </>
                     ) : (
                       <>
-                        <span className="read-more-label">{t('adminLogin.submit', { ns: 'admin-login' })}</span>
+                        <span className="read-more-label d-inline-flex align-items-center justify-content-center gap-2">
+                          <FontAwesomeIcon icon="right-to-bracket" />
+                          <span>{t('adminLogin.submit', { ns: 'admin-login' })}</span>
+                        </span>
                         <span className="read-more-icon-rail" aria-hidden="true">
                           <span className="read-more-icon read-more-icon-front">
                             <FontAwesomeIcon icon="angle-right" />
@@ -300,6 +367,41 @@ export default function AdminLoginPage() {
                     )}
                   </Button>
                 </div>
+
+                {googleAuthStatus.enabled && googleAuthStatus.loginAvailable ? (
+                  <>
+                    <div className="d-flex align-items-center gap-3 text-muted small text-uppercase fw-semibold mb-4">
+                      <span className="flex-grow-1 border-top" />
+                      <span>{t('adminLogin.google.or', { ns: 'admin-login' })}</span>
+                      <span className="flex-grow-1 border-top" />
+                    </div>
+
+                    <div className="mb-4">
+                      <Button
+                        type="button"
+                        variant="danger"
+                        className="post-summary-read-more w-100 justify-content-center"
+                        onClick={handleGoogleLogin}
+                        onMouseEnter={handleSubmitHoverStart}
+                        onMouseLeave={handleSubmitHoverEnd}
+                      >
+                        <span className="read-more-label d-inline-flex align-items-center justify-content-center gap-2">
+                          <FontAwesomeIcon icon={['fab', 'google']} />
+                          <span>{t('adminLogin.google.submit', { ns: 'admin-login' })}</span>
+                        </span>
+                        <span className="read-more-icon-rail" aria-hidden="true">
+                          <span className="read-more-icon read-more-icon-front">
+                            <FontAwesomeIcon icon="angle-right" />
+                          </span>
+                          <span className="read-more-icon read-more-icon-back">
+                            <FontAwesomeIcon icon="angle-right" />
+                          </span>
+                        </span>
+                      </Button>
+                    </div>
+                  </>
+                ) : null}
+
                 <p className="small text-muted mb-0 mt-3">{t('adminLogin.help', { ns: 'admin-login' })}</p>
               </Form>
             </div>

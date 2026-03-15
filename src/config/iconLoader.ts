@@ -1,5 +1,5 @@
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faFacebookF, faGithub, faLinkedin, faMedium, faXTwitter } from '@fortawesome/free-brands-svg-icons';
+import { faFacebookF, faGithub, faGoogle, faLinkedin, faMedium, faXTwitter } from '@fortawesome/free-brands-svg-icons';
 import {
   faAddressBook,
   faArrowLeft,
@@ -18,6 +18,7 @@ import {
   faChevronDown,
   faChevronLeft,
   faChevronRight,
+  faChevronUp,
   faCircle,
   faCircleCheck,
   faClipboardList,
@@ -76,6 +77,7 @@ import { faSidebar } from '@/lib/icons';
 export const loadIcons = () => {
   library.add(
     faGithub,
+    faGoogle,
     faFacebookF,
     faLinkedin,
     faMedium,
@@ -141,6 +143,7 @@ export const loadIcons = () => {
     faClipboardList,
     faComments,
     faChevronDown,
+    faChevronUp,
     faRss,
     faRightFromBracket,
     faWater,

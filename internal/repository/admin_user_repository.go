@@ -22,9 +22,17 @@ type AdminUserRepository interface {
 	FindByEmail(ctx context.Context, email string) (*domain.AdminUserRecord, error)
 	FindByID(ctx context.Context, id string) (*domain.AdminUserRecord, error)
 	FindByUsername(ctx context.Context, username string) (*domain.AdminUserRecord, error)
+	FindByGoogleSubject(ctx context.Context, subject string) (*domain.AdminUserRecord, error)
+	FindByPendingEmailChangeTokenHash(ctx context.Context, tokenHash string) (*domain.AdminUserRecord, error)
+	HasAnyGoogleLink(ctx context.Context) (bool, error)
 	UpdatePasswordHashByID(ctx context.Context, id, passwordHash string) error
 	UpdateNameByID(ctx context.Context, id, name string) error
 	UpdateUsernameByID(ctx context.Context, id, username string) error
+	SetPendingEmailChangeByID(ctx context.Context, id string, pending domain.AdminPendingEmailChange) error
+	ClearPendingEmailChangeByID(ctx context.Context, id string) error
+	UpdateEmailByID(ctx context.Context, id, email string) error
+	UpdateGoogleLinkByID(ctx context.Context, id, subject, email string, linkedAt time.Time) error
+	ClearGoogleLinkByID(ctx context.Context, id string) error
 	UpdateAvatarByID(ctx context.Context, id, avatarURL, avatarDigest string, avatarVersion int64) error
 	DisableByID(ctx context.Context, id string) error
 }
@@ -33,6 +41,8 @@ var (
 	ErrAdminUserRepositoryUnavailable = errors.New("admin user repository unavailable")
 	ErrAdminUserNotFound              = errors.New("admin user not found")
 	ErrAdminUsernameAlreadyExists     = errors.New("admin username already exists")
+	ErrAdminEmailAlreadyExists        = errors.New("admin email already exists")
+	ErrAdminGoogleAlreadyExists       = errors.New("admin google subject already exists")
 )
 
 const (
@@ -87,6 +97,54 @@ func (*adminMongoRepository) FindByUsername(ctx context.Context, username string
 		"username": strings.TrimSpace(username),
 		"status":   bson.M{"$ne": "disabled"},
 	})
+}
+
+func (*adminMongoRepository) FindByGoogleSubject(ctx context.Context, subject string) (*domain.AdminUserRecord, error) {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return nil, fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	return findAdminUser(ctx, collection, bson.M{
+		"googleSubject": strings.TrimSpace(subject),
+		"status":        bson.M{"$ne": "disabled"},
+	})
+}
+
+func (*adminMongoRepository) FindByPendingEmailChangeTokenHash(
+	ctx context.Context,
+	tokenHash string,
+) (*domain.AdminUserRecord, error) {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return nil, fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	return findAdminUser(ctx, collection, bson.M{
+		"pendingEmailChange.tokenHash": strings.TrimSpace(tokenHash),
+		"status":                       bson.M{"$ne": "disabled"},
+	})
+}
+
+func (*adminMongoRepository) HasAnyGoogleLink(ctx context.Context) (bool, error) {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return false, fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	count, err := collection.CountDocuments(ctx, bson.M{
+		"googleSubject": bson.M{
+			"$exists": true,
+			"$type":   "string",
+			"$ne":     "",
+		},
+		"status": bson.M{"$ne": "disabled"},
+	}, options.Count().SetLimit(1))
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
 }
 
 func (*adminMongoRepository) UpdatePasswordHashByID(ctx context.Context, id, passwordHash string) error {
@@ -170,6 +228,176 @@ func (*adminMongoRepository) UpdateUsernameByID(ctx context.Context, id, usernam
 		if mongo.IsDuplicateKeyError(err) {
 			return ErrAdminUsernameAlreadyExists
 		}
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrAdminUserNotFound
+	}
+
+	return nil
+}
+
+func (*adminMongoRepository) SetPendingEmailChangeByID(
+	ctx context.Context,
+	id string,
+	pending domain.AdminPendingEmailChange,
+) error {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	result, err := collection.UpdateOne(
+		ctx,
+		bson.M{
+			"id":     strings.TrimSpace(id),
+			"status": bson.M{"$ne": "disabled"},
+		},
+		bson.M{
+			"$set": bson.M{
+				"pendingEmailChange": bson.M{
+					"newEmail":    strings.TrimSpace(strings.ToLower(pending.NewEmail)),
+					"tokenHash":   strings.TrimSpace(pending.TokenHash),
+					"locale":      strings.TrimSpace(strings.ToLower(pending.Locale)),
+					"requestedAt": pending.RequestedAt,
+					"expiresAt":   pending.ExpiresAt,
+				},
+			},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrAdminUserNotFound
+	}
+
+	return nil
+}
+
+func (*adminMongoRepository) ClearPendingEmailChangeByID(ctx context.Context, id string) error {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	result, err := collection.UpdateOne(
+		ctx,
+		bson.M{
+			"id":     strings.TrimSpace(id),
+			"status": bson.M{"$ne": "disabled"},
+		},
+		bson.M{
+			"$unset": bson.M{
+				"pendingEmailChange": "",
+			},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrAdminUserNotFound
+	}
+
+	return nil
+}
+
+func (*adminMongoRepository) UpdateEmailByID(ctx context.Context, id, email string) error {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	result, err := collection.UpdateOne(
+		ctx,
+		bson.M{
+			"id":     strings.TrimSpace(id),
+			"status": bson.M{"$ne": "disabled"},
+		},
+		bson.M{
+			"$set": bson.M{
+				"email": strings.TrimSpace(strings.ToLower(email)),
+			},
+			"$unset": bson.M{
+				"pendingEmailChange": "",
+			},
+			"$inc": bson.M{
+				"passwordVersion": 1,
+			},
+		},
+	)
+	if err != nil {
+		if mongo.IsDuplicateKeyError(err) {
+			return ErrAdminEmailAlreadyExists
+		}
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrAdminUserNotFound
+	}
+
+	return nil
+}
+
+func (*adminMongoRepository) UpdateGoogleLinkByID(
+	ctx context.Context,
+	id, subject, email string,
+	linkedAt time.Time,
+) error {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	result, err := collection.UpdateOne(
+		ctx,
+		bson.M{
+			"id":     strings.TrimSpace(id),
+			"status": bson.M{"$ne": "disabled"},
+		},
+		bson.M{
+			"$set": bson.M{
+				"googleSubject":  strings.TrimSpace(subject),
+				"googleEmail":    strings.TrimSpace(strings.ToLower(email)),
+				"googleLinkedAt": linkedAt.UTC(),
+			},
+		},
+	)
+	if err != nil {
+		if mongo.IsDuplicateKeyError(err) {
+			return ErrAdminGoogleAlreadyExists
+		}
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrAdminUserNotFound
+	}
+
+	return nil
+}
+
+func (*adminMongoRepository) ClearGoogleLinkByID(ctx context.Context, id string) error {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	result, err := collection.UpdateOne(
+		ctx,
+		bson.M{
+			"id":     strings.TrimSpace(id),
+			"status": bson.M{"$ne": "disabled"},
+		},
+		bson.M{
+			"$unset": bson.M{
+				"googleSubject":  "",
+				"googleEmail":    "",
+				"googleLinkedAt": "",
+			},
+		},
+	)
+	if err != nil {
 		return err
 	}
 	if result.MatchedCount == 0 {
@@ -320,6 +548,18 @@ func ensureAdminUserIndexes(collection *mongo.Collection) error {
 					}),
 			},
 			{
+				Keys: bson.D{{Key: "googleSubject", Value: 1}},
+				Options: options.Index().
+					SetUnique(true).
+					SetName("uniq_admin_user_google_subject").
+					SetPartialFilterExpression(bson.M{
+						"googleSubject": bson.M{
+							"$exists": true,
+							"$type":   "string",
+						},
+					}),
+			},
+			{
 				Keys:    bson.D{{Key: "status", Value: 1}},
 				Options: options.Index().SetName("idx_admin_user_status"),
 			},
@@ -335,16 +575,26 @@ func ensureAdminUserIndexes(collection *mongo.Collection) error {
 
 func findAdminUser(ctx context.Context, collection *mongo.Collection, filter bson.M) (*domain.AdminUserRecord, error) {
 	var doc struct {
-		ID              string   `bson:"id"`
-		Name            string   `bson:"name"`
-		Username        string   `bson:"username"`
-		AvatarURL       string   `bson:"avatarUrl"`
-		AvatarDigest    string   `bson:"avatarDigest"`
-		AvatarVersion   int64    `bson:"avatarVersion"`
-		Email           string   `bson:"email"`
-		PasswordHash    string   `bson:"passwordHash"`
-		PasswordVersion int64    `bson:"passwordVersion"`
-		Roles           []string `bson:"roles"`
+		ID                 string     `bson:"id"`
+		Name               string     `bson:"name"`
+		Username           string     `bson:"username"`
+		AvatarURL          string     `bson:"avatarUrl"`
+		AvatarDigest       string     `bson:"avatarDigest"`
+		AvatarVersion      int64      `bson:"avatarVersion"`
+		Email              string     `bson:"email"`
+		GoogleSubject      string     `bson:"googleSubject"`
+		GoogleEmail        string     `bson:"googleEmail"`
+		PasswordHash       string     `bson:"passwordHash"`
+		PasswordVersion    int64      `bson:"passwordVersion"`
+		Roles              []string   `bson:"roles"`
+		GoogleLinkedAt     *time.Time `bson:"googleLinkedAt"`
+		PendingEmailChange *struct {
+			NewEmail    string    `bson:"newEmail"`
+			TokenHash   string    `bson:"tokenHash"`
+			Locale      string    `bson:"locale"`
+			RequestedAt time.Time `bson:"requestedAt"`
+			ExpiresAt   time.Time `bson:"expiresAt"`
+		} `bson:"pendingEmailChange"`
 	}
 
 	err := collection.FindOne(ctx, filter).Decode(&doc)
@@ -364,19 +614,41 @@ func findAdminUser(ctx context.Context, collection *mongo.Collection, filter bso
 		roles = []string{"admin"}
 	}
 
+	var pendingEmail string
+	var pendingEmailExpiresAt *time.Time
+	var pendingChange *domain.AdminPendingEmailChange
+	if doc.PendingEmailChange != nil {
+		pendingEmail = strings.TrimSpace(strings.ToLower(doc.PendingEmailChange.NewEmail))
+		expiresAt := doc.PendingEmailChange.ExpiresAt
+		pendingEmailExpiresAt = &expiresAt
+		pendingChange = &domain.AdminPendingEmailChange{
+			NewEmail:    pendingEmail,
+			TokenHash:   strings.TrimSpace(doc.PendingEmailChange.TokenHash),
+			Locale:      strings.TrimSpace(strings.ToLower(doc.PendingEmailChange.Locale)),
+			RequestedAt: doc.PendingEmailChange.RequestedAt,
+			ExpiresAt:   doc.PendingEmailChange.ExpiresAt,
+		}
+	}
+
 	return &domain.AdminUserRecord{
 		AdminUser: domain.AdminUser{
-			ID:            doc.ID,
-			Name:          strings.TrimSpace(doc.Name),
-			Username:      strings.TrimSpace(doc.Username),
-			AvatarURL:     resolveAdminAvatarURL(doc.ID, doc.AvatarDigest, doc.AvatarVersion, doc.AvatarURL),
-			AvatarDigest:  strings.TrimSpace(doc.AvatarDigest),
-			AvatarVersion: doc.AvatarVersion,
-			Email:         strings.TrimSpace(strings.ToLower(doc.Email)),
-			Roles:         roles,
+			ID:                    doc.ID,
+			Name:                  strings.TrimSpace(doc.Name),
+			Username:              strings.TrimSpace(doc.Username),
+			AvatarURL:             resolveAdminAvatarURL(doc.ID, doc.AvatarDigest, doc.AvatarVersion, doc.AvatarURL),
+			AvatarDigest:          strings.TrimSpace(doc.AvatarDigest),
+			AvatarVersion:         doc.AvatarVersion,
+			Email:                 strings.TrimSpace(strings.ToLower(doc.Email)),
+			PendingEmail:          pendingEmail,
+			PendingEmailExpiresAt: pendingEmailExpiresAt,
+			GoogleSubject:         strings.TrimSpace(doc.GoogleSubject),
+			GoogleEmail:           strings.TrimSpace(strings.ToLower(doc.GoogleEmail)),
+			GoogleLinkedAt:        doc.GoogleLinkedAt,
+			Roles:                 roles,
 		},
-		PasswordHash:    strings.TrimSpace(doc.PasswordHash),
-		PasswordVersion: doc.PasswordVersion,
+		PasswordHash:       strings.TrimSpace(doc.PasswordHash),
+		PasswordVersion:    doc.PasswordVersion,
+		PendingEmailChange: pendingChange,
 	}, nil
 }
 

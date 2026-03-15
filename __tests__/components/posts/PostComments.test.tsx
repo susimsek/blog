@@ -32,7 +32,7 @@ describe('PostComments', () => {
     jest.clearAllMocks();
   });
 
-  it('renders approved comments and replies', async () => {
+  it('renders approved comments and toggles replies on demand', async () => {
     mockedFetchComments.mockResolvedValue({
       status: 'success',
       total: 2,
@@ -61,12 +61,19 @@ describe('PostComments', () => {
 
     expect(await screen.findByText('Alice')).toBeInTheDocument();
     expect(screen.getByText('Root comment')).toBeInTheDocument();
-    expect(screen.getByText('Bob')).toBeInTheDocument();
-    expect(screen.getByText('Reply comment')).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByLabelText('post.comments.replies')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'post.comments.reply' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'post.comments.viewReplies' })).toBeInTheDocument();
+    expect(screen.queryByText('Bob')).not.toBeInTheDocument();
+    expect(screen.queryByText('Reply comment')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'post.comments.viewReplies' }));
+
+    expect(await screen.findByText('Bob')).toBeInTheDocument();
+    expect(screen.getByText('Reply comment')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'post.comments.hideReplies' })).toBeInTheDocument();
   });
 
   it('shows empty and load error states', async () => {

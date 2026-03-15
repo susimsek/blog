@@ -201,6 +201,12 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
+	AdminEmailChangeRequestPayload struct {
+		ExpiresAt    func(childComplexity int) int
+		PendingEmail func(childComplexity int) int
+		Success      func(childComplexity int) int
+	}
+
 	AdminErrorMessage struct {
 		Code      func(childComplexity int) int
 		Locale    func(childComplexity int) int
@@ -235,6 +241,20 @@ type ComplexityRoot struct {
 		Total func(childComplexity int) int
 	}
 
+	AdminGoogleAuthStatus struct {
+		Enabled        func(childComplexity int) int
+		LoginAvailable func(childComplexity int) int
+	}
+
+	AdminGoogleConnectPayload struct {
+		URL func(childComplexity int) int
+	}
+
+	AdminGoogleDisconnectPayload struct {
+		Success func(childComplexity int) int
+		User    func(childComplexity int) int
+	}
+
 	AdminLogoutPayload struct {
 		Success func(childComplexity int) int
 	}
@@ -259,12 +279,15 @@ type ComplexityRoot struct {
 		DeleteContentTopic               func(childComplexity int, input model.AdminContentEntityKeyInput) int
 		DeleteErrorMessage               func(childComplexity int, input model.AdminErrorMessageKeyInput) int
 		DeleteNewsletterSubscriber       func(childComplexity int, input model.AdminDeleteNewsletterSubscriberInput) int
+		DisconnectGoogle                 func(childComplexity int) int
 		Login                            func(childComplexity int, input model.AdminLoginInput) int
 		Logout                           func(childComplexity int) int
 		RefreshAdminSession              func(childComplexity int) int
+		RequestEmailChange               func(childComplexity int, input model.AdminRequestEmailChangeInput) int
 		RevokeAllSessions                func(childComplexity int) int
 		RevokeSession                    func(childComplexity int, sessionID string) int
 		SendTestNewsletter               func(childComplexity int, input model.AdminSendTestNewsletterInput) int
+		StartGoogleConnect               func(childComplexity int, input model.AdminStartGoogleConnectInput) int
 		TriggerNewsletterDispatch        func(childComplexity int) int
 		UpdateCommentStatus              func(childComplexity int, input model.AdminUpdateCommentStatusInput) int
 		UpdateContentCategory            func(childComplexity int, input model.AdminContentCategoryInput) int
@@ -380,6 +403,7 @@ type ComplexityRoot struct {
 		Dashboard                  func(childComplexity int) int
 		ErrorMessageAuditLogs      func(childComplexity int, limit *int) int
 		ErrorMessages              func(childComplexity int, filter *model.AdminErrorMessageFilterInput) int
+		GoogleAuthStatus           func(childComplexity int) int
 		Me                         func(childComplexity int) int
 		NewsletterCampaignFailures func(childComplexity int, filter model.AdminNewsletterDeliveryFailureFilterInput) int
 		NewsletterCampaigns        func(childComplexity int, filter *model.AdminNewsletterCampaignFilterInput) int
@@ -403,12 +427,17 @@ type ComplexityRoot struct {
 	}
 
 	AdminUser struct {
-		AvatarURL func(childComplexity int) int
-		Email     func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Name      func(childComplexity int) int
-		Roles     func(childComplexity int) int
-		Username  func(childComplexity int) int
+		AvatarURL             func(childComplexity int) int
+		Email                 func(childComplexity int) int
+		GoogleEmail           func(childComplexity int) int
+		GoogleLinked          func(childComplexity int) int
+		GoogleLinkedAt        func(childComplexity int) int
+		ID                    func(childComplexity int) int
+		Name                  func(childComplexity int) int
+		PendingEmail          func(childComplexity int) int
+		PendingEmailExpiresAt func(childComplexity int) int
+		Roles                 func(childComplexity int) int
+		Username              func(childComplexity int) int
 	}
 }
 
@@ -416,9 +445,12 @@ type AdminMutationResolver interface {
 	Login(ctx context.Context, input model.AdminLoginInput) (*model.AdminAuthPayload, error)
 	RefreshAdminSession(ctx context.Context) (*model.AdminAuthPayload, error)
 	Logout(ctx context.Context) (*model.AdminLogoutPayload, error)
+	StartGoogleConnect(ctx context.Context, input model.AdminStartGoogleConnectInput) (*model.AdminGoogleConnectPayload, error)
+	DisconnectGoogle(ctx context.Context) (*model.AdminGoogleDisconnectPayload, error)
 	ChangeName(ctx context.Context, input model.AdminChangeNameInput) (*model.AdminAuthPayload, error)
 	ChangeAvatar(ctx context.Context, input model.AdminChangeAvatarInput) (*model.AdminAuthPayload, error)
 	ChangeUsername(ctx context.Context, input model.AdminChangeUsernameInput) (*model.AdminAuthPayload, error)
+	RequestEmailChange(ctx context.Context, input model.AdminRequestEmailChangeInput) (*model.AdminEmailChangeRequestPayload, error)
 	DeleteAccount(ctx context.Context, input model.AdminDeleteAccountInput) (*model.AdminAccountDeletePayload, error)
 	ChangePassword(ctx context.Context, input model.AdminChangePasswordInput) (*model.AdminPasswordChangePayload, error)
 	RevokeSession(ctx context.Context, sessionID string) (*model.AdminSessionRevokePayload, error)
@@ -444,6 +476,7 @@ type AdminMutationResolver interface {
 }
 type AdminQueryResolver interface {
 	Me(ctx context.Context) (*model.AdminMe, error)
+	GoogleAuthStatus(ctx context.Context) (*model.AdminGoogleAuthStatus, error)
 	Dashboard(ctx context.Context) (*model.AdminDashboard, error)
 	Comments(ctx context.Context, filter *model.AdminCommentFilterInput) (*model.AdminCommentListPayload, error)
 	ActiveSessions(ctx context.Context) ([]*model.AdminSession, error)
@@ -1074,6 +1107,25 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.AdminDeletePayload.Success(childComplexity), true
 
+	case "AdminEmailChangeRequestPayload.expiresAt":
+		if e.complexity.AdminEmailChangeRequestPayload.ExpiresAt == nil {
+			break
+		}
+
+		return e.complexity.AdminEmailChangeRequestPayload.ExpiresAt(childComplexity), true
+	case "AdminEmailChangeRequestPayload.pendingEmail":
+		if e.complexity.AdminEmailChangeRequestPayload.PendingEmail == nil {
+			break
+		}
+
+		return e.complexity.AdminEmailChangeRequestPayload.PendingEmail(childComplexity), true
+	case "AdminEmailChangeRequestPayload.success":
+		if e.complexity.AdminEmailChangeRequestPayload.Success == nil {
+			break
+		}
+
+		return e.complexity.AdminEmailChangeRequestPayload.Success(childComplexity), true
+
 	case "AdminErrorMessage.code":
 		if e.complexity.AdminErrorMessage.Code == nil {
 			break
@@ -1226,6 +1278,39 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminErrorMessageListPayload.Total(childComplexity), true
+
+	case "AdminGoogleAuthStatus.enabled":
+		if e.complexity.AdminGoogleAuthStatus.Enabled == nil {
+			break
+		}
+
+		return e.complexity.AdminGoogleAuthStatus.Enabled(childComplexity), true
+	case "AdminGoogleAuthStatus.loginAvailable":
+		if e.complexity.AdminGoogleAuthStatus.LoginAvailable == nil {
+			break
+		}
+
+		return e.complexity.AdminGoogleAuthStatus.LoginAvailable(childComplexity), true
+
+	case "AdminGoogleConnectPayload.url":
+		if e.complexity.AdminGoogleConnectPayload.URL == nil {
+			break
+		}
+
+		return e.complexity.AdminGoogleConnectPayload.URL(childComplexity), true
+
+	case "AdminGoogleDisconnectPayload.success":
+		if e.complexity.AdminGoogleDisconnectPayload.Success == nil {
+			break
+		}
+
+		return e.complexity.AdminGoogleDisconnectPayload.Success(childComplexity), true
+	case "AdminGoogleDisconnectPayload.user":
+		if e.complexity.AdminGoogleDisconnectPayload.User == nil {
+			break
+		}
+
+		return e.complexity.AdminGoogleDisconnectPayload.User(childComplexity), true
 
 	case "AdminLogoutPayload.success":
 		if e.complexity.AdminLogoutPayload.Success == nil {
@@ -1401,6 +1486,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.DeleteNewsletterSubscriber(childComplexity, args["input"].(model.AdminDeleteNewsletterSubscriberInput)), true
+	case "AdminMutation.disconnectGoogle":
+		if e.complexity.AdminMutation.DisconnectGoogle == nil {
+			break
+		}
+
+		return e.complexity.AdminMutation.DisconnectGoogle(childComplexity), true
 	case "AdminMutation.login":
 		if e.complexity.AdminMutation.Login == nil {
 			break
@@ -1424,6 +1515,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.RefreshAdminSession(childComplexity), true
+	case "AdminMutation.requestEmailChange":
+		if e.complexity.AdminMutation.RequestEmailChange == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_requestEmailChange_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.RequestEmailChange(childComplexity, args["input"].(model.AdminRequestEmailChangeInput)), true
 	case "AdminMutation.revokeAllSessions":
 		if e.complexity.AdminMutation.RevokeAllSessions == nil {
 			break
@@ -1452,6 +1554,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.SendTestNewsletter(childComplexity, args["input"].(model.AdminSendTestNewsletterInput)), true
+	case "AdminMutation.startGoogleConnect":
+		if e.complexity.AdminMutation.StartGoogleConnect == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_startGoogleConnect_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.StartGoogleConnect(childComplexity, args["input"].(model.AdminStartGoogleConnectInput)), true
 	case "AdminMutation.triggerNewsletterDispatch":
 		if e.complexity.AdminMutation.TriggerNewsletterDispatch == nil {
 			break
@@ -2035,6 +2148,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminQuery.ErrorMessages(childComplexity, args["filter"].(*model.AdminErrorMessageFilterInput)), true
+	case "AdminQuery.googleAuthStatus":
+		if e.complexity.AdminQuery.GoogleAuthStatus == nil {
+			break
+		}
+
+		return e.complexity.AdminQuery.GoogleAuthStatus(childComplexity), true
 	case "AdminQuery.me":
 		if e.complexity.AdminQuery.Me == nil {
 			break
@@ -2149,6 +2268,24 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminUser.Email(childComplexity), true
+	case "AdminUser.googleEmail":
+		if e.complexity.AdminUser.GoogleEmail == nil {
+			break
+		}
+
+		return e.complexity.AdminUser.GoogleEmail(childComplexity), true
+	case "AdminUser.googleLinked":
+		if e.complexity.AdminUser.GoogleLinked == nil {
+			break
+		}
+
+		return e.complexity.AdminUser.GoogleLinked(childComplexity), true
+	case "AdminUser.googleLinkedAt":
+		if e.complexity.AdminUser.GoogleLinkedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminUser.GoogleLinkedAt(childComplexity), true
 	case "AdminUser.id":
 		if e.complexity.AdminUser.ID == nil {
 			break
@@ -2161,6 +2298,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminUser.Name(childComplexity), true
+	case "AdminUser.pendingEmail":
+		if e.complexity.AdminUser.PendingEmail == nil {
+			break
+		}
+
+		return e.complexity.AdminUser.PendingEmail(childComplexity), true
+	case "AdminUser.pendingEmailExpiresAt":
+		if e.complexity.AdminUser.PendingEmailExpiresAt == nil {
+			break
+		}
+
+		return e.complexity.AdminUser.PendingEmailExpiresAt(childComplexity), true
 	case "AdminUser.roles":
 		if e.complexity.AdminUser.Roles == nil {
 			break
@@ -2202,7 +2351,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAdminNewsletterCampaignFilterInput,
 		ec.unmarshalInputAdminNewsletterDeliveryFailureFilterInput,
 		ec.unmarshalInputAdminNewsletterSubscriberFilterInput,
+		ec.unmarshalInputAdminRequestEmailChangeInput,
 		ec.unmarshalInputAdminSendTestNewsletterInput,
+		ec.unmarshalInputAdminStartGoogleConnectInput,
 		ec.unmarshalInputAdminUpdateCommentStatusInput,
 		ec.unmarshalInputAdminUpdateContentPostContentInput,
 		ec.unmarshalInputAdminUpdateContentPostMetadataInput,
@@ -2489,6 +2640,17 @@ func (ec *executionContext) field_AdminMutation_login_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_AdminMutation_requestEmailChange_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminRequestEmailChangeInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminRequestEmailChangeInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_AdminMutation_revokeSession_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -2504,6 +2666,17 @@ func (ec *executionContext) field_AdminMutation_sendTestNewsletter_args(ctx cont
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminSendTestNewsletterInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminSendTestNewsletterInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminMutation_startGoogleConnect_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminStartGoogleConnectInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminStartGoogleConnectInput)
 	if err != nil {
 		return nil, err
 	}
@@ -2875,6 +3048,16 @@ func (ec *executionContext) fieldContext_AdminAuthPayload_user(_ context.Context
 				return ec.fieldContext_AdminUser_avatarUrl(ctx, field)
 			case "email":
 				return ec.fieldContext_AdminUser_email(ctx, field)
+			case "pendingEmail":
+				return ec.fieldContext_AdminUser_pendingEmail(ctx, field)
+			case "pendingEmailExpiresAt":
+				return ec.fieldContext_AdminUser_pendingEmailExpiresAt(ctx, field)
+			case "googleLinked":
+				return ec.fieldContext_AdminUser_googleLinked(ctx, field)
+			case "googleEmail":
+				return ec.fieldContext_AdminUser_googleEmail(ctx, field)
+			case "googleLinkedAt":
+				return ec.fieldContext_AdminUser_googleLinkedAt(ctx, field)
 			case "roles":
 				return ec.fieldContext_AdminUser_roles(ctx, field)
 			}
@@ -5887,6 +6070,93 @@ func (ec *executionContext) fieldContext_AdminDeletePayload_success(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminEmailChangeRequestPayload_success(ctx context.Context, field graphql.CollectedField, obj *model.AdminEmailChangeRequestPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminEmailChangeRequestPayload_success,
+		func(ctx context.Context) (any, error) {
+			return obj.Success, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminEmailChangeRequestPayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminEmailChangeRequestPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminEmailChangeRequestPayload_pendingEmail(ctx context.Context, field graphql.CollectedField, obj *model.AdminEmailChangeRequestPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminEmailChangeRequestPayload_pendingEmail,
+		func(ctx context.Context) (any, error) {
+			return obj.PendingEmail, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminEmailChangeRequestPayload_pendingEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminEmailChangeRequestPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminEmailChangeRequestPayload_expiresAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminEmailChangeRequestPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminEmailChangeRequestPayload_expiresAt,
+		func(ctx context.Context) (any, error) {
+			return obj.ExpiresAt, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminEmailChangeRequestPayload_expiresAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminEmailChangeRequestPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminErrorMessage_scope(ctx context.Context, field graphql.CollectedField, obj *model.AdminErrorMessage) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -6624,6 +6894,175 @@ func (ec *executionContext) fieldContext_AdminErrorMessageListPayload_size(_ con
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminGoogleAuthStatus_enabled(ctx context.Context, field graphql.CollectedField, obj *model.AdminGoogleAuthStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminGoogleAuthStatus_enabled,
+		func(ctx context.Context) (any, error) {
+			return obj.Enabled, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminGoogleAuthStatus_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminGoogleAuthStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminGoogleAuthStatus_loginAvailable(ctx context.Context, field graphql.CollectedField, obj *model.AdminGoogleAuthStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminGoogleAuthStatus_loginAvailable,
+		func(ctx context.Context) (any, error) {
+			return obj.LoginAvailable, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminGoogleAuthStatus_loginAvailable(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminGoogleAuthStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminGoogleConnectPayload_url(ctx context.Context, field graphql.CollectedField, obj *model.AdminGoogleConnectPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminGoogleConnectPayload_url,
+		func(ctx context.Context) (any, error) {
+			return obj.URL, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminGoogleConnectPayload_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminGoogleConnectPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminGoogleDisconnectPayload_success(ctx context.Context, field graphql.CollectedField, obj *model.AdminGoogleDisconnectPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminGoogleDisconnectPayload_success,
+		func(ctx context.Context) (any, error) {
+			return obj.Success, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminGoogleDisconnectPayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminGoogleDisconnectPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminGoogleDisconnectPayload_user(ctx context.Context, field graphql.CollectedField, obj *model.AdminGoogleDisconnectPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminGoogleDisconnectPayload_user,
+		func(ctx context.Context) (any, error) {
+			return obj.User, nil
+		},
+		nil,
+		ec.marshalOAdminUser2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUser,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminGoogleDisconnectPayload_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminGoogleDisconnectPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AdminUser_id(ctx, field)
+			case "name":
+				return ec.fieldContext_AdminUser_name(ctx, field)
+			case "username":
+				return ec.fieldContext_AdminUser_username(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_AdminUser_avatarUrl(ctx, field)
+			case "email":
+				return ec.fieldContext_AdminUser_email(ctx, field)
+			case "pendingEmail":
+				return ec.fieldContext_AdminUser_pendingEmail(ctx, field)
+			case "pendingEmailExpiresAt":
+				return ec.fieldContext_AdminUser_pendingEmailExpiresAt(ctx, field)
+			case "googleLinked":
+				return ec.fieldContext_AdminUser_googleLinked(ctx, field)
+			case "googleEmail":
+				return ec.fieldContext_AdminUser_googleEmail(ctx, field)
+			case "googleLinkedAt":
+				return ec.fieldContext_AdminUser_googleLinkedAt(ctx, field)
+			case "roles":
+				return ec.fieldContext_AdminUser_roles(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminUser", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminLogoutPayload_success(ctx context.Context, field graphql.CollectedField, obj *model.AdminLogoutPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -6716,6 +7155,16 @@ func (ec *executionContext) fieldContext_AdminMe_user(_ context.Context, field g
 				return ec.fieldContext_AdminUser_avatarUrl(ctx, field)
 			case "email":
 				return ec.fieldContext_AdminUser_email(ctx, field)
+			case "pendingEmail":
+				return ec.fieldContext_AdminUser_pendingEmail(ctx, field)
+			case "pendingEmailExpiresAt":
+				return ec.fieldContext_AdminUser_pendingEmailExpiresAt(ctx, field)
+			case "googleLinked":
+				return ec.fieldContext_AdminUser_googleLinked(ctx, field)
+			case "googleEmail":
+				return ec.fieldContext_AdminUser_googleEmail(ctx, field)
+			case "googleLinkedAt":
+				return ec.fieldContext_AdminUser_googleLinkedAt(ctx, field)
 			case "roles":
 				return ec.fieldContext_AdminUser_roles(ctx, field)
 			}
@@ -6835,6 +7284,86 @@ func (ec *executionContext) fieldContext_AdminMutation_logout(_ context.Context,
 				return ec.fieldContext_AdminLogoutPayload_success(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminLogoutPayload", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_startGoogleConnect(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_startGoogleConnect,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().StartGoogleConnect(ctx, fc.Args["input"].(model.AdminStartGoogleConnectInput))
+		},
+		nil,
+		ec.marshalNAdminGoogleConnectPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGoogleConnectPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_startGoogleConnect(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "url":
+				return ec.fieldContext_AdminGoogleConnectPayload_url(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminGoogleConnectPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_startGoogleConnect_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_disconnectGoogle(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_disconnectGoogle,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.AdminMutation().DisconnectGoogle(ctx)
+		},
+		nil,
+		ec.marshalNAdminGoogleDisconnectPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGoogleDisconnectPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_disconnectGoogle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_AdminGoogleDisconnectPayload_success(ctx, field)
+			case "user":
+				return ec.fieldContext_AdminGoogleDisconnectPayload_user(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminGoogleDisconnectPayload", field.Name)
 		},
 	}
 	return fc, nil
@@ -6975,6 +7504,55 @@ func (ec *executionContext) fieldContext_AdminMutation_changeUsername(ctx contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_AdminMutation_changeUsername_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_requestEmailChange(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_requestEmailChange,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().RequestEmailChange(ctx, fc.Args["input"].(model.AdminRequestEmailChangeInput))
+		},
+		nil,
+		ec.marshalNAdminEmailChangeRequestPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminEmailChangeRequestPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_requestEmailChange(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_AdminEmailChangeRequestPayload_success(ctx, field)
+			case "pendingEmail":
+				return ec.fieldContext_AdminEmailChangeRequestPayload_pendingEmail(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_AdminEmailChangeRequestPayload_expiresAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminEmailChangeRequestPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_requestEmailChange_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -10071,6 +10649,41 @@ func (ec *executionContext) fieldContext_AdminQuery_me(_ context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminQuery_googleAuthStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminQuery_googleAuthStatus,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.AdminQuery().GoogleAuthStatus(ctx)
+		},
+		nil,
+		ec.marshalNAdminGoogleAuthStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGoogleAuthStatus,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminQuery_googleAuthStatus(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "enabled":
+				return ec.fieldContext_AdminGoogleAuthStatus_enabled(ctx, field)
+			case "loginAvailable":
+				return ec.fieldContext_AdminGoogleAuthStatus_loginAvailable(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminGoogleAuthStatus", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminQuery_dashboard(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -11369,6 +11982,151 @@ func (ec *executionContext) fieldContext_AdminUser_email(_ context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminUser_pendingEmail(ctx context.Context, field graphql.CollectedField, obj *model.AdminUser) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminUser_pendingEmail,
+		func(ctx context.Context) (any, error) {
+			return obj.PendingEmail, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminUser_pendingEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminUser_pendingEmailExpiresAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminUser) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminUser_pendingEmailExpiresAt,
+		func(ctx context.Context) (any, error) {
+			return obj.PendingEmailExpiresAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminUser_pendingEmailExpiresAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminUser_googleLinked(ctx context.Context, field graphql.CollectedField, obj *model.AdminUser) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminUser_googleLinked,
+		func(ctx context.Context) (any, error) {
+			return obj.GoogleLinked, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminUser_googleLinked(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminUser_googleEmail(ctx context.Context, field graphql.CollectedField, obj *model.AdminUser) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminUser_googleEmail,
+		func(ctx context.Context) (any, error) {
+			return obj.GoogleEmail, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminUser_googleEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminUser_googleLinkedAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminUser) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminUser_googleLinkedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.GoogleLinkedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminUser_googleLinkedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
 		},
 	}
 	return fc, nil
@@ -13725,6 +14483,47 @@ func (ec *executionContext) unmarshalInputAdminNewsletterSubscriberFilterInput(c
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAdminRequestEmailChangeInput(ctx context.Context, obj any) (model.AdminRequestEmailChangeInput, error) {
+	var it model.AdminRequestEmailChangeInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"newEmail", "currentPassword", "locale"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "newEmail":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("newEmail"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NewEmail = data
+		case "currentPassword":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("currentPassword"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CurrentPassword = data
+		case "locale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locale = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAdminSendTestNewsletterInput(ctx context.Context, obj any) (model.AdminSendTestNewsletterInput, error) {
 	var it model.AdminSendTestNewsletterInput
 	asMap := map[string]any{}
@@ -13760,6 +14559,33 @@ func (ec *executionContext) unmarshalInputAdminSendTestNewsletterInput(ctx conte
 				return it, err
 			}
 			it.ItemKey = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputAdminStartGoogleConnectInput(ctx context.Context, obj any) (model.AdminStartGoogleConnectInput, error) {
+	var it model.AdminStartGoogleConnectInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"locale"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "locale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locale = data
 		}
 	}
 
@@ -15057,6 +15883,55 @@ func (ec *executionContext) _AdminDeletePayload(ctx context.Context, sel ast.Sel
 	return out
 }
 
+var adminEmailChangeRequestPayloadImplementors = []string{"AdminEmailChangeRequestPayload"}
+
+func (ec *executionContext) _AdminEmailChangeRequestPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminEmailChangeRequestPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminEmailChangeRequestPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminEmailChangeRequestPayload")
+		case "success":
+			out.Values[i] = ec._AdminEmailChangeRequestPayload_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pendingEmail":
+			out.Values[i] = ec._AdminEmailChangeRequestPayload_pendingEmail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "expiresAt":
+			out.Values[i] = ec._AdminEmailChangeRequestPayload_expiresAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var adminErrorMessageImplementors = []string{"AdminErrorMessage"}
 
 func (ec *executionContext) _AdminErrorMessage(ctx context.Context, sel ast.SelectionSet, obj *model.AdminErrorMessage) graphql.Marshaler {
@@ -15266,6 +16141,130 @@ func (ec *executionContext) _AdminErrorMessageListPayload(ctx context.Context, s
 	return out
 }
 
+var adminGoogleAuthStatusImplementors = []string{"AdminGoogleAuthStatus"}
+
+func (ec *executionContext) _AdminGoogleAuthStatus(ctx context.Context, sel ast.SelectionSet, obj *model.AdminGoogleAuthStatus) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminGoogleAuthStatusImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminGoogleAuthStatus")
+		case "enabled":
+			out.Values[i] = ec._AdminGoogleAuthStatus_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "loginAvailable":
+			out.Values[i] = ec._AdminGoogleAuthStatus_loginAvailable(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminGoogleConnectPayloadImplementors = []string{"AdminGoogleConnectPayload"}
+
+func (ec *executionContext) _AdminGoogleConnectPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminGoogleConnectPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminGoogleConnectPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminGoogleConnectPayload")
+		case "url":
+			out.Values[i] = ec._AdminGoogleConnectPayload_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminGoogleDisconnectPayloadImplementors = []string{"AdminGoogleDisconnectPayload"}
+
+func (ec *executionContext) _AdminGoogleDisconnectPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminGoogleDisconnectPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminGoogleDisconnectPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminGoogleDisconnectPayload")
+		case "success":
+			out.Values[i] = ec._AdminGoogleDisconnectPayload_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "user":
+			out.Values[i] = ec._AdminGoogleDisconnectPayload_user(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var adminLogoutPayloadImplementors = []string{"AdminLogoutPayload"}
 
 func (ec *executionContext) _AdminLogoutPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminLogoutPayload) graphql.Marshaler {
@@ -15386,6 +16385,20 @@ func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "startGoogleConnect":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_startGoogleConnect(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "disconnectGoogle":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_disconnectGoogle(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "changeName":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._AdminMutation_changeName(ctx, field)
@@ -15403,6 +16416,13 @@ func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.Selectio
 		case "changeUsername":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._AdminMutation_changeUsername(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "requestEmailChange":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_requestEmailChange(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -16214,6 +17234,28 @@ func (ec *executionContext) _AdminQuery(ctx context.Context, sel ast.SelectionSe
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "googleAuthStatus":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AdminQuery_googleAuthStatus(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "dashboard":
 			field := field
 
@@ -16695,6 +17737,19 @@ func (ec *executionContext) _AdminUser(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "pendingEmail":
+			out.Values[i] = ec._AdminUser_pendingEmail(ctx, field, obj)
+		case "pendingEmailExpiresAt":
+			out.Values[i] = ec._AdminUser_pendingEmailExpiresAt(ctx, field, obj)
+		case "googleLinked":
+			out.Values[i] = ec._AdminUser_googleLinked(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "googleEmail":
+			out.Values[i] = ec._AdminUser_googleEmail(ctx, field, obj)
+		case "googleLinkedAt":
+			out.Values[i] = ec._AdminUser_googleLinkedAt(ctx, field, obj)
 		case "roles":
 			out.Values[i] = ec._AdminUser_roles(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -17703,6 +18758,20 @@ func (ec *executionContext) marshalNAdminDeletePayload2ᚖsuaybsimsekᚗcomᚋbl
 	return ec._AdminDeletePayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAdminEmailChangeRequestPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminEmailChangeRequestPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminEmailChangeRequestPayload) graphql.Marshaler {
+	return ec._AdminEmailChangeRequestPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminEmailChangeRequestPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminEmailChangeRequestPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminEmailChangeRequestPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminEmailChangeRequestPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNAdminErrorMessage2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessage(ctx context.Context, sel ast.SelectionSet, v model.AdminErrorMessage) graphql.Marshaler {
 	return ec._AdminErrorMessage(ctx, sel, &v)
 }
@@ -17837,6 +18906,48 @@ func (ec *executionContext) marshalNAdminErrorMessageListPayload2ᚖsuaybsimsek�
 		return graphql.Null
 	}
 	return ec._AdminErrorMessageListPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminGoogleAuthStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGoogleAuthStatus(ctx context.Context, sel ast.SelectionSet, v model.AdminGoogleAuthStatus) graphql.Marshaler {
+	return ec._AdminGoogleAuthStatus(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminGoogleAuthStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGoogleAuthStatus(ctx context.Context, sel ast.SelectionSet, v *model.AdminGoogleAuthStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminGoogleAuthStatus(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminGoogleConnectPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGoogleConnectPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminGoogleConnectPayload) graphql.Marshaler {
+	return ec._AdminGoogleConnectPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminGoogleConnectPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGoogleConnectPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminGoogleConnectPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminGoogleConnectPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminGoogleDisconnectPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGoogleDisconnectPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminGoogleDisconnectPayload) graphql.Marshaler {
+	return ec._AdminGoogleDisconnectPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminGoogleDisconnectPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGoogleDisconnectPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminGoogleDisconnectPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminGoogleDisconnectPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNAdminLoginInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminLoginInput(ctx context.Context, v any) (model.AdminLoginInput, error) {
@@ -18191,6 +19302,11 @@ func (ec *executionContext) marshalNAdminPasswordChangePayload2ᚖsuaybsimsekᚗ
 	return ec._AdminPasswordChangePayload(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNAdminRequestEmailChangeInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminRequestEmailChangeInput(ctx context.Context, v any) (model.AdminRequestEmailChangeInput, error) {
+	res, err := ec.unmarshalInputAdminRequestEmailChangeInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNAdminSendTestNewsletterInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminSendTestNewsletterInput(ctx context.Context, v any) (model.AdminSendTestNewsletterInput, error) {
 	res, err := ec.unmarshalInputAdminSendTestNewsletterInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -18262,6 +19378,11 @@ func (ec *executionContext) marshalNAdminSessionRevokePayload2ᚖsuaybsimsekᚗc
 		return graphql.Null
 	}
 	return ec._AdminSessionRevokePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAdminStartGoogleConnectInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminStartGoogleConnectInput(ctx context.Context, v any) (model.AdminStartGoogleConnectInput, error) {
+	res, err := ec.unmarshalInputAdminStartGoogleConnectInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNAdminUpdateCommentStatusInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUpdateCommentStatusInput(ctx context.Context, v any) (model.AdminUpdateCommentStatusInput, error) {

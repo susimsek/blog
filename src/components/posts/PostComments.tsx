@@ -362,6 +362,7 @@ export default function PostComments({ locale, postId }: Readonly<PostCommentsPr
   const [replySuccessMessage, setReplySuccessMessage] = React.useState<{ parentId: string; message: string } | null>(
     null,
   );
+  const [expandedReplyThreadIDs, setExpandedReplyThreadIDs] = React.useState<string[]>([]);
 
   const loadComments = React.useCallback(async () => {
     setIsLoading(true);
@@ -425,6 +426,9 @@ export default function PostComments({ locale, postId }: Readonly<PostCommentsPr
           parentId: options.parentId,
           message: successText,
         });
+        setExpandedReplyThreadIDs(previous =>
+          previous.includes(options.parentId!) ? previous : [...previous, options.parentId!],
+        );
         setSuccessMessage('');
       } else {
         setSuccessMessage(successText);
@@ -504,35 +508,69 @@ export default function PostComments({ locale, postId }: Readonly<PostCommentsPr
                     className="post-comments-thread"
                     style={{ '--comment-enter-delay': `${index * 70}ms` } as React.CSSProperties}
                   >
-                    <CommentCard
-                      comment={thread.root}
-                      locale={locale}
-                      metaBadge={
-                        thread.replies.length > 0 ? (
-                          <span
-                            className="post-comment-reply-count-badge"
-                            aria-label={t('post.comments.replies', { count: thread.replies.length })}
-                            title={t('post.comments.replies', { count: thread.replies.length })}
-                          >
-                            <FontAwesomeIcon icon="comments" />
-                            <span>{thread.replies.length}</span>
-                          </span>
-                        ) : undefined
-                      }
-                      replyButton={
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => {
-                            setReplySuccessMessage(null);
-                            setActiveReplyID(current => (current === thread.root.id ? null : thread.root.id));
-                          }}
-                        >
-                          {activeReplyID === thread.root.id ? t('post.comments.closeReply') : t('post.comments.reply')}
-                        </Button>
-                      }
-                    />
+                    {(() => {
+                      const hasReplies = thread.replies.length > 0;
+                      const areRepliesExpanded = expandedReplyThreadIDs.includes(thread.root.id);
+
+                      return (
+                        <CommentCard
+                          comment={thread.root}
+                          locale={locale}
+                          metaBadge={
+                            hasReplies ? (
+                              <span
+                                className="post-comment-reply-count-badge"
+                                aria-label={t('post.comments.replies', { count: thread.replies.length })}
+                                title={t('post.comments.replies', { count: thread.replies.length })}
+                              >
+                                <FontAwesomeIcon icon="comments" />
+                                <span>{thread.replies.length}</span>
+                              </span>
+                            ) : undefined
+                          }
+                          replyButton={
+                            <>
+                              <Button
+                                type="button"
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => {
+                                  setReplySuccessMessage(null);
+                                  setActiveReplyID(current => (current === thread.root.id ? null : thread.root.id));
+                                }}
+                              >
+                                {activeReplyID === thread.root.id
+                                  ? t('post.comments.closeReply')
+                                  : t('post.comments.reply')}
+                              </Button>
+                              {hasReplies ? (
+                                <Button
+                                  type="button"
+                                  variant="link"
+                                  size="sm"
+                                  className="post-comment-thread-toggle"
+                                  onClick={() => {
+                                    setExpandedReplyThreadIDs(previous =>
+                                      previous.includes(thread.root.id)
+                                        ? previous.filter(id => id !== thread.root.id)
+                                        : [...previous, thread.root.id],
+                                    );
+                                  }}
+                                >
+                                  <FontAwesomeIcon
+                                    icon={areRepliesExpanded ? 'chevron-up' : 'chevron-down'}
+                                    className="me-2"
+                                  />
+                                  {areRepliesExpanded
+                                    ? t('post.comments.hideReplies', { count: thread.replies.length })
+                                    : t('post.comments.viewReplies', { count: thread.replies.length })}
+                                </Button>
+                              ) : null}
+                            </>
+                          }
+                        />
+                      );
+                    })()}
 
                     {activeReplyID === thread.root.id ? (
                       <Card className="post-card shadow-none border-0 post-comment-reply-card">
@@ -561,17 +599,21 @@ export default function PostComments({ locale, postId }: Readonly<PostCommentsPr
                       </Alert>
                     ) : null}
 
-                    {thread.replies.map((reply, replyIndex) => (
-                      <div
-                        key={reply.id}
-                        className="post-comment-reply-item"
-                        style={
-                          { '--comment-enter-delay': `${index * 70 + (replyIndex + 1) * 55}ms` } as React.CSSProperties
-                        }
-                      >
-                        <CommentCard comment={reply} locale={locale} />
-                      </div>
-                    ))}
+                    {expandedReplyThreadIDs.includes(thread.root.id)
+                      ? thread.replies.map((reply, replyIndex) => (
+                          <div
+                            key={reply.id}
+                            className="post-comment-reply-item"
+                            style={
+                              {
+                                '--comment-enter-delay': `${index * 70 + (replyIndex + 1) * 55}ms`,
+                              } as React.CSSProperties
+                            }
+                          >
+                            <CommentCard comment={reply} locale={locale} />
+                          </div>
+                        ))
+                      : null}
                   </div>
                 ))}
               </div>

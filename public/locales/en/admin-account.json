@@ -20,6 +20,7 @@
       "profile": "Profile",
       "account": "Account",
       "appearance": "Appearance",
+      "email": "Email",
       "sessions": "Sessions",
       "newsletter": "Newsletter",
       "comments": "Comments",
@@ -101,6 +102,22 @@
         "submit": "Update username",
         "submitting": "Updating username..."
       },
+      "email": {
+        "title": "Change email",
+        "copy": "Verify a new email address before it becomes active for your admin account.",
+        "currentLabel": "Current email",
+        "label": "New email",
+        "placeholder": "Enter a new email address",
+        "currentPassword": "Current password",
+        "currentPasswordPlaceholder": "Enter your current password",
+        "submit": "Send verification email",
+        "submitting": "Sending verification email...",
+        "pending": {
+          "title": "Pending email change",
+          "copy": "Confirmation is waiting for {{email}}.",
+          "expiresAt": "Expires: {{value}}"
+        }
+      },
       "delete": {
         "title": "Delete account",
         "copy": "Permanently disable this admin account. This action cannot be undone.",
@@ -112,10 +129,12 @@
         "submitting": "Deleting account..."
       },
       "success": {
+        "emailChangeRequested": "Verification email sent to {{email}}.",
         "usernameUpdated": "Username updated.",
         "deleted": "Account deleted. You are being signed out."
       },
       "errors": {
+        "emailUpdate": "Email change could not be started right now.",
         "usernameUpdate": "Username could not be updated right now.",
         "deleteAccount": "Account could not be deleted right now."
       }
@@ -622,12 +641,52 @@
       "confirmPasswordRequired": "Confirm your new password.",
       "confirmPasswordMismatch": "Password confirmation does not match.",
       "usernameRequired": "Enter a username.",
+      "emailRequired": "Enter a new email address.",
+      "emailInvalid": "Enter a valid email address.",
+      "emailDifferent": "Use an email different from the current one.",
       "nameRequired": "Enter a name.",
       "nameLength": "Name must be between {{min}} and {{max}} characters.",
       "usernameLength": "Username must be between {{min}} and {{max}} characters.",
       "usernamePattern": "Use letters, numbers, dot, underscore, or dash only.",
       "usernameDifferent": "Choose a username different from the current one.",
       "deleteConfirmation": "Type {{value}} to confirm account deletion."
+    },
+    "connectedAccounts": {
+      "title": "Sign-in methods",
+      "copy": "Manage how you sign in to the admin panel from one place.",
+      "actions": {
+        "manage": "Manage",
+        "hide": "Hide"
+      },
+      "password": {
+        "copy": "Use your password to sign in to the admin panel.",
+        "action": "Change password"
+      },
+      "google": {
+        "title": "Google",
+        "connect": "Connect Google",
+        "connecting": "Connecting...",
+        "connectConfirmTitle": "Connect Google account",
+        "connectConfirmCopy": "Link a Google account to this admin user.",
+        "disconnect": "Disconnect Google",
+        "disconnecting": "Disconnecting...",
+        "disconnectConfirmTitle": "Disconnect Google account",
+        "disconnectConfirmCopy": "Disconnect {{email}} from this admin account.",
+        "connectedBadge": "Connected",
+        "unavailableBadge": "Unavailable",
+        "disconnectedCopy": "Link a Google account first. After that, Continue with Google appears on the login screen.",
+        "connectedCopy": "Connected as {{email}}.",
+        "linkedAt": "Linked: {{value}}",
+        "loginEnabled": "Google sign-in is now available on the admin login screen.",
+        "messages": {
+          "connected": "Google account connected.",
+          "disconnected": "Google account disconnected.",
+          "cancelled": "Google connection was cancelled.",
+          "notLinked": "This Google account is not linked to an admin user.",
+          "conflict": "This Google account is already linked to another admin user.",
+          "failed": "Google connection could not be completed right now."
+        }
+      }
     }
   }
 }

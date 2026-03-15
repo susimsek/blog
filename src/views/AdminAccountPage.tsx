@@ -2,16 +2,18 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
+import Badge from 'react-bootstrap/Badge';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import ListGroup from 'react-bootstrap/ListGroup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import FlagIcon from '@/components/common/FlagIcon';
@@ -29,15 +31,19 @@ import {
   fetchAdminActiveSessions,
   fetchAdminComments,
   fetchAdminErrorMessages,
+  fetchAdminGoogleAuthStatus,
   fetchAdminMe,
   fetchAdminNewsletterCampaignFailures,
   fetchAdminNewsletterCampaigns,
   fetchAdminNewsletterSubscribers,
   isAdminSessionError,
+  startAdminGoogleConnect,
+  requestAdminEmailChange,
   resolveAdminError,
   revokeAdminSession,
   revokeAllAdminSessions,
   sendAdminNewsletterTestEmail,
+  disconnectAdminGoogle,
   triggerAdminNewsletterDispatch,
   updateAdminCommentStatus,
   updateAdminNewsletterSubscriberStatus,
@@ -52,6 +58,7 @@ import {
 import { withAdminAvatarSize } from '@/lib/adminAvatar';
 import { ADMIN_ROUTES, buildAdminContentPostDetailRoute } from '@/lib/adminRoutes';
 import { defaultLocale } from '@/i18n/settings';
+import { withBasePath } from '@/lib/basePath';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
 import Link from '@/components/common/Link';
 import { useAppDispatch, useAppSelector } from '@/config/store';
@@ -62,6 +69,7 @@ type AdminAccountPageProps = {
   section:
     | 'profile'
     | 'account'
+    | 'email'
     | 'appearance'
     | 'sessions'
     | 'newsletter'
@@ -78,6 +86,11 @@ type AdminIdentity = {
   username: string | null;
   avatarUrl: string | null;
   email: string;
+  pendingEmail: string | null;
+  pendingEmailExpiresAt: string | null;
+  googleLinked: boolean;
+  googleEmail: string | null;
+  googleLinkedAt: string | null;
   roles: string[];
 } | null;
 
@@ -101,6 +114,7 @@ const MIN_USERNAME_LENGTH = 3;
 const MAX_USERNAME_LENGTH = 32;
 const DELETE_CONFIRMATION_VALUE = 'DELETE';
 const USERNAME_PATTERN = /^[A-Za-z0-9._-]+$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ERROR_MESSAGE_CODE_PATTERN = /^[A-Z0-9_]{2,120}$/;
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 const MAX_AVATAR_FILE_BYTES = 2 * 1024 * 1024;
@@ -316,11 +330,14 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const { t } = useTranslation(['admin-account', 'admin-common']);
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
   const locale = routeLocale ?? defaultLocale;
   const isProfileSection = section === 'profile';
   const isAccountSection = section === 'account';
+  const isEmailSection = section === 'email';
   const isAppearanceSection = section === 'appearance';
   const isSessionsSection = section === 'sessions';
   const isNewsletterOverviewSection = section === 'newsletter';
@@ -357,6 +374,20 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const [sessionSuccessMessage, setSessionSuccessMessage] = React.useState('');
   const [revokingSessionID, setRevokingSessionID] = React.useState('');
   const [isRevokingAllSessions, setIsRevokingAllSessions] = React.useState(false);
+  const [googleAuthStatus, setGoogleAuthStatus] = React.useState({
+    enabled: false,
+    loginAvailable: false,
+  });
+  const [isGoogleAuthStatusLoading, setIsGoogleAuthStatusLoading] = React.useState(isSecuritySection);
+  const [googleActionErrorMessage, setGoogleActionErrorMessage] = React.useState('');
+  const [isGoogleConnectSubmitting, setIsGoogleConnectSubmitting] = React.useState(false);
+  const [isGoogleDisconnectSubmitting, setIsGoogleDisconnectSubmitting] = React.useState(false);
+  const [isSecurityPasswordExpanded, setIsSecurityPasswordExpanded] = React.useState(false);
+  const [isGoogleDisconnectModalOpen, setIsGoogleDisconnectModalOpen] = React.useState(false);
+  const [googleConnectMessage, setGoogleConnectMessage] = React.useState('');
+  const [googleConnectMessageVariant, setGoogleConnectMessageVariant] = React.useState<'success' | 'danger' | 'info'>(
+    'info',
+  );
   const [newsletterSubscribers, setNewsletterSubscribers] = React.useState<AdminNewsletterSubscriberItem[]>([]);
   const [isNewsletterLoading, setIsNewsletterLoading] = React.useState(isNewsletterSubscribersSection);
   const [newsletterErrorMessage, setNewsletterErrorMessage] = React.useState('');
@@ -446,6 +477,17 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const [usernameSubmitted, setUsernameSubmitted] = React.useState(false);
   const [usernameErrorMessage, setUsernameErrorMessage] = React.useState('');
   const [usernameSuccessMessage, setUsernameSuccessMessage] = React.useState('');
+  const [emailInput, setEmailInput] = React.useState('');
+  const [emailCurrentPassword, setEmailCurrentPassword] = React.useState('');
+  const [emailTouchedFields, setEmailTouchedFields] = React.useState({
+    newEmail: false,
+    currentPassword: false,
+  });
+  const [isEmailSubmitting, setIsEmailSubmitting] = React.useState(false);
+  const [emailSubmitted, setEmailSubmitted] = React.useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
+  const [emailErrorField, setEmailErrorField] = React.useState<'newEmail' | 'currentPassword' | 'generic' | null>(null);
+  const [emailSuccessMessage, setEmailSuccessMessage] = React.useState('');
   const [nameInput, setNameInput] = React.useState('');
   const [isNameSubmitting, setIsNameSubmitting] = React.useState(false);
   const [nameSubmitted, setNameSubmitted] = React.useState(false);
@@ -577,6 +619,80 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   }, [isSessionsSection, locale, router, t]);
 
   React.useEffect(() => {
+    if (!isSecuritySection) {
+      return;
+    }
+
+    let isMounted = true;
+    setIsGoogleAuthStatusLoading(true);
+
+    void fetchAdminGoogleAuthStatus()
+      .then(payload => {
+        if (!isMounted) {
+          return;
+        }
+        setGoogleAuthStatus(payload);
+      })
+      .catch(() => {
+        if (!isMounted) {
+          return;
+        }
+        setGoogleAuthStatus({
+          enabled: false,
+          loginAvailable: false,
+        });
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsGoogleAuthStatusLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isSecuritySection]);
+
+  React.useEffect(() => {
+    if (!isSecuritySection || !searchParams) {
+      return;
+    }
+
+    const googleStatus = (searchParams.get('google') ?? '').trim().toLowerCase();
+    if (googleStatus === '') {
+      return;
+    }
+
+    let nextVariant: 'success' | 'danger' | 'info' = 'info';
+    let nextMessage = '';
+    switch (googleStatus) {
+      case 'connected':
+        nextVariant = 'success';
+        nextMessage = t('adminAccount.connectedAccounts.google.messages.connected', { ns: 'admin-account' });
+        break;
+      case 'cancelled':
+        nextMessage = t('adminAccount.connectedAccounts.google.messages.cancelled', { ns: 'admin-account' });
+        break;
+      case 'not-linked':
+        nextVariant = 'danger';
+        nextMessage = t('adminAccount.connectedAccounts.google.messages.notLinked', { ns: 'admin-account' });
+        break;
+      case 'conflict':
+        nextVariant = 'danger';
+        nextMessage = t('adminAccount.connectedAccounts.google.messages.conflict', { ns: 'admin-account' });
+        break;
+      default:
+        nextVariant = 'danger';
+        nextMessage = t('adminAccount.connectedAccounts.google.messages.failed', { ns: 'admin-account' });
+        break;
+    }
+
+    setGoogleConnectMessage(nextMessage);
+    setGoogleConnectMessageVariant(nextVariant);
+    router.replace(pathname, { scroll: false });
+  }, [isSecuritySection, pathname, router, searchParams, t]);
+
+  React.useEffect(() => {
     if (!nameSuccessMessage) {
       return;
     }
@@ -617,6 +733,20 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
       globalThis.clearTimeout(timeoutID);
     };
   }, [sessionSuccessMessage]);
+
+  React.useEffect(() => {
+    if (!googleConnectMessage || googleConnectMessageVariant !== 'success') {
+      return;
+    }
+
+    const timeoutID = globalThis.setTimeout(() => {
+      setGoogleConnectMessage('');
+    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [googleConnectMessage, googleConnectMessageVariant]);
 
   React.useEffect(() => {
     if (!securitySuccessMessage) {
@@ -783,8 +913,11 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
 
   const resolvedUsernameInput = usernameInput.trim();
   const resolvedNameInput = nameInput.trim();
+  const resolvedEmailInput = emailInput.trim().toLowerCase();
   const profileName = adminUser?.name?.trim() ?? '';
   const profileUsername = adminUser?.username?.trim() ?? '';
+  const profileEmail = adminUser?.email?.trim().toLowerCase() ?? '';
+  const pendingEmail = adminUser?.pendingEmail?.trim().toLowerCase() ?? '';
   const profileAvatarURL = withAdminAvatarSize(adminUser?.avatarUrl, 200);
   const settingsSidebarAvatarURL = withAdminAvatarSize(adminUser?.avatarUrl, 48);
   const profileRoles = adminUser?.roles?.join(', ') ?? '';
@@ -816,7 +949,19 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
             ? t('adminAccount.validation.usernameDifferent', { ns: 'admin-account' })
             : '';
   const showUsernameValidationError = (usernameSubmitted || isUsernameDirty) && usernameValidationError !== '';
-
+  const emailValidationError =
+    resolvedEmailInput === ''
+      ? t('adminAccount.validation.emailRequired', { ns: 'admin-account' })
+      : !EMAIL_PATTERN.test(resolvedEmailInput)
+        ? t('adminAccount.validation.emailInvalid', { ns: 'admin-account' })
+        : profileEmail === resolvedEmailInput
+          ? t('adminAccount.validation.emailDifferent', { ns: 'admin-account' })
+          : '';
+  const emailCurrentPasswordError =
+    emailCurrentPassword === '' ? t('adminAccount.validation.currentPasswordRequired', { ns: 'admin-account' }) : '';
+  const showEmailValidationError = (emailSubmitted || emailTouchedFields.newEmail) && emailValidationError !== '';
+  const showEmailCurrentPasswordError =
+    (emailSubmitted || emailTouchedFields.currentPassword) && emailCurrentPasswordError !== '';
   const deletePasswordError =
     deleteCurrentPassword === '' ? t('adminAccount.validation.currentPasswordRequired', { ns: 'admin-account' }) : '';
   const deleteConfirmError =
@@ -1088,6 +1233,13 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     }
   }, [securitySuccessMessage]);
 
+  const clearGoogleConnectMessage = React.useCallback(() => {
+    if (googleConnectMessage) {
+      setGoogleConnectMessage('');
+      setGoogleConnectMessageVariant('info');
+    }
+  }, [googleConnectMessage]);
+
   const handleCurrentPasswordChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const nextValue = event.currentTarget.value;
@@ -1126,6 +1278,20 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     },
     [clearSecuritySuccessMessage, securityErrorMessage],
   );
+
+  const openGoogleDisconnectModal = React.useCallback(() => {
+    setGoogleActionErrorMessage('');
+    setIsGoogleDisconnectModalOpen(true);
+  }, []);
+
+  const closeGoogleDisconnectModal = React.useCallback(() => {
+    if (isGoogleDisconnectSubmitting) {
+      return;
+    }
+
+    setIsGoogleDisconnectModalOpen(false);
+    setGoogleActionErrorMessage('');
+  }, [isGoogleDisconnectSubmitting]);
 
   const formatSessionDate = React.useCallback(
     (value: string) => {
@@ -2315,6 +2481,189 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     ],
   );
 
+  const handleEmailSubmit = React.useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (isEmailSubmitting) {
+        return;
+      }
+
+      setEmailSubmitted(true);
+      setEmailErrorMessage('');
+      setEmailErrorField(null);
+      setEmailSuccessMessage('');
+      if (emailValidationError || emailCurrentPasswordError) {
+        return;
+      }
+
+      setIsEmailSubmitting(true);
+      try {
+        const payload = await requestAdminEmailChange({
+          newEmail: resolvedEmailInput,
+          currentPassword: emailCurrentPassword,
+          locale,
+        });
+        if (!payload.success) {
+          throw new Error(t('adminAccount.account.errors.emailUpdate', { ns: 'admin-account' }));
+        }
+
+        setAdminUser(previous =>
+          previous
+            ? {
+                ...previous,
+                pendingEmail: payload.pendingEmail,
+                pendingEmailExpiresAt: payload.expiresAt,
+              }
+            : previous,
+        );
+        setEmailInput('');
+        setEmailCurrentPassword('');
+        setEmailTouchedFields({
+          newEmail: false,
+          currentPassword: false,
+        });
+        setEmailSubmitted(false);
+        setEmailErrorField(null);
+        setEmailSuccessMessage(
+          t('adminAccount.account.success.emailChangeRequested', {
+            ns: 'admin-account',
+            email: payload.pendingEmail,
+          }),
+        );
+      } catch (error) {
+        if (isAdminSessionError(error)) {
+          router.replace(`/${locale}/admin/login`);
+          return;
+        }
+        const resolvedError = resolveAdminError(error);
+        const resolvedErrorField =
+          resolvedError.code === 'ADMIN_CURRENT_PASSWORD_INCORRECT' ||
+          resolvedError.code === 'ADMIN_CURRENT_PASSWORD_REQUIRED'
+            ? 'currentPassword'
+            : resolvedError.code === 'ADMIN_EMAIL_INVALID' ||
+                resolvedError.code === 'ADMIN_EMAIL_SAME' ||
+                resolvedError.code === 'ADMIN_EMAIL_TAKEN'
+              ? 'newEmail'
+              : 'generic';
+        setEmailErrorField(resolvedErrorField);
+        setEmailErrorMessage(
+          resolvedError.message || t('adminAccount.account.errors.emailUpdate', { ns: 'admin-account' }),
+        );
+      } finally {
+        setIsEmailSubmitting(false);
+      }
+    },
+    [
+      emailCurrentPassword,
+      emailCurrentPasswordError,
+      emailValidationError,
+      isEmailSubmitting,
+      locale,
+      resolvedEmailInput,
+      router,
+      t,
+    ],
+  );
+
+  const handleGoogleConnect = React.useCallback(async () => {
+    if (isGoogleConnectSubmitting || isGoogleDisconnectSubmitting) {
+      return;
+    }
+
+    setGoogleActionErrorMessage('');
+    clearGoogleConnectMessage();
+    clearSecuritySuccessMessage();
+
+    setIsGoogleConnectSubmitting(true);
+    try {
+      const payload = await startAdminGoogleConnect({
+        locale,
+      });
+      globalThis.location.assign(withBasePath(payload.url));
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        router.replace(`/${locale}/admin/login`);
+        return;
+      }
+
+      const resolvedError = resolveAdminError(error);
+      setGoogleActionErrorMessage(
+        resolvedError.kind === 'network'
+          ? t('adminCommon.errors.network', { ns: 'admin-common' })
+          : resolvedError.message ||
+              t('adminAccount.connectedAccounts.google.messages.failed', { ns: 'admin-account' }),
+      );
+    } finally {
+      setIsGoogleConnectSubmitting(false);
+    }
+  }, [
+    clearGoogleConnectMessage,
+    clearSecuritySuccessMessage,
+    isGoogleConnectSubmitting,
+    isGoogleDisconnectSubmitting,
+    locale,
+    router,
+    t,
+  ]);
+
+  const handleGoogleDisconnect = React.useCallback(async () => {
+    if (isGoogleConnectSubmitting || isGoogleDisconnectSubmitting) {
+      return;
+    }
+
+    setGoogleActionErrorMessage('');
+    clearGoogleConnectMessage();
+    clearSecuritySuccessMessage();
+
+    setIsGoogleDisconnectSubmitting(true);
+    try {
+      const payload = await disconnectAdminGoogle();
+      if (!payload.success) {
+        throw new Error(t('adminAccount.connectedAccounts.google.messages.failed', { ns: 'admin-account' }));
+      }
+
+      setAdminUser(payload.user);
+      setIsGoogleDisconnectModalOpen(false);
+      setGoogleConnectMessage(
+        t('adminAccount.connectedAccounts.google.messages.disconnected', { ns: 'admin-account' }),
+      );
+      setGoogleConnectMessageVariant('success');
+
+      try {
+        const nextStatus = await fetchAdminGoogleAuthStatus();
+        setGoogleAuthStatus(nextStatus);
+      } catch {
+        setGoogleAuthStatus({
+          enabled: false,
+          loginAvailable: false,
+        });
+      }
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        router.replace(`/${locale}/admin/login`);
+        return;
+      }
+
+      const resolvedError = resolveAdminError(error);
+      setGoogleActionErrorMessage(
+        resolvedError.kind === 'network'
+          ? t('adminCommon.errors.network', { ns: 'admin-common' })
+          : resolvedError.message ||
+              t('adminAccount.connectedAccounts.google.messages.failed', { ns: 'admin-account' }),
+      );
+    } finally {
+      setIsGoogleDisconnectSubmitting(false);
+    }
+  }, [
+    clearGoogleConnectMessage,
+    clearSecuritySuccessMessage,
+    isGoogleConnectSubmitting,
+    isGoogleDisconnectSubmitting,
+    locale,
+    router,
+    t,
+  ]);
+
   const handleUsernameSubmit = React.useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -2723,6 +3072,17 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
             </span>
           </Link>
           <Link
+            href={ADMIN_ROUTES.settings.email}
+            className={`admin-settings-nav-link${isEmailSection ? ' is-active' : ''}`}
+          >
+            <span className="admin-settings-nav-icon" aria-hidden="true">
+              <FontAwesomeIcon icon="envelope" fixedWidth />
+            </span>
+            <span className="admin-settings-nav-label">
+              {t('adminAccount.settings.email', { ns: 'admin-account' })}
+            </span>
+          </Link>
+          <Link
             href={ADMIN_ROUTES.settings.sessions}
             className={`admin-settings-nav-link${isSessionsSection ? ' is-active' : ''}`}
           >
@@ -3043,6 +3403,161 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                     </div>
                   </div>
                 </>
+              ) : null}
+
+              {isEmailSection ? (
+                <div className="admin-account-section-stack">
+                  <section>
+                    <h3 className="admin-dashboard-panel-title mb-2">
+                      {t('adminAccount.account.email.title', { ns: 'admin-account' })}
+                    </h3>
+                    <p className="admin-dashboard-panel-copy">
+                      {t('adminAccount.account.email.copy', { ns: 'admin-account' })}
+                    </p>
+
+                    {emailErrorMessage ? (
+                      <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
+                        {emailErrorMessage}
+                      </Alert>
+                    ) : null}
+                    {emailSuccessMessage ? (
+                      <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
+                        {emailSuccessMessage}
+                      </Alert>
+                    ) : null}
+                    {pendingEmail ? (
+                      <Alert variant="info" className="mb-3 px-4 py-3 lh-base">
+                        <div className="fw-semibold mb-1">
+                          {t('adminAccount.account.email.pending.title', { ns: 'admin-account' })}
+                        </div>
+                        <div>
+                          {t('adminAccount.account.email.pending.copy', {
+                            ns: 'admin-account',
+                            email: pendingEmail,
+                          })}
+                        </div>
+                        {adminUser?.pendingEmailExpiresAt ? (
+                          <div className="small mt-2">
+                            {t('adminAccount.account.email.pending.expiresAt', {
+                              ns: 'admin-account',
+                              value: formatSessionDate(adminUser.pendingEmailExpiresAt),
+                            })}
+                          </div>
+                        ) : null}
+                      </Alert>
+                    ) : null}
+
+                    <Form noValidate onSubmit={handleEmailSubmit}>
+                      <Form.Group className="mb-3" controlId="admin-account-current-email">
+                        <Form.Label>{t('adminAccount.account.email.currentLabel', { ns: 'admin-account' })}</Form.Label>
+                        <Form.Control type="email" value={adminUser?.email ?? ''} readOnly plaintext={false} disabled />
+                      </Form.Group>
+
+                      <Form.Group className="mb-3" controlId="admin-account-email">
+                        <Form.Label>{t('adminAccount.account.email.label', { ns: 'admin-account' })}</Form.Label>
+                        <Form.Control
+                          type="email"
+                          value={emailInput}
+                          onChange={event => {
+                            setEmailInput(event.currentTarget.value);
+                            setEmailTouchedFields(previous => ({
+                              ...previous,
+                              newEmail: true,
+                            }));
+                            if (
+                              emailErrorMessage &&
+                              (emailErrorField === 'newEmail' || emailErrorField === 'generic')
+                            ) {
+                              setEmailErrorMessage('');
+                              setEmailErrorField(null);
+                            }
+                            if (emailSuccessMessage) {
+                              setEmailSuccessMessage('');
+                            }
+                          }}
+                          onBlur={() => {
+                            setEmailTouchedFields(previous => ({
+                              ...previous,
+                              newEmail: true,
+                            }));
+                          }}
+                          placeholder={t('adminAccount.account.email.placeholder', { ns: 'admin-account' })}
+                          autoComplete="email"
+                          isInvalid={showEmailValidationError}
+                          required
+                        />
+                        <Form.Control.Feedback type="invalid" className={showEmailValidationError ? 'd-block' : ''}>
+                          {emailValidationError}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+
+                      <Form.Group className="mb-3" controlId="admin-account-email-password">
+                        <Form.Label>
+                          {t('adminAccount.account.email.currentPassword', { ns: 'admin-account' })}
+                        </Form.Label>
+                        <Form.Control
+                          type="password"
+                          value={emailCurrentPassword}
+                          onChange={event => {
+                            setEmailCurrentPassword(event.currentTarget.value);
+                            setEmailTouchedFields(previous => ({
+                              ...previous,
+                              currentPassword: true,
+                            }));
+                            if (
+                              emailErrorMessage &&
+                              (emailErrorField === 'currentPassword' || emailErrorField === 'generic')
+                            ) {
+                              setEmailErrorMessage('');
+                              setEmailErrorField(null);
+                            }
+                          }}
+                          onBlur={() => {
+                            setEmailTouchedFields(previous => ({
+                              ...previous,
+                              currentPassword: true,
+                            }));
+                          }}
+                          placeholder={t('adminAccount.account.email.currentPasswordPlaceholder', {
+                            ns: 'admin-account',
+                          })}
+                          autoComplete="current-password"
+                          isInvalid={showEmailCurrentPasswordError}
+                          required
+                        />
+                        <Form.Control.Feedback
+                          type="invalid"
+                          className={showEmailCurrentPasswordError ? 'd-block' : ''}
+                        >
+                          {emailCurrentPasswordError}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+
+                      <div className="post-summary-cta mb-0">
+                        <Button type="submit" className="post-summary-read-more" disabled={isEmailSubmitting}>
+                          {isEmailSubmitting ? (
+                            <span className="d-inline-flex align-items-center gap-2">
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                className="me-2 flex-shrink-0 admin-action-spinner"
+                                aria-hidden="true"
+                              />
+                              <span className="read-more-label">
+                                {t('adminAccount.account.email.submitting', { ns: 'admin-account' })}
+                              </span>
+                            </span>
+                          ) : (
+                            <span className="read-more-label">
+                              {t('adminAccount.account.email.submit', { ns: 'admin-account' })}
+                            </span>
+                          )}
+                        </Button>
+                      </div>
+                    </Form>
+                  </section>
+                </div>
               ) : null}
 
               {isAccountSection ? (
@@ -5402,10 +5917,12 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
               {isSecuritySection ? (
                 <>
                   <h3 className="admin-dashboard-panel-title mb-3">
-                    {t('adminCommon.actions.changePassword', { ns: 'admin-common' })}
+                    {t('adminAccount.connectedAccounts.title', { ns: 'admin-account' })}
                   </h3>
                   <hr className="admin-section-divider mb-3" />
-                  <p className="admin-dashboard-panel-copy">{t('adminAccount.form.copy', { ns: 'admin-account' })}</p>
+                  <p className="admin-dashboard-panel-copy">
+                    {t('adminAccount.connectedAccounts.copy', { ns: 'admin-account' })}
+                  </p>
 
                   {securityErrorMessage ? (
                     <Alert variant="danger" className="mb-4 px-4 py-3 lh-base">
@@ -5417,148 +5934,353 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                       {securitySuccessMessage}
                     </Alert>
                   ) : null}
+                  {googleConnectMessage ? (
+                    <Alert variant={googleConnectMessageVariant} className="mb-4 px-4 py-3 lh-base">
+                      {googleConnectMessage}
+                    </Alert>
+                  ) : null}
+                  {googleActionErrorMessage ? (
+                    <Alert variant="danger" className="mb-4 px-4 py-3 lh-base">
+                      {googleActionErrorMessage}
+                    </Alert>
+                  ) : null}
 
-                  <Form noValidate onSubmit={handleSecuritySubmit}>
-                    <Form.Group className="mb-3" controlId="admin-account-current-password">
-                      <Form.Label>{t('adminAccount.form.currentPassword', { ns: 'admin-account' })}</Form.Label>
-                      <InputGroup>
-                        <Form.Control
-                          type={showCurrentPassword ? 'text' : 'password'}
-                          value={currentPassword}
-                          onChange={handleCurrentPasswordChange}
-                          placeholder={t('adminAccount.form.currentPasswordPlaceholder', { ns: 'admin-account' })}
-                          autoComplete="current-password"
-                          isInvalid={showCurrentPasswordError}
-                          required
-                          autoFocus
-                        />
-                        <Button
-                          variant="outline-secondary"
-                          type="button"
-                          onClick={() => setShowCurrentPassword(previous => !previous)}
-                          aria-label={
-                            showCurrentPassword
-                              ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
-                              : t('adminAccount.form.showPassword', { ns: 'admin-account' })
-                          }
-                        >
-                          <FontAwesomeIcon icon={showCurrentPassword ? 'eye-slash' : 'eye'} />
-                        </Button>
-                      </InputGroup>
-                      <Form.Control.Feedback type="invalid" className={showCurrentPasswordError ? 'd-block' : ''}>
-                        {securityCurrentPasswordError}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-
-                    <Form.Group className="mb-3" controlId="admin-account-new-password">
-                      <Form.Label>{t('adminAccount.form.newPassword', { ns: 'admin-account' })}</Form.Label>
-                      <InputGroup>
-                        <Form.Control
-                          type={showNewPassword ? 'text' : 'password'}
-                          value={newPassword}
-                          onChange={handleNewPasswordChange}
-                          placeholder={t('adminAccount.form.newPasswordPlaceholder', { ns: 'admin-account' })}
-                          autoComplete="new-password"
-                          isInvalid={showNewPasswordError}
-                          required
-                          minLength={MIN_PASSWORD_LENGTH}
-                        />
-                        <Button
-                          variant="outline-secondary"
-                          type="button"
-                          onClick={() => setShowNewPassword(previous => !previous)}
-                          aria-label={
-                            showNewPassword
-                              ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
-                              : t('adminAccount.form.showPassword', { ns: 'admin-account' })
-                          }
-                        >
-                          <FontAwesomeIcon icon={showNewPassword ? 'eye-slash' : 'eye'} />
-                        </Button>
-                      </InputGroup>
-                      <div
-                        className={`admin-password-strength admin-password-strength-${passwordStrength.tone}`}
-                        aria-live="polite"
-                      >
-                        <div className="admin-password-strength-head">
-                          <span>{t('adminAccount.strength.title', { ns: 'admin-account' })}</span>
+                  <ListGroup className="rounded-4 overflow-hidden border shadow-sm">
+                    <ListGroup.Item className="px-4 py-4">
+                      <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+                        <div className="d-flex align-items-start gap-3">
+                          <span className="fs-4 text-body-secondary">
+                            <FontAwesomeIcon icon="envelope" fixedWidth />
+                          </span>
+                          <div>
+                            <div className="fw-semibold mb-1">
+                              {t('adminAccount.account.email.title', { ns: 'admin-account' })}
+                            </div>
+                            <div className="text-body-secondary">{adminUser.pendingEmail ?? adminUser.email}</div>
+                            {adminUser.pendingEmail ? (
+                              <div className="small text-body-secondary mt-1">
+                                {t('adminAccount.account.email.pending.copy', {
+                                  ns: 'admin-account',
+                                  email: adminUser.pendingEmail,
+                                })}
+                              </div>
+                            ) : null}
+                          </div>
                         </div>
-                        <div className="admin-password-strength-track" aria-hidden="true">
-                          {Array.from({ length: 5 }, (_, index) => (
-                            <span
-                              key={`strength:${index + 1}`}
-                              className={`admin-password-strength-segment${
-                                index < passwordStrength.score ? ' is-active' : ''
-                              }`}
-                            />
-                          ))}
+                        <div className="d-flex justify-content-lg-end">
+                          <Button
+                            variant="primary"
+                            onClick={() => router.push(`/${locale}${ADMIN_ROUTES.settings.email}`)}
+                          >
+                            {t('adminAccount.connectedAccounts.actions.manage', { ns: 'admin-account' })}
+                          </Button>
                         </div>
                       </div>
-                      <Form.Control.Feedback type="invalid" className={showNewPasswordError ? 'd-block' : ''}>
-                        {securityNewPasswordError}
-                      </Form.Control.Feedback>
-                    </Form.Group>
+                    </ListGroup.Item>
 
-                    <Form.Group className="mb-4" controlId="admin-account-confirm-password">
-                      <Form.Label>{t('adminAccount.form.confirmPassword', { ns: 'admin-account' })}</Form.Label>
-                      <InputGroup>
-                        <Form.Control
-                          type={showConfirmPassword ? 'text' : 'password'}
-                          value={confirmPassword}
-                          onChange={handleConfirmPasswordChange}
-                          placeholder={t('adminAccount.form.confirmPasswordPlaceholder', { ns: 'admin-account' })}
-                          autoComplete="new-password"
-                          isInvalid={showConfirmPasswordError}
-                          required
-                          minLength={MIN_PASSWORD_LENGTH}
-                        />
-                        <Button
-                          variant="outline-secondary"
-                          type="button"
-                          onClick={() => setShowConfirmPassword(previous => !previous)}
-                          aria-label={
-                            showConfirmPassword
-                              ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
-                              : t('adminAccount.form.showPassword', { ns: 'admin-account' })
-                          }
-                        >
-                          <FontAwesomeIcon icon={showConfirmPassword ? 'eye-slash' : 'eye'} />
-                        </Button>
-                      </InputGroup>
-                      <Form.Control.Feedback type="invalid" className={showConfirmPasswordError ? 'd-block' : ''}>
-                        {securityConfirmPasswordError}
-                      </Form.Control.Feedback>
-                    </Form.Group>
+                    <ListGroup.Item className="px-4 py-4">
+                      <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+                        <div className="d-flex align-items-start gap-3">
+                          <span className="fs-4 text-body-secondary">
+                            <FontAwesomeIcon icon="lock" fixedWidth />
+                          </span>
+                          <div>
+                            <div className="fw-semibold mb-1">
+                              {t('adminCommon.actions.changePassword', { ns: 'admin-common' })}
+                            </div>
+                            <div className="text-body-secondary">
+                              {t('adminAccount.connectedAccounts.password.copy', { ns: 'admin-account' })}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="d-flex justify-content-lg-end">
+                          <Button
+                            variant="primary"
+                            onClick={() => setIsSecurityPasswordExpanded(previous => !previous)}
+                          >
+                            {isSecurityPasswordExpanded
+                              ? t('adminAccount.connectedAccounts.actions.hide', { ns: 'admin-account' })
+                              : t('adminAccount.connectedAccounts.password.action', { ns: 'admin-account' })}
+                          </Button>
+                        </div>
+                      </div>
 
-                    <div className="post-summary-cta">
-                      <Button type="submit" className="post-summary-read-more" disabled={isSecuritySubmitting}>
-                        {isSecuritySubmitting ? (
-                          <span className="d-inline-flex align-items-center gap-2">
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              className="me-2 flex-shrink-0 admin-action-spinner"
-                              aria-hidden="true"
-                            />
-                            <span className="read-more-label">
-                              {t('adminAccount.form.submitting', { ns: 'admin-account' })}
-                            </span>
+                      {isSecurityPasswordExpanded ? (
+                        <Form noValidate onSubmit={handleSecuritySubmit} className="mt-4 pt-4 border-top">
+                          <Form.Group className="mb-3" controlId="admin-account-current-password">
+                            <Form.Label>{t('adminAccount.form.currentPassword', { ns: 'admin-account' })}</Form.Label>
+                            <InputGroup>
+                              <Form.Control
+                                type={showCurrentPassword ? 'text' : 'password'}
+                                value={currentPassword}
+                                onChange={handleCurrentPasswordChange}
+                                placeholder={t('adminAccount.form.currentPasswordPlaceholder', { ns: 'admin-account' })}
+                                autoComplete="current-password"
+                                isInvalid={showCurrentPasswordError}
+                                required
+                                autoFocus
+                              />
+                              <Button
+                                variant="outline-secondary"
+                                type="button"
+                                onClick={() => setShowCurrentPassword(previous => !previous)}
+                                aria-label={
+                                  showCurrentPassword
+                                    ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
+                                    : t('adminAccount.form.showPassword', { ns: 'admin-account' })
+                                }
+                              >
+                                <FontAwesomeIcon icon={showCurrentPassword ? 'eye-slash' : 'eye'} />
+                              </Button>
+                            </InputGroup>
+                            <Form.Control.Feedback type="invalid" className={showCurrentPasswordError ? 'd-block' : ''}>
+                              {securityCurrentPasswordError}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+
+                          <Form.Group className="mb-3" controlId="admin-account-new-password">
+                            <Form.Label>{t('adminAccount.form.newPassword', { ns: 'admin-account' })}</Form.Label>
+                            <InputGroup>
+                              <Form.Control
+                                type={showNewPassword ? 'text' : 'password'}
+                                value={newPassword}
+                                onChange={handleNewPasswordChange}
+                                placeholder={t('adminAccount.form.newPasswordPlaceholder', { ns: 'admin-account' })}
+                                autoComplete="new-password"
+                                isInvalid={showNewPasswordError}
+                                required
+                                minLength={MIN_PASSWORD_LENGTH}
+                              />
+                              <Button
+                                variant="outline-secondary"
+                                type="button"
+                                onClick={() => setShowNewPassword(previous => !previous)}
+                                aria-label={
+                                  showNewPassword
+                                    ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
+                                    : t('adminAccount.form.showPassword', { ns: 'admin-account' })
+                                }
+                              >
+                                <FontAwesomeIcon icon={showNewPassword ? 'eye-slash' : 'eye'} />
+                              </Button>
+                            </InputGroup>
+                            <div
+                              className={`admin-password-strength admin-password-strength-${passwordStrength.tone}`}
+                              aria-live="polite"
+                            >
+                              <div className="admin-password-strength-head">
+                                <span>{t('adminAccount.strength.title', { ns: 'admin-account' })}</span>
+                              </div>
+                              <div className="admin-password-strength-track" aria-hidden="true">
+                                {Array.from({ length: 5 }, (_, index) => (
+                                  <span
+                                    key={`strength:${index + 1}`}
+                                    className={`admin-password-strength-segment${
+                                      index < passwordStrength.score ? ' is-active' : ''
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <Form.Control.Feedback type="invalid" className={showNewPasswordError ? 'd-block' : ''}>
+                              {securityNewPasswordError}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+
+                          <Form.Group className="mb-4" controlId="admin-account-confirm-password">
+                            <Form.Label>{t('adminAccount.form.confirmPassword', { ns: 'admin-account' })}</Form.Label>
+                            <InputGroup>
+                              <Form.Control
+                                type={showConfirmPassword ? 'text' : 'password'}
+                                value={confirmPassword}
+                                onChange={handleConfirmPasswordChange}
+                                placeholder={t('adminAccount.form.confirmPasswordPlaceholder', { ns: 'admin-account' })}
+                                autoComplete="new-password"
+                                isInvalid={showConfirmPasswordError}
+                                required
+                                minLength={MIN_PASSWORD_LENGTH}
+                              />
+                              <Button
+                                variant="outline-secondary"
+                                type="button"
+                                onClick={() => setShowConfirmPassword(previous => !previous)}
+                                aria-label={
+                                  showConfirmPassword
+                                    ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
+                                    : t('adminAccount.form.showPassword', { ns: 'admin-account' })
+                                }
+                              >
+                                <FontAwesomeIcon icon={showConfirmPassword ? 'eye-slash' : 'eye'} />
+                              </Button>
+                            </InputGroup>
+                            <Form.Control.Feedback type="invalid" className={showConfirmPasswordError ? 'd-block' : ''}>
+                              {securityConfirmPasswordError}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+
+                          <div className="d-flex flex-wrap gap-2">
+                            <Button
+                              type="submit"
+                              className="admin-newsletter-action admin-newsletter-action--primary"
+                              disabled={isSecuritySubmitting}
+                            >
+                              {isSecuritySubmitting ? (
+                                <span className="d-inline-flex align-items-center gap-2">
+                                  <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    className="me-2 flex-shrink-0 admin-action-spinner"
+                                    aria-hidden="true"
+                                  />
+                                  <span>{t('adminAccount.form.submitting', { ns: 'admin-account' })}</span>
+                                </span>
+                              ) : (
+                                t('adminAccount.form.submit', { ns: 'admin-account' })
+                              )}
+                            </Button>
+                          </div>
+                        </Form>
+                      ) : null}
+                    </ListGroup.Item>
+
+                    <ListGroup.Item className="px-4 py-4">
+                      <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+                        <div className="d-flex align-items-start gap-3">
+                          <span className="fs-4 text-body-secondary">
+                            <FontAwesomeIcon icon={['fab', 'google']} fixedWidth />
                           </span>
-                        ) : (
-                          <span className="read-more-label">
-                            {t('adminAccount.form.submit', { ns: 'admin-account' })}
-                          </span>
-                        )}
-                      </Button>
-                    </div>
-                  </Form>
+                          <div>
+                            <div className="fw-semibold mb-1">
+                              {t('adminAccount.connectedAccounts.google.title', { ns: 'admin-account' })}
+                              {adminUser.googleLinked ? (
+                                <Badge bg="success" className="ms-2">
+                                  {t('adminAccount.connectedAccounts.google.connectedBadge', { ns: 'admin-account' })}
+                                </Badge>
+                              ) : null}
+                            </div>
+                            <div className="text-body-secondary">
+                              {adminUser.googleLinked
+                                ? t('adminAccount.connectedAccounts.google.connectedCopy', {
+                                    ns: 'admin-account',
+                                    email: adminUser.googleEmail ?? adminUser.email,
+                                  })
+                                : t('adminAccount.connectedAccounts.google.disconnectedCopy', { ns: 'admin-account' })}
+                            </div>
+                            {adminUser.googleLinkedAt ? (
+                              <div className="small text-body-secondary mt-1 d-inline-flex align-items-center gap-2">
+                                <FontAwesomeIcon icon="calendar-alt" />
+                                {t('adminAccount.connectedAccounts.google.linkedAt', {
+                                  ns: 'admin-account',
+                                  value: formatSessionDate(adminUser.googleLinkedAt),
+                                })}
+                              </div>
+                            ) : null}
+                            {adminUser.googleLinked && googleAuthStatus.loginAvailable ? (
+                              <div className="small text-body-secondary mt-1">
+                                {t('adminAccount.connectedAccounts.google.loginEnabled', { ns: 'admin-account' })}
+                              </div>
+                            ) : null}
+                            {!googleAuthStatus.enabled && !isGoogleAuthStatusLoading ? (
+                              <div className="small text-body-secondary mt-1">
+                                {t('adminAccount.connectedAccounts.google.unavailableBadge', { ns: 'admin-account' })}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                        <div className="d-flex justify-content-lg-end">
+                          {isGoogleAuthStatusLoading ? (
+                            <div className="small text-muted d-inline-flex align-items-center">
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                className="me-2 flex-shrink-0 admin-action-spinner"
+                                aria-hidden="true"
+                              />
+                              {t('adminCommon.status.loading', { ns: 'admin-common' })}
+                            </div>
+                          ) : adminUser.googleLinked ? (
+                            <Button
+                              variant="danger"
+                              className="admin-newsletter-action admin-newsletter-action--danger"
+                              onClick={openGoogleDisconnectModal}
+                              disabled={isGoogleConnectSubmitting || isGoogleDisconnectSubmitting}
+                            >
+                              {t('adminAccount.connectedAccounts.google.disconnect', { ns: 'admin-account' })}
+                            </Button>
+                          ) : googleAuthStatus.enabled ? (
+                            <Button
+                              className="admin-newsletter-action admin-newsletter-action--primary"
+                              onClick={handleGoogleConnect}
+                              disabled={isGoogleConnectSubmitting || isGoogleDisconnectSubmitting}
+                            >
+                              <FontAwesomeIcon icon={['fab', 'google']} className="me-2" />
+                              {t('adminAccount.connectedAccounts.google.connect', { ns: 'admin-account' })}
+                            </Button>
+                          ) : null}
+                        </div>
+                      </div>
+                    </ListGroup.Item>
+                  </ListGroup>
                 </>
               ) : null}
             </div>
           </div>
         </div>
       </div>
+
+      <Modal show={isGoogleDisconnectModalOpen} onHide={closeGoogleDisconnectModal} centered>
+        <Modal.Header closeButton={!isGoogleDisconnectSubmitting}>
+          <Modal.Title>
+            {t('adminAccount.connectedAccounts.google.disconnectConfirmTitle', { ns: 'admin-account' })}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="mb-3">
+            {t('adminAccount.connectedAccounts.google.disconnectConfirmCopy', {
+              ns: 'admin-account',
+              email: adminUser?.googleEmail ?? adminUser?.email ?? '',
+            })}
+          </p>
+          {googleActionErrorMessage ? (
+            <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
+              {googleActionErrorMessage}
+            </Alert>
+          ) : null}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            className="admin-newsletter-action admin-newsletter-action--secondary"
+            onClick={closeGoogleDisconnectModal}
+            disabled={isGoogleDisconnectSubmitting}
+          >
+            {t('adminCommon.actions.cancel', { ns: 'admin-common' })}
+          </Button>
+          <Button
+            variant="danger"
+            className="admin-newsletter-action admin-newsletter-action--danger"
+            onClick={handleGoogleDisconnect}
+            disabled={isGoogleConnectSubmitting || isGoogleDisconnectSubmitting}
+          >
+            {isGoogleDisconnectSubmitting ? (
+              <span className="d-inline-flex align-items-center">
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  className="me-2 flex-shrink-0 admin-action-spinner"
+                  aria-hidden="true"
+                />
+                {t('adminAccount.connectedAccounts.google.disconnecting', { ns: 'admin-account' })}
+              </span>
+            ) : (
+              t('adminAccount.connectedAccounts.google.disconnect', { ns: 'admin-account' })
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <Modal
         show={isAvatarCropModalOpen}

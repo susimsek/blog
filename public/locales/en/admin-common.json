@@ -9,6 +9,7 @@
       "account": "Account"
     },
     "actions": {
+      "cancel": "Cancel",
       "logout": "Logout",
       "settings": "Settings",
       "changePassword": "Password",

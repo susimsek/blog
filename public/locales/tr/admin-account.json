@@ -20,6 +20,7 @@
       "profile": "Profil",
       "account": "Hesap",
       "appearance": "Görünüm",
+      "email": "E-posta",
       "sessions": "Oturumlar",
       "newsletter": "Bülten",
       "comments": "Yorumlar",
@@ -101,6 +102,22 @@
         "submit": "Kullanıcı adını güncelle",
         "submitting": "Kullanıcı adı güncelleniyor..."
       },
+      "email": {
+        "title": "E-posta değiştir",
+        "copy": "Yeni e-posta adresi, yönetici hesabında aktif olmadan önce doğrulanır.",
+        "currentLabel": "Mevcut e-posta",
+        "label": "Yeni e-posta",
+        "placeholder": "Yeni e-posta adresini gir",
+        "currentPassword": "Mevcut parola",
+        "currentPasswordPlaceholder": "Mevcut parolanı gir",
+        "submit": "Doğrulama e-postası gönder",
+        "submitting": "Doğrulama e-postası gönderiliyor...",
+        "pending": {
+          "title": "Bekleyen e-posta değişikliği",
+          "copy": "{{email}} adresi için onay bekleniyor.",
+          "expiresAt": "Son geçerlilik: {{value}}"
+        }
+      },
       "delete": {
         "title": "Hesabı sil",
         "copy": "Bu yönetici hesabını kalıcı olarak devre dışı bırakır. Bu işlem geri alınamaz.",
@@ -112,10 +129,12 @@
         "submitting": "Hesap siliniyor..."
       },
       "success": {
+        "emailChangeRequested": "{{email}} adresine doğrulama e-postası gönderildi.",
         "usernameUpdated": "Kullanıcı adı güncellendi.",
         "deleted": "Hesap silindi. Oturum kapatılıyor."
       },
       "errors": {
+        "emailUpdate": "E-posta değişikliği şu anda başlatılamadı.",
         "usernameUpdate": "Kullanıcı adı şu anda güncellenemedi.",
         "deleteAccount": "Hesap şu anda silinemedi."
       }
@@ -622,12 +641,52 @@
       "confirmPasswordRequired": "Yeni parolayı doğrula.",
       "confirmPasswordMismatch": "Parola doğrulaması eşleşmiyor.",
       "usernameRequired": "Kullanıcı adını gir.",
+      "emailRequired": "Yeni e-posta adresini gir.",
+      "emailInvalid": "Geçerli bir e-posta adresi gir.",
+      "emailDifferent": "Mevcut e-postadan farklı bir adres kullan.",
       "nameRequired": "İsim gir.",
       "nameLength": "İsim {{min}} ile {{max}} karakter arasında olmalı.",
       "usernameLength": "Kullanıcı adı {{min}} ile {{max}} karakter arasında olmalı.",
       "usernamePattern": "Sadece harf, rakam, nokta, alt çizgi ve tire kullan.",
       "usernameDifferent": "Mevcut kullanıcı adından farklı bir kullanıcı adı seç.",
       "deleteConfirmation": "Hesabı silmeyi onaylamak için {{value}} yaz."
+    },
+    "connectedAccounts": {
+      "title": "Giriş yöntemleri",
+      "copy": "Admin panele nasıl giriş yaptığını tek yerden yönet.",
+      "actions": {
+        "manage": "Yönet",
+        "hide": "Gizle"
+      },
+      "password": {
+        "copy": "Admin panele parola ile giriş yap.",
+        "action": "Parolayı değiştir"
+      },
+      "google": {
+        "title": "Google",
+        "connect": "Google bağla",
+        "connecting": "Bağlanıyor...",
+        "connectConfirmTitle": "Google hesabı bağla",
+        "connectConfirmCopy": "Bu yönetici hesabına bir Google hesabı bağla.",
+        "disconnect": "Google bağlantısını kaldır",
+        "disconnecting": "Bağlantı kaldırılıyor...",
+        "disconnectConfirmTitle": "Google bağlantısını kaldır",
+        "disconnectConfirmCopy": "{{email}} hesabının bu admin hesabıyla bağlantısını kaldır.",
+        "connectedBadge": "Bağlı",
+        "unavailableBadge": "Kullanılamıyor",
+        "disconnectedCopy": "Önce bir Google hesabı bağla. Sonra giriş ekranında Google ile devam et görünür.",
+        "connectedCopy": "{{email}} ile bağlı.",
+        "linkedAt": "Bağlanma: {{value}}",
+        "loginEnabled": "Google ile giriş artık admin login ekranında kullanılabilir.",
+        "messages": {
+          "connected": "Google hesabı bağlandı.",
+          "disconnected": "Google hesabı bağlantısı kaldırıldı.",
+          "cancelled": "Google bağlama işlemi iptal edildi.",
+          "notLinked": "Bu Google hesabı bir admin kullanıcıya bağlı değil.",
+          "conflict": "Bu Google hesabı başka bir admin kullanıcıya bağlı.",
+          "failed": "Google bağlantısı şu anda tamamlanamadı."
+        }
+      }
     }
   }
 }

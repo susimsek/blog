@@ -21,6 +21,10 @@ const (
 	adminCodePasswordTooShort   = "ADMIN_PASSWORD_TOO_SHORT"
 	adminCodePasswordMismatch   = "ADMIN_PASSWORD_CONFIRM_MISMATCH"
 	adminCodePasswordSame       = "ADMIN_PASSWORD_SAME_AS_CURRENT"
+	adminCodeEmailInvalid       = "ADMIN_EMAIL_INVALID"
+	adminCodeEmailSame          = "ADMIN_EMAIL_SAME"
+	adminCodeEmailTaken         = "ADMIN_EMAIL_TAKEN"
+	adminCodeGoogleNotLinked    = "ADMIN_GOOGLE_NOT_LINKED"
 	adminCodeUsernameTaken      = "ADMIN_USERNAME_TAKEN"
 	adminCodeUsernameSame       = "ADMIN_USERNAME_SAME"
 	adminCodeUsernamePattern    = "ADMIN_USERNAME_PATTERN_INVALID"
@@ -85,6 +89,14 @@ func mapAdminErrorToCode(appErr *apperrors.AppError) *apperrors.AppError {
 			return apperrors.New(adminCodePasswordMismatch, appErr.Message, http.StatusBadRequest, nil)
 		case "new password must be different from current password":
 			return apperrors.New(adminCodePasswordSame, appErr.Message, http.StatusBadRequest, nil)
+		case "new email is invalid":
+			return apperrors.New(adminCodeEmailInvalid, appErr.Message, http.StatusBadRequest, nil)
+		case "new email must be different from current email":
+			return apperrors.New(adminCodeEmailSame, appErr.Message, http.StatusBadRequest, nil)
+		case "email is already in use":
+			return apperrors.New(adminCodeEmailTaken, appErr.Message, http.StatusBadRequest, nil)
+		case "google account is not linked":
+			return apperrors.New(adminCodeGoogleNotLinked, appErr.Message, http.StatusBadRequest, nil)
 		case "username is already in use":
 			return apperrors.New(adminCodeUsernameTaken, appErr.Message, http.StatusBadRequest, nil)
 		case "new username must be different from current username":

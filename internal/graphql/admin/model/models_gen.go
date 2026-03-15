@@ -248,6 +248,12 @@ type AdminDeletePayload struct {
 	Success bool `json:"success"`
 }
 
+type AdminEmailChangeRequestPayload struct {
+	Success      bool      `json:"success"`
+	PendingEmail string    `json:"pendingEmail"`
+	ExpiresAt    time.Time `json:"expiresAt"`
+}
+
 type AdminErrorMessage struct {
 	Scope     string     `json:"scope"`
 	Locale    string     `json:"locale"`
@@ -294,6 +300,20 @@ type AdminErrorMessageListPayload struct {
 	Total int                  `json:"total"`
 	Page  int                  `json:"page"`
 	Size  int                  `json:"size"`
+}
+
+type AdminGoogleAuthStatus struct {
+	Enabled        bool `json:"enabled"`
+	LoginAvailable bool `json:"loginAvailable"`
+}
+
+type AdminGoogleConnectPayload struct {
+	URL string `json:"url"`
+}
+
+type AdminGoogleDisconnectPayload struct {
+	Success bool       `json:"success"`
+	User    *AdminUser `json:"user,omitempty"`
 }
 
 type AdminLoginInput struct {
@@ -433,6 +453,12 @@ type AdminPasswordChangePayload struct {
 type AdminQuery struct {
 }
 
+type AdminRequestEmailChangeInput struct {
+	NewEmail        string  `json:"newEmail"`
+	CurrentPassword string  `json:"currentPassword"`
+	Locale          *string `json:"locale,omitempty"`
+}
+
 type AdminSendTestNewsletterInput struct {
 	Email   string `json:"email"`
 	Locale  string `json:"locale"`
@@ -453,6 +479,10 @@ type AdminSession struct {
 
 type AdminSessionRevokePayload struct {
 	Success bool `json:"success"`
+}
+
+type AdminStartGoogleConnectInput struct {
+	Locale *string `json:"locale,omitempty"`
 }
 
 type AdminUpdateCommentStatusInput struct {
@@ -489,12 +519,17 @@ type AdminUpdateNewsletterSubscriberStatusInput struct {
 }
 
 type AdminUser struct {
-	ID        string   `json:"id"`
-	Name      *string  `json:"name,omitempty"`
-	Username  *string  `json:"username,omitempty"`
-	AvatarURL *string  `json:"avatarUrl,omitempty"`
-	Email     string   `json:"email"`
-	Roles     []string `json:"roles"`
+	ID                    string     `json:"id"`
+	Name                  *string    `json:"name,omitempty"`
+	Username              *string    `json:"username,omitempty"`
+	AvatarURL             *string    `json:"avatarUrl,omitempty"`
+	Email                 string     `json:"email"`
+	PendingEmail          *string    `json:"pendingEmail,omitempty"`
+	PendingEmailExpiresAt *time.Time `json:"pendingEmailExpiresAt,omitempty"`
+	GoogleLinked          bool       `json:"googleLinked"`
+	GoogleEmail           *string    `json:"googleEmail,omitempty"`
+	GoogleLinkedAt        *time.Time `json:"googleLinkedAt,omitempty"`
+	Roles                 []string   `json:"roles"`
 }
 
 type AdminCommentStatus string

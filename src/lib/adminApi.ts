@@ -17,7 +17,19 @@ type AdminUserDTO = {
   username: string | null;
   avatarUrl: string | null;
   email: string;
+  pendingEmail: string | null;
+  pendingEmailExpiresAt: string | null;
+  googleLinked: boolean;
+  googleEmail: string | null;
+  googleLinkedAt: string | null;
   roles: string[];
+};
+
+type AdminGoogleAuthStatusPayload = {
+  googleAuthStatus: {
+    enabled: boolean;
+    loginAvailable: boolean;
+  };
 };
 
 type AdminMePayload = {
@@ -141,6 +153,27 @@ type AdminChangeNamePayload = {
 
 type AdminChangeAvatarPayload = {
   changeAvatar: {
+    success: boolean;
+    user: AdminUserDTO | null;
+  };
+};
+
+type AdminRequestEmailChangePayload = {
+  requestEmailChange: {
+    success: boolean;
+    pendingEmail: string;
+    expiresAt: string;
+  };
+};
+
+type AdminStartGoogleConnectPayload = {
+  startGoogleConnect: {
+    url: string;
+  };
+};
+
+type AdminDisconnectGooglePayload = {
+  disconnectGoogle: {
     success: boolean;
     user: AdminUserDTO | null;
   };
@@ -507,8 +540,22 @@ const ADMIN_ME_QUERY = gql`
         username
         avatarUrl
         email
+        pendingEmail
+        pendingEmailExpiresAt
+        googleLinked
+        googleEmail
+        googleLinkedAt
         roles
       }
+    }
+  }
+`;
+
+const ADMIN_GOOGLE_AUTH_STATUS_QUERY = gql`
+  query AdminGoogleAuthStatus {
+    googleAuthStatus {
+      enabled
+      loginAvailable
     }
   }
 `;
@@ -523,6 +570,11 @@ const ADMIN_LOGIN_MUTATION = gql`
         username
         avatarUrl
         email
+        pendingEmail
+        pendingEmailExpiresAt
+        googleLinked
+        googleEmail
+        googleLinkedAt
         roles
       }
     }
@@ -547,6 +599,11 @@ const ADMIN_REFRESH_MUTATION = gql`
         username
         avatarUrl
         email
+        pendingEmail
+        pendingEmailExpiresAt
+        googleLinked
+        googleEmail
+        googleLinkedAt
         roles
       }
     }
@@ -651,6 +708,35 @@ const ADMIN_CHANGE_PASSWORD_MUTATION = gql`
   }
 `;
 
+const ADMIN_START_GOOGLE_CONNECT_MUTATION = gql`
+  mutation AdminStartGoogleConnect($input: AdminStartGoogleConnectInput!) {
+    startGoogleConnect(input: $input) {
+      url
+    }
+  }
+`;
+
+const ADMIN_DISCONNECT_GOOGLE_MUTATION = gql`
+  mutation AdminDisconnectGoogle {
+    disconnectGoogle {
+      success
+      user {
+        id
+        name
+        username
+        avatarUrl
+        email
+        pendingEmail
+        pendingEmailExpiresAt
+        googleLinked
+        googleEmail
+        googleLinkedAt
+        roles
+      }
+    }
+  }
+`;
+
 const ADMIN_CHANGE_USERNAME_MUTATION = gql`
   mutation AdminChangeUsername($input: AdminChangeUsernameInput!) {
     changeUsername(input: $input) {
@@ -661,8 +747,23 @@ const ADMIN_CHANGE_USERNAME_MUTATION = gql`
         username
         avatarUrl
         email
+        pendingEmail
+        pendingEmailExpiresAt
+        googleLinked
+        googleEmail
+        googleLinkedAt
         roles
       }
+    }
+  }
+`;
+
+const ADMIN_REQUEST_EMAIL_CHANGE_MUTATION = gql`
+  mutation AdminRequestEmailChange($input: AdminRequestEmailChangeInput!) {
+    requestEmailChange(input: $input) {
+      success
+      pendingEmail
+      expiresAt
     }
   }
 `;
@@ -677,6 +778,11 @@ const ADMIN_CHANGE_NAME_MUTATION = gql`
         username
         avatarUrl
         email
+        pendingEmail
+        pendingEmailExpiresAt
+        googleLinked
+        googleEmail
+        googleLinkedAt
         roles
       }
     }
@@ -693,6 +799,11 @@ const ADMIN_CHANGE_AVATAR_MUTATION = gql`
         username
         avatarUrl
         email
+        pendingEmail
+        pendingEmailExpiresAt
+        googleLinked
+        googleEmail
+        googleLinkedAt
         roles
       }
     }
@@ -1673,6 +1784,15 @@ export const fetchAdminMe = async () => {
   return payload.me;
 };
 
+export const fetchAdminGoogleAuthStatus = async () => {
+  const payload = await executeAdminGraphQL<AdminGoogleAuthStatusPayload>(ADMIN_GOOGLE_AUTH_STATUS_QUERY, undefined, {
+    retryOnUnauthorized: false,
+    operationName: 'AdminGoogleAuthStatus',
+  });
+
+  return payload.googleAuthStatus;
+};
+
 export const loginAdmin = async (email: string, password: string, rememberMe = false) => {
   const payload = await executeAdminGraphQL<
     AdminLoginPayload,
@@ -1789,6 +1909,30 @@ export const changeAdminPassword = async (input: {
   return payload.changePassword;
 };
 
+export const startAdminGoogleConnect = async (input: { locale?: string }) => {
+  const payload = await executeAdminGraphQL<AdminStartGoogleConnectPayload, { input: { locale?: string } }>(
+    ADMIN_START_GOOGLE_CONNECT_MUTATION,
+    {
+      input: {
+        locale: input.locale?.trim().toLowerCase() || undefined,
+      },
+    },
+    { operationName: 'AdminStartGoogleConnect' },
+  );
+
+  return payload.startGoogleConnect;
+};
+
+export const disconnectAdminGoogle = async () => {
+  const payload = await executeAdminGraphQL<AdminDisconnectGooglePayload, Record<string, never>>(
+    ADMIN_DISCONNECT_GOOGLE_MUTATION,
+    {},
+    { operationName: 'AdminDisconnectGoogle' },
+  );
+
+  return payload.disconnectGoogle;
+};
+
 export const changeAdminUsername = async (input: { newUsername: string }) => {
   const payload = await executeAdminGraphQL<
     AdminChangeUsernamePayload,
@@ -1800,6 +1944,35 @@ export const changeAdminUsername = async (input: { newUsername: string }) => {
   >(ADMIN_CHANGE_USERNAME_MUTATION, { input }, { operationName: 'AdminChangeUsername' });
 
   return payload.changeUsername;
+};
+
+export const requestAdminEmailChange = async (input: {
+  newEmail: string;
+  currentPassword: string;
+  locale?: string;
+}) => {
+  const payload = await executeAdminGraphQL<
+    AdminRequestEmailChangePayload,
+    {
+      input: {
+        newEmail: string;
+        currentPassword: string;
+        locale?: string;
+      };
+    }
+  >(
+    ADMIN_REQUEST_EMAIL_CHANGE_MUTATION,
+    {
+      input: {
+        newEmail: input.newEmail.trim().toLowerCase(),
+        currentPassword: input.currentPassword,
+        locale: input.locale?.trim().toLowerCase() || undefined,
+      },
+    },
+    { operationName: 'AdminRequestEmailChange' },
+  );
+
+  return payload.requestEmailChange;
 };
 
 export const changeAdminName = async (input: { name: string }) => {

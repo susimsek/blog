@@ -3,20 +3,34 @@ package domain
 import "time"
 
 type AdminUser struct {
-	ID            string
-	Name          string
-	Username      string
-	AvatarURL     string
-	AvatarDigest  string
-	AvatarVersion int64
-	Email         string
-	Roles         []string
+	ID                    string
+	Name                  string
+	Username              string
+	AvatarURL             string
+	AvatarDigest          string
+	AvatarVersion         int64
+	Email                 string
+	PendingEmail          string
+	PendingEmailExpiresAt *time.Time
+	GoogleSubject         string
+	GoogleEmail           string
+	GoogleLinkedAt        *time.Time
+	Roles                 []string
 }
 
 type AdminUserRecord struct {
 	AdminUser
-	PasswordHash    string
-	PasswordVersion int64
+	PasswordHash       string
+	PasswordVersion    int64
+	PendingEmailChange *AdminPendingEmailChange
+}
+
+type AdminPendingEmailChange struct {
+	NewEmail    string
+	TokenHash   string
+	Locale      string
+	RequestedAt time.Time
+	ExpiresAt   time.Time
 }
 
 type AdminRefreshTokenRecord struct {

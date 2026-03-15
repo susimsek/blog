@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="{{.Lang}}">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="{{.FaviconURL}}" />
+    <title>{{.Title}}</title>
+  </head>
+  <body style="margin:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#111827;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:24px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:28px;">
+            <tr><td style="font-size:38px;font-weight:800;padding-bottom:8px;">Suayb's Blog</td></tr>
+            <tr><td style="font-size:32px;line-height:1.2;font-weight:700;padding:8px 0 10px;">{{.Heading}}</td></tr>
+            <tr><td style="font-size:18px;line-height:1.7;color:#374151;padding-bottom:20px;">{{.Message}}</td></tr>
+            <tr>
+              <td>
+                <a href="{{.ButtonHref}}" style="display:inline-block;background:#1677ff;color:#fff;text-decoration:none;font-weight:700;border-radius:999px;padding:13px 24px;font-size:17px;">{{.ButtonLabel}}</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
