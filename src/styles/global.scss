@@ -114,22 +114,23 @@ html {
 }
 
 .form-check-input {
-  background-color: color-mix(in srgb, var(--main-bg) 88%, var(--dropdown-hover-bg) 12%);
-  border-color: color-mix(in srgb, var(--border-color) 84%, transparent);
-  box-shadow: none;
+  background-color: color-mix(in srgb, var(--main-bg) 94%, var(--dropdown-hover-bg) 6%);
+  border-color: color-mix(in srgb, var(--text-color) 18%, var(--border-color) 82%);
 
   &:focus {
-    background-color: color-mix(in srgb, var(--main-bg) 84%, var(--dropdown-hover-bg) 16%);
-    border-color: color-mix(in srgb, var(--active-color) 44%, var(--border-color) 56%);
-    box-shadow: 0 0 0 0.25rem color-mix(in srgb, var(--active-color) 18%, transparent);
+    background-color: color-mix(in srgb, var(--main-bg) 90%, var(--dropdown-hover-bg) 10%);
+    border-color: color-mix(in srgb, var(--text-color) 28%, var(--border-color) 72%);
+    box-shadow: 0 0 0 0.25rem color-mix(in srgb, var(--border-color) 26%, transparent);
   }
 
   &:checked {
-    background-color: color-mix(in srgb, var(--active-color) 72%, var(--text-color) 28%);
-    border-color: color-mix(in srgb, var(--active-color) 72%, var(--border-color) 28%);
+    background-color: color-mix(in srgb, var(--active-color) 88%, #0b1220 12%);
+    border-color: color-mix(in srgb, var(--active-color) 84%, var(--border-color) 16%);
+    --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M4.5 10.5l3.5 3.5 7.5-8'/%3e%3c/svg%3e");
   }
 
   &:checked:focus {
+    border-color: color-mix(in srgb, var(--active-color) 84%, var(--border-color) 16%);
     box-shadow: 0 0 0 0.25rem color-mix(in srgb, var(--active-color) 22%, transparent);
   }
 
@@ -138,6 +139,10 @@ html {
     border-color: color-mix(in srgb, var(--border-color) 68%, transparent);
     opacity: 0.7;
   }
+}
+
+.form-check-label {
+  padding-left: 0.1rem;
 }
 
 .cluster {
