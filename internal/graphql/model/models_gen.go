@@ -9,6 +9,53 @@ import (
 	"strconv"
 )
 
+// Input payload used when a visitor posts a guest comment.
+type AddCommentInput struct {
+	// Locale used to validate the target post.
+	Locale Locale `json:"locale"`
+	// Target post identifier.
+	PostID string `json:"postId"`
+	// Optional parent comment identifier. Only one reply level is supported.
+	ParentID *string `json:"parentId,omitempty"`
+	// Display name shown publicly with the comment.
+	AuthorName string `json:"authorName"`
+	// Email address captured for moderation only.
+	AuthorEmail string `json:"authorEmail"`
+	// Plain-text comment body.
+	Content string `json:"content"`
+}
+
+// Public comment metadata returned for approved comments.
+type Comment struct {
+	ID         string  `json:"id"`
+	ParentID   *string `json:"parentId,omitempty"`
+	AuthorName string  `json:"authorName"`
+	Content    string  `json:"content"`
+	CreatedAt  string  `json:"createdAt"`
+}
+
+// Approved comments for a single post.
+type CommentListResult struct {
+	Status  CommentQueryStatus `json:"status"`
+	Locale  Locale             `json:"locale"`
+	PostID  string             `json:"postId"`
+	Total   int                `json:"total"`
+	Threads []*CommentThread   `json:"threads"`
+}
+
+// Mutation result for a guest comment submission.
+type CommentMutationResult struct {
+	Status           CommentMutationStatus    `json:"status"`
+	PostID           string                   `json:"postId"`
+	ModerationStatus *CommentModerationStatus `json:"moderationStatus,omitempty"`
+}
+
+// Comment tree node with at most one reply level.
+type CommentThread struct {
+	Root    *Comment   `json:"root"`
+	Replies []*Comment `json:"replies"`
+}
+
 // Write operations for engagement counters and newsletter flows.
 type Mutation struct {
 }
@@ -167,6 +214,200 @@ type Topic struct {
 	Color string `json:"color"`
 	// Optional topic route or external link.
 	Link *string `json:"link,omitempty"`
+}
+
+// Moderation state attached to stored comments.
+type CommentModerationStatus string
+
+const (
+	CommentModerationStatusPending  CommentModerationStatus = "PENDING"
+	CommentModerationStatusApproved CommentModerationStatus = "APPROVED"
+	CommentModerationStatusRejected CommentModerationStatus = "REJECTED"
+	CommentModerationStatusSpam     CommentModerationStatus = "SPAM"
+)
+
+var AllCommentModerationStatus = []CommentModerationStatus{
+	CommentModerationStatusPending,
+	CommentModerationStatusApproved,
+	CommentModerationStatusRejected,
+	CommentModerationStatusSpam,
+}
+
+func (e CommentModerationStatus) IsValid() bool {
+	switch e {
+	case CommentModerationStatusPending, CommentModerationStatusApproved, CommentModerationStatusRejected, CommentModerationStatusSpam:
+		return true
+	}
+	return false
+}
+
+func (e CommentModerationStatus) String() string {
+	return string(e)
+}
+
+func (e *CommentModerationStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CommentModerationStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CommentModerationStatus", str)
+	}
+	return nil
+}
+
+func (e CommentModerationStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CommentModerationStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CommentModerationStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Status values returned by comment creation mutations.
+type CommentMutationStatus string
+
+const (
+	CommentMutationStatusSuccess            CommentMutationStatus = "SUCCESS"
+	CommentMutationStatusFailed             CommentMutationStatus = "FAILED"
+	CommentMutationStatusServiceUnavailable CommentMutationStatus = "SERVICE_UNAVAILABLE"
+	CommentMutationStatusInvalidPostID      CommentMutationStatus = "INVALID_POST_ID"
+	CommentMutationStatusNotFound           CommentMutationStatus = "NOT_FOUND"
+	CommentMutationStatusInvalidParent      CommentMutationStatus = "INVALID_PARENT"
+	CommentMutationStatusInvalidAuthor      CommentMutationStatus = "INVALID_AUTHOR"
+	CommentMutationStatusInvalidEmail       CommentMutationStatus = "INVALID_EMAIL"
+	CommentMutationStatusInvalidContent     CommentMutationStatus = "INVALID_CONTENT"
+	CommentMutationStatusRateLimited        CommentMutationStatus = "RATE_LIMITED"
+)
+
+var AllCommentMutationStatus = []CommentMutationStatus{
+	CommentMutationStatusSuccess,
+	CommentMutationStatusFailed,
+	CommentMutationStatusServiceUnavailable,
+	CommentMutationStatusInvalidPostID,
+	CommentMutationStatusNotFound,
+	CommentMutationStatusInvalidParent,
+	CommentMutationStatusInvalidAuthor,
+	CommentMutationStatusInvalidEmail,
+	CommentMutationStatusInvalidContent,
+	CommentMutationStatusRateLimited,
+}
+
+func (e CommentMutationStatus) IsValid() bool {
+	switch e {
+	case CommentMutationStatusSuccess, CommentMutationStatusFailed, CommentMutationStatusServiceUnavailable, CommentMutationStatusInvalidPostID, CommentMutationStatusNotFound, CommentMutationStatusInvalidParent, CommentMutationStatusInvalidAuthor, CommentMutationStatusInvalidEmail, CommentMutationStatusInvalidContent, CommentMutationStatusRateLimited:
+		return true
+	}
+	return false
+}
+
+func (e CommentMutationStatus) String() string {
+	return string(e)
+}
+
+func (e *CommentMutationStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CommentMutationStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CommentMutationStatus", str)
+	}
+	return nil
+}
+
+func (e CommentMutationStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CommentMutationStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CommentMutationStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Status values returned by comment read operations.
+type CommentQueryStatus string
+
+const (
+	CommentQueryStatusSuccess            CommentQueryStatus = "SUCCESS"
+	CommentQueryStatusFailed             CommentQueryStatus = "FAILED"
+	CommentQueryStatusServiceUnavailable CommentQueryStatus = "SERVICE_UNAVAILABLE"
+	CommentQueryStatusInvalidPostID      CommentQueryStatus = "INVALID_POST_ID"
+	CommentQueryStatusNotFound           CommentQueryStatus = "NOT_FOUND"
+)
+
+var AllCommentQueryStatus = []CommentQueryStatus{
+	CommentQueryStatusSuccess,
+	CommentQueryStatusFailed,
+	CommentQueryStatusServiceUnavailable,
+	CommentQueryStatusInvalidPostID,
+	CommentQueryStatusNotFound,
+}
+
+func (e CommentQueryStatus) IsValid() bool {
+	switch e {
+	case CommentQueryStatusSuccess, CommentQueryStatusFailed, CommentQueryStatusServiceUnavailable, CommentQueryStatusInvalidPostID, CommentQueryStatusNotFound:
+		return true
+	}
+	return false
+}
+
+func (e CommentQueryStatus) String() string {
+	return string(e)
+}
+
+func (e *CommentQueryStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CommentQueryStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CommentQueryStatus", str)
+	}
+	return nil
+}
+
+func (e CommentQueryStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CommentQueryStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CommentQueryStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Status values returned by content read operations.

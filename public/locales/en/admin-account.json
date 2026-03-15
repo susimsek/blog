@@ -15,16 +15,18 @@
     },
     "settings": {
       "title": "Settings",
-      "copy": "Manage your profile, account controls, appearance, active sessions, newsletter subscribers, and content metadata.",
+      "copy": "Manage your profile, account controls, appearance, active sessions, newsletter, comment moderation, and content metadata.",
       "navLabel": "Settings navigation",
       "profile": "Profile",
       "account": "Account",
       "appearance": "Appearance",
       "sessions": "Sessions",
       "newsletter": "Newsletter",
+      "comments": "Comments",
       "errors": "Error messages",
       "content": "Content",
-      "security": "Security"
+      "security": "Security",
+      "newsletterSubscribers": "Subscribers"
     },
     "profile": {
       "title": "Profile",
@@ -172,9 +174,51 @@
     },
     "newsletter": {
       "title": "Newsletter management",
-      "copy": "Filter subscribers, update subscription status, and remove subscribers.",
+      "copy": "Run newsletter dispatches, inspect delivery health, and manage subscribers.",
+      "tabs": {
+        "overview": "Overview",
+        "subscribers": "Subscribers"
+      },
       "loading": "Loading newsletter subscribers...",
       "empty": "No newsletter subscribers found for the current filter.",
+      "operations": {
+        "title": "Dispatch operations",
+        "copy": "Run the newsletter job manually. Existing failed recipients are retried on the next dispatch.",
+        "trigger": "Run dispatch",
+        "running": "Running dispatch...",
+        "lastRun": "Last dispatch: {{value}}",
+        "justNow": "just now",
+        "result": {
+          "completed": "Completed",
+          "skipped": "Skipped",
+          "meta": "Locale: {{locale}} · Sent: {{sent}} · Failed: {{failed}}"
+        }
+      },
+      "campaigns": {
+        "title": "Recent campaigns",
+        "copy": "Latest newsletter runs and delivery outcomes.",
+        "loading": "Loading newsletter campaigns...",
+        "empty": "No newsletter campaigns found for the current filter.",
+        "statuses": {
+          "processing": "Processing",
+          "partial": "Partial failure",
+          "sent": "Sent"
+        },
+        "metrics": {
+          "sent": "Sent: {{count}}",
+          "failed": "Failed: {{count}}",
+          "lastRunAt": "Last run: {{value}}"
+        },
+        "actions": {
+          "sendTest": "Send test",
+          "viewFailures": "View failures",
+          "openPost": "Open post"
+        }
+      },
+      "subscribers": {
+        "title": "Subscribers",
+        "copy": "Filter subscribers, update subscription status, and remove subscribers."
+      },
       "filters": {
         "locale": "Locale",
         "status": "Status",
@@ -205,27 +249,121 @@
         "deleting": "Deleting..."
       },
       "success": {
+        "dispatchTriggered": "Newsletter dispatch completed.",
+        "testSend": "Test email sent to {{email}}.",
         "statusUpdated": "Subscriber updated: {{email}}",
         "deleted": "Subscriber deleted: {{email}}"
       },
       "errors": {
         "load": "Newsletter subscribers could not be loaded.",
+        "campaigns": "Newsletter campaigns could not be loaded.",
+        "dispatch": "Newsletter dispatch could not be started.",
+        "failures": "Newsletter failures could not be loaded.",
+        "testSend": "Test newsletter email could not be sent.",
         "statusUpdate": "Subscriber status could not be updated.",
-        "delete": "Subscriber could not be deleted."
+        "delete": "Subscriber could not be deleted.",
+        "summary": "Newsletter subscriber summary could not be loaded."
+      },
+      "testSend": {
+        "title": "Send test email",
+        "copy": "Send a single test newsletter email for {{title}}.",
+        "emailLabel": "Recipient email",
+        "emailPlaceholder": "name@example.com",
+        "submit": "Send test email",
+        "sending": "Sending test email..."
+      },
+      "failures": {
+        "title": "Failed deliveries",
+        "copy": "Failed recipients for {{title}}.",
+        "loading": "Loading failed deliveries...",
+        "empty": "No failed deliveries found for this campaign.",
+        "total": "Total failed recipients: {{count}}",
+        "lastAttemptAt": "Last attempt: {{value}}"
       },
       "deleteConfirm": {
         "title": "Delete subscriber",
         "copy": "Delete newsletter subscriber {{email}}?"
+      },
+      "summary": {
+        "title": "Subscriber summary",
+        "copy": "A quick snapshot of newsletter audience health.",
+        "loading": "Loading subscriber summary...",
+        "metrics": {
+          "total": "Total",
+          "active": "Active",
+          "pending": "Pending",
+          "unsubscribed": "Unsubscribed"
+        }
       }
     },
-  "content": {
-    "title": "Content management",
-    "copy": "List posts, filter by locale/topic/category, update metadata, and manage topic/category taxonomies.",
-    "loading": {
-      "posts": "Loading posts...",
-      "taxonomy": "Loading taxonomy...",
-      "postContent": "Loading post content..."
+    "comments": {
+      "title": "Comment moderation",
+      "copy": "Filter guest comments, review replies, and publish or block them with the same workflow used across admin settings.",
+      "loading": "Loading comments...",
+      "empty": "No comments found for the current filter.",
+      "filters": {
+        "locale": "Locale",
+        "status": "Status",
+        "query": "Search",
+        "queryPlaceholder": "Search by author, email, post, or content",
+        "locales": {
+          "all": "All locales",
+          "en": "English",
+          "tr": "Turkish"
+        },
+        "statuses": {
+          "all": "All statuses",
+          "pending": "Pending",
+          "approved": "Approved",
+          "rejected": "Rejected",
+          "spam": "Spam"
+        }
+      },
+      "list": {
+        "rootLabel": "Root comment",
+        "replyLabel": "Reply",
+        "post": "Post: {{title}}",
+        "submittedAt": "Submitted: {{value}}",
+        "updatedAt": "Updated: {{value}}"
+      },
+      "actions": {
+        "approve": "Approve",
+        "reject": "Reject",
+        "spam": "Spam",
+        "delete": "Delete",
+        "deleting": "Deleting...",
+        "updating": "Updating...",
+        "openPost": "Open post"
+      },
+      "deleteConfirm": {
+        "title": "Delete comment",
+        "copy": "Delete this comment by {{author}} permanently? This action cannot be undone.",
+        "labels": {
+          "author": "Author",
+          "email": "Email",
+          "post": "Post"
+        }
+      },
+      "success": {
+        "approved": "Comment approved: {{author}}",
+        "rejected": "Comment rejected: {{author}}",
+        "spam": "Comment marked as spam: {{author}}",
+        "deleted": "Comment deleted: {{author}}"
+      },
+      "errors": {
+        "load": "Comments could not be loaded.",
+        "statusUpdate": "Comment status could not be updated.",
+        "delete": "Comment could not be deleted."
+      }
     },
+    "content": {
+      "title": "Content management",
+      "copy": "List posts, filter by locale/topic/category, update metadata, and manage topic/category taxonomies.",
+      "loading": {
+        "posts": "Loading posts...",
+        "taxonomy": "Loading taxonomy...",
+        "postContent": "Loading post content..."
+      },
       "empty": {
         "posts": "No posts found for the current filters.",
         "topics": "No topics found.",
@@ -273,21 +411,21 @@
       "actions": {
         "create": "Create",
         "createTopic": "Create topic",
-      "createCategory": "Create category",
-      "update": "Update",
-      "updatePost": "Update post",
-      "updatePostContent": "Save content",
-      "backToPosts": "Back to posts",
-      "delete": "Delete",
-      "deletePost": "Delete post",
+        "createCategory": "Create category",
+        "update": "Update",
+        "updatePost": "Update post",
+        "updatePostContent": "Save content",
+        "backToPosts": "Back to posts",
+        "delete": "Delete",
+        "deletePost": "Delete post",
         "saving": "Saving...",
         "updating": "Updating...",
         "deleting": "Deleting..."
       },
       "success": {
-      "postUpdated": "Post metadata updated: {{id}}",
-      "postContentUpdated": "Post content updated: {{id}}",
-      "postDeleted": "Post deleted: {{id}}",
+        "postUpdated": "Post metadata updated: {{id}}",
+        "postContentUpdated": "Post content updated: {{id}}",
+        "postDeleted": "Post deleted: {{id}}",
         "topicCreated": "Topic created: {{id}}",
         "topicUpdated": "Topic updated: {{id}}",
         "topicDeleted": "Topic deleted: {{id}}",
@@ -298,9 +436,9 @@
       "errors": {
         "taxonomyLoad": "Topics and categories could not be loaded.",
         "postLoad": "Posts could not be loaded.",
-      "postUpdate": "Post metadata could not be updated.",
-      "postContentUpdate": "Post content could not be updated.",
-      "postDelete": "Post could not be deleted.",
+        "postUpdate": "Post metadata could not be updated.",
+        "postContentUpdate": "Post content could not be updated.",
+        "postDelete": "Post could not be deleted.",
         "topicCreate": "Topic could not be created.",
         "topicUpdate": "Topic could not be updated.",
         "topicDelete": "Topic could not be deleted.",
@@ -311,43 +449,43 @@
       "validation": {
         "id": "Use lowercase letters, numbers, and dash only (2-128 chars)."
       },
-    "modals": {
-      "post": {
-        "title": "Update post metadata",
-        "empty": "No post selected.",
-        "tabs": {
-          "metadata": "Metadata",
-          "content": "Content"
-        },
-        "category": "Category",
-        "categoryNone": "No category",
-        "metadataFields": {
-          "title": "Title",
-          "summary": "Description",
-          "publishedDate": "Published date",
-          "updatedDate": "Updated date",
-          "updatedDateHint": "Leave empty to clear updated date.",
-          "thumbnail": "Thumbnail URL"
-        },
-        "topics": "Topics",
-        "topicsEmpty": "No topics found for this locale.",
-        "contentLabel": "Markdown content",
-      "contentHint": "Supports standard Markdown syntax.",
-      "previewTitle": "Preview",
-      "previewEmpty": "No content to preview.",
-      "modes": {
-        "editor": "Editor",
-        "split": "Editor + Preview",
-        "preview": "Preview"
-      },
-      "meta": {
-        "published": "Published",
-        "updated": "Updated"
-      },
-      "labels": {
-        "id": "Post id: {{value}}",
-        "locale": "Locale: {{value}}"
-      }
+      "modals": {
+        "post": {
+          "title": "Update post metadata",
+          "empty": "No post selected.",
+          "tabs": {
+            "metadata": "Metadata",
+            "content": "Content"
+          },
+          "category": "Category",
+          "categoryNone": "No category",
+          "metadataFields": {
+            "title": "Title",
+            "summary": "Description",
+            "publishedDate": "Published date",
+            "updatedDate": "Updated date",
+            "updatedDateHint": "Leave empty to clear updated date.",
+            "thumbnail": "Thumbnail URL"
+          },
+          "topics": "Topics",
+          "topicsEmpty": "No topics found for this locale.",
+          "contentLabel": "Markdown content",
+          "contentHint": "Supports standard Markdown syntax.",
+          "previewTitle": "Preview",
+          "previewEmpty": "No content to preview.",
+          "modes": {
+            "editor": "Editor",
+            "split": "Editor + Preview",
+            "preview": "Preview"
+          },
+          "meta": {
+            "published": "Published",
+            "updated": "Updated"
+          },
+          "labels": {
+            "id": "Post id: {{value}}",
+            "locale": "Locale: {{value}}"
+          }
         },
         "deletePost": {
           "title": "Delete post",
@@ -383,100 +521,100 @@
       }
     },
     "errorsCatalog": {
-    "title": "Error messages",
-    "copy": "List, filter, create, update, and delete admin API error messages.",
-    "loading": "Loading error messages...",
-    "empty": "No error messages found for the current filter.",
-    "actions": {
-      "refresh": "Refresh",
-      "create": "Create",
-      "creating": "Creating...",
-      "update": "Update",
-      "updating": "Updating...",
-      "delete": "Delete",
-      "deleting": "Deleting...",
-      "confirmDelete": "Delete {{code}} ({{locale}})?"
-    },
-    "filters": {
-      "locale": "Locale",
-      "query": "Search",
-      "queryPlaceholder": "Search by code or message",
-      "locales": {
-        "all": "All locales",
-        "en": "English",
-        "tr": "Turkish"
-      }
-    },
-    "tabs": {
-      "create": "Create",
-      "update": "Update"
-    },
-    "deleteConfirm": {
-      "title": "Delete error message"
-    },
-    "list": {
-      "updatedAt": "Updated: {{value}}"
-    },
-    "create": {
-      "copy": "Add a new localized message by code.",
-      "locale": "Locale",
-      "code": "Code",
-      "codePlaceholder": "Example: INVALID_CREDENTIALS",
-      "codeValidation": "Use only uppercase letters, numbers, and underscore (2-120 chars).",
-      "message": "Message",
-      "messageHint": "Maximum {{count}} characters."
-    },
-    "update": {
-      "copy": "Edit or delete the currently selected message.",
-      "empty": "Select an error message to edit.",
-      "notAvailable": "Not available",
-      "message": "Message",
-      "messageHint": "Maximum {{count}} characters.",
-      "labels": {
-        "code": "Code",
-        "scope": "Scope",
-        "locale": "Locale",
-        "updatedAt": "Updated at"
-      }
-    },
-    "success": {
-      "created": "Error message created.",
-      "updated": "Error message updated.",
-      "deleted": "Error message deleted."
-    },
-    "errors": {
-      "load": "Error messages could not be loaded.",
-      "create": "Error message could not be created.",
-      "update": "Error message could not be updated.",
-      "delete": "Error message could not be deleted."
-    },
-    "audit": {
-      "title": "Audit log",
-      "copy": "Every create, update, and delete action is recorded.",
-      "loading": "Loading audit log...",
-      "empty": "No audit events found.",
-      "columns": {
-        "createdAt": "Created at",
-        "actor": "Actor",
-        "action": "Action",
-        "code": "Code",
-        "status": "Status"
-      },
+      "title": "Error messages",
+      "copy": "List, filter, create, update, and delete admin API error messages.",
+      "loading": "Loading error messages...",
+      "empty": "No error messages found for the current filter.",
       "actions": {
-        "created": "Created",
-        "updated": "Updated",
-        "deleted": "Deleted"
+        "refresh": "Refresh",
+        "create": "Create",
+        "creating": "Creating...",
+        "update": "Update",
+        "updating": "Updating...",
+        "delete": "Delete",
+        "deleting": "Deleting...",
+        "confirmDelete": "Delete {{code}} ({{locale}})?"
       },
-      "statuses": {
-        "success": "Success",
-        "failed": "Failed"
+      "filters": {
+        "locale": "Locale",
+        "query": "Search",
+        "queryPlaceholder": "Search by code or message",
+        "locales": {
+          "all": "All locales",
+          "en": "English",
+          "tr": "Turkish"
+        }
+      },
+      "tabs": {
+        "create": "Create",
+        "update": "Update"
+      },
+      "deleteConfirm": {
+        "title": "Delete error message"
+      },
+      "list": {
+        "updatedAt": "Updated: {{value}}"
+      },
+      "create": {
+        "copy": "Add a new localized message by code.",
+        "locale": "Locale",
+        "code": "Code",
+        "codePlaceholder": "Example: INVALID_CREDENTIALS",
+        "codeValidation": "Use only uppercase letters, numbers, and underscore (2-120 chars).",
+        "message": "Message",
+        "messageHint": "Maximum {{count}} characters."
+      },
+      "update": {
+        "copy": "Edit or delete the currently selected message.",
+        "empty": "Select an error message to edit.",
+        "notAvailable": "Not available",
+        "message": "Message",
+        "messageHint": "Maximum {{count}} characters.",
+        "labels": {
+          "code": "Code",
+          "scope": "Scope",
+          "locale": "Locale",
+          "updatedAt": "Updated at"
+        }
+      },
+      "success": {
+        "created": "Error message created.",
+        "updated": "Error message updated.",
+        "deleted": "Error message deleted."
       },
       "errors": {
-        "load": "Audit log could not be loaded."
+        "load": "Error messages could not be loaded.",
+        "create": "Error message could not be created.",
+        "update": "Error message could not be updated.",
+        "delete": "Error message could not be deleted."
+      },
+      "audit": {
+        "title": "Audit log",
+        "copy": "Every create, update, and delete action is recorded.",
+        "loading": "Loading audit log...",
+        "empty": "No audit events found.",
+        "columns": {
+          "createdAt": "Created at",
+          "actor": "Actor",
+          "action": "Action",
+          "code": "Code",
+          "status": "Status"
+        },
+        "actions": {
+          "created": "Created",
+          "updated": "Updated",
+          "deleted": "Deleted"
+        },
+        "statuses": {
+          "success": "Success",
+          "failed": "Failed"
+        },
+        "errors": {
+          "load": "Audit log could not be loaded."
+        }
       }
-    }
-  },
-  "validation": {
+    },
+    "validation": {
       "currentPasswordRequired": "Enter your current password.",
       "newPasswordRequired": "Enter a new password.",
       "newPasswordMin": "Use at least {{count}} characters.",

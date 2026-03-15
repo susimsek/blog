@@ -11,10 +11,14 @@ import (
 )
 
 type adminNewsletterManagementStubRepository struct {
-	items     []domain.AdminNewsletterSubscriberRecord
-	listErr   error
-	updateErr error
-	deleteErr error
+	items        []domain.AdminNewsletterSubscriberRecord
+	campaigns    []domain.AdminNewsletterCampaignRecord
+	failures     []domain.AdminNewsletterDeliveryFailureRecord
+	listErr      error
+	campaignsErr error
+	failuresErr  error
+	updateErr    error
+	deleteErr    error
 }
 
 func (stub *adminNewsletterManagementStubRepository) ListSubscribers(
@@ -39,6 +43,64 @@ func (stub *adminNewsletterManagementStubRepository) ListSubscribers(
 	}
 
 	return &domain.AdminNewsletterSubscriberListResult{
+		Items: filtered,
+		Total: len(filtered),
+		Page:  page,
+		Size:  size,
+	}, nil
+}
+
+func (stub *adminNewsletterManagementStubRepository) ListCampaigns(
+	_ context.Context,
+	filter domain.AdminNewsletterCampaignFilter,
+	page int,
+	size int,
+) (*domain.AdminNewsletterCampaignListResult, error) {
+	if stub.campaignsErr != nil {
+		return nil, stub.campaignsErr
+	}
+
+	filtered := make([]domain.AdminNewsletterCampaignRecord, 0, len(stub.campaigns))
+	for _, item := range stub.campaigns {
+		if filter.Locale != "" && item.Locale != filter.Locale {
+			continue
+		}
+		if filter.Status != "" && item.Status != filter.Status {
+			continue
+		}
+		filtered = append(filtered, item)
+	}
+
+	return &domain.AdminNewsletterCampaignListResult{
+		Items: filtered,
+		Total: len(filtered),
+		Page:  page,
+		Size:  size,
+	}, nil
+}
+
+func (stub *adminNewsletterManagementStubRepository) ListDeliveryFailures(
+	_ context.Context,
+	filter domain.AdminNewsletterDeliveryFailureFilter,
+	page int,
+	size int,
+) (*domain.AdminNewsletterDeliveryFailureListResult, error) {
+	if stub.failuresErr != nil {
+		return nil, stub.failuresErr
+	}
+
+	filtered := make([]domain.AdminNewsletterDeliveryFailureRecord, 0, len(stub.failures))
+	for _, item := range stub.failures {
+		if filter.Locale != "" && item.Locale != filter.Locale {
+			continue
+		}
+		if filter.ItemKey != "" && item.ItemKey != filter.ItemKey {
+			continue
+		}
+		filtered = append(filtered, item)
+	}
+
+	return &domain.AdminNewsletterDeliveryFailureListResult{
 		Items: filtered,
 		Total: len(filtered),
 		Page:  page,
@@ -156,6 +218,60 @@ func TestUpdateAdminNewsletterSubscriberStatusUpdatesRecord(t *testing.T) {
 
 	if updated == nil || updated.Status != adminNewsletterStatusActive {
 		t.Fatalf("expected updated status %q, got %#v", adminNewsletterStatusActive, updated)
+	}
+}
+
+func TestListAdminNewsletterCampaignsFiltersByLocale(t *testing.T) {
+	previousRepo := adminNewsletterRepository
+	t.Cleanup(func() {
+		adminNewsletterRepository = previousRepo
+	})
+
+	adminNewsletterRepository = &adminNewsletterManagementStubRepository{
+		campaigns: []domain.AdminNewsletterCampaignRecord{
+			{Locale: "en", ItemKey: "en-post", Title: "English post", Status: "sent"},
+			{Locale: "tr", ItemKey: "tr-post", Title: "Turkish post", Status: "partial"},
+		},
+	}
+
+	page := 1
+	size := 5
+	result, err := ListAdminNewsletterCampaigns(
+		context.Background(),
+		&domain.AdminUser{ID: "admin-1"},
+		domain.AdminNewsletterCampaignFilter{
+			Locale: "tr",
+			Page:   &page,
+			Size:   &size,
+		},
+	)
+	if err != nil {
+		t.Fatalf("ListAdminNewsletterCampaigns returned error: %v", err)
+	}
+
+	if result.Total != 1 {
+		t.Fatalf("expected total 1, got %d", result.Total)
+	}
+	if len(result.Items) != 1 || result.Items[0].ItemKey != "tr-post" {
+		t.Fatalf("unexpected campaign payload: %#v", result.Items)
+	}
+}
+
+func TestListAdminNewsletterDeliveryFailuresRequiresCampaignIdentity(t *testing.T) {
+	previousRepo := adminNewsletterRepository
+	t.Cleanup(func() {
+		adminNewsletterRepository = previousRepo
+	})
+
+	adminNewsletterRepository = &adminNewsletterManagementStubRepository{}
+
+	_, err := ListAdminNewsletterDeliveryFailures(
+		context.Background(),
+		&domain.AdminUser{ID: "admin-1"},
+		domain.AdminNewsletterDeliveryFailureFilter{},
+	)
+	if err == nil {
+		t.Fatal("expected error")
 	}
 }
 

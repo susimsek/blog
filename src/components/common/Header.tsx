@@ -125,14 +125,15 @@ export default function Header({
 
     const handleShortcut = (event: KeyboardEvent) => {
       const isSearchOpen = searchVisibleRef.current;
+      const key = typeof event.key === 'string' ? event.key.toLowerCase() : '';
 
-      if (event.key === 'Escape' && isSearchOpen) {
+      if (key === 'escape' && isSearchOpen) {
         event.preventDefault();
         closeSearch({ clearQuery: true });
         return;
       }
 
-      const isK = event.key.toLowerCase() === 'k';
+      const isK = key === 'k';
       if (!isK || (!event.metaKey && !event.ctrlKey)) {
         return;
       }

@@ -35,6 +35,18 @@
       "bestFeedback": "En iyi geri bildirim",
       "dominantCategory": "Baskın kategori"
     },
+    "comments": {
+      "title": "Yorum moderasyonu",
+      "subtitle": "İnceleme bekleyen en yeni misafir yorumları.",
+      "manage": "Tüm yorumları yönet",
+      "loading": "Bekleyen yorumlar yükleniyor...",
+      "empty": "Şu anda bekleyen yorum yok.",
+      "actions": {
+        "approve": "Onayla",
+        "reject": "Reddet",
+        "spam": "Spam"
+      }
+    },
     "cards": {
       "session": {
         "title": "Oturum",

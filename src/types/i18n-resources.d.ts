@@ -66,6 +66,66 @@ interface Resources {
           title: 'Change username';
         };
       };
+      comments: {
+        actions: {
+          approve: 'Approve';
+          delete: 'Delete';
+          deleting: 'Deleting...';
+          openPost: 'Open post';
+          reject: 'Reject';
+          spam: 'Spam';
+          updating: 'Updating...';
+        };
+        copy: 'Filter guest comments, review replies, and publish or block them with the same workflow used across admin settings.';
+        deleteConfirm: {
+          copy: 'Delete this comment by {{author}} permanently? This action cannot be undone.';
+          labels: {
+            author: 'Author';
+            email: 'Email';
+            post: 'Post';
+          };
+          title: 'Delete comment';
+        };
+        empty: 'No comments found for the current filter.';
+        errors: {
+          delete: 'Comment could not be deleted.';
+          load: 'Comments could not be loaded.';
+          statusUpdate: 'Comment status could not be updated.';
+        };
+        filters: {
+          locale: 'Locale';
+          locales: {
+            all: 'All locales';
+            en: 'English';
+            tr: 'Turkish';
+          };
+          query: 'Search';
+          queryPlaceholder: 'Search by author, email, post, or content';
+          status: 'Status';
+          statuses: {
+            all: 'All statuses';
+            approved: 'Approved';
+            pending: 'Pending';
+            rejected: 'Rejected';
+            spam: 'Spam';
+          };
+        };
+        list: {
+          post: 'Post: {{title}}';
+          replyLabel: 'Reply';
+          rootLabel: 'Root comment';
+          submittedAt: 'Submitted: {{value}}';
+          updatedAt: 'Updated: {{value}}';
+        };
+        loading: 'Loading comments...';
+        success: {
+          approved: 'Comment approved: {{author}}';
+          deleted: 'Comment deleted: {{author}}';
+          rejected: 'Comment rejected: {{author}}';
+          spam: 'Comment marked as spam: {{author}}';
+        };
+        title: 'Comment moderation';
+      };
       content: {
         actions: {
           backToPosts: 'Back to posts';
@@ -353,16 +413,50 @@ interface Resources {
           update: 'Update';
           updating: 'Updating...';
         };
-        copy: 'Filter subscribers, update subscription status, and remove subscribers.';
+        campaigns: {
+          actions: {
+            openPost: 'Open post';
+            sendTest: 'Send test';
+            viewFailures: 'View failures';
+          };
+          copy: 'Latest newsletter runs and delivery outcomes.';
+          empty: 'No newsletter campaigns found for the current filter.';
+          loading: 'Loading newsletter campaigns...';
+          metrics: {
+            failed: 'Failed: {{count}}';
+            lastRunAt: 'Last run: {{value}}';
+            sent: 'Sent: {{count}}';
+          };
+          statuses: {
+            partial: 'Partial failure';
+            processing: 'Processing';
+            sent: 'Sent';
+          };
+          title: 'Recent campaigns';
+        };
+        copy: 'Run newsletter dispatches, inspect delivery health, and manage subscribers.';
         deleteConfirm: {
           copy: 'Delete newsletter subscriber {{email}}?';
           title: 'Delete subscriber';
         };
         empty: 'No newsletter subscribers found for the current filter.';
         errors: {
+          campaigns: 'Newsletter campaigns could not be loaded.';
           delete: 'Subscriber could not be deleted.';
+          dispatch: 'Newsletter dispatch could not be started.';
+          failures: 'Newsletter failures could not be loaded.';
           load: 'Newsletter subscribers could not be loaded.';
           statusUpdate: 'Subscriber status could not be updated.';
+          summary: 'Newsletter subscriber summary could not be loaded.';
+          testSend: 'Test newsletter email could not be sent.';
+        };
+        failures: {
+          copy: 'Failed recipients for {{title}}.';
+          empty: 'No failed deliveries found for this campaign.';
+          lastAttemptAt: 'Last attempt: {{value}}';
+          loading: 'Loading failed deliveries...';
+          title: 'Failed deliveries';
+          total: 'Total failed recipients: {{count}}';
         };
         filters: {
           locale: 'Locale';
@@ -386,9 +480,51 @@ interface Resources {
           updatedAt: 'Updated: {{value}}';
         };
         loading: 'Loading newsletter subscribers...';
+        operations: {
+          copy: 'Run the newsletter job manually. Existing failed recipients are retried on the next dispatch.';
+          justNow: 'just now';
+          lastRun: 'Last dispatch: {{value}}';
+          result: {
+            completed: 'Completed';
+            meta: 'Locale: {{locale}} · Sent: {{sent}} · Failed: {{failed}}';
+            skipped: 'Skipped';
+          };
+          running: 'Running dispatch...';
+          title: 'Dispatch operations';
+          trigger: 'Run dispatch';
+        };
+        subscribers: {
+          copy: 'Filter subscribers, update subscription status, and remove subscribers.';
+          title: 'Subscribers';
+        };
         success: {
           deleted: 'Subscriber deleted: {{email}}';
+          dispatchTriggered: 'Newsletter dispatch completed.';
           statusUpdated: 'Subscriber updated: {{email}}';
+          testSend: 'Test email sent to {{email}}.';
+        };
+        summary: {
+          copy: 'A quick snapshot of newsletter audience health.';
+          loading: 'Loading subscriber summary...';
+          metrics: {
+            active: 'Active';
+            pending: 'Pending';
+            total: 'Total';
+            unsubscribed: 'Unsubscribed';
+          };
+          title: 'Subscriber summary';
+        };
+        tabs: {
+          overview: 'Overview';
+          subscribers: 'Subscribers';
+        };
+        testSend: {
+          copy: 'Send a single test newsletter email for {{title}}.';
+          emailLabel: 'Recipient email';
+          emailPlaceholder: 'name@example.com';
+          sending: 'Sending test email...';
+          submit: 'Send test email';
+          title: 'Send test email';
         };
         title: 'Newsletter management';
       };
@@ -477,11 +613,13 @@ interface Resources {
       settings: {
         account: 'Account';
         appearance: 'Appearance';
+        comments: 'Comments';
         content: 'Content';
-        copy: 'Manage your profile, account controls, appearance, active sessions, newsletter subscribers, and content metadata.';
+        copy: 'Manage your profile, account controls, appearance, active sessions, newsletter, comment moderation, and content metadata.';
         errors: 'Error messages';
         navLabel: 'Settings navigation';
         newsletter: 'Newsletter';
+        newsletterSubscribers: 'Subscribers';
         profile: 'Profile';
         security: 'Security';
         sessions: 'Sessions';
@@ -568,6 +706,18 @@ interface Resources {
         subscribers: {
           title: 'Subscribers';
         };
+      };
+      comments: {
+        actions: {
+          approve: 'Approve';
+          reject: 'Reject';
+          spam: 'Spam';
+        };
+        empty: 'No pending comments right now.';
+        loading: 'Loading pending comments...';
+        manage: 'Manage all comments';
+        subtitle: 'Newest guest comments waiting for review.';
+        title: 'Comment moderation';
       };
       contentHealth: {
         localePairs: 'Locale pair coverage';
@@ -1305,6 +1455,54 @@ interface Resources {
           medium: 'Medium';
         };
         title: 'Written by';
+      };
+      comments: {
+        closeReply: 'Close reply';
+        composerCopy: 'Join the discussion with a note, question, or correction.';
+        composerTitle: 'Add your comment';
+        copy: 'Add a thoughtful note, question, or correction. Approved comments appear below.';
+        empty: 'No approved comments yet. Start the discussion.';
+        emptyTitle: 'No discussion yet';
+        errors: {
+          failed: 'Comment could not be submitted.';
+          'invalid-author': 'Enter a valid display name.';
+          'invalid-content': 'Enter a comment between 3 and 2000 characters.';
+          'invalid-email': 'Enter a valid email address.';
+          'invalid-parent': 'This reply target is no longer available.';
+          'invalid-post-id': 'The article could not be found.';
+          load: 'Comments are temporarily unavailable.';
+          'not-found': 'The article could not be found.';
+          'rate-limited': 'Too many comments submitted recently. Try again later.';
+          'service-unavailable': 'Comment service is temporarily unavailable.';
+        };
+        eyebrow: 'Discussion';
+        form: {
+          cancelReply: 'Cancel';
+          contentLabel: 'Comment';
+          contentPlaceholder: 'Write your comment';
+          emailLabel: 'Email';
+          emailPlaceholder: 'you@example.com';
+          helper: 'Your email stays private. Only your display name appears with the comment.';
+          nameLabel: 'Name';
+          namePlaceholder: 'Your name';
+          replyingTo: 'Replying to {{name}}';
+          submit: 'Post comment';
+          submitReply: 'Post reply';
+          submitting: 'Submitting...';
+        };
+        loading: 'Loading comments...';
+        moderationNote: 'New comments are reviewed before they appear.';
+        postedAt: 'Posted {{date}}';
+        replies_one: '1 reply';
+        replies_other: '{{count}} replies';
+        reply: 'Reply';
+        streamTitle: 'Discussion';
+        success: {
+          approved: 'Your comment is now live.';
+          pending: 'Your comment was received and is awaiting moderation.';
+        };
+        title_one: '1 comment';
+        title_other: '{{count}} comments';
       };
       hit: {
         aria: '{{count}} article hits';

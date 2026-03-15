@@ -35,6 +35,18 @@
       "bestFeedback": "Best feedback",
       "dominantCategory": "Dominant category"
     },
+    "comments": {
+      "title": "Comment moderation",
+      "subtitle": "Newest guest comments waiting for review.",
+      "manage": "Manage all comments",
+      "loading": "Loading pending comments...",
+      "empty": "No pending comments right now.",
+      "actions": {
+        "approve": "Approve",
+        "reject": "Reject",
+        "spam": "Spam"
+      }
+    },
     "cards": {
       "session": {
         "title": "Session",

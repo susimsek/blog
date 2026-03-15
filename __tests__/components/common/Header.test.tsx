@@ -307,6 +307,16 @@ describe('Header', () => {
     expect(screen.queryByLabelText('common.header.actions.hideSearch')).not.toBeInTheDocument();
   });
 
+  it('does not throw when keydown is dispatched without a key value', () => {
+    renderWithProviders(<Header searchEnabled />);
+
+    expect(() => {
+      window.dispatchEvent(new Event('keydown'));
+    }).not.toThrow();
+
+    expect(screen.queryByLabelText('common.header.actions.hideSearch')).not.toBeInTheDocument();
+  });
+
   it('renders the Mac shortcut hint when the navigator user agent is macOS', () => {
     const originalNavigator = global.navigator;
     Object.defineProperty(global, 'navigator', {

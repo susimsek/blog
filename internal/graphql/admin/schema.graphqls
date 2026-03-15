@@ -8,8 +8,11 @@ scalar DateTime
 type AdminQuery {
   me: AdminMe!
   dashboard: AdminDashboard!
+  comments(filter: AdminCommentFilterInput): AdminCommentListPayload!
   activeSessions: [AdminSession!]!
   newsletterSubscribers(filter: AdminNewsletterSubscriberFilterInput): AdminNewsletterSubscriberListPayload!
+  newsletterCampaigns(filter: AdminNewsletterCampaignFilterInput): AdminNewsletterCampaignListPayload!
+  newsletterCampaignFailures(filter: AdminNewsletterDeliveryFailureFilterInput!): AdminNewsletterDeliveryFailureListPayload!
   errorMessages(filter: AdminErrorMessageFilterInput): AdminErrorMessageListPayload!
   contentPosts(filter: AdminContentPostFilterInput): AdminContentPostListPayload!
   contentPost(input: AdminContentEntityKeyInput!): AdminContentPost
@@ -31,8 +34,12 @@ type AdminMutation {
   changePassword(input: AdminChangePasswordInput!): AdminPasswordChangePayload!
   revokeSession(sessionId: ID!): AdminSessionRevokePayload!
   revokeAllSessions: AdminSessionRevokePayload!
+  updateCommentStatus(input: AdminUpdateCommentStatusInput!): AdminComment!
+  deleteComment(input: AdminDeleteCommentInput!): AdminDeletePayload!
   updateNewsletterSubscriberStatus(input: AdminUpdateNewsletterSubscriberStatusInput!): AdminNewsletterSubscriber!
   deleteNewsletterSubscriber(input: AdminDeleteNewsletterSubscriberInput!): AdminDeletePayload!
+  triggerNewsletterDispatch: AdminNewsletterDispatchPayload!
+  sendTestNewsletter(input: AdminSendTestNewsletterInput!): AdminNewsletterTestSendPayload!
   createErrorMessage(input: AdminCreateErrorMessageInput!): AdminErrorMessage!
   updateErrorMessage(input: AdminUpdateErrorMessageInput!): AdminErrorMessage!
   deleteErrorMessage(input: AdminErrorMessageKeyInput!): AdminDeletePayload!
@@ -53,6 +60,31 @@ enum AdminNewsletterSubscriberStatus {
   UNSUBSCRIBED
 }
 
+enum AdminCommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SPAM
+}
+
+input AdminCommentFilterInput {
+  locale: String
+  status: AdminCommentStatus
+  postId: ID
+  query: String
+  page: Int
+  size: Int
+}
+
+input AdminUpdateCommentStatusInput {
+  commentId: ID!
+  status: AdminCommentStatus!
+}
+
+input AdminDeleteCommentInput {
+  commentId: ID!
+}
+
 input AdminNewsletterSubscriberFilterInput {
   locale: String
   status: AdminNewsletterSubscriberStatus
@@ -68,6 +100,27 @@ input AdminUpdateNewsletterSubscriberStatusInput {
 
 input AdminDeleteNewsletterSubscriberInput {
   email: String!
+}
+
+input AdminNewsletterCampaignFilterInput {
+  locale: String
+  status: String
+  query: String
+  page: Int
+  size: Int
+}
+
+input AdminNewsletterDeliveryFailureFilterInput {
+  locale: String!
+  itemKey: String!
+  page: Int
+  size: Int
+}
+
+input AdminSendTestNewsletterInput {
+  email: String!
+  locale: String!
+  itemKey: String!
 }
 
 input AdminErrorMessageFilterInput {
@@ -232,6 +285,27 @@ type AdminDeletePayload {
   success: Boolean!
 }
 
+type AdminComment {
+  id: ID!
+  postId: ID!
+  postTitle: String!
+  locale: String!
+  parentId: ID
+  authorName: String!
+  authorEmail: String!
+  content: String!
+  status: AdminCommentStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type AdminCommentListPayload {
+  items: [AdminComment!]!
+  total: Int!
+  page: Int!
+  size: Int!
+}
+
 type AdminNewsletterSubscriber {
   email: String!
   locale: String!
@@ -250,6 +324,75 @@ type AdminNewsletterSubscriberListPayload {
   total: Int!
   page: Int!
   size: Int!
+}
+
+type AdminNewsletterCampaign {
+  locale: String!
+  itemKey: String!
+  title: String!
+  summary: String
+  link: String
+  pubDate: String
+  rssUrl: String
+  status: String!
+  sentCount: Int!
+  failedCount: Int!
+  lastRunAt: DateTime
+  updatedAt: DateTime
+  createdAt: DateTime
+}
+
+type AdminNewsletterCampaignListPayload {
+  items: [AdminNewsletterCampaign!]!
+  total: Int!
+  page: Int!
+  size: Int!
+}
+
+type AdminNewsletterDeliveryFailure {
+  locale: String!
+  itemKey: String!
+  email: String!
+  status: String!
+  lastError: String
+  lastAttemptAt: DateTime
+  updatedAt: DateTime
+  createdAt: DateTime
+}
+
+type AdminNewsletterDeliveryFailureListPayload {
+  items: [AdminNewsletterDeliveryFailure!]!
+  total: Int!
+  page: Int!
+  size: Int!
+}
+
+type AdminNewsletterDispatchLocaleResult {
+  locale: String!
+  rssUrl: String
+  itemKey: String
+  postTitle: String
+  sentCount: Int!
+  failedCount: Int!
+  skipped: Boolean!
+  reason: String
+}
+
+type AdminNewsletterDispatchPayload {
+  success: Boolean!
+  message: String!
+  timestamp: DateTime!
+  results: [AdminNewsletterDispatchLocaleResult!]!
+}
+
+type AdminNewsletterTestSendPayload {
+  success: Boolean!
+  message: String!
+  timestamp: DateTime!
+  email: String!
+  locale: String!
+  itemKey: String!
+  postTitle: String
 }
 
 type AdminErrorMessage {

@@ -57,6 +57,27 @@ type ComplexityRoot struct {
 		User    func(childComplexity int) int
 	}
 
+	AdminComment struct {
+		AuthorEmail func(childComplexity int) int
+		AuthorName  func(childComplexity int) int
+		Content     func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Locale      func(childComplexity int) int
+		ParentID    func(childComplexity int) int
+		PostID      func(childComplexity int) int
+		PostTitle   func(childComplexity int) int
+		Status      func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+	}
+
+	AdminCommentListPayload struct {
+		Items func(childComplexity int) int
+		Page  func(childComplexity int) int
+		Size  func(childComplexity int) int
+		Total func(childComplexity int) int
+	}
+
 	AdminContentCategory struct {
 		Color     func(childComplexity int) int
 		ID        func(childComplexity int) int
@@ -232,6 +253,7 @@ type ComplexityRoot struct {
 		CreateContentTopic               func(childComplexity int, input model.AdminContentTopicInput) int
 		CreateErrorMessage               func(childComplexity int, input model.AdminCreateErrorMessageInput) int
 		DeleteAccount                    func(childComplexity int, input model.AdminDeleteAccountInput) int
+		DeleteComment                    func(childComplexity int, input model.AdminDeleteCommentInput) int
 		DeleteContentCategory            func(childComplexity int, input model.AdminContentEntityKeyInput) int
 		DeleteContentPost                func(childComplexity int, input model.AdminContentEntityKeyInput) int
 		DeleteContentTopic               func(childComplexity int, input model.AdminContentEntityKeyInput) int
@@ -242,12 +264,74 @@ type ComplexityRoot struct {
 		RefreshAdminSession              func(childComplexity int) int
 		RevokeAllSessions                func(childComplexity int) int
 		RevokeSession                    func(childComplexity int, sessionID string) int
+		SendTestNewsletter               func(childComplexity int, input model.AdminSendTestNewsletterInput) int
+		TriggerNewsletterDispatch        func(childComplexity int) int
+		UpdateCommentStatus              func(childComplexity int, input model.AdminUpdateCommentStatusInput) int
 		UpdateContentCategory            func(childComplexity int, input model.AdminContentCategoryInput) int
 		UpdateContentPostContent         func(childComplexity int, input model.AdminUpdateContentPostContentInput) int
 		UpdateContentPostMetadata        func(childComplexity int, input model.AdminUpdateContentPostMetadataInput) int
 		UpdateContentTopic               func(childComplexity int, input model.AdminContentTopicInput) int
 		UpdateErrorMessage               func(childComplexity int, input model.AdminUpdateErrorMessageInput) int
 		UpdateNewsletterSubscriberStatus func(childComplexity int, input model.AdminUpdateNewsletterSubscriberStatusInput) int
+	}
+
+	AdminNewsletterCampaign struct {
+		CreatedAt   func(childComplexity int) int
+		FailedCount func(childComplexity int) int
+		ItemKey     func(childComplexity int) int
+		LastRunAt   func(childComplexity int) int
+		Link        func(childComplexity int) int
+		Locale      func(childComplexity int) int
+		PubDate     func(childComplexity int) int
+		RssURL      func(childComplexity int) int
+		SentCount   func(childComplexity int) int
+		Status      func(childComplexity int) int
+		Summary     func(childComplexity int) int
+		Title       func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+	}
+
+	AdminNewsletterCampaignListPayload struct {
+		Items func(childComplexity int) int
+		Page  func(childComplexity int) int
+		Size  func(childComplexity int) int
+		Total func(childComplexity int) int
+	}
+
+	AdminNewsletterDeliveryFailure struct {
+		CreatedAt     func(childComplexity int) int
+		Email         func(childComplexity int) int
+		ItemKey       func(childComplexity int) int
+		LastAttemptAt func(childComplexity int) int
+		LastError     func(childComplexity int) int
+		Locale        func(childComplexity int) int
+		Status        func(childComplexity int) int
+		UpdatedAt     func(childComplexity int) int
+	}
+
+	AdminNewsletterDeliveryFailureListPayload struct {
+		Items func(childComplexity int) int
+		Page  func(childComplexity int) int
+		Size  func(childComplexity int) int
+		Total func(childComplexity int) int
+	}
+
+	AdminNewsletterDispatchLocaleResult struct {
+		FailedCount func(childComplexity int) int
+		ItemKey     func(childComplexity int) int
+		Locale      func(childComplexity int) int
+		PostTitle   func(childComplexity int) int
+		Reason      func(childComplexity int) int
+		RssURL      func(childComplexity int) int
+		SentCount   func(childComplexity int) int
+		Skipped     func(childComplexity int) int
+	}
+
+	AdminNewsletterDispatchPayload struct {
+		Message   func(childComplexity int) int
+		Results   func(childComplexity int) int
+		Success   func(childComplexity int) int
+		Timestamp func(childComplexity int) int
 	}
 
 	AdminNewsletterSubscriber struct {
@@ -270,23 +354,36 @@ type ComplexityRoot struct {
 		Total func(childComplexity int) int
 	}
 
+	AdminNewsletterTestSendPayload struct {
+		Email     func(childComplexity int) int
+		ItemKey   func(childComplexity int) int
+		Locale    func(childComplexity int) int
+		Message   func(childComplexity int) int
+		PostTitle func(childComplexity int) int
+		Success   func(childComplexity int) int
+		Timestamp func(childComplexity int) int
+	}
+
 	AdminPasswordChangePayload struct {
 		Success func(childComplexity int) int
 	}
 
 	AdminQuery struct {
-		ActiveSessions        func(childComplexity int) int
-		ContentCategories     func(childComplexity int, locale *string) int
-		ContentCategoriesPage func(childComplexity int, filter *model.AdminContentTaxonomyFilterInput) int
-		ContentPost           func(childComplexity int, input model.AdminContentEntityKeyInput) int
-		ContentPosts          func(childComplexity int, filter *model.AdminContentPostFilterInput) int
-		ContentTopics         func(childComplexity int, locale *string) int
-		ContentTopicsPage     func(childComplexity int, filter *model.AdminContentTaxonomyFilterInput) int
-		Dashboard             func(childComplexity int) int
-		ErrorMessageAuditLogs func(childComplexity int, limit *int) int
-		ErrorMessages         func(childComplexity int, filter *model.AdminErrorMessageFilterInput) int
-		Me                    func(childComplexity int) int
-		NewsletterSubscribers func(childComplexity int, filter *model.AdminNewsletterSubscriberFilterInput) int
+		ActiveSessions             func(childComplexity int) int
+		Comments                   func(childComplexity int, filter *model.AdminCommentFilterInput) int
+		ContentCategories          func(childComplexity int, locale *string) int
+		ContentCategoriesPage      func(childComplexity int, filter *model.AdminContentTaxonomyFilterInput) int
+		ContentPost                func(childComplexity int, input model.AdminContentEntityKeyInput) int
+		ContentPosts               func(childComplexity int, filter *model.AdminContentPostFilterInput) int
+		ContentTopics              func(childComplexity int, locale *string) int
+		ContentTopicsPage          func(childComplexity int, filter *model.AdminContentTaxonomyFilterInput) int
+		Dashboard                  func(childComplexity int) int
+		ErrorMessageAuditLogs      func(childComplexity int, limit *int) int
+		ErrorMessages              func(childComplexity int, filter *model.AdminErrorMessageFilterInput) int
+		Me                         func(childComplexity int) int
+		NewsletterCampaignFailures func(childComplexity int, filter model.AdminNewsletterDeliveryFailureFilterInput) int
+		NewsletterCampaigns        func(childComplexity int, filter *model.AdminNewsletterCampaignFilterInput) int
+		NewsletterSubscribers      func(childComplexity int, filter *model.AdminNewsletterSubscriberFilterInput) int
 	}
 
 	AdminSession struct {
@@ -326,8 +423,12 @@ type AdminMutationResolver interface {
 	ChangePassword(ctx context.Context, input model.AdminChangePasswordInput) (*model.AdminPasswordChangePayload, error)
 	RevokeSession(ctx context.Context, sessionID string) (*model.AdminSessionRevokePayload, error)
 	RevokeAllSessions(ctx context.Context) (*model.AdminSessionRevokePayload, error)
+	UpdateCommentStatus(ctx context.Context, input model.AdminUpdateCommentStatusInput) (*model.AdminComment, error)
+	DeleteComment(ctx context.Context, input model.AdminDeleteCommentInput) (*model.AdminDeletePayload, error)
 	UpdateNewsletterSubscriberStatus(ctx context.Context, input model.AdminUpdateNewsletterSubscriberStatusInput) (*model.AdminNewsletterSubscriber, error)
 	DeleteNewsletterSubscriber(ctx context.Context, input model.AdminDeleteNewsletterSubscriberInput) (*model.AdminDeletePayload, error)
+	TriggerNewsletterDispatch(ctx context.Context) (*model.AdminNewsletterDispatchPayload, error)
+	SendTestNewsletter(ctx context.Context, input model.AdminSendTestNewsletterInput) (*model.AdminNewsletterTestSendPayload, error)
 	CreateErrorMessage(ctx context.Context, input model.AdminCreateErrorMessageInput) (*model.AdminErrorMessage, error)
 	UpdateErrorMessage(ctx context.Context, input model.AdminUpdateErrorMessageInput) (*model.AdminErrorMessage, error)
 	DeleteErrorMessage(ctx context.Context, input model.AdminErrorMessageKeyInput) (*model.AdminDeletePayload, error)
@@ -344,8 +445,11 @@ type AdminMutationResolver interface {
 type AdminQueryResolver interface {
 	Me(ctx context.Context) (*model.AdminMe, error)
 	Dashboard(ctx context.Context) (*model.AdminDashboard, error)
+	Comments(ctx context.Context, filter *model.AdminCommentFilterInput) (*model.AdminCommentListPayload, error)
 	ActiveSessions(ctx context.Context) ([]*model.AdminSession, error)
 	NewsletterSubscribers(ctx context.Context, filter *model.AdminNewsletterSubscriberFilterInput) (*model.AdminNewsletterSubscriberListPayload, error)
+	NewsletterCampaigns(ctx context.Context, filter *model.AdminNewsletterCampaignFilterInput) (*model.AdminNewsletterCampaignListPayload, error)
+	NewsletterCampaignFailures(ctx context.Context, filter model.AdminNewsletterDeliveryFailureFilterInput) (*model.AdminNewsletterDeliveryFailureListPayload, error)
 	ErrorMessages(ctx context.Context, filter *model.AdminErrorMessageFilterInput) (*model.AdminErrorMessageListPayload, error)
 	ContentPosts(ctx context.Context, filter *model.AdminContentPostFilterInput) (*model.AdminContentPostListPayload, error)
 	ContentPost(ctx context.Context, input model.AdminContentEntityKeyInput) (*model.AdminContentPost, error)
@@ -394,6 +498,98 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminAuthPayload.User(childComplexity), true
+
+	case "AdminComment.authorEmail":
+		if e.complexity.AdminComment.AuthorEmail == nil {
+			break
+		}
+
+		return e.complexity.AdminComment.AuthorEmail(childComplexity), true
+	case "AdminComment.authorName":
+		if e.complexity.AdminComment.AuthorName == nil {
+			break
+		}
+
+		return e.complexity.AdminComment.AuthorName(childComplexity), true
+	case "AdminComment.content":
+		if e.complexity.AdminComment.Content == nil {
+			break
+		}
+
+		return e.complexity.AdminComment.Content(childComplexity), true
+	case "AdminComment.createdAt":
+		if e.complexity.AdminComment.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminComment.CreatedAt(childComplexity), true
+	case "AdminComment.id":
+		if e.complexity.AdminComment.ID == nil {
+			break
+		}
+
+		return e.complexity.AdminComment.ID(childComplexity), true
+	case "AdminComment.locale":
+		if e.complexity.AdminComment.Locale == nil {
+			break
+		}
+
+		return e.complexity.AdminComment.Locale(childComplexity), true
+	case "AdminComment.parentId":
+		if e.complexity.AdminComment.ParentID == nil {
+			break
+		}
+
+		return e.complexity.AdminComment.ParentID(childComplexity), true
+	case "AdminComment.postId":
+		if e.complexity.AdminComment.PostID == nil {
+			break
+		}
+
+		return e.complexity.AdminComment.PostID(childComplexity), true
+	case "AdminComment.postTitle":
+		if e.complexity.AdminComment.PostTitle == nil {
+			break
+		}
+
+		return e.complexity.AdminComment.PostTitle(childComplexity), true
+	case "AdminComment.status":
+		if e.complexity.AdminComment.Status == nil {
+			break
+		}
+
+		return e.complexity.AdminComment.Status(childComplexity), true
+	case "AdminComment.updatedAt":
+		if e.complexity.AdminComment.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminComment.UpdatedAt(childComplexity), true
+
+	case "AdminCommentListPayload.items":
+		if e.complexity.AdminCommentListPayload.Items == nil {
+			break
+		}
+
+		return e.complexity.AdminCommentListPayload.Items(childComplexity), true
+	case "AdminCommentListPayload.page":
+		if e.complexity.AdminCommentListPayload.Page == nil {
+			break
+		}
+
+		return e.complexity.AdminCommentListPayload.Page(childComplexity), true
+	case "AdminCommentListPayload.size":
+		if e.complexity.AdminCommentListPayload.Size == nil {
+			break
+		}
+
+		return e.complexity.AdminCommentListPayload.Size(childComplexity), true
+	case "AdminCommentListPayload.total":
+		if e.complexity.AdminCommentListPayload.Total == nil {
+			break
+		}
+
+		return e.complexity.AdminCommentListPayload.Total(childComplexity), true
 
 	case "AdminContentCategory.color":
 		if e.complexity.AdminContentCategory.Color == nil {
@@ -1139,6 +1335,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.DeleteAccount(childComplexity, args["input"].(model.AdminDeleteAccountInput)), true
+	case "AdminMutation.deleteComment":
+		if e.complexity.AdminMutation.DeleteComment == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_deleteComment_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.DeleteComment(childComplexity, args["input"].(model.AdminDeleteCommentInput)), true
 	case "AdminMutation.deleteContentCategory":
 		if e.complexity.AdminMutation.DeleteContentCategory == nil {
 			break
@@ -1234,6 +1441,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.RevokeSession(childComplexity, args["sessionId"].(string)), true
+	case "AdminMutation.sendTestNewsletter":
+		if e.complexity.AdminMutation.SendTestNewsletter == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_sendTestNewsletter_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.SendTestNewsletter(childComplexity, args["input"].(model.AdminSendTestNewsletterInput)), true
+	case "AdminMutation.triggerNewsletterDispatch":
+		if e.complexity.AdminMutation.TriggerNewsletterDispatch == nil {
+			break
+		}
+
+		return e.complexity.AdminMutation.TriggerNewsletterDispatch(childComplexity), true
+	case "AdminMutation.updateCommentStatus":
+		if e.complexity.AdminMutation.UpdateCommentStatus == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_updateCommentStatus_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.UpdateCommentStatus(childComplexity, args["input"].(model.AdminUpdateCommentStatusInput)), true
 	case "AdminMutation.updateContentCategory":
 		if e.complexity.AdminMutation.UpdateContentCategory == nil {
 			break
@@ -1300,6 +1535,258 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.UpdateNewsletterSubscriberStatus(childComplexity, args["input"].(model.AdminUpdateNewsletterSubscriberStatusInput)), true
+
+	case "AdminNewsletterCampaign.createdAt":
+		if e.complexity.AdminNewsletterCampaign.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaign.CreatedAt(childComplexity), true
+	case "AdminNewsletterCampaign.failedCount":
+		if e.complexity.AdminNewsletterCampaign.FailedCount == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaign.FailedCount(childComplexity), true
+	case "AdminNewsletterCampaign.itemKey":
+		if e.complexity.AdminNewsletterCampaign.ItemKey == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaign.ItemKey(childComplexity), true
+	case "AdminNewsletterCampaign.lastRunAt":
+		if e.complexity.AdminNewsletterCampaign.LastRunAt == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaign.LastRunAt(childComplexity), true
+	case "AdminNewsletterCampaign.link":
+		if e.complexity.AdminNewsletterCampaign.Link == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaign.Link(childComplexity), true
+	case "AdminNewsletterCampaign.locale":
+		if e.complexity.AdminNewsletterCampaign.Locale == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaign.Locale(childComplexity), true
+	case "AdminNewsletterCampaign.pubDate":
+		if e.complexity.AdminNewsletterCampaign.PubDate == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaign.PubDate(childComplexity), true
+	case "AdminNewsletterCampaign.rssUrl":
+		if e.complexity.AdminNewsletterCampaign.RssURL == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaign.RssURL(childComplexity), true
+	case "AdminNewsletterCampaign.sentCount":
+		if e.complexity.AdminNewsletterCampaign.SentCount == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaign.SentCount(childComplexity), true
+	case "AdminNewsletterCampaign.status":
+		if e.complexity.AdminNewsletterCampaign.Status == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaign.Status(childComplexity), true
+	case "AdminNewsletterCampaign.summary":
+		if e.complexity.AdminNewsletterCampaign.Summary == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaign.Summary(childComplexity), true
+	case "AdminNewsletterCampaign.title":
+		if e.complexity.AdminNewsletterCampaign.Title == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaign.Title(childComplexity), true
+	case "AdminNewsletterCampaign.updatedAt":
+		if e.complexity.AdminNewsletterCampaign.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaign.UpdatedAt(childComplexity), true
+
+	case "AdminNewsletterCampaignListPayload.items":
+		if e.complexity.AdminNewsletterCampaignListPayload.Items == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaignListPayload.Items(childComplexity), true
+	case "AdminNewsletterCampaignListPayload.page":
+		if e.complexity.AdminNewsletterCampaignListPayload.Page == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaignListPayload.Page(childComplexity), true
+	case "AdminNewsletterCampaignListPayload.size":
+		if e.complexity.AdminNewsletterCampaignListPayload.Size == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaignListPayload.Size(childComplexity), true
+	case "AdminNewsletterCampaignListPayload.total":
+		if e.complexity.AdminNewsletterCampaignListPayload.Total == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterCampaignListPayload.Total(childComplexity), true
+
+	case "AdminNewsletterDeliveryFailure.createdAt":
+		if e.complexity.AdminNewsletterDeliveryFailure.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDeliveryFailure.CreatedAt(childComplexity), true
+	case "AdminNewsletterDeliveryFailure.email":
+		if e.complexity.AdminNewsletterDeliveryFailure.Email == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDeliveryFailure.Email(childComplexity), true
+	case "AdminNewsletterDeliveryFailure.itemKey":
+		if e.complexity.AdminNewsletterDeliveryFailure.ItemKey == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDeliveryFailure.ItemKey(childComplexity), true
+	case "AdminNewsletterDeliveryFailure.lastAttemptAt":
+		if e.complexity.AdminNewsletterDeliveryFailure.LastAttemptAt == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDeliveryFailure.LastAttemptAt(childComplexity), true
+	case "AdminNewsletterDeliveryFailure.lastError":
+		if e.complexity.AdminNewsletterDeliveryFailure.LastError == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDeliveryFailure.LastError(childComplexity), true
+	case "AdminNewsletterDeliveryFailure.locale":
+		if e.complexity.AdminNewsletterDeliveryFailure.Locale == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDeliveryFailure.Locale(childComplexity), true
+	case "AdminNewsletterDeliveryFailure.status":
+		if e.complexity.AdminNewsletterDeliveryFailure.Status == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDeliveryFailure.Status(childComplexity), true
+	case "AdminNewsletterDeliveryFailure.updatedAt":
+		if e.complexity.AdminNewsletterDeliveryFailure.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDeliveryFailure.UpdatedAt(childComplexity), true
+
+	case "AdminNewsletterDeliveryFailureListPayload.items":
+		if e.complexity.AdminNewsletterDeliveryFailureListPayload.Items == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDeliveryFailureListPayload.Items(childComplexity), true
+	case "AdminNewsletterDeliveryFailureListPayload.page":
+		if e.complexity.AdminNewsletterDeliveryFailureListPayload.Page == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDeliveryFailureListPayload.Page(childComplexity), true
+	case "AdminNewsletterDeliveryFailureListPayload.size":
+		if e.complexity.AdminNewsletterDeliveryFailureListPayload.Size == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDeliveryFailureListPayload.Size(childComplexity), true
+	case "AdminNewsletterDeliveryFailureListPayload.total":
+		if e.complexity.AdminNewsletterDeliveryFailureListPayload.Total == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDeliveryFailureListPayload.Total(childComplexity), true
+
+	case "AdminNewsletterDispatchLocaleResult.failedCount":
+		if e.complexity.AdminNewsletterDispatchLocaleResult.FailedCount == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDispatchLocaleResult.FailedCount(childComplexity), true
+	case "AdminNewsletterDispatchLocaleResult.itemKey":
+		if e.complexity.AdminNewsletterDispatchLocaleResult.ItemKey == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDispatchLocaleResult.ItemKey(childComplexity), true
+	case "AdminNewsletterDispatchLocaleResult.locale":
+		if e.complexity.AdminNewsletterDispatchLocaleResult.Locale == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDispatchLocaleResult.Locale(childComplexity), true
+	case "AdminNewsletterDispatchLocaleResult.postTitle":
+		if e.complexity.AdminNewsletterDispatchLocaleResult.PostTitle == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDispatchLocaleResult.PostTitle(childComplexity), true
+	case "AdminNewsletterDispatchLocaleResult.reason":
+		if e.complexity.AdminNewsletterDispatchLocaleResult.Reason == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDispatchLocaleResult.Reason(childComplexity), true
+	case "AdminNewsletterDispatchLocaleResult.rssUrl":
+		if e.complexity.AdminNewsletterDispatchLocaleResult.RssURL == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDispatchLocaleResult.RssURL(childComplexity), true
+	case "AdminNewsletterDispatchLocaleResult.sentCount":
+		if e.complexity.AdminNewsletterDispatchLocaleResult.SentCount == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDispatchLocaleResult.SentCount(childComplexity), true
+	case "AdminNewsletterDispatchLocaleResult.skipped":
+		if e.complexity.AdminNewsletterDispatchLocaleResult.Skipped == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDispatchLocaleResult.Skipped(childComplexity), true
+
+	case "AdminNewsletterDispatchPayload.message":
+		if e.complexity.AdminNewsletterDispatchPayload.Message == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDispatchPayload.Message(childComplexity), true
+	case "AdminNewsletterDispatchPayload.results":
+		if e.complexity.AdminNewsletterDispatchPayload.Results == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDispatchPayload.Results(childComplexity), true
+	case "AdminNewsletterDispatchPayload.success":
+		if e.complexity.AdminNewsletterDispatchPayload.Success == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDispatchPayload.Success(childComplexity), true
+	case "AdminNewsletterDispatchPayload.timestamp":
+		if e.complexity.AdminNewsletterDispatchPayload.Timestamp == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterDispatchPayload.Timestamp(childComplexity), true
 
 	case "AdminNewsletterSubscriber.confirmedAt":
 		if e.complexity.AdminNewsletterSubscriber.ConfirmedAt == nil {
@@ -1387,6 +1874,49 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.AdminNewsletterSubscriberListPayload.Total(childComplexity), true
 
+	case "AdminNewsletterTestSendPayload.email":
+		if e.complexity.AdminNewsletterTestSendPayload.Email == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterTestSendPayload.Email(childComplexity), true
+	case "AdminNewsletterTestSendPayload.itemKey":
+		if e.complexity.AdminNewsletterTestSendPayload.ItemKey == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterTestSendPayload.ItemKey(childComplexity), true
+	case "AdminNewsletterTestSendPayload.locale":
+		if e.complexity.AdminNewsletterTestSendPayload.Locale == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterTestSendPayload.Locale(childComplexity), true
+	case "AdminNewsletterTestSendPayload.message":
+		if e.complexity.AdminNewsletterTestSendPayload.Message == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterTestSendPayload.Message(childComplexity), true
+	case "AdminNewsletterTestSendPayload.postTitle":
+		if e.complexity.AdminNewsletterTestSendPayload.PostTitle == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterTestSendPayload.PostTitle(childComplexity), true
+	case "AdminNewsletterTestSendPayload.success":
+		if e.complexity.AdminNewsletterTestSendPayload.Success == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterTestSendPayload.Success(childComplexity), true
+	case "AdminNewsletterTestSendPayload.timestamp":
+		if e.complexity.AdminNewsletterTestSendPayload.Timestamp == nil {
+			break
+		}
+
+		return e.complexity.AdminNewsletterTestSendPayload.Timestamp(childComplexity), true
+
 	case "AdminPasswordChangePayload.success":
 		if e.complexity.AdminPasswordChangePayload.Success == nil {
 			break
@@ -1400,6 +1930,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminQuery.ActiveSessions(childComplexity), true
+	case "AdminQuery.comments":
+		if e.complexity.AdminQuery.Comments == nil {
+			break
+		}
+
+		args, err := ec.field_AdminQuery_comments_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminQuery.Comments(childComplexity, args["filter"].(*model.AdminCommentFilterInput)), true
 	case "AdminQuery.contentCategories":
 		if e.complexity.AdminQuery.ContentCategories == nil {
 			break
@@ -1500,6 +2041,28 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminQuery.Me(childComplexity), true
+	case "AdminQuery.newsletterCampaignFailures":
+		if e.complexity.AdminQuery.NewsletterCampaignFailures == nil {
+			break
+		}
+
+		args, err := ec.field_AdminQuery_newsletterCampaignFailures_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminQuery.NewsletterCampaignFailures(childComplexity, args["filter"].(model.AdminNewsletterDeliveryFailureFilterInput)), true
+	case "AdminQuery.newsletterCampaigns":
+		if e.complexity.AdminQuery.NewsletterCampaigns == nil {
+			break
+		}
+
+		args, err := ec.field_AdminQuery_newsletterCampaigns_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminQuery.NewsletterCampaigns(childComplexity, args["filter"].(*model.AdminNewsletterCampaignFilterInput)), true
 	case "AdminQuery.newsletterSubscribers":
 		if e.complexity.AdminQuery.NewsletterSubscribers == nil {
 			break
@@ -1623,6 +2186,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAdminChangeNameInput,
 		ec.unmarshalInputAdminChangePasswordInput,
 		ec.unmarshalInputAdminChangeUsernameInput,
+		ec.unmarshalInputAdminCommentFilterInput,
 		ec.unmarshalInputAdminContentCategoryInput,
 		ec.unmarshalInputAdminContentEntityKeyInput,
 		ec.unmarshalInputAdminContentPostFilterInput,
@@ -1630,11 +2194,16 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAdminContentTopicInput,
 		ec.unmarshalInputAdminCreateErrorMessageInput,
 		ec.unmarshalInputAdminDeleteAccountInput,
+		ec.unmarshalInputAdminDeleteCommentInput,
 		ec.unmarshalInputAdminDeleteNewsletterSubscriberInput,
 		ec.unmarshalInputAdminErrorMessageFilterInput,
 		ec.unmarshalInputAdminErrorMessageKeyInput,
 		ec.unmarshalInputAdminLoginInput,
+		ec.unmarshalInputAdminNewsletterCampaignFilterInput,
+		ec.unmarshalInputAdminNewsletterDeliveryFailureFilterInput,
 		ec.unmarshalInputAdminNewsletterSubscriberFilterInput,
+		ec.unmarshalInputAdminSendTestNewsletterInput,
+		ec.unmarshalInputAdminUpdateCommentStatusInput,
 		ec.unmarshalInputAdminUpdateContentPostContentInput,
 		ec.unmarshalInputAdminUpdateContentPostMetadataInput,
 		ec.unmarshalInputAdminUpdateErrorMessageInput,
@@ -1843,6 +2412,17 @@ func (ec *executionContext) field_AdminMutation_deleteAccount_args(ctx context.C
 	return args, nil
 }
 
+func (ec *executionContext) field_AdminMutation_deleteComment_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminDeleteCommentInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDeleteCommentInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_AdminMutation_deleteContentCategory_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -1920,6 +2500,28 @@ func (ec *executionContext) field_AdminMutation_revokeSession_args(ctx context.C
 	return args, nil
 }
 
+func (ec *executionContext) field_AdminMutation_sendTestNewsletter_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminSendTestNewsletterInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminSendTestNewsletterInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminMutation_updateCommentStatus_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminUpdateCommentStatusInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUpdateCommentStatusInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_AdminMutation_updateContentCategory_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -1994,6 +2596,17 @@ func (ec *executionContext) field_AdminQuery___type_args(ctx context.Context, ra
 		return nil, err
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminQuery_comments_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOAdminCommentFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentFilterInput)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg0
 	return args, nil
 }
 
@@ -2078,6 +2691,28 @@ func (ec *executionContext) field_AdminQuery_errorMessages_args(ctx context.Cont
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOAdminErrorMessageFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageFilterInput)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminQuery_newsletterCampaignFailures_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalNAdminNewsletterDeliveryFailureFilterInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDeliveryFailureFilterInput)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminQuery_newsletterCampaigns_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOAdminNewsletterCampaignFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignFilterInput)
 	if err != nil {
 		return nil, err
 	}
@@ -2244,6 +2879,465 @@ func (ec *executionContext) fieldContext_AdminAuthPayload_user(_ context.Context
 				return ec.fieldContext_AdminUser_roles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminUser", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminComment_id(ctx context.Context, field graphql.CollectedField, obj *model.AdminComment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminComment_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNID2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminComment_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminComment_postId(ctx context.Context, field graphql.CollectedField, obj *model.AdminComment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminComment_postId,
+		func(ctx context.Context) (any, error) {
+			return obj.PostID, nil
+		},
+		nil,
+		ec.marshalNID2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminComment_postId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminComment_postTitle(ctx context.Context, field graphql.CollectedField, obj *model.AdminComment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminComment_postTitle,
+		func(ctx context.Context) (any, error) {
+			return obj.PostTitle, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminComment_postTitle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminComment_locale(ctx context.Context, field graphql.CollectedField, obj *model.AdminComment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminComment_locale,
+		func(ctx context.Context) (any, error) {
+			return obj.Locale, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminComment_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminComment_parentId(ctx context.Context, field graphql.CollectedField, obj *model.AdminComment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminComment_parentId,
+		func(ctx context.Context) (any, error) {
+			return obj.ParentID, nil
+		},
+		nil,
+		ec.marshalOID2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminComment_parentId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminComment_authorName(ctx context.Context, field graphql.CollectedField, obj *model.AdminComment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminComment_authorName,
+		func(ctx context.Context) (any, error) {
+			return obj.AuthorName, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminComment_authorName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminComment_authorEmail(ctx context.Context, field graphql.CollectedField, obj *model.AdminComment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminComment_authorEmail,
+		func(ctx context.Context) (any, error) {
+			return obj.AuthorEmail, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminComment_authorEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminComment_content(ctx context.Context, field graphql.CollectedField, obj *model.AdminComment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminComment_content,
+		func(ctx context.Context) (any, error) {
+			return obj.Content, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminComment_content(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminComment_status(ctx context.Context, field graphql.CollectedField, obj *model.AdminComment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminComment_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalNAdminCommentStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentStatus,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminComment_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AdminCommentStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminComment_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminComment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminComment_createdAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminComment_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminComment_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminComment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminComment_updatedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedAt, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminComment_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminComment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminCommentListPayload_items(ctx context.Context, field graphql.CollectedField, obj *model.AdminCommentListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminCommentListPayload_items,
+		func(ctx context.Context) (any, error) {
+			return obj.Items, nil
+		},
+		nil,
+		ec.marshalNAdminComment2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminCommentListPayload_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminCommentListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AdminComment_id(ctx, field)
+			case "postId":
+				return ec.fieldContext_AdminComment_postId(ctx, field)
+			case "postTitle":
+				return ec.fieldContext_AdminComment_postTitle(ctx, field)
+			case "locale":
+				return ec.fieldContext_AdminComment_locale(ctx, field)
+			case "parentId":
+				return ec.fieldContext_AdminComment_parentId(ctx, field)
+			case "authorName":
+				return ec.fieldContext_AdminComment_authorName(ctx, field)
+			case "authorEmail":
+				return ec.fieldContext_AdminComment_authorEmail(ctx, field)
+			case "content":
+				return ec.fieldContext_AdminComment_content(ctx, field)
+			case "status":
+				return ec.fieldContext_AdminComment_status(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AdminComment_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminComment_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminComment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminCommentListPayload_total(ctx context.Context, field graphql.CollectedField, obj *model.AdminCommentListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminCommentListPayload_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminCommentListPayload_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminCommentListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminCommentListPayload_page(ctx context.Context, field graphql.CollectedField, obj *model.AdminCommentListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminCommentListPayload_page,
+		func(ctx context.Context) (any, error) {
+			return obj.Page, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminCommentListPayload_page(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminCommentListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminCommentListPayload_size(ctx context.Context, field graphql.CollectedField, obj *model.AdminCommentListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminCommentListPayload_size,
+		func(ctx context.Context) (any, error) {
+			return obj.Size, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminCommentListPayload_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminCommentListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6055,6 +7149,116 @@ func (ec *executionContext) fieldContext_AdminMutation_revokeAllSessions(_ conte
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminMutation_updateCommentStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_updateCommentStatus,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().UpdateCommentStatus(ctx, fc.Args["input"].(model.AdminUpdateCommentStatusInput))
+		},
+		nil,
+		ec.marshalNAdminComment2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminComment,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_updateCommentStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AdminComment_id(ctx, field)
+			case "postId":
+				return ec.fieldContext_AdminComment_postId(ctx, field)
+			case "postTitle":
+				return ec.fieldContext_AdminComment_postTitle(ctx, field)
+			case "locale":
+				return ec.fieldContext_AdminComment_locale(ctx, field)
+			case "parentId":
+				return ec.fieldContext_AdminComment_parentId(ctx, field)
+			case "authorName":
+				return ec.fieldContext_AdminComment_authorName(ctx, field)
+			case "authorEmail":
+				return ec.fieldContext_AdminComment_authorEmail(ctx, field)
+			case "content":
+				return ec.fieldContext_AdminComment_content(ctx, field)
+			case "status":
+				return ec.fieldContext_AdminComment_status(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AdminComment_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminComment_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminComment", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_updateCommentStatus_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_deleteComment(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_deleteComment,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().DeleteComment(ctx, fc.Args["input"].(model.AdminDeleteCommentInput))
+		},
+		nil,
+		ec.marshalNAdminDeletePayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDeletePayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_deleteComment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_AdminDeletePayload_success(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminDeletePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_deleteComment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminMutation_updateNewsletterSubscriberStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -6157,6 +7361,102 @@ func (ec *executionContext) fieldContext_AdminMutation_deleteNewsletterSubscribe
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_AdminMutation_deleteNewsletterSubscriber_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_triggerNewsletterDispatch(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_triggerNewsletterDispatch,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.AdminMutation().TriggerNewsletterDispatch(ctx)
+		},
+		nil,
+		ec.marshalNAdminNewsletterDispatchPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDispatchPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_triggerNewsletterDispatch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_AdminNewsletterDispatchPayload_success(ctx, field)
+			case "message":
+				return ec.fieldContext_AdminNewsletterDispatchPayload_message(ctx, field)
+			case "timestamp":
+				return ec.fieldContext_AdminNewsletterDispatchPayload_timestamp(ctx, field)
+			case "results":
+				return ec.fieldContext_AdminNewsletterDispatchPayload_results(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminNewsletterDispatchPayload", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_sendTestNewsletter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_sendTestNewsletter,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().SendTestNewsletter(ctx, fc.Args["input"].(model.AdminSendTestNewsletterInput))
+		},
+		nil,
+		ec.marshalNAdminNewsletterTestSendPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterTestSendPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_sendTestNewsletter(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_AdminNewsletterTestSendPayload_success(ctx, field)
+			case "message":
+				return ec.fieldContext_AdminNewsletterTestSendPayload_message(ctx, field)
+			case "timestamp":
+				return ec.fieldContext_AdminNewsletterTestSendPayload_timestamp(ctx, field)
+			case "email":
+				return ec.fieldContext_AdminNewsletterTestSendPayload_email(ctx, field)
+			case "locale":
+				return ec.fieldContext_AdminNewsletterTestSendPayload_locale(ctx, field)
+			case "itemKey":
+				return ec.fieldContext_AdminNewsletterTestSendPayload_itemKey(ctx, field)
+			case "postTitle":
+				return ec.fieldContext_AdminNewsletterTestSendPayload_postTitle(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminNewsletterTestSendPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_sendTestNewsletter_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -6823,6 +8123,1259 @@ func (ec *executionContext) fieldContext_AdminMutation_deleteContentCategory(ctx
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminNewsletterCampaign_locale(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaign) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaign_locale,
+		func(ctx context.Context) (any, error) {
+			return obj.Locale, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaign_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaign",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaign_itemKey(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaign) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaign_itemKey,
+		func(ctx context.Context) (any, error) {
+			return obj.ItemKey, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaign_itemKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaign",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaign_title(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaign) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaign_title,
+		func(ctx context.Context) (any, error) {
+			return obj.Title, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaign_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaign",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaign_summary(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaign) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaign_summary,
+		func(ctx context.Context) (any, error) {
+			return obj.Summary, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaign_summary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaign",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaign_link(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaign) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaign_link,
+		func(ctx context.Context) (any, error) {
+			return obj.Link, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaign_link(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaign",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaign_pubDate(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaign) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaign_pubDate,
+		func(ctx context.Context) (any, error) {
+			return obj.PubDate, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaign_pubDate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaign",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaign_rssUrl(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaign) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaign_rssUrl,
+		func(ctx context.Context) (any, error) {
+			return obj.RssURL, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaign_rssUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaign",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaign_status(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaign) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaign_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaign_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaign",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaign_sentCount(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaign) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaign_sentCount,
+		func(ctx context.Context) (any, error) {
+			return obj.SentCount, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaign_sentCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaign",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaign_failedCount(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaign) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaign_failedCount,
+		func(ctx context.Context) (any, error) {
+			return obj.FailedCount, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaign_failedCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaign",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaign_lastRunAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaign) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaign_lastRunAt,
+		func(ctx context.Context) (any, error) {
+			return obj.LastRunAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaign_lastRunAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaign",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaign_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaign) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaign_updatedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaign_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaign",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaign_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaign) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaign_createdAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaign_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaign",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaignListPayload_items(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaignListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaignListPayload_items,
+		func(ctx context.Context) (any, error) {
+			return obj.Items, nil
+		},
+		nil,
+		ec.marshalNAdminNewsletterCampaign2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaignListPayload_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaignListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "locale":
+				return ec.fieldContext_AdminNewsletterCampaign_locale(ctx, field)
+			case "itemKey":
+				return ec.fieldContext_AdminNewsletterCampaign_itemKey(ctx, field)
+			case "title":
+				return ec.fieldContext_AdminNewsletterCampaign_title(ctx, field)
+			case "summary":
+				return ec.fieldContext_AdminNewsletterCampaign_summary(ctx, field)
+			case "link":
+				return ec.fieldContext_AdminNewsletterCampaign_link(ctx, field)
+			case "pubDate":
+				return ec.fieldContext_AdminNewsletterCampaign_pubDate(ctx, field)
+			case "rssUrl":
+				return ec.fieldContext_AdminNewsletterCampaign_rssUrl(ctx, field)
+			case "status":
+				return ec.fieldContext_AdminNewsletterCampaign_status(ctx, field)
+			case "sentCount":
+				return ec.fieldContext_AdminNewsletterCampaign_sentCount(ctx, field)
+			case "failedCount":
+				return ec.fieldContext_AdminNewsletterCampaign_failedCount(ctx, field)
+			case "lastRunAt":
+				return ec.fieldContext_AdminNewsletterCampaign_lastRunAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminNewsletterCampaign_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AdminNewsletterCampaign_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminNewsletterCampaign", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaignListPayload_total(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaignListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaignListPayload_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaignListPayload_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaignListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaignListPayload_page(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaignListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaignListPayload_page,
+		func(ctx context.Context) (any, error) {
+			return obj.Page, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaignListPayload_page(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaignListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterCampaignListPayload_size(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterCampaignListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterCampaignListPayload_size,
+		func(ctx context.Context) (any, error) {
+			return obj.Size, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterCampaignListPayload_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterCampaignListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDeliveryFailure_locale(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDeliveryFailure) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDeliveryFailure_locale,
+		func(ctx context.Context) (any, error) {
+			return obj.Locale, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailure_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDeliveryFailure",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDeliveryFailure_itemKey(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDeliveryFailure) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDeliveryFailure_itemKey,
+		func(ctx context.Context) (any, error) {
+			return obj.ItemKey, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailure_itemKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDeliveryFailure",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDeliveryFailure_email(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDeliveryFailure) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDeliveryFailure_email,
+		func(ctx context.Context) (any, error) {
+			return obj.Email, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailure_email(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDeliveryFailure",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDeliveryFailure_status(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDeliveryFailure) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDeliveryFailure_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailure_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDeliveryFailure",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDeliveryFailure_lastError(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDeliveryFailure) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDeliveryFailure_lastError,
+		func(ctx context.Context) (any, error) {
+			return obj.LastError, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailure_lastError(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDeliveryFailure",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDeliveryFailure_lastAttemptAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDeliveryFailure) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDeliveryFailure_lastAttemptAt,
+		func(ctx context.Context) (any, error) {
+			return obj.LastAttemptAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailure_lastAttemptAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDeliveryFailure",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDeliveryFailure_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDeliveryFailure) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDeliveryFailure_updatedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailure_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDeliveryFailure",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDeliveryFailure_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDeliveryFailure) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDeliveryFailure_createdAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailure_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDeliveryFailure",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDeliveryFailureListPayload_items(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDeliveryFailureListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDeliveryFailureListPayload_items,
+		func(ctx context.Context) (any, error) {
+			return obj.Items, nil
+		},
+		nil,
+		ec.marshalNAdminNewsletterDeliveryFailure2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDeliveryFailureᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailureListPayload_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDeliveryFailureListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "locale":
+				return ec.fieldContext_AdminNewsletterDeliveryFailure_locale(ctx, field)
+			case "itemKey":
+				return ec.fieldContext_AdminNewsletterDeliveryFailure_itemKey(ctx, field)
+			case "email":
+				return ec.fieldContext_AdminNewsletterDeliveryFailure_email(ctx, field)
+			case "status":
+				return ec.fieldContext_AdminNewsletterDeliveryFailure_status(ctx, field)
+			case "lastError":
+				return ec.fieldContext_AdminNewsletterDeliveryFailure_lastError(ctx, field)
+			case "lastAttemptAt":
+				return ec.fieldContext_AdminNewsletterDeliveryFailure_lastAttemptAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminNewsletterDeliveryFailure_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AdminNewsletterDeliveryFailure_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminNewsletterDeliveryFailure", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDeliveryFailureListPayload_total(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDeliveryFailureListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDeliveryFailureListPayload_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailureListPayload_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDeliveryFailureListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDeliveryFailureListPayload_page(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDeliveryFailureListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDeliveryFailureListPayload_page,
+		func(ctx context.Context) (any, error) {
+			return obj.Page, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailureListPayload_page(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDeliveryFailureListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDeliveryFailureListPayload_size(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDeliveryFailureListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDeliveryFailureListPayload_size,
+		func(ctx context.Context) (any, error) {
+			return obj.Size, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailureListPayload_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDeliveryFailureListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDispatchLocaleResult_locale(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDispatchLocaleResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDispatchLocaleResult_locale,
+		func(ctx context.Context) (any, error) {
+			return obj.Locale, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDispatchLocaleResult_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDispatchLocaleResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDispatchLocaleResult_rssUrl(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDispatchLocaleResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDispatchLocaleResult_rssUrl,
+		func(ctx context.Context) (any, error) {
+			return obj.RssURL, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDispatchLocaleResult_rssUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDispatchLocaleResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDispatchLocaleResult_itemKey(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDispatchLocaleResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDispatchLocaleResult_itemKey,
+		func(ctx context.Context) (any, error) {
+			return obj.ItemKey, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDispatchLocaleResult_itemKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDispatchLocaleResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDispatchLocaleResult_postTitle(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDispatchLocaleResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDispatchLocaleResult_postTitle,
+		func(ctx context.Context) (any, error) {
+			return obj.PostTitle, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDispatchLocaleResult_postTitle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDispatchLocaleResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDispatchLocaleResult_sentCount(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDispatchLocaleResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDispatchLocaleResult_sentCount,
+		func(ctx context.Context) (any, error) {
+			return obj.SentCount, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDispatchLocaleResult_sentCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDispatchLocaleResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDispatchLocaleResult_failedCount(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDispatchLocaleResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDispatchLocaleResult_failedCount,
+		func(ctx context.Context) (any, error) {
+			return obj.FailedCount, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDispatchLocaleResult_failedCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDispatchLocaleResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDispatchLocaleResult_skipped(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDispatchLocaleResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDispatchLocaleResult_skipped,
+		func(ctx context.Context) (any, error) {
+			return obj.Skipped, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDispatchLocaleResult_skipped(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDispatchLocaleResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDispatchLocaleResult_reason(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDispatchLocaleResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDispatchLocaleResult_reason,
+		func(ctx context.Context) (any, error) {
+			return obj.Reason, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDispatchLocaleResult_reason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDispatchLocaleResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDispatchPayload_success(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDispatchPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDispatchPayload_success,
+		func(ctx context.Context) (any, error) {
+			return obj.Success, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDispatchPayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDispatchPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDispatchPayload_message(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDispatchPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDispatchPayload_message,
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDispatchPayload_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDispatchPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDispatchPayload_timestamp(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDispatchPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDispatchPayload_timestamp,
+		func(ctx context.Context) (any, error) {
+			return obj.Timestamp, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDispatchPayload_timestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDispatchPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterDispatchPayload_results(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterDispatchPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterDispatchPayload_results,
+		func(ctx context.Context) (any, error) {
+			return obj.Results, nil
+		},
+		nil,
+		ec.marshalNAdminNewsletterDispatchLocaleResult2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDispatchLocaleResultᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterDispatchPayload_results(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterDispatchPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "locale":
+				return ec.fieldContext_AdminNewsletterDispatchLocaleResult_locale(ctx, field)
+			case "rssUrl":
+				return ec.fieldContext_AdminNewsletterDispatchLocaleResult_rssUrl(ctx, field)
+			case "itemKey":
+				return ec.fieldContext_AdminNewsletterDispatchLocaleResult_itemKey(ctx, field)
+			case "postTitle":
+				return ec.fieldContext_AdminNewsletterDispatchLocaleResult_postTitle(ctx, field)
+			case "sentCount":
+				return ec.fieldContext_AdminNewsletterDispatchLocaleResult_sentCount(ctx, field)
+			case "failedCount":
+				return ec.fieldContext_AdminNewsletterDispatchLocaleResult_failedCount(ctx, field)
+			case "skipped":
+				return ec.fieldContext_AdminNewsletterDispatchLocaleResult_skipped(ctx, field)
+			case "reason":
+				return ec.fieldContext_AdminNewsletterDispatchLocaleResult_reason(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminNewsletterDispatchLocaleResult", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminNewsletterSubscriber_email(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterSubscriber) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -7251,6 +9804,209 @@ func (ec *executionContext) fieldContext_AdminNewsletterSubscriberListPayload_si
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminNewsletterTestSendPayload_success(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterTestSendPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterTestSendPayload_success,
+		func(ctx context.Context) (any, error) {
+			return obj.Success, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterTestSendPayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterTestSendPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterTestSendPayload_message(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterTestSendPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterTestSendPayload_message,
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterTestSendPayload_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterTestSendPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterTestSendPayload_timestamp(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterTestSendPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterTestSendPayload_timestamp,
+		func(ctx context.Context) (any, error) {
+			return obj.Timestamp, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterTestSendPayload_timestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterTestSendPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterTestSendPayload_email(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterTestSendPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterTestSendPayload_email,
+		func(ctx context.Context) (any, error) {
+			return obj.Email, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterTestSendPayload_email(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterTestSendPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterTestSendPayload_locale(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterTestSendPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterTestSendPayload_locale,
+		func(ctx context.Context) (any, error) {
+			return obj.Locale, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterTestSendPayload_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterTestSendPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterTestSendPayload_itemKey(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterTestSendPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterTestSendPayload_itemKey,
+		func(ctx context.Context) (any, error) {
+			return obj.ItemKey, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterTestSendPayload_itemKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterTestSendPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNewsletterTestSendPayload_postTitle(ctx context.Context, field graphql.CollectedField, obj *model.AdminNewsletterTestSendPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminNewsletterTestSendPayload_postTitle,
+		func(ctx context.Context) (any, error) {
+			return obj.PostTitle, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminNewsletterTestSendPayload_postTitle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNewsletterTestSendPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminPasswordChangePayload_success(ctx context.Context, field graphql.CollectedField, obj *model.AdminPasswordChangePayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -7356,6 +10112,57 @@ func (ec *executionContext) fieldContext_AdminQuery_dashboard(_ context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminQuery_comments(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminQuery_comments,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminQuery().Comments(ctx, fc.Args["filter"].(*model.AdminCommentFilterInput))
+		},
+		nil,
+		ec.marshalNAdminCommentListPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentListPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminQuery_comments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "items":
+				return ec.fieldContext_AdminCommentListPayload_items(ctx, field)
+			case "total":
+				return ec.fieldContext_AdminCommentListPayload_total(ctx, field)
+			case "page":
+				return ec.fieldContext_AdminCommentListPayload_page(ctx, field)
+			case "size":
+				return ec.fieldContext_AdminCommentListPayload_size(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminCommentListPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminQuery_comments_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminQuery_activeSessions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -7450,6 +10257,108 @@ func (ec *executionContext) fieldContext_AdminQuery_newsletterSubscribers(ctx co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_AdminQuery_newsletterSubscribers_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminQuery_newsletterCampaigns(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminQuery_newsletterCampaigns,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminQuery().NewsletterCampaigns(ctx, fc.Args["filter"].(*model.AdminNewsletterCampaignFilterInput))
+		},
+		nil,
+		ec.marshalNAdminNewsletterCampaignListPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignListPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminQuery_newsletterCampaigns(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "items":
+				return ec.fieldContext_AdminNewsletterCampaignListPayload_items(ctx, field)
+			case "total":
+				return ec.fieldContext_AdminNewsletterCampaignListPayload_total(ctx, field)
+			case "page":
+				return ec.fieldContext_AdminNewsletterCampaignListPayload_page(ctx, field)
+			case "size":
+				return ec.fieldContext_AdminNewsletterCampaignListPayload_size(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminNewsletterCampaignListPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminQuery_newsletterCampaigns_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminQuery_newsletterCampaignFailures(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminQuery_newsletterCampaignFailures,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminQuery().NewsletterCampaignFailures(ctx, fc.Args["filter"].(model.AdminNewsletterDeliveryFailureFilterInput))
+		},
+		nil,
+		ec.marshalNAdminNewsletterDeliveryFailureListPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDeliveryFailureListPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminQuery_newsletterCampaignFailures(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "items":
+				return ec.fieldContext_AdminNewsletterDeliveryFailureListPayload_items(ctx, field)
+			case "total":
+				return ec.fieldContext_AdminNewsletterDeliveryFailureListPayload_total(ctx, field)
+			case "page":
+				return ec.fieldContext_AdminNewsletterDeliveryFailureListPayload_page(ctx, field)
+			case "size":
+				return ec.fieldContext_AdminNewsletterDeliveryFailureListPayload_size(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminNewsletterDeliveryFailureListPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminQuery_newsletterCampaignFailures_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -10062,6 +12971,68 @@ func (ec *executionContext) unmarshalInputAdminChangeUsernameInput(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAdminCommentFilterInput(ctx context.Context, obj any) (model.AdminCommentFilterInput, error) {
+	var it model.AdminCommentFilterInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"locale", "status", "postId", "query", "page", "size"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "locale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locale = data
+		case "status":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			data, err := ec.unmarshalOAdminCommentStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Status = data
+		case "postId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PostID = data
+		case "query":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Query = data
+		case "page":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Page = data
+		case "size":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("size"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Size = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAdminContentCategoryInput(ctx context.Context, obj any) (model.AdminContentCategoryInput, error) {
 	var it model.AdminContentCategoryInput
 	asMap := map[string]any{}
@@ -10405,6 +13376,33 @@ func (ec *executionContext) unmarshalInputAdminDeleteAccountInput(ctx context.Co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAdminDeleteCommentInput(ctx context.Context, obj any) (model.AdminDeleteCommentInput, error) {
+	var it model.AdminDeleteCommentInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"commentId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "commentId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("commentId"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CommentID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAdminDeleteNewsletterSubscriberInput(ctx context.Context, obj any) (model.AdminDeleteNewsletterSubscriberInput, error) {
 	var it model.AdminDeleteNewsletterSubscriberInput
 	asMap := map[string]any{}
@@ -10569,6 +13567,109 @@ func (ec *executionContext) unmarshalInputAdminLoginInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAdminNewsletterCampaignFilterInput(ctx context.Context, obj any) (model.AdminNewsletterCampaignFilterInput, error) {
+	var it model.AdminNewsletterCampaignFilterInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"locale", "status", "query", "page", "size"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "locale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locale = data
+		case "status":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Status = data
+		case "query":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Query = data
+		case "page":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Page = data
+		case "size":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("size"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Size = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputAdminNewsletterDeliveryFailureFilterInput(ctx context.Context, obj any) (model.AdminNewsletterDeliveryFailureFilterInput, error) {
+	var it model.AdminNewsletterDeliveryFailureFilterInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"locale", "itemKey", "page", "size"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "locale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locale = data
+		case "itemKey":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemKey"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ItemKey = data
+		case "page":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Page = data
+		case "size":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("size"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Size = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAdminNewsletterSubscriberFilterInput(ctx context.Context, obj any) (model.AdminNewsletterSubscriberFilterInput, error) {
 	var it model.AdminNewsletterSubscriberFilterInput
 	asMap := map[string]any{}
@@ -10618,6 +13719,81 @@ func (ec *executionContext) unmarshalInputAdminNewsletterSubscriberFilterInput(c
 				return it, err
 			}
 			it.Size = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputAdminSendTestNewsletterInput(ctx context.Context, obj any) (model.AdminSendTestNewsletterInput, error) {
+	var it model.AdminSendTestNewsletterInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email", "locale", "itemKey"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "locale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locale = data
+		case "itemKey":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemKey"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ItemKey = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputAdminUpdateCommentStatusInput(ctx context.Context, obj any) (model.AdminUpdateCommentStatusInput, error) {
+	var it model.AdminUpdateCommentStatusInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"commentId", "status"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "commentId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("commentId"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CommentID = data
+		case "status":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			data, err := ec.unmarshalNAdminCommentStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Status = data
 		}
 	}
 
@@ -10881,6 +14057,146 @@ func (ec *executionContext) _AdminAuthPayload(ctx context.Context, sel ast.Selec
 			}
 		case "user":
 			out.Values[i] = ec._AdminAuthPayload_user(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminCommentImplementors = []string{"AdminComment"}
+
+func (ec *executionContext) _AdminComment(ctx context.Context, sel ast.SelectionSet, obj *model.AdminComment) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminCommentImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminComment")
+		case "id":
+			out.Values[i] = ec._AdminComment_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "postId":
+			out.Values[i] = ec._AdminComment_postId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "postTitle":
+			out.Values[i] = ec._AdminComment_postTitle(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "locale":
+			out.Values[i] = ec._AdminComment_locale(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "parentId":
+			out.Values[i] = ec._AdminComment_parentId(ctx, field, obj)
+		case "authorName":
+			out.Values[i] = ec._AdminComment_authorName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "authorEmail":
+			out.Values[i] = ec._AdminComment_authorEmail(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "content":
+			out.Values[i] = ec._AdminComment_content(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "status":
+			out.Values[i] = ec._AdminComment_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._AdminComment_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._AdminComment_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminCommentListPayloadImplementors = []string{"AdminCommentListPayload"}
+
+func (ec *executionContext) _AdminCommentListPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminCommentListPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminCommentListPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminCommentListPayload")
+		case "items":
+			out.Values[i] = ec._AdminCommentListPayload_items(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._AdminCommentListPayload_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "page":
+			out.Values[i] = ec._AdminCommentListPayload_page(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "size":
+			out.Values[i] = ec._AdminCommentListPayload_size(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12119,6 +15435,20 @@ func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "updateCommentStatus":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_updateCommentStatus(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteComment":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_deleteComment(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "updateNewsletterSubscriberStatus":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._AdminMutation_updateNewsletterSubscriberStatus(ctx, field)
@@ -12129,6 +15459,20 @@ func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.Selectio
 		case "deleteNewsletterSubscriber":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._AdminMutation_deleteNewsletterSubscriber(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "triggerNewsletterDispatch":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_triggerNewsletterDispatch(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "sendTestNewsletter":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_sendTestNewsletter(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -12214,6 +15558,370 @@ func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.Selectio
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._AdminMutation_deleteContentCategory(ctx, field)
 			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminNewsletterCampaignImplementors = []string{"AdminNewsletterCampaign"}
+
+func (ec *executionContext) _AdminNewsletterCampaign(ctx context.Context, sel ast.SelectionSet, obj *model.AdminNewsletterCampaign) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminNewsletterCampaignImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminNewsletterCampaign")
+		case "locale":
+			out.Values[i] = ec._AdminNewsletterCampaign_locale(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "itemKey":
+			out.Values[i] = ec._AdminNewsletterCampaign_itemKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "title":
+			out.Values[i] = ec._AdminNewsletterCampaign_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "summary":
+			out.Values[i] = ec._AdminNewsletterCampaign_summary(ctx, field, obj)
+		case "link":
+			out.Values[i] = ec._AdminNewsletterCampaign_link(ctx, field, obj)
+		case "pubDate":
+			out.Values[i] = ec._AdminNewsletterCampaign_pubDate(ctx, field, obj)
+		case "rssUrl":
+			out.Values[i] = ec._AdminNewsletterCampaign_rssUrl(ctx, field, obj)
+		case "status":
+			out.Values[i] = ec._AdminNewsletterCampaign_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "sentCount":
+			out.Values[i] = ec._AdminNewsletterCampaign_sentCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "failedCount":
+			out.Values[i] = ec._AdminNewsletterCampaign_failedCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "lastRunAt":
+			out.Values[i] = ec._AdminNewsletterCampaign_lastRunAt(ctx, field, obj)
+		case "updatedAt":
+			out.Values[i] = ec._AdminNewsletterCampaign_updatedAt(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._AdminNewsletterCampaign_createdAt(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminNewsletterCampaignListPayloadImplementors = []string{"AdminNewsletterCampaignListPayload"}
+
+func (ec *executionContext) _AdminNewsletterCampaignListPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminNewsletterCampaignListPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminNewsletterCampaignListPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminNewsletterCampaignListPayload")
+		case "items":
+			out.Values[i] = ec._AdminNewsletterCampaignListPayload_items(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._AdminNewsletterCampaignListPayload_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "page":
+			out.Values[i] = ec._AdminNewsletterCampaignListPayload_page(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "size":
+			out.Values[i] = ec._AdminNewsletterCampaignListPayload_size(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminNewsletterDeliveryFailureImplementors = []string{"AdminNewsletterDeliveryFailure"}
+
+func (ec *executionContext) _AdminNewsletterDeliveryFailure(ctx context.Context, sel ast.SelectionSet, obj *model.AdminNewsletterDeliveryFailure) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminNewsletterDeliveryFailureImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminNewsletterDeliveryFailure")
+		case "locale":
+			out.Values[i] = ec._AdminNewsletterDeliveryFailure_locale(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "itemKey":
+			out.Values[i] = ec._AdminNewsletterDeliveryFailure_itemKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "email":
+			out.Values[i] = ec._AdminNewsletterDeliveryFailure_email(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "status":
+			out.Values[i] = ec._AdminNewsletterDeliveryFailure_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "lastError":
+			out.Values[i] = ec._AdminNewsletterDeliveryFailure_lastError(ctx, field, obj)
+		case "lastAttemptAt":
+			out.Values[i] = ec._AdminNewsletterDeliveryFailure_lastAttemptAt(ctx, field, obj)
+		case "updatedAt":
+			out.Values[i] = ec._AdminNewsletterDeliveryFailure_updatedAt(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._AdminNewsletterDeliveryFailure_createdAt(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminNewsletterDeliveryFailureListPayloadImplementors = []string{"AdminNewsletterDeliveryFailureListPayload"}
+
+func (ec *executionContext) _AdminNewsletterDeliveryFailureListPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminNewsletterDeliveryFailureListPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminNewsletterDeliveryFailureListPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminNewsletterDeliveryFailureListPayload")
+		case "items":
+			out.Values[i] = ec._AdminNewsletterDeliveryFailureListPayload_items(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._AdminNewsletterDeliveryFailureListPayload_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "page":
+			out.Values[i] = ec._AdminNewsletterDeliveryFailureListPayload_page(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "size":
+			out.Values[i] = ec._AdminNewsletterDeliveryFailureListPayload_size(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminNewsletterDispatchLocaleResultImplementors = []string{"AdminNewsletterDispatchLocaleResult"}
+
+func (ec *executionContext) _AdminNewsletterDispatchLocaleResult(ctx context.Context, sel ast.SelectionSet, obj *model.AdminNewsletterDispatchLocaleResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminNewsletterDispatchLocaleResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminNewsletterDispatchLocaleResult")
+		case "locale":
+			out.Values[i] = ec._AdminNewsletterDispatchLocaleResult_locale(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "rssUrl":
+			out.Values[i] = ec._AdminNewsletterDispatchLocaleResult_rssUrl(ctx, field, obj)
+		case "itemKey":
+			out.Values[i] = ec._AdminNewsletterDispatchLocaleResult_itemKey(ctx, field, obj)
+		case "postTitle":
+			out.Values[i] = ec._AdminNewsletterDispatchLocaleResult_postTitle(ctx, field, obj)
+		case "sentCount":
+			out.Values[i] = ec._AdminNewsletterDispatchLocaleResult_sentCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "failedCount":
+			out.Values[i] = ec._AdminNewsletterDispatchLocaleResult_failedCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "skipped":
+			out.Values[i] = ec._AdminNewsletterDispatchLocaleResult_skipped(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "reason":
+			out.Values[i] = ec._AdminNewsletterDispatchLocaleResult_reason(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminNewsletterDispatchPayloadImplementors = []string{"AdminNewsletterDispatchPayload"}
+
+func (ec *executionContext) _AdminNewsletterDispatchPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminNewsletterDispatchPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminNewsletterDispatchPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminNewsletterDispatchPayload")
+		case "success":
+			out.Values[i] = ec._AdminNewsletterDispatchPayload_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._AdminNewsletterDispatchPayload_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "timestamp":
+			out.Values[i] = ec._AdminNewsletterDispatchPayload_timestamp(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "results":
+			out.Values[i] = ec._AdminNewsletterDispatchPayload_results(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -12360,6 +16068,72 @@ func (ec *executionContext) _AdminNewsletterSubscriberListPayload(ctx context.Co
 	return out
 }
 
+var adminNewsletterTestSendPayloadImplementors = []string{"AdminNewsletterTestSendPayload"}
+
+func (ec *executionContext) _AdminNewsletterTestSendPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminNewsletterTestSendPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminNewsletterTestSendPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminNewsletterTestSendPayload")
+		case "success":
+			out.Values[i] = ec._AdminNewsletterTestSendPayload_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._AdminNewsletterTestSendPayload_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "timestamp":
+			out.Values[i] = ec._AdminNewsletterTestSendPayload_timestamp(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "email":
+			out.Values[i] = ec._AdminNewsletterTestSendPayload_email(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "locale":
+			out.Values[i] = ec._AdminNewsletterTestSendPayload_locale(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "itemKey":
+			out.Values[i] = ec._AdminNewsletterTestSendPayload_itemKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "postTitle":
+			out.Values[i] = ec._AdminNewsletterTestSendPayload_postTitle(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var adminPasswordChangePayloadImplementors = []string{"AdminPasswordChangePayload"}
 
 func (ec *executionContext) _AdminPasswordChangePayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminPasswordChangePayload) graphql.Marshaler {
@@ -12462,6 +16236,28 @@ func (ec *executionContext) _AdminQuery(ctx context.Context, sel ast.SelectionSe
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "comments":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AdminQuery_comments(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "activeSessions":
 			field := field
 
@@ -12494,6 +16290,50 @@ func (ec *executionContext) _AdminQuery(ctx context.Context, sel ast.SelectionSe
 					}
 				}()
 				res = ec._AdminQuery_newsletterSubscribers(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "newsletterCampaigns":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AdminQuery_newsletterCampaigns(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "newsletterCampaignFailures":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AdminQuery_newsletterCampaignFailures(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -13266,6 +17106,88 @@ func (ec *executionContext) unmarshalNAdminChangeUsernameInput2suaybsimsekᚗcom
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNAdminComment2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminComment(ctx context.Context, sel ast.SelectionSet, v model.AdminComment) graphql.Marshaler {
+	return ec._AdminComment(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminComment2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminComment) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAdminComment2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminComment(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNAdminComment2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminComment(ctx context.Context, sel ast.SelectionSet, v *model.AdminComment) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminComment(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminCommentListPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentListPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminCommentListPayload) graphql.Marshaler {
+	return ec._AdminCommentListPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminCommentListPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentListPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminCommentListPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminCommentListPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAdminCommentStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentStatus(ctx context.Context, v any) (model.AdminCommentStatus, error) {
+	var res model.AdminCommentStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAdminCommentStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentStatus(ctx context.Context, sel ast.SelectionSet, v model.AdminCommentStatus) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNAdminContentCategory2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentCategory(ctx context.Context, sel ast.SelectionSet, v model.AdminContentCategory) graphql.Marshaler {
 	return ec._AdminContentCategory(ctx, sel, &v)
 }
@@ -13757,6 +17679,11 @@ func (ec *executionContext) unmarshalNAdminDeleteAccountInput2suaybsimsekᚗcom�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNAdminDeleteCommentInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDeleteCommentInput(ctx context.Context, v any) (model.AdminDeleteCommentInput, error) {
+	res, err := ec.unmarshalInputAdminDeleteCommentInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNAdminDeleteNewsletterSubscriberInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDeleteNewsletterSubscriberInput(ctx context.Context, v any) (model.AdminDeleteNewsletterSubscriberInput, error) {
 	res, err := ec.unmarshalInputAdminDeleteNewsletterSubscriberInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -13945,6 +17872,215 @@ func (ec *executionContext) marshalNAdminMe2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋ
 	return ec._AdminMe(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAdminNewsletterCampaign2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminNewsletterCampaign) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAdminNewsletterCampaign2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaign(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNAdminNewsletterCampaign2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaign(ctx context.Context, sel ast.SelectionSet, v *model.AdminNewsletterCampaign) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminNewsletterCampaign(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterCampaignListPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignListPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminNewsletterCampaignListPayload) graphql.Marshaler {
+	return ec._AdminNewsletterCampaignListPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterCampaignListPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignListPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminNewsletterCampaignListPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminNewsletterCampaignListPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterDeliveryFailure2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDeliveryFailureᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminNewsletterDeliveryFailure) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAdminNewsletterDeliveryFailure2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDeliveryFailure(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNAdminNewsletterDeliveryFailure2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDeliveryFailure(ctx context.Context, sel ast.SelectionSet, v *model.AdminNewsletterDeliveryFailure) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminNewsletterDeliveryFailure(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAdminNewsletterDeliveryFailureFilterInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDeliveryFailureFilterInput(ctx context.Context, v any) (model.AdminNewsletterDeliveryFailureFilterInput, error) {
+	res, err := ec.unmarshalInputAdminNewsletterDeliveryFailureFilterInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterDeliveryFailureListPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDeliveryFailureListPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminNewsletterDeliveryFailureListPayload) graphql.Marshaler {
+	return ec._AdminNewsletterDeliveryFailureListPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterDeliveryFailureListPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDeliveryFailureListPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminNewsletterDeliveryFailureListPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminNewsletterDeliveryFailureListPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterDispatchLocaleResult2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDispatchLocaleResultᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminNewsletterDispatchLocaleResult) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAdminNewsletterDispatchLocaleResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDispatchLocaleResult(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNAdminNewsletterDispatchLocaleResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDispatchLocaleResult(ctx context.Context, sel ast.SelectionSet, v *model.AdminNewsletterDispatchLocaleResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminNewsletterDispatchLocaleResult(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterDispatchPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDispatchPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminNewsletterDispatchPayload) graphql.Marshaler {
+	return ec._AdminNewsletterDispatchPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterDispatchPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDispatchPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminNewsletterDispatchPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminNewsletterDispatchPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNAdminNewsletterSubscriber2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriber(ctx context.Context, sel ast.SelectionSet, v model.AdminNewsletterSubscriber) graphql.Marshaler {
 	return ec._AdminNewsletterSubscriber(ctx, sel, &v)
 }
@@ -14027,6 +18163,20 @@ func (ec *executionContext) marshalNAdminNewsletterSubscriberStatus2suaybsimsek�
 	return v
 }
 
+func (ec *executionContext) marshalNAdminNewsletterTestSendPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterTestSendPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminNewsletterTestSendPayload) graphql.Marshaler {
+	return ec._AdminNewsletterTestSendPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterTestSendPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterTestSendPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminNewsletterTestSendPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminNewsletterTestSendPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNAdminPasswordChangePayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminPasswordChangePayload(ctx context.Context, sel ast.SelectionSet, v model.AdminPasswordChangePayload) graphql.Marshaler {
 	return ec._AdminPasswordChangePayload(ctx, sel, &v)
 }
@@ -14039,6 +18189,11 @@ func (ec *executionContext) marshalNAdminPasswordChangePayload2ᚖsuaybsimsekᚗ
 		return graphql.Null
 	}
 	return ec._AdminPasswordChangePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAdminSendTestNewsletterInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminSendTestNewsletterInput(ctx context.Context, v any) (model.AdminSendTestNewsletterInput, error) {
+	res, err := ec.unmarshalInputAdminSendTestNewsletterInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNAdminSession2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminSessionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminSession) graphql.Marshaler {
@@ -14107,6 +18262,11 @@ func (ec *executionContext) marshalNAdminSessionRevokePayload2ᚖsuaybsimsekᚗc
 		return graphql.Null
 	}
 	return ec._AdminSessionRevokePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAdminUpdateCommentStatusInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUpdateCommentStatusInput(ctx context.Context, v any) (model.AdminUpdateCommentStatusInput, error) {
+	res, err := ec.unmarshalInputAdminUpdateCommentStatusInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNAdminUpdateContentPostContentInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUpdateContentPostContentInput(ctx context.Context, v any) (model.AdminUpdateContentPostContentInput, error) {
@@ -14485,6 +18645,30 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) unmarshalOAdminCommentFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentFilterInput(ctx context.Context, v any) (*model.AdminCommentFilterInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputAdminCommentFilterInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOAdminCommentStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentStatus(ctx context.Context, v any) (*model.AdminCommentStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.AdminCommentStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAdminCommentStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentStatus(ctx context.Context, sel ast.SelectionSet, v *model.AdminCommentStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) marshalOAdminContentCategory2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentCategory(ctx context.Context, sel ast.SelectionSet, v *model.AdminContentCategory) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -14534,6 +18718,14 @@ func (ec *executionContext) unmarshalOAdminErrorMessageFilterInput2ᚖsuaybsimse
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputAdminErrorMessageFilterInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOAdminNewsletterCampaignFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignFilterInput(ctx context.Context, v any) (*model.AdminNewsletterCampaignFilterInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputAdminNewsletterCampaignFilterInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -14611,6 +18803,24 @@ func (ec *executionContext) marshalODateTime2ᚖtimeᚐTime(ctx context.Context,
 		return graphql.Null
 	}
 	return ec._DateTime(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v any) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalID(*v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v any) (*int, error) {

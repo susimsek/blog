@@ -397,6 +397,7 @@ func getOrCreateCampaign(
 		"locale":      locale,
 		"itemKey":     itemKey,
 		"title":       strings.TrimSpace(item.Title),
+		"summary":     strings.TrimSpace(item.Description),
 		"link":        strings.TrimSpace(item.Link),
 		"pubDate":     strings.TrimSpace(item.PubDate),
 		"rssURL":      rssURL,
@@ -948,6 +949,102 @@ func authorizeCronRequest(r *http.Request, secret string) bool {
 	return strings.TrimSpace(r.Header.Get("Authorization")) == "Bearer "+secret
 }
 
+func handleTestDispatch(
+	w http.ResponseWriter,
+	r *http.Request,
+	newsletterConfig appconfig.NewsletterConfig,
+	mailCfg appconfig.MailConfig,
+	postsCollection *mongo.Collection,
+) {
+	testEmail, err := newsletter.NormalizeSubscriberEmail(r.URL.Query().Get("email"))
+	if err != nil {
+		writeDispatchError(w, apperrors.BadRequest("invalid test email"))
+		return
+	}
+
+	locale := strings.TrimSpace(strings.ToLower(r.URL.Query().Get("locale")))
+	if locale != newsletter.LocaleEN && locale != newsletter.LocaleTR {
+		writeDispatchError(w, apperrors.BadRequest("unsupported newsletter locale"))
+		return
+	}
+
+	itemKey := strings.TrimSpace(r.URL.Query().Get("itemKey"))
+	if itemKey == "" {
+		writeDispatchError(w, apperrors.BadRequest("newsletter item key is required"))
+		return
+	}
+
+	rssURL := resolveRSSURL(newsletterConfig.SiteURL, locale)
+	items, fetchErr := fetchRSSItems(rssURL)
+	if fetchErr != nil {
+		writeDispatchError(w, apperrors.ServiceUnavailable("rss fetch failed", fetchErr))
+		return
+	}
+
+	var selectedItem *rssItem
+	for _, candidate := range items {
+		if normalizeItemKey(candidate) != itemKey {
+			continue
+		}
+		item := candidate
+		selectedItem = &item
+		break
+	}
+	if selectedItem == nil {
+		writeDispatchError(w, apperrors.BadRequest("newsletter item not found"))
+		return
+	}
+
+	postMetadata, _ := resolvePostEmailMetadata(postsCollection, locale, newsletterConfig.SiteURL, *selectedItem)
+
+	unsubscribeToken, tokenErr := newsletter.BuildUnsubscribeToken(
+		testEmail,
+		newsletterConfig.UnsubscribeSecret,
+		time.Now().UTC(),
+		newsletterConfig.UnsubscribeTokenTTL,
+	)
+	if tokenErr != nil {
+		writeDispatchError(w, apperrors.Internal("failed to build test unsubscribe token", tokenErr))
+		return
+	}
+
+	unsubscribeURL, unsubscribeURLErr := buildUnsubscribeURL(newsletterConfig.SiteURL, unsubscribeToken, locale)
+	if unsubscribeURLErr != nil {
+		writeDispatchError(w, apperrors.Internal("failed to build test unsubscribe url", unsubscribeURLErr))
+		return
+	}
+
+	if err := sendPostEmail(
+		mailCfg,
+		testEmail,
+		locale,
+		newsletterConfig.SiteURL,
+		*selectedItem,
+		rssURL,
+		unsubscribeURL,
+		postMetadata,
+	); err != nil {
+		writeDispatchError(w, apperrors.ServiceUnavailable("test newsletter send failed", err))
+		return
+	}
+
+	writeJSON(w, http.StatusOK, dispatchResponse{
+		Status:    "ok",
+		Message:   "test newsletter email sent",
+		Timestamp: time.Now().UTC().Format(time.RFC3339),
+		Locales: map[string]dispatchLocaleResult{
+			locale: {
+				RSSURL:      rssURL,
+				ItemKey:     itemKey,
+				PostTitle:   strings.TrimSpace(selectedItem.Title),
+				SentCount:   1,
+				FailedCount: 0,
+				Skipped:     false,
+			},
+		},
+	})
+}
+
 func Handler(w http.ResponseWriter, r *http.Request) {
 	httpConfig := appconfig.ResolveHTTPConfig()
 	if httpConfig.AllowedOrigin != "" {
@@ -1002,6 +1099,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	campaignsCollection := client.Database(databaseConfig.Name).Collection(newsletterCampaignsCollection)
 	deliveriesCollection := client.Database(databaseConfig.Name).Collection(newsletterDeliveriesCollection)
 	postsCollection := client.Database(databaseConfig.Name).Collection(newsletterPostsCollection)
+	if strings.EqualFold(strings.TrimSpace(r.URL.Query().Get("mode")), "test") {
+		handleTestDispatch(w, r, newsletterConfig, mailCfg, postsCollection)
+		return
+	}
 	if err := ensureDispatchSubscriberIndexes(subscribersCollection); err != nil {
 		writeDispatchError(w, apperrors.ServiceUnavailable("subscriber index error", err))
 		return
@@ -1250,6 +1351,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			bson.M{"locale": locale, "itemKey": itemKey},
 			bson.M{
 				"$set": bson.M{
+					"summary":     strings.TrimSpace(selectedItem.Description),
 					"status":      status,
 					"updatedAt":   finalNow,
 					"lastRunAt":   finalNow,

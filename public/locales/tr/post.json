@@ -34,6 +34,54 @@
       "copyLink": "Bağlantıyı kopyala",
       "copied": "Kopyalandı"
     },
+    "comments": {
+      "eyebrow": "Tartışma",
+      "title_one": "1 yorum",
+      "title_other": "{{count}} yorum",
+      "copy": "Düşünceni, sorunu ya da düzeltmeni bırak. Onaylanan yorumlar aşağıda görünür.",
+      "streamTitle": "Tartışma",
+      "composerTitle": "Yorumunu ekle",
+      "composerCopy": "Notunu, sorunu ya da düzeltmeni ekleyerek tartışmaya katıl.",
+      "moderationNote": "Yeni yorumlar yayınlanmadan önce incelenir.",
+      "loading": "Yorumlar yükleniyor...",
+      "emptyTitle": "Henüz tartışma yok",
+      "empty": "Henüz onaylanmış yorum yok. İlk yorumu sen yaz.",
+      "reply": "Yanıtla",
+      "closeReply": "Yanıtı kapat",
+      "replies_one": "1 yanıt",
+      "replies_other": "{{count}} yanıt",
+      "postedAt": "{{date}} tarihinde gönderildi",
+      "form": {
+        "nameLabel": "Ad",
+        "namePlaceholder": "Adın",
+        "emailLabel": "E-posta",
+        "emailPlaceholder": "eposta@ornek.com",
+        "contentLabel": "Yorum",
+        "contentPlaceholder": "Yorumunu yaz",
+        "submit": "Yorumu gönder",
+        "submitReply": "Yanıtı gönder",
+        "cancelReply": "İptal",
+        "submitting": "Gönderiliyor...",
+        "helper": "E-posta adresin gizli kalır. Yorumla birlikte yalnızca görünen adın gösterilir.",
+        "replyingTo": "{{name}} yorumuna yanıt veriyorsun"
+      },
+      "success": {
+        "pending": "Yorumun alındı ve moderasyon sırasına eklendi.",
+        "approved": "Yorumun yayınlandı."
+      },
+      "errors": {
+        "load": "Yorumlar şu anda yüklenemiyor.",
+        "failed": "Yorum gönderilemedi.",
+        "invalid-post-id": "Yazı bulunamadı.",
+        "not-found": "Yazı bulunamadı.",
+        "invalid-parent": "Yanıt vermeye çalıştığın yorum artık kullanılamıyor.",
+        "invalid-author": "Geçerli bir görünen ad gir.",
+        "invalid-email": "Geçerli bir e-posta adresi gir.",
+        "invalid-content": "3 ile 2000 karakter arasında bir yorum gir.",
+        "rate-limited": "Kısa sürede çok fazla yorum gönderildi. Daha sonra tekrar dene.",
+        "service-unavailable": "Yorum servisine şu anda ulaşılamıyor."
+      }
+    },
     "navigation": {
       "title": "Yazı geçişi",
       "previous": "Önceki makale",

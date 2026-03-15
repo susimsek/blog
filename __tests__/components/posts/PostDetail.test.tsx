@@ -60,6 +60,11 @@ jest.mock('@/components/posts/RelatedPosts', () => ({
   default: () => null,
 }));
 
+jest.mock('@/components/posts/PostComments', () => ({
+  __esModule: true,
+  default: () => <div data-testid="post-comments" />,
+}));
+
 describe('PostDetail Component', () => {
   beforeAll(() => {
     const markdownRenderer = jest.requireMock('@/components/common/MarkdownRenderer');

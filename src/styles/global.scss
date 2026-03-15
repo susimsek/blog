@@ -134,55 +134,6 @@ html {
   --cluster-space: var(--space-24);
 }
 
-.admin-locale-pill {
-  --admin-locale-pill-bg: var(--main-bg);
-  --admin-locale-pill-border: var(--border-color);
-  --admin-locale-pill-text: var(--text-color);
-  --admin-locale-pill-hover-bg: var(--main-bg);
-  --admin-locale-pill-hover-border: var(--text-color);
-
-  background-color: var(--admin-locale-pill-bg) !important;
-  border-color: var(--admin-locale-pill-border) !important;
-  color: var(--admin-locale-pill-text) !important;
-  box-shadow: none !important;
-}
-
-.admin-locale-pill:hover,
-.admin-locale-pill:focus,
-.admin-locale-pill:focus-visible,
-.admin-locale-pill:active {
-  background-color: var(--admin-locale-pill-hover-bg) !important;
-  border-color: var(--admin-locale-pill-hover-border) !important;
-  color: var(--admin-locale-pill-text) !important;
-  box-shadow: none !important;
-}
-
-.admin-locale-pill--active {
-  --admin-locale-pill-bg: color-mix(in srgb, var(--active-color) 10%, var(--main-bg));
-  --admin-locale-pill-border: color-mix(in srgb, var(--active-color) 28%, var(--border-color));
-  --admin-locale-pill-text: var(--text-color);
-  --admin-locale-pill-hover-bg: color-mix(in srgb, var(--active-color) 14%, var(--main-bg));
-  --admin-locale-pill-hover-border: color-mix(in srgb, var(--active-color) 36%, var(--border-color));
-}
-
-.admin-locale-pill--available {
-  --admin-locale-pill-bg: color-mix(in srgb, var(--active-color) 4%, var(--main-bg));
-  --admin-locale-pill-border: var(--border-color);
-  --admin-locale-pill-text: var(--text-color);
-  --admin-locale-pill-hover-bg: color-mix(in srgb, var(--active-color) 8%, var(--main-bg));
-  --admin-locale-pill-hover-border: color-mix(in srgb, var(--active-color) 20%, var(--border-color));
-}
-
-.admin-locale-pill--missing {
-  --admin-locale-pill-bg: var(--main-bg);
-  --admin-locale-pill-border: var(--border-color);
-  --admin-locale-pill-text: var(--muted-text-color);
-  --admin-locale-pill-hover-bg: color-mix(in srgb, var(--active-color) 6%, var(--main-bg));
-  --admin-locale-pill-hover-border: color-mix(in srgb, var(--active-color) 18%, var(--border-color));
-
-  opacity: 0.82;
-}
-
 .about-page-section {
   margin-block: var(--space-32);
 }
@@ -3185,6 +3136,544 @@ input[type='search']::-webkit-search-cancel-button:hover {
   flex: 1;
   padding: var(--space-16);
   color: var(--text-color);
+}
+
+.post-comments-section {
+  margin-top: var(--space-32);
+}
+
+.post-comments-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  padding: clamp(1.1rem, 0.85rem + 1.2vw, 1.75rem);
+  border: 1px solid color-mix(in srgb, var(--active-color) 10%, var(--border-color));
+  border-radius: 28px;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--main-bg) 94%, white 6%),
+      color-mix(in srgb, var(--main-bg) 99%, transparent)
+    ),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--active-color) 8%, transparent), transparent 34%);
+  box-shadow: var(--box-shadow-sm);
+  overflow: clip;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--active-color) 30%, transparent),
+      transparent
+    );
+    pointer-events: none;
+  }
+}
+
+.post-comments-composer,
+.post-comment-card,
+.post-comment-reply-card,
+.post-comments-empty-card {
+  border-radius: 24px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--main-bg) 90%, white 10%), var(--main-bg));
+  border: 1px solid color-mix(in srgb, var(--active-color) 10%, var(--border-color));
+
+  &:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.post-comments-composer-body,
+.post-comment-card-body,
+.post-comment-reply-card-body,
+.post-comments-empty-card-body {
+  padding: clamp(1rem, 0.8rem + 1vw, 1.5rem);
+}
+
+.post-comments-composer-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+
+.post-comments-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.post-comments-section-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.post-comments-composer {
+  border: 0;
+  border-top: 2px solid color-mix(in srgb, var(--active-color) 24%, var(--border-color));
+  border-radius: 0 0 24px 24px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--main-bg) 80%, var(--dropdown-hover-bg) 20%),
+    color-mix(in srgb, var(--main-bg) 94%, white 6%)
+  );
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 55%, transparent);
+}
+
+.post-comments-composer .post-comments-composer-body {
+  gap: 1rem;
+  padding-top: clamp(0.85rem, 0.75rem + 0.45vw, 1.1rem);
+}
+
+.post-comments-composer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+}
+
+.post-comments-composer-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.post-comments-header-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.post-comments-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: fit-content;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--active-color) 10%, var(--main-bg));
+  color: var(--active-color);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.post-comments-count-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.1rem;
+  padding: 0 0.8rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-color) 8%, var(--main-bg));
+  border: 1px solid color-mix(in srgb, var(--text-color) 10%, var(--border-color));
+  color: var(--text-color);
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.post-comments-title-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  h2 {
+    font-size: clamp(1.8rem, 1.55rem + 1vw, 2.4rem);
+    line-height: 1.05;
+  }
+}
+
+.post-comments-copy {
+  max-width: 56ch;
+  color: var(--muted-text-color);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.post-comments-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 0.95rem;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--active-color) 8%, var(--main-bg));
+  border: 1px solid color-mix(in srgb, var(--active-color) 14%, var(--border-color));
+  color: var(--text-color);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.post-comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.post-comment-form--reply {
+  gap: 0.8rem;
+
+  .post-comment-form-label {
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .post-comment-form-control {
+    min-height: 3rem;
+    padding: 0.78rem 0.95rem;
+    border-radius: 16px;
+  }
+
+  .post-comment-form-control--textarea {
+    min-height: 8.5rem;
+  }
+
+  .post-comment-form-actions {
+    gap: 0.6rem;
+  }
+}
+
+.post-comment-reply-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 0.9rem;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--active-color) 8%, var(--main-bg));
+  border: 1px solid color-mix(in srgb, var(--active-color) 14%, var(--border-color));
+}
+
+.post-comment-reply-banner-label {
+  color: var(--text-color);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.post-comment-reply-banner-close {
+  padding: 0;
+  color: var(--muted-text-color);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.post-comment-form-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.post-comment-form-control {
+  border-radius: 18px;
+  border-color: color-mix(in srgb, var(--active-color) 8%, var(--border-color));
+  background-color: color-mix(in srgb, var(--main-bg) 94%, white 6%);
+  color: var(--text-color);
+  padding: 0.9rem 1rem;
+  min-height: 3.25rem;
+  box-shadow: none !important;
+
+  &::placeholder {
+    color: var(--muted-text-color);
+    opacity: 0.92;
+  }
+
+  &:focus {
+    border-color: color-mix(in srgb, var(--active-color) 34%, var(--border-color));
+    background-color: var(--main-bg);
+  }
+
+  &.is-invalid,
+  &.is-valid {
+    background-image: none;
+    padding-right: 1rem;
+  }
+}
+
+.post-comment-form-control.is-invalid {
+  border-color: color-mix(in srgb, var(--bs-danger, #dc3545) 68%, var(--border-color));
+  background-color: color-mix(in srgb, var(--bs-danger, #dc3545) 5%, var(--main-bg));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--bs-danger, #dc3545) 10%, transparent),
+    0 10px 22px -20px color-mix(in srgb, var(--bs-danger, #dc3545) 45%, transparent) !important;
+}
+
+.post-comment-form-control--textarea {
+  min-height: 12rem;
+  resize: vertical;
+}
+
+.post-comment-form-help {
+  color: var(--muted-text-color);
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+
+.post-comments-status-alert {
+  display: block;
+  padding: 0.95rem 1.1rem;
+  border-radius: 18px;
+  border-width: 1px;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  box-shadow: 0 18px 30px -28px color-mix(in srgb, var(--text-color) 18%, transparent);
+}
+
+.post-comments-status-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: 0.85rem;
+  margin-bottom: 0.65rem;
+}
+
+.post-comments-status-stack + .post-comment-form {
+  padding-top: 0.35rem;
+}
+
+.post-comments-status-alert--success {
+  background: color-mix(in srgb, var(--bs-success, #198754) 14%, var(--main-bg));
+  border-color: color-mix(in srgb, var(--bs-success, #198754) 22%, var(--border-color));
+  color: color-mix(in srgb, var(--bs-success, #198754) 78%, var(--text-color));
+}
+
+.post-comments-status-alert--danger {
+  background: color-mix(in srgb, var(--bs-danger, #dc3545) 9%, var(--main-bg));
+  border-color: color-mix(in srgb, var(--bs-danger, #dc3545) 20%, var(--border-color));
+  color: color-mix(in srgb, var(--bs-danger, #dc3545) 82%, var(--text-color));
+}
+
+.post-comment-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.post-comment-submit-button,
+.post-comment-cancel-button {
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.post-comments-feedback {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--muted-text-color);
+  font-size: 0.96rem;
+  padding-inline: 0.25rem;
+}
+
+.post-comments-empty-card-body {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.post-comments-empty-icon,
+.post-comment-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.post-comments-empty-icon {
+  width: 3.25rem;
+  height: 3.25rem;
+  background: color-mix(in srgb, var(--active-color) 14%, var(--main-bg));
+  color: var(--active-color);
+  font-size: 1.1rem;
+}
+
+.post-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.post-comments-list-wrap {
+  padding-top: clamp(0.4rem, 0.2rem + 0.7vw, 0.8rem);
+  border-top: 1px solid color-mix(in srgb, var(--active-color) 8%, var(--border-color));
+}
+
+.post-comments-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: post-comment-enter 420ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: var(--comment-enter-delay, 0ms);
+}
+
+.post-comment-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.post-comment-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.post-comment-author {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.post-comment-avatar {
+  width: 2.9rem;
+  height: 2.9rem;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--active-color) 18%, var(--main-bg)),
+    color-mix(in srgb, var(--active-color) 6%, var(--main-bg))
+  );
+  color: var(--active-color);
+  font-weight: 800;
+}
+
+.post-comment-author-meta {
+  min-width: 0;
+}
+
+.post-comment-author-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.post-comment-reply-count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--active-color) 10%, var(--main-bg));
+  border: 1px solid color-mix(in srgb, var(--active-color) 14%, var(--border-color));
+  color: var(--active-color);
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.post-comment-content {
+  color: var(--text-color);
+  line-height: 1.75;
+  font-size: 1rem;
+}
+
+.post-comment-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 0.15rem;
+}
+
+.post-comment-reply-card,
+.post-comment-reply-item {
+  margin-left: clamp(0.75rem, 2vw, 2.5rem);
+  position: relative;
+}
+
+.post-comment-reply-item {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: post-comment-enter 420ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: var(--comment-enter-delay, 0ms);
+}
+
+.post-comment-reply-card::before,
+.post-comment-reply-item::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 -0.75rem;
+  width: 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--active-color) 18%, var(--border-color));
+}
+
+.post-comment-reply-success {
+  margin-left: clamp(0.75rem, 2vw, 2.5rem);
+}
+
+@keyframes post-comment-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-comments-thread,
+  .post-comment-reply-item {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .post-comments-shell {
+    padding: 1rem;
+    border-radius: 22px;
+  }
+
+  .post-comments-composer {
+    position: static;
+  }
+
+  .post-comments-composer,
+  .post-comment-card,
+  .post-comment-reply-card,
+  .post-comments-empty-card {
+    border-radius: 20px;
+  }
+
+  .post-comments-note {
+    width: 100%;
+  }
+
+  .post-comments-empty-card-body {
+    align-items: flex-start;
+  }
+
+  .post-comment-reply-card,
+  .post-comment-reply-item,
+  .post-comment-reply-success {
+    margin-left: 0.9rem;
+  }
+
+  .post-comment-reply-card::before,
+  .post-comment-reply-item::before {
+    inset-inline-start: -0.55rem;
+  }
 }
 
 .post-summary-card {
@@ -9464,6 +9953,107 @@ label {
   gap: 1.75rem;
 }
 
+.admin-newsletter-panel {
+  border-color: color-mix(in srgb, var(--border-color) 82%, transparent) !important;
+  background: color-mix(in srgb, var(--main-bg) 94%, var(--dropdown-hover-bg) 6%);
+  box-shadow: var(--box-shadow-sm) !important;
+  color: var(--text-color);
+}
+
+.admin-newsletter-panel .card-body,
+.admin-newsletter-panel .card-footer {
+  background: transparent;
+  color: inherit;
+}
+
+.admin-newsletter-operations-layout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-newsletter-operations-copy {
+  flex: 1 1 34rem;
+  min-width: min(100%, 20rem);
+}
+
+.admin-newsletter-operations-action {
+  flex: 0 0 auto;
+}
+
+.admin-newsletter-summary-metric,
+.admin-newsletter-campaign-card,
+.admin-newsletter-subscriber-card {
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--main-bg) 90%, var(--dropdown-hover-bg) 10%);
+  box-shadow: var(--box-shadow-sm);
+  color: var(--text-color);
+}
+
+.admin-newsletter-summary-metric {
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 8.5rem;
+
+  &--total {
+    border-color: color-mix(in srgb, var(--active-color) 22%, var(--border-color) 78%);
+    background: color-mix(in srgb, var(--main-bg) 82%, var(--active-color) 18%);
+  }
+
+  &--active {
+    border-color: color-mix(in srgb, #198754 34%, var(--border-color) 66%);
+    background: color-mix(in srgb, var(--main-bg) 82%, #198754 18%);
+  }
+
+  &--pending {
+    border-color: color-mix(in srgb, #fd7e14 34%, var(--border-color) 66%);
+    background: color-mix(in srgb, var(--main-bg) 82%, #fd7e14 18%);
+  }
+
+  &--unsubscribed {
+    border-color: color-mix(in srgb, #dc3545 30%, var(--border-color) 70%);
+    background: color-mix(in srgb, var(--main-bg) 84%, #dc3545 16%);
+  }
+}
+
+.admin-newsletter-summary-label {
+  color: var(--muted-text-color);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-newsletter-summary-value {
+  font-size: clamp(2.4rem, 3.2vw, 3rem);
+  font-weight: 700;
+  line-height: 0.95;
+  color: var(--text-color);
+}
+
+.admin-newsletter-campaign-card,
+.admin-newsletter-subscriber-card {
+  padding: 1rem;
+}
+
+.admin-newsletter-campaign-thumbnail {
+  border-radius: 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
+  aspect-ratio: 16 / 9;
+  background: color-mix(in srgb, var(--main-bg) 86%, var(--dropdown-hover-bg) 14%);
+}
+
+.admin-comments-card {
+  position: relative;
+}
+
 .admin-account-avatar-card {
   border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
   background: color-mix(in srgb, var(--main-bg) 93%, var(--dropdown-hover-bg) 7%);
@@ -9905,13 +10495,40 @@ label {
 
 .admin-content-topic-card .post-summary-date,
 .admin-content-category-card .post-summary-date {
-  grid-area: topics;
+  grid-area: date;
   margin-bottom: 0;
 }
 
 .admin-content-topic-card .post-summary-cta,
 .admin-content-category-card .post-summary-cta {
-  margin-top: 0.85rem;
+  grid-area: cta;
+  display: flex !important;
+  margin-top: 0.15rem;
+}
+
+@media (max-width: 991.98px) {
+  .admin-content-topic-card .post-card-content,
+  .admin-content-category-card .post-card-content {
+    grid-template-areas:
+      'title'
+      'meta'
+      'date'
+      'thumb'
+      'cta';
+    row-gap: 0.35rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .admin-content-topic-card .post-card-content,
+  .admin-content-category-card .post-card-content {
+    grid-template-areas:
+      'title thumb'
+      'meta thumb'
+      'date thumb'
+      'cta thumb';
+    row-gap: 0.35rem;
+  }
 }
 
 .admin-content-meta-badge {
@@ -9945,6 +10562,85 @@ label {
 .admin-account-form-card {
   width: 100%;
   min-height: clamp(26rem, 62vh, 52rem);
+}
+
+.admin-newsletter-action {
+  --bs-btn-color: var(--text-color);
+  --bs-btn-bg: color-mix(in srgb, var(--main-bg) 88%, var(--dropdown-hover-bg) 12%);
+  --bs-btn-border-color: color-mix(in srgb, var(--border-color) 84%, transparent);
+  --bs-btn-hover-color: var(--text-color);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--main-bg) 80%, var(--dropdown-hover-bg) 20%);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--active-color) 30%, var(--border-color) 70%);
+  --bs-btn-active-color: var(--text-color);
+  --bs-btn-active-bg: color-mix(in srgb, var(--active-color) 14%, var(--main-bg) 86%);
+  --bs-btn-active-border-color: color-mix(in srgb, var(--active-color) 44%, var(--border-color) 56%);
+  --bs-btn-disabled-color: color-mix(in srgb, var(--muted-text-color) 88%, var(--text-color) 12%);
+  --bs-btn-disabled-bg: color-mix(in srgb, var(--main-bg) 92%, var(--dropdown-hover-bg) 8%);
+  --bs-btn-disabled-border-color: color-mix(in srgb, var(--border-color) 72%, transparent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  box-shadow: var(--box-shadow-sm);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover,
+  &:focus-visible {
+    box-shadow: var(--box-shadow-sm-hover);
+    transform: translateY(-1px);
+  }
+
+  .svg-inline--fa {
+    font-size: 0.9em;
+  }
+}
+
+.admin-newsletter-action--primary {
+  --bs-btn-bg: color-mix(in srgb, var(--active-color) 12%, var(--main-bg) 88%);
+  --bs-btn-border-color: color-mix(in srgb, var(--active-color) 34%, var(--border-color) 66%);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--active-color) 18%, var(--main-bg) 82%);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--active-color) 48%, var(--border-color) 52%);
+  --bs-btn-active-bg: color-mix(in srgb, var(--active-color) 24%, var(--main-bg) 76%);
+}
+
+.admin-newsletter-action--external {
+  --bs-btn-color: color-mix(in srgb, var(--text-color) 86%, var(--active-color) 14%);
+  --bs-btn-bg: color-mix(in srgb, var(--main-bg) 84%, var(--dropdown-hover-bg) 16%);
+  --bs-btn-border-color: color-mix(in srgb, var(--border-color) 80%, transparent);
+  --bs-btn-hover-color: var(--text-color);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--active-color) 10%, var(--main-bg) 90%);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--active-color) 34%, var(--border-color) 66%);
+}
+
+.admin-newsletter-action--secondary {
+  --bs-btn-color: color-mix(in srgb, var(--text-color) 88%, var(--muted-text-color) 12%);
+  --bs-btn-bg: color-mix(in srgb, var(--main-bg) 86%, var(--dropdown-hover-bg) 14%);
+  --bs-btn-border-color: color-mix(in srgb, var(--border-color) 84%, transparent);
+  --bs-btn-hover-color: var(--text-color);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--main-bg) 78%, var(--dropdown-hover-bg) 22%);
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--muted-text-color) 30%, var(--border-color) 70%);
+  --bs-btn-active-bg: color-mix(in srgb, var(--muted-text-color) 12%, var(--main-bg) 88%);
+  --bs-btn-active-border-color: color-mix(in srgb, var(--muted-text-color) 24%, var(--border-color) 76%);
+}
+
+.admin-newsletter-action--danger {
+  --bs-btn-color: color-mix(in srgb, #dc3545 84%, var(--text-color) 16%);
+  --bs-btn-bg: color-mix(in srgb, var(--main-bg) 90%, #dc3545 10%);
+  --bs-btn-border-color: color-mix(in srgb, #dc3545 38%, var(--border-color) 62%);
+  --bs-btn-hover-color: color-mix(in srgb, #dc3545 88%, var(--text-color) 12%);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--main-bg) 82%, #dc3545 18%);
+  --bs-btn-hover-border-color: color-mix(in srgb, #dc3545 52%, var(--border-color) 48%);
+  --bs-btn-active-color: color-mix(in srgb, #dc3545 90%, var(--text-color) 10%);
+  --bs-btn-active-bg: color-mix(in srgb, var(--main-bg) 76%, #dc3545 24%);
+  --bs-btn-active-border-color: color-mix(in srgb, #dc3545 60%, var(--border-color) 40%);
+  --bs-btn-disabled-color: color-mix(in srgb, #dc3545 44%, var(--muted-text-color) 56%);
+  --bs-btn-disabled-bg: color-mix(in srgb, var(--main-bg) 94%, #dc3545 6%);
+  --bs-btn-disabled-border-color: color-mix(in srgb, #dc3545 24%, var(--border-color) 76%);
 }
 
 .admin-content-post-detail-body {

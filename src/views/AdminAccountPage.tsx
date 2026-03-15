@@ -10,6 +10,8 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import FlagIcon from '@/components/common/FlagIcon';
@@ -19,25 +21,36 @@ import {
   changeAdminName,
   changeAdminPassword,
   changeAdminUsername,
+  deleteAdminComment,
   createAdminErrorMessage,
   deleteAdminErrorMessage,
   deleteAdminNewsletterSubscriber,
   deleteAdminAccount,
   fetchAdminActiveSessions,
+  fetchAdminComments,
   fetchAdminErrorMessages,
   fetchAdminMe,
+  fetchAdminNewsletterCampaignFailures,
+  fetchAdminNewsletterCampaigns,
   fetchAdminNewsletterSubscribers,
   isAdminSessionError,
   resolveAdminError,
   revokeAdminSession,
   revokeAllAdminSessions,
+  sendAdminNewsletterTestEmail,
+  triggerAdminNewsletterDispatch,
+  updateAdminCommentStatus,
   updateAdminNewsletterSubscriberStatus,
   updateAdminErrorMessage,
+  type AdminCommentItem,
   type AdminErrorMessageItem,
+  type AdminNewsletterCampaignItem,
+  type AdminNewsletterDeliveryFailureItem,
+  type AdminNewsletterDispatchLocaleResult,
   type AdminNewsletterSubscriberItem,
 } from '@/lib/adminApi';
 import { withAdminAvatarSize } from '@/lib/adminAvatar';
-import { ADMIN_ROUTES } from '@/lib/adminRoutes';
+import { ADMIN_ROUTES, buildAdminContentPostDetailRoute } from '@/lib/adminRoutes';
 import { defaultLocale } from '@/i18n/settings';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
 import Link from '@/components/common/Link';
@@ -46,7 +59,17 @@ import { resetToSystemTheme, setTheme, type Theme } from '@/reducers/theme';
 import { LOCALES, THEMES } from '@/config/constants';
 
 type AdminAccountPageProps = {
-  section: 'profile' | 'account' | 'appearance' | 'sessions' | 'newsletter' | 'security' | 'errors' | 'content';
+  section:
+    | 'profile'
+    | 'account'
+    | 'appearance'
+    | 'sessions'
+    | 'newsletter'
+    | 'newsletterSubscribers'
+    | 'comments'
+    | 'security'
+    | 'errors'
+    | 'content';
 };
 
 type AdminIdentity = {
@@ -300,10 +323,14 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const isAccountSection = section === 'account';
   const isAppearanceSection = section === 'appearance';
   const isSessionsSection = section === 'sessions';
-  const isNewsletterSection = section === 'newsletter';
+  const isNewsletterOverviewSection = section === 'newsletter';
+  const isNewsletterSubscribersSection = section === 'newsletterSubscribers';
+  const isNewsletterSection = isNewsletterOverviewSection || isNewsletterSubscribersSection;
+  const isCommentsSection = section === 'comments';
   const isSecuritySection = section === 'security';
   const isErrorsSection = section === 'errors';
   const isContentSection = section === 'content';
+  const newsletterTab = isNewsletterSubscribersSection ? 'subscribers' : 'overview';
 
   const [adminUser, setAdminUser] = React.useState<AdminIdentity>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -331,7 +358,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const [revokingSessionID, setRevokingSessionID] = React.useState('');
   const [isRevokingAllSessions, setIsRevokingAllSessions] = React.useState(false);
   const [newsletterSubscribers, setNewsletterSubscribers] = React.useState<AdminNewsletterSubscriberItem[]>([]);
-  const [isNewsletterLoading, setIsNewsletterLoading] = React.useState(isNewsletterSection);
+  const [isNewsletterLoading, setIsNewsletterLoading] = React.useState(isNewsletterSubscribersSection);
   const [newsletterErrorMessage, setNewsletterErrorMessage] = React.useState('');
   const [newsletterSuccessMessage, setNewsletterSuccessMessage] = React.useState('');
   const [newsletterFilterLocale, setNewsletterFilterLocale] = React.useState<'all' | 'en' | 'tr'>('all');
@@ -343,11 +370,54 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const [newsletterPage, setNewsletterPage] = React.useState(1);
   const [newsletterPageSize, setNewsletterPageSize] = React.useState(10);
   const [totalNewsletterSubscribers, setTotalNewsletterSubscribers] = React.useState(0);
+  const [newsletterSubscriberSummary, setNewsletterSubscriberSummary] = React.useState({
+    total: 0,
+    active: 0,
+    pending: 0,
+    unsubscribed: 0,
+  });
+  const [isNewsletterSummaryLoading, setIsNewsletterSummaryLoading] = React.useState(isNewsletterOverviewSection);
+  const [newsletterCampaigns, setNewsletterCampaigns] = React.useState<AdminNewsletterCampaignItem[]>([]);
+  const [newsletterCampaignThumbnails, setNewsletterCampaignThumbnails] = React.useState<Record<string, string>>({});
+  const [isNewsletterCampaignsLoading, setIsNewsletterCampaignsLoading] = React.useState(isNewsletterOverviewSection);
+  const [isNewsletterDispatchRunning, setIsNewsletterDispatchRunning] = React.useState(false);
+  const [newsletterDispatchResults, setNewsletterDispatchResults] = React.useState<
+    AdminNewsletterDispatchLocaleResult[]
+  >([]);
+  const [newsletterDispatchTimestamp, setNewsletterDispatchTimestamp] = React.useState('');
+  const [selectedNewsletterCampaign, setSelectedNewsletterCampaign] =
+    React.useState<AdminNewsletterCampaignItem | null>(null);
+  const [newsletterCampaignFailures, setNewsletterCampaignFailures] = React.useState<
+    AdminNewsletterDeliveryFailureItem[]
+  >([]);
+  const [isNewsletterFailuresLoading, setIsNewsletterFailuresLoading] = React.useState(false);
+  const [newsletterFailuresTotal, setNewsletterFailuresTotal] = React.useState(0);
+  const [pendingNewsletterTestCampaign, setPendingNewsletterTestCampaign] =
+    React.useState<AdminNewsletterCampaignItem | null>(null);
+  const [newsletterTestEmail, setNewsletterTestEmail] = React.useState('');
+  const [isNewsletterTestSending, setIsNewsletterTestSending] = React.useState(false);
   const [updatingNewsletterEmail, setUpdatingNewsletterEmail] = React.useState('');
   const [deletingNewsletterEmail, setDeletingNewsletterEmail] = React.useState('');
   const [pendingNewsletterDelete, setPendingNewsletterDelete] = React.useState<AdminNewsletterSubscriberItem | null>(
     null,
   );
+  const [comments, setComments] = React.useState<AdminCommentItem[]>([]);
+  const [isCommentsLoading, setIsCommentsLoading] = React.useState(isCommentsSection);
+  const [commentsErrorMessage, setCommentsErrorMessage] = React.useState('');
+  const [commentsSuccessMessage, setCommentsSuccessMessage] = React.useState('');
+  const [commentFilterLocale, setCommentFilterLocale] = React.useState<'all' | 'en' | 'tr'>('all');
+  const [commentFilterStatus, setCommentFilterStatus] = React.useState<
+    'all' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM'
+  >('all');
+  const [commentFilterQuery, setCommentFilterQuery] = React.useState('');
+  const [commentFilterQueryDebounced, setCommentFilterQueryDebounced] = React.useState('');
+  const [commentsPage, setCommentsPage] = React.useState(1);
+  const [commentsPageSize, setCommentsPageSize] = React.useState(10);
+  const [totalComments, setTotalComments] = React.useState(0);
+  const [commentActionID, setCommentActionID] = React.useState('');
+  const [commentActionStatus, setCommentActionStatus] = React.useState<AdminCommentItem['status'] | null>(null);
+  const [deletingCommentID, setDeletingCommentID] = React.useState('');
+  const [pendingCommentDelete, setPendingCommentDelete] = React.useState<AdminCommentItem | null>(null);
   const [errorMessages, setErrorMessages] = React.useState<AdminErrorMessageItem[]>([]);
   const [isErrorMessagesLoading, setIsErrorMessagesLoading] = React.useState(isErrorsSection);
   const [errorMessagesErrorMessage, setErrorMessagesErrorMessage] = React.useState('');
@@ -400,6 +470,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const [isAvatarCropResizing, setIsAvatarCropResizing] = React.useState(false);
   const avatarCropStageRef = React.useRef<HTMLDivElement | null>(null);
   const newsletterListTopRef = React.useRef<HTMLDivElement | null>(null);
+  const commentsListTopRef = React.useRef<HTMLDivElement | null>(null);
   const errorMessagesListTopRef = React.useRef<HTMLDivElement | null>(null);
   const avatarCropDragRef = React.useRef<{
     pointerId: number;
@@ -411,8 +482,10 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const avatarCropResizeRef = React.useRef<AvatarCropResizeState | null>(null);
   const avatarFileInputRef = React.useRef<HTMLInputElement | null>(null);
   const selectedErrorMessageKeyRef = React.useRef('');
+  const commentsRequestIDRef = React.useRef(0);
   const errorMessagesRequestIDRef = React.useRef(0);
   const newsletterRequestIDRef = React.useRef(0);
+  const newsletterCampaignRequestIDRef = React.useRef(0);
 
   const [deleteCurrentPassword, setDeleteCurrentPassword] = React.useState('');
   const [deleteConfirmation, setDeleteConfirmation] = React.useState('');
@@ -612,6 +685,34 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   }, [newsletterSuccessMessage]);
 
   React.useEffect(() => {
+    const timeoutID = globalThis.setTimeout(() => {
+      setCommentFilterQueryDebounced(commentFilterQuery.trim());
+    }, 220);
+
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [commentFilterQuery]);
+
+  React.useEffect(() => {
+    if (!commentsSuccessMessage) {
+      return;
+    }
+
+    const timeoutID = globalThis.setTimeout(() => {
+      setCommentsSuccessMessage('');
+    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [commentsSuccessMessage]);
+
+  React.useEffect(() => {
+    setCommentsPage(1);
+  }, [commentFilterLocale, commentFilterQueryDebounced, commentFilterStatus]);
+
+  React.useEffect(() => {
     setNewsletterPage(1);
   }, [newsletterFilterLocale, newsletterFilterQueryDebounced, newsletterFilterStatus]);
 
@@ -729,8 +830,21 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     () => errorMessages.find(item => toAdminErrorMessageKey(item) === selectedErrorMessageKey) ?? null,
     [errorMessages, selectedErrorMessageKey],
   );
+  const totalCommentPages = Math.max(1, Math.ceil(totalComments / commentsPageSize));
   const totalNewsletterPages = Math.max(1, Math.ceil(totalNewsletterSubscribers / newsletterPageSize));
   const totalErrorMessagePages = Math.max(1, Math.ceil(totalErrorMessages / errorMessagesPageSize));
+  const resolveCommentStatusVariant = React.useCallback((status: AdminCommentItem['status']) => {
+    switch (status) {
+      case 'APPROVED':
+        return 'success';
+      case 'REJECTED':
+        return 'secondary';
+      case 'SPAM':
+        return 'danger';
+      default:
+        return 'warning';
+    }
+  }, []);
   const doesErrorMessageMatchFilters = React.useCallback(
     (item: Pick<AdminErrorMessageItem, 'scope' | 'locale' | 'code' | 'message'>) => {
       const normalizedLocale = item.locale.trim().toLowerCase();
@@ -1027,7 +1141,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
 
   const loadAdminNewsletterSubscribers = React.useCallback(
     async (options?: { page?: number }): Promise<AdminNewsletterSubscriberItem[]> => {
-      if (!isNewsletterSection || !adminUser) {
+      if (!isNewsletterSubscribersSection || !adminUser) {
         return [];
       }
 
@@ -1086,7 +1200,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     },
     [
       adminUser,
-      isNewsletterSection,
+      isNewsletterSubscribersSection,
       locale,
       newsletterFilterLocale,
       newsletterFilterQueryDebounced,
@@ -1098,13 +1212,190 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     ],
   );
 
+  const loadAdminNewsletterSummary = React.useCallback(async () => {
+    if (!isNewsletterOverviewSection || !adminUser) {
+      return;
+    }
+
+    setIsNewsletterSummaryLoading(true);
+
+    try {
+      const [allPayload, activePayload, pendingPayload, unsubscribedPayload] = await Promise.all([
+        fetchAdminNewsletterSubscribers({ page: 1, size: 1 }),
+        fetchAdminNewsletterSubscribers({ status: 'active', page: 1, size: 1 }),
+        fetchAdminNewsletterSubscribers({ status: 'pending', page: 1, size: 1 }),
+        fetchAdminNewsletterSubscribers({ status: 'unsubscribed', page: 1, size: 1 }),
+      ]);
+
+      setNewsletterSubscriberSummary({
+        total: allPayload.total ?? 0,
+        active: activePayload.total ?? 0,
+        pending: pendingPayload.total ?? 0,
+        unsubscribed: unsubscribedPayload.total ?? 0,
+      });
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        router.replace(`/${locale}/admin/login`);
+        return;
+      }
+      const resolvedError = resolveAdminError(error);
+      setNewsletterErrorMessage(
+        resolvedError.kind === 'network'
+          ? t('adminCommon.errors.network', { ns: 'admin-common' })
+          : resolvedError.message || t('adminAccount.newsletter.errors.summary', { ns: 'admin-account' }),
+      );
+    } finally {
+      setIsNewsletterSummaryLoading(false);
+    }
+  }, [adminUser, isNewsletterOverviewSection, locale, router, t]);
+
+  const loadAdminNewsletterCampaigns = React.useCallback(async (): Promise<AdminNewsletterCampaignItem[]> => {
+    if (!isNewsletterOverviewSection || !adminUser) {
+      return [];
+    }
+
+    const requestID = newsletterCampaignRequestIDRef.current + 1;
+    newsletterCampaignRequestIDRef.current = requestID;
+    setIsNewsletterCampaignsLoading(true);
+
+    try {
+      const payload = await fetchAdminNewsletterCampaigns({
+        locale: newsletterFilterLocale === 'all' ? undefined : newsletterFilterLocale,
+        query: newsletterFilterQueryDebounced,
+        page: 1,
+        size: 6,
+      });
+
+      if (requestID !== newsletterCampaignRequestIDRef.current) {
+        return [];
+      }
+
+      const items = payload.items ?? [];
+      setNewsletterCampaigns(items);
+      return items;
+    } catch (error) {
+      if (requestID !== newsletterCampaignRequestIDRef.current) {
+        return [];
+      }
+      if (isAdminSessionError(error)) {
+        router.replace(`/${locale}/admin/login`);
+        return [];
+      }
+      const resolvedError = resolveAdminError(error);
+      setNewsletterErrorMessage(
+        resolvedError.kind === 'network'
+          ? t('adminCommon.errors.network', { ns: 'admin-common' })
+          : resolvedError.message || t('adminAccount.newsletter.errors.campaigns', { ns: 'admin-account' }),
+      );
+      return [];
+    } finally {
+      if (requestID === newsletterCampaignRequestIDRef.current) {
+        setIsNewsletterCampaignsLoading(false);
+      }
+    }
+  }, [
+    adminUser,
+    isNewsletterOverviewSection,
+    locale,
+    newsletterFilterLocale,
+    newsletterFilterQueryDebounced,
+    router,
+    t,
+  ]);
+
   React.useEffect(() => {
-    if (!isNewsletterSection || !adminUser) {
+    if (!isNewsletterSubscribersSection || !adminUser) {
       return;
     }
 
     void loadAdminNewsletterSubscribers();
-  }, [adminUser, isNewsletterSection, loadAdminNewsletterSubscribers, newsletterPage, newsletterPageSize]);
+  }, [adminUser, isNewsletterSubscribersSection, loadAdminNewsletterSubscribers, newsletterPage, newsletterPageSize]);
+
+  React.useEffect(() => {
+    if (!isNewsletterOverviewSection || !adminUser) {
+      return;
+    }
+
+    void Promise.all([loadAdminNewsletterSummary(), loadAdminNewsletterCampaigns()]);
+  }, [adminUser, isNewsletterOverviewSection, loadAdminNewsletterCampaigns, loadAdminNewsletterSummary]);
+
+  React.useEffect(() => {
+    if (!isNewsletterOverviewSection || newsletterCampaigns.length === 0) {
+      setNewsletterCampaignThumbnails({});
+      return;
+    }
+
+    const localeSet = Array.from(
+      new Set(
+        newsletterCampaigns
+          .map(item => item.locale.trim().toLowerCase())
+          .filter((value): value is 'en' | 'tr' => value === 'en' || value === 'tr'),
+      ),
+    );
+    if (localeSet.length === 0) {
+      setNewsletterCampaignThumbnails({});
+      return;
+    }
+
+    let cancelled = false;
+
+    void Promise.all(
+      localeSet.map(async currentLocale => {
+        const response = await fetch(`/data/posts.${currentLocale}.json`);
+        if (!response.ok) {
+          throw new Error(`posts-${currentLocale}-load-failed`);
+        }
+
+        const payload = (await response.json()) as Array<{ id?: string; thumbnail?: string | null }>;
+        return [currentLocale, payload] as const;
+      }),
+    )
+      .then(entries => {
+        if (cancelled) {
+          return;
+        }
+
+        const thumbnailsByLocale = new Map<string, Map<string, string>>();
+        for (const [currentLocale, posts] of entries) {
+          const thumbnailMap = new Map<string, string>();
+          for (const post of posts) {
+            const postID = post.id?.trim();
+            const thumbnail = post.thumbnail?.trim();
+            if (!postID || !thumbnail) {
+              continue;
+            }
+            thumbnailMap.set(postID, thumbnail);
+          }
+          thumbnailsByLocale.set(currentLocale, thumbnailMap);
+        }
+
+        const nextThumbnails: Record<string, string> = {};
+        for (const item of newsletterCampaigns) {
+          const campaignKey = `${item.locale}:${item.itemKey}`;
+          const postID = item.link?.trim().split('/posts/')[1]?.split('/')[0]?.trim();
+          if (!postID) {
+            continue;
+          }
+
+          const normalizedLocale = item.locale.trim().toLowerCase();
+          const thumbnail = thumbnailsByLocale.get(normalizedLocale)?.get(postID);
+          if (thumbnail) {
+            nextThumbnails[campaignKey] = thumbnail;
+          }
+        }
+
+        setNewsletterCampaignThumbnails(nextThumbnails);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setNewsletterCampaignThumbnails({});
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isNewsletterOverviewSection, newsletterCampaigns]);
 
   const scrollToNewsletterListStart = React.useCallback(() => {
     const target = newsletterListTopRef.current;
@@ -1227,6 +1518,328 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     t,
     totalNewsletterSubscribers,
     updatingNewsletterEmail,
+  ]);
+
+  const handleTriggerNewsletterDispatch = React.useCallback(async () => {
+    if (isNewsletterDispatchRunning) {
+      return;
+    }
+
+    setIsNewsletterDispatchRunning(true);
+    setNewsletterErrorMessage('');
+    setNewsletterSuccessMessage('');
+
+    try {
+      const payload = await triggerAdminNewsletterDispatch();
+      setNewsletterDispatchResults(payload.results ?? []);
+      setNewsletterDispatchTimestamp(payload.timestamp ?? '');
+      setNewsletterSuccessMessage(
+        payload.message || t('adminAccount.newsletter.success.dispatchTriggered', { ns: 'admin-account' }),
+      );
+      await Promise.all([loadAdminNewsletterCampaigns(), loadAdminNewsletterSummary()]);
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        router.replace(`/${locale}/admin/login`);
+        return;
+      }
+      const resolvedError = resolveAdminError(error);
+      setNewsletterErrorMessage(
+        resolvedError.kind === 'network'
+          ? t('adminCommon.errors.network', { ns: 'admin-common' })
+          : resolvedError.message || t('adminAccount.newsletter.errors.dispatch', { ns: 'admin-account' }),
+      );
+    } finally {
+      setIsNewsletterDispatchRunning(false);
+    }
+  }, [isNewsletterDispatchRunning, loadAdminNewsletterCampaigns, loadAdminNewsletterSummary, locale, router, t]);
+
+  const handleViewNewsletterFailures = React.useCallback(
+    async (campaign: AdminNewsletterCampaignItem) => {
+      setSelectedNewsletterCampaign(campaign);
+      setIsNewsletterFailuresLoading(true);
+      setNewsletterCampaignFailures([]);
+      setNewsletterFailuresTotal(0);
+      setNewsletterErrorMessage('');
+
+      try {
+        const payload = await fetchAdminNewsletterCampaignFailures({
+          locale: campaign.locale,
+          itemKey: campaign.itemKey,
+          page: 1,
+          size: 25,
+        });
+        setNewsletterCampaignFailures(payload.items ?? []);
+        setNewsletterFailuresTotal(payload.total ?? 0);
+      } catch (error) {
+        if (isAdminSessionError(error)) {
+          router.replace(`/${locale}/admin/login`);
+          return;
+        }
+        setSelectedNewsletterCampaign(null);
+        const resolvedError = resolveAdminError(error);
+        setNewsletterErrorMessage(
+          resolvedError.kind === 'network'
+            ? t('adminCommon.errors.network', { ns: 'admin-common' })
+            : resolvedError.message || t('adminAccount.newsletter.errors.failures', { ns: 'admin-account' }),
+        );
+      } finally {
+        setIsNewsletterFailuresLoading(false);
+      }
+    },
+    [locale, router, t],
+  );
+
+  const handleSendNewsletterTestEmail = React.useCallback(async () => {
+    const campaign = pendingNewsletterTestCampaign;
+    const resolvedEmail = newsletterTestEmail.trim().toLowerCase();
+    if (!campaign || !resolvedEmail || isNewsletterTestSending) {
+      return;
+    }
+
+    setIsNewsletterTestSending(true);
+    setNewsletterErrorMessage('');
+    setNewsletterSuccessMessage('');
+
+    try {
+      const payload = await sendAdminNewsletterTestEmail({
+        email: resolvedEmail,
+        locale: campaign.locale,
+        itemKey: campaign.itemKey,
+      });
+      setPendingNewsletterTestCampaign(null);
+      setNewsletterTestEmail(adminUser?.email ?? resolvedEmail);
+      setNewsletterSuccessMessage(
+        payload.message ||
+          t('adminAccount.newsletter.testSend.success', {
+            ns: 'admin-account',
+            email: payload.email,
+          }),
+      );
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        router.replace(`/${locale}/admin/login`);
+        return;
+      }
+      const resolvedError = resolveAdminError(error);
+      setNewsletterErrorMessage(
+        resolvedError.kind === 'network'
+          ? t('adminCommon.errors.network', { ns: 'admin-common' })
+          : resolvedError.message || t('adminAccount.newsletter.errors.testSend', { ns: 'admin-account' }),
+      );
+    } finally {
+      setIsNewsletterTestSending(false);
+    }
+  }, [
+    adminUser?.email,
+    isNewsletterTestSending,
+    locale,
+    newsletterTestEmail,
+    pendingNewsletterTestCampaign,
+    router,
+    t,
+  ]);
+
+  const loadAdminComments = React.useCallback(
+    async (options?: { page?: number }): Promise<AdminCommentItem[]> => {
+      if (!isCommentsSection || !adminUser) {
+        return [];
+      }
+
+      const requestedPage = options?.page && options.page > 0 ? options.page : commentsPage;
+      const requestID = commentsRequestIDRef.current + 1;
+      commentsRequestIDRef.current = requestID;
+      setIsCommentsLoading(true);
+      setCommentsErrorMessage('');
+
+      try {
+        const payload = await fetchAdminComments({
+          locale: commentFilterLocale === 'all' ? undefined : commentFilterLocale,
+          status: commentFilterStatus === 'all' ? undefined : commentFilterStatus,
+          query: commentFilterQueryDebounced,
+          page: requestedPage,
+          size: commentsPageSize,
+        });
+
+        if (requestID !== commentsRequestIDRef.current) {
+          return [];
+        }
+
+        const items = payload.items ?? [];
+        setComments(items);
+        setTotalComments(payload.total ?? 0);
+
+        const resolvedPage = payload.page > 0 ? payload.page : requestedPage;
+        if (resolvedPage !== commentsPage) {
+          setCommentsPage(resolvedPage);
+        }
+
+        if (payload.size > 0 && payload.size !== commentsPageSize) {
+          setCommentsPageSize(payload.size);
+        }
+
+        return items;
+      } catch (error) {
+        if (requestID !== commentsRequestIDRef.current) {
+          return [];
+        }
+        if (isAdminSessionError(error)) {
+          router.replace(`/${locale}/admin/login`);
+          return [];
+        }
+        const resolvedError = resolveAdminError(error);
+        setCommentsErrorMessage(
+          resolvedError.kind === 'network'
+            ? t('adminCommon.errors.network', { ns: 'admin-common' })
+            : resolvedError.message || t('adminAccount.comments.errors.load', { ns: 'admin-account' }),
+        );
+        return [];
+      } finally {
+        if (requestID === commentsRequestIDRef.current) {
+          setIsCommentsLoading(false);
+        }
+      }
+    },
+    [
+      adminUser,
+      commentFilterLocale,
+      commentFilterQueryDebounced,
+      commentFilterStatus,
+      commentsPage,
+      commentsPageSize,
+      isCommentsSection,
+      locale,
+      router,
+      t,
+    ],
+  );
+
+  React.useEffect(() => {
+    if (!isCommentsSection || !adminUser) {
+      return;
+    }
+
+    void loadAdminComments();
+  }, [adminUser, commentsPage, commentsPageSize, isCommentsSection, loadAdminComments]);
+
+  const scrollToCommentsListStart = React.useCallback(() => {
+    const target = commentsListTopRef.current;
+    if (!target) {
+      return;
+    }
+
+    const currentWindow = globalThis.window;
+    const prefersReducedMotion = currentWindow?.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
+    target.scrollIntoView({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'start',
+    });
+  }, []);
+
+  const handleCommentStatusUpdate = React.useCallback(
+    async (commentId: string, status: AdminCommentItem['status']) => {
+      if (deletingCommentID) {
+        return;
+      }
+
+      setCommentActionID(commentId);
+      setCommentActionStatus(status);
+      setCommentsErrorMessage('');
+      setCommentsSuccessMessage('');
+
+      try {
+        const updatedComment = await updateAdminCommentStatus({ commentId, status });
+        const refreshedItems = await loadAdminComments();
+
+        if (refreshedItems.length === 0 && commentsPage > 1) {
+          setCommentsPage(previous => Math.max(1, previous - 1));
+        }
+
+        setCommentsSuccessMessage(
+          t(`adminAccount.comments.success.${status.toLowerCase()}`, {
+            ns: 'admin-account',
+            author: updatedComment.authorName,
+          }),
+        );
+      } catch (error) {
+        if (isAdminSessionError(error)) {
+          router.replace(`/${locale}/admin/login`);
+          return;
+        }
+        const resolvedError = resolveAdminError(error);
+        setCommentsErrorMessage(
+          resolvedError.kind === 'network'
+            ? t('adminCommon.errors.network', { ns: 'admin-common' })
+            : resolvedError.message || t('adminAccount.comments.errors.statusUpdate', { ns: 'admin-account' }),
+        );
+      } finally {
+        setCommentActionID('');
+        setCommentActionStatus(null);
+      }
+    },
+    [commentsPage, deletingCommentID, loadAdminComments, locale, router, t],
+  );
+
+  const handleDeleteCommentSubmit = React.useCallback(async () => {
+    const item = pendingCommentDelete;
+    if (!item || deletingCommentID || commentActionID) {
+      return;
+    }
+
+    setDeletingCommentID(item.id);
+    setCommentsErrorMessage('');
+    setCommentsSuccessMessage('');
+
+    try {
+      const deleted = await deleteAdminComment({ commentId: item.id });
+      if (!deleted) {
+        throw new Error(t('adminAccount.comments.errors.delete', { ns: 'admin-account' }));
+      }
+
+      const remainingItems = comments.filter(candidate => candidate.id !== item.id);
+      const nextTotal = Math.max(0, totalComments - 1);
+      const nextTotalPages = Math.max(1, Math.ceil(nextTotal / commentsPageSize));
+      const nextPage = Math.min(commentsPage, nextTotalPages);
+
+      if (nextPage !== commentsPage) {
+        setCommentsPage(nextPage);
+      } else {
+        setComments(remainingItems);
+      }
+
+      setTotalComments(nextTotal);
+      setPendingCommentDelete(null);
+      setCommentsSuccessMessage(
+        t('adminAccount.comments.success.deleted', {
+          ns: 'admin-account',
+          author: item.authorName,
+        }),
+      );
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        router.replace(`/${locale}/admin/login`);
+        return;
+      }
+      const resolvedError = resolveAdminError(error);
+      setCommentsErrorMessage(
+        resolvedError.kind === 'network'
+          ? t('adminCommon.errors.network', { ns: 'admin-common' })
+          : resolvedError.message || t('adminAccount.comments.errors.delete', { ns: 'admin-account' }),
+      );
+    } finally {
+      setDeletingCommentID('');
+    }
+  }, [
+    commentActionID,
+    comments,
+    commentsPage,
+    commentsPageSize,
+    deletingCommentID,
+    locale,
+    pendingCommentDelete,
+    router,
+    t,
+    totalComments,
   ]);
 
   const loadAdminErrorMessages = React.useCallback(
@@ -2016,6 +2629,33 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     [dispatch],
   );
 
+  const handleNewsletterTabSelect = React.useCallback(
+    (key: string | null) => {
+      if (key === 'subscribers') {
+        router.push(`/${locale}${ADMIN_ROUTES.settings.newsletterSubscribers}`);
+        return;
+      }
+
+      router.push(`/${locale}${ADMIN_ROUTES.settings.newsletter}`);
+    },
+    [locale, router],
+  );
+
+  const newsletterFeedback = (
+    <>
+      {newsletterErrorMessage ? (
+        <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
+          {newsletterErrorMessage}
+        </Alert>
+      ) : null}
+      {newsletterSuccessMessage ? (
+        <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
+          {newsletterSuccessMessage}
+        </Alert>
+      ) : null}
+    </>
+  );
+
   const settingsSidebar = (
     <aside className="post-card admin-account-card admin-settings-sidebar">
       <div className="post-card-content">
@@ -2102,6 +2742,17 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
             </span>
             <span className="admin-settings-nav-label">
               {t('adminAccount.settings.newsletter', { ns: 'admin-account' })}
+            </span>
+          </Link>
+          <Link
+            href={ADMIN_ROUTES.settings.comments}
+            className={`admin-settings-nav-link${isCommentsSection ? ' is-active' : ''}`}
+          >
+            <span className="admin-settings-nav-icon" aria-hidden="true">
+              <FontAwesomeIcon icon="comments" fixedWidth />
+            </span>
+            <span className="admin-settings-nav-label">
+              {t('adminAccount.settings.comments', { ns: 'admin-account' })}
             </span>
           </Link>
           <Link
@@ -2820,307 +3471,686 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                     {t('adminAccount.newsletter.title', { ns: 'admin-account' })}
                   </h3>
                   <hr className="admin-section-divider mb-3" />
-                  <p className="admin-dashboard-panel-copy mb-3">
+                  <p className="admin-dashboard-panel-copy mb-4">
                     {t('adminAccount.newsletter.copy', { ns: 'admin-account' })}
                   </p>
-
-                  {newsletterErrorMessage ? (
-                    <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
-                      {newsletterErrorMessage}
-                    </Alert>
-                  ) : null}
-                  {newsletterSuccessMessage ? (
-                    <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
-                      {newsletterSuccessMessage}
-                    </Alert>
-                  ) : null}
-
-                  <div className="d-grid gap-3">
-                    <div ref={newsletterListTopRef} />
-                    <div className="card d-block">
-                      <div className="card-body p-3 w-100">
-                        <div className="row g-3">
-                          <div className="col-12 col-md-3">
-                            <Form.Group controlId="admin-newsletter-filter-locale">
-                              <Form.Label className="small fw-semibold mb-1">
-                                {t('adminAccount.newsletter.filters.locale', { ns: 'admin-account' })}
-                              </Form.Label>
-                              <Form.Select
-                                value={newsletterFilterLocale}
-                                onChange={event => {
-                                  setNewsletterFilterLocale(event.currentTarget.value as 'all' | 'en' | 'tr');
-                                  setNewsletterErrorMessage('');
-                                  setNewsletterSuccessMessage('');
-                                }}
-                              >
-                                <option value="all">
-                                  {t('adminAccount.newsletter.filters.locales.all', { ns: 'admin-account' })}
-                                </option>
-                                <option value="en">
-                                  {t('adminAccount.newsletter.filters.locales.en', { ns: 'admin-account' })}
-                                </option>
-                                <option value="tr">
-                                  {t('adminAccount.newsletter.filters.locales.tr', { ns: 'admin-account' })}
-                                </option>
-                              </Form.Select>
-                            </Form.Group>
-                          </div>
-                          <div className="col-12 col-md-3">
-                            <Form.Group controlId="admin-newsletter-filter-status">
-                              <Form.Label className="small fw-semibold mb-1">
-                                {t('adminAccount.newsletter.filters.status', { ns: 'admin-account' })}
-                              </Form.Label>
-                              <Form.Select
-                                value={newsletterFilterStatus}
-                                onChange={event => {
-                                  setNewsletterFilterStatus(
-                                    event.currentTarget.value as 'all' | 'pending' | 'active' | 'unsubscribed',
-                                  );
-                                  setNewsletterErrorMessage('');
-                                  setNewsletterSuccessMessage('');
-                                }}
-                              >
-                                <option value="all">
-                                  {t('adminAccount.newsletter.filters.statuses.all', { ns: 'admin-account' })}
-                                </option>
-                                <option value="pending">
-                                  {t('adminAccount.newsletter.filters.statuses.pending', { ns: 'admin-account' })}
-                                </option>
-                                <option value="active">
-                                  {t('adminAccount.newsletter.filters.statuses.active', { ns: 'admin-account' })}
-                                </option>
-                                <option value="unsubscribed">
-                                  {t('adminAccount.newsletter.filters.statuses.unsubscribed', { ns: 'admin-account' })}
-                                </option>
-                              </Form.Select>
-                            </Form.Group>
-                          </div>
-                          <div className="col-12 col-md-6">
-                            <Form.Group controlId="admin-newsletter-filter-query">
-                              <Form.Label className="small fw-semibold mb-1">
-                                {t('adminAccount.newsletter.filters.query', { ns: 'admin-account' })}
-                              </Form.Label>
-                              <div className="search-bar w-100 d-flex align-items-center">
-                                <div className="search-icon">
-                                  <FontAwesomeIcon icon="search" />
+                  <Tabs
+                    id="admin-newsletter-tabs"
+                    activeKey={newsletterTab}
+                    onSelect={handleNewsletterTabSelect}
+                    className="mb-3 admin-content-tabs"
+                    mountOnEnter
+                  >
+                    <Tab
+                      eventKey="overview"
+                      title={
+                        <span className="d-inline-flex align-items-center">
+                          <FontAwesomeIcon icon="chart-line" className="me-2" />
+                          {t('adminAccount.newsletter.tabs.overview', { ns: 'admin-account' })}
+                        </span>
+                      }
+                    >
+                      <div className="pt-3">
+                        {newsletterFeedback}
+                        <div className="admin-account-section-stack">
+                          <section className="card border shadow-sm admin-newsletter-panel">
+                            <div className="card-body p-4">
+                              <div className="admin-newsletter-operations-layout">
+                                <div className="admin-newsletter-operations-copy">
+                                  <h4 className="admin-dashboard-panel-title mb-2">
+                                    {t('adminAccount.newsletter.operations.title', { ns: 'admin-account' })}
+                                  </h4>
+                                  <p className="admin-dashboard-panel-copy mb-0">
+                                    {t('adminAccount.newsletter.operations.copy', { ns: 'admin-account' })}
+                                  </p>
                                 </div>
-                                <Form.Control
-                                  type="text"
-                                  className="search-input form-control"
-                                  value={newsletterFilterQuery}
-                                  onChange={event => {
-                                    setNewsletterFilterQuery(event.currentTarget.value);
-                                    setNewsletterErrorMessage('');
-                                  }}
-                                  placeholder={t('adminAccount.newsletter.filters.queryPlaceholder', {
-                                    ns: 'admin-account',
-                                  })}
-                                />
-                                {newsletterFilterQuery ? (
-                                  <button
+                                <div className="admin-newsletter-operations-action">
+                                  <Button
                                     type="button"
-                                    className="search-clear-btn border-0 bg-transparent"
+                                    variant="primary"
+                                    size="sm"
+                                    className="d-inline-flex align-items-center"
+                                    disabled={isNewsletterDispatchRunning}
                                     onClick={() => {
-                                      setNewsletterFilterQuery('');
-                                      setNewsletterErrorMessage('');
+                                      void handleTriggerNewsletterDispatch();
                                     }}
-                                    aria-label={t('adminAccount.newsletter.filters.query', { ns: 'admin-account' })}
                                   >
-                                    <FontAwesomeIcon icon="times-circle" className="clear-icon" />
-                                  </button>
-                                ) : null}
+                                    {isNewsletterDispatchRunning ? (
+                                      <span className="d-inline-flex align-items-center gap-2">
+                                        <Spinner
+                                          as="span"
+                                          animation="border"
+                                          size="sm"
+                                          className="me-2 flex-shrink-0 admin-action-spinner"
+                                          aria-hidden="true"
+                                        />
+                                        <span>
+                                          {t('adminAccount.newsletter.operations.running', { ns: 'admin-account' })}
+                                        </span>
+                                      </span>
+                                    ) : (
+                                      <>
+                                        <FontAwesomeIcon icon="paper-plane" className="me-2" />
+                                        {t('adminAccount.newsletter.operations.trigger', { ns: 'admin-account' })}
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
                               </div>
-                            </Form.Group>
-                          </div>
+
+                              {newsletterDispatchTimestamp ? (
+                                <div className="small text-muted mt-3">
+                                  {t('adminAccount.newsletter.operations.lastRun', {
+                                    ns: 'admin-account',
+                                    value: formatSessionDate(newsletterDispatchTimestamp),
+                                  })}
+                                </div>
+                              ) : null}
+
+                              {newsletterDispatchResults.length > 0 ? (
+                                <div className="d-grid gap-2 mt-3">
+                                  {newsletterDispatchResults.map(result => (
+                                    <div key={result.locale} className="border rounded-3 p-3">
+                                      <div className="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                                        <span className="fw-semibold text-uppercase">{result.locale}</span>
+                                        <span
+                                          className={
+                                            result.skipped ? 'badge text-bg-secondary' : 'badge text-bg-success'
+                                          }
+                                        >
+                                          {result.skipped
+                                            ? t('adminAccount.newsletter.operations.result.skipped', {
+                                                ns: 'admin-account',
+                                              })
+                                            : t('adminAccount.newsletter.operations.result.completed', {
+                                                ns: 'admin-account',
+                                              })}
+                                        </span>
+                                      </div>
+                                      <div className="small text-muted mt-2">
+                                        {t('adminAccount.newsletter.operations.result.meta', {
+                                          ns: 'admin-account',
+                                          locale: result.locale.toUpperCase(),
+                                          sent: result.sentCount,
+                                          failed: result.failedCount,
+                                        })}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : null}
+                            </div>
+                          </section>
+
+                          <section className="card border shadow-sm admin-newsletter-panel">
+                            <div className="card-body p-4">
+                              <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-3">
+                                <div>
+                                  <h4 className="admin-dashboard-panel-title mb-2">
+                                    {t('adminAccount.newsletter.summary.title', { ns: 'admin-account' })}
+                                  </h4>
+                                  <p className="small text-muted mb-0">
+                                    {t('adminAccount.newsletter.summary.copy', { ns: 'admin-account' })}
+                                  </p>
+                                </div>
+                              </div>
+
+                              {isNewsletterSummaryLoading ? (
+                                <div className="admin-account-sessions-loading">
+                                  <AdminLoadingState
+                                    className="admin-loading-stack"
+                                    ariaLabel={t('adminAccount.newsletter.summary.loading', { ns: 'admin-account' })}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="row g-3">
+                                  {[
+                                    {
+                                      key: 'total',
+                                      label: t('adminAccount.newsletter.summary.metrics.total', {
+                                        ns: 'admin-account',
+                                      }),
+                                      value: newsletterSubscriberSummary.total,
+                                    },
+                                    {
+                                      key: 'active',
+                                      label: t('adminAccount.newsletter.summary.metrics.active', {
+                                        ns: 'admin-account',
+                                      }),
+                                      value: newsletterSubscriberSummary.active,
+                                    },
+                                    {
+                                      key: 'pending',
+                                      label: t('adminAccount.newsletter.summary.metrics.pending', {
+                                        ns: 'admin-account',
+                                      }),
+                                      value: newsletterSubscriberSummary.pending,
+                                    },
+                                    {
+                                      key: 'unsubscribed',
+                                      label: t('adminAccount.newsletter.summary.metrics.unsubscribed', {
+                                        ns: 'admin-account',
+                                      }),
+                                      value: newsletterSubscriberSummary.unsubscribed,
+                                    },
+                                  ].map(item => (
+                                    <div key={item.key} className="col-12 col-sm-6 col-xl-3">
+                                      <div
+                                        className={`admin-newsletter-summary-metric admin-newsletter-summary-metric--${item.key} h-100`}
+                                      >
+                                        <div className="admin-newsletter-summary-label">{item.label}</div>
+                                        <div className="admin-newsletter-summary-value">{item.value}</div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </section>
+
+                          <section className="card border shadow-sm admin-newsletter-panel">
+                            <div className="card-body p-4">
+                              <h4 className="admin-dashboard-panel-title mb-2">
+                                {t('adminAccount.newsletter.campaigns.title', { ns: 'admin-account' })}
+                              </h4>
+                              <p className="small text-muted mb-3">
+                                {t('adminAccount.newsletter.campaigns.copy', { ns: 'admin-account' })}
+                              </p>
+
+                              {isNewsletterCampaignsLoading ? (
+                                <div className="admin-account-sessions-loading">
+                                  <AdminLoadingState
+                                    className="admin-loading-stack"
+                                    ariaLabel={t('adminAccount.newsletter.campaigns.loading', { ns: 'admin-account' })}
+                                  />
+                                </div>
+                              ) : newsletterCampaigns.length === 0 ? (
+                                <p className="small text-muted mb-0">
+                                  {t('adminAccount.newsletter.campaigns.empty', { ns: 'admin-account' })}
+                                </p>
+                              ) : (
+                                <div className="d-grid gap-3">
+                                  {newsletterCampaigns.map(item => {
+                                    const campaignKey = `${item.locale}:${item.itemKey}`;
+                                    const campaignThumbnail = newsletterCampaignThumbnails[campaignKey];
+                                    const statusVariant =
+                                      item.failedCount === 0
+                                        ? 'secondary'
+                                        : item.sentCount > 0
+                                          ? 'warning'
+                                          : 'secondary';
+                                    const statusLabel =
+                                      item.failedCount === 0
+                                        ? t('adminAccount.newsletter.campaigns.statuses.sent', { ns: 'admin-account' })
+                                        : item.sentCount > 0
+                                          ? t('adminAccount.newsletter.campaigns.statuses.partial', {
+                                              ns: 'admin-account',
+                                            })
+                                          : t('adminAccount.newsletter.campaigns.statuses.processing', {
+                                              ns: 'admin-account',
+                                            });
+
+                                    return (
+                                      <div
+                                        key={`${item.locale}-${item.itemKey}`}
+                                        className="admin-newsletter-campaign-card"
+                                      >
+                                        <div className="fw-bold fs-4 text-break">
+                                          {item.link ? (
+                                            <Link href={item.link} className="link">
+                                              {item.title}
+                                            </Link>
+                                          ) : (
+                                            item.title
+                                          )}
+                                        </div>
+                                        <div className="mt-3 d-flex align-items-center flex-wrap gap-2">
+                                          {item.locale === 'en' || item.locale === 'tr' ? (
+                                            <span className="d-inline-flex align-items-center gap-2">
+                                              <FlagIcon
+                                                className="flex-shrink-0"
+                                                code={item.locale}
+                                                alt={`${item.locale.toUpperCase()} flag`}
+                                                width={22}
+                                                height={22}
+                                              />
+                                              <span className="fs-4">
+                                                {item.locale === 'en' ? LOCALES.en.name : LOCALES.tr.name}
+                                              </span>
+                                            </span>
+                                          ) : null}
+                                          <span className={`badge text-bg-${statusVariant}`}>{statusLabel}</span>
+                                        </div>
+                                        <div className="d-flex flex-column gap-2 mt-3">
+                                          <div className="d-flex align-items-center flex-wrap gap-4">
+                                            <span className="d-inline-flex align-items-center gap-2 fs-5">
+                                              <FontAwesomeIcon icon="paper-plane" className="text-muted" />
+                                              <span>
+                                                {t('adminAccount.newsletter.campaigns.metrics.sent', {
+                                                  ns: 'admin-account',
+                                                  count: item.sentCount,
+                                                })}
+                                              </span>
+                                            </span>
+                                            <span className="d-inline-flex align-items-center gap-2 fs-5">
+                                              <FontAwesomeIcon icon="exclamation-triangle" className="text-muted" />
+                                              <span>
+                                                {t('adminAccount.newsletter.campaigns.metrics.failed', {
+                                                  ns: 'admin-account',
+                                                  count: item.failedCount,
+                                                })}
+                                              </span>
+                                            </span>
+                                          </div>
+                                          {item.lastRunAt ? (
+                                            <span className="d-inline-flex align-items-center gap-2 fs-5">
+                                              <FontAwesomeIcon icon="calendar-alt" className="text-muted" />
+                                              {t('adminAccount.newsletter.campaigns.metrics.lastRunAt', {
+                                                ns: 'admin-account',
+                                                value: formatSessionDate(item.lastRunAt),
+                                              })}
+                                            </span>
+                                          ) : null}
+                                        </div>
+                                        {campaignThumbnail ? (
+                                          <div className="admin-newsletter-campaign-thumbnail mt-3 overflow-hidden">
+                                            <Image
+                                              src={campaignThumbnail}
+                                              alt={item.title}
+                                              width={640}
+                                              height={360}
+                                              unoptimized
+                                              className="w-100 h-100 object-fit-cover"
+                                            />
+                                          </div>
+                                        ) : null}
+                                        {item.summary ? (
+                                          <p className="post-summary-text mt-3 mb-0 text-muted">{item.summary}</p>
+                                        ) : null}
+                                        <div className="d-flex flex-wrap gap-2 mt-3">
+                                          <Button
+                                            type="button"
+                                            variant="primary"
+                                            size="sm"
+                                            className="d-inline-flex align-items-center justify-content-center"
+                                            onClick={() => {
+                                              setNewsletterTestEmail(adminUser?.email ?? '');
+                                              setPendingNewsletterTestCampaign(item);
+                                            }}
+                                          >
+                                            <FontAwesomeIcon icon="envelope" className="me-2" />
+                                            {t('adminAccount.newsletter.campaigns.actions.sendTest', {
+                                              ns: 'admin-account',
+                                            })}
+                                          </Button>
+                                          {item.failedCount > 0 ? (
+                                            <Button
+                                              type="button"
+                                              variant="outline-secondary"
+                                              size="sm"
+                                              className="d-inline-flex align-items-center justify-content-center"
+                                              onClick={() => {
+                                                void handleViewNewsletterFailures(item);
+                                              }}
+                                            >
+                                              <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
+                                              {t('adminAccount.newsletter.campaigns.actions.viewFailures', {
+                                                ns: 'admin-account',
+                                              })}
+                                            </Button>
+                                          ) : null}
+                                          {item.link ? (
+                                            <Link
+                                              href={item.link}
+                                              className="btn btn-success btn-sm d-inline-flex align-items-center"
+                                            >
+                                              <FontAwesomeIcon icon="up-right-from-square" className="me-2" />
+                                              {t('adminAccount.newsletter.campaigns.actions.openPost', {
+                                                ns: 'admin-account',
+                                              })}
+                                            </Link>
+                                          ) : null}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          </section>
                         </div>
                       </div>
-                    </div>
-
-                    <div className="card d-block">
-                      <div className="card-body p-3 w-100">
-                        {isNewsletterLoading ? (
-                          <div className="admin-account-sessions-loading">
-                            <AdminLoadingState
-                              className="admin-loading-stack"
-                              ariaLabel={t('adminAccount.newsletter.loading', { ns: 'admin-account' })}
-                            />
-                          </div>
-                        ) : totalNewsletterSubscribers === 0 ? (
-                          <p className="small text-muted mb-0">
-                            {t('adminAccount.newsletter.empty', { ns: 'admin-account' })}
-                          </p>
-                        ) : (
-                          <div className="d-grid gap-2">
-                            {newsletterSubscribers.map(item => {
-                              const isUpdatingCurrentItem = updatingNewsletterEmail === item.email;
-                              const isDeletingCurrentItem = deletingNewsletterEmail === item.email;
-                              const normalizedStatus = item.status.toLowerCase();
-                              const canActivate = normalizedStatus !== 'active';
-                              const canUnsubscribe = normalizedStatus !== 'unsubscribed';
-                              const localeCode = item.locale.toLowerCase();
-                              const localeLabel =
-                                localeCode === 'en'
-                                  ? LOCALES.en.name
-                                  : localeCode === 'tr'
-                                    ? LOCALES.tr.name
-                                    : item.locale.toUpperCase();
-
-                              return (
-                                <div key={item.email} className="border rounded-3 p-3">
-                                  <div className="fw-bold fs-5 text-break">{item.email}</div>
-                                  <div className="mt-2 d-flex align-items-center flex-wrap gap-2">
-                                    <span className="d-inline-flex align-items-center gap-2 text-muted">
-                                      {localeCode === 'en' || localeCode === 'tr' ? (
-                                        <FlagIcon
-                                          className="flex-shrink-0"
-                                          code={localeCode}
-                                          alt={`${localeLabel} flag`}
-                                          width={18}
-                                          height={18}
-                                        />
-                                      ) : (
-                                        <FontAwesomeIcon icon="globe" className="text-muted" />
-                                      )}
-                                      <span>{localeLabel}</span>
-                                    </span>
-                                    <span className="badge text-bg-secondary">
-                                      {t(`adminAccount.newsletter.filters.statuses.${normalizedStatus}`, {
-                                        ns: 'admin-account',
-                                      })}
-                                    </span>
-                                  </div>
-                                  {item.updatedAt ? (
-                                    <div className="small mt-2 text-muted d-flex align-items-center flex-wrap">
-                                      <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-                                      {t('adminAccount.newsletter.list.updatedAt', {
-                                        ns: 'admin-account',
-                                        value: formatSessionDate(item.updatedAt),
-                                      })}
-                                    </div>
-                                  ) : null}
-                                  <div className="d-flex flex-wrap gap-2 mt-3">
-                                    {canActivate ? (
-                                      <Button
-                                        type="button"
-                                        size="sm"
-                                        variant="success"
-                                        disabled={isUpdatingCurrentItem || isDeletingCurrentItem}
-                                        onClick={() => {
-                                          void handleNewsletterStatusUpdate(item, 'active');
-                                        }}
-                                      >
-                                        {isUpdatingCurrentItem ? (
-                                          <span className="d-inline-flex align-items-center gap-2">
-                                            <Spinner
-                                              as="span"
-                                              animation="border"
-                                              size="sm"
-                                              className="me-2 flex-shrink-0 admin-action-spinner"
-                                              aria-hidden="true"
-                                            />
-                                            <span>
-                                              {t('adminAccount.newsletter.actions.updating', { ns: 'admin-account' })}
-                                            </span>
-                                          </span>
-                                        ) : (
-                                          <>
-                                            <FontAwesomeIcon icon="check" className="me-2" />
-                                            {t('adminAccount.newsletter.actions.setActive', { ns: 'admin-account' })}
-                                          </>
-                                        )}
-                                      </Button>
-                                    ) : null}
-
-                                    {canUnsubscribe ? (
-                                      <Button
-                                        type="button"
-                                        size="sm"
-                                        variant="secondary"
-                                        disabled={isUpdatingCurrentItem || isDeletingCurrentItem}
-                                        onClick={() => {
-                                          void handleNewsletterStatusUpdate(item, 'unsubscribed');
-                                        }}
-                                      >
-                                        {isUpdatingCurrentItem ? (
-                                          <span className="d-inline-flex align-items-center gap-2">
-                                            <Spinner
-                                              as="span"
-                                              animation="border"
-                                              size="sm"
-                                              className="me-2 flex-shrink-0 admin-action-spinner"
-                                              aria-hidden="true"
-                                            />
-                                            <span>
-                                              {t('adminAccount.newsletter.actions.updating', { ns: 'admin-account' })}
-                                            </span>
-                                          </span>
-                                        ) : (
-                                          <>
-                                            <FontAwesomeIcon icon="times-circle" className="me-2" />
-                                            {t('adminAccount.newsletter.actions.unsubscribe', { ns: 'admin-account' })}
-                                          </>
-                                        )}
-                                      </Button>
-                                    ) : null}
-
-                                    <Button
-                                      type="button"
-                                      size="sm"
-                                      variant="danger"
-                                      disabled={isUpdatingCurrentItem || isDeletingCurrentItem}
-                                      onClick={() => {
-                                        setPendingNewsletterDelete(item);
+                    </Tab>
+                    <Tab
+                      eventKey="subscribers"
+                      title={
+                        <span className="d-inline-flex align-items-center">
+                          <FontAwesomeIcon icon="address-book" className="me-2" />
+                          {t('adminAccount.newsletter.tabs.subscribers', { ns: 'admin-account' })}
+                        </span>
+                      }
+                    >
+                      <div className="pt-3">
+                        {newsletterFeedback}
+                        <div className="d-grid gap-3">
+                          <div className="card shadow-sm d-block">
+                            <div className="card-body p-3 w-100">
+                              <div className="row g-3">
+                                <div className="col-12 col-md-4">
+                                  <Form.Group controlId="admin-newsletter-filter-locale">
+                                    <Form.Label className="small fw-semibold mb-1">
+                                      {t('adminAccount.newsletter.filters.locale', { ns: 'admin-account' })}
+                                    </Form.Label>
+                                    <Form.Select
+                                      value={newsletterFilterLocale}
+                                      onChange={event => {
+                                        setNewsletterFilterLocale(event.currentTarget.value as 'all' | 'en' | 'tr');
+                                        setNewsletterPage(1);
                                       }}
                                     >
-                                      {isDeletingCurrentItem ? (
-                                        <span className="d-inline-flex align-items-center gap-2">
-                                          <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            className="me-2 flex-shrink-0 admin-action-spinner"
-                                            aria-hidden="true"
-                                          />
-                                          <span>
-                                            {t('adminAccount.newsletter.actions.deleting', { ns: 'admin-account' })}
-                                          </span>
-                                        </span>
-                                      ) : (
-                                        <>
-                                          <FontAwesomeIcon icon="trash" className="me-2" />
-                                          {t('adminAccount.newsletter.actions.delete', { ns: 'admin-account' })}
-                                        </>
-                                      )}
-                                    </Button>
-                                  </div>
+                                      <option value="all">
+                                        {t('adminAccount.newsletter.filters.locales.all', { ns: 'admin-account' })}
+                                      </option>
+                                      <option value="en">
+                                        {t('adminAccount.newsletter.filters.locales.en', { ns: 'admin-account' })}
+                                      </option>
+                                      <option value="tr">
+                                        {t('adminAccount.newsletter.filters.locales.tr', { ns: 'admin-account' })}
+                                      </option>
+                                    </Form.Select>
+                                  </Form.Group>
                                 </div>
-                              );
-                            })}
+                                <div className="col-12 col-md-4">
+                                  <Form.Group controlId="admin-newsletter-filter-status">
+                                    <Form.Label className="small fw-semibold mb-1">
+                                      {t('adminAccount.newsletter.filters.status', { ns: 'admin-account' })}
+                                    </Form.Label>
+                                    <Form.Select
+                                      value={newsletterFilterStatus}
+                                      onChange={event => {
+                                        setNewsletterFilterStatus(
+                                          event.currentTarget.value as 'all' | 'pending' | 'active' | 'unsubscribed',
+                                        );
+                                        setNewsletterPage(1);
+                                      }}
+                                    >
+                                      <option value="all">
+                                        {t('adminAccount.newsletter.filters.statuses.all', { ns: 'admin-account' })}
+                                      </option>
+                                      <option value="pending">
+                                        {t('adminAccount.newsletter.filters.statuses.pending', { ns: 'admin-account' })}
+                                      </option>
+                                      <option value="active">
+                                        {t('adminAccount.newsletter.filters.statuses.active', { ns: 'admin-account' })}
+                                      </option>
+                                      <option value="unsubscribed">
+                                        {t('adminAccount.newsletter.filters.statuses.unsubscribed', {
+                                          ns: 'admin-account',
+                                        })}
+                                      </option>
+                                    </Form.Select>
+                                  </Form.Group>
+                                </div>
+                                <div className="col-12 col-md-4">
+                                  <Form.Group controlId="admin-newsletter-filter-query">
+                                    <Form.Label className="small fw-semibold mb-1">
+                                      {t('adminAccount.newsletter.filters.query', { ns: 'admin-account' })}
+                                    </Form.Label>
+                                    <div className="search-bar w-100 d-flex align-items-center">
+                                      <div className="search-icon">
+                                        <FontAwesomeIcon icon="search" />
+                                      </div>
+                                      <Form.Control
+                                        type="text"
+                                        className="search-input form-control"
+                                        value={newsletterFilterQuery}
+                                        placeholder={t('adminAccount.newsletter.filters.queryPlaceholder', {
+                                          ns: 'admin-account',
+                                        })}
+                                        onChange={event => {
+                                          setNewsletterFilterQuery(event.currentTarget.value);
+                                          setNewsletterPage(1);
+                                        }}
+                                      />
+                                      {newsletterFilterQuery ? (
+                                        <button
+                                          type="button"
+                                          className="search-clear-btn border-0 bg-transparent"
+                                          onClick={() => {
+                                            setNewsletterFilterQuery('');
+                                            setNewsletterPage(1);
+                                          }}
+                                          aria-label={t('adminAccount.newsletter.filters.query', {
+                                            ns: 'admin-account',
+                                          })}
+                                        >
+                                          <FontAwesomeIcon icon="times-circle" className="clear-icon" />
+                                        </button>
+                                      ) : null}
+                                    </div>
+                                  </Form.Group>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        )}
-                      </div>
-                      {!isNewsletterLoading && totalNewsletterSubscribers > 0 ? (
-                        <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
-                          <PaginationBar
-                            className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"
-                            currentPage={newsletterPage}
-                            totalPages={totalNewsletterPages}
-                            totalResults={totalNewsletterSubscribers}
-                            size={newsletterPageSize}
-                            onPageChange={page => {
-                              setNewsletterPage(page);
-                              scrollToNewsletterListStart();
-                            }}
-                            onSizeChange={size => {
-                              setNewsletterPageSize(size);
-                              setNewsletterPage(1);
-                              scrollToNewsletterListStart();
-                            }}
-                          />
+
+                          <div ref={newsletterListTopRef} className="card shadow-sm d-block">
+                            <div className="card-body p-3 w-100">
+                              <div className="mb-3">
+                                <div>
+                                  <h4 className="admin-dashboard-panel-title mb-2">
+                                    {t('adminAccount.newsletter.subscribers.title', { ns: 'admin-account' })}
+                                  </h4>
+                                  <p className="small text-muted mb-0">
+                                    {t('adminAccount.newsletter.subscribers.copy', { ns: 'admin-account' })}
+                                  </p>
+                                </div>
+                              </div>
+
+                              {isNewsletterLoading ? (
+                                <div className="admin-account-sessions-loading">
+                                  <AdminLoadingState
+                                    className="admin-loading-stack"
+                                    ariaLabel={t('adminAccount.newsletter.loading', { ns: 'admin-account' })}
+                                  />
+                                </div>
+                              ) : totalNewsletterSubscribers === 0 ? (
+                                <p className="small text-muted mb-0">
+                                  {t('adminAccount.newsletter.empty', { ns: 'admin-account' })}
+                                </p>
+                              ) : (
+                                <div className="d-grid gap-2">
+                                  {newsletterSubscribers.map(item => {
+                                    const isUpdatingCurrentItem = updatingNewsletterEmail === item.email;
+                                    const isDeletingCurrentItem = deletingNewsletterEmail === item.email;
+                                    const normalizedStatus = item.status.toLowerCase();
+                                    const canActivate = normalizedStatus !== 'active';
+                                    const canUnsubscribe = normalizedStatus !== 'unsubscribed';
+                                    const localeCode = item.locale.toLowerCase();
+                                    const localeLabel =
+                                      localeCode === 'en'
+                                        ? LOCALES.en.name
+                                        : localeCode === 'tr'
+                                          ? LOCALES.tr.name
+                                          : item.locale.toUpperCase();
+
+                                    return (
+                                      <div key={item.email} className="border rounded-3 p-3 w-100">
+                                        <div className="fw-bold fs-5 text-break">{item.email}</div>
+                                        <div className="mt-2 d-flex align-items-center flex-wrap gap-2">
+                                          <span className="d-inline-flex align-items-center gap-2 text-muted">
+                                            {localeCode === 'en' || localeCode === 'tr' ? (
+                                              <FlagIcon
+                                                className="flex-shrink-0"
+                                                code={localeCode}
+                                                alt={`${localeLabel} flag`}
+                                                width={18}
+                                                height={18}
+                                              />
+                                            ) : (
+                                              <FontAwesomeIcon icon="globe" className="text-muted" />
+                                            )}
+                                            <span>{localeLabel}</span>
+                                          </span>
+                                          <span className="badge text-bg-secondary">
+                                            {t(`adminAccount.newsletter.filters.statuses.${normalizedStatus}`, {
+                                              ns: 'admin-account',
+                                            })}
+                                          </span>
+                                        </div>
+                                        {item.updatedAt ? (
+                                          <div className="small mt-2 text-muted d-flex align-items-center flex-wrap">
+                                            <FontAwesomeIcon icon="calendar-alt" className="me-2" />
+                                            {t('adminAccount.newsletter.list.updatedAt', {
+                                              ns: 'admin-account',
+                                              value: formatSessionDate(item.updatedAt),
+                                            })}
+                                          </div>
+                                        ) : null}
+                                        <div className="row g-2 mt-3">
+                                          {canActivate ? (
+                                            <div className="col-12 col-md-auto">
+                                              <Button
+                                                type="button"
+                                                size="sm"
+                                                variant="success"
+                                                className="w-100"
+                                                disabled={isUpdatingCurrentItem || isDeletingCurrentItem}
+                                                onClick={() => {
+                                                  void handleNewsletterStatusUpdate(item, 'active');
+                                                }}
+                                              >
+                                                {isUpdatingCurrentItem ? (
+                                                  <span className="d-inline-flex align-items-center gap-2">
+                                                    <Spinner
+                                                      as="span"
+                                                      animation="border"
+                                                      size="sm"
+                                                      className="me-2 flex-shrink-0 admin-action-spinner"
+                                                      aria-hidden="true"
+                                                    />
+                                                    <span>
+                                                      {t('adminAccount.newsletter.actions.updating', {
+                                                        ns: 'admin-account',
+                                                      })}
+                                                    </span>
+                                                  </span>
+                                                ) : (
+                                                  <>
+                                                    <FontAwesomeIcon icon="check" className="me-2" />
+                                                    {t('adminAccount.newsletter.actions.setActive', {
+                                                      ns: 'admin-account',
+                                                    })}
+                                                  </>
+                                                )}
+                                              </Button>
+                                            </div>
+                                          ) : null}
+
+                                          {canUnsubscribe ? (
+                                            <div className="col-12 col-md-auto">
+                                              <Button
+                                                type="button"
+                                                size="sm"
+                                                variant="secondary"
+                                                className="w-100"
+                                                disabled={isUpdatingCurrentItem || isDeletingCurrentItem}
+                                                onClick={() => {
+                                                  void handleNewsletterStatusUpdate(item, 'unsubscribed');
+                                                }}
+                                              >
+                                                {isUpdatingCurrentItem ? (
+                                                  <span className="d-inline-flex align-items-center gap-2">
+                                                    <Spinner
+                                                      as="span"
+                                                      animation="border"
+                                                      size="sm"
+                                                      className="me-2 flex-shrink-0 admin-action-spinner"
+                                                      aria-hidden="true"
+                                                    />
+                                                    <span>
+                                                      {t('adminAccount.newsletter.actions.updating', {
+                                                        ns: 'admin-account',
+                                                      })}
+                                                    </span>
+                                                  </span>
+                                                ) : (
+                                                  <>
+                                                    <FontAwesomeIcon icon="times-circle" className="me-2" />
+                                                    {t('adminAccount.newsletter.actions.unsubscribe', {
+                                                      ns: 'admin-account',
+                                                    })}
+                                                  </>
+                                                )}
+                                              </Button>
+                                            </div>
+                                          ) : null}
+
+                                          <div className="col-12 col-md-auto">
+                                            <Button
+                                              type="button"
+                                              size="sm"
+                                              variant="danger"
+                                              className="w-100"
+                                              disabled={isUpdatingCurrentItem || isDeletingCurrentItem}
+                                              onClick={() => {
+                                                setPendingNewsletterDelete(item);
+                                              }}
+                                            >
+                                              {isDeletingCurrentItem ? (
+                                                <span className="d-inline-flex align-items-center gap-2">
+                                                  <Spinner
+                                                    as="span"
+                                                    animation="border"
+                                                    size="sm"
+                                                    className="me-2 flex-shrink-0 admin-action-spinner"
+                                                    aria-hidden="true"
+                                                  />
+                                                  <span>
+                                                    {t('adminAccount.newsletter.actions.deleting', {
+                                                      ns: 'admin-account',
+                                                    })}
+                                                  </span>
+                                                </span>
+                                              ) : (
+                                                <>
+                                                  <FontAwesomeIcon icon="trash" className="me-2" />
+                                                  {t('adminAccount.newsletter.actions.delete', { ns: 'admin-account' })}
+                                                </>
+                                              )}
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                            {!isNewsletterLoading && totalNewsletterSubscribers > 0 ? (
+                              <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
+                                <PaginationBar
+                                  currentPage={newsletterPage}
+                                  totalPages={totalNewsletterPages}
+                                  totalResults={totalNewsletterSubscribers}
+                                  size={newsletterPageSize}
+                                  onPageChange={page => {
+                                    setNewsletterPage(page);
+                                    scrollToNewsletterListStart();
+                                  }}
+                                  onSizeChange={size => {
+                                    setNewsletterPageSize(size);
+                                    setNewsletterPage(1);
+                                    scrollToNewsletterListStart();
+                                  }}
+                                />
+                              </div>
+                            ) : null}
+                          </div>
                         </div>
-                      ) : null}
-                    </div>
-                  </div>
+                      </div>
+                    </Tab>
+                  </Tabs>
 
                   <Modal
                     show={pendingNewsletterDelete !== null}
@@ -3179,6 +4209,634 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                           <>
                             <FontAwesomeIcon icon="trash" className="me-2" />
                             {t('adminAccount.newsletter.actions.delete', { ns: 'admin-account' })}
+                          </>
+                        )}
+                      </Button>
+                    </Modal.Footer>
+                  </Modal>
+
+                  <Modal
+                    show={selectedNewsletterCampaign !== null}
+                    onHide={() => {
+                      if (isNewsletterFailuresLoading) {
+                        return;
+                      }
+                      setSelectedNewsletterCampaign(null);
+                    }}
+                    centered
+                    size="lg"
+                  >
+                    <Modal.Header closeButton>
+                      <Modal.Title>{t('adminAccount.newsletter.failures.title', { ns: 'admin-account' })}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <div className="small text-muted mb-3">
+                        {t('adminAccount.newsletter.failures.copy', {
+                          ns: 'admin-account',
+                          title: selectedNewsletterCampaign?.title ?? '',
+                        })}
+                      </div>
+
+                      {isNewsletterFailuresLoading ? (
+                        <div className="admin-account-sessions-loading">
+                          <AdminLoadingState
+                            className="admin-loading-stack"
+                            ariaLabel={t('adminAccount.newsletter.failures.loading', { ns: 'admin-account' })}
+                          />
+                        </div>
+                      ) : newsletterCampaignFailures.length === 0 ? (
+                        <p className="small text-muted mb-0">
+                          {t('adminAccount.newsletter.failures.empty', { ns: 'admin-account' })}
+                        </p>
+                      ) : (
+                        <div className="d-grid gap-2">
+                          <div className="small text-muted">
+                            {t('adminAccount.newsletter.failures.total', {
+                              ns: 'admin-account',
+                              count: newsletterFailuresTotal,
+                            })}
+                          </div>
+                          {newsletterCampaignFailures.map(item => (
+                            <div key={`${item.itemKey}-${item.email}`} className="border rounded-3 p-3">
+                              <div className="fw-semibold text-break">{item.email}</div>
+                              {item.lastAttemptAt ? (
+                                <div className="small text-muted mt-2">
+                                  {t('adminAccount.newsletter.failures.lastAttemptAt', {
+                                    ns: 'admin-account',
+                                    value: formatSessionDate(item.lastAttemptAt),
+                                  })}
+                                </div>
+                              ) : null}
+                              {item.lastError ? <div className="small text-muted mt-2">{item.lastError}</div> : null}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        disabled={isNewsletterFailuresLoading}
+                        onClick={() => {
+                          setSelectedNewsletterCampaign(null);
+                        }}
+                      >
+                        {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
+                      </Button>
+                    </Modal.Footer>
+                  </Modal>
+
+                  <Modal
+                    show={pendingNewsletterTestCampaign !== null}
+                    onHide={() => {
+                      if (isNewsletterTestSending) {
+                        return;
+                      }
+                      setPendingNewsletterTestCampaign(null);
+                    }}
+                    centered
+                  >
+                    <Modal.Header closeButton>
+                      <Modal.Title>{t('adminAccount.newsletter.testSend.title', { ns: 'admin-account' })}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <p className="small text-muted mb-3">
+                        {t('adminAccount.newsletter.testSend.copy', {
+                          ns: 'admin-account',
+                          title: pendingNewsletterTestCampaign?.title ?? '',
+                        })}
+                      </p>
+                      <Form.Group controlId="admin-newsletter-test-email">
+                        <Form.Label className="small fw-semibold mb-1">
+                          {t('adminAccount.newsletter.testSend.emailLabel', { ns: 'admin-account' })}
+                        </Form.Label>
+                        <Form.Control
+                          type="email"
+                          value={newsletterTestEmail}
+                          placeholder={t('adminAccount.newsletter.testSend.emailPlaceholder', {
+                            ns: 'admin-account',
+                          })}
+                          disabled={isNewsletterTestSending}
+                          onChange={event => {
+                            setNewsletterTestEmail(event.currentTarget.value);
+                          }}
+                        />
+                      </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        disabled={isNewsletterTestSending}
+                        onClick={() => {
+                          setPendingNewsletterTestCampaign(null);
+                        }}
+                      >
+                        {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="primary"
+                        disabled={isNewsletterTestSending || newsletterTestEmail.trim() === ''}
+                        onClick={() => {
+                          void handleSendNewsletterTestEmail();
+                        }}
+                      >
+                        {isNewsletterTestSending ? (
+                          <span className="d-inline-flex align-items-center gap-2">
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              className="me-2 flex-shrink-0 admin-action-spinner"
+                              aria-hidden="true"
+                            />
+                            <span>{t('adminAccount.newsletter.testSend.sending', { ns: 'admin-account' })}</span>
+                          </span>
+                        ) : (
+                          <>
+                            <FontAwesomeIcon icon="paper-plane" className="me-2" />
+                            {t('adminAccount.newsletter.testSend.submit', { ns: 'admin-account' })}
+                          </>
+                        )}
+                      </Button>
+                    </Modal.Footer>
+                  </Modal>
+                </>
+              ) : null}
+
+              {isCommentsSection ? (
+                <>
+                  <h3 className="admin-dashboard-panel-title mb-3">
+                    {t('adminAccount.comments.title', { ns: 'admin-account' })}
+                  </h3>
+                  <hr className="admin-section-divider mb-3" />
+                  <p className="admin-dashboard-panel-copy mb-3">
+                    {t('adminAccount.comments.copy', { ns: 'admin-account' })}
+                  </p>
+
+                  {commentsErrorMessage ? (
+                    <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
+                      {commentsErrorMessage}
+                    </Alert>
+                  ) : null}
+                  {commentsSuccessMessage ? (
+                    <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
+                      {commentsSuccessMessage}
+                    </Alert>
+                  ) : null}
+
+                  <div className="d-grid gap-3">
+                    <div ref={commentsListTopRef} />
+
+                    <div className="card shadow-sm d-block">
+                      <div className="card-body p-3 w-100">
+                        <div className="row g-3">
+                          <div className="col-12 col-md-3">
+                            <Form.Group controlId="admin-comments-filter-locale">
+                              <Form.Label className="small fw-semibold mb-1">
+                                {t('adminAccount.comments.filters.locale', { ns: 'admin-account' })}
+                              </Form.Label>
+                              <Form.Select
+                                value={commentFilterLocale}
+                                onChange={event => {
+                                  setCommentFilterLocale(event.currentTarget.value as 'all' | 'en' | 'tr');
+                                  setCommentsErrorMessage('');
+                                  setCommentsSuccessMessage('');
+                                }}
+                              >
+                                <option value="all">
+                                  {t('adminAccount.comments.filters.locales.all', { ns: 'admin-account' })}
+                                </option>
+                                <option value="en">
+                                  {t('adminAccount.comments.filters.locales.en', { ns: 'admin-account' })}
+                                </option>
+                                <option value="tr">
+                                  {t('adminAccount.comments.filters.locales.tr', { ns: 'admin-account' })}
+                                </option>
+                              </Form.Select>
+                            </Form.Group>
+                          </div>
+                          <div className="col-12 col-md-3">
+                            <Form.Group controlId="admin-comments-filter-status">
+                              <Form.Label className="small fw-semibold mb-1">
+                                {t('adminAccount.comments.filters.status', { ns: 'admin-account' })}
+                              </Form.Label>
+                              <Form.Select
+                                value={commentFilterStatus}
+                                onChange={event => {
+                                  setCommentFilterStatus(
+                                    event.currentTarget.value as 'all' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM',
+                                  );
+                                  setCommentsErrorMessage('');
+                                  setCommentsSuccessMessage('');
+                                }}
+                              >
+                                <option value="all">
+                                  {t('adminAccount.comments.filters.statuses.all', { ns: 'admin-account' })}
+                                </option>
+                                <option value="PENDING">
+                                  {t('adminAccount.comments.filters.statuses.pending', { ns: 'admin-account' })}
+                                </option>
+                                <option value="APPROVED">
+                                  {t('adminAccount.comments.filters.statuses.approved', { ns: 'admin-account' })}
+                                </option>
+                                <option value="REJECTED">
+                                  {t('adminAccount.comments.filters.statuses.rejected', { ns: 'admin-account' })}
+                                </option>
+                                <option value="SPAM">
+                                  {t('adminAccount.comments.filters.statuses.spam', { ns: 'admin-account' })}
+                                </option>
+                              </Form.Select>
+                            </Form.Group>
+                          </div>
+                          <div className="col-12 col-md-6">
+                            <Form.Group controlId="admin-comments-filter-query">
+                              <Form.Label className="small fw-semibold mb-1">
+                                {t('adminAccount.comments.filters.query', { ns: 'admin-account' })}
+                              </Form.Label>
+                              <div className="search-bar w-100 d-flex align-items-center">
+                                <div className="search-icon">
+                                  <FontAwesomeIcon icon="search" />
+                                </div>
+                                <Form.Control
+                                  type="text"
+                                  className="search-input form-control"
+                                  value={commentFilterQuery}
+                                  onChange={event => {
+                                    setCommentFilterQuery(event.currentTarget.value);
+                                    setCommentsErrorMessage('');
+                                  }}
+                                  placeholder={t('adminAccount.comments.filters.queryPlaceholder', {
+                                    ns: 'admin-account',
+                                  })}
+                                />
+                                {commentFilterQuery ? (
+                                  <button
+                                    type="button"
+                                    className="search-clear-btn border-0 bg-transparent"
+                                    onClick={() => {
+                                      setCommentFilterQuery('');
+                                      setCommentsErrorMessage('');
+                                    }}
+                                    aria-label={t('adminAccount.comments.filters.query', { ns: 'admin-account' })}
+                                  >
+                                    <FontAwesomeIcon icon="times-circle" className="clear-icon" />
+                                  </button>
+                                ) : null}
+                              </div>
+                            </Form.Group>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="card shadow-sm d-block">
+                      <div className="card-body p-3 w-100">
+                        {isCommentsLoading ? (
+                          <div className="admin-account-sessions-loading">
+                            <AdminLoadingState
+                              className="admin-loading-stack"
+                              ariaLabel={t('adminAccount.comments.loading', { ns: 'admin-account' })}
+                            />
+                          </div>
+                        ) : totalComments === 0 ? (
+                          <p className="small text-muted mb-0">
+                            {t('adminAccount.comments.empty', { ns: 'admin-account' })}
+                          </p>
+                        ) : (
+                          <div className="d-grid gap-3">
+                            {comments.map(item => {
+                              const normalizedLocale = item.locale.trim().toLowerCase();
+                              const isKnownLocale = normalizedLocale === 'en' || normalizedLocale === 'tr';
+                              const isActionPending = commentActionID === item.id;
+                              const isDeletePending = deletingCommentID === item.id;
+                              const isApprovePending = isActionPending && commentActionStatus === 'APPROVED';
+                              const isRejectPending = isActionPending && commentActionStatus === 'REJECTED';
+                              const isSpamPending = isActionPending && commentActionStatus === 'SPAM';
+                              const statusLabel = t(
+                                `adminAccount.comments.filters.statuses.${item.status.toLowerCase()}`,
+                                { ns: 'admin-account' },
+                              );
+                              const postHref = buildAdminContentPostDetailRoute(
+                                isKnownLocale ? normalizedLocale : item.locale,
+                                item.postId,
+                              );
+
+                              return (
+                                <div
+                                  key={item.id}
+                                  className={`admin-newsletter-campaign-card admin-comments-card admin-comments-card--${item.status.toLowerCase()}`}
+                                >
+                                  <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                                    <div className="d-grid gap-2">
+                                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                                        <strong className="text-break">{item.authorName}</strong>
+                                        <span className={`badge text-bg-${resolveCommentStatusVariant(item.status)}`}>
+                                          {statusLabel}
+                                        </span>
+                                        <span className="badge text-bg-light">
+                                          {item.parentId
+                                            ? t('adminAccount.comments.list.replyLabel', { ns: 'admin-account' })
+                                            : t('adminAccount.comments.list.rootLabel', { ns: 'admin-account' })}
+                                        </span>
+                                      </div>
+                                      <div className="small text-muted d-flex align-items-center gap-2 flex-wrap">
+                                        <span className="d-inline-flex align-items-center gap-2">
+                                          {isKnownLocale ? (
+                                            <FlagIcon
+                                              className="flex-shrink-0"
+                                              code={normalizedLocale}
+                                              alt={`${LOCALES[normalizedLocale].name} flag`}
+                                              width={18}
+                                              height={18}
+                                            />
+                                          ) : (
+                                            <FontAwesomeIcon icon="globe" className="text-muted" />
+                                          )}
+                                          <span>
+                                            {isKnownLocale ? LOCALES[normalizedLocale].name : item.locale.toUpperCase()}
+                                          </span>
+                                        </span>
+                                        <span className="d-inline-flex align-items-center gap-2">
+                                          <FontAwesomeIcon icon="envelope" className="text-muted" />
+                                          <span>{item.authorEmail}</span>
+                                        </span>
+                                        <span className="d-inline-flex align-items-center gap-2">
+                                          <FontAwesomeIcon icon="calendar-alt" className="text-muted" />
+                                          <span>
+                                            {t('adminAccount.comments.list.submittedAt', {
+                                              ns: 'admin-account',
+                                              value: formatSessionDate(item.createdAt),
+                                            })}
+                                          </span>
+                                        </span>
+                                        {item.updatedAt && item.updatedAt !== item.createdAt ? (
+                                          <span className="d-inline-flex align-items-center gap-2">
+                                            <FontAwesomeIcon icon="clock" className="text-muted" />
+                                            <span>
+                                              {t('adminAccount.comments.list.updatedAt', {
+                                                ns: 'admin-account',
+                                                value: formatSessionDate(item.updatedAt),
+                                              })}
+                                            </span>
+                                          </span>
+                                        ) : null}
+                                      </div>
+                                    </div>
+
+                                    <Link
+                                      href={postHref}
+                                      className="btn btn-success btn-sm d-inline-flex align-items-center admin-newsletter-action admin-newsletter-action--external"
+                                    >
+                                      <FontAwesomeIcon icon="up-right-from-square" className="me-2" />
+                                      {t('adminAccount.comments.actions.openPost', { ns: 'admin-account' })}
+                                    </Link>
+                                  </div>
+
+                                  <div className="small text-muted mt-3 d-inline-flex align-items-center gap-2 flex-wrap">
+                                    <FontAwesomeIcon icon="book" className="text-muted" />
+                                    <span>
+                                      {t('adminAccount.comments.list.post', {
+                                        ns: 'admin-account',
+                                        title: item.postTitle || item.postId,
+                                      })}
+                                    </span>
+                                  </div>
+                                  <p className="mb-0 mt-2 text-break">{item.content}</p>
+
+                                  <div className="row g-2 mt-3">
+                                    <div className="col-12 col-md-auto">
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="success"
+                                        className="w-100"
+                                        disabled={isActionPending || isDeletePending || item.status === 'APPROVED'}
+                                        onClick={() => {
+                                          void handleCommentStatusUpdate(item.id, 'APPROVED');
+                                        }}
+                                      >
+                                        {isApprovePending ? (
+                                          <span className="d-inline-flex align-items-center gap-2">
+                                            <Spinner
+                                              as="span"
+                                              animation="border"
+                                              size="sm"
+                                              className="me-2 flex-shrink-0 admin-action-spinner"
+                                              aria-hidden="true"
+                                            />
+                                            <span>
+                                              {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
+                                            </span>
+                                          </span>
+                                        ) : (
+                                          <>
+                                            <FontAwesomeIcon icon="check" className="me-2" />
+                                            {t('adminAccount.comments.actions.approve', { ns: 'admin-account' })}
+                                          </>
+                                        )}
+                                      </Button>
+                                    </div>
+                                    <div className="col-12 col-md-auto">
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="secondary"
+                                        className="w-100 admin-newsletter-action admin-newsletter-action--secondary"
+                                        disabled={isActionPending || isDeletePending || item.status === 'REJECTED'}
+                                        onClick={() => {
+                                          void handleCommentStatusUpdate(item.id, 'REJECTED');
+                                        }}
+                                      >
+                                        {!isRejectPending ? (
+                                          <FontAwesomeIcon icon="times-circle" className="me-2" />
+                                        ) : null}
+                                        {isRejectPending ? (
+                                          <span className="d-inline-flex align-items-center gap-2">
+                                            <Spinner
+                                              as="span"
+                                              animation="border"
+                                              size="sm"
+                                              className="me-2 flex-shrink-0 admin-action-spinner"
+                                              aria-hidden="true"
+                                            />
+                                            <span>
+                                              {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
+                                            </span>
+                                          </span>
+                                        ) : (
+                                          t('adminAccount.comments.actions.reject', { ns: 'admin-account' })
+                                        )}
+                                      </Button>
+                                    </div>
+                                    <div className="col-12 col-md-auto">
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="danger"
+                                        className="w-100 admin-newsletter-action admin-newsletter-action--danger"
+                                        disabled={isActionPending || isDeletePending || item.status === 'SPAM'}
+                                        onClick={() => {
+                                          void handleCommentStatusUpdate(item.id, 'SPAM');
+                                        }}
+                                      >
+                                        {!isSpamPending ? (
+                                          <FontAwesomeIcon icon="shield-halved" className="me-2" />
+                                        ) : null}
+                                        {isSpamPending ? (
+                                          <span className="d-inline-flex align-items-center gap-2">
+                                            <Spinner
+                                              as="span"
+                                              animation="border"
+                                              size="sm"
+                                              className="me-2 flex-shrink-0 admin-action-spinner"
+                                              aria-hidden="true"
+                                            />
+                                            <span>
+                                              {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
+                                            </span>
+                                          </span>
+                                        ) : (
+                                          t('adminAccount.comments.actions.spam', { ns: 'admin-account' })
+                                        )}
+                                      </Button>
+                                    </div>
+                                    <div className="col-12 col-md-auto">
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="danger"
+                                        className="w-100"
+                                        disabled={isActionPending || isDeletePending}
+                                        onClick={() => {
+                                          setPendingCommentDelete(item);
+                                        }}
+                                      >
+                                        {isDeletePending ? (
+                                          <span className="d-inline-flex align-items-center gap-2">
+                                            <Spinner
+                                              as="span"
+                                              animation="border"
+                                              size="sm"
+                                              className="me-2 flex-shrink-0 admin-action-spinner"
+                                              aria-hidden="true"
+                                            />
+                                            <span>
+                                              {t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}
+                                            </span>
+                                          </span>
+                                        ) : (
+                                          <>
+                                            <FontAwesomeIcon icon="trash" className="me-2" />
+                                            {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
+                                          </>
+                                        )}
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                      {!isCommentsLoading && totalComments > 0 ? (
+                        <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
+                          <PaginationBar
+                            currentPage={commentsPage}
+                            totalPages={totalCommentPages}
+                            totalResults={totalComments}
+                            size={commentsPageSize}
+                            onPageChange={page => {
+                              setCommentsPage(page);
+                              scrollToCommentsListStart();
+                            }}
+                            onSizeChange={size => {
+                              setCommentsPageSize(size);
+                              setCommentsPage(1);
+                              scrollToCommentsListStart();
+                            }}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  <Modal
+                    show={pendingCommentDelete !== null}
+                    onHide={() => {
+                      if (deletingCommentID) {
+                        return;
+                      }
+                      setPendingCommentDelete(null);
+                    }}
+                    centered
+                  >
+                    <Modal.Header closeButton>
+                      <Modal.Title>
+                        {t('adminAccount.comments.deleteConfirm.title', { ns: 'admin-account' })}
+                      </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <p className="small text-muted mb-3">
+                        {t('adminAccount.comments.deleteConfirm.copy', {
+                          ns: 'admin-account',
+                          author: pendingCommentDelete?.authorName ?? '',
+                        })}
+                      </p>
+                      <dl className="row mb-0 small">
+                        <dt className="col-4 text-uppercase text-muted">
+                          {t('adminAccount.comments.deleteConfirm.labels.author', { ns: 'admin-account' })}
+                        </dt>
+                        <dd className="col-8 mb-2">{pendingCommentDelete?.authorName ?? '-'}</dd>
+                        <dt className="col-4 text-uppercase text-muted">
+                          {t('adminAccount.comments.deleteConfirm.labels.email', { ns: 'admin-account' })}
+                        </dt>
+                        <dd className="col-8 mb-2 text-break">{pendingCommentDelete?.authorEmail ?? '-'}</dd>
+                        <dt className="col-4 text-uppercase text-muted">
+                          {t('adminAccount.comments.deleteConfirm.labels.post', { ns: 'admin-account' })}
+                        </dt>
+                        <dd className="col-8 mb-0 text-break">
+                          {pendingCommentDelete?.postTitle || pendingCommentDelete?.postId || '-'}
+                        </dd>
+                      </dl>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        disabled={deletingCommentID !== ''}
+                        onClick={() => {
+                          setPendingCommentDelete(null);
+                        }}
+                      >
+                        {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        disabled={pendingCommentDelete === null || deletingCommentID !== ''}
+                        onClick={() => {
+                          void handleDeleteCommentSubmit();
+                        }}
+                      >
+                        {deletingCommentID ? (
+                          <span className="d-inline-flex align-items-center gap-2">
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              className="me-2 flex-shrink-0 admin-action-spinner"
+                              aria-hidden="true"
+                            />
+                            <span>{t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}</span>
+                          </span>
+                        ) : (
+                          <>
+                            <FontAwesomeIcon icon="trash" className="me-2" />
+                            {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
                           </>
                         )}
                       </Button>
@@ -3424,9 +5082,8 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                         )}
                       </div>
                       {!isErrorMessagesLoading && totalErrorMessages > 0 ? (
-                        <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top border-bottom">
+                        <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
                           <PaginationBar
-                            className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"
                             currentPage={errorMessagesPage}
                             totalPages={totalErrorMessagePages}
                             totalResults={totalErrorMessages}

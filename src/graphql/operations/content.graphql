@@ -76,6 +76,31 @@ query post($locale: Locale!, $id: ID!) {
   }
 }
 
+query comments($locale: Locale!, $postId: ID!) {
+  comments(locale: $locale, postId: $postId) {
+    status
+    locale
+    postId
+    total
+    threads {
+      root {
+        id
+        parentId
+        authorName
+        content
+        createdAt
+      }
+      replies {
+        id
+        parentId
+        authorName
+        content
+        createdAt
+      }
+    }
+  }
+}
+
 mutation incrementPostLike($postId: ID!) {
   incrementPostLike(postId: $postId) {
     status
@@ -91,6 +116,14 @@ mutation incrementPostHit($postId: ID!) {
     postId
     likes
     hits
+  }
+}
+
+mutation addComment($input: AddCommentInput!) {
+  addComment(input: $input) {
+    status
+    postId
+    moderationStatus
   }
 }
 

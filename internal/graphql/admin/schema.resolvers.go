@@ -46,6 +46,46 @@ func (r *adminQueryResolver) Dashboard(ctx context.Context) (*model.AdminDashboa
 	return mapAdminDashboard(payload), nil
 }
 
+// Comments is the resolver for the comments field.
+func (r *adminQueryResolver) Comments(
+	ctx context.Context,
+	filter *model.AdminCommentFilterInput,
+) (*model.AdminCommentListPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedFilter := domain.AdminCommentFilter{}
+	if filter != nil {
+		if filter.Locale != nil {
+			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
+		}
+		if filter.Status != nil {
+			resolvedFilter.Status = mapAdminCommentStatusInput(*filter.Status)
+		}
+		if filter.PostID != nil {
+			resolvedFilter.PostID = strings.TrimSpace(*filter.PostID)
+		}
+		if filter.Query != nil {
+			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
+		}
+		if filter.Page != nil {
+			resolvedFilter.Page = filter.Page
+		}
+		if filter.Size != nil {
+			resolvedFilter.Size = filter.Size
+		}
+	}
+
+	payload, err := appservice.ListAdminComments(ctx, adminUser, resolvedFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminCommentListPayload(payload), nil
+}
+
 // ActiveSessions is the resolver for the activeSessions field.
 func (r *adminQueryResolver) ActiveSessions(ctx context.Context) ([]*model.AdminSession, error) {
 	adminUser, err := requireAdminUser(ctx)
@@ -97,6 +137,72 @@ func (r *adminQueryResolver) NewsletterSubscribers(
 	}
 
 	return mapAdminNewsletterSubscriberListPayload(payload), nil
+}
+
+// NewsletterCampaigns is the resolver for the newsletterCampaigns field.
+func (r *adminQueryResolver) NewsletterCampaigns(
+	ctx context.Context,
+	filter *model.AdminNewsletterCampaignFilterInput,
+) (*model.AdminNewsletterCampaignListPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedFilter := domain.AdminNewsletterCampaignFilter{}
+	if filter != nil {
+		if filter.Locale != nil {
+			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
+		}
+		if filter.Status != nil {
+			resolvedFilter.Status = strings.TrimSpace(*filter.Status)
+		}
+		if filter.Query != nil {
+			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
+		}
+		if filter.Page != nil {
+			resolvedFilter.Page = filter.Page
+		}
+		if filter.Size != nil {
+			resolvedFilter.Size = filter.Size
+		}
+	}
+
+	payload, err := appservice.ListAdminNewsletterCampaigns(ctx, adminUser, resolvedFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminNewsletterCampaignListPayload(payload), nil
+}
+
+// NewsletterCampaignFailures is the resolver for the newsletterCampaignFailures field.
+func (r *adminQueryResolver) NewsletterCampaignFailures(
+	ctx context.Context,
+	filter model.AdminNewsletterDeliveryFailureFilterInput,
+) (*model.AdminNewsletterDeliveryFailureListPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedFilter := domain.AdminNewsletterDeliveryFailureFilter{
+		Locale:  strings.TrimSpace(filter.Locale),
+		ItemKey: strings.TrimSpace(filter.ItemKey),
+	}
+	if filter.Page != nil {
+		resolvedFilter.Page = filter.Page
+	}
+	if filter.Size != nil {
+		resolvedFilter.Size = filter.Size
+	}
+
+	payload, err := appservice.ListAdminNewsletterDeliveryFailures(ctx, adminUser, resolvedFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminNewsletterDeliveryFailureListPayload(payload), nil
 }
 
 // ErrorMessages is the resolver for the errorMessages field.
@@ -576,6 +682,46 @@ func (r *adminMutationResolver) RevokeAllSessions(ctx context.Context) (*model.A
 	return &model.AdminSessionRevokePayload{Success: true}, nil
 }
 
+// UpdateCommentStatus is the resolver for the updateCommentStatus field.
+func (r *adminMutationResolver) UpdateCommentStatus(
+	ctx context.Context,
+	input model.AdminUpdateCommentStatusInput,
+) (*model.AdminComment, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	updated, err := appservice.UpdateAdminCommentStatus(
+		ctx,
+		adminUser,
+		strings.TrimSpace(input.CommentID),
+		mapAdminCommentStatusInput(input.Status),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminComment(updated), nil
+}
+
+// DeleteComment is the resolver for the deleteComment field.
+func (r *adminMutationResolver) DeleteComment(
+	ctx context.Context,
+	input model.AdminDeleteCommentInput,
+) (*model.AdminDeletePayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := appservice.DeleteAdminComment(ctx, adminUser, strings.TrimSpace(input.CommentID)); err != nil {
+		return nil, err
+	}
+
+	return &model.AdminDeletePayload{Success: true}, nil
+}
+
 // UpdateNewsletterSubscriberStatus is the resolver for the updateNewsletterSubscriberStatus field.
 func (r *adminMutationResolver) UpdateNewsletterSubscriberStatus(
 	ctx context.Context,
@@ -614,6 +760,47 @@ func (r *adminMutationResolver) DeleteNewsletterSubscriber(
 	}
 
 	return &model.AdminDeletePayload{Success: true}, nil
+}
+
+// TriggerNewsletterDispatch is the resolver for the triggerNewsletterDispatch field.
+func (r *adminMutationResolver) TriggerNewsletterDispatch(
+	ctx context.Context,
+) (*model.AdminNewsletterDispatchPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	payload, err := appservice.TriggerAdminNewsletterDispatch(ctx, adminUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminNewsletterDispatchPayload(payload), nil
+}
+
+// SendTestNewsletter is the resolver for the sendTestNewsletter field.
+func (r *adminMutationResolver) SendTestNewsletter(
+	ctx context.Context,
+	input model.AdminSendTestNewsletterInput,
+) (*model.AdminNewsletterTestSendPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	payload, err := appservice.SendAdminNewsletterTestEmail(
+		ctx,
+		adminUser,
+		input.Email,
+		input.Locale,
+		input.ItemKey,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminNewsletterTestSendPayload(payload), nil
 }
 
 // CreateErrorMessage is the resolver for the createErrorMessage field.
@@ -1031,6 +1218,167 @@ func mapAdminNewsletterSubscriberListPayload(
 	}
 }
 
+func mapAdminNewsletterCampaignListPayload(
+	payload *domain.AdminNewsletterCampaignListResult,
+) *model.AdminNewsletterCampaignListPayload {
+	if payload == nil {
+		return &model.AdminNewsletterCampaignListPayload{
+			Items: []*model.AdminNewsletterCampaign{},
+			Total: 0,
+			Page:  1,
+			Size:  20,
+		}
+	}
+
+	return &model.AdminNewsletterCampaignListPayload{
+		Items: mapAdminNewsletterCampaigns(payload.Items),
+		Total: payload.Total,
+		Page:  payload.Page,
+		Size:  payload.Size,
+	}
+}
+
+func mapAdminNewsletterCampaigns(items []domain.AdminNewsletterCampaignRecord) []*model.AdminNewsletterCampaign {
+	mapped := make([]*model.AdminNewsletterCampaign, 0, len(items))
+	for _, item := range items {
+		mapped = append(mapped, mapAdminNewsletterCampaign(&item))
+	}
+
+	return mapped
+}
+
+func mapAdminNewsletterCampaign(item *domain.AdminNewsletterCampaignRecord) *model.AdminNewsletterCampaign {
+	if item == nil {
+		return nil
+	}
+
+	return &model.AdminNewsletterCampaign{
+		Locale:      item.Locale,
+		ItemKey:     item.ItemKey,
+		Title:       item.Title,
+		Summary:     toOptionalAdminString(item.Summary),
+		Link:        toOptionalAdminString(item.Link),
+		PubDate:     toOptionalAdminString(item.PubDate),
+		RssURL:      toOptionalAdminString(item.RSSURL),
+		Status:      item.Status,
+		SentCount:   item.SentCount,
+		FailedCount: item.FailedCount,
+		LastRunAt:   toOptionalAdminTime(item.LastRunAt),
+		UpdatedAt:   toOptionalAdminTime(item.UpdatedAt),
+		CreatedAt:   toOptionalAdminTime(item.CreatedAt),
+	}
+}
+
+func mapAdminNewsletterDeliveryFailureListPayload(
+	payload *domain.AdminNewsletterDeliveryFailureListResult,
+) *model.AdminNewsletterDeliveryFailureListPayload {
+	if payload == nil {
+		return &model.AdminNewsletterDeliveryFailureListPayload{
+			Items: []*model.AdminNewsletterDeliveryFailure{},
+			Total: 0,
+			Page:  1,
+			Size:  20,
+		}
+	}
+
+	return &model.AdminNewsletterDeliveryFailureListPayload{
+		Items: mapAdminNewsletterDeliveryFailures(payload.Items),
+		Total: payload.Total,
+		Page:  payload.Page,
+		Size:  payload.Size,
+	}
+}
+
+func mapAdminNewsletterDeliveryFailures(
+	items []domain.AdminNewsletterDeliveryFailureRecord,
+) []*model.AdminNewsletterDeliveryFailure {
+	mapped := make([]*model.AdminNewsletterDeliveryFailure, 0, len(items))
+	for _, item := range items {
+		mapped = append(mapped, mapAdminNewsletterDeliveryFailure(&item))
+	}
+
+	return mapped
+}
+
+func mapAdminNewsletterDeliveryFailure(
+	item *domain.AdminNewsletterDeliveryFailureRecord,
+) *model.AdminNewsletterDeliveryFailure {
+	if item == nil {
+		return nil
+	}
+
+	return &model.AdminNewsletterDeliveryFailure{
+		Locale:        item.Locale,
+		ItemKey:       item.ItemKey,
+		Email:         item.Email,
+		Status:        item.Status,
+		LastError:     toOptionalAdminString(item.LastError),
+		LastAttemptAt: toOptionalAdminTime(item.LastAttemptAt),
+		UpdatedAt:     toOptionalAdminTime(item.UpdatedAt),
+		CreatedAt:     toOptionalAdminTime(item.CreatedAt),
+	}
+}
+
+func mapAdminNewsletterDispatchPayload(
+	payload *domain.AdminNewsletterDispatchResult,
+) *model.AdminNewsletterDispatchPayload {
+	if payload == nil {
+		return &model.AdminNewsletterDispatchPayload{
+			Success:   false,
+			Message:   "",
+			Timestamp: time.Now().UTC(),
+			Results:   []*model.AdminNewsletterDispatchLocaleResult{},
+		}
+	}
+
+	results := make([]*model.AdminNewsletterDispatchLocaleResult, 0, len(payload.Results))
+	for _, item := range payload.Results {
+		current := item
+		results = append(results, &model.AdminNewsletterDispatchLocaleResult{
+			Locale:      current.Locale,
+			RssURL:      toOptionalAdminString(current.RSSURL),
+			ItemKey:     toOptionalAdminString(current.ItemKey),
+			PostTitle:   toOptionalAdminString(current.PostTitle),
+			SentCount:   current.SentCount,
+			FailedCount: current.FailedCount,
+			Skipped:     current.Skipped,
+			Reason:      toOptionalAdminString(current.Reason),
+		})
+	}
+
+	return &model.AdminNewsletterDispatchPayload{
+		Success:   payload.Success,
+		Message:   strings.TrimSpace(payload.Message),
+		Timestamp: payload.Timestamp.UTC(),
+		Results:   results,
+	}
+}
+
+func mapAdminNewsletterTestSendPayload(
+	payload *domain.AdminNewsletterTestSendResult,
+) *model.AdminNewsletterTestSendPayload {
+	if payload == nil {
+		return &model.AdminNewsletterTestSendPayload{
+			Success:   false,
+			Message:   "",
+			Timestamp: time.Now().UTC(),
+			Email:     "",
+			Locale:    "",
+			ItemKey:   "",
+		}
+	}
+
+	return &model.AdminNewsletterTestSendPayload{
+		Success:   payload.Success,
+		Message:   strings.TrimSpace(payload.Message),
+		Timestamp: payload.Timestamp.UTC(),
+		Email:     payload.Email,
+		Locale:    payload.Locale,
+		ItemKey:   payload.ItemKey,
+		PostTitle: toOptionalAdminString(payload.PostTitle),
+	}
+}
+
 func mapAdminNewsletterSubscribers(items []domain.AdminNewsletterSubscriberRecord) []*model.AdminNewsletterSubscriber {
 	mapped := make([]*model.AdminNewsletterSubscriber, 0, len(items))
 	for _, item := range items {
@@ -1421,6 +1769,13 @@ func toOptionalAdminTimePointer(value *time.Time) *time.Time {
 	return toOptionalAdminTime(*value)
 }
 
+func adminDerefString(value *string) string {
+	if value == nil {
+		return ""
+	}
+	return *value
+}
+
 func mapAdminNewsletterStatusInput(value model.AdminNewsletterSubscriberStatus) string {
 	switch value {
 	case model.AdminNewsletterSubscriberStatusActive:
@@ -1440,6 +1795,87 @@ func mapAdminNewsletterStatusOutput(value string) model.AdminNewsletterSubscribe
 		return model.AdminNewsletterSubscriberStatusUnsubscribed
 	default:
 		return model.AdminNewsletterSubscriberStatusPending
+	}
+}
+
+func mapAdminCommentStatusInput(value model.AdminCommentStatus) string {
+	switch value {
+	case model.AdminCommentStatusApproved:
+		return "approved"
+	case model.AdminCommentStatusRejected:
+		return "rejected"
+	case model.AdminCommentStatusSpam:
+		return "spam"
+	default:
+		return "pending"
+	}
+}
+
+func mapAdminCommentStatusOutput(value string) model.AdminCommentStatus {
+	switch strings.TrimSpace(strings.ToLower(value)) {
+	case "approved":
+		return model.AdminCommentStatusApproved
+	case "rejected":
+		return model.AdminCommentStatusRejected
+	case "spam":
+		return model.AdminCommentStatusSpam
+	default:
+		return model.AdminCommentStatusPending
+	}
+}
+
+func mapAdminComment(value *domain.CommentRecord) *model.AdminComment {
+	if value == nil {
+		return nil
+	}
+
+	return &model.AdminComment{
+		ID:          strings.TrimSpace(value.ID),
+		PostID:      strings.TrimSpace(value.PostID),
+		PostTitle:   strings.TrimSpace(value.PostTitle),
+		Locale:      strings.TrimSpace(value.Locale),
+		ParentID:    toOptionalAdminString(adminDerefString(value.ParentID)),
+		AuthorName:  strings.TrimSpace(value.AuthorName),
+		AuthorEmail: strings.TrimSpace(value.AuthorEmail),
+		Content:     strings.TrimSpace(value.Content),
+		Status:      mapAdminCommentStatusOutput(value.Status),
+		CreatedAt:   value.CreatedAt.UTC(),
+		UpdatedAt:   value.UpdatedAt.UTC(),
+	}
+}
+
+func mapAdminCommentListPayload(value *domain.AdminCommentListResult) *model.AdminCommentListPayload {
+	if value == nil {
+		return &model.AdminCommentListPayload{
+			Items: []*model.AdminComment{},
+			Page:  1,
+			Size:  1,
+		}
+	}
+
+	items := make([]*model.AdminComment, 0, len(value.Items))
+	for _, item := range value.Items {
+		mapped := mapAdminComment(&item)
+		if mapped == nil {
+			continue
+		}
+		items = append(items, mapped)
+	}
+
+	page := value.Page
+	if page <= 0 {
+		page = 1
+	}
+	size := value.Size
+	if size <= 0 {
+		size = 1
+	}
+
+	return &model.AdminCommentListPayload{
+		Items: items,
+		Total: value.Total,
+		Page:  page,
+		Size:  size,
 	}
 }
 

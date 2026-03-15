@@ -16,12 +16,14 @@ import (
 var (
 	queryContentFn  = appservice.QueryContent
 	queryPostFn     = appservice.QueryPost
+	listCommentsFn  = appservice.ListComments
 	incrementLikeFn = appservice.IncrementLike
 	incrementHitFn  = appservice.IncrementHit
 	subscribeFn     = appservice.Subscribe
 	resendFn        = appservice.Resend
 	confirmFn       = appservice.Confirm
 	unsubscribeFn   = appservice.Unsubscribe
+	addCommentFn    = appservice.AddComment
 )
 
 // Posts is the resolver for the posts field.
@@ -111,6 +113,32 @@ func (r *queryResolver) Post(ctx context.Context, locale model.Locale, id string
 		Locale:     mapLocaleOutput(payload.Locale),
 		Node:       node,
 		Engagement: engagement,
+	}, nil
+}
+
+// Comments is the resolver for the comments field.
+func (r *queryResolver) Comments(ctx context.Context, locale model.Locale, postID string) (*model.CommentListResult, error) {
+	normalizedLocale := strings.TrimSpace(mapLocaleInput(locale))
+	if normalizedLocale == "" {
+		return nil, fmt.Errorf("locale is required")
+	}
+
+	normalizedPostID := strings.TrimSpace(postID)
+	if normalizedPostID == "" {
+		return nil, fmt.Errorf("postId is required")
+	}
+
+	payload := listCommentsFn(ctx, appservice.CommentQueryInput{
+		Locale: normalizedLocale,
+		PostID: normalizedPostID,
+	})
+
+	return &model.CommentListResult{
+		Status: mapCommentQueryStatus(payload.Status),
+		Locale: mapLocaleOutput(payload.Locale),
+		PostID: strings.TrimSpace(payload.PostID),
+		Total:  payload.Total,
+		Threads: mapCommentThreads(payload.Comments),
 	}, nil
 }
 
@@ -224,6 +252,33 @@ func (r *mutationResolver) UnsubscribeNewsletter(
 	payload := unsubscribeFn(ctx, strings.TrimSpace(token))
 	return &model.NewsletterMutationResult{
 		Status: mapNewsletterMutationStatus(payload.Status),
+	}, nil
+}
+
+// AddComment is the resolver for the addComment field.
+func (r *mutationResolver) AddComment(ctx context.Context, input model.AddCommentInput) (*model.CommentMutationResult, error) {
+	payload := addCommentFn(
+		ctx,
+		appservice.AddCommentInput{
+			Locale:      strings.TrimSpace(mapLocaleInput(input.Locale)),
+			PostID:      strings.TrimSpace(input.PostID),
+			ParentID:    strings.TrimSpace(toOptionalStringValue(input.ParentID)),
+			AuthorName:  strings.TrimSpace(input.AuthorName),
+			AuthorEmail: strings.TrimSpace(input.AuthorEmail),
+			Content:     input.Content,
+		},
+		getRequestMetadata(ctx),
+	)
+
+	resolvedPostID := strings.TrimSpace(payload.PostID)
+	if resolvedPostID == "" {
+		resolvedPostID = strings.TrimSpace(input.PostID)
+	}
+
+	return &model.CommentMutationResult{
+		Status:           mapCommentMutationStatus(payload.Status),
+		PostID:           resolvedPostID,
+		ModerationStatus: mapCommentModerationStatus(payload.ModerationStatus),
 	}, nil
 }
 

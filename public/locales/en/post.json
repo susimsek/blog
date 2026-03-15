@@ -34,6 +34,54 @@
       "copyLink": "Copy link",
       "copied": "Copied"
     },
+    "comments": {
+      "eyebrow": "Discussion",
+      "title_one": "1 comment",
+      "title_other": "{{count}} comments",
+      "copy": "Add a thoughtful note, question, or correction. Approved comments appear below.",
+      "streamTitle": "Discussion",
+      "composerTitle": "Add your comment",
+      "composerCopy": "Join the discussion with a note, question, or correction.",
+      "moderationNote": "New comments are reviewed before they appear.",
+      "loading": "Loading comments...",
+      "emptyTitle": "No discussion yet",
+      "empty": "No approved comments yet. Start the discussion.",
+      "reply": "Reply",
+      "closeReply": "Close reply",
+      "replies_one": "1 reply",
+      "replies_other": "{{count}} replies",
+      "postedAt": "Posted {{date}}",
+      "form": {
+        "nameLabel": "Name",
+        "namePlaceholder": "Your name",
+        "emailLabel": "Email",
+        "emailPlaceholder": "you@example.com",
+        "contentLabel": "Comment",
+        "contentPlaceholder": "Write your comment",
+        "submit": "Post comment",
+        "submitReply": "Post reply",
+        "cancelReply": "Cancel",
+        "submitting": "Submitting...",
+        "helper": "Your email stays private. Only your display name appears with the comment.",
+        "replyingTo": "Replying to {{name}}"
+      },
+      "success": {
+        "pending": "Your comment was received and is awaiting moderation.",
+        "approved": "Your comment is now live."
+      },
+      "errors": {
+        "load": "Comments are temporarily unavailable.",
+        "failed": "Comment could not be submitted.",
+        "invalid-post-id": "The article could not be found.",
+        "not-found": "The article could not be found.",
+        "invalid-parent": "This reply target is no longer available.",
+        "invalid-author": "Enter a valid display name.",
+        "invalid-email": "Enter a valid email address.",
+        "invalid-content": "Enter a comment between 3 and 2000 characters.",
+        "rate-limited": "Too many comments submitted recently. Try again later.",
+        "service-unavailable": "Comment service is temporarily unavailable."
+      }
+    },
     "navigation": {
       "title": "Post navigation",
       "previous": "Previous article",

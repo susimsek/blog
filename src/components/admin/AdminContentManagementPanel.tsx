@@ -3,12 +3,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Alert from 'react-bootstrap/Alert';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
+import Nav from 'react-bootstrap/Nav';
 import Spinner from 'react-bootstrap/Spinner';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
@@ -52,7 +53,8 @@ import {
   type AdminContentTopicItem,
   type AdminContentTopicGroupItem,
 } from '@/lib/adminApi';
-import { ADMIN_ROUTES, buildAdminContentPostDetailRoute } from '@/lib/adminRoutes';
+import { ADMIN_ROUTES, buildAdminContentPostDetailRoute, withAdminLocalePath } from '@/lib/adminRoutes';
+import { defaultLocale } from '@/i18n/settings';
 import { assetPrefix, LOCALES } from '@/config/constants';
 import type { PostCategoryRef } from '@/types/posts';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -70,7 +72,6 @@ type ContentSectionTab = 'posts' | 'topics' | 'categories';
 type PostEditorTab = 'metadata' | 'content';
 type PostContentViewMode = 'editor' | 'split' | 'preview';
 type SupportedContentLocale = 'en' | 'tr';
-type AdminLocalePillTone = 'active' | 'available' | 'missing';
 const CONTENT_ID_PATTERN = /^[a-z0-9][a-z0-9-]{1,127}$/;
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 const CONTENT_LOCALES: SupportedContentLocale[] = ['en', 'tr'];
@@ -101,79 +102,6 @@ const resolveLocaleLabel = (value: string) => {
 
 const resolveLocaleOptionLabel = (item: { locale: string; name: string }) =>
   `[${item.locale.toUpperCase()}] ${item.name}`;
-
-const resolveLocalePillClassName = (tone: AdminLocalePillTone) => {
-  const baseClassName =
-    'admin-locale-pill rounded-pill d-inline-flex align-items-center gap-1 px-3 py-2 fw-semibold text-uppercase shadow-none';
-
-  if (tone === 'active') {
-    return `${baseClassName} admin-locale-pill--active`;
-  }
-
-  if (tone === 'available') {
-    return `${baseClassName} admin-locale-pill--available`;
-  }
-
-  return `${baseClassName} admin-locale-pill--missing`;
-};
-
-type AdminLocalePillProps = {
-  href?: string;
-  locale: SupportedContentLocale;
-  navigationLocale?: SupportedContentLocale;
-  onClick?: () => void;
-  available: boolean;
-  active?: boolean;
-};
-
-const AdminLocalePill = ({
-  href,
-  locale,
-  navigationLocale,
-  onClick,
-  available,
-  active = false,
-}: AdminLocalePillProps) => {
-  const tone: AdminLocalePillTone = available ? (active ? 'active' : 'available') : 'missing';
-  const content = (
-    <>
-      <FlagIcon
-        code={locale}
-        className="flex-shrink-0"
-        alt={`${resolveLocaleLabel(locale)} flag`}
-        width={14}
-        height={14}
-      />
-      <span>{locale}</span>
-      {!available ? <FontAwesomeIcon icon="plus" /> : null}
-    </>
-  );
-
-  if (href) {
-    return (
-      <Link
-        href={href}
-        locale={navigationLocale}
-        className={`btn btn-light btn-sm ${resolveLocalePillClassName(tone)}`}
-      >
-        {content}
-      </Link>
-    );
-  }
-
-  return (
-    <Button
-      type="button"
-      variant="light"
-      size="sm"
-      className={resolveLocalePillClassName(tone)}
-      onClick={onClick}
-      disabled={!available && !onClick}
-    >
-      {content}
-    </Button>
-  );
-};
 
 const toTaxonomyKey = (item: { locale: string; id: string }) => `${item.locale.toLowerCase()}|${item.id.toLowerCase()}`;
 
@@ -327,11 +255,14 @@ export default function AdminContentManagementPanel({
   const canUsePostGridDensity = useMediaQuery('(min-width: 1200px)');
   const resolvedPostDensityMode: PostDensityMode =
     canUsePostGridDensity || postDensityMode !== 'grid' ? postDensityMode : 'default';
+  const router = useRouter();
   const params = useParams<{
     locale?: string | string[];
     postLocale?: string | string[];
     postId?: string | string[];
   }>();
+  const routeLocale =
+    (Array.isArray(params.locale) ? params.locale[0] : params.locale)?.trim().toLowerCase() || defaultLocale;
   const routePostLocale = (Array.isArray(params.postLocale) ? params.postLocale[0] : params.postLocale)
     ?.trim()
     .toLowerCase();
@@ -463,6 +394,32 @@ export default function AdminContentManagementPanel({
     }
     return categories.filter(item => item.locale.toLowerCase() === editingPost.locale.toLowerCase());
   }, [categories, editingPost]);
+
+  const [postLocaleTabs, setPostLocaleTabs] = React.useState<
+    Array<{ locale: SupportedContentLocale; available: boolean }>
+  >([]);
+
+  const topicLocaleTabs = React.useMemo(
+    () =>
+      topicID.trim()
+        ? (CONTENT_LOCALES.map(locale => ({
+            locale,
+            available: topicsByLocaleAndID.has(`${locale}|${topicID.trim().toLowerCase()}`),
+          })) as Array<{ locale: SupportedContentLocale; available: boolean }>)
+        : [],
+    [topicID, topicsByLocaleAndID],
+  );
+
+  const categoryLocaleTabs = React.useMemo(
+    () =>
+      categoryID.trim()
+        ? (CONTENT_LOCALES.map(locale => ({
+            locale,
+            available: categoriesByLocaleAndID.has(`${locale}|${categoryID.trim().toLowerCase()}`),
+          })) as Array<{ locale: SupportedContentLocale; available: boolean }>)
+        : [],
+    [categoriesByLocaleAndID, categoryID],
+  );
 
   const postEditorPreviewState = React.useMemo(() => {
     if (!editingPost) {
@@ -921,6 +878,7 @@ export default function AdminContentManagementPanel({
       const normalizedID = options.id.trim();
       if (!normalizedLocale || !normalizedID) {
         setEditingPost(null);
+        setPostLocaleTabs([]);
         setPostEditorTitle('');
         setPostEditorSummary('');
         setPostEditorThumbnail('');
@@ -935,6 +893,7 @@ export default function AdminContentManagementPanel({
       }
 
       setEditingPost(null);
+      setPostLocaleTabs([]);
       setPostEditorTitle('');
       setPostEditorSummary('');
       setPostEditorThumbnail('');
@@ -972,6 +931,36 @@ export default function AdminContentManagementPanel({
         setPostEditorContent(resolvedContent);
         setPostEditorInitialContent(resolvedContent);
         setPostEditorTab(detail.source === 'blog' ? 'content' : 'metadata');
+
+        const currentLocale = normalizedLocale === 'tr' ? 'tr' : 'en';
+        const nextLocaleTabs = CONTENT_LOCALES.map(locale => ({
+          locale,
+          available: locale === currentLocale,
+        }));
+        const alternateLocales = CONTENT_LOCALES.filter(locale => locale !== currentLocale);
+        const alternateResults = await Promise.all(
+          alternateLocales.map(async locale => {
+            try {
+              const alternateDetail = await fetchAdminContentPost({
+                locale,
+                id: normalizedID,
+              });
+              return { locale, available: Boolean(alternateDetail) } as const;
+            } catch (error) {
+              if (isAdminSessionError(error)) {
+                onSessionExpired();
+                return { locale, available: false } as const;
+              }
+              return { locale, available: false } as const;
+            }
+          }),
+        );
+        if (requestID !== postDetailRequestIDRef.current) {
+          return;
+        }
+        setPostLocaleTabs(
+          nextLocaleTabs.map(item => alternateResults.find(result => result.locale === item.locale) ?? item),
+        );
       } catch (error) {
         if (requestID !== postDetailRequestIDRef.current) {
           return;
@@ -994,6 +983,7 @@ export default function AdminContentManagementPanel({
   React.useEffect(() => {
     if (!isPostDetailRoute) {
       setEditingPost(null);
+      setPostLocaleTabs([]);
       setPostEditorTitle('');
       setPostEditorSummary('');
       setPostEditorThumbnail('');
@@ -1299,6 +1289,17 @@ export default function AdminContentManagementPanel({
     topicName,
   ]);
 
+  const handleSwitchTopicEditorLocale = React.useCallback(
+    (locale: SupportedContentLocale) => {
+      const resolvedID = topicID.trim();
+      if (!resolvedID || isTopicSubmitting) {
+        return;
+      }
+      handleOpenTopicByLocale(resolvedID, locale);
+    },
+    [handleOpenTopicByLocale, isTopicSubmitting, topicID],
+  );
+
   const handleDeleteTopic = React.useCallback(async () => {
     if (!pendingTopicDelete || isTopicDeleting) {
       return;
@@ -1463,6 +1464,17 @@ export default function AdminContentManagementPanel({
     t,
   ]);
 
+  const handleSwitchCategoryEditorLocale = React.useCallback(
+    (locale: SupportedContentLocale) => {
+      const resolvedID = categoryID.trim();
+      if (!resolvedID || isCategorySubmitting) {
+        return;
+      }
+      handleOpenCategoryByLocale(resolvedID, locale);
+    },
+    [categoryID, handleOpenCategoryByLocale, isCategorySubmitting],
+  );
+
   const handleDeleteCategory = React.useCallback(async () => {
     if (!pendingCategoryDelete || isCategoryDeleting) {
       return;
@@ -1518,6 +1530,17 @@ export default function AdminContentManagementPanel({
     window.history.replaceState(window.history.state, '', nextURL);
   }, []);
 
+  const handleSwitchPostEditorLocale = React.useCallback(
+    (locale: SupportedContentLocale) => {
+      if (!editingPost || editingPost.id.trim() === '' || editingPost.locale.trim().toLowerCase() === locale) {
+        return;
+      }
+
+      router.push(withAdminLocalePath(routeLocale, buildAdminContentPostDetailRoute(locale, editingPost.id)));
+    },
+    [editingPost, routeLocale, router],
+  );
+
   const showInlinePostFeedback = isPostDetailRoute && Boolean(editingPost);
   const showTopFeedback = !showInlinePostFeedback;
 
@@ -1570,6 +1593,36 @@ export default function AdminContentManagementPanel({
                   {t('adminAccount.content.actions.backToPosts', { ns: 'admin-account' })}
                 </Link>
               </div>
+
+              {editingPost && postLocaleTabs.length > 0 ? (
+                <Nav
+                  variant="tabs"
+                  activeKey={editingPost.locale.trim().toLowerCase()}
+                  className="mb-3 admin-content-tabs"
+                  onSelect={eventKey => {
+                    if (eventKey === 'en' || eventKey === 'tr') {
+                      handleSwitchPostEditorLocale(eventKey);
+                    }
+                  }}
+                >
+                  {postLocaleTabs.map(item => (
+                    <Nav.Item key={`post-editor-${item.locale}`}>
+                      <Nav.Link eventKey={item.locale} disabled={!item.available}>
+                        <span className="d-inline-flex align-items-center">
+                          <FlagIcon
+                            code={item.locale}
+                            className="flex-shrink-0 me-2"
+                            alt={`${resolveLocaleLabel(item.locale)} flag`}
+                            width={14}
+                            height={14}
+                          />
+                          <span>{item.locale.toUpperCase()}</span>
+                        </span>
+                      </Nav.Link>
+                    </Nav.Item>
+                  ))}
+                </Nav>
+              ) : null}
 
               {isPostContentLoading ? (
                 <div className="d-flex align-items-center gap-2 text-muted small py-2">
@@ -1781,7 +1834,7 @@ export default function AdminContentManagementPanel({
                                       {t('adminAccount.content.modals.post.meta.updated', { ns: 'admin-account' })}
                                     </span>
                                     <span className="post-detail-meta-value">
-                                      {formatDate(editingPost.updatedAt ?? editingPost.publishedDate)}
+                                      {editingPost.updatedDate || editingPost.publishedDate}
                                     </span>
                                   </div>
                                 </div>
@@ -2054,7 +2107,15 @@ export default function AdminContentManagementPanel({
             className="mb-3 admin-content-tabs"
             mountOnEnter
           >
-            <Tab eventKey="categories" title={t('adminAccount.content.tabs.categories', { ns: 'admin-account' })}>
+            <Tab
+              eventKey="categories"
+              title={
+                <>
+                  <FontAwesomeIcon icon="table-cells" className="me-2" />
+                  {t('adminAccount.content.tabs.categories', { ns: 'admin-account' })}
+                </>
+              }
+            >
               <div className="pt-3">
                 <div className="card d-block">
                   <div className="card-body p-3 p-md-4 w-100">
@@ -2139,7 +2200,6 @@ export default function AdminContentManagementPanel({
                         {categoryListItems.map(group => {
                           const item = group.preferred;
                           const accentColor = resolveAdminContentAccentColor(item.color);
-                          const localeCode = item.locale.toLowerCase();
                           return (
                             <div
                               key={group.id.toLowerCase()}
@@ -2153,20 +2213,6 @@ export default function AdminContentManagementPanel({
                               <div className="post-card-content flex-grow-1">
                                 <div className="post-summary-title-row">
                                   <h4 className="fw-bold post-summary-title fs-4 mb-0 text-break">{item.name}</h4>
-                                  <div className="d-inline-flex align-items-center flex-wrap gap-2">
-                                    {CONTENT_LOCALES.map(locale => {
-                                      const variant = locale === 'en' ? group.en : group.tr;
-                                      return (
-                                        <AdminLocalePill
-                                          key={`${group.id}-${locale}`}
-                                          locale={locale}
-                                          available={Boolean(variant)}
-                                          active={localeCode === locale && Boolean(variant)}
-                                          onClick={() => handleOpenCategoryByLocale(group.id, locale)}
-                                        />
-                                      );
-                                    })}
-                                  </div>
                                 </div>
 
                                 <p className="post-summary-meta mb-2">
@@ -2202,6 +2248,24 @@ export default function AdminContentManagementPanel({
                                   </div>
                                 ) : null}
 
+                                <div className="post-summary-thumbnail">
+                                  <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
+                                    <div
+                                      className="w-100 h-100 d-flex align-items-end p-3"
+                                      style={{
+                                        background: `linear-gradient(135deg, color-mix(in srgb, ${accentColor} 90%, var(--main-bg) 10%) 0%, color-mix(in srgb, ${accentColor} 58%, var(--main-bg) 42%) 100%)`,
+                                      }}
+                                    >
+                                      <div className="w-100 d-flex align-items-center justify-content-between gap-2">
+                                        <span className="badge rounded-pill text-bg-dark">{item.id}</span>
+                                        <span className="badge border border-light-subtle text-bg-light text-dark">
+                                          {t('adminAccount.content.categories.title', { ns: 'admin-account' })}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
                                 <div className="post-summary-cta d-flex flex-wrap gap-2 mt-3">
                                   <Button
                                     type="button"
@@ -2223,24 +2287,6 @@ export default function AdminContentManagementPanel({
                                     <FontAwesomeIcon icon="trash" className="me-2" />
                                     {t('adminAccount.content.actions.delete', { ns: 'admin-account' })}
                                   </Button>
-                                </div>
-
-                                <div className="post-summary-thumbnail">
-                                  <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
-                                    <div
-                                      className="w-100 h-100 d-flex align-items-end p-3"
-                                      style={{
-                                        background: `linear-gradient(135deg, color-mix(in srgb, ${accentColor} 90%, var(--main-bg) 10%) 0%, color-mix(in srgb, ${accentColor} 58%, var(--main-bg) 42%) 100%)`,
-                                      }}
-                                    >
-                                      <div className="w-100 d-flex align-items-center justify-content-between gap-2">
-                                        <span className="badge rounded-pill text-bg-dark">{item.id}</span>
-                                        <span className="badge border border-light-subtle text-bg-light text-dark">
-                                          {t('adminAccount.content.categories.title', { ns: 'admin-account' })}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -2273,7 +2319,15 @@ export default function AdminContentManagementPanel({
               </div>
             </Tab>
 
-            <Tab eventKey="topics" title={t('adminAccount.content.tabs.topics', { ns: 'admin-account' })}>
+            <Tab
+              eventKey="topics"
+              title={
+                <>
+                  <FontAwesomeIcon icon="tags" className="me-2" />
+                  {t('adminAccount.content.tabs.topics', { ns: 'admin-account' })}
+                </>
+              }
+            >
               <div className="pt-3">
                 <div className="card d-block">
                   <div className="card-body p-3 p-md-4 w-100">
@@ -2358,7 +2412,6 @@ export default function AdminContentManagementPanel({
                         {topicListItems.map(group => {
                           const item = group.preferred;
                           const accentColor = resolveAdminContentAccentColor(item.color);
-                          const localeCode = item.locale.toLowerCase();
                           return (
                             <div
                               key={group.id.toLowerCase()}
@@ -2372,20 +2425,6 @@ export default function AdminContentManagementPanel({
                               <div className="post-card-content flex-grow-1">
                                 <div className="post-summary-title-row">
                                   <h4 className="fw-bold post-summary-title fs-4 mb-0 text-break">{item.name}</h4>
-                                  <div className="d-inline-flex align-items-center flex-wrap gap-2">
-                                    {CONTENT_LOCALES.map(locale => {
-                                      const variant = locale === 'en' ? group.en : group.tr;
-                                      return (
-                                        <AdminLocalePill
-                                          key={`${group.id}-${locale}`}
-                                          locale={locale}
-                                          available={Boolean(variant)}
-                                          active={localeCode === locale && Boolean(variant)}
-                                          onClick={() => handleOpenTopicByLocale(group.id, locale)}
-                                        />
-                                      );
-                                    })}
-                                  </div>
                                 </div>
 
                                 <p className="post-summary-meta mb-2">
@@ -2411,6 +2450,24 @@ export default function AdminContentManagementPanel({
                                   </div>
                                 ) : null}
 
+                                <div className="post-summary-thumbnail">
+                                  <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
+                                    <div
+                                      className="w-100 h-100 d-flex align-items-end p-3"
+                                      style={{
+                                        background: `linear-gradient(135deg, color-mix(in srgb, ${accentColor} 90%, var(--main-bg) 10%) 0%, color-mix(in srgb, ${accentColor} 58%, var(--main-bg) 42%) 100%)`,
+                                      }}
+                                    >
+                                      <div className="w-100 d-flex align-items-center justify-content-between gap-2">
+                                        <span className="badge rounded-pill text-bg-dark">{item.id}</span>
+                                        <span className="badge border border-light-subtle text-bg-light text-dark">
+                                          {t('adminAccount.content.topics.title', { ns: 'admin-account' })}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
                                 <div className="post-summary-cta d-flex flex-wrap gap-2 mt-3">
                                   <Button
                                     type="button"
@@ -2432,24 +2489,6 @@ export default function AdminContentManagementPanel({
                                     <FontAwesomeIcon icon="trash" className="me-2" />
                                     {t('adminAccount.content.actions.delete', { ns: 'admin-account' })}
                                   </Button>
-                                </div>
-
-                                <div className="post-summary-thumbnail">
-                                  <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
-                                    <div
-                                      className="w-100 h-100 d-flex align-items-end p-3"
-                                      style={{
-                                        background: `linear-gradient(135deg, color-mix(in srgb, ${accentColor} 90%, var(--main-bg) 10%) 0%, color-mix(in srgb, ${accentColor} 58%, var(--main-bg) 42%) 100%)`,
-                                      }}
-                                    >
-                                      <div className="w-100 d-flex align-items-center justify-content-between gap-2">
-                                        <span className="badge rounded-pill text-bg-dark">{item.id}</span>
-                                        <span className="badge border border-light-subtle text-bg-light text-dark">
-                                          {t('adminAccount.content.topics.title', { ns: 'admin-account' })}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -2482,7 +2521,15 @@ export default function AdminContentManagementPanel({
               </div>
             </Tab>
 
-            <Tab eventKey="posts" title={t('adminAccount.content.tabs.posts', { ns: 'admin-account' })}>
+            <Tab
+              eventKey="posts"
+              title={
+                <>
+                  <FontAwesomeIcon icon="book" className="me-2" />
+                  {t('adminAccount.content.tabs.posts', { ns: 'admin-account' })}
+                </>
+              }
+            >
               <div className="d-grid gap-3 pt-3">
                 <div className="card d-block">
                   <div className="card-body p-3 w-100">
@@ -2701,36 +2748,14 @@ export default function AdminContentManagementPanel({
                                     )}
                                   </h4>
                                   <div className="d-flex flex-wrap align-items-center gap-3 text-muted">
-                                    {canEditPostContent ? (
-                                      <div className="d-inline-flex align-items-center flex-wrap gap-2">
-                                        {CONTENT_LOCALES.map(locale => {
-                                          const variant = locale === 'en' ? group.en : group.tr;
-                                          return (
-                                            <AdminLocalePill
-                                              key={`${group.id}-${locale}`}
-                                              href={
-                                                variant ? buildAdminContentPostDetailRoute(locale, group.id) : undefined
-                                              }
-                                              locale={locale}
-                                              navigationLocale={locale}
-                                              available={Boolean(variant)}
-                                              active={localeCode === locale && Boolean(variant)}
-                                            />
-                                          );
-                                        })}
-                                      </div>
-                                    ) : null}
                                     <span className="d-inline-flex align-items-center">
                                       <FontAwesomeIcon icon={sourceIcon} className="me-2" />
                                       {sourceLabel}
                                     </span>
-                                  </div>
-                                  <div className="small text-muted d-inline-flex align-items-center">
-                                    <FontAwesomeIcon icon="tags" className="me-2" />
-                                    {t('adminAccount.content.modals.post.labels.id', {
-                                      ns: 'admin-account',
-                                      value: item.id,
-                                    })}
+                                    <span className="small d-inline-flex align-items-center text-break">
+                                      <FontAwesomeIcon icon="tags" className="me-2" />
+                                      {item.id}
+                                    </span>
                                   </div>
                                 </div>
 
@@ -2739,14 +2764,14 @@ export default function AdminContentManagementPanel({
                                     <FontAwesomeIcon icon="calendar-alt" className="me-2" />
                                     {formatDate(item.publishedDate)}
                                   </span>
-                                  {item.updatedAt ? (
+                                  {item.updatedDate ? (
                                     <span
                                       className={`text-muted d-flex align-items-center${isListMode ? '' : ' w-100'}`}
                                     >
                                       <FontAwesomeIcon icon="clock" className="me-2" />
                                       {t('adminAccount.content.list.updatedAt', {
                                         ns: 'admin-account',
-                                        value: formatDate(item.updatedAt),
+                                        value: item.updatedDate,
                                       })}
                                     </span>
                                   ) : null}
@@ -2912,23 +2937,54 @@ export default function AdminContentManagementPanel({
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {topicLocaleTabs.length > 0 ? (
+            <Nav
+              variant="tabs"
+              activeKey={topicLocale}
+              className="mb-3 admin-content-tabs"
+              onSelect={eventKey => {
+                if (eventKey === 'en' || eventKey === 'tr') {
+                  handleSwitchTopicEditorLocale(eventKey);
+                }
+              }}
+            >
+              {topicLocaleTabs.map(item => (
+                <Nav.Item key={`topic-editor-${item.locale}`}>
+                  <Nav.Link eventKey={item.locale}>
+                    <span className="d-inline-flex align-items-center">
+                      <FlagIcon
+                        code={item.locale}
+                        className="flex-shrink-0 me-2"
+                        alt={`${resolveLocaleLabel(item.locale)} flag`}
+                        width={14}
+                        height={14}
+                      />
+                      <span>{item.locale.toUpperCase()}</span>
+                    </span>
+                  </Nav.Link>
+                </Nav.Item>
+              ))}
+            </Nav>
+          ) : null}
           <div className="row g-2">
-            <div className="col-12 col-sm-4">
-              <Form.Group controlId="admin-content-topic-locale">
-                <Form.Label>{t('adminAccount.content.modals.topic.locale', { ns: 'admin-account' })}</Form.Label>
-                <Form.Select
-                  value={topicLocale}
-                  disabled={topicEditorMode === 'update'}
-                  onChange={event => {
-                    setTopicLocale(event.currentTarget.value === 'tr' ? 'tr' : 'en');
-                  }}
-                >
-                  <option value="en">{t('adminAccount.content.filters.locales.en', { ns: 'admin-account' })}</option>
-                  <option value="tr">{t('adminAccount.content.filters.locales.tr', { ns: 'admin-account' })}</option>
-                </Form.Select>
-              </Form.Group>
-            </div>
-            <div className="col-12 col-sm-8">
+            {topicLocaleTabs.length === 0 ? (
+              <div className="col-12 col-sm-4">
+                <Form.Group controlId="admin-content-topic-locale">
+                  <Form.Label>{t('adminAccount.content.modals.topic.locale', { ns: 'admin-account' })}</Form.Label>
+                  <Form.Select
+                    value={topicLocale}
+                    disabled={topicEditorMode === 'update'}
+                    onChange={event => {
+                      setTopicLocale(event.currentTarget.value === 'tr' ? 'tr' : 'en');
+                    }}
+                  >
+                    <option value="en">{t('adminAccount.content.filters.locales.en', { ns: 'admin-account' })}</option>
+                    <option value="tr">{t('adminAccount.content.filters.locales.tr', { ns: 'admin-account' })}</option>
+                  </Form.Select>
+                </Form.Group>
+              </div>
+            ) : null}
+            <div className={`col-12 ${topicLocaleTabs.length === 0 ? 'col-sm-8' : ''}`}>
               <Form.Group controlId="admin-content-topic-id">
                 <Form.Label>{t('adminAccount.content.modals.topic.id', { ns: 'admin-account' })}</Form.Label>
                 <Form.Control
@@ -3090,23 +3146,54 @@ export default function AdminContentManagementPanel({
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {categoryLocaleTabs.length > 0 ? (
+            <Nav
+              variant="tabs"
+              activeKey={categoryLocale}
+              className="mb-3 admin-content-tabs"
+              onSelect={eventKey => {
+                if (eventKey === 'en' || eventKey === 'tr') {
+                  handleSwitchCategoryEditorLocale(eventKey);
+                }
+              }}
+            >
+              {categoryLocaleTabs.map(item => (
+                <Nav.Item key={`category-editor-${item.locale}`}>
+                  <Nav.Link eventKey={item.locale}>
+                    <span className="d-inline-flex align-items-center">
+                      <FlagIcon
+                        code={item.locale}
+                        className="flex-shrink-0 me-2"
+                        alt={`${resolveLocaleLabel(item.locale)} flag`}
+                        width={14}
+                        height={14}
+                      />
+                      <span>{item.locale.toUpperCase()}</span>
+                    </span>
+                  </Nav.Link>
+                </Nav.Item>
+              ))}
+            </Nav>
+          ) : null}
           <div className="row g-2">
-            <div className="col-12 col-sm-4">
-              <Form.Group controlId="admin-content-category-locale">
-                <Form.Label>{t('adminAccount.content.modals.category.locale', { ns: 'admin-account' })}</Form.Label>
-                <Form.Select
-                  value={categoryLocale}
-                  disabled={categoryEditorMode === 'update'}
-                  onChange={event => {
-                    setCategoryLocale(event.currentTarget.value === 'tr' ? 'tr' : 'en');
-                  }}
-                >
-                  <option value="en">{t('adminAccount.content.filters.locales.en', { ns: 'admin-account' })}</option>
-                  <option value="tr">{t('adminAccount.content.filters.locales.tr', { ns: 'admin-account' })}</option>
-                </Form.Select>
-              </Form.Group>
-            </div>
-            <div className="col-12 col-sm-8">
+            {categoryLocaleTabs.length === 0 ? (
+              <div className="col-12 col-sm-4">
+                <Form.Group controlId="admin-content-category-locale">
+                  <Form.Label>{t('adminAccount.content.modals.category.locale', { ns: 'admin-account' })}</Form.Label>
+                  <Form.Select
+                    value={categoryLocale}
+                    disabled={categoryEditorMode === 'update'}
+                    onChange={event => {
+                      setCategoryLocale(event.currentTarget.value === 'tr' ? 'tr' : 'en');
+                    }}
+                  >
+                    <option value="en">{t('adminAccount.content.filters.locales.en', { ns: 'admin-account' })}</option>
+                    <option value="tr">{t('adminAccount.content.filters.locales.tr', { ns: 'admin-account' })}</option>
+                  </Form.Select>
+                </Form.Group>
+              </div>
+            ) : null}
+            <div className={`col-12 ${categoryLocaleTabs.length === 0 ? 'col-sm-8' : ''}`}>
               <Form.Group controlId="admin-content-category-id">
                 <Form.Label>{t('adminAccount.content.modals.category.id', { ns: 'admin-account' })}</Form.Label>
                 <Form.Control

@@ -3,11 +3,19 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useRouter } from 'next/navigation';
+import Button from 'react-bootstrap/Button';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { defaultLocale } from '@/i18n/settings';
-import { fetchAdminDashboard, fetchAdminMe } from '@/lib/adminApi';
+import {
+  fetchAdminComments,
+  fetchAdminDashboard,
+  fetchAdminMe,
+  updateAdminCommentStatus,
+  type AdminCommentItem,
+} from '@/lib/adminApi';
+import { ADMIN_ROUTES } from '@/lib/adminRoutes';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import Link from '@/components/common/Link';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
@@ -208,6 +216,9 @@ export default function AdminDashboardPage() {
   const [adminUser, setAdminUser] = React.useState<AdminIdentity>(null);
   const [dashboard, setDashboard] = React.useState<DashboardPayload | null>(null);
   const [contentSummary, setContentSummary] = React.useState<ContentSummary | null>(null);
+  const [pendingComments, setPendingComments] = React.useState<AdminCommentItem[]>([]);
+  const [isCommentsLoading, setIsCommentsLoading] = React.useState(true);
+  const [commentActionID, setCommentActionID] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(true);
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = React.useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = React.useState(false);
@@ -253,6 +264,16 @@ export default function AdminDashboardPage() {
 
         setDashboard(dashboardPayload);
         setContentSummary(buildContentSummary(dashboardPayload));
+
+        const commentsPayload = await fetchAdminComments({
+          status: 'PENDING',
+          page: 1,
+          size: 8,
+        });
+        if (!isMounted) {
+          return;
+        }
+        setPendingComments(commentsPayload.items ?? []);
       } catch {
         if (!isMounted) {
           return;
@@ -260,6 +281,7 @@ export default function AdminDashboardPage() {
         router.replace(`/${locale}/admin/login`);
       } finally {
         if (isMounted) {
+          setIsCommentsLoading(false);
           setIsLoading(false);
         }
       }
@@ -300,6 +322,19 @@ export default function AdminDashboardPage() {
       setIsMobileSidebarOpen(false);
     }
   }, [isMobile]);
+
+  const handleCommentStatusUpdate = React.useCallback(
+    async (commentId: string, status: 'APPROVED' | 'REJECTED' | 'SPAM') => {
+      setCommentActionID(commentId);
+      try {
+        await updateAdminCommentStatus({ commentId, status });
+        setPendingComments(current => current.filter(item => item.id !== commentId));
+      } finally {
+        setCommentActionID('');
+      }
+    },
+    [],
+  );
 
   if (isLoading) {
     return (
@@ -664,6 +699,90 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <div className="admin-dashboard-signal-card post-card">
+              <div className="post-card-content">
+                <div className="admin-dashboard-panel-head">
+                  <div>
+                    <h2 className="admin-dashboard-panel-title">
+                      {t('adminDashboard.comments.title', { ns: 'admin-dashboard' })}
+                    </h2>
+                    <p className="admin-dashboard-panel-copy mb-0">
+                      {t('adminDashboard.comments.subtitle', { ns: 'admin-dashboard' })}
+                    </p>
+                  </div>
+                  <div className="admin-dashboard-panel-icon">
+                    <FontAwesomeIcon icon="comments" />
+                  </div>
+                </div>
+
+                <div className="d-flex justify-content-end mb-3">
+                  <Link href={ADMIN_ROUTES.settings.comments} className="text-decoration-none">
+                    <Button type="button" variant="outline-secondary" size="sm">
+                      <FontAwesomeIcon icon="up-right-from-square" className="me-2" />
+                      {t('adminDashboard.comments.manage', { ns: 'admin-dashboard' })}
+                    </Button>
+                  </Link>
+                </div>
+
+                {isCommentsLoading ? (
+                  <div className="d-flex align-items-center gap-2 text-muted">
+                    <FontAwesomeIcon icon="spinner" spin />
+                    <span>{t('adminDashboard.comments.loading', { ns: 'admin-dashboard' })}</span>
+                  </div>
+                ) : null}
+
+                {!isCommentsLoading && pendingComments.length === 0 ? (
+                  <p className="admin-dashboard-panel-copy mb-0">
+                    {t('adminDashboard.comments.empty', { ns: 'admin-dashboard' })}
+                  </p>
+                ) : null}
+
+                {!isCommentsLoading ? (
+                  <div className="admin-dashboard-curation-stack">
+                    {pendingComments.map(comment => (
+                      <div key={comment.id} className="admin-dashboard-curation-item">
+                        <span className="admin-dashboard-curation-label">
+                          [{comment.locale.toUpperCase()}] {comment.postTitle || comment.postId}
+                        </span>
+                        <strong>{comment.authorName}</strong>
+                        <div className="admin-dashboard-bar-meta">
+                          <span>{comment.authorEmail}</span>
+                          <span>{formatDate(comment.createdAt)}</span>
+                        </div>
+                        <p className="mb-0">{comment.content}</p>
+                        <div className="d-flex flex-wrap gap-2 mt-3">
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-success"
+                            disabled={commentActionID === comment.id}
+                            onClick={() => void handleCommentStatusUpdate(comment.id, 'APPROVED')}
+                          >
+                            {t('adminDashboard.comments.actions.approve', { ns: 'admin-dashboard' })}
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-secondary"
+                            disabled={commentActionID === comment.id}
+                            onClick={() => void handleCommentStatusUpdate(comment.id, 'REJECTED')}
+                          >
+                            {t('adminDashboard.comments.actions.reject', { ns: 'admin-dashboard' })}
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger"
+                            disabled={commentActionID === comment.id}
+                            onClick={() => void handleCommentStatusUpdate(comment.id, 'SPAM')}
+                          >
+                            {t('adminDashboard.comments.actions.spam', { ns: 'admin-dashboard' })}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </div>
           </section>

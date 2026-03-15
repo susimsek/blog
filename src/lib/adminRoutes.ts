@@ -8,6 +8,8 @@ export const ADMIN_ROUTES = {
     appearance: '/admin/settings/appearance',
     sessions: '/admin/settings/sessions',
     newsletter: '/admin/settings/newsletter',
+    newsletterSubscribers: '/admin/settings/newsletter/subscribers',
+    comments: '/admin/settings/comments',
     errors: '/admin/settings/errors',
     content: '/admin/settings/content',
     security: '/admin/settings/security',

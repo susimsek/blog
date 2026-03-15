@@ -94,3 +94,62 @@ func mapNewsletterMutationStatus(value string) model.NewsletterMutationStatus {
 		return model.NewsletterMutationStatusUnknownError
 	}
 }
+
+func mapCommentQueryStatus(value string) model.CommentQueryStatus {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "success":
+		return model.CommentQueryStatusSuccess
+	case statusServiceUnavailable:
+		return model.CommentQueryStatusServiceUnavailable
+	case statusInvalidPostID:
+		return model.CommentQueryStatusInvalidPostID
+	case "not-found":
+		return model.CommentQueryStatusNotFound
+	default:
+		return model.CommentQueryStatusFailed
+	}
+}
+
+func mapCommentMutationStatus(value string) model.CommentMutationStatus {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "success":
+		return model.CommentMutationStatusSuccess
+	case statusServiceUnavailable:
+		return model.CommentMutationStatusServiceUnavailable
+	case statusInvalidPostID:
+		return model.CommentMutationStatusInvalidPostID
+	case "not-found":
+		return model.CommentMutationStatusNotFound
+	case "invalid-parent":
+		return model.CommentMutationStatusInvalidParent
+	case "invalid-author":
+		return model.CommentMutationStatusInvalidAuthor
+	case "invalid-email":
+		return model.CommentMutationStatusInvalidEmail
+	case "invalid-content":
+		return model.CommentMutationStatusInvalidContent
+	case "rate-limited":
+		return model.CommentMutationStatusRateLimited
+	default:
+		return model.CommentMutationStatusFailed
+	}
+}
+
+func mapCommentModerationStatus(value string) *model.CommentModerationStatus {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "pending":
+		status := model.CommentModerationStatusPending
+		return &status
+	case "approved":
+		status := model.CommentModerationStatusApproved
+		return &status
+	case "rejected":
+		status := model.CommentModerationStatusRejected
+		return &status
+	case "spam":
+		status := model.CommentModerationStatusSpam
+		return &status
+	default:
+		return nil
+	}
+}

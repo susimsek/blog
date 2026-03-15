@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import RouteI18nProvider from '@/i18n/RouteI18nProvider';
 import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
+import { locales } from '@/i18n/settings';
 import { buildPageMetadata } from '@/lib/metadata';
 import { getAllPostIds } from '@/lib/posts';
 import AdminAccountPage from '@/views/AdminAccountPage';
@@ -15,11 +16,29 @@ type AdminSettingsContentPostPageProps = {
 
 export async function generateStaticParams() {
   const postPaths = await getAllPostIds();
-  return postPaths.map(path => ({
-    locale: path.params.locale.trim().toLowerCase(),
-    postLocale: path.params.locale.trim().toLowerCase(),
-    postId: path.params.id.trim(),
-  }));
+  const seen = new Set<string>();
+
+  return locales.flatMap(locale =>
+    postPaths.flatMap(path => {
+      const postLocale = path.params.locale.trim().toLowerCase();
+      const postId = path.params.id.trim();
+      const key = `${locale}:${postLocale}:${postId}`;
+
+      if (seen.has(key)) {
+        return [];
+      }
+
+      seen.add(key);
+
+      return [
+        {
+          locale,
+          postLocale,
+          postId,
+        },
+      ];
+    }),
+  );
 }
 
 export async function generateMetadata({ params }: AdminSettingsContentPostPageProps): Promise<Metadata> {

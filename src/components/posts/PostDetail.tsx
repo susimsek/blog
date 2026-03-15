@@ -16,6 +16,7 @@ import BackToTop from '@/components/common/BackToTop';
 import PostToc from '@/components/posts/PostToc';
 import PostHit from '@/components/posts/PostHit';
 import PostAuthorBox from '@/components/posts/PostAuthorBox';
+import PostComments from '@/components/posts/PostComments';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'next/navigation';
 import { defaultLocale } from '@/i18n/settings';
@@ -467,6 +468,7 @@ export default function PostDetail({
             )}
             <PostAuthorBox />
             <RelatedPosts posts={relatedPosts} />
+            <PostComments locale={locale} postId={post.id} />
           </div>
         </div>
       </section>

@@ -19,6 +19,11 @@ type Query {
   Returns one post and its engagement details for the given locale and post identifier.
   """
   post(locale: Locale!, id: ID!): PostResult!
+
+  """
+  Returns approved comments for the given locale and post identifier.
+  """
+  comments(locale: Locale!, postId: ID!): CommentListResult!
 }
 
 """
@@ -54,6 +59,11 @@ type Mutation {
   Cancels a newsletter subscription by using a signed unsubscribe token.
   """
   unsubscribeNewsletter(token: String!): NewsletterMutationResult!
+
+  """
+  Creates a new guest comment or reply for a post.
+  """
+  addComment(input: AddCommentInput!): CommentMutationResult!
 }
 
 """
@@ -129,6 +139,41 @@ input NewsletterResendInput {
   Consent checkbox value captured from the client form.
   """
   terms: Boolean!
+}
+
+"""
+Input payload used when a visitor posts a guest comment.
+"""
+input AddCommentInput {
+  """
+  Locale used to validate the target post.
+  """
+  locale: Locale!
+
+  """
+  Target post identifier.
+  """
+  postId: ID!
+
+  """
+  Optional parent comment identifier. Only one reply level is supported.
+  """
+  parentId: ID
+
+  """
+  Display name shown publicly with the comment.
+  """
+  authorName: String!
+
+  """
+  Email address captured for moderation only.
+  """
+  authorEmail: String!
+
+  """
+  Plain-text comment body.
+  """
+  content: String!
 }
 
 """
@@ -272,6 +317,43 @@ enum NewsletterMutationStatus {
 }
 
 """
+Status values returned by comment read operations.
+"""
+enum CommentQueryStatus {
+  SUCCESS
+  FAILED
+  SERVICE_UNAVAILABLE
+  INVALID_POST_ID
+  NOT_FOUND
+}
+
+"""
+Status values returned by comment creation mutations.
+"""
+enum CommentMutationStatus {
+  SUCCESS
+  FAILED
+  SERVICE_UNAVAILABLE
+  INVALID_POST_ID
+  NOT_FOUND
+  INVALID_PARENT
+  INVALID_AUTHOR
+  INVALID_EMAIL
+  INVALID_CONTENT
+  RATE_LIMITED
+}
+
+"""
+Moderation state attached to stored comments.
+"""
+enum CommentModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SPAM
+}
+
+"""
 Paginated result for the posts query.
 """
 type PostConnection {
@@ -399,6 +481,45 @@ type NewsletterMutationResult {
   Optional client route that the frontend should navigate to after the operation.
   """
   forwardTo: String
+}
+
+"""
+Approved comments for a single post.
+"""
+type CommentListResult {
+  status: CommentQueryStatus!
+  locale: Locale!
+  postId: ID!
+  total: Int!
+  threads: [CommentThread!]!
+}
+
+"""
+Comment tree node with at most one reply level.
+"""
+type CommentThread {
+  root: Comment!
+  replies: [Comment!]!
+}
+
+"""
+Mutation result for a guest comment submission.
+"""
+type CommentMutationResult {
+  status: CommentMutationStatus!
+  postId: ID!
+  moderationStatus: CommentModerationStatus
+}
+
+"""
+Public comment metadata returned for approved comments.
+"""
+type Comment {
+  id: ID!
+  parentId: ID
+  authorName: String!
+  content: String!
+  createdAt: String!
 }
 
 """

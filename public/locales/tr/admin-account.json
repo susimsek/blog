@@ -15,16 +15,18 @@
     },
     "settings": {
       "title": "Ayarlar",
-      "copy": "Profilini, hesap işlemlerini, görünümü, aktif oturumları, bülten abonelerini ve içerik metadata bilgilerini yönet.",
+      "copy": "Profilini, hesap işlemlerini, görünümü, aktif oturumları, bülteni, yorum moderasyonunu ve içerik metadata bilgilerini yönet.",
       "navLabel": "Ayarlar gezintisi",
       "profile": "Profil",
       "account": "Hesap",
       "appearance": "Görünüm",
       "sessions": "Oturumlar",
       "newsletter": "Bülten",
+      "comments": "Yorumlar",
       "errors": "Hata mesajları",
       "content": "İçerik",
-      "security": "Güvenlik"
+      "security": "Güvenlik",
+      "newsletterSubscribers": "Aboneler"
     },
     "profile": {
       "title": "Profil",
@@ -172,9 +174,51 @@
     },
     "newsletter": {
       "title": "Bülten yönetimi",
-      "copy": "Aboneleri filtrele, abonelik durumunu güncelle ve aboneleri sil.",
+      "copy": "Bülten gönderimini çalıştır, teslimat sağlığını incele ve aboneleri yönet.",
+      "tabs": {
+        "overview": "Genel bakış",
+        "subscribers": "Aboneler"
+      },
       "loading": "Bülten aboneleri yükleniyor...",
       "empty": "Seçili filtre için bülten abonesi bulunamadı.",
+      "operations": {
+        "title": "Gönderim operasyonları",
+        "copy": "Bülten işini manuel çalıştır. Başarısız alıcılar bir sonraki gönderimde yeniden denenir.",
+        "trigger": "Gönderimi çalıştır",
+        "running": "Gönderim çalışıyor...",
+        "lastRun": "Son gönderim: {{value}}",
+        "justNow": "az önce",
+        "result": {
+          "completed": "Tamamlandı",
+          "skipped": "Atlandı",
+          "meta": "Dil: {{locale}} · Gönderilen: {{sent}} · Başarısız: {{failed}}"
+        }
+      },
+      "campaigns": {
+        "title": "Son kampanyalar",
+        "copy": "Son bülten çalıştırmaları ve teslimat sonuçları.",
+        "loading": "Bülten kampanyaları yükleniyor...",
+        "empty": "Seçili filtre için bülten kampanyası bulunamadı.",
+        "statuses": {
+          "processing": "İşleniyor",
+          "partial": "Kısmi hata",
+          "sent": "Gönderildi"
+        },
+        "metrics": {
+          "sent": "Gönderilen: {{count}}",
+          "failed": "Başarısız: {{count}}",
+          "lastRunAt": "Son çalışma: {{value}}"
+        },
+        "actions": {
+          "sendTest": "Test gönder",
+          "viewFailures": "Hataları görüntüle",
+          "openPost": "İçeriği aç"
+        }
+      },
+      "subscribers": {
+        "title": "Aboneler",
+        "copy": "Aboneleri filtrele, abonelik durumunu güncelle ve aboneleri sil."
+      },
       "filters": {
         "locale": "Dil",
         "status": "Durum",
@@ -205,27 +249,121 @@
         "deleting": "Siliniyor..."
       },
       "success": {
+        "dispatchTriggered": "Bülten gönderimi tamamlandı.",
+        "testSend": "{{email}} adresine test e-postası gönderildi.",
         "statusUpdated": "Abone güncellendi: {{email}}",
         "deleted": "Abone silindi: {{email}}"
       },
       "errors": {
         "load": "Bülten aboneleri yüklenemedi.",
+        "campaigns": "Bülten kampanyaları yüklenemedi.",
+        "dispatch": "Bülten gönderimi başlatılamadı.",
+        "failures": "Başarısız teslimatlar yüklenemedi.",
+        "testSend": "Test bülten e-postası gönderilemedi.",
         "statusUpdate": "Abone durumu güncellenemedi.",
-        "delete": "Abone silinemedi."
+        "delete": "Abone silinemedi.",
+        "summary": "Bülten abone özeti yüklenemedi."
+      },
+      "testSend": {
+        "title": "Test e-postası gönder",
+        "copy": "{{title}} için tek bir test bülten e-postası gönder.",
+        "emailLabel": "Alıcı e-postası",
+        "emailPlaceholder": "ad@example.com",
+        "submit": "Test e-postası gönder",
+        "sending": "Test e-postası gönderiliyor..."
+      },
+      "failures": {
+        "title": "Başarısız teslimatlar",
+        "copy": "{{title}} için başarısız alıcılar.",
+        "loading": "Başarısız teslimatlar yükleniyor...",
+        "empty": "Bu kampanya için başarısız teslimat bulunamadı.",
+        "total": "Toplam başarısız alıcı: {{count}}",
+        "lastAttemptAt": "Son deneme: {{value}}"
       },
       "deleteConfirm": {
         "title": "Aboneyi sil",
         "copy": "{{email}} bülten abonesi silinsin mi?"
+      },
+      "summary": {
+        "title": "Abone özeti",
+        "copy": "Bulten kitlesinin hizli ozet gorunumu.",
+        "loading": "Abone özeti yükleniyor...",
+        "metrics": {
+          "total": "Toplam",
+          "active": "Aktif",
+          "pending": "Beklemede",
+          "unsubscribed": "Cikanlar"
+        }
       }
     },
-  "content": {
-    "title": "İçerik yönetimi",
-    "copy": "Postları listele, dil/topic/category filtresi uygula, metadata güncelle ve topic/category taksonomilerini yönet.",
-    "loading": {
-      "posts": "Postlar yükleniyor...",
-      "taxonomy": "Taksonomi yükleniyor...",
-      "postContent": "Post içeriği yükleniyor..."
+    "comments": {
+      "title": "Yorum moderasyonu",
+      "copy": "Misafir yorumlarını filtrele, cevapları incele ve yönetim ayarlarının geri kalanıyla aynı akışta onayla ya da engelle.",
+      "loading": "Yorumlar yükleniyor...",
+      "empty": "Seçili filtre için yorum bulunamadı.",
+      "filters": {
+        "locale": "Dil",
+        "status": "Durum",
+        "query": "Ara",
+        "queryPlaceholder": "Yazar, e-posta, yazı veya içeriğe göre ara",
+        "locales": {
+          "all": "Tüm diller",
+          "en": "İngilizce",
+          "tr": "Türkçe"
+        },
+        "statuses": {
+          "all": "Tüm durumlar",
+          "pending": "Beklemede",
+          "approved": "Onaylandı",
+          "rejected": "Reddedildi",
+          "spam": "Spam"
+        }
+      },
+      "list": {
+        "rootLabel": "Ana yorum",
+        "replyLabel": "Yanıt",
+        "post": "Yazı: {{title}}",
+        "submittedAt": "Gönderim: {{value}}",
+        "updatedAt": "Güncelleme: {{value}}"
+      },
+      "actions": {
+        "approve": "Onayla",
+        "reject": "Reddet",
+        "spam": "Spam",
+        "delete": "Sil",
+        "deleting": "Siliniyor...",
+        "updating": "Güncelleniyor...",
+        "openPost": "Yazıyı aç"
+      },
+      "deleteConfirm": {
+        "title": "Yorumu sil",
+        "copy": "{{author}} tarafından gönderilen bu yorum kalıcı olarak silinsin mi? Bu işlem geri alınamaz.",
+        "labels": {
+          "author": "Yazar",
+          "email": "E-posta",
+          "post": "Post"
+        }
+      },
+      "success": {
+        "approved": "Yorum onaylandı: {{author}}",
+        "rejected": "Yorum reddedildi: {{author}}",
+        "spam": "Yorum spam olarak işaretlendi: {{author}}",
+        "deleted": "Yorum silindi: {{author}}"
+      },
+      "errors": {
+        "load": "Yorumlar yüklenemedi.",
+        "statusUpdate": "Yorum durumu güncellenemedi.",
+        "delete": "Yorum silinemedi."
+      }
     },
+    "content": {
+      "title": "İçerik yönetimi",
+      "copy": "Postları listele, dil/topic/category filtresi uygula, metadata güncelle ve topic/category taksonomilerini yönet.",
+      "loading": {
+        "posts": "Postlar yükleniyor...",
+        "taxonomy": "Taksonomi yükleniyor...",
+        "postContent": "Post içeriği yükleniyor..."
+      },
       "empty": {
         "posts": "Seçili filtreler için post bulunamadı.",
         "topics": "Topic bulunamadı.",
@@ -273,21 +411,21 @@
       "actions": {
         "create": "Oluştur",
         "createTopic": "Topic oluştur",
-      "createCategory": "Kategori oluştur",
-      "update": "Güncelle",
-      "updatePost": "Postu güncelle",
-      "updatePostContent": "İçeriği kaydet",
-      "backToPosts": "Postlara dön",
-      "delete": "Sil",
-      "deletePost": "Postu sil",
+        "createCategory": "Kategori oluştur",
+        "update": "Güncelle",
+        "updatePost": "Postu güncelle",
+        "updatePostContent": "İçeriği kaydet",
+        "backToPosts": "Postlara dön",
+        "delete": "Sil",
+        "deletePost": "Postu sil",
         "saving": "Kaydediliyor...",
         "updating": "Güncelleniyor...",
         "deleting": "Siliniyor..."
       },
       "success": {
-      "postUpdated": "Post metadata güncellendi: {{id}}",
-      "postContentUpdated": "Post içeriği güncellendi: {{id}}",
-      "postDeleted": "Post silindi: {{id}}",
+        "postUpdated": "Post metadata güncellendi: {{id}}",
+        "postContentUpdated": "Post içeriği güncellendi: {{id}}",
+        "postDeleted": "Post silindi: {{id}}",
         "topicCreated": "Topic oluşturuldu: {{id}}",
         "topicUpdated": "Topic güncellendi: {{id}}",
         "topicDeleted": "Topic silindi: {{id}}",
@@ -298,9 +436,9 @@
       "errors": {
         "taxonomyLoad": "Topic ve kategoriler yüklenemedi.",
         "postLoad": "Postlar yüklenemedi.",
-      "postUpdate": "Post metadata güncellenemedi.",
-      "postContentUpdate": "Post içeriği güncellenemedi.",
-      "postDelete": "Post silinemedi.",
+        "postUpdate": "Post metadata güncellenemedi.",
+        "postContentUpdate": "Post içeriği güncellenemedi.",
+        "postDelete": "Post silinemedi.",
         "topicCreate": "Topic oluşturulamadı.",
         "topicUpdate": "Topic güncellenemedi.",
         "topicDelete": "Topic silinemedi.",
@@ -311,43 +449,43 @@
       "validation": {
         "id": "Sadece küçük harf, rakam ve tire kullan (2-128 karakter)."
       },
-    "modals": {
-      "post": {
-        "title": "Post metadata güncelle",
-        "empty": "Post seçilmedi.",
-        "tabs": {
-          "metadata": "Metadata",
-          "content": "İçerik"
-        },
-        "category": "Kategori",
-        "categoryNone": "Kategori yok",
-        "metadataFields": {
-          "title": "Başlık",
-          "summary": "Açıklama",
-          "publishedDate": "Yayın tarihi",
-          "updatedDate": "Güncelleme tarihi",
-          "updatedDateHint": "Güncelleme tarihini temizlemek için boş bırakın.",
-          "thumbnail": "Küçük görsel URL"
-        },
-        "topics": "Topicler",
-        "topicsEmpty": "Bu dil için topic bulunamadı.",
-        "contentLabel": "Markdown içerik",
-      "contentHint": "Standart Markdown sözdizimi desteklenir.",
-      "previewTitle": "Önizleme",
-      "previewEmpty": "Önizleme için içerik yok.",
-      "modes": {
-        "editor": "Editör",
-        "split": "Editör + Önizleme",
-        "preview": "Önizleme"
-      },
-      "meta": {
-        "published": "Yayın",
-        "updated": "Güncelleme"
-      },
-      "labels": {
-        "id": "Post ID: {{value}}",
-        "locale": "Dil: {{value}}"
-      }
+      "modals": {
+        "post": {
+          "title": "Post metadata güncelle",
+          "empty": "Post seçilmedi.",
+          "tabs": {
+            "metadata": "Metadata",
+            "content": "İçerik"
+          },
+          "category": "Kategori",
+          "categoryNone": "Kategori yok",
+          "metadataFields": {
+            "title": "Başlık",
+            "summary": "Açıklama",
+            "publishedDate": "Yayın tarihi",
+            "updatedDate": "Güncelleme tarihi",
+            "updatedDateHint": "Güncelleme tarihini temizlemek için boş bırakın.",
+            "thumbnail": "Küçük görsel URL"
+          },
+          "topics": "Topicler",
+          "topicsEmpty": "Bu dil için topic bulunamadı.",
+          "contentLabel": "Markdown içerik",
+          "contentHint": "Standart Markdown sözdizimi desteklenir.",
+          "previewTitle": "Önizleme",
+          "previewEmpty": "Önizleme için içerik yok.",
+          "modes": {
+            "editor": "Editör",
+            "split": "Editör + Önizleme",
+            "preview": "Önizleme"
+          },
+          "meta": {
+            "published": "Yayın",
+            "updated": "Güncelleme"
+          },
+          "labels": {
+            "id": "Post ID: {{value}}",
+            "locale": "Dil: {{value}}"
+          }
         },
         "deletePost": {
           "title": "Postu sil",
@@ -383,100 +521,100 @@
       }
     },
     "errorsCatalog": {
-    "title": "Hata mesajları",
-    "copy": "Yönetim API hata mesajlarını listele, filtrele, oluştur, güncelle ve sil.",
-    "loading": "Hata mesajları yükleniyor...",
-    "empty": "Seçili filtre için hata mesajı bulunamadı.",
-    "actions": {
-      "refresh": "Yenile",
-      "create": "Oluştur",
-      "creating": "Oluşturuluyor...",
-      "update": "Güncelle",
-      "updating": "Güncelleniyor...",
-      "delete": "Sil",
-      "deleting": "Siliniyor...",
-      "confirmDelete": "{{code}} ({{locale}}) silinsin mi?"
-    },
-    "filters": {
-      "locale": "Dil",
-      "query": "Ara",
-      "queryPlaceholder": "Kod veya mesaja göre ara",
-      "locales": {
-        "all": "Tüm diller",
-        "en": "İngilizce",
-        "tr": "Türkçe"
-      }
-    },
-    "tabs": {
-      "create": "Oluştur",
-      "update": "Güncelle"
-    },
-    "deleteConfirm": {
-      "title": "Hata mesajını sil"
-    },
-    "list": {
-      "updatedAt": "Güncelleme: {{value}}"
-    },
-    "create": {
-      "copy": "Koda bağlı yeni yerelleştirilmiş hata mesajı ekle.",
-      "locale": "Dil",
-      "code": "Kod",
-      "codePlaceholder": "Örnek: INVALID_CREDENTIALS",
-      "codeValidation": "Yalnızca büyük harf, rakam ve alt çizgi kullan (2-120 karakter).",
-      "message": "Mesaj",
-      "messageHint": "En fazla {{count}} karakter."
-    },
-    "update": {
-      "copy": "Seçili mesajı güncelle veya sil.",
-      "empty": "Düzenlemek için bir hata mesajı seç.",
-      "notAvailable": "Bulunmuyor",
-      "message": "Mesaj",
-      "messageHint": "En fazla {{count}} karakter.",
-      "labels": {
-        "code": "Kod",
-        "scope": "Kapsam",
-        "locale": "Dil",
-        "updatedAt": "Güncellenme"
-      }
-    },
-    "success": {
-      "created": "Hata mesajı oluşturuldu.",
-      "updated": "Hata mesajı güncellendi.",
-      "deleted": "Hata mesajı silindi."
-    },
-    "errors": {
-      "load": "Hata mesajları yüklenemedi.",
-      "create": "Hata mesajı oluşturulamadı.",
-      "update": "Hata mesajı güncellenemedi.",
-      "delete": "Hata mesajı silinemedi."
-    },
-    "audit": {
-      "title": "Denetim kaydı",
-      "copy": "Her oluşturma, güncelleme ve silme işlemi kayıt altına alınır.",
-      "loading": "Denetim kaydı yükleniyor...",
-      "empty": "Denetim kaydı bulunamadı.",
-      "columns": {
-        "createdAt": "Zaman",
-        "actor": "Kullanıcı",
-        "action": "İşlem",
-        "code": "Kod",
-        "status": "Durum"
-      },
+      "title": "Hata mesajları",
+      "copy": "Yönetim API hata mesajlarını listele, filtrele, oluştur, güncelle ve sil.",
+      "loading": "Hata mesajları yükleniyor...",
+      "empty": "Seçili filtre için hata mesajı bulunamadı.",
       "actions": {
-        "created": "Oluşturuldu",
-        "updated": "Güncellendi",
-        "deleted": "Silindi"
+        "refresh": "Yenile",
+        "create": "Oluştur",
+        "creating": "Oluşturuluyor...",
+        "update": "Güncelle",
+        "updating": "Güncelleniyor...",
+        "delete": "Sil",
+        "deleting": "Siliniyor...",
+        "confirmDelete": "{{code}} ({{locale}}) silinsin mi?"
       },
-      "statuses": {
-        "success": "Başarılı",
-        "failed": "Başarısız"
+      "filters": {
+        "locale": "Dil",
+        "query": "Ara",
+        "queryPlaceholder": "Kod veya mesaja göre ara",
+        "locales": {
+          "all": "Tüm diller",
+          "en": "İngilizce",
+          "tr": "Türkçe"
+        }
+      },
+      "tabs": {
+        "create": "Oluştur",
+        "update": "Güncelle"
+      },
+      "deleteConfirm": {
+        "title": "Hata mesajını sil"
+      },
+      "list": {
+        "updatedAt": "Güncelleme: {{value}}"
+      },
+      "create": {
+        "copy": "Koda bağlı yeni yerelleştirilmiş hata mesajı ekle.",
+        "locale": "Dil",
+        "code": "Kod",
+        "codePlaceholder": "Örnek: INVALID_CREDENTIALS",
+        "codeValidation": "Yalnızca büyük harf, rakam ve alt çizgi kullan (2-120 karakter).",
+        "message": "Mesaj",
+        "messageHint": "En fazla {{count}} karakter."
+      },
+      "update": {
+        "copy": "Seçili mesajı güncelle veya sil.",
+        "empty": "Düzenlemek için bir hata mesajı seç.",
+        "notAvailable": "Bulunmuyor",
+        "message": "Mesaj",
+        "messageHint": "En fazla {{count}} karakter.",
+        "labels": {
+          "code": "Kod",
+          "scope": "Kapsam",
+          "locale": "Dil",
+          "updatedAt": "Güncellenme"
+        }
+      },
+      "success": {
+        "created": "Hata mesajı oluşturuldu.",
+        "updated": "Hata mesajı güncellendi.",
+        "deleted": "Hata mesajı silindi."
       },
       "errors": {
-        "load": "Denetim kaydı yüklenemedi."
+        "load": "Hata mesajları yüklenemedi.",
+        "create": "Hata mesajı oluşturulamadı.",
+        "update": "Hata mesajı güncellenemedi.",
+        "delete": "Hata mesajı silinemedi."
+      },
+      "audit": {
+        "title": "Denetim kaydı",
+        "copy": "Her oluşturma, güncelleme ve silme işlemi kayıt altına alınır.",
+        "loading": "Denetim kaydı yükleniyor...",
+        "empty": "Denetim kaydı bulunamadı.",
+        "columns": {
+          "createdAt": "Zaman",
+          "actor": "Kullanıcı",
+          "action": "İşlem",
+          "code": "Kod",
+          "status": "Durum"
+        },
+        "actions": {
+          "created": "Oluşturuldu",
+          "updated": "Güncellendi",
+          "deleted": "Silindi"
+        },
+        "statuses": {
+          "success": "Başarılı",
+          "failed": "Başarısız"
+        },
+        "errors": {
+          "load": "Denetim kaydı yüklenemedi."
+        }
       }
-    }
-  },
-  "validation": {
+    },
+    "validation": {
       "currentPasswordRequired": "Mevcut parolanı gir.",
       "newPasswordRequired": "Yeni parola gir.",
       "newPasswordMin": "En az {{count}} karakter kullan.",
