@@ -102,25 +102,6 @@ query comments($postId: ID!) {
   }
 }
 
-subscription commentEvent($postId: ID!) {
-  commentEvent(postId: $postId) {
-    type
-    postId
-    commentId
-    parentId
-    status
-    total
-    comment {
-      id
-      parentId
-      authorName
-      avatarUrl
-      content
-      createdAt
-    }
-  }
-}
-
 query postRuntime($locale: Locale!, $id: ID!) {
   post(locale: $locale, id: $id) {
     status

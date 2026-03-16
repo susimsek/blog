@@ -6,14 +6,12 @@ import (
 	"net/http"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	graphqlhandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/gorilla/websocket"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 
@@ -38,27 +36,6 @@ func newGraphQLServer() *graphqlhandler.Server {
 		),
 	)
 	server.AddTransport(transport.Options{})
-	server.AddTransport(transport.Websocket{
-		KeepAlivePingInterval: 15 * time.Second,
-		Upgrader: websocket.Upgrader{
-			CheckOrigin: func(r *http.Request) bool {
-				if r == nil {
-					return false
-				}
-
-				httpConfig := appconfig.ResolveHTTPConfig()
-				allowedOrigin := strings.TrimSpace(httpConfig.AllowedOrigin)
-				origin := strings.TrimSpace(r.Header.Get("Origin"))
-				if origin == "" {
-					return true
-				}
-				if allowedOrigin == "" {
-					return false
-				}
-				return origin == allowedOrigin
-			},
-		},
-	})
 	server.AddTransport(transport.GET{})
 	server.AddTransport(transport.POST{})
 	server.SetQueryCache(lru.New[*ast.QueryDocument](graphQLConfig.QueryCacheSize))

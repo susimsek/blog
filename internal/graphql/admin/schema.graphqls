@@ -1,7 +1,6 @@
 schema {
   query: AdminQuery
   mutation: AdminMutation
-  subscription: AdminSubscription
 }
 
 scalar DateTime
@@ -62,10 +61,6 @@ type AdminMutation {
   deleteContentCategory(input: AdminContentEntityKeyInput!): AdminDeletePayload!
 }
 
-type AdminSubscription {
-  commentEvent(postId: ID): AdminCommentEvent!
-}
-
 enum AdminNewsletterSubscriberStatus {
   PENDING
   ACTIVE
@@ -77,13 +72,6 @@ enum AdminCommentStatus {
   APPROVED
   REJECTED
   SPAM
-}
-
-enum AdminCommentEventType {
-  CREATED
-  UPDATED
-  DELETED
-  COUNT_CHANGED
 }
 
 input AdminCommentFilterInput {
@@ -370,16 +358,6 @@ type AdminComment {
   status: AdminCommentStatus!
   createdAt: DateTime!
   updatedAt: DateTime!
-}
-
-type AdminCommentEvent {
-  type: AdminCommentEventType!
-  postId: ID!
-  commentId: ID!
-  parentId: ID
-  status: AdminCommentStatus
-  total: Int
-  comment: AdminComment
 }
 
 type AdminCommentListPayload {

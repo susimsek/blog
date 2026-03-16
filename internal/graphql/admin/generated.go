@@ -42,7 +42,6 @@ type Config struct {
 type ResolverRoot interface {
 	AdminMutation() AdminMutationResolver
 	AdminQuery() AdminQueryResolver
-	AdminSubscription() AdminSubscriptionResolver
 }
 
 type DirectiveRoot struct {
@@ -69,16 +68,6 @@ type ComplexityRoot struct {
 		PostTitle   func(childComplexity int) int
 		Status      func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
-	}
-
-	AdminCommentEvent struct {
-		Comment   func(childComplexity int) int
-		CommentID func(childComplexity int) int
-		ParentID  func(childComplexity int) int
-		PostID    func(childComplexity int) int
-		Status    func(childComplexity int) int
-		Total     func(childComplexity int) int
-		Type      func(childComplexity int) int
 	}
 
 	AdminCommentListPayload struct {
@@ -453,10 +442,6 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
-	AdminSubscription struct {
-		CommentEvent func(childComplexity int, postID *string) int
-	}
-
 	AdminUser struct {
 		AvatarURL             func(childComplexity int) int
 		Email                 func(childComplexity int) int
@@ -528,9 +513,6 @@ type AdminQueryResolver interface {
 	ContentTopics(ctx context.Context, locale *string) ([]*model.AdminContentTopic, error)
 	ContentCategories(ctx context.Context, locale *string) ([]*model.AdminContentCategory, error)
 	ErrorMessageAuditLogs(ctx context.Context, limit *int) ([]*model.AdminErrorMessageAuditLog, error)
-}
-type AdminSubscriptionResolver interface {
-	CommentEvent(ctx context.Context, postID *string) (<-chan *model.AdminCommentEvent, error)
 }
 
 type executableSchema struct {
@@ -632,49 +614,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminComment.UpdatedAt(childComplexity), true
-
-	case "AdminCommentEvent.comment":
-		if e.complexity.AdminCommentEvent.Comment == nil {
-			break
-		}
-
-		return e.complexity.AdminCommentEvent.Comment(childComplexity), true
-	case "AdminCommentEvent.commentId":
-		if e.complexity.AdminCommentEvent.CommentID == nil {
-			break
-		}
-
-		return e.complexity.AdminCommentEvent.CommentID(childComplexity), true
-	case "AdminCommentEvent.parentId":
-		if e.complexity.AdminCommentEvent.ParentID == nil {
-			break
-		}
-
-		return e.complexity.AdminCommentEvent.ParentID(childComplexity), true
-	case "AdminCommentEvent.postId":
-		if e.complexity.AdminCommentEvent.PostID == nil {
-			break
-		}
-
-		return e.complexity.AdminCommentEvent.PostID(childComplexity), true
-	case "AdminCommentEvent.status":
-		if e.complexity.AdminCommentEvent.Status == nil {
-			break
-		}
-
-		return e.complexity.AdminCommentEvent.Status(childComplexity), true
-	case "AdminCommentEvent.total":
-		if e.complexity.AdminCommentEvent.Total == nil {
-			break
-		}
-
-		return e.complexity.AdminCommentEvent.Total(childComplexity), true
-	case "AdminCommentEvent.type":
-		if e.complexity.AdminCommentEvent.Type == nil {
-			break
-		}
-
-		return e.complexity.AdminCommentEvent.Type(childComplexity), true
 
 	case "AdminCommentListPayload.items":
 		if e.complexity.AdminCommentListPayload.Items == nil {
@@ -2389,18 +2328,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.AdminSessionRevokePayload.Success(childComplexity), true
 
-	case "AdminSubscription.commentEvent":
-		if e.complexity.AdminSubscription.CommentEvent == nil {
-			break
-		}
-
-		args, err := ec.field_AdminSubscription_commentEvent_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.AdminSubscription.CommentEvent(childComplexity, args["postId"].(*string)), true
-
 	case "AdminUser.avatarUrl":
 		if e.complexity.AdminUser.AvatarURL == nil {
 			break
@@ -2566,23 +2493,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
 			data := ec._AdminMutation(ctx, opCtx.Operation.SelectionSet)
 			var buf bytes.Buffer
-			data.MarshalGQL(&buf)
-
-			return &graphql.Response{
-				Data: buf.Bytes(),
-			}
-		}
-	case ast.Subscription:
-		next := ec._AdminSubscription(ctx, opCtx.Operation.SelectionSet)
-
-		var buf bytes.Buffer
-		return func(ctx context.Context) *graphql.Response {
-			buf.Reset()
-			data := next(ctx)
-
-			if data == nil {
-				return nil
-			}
 			data.MarshalGQL(&buf)
 
 			return &graphql.Response{
@@ -3096,17 +3006,6 @@ func (ec *executionContext) field_AdminQuery_newsletterSubscribers_args(ctx cont
 	return args, nil
 }
 
-func (ec *executionContext) field_AdminSubscription_commentEvent_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "postId", ec.unmarshalOID2ᚖstring)
-	if err != nil {
-		return nil, err
-	}
-	args["postId"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field___Directive_args_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -3561,231 +3460,6 @@ func (ec *executionContext) fieldContext_AdminComment_updatedAt(_ context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type DateTime does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AdminCommentEvent_type(ctx context.Context, field graphql.CollectedField, obj *model.AdminCommentEvent) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_AdminCommentEvent_type,
-		func(ctx context.Context) (any, error) {
-			return obj.Type, nil
-		},
-		nil,
-		ec.marshalNAdminCommentEventType2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentEventType,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_AdminCommentEvent_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminCommentEvent",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AdminCommentEventType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AdminCommentEvent_postId(ctx context.Context, field graphql.CollectedField, obj *model.AdminCommentEvent) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_AdminCommentEvent_postId,
-		func(ctx context.Context) (any, error) {
-			return obj.PostID, nil
-		},
-		nil,
-		ec.marshalNID2string,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_AdminCommentEvent_postId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminCommentEvent",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AdminCommentEvent_commentId(ctx context.Context, field graphql.CollectedField, obj *model.AdminCommentEvent) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_AdminCommentEvent_commentId,
-		func(ctx context.Context) (any, error) {
-			return obj.CommentID, nil
-		},
-		nil,
-		ec.marshalNID2string,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_AdminCommentEvent_commentId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminCommentEvent",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AdminCommentEvent_parentId(ctx context.Context, field graphql.CollectedField, obj *model.AdminCommentEvent) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_AdminCommentEvent_parentId,
-		func(ctx context.Context) (any, error) {
-			return obj.ParentID, nil
-		},
-		nil,
-		ec.marshalOID2ᚖstring,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_AdminCommentEvent_parentId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminCommentEvent",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AdminCommentEvent_status(ctx context.Context, field graphql.CollectedField, obj *model.AdminCommentEvent) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_AdminCommentEvent_status,
-		func(ctx context.Context) (any, error) {
-			return obj.Status, nil
-		},
-		nil,
-		ec.marshalOAdminCommentStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentStatus,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_AdminCommentEvent_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminCommentEvent",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AdminCommentStatus does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AdminCommentEvent_total(ctx context.Context, field graphql.CollectedField, obj *model.AdminCommentEvent) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_AdminCommentEvent_total,
-		func(ctx context.Context) (any, error) {
-			return obj.Total, nil
-		},
-		nil,
-		ec.marshalOInt2ᚖint,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_AdminCommentEvent_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminCommentEvent",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AdminCommentEvent_comment(ctx context.Context, field graphql.CollectedField, obj *model.AdminCommentEvent) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_AdminCommentEvent_comment,
-		func(ctx context.Context) (any, error) {
-			return obj.Comment, nil
-		},
-		nil,
-		ec.marshalOAdminComment2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminComment,
-		true,
-		false,
-	)
-}
-
-func (ec *executionContext) fieldContext_AdminCommentEvent_comment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminCommentEvent",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_AdminComment_id(ctx, field)
-			case "postId":
-				return ec.fieldContext_AdminComment_postId(ctx, field)
-			case "postTitle":
-				return ec.fieldContext_AdminComment_postTitle(ctx, field)
-			case "parentId":
-				return ec.fieldContext_AdminComment_parentId(ctx, field)
-			case "authorName":
-				return ec.fieldContext_AdminComment_authorName(ctx, field)
-			case "authorEmail":
-				return ec.fieldContext_AdminComment_authorEmail(ctx, field)
-			case "content":
-				return ec.fieldContext_AdminComment_content(ctx, field)
-			case "status":
-				return ec.fieldContext_AdminComment_status(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_AdminComment_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_AdminComment_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AdminComment", field.Name)
 		},
 	}
 	return fc, nil
@@ -12545,63 +12219,6 @@ func (ec *executionContext) fieldContext_AdminSessionRevokePayload_success(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _AdminSubscription_commentEvent(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
-	return graphql.ResolveFieldStream(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_AdminSubscription_commentEvent,
-		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.AdminSubscription().CommentEvent(ctx, fc.Args["postId"].(*string))
-		},
-		nil,
-		ec.marshalNAdminCommentEvent2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentEvent,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_AdminSubscription_commentEvent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminSubscription",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "type":
-				return ec.fieldContext_AdminCommentEvent_type(ctx, field)
-			case "postId":
-				return ec.fieldContext_AdminCommentEvent_postId(ctx, field)
-			case "commentId":
-				return ec.fieldContext_AdminCommentEvent_commentId(ctx, field)
-			case "parentId":
-				return ec.fieldContext_AdminCommentEvent_parentId(ctx, field)
-			case "status":
-				return ec.fieldContext_AdminCommentEvent_status(ctx, field)
-			case "total":
-				return ec.fieldContext_AdminCommentEvent_total(ctx, field)
-			case "comment":
-				return ec.fieldContext_AdminCommentEvent_comment(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type AdminCommentEvent", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_AdminSubscription_commentEvent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _AdminUser_id(ctx context.Context, field graphql.CollectedField, obj *model.AdminUser) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -15854,63 +15471,6 @@ func (ec *executionContext) _AdminComment(ctx context.Context, sel ast.Selection
 	return out
 }
 
-var adminCommentEventImplementors = []string{"AdminCommentEvent"}
-
-func (ec *executionContext) _AdminCommentEvent(ctx context.Context, sel ast.SelectionSet, obj *model.AdminCommentEvent) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, adminCommentEventImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AdminCommentEvent")
-		case "type":
-			out.Values[i] = ec._AdminCommentEvent_type(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "postId":
-			out.Values[i] = ec._AdminCommentEvent_postId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "commentId":
-			out.Values[i] = ec._AdminCommentEvent_commentId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "parentId":
-			out.Values[i] = ec._AdminCommentEvent_parentId(ctx, field, obj)
-		case "status":
-			out.Values[i] = ec._AdminCommentEvent_status(ctx, field, obj)
-		case "total":
-			out.Values[i] = ec._AdminCommentEvent_total(ctx, field, obj)
-		case "comment":
-			out.Values[i] = ec._AdminCommentEvent_comment(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var adminCommentListPayloadImplementors = []string{"AdminCommentListPayload"}
 
 func (ec *executionContext) _AdminCommentListPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminCommentListPayload) graphql.Marshaler {
@@ -18789,26 +18349,6 @@ func (ec *executionContext) _AdminSessionRevokePayload(ctx context.Context, sel 
 	return out
 }
 
-var adminSubscriptionImplementors = []string{"AdminSubscription"}
-
-func (ec *executionContext) _AdminSubscription(ctx context.Context, sel ast.SelectionSet) func(ctx context.Context) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, adminSubscriptionImplementors)
-	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
-		Object: "AdminSubscription",
-	})
-	if len(fields) != 1 {
-		ec.Errorf(ctx, "must subscribe to exactly one stream")
-		return nil
-	}
-
-	switch fields[0].Name {
-	case "commentEvent":
-		return ec._AdminSubscription_commentEvent(ctx, fields[0])
-	default:
-		panic("unknown field " + strconv.Quote(fields[0].Name))
-	}
-}
-
 var adminUserImplementors = []string{"AdminUser"}
 
 func (ec *executionContext) _AdminUser(ctx context.Context, sel ast.SelectionSet, obj *model.AdminUser) graphql.Marshaler {
@@ -19325,30 +18865,6 @@ func (ec *executionContext) marshalNAdminComment2ᚖsuaybsimsekᚗcomᚋblogᚑa
 		return graphql.Null
 	}
 	return ec._AdminComment(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNAdminCommentEvent2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentEvent(ctx context.Context, sel ast.SelectionSet, v model.AdminCommentEvent) graphql.Marshaler {
-	return ec._AdminCommentEvent(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNAdminCommentEvent2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentEvent(ctx context.Context, sel ast.SelectionSet, v *model.AdminCommentEvent) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._AdminCommentEvent(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNAdminCommentEventType2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentEventType(ctx context.Context, v any) (model.AdminCommentEventType, error) {
-	var res model.AdminCommentEventType
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNAdminCommentEventType2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentEventType(ctx context.Context, sel ast.SelectionSet, v model.AdminCommentEventType) graphql.Marshaler {
-	return v
 }
 
 func (ec *executionContext) marshalNAdminCommentListPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentListPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminCommentListPayload) graphql.Marshaler {
@@ -20943,13 +20459,6 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) marshalOAdminComment2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminComment(ctx context.Context, sel ast.SelectionSet, v *model.AdminComment) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._AdminComment(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOAdminCommentFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentFilterInput(ctx context.Context, v any) (*model.AdminCommentFilterInput, error) {

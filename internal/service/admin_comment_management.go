@@ -99,13 +99,6 @@ func UpdateAdminCommentStatus(
 		return nil, toAdminCommentError(err, "failed to update comment status")
 	}
 
-	publishCommentEvent(ctx, domain.CommentEvent{
-		Type:    domain.CommentEventTypeUpdated,
-		PostID:  updated.PostID,
-		Comment: updated,
-		Total:   resolveApprovedCommentTotal(ctx, updated.PostID),
-	})
-
 	return updated, nil
 }
 
@@ -123,11 +116,6 @@ func DeleteAdminComment(
 		return apperrors.BadRequest("comment id is required")
 	}
 
-	currentComment, err := commentRepository.FindCommentByID(ctx, resolvedID)
-	if err != nil {
-		return toAdminCommentError(err, "failed to load comment")
-	}
-
 	deleted, err := commentRepository.DeleteCommentByID(ctx, resolvedID)
 	if err != nil {
 		return toAdminCommentError(err, "failed to delete comment")
@@ -135,13 +123,6 @@ func DeleteAdminComment(
 	if !deleted {
 		return apperrors.BadRequest("comment not found")
 	}
-
-	publishCommentEvent(ctx, domain.CommentEvent{
-		Type:    domain.CommentEventTypeDeleted,
-		PostID:  currentComment.PostID,
-		Comment: currentComment,
-		Total:   resolveApprovedCommentTotal(ctx, currentComment.PostID),
-	})
 
 	return nil
 }

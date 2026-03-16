@@ -1,23 +1,11 @@
+import { AddCommentDocument, CommentsDocument } from '@/graphql/generated/graphql';
+import { mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
 import {
-  AddCommentDocument,
-  CommentEventDocument,
-  type CommentEventSubscription,
-  type CommentEventSubscriptionVariables,
-  CommentsDocument,
-} from '@/graphql/generated/graphql';
-import { getGraphQLEndpoint, mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
-import {
-  fromCommentEventType,
   fromCommentModerationStatus,
   fromCommentMutationStatus,
   fromCommentQueryStatus,
 } from '@/lib/graphql/enumMappers';
-import { subscribeGraphQL } from '@/lib/graphql/subscriptions';
-import type {
-  CommentEvent as AppCommentEvent,
-  CommentItem as AppCommentItem,
-  CommentThread as AppCommentThread,
-} from '@/types/comments';
+import type { CommentItem as AppCommentItem, CommentThread as AppCommentThread } from '@/types/comments';
 
 type CommentApiOptions = {
   signal?: AbortSignal;
@@ -36,8 +24,6 @@ export type AddCommentResult = {
   postId?: string;
   moderationStatus?: string;
 };
-
-export type CommentEventResult = AppCommentEvent;
 
 export const normalizeCommentItem = (
   item:
@@ -93,49 +79,6 @@ export const normalizeCommentThreads = (
     root: normalizeCommentItem(thread.root)!,
     replies: (thread.replies ?? []).map(reply => normalizeCommentItem(reply)!).filter(Boolean),
   }));
-
-const normalizeCommentEvent = (
-  event:
-    | {
-        type: unknown;
-        postId: string;
-        commentId: string;
-        parentId?: string | null;
-        status?: unknown;
-        total?: number | null;
-        comment?: {
-          id: string;
-          parentId?: string | null;
-          authorName: string;
-          avatarUrl?: string | null;
-          content: string;
-          createdAt: string;
-        } | null;
-      }
-    | null
-    | undefined,
-): CommentEventResult | null => {
-  if (!event) {
-    return null;
-  }
-
-  const type = fromCommentEventType(typeof event.type === 'string' ? (event.type as never) : null);
-  if (!type) {
-    return null;
-  }
-
-  return {
-    type: type as CommentEventResult['type'],
-    postId: event.postId.trim(),
-    commentId: event.commentId.trim(),
-    ...(typeof event.parentId === 'string' && event.parentId.trim() !== '' ? { parentId: event.parentId.trim() } : {}),
-    ...(fromCommentModerationStatus(typeof event.status === 'string' ? (event.status as never) : null)
-      ? { status: fromCommentModerationStatus(typeof event.status === 'string' ? (event.status as never) : null) }
-      : {}),
-    ...(typeof event.total === 'number' ? { total: Math.max(0, Math.trunc(event.total)) } : {}),
-    ...(normalizeCommentItem(event.comment) ? { comment: normalizeCommentItem(event.comment) } : {}),
-  };
-};
 
 export const fetchComments = async (
   postId: string,
@@ -208,29 +151,3 @@ export const addComment = async (
       : {}),
   };
 };
-
-export const subscribeToCommentEvents = (
-  postId: string,
-  callbacks: {
-    next: (event: CommentEventResult) => void;
-    error?: (error: unknown) => void;
-    complete?: () => void;
-    connected?: (reconnected: boolean) => void;
-  },
-) =>
-  subscribeGraphQL<CommentEventSubscription, CommentEventSubscriptionVariables>(
-    getGraphQLEndpoint(),
-    CommentEventDocument,
-    { postId: postId.trim() },
-    {
-      next(payload) {
-        const event = normalizeCommentEvent(payload.commentEvent);
-        if (event) {
-          callbacks.next(event);
-        }
-      },
-      error: callbacks.error,
-      complete: callbacks.complete,
-      connected: callbacks.connected,
-    },
-  );

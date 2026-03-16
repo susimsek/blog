@@ -12,18 +12,6 @@ export type CommentThread = {
   replies: CommentItem[];
 };
 
-export type CommentEventType = 'created' | 'updated' | 'deleted' | 'count-changed';
-
-export type CommentEvent = {
-  type: CommentEventType;
-  postId: string;
-  commentId: string;
-  parentId?: string;
-  status?: string;
-  total?: number;
-  comment?: CommentItem;
-};
-
 export type CommentViewer = {
   id: string;
   name: string;

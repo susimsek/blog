@@ -43,9 +43,6 @@ importers:
       graphql:
         specifier: ^16.12.0
         version: 16.12.0
-      graphql-ws:
-        specifier: ^6.0.7
-        version: 6.0.7(graphql@16.12.0)(ws@8.19.0)
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3

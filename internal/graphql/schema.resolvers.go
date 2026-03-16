@@ -280,63 +280,15 @@ func (r *mutationResolver) AddComment(ctx context.Context, input model.AddCommen
 	}, nil
 }
 
-// CommentEvent is the resolver for the commentEvent field.
-func (r *subscriptionResolver) CommentEvent(ctx context.Context, postID string) (<-chan *model.CommentEvent, error) {
-	resolvedPostID := strings.TrimSpace(postID)
-	if resolvedPostID == "" {
-		return nil, fmt.Errorf("postId is required")
-	}
-
-	source, unsubscribe := appservice.SubscribeCommentEvents(resolvedPostID)
-	target := make(chan *model.CommentEvent, 16)
-
-	go func() {
-		defer unsubscribe()
-		defer close(target)
-
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case event, ok := <-source:
-				if !ok {
-					return
-				}
-
-				if !shouldEmitPublicCommentEvent(event) {
-					continue
-				}
-
-				mappedEvent := mapCommentEvent(event)
-				if mappedEvent == nil {
-					continue
-				}
-
-				select {
-				case <-ctx.Done():
-					return
-				case target <- mappedEvent:
-				}
-			}
-		}
-	}()
-
-	return target, nil
-}
-
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-// Subscription returns SubscriptionResolver implementation.
-func (r *Resolver) Subscription() SubscriptionResolver { return &subscriptionResolver{r} }
-
 type (
-	mutationResolver     struct{ *Resolver }
-	queryResolver        struct{ *Resolver }
-	subscriptionResolver struct{ *Resolver }
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
 )
 
 func toOptionalStringValue(value *string) string {
@@ -365,20 +317,4 @@ func toOptionalReaderAvatarURL(user *domain.ReaderUser) string {
 		return ""
 	}
 	return user.AvatarURL
-}
-
-func shouldEmitPublicCommentEvent(event domain.CommentEvent) bool {
-	resolvedStatus := strings.TrimSpace(strings.ToLower(event.Status))
-
-	switch event.Type {
-	case domain.CommentEventTypeDeleted, domain.CommentEventTypeCountChanged:
-		return true
-	case domain.CommentEventTypeUpdated:
-		if resolvedStatus == "approved" || resolvedStatus == "rejected" || resolvedStatus == "spam" {
-			return true
-		}
-		return false
-	default:
-		return resolvedStatus == "approved"
-	}
 }

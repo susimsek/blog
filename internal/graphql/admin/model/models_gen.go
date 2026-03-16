@@ -50,16 +50,6 @@ type AdminComment struct {
 	UpdatedAt   time.Time          `json:"updatedAt"`
 }
 
-type AdminCommentEvent struct {
-	Type      AdminCommentEventType `json:"type"`
-	PostID    string                `json:"postId"`
-	CommentID string                `json:"commentId"`
-	ParentID  *string               `json:"parentId,omitempty"`
-	Status    *AdminCommentStatus   `json:"status,omitempty"`
-	Total     *int                  `json:"total,omitempty"`
-	Comment   *AdminComment         `json:"comment,omitempty"`
-}
-
 type AdminCommentFilterInput struct {
 	Status *AdminCommentStatus `json:"status,omitempty"`
 	PostID *string             `json:"postId,omitempty"`
@@ -511,9 +501,6 @@ type AdminStartGoogleConnectInput struct {
 	Locale *string `json:"locale,omitempty"`
 }
 
-type AdminSubscription struct {
-}
-
 type AdminUpdateCommentStatusInput struct {
 	CommentID string             `json:"commentId"`
 	Status    AdminCommentStatus `json:"status"`
@@ -562,65 +549,6 @@ type AdminUser struct {
 	GithubEmail           *string    `json:"githubEmail,omitempty"`
 	GithubLinkedAt        *time.Time `json:"githubLinkedAt,omitempty"`
 	Roles                 []string   `json:"roles"`
-}
-
-type AdminCommentEventType string
-
-const (
-	AdminCommentEventTypeCreated      AdminCommentEventType = "CREATED"
-	AdminCommentEventTypeUpdated      AdminCommentEventType = "UPDATED"
-	AdminCommentEventTypeDeleted      AdminCommentEventType = "DELETED"
-	AdminCommentEventTypeCountChanged AdminCommentEventType = "COUNT_CHANGED"
-)
-
-var AllAdminCommentEventType = []AdminCommentEventType{
-	AdminCommentEventTypeCreated,
-	AdminCommentEventTypeUpdated,
-	AdminCommentEventTypeDeleted,
-	AdminCommentEventTypeCountChanged,
-}
-
-func (e AdminCommentEventType) IsValid() bool {
-	switch e {
-	case AdminCommentEventTypeCreated, AdminCommentEventTypeUpdated, AdminCommentEventTypeDeleted, AdminCommentEventTypeCountChanged:
-		return true
-	}
-	return false
-}
-
-func (e AdminCommentEventType) String() string {
-	return string(e)
-}
-
-func (e *AdminCommentEventType) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = AdminCommentEventType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid AdminCommentEventType", str)
-	}
-	return nil
-}
-
-func (e AdminCommentEventType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-func (e *AdminCommentEventType) UnmarshalJSON(b []byte) error {
-	s, err := strconv.Unquote(string(b))
-	if err != nil {
-		return err
-	}
-	return e.UnmarshalGQL(s)
-}
-
-func (e AdminCommentEventType) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	e.MarshalGQL(&buf)
-	return buf.Bytes(), nil
 }
 
 type AdminCommentStatus string

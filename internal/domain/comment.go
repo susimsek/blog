@@ -20,25 +20,6 @@ type CommentRecord struct {
 	ModerationNote  string     `json:"moderationNote,omitempty" bson:"moderationNote,omitempty"`
 }
 
-type CommentEventType string
-
-const (
-	CommentEventTypeCreated      CommentEventType = "created"
-	CommentEventTypeUpdated      CommentEventType = "updated"
-	CommentEventTypeDeleted      CommentEventType = "deleted"
-	CommentEventTypeCountChanged CommentEventType = "count-changed"
-)
-
-type CommentEvent struct {
-	Type      CommentEventType `json:"type"`
-	PostID    string           `json:"postId"`
-	Comment   *CommentRecord   `json:"comment,omitempty"`
-	CommentID string           `json:"commentId"`
-	ParentID  *string          `json:"parentId,omitempty"`
-	Status    string           `json:"status,omitempty"`
-	Total     *int             `json:"total,omitempty"`
-}
-
 type CommentListResult struct {
 	Status   string          `json:"status"`
 	PostID   string          `json:"postId,omitempty"`

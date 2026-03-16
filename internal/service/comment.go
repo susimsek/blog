@@ -201,13 +201,6 @@ func AddComment(ctx context.Context, input AddCommentInput, meta RequestMetadata
 		return domain.CommentMutationResult{Status: "failed", PostID: postID}
 	}
 
-	publishCommentEvent(operationCtx, domain.CommentEvent{
-		Type:    domain.CommentEventTypeCreated,
-		PostID:  postID,
-		Comment: &record,
-		Total:   resolveApprovedCommentTotal(operationCtx, postID),
-	})
-
 	return domain.CommentMutationResult{
 		Status:           "success",
 		PostID:           postID,

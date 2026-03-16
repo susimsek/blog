@@ -5,7 +5,6 @@ import { CombinedGraphQLErrors, ServerError, ServerParseError } from '@apollo/cl
 import type { DocumentNode } from 'graphql';
 import { withBasePath } from '@/lib/basePath';
 import { defaultLocale } from '@/i18n/settings';
-import { subscribeGraphQL } from '@/lib/graphql/subscriptions';
 
 const ADMIN_GRAPHQL_ENDPOINT = withBasePath('/api/admin/graphql');
 const ADMIN_ERROR_FALLBACK_MESSAGE = 'Admin GraphQL request failed';
@@ -120,16 +119,6 @@ export type AdminCommentItem = {
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM';
   createdAt: string;
   updatedAt: string;
-};
-
-export type AdminCommentEvent = {
-  type: 'CREATED' | 'UPDATED' | 'DELETED' | 'COUNT_CHANGED';
-  postId: string;
-  commentId: string;
-  parentId: string | null;
-  status: AdminCommentItem['status'] | null;
-  total?: number;
-  comment: AdminCommentItem | null;
 };
 
 type AdminCommentsPayload = {
@@ -745,31 +734,6 @@ const ADMIN_DELETE_COMMENT_MUTATION = gql`
   mutation AdminDeleteComment($input: AdminDeleteCommentInput!) {
     deleteComment(input: $input) {
       success
-    }
-  }
-`;
-
-const ADMIN_COMMENT_EVENT_SUBSCRIPTION = gql`
-  subscription AdminCommentEvent($postId: ID) {
-    commentEvent(postId: $postId) {
-      type
-      postId
-      commentId
-      parentId
-      status
-      total
-      comment {
-        id
-        postId
-        postTitle
-        parentId
-        authorName
-        authorEmail
-        content
-        status
-        createdAt
-        updatedAt
-      }
     }
   }
 `;
@@ -2014,33 +1978,6 @@ export const deleteAdminComment = async (input: { commentId: string }) => {
 
   return payload.deleteComment?.success === true;
 };
-
-export const subscribeAdminCommentEvents = (
-  options: {
-    postId?: string;
-  },
-  callbacks: {
-    next: (event: AdminCommentEvent) => void;
-    error?: (error: unknown) => void;
-    complete?: () => void;
-    connected?: (reconnected: boolean) => void;
-  },
-) =>
-  subscribeGraphQL<{ commentEvent?: AdminCommentEvent }, { postId?: string }>(
-    ADMIN_GRAPHQL_ENDPOINT,
-    ADMIN_COMMENT_EVENT_SUBSCRIPTION,
-    options.postId?.trim() ? { postId: options.postId.trim() } : {},
-    {
-      next(payload) {
-        if (payload.commentEvent) {
-          callbacks.next(payload.commentEvent);
-        }
-      },
-      error: callbacks.error,
-      complete: callbacks.complete,
-      connected: callbacks.connected,
-    },
-  );
 
 export const changeAdminPassword = async (input: {
   currentPassword: string;
