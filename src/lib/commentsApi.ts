@@ -34,6 +34,7 @@ const normalizeCommentThreads = (
           id: string;
           parentId?: string | null;
           authorName: string;
+          avatarUrl?: string | null;
           content: string;
           createdAt: string;
         };
@@ -41,6 +42,7 @@ const normalizeCommentThreads = (
           id: string;
           parentId?: string | null;
           authorName: string;
+          avatarUrl?: string | null;
           content: string;
           createdAt: string;
         }>;
@@ -55,6 +57,9 @@ const normalizeCommentThreads = (
         ? { parentId: thread.root.parentId.trim() }
         : {}),
       authorName: thread.root.authorName,
+      ...(typeof thread.root.avatarUrl === 'string' && thread.root.avatarUrl.trim() !== ''
+        ? { avatarUrl: thread.root.avatarUrl.trim() }
+        : {}),
       content: thread.root.content,
       createdAt: thread.root.createdAt,
     },
@@ -64,6 +69,9 @@ const normalizeCommentThreads = (
         ? { parentId: reply.parentId.trim() }
         : {}),
       authorName: reply.authorName,
+      ...(typeof reply.avatarUrl === 'string' && reply.avatarUrl.trim() !== ''
+        ? { avatarUrl: reply.avatarUrl.trim() }
+        : {}),
       content: reply.content,
       createdAt: reply.createdAt,
     })),

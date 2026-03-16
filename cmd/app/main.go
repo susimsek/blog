@@ -13,8 +13,13 @@ import (
 	admingithubapi "suaybsimsek.com/blog-api/api/admin-github"
 	admingoogleapi "suaybsimsek.com/blog-api/api/admin-google"
 	admingraphqlapi "suaybsimsek.com/blog-api/api/admin-graphql"
+	githubcallbackapi "suaybsimsek.com/blog-api/api/github/callback"
+	googlecallbackapi "suaybsimsek.com/blog-api/api/google/callback"
 	graphqlapi "suaybsimsek.com/blog-api/api/graphql"
 	newsletterdispatch "suaybsimsek.com/blog-api/api/newsletter-dispatch"
+	readerauthapi "suaybsimsek.com/blog-api/api/reader-auth"
+	readergithubapi "suaybsimsek.com/blog-api/api/reader-github"
+	readergoogleapi "suaybsimsek.com/blog-api/api/reader-google"
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 )
 
@@ -65,6 +70,14 @@ func main() {
 	mux.HandleFunc("/api/admin-github/callback", admingithubapi.Handler)
 	mux.HandleFunc("/api/admin-google/connect", admingoogleapi.Handler)
 	mux.HandleFunc("/api/admin-google/callback", admingoogleapi.Handler)
+	mux.HandleFunc("/api/github/callback", githubcallbackapi.Handler)
+	mux.HandleFunc("/api/google/callback", googlecallbackapi.Handler)
+	mux.HandleFunc("/api/reader-auth/session", readerauthapi.Handler)
+	mux.HandleFunc("/api/reader-auth/logout", readerauthapi.Handler)
+	mux.HandleFunc("/api/reader-github/connect", readergithubapi.Handler)
+	mux.HandleFunc("/api/reader-github/callback", readergithubapi.Handler)
+	mux.HandleFunc("/api/reader-google/connect", readergoogleapi.Handler)
+	mux.HandleFunc("/api/reader-google/callback", readergoogleapi.Handler)
 	mux.HandleFunc("/graphiql", graphqlapi.Handler)
 	mux.HandleFunc("/api/newsletter-dispatch", newsletterdispatch.Handler)
 	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {

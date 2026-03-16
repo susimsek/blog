@@ -149,6 +149,7 @@ const getClient = (endpoint: string) => {
       localeHeaderLink,
       new HttpLink({
         uri: endpoint,
+        credentials: 'include',
         fetch: globalThis.fetch.bind(globalThis),
       }),
     ]),

@@ -55,6 +55,28 @@
       "replies_one": "1 yanıt",
       "replies_other": "{{count}} yanıt",
       "postedAt": "{{date}} tarihinde gönderildi",
+      "auth": {
+        "title": "Yorum erişimi",
+        "copy": "Misafir yorumu için e-posta kullan veya Google ya da GitHub ile giriş yapıp okuyucu profilinle yorum bırak.",
+        "google": "Google ile devam et",
+        "github": "GitHub ile devam et",
+        "email": "E-posta ile misafir yorum",
+        "useEmail": "E-posta ile misafir yorum kullan",
+        "loading": "Yorum oturumun kontrol ediliyor...",
+        "connected": "{{provider}} girişi hazır. Artık {{name}} olarak yorum yapabilirsin.",
+        "cancelled": "{{provider}} girişi iptal edildi. İstersen e-posta ile misafir yorum bırakabilirsin.",
+        "failed": "{{provider}} girişi tamamlanamadı. Tekrar dene veya e-posta ile misafir yorum kullan.",
+        "signedInAs": "{{name}} olarak giriş yapıldı",
+        "providerHint": "{{provider}} hesabı • {{email}}",
+        "signOut": "Çıkış yap",
+        "signingOut": "Çıkış yapılıyor...",
+        "signedOut": "Çıkış yapıldı. E-posta ile misafir yorumlara devam edebilirsin.",
+        "providers": {
+          "google": "Google",
+          "github": "GitHub",
+          "account": "Okuyucu"
+        }
+      },
       "form": {
         "nameLabel": "Ad",
         "namePlaceholder": "Adın",
@@ -67,7 +89,8 @@
         "cancelReply": "İptal",
         "submitting": "Gönderiliyor...",
         "helper": "E-posta adresin gizli kalır. Yorumla birlikte yalnızca görünen adın gösterilir.",
-        "replyingTo": "{{name}} yorumuna yanıt veriyorsun"
+        "replyingTo": "{{name}} yorumuna yanıt veriyorsun",
+        "viewerHelper": "{{name}} olarak yorum yapıyorsun. Okuyucu e-posta adresin gizli kalır."
       },
       "success": {
         "pending": "Yorumun alındı ve moderasyon sırasına eklendi.",

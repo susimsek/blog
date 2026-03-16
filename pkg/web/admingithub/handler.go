@@ -22,12 +22,13 @@ import (
 )
 
 const (
-	githubOAuthConnectPath  = "/api/admin-github/connect"
-	githubOAuthCallbackPath = "/api/admin-github/callback"
-	githubOAuthStateCookie  = "admin_github_oauth_state"
-	githubOAuthStatePath    = "/api/admin-github"
-	githubOAuthStateTTL     = 10 * time.Minute
-	githubOAuthStateVersion = "v1"
+	githubOAuthConnectPath        = "/api/admin-github/connect"
+	githubOAuthCallbackPath       = "/api/github/callback"
+	legacyGithubOAuthCallbackPath = "/api/admin-github/callback"
+	githubOAuthStateCookie        = "admin_github_oauth_state"
+	githubOAuthStatePath          = "/api/github"
+	githubOAuthStateTTL           = 10 * time.Minute
+	githubOAuthStateVersion       = "v1"
 )
 
 type githubOAuthState struct {
@@ -48,7 +49,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case githubOAuthConnectPath:
 		handleGithubOAuthStart(w, r)
-	case githubOAuthCallbackPath:
+	case githubOAuthCallbackPath, legacyGithubOAuthCallbackPath:
 		handleGithubOAuthCallback(w, r)
 	default:
 		http.NotFound(w, r)

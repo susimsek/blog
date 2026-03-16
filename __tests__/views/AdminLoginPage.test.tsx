@@ -355,7 +355,6 @@ describe('AdminLoginPage', () => {
 
   it('skips hover audio work when voice is disabled and no audio instance exists', async () => {
     const AudioMock = jest.fn();
-    // @ts-expect-error test override
     global.Audio = AudioMock;
 
     render(<AdminLoginPage />);

@@ -55,6 +55,28 @@
       "replies_one": "1 reply",
       "replies_other": "{{count}} replies",
       "postedAt": "Posted {{date}}",
+      "auth": {
+        "title": "Comment access",
+        "copy": "Use email for a guest comment, or sign in with Google or GitHub to comment with your reader profile.",
+        "google": "Continue with Google",
+        "github": "Continue with GitHub",
+        "email": "Email guest comment",
+        "useEmail": "Use email guest comment",
+        "loading": "Checking your comment session...",
+        "connected": "{{provider}} sign-in is ready. You can comment as {{name}}.",
+        "cancelled": "{{provider}} sign-in was cancelled. You can still leave a guest comment by email.",
+        "failed": "{{provider}} sign-in could not be completed. Try again or use email guest comment.",
+        "signedInAs": "Signed in as {{name}}",
+        "providerHint": "{{provider}} account • {{email}}",
+        "signOut": "Sign out",
+        "signingOut": "Signing out...",
+        "signedOut": "Signed out. You can continue with email guest comments.",
+        "providers": {
+          "google": "Google",
+          "github": "GitHub",
+          "account": "Reader"
+        }
+      },
       "form": {
         "nameLabel": "Name",
         "namePlaceholder": "Your name",
@@ -67,7 +89,8 @@
         "cancelReply": "Cancel",
         "submitting": "Submitting...",
         "helper": "Your email stays private. Only your display name appears with the comment.",
-        "replyingTo": "Replying to {{name}}"
+        "replyingTo": "Replying to {{name}}",
+        "viewerHelper": "Commenting as {{name}}. Your reader email stays private."
       },
       "success": {
         "pending": "Your comment was received and is awaiting moderation.",

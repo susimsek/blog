@@ -30,6 +30,7 @@ type Comment struct {
 	ID         string  `json:"id"`
 	ParentID   *string `json:"parentId,omitempty"`
 	AuthorName string  `json:"authorName"`
+	AvatarURL  *string `json:"avatarUrl,omitempty"`
 	Content    string  `json:"content"`
 	CreatedAt  string  `json:"createdAt"`
 }

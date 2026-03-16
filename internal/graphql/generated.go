@@ -49,6 +49,7 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Comment struct {
 		AuthorName func(childComplexity int) int
+		AvatarURL  func(childComplexity int) int
 		Content    func(childComplexity int) int
 		CreatedAt  func(childComplexity int) int
 		ID         func(childComplexity int) int
@@ -197,6 +198,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Comment.AuthorName(childComplexity), true
+	case "Comment.avatarUrl":
+		if e.complexity.Comment.AvatarURL == nil {
+			break
+		}
+
+		return e.complexity.Comment.AvatarURL(childComplexity), true
 	case "Comment.content":
 		if e.complexity.Comment.Content == nil {
 			break
@@ -1060,6 +1067,35 @@ func (ec *executionContext) fieldContext_Comment_authorName(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Comment_avatarUrl(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Comment_avatarUrl,
+		func(ctx context.Context) (any, error) {
+			return obj.AvatarURL, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Comment_avatarUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Comment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Comment_content(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1386,6 +1422,8 @@ func (ec *executionContext) fieldContext_CommentThread_root(_ context.Context, f
 				return ec.fieldContext_Comment_parentId(ctx, field)
 			case "authorName":
 				return ec.fieldContext_Comment_authorName(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_Comment_avatarUrl(ctx, field)
 			case "content":
 				return ec.fieldContext_Comment_content(ctx, field)
 			case "createdAt":
@@ -1427,6 +1465,8 @@ func (ec *executionContext) fieldContext_CommentThread_replies(_ context.Context
 				return ec.fieldContext_Comment_parentId(ctx, field)
 			case "authorName":
 				return ec.fieldContext_Comment_authorName(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_Comment_avatarUrl(ctx, field)
 			case "content":
 				return ec.fieldContext_Comment_content(ctx, field)
 			case "createdAt":
@@ -5041,6 +5081,8 @@ func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "avatarUrl":
+			out.Values[i] = ec._Comment_avatarUrl(ctx, field, obj)
 		case "content":
 			out.Values[i] = ec._Comment_content(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

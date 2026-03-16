@@ -8,8 +8,14 @@ import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
+import {
+  beginCommentOAuthLogin,
+  fetchCommentAuthSession,
+  logoutCommentViewer,
+  type CommentAuthSession,
+} from '@/lib/commentAuthApi';
 import { addComment, fetchComments } from '@/lib/commentsApi';
-import type { CommentItem, CommentThread } from '@/types/comments';
+import type { CommentItem, CommentThread, CommentViewer } from '@/types/comments';
 
 type CommentFormState = {
   authorName: string;
@@ -27,6 +33,8 @@ type PostCommentsProps = {
   postId: string;
 };
 
+type CommentAccessMethod = 'email' | 'google' | 'github';
+
 type CommentCardProps = {
   comment: CommentItem;
   locale: string;
@@ -37,6 +45,7 @@ type CommentCardProps = {
 type CommentFormProps = {
   locale: string;
   postId: string;
+  viewer?: CommentViewer | null;
   parentId?: string;
   replyToName?: string;
   onSubmitted: (result: { status?: string; moderationStatus?: string }, options?: { parentId?: string }) => void;
@@ -60,6 +69,18 @@ const INITIAL_TOUCHED_STATE: CommentFormTouchedState = {
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const DEFAULT_COMMENT_AUTH_SESSION: CommentAuthSession = {
+  authenticated: false,
+  providers: {
+    google: true,
+    github: true,
+  },
+};
+
+const getCommentInitial = (authorName: string) => {
+  const normalized = authorName.trim();
+  return normalized ? normalized.charAt(0).toUpperCase() : '?';
+};
 
 const COMMENT_ERROR_TRANSLATION_KEYS = {
   failed: 'post.comments.errors.failed',
@@ -72,11 +93,6 @@ const COMMENT_ERROR_TRANSLATION_KEYS = {
   'rate-limited': 'post.comments.errors.rate-limited',
   'service-unavailable': 'post.comments.errors.service-unavailable',
 } as const satisfies Record<string, string>;
-
-const getCommentInitial = (authorName: string) => {
-  const normalized = authorName.trim();
-  return normalized ? normalized.charAt(0).toUpperCase() : '?';
-};
 
 const renderCommentContent = (value: string) => {
   const lines = value.split('\n');
@@ -104,22 +120,28 @@ const formatCommentDate = (value: string, locale: string) => {
   }).format(parsed);
 };
 
-const validateCommentForm = (value: CommentFormState, t: ReturnType<typeof useTranslation>['t']): CommentFormErrors => {
+const validateCommentForm = (
+  value: CommentFormState,
+  t: ReturnType<typeof useTranslation>['t'],
+  requireGuestIdentity = true,
+): CommentFormErrors => {
   const nextErrors: CommentFormErrors = {};
   const normalizedName = value.authorName.trim();
   const normalizedEmail = value.authorEmail.trim();
   const normalizedContent = value.content.trim();
 
-  if (normalizedName.length === 0) {
-    nextErrors.authorName = t('common.validation.required', { ns: 'common' });
-  } else if (normalizedName.length < 2 || normalizedName.length > 80) {
-    nextErrors.authorName = t('post.comments.errors.invalid-author');
-  }
+  if (requireGuestIdentity) {
+    if (normalizedName.length === 0) {
+      nextErrors.authorName = t('common.validation.required', { ns: 'common' });
+    } else if (normalizedName.length < 2 || normalizedName.length > 80) {
+      nextErrors.authorName = t('post.comments.errors.invalid-author');
+    }
 
-  if (normalizedEmail.length === 0) {
-    nextErrors.authorEmail = t('common.validation.required', { ns: 'common' });
-  } else if (normalizedEmail.length > 254 || !EMAIL_PATTERN.test(normalizedEmail)) {
-    nextErrors.authorEmail = t('post.comments.errors.invalid-email');
+    if (normalizedEmail.length === 0) {
+      nextErrors.authorEmail = t('common.validation.required', { ns: 'common' });
+    } else if (normalizedEmail.length > 254 || !EMAIL_PATTERN.test(normalizedEmail)) {
+      nextErrors.authorEmail = t('post.comments.errors.invalid-email');
+    }
   }
 
   if (normalizedContent.length === 0) {
@@ -133,6 +155,11 @@ const validateCommentForm = (value: CommentFormState, t: ReturnType<typeof useTr
 
 const CommentCard = ({ comment, locale, replyButton, metaBadge }: Readonly<CommentCardProps>) => {
   const { t } = useTranslation('post');
+  const [isAvatarBroken, setIsAvatarBroken] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsAvatarBroken(false);
+  }, [comment.avatarUrl]);
 
   return (
     <Card className="post-card shadow-none border-0 post-comment-card">
@@ -140,7 +167,19 @@ const CommentCard = ({ comment, locale, replyButton, metaBadge }: Readonly<Comme
         <div className="post-comment-card-head">
           <div className="post-comment-author">
             <div className="post-comment-avatar" aria-hidden="true">
-              {getCommentInitial(comment.authorName)}
+              {comment.avatarUrl && !isAvatarBroken ? (
+                <img
+                  key={comment.avatarUrl}
+                  className="post-comment-avatar-image"
+                  src={comment.avatarUrl}
+                  alt=""
+                  referrerPolicy="no-referrer"
+                  onLoad={() => setIsAvatarBroken(false)}
+                  onError={() => setIsAvatarBroken(true)}
+                />
+              ) : (
+                <span className="post-comment-avatar-fallback">{getCommentInitial(comment.authorName)}</span>
+              )}
             </div>
             <div className="post-comment-author-meta">
               <div className="post-comment-author-row">
@@ -163,6 +202,7 @@ const CommentCard = ({ comment, locale, replyButton, metaBadge }: Readonly<Comme
 const CommentForm = ({
   locale,
   postId,
+  viewer,
   parentId,
   replyToName,
   onSubmitted,
@@ -177,7 +217,11 @@ const CommentForm = ({
   const [errorMessage, setErrorMessage] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [hasTriedSubmit, setHasTriedSubmit] = React.useState(false);
-  const validationErrors = React.useMemo(() => validateCommentForm(formState, t), [formState, t]);
+  const requiresGuestIdentity = !viewer;
+  const validationErrors = React.useMemo(
+    () => validateCommentForm(formState, t, requiresGuestIdentity),
+    [formState, requiresGuestIdentity, t],
+  );
   const showFieldError = React.useCallback(
     (field: CommentFormField) => (hasTriedSubmit || touchedFields[field]) && Boolean(validationErrors[field]),
     [hasTriedSubmit, touchedFields, validationErrors],
@@ -200,11 +244,11 @@ const CommentForm = ({
     setHasTriedSubmit(true);
 
     if (Object.keys(validationErrors).length > 0) {
-      setTouchedFields({
-        authorName: true,
-        authorEmail: true,
+      setTouchedFields(previous => ({
+        authorName: requiresGuestIdentity ? true : previous.authorName,
+        authorEmail: requiresGuestIdentity ? true : previous.authorEmail,
         content: true,
-      });
+      }));
       return;
     }
 
@@ -215,8 +259,8 @@ const CommentForm = ({
         locale,
         postId,
         ...(parentId ? { parentId } : {}),
-        authorName: formState.authorName.trim(),
-        authorEmail: formState.authorEmail.trim(),
+        authorName: requiresGuestIdentity ? formState.authorName.trim() : '',
+        authorEmail: requiresGuestIdentity ? formState.authorEmail.trim() : '',
         content: formState.content.trim(),
       });
 
@@ -260,40 +304,47 @@ const CommentForm = ({
         </div>
       ) : null}
 
-      <div className={`row ${variant === 'reply' ? 'g-2' : 'g-3'}`}>
-        <div className="col-12">
-          <Form.Group controlId={parentId ? `comment-reply-name-${parentId}` : 'comment-name'}>
-            <Form.Label className="post-comment-form-label">{t('post.comments.form.nameLabel')}</Form.Label>
-            <Form.Control
-              type="text"
-              value={formState.authorName}
-              onChange={handleChange('authorName')}
-              placeholder={t('post.comments.form.namePlaceholder')}
-              maxLength={80}
-              required
-              isInvalid={showFieldError('authorName')}
-              className="post-comment-form-control"
-            />
-            <Form.Control.Feedback type="invalid">{validationErrors.authorName}</Form.Control.Feedback>
-          </Form.Group>
+      {requiresGuestIdentity ? (
+        <div className={`row ${variant === 'reply' ? 'g-2' : 'g-3'}`}>
+          <div className="col-12">
+            <Form.Group controlId={parentId ? `comment-reply-name-${parentId}` : 'comment-name'}>
+              <Form.Label className="post-comment-form-label">{t('post.comments.form.nameLabel')}</Form.Label>
+              <Form.Control
+                type="text"
+                value={formState.authorName}
+                onChange={handleChange('authorName')}
+                placeholder={t('post.comments.form.namePlaceholder')}
+                maxLength={80}
+                required
+                isInvalid={showFieldError('authorName')}
+                className="post-comment-form-control"
+              />
+              <Form.Control.Feedback type="invalid">{validationErrors.authorName}</Form.Control.Feedback>
+            </Form.Group>
+          </div>
+          <div className="col-12">
+            <Form.Group controlId={parentId ? `comment-reply-email-${parentId}` : 'comment-email'}>
+              <Form.Label className="post-comment-form-label">{t('post.comments.form.emailLabel')}</Form.Label>
+              <Form.Control
+                type="email"
+                value={formState.authorEmail}
+                onChange={handleChange('authorEmail')}
+                placeholder={t('post.comments.form.emailPlaceholder')}
+                maxLength={160}
+                required
+                isInvalid={showFieldError('authorEmail')}
+                className="post-comment-form-control"
+              />
+              <Form.Control.Feedback type="invalid">{validationErrors.authorEmail}</Form.Control.Feedback>
+            </Form.Group>
+          </div>
         </div>
-        <div className="col-12">
-          <Form.Group controlId={parentId ? `comment-reply-email-${parentId}` : 'comment-email'}>
-            <Form.Label className="post-comment-form-label">{t('post.comments.form.emailLabel')}</Form.Label>
-            <Form.Control
-              type="email"
-              value={formState.authorEmail}
-              onChange={handleChange('authorEmail')}
-              placeholder={t('post.comments.form.emailPlaceholder')}
-              maxLength={160}
-              required
-              isInvalid={showFieldError('authorEmail')}
-              className="post-comment-form-control"
-            />
-            <Form.Control.Feedback type="invalid">{validationErrors.authorEmail}</Form.Control.Feedback>
-          </Form.Group>
+      ) : (
+        <div className="post-comment-form-viewer-note">
+          <FontAwesomeIcon icon="circle-check" />
+          <span>{t('post.comments.form.viewerHelper', { name: viewer.name })}</span>
         </div>
-      </div>
+      )}
 
       <Form.Group controlId={parentId ? `comment-reply-content-${parentId}` : 'comment-content'}>
         <Form.Label className="post-comment-form-label">{t('post.comments.form.contentLabel')}</Form.Label>
@@ -356,13 +407,75 @@ export default function PostComments({ locale, postId }: Readonly<PostCommentsPr
   const [threads, setThreads] = React.useState<CommentThread[]>([]);
   const [total, setTotal] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isAuthLoading, setIsAuthLoading] = React.useState(true);
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+  const [authSession, setAuthSession] = React.useState<CommentAuthSession>(DEFAULT_COMMENT_AUTH_SESSION);
   const [errorMessage, setErrorMessage] = React.useState('');
   const [successMessage, setSuccessMessage] = React.useState('');
+  const [authFeedback, setAuthFeedback] = React.useState<{ variant: 'success' | 'danger'; message: string } | null>(
+    null,
+  );
   const [activeReplyID, setActiveReplyID] = React.useState<string | null>(null);
   const [replySuccessMessage, setReplySuccessMessage] = React.useState<{ parentId: string; message: string } | null>(
     null,
   );
   const [expandedReplyThreadIDs, setExpandedReplyThreadIDs] = React.useState<string[]>([]);
+  const [composerAccessMethod, setComposerAccessMethod] = React.useState<CommentAccessMethod>('email');
+  const [isViewerAvatarBroken, setIsViewerAvatarBroken] = React.useState(false);
+  const authenticatedViewer = authSession.authenticated ? (authSession.viewer ?? null) : null;
+  const composerViewer = composerAccessMethod === 'email' ? null : authenticatedViewer;
+
+  React.useEffect(() => {
+    setIsViewerAvatarBroken(false);
+  }, [composerViewer?.avatarUrl]);
+
+  const resolveProviderLabel = React.useCallback(
+    (provider: string) => {
+      switch (provider.trim().toLowerCase()) {
+        case 'google':
+          return t('post.comments.auth.providers.google');
+        case 'github':
+          return t('post.comments.auth.providers.github');
+        default:
+          return t('post.comments.auth.providers.account');
+      }
+    },
+    [t],
+  );
+
+  const getCommentReturnTo = React.useCallback(() => {
+    if (globalThis.window === undefined) {
+      return `/${locale}`;
+    }
+
+    const currentURL = new URL(globalThis.window.location.href);
+    currentURL.searchParams.delete('commentAuth');
+    currentURL.searchParams.delete('commentProvider');
+    const query = currentURL.searchParams.toString();
+
+    return `${currentURL.pathname}${query ? `?${query}` : ''}${currentURL.hash}`;
+  }, [locale]);
+
+  const loadAuthSession = React.useCallback(async () => {
+    setIsAuthLoading(true);
+
+    try {
+      const session = (await fetchCommentAuthSession()) ?? DEFAULT_COMMENT_AUTH_SESSION;
+      setAuthSession(session);
+      if (session.authenticated && session.viewer) {
+        const provider = session.viewer.provider?.trim().toLowerCase();
+        setComposerAccessMethod(current =>
+          current === 'email' ? (provider === 'github' ? 'github' : 'google') : current,
+        );
+      }
+      return session;
+    } catch {
+      setAuthSession(DEFAULT_COMMENT_AUTH_SESSION);
+      return DEFAULT_COMMENT_AUTH_SESSION;
+    } finally {
+      setIsAuthLoading(false);
+    }
+  }, []);
 
   const loadComments = React.useCallback(async () => {
     setIsLoading(true);
@@ -385,6 +498,67 @@ export default function PostComments({ locale, postId }: Readonly<PostCommentsPr
   React.useEffect(() => {
     void loadComments();
   }, [loadComments]);
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const bootstrapAuth = async () => {
+      let authStatus = '';
+      let authProvider = '';
+
+      if (globalThis.window !== undefined) {
+        const searchParams = new URLSearchParams(globalThis.window.location.search);
+        authStatus = searchParams.get('commentAuth')?.trim().toLowerCase() ?? '';
+        authProvider = searchParams.get('commentProvider')?.trim().toLowerCase() ?? '';
+
+        if (authStatus || authProvider) {
+          searchParams.delete('commentAuth');
+          searchParams.delete('commentProvider');
+          const nextQuery = searchParams.toString();
+          const nextURL = `${globalThis.window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}${globalThis.window.location.hash}`;
+          globalThis.window.history.replaceState(globalThis.window.history.state, '', nextURL);
+        }
+      }
+
+      const session = await loadAuthSession();
+      if (!isMounted || !authStatus) {
+        return;
+      }
+
+      const providerLabel = resolveProviderLabel(authProvider);
+      if (authStatus === 'connected' && session.authenticated && session.viewer) {
+        setAuthFeedback({
+          variant: 'success',
+          message: t('post.comments.auth.connected', {
+            provider: providerLabel,
+            name: session.viewer.name,
+          }),
+        });
+        return;
+      }
+
+      if (authStatus === 'cancelled') {
+        setAuthFeedback({
+          variant: 'danger',
+          message: t('post.comments.auth.cancelled', { provider: providerLabel }),
+        });
+        return;
+      }
+
+      if (authStatus === 'failed' || authStatus === 'connected') {
+        setAuthFeedback({
+          variant: 'danger',
+          message: t('post.comments.auth.failed', { provider: providerLabel }),
+        });
+      }
+    };
+
+    void bootstrapAuth();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [loadAuthSession, resolveProviderLabel, t]);
 
   React.useEffect(() => {
     if (!successMessage) {
@@ -443,6 +617,44 @@ export default function PostComments({ locale, postId }: Readonly<PostCommentsPr
     },
     [loadComments, t],
   );
+
+  const handleComposerAccessMethodChange = React.useCallback(
+    (nextMethod: CommentAccessMethod) => {
+      if (nextMethod === 'email') {
+        setComposerAccessMethod('email');
+        setAuthFeedback(null);
+        return;
+      }
+
+      if (authenticatedViewer && authenticatedViewer.provider?.trim().toLowerCase() === nextMethod) {
+        setComposerAccessMethod(nextMethod);
+        setAuthFeedback(null);
+        return;
+      }
+
+      beginCommentOAuthLogin(nextMethod, locale, getCommentReturnTo());
+    },
+    [authenticatedViewer, getCommentReturnTo, locale],
+  );
+
+  const handleViewerLogout = React.useCallback(async () => {
+    setIsLoggingOut(true);
+    setAuthFeedback(null);
+
+    try {
+      await logoutCommentViewer();
+      setAuthSession(DEFAULT_COMMENT_AUTH_SESSION);
+      setComposerAccessMethod('email');
+      setActiveReplyID(null);
+      setReplySuccessMessage(null);
+      setAuthFeedback({
+        variant: 'success',
+        message: t('post.comments.auth.signedOut'),
+      });
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }, [t]);
 
   return (
     <section className="post-comments-section" aria-labelledby="post-comments-title">
@@ -578,6 +790,7 @@ export default function PostComments({ locale, postId }: Readonly<PostCommentsPr
                           <CommentForm
                             locale={locale}
                             postId={postId}
+                            viewer={authenticatedViewer}
                             parentId={thread.root.id}
                             replyToName={thread.root.authorName}
                             onSubmitted={handleSubmitted}
@@ -628,8 +841,129 @@ export default function PostComments({ locale, postId }: Readonly<PostCommentsPr
               <p className="mb-0 text-muted">{t('post.comments.composerCopy')}</p>
             </div>
 
-            {successMessage || errorMessage ? (
+            <div className="post-comments-auth">
+              <div className="post-comments-auth-copy">
+                <span className="post-comments-auth-kicker">{t('post.comments.auth.title')}</span>
+                <p className="mb-0 text-muted">{t('post.comments.auth.copy')}</p>
+              </div>
+              {isAuthLoading ? (
+                <div className="post-comments-auth-loading">
+                  <Spinner size="sm" />
+                  <span>{t('post.comments.auth.loading')}</span>
+                </div>
+              ) : null}
+              <div className="post-comments-auth-options" role="group" aria-label={t('post.comments.auth.title')}>
+                <Button
+                  type="button"
+                  variant="danger"
+                  className="post-comments-auth-option post-comments-auth-option--icon post-comments-auth-option--google"
+                  onClick={() => handleComposerAccessMethodChange('google')}
+                  disabled={isAuthLoading || !authSession.providers.google}
+                  aria-label={t('post.comments.auth.google')}
+                  title={t('post.comments.auth.google')}
+                  aria-pressed={composerAccessMethod === 'google'}
+                >
+                  <FontAwesomeIcon icon={['fab', 'google']} />
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="post-comments-auth-option post-comments-auth-option--icon post-comments-auth-option--github"
+                  onClick={() => handleComposerAccessMethodChange('github')}
+                  disabled={isAuthLoading || !authSession.providers.github}
+                  aria-label={t('post.comments.auth.github')}
+                  title={t('post.comments.auth.github')}
+                  aria-pressed={composerAccessMethod === 'github'}
+                >
+                  <FontAwesomeIcon icon={['fab', 'github']} />
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  className="post-comments-auth-option post-comments-auth-option--icon post-comments-auth-option--email"
+                  onClick={() => handleComposerAccessMethodChange('email')}
+                  disabled={isAuthLoading}
+                  aria-label={t('post.comments.auth.email')}
+                  title={t('post.comments.auth.email')}
+                  aria-pressed={composerAccessMethod === 'email'}
+                >
+                  <FontAwesomeIcon icon="envelope" />
+                </Button>
+              </div>
+              {composerViewer ? (
+                <div className="post-comments-authenticated">
+                  <div className="post-comments-authenticated-user">
+                    <div className="post-comments-authenticated-avatar" aria-hidden="true">
+                      {composerViewer.avatarUrl && !isViewerAvatarBroken ? (
+                        <img
+                          key={composerViewer.avatarUrl}
+                          className="post-comments-authenticated-avatar-image"
+                          src={composerViewer.avatarUrl}
+                          alt=""
+                          referrerPolicy="no-referrer"
+                          onLoad={() => setIsViewerAvatarBroken(false)}
+                          onError={() => {
+                            console.warn('post comments viewer avatar failed to load', {
+                              avatarUrl: composerViewer.avatarUrl,
+                              viewerId: composerViewer.id,
+                              provider: composerViewer.provider,
+                            });
+                            setIsViewerAvatarBroken(true);
+                          }}
+                        />
+                      ) : (
+                        <FontAwesomeIcon icon="user" className="post-comments-authenticated-avatar-fallback" />
+                      )}
+                    </div>
+                    <div className="post-comments-authenticated-copy">
+                      <span className="post-comments-authenticated-title">
+                        {t('post.comments.auth.signedInAs', { name: composerViewer.name })}
+                      </span>
+                      <small className="text-muted">
+                        {t('post.comments.auth.providerHint', {
+                          provider: resolveProviderLabel(composerViewer.provider ?? composerAccessMethod),
+                          email: composerViewer.email,
+                        })}
+                      </small>
+                    </div>
+                  </div>
+                  <div className="post-comments-authenticated-actions">
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="post-comments-auth-alert-action"
+                      onClick={() => handleComposerAccessMethodChange('email')}
+                    >
+                      {t('post.comments.auth.useEmail')}
+                    </Button>
+                    <Button type="button" variant="secondary" onClick={handleViewerLogout} disabled={isLoggingOut}>
+                      {isLoggingOut ? (
+                        <span className="d-inline-flex align-items-center gap-2">
+                          <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                          <span>{t('post.comments.auth.signingOut')}</span>
+                        </span>
+                      ) : (
+                        <>
+                          <FontAwesomeIcon icon="right-from-bracket" className="me-2" />
+                          <span>{t('post.comments.auth.signOut')}</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            {authFeedback || successMessage || errorMessage ? (
               <div className="post-comments-status-stack">
+                {authFeedback ? (
+                  <Alert
+                    variant={authFeedback.variant}
+                    className={`mb-0 post-comments-status-alert post-comments-status-alert--${authFeedback.variant}`}
+                  >
+                    {authFeedback.message}
+                  </Alert>
+                ) : null}
                 {successMessage ? (
                   <Alert
                     variant="success"
@@ -652,6 +986,7 @@ export default function PostComments({ locale, postId }: Readonly<PostCommentsPr
             <CommentForm
               locale={locale}
               postId={postId}
+              viewer={composerViewer}
               onSubmitted={handleSubmitted}
               submitLabel={t('post.comments.form.submit')}
               variant="composer"

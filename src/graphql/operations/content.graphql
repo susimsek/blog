@@ -87,6 +87,7 @@ query comments($locale: Locale!, $postId: ID!) {
         id
         parentId
         authorName
+        avatarUrl
         content
         createdAt
       }
@@ -94,6 +95,7 @@ query comments($locale: Locale!, $postId: ID!) {
         id
         parentId
         authorName
+        avatarUrl
         content
         createdAt
       }

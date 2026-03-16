@@ -49,12 +49,15 @@ type CommentQueryInput struct {
 }
 
 type AddCommentInput struct {
-	Locale      string
-	PostID      string
-	ParentID    string
-	AuthorName  string
-	AuthorEmail string
-	Content     string
+	Locale                       string
+	PostID                       string
+	ParentID                     string
+	AuthorName                   string
+	AuthorEmail                  string
+	AuthenticatedAuthorName      string
+	AuthenticatedAuthorEmail     string
+	AuthenticatedAuthorAvatarURL string
+	Content                      string
 }
 
 func ListComments(ctx context.Context, input CommentQueryInput) domain.CommentListResult {
@@ -105,14 +108,20 @@ func AddComment(ctx context.Context, input AddCommentInput, meta RequestMetadata
 		return domain.CommentMutationResult{Status: statusInvalidPostID, Locale: locale}
 	}
 
-	authorName := normalizeCommentAuthorName(input.AuthorName)
+	authorName := normalizeCommentAuthorName(input.AuthenticatedAuthorName)
 	if authorName == "" {
-		return domain.CommentMutationResult{Status: commentStatusInvalidAuthor, Locale: locale, PostID: postID}
+		authorName = normalizeCommentAuthorName(input.AuthorName)
+		if authorName == "" {
+			return domain.CommentMutationResult{Status: commentStatusInvalidAuthor, Locale: locale, PostID: postID}
+		}
 	}
 
-	authorEmail, emailErr := normalizeCommentAuthorEmail(input.AuthorEmail)
+	authorEmail, emailErr := normalizeCommentAuthorEmail(input.AuthenticatedAuthorEmail)
 	if emailErr != nil {
-		return domain.CommentMutationResult{Status: commentStatusInvalidEmail, Locale: locale, PostID: postID}
+		authorEmail, emailErr = normalizeCommentAuthorEmail(input.AuthorEmail)
+		if emailErr != nil {
+			return domain.CommentMutationResult{Status: commentStatusInvalidEmail, Locale: locale, PostID: postID}
+		}
 	}
 
 	content := normalizeCommentContent(input.Content)
@@ -176,20 +185,21 @@ func AddComment(ctx context.Context, input AddCommentInput, meta RequestMetadata
 	}
 
 	record := domain.CommentRecord{
-		ID:             commentID,
-		PostID:         postID,
-		PostTitle:      strings.TrimSpace(post.Title),
-		Locale:         locale,
-		ParentID:       parentID,
-		AuthorName:     authorName,
-		AuthorEmail:    authorEmail,
-		Content:        content,
-		Status:         moderationStatus,
-		CreatedAt:      now,
-		UpdatedAt:      now,
-		IPHash:         hashCommentValue(strings.TrimSpace(meta.ClientIP)),
-		UserAgentHash:  hashCommentValue(strings.TrimSpace(meta.UserAgent)),
-		ModerationNote: moderationNote,
+		ID:              commentID,
+		PostID:          postID,
+		PostTitle:       strings.TrimSpace(post.Title),
+		Locale:          locale,
+		ParentID:        parentID,
+		AuthorName:      authorName,
+		AuthorAvatarURL: sanitizeReaderAvatarURL(input.AuthenticatedAuthorAvatarURL),
+		AuthorEmail:     authorEmail,
+		Content:         content,
+		Status:          moderationStatus,
+		CreatedAt:       now,
+		UpdatedAt:       now,
+		IPHash:          hashCommentValue(strings.TrimSpace(meta.ClientIP)),
+		UserAgentHash:   hashCommentValue(strings.TrimSpace(meta.UserAgent)),
+		ModerationNote:  moderationNote,
 	}
 
 	if err := commentRepository.CreateComment(operationCtx, record); err != nil {

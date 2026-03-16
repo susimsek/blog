@@ -147,11 +147,12 @@ func TestAddComment(t *testing.T) {
 	result := AddComment(
 		context.Background(),
 		AddCommentInput{
-			Locale:      "en",
-			PostID:      "Alpha-Post",
-			AuthorName:  " Alice ",
-			AuthorEmail: " Alice@example.com ",
-			Content:     "First comment",
+			Locale:                       "en",
+			PostID:                       "Alpha-Post",
+			AuthorName:                   " Alice ",
+			AuthorEmail:                  " Alice@example.com ",
+			AuthenticatedAuthorAvatarURL: "https://example.com/avatar.png",
+			Content:                      "First comment",
 		},
 		RequestMetadata{ClientIP: "203.0.113.10", UserAgent: "Browser"},
 	)
@@ -160,6 +161,9 @@ func TestAddComment(t *testing.T) {
 	}
 	if stored.AuthorName != "Alice" || stored.AuthorEmail != "alice@example.com" || stored.Status != commentStatusPending {
 		t.Fatalf("stored = %#v", stored)
+	}
+	if stored.AuthorAvatarURL != "https://example.com/avatar.png" {
+		t.Fatalf("expected avatar URL to be stored, got %#v", stored)
 	}
 	if stored.IPHash == "" || stored.UserAgentHash == "" {
 		t.Fatalf("expected hashes in stored comment = %#v", stored)

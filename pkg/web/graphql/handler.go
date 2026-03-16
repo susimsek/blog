@@ -105,6 +105,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", httpConfig.AllowedOrigin)
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept-Language")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.Header().Set("Vary", "Origin")
 	w.Header().Set("Cache-Control", "no-store")
 
@@ -120,7 +121,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	requestWithMetadata := r.WithContext(graphschema.WithRequestMetadata(r.Context(), r))
-	getGraphQLServer().ServeHTTP(w, requestWithMetadata)
+	requestWithContext, err := graphschema.WithPublicRequestContext(requestWithMetadata.Context(), requestWithMetadata)
+	if err != nil {
+		httpapi.WriteErrorWithContext(r.Context(), w, apperrors.Internal("failed to resolve reader auth", err))
+		return
+	}
+
+	getGraphQLServer().ServeHTTP(w, requestWithMetadata.WithContext(requestWithContext))
 }
 
 func shouldServeGraphiQL(r *http.Request) bool {

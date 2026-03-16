@@ -1,6 +1,7 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
 import PostComments from '@/components/posts/PostComments';
+import { beginCommentOAuthLogin, fetchCommentAuthSession, logoutCommentViewer } from '@/lib/commentAuthApi';
 import { addComment, fetchComments } from '@/lib/commentsApi';
 
 const translate = (key: string, options?: { count?: number; date?: string }) => {
@@ -24,12 +25,30 @@ jest.mock('@/lib/commentsApi', () => ({
   addComment: jest.fn(),
 }));
 
+jest.mock('@/lib/commentAuthApi', () => ({
+  fetchCommentAuthSession: jest.fn(),
+  logoutCommentViewer: jest.fn(),
+  beginCommentOAuthLogin: jest.fn(),
+}));
+
 const mockedFetchComments = jest.mocked(fetchComments);
 const mockedAddComment = jest.mocked(addComment);
+const mockedFetchCommentAuthSession = jest.mocked(fetchCommentAuthSession);
+const mockedLogoutCommentViewer = jest.mocked(logoutCommentViewer);
+const mockedBeginCommentOAuthLogin = jest.mocked(beginCommentOAuthLogin);
 
 describe('PostComments', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockedFetchCommentAuthSession.mockResolvedValue({
+      authenticated: false,
+      providers: {
+        google: true,
+        github: true,
+      },
+    });
+    mockedLogoutCommentViewer.mockResolvedValue(true);
+    window.history.replaceState({}, '', '/en/posts/alpha-post');
   });
 
   it('renders approved comments and toggles replies on demand', async () => {
@@ -41,6 +60,7 @@ describe('PostComments', () => {
           root: {
             id: 'root-1',
             authorName: 'Alice',
+            avatarUrl: 'https://example.com/alice.png',
             content: 'Root comment',
             createdAt: '2026-03-14T10:00:00.000Z',
           },
@@ -49,6 +69,7 @@ describe('PostComments', () => {
               id: 'reply-1',
               parentId: 'root-1',
               authorName: 'Bob',
+              avatarUrl: 'https://example.com/bob.png',
               content: 'Reply comment',
               createdAt: '2026-03-14T10:05:00.000Z',
             },
@@ -60,6 +81,10 @@ describe('PostComments', () => {
     renderWithProviders(<PostComments locale="en" postId="alpha-post" />);
 
     expect(await screen.findByText('Alice')).toBeInTheDocument();
+    expect(document.querySelector('.post-comment-avatar-image')).toHaveAttribute(
+      'src',
+      'https://example.com/alice.png',
+    );
     expect(screen.getByText('Root comment')).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText('1')).toBeInTheDocument();
@@ -96,6 +121,72 @@ describe('PostComments', () => {
     rerender(<PostComments locale="en" postId="beta-post" />);
 
     expect(await screen.findByText('post.comments.errors.load')).toBeInTheDocument();
+  });
+
+  it('starts public OAuth login for Google and GitHub comments', async () => {
+    mockedFetchComments.mockResolvedValue({
+      status: 'success',
+      total: 0,
+      threads: [],
+    });
+
+    renderWithProviders(<PostComments locale="en" postId="alpha-post" />);
+
+    await screen.findByText('post.comments.empty');
+
+    fireEvent.click(screen.getByRole('button', { name: 'post.comments.auth.google' }));
+    expect(mockedBeginCommentOAuthLogin).toHaveBeenCalledWith('google', 'en', '/en/posts/alpha-post');
+
+    fireEvent.click(screen.getByRole('button', { name: 'post.comments.auth.github' }));
+    expect(mockedBeginCommentOAuthLogin).toHaveBeenCalledWith('github', 'en', '/en/posts/alpha-post');
+  });
+
+  it('uses the authenticated reader for composer submissions', async () => {
+    mockedFetchCommentAuthSession.mockResolvedValue({
+      authenticated: true,
+      providers: {
+        google: true,
+        github: true,
+      },
+      viewer: {
+        id: 'reader-1',
+        name: 'Alice Reader',
+        email: 'alice@example.com',
+        provider: 'google',
+        avatarUrl: 'https://example.com/avatar.png',
+      },
+    });
+    mockedFetchComments.mockResolvedValue({
+      status: 'success',
+      total: 0,
+      threads: [],
+    });
+    mockedAddComment.mockResolvedValue({
+      status: 'success',
+      postId: 'alpha-post',
+      moderationStatus: 'pending',
+    });
+
+    renderWithProviders(<PostComments locale="en" postId="alpha-post" />);
+
+    await screen.findByText('post.comments.empty');
+    expect(screen.queryByLabelText('post.comments.form.nameLabel')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('post.comments.form.emailLabel')).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('post.comments.form.contentLabel'), {
+      target: { value: 'Signed in comment' },
+    });
+    fireEvent.submit(screen.getByLabelText('post.comments.form.contentLabel').closest('form')!);
+
+    await waitFor(() => {
+      expect(mockedAddComment).toHaveBeenCalledWith({
+        locale: 'en',
+        postId: 'alpha-post',
+        authorName: '',
+        authorEmail: '',
+        content: 'Signed in comment',
+      });
+    });
   });
 
   it('shows inline validation feedback before submit', async () => {

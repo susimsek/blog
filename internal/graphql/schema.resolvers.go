@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"strings"
 
+	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/graphql/model"
 	appservice "suaybsimsek.com/blog-api/internal/service"
 )
@@ -134,10 +135,10 @@ func (r *queryResolver) Comments(ctx context.Context, locale model.Locale, postI
 	})
 
 	return &model.CommentListResult{
-		Status: mapCommentQueryStatus(payload.Status),
-		Locale: mapLocaleOutput(payload.Locale),
-		PostID: strings.TrimSpace(payload.PostID),
-		Total:  payload.Total,
+		Status:  mapCommentQueryStatus(payload.Status),
+		Locale:  mapLocaleOutput(payload.Locale),
+		PostID:  strings.TrimSpace(payload.PostID),
+		Total:   payload.Total,
 		Threads: mapCommentThreads(payload.Comments),
 	}, nil
 }
@@ -257,15 +258,20 @@ func (r *mutationResolver) UnsubscribeNewsletter(
 
 // AddComment is the resolver for the addComment field.
 func (r *mutationResolver) AddComment(ctx context.Context, input model.AddCommentInput) (*model.CommentMutationResult, error) {
+	readerUser := getReaderUser(ctx)
+
 	payload := addCommentFn(
 		ctx,
 		appservice.AddCommentInput{
-			Locale:      strings.TrimSpace(mapLocaleInput(input.Locale)),
-			PostID:      strings.TrimSpace(input.PostID),
-			ParentID:    strings.TrimSpace(toOptionalStringValue(input.ParentID)),
-			AuthorName:  strings.TrimSpace(input.AuthorName),
-			AuthorEmail: strings.TrimSpace(input.AuthorEmail),
-			Content:     input.Content,
+			Locale:                       strings.TrimSpace(mapLocaleInput(input.Locale)),
+			PostID:                       strings.TrimSpace(input.PostID),
+			ParentID:                     strings.TrimSpace(toOptionalStringValue(input.ParentID)),
+			AuthorName:                   strings.TrimSpace(input.AuthorName),
+			AuthorEmail:                  strings.TrimSpace(input.AuthorEmail),
+			AuthenticatedAuthorName:      strings.TrimSpace(toOptionalReaderName(readerUser)),
+			AuthenticatedAuthorEmail:     strings.TrimSpace(toOptionalReaderEmail(readerUser)),
+			AuthenticatedAuthorAvatarURL: strings.TrimSpace(toOptionalReaderAvatarURL(readerUser)),
+			Content:                      input.Content,
 		},
 		getRequestMetadata(ctx),
 	)
@@ -288,12 +294,35 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+type (
+	mutationResolver struct{ *Resolver }
+	queryResolver    struct{ *Resolver }
+)
 
 func toOptionalStringValue(value *string) string {
 	if value == nil {
 		return ""
 	}
 	return *value
+}
+
+func toOptionalReaderName(user *domain.ReaderUser) string {
+	if user == nil {
+		return ""
+	}
+	return user.Name
+}
+
+func toOptionalReaderEmail(user *domain.ReaderUser) string {
+	if user == nil {
+		return ""
+	}
+	return user.Email
+}
+
+func toOptionalReaderAvatarURL(user *domain.ReaderUser) string {
+	if user == nil {
+		return ""
+	}
+	return user.AvatarURL
 }

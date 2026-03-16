@@ -56,7 +56,7 @@ func ResolveAdminConfig() AdminConfig {
 	}
 
 	return AdminConfig{
-		JWTSecret:          strings.TrimSpace(getenv("ADMIN_JWT_SECRET")),
+		JWTSecret:          strings.TrimSpace(getenv("JWT_SECRET")),
 		AccessCookieName:   accessCookieName,
 		RefreshCookieName:  refreshCookieName,
 		CSRFCookieName:     csrfCookieName,
@@ -84,7 +84,7 @@ func resolveDurationEnv(name string, fallback time.Duration) time.Duration {
 }
 
 func resolveAdminSecureCookie() bool {
-	if value, ok := resolveOptionalBoolEnv("ADMIN_COOKIE_SECURE"); ok {
+	if value, ok := resolveOptionalBoolEnv("COOKIE_SECURE"); ok {
 		return value
 	}
 

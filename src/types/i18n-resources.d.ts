@@ -1553,6 +1553,28 @@ interface Resources {
         title: 'Written by';
       };
       comments: {
+        auth: {
+          cancelled: '{{provider}} sign-in was cancelled. You can still leave a guest comment by email.';
+          connected: '{{provider}} sign-in is ready. You can comment as {{name}}.';
+          copy: 'Use email for a guest comment, or sign in with Google or GitHub to comment with your reader profile.';
+          email: 'Email guest comment';
+          failed: '{{provider}} sign-in could not be completed. Try again or use email guest comment.';
+          github: 'Continue with GitHub';
+          google: 'Continue with Google';
+          loading: 'Checking your comment session...';
+          providerHint: '{{provider}} account • {{email}}';
+          providers: {
+            account: 'Reader';
+            github: 'GitHub';
+            google: 'Google';
+          };
+          signOut: 'Sign out';
+          signedInAs: 'Signed in as {{name}}';
+          signedOut: 'Signed out. You can continue with email guest comments.';
+          signingOut: 'Signing out...';
+          title: 'Comment access';
+          useEmail: 'Use email guest comment';
+        };
         closeReply: 'Close reply';
         composerCopy: 'Join the discussion with a note, question, or correction.';
         composerTitle: 'Add your comment';
@@ -1585,6 +1607,7 @@ interface Resources {
           submit: 'Post comment';
           submitReply: 'Post reply';
           submitting: 'Submitting...';
+          viewerHelper: 'Commenting as {{name}}. Your reader email stays private.';
         };
         hideReplies_one: 'Hide 1 reply';
         hideReplies_other: 'Hide {{count}} replies';

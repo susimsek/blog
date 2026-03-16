@@ -21,6 +21,7 @@ func mapComment(record domain.CommentRecord) *model.Comment {
 		ID:         id,
 		ParentID:   toOptionalString(derefString(record.ParentID)),
 		AuthorName: authorName,
+		AvatarURL:  toOptionalString(strings.TrimSpace(record.AuthorAvatarURL)),
 		Content:    content,
 		CreatedAt:  createdAt,
 	}

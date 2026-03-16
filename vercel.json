@@ -16,6 +16,14 @@
     {
       "source": "/api/admin/graphql",
       "destination": "/api/admin-graphql"
+    },
+    {
+      "source": "/api/reader-auth/session",
+      "destination": "/api/reader-auth"
+    },
+    {
+      "source": "/api/reader-auth/logout",
+      "destination": "/api/reader-auth"
     }
   ],
   "crons": [
