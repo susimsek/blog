@@ -27,6 +27,7 @@ const commentRepositoryUnavailableFormat = "%w: %v"
 
 type CommentRepository interface {
 	ListApprovedByPost(ctx context.Context, postID string) ([]domain.CommentRecord, error)
+	CountApprovedByPost(ctx context.Context, postID string) (int, error)
 	CreateComment(ctx context.Context, input domain.CommentRecord) error
 	FindCommentByID(ctx context.Context, id string) (*domain.CommentRecord, error)
 	ListComments(
@@ -159,6 +160,26 @@ func (*commentMongoRepository) ListApprovedByPost(ctx context.Context, postID st
 	}
 
 	return comments, nil
+}
+
+func (*commentMongoRepository) CountApprovedByPost(ctx context.Context, postID string) (int, error) {
+	collection, err := getPostCommentsCollection()
+	if err != nil {
+		return 0, fmt.Errorf(commentRepositoryUnavailableFormat, ErrCommentRepositoryUnavailable, err)
+	}
+
+	total, err := collection.CountDocuments(
+		ctx,
+		bson.M{
+			"postId": strings.TrimSpace(strings.ToLower(postID)),
+			"status": "approved",
+		},
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(total), nil
 }
 
 func (*commentMongoRepository) CreateComment(ctx context.Context, input domain.CommentRecord) error {

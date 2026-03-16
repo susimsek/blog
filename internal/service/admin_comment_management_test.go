@@ -16,6 +16,12 @@ func TestDeleteAdminCommentRemovesComment(t *testing.T) {
 	})
 
 	commentRepository = commentStubRepository{
+		findCommentByID: func(_ context.Context, id string) (*domain.CommentRecord, error) {
+			if id != "comment-1" {
+				t.Fatalf("FindCommentByID id = %q", id)
+			}
+			return &domain.CommentRecord{ID: id, PostID: "alpha-post", Status: commentStatusPending}, nil
+		},
 		deleteCommentByID: func(_ context.Context, id string) (bool, error) {
 			if id != "comment-1" {
 				t.Fatalf("DeleteCommentByID id = %q", id)
@@ -37,6 +43,9 @@ func TestDeleteAdminCommentReturnsBadRequestWhenMissing(t *testing.T) {
 	})
 
 	commentRepository = commentStubRepository{
+		findCommentByID: func(_ context.Context, id string) (*domain.CommentRecord, error) {
+			return &domain.CommentRecord{ID: id, PostID: "alpha-post", Status: commentStatusPending}, nil
+		},
 		deleteCommentByID: func(context.Context, string) (bool, error) {
 			return false, nil
 		},
@@ -55,6 +64,9 @@ func TestDeleteAdminCommentMapsRepositoryErrors(t *testing.T) {
 	})
 
 	commentRepository = commentStubRepository{
+		findCommentByID: func(_ context.Context, id string) (*domain.CommentRecord, error) {
+			return &domain.CommentRecord{ID: id, PostID: "alpha-post", Status: commentStatusPending}, nil
+		},
 		deleteCommentByID: func(context.Context, string) (bool, error) {
 			return false, repository.ErrCommentRepositoryUnavailable
 		},

@@ -47,6 +47,7 @@ import {
   revokeAllAdminSessions,
   sendAdminNewsletterTestEmail,
   disconnectAdminGoogle,
+  subscribeAdminCommentEvents,
   triggerAdminNewsletterDispatch,
   updateAdminCommentStatus,
   updateAdminNewsletterSubscriberStatus,
@@ -58,6 +59,7 @@ import {
   type AdminNewsletterDispatchLocaleResult,
   type AdminNewsletterSubscriberItem,
 } from '@/lib/adminApi';
+import { patchAdminCommentsForEvent } from '@/lib/adminCommentEvents';
 import { withAdminAvatarSize } from '@/lib/adminAvatar';
 import { ADMIN_ROUTES, buildAdminContentPostDetailRoute } from '@/lib/adminRoutes';
 import { defaultLocale } from '@/i18n/settings';
@@ -2011,6 +2013,56 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
 
     void loadAdminComments();
   }, [adminUser, commentsPage, commentsPageSize, isCommentsSection, loadAdminComments]);
+
+  React.useEffect(() => {
+    if (!isCommentsSection || !adminUser || globalThis.window === undefined) {
+      return;
+    }
+
+    return subscribeAdminCommentEvents(
+      {},
+      {
+        next: event => {
+          setComments(previousComments => {
+            const patch = patchAdminCommentsForEvent(previousComments, totalComments, event, {
+              statusFilter: commentFilterStatus,
+              query: commentFilterQueryDebounced,
+              page: commentsPage,
+              pageSize: commentsPageSize,
+            });
+
+            if (patch.shouldRefetch) {
+              void loadAdminComments();
+              return previousComments;
+            }
+
+            if (patch.total !== totalComments) {
+              setTotalComments(patch.total);
+            }
+
+            return patch.items;
+          });
+        },
+        error: () => {
+          // Keep the last loaded list visible if the realtime stream disconnects.
+        },
+        connected: reconnected => {
+          if (reconnected) {
+            void loadAdminComments();
+          }
+        },
+      },
+    );
+  }, [
+    adminUser,
+    commentFilterQueryDebounced,
+    commentFilterStatus,
+    commentsPage,
+    commentsPageSize,
+    isCommentsSection,
+    loadAdminComments,
+    totalComments,
+  ]);
 
   const scrollToCommentsListStart = React.useCallback(() => {
     const target = commentsListTopRef.current;

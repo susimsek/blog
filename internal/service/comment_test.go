@@ -14,6 +14,7 @@ import (
 
 type commentStubRepository struct {
 	listApprovedByPost      func(context.Context, string) ([]domain.CommentRecord, error)
+	countApprovedByPost     func(context.Context, string) (int, error)
 	createComment           func(context.Context, domain.CommentRecord) error
 	findCommentByID         func(context.Context, string) (*domain.CommentRecord, error)
 	listComments            func(context.Context, domain.AdminCommentFilter, int, int) (*domain.AdminCommentListResult, error)
@@ -23,6 +24,13 @@ type commentStubRepository struct {
 
 func (stub commentStubRepository) ListApprovedByPost(ctx context.Context, postID string) ([]domain.CommentRecord, error) {
 	return stub.listApprovedByPost(ctx, postID)
+}
+
+func (stub commentStubRepository) CountApprovedByPost(ctx context.Context, postID string) (int, error) {
+	if stub.countApprovedByPost == nil {
+		return 0, nil
+	}
+	return stub.countApprovedByPost(ctx, postID)
 }
 
 func (stub commentStubRepository) CreateComment(ctx context.Context, input domain.CommentRecord) error {

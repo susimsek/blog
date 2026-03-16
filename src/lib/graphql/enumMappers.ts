@@ -1,5 +1,6 @@
 import {
   CommentModerationStatus,
+  CommentEventType,
   CommentMutationStatus,
   CommentQueryStatus,
   ContentQueryStatus,
@@ -58,6 +59,9 @@ export const fromCommentMutationStatus = (value: CommentMutationStatus | null | 
   value ? enumToKebabCase(value) : undefined;
 
 export const fromCommentModerationStatus = (value: CommentModerationStatus | null | undefined): string | undefined =>
+  value ? enumToKebabCase(value) : undefined;
+
+export const fromCommentEventType = (value: CommentEventType | null | undefined): string | undefined =>
   value ? enumToKebabCase(value) : undefined;
 
 export const fromGraphQLSortOrder = (value: SortOrder | string | null | undefined): string | undefined => {

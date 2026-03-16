@@ -1199,15 +1199,76 @@ func (r *adminMutationResolver) DeleteContentCategory(
 	return &model.AdminDeletePayload{Success: true}, nil
 }
 
+// CommentEvent is the resolver for the commentEvent field.
+func (r *adminSubscriptionResolver) CommentEvent(
+	ctx context.Context,
+	postID *string,
+) (<-chan *model.AdminCommentEvent, error) {
+	if _, err := requireAdminUser(ctx); err != nil {
+		return nil, err
+	}
+
+	resolvedPostID := ""
+	if postID != nil {
+		resolvedPostID = strings.TrimSpace(*postID)
+	}
+
+	var (
+		source      <-chan domain.CommentEvent
+		unsubscribe func()
+	)
+	if resolvedPostID == "" {
+		source, unsubscribe = appservice.SubscribeAllCommentEvents()
+	} else {
+		source, unsubscribe = appservice.SubscribeCommentEvents(resolvedPostID)
+	}
+
+	target := make(chan *model.AdminCommentEvent, 16)
+	go func() {
+		defer unsubscribe()
+		defer close(target)
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case event, ok := <-source:
+				if !ok {
+					return
+				}
+
+				mappedEvent := mapAdminCommentEvent(event)
+				if mappedEvent == nil {
+					continue
+				}
+
+				select {
+				case <-ctx.Done():
+					return
+				case target <- mappedEvent:
+				}
+			}
+		}
+	}()
+
+	return target, nil
+}
+
 // AdminMutation returns AdminMutationResolver implementation.
 func (r *Resolver) AdminMutation() AdminMutationResolver { return &adminMutationResolver{r} }
 
 // AdminQuery returns AdminQueryResolver implementation.
 func (r *Resolver) AdminQuery() AdminQueryResolver { return &adminQueryResolver{r} }
 
+// AdminSubscription returns AdminSubscriptionResolver implementation.
+func (r *Resolver) AdminSubscription() AdminSubscriptionResolver {
+	return &adminSubscriptionResolver{r}
+}
+
 type (
-	adminMutationResolver struct{ *Resolver }
-	adminQueryResolver    struct{ *Resolver }
+	adminMutationResolver     struct{ *Resolver }
+	adminQueryResolver        struct{ *Resolver }
+	adminSubscriptionResolver struct{ *Resolver }
 )
 
 func mapAdminUser(user *domain.AdminUser) *model.AdminUser {
@@ -2031,6 +2092,49 @@ func mapAdminCommentListPayload(value *domain.AdminCommentListResult) *model.Adm
 		Total: value.Total,
 		Page:  page,
 		Size:  size,
+	}
+}
+
+func mapAdminCommentEventType(value domain.CommentEventType) model.AdminCommentEventType {
+	switch value {
+	case domain.CommentEventTypeUpdated:
+		return model.AdminCommentEventTypeUpdated
+	case domain.CommentEventTypeDeleted:
+		return model.AdminCommentEventTypeDeleted
+	case domain.CommentEventTypeCountChanged:
+		return model.AdminCommentEventTypeCountChanged
+	default:
+		return model.AdminCommentEventTypeCreated
+	}
+}
+
+func mapAdminCommentEvent(value domain.CommentEvent) *model.AdminCommentEvent {
+	resolvedPostID := strings.TrimSpace(value.PostID)
+	resolvedCommentID := strings.TrimSpace(value.CommentID)
+	if resolvedPostID == "" || resolvedCommentID == "" {
+		return nil
+	}
+
+	return &model.AdminCommentEvent{
+		Type:      mapAdminCommentEventType(value.Type),
+		PostID:    resolvedPostID,
+		CommentID: resolvedCommentID,
+		ParentID:  toOptionalAdminString(adminDerefString(value.ParentID)),
+		Status: func() *model.AdminCommentStatus {
+			if strings.TrimSpace(value.Status) == "" {
+				return nil
+			}
+			status := mapAdminCommentStatusOutput(value.Status)
+			return &status
+		}(),
+		Total: func() *int {
+			if value.Total == nil {
+				return nil
+			}
+			total := *value.Total
+			return &total
+		}(),
+		Comment: mapAdminComment(value.Comment),
 	}
 }
 

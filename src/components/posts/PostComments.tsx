@@ -14,8 +14,8 @@ import {
   logoutCommentViewer,
   type CommentAuthSession,
 } from '@/lib/commentAuthApi';
-import { addComment, fetchComments } from '@/lib/commentsApi';
-import type { CommentItem, CommentThread, CommentViewer } from '@/types/comments';
+import { addComment, fetchComments, subscribeToCommentEvents } from '@/lib/commentsApi';
+import type { CommentEvent, CommentItem, CommentThread, CommentViewer } from '@/types/comments';
 
 type CommentFormState = {
   authorName: string;
@@ -123,6 +123,64 @@ const formatCommentDate = (value: string, locale: string) => {
     minute: '2-digit',
   }).format(parsed);
 };
+
+const sortCommentItems = (items: CommentItem[]) =>
+  [...items].sort((left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime());
+
+const upsertCommentThread = (threads: CommentThread[], comment: CommentItem) => {
+  if (comment.parentId) {
+    let matched = false;
+    const nextThreads = threads.map(thread => {
+      if (thread.root.id !== comment.parentId) {
+        return thread;
+      }
+
+      matched = true;
+      const existingReplyIndex = thread.replies.findIndex(reply => reply.id === comment.id);
+      const nextReplies =
+        existingReplyIndex >= 0
+          ? thread.replies.map(reply => (reply.id === comment.id ? comment : reply))
+          : [...thread.replies, comment];
+
+      return {
+        ...thread,
+        replies: sortCommentItems(nextReplies),
+      };
+    });
+
+    return matched ? nextThreads : threads;
+  }
+
+  const nextThreads = threads.some(thread => thread.root.id === comment.id)
+    ? threads.map(thread => (thread.root.id === comment.id ? { ...thread, root: comment } : thread))
+    : [...threads, { root: comment, replies: [] }];
+
+  return [...nextThreads].sort(
+    (left, right) => new Date(left.root.createdAt).getTime() - new Date(right.root.createdAt).getTime(),
+  );
+};
+
+const removeCommentFromThreads = (threads: CommentThread[], event: CommentEvent) =>
+  threads
+    .map(thread => {
+      if (thread.root.id === event.commentId) {
+        return null;
+      }
+
+      if (!event.parentId) {
+        return thread;
+      }
+
+      if (thread.root.id !== event.parentId) {
+        return thread;
+      }
+
+      return {
+        ...thread,
+        replies: thread.replies.filter(reply => reply.id !== event.commentId),
+      };
+    })
+    .filter((thread): thread is CommentThread => Boolean(thread));
 
 const validateCommentForm = (
   value: CommentFormState,
@@ -599,6 +657,51 @@ export default function PostComments({
       isMounted = false;
     };
   }, [loadAuthSession, resolveProviderLabel, t]);
+
+  React.useEffect(() => {
+    if (globalThis.window === undefined || !postId.trim()) {
+      return;
+    }
+
+    return subscribeToCommentEvents(postId, {
+      next(event) {
+        setTotal(previous => {
+          if (typeof event.total === 'number') {
+            return event.total;
+          }
+          return previous;
+        });
+
+        setThreads(previous => {
+          if (event.type === 'count-changed') {
+            return previous;
+          }
+
+          if (event.type === 'deleted' || event.status === 'rejected' || event.status === 'spam') {
+            return removeCommentFromThreads(previous, event);
+          }
+
+          if (!event.comment) {
+            return previous;
+          }
+
+          const nextThreads = upsertCommentThread(previous, event.comment);
+          return nextThreads;
+        });
+
+        if ((event.type === 'created' || event.type === 'updated') && event.comment?.parentId) {
+          setExpandedReplyThreadIDs(previous =>
+            previous.includes(event.comment!.parentId!) ? previous : [...previous, event.comment!.parentId!],
+          );
+        }
+      },
+      connected(reconnected) {
+        if (reconnected) {
+          void loadComments();
+        }
+      },
+    });
+  }, [loadComments, postId]);
 
   React.useEffect(() => {
     if (!successMessage) {

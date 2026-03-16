@@ -41,6 +41,7 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
+	Subscription() SubscriptionResolver
 }
 
 type DirectiveRoot struct {
@@ -54,6 +55,16 @@ type ComplexityRoot struct {
 		CreatedAt  func(childComplexity int) int
 		ID         func(childComplexity int) int
 		ParentID   func(childComplexity int) int
+	}
+
+	CommentEvent struct {
+		Comment   func(childComplexity int) int
+		CommentID func(childComplexity int) int
+		ParentID  func(childComplexity int) int
+		PostID    func(childComplexity int) int
+		Status    func(childComplexity int) int
+		Total     func(childComplexity int) int
+		Type      func(childComplexity int) int
 	}
 
 	CommentListResult struct {
@@ -149,6 +160,10 @@ type ComplexityRoot struct {
 		Posts    func(childComplexity int, locale model.Locale, input *model.PostsQueryInput) int
 	}
 
+	Subscription struct {
+		CommentEvent func(childComplexity int, postID string) int
+	}
+
 	Topic struct {
 		Color func(childComplexity int) int
 		ID    func(childComplexity int) int
@@ -170,6 +185,9 @@ type QueryResolver interface {
 	Posts(ctx context.Context, locale model.Locale, input *model.PostsQueryInput) (*model.PostConnection, error)
 	Post(ctx context.Context, locale model.Locale, id string) (*model.PostResult, error)
 	Comments(ctx context.Context, postID string) (*model.CommentListResult, error)
+}
+type SubscriptionResolver interface {
+	CommentEvent(ctx context.Context, postID string) (<-chan *model.CommentEvent, error)
 }
 
 type executableSchema struct {
@@ -227,6 +245,49 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Comment.ParentID(childComplexity), true
+
+	case "CommentEvent.comment":
+		if e.complexity.CommentEvent.Comment == nil {
+			break
+		}
+
+		return e.complexity.CommentEvent.Comment(childComplexity), true
+	case "CommentEvent.commentId":
+		if e.complexity.CommentEvent.CommentID == nil {
+			break
+		}
+
+		return e.complexity.CommentEvent.CommentID(childComplexity), true
+	case "CommentEvent.parentId":
+		if e.complexity.CommentEvent.ParentID == nil {
+			break
+		}
+
+		return e.complexity.CommentEvent.ParentID(childComplexity), true
+	case "CommentEvent.postId":
+		if e.complexity.CommentEvent.PostID == nil {
+			break
+		}
+
+		return e.complexity.CommentEvent.PostID(childComplexity), true
+	case "CommentEvent.status":
+		if e.complexity.CommentEvent.Status == nil {
+			break
+		}
+
+		return e.complexity.CommentEvent.Status(childComplexity), true
+	case "CommentEvent.total":
+		if e.complexity.CommentEvent.Total == nil {
+			break
+		}
+
+		return e.complexity.CommentEvent.Total(childComplexity), true
+	case "CommentEvent.type":
+		if e.complexity.CommentEvent.Type == nil {
+			break
+		}
+
+		return e.complexity.CommentEvent.Type(childComplexity), true
 
 	case "CommentListResult.postId":
 		if e.complexity.CommentListResult.PostID == nil {
@@ -632,6 +693,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.Posts(childComplexity, args["locale"].(model.Locale), args["input"].(*model.PostsQueryInput)), true
 
+	case "Subscription.commentEvent":
+		if e.complexity.Subscription.CommentEvent == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_commentEvent_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.CommentEvent(childComplexity, args["postId"].(string)), true
+
 	case "Topic.color":
 		if e.complexity.Topic.Color == nil {
 			break
@@ -712,6 +785,23 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
 			data := ec._Mutation(ctx, opCtx.Operation.SelectionSet)
 			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
+	case ast.Subscription:
+		next := ec._Subscription(ctx, opCtx.Operation.SelectionSet)
+
+		var buf bytes.Buffer
+		return func(ctx context.Context) *graphql.Response {
+			buf.Reset()
+			data := next(ctx)
+
+			if data == nil {
+				return nil
+			}
 			data.MarshalGQL(&buf)
 
 			return &graphql.Response{
@@ -913,6 +1003,17 @@ func (ec *executionContext) field_Query_posts_args(ctx context.Context, rawArgs 
 		return nil, err
 	}
 	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_commentEvent_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "postId", ec.unmarshalNID2string)
+	if err != nil {
+		return nil, err
+	}
+	args["postId"] = arg0
 	return args, nil
 }
 
@@ -1137,6 +1238,223 @@ func (ec *executionContext) fieldContext_Comment_createdAt(_ context.Context, fi
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CommentEvent_type(ctx context.Context, field graphql.CollectedField, obj *model.CommentEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CommentEvent_type,
+		func(ctx context.Context) (any, error) {
+			return obj.Type, nil
+		},
+		nil,
+		ec.marshalNCommentEventType2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐCommentEventType,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CommentEvent_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CommentEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CommentEventType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CommentEvent_postId(ctx context.Context, field graphql.CollectedField, obj *model.CommentEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CommentEvent_postId,
+		func(ctx context.Context) (any, error) {
+			return obj.PostID, nil
+		},
+		nil,
+		ec.marshalNID2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CommentEvent_postId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CommentEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CommentEvent_commentId(ctx context.Context, field graphql.CollectedField, obj *model.CommentEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CommentEvent_commentId,
+		func(ctx context.Context) (any, error) {
+			return obj.CommentID, nil
+		},
+		nil,
+		ec.marshalNID2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_CommentEvent_commentId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CommentEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CommentEvent_parentId(ctx context.Context, field graphql.CollectedField, obj *model.CommentEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CommentEvent_parentId,
+		func(ctx context.Context) (any, error) {
+			return obj.ParentID, nil
+		},
+		nil,
+		ec.marshalOID2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_CommentEvent_parentId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CommentEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CommentEvent_status(ctx context.Context, field graphql.CollectedField, obj *model.CommentEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CommentEvent_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalOCommentModerationStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐCommentModerationStatus,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_CommentEvent_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CommentEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CommentModerationStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CommentEvent_total(ctx context.Context, field graphql.CollectedField, obj *model.CommentEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CommentEvent_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalOInt2ᚖint,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_CommentEvent_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CommentEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CommentEvent_comment(ctx context.Context, field graphql.CollectedField, obj *model.CommentEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_CommentEvent_comment,
+		func(ctx context.Context) (any, error) {
+			return obj.Comment, nil
+		},
+		nil,
+		ec.marshalOComment2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐComment,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_CommentEvent_comment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CommentEvent",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Comment_id(ctx, field)
+			case "parentId":
+				return ec.fieldContext_Comment_parentId(ctx, field)
+			case "authorName":
+				return ec.fieldContext_Comment_authorName(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_Comment_avatarUrl(ctx, field)
+			case "content":
+				return ec.fieldContext_Comment_content(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Comment_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Comment", field.Name)
 		},
 	}
 	return fc, nil
@@ -3239,6 +3557,63 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Subscription_commentEvent(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	return graphql.ResolveFieldStream(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Subscription_commentEvent,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Subscription().CommentEvent(ctx, fc.Args["postId"].(string))
+		},
+		nil,
+		ec.marshalNCommentEvent2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐCommentEvent,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Subscription_commentEvent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "type":
+				return ec.fieldContext_CommentEvent_type(ctx, field)
+			case "postId":
+				return ec.fieldContext_CommentEvent_postId(ctx, field)
+			case "commentId":
+				return ec.fieldContext_CommentEvent_commentId(ctx, field)
+			case "parentId":
+				return ec.fieldContext_CommentEvent_parentId(ctx, field)
+			case "status":
+				return ec.fieldContext_CommentEvent_status(ctx, field)
+			case "total":
+				return ec.fieldContext_CommentEvent_total(ctx, field)
+			case "comment":
+				return ec.fieldContext_CommentEvent_comment(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CommentEvent", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_commentEvent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Topic_id(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -5066,6 +5441,63 @@ func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
+var commentEventImplementors = []string{"CommentEvent"}
+
+func (ec *executionContext) _CommentEvent(ctx context.Context, sel ast.SelectionSet, obj *model.CommentEvent) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, commentEventImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CommentEvent")
+		case "type":
+			out.Values[i] = ec._CommentEvent_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "postId":
+			out.Values[i] = ec._CommentEvent_postId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "commentId":
+			out.Values[i] = ec._CommentEvent_commentId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "parentId":
+			out.Values[i] = ec._CommentEvent_parentId(ctx, field, obj)
+		case "status":
+			out.Values[i] = ec._CommentEvent_status(ctx, field, obj)
+		case "total":
+			out.Values[i] = ec._CommentEvent_total(ctx, field, obj)
+		case "comment":
+			out.Values[i] = ec._CommentEvent_comment(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var commentListResultImplementors = []string{"CommentListResult"}
 
 func (ec *executionContext) _CommentListResult(ctx context.Context, sel ast.SelectionSet, obj *model.CommentListResult) graphql.Marshaler {
@@ -5806,6 +6238,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	return out
 }
 
+var subscriptionImplementors = []string{"Subscription"}
+
+func (ec *executionContext) _Subscription(ctx context.Context, sel ast.SelectionSet) func(ctx context.Context) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, subscriptionImplementors)
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Subscription",
+	})
+	if len(fields) != 1 {
+		ec.Errorf(ctx, "must subscribe to exactly one stream")
+		return nil
+	}
+
+	switch fields[0].Name {
+	case "commentEvent":
+		return ec._Subscription_commentEvent(ctx, fields[0])
+	default:
+		panic("unknown field " + strconv.Quote(fields[0].Name))
+	}
+}
+
 var topicImplementors = []string{"Topic"}
 
 func (ec *executionContext) _Topic(ctx context.Context, sel ast.SelectionSet, obj *model.Topic) graphql.Marshaler {
@@ -6265,6 +6717,30 @@ func (ec *executionContext) marshalNComment2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋ
 		return graphql.Null
 	}
 	return ec._Comment(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNCommentEvent2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐCommentEvent(ctx context.Context, sel ast.SelectionSet, v model.CommentEvent) graphql.Marshaler {
+	return ec._CommentEvent(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCommentEvent2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐCommentEvent(ctx context.Context, sel ast.SelectionSet, v *model.CommentEvent) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CommentEvent(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNCommentEventType2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐCommentEventType(ctx context.Context, v any) (model.CommentEventType, error) {
+	var res model.CommentEventType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCommentEventType2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐCommentEventType(ctx context.Context, sel ast.SelectionSet, v model.CommentEventType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNCommentListResult2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐCommentListResult(ctx context.Context, sel ast.SelectionSet, v model.CommentListResult) graphql.Marshaler {
@@ -6922,6 +7398,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	_ = ctx
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOComment2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐComment(ctx context.Context, sel ast.SelectionSet, v *model.Comment) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Comment(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOCommentModerationStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐCommentModerationStatus(ctx context.Context, v any) (*model.CommentModerationStatus, error) {

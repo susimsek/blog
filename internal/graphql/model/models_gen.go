@@ -33,6 +33,17 @@ type Comment struct {
 	CreatedAt  string  `json:"createdAt"`
 }
 
+// Realtime payload emitted for comment lifecycle changes.
+type CommentEvent struct {
+	Type      CommentEventType         `json:"type"`
+	PostID    string                   `json:"postId"`
+	CommentID string                   `json:"commentId"`
+	ParentID  *string                  `json:"parentId,omitempty"`
+	Status    *CommentModerationStatus `json:"status,omitempty"`
+	Total     *int                     `json:"total,omitempty"`
+	Comment   *Comment                 `json:"comment,omitempty"`
+}
+
 // Approved comments for a single post.
 type CommentListResult struct {
 	Status  CommentQueryStatus `json:"status"`
@@ -202,6 +213,10 @@ type PostsQueryInput struct {
 type Query struct {
 }
 
+// Realtime comment updates for a shared discussion thread.
+type Subscription struct {
+}
+
 // Topic badge metadata displayed with a post.
 type Topic struct {
 	// Stable topic identifier.
@@ -212,6 +227,66 @@ type Topic struct {
 	Color string `json:"color"`
 	// Optional topic route or external link.
 	Link *string `json:"link,omitempty"`
+}
+
+// Comment event categories emitted by the realtime subscription stream.
+type CommentEventType string
+
+const (
+	CommentEventTypeCreated      CommentEventType = "CREATED"
+	CommentEventTypeUpdated      CommentEventType = "UPDATED"
+	CommentEventTypeDeleted      CommentEventType = "DELETED"
+	CommentEventTypeCountChanged CommentEventType = "COUNT_CHANGED"
+)
+
+var AllCommentEventType = []CommentEventType{
+	CommentEventTypeCreated,
+	CommentEventTypeUpdated,
+	CommentEventTypeDeleted,
+	CommentEventTypeCountChanged,
+}
+
+func (e CommentEventType) IsValid() bool {
+	switch e {
+	case CommentEventTypeCreated, CommentEventTypeUpdated, CommentEventTypeDeleted, CommentEventTypeCountChanged:
+		return true
+	}
+	return false
+}
+
+func (e CommentEventType) String() string {
+	return string(e)
+}
+
+func (e *CommentEventType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CommentEventType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CommentEventType", str)
+	}
+	return nil
+}
+
+func (e CommentEventType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CommentEventType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CommentEventType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Moderation state attached to stored comments.

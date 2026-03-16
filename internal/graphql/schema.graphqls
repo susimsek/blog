@@ -4,6 +4,7 @@ Top-level operations exposed by the blog GraphQL API.
 schema {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }
 
 """
@@ -64,6 +65,16 @@ type Mutation {
   Creates a new guest comment or reply for a post.
   """
   addComment(input: AddCommentInput!): CommentMutationResult!
+}
+
+"""
+Realtime comment updates for a shared discussion thread.
+"""
+type Subscription {
+  """
+  Streams comment lifecycle events for the given post identifier.
+  """
+  commentEvent(postId: ID!): CommentEvent!
 }
 
 """
@@ -349,6 +360,16 @@ enum CommentModerationStatus {
 }
 
 """
+Comment event categories emitted by the realtime subscription stream.
+"""
+enum CommentEventType {
+  CREATED
+  UPDATED
+  DELETED
+  COUNT_CHANGED
+}
+
+"""
 Paginated result for the posts query.
 """
 type PostConnection {
@@ -494,6 +515,19 @@ Comment tree node with at most one reply level.
 type CommentThread {
   root: Comment!
   replies: [Comment!]!
+}
+
+"""
+Realtime payload emitted for comment lifecycle changes.
+"""
+type CommentEvent {
+  type: CommentEventType!
+  postId: ID!
+  commentId: ID!
+  parentId: ID
+  status: CommentModerationStatus
+  total: Int
+  comment: Comment
 }
 
 """

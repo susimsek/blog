@@ -1,14 +1,28 @@
 import { CommentModerationStatus, CommentMutationStatus, CommentQueryStatus } from '@/graphql/generated/graphql';
-import { addComment, fetchComments } from '@/lib/commentsApi';
-import { mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
+import {
+  addComment,
+  fetchComments,
+  normalizeCommentItem,
+  normalizeCommentThreads,
+  subscribeToCommentEvents,
+} from '@/lib/commentsApi';
+import { getGraphQLEndpoint, mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
+import { subscribeGraphQL } from '@/lib/graphql/subscriptions';
 
 jest.mock('@/lib/graphql/apolloClient', () => ({
   queryGraphQL: jest.fn(),
   mutateGraphQL: jest.fn(),
+  getGraphQLEndpoint: jest.fn(() => '/graphql'),
+}));
+
+jest.mock('@/lib/graphql/subscriptions', () => ({
+  subscribeGraphQL: jest.fn(),
 }));
 
 const mockedQueryGraphQL = jest.mocked(queryGraphQL);
 const mockedMutateGraphQL = jest.mocked(mutateGraphQL);
+const mockedGetGraphQLEndpoint = jest.mocked(getGraphQLEndpoint);
+const mockedSubscribeGraphQL = jest.mocked(subscribeGraphQL);
 
 describe('commentsApi', () => {
   beforeEach(() => {
@@ -77,6 +91,12 @@ describe('commentsApi', () => {
   it('returns null for invalid read inputs', async () => {
     await expect(fetchComments('   ')).resolves.toBeNull();
     expect(mockedQueryGraphQL).not.toHaveBeenCalled();
+  });
+
+  it('returns null when the comments query payload is empty', async () => {
+    mockedQueryGraphQL.mockResolvedValue({});
+
+    await expect(fetchComments('alpha-post')).resolves.toBeNull();
   });
 
   it('normalizes add comment mutation payloads', async () => {
@@ -149,5 +169,164 @@ describe('commentsApi', () => {
     ).resolves.toEqual({
       postId: 'alpha-post',
     });
+  });
+
+  it('returns null when the add comment payload is empty', async () => {
+    mockedMutateGraphQL.mockResolvedValue({});
+
+    await expect(
+      addComment({
+        postId: 'alpha-post',
+        authorName: 'Alice',
+        authorEmail: 'alice@example.com',
+        content: 'Hello',
+      }),
+    ).resolves.toBeNull();
+  });
+
+  it('normalizes comment items and threads by trimming optional fields', () => {
+    expect(normalizeCommentItem(null)).toBeUndefined();
+
+    expect(
+      normalizeCommentItem({
+        id: 'root-1',
+        parentId: ' root-parent ',
+        authorName: 'Alice',
+        avatarUrl: ' https://example.com/avatar.png ',
+        content: 'Hello',
+        createdAt: '2026-03-14T10:00:00.000Z',
+      }),
+    ).toEqual({
+      id: 'root-1',
+      parentId: 'root-parent',
+      authorName: 'Alice',
+      avatarUrl: 'https://example.com/avatar.png',
+      content: 'Hello',
+      createdAt: '2026-03-14T10:00:00.000Z',
+    });
+
+    expect(
+      normalizeCommentThreads([
+        {
+          root: {
+            id: 'root-1',
+            parentId: '   ',
+            authorName: 'Alice',
+            avatarUrl: '   ',
+            content: 'Root',
+            createdAt: '2026-03-14T10:00:00.000Z',
+          },
+          replies: [
+            {
+              id: 'reply-1',
+              parentId: ' root-1 ',
+              authorName: 'Bob',
+              avatarUrl: null,
+              content: 'Reply',
+              createdAt: '2026-03-14T10:05:00.000Z',
+            },
+          ],
+        },
+      ]),
+    ).toEqual([
+      {
+        root: {
+          id: 'root-1',
+          authorName: 'Alice',
+          content: 'Root',
+          createdAt: '2026-03-14T10:00:00.000Z',
+        },
+        replies: [
+          {
+            id: 'reply-1',
+            parentId: 'root-1',
+            authorName: 'Bob',
+            content: 'Reply',
+            createdAt: '2026-03-14T10:05:00.000Z',
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('subscribes to comment events and forwards normalized payloads only', () => {
+    const next = jest.fn();
+    const error = jest.fn();
+    const complete = jest.fn();
+    const connected = jest.fn();
+    const unsubscribeSpy = jest.fn();
+
+    mockedSubscribeGraphQL.mockImplementation((_endpoint, _document, _variables, callbacks) => {
+      callbacks.connected?.(true);
+      callbacks.next({
+        commentEvent: {
+          type: 'CREATED',
+          postId: ' alpha-post ',
+          commentId: ' root-1 ',
+          parentId: '   ',
+          status: 'APPROVED',
+          total: 3,
+          comment: {
+            id: 'root-1',
+            parentId: null,
+            authorName: 'Alice',
+            avatarUrl: ' https://example.com/alice.png ',
+            content: 'Root comment',
+            createdAt: '2026-03-14T10:00:00.000Z',
+          },
+        },
+      } as never);
+      callbacks.next({
+        commentEvent: {
+          type: undefined,
+          postId: 'alpha-post',
+          commentId: 'ignored',
+        },
+      } as never);
+      callbacks.error?.(new Error('subscription failed'));
+      callbacks.complete?.();
+      return unsubscribeSpy;
+    });
+
+    const unsubscribe = subscribeToCommentEvents(' alpha-post ', {
+      next,
+      error,
+      complete,
+      connected,
+    });
+
+    expect(mockedGetGraphQLEndpoint).toHaveBeenCalledTimes(1);
+    expect(mockedSubscribeGraphQL).toHaveBeenCalledWith(
+      '/graphql',
+      expect.anything(),
+      { postId: 'alpha-post' },
+      expect.objectContaining({
+        next: expect.any(Function),
+        error,
+        complete,
+        connected,
+      }),
+    );
+    expect(connected).toHaveBeenCalledWith(true);
+    expect(next).toHaveBeenCalledWith({
+      type: 'created',
+      postId: 'alpha-post',
+      commentId: 'root-1',
+      status: 'approved',
+      total: 3,
+      comment: {
+        id: 'root-1',
+        authorName: 'Alice',
+        avatarUrl: 'https://example.com/alice.png',
+        content: 'Root comment',
+        createdAt: '2026-03-14T10:00:00.000Z',
+      },
+    });
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(error).toHaveBeenCalledWith(expect.any(Error));
+    expect(complete).toHaveBeenCalledTimes(1);
+
+    unsubscribe();
+    expect(unsubscribeSpy).toHaveBeenCalledTimes(1);
   });
 });

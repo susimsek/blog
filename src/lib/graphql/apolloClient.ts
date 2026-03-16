@@ -89,7 +89,7 @@ const notifyGraphQLError = (error: AppError, options: GraphQLOptions, operationN
   reportAppError(error, context);
 };
 
-const resolveRequestLocale = () => {
+export const resolveRequestLocale = () => {
   if (globalThis.window === undefined) {
     return defaultLocale;
   }
