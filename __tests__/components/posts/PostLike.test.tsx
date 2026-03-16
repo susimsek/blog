@@ -64,6 +64,20 @@ describe('PostLike', () => {
     await waitFor(() => expect(fetchPostMock).toHaveBeenCalledWith('en', 'post-array'));
   });
 
+  it('uses preloaded likes without fetching the post again', async () => {
+    renderWithProviders(<PostLike postId="post-preloaded" initialLikes={7} skipInitialFetch />, {
+      preloadedState: {
+        voice: { isEnabled: false },
+      },
+    });
+
+    const button = screen.getByRole('button', { name: /post.like.button/i });
+
+    await waitFor(() => expect(button).not.toBeDisabled());
+    expect(fetchPostMock).not.toHaveBeenCalled();
+    expect(screen.getByText('7')).toBeInTheDocument();
+  });
+
   it('loads likes and plays like sound when clicking while voice is enabled', async () => {
     renderWithProviders(<PostLike postId="post-1" />, {
       preloadedState: {

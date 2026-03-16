@@ -103,6 +103,41 @@ query comments($locale: Locale!, $postId: ID!) {
   }
 }
 
+query postRuntime($locale: Locale!, $id: ID!) {
+  post(locale: $locale, id: $id) {
+    status
+    engagement {
+      postId
+      likes
+      hits
+    }
+  }
+  comments(locale: $locale, postId: $id) {
+    status
+    locale
+    postId
+    total
+    threads {
+      root {
+        id
+        parentId
+        authorName
+        avatarUrl
+        content
+        createdAt
+      }
+      replies {
+        id
+        parentId
+        authorName
+        avatarUrl
+        content
+        createdAt
+      }
+    }
+  }
+}
+
 mutation incrementPostLike($postId: ID!) {
   incrementPostLike(postId: $postId) {
     status

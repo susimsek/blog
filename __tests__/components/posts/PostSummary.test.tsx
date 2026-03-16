@@ -179,6 +179,23 @@ describe('PostSummary Component', () => {
     expect(mockPause).toHaveBeenCalled();
   });
 
+  it('ignores rejected read-more hover playback promises', async () => {
+    (global as typeof globalThis & { Audio: jest.Mock }).Audio = jest.fn().mockImplementation(() => ({
+      play: jest.fn().mockRejectedValue(new Error('blocked')),
+      pause: mockPause,
+      currentTime: 0,
+      volume: 1,
+      playbackRate: 1,
+      preload: 'auto',
+    }));
+
+    render(<PostSummary post={mockPost} />);
+    fireEvent.mouseEnter(screen.getByRole('link', { name: 'post.readMore' }));
+    await Promise.resolve();
+
+    expect(global.Audio).toHaveBeenCalledWith('/sounds/rising-pops.mp3');
+  });
+
   it('does not play read-more hover sound when voice is disabled', () => {
     useAppSelectorMock.mockImplementation((selector: (state: { voice: { isEnabled: boolean } }) => unknown) =>
       selector({ voice: { isEnabled: false } }),

@@ -31,6 +31,11 @@ type CommentFormTouchedState = Record<CommentFormField, boolean>;
 type PostCommentsProps = {
   locale: string;
   postId: string;
+  initialThreads?: CommentThread[];
+  initialTotal?: number;
+  initialStatus?: string;
+  skipInitialFetch?: boolean;
+  initialLoading?: boolean;
 };
 
 type CommentAccessMethod = 'email' | 'google' | 'github';
@@ -402,11 +407,19 @@ const CommentForm = ({
   );
 };
 
-export default function PostComments({ locale, postId }: Readonly<PostCommentsProps>) {
+export default function PostComments({
+  locale,
+  postId,
+  initialThreads,
+  initialTotal,
+  initialStatus,
+  skipInitialFetch = false,
+  initialLoading = false,
+}: Readonly<PostCommentsProps>) {
   const { t } = useTranslation('post');
-  const [threads, setThreads] = React.useState<CommentThread[]>([]);
-  const [total, setTotal] = React.useState(0);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [threads, setThreads] = React.useState<CommentThread[]>(initialThreads ?? []);
+  const [total, setTotal] = React.useState(initialTotal ?? 0);
+  const [isLoading, setIsLoading] = React.useState(skipInitialFetch ? initialLoading : true);
   const [isAuthLoading, setIsAuthLoading] = React.useState(true);
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const [authSession, setAuthSession] = React.useState<CommentAuthSession>(DEFAULT_COMMENT_AUTH_SESSION);
@@ -496,8 +509,37 @@ export default function PostComments({ locale, postId }: Readonly<PostCommentsPr
   }, [locale, postId, t]);
 
   React.useEffect(() => {
+    if (!skipInitialFetch) {
+      return;
+    }
+
+    if (initialLoading) {
+      setIsLoading(true);
+      setErrorMessage('');
+      return;
+    }
+
+    if (initialStatus && !['success', 'not-found'].includes(initialStatus)) {
+      setThreads([]);
+      setTotal(0);
+      setErrorMessage(t('post.comments.errors.load'));
+      setIsLoading(false);
+      return;
+    }
+
+    setThreads(initialThreads ?? []);
+    setTotal(initialTotal ?? 0);
+    setErrorMessage('');
+    setIsLoading(false);
+  }, [initialLoading, initialStatus, initialThreads, initialTotal, skipInitialFetch, t]);
+
+  React.useEffect(() => {
+    if (skipInitialFetch) {
+      return;
+    }
+
     void loadComments();
-  }, [loadComments]);
+  }, [loadComments, skipInitialFetch]);
 
   React.useEffect(() => {
     let isMounted = true;

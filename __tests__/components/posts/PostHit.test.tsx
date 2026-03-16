@@ -47,4 +47,14 @@ describe('PostHit', () => {
     expect(screen.getByLabelText('post.hit.aria:9')).toBeInTheDocument();
     expect(screen.getByText('000009')).toBeInTheDocument();
   });
+
+  it('uses preloaded hits without fetching the post again', async () => {
+    incrementPostHitMock.mockResolvedValue(13);
+
+    render(<PostHit postId="post-2" initialHits={12} skipInitialFetch />);
+
+    expect(fetchPostMock).not.toHaveBeenCalled();
+    await waitFor(() => expect(incrementPostHitMock).toHaveBeenCalledWith('post-2'));
+    await waitFor(() => expect(screen.getByText('000013')).toBeInTheDocument());
+  });
 });

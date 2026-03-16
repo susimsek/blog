@@ -11,6 +11,9 @@ import { useAppSelector } from '@/config/store';
 
 type PostLikeProps = {
   postId: string;
+  initialLikes?: number;
+  skipInitialFetch?: boolean;
+  initialLoading?: boolean;
 };
 
 const LIKE_SOUND_CONFIG = {
@@ -18,14 +21,21 @@ const LIKE_SOUND_CONFIG = {
   volume: 0.25,
 } as const;
 
-export default function PostLike({ postId }: Readonly<PostLikeProps>) {
+export default function PostLike({
+  postId,
+  initialLikes,
+  skipInitialFetch = false,
+  initialLoading = false,
+}: Readonly<PostLikeProps>) {
   const { t, i18n } = useTranslation('post');
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
   const locale = routeLocale ?? defaultLocale;
   const isVoiceEnabled = useAppSelector(state => state.voice.isEnabled);
-  const [likes, setLikes] = React.useState<number>(0);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [likes, setLikes] = React.useState<number>(
+    typeof initialLikes === 'number' && Number.isFinite(initialLikes) ? Math.max(0, Math.trunc(initialLikes)) : 0,
+  );
+  const [isLoading, setIsLoading] = React.useState(skipInitialFetch ? initialLoading : true);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [hasError, setHasError] = React.useState(false);
   const [plusOneToken, setPlusOneToken] = React.useState(0);
@@ -38,6 +48,33 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
   const numberFormatter = React.useMemo(() => new Intl.NumberFormat(resolvedLanguage), [resolvedLanguage]);
 
   React.useEffect(() => {
+    if (!skipInitialFetch) {
+      return;
+    }
+
+    if (initialLoading) {
+      setIsLoading(true);
+      setHasError(false);
+      return;
+    }
+
+    if (typeof initialLikes === 'number' && Number.isFinite(initialLikes)) {
+      setLikes(Math.max(0, Math.trunc(initialLikes)));
+      setHasError(false);
+      setIsLoading(false);
+      return;
+    }
+
+    setLikes(0);
+    setHasError(true);
+    setIsLoading(false);
+  }, [initialLikes, initialLoading, skipInitialFetch]);
+
+  React.useEffect(() => {
+    if (skipInitialFetch) {
+      return;
+    }
+
     let isMounted = true;
 
     const loadLikes = async () => {
@@ -65,7 +102,7 @@ export default function PostLike({ postId }: Readonly<PostLikeProps>) {
     return () => {
       isMounted = false;
     };
-  }, [locale, postId]);
+  }, [locale, postId, skipInitialFetch]);
 
   React.useEffect(
     () => () => {

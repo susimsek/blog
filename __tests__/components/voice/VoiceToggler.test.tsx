@@ -83,6 +83,16 @@ describe('VoiceToggler', () => {
     expect(mockDispatch).toHaveBeenCalledWith(setVoiceEnabled(true));
   });
 
+  it('ignores rejected playback promises when toggling voice', async () => {
+    mockPlay.mockRejectedValueOnce(new Error('autoplay blocked'));
+
+    render(<VoiceToggler />);
+    fireEvent.click(screen.getByRole('button', { name: /common.header.voice.enabled/i }));
+    await Promise.resolve();
+
+    expect(mockDispatch).toHaveBeenCalledWith(setVoiceEnabled(false));
+  });
+
   it('renders boop classes on voice icon button', () => {
     render(<VoiceToggler />);
 

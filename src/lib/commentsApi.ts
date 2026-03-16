@@ -27,7 +27,7 @@ export type AddCommentResult = {
   moderationStatus?: string;
 };
 
-const normalizeCommentThreads = (
+export const normalizeCommentThreads = (
   threads:
     | ReadonlyArray<{
         root: {

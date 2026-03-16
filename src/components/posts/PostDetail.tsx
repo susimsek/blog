@@ -10,6 +10,7 @@ import Link from '@/components/common/Link';
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { PostSummary } from '@/types/posts';
+import { fetchPostRuntime, type PostRuntimeResponse } from '@/lib/contentApi';
 import RelatedPosts from '@/components/posts/RelatedPosts';
 import ReadingProgress from '@/components/common/ReadingProgress';
 import BackToTop from '@/components/common/BackToTop';
@@ -36,6 +37,18 @@ interface PostDetailProps {
 }
 
 type FenceToken = '```' | '~~~';
+
+type PostDetailRuntimeState =
+  | {
+      status: 'loading';
+    }
+  | {
+      status: 'success';
+      payload: PostRuntimeResponse;
+    }
+  | {
+      status: 'failed';
+    };
 
 export const getFenceToken = (line: string): FenceToken | null => {
   const trimmed = line.trimStart();
@@ -168,6 +181,7 @@ export default function PostDetail({
   const markdown = contentHtml ?? '';
   const hasToc = React.useMemo(() => hasSupportedMarkdownHeading(markdown), [markdown]);
   const hasSideRail = true;
+  const [runtimeState, setRuntimeState] = React.useState<PostDetailRuntimeState>({ status: 'loading' });
   const thumbnailSrc = resolvePostDetailThumbnailSrc(thumbnail);
 
   const splitIntro = React.useMemo(() => splitMarkdownIntro(markdown), [markdown]);
@@ -281,6 +295,34 @@ export default function PostDetail({
       globalThis.window.cancelAnimationFrame(frameId);
     };
   }, [markdown]);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    setRuntimeState({ status: 'loading' });
+
+    const loadRuntime = async () => {
+      const runtimePayload = await fetchPostRuntime(locale, post.id);
+      if (!isMounted) {
+        return;
+      }
+
+      if (!runtimePayload) {
+        setRuntimeState({ status: 'failed' });
+        return;
+      }
+
+      setRuntimeState({
+        status: 'success',
+        payload: runtimePayload,
+      });
+    };
+
+    void loadRuntime();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [locale, post.id]);
 
   return (
     <>
@@ -410,7 +452,14 @@ export default function PostDetail({
         <div className={`post-detail-layout${hasSideRail ? ' has-toc' : ''}`}>
           {hasSideRail && (
             <aside className="post-toc-rail" aria-label={hasToc ? t('post.tocTitle') : t('post.like.sidebarLabel')}>
-              <PostToc postId={post.id} content={markdown} rootRef={articleRef} />
+              <PostToc
+                postId={post.id}
+                content={markdown}
+                rootRef={articleRef}
+                initialLikes={runtimeState.status === 'success' ? runtimeState.payload.likes : undefined}
+                skipLikeFetch={runtimeState.status !== 'failed'}
+                likeLoading={runtimeState.status === 'loading'}
+              />
             </aside>
           )}
           <div className="post-detail-main">
@@ -432,7 +481,12 @@ export default function PostDetail({
                   </p>
                 </aside>
               )}
-              <PostHit postId={post.id} />
+              <PostHit
+                postId={post.id}
+                initialHits={runtimeState.status === 'success' ? runtimeState.payload.hits : undefined}
+                skipInitialFetch={runtimeState.status !== 'failed'}
+                initialLoading={runtimeState.status === 'loading'}
+              />
             </div>
             {(previousPost || nextPost) && (
               <nav className="post-navigation post-detail-navigation" aria-label={t('post.navigation.title')}>
@@ -468,7 +522,15 @@ export default function PostDetail({
             )}
             <PostAuthorBox />
             <RelatedPosts posts={relatedPosts} />
-            <PostComments locale={locale} postId={post.id} />
+            <PostComments
+              locale={locale}
+              postId={post.id}
+              initialThreads={runtimeState.status === 'success' ? runtimeState.payload.commentsThreads : undefined}
+              initialTotal={runtimeState.status === 'success' ? runtimeState.payload.commentsTotal : undefined}
+              initialStatus={runtimeState.status === 'success' ? runtimeState.payload.commentsStatus : undefined}
+              skipInitialFetch={runtimeState.status !== 'failed'}
+              initialLoading={runtimeState.status === 'loading'}
+            />
           </div>
         </div>
       </section>

@@ -77,4 +77,25 @@ describe('BackToTop', () => {
     expect(global.Audio).toHaveBeenCalledWith('/sounds/up-whoosh.mp3');
     expect(audioPlay).toHaveBeenCalled();
   });
+
+  it('ignores rejected playback promises when voice audio cannot autoplay', async () => {
+    const audioPlay = jest.fn().mockRejectedValue(new Error('blocked'));
+    (global as typeof globalThis & { Audio: jest.Mock }).Audio = jest.fn().mockImplementation(() => ({
+      play: audioPlay,
+      preload: 'auto',
+      volume: 1,
+      currentTime: 0,
+    }));
+
+    renderWithProviders(<BackToTop />, {
+      preloadedState: {
+        voice: { isEnabled: true },
+      },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'common.backToTop' }));
+    await Promise.resolve();
+
+    expect(audioPlay).toHaveBeenCalled();
+  });
 });

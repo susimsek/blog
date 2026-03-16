@@ -45,6 +45,21 @@ describe('ThemeProvider', () => {
     );
   });
 
+  it('reads theme state through the selector callback', () => {
+    useAppSelectorMock.mockImplementation(
+      (selector: (state: { theme: { theme: string; hasExplicitTheme: boolean } }) => unknown) =>
+        selector({ theme: { theme: 'light', hasExplicitTheme: true } }),
+    );
+
+    expect(() =>
+      render(
+        <ThemeProvider>
+          <div>Child Content</div>
+        </ThemeProvider>,
+      ),
+    ).not.toThrow();
+  });
+
   it('applies the selected theme class', () => {
     useAppSelectorMock.mockReturnValue({ theme: 'dark', hasExplicitTheme: true });
     render(<ThemeProvider>Child</ThemeProvider>);

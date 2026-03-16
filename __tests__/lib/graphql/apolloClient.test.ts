@@ -1,3 +1,5 @@
+export {};
+
 const queryMock = jest.fn();
 const mutateMock = jest.fn();
 const withBasePathMock = jest.fn((value: string) => `/base${value}`);

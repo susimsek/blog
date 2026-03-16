@@ -1,9 +1,17 @@
-import { fetchPost, fetchPostLikes, fetchPosts, incrementPostHit, incrementPostLike } from '@/lib/contentApi';
+import {
+  fetchPost,
+  fetchPostLikes,
+  fetchPostRuntime,
+  fetchPosts,
+  incrementPostHit,
+  incrementPostLike,
+} from '@/lib/contentApi';
 import {
   IncrementPostHitDocument,
   IncrementPostLikeDocument,
   Locale,
   PostDocument,
+  PostRuntimeDocument,
   PostsDocument,
 } from '@/graphql/generated/graphql';
 import { mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
@@ -199,6 +207,81 @@ describe('contentApi', () => {
     });
 
     await expect(fetchPostLikes('en', ['post-1'])).resolves.toBeNull();
+  });
+
+  it('maps post runtime payload into engagement and comment thread data', async () => {
+    queryGraphQLMock.mockResolvedValue({
+      post: {
+        status: 'success',
+        engagement: {
+          likes: 14.8,
+          hits: -2.1,
+        },
+      },
+      comments: {
+        status: 'success',
+        total: 2.4,
+        threads: [
+          {
+            root: {
+              id: 'root-1',
+              parentId: null,
+              authorName: 'Alice',
+              avatarUrl: ' https://cdn.example.com/alice.png ',
+              content: 'Hello',
+              createdAt: '2026-01-01T10:00:00Z',
+            },
+            replies: [
+              {
+                id: 'reply-1',
+                parentId: ' root-1 ',
+                authorName: 'Bob',
+                avatarUrl: '   ',
+                content: 'Reply',
+                createdAt: '2026-01-01T10:05:00Z',
+              },
+            ],
+          },
+        ],
+      },
+    });
+
+    await expect(fetchPostRuntime(' en ', ' post-1 ')).resolves.toEqual({
+      postStatus: 'success',
+      commentsStatus: 'success',
+      likes: 14,
+      hits: 0,
+      commentsTotal: 2,
+      commentsThreads: [
+        {
+          root: {
+            id: 'root-1',
+            authorName: 'Alice',
+            avatarUrl: 'https://cdn.example.com/alice.png',
+            content: 'Hello',
+            createdAt: '2026-01-01T10:00:00Z',
+          },
+          replies: [
+            {
+              id: 'reply-1',
+              parentId: 'root-1',
+              authorName: 'Bob',
+              content: 'Reply',
+              createdAt: '2026-01-01T10:05:00Z',
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(queryGraphQLMock).toHaveBeenCalledWith(
+      PostRuntimeDocument,
+      {
+        locale: Locale.En,
+        id: 'post-1',
+      },
+      {},
+    );
   });
 
   it('increments post metrics only for successful numeric payloads', async () => {

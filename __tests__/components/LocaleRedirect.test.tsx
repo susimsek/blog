@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { useRedirect, Redirect, getRedirect } from '@/components/LocaleRedirect';
+import LocaleRedirect, { useRedirect, Redirect, getRedirect } from '@/components/LocaleRedirect';
 import languageDetector from '@/lib/languageDetector';
 
 const replaceMock = jest.fn();
@@ -120,6 +120,15 @@ describe('LocaleRedirect/getRedirect', () => {
     expect(languageDetector.detect).toHaveBeenCalled();
     expect(replaceMock).toHaveBeenCalledWith('/en/specific-path');
     expect(languageDetector.cache).toHaveBeenCalledWith('en');
+    expect(getByTestId('loading-spinner')).toBeInTheDocument();
+  });
+
+  it('renders the default LocaleRedirect wrapper with the provided path', () => {
+    (languageDetector.detect as jest.Mock).mockReturnValue('en');
+
+    const { getByTestId } = render(<LocaleRedirect path="/wrapped-path" />);
+
+    expect(replaceMock).toHaveBeenCalledWith('/en/wrapped-path');
     expect(getByTestId('loading-spinner')).toBeInTheDocument();
   });
 });

@@ -10,17 +10,27 @@ import { defaultLocale } from '@/i18n/settings';
 
 type PostHitProps = {
   postId: string;
+  initialHits?: number;
+  skipInitialFetch?: boolean;
+  initialLoading?: boolean;
 };
 
 const DIGIT_PAD_LENGTH = 6;
 
-export default function PostHit({ postId }: Readonly<PostHitProps>) {
+export default function PostHit({
+  postId,
+  initialHits,
+  skipInitialFetch = false,
+  initialLoading = false,
+}: Readonly<PostHitProps>) {
   const { t, i18n } = useTranslation('post');
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
   const locale = routeLocale ?? defaultLocale;
-  const [hits, setHits] = React.useState<number | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [hits, setHits] = React.useState<number | null>(
+    typeof initialHits === 'number' ? Math.max(0, Math.trunc(initialHits)) : null,
+  );
+  const [isLoading, setIsLoading] = React.useState(skipInitialFetch ? initialLoading : true);
   const [hasError, setHasError] = React.useState(false);
   const trackedRef = React.useRef(false);
 
@@ -31,6 +41,33 @@ export default function PostHit({ postId }: Readonly<PostHitProps>) {
   );
 
   React.useEffect(() => {
+    if (!skipInitialFetch) {
+      return;
+    }
+
+    if (initialLoading) {
+      setIsLoading(true);
+      setHasError(false);
+      return;
+    }
+
+    if (typeof initialHits === 'number' && Number.isFinite(initialHits)) {
+      setHits(Math.max(0, Math.trunc(initialHits)));
+      setHasError(false);
+      setIsLoading(false);
+      return;
+    }
+
+    setHits(null);
+    setHasError(true);
+    setIsLoading(false);
+  }, [initialHits, initialLoading, skipInitialFetch]);
+
+  React.useEffect(() => {
+    if (skipInitialFetch) {
+      return;
+    }
+
     let isMounted = true;
     trackedRef.current = false;
 
@@ -60,7 +97,7 @@ export default function PostHit({ postId }: Readonly<PostHitProps>) {
     return () => {
       isMounted = false;
     };
-  }, [locale, postId]);
+  }, [locale, postId, skipInitialFetch]);
 
   React.useEffect(() => {
     if (trackedRef.current || hits === null) {

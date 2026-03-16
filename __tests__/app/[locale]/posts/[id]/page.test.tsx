@@ -105,6 +105,19 @@ describe('App Route /[locale]/posts/[id]', () => {
   });
 
   it('generates metadata from post content', async () => {
+    getPostDataMock.mockResolvedValueOnce({
+      id: '1',
+      title: 'Post Title',
+      summary: 'Post Summary',
+      topics: [
+        { id: 'react', name: 'React' },
+        { id: 'testing', name: 'Testing' },
+      ] as never[],
+      publishedDate: '2024-01-01',
+      readingTimeMin: 3,
+      thumbnail: null,
+    });
+
     const metadata = await generateMetadata({
       params: Promise.resolve({ locale: 'en', id: '1' }),
       searchParams: Promise.resolve({}),
@@ -113,7 +126,7 @@ describe('App Route /[locale]/posts/[id]', () => {
     expect(metadata).toMatchObject({
       title: 'Post Title',
       description: 'Post Summary',
-      keywords: '',
+      keywords: 'React, Testing',
     });
   });
 

@@ -2,19 +2,23 @@ import {
   IncrementPostHitDocument,
   IncrementPostLikeDocument,
   PostDocument,
+  PostRuntimeDocument,
   PostMetricStatus,
   PostsDocument,
   PostsQueryInput,
   SortOrder,
 } from '@/graphql/generated/graphql';
+import { normalizeCommentThreads } from '@/lib/commentsApi';
 import { mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
 import {
+  fromCommentQueryStatus,
   fromContentQueryStatus,
   fromGraphQLLocale,
   fromGraphQLSortOrder,
   fromPostMetricStatus,
   toGraphQLLocale,
 } from '@/lib/graphql/enumMappers';
+import type { CommentThread } from '@/types/comments';
 
 type ContentApiOptions = {
   signal?: AbortSignal;
@@ -52,6 +56,15 @@ type ContentLikeResponse = {
   status?: string;
   likes?: number;
   hits?: number;
+};
+
+export type PostRuntimeResponse = {
+  postStatus?: string;
+  commentsStatus?: string;
+  likes?: number;
+  hits?: number;
+  commentsTotal: number;
+  commentsThreads: CommentThread[];
 };
 
 type EngagementMetric = {
@@ -250,6 +263,49 @@ export const fetchPostLikes = async (
     result[postId] = Math.max(0, Math.trunc(likes));
     return result;
   }, {});
+};
+
+export const fetchPostRuntime = async (
+  locale: string,
+  id: string,
+  options: ContentApiOptions = {},
+): Promise<PostRuntimeResponse | null> => {
+  const normalizedLocale = locale.trim();
+  const normalizedID = id.trim();
+  const graphQLLocale = toGraphQLLocale(normalizedLocale);
+  if (!graphQLLocale || normalizedID.length === 0) {
+    return null;
+  }
+
+  const payload = await queryGraphQL(
+    PostRuntimeDocument,
+    {
+      locale: graphQLLocale,
+      id: normalizedID,
+    },
+    options,
+  );
+
+  if (!payload?.post || !payload.comments) {
+    return null;
+  }
+
+  const likes = payload.post.engagement?.likes;
+  const hits = payload.post.engagement?.hits;
+
+  return {
+    ...(fromContentQueryStatus(payload.post.status) ? { postStatus: fromContentQueryStatus(payload.post.status) } : {}),
+    ...(fromCommentQueryStatus(payload.comments.status)
+      ? { commentsStatus: fromCommentQueryStatus(payload.comments.status) }
+      : {}),
+    ...(typeof likes === 'number' && Number.isFinite(likes) ? { likes: Math.max(0, Math.trunc(likes)) } : {}),
+    ...(typeof hits === 'number' && Number.isFinite(hits) ? { hits: Math.max(0, Math.trunc(hits)) } : {}),
+    commentsTotal:
+      typeof payload.comments.total === 'number' && Number.isFinite(payload.comments.total)
+        ? Math.max(0, Math.trunc(payload.comments.total))
+        : 0,
+    commentsThreads: normalizeCommentThreads(payload.comments.threads),
+  };
 };
 
 export const incrementPostLike = async (postId: string, options: ContentApiOptions = {}): Promise<number | null> => {

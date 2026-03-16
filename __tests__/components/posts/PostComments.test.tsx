@@ -123,6 +123,33 @@ describe('PostComments', () => {
     expect(await screen.findByText('post.comments.errors.load')).toBeInTheDocument();
   });
 
+  it('uses preloaded threads without fetching comments on first render', async () => {
+    renderWithProviders(
+      <PostComments
+        locale="en"
+        postId="alpha-post"
+        initialStatus="success"
+        initialTotal={1}
+        initialThreads={[
+          {
+            root: {
+              id: 'root-preloaded',
+              authorName: 'Preloaded Reader',
+              content: 'Loaded from post detail',
+              createdAt: '2026-03-14T10:00:00.000Z',
+            },
+            replies: [],
+          },
+        ]}
+        skipInitialFetch
+      />,
+    );
+
+    expect(await screen.findByText('Preloaded Reader')).toBeInTheDocument();
+    expect(screen.getByText('Loaded from post detail')).toBeInTheDocument();
+    expect(mockedFetchComments).not.toHaveBeenCalled();
+  });
+
   it('starts public OAuth login for Google and GitHub comments', async () => {
     mockedFetchComments.mockResolvedValue({
       status: 'success',

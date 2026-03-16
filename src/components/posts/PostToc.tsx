@@ -90,9 +90,19 @@ interface PostTocProps {
   postId: string;
   content: string;
   rootRef: React.RefObject<HTMLElement | null>;
+  initialLikes?: number;
+  skipLikeFetch?: boolean;
+  likeLoading?: boolean;
 }
 
-export default function PostToc({ postId, content, rootRef }: Readonly<PostTocProps>) {
+export default function PostToc({
+  postId,
+  content,
+  rootRef,
+  initialLikes,
+  skipLikeFetch = false,
+  likeLoading = false,
+}: Readonly<PostTocProps>) {
   const { t } = useTranslation('post');
   const [items, setItems] = React.useState<TocItem[]>([]);
   const [activeId, setActiveId] = React.useState<string | null>(null);
@@ -226,7 +236,12 @@ export default function PostToc({ postId, content, rootRef }: Readonly<PostTocPr
           </Accordion.Item>
         </Accordion>
       )}
-      <PostLike postId={postId} />
+      <PostLike
+        postId={postId}
+        initialLikes={initialLikes}
+        skipInitialFetch={skipLikeFetch}
+        initialLoading={likeLoading}
+      />
     </div>
   );
 }
