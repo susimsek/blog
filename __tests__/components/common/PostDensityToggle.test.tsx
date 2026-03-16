@@ -41,4 +41,13 @@ describe('PostDensityToggle', () => {
     expect(screen.getByRole('button', { name: 'common.viewDensity.grid' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: 'common.viewDensity.grid' })).toHaveClass('post-density-toggle-grid-btn');
   });
+
+  it('allows switching back to the default density mode', () => {
+    const onChange = jest.fn();
+    render(<PostDensityToggle value="grid" onChange={onChange} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'common.viewDensity.default' }));
+
+    expect(onChange).toHaveBeenCalledWith('default');
+  });
 });

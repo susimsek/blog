@@ -37,9 +37,21 @@ jest.mock('@/components/admin/AdminLoadingState', () => ({
 
 describe('AdminLoginPage', () => {
   const originalAudio = global.Audio;
+  let consoleErrorSpy: jest.SpiedFunction<typeof console.error> | undefined;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((...args: unknown[]) => {
+      const joined = args.map(value => (value instanceof Error ? value.message : String(value))).join(' ');
+
+      if (joined.includes('Not implemented: navigation (except hash changes)')) {
+        return;
+      }
+
+      if (joined.includes('not wrapped in act')) {
+        return;
+      }
+    });
     useParamsMock.mockReturnValue({ locale: 'en' });
     useSearchParamsMock.mockReturnValue(new URLSearchParams());
     fetchAdminMeMock.mockResolvedValue({ authenticated: false, user: null });
@@ -53,6 +65,7 @@ describe('AdminLoginPage', () => {
   });
 
   afterEach(() => {
+    consoleErrorSpy?.mockRestore();
     global.Audio = originalAudio;
   });
 
@@ -266,6 +279,48 @@ describe('AdminLoginPage', () => {
     });
   });
 
+  it('clears runtime error after editing the email field', async () => {
+    loginAdminMock.mockRejectedValue(new Error('network'));
+    resolveAdminErrorMock.mockReturnValue({ kind: 'network', message: '' });
+
+    render(<AdminLoginPage />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('admin-loading-state')).not.toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText('adminLogin.email'), { target: { value: 'admin@example.com' } });
+    fireEvent.change(screen.getByLabelText('adminLogin.password'), { target: { value: 'secret-password' } });
+    fireEvent.click(screen.getByRole('button', { name: /adminLogin.submit/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('adminCommon.errors.network')).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText('adminLogin.email'), { target: { value: 'updated-admin@example.com' } });
+
+    await waitFor(() => {
+      expect(screen.queryByText('adminCommon.errors.network')).not.toBeInTheDocument();
+    });
+  });
+
+  it('submits remember me preference with credential login', async () => {
+    render(<AdminLoginPage />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('admin-loading-state')).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByLabelText('adminLogin.rememberMe'));
+    fireEvent.change(screen.getByLabelText('adminLogin.email'), { target: { value: 'admin@example.com' } });
+    fireEvent.change(screen.getByLabelText('adminLogin.password'), { target: { value: 'secret-password' } });
+    fireEvent.click(screen.getByRole('button', { name: /adminLogin.submit/i }));
+
+    await waitFor(() => {
+      expect(loginAdminMock).toHaveBeenCalledWith('admin@example.com', 'secret-password', true);
+    });
+  });
+
   it('plays hover audio when voice is enabled and the submit button is hovered', async () => {
     const pauseMock = jest.fn();
     const playMock = jest.fn(() => Promise.resolve());
@@ -296,6 +351,69 @@ describe('AdminLoginPage', () => {
     expect(AudioMock).toHaveBeenCalledWith('/sounds/rising-pops.mp3');
     expect(playMock).toHaveBeenCalled();
     expect(pauseMock).toHaveBeenCalled();
+  });
+
+  it('skips hover audio work when voice is disabled and no audio instance exists', async () => {
+    const AudioMock = jest.fn();
+    // @ts-expect-error test override
+    global.Audio = AudioMock;
+
+    render(<AdminLoginPage />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('admin-loading-state')).not.toBeInTheDocument();
+    });
+
+    const submitButton = screen.getByRole('button', { name: /adminLogin.submit/i });
+    fireEvent.mouseEnter(submitButton);
+    fireEvent.mouseLeave(submitButton);
+
+    expect(AudioMock).not.toHaveBeenCalled();
+  });
+
+  it('ignores duplicate submit attempts while login is pending', async () => {
+    let resolveLogin: ((value: { success: boolean; user: null }) => void) | undefined;
+    loginAdminMock.mockImplementation(
+      () =>
+        new Promise(resolve => {
+          resolveLogin = resolve;
+        }),
+    );
+
+    render(<AdminLoginPage />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('admin-loading-state')).not.toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText('adminLogin.email'), { target: { value: 'admin@example.com' } });
+    fireEvent.change(screen.getByLabelText('adminLogin.password'), { target: { value: 'secret-password' } });
+
+    const submitButton = screen.getByRole('button', { name: /adminLogin.submit/i });
+    fireEvent.click(submitButton);
+    fireEvent.click(submitButton);
+
+    expect(loginAdminMock).toHaveBeenCalledTimes(1);
+
+    resolveLogin?.({ success: true, user: null });
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/en/admin');
+    });
+  });
+
+  it('does nothing when callback search params are unavailable', async () => {
+    useSearchParamsMock.mockReturnValue(null);
+    fetchAdminGoogleAuthStatusMock.mockResolvedValue({ enabled: true, loginAvailable: true });
+
+    render(<AdminLoginPage />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('admin-loading-state')).not.toBeInTheDocument();
+    });
+
+    expect(screen.queryByText('adminLogin.google.cancelled')).not.toBeInTheDocument();
+    expect(screen.queryByText('adminLogin.google.failed')).not.toBeInTheDocument();
   });
 
   it('submits credentials and redirects to admin root', async () => {
