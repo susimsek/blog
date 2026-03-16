@@ -2,8 +2,11 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { mockPost, mockPostWithoutContent } from '@tests/__mocks__/mockPostData';
 import { registerDynamicMock } from '@tests/utils/dynamicMockRegistry';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
+import { fetchPostRuntime } from '@/lib/contentApi';
 
 let PostDetail: typeof import('@/components/posts/PostDetail').default;
+const postTocMock = jest.fn(() => <div data-testid="post-toc" />);
+const postHitMock = jest.fn(() => <div data-testid="post-hit" />);
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -32,12 +35,12 @@ jest.mock('@/components/common/MarkdownRenderer', () => {
 
 jest.mock('@/components/posts/PostHit', () => ({
   __esModule: true,
-  default: () => <div data-testid="post-hit" />,
+  default: (props: unknown) => postHitMock(props),
 }));
 
 jest.mock('@/components/posts/PostToc', () => ({
   __esModule: true,
-  default: () => <div data-testid="post-toc" />,
+  default: (props: unknown) => postTocMock(props),
 }));
 
 jest.mock('@/components/common/ReadingProgress', () => ({
@@ -65,6 +68,12 @@ jest.mock('@/components/posts/PostComments', () => ({
   default: () => <div data-testid="post-comments" />,
 }));
 
+jest.mock('@/lib/contentApi', () => ({
+  fetchPostRuntime: jest.fn(),
+}));
+
+const fetchPostRuntimeMock = fetchPostRuntime as jest.MockedFunction<typeof fetchPostRuntime>;
+
 describe('PostDetail Component', () => {
   beforeAll(() => {
     const markdownRenderer = jest.requireMock('@/components/common/MarkdownRenderer');
@@ -74,14 +83,17 @@ describe('PostDetail Component', () => {
   });
 
   const setup = (post = mockPost) => renderWithProviders(<PostDetail post={post} />);
+  const getLastProps = (mockFn: jest.Mock) => mockFn.mock.calls.at(-1)?.[0];
 
   beforeEach(() => {
+    jest.clearAllMocks();
     Object.assign(navigator, {
       clipboard: {
         writeText: jest.fn().mockResolvedValue(undefined),
       },
     });
     window.history.replaceState({}, '', '/');
+    fetchPostRuntimeMock.mockReturnValue(new Promise(() => undefined));
   });
 
   it('renders the post title', () => {
@@ -183,6 +195,15 @@ describe('PostDetail Component', () => {
   });
 
   it('renders category breadcrumb, adjacent navigation, and copies the share link', async () => {
+    fetchPostRuntimeMock.mockResolvedValue({
+      postStatus: 'success',
+      commentsStatus: 'success',
+      likes: 7,
+      hits: 19,
+      commentsTotal: 0,
+      commentsThreads: [],
+    });
+
     const post = {
       ...mockPost,
       category: { id: 'frontend', name: 'Frontend', color: 'blue' },
@@ -206,6 +227,7 @@ describe('PostDetail Component', () => {
     fireEvent.click(screen.getByRole('button', { name: 'post.share.copyLink' }));
 
     await waitFor(() => {
+      expect(fetchPostRuntimeMock).toHaveBeenCalledWith('en', '1');
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('/en/posts/1'));
       expect(screen.getByRole('button', { name: 'post.share.copied' })).toBeInTheDocument();
     });
@@ -242,5 +264,82 @@ describe('PostDetail Component', () => {
     expect(markdownElements).toHaveLength(2);
     expect(markdownElements[0]).toHaveTextContent('~~~md');
     expect(markdownElements[1]).toHaveTextContent('### Actual section');
+  });
+
+  it('passes runtime engagement data to toc and hit widgets after load', async () => {
+    fetchPostRuntimeMock.mockResolvedValue({
+      postStatus: 'success',
+      commentsStatus: 'success',
+      likes: 7,
+      hits: 19,
+      commentsTotal: 0,
+      commentsThreads: [],
+    });
+
+    setup();
+
+    await waitFor(() => {
+      expect(fetchPostRuntimeMock).toHaveBeenCalledWith('en', '1');
+      expect(getLastProps(postTocMock)).toEqual(
+        expect.objectContaining({
+          postId: '1',
+          initialLikes: 7,
+          skipLikeFetch: true,
+          likeLoading: false,
+        }),
+      );
+      expect(getLastProps(postHitMock)).toEqual(
+        expect.objectContaining({
+          postId: '1',
+          initialHits: 19,
+          skipInitialFetch: true,
+          initialLoading: false,
+        }),
+      );
+    });
+  });
+
+  it('keeps side widgets in loading mode while runtime data is pending', () => {
+    fetchPostRuntimeMock.mockReturnValue(new Promise(() => undefined));
+
+    setup();
+
+    expect(getLastProps(postTocMock)).toEqual(
+      expect.objectContaining({
+        initialLikes: undefined,
+        skipLikeFetch: true,
+        likeLoading: true,
+      }),
+    );
+    expect(getLastProps(postHitMock)).toEqual(
+      expect.objectContaining({
+        initialHits: undefined,
+        skipInitialFetch: true,
+        initialLoading: true,
+      }),
+    );
+  });
+
+  it('falls back to client fetch mode when runtime loading fails', async () => {
+    fetchPostRuntimeMock.mockResolvedValueOnce(null);
+
+    setup();
+
+    await waitFor(() => {
+      expect(getLastProps(postTocMock)).toEqual(
+        expect.objectContaining({
+          initialLikes: undefined,
+          skipLikeFetch: false,
+          likeLoading: false,
+        }),
+      );
+      expect(getLastProps(postHitMock)).toEqual(
+        expect.objectContaining({
+          initialHits: undefined,
+          skipInitialFetch: false,
+          initialLoading: false,
+        }),
+      );
+    });
   });
 });
