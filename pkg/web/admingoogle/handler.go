@@ -22,13 +22,11 @@ import (
 )
 
 const (
-	googleOAuthConnectPath        = "/api/admin-google/connect"
-	googleOAuthCallbackPath       = "/api/google/callback"
-	legacyGoogleOAuthCallbackPath = "/api/admin-google/callback"
-	googleOAuthStateCookie        = "admin_google_oauth_state"
-	googleOAuthStatePath          = "/api/google"
-	googleOAuthStateTTL           = 10 * time.Minute
-	googleOAuthStateVersion       = "v1"
+	googleOAuthCallbackPath = "/api/google/callback"
+	googleOAuthStateCookie  = "admin_google_oauth_state"
+	googleOAuthStatePath    = "/api/google"
+	googleOAuthStateTTL     = 10 * time.Minute
+	googleOAuthStateVersion = "v1"
 )
 
 type googleOAuthState struct {
@@ -47,13 +45,21 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch r.URL.Path {
-	case googleOAuthConnectPath:
-		handleGoogleOAuthStart(w, r)
-	case googleOAuthCallbackPath, legacyGoogleOAuthCallbackPath:
+	case googleOAuthCallbackPath:
 		handleGoogleOAuthCallback(w, r)
 	default:
 		http.NotFound(w, r)
 	}
+}
+
+func Start(w http.ResponseWriter, r *http.Request) {
+	r = httpapi.EnsureRequestContext(w, r)
+	if r == nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	handleGoogleOAuthStart(w, r)
 }
 
 func handleGoogleOAuthStart(w http.ResponseWriter, r *http.Request) {

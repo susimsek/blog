@@ -20,13 +20,11 @@ import (
 )
 
 const (
-	readerGithubOAuthConnectPath        = "/api/reader-github/connect"
-	readerGithubOAuthCallbackPath       = "/api/github/callback"
-	legacyReaderGithubOAuthCallbackPath = "/api/reader-github/callback"
-	readerGithubOAuthStateCookie        = "reader_github_oauth_state"
-	readerGithubOAuthStatePath          = "/api/github"
-	readerGithubOAuthStateTTL           = 10 * time.Minute
-	readerGithubOAuthStateVersion       = "v1"
+	readerGithubOAuthCallbackPath = "/api/github/callback"
+	readerGithubOAuthStateCookie  = "reader_github_oauth_state"
+	readerGithubOAuthStatePath    = "/api/github"
+	readerGithubOAuthStateTTL     = 10 * time.Minute
+	readerGithubOAuthStateVersion = "v1"
 )
 
 type readerGithubOAuthState struct {
@@ -44,13 +42,21 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch r.URL.Path {
-	case readerGithubOAuthConnectPath:
-		handleReaderGithubOAuthStart(w, r)
-	case readerGithubOAuthCallbackPath, legacyReaderGithubOAuthCallbackPath:
+	case readerGithubOAuthCallbackPath:
 		handleReaderGithubOAuthCallback(w, r)
 	default:
 		http.NotFound(w, r)
 	}
+}
+
+func Start(w http.ResponseWriter, r *http.Request) {
+	r = httpapi.EnsureRequestContext(w, r)
+	if r == nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	handleReaderGithubOAuthStart(w, r)
 }
 
 func handleReaderGithubOAuthStart(w http.ResponseWriter, r *http.Request) {

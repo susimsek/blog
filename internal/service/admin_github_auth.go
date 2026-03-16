@@ -178,7 +178,7 @@ func StartAdminGithubConnect(
 	}
 
 	return &AdminGithubConnectResult{
-		URL: "/api/admin-github/connect?intent=connect&locale=" + url.QueryEscape(strings.TrimSpace(locale)),
+		URL: "/api/github/connect?flow=admin&intent=connect&locale=" + url.QueryEscape(strings.TrimSpace(locale)),
 	}, nil
 }
 

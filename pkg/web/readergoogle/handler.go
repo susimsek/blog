@@ -21,13 +21,11 @@ import (
 )
 
 const (
-	readerGoogleOAuthConnectPath        = "/api/reader-google/connect"
-	readerGoogleOAuthCallbackPath       = "/api/google/callback"
-	legacyReaderGoogleOAuthCallbackPath = "/api/reader-google/callback"
-	readerGoogleOAuthStateCookie        = "reader_google_oauth_state"
-	readerGoogleOAuthStatePath          = "/api/google"
-	readerGoogleOAuthStateTTL           = 10 * time.Minute
-	readerGoogleOAuthStateVersion       = "v1"
+	readerGoogleOAuthCallbackPath = "/api/google/callback"
+	readerGoogleOAuthStateCookie  = "reader_google_oauth_state"
+	readerGoogleOAuthStatePath    = "/api/google"
+	readerGoogleOAuthStateTTL     = 10 * time.Minute
+	readerGoogleOAuthStateVersion = "v1"
 )
 
 type readerGoogleOAuthState struct {
@@ -45,13 +43,21 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch r.URL.Path {
-	case readerGoogleOAuthConnectPath:
-		handleReaderGoogleOAuthStart(w, r)
-	case readerGoogleOAuthCallbackPath, legacyReaderGoogleOAuthCallbackPath:
+	case readerGoogleOAuthCallbackPath:
 		handleReaderGoogleOAuthCallback(w, r)
 	default:
 		http.NotFound(w, r)
 	}
+}
+
+func Start(w http.ResponseWriter, r *http.Request) {
+	r = httpapi.EnsureRequestContext(w, r)
+	if r == nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	handleReaderGoogleOAuthStart(w, r)
 }
 
 func handleReaderGoogleOAuthStart(w http.ResponseWriter, r *http.Request) {

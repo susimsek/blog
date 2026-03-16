@@ -81,6 +81,7 @@ export const beginCommentOAuthLogin = (
     rememberMe: rememberMe ? 'true' : 'false',
   });
 
-  const endpoint = getApiEndpoint(`/api/reader-${provider}/connect`);
+  const endpoint = getApiEndpoint(`/api/${provider}/connect`);
+  params.set('flow', 'reader');
   globalThis.window.location.assign(`${endpoint}?${params.toString()}`);
 };

@@ -24,22 +24,6 @@
     {
       "source": "/api/reader-auth/logout",
       "destination": "/api/reader-auth"
-    },
-    {
-      "source": "/api/admin-google/connect",
-      "destination": "/api/admin-google"
-    },
-    {
-      "source": "/api/admin-github/connect",
-      "destination": "/api/admin-github"
-    },
-    {
-      "source": "/api/reader-google/connect",
-      "destination": "/api/reader-google"
-    },
-    {
-      "source": "/api/reader-github/connect",
-      "destination": "/api/reader-github"
     }
   ],
   "crons": [

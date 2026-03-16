@@ -22,13 +22,11 @@ import (
 )
 
 const (
-	githubOAuthConnectPath        = "/api/admin-github/connect"
-	githubOAuthCallbackPath       = "/api/github/callback"
-	legacyGithubOAuthCallbackPath = "/api/admin-github/callback"
-	githubOAuthStateCookie        = "admin_github_oauth_state"
-	githubOAuthStatePath          = "/api/github"
-	githubOAuthStateTTL           = 10 * time.Minute
-	githubOAuthStateVersion       = "v1"
+	githubOAuthCallbackPath = "/api/github/callback"
+	githubOAuthStateCookie  = "admin_github_oauth_state"
+	githubOAuthStatePath    = "/api/github"
+	githubOAuthStateTTL     = 10 * time.Minute
+	githubOAuthStateVersion = "v1"
 )
 
 type githubOAuthState struct {
@@ -47,13 +45,21 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch r.URL.Path {
-	case githubOAuthConnectPath:
-		handleGithubOAuthStart(w, r)
-	case githubOAuthCallbackPath, legacyGithubOAuthCallbackPath:
+	case githubOAuthCallbackPath:
 		handleGithubOAuthCallback(w, r)
 	default:
 		http.NotFound(w, r)
 	}
+}
+
+func Start(w http.ResponseWriter, r *http.Request) {
+	r = httpapi.EnsureRequestContext(w, r)
+	if r == nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	handleGithubOAuthStart(w, r)
 }
 
 func handleGithubOAuthStart(w http.ResponseWriter, r *http.Request) {
