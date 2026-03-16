@@ -30,15 +30,7 @@
       "destination": "/api/admin-google"
     },
     {
-      "source": "/api/admin-google/callback",
-      "destination": "/api/admin-google"
-    },
-    {
       "source": "/api/admin-github/connect",
-      "destination": "/api/admin-github"
-    },
-    {
-      "source": "/api/admin-github/callback",
       "destination": "/api/admin-github"
     },
     {
@@ -46,15 +38,7 @@
       "destination": "/api/reader-google"
     },
     {
-      "source": "/api/reader-google/callback",
-      "destination": "/api/reader-google"
-    },
-    {
       "source": "/api/reader-github/connect",
-      "destination": "/api/reader-github"
-    },
-    {
-      "source": "/api/reader-github/callback",
       "destination": "/api/reader-github"
     }
   ],
