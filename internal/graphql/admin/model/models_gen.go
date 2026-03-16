@@ -41,7 +41,6 @@ type AdminComment struct {
 	ID          string             `json:"id"`
 	PostID      string             `json:"postId"`
 	PostTitle   string             `json:"postTitle"`
-	Locale      string             `json:"locale"`
 	ParentID    *string            `json:"parentId,omitempty"`
 	AuthorName  string             `json:"authorName"`
 	AuthorEmail string             `json:"authorEmail"`
@@ -52,7 +51,6 @@ type AdminComment struct {
 }
 
 type AdminCommentFilterInput struct {
-	Locale *string             `json:"locale,omitempty"`
 	Status *AdminCommentStatus `json:"status,omitempty"`
 	PostID *string             `json:"postId,omitempty"`
 	Query  *string             `json:"query,omitempty"`

@@ -4,7 +4,6 @@ import {
   fromCommentModerationStatus,
   fromCommentMutationStatus,
   fromCommentQueryStatus,
-  toGraphQLLocale,
 } from '@/lib/graphql/enumMappers';
 import type { CommentThread as AppCommentThread } from '@/types/comments';
 
@@ -15,7 +14,6 @@ type CommentApiOptions = {
 
 export type FetchCommentsResult = {
   status?: string;
-  locale?: string;
   postId?: string;
   total: number;
   threads: AppCommentThread[];
@@ -78,20 +76,17 @@ export const normalizeCommentThreads = (
   }));
 
 export const fetchComments = async (
-  locale: string,
   postId: string,
   options: CommentApiOptions = {},
 ): Promise<FetchCommentsResult | null> => {
-  const graphQLLocale = toGraphQLLocale(locale.trim());
   const normalizedPostID = postId.trim();
-  if (!graphQLLocale || normalizedPostID === '') {
+  if (normalizedPostID === '') {
     return null;
   }
 
   const payload = await queryGraphQL(
     CommentsDocument,
     {
-      locale: graphQLLocale,
       postId: normalizedPostID,
     },
     options,
@@ -104,7 +99,6 @@ export const fetchComments = async (
 
   return {
     ...(fromCommentQueryStatus(result.status) ? { status: fromCommentQueryStatus(result.status) } : {}),
-    ...(typeof result.locale === 'string' ? { locale: result.locale.trim().toLowerCase() } : {}),
     ...(typeof result.postId === 'string' ? { postId: result.postId.trim() } : {}),
     total: typeof result.total === 'number' ? Math.max(0, Math.trunc(result.total)) : 0,
     threads: normalizeCommentThreads(result.threads),
@@ -113,7 +107,6 @@ export const fetchComments = async (
 
 export const addComment = async (
   input: {
-    locale: string;
     postId: string;
     parentId?: string;
     authorName: string;
@@ -122,8 +115,7 @@ export const addComment = async (
   },
   options: CommentApiOptions = {},
 ): Promise<AddCommentResult | null> => {
-  const graphQLLocale = toGraphQLLocale(input.locale.trim());
-  if (!graphQLLocale || input.postId.trim() === '') {
+  if (input.postId.trim() === '') {
     return null;
   }
 
@@ -131,7 +123,6 @@ export const addComment = async (
     AddCommentDocument,
     {
       input: {
-        locale: graphQLLocale,
         postId: input.postId.trim(),
         ...(input.parentId?.trim() ? { parentId: input.parentId.trim() } : {}),
         authorName: input.authorName,

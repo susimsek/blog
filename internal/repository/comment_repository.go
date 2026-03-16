@@ -26,7 +26,7 @@ var (
 const commentRepositoryUnavailableFormat = "%w: %v"
 
 type CommentRepository interface {
-	ListApprovedByPost(ctx context.Context, locale, postID string) ([]domain.CommentRecord, error)
+	ListApprovedByPost(ctx context.Context, postID string) ([]domain.CommentRecord, error)
 	CreateComment(ctx context.Context, input domain.CommentRecord) error
 	FindCommentByID(ctx context.Context, id string) (*domain.CommentRecord, error)
 	ListComments(
@@ -72,12 +72,11 @@ func ensurePostCommentIndexes(collection *mongo.Collection) error {
 			},
 			{
 				Keys: bson.D{
-					{Key: "locale", Value: 1},
 					{Key: "postId", Value: 1},
 					{Key: "status", Value: 1},
 					{Key: "createdAt", Value: 1},
 				},
-				Options: options.Index().SetName("idx_post_comment_post_status_created"),
+				Options: options.Index().SetName("idx_post_comment_discussion_status_created"),
 			},
 			{
 				Keys: bson.D{
@@ -123,7 +122,7 @@ func getPostCommentsCollection() (*mongo.Collection, error) {
 	return collection, nil
 }
 
-func (*commentMongoRepository) ListApprovedByPost(ctx context.Context, locale, postID string) ([]domain.CommentRecord, error) {
+func (*commentMongoRepository) ListApprovedByPost(ctx context.Context, postID string) ([]domain.CommentRecord, error) {
 	collection, err := getPostCommentsCollection()
 	if err != nil {
 		return nil, fmt.Errorf(commentRepositoryUnavailableFormat, ErrCommentRepositoryUnavailable, err)
@@ -132,7 +131,6 @@ func (*commentMongoRepository) ListApprovedByPost(ctx context.Context, locale, p
 	cursor, err := collection.Find(
 		ctx,
 		bson.M{
-			"locale": strings.TrimSpace(strings.ToLower(locale)),
 			"postId": strings.TrimSpace(strings.ToLower(postID)),
 			"status": "approved",
 		},
@@ -210,9 +208,6 @@ func (*commentMongoRepository) ListComments(
 	skip := int64((resolvedPage - 1) * resolvedSize)
 
 	query := bson.M{}
-	if locale := strings.TrimSpace(strings.ToLower(filter.Locale)); locale != "" {
-		query["locale"] = locale
-	}
 	if status := strings.TrimSpace(strings.ToLower(filter.Status)); status != "" {
 		query["status"] = status
 	}

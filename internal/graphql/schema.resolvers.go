@@ -118,25 +118,18 @@ func (r *queryResolver) Post(ctx context.Context, locale model.Locale, id string
 }
 
 // Comments is the resolver for the comments field.
-func (r *queryResolver) Comments(ctx context.Context, locale model.Locale, postID string) (*model.CommentListResult, error) {
-	normalizedLocale := strings.TrimSpace(mapLocaleInput(locale))
-	if normalizedLocale == "" {
-		return nil, fmt.Errorf("locale is required")
-	}
-
+func (r *queryResolver) Comments(ctx context.Context, postID string) (*model.CommentListResult, error) {
 	normalizedPostID := strings.TrimSpace(postID)
 	if normalizedPostID == "" {
 		return nil, fmt.Errorf("postId is required")
 	}
 
 	payload := listCommentsFn(ctx, appservice.CommentQueryInput{
-		Locale: normalizedLocale,
 		PostID: normalizedPostID,
 	})
 
 	return &model.CommentListResult{
 		Status:  mapCommentQueryStatus(payload.Status),
-		Locale:  mapLocaleOutput(payload.Locale),
 		PostID:  strings.TrimSpace(payload.PostID),
 		Total:   payload.Total,
 		Threads: mapCommentThreads(payload.Comments),
@@ -263,7 +256,6 @@ func (r *mutationResolver) AddComment(ctx context.Context, input model.AddCommen
 	payload := addCommentFn(
 		ctx,
 		appservice.AddCommentInput{
-			Locale:                       strings.TrimSpace(mapLocaleInput(input.Locale)),
 			PostID:                       strings.TrimSpace(input.PostID),
 			ParentID:                     strings.TrimSpace(toOptionalStringValue(input.ParentID)),
 			AuthorName:                   strings.TrimSpace(input.AuthorName),

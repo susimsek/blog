@@ -13,13 +13,14 @@ import (
 )
 
 type postStubRepository struct {
-	countPosts           func(context.Context, bson.M) (int, error)
-	findPosts            func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error)
-	findPostByID         func(context.Context, string, string) (*domain.PostRecord, error)
-	resolveLikesByPostID func(context.Context, []domain.PostRecord) map[string]int64
-	resolveHitsByPostID  func(context.Context, []domain.PostRecord) map[string]int64
-	incrementPostLike    func(context.Context, string, time.Time) (int64, error)
-	incrementPostHit     func(context.Context, string, time.Time) (int64, error)
+	countPosts            func(context.Context, bson.M) (int, error)
+	findPosts             func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error)
+	findPostByID          func(context.Context, string, string) (*domain.PostRecord, error)
+	findPostByIDAnyLocale func(context.Context, string) (*domain.PostRecord, error)
+	resolveLikesByPostID  func(context.Context, []domain.PostRecord) map[string]int64
+	resolveHitsByPostID   func(context.Context, []domain.PostRecord) map[string]int64
+	incrementPostLike     func(context.Context, string, time.Time) (int64, error)
+	incrementPostHit      func(context.Context, string, time.Time) (int64, error)
 }
 
 func (stub postStubRepository) CountPosts(ctx context.Context, filter bson.M) (int, error) {
@@ -38,6 +39,10 @@ func (stub postStubRepository) FindPosts(
 
 func (stub postStubRepository) FindPostByID(ctx context.Context, locale, postID string) (*domain.PostRecord, error) {
 	return stub.findPostByID(ctx, locale, postID)
+}
+
+func (stub postStubRepository) FindPostByIDAnyLocale(ctx context.Context, postID string) (*domain.PostRecord, error) {
+	return stub.findPostByIDAnyLocale(ctx, postID)
 }
 
 func (stub postStubRepository) ResolveLikesByPostID(ctx context.Context, posts []domain.PostRecord) map[string]int64 {

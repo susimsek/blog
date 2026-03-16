@@ -57,7 +57,6 @@ type ComplexityRoot struct {
 	}
 
 	CommentListResult struct {
-		Locale  func(childComplexity int) int
 		PostID  func(childComplexity int) int
 		Status  func(childComplexity int) int
 		Threads func(childComplexity int) int
@@ -145,7 +144,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Comments func(childComplexity int, locale model.Locale, postID string) int
+		Comments func(childComplexity int, postID string) int
 		Post     func(childComplexity int, locale model.Locale, id string) int
 		Posts    func(childComplexity int, locale model.Locale, input *model.PostsQueryInput) int
 	}
@@ -170,7 +169,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Posts(ctx context.Context, locale model.Locale, input *model.PostsQueryInput) (*model.PostConnection, error)
 	Post(ctx context.Context, locale model.Locale, id string) (*model.PostResult, error)
-	Comments(ctx context.Context, locale model.Locale, postID string) (*model.CommentListResult, error)
+	Comments(ctx context.Context, postID string) (*model.CommentListResult, error)
 }
 
 type executableSchema struct {
@@ -229,12 +228,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Comment.ParentID(childComplexity), true
 
-	case "CommentListResult.locale":
-		if e.complexity.CommentListResult.Locale == nil {
-			break
-		}
-
-		return e.complexity.CommentListResult.Locale(childComplexity), true
 	case "CommentListResult.postId":
 		if e.complexity.CommentListResult.PostID == nil {
 			break
@@ -615,7 +608,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Comments(childComplexity, args["locale"].(model.Locale), args["postId"].(string)), true
+		return e.complexity.Query.Comments(childComplexity, args["postId"].(string)), true
 	case "Query.post":
 		if e.complexity.Query.Post == nil {
 			break
@@ -883,16 +876,11 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_comments_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐLocale)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "postId", ec.unmarshalNID2string)
 	if err != nil {
 		return nil, err
 	}
-	args["locale"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "postId", ec.unmarshalNID2string)
-	if err != nil {
-		return nil, err
-	}
-	args["postId"] = arg1
+	args["postId"] = arg0
 	return args, nil
 }
 
@@ -1178,35 +1166,6 @@ func (ec *executionContext) fieldContext_CommentListResult_status(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type CommentQueryStatus does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CommentListResult_locale(ctx context.Context, field graphql.CollectedField, obj *model.CommentListResult) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_CommentListResult_locale,
-		func(ctx context.Context) (any, error) {
-			return obj.Locale, nil
-		},
-		nil,
-		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐLocale,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_CommentListResult_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CommentListResult",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Locale does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3129,7 +3088,7 @@ func (ec *executionContext) _Query_comments(ctx context.Context, field graphql.C
 		ec.fieldContext_Query_comments,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Comments(ctx, fc.Args["locale"].(model.Locale), fc.Args["postId"].(string))
+			return ec.resolvers.Query().Comments(ctx, fc.Args["postId"].(string))
 		},
 		nil,
 		ec.marshalNCommentListResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐCommentListResult,
@@ -3148,8 +3107,6 @@ func (ec *executionContext) fieldContext_Query_comments(ctx context.Context, fie
 			switch field.Name {
 			case "status":
 				return ec.fieldContext_CommentListResult_status(ctx, field)
-			case "locale":
-				return ec.fieldContext_CommentListResult_locale(ctx, field)
 			case "postId":
 				return ec.fieldContext_CommentListResult_postId(ctx, field)
 			case "total":
@@ -4851,20 +4808,13 @@ func (ec *executionContext) unmarshalInputAddCommentInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"locale", "postId", "parentId", "authorName", "authorEmail", "content"}
+	fieldsInOrder := [...]string{"postId", "parentId", "authorName", "authorEmail", "content"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "locale":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐLocale(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Locale = data
 		case "postId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postId"))
 			data, err := ec.unmarshalNID2string(ctx, v)
@@ -5129,11 +5079,6 @@ func (ec *executionContext) _CommentListResult(ctx context.Context, sel ast.Sele
 			out.Values[i] = graphql.MarshalString("CommentListResult")
 		case "status":
 			out.Values[i] = ec._CommentListResult_status(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "locale":
-			out.Values[i] = ec._CommentListResult_locale(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

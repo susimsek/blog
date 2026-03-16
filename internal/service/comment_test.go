@@ -13,7 +13,7 @@ import (
 )
 
 type commentStubRepository struct {
-	listApprovedByPost      func(context.Context, string, string) ([]domain.CommentRecord, error)
+	listApprovedByPost      func(context.Context, string) ([]domain.CommentRecord, error)
 	createComment           func(context.Context, domain.CommentRecord) error
 	findCommentByID         func(context.Context, string) (*domain.CommentRecord, error)
 	listComments            func(context.Context, domain.AdminCommentFilter, int, int) (*domain.AdminCommentListResult, error)
@@ -21,8 +21,8 @@ type commentStubRepository struct {
 	deleteCommentByID       func(context.Context, string) (bool, error)
 }
 
-func (stub commentStubRepository) ListApprovedByPost(ctx context.Context, locale, postID string) ([]domain.CommentRecord, error) {
-	return stub.listApprovedByPost(ctx, locale, postID)
+func (stub commentStubRepository) ListApprovedByPost(ctx context.Context, postID string) ([]domain.CommentRecord, error) {
+	return stub.listApprovedByPost(ctx, postID)
 }
 
 func (stub commentStubRepository) CreateComment(ctx context.Context, input domain.CommentRecord) error {
@@ -73,6 +73,12 @@ func TestListComments(t *testing.T) {
 			}
 			return &domain.PostRecord{ID: postID, Title: "Alpha", PublishedDate: "2026-03-01", Summary: "Summary", SearchText: "alpha", ReadingTimeMin: 3}, nil
 		},
+		findPostByIDAnyLocale: func(_ context.Context, postID string) (*domain.PostRecord, error) {
+			if postID != "alpha-post" {
+				t.Fatalf("FindPostByIDAnyLocale postID = %q", postID)
+			}
+			return &domain.PostRecord{ID: postID, Title: "Alpha", PublishedDate: "2026-03-01", Summary: "Summary", SearchText: "alpha", ReadingTimeMin: 3}, nil
+		},
 		resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
 		resolveHitsByPostID:  func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
 		incrementPostLike:    func(context.Context, string, time.Time) (int64, error) { return 0, nil },
@@ -80,12 +86,12 @@ func TestListComments(t *testing.T) {
 	}
 
 	commentRepository = commentStubRepository{
-		listApprovedByPost: func(_ context.Context, locale, postID string) ([]domain.CommentRecord, error) {
-			if locale != "en" || postID != "alpha-post" {
-				t.Fatalf("ListApprovedByPost args = %q %q", locale, postID)
+		listApprovedByPost: func(_ context.Context, postID string) ([]domain.CommentRecord, error) {
+			if postID != "alpha-post" {
+				t.Fatalf("ListApprovedByPost postID = %q", postID)
 			}
 			return []domain.CommentRecord{
-				{ID: "root", PostID: postID, Locale: locale, AuthorName: "Alice", Content: "Hello", Status: commentStatusApproved, CreatedAt: time.Now().UTC()},
+				{ID: "root", PostID: postID, AuthorName: "Alice", Content: "Hello", Status: commentStatusApproved, CreatedAt: time.Now().UTC()},
 			}, nil
 		},
 		createComment:   func(context.Context, domain.CommentRecord) error { return nil },
@@ -98,7 +104,7 @@ func TestListComments(t *testing.T) {
 		},
 	}
 
-	result := ListComments(context.Background(), CommentQueryInput{Locale: "en", PostID: "Alpha-Post"})
+	result := ListComments(context.Background(), CommentQueryInput{PostID: "Alpha-Post"})
 	if result.Status != "success" || result.Total != 1 || len(result.Comments) != 1 {
 		t.Fatalf("result = %#v", result)
 	}
@@ -122,6 +128,9 @@ func TestAddComment(t *testing.T) {
 		findPostByID: func(_ context.Context, locale, postID string) (*domain.PostRecord, error) {
 			return &domain.PostRecord{ID: postID, Title: "Alpha", PublishedDate: "2026-03-01", Summary: "Summary", SearchText: "alpha", ReadingTimeMin: 3}, nil
 		},
+		findPostByIDAnyLocale: func(_ context.Context, postID string) (*domain.PostRecord, error) {
+			return &domain.PostRecord{ID: postID, Title: "Alpha", PublishedDate: "2026-03-01", Summary: "Summary", SearchText: "alpha", ReadingTimeMin: 3}, nil
+		},
 		resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
 		resolveHitsByPostID:  func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
 		incrementPostLike:    func(context.Context, string, time.Time) (int64, error) { return 0, nil },
@@ -130,7 +139,7 @@ func TestAddComment(t *testing.T) {
 
 	var stored domain.CommentRecord
 	commentRepository = commentStubRepository{
-		listApprovedByPost: func(context.Context, string, string) ([]domain.CommentRecord, error) { return nil, nil },
+		listApprovedByPost: func(context.Context, string) ([]domain.CommentRecord, error) { return nil, nil },
 		createComment: func(_ context.Context, input domain.CommentRecord) error {
 			stored = input
 			return nil
@@ -147,7 +156,6 @@ func TestAddComment(t *testing.T) {
 	result := AddComment(
 		context.Background(),
 		AddCommentInput{
-			Locale:                       "en",
 			PostID:                       "Alpha-Post",
 			AuthorName:                   " Alice ",
 			AuthorEmail:                  " Alice@example.com ",
@@ -188,6 +196,9 @@ func TestAddCommentReplyValidationAndRateLimit(t *testing.T) {
 		findPostByID: func(_ context.Context, locale, postID string) (*domain.PostRecord, error) {
 			return &domain.PostRecord{ID: postID, Title: "Alpha", PublishedDate: "2026-03-01", Summary: "Summary", SearchText: "alpha", ReadingTimeMin: 3}, nil
 		},
+		findPostByIDAnyLocale: func(_ context.Context, postID string) (*domain.PostRecord, error) {
+			return &domain.PostRecord{ID: postID, Title: "Alpha", PublishedDate: "2026-03-01", Summary: "Summary", SearchText: "alpha", ReadingTimeMin: 3}, nil
+		},
 		resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
 		resolveHitsByPostID:  func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
 		incrementPostLike:    func(context.Context, string, time.Time) (int64, error) { return 0, nil },
@@ -195,7 +206,7 @@ func TestAddCommentReplyValidationAndRateLimit(t *testing.T) {
 	}
 
 	commentRepository = commentStubRepository{
-		listApprovedByPost: func(context.Context, string, string) ([]domain.CommentRecord, error) { return nil, nil },
+		listApprovedByPost: func(context.Context, string) ([]domain.CommentRecord, error) { return nil, nil },
 		createComment:      func(context.Context, domain.CommentRecord) error { return nil },
 		findCommentByID: func(_ context.Context, id string) (*domain.CommentRecord, error) {
 			if id == "missing" {
@@ -205,7 +216,6 @@ func TestAddCommentReplyValidationAndRateLimit(t *testing.T) {
 				return &domain.CommentRecord{
 					ID:         id,
 					PostID:     "alpha-post",
-					Locale:     "en",
 					Status:     commentStatusApproved,
 					AuthorName: "Alice",
 					Content:    "Root",
@@ -216,7 +226,6 @@ func TestAddCommentReplyValidationAndRateLimit(t *testing.T) {
 			return &domain.CommentRecord{
 				ID:         id,
 				PostID:     "alpha-post",
-				Locale:     "en",
 				ParentID:   &parentID,
 				Status:     commentStatusApproved,
 				AuthorName: "Alice",
@@ -235,7 +244,6 @@ func TestAddCommentReplyValidationAndRateLimit(t *testing.T) {
 	invalidParent := AddComment(
 		context.Background(),
 		AddCommentInput{
-			Locale:      "en",
 			PostID:      "alpha-post",
 			ParentID:    "missing",
 			AuthorName:  "Alice",
@@ -251,7 +259,6 @@ func TestAddCommentReplyValidationAndRateLimit(t *testing.T) {
 	nestedParent := AddComment(
 		context.Background(),
 		AddCommentInput{
-			Locale:      "en",
 			PostID:      "alpha-post",
 			ParentID:    "nested",
 			AuthorName:  "Alice",
@@ -264,10 +271,24 @@ func TestAddCommentReplyValidationAndRateLimit(t *testing.T) {
 		t.Fatalf("nestedParent = %#v", nestedParent)
 	}
 
+	validSharedReply := AddComment(
+		context.Background(),
+		AddCommentInput{
+			PostID:      "alpha-post",
+			ParentID:    "root",
+			AuthorName:  "Alice",
+			AuthorEmail: "alice@example.com",
+			Content:     "Shared discussion reply",
+		},
+		RequestMetadata{ClientIP: "203.0.113.15"},
+	)
+	if validSharedReply.Status != "success" {
+		t.Fatalf("validSharedReply = %#v", validSharedReply)
+	}
+
 	first := AddComment(
 		context.Background(),
 		AddCommentInput{
-			Locale:      "en",
 			PostID:      "alpha-post",
 			AuthorName:  "Alice",
 			AuthorEmail: "alice@example.com",
@@ -282,7 +303,6 @@ func TestAddCommentReplyValidationAndRateLimit(t *testing.T) {
 	rateLimited := AddComment(
 		context.Background(),
 		AddCommentInput{
-			Locale:      "en",
 			PostID:      "alpha-post",
 			AuthorName:  "Alice",
 			AuthorEmail: "alice@example.com",
@@ -295,7 +315,7 @@ func TestAddCommentReplyValidationAndRateLimit(t *testing.T) {
 	}
 
 	commentRepository = commentStubRepository{
-		listApprovedByPost: func(context.Context, string, string) ([]domain.CommentRecord, error) { return nil, nil },
+		listApprovedByPost: func(context.Context, string) ([]domain.CommentRecord, error) { return nil, nil },
 		createComment:      func(context.Context, domain.CommentRecord) error { return errors.New("boom") },
 		findCommentByID:    func(context.Context, string) (*domain.CommentRecord, error) { return nil, nil },
 		listComments: func(context.Context, domain.AdminCommentFilter, int, int) (*domain.AdminCommentListResult, error) {
@@ -309,7 +329,6 @@ func TestAddCommentReplyValidationAndRateLimit(t *testing.T) {
 	failed := AddComment(
 		context.Background(),
 		AddCommentInput{
-			Locale:      "en",
 			PostID:      "alpha-post",
 			AuthorName:  "Alice",
 			AuthorEmail: "alice@example.com",

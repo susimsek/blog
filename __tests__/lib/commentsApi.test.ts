@@ -1,9 +1,4 @@
-import {
-  CommentModerationStatus,
-  CommentMutationStatus,
-  CommentQueryStatus,
-  Locale,
-} from '@/graphql/generated/graphql';
+import { CommentModerationStatus, CommentMutationStatus, CommentQueryStatus } from '@/graphql/generated/graphql';
 import { addComment, fetchComments } from '@/lib/commentsApi';
 import { mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
 
@@ -24,7 +19,6 @@ describe('commentsApi', () => {
     mockedQueryGraphQL.mockResolvedValue({
       comments: {
         status: CommentQueryStatus.Success,
-        locale: Locale.En,
         postId: 'alpha-post',
         total: 2,
         threads: [
@@ -52,9 +46,8 @@ describe('commentsApi', () => {
       },
     });
 
-    await expect(fetchComments('en', ' alpha-post ')).resolves.toEqual({
+    await expect(fetchComments(' alpha-post ')).resolves.toEqual({
       status: 'success',
-      locale: 'en',
       postId: 'alpha-post',
       total: 2,
       threads: [
@@ -82,8 +75,7 @@ describe('commentsApi', () => {
   });
 
   it('returns null for invalid read inputs', async () => {
-    await expect(fetchComments('de', 'alpha-post')).resolves.toBeNull();
-    await expect(fetchComments('en', '   ')).resolves.toBeNull();
+    await expect(fetchComments('   ')).resolves.toBeNull();
     expect(mockedQueryGraphQL).not.toHaveBeenCalled();
   });
 
@@ -98,7 +90,6 @@ describe('commentsApi', () => {
 
     await expect(
       addComment({
-        locale: 'en',
         postId: ' alpha-post ',
         parentId: ' root-1 ',
         authorName: 'Alice',
@@ -115,7 +106,6 @@ describe('commentsApi', () => {
       expect.anything(),
       {
         input: {
-          locale: Locale.En,
           postId: 'alpha-post',
           parentId: 'root-1',
           authorName: 'Alice',
@@ -130,17 +120,6 @@ describe('commentsApi', () => {
   it('returns null for invalid mutation inputs', async () => {
     await expect(
       addComment({
-        locale: 'de',
-        postId: 'alpha-post',
-        authorName: 'Alice',
-        authorEmail: 'alice@example.com',
-        content: 'Hello',
-      }),
-    ).resolves.toBeNull();
-
-    await expect(
-      addComment({
-        locale: 'en',
         postId: '   ',
         authorName: 'Alice',
         authorEmail: 'alice@example.com',
@@ -162,7 +141,6 @@ describe('commentsApi', () => {
 
     await expect(
       addComment({
-        locale: 'en',
         postId: 'alpha-post',
         authorName: 'Alice',
         authorEmail: 'alice@example.com',

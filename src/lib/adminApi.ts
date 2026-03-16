@@ -112,7 +112,6 @@ export type AdminCommentItem = {
   id: string;
   postId: string;
   postTitle: string;
-  locale: string;
   parentId: string | null;
   authorName: string;
   authorEmail: string;
@@ -699,7 +698,6 @@ const ADMIN_COMMENTS_QUERY = gql`
         id
         postId
         postTitle
-        locale
         parentId
         authorName
         authorEmail
@@ -721,7 +719,6 @@ const ADMIN_UPDATE_COMMENT_STATUS_MUTATION = gql`
       id
       postId
       postTitle
-      locale
       parentId
       authorName
       authorEmail
@@ -1922,7 +1919,6 @@ export const fetchAdminDashboard = async () => {
 };
 
 export const fetchAdminComments = async (filter?: {
-  locale?: string;
   status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM';
   postId?: string;
   query?: string;
@@ -1933,7 +1929,6 @@ export const fetchAdminComments = async (filter?: {
     AdminCommentsPayload,
     {
       filter?: {
-        locale?: string;
         status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM';
         postId?: string;
         query?: string;

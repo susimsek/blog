@@ -75,7 +75,6 @@ enum AdminCommentStatus {
 }
 
 input AdminCommentFilterInput {
-  locale: String
   status: AdminCommentStatus
   postId: ID
   query: String
@@ -352,7 +351,6 @@ type AdminComment {
   id: ID!
   postId: ID!
   postTitle: String!
-  locale: String!
   parentId: ID
   authorName: String!
   authorEmail: String!

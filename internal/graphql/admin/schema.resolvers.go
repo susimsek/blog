@@ -92,9 +92,6 @@ func (r *adminQueryResolver) Comments(
 
 	resolvedFilter := domain.AdminCommentFilter{}
 	if filter != nil {
-		if filter.Locale != nil {
-			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
-		}
 		if filter.Status != nil {
 			resolvedFilter.Status = mapAdminCommentStatusInput(*filter.Status)
 		}
@@ -1992,7 +1989,6 @@ func mapAdminComment(value *domain.CommentRecord) *model.AdminComment {
 		ID:          strings.TrimSpace(value.ID),
 		PostID:      strings.TrimSpace(value.PostID),
 		PostTitle:   strings.TrimSpace(value.PostTitle),
-		Locale:      strings.TrimSpace(value.Locale),
 		ParentID:    toOptionalAdminString(adminDerefString(value.ParentID)),
 		AuthorName:  strings.TrimSpace(value.AuthorName),
 		AuthorEmail: strings.TrimSpace(value.AuthorEmail),

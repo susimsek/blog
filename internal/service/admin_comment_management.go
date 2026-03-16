@@ -9,7 +9,6 @@ import (
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/repository"
 	"suaybsimsek.com/blog-api/pkg/apperrors"
-	"suaybsimsek.com/blog-api/pkg/newsletter"
 )
 
 const (
@@ -29,11 +28,6 @@ func ListAdminComments(
 	page := clampPositiveInt(filter.Page, 1, 100000)
 	size := clampPositiveInt(filter.Size, adminCommentDefaultPageSize, adminCommentMaxPageSize)
 
-	locale := strings.TrimSpace(strings.ToLower(filter.Locale))
-	if locale != "" {
-		locale = newsletter.ResolveLocale(locale, "")
-	}
-
 	status := strings.TrimSpace(strings.ToLower(filter.Status))
 	if status != "" && !isSupportedCommentStatus(status) {
 		return nil, apperrors.BadRequest("unsupported comment status")
@@ -49,7 +43,6 @@ func ListAdminComments(
 	result, err := commentRepository.ListComments(
 		ctx,
 		domain.AdminCommentFilter{
-			Locale: locale,
 			Status: status,
 			PostID: postID,
 			Query:  strings.TrimSpace(filter.Query),

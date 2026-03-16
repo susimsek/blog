@@ -21,9 +21,9 @@ type Query {
   post(locale: Locale!, id: ID!): PostResult!
 
   """
-  Returns approved comments for the given locale and post identifier.
+  Returns approved comments for the shared discussion thread behind the given post identifier.
   """
-  comments(locale: Locale!, postId: ID!): CommentListResult!
+  comments(postId: ID!): CommentListResult!
 }
 
 """
@@ -145,11 +145,6 @@ input NewsletterResendInput {
 Input payload used when a visitor posts a guest comment.
 """
 input AddCommentInput {
-  """
-  Locale used to validate the target post.
-  """
-  locale: Locale!
-
   """
   Target post identifier.
   """
@@ -488,7 +483,6 @@ Approved comments for a single post.
 """
 type CommentListResult {
   status: CommentQueryStatus!
-  locale: Locale!
   postId: ID!
   total: Int!
   threads: [CommentThread!]!

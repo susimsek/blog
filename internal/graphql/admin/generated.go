@@ -63,7 +63,6 @@ type ComplexityRoot struct {
 		Content     func(childComplexity int) int
 		CreatedAt   func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Locale      func(childComplexity int) int
 		ParentID    func(childComplexity int) int
 		PostID      func(childComplexity int) int
 		PostTitle   func(childComplexity int) int
@@ -585,12 +584,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminComment.ID(childComplexity), true
-	case "AdminComment.locale":
-		if e.complexity.AdminComment.Locale == nil {
-			break
-		}
-
-		return e.complexity.AdminComment.Locale(childComplexity), true
 	case "AdminComment.parentId":
 		if e.complexity.AdminComment.ParentID == nil {
 			break
@@ -3269,35 +3262,6 @@ func (ec *executionContext) fieldContext_AdminComment_postTitle(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _AdminComment_locale(ctx context.Context, field graphql.CollectedField, obj *model.AdminComment) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		ec.fieldContext_AdminComment_locale,
-		func(ctx context.Context) (any, error) {
-			return obj.Locale, nil
-		},
-		nil,
-		ec.marshalNString2string,
-		true,
-		true,
-	)
-}
-
-func (ec *executionContext) fieldContext_AdminComment_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminComment",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _AdminComment_parentId(ctx context.Context, field graphql.CollectedField, obj *model.AdminComment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -3531,8 +3495,6 @@ func (ec *executionContext) fieldContext_AdminCommentListPayload_items(_ context
 				return ec.fieldContext_AdminComment_postId(ctx, field)
 			case "postTitle":
 				return ec.fieldContext_AdminComment_postTitle(ctx, field)
-			case "locale":
-				return ec.fieldContext_AdminComment_locale(ctx, field)
 			case "parentId":
 				return ec.fieldContext_AdminComment_parentId(ctx, field)
 			case "authorName":
@@ -8140,8 +8102,6 @@ func (ec *executionContext) fieldContext_AdminMutation_updateCommentStatus(ctx c
 				return ec.fieldContext_AdminComment_postId(ctx, field)
 			case "postTitle":
 				return ec.fieldContext_AdminComment_postTitle(ctx, field)
-			case "locale":
-				return ec.fieldContext_AdminComment_locale(ctx, field)
 			case "parentId":
 				return ec.fieldContext_AdminComment_parentId(ctx, field)
 			case "authorName":
@@ -14240,20 +14200,13 @@ func (ec *executionContext) unmarshalInputAdminCommentFilterInput(ctx context.Co
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"locale", "status", "postId", "query", "page", "size"}
+	fieldsInOrder := [...]string{"status", "postId", "query", "page", "size"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "locale":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Locale = data
 		case "status":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
 			data, err := ec.unmarshalOAdminCommentStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentStatus(ctx, v)
@@ -15460,11 +15413,6 @@ func (ec *executionContext) _AdminComment(ctx context.Context, sel ast.Selection
 			}
 		case "postTitle":
 			out.Values[i] = ec._AdminComment_postTitle(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "locale":
-			out.Values[i] = ec._AdminComment_locale(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

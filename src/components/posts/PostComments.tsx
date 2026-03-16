@@ -48,7 +48,6 @@ type CommentCardProps = {
 };
 
 type CommentFormProps = {
-  locale: string;
   postId: string;
   viewer?: CommentViewer | null;
   parentId?: string;
@@ -173,6 +172,7 @@ const CommentCard = ({ comment, locale, replyButton, metaBadge }: Readonly<Comme
           <div className="post-comment-author">
             <div className="post-comment-avatar" aria-hidden="true">
               {comment.avatarUrl && !isAvatarBroken ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   key={comment.avatarUrl}
                   className="post-comment-avatar-image"
@@ -205,7 +205,6 @@ const CommentCard = ({ comment, locale, replyButton, metaBadge }: Readonly<Comme
 };
 
 const CommentForm = ({
-  locale,
   postId,
   viewer,
   parentId,
@@ -261,7 +260,6 @@ const CommentForm = ({
 
     try {
       const result = await addComment({
-        locale,
         postId,
         ...(parentId ? { parentId } : {}),
         authorName: requiresGuestIdentity ? formState.authorName.trim() : '',
@@ -495,7 +493,7 @@ export default function PostComments({
     setErrorMessage('');
 
     try {
-      const result = await fetchComments(locale, postId);
+      const result = await fetchComments(postId);
       if (!result || (result.status && !['success', 'not-found'].includes(result.status))) {
         setErrorMessage(t('post.comments.errors.load'));
         return;
@@ -506,7 +504,7 @@ export default function PostComments({
     } finally {
       setIsLoading(false);
     }
-  }, [locale, postId, t]);
+  }, [postId, t]);
 
   React.useEffect(() => {
     if (!skipInitialFetch) {
@@ -830,7 +828,6 @@ export default function PostComments({
                       <Card className="post-card shadow-none border-0 post-comment-reply-card">
                         <Card.Body className="post-comment-reply-card-body">
                           <CommentForm
-                            locale={locale}
                             postId={postId}
                             viewer={authenticatedViewer}
                             parentId={thread.root.id}
@@ -937,6 +934,7 @@ export default function PostComments({
                   <div className="post-comments-authenticated-user">
                     <div className="post-comments-authenticated-avatar" aria-hidden="true">
                       {composerViewer.avatarUrl && !isViewerAvatarBroken ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           key={composerViewer.avatarUrl}
                           className="post-comments-authenticated-avatar-image"
@@ -1026,7 +1024,6 @@ export default function PostComments({
             ) : null}
 
             <CommentForm
-              locale={locale}
               postId={postId}
               viewer={composerViewer}
               onSubmitted={handleSubmitted}

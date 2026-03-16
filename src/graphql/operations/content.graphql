@@ -76,10 +76,9 @@ query post($locale: Locale!, $id: ID!) {
   }
 }
 
-query comments($locale: Locale!, $postId: ID!) {
-  comments(locale: $locale, postId: $postId) {
+query comments($postId: ID!) {
+  comments(postId: $postId) {
     status
-    locale
     postId
     total
     threads {
@@ -112,9 +111,8 @@ query postRuntime($locale: Locale!, $id: ID!) {
       hits
     }
   }
-  comments(locale: $locale, postId: $id) {
+  comments(postId: $id) {
     status
-    locale
     postId
     total
     threads {

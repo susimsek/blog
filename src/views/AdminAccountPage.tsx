@@ -455,7 +455,6 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const [isCommentsLoading, setIsCommentsLoading] = React.useState(isCommentsSection);
   const [commentsErrorMessage, setCommentsErrorMessage] = React.useState('');
   const [commentsSuccessMessage, setCommentsSuccessMessage] = React.useState('');
-  const [commentFilterLocale, setCommentFilterLocale] = React.useState<'all' | 'en' | 'tr'>('all');
   const [commentFilterStatus, setCommentFilterStatus] = React.useState<
     'all' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM'
   >('all');
@@ -947,7 +946,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
 
   React.useEffect(() => {
     setCommentsPage(1);
-  }, [commentFilterLocale, commentFilterQueryDebounced, commentFilterStatus]);
+  }, [commentFilterQueryDebounced, commentFilterStatus]);
 
   React.useEffect(() => {
     setNewsletterPage(1);
@@ -1947,7 +1946,6 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
 
       try {
         const payload = await fetchAdminComments({
-          locale: commentFilterLocale === 'all' ? undefined : commentFilterLocale,
           status: commentFilterStatus === 'all' ? undefined : commentFilterStatus,
           query: commentFilterQueryDebounced,
           page: requestedPage,
@@ -1995,7 +1993,6 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     },
     [
       adminUser,
-      commentFilterLocale,
       commentFilterQueryDebounced,
       commentFilterStatus,
       commentsPage,
@@ -5135,32 +5132,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                     <div className="card shadow-sm d-block">
                       <div className="card-body p-3 w-100">
                         <div className="row g-3">
-                          <div className="col-12 col-md-3">
-                            <Form.Group controlId="admin-comments-filter-locale">
-                              <Form.Label className="small fw-semibold mb-1">
-                                {t('adminAccount.comments.filters.locale', { ns: 'admin-account' })}
-                              </Form.Label>
-                              <Form.Select
-                                value={commentFilterLocale}
-                                onChange={event => {
-                                  setCommentFilterLocale(event.currentTarget.value as 'all' | 'en' | 'tr');
-                                  setCommentsErrorMessage('');
-                                  setCommentsSuccessMessage('');
-                                }}
-                              >
-                                <option value="all">
-                                  {t('adminAccount.comments.filters.locales.all', { ns: 'admin-account' })}
-                                </option>
-                                <option value="en">
-                                  {t('adminAccount.comments.filters.locales.en', { ns: 'admin-account' })}
-                                </option>
-                                <option value="tr">
-                                  {t('adminAccount.comments.filters.locales.tr', { ns: 'admin-account' })}
-                                </option>
-                              </Form.Select>
-                            </Form.Group>
-                          </div>
-                          <div className="col-12 col-md-3">
+                          <div className="col-12 col-md-4">
                             <Form.Group controlId="admin-comments-filter-status">
                               <Form.Label className="small fw-semibold mb-1">
                                 {t('adminAccount.comments.filters.status', { ns: 'admin-account' })}
@@ -5193,7 +5165,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                               </Form.Select>
                             </Form.Group>
                           </div>
-                          <div className="col-12 col-md-6">
+                          <div className="col-12 col-md-8">
                             <Form.Group controlId="admin-comments-filter-query">
                               <Form.Label className="small fw-semibold mb-1">
                                 {t('adminAccount.comments.filters.query', { ns: 'admin-account' })}
@@ -5250,8 +5222,6 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                         ) : (
                           <div className="d-grid gap-3">
                             {comments.map(item => {
-                              const normalizedLocale = item.locale.trim().toLowerCase();
-                              const isKnownLocale = normalizedLocale === 'en' || normalizedLocale === 'tr';
                               const isActionPending = commentActionID === item.id;
                               const isDeletePending = deletingCommentID === item.id;
                               const isApprovePending = isActionPending && commentActionStatus === 'APPROVED';
@@ -5261,10 +5231,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                                 `adminAccount.comments.filters.statuses.${item.status.toLowerCase()}`,
                                 { ns: 'admin-account' },
                               );
-                              const postHref = buildAdminContentPostDetailRoute(
-                                isKnownLocale ? normalizedLocale : item.locale,
-                                item.postId,
-                              );
+                              const postHref = buildAdminContentPostDetailRoute(locale, item.postId);
 
                               return (
                                 <div
@@ -5285,22 +5252,6 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                                         </span>
                                       </div>
                                       <div className="small text-muted d-flex align-items-center gap-2 flex-wrap">
-                                        <span className="d-inline-flex align-items-center gap-2">
-                                          {isKnownLocale ? (
-                                            <FlagIcon
-                                              className="flex-shrink-0"
-                                              code={normalizedLocale}
-                                              alt={`${LOCALES[normalizedLocale].name} flag`}
-                                              width={18}
-                                              height={18}
-                                            />
-                                          ) : (
-                                            <FontAwesomeIcon icon="globe" className="text-muted" />
-                                          )}
-                                          <span>
-                                            {isKnownLocale ? LOCALES[normalizedLocale].name : item.locale.toUpperCase()}
-                                          </span>
-                                        </span>
                                         <span className="d-inline-flex align-items-center gap-2">
                                           <FontAwesomeIcon icon="envelope" className="text-muted" />
                                           <span>{item.authorEmail}</span>

@@ -744,9 +744,7 @@ export default function AdminDashboardPage() {
                   <div className="admin-dashboard-curation-stack">
                     {pendingComments.map(comment => (
                       <div key={comment.id} className="admin-dashboard-curation-item">
-                        <span className="admin-dashboard-curation-label">
-                          [{comment.locale.toUpperCase()}] {comment.postTitle || comment.postId}
-                        </span>
+                        <span className="admin-dashboard-curation-label">{comment.postTitle || comment.postId}</span>
                         <strong>{comment.authorName}</strong>
                         <div className="admin-dashboard-bar-meta">
                           <span>{comment.authorEmail}</span>

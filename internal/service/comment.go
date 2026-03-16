@@ -13,7 +13,6 @@ import (
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/repository"
 	"suaybsimsek.com/blog-api/pkg/httpauth"
-	"suaybsimsek.com/blog-api/pkg/newsletter"
 )
 
 const (
@@ -44,12 +43,10 @@ var (
 )
 
 type CommentQueryInput struct {
-	Locale string
 	PostID string
 }
 
 type AddCommentInput struct {
-	Locale                       string
 	PostID                       string
 	ParentID                     string
 	AuthorName                   string
@@ -61,32 +58,31 @@ type AddCommentInput struct {
 }
 
 func ListComments(ctx context.Context, input CommentQueryInput) domain.CommentListResult {
-	locale := newsletter.ResolveLocale(strings.TrimSpace(input.Locale), "")
 	postID, ok := normalizePostID(input.PostID)
 	if !ok {
-		return domain.CommentListResult{Status: statusInvalidPostID, Locale: locale}
+		return domain.CommentListResult{Status: statusInvalidPostID}
 	}
 
 	operationCtx, cancel := withTimeoutContext(ctx, 10*time.Second)
 	defer cancel()
 
-	post, queryErr := postsRepository.FindPostByID(operationCtx, locale, postID)
+	post, queryErr := postsRepository.FindPostByIDAnyLocale(operationCtx, postID)
 	if queryErr != nil {
 		if errors.Is(queryErr, repository.ErrPostRepositoryUnavailable) {
-			return domain.CommentListResult{Status: statusServiceUnavailable, Locale: locale, PostID: postID}
+			return domain.CommentListResult{Status: statusServiceUnavailable, PostID: postID}
 		}
-		return domain.CommentListResult{Status: "failed", Locale: locale, PostID: postID}
+		return domain.CommentListResult{Status: "failed", PostID: postID}
 	}
 	if post == nil {
-		return domain.CommentListResult{Status: commentStatusNotFound, Locale: locale, PostID: postID}
+		return domain.CommentListResult{Status: commentStatusNotFound, PostID: postID}
 	}
 
-	items, err := commentRepository.ListApprovedByPost(operationCtx, locale, postID)
+	items, err := commentRepository.ListApprovedByPost(operationCtx, postID)
 	if err != nil {
 		if errors.Is(err, repository.ErrCommentRepositoryUnavailable) {
-			return domain.CommentListResult{Status: statusServiceUnavailable, Locale: locale, PostID: postID}
+			return domain.CommentListResult{Status: statusServiceUnavailable, PostID: postID}
 		}
-		return domain.CommentListResult{Status: "failed", Locale: locale, PostID: postID}
+		return domain.CommentListResult{Status: "failed", PostID: postID}
 	}
 	if items == nil {
 		items = []domain.CommentRecord{}
@@ -94,7 +90,6 @@ func ListComments(ctx context.Context, input CommentQueryInput) domain.CommentLi
 
 	return domain.CommentListResult{
 		Status:   "success",
-		Locale:   locale,
 		PostID:   postID,
 		Total:    len(items),
 		Comments: items,
@@ -102,17 +97,16 @@ func ListComments(ctx context.Context, input CommentQueryInput) domain.CommentLi
 }
 
 func AddComment(ctx context.Context, input AddCommentInput, meta RequestMetadata) domain.CommentMutationResult {
-	locale := newsletter.ResolveLocale(strings.TrimSpace(input.Locale), "")
 	postID, ok := normalizePostID(input.PostID)
 	if !ok {
-		return domain.CommentMutationResult{Status: statusInvalidPostID, Locale: locale}
+		return domain.CommentMutationResult{Status: statusInvalidPostID}
 	}
 
 	authorName := normalizeCommentAuthorName(input.AuthenticatedAuthorName)
 	if authorName == "" {
 		authorName = normalizeCommentAuthorName(input.AuthorName)
 		if authorName == "" {
-			return domain.CommentMutationResult{Status: commentStatusInvalidAuthor, Locale: locale, PostID: postID}
+			return domain.CommentMutationResult{Status: commentStatusInvalidAuthor, PostID: postID}
 		}
 	}
 
@@ -120,31 +114,31 @@ func AddComment(ctx context.Context, input AddCommentInput, meta RequestMetadata
 	if emailErr != nil {
 		authorEmail, emailErr = normalizeCommentAuthorEmail(input.AuthorEmail)
 		if emailErr != nil {
-			return domain.CommentMutationResult{Status: commentStatusInvalidEmail, Locale: locale, PostID: postID}
+			return domain.CommentMutationResult{Status: commentStatusInvalidEmail, PostID: postID}
 		}
 	}
 
 	content := normalizeCommentContent(input.Content)
 	if content == "" {
-		return domain.CommentMutationResult{Status: commentStatusInvalidContent, Locale: locale, PostID: postID}
+		return domain.CommentMutationResult{Status: commentStatusInvalidContent, PostID: postID}
 	}
 
 	if !commentLimiter.allow(strings.TrimSpace(meta.ClientIP)) {
-		return domain.CommentMutationResult{Status: commentStatusRateLimited, Locale: locale, PostID: postID}
+		return domain.CommentMutationResult{Status: commentStatusRateLimited, PostID: postID}
 	}
 
 	operationCtx, cancel := withTimeoutContext(ctx, 10*time.Second)
 	defer cancel()
 
-	post, queryErr := postsRepository.FindPostByID(operationCtx, locale, postID)
+	post, queryErr := postsRepository.FindPostByIDAnyLocale(operationCtx, postID)
 	if queryErr != nil {
 		if errors.Is(queryErr, repository.ErrPostRepositoryUnavailable) {
-			return domain.CommentMutationResult{Status: statusServiceUnavailable, Locale: locale, PostID: postID}
+			return domain.CommentMutationResult{Status: statusServiceUnavailable, PostID: postID}
 		}
-		return domain.CommentMutationResult{Status: "failed", Locale: locale, PostID: postID}
+		return domain.CommentMutationResult{Status: "failed", PostID: postID}
 	}
 	if post == nil {
-		return domain.CommentMutationResult{Status: commentStatusNotFound, Locale: locale, PostID: postID}
+		return domain.CommentMutationResult{Status: commentStatusNotFound, PostID: postID}
 	}
 
 	var parentID *string
@@ -153,27 +147,26 @@ func AddComment(ctx context.Context, input AddCommentInput, meta RequestMetadata
 		parentComment, err := commentRepository.FindCommentByID(operationCtx, resolvedParentID)
 		if err != nil {
 			if errors.Is(err, repository.ErrCommentRepositoryUnavailable) {
-				return domain.CommentMutationResult{Status: statusServiceUnavailable, Locale: locale, PostID: postID}
+				return domain.CommentMutationResult{Status: statusServiceUnavailable, PostID: postID}
 			}
 			if errors.Is(err, repository.ErrCommentNotFound) {
-				return domain.CommentMutationResult{Status: commentStatusInvalidParent, Locale: locale, PostID: postID}
+				return domain.CommentMutationResult{Status: commentStatusInvalidParent, PostID: postID}
 			}
-			return domain.CommentMutationResult{Status: "failed", Locale: locale, PostID: postID}
+			return domain.CommentMutationResult{Status: "failed", PostID: postID}
 		}
 		if parentComment == nil ||
 			parentComment.PostID != postID ||
-			parentComment.Locale != locale ||
 			parentComment.Status != commentStatusApproved ||
 			parentComment.ParentID != nil ||
 			commentDepth(*parentComment) >= commentMaxDepth {
-			return domain.CommentMutationResult{Status: commentStatusInvalidParent, Locale: locale, PostID: postID}
+			return domain.CommentMutationResult{Status: commentStatusInvalidParent, PostID: postID}
 		}
 		parentID = &parentComment.ID
 	}
 
 	commentID, idErr := httpauth.GenerateOpaqueToken(18)
 	if idErr != nil {
-		return domain.CommentMutationResult{Status: "failed", Locale: locale, PostID: postID}
+		return domain.CommentMutationResult{Status: "failed", PostID: postID}
 	}
 
 	now := time.Now().UTC()
@@ -188,7 +181,6 @@ func AddComment(ctx context.Context, input AddCommentInput, meta RequestMetadata
 		ID:              commentID,
 		PostID:          postID,
 		PostTitle:       strings.TrimSpace(post.Title),
-		Locale:          locale,
 		ParentID:        parentID,
 		AuthorName:      authorName,
 		AuthorAvatarURL: sanitizeReaderAvatarURL(input.AuthenticatedAuthorAvatarURL),
@@ -204,14 +196,13 @@ func AddComment(ctx context.Context, input AddCommentInput, meta RequestMetadata
 
 	if err := commentRepository.CreateComment(operationCtx, record); err != nil {
 		if errors.Is(err, repository.ErrCommentRepositoryUnavailable) {
-			return domain.CommentMutationResult{Status: statusServiceUnavailable, Locale: locale, PostID: postID}
+			return domain.CommentMutationResult{Status: statusServiceUnavailable, PostID: postID}
 		}
-		return domain.CommentMutationResult{Status: "failed", Locale: locale, PostID: postID}
+		return domain.CommentMutationResult{Status: "failed", PostID: postID}
 	}
 
 	return domain.CommentMutationResult{
 		Status:           "success",
-		Locale:           locale,
 		PostID:           postID,
 		Comment:          &record,
 		ModerationStatus: moderationStatus,

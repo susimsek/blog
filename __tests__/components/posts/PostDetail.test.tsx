@@ -5,8 +5,8 @@ import { renderWithProviders } from '@tests/utils/renderWithProviders';
 import { fetchPostRuntime } from '@/lib/contentApi';
 
 let PostDetail: typeof import('@/components/posts/PostDetail').default;
-const postTocMock = jest.fn(() => <div data-testid="post-toc" />);
-const postHitMock = jest.fn(() => <div data-testid="post-hit" />);
+const postTocMock = jest.fn((_props?: unknown) => <div data-testid="post-toc" />);
+const postHitMock = jest.fn((_props?: unknown) => <div data-testid="post-hit" />);
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({

@@ -11,8 +11,6 @@ import (
 
 // Input payload used when a visitor posts a guest comment.
 type AddCommentInput struct {
-	// Locale used to validate the target post.
-	Locale Locale `json:"locale"`
 	// Target post identifier.
 	PostID string `json:"postId"`
 	// Optional parent comment identifier. Only one reply level is supported.
@@ -38,7 +36,6 @@ type Comment struct {
 // Approved comments for a single post.
 type CommentListResult struct {
 	Status  CommentQueryStatus `json:"status"`
-	Locale  Locale             `json:"locale"`
 	PostID  string             `json:"postId"`
 	Total   int                `json:"total"`
 	Threads []*CommentThread   `json:"threads"`

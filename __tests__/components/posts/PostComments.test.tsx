@@ -207,7 +207,6 @@ describe('PostComments', () => {
 
     await waitFor(() => {
       expect(mockedAddComment).toHaveBeenCalledWith({
-        locale: 'en',
         postId: 'alpha-post',
         authorName: '',
         authorEmail: '',
@@ -326,7 +325,6 @@ describe('PostComments', () => {
 
     await waitFor(() => {
       expect(mockedAddComment).toHaveBeenCalledWith({
-        locale: 'en',
         postId: 'alpha-post',
         authorName: 'Alice',
         authorEmail: 'alice@example.com',
@@ -423,7 +421,6 @@ describe('PostComments', () => {
 
     await waitFor(() => {
       expect(mockedAddComment).toHaveBeenCalledWith({
-        locale: 'en',
         postId: 'alpha-post',
         authorName: 'Bob',
         authorEmail: 'bob@example.com',

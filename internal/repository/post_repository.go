@@ -20,6 +20,7 @@ type PostRepository interface {
 	CountPosts(ctx context.Context, filter bson.M) (int, error)
 	FindPosts(ctx context.Context, filter bson.M, sortOrder string, skip, limit int64) ([]domain.PostRecord, error)
 	FindPostByID(ctx context.Context, locale, postID string) (*domain.PostRecord, error)
+	FindPostByIDAnyLocale(ctx context.Context, postID string) (*domain.PostRecord, error)
 	ResolveLikesByPostID(ctx context.Context, posts []domain.PostRecord) map[string]int64
 	ResolveHitsByPostID(ctx context.Context, posts []domain.PostRecord) map[string]int64
 	IncrementPostLike(ctx context.Context, postID string, now time.Time) (int64, error)
@@ -69,6 +70,15 @@ func (*postMongoRepository) FindPostByID(ctx context.Context, locale, postID str
 	}
 
 	return queryPostRecordByID(ctx, collection, locale, postID)
+}
+
+func (*postMongoRepository) FindPostByIDAnyLocale(ctx context.Context, postID string) (*domain.PostRecord, error) {
+	collection, err := getPostContentCollection()
+	if err != nil {
+		return nil, fmt.Errorf(postRepositoryUnavailableFormat, ErrPostRepositoryUnavailable, err)
+	}
+
+	return queryPostRecordByIDAnyLocale(ctx, collection, postID)
 }
 
 func (*postMongoRepository) ResolveLikesByPostID(ctx context.Context, posts []domain.PostRecord) map[string]int64 {
