@@ -302,6 +302,20 @@ type AdminErrorMessageListPayload struct {
 	Size  int                  `json:"size"`
 }
 
+type AdminGithubAuthStatus struct {
+	Enabled        bool `json:"enabled"`
+	LoginAvailable bool `json:"loginAvailable"`
+}
+
+type AdminGithubConnectPayload struct {
+	URL string `json:"url"`
+}
+
+type AdminGithubDisconnectPayload struct {
+	Success bool       `json:"success"`
+	User    *AdminUser `json:"user,omitempty"`
+}
+
 type AdminGoogleAuthStatus struct {
 	Enabled        bool `json:"enabled"`
 	LoginAvailable bool `json:"loginAvailable"`
@@ -481,6 +495,10 @@ type AdminSessionRevokePayload struct {
 	Success bool `json:"success"`
 }
 
+type AdminStartGithubConnectInput struct {
+	Locale *string `json:"locale,omitempty"`
+}
+
 type AdminStartGoogleConnectInput struct {
 	Locale *string `json:"locale,omitempty"`
 }
@@ -529,6 +547,9 @@ type AdminUser struct {
 	GoogleLinked          bool       `json:"googleLinked"`
 	GoogleEmail           *string    `json:"googleEmail,omitempty"`
 	GoogleLinkedAt        *time.Time `json:"googleLinkedAt,omitempty"`
+	GithubLinked          bool       `json:"githubLinked"`
+	GithubEmail           *string    `json:"githubEmail,omitempty"`
+	GithubLinkedAt        *time.Time `json:"githubLinkedAt,omitempty"`
 	Roles                 []string   `json:"roles"`
 }
 

@@ -150,6 +150,29 @@ interface Resources {
           manage: 'Manage';
         };
         copy: 'Manage how you sign in to the admin panel from one place.';
+        github: {
+          connect: 'Connect GitHub';
+          connectedBadge: 'Connected';
+          connectedCopy: 'Connected as {{email}}.';
+          connecting: 'Connecting...';
+          disconnect: 'Disconnect GitHub';
+          disconnectConfirmCopy: 'Disconnect {{email}} from this admin account.';
+          disconnectConfirmTitle: 'Disconnect GitHub account';
+          disconnectedCopy: 'Link a GitHub account first. After that, Continue with GitHub appears on the login screen.';
+          disconnecting: 'Disconnecting...';
+          linkedAt: 'Linked: {{value}}';
+          loginEnabled: 'GitHub sign-in is now available on the admin login screen.';
+          messages: {
+            cancelled: 'GitHub connection was cancelled.';
+            conflict: 'This GitHub account is already linked to another admin user.';
+            connected: 'GitHub account connected.';
+            disconnected: 'GitHub account disconnected.';
+            failed: 'GitHub connection could not be completed right now.';
+            notLinked: 'This GitHub account is not linked to an admin user.';
+          };
+          title: 'GitHub';
+          unavailableBadge: 'Unavailable';
+        };
         google: {
           connect: 'Connect Google';
           connectConfirmCopy: 'Link a Google account to this admin user.';
@@ -836,6 +859,12 @@ interface Resources {
       emailPlaceholder: 'you@example.com';
       errorFallback: 'Login failed. Check your credentials and admin configuration.';
       eyebrow: 'Secure access';
+      github: {
+        cancelled: 'GitHub sign-in was cancelled.';
+        failed: 'GitHub sign-in could not be completed right now.';
+        notLinked: 'This GitHub account is not linked to an admin user.';
+        submit: 'Continue with GitHub';
+      };
       google: {
         cancelled: 'Google sign-in was cancelled.';
         failed: 'Google sign-in could not be completed right now.';

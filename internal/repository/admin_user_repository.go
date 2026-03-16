@@ -23,8 +23,10 @@ type AdminUserRepository interface {
 	FindByID(ctx context.Context, id string) (*domain.AdminUserRecord, error)
 	FindByUsername(ctx context.Context, username string) (*domain.AdminUserRecord, error)
 	FindByGoogleSubject(ctx context.Context, subject string) (*domain.AdminUserRecord, error)
+	FindByGithubSubject(ctx context.Context, subject string) (*domain.AdminUserRecord, error)
 	FindByPendingEmailChangeTokenHash(ctx context.Context, tokenHash string) (*domain.AdminUserRecord, error)
 	HasAnyGoogleLink(ctx context.Context) (bool, error)
+	HasAnyGithubLink(ctx context.Context) (bool, error)
 	UpdatePasswordHashByID(ctx context.Context, id, passwordHash string) error
 	UpdateNameByID(ctx context.Context, id, name string) error
 	UpdateUsernameByID(ctx context.Context, id, username string) error
@@ -33,6 +35,8 @@ type AdminUserRepository interface {
 	UpdateEmailByID(ctx context.Context, id, email string) error
 	UpdateGoogleLinkByID(ctx context.Context, id, subject, email string, linkedAt time.Time) error
 	ClearGoogleLinkByID(ctx context.Context, id string) error
+	UpdateGithubLinkByID(ctx context.Context, id, subject, email string, linkedAt time.Time) error
+	ClearGithubLinkByID(ctx context.Context, id string) error
 	UpdateAvatarByID(ctx context.Context, id, avatarURL, avatarDigest string, avatarVersion int64) error
 	DisableByID(ctx context.Context, id string) error
 }
@@ -43,6 +47,7 @@ var (
 	ErrAdminUsernameAlreadyExists     = errors.New("admin username already exists")
 	ErrAdminEmailAlreadyExists        = errors.New("admin email already exists")
 	ErrAdminGoogleAlreadyExists       = errors.New("admin google subject already exists")
+	ErrAdminGithubAlreadyExists       = errors.New("admin github subject already exists")
 )
 
 const (
@@ -111,6 +116,18 @@ func (*adminMongoRepository) FindByGoogleSubject(ctx context.Context, subject st
 	})
 }
 
+func (*adminMongoRepository) FindByGithubSubject(ctx context.Context, subject string) (*domain.AdminUserRecord, error) {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return nil, fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	return findAdminUser(ctx, collection, bson.M{
+		"githubSubject": strings.TrimSpace(subject),
+		"status":        bson.M{"$ne": "disabled"},
+	})
+}
+
 func (*adminMongoRepository) FindByPendingEmailChangeTokenHash(
 	ctx context.Context,
 	tokenHash string,
@@ -134,6 +151,27 @@ func (*adminMongoRepository) HasAnyGoogleLink(ctx context.Context) (bool, error)
 
 	count, err := collection.CountDocuments(ctx, bson.M{
 		"googleSubject": bson.M{
+			"$exists": true,
+			"$type":   "string",
+			"$ne":     "",
+		},
+		"status": bson.M{"$ne": "disabled"},
+	}, options.Count().SetLimit(1))
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}
+
+func (*adminMongoRepository) HasAnyGithubLink(ctx context.Context) (bool, error) {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return false, fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	count, err := collection.CountDocuments(ctx, bson.M{
+		"githubSubject": bson.M{
 			"$exists": true,
 			"$type":   "string",
 			"$ne":     "",
@@ -407,6 +445,79 @@ func (*adminMongoRepository) ClearGoogleLinkByID(ctx context.Context, id string)
 	return nil
 }
 
+func (*adminMongoRepository) UpdateGithubLinkByID(
+	ctx context.Context,
+	id, subject, email string,
+	linkedAt time.Time,
+) error {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	setFields := bson.M{
+		"githubSubject":  strings.TrimSpace(subject),
+		"githubLinkedAt": linkedAt.UTC(),
+	}
+	if strings.TrimSpace(email) != "" {
+		setFields["githubEmail"] = strings.TrimSpace(strings.ToLower(email))
+	} else {
+		setFields["githubEmail"] = ""
+	}
+
+	result, err := collection.UpdateOne(
+		ctx,
+		bson.M{
+			"id":     strings.TrimSpace(id),
+			"status": bson.M{"$ne": "disabled"},
+		},
+		bson.M{
+			"$set": setFields,
+		},
+	)
+	if err != nil {
+		if mongo.IsDuplicateKeyError(err) {
+			return ErrAdminGithubAlreadyExists
+		}
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrAdminUserNotFound
+	}
+
+	return nil
+}
+
+func (*adminMongoRepository) ClearGithubLinkByID(ctx context.Context, id string) error {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	result, err := collection.UpdateOne(
+		ctx,
+		bson.M{
+			"id":     strings.TrimSpace(id),
+			"status": bson.M{"$ne": "disabled"},
+		},
+		bson.M{
+			"$unset": bson.M{
+				"githubSubject":  "",
+				"githubEmail":    "",
+				"githubLinkedAt": "",
+			},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrAdminUserNotFound
+	}
+
+	return nil
+}
+
 func (*adminMongoRepository) UpdateAvatarByID(
 	ctx context.Context,
 	id,
@@ -560,6 +671,18 @@ func ensureAdminUserIndexes(collection *mongo.Collection) error {
 					}),
 			},
 			{
+				Keys: bson.D{{Key: "githubSubject", Value: 1}},
+				Options: options.Index().
+					SetUnique(true).
+					SetName("uniq_admin_user_github_subject").
+					SetPartialFilterExpression(bson.M{
+						"githubSubject": bson.M{
+							"$exists": true,
+							"$type":   "string",
+						},
+					}),
+			},
+			{
 				Keys:    bson.D{{Key: "status", Value: 1}},
 				Options: options.Index().SetName("idx_admin_user_status"),
 			},
@@ -584,10 +707,13 @@ func findAdminUser(ctx context.Context, collection *mongo.Collection, filter bso
 		Email              string     `bson:"email"`
 		GoogleSubject      string     `bson:"googleSubject"`
 		GoogleEmail        string     `bson:"googleEmail"`
+		GithubSubject      string     `bson:"githubSubject"`
+		GithubEmail        string     `bson:"githubEmail"`
 		PasswordHash       string     `bson:"passwordHash"`
 		PasswordVersion    int64      `bson:"passwordVersion"`
 		Roles              []string   `bson:"roles"`
 		GoogleLinkedAt     *time.Time `bson:"googleLinkedAt"`
+		GithubLinkedAt     *time.Time `bson:"githubLinkedAt"`
 		PendingEmailChange *struct {
 			NewEmail    string    `bson:"newEmail"`
 			TokenHash   string    `bson:"tokenHash"`
@@ -644,6 +770,9 @@ func findAdminUser(ctx context.Context, collection *mongo.Collection, filter bso
 			GoogleSubject:         strings.TrimSpace(doc.GoogleSubject),
 			GoogleEmail:           strings.TrimSpace(strings.ToLower(doc.GoogleEmail)),
 			GoogleLinkedAt:        doc.GoogleLinkedAt,
+			GithubSubject:         strings.TrimSpace(doc.GithubSubject),
+			GithubEmail:           strings.TrimSpace(strings.ToLower(doc.GithubEmail)),
+			GithubLinkedAt:        doc.GithubLinkedAt,
 			Roles:                 roles,
 		},
 		PasswordHash:       strings.TrimSpace(doc.PasswordHash),

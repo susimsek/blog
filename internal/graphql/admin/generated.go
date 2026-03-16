@@ -241,6 +241,20 @@ type ComplexityRoot struct {
 		Total func(childComplexity int) int
 	}
 
+	AdminGithubAuthStatus struct {
+		Enabled        func(childComplexity int) int
+		LoginAvailable func(childComplexity int) int
+	}
+
+	AdminGithubConnectPayload struct {
+		URL func(childComplexity int) int
+	}
+
+	AdminGithubDisconnectPayload struct {
+		Success func(childComplexity int) int
+		User    func(childComplexity int) int
+	}
+
 	AdminGoogleAuthStatus struct {
 		Enabled        func(childComplexity int) int
 		LoginAvailable func(childComplexity int) int
@@ -279,6 +293,7 @@ type ComplexityRoot struct {
 		DeleteContentTopic               func(childComplexity int, input model.AdminContentEntityKeyInput) int
 		DeleteErrorMessage               func(childComplexity int, input model.AdminErrorMessageKeyInput) int
 		DeleteNewsletterSubscriber       func(childComplexity int, input model.AdminDeleteNewsletterSubscriberInput) int
+		DisconnectGithub                 func(childComplexity int) int
 		DisconnectGoogle                 func(childComplexity int) int
 		Login                            func(childComplexity int, input model.AdminLoginInput) int
 		Logout                           func(childComplexity int) int
@@ -287,6 +302,7 @@ type ComplexityRoot struct {
 		RevokeAllSessions                func(childComplexity int) int
 		RevokeSession                    func(childComplexity int, sessionID string) int
 		SendTestNewsletter               func(childComplexity int, input model.AdminSendTestNewsletterInput) int
+		StartGithubConnect               func(childComplexity int, input model.AdminStartGithubConnectInput) int
 		StartGoogleConnect               func(childComplexity int, input model.AdminStartGoogleConnectInput) int
 		TriggerNewsletterDispatch        func(childComplexity int) int
 		UpdateCommentStatus              func(childComplexity int, input model.AdminUpdateCommentStatusInput) int
@@ -403,6 +419,7 @@ type ComplexityRoot struct {
 		Dashboard                  func(childComplexity int) int
 		ErrorMessageAuditLogs      func(childComplexity int, limit *int) int
 		ErrorMessages              func(childComplexity int, filter *model.AdminErrorMessageFilterInput) int
+		GithubAuthStatus           func(childComplexity int) int
 		GoogleAuthStatus           func(childComplexity int) int
 		Me                         func(childComplexity int) int
 		NewsletterCampaignFailures func(childComplexity int, filter model.AdminNewsletterDeliveryFailureFilterInput) int
@@ -429,6 +446,9 @@ type ComplexityRoot struct {
 	AdminUser struct {
 		AvatarURL             func(childComplexity int) int
 		Email                 func(childComplexity int) int
+		GithubEmail           func(childComplexity int) int
+		GithubLinked          func(childComplexity int) int
+		GithubLinkedAt        func(childComplexity int) int
 		GoogleEmail           func(childComplexity int) int
 		GoogleLinked          func(childComplexity int) int
 		GoogleLinkedAt        func(childComplexity int) int
@@ -447,6 +467,8 @@ type AdminMutationResolver interface {
 	Logout(ctx context.Context) (*model.AdminLogoutPayload, error)
 	StartGoogleConnect(ctx context.Context, input model.AdminStartGoogleConnectInput) (*model.AdminGoogleConnectPayload, error)
 	DisconnectGoogle(ctx context.Context) (*model.AdminGoogleDisconnectPayload, error)
+	StartGithubConnect(ctx context.Context, input model.AdminStartGithubConnectInput) (*model.AdminGithubConnectPayload, error)
+	DisconnectGithub(ctx context.Context) (*model.AdminGithubDisconnectPayload, error)
 	ChangeName(ctx context.Context, input model.AdminChangeNameInput) (*model.AdminAuthPayload, error)
 	ChangeAvatar(ctx context.Context, input model.AdminChangeAvatarInput) (*model.AdminAuthPayload, error)
 	ChangeUsername(ctx context.Context, input model.AdminChangeUsernameInput) (*model.AdminAuthPayload, error)
@@ -477,6 +499,7 @@ type AdminMutationResolver interface {
 type AdminQueryResolver interface {
 	Me(ctx context.Context) (*model.AdminMe, error)
 	GoogleAuthStatus(ctx context.Context) (*model.AdminGoogleAuthStatus, error)
+	GithubAuthStatus(ctx context.Context) (*model.AdminGithubAuthStatus, error)
 	Dashboard(ctx context.Context) (*model.AdminDashboard, error)
 	Comments(ctx context.Context, filter *model.AdminCommentFilterInput) (*model.AdminCommentListPayload, error)
 	ActiveSessions(ctx context.Context) ([]*model.AdminSession, error)
@@ -1279,6 +1302,39 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.AdminErrorMessageListPayload.Total(childComplexity), true
 
+	case "AdminGithubAuthStatus.enabled":
+		if e.complexity.AdminGithubAuthStatus.Enabled == nil {
+			break
+		}
+
+		return e.complexity.AdminGithubAuthStatus.Enabled(childComplexity), true
+	case "AdminGithubAuthStatus.loginAvailable":
+		if e.complexity.AdminGithubAuthStatus.LoginAvailable == nil {
+			break
+		}
+
+		return e.complexity.AdminGithubAuthStatus.LoginAvailable(childComplexity), true
+
+	case "AdminGithubConnectPayload.url":
+		if e.complexity.AdminGithubConnectPayload.URL == nil {
+			break
+		}
+
+		return e.complexity.AdminGithubConnectPayload.URL(childComplexity), true
+
+	case "AdminGithubDisconnectPayload.success":
+		if e.complexity.AdminGithubDisconnectPayload.Success == nil {
+			break
+		}
+
+		return e.complexity.AdminGithubDisconnectPayload.Success(childComplexity), true
+	case "AdminGithubDisconnectPayload.user":
+		if e.complexity.AdminGithubDisconnectPayload.User == nil {
+			break
+		}
+
+		return e.complexity.AdminGithubDisconnectPayload.User(childComplexity), true
+
 	case "AdminGoogleAuthStatus.enabled":
 		if e.complexity.AdminGoogleAuthStatus.Enabled == nil {
 			break
@@ -1486,6 +1542,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.DeleteNewsletterSubscriber(childComplexity, args["input"].(model.AdminDeleteNewsletterSubscriberInput)), true
+	case "AdminMutation.disconnectGithub":
+		if e.complexity.AdminMutation.DisconnectGithub == nil {
+			break
+		}
+
+		return e.complexity.AdminMutation.DisconnectGithub(childComplexity), true
 	case "AdminMutation.disconnectGoogle":
 		if e.complexity.AdminMutation.DisconnectGoogle == nil {
 			break
@@ -1554,6 +1616,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.SendTestNewsletter(childComplexity, args["input"].(model.AdminSendTestNewsletterInput)), true
+	case "AdminMutation.startGithubConnect":
+		if e.complexity.AdminMutation.StartGithubConnect == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_startGithubConnect_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.StartGithubConnect(childComplexity, args["input"].(model.AdminStartGithubConnectInput)), true
 	case "AdminMutation.startGoogleConnect":
 		if e.complexity.AdminMutation.StartGoogleConnect == nil {
 			break
@@ -2148,6 +2221,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminQuery.ErrorMessages(childComplexity, args["filter"].(*model.AdminErrorMessageFilterInput)), true
+	case "AdminQuery.githubAuthStatus":
+		if e.complexity.AdminQuery.GithubAuthStatus == nil {
+			break
+		}
+
+		return e.complexity.AdminQuery.GithubAuthStatus(childComplexity), true
 	case "AdminQuery.googleAuthStatus":
 		if e.complexity.AdminQuery.GoogleAuthStatus == nil {
 			break
@@ -2268,6 +2347,24 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminUser.Email(childComplexity), true
+	case "AdminUser.githubEmail":
+		if e.complexity.AdminUser.GithubEmail == nil {
+			break
+		}
+
+		return e.complexity.AdminUser.GithubEmail(childComplexity), true
+	case "AdminUser.githubLinked":
+		if e.complexity.AdminUser.GithubLinked == nil {
+			break
+		}
+
+		return e.complexity.AdminUser.GithubLinked(childComplexity), true
+	case "AdminUser.githubLinkedAt":
+		if e.complexity.AdminUser.GithubLinkedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminUser.GithubLinkedAt(childComplexity), true
 	case "AdminUser.googleEmail":
 		if e.complexity.AdminUser.GoogleEmail == nil {
 			break
@@ -2353,6 +2450,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAdminNewsletterSubscriberFilterInput,
 		ec.unmarshalInputAdminRequestEmailChangeInput,
 		ec.unmarshalInputAdminSendTestNewsletterInput,
+		ec.unmarshalInputAdminStartGithubConnectInput,
 		ec.unmarshalInputAdminStartGoogleConnectInput,
 		ec.unmarshalInputAdminUpdateCommentStatusInput,
 		ec.unmarshalInputAdminUpdateContentPostContentInput,
@@ -2666,6 +2764,17 @@ func (ec *executionContext) field_AdminMutation_sendTestNewsletter_args(ctx cont
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminSendTestNewsletterInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminSendTestNewsletterInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminMutation_startGithubConnect_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminStartGithubConnectInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminStartGithubConnectInput)
 	if err != nil {
 		return nil, err
 	}
@@ -3058,6 +3167,12 @@ func (ec *executionContext) fieldContext_AdminAuthPayload_user(_ context.Context
 				return ec.fieldContext_AdminUser_googleEmail(ctx, field)
 			case "googleLinkedAt":
 				return ec.fieldContext_AdminUser_googleLinkedAt(ctx, field)
+			case "githubLinked":
+				return ec.fieldContext_AdminUser_githubLinked(ctx, field)
+			case "githubEmail":
+				return ec.fieldContext_AdminUser_githubEmail(ctx, field)
+			case "githubLinkedAt":
+				return ec.fieldContext_AdminUser_githubLinkedAt(ctx, field)
 			case "roles":
 				return ec.fieldContext_AdminUser_roles(ctx, field)
 			}
@@ -6894,6 +7009,181 @@ func (ec *executionContext) fieldContext_AdminErrorMessageListPayload_size(_ con
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminGithubAuthStatus_enabled(ctx context.Context, field graphql.CollectedField, obj *model.AdminGithubAuthStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminGithubAuthStatus_enabled,
+		func(ctx context.Context) (any, error) {
+			return obj.Enabled, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminGithubAuthStatus_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminGithubAuthStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminGithubAuthStatus_loginAvailable(ctx context.Context, field graphql.CollectedField, obj *model.AdminGithubAuthStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminGithubAuthStatus_loginAvailable,
+		func(ctx context.Context) (any, error) {
+			return obj.LoginAvailable, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminGithubAuthStatus_loginAvailable(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminGithubAuthStatus",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminGithubConnectPayload_url(ctx context.Context, field graphql.CollectedField, obj *model.AdminGithubConnectPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminGithubConnectPayload_url,
+		func(ctx context.Context) (any, error) {
+			return obj.URL, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminGithubConnectPayload_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminGithubConnectPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminGithubDisconnectPayload_success(ctx context.Context, field graphql.CollectedField, obj *model.AdminGithubDisconnectPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminGithubDisconnectPayload_success,
+		func(ctx context.Context) (any, error) {
+			return obj.Success, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminGithubDisconnectPayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminGithubDisconnectPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminGithubDisconnectPayload_user(ctx context.Context, field graphql.CollectedField, obj *model.AdminGithubDisconnectPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminGithubDisconnectPayload_user,
+		func(ctx context.Context) (any, error) {
+			return obj.User, nil
+		},
+		nil,
+		ec.marshalOAdminUser2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUser,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminGithubDisconnectPayload_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminGithubDisconnectPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AdminUser_id(ctx, field)
+			case "name":
+				return ec.fieldContext_AdminUser_name(ctx, field)
+			case "username":
+				return ec.fieldContext_AdminUser_username(ctx, field)
+			case "avatarUrl":
+				return ec.fieldContext_AdminUser_avatarUrl(ctx, field)
+			case "email":
+				return ec.fieldContext_AdminUser_email(ctx, field)
+			case "pendingEmail":
+				return ec.fieldContext_AdminUser_pendingEmail(ctx, field)
+			case "pendingEmailExpiresAt":
+				return ec.fieldContext_AdminUser_pendingEmailExpiresAt(ctx, field)
+			case "googleLinked":
+				return ec.fieldContext_AdminUser_googleLinked(ctx, field)
+			case "googleEmail":
+				return ec.fieldContext_AdminUser_googleEmail(ctx, field)
+			case "googleLinkedAt":
+				return ec.fieldContext_AdminUser_googleLinkedAt(ctx, field)
+			case "githubLinked":
+				return ec.fieldContext_AdminUser_githubLinked(ctx, field)
+			case "githubEmail":
+				return ec.fieldContext_AdminUser_githubEmail(ctx, field)
+			case "githubLinkedAt":
+				return ec.fieldContext_AdminUser_githubLinkedAt(ctx, field)
+			case "roles":
+				return ec.fieldContext_AdminUser_roles(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminUser", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminGoogleAuthStatus_enabled(ctx context.Context, field graphql.CollectedField, obj *model.AdminGoogleAuthStatus) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -7054,6 +7344,12 @@ func (ec *executionContext) fieldContext_AdminGoogleDisconnectPayload_user(_ con
 				return ec.fieldContext_AdminUser_googleEmail(ctx, field)
 			case "googleLinkedAt":
 				return ec.fieldContext_AdminUser_googleLinkedAt(ctx, field)
+			case "githubLinked":
+				return ec.fieldContext_AdminUser_githubLinked(ctx, field)
+			case "githubEmail":
+				return ec.fieldContext_AdminUser_githubEmail(ctx, field)
+			case "githubLinkedAt":
+				return ec.fieldContext_AdminUser_githubLinkedAt(ctx, field)
 			case "roles":
 				return ec.fieldContext_AdminUser_roles(ctx, field)
 			}
@@ -7165,6 +7461,12 @@ func (ec *executionContext) fieldContext_AdminMe_user(_ context.Context, field g
 				return ec.fieldContext_AdminUser_googleEmail(ctx, field)
 			case "googleLinkedAt":
 				return ec.fieldContext_AdminUser_googleLinkedAt(ctx, field)
+			case "githubLinked":
+				return ec.fieldContext_AdminUser_githubLinked(ctx, field)
+			case "githubEmail":
+				return ec.fieldContext_AdminUser_githubEmail(ctx, field)
+			case "githubLinkedAt":
+				return ec.fieldContext_AdminUser_githubLinkedAt(ctx, field)
 			case "roles":
 				return ec.fieldContext_AdminUser_roles(ctx, field)
 			}
@@ -7364,6 +7666,86 @@ func (ec *executionContext) fieldContext_AdminMutation_disconnectGoogle(_ contex
 				return ec.fieldContext_AdminGoogleDisconnectPayload_user(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminGoogleDisconnectPayload", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_startGithubConnect(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_startGithubConnect,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().StartGithubConnect(ctx, fc.Args["input"].(model.AdminStartGithubConnectInput))
+		},
+		nil,
+		ec.marshalNAdminGithubConnectPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGithubConnectPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_startGithubConnect(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "url":
+				return ec.fieldContext_AdminGithubConnectPayload_url(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminGithubConnectPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_startGithubConnect_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_disconnectGithub(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_disconnectGithub,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.AdminMutation().DisconnectGithub(ctx)
+		},
+		nil,
+		ec.marshalNAdminGithubDisconnectPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGithubDisconnectPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_disconnectGithub(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_AdminGithubDisconnectPayload_success(ctx, field)
+			case "user":
+				return ec.fieldContext_AdminGithubDisconnectPayload_user(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminGithubDisconnectPayload", field.Name)
 		},
 	}
 	return fc, nil
@@ -10684,6 +11066,41 @@ func (ec *executionContext) fieldContext_AdminQuery_googleAuthStatus(_ context.C
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminQuery_githubAuthStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminQuery_githubAuthStatus,
+		func(ctx context.Context) (any, error) {
+			return ec.resolvers.AdminQuery().GithubAuthStatus(ctx)
+		},
+		nil,
+		ec.marshalNAdminGithubAuthStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGithubAuthStatus,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminQuery_githubAuthStatus(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "enabled":
+				return ec.fieldContext_AdminGithubAuthStatus_enabled(ctx, field)
+			case "loginAvailable":
+				return ec.fieldContext_AdminGithubAuthStatus_loginAvailable(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminGithubAuthStatus", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminQuery_dashboard(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -12120,6 +12537,93 @@ func (ec *executionContext) _AdminUser_googleLinkedAt(ctx context.Context, field
 }
 
 func (ec *executionContext) fieldContext_AdminUser_googleLinkedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminUser_githubLinked(ctx context.Context, field graphql.CollectedField, obj *model.AdminUser) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminUser_githubLinked,
+		func(ctx context.Context) (any, error) {
+			return obj.GithubLinked, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminUser_githubLinked(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminUser_githubEmail(ctx context.Context, field graphql.CollectedField, obj *model.AdminUser) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminUser_githubEmail,
+		func(ctx context.Context) (any, error) {
+			return obj.GithubEmail, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminUser_githubEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminUser_githubLinkedAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminUser) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminUser_githubLinkedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.GithubLinkedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminUser_githubLinkedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AdminUser",
 		Field:      field,
@@ -14565,6 +15069,33 @@ func (ec *executionContext) unmarshalInputAdminSendTestNewsletterInput(ctx conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAdminStartGithubConnectInput(ctx context.Context, obj any) (model.AdminStartGithubConnectInput, error) {
+	var it model.AdminStartGithubConnectInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"locale"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "locale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locale = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAdminStartGoogleConnectInput(ctx context.Context, obj any) (model.AdminStartGoogleConnectInput, error) {
 	var it model.AdminStartGoogleConnectInput
 	asMap := map[string]any{}
@@ -16141,6 +16672,130 @@ func (ec *executionContext) _AdminErrorMessageListPayload(ctx context.Context, s
 	return out
 }
 
+var adminGithubAuthStatusImplementors = []string{"AdminGithubAuthStatus"}
+
+func (ec *executionContext) _AdminGithubAuthStatus(ctx context.Context, sel ast.SelectionSet, obj *model.AdminGithubAuthStatus) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminGithubAuthStatusImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminGithubAuthStatus")
+		case "enabled":
+			out.Values[i] = ec._AdminGithubAuthStatus_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "loginAvailable":
+			out.Values[i] = ec._AdminGithubAuthStatus_loginAvailable(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminGithubConnectPayloadImplementors = []string{"AdminGithubConnectPayload"}
+
+func (ec *executionContext) _AdminGithubConnectPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminGithubConnectPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminGithubConnectPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminGithubConnectPayload")
+		case "url":
+			out.Values[i] = ec._AdminGithubConnectPayload_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminGithubDisconnectPayloadImplementors = []string{"AdminGithubDisconnectPayload"}
+
+func (ec *executionContext) _AdminGithubDisconnectPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminGithubDisconnectPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminGithubDisconnectPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminGithubDisconnectPayload")
+		case "success":
+			out.Values[i] = ec._AdminGithubDisconnectPayload_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "user":
+			out.Values[i] = ec._AdminGithubDisconnectPayload_user(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var adminGoogleAuthStatusImplementors = []string{"AdminGoogleAuthStatus"}
 
 func (ec *executionContext) _AdminGoogleAuthStatus(ctx context.Context, sel ast.SelectionSet, obj *model.AdminGoogleAuthStatus) graphql.Marshaler {
@@ -16395,6 +17050,20 @@ func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.Selectio
 		case "disconnectGoogle":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._AdminMutation_disconnectGoogle(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "startGithubConnect":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_startGithubConnect(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "disconnectGithub":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_disconnectGithub(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -17256,6 +17925,28 @@ func (ec *executionContext) _AdminQuery(ctx context.Context, sel ast.SelectionSe
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "githubAuthStatus":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AdminQuery_githubAuthStatus(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "dashboard":
 			field := field
 
@@ -17750,6 +18441,15 @@ func (ec *executionContext) _AdminUser(ctx context.Context, sel ast.SelectionSet
 			out.Values[i] = ec._AdminUser_googleEmail(ctx, field, obj)
 		case "googleLinkedAt":
 			out.Values[i] = ec._AdminUser_googleLinkedAt(ctx, field, obj)
+		case "githubLinked":
+			out.Values[i] = ec._AdminUser_githubLinked(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "githubEmail":
+			out.Values[i] = ec._AdminUser_githubEmail(ctx, field, obj)
+		case "githubLinkedAt":
+			out.Values[i] = ec._AdminUser_githubLinkedAt(ctx, field, obj)
 		case "roles":
 			out.Values[i] = ec._AdminUser_roles(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -18908,6 +19608,48 @@ func (ec *executionContext) marshalNAdminErrorMessageListPayload2ᚖsuaybsimsek�
 	return ec._AdminErrorMessageListPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAdminGithubAuthStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGithubAuthStatus(ctx context.Context, sel ast.SelectionSet, v model.AdminGithubAuthStatus) graphql.Marshaler {
+	return ec._AdminGithubAuthStatus(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminGithubAuthStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGithubAuthStatus(ctx context.Context, sel ast.SelectionSet, v *model.AdminGithubAuthStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminGithubAuthStatus(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminGithubConnectPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGithubConnectPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminGithubConnectPayload) graphql.Marshaler {
+	return ec._AdminGithubConnectPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminGithubConnectPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGithubConnectPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminGithubConnectPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminGithubConnectPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminGithubDisconnectPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGithubDisconnectPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminGithubDisconnectPayload) graphql.Marshaler {
+	return ec._AdminGithubDisconnectPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminGithubDisconnectPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGithubDisconnectPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminGithubDisconnectPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminGithubDisconnectPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNAdminGoogleAuthStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminGoogleAuthStatus(ctx context.Context, sel ast.SelectionSet, v model.AdminGoogleAuthStatus) graphql.Marshaler {
 	return ec._AdminGoogleAuthStatus(ctx, sel, &v)
 }
@@ -19378,6 +20120,11 @@ func (ec *executionContext) marshalNAdminSessionRevokePayload2ᚖsuaybsimsekᚗc
 		return graphql.Null
 	}
 	return ec._AdminSessionRevokePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAdminStartGithubConnectInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminStartGithubConnectInput(ctx context.Context, v any) (model.AdminStartGithubConnectInput, error) {
+	res, err := ec.unmarshalInputAdminStartGithubConnectInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNAdminStartGoogleConnectInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminStartGoogleConnectInput(ctx context.Context, v any) (model.AdminStartGoogleConnectInput, error) {

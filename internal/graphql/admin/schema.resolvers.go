@@ -49,6 +49,23 @@ func (r *adminQueryResolver) GoogleAuthStatus(ctx context.Context) (*model.Admin
 	}, nil
 }
 
+// GithubAuthStatus is the resolver for the githubAuthStatus field.
+func (r *adminQueryResolver) GithubAuthStatus(ctx context.Context) (*model.AdminGithubAuthStatus, error) {
+	payload, err := appservice.QueryAdminGithubAuthStatus(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if payload == nil {
+		return &model.AdminGithubAuthStatus{}, nil
+	}
+
+	return &model.AdminGithubAuthStatus{
+		Enabled:        payload.Enabled,
+		LoginAvailable: payload.LoginAvailable,
+	}, nil
+}
+
 // Dashboard is the resolver for the dashboard field.
 func (r *adminQueryResolver) Dashboard(ctx context.Context) (*model.AdminDashboard, error) {
 	if _, err := requireAdminUser(ctx); err != nil {
@@ -534,6 +551,46 @@ func (r *adminMutationResolver) DisconnectGoogle(ctx context.Context) (*model.Ad
 	}
 
 	return &model.AdminGoogleDisconnectPayload{
+		Success: true,
+		User:    mapAdminUser(updatedUser),
+	}, nil
+}
+
+// StartGithubConnect is the resolver for the startGithubConnect field.
+func (r *adminMutationResolver) StartGithubConnect(
+	ctx context.Context,
+	input model.AdminStartGithubConnectInput,
+) (*model.AdminGithubConnectPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	payload, err := appservice.StartAdminGithubConnect(
+		ctx,
+		adminUser,
+		stringPointerValue(input.Locale),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AdminGithubConnectPayload{URL: payload.URL}, nil
+}
+
+// DisconnectGithub is the resolver for the disconnectGithub field.
+func (r *adminMutationResolver) DisconnectGithub(ctx context.Context) (*model.AdminGithubDisconnectPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedUser, err := appservice.DisconnectAdminGithubAccount(ctx, adminUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AdminGithubDisconnectPayload{
 		Success: true,
 		User:    mapAdminUser(updatedUser),
 	}, nil
@@ -1172,6 +1229,9 @@ func mapAdminUser(user *domain.AdminUser) *model.AdminUser {
 		GoogleLinked:          strings.TrimSpace(user.GoogleSubject) != "",
 		GoogleEmail:           toOptionalAdminEmail(user.GoogleEmail),
 		GoogleLinkedAt:        user.GoogleLinkedAt,
+		GithubLinked:          strings.TrimSpace(user.GithubSubject) != "",
+		GithubEmail:           toOptionalAdminEmail(user.GithubEmail),
+		GithubLinkedAt:        user.GithubLinkedAt,
 		Roles:                 append([]string{}, user.Roles...),
 	}
 }

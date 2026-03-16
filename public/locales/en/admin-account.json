@@ -686,6 +686,29 @@
           "conflict": "This Google account is already linked to another admin user.",
           "failed": "Google connection could not be completed right now."
         }
+      },
+      "github": {
+        "title": "GitHub",
+        "connect": "Connect GitHub",
+        "connecting": "Connecting...",
+        "disconnect": "Disconnect GitHub",
+        "disconnecting": "Disconnecting...",
+        "disconnectConfirmTitle": "Disconnect GitHub account",
+        "disconnectConfirmCopy": "Disconnect {{email}} from this admin account.",
+        "connectedBadge": "Connected",
+        "unavailableBadge": "Unavailable",
+        "disconnectedCopy": "Link a GitHub account first. After that, Continue with GitHub appears on the login screen.",
+        "connectedCopy": "Connected as {{email}}.",
+        "linkedAt": "Linked: {{value}}",
+        "loginEnabled": "GitHub sign-in is now available on the admin login screen.",
+        "messages": {
+          "connected": "GitHub account connected.",
+          "disconnected": "GitHub account disconnected.",
+          "cancelled": "GitHub connection was cancelled.",
+          "notLinked": "This GitHub account is not linked to an admin user.",
+          "conflict": "This GitHub account is already linked to another admin user.",
+          "failed": "GitHub connection could not be completed right now."
+        }
       }
     }
   }

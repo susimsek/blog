@@ -58,6 +58,19 @@ func (stub *adminAuthEmailChangeStubUserRepository) FindByGoogleSubject(
 	return nil, nil
 }
 
+func (stub *adminAuthEmailChangeStubUserRepository) FindByGithubSubject(
+	_ context.Context,
+	subject string,
+) (*domain.AdminUserRecord, error) {
+	for _, user := range stub.byID {
+		if user != nil && user.GithubSubject == subject {
+			return user, nil
+		}
+	}
+
+	return nil, nil
+}
+
 func (stub *adminAuthEmailChangeStubUserRepository) FindByPendingEmailChangeTokenHash(
 	_ context.Context,
 	tokenHash string,
@@ -68,6 +81,16 @@ func (stub *adminAuthEmailChangeStubUserRepository) FindByPendingEmailChangeToke
 func (stub *adminAuthEmailChangeStubUserRepository) HasAnyGoogleLink(_ context.Context) (bool, error) {
 	for _, user := range stub.byID {
 		if user != nil && user.GoogleSubject != "" {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func (stub *adminAuthEmailChangeStubUserRepository) HasAnyGithubLink(_ context.Context) (bool, error) {
+	for _, user := range stub.byID {
+		if user != nil && user.GithubSubject != "" {
 			return true, nil
 		}
 	}
@@ -168,6 +191,34 @@ func (stub *adminAuthEmailChangeStubUserRepository) ClearGoogleLinkByID(_ contex
 	user.GoogleSubject = ""
 	user.GoogleEmail = ""
 	user.GoogleLinkedAt = nil
+	return nil
+}
+
+func (stub *adminAuthEmailChangeStubUserRepository) UpdateGithubLinkByID(
+	_ context.Context,
+	id, subject, email string,
+	linkedAt time.Time,
+) error {
+	user := stub.byID[id]
+	if user == nil {
+		return repository.ErrAdminUserNotFound
+	}
+
+	user.GithubSubject = subject
+	user.GithubEmail = email
+	user.GithubLinkedAt = &linkedAt
+	return nil
+}
+
+func (stub *adminAuthEmailChangeStubUserRepository) ClearGithubLinkByID(_ context.Context, id string) error {
+	user := stub.byID[id]
+	if user == nil {
+		return repository.ErrAdminUserNotFound
+	}
+
+	user.GithubSubject = ""
+	user.GithubEmail = ""
+	user.GithubLinkedAt = nil
 	return nil
 }
 

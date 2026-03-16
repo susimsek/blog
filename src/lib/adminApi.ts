@@ -22,11 +22,21 @@ type AdminUserDTO = {
   googleLinked: boolean;
   googleEmail: string | null;
   googleLinkedAt: string | null;
+  githubLinked: boolean;
+  githubEmail: string | null;
+  githubLinkedAt: string | null;
   roles: string[];
 };
 
 type AdminGoogleAuthStatusPayload = {
   googleAuthStatus: {
+    enabled: boolean;
+    loginAvailable: boolean;
+  };
+};
+
+type AdminGithubAuthStatusPayload = {
+  githubAuthStatus: {
     enabled: boolean;
     loginAvailable: boolean;
   };
@@ -172,8 +182,21 @@ type AdminStartGoogleConnectPayload = {
   };
 };
 
+type AdminStartGithubConnectPayload = {
+  startGithubConnect: {
+    url: string;
+  };
+};
+
 type AdminDisconnectGooglePayload = {
   disconnectGoogle: {
+    success: boolean;
+    user: AdminUserDTO | null;
+  };
+};
+
+type AdminDisconnectGithubPayload = {
+  disconnectGithub: {
     success: boolean;
     user: AdminUserDTO | null;
   };
@@ -545,6 +568,9 @@ const ADMIN_ME_QUERY = gql`
         googleLinked
         googleEmail
         googleLinkedAt
+        githubLinked
+        githubEmail
+        githubLinkedAt
         roles
       }
     }
@@ -554,6 +580,15 @@ const ADMIN_ME_QUERY = gql`
 const ADMIN_GOOGLE_AUTH_STATUS_QUERY = gql`
   query AdminGoogleAuthStatus {
     googleAuthStatus {
+      enabled
+      loginAvailable
+    }
+  }
+`;
+
+const ADMIN_GITHUB_AUTH_STATUS_QUERY = gql`
+  query AdminGithubAuthStatus {
+    githubAuthStatus {
       enabled
       loginAvailable
     }
@@ -575,6 +610,9 @@ const ADMIN_LOGIN_MUTATION = gql`
         googleLinked
         googleEmail
         googleLinkedAt
+        githubLinked
+        githubEmail
+        githubLinkedAt
         roles
       }
     }
@@ -604,6 +642,9 @@ const ADMIN_REFRESH_MUTATION = gql`
         googleLinked
         googleEmail
         googleLinkedAt
+        githubLinked
+        githubEmail
+        githubLinkedAt
         roles
       }
     }
@@ -716,6 +757,14 @@ const ADMIN_START_GOOGLE_CONNECT_MUTATION = gql`
   }
 `;
 
+const ADMIN_START_GITHUB_CONNECT_MUTATION = gql`
+  mutation AdminStartGithubConnect($input: AdminStartGithubConnectInput!) {
+    startGithubConnect(input: $input) {
+      url
+    }
+  }
+`;
+
 const ADMIN_DISCONNECT_GOOGLE_MUTATION = gql`
   mutation AdminDisconnectGoogle {
     disconnectGoogle {
@@ -731,6 +780,33 @@ const ADMIN_DISCONNECT_GOOGLE_MUTATION = gql`
         googleLinked
         googleEmail
         googleLinkedAt
+        githubLinked
+        githubEmail
+        githubLinkedAt
+        roles
+      }
+    }
+  }
+`;
+
+const ADMIN_DISCONNECT_GITHUB_MUTATION = gql`
+  mutation AdminDisconnectGithub {
+    disconnectGithub {
+      success
+      user {
+        id
+        name
+        username
+        avatarUrl
+        email
+        pendingEmail
+        pendingEmailExpiresAt
+        googleLinked
+        googleEmail
+        googleLinkedAt
+        githubLinked
+        githubEmail
+        githubLinkedAt
         roles
       }
     }
@@ -752,6 +828,9 @@ const ADMIN_CHANGE_USERNAME_MUTATION = gql`
         googleLinked
         googleEmail
         googleLinkedAt
+        githubLinked
+        githubEmail
+        githubLinkedAt
         roles
       }
     }
@@ -783,6 +862,9 @@ const ADMIN_CHANGE_NAME_MUTATION = gql`
         googleLinked
         googleEmail
         googleLinkedAt
+        githubLinked
+        githubEmail
+        githubLinkedAt
         roles
       }
     }
@@ -804,6 +886,9 @@ const ADMIN_CHANGE_AVATAR_MUTATION = gql`
         googleLinked
         googleEmail
         googleLinkedAt
+        githubLinked
+        githubEmail
+        githubLinkedAt
         roles
       }
     }
@@ -1793,6 +1878,15 @@ export const fetchAdminGoogleAuthStatus = async () => {
   return payload.googleAuthStatus;
 };
 
+export const fetchAdminGithubAuthStatus = async () => {
+  const payload = await executeAdminGraphQL<AdminGithubAuthStatusPayload>(ADMIN_GITHUB_AUTH_STATUS_QUERY, undefined, {
+    retryOnUnauthorized: false,
+    operationName: 'AdminGithubAuthStatus',
+  });
+
+  return payload.githubAuthStatus;
+};
+
 export const loginAdmin = async (email: string, password: string, rememberMe = false) => {
   const payload = await executeAdminGraphQL<
     AdminLoginPayload,
@@ -1931,6 +2025,30 @@ export const disconnectAdminGoogle = async () => {
   );
 
   return payload.disconnectGoogle;
+};
+
+export const startAdminGithubConnect = async (input: { locale?: string }) => {
+  const payload = await executeAdminGraphQL<AdminStartGithubConnectPayload, { input: { locale?: string } }>(
+    ADMIN_START_GITHUB_CONNECT_MUTATION,
+    {
+      input: {
+        locale: input.locale?.trim().toLowerCase() || undefined,
+      },
+    },
+    { operationName: 'AdminStartGithubConnect' },
+  );
+
+  return payload.startGithubConnect;
+};
+
+export const disconnectAdminGithub = async () => {
+  const payload = await executeAdminGraphQL<AdminDisconnectGithubPayload, Record<string, never>>(
+    ADMIN_DISCONNECT_GITHUB_MUTATION,
+    {},
+    { operationName: 'AdminDisconnectGithub' },
+  );
+
+  return payload.disconnectGithub;
 };
 
 export const changeAdminUsername = async (input: { newUsername: string }) => {

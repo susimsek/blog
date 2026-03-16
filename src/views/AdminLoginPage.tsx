@@ -9,7 +9,13 @@ import Alert from 'react-bootstrap/Alert';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Spinner from 'react-bootstrap/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { fetchAdminGoogleAuthStatus, fetchAdminMe, loginAdmin, resolveAdminError } from '@/lib/adminApi';
+import {
+  fetchAdminGithubAuthStatus,
+  fetchAdminGoogleAuthStatus,
+  fetchAdminMe,
+  loginAdmin,
+  resolveAdminError,
+} from '@/lib/adminApi';
 import { withBasePath } from '@/lib/basePath';
 import { defaultLocale } from '@/i18n/settings';
 import { useAppSelector } from '@/config/store';
@@ -38,6 +44,10 @@ export default function AdminLoginPage() {
     enabled: false,
     loginAvailable: false,
   });
+  const [githubAuthStatus, setGithubAuthStatus] = React.useState({
+    enabled: false,
+    loginAvailable: false,
+  });
 
   const trimmedEmail = email.trim();
   const emailError =
@@ -50,6 +60,9 @@ export default function AdminLoginPage() {
     password.trim() === '' ? t('adminLogin.validation.passwordRequired', { ns: 'admin-login' }) : '';
   const showEmailError = hasSubmitted && emailError !== '';
   const showPasswordError = hasSubmitted && passwordError !== '';
+  const hasSocialLogin =
+    (googleAuthStatus.enabled && googleAuthStatus.loginAvailable) ||
+    (githubAuthStatus.enabled && githubAuthStatus.loginAvailable);
 
   React.useEffect(
     () => () => {
@@ -107,6 +120,23 @@ export default function AdminLoginPage() {
         });
       });
 
+    void fetchAdminGithubAuthStatus()
+      .then(payload => {
+        if (!isMounted) {
+          return;
+        }
+        setGithubAuthStatus(payload);
+      })
+      .catch(() => {
+        if (!isMounted) {
+          return;
+        }
+        setGithubAuthStatus({
+          enabled: false,
+          loginAvailable: false,
+        });
+      });
+
     return () => {
       isMounted = false;
     };
@@ -117,21 +147,34 @@ export default function AdminLoginPage() {
       return;
     }
 
-    const googleStatus = (searchParams.get('google') ?? '').trim().toLowerCase();
-    if (googleStatus === '') {
-      return;
-    }
+    const providerStatuses = [
+      {
+        provider: 'google',
+        status: (searchParams.get('google') ?? '').trim().toLowerCase(),
+      },
+      {
+        provider: 'github',
+        status: (searchParams.get('github') ?? '').trim().toLowerCase(),
+      },
+    ];
 
-    switch (googleStatus) {
-      case 'cancelled':
-        setErrorMessage(t('adminLogin.google.cancelled', { ns: 'admin-login' }));
-        break;
-      case 'not-linked':
-        setErrorMessage(t('adminLogin.google.notLinked', { ns: 'admin-login' }));
-        break;
-      default:
-        setErrorMessage(t('adminLogin.google.failed', { ns: 'admin-login' }));
-        break;
+    for (const providerStatus of providerStatuses) {
+      if (providerStatus.status === '') {
+        continue;
+      }
+
+      const baseKey = `adminLogin.${providerStatus.provider}`;
+      switch (providerStatus.status) {
+        case 'cancelled':
+          setErrorMessage(t(`${baseKey}.cancelled`, { ns: 'admin-login' }));
+          return;
+        case 'not-linked':
+          setErrorMessage(t(`${baseKey}.notLinked`, { ns: 'admin-login' }));
+          return;
+        default:
+          setErrorMessage(t(`${baseKey}.failed`, { ns: 'admin-login' }));
+          return;
+      }
     }
   }, [searchParams, t]);
 
@@ -139,6 +182,16 @@ export default function AdminLoginPage() {
     globalThis.location.assign(
       withBasePath(
         `/api/admin-google/connect?intent=login&locale=${encodeURIComponent(locale)}&rememberMe=${
+          rememberMe ? '1' : '0'
+        }`,
+      ),
+    );
+  }, [locale, rememberMe]);
+
+  const handleGithubLogin = React.useCallback(() => {
+    globalThis.location.assign(
+      withBasePath(
+        `/api/admin-github/connect?intent=login&locale=${encodeURIComponent(locale)}&rememberMe=${
           rememberMe ? '1' : '0'
         }`,
       ),
@@ -368,37 +421,64 @@ export default function AdminLoginPage() {
                   </Button>
                 </div>
 
-                {googleAuthStatus.enabled && googleAuthStatus.loginAvailable ? (
+                {hasSocialLogin ? (
                   <>
                     <div className="d-flex align-items-center gap-3 text-muted small text-uppercase fw-semibold mb-4">
                       <span className="flex-grow-1 border-top" />
                       <span>{t('adminLogin.google.or', { ns: 'admin-login' })}</span>
                       <span className="flex-grow-1 border-top" />
                     </div>
+                    {googleAuthStatus.enabled && googleAuthStatus.loginAvailable ? (
+                      <div className={githubAuthStatus.enabled && githubAuthStatus.loginAvailable ? 'mb-3' : 'mb-4'}>
+                        <Button
+                          type="button"
+                          variant="danger"
+                          className="post-summary-read-more w-100 justify-content-center"
+                          onClick={handleGoogleLogin}
+                          onMouseEnter={handleSubmitHoverStart}
+                          onMouseLeave={handleSubmitHoverEnd}
+                        >
+                          <span className="read-more-label d-inline-flex align-items-center justify-content-center gap-2">
+                            <FontAwesomeIcon icon={['fab', 'google']} />
+                            <span>{t('adminLogin.google.submit', { ns: 'admin-login' })}</span>
+                          </span>
+                          <span className="read-more-icon-rail" aria-hidden="true">
+                            <span className="read-more-icon read-more-icon-front">
+                              <FontAwesomeIcon icon="angle-right" />
+                            </span>
+                            <span className="read-more-icon read-more-icon-back">
+                              <FontAwesomeIcon icon="angle-right" />
+                            </span>
+                          </span>
+                        </Button>
+                      </div>
+                    ) : null}
 
-                    <div className="mb-4">
-                      <Button
-                        type="button"
-                        variant="danger"
-                        className="post-summary-read-more w-100 justify-content-center"
-                        onClick={handleGoogleLogin}
-                        onMouseEnter={handleSubmitHoverStart}
-                        onMouseLeave={handleSubmitHoverEnd}
-                      >
-                        <span className="read-more-label d-inline-flex align-items-center justify-content-center gap-2">
-                          <FontAwesomeIcon icon={['fab', 'google']} />
-                          <span>{t('adminLogin.google.submit', { ns: 'admin-login' })}</span>
-                        </span>
-                        <span className="read-more-icon-rail" aria-hidden="true">
-                          <span className="read-more-icon read-more-icon-front">
-                            <FontAwesomeIcon icon="angle-right" />
+                    {githubAuthStatus.enabled && githubAuthStatus.loginAvailable ? (
+                      <div className="mb-4">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="post-summary-read-more w-100 justify-content-center"
+                          onClick={handleGithubLogin}
+                          onMouseEnter={handleSubmitHoverStart}
+                          onMouseLeave={handleSubmitHoverEnd}
+                        >
+                          <span className="read-more-label d-inline-flex align-items-center justify-content-center gap-2">
+                            <FontAwesomeIcon icon={['fab', 'github']} />
+                            <span>{t('adminLogin.github.submit', { ns: 'admin-login' })}</span>
                           </span>
-                          <span className="read-more-icon read-more-icon-back">
-                            <FontAwesomeIcon icon="angle-right" />
+                          <span className="read-more-icon-rail" aria-hidden="true">
+                            <span className="read-more-icon read-more-icon-front">
+                              <FontAwesomeIcon icon="angle-right" />
+                            </span>
+                            <span className="read-more-icon read-more-icon-back">
+                              <FontAwesomeIcon icon="angle-right" />
+                            </span>
                           </span>
-                        </span>
-                      </Button>
-                    </div>
+                        </Button>
+                      </div>
+                    ) : null}
                   </>
                 ) : null}
 

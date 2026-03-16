@@ -686,6 +686,29 @@
           "conflict": "Bu Google hesabı başka bir admin kullanıcıya bağlı.",
           "failed": "Google bağlantısı şu anda tamamlanamadı."
         }
+      },
+      "github": {
+        "title": "GitHub",
+        "connect": "GitHub bağla",
+        "connecting": "Bağlanıyor...",
+        "disconnect": "GitHub bağlantısını kaldır",
+        "disconnecting": "Bağlantı kaldırılıyor...",
+        "disconnectConfirmTitle": "GitHub bağlantısını kaldır",
+        "disconnectConfirmCopy": "{{email}} hesabının bu admin hesabıyla bağlantısını kaldır.",
+        "connectedBadge": "Bağlı",
+        "unavailableBadge": "Kullanılamıyor",
+        "disconnectedCopy": "Önce bir GitHub hesabı bağla. Sonra giriş ekranında GitHub ile devam et görünür.",
+        "connectedCopy": "{{email}} ile bağlı.",
+        "linkedAt": "Bağlanma: {{value}}",
+        "loginEnabled": "GitHub ile giriş artık admin login ekranında kullanılabilir.",
+        "messages": {
+          "connected": "GitHub hesabı bağlandı.",
+          "disconnected": "GitHub hesabı bağlantısı kaldırıldı.",
+          "cancelled": "GitHub bağlama işlemi iptal edildi.",
+          "notLinked": "Bu GitHub hesabı bir admin kullanıcıya bağlı değil.",
+          "conflict": "Bu GitHub hesabı başka bir admin kullanıcıya bağlı.",
+          "failed": "GitHub bağlantısı şu anda tamamlanamadı."
+        }
       }
     }
   }

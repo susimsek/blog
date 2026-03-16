@@ -25,6 +25,7 @@ const (
 	adminCodeEmailSame          = "ADMIN_EMAIL_SAME"
 	adminCodeEmailTaken         = "ADMIN_EMAIL_TAKEN"
 	adminCodeGoogleNotLinked    = "ADMIN_GOOGLE_NOT_LINKED"
+	adminCodeGithubNotLinked    = "ADMIN_GITHUB_NOT_LINKED"
 	adminCodeUsernameTaken      = "ADMIN_USERNAME_TAKEN"
 	adminCodeUsernameSame       = "ADMIN_USERNAME_SAME"
 	adminCodeUsernamePattern    = "ADMIN_USERNAME_PATTERN_INVALID"
@@ -97,6 +98,8 @@ func mapAdminErrorToCode(appErr *apperrors.AppError) *apperrors.AppError {
 			return apperrors.New(adminCodeEmailTaken, appErr.Message, http.StatusBadRequest, nil)
 		case "google account is not linked":
 			return apperrors.New(adminCodeGoogleNotLinked, appErr.Message, http.StatusBadRequest, nil)
+		case "github account is not linked":
+			return apperrors.New(adminCodeGithubNotLinked, appErr.Message, http.StatusBadRequest, nil)
 		case "username is already in use":
 			return apperrors.New(adminCodeUsernameTaken, appErr.Message, http.StatusBadRequest, nil)
 		case "new username must be different from current username":

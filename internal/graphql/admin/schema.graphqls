@@ -8,6 +8,7 @@ scalar DateTime
 type AdminQuery {
   me: AdminMe!
   googleAuthStatus: AdminGoogleAuthStatus!
+  githubAuthStatus: AdminGithubAuthStatus!
   dashboard: AdminDashboard!
   comments(filter: AdminCommentFilterInput): AdminCommentListPayload!
   activeSessions: [AdminSession!]!
@@ -30,6 +31,8 @@ type AdminMutation {
   logout: AdminLogoutPayload!
   startGoogleConnect(input: AdminStartGoogleConnectInput!): AdminGoogleConnectPayload!
   disconnectGoogle: AdminGoogleDisconnectPayload!
+  startGithubConnect(input: AdminStartGithubConnectInput!): AdminGithubConnectPayload!
+  disconnectGithub: AdminGithubDisconnectPayload!
   changeName(input: AdminChangeNameInput!): AdminAuthPayload!
   changeAvatar(input: AdminChangeAvatarInput!): AdminAuthPayload!
   changeUsername(input: AdminChangeUsernameInput!): AdminAuthPayload!
@@ -238,6 +241,10 @@ input AdminStartGoogleConnectInput {
   locale: String
 }
 
+input AdminStartGithubConnectInput {
+  locale: String
+}
+
 input AdminRequestEmailChangeInput {
   newEmail: String!
   currentPassword: String!
@@ -264,6 +271,9 @@ type AdminUser {
   googleLinked: Boolean!
   googleEmail: String
   googleLinkedAt: DateTime
+  githubLinked: Boolean!
+  githubEmail: String
+  githubLinkedAt: DateTime
   roles: [String!]!
 }
 
@@ -272,11 +282,25 @@ type AdminGoogleAuthStatus {
   loginAvailable: Boolean!
 }
 
+type AdminGithubAuthStatus {
+  enabled: Boolean!
+  loginAvailable: Boolean!
+}
+
 type AdminGoogleConnectPayload {
   url: String!
 }
 
+type AdminGithubConnectPayload {
+  url: String!
+}
+
 type AdminGoogleDisconnectPayload {
+  success: Boolean!
+  user: AdminUser
+}
+
+type AdminGithubDisconnectPayload {
   success: Boolean!
   user: AdminUser
 }

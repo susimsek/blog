@@ -29,6 +29,12 @@
       "cancelled": "Google sign-in was cancelled.",
       "notLinked": "This Google account is not linked to an admin user.",
       "failed": "Google sign-in could not be completed right now."
+    },
+    "github": {
+      "submit": "Continue with GitHub",
+      "cancelled": "GitHub sign-in was cancelled.",
+      "notLinked": "This GitHub account is not linked to an admin user.",
+      "failed": "GitHub sign-in could not be completed right now."
     }
   }
 }

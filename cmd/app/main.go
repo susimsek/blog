@@ -10,6 +10,7 @@ import (
 
 	adminavatarapi "suaybsimsek.com/blog-api/api/admin-avatar"
 	adminemailchangeapi "suaybsimsek.com/blog-api/api/admin-email-change"
+	admingithubapi "suaybsimsek.com/blog-api/api/admin-github"
 	admingoogleapi "suaybsimsek.com/blog-api/api/admin-google"
 	admingraphqlapi "suaybsimsek.com/blog-api/api/admin-graphql"
 	graphqlapi "suaybsimsek.com/blog-api/api/graphql"
@@ -60,6 +61,8 @@ func main() {
 	mux.HandleFunc("/api/admin/graphql", admingraphqlapi.Handler)
 	mux.HandleFunc("/api/admin-avatar", adminavatarapi.Handler)
 	mux.HandleFunc("/api/admin-email-change/confirm", adminemailchangeapi.Handler)
+	mux.HandleFunc("/api/admin-github/connect", admingithubapi.Handler)
+	mux.HandleFunc("/api/admin-github/callback", admingithubapi.Handler)
 	mux.HandleFunc("/api/admin-google/connect", admingoogleapi.Handler)
 	mux.HandleFunc("/api/admin-google/callback", admingoogleapi.Handler)
 	mux.HandleFunc("/graphiql", graphqlapi.Handler)

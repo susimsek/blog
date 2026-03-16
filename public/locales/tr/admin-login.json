@@ -29,6 +29,12 @@
       "cancelled": "Google ile giriş iptal edildi.",
       "notLinked": "Bu Google hesabı bir admin kullanıcıya bağlı değil.",
       "failed": "Google ile giriş şu anda tamamlanamadı."
+    },
+    "github": {
+      "submit": "GitHub ile devam et",
+      "cancelled": "GitHub ile giriş iptal edildi.",
+      "notLinked": "Bu GitHub hesabı bir admin kullanıcıya bağlı değil.",
+      "failed": "GitHub ile giriş şu anda tamamlanamadı."
     }
   }
 }

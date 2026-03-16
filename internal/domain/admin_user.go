@@ -15,6 +15,9 @@ type AdminUser struct {
 	GoogleSubject         string
 	GoogleEmail           string
 	GoogleLinkedAt        *time.Time
+	GithubSubject         string
+	GithubEmail           string
+	GithubLinkedAt        *time.Time
 	Roles                 []string
 }
 

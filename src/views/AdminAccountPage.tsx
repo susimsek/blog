@@ -29,6 +29,7 @@ import {
   deleteAdminNewsletterSubscriber,
   deleteAdminAccount,
   fetchAdminActiveSessions,
+  fetchAdminGithubAuthStatus,
   fetchAdminComments,
   fetchAdminErrorMessages,
   fetchAdminGoogleAuthStatus,
@@ -37,7 +38,9 @@ import {
   fetchAdminNewsletterCampaigns,
   fetchAdminNewsletterSubscribers,
   isAdminSessionError,
+  startAdminGithubConnect,
   startAdminGoogleConnect,
+  disconnectAdminGithub,
   requestAdminEmailChange,
   resolveAdminError,
   revokeAdminSession,
@@ -91,6 +94,9 @@ type AdminIdentity = {
   googleLinked: boolean;
   googleEmail: string | null;
   googleLinkedAt: string | null;
+  githubLinked: boolean;
+  githubEmail: string | null;
+  githubLinkedAt: string | null;
   roles: string[];
 } | null;
 
@@ -378,14 +384,27 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     enabled: false,
     loginAvailable: false,
   });
+  const [githubAuthStatus, setGithubAuthStatus] = React.useState({
+    enabled: false,
+    loginAvailable: false,
+  });
   const [isGoogleAuthStatusLoading, setIsGoogleAuthStatusLoading] = React.useState(isSecuritySection);
+  const [isGithubAuthStatusLoading, setIsGithubAuthStatusLoading] = React.useState(isSecuritySection);
   const [googleActionErrorMessage, setGoogleActionErrorMessage] = React.useState('');
+  const [githubActionErrorMessage, setGithubActionErrorMessage] = React.useState('');
   const [isGoogleConnectSubmitting, setIsGoogleConnectSubmitting] = React.useState(false);
   const [isGoogleDisconnectSubmitting, setIsGoogleDisconnectSubmitting] = React.useState(false);
+  const [isGithubConnectSubmitting, setIsGithubConnectSubmitting] = React.useState(false);
+  const [isGithubDisconnectSubmitting, setIsGithubDisconnectSubmitting] = React.useState(false);
   const [isSecurityPasswordExpanded, setIsSecurityPasswordExpanded] = React.useState(false);
   const [isGoogleDisconnectModalOpen, setIsGoogleDisconnectModalOpen] = React.useState(false);
+  const [isGithubDisconnectModalOpen, setIsGithubDisconnectModalOpen] = React.useState(false);
   const [googleConnectMessage, setGoogleConnectMessage] = React.useState('');
+  const [githubConnectMessage, setGithubConnectMessage] = React.useState('');
   const [googleConnectMessageVariant, setGoogleConnectMessageVariant] = React.useState<'success' | 'danger' | 'info'>(
+    'info',
+  );
+  const [githubConnectMessageVariant, setGithubConnectMessageVariant] = React.useState<'success' | 'danger' | 'info'>(
     'info',
   );
   const [newsletterSubscribers, setNewsletterSubscribers] = React.useState<AdminNewsletterSubscriberItem[]>([]);
@@ -654,6 +673,41 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   }, [isSecuritySection]);
 
   React.useEffect(() => {
+    if (!isSecuritySection) {
+      return;
+    }
+
+    let isMounted = true;
+    setIsGithubAuthStatusLoading(true);
+
+    void fetchAdminGithubAuthStatus()
+      .then(payload => {
+        if (!isMounted) {
+          return;
+        }
+        setGithubAuthStatus(payload);
+      })
+      .catch(() => {
+        if (!isMounted) {
+          return;
+        }
+        setGithubAuthStatus({
+          enabled: false,
+          loginAvailable: false,
+        });
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsGithubAuthStatusLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isSecuritySection]);
+
+  React.useEffect(() => {
     if (!isSecuritySection || !searchParams) {
       return;
     }
@@ -689,6 +743,45 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
 
     setGoogleConnectMessage(nextMessage);
     setGoogleConnectMessageVariant(nextVariant);
+    router.replace(pathname, { scroll: false });
+  }, [isSecuritySection, pathname, router, searchParams, t]);
+
+  React.useEffect(() => {
+    if (!isSecuritySection || !searchParams) {
+      return;
+    }
+
+    const githubStatus = (searchParams.get('github') ?? '').trim().toLowerCase();
+    if (githubStatus === '') {
+      return;
+    }
+
+    let nextVariant: 'success' | 'danger' | 'info' = 'info';
+    let nextMessage = '';
+    switch (githubStatus) {
+      case 'connected':
+        nextVariant = 'success';
+        nextMessage = t('adminAccount.connectedAccounts.github.messages.connected', { ns: 'admin-account' });
+        break;
+      case 'cancelled':
+        nextMessage = t('adminAccount.connectedAccounts.github.messages.cancelled', { ns: 'admin-account' });
+        break;
+      case 'not-linked':
+        nextVariant = 'danger';
+        nextMessage = t('adminAccount.connectedAccounts.github.messages.notLinked', { ns: 'admin-account' });
+        break;
+      case 'conflict':
+        nextVariant = 'danger';
+        nextMessage = t('adminAccount.connectedAccounts.github.messages.conflict', { ns: 'admin-account' });
+        break;
+      default:
+        nextVariant = 'danger';
+        nextMessage = t('adminAccount.connectedAccounts.github.messages.failed', { ns: 'admin-account' });
+        break;
+    }
+
+    setGithubConnectMessage(nextMessage);
+    setGithubConnectMessageVariant(nextVariant);
     router.replace(pathname, { scroll: false });
   }, [isSecuritySection, pathname, router, searchParams, t]);
 
@@ -747,6 +840,20 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
       globalThis.clearTimeout(timeoutID);
     };
   }, [googleConnectMessage, googleConnectMessageVariant]);
+
+  React.useEffect(() => {
+    if (!githubConnectMessage || githubConnectMessageVariant !== 'success') {
+      return;
+    }
+
+    const timeoutID = globalThis.setTimeout(() => {
+      setGithubConnectMessage('');
+    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [githubConnectMessage, githubConnectMessageVariant]);
 
   React.useEffect(() => {
     if (!securitySuccessMessage) {
@@ -1240,6 +1347,13 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     }
   }, [googleConnectMessage]);
 
+  const clearGithubConnectMessage = React.useCallback(() => {
+    if (githubConnectMessage) {
+      setGithubConnectMessage('');
+      setGithubConnectMessageVariant('info');
+    }
+  }, [githubConnectMessage]);
+
   const handleCurrentPasswordChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const nextValue = event.currentTarget.value;
@@ -1292,6 +1406,20 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     setIsGoogleDisconnectModalOpen(false);
     setGoogleActionErrorMessage('');
   }, [isGoogleDisconnectSubmitting]);
+
+  const openGithubDisconnectModal = React.useCallback(() => {
+    setGithubActionErrorMessage('');
+    setIsGithubDisconnectModalOpen(true);
+  }, []);
+
+  const closeGithubDisconnectModal = React.useCallback(() => {
+    if (isGithubDisconnectSubmitting) {
+      return;
+    }
+
+    setIsGithubDisconnectModalOpen(false);
+    setGithubActionErrorMessage('');
+  }, [isGithubDisconnectSubmitting]);
 
   const formatSessionDate = React.useCallback(
     (value: string) => {
@@ -2659,6 +2787,105 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     clearSecuritySuccessMessage,
     isGoogleConnectSubmitting,
     isGoogleDisconnectSubmitting,
+    locale,
+    router,
+    t,
+  ]);
+
+  const handleGithubConnect = React.useCallback(async () => {
+    if (isGithubConnectSubmitting || isGithubDisconnectSubmitting) {
+      return;
+    }
+
+    setGithubActionErrorMessage('');
+    clearGithubConnectMessage();
+    clearSecuritySuccessMessage();
+
+    setIsGithubConnectSubmitting(true);
+    try {
+      const payload = await startAdminGithubConnect({
+        locale,
+      });
+      globalThis.location.assign(withBasePath(payload.url));
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        router.replace(`/${locale}/admin/login`);
+        return;
+      }
+
+      const resolvedError = resolveAdminError(error);
+      setGithubActionErrorMessage(
+        resolvedError.kind === 'network'
+          ? t('adminCommon.errors.network', { ns: 'admin-common' })
+          : resolvedError.message ||
+              t('adminAccount.connectedAccounts.github.messages.failed', { ns: 'admin-account' }),
+      );
+    } finally {
+      setIsGithubConnectSubmitting(false);
+    }
+  }, [
+    clearGithubConnectMessage,
+    clearSecuritySuccessMessage,
+    isGithubConnectSubmitting,
+    isGithubDisconnectSubmitting,
+    locale,
+    router,
+    t,
+  ]);
+
+  const handleGithubDisconnect = React.useCallback(async () => {
+    if (isGithubConnectSubmitting || isGithubDisconnectSubmitting) {
+      return;
+    }
+
+    setGithubActionErrorMessage('');
+    clearGithubConnectMessage();
+    clearSecuritySuccessMessage();
+
+    setIsGithubDisconnectSubmitting(true);
+    try {
+      const payload = await disconnectAdminGithub();
+      if (!payload.success) {
+        throw new Error(t('adminAccount.connectedAccounts.github.messages.failed', { ns: 'admin-account' }));
+      }
+
+      setAdminUser(payload.user);
+      setIsGithubDisconnectModalOpen(false);
+      setGithubConnectMessage(
+        t('adminAccount.connectedAccounts.github.messages.disconnected', { ns: 'admin-account' }),
+      );
+      setGithubConnectMessageVariant('success');
+
+      try {
+        const nextStatus = await fetchAdminGithubAuthStatus();
+        setGithubAuthStatus(nextStatus);
+      } catch {
+        setGithubAuthStatus({
+          enabled: false,
+          loginAvailable: false,
+        });
+      }
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        router.replace(`/${locale}/admin/login`);
+        return;
+      }
+
+      const resolvedError = resolveAdminError(error);
+      setGithubActionErrorMessage(
+        resolvedError.kind === 'network'
+          ? t('adminCommon.errors.network', { ns: 'admin-common' })
+          : resolvedError.message ||
+              t('adminAccount.connectedAccounts.github.messages.failed', { ns: 'admin-account' }),
+      );
+    } finally {
+      setIsGithubDisconnectSubmitting(false);
+    }
+  }, [
+    clearGithubConnectMessage,
+    clearSecuritySuccessMessage,
+    isGithubConnectSubmitting,
+    isGithubDisconnectSubmitting,
     locale,
     router,
     t,
@@ -5939,9 +6166,19 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                       {googleConnectMessage}
                     </Alert>
                   ) : null}
+                  {githubConnectMessage ? (
+                    <Alert variant={githubConnectMessageVariant} className="mb-4 px-4 py-3 lh-base">
+                      {githubConnectMessage}
+                    </Alert>
+                  ) : null}
                   {googleActionErrorMessage ? (
                     <Alert variant="danger" className="mb-4 px-4 py-3 lh-base">
                       {googleActionErrorMessage}
+                    </Alert>
+                  ) : null}
+                  {githubActionErrorMessage ? (
+                    <Alert variant="danger" className="mb-4 px-4 py-3 lh-base">
+                      {githubActionErrorMessage}
                     </Alert>
                   ) : null}
 
@@ -6222,6 +6459,86 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                         </div>
                       </div>
                     </ListGroup.Item>
+
+                    <ListGroup.Item className="px-4 py-4">
+                      <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+                        <div className="d-flex align-items-start gap-3">
+                          <span className="fs-4 text-body-secondary">
+                            <FontAwesomeIcon icon={['fab', 'github']} fixedWidth />
+                          </span>
+                          <div>
+                            <div className="fw-semibold mb-1">
+                              {t('adminAccount.connectedAccounts.github.title', { ns: 'admin-account' })}
+                              {adminUser.githubLinked ? (
+                                <Badge bg="success" className="ms-2">
+                                  {t('adminAccount.connectedAccounts.github.connectedBadge', { ns: 'admin-account' })}
+                                </Badge>
+                              ) : null}
+                            </div>
+                            <div className="text-body-secondary">
+                              {adminUser.githubLinked
+                                ? t('adminAccount.connectedAccounts.github.connectedCopy', {
+                                    ns: 'admin-account',
+                                    email: adminUser.githubEmail ?? adminUser.email,
+                                  })
+                                : t('adminAccount.connectedAccounts.github.disconnectedCopy', { ns: 'admin-account' })}
+                            </div>
+                            {adminUser.githubLinkedAt ? (
+                              <div className="small text-body-secondary mt-1 d-inline-flex align-items-center gap-2">
+                                <FontAwesomeIcon icon="calendar-alt" />
+                                {t('adminAccount.connectedAccounts.github.linkedAt', {
+                                  ns: 'admin-account',
+                                  value: formatSessionDate(adminUser.githubLinkedAt),
+                                })}
+                              </div>
+                            ) : null}
+                            {adminUser.githubLinked && githubAuthStatus.loginAvailable ? (
+                              <div className="small text-body-secondary mt-1">
+                                {t('adminAccount.connectedAccounts.github.loginEnabled', { ns: 'admin-account' })}
+                              </div>
+                            ) : null}
+                            {!githubAuthStatus.enabled && !isGithubAuthStatusLoading ? (
+                              <div className="small text-body-secondary mt-1">
+                                {t('adminAccount.connectedAccounts.github.unavailableBadge', { ns: 'admin-account' })}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                        <div className="d-flex justify-content-lg-end">
+                          {isGithubAuthStatusLoading ? (
+                            <div className="small text-muted d-inline-flex align-items-center">
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                className="me-2 flex-shrink-0 admin-action-spinner"
+                                aria-hidden="true"
+                              />
+                              {t('adminCommon.status.loading', { ns: 'admin-common' })}
+                            </div>
+                          ) : adminUser.githubLinked ? (
+                            <Button
+                              variant="danger"
+                              className="admin-newsletter-action admin-newsletter-action--danger"
+                              onClick={openGithubDisconnectModal}
+                              disabled={isGithubConnectSubmitting || isGithubDisconnectSubmitting}
+                            >
+                              {t('adminAccount.connectedAccounts.github.disconnect', { ns: 'admin-account' })}
+                            </Button>
+                          ) : githubAuthStatus.enabled ? (
+                            <Button
+                              variant="primary"
+                              className="admin-newsletter-action admin-newsletter-action--primary"
+                              onClick={handleGithubConnect}
+                              disabled={isGithubConnectSubmitting || isGithubDisconnectSubmitting}
+                            >
+                              <FontAwesomeIcon icon={['fab', 'github']} className="me-2" />
+                              {t('adminAccount.connectedAccounts.github.connect', { ns: 'admin-account' })}
+                            </Button>
+                          ) : null}
+                        </div>
+                      </div>
+                    </ListGroup.Item>
                   </ListGroup>
                 </>
               ) : null}
@@ -6277,6 +6594,58 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
               </span>
             ) : (
               t('adminAccount.connectedAccounts.google.disconnect', { ns: 'admin-account' })
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={isGithubDisconnectModalOpen} onHide={closeGithubDisconnectModal} centered>
+        <Modal.Header closeButton={!isGithubDisconnectSubmitting}>
+          <Modal.Title>
+            {t('adminAccount.connectedAccounts.github.disconnectConfirmTitle', { ns: 'admin-account' })}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="mb-3">
+            {t('adminAccount.connectedAccounts.github.disconnectConfirmCopy', {
+              ns: 'admin-account',
+              email: adminUser?.githubEmail ?? adminUser?.email ?? '',
+            })}
+          </p>
+          {githubActionErrorMessage ? (
+            <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
+              {githubActionErrorMessage}
+            </Alert>
+          ) : null}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            className="admin-newsletter-action admin-newsletter-action--secondary"
+            onClick={closeGithubDisconnectModal}
+            disabled={isGithubDisconnectSubmitting}
+          >
+            {t('adminCommon.actions.cancel', { ns: 'admin-common' })}
+          </Button>
+          <Button
+            variant="danger"
+            className="admin-newsletter-action admin-newsletter-action--danger"
+            onClick={handleGithubDisconnect}
+            disabled={isGithubConnectSubmitting || isGithubDisconnectSubmitting}
+          >
+            {isGithubDisconnectSubmitting ? (
+              <span className="d-inline-flex align-items-center">
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  className="me-2 flex-shrink-0 admin-action-spinner"
+                  aria-hidden="true"
+                />
+                {t('adminAccount.connectedAccounts.github.disconnecting', { ns: 'admin-account' })}
+              </span>
+            ) : (
+              t('adminAccount.connectedAccounts.github.disconnect', { ns: 'admin-account' })
             )}
           </Button>
         </Modal.Footer>
