@@ -1,128 +1,108 @@
-# Blog Application
+# Blog Platform (Next.js 16 + Go)
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/susimsek/blog/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/susimsek/blog/tree/main)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=alert_status)](https://sonarcloud.io/summary/overall?id=blog&branch=main)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=coverage)](https://sonarcloud.io/summary/overall?id=blog&branch=main)
+[![Go](https://img.shields.io/badge/Go-1.24-00ADD8?logo=go)](https://go.dev/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-This repository contains a multilingual blog platform with:
+This repository is a multilingual blog platform with a static-exported Next.js frontend and a Go backend for GraphQL, GraphiQL, and newsletter flows.
 
-- a statically exported Next.js frontend
-- a Go backend for GraphQL, GraphiQL, newsletter confirmation, and newsletter dispatch
-- Markdown-based content in English and Turkish
-- SonarCloud coverage and quality checks across frontend and backend scopes
+## Table of Contents
 
-Go code in this repo is expected to follow a layered package approach, not a feature-first package layout. New backend work should prefer handler/service/repository/helper boundaries under the existing `api`, `internal`, and `pkg` layers instead of introducing new feature-rooted package trees.
+- [Features](#features)
+- [Requirements](#requirements)
+- [Tech Stack](#tech-stack)
+- [Project Layout](#project-layout)
+- [Local Development](#local-development)
+- [Environment Variables](#environment-variables)
+- [Quality and Testing](#quality-and-testing)
+- [Build and Deployment](#build-and-deployment)
+- [Notes](#notes)
+
+## Features
+
+- Static-export frontend (`next export` style output to `build/`)
+- GraphQL API for posts, likes/hits, and newsletter subscription flows
+- GraphiQL playground support (`/graphiql`)
+- Newsletter confirmation, unsubscribe, and dispatch flows
+- i18n support for English and Turkish (`en`, `tr`)
+- Markdown-based content + generated post/topic/category indexes
+
+## Requirements
+
+- Node.js: `>= 24.13.0`
+- pnpm (recommended via Corepack)
+- Go: `1.24.x`
+- Optional: Docker / Helm for deployment
 
 ## Tech Stack
 
 - Frontend: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next, Sass, Bootstrap
-- Backend: Go 1.24, gqlgen, net/http, MongoDB driver
-- Tooling: pnpm, ESLint, Prettier, Jest, SonarCloud
+- Backend: Go 1.24, gqlgen, MongoDB driver, `net/http`
+- Tooling: ESLint, Prettier, Jest + Testing Library, SonarCloud, golangci-lint
 
-## Quick Commands
-
-```bash
-corepack enable
-pnpm install --frozen-lockfile
-pnpm dev
-pnpm run backend:dev
-pnpm run backend:start
-pnpm test
-pnpm run backend:lint
-pnpm run backend:test
-pnpm run backend:ci
-pnpm run lint
-pnpm run typecheck
-pnpm build
-pnpm run sonar
-```
-
-Additional project commands:
-
-```bash
-pnpm run fetch:medium
-pnpm run sync:medium-posts
-pnpm run sync:post-metadata
-pnpm run sync:code-filenames
-pnpm run graphql:generate
-pnpm run graphql:codegen
-pnpm run backend:sync-content
-```
-
-Go coverage command used by Sonar:
-
-```bash
-pnpm run backend:ci
-```
-
-Go lint commands:
-
-```bash
-pnpm run backend:lint
-pnpm run backend:lint:report
-```
-
-Sonar also imports Go lint findings from `golangci-lint-report.xml`.
-
-## Repository Layout
+## Project Layout
 
 ### Frontend
 
-- [`src/app`](/Users/T097315/Documents/MyProject/blog/src/app): App Router routes and layouts
-- [`src/views`](/Users/T097315/Documents/MyProject/blog/src/views): route-level page views
-- [`src/components`](/Users/T097315/Documents/MyProject/blog/src/components): shared UI and game components
-- [`src/lib`](/Users/T097315/Documents/MyProject/blog/src/lib): frontend helpers, Markdown/content utilities, metadata helpers
-- [`src/i18n`](/Users/T097315/Documents/MyProject/blog/src/i18n): locale runtime and translation loading
-- [`public/locales`](/Users/T097315/Documents/MyProject/blog/public/locales): translation namespaces
+- `src/app`: App Router routes and layouts
+- `src/views`: route-level page views
+- `src/components`: shared UI and game components
+- `src/lib`: frontend helpers, markdown/content utilities, metadata helpers
+- `src/i18n`: locale runtime and translation loading
+- `public/locales`: translation namespaces
 
 ### Backend
 
-- [`api/graphql/index.go`](/Users/T097315/Documents/MyProject/blog/api/graphql/index.go): GraphQL and GraphiQL HTTP handler
-- [`api/newsletter-dispatch/index.go`](/Users/T097315/Documents/MyProject/blog/api/newsletter-dispatch/index.go): newsletter dispatch endpoint
-- [`internal/config`](/Users/T097315/Documents/MyProject/blog/internal/config): backend-only env/config resolution
-- [`internal/domain`](/Users/T097315/Documents/MyProject/blog/internal/domain): domain entities and shared backend records
-- [`internal/graphql`](/Users/T097315/Documents/MyProject/blog/internal/graphql): gqlgen schema, generated execution code, resolvers, and GraphQL mapping helpers
-- [`internal/service`](/Users/T097315/Documents/MyProject/blog/internal/service): business service orchestration
-- [`internal/repository`](/Users/T097315/Documents/MyProject/blog/internal/repository): Mongo-backed repository implementations
-- [`pkg/graphql`](/Users/T097315/Documents/MyProject/blog/pkg/graphql): GraphiQL page handler
-- [`pkg/newsletter`](/Users/T097315/Documents/MyProject/blog/pkg/newsletter): templates, unsubscribe tokens, status pages, mailer
-- [`pkg/apperrors`](/Users/T097315/Documents/MyProject/blog/pkg/apperrors): normalized backend errors
-- [`pkg/httpapi`](/Users/T097315/Documents/MyProject/blog/pkg/httpapi): backend JSON error helpers
-- [`cmd/app/main.go`](/Users/T097315/Documents/MyProject/blog/cmd/app/main.go): local backend server entrypoint
+- `api/graphql/index.go`: GraphQL + GraphiQL HTTP handler
+- `api/newsletter-dispatch/index.go`: newsletter dispatch endpoint
+- `internal/config`: backend-only env/config resolution
+- `internal/domain`: domain entities and shared records
+- `internal/graphql`: schema, generated execution code, resolvers, mapping helpers
+- `internal/service`: business service orchestration
+- `internal/repository`: Mongo-backed repository implementations
+- `pkg/graphql`: GraphiQL page handler
+- `pkg/newsletter`: mail templates, unsubscribe token/status, dispatch helpers
+- `pkg/apperrors`: normalized backend error types
+- `pkg/httpapi`: JSON error response helpers
+- `cmd/app/main.go`: local backend entrypoint
 
 Preferred backend layering:
 
 - `api/*`: transport and HTTP entrypoints
-- `internal/config`: private backend configuration loading
-- `internal/graphql`: private GraphQL schema, resolver, and generated execution layer
-- `internal/domain`: domain entities and shared backend records
-- `internal/service`: business service orchestration
-- `internal/repository`: persistence and repository implementations
-- `pkg/*`: reusable shared packages, templates, schemas, and cross-cutting helpers
+- `internal/*`: private config, domain, service, repository, GraphQL internals
+- `pkg/*`: reusable shared packages and helpers
 
-Avoid introducing new Go package trees that are organized primarily by product feature. Keep package boundaries technical and layered.
+Do not introduce new feature-first Go package trees.
 
-### Content and Generated Data
+### Content and Data
 
-- [`content/posts/en`](/Users/T097315/Documents/MyProject/blog/content/posts/en)
-- [`content/posts/tr`](/Users/T097315/Documents/MyProject/blog/content/posts/tr)
-- [`public/data/posts.en.json`](/Users/T097315/Documents/MyProject/blog/public/data/posts.en.json)
-- [`public/data/posts.tr.json`](/Users/T097315/Documents/MyProject/blog/public/data/posts.tr.json)
-- [`public/data/topics.en.json`](/Users/T097315/Documents/MyProject/blog/public/data/topics.en.json)
-- [`public/data/topics.tr.json`](/Users/T097315/Documents/MyProject/blog/public/data/topics.tr.json)
-- [`content/external/medium-feed.json`](/Users/T097315/Documents/MyProject/blog/content/external/medium-feed.json)
+- `content/posts/en/*.md`
+- `content/posts/tr/*.md`
+- `public/data/posts.<locale>.json`
+- `public/data/topics.<locale>.json`
+- `public/data/categories.<locale>.json`
+- `content/external/medium-feed.json`
 
 ## Local Development
 
-### Frontend only
+Install dependencies:
+
+```bash
+corepack enable
+pnpm install --frozen-lockfile
+```
+
+Start frontend only:
 
 ```bash
 pnpm dev
 ```
 
-Frontend runs at `http://localhost:3000`.
-
-### Frontend + backend
+Start backend + frontend:
 
 ```bash
 # terminal 1
@@ -132,9 +112,7 @@ pnpm run backend:dev
 pnpm dev
 ```
 
-`backend:dev` uses [`air`](https://github.com/air-verse/air) for hot reload, similar to a Spring Boot DevTools workflow for the Go backend. `backend:start` remains the plain one-shot Go process.
-
-Useful local endpoints:
+Local endpoints:
 
 - App: `http://localhost:3000`
 - GraphQL: `http://localhost:8080/graphql`
@@ -142,42 +120,7 @@ Useful local endpoints:
 - Newsletter dispatch: `http://localhost:8080/api/newsletter-dispatch`
 - Health: `http://localhost:8080/health`
 
-In development, [`next.config.ts`](/Users/T097315/Documents/MyProject/blog/next.config.ts) rewrites `/graphql` and `/api/:path*` to the Go backend. The default target is `http://localhost:8080` and can be overridden with `NEXT_PUBLIC_DEV_API_ORIGIN`.
-
-## Backend Endpoints
-
-### GraphQL
-
-Served by [`api/graphql/index.go`](/Users/T097315/Documents/MyProject/blog/api/graphql/index.go):
-
-- `GET /graphql`
-- `POST /graphql`
-- `OPTIONS /graphql`
-
-Supported flows include:
-
-- post list and post detail queries
-- post like and hit mutations
-- newsletter subscribe, resend confirmation, confirm, and unsubscribe mutations
-
-### GraphiQL
-
-Served at `/graphiql` by the same backend handler.
-
-Related environment variables:
-
-- `GRAPHIQL_ENABLED`
-- `GRAPHQL_INTROSPECTION_ENABLED`
-
-These backend env flags are resolved in [`internal/config/graphql.go`](/Users/T097315/Documents/MyProject/blog/internal/config/graphql.go), not under `pkg`.
-
-### Newsletter dispatch
-
-Served by [`api/newsletter-dispatch/index.go`](/Users/T097315/Documents/MyProject/blog/api/newsletter-dispatch/index.go):
-
-- `GET /api/newsletter-dispatch`
-
-This endpoint reads RSS feeds, syncs post metadata, deduplicates campaigns, and sends announcement emails to active subscribers.
+In development, `next.config.ts` rewrites `/graphql` and `/api/:path*` to the Go backend (`NEXT_PUBLIC_DEV_API_ORIGIN`, default `http://localhost:8080`).
 
 ## Environment Variables
 
@@ -193,7 +136,7 @@ This endpoint reads RSS feeds, syncs post metadata, deduplicates campaigns, and 
 
 - `SITE_URL`
 
-### Backend and newsletter
+### Backend and Newsletter
 
 - `API_CORS_ORIGIN`
 - `MONGODB_URI`
@@ -218,9 +161,9 @@ This endpoint reads RSS feeds, syncs post metadata, deduplicates campaigns, and 
 - `SONAR_TOKEN`
 - `SONARQUBE_TOKEN`
 
-## Testing and Quality
+## Quality and Testing
 
-### Frontend
+Frontend checks:
 
 ```bash
 pnpm test
@@ -228,7 +171,7 @@ pnpm run lint
 pnpm run typecheck
 ```
 
-### Backend
+Backend checks:
 
 ```bash
 pnpm run backend:lint
@@ -236,63 +179,42 @@ pnpm run backend:test
 pnpm run backend:ci
 ```
 
-`backend:lint` uses a pinned `golangci-lint` version directly from the package script. `backend:lint:report` also writes [`golangci-lint-report.xml`](/Users/T097315/Documents/MyProject/blog/golangci-lint-report.xml) in the repo root for Sonar and Checkstyle-style consumption.
-
-Backend lint policy prefers low-noise, high-signal rules. Focus on correctness, error handling, modernization, dead-code cleanup, and safe formatting instead of comment-enforcement or documentation-only rules.
-
-Jest coverage thresholds are configured in [`jest.config.js`](/Users/T097315/Documents/MyProject/blog/jest.config.js):
-
-- statements: `95`
-- functions: `95`
-- lines: `95`
-
-### Backend
-
-```bash
-pnpm run backend:test
-pnpm run backend:ci
-```
-
-### SonarCloud
-
-```bash
-pnpm run sonar
-```
-
-SonarCloud consumes:
+Coverage and quality reports consumed by Sonar:
 
 - `coverage/lcov.info`
 - `coverage/test-report.xml`
 - `coverage/go-cover.out`
 - `golangci-lint-report.xml`
 
-The Sonar source scope is configured in [`sonar-project.properties`](/Users/T097315/Documents/MyProject/blog/sonar-project.properties) and currently includes both frontend code and selected backend packages.
-
 ## Build and Deployment
 
-### Static build
+Static build:
 
 ```bash
 pnpm build
 ```
 
-Build output is written to [`build`](/Users/T097315/Documents/MyProject/blog/build). `postbuild` also generates sitemap, RSS, and robots assets.
-
-### Docker Compose
+Docker Compose:
 
 ```bash
 docker-compose -f deploy/docker-compose/docker-compose.yml up -d
 docker-compose -f deploy/docker-compose/docker-compose.yml down
 ```
 
-### Helm
+Helm:
 
 ```bash
 helm install blog deploy/helm/blog
 helm uninstall blog
 ```
 
-Deployment configuration lives under:
+Deployment files:
 
-- [`deploy/docker-compose/docker-compose.yml`](/Users/T097315/Documents/MyProject/blog/deploy/docker-compose/docker-compose.yml)
-- [`deploy/helm/blog`](/Users/T097315/Documents/MyProject/blog/deploy/helm/blog)
+- `deploy/docker-compose/docker-compose.yml`
+- `deploy/helm/blog`
+
+## Notes
+
+- Frontend is static-exported; avoid server-only Next.js patterns.
+- When adding UI copy, update both locale files (`en` and `tr`).
+- When adding posts, keep locale markdown and JSON indexes in sync.
