@@ -73,6 +73,9 @@ For backend architecture, prefer a layered Go package structure similar in spiri
 ### Frontend
 
 - `src/app`: App Router routes, layouts, localized pages
+- `src/app/(default)`: default route group (includes `/admin`)
+- `src/app/(localized)/[locale]`: locale-prefixed pages
+- `src/app/(default)/admin`: admin panel route (`/admin`)
 - `src/views`: route-level page components
 - `src/components`: shared UI and game components
 - `src/config`: store, constants, validation helpers
@@ -85,6 +88,11 @@ For backend architecture, prefer a layered Go package structure similar in spiri
 ### Backend
 
 - `api/graphql/index.go`: GraphQL + GraphiQL HTTP handler
+- `api/admin-graphql/index.go`: admin GraphQL HTTP handler
+- `api/admin-avatar/index.go`: admin avatar endpoint
+- `api/admin-email-change/index.go`: admin email change confirmation endpoint
+- `api/github/*`, `api/google/*`: reader OAuth connect/callback handlers
+- `api/reader-auth/index.go`: reader session/logout endpoint
 - `api/newsletter-dispatch/index.go`: newsletter dispatch endpoint
 - `internal/config`: private backend env/config resolution
 - `internal/domain`: domain entities and shared backend records
@@ -95,6 +103,10 @@ For backend architecture, prefer a layered Go package structure similar in spiri
 - `pkg/newsletter`: templates, unsubscribe tokens, status pages, mailer
 - `pkg/apperrors`: normalized backend errors
 - `pkg/httpapi`: JSON error response helpers
+- `pkg/httpauth`: cookie/JWT auth helpers used by admin and reader auth flows
+- `pkg/adminmail`: admin email-change status page templates/helpers
+- `pkg/commentsub`: comment subscription helpers
+- `pkg/web`: HTTP handler layer (`admingraphql`, `readerauth`, OAuth handlers, newsletter dispatch)
 - `cmd/app/main.go`: local backend entrypoint
 - `scripts/sync-newsletter-content/main.go`: newsletter content sync utility
 
@@ -138,13 +150,32 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
 
 - Start live-reload backend with `pnpm run backend:dev`
 - Start one-shot backend with `pnpm run backend:start`
+- Local backend runner (`cmd/app/main.go`) also loads `.env.local` when present
 - Default port: `8080`
 - Override port with `LOCAL_GO_API_PORT`
 - Local backend endpoints:
   - `/graphql`
+  - `/api/graphql`
+  - `/api/admin/graphql`
+  - `/api/admin-avatar`
+  - `/api/admin-email-change/confirm`
+  - `/api/github/connect`
+  - `/api/github/callback`
+  - `/api/google/connect`
+  - `/api/google/callback`
+  - `/api/reader-auth/session`
+  - `/api/reader-auth/logout`
   - `/graphiql`
   - `/api/newsletter-dispatch`
   - `/health`
+- Admin panel and admin API:
+  - frontend route: `/admin`
+  - admin GraphQL endpoint: `/api/admin/graphql`
+  - related endpoints: `/api/admin-avatar`, `/api/admin-email-change/confirm`
+- Admin GraphQL security notes:
+  - CORS/cookie handling lives in `pkg/web/admingraphql/handler.go`
+  - mutation requests require `X-CSRF-Token` (double-submit token)
+  - login/refresh operations are CSRF-exempt (`AdminLogin`, `AdminRefreshSession`)
 - GraphiQL toggles:
   - `GRAPHIQL_ENABLED`
   - `GRAPHQL_INTROSPECTION_ENABLED`
@@ -198,15 +229,55 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
   - `GMAIL_SMTP_USER`
   - `GMAIL_SMTP_APP_PASSWORD`
   - `CRON_SECRET`
+  - `NEWSLETTER_UNSUBSCRIBE_SECRET`
 - Optional:
   - `GMAIL_FROM_EMAIL`
   - `GMAIL_FROM_NAME`
   - `GMAIL_SMTP_HOST`
   - `GMAIL_SMTP_PORT`
-  - `NEWSLETTER_UNSUBSCRIBE_SECRET`
   - `NEWSLETTER_MAX_RECIPIENTS_PER_RUN`
   - `NEWSLETTER_MAX_ITEM_AGE_HOURS`
   - `NEWSLETTER_UNSUBSCRIBE_TOKEN_TTL_HOURS`
+  - `LOCAL_GO_API_PORT`
+  - `GRAPHIQL_ENABLED`
+  - `GRAPHQL_INTROSPECTION_ENABLED`
+
+### Frontend environment
+
+- `NEXT_PUBLIC_BASE_PATH`
+- `NEXT_PUBLIC_ASSET_PREFIX`
+- `NEXT_PUBLIC_GA_ID`
+- `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_DEV_API_ORIGIN`
+- `NEXT_PUBLIC_API_BASE_URL`
+
+### Auth and OAuth environment (conditional)
+
+- `JWT_SECRET`
+- `COOKIE_SECURE`
+- `ADMIN_JWT_ISSUER`
+- `ADMIN_JWT_AUDIENCE`
+- `ADMIN_ACCESS_COOKIE_NAME`
+- `ADMIN_REFRESH_COOKIE_NAME`
+- `ADMIN_CSRF_COOKIE_NAME`
+- `ADMIN_ACCESS_TTL`
+- `ADMIN_REFRESH_TTL`
+- `ADMIN_REMEMBER_REFRESH_TTL`
+- `READER_JWT_ISSUER`
+- `READER_JWT_AUDIENCE`
+- `READER_ACCESS_COOKIE_NAME`
+- `READER_REFRESH_COOKIE_NAME`
+- `READER_ACCESS_TTL`
+- `READER_REFRESH_TTL`
+- `READER_REMEMBER_REFRESH_TTL`
+- `GITHUB_CLIENT_ID`
+- `GITHUB_CLIENT_SECRET`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+
+### Script-specific environment
+
+- `NEWSLETTER_SYNC_LOCALES` (`scripts/sync-newsletter-content/main.go`)
 
 ## Code Style & Quality Gates
 

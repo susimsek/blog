@@ -26,6 +26,7 @@ This repository is a multilingual blog platform with a static-exported Next.js f
 ## Features
 
 - Static-export frontend (`next export` style output to `build/`)
+- Admin panel at `/admin` backed by admin GraphQL APIs
 - GraphQL API for posts, likes/hits, and newsletter subscription flows
 - GraphiQL playground support (`/graphiql`)
 - Newsletter confirmation, unsubscribe, and dispatch flows
@@ -42,7 +43,7 @@ This repository is a multilingual blog platform with a static-exported Next.js f
 ## Tech Stack
 
 - Frontend: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next, Sass, Bootstrap
-- Backend: Go 1.24, gqlgen, MongoDB driver, `net/http`
+- Backend: Go 1.24, gqlgen, MongoDB driver, `net/http`, cookie/JWT auth for admin and reader flows
 - Tooling: ESLint, Prettier, Jest + Testing Library, SonarCloud, golangci-lint
 
 ## Project Layout
@@ -50,6 +51,9 @@ This repository is a multilingual blog platform with a static-exported Next.js f
 ### Frontend
 
 - `src/app`: App Router routes and layouts
+- `src/app/(default)`: default route group (includes `/admin`)
+- `src/app/(localized)/[locale]`: locale-prefixed pages
+- `src/app/(default)/admin`: admin panel route (`/admin`)
 - `src/views`: route-level page views
 - `src/components`: shared UI and game components
 - `src/lib`: frontend helpers, markdown/content utilities, metadata helpers
@@ -59,6 +63,11 @@ This repository is a multilingual blog platform with a static-exported Next.js f
 ### Backend
 
 - `api/graphql/index.go`: GraphQL + GraphiQL HTTP handler
+- `api/admin-graphql/index.go`: admin GraphQL HTTP handler
+- `api/admin-avatar/index.go`: admin avatar endpoint
+- `api/admin-email-change/index.go`: admin email change confirmation endpoint
+- `api/github/*`, `api/google/*`: reader OAuth connect/callback handlers
+- `api/reader-auth/index.go`: reader session/logout endpoint
 - `api/newsletter-dispatch/index.go`: newsletter dispatch endpoint
 - `internal/config`: backend-only env/config resolution
 - `internal/domain`: domain entities and shared records
@@ -69,6 +78,10 @@ This repository is a multilingual blog platform with a static-exported Next.js f
 - `pkg/newsletter`: mail templates, unsubscribe token/status, dispatch helpers
 - `pkg/apperrors`: normalized backend error types
 - `pkg/httpapi`: JSON error response helpers
+- `pkg/httpauth`: cookie/JWT auth helpers for admin and reader flows
+- `pkg/adminmail`: admin email-change status page templates/helpers
+- `pkg/commentsub`: comment subscription helpers
+- `pkg/web`: HTTP handler layer (`admingraphql`, `readerauth`, OAuth handlers, newsletter dispatch)
 - `cmd/app/main.go`: local backend entrypoint
 
 Preferred backend layering:
@@ -300,5 +313,6 @@ Deployment files:
 ## Notes
 
 - Frontend is static-exported; avoid server-only Next.js patterns.
+- Admin panel runs at `/admin`; admin mutations go through `/api/admin/graphql` and require `X-CSRF-Token` (except login/refresh operations).
 - When adding UI copy, update both locale files (`en` and `tr`).
 - When adding posts, keep locale markdown and JSON indexes in sync.
