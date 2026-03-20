@@ -29,6 +29,8 @@ import MarkdownRenderer from '@/components/common/MarkdownRenderer';
 import Link from '@/components/common/Link';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import {
+  bulkDeleteAdminComments,
+  bulkUpdateAdminCommentStatus,
   createAdminContentCategory,
   createAdminContentTopic,
   deleteAdminComment,
@@ -222,13 +224,21 @@ export default function AdminContentManagementPanel({
   const [postCommentsErrorMessage, setPostCommentsErrorMessage] = React.useState('');
   const [postCommentsSuccessMessage, setPostCommentsSuccessMessage] = React.useState('');
   const [postCommentsStatusFilter, setPostCommentsStatusFilter] = React.useState<CommentStatusFilterValue>('all');
+  const [postCommentsFilterQuery, setPostCommentsFilterQuery] = React.useState('');
+  const [postCommentsFilterQueryDebounced, setPostCommentsFilterQueryDebounced] = React.useState('');
   const [postCommentsPage, setPostCommentsPage] = React.useState(1);
   const [postCommentsPageSize, setPostCommentsPageSize] = React.useState(5);
   const [postCommentsTotal, setPostCommentsTotal] = React.useState(0);
+  const [selectedPostCommentIDs, setSelectedPostCommentIDs] = React.useState<string[]>([]);
   const [postCommentActionID, setPostCommentActionID] = React.useState('');
   const [postCommentActionStatus, setPostCommentActionStatus] = React.useState<AdminCommentItem['status'] | null>(null);
   const [deletingPostCommentID, setDeletingPostCommentID] = React.useState('');
   const [pendingPostCommentDelete, setPendingPostCommentDelete] = React.useState<AdminCommentItem | null>(null);
+  const [bulkPostCommentActionStatus, setBulkPostCommentActionStatus] = React.useState<
+    AdminCommentItem['status'] | null
+  >(null);
+  const [pendingBulkPostCommentDeleteIDs, setPendingBulkPostCommentDeleteIDs] = React.useState<string[]>([]);
+  const [isBulkPostCommentDeleting, setIsBulkPostCommentDeleting] = React.useState(false);
 
   const [isTopicEditorOpen, setIsTopicEditorOpen] = React.useState(false);
   const [topicEditorMode, setTopicEditorMode] = React.useState<TopicEditorMode>('create');
@@ -301,6 +311,14 @@ export default function AdminContentManagementPanel({
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const totalPostCommentPages = Math.max(1, Math.ceil(postCommentsTotal / postCommentsPageSize));
+  const selectedVisiblePostCommentIDs = React.useMemo(
+    () => postComments.filter(item => selectedPostCommentIDs.includes(item.id)).map(item => item.id),
+    [postComments, selectedPostCommentIDs],
+  );
+  const allVisiblePostCommentsSelected =
+    postComments.length > 0 && selectedVisiblePostCommentIDs.length === postComments.length;
+  const hasSelectedPostComments = selectedPostCommentIDs.length > 0;
+  const isBulkPostCommentActionPending = bulkPostCommentActionStatus !== null || isBulkPostCommentDeleting;
   const normalizedTopicID = topicID.trim().toLowerCase();
   const normalizedCategoryID = categoryID.trim().toLowerCase();
   const canSubmitTopic =
@@ -647,8 +665,22 @@ export default function AdminContentManagementPanel({
   }, [postCommentsSuccessMessage]);
 
   React.useEffect(() => {
+    const timeoutID = globalThis.setTimeout(() => {
+      setPostCommentsFilterQueryDebounced(postCommentsFilterQuery.trim());
+    }, 220);
+
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [postCommentsFilterQuery]);
+
+  React.useEffect(() => {
+    setSelectedPostCommentIDs(previous => previous.filter(id => postComments.some(item => item.id === id)));
+  }, [postComments]);
+
+  React.useEffect(() => {
     setPostCommentsPage(1);
-  }, [postCommentsStatusFilter, routePostID]);
+  }, [postCommentsFilterQueryDebounced, postCommentsStatusFilter, routePostID]);
 
   React.useEffect(() => {
     const categoryExists =
@@ -928,9 +960,13 @@ export default function AdminContentManagementPanel({
         setPostComments([]);
         setPostCommentsErrorMessage('');
         setPostCommentsSuccessMessage('');
+        setSelectedPostCommentIDs([]);
         setPostCommentActionID('');
         setPostCommentActionStatus(null);
         setDeletingPostCommentID('');
+        setBulkPostCommentActionStatus(null);
+        setPendingBulkPostCommentDeleteIDs([]);
+        setIsBulkPostCommentDeleting(false);
         setPostCommentsPage(1);
         setPostCommentsTotal(0);
         setPendingPostCommentDelete(null);
@@ -952,9 +988,13 @@ export default function AdminContentManagementPanel({
       setPostComments([]);
       setPostCommentsErrorMessage('');
       setPostCommentsSuccessMessage('');
+      setSelectedPostCommentIDs([]);
       setPostCommentActionID('');
       setPostCommentActionStatus(null);
       setDeletingPostCommentID('');
+      setBulkPostCommentActionStatus(null);
+      setPendingBulkPostCommentDeleteIDs([]);
+      setIsBulkPostCommentDeleting(false);
       setPostCommentsPage(1);
       setPostCommentsTotal(0);
       setPendingPostCommentDelete(null);
@@ -1051,9 +1091,13 @@ export default function AdminContentManagementPanel({
       setPostComments([]);
       setPostCommentsErrorMessage('');
       setPostCommentsSuccessMessage('');
+      setSelectedPostCommentIDs([]);
       setPostCommentActionID('');
       setPostCommentActionStatus(null);
       setDeletingPostCommentID('');
+      setBulkPostCommentActionStatus(null);
+      setPendingBulkPostCommentDeleteIDs([]);
+      setIsBulkPostCommentDeleting(false);
       setPostCommentsPage(1);
       setPostCommentsTotal(0);
       setPendingPostCommentDelete(null);
@@ -1627,6 +1671,33 @@ export default function AdminContentManagementPanel({
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
+  const togglePostCommentSelection = React.useCallback((commentId: string, checked: boolean) => {
+    setSelectedPostCommentIDs(previous => {
+      if (checked) {
+        return previous.includes(commentId) ? previous : [...previous, commentId];
+      }
+      return previous.filter(id => id !== commentId);
+    });
+  }, []);
+
+  const toggleVisiblePostCommentsSelection = React.useCallback(() => {
+    if (postComments.length === 0) {
+      return;
+    }
+
+    setSelectedPostCommentIDs(previous => {
+      if (allVisiblePostCommentsSelected) {
+        return previous.filter(id => !postComments.some(item => item.id === id));
+      }
+
+      const next = new Set(previous);
+      for (const item of postComments) {
+        next.add(item.id);
+      }
+      return Array.from(next);
+    });
+  }, [allVisiblePostCommentsSelected, postComments]);
+
   const loadPostComments = React.useCallback(
     async (options?: { page?: number }) => {
       if (!editingPost || postEditorTab !== 'comments') {
@@ -1643,6 +1714,7 @@ export default function AdminContentManagementPanel({
         const payload = await fetchAdminComments({
           postId: editingPost.id,
           status: postCommentsStatusFilter === 'all' ? undefined : postCommentsStatusFilter,
+          query: postCommentsFilterQueryDebounced,
           page: requestedPage,
           size: postCommentsPageSize,
         });
@@ -1683,7 +1755,16 @@ export default function AdminContentManagementPanel({
         }
       }
     },
-    [editingPost, onSessionExpired, postCommentsPage, postCommentsPageSize, postCommentsStatusFilter, postEditorTab, t],
+    [
+      editingPost,
+      onSessionExpired,
+      postCommentsFilterQueryDebounced,
+      postCommentsPage,
+      postCommentsPageSize,
+      postCommentsStatusFilter,
+      postEditorTab,
+      t,
+    ],
   );
 
   React.useEffect(() => {
@@ -1693,9 +1774,132 @@ export default function AdminContentManagementPanel({
     void loadPostComments();
   }, [editingPost, loadPostComments, postCommentsPage, postCommentsPageSize, postEditorTab]);
 
+  const handleBulkPostCommentStatusUpdate = React.useCallback(
+    async (status: AdminCommentItem['status']) => {
+      if (!hasSelectedPostComments || deletingPostCommentID || postCommentActionID || isBulkPostCommentDeleting) {
+        return;
+      }
+
+      setBulkPostCommentActionStatus(status);
+      setPostCommentsErrorMessage('');
+      setPostCommentsSuccessMessage('');
+
+      try {
+        const successCount = await bulkUpdateAdminCommentStatus({
+          commentIds: selectedPostCommentIDs,
+          status,
+        });
+        if (successCount === 0) {
+          throw new Error(t('adminAccount.comments.errors.bulkStatusUpdate', { ns: 'admin-account' }));
+        }
+
+        const refreshedItems = await loadPostComments();
+        if (refreshedItems.length === 0 && postCommentsPage > 1) {
+          setPostCommentsPage(previous => Math.max(1, previous - 1));
+        }
+
+        setSelectedPostCommentIDs([]);
+        const successKey =
+          status === 'APPROVED'
+            ? 'adminAccount.comments.success.bulkApproved'
+            : status === 'REJECTED'
+              ? 'adminAccount.comments.success.bulkRejected'
+              : 'adminAccount.comments.success.bulkSpam';
+        setPostCommentsSuccessMessage(t(successKey, { ns: 'admin-account', count: successCount }));
+
+        if (successCount !== selectedPostCommentIDs.length) {
+          setPostCommentsErrorMessage(
+            t('adminAccount.comments.errors.bulkStatusUpdatePartial', { ns: 'admin-account' }),
+          );
+        }
+      } catch (error) {
+        if (isAdminSessionError(error)) {
+          onSessionExpired();
+          return;
+        }
+        const resolvedError = resolveAdminError(error);
+        setPostCommentsErrorMessage(
+          resolvedError.message || t('adminAccount.comments.errors.bulkStatusUpdate', { ns: 'admin-account' }),
+        );
+      } finally {
+        setBulkPostCommentActionStatus(null);
+      }
+    },
+    [
+      deletingPostCommentID,
+      hasSelectedPostComments,
+      isBulkPostCommentDeleting,
+      loadPostComments,
+      onSessionExpired,
+      postCommentActionID,
+      postCommentsPage,
+      selectedPostCommentIDs,
+      t,
+    ],
+  );
+
+  const handleBulkDeletePostCommentSubmit = React.useCallback(async () => {
+    if (
+      pendingBulkPostCommentDeleteIDs.length === 0 ||
+      deletingPostCommentID ||
+      postCommentActionID ||
+      isBulkPostCommentDeleting
+    ) {
+      return;
+    }
+
+    setIsBulkPostCommentDeleting(true);
+    setPostCommentsErrorMessage('');
+    setPostCommentsSuccessMessage('');
+
+    try {
+      const successCount = await bulkDeleteAdminComments({
+        commentIds: pendingBulkPostCommentDeleteIDs,
+      });
+      if (successCount === 0) {
+        throw new Error(t('adminAccount.comments.errors.bulkDelete', { ns: 'admin-account' }));
+      }
+
+      const refreshedItems = await loadPostComments();
+      if (refreshedItems.length === 0 && postCommentsPage > 1) {
+        setPostCommentsPage(previous => Math.max(1, previous - 1));
+      }
+
+      setPendingBulkPostCommentDeleteIDs([]);
+      setSelectedPostCommentIDs([]);
+      setPostCommentsSuccessMessage(
+        t('adminAccount.comments.success.bulkDeleted', { ns: 'admin-account', count: successCount }),
+      );
+
+      if (successCount !== pendingBulkPostCommentDeleteIDs.length) {
+        setPostCommentsErrorMessage(t('adminAccount.comments.errors.bulkDeletePartial', { ns: 'admin-account' }));
+      }
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        onSessionExpired();
+        return;
+      }
+      const resolvedError = resolveAdminError(error);
+      setPostCommentsErrorMessage(
+        resolvedError.message || t('adminAccount.comments.errors.bulkDelete', { ns: 'admin-account' }),
+      );
+    } finally {
+      setIsBulkPostCommentDeleting(false);
+    }
+  }, [
+    deletingPostCommentID,
+    isBulkPostCommentDeleting,
+    loadPostComments,
+    onSessionExpired,
+    pendingBulkPostCommentDeleteIDs,
+    postCommentActionID,
+    postCommentsPage,
+    t,
+  ]);
+
   const handlePostCommentStatusUpdate = React.useCallback(
     async (commentId: string, status: AdminCommentItem['status']) => {
-      if (!editingPost || deletingPostCommentID) {
+      if (!editingPost || deletingPostCommentID || isBulkPostCommentActionPending) {
         return;
       }
 
@@ -1732,12 +1936,20 @@ export default function AdminContentManagementPanel({
         setPostCommentActionStatus(null);
       }
     },
-    [deletingPostCommentID, loadPostComments, onSessionExpired, postCommentsPage, t, editingPost],
+    [
+      deletingPostCommentID,
+      loadPostComments,
+      onSessionExpired,
+      postCommentsPage,
+      isBulkPostCommentActionPending,
+      t,
+      editingPost,
+    ],
   );
 
   const handleDeletePostCommentSubmit = React.useCallback(async () => {
     const item = pendingPostCommentDelete;
-    if (!item || deletingPostCommentID || postCommentActionID) {
+    if (!item || deletingPostCommentID || postCommentActionID || isBulkPostCommentActionPending) {
       return;
     }
 
@@ -1784,6 +1996,7 @@ export default function AdminContentManagementPanel({
     }
   }, [
     deletingPostCommentID,
+    isBulkPostCommentActionPending,
     onSessionExpired,
     pendingPostCommentDelete,
     postCommentActionID,
@@ -2110,6 +2323,44 @@ export default function AdminContentManagementPanel({
                           </div>
                         </div>
 
+                        <Form.Group controlId="admin-content-post-comments-query" className="mb-3">
+                          <Form.Label className="small fw-semibold mb-1">
+                            {t('adminAccount.comments.filters.query', { ns: 'admin-account' })}
+                          </Form.Label>
+                          <div className="search-bar w-100 d-flex align-items-center">
+                            <div className="search-icon">
+                              <FontAwesomeIcon icon="search" />
+                            </div>
+                            <Form.Control
+                              type="text"
+                              className="search-input form-control"
+                              value={postCommentsFilterQuery}
+                              onChange={event => {
+                                setPostCommentsFilterQuery(event.currentTarget.value);
+                                setPostCommentsErrorMessage('');
+                                setPostCommentsSuccessMessage('');
+                              }}
+                              placeholder={t('adminAccount.content.modals.post.comments.queryPlaceholder', {
+                                ns: 'admin-account',
+                              })}
+                            />
+                            {postCommentsFilterQuery ? (
+                              <button
+                                type="button"
+                                className="search-clear-btn border-0 bg-transparent"
+                                onClick={() => {
+                                  setPostCommentsFilterQuery('');
+                                  setPostCommentsErrorMessage('');
+                                  setPostCommentsSuccessMessage('');
+                                }}
+                                aria-label={t('adminAccount.comments.filters.query', { ns: 'admin-account' })}
+                              >
+                                <FontAwesomeIcon icon="times-circle" className="clear-icon" />
+                              </button>
+                            ) : null}
+                          </div>
+                        </Form.Group>
+
                         {postCommentsErrorMessage ? (
                           <Alert variant="danger" className="mb-3 px-3 py-2 lh-base">
                             {postCommentsErrorMessage}
@@ -2123,6 +2374,169 @@ export default function AdminContentManagementPanel({
 
                         <div className="card shadow-sm d-block">
                           <div className="card-body p-3 w-100">
+                            {postComments.length > 0 ? (
+                              <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                                <div className="d-flex align-items-center gap-2 flex-wrap">
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant={allVisiblePostCommentsSelected ? 'secondary' : 'outline-secondary'}
+                                    disabled={isPostCommentsLoading || isBulkPostCommentActionPending}
+                                    onClick={toggleVisiblePostCommentsSelection}
+                                  >
+                                    <FontAwesomeIcon
+                                      icon={allVisiblePostCommentsSelected ? 'check-circle' : 'circle'}
+                                      className="me-2"
+                                    />
+                                    {t('adminAccount.comments.bulk.selectAll', { ns: 'admin-account' })}
+                                  </Button>
+                                  {hasSelectedPostComments ? (
+                                    <>
+                                      <Badge bg="light" text="dark" pill>
+                                        {t('adminAccount.comments.bulk.selected', {
+                                          ns: 'admin-account',
+                                          count: selectedPostCommentIDs.length,
+                                        })}
+                                      </Badge>
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="danger"
+                                        disabled={isBulkPostCommentActionPending}
+                                        onClick={() => {
+                                          setSelectedPostCommentIDs([]);
+                                        }}
+                                      >
+                                        <FontAwesomeIcon icon="trash" className="me-2" />
+                                        {t('adminAccount.comments.bulk.clearSelection', { ns: 'admin-account' })}
+                                      </Button>
+                                    </>
+                                  ) : null}
+                                </div>
+                                {hasSelectedPostComments ? (
+                                  <div className="d-flex align-items-center gap-2 flex-wrap">
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant="success"
+                                      disabled={isBulkPostCommentActionPending}
+                                      onClick={() => {
+                                        void handleBulkPostCommentStatusUpdate('APPROVED');
+                                      }}
+                                    >
+                                      {bulkPostCommentActionStatus === 'APPROVED' ? (
+                                        <span className="d-inline-flex align-items-center gap-2">
+                                          <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            className="me-2 flex-shrink-0 admin-action-spinner"
+                                            aria-hidden="true"
+                                          />
+                                          <span>
+                                            {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
+                                          </span>
+                                        </span>
+                                      ) : (
+                                        <>
+                                          <FontAwesomeIcon icon="check" className="me-2" />
+                                          {t('adminAccount.comments.actions.approve', { ns: 'admin-account' })}
+                                        </>
+                                      )}
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant="secondary"
+                                      className="admin-newsletter-action admin-newsletter-action--secondary"
+                                      disabled={isBulkPostCommentActionPending}
+                                      onClick={() => {
+                                        void handleBulkPostCommentStatusUpdate('REJECTED');
+                                      }}
+                                    >
+                                      {bulkPostCommentActionStatus === 'REJECTED' ? (
+                                        <span className="d-inline-flex align-items-center gap-2">
+                                          <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            className="me-2 flex-shrink-0 admin-action-spinner"
+                                            aria-hidden="true"
+                                          />
+                                          <span>
+                                            {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
+                                          </span>
+                                        </span>
+                                      ) : (
+                                        <>
+                                          <FontAwesomeIcon icon="times-circle" className="me-2" />
+                                          {t('adminAccount.comments.actions.reject', { ns: 'admin-account' })}
+                                        </>
+                                      )}
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant="danger"
+                                      className="admin-newsletter-action admin-newsletter-action--danger"
+                                      disabled={isBulkPostCommentActionPending}
+                                      onClick={() => {
+                                        void handleBulkPostCommentStatusUpdate('SPAM');
+                                      }}
+                                    >
+                                      {bulkPostCommentActionStatus === 'SPAM' ? (
+                                        <span className="d-inline-flex align-items-center gap-2">
+                                          <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            className="me-2 flex-shrink-0 admin-action-spinner"
+                                            aria-hidden="true"
+                                          />
+                                          <span>
+                                            {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
+                                          </span>
+                                        </span>
+                                      ) : (
+                                        <>
+                                          <FontAwesomeIcon icon="shield-halved" className="me-2" />
+                                          {t('adminAccount.comments.actions.spam', { ns: 'admin-account' })}
+                                        </>
+                                      )}
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant="danger"
+                                      disabled={isBulkPostCommentActionPending}
+                                      onClick={() => {
+                                        setPendingBulkPostCommentDeleteIDs(selectedPostCommentIDs);
+                                      }}
+                                    >
+                                      {isBulkPostCommentDeleting ? (
+                                        <span className="d-inline-flex align-items-center gap-2">
+                                          <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            className="me-2 flex-shrink-0 admin-action-spinner"
+                                            aria-hidden="true"
+                                          />
+                                          <span>
+                                            {t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}
+                                          </span>
+                                        </span>
+                                      ) : (
+                                        <>
+                                          <FontAwesomeIcon icon="trash" className="me-2" />
+                                          {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
+                                        </>
+                                      )}
+                                    </Button>
+                                  </div>
+                                ) : null}
+                              </div>
+                            ) : null}
                             {isPostCommentsLoading ? (
                               <AdminLoadingState
                                 className="admin-loading-stack"
@@ -2150,43 +2564,59 @@ export default function AdminContentManagementPanel({
                                       key={item.id}
                                       className={`admin-newsletter-campaign-card admin-comments-card admin-comments-card--${item.status.toLowerCase()}`}
                                     >
-                                      <div className="d-grid gap-2">
-                                        <div className="d-flex align-items-center gap-2 flex-wrap">
-                                          <strong className="text-break">{item.authorName}</strong>
-                                          <span className={`badge text-bg-${resolveCommentStatusVariant(item.status)}`}>
-                                            {statusLabel}
-                                          </span>
-                                          <span className="badge text-bg-light">
-                                            {item.parentId
-                                              ? t('adminAccount.comments.list.replyLabel', { ns: 'admin-account' })
-                                              : t('adminAccount.comments.list.rootLabel', { ns: 'admin-account' })}
-                                          </span>
-                                        </div>
-                                        <div className="small text-muted d-flex align-items-center gap-2 flex-wrap">
-                                          <span className="d-inline-flex align-items-center gap-2">
-                                            <FontAwesomeIcon icon="envelope" className="text-muted" />
-                                            <span>{item.authorEmail}</span>
-                                          </span>
-                                          <span className="d-inline-flex align-items-center gap-2">
-                                            <FontAwesomeIcon icon="calendar-alt" className="text-muted" />
-                                            <span>
-                                              {t('adminAccount.comments.list.submittedAt', {
-                                                ns: 'admin-account',
-                                                value: formatDate(item.createdAt),
-                                              })}
+                                      <div className="d-flex align-items-start gap-3">
+                                        <Form.Check
+                                          type="checkbox"
+                                          className="mt-1"
+                                          aria-label={item.authorName}
+                                          checked={selectedPostCommentIDs.includes(item.id)}
+                                          disabled={
+                                            isActionPending || isDeletePending || isBulkPostCommentActionPending
+                                          }
+                                          onChange={event => {
+                                            togglePostCommentSelection(item.id, event.currentTarget.checked);
+                                          }}
+                                        />
+                                        <div className="d-grid gap-2 flex-grow-1">
+                                          <div className="d-flex align-items-center gap-2 flex-wrap">
+                                            <strong className="text-break">{item.authorName}</strong>
+                                            <span
+                                              className={`badge text-bg-${resolveCommentStatusVariant(item.status)}`}
+                                            >
+                                              {statusLabel}
                                             </span>
-                                          </span>
-                                          {item.updatedAt && item.updatedAt !== item.createdAt ? (
+                                            <span className="badge text-bg-light">
+                                              {item.parentId
+                                                ? t('adminAccount.comments.list.replyLabel', { ns: 'admin-account' })
+                                                : t('adminAccount.comments.list.rootLabel', { ns: 'admin-account' })}
+                                            </span>
+                                          </div>
+                                          <div className="small text-muted d-flex align-items-center gap-2 flex-wrap">
                                             <span className="d-inline-flex align-items-center gap-2">
-                                              <FontAwesomeIcon icon="clock" className="text-muted" />
+                                              <FontAwesomeIcon icon="envelope" className="text-muted" />
+                                              <span>{item.authorEmail}</span>
+                                            </span>
+                                            <span className="d-inline-flex align-items-center gap-2">
+                                              <FontAwesomeIcon icon="calendar-alt" className="text-muted" />
                                               <span>
-                                                {t('adminAccount.comments.list.updatedAt', {
+                                                {t('adminAccount.comments.list.submittedAt', {
                                                   ns: 'admin-account',
-                                                  value: formatDate(item.updatedAt),
+                                                  value: formatDate(item.createdAt),
                                                 })}
                                               </span>
                                             </span>
-                                          ) : null}
+                                            {item.updatedAt && item.updatedAt !== item.createdAt ? (
+                                              <span className="d-inline-flex align-items-center gap-2">
+                                                <FontAwesomeIcon icon="clock" className="text-muted" />
+                                                <span>
+                                                  {t('adminAccount.comments.list.updatedAt', {
+                                                    ns: 'admin-account',
+                                                    value: formatDate(item.updatedAt),
+                                                  })}
+                                                </span>
+                                              </span>
+                                            ) : null}
+                                          </div>
                                         </div>
                                       </div>
 
@@ -2199,7 +2629,12 @@ export default function AdminContentManagementPanel({
                                             size="sm"
                                             variant="success"
                                             className="w-100"
-                                            disabled={isActionPending || isDeletePending || item.status === 'APPROVED'}
+                                            disabled={
+                                              isActionPending ||
+                                              isDeletePending ||
+                                              isBulkPostCommentActionPending ||
+                                              item.status === 'APPROVED'
+                                            }
                                             onClick={() => {
                                               void handlePostCommentStatusUpdate(item.id, 'APPROVED');
                                             }}
@@ -2233,7 +2668,12 @@ export default function AdminContentManagementPanel({
                                             size="sm"
                                             variant="secondary"
                                             className="w-100 admin-newsletter-action admin-newsletter-action--secondary"
-                                            disabled={isActionPending || isDeletePending || item.status === 'REJECTED'}
+                                            disabled={
+                                              isActionPending ||
+                                              isDeletePending ||
+                                              isBulkPostCommentActionPending ||
+                                              item.status === 'REJECTED'
+                                            }
                                             onClick={() => {
                                               void handlePostCommentStatusUpdate(item.id, 'REJECTED');
                                             }}
@@ -2267,7 +2707,12 @@ export default function AdminContentManagementPanel({
                                             size="sm"
                                             variant="danger"
                                             className="w-100 admin-newsletter-action admin-newsletter-action--danger"
-                                            disabled={isActionPending || isDeletePending || item.status === 'SPAM'}
+                                            disabled={
+                                              isActionPending ||
+                                              isDeletePending ||
+                                              isBulkPostCommentActionPending ||
+                                              item.status === 'SPAM'
+                                            }
                                             onClick={() => {
                                               void handlePostCommentStatusUpdate(item.id, 'SPAM');
                                             }}
@@ -2301,7 +2746,9 @@ export default function AdminContentManagementPanel({
                                             size="sm"
                                             variant="danger"
                                             className="w-100"
-                                            disabled={isActionPending || isDeletePending}
+                                            disabled={
+                                              isActionPending || isDeletePending || isBulkPostCommentActionPending
+                                            }
                                             onClick={() => {
                                               setPendingPostCommentDelete(item);
                                             }}
@@ -3486,6 +3933,59 @@ export default function AdminContentManagementPanel({
               <>
                 <FontAwesomeIcon icon="trash" className="me-2" />
                 {t('adminAccount.content.actions.deletePost', { ns: 'admin-account' })}
+              </>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal
+        show={pendingBulkPostCommentDeleteIDs.length > 0}
+        onHide={() => {
+          if (isBulkPostCommentDeleting) {
+            return;
+          }
+          setPendingBulkPostCommentDeleteIDs([]);
+        }}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{t('adminAccount.comments.bulk.deleteConfirmTitle', { ns: 'admin-account' })}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="small text-muted mb-0">
+            {t('adminAccount.comments.bulk.deleteConfirmCopy', {
+              ns: 'admin-account',
+              count: pendingBulkPostCommentDeleteIDs.length,
+            })}
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={isBulkPostCommentDeleting}
+            onClick={() => {
+              setPendingBulkPostCommentDeleteIDs([]);
+            }}
+          >
+            {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
+          </Button>
+          <Button
+            type="button"
+            variant="danger"
+            disabled={pendingBulkPostCommentDeleteIDs.length === 0 || isBulkPostCommentDeleting}
+            onClick={handleBulkDeletePostCommentSubmit}
+          >
+            {isBulkPostCommentDeleting ? (
+              <span className="d-inline-flex align-items-center gap-2">
+                <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
+                <span>{t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}</span>
+              </span>
+            ) : (
+              <>
+                <FontAwesomeIcon icon="trash" className="me-2" />
+                {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
               </>
             )}
           </Button>

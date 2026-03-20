@@ -13,13 +13,15 @@ import (
 )
 
 type commentStubRepository struct {
-	listApprovedByPost      func(context.Context, string) ([]domain.CommentRecord, error)
-	countApprovedByPost     func(context.Context, string) (int, error)
-	createComment           func(context.Context, domain.CommentRecord) error
-	findCommentByID         func(context.Context, string) (*domain.CommentRecord, error)
-	listComments            func(context.Context, domain.AdminCommentFilter, int, int) (*domain.AdminCommentListResult, error)
-	updateCommentStatusByID func(context.Context, string, string, string, time.Time) (*domain.CommentRecord, error)
-	deleteCommentByID       func(context.Context, string) (bool, error)
+	listApprovedByPost       func(context.Context, string) ([]domain.CommentRecord, error)
+	countApprovedByPost      func(context.Context, string) (int, error)
+	createComment            func(context.Context, domain.CommentRecord) error
+	findCommentByID          func(context.Context, string) (*domain.CommentRecord, error)
+	listComments             func(context.Context, domain.AdminCommentFilter, int, int) (*domain.AdminCommentListResult, error)
+	updateCommentStatusByID  func(context.Context, string, string, string, time.Time) (*domain.CommentRecord, error)
+	updateCommentStatusByIDs func(context.Context, []string, string, string, time.Time) (int, error)
+	deleteCommentByID        func(context.Context, string) (bool, error)
+	deleteCommentsByIDs      func(context.Context, []string) (int, error)
 }
 
 func (stub commentStubRepository) ListApprovedByPost(ctx context.Context, postID string) ([]domain.CommentRecord, error) {
@@ -62,6 +64,26 @@ func (stub commentStubRepository) UpdateCommentStatusByID(
 
 func (stub commentStubRepository) DeleteCommentByID(ctx context.Context, id string) (bool, error) {
 	return stub.deleteCommentByID(ctx, id)
+}
+
+func (stub commentStubRepository) UpdateCommentStatusByIDs(
+	ctx context.Context,
+	ids []string,
+	status string,
+	moderationNote string,
+	now time.Time,
+) (int, error) {
+	if stub.updateCommentStatusByIDs == nil {
+		return 0, nil
+	}
+	return stub.updateCommentStatusByIDs(ctx, ids, status, moderationNote, now)
+}
+
+func (stub commentStubRepository) DeleteCommentsByIDs(ctx context.Context, ids []string) (int, error) {
+	if stub.deleteCommentsByIDs == nil {
+		return 0, nil
+	}
+	return stub.deleteCommentsByIDs(ctx, ids)
 }
 
 func TestListComments(t *testing.T) {

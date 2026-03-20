@@ -861,6 +861,57 @@ func (r *adminMutationResolver) DeleteComment(
 	return &model.AdminDeletePayload{Success: true}, nil
 }
 
+// BulkUpdateCommentStatus is the resolver for the bulkUpdateCommentStatus field.
+func (r *adminMutationResolver) BulkUpdateCommentStatus(
+	ctx context.Context,
+	input model.AdminBulkUpdateCommentStatusInput,
+) (*model.AdminBulkCommentMutationPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	commentIDs := make([]string, 0, len(input.CommentIds))
+	for _, commentID := range input.CommentIds {
+		commentIDs = append(commentIDs, strings.TrimSpace(commentID))
+	}
+
+	successCount, err := appservice.BulkUpdateAdminCommentStatus(
+		ctx,
+		adminUser,
+		commentIDs,
+		mapAdminCommentStatusInput(input.Status),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AdminBulkCommentMutationPayload{SuccessCount: successCount}, nil
+}
+
+// BulkDeleteComments is the resolver for the bulkDeleteComments field.
+func (r *adminMutationResolver) BulkDeleteComments(
+	ctx context.Context,
+	input model.AdminBulkDeleteCommentsInput,
+) (*model.AdminBulkCommentMutationPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	commentIDs := make([]string, 0, len(input.CommentIds))
+	for _, commentID := range input.CommentIds {
+		commentIDs = append(commentIDs, strings.TrimSpace(commentID))
+	}
+
+	successCount, err := appservice.BulkDeleteAdminComments(ctx, adminUser, commentIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AdminBulkCommentMutationPayload{SuccessCount: successCount}, nil
+}
+
 // UpdateNewsletterSubscriberStatus is the resolver for the updateNewsletterSubscriberStatus field.
 func (r *adminMutationResolver) UpdateNewsletterSubscriberStatus(
 	ctx context.Context,

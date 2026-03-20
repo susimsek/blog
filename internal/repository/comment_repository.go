@@ -43,7 +43,15 @@ type CommentRepository interface {
 		moderationNote string,
 		now time.Time,
 	) (*domain.CommentRecord, error)
+	UpdateCommentStatusByIDs(
+		ctx context.Context,
+		ids []string,
+		status string,
+		moderationNote string,
+		now time.Time,
+	) (int, error)
 	DeleteCommentByID(ctx context.Context, id string) (bool, error)
+	DeleteCommentsByIDs(ctx context.Context, ids []string) (int, error)
 }
 
 type commentMongoRepository struct{}
@@ -344,4 +352,79 @@ func (*commentMongoRepository) DeleteCommentByID(ctx context.Context, id string)
 	}
 
 	return result.DeletedCount > 0, nil
+}
+
+func (*commentMongoRepository) UpdateCommentStatusByIDs(
+	ctx context.Context,
+	ids []string,
+	status string,
+	moderationNote string,
+	now time.Time,
+) (int, error) {
+	collection, err := getPostCommentsCollection()
+	if err != nil {
+		return 0, fmt.Errorf(commentRepositoryUnavailableFormat, ErrCommentRepositoryUnavailable, err)
+	}
+
+	resolvedIDs := make([]string, 0, len(ids))
+	for _, id := range ids {
+		trimmed := strings.TrimSpace(id)
+		if trimmed == "" {
+			continue
+		}
+		resolvedIDs = append(resolvedIDs, trimmed)
+	}
+	if len(resolvedIDs) == 0 {
+		return 0, nil
+	}
+
+	resolvedStatus := strings.TrimSpace(strings.ToLower(status))
+	resolvedNote := strings.TrimSpace(moderationNote)
+	resolvedNow := now.UTC()
+
+	update := bson.M{
+		"$set": bson.M{
+			"status":         resolvedStatus,
+			"updatedAt":      resolvedNow,
+			"moderatedAt":    resolvedNow,
+			"moderationNote": resolvedNote,
+		},
+	}
+
+	result, err := collection.UpdateMany(
+		ctx,
+		bson.M{"id": bson.M{"$in": resolvedIDs}},
+		update,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(result.MatchedCount), nil
+}
+
+func (*commentMongoRepository) DeleteCommentsByIDs(ctx context.Context, ids []string) (int, error) {
+	collection, err := getPostCommentsCollection()
+	if err != nil {
+		return 0, fmt.Errorf(commentRepositoryUnavailableFormat, ErrCommentRepositoryUnavailable, err)
+	}
+
+	resolvedIDs := make([]string, 0, len(ids))
+	for _, id := range ids {
+		trimmed := strings.TrimSpace(id)
+		if trimmed == "" {
+			continue
+		}
+		resolvedIDs = append(resolvedIDs, trimmed)
+	}
+	if len(resolvedIDs) == 0 {
+		return 0, nil
+	}
+
+	result, err := collection.DeleteMany(ctx, bson.M{"id": bson.M{"$in": resolvedIDs}})
+	if err != nil {
+		return 0, err
+	}
+
+	return int(result.DeletedCount), nil
 }

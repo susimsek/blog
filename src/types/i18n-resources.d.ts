@@ -94,6 +94,15 @@ interface Resources {
           spam: 'Spam';
           updating: 'Updating...';
         };
+        bulk: {
+          clearSelection: 'Clear';
+          deleteConfirmCopy_one: 'Delete {{count}} selected comment permanently? This action cannot be undone.';
+          deleteConfirmCopy_other: 'Delete {{count}} selected comments permanently? This action cannot be undone.';
+          deleteConfirmTitle: 'Delete selected comments';
+          selectAll: 'Select page';
+          selected_one: '{{count}} selected';
+          selected_other: '{{count}} selected';
+        };
         copy: 'Filter guest comments, review replies, and publish or block them with the same workflow used across admin settings.';
         deleteConfirm: {
           copy: 'Delete this comment by {{author}} permanently? This action cannot be undone.';
@@ -106,6 +115,10 @@ interface Resources {
         };
         empty: 'No comments found for the current filter.';
         errors: {
+          bulkDelete: 'Selected comments could not be deleted.';
+          bulkDeletePartial: 'Some selected comments could not be deleted.';
+          bulkStatusUpdate: 'Selected comments could not be updated.';
+          bulkStatusUpdatePartial: 'Some selected comments could not be updated.';
           delete: 'Comment could not be deleted.';
           load: 'Comments could not be loaded.';
           statusUpdate: 'Comment status could not be updated.';
@@ -138,6 +151,14 @@ interface Resources {
         loading: 'Loading comments...';
         success: {
           approved: 'Comment approved: {{author}}';
+          bulkApproved_one: '{{count}} comment approved.';
+          bulkApproved_other: '{{count}} comments approved.';
+          bulkDeleted_one: '{{count}} comment deleted.';
+          bulkDeleted_other: '{{count}} comments deleted.';
+          bulkRejected_one: '{{count}} comment rejected.';
+          bulkRejected_other: '{{count}} comments rejected.';
+          bulkSpam_one: '{{count}} comment marked as spam.';
+          bulkSpam_other: '{{count}} comments marked as spam.';
           deleted: 'Comment deleted: {{author}}';
           rejected: 'Comment rejected: {{author}}';
           spam: 'Comment marked as spam: {{author}}';
@@ -303,6 +324,7 @@ interface Resources {
             comments: {
               copy: 'Review and moderate the discussion attached to this post without leaving the editor.';
               empty: 'No comments found for this post and filter.';
+              queryPlaceholder: 'Search by author, email, or content';
               title: 'Post comments';
               total_one: '{{count}} comment';
               total_other: '{{count}} comments';

@@ -43,6 +43,8 @@ type AdminMutation {
   revokeAllSessions: AdminSessionRevokePayload!
   updateCommentStatus(input: AdminUpdateCommentStatusInput!): AdminComment!
   deleteComment(input: AdminDeleteCommentInput!): AdminDeletePayload!
+  bulkUpdateCommentStatus(input: AdminBulkUpdateCommentStatusInput!): AdminBulkCommentMutationPayload!
+  bulkDeleteComments(input: AdminBulkDeleteCommentsInput!): AdminBulkCommentMutationPayload!
   updateNewsletterSubscriberStatus(input: AdminUpdateNewsletterSubscriberStatusInput!): AdminNewsletterSubscriber!
   deleteNewsletterSubscriber(input: AdminDeleteNewsletterSubscriberInput!): AdminDeletePayload!
   triggerNewsletterDispatch: AdminNewsletterDispatchPayload!
@@ -89,6 +91,15 @@ input AdminUpdateCommentStatusInput {
 
 input AdminDeleteCommentInput {
   commentId: ID!
+}
+
+input AdminBulkUpdateCommentStatusInput {
+  commentIds: [ID!]!
+  status: AdminCommentStatus!
+}
+
+input AdminBulkDeleteCommentsInput {
+  commentIds: [ID!]!
 }
 
 input AdminNewsletterSubscriberFilterInput {
@@ -345,6 +356,10 @@ type AdminSessionRevokePayload {
 
 type AdminDeletePayload {
   success: Boolean!
+}
+
+type AdminBulkCommentMutationPayload {
+  successCount: Int!
 }
 
 type AdminComment {

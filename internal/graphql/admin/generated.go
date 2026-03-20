@@ -57,6 +57,10 @@ type ComplexityRoot struct {
 		User    func(childComplexity int) int
 	}
 
+	AdminBulkCommentMutationPayload struct {
+		SuccessCount func(childComplexity int) int
+	}
+
 	AdminComment struct {
 		AuthorEmail func(childComplexity int) int
 		AuthorName  func(childComplexity int) int
@@ -278,6 +282,8 @@ type ComplexityRoot struct {
 	}
 
 	AdminMutation struct {
+		BulkDeleteComments               func(childComplexity int, input model.AdminBulkDeleteCommentsInput) int
+		BulkUpdateCommentStatus          func(childComplexity int, input model.AdminBulkUpdateCommentStatusInput) int
 		ChangeAvatar                     func(childComplexity int, input model.AdminChangeAvatarInput) int
 		ChangeName                       func(childComplexity int, input model.AdminChangeNameInput) int
 		ChangePassword                   func(childComplexity int, input model.AdminChangePasswordInput) int
@@ -478,6 +484,8 @@ type AdminMutationResolver interface {
 	RevokeAllSessions(ctx context.Context) (*model.AdminSessionRevokePayload, error)
 	UpdateCommentStatus(ctx context.Context, input model.AdminUpdateCommentStatusInput) (*model.AdminComment, error)
 	DeleteComment(ctx context.Context, input model.AdminDeleteCommentInput) (*model.AdminDeletePayload, error)
+	BulkUpdateCommentStatus(ctx context.Context, input model.AdminBulkUpdateCommentStatusInput) (*model.AdminBulkCommentMutationPayload, error)
+	BulkDeleteComments(ctx context.Context, input model.AdminBulkDeleteCommentsInput) (*model.AdminBulkCommentMutationPayload, error)
 	UpdateNewsletterSubscriberStatus(ctx context.Context, input model.AdminUpdateNewsletterSubscriberStatusInput) (*model.AdminNewsletterSubscriber, error)
 	DeleteNewsletterSubscriber(ctx context.Context, input model.AdminDeleteNewsletterSubscriberInput) (*model.AdminDeletePayload, error)
 	TriggerNewsletterDispatch(ctx context.Context) (*model.AdminNewsletterDispatchPayload, error)
@@ -553,6 +561,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminAuthPayload.User(childComplexity), true
+
+	case "AdminBulkCommentMutationPayload.successCount":
+		if e.complexity.AdminBulkCommentMutationPayload.SuccessCount == nil {
+			break
+		}
+
+		return e.complexity.AdminBulkCommentMutationPayload.SuccessCount(childComplexity), true
 
 	case "AdminComment.authorEmail":
 		if e.complexity.AdminComment.AuthorEmail == nil {
@@ -1381,6 +1396,28 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.AdminMe.User(childComplexity), true
 
+	case "AdminMutation.bulkDeleteComments":
+		if e.complexity.AdminMutation.BulkDeleteComments == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_bulkDeleteComments_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.BulkDeleteComments(childComplexity, args["input"].(model.AdminBulkDeleteCommentsInput)), true
+	case "AdminMutation.bulkUpdateCommentStatus":
+		if e.complexity.AdminMutation.BulkUpdateCommentStatus == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_bulkUpdateCommentStatus_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.BulkUpdateCommentStatus(childComplexity, args["input"].(model.AdminBulkUpdateCommentStatusInput)), true
 	case "AdminMutation.changeAvatar":
 		if e.complexity.AdminMutation.ChangeAvatar == nil {
 			break
@@ -2421,6 +2458,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputAdminBulkDeleteCommentsInput,
+		ec.unmarshalInputAdminBulkUpdateCommentStatusInput,
 		ec.unmarshalInputAdminChangeAvatarInput,
 		ec.unmarshalInputAdminChangeNameInput,
 		ec.unmarshalInputAdminChangePasswordInput,
@@ -2565,6 +2604,28 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_AdminMutation_bulkDeleteComments_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminBulkDeleteCommentsInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminBulkDeleteCommentsInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminMutation_bulkUpdateCommentStatus_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminBulkUpdateCommentStatusInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminBulkUpdateCommentStatusInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_AdminMutation_changeAvatar_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -3170,6 +3231,35 @@ func (ec *executionContext) fieldContext_AdminAuthPayload_user(_ context.Context
 				return ec.fieldContext_AdminUser_roles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminUser", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminBulkCommentMutationPayload_successCount(ctx context.Context, field graphql.CollectedField, obj *model.AdminBulkCommentMutationPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminBulkCommentMutationPayload_successCount,
+		func(ctx context.Context) (any, error) {
+			return obj.SuccessCount, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminBulkCommentMutationPayload_successCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminBulkCommentMutationPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -8173,6 +8263,96 @@ func (ec *executionContext) fieldContext_AdminMutation_deleteComment(ctx context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_AdminMutation_deleteComment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_bulkUpdateCommentStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_bulkUpdateCommentStatus,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().BulkUpdateCommentStatus(ctx, fc.Args["input"].(model.AdminBulkUpdateCommentStatusInput))
+		},
+		nil,
+		ec.marshalNAdminBulkCommentMutationPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminBulkCommentMutationPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_bulkUpdateCommentStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "successCount":
+				return ec.fieldContext_AdminBulkCommentMutationPayload_successCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminBulkCommentMutationPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_bulkUpdateCommentStatus_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_bulkDeleteComments(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_bulkDeleteComments,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().BulkDeleteComments(ctx, fc.Args["input"].(model.AdminBulkDeleteCommentsInput))
+		},
+		nil,
+		ec.marshalNAdminBulkCommentMutationPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminBulkCommentMutationPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_bulkDeleteComments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "successCount":
+				return ec.fieldContext_AdminBulkCommentMutationPayload_successCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminBulkCommentMutationPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_bulkDeleteComments_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -14071,6 +14251,67 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputAdminBulkDeleteCommentsInput(ctx context.Context, obj any) (model.AdminBulkDeleteCommentsInput, error) {
+	var it model.AdminBulkDeleteCommentsInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"commentIds"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "commentIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("commentIds"))
+			data, err := ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CommentIds = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputAdminBulkUpdateCommentStatusInput(ctx context.Context, obj any) (model.AdminBulkUpdateCommentStatusInput, error) {
+	var it model.AdminBulkUpdateCommentStatusInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"commentIds", "status"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "commentIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("commentIds"))
+			data, err := ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CommentIds = data
+		case "status":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			data, err := ec.unmarshalNAdminCommentStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminCommentStatus(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Status = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAdminChangeAvatarInput(ctx context.Context, obj any) (model.AdminChangeAvatarInput, error) {
 	var it model.AdminChangeAvatarInput
 	asMap := map[string]any{}
@@ -15367,6 +15608,45 @@ func (ec *executionContext) _AdminAuthPayload(ctx context.Context, sel ast.Selec
 			}
 		case "user":
 			out.Values[i] = ec._AdminAuthPayload_user(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminBulkCommentMutationPayloadImplementors = []string{"AdminBulkCommentMutationPayload"}
+
+func (ec *executionContext) _AdminBulkCommentMutationPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminBulkCommentMutationPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminBulkCommentMutationPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminBulkCommentMutationPayload")
+		case "successCount":
+			out.Values[i] = ec._AdminBulkCommentMutationPayload_successCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -17086,6 +17366,20 @@ func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "bulkUpdateCommentStatus":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_bulkUpdateCommentStatus(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "bulkDeleteComments":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_bulkDeleteComments(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "updateNewsletterSubscriberStatus":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._AdminMutation_updateNewsletterSubscriberStatus(ctx, field)
@@ -18789,6 +19083,30 @@ func (ec *executionContext) marshalNAdminAuthPayload2ᚖsuaybsimsekᚗcomᚋblog
 	return ec._AdminAuthPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAdminBulkCommentMutationPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminBulkCommentMutationPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminBulkCommentMutationPayload) graphql.Marshaler {
+	return ec._AdminBulkCommentMutationPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminBulkCommentMutationPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminBulkCommentMutationPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminBulkCommentMutationPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminBulkCommentMutationPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAdminBulkDeleteCommentsInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminBulkDeleteCommentsInput(ctx context.Context, v any) (model.AdminBulkDeleteCommentsInput, error) {
+	res, err := ec.unmarshalInputAdminBulkDeleteCommentsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNAdminBulkUpdateCommentStatusInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminBulkUpdateCommentStatusInput(ctx context.Context, v any) (model.AdminBulkUpdateCommentStatusInput, error) {
+	res, err := ec.unmarshalInputAdminBulkUpdateCommentStatusInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNAdminChangeAvatarInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminChangeAvatarInput(ctx context.Context, v any) (model.AdminChangeAvatarInput, error) {
 	res, err := ec.unmarshalInputAdminChangeAvatarInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -20144,6 +20462,36 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v any) (int, error) {

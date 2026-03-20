@@ -354,6 +354,15 @@
         "updating": "Updating...",
         "openPost": "Open post"
       },
+      "bulk": {
+        "selectAll": "Select page",
+        "clearSelection": "Clear",
+        "selected_one": "{{count}} selected",
+        "selected_other": "{{count}} selected",
+        "deleteConfirmTitle": "Delete selected comments",
+        "deleteConfirmCopy_one": "Delete {{count}} selected comment permanently? This action cannot be undone.",
+        "deleteConfirmCopy_other": "Delete {{count}} selected comments permanently? This action cannot be undone."
+      },
       "deleteConfirm": {
         "title": "Delete comment",
         "copy": "Delete this comment by {{author}} permanently? This action cannot be undone.",
@@ -367,12 +376,24 @@
         "approved": "Comment approved: {{author}}",
         "rejected": "Comment rejected: {{author}}",
         "spam": "Comment marked as spam: {{author}}",
-        "deleted": "Comment deleted: {{author}}"
+        "deleted": "Comment deleted: {{author}}",
+        "bulkApproved_one": "{{count}} comment approved.",
+        "bulkApproved_other": "{{count}} comments approved.",
+        "bulkRejected_one": "{{count}} comment rejected.",
+        "bulkRejected_other": "{{count}} comments rejected.",
+        "bulkSpam_one": "{{count}} comment marked as spam.",
+        "bulkSpam_other": "{{count}} comments marked as spam.",
+        "bulkDeleted_one": "{{count}} comment deleted.",
+        "bulkDeleted_other": "{{count}} comments deleted."
       },
       "errors": {
         "load": "Comments could not be loaded.",
         "statusUpdate": "Comment status could not be updated.",
-        "delete": "Comment could not be deleted."
+        "delete": "Comment could not be deleted.",
+        "bulkStatusUpdate": "Selected comments could not be updated.",
+        "bulkStatusUpdatePartial": "Some selected comments could not be updated.",
+        "bulkDelete": "Selected comments could not be deleted.",
+        "bulkDeletePartial": "Some selected comments could not be deleted."
       }
     },
     "content": {
@@ -481,6 +502,7 @@
             "title": "Post comments",
             "copy": "Review and moderate the discussion attached to this post without leaving the editor.",
             "empty": "No comments found for this post and filter.",
+            "queryPlaceholder": "Search by author, email, or content",
             "total_one": "{{count}} comment",
             "total_other": "{{count}} comments"
           },

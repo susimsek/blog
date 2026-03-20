@@ -40,13 +40,19 @@ func resolveEmbeddedAdminErrorCatalog() map[string]map[string]string {
 
 	return map[string]map[string]string{
 		adminErrorLocaleEN: {
-			"INVALID_CREDENTIALS":      "Invalid email or password.",
-			"ADMIN_SESSION_INVALID":    "Your session expired. Sign in again.",
-			"ADMIN_AUTH_REQUIRED":      "Your session expired. Sign in again.",
-			"INVALID_CSRF_TOKEN":       "Security verification failed. Refresh the page and try again.",
-			"SERVICE_UNAVAILABLE":      "Admin service is temporarily unavailable. Please try again.",
-			adminErrorCodeBadRequest:   "Request is invalid.",
-			adminErrorCodeUnauthorized: "Authentication is required.",
+			"INVALID_CREDENTIALS":           "Invalid email or password.",
+			"ADMIN_SESSION_INVALID":         "Your session expired. Sign in again.",
+			"ADMIN_AUTH_REQUIRED":           "Your session expired. Sign in again.",
+			"INVALID_CSRF_TOKEN":            "Security verification failed. Refresh the page and try again.",
+			"SERVICE_UNAVAILABLE":           "Admin service is temporarily unavailable. Please try again.",
+			"ADMIN_COMMENT_STATUS_INVALID":  "Select a valid comment status.",
+			"ADMIN_COMMENT_POST_ID_INVALID": "Use a valid post identifier.",
+			"ADMIN_COMMENT_ID_REQUIRED":     "Select a comment first.",
+			"ADMIN_COMMENT_IDS_REQUIRED":    "Select at least one comment.",
+			"ADMIN_COMMENT_NOT_FOUND":       "The selected comment was not found.",
+			"ADMIN_COMMENTS_NOT_FOUND":      "The selected comments were not found.",
+			adminErrorCodeBadRequest:        "Request is invalid.",
+			adminErrorCodeUnauthorized:      "Authentication is required.",
 		},
 	}
 }

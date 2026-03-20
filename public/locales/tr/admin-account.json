@@ -354,6 +354,15 @@
         "updating": "Güncelleniyor...",
         "openPost": "Yazıyı aç"
       },
+      "bulk": {
+        "selectAll": "Sayfayı seç",
+        "clearSelection": "Temizle",
+        "selected_one": "{{count}} seçili",
+        "selected_other": "{{count}} seçili",
+        "deleteConfirmTitle": "Seçili yorumları sil",
+        "deleteConfirmCopy_one": "{{count}} seçili yorum kalıcı olarak silinsin mi? Bu işlem geri alınamaz.",
+        "deleteConfirmCopy_other": "{{count}} seçili yorum kalıcı olarak silinsin mi? Bu işlem geri alınamaz."
+      },
       "deleteConfirm": {
         "title": "Yorumu sil",
         "copy": "{{author}} tarafından gönderilen bu yorum kalıcı olarak silinsin mi? Bu işlem geri alınamaz.",
@@ -367,12 +376,24 @@
         "approved": "Yorum onaylandı: {{author}}",
         "rejected": "Yorum reddedildi: {{author}}",
         "spam": "Yorum spam olarak işaretlendi: {{author}}",
-        "deleted": "Yorum silindi: {{author}}"
+        "deleted": "Yorum silindi: {{author}}",
+        "bulkApproved_one": "{{count}} yorum onaylandı.",
+        "bulkApproved_other": "{{count}} yorum onaylandı.",
+        "bulkRejected_one": "{{count}} yorum reddedildi.",
+        "bulkRejected_other": "{{count}} yorum reddedildi.",
+        "bulkSpam_one": "{{count}} yorum spam olarak işaretlendi.",
+        "bulkSpam_other": "{{count}} yorum spam olarak işaretlendi.",
+        "bulkDeleted_one": "{{count}} yorum silindi.",
+        "bulkDeleted_other": "{{count}} yorum silindi."
       },
       "errors": {
         "load": "Yorumlar yüklenemedi.",
         "statusUpdate": "Yorum durumu güncellenemedi.",
-        "delete": "Yorum silinemedi."
+        "delete": "Yorum silinemedi.",
+        "bulkStatusUpdate": "Seçili yorumlar güncellenemedi.",
+        "bulkStatusUpdatePartial": "Seçili yorumların bir kısmı güncellenemedi.",
+        "bulkDelete": "Seçili yorumlar silinemedi.",
+        "bulkDeletePartial": "Seçili yorumların bir kısmı silinemedi."
       }
     },
     "content": {
@@ -481,6 +502,7 @@
             "title": "Post yorumları",
             "copy": "Bu posta bağlı tartışmayı editörden çıkmadan incele ve yönet.",
             "empty": "Bu post ve filtre için yorum bulunamadı.",
+            "queryPlaceholder": "Yazar, e-posta veya içeriğe göre ara",
             "total_one": "{{count}} yorum",
             "total_other": "{{count}} yorum"
           },

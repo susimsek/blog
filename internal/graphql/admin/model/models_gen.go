@@ -19,6 +19,19 @@ type AdminAuthPayload struct {
 	User    *AdminUser `json:"user,omitempty"`
 }
 
+type AdminBulkCommentMutationPayload struct {
+	SuccessCount int `json:"successCount"`
+}
+
+type AdminBulkDeleteCommentsInput struct {
+	CommentIds []string `json:"commentIds"`
+}
+
+type AdminBulkUpdateCommentStatusInput struct {
+	CommentIds []string           `json:"commentIds"`
+	Status     AdminCommentStatus `json:"status"`
+}
+
 type AdminChangeAvatarInput struct {
 	AvatarURL *string `json:"avatarUrl,omitempty"`
 }

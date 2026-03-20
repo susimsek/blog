@@ -140,6 +140,15 @@ type AdminDeleteCommentPayload = {
   };
 };
 
+type AdminBulkCommentMutationPayload = {
+  bulkUpdateCommentStatus?: {
+    successCount: number;
+  };
+  bulkDeleteComments?: {
+    successCount: number;
+  };
+};
+
 type AdminChangePasswordPayload = {
   changePassword: {
     success: boolean;
@@ -734,6 +743,22 @@ const ADMIN_DELETE_COMMENT_MUTATION = gql`
   mutation AdminDeleteComment($input: AdminDeleteCommentInput!) {
     deleteComment(input: $input) {
       success
+    }
+  }
+`;
+
+const ADMIN_BULK_UPDATE_COMMENT_STATUS_MUTATION = gql`
+  mutation AdminBulkUpdateCommentStatus($input: AdminBulkUpdateCommentStatusInput!) {
+    bulkUpdateCommentStatus(input: $input) {
+      successCount
+    }
+  }
+`;
+
+const ADMIN_BULK_DELETE_COMMENTS_MUTATION = gql`
+  mutation AdminBulkDeleteComments($input: AdminBulkDeleteCommentsInput!) {
+    bulkDeleteComments(input: $input) {
+      successCount
     }
   }
 `;
@@ -1977,6 +2002,53 @@ export const deleteAdminComment = async (input: { commentId: string }) => {
   );
 
   return payload.deleteComment?.success === true;
+};
+
+export const bulkUpdateAdminCommentStatus = async (input: {
+  commentIds: string[];
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM';
+}) => {
+  const payload = await executeAdminGraphQL<
+    AdminBulkCommentMutationPayload,
+    {
+      input: {
+        commentIds: string[];
+        status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM';
+      };
+    }
+  >(
+    ADMIN_BULK_UPDATE_COMMENT_STATUS_MUTATION,
+    {
+      input: {
+        commentIds: input.commentIds.map(commentId => commentId.trim()).filter(Boolean),
+        status: input.status,
+      },
+    },
+    { operationName: 'AdminBulkUpdateCommentStatus' },
+  );
+
+  return payload.bulkUpdateCommentStatus?.successCount ?? 0;
+};
+
+export const bulkDeleteAdminComments = async (input: { commentIds: string[] }) => {
+  const payload = await executeAdminGraphQL<
+    AdminBulkCommentMutationPayload,
+    {
+      input: {
+        commentIds: string[];
+      };
+    }
+  >(
+    ADMIN_BULK_DELETE_COMMENTS_MUTATION,
+    {
+      input: {
+        commentIds: input.commentIds.map(commentId => commentId.trim()).filter(Boolean),
+      },
+    },
+    { operationName: 'AdminBulkDeleteComments' },
+  );
+
+  return payload.bulkDeleteComments?.successCount ?? 0;
 };
 
 export const changeAdminPassword = async (input: {
