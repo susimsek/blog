@@ -31,9 +31,11 @@ import useMediaQuery from '@/hooks/useMediaQuery';
 import {
   createAdminContentCategory,
   createAdminContentTopic,
+  deleteAdminComment,
   deleteAdminContentCategory,
   deleteAdminContentPost,
   deleteAdminContentTopic,
+  fetchAdminComments,
   fetchAdminContentPost,
   fetchAdminContentCategories,
   fetchAdminContentCategoriesPage,
@@ -42,10 +44,12 @@ import {
   fetchAdminContentTopicsPage,
   isAdminSessionError,
   resolveAdminError,
+  updateAdminCommentStatus,
   updateAdminContentCategory,
   updateAdminContentPostContent,
   updateAdminContentPostMetadata,
   updateAdminContentTopic,
+  type AdminCommentItem,
   type AdminContentCategoryItem,
   type AdminContentCategoryGroupItem,
   type AdminContentPostGroupItem,
@@ -69,9 +73,10 @@ type SourceFilterValue = 'all' | 'blog' | 'medium';
 type TopicEditorMode = 'create' | 'update';
 type CategoryEditorMode = 'create' | 'update';
 type ContentSectionTab = 'posts' | 'topics' | 'categories';
-type PostEditorTab = 'metadata' | 'content';
+type PostEditorTab = 'metadata' | 'content' | 'comments';
 type PostContentViewMode = 'editor' | 'split' | 'preview';
 type SupportedContentLocale = 'en' | 'tr';
+type CommentStatusFilterValue = 'all' | AdminCommentItem['status'];
 const CONTENT_ID_PATTERN = /^[a-z0-9][a-z0-9-]{1,127}$/;
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 const CONTENT_LOCALES: SupportedContentLocale[] = ['en', 'tr'];
@@ -212,6 +217,18 @@ export default function AdminContentManagementPanel({
   const [isPostContentUpdating, setIsPostContentUpdating] = React.useState(false);
   const [pendingPostDelete, setPendingPostDelete] = React.useState<AdminContentPostItem | null>(null);
   const [isPostDeleting, setIsPostDeleting] = React.useState(false);
+  const [postComments, setPostComments] = React.useState<AdminCommentItem[]>([]);
+  const [isPostCommentsLoading, setIsPostCommentsLoading] = React.useState(false);
+  const [postCommentsErrorMessage, setPostCommentsErrorMessage] = React.useState('');
+  const [postCommentsSuccessMessage, setPostCommentsSuccessMessage] = React.useState('');
+  const [postCommentsStatusFilter, setPostCommentsStatusFilter] = React.useState<CommentStatusFilterValue>('all');
+  const [postCommentsPage, setPostCommentsPage] = React.useState(1);
+  const [postCommentsPageSize, setPostCommentsPageSize] = React.useState(5);
+  const [postCommentsTotal, setPostCommentsTotal] = React.useState(0);
+  const [postCommentActionID, setPostCommentActionID] = React.useState('');
+  const [postCommentActionStatus, setPostCommentActionStatus] = React.useState<AdminCommentItem['status'] | null>(null);
+  const [deletingPostCommentID, setDeletingPostCommentID] = React.useState('');
+  const [pendingPostCommentDelete, setPendingPostCommentDelete] = React.useState<AdminCommentItem | null>(null);
 
   const [isTopicEditorOpen, setIsTopicEditorOpen] = React.useState(false);
   const [topicEditorMode, setTopicEditorMode] = React.useState<TopicEditorMode>('create');
@@ -279,8 +296,11 @@ export default function AdminContentManagementPanel({
   const taxonomyRequestIDRef = React.useRef(0);
   const topicsPageRequestIDRef = React.useRef(0);
   const categoriesPageRequestIDRef = React.useRef(0);
+  const postCommentsRequestIDRef = React.useRef(0);
+  const postCommentsListTopRef = React.useRef<HTMLDivElement | null>(null);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const totalPostCommentPages = Math.max(1, Math.ceil(postCommentsTotal / postCommentsPageSize));
   const normalizedTopicID = topicID.trim().toLowerCase();
   const normalizedCategoryID = categoryID.trim().toLowerCase();
   const canSubmitTopic =
@@ -615,6 +635,22 @@ export default function AdminContentManagementPanel({
   }, [successMessage]);
 
   React.useEffect(() => {
+    if (!postCommentsSuccessMessage) {
+      return;
+    }
+    const timeoutID = globalThis.setTimeout(() => {
+      setPostCommentsSuccessMessage('');
+    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [postCommentsSuccessMessage]);
+
+  React.useEffect(() => {
+    setPostCommentsPage(1);
+  }, [postCommentsStatusFilter, routePostID]);
+
+  React.useEffect(() => {
     const categoryExists =
       filterCategoryID === '' ||
       filteredCategories.some(item => item.id.toLowerCase() === filterCategoryID.toLowerCase());
@@ -889,6 +925,15 @@ export default function AdminContentManagementPanel({
         setPostContentViewMode('editor');
         setPostEditorContent('');
         setPostEditorInitialContent('');
+        setPostComments([]);
+        setPostCommentsErrorMessage('');
+        setPostCommentsSuccessMessage('');
+        setPostCommentActionID('');
+        setPostCommentActionStatus(null);
+        setDeletingPostCommentID('');
+        setPostCommentsPage(1);
+        setPostCommentsTotal(0);
+        setPendingPostCommentDelete(null);
         return;
       }
 
@@ -904,6 +949,15 @@ export default function AdminContentManagementPanel({
       setPostContentViewMode('editor');
       setPostEditorContent('');
       setPostEditorInitialContent('');
+      setPostComments([]);
+      setPostCommentsErrorMessage('');
+      setPostCommentsSuccessMessage('');
+      setPostCommentActionID('');
+      setPostCommentActionStatus(null);
+      setDeletingPostCommentID('');
+      setPostCommentsPage(1);
+      setPostCommentsTotal(0);
+      setPendingPostCommentDelete(null);
       setPostEditorTab('content');
       setIsPostContentLoading(true);
       setErrorMessage('');
@@ -994,6 +1048,15 @@ export default function AdminContentManagementPanel({
       setPostContentViewMode('editor');
       setPostEditorContent('');
       setPostEditorInitialContent('');
+      setPostComments([]);
+      setPostCommentsErrorMessage('');
+      setPostCommentsSuccessMessage('');
+      setPostCommentActionID('');
+      setPostCommentActionStatus(null);
+      setDeletingPostCommentID('');
+      setPostCommentsPage(1);
+      setPostCommentsTotal(0);
+      setPendingPostCommentDelete(null);
       setIsPostContentLoading(false);
       return;
     }
@@ -1543,6 +1606,193 @@ export default function AdminContentManagementPanel({
 
   const showInlinePostFeedback = isPostDetailRoute && Boolean(editingPost);
   const showTopFeedback = !showInlinePostFeedback;
+  const resolveCommentStatusVariant = React.useCallback((status: AdminCommentItem['status']) => {
+    switch (status) {
+      case 'APPROVED':
+        return 'success';
+      case 'REJECTED':
+        return 'secondary';
+      case 'SPAM':
+        return 'danger';
+      default:
+        return 'warning';
+    }
+  }, []);
+
+  const scrollToPostCommentsListTop = React.useCallback(() => {
+    const target = postCommentsListTopRef.current;
+    if (!target) {
+      return;
+    }
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  const loadPostComments = React.useCallback(
+    async (options?: { page?: number }) => {
+      if (!editingPost || postEditorTab !== 'comments') {
+        return [];
+      }
+
+      const requestedPage = options?.page && options.page > 0 ? options.page : postCommentsPage;
+      const requestID = postCommentsRequestIDRef.current + 1;
+      postCommentsRequestIDRef.current = requestID;
+      setIsPostCommentsLoading(true);
+      setPostCommentsErrorMessage('');
+
+      try {
+        const payload = await fetchAdminComments({
+          postId: editingPost.id,
+          status: postCommentsStatusFilter === 'all' ? undefined : postCommentsStatusFilter,
+          page: requestedPage,
+          size: postCommentsPageSize,
+        });
+
+        if (requestID !== postCommentsRequestIDRef.current) {
+          return [];
+        }
+
+        const items = payload.items ?? [];
+        setPostComments(items);
+        setPostCommentsTotal(payload.total ?? 0);
+
+        const resolvedPage = payload.page > 0 ? payload.page : requestedPage;
+        if (resolvedPage !== postCommentsPage) {
+          setPostCommentsPage(resolvedPage);
+        }
+        if (payload.size > 0 && payload.size !== postCommentsPageSize) {
+          setPostCommentsPageSize(payload.size);
+        }
+
+        return items;
+      } catch (error) {
+        if (requestID !== postCommentsRequestIDRef.current) {
+          return [];
+        }
+        if (isAdminSessionError(error)) {
+          onSessionExpired();
+          return [];
+        }
+        const resolvedError = resolveAdminError(error);
+        setPostCommentsErrorMessage(
+          resolvedError.message || t('adminAccount.comments.errors.load', { ns: 'admin-account' }),
+        );
+        return [];
+      } finally {
+        if (requestID === postCommentsRequestIDRef.current) {
+          setIsPostCommentsLoading(false);
+        }
+      }
+    },
+    [editingPost, onSessionExpired, postCommentsPage, postCommentsPageSize, postCommentsStatusFilter, postEditorTab, t],
+  );
+
+  React.useEffect(() => {
+    if (!editingPost || postEditorTab !== 'comments') {
+      return;
+    }
+    void loadPostComments();
+  }, [editingPost, loadPostComments, postCommentsPage, postCommentsPageSize, postEditorTab]);
+
+  const handlePostCommentStatusUpdate = React.useCallback(
+    async (commentId: string, status: AdminCommentItem['status']) => {
+      if (!editingPost || deletingPostCommentID) {
+        return;
+      }
+
+      setPostCommentActionID(commentId);
+      setPostCommentActionStatus(status);
+      setPostCommentsErrorMessage('');
+      setPostCommentsSuccessMessage('');
+
+      try {
+        const updatedComment = await updateAdminCommentStatus({ commentId, status });
+        const refreshedItems = await loadPostComments();
+
+        if (refreshedItems.length === 0 && postCommentsPage > 1) {
+          setPostCommentsPage(previous => Math.max(1, previous - 1));
+        }
+
+        setPostCommentsSuccessMessage(
+          t(`adminAccount.comments.success.${status.toLowerCase()}`, {
+            ns: 'admin-account',
+            author: updatedComment.authorName,
+          }),
+        );
+      } catch (error) {
+        if (isAdminSessionError(error)) {
+          onSessionExpired();
+          return;
+        }
+        const resolvedError = resolveAdminError(error);
+        setPostCommentsErrorMessage(
+          resolvedError.message || t('adminAccount.comments.errors.statusUpdate', { ns: 'admin-account' }),
+        );
+      } finally {
+        setPostCommentActionID('');
+        setPostCommentActionStatus(null);
+      }
+    },
+    [deletingPostCommentID, loadPostComments, onSessionExpired, postCommentsPage, t, editingPost],
+  );
+
+  const handleDeletePostCommentSubmit = React.useCallback(async () => {
+    const item = pendingPostCommentDelete;
+    if (!item || deletingPostCommentID || postCommentActionID) {
+      return;
+    }
+
+    setDeletingPostCommentID(item.id);
+    setPostCommentsErrorMessage('');
+    setPostCommentsSuccessMessage('');
+
+    try {
+      const deleted = await deleteAdminComment({ commentId: item.id });
+      if (!deleted) {
+        throw new Error(t('adminAccount.comments.errors.delete', { ns: 'admin-account' }));
+      }
+
+      const remainingItems = postComments.filter(candidate => candidate.id !== item.id);
+      const nextTotal = Math.max(0, postCommentsTotal - 1);
+      const nextTotalPages = Math.max(1, Math.ceil(nextTotal / postCommentsPageSize));
+      const nextPage = Math.min(postCommentsPage, nextTotalPages);
+
+      if (nextPage !== postCommentsPage) {
+        setPostCommentsPage(nextPage);
+      } else {
+        setPostComments(remainingItems);
+      }
+
+      setPostCommentsTotal(nextTotal);
+      setPendingPostCommentDelete(null);
+      setPostCommentsSuccessMessage(
+        t('adminAccount.comments.success.deleted', {
+          ns: 'admin-account',
+          author: item.authorName,
+        }),
+      );
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        onSessionExpired();
+        return;
+      }
+      const resolvedError = resolveAdminError(error);
+      setPostCommentsErrorMessage(
+        resolvedError.message || t('adminAccount.comments.errors.delete', { ns: 'admin-account' }),
+      );
+    } finally {
+      setDeletingPostCommentID('');
+    }
+  }, [
+    deletingPostCommentID,
+    onSessionExpired,
+    pendingPostCommentDelete,
+    postCommentActionID,
+    postComments,
+    postCommentsPage,
+    postCommentsPageSize,
+    postCommentsTotal,
+    t,
+  ]);
 
   return (
     <>
@@ -1635,13 +1885,24 @@ export default function AdminContentManagementPanel({
                     id="admin-content-post-editor-tabs"
                     activeKey={postEditorTab}
                     onSelect={nextKey => {
-                      setPostEditorTab(nextKey === 'content' && editingPost.source === 'blog' ? 'content' : 'metadata');
+                      setPostEditorTab(
+                        nextKey === 'comments'
+                          ? 'comments'
+                          : nextKey === 'content' && editingPost.source === 'blog'
+                            ? 'content'
+                            : 'metadata',
+                      );
                     }}
                     className="mb-3"
                   >
                     <Tab
                       eventKey="metadata"
-                      title={t('adminAccount.content.modals.post.tabs.metadata', { ns: 'admin-account' })}
+                      title={
+                        <span className="d-inline-flex align-items-center gap-2">
+                          <FontAwesomeIcon icon="info-circle" />
+                          <span>{t('adminAccount.content.modals.post.tabs.metadata', { ns: 'admin-account' })}</span>
+                        </span>
+                      }
                     >
                       <div className="admin-content-post-tab-pane pt-3">
                         <Form.Group className="mb-3" controlId="admin-content-post-title">
@@ -1792,10 +2053,321 @@ export default function AdminContentManagementPanel({
                         </Form.Group>
                       </div>
                     </Tab>
+                    <Tab
+                      eventKey="comments"
+                      title={
+                        <span className="d-inline-flex align-items-center gap-2">
+                          <FontAwesomeIcon icon="comments" />
+                          <span>{t('adminAccount.content.modals.post.tabs.comments', { ns: 'admin-account' })}</span>
+                        </span>
+                      }
+                    >
+                      <div className="admin-content-post-tab-pane pt-3">
+                        <div ref={postCommentsListTopRef} />
+                        <div className="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+                          <div>
+                            <h5 className="mb-1">
+                              {t('adminAccount.content.modals.post.comments.title', { ns: 'admin-account' })}
+                            </h5>
+                            <p className="small text-muted mb-0">
+                              {t('adminAccount.content.modals.post.comments.copy', { ns: 'admin-account' })}
+                            </p>
+                          </div>
+                          <div className="d-flex align-items-center gap-2 flex-wrap">
+                            <Badge bg="light" text="dark" pill>
+                              {t('adminAccount.content.modals.post.comments.total', {
+                                ns: 'admin-account',
+                                count: postCommentsTotal,
+                              })}
+                            </Badge>
+                            <Form.Group controlId="admin-content-post-comments-status" className="mb-0">
+                              <Form.Select
+                                size="sm"
+                                value={postCommentsStatusFilter}
+                                onChange={event => {
+                                  setPostCommentsStatusFilter(event.currentTarget.value as CommentStatusFilterValue);
+                                  setPostCommentsErrorMessage('');
+                                  setPostCommentsSuccessMessage('');
+                                }}
+                              >
+                                <option value="all">
+                                  {t('adminAccount.comments.filters.statuses.all', { ns: 'admin-account' })}
+                                </option>
+                                <option value="PENDING">
+                                  {t('adminAccount.comments.filters.statuses.pending', { ns: 'admin-account' })}
+                                </option>
+                                <option value="APPROVED">
+                                  {t('adminAccount.comments.filters.statuses.approved', { ns: 'admin-account' })}
+                                </option>
+                                <option value="REJECTED">
+                                  {t('adminAccount.comments.filters.statuses.rejected', { ns: 'admin-account' })}
+                                </option>
+                                <option value="SPAM">
+                                  {t('adminAccount.comments.filters.statuses.spam', { ns: 'admin-account' })}
+                                </option>
+                              </Form.Select>
+                            </Form.Group>
+                          </div>
+                        </div>
+
+                        {postCommentsErrorMessage ? (
+                          <Alert variant="danger" className="mb-3 px-3 py-2 lh-base">
+                            {postCommentsErrorMessage}
+                          </Alert>
+                        ) : null}
+                        {postCommentsSuccessMessage ? (
+                          <Alert variant="success" className="mb-3 px-3 py-2 lh-base">
+                            {postCommentsSuccessMessage}
+                          </Alert>
+                        ) : null}
+
+                        <div className="card shadow-sm d-block">
+                          <div className="card-body p-3 w-100">
+                            {isPostCommentsLoading ? (
+                              <AdminLoadingState
+                                className="admin-loading-stack"
+                                ariaLabel={t('adminAccount.comments.loading', { ns: 'admin-account' })}
+                              />
+                            ) : postCommentsTotal === 0 ? (
+                              <p className="small text-muted mb-0">
+                                {t('adminAccount.content.modals.post.comments.empty', { ns: 'admin-account' })}
+                              </p>
+                            ) : (
+                              <div className="d-grid gap-3">
+                                {postComments.map(item => {
+                                  const isActionPending = postCommentActionID === item.id;
+                                  const isDeletePending = deletingPostCommentID === item.id;
+                                  const isApprovePending = isActionPending && postCommentActionStatus === 'APPROVED';
+                                  const isRejectPending = isActionPending && postCommentActionStatus === 'REJECTED';
+                                  const isSpamPending = isActionPending && postCommentActionStatus === 'SPAM';
+                                  const statusLabel = t(
+                                    `adminAccount.comments.filters.statuses.${item.status.toLowerCase()}`,
+                                    { ns: 'admin-account' },
+                                  );
+
+                                  return (
+                                    <div
+                                      key={item.id}
+                                      className={`admin-newsletter-campaign-card admin-comments-card admin-comments-card--${item.status.toLowerCase()}`}
+                                    >
+                                      <div className="d-grid gap-2">
+                                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                                          <strong className="text-break">{item.authorName}</strong>
+                                          <span className={`badge text-bg-${resolveCommentStatusVariant(item.status)}`}>
+                                            {statusLabel}
+                                          </span>
+                                          <span className="badge text-bg-light">
+                                            {item.parentId
+                                              ? t('adminAccount.comments.list.replyLabel', { ns: 'admin-account' })
+                                              : t('adminAccount.comments.list.rootLabel', { ns: 'admin-account' })}
+                                          </span>
+                                        </div>
+                                        <div className="small text-muted d-flex align-items-center gap-2 flex-wrap">
+                                          <span className="d-inline-flex align-items-center gap-2">
+                                            <FontAwesomeIcon icon="envelope" className="text-muted" />
+                                            <span>{item.authorEmail}</span>
+                                          </span>
+                                          <span className="d-inline-flex align-items-center gap-2">
+                                            <FontAwesomeIcon icon="calendar-alt" className="text-muted" />
+                                            <span>
+                                              {t('adminAccount.comments.list.submittedAt', {
+                                                ns: 'admin-account',
+                                                value: formatDate(item.createdAt),
+                                              })}
+                                            </span>
+                                          </span>
+                                          {item.updatedAt && item.updatedAt !== item.createdAt ? (
+                                            <span className="d-inline-flex align-items-center gap-2">
+                                              <FontAwesomeIcon icon="clock" className="text-muted" />
+                                              <span>
+                                                {t('adminAccount.comments.list.updatedAt', {
+                                                  ns: 'admin-account',
+                                                  value: formatDate(item.updatedAt),
+                                                })}
+                                              </span>
+                                            </span>
+                                          ) : null}
+                                        </div>
+                                      </div>
+
+                                      <p className="mb-0 mt-3 text-break">{item.content}</p>
+
+                                      <div className="row g-2 mt-3">
+                                        <div className="col-12 col-md-auto">
+                                          <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="success"
+                                            className="w-100"
+                                            disabled={isActionPending || isDeletePending || item.status === 'APPROVED'}
+                                            onClick={() => {
+                                              void handlePostCommentStatusUpdate(item.id, 'APPROVED');
+                                            }}
+                                          >
+                                            {isApprovePending ? (
+                                              <span className="d-inline-flex align-items-center gap-2">
+                                                <Spinner
+                                                  as="span"
+                                                  animation="border"
+                                                  size="sm"
+                                                  className="me-2 flex-shrink-0 admin-action-spinner"
+                                                  aria-hidden="true"
+                                                />
+                                                <span>
+                                                  {t('adminAccount.comments.actions.updating', {
+                                                    ns: 'admin-account',
+                                                  })}
+                                                </span>
+                                              </span>
+                                            ) : (
+                                              <>
+                                                <FontAwesomeIcon icon="check" className="me-2" />
+                                                {t('adminAccount.comments.actions.approve', { ns: 'admin-account' })}
+                                              </>
+                                            )}
+                                          </Button>
+                                        </div>
+                                        <div className="col-12 col-md-auto">
+                                          <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="secondary"
+                                            className="w-100 admin-newsletter-action admin-newsletter-action--secondary"
+                                            disabled={isActionPending || isDeletePending || item.status === 'REJECTED'}
+                                            onClick={() => {
+                                              void handlePostCommentStatusUpdate(item.id, 'REJECTED');
+                                            }}
+                                          >
+                                            {!isRejectPending ? (
+                                              <FontAwesomeIcon icon="times-circle" className="me-2" />
+                                            ) : null}
+                                            {isRejectPending ? (
+                                              <span className="d-inline-flex align-items-center gap-2">
+                                                <Spinner
+                                                  as="span"
+                                                  animation="border"
+                                                  size="sm"
+                                                  className="me-2 flex-shrink-0 admin-action-spinner"
+                                                  aria-hidden="true"
+                                                />
+                                                <span>
+                                                  {t('adminAccount.comments.actions.updating', {
+                                                    ns: 'admin-account',
+                                                  })}
+                                                </span>
+                                              </span>
+                                            ) : (
+                                              t('adminAccount.comments.actions.reject', { ns: 'admin-account' })
+                                            )}
+                                          </Button>
+                                        </div>
+                                        <div className="col-12 col-md-auto">
+                                          <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="danger"
+                                            className="w-100 admin-newsletter-action admin-newsletter-action--danger"
+                                            disabled={isActionPending || isDeletePending || item.status === 'SPAM'}
+                                            onClick={() => {
+                                              void handlePostCommentStatusUpdate(item.id, 'SPAM');
+                                            }}
+                                          >
+                                            {!isSpamPending ? (
+                                              <FontAwesomeIcon icon="shield-halved" className="me-2" />
+                                            ) : null}
+                                            {isSpamPending ? (
+                                              <span className="d-inline-flex align-items-center gap-2">
+                                                <Spinner
+                                                  as="span"
+                                                  animation="border"
+                                                  size="sm"
+                                                  className="me-2 flex-shrink-0 admin-action-spinner"
+                                                  aria-hidden="true"
+                                                />
+                                                <span>
+                                                  {t('adminAccount.comments.actions.updating', {
+                                                    ns: 'admin-account',
+                                                  })}
+                                                </span>
+                                              </span>
+                                            ) : (
+                                              t('adminAccount.comments.actions.spam', { ns: 'admin-account' })
+                                            )}
+                                          </Button>
+                                        </div>
+                                        <div className="col-12 col-md-auto">
+                                          <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="danger"
+                                            className="w-100"
+                                            disabled={isActionPending || isDeletePending}
+                                            onClick={() => {
+                                              setPendingPostCommentDelete(item);
+                                            }}
+                                          >
+                                            {isDeletePending ? (
+                                              <span className="d-inline-flex align-items-center gap-2">
+                                                <Spinner
+                                                  as="span"
+                                                  animation="border"
+                                                  size="sm"
+                                                  className="me-2 flex-shrink-0 admin-action-spinner"
+                                                  aria-hidden="true"
+                                                />
+                                                <span>
+                                                  {t('adminAccount.comments.actions.deleting', {
+                                                    ns: 'admin-account',
+                                                  })}
+                                                </span>
+                                              </span>
+                                            ) : (
+                                              <>
+                                                <FontAwesomeIcon icon="trash" className="me-2" />
+                                                {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
+                                              </>
+                                            )}
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                          {!isPostCommentsLoading && postCommentsTotal > 0 ? (
+                            <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
+                              <PaginationBar
+                                className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"
+                                currentPage={postCommentsPage}
+                                totalPages={totalPostCommentPages}
+                                totalResults={postCommentsTotal}
+                                size={postCommentsPageSize}
+                                onPageChange={nextPage => {
+                                  setPostCommentsPage(nextPage);
+                                  scrollToPostCommentsListTop();
+                                }}
+                                onSizeChange={size => {
+                                  setPostCommentsPageSize(size);
+                                  setPostCommentsPage(1);
+                                  scrollToPostCommentsListTop();
+                                }}
+                              />
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                    </Tab>
                     {editingPost.source === 'blog' ? (
                       <Tab
                         eventKey="content"
-                        title={t('adminAccount.content.modals.post.tabs.content', { ns: 'admin-account' })}
+                        title={
+                          <span className="d-inline-flex align-items-center gap-2">
+                            <FontAwesomeIcon icon="code" />
+                            <span>{t('adminAccount.content.modals.post.tabs.content', { ns: 'admin-account' })}</span>
+                          </span>
+                        }
                       >
                         <div className="admin-content-post-tab-pane pt-3">
                           {postEditorPreviewState ? (
@@ -2029,7 +2601,8 @@ export default function AdminContentManagementPanel({
                   ) : null}
 
                   <div className="admin-content-post-actions d-flex flex-wrap gap-2 pt-3">
-                    {postEditorTab === 'metadata' || editingPost.source !== 'blog' ? (
+                    {postEditorTab === 'comments' ? null : postEditorTab === 'metadata' ||
+                      editingPost.source !== 'blog' ? (
                       <Button
                         type="button"
                         variant="primary"
@@ -2913,6 +3486,75 @@ export default function AdminContentManagementPanel({
               <>
                 <FontAwesomeIcon icon="trash" className="me-2" />
                 {t('adminAccount.content.actions.deletePost', { ns: 'admin-account' })}
+              </>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal
+        show={pendingPostCommentDelete !== null}
+        onHide={() => {
+          if (deletingPostCommentID) {
+            return;
+          }
+          setPendingPostCommentDelete(null);
+        }}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{t('adminAccount.comments.deleteConfirm.title', { ns: 'admin-account' })}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="small text-muted mb-3">
+            {t('adminAccount.comments.deleteConfirm.copy', {
+              ns: 'admin-account',
+              author: pendingPostCommentDelete?.authorName ?? '',
+            })}
+          </p>
+          <dl className="row gy-2 mb-0 small">
+            <dt className="col-sm-3 text-muted">
+              {t('adminAccount.comments.deleteConfirm.labels.author', { ns: 'admin-account' })}
+            </dt>
+            <dd className="col-sm-9 mb-0 text-break">{pendingPostCommentDelete?.authorName ?? ''}</dd>
+            <dt className="col-sm-3 text-muted">
+              {t('adminAccount.comments.deleteConfirm.labels.email', { ns: 'admin-account' })}
+            </dt>
+            <dd className="col-sm-9 mb-0 text-break">{pendingPostCommentDelete?.authorEmail ?? ''}</dd>
+            <dt className="col-sm-3 text-muted">
+              {t('adminAccount.comments.deleteConfirm.labels.post', { ns: 'admin-account' })}
+            </dt>
+            <dd className="col-sm-9 mb-0 text-break">
+              {pendingPostCommentDelete?.postTitle ?? pendingPostCommentDelete?.postId ?? ''}
+            </dd>
+          </dl>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={deletingPostCommentID !== ''}
+            onClick={() => {
+              setPendingPostCommentDelete(null);
+            }}
+          >
+            {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
+          </Button>
+          <Button
+            type="button"
+            variant="danger"
+            disabled={!pendingPostCommentDelete || deletingPostCommentID !== ''}
+            onClick={handleDeletePostCommentSubmit}
+          >
+            {deletingPostCommentID ? (
+              <span className="d-inline-flex align-items-center gap-2">
+                <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
+                <span>{t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}</span>
+              </span>
+            ) : (
+              <>
+                <FontAwesomeIcon icon="trash" className="me-2" />
+                {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
               </>
             )}
           </Button>

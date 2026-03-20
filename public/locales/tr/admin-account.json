@@ -474,7 +474,15 @@
           "empty": "Post seçilmedi.",
           "tabs": {
             "metadata": "Metadata",
-            "content": "İçerik"
+            "content": "İçerik",
+            "comments": "Yorumlar"
+          },
+          "comments": {
+            "title": "Post yorumları",
+            "copy": "Bu posta bağlı tartışmayı editörden çıkmadan incele ve yönet.",
+            "empty": "Bu post ve filtre için yorum bulunamadı.",
+            "total_one": "{{count}} yorum",
+            "total_other": "{{count}} yorum"
           },
           "category": "Kategori",
           "categoryNone": "Kategori yok",

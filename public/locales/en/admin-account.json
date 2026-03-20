@@ -474,7 +474,15 @@
           "empty": "No post selected.",
           "tabs": {
             "metadata": "Metadata",
-            "content": "Content"
+            "content": "Content",
+            "comments": "Comments"
+          },
+          "comments": {
+            "title": "Post comments",
+            "copy": "Review and moderate the discussion attached to this post without leaving the editor.",
+            "empty": "No comments found for this post and filter.",
+            "total_one": "{{count}} comment",
+            "total_other": "{{count}} comments"
           },
           "category": "Category",
           "categoryNone": "No category",

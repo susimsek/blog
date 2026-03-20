@@ -300,6 +300,13 @@ interface Resources {
           post: {
             category: 'Category';
             categoryNone: 'No category';
+            comments: {
+              copy: 'Review and moderate the discussion attached to this post without leaving the editor.';
+              empty: 'No comments found for this post and filter.';
+              title: 'Post comments';
+              total_one: '{{count}} comment';
+              total_other: '{{count}} comments';
+            };
             contentHint: 'Supports standard Markdown syntax.';
             contentLabel: 'Markdown content';
             empty: 'No post selected.';
@@ -327,6 +334,7 @@ interface Resources {
             previewEmpty: 'No content to preview.';
             previewTitle: 'Preview';
             tabs: {
+              comments: 'Comments';
               content: 'Content';
               metadata: 'Metadata';
             };
