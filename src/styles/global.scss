@@ -11070,54 +11070,30 @@ label {
 }
 
 .admin-content-topic-picker-shell {
-  background-color: var(--main-bg);
+  background-color: var(--input-bg-color);
   border-color: var(--border-color) !important;
 }
 
-.admin-content-topic-picker-search.search-bar {
-  border: 0;
-  border-radius: 0;
-  background-color: var(--main-bg);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: none;
-
-  &:focus-within {
-    border-color: transparent;
-    box-shadow: none;
-  }
-
-  .search-input,
-  .search-icon,
-  .search-clear-btn {
-    background-color: var(--main-bg);
-  }
-}
-
 .admin-content-topic-picker {
-  background-color: var(--main-bg);
+  background-color: var(--input-bg-color);
 }
 
 .admin-content-topic-picker-list {
-  --bs-list-group-bg: var(--main-bg);
+  --bs-list-group-bg: var(--input-bg-color);
   --bs-list-group-border-color: var(--border-color);
 }
 
 .admin-content-topic-picker-list .list-group-item {
-  border-color: var(--border-color) !important;
-  border-left-width: 0 !important;
-  border-right-width: 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--border-color) !important;
 }
 
-.admin-content-topic-picker-list .list-group-item:first-child {
-  border-top-width: 0 !important;
-}
-
-.admin-content-topic-picker-list .list-group-item:last-child {
+.admin-content-topic-picker .list-group-item:last-child {
   border-bottom-width: 0 !important;
 }
 
 .admin-content-topic-picker-empty {
-  border-top: 1px solid var(--border-color);
+  background-color: var(--input-bg-color);
 }
 
 .admin-markdown-editor-shell {

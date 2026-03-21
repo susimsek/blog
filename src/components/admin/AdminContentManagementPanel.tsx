@@ -2302,42 +2302,44 @@ export default function AdminContentManagementPanel({
                             {t('adminAccount.content.modals.post.topics', { ns: 'admin-account' })}
                           </Form.Label>
                           <div className="admin-content-topic-picker-shell border rounded-3 overflow-hidden">
-                            <div className="search-bar admin-content-topic-picker-search w-100 d-flex align-items-center">
-                              <div className="search-icon">
-                                <FontAwesomeIcon icon="search" />
-                              </div>
-                              <Form.Control
-                                type="text"
-                                className="search-input form-control"
-                                value={postEditorTopicQuery}
-                                onChange={event => {
-                                  setPostEditorTopicQuery(event.currentTarget.value);
-                                }}
-                                placeholder={t('adminAccount.content.modals.post.topicsQueryPlaceholder', {
-                                  ns: 'admin-account',
-                                })}
-                              />
-                              {postEditorTopicQuery ? (
-                                <button
-                                  type="button"
-                                  className="search-clear-btn border-0 bg-transparent"
-                                  onClick={() => {
-                                    setPostEditorTopicQuery('');
-                                  }}
-                                  aria-label={t('adminAccount.content.modals.post.topics', { ns: 'admin-account' })}
-                                >
-                                  <FontAwesomeIcon icon="times-circle" className="clear-icon" />
-                                </button>
-                              ) : null}
-                            </div>
-                            <div className="admin-content-topic-picker overflow-auto" style={{ maxHeight: '18rem' }}>
-                              {filteredEditablePostTopics.length === 0 ? (
-                                <div className="admin-content-topic-picker-empty small text-muted p-3">
-                                  {t('adminAccount.content.modals.post.topicsEmpty', { ns: 'admin-account' })}
+                            <div className="admin-content-topic-picker-list list-group list-group-flush">
+                              <div className="list-group-item p-2">
+                                <div className="search-bar w-100 d-flex align-items-center">
+                                  <div className="search-icon">
+                                    <FontAwesomeIcon icon="search" />
+                                  </div>
+                                  <Form.Control
+                                    type="text"
+                                    className="search-input form-control"
+                                    value={postEditorTopicQuery}
+                                    onChange={event => {
+                                      setPostEditorTopicQuery(event.currentTarget.value);
+                                    }}
+                                    placeholder={t('adminAccount.content.modals.post.topicsQueryPlaceholder', {
+                                      ns: 'admin-account',
+                                    })}
+                                  />
+                                  {postEditorTopicQuery ? (
+                                    <button
+                                      type="button"
+                                      className="search-clear-btn border-0 bg-transparent"
+                                      onClick={() => {
+                                        setPostEditorTopicQuery('');
+                                      }}
+                                      aria-label={t('adminAccount.content.modals.post.topics', { ns: 'admin-account' })}
+                                    >
+                                      <FontAwesomeIcon icon="times-circle" className="clear-icon" />
+                                    </button>
+                                  ) : null}
                                 </div>
-                              ) : (
-                                <div className="admin-content-topic-picker-list list-group list-group-flush">
-                                  {filteredEditablePostTopics.map(item => (
+                              </div>
+                              <div className="admin-content-topic-picker overflow-auto" style={{ maxHeight: '18rem' }}>
+                                {filteredEditablePostTopics.length === 0 ? (
+                                  <div className="list-group-item admin-content-topic-picker-empty small text-muted p-3">
+                                    {t('adminAccount.content.modals.post.topicsEmpty', { ns: 'admin-account' })}
+                                  </div>
+                                ) : (
+                                  filteredEditablePostTopics.map(item => (
                                     <div key={toTaxonomyKey(item)} className="list-group-item bg-transparent py-2">
                                       <Form.Check
                                         type="checkbox"
@@ -2350,9 +2352,9 @@ export default function AdminContentManagementPanel({
                                         }}
                                       />
                                     </div>
-                                  ))}
-                                </div>
-                              )}
+                                  ))
+                                )}
+                              </div>
                             </div>
                           </div>
                         </Form.Group>
