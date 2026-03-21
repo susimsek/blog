@@ -128,6 +128,22 @@ describe('AdminResetPasswordPage', () => {
     expect(screen.getByText('adminPasswordReset.reset.invalid')).toBeInTheDocument();
   });
 
+  it('renders invalid state when token validation returns an unknown status', async () => {
+    validateAdminPasswordResetTokenMock.mockResolvedValue({ status: 'failed', locale: 'en' });
+
+    await renderPage();
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('admin-loading-state')).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByText('adminPasswordReset.reset.invalid')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /adminPasswordReset.reset.requestAnother/i })).toHaveAttribute(
+      'href',
+      '/en/admin/forgot-password',
+    );
+  });
+
   it('shows validation feedback before submitting mismatched passwords', async () => {
     await renderPage();
 
@@ -143,6 +159,21 @@ describe('AdminResetPasswordPage', () => {
 
     expect(screen.getByText('adminPasswordReset.reset.validation.confirmMismatch')).toBeInTheDocument();
     expect(confirmAdminPasswordResetMock).not.toHaveBeenCalled();
+  });
+
+  it('shows touched validation on blur for password and confirm password fields', async () => {
+    await renderPage();
+
+    await waitForPasswordForm();
+
+    const passwordInput = screen.getByLabelText('adminPasswordReset.reset.password');
+    const confirmPasswordInput = screen.getByLabelText('adminPasswordReset.reset.confirmPassword');
+
+    fireEvent.blur(passwordInput);
+    fireEvent.blur(confirmPasswordInput);
+
+    expect(screen.getByText('adminPasswordReset.reset.validation.passwordRequired')).toBeInTheDocument();
+    expect(screen.getByText('adminPasswordReset.reset.validation.confirmRequired')).toBeInTheDocument();
   });
 
   it('shows API error when password reset submission fails', async () => {
@@ -174,6 +205,20 @@ describe('AdminResetPasswordPage', () => {
     await waitFor(() => {
       expect(screen.getByText('token invalid')).toBeInTheDocument();
     });
+
+    fireEvent.change(screen.getByLabelText('adminPasswordReset.reset.password'), {
+      target: { value: 'new-password-2' },
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText('token invalid')).not.toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText('adminPasswordReset.reset.confirmPassword'), {
+      target: { value: 'new-password-2' },
+    });
+
+    expect(screen.queryByText('token invalid')).not.toBeInTheDocument();
   });
 
   it('shows network error when token validation fails', async () => {
@@ -192,5 +237,29 @@ describe('AdminResetPasswordPage', () => {
 
     expect(screen.getByText('adminPasswordReset.errors.network')).toBeInTheDocument();
     expect(screen.getByText('adminPasswordReset.reset.invalid')).toBeInTheDocument();
+  });
+
+  it('shows only back-to-login action after a successful reset', async () => {
+    await renderPage();
+
+    await waitForPasswordForm();
+
+    fireEvent.change(screen.getByLabelText('adminPasswordReset.reset.password'), {
+      target: { value: 'new-password' },
+    });
+    fireEvent.change(screen.getByLabelText('adminPasswordReset.reset.confirmPassword'), {
+      target: { value: 'new-password' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /adminPasswordReset.reset.submit/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('adminPasswordReset.reset.success')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByRole('link', { name: /adminPasswordReset.reset.requestAnother/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /adminPasswordReset.reset.backToLogin/i })).toHaveAttribute(
+      'href',
+      '/en/admin/login',
+    );
   });
 });
