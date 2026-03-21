@@ -27,12 +27,12 @@ func toGraphQLInt(value int64) int {
 	return int(value)
 }
 
-func mapEngagement(likes, hits map[string]int64) []*model.PostEngagement {
-	if len(likes) == 0 && len(hits) == 0 {
+func mapEngagement(likes, hits, comments map[string]int64) []*model.PostEngagement {
+	if len(likes) == 0 && len(hits) == 0 && len(comments) == 0 {
 		return []*model.PostEngagement{}
 	}
 
-	keySet := make(map[string]struct{}, len(likes)+len(hits))
+	keySet := make(map[string]struct{}, len(likes)+len(hits)+len(comments))
 	for key := range likes {
 		if strings.TrimSpace(key) == "" {
 			continue
@@ -40,6 +40,12 @@ func mapEngagement(likes, hits map[string]int64) []*model.PostEngagement {
 		keySet[key] = struct{}{}
 	}
 	for key := range hits {
+		if strings.TrimSpace(key) == "" {
+			continue
+		}
+		keySet[key] = struct{}{}
+	}
+	for key := range comments {
 		if strings.TrimSpace(key) == "" {
 			continue
 		}
@@ -55,9 +61,10 @@ func mapEngagement(likes, hits map[string]int64) []*model.PostEngagement {
 	engagement := make([]*model.PostEngagement, 0, len(keys))
 	for _, key := range keys {
 		engagement = append(engagement, &model.PostEngagement{
-			PostID: key,
-			Likes:  toGraphQLInt(likes[key]),
-			Hits:   toGraphQLInt(hits[key]),
+			PostID:   key,
+			Likes:    toGraphQLInt(likes[key]),
+			Hits:     toGraphQLInt(hits[key]),
+			Comments: toGraphQLInt(comments[key]),
 		})
 	}
 

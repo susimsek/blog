@@ -10,6 +10,7 @@ query posts($locale: Locale!, $input: PostsQueryInput) {
       postId
       likes
       hits
+      comments
     }
     nodes {
       id
@@ -72,6 +73,7 @@ query post($locale: Locale!, $id: ID!) {
       postId
       likes
       hits
+      comments
     }
   }
 }
@@ -109,6 +111,7 @@ query postRuntime($locale: Locale!, $id: ID!) {
       postId
       likes
       hits
+      comments
     }
   }
   comments(postId: $id) {

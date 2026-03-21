@@ -1016,6 +1016,8 @@ interface Resources {
         hideLineNumbers: 'Hide line numbers';
         showLineNumbers: 'Show line numbers';
       };
+      commentsCount_one: '{{count}} comment';
+      commentsCount_other: '{{count}} comments';
       contactInfo: {
         email: 'Email';
       };

@@ -160,6 +160,8 @@ type PostEngagement struct {
 	Likes int `json:"likes"`
 	// Total number of hits.
 	Hits int `json:"hits"`
+	// Total number of approved comments.
+	Comments int `json:"comments"`
 }
 
 // Mutation result for a post metric update.

@@ -436,6 +436,11 @@ type PostEngagement {
   Total number of hits.
   """
   hits: Int!
+
+  """
+  Total number of approved comments.
+  """
+  comments: Int!
 }
 
 """

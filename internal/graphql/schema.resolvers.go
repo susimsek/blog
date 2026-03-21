@@ -73,7 +73,7 @@ func (r *queryResolver) Posts(ctx context.Context, locale model.Locale, input *m
 		Status:     mapContentQueryStatus(payload.Status),
 		Locale:     mapLocaleOutput(payload.Locale),
 		Nodes:      mapPosts(payload.Posts),
-		Engagement: mapEngagement(payload.LikesByPostID, payload.HitsByPostID),
+		Engagement: mapEngagement(payload.LikesByPostID, payload.HitsByPostID, payload.CommentsByPostID),
 		Total:      total,
 		Page:       page,
 		Size:       size,
@@ -104,7 +104,7 @@ func (r *queryResolver) Post(ctx context.Context, locale model.Locale, id string
 	}
 
 	var engagement *model.PostEngagement
-	mappedEngagement := mapEngagement(payload.LikesByPostID, payload.HitsByPostID)
+	mappedEngagement := mapEngagement(payload.LikesByPostID, payload.HitsByPostID, payload.CommentsByPostID)
 	if len(mappedEngagement) > 0 {
 		engagement = mappedEngagement[0]
 	}

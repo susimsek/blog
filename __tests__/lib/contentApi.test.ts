@@ -1,5 +1,6 @@
 import {
   fetchPost,
+  fetchPostCommentCounts,
   fetchPostLikes,
   fetchPostRuntime,
   fetchPosts,
@@ -46,9 +47,9 @@ describe('contentApi', () => {
         size: 5,
         sort: 'DESC',
         engagement: [
-          { postId: ' first ', likes: 4.7, hits: 11.2 },
-          { postId: 'second', likes: Number.NaN, hits: -3 },
-          { postId: '   ', likes: 9, hits: 9 },
+          { postId: ' first ', likes: 4.7, hits: 11.2, comments: 2.9 },
+          { postId: 'second', likes: Number.NaN, hits: -3, comments: -4 },
+          { postId: '   ', likes: 9, hits: 9, comments: 9 },
         ],
         nodes: [
           {
@@ -89,6 +90,7 @@ describe('contentApi', () => {
       ],
       likesByPostId: { first: 4 },
       hitsByPostId: { first: 11, second: 0 },
+      commentsByPostId: { first: 2, second: 0 },
       total: 2,
       page: 1,
       size: 5,
@@ -130,6 +132,7 @@ describe('contentApi', () => {
         engagement: {
           likes: 8.9,
           hits: -4.2,
+          comments: 3.4,
         },
       },
     });
@@ -147,6 +150,7 @@ describe('contentApi', () => {
       },
       likes: 8,
       hits: 0,
+      comments: 3,
     });
 
     expect(queryGraphQLMock).toHaveBeenCalledWith(
@@ -170,9 +174,9 @@ describe('contentApi', () => {
       posts: {
         status: 'success',
         engagement: [
-          { postId: 'post-1', likes: 11.4, hits: 0 },
-          { postId: 'post-2', likes: Number.NaN, hits: 0 },
-          { postId: 'post-3', likes: -2, hits: 0 },
+          { postId: 'post-1', likes: 11.4, hits: 0, comments: 5 },
+          { postId: 'post-2', likes: Number.NaN, hits: 0, comments: 7 },
+          { postId: 'post-3', likes: -2, hits: 0, comments: 1 },
         ],
         nodes: [],
       },
@@ -207,6 +211,25 @@ describe('contentApi', () => {
     });
 
     await expect(fetchPostLikes('en', ['post-1'])).resolves.toBeNull();
+  });
+
+  it('returns comment counts for requested post ids and skips invalid numbers', async () => {
+    queryGraphQLMock.mockResolvedValue({
+      posts: {
+        status: 'success',
+        engagement: [
+          { postId: 'post-1', likes: 0, hits: 0, comments: 9.2 },
+          { postId: 'post-2', likes: 0, hits: 0, comments: Number.NaN },
+          { postId: 'post-3', likes: 0, hits: 0, comments: -3 },
+        ],
+        nodes: [],
+      },
+    });
+
+    await expect(fetchPostCommentCounts('en', ['post-1', 'post-2', 'post-3'])).resolves.toEqual({
+      'post-1': 9,
+      'post-3': 0,
+    });
   });
 
   it('maps post runtime payload into engagement and comment thread data', async () => {

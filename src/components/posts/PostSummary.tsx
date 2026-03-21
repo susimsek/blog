@@ -20,6 +20,9 @@ interface PostSummaryProps {
   showLikes?: boolean;
   likeCount?: number | null;
   likeCountLoading?: boolean;
+  showComments?: boolean;
+  commentCount?: number | null;
+  commentCountLoading?: boolean;
 }
 
 export const escapeRegExp = (value: string) => value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
@@ -72,9 +75,12 @@ export default function PostSummary({
   showLikes = false,
   likeCount = null,
   likeCountLoading = false,
+  showComments = false,
+  commentCount = null,
+  commentCountLoading = false,
 }: Readonly<PostSummaryProps>) {
   const { id, title, publishedDate, summary, thumbnail, topics, readingTimeMin, source, link, category } = post;
-  const { t } = useTranslation(['post', 'common']);
+  const { i18n, t } = useTranslation(['post', 'common']);
   const isVoiceEnabled = useAppSelector(state => state.voice.isEnabled);
   const readMoreSoundRef = React.useRef<HTMLAudioElement | null>(null);
   const sourceLabel =
@@ -85,6 +91,10 @@ export default function PostSummary({
 
   const postLink = link ?? `/posts/${id}`;
   const shouldRenderLikeMeta = showLikes && (likeCount !== null || likeCountLoading);
+  const shouldRenderCommentMeta = showComments && (commentCount !== null || commentCountLoading);
+  const isEngagementLoading = (showLikes && likeCountLoading) || (showComments && commentCountLoading);
+  const resolvedLanguage = i18n?.resolvedLanguage ?? i18n?.language ?? 'en';
+  const numberFormatter = React.useMemo(() => new Intl.NumberFormat(resolvedLanguage), [resolvedLanguage]);
   const thumbnailSrc = (() => {
     if (!thumbnail) {
       return null;
@@ -160,9 +170,25 @@ export default function PostSummary({
             <FontAwesomeIcon icon="clock" className="me-2" />
             {formatReadingTime(readingTimeMin, t)}
           </span>
-          {shouldRenderLikeMeta && (
+          {isEngagementLoading && (showLikes || showComments) && (
+            <span className="text-muted d-inline-flex align-items-center post-summary-like-meta">
+              <output className="spinner-border spinner-border-sm" aria-label={t('post.like.loading')} />
+            </span>
+          )}
+          {!isEngagementLoading && shouldRenderLikeMeta && (
             <Link href={postLink} className="link-muted d-flex align-items-center">
-              <PostLikeCount likes={likeCount} isLoading={likeCountLoading} />
+              <PostLikeCount likes={likeCount} />
+            </Link>
+          )}
+          {!isEngagementLoading && shouldRenderCommentMeta && (
+            <Link href={postLink} className="link-muted d-flex align-items-center">
+              <FontAwesomeIcon icon="comments" className="me-2" />
+              <span
+                className="post-summary-like-value"
+                aria-label={t('common.commentsCount', { ns: 'common', count: commentCount ?? 0 })}
+              >
+                {numberFormatter.format(commentCount ?? 0)}
+              </span>
             </Link>
           )}
           {showSource && (

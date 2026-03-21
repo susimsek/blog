@@ -127,11 +127,15 @@ func TestPostMappingHelpers(t *testing.T) {
 	engagement := mapEngagement(
 		map[string]int64{"alpha-post": 4, "": 99},
 		map[string]int64{"alpha-post": 7, "beta-post": 9},
+		map[string]int64{"beta-post": 2},
 	)
 	if len(engagement) != 2 || engagement[0].PostID != "alpha-post" || engagement[1].PostID != "beta-post" {
 		t.Fatalf("engagement = %#v", engagement)
 	}
-	if empty := mapEngagement(nil, nil); len(empty) != 0 {
+	if engagement[1].Comments != 2 {
+		t.Fatalf("engagement comments = %#v", engagement)
+	}
+	if empty := mapEngagement(nil, nil, nil); len(empty) != 0 {
 		t.Fatalf("empty engagement = %#v", empty)
 	}
 	if got := mapSortOrder(nil); got != "" {

@@ -124,9 +124,10 @@ type ComplexityRoot struct {
 	}
 
 	PostEngagement struct {
-		Hits   func(childComplexity int) int
-		Likes  func(childComplexity int) int
-		PostID func(childComplexity int) int
+		Comments func(childComplexity int) int
+		Hits     func(childComplexity int) int
+		Likes    func(childComplexity int) int
+		PostID   func(childComplexity int) int
 	}
 
 	PostMetricResult struct {
@@ -529,6 +530,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PostConnection.Total(childComplexity), true
 
+	case "PostEngagement.comments":
+		if e.complexity.PostEngagement.Comments == nil {
+			break
+		}
+
+		return e.complexity.PostEngagement.Comments(childComplexity), true
 	case "PostEngagement.hits":
 		if e.complexity.PostEngagement.Hits == nil {
 			break
@@ -2492,6 +2499,8 @@ func (ec *executionContext) fieldContext_PostConnection_engagement(_ context.Con
 				return ec.fieldContext_PostEngagement_likes(ctx, field)
 			case "hits":
 				return ec.fieldContext_PostEngagement_hits(ctx, field)
+			case "comments":
+				return ec.fieldContext_PostEngagement_comments(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PostEngagement", field.Name)
 		},
@@ -2690,6 +2699,35 @@ func (ec *executionContext) _PostEngagement_hits(ctx context.Context, field grap
 }
 
 func (ec *executionContext) fieldContext_PostEngagement_hits(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostEngagement",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostEngagement_comments(ctx context.Context, field graphql.CollectedField, obj *model.PostEngagement) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_PostEngagement_comments,
+		func(ctx context.Context) (any, error) {
+			return obj.Comments, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_PostEngagement_comments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PostEngagement",
 		Field:      field,
@@ -2963,6 +3001,8 @@ func (ec *executionContext) fieldContext_PostResult_engagement(_ context.Context
 				return ec.fieldContext_PostEngagement_likes(ctx, field)
 			case "hits":
 				return ec.fieldContext_PostEngagement_hits(ctx, field)
+			case "comments":
+				return ec.fieldContext_PostEngagement_comments(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PostEngagement", field.Name)
 		},
@@ -5568,6 +5608,11 @@ func (ec *executionContext) _PostEngagement(ctx context.Context, sel ast.Selecti
 			}
 		case "hits":
 			out.Values[i] = ec._PostEngagement_hits(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "comments":
+			out.Values[i] = ec._PostEngagement_comments(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

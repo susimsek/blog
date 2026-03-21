@@ -28,6 +28,7 @@ const commentRepositoryUnavailableFormat = "%w: %v"
 type CommentRepository interface {
 	ListApprovedByPost(ctx context.Context, postID string) ([]domain.CommentRecord, error)
 	CountApprovedByPost(ctx context.Context, postID string) (int, error)
+	CountApprovedByPosts(ctx context.Context, postIDs []string) (map[string]int64, error)
 	CreateComment(ctx context.Context, input domain.CommentRecord) error
 	FindCommentByID(ctx context.Context, id string) (*domain.CommentRecord, error)
 	ListComments(
@@ -55,6 +56,11 @@ type CommentRepository interface {
 }
 
 type commentMongoRepository struct{}
+
+type approvedCommentCountResult struct {
+	PostID string `bson:"_id"`
+	Total  int64  `bson:"total"`
+}
 
 var (
 	postCommentsIndexesOnce sync.Once
@@ -188,6 +194,66 @@ func (*commentMongoRepository) CountApprovedByPost(ctx context.Context, postID s
 	}
 
 	return int(total), nil
+}
+
+func (*commentMongoRepository) CountApprovedByPosts(ctx context.Context, postIDs []string) (map[string]int64, error) {
+	collection, err := getPostCommentsCollection()
+	if err != nil {
+		return nil, fmt.Errorf(commentRepositoryUnavailableFormat, ErrCommentRepositoryUnavailable, err)
+	}
+
+	normalizedPostIDs := make([]string, 0, len(postIDs))
+	seen := make(map[string]struct{}, len(postIDs))
+	for _, postID := range postIDs {
+		normalizedPostID := strings.TrimSpace(strings.ToLower(postID))
+		if normalizedPostID == "" {
+			continue
+		}
+		if _, exists := seen[normalizedPostID]; exists {
+			continue
+		}
+		seen[normalizedPostID] = struct{}{}
+		normalizedPostIDs = append(normalizedPostIDs, normalizedPostID)
+	}
+
+	if len(normalizedPostIDs) == 0 {
+		return map[string]int64{}, nil
+	}
+
+	cursor, err := collection.Aggregate(ctx, mongo.Pipeline{
+		{{Key: "$match", Value: bson.M{
+			"postId": bson.M{"$in": normalizedPostIDs},
+			"status": "approved",
+		}}},
+		{{Key: "$group", Value: bson.M{
+			"_id":   "$postId",
+			"total": bson.M{"$sum": 1},
+		}}},
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = cursor.Close(ctx)
+	}()
+
+	counts := make(map[string]int64, len(normalizedPostIDs))
+	for cursor.Next(ctx) {
+		var item approvedCommentCountResult
+		if decodeErr := cursor.Decode(&item); decodeErr != nil {
+			return nil, decodeErr
+		}
+		postID := strings.TrimSpace(item.PostID)
+		if postID == "" {
+			continue
+		}
+		counts[postID] = max(0, item.Total)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return counts, nil
 }
 
 func (*commentMongoRepository) CreateComment(ctx context.Context, input domain.CommentRecord) error {

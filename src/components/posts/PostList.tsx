@@ -10,7 +10,7 @@ import useMediaQuery from '@/hooks/useMediaQuery';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { clearNonSearchFilters } from '@/reducers/postsQuery';
 import type { ReadingTimeRange, SortOrder, SourceFilter } from '@/reducers/postsQuery';
-import { fetchPostLikes } from '@/lib/contentApi';
+import { fetchPostCommentCounts, fetchPostLikes } from '@/lib/contentApi';
 import i18nextConfig from '@/i18n/settings';
 import type { PostDensityMode } from '@/components/common/PostDensityToggle';
 import type { Topic } from '@/types/posts';
@@ -176,6 +176,24 @@ export const mergeLoadedLikesByPostId = (
   return next;
 };
 
+export const mergeLoadedCommentCountsByPostId = (
+  previous: Readonly<Record<string, number | null>>,
+  pendingCommentPostIds: ReadonlyArray<string>,
+  loadedCommentCounts: Record<string, number> | null,
+) => {
+  const next = { ...previous };
+  for (const postId of pendingCommentPostIds) {
+    if (loadedCommentCounts === null) {
+      next[postId] = null;
+      continue;
+    }
+
+    const comments = loadedCommentCounts[postId];
+    next[postId] = typeof comments === 'number' && Number.isFinite(comments) ? comments : 0;
+  }
+  return next;
+};
+
 export default function PostList({
   posts,
   topics = [],
@@ -198,6 +216,7 @@ export default function PostList({
   const routeSearchParams = useSearchParams();
   const routeSearchParamsString = routeSearchParams?.toString() ?? '';
   const [likesByPostId, setLikesByPostId] = useState<Record<string, number | null>>({});
+  const [commentCountsByPostId, setCommentCountsByPostId] = useState<Record<string, number | null>>({});
   const [densityMode, setDensityMode] = useState<PostDensityMode>('default');
   const canUseGridDensity = useMediaQuery('(min-width: 1200px)');
   const resolvedDensityMode: PostDensityMode = canUseGridDensity || densityMode !== 'grid' ? densityMode : 'default';
@@ -316,6 +335,14 @@ export default function PostList({
       .filter(postId => isTrackablePostId(postId) && likesByPostId[postId] === undefined);
   }, [likesByPostId, renderedPosts, showLikes]);
 
+  const pendingCommentPostIds = useMemo(
+    () =>
+      renderedPosts
+        .map(post => post.id)
+        .filter(postId => isTrackablePostId(postId) && commentCountsByPostId[postId] === undefined),
+    [commentCountsByPostId, renderedPosts],
+  );
+
   useEffect(() => {
     if (!showLikes || pendingLikePostIds.length === 0) {
       return;
@@ -341,6 +368,32 @@ export default function PostList({
       isMounted = false;
     };
   }, [currentLocale, pendingLikePostIds, showLikes]);
+
+  useEffect(() => {
+    if (pendingCommentPostIds.length === 0) {
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadCommentCounts = async () => {
+      const loadedCommentCounts = await fetchPostCommentCounts(currentLocale, pendingCommentPostIds);
+
+      if (!isMounted) {
+        return;
+      }
+
+      setCommentCountsByPostId(previous =>
+        mergeLoadedCommentCountsByPostId(previous, pendingCommentPostIds, loadedCommentCounts),
+      );
+    };
+
+    void loadCommentCounts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentLocale, pendingCommentPostIds]);
 
   const scrollToListStart = useCallback(() => {
     const target = listTopRef.current;
@@ -428,6 +481,9 @@ export default function PostList({
                   showLikes={showLikes}
                   likeCount={likesByPostId[post.id] ?? null}
                   likeCountLoading={showLikes && isTrackablePostId(post.id) && likesByPostId[post.id] === undefined}
+                  showComments
+                  commentCount={commentCountsByPostId[post.id] ?? null}
+                  commentCountLoading={isTrackablePostId(post.id) && commentCountsByPostId[post.id] === undefined}
                 />
               ))}
             </div>

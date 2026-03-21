@@ -44,9 +44,11 @@ type PostContentResponse struct {
 	Size  int          `json:"size,omitempty"`
 	Sort  string       `json:"sort,omitempty"`
 
-	PostID        string           `json:"postId,omitempty"`
-	Likes         int64            `json:"likes,omitempty"`
-	LikesByPostID map[string]int64 `json:"likesByPostId,omitempty"`
-	Hits          int64            `json:"hits,omitempty"`
-	HitsByPostID  map[string]int64 `json:"hitsByPostId,omitempty"`
+	PostID           string           `json:"postId,omitempty"`
+	Likes            int64            `json:"likes,omitempty"`
+	LikesByPostID    map[string]int64 `json:"likesByPostId,omitempty"`
+	Hits             int64            `json:"hits,omitempty"`
+	HitsByPostID     map[string]int64 `json:"hitsByPostId,omitempty"`
+	Comments         int64            `json:"comments,omitempty"`
+	CommentsByPostID map[string]int64 `json:"commentsByPostId,omitempty"`
 }

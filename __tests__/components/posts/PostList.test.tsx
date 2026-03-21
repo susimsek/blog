@@ -10,6 +10,7 @@ const usePathnameMock = jest.fn();
 const useSearchParamsMock = jest.fn();
 const useMediaQueryMock = jest.fn();
 const fetchPostLikesMock = jest.fn();
+const fetchPostCommentCountsMock = jest.fn();
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
@@ -22,6 +23,7 @@ jest.mock('@/hooks/useMediaQuery', () => jest.fn((...args: unknown[]) => useMedi
 
 jest.mock('@/lib/contentApi', () => ({
   fetchPostLikes: (...args: unknown[]) => fetchPostLikesMock(...args),
+  fetchPostCommentCounts: (...args: unknown[]) => fetchPostCommentCountsMock(...args),
 }));
 
 jest.mock('next/navigation', () => ({
@@ -66,12 +68,16 @@ jest.mock('@/components/posts/PostSummary', () => ({
     post,
     likeCount,
     likeCountLoading,
+    commentCount,
+    commentCountLoading,
     highlightQuery,
     showSource,
   }: {
     post: { title: string; summary: string };
     likeCount?: number | null;
     likeCountLoading?: boolean;
+    commentCount?: number | null;
+    commentCountLoading?: boolean;
     highlightQuery?: string;
     showSource?: boolean;
   }) => (
@@ -79,6 +85,8 @@ jest.mock('@/components/posts/PostSummary', () => ({
       data-testid="post-card"
       data-like-count={likeCount === null || likeCount === undefined ? 'null' : String(likeCount)}
       data-like-loading={String(Boolean(likeCountLoading))}
+      data-comment-count={commentCount === null || commentCount === undefined ? 'null' : String(commentCount)}
+      data-comment-loading={String(Boolean(commentCountLoading))}
       data-highlight-query={highlightQuery ?? ''}
       data-show-source={String(Boolean(showSource))}
     >
@@ -180,6 +188,7 @@ describe('PostList Component', () => {
     useMediaQueryMock.mockReturnValue(true);
     useSearchParamsMock.mockImplementation(() => new URLSearchParams(window.location.search));
     fetchPostLikesMock.mockResolvedValue({});
+    fetchPostCommentCountsMock.mockResolvedValue({});
   });
   it('renders all components correctly', async () => {
     renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />, {
@@ -439,6 +448,10 @@ describe('PostList Component', () => {
       'blog-post-1': 7,
       'blog-post-2': 'not-a-number',
     });
+    fetchPostCommentCountsMock.mockResolvedValue({
+      'blog-post-1': 4,
+      'blog-post-2': 'not-a-number',
+    });
 
     renderWithProviders(<PostList posts={likePosts} topics={[]} showLikes />, {
       preloadedState: buildPreloadedState(),
@@ -446,6 +459,7 @@ describe('PostList Component', () => {
 
     await waitFor(() => {
       expect(fetchPostLikesMock).toHaveBeenCalledWith('en', ['blog-post-1', 'blog-post-2']);
+      expect(fetchPostCommentCountsMock).toHaveBeenCalledWith('en', ['blog-post-1', 'blog-post-2']);
     });
 
     const trackableOneCard = screen.getByText('Trackable One').closest('[data-testid="post-card"]');
@@ -455,14 +469,19 @@ describe('PostList Component', () => {
     await waitFor(() => {
       expect(trackableOneCard).toHaveAttribute('data-like-count', '7');
       expect(trackableOneCard).toHaveAttribute('data-like-loading', 'false');
+      expect(trackableOneCard).toHaveAttribute('data-comment-count', '4');
+      expect(trackableOneCard).toHaveAttribute('data-comment-loading', 'false');
       expect(trackableTwoCard).toHaveAttribute('data-like-count', '0');
+      expect(trackableTwoCard).toHaveAttribute('data-comment-count', '0');
       expect(untrackableCard).toHaveAttribute('data-like-loading', 'false');
+      expect(untrackableCard).toHaveAttribute('data-comment-loading', 'false');
     });
   });
 
   it('marks pending likes as null when likes api returns null', async () => {
     const likePosts = [{ ...mockPostSummaries[0], id: 'blog-post-1', title: 'Trackable One' }];
     fetchPostLikesMock.mockResolvedValue(null);
+    fetchPostCommentCountsMock.mockResolvedValue(null);
 
     renderWithProviders(<PostList posts={likePosts} topics={[]} showLikes />, {
       preloadedState: buildPreloadedState(),
@@ -470,10 +489,13 @@ describe('PostList Component', () => {
 
     const card = screen.getByText('Trackable One').closest('[data-testid="post-card"]');
     expect(card).toHaveAttribute('data-like-loading', 'true');
+    expect(card).toHaveAttribute('data-comment-loading', 'true');
 
     await waitFor(() => {
       expect(card).toHaveAttribute('data-like-loading', 'false');
       expect(card).toHaveAttribute('data-like-count', 'null');
+      expect(card).toHaveAttribute('data-comment-loading', 'false');
+      expect(card).toHaveAttribute('data-comment-count', 'null');
     });
   });
 

@@ -161,6 +161,31 @@ describe('PostSummary Component', () => {
     expect(screen.getByTestId('post-like-count')).toHaveTextContent('123');
   });
 
+  it('shows comment count when enabled', () => {
+    render(<PostSummary post={mockPost} showComments commentCount={7} />);
+
+    expect(screen.getByText('7')).toBeInTheDocument();
+    expect(screen.getByTestId('icon-comments')).toBeInTheDocument();
+  });
+
+  it('shows a single loading spinner for engagement while counts are loading', () => {
+    render(
+      <PostSummary
+        post={mockPost}
+        showLikes
+        likeCount={null}
+        likeCountLoading
+        showComments
+        commentCount={null}
+        commentCountLoading
+      />,
+    );
+
+    expect(screen.getByLabelText('post.like.loading')).toBeInTheDocument();
+    expect(screen.queryByTestId('icon-comments')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('post-like-count')).not.toBeInTheDocument();
+  });
+
   it('plays read-more hover sound when voice is enabled', () => {
     render(<PostSummary post={mockPost} />);
 

@@ -248,6 +248,8 @@
     "searchSource": {
       "blog": "Blog",
       "medium": "Medium"
-    }
+    },
+    "commentsCount_one": "{{count}} comment",
+    "commentsCount_other": "{{count}} comments"
   }
 }

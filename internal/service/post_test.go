@@ -23,6 +23,10 @@ type postStubRepository struct {
 	incrementPostHit      func(context.Context, string, time.Time) (int64, error)
 }
 
+type postCommentStubRepository struct {
+	countApprovedByPosts func(context.Context, []string) (map[string]int64, error)
+}
+
 func (stub postStubRepository) CountPosts(ctx context.Context, filter bson.M) (int, error) {
 	return stub.countPosts(ctx, filter)
 }
@@ -61,10 +65,75 @@ func (stub postStubRepository) IncrementPostHit(ctx context.Context, postID stri
 	return stub.incrementPostHit(ctx, postID, now)
 }
 
+func (postCommentStubRepository) ListApprovedByPost(context.Context, string) ([]domain.CommentRecord, error) {
+	return nil, nil
+}
+
+func (postCommentStubRepository) CountApprovedByPost(context.Context, string) (int, error) {
+	return 0, nil
+}
+
+func (stub postCommentStubRepository) CountApprovedByPosts(
+	ctx context.Context,
+	postIDs []string,
+) (map[string]int64, error) {
+	if stub.countApprovedByPosts == nil {
+		return map[string]int64{}, nil
+	}
+	return stub.countApprovedByPosts(ctx, postIDs)
+}
+
+func (postCommentStubRepository) CreateComment(context.Context, domain.CommentRecord) error {
+	return nil
+}
+
+func (postCommentStubRepository) FindCommentByID(context.Context, string) (*domain.CommentRecord, error) {
+	return nil, nil
+}
+
+func (postCommentStubRepository) ListComments(
+	context.Context,
+	domain.AdminCommentFilter,
+	int,
+	int,
+) (*domain.AdminCommentListResult, error) {
+	return nil, nil
+}
+
+func (postCommentStubRepository) UpdateCommentStatusByID(
+	context.Context,
+	string,
+	string,
+	string,
+	time.Time,
+) (*domain.CommentRecord, error) {
+	return nil, nil
+}
+
+func (postCommentStubRepository) UpdateCommentStatusByIDs(
+	context.Context,
+	[]string,
+	string,
+	string,
+	time.Time,
+) (int, error) {
+	return 0, nil
+}
+
+func (postCommentStubRepository) DeleteCommentByID(context.Context, string) (bool, error) {
+	return false, nil
+}
+
+func (postCommentStubRepository) DeleteCommentsByIDs(context.Context, []string) (int, error) {
+	return 0, nil
+}
+
 func TestQueryContent(t *testing.T) {
 	originalRepository := postsRepository
+	originalCommentRepository := postCommentRepository
 	t.Cleanup(func() {
 		postsRepository = originalRepository
+		postCommentRepository = originalCommentRepository
 	})
 
 	postsRepository = postStubRepository{
@@ -93,6 +162,17 @@ func TestQueryContent(t *testing.T) {
 		incrementPostLike: func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 		incrementPostHit:  func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 	}
+	postCommentRepository = postCommentStubRepository{
+		countApprovedByPosts: func(_ context.Context, postIDs []string) (map[string]int64, error) {
+			if len(postIDs) != 2 {
+				t.Fatalf("postIDs = %#v", postIDs)
+			}
+			return map[string]int64{
+				"alpha-post": 3,
+				"beta-post":  5,
+			}, nil
+		},
+	}
 
 	page := 0
 	size := 2
@@ -110,12 +190,17 @@ func TestQueryContent(t *testing.T) {
 	if len(result.Posts) != 2 || result.LikesByPostID["alpha-post"] != 10 || result.HitsByPostID["beta-post"] != 20 {
 		t.Fatalf("engagement = %#v", result)
 	}
+	if result.CommentsByPostID["alpha-post"] != 3 || result.CommentsByPostID["beta-post"] != 5 {
+		t.Fatalf("comment counts = %#v", result.CommentsByPostID)
+	}
 }
 
 func TestQueryContentBranches(t *testing.T) {
 	originalRepository := postsRepository
+	originalCommentRepository := postCommentRepository
 	t.Cleanup(func() {
 		postsRepository = originalRepository
+		postCommentRepository = originalCommentRepository
 	})
 
 	postsRepository = postStubRepository{
@@ -129,6 +214,7 @@ func TestQueryContentBranches(t *testing.T) {
 		incrementPostLike:    func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 		incrementPostHit:     func(context.Context, string, time.Time) (int64, error) { return 0, nil },
 	}
+	postCommentRepository = postCommentStubRepository{}
 
 	if result := QueryContent(context.Background(), ContentQueryInput{ScopeIDs: []string{"bad id"}}); result.Status != "invalid-scope-ids" {
 		t.Fatalf("invalid scope result = %#v", result)
@@ -157,8 +243,10 @@ func TestQueryContentBranches(t *testing.T) {
 
 func TestQueryPostAndMetrics(t *testing.T) {
 	originalRepository := postsRepository
+	originalCommentRepository := postCommentRepository
 	t.Cleanup(func() {
 		postsRepository = originalRepository
+		postCommentRepository = originalCommentRepository
 	})
 
 	now := time.Now().UTC()
@@ -190,12 +278,21 @@ func TestQueryPostAndMetrics(t *testing.T) {
 			return 43, nil
 		},
 	}
+	postCommentRepository = postCommentStubRepository{
+		countApprovedByPosts: func(_ context.Context, postIDs []string) (map[string]int64, error) {
+			if len(postIDs) != 1 || postIDs[0] != "alpha-post" {
+				t.Fatalf("postIDs = %#v", postIDs)
+			}
+			return map[string]int64{"alpha-post": 6}, nil
+		},
+	}
 
 	postResult := QueryPost(context.Background(), PostQueryInput{Locale: "en", PostID: "Alpha-Post"})
 	if postResult.Status != "success" || postResult.PostID != "alpha-post" || len(postResult.Posts) != 1 {
 		t.Fatalf("postResult = %#v", postResult)
 	}
-	if postResult.LikesByPostID["alpha-post"] != 12 || postResult.HitsByPostID["alpha-post"] != 42 {
+	if postResult.LikesByPostID["alpha-post"] != 12 || postResult.HitsByPostID["alpha-post"] != 42 ||
+		postResult.CommentsByPostID["alpha-post"] != 6 {
 		t.Fatalf("engagement = %#v", postResult)
 	}
 
@@ -212,8 +309,10 @@ func TestQueryPostAndMetrics(t *testing.T) {
 
 func TestQueryPostAndMetricBranches(t *testing.T) {
 	originalRepository := postsRepository
+	originalCommentRepository := postCommentRepository
 	t.Cleanup(func() {
 		postsRepository = originalRepository
+		postCommentRepository = originalCommentRepository
 	})
 
 	postsRepository = postStubRepository{
@@ -229,6 +328,7 @@ func TestQueryPostAndMetricBranches(t *testing.T) {
 		},
 		incrementPostHit: func(context.Context, string, time.Time) (int64, error) { return 0, errors.New("boom") },
 	}
+	postCommentRepository = postCommentStubRepository{}
 
 	if result := QueryPost(context.Background(), PostQueryInput{Locale: "en", PostID: "bad id"}); result.Status != "invalid-post-id" {
 		t.Fatalf("invalid post result = %#v", result)

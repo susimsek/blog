@@ -38,6 +38,7 @@ type PostsResponse = {
   posts?: unknown[];
   likesByPostId?: Record<string, number>;
   hitsByPostId?: Record<string, number>;
+  commentsByPostId?: Record<string, number>;
   total?: number;
   page?: number;
   size?: number;
@@ -50,6 +51,7 @@ type PostResponse = {
   post?: unknown;
   likes?: number;
   hits?: number;
+  comments?: number;
 };
 
 type ContentLikeResponse = {
@@ -71,6 +73,7 @@ type EngagementMetric = {
   postId: string;
   likes: number;
   hits: number;
+  comments: number;
 };
 
 const mapSortOrder = (value: FetchPostsParams['sort']) => {
@@ -87,6 +90,7 @@ const mapEngagementToRecords = (metrics: ReadonlyArray<EngagementMetric>) =>
   metrics.reduce<{
     likesByPostId: Record<string, number>;
     hitsByPostId: Record<string, number>;
+    commentsByPostId: Record<string, number>;
   }>(
     (result, metric) => {
       if (typeof metric.postId !== 'string' || metric.postId.trim() === '') {
@@ -100,12 +104,16 @@ const mapEngagementToRecords = (metrics: ReadonlyArray<EngagementMetric>) =>
       if (typeof metric.hits === 'number' && Number.isFinite(metric.hits)) {
         result.hitsByPostId[postId] = Math.max(0, Math.trunc(metric.hits));
       }
+      if (typeof metric.comments === 'number' && Number.isFinite(metric.comments)) {
+        result.commentsByPostId[postId] = Math.max(0, Math.trunc(metric.comments));
+      }
 
       return result;
     },
     {
       likesByPostId: {},
       hitsByPostId: {},
+      commentsByPostId: {},
     },
   );
 
@@ -223,6 +231,7 @@ export const fetchPost = async (
   const normalizedPost = payload.node ? normalizeGraphQLPosts([payload.node])[0] : null;
   const likes = payload.engagement?.likes;
   const hits = payload.engagement?.hits;
+  const comments = payload.engagement?.comments;
 
   return {
     ...(fromContentQueryStatus(payload.status) ? { status: fromContentQueryStatus(payload.status) } : {}),
@@ -230,6 +239,9 @@ export const fetchPost = async (
     post: normalizedPost,
     ...(typeof likes === 'number' && Number.isFinite(likes) ? { likes: Math.max(0, Math.trunc(likes)) } : {}),
     ...(typeof hits === 'number' && Number.isFinite(hits) ? { hits: Math.max(0, Math.trunc(hits)) } : {}),
+    ...(typeof comments === 'number' && Number.isFinite(comments)
+      ? { comments: Math.max(0, Math.trunc(comments)) }
+      : {}),
   };
 };
 
@@ -261,6 +273,38 @@ export const fetchPostLikes = async (
       return result;
     }
     result[postId] = Math.max(0, Math.trunc(likes));
+    return result;
+  }, {});
+};
+
+export const fetchPostCommentCounts = async (
+  locale: string,
+  postIds: string[],
+  options: ContentApiOptions = {},
+): Promise<Record<string, number> | null> => {
+  if (postIds.length === 0) {
+    return {};
+  }
+
+  const payload = await fetchPosts(
+    locale,
+    {
+      page: 1,
+      size: Math.max(1, postIds.length),
+      scopeIds: postIds,
+    },
+    options,
+  );
+
+  if (payload?.status !== 'success' || !payload.commentsByPostId) {
+    return null;
+  }
+
+  return Object.entries(payload.commentsByPostId).reduce<Record<string, number>>((result, [postId, comments]) => {
+    if (typeof comments !== 'number' || Number.isNaN(comments)) {
+      return result;
+    }
+    result[postId] = Math.max(0, Math.trunc(comments));
     return result;
   }, {});
 };

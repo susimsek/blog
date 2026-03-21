@@ -23,8 +23,9 @@ type (
 )
 
 var (
-	postIDPattern                             = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{1,127}$`)
-	postsRepository repository.PostRepository = repository.NewPostMongoRepository()
+	postIDPattern                                      = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{1,127}$`)
+	postsRepository       repository.PostRepository    = repository.NewPostMongoRepository()
+	postCommentRepository repository.CommentRepository = repository.NewCommentRepository()
 )
 
 const (
@@ -102,15 +103,16 @@ func QueryContent(ctx context.Context, input ContentQueryInput) ContentResponse 
 	}
 
 	return ContentResponse{
-		Status:        "success",
-		Locale:        locale,
-		Posts:         posts,
-		LikesByPostID: postsRepository.ResolveLikesByPostID(operationCtx, posts),
-		HitsByPostID:  postsRepository.ResolveHitsByPostID(operationCtx, posts),
-		Total:         total,
-		Page:          resolvedPage,
-		Size:          size,
-		Sort:          sortOrder,
+		Status:           "success",
+		Locale:           locale,
+		Posts:            posts,
+		LikesByPostID:    postsRepository.ResolveLikesByPostID(operationCtx, posts),
+		HitsByPostID:     postsRepository.ResolveHitsByPostID(operationCtx, posts),
+		CommentsByPostID: resolveCommentCountsByPostID(operationCtx, posts),
+		Total:            total,
+		Page:             resolvedPage,
+		Size:             size,
+		Sort:             sortOrder,
 	}
 }
 
@@ -138,12 +140,13 @@ func QueryPost(ctx context.Context, input PostQueryInput) ContentResponse {
 
 	posts := []PostRecord{*post}
 	return ContentResponse{
-		Status:        "success",
-		Locale:        locale,
-		Posts:         posts,
-		PostID:        postID,
-		LikesByPostID: postsRepository.ResolveLikesByPostID(operationCtx, posts),
-		HitsByPostID:  postsRepository.ResolveHitsByPostID(operationCtx, posts),
+		Status:           "success",
+		Locale:           locale,
+		Posts:            posts,
+		PostID:           postID,
+		LikesByPostID:    postsRepository.ResolveLikesByPostID(operationCtx, posts),
+		HitsByPostID:     postsRepository.ResolveHitsByPostID(operationCtx, posts),
+		CommentsByPostID: resolveCommentCountsByPostID(operationCtx, posts),
 	}
 }
 
@@ -265,4 +268,26 @@ func buildContentFilter(locale string, scopeIDs []string) bson.M {
 	}
 
 	return filter
+}
+
+func resolveCommentCountsByPostID(ctx context.Context, posts []PostRecord) map[string]int64 {
+	postIDs := make([]string, 0, len(posts))
+	for _, post := range posts {
+		postID, ok := normalizePostID(post.ID)
+		if !ok {
+			continue
+		}
+		postIDs = append(postIDs, postID)
+	}
+
+	if len(postIDs) == 0 {
+		return map[string]int64{}
+	}
+
+	counts, err := postCommentRepository.CountApprovedByPosts(ctx, postIDs)
+	if err != nil {
+		return map[string]int64{}
+	}
+
+	return counts
 }
