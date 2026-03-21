@@ -101,6 +101,7 @@ func ListAdminContentPosts(
 		}, nil
 	}
 
+	populateAdminContentPostGroupAnalytics(ctx, result.Items)
 	return result, nil
 }
 
@@ -336,7 +337,7 @@ func UpdateAdminContentPostMetadata(
 		return nil, err
 	}
 
-	return updated, nil
+	return populateAdminContentPostAnalytics(ctx, updated), nil
 }
 
 func GetAdminContentPost(
@@ -366,7 +367,7 @@ func GetAdminContentPost(
 		return nil, apperrors.BadRequest("content post not found")
 	}
 
-	return record, nil
+	return populateAdminContentPostAnalytics(ctx, record), nil
 }
 
 func UpdateAdminContentPostContent(
@@ -427,7 +428,84 @@ func UpdateAdminContentPostContent(
 		return nil, err
 	}
 
-	return updated, nil
+	return populateAdminContentPostAnalytics(ctx, updated), nil
+}
+
+func populateAdminContentPostAnalytics(
+	ctx context.Context,
+	record *domain.AdminContentPostRecord,
+) *domain.AdminContentPostRecord {
+	if record == nil || strings.TrimSpace(record.ID) == "" {
+		return record
+	}
+
+	postScope := []domain.PostRecord{{ID: record.ID}}
+	postIDs := []string{record.ID}
+
+	if likesByPostID := postsRepository.ResolveLikesByPostID(ctx, postScope); likesByPostID != nil {
+		record.LikeCount = likesByPostID[record.ID]
+	}
+	if hitsByPostID := postsRepository.ResolveHitsByPostID(ctx, postScope); hitsByPostID != nil {
+		record.ViewCount = hitsByPostID[record.ID]
+	}
+	if commentsByPostID, err := postCommentRepository.CountApprovedByPosts(ctx, postIDs); err == nil && commentsByPostID != nil {
+		record.CommentCount = commentsByPostID[record.ID]
+	}
+
+	return record
+}
+
+func populateAdminContentPostGroupAnalytics(ctx context.Context, groups []domain.AdminContentPostGroupRecord) {
+	if len(groups) == 0 {
+		return
+	}
+
+	seenPostIDs := make(map[string]struct{}, len(groups))
+	postScope := make([]domain.PostRecord, 0, len(groups))
+	postIDs := make([]string, 0, len(groups))
+
+	collect := func(item *domain.AdminContentPostRecord) {
+		if item == nil || strings.TrimSpace(item.ID) == "" {
+			return
+		}
+		if _, exists := seenPostIDs[item.ID]; exists {
+			return
+		}
+		seenPostIDs[item.ID] = struct{}{}
+		postScope = append(postScope, domain.PostRecord{ID: item.ID})
+		postIDs = append(postIDs, item.ID)
+	}
+
+	for index := range groups {
+		collect(&groups[index].Preferred)
+		collect(groups[index].EN)
+		collect(groups[index].TR)
+	}
+
+	if len(postScope) == 0 {
+		return
+	}
+
+	likesByPostID := postsRepository.ResolveLikesByPostID(ctx, postScope)
+	hitsByPostID := postsRepository.ResolveHitsByPostID(ctx, postScope)
+	commentsByPostID, _ := postCommentRepository.CountApprovedByPosts(ctx, postIDs)
+
+	apply := func(item *domain.AdminContentPostRecord) {
+		if item == nil {
+			return
+		}
+		item.LikeCount = likesByPostID[item.ID]
+		item.ViewCount = hitsByPostID[item.ID]
+		if commentsByPostID != nil {
+			item.CommentCount = commentsByPostID[item.ID]
+		}
+	}
+
+	for index := range groups {
+		apply(&groups[index].Preferred)
+		apply(groups[index].EN)
+		apply(groups[index].TR)
+	}
 }
 
 func DeleteAdminContentPost(

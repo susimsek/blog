@@ -319,6 +319,13 @@ interface Resources {
             title: 'Delete topic';
           };
           post: {
+            analytics: {
+              comments: 'Comments';
+              copy: 'Review the current engagement summary for this post before editing its metadata.';
+              likes: 'Likes';
+              title: 'Performance snapshot';
+              views: 'Views';
+            };
             category: 'Category';
             categoryNone: 'No category';
             comments: {
@@ -363,6 +370,7 @@ interface Resources {
             title: 'Update post metadata';
             topics: 'Topics';
             topicsEmpty: 'No topics found for this locale.';
+            topicsQueryPlaceholder: 'Search topics by name';
           };
           topic: {
             color: 'Color';

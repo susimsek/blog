@@ -520,8 +520,12 @@ type AdminContentPost {
   categoryName: String
   topicIds: [String!]!
   topicNames: [String!]!
+  readingTimeMin: Int!
   contentUpdatedAt: DateTime
   updatedAt: DateTime
+  viewCount: Int!
+  likeCount: Int!
+  commentCount: Int!
 }
 
 type AdminContentPostListPayload {

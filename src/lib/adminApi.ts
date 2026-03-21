@@ -256,8 +256,12 @@ export type AdminContentPostItem = {
   categoryName: string | null;
   topicIds: string[];
   topicNames: string[];
+  readingTimeMin: number;
   contentUpdatedAt: string | null;
   updatedAt: string | null;
+  viewCount: number;
+  likeCount: number;
+  commentCount: number;
 };
 
 export type AdminContentPostGroupItem = {
@@ -978,8 +982,12 @@ const ADMIN_CONTENT_POSTS_QUERY = gql`
           categoryName
           topicIds
           topicNames
+          readingTimeMin
           contentUpdatedAt
           updatedAt
+          viewCount
+          likeCount
+          commentCount
         }
         en {
           locale
@@ -996,8 +1004,12 @@ const ADMIN_CONTENT_POSTS_QUERY = gql`
           categoryName
           topicIds
           topicNames
+          readingTimeMin
           contentUpdatedAt
           updatedAt
+          viewCount
+          likeCount
+          commentCount
         }
         tr {
           locale
@@ -1014,8 +1026,12 @@ const ADMIN_CONTENT_POSTS_QUERY = gql`
           categoryName
           topicIds
           topicNames
+          readingTimeMin
           contentUpdatedAt
           updatedAt
+          viewCount
+          likeCount
+          commentCount
         }
       }
       total
@@ -1042,8 +1058,12 @@ const ADMIN_CONTENT_POST_QUERY = gql`
       categoryName
       topicIds
       topicNames
+      readingTimeMin
       contentUpdatedAt
       updatedAt
+      viewCount
+      likeCount
+      commentCount
     }
   }
 `;
@@ -1169,8 +1189,12 @@ const ADMIN_UPDATE_CONTENT_POST_METADATA_MUTATION = gql`
       categoryName
       topicIds
       topicNames
+      readingTimeMin
       contentUpdatedAt
       updatedAt
+      viewCount
+      likeCount
+      commentCount
     }
   }
 `;
@@ -1192,8 +1216,12 @@ const ADMIN_UPDATE_CONTENT_POST_CONTENT_MUTATION = gql`
       categoryName
       topicIds
       topicNames
+      readingTimeMin
       contentUpdatedAt
       updatedAt
+      viewCount
+      likeCount
+      commentCount
     }
   }
 `;

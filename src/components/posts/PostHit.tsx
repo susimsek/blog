@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
+import CompactCount from '@/components/common/CompactCount';
 import { fetchPost, incrementPostHit } from '@/lib/contentApi';
 import { defaultLocale } from '@/i18n/settings';
 
@@ -14,8 +15,6 @@ type PostHitProps = {
   skipInitialFetch?: boolean;
   initialLoading?: boolean;
 };
-
-const DIGIT_PAD_LENGTH = 6;
 
 export default function PostHit({
   postId,
@@ -35,10 +34,6 @@ export default function PostHit({
   const trackedRef = React.useRef(false);
 
   const resolvedLanguage = i18n?.resolvedLanguage ?? i18n?.language ?? defaultLocale;
-  const numberFormatter = React.useMemo(
-    () => new Intl.NumberFormat(resolvedLanguage, { useGrouping: false }),
-    [resolvedLanguage],
-  );
 
   React.useEffect(() => {
     if (!skipInitialFetch) {
@@ -121,8 +116,6 @@ export default function PostHit({
     };
   }, [hits, postId]);
 
-  const rawDigits = numberFormatter.format(Math.max(0, hits ?? 0));
-  const hitDigits = rawDigits.padStart(DIGIT_PAD_LENGTH, '0');
   const isLoadingState = isLoading && hits === null;
   const hitDisplay = isLoadingState ? (
     <span className="d-inline-flex align-items-center post-hit-loading">
@@ -130,7 +123,7 @@ export default function PostHit({
       <output className="visually-hidden">{t('post.hit.loading')}</output>
     </span>
   ) : (
-    hitDigits
+    <CompactCount value={Math.max(0, hits ?? 0)} locale={resolvedLanguage} />
   );
 
   return (

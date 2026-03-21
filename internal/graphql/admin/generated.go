@@ -108,12 +108,15 @@ type ComplexityRoot struct {
 	AdminContentPost struct {
 		CategoryID       func(childComplexity int) int
 		CategoryName     func(childComplexity int) int
+		CommentCount     func(childComplexity int) int
 		Content          func(childComplexity int) int
 		ContentMode      func(childComplexity int) int
 		ContentUpdatedAt func(childComplexity int) int
 		ID               func(childComplexity int) int
+		LikeCount        func(childComplexity int) int
 		Locale           func(childComplexity int) int
 		PublishedDate    func(childComplexity int) int
+		ReadingTimeMin   func(childComplexity int) int
 		Source           func(childComplexity int) int
 		Summary          func(childComplexity int) int
 		Thumbnail        func(childComplexity int) int
@@ -122,6 +125,7 @@ type ComplexityRoot struct {
 		TopicNames       func(childComplexity int) int
 		UpdatedAt        func(childComplexity int) int
 		UpdatedDate      func(childComplexity int) int
+		ViewCount        func(childComplexity int) int
 	}
 
 	AdminContentPostGroup struct {
@@ -760,6 +764,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminContentPost.CategoryName(childComplexity), true
+	case "AdminContentPost.commentCount":
+		if e.complexity.AdminContentPost.CommentCount == nil {
+			break
+		}
+
+		return e.complexity.AdminContentPost.CommentCount(childComplexity), true
 	case "AdminContentPost.content":
 		if e.complexity.AdminContentPost.Content == nil {
 			break
@@ -784,6 +794,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminContentPost.ID(childComplexity), true
+	case "AdminContentPost.likeCount":
+		if e.complexity.AdminContentPost.LikeCount == nil {
+			break
+		}
+
+		return e.complexity.AdminContentPost.LikeCount(childComplexity), true
 	case "AdminContentPost.locale":
 		if e.complexity.AdminContentPost.Locale == nil {
 			break
@@ -796,6 +812,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminContentPost.PublishedDate(childComplexity), true
+	case "AdminContentPost.readingTimeMin":
+		if e.complexity.AdminContentPost.ReadingTimeMin == nil {
+			break
+		}
+
+		return e.complexity.AdminContentPost.ReadingTimeMin(childComplexity), true
 	case "AdminContentPost.source":
 		if e.complexity.AdminContentPost.Source == nil {
 			break
@@ -844,6 +866,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminContentPost.UpdatedDate(childComplexity), true
+	case "AdminContentPost.viewCount":
+		if e.complexity.AdminContentPost.ViewCount == nil {
+			break
+		}
+
+		return e.complexity.AdminContentPost.ViewCount(childComplexity), true
 
 	case "AdminContentPostGroup.en":
 		if e.complexity.AdminContentPostGroup.En == nil {
@@ -4592,6 +4620,35 @@ func (ec *executionContext) fieldContext_AdminContentPost_topicNames(_ context.C
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminContentPost_readingTimeMin(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentPost) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentPost_readingTimeMin,
+		func(ctx context.Context) (any, error) {
+			return obj.ReadingTimeMin, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentPost_readingTimeMin(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentPost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminContentPost_contentUpdatedAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentPost) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -4645,6 +4702,93 @@ func (ec *executionContext) fieldContext_AdminContentPost_updatedAt(_ context.Co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentPost_viewCount(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentPost) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentPost_viewCount,
+		func(ctx context.Context) (any, error) {
+			return obj.ViewCount, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentPost_viewCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentPost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentPost_likeCount(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentPost) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentPost_likeCount,
+		func(ctx context.Context) (any, error) {
+			return obj.LikeCount, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentPost_likeCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentPost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminContentPost_commentCount(ctx context.Context, field graphql.CollectedField, obj *model.AdminContentPost) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminContentPost_commentCount,
+		func(ctx context.Context) (any, error) {
+			return obj.CommentCount, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminContentPost_commentCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminContentPost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4760,10 +4904,18 @@ func (ec *executionContext) fieldContext_AdminContentPostGroup_preferred(_ conte
 				return ec.fieldContext_AdminContentPost_topicIds(ctx, field)
 			case "topicNames":
 				return ec.fieldContext_AdminContentPost_topicNames(ctx, field)
+			case "readingTimeMin":
+				return ec.fieldContext_AdminContentPost_readingTimeMin(ctx, field)
 			case "contentUpdatedAt":
 				return ec.fieldContext_AdminContentPost_contentUpdatedAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_AdminContentPost_updatedAt(ctx, field)
+			case "viewCount":
+				return ec.fieldContext_AdminContentPost_viewCount(ctx, field)
+			case "likeCount":
+				return ec.fieldContext_AdminContentPost_likeCount(ctx, field)
+			case "commentCount":
+				return ec.fieldContext_AdminContentPost_commentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminContentPost", field.Name)
 		},
@@ -4823,10 +4975,18 @@ func (ec *executionContext) fieldContext_AdminContentPostGroup_en(_ context.Cont
 				return ec.fieldContext_AdminContentPost_topicIds(ctx, field)
 			case "topicNames":
 				return ec.fieldContext_AdminContentPost_topicNames(ctx, field)
+			case "readingTimeMin":
+				return ec.fieldContext_AdminContentPost_readingTimeMin(ctx, field)
 			case "contentUpdatedAt":
 				return ec.fieldContext_AdminContentPost_contentUpdatedAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_AdminContentPost_updatedAt(ctx, field)
+			case "viewCount":
+				return ec.fieldContext_AdminContentPost_viewCount(ctx, field)
+			case "likeCount":
+				return ec.fieldContext_AdminContentPost_likeCount(ctx, field)
+			case "commentCount":
+				return ec.fieldContext_AdminContentPost_commentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminContentPost", field.Name)
 		},
@@ -4886,10 +5046,18 @@ func (ec *executionContext) fieldContext_AdminContentPostGroup_tr(_ context.Cont
 				return ec.fieldContext_AdminContentPost_topicIds(ctx, field)
 			case "topicNames":
 				return ec.fieldContext_AdminContentPost_topicNames(ctx, field)
+			case "readingTimeMin":
+				return ec.fieldContext_AdminContentPost_readingTimeMin(ctx, field)
 			case "contentUpdatedAt":
 				return ec.fieldContext_AdminContentPost_contentUpdatedAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_AdminContentPost_updatedAt(ctx, field)
+			case "viewCount":
+				return ec.fieldContext_AdminContentPost_viewCount(ctx, field)
+			case "likeCount":
+				return ec.fieldContext_AdminContentPost_likeCount(ctx, field)
+			case "commentCount":
+				return ec.fieldContext_AdminContentPost_commentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminContentPost", field.Name)
 		},
@@ -8767,10 +8935,18 @@ func (ec *executionContext) fieldContext_AdminMutation_updateContentPostMetadata
 				return ec.fieldContext_AdminContentPost_topicIds(ctx, field)
 			case "topicNames":
 				return ec.fieldContext_AdminContentPost_topicNames(ctx, field)
+			case "readingTimeMin":
+				return ec.fieldContext_AdminContentPost_readingTimeMin(ctx, field)
 			case "contentUpdatedAt":
 				return ec.fieldContext_AdminContentPost_contentUpdatedAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_AdminContentPost_updatedAt(ctx, field)
+			case "viewCount":
+				return ec.fieldContext_AdminContentPost_viewCount(ctx, field)
+			case "likeCount":
+				return ec.fieldContext_AdminContentPost_likeCount(ctx, field)
+			case "commentCount":
+				return ec.fieldContext_AdminContentPost_commentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminContentPost", field.Name)
 		},
@@ -8842,10 +9018,18 @@ func (ec *executionContext) fieldContext_AdminMutation_updateContentPostContent(
 				return ec.fieldContext_AdminContentPost_topicIds(ctx, field)
 			case "topicNames":
 				return ec.fieldContext_AdminContentPost_topicNames(ctx, field)
+			case "readingTimeMin":
+				return ec.fieldContext_AdminContentPost_readingTimeMin(ctx, field)
 			case "contentUpdatedAt":
 				return ec.fieldContext_AdminContentPost_contentUpdatedAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_AdminContentPost_updatedAt(ctx, field)
+			case "viewCount":
+				return ec.fieldContext_AdminContentPost_viewCount(ctx, field)
+			case "likeCount":
+				return ec.fieldContext_AdminContentPost_likeCount(ctx, field)
+			case "commentCount":
+				return ec.fieldContext_AdminContentPost_commentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminContentPost", field.Name)
 		},
@@ -11690,10 +11874,18 @@ func (ec *executionContext) fieldContext_AdminQuery_contentPost(ctx context.Cont
 				return ec.fieldContext_AdminContentPost_topicIds(ctx, field)
 			case "topicNames":
 				return ec.fieldContext_AdminContentPost_topicNames(ctx, field)
+			case "readingTimeMin":
+				return ec.fieldContext_AdminContentPost_readingTimeMin(ctx, field)
 			case "contentUpdatedAt":
 				return ec.fieldContext_AdminContentPost_contentUpdatedAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_AdminContentPost_updatedAt(ctx, field)
+			case "viewCount":
+				return ec.fieldContext_AdminContentPost_viewCount(ctx, field)
+			case "likeCount":
+				return ec.fieldContext_AdminContentPost_likeCount(ctx, field)
+			case "commentCount":
+				return ec.fieldContext_AdminContentPost_commentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminContentPost", field.Name)
 		},
@@ -16027,10 +16219,30 @@ func (ec *executionContext) _AdminContentPost(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "readingTimeMin":
+			out.Values[i] = ec._AdminContentPost_readingTimeMin(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "contentUpdatedAt":
 			out.Values[i] = ec._AdminContentPost_contentUpdatedAt(ctx, field, obj)
 		case "updatedAt":
 			out.Values[i] = ec._AdminContentPost_updatedAt(ctx, field, obj)
+		case "viewCount":
+			out.Values[i] = ec._AdminContentPost_viewCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "likeCount":
+			out.Values[i] = ec._AdminContentPost_likeCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "commentCount":
+			out.Values[i] = ec._AdminContentPost_commentCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -506,6 +506,13 @@
             "total_one": "{{count}} comment",
             "total_other": "{{count}} comments"
           },
+          "analytics": {
+            "title": "Performance snapshot",
+            "copy": "Review the current engagement summary for this post before editing its metadata.",
+            "views": "Views",
+            "likes": "Likes",
+            "comments": "Comments"
+          },
           "category": "Category",
           "categoryNone": "No category",
           "metadataFields": {
@@ -517,6 +524,7 @@
             "thumbnail": "Thumbnail URL"
           },
           "topics": "Topics",
+          "topicsQueryPlaceholder": "Search topics by name",
           "topicsEmpty": "No topics found for this locale.",
           "contentLabel": "Markdown content",
           "contentHint": "Supports standard Markdown syntax.",

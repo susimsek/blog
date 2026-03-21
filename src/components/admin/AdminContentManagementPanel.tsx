@@ -21,6 +21,7 @@ import { tr } from 'date-fns/locale/tr';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
 import AdminMarkdownEditor, { type AdminMarkdownEditorViewport } from '@/components/admin/AdminMarkdownEditor';
+import CompactCount from '@/components/common/CompactCount';
 import { getDatePickerLocale, toISODateString } from '@/components/common/DateRangePicker';
 import FlagIcon from '@/components/common/FlagIcon';
 import PostDensityToggle, { type PostDensityMode } from '@/components/common/PostDensityToggle';
@@ -28,6 +29,7 @@ import PostCategoryBadge from '@/components/posts/PostCategoryBadge';
 import MarkdownRenderer from '@/components/common/MarkdownRenderer';
 import Link from '@/components/common/Link';
 import useMediaQuery from '@/hooks/useMediaQuery';
+import { formatReadingTime } from '@/lib/readingTime';
 import {
   bulkDeleteAdminComments,
   bulkUpdateAdminCommentStatus,
@@ -210,6 +212,7 @@ export default function AdminContentManagementPanel({
   const [postEditorUpdatedDate, setPostEditorUpdatedDate] = React.useState('');
   const [postEditorCategoryID, setPostEditorCategoryID] = React.useState('');
   const [postEditorTopicIDs, setPostEditorTopicIDs] = React.useState<string[]>([]);
+  const [postEditorTopicQuery, setPostEditorTopicQuery] = React.useState('');
   const [postEditorTab, setPostEditorTab] = React.useState<PostEditorTab>('content');
   const [postContentViewMode, setPostContentViewMode] = React.useState<PostContentViewMode>('editor');
   const [postEditorContent, setPostEditorContent] = React.useState('');
@@ -311,6 +314,7 @@ export default function AdminContentManagementPanel({
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const totalPostCommentPages = Math.max(1, Math.ceil(postCommentsTotal / postCommentsPageSize));
+  const adminNumberFormatter = React.useMemo(() => new Intl.NumberFormat(routeLocale), [routeLocale]);
   const selectedVisiblePostCommentIDs = React.useMemo(
     () => postComments.filter(item => selectedPostCommentIDs.includes(item.id)).map(item => item.id),
     [postComments, selectedPostCommentIDs],
@@ -425,6 +429,13 @@ export default function AdminContentManagementPanel({
     }
     return topics.filter(item => item.locale.toLowerCase() === editingPost.locale.toLowerCase());
   }, [editingPost, topics]);
+  const filteredEditablePostTopics = React.useMemo(() => {
+    const query = postEditorTopicQuery.trim().toLowerCase();
+    if (!query) {
+      return editablePostTopics;
+    }
+    return editablePostTopics.filter(item => item.name.toLowerCase().includes(query));
+  }, [editablePostTopics, postEditorTopicQuery]);
 
   const editablePostCategories = React.useMemo(() => {
     if (!editingPost) {
@@ -954,6 +965,7 @@ export default function AdminContentManagementPanel({
         setPostEditorUpdatedDate('');
         setPostEditorCategoryID('');
         setPostEditorTopicIDs([]);
+        setPostEditorTopicQuery('');
         setPostContentViewMode('editor');
         setPostEditorContent('');
         setPostEditorInitialContent('');
@@ -982,6 +994,7 @@ export default function AdminContentManagementPanel({
       setPostEditorUpdatedDate('');
       setPostEditorCategoryID('');
       setPostEditorTopicIDs([]);
+      setPostEditorTopicQuery('');
       setPostContentViewMode('editor');
       setPostEditorContent('');
       setPostEditorInitialContent('');
@@ -1021,6 +1034,7 @@ export default function AdminContentManagementPanel({
         setPostEditorUpdatedDate(detail.updatedDate ?? '');
         setPostEditorCategoryID(detail.categoryId ?? '');
         setPostEditorTopicIDs(detail.topicIds ?? []);
+        setPostEditorTopicQuery('');
         const resolvedContent = detail.content ?? '';
         setPostEditorContent(resolvedContent);
         setPostEditorInitialContent(resolvedContent);
@@ -1085,6 +1099,7 @@ export default function AdminContentManagementPanel({
       setPostEditorUpdatedDate('');
       setPostEditorCategoryID('');
       setPostEditorTopicIDs([]);
+      setPostEditorTopicQuery('');
       setPostContentViewMode('editor');
       setPostEditorContent('');
       setPostEditorInitialContent('');
@@ -1155,6 +1170,7 @@ export default function AdminContentManagementPanel({
       setPostEditorUpdatedDate(updated.updatedDate ?? '');
       setPostEditorCategoryID(updated.categoryId ?? '');
       setPostEditorTopicIDs(updated.topicIds ?? []);
+      setPostEditorTopicQuery('');
       await loadPosts();
       setSuccessMessage(
         t('adminAccount.content.success.postUpdated', {
@@ -2118,6 +2134,55 @@ export default function AdminContentManagementPanel({
                       }
                     >
                       <div className="admin-content-post-tab-pane pt-3">
+                        <div className="mb-4">
+                          <h5 className="mb-1">
+                            {t('adminAccount.content.modals.post.analytics.title', { ns: 'admin-account' })}
+                          </h5>
+                          <p className="small text-muted mb-0">
+                            {t('adminAccount.content.modals.post.analytics.copy', { ns: 'admin-account' })}
+                          </p>
+                        </div>
+                        <div className="row g-3 mb-4">
+                          <div className="col-12 col-sm-6 col-xl-3">
+                            <div className="admin-newsletter-summary-metric admin-newsletter-summary-metric--views h-100">
+                              <div className="admin-newsletter-summary-label d-flex align-items-center gap-2">
+                                <FontAwesomeIcon icon="eye" />
+                                <span>
+                                  {t('adminAccount.content.modals.post.analytics.views', { ns: 'admin-account' })}
+                                </span>
+                              </div>
+                              <div className="admin-newsletter-summary-value">
+                                <CompactCount value={editingPost.viewCount} locale={routeLocale} />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-12 col-sm-6 col-xl-3">
+                            <div className="admin-newsletter-summary-metric admin-newsletter-summary-metric--likes h-100">
+                              <div className="admin-newsletter-summary-label d-flex align-items-center gap-2">
+                                <FontAwesomeIcon icon="heart" />
+                                <span>
+                                  {t('adminAccount.content.modals.post.analytics.likes', { ns: 'admin-account' })}
+                                </span>
+                              </div>
+                              <div className="admin-newsletter-summary-value">
+                                {adminNumberFormatter.format(editingPost.likeCount)}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-12 col-sm-6 col-xl-3">
+                            <div className="admin-newsletter-summary-metric admin-newsletter-summary-metric--comments h-100">
+                              <div className="admin-newsletter-summary-label d-flex align-items-center gap-2">
+                                <FontAwesomeIcon icon="comments" />
+                                <span>
+                                  {t('adminAccount.content.modals.post.analytics.comments', { ns: 'admin-account' })}
+                                </span>
+                              </div>
+                              <div className="admin-newsletter-summary-value">
+                                {adminNumberFormatter.format(editingPost.commentCount)}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                         <Form.Group className="mb-3" controlId="admin-content-post-title">
                           <Form.Label>
                             {t('adminAccount.content.modals.post.metadataFields.title', { ns: 'admin-account' })}
@@ -2236,36 +2301,291 @@ export default function AdminContentManagementPanel({
                           <Form.Label>
                             {t('adminAccount.content.modals.post.topics', { ns: 'admin-account' })}
                           </Form.Label>
-                          <div
-                            className="border rounded-3 bg-body-tertiary overflow-auto"
-                            style={{ maxHeight: '18rem' }}
-                          >
-                            {editablePostTopics.length === 0 ? (
-                              <div className="small text-muted p-3">
-                                {t('adminAccount.content.modals.post.topicsEmpty', { ns: 'admin-account' })}
+                          <div className="admin-content-topic-picker-shell border rounded-3 overflow-hidden">
+                            <div className="search-bar admin-content-topic-picker-search w-100 d-flex align-items-center">
+                              <div className="search-icon">
+                                <FontAwesomeIcon icon="search" />
                               </div>
-                            ) : (
-                              <div className="list-group list-group-flush">
-                                {editablePostTopics.map(item => (
-                                  <div key={toTaxonomyKey(item)} className="list-group-item bg-transparent py-2">
-                                    <Form.Check
-                                      type="checkbox"
-                                      id={`admin-content-post-topic-${toTaxonomyKey(item)}`}
-                                      className="mb-0"
-                                      label={item.name}
-                                      checked={postEditorTopicIDs.includes(item.id)}
-                                      onChange={event => {
-                                        handlePostTopicToggle(item.id, event.currentTarget.checked);
-                                      }}
-                                    />
-                                  </div>
-                                ))}
-                              </div>
-                            )}
+                              <Form.Control
+                                type="text"
+                                className="search-input form-control"
+                                value={postEditorTopicQuery}
+                                onChange={event => {
+                                  setPostEditorTopicQuery(event.currentTarget.value);
+                                }}
+                                placeholder={t('adminAccount.content.modals.post.topicsQueryPlaceholder', {
+                                  ns: 'admin-account',
+                                })}
+                              />
+                              {postEditorTopicQuery ? (
+                                <button
+                                  type="button"
+                                  className="search-clear-btn border-0 bg-transparent"
+                                  onClick={() => {
+                                    setPostEditorTopicQuery('');
+                                  }}
+                                  aria-label={t('adminAccount.content.modals.post.topics', { ns: 'admin-account' })}
+                                >
+                                  <FontAwesomeIcon icon="times-circle" className="clear-icon" />
+                                </button>
+                              ) : null}
+                            </div>
+                            <div className="admin-content-topic-picker overflow-auto" style={{ maxHeight: '18rem' }}>
+                              {filteredEditablePostTopics.length === 0 ? (
+                                <div className="admin-content-topic-picker-empty small text-muted p-3">
+                                  {t('adminAccount.content.modals.post.topicsEmpty', { ns: 'admin-account' })}
+                                </div>
+                              ) : (
+                                <div className="admin-content-topic-picker-list list-group list-group-flush">
+                                  {filteredEditablePostTopics.map(item => (
+                                    <div key={toTaxonomyKey(item)} className="list-group-item bg-transparent py-2">
+                                      <Form.Check
+                                        type="checkbox"
+                                        id={`admin-content-post-topic-${toTaxonomyKey(item)}`}
+                                        className="mb-0"
+                                        label={item.name}
+                                        checked={postEditorTopicIDs.includes(item.id)}
+                                        onChange={event => {
+                                          handlePostTopicToggle(item.id, event.currentTarget.checked);
+                                        }}
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </Form.Group>
                       </div>
                     </Tab>
+                    {editingPost.source === 'blog' ? (
+                      <Tab
+                        eventKey="content"
+                        title={
+                          <span className="d-inline-flex align-items-center gap-2">
+                            <FontAwesomeIcon icon="code" />
+                            <span>{t('adminAccount.content.modals.post.tabs.content', { ns: 'admin-account' })}</span>
+                          </span>
+                        }
+                      >
+                        <div className="admin-content-post-tab-pane pt-3">
+                          {postEditorPreviewState ? (
+                            <article className="post-detail-section mt-0 mb-3">
+                              {postEditorPreviewState.resolvedPostCategory ? (
+                                <div className="post-detail-category-row text-start">
+                                  <PostCategoryBadge
+                                    category={postEditorPreviewState.resolvedPostCategory}
+                                    className="post-category-link--truncated"
+                                    linked={false}
+                                  />
+                                </div>
+                              ) : null}
+
+                              <h2 className="post-detail-title fw-bold text-center">{editingPost.title}</h2>
+
+                              <div className="post-detail-meta">
+                                <div className="post-detail-meta-item">
+                                  <span className="post-detail-meta-icon" aria-hidden="true">
+                                    <FontAwesomeIcon icon="calendar-alt" />
+                                  </span>
+                                  <div className="post-detail-meta-content">
+                                    <span className="post-detail-meta-label">
+                                      {t('adminAccount.content.modals.post.meta.published', { ns: 'admin-account' })}
+                                    </span>
+                                    <span className="post-detail-meta-value">{editingPost.publishedDate}</span>
+                                  </div>
+                                </div>
+
+                                <div className="post-detail-meta-item">
+                                  <span className="post-detail-meta-icon" aria-hidden="true">
+                                    <FontAwesomeIcon icon="clock" />
+                                  </span>
+                                  <div className="post-detail-meta-content">
+                                    <span className="post-detail-meta-label">
+                                      {t('adminAccount.content.modals.post.meta.updated', { ns: 'admin-account' })}
+                                    </span>
+                                    <span className="post-detail-meta-value">
+                                      {editingPost.updatedDate || editingPost.publishedDate}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div className="post-detail-meta-item">
+                                  <span className="post-detail-meta-icon" aria-hidden="true">
+                                    <FontAwesomeIcon icon={postEditorPreviewState.sourceIcon} />
+                                  </span>
+                                  <div className="post-detail-meta-content">
+                                    <span className="post-detail-meta-label">
+                                      {t('adminAccount.content.filters.source', { ns: 'admin-account' })}
+                                    </span>
+                                    <span className="post-detail-meta-value">{postEditorPreviewState.sourceLabel}</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {postEditorPreviewState.resolvedTopicBadges.length > 0 ? (
+                                <div className="post-detail-topics d-flex justify-content-center flex-wrap">
+                                  {postEditorPreviewState.resolvedTopicBadges.map(topic => (
+                                    <Badge
+                                      key={`${editingPost.id}-${topic.id}`}
+                                      bg={topic.color}
+                                      className={`badge-${topic.color}`}
+                                    >
+                                      {topic.name}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              ) : null}
+
+                              <div className="post-hero-image">
+                                <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
+                                  {postEditorPreviewState.thumbnailSrc ? (
+                                    <Image
+                                      src={postEditorPreviewState.thumbnailSrc}
+                                      alt={editingPost.title}
+                                      fill
+                                      sizes="(max-width: 1200px) 100vw, 1040px"
+                                      className="object-fit-cover"
+                                      unoptimized
+                                    />
+                                  ) : (
+                                    <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary">
+                                      <FontAwesomeIcon icon="camera" />
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {postEditorPreviewState.resolvedSummary ? (
+                                <p className="post-summary-text mt-3 mb-0">{postEditorPreviewState.resolvedSummary}</p>
+                              ) : null}
+                            </article>
+                          ) : null}
+
+                          <div className="d-flex justify-content-end mb-3">
+                            <div
+                              className="post-density-control"
+                              aria-label={t('adminAccount.content.modals.post.previewTitle', { ns: 'admin-account' })}
+                            >
+                              <div
+                                className="btn-group post-density-toggle"
+                                role="group"
+                                aria-label={t('adminAccount.content.modals.post.previewTitle', { ns: 'admin-account' })}
+                              >
+                                <button
+                                  type="button"
+                                  className={`btn${postContentViewMode === 'editor' ? ' is-active' : ''}`}
+                                  aria-pressed={postContentViewMode === 'editor'}
+                                  aria-label={t('adminAccount.content.modals.post.modes.editor', {
+                                    ns: 'admin-account',
+                                  })}
+                                  title={t('adminAccount.content.modals.post.modes.editor', { ns: 'admin-account' })}
+                                  onClick={() => setPostContentViewMode('editor')}
+                                >
+                                  <span className="post-density-toggle-icon" aria-hidden="true">
+                                    <FontAwesomeIcon icon="code" className="fa-fw" />
+                                  </span>
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`btn${postContentViewMode === 'split' ? ' is-active' : ''}`}
+                                  aria-pressed={postContentViewMode === 'split'}
+                                  aria-label={t('adminAccount.content.modals.post.modes.split', {
+                                    ns: 'admin-account',
+                                  })}
+                                  title={t('adminAccount.content.modals.post.modes.split', { ns: 'admin-account' })}
+                                  onClick={() => setPostContentViewMode('split')}
+                                >
+                                  <span className="post-density-toggle-icon" aria-hidden="true">
+                                    <FontAwesomeIcon icon="table-cells" className="fa-fw" />
+                                  </span>
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`btn${postContentViewMode === 'preview' ? ' is-active' : ''}`}
+                                  aria-pressed={postContentViewMode === 'preview'}
+                                  aria-label={t('adminAccount.content.modals.post.modes.preview', {
+                                    ns: 'admin-account',
+                                  })}
+                                  title={t('adminAccount.content.modals.post.modes.preview', { ns: 'admin-account' })}
+                                  onClick={() => setPostContentViewMode('preview')}
+                                >
+                                  <span className="post-density-toggle-icon" aria-hidden="true">
+                                    <FontAwesomeIcon icon="eye" className="fa-fw" />
+                                  </span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {postContentViewMode === 'editor' ? (
+                            <AdminMarkdownEditor
+                              id="admin-content-post-content-editor"
+                              label={t('adminAccount.content.modals.post.contentLabel', { ns: 'admin-account' })}
+                              hint={t('adminAccount.content.modals.post.contentHint', { ns: 'admin-account' })}
+                              value={postEditorContent}
+                              rows={18}
+                              onChange={setPostEditorContent}
+                            />
+                          ) : postContentViewMode === 'split' ? (
+                            <div className="row g-3 admin-content-post-split-row">
+                              <div className="col-12 col-xl-6 admin-content-post-split-col">
+                                <AdminMarkdownEditor
+                                  id="admin-content-post-content-editor-split"
+                                  label={t('adminAccount.content.modals.post.contentLabel', { ns: 'admin-account' })}
+                                  hint={t('adminAccount.content.modals.post.contentHint', { ns: 'admin-account' })}
+                                  value={postEditorContent}
+                                  rows={18}
+                                  className="admin-content-post-split-editor"
+                                  onViewportChange={handleSplitEditorViewportChange}
+                                  onChange={setPostEditorContent}
+                                />
+                              </div>
+                              <div className="col-12 col-xl-6 admin-content-post-split-col">
+                                <Form.Label className="d-block mb-2">
+                                  {t('adminAccount.content.modals.post.modes.preview', { ns: 'admin-account' })}
+                                </Form.Label>
+                                <div
+                                  ref={splitPreviewRef}
+                                  className="admin-post-content-preview admin-post-content-preview--split"
+                                >
+                                  {postEditorContent.trim() ? (
+                                    <article className="post-article admin-post-content-preview-markdown mt-0">
+                                      <MarkdownRenderer content={postEditorContent} />
+                                    </article>
+                                  ) : (
+                                    <div className="border rounded-3 p-3 bg-body-tertiary d-flex align-items-center h-100">
+                                      <p className="small text-muted mb-0">
+                                        {t('adminAccount.content.modals.post.previewEmpty', { ns: 'admin-account' })}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="mt-3">
+                              <Form.Label className="d-block mb-2">
+                                {t('adminAccount.content.modals.post.modes.preview', { ns: 'admin-account' })}
+                              </Form.Label>
+                              <div className="admin-post-content-preview admin-post-content-preview--boxed">
+                                {postEditorContent.trim() ? (
+                                  <article className="post-article admin-post-content-preview-markdown mt-0">
+                                    <MarkdownRenderer content={postEditorContent} />
+                                  </article>
+                                ) : (
+                                  <div className="p-1 d-flex align-items-center">
+                                    <p className="small text-muted mb-0">
+                                      {t('adminAccount.content.modals.post.previewEmpty', { ns: 'admin-account' })}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </Tab>
+                    ) : null}
                     <Tab
                       eventKey="comments"
                       title={
@@ -2806,234 +3126,6 @@ export default function AdminContentManagementPanel({
                         </div>
                       </div>
                     </Tab>
-                    {editingPost.source === 'blog' ? (
-                      <Tab
-                        eventKey="content"
-                        title={
-                          <span className="d-inline-flex align-items-center gap-2">
-                            <FontAwesomeIcon icon="code" />
-                            <span>{t('adminAccount.content.modals.post.tabs.content', { ns: 'admin-account' })}</span>
-                          </span>
-                        }
-                      >
-                        <div className="admin-content-post-tab-pane pt-3">
-                          {postEditorPreviewState ? (
-                            <article className="post-detail-section mt-0 mb-3">
-                              {postEditorPreviewState.resolvedPostCategory ? (
-                                <div className="post-detail-category-row text-start">
-                                  <PostCategoryBadge
-                                    category={postEditorPreviewState.resolvedPostCategory}
-                                    className="post-category-link--truncated"
-                                    linked={false}
-                                  />
-                                </div>
-                              ) : null}
-
-                              <h2 className="post-detail-title fw-bold text-center">{editingPost.title}</h2>
-
-                              <div className="post-detail-meta">
-                                <div className="post-detail-meta-item">
-                                  <span className="post-detail-meta-icon" aria-hidden="true">
-                                    <FontAwesomeIcon icon="calendar-alt" />
-                                  </span>
-                                  <div className="post-detail-meta-content">
-                                    <span className="post-detail-meta-label">
-                                      {t('adminAccount.content.modals.post.meta.published', { ns: 'admin-account' })}
-                                    </span>
-                                    <span className="post-detail-meta-value">{editingPost.publishedDate}</span>
-                                  </div>
-                                </div>
-
-                                <div className="post-detail-meta-item">
-                                  <span className="post-detail-meta-icon" aria-hidden="true">
-                                    <FontAwesomeIcon icon="clock" />
-                                  </span>
-                                  <div className="post-detail-meta-content">
-                                    <span className="post-detail-meta-label">
-                                      {t('adminAccount.content.modals.post.meta.updated', { ns: 'admin-account' })}
-                                    </span>
-                                    <span className="post-detail-meta-value">
-                                      {editingPost.updatedDate || editingPost.publishedDate}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div className="post-detail-meta-item">
-                                  <span className="post-detail-meta-icon" aria-hidden="true">
-                                    <FontAwesomeIcon icon={postEditorPreviewState.sourceIcon} />
-                                  </span>
-                                  <div className="post-detail-meta-content">
-                                    <span className="post-detail-meta-label">
-                                      {t('adminAccount.content.filters.source', { ns: 'admin-account' })}
-                                    </span>
-                                    <span className="post-detail-meta-value">{postEditorPreviewState.sourceLabel}</span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {postEditorPreviewState.resolvedTopicBadges.length > 0 ? (
-                                <div className="post-detail-topics d-flex justify-content-center flex-wrap">
-                                  {postEditorPreviewState.resolvedTopicBadges.map(topic => (
-                                    <Badge
-                                      key={`${editingPost.id}-${topic.id}`}
-                                      bg={topic.color}
-                                      className={`badge-${topic.color}`}
-                                    >
-                                      {topic.name}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              ) : null}
-
-                              <div className="post-hero-image">
-                                <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
-                                  {postEditorPreviewState.thumbnailSrc ? (
-                                    <Image
-                                      src={postEditorPreviewState.thumbnailSrc}
-                                      alt={editingPost.title}
-                                      fill
-                                      sizes="(max-width: 1200px) 100vw, 1040px"
-                                      className="object-fit-cover"
-                                      unoptimized
-                                    />
-                                  ) : (
-                                    <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary">
-                                      <FontAwesomeIcon icon="camera" />
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-
-                              {postEditorPreviewState.resolvedSummary ? (
-                                <p className="post-summary-text mt-3 mb-0">{postEditorPreviewState.resolvedSummary}</p>
-                              ) : null}
-                            </article>
-                          ) : null}
-
-                          <div className="d-flex justify-content-end mb-3">
-                            <div
-                              className="post-density-control"
-                              aria-label={t('adminAccount.content.modals.post.previewTitle', { ns: 'admin-account' })}
-                            >
-                              <div
-                                className="btn-group post-density-toggle"
-                                role="group"
-                                aria-label={t('adminAccount.content.modals.post.previewTitle', { ns: 'admin-account' })}
-                              >
-                                <button
-                                  type="button"
-                                  className={`btn${postContentViewMode === 'editor' ? ' is-active' : ''}`}
-                                  aria-pressed={postContentViewMode === 'editor'}
-                                  aria-label={t('adminAccount.content.modals.post.modes.editor', {
-                                    ns: 'admin-account',
-                                  })}
-                                  title={t('adminAccount.content.modals.post.modes.editor', { ns: 'admin-account' })}
-                                  onClick={() => setPostContentViewMode('editor')}
-                                >
-                                  <span className="post-density-toggle-icon" aria-hidden="true">
-                                    <FontAwesomeIcon icon="code" className="fa-fw" />
-                                  </span>
-                                </button>
-                                <button
-                                  type="button"
-                                  className={`btn${postContentViewMode === 'split' ? ' is-active' : ''}`}
-                                  aria-pressed={postContentViewMode === 'split'}
-                                  aria-label={t('adminAccount.content.modals.post.modes.split', {
-                                    ns: 'admin-account',
-                                  })}
-                                  title={t('adminAccount.content.modals.post.modes.split', { ns: 'admin-account' })}
-                                  onClick={() => setPostContentViewMode('split')}
-                                >
-                                  <span className="post-density-toggle-icon" aria-hidden="true">
-                                    <FontAwesomeIcon icon="table-cells" className="fa-fw" />
-                                  </span>
-                                </button>
-                                <button
-                                  type="button"
-                                  className={`btn${postContentViewMode === 'preview' ? ' is-active' : ''}`}
-                                  aria-pressed={postContentViewMode === 'preview'}
-                                  aria-label={t('adminAccount.content.modals.post.modes.preview', {
-                                    ns: 'admin-account',
-                                  })}
-                                  title={t('adminAccount.content.modals.post.modes.preview', { ns: 'admin-account' })}
-                                  onClick={() => setPostContentViewMode('preview')}
-                                >
-                                  <span className="post-density-toggle-icon" aria-hidden="true">
-                                    <FontAwesomeIcon icon="eye" className="fa-fw" />
-                                  </span>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-
-                          {postContentViewMode === 'editor' ? (
-                            <AdminMarkdownEditor
-                              id="admin-content-post-content-editor"
-                              label={t('adminAccount.content.modals.post.contentLabel', { ns: 'admin-account' })}
-                              hint={t('adminAccount.content.modals.post.contentHint', { ns: 'admin-account' })}
-                              value={postEditorContent}
-                              rows={18}
-                              onChange={setPostEditorContent}
-                            />
-                          ) : postContentViewMode === 'split' ? (
-                            <div className="row g-3 admin-content-post-split-row">
-                              <div className="col-12 col-xl-6 admin-content-post-split-col">
-                                <AdminMarkdownEditor
-                                  id="admin-content-post-content-editor-split"
-                                  label={t('adminAccount.content.modals.post.contentLabel', { ns: 'admin-account' })}
-                                  hint={t('adminAccount.content.modals.post.contentHint', { ns: 'admin-account' })}
-                                  value={postEditorContent}
-                                  rows={18}
-                                  className="admin-content-post-split-editor"
-                                  onViewportChange={handleSplitEditorViewportChange}
-                                  onChange={setPostEditorContent}
-                                />
-                              </div>
-                              <div className="col-12 col-xl-6 admin-content-post-split-col">
-                                <Form.Label className="d-block mb-2">
-                                  {t('adminAccount.content.modals.post.modes.preview', { ns: 'admin-account' })}
-                                </Form.Label>
-                                <div
-                                  ref={splitPreviewRef}
-                                  className="admin-post-content-preview admin-post-content-preview--split"
-                                >
-                                  {postEditorContent.trim() ? (
-                                    <article className="post-article admin-post-content-preview-markdown mt-0">
-                                      <MarkdownRenderer content={postEditorContent} />
-                                    </article>
-                                  ) : (
-                                    <div className="border rounded-3 p-3 bg-body-tertiary d-flex align-items-center h-100">
-                                      <p className="small text-muted mb-0">
-                                        {t('adminAccount.content.modals.post.previewEmpty', { ns: 'admin-account' })}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="mt-3">
-                              <Form.Label className="d-block mb-2">
-                                {t('adminAccount.content.modals.post.modes.preview', { ns: 'admin-account' })}
-                              </Form.Label>
-                              <div className="admin-post-content-preview admin-post-content-preview--boxed">
-                                {postEditorContent.trim() ? (
-                                  <article className="post-article admin-post-content-preview-markdown mt-0">
-                                    <MarkdownRenderer content={postEditorContent} />
-                                  </article>
-                                ) : (
-                                  <div className="p-1 d-flex align-items-center">
-                                    <p className="small text-muted mb-0">
-                                      {t('adminAccount.content.modals.post.previewEmpty', { ns: 'admin-account' })}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </Tab>
-                    ) : null}
                   </Tabs>
 
                   {showInlinePostFeedback && errorMessage ? (
@@ -3788,7 +3880,7 @@ export default function AdminContentManagementPanel({
                                     <span
                                       className={`text-muted d-flex align-items-center${isListMode ? '' : ' w-100'}`}
                                     >
-                                      <FontAwesomeIcon icon="clock" className="me-2" />
+                                      <FontAwesomeIcon icon="calendar-alt" className="me-2" />
                                       {t('adminAccount.content.list.updatedAt', {
                                         ns: 'admin-account',
                                         value: item.updatedDate,
@@ -3796,6 +3888,43 @@ export default function AdminContentManagementPanel({
                                     </span>
                                   ) : null}
                                 </p>
+
+                                <div className="post-summary-meta mb-2">
+                                  <span className="text-muted d-inline-flex align-items-center lh-1">
+                                    <FontAwesomeIcon icon="clock" className="me-2" />
+                                    <span>{formatReadingTime(item.readingTimeMin, t, 1)}</span>
+                                  </span>
+                                  <Link
+                                    href={buildAdminContentPostDetailRoute(item.locale, item.id)}
+                                    locale={item.locale.toLowerCase()}
+                                    className="link-muted d-inline-flex align-items-center lh-1"
+                                  >
+                                    <FontAwesomeIcon icon="heart" className="me-2 post-summary-like-icon" />
+                                    <span className="post-summary-like-value">
+                                      {adminNumberFormatter.format(item.likeCount)}
+                                    </span>
+                                  </Link>
+                                  <Link
+                                    href={buildAdminContentPostDetailRoute(item.locale, item.id)}
+                                    locale={item.locale.toLowerCase()}
+                                    className="link-muted d-inline-flex align-items-center lh-1"
+                                  >
+                                    <FontAwesomeIcon icon="comments" className="me-2" />
+                                    <span className="post-summary-like-value">
+                                      {adminNumberFormatter.format(item.commentCount)}
+                                    </span>
+                                  </Link>
+                                  <Link
+                                    href={buildAdminContentPostDetailRoute(item.locale, item.id)}
+                                    locale={item.locale.toLowerCase()}
+                                    className="link-muted d-inline-flex align-items-center lh-1"
+                                  >
+                                    <FontAwesomeIcon icon="eye" className="me-2" />
+                                    <span className="post-summary-like-value">
+                                      <CompactCount value={item.viewCount} locale={routeLocale} />
+                                    </span>
+                                  </Link>
+                                </div>
 
                                 {resolvedTopicBadges.length > 0 || item.topicNames.length > 0 ? (
                                   <div className="post-summary-topics">

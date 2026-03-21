@@ -36,9 +36,13 @@ type AdminContentPostRecord struct {
 	CategoryName     string
 	TopicIDs         []string
 	TopicNames       []string
+	ReadingTimeMin   int
 	PublishedAt      time.Time
 	ContentUpdatedAt time.Time
 	UpdatedAt        time.Time
+	ViewCount        int64
+	LikeCount        int64
+	CommentCount     int64
 }
 
 type AdminContentPostGroupRecord struct {

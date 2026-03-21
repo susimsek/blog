@@ -506,6 +506,13 @@
             "total_one": "{{count}} yorum",
             "total_other": "{{count}} yorum"
           },
+          "analytics": {
+            "title": "Performans özeti",
+            "copy": "Metadata düzenlemeden önce bu postun güncel etkileşim özetine bak.",
+            "views": "Görüntülenme",
+            "likes": "Beğeni",
+            "comments": "Yorum"
+          },
           "category": "Kategori",
           "categoryNone": "Kategori yok",
           "metadataFields": {
@@ -517,6 +524,7 @@
             "thumbnail": "Küçük görsel URL"
           },
           "topics": "Topicler",
+          "topicsQueryPlaceholder": "Topicleri ada göre ara",
           "topicsEmpty": "Bu dil için topic bulunamadı.",
           "contentLabel": "Markdown içerik",
           "contentHint": "Standart Markdown sözdizimi desteklenir.",

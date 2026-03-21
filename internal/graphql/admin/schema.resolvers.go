@@ -1800,8 +1800,12 @@ func mapAdminContentPost(item *domain.AdminContentPostRecord) *model.AdminConten
 		CategoryName:     toOptionalAdminString(item.CategoryName),
 		TopicIds:         append([]string{}, item.TopicIDs...),
 		TopicNames:       append([]string{}, item.TopicNames...),
+		ReadingTimeMin:   item.ReadingTimeMin,
 		ContentUpdatedAt: toOptionalAdminTime(item.ContentUpdatedAt),
 		UpdatedAt:        toOptionalAdminTime(item.UpdatedAt),
+		ViewCount:        int(item.ViewCount),
+		LikeCount:        int(item.LikeCount),
+		CommentCount:     int(item.CommentCount),
 	}
 }
 

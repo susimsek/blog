@@ -131,8 +131,12 @@ type AdminContentPost struct {
 	CategoryName     *string    `json:"categoryName,omitempty"`
 	TopicIds         []string   `json:"topicIds"`
 	TopicNames       []string   `json:"topicNames"`
+	ReadingTimeMin   int        `json:"readingTimeMin"`
 	ContentUpdatedAt *time.Time `json:"contentUpdatedAt,omitempty"`
 	UpdatedAt        *time.Time `json:"updatedAt,omitempty"`
+	ViewCount        int        `json:"viewCount"`
+	LikeCount        int        `json:"likeCount"`
+	CommentCount     int        `json:"commentCount"`
 }
 
 type AdminContentPostFilterInput struct {

@@ -45,7 +45,7 @@ describe('PostHit', () => {
 
     await waitFor(() => expect(incrementPostHitMock).toHaveBeenCalledWith('post-1'));
     expect(screen.getByLabelText('post.hit.aria:9')).toBeInTheDocument();
-    expect(screen.getByText('000009')).toBeInTheDocument();
+    expect(screen.getByText('9')).toBeInTheDocument();
   });
 
   it('uses preloaded hits without fetching the post again', async () => {
@@ -55,6 +55,15 @@ describe('PostHit', () => {
 
     expect(fetchPostMock).not.toHaveBeenCalled();
     await waitFor(() => expect(incrementPostHitMock).toHaveBeenCalledWith('post-2'));
-    await waitFor(() => expect(screen.getByText('000013')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('13')).toBeInTheDocument());
+  });
+
+  it('renders compact counts for large totals', async () => {
+    incrementPostHitMock.mockResolvedValue(1250);
+
+    render(<PostHit postId="post-3" initialHits={1249} skipInitialFetch />);
+
+    await waitFor(() => expect(incrementPostHitMock).toHaveBeenCalledWith('post-3'));
+    await waitFor(() => expect(screen.getByText('1.3K')).toBeInTheDocument());
   });
 });
