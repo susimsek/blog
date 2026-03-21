@@ -889,6 +889,7 @@ interface Resources {
       emailPlaceholder: 'you@example.com';
       errorFallback: 'Login failed. Check your credentials and admin configuration.';
       eyebrow: 'Secure access';
+      forgotPassword: 'Forgot password?';
       github: {
         cancelled: 'GitHub sign-in was cancelled.';
         failed: 'GitHub sign-in could not be completed right now.';
@@ -920,6 +921,73 @@ interface Resources {
         emailInvalid: 'Enter a valid email address.';
         emailRequired: 'Enter your email address.';
         passwordRequired: 'Enter your password.';
+      };
+    };
+  };
+  'admin-password-reset': {
+    adminPasswordReset: {
+      errors: {
+        codes: {
+          ADMIN_PASSWORD_RESET_CONFIRM_MISMATCH: 'Password confirmation does not match.';
+          ADMIN_PASSWORD_RESET_EMAIL_INVALID: 'Enter a valid email address.';
+          ADMIN_PASSWORD_RESET_PASSWORD_REQUIRED: 'Enter a new password.';
+          ADMIN_PASSWORD_RESET_PASSWORD_TOO_SHORT: 'Use at least 8 characters.';
+          ADMIN_PASSWORD_RESET_TOKEN_EXPIRED: 'This password reset link has expired.';
+          ADMIN_PASSWORD_RESET_TOKEN_INVALID: 'This password reset link is invalid.';
+          ADMIN_PASSWORD_RESET_TOKEN_REQUIRED: 'Password reset link is required.';
+        };
+        network: 'Network request failed. Try again.';
+      };
+      request: {
+        backToLogin: 'Back to login';
+        email: 'Email';
+        emailPlaceholder: 'you@example.com';
+        eyebrow: 'Admin recovery';
+        help: 'For security, this page always returns the same result whether the email exists or not.';
+        meta: {
+          description: 'Request an admin password reset link.';
+          title: 'Forgot admin password';
+        };
+        submit: 'Send reset link';
+        submitting: 'Sending reset link...';
+        subtitle: 'Enter your admin email address and we will send a reset link if the account exists.';
+        success: 'If that admin email exists, a password reset link has been sent.';
+        title: 'Reset admin password';
+        validation: {
+          emailInvalid: 'Enter a valid email address.';
+          emailRequired: 'Enter your email address.';
+        };
+      };
+      reset: {
+        backToLogin: 'Back to login';
+        confirmPassword: 'Confirm password';
+        confirmPasswordPlaceholder: 'Repeat your new password';
+        expired: 'This password reset link has expired. Request a new one.';
+        eyebrow: 'Admin recovery';
+        hideConfirmPassword: 'Hide password confirmation';
+        hidePassword: 'Hide password';
+        invalid: 'This password reset link is invalid.';
+        loading: 'Checking password reset link';
+        meta: {
+          description: 'Set a new password for your admin account.';
+          title: 'Choose a new admin password';
+        };
+        password: 'New password';
+        passwordPlaceholder: 'Enter a new password';
+        requestAnother: 'Request another link';
+        showConfirmPassword: 'Show password confirmation';
+        showPassword: 'Show password';
+        submit: 'Update password';
+        submitting: 'Updating password...';
+        subtitle: 'Use a strong password you have not used for this admin account before.';
+        success: 'Your admin password has been updated. All existing sessions were signed out.';
+        title: 'Choose a new password';
+        validation: {
+          confirmMismatch: 'Password confirmation does not match.';
+          confirmRequired: 'Confirm your new password.';
+          passwordRequired: 'Enter a new password.';
+          passwordTooShort: 'Use at least 8 characters.';
+        };
       };
     };
   };

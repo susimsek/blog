@@ -61,6 +61,7 @@ import {
   type AdminNewsletterSubscriberItem,
 } from '@/lib/adminApi';
 import { withAdminAvatarSize } from '@/lib/adminAvatar';
+import { getAdminPasswordStrength, MIN_PASSWORD_LENGTH } from '@/lib/adminPassword';
 import { ADMIN_ROUTES, buildAdminContentPostDetailRoute } from '@/lib/adminRoutes';
 import { defaultLocale } from '@/i18n/settings';
 import { withBasePath } from '@/lib/basePath';
@@ -114,8 +115,6 @@ type AdminSession = {
   current: boolean;
 };
 
-const MIN_PASSWORD_LENGTH = 8;
-const STRONG_PASSWORD_LENGTH = 12;
 const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 80;
 const MIN_USERNAME_LENGTH = 3;
@@ -264,41 +263,6 @@ const resolveSessionDeviceIcon = (deviceLabel: string) => {
   }
 
   return 'desktop';
-};
-
-const getPasswordStrength = (password: string) => {
-  const value = password;
-  if (value === '') {
-    return { score: 0, tone: 'idle' as const };
-  }
-
-  const characterGroups = [
-    /[a-z]/.test(value),
-    /[A-Z]/.test(value),
-    /\d/.test(value),
-    /[^A-Za-z0-9]/.test(value),
-  ].filter(Boolean).length;
-
-  let score = 1;
-  if (value.length >= 6) score += 1;
-  if (value.length >= MIN_PASSWORD_LENGTH) score += 1;
-  if (value.length >= STRONG_PASSWORD_LENGTH) score += 1;
-  if (characterGroups >= 3) score += 1;
-
-  if (score <= 1) {
-    return { score, tone: 'weak' as const };
-  }
-  if (score === 2) {
-    return { score, tone: 'fair' as const };
-  }
-  if (score === 3) {
-    return { score, tone: 'good' as const };
-  }
-  if (score === 4) {
-    return { score, tone: 'strong' as const };
-  }
-
-  return { score, tone: 'excellent' as const };
 };
 
 const resolveAppearanceCardClass = (value: Theme | 'system') => {
@@ -1019,7 +983,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
       : confirmPassword !== newPassword
         ? t('adminAccount.validation.confirmPasswordMismatch', { ns: 'admin-account' })
         : '';
-  const passwordStrength = getPasswordStrength(newPassword);
+  const passwordStrength = getAdminPasswordStrength(newPassword);
   const showCurrentPasswordError =
     (hasSecuritySubmitted || securityTouchedFields.currentPassword) && securityCurrentPasswordError !== '';
   const showNewPasswordError =

@@ -179,6 +179,7 @@ describe('AdminLoginPage', () => {
 
     const passwordInput = screen.getByPlaceholderText('adminLogin.passwordPlaceholder');
     expect(passwordInput).toHaveAttribute('type', 'password');
+    expect(screen.getByText('adminLogin.forgotPassword')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /adminLogin.showPassword/i }));
     expect(passwordInput).toHaveAttribute('type', 'text');

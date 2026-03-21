@@ -14,17 +14,19 @@ import (
 )
 
 type adminAuthEmailChangeStubUserRepository struct {
-	byID               map[string]*domain.AdminUserRecord
-	byEmail            map[string]*domain.AdminUserRecord
-	byPendingTokenHash map[string]*domain.AdminUserRecord
-	updateEmailErr     error
+	byID                    map[string]*domain.AdminUserRecord
+	byEmail                 map[string]*domain.AdminUserRecord
+	byPendingTokenHash      map[string]*domain.AdminUserRecord
+	byPendingResetTokenHash map[string]*domain.AdminUserRecord
+	updateEmailErr          error
 }
 
 func newAdminAuthEmailChangeStubUserRepository(user *domain.AdminUserRecord) *adminAuthEmailChangeStubUserRepository {
 	repo := &adminAuthEmailChangeStubUserRepository{
-		byID:               map[string]*domain.AdminUserRecord{},
-		byEmail:            map[string]*domain.AdminUserRecord{},
-		byPendingTokenHash: map[string]*domain.AdminUserRecord{},
+		byID:                    map[string]*domain.AdminUserRecord{},
+		byEmail:                 map[string]*domain.AdminUserRecord{},
+		byPendingTokenHash:      map[string]*domain.AdminUserRecord{},
+		byPendingResetTokenHash: map[string]*domain.AdminUserRecord{},
 	}
 	if user != nil {
 		repo.byID[user.ID] = user
@@ -78,6 +80,13 @@ func (stub *adminAuthEmailChangeStubUserRepository) FindByPendingEmailChangeToke
 	return stub.byPendingTokenHash[tokenHash], nil
 }
 
+func (stub *adminAuthEmailChangeStubUserRepository) FindByPendingPasswordResetTokenHash(
+	_ context.Context,
+	tokenHash string,
+) (*domain.AdminUserRecord, error) {
+	return stub.byPendingResetTokenHash[tokenHash], nil
+}
+
 func (stub *adminAuthEmailChangeStubUserRepository) HasAnyGoogleLink(_ context.Context) (bool, error) {
 	for _, user := range stub.byID {
 		if user != nil && user.GoogleSubject != "" {
@@ -98,7 +107,22 @@ func (stub *adminAuthEmailChangeStubUserRepository) HasAnyGithubLink(_ context.C
 	return false, nil
 }
 
-func (*adminAuthEmailChangeStubUserRepository) UpdatePasswordHashByID(_ context.Context, _, _ string) error {
+func (stub *adminAuthEmailChangeStubUserRepository) UpdatePasswordHashByID(
+	_ context.Context,
+	id,
+	passwordHash string,
+) error {
+	user := stub.byID[id]
+	if user == nil {
+		return repository.ErrAdminUserNotFound
+	}
+
+	user.PasswordHash = passwordHash
+	user.PasswordVersion++
+	if user.PendingPasswordReset != nil {
+		delete(stub.byPendingResetTokenHash, user.PendingPasswordReset.TokenHash)
+	}
+	user.PendingPasswordReset = nil
 	return nil
 }
 
@@ -140,6 +164,37 @@ func (stub *adminAuthEmailChangeStubUserRepository) ClearPendingEmailChangeByID(
 	user.PendingEmailChange = nil
 	user.PendingEmail = ""
 	user.PendingEmailExpiresAt = nil
+	return nil
+}
+
+func (stub *adminAuthEmailChangeStubUserRepository) SetPendingPasswordResetByID(
+	_ context.Context,
+	id string,
+	pending domain.AdminPendingPasswordReset,
+) error {
+	user := stub.byID[id]
+	if user == nil {
+		return repository.ErrAdminUserNotFound
+	}
+
+	user.PendingPasswordReset = &pending
+	stub.byPendingResetTokenHash[pending.TokenHash] = user
+	return nil
+}
+
+func (stub *adminAuthEmailChangeStubUserRepository) ClearPendingPasswordResetByID(
+	_ context.Context,
+	id string,
+) error {
+	user := stub.byID[id]
+	if user == nil {
+		return repository.ErrAdminUserNotFound
+	}
+
+	if user.PendingPasswordReset != nil {
+		delete(stub.byPendingResetTokenHash, user.PendingPasswordReset.TokenHash)
+	}
+	user.PendingPasswordReset = nil
 	return nil
 }
 

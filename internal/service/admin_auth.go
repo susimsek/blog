@@ -59,6 +59,16 @@ type AdminEmailChangeConfirmResult struct {
 	Locale string
 }
 
+type AdminPasswordResetValidationResult struct {
+	Status string
+	Locale string
+}
+
+type AdminPasswordResetResult struct {
+	Success bool
+	Locale  string
+}
+
 const (
 	minAdminPasswordLength = 8
 	maxActiveAdminSessions = 20
@@ -71,6 +81,7 @@ const (
 	maxAdminAvatarSize     = 1024
 	adminAvatarDefaultSize = 256
 	adminEmailChangeTTL    = time.Hour
+	adminPasswordResetTTL  = time.Hour
 )
 
 var adminUsernamePattern = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
@@ -81,6 +92,7 @@ var (
 	adminAvatarRepository                   repository.AdminAvatarRepository       = repository.NewAdminAvatarRepository()
 	sendAdminEmailChangeConfirmationEmailFn                                        = sendAdminEmailChangeConfirmationEmail
 	sendAdminEmailChangeNoticeEmailFn                                              = sendAdminEmailChangeNoticeEmail
+	sendAdminPasswordResetEmailFn                                                  = sendAdminPasswordResetEmail
 )
 
 func LoginAdmin(
@@ -433,6 +445,222 @@ func ConfirmAdminEmailChange(
 	return &AdminEmailChangeConfirmResult{
 		Status: string(adminmailpkg.StatusSuccess),
 		Locale: resolvedLocale,
+	}, nil
+}
+
+func RequestAdminPasswordReset(ctx context.Context, email, locale string) error {
+	resolvedEmail, err := newsletterpkg.NormalizeSubscriberEmail(email)
+	if err != nil {
+		return apperrors.New(
+			"ADMIN_PASSWORD_RESET_EMAIL_INVALID",
+			"email address is invalid",
+			400,
+			nil,
+		)
+	}
+
+	userRecord, err := adminUsersRepository.FindByEmail(ctx, resolvedEmail)
+	if err != nil {
+		return apperrors.Internal("failed to load admin user", err)
+	}
+	if userRecord == nil {
+		return nil
+	}
+
+	siteURL, err := resolveSiteURLFn()
+	if err != nil {
+		return apperrors.Config("admin password reset site url is not configured", err)
+	}
+
+	mailCfg, err := resolveMailConfigFn()
+	if err != nil {
+		return apperrors.Config("admin password reset mail transport is not configured", err)
+	}
+
+	token, err := generateConfirmTokenFn()
+	if err != nil {
+		return apperrors.Internal("failed to issue admin password reset token", err)
+	}
+
+	now := nowUTCFn()
+	expiresAt := now.Add(adminPasswordResetTTL)
+	resolvedLocale := newsletterpkg.ResolveLocale(locale, "")
+	resetURL, err := buildAdminPasswordResetURL(siteURL, token, resolvedLocale)
+	if err != nil {
+		return apperrors.Config("admin password reset url is invalid", err)
+	}
+
+	pending := domain.AdminPendingPasswordReset{
+		TokenHash:   hashValue(token),
+		Locale:      resolvedLocale,
+		RequestedAt: now,
+		ExpiresAt:   expiresAt,
+	}
+
+	if err := adminUsersRepository.SetPendingPasswordResetByID(ctx, userRecord.ID, pending); err != nil {
+		if errors.Is(err, repository.ErrAdminUserNotFound) {
+			return nil
+		}
+		return apperrors.Internal("failed to store admin password reset request", err)
+	}
+
+	if err := sendAdminPasswordResetEmailFn(mailCfg, resolvedEmail, resetURL, resolvedLocale, siteURL); err != nil {
+		_ = adminUsersRepository.ClearPendingPasswordResetByID(ctx, userRecord.ID)
+		return apperrors.ServiceUnavailable("failed to send admin password reset email", err)
+	}
+
+	return nil
+}
+
+func ValidateAdminPasswordResetToken(
+	ctx context.Context,
+	token string,
+	localeHint string,
+) (*AdminPasswordResetValidationResult, error) {
+	resolvedToken := strings.TrimSpace(token)
+	resolvedLocale := newsletterpkg.ResolveLocale(localeHint, "")
+	if resolvedToken == "" {
+		return &AdminPasswordResetValidationResult{
+			Status: string(adminmailpkg.StatusInvalidLink),
+			Locale: resolvedLocale,
+		}, nil
+	}
+
+	userRecord, err := adminUsersRepository.FindByPendingPasswordResetTokenHash(ctx, hashValue(resolvedToken))
+	if err != nil {
+		return nil, apperrors.Internal("failed to load admin password reset request", err)
+	}
+	if userRecord == nil || userRecord.PendingPasswordReset == nil {
+		return &AdminPasswordResetValidationResult{
+			Status: string(adminmailpkg.StatusInvalidLink),
+			Locale: resolvedLocale,
+		}, nil
+	}
+
+	pending := userRecord.PendingPasswordReset
+	if pending.Locale != "" {
+		resolvedLocale = newsletterpkg.ResolveLocale(pending.Locale, "")
+	}
+
+	now := nowUTCFn()
+	if now.After(pending.ExpiresAt) {
+		if clearErr := adminUsersRepository.ClearPendingPasswordResetByID(ctx, userRecord.ID); clearErr != nil &&
+			!errors.Is(clearErr, repository.ErrAdminUserNotFound) {
+			return nil, apperrors.Internal("failed to clear expired admin password reset request", clearErr)
+		}
+		return &AdminPasswordResetValidationResult{
+			Status: string(adminmailpkg.StatusExpired),
+			Locale: resolvedLocale,
+		}, nil
+	}
+
+	return &AdminPasswordResetValidationResult{
+		Status: string(adminmailpkg.StatusSuccess),
+		Locale: resolvedLocale,
+	}, nil
+}
+
+func ResetAdminPasswordWithToken(
+	ctx context.Context,
+	token string,
+	newPassword string,
+	confirmPassword string,
+	localeHint string,
+) (*AdminPasswordResetResult, error) {
+	resolvedToken := strings.TrimSpace(token)
+	if resolvedToken == "" {
+		return nil, apperrors.New(
+			"ADMIN_PASSWORD_RESET_TOKEN_REQUIRED",
+			"password reset token is required",
+			400,
+			nil,
+		)
+	}
+
+	validation, err := ValidateAdminPasswordResetToken(ctx, resolvedToken, localeHint)
+	if err != nil {
+		return nil, err
+	}
+	if validation == nil || validation.Status == string(adminmailpkg.StatusInvalidLink) {
+		return nil, apperrors.New(
+			"ADMIN_PASSWORD_RESET_TOKEN_INVALID",
+			"password reset token is invalid",
+			400,
+			nil,
+		)
+	}
+	if validation.Status == string(adminmailpkg.StatusExpired) {
+		return nil, apperrors.New(
+			"ADMIN_PASSWORD_RESET_TOKEN_EXPIRED",
+			"password reset token has expired",
+			400,
+			nil,
+		)
+	}
+
+	resolvedPassword := strings.TrimSpace(newPassword)
+	if resolvedPassword == "" {
+		return nil, apperrors.New(
+			"ADMIN_PASSWORD_RESET_PASSWORD_REQUIRED",
+			"new password is required",
+			400,
+			nil,
+		)
+	}
+	if len(resolvedPassword) < minAdminPasswordLength {
+		return nil, apperrors.New(
+			"ADMIN_PASSWORD_RESET_PASSWORD_TOO_SHORT",
+			"new password must be at least 8 characters",
+			400,
+			nil,
+		)
+	}
+	if newPassword != confirmPassword {
+		return nil, apperrors.New(
+			"ADMIN_PASSWORD_RESET_CONFIRM_MISMATCH",
+			"password confirmation does not match",
+			400,
+			nil,
+		)
+	}
+
+	userRecord, err := adminUsersRepository.FindByPendingPasswordResetTokenHash(ctx, hashValue(resolvedToken))
+	if err != nil {
+		return nil, apperrors.Internal("failed to load admin password reset request", err)
+	}
+	if userRecord == nil || userRecord.PendingPasswordReset == nil {
+		return nil, apperrors.New(
+			"ADMIN_PASSWORD_RESET_TOKEN_INVALID",
+			"password reset token is invalid",
+			400,
+			nil,
+		)
+	}
+
+	passwordHashBytes, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, apperrors.Internal("failed to hash admin password", err)
+	}
+
+	if err := adminUsersRepository.UpdatePasswordHashByID(ctx, userRecord.ID, string(passwordHashBytes)); err != nil {
+		if errors.Is(err, repository.ErrAdminUserNotFound) {
+			return nil, apperrors.New(
+				"ADMIN_PASSWORD_RESET_TOKEN_INVALID",
+				"password reset token is invalid",
+				400,
+				nil,
+			)
+		}
+		return nil, apperrors.Internal("failed to update admin password", err)
+	}
+
+	if err := adminRefreshTokensRepository.RevokeAllByUserID(ctx, userRecord.ID, nowUTCFn()); err != nil {
+		return nil, toAdminSessionError(err)
+	}
+
+	return &AdminPasswordResetResult{
+		Success: true,
+		Locale:  validation.Locale,
 	}, nil
 }
 
@@ -801,6 +1029,21 @@ func buildAdminEmailChangeConfirmURL(siteURL, token, locale string) (string, err
 	return parsed.String(), nil
 }
 
+func buildAdminPasswordResetURL(siteURL, token, locale string) (string, error) {
+	parsed, err := url.Parse(siteURL)
+	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
+		return "", errors.New("invalid SITE_URL")
+	}
+
+	resolvedLocale := newsletterpkg.ResolveLocale(locale, "")
+	parsed.Path = strings.TrimRight(parsed.Path, "/") + "/" + resolvedLocale + "/admin/reset-password"
+	query := parsed.Query()
+	query.Set("token", strings.TrimSpace(token))
+	parsed.RawQuery = query.Encode()
+
+	return parsed.String(), nil
+}
+
 func sendAdminEmailChangeConfirmationEmail(
 	cfg appconfig.MailConfig,
 	recipientEmail,
@@ -825,6 +1068,21 @@ func sendAdminEmailChangeNoticeEmail(
 	subject, htmlBody, err := adminmailpkg.ChangeRequestedNoticeEmail(locale, siteURL)
 	if err != nil {
 		return fmt.Errorf("build admin email change notice email failed: %w", err)
+	}
+
+	return newsletterpkg.SendHTMLEmail(cfg, recipientEmail, subject, htmlBody, nil)
+}
+
+func sendAdminPasswordResetEmail(
+	cfg appconfig.MailConfig,
+	recipientEmail,
+	resetURL,
+	locale,
+	siteURL string,
+) error {
+	subject, htmlBody, err := adminmailpkg.PasswordResetEmail(locale, resetURL, siteURL)
+	if err != nil {
+		return fmt.Errorf("build admin password reset email failed: %w", err)
 	}
 
 	return newsletterpkg.SendHTMLEmail(cfg, recipientEmail, subject, htmlBody, nil)

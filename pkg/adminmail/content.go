@@ -112,6 +112,27 @@ var emailByLocale = map[string]emailCopy{
 	},
 }
 
+var passwordResetByLocale = map[string]emailCopy{
+	"en": {
+		Subject:      "Reset your admin password",
+		EyebrowLabel: "Admin security",
+		Title:        "Suayb's Blog",
+		Heading:      "Reset your admin password",
+		Body:         "Use the button below to choose a new password for your admin account. If you did not request this reset, you can ignore this email.",
+		ButtonLabel:  "Reset password",
+		FallbackLead: "If the button does not work, copy and paste this link into your browser:",
+	},
+	"tr": {
+		Subject:      "Yonetici parolanizi sifirlayin",
+		EyebrowLabel: "Yonetici guvenligi",
+		Title:        "Suayb's Blog",
+		Heading:      "Yonetici parolanizi sifirlayin",
+		Body:         "Yonetici hesabiniz icin yeni bir parola belirlemek uzere asagidaki butonu kullanin. Bu sifirlama istegini siz baslatmadiysaniz bu e-postayi yok sayabilirsiniz.",
+		ButtonLabel:  "Parolayi sifirla",
+		FallbackLead: "Buton calismazsa bu baglantiyi tarayiciniza yapistirin:",
+	},
+}
+
 var noticeByLocale = map[string]noticeCopy{
 	"en": {
 		Subject:      "Admin email change requested",
@@ -232,6 +253,33 @@ func ConfirmationEmail(locale, confirmURL, siteURL string) (string, string, erro
 	htmlBody, err := renderTemplate(confirmationTemplate, data)
 	if err != nil {
 		return "", "", fmt.Errorf("render admin email change confirmation template: %w", err)
+	}
+
+	return content.Subject, htmlBody, nil
+}
+
+func PasswordResetEmail(locale, resetURL, siteURL string) (string, string, error) {
+	if err := ensureTemplates(); err != nil {
+		return "", "", err
+	}
+
+	resolved := resolveLocale(locale)
+	content := passwordResetByLocale[resolved]
+	data := emailTemplateData{
+		Lang:         resolved,
+		FaviconURL:   newsletter.BuildFaviconURL(siteURL),
+		EyebrowLabel: content.EyebrowLabel,
+		Title:        content.Title,
+		Heading:      content.Heading,
+		Body:         content.Body,
+		ButtonLabel:  content.ButtonLabel,
+		FallbackLead: content.FallbackLead,
+		ActionURL:    strings.TrimSpace(resetURL),
+	}
+
+	htmlBody, err := renderTemplate(confirmationTemplate, data)
+	if err != nil {
+		return "", "", fmt.Errorf("render admin password reset email template: %w", err)
 	}
 
 	return content.Subject, htmlBody, nil

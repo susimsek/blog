@@ -25,6 +25,7 @@ type AdminUserRepository interface {
 	FindByGoogleSubject(ctx context.Context, subject string) (*domain.AdminUserRecord, error)
 	FindByGithubSubject(ctx context.Context, subject string) (*domain.AdminUserRecord, error)
 	FindByPendingEmailChangeTokenHash(ctx context.Context, tokenHash string) (*domain.AdminUserRecord, error)
+	FindByPendingPasswordResetTokenHash(ctx context.Context, tokenHash string) (*domain.AdminUserRecord, error)
 	HasAnyGoogleLink(ctx context.Context) (bool, error)
 	HasAnyGithubLink(ctx context.Context) (bool, error)
 	UpdatePasswordHashByID(ctx context.Context, id, passwordHash string) error
@@ -32,6 +33,8 @@ type AdminUserRepository interface {
 	UpdateUsernameByID(ctx context.Context, id, username string) error
 	SetPendingEmailChangeByID(ctx context.Context, id string, pending domain.AdminPendingEmailChange) error
 	ClearPendingEmailChangeByID(ctx context.Context, id string) error
+	SetPendingPasswordResetByID(ctx context.Context, id string, pending domain.AdminPendingPasswordReset) error
+	ClearPendingPasswordResetByID(ctx context.Context, id string) error
 	UpdateEmailByID(ctx context.Context, id, email string) error
 	UpdateGoogleLinkByID(ctx context.Context, id, subject, email string, linkedAt time.Time) error
 	ClearGoogleLinkByID(ctx context.Context, id string) error
@@ -143,6 +146,21 @@ func (*adminMongoRepository) FindByPendingEmailChangeTokenHash(
 	})
 }
 
+func (*adminMongoRepository) FindByPendingPasswordResetTokenHash(
+	ctx context.Context,
+	tokenHash string,
+) (*domain.AdminUserRecord, error) {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return nil, fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	return findAdminUser(ctx, collection, bson.M{
+		"pendingPasswordReset.tokenHash": strings.TrimSpace(tokenHash),
+		"status":                         bson.M{"$ne": "disabled"},
+	})
+}
+
 func (*adminMongoRepository) HasAnyGoogleLink(ctx context.Context) (bool, error) {
 	collection, err := getAdminUsersCollection()
 	if err != nil {
@@ -200,6 +218,9 @@ func (*adminMongoRepository) UpdatePasswordHashByID(ctx context.Context, id, pas
 		bson.M{
 			"$set": bson.M{
 				"passwordHash": strings.TrimSpace(passwordHash),
+			},
+			"$unset": bson.M{
+				"pendingPasswordReset": "",
 			},
 			"$inc": bson.M{
 				"passwordVersion": 1,
@@ -328,6 +349,71 @@ func (*adminMongoRepository) ClearPendingEmailChangeByID(ctx context.Context, id
 		bson.M{
 			"$unset": bson.M{
 				"pendingEmailChange": "",
+			},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrAdminUserNotFound
+	}
+
+	return nil
+}
+
+func (*adminMongoRepository) SetPendingPasswordResetByID(
+	ctx context.Context,
+	id string,
+	pending domain.AdminPendingPasswordReset,
+) error {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	result, err := collection.UpdateOne(
+		ctx,
+		bson.M{
+			"id":     strings.TrimSpace(id),
+			"status": bson.M{"$ne": "disabled"},
+		},
+		bson.M{
+			"$set": bson.M{
+				"pendingPasswordReset": bson.M{
+					"tokenHash":   strings.TrimSpace(pending.TokenHash),
+					"locale":      strings.TrimSpace(strings.ToLower(pending.Locale)),
+					"requestedAt": pending.RequestedAt,
+					"expiresAt":   pending.ExpiresAt,
+				},
+			},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return ErrAdminUserNotFound
+	}
+
+	return nil
+}
+
+func (*adminMongoRepository) ClearPendingPasswordResetByID(ctx context.Context, id string) error {
+	collection, err := getAdminUsersCollection()
+	if err != nil {
+		return fmt.Errorf(adminUsersRepositoryUnavailableFormat, ErrAdminUserRepositoryUnavailable, err)
+	}
+
+	result, err := collection.UpdateOne(
+		ctx,
+		bson.M{
+			"id":     strings.TrimSpace(id),
+			"status": bson.M{"$ne": "disabled"},
+		},
+		bson.M{
+			"$unset": bson.M{
+				"pendingPasswordReset": "",
 			},
 		},
 	)
@@ -686,6 +772,18 @@ func ensureAdminUserIndexes(collection *mongo.Collection) error {
 				Keys:    bson.D{{Key: "status", Value: 1}},
 				Options: options.Index().SetName("idx_admin_user_status"),
 			},
+			{
+				Keys: bson.D{{Key: "pendingPasswordReset.tokenHash", Value: 1}},
+				Options: options.Index().
+					SetUnique(true).
+					SetName("uniq_admin_user_pending_password_reset_token_hash").
+					SetPartialFilterExpression(bson.M{
+						"pendingPasswordReset.tokenHash": bson.M{
+							"$exists": true,
+							"$type":   "string",
+						},
+					}),
+			},
 		}
 
 		if _, err := collection.Indexes().CreateMany(ctx, indexes); err != nil {
@@ -721,6 +819,12 @@ func findAdminUser(ctx context.Context, collection *mongo.Collection, filter bso
 			RequestedAt time.Time `bson:"requestedAt"`
 			ExpiresAt   time.Time `bson:"expiresAt"`
 		} `bson:"pendingEmailChange"`
+		PendingPasswordReset *struct {
+			TokenHash   string    `bson:"tokenHash"`
+			Locale      string    `bson:"locale"`
+			RequestedAt time.Time `bson:"requestedAt"`
+			ExpiresAt   time.Time `bson:"expiresAt"`
+		} `bson:"pendingPasswordReset"`
 	}
 
 	err := collection.FindOne(ctx, filter).Decode(&doc)
@@ -743,6 +847,7 @@ func findAdminUser(ctx context.Context, collection *mongo.Collection, filter bso
 	var pendingEmail string
 	var pendingEmailExpiresAt *time.Time
 	var pendingChange *domain.AdminPendingEmailChange
+	var pendingPasswordReset *domain.AdminPendingPasswordReset
 	if doc.PendingEmailChange != nil {
 		pendingEmail = strings.TrimSpace(strings.ToLower(doc.PendingEmailChange.NewEmail))
 		expiresAt := doc.PendingEmailChange.ExpiresAt
@@ -753,6 +858,14 @@ func findAdminUser(ctx context.Context, collection *mongo.Collection, filter bso
 			Locale:      strings.TrimSpace(strings.ToLower(doc.PendingEmailChange.Locale)),
 			RequestedAt: doc.PendingEmailChange.RequestedAt,
 			ExpiresAt:   doc.PendingEmailChange.ExpiresAt,
+		}
+	}
+	if doc.PendingPasswordReset != nil {
+		pendingPasswordReset = &domain.AdminPendingPasswordReset{
+			TokenHash:   strings.TrimSpace(doc.PendingPasswordReset.TokenHash),
+			Locale:      strings.TrimSpace(strings.ToLower(doc.PendingPasswordReset.Locale)),
+			RequestedAt: doc.PendingPasswordReset.RequestedAt,
+			ExpiresAt:   doc.PendingPasswordReset.ExpiresAt,
 		}
 	}
 
@@ -775,9 +888,10 @@ func findAdminUser(ctx context.Context, collection *mongo.Collection, filter bso
 			GithubLinkedAt:        doc.GithubLinkedAt,
 			Roles:                 roles,
 		},
-		PasswordHash:       strings.TrimSpace(doc.PasswordHash),
-		PasswordVersion:    doc.PasswordVersion,
-		PendingEmailChange: pendingChange,
+		PasswordHash:         strings.TrimSpace(doc.PasswordHash),
+		PasswordVersion:      doc.PasswordVersion,
+		PendingEmailChange:   pendingChange,
+		PendingPasswordReset: pendingPasswordReset,
 	}, nil
 }
 

@@ -1,6 +1,8 @@
 export const ADMIN_ROUTES = {
   root: '/admin',
   login: '/admin/login',
+  forgotPassword: '/admin/forgot-password',
+  resetPassword: '/admin/reset-password',
   settings: {
     root: '/admin/settings',
     profile: '/admin/settings/profile',

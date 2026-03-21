@@ -11,6 +11,7 @@
     "email": "Email",
     "passwordPlaceholder": "Enter your password",
     "password": "Password",
+    "forgotPassword": "Forgot password?",
     "rememberMe": "Remember me",
     "showPassword": "Show password",
     "hidePassword": "Hide password",

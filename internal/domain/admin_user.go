@@ -23,13 +23,21 @@ type AdminUser struct {
 
 type AdminUserRecord struct {
 	AdminUser
-	PasswordHash       string
-	PasswordVersion    int64
-	PendingEmailChange *AdminPendingEmailChange
+	PasswordHash         string
+	PasswordVersion      int64
+	PendingEmailChange   *AdminPendingEmailChange
+	PendingPasswordReset *AdminPendingPasswordReset
 }
 
 type AdminPendingEmailChange struct {
 	NewEmail    string
+	TokenHash   string
+	Locale      string
+	RequestedAt time.Time
+	ExpiresAt   time.Time
+}
+
+type AdminPendingPasswordReset struct {
 	TokenHash   string
 	Locale      string
 	RequestedAt time.Time

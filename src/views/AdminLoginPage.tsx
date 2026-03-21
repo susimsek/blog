@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Form from 'react-bootstrap/Form';
@@ -20,6 +21,7 @@ import { withBasePath } from '@/lib/basePath';
 import { defaultLocale } from '@/i18n/settings';
 import { useAppSelector } from '@/config/store';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
+import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -30,6 +32,7 @@ export default function AdminLoginPage() {
   const params = useParams<{ locale?: string | string[] }>();
   const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
   const locale = routeLocale ?? defaultLocale;
+  const forgotPasswordHref = withAdminLocalePath(locale, ADMIN_ROUTES.forgotPassword);
   const isVoiceEnabled = useAppSelector(state => state.voice.isEnabled);
   const submitSoundRef = React.useRef<HTMLAudioElement | null>(null);
   const [email, setEmail] = React.useState('');
@@ -337,7 +340,7 @@ export default function AdminLoginPage() {
                 </Form.Group>
 
                 <Form.Group className="mb-4" controlId="admin-login-password">
-                  <Form.Label>{t('adminLogin.password', { ns: 'admin-login' })}</Form.Label>
+                  <Form.Label className="mb-2">{t('adminLogin.password', { ns: 'admin-login' })}</Form.Label>
                   <InputGroup>
                     <Form.Control
                       type={showPassword ? 'text' : 'password'}
@@ -373,14 +376,19 @@ export default function AdminLoginPage() {
                 </Form.Group>
 
                 <Form.Group className="mb-4" controlId="admin-login-remember-me">
-                  <Form.Check
-                    type="checkbox"
-                    label={t('adminLogin.rememberMe', { ns: 'admin-login' })}
-                    checked={rememberMe}
-                    onChange={event => {
-                      setRememberMe(event.currentTarget.checked);
-                    }}
-                  />
+                  <div className="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                    <Form.Check
+                      type="checkbox"
+                      label={t('adminLogin.rememberMe', { ns: 'admin-login' })}
+                      checked={rememberMe}
+                      onChange={event => {
+                        setRememberMe(event.currentTarget.checked);
+                      }}
+                    />
+                    <Link href={forgotPasswordHref} className="small fw-semibold text-decoration-none text-nowrap">
+                      {t('adminLogin.forgotPassword', { ns: 'admin-login' })}
+                    </Link>
+                  </div>
                 </Form.Group>
 
                 <div className="mb-4">
