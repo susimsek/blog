@@ -21,12 +21,14 @@ import Link from '@/components/common/Link';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
 import Image from 'next/image';
 import { SITE_LOGO } from '@/config/constants';
+import {
+  clearAdminSessionProfileCache,
+  readAdminSessionProfileCache,
+  writeAdminSessionProfileCache,
+  type AdminSessionProfile,
+} from '@/lib/adminSessionProfileCache';
 
-type AdminIdentity = {
-  id: string;
-  email: string;
-  roles: string[];
-} | null;
+type AdminIdentity = AdminSessionProfile | null;
 
 type DashboardPayload = {
   totalPosts: number;
@@ -244,17 +246,24 @@ export default function AdminDashboardPage() {
 
     const loadSession = async () => {
       try {
-        const me = await fetchAdminMe();
-        if (!isMounted) {
-          return;
-        }
+        const cachedUser = readAdminSessionProfileCache();
+        if (cachedUser) {
+          setAdminUser(cachedUser);
+        } else {
+          const me = await fetchAdminMe();
+          if (!isMounted) {
+            return;
+          }
 
-        if (!me.authenticated || !me.user) {
-          router.replace(`/${locale}/admin/login`);
-          return;
-        }
+          if (!me.authenticated || !me.user) {
+            clearAdminSessionProfileCache();
+            router.replace(`/${locale}/admin/login`);
+            return;
+          }
 
-        setAdminUser(me.user);
+          setAdminUser(me.user);
+          writeAdminSessionProfileCache(me.user);
+        }
 
         const dashboardPayload = await fetchAdminDashboard();
 
@@ -278,6 +287,7 @@ export default function AdminDashboardPage() {
         if (!isMounted) {
           return;
         }
+        clearAdminSessionProfileCache();
         router.replace(`/${locale}/admin/login`);
       } finally {
         if (isMounted) {
@@ -740,7 +750,7 @@ export default function AdminDashboardPage() {
                   </p>
                 ) : null}
 
-                {!isCommentsLoading ? (
+                {isCommentsLoading ? null : (
                   <div className="admin-dashboard-curation-stack">
                     {pendingComments.map(comment => (
                       <div key={comment.id} className="admin-dashboard-curation-item">
@@ -780,7 +790,7 @@ export default function AdminDashboardPage() {
                       </div>
                     ))}
                   </div>
-                ) : null}
+                )}
               </div>
             </div>
           </section>

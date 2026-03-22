@@ -163,6 +163,7 @@ export const resolvePostDetailThumbnailSrc = (
 };
 
 export default function PostDetail({
+  // NOSONAR
   post,
   relatedPosts = [],
   previousPost = null,

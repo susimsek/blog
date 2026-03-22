@@ -19,6 +19,60 @@ import (
 	"suaybsimsek.com/blog-api/pkg/httpauth"
 )
 
+var (
+	queryAdminGoogleAuthStatusFn            = appservice.QueryAdminGoogleAuthStatus
+	queryAdminGithubAuthStatusFn            = appservice.QueryAdminGithubAuthStatus
+	queryAdminDashboardFn                   = appservice.QueryAdminDashboard
+	listAdminCommentsFn                     = appservice.ListAdminComments
+	listActiveAdminSessionsFn               = appservice.ListActiveAdminSessions
+	listAdminNewsletterSubscribersFn        = appservice.ListAdminNewsletterSubscribers
+	listAdminNewsletterCampaignsFn          = appservice.ListAdminNewsletterCampaigns
+	listAdminNewsletterDeliveryFailuresFn   = appservice.ListAdminNewsletterDeliveryFailures
+	listAdminErrorMessagesFn                = appservice.ListAdminErrorMessages
+	listAdminContentPostsFn                 = appservice.ListAdminContentPosts
+	getAdminContentPostFn                   = appservice.GetAdminContentPost
+	listAdminContentTopicsPageFn            = appservice.ListAdminContentTopicsPage
+	listAdminContentCategoriesPageFn        = appservice.ListAdminContentCategoriesPage
+	listAdminContentTopicsFn                = appservice.ListAdminContentTopics
+	listAdminContentCategoriesFn            = appservice.ListAdminContentCategories
+	listAdminErrorMessageAuditLogsFn        = appservice.ListAdminErrorMessageAuditLogs
+	loginAdminFn                            = appservice.LoginAdmin
+	startAdminGoogleConnectFn               = appservice.StartAdminGoogleConnect
+	disconnectAdminGoogleAccountFn          = appservice.DisconnectAdminGoogleAccount
+	startAdminGithubConnectFn               = appservice.StartAdminGithubConnect
+	disconnectAdminGithubAccountFn          = appservice.DisconnectAdminGithubAccount
+	refreshAdminSessionFn                   = appservice.RefreshAdminSession
+	logoutAdminFn                           = appservice.LogoutAdmin
+	changeAdminNameFn                       = appservice.ChangeAdminName
+	changeAdminAvatarFn                     = appservice.ChangeAdminAvatar
+	changeAdminUsernameFn                   = appservice.ChangeAdminUsername
+	requestAdminEmailChangeFn               = appservice.RequestAdminEmailChange
+	deleteAdminAccountFn                    = appservice.DeleteAdminAccount
+	changeAdminPasswordFn                   = appservice.ChangeAdminPassword
+	revokeAdminSessionFn                    = appservice.RevokeAdminSession
+	revokeAllAdminSessionsFn                = appservice.RevokeAllAdminSessions
+	updateAdminCommentStatusFn              = appservice.UpdateAdminCommentStatus
+	deleteAdminCommentFn                    = appservice.DeleteAdminComment
+	bulkUpdateAdminCommentStatusFn          = appservice.BulkUpdateAdminCommentStatus
+	bulkDeleteAdminCommentsFn               = appservice.BulkDeleteAdminComments
+	updateAdminNewsletterSubscriberStatusFn = appservice.UpdateAdminNewsletterSubscriberStatus
+	deleteAdminNewsletterSubscriberFn       = appservice.DeleteAdminNewsletterSubscriber
+	triggerAdminNewsletterDispatchFn        = appservice.TriggerAdminNewsletterDispatch
+	sendAdminNewsletterTestEmailFn          = appservice.SendAdminNewsletterTestEmail
+	createAdminErrorMessageFn               = appservice.CreateAdminErrorMessage
+	updateAdminErrorMessageFn               = appservice.UpdateAdminErrorMessage
+	deleteAdminErrorMessageFn               = appservice.DeleteAdminErrorMessage
+	updateAdminContentPostMetadataFn        = appservice.UpdateAdminContentPostMetadata
+	updateAdminContentPostContentFn         = appservice.UpdateAdminContentPostContent
+	deleteAdminContentPostFn                = appservice.DeleteAdminContentPost
+	createAdminContentTopicFn               = appservice.CreateAdminContentTopic
+	updateAdminContentTopicFn               = appservice.UpdateAdminContentTopic
+	deleteAdminContentTopicFn               = appservice.DeleteAdminContentTopic
+	createAdminContentCategoryFn            = appservice.CreateAdminContentCategory
+	updateAdminContentCategoryFn            = appservice.UpdateAdminContentCategory
+	deleteAdminContentCategoryFn            = appservice.DeleteAdminContentCategory
+)
+
 // Me is the resolver for the me field.
 func (r *adminQueryResolver) Me(ctx context.Context) (*model.AdminMe, error) {
 	user := getAdminUser(ctx)
@@ -34,7 +88,7 @@ func (r *adminQueryResolver) Me(ctx context.Context) (*model.AdminMe, error) {
 
 // GoogleAuthStatus is the resolver for the googleAuthStatus field.
 func (r *adminQueryResolver) GoogleAuthStatus(ctx context.Context) (*model.AdminGoogleAuthStatus, error) {
-	payload, err := appservice.QueryAdminGoogleAuthStatus(ctx)
+	payload, err := queryAdminGoogleAuthStatusFn(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +105,7 @@ func (r *adminQueryResolver) GoogleAuthStatus(ctx context.Context) (*model.Admin
 
 // GithubAuthStatus is the resolver for the githubAuthStatus field.
 func (r *adminQueryResolver) GithubAuthStatus(ctx context.Context) (*model.AdminGithubAuthStatus, error) {
-	payload, err := appservice.QueryAdminGithubAuthStatus(ctx)
+	payload, err := queryAdminGithubAuthStatusFn(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +126,7 @@ func (r *adminQueryResolver) Dashboard(ctx context.Context) (*model.AdminDashboa
 		return nil, err
 	}
 
-	payload, err := appservice.QueryAdminDashboard(ctx)
+	payload, err := queryAdminDashboardFn(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +163,7 @@ func (r *adminQueryResolver) Comments(
 		}
 	}
 
-	payload, err := appservice.ListAdminComments(ctx, adminUser, resolvedFilter)
+	payload, err := listAdminCommentsFn(ctx, adminUser, resolvedFilter)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +178,7 @@ func (r *adminQueryResolver) ActiveSessions(ctx context.Context) ([]*model.Admin
 		return nil, err
 	}
 
-	sessions, err := appservice.ListActiveAdminSessions(ctx, adminUser)
+	sessions, err := listActiveAdminSessionsFn(ctx, adminUser)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +216,7 @@ func (r *adminQueryResolver) NewsletterSubscribers(
 		}
 	}
 
-	payload, err := appservice.ListAdminNewsletterSubscribers(ctx, adminUser, resolvedFilter)
+	payload, err := listAdminNewsletterSubscribersFn(ctx, adminUser, resolvedFilter)
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +253,7 @@ func (r *adminQueryResolver) NewsletterCampaigns(
 		}
 	}
 
-	payload, err := appservice.ListAdminNewsletterCampaigns(ctx, adminUser, resolvedFilter)
+	payload, err := listAdminNewsletterCampaignsFn(ctx, adminUser, resolvedFilter)
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +282,7 @@ func (r *adminQueryResolver) NewsletterCampaignFailures(
 		resolvedFilter.Size = filter.Size
 	}
 
-	payload, err := appservice.ListAdminNewsletterDeliveryFailures(ctx, adminUser, resolvedFilter)
+	payload, err := listAdminNewsletterDeliveryFailuresFn(ctx, adminUser, resolvedFilter)
 	if err != nil {
 		return nil, err
 	}
@@ -265,7 +319,7 @@ func (r *adminQueryResolver) ErrorMessages(
 		}
 	}
 
-	payload, err := appservice.ListAdminErrorMessages(ctx, adminUser, resolvedFilter)
+	payload, err := listAdminErrorMessagesFn(ctx, adminUser, resolvedFilter)
 	if err != nil {
 		return nil, err
 	}
@@ -274,7 +328,7 @@ func (r *adminQueryResolver) ErrorMessages(
 }
 
 // ContentPosts is the resolver for the contentPosts field.
-func (r *adminQueryResolver) ContentPosts(
+func (r *adminQueryResolver) ContentPosts( // NOSONAR
 	ctx context.Context,
 	filter *model.AdminContentPostFilterInput,
 ) (*model.AdminContentPostListPayload, error) {
@@ -311,7 +365,7 @@ func (r *adminQueryResolver) ContentPosts(
 		}
 	}
 
-	payload, err := appservice.ListAdminContentPosts(ctx, adminUser, resolvedFilter)
+	payload, err := listAdminContentPostsFn(ctx, adminUser, resolvedFilter)
 	if err != nil {
 		return nil, err
 	}
@@ -329,7 +383,7 @@ func (r *adminQueryResolver) ContentPost(
 		return nil, err
 	}
 
-	record, err := appservice.GetAdminContentPost(
+	record, err := getAdminContentPostFn(
 		ctx,
 		adminUser,
 		strings.TrimSpace(input.Locale),
@@ -371,7 +425,7 @@ func (r *adminQueryResolver) ContentTopicsPage(
 		}
 	}
 
-	payload, err := appservice.ListAdminContentTopicsPage(ctx, adminUser, resolvedFilter)
+	payload, err := listAdminContentTopicsPageFn(ctx, adminUser, resolvedFilter)
 	if err != nil {
 		return nil, err
 	}
@@ -408,7 +462,7 @@ func (r *adminQueryResolver) ContentCategoriesPage(
 		}
 	}
 
-	payload, err := appservice.ListAdminContentCategoriesPage(ctx, adminUser, resolvedFilter)
+	payload, err := listAdminContentCategoriesPageFn(ctx, adminUser, resolvedFilter)
 	if err != nil {
 		return nil, err
 	}
@@ -417,7 +471,7 @@ func (r *adminQueryResolver) ContentCategoriesPage(
 }
 
 // ContentTopics is the resolver for the contentTopics field.
-func (r *adminQueryResolver) ContentTopics(ctx context.Context, locale *string) ([]*model.AdminContentTopic, error) {
+func (r *adminQueryResolver) ContentTopics(ctx context.Context, locale *string, query *string) ([]*model.AdminContentTopic, error) {
 	adminUser, err := requireAdminUser(ctx)
 	if err != nil {
 		return nil, err
@@ -428,7 +482,12 @@ func (r *adminQueryResolver) ContentTopics(ctx context.Context, locale *string) 
 		resolvedLocale = strings.TrimSpace(*locale)
 	}
 
-	records, err := appservice.ListAdminContentTopics(ctx, adminUser, resolvedLocale)
+	resolvedQuery := ""
+	if query != nil {
+		resolvedQuery = strings.TrimSpace(*query)
+	}
+
+	records, err := listAdminContentTopicsFn(ctx, adminUser, resolvedLocale, resolvedQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -451,7 +510,7 @@ func (r *adminQueryResolver) ContentCategories(
 		resolvedLocale = strings.TrimSpace(*locale)
 	}
 
-	records, err := appservice.ListAdminContentCategories(ctx, adminUser, resolvedLocale)
+	records, err := listAdminContentCategoriesFn(ctx, adminUser, resolvedLocale)
 	if err != nil {
 		return nil, err
 	}
@@ -474,7 +533,7 @@ func (r *adminQueryResolver) ErrorMessageAuditLogs(
 		resolvedLimit = *limit
 	}
 
-	records, err := appservice.ListAdminErrorMessageAuditLogs(ctx, adminUser, resolvedLimit)
+	records, err := listAdminErrorMessageAuditLogsFn(ctx, adminUser, resolvedLimit)
 	if err != nil {
 		return nil, err
 	}
@@ -485,7 +544,7 @@ func (r *adminQueryResolver) ErrorMessageAuditLogs(
 // Login is the resolver for the login field.
 func (r *adminMutationResolver) Login(ctx context.Context, input model.AdminLoginInput) (*model.AdminAuthPayload, error) {
 	rememberMe := input.RememberMe != nil && *input.RememberMe
-	payload, err := appservice.LoginAdmin(
+	payload, err := loginAdminFn(
 		ctx,
 		strings.TrimSpace(input.Email),
 		input.Password,
@@ -523,7 +582,7 @@ func (r *adminMutationResolver) StartGoogleConnect(
 		return nil, err
 	}
 
-	payload, err := appservice.StartAdminGoogleConnect(
+	payload, err := startAdminGoogleConnectFn(
 		ctx,
 		adminUser,
 		stringPointerValue(input.Locale),
@@ -542,7 +601,7 @@ func (r *adminMutationResolver) DisconnectGoogle(ctx context.Context) (*model.Ad
 		return nil, err
 	}
 
-	updatedUser, err := appservice.DisconnectAdminGoogleAccount(ctx, adminUser)
+	updatedUser, err := disconnectAdminGoogleAccountFn(ctx, adminUser)
 	if err != nil {
 		return nil, err
 	}
@@ -563,7 +622,7 @@ func (r *adminMutationResolver) StartGithubConnect(
 		return nil, err
 	}
 
-	payload, err := appservice.StartAdminGithubConnect(
+	payload, err := startAdminGithubConnectFn(
 		ctx,
 		adminUser,
 		stringPointerValue(input.Locale),
@@ -582,7 +641,7 @@ func (r *adminMutationResolver) DisconnectGithub(ctx context.Context) (*model.Ad
 		return nil, err
 	}
 
-	updatedUser, err := appservice.DisconnectAdminGithubAccount(ctx, adminUser)
+	updatedUser, err := disconnectAdminGithubAccountFn(ctx, adminUser)
 	if err != nil {
 		return nil, err
 	}
@@ -606,7 +665,7 @@ func (r *adminMutationResolver) RefreshAdminSession(ctx context.Context) (*model
 		return nil, apperrors.Unauthorized("invalid admin session")
 	}
 
-	payload, err := appservice.RefreshAdminSession(
+	payload, err := refreshAdminSessionFn(
 		ctx,
 		strings.TrimSpace(refreshCookie.Value),
 		resolveAdminSessionMetadata(ctx, request),
@@ -638,7 +697,7 @@ func (r *adminMutationResolver) Logout(ctx context.Context) (*model.AdminLogoutP
 	config := appconfig.ResolveAdminConfig()
 	if request != nil {
 		if refreshCookie, err := request.Cookie(config.RefreshCookieName); err == nil {
-			if err := appservice.LogoutAdmin(ctx, strings.TrimSpace(refreshCookie.Value)); err != nil {
+			if err := logoutAdminFn(ctx, strings.TrimSpace(refreshCookie.Value)); err != nil {
 				return nil, err
 			}
 		}
@@ -658,7 +717,7 @@ func (r *adminMutationResolver) ChangeName(
 		return nil, err
 	}
 
-	updatedAdminUser, err := appservice.ChangeAdminName(ctx, adminUser, input.Name)
+	updatedAdminUser, err := changeAdminNameFn(ctx, adminUser, input.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -679,7 +738,7 @@ func (r *adminMutationResolver) ChangeAvatar(
 		return nil, err
 	}
 
-	updatedAdminUser, err := appservice.ChangeAdminAvatar(ctx, adminUser, input.AvatarURL)
+	updatedAdminUser, err := changeAdminAvatarFn(ctx, adminUser, input.AvatarURL)
 	if err != nil {
 		return nil, err
 	}
@@ -700,7 +759,7 @@ func (r *adminMutationResolver) ChangeUsername(
 		return nil, err
 	}
 
-	updatedAdminUser, err := appservice.ChangeAdminUsername(ctx, adminUser, input.NewUsername)
+	updatedAdminUser, err := changeAdminUsernameFn(ctx, adminUser, input.NewUsername)
 	if err != nil {
 		return nil, err
 	}
@@ -721,7 +780,7 @@ func (r *adminMutationResolver) RequestEmailChange(
 		return nil, err
 	}
 
-	payload, err := appservice.RequestAdminEmailChange(
+	payload, err := requestAdminEmailChangeFn(
 		ctx,
 		adminUser,
 		input.NewEmail,
@@ -749,7 +808,7 @@ func (r *adminMutationResolver) DeleteAccount(
 		return nil, err
 	}
 
-	if err := appservice.DeleteAdminAccount(ctx, adminUser, input.CurrentPassword); err != nil {
+	if err := deleteAdminAccountFn(ctx, adminUser, input.CurrentPassword); err != nil {
 		return nil, err
 	}
 
@@ -767,7 +826,7 @@ func (r *adminMutationResolver) ChangePassword(ctx context.Context, input model.
 		return nil, err
 	}
 
-	if err := appservice.ChangeAdminPassword(
+	if err := changeAdminPasswordFn(
 		ctx,
 		adminUser,
 		input.CurrentPassword,
@@ -791,7 +850,7 @@ func (r *adminMutationResolver) RevokeSession(ctx context.Context, sessionID str
 		return nil, err
 	}
 
-	revoked, err := appservice.RevokeAdminSession(ctx, adminUser, sessionID)
+	revoked, err := revokeAdminSessionFn(ctx, adminUser, sessionID)
 	if err != nil {
 		return nil, err
 	}
@@ -813,7 +872,7 @@ func (r *adminMutationResolver) RevokeAllSessions(ctx context.Context) (*model.A
 		return nil, err
 	}
 
-	if err := appservice.RevokeAllAdminSessions(ctx, adminUser); err != nil {
+	if err := revokeAllAdminSessionsFn(ctx, adminUser); err != nil {
 		return nil, err
 	}
 
@@ -831,7 +890,7 @@ func (r *adminMutationResolver) UpdateCommentStatus(
 		return nil, err
 	}
 
-	updated, err := appservice.UpdateAdminCommentStatus(
+	updated, err := updateAdminCommentStatusFn(
 		ctx,
 		adminUser,
 		strings.TrimSpace(input.CommentID),
@@ -854,7 +913,7 @@ func (r *adminMutationResolver) DeleteComment(
 		return nil, err
 	}
 
-	if err := appservice.DeleteAdminComment(ctx, adminUser, strings.TrimSpace(input.CommentID)); err != nil {
+	if err := deleteAdminCommentFn(ctx, adminUser, strings.TrimSpace(input.CommentID)); err != nil {
 		return nil, err
 	}
 
@@ -876,7 +935,7 @@ func (r *adminMutationResolver) BulkUpdateCommentStatus(
 		commentIDs = append(commentIDs, strings.TrimSpace(commentID))
 	}
 
-	successCount, err := appservice.BulkUpdateAdminCommentStatus(
+	successCount, err := bulkUpdateAdminCommentStatusFn(
 		ctx,
 		adminUser,
 		commentIDs,
@@ -904,7 +963,7 @@ func (r *adminMutationResolver) BulkDeleteComments(
 		commentIDs = append(commentIDs, strings.TrimSpace(commentID))
 	}
 
-	successCount, err := appservice.BulkDeleteAdminComments(ctx, adminUser, commentIDs)
+	successCount, err := bulkDeleteAdminCommentsFn(ctx, adminUser, commentIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -922,7 +981,7 @@ func (r *adminMutationResolver) UpdateNewsletterSubscriberStatus(
 		return nil, err
 	}
 
-	updated, err := appservice.UpdateAdminNewsletterSubscriberStatus(
+	updated, err := updateAdminNewsletterSubscriberStatusFn(
 		ctx,
 		adminUser,
 		input.Email,
@@ -945,7 +1004,7 @@ func (r *adminMutationResolver) DeleteNewsletterSubscriber(
 		return nil, err
 	}
 
-	if err := appservice.DeleteAdminNewsletterSubscriber(ctx, adminUser, input.Email); err != nil {
+	if err := deleteAdminNewsletterSubscriberFn(ctx, adminUser, input.Email); err != nil {
 		return nil, err
 	}
 
@@ -961,7 +1020,7 @@ func (r *adminMutationResolver) TriggerNewsletterDispatch(
 		return nil, err
 	}
 
-	payload, err := appservice.TriggerAdminNewsletterDispatch(ctx, adminUser)
+	payload, err := triggerAdminNewsletterDispatchFn(ctx, adminUser)
 	if err != nil {
 		return nil, err
 	}
@@ -979,7 +1038,7 @@ func (r *adminMutationResolver) SendTestNewsletter(
 		return nil, err
 	}
 
-	payload, err := appservice.SendAdminNewsletterTestEmail(
+	payload, err := sendAdminNewsletterTestEmailFn(
 		ctx,
 		adminUser,
 		input.Email,
@@ -1006,7 +1065,7 @@ func (r *adminMutationResolver) CreateErrorMessage(
 		return nil, apperrors.BadRequest("error message key is required")
 	}
 
-	saved, err := appservice.CreateAdminErrorMessage(
+	saved, err := createAdminErrorMessageFn(
 		ctx,
 		adminUser,
 		mapAdminErrorMessageKey(*input.Key),
@@ -1032,7 +1091,7 @@ func (r *adminMutationResolver) UpdateErrorMessage(
 		return nil, apperrors.BadRequest("error message key is required")
 	}
 
-	updated, err := appservice.UpdateAdminErrorMessage(
+	updated, err := updateAdminErrorMessageFn(
 		ctx,
 		adminUser,
 		mapAdminErrorMessageKey(*input.Key),
@@ -1055,7 +1114,7 @@ func (r *adminMutationResolver) DeleteErrorMessage(
 		return nil, err
 	}
 
-	if err := appservice.DeleteAdminErrorMessage(ctx, adminUser, mapAdminErrorMessageKey(input)); err != nil {
+	if err := deleteAdminErrorMessageFn(ctx, adminUser, mapAdminErrorMessageKey(input)); err != nil {
 		return nil, err
 	}
 
@@ -1072,7 +1131,7 @@ func (r *adminMutationResolver) UpdateContentPostMetadata(
 		return nil, err
 	}
 
-	updated, err := appservice.UpdateAdminContentPostMetadata(ctx, adminUser, domain.AdminContentPostMetadataInput{
+	updated, err := updateAdminContentPostMetadataFn(ctx, adminUser, domain.AdminContentPostMetadataInput{
 		Locale:        strings.TrimSpace(input.Locale),
 		ID:            strings.TrimSpace(input.ID),
 		Title:         toOptionalTrimmedInputString(input.Title),
@@ -1100,7 +1159,7 @@ func (r *adminMutationResolver) UpdateContentPostContent(
 		return nil, err
 	}
 
-	updated, err := appservice.UpdateAdminContentPostContent(ctx, adminUser, domain.AdminContentPostContentInput{
+	updated, err := updateAdminContentPostContentFn(ctx, adminUser, domain.AdminContentPostContentInput{
 		Locale:  strings.TrimSpace(input.Locale),
 		ID:      strings.TrimSpace(input.ID),
 		Content: input.Content,
@@ -1122,7 +1181,7 @@ func (r *adminMutationResolver) DeleteContentPost(
 		return nil, err
 	}
 
-	if err := appservice.DeleteAdminContentPost(
+	if err := deleteAdminContentPostFn(
 		ctx,
 		adminUser,
 		strings.TrimSpace(input.Locale),
@@ -1144,7 +1203,7 @@ func (r *adminMutationResolver) CreateContentTopic(
 		return nil, err
 	}
 
-	saved, err := appservice.CreateAdminContentTopic(ctx, adminUser, mapAdminContentTopicInput(input))
+	saved, err := createAdminContentTopicFn(ctx, adminUser, mapAdminContentTopicInput(input))
 	if err != nil {
 		return nil, err
 	}
@@ -1162,7 +1221,7 @@ func (r *adminMutationResolver) UpdateContentTopic(
 		return nil, err
 	}
 
-	saved, err := appservice.UpdateAdminContentTopic(ctx, adminUser, mapAdminContentTopicInput(input))
+	saved, err := updateAdminContentTopicFn(ctx, adminUser, mapAdminContentTopicInput(input))
 	if err != nil {
 		return nil, err
 	}
@@ -1180,7 +1239,7 @@ func (r *adminMutationResolver) DeleteContentTopic(
 		return nil, err
 	}
 
-	if err := appservice.DeleteAdminContentTopic(
+	if err := deleteAdminContentTopicFn(
 		ctx,
 		adminUser,
 		strings.TrimSpace(input.Locale),
@@ -1202,7 +1261,7 @@ func (r *adminMutationResolver) CreateContentCategory(
 		return nil, err
 	}
 
-	saved, err := appservice.CreateAdminContentCategory(ctx, adminUser, mapAdminContentCategoryInput(input))
+	saved, err := createAdminContentCategoryFn(ctx, adminUser, mapAdminContentCategoryInput(input))
 	if err != nil {
 		return nil, err
 	}
@@ -1220,7 +1279,7 @@ func (r *adminMutationResolver) UpdateContentCategory(
 		return nil, err
 	}
 
-	saved, err := appservice.UpdateAdminContentCategory(ctx, adminUser, mapAdminContentCategoryInput(input))
+	saved, err := updateAdminContentCategoryFn(ctx, adminUser, mapAdminContentCategoryInput(input))
 	if err != nil {
 		return nil, err
 	}
@@ -1238,7 +1297,7 @@ func (r *adminMutationResolver) DeleteContentCategory(
 		return nil, err
 	}
 
-	if err := appservice.DeleteAdminContentCategory(
+	if err := deleteAdminContentCategoryFn(
 		ctx,
 		adminUser,
 		strings.TrimSpace(input.Locale),
@@ -1268,8 +1327,8 @@ func mapAdminUser(user *domain.AdminUser) *model.AdminUser {
 
 	return &model.AdminUser{
 		ID:                    user.ID,
-		Name:                  toOptionalAdminProfileName(user.Name),
-		Username:              toOptionalAdminUsername(user.Username),
+		Name:                  toOptionalAdminString(user.Name),
+		Username:              toOptionalAdminString(user.Username),
 		AvatarURL:             toOptionalAdminAvatarURL(user.AvatarURL),
 		Email:                 user.Email,
 		PendingEmail:          toOptionalAdminEmail(user.PendingEmail),
@@ -1285,21 +1344,11 @@ func mapAdminUser(user *domain.AdminUser) *model.AdminUser {
 }
 
 func toOptionalAdminProfileName(value string) *string {
-	trimmed := strings.TrimSpace(value)
-	if trimmed == "" {
-		return nil
-	}
-
-	return &trimmed
+	return toOptionalAdminString(value)
 }
 
 func toOptionalAdminUsername(value string) *string {
-	trimmed := strings.TrimSpace(value)
-	if trimmed == "" {
-		return nil
-	}
-
-	return &trimmed
+	return toOptionalAdminString(value)
 }
 
 func toOptionalAdminEmail(value string) *string {
@@ -1312,12 +1361,7 @@ func toOptionalAdminEmail(value string) *string {
 }
 
 func toOptionalAdminAvatarURL(value string) *string {
-	trimmed := strings.TrimSpace(value)
-	if trimmed == "" {
-		return nil
-	}
-
-	return &trimmed
+	return toOptionalAdminString(value)
 }
 
 func mapAdminDashboard(payload *domain.AdminDashboard) *model.AdminDashboard {
@@ -1981,10 +2025,7 @@ func toOptionalAdminTimePointer(value *time.Time) *time.Time {
 }
 
 func adminDerefString(value *string) string {
-	if value == nil {
-		return ""
-	}
-	return *value
+	return stringPointerValue(value)
 }
 
 func mapAdminNewsletterStatusInput(value model.AdminNewsletterSubscriberStatus) string {

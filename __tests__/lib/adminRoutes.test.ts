@@ -8,7 +8,7 @@ describe('adminRoutes', () => {
 
   it('builds encoded admin post detail routes', () => {
     expect(buildAdminContentPostDetailRoute(' EN ', 'post/with space')).toBe(
-      '/admin/settings/content/posts/en/post%2Fwith%20space',
+      '/admin/settings/content/posts/en/post%2Fwith%20space/metadata',
     );
   });
 });

@@ -176,7 +176,7 @@ const main = async () => {
     process.stdout.write(
       [
         'Usage:',
-        '  node .codex/skills/blog-content-authoring/scripts/suggest-random-post.mjs [--seed=STRING]',
+        '  node .agents/skills/blog-content-authoring/scripts/suggest-random-post.mjs [--seed=STRING]',
         '',
         'Output:',
         '  Prints a JSON payload with a random post idea constrained to: Java/Kotlin/Spring Boot/Kubernetes/Go.',

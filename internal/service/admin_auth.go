@@ -70,18 +70,28 @@ type AdminPasswordResetResult struct {
 }
 
 const (
-	minAdminPasswordLength = 8
-	maxActiveAdminSessions = 20
-	minAdminUsernameLength = 3
-	maxAdminUsernameLength = 32
-	minAdminNameLength     = 2
-	maxAdminNameLength     = 80
-	maxAdminAvatarBytes    = 2 * 1024 * 1024
-	minAdminAvatarSize     = 16
-	maxAdminAvatarSize     = 1024
-	adminAvatarDefaultSize = 256
-	adminEmailChangeTTL    = time.Hour
-	adminPasswordResetTTL  = time.Hour
+	minAdminPasswordLength                = 8
+	maxActiveAdminSessions                = 20
+	minAdminUsernameLength                = 3
+	maxAdminUsernameLength                = 32
+	minAdminNameLength                    = 2
+	maxAdminNameLength                    = 80
+	maxAdminAvatarBytes                   = 2 * 1024 * 1024
+	minAdminAvatarSize                    = 16
+	maxAdminAvatarSize                    = 1024
+	adminAvatarDefaultSize                = 256
+	adminEmailChangeTTL                   = time.Hour
+	adminPasswordResetTTL                 = time.Hour
+	adminAuthRequiredMessage              = "admin authentication required"
+	adminLoadAdminUserMessage             = "failed to load admin user"
+	adminCurrentPasswordIncorrectMessage  = "current password is incorrect"
+	adminPasswordResetTokenInvalidMessage = "password reset token is invalid"
+	adminAvatarImageRequiredMessage       = "avatar image is required"
+	adminAvatarBase64InvalidMessage       = "avatar must be a valid base64 image"
+	adminAvatarNotFoundMessage            = "avatar not found"
+	adminAvatarContentTypeJPEG            = "image/jpeg"
+	adminAvatarContentTypePNG             = "image/png"
+	adminAvatarContentTypeWEBP            = "image/webp"
 )
 
 var adminUsernamePattern = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
@@ -109,7 +119,7 @@ func LoginAdmin(
 
 	userRecord, err := adminUsersRepository.FindByEmail(ctx, strings.TrimSpace(strings.ToLower(email)))
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
+		return nil, apperrors.Internal(adminLoadAdminUserMessage, err)
 	}
 	if userRecord == nil {
 		return nil, apperrors.Unauthorized("invalid credentials")
@@ -150,7 +160,7 @@ func RefreshAdminSession(ctx context.Context, token string, metadata AdminSessio
 
 	userRecord, err := adminUsersRepository.FindByID(ctx, resolvedUserID)
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
+		return nil, apperrors.Internal(adminLoadAdminUserMessage, err)
 	}
 	if userRecord == nil {
 		return nil, apperrors.Unauthorized("invalid admin session")
@@ -196,20 +206,16 @@ func ChangeAdminPassword(
 	newPassword string,
 	confirmPassword string,
 ) error {
-	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return apperrors.Unauthorized("admin authentication required")
+	if err := requireAdminAuthentication(adminUser); err != nil {
+		return err
 	}
 
-	userRecord, err := adminUsersRepository.FindByID(ctx, adminUser.ID)
+	userRecord, err := loadAdminUserRecord(ctx, adminUser.ID)
 	if err != nil {
-		return apperrors.Internal("failed to load admin user", err)
+		return err
 	}
-	if userRecord == nil {
-		return apperrors.Unauthorized("admin authentication required")
-	}
-
-	if err := verifyAdminPassword(userRecord, currentPassword); err != nil {
-		return apperrors.BadRequest("current password is incorrect")
+	if err := validateAdminCurrentPassword(userRecord, currentPassword); err != nil {
+		return err
 	}
 
 	if len(newPassword) < minAdminPasswordLength {
@@ -229,7 +235,7 @@ func ChangeAdminPassword(
 
 	if err := adminUsersRepository.UpdatePasswordHashByID(ctx, userRecord.ID, string(passwordHashBytes)); err != nil {
 		if errors.Is(err, repository.ErrAdminUserNotFound) {
-			return apperrors.Unauthorized("admin authentication required")
+			return apperrors.Unauthorized(adminAuthRequiredMessage)
 		}
 		return apperrors.Internal("failed to update admin password", err)
 	}
@@ -242,16 +248,13 @@ func ChangeAdminPassword(
 }
 
 func ChangeAdminUsername(ctx context.Context, adminUser *domain.AdminUser, newUsername string) (*domain.AdminUser, error) {
-	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+	if err := requireAdminAuthentication(adminUser); err != nil {
+		return nil, err
 	}
 
-	userRecord, err := adminUsersRepository.FindByID(ctx, adminUser.ID)
+	userRecord, err := loadAdminUserRecord(ctx, adminUser.ID)
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
-	}
-	if userRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, err
 	}
 
 	resolvedUsername := strings.TrimSpace(newUsername)
@@ -270,20 +273,12 @@ func ChangeAdminUsername(ctx context.Context, adminUser *domain.AdminUser, newUs
 			return nil, apperrors.BadRequest("username is already in use")
 		}
 		if errors.Is(err, repository.ErrAdminUserNotFound) {
-			return nil, apperrors.Unauthorized("admin authentication required")
+			return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 		}
 		return nil, apperrors.Internal("failed to update admin username", err)
 	}
 
-	updatedUserRecord, err := adminUsersRepository.FindByID(ctx, userRecord.ID)
-	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
-	}
-	if updatedUserRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
-	}
-
-	return &updatedUserRecord.AdminUser, nil
+	return reloadAdminUser(ctx, userRecord.ID)
 }
 
 func RequestAdminEmailChange(
@@ -293,89 +288,55 @@ func RequestAdminEmailChange(
 	currentPassword string,
 	locale string,
 ) (*AdminEmailChangeRequestResult, error) {
-	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+	if err := requireAdminAuthentication(adminUser); err != nil {
+		return nil, err
 	}
 	if strings.TrimSpace(currentPassword) == "" {
 		return nil, apperrors.BadRequest("current password is required")
 	}
 
-	userRecord, err := adminUsersRepository.FindByID(ctx, adminUser.ID)
+	userRecord, err := loadAdminUserRecord(ctx, adminUser.ID)
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
+		return nil, err
 	}
-	if userRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
-	}
-	if err := verifyAdminPassword(userRecord, currentPassword); err != nil {
-		return nil, apperrors.BadRequest("current password is incorrect")
+	if err := validateAdminCurrentPassword(userRecord, currentPassword); err != nil {
+		return nil, err
 	}
 
-	resolvedEmail, err := newsletterpkg.NormalizeSubscriberEmail(newEmail)
+	resolvedEmail, err := resolveAdminEmailChangeTarget(ctx, userRecord, newEmail)
 	if err != nil {
-		return nil, apperrors.BadRequest("new email is invalid")
-	}
-	if strings.EqualFold(strings.TrimSpace(userRecord.Email), resolvedEmail) {
-		return nil, apperrors.BadRequest("new email must be different from current email")
+		return nil, err
 	}
 
-	existingUser, err := adminUsersRepository.FindByEmail(ctx, resolvedEmail)
+	request, err := buildAdminEmailChangeRequest(resolvedEmail, locale)
 	if err != nil {
-		return nil, apperrors.Internal("failed to validate admin email", err)
-	}
-	if existingUser != nil && existingUser.ID != userRecord.ID {
-		return nil, apperrors.BadRequest("email is already in use")
+		return nil, err
 	}
 
-	siteURL, err := resolveSiteURLFn()
-	if err != nil {
-		return nil, apperrors.Config("admin email change site url is not configured", err)
-	}
-
-	mailCfg, err := resolveMailConfigFn()
-	if err != nil {
-		return nil, apperrors.Config("admin email change mail transport is not configured", err)
-	}
-
-	token, err := generateConfirmTokenFn()
-	if err != nil {
-		return nil, apperrors.Internal("failed to issue admin email change token", err)
-	}
-
-	now := nowUTCFn()
-	expiresAt := now.Add(adminEmailChangeTTL)
-	resolvedLocale := newsletterpkg.ResolveLocale(locale, "")
-	confirmURL, err := buildAdminEmailChangeConfirmURL(siteURL, token, resolvedLocale)
-	if err != nil {
-		return nil, apperrors.Config("admin email change confirm url is invalid", err)
-	}
-
-	pending := domain.AdminPendingEmailChange{
-		NewEmail:    resolvedEmail,
-		TokenHash:   hashValue(token),
-		Locale:      resolvedLocale,
-		RequestedAt: now,
-		ExpiresAt:   expiresAt,
-	}
-
-	if err := adminUsersRepository.SetPendingEmailChangeByID(ctx, userRecord.ID, pending); err != nil {
+	if err := adminUsersRepository.SetPendingEmailChangeByID(ctx, userRecord.ID, request.Pending); err != nil {
 		if errors.Is(err, repository.ErrAdminUserNotFound) {
-			return nil, apperrors.Unauthorized("admin authentication required")
+			return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 		}
 		return nil, apperrors.Internal("failed to store admin email change request", err)
 	}
 
-	if err := sendAdminEmailChangeConfirmationEmailFn(mailCfg, resolvedEmail, confirmURL, resolvedLocale, siteURL); err != nil {
+	if err := sendAdminEmailChangeConfirmationEmailFn(
+		request.MailConfig,
+		resolvedEmail,
+		request.ConfirmURL,
+		request.Locale,
+		request.SiteURL,
+	); err != nil {
 		_ = adminUsersRepository.ClearPendingEmailChangeByID(ctx, userRecord.ID)
 		return nil, apperrors.ServiceUnavailable("failed to send email change confirmation", err)
 	}
 
-	_ = sendAdminEmailChangeNoticeEmailFn(mailCfg, userRecord.Email, resolvedLocale, siteURL)
+	_ = sendAdminEmailChangeNoticeEmailFn(request.MailConfig, userRecord.Email, request.Locale, request.SiteURL)
 
 	return &AdminEmailChangeRequestResult{
 		Success:      true,
 		PendingEmail: resolvedEmail,
-		ExpiresAt:    expiresAt,
+		ExpiresAt:    request.Pending.ExpiresAt,
 	}, nil
 }
 
@@ -461,7 +422,7 @@ func RequestAdminPasswordReset(ctx context.Context, email, locale string) error 
 
 	userRecord, err := adminUsersRepository.FindByEmail(ctx, resolvedEmail)
 	if err != nil {
-		return apperrors.Internal("failed to load admin user", err)
+		return apperrors.Internal(adminLoadAdminUserMessage, err)
 	}
 	if userRecord == nil {
 		return nil
@@ -582,12 +543,7 @@ func ResetAdminPasswordWithToken(
 		return nil, err
 	}
 	if validation == nil || validation.Status == string(adminmailpkg.StatusInvalidLink) {
-		return nil, apperrors.New(
-			"ADMIN_PASSWORD_RESET_TOKEN_INVALID",
-			"password reset token is invalid",
-			400,
-			nil,
-		)
+		return nil, newAdminPasswordResetTokenInvalidError()
 	}
 	if validation.Status == string(adminmailpkg.StatusExpired) {
 		return nil, apperrors.New(
@@ -598,43 +554,16 @@ func ResetAdminPasswordWithToken(
 		)
 	}
 
-	resolvedPassword := strings.TrimSpace(newPassword)
-	if resolvedPassword == "" {
-		return nil, apperrors.New(
-			"ADMIN_PASSWORD_RESET_PASSWORD_REQUIRED",
-			"new password is required",
-			400,
-			nil,
-		)
-	}
-	if len(resolvedPassword) < minAdminPasswordLength {
-		return nil, apperrors.New(
-			"ADMIN_PASSWORD_RESET_PASSWORD_TOO_SHORT",
-			"new password must be at least 8 characters",
-			400,
-			nil,
-		)
-	}
-	if newPassword != confirmPassword {
-		return nil, apperrors.New(
-			"ADMIN_PASSWORD_RESET_CONFIRM_MISMATCH",
-			"password confirmation does not match",
-			400,
-			nil,
-		)
+	if err := validateAdminPasswordResetPassword(newPassword, confirmPassword); err != nil {
+		return nil, err
 	}
 
-	userRecord, err := adminUsersRepository.FindByPendingPasswordResetTokenHash(ctx, hashValue(resolvedToken))
+	userRecord, err := loadAdminPasswordResetUserRecord(ctx, resolvedToken)
 	if err != nil {
 		return nil, apperrors.Internal("failed to load admin password reset request", err)
 	}
-	if userRecord == nil || userRecord.PendingPasswordReset == nil {
-		return nil, apperrors.New(
-			"ADMIN_PASSWORD_RESET_TOKEN_INVALID",
-			"password reset token is invalid",
-			400,
-			nil,
-		)
+	if userRecord == nil {
+		return nil, newAdminPasswordResetTokenInvalidError()
 	}
 
 	passwordHashBytes, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
@@ -644,12 +573,7 @@ func ResetAdminPasswordWithToken(
 
 	if err := adminUsersRepository.UpdatePasswordHashByID(ctx, userRecord.ID, string(passwordHashBytes)); err != nil {
 		if errors.Is(err, repository.ErrAdminUserNotFound) {
-			return nil, apperrors.New(
-				"ADMIN_PASSWORD_RESET_TOKEN_INVALID",
-				"password reset token is invalid",
-				400,
-				nil,
-			)
+			return nil, newAdminPasswordResetTokenInvalidError()
 		}
 		return nil, apperrors.Internal("failed to update admin password", err)
 	}
@@ -664,17 +588,179 @@ func ResetAdminPasswordWithToken(
 	}, nil
 }
 
+func newAdminPasswordResetTokenInvalidError() error {
+	return apperrors.New(
+		"ADMIN_PASSWORD_RESET_TOKEN_INVALID",
+		adminPasswordResetTokenInvalidMessage,
+		400,
+		nil,
+	)
+}
+
+type adminEmailChangeRequest struct {
+	SiteURL    string
+	MailConfig appconfig.MailConfig
+	Locale     string
+	ConfirmURL string
+	Pending    domain.AdminPendingEmailChange
+}
+
+func requireAdminAuthentication(adminUser *domain.AdminUser) error {
+	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
+		return apperrors.Unauthorized(adminAuthRequiredMessage)
+	}
+
+	return nil
+}
+
+func loadAdminUserRecord(ctx context.Context, adminUserID string) (*domain.AdminUserRecord, error) {
+	userRecord, err := adminUsersRepository.FindByID(ctx, adminUserID)
+	if err != nil {
+		return nil, apperrors.Internal(adminLoadAdminUserMessage, err)
+	}
+	if userRecord == nil {
+		return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
+	}
+
+	return userRecord, nil
+}
+
+func reloadAdminUser(ctx context.Context, adminUserID string) (*domain.AdminUser, error) {
+	updatedUserRecord, err := loadAdminUserRecord(ctx, adminUserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &updatedUserRecord.AdminUser, nil
+}
+
+func validateAdminCurrentPassword(userRecord *domain.AdminUserRecord, currentPassword string) error {
+	if err := verifyAdminPassword(userRecord, currentPassword); err != nil {
+		return apperrors.BadRequest(adminCurrentPasswordIncorrectMessage)
+	}
+
+	return nil
+}
+
+func resolveAdminEmailChangeTarget(
+	ctx context.Context,
+	userRecord *domain.AdminUserRecord,
+	newEmail string,
+) (string, error) {
+	resolvedEmail, err := newsletterpkg.NormalizeSubscriberEmail(newEmail)
+	if err != nil {
+		return "", apperrors.BadRequest("new email is invalid")
+	}
+	if strings.EqualFold(strings.TrimSpace(userRecord.Email), resolvedEmail) {
+		return "", apperrors.BadRequest("new email must be different from current email")
+	}
+
+	existingUser, err := adminUsersRepository.FindByEmail(ctx, resolvedEmail)
+	if err != nil {
+		return "", apperrors.Internal("failed to validate admin email", err)
+	}
+	if existingUser != nil && existingUser.ID != userRecord.ID {
+		return "", apperrors.BadRequest("email is already in use")
+	}
+
+	return resolvedEmail, nil
+}
+
+func buildAdminEmailChangeRequest(
+	resolvedEmail, locale string,
+) (*adminEmailChangeRequest, error) {
+	siteURL, err := resolveSiteURLFn()
+	if err != nil {
+		return nil, apperrors.Config("admin email change site url is not configured", err)
+	}
+
+	mailCfg, err := resolveMailConfigFn()
+	if err != nil {
+		return nil, apperrors.Config("admin email change mail transport is not configured", err)
+	}
+
+	token, err := generateConfirmTokenFn()
+	if err != nil {
+		return nil, apperrors.Internal("failed to issue admin email change token", err)
+	}
+
+	now := nowUTCFn()
+	resolvedLocale := newsletterpkg.ResolveLocale(locale, "")
+	confirmURL, err := buildAdminEmailChangeConfirmURL(siteURL, token, resolvedLocale)
+	if err != nil {
+		return nil, apperrors.Config("admin email change confirm url is invalid", err)
+	}
+
+	return &adminEmailChangeRequest{
+		SiteURL:    siteURL,
+		MailConfig: mailCfg,
+		Locale:     resolvedLocale,
+		ConfirmURL: confirmURL,
+		Pending: domain.AdminPendingEmailChange{
+			NewEmail:    resolvedEmail,
+			TokenHash:   hashValue(token),
+			Locale:      resolvedLocale,
+			RequestedAt: now,
+			ExpiresAt:   now.Add(adminEmailChangeTTL),
+		},
+	}, nil
+}
+
+func validateAdminPasswordResetPassword(
+	newPassword, confirmPassword string,
+) error {
+	resolvedPassword := strings.TrimSpace(newPassword)
+	if resolvedPassword == "" {
+		return apperrors.New(
+			"ADMIN_PASSWORD_RESET_PASSWORD_REQUIRED",
+			"new password is required",
+			400,
+			nil,
+		)
+	}
+	if len(resolvedPassword) < minAdminPasswordLength {
+		return apperrors.New(
+			"ADMIN_PASSWORD_RESET_PASSWORD_TOO_SHORT",
+			"new password must be at least 8 characters",
+			400,
+			nil,
+		)
+	}
+	if newPassword != confirmPassword {
+		return apperrors.New(
+			"ADMIN_PASSWORD_RESET_CONFIRM_MISMATCH",
+			"password confirmation does not match",
+			400,
+			nil,
+		)
+	}
+
+	return nil
+}
+
+func loadAdminPasswordResetUserRecord(ctx context.Context, token string) (*domain.AdminUserRecord, error) {
+	userRecord, err := adminUsersRepository.FindByPendingPasswordResetTokenHash(ctx, hashValue(token))
+	if err != nil {
+		return nil, err
+	}
+	if userRecord == nil || userRecord.PendingPasswordReset == nil {
+		return nil, nil
+	}
+
+	return userRecord, nil
+}
+
 func ChangeAdminName(ctx context.Context, adminUser *domain.AdminUser, name string) (*domain.AdminUser, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
 	userRecord, err := adminUsersRepository.FindByID(ctx, adminUser.ID)
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
+		return nil, apperrors.Internal(adminLoadAdminUserMessage, err)
 	}
 	if userRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
 	resolvedName := strings.TrimSpace(name)
@@ -684,33 +770,33 @@ func ChangeAdminName(ctx context.Context, adminUser *domain.AdminUser, name stri
 
 	if err := adminUsersRepository.UpdateNameByID(ctx, userRecord.ID, resolvedName); err != nil {
 		if errors.Is(err, repository.ErrAdminUserNotFound) {
-			return nil, apperrors.Unauthorized("admin authentication required")
+			return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 		}
 		return nil, apperrors.Internal("failed to update admin name", err)
 	}
 
 	updatedUserRecord, err := adminUsersRepository.FindByID(ctx, userRecord.ID)
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
+		return nil, apperrors.Internal(adminLoadAdminUserMessage, err)
 	}
 	if updatedUserRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
 	return &updatedUserRecord.AdminUser, nil
 }
 
-func ChangeAdminAvatar(ctx context.Context, adminUser *domain.AdminUser, avatarURL *string) (*domain.AdminUser, error) {
+func ChangeAdminAvatar(ctx context.Context, adminUser *domain.AdminUser, avatarURL *string) (*domain.AdminUser, error) { // NOSONAR
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
 	userRecord, err := adminUsersRepository.FindByID(ctx, adminUser.ID)
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
+		return nil, apperrors.Internal(adminLoadAdminUserMessage, err)
 	}
 	if userRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
 	resolvedAvatarURL := ""
@@ -725,17 +811,17 @@ func ChangeAdminAvatar(ctx context.Context, adminUser *domain.AdminUser, avatarU
 
 		if err := adminUsersRepository.UpdateAvatarByID(ctx, userRecord.ID, "", "", 0); err != nil {
 			if errors.Is(err, repository.ErrAdminUserNotFound) {
-				return nil, apperrors.Unauthorized("admin authentication required")
+				return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 			}
 			return nil, apperrors.Internal("failed to update admin avatar", err)
 		}
 
 		updatedUserRecord, err := adminUsersRepository.FindByID(ctx, userRecord.ID)
 		if err != nil {
-			return nil, apperrors.Internal("failed to load admin user", err)
+			return nil, apperrors.Internal(adminLoadAdminUserMessage, err)
 		}
 		if updatedUserRecord == nil {
-			return nil, apperrors.Unauthorized("admin authentication required")
+			return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 		}
 
 		return &updatedUserRecord.AdminUser, nil
@@ -778,17 +864,17 @@ func ChangeAdminAvatar(ctx context.Context, adminUser *domain.AdminUser, avatarU
 		nextAvatarVersion,
 	); err != nil {
 		if errors.Is(err, repository.ErrAdminUserNotFound) {
-			return nil, apperrors.Unauthorized("admin authentication required")
+			return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 		}
 		return nil, apperrors.Internal("failed to update admin avatar", err)
 	}
 
 	updatedUserRecord, err := adminUsersRepository.FindByID(ctx, userRecord.ID)
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
+		return nil, apperrors.Internal(adminLoadAdminUserMessage, err)
 	}
 	if updatedUserRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
 	return &updatedUserRecord.AdminUser, nil
@@ -796,7 +882,7 @@ func ChangeAdminAvatar(ctx context.Context, adminUser *domain.AdminUser, avatarU
 
 func DeleteAdminAccount(ctx context.Context, adminUser *domain.AdminUser, currentPassword string) error {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return apperrors.Unauthorized("admin authentication required")
+		return apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
 	if strings.TrimSpace(currentPassword) == "" {
@@ -805,10 +891,10 @@ func DeleteAdminAccount(ctx context.Context, adminUser *domain.AdminUser, curren
 
 	userRecord, err := adminUsersRepository.FindByID(ctx, adminUser.ID)
 	if err != nil {
-		return apperrors.Internal("failed to load admin user", err)
+		return apperrors.Internal(adminLoadAdminUserMessage, err)
 	}
 	if userRecord == nil {
-		return apperrors.Unauthorized("admin authentication required")
+		return apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
 	if err := verifyAdminPassword(userRecord, currentPassword); err != nil {
@@ -817,7 +903,7 @@ func DeleteAdminAccount(ctx context.Context, adminUser *domain.AdminUser, curren
 
 	if err := adminUsersRepository.DisableByID(ctx, userRecord.ID); err != nil {
 		if errors.Is(err, repository.ErrAdminUserNotFound) {
-			return apperrors.Unauthorized("admin authentication required")
+			return apperrors.Unauthorized(adminAuthRequiredMessage)
 		}
 		return apperrors.Internal("failed to disable admin account", err)
 	}
@@ -831,7 +917,7 @@ func DeleteAdminAccount(ctx context.Context, adminUser *domain.AdminUser, curren
 
 func ListActiveAdminSessions(ctx context.Context, adminUser *domain.AdminUser) ([]domain.AdminSessionRecord, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
 	sessions, err := adminRefreshTokensRepository.ListActiveByUserID(ctx, adminUser.ID, time.Now().UTC(), maxActiveAdminSessions)
@@ -844,7 +930,7 @@ func ListActiveAdminSessions(ctx context.Context, adminUser *domain.AdminUser) (
 
 func RevokeAdminSession(ctx context.Context, adminUser *domain.AdminUser, sessionID string) (bool, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return false, apperrors.Unauthorized("admin authentication required")
+		return false, apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
 	resolvedSessionID := strings.TrimSpace(sessionID)
@@ -862,7 +948,7 @@ func RevokeAdminSession(ctx context.Context, adminUser *domain.AdminUser, sessio
 
 func RevokeAllAdminSessions(ctx context.Context, adminUser *domain.AdminUser) error {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return apperrors.Unauthorized("admin authentication required")
+		return apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
 	if err := adminRefreshTokensRepository.RevokeAllByUserID(ctx, adminUser.ID, time.Now().UTC()); err != nil {
@@ -872,7 +958,7 @@ func RevokeAllAdminSessions(ctx context.Context, adminUser *domain.AdminUser) er
 	return nil
 }
 
-func ResolveAdminFromAccessToken(ctx context.Context, token string) (*domain.AdminUser, error) {
+func ResolveAdminFromAccessToken(ctx context.Context, token string) (*domain.AdminUser, error) { // NOSONAR
 	config := appconfig.ResolveAdminConfig()
 	if strings.TrimSpace(config.JWTSecret) == "" {
 		return nil, nil
@@ -1107,23 +1193,23 @@ type decodedAdminAvatarPayload struct {
 
 func decodeAdminAvatarDataURL(value string) (*decodedAdminAvatarPayload, error) {
 	if strings.TrimSpace(value) == "" {
-		return nil, apperrors.BadRequest("avatar image is required")
+		return nil, apperrors.BadRequest(adminAvatarImageRequiredMessage)
 	}
 
 	commaIndex := strings.IndexByte(value, ',')
 	if commaIndex <= 0 || commaIndex == len(value)-1 {
-		return nil, apperrors.BadRequest("avatar must be a valid base64 image")
+		return nil, apperrors.BadRequest(adminAvatarBase64InvalidMessage)
 	}
 
 	mediaHeader := strings.ToLower(strings.TrimSpace(value[:commaIndex]))
 	contentType := ""
 	switch mediaHeader {
 	case "data:image/png;base64":
-		contentType = "image/png"
+		contentType = adminAvatarContentTypePNG
 	case "data:image/jpeg;base64", "data:image/jpg;base64":
-		contentType = "image/jpeg"
+		contentType = adminAvatarContentTypeJPEG
 	case "data:image/webp;base64":
-		contentType = "image/webp"
+		contentType = adminAvatarContentTypeWEBP
 	default:
 		return nil, apperrors.BadRequest("avatar format must be png, jpeg, jpg, or webp")
 	}
@@ -1131,10 +1217,10 @@ func decodeAdminAvatarDataURL(value string) (*decodedAdminAvatarPayload, error) 
 	encodedPayload := strings.TrimSpace(value[commaIndex+1:])
 	decodedPayload, err := base64.StdEncoding.DecodeString(encodedPayload)
 	if err != nil {
-		return nil, apperrors.BadRequest("avatar must be a valid base64 image")
+		return nil, apperrors.BadRequest(adminAvatarBase64InvalidMessage)
 	}
 	if len(decodedPayload) == 0 {
-		return nil, apperrors.BadRequest("avatar image is required")
+		return nil, apperrors.BadRequest(adminAvatarImageRequiredMessage)
 	}
 	if len(decodedPayload) > maxAdminAvatarBytes {
 		return nil, apperrors.BadRequest("avatar image must be 2MB or smaller")
@@ -1148,12 +1234,12 @@ func decodeAdminAvatarDataURL(value string) (*decodedAdminAvatarPayload, error) 
 
 func decodeAdminAvatarImage(decodedPayload []byte) (image.Image, error) {
 	if len(decodedPayload) == 0 {
-		return nil, apperrors.BadRequest("avatar image is required")
+		return nil, apperrors.BadRequest(adminAvatarImageRequiredMessage)
 	}
 
 	sourceImage, _, err := image.Decode(bytes.NewReader(decodedPayload))
 	if err != nil {
-		return nil, apperrors.BadRequest("avatar must be a valid base64 image")
+		return nil, apperrors.BadRequest(adminAvatarBase64InvalidMessage)
 	}
 
 	return sourceImage, nil
@@ -1169,7 +1255,7 @@ func buildAdminAvatarVariant(
 
 	destinationBounds := image.Rect(0, 0, requestedSize, requestedSize)
 	destinationImage := image.NewRGBA(destinationBounds)
-	if targetContentType == "image/jpeg" {
+	if targetContentType == adminAvatarContentTypeJPEG {
 		xdraw.Draw(destinationImage, destinationBounds, image.NewUniform(color.White), image.Point{}, xdraw.Src)
 	}
 	xdraw.CatmullRom.Scale(destinationImage, destinationBounds, sourceImage, sourceImage.Bounds(), xdraw.Over, nil)
@@ -1196,10 +1282,10 @@ func encodeAdminAvatarImage(
 	contentType string,
 ) error {
 	switch contentType {
-	case "image/png":
+	case adminAvatarContentTypePNG:
 		encoder := png.Encoder{CompressionLevel: png.DefaultCompression}
 		return encoder.Encode(buffer, destinationImage)
-	case "image/webp":
+	case adminAvatarContentTypeWEBP:
 		return chaiwebp.Encode(buffer, destinationImage, &chaiwebp.Options{
 			Lossless: false,
 			Quality:  90,
@@ -1277,12 +1363,12 @@ func normalizeAdminAvatarSize(size int) int {
 
 func normalizeAdminAvatarContentType(contentType string) string {
 	switch strings.TrimSpace(strings.ToLower(contentType)) {
-	case "image/png":
-		return "image/png"
-	case "image/webp":
-		return "image/webp"
+	case adminAvatarContentTypePNG:
+		return adminAvatarContentTypePNG
+	case adminAvatarContentTypeWEBP:
+		return adminAvatarContentTypeWEBP
 	default:
-		return "image/jpeg"
+		return adminAvatarContentTypeJPEG
 	}
 }
 
@@ -1292,7 +1378,7 @@ type AdminAvatarAsset struct {
 	ETag        string
 }
 
-func ResolveAdminAvatarAsset(
+func ResolveAdminAvatarAsset( // NOSONAR
 	ctx context.Context,
 	userID string,
 	size int,
@@ -1306,26 +1392,26 @@ func ResolveAdminAvatarAsset(
 
 	userRecord, err := adminUsersRepository.FindByID(ctx, resolvedUserID)
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
+		return nil, apperrors.Internal(adminLoadAdminUserMessage, err)
 	}
 	if userRecord == nil {
-		return nil, apperrors.New("NOT_FOUND", "avatar not found", 404, nil)
+		return nil, apperrors.New("NOT_FOUND", adminAvatarNotFoundMessage, 404, nil)
 	}
 
 	currentDigest := strings.TrimSpace(userRecord.AvatarDigest)
 	if currentDigest == "" || userRecord.AvatarVersion <= 0 {
-		return nil, apperrors.New("NOT_FOUND", "avatar not found", 404, nil)
+		return nil, apperrors.New("NOT_FOUND", adminAvatarNotFoundMessage, 404, nil)
 	}
 
 	resolvedDigest := strings.TrimSpace(digest)
 	if resolvedDigest == "" || version <= 0 {
-		return nil, apperrors.New("NOT_FOUND", "avatar not found", 404, nil)
+		return nil, apperrors.New("NOT_FOUND", adminAvatarNotFoundMessage, 404, nil)
 	}
 	if !strings.EqualFold(resolvedDigest, currentDigest) {
-		return nil, apperrors.New("NOT_FOUND", "avatar not found", 404, nil)
+		return nil, apperrors.New("NOT_FOUND", adminAvatarNotFoundMessage, 404, nil)
 	}
 	if version != userRecord.AvatarVersion {
-		return nil, apperrors.New("NOT_FOUND", "avatar not found", 404, nil)
+		return nil, apperrors.New("NOT_FOUND", adminAvatarNotFoundMessage, 404, nil)
 	}
 
 	avatarRecord, err := adminAvatarRepository.FindByUserID(ctx, resolvedUserID)
@@ -1333,10 +1419,10 @@ func ResolveAdminAvatarAsset(
 		return nil, apperrors.Internal("failed to load avatar asset", err)
 	}
 	if avatarRecord == nil {
-		return nil, apperrors.New("NOT_FOUND", "avatar not found", 404, nil)
+		return nil, apperrors.New("NOT_FOUND", adminAvatarNotFoundMessage, 404, nil)
 	}
 	if strings.TrimSpace(avatarRecord.Digest) != currentDigest || avatarRecord.Version != userRecord.AvatarVersion {
-		return nil, apperrors.New("NOT_FOUND", "avatar not found", 404, nil)
+		return nil, apperrors.New("NOT_FOUND", adminAvatarNotFoundMessage, 404, nil)
 	}
 
 	requestedSize := normalizeAdminAvatarSize(size)

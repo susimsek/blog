@@ -26,8 +26,19 @@ var (
 const adminContentRepositoryUnavailableFormat = "%w: %v"
 
 const (
-	adminContentLocaleEN = "en"
-	adminContentLocaleTR = "tr"
+	adminContentLocaleEN        = "en"
+	adminContentLocaleTR        = "tr"
+	mongoStageLimit             = "$limit"
+	mongoStageMatch             = "$match"
+	mongoStageProject           = "$project"
+	mongoStageGroup             = "$group"
+	mongoFieldSource            = "$source"
+	mongoFieldFirst             = "$first"
+	mongoFieldLocale            = "$locale"
+	mongoFieldUpdatedAt         = "$updatedAt"
+	mongoTrNameField            = "$trName"
+	mongoEnNameField            = "$enName"
+	adminContentCategoryIDField = "category.id"
 )
 
 type AdminContentRepository interface {
@@ -51,7 +62,7 @@ type AdminContentRepository interface {
 		now time.Time,
 	) (*domain.AdminContentPostRecord, error)
 	DeletePostByLocaleAndID(ctx context.Context, locale, postID string) (bool, error)
-	ListTopics(ctx context.Context, locale string) ([]domain.AdminContentTopicRecord, error)
+	ListTopics(ctx context.Context, locale, query string) ([]domain.AdminContentTopicRecord, error)
 	ListTopicGroups(ctx context.Context, filter domain.AdminContentTaxonomyFilter) (*domain.AdminContentTopicListResult, error)
 	ListAllTopics(ctx context.Context, filter domain.AdminContentTaxonomyFilter) ([]domain.AdminContentTopicRecord, error)
 	FindTopicByLocaleAndID(ctx context.Context, locale, topicID string) (*domain.AdminContentTopicRecord, error)
@@ -110,7 +121,7 @@ func (*adminContentMongoRepository) ListPostGroups(
 	itemsPipeline := append(mongo.Pipeline{}, basePipeline...)
 	itemsPipeline = append(itemsPipeline,
 		bson.D{{Key: "$skip", Value: skip}},
-		bson.D{{Key: "$limit", Value: resolvedSize}},
+		bson.D{{Key: mongoStageLimit, Value: resolvedSize}},
 	)
 
 	cursor, err := postsCollection.Aggregate(ctx, itemsPipeline)
@@ -452,21 +463,29 @@ func (*adminContentMongoRepository) DeletePostByLocaleAndID(ctx context.Context,
 	return true, nil
 }
 
-func (*adminContentMongoRepository) ListTopics(ctx context.Context, locale string) ([]domain.AdminContentTopicRecord, error) {
+func (*adminContentMongoRepository) ListTopics(ctx context.Context, locale, query string) ([]domain.AdminContentTopicRecord, error) {
 	topicsCollection, err := getPostTopicsCollection()
 	if err != nil {
 		return nil, fmt.Errorf(adminContentRepositoryUnavailableFormat, ErrAdminContentRepositoryUnavailable, err)
 	}
 
-	query := bson.M{}
+	filterQuery := bson.M{}
 	resolvedLocale := strings.TrimSpace(strings.ToLower(locale))
 	if resolvedLocale != "" {
-		query["locale"] = resolvedLocale
+		filterQuery["locale"] = resolvedLocale
+	}
+
+	resolvedSearchQuery := strings.TrimSpace(query)
+	if resolvedSearchQuery != "" {
+		filterQuery["name"] = primitive.Regex{
+			Pattern: regexp.QuoteMeta(resolvedSearchQuery),
+			Options: "i",
+		}
 	}
 
 	cursor, err := topicsCollection.Find(
 		ctx,
-		query,
+		filterQuery,
 		options.Find().
 			SetSort(bson.D{
 				{Key: "locale", Value: 1},
@@ -1192,8 +1211,8 @@ func (*adminContentMongoRepository) SyncCategoryOnPosts(
 	_, err = postsCollection.UpdateMany(
 		ctx,
 		bson.M{
-			"locale":      resolvedLocale,
-			"category.id": resolvedCategoryID,
+			"locale":                    resolvedLocale,
+			adminContentCategoryIDField: resolvedCategoryID,
 		},
 		bson.M{
 			"$set": bson.M{
@@ -1493,8 +1512,8 @@ func buildAdminContentPostGroupPipeline(filter domain.AdminContentPostFilter) mo
 	query := buildAdminContentPostFilter(filter)
 
 	return mongo.Pipeline{
-		bson.D{{Key: "$match", Value: query}},
-		bson.D{{Key: "$project", Value: bson.M{
+		bson.D{{Key: mongoStageMatch, Value: query}},
+		bson.D{{Key: mongoStageProject, Value: bson.M{
 			"locale":         1,
 			"id":             1,
 			"title":          1,
@@ -1529,21 +1548,21 @@ func buildAdminContentPostGroupPipeline(filter domain.AdminContentPostFilter) mo
 			{Key: "source", Value: 1},
 			{Key: "locale", Value: 1},
 		}}},
-		bson.D{{Key: "$group", Value: bson.M{
+		bson.D{{Key: mongoStageGroup, Value: bson.M{
 			"_id": bson.M{
 				"id":     "$id",
-				"source": "$source",
+				"source": mongoFieldSource,
 			},
-			"id":              bson.M{"$first": "$id"},
-			"source":          bson.M{"$first": "$source"},
-			"sortPublishedAt": bson.M{"$first": "$sortPublishedAt"},
+			"id":              bson.M{mongoFieldFirst: "$id"},
+			"source":          bson.M{mongoFieldFirst: mongoFieldSource},
+			"sortPublishedAt": bson.M{mongoFieldFirst: "$sortPublishedAt"},
 			"variants": bson.M{"$push": bson.M{
-				"locale":         "$locale",
+				"locale":         mongoFieldLocale,
 				"id":             "$id",
 				"title":          "$title",
 				"summary":        "$summary",
 				"thumbnail":      "$thumbnail",
-				"source":         "$source",
+				"source":         mongoFieldSource,
 				"publishedAt":    "$publishedAt",
 				"publishedDate":  "$publishedDate",
 				"updatedDate":    "$updatedDate",
@@ -1551,7 +1570,7 @@ func buildAdminContentPostGroupPipeline(filter domain.AdminContentPostFilter) mo
 				"topics":         "$topics",
 				"topicIds":       "$topicIds",
 				"readingTimeMin": "$readingTimeMin",
-				"updatedAt":      "$updatedAt",
+				"updatedAt":      mongoFieldUpdatedAt,
 			}},
 		}}},
 		bson.D{{Key: "$sort", Value: bson.D{
@@ -1710,9 +1729,9 @@ func buildAdminContentPreferredNameExpression(preferredLocale string) bson.M {
 	if preferredLocale == adminContentLocaleTR {
 		return bson.M{
 			"$cond": bson.A{
-				bson.M{"$ne": bson.A{"$trName", ""}},
-				"$trName",
-				"$enName",
+				bson.M{"$ne": bson.A{mongoTrNameField, ""}},
+				mongoTrNameField,
+				mongoEnNameField,
 			},
 		}
 	}

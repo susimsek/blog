@@ -20,6 +20,7 @@ import (
 const (
 	adminNewsletterDefaultPageSize = 20
 	adminNewsletterMaxPageSize     = 100
+	adminNewsletterAuthRequired    = "admin authentication required"
 	adminNewsletterStatusPending   = "pending"
 	adminNewsletterStatusActive    = "active"
 	adminNewsletterStatusDisabled  = "unsubscribed"
@@ -56,7 +57,7 @@ func ListAdminNewsletterSubscribers(
 	filter domain.AdminNewsletterSubscriberFilter,
 ) (*domain.AdminNewsletterSubscriberListResult, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminNewsletterAuthRequired)
 	}
 
 	page := clampPositiveInt(filter.Page, 1, 100000)
@@ -106,7 +107,7 @@ func UpdateAdminNewsletterSubscriberStatus(
 	status string,
 ) (*domain.AdminNewsletterSubscriberRecord, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminNewsletterAuthRequired)
 	}
 
 	resolvedEmail, err := newsletterpkg.NormalizeSubscriberEmail(email)
@@ -134,7 +135,7 @@ func UpdateAdminNewsletterSubscriberStatus(
 
 func DeleteAdminNewsletterSubscriber(ctx context.Context, adminUser *domain.AdminUser, email string) error {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return apperrors.Unauthorized("admin authentication required")
+		return apperrors.Unauthorized(adminNewsletterAuthRequired)
 	}
 
 	resolvedEmail, err := newsletterpkg.NormalizeSubscriberEmail(email)
@@ -159,7 +160,7 @@ func ListAdminNewsletterCampaigns(
 	filter domain.AdminNewsletterCampaignFilter,
 ) (*domain.AdminNewsletterCampaignListResult, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminNewsletterAuthRequired)
 	}
 
 	page := clampPositiveInt(filter.Page, 1, 100000)
@@ -208,7 +209,7 @@ func ListAdminNewsletterDeliveryFailures(
 	filter domain.AdminNewsletterDeliveryFailureFilter,
 ) (*domain.AdminNewsletterDeliveryFailureListResult, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminNewsletterAuthRequired)
 	}
 
 	page := clampPositiveInt(filter.Page, 1, 100000)
@@ -256,7 +257,7 @@ func TriggerAdminNewsletterDispatch(
 	adminUser *domain.AdminUser,
 ) (*domain.AdminNewsletterDispatchResult, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminNewsletterAuthRequired)
 	}
 
 	config, err := appconfig.ResolveNewsletterConfig()
@@ -315,7 +316,7 @@ func SendAdminNewsletterTestEmail(
 	itemKey string,
 ) (*domain.AdminNewsletterTestSendResult, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminNewsletterAuthRequired)
 	}
 
 	resolvedEmail, err := newsletterpkg.NormalizeSubscriberEmail(email)

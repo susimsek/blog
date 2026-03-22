@@ -98,6 +98,45 @@ const COMMENT_ERROR_TRANSLATION_KEYS = {
   'service-unavailable': 'post.comments.errors.service-unavailable',
 } as const satisfies Record<string, string>;
 
+const resolveCommentErrorTranslationKey = (status?: string) => {
+  if (typeof status === 'string' && Object.hasOwn(COMMENT_ERROR_TRANSLATION_KEYS, status)) {
+    return COMMENT_ERROR_TRANSLATION_KEYS[status as keyof typeof COMMENT_ERROR_TRANSLATION_KEYS];
+  }
+
+  return COMMENT_ERROR_TRANSLATION_KEYS.failed;
+};
+
+const buildCommentReturnTo = (locale: string) => {
+  if (globalThis.window === undefined) {
+    return `/${locale}`;
+  }
+
+  const currentURL = new URL(globalThis.window.location.href);
+  currentURL.searchParams.delete('commentAuth');
+  currentURL.searchParams.delete('commentProvider');
+  const query = currentURL.searchParams.toString();
+  const querySuffix = query ? `?${query}` : '';
+
+  return `${currentURL.pathname}${querySuffix}${currentURL.hash}`;
+};
+
+const buildCommentAuthCleanupURL = (searchParams: URLSearchParams) => {
+  const nextQuery = searchParams.toString();
+  const querySuffix = nextQuery ? `?${nextQuery}` : '';
+  return `${globalThis.window.location.pathname}${querySuffix}${globalThis.window.location.hash}`;
+};
+
+const resolveNextComposerAccessMethod = (
+  currentMethod: CommentAccessMethod,
+  provider: string | undefined,
+): CommentAccessMethod => {
+  if (currentMethod !== 'email') {
+    return currentMethod;
+  }
+
+  return provider === 'github' ? 'github' : 'google';
+};
+
 const renderCommentContent = (value: string) => {
   const lines = value.split('\n');
 
@@ -205,6 +244,7 @@ const CommentCard = ({ comment, locale, replyButton, metaBadge }: Readonly<Comme
 };
 
 const CommentForm = ({
+  // NOSONAR
   postId,
   viewer,
   parentId,
@@ -215,6 +255,7 @@ const CommentForm = ({
   cancelLabel,
   variant = 'composer',
 }: Readonly<CommentFormProps>) => {
+  // NOSONAR
   const { t } = useTranslation(['post', 'common']);
   const [formState, setFormState] = React.useState<CommentFormState>(INITIAL_FORM_STATE);
   const [touchedFields, setTouchedFields] = React.useState<CommentFormTouchedState>(INITIAL_TOUCHED_STATE);
@@ -242,8 +283,7 @@ const CommentForm = ({
       }
     };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const submitComment = async () => {
     setErrorMessage('');
     setHasTriedSubmit(true);
 
@@ -267,11 +307,8 @@ const CommentForm = ({
         content: formState.content.trim(),
       });
 
-      if (!result || result.status !== 'success') {
-        const resolvedStatus = typeof result?.status === 'string' ? result.status : 'failed';
-        const errorTranslationKey = Object.prototype.hasOwnProperty.call(COMMENT_ERROR_TRANSLATION_KEYS, resolvedStatus)
-          ? COMMENT_ERROR_TRANSLATION_KEYS[resolvedStatus as keyof typeof COMMENT_ERROR_TRANSLATION_KEYS]
-          : COMMENT_ERROR_TRANSLATION_KEYS.failed;
+      if (result?.status !== 'success') {
+        const errorTranslationKey = resolveCommentErrorTranslationKey(result?.status);
         setErrorMessage(t(errorTranslationKey));
         return;
       }
@@ -283,6 +320,11 @@ const CommentForm = ({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void submitComment();
   };
 
   return (
@@ -406,6 +448,7 @@ const CommentForm = ({
 };
 
 export default function PostComments({
+  // NOSONAR
   locale,
   postId,
   initialThreads,
@@ -455,16 +498,7 @@ export default function PostComments({
   );
 
   const getCommentReturnTo = React.useCallback(() => {
-    if (globalThis.window === undefined) {
-      return `/${locale}`;
-    }
-
-    const currentURL = new URL(globalThis.window.location.href);
-    currentURL.searchParams.delete('commentAuth');
-    currentURL.searchParams.delete('commentProvider');
-    const query = currentURL.searchParams.toString();
-
-    return `${currentURL.pathname}${query ? `?${query}` : ''}${currentURL.hash}`;
+    return buildCommentReturnTo(locale);
   }, [locale]);
 
   const loadAuthSession = React.useCallback(async () => {
@@ -475,9 +509,7 @@ export default function PostComments({
       setAuthSession(session);
       if (session.authenticated && session.viewer) {
         const provider = session.viewer.provider?.trim().toLowerCase();
-        setComposerAccessMethod(current =>
-          current === 'email' ? (provider === 'github' ? 'github' : 'google') : current,
-        );
+        setComposerAccessMethod(current => resolveNextComposerAccessMethod(current, provider));
       }
       return session;
     } catch {
@@ -554,8 +586,7 @@ export default function PostComments({
         if (authStatus || authProvider) {
           searchParams.delete('commentAuth');
           searchParams.delete('commentProvider');
-          const nextQuery = searchParams.toString();
-          const nextURL = `${globalThis.window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}${globalThis.window.location.hash}`;
+          const nextURL = buildCommentAuthCleanupURL(searchParams);
           globalThis.window.history.replaceState(globalThis.window.history.state, '', nextURL);
         }
       }
@@ -627,6 +658,17 @@ export default function PostComments({
       globalThis.clearTimeout(timeoutID);
     };
   }, [replySuccessMessage]);
+
+  const handleReplyToggle = React.useCallback((rootID: string) => {
+    setReplySuccessMessage(null);
+    setActiveReplyID(current => (current === rootID ? null : rootID));
+  }, []);
+
+  const handleReplyThreadToggle = React.useCallback((rootID: string) => {
+    setExpandedReplyThreadIDs(previous =>
+      previous.includes(rootID) ? previous.filter(id => id !== rootID) : [...previous, rootID],
+    );
+  }, []);
 
   const handleSubmitted = React.useCallback(
     async (result: { status?: string; moderationStatus?: string }, options?: { parentId?: string }) => {
@@ -786,10 +828,7 @@ export default function PostComments({
                                 type="button"
                                 variant="secondary"
                                 size="sm"
-                                onClick={() => {
-                                  setReplySuccessMessage(null);
-                                  setActiveReplyID(current => (current === thread.root.id ? null : thread.root.id));
-                                }}
+                                onClick={() => handleReplyToggle(thread.root.id)}
                               >
                                 {activeReplyID === thread.root.id
                                   ? t('post.comments.closeReply')
@@ -801,13 +840,7 @@ export default function PostComments({
                                   variant="link"
                                   size="sm"
                                   className="post-comment-thread-toggle"
-                                  onClick={() => {
-                                    setExpandedReplyThreadIDs(previous =>
-                                      previous.includes(thread.root.id)
-                                        ? previous.filter(id => id !== thread.root.id)
-                                        : [...previous, thread.root.id],
-                                    );
-                                  }}
+                                  onClick={() => handleReplyThreadToggle(thread.root.id)}
                                 >
                                   <FontAwesomeIcon
                                     icon={areRepliesExpanded ? 'chevron-up' : 'chevron-down'}
@@ -891,7 +924,8 @@ export default function PostComments({
                   <span>{t('post.comments.auth.loading')}</span>
                 </div>
               ) : null}
-              <div className="post-comments-auth-options" role="group" aria-label={t('post.comments.auth.title')}>
+              <fieldset className="post-comments-auth-options border-0 p-0 m-0">
+                <legend className="visually-hidden">{t('post.comments.auth.title')}</legend>
                 <Button
                   type="button"
                   variant="danger"
@@ -928,7 +962,7 @@ export default function PostComments({
                 >
                   <FontAwesomeIcon icon="envelope" />
                 </Button>
-              </div>
+              </fieldset>
               {composerViewer ? (
                 <div className="post-comments-authenticated">
                   <div className="post-comments-authenticated-user">

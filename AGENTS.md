@@ -6,28 +6,40 @@ Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18
 
 For backend architecture, prefer a layered Go package structure similar in spirit to the frontend's clear separation of responsibilities. Do not introduce new feature-first Go package layouts.
 
-## Table of Contents
-
-1. [Agent MCP Usage Guidelines](#agent-mcp-usage-guidelines)
-2. [Quick Reference](#quick-reference)
-3. [Prerequisites](#prerequisites)
-4. [Project Structure](#project-structure)
-5. [Static Export](#static-export)
-6. [Backend Runtime](#backend-runtime)
-7. [Internationalization](#internationalization)
-8. [TypeScript](#typescript)
-9. [Go Backend](#go-backend)
-10. [Code Style & Quality Gates](#code-style--quality-gates)
-11. [Testing Guidelines](#testing-guidelines)
-12. [Deployment](#deployment)
-13. [Pull Request & Commit Guidelines](#pull-request--commit-guidelines)
-14. [Review Process & What Reviewers Look For](#review-process--what-reviewers-look-for)
-15. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
-
 ## Agent MCP Usage Guidelines
 
 - Always use the Context7 MCP server when you need library/API documentation without the user having to explicitly ask.
 - Typical libraries in this repo: Next.js, React, TypeScript, Redux Toolkit, i18next/react-i18next, Jest, Testing Library, gqlgen, GraphQL, and Bootstrap/Sass.
+
+### Mandatory Skill Usage
+
+#### `$code-change-verification`
+
+Run `$code-change-verification` before handoff when changes affect runtime code, tests, generated artifacts, static output behavior, or build/test behavior.
+
+Use it for changes under `src/`, `api/`, `internal/`, `pkg/`, `cmd/`, `scripts/`, `__tests__/`, `content/posts/`, `public/data/`, `public/locales/`, and root build/test/config files such as `package.json`, `tsconfig*.json`, `eslint.config.*`, `jest.config.*`, `next.config.*`, `.golangci.yml`, `gqlgen.yml`, `admin-gqlgen.yml`, or `codegen.ts`.
+
+Skip it for docs-only or repo-meta changes such as `.codex/`, `README.md`, `AGENTS.md`, or `.github/`, unless the user explicitly asks for full verification.
+
+#### `$changeset-validation`
+
+This repo does not use `.changeset/`. In this repo, run `$changeset-validation` when a change affects user-visible behavior, synchronized content or i18n metadata, generated GraphQL artifacts, or release-sensitive build/deploy behavior.
+
+Use it to confirm required sync/codegen steps were considered and to produce a Conventional Commit-style impact summary for non-trivial changes.
+
+## Repo Skills
+
+- Repo-local skills live under `.agents/skills/`.
+- `$blog-content-authoring`: posts, indexes, locale content, thumbnails
+- `$graphql-change-flow`: GraphQL schema/resolver/codegen changes
+- `$release-gates`: minimum verification command selection
+- `$code-change-verification`: run the selected verification stack before handoff
+- `$changeset-validation`: validate derived artifacts and summarize impact
+
+## Worktree Preference
+
+- Prefer separate git worktrees for parallel or long-running tasks when frontend, backend, or content work would otherwise conflict in one working tree.
+- A practical split for this repo is one worktree each for UI, Go/backend, and content-heavy work.
 
 ## Quick Reference
 
@@ -70,69 +82,21 @@ For backend architecture, prefer a layered Go package structure similar in spiri
 
 ## Project Structure
 
-### Frontend
-
-- `src/app`: App Router routes, layouts, localized pages
-- `src/app/(default)`: default route group (includes `/admin`)
-- `src/app/(localized)/[locale]`: locale-prefixed pages
-- `src/app/(default)/admin`: admin panel route (`/admin`)
-- `src/views`: route-level page components
-- `src/components`: shared UI and game components
-- `src/config`: store, constants, validation helpers
-- `src/reducers`: Redux slices
-- `src/lib`: frontend domain helpers, content parsing, metadata, GraphQL client helpers
-- `src/i18n`: locale runtime and translation loading
-- `src/styles`: global Sass
-- `public/locales/<lng>`: translation namespaces
-
-### Backend
-
-- `api/graphql/index.go`: GraphQL + GraphiQL HTTP handler
-- `api/admin-graphql/index.go`: admin GraphQL HTTP handler
-- `api/admin-avatar/index.go`: admin avatar endpoint
-- `api/admin-email-change/index.go`: admin email change confirmation endpoint
-- `api/github/*`, `api/google/*`: reader OAuth connect/callback handlers
-- `api/reader-auth/index.go`: reader session/logout endpoint
-- `api/newsletter-dispatch/index.go`: newsletter dispatch endpoint
-- `internal/config`: private backend env/config resolution
-- `internal/domain`: domain entities and shared backend records
-- `internal/graphql`: gqlgen schema, generated execution code, resolvers, and mapping helpers
-- `internal/service`: business service orchestration
-- `internal/repository`: Mongo-backed repository implementations
-- `pkg/graphql`: GraphiQL page handler
-- `pkg/newsletter`: templates, unsubscribe tokens, status pages, mailer
-- `pkg/apperrors`: normalized backend errors
-- `pkg/httpapi`: JSON error response helpers
-- `pkg/httpauth`: cookie/JWT auth helpers used by admin and reader auth flows
-- `pkg/adminmail`: admin email-change status page templates/helpers
-- `pkg/commentsub`: comment subscription helpers
-- `pkg/web`: HTTP handler layer (`admingraphql`, `readerauth`, OAuth handlers, newsletter dispatch)
-- `cmd/app/main.go`: local backend entrypoint
-- `scripts/sync-newsletter-content/main.go`: newsletter content sync utility
+- Frontend app/router/UI: `src/app`, `src/views`, `src/components`, `src/lib`, `src/i18n`, `src/styles`
+- Frontend state/config: `src/config`, `src/reducers`
+- Backend entrypoints: `api/**`, `cmd/app/main.go`
+- Backend core: `internal/config`, `internal/domain`, `internal/graphql`, `internal/service`, `internal/repository`
+- Shared backend packages: `pkg/**`
+- Content and indexes: `content/posts/**`, `public/data/**`, `public/locales/**`
+- Deployment: `deploy/**`, `nginx/**`
 
 Preferred Go layering:
 
-- `api/*`: HTTP transport and entrypoints
-- `internal/*`: private app config, domain, service, and repository logic
-- `pkg/*`: reusable shared libraries, templates, schemas, and helpers
+- `api/*`: transport and HTTP entrypoints
+- `internal/*`: private app config, domain, service, repository, GraphQL internals
+- `pkg/*`: reusable shared libraries and helpers
 
-Do not add new package structures organized mainly by feature domain. Prefer layering by technical responsibility.
-
-### Content
-
-- `content/posts/en/*.md`
-- `content/posts/tr/*.md`
-- `public/data/posts.<locale>.json`
-- `public/data/topics.<locale>.json`
-- `public/data/categories.<locale>.json`
-- `content/external/medium-feed.json`
-
-### Build and Deploy
-
-- `build/`: generated static output
-- `nginx/nginx.conf.template`
-- `deploy/docker-compose/docker-compose.yml`
-- `deploy/helm/blog`
+Do not introduce new feature-first Go package trees.
 
 ## Static Export
 
@@ -153,25 +117,8 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
 - Local backend runner (`cmd/app/main.go`) also loads `.env.local` when present
 - Default port: `8080`
 - Override port with `LOCAL_GO_API_PORT`
-- Local backend endpoints:
-  - `/graphql`
-  - `/api/graphql`
-  - `/api/admin/graphql`
-  - `/api/admin-avatar`
-  - `/api/admin-email-change/confirm`
-  - `/api/github/connect`
-  - `/api/github/callback`
-  - `/api/google/connect`
-  - `/api/google/callback`
-  - `/api/reader-auth/session`
-  - `/api/reader-auth/logout`
-  - `/graphiql`
-  - `/api/newsletter-dispatch`
-  - `/health`
-- Admin panel and admin API:
-  - frontend route: `/admin`
-  - admin GraphQL endpoint: `/api/admin/graphql`
-  - related endpoints: `/api/admin-avatar`, `/api/admin-email-change/confirm`
+- Core local endpoints: `/graphql`, `/api/graphql`, `/api/admin/graphql`, `/graphiql`, `/api/newsletter-dispatch`, `/health`
+- Admin UI route: `/admin`
 - Admin GraphQL security notes:
   - CORS/cookie handling lives in `pkg/web/admingraphql/handler.go`
   - mutation requests require `X-CSRF-Token` (double-submit token)
@@ -201,15 +148,10 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
 
 - Module: `suaybsimsek.com/blog-api`
 - Go version: `1.24.0`
-- GraphQL schema/resolver work:
-  - schema and generated layer under `internal/graphql`
-  - regenerate with `pnpm run graphql:generate`
-- Backend GraphQL IDE layer:
-  - `pkg/graphql/graphiql.go`
-- Backend env/config layer:
-  - `internal/config/*.go`
-- Newsletter email/content helpers:
-  - `pkg/newsletter/*`
+- GraphQL schema and generated layer live under `internal/graphql`; regenerate with `pnpm run graphql:generate`
+- GraphiQL handler lives under `pkg/graphql`
+- Backend env/config resolution lives under `internal/config`
+- Newsletter logic and templates live under `pkg/newsletter`
 
 ### Package structure rule
 
@@ -219,65 +161,14 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
 - Keep reusable/shared helpers in `pkg/*`
 - Avoid creating new feature-rooted package trees for backend code
 
-### Common backend environment
+### Environment
 
-- Required in most backend flows:
-  - `API_CORS_ORIGIN`
-  - `MONGODB_URI`
-  - `MONGODB_DATABASE`
-  - `SITE_URL`
-  - `GMAIL_SMTP_USER`
-  - `GMAIL_SMTP_APP_PASSWORD`
-  - `CRON_SECRET`
-  - `NEWSLETTER_UNSUBSCRIBE_SECRET`
-- Optional:
-  - `GMAIL_FROM_EMAIL`
-  - `GMAIL_FROM_NAME`
-  - `GMAIL_SMTP_HOST`
-  - `GMAIL_SMTP_PORT`
-  - `NEWSLETTER_MAX_RECIPIENTS_PER_RUN`
-  - `NEWSLETTER_MAX_ITEM_AGE_HOURS`
-  - `NEWSLETTER_UNSUBSCRIBE_TOKEN_TTL_HOURS`
-  - `LOCAL_GO_API_PORT`
-  - `GRAPHIQL_ENABLED`
-  - `GRAPHQL_INTROSPECTION_ENABLED`
+- Frontend commonly uses `NEXT_PUBLIC_BASE_PATH`, `NEXT_PUBLIC_ASSET_PREFIX`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_DEV_API_ORIGIN`, and `NEXT_PUBLIC_API_BASE_URL`
+- Backend commonly requires `API_CORS_ORIGIN`, `MONGODB_URI`, `MONGODB_DATABASE`, `SITE_URL`, `GMAIL_SMTP_USER`, `GMAIL_SMTP_APP_PASSWORD`, `CRON_SECRET`, and `NEWSLETTER_UNSUBSCRIBE_SECRET`
+- Auth and OAuth flows use the JWT/cookie variables plus `GITHUB_CLIENT_*` and `GOOGLE_CLIENT_*`
+- Newsletter sync script may use `NEWSLETTER_SYNC_LOCALES`
 
-### Frontend environment
-
-- `NEXT_PUBLIC_BASE_PATH`
-- `NEXT_PUBLIC_ASSET_PREFIX`
-- `NEXT_PUBLIC_GA_ID`
-- `NEXT_PUBLIC_SITE_URL`
-- `NEXT_PUBLIC_DEV_API_ORIGIN`
-- `NEXT_PUBLIC_API_BASE_URL`
-
-### Auth and OAuth environment (conditional)
-
-- `JWT_SECRET`
-- `COOKIE_SECURE`
-- `ADMIN_JWT_ISSUER`
-- `ADMIN_JWT_AUDIENCE`
-- `ADMIN_ACCESS_COOKIE_NAME`
-- `ADMIN_REFRESH_COOKIE_NAME`
-- `ADMIN_CSRF_COOKIE_NAME`
-- `ADMIN_ACCESS_TTL`
-- `ADMIN_REFRESH_TTL`
-- `ADMIN_REMEMBER_REFRESH_TTL`
-- `READER_JWT_ISSUER`
-- `READER_JWT_AUDIENCE`
-- `READER_ACCESS_COOKIE_NAME`
-- `READER_REFRESH_COOKIE_NAME`
-- `READER_ACCESS_TTL`
-- `READER_REFRESH_TTL`
-- `READER_REMEMBER_REFRESH_TTL`
-- `GITHUB_CLIENT_ID`
-- `GITHUB_CLIENT_SECRET`
-- `GOOGLE_CLIENT_ID`
-- `GOOGLE_CLIENT_SECRET`
-
-### Script-specific environment
-
-- `NEWSLETTER_SYNC_LOCALES` (`scripts/sync-newsletter-content/main.go`)
+For the full variable list and defaults, check `README.md` and `internal/config/*.go`.
 
 ## Code Style & Quality Gates
 
@@ -371,13 +262,9 @@ Do not add new package structures organized mainly by feature domain. Prefer lay
 
 ## Deployment
 
-- Static frontend is served from `build/`
-- Docker Compose deployment:
-  - `deploy/docker-compose/docker-compose.yml`
-- Helm deployment:
-  - `deploy/helm/blog`
-- Docker image repository defaults to `suayb/blog:main`
-- Helm chart supports base path and ingress configuration through `deploy/helm/blog/values.yaml`
+- Static frontend output lives in `build/`
+- Deployment assets live under `deploy/` and `nginx/`
+- See `README.md` for deployment commands and environment details
 
 ## Pull Request & Commit Guidelines
 
@@ -422,30 +309,6 @@ Suggested scopes:
 - `newsletter`
 - `build`
 - `deploy`
-
-## Review Process & What Reviewers Look For
-
-### General
-
-- `pnpm run lint` passes
-- `pnpm test` passes when frontend code changes
-- `pnpm run backend:test` passes when backend code changes
-- `pnpm build` passes when export behavior may change
-- Sonar-sensitive changes keep quality and coverage within target
-
-### Frontend review
-
-- Next.js static export constraints are respected
-- TypeScript remains strict
-- i18n changes are made in both locales
-- Markdown/content changes update the related JSON indexes
-
-### Backend review
-
-- GraphQL schema/resolvers stay coherent
-- Newsletter flows remain explicit and test-covered
-- Mongo and SMTP config handling stays observable
-- New backend logic gets `*_test.go` coverage
 
 ## Common Mistakes to Avoid
 

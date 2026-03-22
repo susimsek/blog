@@ -35,18 +35,25 @@ var (
 	readerDisplayWordPattern                                              = regexp.MustCompile(`[._-]+`)
 )
 
+const (
+	readerAuthRequiredMessage    = "reader authentication required"
+	readerInvalidSessionMessage  = "invalid reader session"
+	readerSessionUnavailableText = "reader session is unavailable"
+	readerSessionFailedText      = "reader session failed"
+)
+
 func ResolveReaderFromAccessToken(ctx context.Context, token string) (*domain.ReaderUser, error) {
 	config := appconfig.ResolveReaderConfig()
 	if strings.TrimSpace(config.JWTSecret) == "" || strings.TrimSpace(token) == "" {
-		return nil, apperrors.Unauthorized("reader authentication required")
+		return nil, apperrors.Unauthorized(readerAuthRequiredMessage)
 	}
 
 	claims, err := httpauth.VerifyHS256JWT(token, config.JWTSecret, "access", time.Now().UTC())
 	if err != nil {
-		return nil, apperrors.Unauthorized("reader authentication required")
+		return nil, apperrors.Unauthorized(readerAuthRequiredMessage)
 	}
 	if strings.TrimSpace(claims.Subject) == "" {
-		return nil, apperrors.Unauthorized("reader authentication required")
+		return nil, apperrors.Unauthorized(readerAuthRequiredMessage)
 	}
 
 	userRecord, err := readerUsersRepository.FindByID(ctx, strings.TrimSpace(claims.Subject))
@@ -54,10 +61,10 @@ func ResolveReaderFromAccessToken(ctx context.Context, token string) (*domain.Re
 		return nil, apperrors.Internal("failed to load reader user", err)
 	}
 	if userRecord == nil {
-		return nil, apperrors.Unauthorized("reader authentication required")
+		return nil, apperrors.Unauthorized(readerAuthRequiredMessage)
 	}
 	if claims.PasswordVersion != userRecord.SessionVersion {
-		return nil, apperrors.Unauthorized("reader authentication required")
+		return nil, apperrors.Unauthorized(readerAuthRequiredMessage)
 	}
 
 	return &userRecord.ReaderUser, nil
@@ -71,10 +78,10 @@ func RefreshReaderSession(ctx context.Context, token string, metadata ReaderSess
 
 	claims, err := httpauth.VerifyHS256JWT(token, config.JWTSecret, "refresh", time.Now().UTC())
 	if err != nil {
-		return nil, apperrors.Unauthorized("invalid reader session")
+		return nil, apperrors.Unauthorized(readerInvalidSessionMessage)
 	}
 	if strings.TrimSpace(claims.ID) == "" {
-		return nil, apperrors.Unauthorized("invalid reader session")
+		return nil, apperrors.Unauthorized(readerInvalidSessionMessage)
 	}
 
 	record, err := readerRefreshTokensRepository.FindActiveByToken(ctx, claims.ID, token, time.Now().UTC())
@@ -82,7 +89,7 @@ func RefreshReaderSession(ctx context.Context, token string, metadata ReaderSess
 		return nil, toReaderSessionError(err)
 	}
 	if record == nil {
-		return nil, apperrors.Unauthorized("invalid reader session")
+		return nil, apperrors.Unauthorized(readerInvalidSessionMessage)
 	}
 
 	userRecord, err := readerUsersRepository.FindByID(ctx, strings.TrimSpace(record.UserID))
@@ -90,10 +97,10 @@ func RefreshReaderSession(ctx context.Context, token string, metadata ReaderSess
 		return nil, apperrors.Internal("failed to load reader user", err)
 	}
 	if userRecord == nil {
-		return nil, apperrors.Unauthorized("invalid reader session")
+		return nil, apperrors.Unauthorized(readerInvalidSessionMessage)
 	}
 	if claims.PasswordVersion != userRecord.SessionVersion {
-		return nil, apperrors.Unauthorized("invalid reader session")
+		return nil, apperrors.Unauthorized(readerInvalidSessionMessage)
 	}
 
 	return issueReaderTokens(ctx, config, userRecord, claims.ID, record.Persistent, metadata)
@@ -196,7 +203,7 @@ func issueReaderTokens(
 	} else {
 		if err := readerRefreshTokensRepository.Rotate(ctx, currentRefreshJTI, refreshRecord, now); err != nil {
 			if errors.Is(err, repository.ErrReaderRefreshTokenNotFound) {
-				return nil, apperrors.Unauthorized("invalid reader session")
+				return nil, apperrors.Unauthorized(readerInvalidSessionMessage)
 			}
 			return nil, toReaderSessionError(err)
 		}
@@ -241,7 +248,7 @@ func normalizeReaderDisplayName(name, email string) string {
 
 func toReaderSessionError(err error) error {
 	if errors.Is(err, repository.ErrReaderRefreshTokenRepositoryUnavailable) || errors.Is(err, repository.ErrReaderUserRepositoryUnavailable) {
-		return apperrors.ServiceUnavailable("reader session is unavailable", err)
+		return apperrors.ServiceUnavailable(readerSessionUnavailableText, err)
 	}
-	return apperrors.Internal("reader session failed", err)
+	return apperrors.Internal(readerSessionFailedText, err)
 }

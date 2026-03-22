@@ -34,6 +34,8 @@ type googleTokenResponse struct {
 	TokenType   string `json:"token_type"`
 }
 
+const adminGoogleInvalidMessage = "google account is invalid"
+
 var (
 	resolveGoogleConfigFn             = appconfig.ResolveAdminGoogleConfig
 	exchangeGoogleAuthorizationCodeFn = exchangeGoogleAuthorizationCode
@@ -80,7 +82,7 @@ func ResolveAdminGoogleIdentityFromCode(
 	identity.Subject = strings.TrimSpace(identity.Subject)
 	identity.Email = strings.TrimSpace(strings.ToLower(identity.Email))
 	if identity.Subject == "" || identity.Email == "" {
-		return nil, apperrors.BadRequest("google account is invalid")
+		return nil, apperrors.BadRequest(adminGoogleInvalidMessage)
 	}
 	if !identity.EmailVerified {
 		return nil, apperrors.BadRequest("google account email is not verified")
@@ -96,36 +98,20 @@ func LinkAdminGoogleAccount(
 ) (*domain.AdminUser, error) {
 	resolvedAdminUserID := strings.TrimSpace(adminUserID)
 	if resolvedAdminUserID == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
-	}
-	if identity == nil {
-		return nil, apperrors.BadRequest("google account is invalid")
+		return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
-	userRecord, err := adminUsersRepository.FindByID(ctx, resolvedAdminUserID)
+	userRecord, err := loadAdminUserRecord(ctx, resolvedAdminUserID)
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
-	}
-	if userRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, err
 	}
 
-	resolvedSubject := strings.TrimSpace(identity.Subject)
-	resolvedEmail := strings.TrimSpace(strings.ToLower(identity.Email))
-	if resolvedSubject == "" || resolvedEmail == "" {
-		return nil, apperrors.BadRequest("google account is invalid")
-	}
-
-	if strings.TrimSpace(userRecord.GoogleSubject) != "" && strings.TrimSpace(userRecord.GoogleSubject) != resolvedSubject {
-		return nil, apperrors.BadRequest("disconnect the current google account before linking a different one")
-	}
-
-	matchedUser, err := adminUsersRepository.FindByGoogleSubject(ctx, resolvedSubject)
+	resolvedSubject, resolvedEmail, err := normalizeAdminGoogleIdentity(identity)
 	if err != nil {
-		return nil, apperrors.Internal("failed to load google account link", err)
+		return nil, err
 	}
-	if matchedUser != nil && strings.TrimSpace(matchedUser.ID) != resolvedAdminUserID {
-		return nil, apperrors.BadRequest("google account is already linked to another admin")
+	if err := ensureAdminGoogleAccountLinkable(ctx, userRecord, resolvedAdminUserID, resolvedSubject); err != nil {
+		return nil, err
 	}
 
 	linkedAt := nowUTCFn()
@@ -134,20 +120,12 @@ func LinkAdminGoogleAccount(
 			return nil, apperrors.BadRequest("google account is already linked to another admin")
 		}
 		if errors.Is(err, repository.ErrAdminUserNotFound) {
-			return nil, apperrors.Unauthorized("admin authentication required")
+			return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 		}
 		return nil, apperrors.Internal("failed to link google account", err)
 	}
 
-	updatedRecord, err := adminUsersRepository.FindByID(ctx, resolvedAdminUserID)
-	if err != nil {
-		return nil, apperrors.Internal("failed to reload admin user", err)
-	}
-	if updatedRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
-	}
-
-	return &updatedRecord.AdminUser, nil
+	return reloadAdminUser(ctx, resolvedAdminUserID)
 }
 
 func StartAdminGoogleConnect(
@@ -156,7 +134,7 @@ func StartAdminGoogleConnect(
 	locale string,
 ) (*AdminGoogleConnectResult, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
 	if !resolveGoogleConfigFn().Enabled() {
@@ -173,15 +151,12 @@ func DisconnectAdminGoogleAccount(
 	adminUser *domain.AdminUser,
 ) (*domain.AdminUser, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
-	userRecord, err := adminUsersRepository.FindByID(ctx, adminUser.ID)
+	userRecord, err := loadAdminUserRecord(ctx, adminUser.ID)
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
-	}
-	if userRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, err
 	}
 	if strings.TrimSpace(userRecord.GoogleSubject) == "" {
 		return nil, apperrors.BadRequest("google account is not linked")
@@ -189,20 +164,12 @@ func DisconnectAdminGoogleAccount(
 
 	if err := adminUsersRepository.ClearGoogleLinkByID(ctx, userRecord.ID); err != nil {
 		if errors.Is(err, repository.ErrAdminUserNotFound) {
-			return nil, apperrors.Unauthorized("admin authentication required")
+			return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 		}
 		return nil, apperrors.Internal("failed to disconnect google account", err)
 	}
 
-	updatedRecord, err := adminUsersRepository.FindByID(ctx, userRecord.ID)
-	if err != nil {
-		return nil, apperrors.Internal("failed to reload admin user", err)
-	}
-	if updatedRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
-	}
-
-	return &updatedRecord.AdminUser, nil
+	return reloadAdminUser(ctx, userRecord.ID)
 }
 
 func LoginAdminWithGoogleSubject(
@@ -218,7 +185,7 @@ func LoginAdminWithGoogleSubject(
 
 	userRecord, err := adminUsersRepository.FindByGoogleSubject(ctx, strings.TrimSpace(subject))
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
+		return nil, apperrors.Internal(adminLoadAdminUserMessage, err)
 	}
 	if userRecord == nil {
 		return nil, apperrors.Unauthorized("invalid credentials")
@@ -312,4 +279,39 @@ func fetchGoogleUserInfo(ctx context.Context, accessToken string) (*AdminGoogleI
 		Email:         payload.Email,
 		EmailVerified: payload.EmailVerified,
 	}, nil
+}
+
+func normalizeAdminGoogleIdentity(identity *AdminGoogleIdentity) (string, string, error) {
+	if identity == nil {
+		return "", "", apperrors.BadRequest(adminGoogleInvalidMessage)
+	}
+
+	resolvedSubject := strings.TrimSpace(identity.Subject)
+	resolvedEmail := strings.TrimSpace(strings.ToLower(identity.Email))
+	if resolvedSubject == "" || resolvedEmail == "" {
+		return "", "", apperrors.BadRequest(adminGoogleInvalidMessage)
+	}
+
+	return resolvedSubject, resolvedEmail, nil
+}
+
+func ensureAdminGoogleAccountLinkable(
+	ctx context.Context,
+	userRecord *domain.AdminUserRecord,
+	resolvedAdminUserID string,
+	resolvedSubject string,
+) error {
+	if strings.TrimSpace(userRecord.GoogleSubject) != "" && strings.TrimSpace(userRecord.GoogleSubject) != resolvedSubject {
+		return apperrors.BadRequest("disconnect the current google account before linking a different one")
+	}
+
+	matchedUser, err := adminUsersRepository.FindByGoogleSubject(ctx, resolvedSubject)
+	if err != nil {
+		return apperrors.Internal("failed to load google account link", err)
+	}
+	if matchedUser != nil && strings.TrimSpace(matchedUser.ID) != resolvedAdminUserID {
+		return apperrors.BadRequest("google account is already linked to another admin")
+	}
+
+	return nil
 }

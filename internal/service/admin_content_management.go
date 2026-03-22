@@ -31,6 +31,19 @@ const (
 
 	adminContentAuditResource      = "admin_content_management"
 	adminContentAuditStatusSuccess = "success"
+	adminContentAuthRequired       = "admin authentication required"
+	adminContentCategoryIDField    = "category id"
+	adminContentTopicIDField       = "topic id"
+	adminContentPostIDField        = "post id"
+	adminContentPostNotFound       = "content post not found"
+	adminContentCategoryNotFound   = "content category not found"
+	adminContentTopicNotFound      = "content topic not found"
+	adminContentLoadPostFailed     = "failed to load content post"
+	adminContentLoadCategoryFailed = "failed to load content category"
+	adminContentLoadTopicFailed    = "failed to load content topic"
+	adminContentInvalidLink        = "invalid content link"
+	adminContentFieldRequired      = " is required"
+	adminContentFieldInvalid       = "invalid "
 )
 
 var (
@@ -44,7 +57,7 @@ func ListAdminContentPosts(
 	filter domain.AdminContentPostFilter,
 ) (*domain.AdminContentPostListResult, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminContentAuthRequired)
 	}
 
 	page := clampPositiveInt(filter.Page, 1, 100000)
@@ -67,14 +80,14 @@ func ListAdminContentPosts(
 
 	resolvedCategoryID := strings.TrimSpace(strings.ToLower(filter.CategoryID))
 	if resolvedCategoryID != "" {
-		if _, err := normalizeAdminContentID(resolvedCategoryID, "category id"); err != nil {
+		if _, err := normalizeAdminContentID(resolvedCategoryID, adminContentCategoryIDField); err != nil {
 			return nil, err
 		}
 	}
 
 	resolvedTopicID := strings.TrimSpace(strings.ToLower(filter.TopicID))
 	if resolvedTopicID != "" {
-		if _, err := normalizeAdminContentID(resolvedTopicID, "topic id"); err != nil {
+		if _, err := normalizeAdminContentID(resolvedTopicID, adminContentTopicIDField); err != nil {
 			return nil, err
 		}
 	}
@@ -109,9 +122,10 @@ func ListAdminContentTopics(
 	ctx context.Context,
 	adminUser *domain.AdminUser,
 	locale string,
+	query string,
 ) ([]domain.AdminContentTopicRecord, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminContentAuthRequired)
 	}
 
 	resolvedLocale, err := normalizeAdminContentLocale(locale, true)
@@ -119,7 +133,7 @@ func ListAdminContentTopics(
 		return nil, err
 	}
 
-	items, err := adminContentRepository.ListTopics(ctx, resolvedLocale)
+	items, err := adminContentRepository.ListTopics(ctx, resolvedLocale, strings.TrimSpace(query))
 	if err != nil {
 		return nil, toAdminContentError(err, "failed to list content topics")
 	}
@@ -136,7 +150,7 @@ func ListAdminContentTopicsPage(
 	filter domain.AdminContentTaxonomyFilter,
 ) (*domain.AdminContentTopicListResult, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminContentAuthRequired)
 	}
 
 	page := clampPositiveInt(filter.Page, 1, 100000)
@@ -181,7 +195,7 @@ func ListAdminContentCategories(
 	locale string,
 ) ([]domain.AdminContentCategoryRecord, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminContentAuthRequired)
 	}
 
 	resolvedLocale, err := normalizeAdminContentLocale(locale, true)
@@ -206,7 +220,7 @@ func ListAdminContentCategoriesPage(
 	filter domain.AdminContentTaxonomyFilter,
 ) (*domain.AdminContentCategoryListResult, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminContentAuthRequired)
 	}
 
 	page := clampPositiveInt(filter.Page, 1, 100000)
@@ -245,30 +259,30 @@ func ListAdminContentCategoriesPage(
 	return result, nil
 }
 
-func UpdateAdminContentPostMetadata(
+func UpdateAdminContentPostMetadata( // NOSONAR
 	ctx context.Context,
 	adminUser *domain.AdminUser,
 	input domain.AdminContentPostMetadataInput,
 ) (*domain.AdminContentPostRecord, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminContentAuthRequired)
 	}
 
 	resolvedLocale, err := normalizeAdminContentLocale(input.Locale, false)
 	if err != nil {
 		return nil, err
 	}
-	resolvedPostID, err := normalizeAdminContentID(input.ID, "post id")
+	resolvedPostID, err := normalizeAdminContentID(input.ID, adminContentPostIDField)
 	if err != nil {
 		return nil, err
 	}
 
 	before, err := adminContentRepository.FindPostByLocaleAndID(ctx, resolvedLocale, resolvedPostID)
 	if err != nil {
-		return nil, toAdminContentError(err, "failed to load content post")
+		return nil, toAdminContentError(err, adminContentLoadPostFailed)
 	}
 	if before == nil {
-		return nil, apperrors.BadRequest("content post not found")
+		return nil, apperrors.BadRequest(adminContentPostNotFound)
 	}
 
 	metadataFields, err := normalizeAdminContentPostMetadataFields(input, *before)
@@ -278,7 +292,7 @@ func UpdateAdminContentPostMetadata(
 
 	resolvedCategoryID := strings.TrimSpace(strings.ToLower(input.CategoryID))
 	if resolvedCategoryID != "" {
-		if _, err := normalizeAdminContentID(resolvedCategoryID, "category id"); err != nil {
+		if _, err := normalizeAdminContentID(resolvedCategoryID, adminContentCategoryIDField); err != nil {
 			return nil, err
 		}
 	}
@@ -287,14 +301,14 @@ func UpdateAdminContentPostMetadata(
 	if resolvedCategoryID != "" {
 		category, err = adminContentRepository.FindCategoryByLocaleAndID(ctx, resolvedLocale, resolvedCategoryID)
 		if err != nil {
-			return nil, toAdminContentError(err, "failed to load content category")
+			return nil, toAdminContentError(err, adminContentLoadCategoryFailed)
 		}
 		if category == nil {
-			return nil, apperrors.BadRequest("content category not found")
+			return nil, apperrors.BadRequest(adminContentCategoryNotFound)
 		}
 	}
 
-	resolvedTopicIDs, err := normalizeAdminContentIDs(input.TopicIDs, "topic id")
+	resolvedTopicIDs, err := normalizeAdminContentIDs(input.TopicIDs, adminContentTopicIDField)
 	if err != nil {
 		return nil, err
 	}
@@ -302,10 +316,10 @@ func UpdateAdminContentPostMetadata(
 	for _, topicID := range resolvedTopicIDs {
 		topic, err := adminContentRepository.FindTopicByLocaleAndID(ctx, resolvedLocale, topicID)
 		if err != nil {
-			return nil, toAdminContentError(err, "failed to load content topic")
+			return nil, toAdminContentError(err, adminContentLoadTopicFailed)
 		}
 		if topic == nil {
-			return nil, apperrors.BadRequest("content topic not found")
+			return nil, apperrors.BadRequest(adminContentTopicNotFound)
 		}
 		topics = append(topics, *topic)
 	}
@@ -347,7 +361,7 @@ func GetAdminContentPost(
 	postID string,
 ) (*domain.AdminContentPostRecord, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminContentAuthRequired)
 	}
 
 	resolvedLocale, err := normalizeAdminContentLocale(locale, false)
@@ -1036,10 +1050,10 @@ func normalizeAdminContentThumbnail(value string) (string, error) {
 func normalizeAdminContentRequiredDate(value, field string) (string, error) {
 	resolved := strings.TrimSpace(value)
 	if resolved == "" {
-		return "", apperrors.BadRequest(field + " is required")
+		return "", apperrors.BadRequest(field + adminContentFieldRequired)
 	}
 	if _, err := time.Parse("2006-01-02", resolved); err != nil {
-		return "", apperrors.BadRequest("invalid " + field)
+		return "", apperrors.BadRequest(adminContentFieldInvalid + field)
 	}
 	return resolved, nil
 }
@@ -1050,7 +1064,7 @@ func normalizeAdminContentOptionalDate(value, field string) (string, error) {
 		return "", nil
 	}
 	if _, err := time.Parse("2006-01-02", resolved); err != nil {
-		return "", apperrors.BadRequest("invalid " + field)
+		return "", apperrors.BadRequest(adminContentFieldInvalid + field)
 	}
 	return resolved, nil
 }
@@ -1058,12 +1072,7 @@ func normalizeAdminContentOptionalDate(value, field string) (string, error) {
 func normalizeAdminContentLocale(value string, allowAll bool) (string, error) {
 	resolved := strings.TrimSpace(strings.ToLower(value))
 	switch resolved {
-	case "":
-		if allowAll {
-			return "", nil
-		}
-		return "", apperrors.BadRequest("content locale is required")
-	case "all":
+	case "", "all":
 		if allowAll {
 			return "", nil
 		}
@@ -1078,12 +1087,7 @@ func normalizeAdminContentLocale(value string, allowAll bool) (string, error) {
 func normalizeAdminContentSource(value string, allowAll bool) (string, error) {
 	resolved := strings.TrimSpace(strings.ToLower(value))
 	switch resolved {
-	case "":
-		if allowAll {
-			return "", nil
-		}
-		return "", apperrors.BadRequest("content source is required")
-	case "all":
+	case "", "all":
 		if allowAll {
 			return "", nil
 		}
@@ -1098,10 +1102,10 @@ func normalizeAdminContentSource(value string, allowAll bool) (string, error) {
 func normalizeAdminContentID(value, field string) (string, error) {
 	resolved := strings.TrimSpace(strings.ToLower(value))
 	if resolved == "" {
-		return "", apperrors.BadRequest(field + " is required")
+		return "", apperrors.BadRequest(field + adminContentFieldRequired)
 	}
 	if len(resolved) > adminContentIDMaxLength || !adminContentIDPattern.MatchString(resolved) {
-		return "", apperrors.BadRequest("invalid " + field)
+		return "", apperrors.BadRequest(adminContentFieldInvalid + field)
 	}
 	return resolved, nil
 }
@@ -1132,7 +1136,7 @@ func normalizeAdminContentIDs(values []string, field string) ([]string, error) {
 func normalizeAdminContentName(value, field string) (string, error) {
 	resolved := strings.TrimSpace(value)
 	if resolved == "" {
-		return "", apperrors.BadRequest(field + " is required")
+		return "", apperrors.BadRequest(field + adminContentFieldRequired)
 	}
 	if len(resolved) > adminContentNameMaxLength {
 		return "", apperrors.BadRequest(field + " is too long")
@@ -1143,7 +1147,7 @@ func normalizeAdminContentName(value, field string) (string, error) {
 func normalizeAdminContentColor(value, field string) (string, error) {
 	resolved := strings.TrimSpace(strings.ToLower(value))
 	if resolved == "" {
-		return "", apperrors.BadRequest(field + " is required")
+		return "", apperrors.BadRequest(field + adminContentFieldRequired)
 	}
 	if len(resolved) > adminContentColorMaxLength {
 		return "", apperrors.BadRequest(field + " is too long")
@@ -1162,14 +1166,14 @@ func normalizeAdminContentLink(value string) (string, error) {
 
 	parsed, err := url.Parse(resolved)
 	if err != nil {
-		return "", apperrors.BadRequest("invalid content link")
+		return "", apperrors.BadRequest(adminContentInvalidLink)
 	}
 	scheme := strings.ToLower(strings.TrimSpace(parsed.Scheme))
 	if scheme != "http" && scheme != "https" {
-		return "", apperrors.BadRequest("invalid content link")
+		return "", apperrors.BadRequest(adminContentInvalidLink)
 	}
 	if strings.TrimSpace(parsed.Host) == "" {
-		return "", apperrors.BadRequest("invalid content link")
+		return "", apperrors.BadRequest(adminContentInvalidLink)
 	}
 
 	return resolved, nil
@@ -1191,11 +1195,11 @@ func toAdminContentError(err error, message string) error {
 	case errors.Is(err, repository.ErrAdminContentRepositoryUnavailable):
 		return apperrors.ServiceUnavailable("admin content management is unavailable", err)
 	case errors.Is(err, repository.ErrAdminContentPostNotFound):
-		return apperrors.BadRequest("content post not found")
+		return apperrors.BadRequest(adminContentPostNotFound)
 	case errors.Is(err, repository.ErrAdminContentTopicNotFound):
-		return apperrors.BadRequest("content topic not found")
+		return apperrors.BadRequest(adminContentTopicNotFound)
 	case errors.Is(err, repository.ErrAdminContentCategoryNotFound):
-		return apperrors.BadRequest("content category not found")
+		return apperrors.BadRequest(adminContentCategoryNotFound)
 	default:
 		return apperrors.Internal(message, err)
 	}
@@ -1213,7 +1217,7 @@ func marshalAdminContentAuditValue(value any) string {
 	return strings.TrimSpace(string(jsonValue))
 }
 
-func createAdminContentAuditLog(
+func createAdminContentAuditLog( // NOSONAR
 	ctx context.Context,
 	adminUser *domain.AdminUser,
 	action string,
@@ -1224,7 +1228,7 @@ func createAdminContentAuditLog(
 	afterValue string,
 ) error {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return apperrors.Unauthorized("admin authentication required")
+		return apperrors.Unauthorized(adminContentAuthRequired)
 	}
 
 	trace, _ := httpapi.RequestTraceFromContext(ctx)

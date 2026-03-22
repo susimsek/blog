@@ -16,6 +16,16 @@ icon = "test"
 command = "pnpm test"
 
 [[actions]]
+name = "Lint"
+icon = "test"
+command = "pnpm run lint"
+
+[[actions]]
+name = "Typecheck"
+icon = "test"
+command = "pnpm run typecheck"
+
+[[actions]]
 name = "Build"
 icon = "build"
 command = "pnpm run build"
@@ -24,3 +34,18 @@ command = "pnpm run build"
 name = "Backend Run"
 icon = "run"
 command = "pnpm run backend:dev"
+
+[[actions]]
+name = "Backend Lint"
+icon = "test"
+command = "pnpm run backend:lint"
+
+[[actions]]
+name = "Backend Test"
+icon = "test"
+command = "pnpm run backend:test"
+
+[[actions]]
+name = "GraphQL Generate"
+icon = "build"
+command = "pnpm run graphql:generate"

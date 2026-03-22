@@ -90,17 +90,17 @@ describe('adminPasswordResetApi', () => {
         },
       } as unknown as Response);
 
-    await expect(requestAdminPasswordReset('admin@example.com', 'en')).rejects.toEqual({
+    await expect(requestAdminPasswordReset('admin@example.com', 'en')).rejects.toMatchObject({
       kind: 'api',
       code: 'ADMIN_PASSWORD_RESET_EMAIL_INVALID',
       message: 'Email invalid.',
     });
-    await expect(validateAdminPasswordResetToken('reset-token', 'en')).rejects.toEqual({
+    await expect(validateAdminPasswordResetToken('reset-token', 'en')).rejects.toMatchObject({
       kind: 'network',
       code: 'NETWORK_ERROR',
       message: 'Network request failed',
     });
-    await expect(confirmAdminPasswordReset('reset-token', 'en', 'new-password', 'new-password')).rejects.toEqual({
+    await expect(confirmAdminPasswordReset('reset-token', 'en', 'new-password', 'new-password')).rejects.toMatchObject({
       kind: 'api',
       code: 'ADMIN_PASSWORD_RESET_FAILED',
       message: 'Admin password reset request failed.',

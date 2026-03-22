@@ -381,3 +381,167 @@ func TestAddCommentReplyValidationAndRateLimit(t *testing.T) {
 		t.Fatalf("failed = %#v", failed)
 	}
 }
+
+func TestCommentServiceErrorAndValidationPaths(t *testing.T) {
+	originalPostRepository := postsRepository
+	originalCommentRepository := commentRepository
+	originalCommentLimiter := commentLimiter
+	t.Cleanup(func() {
+		postsRepository = originalPostRepository
+		commentRepository = originalCommentRepository
+		commentLimiter = originalCommentLimiter
+	})
+
+	t.Run("ListComments handles invalid post id and repository failures", func(t *testing.T) {
+		if result := ListComments(context.Background(), CommentQueryInput{PostID: "??"}); result.Status != statusInvalidPostID {
+			t.Fatalf("expected invalid post id, got %#v", result)
+		}
+
+		postsRepository = postStubRepository{
+			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
+			findPosts:  func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
+			findPostByIDAnyLocale: func(context.Context, string) (*domain.PostRecord, error) {
+				return nil, repository.ErrPostRepositoryUnavailable
+			},
+		}
+		commentRepository = commentStubRepository{
+			listApprovedByPost: func(context.Context, string) ([]domain.CommentRecord, error) { return nil, nil },
+			createComment:      func(context.Context, domain.CommentRecord) error { return nil },
+			findCommentByID:    func(context.Context, string) (*domain.CommentRecord, error) { return nil, nil },
+		}
+		if result := ListComments(context.Background(), CommentQueryInput{PostID: "alpha-post"}); result.Status != statusServiceUnavailable {
+			t.Fatalf("expected service unavailable, got %#v", result)
+		}
+
+		postsRepository = postStubRepository{
+			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
+			findPosts:  func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
+			findPostByIDAnyLocale: func(context.Context, string) (*domain.PostRecord, error) {
+				return nil, nil
+			},
+		}
+		if result := ListComments(context.Background(), CommentQueryInput{PostID: "alpha-post"}); result.Status != commentStatusNotFound {
+			t.Fatalf("expected not found, got %#v", result)
+		}
+
+		postsRepository = postStubRepository{
+			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
+			findPosts:  func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
+			findPostByIDAnyLocale: func(context.Context, string) (*domain.PostRecord, error) {
+				return &domain.PostRecord{ID: "alpha-post", Title: "Alpha"}, nil
+			},
+		}
+		commentRepository = commentStubRepository{
+			listApprovedByPost: func(context.Context, string) ([]domain.CommentRecord, error) {
+				return nil, repository.ErrCommentRepositoryUnavailable
+			},
+			createComment:   func(context.Context, domain.CommentRecord) error { return nil },
+			findCommentByID: func(context.Context, string) (*domain.CommentRecord, error) { return nil, nil },
+		}
+		if result := ListComments(context.Background(), CommentQueryInput{PostID: "alpha-post"}); result.Status != statusServiceUnavailable {
+			t.Fatalf("expected comment storage unavailable, got %#v", result)
+		}
+	})
+
+	t.Run("AddComment handles invalid inputs moderation and repository failures", func(t *testing.T) {
+		commentLimiter = newRateLimiter(10, time.Minute)
+
+		postsRepository = postStubRepository{
+			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
+			findPosts:  func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
+			findPostByIDAnyLocale: func(_ context.Context, postID string) (*domain.PostRecord, error) {
+				return &domain.PostRecord{ID: postID, Title: "Alpha"}, nil
+			},
+		}
+		commentRepository = commentStubRepository{
+			listApprovedByPost: func(context.Context, string) ([]domain.CommentRecord, error) { return nil, nil },
+			createComment:      func(context.Context, domain.CommentRecord) error { return nil },
+			findCommentByID:    func(context.Context, string) (*domain.CommentRecord, error) { return nil, nil },
+		}
+
+		if result := AddComment(context.Background(), AddCommentInput{PostID: "alpha-post", Content: "hello"}, RequestMetadata{}); result.Status != commentStatusInvalidAuthor {
+			t.Fatalf("expected invalid author, got %#v", result)
+		}
+		if result := AddComment(context.Background(), AddCommentInput{PostID: "alpha-post", AuthorName: "Alice", Content: "hello"}, RequestMetadata{}); result.Status != commentStatusInvalidEmail {
+			t.Fatalf("expected invalid email, got %#v", result)
+		}
+		if result := AddComment(context.Background(), AddCommentInput{PostID: "alpha-post", AuthorName: "Alice", AuthorEmail: "alice@example.com", Content: "  "}, RequestMetadata{}); result.Status != commentStatusInvalidContent {
+			t.Fatalf("expected invalid content, got %#v", result)
+		}
+
+		var stored domain.CommentRecord
+		commentRepository = commentStubRepository{
+			listApprovedByPost: func(context.Context, string) ([]domain.CommentRecord, error) { return nil, nil },
+			createComment: func(_ context.Context, record domain.CommentRecord) error {
+				stored = record
+				return nil
+			},
+			findCommentByID: func(context.Context, string) (*domain.CommentRecord, error) { return nil, nil },
+		}
+		result := AddComment(context.Background(), AddCommentInput{
+			PostID:      "alpha-post",
+			AuthorName:  "Alice",
+			AuthorEmail: "alice@example.com",
+			Content:     "https://a.example https://b.example https://c.example https://d.example",
+		}, RequestMetadata{ClientIP: "203.0.113.50"})
+		if result.Status != "success" || result.ModerationStatus != commentStatusSpam || stored.ModerationNote == "" {
+			t.Fatalf("expected spam moderation, got result=%#v stored=%#v", result, stored)
+		}
+
+		postsRepository = postStubRepository{
+			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
+			findPosts:  func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
+			findPostByIDAnyLocale: func(context.Context, string) (*domain.PostRecord, error) {
+				return nil, repository.ErrPostRepositoryUnavailable
+			},
+		}
+		if result := AddComment(context.Background(), AddCommentInput{
+			PostID:      "alpha-post",
+			AuthorName:  "Alice",
+			AuthorEmail: "alice@example.com",
+			Content:     "hello world",
+		}, RequestMetadata{ClientIP: "203.0.113.51"}); result.Status != statusServiceUnavailable {
+			t.Fatalf("expected post repository unavailable, got %#v", result)
+		}
+
+		postsRepository = postStubRepository{
+			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
+			findPosts:  func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
+			findPostByIDAnyLocale: func(context.Context, string) (*domain.PostRecord, error) {
+				return nil, nil
+			},
+		}
+		if result := AddComment(context.Background(), AddCommentInput{
+			PostID:      "alpha-post",
+			AuthorName:  "Alice",
+			AuthorEmail: "alice@example.com",
+			Content:     "hello world",
+		}, RequestMetadata{ClientIP: "203.0.113.52"}); result.Status != commentStatusNotFound {
+			t.Fatalf("expected missing post, got %#v", result)
+		}
+
+		postsRepository = postStubRepository{
+			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
+			findPosts:  func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
+			findPostByIDAnyLocale: func(_ context.Context, postID string) (*domain.PostRecord, error) {
+				return &domain.PostRecord{ID: postID, Title: "Alpha"}, nil
+			},
+		}
+		commentRepository = commentStubRepository{
+			listApprovedByPost: func(context.Context, string) ([]domain.CommentRecord, error) { return nil, nil },
+			createComment:      func(context.Context, domain.CommentRecord) error { return nil },
+			findCommentByID: func(context.Context, string) (*domain.CommentRecord, error) {
+				return nil, repository.ErrCommentRepositoryUnavailable
+			},
+		}
+		if result := AddComment(context.Background(), AddCommentInput{
+			PostID:      "alpha-post",
+			ParentID:    "root",
+			AuthorName:  "Alice",
+			AuthorEmail: "alice@example.com",
+			Content:     "reply body",
+		}, RequestMetadata{ClientIP: "203.0.113.53"}); result.Status != statusServiceUnavailable {
+			t.Fatalf("expected comment repository unavailable, got %#v", result)
+		}
+	})
+}

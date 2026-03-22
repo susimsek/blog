@@ -65,11 +65,11 @@ Use this rule set to keep every article at a modern, professional developer-blog
 
 ```bash
 # 1) Headings + typo/language cleanup + spacer cleanup
-node .codex/skills/blog-content-authoring/scripts/standardize-posts.mjs --dry-run
-node .codex/skills/blog-content-authoring/scripts/standardize-posts.mjs
+node .agents/skills/blog-content-authoring/scripts/standardize-posts.mjs --dry-run
+node .agents/skills/blog-content-authoring/scripts/standardize-posts.mjs
 
 # 2) Professional, non-generic conclusions (rewrite mode)
-node .codex/skills/blog-content-authoring/scripts/standardize-conclusions.mjs --rewrite
+node .agents/skills/blog-content-authoring/scripts/standardize-conclusions.mjs --rewrite
 ```
 
 ## Image Standards
@@ -90,7 +90,7 @@ Goal: make all **post visuals** (thumbnails + optional inline images) feel like 
 The helper script outputs one JSONL line per post with a single, topic-independent Iram prompt.
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/generate-thumbnail-prompts.mjs > /tmp/irem-prompts.jsonl
+node .agents/skills/blog-content-authoring/scripts/generate-thumbnail-prompts.mjs > /tmp/irem-prompts.jsonl
 ```
 
 ### Prompt template (copy/paste)
@@ -110,7 +110,7 @@ Use this as-is in your image generator (SDXL / Midjourney / etc.):
 Generate one JSONL line per post (includes EN/TR prompts + negative prompt + suggested thumbnail path):
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/generate-thumbnail-prompts.mjs > /tmp/irem-prompts.jsonl
+node .agents/skills/blog-content-authoring/scripts/generate-thumbnail-prompts.mjs > /tmp/irem-prompts.jsonl
 ```
 
 Workflow suggestion:
@@ -120,7 +120,7 @@ Workflow suggestion:
 3. Convert/crop to blog thumbnail:
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs --in /path/to/generated.png --out public/images/<slug>-thumbnail.webp
+node .agents/skills/blog-content-authoring/scripts/make-thumbnail.mjs --in /path/to/generated.png --out public/images/<slug>-thumbnail.webp
 ```
 
 ### 1) Post thumbnail (required)
@@ -142,7 +142,7 @@ node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs --in /path/
 Generate:
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs \
+node .agents/skills/blog-content-authoring/scripts/make-thumbnail.mjs \
   --in /path/to/source.png \
   --out public/images/<slug>-thumbnail.webp
 ```
@@ -155,7 +155,7 @@ CLOUDINARY_CLOUD_NAME=<cloud_name> \
 CLOUDINARY_API_KEY=<api_key> \
 CLOUDINARY_API_SECRET=<api_secret> \
 CLOUDINARY_UPLOAD_PRESET=<upload_preset> \
-node .codex/skills/blog-content-authoring/scripts/make-thumbnail-cloudinary.mjs \
+node .agents/skills/blog-content-authoring/scripts/make-thumbnail-cloudinary.mjs \
   --in /path/to/source.png \
   --out public/images/<slug>-thumbnail.webp
 ```
@@ -163,7 +163,7 @@ node .codex/skills/blog-content-authoring/scripts/make-thumbnail-cloudinary.mjs 
 Remote image URL input is also supported:
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/make-thumbnail-cloudinary.mjs \
+node .agents/skills/blog-content-authoring/scripts/make-thumbnail-cloudinary.mjs \
   --in "https://example.com/source.jpg" \
   --out public/images/<slug>-thumbnail.webp \
   --cloud-name <cloud_name> \
@@ -200,7 +200,7 @@ If you add images inside the post body (Markdown/HTML):
 Generate (keeps aspect ratio, resizes to a max width):
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/make-post-image.mjs \
+node .agents/skills/blog-content-authoring/scripts/make-post-image.mjs \
   --in /path/to/source.png \
   --out public/images/posts/<slug>/<name>.webp \
   --maxWidth 1200
@@ -298,7 +298,7 @@ Template (TR):
 You can batch-apply this standard to all posts with:
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/standardize-conclusions.mjs
+node .agents/skills/blog-content-authoring/scripts/standardize-conclusions.mjs
 ```
 
 ## Add a New Post (Step-by-Step)
@@ -318,7 +318,7 @@ Constraints (topic pool):
 Generate a random post idea (deterministic with a seed):
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/suggest-random-post.mjs --seed=2026-02-04
+node .agents/skills/blog-content-authoring/scripts/suggest-random-post.mjs --seed=2026-02-04
 ```
 
 It prints:
@@ -334,7 +334,7 @@ After picking an idea:
 2. Add the post to `public/data/posts.en.json` and `public/data/posts.tr.json`
 3. Ensure the post `category` exists in `public/data/categories.en.json` and `public/data/categories.tr.json`
 4. Create `public/images/<slug>-thumbnail.webp` (1200x630) using the Iram art direction
-5. Run the checker: `node .codex/skills/blog-content-authoring/scripts/check-content.mjs`
+5. Run the checker: `node .agents/skills/blog-content-authoring/scripts/check-content.mjs`
 
 ## Documentation Source (Context7 MCP Required)
 
@@ -360,7 +360,7 @@ Workflow:
 This skill includes a helper script:
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/make-thumbnail.mjs \
+node .agents/skills/blog-content-authoring/scripts/make-thumbnail.mjs \
   --in /path/to/source.png \
   --out public/images/<slug>-thumbnail.webp
 ```
@@ -411,7 +411,7 @@ When you introduce a new topic (e.g. `redis`, `kafka`), it must be added to **bo
 4. Use the topic in both `public/data/posts.en.json` and `public/data/posts.tr.json` entries (topic object must include `id/name/color`)
    - Do **not** use a category id (e.g. `programming`) as a topic.
 5. Re-run the checker:
-   - `node .codex/skills/blog-content-authoring/scripts/check-content.mjs`
+   - `node .agents/skills/blog-content-authoring/scripts/check-content.mjs`
 
 ### 4) Create Markdown files (en + tr)
 
@@ -521,20 +521,20 @@ Notes:
 This skill includes a content check script:
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/check-content.mjs
+node .agents/skills/blog-content-authoring/scripts/check-content.mjs
 ```
 
 To see a quick inventory of images referenced by posts:
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/report-images.mjs
+node .agents/skills/blog-content-authoring/scripts/report-images.mjs
 ```
 
 To standardize existing posts (headings/steps/prerequisites), run:
 
 ```bash
-node .codex/skills/blog-content-authoring/scripts/standardize-posts.mjs --dry-run
-node .codex/skills/blog-content-authoring/scripts/standardize-posts.mjs
+node .agents/skills/blog-content-authoring/scripts/standardize-posts.mjs --dry-run
+node .agents/skills/blog-content-authoring/scripts/standardize-posts.mjs
 ```
 
 To sync computed metadata (`readingTimeMin`, `searchText`, `updatedDate`) into post index JSON, run:

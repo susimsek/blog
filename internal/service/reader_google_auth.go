@@ -26,6 +26,11 @@ type readerGoogleTokenResponse struct {
 	AccessToken string `json:"access_token"`
 }
 
+const (
+	readerGoogleUnavailableMessage = "google login is unavailable"
+	readerGoogleInvalidMessage     = "google account is invalid"
+)
+
 func ResolveReaderGoogleIdentityFromCode(ctx context.Context, code, redirectURI string) (*ReaderGoogleIdentity, error) {
 	config := appconfig.ResolveReaderGoogleConfig()
 	if !config.Enabled() {
@@ -46,24 +51,24 @@ func ResolveReaderGoogleIdentityFromCode(ctx context.Context, code, redirectURI 
 		strings.NewReader(form.Encode()),
 	)
 	if err != nil {
-		return nil, apperrors.ServiceUnavailable("google login is unavailable", err)
+		return nil, apperrors.ServiceUnavailable(readerGoogleUnavailableMessage, err)
 	}
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
-		return nil, apperrors.ServiceUnavailable("google login is unavailable", err)
+		return nil, apperrors.ServiceUnavailable(readerGoogleUnavailableMessage, err)
 	}
 	defer func() {
 		_ = response.Body.Close()
 	}()
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
-		return nil, apperrors.ServiceUnavailable("google login is unavailable", nil)
+		return nil, apperrors.ServiceUnavailable(readerGoogleUnavailableMessage, nil)
 	}
 
 	var tokenPayload readerGoogleTokenResponse
 	if err := json.NewDecoder(response.Body).Decode(&tokenPayload); err != nil || strings.TrimSpace(tokenPayload.AccessToken) == "" {
-		return nil, apperrors.ServiceUnavailable("google login is unavailable", err)
+		return nil, apperrors.ServiceUnavailable(readerGoogleUnavailableMessage, err)
 	}
 
 	userInfoRequest, err := http.NewRequestWithContext(
@@ -73,19 +78,19 @@ func ResolveReaderGoogleIdentityFromCode(ctx context.Context, code, redirectURI 
 		nil,
 	)
 	if err != nil {
-		return nil, apperrors.ServiceUnavailable("google login is unavailable", err)
+		return nil, apperrors.ServiceUnavailable(readerGoogleUnavailableMessage, err)
 	}
 	userInfoRequest.Header.Set("Authorization", "Bearer "+strings.TrimSpace(tokenPayload.AccessToken))
 
 	userInfoResponse, err := http.DefaultClient.Do(userInfoRequest)
 	if err != nil {
-		return nil, apperrors.ServiceUnavailable("google login is unavailable", err)
+		return nil, apperrors.ServiceUnavailable(readerGoogleUnavailableMessage, err)
 	}
 	defer func() {
 		_ = userInfoResponse.Body.Close()
 	}()
 	if userInfoResponse.StatusCode < http.StatusOK || userInfoResponse.StatusCode >= http.StatusMultipleChoices {
-		return nil, apperrors.ServiceUnavailable("google login is unavailable", nil)
+		return nil, apperrors.ServiceUnavailable(readerGoogleUnavailableMessage, nil)
 	}
 
 	var payload struct {
@@ -96,7 +101,7 @@ func ResolveReaderGoogleIdentityFromCode(ctx context.Context, code, redirectURI 
 		Picture       string `json:"picture"`
 	}
 	if err := json.NewDecoder(userInfoResponse.Body).Decode(&payload); err != nil {
-		return nil, apperrors.ServiceUnavailable("google login is unavailable", err)
+		return nil, apperrors.ServiceUnavailable(readerGoogleUnavailableMessage, err)
 	}
 
 	identity := &ReaderGoogleIdentity{
@@ -107,7 +112,7 @@ func ResolveReaderGoogleIdentityFromCode(ctx context.Context, code, redirectURI 
 		AvatarURL:     sanitizeReaderAvatarURL(payload.Picture),
 	}
 	if identity.Subject == "" || identity.Email == "" || !identity.EmailVerified {
-		return nil, apperrors.BadRequest("google account is invalid")
+		return nil, apperrors.BadRequest(readerGoogleInvalidMessage)
 	}
 
 	return identity, nil
@@ -120,7 +125,7 @@ func LoginReaderWithGoogleIdentity(
 	metadata ReaderSessionMetadata,
 ) (*ReaderAuthResponse, error) {
 	if identity == nil {
-		return nil, apperrors.BadRequest("google account is invalid")
+		return nil, apperrors.BadRequest(readerGoogleInvalidMessage)
 	}
 
 	config := appconfig.ResolveReaderConfig()

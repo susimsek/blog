@@ -618,3 +618,124 @@ func TestRequestAdminEmailChangeFailsWhenConfirmationMailCannotBeSent(t *testing
 		t.Fatalf("pending request should be cleared on failure")
 	}
 }
+
+func TestAdminEmailChangeHelpersHandleValidationAndInvalidStates(t *testing.T) {
+	t.Run("resolve target rejects current and taken email", func(t *testing.T) {
+		previousUsersRepo := adminUsersRepository
+		t.Cleanup(func() {
+			adminUsersRepository = previousUsersRepo
+		})
+
+		current := &domain.AdminUserRecord{
+			AdminUser: domain.AdminUser{
+				ID:    "admin-1",
+				Email: "admin@example.com",
+			},
+		}
+		taken := &domain.AdminUserRecord{
+			AdminUser: domain.AdminUser{
+				ID:    "admin-2",
+				Email: "taken@example.com",
+			},
+		}
+		repo := newAdminAuthEmailChangeStubUserRepository(current)
+		repo.byID[taken.ID] = taken
+		repo.byEmail[taken.Email] = taken
+		adminUsersRepository = repo
+
+		if _, err := resolveAdminEmailChangeTarget(context.Background(), current, "admin@example.com"); err == nil {
+			t.Fatal("expected same email rejection")
+		}
+		if _, err := resolveAdminEmailChangeTarget(context.Background(), current, "taken@example.com"); err == nil {
+			t.Fatal("expected taken email rejection")
+		}
+		resolved, err := resolveAdminEmailChangeTarget(context.Background(), current, " New-Admin@Example.com ")
+		if err != nil || resolved != "new-admin@example.com" {
+			t.Fatalf("unexpected resolved target: %q err=%v", resolved, err)
+		}
+	})
+
+	t.Run("build request returns config errors", func(t *testing.T) {
+		previousResolveSiteURLFn := resolveSiteURLFn
+		previousResolveMailConfigFn := resolveMailConfigFn
+		previousGenerateConfirmTokenFn := generateConfirmTokenFn
+		t.Cleanup(func() {
+			resolveSiteURLFn = previousResolveSiteURLFn
+			resolveMailConfigFn = previousResolveMailConfigFn
+			generateConfirmTokenFn = previousGenerateConfirmTokenFn
+		})
+
+		resolveSiteURLFn = func() (string, error) { return "", errors.New("missing") }
+		if _, err := buildAdminEmailChangeRequest("new@example.com", "en"); err == nil {
+			t.Fatal("expected site url config error")
+		}
+
+		resolveSiteURLFn = func() (string, error) { return "https://example.com", nil }
+		resolveMailConfigFn = func() (appconfig.MailConfig, error) { return appconfig.MailConfig{}, errors.New("missing") }
+		if _, err := buildAdminEmailChangeRequest("new@example.com", "en"); err == nil {
+			t.Fatal("expected mail config error")
+		}
+
+		resolveMailConfigFn = func() (appconfig.MailConfig, error) { return appconfig.MailConfig{}, nil }
+		generateConfirmTokenFn = func() (string, error) { return "", errors.New("boom") }
+		if _, err := buildAdminEmailChangeRequest("new@example.com", "en"); err == nil {
+			t.Fatal("expected token generation error")
+		}
+	})
+
+	t.Run("request and confirm handle auth and invalid links", func(t *testing.T) {
+		if _, err := RequestAdminEmailChange(context.Background(), nil, "new@example.com", "password", "en"); err == nil {
+			t.Fatal("expected auth error")
+		}
+		if _, err := RequestAdminEmailChange(context.Background(), &domain.AdminUser{ID: "admin-1"}, "new@example.com", "", "en"); err == nil {
+			t.Fatal("expected current password required error")
+		}
+		result, err := ConfirmAdminEmailChange(context.Background(), "", "tr")
+		if err != nil {
+			t.Fatalf("ConfirmAdminEmailChange returned error: %v", err)
+		}
+		if result == nil || result.Status != "invalid-link" || result.Locale != "tr" {
+			t.Fatalf("unexpected invalid-link result: %#v", result)
+		}
+	})
+}
+
+func TestAdminAuthMailHelpersExecuteTemplateAndMailerPath(t *testing.T) {
+	mailCfg := appconfig.MailConfig{
+		Host:     "127.0.0.1",
+		Port:     "1",
+		Username: "admin@example.com",
+		Password: "secret",
+		FromName: "Blog",
+		FromMail: "admin@example.com",
+	}
+
+	if err := sendAdminEmailChangeConfirmationEmail(
+		mailCfg,
+		"new-admin@example.com",
+		"https://example.com/confirm",
+		"en",
+		"https://example.com",
+	); err == nil {
+		t.Fatal("expected confirmation mail transport error")
+	}
+
+	if err := sendAdminEmailChangeNoticeEmail(
+		mailCfg,
+		"admin@example.com",
+		"tr",
+		"https://example.com",
+	); err == nil {
+		t.Fatal("expected notice mail transport error")
+	}
+
+	if err := sendAdminPasswordResetEmail(
+		mailCfg,
+		"admin@example.com",
+		"https://example.com/en/admin/reset-password?token=abc",
+		"en",
+		"https://example.com",
+	); err == nil {
+		t.Fatal("expected password reset mail transport error")
+	}
+}

@@ -513,6 +513,17 @@
             "likes": "Beğeni",
             "comments": "Yorum"
           },
+          "seo": {
+            "title": "SEO ve sosyal önizleme",
+            "copy": "Metadata değişikliklerini yayınlamadan önce bu postun sosyal kartlarda nasıl görüneceğini kontrol et.",
+            "openGraphTitle": "Open Graph önizlemesi",
+            "twitterTitle": "X önizlemesi",
+            "canonicalLabel": "Canonical",
+            "creatorLabel": "Oluşturan",
+            "authorLabel": "Yazar",
+            "placeholderTitle": "Başlıksız post",
+            "placeholderDescription": "Sosyal kart önizlemesi için bir açıklama ekleyin."
+          },
           "category": "Kategori",
           "categoryNone": "Kategori yok",
           "metadataFields": {

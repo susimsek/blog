@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Code Change Verification'
+  short_description: 'Run the right verification stack before handoff'
+  default_prompt: 'Use $code-change-verification to choose and run the required verification commands for the files changed in this repo.'

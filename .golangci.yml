@@ -3,6 +3,7 @@ version: '2'
 run:
   timeout: 10m
   modules-download-mode: readonly
+  relative-path-mode: gomod
 
 issues:
   max-issues-per-linter: 0
@@ -15,6 +16,8 @@ formatters:
   enable:
     - gofumpt
     - goimports
+  exclusions:
+    warn-unused: true
   settings:
     gofumpt:
       extra-rules: true
@@ -26,7 +29,9 @@ linters:
   default: none
   enable:
     - bodyclose
+    - copyloopvar
     - depguard
+    - dupword
     - errcheck
     - errorlint
     - govet
@@ -39,14 +44,10 @@ linters:
     - testifylint
     - unconvert
     - unused
+    - usestdlibvars
   exclusions:
     generated: lax
-    paths:
-      - node_modules
-      - public
-      - third_party$
-      - builtin$
-      - examples$
+    warn-unused: true
     rules:
       - path: _test\.go
         linters:

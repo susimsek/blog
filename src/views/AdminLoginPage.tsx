@@ -22,10 +22,12 @@ import { defaultLocale } from '@/i18n/settings';
 import { useAppSelector } from '@/config/store';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
 import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
+import { writeAdminSessionProfileCache } from '@/lib/adminSessionProfileCache';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function AdminLoginPage() {
+  // NOSONAR
   const { t } = useTranslation(['admin-login', 'admin-common']);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -221,17 +223,18 @@ export default function AdminLoginPage() {
         if (!payload.success) {
           throw new Error(t('adminLogin.errorFallback', { ns: 'admin-login' }));
         }
+        writeAdminSessionProfileCache(payload.user ?? null);
         router.replace(`/${locale}/admin`);
       } catch (error) {
         const resolvedError = resolveAdminError(error);
         if (resolvedError.kind === 'network') {
           setErrorMessage(t('adminCommon.errors.network', { ns: 'admin-common' }));
         } else {
-          setErrorMessage(
-            resolvedError.message.trim() !== ''
-              ? resolvedError.message
-              : t('adminLogin.errorFallback', { ns: 'admin-login' }),
-          );
+          const displayErrorMessage =
+            resolvedError.message.trim() === ''
+              ? t('adminLogin.errorFallback', { ns: 'admin-login' })
+              : resolvedError.message;
+          setErrorMessage(displayErrorMessage);
         }
       } finally {
         setIsSubmitting(false);

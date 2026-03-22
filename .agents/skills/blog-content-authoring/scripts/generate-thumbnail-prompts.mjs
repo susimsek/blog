@@ -61,7 +61,7 @@ const main = async () => {
     process.stdout.write(
       [
         'Usage:',
-        '  node .codex/skills/blog-content-authoring/scripts/generate-thumbnail-prompts.mjs',
+        '  node .agents/skills/blog-content-authoring/scripts/generate-thumbnail-prompts.mjs',
         '',
         'Notes:',
         '  Generates one JSONL line per post with a single Irem-themed prompt.',

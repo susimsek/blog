@@ -6,6 +6,7 @@ const devApiOrigin = process.env.NEXT_PUBLIC_DEV_API_ORIGIN ?? 'http://localhost
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  devIndicators: false,
   trailingSlash: false,
   distDir: 'build',
   output: 'export',

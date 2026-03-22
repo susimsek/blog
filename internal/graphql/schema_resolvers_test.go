@@ -2,9 +2,11 @@ package graphql
 
 import (
 	"context"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/graphql/model"
 	appservice "suaybsimsek.com/blog-api/internal/service"
 )
@@ -110,7 +112,7 @@ func TestMutationResolverMetricsAndNewsletter(t *testing.T) {
 	confirmFn = func(context.Context, string) appservice.Result { return appservice.Result{Status: "expired"} }
 	unsubscribeFn = func(context.Context, string) appservice.Result { return appservice.Result{Status: "success"} }
 
-	request := httptest.NewRequest("POST", "/graphql", nil)
+	request := httptest.NewRequest(http.MethodPost, "/graphql", nil)
 	request.RemoteAddr = "203.0.113.5:8080"
 	request.Header.Set("Accept-Language", "tr-TR")
 	ctx := WithRequestMetadata(context.Background(), request)
@@ -165,5 +167,91 @@ func TestMutationResolverMetricsAndNewsletter(t *testing.T) {
 
 	if (&Resolver{}).Mutation() == nil || (&Resolver{}).Query() == nil {
 		t.Fatal("expected resolver accessors")
+	}
+}
+
+func TestQueryResolverComments(t *testing.T) {
+	originalListCommentsFn := listCommentsFn
+	t.Cleanup(func() {
+		listCommentsFn = originalListCommentsFn
+	})
+
+	listCommentsFn = func(_ context.Context, input appservice.CommentQueryInput) domain.CommentListResult {
+		if input.PostID != "alpha-post" {
+			t.Fatalf("unexpected comment query input: %#v", input)
+		}
+		return domain.CommentListResult{
+			Status: "success",
+			PostID: "alpha-post",
+			Total:  1,
+			Comments: []domain.CommentRecord{{
+				ID:         "comment-1",
+				PostID:     "alpha-post",
+				AuthorName: "Reader",
+				Content:    "Hello",
+				Status:     "approved",
+			}},
+		}
+	}
+
+	result, err := (&queryResolver{&Resolver{}}).Comments(context.Background(), " alpha-post ")
+	if err != nil {
+		t.Fatalf("Comments() error = %v", err)
+	}
+	if result.PostID != "alpha-post" || result.Total != 1 || len(result.Threads) != 1 || result.Threads[0].Root == nil || result.Threads[0].Root.ID != "comment-1" {
+		t.Fatalf("Comments() result = %#v", result)
+	}
+}
+
+func TestMutationResolverAddCommentAndReaderHelpers(t *testing.T) {
+	originalAddCommentFn := addCommentFn
+	t.Cleanup(func() {
+		addCommentFn = originalAddCommentFn
+	})
+
+	request := httptest.NewRequest(http.MethodPost, "/graphql", nil)
+	request.RemoteAddr = "203.0.113.7:8080"
+	request.Header.Set("X-Forwarded-For", "198.51.100.24, 203.0.113.7")
+	request.Header.Set("Accept-Language", "tr-TR")
+	request.Header.Set("User-Agent", "Mozilla/5.0")
+
+	ctx := WithRequestMetadata(context.Background(), request)
+	ctx = context.WithValue(ctx, readerUserContextKey{}, &domain.ReaderUser{
+		Name:      " Reader User ",
+		Email:     " reader@example.com ",
+		AvatarURL: " https://example.com/avatar.png ",
+	})
+
+	addCommentFn = func(_ context.Context, input appservice.AddCommentInput, meta appservice.RequestMetadata) domain.CommentMutationResult {
+		if input.PostID != "alpha-post" || input.ParentID != "comment-root" || input.AuthorName != "Guest Reader" || input.AuthorEmail != "guest@example.com" || input.AuthenticatedAuthorName != "Reader User" || input.AuthenticatedAuthorEmail != "reader@example.com" || input.AuthenticatedAuthorAvatarURL != "https://example.com/avatar.png" || input.Content != "Hello there" {
+			t.Fatalf("unexpected add comment input: %#v", input)
+		}
+		if meta.ClientIP != "198.51.100.24" || meta.UserAgent != "Mozilla/5.0" || meta.AcceptLanguage != "tr-TR" {
+			t.Fatalf("unexpected request metadata: %#v", meta)
+		}
+		return domain.CommentMutationResult{
+			Status:           "success",
+			PostID:           "alpha-post",
+			ModerationStatus: "pending",
+		}
+	}
+
+	parentID := " comment-root "
+	result, err := (&mutationResolver{&Resolver{}}).AddComment(ctx, model.AddCommentInput{
+		PostID:      " alpha-post ",
+		ParentID:    &parentID,
+		AuthorName:  " Guest Reader ",
+		AuthorEmail: " guest@example.com ",
+		Content:     "Hello there",
+	})
+	if err != nil {
+		t.Fatalf("AddComment() error = %v", err)
+	}
+	if result.PostID != "alpha-post" || result.Status != model.CommentMutationStatusSuccess || result.ModerationStatus == nil || *result.ModerationStatus != model.CommentModerationStatusPending {
+		t.Fatalf("AddComment() result = %#v", result)
+	}
+
+	if toOptionalReaderName(nil) != "" || toOptionalReaderEmail(nil) != "" || toOptionalReaderAvatarURL(nil) != "" {
+		t.Fatal("expected nil reader helpers to return empty strings")
 	}
 }

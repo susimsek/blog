@@ -79,7 +79,7 @@ const usage = () => {
   console.log(
     [
       'Usage:',
-      '  node .codex/skills/blog-content-authoring/scripts/make-thumbnail-cloudinary.mjs \\',
+      '  node .agents/skills/blog-content-authoring/scripts/make-thumbnail-cloudinary.mjs \\',
       '    --in <local-file-or-remote-image-url> \\',
       '    --out public/images/<slug>-thumbnail.webp \\',
       '    --cloud-name <cloud_name> \\',

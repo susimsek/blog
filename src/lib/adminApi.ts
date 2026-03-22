@@ -121,6 +121,15 @@ export type AdminCommentItem = {
   updatedAt: string;
 };
 
+type AdminCommentFilterStatus = AdminCommentItem['status'];
+type AdminCommentsFilter = {
+  status?: AdminCommentFilterStatus;
+  postId?: string;
+  query?: string;
+  page?: number;
+  size?: number;
+};
+
 type AdminCommentsPayload = {
   comments: {
     items: AdminCommentItem[];
@@ -128,6 +137,10 @@ type AdminCommentsPayload = {
     page: number;
     size: number;
   };
+};
+
+type AdminCommentsQueryVariables = {
+  filter?: AdminCommentsFilter;
 };
 
 type AdminUpdateCommentStatusPayload = {
@@ -138,6 +151,22 @@ type AdminDeleteCommentPayload = {
   deleteComment: {
     success: boolean;
   };
+};
+
+type AdminContentSourceFilter = 'blog' | 'medium';
+type AdminContentPostsFilter = {
+  locale?: string;
+  preferredLocale?: string;
+  source?: AdminContentSourceFilter;
+  query?: string;
+  categoryId?: string;
+  topicId?: string;
+  page?: number;
+  size?: number;
+};
+
+type AdminContentPostsQueryVariables = {
+  filter?: AdminContentPostsFilter;
 };
 
 type AdminBulkCommentMutationPayload = {
@@ -213,6 +242,26 @@ type AdminDisconnectGithubPayload = {
 type AdminDeleteAccountPayload = {
   deleteAccount: {
     success: boolean;
+  };
+};
+
+type AdminNewsletterSubscriberFilterStatus = 'pending' | 'active' | 'unsubscribed';
+type AdminNewsletterSubscriberStatus = 'PENDING' | 'ACTIVE' | 'UNSUBSCRIBED';
+type AdminNewsletterSubscribersFilter = {
+  locale?: string;
+  status?: AdminNewsletterSubscriberFilterStatus;
+  query?: string;
+  page?: number;
+  size?: number;
+};
+
+type AdminNewsletterSubscribersQueryVariables = {
+  filter?: {
+    locale?: string;
+    status?: AdminNewsletterSubscriberStatus;
+    query?: string;
+    page?: number;
+    size?: number;
   };
 };
 
@@ -1069,8 +1118,8 @@ const ADMIN_CONTENT_POST_QUERY = gql`
 `;
 
 const ADMIN_CONTENT_TOPICS_QUERY = gql`
-  query AdminContentTopics($locale: String) {
-    contentTopics(locale: $locale) {
+  query AdminContentTopics($locale: String, $query: String) {
+    contentTopics(locale: $locale, query: $query) {
       locale
       id
       name
@@ -1825,18 +1874,16 @@ const getAdminClient = () => {
 let inFlightAdminRefresh: Promise<void> | null = null;
 
 const refreshAdminSessionOnce = async () => {
-  if (!inFlightAdminRefresh) {
-    inFlightAdminRefresh = (async () => {
-      try {
-        await executeAdminGraphQL<AdminRefreshPayload>(ADMIN_REFRESH_MUTATION, undefined, {
-          retryOnUnauthorized: false,
-          operationName: 'AdminRefreshSession',
-        });
-      } finally {
-        inFlightAdminRefresh = null;
-      }
-    })();
-  }
+  inFlightAdminRefresh ??= (async () => {
+    try {
+      await executeAdminGraphQL<AdminRefreshPayload>(ADMIN_REFRESH_MUTATION, undefined, {
+        retryOnUnauthorized: false,
+        operationName: 'AdminRefreshSession',
+      });
+    } finally {
+      inFlightAdminRefresh = null;
+    }
+  })();
 
   await inFlightAdminRefresh;
 };
@@ -1971,39 +2018,48 @@ export const fetchAdminDashboard = async () => {
   return payload.dashboard;
 };
 
-export const fetchAdminComments = async (filter?: {
-  status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM';
-  postId?: string;
-  query?: string;
-  page?: number;
-  size?: number;
-}) => {
-  const payload = await executeAdminGraphQL<
-    AdminCommentsPayload,
-    {
-      filter?: {
-        status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM';
-        postId?: string;
-        query?: string;
-        page?: number;
-        size?: number;
-      };
-    }
-  >(ADMIN_COMMENTS_QUERY, filter ? { filter } : undefined, { operationName: 'AdminComments' });
+const resolveAdminContentSourceFilter = (source: string): AdminContentSourceFilter | undefined => {
+  if (source === 'medium') {
+    return 'medium';
+  }
+  if (source === 'blog') {
+    return 'blog';
+  }
+
+  return undefined;
+};
+
+const resolveAdminNewsletterSubscriberStatus = (status: string): AdminNewsletterSubscriberStatus | undefined => {
+  if (status === 'active') {
+    return 'ACTIVE';
+  }
+  if (status === 'unsubscribed') {
+    return 'UNSUBSCRIBED';
+  }
+  if (status === 'pending') {
+    return 'PENDING';
+  }
+
+  return undefined;
+};
+
+export const fetchAdminComments = async (filter?: AdminCommentsFilter) => {
+  const payload = await executeAdminGraphQL<AdminCommentsPayload, AdminCommentsQueryVariables>(
+    ADMIN_COMMENTS_QUERY,
+    filter ? { filter } : undefined,
+    { operationName: 'AdminComments' },
+  );
 
   return payload.comments;
 };
 
-export const updateAdminCommentStatus = async (input: {
-  commentId: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM';
-}) => {
+export const updateAdminCommentStatus = async (input: { commentId: string; status: AdminCommentFilterStatus }) => {
   const payload = await executeAdminGraphQL<
     AdminUpdateCommentStatusPayload,
     {
       input: {
         commentId: string;
-        status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM';
+        status: AdminCommentFilterStatus;
       };
     }
   >(ADMIN_UPDATE_COMMENT_STATUS_MUTATION, { input }, { operationName: 'AdminUpdateCommentStatus' });
@@ -2254,21 +2310,11 @@ export const revokeAllAdminSessions = async () => {
   return payload.revokeAllSessions?.success === true;
 };
 
-export const fetchAdminContentPosts = async (filter?: {
-  locale?: string;
-  preferredLocale?: string;
-  source?: 'blog' | 'medium';
-  query?: string;
-  categoryId?: string;
-  topicId?: string;
-  page?: number;
-  size?: number;
-}) => {
+export const fetchAdminContentPosts = async (filter?: AdminContentPostsFilter) => {
   const resolvedLocale = filter?.locale?.trim().toLowerCase() ?? '';
   const resolvedPreferredLocale = filter?.preferredLocale?.trim().toLowerCase() ?? '';
   const resolvedSourceRaw = filter?.source?.trim().toLowerCase() ?? '';
-  const resolvedSource: 'blog' | 'medium' | '' =
-    resolvedSourceRaw === 'medium' ? 'medium' : resolvedSourceRaw === 'blog' ? 'blog' : '';
+  const resolvedSource = resolveAdminContentSourceFilter(resolvedSourceRaw);
   const resolvedQuery = filter?.query?.trim() ?? '';
   const resolvedCategoryID = filter?.categoryId?.trim().toLowerCase() ?? '';
   const resolvedTopicID = filter?.topicId?.trim().toLowerCase() ?? '';
@@ -2276,21 +2322,7 @@ export const fetchAdminContentPosts = async (filter?: {
   const resolvedSize =
     filter?.size && Number.isFinite(filter.size) && filter.size > 0 ? Math.trunc(filter.size) : undefined;
 
-  const payload = await executeAdminGraphQL<
-    AdminContentPostsPayload,
-    {
-      filter?: {
-        locale?: string;
-        preferredLocale?: string;
-        source?: 'blog' | 'medium';
-        query?: string;
-        categoryId?: string;
-        topicId?: string;
-        page?: number;
-        size?: number;
-      };
-    }
-  >(
+  const payload = await executeAdminGraphQL<AdminContentPostsPayload, AdminContentPostsQueryVariables>(
     ADMIN_CONTENT_POSTS_QUERY,
     {
       filter: {
@@ -2337,17 +2369,20 @@ export const fetchAdminContentPost = async (input: { locale: string; id: string 
   return payload.contentPost;
 };
 
-export const fetchAdminContentTopics = async (locale?: string) => {
+export const fetchAdminContentTopics = async (locale?: string, query?: string) => {
   const resolvedLocale = locale?.trim().toLowerCase() ?? '';
+  const resolvedQuery = query?.trim() ?? '';
   const payload = await executeAdminGraphQL<
     AdminContentTopicsPayload,
     {
       locale?: string;
+      query?: string;
     }
   >(
     ADMIN_CONTENT_TOPICS_QUERY,
     {
       ...(resolvedLocale ? { locale: resolvedLocale } : {}),
+      ...(resolvedQuery ? { query: resolvedQuery } : {}),
     },
     {
       operationName: 'AdminContentTopics',
@@ -2938,13 +2973,7 @@ export const deleteAdminErrorMessage = async (input: { scope?: string | null; lo
   return payload.deleteErrorMessage?.success === true;
 };
 
-export const fetchAdminNewsletterSubscribers = async (filter?: {
-  locale?: string;
-  status?: 'pending' | 'active' | 'unsubscribed';
-  query?: string;
-  page?: number;
-  size?: number;
-}) => {
+export const fetchAdminNewsletterSubscribers = async (filter?: AdminNewsletterSubscribersFilter) => {
   const resolvedLocale = filter?.locale?.trim().toLowerCase() ?? '';
   const resolvedStatus = filter?.status?.trim().toLowerCase() ?? '';
   const resolvedQuery = filter?.query?.trim() ?? '';
@@ -2952,26 +2981,11 @@ export const fetchAdminNewsletterSubscribers = async (filter?: {
   const resolvedSize =
     filter?.size && Number.isFinite(filter.size) && filter.size > 0 ? Math.trunc(filter.size) : undefined;
 
-  const statusEnum =
-    resolvedStatus === 'active'
-      ? 'ACTIVE'
-      : resolvedStatus === 'unsubscribed'
-        ? 'UNSUBSCRIBED'
-        : resolvedStatus === 'pending'
-          ? 'PENDING'
-          : undefined;
+  const statusEnum = resolveAdminNewsletterSubscriberStatus(resolvedStatus);
 
   const payload = await executeAdminGraphQL<
     AdminNewsletterSubscribersPayload,
-    {
-      filter?: {
-        locale?: string;
-        status?: 'PENDING' | 'ACTIVE' | 'UNSUBSCRIBED';
-        query?: string;
-        page?: number;
-        size?: number;
-      };
-    }
+    AdminNewsletterSubscribersQueryVariables
   >(
     ADMIN_NEWSLETTER_SUBSCRIBERS_QUERY,
     {

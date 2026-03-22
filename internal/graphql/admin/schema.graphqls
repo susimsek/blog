@@ -14,13 +14,15 @@ type AdminQuery {
   activeSessions: [AdminSession!]!
   newsletterSubscribers(filter: AdminNewsletterSubscriberFilterInput): AdminNewsletterSubscriberListPayload!
   newsletterCampaigns(filter: AdminNewsletterCampaignFilterInput): AdminNewsletterCampaignListPayload!
-  newsletterCampaignFailures(filter: AdminNewsletterDeliveryFailureFilterInput!): AdminNewsletterDeliveryFailureListPayload!
+  newsletterCampaignFailures(
+    filter: AdminNewsletterDeliveryFailureFilterInput!
+  ): AdminNewsletterDeliveryFailureListPayload!
   errorMessages(filter: AdminErrorMessageFilterInput): AdminErrorMessageListPayload!
   contentPosts(filter: AdminContentPostFilterInput): AdminContentPostListPayload!
   contentPost(input: AdminContentEntityKeyInput!): AdminContentPost
   contentTopicsPage(filter: AdminContentTaxonomyFilterInput): AdminContentTopicListPayload!
   contentCategoriesPage(filter: AdminContentTaxonomyFilterInput): AdminContentCategoryListPayload!
-  contentTopics(locale: String): [AdminContentTopic!]!
+  contentTopics(locale: String, query: String): [AdminContentTopic!]!
   contentCategories(locale: String): [AdminContentCategory!]!
   errorMessageAuditLogs(limit: Int): [AdminErrorMessageAuditLog!]!
 }

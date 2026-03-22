@@ -19,6 +19,7 @@ export type AdminMarkdownEditorViewport = {
 };
 
 const LINE_SPLIT_REGEX = /\r\n|\r|\n/;
+const getCharacterCode = (text: string, index: number) => text.codePointAt(index) ?? -1;
 
 export default function AdminMarkdownEditor({
   id,
@@ -33,6 +34,7 @@ export default function AdminMarkdownEditor({
   const textareaRef = React.useRef<HTMLTextAreaElement | null>(null);
   const gutterRef = React.useRef<HTMLDivElement | null>(null);
   const [activeLine, setActiveLine] = React.useState<number | null>(null);
+  const formGroupClassName = ['h-100', 'd-flex', 'flex-column', className].filter(Boolean).join(' ');
 
   const lineNumbers = React.useMemo(() => {
     const total = Math.max(rows, value.split(LINE_SPLIT_REGEX).length);
@@ -54,7 +56,7 @@ export default function AdminMarkdownEditor({
     if (safeEnd > safeStart) {
       const previousIndex = safeEnd - 1;
       if (previousIndex >= 0) {
-        const previousCharCode = text.charCodeAt(previousIndex);
+        const previousCharCode = getCharacterCode(text, previousIndex);
         if (previousCharCode === 10 || previousCharCode === 13) {
           caretPosition = previousIndex;
         }
@@ -71,9 +73,9 @@ export default function AdminMarkdownEditor({
 
     let currentLine = 1;
     for (let index = 0; index < text.length; index += 1) {
-      const charCode = text.charCodeAt(index);
+      const charCode = getCharacterCode(text, index);
       if (charCode === 13) {
-        if (text.charCodeAt(index + 1) === 10) {
+        if (getCharacterCode(text, index + 1) === 10) {
           index += 1;
         }
         currentLine += 1;
@@ -158,7 +160,7 @@ export default function AdminMarkdownEditor({
         return;
       }
 
-      const style = window.getComputedStyle(textarea);
+      const style = globalThis.window.getComputedStyle(textarea);
       const lineHeight = Number.parseFloat(style.lineHeight) || Number.parseFloat(style.fontSize) * 1.58 || 24;
       const paddingTop = Number.parseFloat(style.paddingTop) || 0;
       const gutterRect = gutter.getBoundingClientRect();
@@ -175,7 +177,7 @@ export default function AdminMarkdownEditor({
   );
 
   return (
-    <Form.Group className={`h-100 d-flex flex-column${className ? ` ${className}` : ''}`} controlId={id}>
+    <Form.Group className={formGroupClassName} controlId={id}>
       <Form.Label>{label}</Form.Label>
       <div className="admin-markdown-editor-shell">
         <div

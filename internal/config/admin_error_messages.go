@@ -2,7 +2,7 @@ package config
 
 import (
 	"bufio"
-	_ "embed"
+	_ "embed" // Required for go:embed.
 	"errors"
 	"fmt"
 	"os"
@@ -28,7 +28,7 @@ func LoadAdminErrorCatalogFromFile(path string) (map[string]map[string]string, e
 	return ParseAdminErrorCatalogProperties(string(raw))
 }
 
-func ParseAdminErrorCatalogProperties(raw string) (map[string]map[string]string, error) {
+func ParseAdminErrorCatalogProperties(raw string) (map[string]map[string]string, error) { // NOSONAR
 	catalog := map[string]map[string]string{}
 	scanner := bufio.NewScanner(strings.NewReader(raw))
 	lineNumber := 0

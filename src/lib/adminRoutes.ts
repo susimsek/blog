@@ -26,5 +26,15 @@ export const ADMIN_ROUTES = {
 
 export const withAdminLocalePath = (locale: string, route: string) => `/${locale}${route}`;
 
+export type AdminContentPostDetailTabRoute = 'metadata' | 'content' | 'comments';
+
 export const buildAdminContentPostDetailRoute = (postLocale: string, postId: string) =>
   `${ADMIN_ROUTES.settings.content}/posts/${encodeURIComponent(postLocale.trim().toLowerCase())}/${encodeURIComponent(postId)}`;
+
+export const buildAdminContentPostDetailHash = (tab: AdminContentPostDetailTabRoute = 'metadata') => `#${tab}`;
+
+export const buildAdminContentPostDetailHref = (
+  postLocale: string,
+  postId: string,
+  tab: AdminContentPostDetailTabRoute = 'metadata',
+) => `${buildAdminContentPostDetailRoute(postLocale, postId)}${buildAdminContentPostDetailHash(tab)}`;

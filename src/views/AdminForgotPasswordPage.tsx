@@ -15,6 +15,18 @@ import { requestAdminPasswordReset, resolveAdminPasswordResetError } from '@/lib
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 
+const resolveEmailError = (email: string, t: ReturnType<typeof useTranslation>['t']) => {
+  if (email === '') {
+    return t('adminPasswordReset.request.validation.emailRequired');
+  }
+
+  if (EMAIL_PATTERN.test(email) === false) {
+    return t('adminPasswordReset.request.validation.emailInvalid');
+  }
+
+  return '';
+};
+
 export default function AdminForgotPasswordPage() {
   const { t } = useTranslation('admin-password-reset');
   const params = useParams<{ locale?: string | string[] }>();
@@ -31,24 +43,23 @@ export default function AdminForgotPasswordPage() {
   const [showSuccessMessage, setShowSuccessMessage] = React.useState(false);
 
   const trimmedEmail = email.trim();
-  const emailError =
-    trimmedEmail === ''
-      ? t('adminPasswordReset.request.validation.emailRequired')
-      : !EMAIL_PATTERN.test(trimmedEmail)
-        ? t('adminPasswordReset.request.validation.emailInvalid')
-        : '';
+  const emailError = resolveEmailError(trimmedEmail, t);
   const showEmailError = (hasSubmitted || hasTouchedEmail) && emailError !== '';
   const resolveDisplayError = React.useCallback(
     (code: string, fallbackMessage: string) => {
       const translationKey = `adminPasswordReset.errors.codes.${code}`;
       const translated = t(translationKey);
-      return translated !== translationKey ? translated : fallbackMessage;
+      if (translated === translationKey) {
+        return fallbackMessage;
+      }
+
+      return translated;
     },
     [t],
   );
 
   const handleSubmit = React.useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
+    async (event: React.SyntheticEvent<HTMLFormElement>) => {
       event.preventDefault();
       if (isSubmitting) {
         return;
@@ -81,7 +92,7 @@ export default function AdminForgotPasswordPage() {
   );
 
   React.useEffect(() => {
-    if (!showSuccessMessage) {
+    if (showSuccessMessage === false) {
       return;
     }
 
@@ -156,17 +167,15 @@ export default function AdminForgotPasswordPage() {
                     disabled={isSubmitting || isSuccess}
                   >
                     {isSubmitting ? (
-                      <>
+                      <span className="d-inline-flex align-items-center">
                         <Spinner as="span" animation="border" size="sm" className="me-2" aria-hidden="true" />
                         <span className="read-more-label">{t('adminPasswordReset.request.submitting')}</span>
-                      </>
+                      </span>
                     ) : (
-                      <>
-                        <span className="read-more-label d-inline-flex align-items-center justify-content-center gap-2">
-                          <FontAwesomeIcon icon="paper-plane" />
-                          <span>{t('adminPasswordReset.request.submit')}</span>
-                        </span>
-                      </>
+                      <span className="read-more-label d-inline-flex align-items-center justify-content-center gap-2">
+                        <FontAwesomeIcon icon="paper-plane" />
+                        <span>{t('adminPasswordReset.request.submit')}</span>
+                      </span>
                     )}
                   </Button>
                   <a href={loginHref} className="btn btn-secondary">

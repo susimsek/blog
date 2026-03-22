@@ -11096,6 +11096,55 @@ label {
   background-color: var(--input-bg-color);
 }
 
+.admin-content-seo-preview-wrap {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-content-seo-preview-card {
+  width: 100%;
+  border-color: color-mix(in srgb, var(--border-color) 84%, transparent);
+  background: color-mix(in srgb, var(--main-bg) 96%, var(--dropdown-hover-bg) 4%);
+  box-shadow: var(--box-shadow-card);
+  overflow: hidden;
+}
+
+.admin-content-seo-image-frame {
+  position: relative;
+  aspect-ratio: 1200 / 630;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--main-bg) 88%, var(--dropdown-hover-bg) 12%);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 84%, transparent);
+}
+
+.admin-content-seo-image-frame--x {
+  aspect-ratio: 1200 / 675;
+}
+
+.admin-content-seo-card-domain {
+  font-size: 0.8rem;
+  color: var(--muted-text-color);
+}
+
+.admin-content-seo-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: color-mix(in srgb, var(--active-color) 76%, var(--text-color) 24%);
+  margin-bottom: 0.35rem;
+}
+
+.admin-content-seo-card-description {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+.admin-content-seo-card-meta {
+  display: grid;
+  gap: 0.4rem;
+}
+
 .admin-markdown-editor-shell {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);

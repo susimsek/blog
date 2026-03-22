@@ -36,6 +36,55 @@ func resetNewsletterRepositoryState() {
 	newsletterIndexesErr = nil
 }
 
+func resetAdminRepositoryState() {
+	adminMongoClient = nil
+	adminMongoInitErr = nil
+	adminMongoClientOnce = sync.Once{}
+	adminUserIndexesOnce = sync.Once{}
+	adminUserIndexesErr = nil
+	readerUserIndexesOnce = sync.Once{}
+	readerUserIndexesErr = nil
+}
+
+func resetAdminRefreshTokenRepositoryState() {
+	adminRefreshTokenMongoClient = nil
+	adminRefreshTokenMongoInitErr = nil
+	adminRefreshTokenMongoClientOnce = sync.Once{}
+	adminRefreshTokenIndexesOnce = sync.Once{}
+	adminRefreshTokenIndexesErr = nil
+}
+
+func resetReaderRefreshTokenRepositoryState() {
+	readerRefreshTokenIndexesOnce = sync.Once{}
+	readerRefreshTokenIndexesErr = nil
+}
+
+func resetErrorMessageRepositoryState() {
+	errorMessageMongoClient = nil
+	errorMessageMongoInitErr = nil
+	errorMessageMongoClientOnce = sync.Once{}
+	errorMessageIndexesOnce = sync.Once{}
+	errorMessageIndexesErr = nil
+}
+
+func resetAdminAvatarRepositoryState() {
+	adminAvatarMongoClient = nil
+	adminAvatarMongoInitErr = nil
+	adminAvatarMongoClientOnce = sync.Once{}
+	adminAvatarIndexesOnce = sync.Once{}
+	adminAvatarIndexesErr = nil
+}
+
+func resetCommentRepositoryState() {
+	postCommentsIndexesOnce = sync.Once{}
+	postCommentsIndexesErr = nil
+}
+
+func markOnceDone(target *sync.Once) {
+	*target = sync.Once{}
+	target.Do(func() {})
+}
+
 type bulkWriteMock struct {
 	writeCount int
 	lastModels []mongo.WriteModel

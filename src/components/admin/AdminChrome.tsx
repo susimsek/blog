@@ -20,6 +20,12 @@ import { fetchAdminMe, logoutAdmin } from '@/lib/adminApi';
 import { withAdminAvatarSize } from '@/lib/adminAvatar';
 import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
 import { defaultLocale } from '@/i18n/settings';
+import {
+  clearAdminSessionProfileCache,
+  readAdminSessionProfileCache,
+  writeAdminSessionProfileCache,
+  type AdminSessionProfile,
+} from '@/lib/adminSessionProfileCache';
 
 type AdminChromeProps = {
   children: React.ReactNode;
@@ -35,44 +41,46 @@ export default function AdminChrome({ children }: Readonly<AdminChromeProps>) {
   const isMobile = useMediaQuery('(max-width: 991px)');
   const [adminIconStyle, triggerAdminIconBoop] = useBoop({ x: 2, rotation: 8, scale: 1.08, timing: 170 });
   const [isNavExpanded, setIsNavExpanded] = React.useState(false);
-  const [adminUser, setAdminUser] = React.useState<{
-    id: string;
-    name: string | null;
-    username: string | null;
-    avatarUrl: string | null;
-    email: string;
-    roles: string[];
-  } | null>(null);
+  const [adminUser, setAdminUser] = React.useState<AdminSessionProfile | null>(null);
   const showSidebarToggle = Boolean(pathname && /\/admin\/?$/.test(pathname));
 
   const loadAdminUser = React.useCallback(async () => {
+    const cachedUser = readAdminSessionProfileCache();
+    if (cachedUser) {
+      setAdminUser(cachedUser);
+      return;
+    }
+
     try {
       const me = await fetchAdminMe();
-      setAdminUser(me.authenticated ? me.user : null);
+      const nextUser = me.authenticated ? me.user : null;
+      setAdminUser(nextUser);
+      writeAdminSessionProfileCache(nextUser);
     } catch {
       setAdminUser(null);
+      clearAdminSessionProfileCache();
     }
   }, []);
 
   React.useEffect(() => {
     void loadAdminUser();
-  }, [loadAdminUser, locale, pathname]);
+  }, [loadAdminUser, locale]);
 
   React.useEffect(() => {
     const handleAdminUserUpdated = (event: Event) => {
       const customEvent = event as CustomEvent<{
-        user?: {
-          id: string;
-          name: string | null;
-          username: string | null;
-          avatarUrl: string | null;
-          email: string;
-          roles: string[];
-        } | null;
+        user?: AdminSessionProfile | null;
       }>;
 
       if (customEvent.detail?.user) {
         setAdminUser(customEvent.detail.user);
+        writeAdminSessionProfileCache(customEvent.detail.user);
+        return;
+      }
+
+      const cachedUser = readAdminSessionProfileCache();
+      if (cachedUser) {
+        setAdminUser(cachedUser);
         return;
       }
 
@@ -88,6 +96,7 @@ export default function AdminChrome({ children }: Readonly<AdminChromeProps>) {
   const handleLogout = React.useCallback(async () => {
     await logoutAdmin();
     setAdminUser(null);
+    clearAdminSessionProfileCache();
     setIsNavExpanded(false);
     router.replace(withAdminLocalePath(locale, ADMIN_ROUTES.login));
   }, [locale, router]);
@@ -216,7 +225,7 @@ export default function AdminChrome({ children }: Readonly<AdminChromeProps>) {
                       onClick={() => setIsNavExpanded(false)}
                     >
                       <span className="d-inline-flex align-items-center gap-2">
-                        <FontAwesomeIcon icon="gear" fixedWidth />
+                        <FontAwesomeIcon icon="gear" />
                         <span>{t('adminCommon.actions.settings')}</span>
                       </span>
                     </NavDropdown.Item>

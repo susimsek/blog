@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Release Gates'
+  short_description: 'Choose the right verification commands for repo changes'
+  default_prompt: 'Use $release-gates to pick the minimum required verification commands for the files changed in this repo.'

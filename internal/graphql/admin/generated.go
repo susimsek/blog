@@ -423,7 +423,7 @@ type ComplexityRoot struct {
 		ContentCategoriesPage      func(childComplexity int, filter *model.AdminContentTaxonomyFilterInput) int
 		ContentPost                func(childComplexity int, input model.AdminContentEntityKeyInput) int
 		ContentPosts               func(childComplexity int, filter *model.AdminContentPostFilterInput) int
-		ContentTopics              func(childComplexity int, locale *string) int
+		ContentTopics              func(childComplexity int, locale *string, query *string) int
 		ContentTopicsPage          func(childComplexity int, filter *model.AdminContentTaxonomyFilterInput) int
 		Dashboard                  func(childComplexity int) int
 		ErrorMessageAuditLogs      func(childComplexity int, limit *int) int
@@ -522,7 +522,7 @@ type AdminQueryResolver interface {
 	ContentPost(ctx context.Context, input model.AdminContentEntityKeyInput) (*model.AdminContentPost, error)
 	ContentTopicsPage(ctx context.Context, filter *model.AdminContentTaxonomyFilterInput) (*model.AdminContentTopicListPayload, error)
 	ContentCategoriesPage(ctx context.Context, filter *model.AdminContentTaxonomyFilterInput) (*model.AdminContentCategoryListPayload, error)
-	ContentTopics(ctx context.Context, locale *string) ([]*model.AdminContentTopic, error)
+	ContentTopics(ctx context.Context, locale *string, query *string) ([]*model.AdminContentTopic, error)
 	ContentCategories(ctx context.Context, locale *string) ([]*model.AdminContentCategory, error)
 	ErrorMessageAuditLogs(ctx context.Context, limit *int) ([]*model.AdminErrorMessageAuditLog, error)
 }
@@ -2239,7 +2239,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.AdminQuery.ContentTopics(childComplexity, args["locale"].(*string)), true
+		return e.complexity.AdminQuery.ContentTopics(childComplexity, args["locale"].(*string), args["query"].(*string)), true
 	case "AdminQuery.contentTopicsPage":
 		if e.complexity.AdminQuery.ContentTopicsPage == nil {
 			break
@@ -3037,6 +3037,11 @@ func (ec *executionContext) field_AdminQuery_contentTopics_args(ctx context.Cont
 		return nil, err
 	}
 	args["locale"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "query", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["query"] = arg1
 	return args, nil
 }
 
@@ -12014,7 +12019,7 @@ func (ec *executionContext) _AdminQuery_contentTopics(ctx context.Context, field
 		ec.fieldContext_AdminQuery_contentTopics,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.AdminQuery().ContentTopics(ctx, fc.Args["locale"].(*string))
+			return ec.resolvers.AdminQuery().ContentTopics(ctx, fc.Args["locale"].(*string), fc.Args["query"].(*string))
 		},
 		nil,
 		ec.marshalNAdminContentTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentTopicᚄ,

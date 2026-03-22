@@ -48,6 +48,8 @@ type githubUserEmailResponse struct {
 	Visibility string `json:"visibility"`
 }
 
+const adminGithubInvalidMessage = "github account is invalid"
+
 var (
 	resolveGithubConfigFn             = appconfig.ResolveAdminGithubConfig
 	exchangeGithubAuthorizationCodeFn = exchangeGithubAuthorizationCode
@@ -94,7 +96,7 @@ func ResolveAdminGithubIdentityFromCode(
 	identity.Subject = strings.TrimSpace(identity.Subject)
 	identity.Email = strings.TrimSpace(strings.ToLower(identity.Email))
 	if identity.Subject == "" || identity.Email == "" {
-		return nil, apperrors.BadRequest("github account is invalid")
+		return nil, apperrors.BadRequest(adminGithubInvalidMessage)
 	}
 	if !identity.EmailVerified {
 		return nil, apperrors.BadRequest("github account email is not verified")
@@ -110,36 +112,20 @@ func LinkAdminGithubAccount(
 ) (*domain.AdminUser, error) {
 	resolvedAdminUserID := strings.TrimSpace(adminUserID)
 	if resolvedAdminUserID == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
-	}
-	if identity == nil {
-		return nil, apperrors.BadRequest("github account is invalid")
+		return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
-	userRecord, err := adminUsersRepository.FindByID(ctx, resolvedAdminUserID)
+	userRecord, err := loadAdminUserRecord(ctx, resolvedAdminUserID)
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
-	}
-	if userRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, err
 	}
 
-	resolvedSubject := strings.TrimSpace(identity.Subject)
-	resolvedEmail := strings.TrimSpace(strings.ToLower(identity.Email))
-	if resolvedSubject == "" || resolvedEmail == "" {
-		return nil, apperrors.BadRequest("github account is invalid")
-	}
-
-	if strings.TrimSpace(userRecord.GithubSubject) != "" && strings.TrimSpace(userRecord.GithubSubject) != resolvedSubject {
-		return nil, apperrors.BadRequest("disconnect the current github account before linking a different one")
-	}
-
-	matchedUser, err := adminUsersRepository.FindByGithubSubject(ctx, resolvedSubject)
+	resolvedSubject, resolvedEmail, err := normalizeAdminGithubIdentity(identity)
 	if err != nil {
-		return nil, apperrors.Internal("failed to load github account link", err)
+		return nil, err
 	}
-	if matchedUser != nil && strings.TrimSpace(matchedUser.ID) != resolvedAdminUserID {
-		return nil, apperrors.BadRequest("github account is already linked to another admin")
+	if err := ensureAdminGithubAccountLinkable(ctx, userRecord, resolvedAdminUserID, resolvedSubject); err != nil {
+		return nil, err
 	}
 
 	linkedAt := nowUTCFn()
@@ -148,20 +134,12 @@ func LinkAdminGithubAccount(
 			return nil, apperrors.BadRequest("github account is already linked to another admin")
 		}
 		if errors.Is(err, repository.ErrAdminUserNotFound) {
-			return nil, apperrors.Unauthorized("admin authentication required")
+			return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 		}
 		return nil, apperrors.Internal("failed to link github account", err)
 	}
 
-	updatedRecord, err := adminUsersRepository.FindByID(ctx, resolvedAdminUserID)
-	if err != nil {
-		return nil, apperrors.Internal("failed to reload admin user", err)
-	}
-	if updatedRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
-	}
-
-	return &updatedRecord.AdminUser, nil
+	return reloadAdminUser(ctx, resolvedAdminUserID)
 }
 
 func StartAdminGithubConnect(
@@ -170,7 +148,7 @@ func StartAdminGithubConnect(
 	locale string,
 ) (*AdminGithubConnectResult, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
 	if !resolveGithubConfigFn().Enabled() {
@@ -187,15 +165,12 @@ func DisconnectAdminGithubAccount(
 	adminUser *domain.AdminUser,
 ) (*domain.AdminUser, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 	}
 
-	userRecord, err := adminUsersRepository.FindByID(ctx, adminUser.ID)
+	userRecord, err := loadAdminUserRecord(ctx, adminUser.ID)
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
-	}
-	if userRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, err
 	}
 	if strings.TrimSpace(userRecord.GithubSubject) == "" {
 		return nil, apperrors.BadRequest("github account is not linked")
@@ -203,20 +178,12 @@ func DisconnectAdminGithubAccount(
 
 	if err := adminUsersRepository.ClearGithubLinkByID(ctx, userRecord.ID); err != nil {
 		if errors.Is(err, repository.ErrAdminUserNotFound) {
-			return nil, apperrors.Unauthorized("admin authentication required")
+			return nil, apperrors.Unauthorized(adminAuthRequiredMessage)
 		}
 		return nil, apperrors.Internal("failed to disconnect github account", err)
 	}
 
-	updatedRecord, err := adminUsersRepository.FindByID(ctx, userRecord.ID)
-	if err != nil {
-		return nil, apperrors.Internal("failed to reload admin user", err)
-	}
-	if updatedRecord == nil {
-		return nil, apperrors.Unauthorized("admin authentication required")
-	}
-
-	return &updatedRecord.AdminUser, nil
+	return reloadAdminUser(ctx, userRecord.ID)
 }
 
 func LoginAdminWithGithubSubject(
@@ -232,7 +199,7 @@ func LoginAdminWithGithubSubject(
 
 	userRecord, err := adminUsersRepository.FindByGithubSubject(ctx, strings.TrimSpace(subject))
 	if err != nil {
-		return nil, apperrors.Internal("failed to load admin user", err)
+		return nil, apperrors.Internal(adminLoadAdminUserMessage, err)
 	}
 	if userRecord == nil {
 		return nil, apperrors.Unauthorized("invalid credentials")
@@ -314,7 +281,7 @@ func fetchGithubUserInfo(ctx context.Context, accessToken string) (*AdminGithubI
 		return nil, err
 	}
 	if userPayload.ID <= 0 {
-		return nil, errors.New("github account is invalid")
+		return nil, errors.New(adminGithubInvalidMessage)
 	}
 
 	emailRequest, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/user/emails", nil)
@@ -371,4 +338,39 @@ func resolveGithubVerifiedEmail(emails []githubUserEmailResponse) string {
 	}
 
 	return ""
+}
+
+func normalizeAdminGithubIdentity(identity *AdminGithubIdentity) (string, string, error) {
+	if identity == nil {
+		return "", "", apperrors.BadRequest(adminGithubInvalidMessage)
+	}
+
+	resolvedSubject := strings.TrimSpace(identity.Subject)
+	resolvedEmail := strings.TrimSpace(strings.ToLower(identity.Email))
+	if resolvedSubject == "" || resolvedEmail == "" {
+		return "", "", apperrors.BadRequest(adminGithubInvalidMessage)
+	}
+
+	return resolvedSubject, resolvedEmail, nil
+}
+
+func ensureAdminGithubAccountLinkable(
+	ctx context.Context,
+	userRecord *domain.AdminUserRecord,
+	resolvedAdminUserID string,
+	resolvedSubject string,
+) error {
+	if strings.TrimSpace(userRecord.GithubSubject) != "" && strings.TrimSpace(userRecord.GithubSubject) != resolvedSubject {
+		return apperrors.BadRequest("disconnect the current github account before linking a different one")
+	}
+
+	matchedUser, err := adminUsersRepository.FindByGithubSubject(ctx, resolvedSubject)
+	if err != nil {
+		return apperrors.Internal("failed to load github account link", err)
+	}
+	if matchedUser != nil && strings.TrimSpace(matchedUser.ID) != resolvedAdminUserID {
+		return apperrors.BadRequest("github account is already linked to another admin")
+	}
+
+	return nil
 }

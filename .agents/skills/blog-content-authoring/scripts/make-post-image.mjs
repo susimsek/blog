@@ -21,7 +21,7 @@ const usage = () => {
   console.log(
     [
       'Usage:',
-      '  node .codex/skills/blog-content-authoring/scripts/make-post-image.mjs --in <source> --out public/images/posts/<slug>/<name>.webp',
+      '  node .agents/skills/blog-content-authoring/scripts/make-post-image.mjs --in <source> --out public/images/posts/<slug>/<name>.webp',
       '',
       'Options:',
       '  --maxWidth <number>  Max width in px (default: 1200)',

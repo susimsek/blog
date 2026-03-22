@@ -7,6 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Alert from 'react-bootstrap/Alert';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Nav from 'react-bootstrap/Nav';
@@ -29,7 +30,9 @@ import PostCategoryBadge from '@/components/posts/PostCategoryBadge';
 import MarkdownRenderer from '@/components/common/MarkdownRenderer';
 import Link from '@/components/common/Link';
 import useMediaQuery from '@/hooks/useMediaQuery';
+import { assetPrefix, AVATAR_LINK, AUTHOR_NAME, LOCALES, TWITTER_USERNAME } from '@/config/constants';
 import { formatReadingTime } from '@/lib/readingTime';
+import { buildLocalizedPath, toAbsoluteSiteUrl } from '@/lib/metadata';
 import {
   bulkDeleteAdminComments,
   bulkUpdateAdminCommentStatus,
@@ -61,9 +64,14 @@ import {
   type AdminContentTopicItem,
   type AdminContentTopicGroupItem,
 } from '@/lib/adminApi';
-import { ADMIN_ROUTES, buildAdminContentPostDetailRoute, withAdminLocalePath } from '@/lib/adminRoutes';
+import {
+  ADMIN_ROUTES,
+  buildAdminContentPostDetailHash,
+  buildAdminContentPostDetailHref,
+  buildAdminContentPostDetailRoute,
+  withAdminLocalePath,
+} from '@/lib/adminRoutes';
 import { defaultLocale } from '@/i18n/settings';
-import { assetPrefix, LOCALES } from '@/config/constants';
 import type { PostCategoryRef } from '@/types/posts';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -78,6 +86,7 @@ type TopicEditorMode = 'create' | 'update';
 type CategoryEditorMode = 'create' | 'update';
 type ContentSectionTab = 'posts' | 'topics' | 'categories';
 type PostEditorTab = 'metadata' | 'content' | 'comments';
+type PostSeoPreviewTab = 'openGraph' | 'twitter';
 type PostContentViewMode = 'editor' | 'split' | 'preview';
 type SupportedContentLocale = 'en' | 'tr';
 type CommentStatusFilterValue = 'all' | AdminCommentItem['status'];
@@ -95,8 +104,17 @@ const BOOTSTRAP_THEME_COLORS = new Set([
   'dark',
 ]);
 
-const normalizeLocaleValue = (value: string): LocaleFilterValue =>
-  value === 'tr' ? 'tr' : value === 'en' ? 'en' : 'all';
+const normalizeLocaleValue = (value: string): LocaleFilterValue => {
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'tr') {
+    return 'tr';
+  }
+  if (normalized === 'en') {
+    return 'en';
+  }
+
+  return 'all';
+};
 
 const resolveLocaleLabel = (value: string) => {
   const resolved = value.trim().toLowerCase();
@@ -113,6 +131,55 @@ const resolveLocaleOptionLabel = (item: { locale: string; name: string }) =>
   `[${item.locale.toUpperCase()}] ${item.name}`;
 
 const toTaxonomyKey = (item: { locale: string; id: string }) => `${item.locale.toLowerCase()}|${item.id.toLowerCase()}`;
+
+const resolveBulkCommentSuccessKey = (status: AdminCommentItem['status']) => {
+  if (status === 'APPROVED') {
+    return 'adminAccount.comments.success.bulkApproved';
+  }
+  if (status === 'REJECTED') {
+    return 'adminAccount.comments.success.bulkRejected';
+  }
+
+  return 'adminAccount.comments.success.bulkSpam';
+};
+
+const syncSelectedIDsWithItems =
+  <T extends { id: string }>(items: T[]) =>
+  (previous: string[]) =>
+    previous.filter(id => items.some(item => item.id === id));
+
+const toggleSingleSelection = (itemID: string, checked: boolean) => (previous: string[]) => {
+  if (checked) {
+    return previous.includes(itemID) ? previous : [...previous, itemID];
+  }
+
+  return previous.filter(id => id !== itemID);
+};
+
+const toggleVisibleSelection =
+  <T extends { id: string }>(items: T[], allVisibleSelected: boolean) =>
+  (previous: string[]) => {
+    if (allVisibleSelected) {
+      return previous.filter(id => !items.some(item => item.id === id));
+    }
+
+    const next = new Set(previous);
+    for (const item of items) {
+      next.add(item.id);
+    }
+    return Array.from(next);
+  };
+
+const resolvePostEditorTab = (value?: string | null, allowContent = true): PostEditorTab => {
+  const normalizedValue = value?.trim().toLowerCase();
+  if (normalizedValue === 'comments') {
+    return 'comments';
+  }
+  if (normalizedValue === 'content' && allowContent) {
+    return 'content';
+  }
+  return 'metadata';
+};
 
 const resolveContentSectionTab = (value?: string | null): ContentSectionTab => {
   const resolved = value?.trim().toLowerCase();
@@ -182,10 +249,12 @@ const parseISODateInput = (value: string): Date | null => {
 };
 
 export default function AdminContentManagementPanel({
+  // NOSONAR
   onSessionExpired,
   formatDate,
 }: Readonly<AdminContentManagementPanelProps>) {
   const { t } = useTranslation(['admin-account', 'admin-common']);
+  const router = useRouter();
 
   const [isLoading, setIsLoading] = React.useState(true);
   const [posts, setPosts] = React.useState<AdminContentPostGroupItem[]>([]);
@@ -213,7 +282,8 @@ export default function AdminContentManagementPanel({
   const [postEditorCategoryID, setPostEditorCategoryID] = React.useState('');
   const [postEditorTopicIDs, setPostEditorTopicIDs] = React.useState<string[]>([]);
   const [postEditorTopicQuery, setPostEditorTopicQuery] = React.useState('');
-  const [postEditorTab, setPostEditorTab] = React.useState<PostEditorTab>('content');
+  const [postEditorTopicOptions, setPostEditorTopicOptions] = React.useState<AdminContentTopicItem[]>([]);
+  const [postSeoPreviewTab, setPostSeoPreviewTab] = React.useState<PostSeoPreviewTab>('openGraph');
   const [postContentViewMode, setPostContentViewMode] = React.useState<PostContentViewMode>('editor');
   const [postEditorContent, setPostEditorContent] = React.useState('');
   const [postEditorInitialContent, setPostEditorInitialContent] = React.useState('');
@@ -285,7 +355,6 @@ export default function AdminContentManagementPanel({
   const canUsePostGridDensity = useMediaQuery('(min-width: 1200px)');
   const resolvedPostDensityMode: PostDensityMode =
     canUsePostGridDensity || postDensityMode !== 'grid' ? postDensityMode : 'default';
-  const router = useRouter();
   const params = useParams<{
     locale?: string | string[];
     postLocale?: string | string[];
@@ -297,9 +366,10 @@ export default function AdminContentManagementPanel({
     ?.trim()
     .toLowerCase();
   const routePostID = (Array.isArray(params.postId) ? params.postId[0] : params.postId)?.trim();
-  const isPostDetailRoute = Boolean(routePostLocale && routePostID);
   const currentDatePickerLocale = getDatePickerLocale(params?.locale);
   const datePickerLocaleConfig = currentDatePickerLocale === 'tr' ? tr : enUS;
+  const [postEditorTabKey, setPostEditorTabKey] = React.useState<PostEditorTab>('metadata');
+  const isPostDetailRoute = Boolean(routePostLocale && routePostID);
 
   const listTopRef = React.useRef<HTMLDivElement | null>(null);
   const splitPreviewRef = React.useRef<HTMLDivElement | null>(null);
@@ -310,7 +380,14 @@ export default function AdminContentManagementPanel({
   const topicsPageRequestIDRef = React.useRef(0);
   const categoriesPageRequestIDRef = React.useRef(0);
   const postCommentsRequestIDRef = React.useRef(0);
+  const postEditorTopicsRequestIDRef = React.useRef(0);
   const postCommentsListTopRef = React.useRef<HTMLDivElement | null>(null);
+
+  const deferredPostEditorTopicQuery = React.useDeferredValue(postEditorTopicQuery);
+  const activePostEditorTab = resolvePostEditorTab(
+    postEditorTabKey,
+    editingPost ? editingPost.source === 'blog' : true,
+  );
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const totalPostCommentPages = Math.max(1, Math.ceil(postCommentsTotal / postCommentsPageSize));
@@ -370,8 +447,12 @@ export default function AdminContentManagementPanel({
     if (currentCategory !== nextCategory) {
       return true;
     }
-    const currentTopics = [...(editingPost.topicIds ?? [])].map(item => item.trim().toLowerCase()).sort();
-    const nextTopics = [...postEditorTopicIDs].map(item => item.trim().toLowerCase()).sort();
+    const currentTopics = [...(editingPost.topicIds ?? [])]
+      .map(item => item.trim().toLowerCase())
+      .sort((left, right) => left.localeCompare(right));
+    const nextTopics = [...postEditorTopicIDs]
+      .map(item => item.trim().toLowerCase())
+      .sort((left, right) => left.localeCompare(right));
     return currentTopics.join('|') !== nextTopics.join('|');
   }, [
     editingPost,
@@ -422,20 +503,6 @@ export default function AdminContentManagementPanel({
     }
     return indexed;
   }, [topics]);
-
-  const editablePostTopics = React.useMemo(() => {
-    if (!editingPost) {
-      return [];
-    }
-    return topics.filter(item => item.locale.toLowerCase() === editingPost.locale.toLowerCase());
-  }, [editingPost, topics]);
-  const filteredEditablePostTopics = React.useMemo(() => {
-    const query = postEditorTopicQuery.trim().toLowerCase();
-    if (!query) {
-      return editablePostTopics;
-    }
-    return editablePostTopics.filter(item => item.name.toLowerCase().includes(query));
-  }, [editablePostTopics, postEditorTopicQuery]);
 
   const editablePostCategories = React.useMemo(() => {
     if (!editingPost) {
@@ -516,6 +583,79 @@ export default function AdminContentManagementPanel({
       resolvedTopicBadges,
     };
   }, [categoriesByLocaleAndID, editingPost, postEditorCategoryID, postEditorTopicIDs, t, topicsByLocaleAndID]);
+
+  const postEditorSeoPreview = React.useMemo(() => {
+    if (!editingPost) {
+      return null;
+    }
+
+    const localeCode = editingPost.locale.trim().toLowerCase() || defaultLocale;
+    const postID = editingPost.id.trim();
+    const resolvedTitle = postEditorTitle.trim() || editingPost.title.trim();
+    const resolvedDescriptionSource = postEditorSummary.trim() || editingPost.summary?.trim() || '';
+    const resolvedDescription =
+      resolvedDescriptionSource ||
+      t('adminAccount.content.modals.post.seo.placeholderDescription', { ns: 'admin-account' });
+    const resolvedImage = postEditorThumbnail.trim() || editingPost.thumbnail?.trim() || AVATAR_LINK;
+    const resolvedPreviewImage = postEditorThumbnail.trim() || editingPost.thumbnail?.trim() || '';
+    const canonicalPath = buildLocalizedPath(localeCode, `posts/${postID}`);
+    const canonicalURL = toAbsoluteSiteUrl(canonicalPath);
+    const absoluteImageURL = toAbsoluteSiteUrl(resolvedImage);
+    const previewImageSrc = resolvedPreviewImage
+      ? (resolveAdminContentThumbnailSrc(resolvedPreviewImage) ?? resolvedPreviewImage)
+      : null;
+
+    let domainLabel = canonicalURL;
+    try {
+      domainLabel = new URL(canonicalURL).host;
+    } catch {
+      domainLabel = canonicalURL;
+    }
+
+    return {
+      title: resolvedTitle || t('adminAccount.content.modals.post.seo.placeholderTitle', { ns: 'admin-account' }),
+      description: resolvedDescription,
+      canonicalPath,
+      canonicalURL,
+      imageURL: absoluteImageURL,
+      previewImageSrc,
+      domainLabel,
+      creatorLabel: TWITTER_USERNAME,
+      authorLabel: AUTHOR_NAME,
+    };
+  }, [editingPost, postEditorSummary, postEditorThumbnail, postEditorTitle, t]);
+
+  React.useEffect(() => {
+    if (!editingPost) {
+      setPostEditorTopicOptions([]);
+      return;
+    }
+
+    const requestID = postEditorTopicsRequestIDRef.current + 1;
+    postEditorTopicsRequestIDRef.current = requestID;
+
+    void (async () => {
+      try {
+        const nextTopics = await fetchAdminContentTopics(editingPost.locale, deferredPostEditorTopicQuery);
+        if (requestID !== postEditorTopicsRequestIDRef.current) {
+          return;
+        }
+        setPostEditorTopicOptions(nextTopics);
+      } catch (error) {
+        if (requestID !== postEditorTopicsRequestIDRef.current) {
+          return;
+        }
+        if (isAdminSessionError(error)) {
+          onSessionExpired();
+          return;
+        }
+        const resolvedError = resolveAdminError(error);
+        setErrorMessage(
+          resolvedError.message || t('adminAccount.content.errors.taxonomyLoad', { ns: 'admin-account' }),
+        );
+      }
+    })();
+  }, [deferredPostEditorTopicQuery, editingPost, onSessionExpired, t]);
 
   const scrollToListTop = React.useCallback(() => {
     const target = listTopRef.current;
@@ -677,6 +817,7 @@ export default function AdminContentManagementPanel({
 
   React.useEffect(() => {
     const timeoutID = globalThis.setTimeout(() => {
+      // NOSONAR
       setPostCommentsFilterQueryDebounced(postCommentsFilterQuery.trim());
     }, 220);
 
@@ -686,7 +827,7 @@ export default function AdminContentManagementPanel({
   }, [postCommentsFilterQuery]);
 
   React.useEffect(() => {
-    setSelectedPostCommentIDs(previous => previous.filter(id => postComments.some(item => item.id === id)));
+    setSelectedPostCommentIDs(syncSelectedIDsWithItems(postComments));
   }, [postComments]);
 
   React.useEffect(() => {
@@ -711,19 +852,38 @@ export default function AdminContentManagementPanel({
   }, [filterTopicID, filteredTopics]);
 
   React.useEffect(() => {
-    if (typeof window === 'undefined') {
+    const appWindow = globalThis.window;
+    if (!appWindow) {
       return;
     }
 
     const syncTabFromHash = () => {
-      const hashValue = window.location.hash.replace(/^#/, '');
+      const hashValue = appWindow.location.hash.replace(/^#/, '');
       setActiveTab(resolveContentSectionTab(hashValue));
     };
 
     syncTabFromHash();
-    window.addEventListener('hashchange', syncTabFromHash);
+    appWindow.addEventListener('hashchange', syncTabFromHash);
     return () => {
-      window.removeEventListener('hashchange', syncTabFromHash);
+      appWindow.removeEventListener('hashchange', syncTabFromHash);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const appWindow = globalThis.window;
+    if (!appWindow) {
+      return;
+    }
+
+    const syncPostEditorTabFromHash = () => {
+      const hashValue = appWindow.location.hash.replace(/^#/, '');
+      setPostEditorTabKey(resolvePostEditorTab(hashValue));
+    };
+
+    syncPostEditorTabFromHash();
+    appWindow.addEventListener('hashchange', syncPostEditorTabFromHash);
+    return () => {
+      appWindow.removeEventListener('hashchange', syncPostEditorTabFromHash);
     };
   }, []);
 
@@ -1011,7 +1171,6 @@ export default function AdminContentManagementPanel({
       setPostCommentsPage(1);
       setPostCommentsTotal(0);
       setPendingPostCommentDelete(null);
-      setPostEditorTab('content');
       setIsPostContentLoading(true);
       setErrorMessage('');
       setSuccessMessage('');
@@ -1038,7 +1197,6 @@ export default function AdminContentManagementPanel({
         const resolvedContent = detail.content ?? '';
         setPostEditorContent(resolvedContent);
         setPostEditorInitialContent(resolvedContent);
-        setPostEditorTab(detail.source === 'blog' ? 'content' : 'metadata');
 
         const currentLocale = normalizedLocale === 'tr' ? 'tr' : 'en';
         const nextLocaleTabs = CONTENT_LOCALES.map(locale => ({
@@ -1225,10 +1383,10 @@ export default function AdminContentManagementPanel({
       const nextTotal = Math.max(total - 1, 0);
       const nextTotalPages = Math.max(1, Math.ceil(nextTotal / pageSize));
       const nextPage = Math.min(page, nextTotalPages);
-      if (nextPage !== page) {
-        setPage(nextPage);
-      } else {
+      if (nextPage === page) {
         await loadPosts();
+      } else {
+        setPage(nextPage);
       }
 
       setSuccessMessage(
@@ -1640,18 +1798,45 @@ export default function AdminContentManagementPanel({
     const resolvedTab = resolveContentSectionTab(nextKey);
     setActiveTab(resolvedTab);
 
-    if (typeof window === 'undefined') {
+    const appWindow = globalThis.window;
+    if (!appWindow) {
       return;
     }
 
     const nextHash = `#${resolvedTab}`;
-    if (window.location.hash === nextHash) {
+    if (appWindow.location.hash === nextHash) {
       return;
     }
 
-    const nextURL = `${window.location.pathname}${window.location.search}${nextHash}`;
-    window.history.replaceState(window.history.state, '', nextURL);
+    const nextURL = `${appWindow.location.pathname}${appWindow.location.search}${nextHash}`;
+    appWindow.history.replaceState(appWindow.history.state, '', nextURL);
   }, []);
+
+  const navigateToPostEditorRoute = React.useCallback(
+    (nextRoute: string, nextTab: PostEditorTab, mode: 'push' | 'replace' = 'push') => {
+      const appWindow = globalThis.window;
+      if (!appWindow) {
+        return;
+      }
+
+      const nextURL = withAdminLocalePath(routeLocale, `${nextRoute}${buildAdminContentPostDetailHash(nextTab)}`);
+      if (
+        appWindow.location.pathname === withAdminLocalePath(routeLocale, nextRoute) &&
+        appWindow.location.hash === `#${nextTab}`
+      ) {
+        setPostEditorTabKey(nextTab);
+        return;
+      }
+
+      if (mode === 'replace') {
+        appWindow.history.replaceState(appWindow.history.state, '', nextURL);
+      } else {
+        appWindow.history.pushState(appWindow.history.state, '', nextURL);
+      }
+      setPostEditorTabKey(nextTab);
+    },
+    [routeLocale],
+  );
 
   const handleSwitchPostEditorLocale = React.useCallback(
     (locale: SupportedContentLocale) => {
@@ -1659,10 +1844,29 @@ export default function AdminContentManagementPanel({
         return;
       }
 
-      router.push(withAdminLocalePath(routeLocale, buildAdminContentPostDetailRoute(locale, editingPost.id)));
+      router.push(
+        withAdminLocalePath(routeLocale, buildAdminContentPostDetailHref(locale, editingPost.id, activePostEditorTab)),
+      );
     },
-    [editingPost, routeLocale, router],
+    [activePostEditorTab, editingPost, routeLocale, router],
   );
+
+  React.useEffect(() => {
+    if (!editingPost || !isPostDetailRoute) {
+      return;
+    }
+
+    const canonicalTab = resolvePostEditorTab(postEditorTabKey, editingPost.source === 'blog');
+    if (canonicalTab === postEditorTabKey) {
+      return;
+    }
+
+    navigateToPostEditorRoute(
+      buildAdminContentPostDetailRoute(editingPost.locale, editingPost.id),
+      canonicalTab,
+      'replace',
+    );
+  }, [editingPost, isPostDetailRoute, navigateToPostEditorRoute, postEditorTabKey]);
 
   const showInlinePostFeedback = isPostDetailRoute && Boolean(editingPost);
   const showTopFeedback = !showInlinePostFeedback;
@@ -1688,12 +1892,7 @@ export default function AdminContentManagementPanel({
   }, []);
 
   const togglePostCommentSelection = React.useCallback((commentId: string, checked: boolean) => {
-    setSelectedPostCommentIDs(previous => {
-      if (checked) {
-        return previous.includes(commentId) ? previous : [...previous, commentId];
-      }
-      return previous.filter(id => id !== commentId);
-    });
+    setSelectedPostCommentIDs(toggleSingleSelection(commentId, checked));
   }, []);
 
   const toggleVisiblePostCommentsSelection = React.useCallback(() => {
@@ -1701,22 +1900,12 @@ export default function AdminContentManagementPanel({
       return;
     }
 
-    setSelectedPostCommentIDs(previous => {
-      if (allVisiblePostCommentsSelected) {
-        return previous.filter(id => !postComments.some(item => item.id === id));
-      }
-
-      const next = new Set(previous);
-      for (const item of postComments) {
-        next.add(item.id);
-      }
-      return Array.from(next);
-    });
+    setSelectedPostCommentIDs(toggleVisibleSelection(postComments, allVisiblePostCommentsSelected));
   }, [allVisiblePostCommentsSelected, postComments]);
 
   const loadPostComments = React.useCallback(
     async (options?: { page?: number }) => {
-      if (!editingPost || postEditorTab !== 'comments') {
+      if (!editingPost || activePostEditorTab !== 'comments') {
         return [];
       }
 
@@ -1778,17 +1967,17 @@ export default function AdminContentManagementPanel({
       postCommentsPage,
       postCommentsPageSize,
       postCommentsStatusFilter,
-      postEditorTab,
+      activePostEditorTab,
       t,
     ],
   );
 
   React.useEffect(() => {
-    if (!editingPost || postEditorTab !== 'comments') {
+    if (!editingPost || activePostEditorTab !== 'comments') {
       return;
     }
     void loadPostComments();
-  }, [editingPost, loadPostComments, postCommentsPage, postCommentsPageSize, postEditorTab]);
+  }, [activePostEditorTab, editingPost, loadPostComments, postCommentsPage, postCommentsPageSize]);
 
   const handleBulkPostCommentStatusUpdate = React.useCallback(
     async (status: AdminCommentItem['status']) => {
@@ -1815,12 +2004,7 @@ export default function AdminContentManagementPanel({
         }
 
         setSelectedPostCommentIDs([]);
-        const successKey =
-          status === 'APPROVED'
-            ? 'adminAccount.comments.success.bulkApproved'
-            : status === 'REJECTED'
-              ? 'adminAccount.comments.success.bulkRejected'
-              : 'adminAccount.comments.success.bulkSpam';
+        const successKey = resolveBulkCommentSuccessKey(status);
         setPostCommentsSuccessMessage(t(successKey, { ns: 'admin-account', count: successCount }));
 
         if (successCount !== selectedPostCommentIDs.length) {
@@ -1984,10 +2168,10 @@ export default function AdminContentManagementPanel({
       const nextTotalPages = Math.max(1, Math.ceil(nextTotal / postCommentsPageSize));
       const nextPage = Math.min(postCommentsPage, nextTotalPages);
 
-      if (nextPage !== postCommentsPage) {
-        setPostCommentsPage(nextPage);
-      } else {
+      if (nextPage === postCommentsPage) {
         setPostComments(remainingItems);
+      } else {
+        setPostCommentsPage(nextPage);
       }
 
       setPostCommentsTotal(nextTotal);
@@ -2022,6 +2206,58 @@ export default function AdminContentManagementPanel({
     postCommentsTotal,
     t,
   ]);
+
+  const shouldShowPostSaveAction = activePostEditorTab !== 'comments';
+  const shouldUpdatePostMetadata = Boolean(
+    editingPost && (activePostEditorTab === 'metadata' || editingPost.source !== 'blog'),
+  );
+  let postSaveAction: React.ReactNode = null;
+
+  if (shouldShowPostSaveAction) {
+    if (shouldUpdatePostMetadata) {
+      postSaveAction = (
+        <Button
+          type="button"
+          variant="primary"
+          disabled={!canSavePostMetadata || isPostUpdating}
+          onClick={handleUpdatePostMetadata}
+        >
+          {isPostUpdating ? (
+            <span className="d-inline-flex align-items-center gap-2">
+              <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
+              <span>{t('adminAccount.content.actions.updating', { ns: 'admin-account' })}</span>
+            </span>
+          ) : (
+            <>
+              <FontAwesomeIcon icon="save" className="me-2" />
+              {t('adminAccount.content.actions.updatePost', { ns: 'admin-account' })}
+            </>
+          )}
+        </Button>
+      );
+    } else {
+      postSaveAction = (
+        <Button
+          type="button"
+          variant="primary"
+          disabled={!canSavePostContent || isPostContentUpdating}
+          onClick={handleUpdatePostContent}
+        >
+          {isPostContentUpdating ? (
+            <span className="d-inline-flex align-items-center gap-2">
+              <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
+              <span>{t('adminAccount.content.actions.updating', { ns: 'admin-account' })}</span>
+            </span>
+          ) : (
+            <>
+              <FontAwesomeIcon icon="save" className="me-2" />
+              {t('adminAccount.content.actions.updatePostContent', { ns: 'admin-account' })}
+            </>
+          )}
+        </Button>
+      );
+    }
+  }
 
   return (
     <>
@@ -2112,17 +2348,15 @@ export default function AdminContentManagementPanel({
                 <>
                   <Tabs
                     id="admin-content-post-editor-tabs"
-                    activeKey={postEditorTab}
+                    activeKey={activePostEditorTab}
                     onSelect={nextKey => {
-                      setPostEditorTab(
-                        nextKey === 'comments'
-                          ? 'comments'
-                          : nextKey === 'content' && editingPost.source === 'blog'
-                            ? 'content'
-                            : 'metadata',
+                      const nextTab = resolvePostEditorTab(nextKey, editingPost.source === 'blog');
+                      navigateToPostEditorRoute(
+                        buildAdminContentPostDetailRoute(editingPost.locale, editingPost.id),
+                        nextTab,
                       );
                     }}
-                    className="mb-3"
+                    className="mb-3 admin-content-tabs"
                   >
                     <Tab
                       eventKey="metadata"
@@ -2183,6 +2417,126 @@ export default function AdminContentManagementPanel({
                             </div>
                           </div>
                         </div>
+                        {postEditorSeoPreview ? (
+                          <div className="mb-4">
+                            <div className="mb-3">
+                              <h5 className="mb-1">
+                                {t('adminAccount.content.modals.post.seo.title', { ns: 'admin-account' })}
+                              </h5>
+                              <p className="small text-muted mb-0">
+                                {t('adminAccount.content.modals.post.seo.copy', { ns: 'admin-account' })}
+                              </p>
+                            </div>
+                            <Nav
+                              variant="tabs"
+                              activeKey={postSeoPreviewTab}
+                              onSelect={nextKey => {
+                                setPostSeoPreviewTab((nextKey as PostSeoPreviewTab) || 'openGraph');
+                              }}
+                              className="mb-3 admin-content-tabs"
+                            >
+                              <Nav.Item>
+                                <Nav.Link eventKey="openGraph">
+                                  <span className="d-inline-flex align-items-center gap-2">
+                                    <FontAwesomeIcon icon="globe" />
+                                    <span>
+                                      {t('adminAccount.content.modals.post.seo.openGraphTitle', {
+                                        ns: 'admin-account',
+                                      })}
+                                    </span>
+                                  </span>
+                                </Nav.Link>
+                              </Nav.Item>
+                              <Nav.Item>
+                                <Nav.Link eventKey="twitter">
+                                  <span className="d-inline-flex align-items-center gap-2">
+                                    <FontAwesomeIcon icon={['fab', 'x-twitter']} />
+                                    <span>
+                                      {t('adminAccount.content.modals.post.seo.twitterTitle', {
+                                        ns: 'admin-account',
+                                      })}
+                                    </span>
+                                  </span>
+                                </Nav.Link>
+                              </Nav.Item>
+                            </Nav>
+                            <div className="admin-content-seo-preview-wrap">
+                              {postSeoPreviewTab === 'openGraph' ? (
+                                <Card className="admin-content-seo-preview-card">
+                                  <Card.Body className="p-0">
+                                    <div className="admin-content-seo-image-frame">
+                                      {postEditorSeoPreview.previewImageSrc ? (
+                                        <img
+                                          src={postEditorSeoPreview.previewImageSrc}
+                                          alt={postEditorSeoPreview.title}
+                                          className="w-100 h-100 object-fit-cover"
+                                        />
+                                      ) : (
+                                        <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary">
+                                          <FontAwesomeIcon icon="camera" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="p-3 p-lg-4">
+                                      <div className="admin-content-seo-card-domain mb-2">
+                                        {postEditorSeoPreview.domainLabel}
+                                      </div>
+                                      <div className="admin-content-seo-card-title">{postEditorSeoPreview.title}</div>
+                                      <div className="admin-content-seo-card-description">
+                                        {postEditorSeoPreview.description}
+                                      </div>
+                                    </div>
+                                  </Card.Body>
+                                </Card>
+                              ) : null}
+                              {postSeoPreviewTab === 'twitter' ? (
+                                <Card className="admin-content-seo-preview-card">
+                                  <Card.Body className="p-0">
+                                    <div className="admin-content-seo-image-frame admin-content-seo-image-frame--x">
+                                      {postEditorSeoPreview.previewImageSrc ? (
+                                        <img
+                                          src={postEditorSeoPreview.previewImageSrc}
+                                          alt={postEditorSeoPreview.title}
+                                          className="w-100 h-100 object-fit-cover"
+                                        />
+                                      ) : (
+                                        <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary">
+                                          <FontAwesomeIcon icon="camera" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="p-3 p-lg-4">
+                                      <div className="admin-content-seo-card-title">{postEditorSeoPreview.title}</div>
+                                      <div className="admin-content-seo-card-description mb-3">
+                                        {postEditorSeoPreview.description}
+                                      </div>
+                                      <div className="small text-muted admin-content-seo-card-meta">
+                                        <span>
+                                          {t('adminAccount.content.modals.post.seo.canonicalLabel', {
+                                            ns: 'admin-account',
+                                          })}
+                                          : {postEditorSeoPreview.canonicalURL}
+                                        </span>
+                                        <span>
+                                          {t('adminAccount.content.modals.post.seo.creatorLabel', {
+                                            ns: 'admin-account',
+                                          })}
+                                          : {postEditorSeoPreview.creatorLabel}
+                                        </span>
+                                        <span>
+                                          {t('adminAccount.content.modals.post.seo.authorLabel', {
+                                            ns: 'admin-account',
+                                          })}
+                                          : {postEditorSeoPreview.authorLabel}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </Card.Body>
+                                </Card>
+                              ) : null}
+                            </div>
+                          </div>
+                        ) : null}
                         <Form.Group className="mb-3" controlId="admin-content-post-title">
                           <Form.Label>
                             {t('adminAccount.content.modals.post.metadataFields.title', { ns: 'admin-account' })}
@@ -2334,12 +2688,12 @@ export default function AdminContentManagementPanel({
                                 </div>
                               </div>
                               <div className="admin-content-topic-picker overflow-auto" style={{ maxHeight: '18rem' }}>
-                                {filteredEditablePostTopics.length === 0 ? (
+                                {postEditorTopicOptions.length === 0 ? (
                                   <div className="list-group-item admin-content-topic-picker-empty small text-muted p-3">
                                     {t('adminAccount.content.modals.post.topicsEmpty', { ns: 'admin-account' })}
                                   </div>
                                 ) : (
-                                  filteredEditablePostTopics.map(item => (
+                                  postEditorTopicOptions.map(item => (
                                     <div key={toTaxonomyKey(item)} className="list-group-item bg-transparent py-2">
                                       <Form.Check
                                         type="checkbox"
@@ -2469,9 +2823,8 @@ export default function AdminContentManagementPanel({
                               className="post-density-control"
                               aria-label={t('adminAccount.content.modals.post.previewTitle', { ns: 'admin-account' })}
                             >
-                              <div
-                                className="btn-group post-density-toggle"
-                                role="group"
+                              <fieldset
+                                className="btn-group post-density-toggle border-0 p-0 m-0"
                                 aria-label={t('adminAccount.content.modals.post.previewTitle', { ns: 'admin-account' })}
                               >
                                 <button
@@ -2516,7 +2869,7 @@ export default function AdminContentManagementPanel({
                                     <FontAwesomeIcon icon="eye" className="fa-fw" />
                                   </span>
                                 </button>
-                              </div>
+                              </fieldset>
                             </div>
                           </div>
 
@@ -2864,7 +3217,7 @@ export default function AdminContentManagementPanel({
                                 className="admin-loading-stack"
                                 ariaLabel={t('adminAccount.comments.loading', { ns: 'admin-account' })}
                               />
-                            ) : postCommentsTotal === 0 ? (
+                            ) : postCommentsTotal === 0 ? ( // NOSONAR
                               <p className="small text-muted mb-0">
                                 {t('adminAccount.content.modals.post.comments.empty', { ns: 'admin-account' })}
                               </p>
@@ -3000,9 +3353,9 @@ export default function AdminContentManagementPanel({
                                               void handlePostCommentStatusUpdate(item.id, 'REJECTED');
                                             }}
                                           >
-                                            {!isRejectPending ? (
+                                            {isRejectPending ? null : (
                                               <FontAwesomeIcon icon="times-circle" className="me-2" />
-                                            ) : null}
+                                            )}
                                             {isRejectPending ? (
                                               <span className="d-inline-flex align-items-center gap-2">
                                                 <Spinner
@@ -3039,9 +3392,9 @@ export default function AdminContentManagementPanel({
                                               void handlePostCommentStatusUpdate(item.id, 'SPAM');
                                             }}
                                           >
-                                            {!isSpamPending ? (
+                                            {isSpamPending ? null : (
                                               <FontAwesomeIcon icon="shield-halved" className="me-2" />
-                                            ) : null}
+                                            )}
                                             {isSpamPending ? (
                                               <span className="d-inline-flex align-items-center gap-2">
                                                 <Spinner
@@ -3142,58 +3495,7 @@ export default function AdminContentManagementPanel({
                   ) : null}
 
                   <div className="admin-content-post-actions d-flex flex-wrap gap-2 pt-3">
-                    {postEditorTab === 'comments' ? null : postEditorTab === 'metadata' ||
-                      editingPost.source !== 'blog' ? (
-                      <Button
-                        type="button"
-                        variant="primary"
-                        disabled={!canSavePostMetadata || isPostUpdating}
-                        onClick={handleUpdatePostMetadata}
-                      >
-                        {isPostUpdating ? (
-                          <span className="d-inline-flex align-items-center gap-2">
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              className="me-2 flex-shrink-0"
-                              aria-hidden="true"
-                            />
-                            <span>{t('adminAccount.content.actions.updating', { ns: 'admin-account' })}</span>
-                          </span>
-                        ) : (
-                          <>
-                            <FontAwesomeIcon icon="save" className="me-2" />
-                            {t('adminAccount.content.actions.updatePost', { ns: 'admin-account' })}
-                          </>
-                        )}
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="primary"
-                        disabled={!canSavePostContent || isPostContentUpdating}
-                        onClick={handleUpdatePostContent}
-                      >
-                        {isPostContentUpdating ? (
-                          <span className="d-inline-flex align-items-center gap-2">
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              className="me-2 flex-shrink-0"
-                              aria-hidden="true"
-                            />
-                            <span>{t('adminAccount.content.actions.updating', { ns: 'admin-account' })}</span>
-                          </span>
-                        ) : (
-                          <>
-                            <FontAwesomeIcon icon="save" className="me-2" />
-                            {t('adminAccount.content.actions.updatePostContent', { ns: 'admin-account' })}
-                          </>
-                        )}
-                      </Button>
-                    )}
+                    {postSaveAction}
                     <Button
                       type="button"
                       variant="danger"
@@ -3816,10 +4118,9 @@ export default function AdminContentManagementPanel({
                             normalizedCategoryName !== 'all category' &&
                             normalizedCategoryName !== 'all categories' &&
                             normalizedCategoryName !== 'tüm kategoriler';
-                          const resolvedCategoryRecord =
-                            item.categoryId && item.categoryId.trim()
-                              ? categoriesByLocaleAndID.get(`${localeCode}|${item.categoryId.toLowerCase()}`)
-                              : null;
+                          const resolvedCategoryRecord = item.categoryId?.trim()
+                            ? categoriesByLocaleAndID.get(`${localeCode}|${item.categoryId.toLowerCase()}`)
+                            : null;
                           const resolvedPostCategory: PostCategoryRef | null = resolvedCategoryRecord
                             ? {
                                 id: resolvedCategoryRecord.id,

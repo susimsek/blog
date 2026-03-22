@@ -259,3 +259,90 @@ func TestRequestAdminPasswordResetClearsPendingRequestWhenMailFails(t *testing.T
 		t.Fatal("expected pending password reset to be cleared after mail failure")
 	}
 }
+
+func TestAdminPasswordResetHelpersHandleValidationAndInvalidStates(t *testing.T) {
+	t.Run("validate password reset token empty and success", func(t *testing.T) {
+		previousUsersRepo := adminUsersRepository
+		previousNowUTCFn := nowUTCFn
+		t.Cleanup(func() {
+			adminUsersRepository = previousUsersRepo
+			nowUTCFn = previousNowUTCFn
+		})
+
+		result, err := ValidateAdminPasswordResetToken(context.Background(), "", "tr")
+		if err != nil {
+			t.Fatalf("ValidateAdminPasswordResetToken empty token error: %v", err)
+		}
+		if result == nil || result.Status != "invalid-link" || result.Locale != "tr" {
+			t.Fatalf("unexpected empty token result: %#v", result)
+		}
+
+		user := &domain.AdminUserRecord{
+			AdminUser: domain.AdminUser{ID: "admin-1", Email: "admin@example.com"},
+			PendingPasswordReset: &domain.AdminPendingPasswordReset{
+				TokenHash:   hashValue("reset-token"),
+				Locale:      "en",
+				RequestedAt: time.Date(2026, time.March, 20, 8, 0, 0, 0, time.UTC),
+				ExpiresAt:   time.Date(2026, time.March, 20, 11, 0, 0, 0, time.UTC),
+			},
+		}
+		repo := newAdminAuthEmailChangeStubUserRepository(user)
+		repo.byPendingResetTokenHash[hashValue("reset-token")] = user
+		adminUsersRepository = repo
+		nowUTCFn = func() time.Time { return time.Date(2026, time.March, 20, 10, 0, 0, 0, time.UTC) }
+
+		result, err = ValidateAdminPasswordResetToken(context.Background(), "reset-token", "tr")
+		if err != nil {
+			t.Fatalf("ValidateAdminPasswordResetToken success error: %v", err)
+		}
+		if result == nil || result.Status != "success" || result.Locale != "en" {
+			t.Fatalf("unexpected success result: %#v", result)
+		}
+	})
+
+	t.Run("validate reset password helper errors", func(t *testing.T) {
+		if err := validateAdminPasswordResetPassword("", ""); err == nil {
+			t.Fatal("expected required password error")
+		}
+		if err := validateAdminPasswordResetPassword("short", "short"); err == nil {
+			t.Fatal("expected short password error")
+		}
+		if err := validateAdminPasswordResetPassword("new-password", "different"); err == nil {
+			t.Fatal("expected mismatch error")
+		}
+		if err := validateAdminPasswordResetPassword("new-password", "new-password"); err != nil {
+			t.Fatalf("unexpected valid password error: %v", err)
+		}
+	})
+
+	t.Run("reset password validates required and expired tokens", func(t *testing.T) {
+		if _, err := ResetAdminPasswordWithToken(context.Background(), "", "new-password", "new-password", "en"); err == nil {
+			t.Fatal("expected token required error")
+		}
+
+		previousUsersRepo := adminUsersRepository
+		previousNowUTCFn := nowUTCFn
+		t.Cleanup(func() {
+			adminUsersRepository = previousUsersRepo
+			nowUTCFn = previousNowUTCFn
+		})
+
+		user := &domain.AdminUserRecord{
+			AdminUser: domain.AdminUser{ID: "admin-1", Email: "admin@example.com"},
+			PendingPasswordReset: &domain.AdminPendingPasswordReset{
+				TokenHash:   hashValue("expired-token"),
+				Locale:      "en",
+				RequestedAt: time.Date(2026, time.March, 20, 8, 0, 0, 0, time.UTC),
+				ExpiresAt:   time.Date(2026, time.March, 20, 9, 0, 0, 0, time.UTC),
+			},
+		}
+		repo := newAdminAuthEmailChangeStubUserRepository(user)
+		repo.byPendingResetTokenHash[hashValue("expired-token")] = user
+		adminUsersRepository = repo
+		nowUTCFn = func() time.Time { return time.Date(2026, time.March, 20, 10, 0, 0, 0, time.UTC) }
+
+		if _, err := ResetAdminPasswordWithToken(context.Background(), "expired-token", "new-password", "new-password", "en"); err == nil {
+			t.Fatal("expected expired token error")
+		}
+	})
+}

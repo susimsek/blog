@@ -9,6 +9,7 @@ import (
 const (
 	statusServiceUnavailable = "service-unavailable"
 	statusInvalidPostID      = "invalid-post-id"
+	statusNotFound           = "not-found"
 )
 
 func mapLocaleInput(value model.Locale) string {
@@ -52,7 +53,7 @@ func mapContentQueryStatus(value string) model.ContentQueryStatus {
 		return model.ContentQueryStatusInvalidScopeIDS
 	case statusInvalidPostID:
 		return model.ContentQueryStatusInvalidPostID
-	case "not-found":
+	case statusNotFound:
 		return model.ContentQueryStatusNotFound
 	default:
 		return model.ContentQueryStatusFailed
@@ -103,7 +104,7 @@ func mapCommentQueryStatus(value string) model.CommentQueryStatus {
 		return model.CommentQueryStatusServiceUnavailable
 	case statusInvalidPostID:
 		return model.CommentQueryStatusInvalidPostID
-	case "not-found":
+	case statusNotFound:
 		return model.CommentQueryStatusNotFound
 	default:
 		return model.CommentQueryStatusFailed

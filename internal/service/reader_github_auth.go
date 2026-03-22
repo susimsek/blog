@@ -27,77 +27,36 @@ type readerGithubTokenResponse struct {
 	AccessToken string `json:"access_token"`
 }
 
+type readerGithubUserPayload struct {
+	ID        int64   `json:"id"`
+	Login     string  `json:"login"`
+	Name      *string `json:"name"`
+	AvatarURL string  `json:"avatar_url"`
+	Email     *string `json:"email"`
+}
+
+const (
+	readerGithubUnavailableMessage = "github login is unavailable"
+	readerGithubInvalidMessage     = "github account is invalid"
+)
+
 func ResolveReaderGithubIdentityFromCode(ctx context.Context, code, redirectURI string) (*ReaderGithubIdentity, error) {
 	config := appconfig.ResolveReaderGithubConfig()
 	if !config.Enabled() {
 		return nil, apperrors.Config("github oauth is not configured", nil)
 	}
 
-	form := url.Values{}
-	form.Set("code", strings.TrimSpace(code))
-	form.Set("client_id", config.ClientID)
-	form.Set("client_secret", config.ClientSecret)
-	form.Set("redirect_uri", strings.TrimSpace(redirectURI))
-
-	request, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPost,
-		"https://github.com/login/oauth/access_token",
-		strings.NewReader(form.Encode()),
-	)
+	accessToken, err := exchangeReaderGithubAccessToken(ctx, config, code, redirectURI)
 	if err != nil {
-		return nil, apperrors.ServiceUnavailable("github login is unavailable", err)
+		return nil, err
 	}
-	request.Header.Set("Accept", "application/json")
-	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	response, err := http.DefaultClient.Do(request)
+	userPayload, err := fetchReaderGithubUser(ctx, accessToken)
 	if err != nil {
-		return nil, apperrors.ServiceUnavailable("github login is unavailable", err)
-	}
-	defer func() {
-		_ = response.Body.Close()
-	}()
-	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
-		return nil, apperrors.ServiceUnavailable("github login is unavailable", nil)
-	}
-
-	var tokenPayload readerGithubTokenResponse
-	if err := json.NewDecoder(response.Body).Decode(&tokenPayload); err != nil || strings.TrimSpace(tokenPayload.AccessToken) == "" {
-		return nil, apperrors.ServiceUnavailable("github login is unavailable", err)
-	}
-
-	userRequest, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/user", nil)
-	if err != nil {
-		return nil, apperrors.ServiceUnavailable("github login is unavailable", err)
-	}
-	userRequest.Header.Set("Accept", "application/vnd.github+json")
-	userRequest.Header.Set("Authorization", "Bearer "+strings.TrimSpace(tokenPayload.AccessToken))
-	userRequest.Header.Set("X-GitHub-Api-Version", "2022-11-28")
-
-	userResponse, err := http.DefaultClient.Do(userRequest)
-	if err != nil {
-		return nil, apperrors.ServiceUnavailable("github login is unavailable", err)
-	}
-	defer func() {
-		_ = userResponse.Body.Close()
-	}()
-	if userResponse.StatusCode < http.StatusOK || userResponse.StatusCode >= http.StatusMultipleChoices {
-		return nil, apperrors.ServiceUnavailable("github login is unavailable", nil)
-	}
-
-	var userPayload struct {
-		ID        int64   `json:"id"`
-		Login     string  `json:"login"`
-		Name      *string `json:"name"`
-		AvatarURL string  `json:"avatar_url"`
-		Email     *string `json:"email"`
-	}
-	if err := json.NewDecoder(userResponse.Body).Decode(&userPayload); err != nil {
-		return nil, apperrors.ServiceUnavailable("github login is unavailable", err)
+		return nil, err
 	}
 	if userPayload.ID <= 0 {
-		return nil, apperrors.BadRequest("github account is invalid")
+		return nil, apperrors.BadRequest(readerGithubInvalidMessage)
 	}
 
 	email := ""
@@ -107,39 +66,9 @@ func ResolveReaderGithubIdentityFromCode(ctx context.Context, code, redirectURI 
 	}
 
 	if email == "" {
-		emailRequest, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/user/emails", nil)
+		email, emailVerified, err = fetchReaderGithubPrimaryEmail(ctx, accessToken)
 		if err != nil {
-			return nil, apperrors.ServiceUnavailable("github login is unavailable", err)
-		}
-		emailRequest.Header.Set("Accept", "application/vnd.github+json")
-		emailRequest.Header.Set("Authorization", "Bearer "+strings.TrimSpace(tokenPayload.AccessToken))
-		emailRequest.Header.Set("X-GitHub-Api-Version", "2022-11-28")
-
-		emailResponse, err := http.DefaultClient.Do(emailRequest)
-		if err != nil {
-			return nil, apperrors.ServiceUnavailable("github login is unavailable", err)
-		}
-		defer func() {
-			_ = emailResponse.Body.Close()
-		}()
-		if emailResponse.StatusCode < http.StatusOK || emailResponse.StatusCode >= http.StatusMultipleChoices {
-			return nil, apperrors.ServiceUnavailable("github login is unavailable", nil)
-		}
-
-		var emailPayload []struct {
-			Email    string `json:"email"`
-			Primary  bool   `json:"primary"`
-			Verified bool   `json:"verified"`
-		}
-		if err := json.NewDecoder(emailResponse.Body).Decode(&emailPayload); err != nil {
-			return nil, apperrors.ServiceUnavailable("github login is unavailable", err)
-		}
-		for _, item := range emailPayload {
-			if item.Primary && item.Verified && strings.TrimSpace(item.Email) != "" {
-				email = strings.TrimSpace(strings.ToLower(item.Email))
-				emailVerified = true
-				break
-			}
+			return nil, err
 		}
 	} else {
 		emailVerified = true
@@ -158,7 +87,7 @@ func ResolveReaderGithubIdentityFromCode(ctx context.Context, code, redirectURI 
 		AvatarURL:     sanitizeReaderAvatarURL(userPayload.AvatarURL),
 	}
 	if identity.Subject == "" || identity.Email == "" || !identity.EmailVerified {
-		return nil, apperrors.BadRequest("github account is invalid")
+		return nil, apperrors.BadRequest(readerGithubInvalidMessage)
 	}
 
 	return identity, nil
@@ -171,7 +100,7 @@ func LoginReaderWithGithubIdentity(
 	metadata ReaderSessionMetadata,
 ) (*ReaderAuthResponse, error) {
 	if identity == nil {
-		return nil, apperrors.BadRequest("github account is invalid")
+		return nil, apperrors.BadRequest(readerGithubInvalidMessage)
 	}
 
 	config := appconfig.ResolveReaderConfig()
@@ -252,4 +181,111 @@ func sanitizeReaderAvatarURL(value string) string {
 		return ""
 	}
 	return resolved
+}
+
+func exchangeReaderGithubAccessToken(
+	ctx context.Context,
+	config appconfig.ReaderGithubConfig,
+	code string,
+	redirectURI string,
+) (string, error) {
+	form := url.Values{}
+	form.Set("code", strings.TrimSpace(code))
+	form.Set("client_id", config.ClientID)
+	form.Set("client_secret", config.ClientSecret)
+	form.Set("redirect_uri", strings.TrimSpace(redirectURI))
+
+	request, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		"https://github.com/login/oauth/access_token",
+		strings.NewReader(form.Encode()),
+	)
+	if err != nil {
+		return "", apperrors.ServiceUnavailable(readerGithubUnavailableMessage, err)
+	}
+	request.Header.Set("Accept", "application/json")
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	var payload readerGithubTokenResponse
+	if err := executeReaderGithubJSONRequest(request, &payload); err != nil {
+		return "", err
+	}
+
+	accessToken := strings.TrimSpace(payload.AccessToken)
+	if accessToken == "" {
+		return "", apperrors.ServiceUnavailable(readerGithubUnavailableMessage, nil)
+	}
+
+	return accessToken, nil
+}
+
+func fetchReaderGithubUser(ctx context.Context, accessToken string) (*readerGithubUserPayload, error) {
+	request, err := newReaderGithubAPIRequest(ctx, "https://api.github.com/user", accessToken)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload readerGithubUserPayload
+	if err := executeReaderGithubJSONRequest(request, &payload); err != nil {
+		return nil, err
+	}
+
+	return &payload, nil
+}
+
+func fetchReaderGithubPrimaryEmail(ctx context.Context, accessToken string) (string, bool, error) {
+	request, err := newReaderGithubAPIRequest(ctx, "https://api.github.com/user/emails", accessToken)
+	if err != nil {
+		return "", false, err
+	}
+
+	var payload []struct {
+		Email    string `json:"email"`
+		Primary  bool   `json:"primary"`
+		Verified bool   `json:"verified"`
+	}
+	if err := executeReaderGithubJSONRequest(request, &payload); err != nil {
+		return "", false, err
+	}
+
+	for _, item := range payload {
+		if item.Primary && item.Verified && strings.TrimSpace(item.Email) != "" {
+			return strings.TrimSpace(strings.ToLower(item.Email)), true, nil
+		}
+	}
+
+	return "", false, nil
+}
+
+func newReaderGithubAPIRequest(
+	ctx context.Context,
+	endpoint string,
+	accessToken string,
+) (*http.Request, error) {
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return nil, apperrors.ServiceUnavailable(readerGithubUnavailableMessage, err)
+	}
+	request.Header.Set("Accept", "application/vnd.github+json")
+	request.Header.Set("Authorization", "Bearer "+strings.TrimSpace(accessToken))
+	request.Header.Set("X-GitHub-Api-Version", "2022-11-28")
+	return request, nil
+}
+
+func executeReaderGithubJSONRequest(request *http.Request, target any) error {
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return apperrors.ServiceUnavailable(readerGithubUnavailableMessage, err)
+	}
+	defer func() {
+		_ = response.Body.Close()
+	}()
+	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
+		return apperrors.ServiceUnavailable(readerGithubUnavailableMessage, nil)
+	}
+	if err := json.NewDecoder(response.Body).Decode(target); err != nil {
+		return apperrors.ServiceUnavailable(readerGithubUnavailableMessage, err)
+	}
+	return nil
 }

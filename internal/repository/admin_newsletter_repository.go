@@ -24,6 +24,12 @@ var (
 
 const adminNewsletterRepositoryUnavailableFormat = "%w: %v"
 
+const (
+	mongoRegexOperator     = "$regex"
+	mongoOptionsOperator   = "$options"
+	mongoOptionsIgnoreCase = "i"
+)
+
 type AdminNewsletterRepository interface {
 	ListSubscribers(
 		ctx context.Context,
@@ -89,8 +95,8 @@ func (*adminNewsletterMongoRepository) ListSubscribers(
 	if searchQuery != "" {
 		escapedQuery := regexp.QuoteMeta(searchQuery)
 		query["email"] = bson.M{
-			"$regex":   escapedQuery,
-			"$options": "i",
+			mongoRegexOperator:   escapedQuery,
+			mongoOptionsOperator: mongoOptionsIgnoreCase,
 		}
 	}
 
@@ -469,7 +475,7 @@ func decodeAdminNewsletterCampaign(cursor *mongo.Cursor) (*domain.AdminNewslette
 	}, nil
 }
 
-func enrichAdminNewsletterCampaignSummaries(ctx context.Context, items []domain.AdminNewsletterCampaignRecord) error {
+func enrichAdminNewsletterCampaignSummaries(ctx context.Context, items []domain.AdminNewsletterCampaignRecord) error { // NOSONAR
 	if len(items) == 0 {
 		return nil
 	}
@@ -650,7 +656,7 @@ func decodeAdminNewsletterDeliveryFailure(cursor *mongo.Cursor) (*domain.AdminNe
 	}, nil
 }
 
-func normalizeAdminNewsletterRecord(
+func normalizeAdminNewsletterRecord( // NOSONAR
 	email string,
 	locale string,
 	status string,

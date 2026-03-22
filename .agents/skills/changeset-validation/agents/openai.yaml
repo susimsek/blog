@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Changeset Validation'
+  short_description: 'Validate derived artifacts and summarize change impact'
+  default_prompt: 'Use $changeset-validation to check derived artifacts, sync steps, and summarize the impact of this repo change.'

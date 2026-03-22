@@ -9,6 +9,7 @@ next.config.js
 .air
 .gocache
 .vercel
+.vercel/output
 .scannerwork
 .sonar
 .sonarqube
@@ -18,6 +19,7 @@ build
 dist
 
 # Lock files and config files
+pnpm-lock.yaml
 package-lock.json
 yarn.lock
 
@@ -26,6 +28,7 @@ public
 
 # API and GraphQL generated files
 src/graphql/generated
+src/types/i18n-resources.d.ts
 golangci-lint-report.xml
 
 .git
@@ -54,3 +57,4 @@ docker-compose.override.yml
 # Helm
 helm
 charts
+deploy/helm/blog/templates

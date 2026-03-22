@@ -20,56 +20,68 @@ import {
 } from '@/lib/adminPasswordResetApi';
 
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
+type ResetTokenStatus = 'valid' | 'invalid' | 'expired';
+type Translate = ReturnType<typeof useTranslation>['t'];
 
-export default function AdminResetPasswordPage() {
-  const { t } = useTranslation(['admin-password-reset', 'admin-account']);
-  const searchParams = useSearchParams();
-  const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
-  const locale = routeLocale ?? defaultLocale;
-  const loginHref = withAdminLocalePath(locale, ADMIN_ROUTES.login);
-  const forgotPasswordHref = withAdminLocalePath(locale, ADMIN_ROUTES.forgotPassword);
-  const token = (searchParams?.get('token') ?? '').trim();
+const resolveResetTokenStatus = (status: string) => {
+  const normalizedStatus = status.trim().toLowerCase();
 
-  const [password, setPassword] = React.useState('');
-  const [confirmPassword, setConfirmPassword] = React.useState('');
+  if (normalizedStatus === 'success') {
+    return 'valid' as const;
+  }
+
+  if (normalizedStatus === 'expired') {
+    return 'expired' as const;
+  }
+
+  return 'invalid' as const;
+};
+
+const resolvePasswordError = (password: string, t: ReturnType<typeof useTranslation>['t']) => {
+  if (password.trim() === '') {
+    return t('adminPasswordReset.reset.validation.passwordRequired');
+  }
+
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return t('adminPasswordReset.reset.validation.passwordTooShort');
+  }
+
+  return '';
+};
+
+const resolveConfirmPasswordError = (
+  password: string,
+  confirmPassword: string,
+  t: ReturnType<typeof useTranslation>['t'],
+) => {
+  if (confirmPassword.trim() === '') {
+    return t('adminPasswordReset.reset.validation.confirmRequired');
+  }
+
+  if (password !== confirmPassword) {
+    return t('adminPasswordReset.reset.validation.confirmMismatch');
+  }
+
+  return '';
+};
+
+const resolvePasswordToggleLabel = (isVisible: boolean, showKey: string, hideKey: string, t: Translate) =>
+  isVisible ? t(hideKey) : t(showKey);
+
+const resolveDisplayError = (code: string, fallbackMessage: string, t: Translate) => {
+  const translationKey = `adminPasswordReset.errors.codes.${code}`;
+  const translated = t(translationKey);
+  if (translated === translationKey) {
+    return fallbackMessage;
+  }
+
+  return translated;
+};
+
+const useAdminPasswordResetTokenState = (token: string, locale: string, t: Translate) => {
   const [errorMessage, setErrorMessage] = React.useState('');
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isCheckingToken, setIsCheckingToken] = React.useState(true);
-  const [tokenStatus, setTokenStatus] = React.useState<'valid' | 'invalid' | 'expired'>('invalid');
-  const [hasSubmitted, setHasSubmitted] = React.useState(false);
-  const [touchedFields, setTouchedFields] = React.useState({
-    password: false,
-    confirmPassword: false,
-  });
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
-  const [isSuccess, setIsSuccess] = React.useState(false);
-  const [showSuccessMessage, setShowSuccessMessage] = React.useState(false);
-  const passwordStrength = getAdminPasswordStrength(password);
-  const resolveDisplayError = React.useCallback(
-    (code: string, fallbackMessage: string) => {
-      const translationKey = `adminPasswordReset.errors.codes.${code}`;
-      const translated = t(translationKey);
-      return translated !== translationKey ? translated : fallbackMessage;
-    },
-    [t],
-  );
-
-  const passwordError =
-    password.trim() === ''
-      ? t('adminPasswordReset.reset.validation.passwordRequired')
-      : password.length < MIN_PASSWORD_LENGTH
-        ? t('adminPasswordReset.reset.validation.passwordTooShort')
-        : '';
-  const confirmPasswordError =
-    confirmPassword.trim() === ''
-      ? t('adminPasswordReset.reset.validation.confirmRequired')
-      : password !== confirmPassword
-        ? t('adminPasswordReset.reset.validation.confirmMismatch')
-        : '';
-  const showPasswordError = (hasSubmitted || touchedFields.password) && passwordError !== '';
-  const showConfirmPasswordError = (hasSubmitted || touchedFields.confirmPassword) && confirmPasswordError !== '';
+  const [tokenStatus, setTokenStatus] = React.useState<ResetTokenStatus>('invalid');
 
   React.useEffect(() => {
     let isMounted = true;
@@ -88,24 +100,18 @@ export default function AdminResetPasswordPage() {
           return;
         }
 
-        const normalizedStatus = result.status.trim().toLowerCase();
-        if (normalizedStatus === 'success') {
-          setTokenStatus('valid');
-        } else if (normalizedStatus === 'expired') {
-          setTokenStatus('expired');
-        } else {
-          setTokenStatus('invalid');
-        }
+        setTokenStatus(resolveResetTokenStatus(result.status));
       })
       .catch(error => {
         if (!isMounted) {
           return;
         }
+
         const resolved = resolveAdminPasswordResetError(error);
         setErrorMessage(
           resolved.kind === 'network'
             ? t('adminPasswordReset.errors.network')
-            : resolveDisplayError(resolved.code, resolved.message),
+            : resolveDisplayError(resolved.code, resolved.message, t),
         );
         setTokenStatus('invalid');
       })
@@ -118,12 +124,96 @@ export default function AdminResetPasswordPage() {
     return () => {
       isMounted = false;
     };
-  }, [locale, resolveDisplayError, t, token]);
+  }, [locale, t, token]);
+
+  return { errorMessage, isCheckingToken, tokenStatus };
+};
+
+const submitAdminPasswordReset = async (options: {
+  confirmPassword: string;
+  locale: string;
+  password: string;
+  t: Translate;
+  token: string;
+}) => {
+  const { confirmPassword, locale, password, t, token } = options;
+
+  try {
+    await confirmAdminPasswordReset(token, locale, password, confirmPassword);
+    return { ok: true as const, errorMessage: '' };
+  } catch (error) {
+    const resolved = resolveAdminPasswordResetError(error);
+    return {
+      ok: false as const,
+      errorMessage:
+        resolved.kind === 'network'
+          ? t('adminPasswordReset.errors.network')
+          : resolveDisplayError(resolved.code, resolved.message, t),
+    };
+  }
+};
+
+const renderTokenState = (isCheckingToken: boolean, tokenStatus: ResetTokenStatus, t: Translate) => {
+  if (isCheckingToken) {
+    return <AdminLoadingState className="admin-loading-stack py-4" ariaLabel={t('adminPasswordReset.reset.loading')} />;
+  }
+
+  if (tokenStatus === 'expired') {
+    return (
+      <Alert variant="warning" className="mb-4 px-4 py-3 lh-base">
+        {t('adminPasswordReset.reset.expired')}
+      </Alert>
+    );
+  }
+
+  if (tokenStatus === 'invalid') {
+    return (
+      <Alert variant="danger" className="mb-4 px-4 py-3 lh-base">
+        {t('adminPasswordReset.reset.invalid')}
+      </Alert>
+    );
+  }
+
+  return null;
+};
+
+export default function AdminResetPasswordPage() {
+  // NOSONAR
+  const { t } = useTranslation(['admin-password-reset', 'admin-account']);
+  const searchParams = useSearchParams();
+  const params = useParams<{ locale?: string | string[] }>();
+  const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
+  const locale = routeLocale ?? defaultLocale;
+  const loginHref = withAdminLocalePath(locale, ADMIN_ROUTES.login);
+  const forgotPasswordHref = withAdminLocalePath(locale, ADMIN_ROUTES.forgotPassword);
+  const token = (searchParams?.get('token') ?? '').trim();
+
+  const [password, setPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const [errorMessage, setErrorMessage] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [hasSubmitted, setHasSubmitted] = React.useState(false);
+  const [touchedFields, setTouchedFields] = React.useState({
+    password: false,
+    confirmPassword: false,
+  });
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const [isSuccess, setIsSuccess] = React.useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = React.useState(false);
+  const passwordStrength = getAdminPasswordStrength(password);
+  const tokenState = useAdminPasswordResetTokenState(token, locale, t);
+  const displayedErrorMessage = errorMessage || tokenState.errorMessage;
+
+  const passwordError = resolvePasswordError(password, t);
+  const confirmPasswordError = resolveConfirmPasswordError(password, confirmPassword, t);
+  const showPasswordError = (hasSubmitted || touchedFields.password) && passwordError !== '';
+  const showConfirmPasswordError = (hasSubmitted || touchedFields.confirmPassword) && confirmPasswordError !== '';
 
   const handleSubmit = React.useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
+    async (event: React.SyntheticEvent<HTMLFormElement>) => {
       event.preventDefault();
-      if (isSubmitting || tokenStatus !== 'valid') {
+      if (isSubmitting || tokenState.tokenStatus !== 'valid') {
         return;
       }
 
@@ -135,20 +225,21 @@ export default function AdminResetPasswordPage() {
       setIsSubmitting(true);
       setErrorMessage('');
 
-      try {
-        await confirmAdminPasswordReset(token, locale, password, confirmPassword);
+      const result = await submitAdminPasswordReset({
+        confirmPassword,
+        locale,
+        password,
+        t,
+        token,
+      });
+      if (result.ok) {
         setIsSuccess(true);
         setShowSuccessMessage(true);
-      } catch (error) {
-        const resolved = resolveAdminPasswordResetError(error);
-        setErrorMessage(
-          resolved.kind === 'network'
-            ? t('adminPasswordReset.errors.network')
-            : resolveDisplayError(resolved.code, resolved.message),
-        );
-      } finally {
-        setIsSubmitting(false);
+      } else {
+        setErrorMessage(result.errorMessage);
       }
+
+      setIsSubmitting(false);
     },
     [
       confirmPassword,
@@ -157,15 +248,14 @@ export default function AdminResetPasswordPage() {
       locale,
       password,
       passwordError,
-      resolveDisplayError,
       t,
       token,
-      tokenStatus,
+      tokenState.tokenStatus,
     ],
   );
 
   React.useEffect(() => {
-    if (!showSuccessMessage) {
+    if (showSuccessMessage === false) {
       return;
     }
 
@@ -177,32 +267,6 @@ export default function AdminResetPasswordPage() {
       globalThis.clearTimeout(timeoutID);
     };
   }, [showSuccessMessage]);
-
-  const renderTokenState = () => {
-    if (isCheckingToken) {
-      return (
-        <AdminLoadingState className="admin-loading-stack py-4" ariaLabel={t('adminPasswordReset.reset.loading')} />
-      );
-    }
-
-    if (tokenStatus === 'expired') {
-      return (
-        <Alert variant="warning" className="mb-4 px-4 py-3 lh-base">
-          {t('adminPasswordReset.reset.expired')}
-        </Alert>
-      );
-    }
-
-    if (tokenStatus === 'invalid') {
-      return (
-        <Alert variant="danger" className="mb-4 px-4 py-3 lh-base">
-          {t('adminPasswordReset.reset.invalid')}
-        </Alert>
-      );
-    }
-
-    return null;
-  };
 
   return (
     <section className="py-5 admin-login-section">
@@ -225,15 +289,15 @@ export default function AdminResetPasswordPage() {
                 </Alert>
               ) : null}
 
-              {errorMessage ? (
+              {displayedErrorMessage ? (
                 <Alert variant="danger" className="mb-4 px-4 py-3 lh-base">
-                  {errorMessage}
+                  {displayedErrorMessage}
                 </Alert>
               ) : null}
 
-              {renderTokenState()}
+              {renderTokenState(tokenState.isCheckingToken, tokenState.tokenStatus, t)}
 
-              {tokenStatus === 'valid' && !isSuccess ? (
+              {tokenState.tokenStatus === 'valid' && !isSuccess ? (
                 <Form noValidate onSubmit={handleSubmit}>
                   <Form.Group className="mb-4" controlId="admin-reset-password">
                     <Form.Label>{t('adminPasswordReset.reset.password')}</Form.Label>
@@ -244,7 +308,7 @@ export default function AdminResetPasswordPage() {
                         onChange={event => {
                           setPassword(event.currentTarget.value);
                           setTouchedFields(previous => ({ ...previous, password: true }));
-                          if (errorMessage) {
+                          if (displayedErrorMessage) {
                             setErrorMessage('');
                           }
                         }}
@@ -261,11 +325,12 @@ export default function AdminResetPasswordPage() {
                         variant="outline-secondary"
                         type="button"
                         onClick={() => setShowPassword(previous => !previous)}
-                        aria-label={
-                          showPassword
-                            ? t('adminPasswordReset.reset.hidePassword')
-                            : t('adminPasswordReset.reset.showPassword')
-                        }
+                        aria-label={resolvePasswordToggleLabel(
+                          showPassword,
+                          'adminPasswordReset.reset.showPassword',
+                          'adminPasswordReset.reset.hidePassword',
+                          t,
+                        )}
                       >
                         <FontAwesomeIcon icon={showPassword ? 'eye-slash' : 'eye'} />
                       </Button>
@@ -308,7 +373,7 @@ export default function AdminResetPasswordPage() {
                         onChange={event => {
                           setConfirmPassword(event.currentTarget.value);
                           setTouchedFields(previous => ({ ...previous, confirmPassword: true }));
-                          if (errorMessage) {
+                          if (displayedErrorMessage) {
                             setErrorMessage('');
                           }
                         }}
@@ -325,11 +390,12 @@ export default function AdminResetPasswordPage() {
                         variant="outline-secondary"
                         type="button"
                         onClick={() => setShowConfirmPassword(previous => !previous)}
-                        aria-label={
-                          showConfirmPassword
-                            ? t('adminPasswordReset.reset.hideConfirmPassword')
-                            : t('adminPasswordReset.reset.showConfirmPassword')
-                        }
+                        aria-label={resolvePasswordToggleLabel(
+                          showConfirmPassword,
+                          'adminPasswordReset.reset.showConfirmPassword',
+                          'adminPasswordReset.reset.hideConfirmPassword',
+                          t,
+                        )}
                       >
                         <FontAwesomeIcon icon={showConfirmPassword ? 'eye-slash' : 'eye'} />
                       </Button>
@@ -367,9 +433,10 @@ export default function AdminResetPasswordPage() {
                 </Form>
               ) : null}
 
-              {!isCheckingToken && (tokenStatus === 'invalid' || tokenStatus === 'expired' || isSuccess) ? (
+              {!tokenState.isCheckingToken &&
+              (tokenState.tokenStatus === 'invalid' || tokenState.tokenStatus === 'expired' || isSuccess) ? (
                 <div className="d-flex flex-column flex-sm-row gap-3">
-                  {tokenStatus === 'invalid' || tokenStatus === 'expired' ? (
+                  {tokenState.tokenStatus === 'invalid' || tokenState.tokenStatus === 'expired' ? (
                     <a href={forgotPasswordHref} className="btn btn-primary">
                       <span className="d-inline-flex align-items-center gap-2">
                         <FontAwesomeIcon icon="envelope" />

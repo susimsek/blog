@@ -56,6 +56,9 @@ var (
 const (
 	adminUsersCollectionName              = "admin_users"
 	adminUsersRepositoryUnavailableFormat = "%w: %v"
+	adminPendingPasswordResetTokenHashKey = "pendingPasswordReset.tokenHash"
+	adminMongoExistsOperator              = "$exists"
+	adminMongoUnsetOperator               = "$unset"
 )
 
 type adminMongoRepository struct{}
@@ -156,8 +159,8 @@ func (*adminMongoRepository) FindByPendingPasswordResetTokenHash(
 	}
 
 	return findAdminUser(ctx, collection, bson.M{
-		"pendingPasswordReset.tokenHash": strings.TrimSpace(tokenHash),
-		"status":                         bson.M{"$ne": "disabled"},
+		adminPendingPasswordResetTokenHashKey: strings.TrimSpace(tokenHash),
+		"status":                              bson.M{"$ne": "disabled"},
 	})
 }
 
@@ -169,9 +172,9 @@ func (*adminMongoRepository) HasAnyGoogleLink(ctx context.Context) (bool, error)
 
 	count, err := collection.CountDocuments(ctx, bson.M{
 		"googleSubject": bson.M{
-			"$exists": true,
-			"$type":   "string",
-			"$ne":     "",
+			adminMongoExistsOperator: true,
+			"$type":                  "string",
+			"$ne":                    "",
 		},
 		"status": bson.M{"$ne": "disabled"},
 	}, options.Count().SetLimit(1))
@@ -190,9 +193,9 @@ func (*adminMongoRepository) HasAnyGithubLink(ctx context.Context) (bool, error)
 
 	count, err := collection.CountDocuments(ctx, bson.M{
 		"githubSubject": bson.M{
-			"$exists": true,
-			"$type":   "string",
-			"$ne":     "",
+			adminMongoExistsOperator: true,
+			"$type":                  "string",
+			"$ne":                    "",
 		},
 		"status": bson.M{"$ne": "disabled"},
 	}, options.Count().SetLimit(1))
@@ -219,7 +222,7 @@ func (*adminMongoRepository) UpdatePasswordHashByID(ctx context.Context, id, pas
 			"$set": bson.M{
 				"passwordHash": strings.TrimSpace(passwordHash),
 			},
-			"$unset": bson.M{
+			adminMongoUnsetOperator: bson.M{
 				"pendingPasswordReset": "",
 			},
 			"$inc": bson.M{
@@ -347,7 +350,7 @@ func (*adminMongoRepository) ClearPendingEmailChangeByID(ctx context.Context, id
 			"status": bson.M{"$ne": "disabled"},
 		},
 		bson.M{
-			"$unset": bson.M{
+			adminMongoUnsetOperator: bson.M{
 				"pendingEmailChange": "",
 			},
 		},
@@ -412,7 +415,7 @@ func (*adminMongoRepository) ClearPendingPasswordResetByID(ctx context.Context, 
 			"status": bson.M{"$ne": "disabled"},
 		},
 		bson.M{
-			"$unset": bson.M{
+			adminMongoUnsetOperator: bson.M{
 				"pendingPasswordReset": "",
 			},
 		},
@@ -443,7 +446,7 @@ func (*adminMongoRepository) UpdateEmailByID(ctx context.Context, id, email stri
 			"$set": bson.M{
 				"email": strings.TrimSpace(strings.ToLower(email)),
 			},
-			"$unset": bson.M{
+			adminMongoUnsetOperator: bson.M{
 				"pendingEmailChange": "",
 			},
 			"$inc": bson.M{
@@ -514,7 +517,7 @@ func (*adminMongoRepository) ClearGoogleLinkByID(ctx context.Context, id string)
 			"status": bson.M{"$ne": "disabled"},
 		},
 		bson.M{
-			"$unset": bson.M{
+			adminMongoUnsetOperator: bson.M{
 				"googleSubject":  "",
 				"googleEmail":    "",
 				"googleLinkedAt": "",
@@ -587,7 +590,7 @@ func (*adminMongoRepository) ClearGithubLinkByID(ctx context.Context, id string)
 			"status": bson.M{"$ne": "disabled"},
 		},
 		bson.M{
-			"$unset": bson.M{
+			adminMongoUnsetOperator: bson.M{
 				"githubSubject":  "",
 				"githubEmail":    "",
 				"githubLinkedAt": "",
@@ -739,8 +742,8 @@ func ensureAdminUserIndexes(collection *mongo.Collection) error {
 					SetName("uniq_admin_user_username").
 					SetPartialFilterExpression(bson.M{
 						"username": bson.M{
-							"$exists": true,
-							"$type":   "string",
+							adminMongoExistsOperator: true,
+							"$type":                  "string",
 						},
 					}),
 			},
@@ -751,8 +754,8 @@ func ensureAdminUserIndexes(collection *mongo.Collection) error {
 					SetName("uniq_admin_user_google_subject").
 					SetPartialFilterExpression(bson.M{
 						"googleSubject": bson.M{
-							"$exists": true,
-							"$type":   "string",
+							adminMongoExistsOperator: true,
+							"$type":                  "string",
 						},
 					}),
 			},
@@ -763,8 +766,8 @@ func ensureAdminUserIndexes(collection *mongo.Collection) error {
 					SetName("uniq_admin_user_github_subject").
 					SetPartialFilterExpression(bson.M{
 						"githubSubject": bson.M{
-							"$exists": true,
-							"$type":   "string",
+							adminMongoExistsOperator: true,
+							"$type":                  "string",
 						},
 					}),
 			},
@@ -773,14 +776,14 @@ func ensureAdminUserIndexes(collection *mongo.Collection) error {
 				Options: options.Index().SetName("idx_admin_user_status"),
 			},
 			{
-				Keys: bson.D{{Key: "pendingPasswordReset.tokenHash", Value: 1}},
+				Keys: bson.D{{Key: adminPendingPasswordResetTokenHashKey, Value: 1}},
 				Options: options.Index().
 					SetUnique(true).
 					SetName("uniq_admin_user_pending_password_reset_token_hash").
 					SetPartialFilterExpression(bson.M{
-						"pendingPasswordReset.tokenHash": bson.M{
-							"$exists": true,
-							"$type":   "string",
+						adminPendingPasswordResetTokenHashKey: bson.M{
+							adminMongoExistsOperator: true,
+							"$type":                  "string",
 						},
 					}),
 			},

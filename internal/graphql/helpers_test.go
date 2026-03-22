@@ -2,6 +2,7 @@ package graphql
 
 import (
 	"context"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -151,7 +152,7 @@ func TestPostMappingHelpers(t *testing.T) {
 }
 
 func TestRequestMetadataHelpers(t *testing.T) {
-	request := httptest.NewRequest("GET", "/graphql", nil)
+	request := httptest.NewRequest(http.MethodGet, "/graphql", nil)
 	request.RemoteAddr = "127.0.0.1:8080"
 	request.Header.Set("X-Forwarded-For", "203.0.113.5, 203.0.113.6")
 	request.Header.Set("Accept-Language", "tr-TR")

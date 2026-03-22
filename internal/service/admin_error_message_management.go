@@ -20,6 +20,8 @@ const (
 	adminErrorMessageMaxSize       = 100
 	adminErrorMessageAuditResource = "admin_error_messages"
 	adminAuditStatusSuccess        = "success"
+	adminErrorMessageAuthRequired  = "admin authentication required"
+	adminErrorMessageNotFound      = "admin error message not found"
 )
 
 var (
@@ -33,7 +35,7 @@ func ListAdminErrorMessages(
 	filter domain.AdminErrorMessageFilter,
 ) (*domain.AdminErrorMessageListResult, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminErrorMessageAuthRequired)
 	}
 
 	records, err := adminErrorMessageRepository.ListByScope(ctx, adminErrorMessageScope)
@@ -97,7 +99,7 @@ func CreateAdminErrorMessage(
 	message string,
 ) (*domain.AdminErrorMessageView, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminErrorMessageAuthRequired)
 	}
 
 	resolvedKey, err := normalizeAdminErrorMessageKey(key)
@@ -163,7 +165,7 @@ func UpdateAdminErrorMessage(
 	message string,
 ) (*domain.AdminErrorMessageView, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminErrorMessageAuthRequired)
 	}
 
 	resolvedKey, err := normalizeAdminErrorMessageKey(key)
@@ -184,7 +186,7 @@ func UpdateAdminErrorMessage(
 		return nil, err
 	}
 	if beforeValue == "" {
-		return nil, apperrors.BadRequest("admin error message not found")
+		return nil, apperrors.BadRequest(adminErrorMessageNotFound)
 	}
 
 	now := time.Now().UTC()
@@ -228,7 +230,7 @@ func DeleteAdminErrorMessage(
 	key domain.AdminErrorMessageKey,
 ) error {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return apperrors.Unauthorized("admin authentication required")
+		return apperrors.Unauthorized(adminErrorMessageAuthRequired)
 	}
 
 	resolvedKey, err := normalizeAdminErrorMessageKey(key)
@@ -241,7 +243,7 @@ func DeleteAdminErrorMessage(
 		return err
 	}
 	if beforeValue == "" {
-		return apperrors.BadRequest("admin error message not found")
+		return apperrors.BadRequest(adminErrorMessageNotFound)
 	}
 
 	deleted, err := adminErrorMessageRepository.DeleteByKey(
@@ -254,7 +256,7 @@ func DeleteAdminErrorMessage(
 		return apperrors.Internal("failed to delete admin error message", err)
 	}
 	if !deleted {
-		return apperrors.BadRequest("admin error message not found")
+		return apperrors.BadRequest(adminErrorMessageNotFound)
 	}
 
 	InvalidateAdminErrorCatalogCache()
@@ -281,7 +283,7 @@ func ListAdminErrorMessageAuditLogs(
 	limit int,
 ) ([]domain.AdminAuditLogRecord, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminErrorMessageAuthRequired)
 	}
 
 	logs, err := adminAuditLogRepo.ListRecentByResource(ctx, adminErrorMessageAuditResource, limit)
@@ -380,7 +382,7 @@ func loadCurrentAdminErrorMessageValue(ctx context.Context, key domain.AdminErro
 	return "", nil
 }
 
-func createAdminErrorMessageAuditLog(
+func createAdminErrorMessageAuditLog( // NOSONAR
 	ctx context.Context,
 	adminUser *domain.AdminUser,
 	action string,
@@ -391,7 +393,7 @@ func createAdminErrorMessageAuditLog(
 	failureCode string,
 ) error {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return apperrors.Unauthorized("admin authentication required")
+		return apperrors.Unauthorized(adminErrorMessageAuthRequired)
 	}
 
 	trace, _ := httpapi.RequestTraceFromContext(ctx)

@@ -513,6 +513,17 @@
             "likes": "Likes",
             "comments": "Comments"
           },
+          "seo": {
+            "title": "SEO & social preview",
+            "copy": "Preview how this post will appear in social cards before publishing metadata changes.",
+            "openGraphTitle": "Open Graph preview",
+            "twitterTitle": "X preview",
+            "canonicalLabel": "Canonical",
+            "creatorLabel": "Creator",
+            "authorLabel": "Author",
+            "placeholderTitle": "Untitled post",
+            "placeholderDescription": "Add a description to preview social cards."
+          },
           "category": "Category",
           "categoryNone": "No category",
           "metadataFields": {

@@ -18,6 +18,12 @@ import (
 
 const postCommentsCollectionName = "post_comments"
 
+const (
+	commentMongoRegexOperator     = "$regex"
+	commentMongoOptionsOperator   = "$options"
+	commentMongoOptionsIgnoreCase = "i"
+)
+
 var (
 	ErrCommentRepositoryUnavailable = errors.New("comment repository unavailable")
 	ErrCommentNotFound              = errors.New("comment not found")
@@ -312,11 +318,11 @@ func (*commentMongoRepository) ListComments(
 	if searchQuery := strings.TrimSpace(filter.Query); searchQuery != "" {
 		escapedQuery := regexp.QuoteMeta(searchQuery)
 		query["$or"] = bson.A{
-			bson.M{"authorName": bson.M{"$regex": escapedQuery, "$options": "i"}},
-			bson.M{"authorEmail": bson.M{"$regex": escapedQuery, "$options": "i"}},
-			bson.M{"content": bson.M{"$regex": escapedQuery, "$options": "i"}},
-			bson.M{"postTitle": bson.M{"$regex": escapedQuery, "$options": "i"}},
-			bson.M{"postId": bson.M{"$regex": escapedQuery, "$options": "i"}},
+			bson.M{"authorName": bson.M{commentMongoRegexOperator: escapedQuery, commentMongoOptionsOperator: commentMongoOptionsIgnoreCase}},
+			bson.M{"authorEmail": bson.M{commentMongoRegexOperator: escapedQuery, commentMongoOptionsOperator: commentMongoOptionsIgnoreCase}},
+			bson.M{"content": bson.M{commentMongoRegexOperator: escapedQuery, commentMongoOptionsOperator: commentMongoOptionsIgnoreCase}},
+			bson.M{"postTitle": bson.M{commentMongoRegexOperator: escapedQuery, commentMongoOptionsOperator: commentMongoOptionsIgnoreCase}},
+			bson.M{"postId": bson.M{commentMongoRegexOperator: escapedQuery, commentMongoOptionsOperator: commentMongoOptionsIgnoreCase}},
 		}
 	}
 

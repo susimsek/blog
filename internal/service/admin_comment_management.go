@@ -15,12 +15,14 @@ import (
 const (
 	adminCommentDefaultPageSize   = 20
 	adminCommentMaxPageSize       = 100
+	adminCommentAuthRequired      = "admin authentication required"
 	adminCommentCodeStatusInvalid = "ADMIN_COMMENT_STATUS_INVALID"
 	adminCommentCodePostIDInvalid = "ADMIN_COMMENT_POST_ID_INVALID"
 	adminCommentCodeIDRequired    = "ADMIN_COMMENT_ID_REQUIRED"
 	adminCommentCodeIDsRequired   = "ADMIN_COMMENT_IDS_REQUIRED"
 	adminCommentCodeNotFound      = "ADMIN_COMMENT_NOT_FOUND"
 	adminCommentCodeManyNotFound  = "ADMIN_COMMENTS_NOT_FOUND"
+	adminCommentStatusUnsupported = "unsupported comment status"
 )
 
 func ListAdminComments(
@@ -29,7 +31,7 @@ func ListAdminComments(
 	filter domain.AdminCommentFilter,
 ) (*domain.AdminCommentListResult, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminCommentAuthRequired)
 	}
 
 	page := clampPositiveInt(filter.Page, 1, 100000)
@@ -37,7 +39,7 @@ func ListAdminComments(
 
 	status := strings.TrimSpace(strings.ToLower(filter.Status))
 	if status != "" && !isSupportedCommentStatus(status) {
-		return nil, adminCommentBadRequest(adminCommentCodeStatusInvalid, "unsupported comment status")
+		return nil, adminCommentBadRequest(adminCommentCodeStatusInvalid, adminCommentStatusUnsupported)
 	}
 
 	postID := strings.TrimSpace(strings.ToLower(filter.PostID))
@@ -82,7 +84,7 @@ func UpdateAdminCommentStatus(
 	status string,
 ) (*domain.CommentRecord, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return nil, apperrors.Unauthorized("admin authentication required")
+		return nil, apperrors.Unauthorized(adminCommentAuthRequired)
 	}
 
 	resolvedID := strings.TrimSpace(commentID)
@@ -92,7 +94,7 @@ func UpdateAdminCommentStatus(
 
 	resolvedStatus := strings.TrimSpace(strings.ToLower(status))
 	if !isSupportedCommentStatus(resolvedStatus) {
-		return nil, adminCommentBadRequest(adminCommentCodeStatusInvalid, "unsupported comment status")
+		return nil, adminCommentBadRequest(adminCommentCodeStatusInvalid, adminCommentStatusUnsupported)
 	}
 
 	updated, err := commentRepository.UpdateCommentStatusByID(
@@ -116,7 +118,7 @@ func BulkUpdateAdminCommentStatus(
 	status string,
 ) (int, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return 0, apperrors.Unauthorized("admin authentication required")
+		return 0, apperrors.Unauthorized(adminCommentAuthRequired)
 	}
 
 	resolvedIDs := normalizeAdminCommentIDs(commentIDs)
@@ -126,7 +128,7 @@ func BulkUpdateAdminCommentStatus(
 
 	resolvedStatus := strings.TrimSpace(strings.ToLower(status))
 	if !isSupportedCommentStatus(resolvedStatus) {
-		return 0, adminCommentBadRequest(adminCommentCodeStatusInvalid, "unsupported comment status")
+		return 0, adminCommentBadRequest(adminCommentCodeStatusInvalid, adminCommentStatusUnsupported)
 	}
 
 	successCount, err := commentRepository.UpdateCommentStatusByIDs(
@@ -152,7 +154,7 @@ func DeleteAdminComment(
 	commentID string,
 ) error {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return apperrors.Unauthorized("admin authentication required")
+		return apperrors.Unauthorized(adminCommentAuthRequired)
 	}
 
 	resolvedID := strings.TrimSpace(commentID)
@@ -177,7 +179,7 @@ func BulkDeleteAdminComments(
 	commentIDs []string,
 ) (int, error) {
 	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
-		return 0, apperrors.Unauthorized("admin authentication required")
+		return 0, apperrors.Unauthorized(adminCommentAuthRequired)
 	}
 
 	resolvedIDs := normalizeAdminCommentIDs(commentIDs)

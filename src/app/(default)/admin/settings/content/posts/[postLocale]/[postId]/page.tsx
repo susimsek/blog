@@ -1,6 +1,3 @@
-import { redirect } from 'next/navigation';
-import { defaultLocale } from '@/i18n/settings';
-import { buildAdminContentPostDetailRoute, withAdminLocalePath } from '@/lib/adminRoutes';
 import { getAllPostIds } from '@/lib/posts';
 
 type AdminSettingsContentPostRedirectPageProps = {
@@ -36,8 +33,8 @@ export async function generateStaticParams() {
 }
 
 export default async function AdminSettingsContentPostRedirectPage({
-  params,
+  params: _params,
 }: Readonly<AdminSettingsContentPostRedirectPageProps>) {
-  const { postLocale, postId } = await params;
-  redirect(withAdminLocalePath(defaultLocale, buildAdminContentPostDetailRoute(postLocale, postId)));
+  await _params;
+  return null;
 }

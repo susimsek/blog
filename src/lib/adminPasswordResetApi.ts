@@ -19,6 +19,21 @@ export type AdminPasswordResetValidation = {
 const REQUEST_ENDPOINT = withBasePath('/api/admin-password-reset/request');
 const CONFIRM_ENDPOINT = withBasePath('/api/admin-password-reset/confirm');
 
+class AdminPasswordResetApiError extends Error implements AdminPasswordResetError {
+  kind: AdminPasswordResetError['kind'];
+  code: string;
+
+  constructor(kind: AdminPasswordResetError['kind'], code: string, message: string) {
+    super(message);
+    this.name = 'AdminPasswordResetApiError';
+    this.kind = kind;
+    this.code = code;
+  }
+}
+
+const createAdminPasswordResetError = (kind: AdminPasswordResetError['kind'], code: string, message: string) =>
+  new AdminPasswordResetApiError(kind, code.trim().toUpperCase(), message.trim());
+
 const normalizeErrorPayload = async (response: Response): Promise<AdminPasswordResetError> => {
   let payload: ErrorPayload | null = null;
 
@@ -50,11 +65,7 @@ export const requestAdminPasswordReset = async (email: string, locale: string): 
       }),
     });
   } catch {
-    throw {
-      kind: 'network',
-      code: 'NETWORK_ERROR',
-      message: 'Network request failed',
-    } satisfies AdminPasswordResetError;
+    throw createAdminPasswordResetError('network', 'NETWORK_ERROR', 'Network request failed');
   }
 
   if (!response.ok) {
@@ -80,11 +91,7 @@ export const validateAdminPasswordResetToken = async (
       credentials: 'include',
     });
   } catch {
-    throw {
-      kind: 'network',
-      code: 'NETWORK_ERROR',
-      message: 'Network request failed',
-    } satisfies AdminPasswordResetError;
+    throw createAdminPasswordResetError('network', 'NETWORK_ERROR', 'Network request failed');
   }
 
   if (!response.ok) {
@@ -116,11 +123,7 @@ export const confirmAdminPasswordReset = async (
       }),
     });
   } catch {
-    throw {
-      kind: 'network',
-      code: 'NETWORK_ERROR',
-      message: 'Network request failed',
-    } satisfies AdminPasswordResetError;
+    throw createAdminPasswordResetError('network', 'NETWORK_ERROR', 'Network request failed');
   }
 
   if (!response.ok) {
@@ -131,6 +134,14 @@ export const confirmAdminPasswordReset = async (
 };
 
 export const resolveAdminPasswordResetError = (error: unknown): AdminPasswordResetError => {
+  if (error instanceof AdminPasswordResetApiError) {
+    return {
+      kind: error.kind,
+      code: error.code,
+      message: error.message.trim(),
+    };
+  }
+
   if (typeof error === 'object' && error !== null && 'kind' in error && 'code' in error && 'message' in error) {
     const candidate = error as AdminPasswordResetError;
     return {

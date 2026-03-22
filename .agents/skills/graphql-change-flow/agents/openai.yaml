@@ -1,0 +1,4 @@
+interface:
+  display_name: 'GraphQL Change Flow'
+  short_description: 'Guide GraphQL schema, resolver, and codegen changes'
+  default_prompt: "Use $graphql-change-flow to update this repo's GraphQL schema, resolvers, and required code generation steps."
