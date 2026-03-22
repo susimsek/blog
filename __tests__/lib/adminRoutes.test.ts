@@ -1,4 +1,10 @@
-import { ADMIN_ROUTES, buildAdminContentPostDetailRoute, withAdminLocalePath } from '@/lib/adminRoutes';
+import {
+  ADMIN_ROUTES,
+  buildAdminContentPostDetailHash,
+  buildAdminContentPostDetailHref,
+  buildAdminContentPostDetailRoute,
+  withAdminLocalePath,
+} from '@/lib/adminRoutes';
 
 describe('adminRoutes', () => {
   it('prefixes admin routes with the locale', () => {
@@ -8,7 +14,11 @@ describe('adminRoutes', () => {
 
   it('builds encoded admin post detail routes', () => {
     expect(buildAdminContentPostDetailRoute(' EN ', 'post/with space')).toBe(
-      '/admin/settings/content/posts/en/post%2Fwith%20space/metadata',
+      '/admin/settings/content/posts/en/post%2Fwith%20space',
+    );
+    expect(buildAdminContentPostDetailHash('content')).toBe('#content');
+    expect(buildAdminContentPostDetailHref(' EN ', 'post/with space', 'comments')).toBe(
+      '/admin/settings/content/posts/en/post%2Fwith%20space#comments',
     );
   });
 });

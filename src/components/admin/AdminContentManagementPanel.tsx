@@ -248,6 +248,8 @@ const parseISODateInput = (value: string): Date | null => {
   return parsed;
 };
 
+const adminPreviewImageLoader = ({ src }: { src: string }) => src;
+
 export default function AdminContentManagementPanel({
   // NOSONAR
   onSessionExpired,
@@ -2466,10 +2468,14 @@ export default function AdminContentManagementPanel({
                                   <Card.Body className="p-0">
                                     <div className="admin-content-seo-image-frame">
                                       {postEditorSeoPreview.previewImageSrc ? (
-                                        <img
+                                        <Image
+                                          loader={adminPreviewImageLoader}
                                           src={postEditorSeoPreview.previewImageSrc}
                                           alt={postEditorSeoPreview.title}
-                                          className="w-100 h-100 object-fit-cover"
+                                          fill
+                                          unoptimized
+                                          sizes="(max-width: 991px) 100vw, 50vw"
+                                          className="object-fit-cover"
                                         />
                                       ) : (
                                         <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary">
@@ -2494,10 +2500,14 @@ export default function AdminContentManagementPanel({
                                   <Card.Body className="p-0">
                                     <div className="admin-content-seo-image-frame admin-content-seo-image-frame--x">
                                       {postEditorSeoPreview.previewImageSrc ? (
-                                        <img
+                                        <Image
+                                          loader={adminPreviewImageLoader}
                                           src={postEditorSeoPreview.previewImageSrc}
                                           alt={postEditorSeoPreview.title}
-                                          className="w-100 h-100 object-fit-cover"
+                                          fill
+                                          unoptimized
+                                          sizes="(max-width: 991px) 100vw, 50vw"
+                                          className="object-fit-cover"
                                         />
                                       ) : (
                                         <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary">
