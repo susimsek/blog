@@ -97,7 +97,7 @@ type MediaLibraryFilterValue = AdminMediaLibraryItem['kind'] | 'ALL';
 const CONTENT_ID_PATTERN = /^[a-z0-9][a-z0-9-]{1,127}$/;
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 const CONTENT_LOCALES: SupportedContentLocale[] = ['en', 'tr'];
-const MEDIA_LIBRARY_DEFAULT_PAGE_SIZE = 12;
+const MEDIA_LIBRARY_DEFAULT_PAGE_SIZE = 10;
 const BOOTSTRAP_THEME_COLORS = new Set([
   'primary',
   'secondary',
@@ -4876,7 +4876,6 @@ export default function AdminContentManagementPanel({
                         totalPages={totalMediaLibraryPages}
                         totalResults={mediaLibraryTotal}
                         size={mediaLibraryPageSize}
-                        pageSizeOptions={[12, 24, 48]}
                         onPageChange={nextPage => {
                           setMediaLibraryPage(nextPage);
                           scrollToListTop();
