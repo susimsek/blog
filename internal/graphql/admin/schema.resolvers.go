@@ -15,6 +15,7 @@ import (
 	"suaybsimsek.com/blog-api/internal/graphql/admin/model"
 	appservice "suaybsimsek.com/blog-api/internal/service"
 	"suaybsimsek.com/blog-api/pkg/apperrors"
+	appscalars "suaybsimsek.com/blog-api/pkg/graphql/scalars"
 	"suaybsimsek.com/blog-api/pkg/httpapi"
 	"suaybsimsek.com/blog-api/pkg/httpauth"
 )
@@ -35,6 +36,7 @@ var (
 	listAdminContentCategoriesPageFn        = appservice.ListAdminContentCategoriesPage
 	listAdminContentTopicsFn                = appservice.ListAdminContentTopics
 	listAdminContentCategoriesFn            = appservice.ListAdminContentCategories
+	listAdminMediaLibraryFn                 = appservice.ListAdminMediaLibrary
 	listAdminErrorMessageAuditLogsFn        = appservice.ListAdminErrorMessageAuditLogs
 	loginAdminFn                            = appservice.LoginAdmin
 	startAdminGoogleConnectFn               = appservice.StartAdminGoogleConnect
@@ -64,6 +66,7 @@ var (
 	deleteAdminErrorMessageFn               = appservice.DeleteAdminErrorMessage
 	updateAdminContentPostMetadataFn        = appservice.UpdateAdminContentPostMetadata
 	updateAdminContentPostContentFn         = appservice.UpdateAdminContentPostContent
+	uploadAdminMediaAssetFn                 = appservice.UploadAdminMediaAsset
 	deleteAdminContentPostFn                = appservice.DeleteAdminContentPost
 	createAdminContentTopicFn               = appservice.CreateAdminContentTopic
 	updateAdminContentTopicFn               = appservice.UpdateAdminContentTopic
@@ -200,7 +203,7 @@ func (r *adminQueryResolver) NewsletterSubscribers(
 	resolvedFilter := domain.AdminNewsletterSubscriberFilter{}
 	if filter != nil {
 		if filter.Locale != nil {
-			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
+			resolvedFilter.Locale = normalizeAdminLocalePointer(filter.Locale)
 		}
 		if filter.Status != nil {
 			resolvedFilter.Status = mapAdminNewsletterStatusInput(*filter.Status)
@@ -237,10 +240,10 @@ func (r *adminQueryResolver) NewsletterCampaigns(
 	resolvedFilter := domain.AdminNewsletterCampaignFilter{}
 	if filter != nil {
 		if filter.Locale != nil {
-			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
+			resolvedFilter.Locale = normalizeAdminLocalePointer(filter.Locale)
 		}
 		if filter.Status != nil {
-			resolvedFilter.Status = strings.TrimSpace(*filter.Status)
+			resolvedFilter.Status = mapAdminNewsletterCampaignStatusInput(*filter.Status)
 		}
 		if filter.Query != nil {
 			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
@@ -272,7 +275,7 @@ func (r *adminQueryResolver) NewsletterCampaignFailures(
 	}
 
 	resolvedFilter := domain.AdminNewsletterDeliveryFailureFilter{
-		Locale:  strings.TrimSpace(filter.Locale),
+		Locale:  normalizeAdminLocale(filter.Locale),
 		ItemKey: strings.TrimSpace(filter.ItemKey),
 	}
 	if filter.Page != nil {
@@ -303,7 +306,7 @@ func (r *adminQueryResolver) ErrorMessages(
 	resolvedFilter := domain.AdminErrorMessageFilter{}
 	if filter != nil {
 		if filter.Locale != nil {
-			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
+			resolvedFilter.Locale = normalizeAdminLocalePointer(filter.Locale)
 		}
 		if filter.Code != nil {
 			resolvedFilter.Code = strings.TrimSpace(*filter.Code)
@@ -340,13 +343,13 @@ func (r *adminQueryResolver) ContentPosts( // NOSONAR
 	resolvedFilter := domain.AdminContentPostFilter{}
 	if filter != nil {
 		if filter.Locale != nil {
-			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
+			resolvedFilter.Locale = normalizeAdminLocalePointer(filter.Locale)
 		}
 		if filter.PreferredLocale != nil {
-			resolvedFilter.PreferredLocale = strings.TrimSpace(*filter.PreferredLocale)
+			resolvedFilter.PreferredLocale = normalizeAdminLocalePointer(filter.PreferredLocale)
 		}
 		if filter.Source != nil {
-			resolvedFilter.Source = strings.TrimSpace(*filter.Source)
+			resolvedFilter.Source = mapAdminContentSourceInput(*filter.Source)
 		}
 		if filter.Query != nil {
 			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
@@ -386,7 +389,7 @@ func (r *adminQueryResolver) ContentPost(
 	record, err := getAdminContentPostFn(
 		ctx,
 		adminUser,
-		strings.TrimSpace(input.Locale),
+		normalizeAdminLocale(input.Locale),
 		strings.TrimSpace(input.ID),
 	)
 	if err != nil {
@@ -409,10 +412,10 @@ func (r *adminQueryResolver) ContentTopicsPage(
 	resolvedFilter := domain.AdminContentTaxonomyFilter{}
 	if filter != nil {
 		if filter.Locale != nil {
-			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
+			resolvedFilter.Locale = normalizeAdminLocalePointer(filter.Locale)
 		}
 		if filter.PreferredLocale != nil {
-			resolvedFilter.PreferredLocale = strings.TrimSpace(*filter.PreferredLocale)
+			resolvedFilter.PreferredLocale = normalizeAdminLocalePointer(filter.PreferredLocale)
 		}
 		if filter.Query != nil {
 			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
@@ -446,10 +449,10 @@ func (r *adminQueryResolver) ContentCategoriesPage(
 	resolvedFilter := domain.AdminContentTaxonomyFilter{}
 	if filter != nil {
 		if filter.Locale != nil {
-			resolvedFilter.Locale = strings.TrimSpace(*filter.Locale)
+			resolvedFilter.Locale = normalizeAdminLocalePointer(filter.Locale)
 		}
 		if filter.PreferredLocale != nil {
-			resolvedFilter.PreferredLocale = strings.TrimSpace(*filter.PreferredLocale)
+			resolvedFilter.PreferredLocale = normalizeAdminLocalePointer(filter.PreferredLocale)
 		}
 		if filter.Query != nil {
 			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
@@ -471,16 +474,17 @@ func (r *adminQueryResolver) ContentCategoriesPage(
 }
 
 // ContentTopics is the resolver for the contentTopics field.
-func (r *adminQueryResolver) ContentTopics(ctx context.Context, locale *string, query *string) ([]*model.AdminContentTopic, error) {
+func (r *adminQueryResolver) ContentTopics(
+	ctx context.Context,
+	locale *appscalars.Locale,
+	query *string,
+) ([]*model.AdminContentTopic, error) {
 	adminUser, err := requireAdminUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	resolvedLocale := ""
-	if locale != nil {
-		resolvedLocale = strings.TrimSpace(*locale)
-	}
+	resolvedLocale := normalizeAdminLocalePointer(locale)
 
 	resolvedQuery := ""
 	if query != nil {
@@ -498,17 +502,14 @@ func (r *adminQueryResolver) ContentTopics(ctx context.Context, locale *string, 
 // ContentCategories is the resolver for the contentCategories field.
 func (r *adminQueryResolver) ContentCategories(
 	ctx context.Context,
-	locale *string,
+	locale *appscalars.Locale,
 ) ([]*model.AdminContentCategory, error) {
 	adminUser, err := requireAdminUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	resolvedLocale := ""
-	if locale != nil {
-		resolvedLocale = strings.TrimSpace(*locale)
-	}
+	resolvedLocale := normalizeAdminLocalePointer(locale)
 
 	records, err := listAdminContentCategoriesFn(ctx, adminUser, resolvedLocale)
 	if err != nil {
@@ -516,6 +517,45 @@ func (r *adminQueryResolver) ContentCategories(
 	}
 
 	return mapAdminContentCategories(records), nil
+}
+
+// MediaLibrary is the resolver for the mediaLibrary field.
+func (r *adminQueryResolver) MediaLibrary(
+	ctx context.Context,
+	filter *model.AdminMediaLibraryFilterInput,
+) (*model.AdminMediaLibraryListPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedFilter := domain.AdminMediaLibraryFilter{}
+	if filter != nil {
+		if filter.Query != nil {
+			resolvedFilter.Query = strings.TrimSpace(*filter.Query)
+		}
+		if filter.Kind != nil {
+			resolvedFilter.Kind = strings.TrimSpace(filter.Kind.String())
+		}
+		if filter.Page != nil {
+			resolvedFilter.Page = *filter.Page
+		}
+		if filter.Size != nil {
+			resolvedFilter.Size = *filter.Size
+		}
+	}
+
+	records, err := listAdminMediaLibraryFn(ctx, adminUser, resolvedFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AdminMediaLibraryListPayload{
+		Items: mapAdminMediaLibraryItems(records.Items),
+		Total: records.Total,
+		Page:  records.Page,
+		Size:  records.Size,
+	}, nil
 }
 
 // ErrorMessageAuditLogs is the resolver for the errorMessageAuditLogs field.
@@ -546,7 +586,7 @@ func (r *adminMutationResolver) Login(ctx context.Context, input model.AdminLogi
 	rememberMe := input.RememberMe != nil && *input.RememberMe
 	payload, err := loginAdminFn(
 		ctx,
-		strings.TrimSpace(input.Email),
+		strings.TrimSpace(string(input.Email)),
 		input.Password,
 		rememberMe,
 		resolveAdminSessionMetadata(ctx, getRequest(ctx)),
@@ -585,13 +625,13 @@ func (r *adminMutationResolver) StartGoogleConnect(
 	payload, err := startAdminGoogleConnectFn(
 		ctx,
 		adminUser,
-		stringPointerValue(input.Locale),
+		localePointerValue(input.Locale),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	return &model.AdminGoogleConnectPayload{URL: payload.URL}, nil
+	return &model.AdminGoogleConnectPayload{URL: appscalars.URL(payload.URL)}, nil
 }
 
 // DisconnectGoogle is the resolver for the disconnectGoogle field.
@@ -625,13 +665,13 @@ func (r *adminMutationResolver) StartGithubConnect(
 	payload, err := startAdminGithubConnectFn(
 		ctx,
 		adminUser,
-		stringPointerValue(input.Locale),
+		localePointerValue(input.Locale),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	return &model.AdminGithubConnectPayload{URL: payload.URL}, nil
+	return &model.AdminGithubConnectPayload{URL: appscalars.URL(payload.URL)}, nil
 }
 
 // DisconnectGithub is the resolver for the disconnectGithub field.
@@ -738,7 +778,7 @@ func (r *adminMutationResolver) ChangeAvatar(
 		return nil, err
 	}
 
-	updatedAdminUser, err := changeAdminAvatarFn(ctx, adminUser, input.AvatarURL)
+	updatedAdminUser, err := changeAdminAvatarFn(ctx, adminUser, urlPointerToStringPointer(input.AvatarURL))
 	if err != nil {
 		return nil, err
 	}
@@ -783,9 +823,9 @@ func (r *adminMutationResolver) RequestEmailChange(
 	payload, err := requestAdminEmailChangeFn(
 		ctx,
 		adminUser,
-		input.NewEmail,
+		string(input.NewEmail),
 		input.CurrentPassword,
-		stringPointerValue(input.Locale),
+		localePointerValue(input.Locale),
 	)
 	if err != nil {
 		return nil, err
@@ -793,7 +833,7 @@ func (r *adminMutationResolver) RequestEmailChange(
 
 	return &model.AdminEmailChangeRequestPayload{
 		Success:      payload.Success,
-		PendingEmail: payload.PendingEmail,
+		PendingEmail: appscalars.Email(payload.PendingEmail),
 		ExpiresAt:    payload.ExpiresAt,
 	}, nil
 }
@@ -984,7 +1024,7 @@ func (r *adminMutationResolver) UpdateNewsletterSubscriberStatus(
 	updated, err := updateAdminNewsletterSubscriberStatusFn(
 		ctx,
 		adminUser,
-		input.Email,
+		string(input.Email),
 		mapAdminNewsletterStatusInput(input.Status),
 	)
 	if err != nil {
@@ -1004,7 +1044,7 @@ func (r *adminMutationResolver) DeleteNewsletterSubscriber(
 		return nil, err
 	}
 
-	if err := deleteAdminNewsletterSubscriberFn(ctx, adminUser, input.Email); err != nil {
+	if err := deleteAdminNewsletterSubscriberFn(ctx, adminUser, string(input.Email)); err != nil {
 		return nil, err
 	}
 
@@ -1041,8 +1081,8 @@ func (r *adminMutationResolver) SendTestNewsletter(
 	payload, err := sendAdminNewsletterTestEmailFn(
 		ctx,
 		adminUser,
-		input.Email,
-		input.Locale,
+		string(input.Email),
+		normalizeAdminLocale(input.Locale),
 		input.ItemKey,
 	)
 	if err != nil {
@@ -1132,13 +1172,13 @@ func (r *adminMutationResolver) UpdateContentPostMetadata(
 	}
 
 	updated, err := updateAdminContentPostMetadataFn(ctx, adminUser, domain.AdminContentPostMetadataInput{
-		Locale:        strings.TrimSpace(input.Locale),
+		Locale:        normalizeAdminLocale(input.Locale),
 		ID:            strings.TrimSpace(input.ID),
 		Title:         toOptionalTrimmedInputString(input.Title),
 		Summary:       toOptionalTrimmedInputString(input.Summary),
 		Thumbnail:     toOptionalTrimmedInputString(input.Thumbnail),
-		PublishedDate: toOptionalTrimmedInputString(input.PublishedDate),
-		UpdatedDate:   toOptionalTrimmedInputString(input.UpdatedDate),
+		PublishedDate: datePointerToStringPointer(input.PublishedDate),
+		UpdatedDate:   datePointerToStringPointer(input.UpdatedDate),
 		CategoryID:    strings.TrimSpace(stringPointerValue(input.CategoryID)),
 		TopicIDs:      mapAdminContentTopicIDs(input.TopicIds),
 	})
@@ -1160,7 +1200,7 @@ func (r *adminMutationResolver) UpdateContentPostContent(
 	}
 
 	updated, err := updateAdminContentPostContentFn(ctx, adminUser, domain.AdminContentPostContentInput{
-		Locale:  strings.TrimSpace(input.Locale),
+		Locale:  normalizeAdminLocale(input.Locale),
 		ID:      strings.TrimSpace(input.ID),
 		Content: input.Content,
 	})
@@ -1169,6 +1209,27 @@ func (r *adminMutationResolver) UpdateContentPostContent(
 	}
 
 	return mapAdminContentPost(updated), nil
+}
+
+// UploadMediaAsset is the resolver for the uploadMediaAsset field.
+func (r *adminMutationResolver) UploadMediaAsset(
+	ctx context.Context,
+	input model.AdminUploadMediaAssetInput,
+) (*model.AdminMediaLibraryItem, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	record, err := uploadAdminMediaAssetFn(ctx, adminUser, domain.AdminMediaUploadInput{
+		FileName: strings.TrimSpace(input.FileName),
+		DataURL:  strings.TrimSpace(input.DataURL),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminMediaLibraryItem(record), nil
 }
 
 // DeleteContentPost is the resolver for the deleteContentPost field.
@@ -1184,7 +1245,7 @@ func (r *adminMutationResolver) DeleteContentPost(
 	if err := deleteAdminContentPostFn(
 		ctx,
 		adminUser,
-		strings.TrimSpace(input.Locale),
+		normalizeAdminLocale(input.Locale),
 		strings.TrimSpace(input.ID),
 	); err != nil {
 		return nil, err
@@ -1242,7 +1303,7 @@ func (r *adminMutationResolver) DeleteContentTopic(
 	if err := deleteAdminContentTopicFn(
 		ctx,
 		adminUser,
-		strings.TrimSpace(input.Locale),
+		normalizeAdminLocale(input.Locale),
 		strings.TrimSpace(input.ID),
 	); err != nil {
 		return nil, err
@@ -1300,7 +1361,7 @@ func (r *adminMutationResolver) DeleteContentCategory(
 	if err := deleteAdminContentCategoryFn(
 		ctx,
 		adminUser,
-		strings.TrimSpace(input.Locale),
+		normalizeAdminLocale(input.Locale),
 		strings.TrimSpace(input.ID),
 	); err != nil {
 		return nil, err
@@ -1330,7 +1391,7 @@ func mapAdminUser(user *domain.AdminUser) *model.AdminUser {
 		Name:                  toOptionalAdminString(user.Name),
 		Username:              toOptionalAdminString(user.Username),
 		AvatarURL:             toOptionalAdminAvatarURL(user.AvatarURL),
-		Email:                 user.Email,
+		Email:                 appscalars.Email(user.Email),
 		PendingEmail:          toOptionalAdminEmail(user.PendingEmail),
 		PendingEmailExpiresAt: user.PendingEmailExpiresAt,
 		GoogleLinked:          strings.TrimSpace(user.GoogleSubject) != "",
@@ -1351,17 +1412,38 @@ func toOptionalAdminUsername(value string) *string {
 	return toOptionalAdminString(value)
 }
 
-func toOptionalAdminEmail(value string) *string {
+func toOptionalAdminEmail(value string) *appscalars.Email {
 	trimmed := strings.TrimSpace(strings.ToLower(value))
 	if trimmed == "" {
 		return nil
 	}
 
-	return &trimmed
+	resolved := appscalars.Email(trimmed)
+	return &resolved
 }
 
-func toOptionalAdminAvatarURL(value string) *string {
-	return toOptionalAdminString(value)
+func toOptionalAdminAvatarURL(value string) *appscalars.URL {
+	return toOptionalAdminURL(value)
+}
+
+func toOptionalAdminURL(value string) *appscalars.URL {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return nil
+	}
+
+	resolved := appscalars.URL(trimmed)
+	return &resolved
+}
+
+func toOptionalAdminDate(value string) *appscalars.Date {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return nil
+	}
+
+	resolved := appscalars.Date(trimmed)
+	return &resolved
 }
 
 func mapAdminDashboard(payload *domain.AdminDashboard) *model.AdminDashboard {
@@ -1384,8 +1466,8 @@ func mapAdminDashboardPosts(items []domain.AdminDashboardPostMetric) []*model.Ad
 		mapped = append(mapped, &model.AdminDashboardPost{
 			PostID:        item.PostID,
 			Title:         item.Title,
-			Locale:        item.Locale,
-			PublishedDate: item.PublishedDate,
+			Locale:        appscalars.Locale(item.Locale),
+			PublishedDate: appscalars.Date(item.PublishedDate),
 			Hits:          int(item.Hits),
 			Likes:         int(item.Likes),
 		})
@@ -1504,14 +1586,14 @@ func mapAdminNewsletterCampaign(item *domain.AdminNewsletterCampaignRecord) *mod
 	}
 
 	return &model.AdminNewsletterCampaign{
-		Locale:      item.Locale,
+		Locale:      appscalars.Locale(item.Locale),
 		ItemKey:     item.ItemKey,
 		Title:       item.Title,
 		Summary:     toOptionalAdminString(item.Summary),
-		Link:        toOptionalAdminString(item.Link),
-		PubDate:     toOptionalAdminString(item.PubDate),
-		RssURL:      toOptionalAdminString(item.RSSURL),
-		Status:      item.Status,
+		Link:        toOptionalAdminURL(item.Link),
+		PubDate:     toOptionalAdminDate(item.PubDate),
+		RssURL:      toOptionalAdminURL(item.RSSURL),
+		Status:      mapAdminNewsletterCampaignStatusOutput(item.Status),
 		SentCount:   item.SentCount,
 		FailedCount: item.FailedCount,
 		LastRunAt:   toOptionalAdminTime(item.LastRunAt),
@@ -1559,10 +1641,10 @@ func mapAdminNewsletterDeliveryFailure(
 	}
 
 	return &model.AdminNewsletterDeliveryFailure{
-		Locale:        item.Locale,
+		Locale:        appscalars.Locale(item.Locale),
 		ItemKey:       item.ItemKey,
-		Email:         item.Email,
-		Status:        item.Status,
+		Email:         appscalars.Email(item.Email),
+		Status:        mapAdminNewsletterDeliveryFailureStatusOutput(item.Status),
 		LastError:     toOptionalAdminString(item.LastError),
 		LastAttemptAt: toOptionalAdminTime(item.LastAttemptAt),
 		UpdatedAt:     toOptionalAdminTime(item.UpdatedAt),
@@ -1586,8 +1668,8 @@ func mapAdminNewsletterDispatchPayload(
 	for _, item := range payload.Results {
 		current := item
 		results = append(results, &model.AdminNewsletterDispatchLocaleResult{
-			Locale:      current.Locale,
-			RssURL:      toOptionalAdminString(current.RSSURL),
+			Locale:      appscalars.Locale(current.Locale),
+			RssURL:      toOptionalAdminURL(current.RSSURL),
 			ItemKey:     toOptionalAdminString(current.ItemKey),
 			PostTitle:   toOptionalAdminString(current.PostTitle),
 			SentCount:   current.SentCount,
@@ -1613,8 +1695,8 @@ func mapAdminNewsletterTestSendPayload(
 			Success:   false,
 			Message:   "",
 			Timestamp: time.Now().UTC(),
-			Email:     "",
-			Locale:    "",
+			Email:     appscalars.Email(""),
+			Locale:    appscalars.Locale(""),
 			ItemKey:   "",
 		}
 	}
@@ -1623,8 +1705,8 @@ func mapAdminNewsletterTestSendPayload(
 		Success:   payload.Success,
 		Message:   strings.TrimSpace(payload.Message),
 		Timestamp: payload.Timestamp.UTC(),
-		Email:     payload.Email,
-		Locale:    payload.Locale,
+		Email:     appscalars.Email(payload.Email),
+		Locale:    appscalars.Locale(payload.Locale),
 		ItemKey:   payload.ItemKey,
 		PostTitle: toOptionalAdminString(payload.PostTitle),
 	}
@@ -1645,8 +1727,8 @@ func mapAdminNewsletterSubscriber(item *domain.AdminNewsletterSubscriberRecord) 
 	}
 
 	return &model.AdminNewsletterSubscriber{
-		Email:          item.Email,
-		Locale:         item.Locale,
+		Email:          appscalars.Email(item.Email),
+		Locale:         appscalars.Locale(item.Locale),
 		Status:         mapAdminNewsletterStatusOutput(item.Status),
 		Tags:           append([]string{}, item.Tags...),
 		FormName:       toOptionalAdminString(item.FormName),
@@ -1692,7 +1774,7 @@ func mapAdminErrorMessage(item *domain.AdminErrorMessageView) *model.AdminErrorM
 
 	return &model.AdminErrorMessage{
 		Scope:     item.Scope,
-		Locale:    item.Locale,
+		Locale:    appscalars.Locale(item.Locale),
 		Code:      item.Code,
 		Message:   item.Message,
 		UpdatedAt: toOptionalAdminTime(item.UpdatedAt),
@@ -1733,7 +1815,7 @@ func mapAdminContentPostGroup(item *domain.AdminContentPostGroupRecord) *model.A
 
 	return &model.AdminContentPostGroup{
 		ID:        item.ID,
-		Source:    item.Source,
+		Source:    mapAdminContentSourceOutput(item.Source),
 		Preferred: mapAdminContentPost(&item.Preferred),
 		En:        mapAdminContentPost(item.EN),
 		Tr:        mapAdminContentPost(item.TR),
@@ -1830,16 +1912,16 @@ func mapAdminContentPost(item *domain.AdminContentPostRecord) *model.AdminConten
 	}
 
 	return &model.AdminContentPost{
-		Locale:           item.Locale,
+		Locale:           appscalars.Locale(item.Locale),
 		ID:               item.ID,
 		Title:            item.Title,
 		Summary:          toOptionalAdminString(item.Summary),
 		Content:          toOptionalAdminString(item.Content),
-		ContentMode:      toOptionalAdminString(item.ContentMode),
+		ContentMode:      mapAdminContentModeOutput(item.ContentMode),
 		Thumbnail:        toOptionalAdminString(item.Thumbnail),
-		Source:           item.Source,
-		PublishedDate:    item.PublishedDate,
-		UpdatedDate:      toOptionalAdminString(item.UpdatedDate),
+		Source:           mapAdminContentSourceOutput(item.Source),
+		PublishedDate:    appscalars.Date(item.PublishedDate),
+		UpdatedDate:      toOptionalAdminDate(item.UpdatedDate),
 		CategoryID:       toOptionalAdminString(item.CategoryID),
 		CategoryName:     toOptionalAdminString(item.CategoryName),
 		TopicIds:         append([]string{}, item.TopicIDs...),
@@ -1868,11 +1950,11 @@ func mapAdminContentTopic(item *domain.AdminContentTopicRecord) *model.AdminCont
 	}
 
 	return &model.AdminContentTopic{
-		Locale:    item.Locale,
+		Locale:    appscalars.Locale(item.Locale),
 		ID:        item.ID,
 		Name:      item.Name,
 		Color:     item.Color,
-		Link:      toOptionalAdminString(item.Link),
+		Link:      toOptionalAdminURL(item.Link),
 		UpdatedAt: toOptionalAdminTime(item.UpdatedAt),
 	}
 }
@@ -1892,13 +1974,52 @@ func mapAdminContentCategory(item *domain.AdminContentCategoryRecord) *model.Adm
 	}
 
 	return &model.AdminContentCategory{
-		Locale:    item.Locale,
+		Locale:    appscalars.Locale(item.Locale),
 		ID:        item.ID,
 		Name:      item.Name,
 		Color:     item.Color,
 		Icon:      toOptionalAdminString(item.Icon),
-		Link:      toOptionalAdminString(item.Link),
+		Link:      toOptionalAdminURL(item.Link),
 		UpdatedAt: toOptionalAdminTime(item.UpdatedAt),
+	}
+}
+
+func mapAdminMediaLibraryItems(items []domain.AdminMediaLibraryItem) []*model.AdminMediaLibraryItem {
+	if len(items) == 0 {
+		return []*model.AdminMediaLibraryItem{}
+	}
+
+	mapped := make([]*model.AdminMediaLibraryItem, 0, len(items))
+	for _, item := range items {
+		copyItem := item
+		mapped = append(mapped, mapAdminMediaLibraryItem(&copyItem))
+	}
+	return mapped
+}
+
+func mapAdminMediaLibraryItem(item *domain.AdminMediaLibraryItem) *model.AdminMediaLibraryItem {
+	if item == nil {
+		return nil
+	}
+
+	kind := model.AdminMediaLibraryItemKindReference
+	if strings.EqualFold(strings.TrimSpace(item.Kind), "UPLOADED") {
+		kind = model.AdminMediaLibraryItemKindUploaded
+	}
+
+	return &model.AdminMediaLibraryItem{
+		ID:          strings.TrimSpace(item.ID),
+		Kind:        kind,
+		Name:        strings.TrimSpace(item.Name),
+		Value:       strings.TrimSpace(item.Value),
+		PreviewURL:  strings.TrimSpace(item.PreviewURL),
+		ContentType: toOptionalAdminString(item.ContentType),
+		Width:       toOptionalAdminInt(item.Width),
+		Height:      toOptionalAdminInt(item.Height),
+		SizeBytes:   item.SizeBytes,
+		UsageCount:  item.UsageCount,
+		CreatedAt:   toOptionalAdminTime(item.CreatedAt),
+		UpdatedAt:   toOptionalAdminTime(item.UpdatedAt),
 	}
 }
 
@@ -1913,14 +2034,14 @@ func mapAdminAuditLogs(items []domain.AdminAuditLogRecord) []*model.AdminErrorMe
 		mapped = append(mapped, &model.AdminErrorMessageAuditLog{
 			ID:          item.ID,
 			ActorID:     item.ActorID,
-			ActorEmail:  item.ActorEmail,
+			ActorEmail:  appscalars.Email(item.ActorEmail),
 			Action:      item.Action,
 			Scope:       item.Scope,
-			Locale:      item.Locale,
+			Locale:      appscalars.Locale(item.Locale),
 			Code:        item.Code,
 			BeforeValue: item.BeforeValue,
 			AfterValue:  item.AfterValue,
-			Status:      item.Status,
+			Status:      mapAdminAuditStatusOutput(item.Status),
 			FailureCode: toOptionalAdminString(item.FailureCode),
 			RequestID:   toOptionalAdminString(item.RequestID),
 			RemoteIP:    toOptionalAdminString(item.RemoteIP),
@@ -1941,29 +2062,29 @@ func mapAdminErrorMessageKey(input model.AdminErrorMessageKeyInput) domain.Admin
 
 	return domain.AdminErrorMessageKey{
 		Scope:  scope,
-		Locale: strings.TrimSpace(input.Locale),
+		Locale: normalizeAdminLocale(input.Locale),
 		Code:   strings.TrimSpace(input.Code),
 	}
 }
 
 func mapAdminContentTopicInput(input model.AdminContentTopicInput) domain.AdminContentTopicInput {
 	return domain.AdminContentTopicInput{
-		Locale: strings.TrimSpace(input.Locale),
+		Locale: normalizeAdminLocale(input.Locale),
 		ID:     strings.TrimSpace(input.ID),
 		Name:   strings.TrimSpace(input.Name),
 		Color:  strings.TrimSpace(input.Color),
-		Link:   strings.TrimSpace(stringPointerValue(input.Link)),
+		Link:   strings.TrimSpace(urlPointerValue(input.Link)),
 	}
 }
 
 func mapAdminContentCategoryInput(input model.AdminContentCategoryInput) domain.AdminContentCategoryInput {
 	return domain.AdminContentCategoryInput{
-		Locale: strings.TrimSpace(input.Locale),
+		Locale: normalizeAdminLocale(input.Locale),
 		ID:     strings.TrimSpace(input.ID),
 		Name:   strings.TrimSpace(input.Name),
 		Color:  strings.TrimSpace(input.Color),
 		Icon:   strings.TrimSpace(stringPointerValue(input.Icon)),
-		Link:   strings.TrimSpace(stringPointerValue(input.Link)),
+		Link:   strings.TrimSpace(urlPointerValue(input.Link)),
 	}
 }
 
@@ -1989,6 +2110,36 @@ func stringPointerValue(value *string) string {
 		return ""
 	}
 	return *value
+}
+
+func localePointerValue(value *appscalars.Locale) string {
+	if value == nil {
+		return ""
+	}
+	return normalizeAdminLocale(*value)
+}
+
+func urlPointerValue(value *appscalars.URL) string {
+	if value == nil {
+		return ""
+	}
+	return string(*value)
+}
+
+func urlPointerToStringPointer(value *appscalars.URL) *string {
+	if value == nil {
+		return nil
+	}
+	resolved := strings.TrimSpace(string(*value))
+	return &resolved
+}
+
+func datePointerToStringPointer(value *appscalars.Date) *string {
+	if value == nil {
+		return nil
+	}
+	resolved := strings.TrimSpace(string(*value))
+	return &resolved
 }
 
 func toOptionalTrimmedInputString(value *string) *string {
@@ -2024,8 +2175,78 @@ func toOptionalAdminTimePointer(value *time.Time) *time.Time {
 	return toOptionalAdminTime(*value)
 }
 
+func toOptionalAdminInt(value int) *int {
+	if value <= 0 {
+		return nil
+	}
+	resolved := value
+	return &resolved
+}
+
 func adminDerefString(value *string) string {
 	return stringPointerValue(value)
+}
+
+func normalizeAdminLocale(value appscalars.Locale) string {
+	return appscalars.NormalizeLocaleOutput(string(value))
+}
+
+func normalizeAdminLocalePointer(value *appscalars.Locale) string {
+	if value == nil {
+		return ""
+	}
+	return normalizeAdminLocale(*value)
+}
+
+func mapAdminContentSourceInput(value model.ContentSource) string {
+	return strings.TrimSpace(string(value))
+}
+
+func mapAdminContentSourceOutput(value string) model.ContentSource {
+	switch strings.TrimSpace(strings.ToLower(value)) {
+	case "medium":
+		return model.ContentSourceMedium
+	default:
+		return model.ContentSourceBlog
+	}
+}
+
+func mapAdminContentModeOutput(value string) *model.AdminContentMode {
+	switch strings.TrimSpace(strings.ToLower(value)) {
+	case "markdown":
+		mode := model.AdminContentModeMarkdown
+		return &mode
+	case "admin":
+		mode := model.AdminContentModeAdmin
+		return &mode
+	default:
+		return nil
+	}
+}
+
+func mapAdminNewsletterCampaignStatusInput(value model.AdminNewsletterCampaignStatus) string {
+	return strings.TrimSpace(string(value))
+}
+
+func mapAdminNewsletterCampaignStatusOutput(value string) model.AdminNewsletterCampaignStatus {
+	switch strings.TrimSpace(strings.ToLower(value)) {
+	case "partial":
+		return model.AdminNewsletterCampaignStatusPartial
+	case "sent":
+		return model.AdminNewsletterCampaignStatusSent
+	default:
+		return model.AdminNewsletterCampaignStatusProcessing
+	}
+}
+
+func mapAdminNewsletterDeliveryFailureStatusOutput(value string) model.AdminNewsletterDeliveryFailureStatus {
+	_ = value
+	return model.AdminNewsletterDeliveryFailureStatusFailed
+}
+
+func mapAdminAuditStatusOutput(value string) model.AdminAuditStatus {
+	_ = value
+	return model.AdminAuditStatusSuccess
 }
 
 func mapAdminNewsletterStatusInput(value model.AdminNewsletterSubscriberStatus) string {
@@ -2087,7 +2308,7 @@ func mapAdminComment(value *domain.CommentRecord) *model.AdminComment {
 		PostTitle:   strings.TrimSpace(value.PostTitle),
 		ParentID:    toOptionalAdminString(adminDerefString(value.ParentID)),
 		AuthorName:  strings.TrimSpace(value.AuthorName),
-		AuthorEmail: strings.TrimSpace(value.AuthorEmail),
+		AuthorEmail: appscalars.Email(strings.TrimSpace(value.AuthorEmail)),
 		Content:     strings.TrimSpace(value.Content),
 		Status:      mapAdminCommentStatusOutput(value.Status),
 		CreatedAt:   value.CreatedAt.UTC(),

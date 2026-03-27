@@ -8,6 +8,8 @@ import (
 	"io"
 	"strconv"
 	"time"
+
+	"suaybsimsek.com/blog-api/pkg/graphql/scalars"
 )
 
 type AdminAccountDeletePayload struct {
@@ -33,7 +35,7 @@ type AdminBulkUpdateCommentStatusInput struct {
 }
 
 type AdminChangeAvatarInput struct {
-	AvatarURL *string `json:"avatarUrl,omitempty"`
+	AvatarURL *scalars.URL `json:"avatarUrl,omitempty"`
 }
 
 type AdminChangeNameInput struct {
@@ -56,7 +58,7 @@ type AdminComment struct {
 	PostTitle   string             `json:"postTitle"`
 	ParentID    *string            `json:"parentId,omitempty"`
 	AuthorName  string             `json:"authorName"`
-	AuthorEmail string             `json:"authorEmail"`
+	AuthorEmail scalars.Email      `json:"authorEmail"`
 	Content     string             `json:"content"`
 	Status      AdminCommentStatus `json:"status"`
 	CreatedAt   time.Time          `json:"createdAt"`
@@ -79,13 +81,13 @@ type AdminCommentListPayload struct {
 }
 
 type AdminContentCategory struct {
-	Locale    string     `json:"locale"`
-	ID        string     `json:"id"`
-	Name      string     `json:"name"`
-	Color     string     `json:"color"`
-	Icon      *string    `json:"icon,omitempty"`
-	Link      *string    `json:"link,omitempty"`
-	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+	Locale    scalars.Locale `json:"locale"`
+	ID        string         `json:"id"`
+	Name      string         `json:"name"`
+	Color     string         `json:"color"`
+	Icon      *string        `json:"icon,omitempty"`
+	Link      *scalars.URL   `json:"link,omitempty"`
+	UpdatedAt *time.Time     `json:"updatedAt,omitempty"`
 }
 
 type AdminContentCategoryGroup struct {
@@ -96,12 +98,12 @@ type AdminContentCategoryGroup struct {
 }
 
 type AdminContentCategoryInput struct {
-	Locale string  `json:"locale"`
-	ID     string  `json:"id"`
-	Name   string  `json:"name"`
-	Color  string  `json:"color"`
-	Icon   *string `json:"icon,omitempty"`
-	Link   *string `json:"link,omitempty"`
+	Locale scalars.Locale `json:"locale"`
+	ID     string         `json:"id"`
+	Name   string         `json:"name"`
+	Color  string         `json:"color"`
+	Icon   *string        `json:"icon,omitempty"`
+	Link   *scalars.URL   `json:"link,omitempty"`
 }
 
 type AdminContentCategoryListPayload struct {
@@ -112,47 +114,47 @@ type AdminContentCategoryListPayload struct {
 }
 
 type AdminContentEntityKeyInput struct {
-	Locale string `json:"locale"`
-	ID     string `json:"id"`
+	Locale scalars.Locale `json:"locale"`
+	ID     string         `json:"id"`
 }
 
 type AdminContentPost struct {
-	Locale           string     `json:"locale"`
-	ID               string     `json:"id"`
-	Title            string     `json:"title"`
-	Summary          *string    `json:"summary,omitempty"`
-	Content          *string    `json:"content,omitempty"`
-	ContentMode      *string    `json:"contentMode,omitempty"`
-	Thumbnail        *string    `json:"thumbnail,omitempty"`
-	Source           string     `json:"source"`
-	PublishedDate    string     `json:"publishedDate"`
-	UpdatedDate      *string    `json:"updatedDate,omitempty"`
-	CategoryID       *string    `json:"categoryId,omitempty"`
-	CategoryName     *string    `json:"categoryName,omitempty"`
-	TopicIds         []string   `json:"topicIds"`
-	TopicNames       []string   `json:"topicNames"`
-	ReadingTimeMin   int        `json:"readingTimeMin"`
-	ContentUpdatedAt *time.Time `json:"contentUpdatedAt,omitempty"`
-	UpdatedAt        *time.Time `json:"updatedAt,omitempty"`
-	ViewCount        int        `json:"viewCount"`
-	LikeCount        int        `json:"likeCount"`
-	CommentCount     int        `json:"commentCount"`
+	Locale           scalars.Locale    `json:"locale"`
+	ID               string            `json:"id"`
+	Title            string            `json:"title"`
+	Summary          *string           `json:"summary,omitempty"`
+	Content          *string           `json:"content,omitempty"`
+	ContentMode      *AdminContentMode `json:"contentMode,omitempty"`
+	Thumbnail        *string           `json:"thumbnail,omitempty"`
+	Source           ContentSource     `json:"source"`
+	PublishedDate    scalars.Date      `json:"publishedDate"`
+	UpdatedDate      *scalars.Date     `json:"updatedDate,omitempty"`
+	CategoryID       *string           `json:"categoryId,omitempty"`
+	CategoryName     *string           `json:"categoryName,omitempty"`
+	TopicIds         []string          `json:"topicIds"`
+	TopicNames       []string          `json:"topicNames"`
+	ReadingTimeMin   int               `json:"readingTimeMin"`
+	ContentUpdatedAt *time.Time        `json:"contentUpdatedAt,omitempty"`
+	UpdatedAt        *time.Time        `json:"updatedAt,omitempty"`
+	ViewCount        int               `json:"viewCount"`
+	LikeCount        int               `json:"likeCount"`
+	CommentCount     int               `json:"commentCount"`
 }
 
 type AdminContentPostFilterInput struct {
-	Locale          *string `json:"locale,omitempty"`
-	PreferredLocale *string `json:"preferredLocale,omitempty"`
-	Source          *string `json:"source,omitempty"`
-	Query           *string `json:"query,omitempty"`
-	CategoryID      *string `json:"categoryId,omitempty"`
-	TopicID         *string `json:"topicId,omitempty"`
-	Page            *int    `json:"page,omitempty"`
-	Size            *int    `json:"size,omitempty"`
+	Locale          *scalars.Locale `json:"locale,omitempty"`
+	PreferredLocale *scalars.Locale `json:"preferredLocale,omitempty"`
+	Source          *ContentSource  `json:"source,omitempty"`
+	Query           *string         `json:"query,omitempty"`
+	CategoryID      *string         `json:"categoryId,omitempty"`
+	TopicID         *string         `json:"topicId,omitempty"`
+	Page            *int            `json:"page,omitempty"`
+	Size            *int            `json:"size,omitempty"`
 }
 
 type AdminContentPostGroup struct {
 	ID        string            `json:"id"`
-	Source    string            `json:"source"`
+	Source    ContentSource     `json:"source"`
 	Preferred *AdminContentPost `json:"preferred"`
 	En        *AdminContentPost `json:"en,omitempty"`
 	Tr        *AdminContentPost `json:"tr,omitempty"`
@@ -166,20 +168,20 @@ type AdminContentPostListPayload struct {
 }
 
 type AdminContentTaxonomyFilterInput struct {
-	Locale          *string `json:"locale,omitempty"`
-	PreferredLocale *string `json:"preferredLocale,omitempty"`
-	Query           *string `json:"query,omitempty"`
-	Page            *int    `json:"page,omitempty"`
-	Size            *int    `json:"size,omitempty"`
+	Locale          *scalars.Locale `json:"locale,omitempty"`
+	PreferredLocale *scalars.Locale `json:"preferredLocale,omitempty"`
+	Query           *string         `json:"query,omitempty"`
+	Page            *int            `json:"page,omitempty"`
+	Size            *int            `json:"size,omitempty"`
 }
 
 type AdminContentTopic struct {
-	Locale    string     `json:"locale"`
-	ID        string     `json:"id"`
-	Name      string     `json:"name"`
-	Color     string     `json:"color"`
-	Link      *string    `json:"link,omitempty"`
-	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+	Locale    scalars.Locale `json:"locale"`
+	ID        string         `json:"id"`
+	Name      string         `json:"name"`
+	Color     string         `json:"color"`
+	Link      *scalars.URL   `json:"link,omitempty"`
+	UpdatedAt *time.Time     `json:"updatedAt,omitempty"`
 }
 
 type AdminContentTopicGroup struct {
@@ -190,11 +192,11 @@ type AdminContentTopicGroup struct {
 }
 
 type AdminContentTopicInput struct {
-	Locale string  `json:"locale"`
-	ID     string  `json:"id"`
-	Name   string  `json:"name"`
-	Color  string  `json:"color"`
-	Link   *string `json:"link,omitempty"`
+	Locale scalars.Locale `json:"locale"`
+	ID     string         `json:"id"`
+	Name   string         `json:"name"`
+	Color  string         `json:"color"`
+	Link   *scalars.URL   `json:"link,omitempty"`
 }
 
 type AdminContentTopicListPayload struct {
@@ -232,12 +234,12 @@ type AdminDashboardContentHealth struct {
 }
 
 type AdminDashboardPost struct {
-	PostID        string `json:"postId"`
-	Title         string `json:"title"`
-	Locale        string `json:"locale"`
-	PublishedDate string `json:"publishedDate"`
-	Hits          int    `json:"hits"`
-	Likes         int    `json:"likes"`
+	PostID        string         `json:"postId"`
+	Title         string         `json:"title"`
+	Locale        scalars.Locale `json:"locale"`
+	PublishedDate scalars.Date   `json:"publishedDate"`
+	Hits          int            `json:"hits"`
+	Likes         int            `json:"likes"`
 }
 
 type AdminDashboardUpdatedPost struct {
@@ -256,7 +258,7 @@ type AdminDeleteCommentInput struct {
 }
 
 type AdminDeleteNewsletterSubscriberInput struct {
-	Email string `json:"email"`
+	Email scalars.Email `json:"email"`
 }
 
 type AdminDeletePayload struct {
@@ -264,50 +266,50 @@ type AdminDeletePayload struct {
 }
 
 type AdminEmailChangeRequestPayload struct {
-	Success      bool      `json:"success"`
-	PendingEmail string    `json:"pendingEmail"`
-	ExpiresAt    time.Time `json:"expiresAt"`
+	Success      bool          `json:"success"`
+	PendingEmail scalars.Email `json:"pendingEmail"`
+	ExpiresAt    time.Time     `json:"expiresAt"`
 }
 
 type AdminErrorMessage struct {
-	Scope     string     `json:"scope"`
-	Locale    string     `json:"locale"`
-	Code      string     `json:"code"`
-	Message   string     `json:"message"`
-	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+	Scope     string         `json:"scope"`
+	Locale    scalars.Locale `json:"locale"`
+	Code      string         `json:"code"`
+	Message   string         `json:"message"`
+	UpdatedAt *time.Time     `json:"updatedAt,omitempty"`
 }
 
 type AdminErrorMessageAuditLog struct {
-	ID          string    `json:"id"`
-	ActorID     string    `json:"actorId"`
-	ActorEmail  string    `json:"actorEmail"`
-	Action      string    `json:"action"`
-	Scope       string    `json:"scope"`
-	Locale      string    `json:"locale"`
-	Code        string    `json:"code"`
-	BeforeValue string    `json:"beforeValue"`
-	AfterValue  string    `json:"afterValue"`
-	Status      string    `json:"status"`
-	FailureCode *string   `json:"failureCode,omitempty"`
-	RequestID   *string   `json:"requestId,omitempty"`
-	RemoteIP    *string   `json:"remoteIp,omitempty"`
-	CountryCode *string   `json:"countryCode,omitempty"`
-	UserAgent   *string   `json:"userAgent,omitempty"`
-	CreatedAt   time.Time `json:"createdAt"`
+	ID          string           `json:"id"`
+	ActorID     string           `json:"actorId"`
+	ActorEmail  scalars.Email    `json:"actorEmail"`
+	Action      string           `json:"action"`
+	Scope       string           `json:"scope"`
+	Locale      scalars.Locale   `json:"locale"`
+	Code        string           `json:"code"`
+	BeforeValue string           `json:"beforeValue"`
+	AfterValue  string           `json:"afterValue"`
+	Status      AdminAuditStatus `json:"status"`
+	FailureCode *string          `json:"failureCode,omitempty"`
+	RequestID   *string          `json:"requestId,omitempty"`
+	RemoteIP    *string          `json:"remoteIp,omitempty"`
+	CountryCode *string          `json:"countryCode,omitempty"`
+	UserAgent   *string          `json:"userAgent,omitempty"`
+	CreatedAt   time.Time        `json:"createdAt"`
 }
 
 type AdminErrorMessageFilterInput struct {
-	Locale *string `json:"locale,omitempty"`
-	Code   *string `json:"code,omitempty"`
-	Query  *string `json:"query,omitempty"`
-	Page   *int    `json:"page,omitempty"`
-	Size   *int    `json:"size,omitempty"`
+	Locale *scalars.Locale `json:"locale,omitempty"`
+	Code   *string         `json:"code,omitempty"`
+	Query  *string         `json:"query,omitempty"`
+	Page   *int            `json:"page,omitempty"`
+	Size   *int            `json:"size,omitempty"`
 }
 
 type AdminErrorMessageKeyInput struct {
-	Scope  *string `json:"scope,omitempty"`
-	Locale string  `json:"locale"`
-	Code   string  `json:"code"`
+	Scope  *string        `json:"scope,omitempty"`
+	Locale scalars.Locale `json:"locale"`
+	Code   string         `json:"code"`
 }
 
 type AdminErrorMessageListPayload struct {
@@ -323,7 +325,7 @@ type AdminGithubAuthStatus struct {
 }
 
 type AdminGithubConnectPayload struct {
-	URL string `json:"url"`
+	URL scalars.URL `json:"url"`
 }
 
 type AdminGithubDisconnectPayload struct {
@@ -337,7 +339,7 @@ type AdminGoogleAuthStatus struct {
 }
 
 type AdminGoogleConnectPayload struct {
-	URL string `json:"url"`
+	URL scalars.URL `json:"url"`
 }
 
 type AdminGoogleDisconnectPayload struct {
@@ -346,9 +348,9 @@ type AdminGoogleDisconnectPayload struct {
 }
 
 type AdminLoginInput struct {
-	Email      string `json:"email"`
-	Password   string `json:"password"`
-	RememberMe *bool  `json:"rememberMe,omitempty"`
+	Email      scalars.Email `json:"email"`
+	Password   string        `json:"password"`
+	RememberMe *bool         `json:"rememberMe,omitempty"`
 }
 
 type AdminLogoutPayload struct {
@@ -360,31 +362,60 @@ type AdminMe struct {
 	User          *AdminUser `json:"user,omitempty"`
 }
 
+type AdminMediaLibraryFilterInput struct {
+	Query *string                    `json:"query,omitempty"`
+	Kind  *AdminMediaLibraryItemKind `json:"kind,omitempty"`
+	Page  *int                       `json:"page,omitempty"`
+	Size  *int                       `json:"size,omitempty"`
+}
+
+type AdminMediaLibraryItem struct {
+	ID          string                    `json:"id"`
+	Kind        AdminMediaLibraryItemKind `json:"kind"`
+	Name        string                    `json:"name"`
+	Value       string                    `json:"value"`
+	PreviewURL  string                    `json:"previewUrl"`
+	ContentType *string                   `json:"contentType,omitempty"`
+	Width       *int                      `json:"width,omitempty"`
+	Height      *int                      `json:"height,omitempty"`
+	SizeBytes   int                       `json:"sizeBytes"`
+	UsageCount  int                       `json:"usageCount"`
+	CreatedAt   *time.Time                `json:"createdAt,omitempty"`
+	UpdatedAt   *time.Time                `json:"updatedAt,omitempty"`
+}
+
+type AdminMediaLibraryListPayload struct {
+	Items []*AdminMediaLibraryItem `json:"items"`
+	Total int                      `json:"total"`
+	Page  int                      `json:"page"`
+	Size  int                      `json:"size"`
+}
+
 type AdminMutation struct {
 }
 
 type AdminNewsletterCampaign struct {
-	Locale      string     `json:"locale"`
-	ItemKey     string     `json:"itemKey"`
-	Title       string     `json:"title"`
-	Summary     *string    `json:"summary,omitempty"`
-	Link        *string    `json:"link,omitempty"`
-	PubDate     *string    `json:"pubDate,omitempty"`
-	RssURL      *string    `json:"rssUrl,omitempty"`
-	Status      string     `json:"status"`
-	SentCount   int        `json:"sentCount"`
-	FailedCount int        `json:"failedCount"`
-	LastRunAt   *time.Time `json:"lastRunAt,omitempty"`
-	UpdatedAt   *time.Time `json:"updatedAt,omitempty"`
-	CreatedAt   *time.Time `json:"createdAt,omitempty"`
+	Locale      scalars.Locale                `json:"locale"`
+	ItemKey     string                        `json:"itemKey"`
+	Title       string                        `json:"title"`
+	Summary     *string                       `json:"summary,omitempty"`
+	Link        *scalars.URL                  `json:"link,omitempty"`
+	PubDate     *scalars.Date                 `json:"pubDate,omitempty"`
+	RssURL      *scalars.URL                  `json:"rssUrl,omitempty"`
+	Status      AdminNewsletterCampaignStatus `json:"status"`
+	SentCount   int                           `json:"sentCount"`
+	FailedCount int                           `json:"failedCount"`
+	LastRunAt   *time.Time                    `json:"lastRunAt,omitempty"`
+	UpdatedAt   *time.Time                    `json:"updatedAt,omitempty"`
+	CreatedAt   *time.Time                    `json:"createdAt,omitempty"`
 }
 
 type AdminNewsletterCampaignFilterInput struct {
-	Locale *string `json:"locale,omitempty"`
-	Status *string `json:"status,omitempty"`
-	Query  *string `json:"query,omitempty"`
-	Page   *int    `json:"page,omitempty"`
-	Size   *int    `json:"size,omitempty"`
+	Locale *scalars.Locale                `json:"locale,omitempty"`
+	Status *AdminNewsletterCampaignStatus `json:"status,omitempty"`
+	Query  *string                        `json:"query,omitempty"`
+	Page   *int                           `json:"page,omitempty"`
+	Size   *int                           `json:"size,omitempty"`
 }
 
 type AdminNewsletterCampaignListPayload struct {
@@ -395,21 +426,21 @@ type AdminNewsletterCampaignListPayload struct {
 }
 
 type AdminNewsletterDeliveryFailure struct {
-	Locale        string     `json:"locale"`
-	ItemKey       string     `json:"itemKey"`
-	Email         string     `json:"email"`
-	Status        string     `json:"status"`
-	LastError     *string    `json:"lastError,omitempty"`
-	LastAttemptAt *time.Time `json:"lastAttemptAt,omitempty"`
-	UpdatedAt     *time.Time `json:"updatedAt,omitempty"`
-	CreatedAt     *time.Time `json:"createdAt,omitempty"`
+	Locale        scalars.Locale                       `json:"locale"`
+	ItemKey       string                               `json:"itemKey"`
+	Email         scalars.Email                        `json:"email"`
+	Status        AdminNewsletterDeliveryFailureStatus `json:"status"`
+	LastError     *string                              `json:"lastError,omitempty"`
+	LastAttemptAt *time.Time                           `json:"lastAttemptAt,omitempty"`
+	UpdatedAt     *time.Time                           `json:"updatedAt,omitempty"`
+	CreatedAt     *time.Time                           `json:"createdAt,omitempty"`
 }
 
 type AdminNewsletterDeliveryFailureFilterInput struct {
-	Locale  string `json:"locale"`
-	ItemKey string `json:"itemKey"`
-	Page    *int   `json:"page,omitempty"`
-	Size    *int   `json:"size,omitempty"`
+	Locale  scalars.Locale `json:"locale"`
+	ItemKey string         `json:"itemKey"`
+	Page    *int           `json:"page,omitempty"`
+	Size    *int           `json:"size,omitempty"`
 }
 
 type AdminNewsletterDeliveryFailureListPayload struct {
@@ -420,14 +451,14 @@ type AdminNewsletterDeliveryFailureListPayload struct {
 }
 
 type AdminNewsletterDispatchLocaleResult struct {
-	Locale      string  `json:"locale"`
-	RssURL      *string `json:"rssUrl,omitempty"`
-	ItemKey     *string `json:"itemKey,omitempty"`
-	PostTitle   *string `json:"postTitle,omitempty"`
-	SentCount   int     `json:"sentCount"`
-	FailedCount int     `json:"failedCount"`
-	Skipped     bool    `json:"skipped"`
-	Reason      *string `json:"reason,omitempty"`
+	Locale      scalars.Locale `json:"locale"`
+	RssURL      *scalars.URL   `json:"rssUrl,omitempty"`
+	ItemKey     *string        `json:"itemKey,omitempty"`
+	PostTitle   *string        `json:"postTitle,omitempty"`
+	SentCount   int            `json:"sentCount"`
+	FailedCount int            `json:"failedCount"`
+	Skipped     bool           `json:"skipped"`
+	Reason      *string        `json:"reason,omitempty"`
 }
 
 type AdminNewsletterDispatchPayload struct {
@@ -438,8 +469,8 @@ type AdminNewsletterDispatchPayload struct {
 }
 
 type AdminNewsletterSubscriber struct {
-	Email          string                          `json:"email"`
-	Locale         string                          `json:"locale"`
+	Email          scalars.Email                   `json:"email"`
+	Locale         scalars.Locale                  `json:"locale"`
 	Status         AdminNewsletterSubscriberStatus `json:"status"`
 	Tags           []string                        `json:"tags"`
 	FormName       *string                         `json:"formName,omitempty"`
@@ -451,7 +482,7 @@ type AdminNewsletterSubscriber struct {
 }
 
 type AdminNewsletterSubscriberFilterInput struct {
-	Locale *string                          `json:"locale,omitempty"`
+	Locale *scalars.Locale                  `json:"locale,omitempty"`
 	Status *AdminNewsletterSubscriberStatus `json:"status,omitempty"`
 	Query  *string                          `json:"query,omitempty"`
 	Page   *int                             `json:"page,omitempty"`
@@ -466,13 +497,13 @@ type AdminNewsletterSubscriberListPayload struct {
 }
 
 type AdminNewsletterTestSendPayload struct {
-	Success   bool      `json:"success"`
-	Message   string    `json:"message"`
-	Timestamp time.Time `json:"timestamp"`
-	Email     string    `json:"email"`
-	Locale    string    `json:"locale"`
-	ItemKey   string    `json:"itemKey"`
-	PostTitle *string   `json:"postTitle,omitempty"`
+	Success   bool           `json:"success"`
+	Message   string         `json:"message"`
+	Timestamp time.Time      `json:"timestamp"`
+	Email     scalars.Email  `json:"email"`
+	Locale    scalars.Locale `json:"locale"`
+	ItemKey   string         `json:"itemKey"`
+	PostTitle *string        `json:"postTitle,omitempty"`
 }
 
 type AdminPasswordChangePayload struct {
@@ -483,15 +514,15 @@ type AdminQuery struct {
 }
 
 type AdminRequestEmailChangeInput struct {
-	NewEmail        string  `json:"newEmail"`
-	CurrentPassword string  `json:"currentPassword"`
-	Locale          *string `json:"locale,omitempty"`
+	NewEmail        scalars.Email   `json:"newEmail"`
+	CurrentPassword string          `json:"currentPassword"`
+	Locale          *scalars.Locale `json:"locale,omitempty"`
 }
 
 type AdminSendTestNewsletterInput struct {
-	Email   string `json:"email"`
-	Locale  string `json:"locale"`
-	ItemKey string `json:"itemKey"`
+	Email   scalars.Email  `json:"email"`
+	Locale  scalars.Locale `json:"locale"`
+	ItemKey string         `json:"itemKey"`
 }
 
 type AdminSession struct {
@@ -511,11 +542,11 @@ type AdminSessionRevokePayload struct {
 }
 
 type AdminStartGithubConnectInput struct {
-	Locale *string `json:"locale,omitempty"`
+	Locale *scalars.Locale `json:"locale,omitempty"`
 }
 
 type AdminStartGoogleConnectInput struct {
-	Locale *string `json:"locale,omitempty"`
+	Locale *scalars.Locale `json:"locale,omitempty"`
 }
 
 type AdminUpdateCommentStatusInput struct {
@@ -524,21 +555,21 @@ type AdminUpdateCommentStatusInput struct {
 }
 
 type AdminUpdateContentPostContentInput struct {
-	Locale  string `json:"locale"`
-	ID      string `json:"id"`
-	Content string `json:"content"`
+	Locale  scalars.Locale `json:"locale"`
+	ID      string         `json:"id"`
+	Content string         `json:"content"`
 }
 
 type AdminUpdateContentPostMetadataInput struct {
-	Locale        string   `json:"locale"`
-	ID            string   `json:"id"`
-	Title         *string  `json:"title,omitempty"`
-	Summary       *string  `json:"summary,omitempty"`
-	Thumbnail     *string  `json:"thumbnail,omitempty"`
-	PublishedDate *string  `json:"publishedDate,omitempty"`
-	UpdatedDate   *string  `json:"updatedDate,omitempty"`
-	CategoryID    *string  `json:"categoryId,omitempty"`
-	TopicIds      []string `json:"topicIds"`
+	Locale        scalars.Locale `json:"locale"`
+	ID            string         `json:"id"`
+	Title         *string        `json:"title,omitempty"`
+	Summary       *string        `json:"summary,omitempty"`
+	Thumbnail     *string        `json:"thumbnail,omitempty"`
+	PublishedDate *scalars.Date  `json:"publishedDate,omitempty"`
+	UpdatedDate   *scalars.Date  `json:"updatedDate,omitempty"`
+	CategoryID    *string        `json:"categoryId,omitempty"`
+	TopicIds      []string       `json:"topicIds"`
 }
 
 type AdminUpdateErrorMessageInput struct {
@@ -547,25 +578,83 @@ type AdminUpdateErrorMessageInput struct {
 }
 
 type AdminUpdateNewsletterSubscriberStatusInput struct {
-	Email  string                          `json:"email"`
+	Email  scalars.Email                   `json:"email"`
 	Status AdminNewsletterSubscriberStatus `json:"status"`
 }
 
+type AdminUploadMediaAssetInput struct {
+	FileName string `json:"fileName"`
+	DataURL  string `json:"dataUrl"`
+}
+
 type AdminUser struct {
-	ID                    string     `json:"id"`
-	Name                  *string    `json:"name,omitempty"`
-	Username              *string    `json:"username,omitempty"`
-	AvatarURL             *string    `json:"avatarUrl,omitempty"`
-	Email                 string     `json:"email"`
-	PendingEmail          *string    `json:"pendingEmail,omitempty"`
-	PendingEmailExpiresAt *time.Time `json:"pendingEmailExpiresAt,omitempty"`
-	GoogleLinked          bool       `json:"googleLinked"`
-	GoogleEmail           *string    `json:"googleEmail,omitempty"`
-	GoogleLinkedAt        *time.Time `json:"googleLinkedAt,omitempty"`
-	GithubLinked          bool       `json:"githubLinked"`
-	GithubEmail           *string    `json:"githubEmail,omitempty"`
-	GithubLinkedAt        *time.Time `json:"githubLinkedAt,omitempty"`
-	Roles                 []string   `json:"roles"`
+	ID                    string         `json:"id"`
+	Name                  *string        `json:"name,omitempty"`
+	Username              *string        `json:"username,omitempty"`
+	AvatarURL             *scalars.URL   `json:"avatarUrl,omitempty"`
+	Email                 scalars.Email  `json:"email"`
+	PendingEmail          *scalars.Email `json:"pendingEmail,omitempty"`
+	PendingEmailExpiresAt *time.Time     `json:"pendingEmailExpiresAt,omitempty"`
+	GoogleLinked          bool           `json:"googleLinked"`
+	GoogleEmail           *scalars.Email `json:"googleEmail,omitempty"`
+	GoogleLinkedAt        *time.Time     `json:"googleLinkedAt,omitempty"`
+	GithubLinked          bool           `json:"githubLinked"`
+	GithubEmail           *scalars.Email `json:"githubEmail,omitempty"`
+	GithubLinkedAt        *time.Time     `json:"githubLinkedAt,omitempty"`
+	Roles                 []string       `json:"roles"`
+}
+
+type AdminAuditStatus string
+
+const (
+	AdminAuditStatusSuccess AdminAuditStatus = "success"
+)
+
+var AllAdminAuditStatus = []AdminAuditStatus{
+	AdminAuditStatusSuccess,
+}
+
+func (e AdminAuditStatus) IsValid() bool {
+	switch e {
+	case AdminAuditStatusSuccess:
+		return true
+	}
+	return false
+}
+
+func (e AdminAuditStatus) String() string {
+	return string(e)
+}
+
+func (e *AdminAuditStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AdminAuditStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AdminAuditStatus", str)
+	}
+	return nil
+}
+
+func (e AdminAuditStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AdminAuditStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AdminAuditStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 type AdminCommentStatus string
@@ -627,6 +716,226 @@ func (e AdminCommentStatus) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+type AdminContentMode string
+
+const (
+	AdminContentModeMarkdown AdminContentMode = "markdown"
+	AdminContentModeAdmin    AdminContentMode = "admin"
+)
+
+var AllAdminContentMode = []AdminContentMode{
+	AdminContentModeMarkdown,
+	AdminContentModeAdmin,
+}
+
+func (e AdminContentMode) IsValid() bool {
+	switch e {
+	case AdminContentModeMarkdown, AdminContentModeAdmin:
+		return true
+	}
+	return false
+}
+
+func (e AdminContentMode) String() string {
+	return string(e)
+}
+
+func (e *AdminContentMode) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AdminContentMode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AdminContentMode", str)
+	}
+	return nil
+}
+
+func (e AdminContentMode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AdminContentMode) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AdminContentMode) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type AdminMediaLibraryItemKind string
+
+const (
+	AdminMediaLibraryItemKindUploaded  AdminMediaLibraryItemKind = "UPLOADED"
+	AdminMediaLibraryItemKindReference AdminMediaLibraryItemKind = "REFERENCE"
+)
+
+var AllAdminMediaLibraryItemKind = []AdminMediaLibraryItemKind{
+	AdminMediaLibraryItemKindUploaded,
+	AdminMediaLibraryItemKindReference,
+}
+
+func (e AdminMediaLibraryItemKind) IsValid() bool {
+	switch e {
+	case AdminMediaLibraryItemKindUploaded, AdminMediaLibraryItemKindReference:
+		return true
+	}
+	return false
+}
+
+func (e AdminMediaLibraryItemKind) String() string {
+	return string(e)
+}
+
+func (e *AdminMediaLibraryItemKind) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AdminMediaLibraryItemKind(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AdminMediaLibraryItemKind", str)
+	}
+	return nil
+}
+
+func (e AdminMediaLibraryItemKind) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AdminMediaLibraryItemKind) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AdminMediaLibraryItemKind) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type AdminNewsletterCampaignStatus string
+
+const (
+	AdminNewsletterCampaignStatusProcessing AdminNewsletterCampaignStatus = "processing"
+	AdminNewsletterCampaignStatusPartial    AdminNewsletterCampaignStatus = "partial"
+	AdminNewsletterCampaignStatusSent       AdminNewsletterCampaignStatus = "sent"
+)
+
+var AllAdminNewsletterCampaignStatus = []AdminNewsletterCampaignStatus{
+	AdminNewsletterCampaignStatusProcessing,
+	AdminNewsletterCampaignStatusPartial,
+	AdminNewsletterCampaignStatusSent,
+}
+
+func (e AdminNewsletterCampaignStatus) IsValid() bool {
+	switch e {
+	case AdminNewsletterCampaignStatusProcessing, AdminNewsletterCampaignStatusPartial, AdminNewsletterCampaignStatusSent:
+		return true
+	}
+	return false
+}
+
+func (e AdminNewsletterCampaignStatus) String() string {
+	return string(e)
+}
+
+func (e *AdminNewsletterCampaignStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AdminNewsletterCampaignStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AdminNewsletterCampaignStatus", str)
+	}
+	return nil
+}
+
+func (e AdminNewsletterCampaignStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AdminNewsletterCampaignStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AdminNewsletterCampaignStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type AdminNewsletterDeliveryFailureStatus string
+
+const (
+	AdminNewsletterDeliveryFailureStatusFailed AdminNewsletterDeliveryFailureStatus = "failed"
+)
+
+var AllAdminNewsletterDeliveryFailureStatus = []AdminNewsletterDeliveryFailureStatus{
+	AdminNewsletterDeliveryFailureStatusFailed,
+}
+
+func (e AdminNewsletterDeliveryFailureStatus) IsValid() bool {
+	switch e {
+	case AdminNewsletterDeliveryFailureStatusFailed:
+		return true
+	}
+	return false
+}
+
+func (e AdminNewsletterDeliveryFailureStatus) String() string {
+	return string(e)
+}
+
+func (e *AdminNewsletterDeliveryFailureStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AdminNewsletterDeliveryFailureStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AdminNewsletterDeliveryFailureStatus", str)
+	}
+	return nil
+}
+
+func (e AdminNewsletterDeliveryFailureStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AdminNewsletterDeliveryFailureStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AdminNewsletterDeliveryFailureStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 type AdminNewsletterSubscriberStatus string
 
 const (
@@ -679,6 +988,61 @@ func (e *AdminNewsletterSubscriberStatus) UnmarshalJSON(b []byte) error {
 }
 
 func (e AdminNewsletterSubscriberStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type ContentSource string
+
+const (
+	ContentSourceBlog   ContentSource = "blog"
+	ContentSourceMedium ContentSource = "medium"
+)
+
+var AllContentSource = []ContentSource{
+	ContentSourceBlog,
+	ContentSourceMedium,
+}
+
+func (e ContentSource) IsValid() bool {
+	switch e {
+	case ContentSourceBlog, ContentSourceMedium:
+		return true
+	}
+	return false
+}
+
+func (e ContentSource) String() string {
+	return string(e)
+}
+
+func (e *ContentSource) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ContentSource(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ContentSource", str)
+	}
+	return nil
+}
+
+func (e ContentSource) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ContentSource) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ContentSource) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

@@ -253,6 +253,9 @@ interface Resources {
           "categoryCreate": "Category could not be created.",
           "categoryDelete": "Category could not be deleted.",
           "categoryUpdate": "Category could not be updated.",
+          "mediaLibraryCopy": "Media path could not be copied.",
+          "mediaLibraryLoad": "Media library could not be loaded.",
+          "mediaLibraryUpload": "Image could not be uploaded.",
           "postContentUpdate": "Post content could not be updated.",
           "postDelete": "Post could not be deleted.",
           "postLoad": "Posts could not be loaded.",
@@ -294,6 +297,16 @@ interface Resources {
           "postContent": "Loading post content...",
           "posts": "Loading posts...",
           "taxonomy": "Loading taxonomy..."
+        },
+        "media": {
+          "actions": {
+            "copied": "Copied",
+            "copy": "Copy path",
+            "open": "Open"
+          },
+          "copy": "Upload images, review reusable thumbnails, and copy media paths for content metadata.",
+          "loading": "Loading media library...",
+          "title": "Media library"
         },
         "modals": {
           "category": {
@@ -343,6 +356,31 @@ interface Resources {
               "id": "Post id: {{value}}",
               "locale": "Locale: {{value}}"
             },
+            "media": {
+              "badges": {
+                "reused": "Reused",
+                "uploaded": "Uploaded"
+              },
+              "clear": "Clear",
+              "clearSearch": "Clear media search",
+              "empty": "No media found for the current search.",
+              "filterLabel": "Source",
+              "filters": {
+                "all": "All media",
+                "reused": "Reused",
+                "uploaded": "Uploaded"
+              },
+              "hint": "Open the media library to upload images or copy a reusable thumbnail path.",
+              "openLibrary": "Open media library",
+              "queryPlaceholder": "Search media by name or title",
+              "select": "Use image",
+              "selected": "Selected",
+              "title": "Media library",
+              "upload": "Upload image",
+              "uploadLabel": "Upload",
+              "usedIn_one": "Used in {{count}} post",
+              "usedIn_other": "Used in {{count}} posts"
+            },
             "meta": {
               "published": "Published",
               "updated": "Updated"
@@ -350,7 +388,7 @@ interface Resources {
             "metadataFields": {
               "publishedDate": "Published date",
               "summary": "Description",
-              "thumbnail": "Thumbnail URL",
+              "thumbnail": "Thumbnail",
               "title": "Title",
               "updatedDate": "Updated date",
               "updatedDateHint": "Leave empty to clear updated date."
@@ -397,6 +435,8 @@ interface Resources {
           "categoryCreated": "Category created: {{id}}",
           "categoryDeleted": "Category deleted: {{id}}",
           "categoryUpdated": "Category updated: {{id}}",
+          "mediaCopied": "Path copied: {{name}}",
+          "mediaUploaded": "Image uploaded: {{name}}",
           "postContentUpdated": "Post content updated: {{id}}",
           "postDeleted": "Post deleted: {{id}}",
           "postUpdated": "Post metadata updated: {{id}}",
@@ -406,6 +446,7 @@ interface Resources {
         },
         "tabs": {
           "categories": "Categories",
+          "media": "Media",
           "posts": "Posts",
           "topics": "Topics"
         },

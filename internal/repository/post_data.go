@@ -19,15 +19,16 @@ import (
 )
 
 const (
-	postLikesCollectionName  = "post_likes"
-	postHitsCollectionName   = "post_hits"
-	postsCollectionName      = "newsletter_posts"
-	topicsCollectionName     = "newsletter_topics"
-	categoriesCollectionName = "newsletter_categories"
-	maxBatchPostIDs          = 60
-	maxScopePostIDs          = 5000
-	defaultPageSize          = 20
-	maxPageSize              = 100
+	postLikesCollectionName   = "post_likes"
+	postHitsCollectionName    = "post_hits"
+	postsCollectionName       = "newsletter_posts"
+	topicsCollectionName      = "newsletter_topics"
+	categoriesCollectionName  = "newsletter_categories"
+	mediaAssetsCollectionName = "admin_media_assets"
+	maxBatchPostIDs           = 60
+	maxScopePostIDs           = 5000
+	defaultPageSize           = 20
+	maxPageSize               = 100
 )
 
 var (
@@ -51,6 +52,9 @@ var (
 
 	postCategoryIndexesOnce sync.Once
 	postCategoryIndexesErr  error
+
+	postMediaAssetIndexesOnce sync.Once
+	postMediaAssetIndexesErr  error
 )
 
 type (
@@ -298,6 +302,38 @@ func ensurePostCategoryIndexes(categoriesCollection *mongo.Collection) error {
 	return postCategoryIndexesErr
 }
 
+func ensurePostMediaAssetIndexes(mediaCollection *mongo.Collection) error {
+	postMediaAssetIndexesOnce.Do(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		indexes := []mongo.IndexModel{
+			{
+				Keys:    bson.D{{Key: "id", Value: 1}},
+				Options: options.Index().SetName("uniq_admin_media_asset_id").SetUnique(true),
+			},
+			{
+				Keys:    bson.D{{Key: "digest", Value: 1}},
+				Options: options.Index().SetName("uniq_admin_media_asset_digest").SetUnique(true),
+			},
+			{
+				Keys:    bson.D{{Key: "updatedAt", Value: -1}},
+				Options: options.Index().SetName("idx_admin_media_asset_updated"),
+			},
+			{
+				Keys:    bson.D{{Key: "name", Value: 1}},
+				Options: options.Index().SetName("idx_admin_media_asset_name"),
+			},
+		}
+
+		if _, err := mediaCollection.Indexes().CreateMany(ctx, indexes); err != nil {
+			postMediaAssetIndexesErr = fmt.Errorf("admin media asset index create failed: %w", err)
+		}
+	})
+
+	return postMediaAssetIndexesErr
+}
+
 func getPostLikesCollection() (*mongo.Collection, error) {
 	collection, err := getPostCollection(postLikesCollectionName)
 	if err != nil {
@@ -348,6 +384,17 @@ func getPostCategoriesCollection() (*mongo.Collection, error) {
 		return nil, err
 	}
 	if err := ensurePostCategoryIndexes(collection); err != nil {
+		return nil, err
+	}
+	return collection, nil
+}
+
+func getPostMediaAssetsCollection() (*mongo.Collection, error) {
+	collection, err := getPostCollection(mediaAssetsCollectionName)
+	if err != nil {
+		return nil, err
+	}
+	if err := ensurePostMediaAssetIndexes(collection); err != nil {
 		return nil, err
 	}
 	return collection, nil

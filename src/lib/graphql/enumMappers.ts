@@ -3,9 +3,9 @@ import {
   CommentMutationStatus,
   CommentQueryStatus,
   ContentQueryStatus,
-  Locale as GraphQLLocale,
   NewsletterMutationStatus,
   PostMetricStatus,
+  Scalars,
   SortOrder,
 } from '@/graphql/generated/graphql';
 
@@ -17,20 +17,22 @@ const enumToKebabCase = (value: unknown) => {
   return value.toLowerCase().replaceAll('_', '-');
 };
 
-export const toGraphQLLocale = (value: string): GraphQLLocale | null => {
+export const toGraphQLLocale = (value: string): Scalars['Locale']['input'] | null => {
   const normalized = value.trim().toLowerCase();
 
   if (normalized === 'tr' || normalized.startsWith('tr-')) {
-    return GraphQLLocale.Tr;
+    return 'tr';
   }
   if (normalized === 'en' || normalized.startsWith('en-')) {
-    return GraphQLLocale.En;
+    return 'en';
   }
 
   return null;
 };
 
-export const fromGraphQLLocale = (value: GraphQLLocale | string | null | undefined): string | undefined => {
+export const fromGraphQLLocale = (
+  value: Scalars['Locale']['output'] | string | null | undefined,
+): string | undefined => {
   const normalized = value?.trim().toLowerCase();
 
   if (normalized === 'tr') {

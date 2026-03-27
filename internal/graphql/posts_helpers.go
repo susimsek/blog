@@ -7,6 +7,7 @@ import (
 
 	"suaybsimsek.com/blog-api/internal/graphql/model"
 	appservice "suaybsimsek.com/blog-api/internal/service"
+	appscalars "suaybsimsek.com/blog-api/pkg/graphql/scalars"
 )
 
 func toOptionalString(value string) *string {
@@ -15,6 +16,39 @@ func toOptionalString(value string) *string {
 		return nil
 	}
 	return &trimmed
+}
+
+func toOptionalDate(value string) *appscalars.Date {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return nil
+	}
+
+	date := appscalars.Date(trimmed)
+	return &date
+}
+
+func toOptionalURL(value string) *appscalars.URL {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return nil
+	}
+
+	resolved := appscalars.URL(trimmed)
+	return &resolved
+}
+
+func toOptionalContentSource(value string) *model.ContentSource {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "blog":
+		source := model.ContentSourceBlog
+		return &source
+	case "medium":
+		source := model.ContentSourceMedium
+		return &source
+	default:
+		return nil
+	}
 }
 
 func toGraphQLInt(value int64) int {
@@ -89,7 +123,7 @@ func mapTopicsFromPostTopics(topics []appservice.TopicRecord) []*model.Topic {
 			ID:    id,
 			Name:  name,
 			Color: color,
-			Link:  toOptionalString(derefString(topic.Link)),
+			Link:  toOptionalURL(derefString(topic.Link)),
 		})
 	}
 
@@ -146,15 +180,15 @@ func mapPosts(posts []appservice.PostRecord) []*model.Post {
 			Slug:          id,
 			Title:         title,
 			Category:      mapCategoryFromPostCategory(post.Category),
-			PublishedDate: publishedDate,
-			UpdatedDate:   toOptionalString(derefString(post.UpdatedDate)),
+			PublishedDate: appscalars.Date(publishedDate),
+			UpdatedDate:   toOptionalDate(derefString(post.UpdatedDate)),
 			Summary:       summary,
 			SearchText:    searchText,
 			Thumbnail:     toOptionalString(derefString(post.Thumbnail)),
 			Topics:        mapTopicsFromPostTopics(post.Topics),
 			ReadingTime:   readingTime,
-			Source:        toOptionalString(post.Source),
-			URL:           toOptionalString(derefString(post.Link)),
+			Source:        toOptionalContentSource(post.Source),
+			URL:           toOptionalURL(derefString(post.Link)),
 		})
 	}
 

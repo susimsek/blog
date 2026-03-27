@@ -11,12 +11,14 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	"suaybsimsek.com/blog-api/internal/graphql/model"
+	"suaybsimsek.com/blog-api/pkg/graphql/scalars"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -146,8 +148,8 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Comments func(childComplexity int, postID string) int
-		Post     func(childComplexity int, locale model.Locale, id string) int
-		Posts    func(childComplexity int, locale model.Locale, input *model.PostsQueryInput) int
+		Post     func(childComplexity int, locale scalars.Locale, id string) int
+		Posts    func(childComplexity int, locale scalars.Locale, input *model.PostsQueryInput) int
 	}
 
 	Topic struct {
@@ -168,8 +170,8 @@ type MutationResolver interface {
 	AddComment(ctx context.Context, input model.AddCommentInput) (*model.CommentMutationResult, error)
 }
 type QueryResolver interface {
-	Posts(ctx context.Context, locale model.Locale, input *model.PostsQueryInput) (*model.PostConnection, error)
-	Post(ctx context.Context, locale model.Locale, id string) (*model.PostResult, error)
+	Posts(ctx context.Context, locale scalars.Locale, input *model.PostsQueryInput) (*model.PostConnection, error)
+	Post(ctx context.Context, locale scalars.Locale, id string) (*model.PostResult, error)
 	Comments(ctx context.Context, postID string) (*model.CommentListResult, error)
 }
 
@@ -626,7 +628,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Post(childComplexity, args["locale"].(model.Locale), args["id"].(string)), true
+		return e.complexity.Query.Post(childComplexity, args["locale"].(scalars.Locale), args["id"].(string)), true
 	case "Query.posts":
 		if e.complexity.Query.Posts == nil {
 			break
@@ -637,7 +639,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Posts(childComplexity, args["locale"].(model.Locale), args["input"].(*model.PostsQueryInput)), true
+		return e.complexity.Query.Posts(childComplexity, args["locale"].(scalars.Locale), args["input"].(*model.PostsQueryInput)), true
 
 	case "Topic.color":
 		if e.complexity.Topic.Color == nil {
@@ -894,7 +896,7 @@ func (ec *executionContext) field_Query_comments_args(ctx context.Context, rawAr
 func (ec *executionContext) field_Query_post_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐLocale)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale)
 	if err != nil {
 		return nil, err
 	}
@@ -910,7 +912,7 @@ func (ec *executionContext) field_Query_post_args(ctx context.Context, rawArgs m
 func (ec *executionContext) field_Query_posts_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐLocale)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale)
 	if err != nil {
 		return nil, err
 	}
@@ -1072,7 +1074,7 @@ func (ec *executionContext) _Comment_avatarUrl(ctx context.Context, field graphq
 			return obj.AvatarURL, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL,
 		true,
 		false,
 	)
@@ -1085,7 +1087,7 @@ func (ec *executionContext) fieldContext_Comment_avatarUrl(_ context.Context, fi
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type URL does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1130,7 +1132,7 @@ func (ec *executionContext) _Comment_createdAt(ctx context.Context, field graphq
 			return obj.CreatedAt, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNDateTime2timeᚐTime,
 		true,
 		true,
 	)
@@ -1143,7 +1145,7 @@ func (ec *executionContext) fieldContext_Comment_createdAt(_ context.Context, fi
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type DateTime does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1977,7 +1979,7 @@ func (ec *executionContext) _Post_publishedDate(ctx context.Context, field graph
 			return obj.PublishedDate, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNDate2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate,
 		true,
 		true,
 	)
@@ -1990,7 +1992,7 @@ func (ec *executionContext) fieldContext_Post_publishedDate(_ context.Context, f
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Date does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2006,7 +2008,7 @@ func (ec *executionContext) _Post_updatedDate(ctx context.Context, field graphql
 			return obj.UpdatedDate, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalODate2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate,
 		true,
 		false,
 	)
@@ -2019,7 +2021,7 @@ func (ec *executionContext) fieldContext_Post_updatedDate(_ context.Context, fie
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Date does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2190,7 +2192,7 @@ func (ec *executionContext) _Post_source(ctx context.Context, field graphql.Coll
 			return obj.Source, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOContentSource2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐContentSource,
 		true,
 		false,
 	)
@@ -2203,7 +2205,7 @@ func (ec *executionContext) fieldContext_Post_source(_ context.Context, field gr
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type ContentSource does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2219,7 +2221,7 @@ func (ec *executionContext) _Post_url(ctx context.Context, field graphql.Collect
 			return obj.URL, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL,
 		true,
 		false,
 	)
@@ -2232,7 +2234,7 @@ func (ec *executionContext) fieldContext_Post_url(_ context.Context, field graph
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type URL does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2393,7 +2395,7 @@ func (ec *executionContext) _PostConnection_locale(ctx context.Context, field gr
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐLocale,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
 		true,
 		true,
 	)
@@ -2895,7 +2897,7 @@ func (ec *executionContext) _PostResult_locale(ctx context.Context, field graphq
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐLocale,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
 		true,
 		true,
 	)
@@ -3018,7 +3020,7 @@ func (ec *executionContext) _Query_posts(ctx context.Context, field graphql.Coll
 		ec.fieldContext_Query_posts,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Posts(ctx, fc.Args["locale"].(model.Locale), fc.Args["input"].(*model.PostsQueryInput))
+			return ec.resolvers.Query().Posts(ctx, fc.Args["locale"].(scalars.Locale), fc.Args["input"].(*model.PostsQueryInput))
 		},
 		nil,
 		ec.marshalNPostConnection2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐPostConnection,
@@ -3077,7 +3079,7 @@ func (ec *executionContext) _Query_post(ctx context.Context, field graphql.Colle
 		ec.fieldContext_Query_post,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Post(ctx, fc.Args["locale"].(model.Locale), fc.Args["id"].(string))
+			return ec.resolvers.Query().Post(ctx, fc.Args["locale"].(scalars.Locale), fc.Args["id"].(string))
 		},
 		nil,
 		ec.marshalNPostResult2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐPostResult,
@@ -3376,7 +3378,7 @@ func (ec *executionContext) _Topic_link(ctx context.Context, field graphql.Colle
 			return obj.Link, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL,
 		true,
 		false,
 	)
@@ -3389,7 +3391,7 @@ func (ec *executionContext) fieldContext_Topic_link(_ context.Context, field gra
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type URL does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4878,7 +4880,7 @@ func (ec *executionContext) unmarshalInputAddCommentInput(ctx context.Context, o
 			it.AuthorName = data
 		case "authorEmail":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("authorEmail"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4912,14 +4914,14 @@ func (ec *executionContext) unmarshalInputNewsletterResendInput(ctx context.Cont
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐLocale(ctx, v)
+			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Locale = data
 		case "email":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4953,14 +4955,14 @@ func (ec *executionContext) unmarshalInputNewsletterSubscribeInput(ctx context.C
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐLocale(ctx, v)
+			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Locale = data
 		case "email":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6424,6 +6426,35 @@ func (ec *executionContext) marshalNContentQueryStatus2suaybsimsekᚗcomᚋblog�
 	return v
 }
 
+func (ec *executionContext) unmarshalNDate2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate(ctx context.Context, v any) (scalars.Date, error) {
+	var res scalars.Date
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDate2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate(ctx context.Context, sel ast.SelectionSet, v scalars.Date) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNDateTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {
+	res, err := ec.unmarshalInputDateTime(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDateTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	return ec._DateTime(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx context.Context, v any) (scalars.Email, error) {
+	var res scalars.Email
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx context.Context, sel ast.SelectionSet, v scalars.Email) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -6456,13 +6487,13 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐLocale(ctx context.Context, v any) (model.Locale, error) {
-	var res model.Locale
+func (ec *executionContext) unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx context.Context, v any) (scalars.Locale, error) {
+	var res scalars.Locale
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐLocale(ctx context.Context, sel ast.SelectionSet, v model.Locale) graphql.Marshaler {
+func (ec *executionContext) marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx context.Context, sel ast.SelectionSet, v scalars.Locale) graphql.Marshaler {
 	return v
 }
 
@@ -6985,6 +7016,38 @@ func (ec *executionContext) marshalOCommentModerationStatus2ᚖsuaybsimsekᚗcom
 	return v
 }
 
+func (ec *executionContext) unmarshalOContentSource2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐContentSource(ctx context.Context, v any) (*model.ContentSource, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.ContentSource)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOContentSource2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋmodelᚐContentSource(ctx context.Context, sel ast.SelectionSet, v *model.ContentSource) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalODate2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate(ctx context.Context, v any) (*scalars.Date, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(scalars.Date)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalODate2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate(ctx context.Context, sel ast.SelectionSet, v *scalars.Date) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
 	if v == nil {
 		return nil, nil
@@ -7201,6 +7264,22 @@ func (ec *executionContext) marshalOTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapi�
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL(ctx context.Context, v any) (*scalars.URL, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(scalars.URL)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL(ctx context.Context, sel ast.SelectionSet, v *scalars.URL) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

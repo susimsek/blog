@@ -43,6 +43,7 @@ import {
   deleteAdminContentPost,
   deleteAdminContentTopic,
   fetchAdminComments,
+  fetchAdminMediaLibrary,
   fetchAdminContentPost,
   fetchAdminContentCategories,
   fetchAdminContentCategoriesPage,
@@ -56,9 +57,11 @@ import {
   updateAdminContentPostContent,
   updateAdminContentPostMetadata,
   updateAdminContentTopic,
+  uploadAdminMediaAsset,
   type AdminCommentItem,
   type AdminContentCategoryItem,
   type AdminContentCategoryGroupItem,
+  type AdminMediaLibraryItem,
   type AdminContentPostGroupItem,
   type AdminContentPostItem,
   type AdminContentTopicItem,
@@ -84,15 +87,17 @@ type LocaleFilterValue = 'all' | 'en' | 'tr';
 type SourceFilterValue = 'all' | 'blog' | 'medium';
 type TopicEditorMode = 'create' | 'update';
 type CategoryEditorMode = 'create' | 'update';
-type ContentSectionTab = 'posts' | 'topics' | 'categories';
+type ContentSectionTab = 'posts' | 'topics' | 'categories' | 'media';
 type PostEditorTab = 'metadata' | 'content' | 'comments';
 type PostSeoPreviewTab = 'openGraph' | 'twitter';
 type PostContentViewMode = 'editor' | 'split' | 'preview';
 type SupportedContentLocale = 'en' | 'tr';
 type CommentStatusFilterValue = 'all' | AdminCommentItem['status'];
+type MediaLibraryFilterValue = AdminMediaLibraryItem['kind'] | 'ALL';
 const CONTENT_ID_PATTERN = /^[a-z0-9][a-z0-9-]{1,127}$/;
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 const CONTENT_LOCALES: SupportedContentLocale[] = ['en', 'tr'];
+const MEDIA_LIBRARY_DEFAULT_PAGE_SIZE = 12;
 const BOOTSTRAP_THEME_COLORS = new Set([
   'primary',
   'secondary',
@@ -189,6 +194,9 @@ const resolveContentSectionTab = (value?: string | null): ContentSectionTab => {
   if (resolved === 'posts') {
     return 'posts';
   }
+  if (resolved === 'media') {
+    return 'media';
+  }
   return 'categories';
 };
 
@@ -250,6 +258,37 @@ const parseISODateInput = (value: string): Date | null => {
 
 const adminPreviewImageLoader = ({ src }: { src: string }) => src;
 
+const fileToDataURL = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string' && reader.result.trim() !== '') {
+        resolve(reader.result);
+        return;
+      }
+      reject(new Error('invalid media file'));
+    };
+    reader.onerror = () => reject(new Error('invalid media file'));
+    reader.readAsDataURL(file);
+  });
+
+const formatMediaSize = (sizeBytes: number, locale: string) => {
+  if (!Number.isFinite(sizeBytes) || sizeBytes <= 0) {
+    return '';
+  }
+  const numberFormatter = new Intl.NumberFormat(locale);
+  if (sizeBytes < 1024) {
+    return `${numberFormatter.format(sizeBytes)} B`;
+  }
+  if (sizeBytes < 1024 * 1024) {
+    return `${numberFormatter.format(Math.max(1, Math.round(sizeBytes / 1024)))} KB`;
+  }
+  return `${new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(sizeBytes / (1024 * 1024))} MB`;
+};
+
 export default function AdminContentManagementPanel({
   // NOSONAR
   onSessionExpired,
@@ -274,11 +313,22 @@ export default function AdminContentManagementPanel({
   const [pageSize, setPageSize] = React.useState(10);
   const [total, setTotal] = React.useState(0);
   const [postDensityMode, setPostDensityMode] = React.useState<PostDensityMode>('default');
+  const [mediaDensityMode, setMediaDensityMode] = React.useState<PostDensityMode>('default');
 
   const [editingPost, setEditingPost] = React.useState<AdminContentPostItem | null>(null);
   const [postEditorTitle, setPostEditorTitle] = React.useState('');
   const [postEditorSummary, setPostEditorSummary] = React.useState('');
   const [postEditorThumbnail, setPostEditorThumbnail] = React.useState('');
+  const [mediaLibraryQuery, setMediaLibraryQuery] = React.useState('');
+  const [mediaLibraryFilter, setMediaLibraryFilter] = React.useState<MediaLibraryFilterValue>('ALL');
+  const [mediaLibraryItems, setMediaLibraryItems] = React.useState<AdminMediaLibraryItem[]>([]);
+  const [mediaLibraryPage, setMediaLibraryPage] = React.useState(1);
+  const [mediaLibraryPageSize, setMediaLibraryPageSize] = React.useState(MEDIA_LIBRARY_DEFAULT_PAGE_SIZE);
+  const [mediaLibraryTotal, setMediaLibraryTotal] = React.useState(0);
+  const [isMediaLibraryLoading, setIsMediaLibraryLoading] = React.useState(false);
+  const [isMediaLibraryUploading, setIsMediaLibraryUploading] = React.useState(false);
+  const [mediaLibraryErrorMessage, setMediaLibraryErrorMessage] = React.useState('');
+  const [copiedMediaAssetID, setCopiedMediaAssetID] = React.useState('');
   const [postEditorPublishedDate, setPostEditorPublishedDate] = React.useState('');
   const [postEditorUpdatedDate, setPostEditorUpdatedDate] = React.useState('');
   const [postEditorCategoryID, setPostEditorCategoryID] = React.useState('');
@@ -357,6 +407,8 @@ export default function AdminContentManagementPanel({
   const canUsePostGridDensity = useMediaQuery('(min-width: 1200px)');
   const resolvedPostDensityMode: PostDensityMode =
     canUsePostGridDensity || postDensityMode !== 'grid' ? postDensityMode : 'default';
+  const resolvedMediaDensityMode: PostDensityMode =
+    canUsePostGridDensity || mediaDensityMode !== 'grid' ? mediaDensityMode : 'default';
   const params = useParams<{
     locale?: string | string[];
     postLocale?: string | string[];
@@ -383,9 +435,12 @@ export default function AdminContentManagementPanel({
   const categoriesPageRequestIDRef = React.useRef(0);
   const postCommentsRequestIDRef = React.useRef(0);
   const postEditorTopicsRequestIDRef = React.useRef(0);
+  const mediaLibraryRequestIDRef = React.useRef(0);
   const postCommentsListTopRef = React.useRef<HTMLDivElement | null>(null);
+  const mediaUploadInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const deferredPostEditorTopicQuery = React.useDeferredValue(postEditorTopicQuery);
+  const deferredMediaLibraryQuery = React.useDeferredValue(mediaLibraryQuery);
   const activePostEditorTab = resolvePostEditorTab(
     postEditorTabKey,
     editingPost ? editingPost.source === 'blog' : true,
@@ -393,6 +448,7 @@ export default function AdminContentManagementPanel({
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const totalPostCommentPages = Math.max(1, Math.ceil(postCommentsTotal / postCommentsPageSize));
+  const totalMediaLibraryPages = Math.max(1, Math.ceil(mediaLibraryTotal / mediaLibraryPageSize));
   const adminNumberFormatter = React.useMemo(() => new Intl.NumberFormat(routeLocale), [routeLocale]);
   const selectedVisiblePostCommentIDs = React.useMemo(
     () => postComments.filter(item => selectedPostCommentIDs.includes(item.id)).map(item => item.id),
@@ -467,6 +523,12 @@ export default function AdminContentManagementPanel({
     postEditorTopicIDs,
     postEditorUpdatedDate,
   ]);
+  const selectedMediaLibraryItem = React.useMemo(
+    () =>
+      mediaLibraryItems.find(item => item.value.trim() !== '' && item.value.trim() === postEditorThumbnail.trim()) ??
+      null,
+    [mediaLibraryItems, postEditorThumbnail],
+  );
 
   const filteredTopics = React.useMemo(
     () => (filterLocale === 'all' ? topics : topics.filter(item => item.locale === filterLocale)),
@@ -816,6 +878,18 @@ export default function AdminContentManagementPanel({
       globalThis.clearTimeout(timeoutID);
     };
   }, [postCommentsSuccessMessage]);
+
+  React.useEffect(() => {
+    if (!copiedMediaAssetID) {
+      return;
+    }
+    const timeoutID = globalThis.setTimeout(() => {
+      setCopiedMediaAssetID('');
+    }, 2000);
+    return () => {
+      globalThis.clearTimeout(timeoutID);
+    };
+  }, [copiedMediaAssetID]);
 
   React.useEffect(() => {
     const timeoutID = globalThis.setTimeout(() => {
@@ -1285,6 +1359,138 @@ export default function AdminContentManagementPanel({
       id: routePostID ?? '',
     });
   }, [isPostDetailRoute, loadPostDetail, routePostID, routePostLocale]);
+
+  const loadMediaLibrary = React.useCallback(
+    async (nextPage = mediaLibraryPage, nextSize = mediaLibraryPageSize) => {
+      if (isPostDetailRoute || activeTab !== 'media') {
+        return;
+      }
+
+      const requestID = mediaLibraryRequestIDRef.current + 1;
+      mediaLibraryRequestIDRef.current = requestID;
+      setIsMediaLibraryLoading(true);
+      setMediaLibraryErrorMessage('');
+
+      try {
+        const payload = await fetchAdminMediaLibrary({
+          query: deferredMediaLibraryQuery,
+          kind: mediaLibraryFilter,
+          page: nextPage,
+          size: nextSize,
+        });
+        if (requestID !== mediaLibraryRequestIDRef.current) {
+          return;
+        }
+        setMediaLibraryItems(payload.items);
+        setMediaLibraryTotal(payload.total);
+        setMediaLibraryPage(payload.page);
+        setMediaLibraryPageSize(payload.size);
+      } catch (error) {
+        if (requestID !== mediaLibraryRequestIDRef.current) {
+          return;
+        }
+        if (isAdminSessionError(error)) {
+          onSessionExpired();
+          return;
+        }
+        const resolvedError = resolveAdminError(error);
+        setMediaLibraryErrorMessage(
+          resolvedError.message || t('adminAccount.content.errors.mediaLibraryLoad', { ns: 'admin-account' }),
+        );
+      } finally {
+        if (requestID === mediaLibraryRequestIDRef.current) {
+          setIsMediaLibraryLoading(false);
+        }
+      }
+    },
+    [
+      activeTab,
+      deferredMediaLibraryQuery,
+      isPostDetailRoute,
+      mediaLibraryFilter,
+      mediaLibraryPage,
+      mediaLibraryPageSize,
+      onSessionExpired,
+      t,
+    ],
+  );
+
+  React.useEffect(() => {
+    void loadMediaLibrary();
+  }, [loadMediaLibrary]);
+
+  const handleMediaUpload = React.useCallback(
+    async (file: File) => {
+      if (isMediaLibraryUploading) {
+        return;
+      }
+
+      setIsMediaLibraryUploading(true);
+      setMediaLibraryErrorMessage('');
+      try {
+        const dataUrl = await fileToDataURL(file);
+        const uploaded = await uploadAdminMediaAsset({
+          fileName: file.name,
+          dataUrl,
+        });
+        setSuccessMessage(
+          t('adminAccount.content.success.mediaUploaded', {
+            ns: 'admin-account',
+            name: uploaded.name,
+          }),
+        );
+        if (mediaLibraryPage !== 1) {
+          setMediaLibraryPage(1);
+        } else {
+          await loadMediaLibrary(1, mediaLibraryPageSize);
+        }
+      } catch (error) {
+        if (isAdminSessionError(error)) {
+          onSessionExpired();
+          return;
+        }
+        const resolvedError = resolveAdminError(error);
+        setMediaLibraryErrorMessage(
+          resolvedError.message || t('adminAccount.content.errors.mediaLibraryUpload', { ns: 'admin-account' }),
+        );
+      } finally {
+        setIsMediaLibraryUploading(false);
+        if (mediaUploadInputRef.current) {
+          mediaUploadInputRef.current.value = '';
+        }
+      }
+    },
+    [isMediaLibraryUploading, loadMediaLibrary, mediaLibraryPage, mediaLibraryPageSize, onSessionExpired, t],
+  );
+
+  const openMediaLibraryScreen = React.useCallback(() => {
+    const href = withAdminLocalePath(routeLocale, `${ADMIN_ROUTES.settings.content}#media`);
+    globalThis.window?.open(href, '_blank', 'noopener,noreferrer');
+  }, [routeLocale]);
+
+  const handleCopyMediaPath = React.useCallback(
+    async (item: AdminMediaLibraryItem) => {
+      if (!globalThis.navigator?.clipboard) {
+        setMediaLibraryErrorMessage(t('adminAccount.content.errors.mediaLibraryCopy', { ns: 'admin-account' }));
+        return;
+      }
+
+      try {
+        await globalThis.navigator.clipboard.writeText(item.value);
+        setCopiedMediaAssetID(item.id);
+        setMediaLibraryErrorMessage('');
+        setSuccessMessage(
+          t('adminAccount.content.success.mediaCopied', {
+            ns: 'admin-account',
+            name: item.name,
+          }),
+        );
+      } catch {
+        setMediaLibraryErrorMessage(t('adminAccount.content.errors.mediaLibraryCopy', { ns: 'admin-account' }));
+      }
+    },
+    [t],
+  );
 
   const handlePostTopicToggle = React.useCallback((topicID: string, checked: boolean) => {
     setPostEditorTopicIDs(previous => {
@@ -2631,13 +2837,73 @@ export default function AdminContentManagementPanel({
                           <Form.Label>
                             {t('adminAccount.content.modals.post.metadataFields.thumbnail', { ns: 'admin-account' })}
                           </Form.Label>
-                          <Form.Control
-                            type="text"
-                            value={postEditorThumbnail}
-                            onChange={event => {
-                              setPostEditorThumbnail(event.currentTarget.value);
-                            }}
-                          />
+                          <div className="border rounded-3 p-3">
+                            <div className="d-flex flex-column flex-lg-row gap-3 align-items-stretch">
+                              <div
+                                className="border rounded-3 overflow-hidden bg-body-tertiary flex-shrink-0"
+                                style={{ width: '100%', maxWidth: '17rem' }}
+                              >
+                                <div className="ratio ratio-16x9">
+                                  {resolveAdminContentThumbnailSrc(postEditorThumbnail) ? (
+                                    <Image
+                                      loader={adminPreviewImageLoader}
+                                      src={resolveAdminContentThumbnailSrc(postEditorThumbnail) ?? ''}
+                                      alt={postEditorTitle.trim() || editingPost?.title || 'Thumbnail preview'}
+                                      fill
+                                      unoptimized
+                                      sizes="(max-width: 991px) 100vw, 272px"
+                                      className="object-fit-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                      <FontAwesomeIcon icon="camera" size="2x" />
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex-grow-1 d-flex flex-column gap-3">
+                                <Form.Control
+                                  type="text"
+                                  value={postEditorThumbnail}
+                                  onChange={event => {
+                                    setPostEditorThumbnail(event.currentTarget.value);
+                                  }}
+                                />
+                                <div className="d-flex flex-wrap gap-2">
+                                  <Button type="button" variant="primary" onClick={openMediaLibraryScreen}>
+                                    <FontAwesomeIcon icon="images" className="me-2" />
+                                    {t('adminAccount.content.modals.post.media.openLibrary', { ns: 'admin-account' })}
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="danger"
+                                    onClick={() => {
+                                      setPostEditorThumbnail('');
+                                    }}
+                                    disabled={!postEditorThumbnail.trim()}
+                                  >
+                                    <FontAwesomeIcon icon="trash" className="me-2" />
+                                    {t('adminAccount.content.modals.post.media.clear', { ns: 'admin-account' })}
+                                  </Button>
+                                </div>
+                                <div className="small text-muted">
+                                  {selectedMediaLibraryItem ? (
+                                    <>
+                                      {selectedMediaLibraryItem.name}
+                                      {selectedMediaLibraryItem.usageCount > 0
+                                        ? ` · ${t('adminAccount.content.modals.post.media.usedIn', {
+                                            ns: 'admin-account',
+                                            count: selectedMediaLibraryItem.usageCount,
+                                          })}`
+                                        : ''}
+                                    </>
+                                  ) : (
+                                    t('adminAccount.content.modals.post.media.hint', { ns: 'admin-account' })
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="admin-content-post-category">
@@ -4184,59 +4450,61 @@ export default function AdminContentManagementPanel({
                                   </div>
                                 </div>
 
-                                <p className="post-summary-meta mb-2">
-                                  <span className="text-muted d-flex align-items-center">
-                                    <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-                                    {formatDate(item.publishedDate)}
-                                  </span>
-                                  {item.updatedDate ? (
-                                    <span
-                                      className={`text-muted d-flex align-items-center${isListMode ? '' : ' w-100'}`}
-                                    >
+                                <div className="post-summary-meta-stack mb-2">
+                                  <p className="post-summary-meta mb-0">
+                                    <span className="text-muted d-flex align-items-center">
                                       <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-                                      {t('adminAccount.content.list.updatedAt', {
-                                        ns: 'admin-account',
-                                        value: item.updatedDate,
-                                      })}
+                                      {formatDate(item.publishedDate)}
                                     </span>
-                                  ) : null}
-                                </p>
+                                    {item.updatedDate ? (
+                                      <span
+                                        className={`text-muted d-flex align-items-center${isListMode ? '' : ' w-100'}`}
+                                      >
+                                        <FontAwesomeIcon icon="calendar-alt" className="me-2" />
+                                        {t('adminAccount.content.list.updatedAt', {
+                                          ns: 'admin-account',
+                                          value: item.updatedDate,
+                                        })}
+                                      </span>
+                                    ) : null}
+                                  </p>
 
-                                <div className="post-summary-meta mb-2">
-                                  <span className="text-muted d-inline-flex align-items-center lh-1">
-                                    <FontAwesomeIcon icon="clock" className="me-2" />
-                                    <span>{formatReadingTime(item.readingTimeMin, t, 1)}</span>
-                                  </span>
-                                  <Link
-                                    href={buildAdminContentPostDetailRoute(item.locale, item.id)}
-                                    locale={item.locale.toLowerCase()}
-                                    className="link-muted d-inline-flex align-items-center lh-1"
-                                  >
-                                    <FontAwesomeIcon icon="heart" className="me-2 post-summary-like-icon" />
-                                    <span className="post-summary-like-value">
-                                      {adminNumberFormatter.format(item.likeCount)}
+                                  <div className="post-summary-meta mb-0">
+                                    <span className="text-muted d-inline-flex align-items-center lh-1">
+                                      <FontAwesomeIcon icon="clock" className="me-2" />
+                                      <span>{formatReadingTime(item.readingTimeMin, t, 1)}</span>
                                     </span>
-                                  </Link>
-                                  <Link
-                                    href={buildAdminContentPostDetailRoute(item.locale, item.id)}
-                                    locale={item.locale.toLowerCase()}
-                                    className="link-muted d-inline-flex align-items-center lh-1"
-                                  >
-                                    <FontAwesomeIcon icon="comments" className="me-2" />
-                                    <span className="post-summary-like-value">
-                                      {adminNumberFormatter.format(item.commentCount)}
-                                    </span>
-                                  </Link>
-                                  <Link
-                                    href={buildAdminContentPostDetailRoute(item.locale, item.id)}
-                                    locale={item.locale.toLowerCase()}
-                                    className="link-muted d-inline-flex align-items-center lh-1"
-                                  >
-                                    <FontAwesomeIcon icon="eye" className="me-2" />
-                                    <span className="post-summary-like-value">
-                                      <CompactCount value={item.viewCount} locale={routeLocale} />
-                                    </span>
-                                  </Link>
+                                    <Link
+                                      href={buildAdminContentPostDetailRoute(item.locale, item.id)}
+                                      locale={item.locale.toLowerCase()}
+                                      className="link-muted d-inline-flex align-items-center lh-1"
+                                    >
+                                      <FontAwesomeIcon icon="heart" className="me-2 post-summary-like-icon" />
+                                      <span className="post-summary-like-value">
+                                        {adminNumberFormatter.format(item.likeCount)}
+                                      </span>
+                                    </Link>
+                                    <Link
+                                      href={buildAdminContentPostDetailRoute(item.locale, item.id)}
+                                      locale={item.locale.toLowerCase()}
+                                      className="link-muted d-inline-flex align-items-center lh-1"
+                                    >
+                                      <FontAwesomeIcon icon="comments" className="me-2" />
+                                      <span className="post-summary-like-value">
+                                        {adminNumberFormatter.format(item.commentCount)}
+                                      </span>
+                                    </Link>
+                                    <Link
+                                      href={buildAdminContentPostDetailRoute(item.locale, item.id)}
+                                      locale={item.locale.toLowerCase()}
+                                      className="link-muted d-inline-flex align-items-center lh-1"
+                                    >
+                                      <FontAwesomeIcon icon="eye" className="me-2" />
+                                      <span className="post-summary-like-value">
+                                        <CompactCount value={item.viewCount} locale={routeLocale} />
+                                      </span>
+                                    </Link>
+                                  </div>
                                 </div>
 
                                 {resolvedTopicBadges.length > 0 || item.topicNames.length > 0 ? (
@@ -4316,6 +4584,306 @@ export default function AdminContentManagementPanel({
                         onSizeChange={size => {
                           setPageSize(size);
                           setPage(1);
+                          scrollToListTop();
+                        }}
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </Tab>
+
+            <Tab
+              eventKey="media"
+              title={
+                <>
+                  <FontAwesomeIcon icon="images" className="me-2" />
+                  {t('adminAccount.content.tabs.media', { ns: 'admin-account' })}
+                </>
+              }
+            >
+              <div className="d-grid gap-3 pt-3">
+                <div className="card d-block">
+                  <div className="card-body p-3 w-100">
+                    <div className="d-flex align-items-center justify-content-between mb-3">
+                      <h4 className="admin-dashboard-panel-title mb-0">
+                        {t('adminAccount.content.media.title', { ns: 'admin-account' })}
+                      </h4>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="primary"
+                        onClick={() => {
+                          mediaUploadInputRef.current?.click();
+                        }}
+                        disabled={isMediaLibraryUploading}
+                      >
+                        {isMediaLibraryUploading ? (
+                          <Spinner as="span" animation="border" size="sm" className="me-2" />
+                        ) : (
+                          <FontAwesomeIcon icon="upload" className="me-2" />
+                        )}
+                        {t('adminAccount.content.modals.post.media.upload', { ns: 'admin-account' })}
+                      </Button>
+                    </div>
+
+                    <div className="row g-3">
+                      <div className="col-12 col-lg-8">
+                        <Form.Group controlId="admin-content-media-filter-query">
+                          <Form.Label className="small fw-semibold mb-1">
+                            {t('adminAccount.content.filters.query', { ns: 'admin-account' })}
+                          </Form.Label>
+                          <div className="search-bar w-100 d-flex align-items-center">
+                            <div className="search-icon">
+                              <FontAwesomeIcon icon="search" />
+                            </div>
+                            <Form.Control
+                              type="text"
+                              className="search-input form-control"
+                              value={mediaLibraryQuery}
+                              onChange={event => {
+                                setMediaLibraryQuery(event.currentTarget.value);
+                                setMediaLibraryPage(1);
+                              }}
+                              placeholder={t('adminAccount.content.modals.post.media.queryPlaceholder', {
+                                ns: 'admin-account',
+                              })}
+                            />
+                            {mediaLibraryQuery ? (
+                              <button
+                                type="button"
+                                className="search-clear-btn border-0 bg-transparent"
+                                onClick={() => {
+                                  setMediaLibraryQuery('');
+                                  setMediaLibraryPage(1);
+                                }}
+                                aria-label={t('adminAccount.content.modals.post.media.clearSearch', {
+                                  ns: 'admin-account',
+                                })}
+                              >
+                                <FontAwesomeIcon icon="times-circle" className="clear-icon" />
+                              </button>
+                            ) : null}
+                          </div>
+                        </Form.Group>
+                      </div>
+                      <div className="col-12 col-lg-4">
+                        <Form.Group controlId="admin-content-media-filter-kind">
+                          <Form.Label className="small fw-semibold mb-1">
+                            {t('adminAccount.content.modals.post.media.filterLabel', { ns: 'admin-account' })}
+                          </Form.Label>
+                          <Form.Select
+                            value={mediaLibraryFilter}
+                            onChange={event => {
+                              setMediaLibraryFilter(event.currentTarget.value as MediaLibraryFilterValue);
+                              setMediaLibraryPage(1);
+                            }}
+                          >
+                            <option value="ALL">
+                              {t('adminAccount.content.modals.post.media.filters.all', { ns: 'admin-account' })}
+                            </option>
+                            <option value="UPLOADED">
+                              {t('adminAccount.content.modals.post.media.filters.uploaded', { ns: 'admin-account' })}
+                            </option>
+                            <option value="REFERENCE">
+                              {t('adminAccount.content.modals.post.media.filters.reused', { ns: 'admin-account' })}
+                            </option>
+                          </Form.Select>
+                        </Form.Group>
+                      </div>
+                    </div>
+
+                    <p className="small text-muted mb-0 mt-3">
+                      {t('adminAccount.content.media.copy', { ns: 'admin-account' })}
+                    </p>
+
+                    <div className="d-flex justify-content-end mt-3">
+                      <PostDensityToggle
+                        value={resolvedMediaDensityMode}
+                        onChange={mode =>
+                          setMediaDensityMode(!canUsePostGridDensity && mode === 'grid' ? 'default' : mode)
+                        }
+                      />
+                    </div>
+
+                    <Form.Control
+                      ref={mediaUploadInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="d-none"
+                      onChange={async event => {
+                        const input = event.target as HTMLInputElement;
+                        const file = input.files?.[0];
+                        if (!file) {
+                          return;
+                        }
+                        await handleMediaUpload(file);
+                      }}
+                    />
+
+                    {mediaLibraryErrorMessage ? <Alert variant="danger">{mediaLibraryErrorMessage}</Alert> : null}
+                  </div>
+                </div>
+
+                <div className="card d-block">
+                  <div className="card-body p-3 w-100">
+                    {isMediaLibraryLoading ? (
+                      <div className="admin-account-sessions-loading">
+                        <AdminLoadingState
+                          className="admin-loading-stack"
+                          ariaLabel={t('adminAccount.content.media.loading', { ns: 'admin-account' })}
+                        />
+                      </div>
+                    ) : mediaLibraryTotal === 0 ? (
+                      <p className="small text-muted mb-0">
+                        {t('adminAccount.content.modals.post.media.empty', { ns: 'admin-account' })}
+                      </p>
+                    ) : (
+                      <div className={`post-list-results post-list-results--${resolvedMediaDensityMode}`}>
+                        {mediaLibraryItems.map(item => {
+                          const previewSrc = resolveAdminContentThumbnailSrc(item.previewUrl);
+                          const itemKindLabel =
+                            item.kind === 'UPLOADED'
+                              ? t('adminAccount.content.modals.post.media.badges.uploaded', { ns: 'admin-account' })
+                              : t('adminAccount.content.modals.post.media.badges.reused', { ns: 'admin-account' });
+                          const itemDate = item.updatedAt ?? item.createdAt;
+                          const isListMode = resolvedMediaDensityMode === 'editorial';
+                          return (
+                            <div key={item.id} className="post-card d-flex align-items-center post-summary-card">
+                              <div className="post-card-content flex-grow-1">
+                                <div className="post-summary-title-row">
+                                  <div className="d-flex flex-wrap align-items-center gap-2">
+                                    <h4 className="fw-bold post-summary-title fs-4 mb-0 text-break">{item.name}</h4>
+                                    <Badge bg={item.kind === 'UPLOADED' ? 'primary' : 'secondary'}>
+                                      {itemKindLabel}
+                                    </Badge>
+                                  </div>
+                                </div>
+
+                                <p className="post-summary-meta mb-2">
+                                  {itemDate ? (
+                                    <span className="text-muted d-flex align-items-center">
+                                      <FontAwesomeIcon icon="calendar-alt" className="me-2" />
+                                      {t('adminAccount.content.list.updatedAt', {
+                                        ns: 'admin-account',
+                                        value: formatDate(itemDate),
+                                      })}
+                                    </span>
+                                  ) : null}
+                                  {item.usageCount > 0 ? (
+                                    <span
+                                      className={`text-muted d-flex align-items-center${isListMode ? '' : ' w-100'}`}
+                                    >
+                                      <FontAwesomeIcon icon="copy" className="me-2" />
+                                      {t('adminAccount.content.modals.post.media.usedIn', {
+                                        ns: 'admin-account',
+                                        count: item.usageCount,
+                                      })}
+                                    </span>
+                                  ) : null}
+                                  {item.width && item.height ? (
+                                    <span
+                                      className={`text-muted d-flex align-items-center${isListMode ? '' : ' w-100'}`}
+                                    >
+                                      <FontAwesomeIcon icon="image" className="me-2" />
+                                      {item.width}×{item.height}
+                                    </span>
+                                  ) : null}
+                                  {item.sizeBytes > 0 ? (
+                                    <span
+                                      className={`text-muted d-flex align-items-center${isListMode ? '' : ' w-100'}`}
+                                    >
+                                      <FontAwesomeIcon icon="database" className="me-2" />
+                                      {formatMediaSize(item.sizeBytes, routeLocale)}
+                                    </span>
+                                  ) : null}
+                                </p>
+
+                                <div className="post-summary-thumbnail">
+                                  <div className="thumbnail-wrapper rounded-3 overflow-hidden border bg-body-tertiary">
+                                    {previewSrc ? (
+                                      <Image
+                                        loader={adminPreviewImageLoader}
+                                        src={previewSrc}
+                                        alt={item.name}
+                                        width={1200}
+                                        height={630}
+                                        unoptimized
+                                        sizes="(max-width: 768px) 100vw, 50vw"
+                                        className="img-fluid rounded"
+                                        style={{
+                                          width: '100%',
+                                          height: 'auto',
+                                          aspectRatio: '16 / 9',
+                                          objectFit: 'cover',
+                                        }}
+                                      />
+                                    ) : (
+                                      <div
+                                        className="w-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary"
+                                        style={{ aspectRatio: '16 / 9' }}
+                                      >
+                                        <FontAwesomeIcon icon="camera" size="2x" />
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <p className="post-summary-text small text-muted mb-3 text-break">{item.value}</p>
+
+                                <div className="post-summary-cta d-flex flex-wrap gap-2">
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="primary"
+                                    onClick={async () => {
+                                      await handleCopyMediaPath(item);
+                                    }}
+                                  >
+                                    <FontAwesomeIcon
+                                      icon={copiedMediaAssetID === item.id ? 'check' : 'copy'}
+                                      className="me-2"
+                                    />
+                                    {copiedMediaAssetID === item.id
+                                      ? t('adminAccount.content.media.actions.copied', { ns: 'admin-account' })
+                                      : t('adminAccount.content.media.actions.copy', { ns: 'admin-account' })}
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    as="a"
+                                    size="sm"
+                                    variant="secondary"
+                                    href={previewSrc || item.value}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    <FontAwesomeIcon icon="up-right-from-square" className="me-2" />
+                                    {t('adminAccount.content.media.actions.open', { ns: 'admin-account' })}
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  {!isMediaLibraryLoading && mediaLibraryTotal > 0 ? (
+                    <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
+                      <PaginationBar
+                        className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"
+                        currentPage={mediaLibraryPage}
+                        totalPages={totalMediaLibraryPages}
+                        totalResults={mediaLibraryTotal}
+                        size={mediaLibraryPageSize}
+                        pageSizeOptions={[12, 24, 48]}
+                        onPageChange={nextPage => {
+                          setMediaLibraryPage(nextPage);
+                          scrollToListTop();
+                        }}
+                        onSizeChange={size => {
+                          setMediaLibraryPageSize(size);
+                          setMediaLibraryPage(1);
                           scrollToListTop();
                         }}
                       />

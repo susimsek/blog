@@ -5,6 +5,15 @@ const config: CodegenConfig = {
   documents: ['src/graphql/operations/**/*.graphql'],
   generates: {
     'src/graphql/generated/graphql.ts': {
+      config: {
+        scalars: {
+          Date: 'string',
+          DateTime: 'string',
+          Email: 'string',
+          Locale: 'string',
+          URL: 'string',
+        },
+      },
       plugins: ['typescript', 'typescript-operations', 'typed-document-node'],
     },
   },

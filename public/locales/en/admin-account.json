@@ -434,7 +434,8 @@
       "tabs": {
         "posts": "Posts",
         "topics": "Topics",
-        "categories": "Categories"
+        "categories": "Categories",
+        "media": "Media"
       },
       "list": {
         "updatedAt": "Updated: {{value}}",
@@ -447,6 +448,16 @@
       },
       "categories": {
         "title": "Categories"
+      },
+      "media": {
+        "title": "Media library",
+        "copy": "Upload images, review reusable thumbnails, and copy media paths for content metadata.",
+        "loading": "Loading media library...",
+        "actions": {
+          "copy": "Copy path",
+          "copied": "Copied",
+          "open": "Open"
+        }
       },
       "actions": {
         "create": "Create",
@@ -471,7 +482,9 @@
         "topicDeleted": "Topic deleted: {{id}}",
         "categoryCreated": "Category created: {{id}}",
         "categoryUpdated": "Category updated: {{id}}",
-        "categoryDeleted": "Category deleted: {{id}}"
+        "categoryDeleted": "Category deleted: {{id}}",
+        "mediaUploaded": "Image uploaded: {{name}}",
+        "mediaCopied": "Path copied: {{name}}"
       },
       "errors": {
         "taxonomyLoad": "Topics and categories could not be loaded.",
@@ -484,7 +497,10 @@
         "topicDelete": "Topic could not be deleted.",
         "categoryCreate": "Category could not be created.",
         "categoryUpdate": "Category could not be updated.",
-        "categoryDelete": "Category could not be deleted."
+        "categoryDelete": "Category could not be deleted.",
+        "mediaLibraryLoad": "Media library could not be loaded.",
+        "mediaLibraryUpload": "Image could not be uploaded.",
+        "mediaLibraryCopy": "Media path could not be copied."
       },
       "validation": {
         "id": "Use lowercase letters, numbers, and dash only (2-128 chars)."
@@ -532,7 +548,7 @@
             "publishedDate": "Published date",
             "updatedDate": "Updated date",
             "updatedDateHint": "Leave empty to clear updated date.",
-            "thumbnail": "Thumbnail URL"
+            "thumbnail": "Thumbnail"
           },
           "topics": "Topics",
           "topicsQueryPlaceholder": "Search topics by name",
@@ -553,6 +569,31 @@
           "labels": {
             "id": "Post id: {{value}}",
             "locale": "Locale: {{value}}"
+          },
+          "media": {
+            "title": "Media library",
+            "hint": "Open the media library to upload images or copy a reusable thumbnail path.",
+            "openLibrary": "Open media library",
+            "upload": "Upload image",
+            "uploadLabel": "Upload",
+            "clear": "Clear",
+            "queryPlaceholder": "Search media by name or title",
+            "clearSearch": "Clear media search",
+            "filterLabel": "Source",
+            "filters": {
+              "all": "All media",
+              "uploaded": "Uploaded",
+              "reused": "Reused"
+            },
+            "empty": "No media found for the current search.",
+            "badges": {
+              "uploaded": "Uploaded",
+              "reused": "Reused"
+            },
+            "usedIn_one": "Used in {{count}} post",
+            "usedIn_other": "Used in {{count}} posts",
+            "selected": "Selected",
+            "select": "Use image"
           }
         },
         "deletePost": {

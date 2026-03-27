@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/graphql/model"
@@ -50,7 +51,7 @@ func TestQueryResolverPostsAndPost(t *testing.T) {
 	page := 2
 	size := 5
 	sortOrder := model.SortOrderAsc
-	connection, err := (&queryResolver{&Resolver{}}).Posts(context.Background(), model.LocaleTr, &model.PostsQueryInput{
+	connection, err := (&queryResolver{&Resolver{}}).Posts(context.Background(), "tr", &model.PostsQueryInput{
 		Page:     &page,
 		Size:     &size,
 		Sort:     &sortOrder,
@@ -66,7 +67,7 @@ func TestQueryResolverPostsAndPost(t *testing.T) {
 		t.Fatalf("connection nodes = %#v", connection)
 	}
 
-	postResult, err := (&queryResolver{&Resolver{}}).Post(context.Background(), model.LocaleTr, "alpha-post")
+	postResult, err := (&queryResolver{&Resolver{}}).Post(context.Background(), "tr", "alpha-post")
 	if err != nil {
 		t.Fatalf("Post() error = %v", err)
 	}
@@ -135,7 +136,7 @@ func TestMutationResolverMetricsAndNewsletter(t *testing.T) {
 
 	formName := " footer "
 	subscribeResult, err := (&mutationResolver{&Resolver{}}).SubscribeNewsletter(ctx, model.NewsletterSubscribeInput{
-		Locale:   model.LocaleTr,
+		Locale:   "tr",
 		Email:    " reader@example.com ",
 		Tags:     []string{"news"},
 		FormName: &formName,
@@ -148,7 +149,7 @@ func TestMutationResolverMetricsAndNewsletter(t *testing.T) {
 	}
 
 	resendResult, err := (&mutationResolver{&Resolver{}}).ResendNewsletterConfirmation(ctx, model.NewsletterResendInput{
-		Locale: model.LocaleTr,
+		Locale: "tr",
 		Email:  "reader@example.com",
 	})
 	if err != nil || resendResult.Status != model.NewsletterMutationStatusRateLimited {
@@ -190,6 +191,7 @@ func TestQueryResolverComments(t *testing.T) {
 				AuthorName: "Reader",
 				Content:    "Hello",
 				Status:     "approved",
+				CreatedAt:  time.Date(2026, time.March, 22, 8, 0, 0, 0, time.UTC),
 			}},
 		}
 	}

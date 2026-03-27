@@ -3,7 +3,35 @@ schema {
   mutation: AdminMutation
 }
 
+scalar Date
 scalar DateTime
+scalar Email
+scalar Locale
+scalar URL
+
+enum ContentSource {
+  blog
+  medium
+}
+
+enum AdminNewsletterCampaignStatus {
+  processing
+  partial
+  sent
+}
+
+enum AdminNewsletterDeliveryFailureStatus {
+  failed
+}
+
+enum AdminContentMode {
+  markdown
+  admin
+}
+
+enum AdminAuditStatus {
+  success
+}
 
 type AdminQuery {
   me: AdminMe!
@@ -22,8 +50,9 @@ type AdminQuery {
   contentPost(input: AdminContentEntityKeyInput!): AdminContentPost
   contentTopicsPage(filter: AdminContentTaxonomyFilterInput): AdminContentTopicListPayload!
   contentCategoriesPage(filter: AdminContentTaxonomyFilterInput): AdminContentCategoryListPayload!
-  contentTopics(locale: String, query: String): [AdminContentTopic!]!
-  contentCategories(locale: String): [AdminContentCategory!]!
+  contentTopics(locale: Locale, query: String): [AdminContentTopic!]!
+  contentCategories(locale: Locale): [AdminContentCategory!]!
+  mediaLibrary(filter: AdminMediaLibraryFilterInput): AdminMediaLibraryListPayload!
   errorMessageAuditLogs(limit: Int): [AdminErrorMessageAuditLog!]!
 }
 
@@ -56,6 +85,7 @@ type AdminMutation {
   deleteErrorMessage(input: AdminErrorMessageKeyInput!): AdminDeletePayload!
   updateContentPostMetadata(input: AdminUpdateContentPostMetadataInput!): AdminContentPost!
   updateContentPostContent(input: AdminUpdateContentPostContentInput!): AdminContentPost!
+  uploadMediaAsset(input: AdminUploadMediaAssetInput!): AdminMediaLibraryItem!
   deleteContentPost(input: AdminContentEntityKeyInput!): AdminDeletePayload!
   createContentTopic(input: AdminContentTopicInput!): AdminContentTopic!
   updateContentTopic(input: AdminContentTopicInput!): AdminContentTopic!
@@ -105,7 +135,7 @@ input AdminBulkDeleteCommentsInput {
 }
 
 input AdminNewsletterSubscriberFilterInput {
-  locale: String
+  locale: Locale
   status: AdminNewsletterSubscriberStatus
   query: String
   page: Int
@@ -113,37 +143,37 @@ input AdminNewsletterSubscriberFilterInput {
 }
 
 input AdminUpdateNewsletterSubscriberStatusInput {
-  email: String!
+  email: Email!
   status: AdminNewsletterSubscriberStatus!
 }
 
 input AdminDeleteNewsletterSubscriberInput {
-  email: String!
+  email: Email!
 }
 
 input AdminNewsletterCampaignFilterInput {
-  locale: String
-  status: String
+  locale: Locale
+  status: AdminNewsletterCampaignStatus
   query: String
   page: Int
   size: Int
 }
 
 input AdminNewsletterDeliveryFailureFilterInput {
-  locale: String!
+  locale: Locale!
   itemKey: String!
   page: Int
   size: Int
 }
 
 input AdminSendTestNewsletterInput {
-  email: String!
-  locale: String!
+  email: Email!
+  locale: Locale!
   itemKey: String!
 }
 
 input AdminErrorMessageFilterInput {
-  locale: String
+  locale: Locale
   code: String
   query: String
   page: Int
@@ -152,7 +182,7 @@ input AdminErrorMessageFilterInput {
 
 input AdminErrorMessageKeyInput {
   scope: String
-  locale: String!
+  locale: Locale!
   code: String!
 }
 
@@ -167,9 +197,9 @@ input AdminUpdateErrorMessageInput {
 }
 
 input AdminContentPostFilterInput {
-  locale: String
-  preferredLocale: String
-  source: String
+  locale: Locale
+  preferredLocale: Locale
+  source: ContentSource
   query: String
   categoryId: String
   topicId: String
@@ -178,55 +208,67 @@ input AdminContentPostFilterInput {
 }
 
 input AdminContentTaxonomyFilterInput {
-  locale: String
-  preferredLocale: String
+  locale: Locale
+  preferredLocale: Locale
   query: String
   page: Int
   size: Int
 }
 
+input AdminMediaLibraryFilterInput {
+  query: String
+  kind: AdminMediaLibraryItemKind
+  page: Int
+  size: Int
+}
+
 input AdminContentEntityKeyInput {
-  locale: String!
+  locale: Locale!
   id: ID!
 }
 
 input AdminUpdateContentPostMetadataInput {
-  locale: String!
+  locale: Locale!
   id: ID!
   title: String
   summary: String
   thumbnail: String
-  publishedDate: String
-  updatedDate: String
+  publishedDate: Date
+  updatedDate: Date
   categoryId: String
   topicIds: [String!]!
 }
 
 input AdminUpdateContentPostContentInput {
-  locale: String!
+  locale: Locale!
   id: ID!
   content: String!
 }
 
+input AdminUploadMediaAssetInput {
+  fileName: String!
+  dataUrl: String!
+}
+
 input AdminContentTopicInput {
-  locale: String!
+  locale: Locale!
   id: String!
   name: String!
   color: String!
-  link: String
+  link: URL
 }
 
 input AdminContentCategoryInput {
-  locale: String!
+  locale: Locale!
   id: String!
   name: String!
   color: String!
   icon: String
-  link: String
+  link: URL
 }
 
 input AdminLoginInput {
-  email: String!
+  email: Email!
   password: String!
   rememberMe: Boolean
 }
@@ -246,21 +288,21 @@ input AdminChangeNameInput {
 }
 
 input AdminChangeAvatarInput {
-  avatarUrl: String
+  avatarUrl: URL
 }
 
 input AdminStartGoogleConnectInput {
-  locale: String
+  locale: Locale
 }
 
 input AdminStartGithubConnectInput {
-  locale: String
+  locale: Locale
 }
 
 input AdminRequestEmailChangeInput {
-  newEmail: String!
+  newEmail: Email!
   currentPassword: String!
-  locale: String
+  locale: Locale
 }
 
 input AdminDeleteAccountInput {
@@ -276,15 +318,15 @@ type AdminUser {
   id: ID!
   name: String
   username: String
-  avatarUrl: String
-  email: String!
-  pendingEmail: String
+  avatarUrl: URL
+  email: Email!
+  pendingEmail: Email
   pendingEmailExpiresAt: DateTime
   googleLinked: Boolean!
-  googleEmail: String
+  googleEmail: Email
   googleLinkedAt: DateTime
   githubLinked: Boolean!
-  githubEmail: String
+  githubEmail: Email
   githubLinkedAt: DateTime
   roles: [String!]!
 }
@@ -300,11 +342,11 @@ type AdminGithubAuthStatus {
 }
 
 type AdminGoogleConnectPayload {
-  url: String!
+  url: URL!
 }
 
 type AdminGithubConnectPayload {
-  url: String!
+  url: URL!
 }
 
 type AdminGoogleDisconnectPayload {
@@ -328,7 +370,7 @@ type AdminLogoutPayload {
 
 type AdminEmailChangeRequestPayload {
   success: Boolean!
-  pendingEmail: String!
+  pendingEmail: Email!
   expiresAt: DateTime!
 }
 
@@ -370,7 +412,7 @@ type AdminComment {
   postTitle: String!
   parentId: ID
   authorName: String!
-  authorEmail: String!
+  authorEmail: Email!
   content: String!
   status: AdminCommentStatus!
   createdAt: DateTime!
@@ -385,8 +427,8 @@ type AdminCommentListPayload {
 }
 
 type AdminNewsletterSubscriber {
-  email: String!
-  locale: String!
+  email: Email!
+  locale: Locale!
   status: AdminNewsletterSubscriberStatus!
   tags: [String!]!
   formName: String
@@ -405,14 +447,14 @@ type AdminNewsletterSubscriberListPayload {
 }
 
 type AdminNewsletterCampaign {
-  locale: String!
+  locale: Locale!
   itemKey: String!
   title: String!
   summary: String
-  link: String
-  pubDate: String
-  rssUrl: String
-  status: String!
+  link: URL
+  pubDate: Date
+  rssUrl: URL
+  status: AdminNewsletterCampaignStatus!
   sentCount: Int!
   failedCount: Int!
   lastRunAt: DateTime
@@ -428,10 +470,10 @@ type AdminNewsletterCampaignListPayload {
 }
 
 type AdminNewsletterDeliveryFailure {
-  locale: String!
+  locale: Locale!
   itemKey: String!
-  email: String!
-  status: String!
+  email: Email!
+  status: AdminNewsletterDeliveryFailureStatus!
   lastError: String
   lastAttemptAt: DateTime
   updatedAt: DateTime
@@ -446,8 +488,8 @@ type AdminNewsletterDeliveryFailureListPayload {
 }
 
 type AdminNewsletterDispatchLocaleResult {
-  locale: String!
-  rssUrl: String
+  locale: Locale!
+  rssUrl: URL
   itemKey: String
   postTitle: String
   sentCount: Int!
@@ -467,15 +509,15 @@ type AdminNewsletterTestSendPayload {
   success: Boolean!
   message: String!
   timestamp: DateTime!
-  email: String!
-  locale: String!
+  email: Email!
+  locale: Locale!
   itemKey: String!
   postTitle: String
 }
 
 type AdminErrorMessage {
   scope: String!
-  locale: String!
+  locale: Locale!
   code: String!
   message: String!
   updatedAt: DateTime
@@ -491,14 +533,14 @@ type AdminErrorMessageListPayload {
 type AdminErrorMessageAuditLog {
   id: ID!
   actorId: ID!
-  actorEmail: String!
+  actorEmail: Email!
   action: String!
   scope: String!
-  locale: String!
+  locale: Locale!
   code: String!
   beforeValue: String!
   afterValue: String!
-  status: String!
+  status: AdminAuditStatus!
   failureCode: String
   requestId: String
   remoteIp: String
@@ -508,16 +550,16 @@ type AdminErrorMessageAuditLog {
 }
 
 type AdminContentPost {
-  locale: String!
+  locale: Locale!
   id: ID!
   title: String!
   summary: String
   content: String
-  contentMode: String
+  contentMode: AdminContentMode
   thumbnail: String
-  source: String!
-  publishedDate: String!
-  updatedDate: String
+  source: ContentSource!
+  publishedDate: Date!
+  updatedDate: Date
   categoryId: String
   categoryName: String
   topicIds: [String!]!
@@ -539,7 +581,7 @@ type AdminContentPostListPayload {
 
 type AdminContentPostGroup {
   id: ID!
-  source: String!
+  source: ContentSource!
   preferred: AdminContentPost!
   en: AdminContentPost
   tr: AdminContentPost
@@ -554,6 +596,13 @@ type AdminContentTopicListPayload {
 
 type AdminContentCategoryListPayload {
   items: [AdminContentCategoryGroup!]!
+  total: Int!
+  page: Int!
+  size: Int!
+}
+
+type AdminMediaLibraryListPayload {
+  items: [AdminMediaLibraryItem!]!
   total: Int!
   page: Int!
   size: Int!
@@ -574,21 +623,41 @@ type AdminContentCategoryGroup {
 }
 
 type AdminContentTopic {
-  locale: String!
+  locale: Locale!
   id: ID!
   name: String!
   color: String!
-  link: String
+  link: URL
   updatedAt: DateTime
 }
 
 type AdminContentCategory {
-  locale: String!
+  locale: Locale!
   id: ID!
   name: String!
   color: String!
   icon: String
-  link: String
+  link: URL
+  updatedAt: DateTime
+}
+
+enum AdminMediaLibraryItemKind {
+  UPLOADED
+  REFERENCE
+}
+
+type AdminMediaLibraryItem {
+  id: ID!
+  kind: AdminMediaLibraryItemKind!
+  name: String!
+  value: String!
+  previewUrl: String!
+  contentType: String
+  width: Int
+  height: Int
+  sizeBytes: Int!
+  usageCount: Int!
+  createdAt: DateTime
   updatedAt: DateTime
 }
 
@@ -603,8 +672,8 @@ type AdminDashboard {
 type AdminDashboardPost {
   postId: ID!
   title: String!
-  locale: String!
-  publishedDate: String!
+  locale: Locale!
+  publishedDate: Date!
   hits: Int!
   likes: Int!
 }

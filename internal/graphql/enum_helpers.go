@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"suaybsimsek.com/blog-api/internal/graphql/model"
+	appscalars "suaybsimsek.com/blog-api/pkg/graphql/scalars"
 )
 
 const (
@@ -12,22 +13,12 @@ const (
 	statusNotFound           = "not-found"
 )
 
-func mapLocaleInput(value model.Locale) string {
-	switch value {
-	case model.LocaleTr:
-		return "tr"
-	default:
-		return "en"
-	}
+func mapLocaleInput(value appscalars.Locale) string {
+	return appscalars.NormalizeLocaleOutput(string(value))
 }
 
-func mapLocaleOutput(value string) model.Locale {
-	switch strings.ToLower(strings.TrimSpace(value)) {
-	case "tr":
-		return model.LocaleTr
-	default:
-		return model.LocaleEn
-	}
+func mapLocaleOutput(value string) appscalars.Locale {
+	return appscalars.Locale(appscalars.NormalizeLocaleOutput(value))
 }
 
 func mapResolvedSortOrder(value string) *model.SortOrder {

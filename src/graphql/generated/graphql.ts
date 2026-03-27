@@ -13,12 +13,17 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  Date: { input: string; output: string; }
+  DateTime: { input: string; output: string; }
+  Email: { input: string; output: string; }
+  Locale: { input: string; output: string; }
+  URL: { input: string; output: string; }
 };
 
 /** Input payload used when a visitor posts a guest comment. */
 export type AddCommentInput = {
   /** Email address captured for moderation only. */
-  authorEmail: Scalars['String']['input'];
+  authorEmail: Scalars['Email']['input'];
   /** Display name shown publicly with the comment. */
   authorName: Scalars['String']['input'];
   /** Plain-text comment body. */
@@ -33,9 +38,9 @@ export type AddCommentInput = {
 export type Comment = {
   __typename?: 'Comment';
   authorName: Scalars['String']['output'];
-  avatarUrl?: Maybe<Scalars['String']['output']>;
+  avatarUrl?: Maybe<Scalars['URL']['output']>;
   content: Scalars['String']['output'];
-  createdAt: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
   parentId?: Maybe<Scalars['ID']['output']>;
 };
@@ -111,12 +116,10 @@ export enum ContentQueryStatus {
   Success = 'SUCCESS'
 }
 
-/** Supported application locales. */
-export enum Locale {
-  /** English locale. */
-  En = 'EN',
-  /** Turkish locale. */
-  Tr = 'TR'
+/** Supported content source values. */
+export enum ContentSource {
+  Blog = 'blog',
+  Medium = 'medium'
 }
 
 /** Write operations for engagement counters and newsletter flows. */
@@ -214,9 +217,9 @@ export enum NewsletterMutationStatus {
 /** Input payload used when resending a newsletter confirmation email. */
 export type NewsletterResendInput = {
   /** Subscriber email address. */
-  email: Scalars['String']['input'];
+  email: Scalars['Email']['input'];
   /** Locale used for the resend response and email copy. */
-  locale: Locale;
+  locale: Scalars['Locale']['input'];
   /** Consent checkbox value captured from the client form. */
   terms: Scalars['Boolean']['input'];
 };
@@ -224,11 +227,11 @@ export type NewsletterResendInput = {
 /** Input payload used when a visitor subscribes to the newsletter. */
 export type NewsletterSubscribeInput = {
   /** Subscriber email address. */
-  email: Scalars['String']['input'];
+  email: Scalars['Email']['input'];
   /** Optional frontend form name for analytics and diagnostics. */
   formName?: InputMaybe<Scalars['String']['input']>;
   /** Locale used for content and outgoing email copy. */
-  locale: Locale;
+  locale: Scalars['Locale']['input'];
   /** Optional tags attached to the subscription source. */
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
   /** Consent checkbox value captured from the client form. */
@@ -243,7 +246,7 @@ export type Post = {
   /** Stable post identifier used by routes and engagement records. */
   id: Scalars['ID']['output'];
   /** Original publication timestamp as an ISO-like string. */
-  publishedDate: Scalars['String']['output'];
+  publishedDate: Scalars['Date']['output'];
   /** Estimated reading time in minutes. */
   readingTime: Scalars['Int']['output'];
   /** Full-text search index string generated for client-side search. */
@@ -251,7 +254,7 @@ export type Post = {
   /** Human-readable URL slug for the post. */
   slug: Scalars['String']['output'];
   /** Content source such as local or medium. */
-  source?: Maybe<Scalars['String']['output']>;
+  source?: Maybe<ContentSource>;
   /** Short summary used in cards, SEO, and previews. */
   summary: Scalars['String']['output'];
   /** Thumbnail image path. */
@@ -261,9 +264,9 @@ export type Post = {
   /** Topic badges linked to the post. */
   topics?: Maybe<Array<Topic>>;
   /** Last update timestamp as an ISO-like string when available. */
-  updatedDate?: Maybe<Scalars['String']['output']>;
+  updatedDate?: Maybe<Scalars['Date']['output']>;
   /** Canonical source URL when the post originates from an external feed. */
-  url?: Maybe<Scalars['String']['output']>;
+  url?: Maybe<Scalars['URL']['output']>;
 };
 
 /** Category badge metadata displayed with a post. */
@@ -285,7 +288,7 @@ export type PostConnection = {
   /** Engagement metrics keyed by post identifier for the returned posts. */
   engagement: Array<PostEngagement>;
   /** Locale used to resolve the response. */
-  locale: Locale;
+  locale: Scalars['Locale']['output'];
   /** Posts for the current page. */
   nodes: Array<Post>;
   /** Resolved page number after clamping. */
@@ -344,7 +347,7 @@ export type PostResult = {
   /** Engagement counters for the resolved post when available. */
   engagement?: Maybe<PostEngagement>;
   /** Locale used to resolve the response. */
-  locale: Locale;
+  locale: Scalars['Locale']['output'];
   /** Resolved post when found. */
   node?: Maybe<Post>;
   /** Operation status such as success, not-found, or failed. */
@@ -384,14 +387,14 @@ export type QueryCommentsArgs = {
 /** Read-only operations for blog content discovery. */
 export type QueryPostArgs = {
   id: Scalars['ID']['input'];
-  locale: Locale;
+  locale: Scalars['Locale']['input'];
 };
 
 
 /** Read-only operations for blog content discovery. */
 export type QueryPostsArgs = {
   input?: InputMaybe<PostsQueryInput>;
-  locale: Locale;
+  locale: Scalars['Locale']['input'];
 };
 
 /** Supported published date sort directions. */
@@ -410,26 +413,26 @@ export type Topic = {
   /** Stable topic identifier. */
   id: Scalars['ID']['output'];
   /** Optional topic route or external link. */
-  link?: Maybe<Scalars['String']['output']>;
+  link?: Maybe<Scalars['URL']['output']>;
   /** Display name. */
   name: Scalars['String']['output'];
 };
 
 export type PostsQueryVariables = Exact<{
-  locale: Locale;
+  locale: Scalars['Locale']['input'];
   input?: InputMaybe<PostsQueryInput>;
 }>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PostConnection', status: ContentQueryStatus, locale: Locale, total: number, page: number, size: number, sort?: SortOrder | null, engagement: Array<{ __typename?: 'PostEngagement', postId: string, likes: number, hits: number, comments: number }>, nodes: Array<{ __typename?: 'Post', id: string, slug: string, title: string, publishedDate: string, updatedDate?: string | null, summary: string, searchText: string, thumbnail?: string | null, readingTime: number, source?: string | null, url?: string | null, category?: { __typename?: 'PostCategory', id: string, name: string, color: string, icon?: string | null } | null, topics?: Array<{ __typename?: 'Topic', id: string, name: string, color: string, link?: string | null }> | null }> } };
+export type PostsQuery = { __typename?: 'Query', posts: { __typename?: 'PostConnection', status: ContentQueryStatus, locale: string, total: number, page: number, size: number, sort?: SortOrder | null, engagement: Array<{ __typename?: 'PostEngagement', postId: string, likes: number, hits: number, comments: number }>, nodes: Array<{ __typename?: 'Post', id: string, slug: string, title: string, publishedDate: string, updatedDate?: string | null, summary: string, searchText: string, thumbnail?: string | null, readingTime: number, source?: ContentSource | null, url?: string | null, category?: { __typename?: 'PostCategory', id: string, name: string, color: string, icon?: string | null } | null, topics?: Array<{ __typename?: 'Topic', id: string, name: string, color: string, link?: string | null }> | null }> } };
 
 export type PostQueryVariables = Exact<{
-  locale: Locale;
+  locale: Scalars['Locale']['input'];
   id: Scalars['ID']['input'];
 }>;
 
 
-export type PostQuery = { __typename?: 'Query', post: { __typename?: 'PostResult', status: ContentQueryStatus, locale: Locale, node?: { __typename?: 'Post', id: string, slug: string, title: string, publishedDate: string, updatedDate?: string | null, summary: string, searchText: string, thumbnail?: string | null, readingTime: number, source?: string | null, url?: string | null, category?: { __typename?: 'PostCategory', id: string, name: string, color: string, icon?: string | null } | null, topics?: Array<{ __typename?: 'Topic', id: string, name: string, color: string, link?: string | null }> | null } | null, engagement?: { __typename?: 'PostEngagement', postId: string, likes: number, hits: number, comments: number } | null } };
+export type PostQuery = { __typename?: 'Query', post: { __typename?: 'PostResult', status: ContentQueryStatus, locale: string, node?: { __typename?: 'Post', id: string, slug: string, title: string, publishedDate: string, updatedDate?: string | null, summary: string, searchText: string, thumbnail?: string | null, readingTime: number, source?: ContentSource | null, url?: string | null, category?: { __typename?: 'PostCategory', id: string, name: string, color: string, icon?: string | null } | null, topics?: Array<{ __typename?: 'Topic', id: string, name: string, color: string, link?: string | null }> | null } | null, engagement?: { __typename?: 'PostEngagement', postId: string, likes: number, hits: number, comments: number } | null } };
 
 export type CommentsQueryVariables = Exact<{
   postId: Scalars['ID']['input'];
@@ -439,7 +442,7 @@ export type CommentsQueryVariables = Exact<{
 export type CommentsQuery = { __typename?: 'Query', comments: { __typename?: 'CommentListResult', status: CommentQueryStatus, postId: string, total: number, threads: Array<{ __typename?: 'CommentThread', root: { __typename?: 'Comment', id: string, parentId?: string | null, authorName: string, avatarUrl?: string | null, content: string, createdAt: string }, replies: Array<{ __typename?: 'Comment', id: string, parentId?: string | null, authorName: string, avatarUrl?: string | null, content: string, createdAt: string }> }> } };
 
 export type PostRuntimeQueryVariables = Exact<{
-  locale: Locale;
+  locale: Scalars['Locale']['input'];
   id: Scalars['ID']['input'];
 }>;
 

@@ -12,6 +12,7 @@ import (
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/graphql/admin/model"
 	appservice "suaybsimsek.com/blog-api/internal/service"
+	appscalars "suaybsimsek.com/blog-api/pkg/graphql/scalars"
 	"suaybsimsek.com/blog-api/pkg/httpapi"
 	"suaybsimsek.com/blog-api/pkg/httpauth"
 )
@@ -70,7 +71,6 @@ func TestAdminResolverMappingHelpers(t *testing.T) {
 	now := time.Date(2026, time.March, 21, 12, 30, 0, 0, time.FixedZone("TR", 3*60*60))
 	parentID := "parent-1"
 	scope := " admin "
-	link := " https://example.com/topic "
 	icon := " tag "
 
 	if toOptionalAdminProfileName("  ") != nil || toOptionalAdminUsername("  ") != nil || toOptionalAdminEmail("  ") != nil || toOptionalAdminAvatarURL("  ") != nil {
@@ -351,7 +351,7 @@ func TestAdminResolverMappingHelpers(t *testing.T) {
 		ID:     " alpha-topic ",
 		Name:   " Alpha Topic ",
 		Color:  " #fff ",
-		Link:   &link,
+		Link:   urlPtr(" https://example.com/topic "),
 	})
 	if mappedTopicInput.ID != "alpha-topic" || mappedTopicInput.Link != "https://example.com/topic" {
 		t.Fatalf("unexpected mapped topic input: %#v", mappedTopicInput)
@@ -363,7 +363,7 @@ func TestAdminResolverMappingHelpers(t *testing.T) {
 		Name:   " Alpha Category ",
 		Color:  " #000 ",
 		Icon:   &icon,
-		Link:   &link,
+		Link:   urlPtr(" https://example.com/topic "),
 	})
 	if mappedCategoryInput.Icon != "tag" || mappedCategoryInput.Link != "https://example.com/topic" {
 		t.Fatalf("unexpected mapped category input: %#v", mappedCategoryInput)
@@ -538,12 +538,12 @@ func TestAdminQueryResolvers(t *testing.T) {
 	subscriberStatus := model.AdminNewsletterSubscriberStatusActive
 	postID := " post-1 "
 	query := " alpha "
-	locale := " tr "
-	preferredLocale := " en "
-	source := " medium "
+	locale := appscalars.Locale(" tr ")
+	preferredLocale := appscalars.Locale(" en ")
+	source := model.ContentSource(" medium ")
 	categoryID := " category-1 "
 	topicID := " topic-1 "
-	campaignStatus := " sent "
+	campaignStatus := model.AdminNewsletterCampaignStatusSent
 	errorCode := " ERR_1 "
 
 	originalQueryAdminGoogleAuthStatusFn := queryAdminGoogleAuthStatusFn
@@ -941,7 +941,7 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 		}, nil
 	}
 	startAdminGoogleConnectFn = func(_ context.Context, user *domain.AdminUser, locale string) (*appservice.AdminGoogleConnectResult, error) {
-		if user.ID != "admin-1" || locale != " tr " {
+		if user.ID != "admin-1" || locale != "tr" {
 			t.Fatalf("unexpected google connect input: %q %#v", locale, user)
 		}
 		return &appservice.AdminGoogleConnectResult{URL: "/api/google/connect"}, nil
@@ -953,7 +953,7 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 		return &domain.AdminUser{ID: "admin-1", Email: "admin@example.com"}, nil
 	}
 	startAdminGithubConnectFn = func(_ context.Context, user *domain.AdminUser, locale string) (*appservice.AdminGithubConnectResult, error) {
-		if user.ID != "admin-1" || locale != " tr " {
+		if user.ID != "admin-1" || locale != "tr" {
 			t.Fatalf("unexpected github connect input: %q %#v", locale, user)
 		}
 		return &appservice.AdminGithubConnectResult{URL: "/api/github/connect"}, nil
@@ -991,7 +991,7 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 		return &updatedUser, nil
 	}
 	changeAdminAvatarFn = func(_ context.Context, user *domain.AdminUser, avatarURL *string) (*domain.AdminUser, error) {
-		if user.ID != "admin-1" || avatarURL == nil || *avatarURL != " /avatar.png " {
+		if user.ID != "admin-1" || avatarURL == nil || *avatarURL != "/avatar.png" {
 			t.Fatalf("unexpected change avatar input: %#v %#v", avatarURL, user)
 		}
 		updatedUser := *adminUser
@@ -1048,7 +1048,7 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 		t.Fatalf("Login() = %#v, %v", loginResult, err)
 	}
 
-	googleConnectResult, err := mutationResolver.StartGoogleConnect(authCtx, model.AdminStartGoogleConnectInput{Locale: stringPtr(" tr ")})
+	googleConnectResult, err := mutationResolver.StartGoogleConnect(authCtx, model.AdminStartGoogleConnectInput{Locale: localePtr(" tr ")})
 	if err != nil || googleConnectResult.URL != "/api/google/connect" {
 		t.Fatalf("StartGoogleConnect() = %#v, %v", googleConnectResult, err)
 	}
@@ -1058,7 +1058,7 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 		t.Fatalf("DisconnectGoogle() = %#v, %v", googleDisconnectResult, err)
 	}
 
-	githubConnectResult, err := mutationResolver.StartGithubConnect(authCtx, model.AdminStartGithubConnectInput{Locale: stringPtr(" tr ")})
+	githubConnectResult, err := mutationResolver.StartGithubConnect(authCtx, model.AdminStartGithubConnectInput{Locale: localePtr(" tr ")})
 	if err != nil || githubConnectResult.URL != "/api/github/connect" {
 		t.Fatalf("StartGithubConnect() = %#v, %v", githubConnectResult, err)
 	}
@@ -1092,7 +1092,7 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 		t.Fatalf("ChangeName() = %#v, %v", changeNameResult, err)
 	}
 
-	changeAvatarResult, err := mutationResolver.ChangeAvatar(authCtx, model.AdminChangeAvatarInput{AvatarURL: stringPtr(" /avatar.png ")})
+	changeAvatarResult, err := mutationResolver.ChangeAvatar(authCtx, model.AdminChangeAvatarInput{AvatarURL: urlPtr(" /avatar.png ")})
 	if err != nil || changeAvatarResult.User == nil || changeAvatarResult.User.AvatarURL == nil || *changeAvatarResult.User.AvatarURL != "/avatar.png" {
 		t.Fatalf("ChangeAvatar() = %#v, %v", changeAvatarResult, err)
 	}
@@ -1105,7 +1105,7 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 	emailChangeResult, err := mutationResolver.RequestEmailChange(authCtx, model.AdminRequestEmailChangeInput{
 		NewEmail:        "next@example.com",
 		CurrentPassword: "password",
-		Locale:          stringPtr("tr"),
+		Locale:          localePtr("tr"),
 	})
 	if err != nil || !emailChangeResult.Success || emailChangeResult.PendingEmail != "next@example.com" {
 		t.Fatalf("RequestEmailChange() = %#v, %v", emailChangeResult, err)
@@ -1391,8 +1391,6 @@ func TestAdminMutationManagementResolvers(t *testing.T) {
 	postTitle := " Alpha "
 	postSummary := " Summary "
 	postThumbnail := " /thumb.png "
-	publishedDate := " 2026-03-22 "
-	updatedDate := " 2026-03-23 "
 	postCategoryID := " category-1 "
 	updateMetadataResult, err := mutationResolver.UpdateContentPostMetadata(ctx, model.AdminUpdateContentPostMetadataInput{
 		Locale:        " tr ",
@@ -1400,8 +1398,8 @@ func TestAdminMutationManagementResolvers(t *testing.T) {
 		Title:         &postTitle,
 		Summary:       &postSummary,
 		Thumbnail:     &postThumbnail,
-		PublishedDate: &publishedDate,
-		UpdatedDate:   &updatedDate,
+		PublishedDate: datePtr(" 2026-03-22 "),
+		UpdatedDate:   datePtr(" 2026-03-23 "),
 		CategoryID:    &postCategoryID,
 		TopicIds:      []string{" topic-1 ", " ", "topic-2"},
 	})
@@ -1423,13 +1421,12 @@ func TestAdminMutationManagementResolvers(t *testing.T) {
 		t.Fatalf("DeleteContentPost() = %#v, %v", deleteContentPostResult, err)
 	}
 
-	topicLink := " https://example.com/topic "
 	createTopicResult, err := mutationResolver.CreateContentTopic(ctx, model.AdminContentTopicInput{
 		Locale: " tr ",
 		ID:     " topic-1 ",
 		Name:   " Alpha Topic ",
 		Color:  " #fff ",
-		Link:   &topicLink,
+		Link:   urlPtr(" https://example.com/topic "),
 	})
 	if err != nil || createTopicResult == nil || createTopicResult.ID != "topic-1" {
 		t.Fatalf("CreateContentTopic() = %#v, %v", createTopicResult, err)
@@ -1440,7 +1437,7 @@ func TestAdminMutationManagementResolvers(t *testing.T) {
 		ID:     " topic-1 ",
 		Name:   " Alpha Topic ",
 		Color:  " #fff ",
-		Link:   &topicLink,
+		Link:   urlPtr(" https://example.com/topic "),
 	})
 	if err != nil || updateTopicResult == nil || updateTopicResult.ID != "topic-1" {
 		t.Fatalf("UpdateContentTopic() = %#v, %v", updateTopicResult, err)
@@ -1452,14 +1449,13 @@ func TestAdminMutationManagementResolvers(t *testing.T) {
 	}
 
 	categoryIcon := " tag "
-	categoryLink := " https://example.com/category "
 	createCategoryResult, err := mutationResolver.CreateContentCategory(ctx, model.AdminContentCategoryInput{
 		Locale: " tr ",
 		ID:     " category-1 ",
 		Name:   " Alpha Category ",
 		Color:  " #000 ",
 		Icon:   &categoryIcon,
-		Link:   &categoryLink,
+		Link:   urlPtr(" https://example.com/category "),
 	})
 	if err != nil || createCategoryResult == nil || createCategoryResult.ID != "category-1" {
 		t.Fatalf("CreateContentCategory() = %#v, %v", createCategoryResult, err)
@@ -1471,7 +1467,7 @@ func TestAdminMutationManagementResolvers(t *testing.T) {
 		Name:   " Alpha Category ",
 		Color:  " #000 ",
 		Icon:   &categoryIcon,
-		Link:   &categoryLink,
+		Link:   urlPtr(" https://example.com/category "),
 	})
 	if err != nil || updateCategoryResult == nil || updateCategoryResult.ID != "category-1" {
 		t.Fatalf("UpdateContentCategory() = %#v, %v", updateCategoryResult, err)
@@ -1502,4 +1498,19 @@ func issueAdminRefreshSessionTokenForTest(t *testing.T, sessionID string) string
 
 func stringPtr(value string) *string {
 	return &value
+}
+
+func localePtr(value string) *appscalars.Locale {
+	resolved := appscalars.Locale(value)
+	return &resolved
+}
+
+func urlPtr(value string) *appscalars.URL {
+	resolved := appscalars.URL(value)
+	return &resolved
+}
+
+func datePtr(value string) *appscalars.Date {
+	resolved := appscalars.Date(value)
+	return &resolved
 }

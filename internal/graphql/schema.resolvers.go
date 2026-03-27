@@ -12,6 +12,7 @@ import (
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/graphql/model"
 	appservice "suaybsimsek.com/blog-api/internal/service"
+	appscalars "suaybsimsek.com/blog-api/pkg/graphql/scalars"
 )
 
 var (
@@ -28,7 +29,7 @@ var (
 )
 
 // Posts is the resolver for the posts field.
-func (r *queryResolver) Posts(ctx context.Context, locale model.Locale, input *model.PostsQueryInput) (*model.PostConnection, error) {
+func (r *queryResolver) Posts(ctx context.Context, locale appscalars.Locale, input *model.PostsQueryInput) (*model.PostConnection, error) {
 	normalizedLocale := strings.TrimSpace(mapLocaleInput(locale))
 	if normalizedLocale == "" {
 		return nil, fmt.Errorf("locale is required")
@@ -82,7 +83,7 @@ func (r *queryResolver) Posts(ctx context.Context, locale model.Locale, input *m
 }
 
 // Post is the resolver for the post field.
-func (r *queryResolver) Post(ctx context.Context, locale model.Locale, id string) (*model.PostResult, error) {
+func (r *queryResolver) Post(ctx context.Context, locale appscalars.Locale, id string) (*model.PostResult, error) {
 	normalizedLocale := strings.TrimSpace(mapLocaleInput(locale))
 	if normalizedLocale == "" {
 		return nil, fmt.Errorf("locale is required")
@@ -193,7 +194,7 @@ func (r *mutationResolver) SubscribeNewsletter(
 		ctx,
 		appservice.SubscribeInput{
 			Locale:   strings.TrimSpace(mapLocaleInput(input.Locale)),
-			Email:    strings.TrimSpace(input.Email),
+			Email:    strings.TrimSpace(string(input.Email)),
 			Terms:    input.Terms,
 			Tags:     append([]string{}, input.Tags...),
 			FormName: strings.TrimSpace(toOptionalStringValue(input.FormName)),
@@ -216,7 +217,7 @@ func (r *mutationResolver) ResendNewsletterConfirmation(
 		ctx,
 		appservice.ResendInput{
 			Locale: strings.TrimSpace(mapLocaleInput(input.Locale)),
-			Email:  strings.TrimSpace(input.Email),
+			Email:  strings.TrimSpace(string(input.Email)),
 			Terms:  input.Terms,
 		},
 		getRequestMetadata(ctx),
@@ -259,7 +260,7 @@ func (r *mutationResolver) AddComment(ctx context.Context, input model.AddCommen
 			PostID:                       strings.TrimSpace(input.PostID),
 			ParentID:                     strings.TrimSpace(toOptionalStringValue(input.ParentID)),
 			AuthorName:                   strings.TrimSpace(input.AuthorName),
-			AuthorEmail:                  strings.TrimSpace(input.AuthorEmail),
+			AuthorEmail:                  strings.TrimSpace(string(input.AuthorEmail)),
 			AuthenticatedAuthorName:      strings.TrimSpace(toOptionalReaderName(readerUser)),
 			AuthenticatedAuthorEmail:     strings.TrimSpace(toOptionalReaderEmail(readerUser)),
 			AuthenticatedAuthorAvatarURL: strings.TrimSpace(toOptionalReaderAvatarURL(readerUser)),

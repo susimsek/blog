@@ -354,6 +354,21 @@ export type AdminContentCategoryGroupItem = {
   tr: AdminContentCategoryItem | null;
 };
 
+export type AdminMediaLibraryItem = {
+  id: string;
+  kind: 'UPLOADED' | 'REFERENCE';
+  name: string;
+  value: string;
+  previewUrl: string;
+  contentType: string | null;
+  width: number | null;
+  height: number | null;
+  sizeBytes: number;
+  usageCount: number;
+  createdAt: string | null;
+  updatedAt: string | null;
+};
+
 type AdminContentPostsPayload = {
   contentPosts: {
     items: AdminContentPostGroupItem[];
@@ -399,6 +414,19 @@ type AdminUpdateContentPostMetadataPayload = {
 
 type AdminUpdateContentPostContentPayload = {
   updateContentPostContent: AdminContentPostItem;
+};
+
+type AdminMediaLibraryPayload = {
+  mediaLibrary: {
+    items: AdminMediaLibraryItem[];
+    total: number;
+    page: number;
+    size: number;
+  };
+};
+
+type AdminUploadMediaAssetPayload = {
+  uploadMediaAsset: AdminMediaLibraryItem;
 };
 
 type AdminDeleteContentPostPayload = {
@@ -1118,7 +1146,7 @@ const ADMIN_CONTENT_POST_QUERY = gql`
 `;
 
 const ADMIN_CONTENT_TOPICS_QUERY = gql`
-  query AdminContentTopics($locale: String, $query: String) {
+  query AdminContentTopics($locale: Locale, $query: String) {
     contentTopics(locale: $locale, query: $query) {
       locale
       id
@@ -1131,7 +1159,7 @@ const ADMIN_CONTENT_TOPICS_QUERY = gql`
 `;
 
 const ADMIN_CONTENT_CATEGORIES_QUERY = gql`
-  query AdminContentCategories($locale: String) {
+  query AdminContentCategories($locale: Locale) {
     contentCategories(locale: $locale) {
       locale
       id
@@ -1140,6 +1168,30 @@ const ADMIN_CONTENT_CATEGORIES_QUERY = gql`
       icon
       link
       updatedAt
+    }
+  }
+`;
+
+const ADMIN_MEDIA_LIBRARY_QUERY = gql`
+  query AdminMediaLibrary($filter: AdminMediaLibraryFilterInput) {
+    mediaLibrary(filter: $filter) {
+      items {
+        id
+        kind
+        name
+        value
+        previewUrl
+        contentType
+        width
+        height
+        sizeBytes
+        usageCount
+        createdAt
+        updatedAt
+      }
+      total
+      page
+      size
     }
   }
 `;
@@ -1271,6 +1323,25 @@ const ADMIN_UPDATE_CONTENT_POST_CONTENT_MUTATION = gql`
       viewCount
       likeCount
       commentCount
+    }
+  }
+`;
+
+const ADMIN_UPLOAD_MEDIA_ASSET_MUTATION = gql`
+  mutation AdminUploadMediaAsset($input: AdminUploadMediaAssetInput!) {
+    uploadMediaAsset(input: $input) {
+      id
+      kind
+      name
+      value
+      previewUrl
+      contentType
+      width
+      height
+      sizeBytes
+      usageCount
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -2412,6 +2483,47 @@ export const fetchAdminContentCategories = async (locale?: string) => {
   return payload.contentCategories;
 };
 
+export const fetchAdminMediaLibrary = async (params?: {
+  query?: string;
+  kind?: AdminMediaLibraryItem['kind'] | 'ALL';
+  page?: number;
+  size?: number;
+}) => {
+  const resolvedQuery = params?.query?.trim() ?? '';
+  const resolvedKind = params?.kind?.trim().toUpperCase() ?? '';
+  const resolvedPage =
+    params?.page && Number.isFinite(params.page) && params.page > 0 ? Math.trunc(params.page) : undefined;
+  const resolvedSize =
+    params?.size && Number.isFinite(params.size) && params.size > 0 ? Math.trunc(params.size) : undefined;
+
+  const payload = await executeAdminGraphQL<
+    AdminMediaLibraryPayload,
+    {
+      filter?: {
+        query?: string;
+        kind?: string;
+        page?: number;
+        size?: number;
+      };
+    }
+  >(
+    ADMIN_MEDIA_LIBRARY_QUERY,
+    {
+      filter: {
+        ...(resolvedQuery ? { query: resolvedQuery } : {}),
+        ...(resolvedKind && resolvedKind !== 'ALL' ? { kind: resolvedKind } : {}),
+        ...(resolvedPage ? { page: resolvedPage } : {}),
+        ...(resolvedSize ? { size: resolvedSize } : {}),
+      },
+    },
+    {
+      operationName: 'AdminMediaLibrary',
+    },
+  );
+
+  return payload.mediaLibrary;
+};
+
 export const fetchAdminContentTopicsPage = async (params?: {
   locale?: string;
   preferredLocale?: string;
@@ -2572,6 +2684,31 @@ export const updateAdminContentPostContent = async (input: { locale: string; id:
   );
 
   return payload.updateContentPostContent;
+};
+
+export const uploadAdminMediaAsset = async (input: { fileName: string; dataUrl: string }) => {
+  const payload = await executeAdminGraphQL<
+    AdminUploadMediaAssetPayload,
+    {
+      input: {
+        fileName: string;
+        dataUrl: string;
+      };
+    }
+  >(
+    ADMIN_UPLOAD_MEDIA_ASSET_MUTATION,
+    {
+      input: {
+        fileName: input.fileName.trim(),
+        dataUrl: input.dataUrl.trim(),
+      },
+    },
+    {
+      operationName: 'AdminUploadMediaAsset',
+    },
+  );
+
+  return payload.uploadMediaAsset;
 };
 
 export const deleteAdminContentPost = async (input: { locale: string; id: string }) => {

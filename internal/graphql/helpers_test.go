@@ -11,13 +11,13 @@ import (
 )
 
 func TestEnumAndScalarHelpers(t *testing.T) {
-	if got := mapLocaleInput(model.LocaleTr); got != "tr" {
+	if got := mapLocaleInput("tr"); got != "tr" {
 		t.Fatalf("mapLocaleInput() = %q", got)
 	}
-	if got := mapLocaleOutput(" TR "); got != model.LocaleTr {
+	if got := mapLocaleOutput(" TR "); got != "tr" {
 		t.Fatalf("mapLocaleOutput() = %q", got)
 	}
-	if got := mapLocaleOutput("unknown"); got != model.LocaleEn {
+	if got := mapLocaleOutput("unknown"); got != "en" {
 		t.Fatalf("mapLocaleOutput(default) = %q", got)
 	}
 	if got := mapResolvedSortOrder("asc"); got == nil || *got != model.SortOrderAsc {
@@ -92,7 +92,7 @@ func TestPostMappingHelpers(t *testing.T) {
 		{ID: "react", Name: "React", Color: "blue", Link: &link},
 		{ID: "", Name: "Ignored", Color: "gray"},
 	})
-	if len(topics) != 1 || topics[0].Link == nil || *topics[0].Link != link {
+	if len(topics) != 1 || topics[0].Link == nil || string(*topics[0].Link) != link {
 		t.Fatalf("topics = %#v", topics)
 	}
 
@@ -121,7 +121,7 @@ func TestPostMappingHelpers(t *testing.T) {
 		},
 		{ID: "", Title: "Ignored"},
 	})
-	if len(posts) != 1 || posts[0].ReadingTime != 1 || posts[0].URL == nil || *posts[0].URL != postLink {
+	if len(posts) != 1 || posts[0].ReadingTime != 1 || posts[0].URL == nil || string(*posts[0].URL) != postLink {
 		t.Fatalf("posts = %#v", posts)
 	}
 

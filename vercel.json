@@ -18,6 +18,10 @@
       "destination": "/api/admin-graphql"
     },
     {
+      "source": "/api/media/:id",
+      "destination": "/api/media?id=:id"
+    },
+    {
       "source": "/api/reader-auth/session",
       "destination": "/api/reader-auth"
     },

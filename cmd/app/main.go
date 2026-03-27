@@ -18,6 +18,7 @@ import (
 	googlecallbackapi "suaybsimsek.com/blog-api/api/google/callback"
 	googleconnectapi "suaybsimsek.com/blog-api/api/google/connect"
 	graphqlapi "suaybsimsek.com/blog-api/api/graphql"
+	mediaapi "suaybsimsek.com/blog-api/api/media"
 	newsletterdispatch "suaybsimsek.com/blog-api/api/newsletter-dispatch"
 	readerauthapi "suaybsimsek.com/blog-api/api/reader-auth"
 	appconfig "suaybsimsek.com/blog-api/internal/config"
@@ -72,6 +73,8 @@ func main() {
 	mux.HandleFunc("/api/github/callback", githubcallbackapi.Handler)
 	mux.HandleFunc("/api/google/connect", googleconnectapi.Handler)
 	mux.HandleFunc("/api/google/callback", googlecallbackapi.Handler)
+	mux.HandleFunc("/api/media", mediaapi.Handler)
+	mux.HandleFunc("/api/media/", mediaapi.Handler)
 	mux.HandleFunc("/api/reader-auth/session", readerauthapi.Handler)
 	mux.HandleFunc("/api/reader-auth/logout", readerauthapi.Handler)
 	mux.HandleFunc("/graphiql", graphqlapi.Handler)

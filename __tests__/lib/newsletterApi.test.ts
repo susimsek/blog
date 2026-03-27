@@ -6,7 +6,6 @@ import {
 } from '@/lib/newsletterApi';
 import {
   ConfirmNewsletterSubscriptionDocument,
-  Locale,
   ResendNewsletterConfirmationDocument,
   SubscribeNewsletterDocument,
   UnsubscribeNewsletterDocument,
@@ -66,7 +65,7 @@ describe('newsletterApi', () => {
       {
         input: {
           email: 'mail@example.com',
-          locale: Locale.En,
+          locale: 'en',
           terms: true,
         },
       },
@@ -78,7 +77,7 @@ describe('newsletterApi', () => {
       {
         input: {
           email: 'mail@example.com',
-          locale: Locale.Tr,
+          locale: 'tr',
           terms: false,
         },
       },

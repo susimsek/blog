@@ -10,7 +10,6 @@ import {
 import {
   IncrementPostHitDocument,
   IncrementPostLikeDocument,
-  Locale,
   PostDocument,
   PostRuntimeDocument,
   PostsDocument,
@@ -100,7 +99,7 @@ describe('contentApi', () => {
     expect(queryGraphQLMock).toHaveBeenCalledWith(
       PostsDocument,
       {
-        locale: Locale.En,
+        locale: 'en',
         input: {
           page: 2,
           size: 10,
@@ -156,7 +155,7 @@ describe('contentApi', () => {
     expect(queryGraphQLMock).toHaveBeenCalledWith(
       PostDocument,
       {
-        locale: Locale.Tr,
+        locale: 'tr',
         id: 'post-2',
       },
       {},
@@ -190,7 +189,7 @@ describe('contentApi', () => {
     expect(queryGraphQLMock).toHaveBeenCalledWith(
       PostsDocument,
       {
-        locale: Locale.En,
+        locale: 'en',
         input: {
           page: 1,
           size: 3,
@@ -300,7 +299,7 @@ describe('contentApi', () => {
     expect(queryGraphQLMock).toHaveBeenCalledWith(
       PostRuntimeDocument,
       {
-        locale: Locale.En,
+        locale: 'en',
         id: 'post-1',
       },
       {},

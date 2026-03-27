@@ -12,8 +12,8 @@ func mapComment(record domain.CommentRecord) *model.Comment {
 	id := strings.TrimSpace(record.ID)
 	authorName := strings.TrimSpace(record.AuthorName)
 	content := strings.TrimSpace(record.Content)
-	createdAt := record.CreatedAt.UTC().Format("2006-01-02T15:04:05Z")
-	if id == "" || authorName == "" || content == "" || createdAt == "" {
+	createdAt := record.CreatedAt.UTC()
+	if id == "" || authorName == "" || content == "" || createdAt.IsZero() {
 		return nil
 	}
 
@@ -21,7 +21,7 @@ func mapComment(record domain.CommentRecord) *model.Comment {
 		ID:         id,
 		ParentID:   toOptionalString(derefString(record.ParentID)),
 		AuthorName: authorName,
-		AvatarURL:  toOptionalString(strings.TrimSpace(record.AuthorAvatarURL)),
+		AvatarURL:  toOptionalURL(strings.TrimSpace(record.AuthorAvatarURL)),
 		Content:    content,
 		CreatedAt:  createdAt,
 	}

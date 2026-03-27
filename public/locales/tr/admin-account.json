@@ -434,7 +434,8 @@
       "tabs": {
         "posts": "Postlar",
         "topics": "Topicler",
-        "categories": "Kategoriler"
+        "categories": "Kategoriler",
+        "media": "Medya"
       },
       "list": {
         "updatedAt": "Güncelleme: {{value}}",
@@ -447,6 +448,16 @@
       },
       "categories": {
         "title": "Kategoriler"
+      },
+      "media": {
+        "title": "Medya kütüphanesi",
+        "copy": "Görseller yükleyin, yeniden kullanılabilir thumbnailları inceleyin ve içerik metadata’sı için medya yollarını kopyalayın.",
+        "loading": "Medya kütüphanesi yükleniyor...",
+        "actions": {
+          "copy": "Yolu kopyala",
+          "copied": "Kopyalandı",
+          "open": "Aç"
+        }
       },
       "actions": {
         "create": "Oluştur",
@@ -471,7 +482,9 @@
         "topicDeleted": "Topic silindi: {{id}}",
         "categoryCreated": "Kategori oluşturuldu: {{id}}",
         "categoryUpdated": "Kategori güncellendi: {{id}}",
-        "categoryDeleted": "Kategori silindi: {{id}}"
+        "categoryDeleted": "Kategori silindi: {{id}}",
+        "mediaUploaded": "Görsel yüklendi: {{name}}",
+        "mediaCopied": "Yol kopyalandı: {{name}}"
       },
       "errors": {
         "taxonomyLoad": "Topic ve kategoriler yüklenemedi.",
@@ -484,7 +497,10 @@
         "topicDelete": "Topic silinemedi.",
         "categoryCreate": "Kategori oluşturulamadı.",
         "categoryUpdate": "Kategori güncellenemedi.",
-        "categoryDelete": "Kategori silinemedi."
+        "categoryDelete": "Kategori silinemedi.",
+        "mediaLibraryLoad": "Medya kütüphanesi yüklenemedi.",
+        "mediaLibraryUpload": "Görsel yüklenemedi.",
+        "mediaLibraryCopy": "Medya yolu kopyalanamadı."
       },
       "validation": {
         "id": "Sadece küçük harf, rakam ve tire kullan (2-128 karakter)."
@@ -532,7 +548,7 @@
             "publishedDate": "Yayın tarihi",
             "updatedDate": "Güncelleme tarihi",
             "updatedDateHint": "Güncelleme tarihini temizlemek için boş bırakın.",
-            "thumbnail": "Küçük görsel URL"
+            "thumbnail": "Küçük görsel"
           },
           "topics": "Topicler",
           "topicsQueryPlaceholder": "Topicleri ada göre ara",
@@ -553,6 +569,31 @@
           "labels": {
             "id": "Post ID: {{value}}",
             "locale": "Dil: {{value}}"
+          },
+          "media": {
+            "title": "Medya kütüphanesi",
+            "hint": "Görsel yüklemek veya yeniden kullanılabilir thumbnail yolunu kopyalamak için medya kütüphanesini açın.",
+            "openLibrary": "Medya kütüphanesini aç",
+            "upload": "Görsel yükle",
+            "uploadLabel": "Yükle",
+            "clear": "Temizle",
+            "queryPlaceholder": "Medyayı ada veya başlığa göre ara",
+            "clearSearch": "Medya aramasını temizle",
+            "filterLabel": "Kaynak",
+            "filters": {
+              "all": "Tüm medya",
+              "uploaded": "Yüklenenler",
+              "reused": "Yeniden kullanılanlar"
+            },
+            "empty": "Geçerli arama için medya bulunamadı.",
+            "badges": {
+              "uploaded": "Yüklendi",
+              "reused": "Yeniden kullanıldı"
+            },
+            "usedIn_one": "{{count}} postta kullanılıyor",
+            "usedIn_other": "{{count}} postta kullanılıyor",
+            "selected": "Seçildi",
+            "select": "Görseli kullan"
           }
         },
         "deletePost": {

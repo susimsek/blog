@@ -6,6 +6,12 @@ schema {
   mutation: Mutation
 }
 
+scalar Date
+scalar DateTime
+scalar Email
+scalar Locale
+scalar URL
+
 """
 Read-only operations for blog content discovery.
 """
@@ -103,7 +109,7 @@ input NewsletterSubscribeInput {
   """
   Subscriber email address.
   """
-  email: String!
+  email: Email!
 
   """
   Consent checkbox value captured from the client form.
@@ -133,7 +139,7 @@ input NewsletterResendInput {
   """
   Subscriber email address.
   """
-  email: String!
+  email: Email!
 
   """
   Consent checkbox value captured from the client form.
@@ -163,27 +169,12 @@ input AddCommentInput {
   """
   Email address captured for moderation only.
   """
-  authorEmail: String!
+  authorEmail: Email!
 
   """
   Plain-text comment body.
   """
   content: String!
-}
-
-"""
-Supported application locales.
-"""
-enum Locale {
-  """
-  English locale.
-  """
-  EN
-
-  """
-  Turkish locale.
-  """
-  TR
 }
 
 """
@@ -199,6 +190,14 @@ enum SortOrder {
   Descending order.
   """
   DESC
+}
+
+"""
+Supported content source values.
+"""
+enum ContentSource {
+  blog
+  medium
 }
 
 """
@@ -517,9 +516,9 @@ type Comment {
   id: ID!
   parentId: ID
   authorName: String!
-  avatarUrl: String
+  avatarUrl: URL
   content: String!
-  createdAt: String!
+  createdAt: DateTime!
 }
 
 """
@@ -549,12 +548,12 @@ type Post {
   """
   Original publication timestamp as an ISO-like string.
   """
-  publishedDate: String!
+  publishedDate: Date!
 
   """
   Last update timestamp as an ISO-like string when available.
   """
-  updatedDate: String
+  updatedDate: Date
 
   """
   Short summary used in cards, SEO, and previews.
@@ -584,12 +583,12 @@ type Post {
   """
   Content source such as local or medium.
   """
-  source: String
+  source: ContentSource
 
   """
   Canonical source URL when the post originates from an external feed.
   """
-  url: String
+  url: URL
 }
 
 """
@@ -639,5 +638,5 @@ type Topic {
   """
   Optional topic route or external link.
   """
-  link: String
+  link: URL
 }

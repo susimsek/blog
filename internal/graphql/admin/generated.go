@@ -18,6 +18,7 @@ import (
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	"suaybsimsek.com/blog-api/internal/graphql/admin/model"
+	"suaybsimsek.com/blog-api/pkg/graphql/scalars"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -285,6 +286,28 @@ type ComplexityRoot struct {
 		User          func(childComplexity int) int
 	}
 
+	AdminMediaLibraryItem struct {
+		ContentType func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		Height      func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Kind        func(childComplexity int) int
+		Name        func(childComplexity int) int
+		PreviewURL  func(childComplexity int) int
+		SizeBytes   func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+		UsageCount  func(childComplexity int) int
+		Value       func(childComplexity int) int
+		Width       func(childComplexity int) int
+	}
+
+	AdminMediaLibraryListPayload struct {
+		Items func(childComplexity int) int
+		Page  func(childComplexity int) int
+		Size  func(childComplexity int) int
+		Total func(childComplexity int) int
+	}
+
 	AdminMutation struct {
 		BulkDeleteComments               func(childComplexity int, input model.AdminBulkDeleteCommentsInput) int
 		BulkUpdateCommentStatus          func(childComplexity int, input model.AdminBulkUpdateCommentStatusInput) int
@@ -321,6 +344,7 @@ type ComplexityRoot struct {
 		UpdateContentTopic               func(childComplexity int, input model.AdminContentTopicInput) int
 		UpdateErrorMessage               func(childComplexity int, input model.AdminUpdateErrorMessageInput) int
 		UpdateNewsletterSubscriberStatus func(childComplexity int, input model.AdminUpdateNewsletterSubscriberStatusInput) int
+		UploadMediaAsset                 func(childComplexity int, input model.AdminUploadMediaAssetInput) int
 	}
 
 	AdminNewsletterCampaign struct {
@@ -419,11 +443,11 @@ type ComplexityRoot struct {
 	AdminQuery struct {
 		ActiveSessions             func(childComplexity int) int
 		Comments                   func(childComplexity int, filter *model.AdminCommentFilterInput) int
-		ContentCategories          func(childComplexity int, locale *string) int
+		ContentCategories          func(childComplexity int, locale *scalars.Locale) int
 		ContentCategoriesPage      func(childComplexity int, filter *model.AdminContentTaxonomyFilterInput) int
 		ContentPost                func(childComplexity int, input model.AdminContentEntityKeyInput) int
 		ContentPosts               func(childComplexity int, filter *model.AdminContentPostFilterInput) int
-		ContentTopics              func(childComplexity int, locale *string, query *string) int
+		ContentTopics              func(childComplexity int, locale *scalars.Locale, query *string) int
 		ContentTopicsPage          func(childComplexity int, filter *model.AdminContentTaxonomyFilterInput) int
 		Dashboard                  func(childComplexity int) int
 		ErrorMessageAuditLogs      func(childComplexity int, limit *int) int
@@ -431,6 +455,7 @@ type ComplexityRoot struct {
 		GithubAuthStatus           func(childComplexity int) int
 		GoogleAuthStatus           func(childComplexity int) int
 		Me                         func(childComplexity int) int
+		MediaLibrary               func(childComplexity int, filter *model.AdminMediaLibraryFilterInput) int
 		NewsletterCampaignFailures func(childComplexity int, filter model.AdminNewsletterDeliveryFailureFilterInput) int
 		NewsletterCampaigns        func(childComplexity int, filter *model.AdminNewsletterCampaignFilterInput) int
 		NewsletterSubscribers      func(childComplexity int, filter *model.AdminNewsletterSubscriberFilterInput) int
@@ -499,6 +524,7 @@ type AdminMutationResolver interface {
 	DeleteErrorMessage(ctx context.Context, input model.AdminErrorMessageKeyInput) (*model.AdminDeletePayload, error)
 	UpdateContentPostMetadata(ctx context.Context, input model.AdminUpdateContentPostMetadataInput) (*model.AdminContentPost, error)
 	UpdateContentPostContent(ctx context.Context, input model.AdminUpdateContentPostContentInput) (*model.AdminContentPost, error)
+	UploadMediaAsset(ctx context.Context, input model.AdminUploadMediaAssetInput) (*model.AdminMediaLibraryItem, error)
 	DeleteContentPost(ctx context.Context, input model.AdminContentEntityKeyInput) (*model.AdminDeletePayload, error)
 	CreateContentTopic(ctx context.Context, input model.AdminContentTopicInput) (*model.AdminContentTopic, error)
 	UpdateContentTopic(ctx context.Context, input model.AdminContentTopicInput) (*model.AdminContentTopic, error)
@@ -522,8 +548,9 @@ type AdminQueryResolver interface {
 	ContentPost(ctx context.Context, input model.AdminContentEntityKeyInput) (*model.AdminContentPost, error)
 	ContentTopicsPage(ctx context.Context, filter *model.AdminContentTaxonomyFilterInput) (*model.AdminContentTopicListPayload, error)
 	ContentCategoriesPage(ctx context.Context, filter *model.AdminContentTaxonomyFilterInput) (*model.AdminContentCategoryListPayload, error)
-	ContentTopics(ctx context.Context, locale *string, query *string) ([]*model.AdminContentTopic, error)
-	ContentCategories(ctx context.Context, locale *string) ([]*model.AdminContentCategory, error)
+	ContentTopics(ctx context.Context, locale *scalars.Locale, query *string) ([]*model.AdminContentTopic, error)
+	ContentCategories(ctx context.Context, locale *scalars.Locale) ([]*model.AdminContentCategory, error)
+	MediaLibrary(ctx context.Context, filter *model.AdminMediaLibraryFilterInput) (*model.AdminMediaLibraryListPayload, error)
 	ErrorMessageAuditLogs(ctx context.Context, limit *int) ([]*model.AdminErrorMessageAuditLog, error)
 }
 
@@ -1424,6 +1451,104 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.AdminMe.User(childComplexity), true
 
+	case "AdminMediaLibraryItem.contentType":
+		if e.complexity.AdminMediaLibraryItem.ContentType == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryItem.ContentType(childComplexity), true
+	case "AdminMediaLibraryItem.createdAt":
+		if e.complexity.AdminMediaLibraryItem.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryItem.CreatedAt(childComplexity), true
+	case "AdminMediaLibraryItem.height":
+		if e.complexity.AdminMediaLibraryItem.Height == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryItem.Height(childComplexity), true
+	case "AdminMediaLibraryItem.id":
+		if e.complexity.AdminMediaLibraryItem.ID == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryItem.ID(childComplexity), true
+	case "AdminMediaLibraryItem.kind":
+		if e.complexity.AdminMediaLibraryItem.Kind == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryItem.Kind(childComplexity), true
+	case "AdminMediaLibraryItem.name":
+		if e.complexity.AdminMediaLibraryItem.Name == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryItem.Name(childComplexity), true
+	case "AdminMediaLibraryItem.previewUrl":
+		if e.complexity.AdminMediaLibraryItem.PreviewURL == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryItem.PreviewURL(childComplexity), true
+	case "AdminMediaLibraryItem.sizeBytes":
+		if e.complexity.AdminMediaLibraryItem.SizeBytes == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryItem.SizeBytes(childComplexity), true
+	case "AdminMediaLibraryItem.updatedAt":
+		if e.complexity.AdminMediaLibraryItem.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryItem.UpdatedAt(childComplexity), true
+	case "AdminMediaLibraryItem.usageCount":
+		if e.complexity.AdminMediaLibraryItem.UsageCount == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryItem.UsageCount(childComplexity), true
+	case "AdminMediaLibraryItem.value":
+		if e.complexity.AdminMediaLibraryItem.Value == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryItem.Value(childComplexity), true
+	case "AdminMediaLibraryItem.width":
+		if e.complexity.AdminMediaLibraryItem.Width == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryItem.Width(childComplexity), true
+
+	case "AdminMediaLibraryListPayload.items":
+		if e.complexity.AdminMediaLibraryListPayload.Items == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryListPayload.Items(childComplexity), true
+	case "AdminMediaLibraryListPayload.page":
+		if e.complexity.AdminMediaLibraryListPayload.Page == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryListPayload.Page(childComplexity), true
+	case "AdminMediaLibraryListPayload.size":
+		if e.complexity.AdminMediaLibraryListPayload.Size == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryListPayload.Size(childComplexity), true
+	case "AdminMediaLibraryListPayload.total":
+		if e.complexity.AdminMediaLibraryListPayload.Total == nil {
+			break
+		}
+
+		return e.complexity.AdminMediaLibraryListPayload.Total(childComplexity), true
+
 	case "AdminMutation.bulkDeleteComments":
 		if e.complexity.AdminMutation.BulkDeleteComments == nil {
 			break
@@ -1779,6 +1904,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.UpdateNewsletterSubscriberStatus(childComplexity, args["input"].(model.AdminUpdateNewsletterSubscriberStatusInput)), true
+	case "AdminMutation.uploadMediaAsset":
+		if e.complexity.AdminMutation.UploadMediaAsset == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_uploadMediaAsset_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.UploadMediaAsset(childComplexity, args["input"].(model.AdminUploadMediaAssetInput)), true
 
 	case "AdminNewsletterCampaign.createdAt":
 		if e.complexity.AdminNewsletterCampaign.CreatedAt == nil {
@@ -2195,7 +2331,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.AdminQuery.ContentCategories(childComplexity, args["locale"].(*string)), true
+		return e.complexity.AdminQuery.ContentCategories(childComplexity, args["locale"].(*scalars.Locale)), true
 	case "AdminQuery.contentCategoriesPage":
 		if e.complexity.AdminQuery.ContentCategoriesPage == nil {
 			break
@@ -2239,7 +2375,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.AdminQuery.ContentTopics(childComplexity, args["locale"].(*string), args["query"].(*string)), true
+		return e.complexity.AdminQuery.ContentTopics(childComplexity, args["locale"].(*scalars.Locale), args["query"].(*string)), true
 	case "AdminQuery.contentTopicsPage":
 		if e.complexity.AdminQuery.ContentTopicsPage == nil {
 			break
@@ -2297,6 +2433,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminQuery.Me(childComplexity), true
+	case "AdminQuery.mediaLibrary":
+		if e.complexity.AdminQuery.MediaLibrary == nil {
+			break
+		}
+
+		args, err := ec.field_AdminQuery_mediaLibrary_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminQuery.MediaLibrary(childComplexity, args["filter"].(*model.AdminMediaLibraryFilterInput)), true
 	case "AdminQuery.newsletterCampaignFailures":
 		if e.complexity.AdminQuery.NewsletterCampaignFailures == nil {
 			break
@@ -2505,6 +2652,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAdminErrorMessageFilterInput,
 		ec.unmarshalInputAdminErrorMessageKeyInput,
 		ec.unmarshalInputAdminLoginInput,
+		ec.unmarshalInputAdminMediaLibraryFilterInput,
 		ec.unmarshalInputAdminNewsletterCampaignFilterInput,
 		ec.unmarshalInputAdminNewsletterDeliveryFailureFilterInput,
 		ec.unmarshalInputAdminNewsletterSubscriberFilterInput,
@@ -2517,6 +2665,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAdminUpdateContentPostMetadataInput,
 		ec.unmarshalInputAdminUpdateErrorMessageInput,
 		ec.unmarshalInputAdminUpdateNewsletterSubscriberStatusInput,
+		ec.unmarshalInputAdminUploadMediaAssetInput,
 	)
 	first := true
 
@@ -2952,6 +3101,17 @@ func (ec *executionContext) field_AdminMutation_updateNewsletterSubscriberStatus
 	return args, nil
 }
 
+func (ec *executionContext) field_AdminMutation_uploadMediaAsset_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminUploadMediaAssetInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUploadMediaAssetInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_AdminQuery___type_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -2988,7 +3148,7 @@ func (ec *executionContext) field_AdminQuery_contentCategoriesPage_args(ctx cont
 func (ec *executionContext) field_AdminQuery_contentCategories_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalOString2ᚖstring)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale)
 	if err != nil {
 		return nil, err
 	}
@@ -3032,7 +3192,7 @@ func (ec *executionContext) field_AdminQuery_contentTopicsPage_args(ctx context.
 func (ec *executionContext) field_AdminQuery_contentTopics_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalOString2ᚖstring)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale)
 	if err != nil {
 		return nil, err
 	}
@@ -3060,6 +3220,17 @@ func (ec *executionContext) field_AdminQuery_errorMessages_args(ctx context.Cont
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOAdminErrorMessageFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminErrorMessageFilterInput)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminQuery_mediaLibrary_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter", ec.unmarshalOAdminMediaLibraryFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryFilterInput)
 	if err != nil {
 		return nil, err
 	}
@@ -3453,7 +3624,7 @@ func (ec *executionContext) _AdminComment_authorEmail(ctx context.Context, field
 			return obj.AuthorEmail, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail,
 		true,
 		true,
 	)
@@ -3466,7 +3637,7 @@ func (ec *executionContext) fieldContext_AdminComment_authorEmail(_ context.Cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Email does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3736,7 +3907,7 @@ func (ec *executionContext) _AdminContentCategory_locale(ctx context.Context, fi
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
 		true,
 		true,
 	)
@@ -3749,7 +3920,7 @@ func (ec *executionContext) fieldContext_AdminContentCategory_locale(_ context.C
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Locale does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3881,7 +4052,7 @@ func (ec *executionContext) _AdminContentCategory_link(ctx context.Context, fiel
 			return obj.Link, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL,
 		true,
 		false,
 	)
@@ -3894,7 +4065,7 @@ func (ec *executionContext) fieldContext_AdminContentCategory_link(_ context.Con
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type URL does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4229,7 +4400,7 @@ func (ec *executionContext) _AdminContentPost_locale(ctx context.Context, field 
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
 		true,
 		true,
 	)
@@ -4242,7 +4413,7 @@ func (ec *executionContext) fieldContext_AdminContentPost_locale(_ context.Conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Locale does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4374,7 +4545,7 @@ func (ec *executionContext) _AdminContentPost_contentMode(ctx context.Context, f
 			return obj.ContentMode, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOAdminContentMode2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentMode,
 		true,
 		false,
 	)
@@ -4387,7 +4558,7 @@ func (ec *executionContext) fieldContext_AdminContentPost_contentMode(_ context.
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type AdminContentMode does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4432,7 +4603,7 @@ func (ec *executionContext) _AdminContentPost_source(ctx context.Context, field 
 			return obj.Source, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNContentSource2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐContentSource,
 		true,
 		true,
 	)
@@ -4445,7 +4616,7 @@ func (ec *executionContext) fieldContext_AdminContentPost_source(_ context.Conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type ContentSource does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4461,7 +4632,7 @@ func (ec *executionContext) _AdminContentPost_publishedDate(ctx context.Context,
 			return obj.PublishedDate, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNDate2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate,
 		true,
 		true,
 	)
@@ -4474,7 +4645,7 @@ func (ec *executionContext) fieldContext_AdminContentPost_publishedDate(_ contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Date does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4490,7 +4661,7 @@ func (ec *executionContext) _AdminContentPost_updatedDate(ctx context.Context, f
 			return obj.UpdatedDate, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalODate2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate,
 		true,
 		false,
 	)
@@ -4503,7 +4674,7 @@ func (ec *executionContext) fieldContext_AdminContentPost_updatedDate(_ context.
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Date does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4838,7 +5009,7 @@ func (ec *executionContext) _AdminContentPostGroup_source(ctx context.Context, f
 			return obj.Source, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNContentSource2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐContentSource,
 		true,
 		true,
 	)
@@ -4851,7 +5022,7 @@ func (ec *executionContext) fieldContext_AdminContentPostGroup_source(_ context.
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type ContentSource does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5208,7 +5379,7 @@ func (ec *executionContext) _AdminContentTopic_locale(ctx context.Context, field
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
 		true,
 		true,
 	)
@@ -5221,7 +5392,7 @@ func (ec *executionContext) fieldContext_AdminContentTopic_locale(_ context.Cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Locale does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5324,7 +5495,7 @@ func (ec *executionContext) _AdminContentTopic_link(ctx context.Context, field g
 			return obj.Link, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL,
 		true,
 		false,
 	)
@@ -5337,7 +5508,7 @@ func (ec *executionContext) fieldContext_AdminContentTopic_link(_ context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type URL does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6159,7 +6330,7 @@ func (ec *executionContext) _AdminDashboardPost_locale(ctx context.Context, fiel
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
 		true,
 		true,
 	)
@@ -6172,7 +6343,7 @@ func (ec *executionContext) fieldContext_AdminDashboardPost_locale(_ context.Con
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Locale does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6188,7 +6359,7 @@ func (ec *executionContext) _AdminDashboardPost_publishedDate(ctx context.Contex
 			return obj.PublishedDate, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNDate2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate,
 		true,
 		true,
 	)
@@ -6201,7 +6372,7 @@ func (ec *executionContext) fieldContext_AdminDashboardPost_publishedDate(_ cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Date does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6449,7 +6620,7 @@ func (ec *executionContext) _AdminEmailChangeRequestPayload_pendingEmail(ctx con
 			return obj.PendingEmail, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail,
 		true,
 		true,
 	)
@@ -6462,7 +6633,7 @@ func (ec *executionContext) fieldContext_AdminEmailChangeRequestPayload_pendingE
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Email does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6536,7 +6707,7 @@ func (ec *executionContext) _AdminErrorMessage_locale(ctx context.Context, field
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
 		true,
 		true,
 	)
@@ -6549,7 +6720,7 @@ func (ec *executionContext) fieldContext_AdminErrorMessage_locale(_ context.Cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Locale does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6710,7 +6881,7 @@ func (ec *executionContext) _AdminErrorMessageAuditLog_actorEmail(ctx context.Co
 			return obj.ActorEmail, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail,
 		true,
 		true,
 	)
@@ -6723,7 +6894,7 @@ func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_actorEmail(_ 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Email does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6797,7 +6968,7 @@ func (ec *executionContext) _AdminErrorMessageAuditLog_locale(ctx context.Contex
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
 		true,
 		true,
 	)
@@ -6810,7 +6981,7 @@ func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_locale(_ cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Locale does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6913,7 +7084,7 @@ func (ec *executionContext) _AdminErrorMessageAuditLog_status(ctx context.Contex
 			return obj.Status, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNAdminAuditStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminAuditStatus,
 		true,
 		true,
 	)
@@ -6926,7 +7097,7 @@ func (ec *executionContext) fieldContext_AdminErrorMessageAuditLog_status(_ cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type AdminAuditStatus does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7302,7 +7473,7 @@ func (ec *executionContext) _AdminGithubConnectPayload_url(ctx context.Context, 
 			return obj.URL, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNURL2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL,
 		true,
 		true,
 	)
@@ -7315,7 +7486,7 @@ func (ec *executionContext) fieldContext_AdminGithubConnectPayload_url(_ context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type URL does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7477,7 +7648,7 @@ func (ec *executionContext) _AdminGoogleConnectPayload_url(ctx context.Context, 
 			return obj.URL, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNURL2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL,
 		true,
 		true,
 	)
@@ -7490,7 +7661,7 @@ func (ec *executionContext) fieldContext_AdminGoogleConnectPayload_url(_ context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type URL does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7696,6 +7867,496 @@ func (ec *executionContext) fieldContext_AdminMe_user(_ context.Context, field g
 				return ec.fieldContext_AdminUser_roles(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminUser", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryItem_id(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryItem_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNID2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryItem_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryItem_kind(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryItem_kind,
+		func(ctx context.Context) (any, error) {
+			return obj.Kind, nil
+		},
+		nil,
+		ec.marshalNAdminMediaLibraryItemKind2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryItemKind,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryItem_kind(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AdminMediaLibraryItemKind does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryItem_name(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryItem_name,
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryItem_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryItem_value(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryItem_value,
+		func(ctx context.Context) (any, error) {
+			return obj.Value, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryItem_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryItem_previewUrl(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryItem_previewUrl,
+		func(ctx context.Context) (any, error) {
+			return obj.PreviewURL, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryItem_previewUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryItem_contentType(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryItem_contentType,
+		func(ctx context.Context) (any, error) {
+			return obj.ContentType, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryItem_contentType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryItem_width(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryItem_width,
+		func(ctx context.Context) (any, error) {
+			return obj.Width, nil
+		},
+		nil,
+		ec.marshalOInt2ᚖint,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryItem_width(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryItem_height(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryItem_height,
+		func(ctx context.Context) (any, error) {
+			return obj.Height, nil
+		},
+		nil,
+		ec.marshalOInt2ᚖint,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryItem_height(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryItem_sizeBytes(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryItem_sizeBytes,
+		func(ctx context.Context) (any, error) {
+			return obj.SizeBytes, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryItem_sizeBytes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryItem_usageCount(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryItem_usageCount,
+		func(ctx context.Context) (any, error) {
+			return obj.UsageCount, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryItem_usageCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryItem_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryItem_createdAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryItem_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryItem_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryItem) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryItem_updatedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryItem_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryListPayload_items(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryListPayload_items,
+		func(ctx context.Context) (any, error) {
+			return obj.Items, nil
+		},
+		nil,
+		ec.marshalNAdminMediaLibraryItem2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryItemᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryListPayload_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AdminMediaLibraryItem_id(ctx, field)
+			case "kind":
+				return ec.fieldContext_AdminMediaLibraryItem_kind(ctx, field)
+			case "name":
+				return ec.fieldContext_AdminMediaLibraryItem_name(ctx, field)
+			case "value":
+				return ec.fieldContext_AdminMediaLibraryItem_value(ctx, field)
+			case "previewUrl":
+				return ec.fieldContext_AdminMediaLibraryItem_previewUrl(ctx, field)
+			case "contentType":
+				return ec.fieldContext_AdminMediaLibraryItem_contentType(ctx, field)
+			case "width":
+				return ec.fieldContext_AdminMediaLibraryItem_width(ctx, field)
+			case "height":
+				return ec.fieldContext_AdminMediaLibraryItem_height(ctx, field)
+			case "sizeBytes":
+				return ec.fieldContext_AdminMediaLibraryItem_sizeBytes(ctx, field)
+			case "usageCount":
+				return ec.fieldContext_AdminMediaLibraryItem_usageCount(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AdminMediaLibraryItem_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminMediaLibraryItem_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminMediaLibraryItem", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryListPayload_total(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryListPayload_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryListPayload_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryListPayload_page(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryListPayload_page,
+		func(ctx context.Context) (any, error) {
+			return obj.Page, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryListPayload_page(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMediaLibraryListPayload_size(ctx context.Context, field graphql.CollectedField, obj *model.AdminMediaLibraryListPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMediaLibraryListPayload_size,
+		func(ctx context.Context) (any, error) {
+			return obj.Size, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMediaLibraryListPayload_size(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMediaLibraryListPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9053,6 +9714,73 @@ func (ec *executionContext) fieldContext_AdminMutation_updateContentPostContent(
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminMutation_uploadMediaAsset(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_uploadMediaAsset,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().UploadMediaAsset(ctx, fc.Args["input"].(model.AdminUploadMediaAssetInput))
+		},
+		nil,
+		ec.marshalNAdminMediaLibraryItem2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryItem,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_uploadMediaAsset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AdminMediaLibraryItem_id(ctx, field)
+			case "kind":
+				return ec.fieldContext_AdminMediaLibraryItem_kind(ctx, field)
+			case "name":
+				return ec.fieldContext_AdminMediaLibraryItem_name(ctx, field)
+			case "value":
+				return ec.fieldContext_AdminMediaLibraryItem_value(ctx, field)
+			case "previewUrl":
+				return ec.fieldContext_AdminMediaLibraryItem_previewUrl(ctx, field)
+			case "contentType":
+				return ec.fieldContext_AdminMediaLibraryItem_contentType(ctx, field)
+			case "width":
+				return ec.fieldContext_AdminMediaLibraryItem_width(ctx, field)
+			case "height":
+				return ec.fieldContext_AdminMediaLibraryItem_height(ctx, field)
+			case "sizeBytes":
+				return ec.fieldContext_AdminMediaLibraryItem_sizeBytes(ctx, field)
+			case "usageCount":
+				return ec.fieldContext_AdminMediaLibraryItem_usageCount(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AdminMediaLibraryItem_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminMediaLibraryItem_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminMediaLibraryItem", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_uploadMediaAsset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminMutation_deleteContentPost(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -9422,7 +10150,7 @@ func (ec *executionContext) _AdminNewsletterCampaign_locale(ctx context.Context,
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
 		true,
 		true,
 	)
@@ -9435,7 +10163,7 @@ func (ec *executionContext) fieldContext_AdminNewsletterCampaign_locale(_ contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Locale does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9538,7 +10266,7 @@ func (ec *executionContext) _AdminNewsletterCampaign_link(ctx context.Context, f
 			return obj.Link, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL,
 		true,
 		false,
 	)
@@ -9551,7 +10279,7 @@ func (ec *executionContext) fieldContext_AdminNewsletterCampaign_link(_ context.
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type URL does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9567,7 +10295,7 @@ func (ec *executionContext) _AdminNewsletterCampaign_pubDate(ctx context.Context
 			return obj.PubDate, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalODate2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate,
 		true,
 		false,
 	)
@@ -9580,7 +10308,7 @@ func (ec *executionContext) fieldContext_AdminNewsletterCampaign_pubDate(_ conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Date does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9596,7 +10324,7 @@ func (ec *executionContext) _AdminNewsletterCampaign_rssUrl(ctx context.Context,
 			return obj.RssURL, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL,
 		true,
 		false,
 	)
@@ -9609,7 +10337,7 @@ func (ec *executionContext) fieldContext_AdminNewsletterCampaign_rssUrl(_ contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type URL does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9625,7 +10353,7 @@ func (ec *executionContext) _AdminNewsletterCampaign_status(ctx context.Context,
 			return obj.Status, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNAdminNewsletterCampaignStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignStatus,
 		true,
 		true,
 	)
@@ -9638,7 +10366,7 @@ func (ec *executionContext) fieldContext_AdminNewsletterCampaign_status(_ contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type AdminNewsletterCampaignStatus does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9943,7 +10671,7 @@ func (ec *executionContext) _AdminNewsletterDeliveryFailure_locale(ctx context.C
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
 		true,
 		true,
 	)
@@ -9956,7 +10684,7 @@ func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailure_locale(_
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Locale does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10001,7 +10729,7 @@ func (ec *executionContext) _AdminNewsletterDeliveryFailure_email(ctx context.Co
 			return obj.Email, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail,
 		true,
 		true,
 	)
@@ -10014,7 +10742,7 @@ func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailure_email(_ 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Email does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10030,7 +10758,7 @@ func (ec *executionContext) _AdminNewsletterDeliveryFailure_status(ctx context.C
 			return obj.Status, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNAdminNewsletterDeliveryFailureStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDeliveryFailureStatus,
 		true,
 		true,
 	)
@@ -10043,7 +10771,7 @@ func (ec *executionContext) fieldContext_AdminNewsletterDeliveryFailure_status(_
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type AdminNewsletterDeliveryFailureStatus does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10309,7 +11037,7 @@ func (ec *executionContext) _AdminNewsletterDispatchLocaleResult_locale(ctx cont
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
 		true,
 		true,
 	)
@@ -10322,7 +11050,7 @@ func (ec *executionContext) fieldContext_AdminNewsletterDispatchLocaleResult_loc
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Locale does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10338,7 +11066,7 @@ func (ec *executionContext) _AdminNewsletterDispatchLocaleResult_rssUrl(ctx cont
 			return obj.RssURL, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL,
 		true,
 		false,
 	)
@@ -10351,7 +11079,7 @@ func (ec *executionContext) fieldContext_AdminNewsletterDispatchLocaleResult_rss
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type URL does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10675,7 +11403,7 @@ func (ec *executionContext) _AdminNewsletterSubscriber_email(ctx context.Context
 			return obj.Email, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail,
 		true,
 		true,
 	)
@@ -10688,7 +11416,7 @@ func (ec *executionContext) fieldContext_AdminNewsletterSubscriber_email(_ conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Email does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10704,7 +11432,7 @@ func (ec *executionContext) _AdminNewsletterSubscriber_locale(ctx context.Contex
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
 		true,
 		true,
 	)
@@ -10717,7 +11445,7 @@ func (ec *executionContext) fieldContext_AdminNewsletterSubscriber_locale(_ cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Locale does not have child fields")
 		},
 	}
 	return fc, nil
@@ -11190,7 +11918,7 @@ func (ec *executionContext) _AdminNewsletterTestSendPayload_email(ctx context.Co
 			return obj.Email, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail,
 		true,
 		true,
 	)
@@ -11203,7 +11931,7 @@ func (ec *executionContext) fieldContext_AdminNewsletterTestSendPayload_email(_ 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Email does not have child fields")
 		},
 	}
 	return fc, nil
@@ -11219,7 +11947,7 @@ func (ec *executionContext) _AdminNewsletterTestSendPayload_locale(ctx context.C
 			return obj.Locale, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
 		true,
 		true,
 	)
@@ -11232,7 +11960,7 @@ func (ec *executionContext) fieldContext_AdminNewsletterTestSendPayload_locale(_
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Locale does not have child fields")
 		},
 	}
 	return fc, nil
@@ -12019,7 +12747,7 @@ func (ec *executionContext) _AdminQuery_contentTopics(ctx context.Context, field
 		ec.fieldContext_AdminQuery_contentTopics,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.AdminQuery().ContentTopics(ctx, fc.Args["locale"].(*string), fc.Args["query"].(*string))
+			return ec.resolvers.AdminQuery().ContentTopics(ctx, fc.Args["locale"].(*scalars.Locale), fc.Args["query"].(*string))
 		},
 		nil,
 		ec.marshalNAdminContentTopic2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentTopicᚄ,
@@ -12074,7 +12802,7 @@ func (ec *executionContext) _AdminQuery_contentCategories(ctx context.Context, f
 		ec.fieldContext_AdminQuery_contentCategories,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.AdminQuery().ContentCategories(ctx, fc.Args["locale"].(*string))
+			return ec.resolvers.AdminQuery().ContentCategories(ctx, fc.Args["locale"].(*scalars.Locale))
 		},
 		nil,
 		ec.marshalNAdminContentCategory2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentCategoryᚄ,
@@ -12117,6 +12845,57 @@ func (ec *executionContext) fieldContext_AdminQuery_contentCategories(ctx contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_AdminQuery_contentCategories_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminQuery_mediaLibrary(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminQuery_mediaLibrary,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminQuery().MediaLibrary(ctx, fc.Args["filter"].(*model.AdminMediaLibraryFilterInput))
+		},
+		nil,
+		ec.marshalNAdminMediaLibraryListPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryListPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminQuery_mediaLibrary(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "items":
+				return ec.fieldContext_AdminMediaLibraryListPayload_items(ctx, field)
+			case "total":
+				return ec.fieldContext_AdminMediaLibraryListPayload_total(ctx, field)
+			case "page":
+				return ec.fieldContext_AdminMediaLibraryListPayload_page(ctx, field)
+			case "size":
+				return ec.fieldContext_AdminMediaLibraryListPayload_size(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminMediaLibraryListPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminQuery_mediaLibrary_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -12693,7 +13472,7 @@ func (ec *executionContext) _AdminUser_avatarUrl(ctx context.Context, field grap
 			return obj.AvatarURL, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL,
 		true,
 		false,
 	)
@@ -12706,7 +13485,7 @@ func (ec *executionContext) fieldContext_AdminUser_avatarUrl(_ context.Context, 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type URL does not have child fields")
 		},
 	}
 	return fc, nil
@@ -12722,7 +13501,7 @@ func (ec *executionContext) _AdminUser_email(ctx context.Context, field graphql.
 			return obj.Email, nil
 		},
 		nil,
-		ec.marshalNString2string,
+		ec.marshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail,
 		true,
 		true,
 	)
@@ -12735,7 +13514,7 @@ func (ec *executionContext) fieldContext_AdminUser_email(_ context.Context, fiel
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Email does not have child fields")
 		},
 	}
 	return fc, nil
@@ -12751,7 +13530,7 @@ func (ec *executionContext) _AdminUser_pendingEmail(ctx context.Context, field g
 			return obj.PendingEmail, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOEmail2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail,
 		true,
 		false,
 	)
@@ -12764,7 +13543,7 @@ func (ec *executionContext) fieldContext_AdminUser_pendingEmail(_ context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Email does not have child fields")
 		},
 	}
 	return fc, nil
@@ -12838,7 +13617,7 @@ func (ec *executionContext) _AdminUser_googleEmail(ctx context.Context, field gr
 			return obj.GoogleEmail, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOEmail2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail,
 		true,
 		false,
 	)
@@ -12851,7 +13630,7 @@ func (ec *executionContext) fieldContext_AdminUser_googleEmail(_ context.Context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Email does not have child fields")
 		},
 	}
 	return fc, nil
@@ -12925,7 +13704,7 @@ func (ec *executionContext) _AdminUser_githubEmail(ctx context.Context, field gr
 			return obj.GithubEmail, nil
 		},
 		nil,
-		ec.marshalOString2ᚖstring,
+		ec.marshalOEmail2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail,
 		true,
 		false,
 	)
@@ -12938,7 +13717,7 @@ func (ec *executionContext) fieldContext_AdminUser_githubEmail(_ context.Context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Email does not have child fields")
 		},
 	}
 	return fc, nil
@@ -14525,7 +15304,7 @@ func (ec *executionContext) unmarshalInputAdminChangeAvatarInput(ctx context.Con
 		switch k {
 		case "avatarUrl":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatarUrl"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -14702,7 +15481,7 @@ func (ec *executionContext) unmarshalInputAdminContentCategoryInput(ctx context.
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -14737,7 +15516,7 @@ func (ec *executionContext) unmarshalInputAdminContentCategoryInput(ctx context.
 			it.Icon = data
 		case "link":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("link"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -14764,7 +15543,7 @@ func (ec *executionContext) unmarshalInputAdminContentEntityKeyInput(ctx context
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -14798,21 +15577,21 @@ func (ec *executionContext) unmarshalInputAdminContentPostFilterInput(ctx contex
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Locale = data
 		case "preferredLocale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("preferredLocale"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.PreferredLocale = data
 		case "source":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("source"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOContentSource2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐContentSource(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -14874,14 +15653,14 @@ func (ec *executionContext) unmarshalInputAdminContentTaxonomyFilterInput(ctx co
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Locale = data
 		case "preferredLocale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("preferredLocale"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -14929,7 +15708,7 @@ func (ec *executionContext) unmarshalInputAdminContentTopicInput(ctx context.Con
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -14957,7 +15736,7 @@ func (ec *executionContext) unmarshalInputAdminContentTopicInput(ctx context.Con
 			it.Color = data
 		case "link":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("link"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15072,7 +15851,7 @@ func (ec *executionContext) unmarshalInputAdminDeleteNewsletterSubscriberInput(c
 		switch k {
 		case "email":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15099,7 +15878,7 @@ func (ec *executionContext) unmarshalInputAdminErrorMessageFilterInput(ctx conte
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15161,7 +15940,7 @@ func (ec *executionContext) unmarshalInputAdminErrorMessageKeyInput(ctx context.
 			it.Scope = data
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15195,7 +15974,7 @@ func (ec *executionContext) unmarshalInputAdminLoginInput(ctx context.Context, o
 		switch k {
 		case "email":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15220,6 +15999,54 @@ func (ec *executionContext) unmarshalInputAdminLoginInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAdminMediaLibraryFilterInput(ctx context.Context, obj any) (model.AdminMediaLibraryFilterInput, error) {
+	var it model.AdminMediaLibraryFilterInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"query", "kind", "page", "size"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "query":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Query = data
+		case "kind":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("kind"))
+			data, err := ec.unmarshalOAdminMediaLibraryItemKind2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryItemKind(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Kind = data
+		case "page":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Page = data
+		case "size":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("size"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Size = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAdminNewsletterCampaignFilterInput(ctx context.Context, obj any) (model.AdminNewsletterCampaignFilterInput, error) {
 	var it model.AdminNewsletterCampaignFilterInput
 	asMap := map[string]any{}
@@ -15236,14 +16063,14 @@ func (ec *executionContext) unmarshalInputAdminNewsletterCampaignFilterInput(ctx
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Locale = data
 		case "status":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOAdminNewsletterCampaignStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignStatus(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15291,7 +16118,7 @@ func (ec *executionContext) unmarshalInputAdminNewsletterDeliveryFailureFilterIn
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15339,7 +16166,7 @@ func (ec *executionContext) unmarshalInputAdminNewsletterSubscriberFilterInput(c
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15394,7 +16221,7 @@ func (ec *executionContext) unmarshalInputAdminRequestEmailChangeInput(ctx conte
 		switch k {
 		case "newEmail":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("newEmail"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15408,7 +16235,7 @@ func (ec *executionContext) unmarshalInputAdminRequestEmailChangeInput(ctx conte
 			it.CurrentPassword = data
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15435,14 +16262,14 @@ func (ec *executionContext) unmarshalInputAdminSendTestNewsletterInput(ctx conte
 		switch k {
 		case "email":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Email = data
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15476,7 +16303,7 @@ func (ec *executionContext) unmarshalInputAdminStartGithubConnectInput(ctx conte
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15503,7 +16330,7 @@ func (ec *executionContext) unmarshalInputAdminStartGoogleConnectInput(ctx conte
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15564,7 +16391,7 @@ func (ec *executionContext) unmarshalInputAdminUpdateContentPostContentInput(ctx
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15605,7 +16432,7 @@ func (ec *executionContext) unmarshalInputAdminUpdateContentPostMetadataInput(ct
 		switch k {
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15640,14 +16467,14 @@ func (ec *executionContext) unmarshalInputAdminUpdateContentPostMetadataInput(ct
 			it.Thumbnail = data
 		case "publishedDate":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishedDate"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalODate2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.PublishedDate = data
 		case "updatedDate":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedDate"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalODate2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15722,7 +16549,7 @@ func (ec *executionContext) unmarshalInputAdminUpdateNewsletterSubscriberStatusI
 		switch k {
 		case "email":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -15734,6 +16561,40 @@ func (ec *executionContext) unmarshalInputAdminUpdateNewsletterSubscriberStatusI
 				return it, err
 			}
 			it.Status = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputAdminUploadMediaAssetInput(ctx context.Context, obj any) (model.AdminUploadMediaAssetInput, error) {
+	var it model.AdminUploadMediaAssetInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"fileName", "dataUrl"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "fileName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileName = data
+		case "dataUrl":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dataUrl"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DataURL = data
 		}
 	}
 
@@ -17445,6 +18306,139 @@ func (ec *executionContext) _AdminMe(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
+var adminMediaLibraryItemImplementors = []string{"AdminMediaLibraryItem"}
+
+func (ec *executionContext) _AdminMediaLibraryItem(ctx context.Context, sel ast.SelectionSet, obj *model.AdminMediaLibraryItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminMediaLibraryItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminMediaLibraryItem")
+		case "id":
+			out.Values[i] = ec._AdminMediaLibraryItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "kind":
+			out.Values[i] = ec._AdminMediaLibraryItem_kind(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._AdminMediaLibraryItem_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "value":
+			out.Values[i] = ec._AdminMediaLibraryItem_value(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "previewUrl":
+			out.Values[i] = ec._AdminMediaLibraryItem_previewUrl(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "contentType":
+			out.Values[i] = ec._AdminMediaLibraryItem_contentType(ctx, field, obj)
+		case "width":
+			out.Values[i] = ec._AdminMediaLibraryItem_width(ctx, field, obj)
+		case "height":
+			out.Values[i] = ec._AdminMediaLibraryItem_height(ctx, field, obj)
+		case "sizeBytes":
+			out.Values[i] = ec._AdminMediaLibraryItem_sizeBytes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "usageCount":
+			out.Values[i] = ec._AdminMediaLibraryItem_usageCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._AdminMediaLibraryItem_createdAt(ctx, field, obj)
+		case "updatedAt":
+			out.Values[i] = ec._AdminMediaLibraryItem_updatedAt(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminMediaLibraryListPayloadImplementors = []string{"AdminMediaLibraryListPayload"}
+
+func (ec *executionContext) _AdminMediaLibraryListPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminMediaLibraryListPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminMediaLibraryListPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminMediaLibraryListPayload")
+		case "items":
+			out.Values[i] = ec._AdminMediaLibraryListPayload_items(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._AdminMediaLibraryListPayload_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "page":
+			out.Values[i] = ec._AdminMediaLibraryListPayload_page(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "size":
+			out.Values[i] = ec._AdminMediaLibraryListPayload_size(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var adminMutationImplementors = []string{"AdminMutation"}
 
 func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -17656,6 +18650,13 @@ func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.Selectio
 		case "updateContentPostContent":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._AdminMutation_updateContentPostContent(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "uploadMediaAsset":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_uploadMediaAsset(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -18689,6 +19690,28 @@ func (ec *executionContext) _AdminQuery(ctx context.Context, sel ast.SelectionSe
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "mediaLibrary":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AdminQuery_mediaLibrary(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "errorMessageAuditLogs":
 			field := field
 
@@ -19284,6 +20307,16 @@ func (ec *executionContext) marshalNAdminAccountDeletePayload2ᚖsuaybsimsekᚗc
 		return graphql.Null
 	}
 	return ec._AdminAccountDeletePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAdminAuditStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminAuditStatus(ctx context.Context, v any) (model.AdminAuditStatus, error) {
+	var res model.AdminAuditStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAdminAuditStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminAuditStatus(ctx context.Context, sel ast.SelectionSet, v model.AdminAuditStatus) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNAdminAuthPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminAuthPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminAuthPayload) graphql.Marshaler {
@@ -20208,6 +21241,88 @@ func (ec *executionContext) marshalNAdminMe2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋ
 	return ec._AdminMe(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAdminMediaLibraryItem2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryItem(ctx context.Context, sel ast.SelectionSet, v model.AdminMediaLibraryItem) graphql.Marshaler {
+	return ec._AdminMediaLibraryItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminMediaLibraryItem2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminMediaLibraryItem) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAdminMediaLibraryItem2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryItem(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNAdminMediaLibraryItem2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryItem(ctx context.Context, sel ast.SelectionSet, v *model.AdminMediaLibraryItem) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminMediaLibraryItem(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAdminMediaLibraryItemKind2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryItemKind(ctx context.Context, v any) (model.AdminMediaLibraryItemKind, error) {
+	var res model.AdminMediaLibraryItemKind
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAdminMediaLibraryItemKind2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryItemKind(ctx context.Context, sel ast.SelectionSet, v model.AdminMediaLibraryItemKind) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNAdminMediaLibraryListPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryListPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminMediaLibraryListPayload) graphql.Marshaler {
+	return ec._AdminMediaLibraryListPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminMediaLibraryListPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryListPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminMediaLibraryListPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminMediaLibraryListPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNAdminNewsletterCampaign2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminNewsletterCampaign) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -20274,6 +21389,16 @@ func (ec *executionContext) marshalNAdminNewsletterCampaignListPayload2ᚖsuaybs
 		return graphql.Null
 	}
 	return ec._AdminNewsletterCampaignListPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAdminNewsletterCampaignStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignStatus(ctx context.Context, v any) (model.AdminNewsletterCampaignStatus, error) {
+	var res model.AdminNewsletterCampaignStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterCampaignStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignStatus(ctx context.Context, sel ast.SelectionSet, v model.AdminNewsletterCampaignStatus) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNAdminNewsletterDeliveryFailure2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDeliveryFailureᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminNewsletterDeliveryFailure) graphql.Marshaler {
@@ -20347,6 +21472,16 @@ func (ec *executionContext) marshalNAdminNewsletterDeliveryFailureListPayload2�
 		return graphql.Null
 	}
 	return ec._AdminNewsletterDeliveryFailureListPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAdminNewsletterDeliveryFailureStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDeliveryFailureStatus(ctx context.Context, v any) (model.AdminNewsletterDeliveryFailureStatus, error) {
+	var res model.AdminNewsletterDeliveryFailureStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAdminNewsletterDeliveryFailureStatus2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDeliveryFailureStatus(ctx context.Context, sel ast.SelectionSet, v model.AdminNewsletterDeliveryFailureStatus) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNAdminNewsletterDispatchLocaleResult2ᚕᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterDispatchLocaleResultᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminNewsletterDispatchLocaleResult) graphql.Marshaler {
@@ -20640,6 +21775,11 @@ func (ec *executionContext) unmarshalNAdminUpdateNewsletterSubscriberStatusInput
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNAdminUploadMediaAssetInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUploadMediaAssetInput(ctx context.Context, v any) (model.AdminUploadMediaAssetInput, error) {
+	res, err := ec.unmarshalInputAdminUploadMediaAssetInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v any) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -20656,6 +21796,26 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNContentSource2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐContentSource(ctx context.Context, v any) (model.ContentSource, error) {
+	var res model.ContentSource
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNContentSource2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐContentSource(ctx context.Context, sel ast.SelectionSet, v model.ContentSource) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNDate2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate(ctx context.Context, v any) (scalars.Date, error) {
+	var res scalars.Date
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDate2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate(ctx context.Context, sel ast.SelectionSet, v scalars.Date) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNDateTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {
 	res, err := ec.unmarshalInputDateTime(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -20663,6 +21823,16 @@ func (ec *executionContext) unmarshalNDateTime2timeᚐTime(ctx context.Context, 
 
 func (ec *executionContext) marshalNDateTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
 	return ec._DateTime(ctx, sel, &v)
+}
+
+func (ec *executionContext) unmarshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx context.Context, v any) (scalars.Email, error) {
+	var res scalars.Email
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx context.Context, sel ast.SelectionSet, v scalars.Email) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v any) (string, error) {
@@ -20727,6 +21897,16 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
+func (ec *executionContext) unmarshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx context.Context, v any) (scalars.Locale, error) {
+	var res scalars.Locale
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx context.Context, sel ast.SelectionSet, v scalars.Locale) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -20771,6 +21951,16 @@ func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNURL2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL(ctx context.Context, v any) (scalars.URL, error) {
+	var res scalars.URL
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNURL2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL(ctx context.Context, sel ast.SelectionSet, v scalars.URL) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -21057,6 +22247,22 @@ func (ec *executionContext) marshalOAdminContentCategory2ᚖsuaybsimsekᚗcomᚋ
 	return ec._AdminContentCategory(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOAdminContentMode2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentMode(ctx context.Context, v any) (*model.AdminContentMode, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.AdminContentMode)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAdminContentMode2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentMode(ctx context.Context, sel ast.SelectionSet, v *model.AdminContentMode) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) marshalOAdminContentPost2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentPost(ctx context.Context, sel ast.SelectionSet, v *model.AdminContentPost) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -21102,12 +22308,52 @@ func (ec *executionContext) unmarshalOAdminErrorMessageFilterInput2ᚖsuaybsimse
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalOAdminMediaLibraryFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryFilterInput(ctx context.Context, v any) (*model.AdminMediaLibraryFilterInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputAdminMediaLibraryFilterInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOAdminMediaLibraryItemKind2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryItemKind(ctx context.Context, v any) (*model.AdminMediaLibraryItemKind, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.AdminMediaLibraryItemKind)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAdminMediaLibraryItemKind2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryItemKind(ctx context.Context, sel ast.SelectionSet, v *model.AdminMediaLibraryItemKind) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) unmarshalOAdminNewsletterCampaignFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignFilterInput(ctx context.Context, v any) (*model.AdminNewsletterCampaignFilterInput, error) {
 	if v == nil {
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputAdminNewsletterCampaignFilterInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOAdminNewsletterCampaignStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignStatus(ctx context.Context, v any) (*model.AdminNewsletterCampaignStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.AdminNewsletterCampaignStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAdminNewsletterCampaignStatus2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterCampaignStatus(ctx context.Context, sel ast.SelectionSet, v *model.AdminNewsletterCampaignStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOAdminNewsletterSubscriberFilterInput2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminNewsletterSubscriberFilterInput(ctx context.Context, v any) (*model.AdminNewsletterSubscriberFilterInput, error) {
@@ -21171,6 +22417,38 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) unmarshalOContentSource2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐContentSource(ctx context.Context, v any) (*model.ContentSource, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.ContentSource)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOContentSource2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐContentSource(ctx context.Context, sel ast.SelectionSet, v *model.ContentSource) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalODate2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate(ctx context.Context, v any) (*scalars.Date, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(scalars.Date)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalODate2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐDate(ctx context.Context, sel ast.SelectionSet, v *scalars.Date) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) unmarshalODateTime2ᚖtimeᚐTime(ctx context.Context, v any) (*time.Time, error) {
 	if v == nil {
 		return nil, nil
@@ -21184,6 +22462,22 @@ func (ec *executionContext) marshalODateTime2ᚖtimeᚐTime(ctx context.Context,
 		return graphql.Null
 	}
 	return ec._DateTime(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOEmail2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx context.Context, v any) (*scalars.Email, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(scalars.Email)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOEmail2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx context.Context, sel ast.SelectionSet, v *scalars.Email) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v any) (*string, error) {
@@ -21222,6 +22516,22 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
+func (ec *executionContext) unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx context.Context, v any) (*scalars.Locale, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(scalars.Locale)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx context.Context, sel ast.SelectionSet, v *scalars.Locale) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v any) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -21238,6 +22548,22 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	_ = ctx
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL(ctx context.Context, v any) (*scalars.URL, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(scalars.URL)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOURL2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐURL(ctx context.Context, sel ast.SelectionSet, v *scalars.URL) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

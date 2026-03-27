@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
+
+	"suaybsimsek.com/blog-api/pkg/graphql/scalars"
 )
 
 // Input payload used when a visitor posts a guest comment.
@@ -18,19 +21,19 @@ type AddCommentInput struct {
 	// Display name shown publicly with the comment.
 	AuthorName string `json:"authorName"`
 	// Email address captured for moderation only.
-	AuthorEmail string `json:"authorEmail"`
+	AuthorEmail scalars.Email `json:"authorEmail"`
 	// Plain-text comment body.
 	Content string `json:"content"`
 }
 
 // Public comment metadata returned for approved comments.
 type Comment struct {
-	ID         string  `json:"id"`
-	ParentID   *string `json:"parentId,omitempty"`
-	AuthorName string  `json:"authorName"`
-	AvatarURL  *string `json:"avatarUrl,omitempty"`
-	Content    string  `json:"content"`
-	CreatedAt  string  `json:"createdAt"`
+	ID         string       `json:"id"`
+	ParentID   *string      `json:"parentId,omitempty"`
+	AuthorName string       `json:"authorName"`
+	AvatarURL  *scalars.URL `json:"avatarUrl,omitempty"`
+	Content    string       `json:"content"`
+	CreatedAt  time.Time    `json:"createdAt"`
 }
 
 // Approved comments for a single post.
@@ -69,9 +72,9 @@ type NewsletterMutationResult struct {
 // Input payload used when resending a newsletter confirmation email.
 type NewsletterResendInput struct {
 	// Locale used for the resend response and email copy.
-	Locale Locale `json:"locale"`
+	Locale scalars.Locale `json:"locale"`
 	// Subscriber email address.
-	Email string `json:"email"`
+	Email scalars.Email `json:"email"`
 	// Consent checkbox value captured from the client form.
 	Terms bool `json:"terms"`
 }
@@ -79,9 +82,9 @@ type NewsletterResendInput struct {
 // Input payload used when a visitor subscribes to the newsletter.
 type NewsletterSubscribeInput struct {
 	// Locale used for content and outgoing email copy.
-	Locale Locale `json:"locale"`
+	Locale scalars.Locale `json:"locale"`
 	// Subscriber email address.
-	Email string `json:"email"`
+	Email scalars.Email `json:"email"`
 	// Consent checkbox value captured from the client form.
 	Terms bool `json:"terms"`
 	// Optional tags attached to the subscription source.
@@ -101,9 +104,9 @@ type Post struct {
 	// Optional category badge for the post.
 	Category *PostCategory `json:"category,omitempty"`
 	// Original publication timestamp as an ISO-like string.
-	PublishedDate string `json:"publishedDate"`
+	PublishedDate scalars.Date `json:"publishedDate"`
 	// Last update timestamp as an ISO-like string when available.
-	UpdatedDate *string `json:"updatedDate,omitempty"`
+	UpdatedDate *scalars.Date `json:"updatedDate,omitempty"`
 	// Short summary used in cards, SEO, and previews.
 	Summary string `json:"summary"`
 	// Full-text search index string generated for client-side search.
@@ -115,9 +118,9 @@ type Post struct {
 	// Estimated reading time in minutes.
 	ReadingTime int `json:"readingTime"`
 	// Content source such as local or medium.
-	Source *string `json:"source,omitempty"`
+	Source *ContentSource `json:"source,omitempty"`
 	// Canonical source URL when the post originates from an external feed.
-	URL *string `json:"url,omitempty"`
+	URL *scalars.URL `json:"url,omitempty"`
 }
 
 // Category badge metadata displayed with a post.
@@ -137,7 +140,7 @@ type PostConnection struct {
 	// Operation status such as success or a domain-specific failure code.
 	Status ContentQueryStatus `json:"status"`
 	// Locale used to resolve the response.
-	Locale Locale `json:"locale"`
+	Locale scalars.Locale `json:"locale"`
 	// Posts for the current page.
 	Nodes []*Post `json:"nodes"`
 	// Engagement metrics keyed by post identifier for the returned posts.
@@ -181,7 +184,7 @@ type PostResult struct {
 	// Operation status such as success, not-found, or failed.
 	Status ContentQueryStatus `json:"status"`
 	// Locale used to resolve the response.
-	Locale Locale `json:"locale"`
+	Locale scalars.Locale `json:"locale"`
 	// Resolved post when found.
 	Node *Post `json:"node,omitempty"`
 	// Engagement counters for the resolved post when available.
@@ -213,7 +216,7 @@ type Topic struct {
 	// Badge color token.
 	Color string `json:"color"`
 	// Optional topic route or external link.
-	Link *string `json:"link,omitempty"`
+	Link *scalars.URL `json:"link,omitempty"`
 }
 
 // Moderation state attached to stored comments.
@@ -480,51 +483,49 @@ func (e ContentQueryStatus) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// Supported application locales.
-type Locale string
+// Supported content source values.
+type ContentSource string
 
 const (
-	// English locale.
-	LocaleEn Locale = "EN"
-	// Turkish locale.
-	LocaleTr Locale = "TR"
+	ContentSourceBlog   ContentSource = "blog"
+	ContentSourceMedium ContentSource = "medium"
 )
 
-var AllLocale = []Locale{
-	LocaleEn,
-	LocaleTr,
+var AllContentSource = []ContentSource{
+	ContentSourceBlog,
+	ContentSourceMedium,
 }
 
-func (e Locale) IsValid() bool {
+func (e ContentSource) IsValid() bool {
 	switch e {
-	case LocaleEn, LocaleTr:
+	case ContentSourceBlog, ContentSourceMedium:
 		return true
 	}
 	return false
 }
 
-func (e Locale) String() string {
+func (e ContentSource) String() string {
 	return string(e)
 }
 
-func (e *Locale) UnmarshalGQL(v any) error {
+func (e *ContentSource) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = Locale(str)
+	*e = ContentSource(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid Locale", str)
+		return fmt.Errorf("%s is not a valid ContentSource", str)
 	}
 	return nil
 }
 
-func (e Locale) MarshalGQL(w io.Writer) {
+func (e ContentSource) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-func (e *Locale) UnmarshalJSON(b []byte) error {
+func (e *ContentSource) UnmarshalJSON(b []byte) error {
 	s, err := strconv.Unquote(string(b))
 	if err != nil {
 		return err
@@ -532,7 +533,7 @@ func (e *Locale) UnmarshalJSON(b []byte) error {
 	return e.UnmarshalGQL(s)
 }
 
-func (e Locale) MarshalJSON() ([]byte, error) {
+func (e ContentSource) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

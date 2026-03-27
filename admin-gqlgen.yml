@@ -19,6 +19,18 @@ resolver:
 skip_mod_tidy: true
 
 models:
+  Date:
+    model:
+      - suaybsimsek.com/blog-api/pkg/graphql/scalars.Date
   DateTime:
     model:
       - time.Time
+  Email:
+    model:
+      - suaybsimsek.com/blog-api/pkg/graphql/scalars.Email
+  Locale:
+    model:
+      - suaybsimsek.com/blog-api/pkg/graphql/scalars.Locale
+  URL:
+    model:
+      - suaybsimsek.com/blog-api/pkg/graphql/scalars.URL
