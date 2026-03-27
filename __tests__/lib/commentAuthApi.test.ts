@@ -115,7 +115,7 @@ describe('commentAuthApi', () => {
 
     expect(() => beginCommentOAuthLogin('github', ' TR ', '/tr/posts/test?draft=true', false)).not.toThrow();
 
-    expect(withBasePathMock).toHaveBeenCalledWith('/api/github/connect');
+    expect(withBasePathMock).toHaveBeenCalledWith('/api/oauth/connect');
     expect(consoleErrorSpy).toHaveBeenCalled();
     consoleErrorSpy.mockRestore();
   });

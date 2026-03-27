@@ -18,6 +18,14 @@
       "destination": "/api/admin-graphql"
     },
     {
+      "source": "/api/google/connect",
+      "destination": "/api/oauth/connect?provider=google"
+    },
+    {
+      "source": "/api/github/connect",
+      "destination": "/api/oauth/connect?provider=github"
+    },
+    {
       "source": "/api/media/:id",
       "destination": "/api/media?id=:id"
     },

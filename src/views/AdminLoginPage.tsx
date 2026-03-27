@@ -186,7 +186,7 @@ export default function AdminLoginPage() {
   const handleGoogleLogin = React.useCallback(() => {
     globalThis.location.assign(
       withBasePath(
-        `/api/google/connect?flow=admin&intent=login&locale=${encodeURIComponent(locale)}&rememberMe=${
+        `/api/oauth/connect?provider=google&flow=admin&intent=login&locale=${encodeURIComponent(locale)}&rememberMe=${
           rememberMe ? '1' : '0'
         }`,
       ),
@@ -196,7 +196,7 @@ export default function AdminLoginPage() {
   const handleGithubLogin = React.useCallback(() => {
     globalThis.location.assign(
       withBasePath(
-        `/api/github/connect?flow=admin&intent=login&locale=${encodeURIComponent(locale)}&rememberMe=${
+        `/api/oauth/connect?provider=github&flow=admin&intent=login&locale=${encodeURIComponent(locale)}&rememberMe=${
           rememberMe ? '1' : '0'
         }`,
       ),

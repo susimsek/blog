@@ -81,7 +81,8 @@ export const beginCommentOAuthLogin = (
     rememberMe: rememberMe ? 'true' : 'false',
   });
 
-  const endpoint = getApiEndpoint(`/api/${provider}/connect`);
+  const endpoint = getApiEndpoint('/api/oauth/connect');
+  params.set('provider', provider);
   params.set('flow', 'reader');
   globalThis.window.location.assign(`${endpoint}?${params.toString()}`);
 };

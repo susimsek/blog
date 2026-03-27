@@ -14,12 +14,11 @@ import (
 	adminpasswordresetconfirmapi "suaybsimsek.com/blog-api/api/admin-password-reset/confirm"
 	adminpasswordresetrequestapi "suaybsimsek.com/blog-api/api/admin-password-reset/request"
 	githubcallbackapi "suaybsimsek.com/blog-api/api/github/callback"
-	githubconnectapi "suaybsimsek.com/blog-api/api/github/connect"
 	googlecallbackapi "suaybsimsek.com/blog-api/api/google/callback"
-	googleconnectapi "suaybsimsek.com/blog-api/api/google/connect"
 	graphqlapi "suaybsimsek.com/blog-api/api/graphql"
 	mediaapi "suaybsimsek.com/blog-api/api/media"
 	newsletterdispatch "suaybsimsek.com/blog-api/api/newsletter-dispatch"
+	oauthconnectapi "suaybsimsek.com/blog-api/api/oauth/connect"
 	readerauthapi "suaybsimsek.com/blog-api/api/reader-auth"
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 )
@@ -69,9 +68,10 @@ func main() {
 	mux.HandleFunc("/api/admin-email-change/confirm", adminemailchangeapi.Handler)
 	mux.HandleFunc("/api/admin-password-reset/request", adminpasswordresetrequestapi.Handler)
 	mux.HandleFunc("/api/admin-password-reset/confirm", adminpasswordresetconfirmapi.Handler)
-	mux.HandleFunc("/api/github/connect", githubconnectapi.Handler)
+	mux.HandleFunc("/api/oauth/connect", oauthconnectapi.Handler)
+	mux.HandleFunc("/api/github/connect", oauthconnectapi.Handler)
 	mux.HandleFunc("/api/github/callback", githubcallbackapi.Handler)
-	mux.HandleFunc("/api/google/connect", googleconnectapi.Handler)
+	mux.HandleFunc("/api/google/connect", oauthconnectapi.Handler)
 	mux.HandleFunc("/api/google/callback", googlecallbackapi.Handler)
 	mux.HandleFunc("/api/media", mediaapi.Handler)
 	mux.HandleFunc("/api/media/", mediaapi.Handler)

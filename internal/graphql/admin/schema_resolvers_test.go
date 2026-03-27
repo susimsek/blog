@@ -944,7 +944,7 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 		if user.ID != "admin-1" || locale != "tr" {
 			t.Fatalf("unexpected google connect input: %q %#v", locale, user)
 		}
-		return &appservice.AdminGoogleConnectResult{URL: "/api/google/connect"}, nil
+		return &appservice.AdminGoogleConnectResult{URL: "/api/oauth/connect?provider=google"}, nil
 	}
 	disconnectAdminGoogleAccountFn = func(_ context.Context, user *domain.AdminUser) (*domain.AdminUser, error) {
 		if user.ID != "admin-1" {
@@ -956,7 +956,7 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 		if user.ID != "admin-1" || locale != "tr" {
 			t.Fatalf("unexpected github connect input: %q %#v", locale, user)
 		}
-		return &appservice.AdminGithubConnectResult{URL: "/api/github/connect"}, nil
+		return &appservice.AdminGithubConnectResult{URL: "/api/oauth/connect?provider=github"}, nil
 	}
 	disconnectAdminGithubAccountFn = func(_ context.Context, user *domain.AdminUser) (*domain.AdminUser, error) {
 		if user.ID != "admin-1" {
@@ -1049,7 +1049,7 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 	}
 
 	googleConnectResult, err := mutationResolver.StartGoogleConnect(authCtx, model.AdminStartGoogleConnectInput{Locale: localePtr(" tr ")})
-	if err != nil || googleConnectResult.URL != "/api/google/connect" {
+	if err != nil || googleConnectResult.URL != "/api/oauth/connect?provider=google" {
 		t.Fatalf("StartGoogleConnect() = %#v, %v", googleConnectResult, err)
 	}
 
@@ -1059,7 +1059,7 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 	}
 
 	githubConnectResult, err := mutationResolver.StartGithubConnect(authCtx, model.AdminStartGithubConnectInput{Locale: localePtr(" tr ")})
-	if err != nil || githubConnectResult.URL != "/api/github/connect" {
+	if err != nil || githubConnectResult.URL != "/api/oauth/connect?provider=github" {
 		t.Fatalf("StartGithubConnect() = %#v, %v", githubConnectResult, err)
 	}
 

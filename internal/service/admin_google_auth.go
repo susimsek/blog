@@ -142,7 +142,7 @@ func StartAdminGoogleConnect(
 	}
 
 	return &AdminGoogleConnectResult{
-		URL: "/api/google/connect?flow=admin&intent=connect&locale=" + url.QueryEscape(strings.TrimSpace(locale)),
+		URL: "/api/oauth/connect?provider=google&flow=admin&intent=connect&locale=" + url.QueryEscape(strings.TrimSpace(locale)),
 	}, nil
 }
 
