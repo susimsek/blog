@@ -1106,10 +1106,10 @@ func buildAdminEmailChangeConfirmURL(siteURL, token, locale string) (string, err
 		return "", errors.New("invalid SITE_URL")
 	}
 
-	parsed.Path = strings.TrimRight(parsed.Path, "/") + "/api/admin-email-change/confirm"
+	resolvedLocale := newsletterpkg.ResolveLocale(locale, "")
+	parsed.Path = strings.TrimRight(parsed.Path, "/") + "/" + resolvedLocale + "/admin/email-change"
 	query := parsed.Query()
 	query.Set("token", strings.TrimSpace(token))
-	query.Set("locale", newsletterpkg.ResolveLocale(locale, ""))
 	parsed.RawQuery = query.Encode()
 
 	return parsed.String(), nil

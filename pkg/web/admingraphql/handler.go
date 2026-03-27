@@ -183,5 +183,9 @@ func isCSRFExemptOperation(r *http.Request) bool {
 	}
 
 	trimmedQuery := strings.TrimSpace(payload.Query)
-	return strings.Contains(trimmedQuery, "mutation AdminLogin") || strings.Contains(trimmedQuery, "mutation AdminRefreshSession")
+	return strings.Contains(trimmedQuery, "mutation AdminLogin") ||
+		strings.Contains(trimmedQuery, "mutation AdminRefreshSession") ||
+		strings.Contains(trimmedQuery, "mutation AdminConfirmEmailChange") ||
+		strings.Contains(trimmedQuery, "mutation AdminRequestPasswordReset") ||
+		strings.Contains(trimmedQuery, "mutation AdminConfirmPasswordReset")
 }

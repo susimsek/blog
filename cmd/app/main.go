@@ -9,10 +9,7 @@ import (
 	"strings"
 
 	adminavatarapi "suaybsimsek.com/blog-api/api/admin-avatar"
-	adminemailchangeapi "suaybsimsek.com/blog-api/api/admin-email-change"
 	admingraphqlapi "suaybsimsek.com/blog-api/api/admin-graphql"
-	adminpasswordresetconfirmapi "suaybsimsek.com/blog-api/api/admin-password-reset/confirm"
-	adminpasswordresetrequestapi "suaybsimsek.com/blog-api/api/admin-password-reset/request"
 	githubcallbackapi "suaybsimsek.com/blog-api/api/github/callback"
 	googlecallbackapi "suaybsimsek.com/blog-api/api/google/callback"
 	graphqlapi "suaybsimsek.com/blog-api/api/graphql"
@@ -65,9 +62,6 @@ func main() {
 	mux.HandleFunc("/api/graphql", graphqlapi.Handler)
 	mux.HandleFunc("/api/admin/graphql", admingraphqlapi.Handler)
 	mux.HandleFunc("/api/admin-avatar", adminavatarapi.Handler)
-	mux.HandleFunc("/api/admin-email-change/confirm", adminemailchangeapi.Handler)
-	mux.HandleFunc("/api/admin-password-reset/request", adminpasswordresetrequestapi.Handler)
-	mux.HandleFunc("/api/admin-password-reset/confirm", adminpasswordresetconfirmapi.Handler)
 	mux.HandleFunc("/api/oauth/connect", oauthconnectapi.Handler)
 	mux.HandleFunc("/api/github/connect", oauthconnectapi.Handler)
 	mux.HandleFunc("/api/github/callback", githubcallbackapi.Handler)

@@ -65,7 +65,6 @@ This repository is a multilingual blog platform with a static-exported Next.js f
 - `api/graphql/index.go`: GraphQL + GraphiQL HTTP handler
 - `api/admin-graphql/index.go`: admin GraphQL HTTP handler
 - `api/admin-avatar/index.go`: admin avatar endpoint
-- `api/admin-email-change/index.go`: admin email change confirmation endpoint
 - `api/github/*`, `api/google/*`: reader OAuth connect/callback handlers
 - `api/reader-auth/index.go`: reader session/logout endpoint
 - `api/newsletter-dispatch/index.go`: newsletter dispatch endpoint
@@ -162,11 +161,10 @@ Routes registered by `cmd/app/main.go`:
 
 ### Admin
 
-| Method             | Path                              | Purpose                          |
-| ------------------ | --------------------------------- | -------------------------------- |
-| `GET/POST/OPTIONS` | `/api/admin/graphql`              | Admin GraphQL endpoint.          |
-| `GET/HEAD/OPTIONS` | `/api/admin-avatar`               | Admin avatar fetch endpoint.     |
-| `GET`              | `/api/admin-email-change/confirm` | Admin email change confirmation. |
+| Method             | Path                 | Purpose                      |
+| ------------------ | -------------------- | ---------------------------- |
+| `GET/POST/OPTIONS` | `/api/admin/graphql` | Admin GraphQL endpoint.      |
+| `GET/HEAD/OPTIONS` | `/api/admin-avatar`  | Admin avatar fetch endpoint. |
 
 ### Shared and System
 

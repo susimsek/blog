@@ -21,6 +21,7 @@ import (
 )
 
 var (
+	validateAdminPasswordResetTokenFn       = appservice.ValidateAdminPasswordResetToken
 	queryAdminGoogleAuthStatusFn            = appservice.QueryAdminGoogleAuthStatus
 	queryAdminGithubAuthStatusFn            = appservice.QueryAdminGithubAuthStatus
 	queryAdminDashboardFn                   = appservice.QueryAdminDashboard
@@ -45,10 +46,13 @@ var (
 	disconnectAdminGithubAccountFn          = appservice.DisconnectAdminGithubAccount
 	refreshAdminSessionFn                   = appservice.RefreshAdminSession
 	logoutAdminFn                           = appservice.LogoutAdmin
+	requestAdminPasswordResetFn             = appservice.RequestAdminPasswordReset
+	resetAdminPasswordWithTokenFn           = appservice.ResetAdminPasswordWithToken
 	changeAdminNameFn                       = appservice.ChangeAdminName
 	changeAdminAvatarFn                     = appservice.ChangeAdminAvatar
 	changeAdminUsernameFn                   = appservice.ChangeAdminUsername
 	requestAdminEmailChangeFn               = appservice.RequestAdminEmailChange
+	confirmAdminEmailChangeFn               = appservice.ConfirmAdminEmailChange
 	deleteAdminAccountFn                    = appservice.DeleteAdminAccount
 	changeAdminPasswordFn                   = appservice.ChangeAdminPassword
 	revokeAdminSessionFn                    = appservice.RevokeAdminSession
@@ -86,6 +90,23 @@ func (r *adminQueryResolver) Me(ctx context.Context) (*model.AdminMe, error) {
 	return &model.AdminMe{
 		Authenticated: true,
 		User:          mapAdminUser(user),
+	}, nil
+}
+
+// ValidatePasswordResetToken is the resolver for the validatePasswordResetToken field.
+func (r *adminQueryResolver) ValidatePasswordResetToken(
+	ctx context.Context,
+	token string,
+	locale *appscalars.Locale,
+) (*model.AdminPasswordResetValidationPayload, error) {
+	result, err := validateAdminPasswordResetTokenFn(ctx, strings.TrimSpace(token), localePointerValue(locale))
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AdminPasswordResetValidationPayload{
+		Status: strings.TrimSpace(result.Status),
+		Locale: appscalars.Locale(appscalars.NormalizeLocaleOutput(result.Locale)),
 	}, nil
 }
 
@@ -745,6 +766,57 @@ func (r *adminMutationResolver) Logout(ctx context.Context) (*model.AdminLogoutP
 	clearAdminSessionCookies(responseWriter, config)
 
 	return &model.AdminLogoutPayload{Success: true}, nil
+}
+
+// RequestPasswordReset is the resolver for the requestPasswordReset field.
+func (r *adminMutationResolver) RequestPasswordReset(
+	ctx context.Context,
+	input model.AdminRequestPasswordResetInput,
+) (*model.AdminPasswordResetRequestPayload, error) {
+	if err := requestAdminPasswordResetFn(ctx, string(input.Email), localePointerValue(input.Locale)); err != nil {
+		return nil, err
+	}
+
+	return &model.AdminPasswordResetRequestPayload{Success: true}, nil
+}
+
+// ConfirmEmailChange is the resolver for the confirmEmailChange field.
+func (r *adminMutationResolver) ConfirmEmailChange(
+	ctx context.Context,
+	token string,
+	locale *appscalars.Locale,
+) (*model.AdminEmailChangeConfirmPayload, error) {
+	result, err := confirmAdminEmailChangeFn(ctx, strings.TrimSpace(token), localePointerValue(locale))
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AdminEmailChangeConfirmPayload{
+		Status: strings.TrimSpace(result.Status),
+		Locale: appscalars.Locale(appscalars.NormalizeLocaleOutput(result.Locale)),
+	}, nil
+}
+
+// ConfirmPasswordReset is the resolver for the confirmPasswordReset field.
+func (r *adminMutationResolver) ConfirmPasswordReset(
+	ctx context.Context,
+	input model.AdminConfirmPasswordResetInput,
+) (*model.AdminPasswordResetConfirmPayload, error) {
+	result, err := resetAdminPasswordWithTokenFn(
+		ctx,
+		strings.TrimSpace(input.Token),
+		input.NewPassword,
+		input.ConfirmPassword,
+		localePointerValue(input.Locale),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AdminPasswordResetConfirmPayload{
+		Success: result.Success,
+		Locale:  appscalars.Locale(appscalars.NormalizeLocaleOutput(result.Locale)),
+	}, nil
 }
 
 // ChangeName is the resolver for the changeName field.

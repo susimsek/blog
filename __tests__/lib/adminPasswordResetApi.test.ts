@@ -18,15 +18,38 @@ describe('adminPasswordResetApi', () => {
     const fetchMock = jest.mocked(global.fetch);
 
     fetchMock
-      .mockResolvedValueOnce({ ok: true } as Response)
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          status: 'success',
-          locale: 'en',
+          data: {
+            requestPasswordReset: {
+              success: true,
+            },
+          },
         }),
       } as Response)
-      .mockResolvedValueOnce({ ok: true } as Response);
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          data: {
+            validatePasswordResetToken: {
+              status: 'success',
+              locale: 'en',
+            },
+          },
+        }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          data: {
+            confirmPasswordReset: {
+              success: true,
+              locale: 'en',
+            },
+          },
+        }),
+      } as Response);
 
     await expect(requestAdminPasswordReset('admin@example.com', 'en')).resolves.toBe(true);
     await expect(validateAdminPasswordResetToken('reset-token', 'en')).resolves.toEqual({
@@ -35,33 +58,61 @@ describe('adminPasswordResetApi', () => {
     });
     await expect(confirmAdminPasswordReset('reset-token', 'en', 'new-password', 'new-password')).resolves.toBe(true);
 
-    expect(fetchMock).toHaveBeenNthCalledWith(1, '/base/api/admin-password-reset/request', {
+    expect(fetchMock).toHaveBeenNthCalledWith(1, '/base/api/admin/graphql', {
       method: 'POST',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        email: 'admin@example.com',
-        locale: 'en',
-      }),
+      body: expect.any(String),
     });
-    expect(fetchMock).toHaveBeenNthCalledWith(2, '/base/api/admin-password-reset/confirm?token=reset-token&locale=en', {
-      method: 'GET',
-      credentials: 'include',
+    expect(JSON.parse(fetchMock.mock.calls[0][1]?.body as string)).toEqual({
+      operationName: 'AdminRequestPasswordReset',
+      query: expect.stringContaining('mutation AdminRequestPasswordReset'),
+      variables: {
+        input: {
+          email: 'admin@example.com',
+          locale: 'en',
+        },
+      },
     });
-    expect(fetchMock).toHaveBeenNthCalledWith(3, '/base/api/admin-password-reset/confirm', {
+
+    expect(fetchMock).toHaveBeenNthCalledWith(2, '/base/api/admin/graphql', {
       method: 'POST',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
+      body: expect.any(String),
+    });
+    expect(JSON.parse(fetchMock.mock.calls[1][1]?.body as string)).toEqual({
+      operationName: 'AdminValidatePasswordResetToken',
+      query: expect.stringContaining('query AdminValidatePasswordResetToken'),
+      variables: {
         token: 'reset-token',
         locale: 'en',
-        newPassword: 'new-password',
-        confirmPassword: 'new-password',
-      }),
+      },
+    });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(3, '/base/api/admin/graphql', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: expect.any(String),
+    });
+    expect(JSON.parse(fetchMock.mock.calls[2][1]?.body as string)).toEqual({
+      operationName: 'AdminConfirmPasswordReset',
+      query: expect.stringContaining('mutation AdminConfirmPasswordReset'),
+      variables: {
+        input: {
+          token: 'reset-token',
+          locale: 'en',
+          newPassword: 'new-password',
+          confirmPassword: 'new-password',
+        },
+      },
     });
   });
 
@@ -78,13 +129,19 @@ describe('adminPasswordResetApi', () => {
       .mockResolvedValueOnce({
         ok: false,
         json: async () => ({
-          code: 'admin_password_reset_email_invalid',
-          message: 'Email invalid.',
+          errors: [
+            {
+              message: 'Email invalid.',
+              extensions: {
+                code: 'admin_password_reset_email_invalid',
+              },
+            },
+          ],
         }),
       } as Response)
       .mockRejectedValueOnce(new Error('network'))
       .mockResolvedValueOnce({
-        ok: false,
+        ok: true,
         json: async () => {
           throw new Error('invalid json');
         },

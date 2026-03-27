@@ -209,6 +209,11 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
+	AdminEmailChangeConfirmPayload struct {
+		Locale func(childComplexity int) int
+		Status func(childComplexity int) int
+	}
+
 	AdminEmailChangeRequestPayload struct {
 		ExpiresAt    func(childComplexity int) int
 		PendingEmail func(childComplexity int) int
@@ -315,6 +320,8 @@ type ComplexityRoot struct {
 		ChangeName                       func(childComplexity int, input model.AdminChangeNameInput) int
 		ChangePassword                   func(childComplexity int, input model.AdminChangePasswordInput) int
 		ChangeUsername                   func(childComplexity int, input model.AdminChangeUsernameInput) int
+		ConfirmEmailChange               func(childComplexity int, token string, locale *scalars.Locale) int
+		ConfirmPasswordReset             func(childComplexity int, input model.AdminConfirmPasswordResetInput) int
 		CreateContentCategory            func(childComplexity int, input model.AdminContentCategoryInput) int
 		CreateContentTopic               func(childComplexity int, input model.AdminContentTopicInput) int
 		CreateErrorMessage               func(childComplexity int, input model.AdminCreateErrorMessageInput) int
@@ -331,6 +338,7 @@ type ComplexityRoot struct {
 		Logout                           func(childComplexity int) int
 		RefreshAdminSession              func(childComplexity int) int
 		RequestEmailChange               func(childComplexity int, input model.AdminRequestEmailChangeInput) int
+		RequestPasswordReset             func(childComplexity int, input model.AdminRequestPasswordResetInput) int
 		RevokeAllSessions                func(childComplexity int) int
 		RevokeSession                    func(childComplexity int, sessionID string) int
 		SendTestNewsletter               func(childComplexity int, input model.AdminSendTestNewsletterInput) int
@@ -440,6 +448,20 @@ type ComplexityRoot struct {
 		Success func(childComplexity int) int
 	}
 
+	AdminPasswordResetConfirmPayload struct {
+		Locale  func(childComplexity int) int
+		Success func(childComplexity int) int
+	}
+
+	AdminPasswordResetRequestPayload struct {
+		Success func(childComplexity int) int
+	}
+
+	AdminPasswordResetValidationPayload struct {
+		Locale func(childComplexity int) int
+		Status func(childComplexity int) int
+	}
+
 	AdminQuery struct {
 		ActiveSessions             func(childComplexity int) int
 		Comments                   func(childComplexity int, filter *model.AdminCommentFilterInput) int
@@ -459,6 +481,7 @@ type ComplexityRoot struct {
 		NewsletterCampaignFailures func(childComplexity int, filter model.AdminNewsletterDeliveryFailureFilterInput) int
 		NewsletterCampaigns        func(childComplexity int, filter *model.AdminNewsletterCampaignFilterInput) int
 		NewsletterSubscribers      func(childComplexity int, filter *model.AdminNewsletterSubscriberFilterInput) int
+		ValidatePasswordResetToken func(childComplexity int, token string, locale *scalars.Locale) int
 	}
 
 	AdminSession struct {
@@ -499,6 +522,9 @@ type AdminMutationResolver interface {
 	Login(ctx context.Context, input model.AdminLoginInput) (*model.AdminAuthPayload, error)
 	RefreshAdminSession(ctx context.Context) (*model.AdminAuthPayload, error)
 	Logout(ctx context.Context) (*model.AdminLogoutPayload, error)
+	RequestPasswordReset(ctx context.Context, input model.AdminRequestPasswordResetInput) (*model.AdminPasswordResetRequestPayload, error)
+	ConfirmPasswordReset(ctx context.Context, input model.AdminConfirmPasswordResetInput) (*model.AdminPasswordResetConfirmPayload, error)
+	ConfirmEmailChange(ctx context.Context, token string, locale *scalars.Locale) (*model.AdminEmailChangeConfirmPayload, error)
 	StartGoogleConnect(ctx context.Context, input model.AdminStartGoogleConnectInput) (*model.AdminGoogleConnectPayload, error)
 	DisconnectGoogle(ctx context.Context) (*model.AdminGoogleDisconnectPayload, error)
 	StartGithubConnect(ctx context.Context, input model.AdminStartGithubConnectInput) (*model.AdminGithubConnectPayload, error)
@@ -535,6 +561,7 @@ type AdminMutationResolver interface {
 }
 type AdminQueryResolver interface {
 	Me(ctx context.Context) (*model.AdminMe, error)
+	ValidatePasswordResetToken(ctx context.Context, token string, locale *scalars.Locale) (*model.AdminPasswordResetValidationPayload, error)
 	GoogleAuthStatus(ctx context.Context) (*model.AdminGoogleAuthStatus, error)
 	GithubAuthStatus(ctx context.Context) (*model.AdminGithubAuthStatus, error)
 	Dashboard(ctx context.Context) (*model.AdminDashboard, error)
@@ -1193,6 +1220,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.AdminDeletePayload.Success(childComplexity), true
 
+	case "AdminEmailChangeConfirmPayload.locale":
+		if e.complexity.AdminEmailChangeConfirmPayload.Locale == nil {
+			break
+		}
+
+		return e.complexity.AdminEmailChangeConfirmPayload.Locale(childComplexity), true
+	case "AdminEmailChangeConfirmPayload.status":
+		if e.complexity.AdminEmailChangeConfirmPayload.Status == nil {
+			break
+		}
+
+		return e.complexity.AdminEmailChangeConfirmPayload.Status(childComplexity), true
+
 	case "AdminEmailChangeRequestPayload.expiresAt":
 		if e.complexity.AdminEmailChangeRequestPayload.ExpiresAt == nil {
 			break
@@ -1615,6 +1655,28 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.ChangeUsername(childComplexity, args["input"].(model.AdminChangeUsernameInput)), true
+	case "AdminMutation.confirmEmailChange":
+		if e.complexity.AdminMutation.ConfirmEmailChange == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_confirmEmailChange_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.ConfirmEmailChange(childComplexity, args["token"].(string), args["locale"].(*scalars.Locale)), true
+	case "AdminMutation.confirmPasswordReset":
+		if e.complexity.AdminMutation.ConfirmPasswordReset == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_confirmPasswordReset_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.ConfirmPasswordReset(childComplexity, args["input"].(model.AdminConfirmPasswordResetInput)), true
 	case "AdminMutation.createContentCategory":
 		if e.complexity.AdminMutation.CreateContentCategory == nil {
 			break
@@ -1771,6 +1833,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.RequestEmailChange(childComplexity, args["input"].(model.AdminRequestEmailChangeInput)), true
+	case "AdminMutation.requestPasswordReset":
+		if e.complexity.AdminMutation.RequestPasswordReset == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_requestPasswordReset_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.RequestPasswordReset(childComplexity, args["input"].(model.AdminRequestPasswordResetInput)), true
 	case "AdminMutation.revokeAllSessions":
 		if e.complexity.AdminMutation.RevokeAllSessions == nil {
 			break
@@ -2304,6 +2377,39 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.AdminPasswordChangePayload.Success(childComplexity), true
 
+	case "AdminPasswordResetConfirmPayload.locale":
+		if e.complexity.AdminPasswordResetConfirmPayload.Locale == nil {
+			break
+		}
+
+		return e.complexity.AdminPasswordResetConfirmPayload.Locale(childComplexity), true
+	case "AdminPasswordResetConfirmPayload.success":
+		if e.complexity.AdminPasswordResetConfirmPayload.Success == nil {
+			break
+		}
+
+		return e.complexity.AdminPasswordResetConfirmPayload.Success(childComplexity), true
+
+	case "AdminPasswordResetRequestPayload.success":
+		if e.complexity.AdminPasswordResetRequestPayload.Success == nil {
+			break
+		}
+
+		return e.complexity.AdminPasswordResetRequestPayload.Success(childComplexity), true
+
+	case "AdminPasswordResetValidationPayload.locale":
+		if e.complexity.AdminPasswordResetValidationPayload.Locale == nil {
+			break
+		}
+
+		return e.complexity.AdminPasswordResetValidationPayload.Locale(childComplexity), true
+	case "AdminPasswordResetValidationPayload.status":
+		if e.complexity.AdminPasswordResetValidationPayload.Status == nil {
+			break
+		}
+
+		return e.complexity.AdminPasswordResetValidationPayload.Status(childComplexity), true
+
 	case "AdminQuery.activeSessions":
 		if e.complexity.AdminQuery.ActiveSessions == nil {
 			break
@@ -2477,6 +2583,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminQuery.NewsletterSubscribers(childComplexity, args["filter"].(*model.AdminNewsletterSubscriberFilterInput)), true
+	case "AdminQuery.validatePasswordResetToken":
+		if e.complexity.AdminQuery.ValidatePasswordResetToken == nil {
+			break
+		}
+
+		args, err := ec.field_AdminQuery_validatePasswordResetToken_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminQuery.ValidatePasswordResetToken(childComplexity, args["token"].(string), args["locale"].(*scalars.Locale)), true
 
 	case "AdminSession.countryCode":
 		if e.complexity.AdminSession.CountryCode == nil {
@@ -2640,6 +2757,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAdminChangePasswordInput,
 		ec.unmarshalInputAdminChangeUsernameInput,
 		ec.unmarshalInputAdminCommentFilterInput,
+		ec.unmarshalInputAdminConfirmPasswordResetInput,
 		ec.unmarshalInputAdminContentCategoryInput,
 		ec.unmarshalInputAdminContentEntityKeyInput,
 		ec.unmarshalInputAdminContentPostFilterInput,
@@ -2657,6 +2775,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAdminNewsletterDeliveryFailureFilterInput,
 		ec.unmarshalInputAdminNewsletterSubscriberFilterInput,
 		ec.unmarshalInputAdminRequestEmailChangeInput,
+		ec.unmarshalInputAdminRequestPasswordResetInput,
 		ec.unmarshalInputAdminSendTestNewsletterInput,
 		ec.unmarshalInputAdminStartGithubConnectInput,
 		ec.unmarshalInputAdminStartGoogleConnectInput,
@@ -2848,6 +2967,33 @@ func (ec *executionContext) field_AdminMutation_changeUsername_args(ctx context.
 	return args, nil
 }
 
+func (ec *executionContext) field_AdminMutation_confirmEmailChange_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "token", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["token"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale)
+	if err != nil {
+		return nil, err
+	}
+	args["locale"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminMutation_confirmPasswordReset_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminConfirmPasswordResetInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminConfirmPasswordResetInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_AdminMutation_createContentCategory_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -2973,6 +3119,17 @@ func (ec *executionContext) field_AdminMutation_requestEmailChange_args(ctx cont
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminRequestEmailChangeInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminRequestEmailChangeInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminMutation_requestPasswordReset_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminRequestPasswordResetInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminRequestPasswordResetInput)
 	if err != nil {
 		return nil, err
 	}
@@ -3268,6 +3425,22 @@ func (ec *executionContext) field_AdminQuery_newsletterSubscribers_args(ctx cont
 		return nil, err
 	}
 	args["filter"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminQuery_validatePasswordResetToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "token", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["token"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "locale", ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale)
+	if err != nil {
+		return nil, err
+	}
+	args["locale"] = arg1
 	return args, nil
 }
 
@@ -6581,6 +6754,64 @@ func (ec *executionContext) fieldContext_AdminDeletePayload_success(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminEmailChangeConfirmPayload_status(ctx context.Context, field graphql.CollectedField, obj *model.AdminEmailChangeConfirmPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminEmailChangeConfirmPayload_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminEmailChangeConfirmPayload_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminEmailChangeConfirmPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminEmailChangeConfirmPayload_locale(ctx context.Context, field graphql.CollectedField, obj *model.AdminEmailChangeConfirmPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminEmailChangeConfirmPayload_locale,
+		func(ctx context.Context) (any, error) {
+			return obj.Locale, nil
+		},
+		nil,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminEmailChangeConfirmPayload_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminEmailChangeConfirmPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Locale does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminEmailChangeRequestPayload_success(ctx context.Context, field graphql.CollectedField, obj *model.AdminEmailChangeRequestPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -8473,6 +8704,145 @@ func (ec *executionContext) fieldContext_AdminMutation_logout(_ context.Context,
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminLogoutPayload", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_requestPasswordReset(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_requestPasswordReset,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().RequestPasswordReset(ctx, fc.Args["input"].(model.AdminRequestPasswordResetInput))
+		},
+		nil,
+		ec.marshalNAdminPasswordResetRequestPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminPasswordResetRequestPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_requestPasswordReset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_AdminPasswordResetRequestPayload_success(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminPasswordResetRequestPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_requestPasswordReset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_confirmPasswordReset(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_confirmPasswordReset,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().ConfirmPasswordReset(ctx, fc.Args["input"].(model.AdminConfirmPasswordResetInput))
+		},
+		nil,
+		ec.marshalNAdminPasswordResetConfirmPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminPasswordResetConfirmPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_confirmPasswordReset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_AdminPasswordResetConfirmPayload_success(ctx, field)
+			case "locale":
+				return ec.fieldContext_AdminPasswordResetConfirmPayload_locale(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminPasswordResetConfirmPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_confirmPasswordReset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_confirmEmailChange(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_confirmEmailChange,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().ConfirmEmailChange(ctx, fc.Args["token"].(string), fc.Args["locale"].(*scalars.Locale))
+		},
+		nil,
+		ec.marshalNAdminEmailChangeConfirmPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminEmailChangeConfirmPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_confirmEmailChange(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "status":
+				return ec.fieldContext_AdminEmailChangeConfirmPayload_status(ctx, field)
+			case "locale":
+				return ec.fieldContext_AdminEmailChangeConfirmPayload_locale(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminEmailChangeConfirmPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_confirmEmailChange_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -12053,6 +12423,151 @@ func (ec *executionContext) fieldContext_AdminPasswordChangePayload_success(_ co
 	return fc, nil
 }
 
+func (ec *executionContext) _AdminPasswordResetConfirmPayload_success(ctx context.Context, field graphql.CollectedField, obj *model.AdminPasswordResetConfirmPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminPasswordResetConfirmPayload_success,
+		func(ctx context.Context) (any, error) {
+			return obj.Success, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminPasswordResetConfirmPayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminPasswordResetConfirmPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminPasswordResetConfirmPayload_locale(ctx context.Context, field graphql.CollectedField, obj *model.AdminPasswordResetConfirmPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminPasswordResetConfirmPayload_locale,
+		func(ctx context.Context) (any, error) {
+			return obj.Locale, nil
+		},
+		nil,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminPasswordResetConfirmPayload_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminPasswordResetConfirmPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Locale does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminPasswordResetRequestPayload_success(ctx context.Context, field graphql.CollectedField, obj *model.AdminPasswordResetRequestPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminPasswordResetRequestPayload_success,
+		func(ctx context.Context) (any, error) {
+			return obj.Success, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminPasswordResetRequestPayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminPasswordResetRequestPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminPasswordResetValidationPayload_status(ctx context.Context, field graphql.CollectedField, obj *model.AdminPasswordResetValidationPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminPasswordResetValidationPayload_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminPasswordResetValidationPayload_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminPasswordResetValidationPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminPasswordResetValidationPayload_locale(ctx context.Context, field graphql.CollectedField, obj *model.AdminPasswordResetValidationPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminPasswordResetValidationPayload_locale,
+		func(ctx context.Context) (any, error) {
+			return obj.Locale, nil
+		},
+		nil,
+		ec.marshalNLocale2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminPasswordResetValidationPayload_locale(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminPasswordResetValidationPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Locale does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _AdminQuery_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -12084,6 +12599,53 @@ func (ec *executionContext) fieldContext_AdminQuery_me(_ context.Context, field 
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminMe", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminQuery_validatePasswordResetToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminQuery_validatePasswordResetToken,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminQuery().ValidatePasswordResetToken(ctx, fc.Args["token"].(string), fc.Args["locale"].(*scalars.Locale))
+		},
+		nil,
+		ec.marshalNAdminPasswordResetValidationPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminPasswordResetValidationPayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminQuery_validatePasswordResetToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "status":
+				return ec.fieldContext_AdminPasswordResetValidationPayload_status(ctx, field)
+			case "locale":
+				return ec.fieldContext_AdminPasswordResetValidationPayload_locale(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminPasswordResetValidationPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminQuery_validatePasswordResetToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -15465,6 +16027,54 @@ func (ec *executionContext) unmarshalInputAdminCommentFilterInput(ctx context.Co
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputAdminConfirmPasswordResetInput(ctx context.Context, obj any) (model.AdminConfirmPasswordResetInput, error) {
+	var it model.AdminConfirmPasswordResetInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"token", "newPassword", "confirmPassword", "locale"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "token":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("token"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Token = data
+		case "newPassword":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("newPassword"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NewPassword = data
+		case "confirmPassword":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confirmPassword"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ConfirmPassword = data
+		case "locale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
+			data, err := ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locale = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputAdminContentCategoryInput(ctx context.Context, obj any) (model.AdminContentCategoryInput, error) {
 	var it model.AdminContentCategoryInput
 	asMap := map[string]any{}
@@ -16233,6 +16843,40 @@ func (ec *executionContext) unmarshalInputAdminRequestEmailChangeInput(ctx conte
 				return it, err
 			}
 			it.CurrentPassword = data
+		case "locale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
+			data, err := ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Locale = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputAdminRequestPasswordResetInput(ctx context.Context, obj any) (model.AdminRequestPasswordResetInput, error) {
+	var it model.AdminRequestPasswordResetInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email", "locale"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNEmail2suaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐEmail(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
 		case "locale":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("locale"))
 			data, err := ec.unmarshalOLocale2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋpkgᚋgraphqlᚋscalarsᚐLocale(ctx, v)
@@ -17720,6 +18364,50 @@ func (ec *executionContext) _AdminDeletePayload(ctx context.Context, sel ast.Sel
 	return out
 }
 
+var adminEmailChangeConfirmPayloadImplementors = []string{"AdminEmailChangeConfirmPayload"}
+
+func (ec *executionContext) _AdminEmailChangeConfirmPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminEmailChangeConfirmPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminEmailChangeConfirmPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminEmailChangeConfirmPayload")
+		case "status":
+			out.Values[i] = ec._AdminEmailChangeConfirmPayload_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "locale":
+			out.Values[i] = ec._AdminEmailChangeConfirmPayload_locale(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var adminEmailChangeRequestPayloadImplementors = []string{"AdminEmailChangeRequestPayload"}
 
 func (ec *executionContext) _AdminEmailChangeRequestPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminEmailChangeRequestPayload) graphql.Marshaler {
@@ -18475,6 +19163,27 @@ func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.Selectio
 		case "logout":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._AdminMutation_logout(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "requestPasswordReset":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_requestPasswordReset(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "confirmPasswordReset":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_confirmPasswordReset(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "confirmEmailChange":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_confirmEmailChange(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -19322,6 +20031,133 @@ func (ec *executionContext) _AdminPasswordChangePayload(ctx context.Context, sel
 	return out
 }
 
+var adminPasswordResetConfirmPayloadImplementors = []string{"AdminPasswordResetConfirmPayload"}
+
+func (ec *executionContext) _AdminPasswordResetConfirmPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminPasswordResetConfirmPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminPasswordResetConfirmPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminPasswordResetConfirmPayload")
+		case "success":
+			out.Values[i] = ec._AdminPasswordResetConfirmPayload_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "locale":
+			out.Values[i] = ec._AdminPasswordResetConfirmPayload_locale(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminPasswordResetRequestPayloadImplementors = []string{"AdminPasswordResetRequestPayload"}
+
+func (ec *executionContext) _AdminPasswordResetRequestPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminPasswordResetRequestPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminPasswordResetRequestPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminPasswordResetRequestPayload")
+		case "success":
+			out.Values[i] = ec._AdminPasswordResetRequestPayload_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminPasswordResetValidationPayloadImplementors = []string{"AdminPasswordResetValidationPayload"}
+
+func (ec *executionContext) _AdminPasswordResetValidationPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AdminPasswordResetValidationPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminPasswordResetValidationPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminPasswordResetValidationPayload")
+		case "status":
+			out.Values[i] = ec._AdminPasswordResetValidationPayload_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "locale":
+			out.Values[i] = ec._AdminPasswordResetValidationPayload_locale(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var adminQueryImplementors = []string{"AdminQuery"}
 
 func (ec *executionContext) _AdminQuery(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -19351,6 +20187,28 @@ func (ec *executionContext) _AdminQuery(ctx context.Context, sel ast.SelectionSe
 					}
 				}()
 				res = ec._AdminQuery_me(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "validatePasswordResetToken":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AdminQuery_validatePasswordResetToken(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -20459,6 +21317,11 @@ func (ec *executionContext) marshalNAdminCommentStatus2suaybsimsekᚗcomᚋblog�
 	return v
 }
 
+func (ec *executionContext) unmarshalNAdminConfirmPasswordResetInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminConfirmPasswordResetInput(ctx context.Context, v any) (model.AdminConfirmPasswordResetInput, error) {
+	res, err := ec.unmarshalInputAdminConfirmPasswordResetInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNAdminContentCategory2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminContentCategory(ctx context.Context, sel ast.SelectionSet, v model.AdminContentCategory) graphql.Marshaler {
 	return ec._AdminContentCategory(ctx, sel, &v)
 }
@@ -20972,6 +21835,20 @@ func (ec *executionContext) marshalNAdminDeletePayload2ᚖsuaybsimsekᚗcomᚋbl
 		return graphql.Null
 	}
 	return ec._AdminDeletePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminEmailChangeConfirmPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminEmailChangeConfirmPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminEmailChangeConfirmPayload) graphql.Marshaler {
+	return ec._AdminEmailChangeConfirmPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminEmailChangeConfirmPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminEmailChangeConfirmPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminEmailChangeConfirmPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminEmailChangeConfirmPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNAdminEmailChangeRequestPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminEmailChangeRequestPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminEmailChangeRequestPayload) graphql.Marshaler {
@@ -21662,8 +22539,55 @@ func (ec *executionContext) marshalNAdminPasswordChangePayload2ᚖsuaybsimsekᚗ
 	return ec._AdminPasswordChangePayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAdminPasswordResetConfirmPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminPasswordResetConfirmPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminPasswordResetConfirmPayload) graphql.Marshaler {
+	return ec._AdminPasswordResetConfirmPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminPasswordResetConfirmPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminPasswordResetConfirmPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminPasswordResetConfirmPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminPasswordResetConfirmPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminPasswordResetRequestPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminPasswordResetRequestPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminPasswordResetRequestPayload) graphql.Marshaler {
+	return ec._AdminPasswordResetRequestPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminPasswordResetRequestPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminPasswordResetRequestPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminPasswordResetRequestPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminPasswordResetRequestPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminPasswordResetValidationPayload2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminPasswordResetValidationPayload(ctx context.Context, sel ast.SelectionSet, v model.AdminPasswordResetValidationPayload) graphql.Marshaler {
+	return ec._AdminPasswordResetValidationPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminPasswordResetValidationPayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminPasswordResetValidationPayload(ctx context.Context, sel ast.SelectionSet, v *model.AdminPasswordResetValidationPayload) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminPasswordResetValidationPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNAdminRequestEmailChangeInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminRequestEmailChangeInput(ctx context.Context, v any) (model.AdminRequestEmailChangeInput, error) {
 	res, err := ec.unmarshalInputAdminRequestEmailChangeInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNAdminRequestPasswordResetInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminRequestPasswordResetInput(ctx context.Context, v any) (model.AdminRequestPasswordResetInput, error) {
+	res, err := ec.unmarshalInputAdminRequestPasswordResetInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

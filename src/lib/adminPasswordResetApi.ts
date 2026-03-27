@@ -1,8 +1,10 @@
 import { withBasePath } from '@/lib/basePath';
 
-type ErrorPayload = {
-  code?: string;
+type GraphQLErrorPayload = {
   message?: string;
+  extensions?: {
+    code?: string;
+  };
 };
 
 export type AdminPasswordResetError = {
@@ -16,8 +18,52 @@ export type AdminPasswordResetValidation = {
   locale: string;
 };
 
-const REQUEST_ENDPOINT = withBasePath('/api/admin-password-reset/request');
-const CONFIRM_ENDPOINT = withBasePath('/api/admin-password-reset/confirm');
+type GraphQLResponse<TData> = {
+  data?: TData;
+  errors?: GraphQLErrorPayload[];
+};
+
+type RequestPasswordResetPayload = {
+  requestPasswordReset: {
+    success: boolean;
+  };
+};
+
+type ValidatePasswordResetTokenPayload = {
+  validatePasswordResetToken: AdminPasswordResetValidation;
+};
+
+type ConfirmPasswordResetPayload = {
+  confirmPasswordReset: {
+    success: boolean;
+    locale: string;
+  };
+};
+
+const ADMIN_GRAPHQL_ENDPOINT = withBasePath('/api/admin/graphql');
+const REQUEST_PASSWORD_RESET_MUTATION = `
+  mutation AdminRequestPasswordReset($input: AdminRequestPasswordResetInput!) {
+    requestPasswordReset(input: $input) {
+      success
+    }
+  }
+`;
+const VALIDATE_PASSWORD_RESET_TOKEN_QUERY = `
+  query AdminValidatePasswordResetToken($token: String!, $locale: Locale) {
+    validatePasswordResetToken(token: $token, locale: $locale) {
+      status
+      locale
+    }
+  }
+`;
+const CONFIRM_PASSWORD_RESET_MUTATION = `
+  mutation AdminConfirmPasswordReset($input: AdminConfirmPasswordResetInput!) {
+    confirmPasswordReset(input: $input) {
+      success
+      locale
+    }
+  }
+`;
 
 class AdminPasswordResetApiError extends Error implements AdminPasswordResetError {
   kind: AdminPasswordResetError['kind'];
@@ -34,34 +80,64 @@ class AdminPasswordResetApiError extends Error implements AdminPasswordResetErro
 const createAdminPasswordResetError = (kind: AdminPasswordResetError['kind'], code: string, message: string) =>
   new AdminPasswordResetApiError(kind, code.trim().toUpperCase(), message.trim());
 
-const normalizeErrorPayload = async (response: Response): Promise<AdminPasswordResetError> => {
-  let payload: ErrorPayload | null = null;
+const normalizeResponseError = async (response: Response): Promise<AdminPasswordResetError> => {
+  let payload: GraphQLResponse<unknown> | null = null;
 
   try {
-    payload = (await response.json()) as ErrorPayload;
+    payload = (await response.json()) as GraphQLResponse<unknown>;
   } catch {
     payload = null;
   }
 
+  const firstError = payload?.errors?.[0];
   return {
     kind: 'api',
-    code: (payload?.code ?? 'ADMIN_PASSWORD_RESET_FAILED').trim().toUpperCase(),
-    message: (payload?.message ?? 'Admin password reset request failed.').trim(),
+    code: (firstError?.extensions?.code ?? 'ADMIN_PASSWORD_RESET_FAILED').trim().toUpperCase(),
+    message: (firstError?.message ?? 'Admin password reset request failed.').trim(),
   };
 };
 
-export const requestAdminPasswordReset = async (email: string, locale: string): Promise<boolean> => {
+const parseGraphQLResponse = async <TData>(response: Response): Promise<TData> => {
+  let payload: GraphQLResponse<TData>;
+  try {
+    payload = (await response.json()) as GraphQLResponse<TData>;
+  } catch {
+    throw createAdminPasswordResetError('api', 'ADMIN_PASSWORD_RESET_FAILED', 'Admin password reset request failed.');
+  }
+
+  if (!response.ok || (payload.errors?.length ?? 0) > 0) {
+    const firstError = payload.errors?.[0];
+    throw createAdminPasswordResetError(
+      'api',
+      firstError?.extensions?.code ?? 'ADMIN_PASSWORD_RESET_FAILED',
+      firstError?.message ?? 'Admin password reset request failed.',
+    );
+  }
+
+  if (payload.data === undefined || payload.data === null) {
+    throw createAdminPasswordResetError('api', 'ADMIN_PASSWORD_RESET_FAILED', 'Admin password reset request failed.');
+  }
+
+  return payload.data;
+};
+
+const postAdminPasswordResetGraphQL = async <TData>(
+  query: string,
+  variables: Record<string, unknown>,
+  operationName: string,
+): Promise<TData> => {
   let response: Response;
   try {
-    response = await globalThis.fetch(REQUEST_ENDPOINT, {
+    response = await globalThis.fetch(ADMIN_GRAPHQL_ENDPOINT, {
       method: 'POST',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email,
-        locale,
+        query,
+        variables,
+        operationName,
       }),
     });
   } catch {
@@ -69,36 +145,41 @@ export const requestAdminPasswordReset = async (email: string, locale: string): 
   }
 
   if (!response.ok) {
-    throw await normalizeErrorPayload(response);
+    throw await normalizeResponseError(response);
   }
 
-  return true;
+  return parseGraphQLResponse<TData>(response);
+};
+
+export const requestAdminPasswordReset = async (email: string, locale: string): Promise<boolean> => {
+  const payload = await postAdminPasswordResetGraphQL<RequestPasswordResetPayload>(
+    REQUEST_PASSWORD_RESET_MUTATION,
+    {
+      input: {
+        email,
+        locale,
+      },
+    },
+    'AdminRequestPasswordReset',
+  );
+
+  return payload.requestPasswordReset.success;
 };
 
 export const validateAdminPasswordResetToken = async (
   token: string,
   locale: string,
 ): Promise<AdminPasswordResetValidation> => {
-  let response: Response;
-  try {
-    const params = new URLSearchParams({
+  const payload = await postAdminPasswordResetGraphQL<ValidatePasswordResetTokenPayload>(
+    VALIDATE_PASSWORD_RESET_TOKEN_QUERY,
+    {
       token,
       locale,
-    });
+    },
+    'AdminValidatePasswordResetToken',
+  );
 
-    response = await globalThis.fetch(`${CONFIRM_ENDPOINT}?${params.toString()}`, {
-      method: 'GET',
-      credentials: 'include',
-    });
-  } catch {
-    throw createAdminPasswordResetError('network', 'NETWORK_ERROR', 'Network request failed');
-  }
-
-  if (!response.ok) {
-    throw await normalizeErrorPayload(response);
-  }
-
-  return (await response.json()) as AdminPasswordResetValidation;
+  return payload.validatePasswordResetToken;
 };
 
 export const confirmAdminPasswordReset = async (
@@ -107,30 +188,20 @@ export const confirmAdminPasswordReset = async (
   newPassword: string,
   confirmPassword: string,
 ): Promise<boolean> => {
-  let response: Response;
-  try {
-    response = await globalThis.fetch(CONFIRM_ENDPOINT, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+  const payload = await postAdminPasswordResetGraphQL<ConfirmPasswordResetPayload>(
+    CONFIRM_PASSWORD_RESET_MUTATION,
+    {
+      input: {
         token,
         locale,
         newPassword,
         confirmPassword,
-      }),
-    });
-  } catch {
-    throw createAdminPasswordResetError('network', 'NETWORK_ERROR', 'Network request failed');
-  }
+      },
+    },
+    'AdminConfirmPasswordReset',
+  );
 
-  if (!response.ok) {
-    throw await normalizeErrorPayload(response);
-  }
-
-  return true;
+  return payload.confirmPasswordReset.success;
 };
 
 export const resolveAdminPasswordResetError = (error: unknown): AdminPasswordResetError => {

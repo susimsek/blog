@@ -943,6 +943,46 @@ interface Resources {
       "unauthorized": "Your admin session is missing or expired."
     }
   },
+  "admin-email-change": {
+    "adminEmailChange": {
+      "actions": {
+        "backToLogin": "Back to login"
+      },
+      "errors": {
+        "network": "Network request failed. Try again."
+      },
+      "eyebrow": "Admin security",
+      "loading": "Confirming admin email change",
+      "meta": {
+        "description": "Confirm the new email address for your admin account.",
+        "title": "Confirm admin email change"
+      },
+      "status": {
+        "expired": {
+          "message": "Start the email change request again from the admin panel.",
+          "title": "This confirmation link has expired"
+        },
+        "failed": {
+          "message": "Try the email change request again from the admin panel.",
+          "title": "The email address could not be changed"
+        },
+        "invalid-link": {
+          "message": "The email change link is missing or invalid.",
+          "title": "This confirmation link is invalid"
+        },
+        "service-unavailable": {
+          "message": "Please try again in a few minutes.",
+          "title": "The confirmation service is temporarily unavailable"
+        },
+        "success": {
+          "message": "The new admin email address is now active. Sign in again to continue.",
+          "title": "Your admin email is confirmed"
+        }
+      },
+      "subtitle": "Review the result of your admin email change confirmation before signing in again.",
+      "title": "Confirm admin email change"
+    }
+  },
   "admin-login": {
     "adminLogin": {
       "email": "Email",

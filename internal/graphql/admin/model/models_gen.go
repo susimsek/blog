@@ -80,6 +80,13 @@ type AdminCommentListPayload struct {
 	Size  int             `json:"size"`
 }
 
+type AdminConfirmPasswordResetInput struct {
+	Token           string          `json:"token"`
+	NewPassword     string          `json:"newPassword"`
+	ConfirmPassword string          `json:"confirmPassword"`
+	Locale          *scalars.Locale `json:"locale,omitempty"`
+}
+
 type AdminContentCategory struct {
 	Locale    scalars.Locale `json:"locale"`
 	ID        string         `json:"id"`
@@ -263,6 +270,11 @@ type AdminDeleteNewsletterSubscriberInput struct {
 
 type AdminDeletePayload struct {
 	Success bool `json:"success"`
+}
+
+type AdminEmailChangeConfirmPayload struct {
+	Status string         `json:"status"`
+	Locale scalars.Locale `json:"locale"`
 }
 
 type AdminEmailChangeRequestPayload struct {
@@ -510,6 +522,20 @@ type AdminPasswordChangePayload struct {
 	Success bool `json:"success"`
 }
 
+type AdminPasswordResetConfirmPayload struct {
+	Success bool           `json:"success"`
+	Locale  scalars.Locale `json:"locale"`
+}
+
+type AdminPasswordResetRequestPayload struct {
+	Success bool `json:"success"`
+}
+
+type AdminPasswordResetValidationPayload struct {
+	Status string         `json:"status"`
+	Locale scalars.Locale `json:"locale"`
+}
+
 type AdminQuery struct {
 }
 
@@ -517,6 +543,11 @@ type AdminRequestEmailChangeInput struct {
 	NewEmail        scalars.Email   `json:"newEmail"`
 	CurrentPassword string          `json:"currentPassword"`
 	Locale          *scalars.Locale `json:"locale,omitempty"`
+}
+
+type AdminRequestPasswordResetInput struct {
+	Email  scalars.Email   `json:"email"`
+	Locale *scalars.Locale `json:"locale,omitempty"`
 }
 
 type AdminSendTestNewsletterInput struct {

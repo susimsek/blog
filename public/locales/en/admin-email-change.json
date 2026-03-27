@@ -1,0 +1,40 @@
+{
+  "adminEmailChange": {
+    "meta": {
+      "title": "Confirm admin email change",
+      "description": "Confirm the new email address for your admin account."
+    },
+    "eyebrow": "Admin security",
+    "title": "Confirm admin email change",
+    "subtitle": "Review the result of your admin email change confirmation before signing in again.",
+    "loading": "Confirming admin email change",
+    "errors": {
+      "network": "Network request failed. Try again."
+    },
+    "status": {
+      "success": {
+        "title": "Your admin email is confirmed",
+        "message": "The new admin email address is now active. Sign in again to continue."
+      },
+      "invalid-link": {
+        "title": "This confirmation link is invalid",
+        "message": "The email change link is missing or invalid."
+      },
+      "expired": {
+        "title": "This confirmation link has expired",
+        "message": "Start the email change request again from the admin panel."
+      },
+      "failed": {
+        "title": "The email address could not be changed",
+        "message": "Try the email change request again from the admin panel."
+      },
+      "service-unavailable": {
+        "title": "The confirmation service is temporarily unavailable",
+        "message": "Please try again in a few minutes."
+      }
+    },
+    "actions": {
+      "backToLogin": "Back to login"
+    }
+  }
+}

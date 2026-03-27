@@ -1,0 +1,40 @@
+{
+  "adminEmailChange": {
+    "meta": {
+      "title": "Yönetici e-posta değişikliğini onayla",
+      "description": "Yönetici hesabınız için yeni e-posta adresini onaylayın."
+    },
+    "eyebrow": "Yönetici güvenliği",
+    "title": "Yönetici e-posta değişikliğini onayla",
+    "subtitle": "Yeniden giriş yapmadan önce yönetici e-posta onay sonucunu gözden geçirin.",
+    "loading": "Yönetici e-posta değişikliği onaylanıyor",
+    "errors": {
+      "network": "Ağ isteği başarısız oldu. Tekrar deneyin."
+    },
+    "status": {
+      "success": {
+        "title": "Yeni yönetici e-postanız onaylandı",
+        "message": "Yeni yönetici e-posta adresi artık aktif. Devam etmek için yeniden giriş yapın."
+      },
+      "invalid-link": {
+        "title": "Bu onay bağlantısı geçersiz",
+        "message": "E-posta değişikliği bağlantısı eksik veya geçersiz."
+      },
+      "expired": {
+        "title": "Bu onay bağlantısının süresi doldu",
+        "message": "E-posta değişikliği isteğini yönetim panelinden tekrar başlatın."
+      },
+      "failed": {
+        "title": "E-posta adresi değiştirilemedi",
+        "message": "E-posta değişikliği isteğini yönetim panelinden tekrar deneyin."
+      },
+      "service-unavailable": {
+        "title": "Onay servisi geçici olarak kullanılamıyor",
+        "message": "Lütfen birkaç dakika sonra tekrar deneyin."
+      }
+    },
+    "actions": {
+      "backToLogin": "Girişe dön"
+    }
+  }
+}

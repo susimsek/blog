@@ -901,6 +901,10 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 	originalDisconnectAdminGithubAccountFn := disconnectAdminGithubAccountFn
 	originalRefreshAdminSessionFn := refreshAdminSessionFn
 	originalLogoutAdminFn := logoutAdminFn
+	originalRequestAdminPasswordResetFn := requestAdminPasswordResetFn
+	originalValidateAdminPasswordResetTokenFn := validateAdminPasswordResetTokenFn
+	originalResetAdminPasswordWithTokenFn := resetAdminPasswordWithTokenFn
+	originalConfirmAdminEmailChangeFn := confirmAdminEmailChangeFn
 	originalChangeAdminNameFn := changeAdminNameFn
 	originalChangeAdminAvatarFn := changeAdminAvatarFn
 	originalChangeAdminUsernameFn := changeAdminUsernameFn
@@ -917,6 +921,10 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 		disconnectAdminGithubAccountFn = originalDisconnectAdminGithubAccountFn
 		refreshAdminSessionFn = originalRefreshAdminSessionFn
 		logoutAdminFn = originalLogoutAdminFn
+		requestAdminPasswordResetFn = originalRequestAdminPasswordResetFn
+		validateAdminPasswordResetTokenFn = originalValidateAdminPasswordResetTokenFn
+		resetAdminPasswordWithTokenFn = originalResetAdminPasswordWithTokenFn
+		confirmAdminEmailChangeFn = originalConfirmAdminEmailChangeFn
 		changeAdminNameFn = originalChangeAdminNameFn
 		changeAdminAvatarFn = originalChangeAdminAvatarFn
 		changeAdminUsernameFn = originalChangeAdminUsernameFn
@@ -981,6 +989,42 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 			t.Fatalf("unexpected logout token: %q", token)
 		}
 		return nil
+	}
+	requestAdminPasswordResetFn = func(_ context.Context, email, locale string) error {
+		if email != "admin@example.com" || locale != "tr" {
+			t.Fatalf("unexpected password reset request input: %q %q", email, locale)
+		}
+		return nil
+	}
+	validateAdminPasswordResetTokenFn = func(_ context.Context, token, locale string) (*appservice.AdminPasswordResetValidationResult, error) {
+		if token != "reset-token" || locale != "tr" {
+			t.Fatalf("unexpected password reset token validation input: %q %q", token, locale)
+		}
+		return &appservice.AdminPasswordResetValidationResult{Status: "success", Locale: "tr"}, nil
+	}
+	resetAdminPasswordWithTokenFn = func(
+		_ context.Context,
+		token,
+		newPassword,
+		confirmPassword,
+		locale string,
+	) (*appservice.AdminPasswordResetResult, error) {
+		if token != "reset-token" || newPassword != "new-password" || confirmPassword != "new-password" || locale != "tr" {
+			t.Fatalf(
+				"unexpected password reset confirm input: %q %q %q %q",
+				token,
+				newPassword,
+				confirmPassword,
+				locale,
+			)
+		}
+		return &appservice.AdminPasswordResetResult{Success: true, Locale: "tr"}, nil
+	}
+	confirmAdminEmailChangeFn = func(_ context.Context, token, locale string) (*appservice.AdminEmailChangeConfirmResult, error) {
+		if token != "confirm-token" || locale != "tr" {
+			t.Fatalf("unexpected email change confirm input: %q %q", token, locale)
+		}
+		return &appservice.AdminEmailChangeConfirmResult{Status: "success", Locale: "tr"}, nil
 	}
 	changeAdminNameFn = func(_ context.Context, user *domain.AdminUser, name string) (*domain.AdminUser, error) {
 		if user.ID != "admin-1" || name != "Display Name" {
@@ -1085,6 +1129,38 @@ func TestAdminMutationAuthResolvers(t *testing.T) {
 	logoutResult, err := mutationResolver.Logout(logoutCtx)
 	if err != nil || !logoutResult.Success {
 		t.Fatalf("Logout() = %#v, %v", logoutResult, err)
+	}
+
+	requestPasswordResetResult, err := mutationResolver.RequestPasswordReset(ctx, model.AdminRequestPasswordResetInput{
+		Email:  "admin@example.com",
+		Locale: localePtr("tr"),
+	})
+	if err != nil || !requestPasswordResetResult.Success {
+		t.Fatalf("RequestPasswordReset() = %#v, %v", requestPasswordResetResult, err)
+	}
+
+	validatePasswordResetResult, err := (&adminQueryResolver{Resolver: &Resolver{}}).ValidatePasswordResetToken(
+		ctx,
+		" reset-token ",
+		localePtr("tr"),
+	)
+	if err != nil || validatePasswordResetResult.Status != "success" || validatePasswordResetResult.Locale != "tr" {
+		t.Fatalf("ValidatePasswordResetToken() = %#v, %v", validatePasswordResetResult, err)
+	}
+
+	confirmPasswordResetResult, err := mutationResolver.ConfirmPasswordReset(ctx, model.AdminConfirmPasswordResetInput{
+		Token:           " reset-token ",
+		NewPassword:     "new-password",
+		ConfirmPassword: "new-password",
+		Locale:          localePtr("tr"),
+	})
+	if err != nil || !confirmPasswordResetResult.Success || confirmPasswordResetResult.Locale != "tr" {
+		t.Fatalf("ConfirmPasswordReset() = %#v, %v", confirmPasswordResetResult, err)
+	}
+
+	confirmEmailChangeResult, err := mutationResolver.ConfirmEmailChange(ctx, " confirm-token ", localePtr("tr"))
+	if err != nil || confirmEmailChangeResult.Status != "success" || confirmEmailChangeResult.Locale != "tr" {
+		t.Fatalf("ConfirmEmailChange() = %#v, %v", confirmEmailChangeResult, err)
 	}
 
 	changeNameResult, err := mutationResolver.ChangeName(authCtx, model.AdminChangeNameInput{Name: "Display Name"})

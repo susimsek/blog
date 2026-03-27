@@ -25,6 +25,7 @@ export const allNamespaces = [
   'admin-account',
   'admin-common',
   'admin-dashboard',
+  'admin-email-change',
   'admin-login',
   'admin-password-reset',
   'category',
