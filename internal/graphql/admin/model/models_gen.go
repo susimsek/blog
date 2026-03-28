@@ -377,6 +377,7 @@ type AdminMe struct {
 type AdminMediaLibraryFilterInput struct {
 	Query *string                    `json:"query,omitempty"`
 	Kind  *AdminMediaLibraryItemKind `json:"kind,omitempty"`
+	Sort  *AdminMediaLibrarySort     `json:"sort,omitempty"`
 	Page  *int                       `json:"page,omitempty"`
 	Size  *int                       `json:"size,omitempty"`
 }
@@ -852,6 +853,65 @@ func (e *AdminMediaLibraryItemKind) UnmarshalJSON(b []byte) error {
 }
 
 func (e AdminMediaLibraryItemKind) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type AdminMediaLibrarySort string
+
+const (
+	AdminMediaLibrarySortRecent AdminMediaLibrarySort = "RECENT"
+	AdminMediaLibrarySortName   AdminMediaLibrarySort = "NAME"
+	AdminMediaLibrarySortSize   AdminMediaLibrarySort = "SIZE"
+	AdminMediaLibrarySortUsage  AdminMediaLibrarySort = "USAGE"
+)
+
+var AllAdminMediaLibrarySort = []AdminMediaLibrarySort{
+	AdminMediaLibrarySortRecent,
+	AdminMediaLibrarySortName,
+	AdminMediaLibrarySortSize,
+	AdminMediaLibrarySortUsage,
+}
+
+func (e AdminMediaLibrarySort) IsValid() bool {
+	switch e {
+	case AdminMediaLibrarySortRecent, AdminMediaLibrarySortName, AdminMediaLibrarySortSize, AdminMediaLibrarySortUsage:
+		return true
+	}
+	return false
+}
+
+func (e AdminMediaLibrarySort) String() string {
+	return string(e)
+}
+
+func (e *AdminMediaLibrarySort) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AdminMediaLibrarySort(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AdminMediaLibrarySort", str)
+	}
+	return nil
+}
+
+func (e AdminMediaLibrarySort) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AdminMediaLibrarySort) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AdminMediaLibrarySort) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

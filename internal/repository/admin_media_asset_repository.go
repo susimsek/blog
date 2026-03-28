@@ -2,13 +2,9 @@ package repository
 
 import (
 	"context"
-	"crypto/sha1"
-	"encoding/hex"
 	"errors"
 	"fmt"
-	"path"
 	"regexp"
-	"sort"
 	"strings"
 	"time"
 
@@ -17,7 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
@@ -27,8 +22,18 @@ var (
 
 const adminMediaAssetRepositoryUnavailableFormat = "%w: %v"
 
+const (
+	adminMediaLibrarySortRecent = "RECENT"
+	adminMediaLibrarySortName   = "NAME"
+	adminMediaLibrarySortSize   = "SIZE"
+	adminMediaLibrarySortUsage  = "USAGE"
+)
+
 type AdminMediaAssetRepository interface {
-	ListMediaLibraryItems(ctx context.Context, filter domain.AdminMediaLibraryFilter) ([]domain.AdminMediaLibraryItem, error)
+	ListMediaLibraryItems(
+		ctx context.Context,
+		filter domain.AdminMediaLibraryFilter,
+	) (*domain.AdminMediaLibraryListPayload, error)
 	FindMediaAssetByID(ctx context.Context, id string) (*domain.AdminMediaAssetRecord, error)
 	FindMediaAssetByDigest(ctx context.Context, digest string) (*domain.AdminMediaAssetRecord, error)
 	CountMediaAssetUsage(ctx context.Context, value string) (int, error)
@@ -45,7 +50,7 @@ func NewAdminMediaAssetRepository() AdminMediaAssetRepository {
 func (*adminMediaAssetMongoRepository) ListMediaLibraryItems(
 	ctx context.Context,
 	filter domain.AdminMediaLibraryFilter,
-) ([]domain.AdminMediaLibraryItem, error) {
+) (*domain.AdminMediaLibraryListPayload, error) {
 	mediaCollection, err := getPostMediaAssetsCollection()
 	if err != nil {
 		return nil, fmt.Errorf(adminMediaAssetRepositoryUnavailableFormat, ErrAdminMediaAssetRepositoryUnavailable, err)
@@ -57,39 +62,54 @@ func (*adminMediaAssetMongoRepository) ListMediaLibraryItems(
 	}
 
 	resolvedKind := strings.TrimSpace(strings.ToUpper(filter.Kind))
-	items := make([]domain.AdminMediaLibraryItem, 0, 64)
-
-	if resolvedKind == "" || resolvedKind == "ALL" || resolvedKind == "UPLOADED" {
-		uploadedItems, uploadedErr := listUploadedMediaLibraryItems(ctx, mediaCollection, filter.Query)
-		if uploadedErr != nil {
-			return nil, uploadedErr
-		}
-		enrichMediaLibraryUsageCounts(ctx, postsCollection, uploadedItems)
-		items = append(items, uploadedItems...)
+	resolvedPage := filter.Page
+	if resolvedPage <= 0 {
+		resolvedPage = 1
+	}
+	resolvedSize := filter.Size
+	if resolvedSize <= 0 {
+		resolvedSize = 10
 	}
 
-	if resolvedKind == "" || resolvedKind == "ALL" || resolvedKind == "REFERENCE" {
-		referenceItems, referenceErr := listReferencedMediaLibraryItems(ctx, postsCollection, filter.Query)
-		if referenceErr != nil {
-			return nil, referenceErr
-		}
-		items = append(items, referenceItems...)
+	sortStage := bson.D{{Key: "$sort", Value: buildAdminMediaLibrarySortDocument(filter.Sort)}}
+	facetStage := bson.D{{Key: "$facet", Value: bson.M{
+		"items": bson.A{
+			bson.M{"$skip": (resolvedPage - 1) * resolvedSize},
+			bson.M{"$limit": resolvedSize},
+		},
+		"meta": bson.A{
+			bson.M{"$count": "total"},
+		},
+	}}}
+
+	switch resolvedKind {
+	case "UPLOADED":
+		return aggregateAdminMediaLibraryPayload(
+			ctx,
+			mediaCollection,
+			append(buildUploadedMediaLibraryPipeline(postsCollection.Name(), filter.Query), sortStage, facetStage),
+			resolvedPage,
+			resolvedSize,
+		)
+	case "REFERENCE":
+		return aggregateAdminMediaLibraryPayload(
+			ctx,
+			postsCollection,
+			append(buildReferencedMediaLibraryPipeline(filter.Query), sortStage, facetStage),
+			resolvedPage,
+			resolvedSize,
+		)
+	default:
+		pipeline := append(buildUploadedMediaLibraryPipeline(postsCollection.Name(), filter.Query),
+			bson.D{{Key: "$unionWith", Value: bson.M{
+				"coll":     postsCollection.Name(),
+				"pipeline": buildReferencedMediaLibraryPipeline(filter.Query),
+			}}},
+			sortStage,
+			facetStage,
+		)
+		return aggregateAdminMediaLibraryPayload(ctx, mediaCollection, pipeline, resolvedPage, resolvedSize)
 	}
-
-	sort.SliceStable(items, func(left, right int) bool {
-		leftUpdatedAt := items[left].UpdatedAt
-		rightUpdatedAt := items[right].UpdatedAt
-		switch {
-		case !leftUpdatedAt.Equal(rightUpdatedAt):
-			return leftUpdatedAt.After(rightUpdatedAt)
-		case items[left].UsageCount != items[right].UsageCount:
-			return items[left].UsageCount > items[right].UsageCount
-		default:
-			return strings.ToLower(items[left].Name) < strings.ToLower(items[right].Name)
-		}
-	})
-
-	return items, nil
 }
 
 func (*adminMediaAssetMongoRepository) FindMediaAssetByID(
@@ -261,11 +281,26 @@ type adminMediaAssetDocument struct {
 	UpdatedAt   time.Time `bson:"updatedAt"`
 }
 
-type adminMediaReferenceAggregateDocument struct {
-	Value      string    `bson:"value"`
-	Title      string    `bson:"title"`
-	UsageCount int       `bson:"usageCount"`
-	UpdatedAt  time.Time `bson:"updatedAt"`
+type adminMediaLibraryAggregateResult struct {
+	Items []adminMediaLibraryItemDocument `bson:"items"`
+	Meta  []struct {
+		Total int `bson:"total"`
+	} `bson:"meta"`
+}
+
+type adminMediaLibraryItemDocument struct {
+	ID          string    `bson:"id"`
+	Kind        string    `bson:"kind"`
+	Name        string    `bson:"name"`
+	Value       string    `bson:"value"`
+	PreviewURL  string    `bson:"previewUrl"`
+	ContentType string    `bson:"contentType"`
+	Width       int       `bson:"width"`
+	Height      int       `bson:"height"`
+	SizeBytes   int       `bson:"sizeBytes"`
+	UsageCount  int       `bson:"usageCount"`
+	CreatedAt   time.Time `bson:"createdAt,omitempty"`
+	UpdatedAt   time.Time `bson:"updatedAt,omitempty"`
 }
 
 func mapAdminMediaAssetDocument(doc adminMediaAssetDocument) domain.AdminMediaAssetRecord {
@@ -284,24 +319,14 @@ func mapAdminMediaAssetDocument(doc adminMediaAssetDocument) domain.AdminMediaAs
 	}
 }
 
-func listUploadedMediaLibraryItems(
+func aggregateAdminMediaLibraryPayload(
 	ctx context.Context,
 	collection *mongo.Collection,
-	query string,
-) ([]domain.AdminMediaLibraryItem, error) {
-	search := strings.TrimSpace(query)
-	findQuery := bson.M{}
-	if search != "" {
-		regex := primitive.Regex{Pattern: regexp.QuoteMeta(search), Options: "i"}
-		findQuery["name"] = regex
-	}
-
-	cursor, err := collection.Find(
-		ctx,
-		findQuery,
-		options.Find().
-			SetSort(bson.D{{Key: "updatedAt", Value: -1}, {Key: "createdAt", Value: -1}}),
-	)
+	pipeline mongo.Pipeline,
+	page int,
+	size int,
+) (*domain.AdminMediaLibraryListPayload, error) {
+	cursor, err := collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, err
 	}
@@ -309,42 +334,109 @@ func listUploadedMediaLibraryItems(
 		_ = cursor.Close(ctx)
 	}()
 
-	items := make([]domain.AdminMediaLibraryItem, 0, 32)
-	for cursor.Next(ctx) {
-		var doc adminMediaAssetDocument
-		if decodeErr := cursor.Decode(&doc); decodeErr != nil {
-			return nil, decodeErr
+	if !cursor.Next(ctx) {
+		if err := cursor.Err(); err != nil {
+			return nil, err
 		}
-
-		value := buildAdminMediaAssetValue(doc.ID)
-		items = append(items, domain.AdminMediaLibraryItem{
-			ID:          strings.TrimSpace(doc.ID),
-			Kind:        "UPLOADED",
-			Name:        strings.TrimSpace(doc.Name),
-			Value:       value,
-			PreviewURL:  value,
-			ContentType: strings.TrimSpace(doc.ContentType),
-			Width:       doc.Width,
-			Height:      doc.Height,
-			SizeBytes:   doc.SizeBytes,
-			UsageCount:  0,
-			CreatedAt:   doc.CreatedAt,
-			UpdatedAt:   doc.UpdatedAt,
-		})
+		return &domain.AdminMediaLibraryListPayload{
+			Items: []domain.AdminMediaLibraryItem{},
+			Total: 0,
+			Page:  page,
+			Size:  size,
+		}, nil
 	}
 
-	if err := cursor.Err(); err != nil {
+	var result adminMediaLibraryAggregateResult
+	if err := cursor.Decode(&result); err != nil {
 		return nil, err
 	}
 
-	return items, nil
+	items := make([]domain.AdminMediaLibraryItem, 0, len(result.Items))
+	for _, item := range result.Items {
+		items = append(items, domain.AdminMediaLibraryItem{
+			ID:          strings.TrimSpace(item.ID),
+			Kind:        strings.TrimSpace(item.Kind),
+			Name:        strings.TrimSpace(item.Name),
+			Value:       strings.TrimSpace(item.Value),
+			PreviewURL:  strings.TrimSpace(item.PreviewURL),
+			ContentType: strings.TrimSpace(item.ContentType),
+			Width:       item.Width,
+			Height:      item.Height,
+			SizeBytes:   item.SizeBytes,
+			UsageCount:  item.UsageCount,
+			CreatedAt:   item.CreatedAt,
+			UpdatedAt:   item.UpdatedAt,
+		})
+	}
+
+	total := 0
+	if len(result.Meta) > 0 {
+		total = result.Meta[0].Total
+	}
+
+	return &domain.AdminMediaLibraryListPayload{
+		Items: items,
+		Total: total,
+		Page:  page,
+		Size:  size,
+	}, nil
 }
 
-func listReferencedMediaLibraryItems(
-	ctx context.Context,
-	collection *mongo.Collection,
-	query string,
-) ([]domain.AdminMediaLibraryItem, error) {
+func buildUploadedMediaLibraryPipeline(postsCollectionName, query string) mongo.Pipeline {
+	match := bson.M{}
+	if search := strings.TrimSpace(query); search != "" {
+		match["name"] = primitive.Regex{Pattern: regexp.QuoteMeta(search), Options: "i"}
+	}
+
+	valueExpr := bson.M{"$concat": bson.A{"/api/media/", "$id"}}
+
+	return mongo.Pipeline{
+		bson.D{{Key: "$match", Value: match}},
+		bson.D{{Key: "$lookup", Value: bson.M{
+			"from": postsCollectionName,
+			"let":  bson.M{"thumbnailValue": valueExpr},
+			"pipeline": bson.A{
+				bson.M{"$match": bson.M{
+					"$expr": bson.M{"$eq": bson.A{"$thumbnail", "$$thumbnailValue"}},
+				}},
+				bson.M{"$group": bson.M{
+					"_id":     nil,
+					"postIDs": bson.M{"$addToSet": "$id"},
+				}},
+				bson.M{"$project": bson.M{
+					"_id":        0,
+					"usageCount": bson.M{"$size": "$postIDs"},
+				}},
+			},
+			"as": "usageMeta",
+		}}},
+		bson.D{{Key: "$addFields", Value: bson.M{
+			"kind":       "UPLOADED",
+			"value":      valueExpr,
+			"previewUrl": valueExpr,
+			"usageCount": bson.M{"$ifNull": bson.A{bson.M{"$first": "$usageMeta.usageCount"}, 0}},
+			"sortName":   bson.M{"$toLower": "$name"},
+		}}},
+		bson.D{{Key: "$project", Value: bson.M{
+			"_id":         0,
+			"id":          "$id",
+			"kind":        1,
+			"name":        "$name",
+			"value":       1,
+			"previewUrl":  1,
+			"contentType": "$contentType",
+			"width":       "$width",
+			"height":      "$height",
+			"sizeBytes":   "$sizeBytes",
+			"usageCount":  1,
+			"createdAt":   "$createdAt",
+			"updatedAt":   "$updatedAt",
+			"sortName":    1,
+		}}},
+	}
+}
+
+func buildReferencedMediaLibraryPipeline(query string) mongo.Pipeline {
 	match := bson.M{
 		"thumbnail": bson.M{
 			"$type": "string",
@@ -355,8 +447,7 @@ func listReferencedMediaLibraryItems(
 			},
 		},
 	}
-	search := strings.TrimSpace(query)
-	if search != "" {
+	if search := strings.TrimSpace(query); search != "" {
 		regex := primitive.Regex{Pattern: regexp.QuoteMeta(search), Options: "i"}
 		match["$or"] = bson.A{
 			bson.M{"thumbnail": regex},
@@ -364,157 +455,106 @@ func listReferencedMediaLibraryItems(
 		}
 	}
 
-	cursor, err := collection.Aggregate(
-		ctx,
-		mongo.Pipeline{
-			bson.D{{Key: "$match", Value: match}},
-			bson.D{{Key: "$group", Value: bson.M{
-				"_id":       "$thumbnail",
-				"value":     bson.M{"$first": "$thumbnail"},
-				"title":     bson.M{"$first": "$title"},
-				"updatedAt": bson.M{"$max": "$updatedAt"},
-				"postIDs":   bson.M{"$addToSet": "$id"},
-			}}},
-			bson.D{{Key: "$addFields", Value: bson.M{
-				"usageCount": bson.M{"$size": "$postIDs"},
-			}}},
-			bson.D{{Key: "$sort", Value: bson.D{{Key: "usageCount", Value: -1}, {Key: "updatedAt", Value: -1}, {Key: "value", Value: 1}}}},
-			bson.D{{Key: "$project", Value: bson.M{
-				"_id":        0,
-				"value":      1,
-				"title":      1,
-				"updatedAt":  1,
-				"usageCount": bson.M{"$size": "$postIDs"},
-			}}},
+	referenceNameExpr := bson.M{
+		"$let": bson.M{
+			"vars": bson.M{
+				"trimmedTitle": bson.M{
+					"$trim": bson.M{
+						"input": bson.M{"$ifNull": bson.A{"$title", ""}},
+					},
+				},
+				"baseName": bson.M{
+					"$arrayElemAt": bson.A{
+						bson.M{"$split": bson.A{"$value", "/"}},
+						-1,
+					},
+				},
+			},
+			"in": bson.M{
+				"$cond": bson.A{
+					bson.M{"$ne": bson.A{"$$trimmedTitle", ""}},
+					"$$trimmedTitle",
+					bson.M{
+						"$trim": bson.M{
+							"input": bson.M{
+								"$replaceAll": bson.M{
+									"input": bson.M{
+										"$replaceAll": bson.M{
+											"input": bson.M{
+												"$regexReplace": bson.M{
+													"input":       "$$baseName",
+													"regex":       `\.[^.]+$`,
+													"replacement": "",
+												},
+											},
+											"find":        "-",
+											"replacement": " ",
+										},
+									},
+									"find":        "_",
+									"replacement": " ",
+								},
+							},
+						},
+					},
+				},
+			},
 		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		_ = cursor.Close(ctx)
-	}()
-
-	items := make([]domain.AdminMediaLibraryItem, 0, 32)
-	for cursor.Next(ctx) {
-		var doc adminMediaReferenceAggregateDocument
-		if decodeErr := cursor.Decode(&doc); decodeErr != nil {
-			return nil, decodeErr
-		}
-
-		value := strings.TrimSpace(doc.Value)
-		if value == "" {
-			continue
-		}
-		items = append(items, domain.AdminMediaLibraryItem{
-			ID:         "ref:" + shortMediaReferenceID(value),
-			Kind:       "REFERENCE",
-			Name:       resolveMediaReferenceName(value, strings.TrimSpace(doc.Title)),
-			Value:      value,
-			PreviewURL: value,
-			UsageCount: doc.UsageCount,
-			UpdatedAt:  doc.UpdatedAt,
-		})
 	}
 
-	if err := cursor.Err(); err != nil {
-		return nil, err
+	return mongo.Pipeline{
+		bson.D{{Key: "$match", Value: match}},
+		bson.D{{Key: "$group", Value: bson.M{
+			"_id":       "$thumbnail",
+			"value":     bson.M{"$first": "$thumbnail"},
+			"title":     bson.M{"$first": "$title"},
+			"updatedAt": bson.M{"$max": "$updatedAt"},
+			"postIDs":   bson.M{"$addToSet": "$id"},
+		}}},
+		bson.D{{Key: "$addFields", Value: bson.M{
+			"usageCount": bson.M{"$size": "$postIDs"},
+			"id":         bson.M{"$concat": bson.A{"ref:", "$value"}},
+			"name":       referenceNameExpr,
+			"previewUrl": "$value",
+			"kind":       "REFERENCE",
+			"sizeBytes":  0,
+			"width":      0,
+			"height":     0,
+			"sortName":   bson.M{"$toLower": referenceNameExpr},
+		}}},
+		bson.D{{Key: "$project", Value: bson.M{
+			"_id":         0,
+			"id":          1,
+			"kind":        1,
+			"name":        1,
+			"value":       1,
+			"previewUrl":  1,
+			"contentType": bson.M{"$literal": ""},
+			"width":       1,
+			"height":      1,
+			"sizeBytes":   1,
+			"usageCount":  1,
+			"createdAt":   "$updatedAt",
+			"updatedAt":   1,
+			"sortName":    1,
+		}}},
 	}
-
-	return items, nil
 }
 
-func buildAdminMediaAssetValue(id string) string {
-	return "/api/media/" + strings.TrimSpace(id)
-}
-
-func resolveMediaReferenceName(value, fallback string) string {
-	resolvedBase := path.Base(strings.TrimSpace(value))
-	resolvedBase = strings.TrimSpace(strings.TrimSuffix(resolvedBase, path.Ext(resolvedBase)))
-	resolvedBase = strings.ReplaceAll(resolvedBase, "-", " ")
-	resolvedBase = strings.ReplaceAll(resolvedBase, "_", " ")
-	resolvedBase = strings.TrimSpace(resolvedBase)
-	if resolvedBase != "" && resolvedBase != "." && resolvedBase != "/" {
-		return resolvedBase
-	}
-	if resolvedFallback := strings.TrimSpace(fallback); resolvedFallback != "" {
-		return resolvedFallback
-	}
-	return strings.TrimSpace(value)
-}
-
-func shortMediaReferenceID(value string) string {
-	normalized := strings.TrimSpace(value)
-	if normalized == "" {
-		return ""
-	}
-	sum := sha1.Sum([]byte(normalized))
-	hexPart := hex.EncodeToString(sum[:])
-	if len(hexPart) >= 12 {
-		return hexPart[:12]
-	}
-	return hexPart
-}
-
-func enrichMediaLibraryUsageCounts(
-	ctx context.Context,
-	postsCollection *mongo.Collection,
-	items []domain.AdminMediaLibraryItem,
-) {
-	if len(items) == 0 {
-		return
+func buildAdminMediaLibrarySortDocument(sortKey string) bson.D {
+	resolvedSort := strings.TrimSpace(strings.ToUpper(sortKey))
+	if resolvedSort == "" {
+		resolvedSort = adminMediaLibrarySortRecent
 	}
 
-	values := make([]string, 0, len(items))
-	valueSet := make(map[string]struct{}, len(items))
-	for _, item := range items {
-		if item.Value == "" {
-			continue
-		}
-		if _, exists := valueSet[item.Value]; exists {
-			continue
-		}
-		valueSet[item.Value] = struct{}{}
-		values = append(values, item.Value)
-	}
-	if len(values) == 0 {
-		return
-	}
-
-	cursor, err := postsCollection.Aggregate(
-		ctx,
-		mongo.Pipeline{
-			bson.D{{Key: "$match", Value: bson.M{"thumbnail": bson.M{"$in": values}}}},
-			bson.D{{Key: "$group", Value: bson.M{
-				"_id":     "$thumbnail",
-				"postIDs": bson.M{"$addToSet": "$id"},
-			}}},
-			bson.D{{Key: "$project", Value: bson.M{
-				"_id":        1,
-				"usageCount": bson.M{"$size": "$postIDs"},
-			}}},
-		},
-	)
-	if err != nil {
-		return
-	}
-	defer func() {
-		_ = cursor.Close(ctx)
-	}()
-
-	counts := make(map[string]int, len(items))
-	for cursor.Next(ctx) {
-		var doc struct {
-			ID         string `bson:"_id"`
-			UsageCount int    `bson:"usageCount"`
-		}
-		if decodeErr := cursor.Decode(&doc); decodeErr != nil {
-			return
-		}
-		counts[strings.TrimSpace(doc.ID)] = doc.UsageCount
-	}
-
-	for index := range items {
-		items[index].UsageCount = counts[items[index].Value]
+	switch resolvedSort {
+	case adminMediaLibrarySortName:
+		return bson.D{{Key: "sortName", Value: 1}, {Key: "updatedAt", Value: -1}, {Key: "usageCount", Value: -1}}
+	case adminMediaLibrarySortSize:
+		return bson.D{{Key: "sizeBytes", Value: -1}, {Key: "updatedAt", Value: -1}, {Key: "sortName", Value: 1}}
+	case adminMediaLibrarySortUsage:
+		return bson.D{{Key: "usageCount", Value: -1}, {Key: "updatedAt", Value: -1}, {Key: "sortName", Value: 1}}
+	default:
+		return bson.D{{Key: "updatedAt", Value: -1}, {Key: "usageCount", Value: -1}, {Key: "sortName", Value: 1}}
 	}
 }

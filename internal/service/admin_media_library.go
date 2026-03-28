@@ -24,7 +24,7 @@ import (
 
 const (
 	adminMediaLibraryDefaultPage = 1
-	adminMediaLibraryDefaultSize = 12
+	adminMediaLibraryDefaultSize = 10
 	adminMediaLibraryMaxSize     = 48
 	maxAdminMediaAssetBytes      = 5 * 1024 * 1024
 	maxAdminMediaAssetNameLength = 180
@@ -56,28 +56,32 @@ func ListAdminMediaLibrary(
 		resolvedSize = min(filter.Size, adminMediaLibraryMaxSize)
 	}
 
-	items, err := adminMediaAssetRepository.ListMediaLibraryItems(ctx, domain.AdminMediaLibraryFilter{
+	payload, err := adminMediaAssetRepository.ListMediaLibraryItems(ctx, domain.AdminMediaLibraryFilter{
 		Query: strings.TrimSpace(filter.Query),
 		Kind:  strings.TrimSpace(strings.ToUpper(filter.Kind)),
+		Sort:  strings.TrimSpace(strings.ToUpper(filter.Sort)),
+		Page:  resolvedPage,
+		Size:  resolvedSize,
 	})
 	if err != nil {
 		return nil, toAdminMediaLibraryError(err, "failed to list admin media library")
 	}
-	if items == nil {
-		items = []domain.AdminMediaLibraryItem{}
+	if payload == nil {
+		return &domain.AdminMediaLibraryListPayload{
+			Items: []domain.AdminMediaLibraryItem{},
+			Total: 0,
+			Page:  resolvedPage,
+			Size:  resolvedSize,
+		}, nil
 	}
 
-	total := len(items)
-	start := (resolvedPage - 1) * resolvedSize
-	start = min(start, total)
-	end := min(start+resolvedSize, total)
+	if payload.Items == nil {
+		payload.Items = []domain.AdminMediaLibraryItem{}
+	}
+	payload.Page = resolvedPage
+	payload.Size = resolvedSize
 
-	return &domain.AdminMediaLibraryListPayload{
-		Items: items[start:end],
-		Total: total,
-		Page:  resolvedPage,
-		Size:  resolvedSize,
-	}, nil
+	return payload, nil
 }
 
 func UploadAdminMediaAsset(

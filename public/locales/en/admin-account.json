@@ -593,10 +593,17 @@
             "queryPlaceholder": "Search media by name or title",
             "clearSearch": "Clear media search",
             "filterLabel": "Source",
+            "sortLabel": "Sort",
             "filters": {
               "all": "All media",
               "uploaded": "Uploaded",
               "reused": "Reused"
+            },
+            "sorts": {
+              "recent": "Most recent",
+              "name": "Name",
+              "size": "File size",
+              "usage": "Usage"
             },
             "empty": "No media found for the current search.",
             "badges": {

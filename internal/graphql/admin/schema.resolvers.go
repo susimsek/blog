@@ -559,6 +559,9 @@ func (r *adminQueryResolver) MediaLibrary(
 		if filter.Kind != nil {
 			resolvedFilter.Kind = strings.TrimSpace(filter.Kind.String())
 		}
+		if filter.Sort != nil {
+			resolvedFilter.Sort = strings.TrimSpace(filter.Sort.String())
+		}
 		if filter.Page != nil {
 			resolvedFilter.Page = *filter.Page
 		}

@@ -369,6 +369,8 @@ export type AdminMediaLibraryItem = {
   updatedAt: string | null;
 };
 
+export type AdminMediaLibrarySort = 'RECENT' | 'NAME' | 'SIZE' | 'USAGE';
+
 type AdminContentPostsPayload = {
   contentPosts: {
     items: AdminContentPostGroupItem[];
@@ -2500,11 +2502,13 @@ export const fetchAdminContentCategories = async (locale?: string) => {
 export const fetchAdminMediaLibrary = async (params?: {
   query?: string;
   kind?: AdminMediaLibraryItem['kind'] | 'ALL';
+  sort?: AdminMediaLibrarySort;
   page?: number;
   size?: number;
 }) => {
   const resolvedQuery = params?.query?.trim() ?? '';
   const resolvedKind = params?.kind?.trim().toUpperCase() ?? '';
+  const resolvedSort = params?.sort?.trim().toUpperCase() ?? '';
   const resolvedPage =
     params?.page && Number.isFinite(params.page) && params.page > 0 ? Math.trunc(params.page) : undefined;
   const resolvedSize =
@@ -2516,6 +2520,7 @@ export const fetchAdminMediaLibrary = async (params?: {
       filter?: {
         query?: string;
         kind?: string;
+        sort?: string;
         page?: number;
         size?: number;
       };
@@ -2526,6 +2531,7 @@ export const fetchAdminMediaLibrary = async (params?: {
       filter: {
         ...(resolvedQuery ? { query: resolvedQuery } : {}),
         ...(resolvedKind && resolvedKind !== 'ALL' ? { kind: resolvedKind } : {}),
+        ...(resolvedSort && resolvedSort !== 'RECENT' ? { sort: resolvedSort } : {}),
         ...(resolvedPage ? { page: resolvedPage } : {}),
         ...(resolvedSize ? { size: resolvedSize } : {}),
       },

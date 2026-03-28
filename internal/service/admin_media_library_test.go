@@ -11,7 +11,7 @@ import (
 )
 
 type adminMediaAssetStubRepository struct {
-	listMediaLibraryItems  func(context.Context, domain.AdminMediaLibraryFilter) ([]domain.AdminMediaLibraryItem, error)
+	listMediaLibraryItems  func(context.Context, domain.AdminMediaLibraryFilter) (*domain.AdminMediaLibraryListPayload, error)
 	findMediaAssetByID     func(context.Context, string) (*domain.AdminMediaAssetRecord, error)
 	findMediaAssetByDigest func(context.Context, string) (*domain.AdminMediaAssetRecord, error)
 	countMediaAssetUsage   func(context.Context, string) (int, error)
@@ -22,7 +22,7 @@ type adminMediaAssetStubRepository struct {
 func (stub adminMediaAssetStubRepository) ListMediaLibraryItems(
 	ctx context.Context,
 	filter domain.AdminMediaLibraryFilter,
-) ([]domain.AdminMediaLibraryItem, error) {
+) (*domain.AdminMediaLibraryListPayload, error) {
 	if stub.listMediaLibraryItems == nil {
 		return nil, nil
 	}

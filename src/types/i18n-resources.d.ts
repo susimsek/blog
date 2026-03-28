@@ -387,6 +387,13 @@ interface Resources {
               "queryPlaceholder": "Search media by name or title",
               "select": "Use image",
               "selected": "Selected",
+              "sortLabel": "Sort",
+              "sorts": {
+                "name": "Name",
+                "recent": "Most recent",
+                "size": "File size",
+                "usage": "Usage"
+              },
               "title": "Media library",
               "upload": "Upload image",
               "uploadLabel": "Upload",

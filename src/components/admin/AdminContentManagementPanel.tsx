@@ -63,6 +63,7 @@ import {
   type AdminContentCategoryItem,
   type AdminContentCategoryGroupItem,
   type AdminMediaLibraryItem,
+  type AdminMediaLibrarySort,
   type AdminContentPostGroupItem,
   type AdminContentPostItem,
   type AdminContentTopicItem,
@@ -95,6 +96,7 @@ type PostContentViewMode = 'editor' | 'split' | 'preview';
 type SupportedContentLocale = 'en' | 'tr';
 type CommentStatusFilterValue = 'all' | AdminCommentItem['status'];
 type MediaLibraryFilterValue = AdminMediaLibraryItem['kind'] | 'ALL';
+type MediaLibrarySortValue = AdminMediaLibrarySort;
 const CONTENT_ID_PATTERN = /^[a-z0-9][a-z0-9-]{1,127}$/;
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 const CONTENT_LOCALES: SupportedContentLocale[] = ['en', 'tr'];
@@ -302,6 +304,8 @@ export default function AdminContentManagementPanel({
   const [posts, setPosts] = React.useState<AdminContentPostGroupItem[]>([]);
   const [topics, setTopics] = React.useState<AdminContentTopicItem[]>([]);
   const [categories, setCategories] = React.useState<AdminContentCategoryItem[]>([]);
+  const [filterTopicOptions, setFilterTopicOptions] = React.useState<AdminContentTopicItem[]>([]);
+  const [filterCategoryOptions, setFilterCategoryOptions] = React.useState<AdminContentCategoryItem[]>([]);
   const [errorMessage, setErrorMessage] = React.useState('');
   const [successMessage, setSuccessMessage] = React.useState('');
   const [filterLocale, setFilterLocale] = React.useState<LocaleFilterValue>('all');
@@ -322,6 +326,7 @@ export default function AdminContentManagementPanel({
   const [postEditorThumbnail, setPostEditorThumbnail] = React.useState('');
   const [mediaLibraryQuery, setMediaLibraryQuery] = React.useState('');
   const [mediaLibraryFilter, setMediaLibraryFilter] = React.useState<MediaLibraryFilterValue>('ALL');
+  const [mediaLibrarySort, setMediaLibrarySort] = React.useState<MediaLibrarySortValue>('RECENT');
   const [mediaLibraryItems, setMediaLibraryItems] = React.useState<AdminMediaLibraryItem[]>([]);
   const [mediaLibraryPage, setMediaLibraryPage] = React.useState(1);
   const [mediaLibraryPageSize, setMediaLibraryPageSize] = React.useState(MEDIA_LIBRARY_DEFAULT_PAGE_SIZE);
@@ -338,6 +343,7 @@ export default function AdminContentManagementPanel({
   const [postEditorTopicIDs, setPostEditorTopicIDs] = React.useState<string[]>([]);
   const [postEditorTopicQuery, setPostEditorTopicQuery] = React.useState('');
   const [postEditorTopicOptions, setPostEditorTopicOptions] = React.useState<AdminContentTopicItem[]>([]);
+  const [postEditorCategoryOptions, setPostEditorCategoryOptions] = React.useState<AdminContentCategoryItem[]>([]);
   const [postSeoPreviewTab, setPostSeoPreviewTab] = React.useState<PostSeoPreviewTab>('openGraph');
   const [postContentViewMode, setPostContentViewMode] = React.useState<PostContentViewMode>('editor');
   const [postEditorContent, setPostEditorContent] = React.useState('');
@@ -434,10 +440,12 @@ export default function AdminContentManagementPanel({
   const postsRequestIDRef = React.useRef(0);
   const postDetailRequestIDRef = React.useRef(0);
   const taxonomyRequestIDRef = React.useRef(0);
+  const filterTaxonomyRequestIDRef = React.useRef(0);
   const topicsPageRequestIDRef = React.useRef(0);
   const categoriesPageRequestIDRef = React.useRef(0);
   const postCommentsRequestIDRef = React.useRef(0);
   const postEditorTopicsRequestIDRef = React.useRef(0);
+  const postEditorCategoriesRequestIDRef = React.useRef(0);
   const mediaLibraryRequestIDRef = React.useRef(0);
   const postCommentsListTopRef = React.useRef<HTMLDivElement | null>(null);
   const mediaUploadInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -533,16 +541,8 @@ export default function AdminContentManagementPanel({
     [mediaLibraryItems, postEditorThumbnail],
   );
 
-  const filteredTopics = React.useMemo(
-    () => (filterLocale === 'all' ? topics : topics.filter(item => item.locale === filterLocale)),
-    [filterLocale, topics],
-  );
   const topicTotal = topicListTotal;
   const topicTabTotalPages = Math.max(1, Math.ceil(topicTotal / topicPageSize));
-  const filteredCategories = React.useMemo(
-    () => (filterLocale === 'all' ? categories : categories.filter(item => item.locale === filterLocale)),
-    [categories, filterLocale],
-  );
   const categoryTotal = categoryListTotal;
   const categoryTabTotalPages = Math.max(1, Math.ceil(categoryTotal / categoryPageSize));
   const preferredContentLocale: SupportedContentLocale = React.useMemo(() => {
@@ -570,13 +570,6 @@ export default function AdminContentManagementPanel({
     }
     return indexed;
   }, [topics]);
-
-  const editablePostCategories = React.useMemo(() => {
-    if (!editingPost) {
-      return [];
-    }
-    return categories.filter(item => item.locale.toLowerCase() === editingPost.locale.toLowerCase());
-  }, [categories, editingPost]);
 
   const [postLocaleTabs, setPostLocaleTabs] = React.useState<
     Array<{ locale: SupportedContentLocale; available: boolean }>
@@ -916,19 +909,19 @@ export default function AdminContentManagementPanel({
   React.useEffect(() => {
     const categoryExists =
       filterCategoryID === '' ||
-      filteredCategories.some(item => item.id.toLowerCase() === filterCategoryID.toLowerCase());
+      filterCategoryOptions.some(item => item.id.toLowerCase() === filterCategoryID.toLowerCase());
     if (!categoryExists) {
       setFilterCategoryID('');
     }
-  }, [filterCategoryID, filteredCategories]);
+  }, [filterCategoryID, filterCategoryOptions]);
 
   React.useEffect(() => {
     const topicExists =
-      filterTopicID === '' || filteredTopics.some(item => item.id.toLowerCase() === filterTopicID.toLowerCase());
+      filterTopicID === '' || filterTopicOptions.some(item => item.id.toLowerCase() === filterTopicID.toLowerCase());
     if (!topicExists) {
       setFilterTopicID('');
     }
-  }, [filterTopicID, filteredTopics]);
+  }, [filterTopicID, filterTopicOptions]);
 
   React.useEffect(() => {
     const appWindow = globalThis.window;
@@ -993,6 +986,67 @@ export default function AdminContentManagementPanel({
       setErrorMessage(resolvedError.message || t('adminAccount.content.errors.taxonomyLoad', { ns: 'admin-account' }));
     }
   }, [onSessionExpired, t]);
+
+  const loadFilterTaxonomyOptions = React.useCallback(async () => {
+    const requestID = filterTaxonomyRequestIDRef.current + 1;
+    filterTaxonomyRequestIDRef.current = requestID;
+
+    try {
+      const resolvedLocale = filterLocale === 'all' ? undefined : filterLocale;
+      const [nextTopics, nextCategories] = await Promise.all([
+        fetchAdminContentTopics(resolvedLocale),
+        fetchAdminContentCategories(resolvedLocale),
+      ]);
+      if (requestID !== filterTaxonomyRequestIDRef.current) {
+        return;
+      }
+      setFilterTopicOptions(nextTopics);
+      setFilterCategoryOptions(nextCategories);
+    } catch (error) {
+      if (requestID !== filterTaxonomyRequestIDRef.current) {
+        return;
+      }
+      if (isAdminSessionError(error)) {
+        onSessionExpired();
+      }
+    }
+  }, [filterLocale, onSessionExpired]);
+
+  const loadPostEditorCategories = React.useCallback(async () => {
+    if (!editingPost) {
+      setPostEditorCategoryOptions([]);
+      return;
+    }
+
+    const requestID = postEditorCategoriesRequestIDRef.current + 1;
+    postEditorCategoriesRequestIDRef.current = requestID;
+
+    try {
+      const nextCategories = await fetchAdminContentCategories(editingPost.locale);
+      if (requestID !== postEditorCategoriesRequestIDRef.current) {
+        return;
+      }
+      setPostEditorCategoryOptions(nextCategories);
+    } catch (error) {
+      if (requestID !== postEditorCategoriesRequestIDRef.current) {
+        return;
+      }
+      if (isAdminSessionError(error)) {
+        onSessionExpired();
+        return;
+      }
+      const resolvedError = resolveAdminError(error);
+      setErrorMessage(resolvedError.message || t('adminAccount.content.errors.taxonomyLoad', { ns: 'admin-account' }));
+    }
+  }, [editingPost, onSessionExpired, t]);
+
+  React.useEffect(() => {
+    void loadFilterTaxonomyOptions();
+  }, [loadFilterTaxonomyOptions]);
+
+  React.useEffect(() => {
+    void loadPostEditorCategories();
+  }, [loadPostEditorCategories]);
 
   const loadPosts = React.useCallback(async () => {
     const requestID = postsRequestIDRef.current + 1;
@@ -1378,6 +1432,7 @@ export default function AdminContentManagementPanel({
         const payload = await fetchAdminMediaLibrary({
           query: deferredMediaLibraryQuery,
           kind: mediaLibraryFilter,
+          sort: mediaLibrarySort,
           page: nextPage,
           size: nextSize,
         });
@@ -1411,6 +1466,7 @@ export default function AdminContentManagementPanel({
       deferredMediaLibraryQuery,
       isPostDetailRoute,
       mediaLibraryFilter,
+      mediaLibrarySort,
       mediaLibraryPage,
       mediaLibraryPageSize,
       onSessionExpired,
@@ -2980,7 +3036,7 @@ export default function AdminContentManagementPanel({
                             <option value="">
                               {t('adminAccount.content.modals.post.categoryNone', { ns: 'admin-account' })}
                             </option>
-                            {editablePostCategories.map(item => (
+                            {postEditorCategoryOptions.map(item => (
                               <option key={toTaxonomyKey(item)} value={item.id}>
                                 {item.name}
                               </option>
@@ -4343,7 +4399,7 @@ export default function AdminContentManagementPanel({
                             <option value="">
                               {t('adminAccount.content.filters.categories.all', { ns: 'admin-account' })}
                             </option>
-                            {filteredCategories.map(item => (
+                            {filterCategoryOptions.map(item => (
                               <option key={toTaxonomyKey(item)} value={item.id}>
                                 {resolveLocaleOptionLabel(item)}
                               </option>
@@ -4365,7 +4421,7 @@ export default function AdminContentManagementPanel({
                             <option value="">
                               {t('adminAccount.content.filters.topics.all', { ns: 'admin-account' })}
                             </option>
-                            {filteredTopics.map(item => (
+                            {filterTopicOptions.map(item => (
                               <option key={toTaxonomyKey(item)} value={item.id}>
                                 {resolveLocaleOptionLabel(item)}
                               </option>
@@ -4689,7 +4745,7 @@ export default function AdminContentManagementPanel({
                     </div>
 
                     <div className="row g-3">
-                      <div className="col-12 col-lg-8">
+                      <div className="col-12 col-xl-6">
                         <Form.Group controlId="admin-content-media-filter-query">
                           <Form.Label className="small fw-semibold mb-1">
                             {t('adminAccount.content.filters.query', { ns: 'admin-account' })}
@@ -4728,7 +4784,7 @@ export default function AdminContentManagementPanel({
                           </div>
                         </Form.Group>
                       </div>
-                      <div className="col-12 col-lg-4">
+                      <div className="col-12 col-md-6 col-xl-3">
                         <Form.Group controlId="admin-content-media-filter-kind">
                           <Form.Label className="small fw-semibold mb-1">
                             {t('adminAccount.content.modals.post.media.filterLabel', { ns: 'admin-account' })}
@@ -4748,6 +4804,33 @@ export default function AdminContentManagementPanel({
                             </option>
                             <option value="REFERENCE">
                               {t('adminAccount.content.modals.post.media.filters.reused', { ns: 'admin-account' })}
+                            </option>
+                          </Form.Select>
+                        </Form.Group>
+                      </div>
+                      <div className="col-12 col-md-6 col-xl-3">
+                        <Form.Group controlId="admin-content-media-filter-sort">
+                          <Form.Label className="small fw-semibold mb-1">
+                            {t('adminAccount.content.modals.post.media.sortLabel', { ns: 'admin-account' })}
+                          </Form.Label>
+                          <Form.Select
+                            value={mediaLibrarySort}
+                            onChange={event => {
+                              setMediaLibrarySort(event.currentTarget.value as MediaLibrarySortValue);
+                              setMediaLibraryPage(1);
+                            }}
+                          >
+                            <option value="RECENT">
+                              {t('adminAccount.content.modals.post.media.sorts.recent', { ns: 'admin-account' })}
+                            </option>
+                            <option value="NAME">
+                              {t('adminAccount.content.modals.post.media.sorts.name', { ns: 'admin-account' })}
+                            </option>
+                            <option value="SIZE">
+                              {t('adminAccount.content.modals.post.media.sorts.size', { ns: 'admin-account' })}
+                            </option>
+                            <option value="USAGE">
+                              {t('adminAccount.content.modals.post.media.sorts.usage', { ns: 'admin-account' })}
                             </option>
                           </Form.Select>
                         </Form.Group>

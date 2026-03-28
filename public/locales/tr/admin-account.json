@@ -593,10 +593,17 @@
             "queryPlaceholder": "Medyayı ada veya başlığa göre ara",
             "clearSearch": "Medya aramasını temizle",
             "filterLabel": "Kaynak",
+            "sortLabel": "Sırala",
             "filters": {
               "all": "Tüm medya",
               "uploaded": "Yüklenenler",
               "reused": "Yeniden kullanılanlar"
+            },
+            "sorts": {
+              "recent": "En yeni",
+              "name": "Ad",
+              "size": "Dosya boyutu",
+              "usage": "Kullanım"
             },
             "empty": "Geçerli arama için medya bulunamadı.",
             "badges": {

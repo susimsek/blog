@@ -5,6 +5,7 @@ import "time"
 type AdminMediaLibraryFilter struct {
 	Query string
 	Kind  string
+	Sort  string
 	Page  int
 	Size  int
 }

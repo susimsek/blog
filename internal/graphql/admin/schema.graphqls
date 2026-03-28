@@ -223,6 +223,7 @@ input AdminContentTaxonomyFilterInput {
 input AdminMediaLibraryFilterInput {
   query: String
   kind: AdminMediaLibraryItemKind
+  sort: AdminMediaLibrarySort
   page: Int
   size: Int
 }
@@ -680,6 +681,13 @@ type AdminContentCategory {
 enum AdminMediaLibraryItemKind {
   UPLOADED
   REFERENCE
+}
+
+enum AdminMediaLibrarySort {
+  RECENT
+  NAME
+  SIZE
+  USAGE
 }
 
 type AdminMediaLibraryItem {

@@ -16685,7 +16685,7 @@ func (ec *executionContext) unmarshalInputAdminMediaLibraryFilterInput(ctx conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"query", "kind", "page", "size"}
+	fieldsInOrder := [...]string{"query", "kind", "sort", "page", "size"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -16706,6 +16706,13 @@ func (ec *executionContext) unmarshalInputAdminMediaLibraryFilterInput(ctx conte
 				return it, err
 			}
 			it.Kind = data
+		case "sort":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+			data, err := ec.unmarshalOAdminMediaLibrarySort2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibrarySort(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Sort = data
 		case "page":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
 			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
@@ -23326,6 +23333,22 @@ func (ec *executionContext) unmarshalOAdminMediaLibraryItemKind2ᚖsuaybsimsek�
 }
 
 func (ec *executionContext) marshalOAdminMediaLibraryItemKind2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryItemKind(ctx context.Context, sel ast.SelectionSet, v *model.AdminMediaLibraryItemKind) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOAdminMediaLibrarySort2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibrarySort(ctx context.Context, v any) (*model.AdminMediaLibrarySort, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.AdminMediaLibrarySort)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAdminMediaLibrarySort2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibrarySort(ctx context.Context, sel ast.SelectionSet, v *model.AdminMediaLibrarySort) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
