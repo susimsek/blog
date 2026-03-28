@@ -2,12 +2,18 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"context"
+	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"hash/fnv"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"log"
 	"math"
@@ -24,18 +30,22 @@ import (
 	"suaybsimsek.com/blog-api/pkg/newsletter"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	_ "golang.org/x/image/webp"
 )
 
 const (
-	postsCollectionName      = "newsletter_posts"
-	topicsCollectionName     = "newsletter_topics"
-	categoriesCollectionName = "newsletter_categories"
-	postLikesCollectionName  = "post_likes"
-	postHitsCollectionName   = "post_hits"
-	httpTimeout              = 12 * time.Second
-	sourceBlog               = "blog"
+	postsCollectionName       = "newsletter_posts"
+	topicsCollectionName      = "newsletter_topics"
+	categoriesCollectionName  = "newsletter_categories"
+	postLikesCollectionName   = "post_likes"
+	postHitsCollectionName    = "post_hits"
+	mediaAssetsCollectionName = "admin_media_assets"
+	httpTimeout               = 12 * time.Second
+	sourceBlog                = "blog"
+	contentSyncMediaCreatedBy = "sync-newsletter-content"
 )
 
 var markdownPostIDPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{1,127}$`)
@@ -388,6 +398,152 @@ func normalizeOptionalString(raw *string) *string {
 	return &trimmed
 }
 
+func syncLegacyThumbnailAsset(
+	ctx context.Context,
+	siteURL string,
+	mediaCollection *mongo.Collection,
+	rawThumbnail *string,
+	now time.Time,
+) (*string, error) {
+	thumbnail := normalizeOptionalString(rawThumbnail)
+	if thumbnail == nil {
+		return nil, nil
+	}
+
+	resolvedValue := strings.TrimSpace(*thumbnail)
+	if resolvedValue == "" || strings.HasPrefix(resolvedValue, "/api/media/") {
+		return &resolvedValue, nil
+	}
+
+	localPath, ok := resolveLegacyThumbnailLocalPath(siteURL, resolvedValue)
+	if !ok {
+		return &resolvedValue, nil
+	}
+
+	payload, err := os.ReadFile(localPath)
+	if err != nil {
+		return nil, fmt.Errorf("thumbnail read failed (%s): %w", localPath, err)
+	}
+	if len(payload) == 0 {
+		return &resolvedValue, nil
+	}
+
+	config, _, err := image.DecodeConfig(bytes.NewReader(payload))
+	if err != nil {
+		return nil, fmt.Errorf("thumbnail image decode failed (%s): %w", localPath, err)
+	}
+	contentType := detectMediaContentType(localPath, payload)
+	if contentType == "" {
+		return nil, fmt.Errorf("thumbnail content type unsupported (%s)", localPath)
+	}
+
+	digest := sha1Hex(payload)
+	existingID, err := findExistingMediaAssetIDByDigest(ctx, mediaCollection, digest)
+	if err != nil {
+		return nil, fmt.Errorf("media asset lookup failed: %w", err)
+	}
+	if existingID != "" {
+		syncedValue := "/api/media/" + existingID
+		return &syncedValue, nil
+	}
+
+	id := primitive.NewObjectID().Hex()
+	_, err = mediaCollection.InsertOne(ctx, bson.M{
+		"id":          id,
+		"name":        filepath.Base(localPath),
+		"contentType": contentType,
+		"digest":      digest,
+		"sizeBytes":   len(payload),
+		"width":       config.Width,
+		"height":      config.Height,
+		"data":        payload,
+		"createdBy":   contentSyncMediaCreatedBy,
+		"createdAt":   now,
+		"updatedAt":   now,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("media asset insert failed: %w", err)
+	}
+
+	syncedValue := "/api/media/" + id
+	return &syncedValue, nil
+}
+
+func resolveLegacyThumbnailLocalPath(siteURL, thumbnail string) (string, bool) {
+	resolvedValue := strings.TrimSpace(thumbnail)
+	if resolvedValue == "" {
+		return "", false
+	}
+
+	if trimmedPath, ok := strings.CutPrefix(resolvedValue, "/"); ok {
+		return filepath.Join(".", "public", filepath.FromSlash(trimmedPath)), true
+	}
+
+	parsedThumbnailURL, err := url.Parse(resolvedValue)
+	if err != nil || parsedThumbnailURL.Scheme == "" || parsedThumbnailURL.Host == "" {
+		return "", false
+	}
+
+	parsedSiteURL, err := url.Parse(strings.TrimSpace(siteURL))
+	if err != nil || parsedSiteURL.Host == "" {
+		return "", false
+	}
+
+	if !strings.EqualFold(strings.TrimSpace(parsedThumbnailURL.Hostname()), strings.TrimSpace(parsedSiteURL.Hostname())) {
+		return "", false
+	}
+	if !strings.HasPrefix(parsedThumbnailURL.Path, "/") {
+		return "", false
+	}
+
+	return filepath.Join(".", "public", filepath.FromSlash(strings.TrimPrefix(parsedThumbnailURL.Path, "/"))), true
+}
+
+func detectMediaContentType(filePath string, payload []byte) string {
+	extension := strings.ToLower(strings.TrimSpace(filepath.Ext(filePath)))
+	switch extension {
+	case ".png":
+		return "image/png"
+	case ".jpg", ".jpeg":
+		return "image/jpeg"
+	case ".webp":
+		return "image/webp"
+	}
+
+	detected := strings.ToLower(strings.TrimSpace(http.DetectContentType(payload)))
+	switch detected {
+	case "image/png", "image/jpeg", "image/webp":
+		return detected
+	default:
+		return ""
+	}
+}
+
+func sha1Hex(payload []byte) string {
+	sum := sha1.Sum(payload)
+	return hex.EncodeToString(sum[:])
+}
+
+func findExistingMediaAssetIDByDigest(ctx context.Context, mediaCollection *mongo.Collection, digest string) (string, error) {
+	var doc struct {
+		ID string `bson:"id"`
+	}
+
+	err := mediaCollection.FindOne(
+		ctx,
+		bson.M{"digest": strings.TrimSpace(strings.ToLower(digest))},
+		options.FindOne().SetProjection(bson.M{"id": 1}),
+	).Decode(&doc)
+	if errors.Is(err, mongo.ErrNoDocuments) {
+		return "", nil
+	}
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(doc.ID), nil
+}
+
 func normalizeTopic(raw siteTopic) siteTopic {
 	id := normalizeID(raw.ID)
 	if id == "" {
@@ -675,6 +831,7 @@ func ensureIndexes(
 	categoriesCollection *mongo.Collection,
 	likesCollection *mongo.Collection,
 	hitsCollection *mongo.Collection,
+	mediaCollection *mongo.Collection,
 ) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -788,6 +945,28 @@ func ensureIndexes(
 		return fmt.Errorf("post_hits index create failed: %w", err)
 	}
 
+	mediaIndexes := []mongo.IndexModel{
+		{
+			Keys:    bson.D{{Key: "id", Value: 1}},
+			Options: options.Index().SetName("uniq_admin_media_asset_id").SetUnique(true),
+		},
+		{
+			Keys:    bson.D{{Key: "digest", Value: 1}},
+			Options: options.Index().SetName("uniq_admin_media_asset_digest").SetUnique(true),
+		},
+		{
+			Keys:    bson.D{{Key: "updatedAt", Value: -1}},
+			Options: options.Index().SetName("idx_admin_media_asset_updated"),
+		},
+		{
+			Keys:    bson.D{{Key: "name", Value: 1}},
+			Options: options.Index().SetName("idx_admin_media_asset_name"),
+		},
+	}
+	if _, err := mediaCollection.Indexes().CreateMany(ctx, mediaIndexes); err != nil {
+		return fmt.Errorf("admin media asset index create failed: %w", err)
+	}
+
 	return nil
 }
 
@@ -862,6 +1041,7 @@ func syncLocale(
 	categoriesCollection *mongo.Collection,
 	likesCollection *mongo.Collection,
 	hitsCollection *mongo.Collection,
+	mediaCollection *mongo.Collection,
 ) (postCount, topicCount, categoryCount int, err error) {
 	var posts []sitePost
 	if err := fetchLocaleData(siteURL, locale, "posts", &posts); err != nil {
@@ -1033,7 +1213,10 @@ func syncLocale(
 		}
 
 		link := normalizeOptionalString(rawPost.Link)
-		thumbnail := normalizeOptionalString(rawPost.Thumbnail)
+		thumbnail, err := syncLegacyThumbnailAsset(ctx, siteURL, mediaCollection, rawPost.Thumbnail, now)
+		if err != nil {
+			return 0, 0, 0, fmt.Errorf("thumbnail media sync failed for postId=%s: %w", postID, err)
+		}
 		var linkValue any = nil
 		if link != nil {
 			linkValue = *link
@@ -1053,7 +1236,7 @@ func syncLocale(
 			}
 		}
 
-		_, err := postsCollection.UpdateOne(
+		_, err = postsCollection.UpdateOne(
 			ctx,
 			bson.M{"locale": locale, "id": postID},
 			bson.M{
@@ -1190,8 +1373,9 @@ func main() {
 	categoriesCollection := db.Collection(categoriesCollectionName)
 	likesCollection := db.Collection(postLikesCollectionName)
 	hitsCollection := db.Collection(postHitsCollectionName)
+	mediaCollection := db.Collection(mediaAssetsCollectionName)
 
-	if err := ensureIndexes(postsCollection, topicsCollection, categoriesCollection, likesCollection, hitsCollection); err != nil {
+	if err := ensureIndexes(postsCollection, topicsCollection, categoriesCollection, likesCollection, hitsCollection, mediaCollection); err != nil {
 		log.Fatalf("index ensure failed: %v", err)
 	}
 
@@ -1205,6 +1389,7 @@ func main() {
 			categoriesCollection,
 			likesCollection,
 			hitsCollection,
+			mediaCollection,
 		)
 		if err != nil {
 			log.Fatalf("sync failed for locale=%s: %v", locale, err)

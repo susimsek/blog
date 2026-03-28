@@ -456,7 +456,18 @@
         "actions": {
           "copy": "Yolu kopyala",
           "copied": "Kopyalandı",
-          "open": "Aç"
+          "open": "Aç",
+          "delete": "Asseti sil"
+        },
+        "deleteConfirm": {
+          "title": "Medya assetini sil",
+          "copy": "{{name}} kalıcı olarak silinsin mi? Bu işlem geri alınamaz.",
+          "inUse_one": "Bu görsel hâlâ {{count}} postta kullanılıyor. Asseti silmeden önce post metadata’sından kaldır.",
+          "inUse_other": "Bu görsel hâlâ {{count}} postta kullanılıyor. Asseti silmeden önce post metadata’sından kaldır.",
+          "labels": {
+            "path": "Yol",
+            "usage": "Kullanım"
+          }
         }
       },
       "actions": {
@@ -484,7 +495,8 @@
         "categoryUpdated": "Kategori güncellendi: {{id}}",
         "categoryDeleted": "Kategori silindi: {{id}}",
         "mediaUploaded": "Görsel yüklendi: {{name}}",
-        "mediaCopied": "Yol kopyalandı: {{name}}"
+        "mediaCopied": "Yol kopyalandı: {{name}}",
+        "mediaDeleted": "Görsel silindi: {{name}}"
       },
       "errors": {
         "taxonomyLoad": "Topic ve kategoriler yüklenemedi.",
@@ -500,7 +512,8 @@
         "categoryDelete": "Kategori silinemedi.",
         "mediaLibraryLoad": "Medya kütüphanesi yüklenemedi.",
         "mediaLibraryUpload": "Görsel yüklenemedi.",
-        "mediaLibraryCopy": "Medya yolu kopyalanamadı."
+        "mediaLibraryCopy": "Medya yolu kopyalanamadı.",
+        "mediaLibraryDelete": "Medya asseti silinemedi."
       },
       "validation": {
         "id": "Sadece küçük harf, rakam ve tire kullan (2-128 karakter)."

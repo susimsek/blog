@@ -40,6 +40,7 @@ import {
   createAdminContentTopic,
   deleteAdminComment,
   deleteAdminContentCategory,
+  deleteAdminMediaAsset,
   deleteAdminContentPost,
   deleteAdminContentTopic,
   fetchAdminComments,
@@ -329,6 +330,8 @@ export default function AdminContentManagementPanel({
   const [isMediaLibraryUploading, setIsMediaLibraryUploading] = React.useState(false);
   const [mediaLibraryErrorMessage, setMediaLibraryErrorMessage] = React.useState('');
   const [copiedMediaAssetID, setCopiedMediaAssetID] = React.useState('');
+  const [pendingMediaAssetDelete, setPendingMediaAssetDelete] = React.useState<AdminMediaLibraryItem | null>(null);
+  const [isMediaAssetDeleting, setIsMediaAssetDeleting] = React.useState(false);
   const [postEditorPublishedDate, setPostEditorPublishedDate] = React.useState('');
   const [postEditorUpdatedDate, setPostEditorUpdatedDate] = React.useState('');
   const [postEditorCategoryID, setPostEditorCategoryID] = React.useState('');
@@ -1491,6 +1494,64 @@ export default function AdminContentManagementPanel({
     },
     [t],
   );
+
+  const handleDeleteMediaAsset = React.useCallback(async () => {
+    if (!pendingMediaAssetDelete || isMediaAssetDeleting) {
+      return;
+    }
+
+    setIsMediaAssetDeleting(true);
+    setMediaLibraryErrorMessage('');
+    setSuccessMessage('');
+    try {
+      const deleted = await deleteAdminMediaAsset(pendingMediaAssetDelete.id);
+      if (!deleted) {
+        throw new Error(t('adminAccount.content.errors.mediaLibraryDelete', { ns: 'admin-account' }));
+      }
+
+      if (postEditorThumbnail.trim() === pendingMediaAssetDelete.value.trim()) {
+        setPostEditorThumbnail('');
+      }
+      setPendingMediaAssetDelete(null);
+
+      const nextTotal = Math.max(mediaLibraryTotal - 1, 0);
+      const nextTotalPages = Math.max(1, Math.ceil(nextTotal / mediaLibraryPageSize));
+      const nextPage = Math.min(mediaLibraryPage, nextTotalPages);
+      if (nextPage === mediaLibraryPage) {
+        await loadMediaLibrary(nextPage, mediaLibraryPageSize);
+      } else {
+        setMediaLibraryPage(nextPage);
+      }
+
+      setSuccessMessage(
+        t('adminAccount.content.success.mediaDeleted', {
+          ns: 'admin-account',
+          name: pendingMediaAssetDelete.name,
+        }),
+      );
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        onSessionExpired();
+        return;
+      }
+      const resolvedError = resolveAdminError(error);
+      setMediaLibraryErrorMessage(
+        resolvedError.message || t('adminAccount.content.errors.mediaLibraryDelete', { ns: 'admin-account' }),
+      );
+    } finally {
+      setIsMediaAssetDeleting(false);
+    }
+  }, [
+    isMediaAssetDeleting,
+    loadMediaLibrary,
+    mediaLibraryPage,
+    mediaLibraryPageSize,
+    mediaLibraryTotal,
+    onSessionExpired,
+    pendingMediaAssetDelete,
+    postEditorThumbnail,
+    t,
+  ]);
 
   const handlePostTopicToggle = React.useCallback((topicID: string, checked: boolean) => {
     setPostEditorTopicIDs(previous => {
@@ -4860,6 +4921,19 @@ export default function AdminContentManagementPanel({
                                     <FontAwesomeIcon icon="up-right-from-square" className="me-2" />
                                     {t('adminAccount.content.media.actions.open', { ns: 'admin-account' })}
                                   </Button>
+                                  {item.kind === 'UPLOADED' ? (
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant="danger"
+                                      onClick={() => {
+                                        setPendingMediaAssetDelete(item);
+                                      }}
+                                    >
+                                      <FontAwesomeIcon icon="trash" className="me-2" />
+                                      {t('adminAccount.content.media.actions.delete', { ns: 'admin-account' })}
+                                    </Button>
+                                  ) : null}
                                 </div>
                               </div>
                             </div>
@@ -4894,6 +4968,82 @@ export default function AdminContentManagementPanel({
           </Tabs>
         )}
       </div>
+
+      <Modal
+        show={pendingMediaAssetDelete !== null}
+        onHide={() => {
+          if (isMediaAssetDeleting) {
+            return;
+          }
+          setPendingMediaAssetDelete(null);
+        }}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{t('adminAccount.content.media.deleteConfirm.title', { ns: 'admin-account' })}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="small text-muted mb-3">
+            {t('adminAccount.content.media.deleteConfirm.copy', {
+              ns: 'admin-account',
+              name: pendingMediaAssetDelete?.name ?? '',
+            })}
+          </p>
+          <dl className="row gy-2 mb-0 small">
+            <dt className="col-sm-3 text-muted">
+              {t('adminAccount.content.media.deleteConfirm.labels.path', { ns: 'admin-account' })}
+            </dt>
+            <dd className="col-sm-9 mb-0 text-break">{pendingMediaAssetDelete?.value ?? ''}</dd>
+            <dt className="col-sm-3 text-muted">
+              {t('adminAccount.content.media.deleteConfirm.labels.usage', { ns: 'admin-account' })}
+            </dt>
+            <dd className="col-sm-9 mb-0 text-break">
+              {t('adminAccount.content.modals.post.media.usedIn', {
+                ns: 'admin-account',
+                count: pendingMediaAssetDelete?.usageCount ?? 0,
+              })}
+            </dd>
+          </dl>
+          {pendingMediaAssetDelete && pendingMediaAssetDelete.usageCount > 0 ? (
+            <Alert variant="warning" className="mt-3 mb-0">
+              {t('adminAccount.content.media.deleteConfirm.inUse', {
+                ns: 'admin-account',
+                count: pendingMediaAssetDelete.usageCount,
+              })}
+            </Alert>
+          ) : null}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={isMediaAssetDeleting}
+            onClick={() => {
+              setPendingMediaAssetDelete(null);
+            }}
+          >
+            {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
+          </Button>
+          <Button
+            type="button"
+            variant="danger"
+            disabled={!pendingMediaAssetDelete || isMediaAssetDeleting || pendingMediaAssetDelete.usageCount > 0}
+            onClick={handleDeleteMediaAsset}
+          >
+            {isMediaAssetDeleting ? (
+              <span className="d-inline-flex align-items-center gap-2">
+                <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
+                <span>{t('adminAccount.content.actions.deleting', { ns: 'admin-account' })}</span>
+              </span>
+            ) : (
+              <>
+                <FontAwesomeIcon icon="trash" className="me-2" />
+                {t('adminAccount.content.media.actions.delete', { ns: 'admin-account' })}
+              </>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <Modal
         show={pendingPostDelete !== null}

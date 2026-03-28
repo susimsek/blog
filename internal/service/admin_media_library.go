@@ -131,6 +131,43 @@ func UploadAdminMediaAsset(
 	return &item, nil
 }
 
+func DeleteAdminMediaAsset(ctx context.Context, adminUser *domain.AdminUser, id string) error {
+	if err := requireAdminAuthentication(adminUser); err != nil {
+		return err
+	}
+
+	resolvedID := strings.TrimSpace(id)
+	if resolvedID == "" {
+		return apperrors.BadRequest("media asset id is required")
+	}
+
+	record, err := adminMediaAssetRepository.FindMediaAssetByID(ctx, resolvedID)
+	if err != nil {
+		return toAdminMediaLibraryError(err, "failed to load admin media asset")
+	}
+	if record == nil {
+		return apperrors.New("NOT_FOUND", "media asset not found", 404, nil)
+	}
+
+	usageCount, err := adminMediaAssetRepository.CountMediaAssetUsage(ctx, "/api/media/"+resolvedID)
+	if err != nil {
+		return toAdminMediaLibraryError(err, "failed to load media asset usage")
+	}
+	if usageCount > 0 {
+		return apperrors.BadRequest("media asset is still used by posts")
+	}
+
+	deleted, err := adminMediaAssetRepository.DeleteMediaAssetByID(ctx, resolvedID)
+	if err != nil {
+		return toAdminMediaLibraryError(err, "failed to delete admin media asset")
+	}
+	if !deleted {
+		return apperrors.New("NOT_FOUND", "media asset not found", 404, nil)
+	}
+
+	return nil
+}
+
 func ResolveAdminMediaAsset(ctx context.Context, id string) (*AdminMediaAsset, error) {
 	resolvedID := strings.TrimSpace(id)
 	if resolvedID == "" {

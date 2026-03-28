@@ -1,0 +1,163 @@
+package service
+
+import (
+	"context"
+	"errors"
+	"testing"
+	"time"
+
+	"suaybsimsek.com/blog-api/internal/domain"
+	"suaybsimsek.com/blog-api/internal/repository"
+)
+
+type adminMediaAssetStubRepository struct {
+	listMediaLibraryItems  func(context.Context, domain.AdminMediaLibraryFilter) ([]domain.AdminMediaLibraryItem, error)
+	findMediaAssetByID     func(context.Context, string) (*domain.AdminMediaAssetRecord, error)
+	findMediaAssetByDigest func(context.Context, string) (*domain.AdminMediaAssetRecord, error)
+	countMediaAssetUsage   func(context.Context, string) (int, error)
+	createMediaAsset       func(context.Context, domain.AdminMediaAssetRecord) (*domain.AdminMediaAssetRecord, error)
+	deleteMediaAssetByID   func(context.Context, string) (bool, error)
+}
+
+func (stub adminMediaAssetStubRepository) ListMediaLibraryItems(
+	ctx context.Context,
+	filter domain.AdminMediaLibraryFilter,
+) ([]domain.AdminMediaLibraryItem, error) {
+	if stub.listMediaLibraryItems == nil {
+		return nil, nil
+	}
+	return stub.listMediaLibraryItems(ctx, filter)
+}
+
+func (stub adminMediaAssetStubRepository) FindMediaAssetByID(
+	ctx context.Context,
+	id string,
+) (*domain.AdminMediaAssetRecord, error) {
+	if stub.findMediaAssetByID == nil {
+		return nil, nil
+	}
+	return stub.findMediaAssetByID(ctx, id)
+}
+
+func (stub adminMediaAssetStubRepository) FindMediaAssetByDigest(
+	ctx context.Context,
+	digest string,
+) (*domain.AdminMediaAssetRecord, error) {
+	if stub.findMediaAssetByDigest == nil {
+		return nil, nil
+	}
+	return stub.findMediaAssetByDigest(ctx, digest)
+}
+
+func (stub adminMediaAssetStubRepository) CountMediaAssetUsage(ctx context.Context, value string) (int, error) {
+	if stub.countMediaAssetUsage == nil {
+		return 0, nil
+	}
+	return stub.countMediaAssetUsage(ctx, value)
+}
+
+func (stub adminMediaAssetStubRepository) CreateMediaAsset(
+	ctx context.Context,
+	record domain.AdminMediaAssetRecord,
+) (*domain.AdminMediaAssetRecord, error) {
+	if stub.createMediaAsset == nil {
+		return nil, nil
+	}
+	return stub.createMediaAsset(ctx, record)
+}
+
+func (stub adminMediaAssetStubRepository) DeleteMediaAssetByID(ctx context.Context, id string) (bool, error) {
+	if stub.deleteMediaAssetByID == nil {
+		return false, nil
+	}
+	return stub.deleteMediaAssetByID(ctx, id)
+}
+
+func TestDeleteAdminMediaAssetRejectsUsedAssets(t *testing.T) {
+	originalRepository := adminMediaAssetRepository
+	t.Cleanup(func() {
+		adminMediaAssetRepository = originalRepository
+	})
+
+	adminMediaAssetRepository = adminMediaAssetStubRepository{
+		findMediaAssetByID: func(context.Context, string) (*domain.AdminMediaAssetRecord, error) {
+			return &domain.AdminMediaAssetRecord{
+				ID:          "asset-1",
+				Name:        "hero.webp",
+				ContentType: "image/webp",
+				CreatedAt:   time.Now().UTC(),
+				UpdatedAt:   time.Now().UTC(),
+			}, nil
+		},
+		countMediaAssetUsage: func(_ context.Context, value string) (int, error) {
+			if value != "/api/media/asset-1" {
+				t.Fatalf("unexpected value %q", value)
+			}
+			return 2, nil
+		},
+		deleteMediaAssetByID: func(context.Context, string) (bool, error) {
+			t.Fatal("delete should not be called when asset is still used")
+			return false, nil
+		},
+	}
+
+	err := DeleteAdminMediaAsset(context.Background(), &domain.AdminUser{ID: "admin-1"}, "asset-1")
+	if err == nil || err.Error() != "media asset is still used by posts" {
+		t.Fatalf("expected in-use error, got %v", err)
+	}
+}
+
+func TestDeleteAdminMediaAssetDeletesUnusedAsset(t *testing.T) {
+	originalRepository := adminMediaAssetRepository
+	t.Cleanup(func() {
+		adminMediaAssetRepository = originalRepository
+	})
+
+	deletedID := ""
+	adminMediaAssetRepository = adminMediaAssetStubRepository{
+		findMediaAssetByID: func(context.Context, string) (*domain.AdminMediaAssetRecord, error) {
+			return &domain.AdminMediaAssetRecord{
+				ID:          "asset-2",
+				Name:        "hero.webp",
+				ContentType: "image/webp",
+				CreatedAt:   time.Now().UTC(),
+				UpdatedAt:   time.Now().UTC(),
+			}, nil
+		},
+		countMediaAssetUsage: func(_ context.Context, value string) (int, error) {
+			if value != "/api/media/asset-2" {
+				t.Fatalf("unexpected value %q", value)
+			}
+			return 0, nil
+		},
+		deleteMediaAssetByID: func(_ context.Context, id string) (bool, error) {
+			deletedID = id
+			return true, nil
+		},
+	}
+
+	if err := DeleteAdminMediaAsset(context.Background(), &domain.AdminUser{ID: "admin-1"}, "asset-2"); err != nil {
+		t.Fatalf("expected delete to succeed, got %v", err)
+	}
+	if deletedID != "asset-2" {
+		t.Fatalf("expected deleted id asset-2, got %q", deletedID)
+	}
+}
+
+func TestDeleteAdminMediaAssetMapsRepositoryFailure(t *testing.T) {
+	originalRepository := adminMediaAssetRepository
+	t.Cleanup(func() {
+		adminMediaAssetRepository = originalRepository
+	})
+
+	adminMediaAssetRepository = adminMediaAssetStubRepository{
+		findMediaAssetByID: func(context.Context, string) (*domain.AdminMediaAssetRecord, error) {
+			return nil, repository.ErrAdminMediaAssetRepositoryUnavailable
+		},
+	}
+
+	err := DeleteAdminMediaAsset(context.Background(), &domain.AdminUser{ID: "admin-1"}, "asset-3")
+	if err == nil || !errors.Is(err, repository.ErrAdminMediaAssetRepositoryUnavailable) {
+		t.Fatalf("expected repository unavailable error, got %v", err)
+	}
+}

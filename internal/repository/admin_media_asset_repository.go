@@ -31,7 +31,9 @@ type AdminMediaAssetRepository interface {
 	ListMediaLibraryItems(ctx context.Context, filter domain.AdminMediaLibraryFilter) ([]domain.AdminMediaLibraryItem, error)
 	FindMediaAssetByID(ctx context.Context, id string) (*domain.AdminMediaAssetRecord, error)
 	FindMediaAssetByDigest(ctx context.Context, digest string) (*domain.AdminMediaAssetRecord, error)
+	CountMediaAssetUsage(ctx context.Context, value string) (int, error)
 	CreateMediaAsset(ctx context.Context, record domain.AdminMediaAssetRecord) (*domain.AdminMediaAssetRecord, error)
+	DeleteMediaAssetByID(ctx context.Context, id string) (bool, error)
 }
 
 type adminMediaAssetMongoRepository struct{}
@@ -180,6 +182,69 @@ func (*adminMediaAssetMongoRepository) CreateMediaAsset(
 	created.CreatedAt = now
 	created.UpdatedAt = updatedAt
 	return &created, nil
+}
+
+func (*adminMediaAssetMongoRepository) CountMediaAssetUsage(ctx context.Context, value string) (int, error) {
+	postsCollection, err := getPostContentCollection()
+	if err != nil {
+		return 0, fmt.Errorf(adminMediaAssetRepositoryUnavailableFormat, ErrAdminMediaAssetRepositoryUnavailable, err)
+	}
+
+	resolvedValue := strings.TrimSpace(value)
+	if resolvedValue == "" {
+		return 0, nil
+	}
+
+	cursor, err := postsCollection.Aggregate(
+		ctx,
+		mongo.Pipeline{
+			bson.D{{Key: "$match", Value: bson.M{"thumbnail": resolvedValue}}},
+			bson.D{{Key: "$group", Value: bson.M{
+				"_id":     nil,
+				"postIDs": bson.M{"$addToSet": "$id"},
+			}}},
+			bson.D{{Key: "$project", Value: bson.M{
+				"_id":        0,
+				"usageCount": bson.M{"$size": "$postIDs"},
+			}}},
+		},
+	)
+	if err != nil {
+		return 0, err
+	}
+	defer func() {
+		_ = cursor.Close(ctx)
+	}()
+
+	if !cursor.Next(ctx) {
+		if err := cursor.Err(); err != nil {
+			return 0, err
+		}
+		return 0, nil
+	}
+
+	var doc struct {
+		UsageCount int `bson:"usageCount"`
+	}
+	if err := cursor.Decode(&doc); err != nil {
+		return 0, err
+	}
+
+	return doc.UsageCount, nil
+}
+
+func (*adminMediaAssetMongoRepository) DeleteMediaAssetByID(ctx context.Context, id string) (bool, error) {
+	mediaCollection, err := getPostMediaAssetsCollection()
+	if err != nil {
+		return false, fmt.Errorf(adminMediaAssetRepositoryUnavailableFormat, ErrAdminMediaAssetRepositoryUnavailable, err)
+	}
+
+	result, err := mediaCollection.DeleteOne(ctx, bson.M{"id": strings.TrimSpace(id)})
+	if err != nil {
+		return false, err
+	}
+
+	return result.DeletedCount > 0, nil
 }
 
 type adminMediaAssetDocument struct {
@@ -421,8 +486,12 @@ func enrichMediaLibraryUsageCounts(
 		mongo.Pipeline{
 			bson.D{{Key: "$match", Value: bson.M{"thumbnail": bson.M{"$in": values}}}},
 			bson.D{{Key: "$group", Value: bson.M{
-				"_id":        "$thumbnail",
-				"usageCount": bson.M{"$sum": 1},
+				"_id":     "$thumbnail",
+				"postIDs": bson.M{"$addToSet": "$id"},
+			}}},
+			bson.D{{Key: "$project", Value: bson.M{
+				"_id":        1,
+				"usageCount": bson.M{"$size": "$postIDs"},
 			}}},
 		},
 	)

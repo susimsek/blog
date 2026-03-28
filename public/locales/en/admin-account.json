@@ -456,7 +456,18 @@
         "actions": {
           "copy": "Copy path",
           "copied": "Copied",
-          "open": "Open"
+          "open": "Open",
+          "delete": "Delete asset"
+        },
+        "deleteConfirm": {
+          "title": "Delete media asset",
+          "copy": "Delete {{name}} permanently? This action cannot be undone.",
+          "inUse_one": "This image is still used in {{count}} post. Remove it from post metadata before deleting the asset.",
+          "inUse_other": "This image is still used in {{count}} posts. Remove it from post metadata before deleting the asset.",
+          "labels": {
+            "path": "Path",
+            "usage": "Usage"
+          }
         }
       },
       "actions": {
@@ -484,7 +495,8 @@
         "categoryUpdated": "Category updated: {{id}}",
         "categoryDeleted": "Category deleted: {{id}}",
         "mediaUploaded": "Image uploaded: {{name}}",
-        "mediaCopied": "Path copied: {{name}}"
+        "mediaCopied": "Path copied: {{name}}",
+        "mediaDeleted": "Image deleted: {{name}}"
       },
       "errors": {
         "taxonomyLoad": "Topics and categories could not be loaded.",
@@ -500,7 +512,8 @@
         "categoryDelete": "Category could not be deleted.",
         "mediaLibraryLoad": "Media library could not be loaded.",
         "mediaLibraryUpload": "Image could not be uploaded.",
-        "mediaLibraryCopy": "Media path could not be copied."
+        "mediaLibraryCopy": "Media path could not be copied.",
+        "mediaLibraryDelete": "Media asset could not be deleted."
       },
       "validation": {
         "id": "Use lowercase letters, numbers, and dash only (2-128 chars)."

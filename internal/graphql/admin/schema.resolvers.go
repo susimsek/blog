@@ -71,6 +71,7 @@ var (
 	updateAdminContentPostMetadataFn        = appservice.UpdateAdminContentPostMetadata
 	updateAdminContentPostContentFn         = appservice.UpdateAdminContentPostContent
 	uploadAdminMediaAssetFn                 = appservice.UploadAdminMediaAsset
+	deleteAdminMediaAssetFn                 = appservice.DeleteAdminMediaAsset
 	deleteAdminContentPostFn                = appservice.DeleteAdminContentPost
 	createAdminContentTopicFn               = appservice.CreateAdminContentTopic
 	updateAdminContentTopicFn               = appservice.UpdateAdminContentTopic
@@ -1302,6 +1303,20 @@ func (r *adminMutationResolver) UploadMediaAsset(
 	}
 
 	return mapAdminMediaLibraryItem(record), nil
+}
+
+// DeleteMediaAsset is the resolver for the deleteMediaAsset field.
+func (r *adminMutationResolver) DeleteMediaAsset(ctx context.Context, id string) (*model.AdminDeletePayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := deleteAdminMediaAssetFn(ctx, adminUser, strings.TrimSpace(id)); err != nil {
+		return nil, err
+	}
+
+	return &model.AdminDeletePayload{Success: true}, nil
 }
 
 // DeleteContentPost is the resolver for the deleteContentPost field.

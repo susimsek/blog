@@ -429,6 +429,12 @@ type AdminUploadMediaAssetPayload = {
   uploadMediaAsset: AdminMediaLibraryItem;
 };
 
+type AdminDeleteMediaAssetPayload = {
+  deleteMediaAsset: {
+    success: boolean;
+  };
+};
+
 type AdminDeleteContentPostPayload = {
   deleteContentPost: {
     success: boolean;
@@ -1342,6 +1348,14 @@ const ADMIN_UPLOAD_MEDIA_ASSET_MUTATION = gql`
       usageCount
       createdAt
       updatedAt
+    }
+  }
+`;
+
+const ADMIN_DELETE_MEDIA_ASSET_MUTATION = gql`
+  mutation AdminDeleteMediaAsset($id: ID!) {
+    deleteMediaAsset(id: $id) {
+      success
     }
   }
 `;
@@ -2709,6 +2723,25 @@ export const uploadAdminMediaAsset = async (input: { fileName: string; dataUrl: 
   );
 
   return payload.uploadMediaAsset;
+};
+
+export const deleteAdminMediaAsset = async (id: string) => {
+  const payload = await executeAdminGraphQL<
+    AdminDeleteMediaAssetPayload,
+    {
+      id: string;
+    }
+  >(
+    ADMIN_DELETE_MEDIA_ASSET_MUTATION,
+    {
+      id: id.trim(),
+    },
+    {
+      operationName: 'AdminDeleteMediaAsset',
+    },
+  );
+
+  return payload.deleteMediaAsset?.success === true;
 };
 
 export const deleteAdminContentPost = async (input: { locale: string; id: string }) => {

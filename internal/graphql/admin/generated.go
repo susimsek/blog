@@ -331,6 +331,7 @@ type ComplexityRoot struct {
 		DeleteContentPost                func(childComplexity int, input model.AdminContentEntityKeyInput) int
 		DeleteContentTopic               func(childComplexity int, input model.AdminContentEntityKeyInput) int
 		DeleteErrorMessage               func(childComplexity int, input model.AdminErrorMessageKeyInput) int
+		DeleteMediaAsset                 func(childComplexity int, id string) int
 		DeleteNewsletterSubscriber       func(childComplexity int, input model.AdminDeleteNewsletterSubscriberInput) int
 		DisconnectGithub                 func(childComplexity int) int
 		DisconnectGoogle                 func(childComplexity int) int
@@ -551,6 +552,7 @@ type AdminMutationResolver interface {
 	UpdateContentPostMetadata(ctx context.Context, input model.AdminUpdateContentPostMetadataInput) (*model.AdminContentPost, error)
 	UpdateContentPostContent(ctx context.Context, input model.AdminUpdateContentPostContentInput) (*model.AdminContentPost, error)
 	UploadMediaAsset(ctx context.Context, input model.AdminUploadMediaAssetInput) (*model.AdminMediaLibraryItem, error)
+	DeleteMediaAsset(ctx context.Context, id string) (*model.AdminDeletePayload, error)
 	DeleteContentPost(ctx context.Context, input model.AdminContentEntityKeyInput) (*model.AdminDeletePayload, error)
 	CreateContentTopic(ctx context.Context, input model.AdminContentTopicInput) (*model.AdminContentTopic, error)
 	UpdateContentTopic(ctx context.Context, input model.AdminContentTopicInput) (*model.AdminContentTopic, error)
@@ -1776,6 +1778,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.DeleteErrorMessage(childComplexity, args["input"].(model.AdminErrorMessageKeyInput)), true
+	case "AdminMutation.deleteMediaAsset":
+		if e.complexity.AdminMutation.DeleteMediaAsset == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_deleteMediaAsset_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.DeleteMediaAsset(childComplexity, args["id"].(string)), true
 	case "AdminMutation.deleteNewsletterSubscriber":
 		if e.complexity.AdminMutation.DeleteNewsletterSubscriber == nil {
 			break
@@ -3090,6 +3103,17 @@ func (ec *executionContext) field_AdminMutation_deleteErrorMessage_args(ctx cont
 		return nil, err
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminMutation_deleteMediaAsset_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNID2string)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -10145,6 +10169,51 @@ func (ec *executionContext) fieldContext_AdminMutation_uploadMediaAsset(ctx cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_AdminMutation_uploadMediaAsset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_deleteMediaAsset(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_deleteMediaAsset,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().DeleteMediaAsset(ctx, fc.Args["id"].(string))
+		},
+		nil,
+		ec.marshalNAdminDeletePayload2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminDeletePayload,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_deleteMediaAsset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_AdminDeletePayload_success(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminDeletePayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_deleteMediaAsset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -19366,6 +19435,13 @@ func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.Selectio
 		case "uploadMediaAsset":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._AdminMutation_uploadMediaAsset(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteMediaAsset":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_deleteMediaAsset(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

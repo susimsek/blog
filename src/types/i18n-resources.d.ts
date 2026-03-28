@@ -254,6 +254,7 @@ interface Resources {
           "categoryDelete": "Category could not be deleted.",
           "categoryUpdate": "Category could not be updated.",
           "mediaLibraryCopy": "Media path could not be copied.",
+          "mediaLibraryDelete": "Media asset could not be deleted.",
           "mediaLibraryLoad": "Media library could not be loaded.",
           "mediaLibraryUpload": "Image could not be uploaded.",
           "postContentUpdate": "Post content could not be updated.",
@@ -302,9 +303,20 @@ interface Resources {
           "actions": {
             "copied": "Copied",
             "copy": "Copy path",
+            "delete": "Delete asset",
             "open": "Open"
           },
           "copy": "Upload images, review reusable thumbnails, and copy media paths for content metadata.",
+          "deleteConfirm": {
+            "copy": "Delete {{name}} permanently? This action cannot be undone.",
+            "inUse_one": "This image is still used in {{count}} post. Remove it from post metadata before deleting the asset.",
+            "inUse_other": "This image is still used in {{count}} posts. Remove it from post metadata before deleting the asset.",
+            "labels": {
+              "path": "Path",
+              "usage": "Usage"
+            },
+            "title": "Delete media asset"
+          },
           "loading": "Loading media library...",
           "title": "Media library"
         },
@@ -436,6 +448,7 @@ interface Resources {
           "categoryDeleted": "Category deleted: {{id}}",
           "categoryUpdated": "Category updated: {{id}}",
           "mediaCopied": "Path copied: {{name}}",
+          "mediaDeleted": "Image deleted: {{name}}",
           "mediaUploaded": "Image uploaded: {{name}}",
           "postContentUpdated": "Post content updated: {{id}}",
           "postDeleted": "Post deleted: {{id}}",
