@@ -1,4 +1,4 @@
-query posts($locale: Locale!, $input: PostsQueryInput) {
+query PostsQuery($locale: Locale!, $input: PostsQueryInput) {
   posts(locale: $locale, input: $input) {
     status
     locale
@@ -40,7 +40,7 @@ query posts($locale: Locale!, $input: PostsQueryInput) {
   }
 }
 
-query post($locale: Locale!, $id: ID!) {
+query PostQuery($locale: Locale!, $id: ID!) {
   post(locale: $locale, id: $id) {
     status
     locale
@@ -78,7 +78,7 @@ query post($locale: Locale!, $id: ID!) {
   }
 }
 
-query comments($postId: ID!) {
+query CommentsQuery($postId: ID!) {
   comments(postId: $postId) {
     status
     postId
@@ -104,7 +104,7 @@ query comments($postId: ID!) {
   }
 }
 
-query postRuntime($locale: Locale!, $id: ID!) {
+query PostRuntimeQuery($locale: Locale!, $id: ID!) {
   post(locale: $locale, id: $id) {
     status
     engagement {
@@ -139,7 +139,7 @@ query postRuntime($locale: Locale!, $id: ID!) {
   }
 }
 
-mutation incrementPostLike($postId: ID!) {
+mutation IncrementPostLikeMutation($postId: ID!) {
   incrementPostLike(postId: $postId) {
     status
     postId
@@ -148,7 +148,7 @@ mutation incrementPostLike($postId: ID!) {
   }
 }
 
-mutation incrementPostHit($postId: ID!) {
+mutation IncrementPostHitMutation($postId: ID!) {
   incrementPostHit(postId: $postId) {
     status
     postId
@@ -157,7 +157,7 @@ mutation incrementPostHit($postId: ID!) {
   }
 }
 
-mutation addComment($input: AddCommentInput!) {
+mutation AddCommentMutation($input: AddCommentInput!) {
   addComment(input: $input) {
     status
     postId
@@ -165,28 +165,28 @@ mutation addComment($input: AddCommentInput!) {
   }
 }
 
-mutation subscribeNewsletter($input: NewsletterSubscribeInput!) {
+mutation SubscribeNewsletterMutation($input: NewsletterSubscribeInput!) {
   subscribeNewsletter(input: $input) {
     status
     forwardTo
   }
 }
 
-mutation resendNewsletterConfirmation($input: NewsletterResendInput!) {
+mutation ResendNewsletterConfirmationMutation($input: NewsletterResendInput!) {
   resendNewsletterConfirmation(input: $input) {
     status
     forwardTo
   }
 }
 
-mutation confirmNewsletterSubscription($token: String!) {
+mutation ConfirmNewsletterSubscriptionMutation($token: String!) {
   confirmNewsletterSubscription(token: $token) {
     status
     forwardTo
   }
 }
 
-mutation unsubscribeNewsletter($token: String!) {
+mutation UnsubscribeNewsletterMutation($token: String!) {
   unsubscribeNewsletter(token: $token) {
     status
     forwardTo

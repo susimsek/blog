@@ -651,7 +651,7 @@ export class AdminGraphQLRequestError extends Error {
 }
 
 const ADMIN_ME_QUERY = gql`
-  query AdminMe {
+  query AdminMeQuery {
     me {
       authenticated
       user {
@@ -675,7 +675,7 @@ const ADMIN_ME_QUERY = gql`
 `;
 
 const ADMIN_GOOGLE_AUTH_STATUS_QUERY = gql`
-  query AdminGoogleAuthStatus {
+  query AdminGoogleAuthStatusQuery {
     googleAuthStatus {
       enabled
       loginAvailable
@@ -684,7 +684,7 @@ const ADMIN_GOOGLE_AUTH_STATUS_QUERY = gql`
 `;
 
 const ADMIN_GITHUB_AUTH_STATUS_QUERY = gql`
-  query AdminGithubAuthStatus {
+  query AdminGithubAuthStatusQuery {
     githubAuthStatus {
       enabled
       loginAvailable
@@ -693,7 +693,7 @@ const ADMIN_GITHUB_AUTH_STATUS_QUERY = gql`
 `;
 
 const ADMIN_LOGIN_MUTATION = gql`
-  mutation AdminLogin($input: AdminLoginInput!) {
+  mutation AdminLoginMutation($input: AdminLoginInput!) {
     login(input: $input) {
       success
       user {
@@ -717,7 +717,7 @@ const ADMIN_LOGIN_MUTATION = gql`
 `;
 
 const ADMIN_LOGOUT_MUTATION = gql`
-  mutation AdminLogout {
+  mutation AdminLogoutMutation {
     logout {
       success
     }
@@ -725,7 +725,7 @@ const ADMIN_LOGOUT_MUTATION = gql`
 `;
 
 const ADMIN_REFRESH_MUTATION = gql`
-  mutation AdminRefreshSession {
+  mutation AdminRefreshSessionMutation {
     refreshAdminSession {
       success
       user {
@@ -749,7 +749,7 @@ const ADMIN_REFRESH_MUTATION = gql`
 `;
 
 const ADMIN_DASHBOARD_QUERY = gql`
-  query AdminDashboard {
+  query AdminDashboardQuery {
     dashboard {
       totalPosts
       totalSubscribers
@@ -790,7 +790,7 @@ const ADMIN_DASHBOARD_QUERY = gql`
 `;
 
 const ADMIN_COMMENTS_QUERY = gql`
-  query AdminComments($filter: AdminCommentFilterInput) {
+  query AdminCommentsQuery($filter: AdminCommentFilterInput) {
     comments(filter: $filter) {
       items {
         id
@@ -812,7 +812,7 @@ const ADMIN_COMMENTS_QUERY = gql`
 `;
 
 const ADMIN_UPDATE_COMMENT_STATUS_MUTATION = gql`
-  mutation AdminUpdateCommentStatus($input: AdminUpdateCommentStatusInput!) {
+  mutation AdminUpdateCommentStatusMutation($input: AdminUpdateCommentStatusInput!) {
     updateCommentStatus(input: $input) {
       id
       postId
@@ -829,7 +829,7 @@ const ADMIN_UPDATE_COMMENT_STATUS_MUTATION = gql`
 `;
 
 const ADMIN_DELETE_COMMENT_MUTATION = gql`
-  mutation AdminDeleteComment($input: AdminDeleteCommentInput!) {
+  mutation AdminDeleteCommentMutation($input: AdminDeleteCommentInput!) {
     deleteComment(input: $input) {
       success
     }
@@ -837,7 +837,7 @@ const ADMIN_DELETE_COMMENT_MUTATION = gql`
 `;
 
 const ADMIN_BULK_UPDATE_COMMENT_STATUS_MUTATION = gql`
-  mutation AdminBulkUpdateCommentStatus($input: AdminBulkUpdateCommentStatusInput!) {
+  mutation AdminBulkUpdateCommentStatusMutation($input: AdminBulkUpdateCommentStatusInput!) {
     bulkUpdateCommentStatus(input: $input) {
       successCount
     }
@@ -845,7 +845,7 @@ const ADMIN_BULK_UPDATE_COMMENT_STATUS_MUTATION = gql`
 `;
 
 const ADMIN_BULK_DELETE_COMMENTS_MUTATION = gql`
-  mutation AdminBulkDeleteComments($input: AdminBulkDeleteCommentsInput!) {
+  mutation AdminBulkDeleteCommentsMutation($input: AdminBulkDeleteCommentsInput!) {
     bulkDeleteComments(input: $input) {
       successCount
     }
@@ -853,7 +853,7 @@ const ADMIN_BULK_DELETE_COMMENTS_MUTATION = gql`
 `;
 
 const ADMIN_CHANGE_PASSWORD_MUTATION = gql`
-  mutation AdminChangePassword($input: AdminChangePasswordInput!) {
+  mutation AdminChangePasswordMutation($input: AdminChangePasswordInput!) {
     changePassword(input: $input) {
       success
     }
@@ -861,7 +861,7 @@ const ADMIN_CHANGE_PASSWORD_MUTATION = gql`
 `;
 
 const ADMIN_START_GOOGLE_CONNECT_MUTATION = gql`
-  mutation AdminStartGoogleConnect($input: AdminStartGoogleConnectInput!) {
+  mutation AdminStartGoogleConnectMutation($input: AdminStartGoogleConnectInput!) {
     startGoogleConnect(input: $input) {
       url
     }
@@ -869,7 +869,7 @@ const ADMIN_START_GOOGLE_CONNECT_MUTATION = gql`
 `;
 
 const ADMIN_START_GITHUB_CONNECT_MUTATION = gql`
-  mutation AdminStartGithubConnect($input: AdminStartGithubConnectInput!) {
+  mutation AdminStartGithubConnectMutation($input: AdminStartGithubConnectInput!) {
     startGithubConnect(input: $input) {
       url
     }
@@ -877,7 +877,7 @@ const ADMIN_START_GITHUB_CONNECT_MUTATION = gql`
 `;
 
 const ADMIN_DISCONNECT_GOOGLE_MUTATION = gql`
-  mutation AdminDisconnectGoogle {
+  mutation AdminDisconnectGoogleMutation {
     disconnectGoogle {
       success
       user {
@@ -901,7 +901,7 @@ const ADMIN_DISCONNECT_GOOGLE_MUTATION = gql`
 `;
 
 const ADMIN_DISCONNECT_GITHUB_MUTATION = gql`
-  mutation AdminDisconnectGithub {
+  mutation AdminDisconnectGithubMutation {
     disconnectGithub {
       success
       user {
@@ -925,7 +925,7 @@ const ADMIN_DISCONNECT_GITHUB_MUTATION = gql`
 `;
 
 const ADMIN_CHANGE_USERNAME_MUTATION = gql`
-  mutation AdminChangeUsername($input: AdminChangeUsernameInput!) {
+  mutation AdminChangeUsernameMutation($input: AdminChangeUsernameInput!) {
     changeUsername(input: $input) {
       success
       user {
@@ -949,7 +949,7 @@ const ADMIN_CHANGE_USERNAME_MUTATION = gql`
 `;
 
 const ADMIN_REQUEST_EMAIL_CHANGE_MUTATION = gql`
-  mutation AdminRequestEmailChange($input: AdminRequestEmailChangeInput!) {
+  mutation AdminRequestEmailChangeMutation($input: AdminRequestEmailChangeInput!) {
     requestEmailChange(input: $input) {
       success
       pendingEmail
@@ -959,7 +959,7 @@ const ADMIN_REQUEST_EMAIL_CHANGE_MUTATION = gql`
 `;
 
 const ADMIN_CHANGE_NAME_MUTATION = gql`
-  mutation AdminChangeName($input: AdminChangeNameInput!) {
+  mutation AdminChangeNameMutation($input: AdminChangeNameInput!) {
     changeName(input: $input) {
       success
       user {
@@ -983,7 +983,7 @@ const ADMIN_CHANGE_NAME_MUTATION = gql`
 `;
 
 const ADMIN_CHANGE_AVATAR_MUTATION = gql`
-  mutation AdminChangeAvatar($input: AdminChangeAvatarInput!) {
+  mutation AdminChangeAvatarMutation($input: AdminChangeAvatarInput!) {
     changeAvatar(input: $input) {
       success
       user {
@@ -1007,7 +1007,7 @@ const ADMIN_CHANGE_AVATAR_MUTATION = gql`
 `;
 
 const ADMIN_DELETE_ACCOUNT_MUTATION = gql`
-  mutation AdminDeleteAccount($input: AdminDeleteAccountInput!) {
+  mutation AdminDeleteAccountMutation($input: AdminDeleteAccountInput!) {
     deleteAccount(input: $input) {
       success
     }
@@ -1015,7 +1015,7 @@ const ADMIN_DELETE_ACCOUNT_MUTATION = gql`
 `;
 
 const ADMIN_ACTIVE_SESSIONS_QUERY = gql`
-  query AdminActiveSessions {
+  query AdminActiveSessionsQuery {
     activeSessions {
       id
       device
@@ -1031,7 +1031,7 @@ const ADMIN_ACTIVE_SESSIONS_QUERY = gql`
 `;
 
 const ADMIN_REVOKE_SESSION_MUTATION = gql`
-  mutation RevokeAdminSession($sessionId: ID!) {
+  mutation AdminRevokeSessionMutation($sessionId: ID!) {
     revokeSession(sessionId: $sessionId) {
       success
     }
@@ -1039,7 +1039,7 @@ const ADMIN_REVOKE_SESSION_MUTATION = gql`
 `;
 
 const ADMIN_REVOKE_ALL_SESSIONS_MUTATION = gql`
-  mutation RevokeAllAdminSessions {
+  mutation AdminRevokeAllSessionsMutation {
     revokeAllSessions {
       success
     }
@@ -1047,7 +1047,7 @@ const ADMIN_REVOKE_ALL_SESSIONS_MUTATION = gql`
 `;
 
 const ADMIN_CONTENT_POSTS_QUERY = gql`
-  query AdminContentPosts($filter: AdminContentPostFilterInput) {
+  query AdminContentPostsQuery($filter: AdminContentPostFilterInput) {
     contentPosts(filter: $filter) {
       items {
         id
@@ -1127,7 +1127,7 @@ const ADMIN_CONTENT_POSTS_QUERY = gql`
 `;
 
 const ADMIN_CONTENT_POST_QUERY = gql`
-  query AdminContentPost($input: AdminContentEntityKeyInput!) {
+  query AdminContentPostQuery($input: AdminContentEntityKeyInput!) {
     contentPost(input: $input) {
       locale
       id
@@ -1154,7 +1154,7 @@ const ADMIN_CONTENT_POST_QUERY = gql`
 `;
 
 const ADMIN_CONTENT_TOPICS_QUERY = gql`
-  query AdminContentTopics($locale: Locale, $query: String) {
+  query AdminContentTopicsQuery($locale: Locale, $query: String) {
     contentTopics(locale: $locale, query: $query) {
       locale
       id
@@ -1167,7 +1167,7 @@ const ADMIN_CONTENT_TOPICS_QUERY = gql`
 `;
 
 const ADMIN_CONTENT_CATEGORIES_QUERY = gql`
-  query AdminContentCategories($locale: Locale) {
+  query AdminContentCategoriesQuery($locale: Locale) {
     contentCategories(locale: $locale) {
       locale
       id
@@ -1181,7 +1181,7 @@ const ADMIN_CONTENT_CATEGORIES_QUERY = gql`
 `;
 
 const ADMIN_MEDIA_LIBRARY_QUERY = gql`
-  query AdminMediaLibrary($filter: AdminMediaLibraryFilterInput) {
+  query AdminMediaLibraryQuery($filter: AdminMediaLibraryFilterInput) {
     mediaLibrary(filter: $filter) {
       items {
         id
@@ -1205,7 +1205,7 @@ const ADMIN_MEDIA_LIBRARY_QUERY = gql`
 `;
 
 const ADMIN_CONTENT_TOPICS_PAGE_QUERY = gql`
-  query AdminContentTopicsPage($filter: AdminContentTaxonomyFilterInput) {
+  query AdminContentTopicsPageQuery($filter: AdminContentTaxonomyFilterInput) {
     contentTopicsPage(filter: $filter) {
       items {
         id
@@ -1242,7 +1242,7 @@ const ADMIN_CONTENT_TOPICS_PAGE_QUERY = gql`
 `;
 
 const ADMIN_CONTENT_CATEGORIES_PAGE_QUERY = gql`
-  query AdminContentCategoriesPage($filter: AdminContentTaxonomyFilterInput) {
+  query AdminContentCategoriesPageQuery($filter: AdminContentTaxonomyFilterInput) {
     contentCategoriesPage(filter: $filter) {
       items {
         id
@@ -1282,7 +1282,7 @@ const ADMIN_CONTENT_CATEGORIES_PAGE_QUERY = gql`
 `;
 
 const ADMIN_UPDATE_CONTENT_POST_METADATA_MUTATION = gql`
-  mutation AdminUpdateContentPostMetadata($input: AdminUpdateContentPostMetadataInput!) {
+  mutation AdminUpdateContentPostMetadataMutation($input: AdminUpdateContentPostMetadataInput!) {
     updateContentPostMetadata(input: $input) {
       locale
       id
@@ -1309,7 +1309,7 @@ const ADMIN_UPDATE_CONTENT_POST_METADATA_MUTATION = gql`
 `;
 
 const ADMIN_UPDATE_CONTENT_POST_CONTENT_MUTATION = gql`
-  mutation AdminUpdateContentPostContent($input: AdminUpdateContentPostContentInput!) {
+  mutation AdminUpdateContentPostContentMutation($input: AdminUpdateContentPostContentInput!) {
     updateContentPostContent(input: $input) {
       locale
       id
@@ -1336,7 +1336,7 @@ const ADMIN_UPDATE_CONTENT_POST_CONTENT_MUTATION = gql`
 `;
 
 const ADMIN_UPLOAD_MEDIA_ASSET_MUTATION = gql`
-  mutation AdminUploadMediaAsset($input: AdminUploadMediaAssetInput!) {
+  mutation AdminUploadMediaAssetMutation($input: AdminUploadMediaAssetInput!) {
     uploadMediaAsset(input: $input) {
       id
       kind
@@ -1355,7 +1355,7 @@ const ADMIN_UPLOAD_MEDIA_ASSET_MUTATION = gql`
 `;
 
 const ADMIN_DELETE_MEDIA_ASSET_MUTATION = gql`
-  mutation AdminDeleteMediaAsset($id: ID!) {
+  mutation AdminDeleteMediaAssetMutation($id: ID!) {
     deleteMediaAsset(id: $id) {
       success
     }
@@ -1363,7 +1363,7 @@ const ADMIN_DELETE_MEDIA_ASSET_MUTATION = gql`
 `;
 
 const ADMIN_DELETE_CONTENT_POST_MUTATION = gql`
-  mutation AdminDeleteContentPost($input: AdminContentEntityKeyInput!) {
+  mutation AdminDeleteContentPostMutation($input: AdminContentEntityKeyInput!) {
     deleteContentPost(input: $input) {
       success
     }
@@ -1371,7 +1371,7 @@ const ADMIN_DELETE_CONTENT_POST_MUTATION = gql`
 `;
 
 const ADMIN_CREATE_CONTENT_TOPIC_MUTATION = gql`
-  mutation AdminCreateContentTopic($input: AdminContentTopicInput!) {
+  mutation AdminCreateContentTopicMutation($input: AdminContentTopicInput!) {
     createContentTopic(input: $input) {
       locale
       id
@@ -1384,7 +1384,7 @@ const ADMIN_CREATE_CONTENT_TOPIC_MUTATION = gql`
 `;
 
 const ADMIN_UPDATE_CONTENT_TOPIC_MUTATION = gql`
-  mutation AdminUpdateContentTopic($input: AdminContentTopicInput!) {
+  mutation AdminUpdateContentTopicMutation($input: AdminContentTopicInput!) {
     updateContentTopic(input: $input) {
       locale
       id
@@ -1397,7 +1397,7 @@ const ADMIN_UPDATE_CONTENT_TOPIC_MUTATION = gql`
 `;
 
 const ADMIN_DELETE_CONTENT_TOPIC_MUTATION = gql`
-  mutation AdminDeleteContentTopic($input: AdminContentEntityKeyInput!) {
+  mutation AdminDeleteContentTopicMutation($input: AdminContentEntityKeyInput!) {
     deleteContentTopic(input: $input) {
       success
     }
@@ -1405,7 +1405,7 @@ const ADMIN_DELETE_CONTENT_TOPIC_MUTATION = gql`
 `;
 
 const ADMIN_CREATE_CONTENT_CATEGORY_MUTATION = gql`
-  mutation AdminCreateContentCategory($input: AdminContentCategoryInput!) {
+  mutation AdminCreateContentCategoryMutation($input: AdminContentCategoryInput!) {
     createContentCategory(input: $input) {
       locale
       id
@@ -1419,7 +1419,7 @@ const ADMIN_CREATE_CONTENT_CATEGORY_MUTATION = gql`
 `;
 
 const ADMIN_UPDATE_CONTENT_CATEGORY_MUTATION = gql`
-  mutation AdminUpdateContentCategory($input: AdminContentCategoryInput!) {
+  mutation AdminUpdateContentCategoryMutation($input: AdminContentCategoryInput!) {
     updateContentCategory(input: $input) {
       locale
       id
@@ -1433,7 +1433,7 @@ const ADMIN_UPDATE_CONTENT_CATEGORY_MUTATION = gql`
 `;
 
 const ADMIN_DELETE_CONTENT_CATEGORY_MUTATION = gql`
-  mutation AdminDeleteContentCategory($input: AdminContentEntityKeyInput!) {
+  mutation AdminDeleteContentCategoryMutation($input: AdminContentEntityKeyInput!) {
     deleteContentCategory(input: $input) {
       success
     }
@@ -1441,7 +1441,7 @@ const ADMIN_DELETE_CONTENT_CATEGORY_MUTATION = gql`
 `;
 
 const ADMIN_ERROR_MESSAGES_QUERY = gql`
-  query AdminErrorMessages($filter: AdminErrorMessageFilterInput) {
+  query AdminErrorMessagesQuery($filter: AdminErrorMessageFilterInput) {
     errorMessages(filter: $filter) {
       items {
         scope
@@ -1458,7 +1458,7 @@ const ADMIN_ERROR_MESSAGES_QUERY = gql`
 `;
 
 const ADMIN_ERROR_MESSAGE_AUDIT_LOGS_QUERY = gql`
-  query AdminErrorMessageAuditLogs($limit: Int) {
+  query AdminErrorMessageAuditLogsQuery($limit: Int) {
     errorMessageAuditLogs(limit: $limit) {
       id
       actorId
@@ -1481,7 +1481,7 @@ const ADMIN_ERROR_MESSAGE_AUDIT_LOGS_QUERY = gql`
 `;
 
 const ADMIN_CREATE_ERROR_MESSAGE_MUTATION = gql`
-  mutation AdminCreateErrorMessage($input: AdminCreateErrorMessageInput!) {
+  mutation AdminCreateErrorMessageMutation($input: AdminCreateErrorMessageInput!) {
     createErrorMessage(input: $input) {
       scope
       locale
@@ -1493,7 +1493,7 @@ const ADMIN_CREATE_ERROR_MESSAGE_MUTATION = gql`
 `;
 
 const ADMIN_UPDATE_ERROR_MESSAGE_MUTATION = gql`
-  mutation AdminUpdateErrorMessage($input: AdminUpdateErrorMessageInput!) {
+  mutation AdminUpdateErrorMessageMutation($input: AdminUpdateErrorMessageInput!) {
     updateErrorMessage(input: $input) {
       scope
       locale
@@ -1505,7 +1505,7 @@ const ADMIN_UPDATE_ERROR_MESSAGE_MUTATION = gql`
 `;
 
 const ADMIN_DELETE_ERROR_MESSAGE_MUTATION = gql`
-  mutation AdminDeleteErrorMessage($input: AdminErrorMessageKeyInput!) {
+  mutation AdminDeleteErrorMessageMutation($input: AdminErrorMessageKeyInput!) {
     deleteErrorMessage(input: $input) {
       success
     }
@@ -1513,7 +1513,7 @@ const ADMIN_DELETE_ERROR_MESSAGE_MUTATION = gql`
 `;
 
 const ADMIN_NEWSLETTER_SUBSCRIBERS_QUERY = gql`
-  query AdminNewsletterSubscribers($filter: AdminNewsletterSubscriberFilterInput) {
+  query AdminNewsletterSubscribersQuery($filter: AdminNewsletterSubscriberFilterInput) {
     newsletterSubscribers(filter: $filter) {
       items {
         email
@@ -1535,7 +1535,7 @@ const ADMIN_NEWSLETTER_SUBSCRIBERS_QUERY = gql`
 `;
 
 const ADMIN_NEWSLETTER_CAMPAIGNS_QUERY = gql`
-  query AdminNewsletterCampaigns($filter: AdminNewsletterCampaignFilterInput) {
+  query AdminNewsletterCampaignsQuery($filter: AdminNewsletterCampaignFilterInput) {
     newsletterCampaigns(filter: $filter) {
       items {
         locale
@@ -1560,7 +1560,7 @@ const ADMIN_NEWSLETTER_CAMPAIGNS_QUERY = gql`
 `;
 
 const ADMIN_NEWSLETTER_CAMPAIGN_FAILURES_QUERY = gql`
-  query AdminNewsletterCampaignFailures($filter: AdminNewsletterDeliveryFailureFilterInput!) {
+  query AdminNewsletterCampaignFailuresQuery($filter: AdminNewsletterDeliveryFailureFilterInput!) {
     newsletterCampaignFailures(filter: $filter) {
       items {
         locale
@@ -1580,7 +1580,7 @@ const ADMIN_NEWSLETTER_CAMPAIGN_FAILURES_QUERY = gql`
 `;
 
 const ADMIN_TRIGGER_NEWSLETTER_DISPATCH_MUTATION = gql`
-  mutation AdminTriggerNewsletterDispatch {
+  mutation AdminTriggerNewsletterDispatchMutation {
     triggerNewsletterDispatch {
       success
       message
@@ -1600,7 +1600,7 @@ const ADMIN_TRIGGER_NEWSLETTER_DISPATCH_MUTATION = gql`
 `;
 
 const ADMIN_SEND_TEST_NEWSLETTER_MUTATION = gql`
-  mutation AdminSendTestNewsletter($input: AdminSendTestNewsletterInput!) {
+  mutation AdminSendTestNewsletterMutation($input: AdminSendTestNewsletterInput!) {
     sendTestNewsletter(input: $input) {
       success
       message
@@ -1614,7 +1614,7 @@ const ADMIN_SEND_TEST_NEWSLETTER_MUTATION = gql`
 `;
 
 const ADMIN_UPDATE_NEWSLETTER_SUBSCRIBER_STATUS_MUTATION = gql`
-  mutation AdminUpdateNewsletterSubscriberStatus($input: AdminUpdateNewsletterSubscriberStatusInput!) {
+  mutation AdminUpdateNewsletterSubscriberStatusMutation($input: AdminUpdateNewsletterSubscriberStatusInput!) {
     updateNewsletterSubscriberStatus(input: $input) {
       email
       locale
@@ -1631,7 +1631,7 @@ const ADMIN_UPDATE_NEWSLETTER_SUBSCRIBER_STATUS_MUTATION = gql`
 `;
 
 const ADMIN_DELETE_NEWSLETTER_SUBSCRIBER_MUTATION = gql`
-  mutation AdminDeleteNewsletterSubscriber($input: AdminDeleteNewsletterSubscriberInput!) {
+  mutation AdminDeleteNewsletterSubscriberMutation($input: AdminDeleteNewsletterSubscriberInput!) {
     deleteNewsletterSubscriber(input: $input) {
       success
     }

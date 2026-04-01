@@ -1,9 +1,9 @@
 import {
-  ConfirmNewsletterSubscriptionDocument,
+  ConfirmNewsletterSubscriptionMutationDocument,
   NewsletterMutationStatus,
-  ResendNewsletterConfirmationDocument,
-  SubscribeNewsletterDocument,
-  UnsubscribeNewsletterDocument,
+  ResendNewsletterConfirmationMutationDocument,
+  SubscribeNewsletterMutationDocument,
+  UnsubscribeNewsletterMutationDocument,
   type NewsletterResendInput as GraphQLNewsletterResendInput,
   type NewsletterSubscribeInput as GraphQLNewsletterSubscribeInput,
 } from '@/graphql/generated/graphql';
@@ -53,7 +53,7 @@ export const subscribeNewsletter = async (
   }
 
   const payload = await mutateGraphQL(
-    SubscribeNewsletterDocument,
+    SubscribeNewsletterMutationDocument,
     {
       input: {
         ...input,
@@ -75,7 +75,7 @@ export const resendNewsletterConfirmation = async (
   }
 
   const payload = await mutateGraphQL(
-    ResendNewsletterConfirmationDocument,
+    ResendNewsletterConfirmationMutationDocument,
     {
       input: {
         ...input,
@@ -92,7 +92,7 @@ export const confirmNewsletterSubscription = async (
   options: NewsletterApiOptions = {},
 ): Promise<NewsletterMutationResponse | null> => {
   const payload = await mutateGraphQL(
-    ConfirmNewsletterSubscriptionDocument,
+    ConfirmNewsletterSubscriptionMutationDocument,
     {
       token,
     },
@@ -106,7 +106,7 @@ export const unsubscribeNewsletter = async (
   options: NewsletterApiOptions = {},
 ): Promise<NewsletterMutationResponse | null> => {
   const payload = await mutateGraphQL(
-    UnsubscribeNewsletterDocument,
+    UnsubscribeNewsletterMutationDocument,
     {
       token,
     },

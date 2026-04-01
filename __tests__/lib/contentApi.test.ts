@@ -8,11 +8,11 @@ import {
   incrementPostLike,
 } from '@/lib/contentApi';
 import {
-  IncrementPostHitDocument,
-  IncrementPostLikeDocument,
-  PostDocument,
-  PostRuntimeDocument,
-  PostsDocument,
+  IncrementPostHitMutationDocument,
+  IncrementPostLikeMutationDocument,
+  PostQueryDocument,
+  PostRuntimeQueryDocument,
+  PostsQueryDocument,
 } from '@/graphql/generated/graphql';
 import { mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
 
@@ -97,7 +97,7 @@ describe('contentApi', () => {
     });
 
     expect(queryGraphQLMock).toHaveBeenCalledWith(
-      PostsDocument,
+      PostsQueryDocument,
       {
         locale: 'en',
         input: {
@@ -153,7 +153,7 @@ describe('contentApi', () => {
     });
 
     expect(queryGraphQLMock).toHaveBeenCalledWith(
-      PostDocument,
+      PostQueryDocument,
       {
         locale: 'tr',
         id: 'post-2',
@@ -187,7 +187,7 @@ describe('contentApi', () => {
     });
 
     expect(queryGraphQLMock).toHaveBeenCalledWith(
-      PostsDocument,
+      PostsQueryDocument,
       {
         locale: 'en',
         input: {
@@ -297,7 +297,7 @@ describe('contentApi', () => {
     });
 
     expect(queryGraphQLMock).toHaveBeenCalledWith(
-      PostRuntimeDocument,
+      PostRuntimeQueryDocument,
       {
         locale: 'en',
         id: 'post-1',
@@ -338,7 +338,7 @@ describe('contentApi', () => {
     await expect(incrementPostLike('post-2')).resolves.toBeNull();
     await expect(incrementPostHit('post-2')).resolves.toBeNull();
 
-    expect(mutateGraphQLMock).toHaveBeenNthCalledWith(1, IncrementPostLikeDocument, { postId: 'post-1' }, {});
-    expect(mutateGraphQLMock).toHaveBeenNthCalledWith(2, IncrementPostHitDocument, { postId: 'post-1' }, {});
+    expect(mutateGraphQLMock).toHaveBeenNthCalledWith(1, IncrementPostLikeMutationDocument, { postId: 'post-1' }, {});
+    expect(mutateGraphQLMock).toHaveBeenNthCalledWith(2, IncrementPostHitMutationDocument, { postId: 'post-1' }, {});
   });
 });

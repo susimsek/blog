@@ -153,6 +153,18 @@ Do not introduce new feature-first Go package trees.
 - Backend env/config resolution lives under `internal/config`
 - Newsletter logic and templates live under `pkg/newsletter`
 
+### GraphQL Naming
+
+- Schema field names use `camelCase`
+- Query field names are noun-based such as `posts`, `post`, `comments`
+- Mutation field names are verb-based such as `addComment`, `updateCommentStatus`, `deleteContentPost`
+- GraphQL operation document names use `PascalCase` and end with `Query` or `Mutation`
+- Input object names use `PascalCase` and end with `Input`
+- Scalar names use `PascalCase`
+- Keep opaque identifiers as `ID`; do not introduce custom UUID-style scalars unless the format is part of the API contract
+- For new enum values, prefer one consistent style within the same schema surface; default to `UPPER_SNAKE_CASE`
+- When renaming GraphQL contracts, update schema, resolvers, codegen outputs, manual GraphQL documents, and tests in the same change
+
 ### Package structure rule
 
 - Follow layered packages, not feature-first packages

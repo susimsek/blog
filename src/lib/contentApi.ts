@@ -1,10 +1,10 @@
 import {
-  IncrementPostHitDocument,
-  IncrementPostLikeDocument,
-  PostDocument,
-  PostRuntimeDocument,
+  IncrementPostHitMutationDocument,
+  IncrementPostLikeMutationDocument,
   PostMetricStatus,
-  PostsDocument,
+  PostQueryDocument,
+  PostRuntimeQueryDocument,
+  PostsQueryDocument,
   PostsQueryInput,
   SortOrder,
 } from '@/graphql/generated/graphql';
@@ -177,7 +177,7 @@ export const fetchPosts = async (
   }
 
   const result = await queryGraphQL(
-    PostsDocument,
+    PostsQueryDocument,
     {
       locale: graphQLLocale,
       input: buildPostsQueryInput(params),
@@ -215,7 +215,7 @@ export const fetchPost = async (
   }
 
   const result = await queryGraphQL(
-    PostDocument,
+    PostQueryDocument,
     {
       locale: graphQLLocale,
       id: normalizedID,
@@ -322,7 +322,7 @@ export const fetchPostRuntime = async (
   }
 
   const payload = await queryGraphQL(
-    PostRuntimeDocument,
+    PostRuntimeQueryDocument,
     {
       locale: graphQLLocale,
       id: normalizedID,
@@ -353,7 +353,7 @@ export const fetchPostRuntime = async (
 };
 
 export const incrementPostLike = async (postId: string, options: ContentApiOptions = {}): Promise<number | null> => {
-  const payload = await mutateGraphQL(IncrementPostLikeDocument, { postId }, options);
+  const payload = await mutateGraphQL(IncrementPostLikeMutationDocument, { postId }, options);
   const result = payload?.incrementPostLike as ContentLikeResponse | undefined;
 
   if (
@@ -368,7 +368,7 @@ export const incrementPostLike = async (postId: string, options: ContentApiOptio
 };
 
 export const incrementPostHit = async (postId: string, options: ContentApiOptions = {}): Promise<number | null> => {
-  const payload = await mutateGraphQL(IncrementPostHitDocument, { postId }, options);
+  const payload = await mutateGraphQL(IncrementPostHitMutationDocument, { postId }, options);
   const result = payload?.incrementPostHit as ContentLikeResponse | undefined;
 
   if (

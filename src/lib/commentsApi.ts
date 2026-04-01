@@ -1,4 +1,4 @@
-import { AddCommentDocument, CommentsDocument } from '@/graphql/generated/graphql';
+import { AddCommentMutationDocument, CommentsQueryDocument } from '@/graphql/generated/graphql';
 import { mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
 import {
   fromCommentModerationStatus,
@@ -90,7 +90,7 @@ export const fetchComments = async (
   }
 
   const payload = await queryGraphQL(
-    CommentsDocument,
+    CommentsQueryDocument,
     {
       postId: normalizedPostID,
     },
@@ -125,7 +125,7 @@ export const addComment = async (
   }
 
   const payload = await mutateGraphQL(
-    AddCommentDocument,
+    AddCommentMutationDocument,
     {
       input: {
         postId: input.postId.trim(),

@@ -6,6 +6,7 @@ const config: CodegenConfig = {
   generates: {
     'src/graphql/generated/graphql.ts': {
       config: {
+        dedupeOperationSuffix: true,
         scalars: {
           Date: 'string',
           DateTime: 'string',

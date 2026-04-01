@@ -5,10 +5,10 @@ import {
   unsubscribeNewsletter,
 } from '@/lib/newsletterApi';
 import {
-  ConfirmNewsletterSubscriptionDocument,
-  ResendNewsletterConfirmationDocument,
-  SubscribeNewsletterDocument,
-  UnsubscribeNewsletterDocument,
+  ConfirmNewsletterSubscriptionMutationDocument,
+  ResendNewsletterConfirmationMutationDocument,
+  SubscribeNewsletterMutationDocument,
+  UnsubscribeNewsletterMutationDocument,
 } from '@/graphql/generated/graphql';
 import { mutateGraphQL } from '@/lib/graphql/apolloClient';
 
@@ -61,7 +61,7 @@ describe('newsletterApi', () => {
 
     expect(mutateGraphQLMock).toHaveBeenNthCalledWith(
       1,
-      SubscribeNewsletterDocument,
+      SubscribeNewsletterMutationDocument,
       {
         input: {
           email: 'mail@example.com',
@@ -73,7 +73,7 @@ describe('newsletterApi', () => {
     );
     expect(mutateGraphQLMock).toHaveBeenNthCalledWith(
       2,
-      ResendNewsletterConfirmationDocument,
+      ResendNewsletterConfirmationMutationDocument,
       {
         input: {
           email: 'mail@example.com',
@@ -112,10 +112,15 @@ describe('newsletterApi', () => {
 
     expect(mutateGraphQLMock).toHaveBeenNthCalledWith(
       1,
-      ConfirmNewsletterSubscriptionDocument,
+      ConfirmNewsletterSubscriptionMutationDocument,
       { token: 'token-1' },
       {},
     );
-    expect(mutateGraphQLMock).toHaveBeenNthCalledWith(2, UnsubscribeNewsletterDocument, { token: 'token-2' }, {});
+    expect(mutateGraphQLMock).toHaveBeenNthCalledWith(
+      2,
+      UnsubscribeNewsletterMutationDocument,
+      { token: 'token-2' },
+      {},
+    );
   });
 });
