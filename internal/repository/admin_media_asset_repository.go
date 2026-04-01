@@ -463,12 +463,6 @@ func buildReferencedMediaLibraryPipeline(query string) mongo.Pipeline {
 						"input": bson.M{"$ifNull": bson.A{"$title", ""}},
 					},
 				},
-				"baseName": bson.M{
-					"$arrayElemAt": bson.A{
-						bson.M{"$split": bson.A{"$value", "/"}},
-						-1,
-					},
-				},
 			},
 			"in": bson.M{
 				"$cond": bson.A{
@@ -481,10 +475,19 @@ func buildReferencedMediaLibraryPipeline(query string) mongo.Pipeline {
 									"input": bson.M{
 										"$replaceAll": bson.M{
 											"input": bson.M{
-												"$regexReplace": bson.M{
-													"input":       "$$baseName",
-													"regex":       `\.[^.]+$`,
-													"replacement": "",
+												"$arrayElemAt": bson.A{
+													bson.M{
+														"$split": bson.A{
+															bson.M{
+																"$arrayElemAt": bson.A{
+																	bson.M{"$split": bson.A{"$value", "/"}},
+																	-1,
+																},
+															},
+															".",
+														},
+													},
+													0,
 												},
 											},
 											"find":        "-",

@@ -4891,7 +4891,50 @@ export default function AdminContentManagementPanel({
                               ? t('adminAccount.content.modals.post.media.badges.uploaded', { ns: 'admin-account' })
                               : t('adminAccount.content.modals.post.media.badges.reused', { ns: 'admin-account' });
                           const itemDate = item.updatedAt ?? item.createdAt;
-                          const isListMode = resolvedMediaDensityMode === 'editorial';
+                          const metadataItems = [
+                            itemDate
+                              ? {
+                                  key: 'updated',
+                                  icon: 'calendar-alt' as const,
+                                  label: t('adminAccount.content.list.updatedAt', {
+                                    ns: 'admin-account',
+                                    value: formatDate(itemDate),
+                                  }),
+                                }
+                              : null,
+                            item.usageCount > 0
+                              ? {
+                                  key: 'usage',
+                                  icon: 'copy' as const,
+                                  label: t('adminAccount.content.modals.post.media.usedIn', {
+                                    ns: 'admin-account',
+                                    count: item.usageCount,
+                                  }),
+                                }
+                              : null,
+                            item.width && item.height
+                              ? {
+                                  key: 'dimensions',
+                                  icon: 'image' as const,
+                                  label: `${item.width}×${item.height}`,
+                                }
+                              : null,
+                            item.sizeBytes > 0
+                              ? {
+                                  key: 'size',
+                                  icon: 'database' as const,
+                                  label: formatMediaSize(item.sizeBytes, routeLocale),
+                                }
+                              : null,
+                          ].filter(
+                            (
+                              item,
+                            ): item is {
+                              key: 'updated' | 'usage' | 'dimensions' | 'size';
+                              icon: 'calendar-alt' | 'copy' | 'image' | 'database';
+                              label: string;
+                            } => item !== null,
+                          );
                           return (
                             <div key={item.id} className="post-card d-flex align-items-center post-summary-card">
                               <div className="post-card-content flex-grow-1">
@@ -4904,44 +4947,16 @@ export default function AdminContentManagementPanel({
                                   </div>
                                 </div>
 
-                                <p className="post-summary-meta mb-2">
-                                  {itemDate ? (
-                                    <span className="text-muted d-flex align-items-center">
-                                      <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-                                      {t('adminAccount.content.list.updatedAt', {
-                                        ns: 'admin-account',
-                                        value: formatDate(itemDate),
-                                      })}
-                                    </span>
-                                  ) : null}
-                                  {item.usageCount > 0 ? (
-                                    <span
-                                      className={`text-muted d-flex align-items-center${isListMode ? '' : ' w-100'}`}
-                                    >
-                                      <FontAwesomeIcon icon="copy" className="me-2" />
-                                      {t('adminAccount.content.modals.post.media.usedIn', {
-                                        ns: 'admin-account',
-                                        count: item.usageCount,
-                                      })}
-                                    </span>
-                                  ) : null}
-                                  {item.width && item.height ? (
-                                    <span
-                                      className={`text-muted d-flex align-items-center${isListMode ? '' : ' w-100'}`}
-                                    >
-                                      <FontAwesomeIcon icon="image" className="me-2" />
-                                      {item.width}×{item.height}
-                                    </span>
-                                  ) : null}
-                                  {item.sizeBytes > 0 ? (
-                                    <span
-                                      className={`text-muted d-flex align-items-center${isListMode ? '' : ' w-100'}`}
-                                    >
-                                      <FontAwesomeIcon icon="database" className="me-2" />
-                                      {formatMediaSize(item.sizeBytes, routeLocale)}
-                                    </span>
-                                  ) : null}
-                                </p>
+                                {metadataItems.length > 0 ? (
+                                  <div className="post-summary-meta admin-media-library-meta-grid mb-2">
+                                    {metadataItems.map(metaItem => (
+                                      <span key={metaItem.key} className="text-muted d-flex align-items-center">
+                                        <FontAwesomeIcon icon={metaItem.icon} className="me-2" />
+                                        {metaItem.label}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : null}
 
                                 <div className="post-summary-thumbnail">
                                   <div className="thumbnail-wrapper rounded-3 overflow-hidden border bg-body-tertiary">
