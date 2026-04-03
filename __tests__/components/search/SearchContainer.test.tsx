@@ -1,6 +1,6 @@
 import React from 'react';
 import { screen, fireEvent, act, waitFor } from '@testing-library/react';
-import SearchContainer from '@/components/search/SearchContainer';
+import SearchContainer, { resetStaticLocalePostsCache } from '@/components/search/SearchContainer';
 import { renderWithProviders } from '@tests/utils/renderWithProviders';
 import type { PostsQueryState } from '@/reducers/postsQuery';
 
@@ -141,6 +141,7 @@ describe('SearchContainer', () => {
     routerPushMock.mockReset();
     scrollIntoViewMock.mockReset();
     (global.fetch as unknown) = jest.fn();
+    resetStaticLocalePostsCache();
     mockStaticPosts(posts);
   });
 
@@ -540,6 +541,19 @@ describe('SearchContainer', () => {
     });
 
     expect(true).toBe(true);
+  });
+
+  it('reuses cached locale posts across query updates in the same locale', async () => {
+    renderSearch();
+    const input = screen.getByTestId('search-input');
+
+    fireEvent.change(input, { target: { value: 'Post' } });
+    expect(await screen.findAllByTestId('post-item')).toHaveLength(5);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+
+    fireEvent.change(input, { target: { value: 'Post 1' } });
+    expect(await screen.findByText('Post 1')).toBeInTheDocument();
+    expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 
   it('renders shortcut hint when provided', () => {

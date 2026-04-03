@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useEffectEvent } from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
 import SearchBar from '@/components/search/SearchBar';
 import PostListItem from '@/components/posts/PostListItem';
@@ -12,6 +12,7 @@ import { useAppSelector } from '@/config/store';
 import { useRouter } from 'next/navigation';
 import { withBasePath } from '@/lib/basePath';
 import { normalizePostCategoryRef } from '@/lib/postCategoryRef';
+import { normalizeSearchText } from '@/lib/searchText';
 
 type ShortcutHint = {
   modifier: string;
@@ -24,6 +25,7 @@ interface SearchContainerProps {
 
 const SEARCH_RESULTS_LIST_ID = 'header-search-results';
 const MAX_RESULTS = 5;
+const staticLocalePostsCache = new Map<string, Promise<PostSummary[]>>();
 
 export const normalizeSearchPosts = (posts: ReadonlyArray<unknown>): PostSummary[] =>
   posts.flatMap(post => {
@@ -79,29 +81,43 @@ export const getStaticLocalePosts = async (locale: string): Promise<PostSummary[
     return [];
   }
 
-  try {
-    const response = await fetch(withBasePath(`/data/posts.${normalizedLocale}.json`), {
-      cache: 'force-cache',
-    });
-    if (!response.ok) {
+  const cachedPosts = staticLocalePostsCache.get(normalizedLocale);
+  if (cachedPosts) {
+    return cachedPosts;
+  }
+
+  const nextPostsPromise = (async () => {
+    try {
+      const response = await fetch(withBasePath(`/data/posts.${normalizedLocale}.json`), {
+        cache: 'force-cache',
+      });
+      if (!response.ok) {
+        return [];
+      }
+
+      const payload = (await response.json()) as unknown;
+      return Array.isArray(payload) ? normalizeSearchPosts(payload) : [];
+    } catch {
       return [];
     }
+  })();
 
-    const payload = (await response.json()) as unknown;
-    return Array.isArray(payload) ? normalizeSearchPosts(payload) : [];
-  } catch {
-    return [];
-  }
+  staticLocalePostsCache.set(normalizedLocale, nextPostsPromise);
+  return nextPostsPromise;
+};
+
+export const resetStaticLocalePostsCache = () => {
+  staticLocalePostsCache.clear();
 };
 
 export const filterSearchResults = (posts: PostSummary[], query: string) => {
-  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedQuery = normalizeSearchText(query);
   if (normalizedQuery.length === 0) {
     return [];
   }
 
   const filteredPosts = posts.filter(post => {
-    const searchArea = `${post.title} ${post.summary} ${post.searchText}`.toLowerCase();
+    const searchArea = normalizeSearchText(`${post.title} ${post.summary} ${post.searchText}`);
     return searchArea.includes(normalizedQuery);
   });
   const blogPosts = filteredPosts.filter(post => (post.source ?? 'blog') === 'blog');
@@ -302,39 +318,39 @@ export default function SearchContainer({ shortcutHint }: Readonly<SearchContain
     };
   }, [showResults, handleClickOutside]);
 
+  const handleSearchFocus = useEffectEvent(() => {
+    searchInputRef.current?.focus();
+    if (searchQuery.trim().length > 0) {
+      setShowResults(true);
+    }
+  });
+
+  const handleSearchClose = useEffectEvent((event: Event) => {
+    const shouldClearQuery =
+      event instanceof CustomEvent &&
+      typeof event.detail === 'object' &&
+      event.detail !== null &&
+      'clearQuery' in event.detail &&
+      event.detail.clearQuery === true;
+
+    setShowResults(false);
+    searchInputRef.current?.blur();
+    setIsLoadingResults(false);
+    if (shouldClearQuery) {
+      setSearchQuery('');
+      setActiveIndex(-1);
+      setSearchResults([]);
+    }
+  });
+
   useEffect(() => {
-    const handleSearchFocus = () => {
-      searchInputRef.current?.focus();
-      if (searchQuery.trim().length > 0) {
-        setShowResults(true);
-      }
-    };
-
-    const handleSearchClose = (event: Event) => {
-      const shouldClearQuery =
-        event instanceof CustomEvent &&
-        typeof event.detail === 'object' &&
-        event.detail !== null &&
-        'clearQuery' in event.detail &&
-        event.detail.clearQuery === true;
-
-      setShowResults(false);
-      searchInputRef.current?.blur();
-      setIsLoadingResults(false);
-      if (shouldClearQuery) {
-        setSearchQuery('');
-        setActiveIndex(-1);
-        setSearchResults([]);
-      }
-    };
-
     globalThis.addEventListener('app:search-focus', handleSearchFocus as EventListener);
     globalThis.addEventListener('app:search-close', handleSearchClose as EventListener);
     return () => {
       globalThis.removeEventListener('app:search-focus', handleSearchFocus as EventListener);
       globalThis.removeEventListener('app:search-close', handleSearchClose as EventListener);
     };
-  }, [searchQuery]);
+  }, []);
 
   let resultsContent: React.ReactNode;
   if (searchResults.length > 0) {

@@ -19,16 +19,17 @@ import (
 )
 
 const (
-	postLikesCollectionName   = "post_likes"
-	postHitsCollectionName    = "post_hits"
-	postsCollectionName       = "newsletter_posts"
-	topicsCollectionName      = "newsletter_topics"
-	categoriesCollectionName  = "newsletter_categories"
-	mediaAssetsCollectionName = "admin_media_assets"
-	maxBatchPostIDs           = 60
-	maxScopePostIDs           = 5000
-	defaultPageSize           = 20
-	maxPageSize               = 100
+	postLikesCollectionName     = "post_likes"
+	postHitsCollectionName      = "post_hits"
+	postsCollectionName         = "newsletter_posts"
+	topicsCollectionName        = "newsletter_topics"
+	categoriesCollectionName    = "newsletter_categories"
+	mediaAssetsCollectionName   = "admin_media_assets"
+	postRevisionsCollectionName = "admin_content_post_revisions"
+	maxBatchPostIDs             = 60
+	maxScopePostIDs             = 5000
+	defaultPageSize             = 20
+	maxPageSize                 = 100
 )
 
 var (
@@ -55,6 +56,9 @@ var (
 
 	postMediaAssetIndexesOnce sync.Once
 	postMediaAssetIndexesErr  error
+
+	postRevisionIndexesOnce sync.Once
+	postRevisionIndexesErr  error
 )
 
 type (
@@ -334,6 +338,42 @@ func ensurePostMediaAssetIndexes(mediaCollection *mongo.Collection) error {
 	return postMediaAssetIndexesErr
 }
 
+func ensurePostRevisionIndexes(revisionsCollection *mongo.Collection) error {
+	postRevisionIndexesOnce.Do(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		indexes := []mongo.IndexModel{
+			{
+				Keys:    bson.D{{Key: "id", Value: 1}},
+				Options: options.Index().SetName("uniq_admin_content_post_revision_id").SetUnique(true),
+			},
+			{
+				Keys: bson.D{
+					{Key: "locale", Value: 1},
+					{Key: "postId", Value: 1},
+					{Key: "revisionNumber", Value: -1},
+				},
+				Options: options.Index().SetName("idx_admin_content_post_revision_locale_post_revision_number"),
+			},
+			{
+				Keys: bson.D{
+					{Key: "locale", Value: 1},
+					{Key: "postId", Value: 1},
+					{Key: "createdAt", Value: -1},
+				},
+				Options: options.Index().SetName("idx_admin_content_post_revision_locale_post_created_at"),
+			},
+		}
+
+		if _, err := revisionsCollection.Indexes().CreateMany(ctx, indexes); err != nil {
+			postRevisionIndexesErr = fmt.Errorf("admin content post revision index create failed: %w", err)
+		}
+	})
+
+	return postRevisionIndexesErr
+}
+
 func getPostLikesCollection() (*mongo.Collection, error) {
 	collection, err := getPostCollection(postLikesCollectionName)
 	if err != nil {
@@ -395,6 +435,17 @@ func getPostMediaAssetsCollection() (*mongo.Collection, error) {
 		return nil, err
 	}
 	if err := ensurePostMediaAssetIndexes(collection); err != nil {
+		return nil, err
+	}
+	return collection, nil
+}
+
+func getPostRevisionsCollection() (*mongo.Collection, error) {
+	collection, err := getPostCollection(postRevisionsCollectionName)
+	if err != nil {
+		return nil, err
+	}
+	if err := ensurePostRevisionIndexes(collection); err != nil {
 		return nil, err
 	}
 	return collection, nil

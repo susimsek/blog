@@ -45,6 +45,20 @@ type AdminContentRepository interface {
 	ListPostGroups(ctx context.Context, filter domain.AdminContentPostFilter) (*domain.AdminContentPostListResult, error)
 	ListAllPosts(ctx context.Context, filter domain.AdminContentPostFilter) ([]domain.AdminContentPostRecord, error)
 	FindPostByLocaleAndID(ctx context.Context, locale, postID string) (*domain.AdminContentPostRecord, error)
+	ListPostRevisions(
+		ctx context.Context,
+		locale string,
+		postID string,
+		page int,
+		size int,
+	) (*domain.AdminContentPostRevisionListResult, error)
+	FindPostRevisionByID(ctx context.Context, locale, postID, revisionID string) (*domain.AdminContentPostRevisionRecord, error)
+	CreatePostRevision(
+		ctx context.Context,
+		record domain.AdminContentPostRecord,
+		revisionNumber int,
+		now time.Time,
+	) (*domain.AdminContentPostRevisionRecord, error)
 	UpdatePostMetadata(
 		ctx context.Context,
 		locale string,
@@ -52,6 +66,7 @@ type AdminContentRepository interface {
 		fields domain.AdminContentPostMetadataFields,
 		category *domain.AdminContentCategoryRecord,
 		topics []domain.AdminContentTopicRecord,
+		revisionStamp *domain.AdminContentPostRevisionStamp,
 		now time.Time,
 	) (*domain.AdminContentPostRecord, error)
 	UpdatePostContent(
@@ -59,6 +74,13 @@ type AdminContentRepository interface {
 		locale string,
 		postID string,
 		content string,
+		revisionStamp *domain.AdminContentPostRevisionStamp,
+		now time.Time,
+	) (*domain.AdminContentPostRecord, error)
+	RestorePostRevision(
+		ctx context.Context,
+		revision domain.AdminContentPostRevisionRecord,
+		revisionStamp *domain.AdminContentPostRevisionStamp,
 		now time.Time,
 	) (*domain.AdminContentPostRecord, error)
 	DeletePostByLocaleAndID(ctx context.Context, locale, postID string) (bool, error)
@@ -176,20 +198,24 @@ func (*adminContentMongoRepository) ListAllPosts(
 				{Key: "id", Value: 1},
 			}).
 			SetProjection(bson.M{
-				"locale":         1,
-				"id":             1,
-				"title":          1,
-				"summary":        1,
-				"thumbnail":      1,
-				"source":         1,
-				"publishedAt":    1,
-				"publishedDate":  1,
-				"updatedDate":    1,
-				"category":       1,
-				"topics":         1,
-				"topicIds":       1,
-				"readingTimeMin": 1,
-				"updatedAt":      1,
+				"locale":           1,
+				"id":               1,
+				"title":            1,
+				"summary":          1,
+				"thumbnail":        1,
+				"source":           1,
+				"publishedAt":      1,
+				"publishedDate":    1,
+				"updatedDate":      1,
+				"category":         1,
+				"topics":           1,
+				"topicIds":         1,
+				"readingTimeMin":   1,
+				"status":           1,
+				"scheduledAt":      1,
+				"revisionCount":    1,
+				"latestRevisionAt": 1,
+				"updatedAt":        1,
 			}),
 	)
 	if err != nil {
@@ -247,7 +273,11 @@ func (*adminContentMongoRepository) FindPostByLocaleAndID(
 			"topics":           1,
 			"topicIds":         1,
 			"readingTimeMin":   1,
+			"status":           1,
+			"scheduledAt":      1,
 			"contentUpdatedAt": 1,
+			"revisionCount":    1,
+			"latestRevisionAt": 1,
 			"updatedAt":        1,
 		}),
 	).Decode(&doc)
@@ -262,6 +292,133 @@ func (*adminContentMongoRepository) FindPostByLocaleAndID(
 	return &mapped, nil
 }
 
+func (*adminContentMongoRepository) ListPostRevisions(
+	ctx context.Context,
+	locale string,
+	postID string,
+	page int,
+	size int,
+) (*domain.AdminContentPostRevisionListResult, error) {
+	revisionsCollection, err := getPostRevisionsCollection()
+	if err != nil {
+		return nil, fmt.Errorf(adminContentRepositoryUnavailableFormat, ErrAdminContentRepositoryUnavailable, err)
+	}
+
+	filter := bson.M{
+		"locale": strings.TrimSpace(strings.ToLower(locale)),
+		"postId": strings.TrimSpace(strings.ToLower(postID)),
+	}
+
+	total64, err := revisionsCollection.CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	total := int(total64)
+	resolvedPage, resolvedSize, skip := resolveAdminContentPagination(&page, &size, total)
+	if total == 0 {
+		return &domain.AdminContentPostRevisionListResult{
+			Items: []domain.AdminContentPostRevisionRecord{},
+			Total: 0,
+			Page:  resolvedPage,
+			Size:  resolvedSize,
+		}, nil
+	}
+
+	cursor, err := revisionsCollection.Find(
+		ctx,
+		filter,
+		options.Find().
+			SetSort(bson.D{{Key: "revisionNumber", Value: -1}, {Key: "createdAt", Value: -1}}).
+			SetSkip(skip).
+			SetLimit(int64(resolvedSize)),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = cursor.Close(ctx)
+	}()
+
+	items := make([]domain.AdminContentPostRevisionRecord, 0, resolvedSize)
+	for cursor.Next(ctx) {
+		var doc adminContentPostRevisionDocument
+		if decodeErr := cursor.Decode(&doc); decodeErr != nil {
+			return nil, decodeErr
+		}
+		items = append(items, mapAdminContentPostRevisionDocument(doc))
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return &domain.AdminContentPostRevisionListResult{
+		Items: items,
+		Total: total,
+		Page:  resolvedPage,
+		Size:  resolvedSize,
+	}, nil
+}
+
+func (*adminContentMongoRepository) FindPostRevisionByID(
+	ctx context.Context,
+	locale string,
+	postID string,
+	revisionID string,
+) (*domain.AdminContentPostRevisionRecord, error) {
+	revisionsCollection, err := getPostRevisionsCollection()
+	if err != nil {
+		return nil, fmt.Errorf(adminContentRepositoryUnavailableFormat, ErrAdminContentRepositoryUnavailable, err)
+	}
+
+	var doc adminContentPostRevisionDocument
+	err = revisionsCollection.FindOne(
+		ctx,
+		bson.M{
+			"id":     strings.TrimSpace(revisionID),
+			"locale": strings.TrimSpace(strings.ToLower(locale)),
+			"postId": strings.TrimSpace(strings.ToLower(postID)),
+		},
+	).Decode(&doc)
+	if errors.Is(err, mongo.ErrNoDocuments) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	mapped := mapAdminContentPostRevisionDocument(doc)
+	return &mapped, nil
+}
+
+func (*adminContentMongoRepository) CreatePostRevision(
+	ctx context.Context,
+	record domain.AdminContentPostRecord,
+	revisionNumber int,
+	now time.Time,
+) (*domain.AdminContentPostRevisionRecord, error) {
+	revisionsCollection, err := getPostRevisionsCollection()
+	if err != nil {
+		return nil, fmt.Errorf(adminContentRepositoryUnavailableFormat, ErrAdminContentRepositoryUnavailable, err)
+	}
+
+	resolvedNow := now.UTC()
+	if resolvedNow.IsZero() {
+		resolvedNow = time.Now().UTC()
+	}
+	if revisionNumber <= 0 {
+		revisionNumber = max(record.RevisionCount, 0) + 1
+	}
+
+	revisionID := primitive.NewObjectID().Hex()
+	document := buildAdminContentPostRevisionDocument(record, revisionID, revisionNumber, resolvedNow)
+	if _, err := revisionsCollection.InsertOne(ctx, document); err != nil {
+		return nil, err
+	}
+
+	mapped := mapAdminContentPostRevisionDocument(document)
+	return &mapped, nil
+}
+
 func (*adminContentMongoRepository) UpdatePostMetadata(
 	ctx context.Context,
 	locale string,
@@ -269,6 +426,7 @@ func (*adminContentMongoRepository) UpdatePostMetadata(
 	fields domain.AdminContentPostMetadataFields,
 	category *domain.AdminContentCategoryRecord,
 	topics []domain.AdminContentTopicRecord,
+	revisionStamp *domain.AdminContentPostRevisionStamp,
 	now time.Time,
 ) (*domain.AdminContentPostRecord, error) {
 	postsCollection, err := getPostContentCollection()
@@ -313,6 +471,26 @@ func (*adminContentMongoRepository) UpdatePostMetadata(
 		topicIDs = append(topicIDs, resolvedID)
 	}
 
+	setFields := bson.M{
+		"title":         strings.TrimSpace(fields.Title),
+		"summary":       strings.TrimSpace(fields.Summary),
+		"thumbnail":     strings.TrimSpace(fields.Thumbnail),
+		"publishedDate": strings.TrimSpace(fields.PublishedDate),
+		"updatedDate":   strings.TrimSpace(fields.UpdatedDate),
+		"category":      categoryValue,
+		"topics":        topicValues,
+		"topicIds":      topicIDs,
+		"status":        strings.TrimSpace(strings.ToLower(fields.Status)),
+		"scheduledAt":   zeroTimeToNil(fields.ScheduledAt),
+		"updatedAt":     resolvedNow,
+	}
+	if revisionStamp != nil && revisionStamp.Number > 0 {
+		setFields["revisionCount"] = revisionStamp.Number
+	}
+	if revisionStamp != nil && !revisionStamp.CreatedAt.IsZero() {
+		setFields["latestRevisionAt"] = revisionStamp.CreatedAt.UTC()
+	}
+
 	var updated adminContentPostDocument
 	err = postsCollection.FindOneAndUpdate(
 		ctx,
@@ -321,17 +499,7 @@ func (*adminContentMongoRepository) UpdatePostMetadata(
 			"id":     strings.TrimSpace(strings.ToLower(postID)),
 		},
 		bson.M{
-			"$set": bson.M{
-				"title":         strings.TrimSpace(fields.Title),
-				"summary":       strings.TrimSpace(fields.Summary),
-				"thumbnail":     strings.TrimSpace(fields.Thumbnail),
-				"publishedDate": strings.TrimSpace(fields.PublishedDate),
-				"updatedDate":   strings.TrimSpace(fields.UpdatedDate),
-				"category":      categoryValue,
-				"topics":        topicValues,
-				"topicIds":      topicIDs,
-				"updatedAt":     resolvedNow,
-			},
+			"$set": setFields,
 		},
 		options.FindOneAndUpdate().
 			SetReturnDocument(options.After).
@@ -349,7 +517,12 @@ func (*adminContentMongoRepository) UpdatePostMetadata(
 				"category":         1,
 				"topics":           1,
 				"topicIds":         1,
+				"readingTimeMin":   1,
+				"status":           1,
+				"scheduledAt":      1,
 				"contentUpdatedAt": 1,
+				"revisionCount":    1,
+				"latestRevisionAt": 1,
 				"updatedAt":        1,
 			}),
 	).Decode(&updated)
@@ -369,6 +542,7 @@ func (*adminContentMongoRepository) UpdatePostContent(
 	locale string,
 	postID string,
 	content string,
+	revisionStamp *domain.AdminContentPostRevisionStamp,
 	now time.Time,
 ) (*domain.AdminContentPostRecord, error) {
 	postsCollection, err := getPostContentCollection()
@@ -381,6 +555,19 @@ func (*adminContentMongoRepository) UpdatePostContent(
 		resolvedNow = time.Now().UTC()
 	}
 
+	setFields := bson.M{
+		"content":          content,
+		"contentMode":      "admin",
+		"contentUpdatedAt": resolvedNow,
+		"updatedAt":        resolvedNow,
+	}
+	if revisionStamp != nil && revisionStamp.Number > 0 {
+		setFields["revisionCount"] = revisionStamp.Number
+	}
+	if revisionStamp != nil && !revisionStamp.CreatedAt.IsZero() {
+		setFields["latestRevisionAt"] = revisionStamp.CreatedAt.UTC()
+	}
+
 	var updated adminContentPostDocument
 	err = postsCollection.FindOneAndUpdate(
 		ctx,
@@ -389,12 +576,7 @@ func (*adminContentMongoRepository) UpdatePostContent(
 			"id":     strings.TrimSpace(strings.ToLower(postID)),
 		},
 		bson.M{
-			"$set": bson.M{
-				"content":          content,
-				"contentMode":      "admin",
-				"contentUpdatedAt": resolvedNow,
-				"updatedAt":        resolvedNow,
-			},
+			"$set": setFields,
 		},
 		options.FindOneAndUpdate().
 			SetReturnDocument(options.After).
@@ -412,7 +594,100 @@ func (*adminContentMongoRepository) UpdatePostContent(
 				"category":         1,
 				"topics":           1,
 				"topicIds":         1,
+				"readingTimeMin":   1,
+				"status":           1,
+				"scheduledAt":      1,
 				"contentUpdatedAt": 1,
+				"revisionCount":    1,
+				"latestRevisionAt": 1,
+				"updatedAt":        1,
+			}),
+	).Decode(&updated)
+	if errors.Is(err, mongo.ErrNoDocuments) {
+		return nil, ErrAdminContentPostNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	mapped := mapAdminContentPostDocument(updated)
+	return &mapped, nil
+}
+
+func (*adminContentMongoRepository) RestorePostRevision(
+	ctx context.Context,
+	revision domain.AdminContentPostRevisionRecord,
+	revisionStamp *domain.AdminContentPostRevisionStamp,
+	now time.Time,
+) (*domain.AdminContentPostRecord, error) {
+	postsCollection, err := getPostContentCollection()
+	if err != nil {
+		return nil, fmt.Errorf(adminContentRepositoryUnavailableFormat, ErrAdminContentRepositoryUnavailable, err)
+	}
+
+	resolvedNow := now.UTC()
+	if resolvedNow.IsZero() {
+		resolvedNow = time.Now().UTC()
+	}
+
+	categoryValue := adminContentCategoryDocumentFromRevision(revision)
+	topicValues := adminContentTopicDocumentsFromRevision(revision)
+	setFields := bson.M{
+		"title":            strings.TrimSpace(revision.Title),
+		"summary":          strings.TrimSpace(revision.Summary),
+		"content":          revision.Content,
+		"contentMode":      strings.TrimSpace(strings.ToLower(revision.ContentMode)),
+		"thumbnail":        strings.TrimSpace(revision.Thumbnail),
+		"publishedDate":    strings.TrimSpace(revision.PublishedDate),
+		"updatedDate":      strings.TrimSpace(revision.UpdatedDate),
+		"category":         categoryValue,
+		"topics":           topicValues,
+		"topicIds":         append([]string{}, revision.TopicIDs...),
+		"readingTimeMin":   revision.ReadingTimeMin,
+		"status":           strings.TrimSpace(strings.ToLower(revision.Status)),
+		"scheduledAt":      zeroTimeToNil(revision.ScheduledAt),
+		"contentUpdatedAt": zeroTimeToNil(revision.ContentUpdatedAt),
+		"updatedAt":        resolvedNow,
+	}
+	if revisionStamp != nil && revisionStamp.Number > 0 {
+		setFields["revisionCount"] = revisionStamp.Number
+	}
+	if revisionStamp != nil && !revisionStamp.CreatedAt.IsZero() {
+		setFields["latestRevisionAt"] = revisionStamp.CreatedAt.UTC()
+	}
+
+	var updated adminContentPostDocument
+	err = postsCollection.FindOneAndUpdate(
+		ctx,
+		bson.M{
+			"locale": strings.TrimSpace(strings.ToLower(revision.Locale)),
+			"id":     strings.TrimSpace(strings.ToLower(revision.PostID)),
+		},
+		bson.M{
+			"$set": setFields,
+		},
+		options.FindOneAndUpdate().
+			SetReturnDocument(options.After).
+			SetProjection(bson.M{
+				"locale":           1,
+				"id":               1,
+				"title":            1,
+				"summary":          1,
+				"content":          1,
+				"contentMode":      1,
+				"thumbnail":        1,
+				"source":           1,
+				"publishedDate":    1,
+				"updatedDate":      1,
+				"category":         1,
+				"topics":           1,
+				"topicIds":         1,
+				"readingTimeMin":   1,
+				"status":           1,
+				"scheduledAt":      1,
+				"contentUpdatedAt": 1,
+				"revisionCount":    1,
+				"latestRevisionAt": 1,
 				"updatedAt":        1,
 			}),
 	).Decode(&updated)
@@ -1273,8 +1548,42 @@ type adminContentPostDocument struct {
 	} `bson:"topics"`
 	TopicIDs         []string  `bson:"topicIds"`
 	ReadingTimeMin   int       `bson:"readingTimeMin"`
+	Status           string    `bson:"status"`
+	ScheduledAt      time.Time `bson:"scheduledAt"`
 	ContentUpdatedAt time.Time `bson:"contentUpdatedAt"`
 	UpdatedAt        time.Time `bson:"updatedAt"`
+	RevisionCount    int       `bson:"revisionCount"`
+	LatestRevisionAt time.Time `bson:"latestRevisionAt"`
+}
+
+type adminContentPostRevisionDocument struct {
+	ID             string `bson:"id"`
+	Locale         string `bson:"locale"`
+	PostID         string `bson:"postId"`
+	RevisionNumber int    `bson:"revisionNumber"`
+	Title          string `bson:"title"`
+	Summary        string `bson:"summary"`
+	Content        string `bson:"content"`
+	ContentMode    string `bson:"contentMode"`
+	Thumbnail      string `bson:"thumbnail"`
+	Source         string `bson:"source"`
+	PublishedDate  string `bson:"publishedDate"`
+	UpdatedDate    string `bson:"updatedDate"`
+	Category       *struct {
+		ID   string `bson:"id"`
+		Name string `bson:"name"`
+	} `bson:"category"`
+	Topics []struct {
+		ID   string `bson:"id"`
+		Name string `bson:"name"`
+	} `bson:"topics"`
+	TopicIDs         []string  `bson:"topicIds"`
+	ReadingTimeMin   int       `bson:"readingTimeMin"`
+	Status           string    `bson:"status"`
+	ScheduledAt      time.Time `bson:"scheduledAt"`
+	ContentUpdatedAt time.Time `bson:"contentUpdatedAt"`
+	UpdatedAt        time.Time `bson:"updatedAt"`
+	CreatedAt        time.Time `bson:"createdAt"`
 }
 
 type adminContentPostGroupAggregateDocument struct {
@@ -1361,9 +1670,188 @@ func mapAdminContentPostDocument(doc adminContentPostDocument) domain.AdminConte
 		TopicIDs:         topicIDs,
 		TopicNames:       topicNames,
 		ReadingTimeMin:   doc.ReadingTimeMin,
+		Status:           normalizeAdminContentPostStatusValue(doc.Status, doc.ScheduledAt),
+		ScheduledAt:      doc.ScheduledAt,
+		ContentUpdatedAt: doc.ContentUpdatedAt,
+		UpdatedAt:        doc.UpdatedAt,
+		RevisionCount:    max(doc.RevisionCount, 0),
+		LatestRevisionAt: doc.LatestRevisionAt,
+	}
+}
+
+func mapAdminContentPostRevisionDocument(doc adminContentPostRevisionDocument) domain.AdminContentPostRevisionRecord {
+	topicIDs := make([]string, 0, len(doc.TopicIDs))
+	for _, topicID := range doc.TopicIDs {
+		resolvedID := strings.TrimSpace(strings.ToLower(topicID))
+		if resolvedID == "" {
+			continue
+		}
+		topicIDs = append(topicIDs, resolvedID)
+	}
+
+	topicNames := make([]string, 0, len(doc.Topics))
+	for _, topic := range doc.Topics {
+		name := strings.TrimSpace(topic.Name)
+		if name == "" {
+			continue
+		}
+		topicNames = append(topicNames, name)
+	}
+	if len(topicNames) == 0 {
+		topicNames = append(topicNames, topicIDs...)
+	}
+
+	categoryID := ""
+	categoryName := ""
+	if doc.Category != nil {
+		categoryID = strings.TrimSpace(strings.ToLower(doc.Category.ID))
+		categoryName = strings.TrimSpace(doc.Category.Name)
+	}
+
+	return domain.AdminContentPostRevisionRecord{
+		ID:               strings.TrimSpace(doc.ID),
+		Locale:           strings.TrimSpace(strings.ToLower(doc.Locale)),
+		PostID:           strings.TrimSpace(strings.ToLower(doc.PostID)),
+		RevisionNumber:   max(doc.RevisionNumber, 0),
+		Title:            strings.TrimSpace(doc.Title),
+		Summary:          strings.TrimSpace(doc.Summary),
+		Content:          doc.Content,
+		ContentMode:      strings.TrimSpace(strings.ToLower(doc.ContentMode)),
+		Thumbnail:        strings.TrimSpace(doc.Thumbnail),
+		Source:           strings.TrimSpace(strings.ToLower(doc.Source)),
+		PublishedDate:    strings.TrimSpace(doc.PublishedDate),
+		UpdatedDate:      strings.TrimSpace(doc.UpdatedDate),
+		CategoryID:       categoryID,
+		CategoryName:     categoryName,
+		TopicIDs:         topicIDs,
+		TopicNames:       topicNames,
+		ReadingTimeMin:   doc.ReadingTimeMin,
+		Status:           normalizeAdminContentPostStatusValue(doc.Status, doc.ScheduledAt),
+		ScheduledAt:      doc.ScheduledAt,
+		CreatedAt:        doc.CreatedAt,
 		ContentUpdatedAt: doc.ContentUpdatedAt,
 		UpdatedAt:        doc.UpdatedAt,
 	}
+}
+
+func buildAdminContentPostRevisionDocument(
+	record domain.AdminContentPostRecord,
+	revisionID string,
+	revisionNumber int,
+	now time.Time,
+) adminContentPostRevisionDocument {
+	document := adminContentPostRevisionDocument{
+		ID:               strings.TrimSpace(revisionID),
+		Locale:           strings.TrimSpace(strings.ToLower(record.Locale)),
+		PostID:           strings.TrimSpace(strings.ToLower(record.ID)),
+		RevisionNumber:   revisionNumber,
+		Title:            strings.TrimSpace(record.Title),
+		Summary:          strings.TrimSpace(record.Summary),
+		Content:          record.Content,
+		ContentMode:      strings.TrimSpace(strings.ToLower(record.ContentMode)),
+		Thumbnail:        strings.TrimSpace(record.Thumbnail),
+		Source:           strings.TrimSpace(strings.ToLower(record.Source)),
+		PublishedDate:    strings.TrimSpace(record.PublishedDate),
+		UpdatedDate:      strings.TrimSpace(record.UpdatedDate),
+		TopicIDs:         append([]string{}, record.TopicIDs...),
+		ReadingTimeMin:   record.ReadingTimeMin,
+		Status:           normalizeAdminContentPostStatusValue(record.Status, record.ScheduledAt),
+		ScheduledAt:      record.ScheduledAt,
+		ContentUpdatedAt: record.ContentUpdatedAt,
+		UpdatedAt:        record.UpdatedAt,
+		CreatedAt:        now.UTC(),
+	}
+
+	if strings.TrimSpace(record.CategoryID) != "" || strings.TrimSpace(record.CategoryName) != "" {
+		document.Category = &struct {
+			ID   string `bson:"id"`
+			Name string `bson:"name"`
+		}{
+			ID:   strings.TrimSpace(strings.ToLower(record.CategoryID)),
+			Name: strings.TrimSpace(record.CategoryName),
+		}
+	}
+
+	if len(record.TopicIDs) > 0 || len(record.TopicNames) > 0 {
+		document.Topics = make([]struct {
+			ID   string `bson:"id"`
+			Name string `bson:"name"`
+		}, 0, max(len(record.TopicIDs), len(record.TopicNames)))
+		for index, topicID := range record.TopicIDs {
+			name := ""
+			if index < len(record.TopicNames) {
+				name = strings.TrimSpace(record.TopicNames[index])
+			}
+			document.Topics = append(document.Topics, struct {
+				ID   string `bson:"id"`
+				Name string `bson:"name"`
+			}{
+				ID:   strings.TrimSpace(strings.ToLower(topicID)),
+				Name: name,
+			})
+		}
+	}
+
+	return document
+}
+
+func adminContentCategoryDocumentFromRevision(revision domain.AdminContentPostRevisionRecord) any {
+	resolvedID := strings.TrimSpace(strings.ToLower(revision.CategoryID))
+	resolvedName := strings.TrimSpace(revision.CategoryName)
+	if resolvedID == "" && resolvedName == "" {
+		return nil
+	}
+
+	return bson.M{
+		"id":   resolvedID,
+		"name": resolvedName,
+	}
+}
+
+func adminContentTopicDocumentsFromRevision(revision domain.AdminContentPostRevisionRecord) []bson.M {
+	if len(revision.TopicIDs) == 0 {
+		return []bson.M{}
+	}
+
+	topicValues := make([]bson.M, 0, len(revision.TopicIDs))
+	for index, topicID := range revision.TopicIDs {
+		resolvedID := strings.TrimSpace(strings.ToLower(topicID))
+		if resolvedID == "" {
+			continue
+		}
+		name := ""
+		if index < len(revision.TopicNames) {
+			name = strings.TrimSpace(revision.TopicNames[index])
+		}
+		topicValues = append(topicValues, bson.M{
+			"id":   resolvedID,
+			"name": name,
+		})
+	}
+	return topicValues
+}
+
+func normalizeAdminContentPostStatusValue(value string, scheduledAt time.Time) string {
+	switch strings.TrimSpace(strings.ToLower(value)) {
+	case domain.AdminContentPostStatusDraft:
+		return domain.AdminContentPostStatusDraft
+	case domain.AdminContentPostStatusScheduled:
+		return domain.AdminContentPostStatusScheduled
+	case domain.AdminContentPostStatusPublished:
+		return domain.AdminContentPostStatusPublished
+	default:
+		if !scheduledAt.IsZero() {
+			return domain.AdminContentPostStatusScheduled
+		}
+		return domain.AdminContentPostStatusPublished
+	}
+}
+
+func zeroTimeToNil(value time.Time) any {
+	if value.IsZero() {
+		return nil
+	}
+	return value.UTC()
 }
 
 func mapAdminContentPostGroupAggregateDocument(
@@ -1514,20 +2002,24 @@ func buildAdminContentPostGroupPipeline(filter domain.AdminContentPostFilter) mo
 	return mongo.Pipeline{
 		bson.D{{Key: mongoStageMatch, Value: query}},
 		bson.D{{Key: mongoStageProject, Value: bson.M{
-			"locale":         1,
-			"id":             1,
-			"title":          1,
-			"summary":        1,
-			"thumbnail":      1,
-			"source":         1,
-			"publishedAt":    1,
-			"publishedDate":  1,
-			"updatedDate":    1,
-			"category":       1,
-			"topics":         1,
-			"topicIds":       1,
-			"readingTimeMin": 1,
-			"updatedAt":      1,
+			"locale":           1,
+			"id":               1,
+			"title":            1,
+			"summary":          1,
+			"thumbnail":        1,
+			"source":           1,
+			"publishedAt":      1,
+			"publishedDate":    1,
+			"updatedDate":      1,
+			"category":         1,
+			"topics":           1,
+			"topicIds":         1,
+			"readingTimeMin":   1,
+			"status":           1,
+			"scheduledAt":      1,
+			"revisionCount":    1,
+			"latestRevisionAt": 1,
+			"updatedAt":        1,
 			"sortPublishedAt": bson.M{
 				"$ifNull": bson.A{
 					"$publishedAt",
@@ -1557,20 +2049,24 @@ func buildAdminContentPostGroupPipeline(filter domain.AdminContentPostFilter) mo
 			"source":          bson.M{mongoFieldFirst: mongoFieldSource},
 			"sortPublishedAt": bson.M{mongoFieldFirst: "$sortPublishedAt"},
 			"variants": bson.M{"$push": bson.M{
-				"locale":         mongoFieldLocale,
-				"id":             "$id",
-				"title":          "$title",
-				"summary":        "$summary",
-				"thumbnail":      "$thumbnail",
-				"source":         mongoFieldSource,
-				"publishedAt":    "$publishedAt",
-				"publishedDate":  "$publishedDate",
-				"updatedDate":    "$updatedDate",
-				"category":       "$category",
-				"topics":         "$topics",
-				"topicIds":       "$topicIds",
-				"readingTimeMin": "$readingTimeMin",
-				"updatedAt":      mongoFieldUpdatedAt,
+				"locale":           mongoFieldLocale,
+				"id":               "$id",
+				"title":            "$title",
+				"summary":          "$summary",
+				"thumbnail":        "$thumbnail",
+				"source":           mongoFieldSource,
+				"publishedAt":      "$publishedAt",
+				"publishedDate":    "$publishedDate",
+				"updatedDate":      "$updatedDate",
+				"category":         "$category",
+				"topics":           "$topics",
+				"topicIds":         "$topicIds",
+				"readingTimeMin":   "$readingTimeMin",
+				"status":           "$status",
+				"scheduledAt":      "$scheduledAt",
+				"revisionCount":    "$revisionCount",
+				"latestRevisionAt": "$latestRevisionAt",
+				"updatedAt":        mongoFieldUpdatedAt,
 			}},
 		}}},
 		bson.D{{Key: "$sort", Value: bson.D{

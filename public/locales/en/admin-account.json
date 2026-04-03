@@ -487,6 +487,7 @@
       "success": {
         "postUpdated": "Post metadata updated: {{id}}",
         "postContentUpdated": "Post content updated: {{id}}",
+        "postRevisionRestored": "Revision #{{revision}} restored.",
         "postDeleted": "Post deleted: {{id}}",
         "topicCreated": "Topic created: {{id}}",
         "topicUpdated": "Topic updated: {{id}}",
@@ -503,6 +504,8 @@
         "postLoad": "Posts could not be loaded.",
         "postUpdate": "Post metadata could not be updated.",
         "postContentUpdate": "Post content could not be updated.",
+        "postRevisionsLoad": "Post revisions could not be loaded.",
+        "postRevisionRestore": "Post revision could not be restored.",
         "postDelete": "Post could not be deleted.",
         "topicCreate": "Topic could not be created.",
         "topicUpdate": "Topic could not be updated.",
@@ -563,9 +566,45 @@
             "updatedDateHint": "Leave empty to clear updated date.",
             "thumbnail": "Thumbnail"
           },
+          "lifecycle": {
+            "statusLabel": "Publishing status",
+            "statusHint": "Choose whether the post stays in draft, publishes on a schedule, or is live now.",
+            "scheduledAtLabel": "Scheduled publish time",
+            "scheduledAtHint": "Pick a future date and time for scheduled publishing.",
+            "scheduledAtDisabledHint": "Set status to Scheduled to plan a future publish time.",
+            "scheduledFor": "Scheduled for: {{value}}",
+            "revisionSummary_one": "{{count}} saved revision",
+            "revisionSummary_other": "{{count}} saved revisions",
+            "latestRevisionAt": "Latest revision: {{value}}",
+            "statuses": {
+              "draft": "Draft",
+              "scheduled": "Scheduled",
+              "published": "Published"
+            }
+          },
           "topics": "Topics",
           "topicsQueryPlaceholder": "Search topics by name",
           "topicsEmpty": "No topics found for this locale.",
+          "revisions": {
+            "title": "Revision history",
+            "copy": "Restore a previous saved version of this post if a metadata or content update needs to be rolled back.",
+            "loading": "Loading post revisions...",
+            "empty": "No revisions have been saved for this post yet.",
+            "restore": "Restore revision",
+            "restoring": "Restoring...",
+            "restoreTitle": "Restore revision",
+            "restoreCopy": "Restore revision #{{revision}}? The current post state will be saved as a new revision before restore completes.",
+            "revisionBadge": "Revision #{{revision}}",
+            "createdAt": "Saved: {{value}}",
+            "publishedDate": "Published: {{value}}",
+            "updatedDate": "Updated: {{value}}",
+            "scheduledAt": "Scheduled: {{value}}",
+            "restoreLabels": {
+              "title": "Title",
+              "createdAt": "Saved at",
+              "status": "Status"
+            }
+          },
           "contentLabel": "Markdown content",
           "contentHint": "Supports standard Markdown syntax.",
           "previewTitle": "Preview",

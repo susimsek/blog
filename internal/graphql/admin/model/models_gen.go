@@ -126,26 +126,30 @@ type AdminContentEntityKeyInput struct {
 }
 
 type AdminContentPost struct {
-	Locale           scalars.Locale    `json:"locale"`
-	ID               string            `json:"id"`
-	Title            string            `json:"title"`
-	Summary          *string           `json:"summary,omitempty"`
-	Content          *string           `json:"content,omitempty"`
-	ContentMode      *AdminContentMode `json:"contentMode,omitempty"`
-	Thumbnail        *string           `json:"thumbnail,omitempty"`
-	Source           ContentSource     `json:"source"`
-	PublishedDate    scalars.Date      `json:"publishedDate"`
-	UpdatedDate      *scalars.Date     `json:"updatedDate,omitempty"`
-	CategoryID       *string           `json:"categoryId,omitempty"`
-	CategoryName     *string           `json:"categoryName,omitempty"`
-	TopicIds         []string          `json:"topicIds"`
-	TopicNames       []string          `json:"topicNames"`
-	ReadingTimeMin   int               `json:"readingTimeMin"`
-	ContentUpdatedAt *time.Time        `json:"contentUpdatedAt,omitempty"`
-	UpdatedAt        *time.Time        `json:"updatedAt,omitempty"`
-	ViewCount        int               `json:"viewCount"`
-	LikeCount        int               `json:"likeCount"`
-	CommentCount     int               `json:"commentCount"`
+	Locale           scalars.Locale         `json:"locale"`
+	ID               string                 `json:"id"`
+	Title            string                 `json:"title"`
+	Summary          *string                `json:"summary,omitempty"`
+	Content          *string                `json:"content,omitempty"`
+	ContentMode      *AdminContentMode      `json:"contentMode,omitempty"`
+	Thumbnail        *string                `json:"thumbnail,omitempty"`
+	Source           ContentSource          `json:"source"`
+	PublishedDate    scalars.Date           `json:"publishedDate"`
+	UpdatedDate      *scalars.Date          `json:"updatedDate,omitempty"`
+	CategoryID       *string                `json:"categoryId,omitempty"`
+	CategoryName     *string                `json:"categoryName,omitempty"`
+	TopicIds         []string               `json:"topicIds"`
+	TopicNames       []string               `json:"topicNames"`
+	ReadingTimeMin   int                    `json:"readingTimeMin"`
+	Status           AdminContentPostStatus `json:"status"`
+	ScheduledAt      *time.Time             `json:"scheduledAt,omitempty"`
+	ContentUpdatedAt *time.Time             `json:"contentUpdatedAt,omitempty"`
+	UpdatedAt        *time.Time             `json:"updatedAt,omitempty"`
+	RevisionCount    int                    `json:"revisionCount"`
+	LatestRevisionAt *time.Time             `json:"latestRevisionAt,omitempty"`
+	ViewCount        int                    `json:"viewCount"`
+	LikeCount        int                    `json:"likeCount"`
+	CommentCount     int                    `json:"commentCount"`
 }
 
 type AdminContentPostFilterInput struct {
@@ -172,6 +176,35 @@ type AdminContentPostListPayload struct {
 	Total int                      `json:"total"`
 	Page  int                      `json:"page"`
 	Size  int                      `json:"size"`
+}
+
+type AdminContentPostRevision struct {
+	ID             string                 `json:"id"`
+	Locale         scalars.Locale         `json:"locale"`
+	PostID         string                 `json:"postId"`
+	RevisionNumber int                    `json:"revisionNumber"`
+	Title          string                 `json:"title"`
+	Summary        *string                `json:"summary,omitempty"`
+	Content        *string                `json:"content,omitempty"`
+	ContentMode    *AdminContentMode      `json:"contentMode,omitempty"`
+	Thumbnail      *string                `json:"thumbnail,omitempty"`
+	PublishedDate  scalars.Date           `json:"publishedDate"`
+	UpdatedDate    *scalars.Date          `json:"updatedDate,omitempty"`
+	CategoryID     *string                `json:"categoryId,omitempty"`
+	CategoryName   *string                `json:"categoryName,omitempty"`
+	TopicIds       []string               `json:"topicIds"`
+	TopicNames     []string               `json:"topicNames"`
+	ReadingTimeMin int                    `json:"readingTimeMin"`
+	Status         AdminContentPostStatus `json:"status"`
+	ScheduledAt    *time.Time             `json:"scheduledAt,omitempty"`
+	CreatedAt      time.Time              `json:"createdAt"`
+}
+
+type AdminContentPostRevisionListPayload struct {
+	Items []*AdminContentPostRevision `json:"items"`
+	Total int                         `json:"total"`
+	Page  int                         `json:"page"`
+	Size  int                         `json:"size"`
 }
 
 type AdminContentTaxonomyFilterInput struct {
@@ -551,6 +584,12 @@ type AdminRequestPasswordResetInput struct {
 	Locale *scalars.Locale `json:"locale,omitempty"`
 }
 
+type AdminRestoreContentPostRevisionInput struct {
+	Locale     scalars.Locale `json:"locale"`
+	PostID     string         `json:"postId"`
+	RevisionID string         `json:"revisionId"`
+}
+
 type AdminSendTestNewsletterInput struct {
 	Email   scalars.Email  `json:"email"`
 	Locale  scalars.Locale `json:"locale"`
@@ -593,15 +632,17 @@ type AdminUpdateContentPostContentInput struct {
 }
 
 type AdminUpdateContentPostMetadataInput struct {
-	Locale        scalars.Locale `json:"locale"`
-	ID            string         `json:"id"`
-	Title         *string        `json:"title,omitempty"`
-	Summary       *string        `json:"summary,omitempty"`
-	Thumbnail     *string        `json:"thumbnail,omitempty"`
-	PublishedDate *scalars.Date  `json:"publishedDate,omitempty"`
-	UpdatedDate   *scalars.Date  `json:"updatedDate,omitempty"`
-	CategoryID    *string        `json:"categoryId,omitempty"`
-	TopicIds      []string       `json:"topicIds"`
+	Locale        scalars.Locale          `json:"locale"`
+	ID            string                  `json:"id"`
+	Title         *string                 `json:"title,omitempty"`
+	Summary       *string                 `json:"summary,omitempty"`
+	Thumbnail     *string                 `json:"thumbnail,omitempty"`
+	PublishedDate *scalars.Date           `json:"publishedDate,omitempty"`
+	UpdatedDate   *scalars.Date           `json:"updatedDate,omitempty"`
+	Status        *AdminContentPostStatus `json:"status,omitempty"`
+	ScheduledAt   *time.Time              `json:"scheduledAt,omitempty"`
+	CategoryID    *string                 `json:"categoryId,omitempty"`
+	TopicIds      []string                `json:"topicIds"`
 }
 
 type AdminUpdateErrorMessageInput struct {
@@ -798,6 +839,63 @@ func (e *AdminContentMode) UnmarshalJSON(b []byte) error {
 }
 
 func (e AdminContentMode) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type AdminContentPostStatus string
+
+const (
+	AdminContentPostStatusDraft     AdminContentPostStatus = "DRAFT"
+	AdminContentPostStatusScheduled AdminContentPostStatus = "SCHEDULED"
+	AdminContentPostStatusPublished AdminContentPostStatus = "PUBLISHED"
+)
+
+var AllAdminContentPostStatus = []AdminContentPostStatus{
+	AdminContentPostStatusDraft,
+	AdminContentPostStatusScheduled,
+	AdminContentPostStatusPublished,
+}
+
+func (e AdminContentPostStatus) IsValid() bool {
+	switch e {
+	case AdminContentPostStatusDraft, AdminContentPostStatusScheduled, AdminContentPostStatusPublished:
+		return true
+	}
+	return false
+}
+
+func (e AdminContentPostStatus) String() string {
+	return string(e)
+}
+
+func (e *AdminContentPostStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AdminContentPostStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AdminContentPostStatus", str)
+	}
+	return nil
+}
+
+func (e AdminContentPostStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AdminContentPostStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AdminContentPostStatus) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

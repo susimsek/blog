@@ -306,11 +306,37 @@ export type AdminContentPostItem = {
   topicIds: string[];
   topicNames: string[];
   readingTimeMin: number;
+  status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED';
+  scheduledAt: string | null;
   contentUpdatedAt: string | null;
   updatedAt: string | null;
+  revisionCount: number;
+  latestRevisionAt: string | null;
   viewCount: number;
   likeCount: number;
   commentCount: number;
+};
+
+export type AdminContentPostRevisionItem = {
+  id: string;
+  locale: string;
+  postId: string;
+  revisionNumber: number;
+  title: string;
+  summary: string | null;
+  content: string | null;
+  contentMode: string | null;
+  thumbnail: string | null;
+  publishedDate: string;
+  updatedDate: string | null;
+  categoryId: string | null;
+  categoryName: string | null;
+  topicIds: string[];
+  topicNames: string[];
+  readingTimeMin: number;
+  status: 'DRAFT' | 'SCHEDULED' | 'PUBLISHED';
+  scheduledAt: string | null;
+  createdAt: string;
 };
 
 export type AdminContentPostGroupItem = {
@@ -384,6 +410,15 @@ type AdminContentPostPayload = {
   contentPost: AdminContentPostItem | null;
 };
 
+type AdminContentPostRevisionsPayload = {
+  contentPostRevisions: {
+    items: AdminContentPostRevisionItem[];
+    total: number;
+    page: number;
+    size: number;
+  };
+};
+
 type AdminContentTopicsPayload = {
   contentTopics: AdminContentTopicItem[];
 };
@@ -416,6 +451,10 @@ type AdminUpdateContentPostMetadataPayload = {
 
 type AdminUpdateContentPostContentPayload = {
   updateContentPostContent: AdminContentPostItem;
+};
+
+type AdminRestoreContentPostRevisionPayload = {
+  restoreContentPostRevision: AdminContentPostItem;
 };
 
 type AdminMediaLibraryPayload = {
@@ -1068,8 +1107,12 @@ const ADMIN_CONTENT_POSTS_QUERY = gql`
           topicIds
           topicNames
           readingTimeMin
+          status
+          scheduledAt
           contentUpdatedAt
           updatedAt
+          revisionCount
+          latestRevisionAt
           viewCount
           likeCount
           commentCount
@@ -1090,8 +1133,12 @@ const ADMIN_CONTENT_POSTS_QUERY = gql`
           topicIds
           topicNames
           readingTimeMin
+          status
+          scheduledAt
           contentUpdatedAt
           updatedAt
+          revisionCount
+          latestRevisionAt
           viewCount
           likeCount
           commentCount
@@ -1112,8 +1159,12 @@ const ADMIN_CONTENT_POSTS_QUERY = gql`
           topicIds
           topicNames
           readingTimeMin
+          status
+          scheduledAt
           contentUpdatedAt
           updatedAt
+          revisionCount
+          latestRevisionAt
           viewCount
           likeCount
           commentCount
@@ -1144,11 +1195,46 @@ const ADMIN_CONTENT_POST_QUERY = gql`
       topicIds
       topicNames
       readingTimeMin
+      status
+      scheduledAt
       contentUpdatedAt
       updatedAt
+      revisionCount
+      latestRevisionAt
       viewCount
       likeCount
       commentCount
+    }
+  }
+`;
+
+const ADMIN_CONTENT_POST_REVISIONS_QUERY = gql`
+  query AdminContentPostRevisionsQuery($input: AdminContentEntityKeyInput!, $page: Int, $size: Int) {
+    contentPostRevisions(input: $input, page: $page, size: $size) {
+      items {
+        id
+        locale
+        postId
+        revisionNumber
+        title
+        summary
+        content
+        contentMode
+        thumbnail
+        publishedDate
+        updatedDate
+        categoryId
+        categoryName
+        topicIds
+        topicNames
+        readingTimeMin
+        status
+        scheduledAt
+        createdAt
+      }
+      total
+      page
+      size
     }
   }
 `;
@@ -1299,8 +1385,12 @@ const ADMIN_UPDATE_CONTENT_POST_METADATA_MUTATION = gql`
       topicIds
       topicNames
       readingTimeMin
+      status
+      scheduledAt
       contentUpdatedAt
       updatedAt
+      revisionCount
+      latestRevisionAt
       viewCount
       likeCount
       commentCount
@@ -1326,8 +1416,43 @@ const ADMIN_UPDATE_CONTENT_POST_CONTENT_MUTATION = gql`
       topicIds
       topicNames
       readingTimeMin
+      status
+      scheduledAt
       contentUpdatedAt
       updatedAt
+      revisionCount
+      latestRevisionAt
+      viewCount
+      likeCount
+      commentCount
+    }
+  }
+`;
+
+const ADMIN_RESTORE_CONTENT_POST_REVISION_MUTATION = gql`
+  mutation AdminRestoreContentPostRevisionMutation($input: AdminRestoreContentPostRevisionInput!) {
+    restoreContentPostRevision(input: $input) {
+      locale
+      id
+      title
+      summary
+      content
+      contentMode
+      thumbnail
+      source
+      publishedDate
+      updatedDate
+      categoryId
+      categoryName
+      topicIds
+      topicNames
+      readingTimeMin
+      status
+      scheduledAt
+      contentUpdatedAt
+      updatedAt
+      revisionCount
+      latestRevisionAt
       viewCount
       likeCount
       commentCount
@@ -2638,6 +2763,8 @@ export const updateAdminContentPostMetadata = async (input: {
   thumbnail?: string;
   publishedDate?: string;
   updatedDate?: string;
+  status?: AdminContentPostItem['status'];
+  scheduledAt?: string | null;
   categoryId?: string | null;
   topicIds: string[];
 }) => {
@@ -2652,6 +2779,8 @@ export const updateAdminContentPostMetadata = async (input: {
         thumbnail?: string;
         publishedDate?: string;
         updatedDate?: string;
+        status?: string;
+        scheduledAt?: string | null;
         categoryId?: string;
         topicIds: string[];
       };
@@ -2667,6 +2796,13 @@ export const updateAdminContentPostMetadata = async (input: {
         ...(typeof input.thumbnail === 'string' ? { thumbnail: input.thumbnail.trim() } : {}),
         ...(typeof input.publishedDate === 'string' ? { publishedDate: input.publishedDate.trim() } : {}),
         ...(typeof input.updatedDate === 'string' ? { updatedDate: input.updatedDate.trim() } : {}),
+        ...(typeof input.status === 'string' ? { status: input.status.trim().toUpperCase() } : {}),
+        ...('scheduledAt' in input
+          ? {
+              scheduledAt:
+                typeof input.scheduledAt === 'string' && input.scheduledAt.trim() ? input.scheduledAt.trim() : null,
+            }
+          : {}),
         ...(input.categoryId?.trim() ? { categoryId: input.categoryId.trim().toLowerCase() } : {}),
         topicIds: input.topicIds.map(item => item.trim().toLowerCase()).filter(item => item !== ''),
       },
@@ -2677,6 +2813,73 @@ export const updateAdminContentPostMetadata = async (input: {
   );
 
   return payload.updateContentPostMetadata;
+};
+
+export const fetchAdminContentPostRevisions = async (input: {
+  locale: string;
+  id: string;
+  page?: number;
+  size?: number;
+}) => {
+  const resolvedPage = input.page && Number.isFinite(input.page) && input.page > 0 ? Math.trunc(input.page) : undefined;
+  const resolvedSize = input.size && Number.isFinite(input.size) && input.size > 0 ? Math.trunc(input.size) : undefined;
+  const payload = await executeAdminGraphQL<
+    AdminContentPostRevisionsPayload,
+    {
+      input: {
+        locale: string;
+        id: string;
+      };
+      page?: number;
+      size?: number;
+    }
+  >(
+    ADMIN_CONTENT_POST_REVISIONS_QUERY,
+    {
+      input: {
+        locale: input.locale.trim().toLowerCase(),
+        id: input.id.trim().toLowerCase(),
+      },
+      ...(resolvedPage ? { page: resolvedPage } : {}),
+      ...(resolvedSize ? { size: resolvedSize } : {}),
+    },
+    {
+      operationName: 'AdminContentPostRevisions',
+    },
+  );
+
+  return payload.contentPostRevisions;
+};
+
+export const restoreAdminContentPostRevision = async (input: {
+  locale: string;
+  postId: string;
+  revisionId: string;
+}) => {
+  const payload = await executeAdminGraphQL<
+    AdminRestoreContentPostRevisionPayload,
+    {
+      input: {
+        locale: string;
+        postId: string;
+        revisionId: string;
+      };
+    }
+  >(
+    ADMIN_RESTORE_CONTENT_POST_REVISION_MUTATION,
+    {
+      input: {
+        locale: input.locale.trim().toLowerCase(),
+        postId: input.postId.trim().toLowerCase(),
+        revisionId: input.revisionId.trim(),
+      },
+    },
+    {
+      operationName: 'AdminRestoreContentPostRevision',
+    },
+  );
+
+  return payload.restoreContentPostRevision;
 };
 
 export const updateAdminContentPostContent = async (input: { locale: string; id: string; content: string }) => {

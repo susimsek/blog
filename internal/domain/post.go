@@ -31,6 +31,8 @@ type PostRecord struct {
 	Source         string        `json:"source,omitempty" bson:"source,omitempty"`
 	Link           *string       `json:"link,omitempty" bson:"link,omitempty"`
 	PublishedAt    time.Time     `json:"-" bson:"publishedAt,omitempty"`
+	Status         string        `json:"-" bson:"status,omitempty"`
+	ScheduledAt    time.Time     `json:"-" bson:"scheduledAt,omitempty"`
 }
 
 type PostContentResponse struct {

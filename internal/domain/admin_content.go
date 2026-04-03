@@ -2,6 +2,12 @@ package domain
 
 import "time"
 
+const (
+	AdminContentPostStatusDraft     = "draft"
+	AdminContentPostStatusScheduled = "scheduled"
+	AdminContentPostStatusPublished = "published"
+)
+
 type AdminContentPostFilter struct {
 	Locale          string
 	PreferredLocale string
@@ -37,9 +43,13 @@ type AdminContentPostRecord struct {
 	TopicIDs         []string
 	TopicNames       []string
 	ReadingTimeMin   int
+	Status           string
+	ScheduledAt      time.Time
 	PublishedAt      time.Time
 	ContentUpdatedAt time.Time
 	UpdatedAt        time.Time
+	RevisionCount    int
+	LatestRevisionAt time.Time
 	ViewCount        int64
 	LikeCount        int64
 	CommentCount     int64
@@ -82,6 +92,8 @@ type AdminContentPostMetadataInput struct {
 	Thumbnail     *string
 	PublishedDate *string
 	UpdatedDate   *string
+	Status        *string
+	ScheduledAt   *time.Time
 	CategoryID    string
 	TopicIDs      []string
 }
@@ -92,12 +104,51 @@ type AdminContentPostMetadataFields struct {
 	Thumbnail     string
 	PublishedDate string
 	UpdatedDate   string
+	Status        string
+	ScheduledAt   time.Time
 }
 
 type AdminContentPostContentInput struct {
 	Locale  string
 	ID      string
 	Content string
+}
+
+type AdminContentPostRevisionStamp struct {
+	Number    int
+	CreatedAt time.Time
+}
+
+type AdminContentPostRevisionRecord struct {
+	ID               string
+	Locale           string
+	PostID           string
+	RevisionNumber   int
+	Title            string
+	Summary          string
+	Content          string
+	ContentMode      string
+	Thumbnail        string
+	Source           string
+	PublishedDate    string
+	UpdatedDate      string
+	CategoryID       string
+	CategoryName     string
+	TopicIDs         []string
+	TopicNames       []string
+	ReadingTimeMin   int
+	Status           string
+	ScheduledAt      time.Time
+	CreatedAt        time.Time
+	ContentUpdatedAt time.Time
+	UpdatedAt        time.Time
+}
+
+type AdminContentPostRevisionListResult struct {
+	Items []AdminContentPostRevisionRecord
+	Total int
+	Page  int
+	Size  int
 }
 
 type AdminContentTopicRecord struct {

@@ -17,17 +17,18 @@ import (
 )
 
 const (
-	adminContentDefaultPageSize    = 20
-	adminContentMaxPageSize        = 100
-	adminContentIDMaxLength        = 128
-	adminContentNameMaxLength      = 120
-	adminContentTitleMaxLength     = 240
-	adminContentSummaryMaxLength   = 4000
-	adminContentColorMaxLength     = 32
-	adminContentIconMaxLength      = 64
-	adminContentLinkMaxLength      = 512
-	adminContentThumbnailMaxLength = 1024
-	adminContentBodyMaxLength      = 400000
+	adminContentDefaultPageSize         = 20
+	adminContentMaxPageSize             = 100
+	adminContentIDMaxLength             = 128
+	adminContentNameMaxLength           = 120
+	adminContentTitleMaxLength          = 240
+	adminContentSummaryMaxLength        = 4000
+	adminContentColorMaxLength          = 32
+	adminContentIconMaxLength           = 64
+	adminContentLinkMaxLength           = 512
+	adminContentThumbnailMaxLength      = 1024
+	adminContentBodyMaxLength           = 400000
+	adminContentRevisionDefaultPageSize = 10
 
 	adminContentAuditResource      = "admin_content_management"
 	adminContentAuditStatusSuccess = "success"
@@ -44,6 +45,7 @@ const (
 	adminContentInvalidLink        = "invalid content link"
 	adminContentFieldRequired      = " is required"
 	adminContentFieldInvalid       = "invalid "
+	adminContentRevisionNotFound   = "content post revision not found"
 )
 
 var (
@@ -325,6 +327,23 @@ func UpdateAdminContentPostMetadata( // NOSONAR
 	}
 
 	now := time.Now().UTC()
+	var revisionStamp *domain.AdminContentPostRevisionStamp
+	if adminContentMetadataChanged(*before, metadataFields, resolvedCategoryID, resolvedTopicIDs) {
+		savedRevision, revisionErr := adminContentRepository.CreatePostRevision(
+			ctx,
+			*before,
+			before.RevisionCount+1,
+			now,
+		)
+		if revisionErr != nil {
+			return nil, toAdminContentError(revisionErr, "failed to create content post revision")
+		}
+		revisionStamp = &domain.AdminContentPostRevisionStamp{
+			Number:    savedRevision.RevisionNumber,
+			CreatedAt: savedRevision.CreatedAt,
+		}
+	}
+
 	updated, err := adminContentRepository.UpdatePostMetadata(
 		ctx,
 		resolvedLocale,
@@ -332,6 +351,7 @@ func UpdateAdminContentPostMetadata( // NOSONAR
 		metadataFields,
 		category,
 		topics,
+		revisionStamp,
 		now,
 	)
 	if err != nil {
@@ -384,6 +404,44 @@ func GetAdminContentPost(
 	return populateAdminContentPostAnalytics(ctx, record), nil
 }
 
+func ListAdminContentPostRevisions(
+	ctx context.Context,
+	adminUser *domain.AdminUser,
+	locale string,
+	postID string,
+	page *int,
+	size *int,
+) (*domain.AdminContentPostRevisionListResult, error) {
+	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
+		return nil, apperrors.Unauthorized(adminContentAuthRequired)
+	}
+
+	resolvedLocale, err := normalizeAdminContentLocale(locale, false)
+	if err != nil {
+		return nil, err
+	}
+	resolvedPostID, err := normalizeAdminContentID(postID, adminContentPostIDField)
+	if err != nil {
+		return nil, err
+	}
+
+	resolvedPage := clampPositiveInt(page, 1, 100000)
+	resolvedSize := clampPositiveInt(size, adminContentRevisionDefaultPageSize, adminContentMaxPageSize)
+	result, err := adminContentRepository.ListPostRevisions(ctx, resolvedLocale, resolvedPostID, resolvedPage, resolvedSize)
+	if err != nil {
+		return nil, toAdminContentError(err, "failed to list content post revisions")
+	}
+	if result == nil {
+		return &domain.AdminContentPostRevisionListResult{
+			Items: []domain.AdminContentPostRevisionRecord{},
+			Total: 0,
+			Page:  1,
+			Size:  resolvedSize,
+		}, nil
+	}
+	return result, nil
+}
+
 func UpdateAdminContentPostContent(
 	ctx context.Context,
 	adminUser *domain.AdminUser,
@@ -418,11 +476,29 @@ func UpdateAdminContentPostContent(
 	}
 
 	now := time.Now().UTC()
+	var revisionStamp *domain.AdminContentPostRevisionStamp
+	if strings.TrimSpace(before.Content) != strings.TrimSpace(resolvedContent) {
+		savedRevision, revisionErr := adminContentRepository.CreatePostRevision(
+			ctx,
+			*before,
+			before.RevisionCount+1,
+			now,
+		)
+		if revisionErr != nil {
+			return nil, toAdminContentError(revisionErr, "failed to create content post revision")
+		}
+		revisionStamp = &domain.AdminContentPostRevisionStamp{
+			Number:    savedRevision.RevisionNumber,
+			CreatedAt: savedRevision.CreatedAt,
+		}
+	}
+
 	updated, err := adminContentRepository.UpdatePostContent(
 		ctx,
 		resolvedLocale,
 		resolvedPostID,
 		resolvedContent,
+		revisionStamp,
 		now,
 	)
 	if err != nil {
@@ -433,6 +509,81 @@ func UpdateAdminContentPostContent(
 		ctx,
 		adminUser,
 		"content_post_content_updated",
+		"post",
+		resolvedLocale,
+		resolvedPostID,
+		marshalAdminContentAuditValue(before),
+		marshalAdminContentAuditValue(updated),
+	); err != nil {
+		return nil, err
+	}
+
+	return populateAdminContentPostAnalytics(ctx, updated), nil
+}
+
+func RestoreAdminContentPostRevision(
+	ctx context.Context,
+	adminUser *domain.AdminUser,
+	locale string,
+	postID string,
+	revisionID string,
+) (*domain.AdminContentPostRecord, error) {
+	if adminUser == nil || strings.TrimSpace(adminUser.ID) == "" {
+		return nil, apperrors.Unauthorized(adminContentAuthRequired)
+	}
+
+	resolvedLocale, err := normalizeAdminContentLocale(locale, false)
+	if err != nil {
+		return nil, err
+	}
+	resolvedPostID, err := normalizeAdminContentID(postID, adminContentPostIDField)
+	if err != nil {
+		return nil, err
+	}
+	resolvedRevisionID := strings.TrimSpace(revisionID)
+	if resolvedRevisionID == "" {
+		return nil, apperrors.BadRequest("content post revision id is required")
+	}
+
+	before, err := adminContentRepository.FindPostByLocaleAndID(ctx, resolvedLocale, resolvedPostID)
+	if err != nil {
+		return nil, toAdminContentError(err, adminContentLoadPostFailed)
+	}
+	if before == nil {
+		return nil, apperrors.BadRequest(adminContentPostNotFound)
+	}
+
+	revision, err := adminContentRepository.FindPostRevisionByID(ctx, resolvedLocale, resolvedPostID, resolvedRevisionID)
+	if err != nil {
+		return nil, toAdminContentError(err, "failed to load content post revision")
+	}
+	if revision == nil {
+		return nil, apperrors.BadRequest(adminContentRevisionNotFound)
+	}
+
+	now := time.Now().UTC()
+	savedRevision, err := adminContentRepository.CreatePostRevision(ctx, *before, before.RevisionCount+1, now)
+	if err != nil {
+		return nil, toAdminContentError(err, "failed to create content post revision")
+	}
+
+	updated, err := adminContentRepository.RestorePostRevision(
+		ctx,
+		*revision,
+		&domain.AdminContentPostRevisionStamp{
+			Number:    savedRevision.RevisionNumber,
+			CreatedAt: savedRevision.CreatedAt,
+		},
+		now,
+	)
+	if err != nil {
+		return nil, toAdminContentError(err, "failed to restore content post revision")
+	}
+
+	if err := createAdminContentAuditLog(
+		ctx,
+		adminUser,
+		"content_post_revision_restored",
 		"post",
 		resolvedLocale,
 		resolvedPostID,
@@ -995,13 +1146,92 @@ func normalizeAdminContentPostMetadataFields(
 		updatedDate = resolvedUpdatedDate
 	}
 
+	status, scheduledAt, err := normalizeAdminContentPostLifecycle(input, before)
+	if err != nil {
+		return domain.AdminContentPostMetadataFields{}, err
+	}
+
 	return domain.AdminContentPostMetadataFields{
 		Title:         title,
 		Summary:       summary,
 		Thumbnail:     thumbnail,
 		PublishedDate: publishedDate,
 		UpdatedDate:   updatedDate,
+		Status:        status,
+		ScheduledAt:   scheduledAt,
 	}, nil
+}
+
+func normalizeAdminContentPostLifecycle(
+	input domain.AdminContentPostMetadataInput,
+	before domain.AdminContentPostRecord,
+) (string, time.Time, error) {
+	status := normalizeAdminContentPostStatus(before.Status)
+	if input.Status != nil {
+		status = normalizeAdminContentPostStatus(*input.Status)
+	}
+
+	scheduledAt := before.ScheduledAt.UTC()
+	if input.ScheduledAt != nil {
+		scheduledAt = input.ScheduledAt.UTC()
+	}
+
+	switch status {
+	case domain.AdminContentPostStatusDraft:
+		return status, time.Time{}, nil
+	case domain.AdminContentPostStatusPublished:
+		return status, time.Time{}, nil
+	case domain.AdminContentPostStatusScheduled:
+		if scheduledAt.IsZero() {
+			return "", time.Time{}, apperrors.BadRequest("scheduled publish date is required")
+		}
+		if !scheduledAt.After(time.Now().UTC()) {
+			return "", time.Time{}, apperrors.BadRequest("scheduled publish date must be in the future")
+		}
+		return status, scheduledAt, nil
+	default:
+		return "", time.Time{}, apperrors.BadRequest("invalid content post status")
+	}
+}
+
+func normalizeAdminContentPostStatus(value string) string {
+	switch strings.TrimSpace(strings.ToLower(value)) {
+	case domain.AdminContentPostStatusDraft:
+		return domain.AdminContentPostStatusDraft
+	case domain.AdminContentPostStatusScheduled:
+		return domain.AdminContentPostStatusScheduled
+	default:
+		return domain.AdminContentPostStatusPublished
+	}
+}
+
+func adminContentMetadataChanged(
+	before domain.AdminContentPostRecord,
+	fields domain.AdminContentPostMetadataFields,
+	categoryID string,
+	topicIDs []string,
+) bool {
+	if strings.TrimSpace(before.Title) != strings.TrimSpace(fields.Title) ||
+		strings.TrimSpace(before.Summary) != strings.TrimSpace(fields.Summary) ||
+		strings.TrimSpace(before.Thumbnail) != strings.TrimSpace(fields.Thumbnail) ||
+		strings.TrimSpace(before.PublishedDate) != strings.TrimSpace(fields.PublishedDate) ||
+		strings.TrimSpace(before.UpdatedDate) != strings.TrimSpace(fields.UpdatedDate) ||
+		normalizeAdminContentPostStatus(before.Status) != normalizeAdminContentPostStatus(fields.Status) ||
+		!before.ScheduledAt.Equal(fields.ScheduledAt) ||
+		strings.TrimSpace(strings.ToLower(before.CategoryID)) != strings.TrimSpace(strings.ToLower(categoryID)) {
+		return true
+	}
+
+	if len(before.TopicIDs) != len(topicIDs) {
+		return true
+	}
+	for index := range before.TopicIDs {
+		if strings.TrimSpace(strings.ToLower(before.TopicIDs[index])) != strings.TrimSpace(strings.ToLower(topicIDs[index])) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func normalizeAdminContentPostTitle(value string) (string, error) {

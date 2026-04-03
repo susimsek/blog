@@ -29,6 +29,12 @@ enum AdminContentMode {
   admin
 }
 
+enum AdminContentPostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+}
+
 enum AdminAuditStatus {
   success
 }
@@ -49,6 +55,7 @@ type AdminQuery {
   errorMessages(filter: AdminErrorMessageFilterInput): AdminErrorMessageListPayload!
   contentPosts(filter: AdminContentPostFilterInput): AdminContentPostListPayload!
   contentPost(input: AdminContentEntityKeyInput!): AdminContentPost
+  contentPostRevisions(input: AdminContentEntityKeyInput!, page: Int, size: Int): AdminContentPostRevisionListPayload!
   contentTopicsPage(filter: AdminContentTaxonomyFilterInput): AdminContentTopicListPayload!
   contentCategoriesPage(filter: AdminContentTaxonomyFilterInput): AdminContentCategoryListPayload!
   contentTopics(locale: Locale, query: String): [AdminContentTopic!]!
@@ -89,6 +96,7 @@ type AdminMutation {
   deleteErrorMessage(input: AdminErrorMessageKeyInput!): AdminDeletePayload!
   updateContentPostMetadata(input: AdminUpdateContentPostMetadataInput!): AdminContentPost!
   updateContentPostContent(input: AdminUpdateContentPostContentInput!): AdminContentPost!
+  restoreContentPostRevision(input: AdminRestoreContentPostRevisionInput!): AdminContentPost!
   uploadMediaAsset(input: AdminUploadMediaAssetInput!): AdminMediaLibraryItem!
   deleteMediaAsset(id: ID!): AdminDeletePayload!
   deleteContentPost(input: AdminContentEntityKeyInput!): AdminDeletePayload!
@@ -241,6 +249,8 @@ input AdminUpdateContentPostMetadataInput {
   thumbnail: String
   publishedDate: Date
   updatedDate: Date
+  status: AdminContentPostStatus
+  scheduledAt: DateTime
   categoryId: String
   topicIds: [String!]!
 }
@@ -249,6 +259,12 @@ input AdminUpdateContentPostContentInput {
   locale: Locale!
   id: ID!
   content: String!
+}
+
+input AdminRestoreContentPostRevisionInput {
+  locale: Locale!
+  postId: ID!
+  revisionId: ID!
 }
 
 input AdminUploadMediaAssetInput {
@@ -602,11 +618,44 @@ type AdminContentPost {
   topicIds: [String!]!
   topicNames: [String!]!
   readingTimeMin: Int!
+  status: AdminContentPostStatus!
+  scheduledAt: DateTime
   contentUpdatedAt: DateTime
   updatedAt: DateTime
+  revisionCount: Int!
+  latestRevisionAt: DateTime
   viewCount: Int!
   likeCount: Int!
   commentCount: Int!
+}
+
+type AdminContentPostRevision {
+  id: ID!
+  locale: Locale!
+  postId: ID!
+  revisionNumber: Int!
+  title: String!
+  summary: String
+  content: String
+  contentMode: AdminContentMode
+  thumbnail: String
+  publishedDate: Date!
+  updatedDate: Date
+  categoryId: String
+  categoryName: String
+  topicIds: [String!]!
+  topicNames: [String!]!
+  readingTimeMin: Int!
+  status: AdminContentPostStatus!
+  scheduledAt: DateTime
+  createdAt: DateTime!
+}
+
+type AdminContentPostRevisionListPayload {
+  items: [AdminContentPostRevision!]!
+  total: Int!
+  page: Int!
+  size: Int!
 }
 
 type AdminContentPostListPayload {

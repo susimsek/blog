@@ -4,36 +4,33 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
-import Badge from 'react-bootstrap/Badge';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
 import Spinner from 'react-bootstrap/Spinner';
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
-import ListGroup from 'react-bootstrap/ListGroup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import PaginationBar from '@/components/pagination/PaginationBar';
-import FlagIcon from '@/components/common/FlagIcon';
 import AdminContentManagementPanel from '@/components/admin/AdminContentManagementPanel';
+import AdminAccountAccountSection from '@/components/admin/account/AdminAccountAccountSection';
+import AdminAccountAppearanceSection from '@/components/admin/account/AdminAccountAppearanceSection';
+import AdminAccountCommentsSection from '@/components/admin/account/AdminAccountCommentsSection';
+import AdminAccountEmailSection from '@/components/admin/account/AdminAccountEmailSection';
+import AdminAccountErrorsSection from '@/components/admin/account/AdminAccountErrorsSection';
+import AdminAccountNewsletterSection from '@/components/admin/account/AdminAccountNewsletterSection';
+import AdminAccountProfileSection from '@/components/admin/account/AdminAccountProfileSection';
+import AdminAccountSecuritySection from '@/components/admin/account/AdminAccountSecuritySection';
+import AdminAccountSessionsSection from '@/components/admin/account/AdminAccountSessionsSection';
+import useDebounce from '@/hooks/useDebounce';
+import useAutoClearValue from '@/hooks/useAutoClearValue';
+import useAdminCommentsSection from '@/views/admin-account/useAdminCommentsSection';
+import useAdminErrorsSection from '@/views/admin-account/useAdminErrorsSection';
 import {
-  bulkDeleteAdminComments,
-  bulkUpdateAdminCommentStatus,
   changeAdminAvatar,
   changeAdminName,
   changeAdminPassword,
   changeAdminUsername,
-  deleteAdminComment,
-  createAdminErrorMessage,
-  deleteAdminErrorMessage,
   deleteAdminNewsletterSubscriber,
   deleteAdminAccount,
   fetchAdminActiveSessions,
   fetchAdminGithubAuthStatus,
-  fetchAdminComments,
-  fetchAdminErrorMessages,
   fetchAdminGoogleAuthStatus,
   fetchAdminMe,
   fetchAdminNewsletterCampaignFailures,
@@ -50,11 +47,7 @@ import {
   sendAdminNewsletterTestEmail,
   disconnectAdminGoogle,
   triggerAdminNewsletterDispatch,
-  updateAdminCommentStatus,
   updateAdminNewsletterSubscriberStatus,
-  updateAdminErrorMessage,
-  type AdminCommentItem,
-  type AdminErrorMessageItem,
   type AdminNewsletterCampaignItem,
   type AdminNewsletterDeliveryFailureItem,
   type AdminNewsletterDispatchLocaleResult,
@@ -62,20 +55,21 @@ import {
 } from '@/lib/adminApi';
 import { withAdminAvatarSize } from '@/lib/adminAvatar';
 import { getAdminPasswordStrength, MIN_PASSWORD_LENGTH } from '@/lib/adminPassword';
-import { ADMIN_ROUTES, buildAdminContentPostDetailRoute } from '@/lib/adminRoutes';
+import { ADMIN_ROUTES } from '@/lib/adminRoutes';
 import { defaultLocale } from '@/i18n/settings';
 import { withBasePath } from '@/lib/basePath';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
 import Link from '@/components/common/Link';
 import { useAppDispatch, useAppSelector } from '@/config/store';
 import { resetToSystemTheme, setTheme, type Theme } from '@/reducers/theme';
-import { LOCALES, THEMES } from '@/config/constants';
+import { THEMES } from '@/config/constants';
 import {
   clearAdminSessionProfileCache,
   readAdminSessionProfileCache,
   writeAdminSessionProfileCache,
   type AdminSessionProfile,
 } from '@/lib/adminSessionProfileCache';
+import { resolveConnectedAccountMessage } from '@/views/admin-account/helpers';
 
 type AdminAccountPageProps = {
   section:
@@ -104,18 +98,6 @@ type AsyncSectionContentProps = {
   emptyMessage: string;
   children: React.ReactNode;
 };
-type ConnectedAccountActionProps = {
-  isLoading: boolean;
-  isLinked: boolean;
-  isEnabled: boolean;
-  isConnectSubmitting: boolean;
-  isDisconnectSubmitting: boolean;
-  loadingLabel: string;
-  connectContent: React.ReactNode;
-  disconnectLabel: string;
-  onConnect: () => void | Promise<void>;
-  onDisconnect: () => void;
-};
 
 type AdminSession = {
   id: string;
@@ -136,7 +118,6 @@ const MAX_USERNAME_LENGTH = 32;
 const DELETE_CONFIRMATION_VALUE = 'DELETE';
 const USERNAME_PATTERN = /^[A-Za-z0-9._-]+$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const ERROR_MESSAGE_CODE_PATTERN = /^[A-Z0-9_]{2,120}$/;
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 const MAX_AVATAR_FILE_BYTES = 2 * 1024 * 1024;
 const MAX_AVATAR_FILE_SIZE_MB = Math.floor(MAX_AVATAR_FILE_BYTES / (1024 * 1024));
@@ -172,37 +153,6 @@ const resolveAdminEmailErrorField = (code?: string): AdminEmailErrorField => {
   return 'generic';
 };
 
-const resolveNewsletterCampaignStatus = (sentCount: number, failedCount: number, translate: AdminAccountTranslate) => {
-  if (failedCount === 0) {
-    return {
-      variant: 'secondary' as const,
-      label: translate('adminAccount.newsletter.campaigns.statuses.sent', { ns: 'admin-account' }),
-    };
-  }
-  if (sentCount > 0) {
-    return {
-      variant: 'warning' as const,
-      label: translate('adminAccount.newsletter.campaigns.statuses.partial', { ns: 'admin-account' }),
-    };
-  }
-
-  return {
-    variant: 'secondary' as const,
-    label: translate('adminAccount.newsletter.campaigns.statuses.processing', { ns: 'admin-account' }),
-  };
-};
-
-const resolveNewsletterLocaleLabel = (localeCode: string, locale: string) => {
-  if (localeCode === 'en') {
-    return LOCALES.en.name;
-  }
-  if (localeCode === 'tr') {
-    return LOCALES.tr.name;
-  }
-
-  return locale.toUpperCase();
-};
-
 const renderAsyncSectionContent = ({
   isLoading,
   loadingLabel,
@@ -223,98 +173,6 @@ const renderAsyncSectionContent = ({
 
   return children;
 };
-
-const renderConnectedAccountAction = ({
-  isLoading,
-  isLinked,
-  isEnabled,
-  isConnectSubmitting,
-  isDisconnectSubmitting,
-  loadingLabel,
-  connectContent,
-  disconnectLabel,
-  onConnect,
-  onDisconnect,
-}: ConnectedAccountActionProps) => {
-  if (isLoading) {
-    return (
-      <div className="small text-muted d-inline-flex align-items-center">
-        <Spinner
-          as="span"
-          animation="border"
-          size="sm"
-          className="me-2 flex-shrink-0 admin-action-spinner"
-          aria-hidden="true"
-        />
-        {loadingLabel}
-      </div>
-    );
-  }
-  if (isLinked) {
-    return (
-      <Button
-        variant="danger"
-        className="admin-newsletter-action admin-newsletter-action--danger"
-        onClick={onDisconnect}
-        disabled={isConnectSubmitting || isDisconnectSubmitting}
-      >
-        {disconnectLabel}
-      </Button>
-    );
-  }
-  if (!isEnabled) {
-    return null;
-  }
-
-  return (
-    <Button
-      variant="primary"
-      className="admin-newsletter-action admin-newsletter-action--primary"
-      onClick={onConnect}
-      disabled={isConnectSubmitting || isDisconnectSubmitting}
-    >
-      {connectContent}
-    </Button>
-  );
-};
-
-const resolveBulkCommentSuccessKey = (status: AdminCommentItem['status']) => {
-  if (status === 'APPROVED') {
-    return 'adminAccount.comments.success.bulkApproved';
-  }
-  if (status === 'REJECTED') {
-    return 'adminAccount.comments.success.bulkRejected';
-  }
-
-  return 'adminAccount.comments.success.bulkSpam';
-};
-
-const syncSelectedIDsWithItems =
-  <T extends { id: string }>(items: T[]) =>
-  (previous: string[]) =>
-    previous.filter(id => items.some(item => item.id === id));
-
-const toggleSingleSelection = (itemID: string, checked: boolean) => (previous: string[]) => {
-  if (checked) {
-    return previous.includes(itemID) ? previous : [...previous, itemID];
-  }
-
-  return previous.filter(id => id !== itemID);
-};
-
-const toggleVisibleSelection =
-  <T extends { id: string }>(items: T[], allVisibleSelected: boolean) =>
-  (previous: string[]) => {
-    if (allVisibleSelected) {
-      return previous.filter(id => !items.some(item => item.id === id));
-    }
-
-    const next = new Set(previous);
-    for (const item of items) {
-      next.add(item.id);
-    }
-    return Array.from(next);
-  };
 
 type AvatarCropOffset = {
   x: number;
@@ -478,9 +336,6 @@ const resolveAppearanceMetaIcon = (value: Theme | 'system') => {
   }
 };
 
-const toAdminErrorMessageKey = (item: Pick<AdminErrorMessageItem, 'scope' | 'locale' | 'code'>) =>
-  `${item.scope}|${item.locale}|${item.code}`;
-
 export default function AdminAccountPage({ section }: Readonly<AdminAccountPageProps>) {
   const { t } = useTranslation(['admin-account', 'admin-common']);
   const dispatch = useAppDispatch();
@@ -559,7 +414,6 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const [newsletterFilterLocale, setNewsletterFilterLocale] = React.useState<'all' | 'en' | 'tr'>('all');
   const [newsletterFilterStatus, setNewsletterFilterStatus] = React.useState<NewsletterFilterStatus>('all');
   const [newsletterFilterQuery, setNewsletterFilterQuery] = React.useState('');
-  const [newsletterFilterQueryDebounced, setNewsletterFilterQueryDebounced] = React.useState('');
   const [newsletterPage, setNewsletterPage] = React.useState(1);
   const [newsletterPageSize, setNewsletterPageSize] = React.useState(10);
   const [totalNewsletterSubscribers, setTotalNewsletterSubscribers] = React.useState(0);
@@ -594,48 +448,6 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const [pendingNewsletterDelete, setPendingNewsletterDelete] = React.useState<AdminNewsletterSubscriberItem | null>(
     null,
   );
-  const [comments, setComments] = React.useState<AdminCommentItem[]>([]);
-  const [isCommentsLoading, setIsCommentsLoading] = React.useState(isCommentsSection);
-  const [commentsErrorMessage, setCommentsErrorMessage] = React.useState('');
-  const [commentsSuccessMessage, setCommentsSuccessMessage] = React.useState('');
-  const [commentFilterStatus, setCommentFilterStatus] = React.useState<
-    'all' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM'
-  >('all');
-  const [commentFilterQuery, setCommentFilterQuery] = React.useState('');
-  const [commentFilterQueryDebounced, setCommentFilterQueryDebounced] = React.useState('');
-  const [commentsPage, setCommentsPage] = React.useState(1);
-  const [commentsPageSize, setCommentsPageSize] = React.useState(10);
-  const [totalComments, setTotalComments] = React.useState(0);
-  const [selectedCommentIDs, setSelectedCommentIDs] = React.useState<string[]>([]);
-  const [commentActionID, setCommentActionID] = React.useState('');
-  const [commentActionStatus, setCommentActionStatus] = React.useState<AdminCommentItem['status'] | null>(null);
-  const [deletingCommentID, setDeletingCommentID] = React.useState('');
-  const [pendingCommentDelete, setPendingCommentDelete] = React.useState<AdminCommentItem | null>(null);
-  const [bulkCommentActionStatus, setBulkCommentActionStatus] = React.useState<AdminCommentItem['status'] | null>(null);
-  const [pendingBulkCommentDeleteIDs, setPendingBulkCommentDeleteIDs] = React.useState<string[]>([]);
-  const [isBulkCommentDeleting, setIsBulkCommentDeleting] = React.useState(false);
-  const [errorMessages, setErrorMessages] = React.useState<AdminErrorMessageItem[]>([]);
-  const [isErrorMessagesLoading, setIsErrorMessagesLoading] = React.useState(isErrorsSection);
-  const [errorMessagesErrorMessage, setErrorMessagesErrorMessage] = React.useState('');
-  const [errorMessagesSuccessMessage, setErrorMessagesSuccessMessage] = React.useState('');
-  const [errorFilterLocale, setErrorFilterLocale] = React.useState<'all' | 'en' | 'tr'>('all');
-  const [errorFilterQuery, setErrorFilterQuery] = React.useState('');
-  const [errorFilterQueryDebounced, setErrorFilterQueryDebounced] = React.useState('');
-  const [errorCrudTab, setErrorCrudTab] = React.useState<'create' | 'update'>('update');
-  const [isErrorEditorModalOpen, setIsErrorEditorModalOpen] = React.useState(false);
-  const [selectedErrorMessageKey, setSelectedErrorMessageKey] = React.useState('');
-  const [errorMessagesPage, setErrorMessagesPage] = React.useState(1);
-  const [errorMessagesPageSize, setErrorMessagesPageSize] = React.useState(5);
-  const [totalErrorMessages, setTotalErrorMessages] = React.useState(0);
-  const [errorCreateLocale, setErrorCreateLocale] = React.useState<'en' | 'tr'>('en');
-  const [errorCreateCode, setErrorCreateCode] = React.useState('');
-  const [errorCreateMessage, setErrorCreateMessage] = React.useState('');
-  const [isErrorCreateSubmitting, setIsErrorCreateSubmitting] = React.useState(false);
-  const [errorUpdateMessage, setErrorUpdateMessage] = React.useState('');
-  const [isErrorUpdateSubmitting, setIsErrorUpdateSubmitting] = React.useState(false);
-  const [isErrorDeleteSubmitting, setIsErrorDeleteSubmitting] = React.useState(false);
-  const [deletingErrorMessageKey, setDeletingErrorMessageKey] = React.useState('');
-  const [pendingErrorMessageDelete, setPendingErrorMessageDelete] = React.useState<AdminErrorMessageItem | null>(null);
 
   const [usernameInput, setUsernameInput] = React.useState('');
   const [isUsernameSubmitting, setIsUsernameSubmitting] = React.useState(false);
@@ -677,8 +489,6 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const [isAvatarCropResizing, setIsAvatarCropResizing] = React.useState(false);
   const avatarCropStageRef = React.useRef<HTMLDivElement | null>(null);
   const newsletterListTopRef = React.useRef<HTMLDivElement | null>(null);
-  const commentsListTopRef = React.useRef<HTMLDivElement | null>(null);
-  const errorMessagesListTopRef = React.useRef<HTMLDivElement | null>(null);
   const avatarCropDragRef = React.useRef<{
     pointerId: number;
     startClientX: number;
@@ -688,9 +498,6 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   } | null>(null);
   const avatarCropResizeRef = React.useRef<AvatarCropResizeState | null>(null);
   const avatarFileInputRef = React.useRef<HTMLInputElement | null>(null);
-  const selectedErrorMessageKeyRef = React.useRef('');
-  const commentsRequestIDRef = React.useRef(0);
-  const errorMessagesRequestIDRef = React.useRef(0);
   const newsletterRequestIDRef = React.useRef(0);
   const newsletterCampaignRequestIDRef = React.useRef(0);
 
@@ -703,6 +510,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const [deleteSuccessMessage, setDeleteSuccessMessage] = React.useState('');
   const selectedTheme = useAppSelector(state => state.theme.theme);
   const hasExplicitTheme = useAppSelector(state => state.theme.hasExplicitTheme);
+  const newsletterFilterQueryDebounced = useDebounce(newsletterFilterQuery.trim(), 220);
 
   const sessionDateFormatter = React.useMemo(
     () =>
@@ -737,6 +545,26 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
       router.replace(`/${locale}/admin/login`);
     };
   }, [locale, router]);
+
+  const handleAdminSessionExpired = React.useCallback(() => {
+    redirectToAdminLoginRef.current();
+  }, []);
+
+  const commentsSection = useAdminCommentsSection({
+    isActive: isCommentsSection,
+    hasAdminUser: adminUser !== null,
+    t,
+    onSessionExpired: handleAdminSessionExpired,
+    successMessageAutoHideMs: SUCCESS_MESSAGE_AUTO_HIDE_MS,
+  });
+
+  const errorsSection = useAdminErrorsSection({
+    isActive: isErrorsSection,
+    hasAdminUser: adminUser !== null,
+    t,
+    onSessionExpired: handleAdminSessionExpired,
+    successMessageAutoHideMs: SUCCESS_MESSAGE_AUTO_HIDE_MS,
+  });
 
   React.useEffect(() => {
     let isMounted = true;
@@ -900,30 +728,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
       return;
     }
 
-    let nextVariant: 'success' | 'danger' | 'info' = 'info';
-    let nextMessage = '';
-    switch (googleStatus) {
-      case 'connected':
-        nextVariant = 'success';
-        nextMessage = t('adminAccount.connectedAccounts.google.messages.connected', { ns: 'admin-account' });
-        break;
-      case 'cancelled':
-        nextMessage = t('adminAccount.connectedAccounts.google.messages.cancelled', { ns: 'admin-account' });
-        break;
-      case 'not-linked':
-        nextVariant = 'danger';
-        nextMessage = t('adminAccount.connectedAccounts.google.messages.notLinked', { ns: 'admin-account' });
-        break;
-      case 'conflict':
-        nextVariant = 'danger';
-        nextMessage = t('adminAccount.connectedAccounts.google.messages.conflict', { ns: 'admin-account' });
-        break;
-      default:
-        nextVariant = 'danger';
-        nextMessage = t('adminAccount.connectedAccounts.google.messages.failed', { ns: 'admin-account' });
-        break;
-    }
-
+    const { message: nextMessage, variant: nextVariant } = resolveConnectedAccountMessage('google', googleStatus, t);
     setGoogleConnectMessage(nextMessage);
     setGoogleConnectMessageVariant(nextVariant);
     router.replace(pathname, { scroll: false });
@@ -939,239 +744,29 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
       return;
     }
 
-    let nextVariant: 'success' | 'danger' | 'info' = 'info';
-    let nextMessage = '';
-    switch (githubStatus) {
-      case 'connected':
-        nextVariant = 'success';
-        nextMessage = t('adminAccount.connectedAccounts.github.messages.connected', { ns: 'admin-account' });
-        break;
-      case 'cancelled':
-        nextMessage = t('adminAccount.connectedAccounts.github.messages.cancelled', { ns: 'admin-account' });
-        break;
-      case 'not-linked':
-        nextVariant = 'danger';
-        nextMessage = t('adminAccount.connectedAccounts.github.messages.notLinked', { ns: 'admin-account' });
-        break;
-      case 'conflict':
-        nextVariant = 'danger';
-        nextMessage = t('adminAccount.connectedAccounts.github.messages.conflict', { ns: 'admin-account' });
-        break;
-      default:
-        nextVariant = 'danger';
-        nextMessage = t('adminAccount.connectedAccounts.github.messages.failed', { ns: 'admin-account' });
-        break;
-    }
-
+    const { message: nextMessage, variant: nextVariant } = resolveConnectedAccountMessage('github', githubStatus, t);
     setGithubConnectMessage(nextMessage);
     setGithubConnectMessageVariant(nextVariant);
     router.replace(pathname, { scroll: false });
   }, [isSecuritySection, pathname, router, searchParams, t]);
 
-  React.useEffect(() => {
-    if (!nameSuccessMessage) {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      setNameSuccessMessage('');
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [nameSuccessMessage]);
-
-  React.useEffect(() => {
-    if (!usernameSuccessMessage) {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      setUsernameSuccessMessage('');
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [usernameSuccessMessage]);
-
-  React.useEffect(() => {
-    if (!sessionSuccessMessage) {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      setSessionSuccessMessage('');
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [sessionSuccessMessage]);
-
-  React.useEffect(() => {
-    if (!googleConnectMessage || googleConnectMessageVariant !== 'success') {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      setGoogleConnectMessage('');
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [googleConnectMessage, googleConnectMessageVariant]);
-
-  React.useEffect(() => {
-    if (!githubConnectMessage || githubConnectMessageVariant !== 'success') {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      setGithubConnectMessage('');
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [githubConnectMessage, githubConnectMessageVariant]);
-
-  React.useEffect(() => {
-    if (!securitySuccessMessage) {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      setSecuritySuccessMessage('');
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [securitySuccessMessage]);
-
-  React.useEffect(() => {
-    if (!deleteSuccessMessage) {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      setDeleteSuccessMessage('');
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [deleteSuccessMessage]);
-
-  React.useEffect(() => {
-    if (!avatarSuccessMessage) {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      setAvatarSuccessMessage('');
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [avatarSuccessMessage]);
-
-  React.useEffect(() => {
-    const timeoutID = globalThis.setTimeout(() => {
-      setNewsletterFilterQueryDebounced(newsletterFilterQuery.trim());
-    }, 220);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [newsletterFilterQuery]);
-
-  React.useEffect(() => {
-    if (!newsletterSuccessMessage) {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      setNewsletterSuccessMessage('');
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [newsletterSuccessMessage]);
-
-  React.useEffect(() => {
-    const timeoutID = globalThis.setTimeout(() => {
-      setCommentFilterQueryDebounced(commentFilterQuery.trim());
-    }, 220);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [commentFilterQuery]);
-
-  React.useEffect(() => {
-    if (!commentsSuccessMessage) {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      // NOSONAR
-      setCommentsSuccessMessage('');
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [commentsSuccessMessage]);
-
-  React.useEffect(() => {
-    setSelectedCommentIDs(syncSelectedIDsWithItems(comments));
-  }, [comments]);
-
-  React.useEffect(() => {
-    setCommentsPage(1);
-  }, [commentFilterQueryDebounced, commentFilterStatus]);
+  useAutoClearValue(nameSuccessMessage, setNameSuccessMessage, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+  useAutoClearValue(usernameSuccessMessage, setUsernameSuccessMessage, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+  useAutoClearValue(sessionSuccessMessage, setSessionSuccessMessage, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+  useAutoClearValue(googleConnectMessage, setGoogleConnectMessage, SUCCESS_MESSAGE_AUTO_HIDE_MS, {
+    when: googleConnectMessageVariant === 'success',
+  });
+  useAutoClearValue(githubConnectMessage, setGithubConnectMessage, SUCCESS_MESSAGE_AUTO_HIDE_MS, {
+    when: githubConnectMessageVariant === 'success',
+  });
+  useAutoClearValue(securitySuccessMessage, setSecuritySuccessMessage, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+  useAutoClearValue(deleteSuccessMessage, setDeleteSuccessMessage, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+  useAutoClearValue(avatarSuccessMessage, setAvatarSuccessMessage, SUCCESS_MESSAGE_AUTO_HIDE_MS);
+  useAutoClearValue(newsletterSuccessMessage, setNewsletterSuccessMessage, SUCCESS_MESSAGE_AUTO_HIDE_MS);
 
   React.useEffect(() => {
     setNewsletterPage(1);
   }, [newsletterFilterLocale, newsletterFilterQueryDebounced, newsletterFilterStatus]);
-
-  React.useEffect(() => {
-    const timeoutID = globalThis.setTimeout(() => {
-      setErrorFilterQueryDebounced(errorFilterQuery.trim());
-    }, 220);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [errorFilterQuery]);
-
-  React.useEffect(() => {
-    if (!errorMessagesSuccessMessage) {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      setErrorMessagesSuccessMessage('');
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [errorMessagesSuccessMessage]);
-
-  React.useEffect(() => {
-    selectedErrorMessageKeyRef.current = selectedErrorMessageKey;
-  }, [selectedErrorMessageKey]);
-
-  React.useEffect(() => {
-    setErrorMessagesPage(1);
-  }, [errorFilterLocale, errorFilterQueryDebounced]);
 
   React.useEffect(
     () => () => {
@@ -1259,65 +854,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const showDeletePasswordError = deleteSubmitted && deletePasswordError !== '';
   const showDeleteConfirmError = deleteSubmitted && deleteConfirmError !== '';
   const activeAppearance = hasExplicitTheme ? selectedTheme : 'system';
-  const selectedErrorMessage = React.useMemo(
-    () => errorMessages.find(item => toAdminErrorMessageKey(item) === selectedErrorMessageKey) ?? null,
-    [errorMessages, selectedErrorMessageKey],
-  );
-  const totalCommentPages = Math.max(1, Math.ceil(totalComments / commentsPageSize));
-  const selectedVisibleCommentIDs = React.useMemo(
-    () => comments.filter(item => selectedCommentIDs.includes(item.id)).map(item => item.id),
-    [comments, selectedCommentIDs],
-  );
-  const allVisibleCommentsSelected = comments.length > 0 && selectedVisibleCommentIDs.length === comments.length;
-  const hasSelectedComments = selectedCommentIDs.length > 0;
-  const isBulkCommentActionPending = bulkCommentActionStatus !== null || isBulkCommentDeleting;
   const totalNewsletterPages = Math.max(1, Math.ceil(totalNewsletterSubscribers / newsletterPageSize));
-  const totalErrorMessagePages = Math.max(1, Math.ceil(totalErrorMessages / errorMessagesPageSize));
-  const resolveCommentStatusVariant = React.useCallback((status: AdminCommentItem['status']) => {
-    switch (status) {
-      case 'APPROVED':
-        return 'success';
-      case 'REJECTED':
-        return 'secondary';
-      case 'SPAM':
-        return 'danger';
-      default:
-        return 'warning';
-    }
-  }, []);
-  const doesErrorMessageMatchFilters = React.useCallback(
-    (item: Pick<AdminErrorMessageItem, 'scope' | 'locale' | 'code' | 'message'>) => {
-      const normalizedLocale = item.locale.trim().toLowerCase();
-      if (errorFilterLocale !== 'all' && normalizedLocale !== errorFilterLocale) {
-        return false;
-      }
-
-      if (!errorFilterQueryDebounced) {
-        return true;
-      }
-
-      const normalizedQuery = errorFilterQueryDebounced.toLowerCase();
-      return [item.scope, item.locale, item.code, item.message].some(part =>
-        part.trim().toLowerCase().includes(normalizedQuery),
-      );
-    },
-    [errorFilterLocale, errorFilterQueryDebounced],
-  );
-  const normalizedErrorCreateCode = errorCreateCode.trim().toUpperCase();
-  const normalizedErrorCreateMessage = errorCreateMessage.trim();
-  const normalizedErrorUpdateMessage = errorUpdateMessage.trim();
-  const isErrorCreateCodeValid = ERROR_MESSAGE_CODE_PATTERN.test(normalizedErrorCreateCode);
-  const canCreateErrorMessage =
-    normalizedErrorCreateCode !== '' &&
-    isErrorCreateCodeValid &&
-    normalizedErrorCreateMessage !== '' &&
-    !isErrorCreateSubmitting;
-  const canUpdateErrorMessage =
-    selectedErrorMessage !== null &&
-    normalizedErrorUpdateMessage !== '' &&
-    normalizedErrorUpdateMessage !== selectedErrorMessage.message &&
-    !isErrorUpdateSubmitting &&
-    !isErrorDeleteSubmitting;
   const avatarCropDisplayWidth = avatarCropImageSize.width * avatarCropZoom;
   const avatarCropDisplayHeight = avatarCropImageSize.height * avatarCropZoom;
   const avatarCropImageStyle = React.useMemo<React.CSSProperties>(
@@ -2102,653 +1639,6 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     }
   }, [adminUser?.email, isNewsletterTestSending, newsletterTestEmail, pendingNewsletterTestCampaign, t]);
 
-  const loadAdminComments = React.useCallback(
-    // NOSONAR
-    async (options?: { page?: number }): Promise<AdminCommentItem[]> => {
-      if (!isCommentsSection || !adminUser) {
-        return [];
-      }
-
-      const requestedPage = options?.page && options.page > 0 ? options.page : commentsPage;
-      const requestID = commentsRequestIDRef.current + 1;
-      commentsRequestIDRef.current = requestID;
-      setIsCommentsLoading(true);
-      setCommentsErrorMessage('');
-
-      try {
-        const payload = await fetchAdminComments({
-          status: commentFilterStatus === 'all' ? undefined : commentFilterStatus,
-          query: commentFilterQueryDebounced,
-          page: requestedPage,
-          size: commentsPageSize,
-        });
-
-        if (requestID !== commentsRequestIDRef.current) {
-          return [];
-        }
-
-        const items = payload.items ?? [];
-        setComments(items);
-        setTotalComments(payload.total ?? 0);
-
-        const resolvedPage = payload.page > 0 ? payload.page : requestedPage;
-        if (resolvedPage !== commentsPage) {
-          setCommentsPage(resolvedPage);
-        }
-
-        if (payload.size > 0 && payload.size !== commentsPageSize) {
-          setCommentsPageSize(payload.size);
-        }
-
-        return items;
-      } catch (error) {
-        if (requestID !== commentsRequestIDRef.current) {
-          return [];
-        }
-        if (isAdminSessionError(error)) {
-          redirectToAdminLoginRef.current();
-          return [];
-        }
-        const resolvedError = resolveAdminError(error);
-        setCommentsErrorMessage(
-          resolvedError.kind === 'network'
-            ? t('adminCommon.errors.network', { ns: 'admin-common' })
-            : resolvedError.message || t('adminAccount.comments.errors.load', { ns: 'admin-account' }),
-        );
-        return [];
-      } finally {
-        if (requestID === commentsRequestIDRef.current) {
-          setIsCommentsLoading(false);
-        }
-      }
-    },
-    [adminUser, commentFilterQueryDebounced, commentFilterStatus, commentsPage, commentsPageSize, isCommentsSection, t],
-  );
-
-  React.useEffect(() => {
-    if (!isCommentsSection || !adminUser) {
-      return;
-    }
-
-    void loadAdminComments();
-  }, [adminUser, commentsPage, commentsPageSize, isCommentsSection, loadAdminComments]);
-
-  const scrollToCommentsListStart = React.useCallback(() => {
-    const target = commentsListTopRef.current;
-    if (!target) {
-      return;
-    }
-
-    const currentWindow = globalThis.window;
-    const prefersReducedMotion = currentWindow?.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-
-    target.scrollIntoView({
-      behavior: prefersReducedMotion ? 'auto' : 'smooth',
-      block: 'start',
-    });
-  }, []);
-
-  const toggleCommentSelection = React.useCallback((commentId: string, checked: boolean) => {
-    setSelectedCommentIDs(toggleSingleSelection(commentId, checked));
-  }, []);
-
-  const toggleVisibleCommentsSelection = React.useCallback(() => {
-    if (comments.length === 0) {
-      return;
-    }
-
-    setSelectedCommentIDs(toggleVisibleSelection(comments, allVisibleCommentsSelected));
-  }, [allVisibleCommentsSelected, comments]);
-
-  const handleBulkCommentStatusUpdate = React.useCallback(
-    async (status: AdminCommentItem['status']) => {
-      if (!hasSelectedComments || deletingCommentID || isBulkCommentDeleting || commentActionID) {
-        return;
-      }
-
-      setBulkCommentActionStatus(status);
-      setCommentsErrorMessage('');
-      setCommentsSuccessMessage('');
-
-      try {
-        const successCount = await bulkUpdateAdminCommentStatus({
-          commentIds: selectedCommentIDs,
-          status,
-        });
-        if (successCount === 0) {
-          throw new Error(t('adminAccount.comments.errors.bulkStatusUpdate', { ns: 'admin-account' }));
-        }
-
-        const refreshedItems = await loadAdminComments();
-        if (refreshedItems.length === 0 && commentsPage > 1) {
-          setCommentsPage(previous => Math.max(1, previous - 1));
-        }
-
-        setSelectedCommentIDs([]);
-        const successKey = resolveBulkCommentSuccessKey(status);
-        setCommentsSuccessMessage(t(successKey, { ns: 'admin-account', count: successCount }));
-
-        if (successCount !== selectedCommentIDs.length) {
-          setCommentsErrorMessage(t('adminAccount.comments.errors.bulkStatusUpdatePartial', { ns: 'admin-account' }));
-        }
-      } catch (error) {
-        if (isAdminSessionError(error)) {
-          redirectToAdminLoginRef.current();
-          return;
-        }
-        const resolvedError = resolveAdminError(error);
-        setCommentsErrorMessage(
-          resolvedError.kind === 'network'
-            ? t('adminCommon.errors.network', { ns: 'admin-common' })
-            : resolvedError.message || t('adminAccount.comments.errors.bulkStatusUpdate', { ns: 'admin-account' }),
-        );
-      } finally {
-        setBulkCommentActionStatus(null);
-      }
-    },
-    [
-      commentActionID,
-      commentsPage,
-      deletingCommentID,
-      hasSelectedComments,
-      isBulkCommentDeleting,
-      loadAdminComments,
-      selectedCommentIDs,
-      t,
-    ],
-  );
-
-  const handleBulkDeleteCommentSubmit = React.useCallback(async () => {
-    if (pendingBulkCommentDeleteIDs.length === 0 || deletingCommentID || commentActionID || isBulkCommentDeleting) {
-      return;
-    }
-
-    setIsBulkCommentDeleting(true);
-    setCommentsErrorMessage('');
-    setCommentsSuccessMessage('');
-
-    try {
-      const successCount = await bulkDeleteAdminComments({
-        commentIds: pendingBulkCommentDeleteIDs,
-      });
-      if (successCount === 0) {
-        throw new Error(t('adminAccount.comments.errors.bulkDelete', { ns: 'admin-account' }));
-      }
-
-      const refreshedItems = await loadAdminComments();
-      if (refreshedItems.length === 0 && commentsPage > 1) {
-        setCommentsPage(previous => Math.max(1, previous - 1));
-      }
-
-      setPendingBulkCommentDeleteIDs([]);
-      setSelectedCommentIDs([]);
-      setCommentsSuccessMessage(
-        t('adminAccount.comments.success.bulkDeleted', { ns: 'admin-account', count: successCount }),
-      );
-
-      if (successCount !== pendingBulkCommentDeleteIDs.length) {
-        setCommentsErrorMessage(t('adminAccount.comments.errors.bulkDeletePartial', { ns: 'admin-account' }));
-      }
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        redirectToAdminLoginRef.current();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setCommentsErrorMessage(
-        resolvedError.kind === 'network'
-          ? t('adminCommon.errors.network', { ns: 'admin-common' })
-          : resolvedError.message || t('adminAccount.comments.errors.bulkDelete', { ns: 'admin-account' }),
-      );
-    } finally {
-      setIsBulkCommentDeleting(false);
-    }
-  }, [
-    commentActionID,
-    commentsPage,
-    deletingCommentID,
-    isBulkCommentDeleting,
-    loadAdminComments,
-    pendingBulkCommentDeleteIDs,
-    t,
-  ]);
-
-  const handleCommentStatusUpdate = React.useCallback(
-    async (commentId: string, status: AdminCommentItem['status']) => {
-      if (deletingCommentID || isBulkCommentActionPending) {
-        return;
-      }
-
-      setCommentActionID(commentId);
-      setCommentActionStatus(status);
-      setCommentsErrorMessage('');
-      setCommentsSuccessMessage('');
-
-      try {
-        const updatedComment = await updateAdminCommentStatus({ commentId, status });
-        const refreshedItems = await loadAdminComments();
-
-        if (refreshedItems.length === 0 && commentsPage > 1) {
-          setCommentsPage(previous => Math.max(1, previous - 1));
-        }
-
-        setCommentsSuccessMessage(
-          t(`adminAccount.comments.success.${status.toLowerCase()}`, {
-            ns: 'admin-account',
-            author: updatedComment.authorName,
-          }),
-        );
-      } catch (error) {
-        if (isAdminSessionError(error)) {
-          redirectToAdminLoginRef.current();
-          return;
-        }
-        const resolvedError = resolveAdminError(error);
-        setCommentsErrorMessage(
-          resolvedError.kind === 'network'
-            ? t('adminCommon.errors.network', { ns: 'admin-common' })
-            : resolvedError.message || t('adminAccount.comments.errors.statusUpdate', { ns: 'admin-account' }),
-        );
-      } finally {
-        setCommentActionID('');
-        setCommentActionStatus(null);
-      }
-    },
-    [commentsPage, deletingCommentID, isBulkCommentActionPending, loadAdminComments, t],
-  );
-
-  const handleDeleteCommentSubmit = React.useCallback(async () => {
-    const item = pendingCommentDelete;
-    if (!item || deletingCommentID || commentActionID || isBulkCommentActionPending) {
-      return;
-    }
-
-    setDeletingCommentID(item.id);
-    setCommentsErrorMessage('');
-    setCommentsSuccessMessage('');
-
-    try {
-      const deleted = await deleteAdminComment({ commentId: item.id });
-      if (!deleted) {
-        throw new Error(t('adminAccount.comments.errors.delete', { ns: 'admin-account' }));
-      }
-
-      const remainingItems = comments.filter(candidate => candidate.id !== item.id);
-      const nextTotal = Math.max(0, totalComments - 1);
-      const nextTotalPages = Math.max(1, Math.ceil(nextTotal / commentsPageSize));
-      const nextPage = Math.min(commentsPage, nextTotalPages);
-
-      if (nextPage === commentsPage) {
-        setComments(remainingItems);
-      } else {
-        setCommentsPage(nextPage);
-      }
-
-      setTotalComments(nextTotal);
-      setPendingCommentDelete(null);
-      setCommentsSuccessMessage(
-        t('adminAccount.comments.success.deleted', {
-          ns: 'admin-account',
-          author: item.authorName,
-        }),
-      );
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        redirectToAdminLoginRef.current();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setCommentsErrorMessage(
-        resolvedError.kind === 'network'
-          ? t('adminCommon.errors.network', { ns: 'admin-common' })
-          : resolvedError.message || t('adminAccount.comments.errors.delete', { ns: 'admin-account' }),
-      );
-    } finally {
-      setDeletingCommentID('');
-    }
-  }, [
-    commentActionID,
-    comments,
-    commentsPage,
-    commentsPageSize,
-    deletingCommentID,
-    isBulkCommentActionPending,
-    pendingCommentDelete,
-    t,
-    totalComments,
-  ]);
-
-  const loadAdminErrorMessages = React.useCallback(
-    async (options?: { page?: number; preferredSelectedKey?: string }): Promise<AdminErrorMessageItem[]> => {
-      if (!isErrorsSection || !adminUser) {
-        return [];
-      }
-
-      const requestedPage = options?.page && options.page > 0 ? options.page : errorMessagesPage;
-      const requestID = errorMessagesRequestIDRef.current + 1;
-      errorMessagesRequestIDRef.current = requestID;
-      setIsErrorMessagesLoading(true);
-      setErrorMessagesErrorMessage('');
-
-      try {
-        const payload = await fetchAdminErrorMessages({
-          locale: errorFilterLocale === 'all' ? undefined : errorFilterLocale,
-          query: errorFilterQueryDebounced,
-          page: requestedPage,
-          size: errorMessagesPageSize,
-        });
-
-        if (requestID !== errorMessagesRequestIDRef.current) {
-          return [];
-        }
-
-        const items = payload.items ?? [];
-        setErrorMessages(items);
-        setTotalErrorMessages(payload.total ?? 0);
-
-        const resolvedPage = payload.page > 0 ? payload.page : requestedPage;
-        if (resolvedPage !== errorMessagesPage) {
-          setErrorMessagesPage(resolvedPage);
-        }
-
-        if (payload.size > 0 && payload.size !== errorMessagesPageSize) {
-          setErrorMessagesPageSize(payload.size);
-        }
-
-        const preferredSelectedKey = options?.preferredSelectedKey?.trim() ?? '';
-        const currentSelectedKey = preferredSelectedKey || selectedErrorMessageKeyRef.current;
-        const hasCurrentSelection = items.some(item => toAdminErrorMessageKey(item) === currentSelectedKey);
-        const nextSelectedKey = hasCurrentSelection
-          ? currentSelectedKey
-          : items[0]
-            ? toAdminErrorMessageKey(items[0])
-            : '';
-        setSelectedErrorMessageKey(nextSelectedKey);
-        selectedErrorMessageKeyRef.current = nextSelectedKey;
-
-        const nextSelectedItem = items.find(item => toAdminErrorMessageKey(item) === nextSelectedKey) ?? null;
-        setErrorUpdateMessage((nextSelectedItem?.message ?? '').trim());
-        setErrorMessagesErrorMessage('');
-        return items;
-      } catch (error) {
-        if (requestID !== errorMessagesRequestIDRef.current) {
-          return [];
-        }
-        if (isAdminSessionError(error)) {
-          redirectToAdminLoginRef.current();
-          return [];
-        }
-        const resolvedError = resolveAdminError(error);
-        setErrorMessagesErrorMessage(
-          resolvedError.kind === 'network'
-            ? t('adminCommon.errors.network', { ns: 'admin-common' })
-            : resolvedError.message || t('adminAccount.errorsCatalog.errors.load', { ns: 'admin-account' }),
-        );
-        return [];
-      } finally {
-        if (requestID === errorMessagesRequestIDRef.current) {
-          setIsErrorMessagesLoading(false);
-        }
-      }
-    },
-    [
-      adminUser,
-      errorFilterLocale,
-      errorFilterQueryDebounced,
-      errorMessagesPage,
-      errorMessagesPageSize,
-      isErrorsSection,
-      t,
-    ],
-  );
-
-  React.useEffect(() => {
-    if (!isErrorsSection || !adminUser) {
-      return;
-    }
-
-    void loadAdminErrorMessages();
-  }, [adminUser, errorMessagesPage, errorMessagesPageSize, isErrorsSection, loadAdminErrorMessages]);
-
-  const handleSelectErrorMessage = React.useCallback((item: AdminErrorMessageItem) => {
-    const key = toAdminErrorMessageKey(item);
-    setSelectedErrorMessageKey(key);
-    setErrorCrudTab('update');
-    setErrorUpdateMessage(item.message.trim());
-    setErrorMessagesSuccessMessage('');
-    setErrorMessagesErrorMessage('');
-  }, []);
-
-  const scrollToErrorMessagesListStart = React.useCallback(() => {
-    const target = errorMessagesListTopRef.current;
-    if (!target) {
-      return;
-    }
-
-    const currentWindow = globalThis.window;
-    const prefersReducedMotion = currentWindow?.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-
-    target.scrollIntoView({
-      behavior: prefersReducedMotion ? 'auto' : 'smooth',
-      block: 'start',
-    });
-  }, []);
-
-  const handleCreateErrorMessageSubmit = React.useCallback(async () => {
-    if (!canCreateErrorMessage) {
-      return;
-    }
-
-    setIsErrorCreateSubmitting(true);
-    setErrorMessagesErrorMessage('');
-    setErrorMessagesSuccessMessage('');
-
-    try {
-      const created = await createAdminErrorMessage({
-        key: {
-          scope: 'admin_graphql',
-          locale: errorCreateLocale,
-          code: normalizedErrorCreateCode,
-        },
-        message: normalizedErrorCreateMessage,
-      });
-
-      const createdKey = toAdminErrorMessageKey(created);
-      setErrorCrudTab('update');
-      setErrorCreateCode('');
-      setErrorCreateMessage('');
-      setErrorMessagesSuccessMessage(t('adminAccount.errorsCatalog.success.created', { ns: 'admin-account' }));
-      setIsErrorEditorModalOpen(false);
-
-      if (doesErrorMessageMatchFilters(created)) {
-        setSelectedErrorMessageKey(createdKey);
-        selectedErrorMessageKeyRef.current = createdKey;
-        setTotalErrorMessages(previous => previous + 1);
-        await loadAdminErrorMessages({
-          page: errorMessagesPage,
-          preferredSelectedKey: createdKey,
-        });
-      }
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        redirectToAdminLoginRef.current();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessagesErrorMessage(
-        resolvedError.kind === 'network'
-          ? t('adminCommon.errors.network', { ns: 'admin-common' })
-          : resolvedError.message || t('adminAccount.errorsCatalog.errors.create', { ns: 'admin-account' }),
-      );
-    } finally {
-      setIsErrorCreateSubmitting(false);
-    }
-  }, [
-    canCreateErrorMessage,
-    doesErrorMessageMatchFilters,
-    errorCreateLocale,
-    errorMessagesPage,
-    loadAdminErrorMessages,
-    normalizedErrorCreateCode,
-    normalizedErrorCreateMessage,
-    t,
-  ]);
-
-  const handleUpdateErrorMessageSubmit = React.useCallback(async () => {
-    if (!selectedErrorMessage || !canUpdateErrorMessage) {
-      return;
-    }
-
-    setIsErrorUpdateSubmitting(true);
-    setErrorMessagesErrorMessage('');
-    setErrorMessagesSuccessMessage('');
-
-    try {
-      const updated = await updateAdminErrorMessage({
-        key: {
-          scope: selectedErrorMessage.scope,
-          locale: selectedErrorMessage.locale,
-          code: selectedErrorMessage.code,
-        },
-        message: normalizedErrorUpdateMessage,
-      });
-
-      if (doesErrorMessageMatchFilters(updated)) {
-        const updatedKey = toAdminErrorMessageKey(updated);
-        setErrorMessages(previous =>
-          previous.map(item => (toAdminErrorMessageKey(item) === updatedKey ? updated : item)),
-        );
-        if (selectedErrorMessageKeyRef.current === updatedKey) {
-          setErrorUpdateMessage(updated.message.trim());
-        }
-      } else {
-        const updatedKey = toAdminErrorMessageKey(updated);
-        setErrorMessages(previous => previous.filter(item => toAdminErrorMessageKey(item) !== updatedKey));
-        setTotalErrorMessages(previous => Math.max(0, previous - 1));
-        await loadAdminErrorMessages({
-          page: errorMessagesPage,
-          preferredSelectedKey: selectedErrorMessageKeyRef.current,
-        });
-      }
-
-      setErrorMessagesSuccessMessage(t('adminAccount.errorsCatalog.success.updated', { ns: 'admin-account' }));
-      setIsErrorEditorModalOpen(false);
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        redirectToAdminLoginRef.current();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessagesErrorMessage(
-        resolvedError.kind === 'network'
-          ? t('adminCommon.errors.network', { ns: 'admin-common' })
-          : resolvedError.message || t('adminAccount.errorsCatalog.errors.update', { ns: 'admin-account' }),
-      );
-    } finally {
-      setIsErrorUpdateSubmitting(false);
-    }
-  }, [
-    canUpdateErrorMessage,
-    doesErrorMessageMatchFilters,
-    errorMessagesPage,
-    loadAdminErrorMessages,
-    normalizedErrorUpdateMessage,
-    selectedErrorMessage,
-    t,
-  ]);
-
-  const openDeleteErrorMessageConfirm = React.useCallback(
-    (targetItem?: AdminErrorMessageItem) => {
-      const item = targetItem ?? selectedErrorMessage;
-      if (!item || isErrorDeleteSubmitting || isErrorUpdateSubmitting) {
-        return;
-      }
-
-      setPendingErrorMessageDelete(item);
-    },
-    [isErrorDeleteSubmitting, isErrorUpdateSubmitting, selectedErrorMessage],
-  );
-
-  const handleDeleteErrorMessageSubmit = React.useCallback(async () => {
-    const item = pendingErrorMessageDelete;
-    if (!item || isErrorDeleteSubmitting || isErrorUpdateSubmitting) {
-      return;
-    }
-
-    setIsErrorDeleteSubmitting(true);
-    setDeletingErrorMessageKey(toAdminErrorMessageKey(item));
-    setErrorMessagesErrorMessage('');
-    setErrorMessagesSuccessMessage('');
-
-    try {
-      const selectedKey = toAdminErrorMessageKey(item);
-      const deleted = await deleteAdminErrorMessage({
-        scope: item.scope,
-        locale: item.locale,
-        code: item.code,
-      });
-      if (!deleted) {
-        throw new Error(t('adminAccount.errorsCatalog.errors.delete', { ns: 'admin-account' }));
-      }
-
-      const remainingItems = errorMessages.filter(candidate => toAdminErrorMessageKey(candidate) !== selectedKey);
-      const nextTotal = Math.max(0, totalErrorMessages - 1);
-      const nextTotalPages = Math.max(1, Math.ceil(nextTotal / errorMessagesPageSize));
-      const nextPage = Math.min(errorMessagesPage, nextTotalPages);
-      const fallbackSelectionKey = remainingItems[0] ? toAdminErrorMessageKey(remainingItems[0]) : '';
-      const preferredSelectedKey =
-        selectedErrorMessageKeyRef.current === selectedKey ? fallbackSelectionKey : selectedErrorMessageKeyRef.current;
-
-      setErrorMessages(remainingItems);
-      setTotalErrorMessages(nextTotal);
-      setSelectedErrorMessageKey(preferredSelectedKey);
-      selectedErrorMessageKeyRef.current = preferredSelectedKey;
-      setErrorUpdateMessage(
-        (
-          remainingItems.find(candidate => toAdminErrorMessageKey(candidate) === preferredSelectedKey)?.message ?? ''
-        ).trim(),
-      );
-      if (nextPage !== errorMessagesPage) {
-        setErrorMessagesPage(nextPage);
-      }
-
-      if (nextTotal > 0) {
-        await loadAdminErrorMessages({
-          page: nextPage,
-          preferredSelectedKey,
-        });
-      }
-
-      setErrorMessagesSuccessMessage(t('adminAccount.errorsCatalog.success.deleted', { ns: 'admin-account' }));
-      setIsErrorEditorModalOpen(false);
-      setPendingErrorMessageDelete(null);
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        redirectToAdminLoginRef.current();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessagesErrorMessage(
-        resolvedError.kind === 'network'
-          ? t('adminCommon.errors.network', { ns: 'admin-common' })
-          : resolvedError.message || t('adminAccount.errorsCatalog.errors.delete', { ns: 'admin-account' }),
-      );
-    } finally {
-      setIsErrorDeleteSubmitting(false);
-      setDeletingErrorMessageKey('');
-    }
-  }, [
-    errorMessages,
-    errorMessagesPage,
-    errorMessagesPageSize,
-    isErrorDeleteSubmitting,
-    isErrorUpdateSubmitting,
-    loadAdminErrorMessages,
-    pendingErrorMessageDelete,
-    totalErrorMessages,
-    t,
-  ]);
-
   const handleRevokeSession = React.useCallback(
     async (sessionItem: AdminSession) => {
       if (revokingSessionID || isRevokingAllSessions) {
@@ -3477,21 +2367,6 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
     [locale, router],
   );
 
-  const newsletterFeedback = (
-    <>
-      {newsletterErrorMessage ? (
-        <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
-          {newsletterErrorMessage}
-        </Alert>
-      ) : null}
-      {newsletterSuccessMessage ? (
-        <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
-          {newsletterSuccessMessage}
-        </Alert>
-      ) : null}
-    </>
-  );
-
   const settingsSidebar = (
     <aside className="post-card admin-account-card admin-settings-sidebar">
       <div className="post-card-content">
@@ -3678,2895 +2553,378 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
           <div className="post-card admin-account-card admin-account-form-card">
             <div className="post-card-content">
               {isProfileSection ? (
-                <>
-                  <h3 className="admin-dashboard-panel-title mb-3">
-                    {t('adminAccount.profile.title', { ns: 'admin-account' })}
-                  </h3>
-                  <hr className="admin-section-divider mb-3" />
-                  <p className="admin-dashboard-panel-copy mb-3">
-                    {t('adminAccount.profile.copy', { ns: 'admin-account' })}
-                  </p>
-                  {nameErrorMessage ? (
-                    <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
-                      {nameErrorMessage}
-                    </Alert>
-                  ) : null}
-                  {avatarErrorMessage ? (
-                    <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
-                      {avatarErrorMessage}
-                    </Alert>
-                  ) : null}
-                  {nameSuccessMessage ? (
-                    <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
-                      {nameSuccessMessage}
-                    </Alert>
-                  ) : null}
-                  {avatarSuccessMessage ? (
-                    <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
-                      {avatarSuccessMessage}
-                    </Alert>
-                  ) : null}
-
-                  <div className="row g-3 align-items-start mb-4">
-                    <aside className="col-12 col-lg-4 col-xl-3 order-1 order-lg-2">
-                      <div className="admin-account-avatar-card rounded-4 p-3 h-100">
-                        <h4 className="admin-dashboard-panel-title mb-2">
-                          {t('adminAccount.profile.avatar.title', { ns: 'admin-account' })}
-                        </h4>
-                        <p className="admin-dashboard-panel-copy mb-3">
-                          {t('adminAccount.profile.avatar.copy', {
-                            ns: 'admin-account',
-                            sizeMB: MAX_AVATAR_FILE_SIZE_MB,
-                          })}
-                        </p>
-                        <div
-                          className="admin-account-avatar-frame position-relative mx-auto rounded-circle overflow-hidden d-flex align-items-center justify-content-center"
-                          style={{ width: '200px', height: '200px', maxWidth: '100%' }}
-                        >
-                          {profileAvatarURL ? (
-                            <Image
-                              src={profileAvatarURL}
-                              alt={profileName || profileUsername || adminUser.email}
-                              width={200}
-                              height={200}
-                              sizes="(max-width: 576px) 160px, 200px"
-                              unoptimized
-                              className="w-100 h-100 object-fit-cover"
-                            />
-                          ) : (
-                            <span className="admin-account-avatar-placeholder fs-1" aria-hidden="true">
-                              <FontAwesomeIcon icon="user" />
-                            </span>
-                          )}
-                        </div>
-                        <div className="d-flex flex-wrap gap-2 mt-3 justify-content-center">
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            disabled={isAvatarSubmitting}
-                            onClick={() => avatarFileInputRef.current?.click()}
-                          >
-                            {isAvatarSubmitting && avatarPendingAction === 'upload' ? (
-                              <span className="d-inline-flex align-items-center gap-2">
-                                <Spinner
-                                  as="span"
-                                  animation="border"
-                                  size="sm"
-                                  className="me-2 flex-shrink-0 admin-action-spinner"
-                                  aria-hidden="true"
-                                />
-                                <span>{t('adminAccount.profile.avatar.uploading', { ns: 'admin-account' })}</span>
-                              </span>
-                            ) : (
-                              <span className="d-inline-flex align-items-center gap-2">
-                                <FontAwesomeIcon icon="camera" />
-                                <span>{t('adminAccount.profile.avatar.edit', { ns: 'admin-account' })}</span>
-                              </span>
-                            )}
-                          </Button>
-                          {profileAvatarURL ? (
-                            <Button
-                              variant="danger"
-                              size="sm"
-                              disabled={isAvatarSubmitting}
-                              onClick={() => {
-                                void handleAvatarUpdate(null, 'remove');
-                              }}
-                            >
-                              {isAvatarSubmitting && avatarPendingAction === 'remove' ? (
-                                <span className="d-inline-flex align-items-center gap-2">
-                                  <Spinner
-                                    as="span"
-                                    animation="border"
-                                    size="sm"
-                                    className="me-2 flex-shrink-0 admin-action-spinner"
-                                    aria-hidden="true"
-                                  />
-                                  <span>{t('adminAccount.profile.avatar.remove', { ns: 'admin-account' })}</span>
-                                </span>
-                              ) : (
-                                <span className="d-inline-flex align-items-center gap-2">
-                                  <FontAwesomeIcon icon="trash" />
-                                  <span>{t('adminAccount.profile.avatar.remove', { ns: 'admin-account' })}</span>
-                                </span>
-                              )}
-                            </Button>
-                          ) : null}
-                        </div>
-                        <input
-                          ref={avatarFileInputRef}
-                          type="file"
-                          accept="image/png,image/jpeg,image/webp"
-                          onChange={event => {
-                            void handleAvatarFileChange(event);
-                          }}
-                          className="d-none"
-                        />
-                      </div>
-                    </aside>
-
-                    <div className="col-12 col-lg-8 col-xl-9 order-2 order-lg-1">
-                      <Form noValidate onSubmit={handleNameSubmit}>
-                        <Form.Group className="mb-3" controlId="admin-profile-name">
-                          <Form.Label>{t('adminAccount.profile.name.label', { ns: 'admin-account' })}</Form.Label>
-                          <Form.Control
-                            type="text"
-                            value={nameInput}
-                            onChange={event => {
-                              setNameInput(event.currentTarget.value);
-                              if (nameErrorMessage) {
-                                setNameErrorMessage('');
-                              }
-                              if (nameSuccessMessage) {
-                                setNameSuccessMessage('');
-                              }
-                            }}
-                            placeholder={t('adminAccount.profile.name.placeholder', { ns: 'admin-account' })}
-                            autoComplete="name"
-                            isInvalid={showNameValidationError}
-                            required
-                            minLength={MIN_NAME_LENGTH}
-                            maxLength={MAX_NAME_LENGTH}
-                          />
-                          <Form.Control.Feedback type="invalid" className={showNameValidationError ? 'd-block' : ''}>
-                            {nameValidationError}
-                          </Form.Control.Feedback>
-                        </Form.Group>
-
-                        <div className="post-summary-cta mb-0">
-                          <Button type="submit" className="post-summary-read-more" disabled={isNameSubmitting}>
-                            {isNameSubmitting ? (
-                              <span className="d-inline-flex align-items-center gap-2">
-                                <Spinner
-                                  as="span"
-                                  animation="border"
-                                  size="sm"
-                                  className="me-2 flex-shrink-0 admin-action-spinner"
-                                  aria-hidden="true"
-                                />
-                                <span className="read-more-label">
-                                  {t('adminAccount.profile.name.submitting', { ns: 'admin-account' })}
-                                </span>
-                              </span>
-                            ) : (
-                              <span className="read-more-label">
-                                {t('adminAccount.profile.name.submit', { ns: 'admin-account' })}
-                              </span>
-                            )}
-                          </Button>
-                        </div>
-                      </Form>
-
-                      <dl className="admin-dashboard-meta-list admin-dashboard-meta-list-no-first-divider mb-0 mt-3">
-                        <div>
-                          <dt>{t('adminAccount.profile.labels.name', { ns: 'admin-account' })}</dt>
-                          <dd>{profileName || t('adminAccount.profile.notSet', { ns: 'admin-account' })}</dd>
-                        </div>
-                        <div>
-                          <dt>{t('adminAccount.profile.labels.username', { ns: 'admin-account' })}</dt>
-                          <dd>{profileUsername || t('adminAccount.profile.notSet', { ns: 'admin-account' })}</dd>
-                        </div>
-                        <div>
-                          <dt>{t('adminAccount.profile.labels.email', { ns: 'admin-account' })}</dt>
-                          <dd>{adminUser.email}</dd>
-                        </div>
-                        <div>
-                          <dt>{t('adminAccount.profile.labels.role', { ns: 'admin-account' })}</dt>
-                          <dd>{profileRoles || t('adminAccount.profile.notSet', { ns: 'admin-account' })}</dd>
-                        </div>
-                        <div>
-                          <dt>{t('adminAccount.profile.labels.id', { ns: 'admin-account' })}</dt>
-                          <dd>{adminUser.id}</dd>
-                        </div>
-                        <div>
-                          <dt>{t('adminAccount.profile.labels.picture', { ns: 'admin-account' })}</dt>
-                          <dd>
-                            {profileAvatarURL
-                              ? t('adminAccount.profile.avatar.states.custom', { ns: 'admin-account' })
-                              : t('adminAccount.profile.avatar.states.default', { ns: 'admin-account' })}
-                          </dd>
-                        </div>
-                      </dl>
-                    </div>
-                  </div>
-                </>
+                <AdminAccountProfileSection
+                  adminUser={adminUser}
+                  t={t}
+                  profileAvatarURL={profileAvatarURL}
+                  profileName={profileName}
+                  profileUsername={profileUsername}
+                  profileRoles={profileRoles}
+                  nameErrorMessage={nameErrorMessage}
+                  avatarErrorMessage={avatarErrorMessage}
+                  nameSuccessMessage={nameSuccessMessage}
+                  avatarSuccessMessage={avatarSuccessMessage}
+                  maxAvatarFileSizeMb={MAX_AVATAR_FILE_SIZE_MB}
+                  isAvatarSubmitting={isAvatarSubmitting}
+                  avatarPendingAction={avatarPendingAction}
+                  avatarFileInputRef={avatarFileInputRef}
+                  onOpenAvatarPicker={() => avatarFileInputRef.current?.click()}
+                  onRemoveAvatar={() => {
+                    void handleAvatarUpdate(null, 'remove');
+                  }}
+                  onAvatarFileChange={handleAvatarFileChange}
+                  handleNameSubmit={handleNameSubmit}
+                  nameInput={nameInput}
+                  onNameInputChange={setNameInput}
+                  clearNameFeedback={() => {
+                    if (nameErrorMessage) {
+                      setNameErrorMessage('');
+                    }
+                    if (nameSuccessMessage) {
+                      setNameSuccessMessage('');
+                    }
+                  }}
+                  showNameValidationError={showNameValidationError}
+                  nameValidationError={nameValidationError}
+                  minNameLength={MIN_NAME_LENGTH}
+                  maxNameLength={MAX_NAME_LENGTH}
+                  isNameSubmitting={isNameSubmitting}
+                />
               ) : null}
 
               {isEmailSection ? (
-                <div className="admin-account-section-stack">
-                  <section>
-                    <h3 className="admin-dashboard-panel-title mb-2">
-                      {t('adminAccount.account.email.title', { ns: 'admin-account' })}
-                    </h3>
-                    <p className="admin-dashboard-panel-copy">
-                      {t('adminAccount.account.email.copy', { ns: 'admin-account' })}
-                    </p>
-
-                    {emailErrorMessage ? (
-                      <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
-                        {emailErrorMessage}
-                      </Alert>
-                    ) : null}
-                    {emailSuccessMessage ? (
-                      <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
-                        {emailSuccessMessage}
-                      </Alert>
-                    ) : null}
-                    {pendingEmail ? (
-                      <Alert variant="info" className="mb-3 px-4 py-3 lh-base">
-                        <div className="fw-semibold mb-1">
-                          {t('adminAccount.account.email.pending.title', { ns: 'admin-account' })}
-                        </div>
-                        <div>
-                          {t('adminAccount.account.email.pending.copy', {
-                            ns: 'admin-account',
-                            email: pendingEmail,
-                          })}
-                        </div>
-                        {adminUser?.pendingEmailExpiresAt ? (
-                          <div className="small mt-2">
-                            {t('adminAccount.account.email.pending.expiresAt', {
-                              ns: 'admin-account',
-                              value: formatSessionDate(adminUser.pendingEmailExpiresAt),
-                            })}
-                          </div>
-                        ) : null}
-                      </Alert>
-                    ) : null}
-
-                    <Form noValidate onSubmit={handleEmailSubmit}>
-                      <Form.Group className="mb-3" controlId="admin-account-current-email">
-                        <Form.Label>{t('adminAccount.account.email.currentLabel', { ns: 'admin-account' })}</Form.Label>
-                        <Form.Control type="email" value={adminUser?.email ?? ''} readOnly plaintext={false} disabled />
-                      </Form.Group>
-
-                      <Form.Group className="mb-3" controlId="admin-account-email">
-                        <Form.Label>{t('adminAccount.account.email.label', { ns: 'admin-account' })}</Form.Label>
-                        <Form.Control
-                          type="email"
-                          value={emailInput}
-                          onChange={event => {
-                            setEmailInput(event.currentTarget.value);
-                            setEmailTouchedFields(previous => ({
-                              ...previous,
-                              newEmail: true,
-                            }));
-                            if (
-                              emailErrorMessage &&
-                              (emailErrorField === 'newEmail' || emailErrorField === 'generic')
-                            ) {
-                              setEmailErrorMessage('');
-                              setEmailErrorField(null);
-                            }
-                            if (emailSuccessMessage) {
-                              setEmailSuccessMessage('');
-                            }
-                          }}
-                          onBlur={() => {
-                            setEmailTouchedFields(previous => ({
-                              ...previous,
-                              newEmail: true,
-                            }));
-                          }}
-                          placeholder={t('adminAccount.account.email.placeholder', { ns: 'admin-account' })}
-                          autoComplete="email"
-                          isInvalid={showEmailValidationError}
-                          required
-                        />
-                        <Form.Control.Feedback type="invalid" className={showEmailValidationError ? 'd-block' : ''}>
-                          {emailValidationError}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-
-                      <Form.Group className="mb-3" controlId="admin-account-email-password">
-                        <Form.Label>
-                          {t('adminAccount.account.email.currentPassword', { ns: 'admin-account' })}
-                        </Form.Label>
-                        <Form.Control
-                          type="password"
-                          value={emailCurrentPassword}
-                          onChange={event => {
-                            setEmailCurrentPassword(event.currentTarget.value);
-                            setEmailTouchedFields(previous => ({
-                              ...previous,
-                              currentPassword: true,
-                            }));
-                            if (
-                              emailErrorMessage &&
-                              (emailErrorField === 'currentPassword' || emailErrorField === 'generic')
-                            ) {
-                              setEmailErrorMessage('');
-                              setEmailErrorField(null);
-                            }
-                          }}
-                          onBlur={() => {
-                            setEmailTouchedFields(previous => ({
-                              ...previous,
-                              currentPassword: true,
-                            }));
-                          }}
-                          placeholder={t('adminAccount.account.email.currentPasswordPlaceholder', {
-                            ns: 'admin-account',
-                          })}
-                          autoComplete="current-password"
-                          isInvalid={showEmailCurrentPasswordError}
-                          required
-                        />
-                        <Form.Control.Feedback
-                          type="invalid"
-                          className={showEmailCurrentPasswordError ? 'd-block' : ''}
-                        >
-                          {emailCurrentPasswordError}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-
-                      <div className="post-summary-cta mb-0">
-                        <Button type="submit" className="post-summary-read-more" disabled={isEmailSubmitting}>
-                          {isEmailSubmitting ? (
-                            <span className="d-inline-flex align-items-center gap-2">
-                              <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                className="me-2 flex-shrink-0 admin-action-spinner"
-                                aria-hidden="true"
-                              />
-                              <span className="read-more-label">
-                                {t('adminAccount.account.email.submitting', { ns: 'admin-account' })}
-                              </span>
-                            </span>
-                          ) : (
-                            <span className="read-more-label">
-                              {t('adminAccount.account.email.submit', { ns: 'admin-account' })}
-                            </span>
-                          )}
-                        </Button>
-                      </div>
-                    </Form>
-                  </section>
-                </div>
+                <AdminAccountEmailSection
+                  adminUser={adminUser}
+                  t={t}
+                  formatSessionDate={formatSessionDate}
+                  pendingEmail={pendingEmail}
+                  emailErrorMessage={emailErrorMessage}
+                  emailSuccessMessage={emailSuccessMessage}
+                  handleEmailSubmit={handleEmailSubmit}
+                  emailInput={emailInput}
+                  onEmailInputChange={value => {
+                    setEmailInput(value);
+                    setEmailTouchedFields(previous => ({
+                      ...previous,
+                      newEmail: true,
+                    }));
+                    if (emailErrorMessage && (emailErrorField === 'newEmail' || emailErrorField === 'generic')) {
+                      setEmailErrorMessage('');
+                      setEmailErrorField(null);
+                    }
+                    if (emailSuccessMessage) {
+                      setEmailSuccessMessage('');
+                    }
+                  }}
+                  onEmailInputBlur={() => {
+                    setEmailTouchedFields(previous => ({
+                      ...previous,
+                      newEmail: true,
+                    }));
+                  }}
+                  showEmailValidationError={showEmailValidationError}
+                  emailValidationError={emailValidationError}
+                  emailCurrentPassword={emailCurrentPassword}
+                  onEmailCurrentPasswordChange={value => {
+                    setEmailCurrentPassword(value);
+                    setEmailTouchedFields(previous => ({
+                      ...previous,
+                      currentPassword: true,
+                    }));
+                    if (emailErrorMessage && (emailErrorField === 'currentPassword' || emailErrorField === 'generic')) {
+                      setEmailErrorMessage('');
+                      setEmailErrorField(null);
+                    }
+                  }}
+                  onEmailCurrentPasswordBlur={() => {
+                    setEmailTouchedFields(previous => ({
+                      ...previous,
+                      currentPassword: true,
+                    }));
+                  }}
+                  showEmailCurrentPasswordError={showEmailCurrentPasswordError}
+                  emailCurrentPasswordError={emailCurrentPasswordError}
+                  isEmailSubmitting={isEmailSubmitting}
+                />
               ) : null}
 
               {isAccountSection ? (
-                <div className="admin-account-section-stack">
-                  <section>
-                    <h3 className="admin-dashboard-panel-title mb-2">
-                      {t('adminAccount.account.username.title', { ns: 'admin-account' })}
-                    </h3>
-                    <p className="admin-dashboard-panel-copy">
-                      {t('adminAccount.account.username.copy', { ns: 'admin-account' })}
-                    </p>
-
-                    {usernameErrorMessage ? (
-                      <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
-                        {usernameErrorMessage}
-                      </Alert>
-                    ) : null}
-                    {usernameSuccessMessage ? (
-                      <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
-                        {usernameSuccessMessage}
-                      </Alert>
-                    ) : null}
-
-                    <Form noValidate onSubmit={handleUsernameSubmit}>
-                      <Form.Group className="mb-3" controlId="admin-account-username">
-                        <Form.Label>{t('adminAccount.account.username.label', { ns: 'admin-account' })}</Form.Label>
-                        <Form.Control
-                          type="text"
-                          value={usernameInput}
-                          onChange={event => {
-                            setUsernameInput(event.currentTarget.value);
-                            if (usernameErrorMessage) {
-                              setUsernameErrorMessage('');
-                            }
-                            if (usernameSuccessMessage) {
-                              setUsernameSuccessMessage('');
-                            }
-                          }}
-                          placeholder={t('adminAccount.account.username.placeholder', { ns: 'admin-account' })}
-                          autoComplete="username"
-                          isInvalid={showUsernameValidationError}
-                          required
-                          minLength={MIN_USERNAME_LENGTH}
-                          maxLength={MAX_USERNAME_LENGTH}
-                        />
-                        <Form.Control.Feedback type="invalid" className={showUsernameValidationError ? 'd-block' : ''}>
-                          {usernameValidationError}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-
-                      <div className="post-summary-cta mb-0">
-                        <Button type="submit" className="post-summary-read-more" disabled={isUsernameSubmitting}>
-                          {isUsernameSubmitting ? (
-                            <span className="d-inline-flex align-items-center gap-2">
-                              <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                className="me-2 flex-shrink-0 admin-action-spinner"
-                                aria-hidden="true"
-                              />
-                              <span className="read-more-label">
-                                {t('adminAccount.account.username.submitting', { ns: 'admin-account' })}
-                              </span>
-                            </span>
-                          ) : (
-                            <span className="read-more-label">
-                              {t('adminAccount.account.username.submit', { ns: 'admin-account' })}
-                            </span>
-                          )}
-                        </Button>
-                      </div>
-                    </Form>
-                  </section>
-
-                  <section className="admin-account-delete-section">
-                    <h3 className="admin-dashboard-panel-title mb-2">
-                      {t('adminAccount.account.delete.title', { ns: 'admin-account' })}
-                    </h3>
-                    <hr className="admin-section-divider mb-3" />
-                    <p className="admin-dashboard-panel-copy">
-                      {t('adminAccount.account.delete.copy', { ns: 'admin-account' })}
-                    </p>
-
-                    {deleteErrorMessage ? (
-                      <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
-                        {deleteErrorMessage}
-                      </Alert>
-                    ) : null}
-                    {deleteSuccessMessage ? (
-                      <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
-                        {deleteSuccessMessage}
-                      </Alert>
-                    ) : null}
-
-                    <Form noValidate onSubmit={handleDeleteSubmit}>
-                      <Form.Group className="mb-3" controlId="admin-account-delete-password">
-                        <Form.Label>
-                          {t('adminAccount.account.delete.currentPassword', { ns: 'admin-account' })}
-                        </Form.Label>
-                        <InputGroup>
-                          <Form.Control
-                            type={showDeletePassword ? 'text' : 'password'}
-                            value={deleteCurrentPassword}
-                            onChange={event => {
-                              setDeleteCurrentPassword(event.currentTarget.value);
-                              if (deleteErrorMessage) {
-                                setDeleteErrorMessage('');
-                              }
-                              if (deleteSuccessMessage) {
-                                setDeleteSuccessMessage('');
-                              }
-                            }}
-                            placeholder={t('adminAccount.account.delete.currentPasswordPlaceholder', {
-                              ns: 'admin-account',
-                            })}
-                            autoComplete="current-password"
-                            isInvalid={showDeletePasswordError}
-                            required
-                          />
-                          <Button
-                            variant="outline-secondary"
-                            type="button"
-                            onClick={() => setShowDeletePassword(previous => !previous)}
-                            aria-label={
-                              showDeletePassword
-                                ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
-                                : t('adminAccount.form.showPassword', { ns: 'admin-account' })
-                            }
-                          >
-                            <FontAwesomeIcon icon={showDeletePassword ? 'eye-slash' : 'eye'} />
-                          </Button>
-                        </InputGroup>
-                        <Form.Control.Feedback type="invalid" className={showDeletePasswordError ? 'd-block' : ''}>
-                          {deletePasswordError}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-
-                      <Form.Group className="mb-4" controlId="admin-account-delete-confirm">
-                        <Form.Label>
-                          {t('adminAccount.account.delete.confirmLabel', { ns: 'admin-account' })}
-                        </Form.Label>
-                        <Form.Control
-                          type="text"
-                          value={deleteConfirmation}
-                          onChange={event => {
-                            setDeleteConfirmation(event.currentTarget.value);
-                            if (deleteErrorMessage) {
-                              setDeleteErrorMessage('');
-                            }
-                            if (deleteSuccessMessage) {
-                              setDeleteSuccessMessage('');
-                            }
-                          }}
-                          placeholder={t('adminAccount.account.delete.confirmPlaceholder', {
-                            ns: 'admin-account',
-                            value: DELETE_CONFIRMATION_VALUE,
-                          })}
-                          isInvalid={showDeleteConfirmError}
-                          required
-                        />
-                        <Form.Control.Feedback type="invalid" className={showDeleteConfirmError ? 'd-block' : ''}>
-                          {deleteConfirmError}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-
-                      <div className="post-summary-cta mb-0">
-                        <Button
-                          type="submit"
-                          variant="danger"
-                          className="post-summary-read-more admin-account-danger-action"
-                          disabled={isDeleteSubmitting}
-                        >
-                          {isDeleteSubmitting ? (
-                            <span className="d-inline-flex align-items-center gap-2">
-                              <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                className="me-2 flex-shrink-0 admin-action-spinner"
-                                aria-hidden="true"
-                              />
-                              <span className="read-more-label">
-                                {t('adminAccount.account.delete.submitting', { ns: 'admin-account' })}
-                              </span>
-                            </span>
-                          ) : (
-                            <span className="read-more-label">
-                              {t('adminAccount.account.delete.submit', { ns: 'admin-account' })}
-                            </span>
-                          )}
-                        </Button>
-                      </div>
-                    </Form>
-                  </section>
-                </div>
+                <AdminAccountAccountSection
+                  t={t}
+                  usernameErrorMessage={usernameErrorMessage}
+                  usernameSuccessMessage={usernameSuccessMessage}
+                  handleUsernameSubmit={handleUsernameSubmit}
+                  usernameInput={usernameInput}
+                  onUsernameInputChange={setUsernameInput}
+                  clearUsernameFeedback={() => {
+                    if (usernameErrorMessage) {
+                      setUsernameErrorMessage('');
+                    }
+                    if (usernameSuccessMessage) {
+                      setUsernameSuccessMessage('');
+                    }
+                  }}
+                  showUsernameValidationError={showUsernameValidationError}
+                  usernameValidationError={usernameValidationError}
+                  minUsernameLength={MIN_USERNAME_LENGTH}
+                  maxUsernameLength={MAX_USERNAME_LENGTH}
+                  isUsernameSubmitting={isUsernameSubmitting}
+                  deleteErrorMessage={deleteErrorMessage}
+                  deleteSuccessMessage={deleteSuccessMessage}
+                  handleDeleteSubmit={handleDeleteSubmit}
+                  deleteCurrentPassword={deleteCurrentPassword}
+                  onDeleteCurrentPasswordChange={setDeleteCurrentPassword}
+                  deleteConfirmation={deleteConfirmation}
+                  onDeleteConfirmationChange={setDeleteConfirmation}
+                  clearDeleteFeedback={() => {
+                    if (deleteErrorMessage) {
+                      setDeleteErrorMessage('');
+                    }
+                    if (deleteSuccessMessage) {
+                      setDeleteSuccessMessage('');
+                    }
+                  }}
+                  showDeletePassword={showDeletePassword}
+                  onToggleDeletePassword={() => setShowDeletePassword(previous => !previous)}
+                  showDeletePasswordError={showDeletePasswordError}
+                  deletePasswordError={deletePasswordError}
+                  showDeleteConfirmError={showDeleteConfirmError}
+                  deleteConfirmError={deleteConfirmError}
+                  deleteConfirmationValue={DELETE_CONFIRMATION_VALUE}
+                  isDeleteSubmitting={isDeleteSubmitting}
+                />
               ) : null}
 
               {isAppearanceSection ? (
-                <section className="admin-account-appearance-section is-standalone">
-                  <h3 className="admin-dashboard-panel-title mb-2">
-                    {t('adminAccount.account.appearance.title', { ns: 'admin-account' })}
-                  </h3>
-                  <hr className="admin-section-divider mb-3" />
-                  <p className="admin-dashboard-panel-copy">
-                    {t('adminAccount.account.appearance.copy', { ns: 'admin-account' })}
-                  </p>
-                  <div
-                    className="admin-account-appearance-options"
-                    role="radiogroup"
-                    aria-label={t('adminAccount.account.appearance.title', { ns: 'admin-account' })}
-                  >
-                    {(
-                      [
-                        {
-                          key: 'system',
-                          label: t('adminAccount.account.appearance.options.system', { ns: 'admin-account' }),
-                          value: 'system' as const,
-                        },
-                        ...THEMES.map(option => ({
-                          key: option.key,
-                          label: t(`adminAccount.account.appearance.options.${option.key}`, { ns: 'admin-account' }),
-                          value: option.key,
-                        })),
-                      ] as const
-                    ).map(option => {
-                      const isActive = activeAppearance === option.value;
-
-                      return (
-                        <button
-                          key={option.key}
-                          type="button"
-                          className={`admin-account-appearance-option ${resolveAppearanceCardClass(option.value)}${
-                            isActive ? ' is-active' : ''
-                          }`}
-                          onClick={() => handleAppearanceChange(option.value)}
-                          role="radio"
-                          aria-checked={isActive}
-                        >
-                          <span className="admin-account-appearance-preview" aria-hidden="true">
-                            <span className="admin-account-appearance-preview-header">
-                              <span />
-                              <span />
-                              <span />
-                            </span>
-                            <span className="admin-account-appearance-preview-body">
-                              <span className="admin-account-appearance-preview-title" />
-                              <span className="admin-account-appearance-preview-main">
-                                <span className="admin-account-appearance-preview-main-accent" />
-                              </span>
-                              <span className="admin-account-appearance-preview-side" />
-                            </span>
-                          </span>
-
-                          <span className="admin-account-appearance-option-footer">
-                            <FontAwesomeIcon
-                              icon={isActive ? 'circle-check' : 'circle'}
-                              className="admin-account-appearance-option-radio"
-                            />
-                            <span className="admin-account-appearance-option-label">{option.label}</span>
-                            <FontAwesomeIcon
-                              icon={resolveAppearanceMetaIcon(option.value)}
-                              className="admin-account-appearance-option-meta"
-                            />
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </section>
+                <AdminAccountAppearanceSection
+                  t={t}
+                  activeAppearance={activeAppearance}
+                  appearanceOptions={[
+                    {
+                      key: 'system',
+                      label: t('adminAccount.account.appearance.options.system', { ns: 'admin-account' }),
+                      value: 'system',
+                    },
+                    ...THEMES.map(option => ({
+                      key: option.key,
+                      label: t(`adminAccount.account.appearance.options.${option.key}`, { ns: 'admin-account' }),
+                      value: option.key,
+                    })),
+                  ]}
+                  onAppearanceChange={handleAppearanceChange}
+                  resolveAppearanceCardClass={resolveAppearanceCardClass}
+                  resolveAppearanceMetaIcon={resolveAppearanceMetaIcon}
+                />
               ) : null}
 
               {isSessionsSection ? (
-                <>
-                  <h3 className="admin-dashboard-panel-title mb-3">
-                    {t('adminAccount.sessions.title', { ns: 'admin-account' })}
-                  </h3>
-                  <hr className="admin-section-divider mb-3" />
-                  <p className="admin-dashboard-panel-copy mb-3">
-                    {t('adminAccount.sessions.copy', { ns: 'admin-account' })}
-                  </p>
-
-                  <div className="d-flex justify-content-end mb-3">
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => {
-                        void handleRevokeAllSessions();
-                      }}
-                      disabled={
-                        isSessionsLoading ||
-                        activeSessions.length === 0 ||
-                        isRevokingAllSessions ||
-                        revokingSessionID !== ''
-                      }
-                    >
-                      {isRevokingAllSessions ? (
-                        <span className="d-inline-flex align-items-center gap-2">
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            className="me-2 flex-shrink-0 admin-action-spinner"
-                            aria-hidden="true"
-                          />
-                          <span>{t('adminAccount.sessions.actions.revokingAll', { ns: 'admin-account' })}</span>
-                        </span>
-                      ) : (
-                        <>
-                          <FontAwesomeIcon icon="right-from-bracket" className="me-2" />
-                          {t('adminAccount.sessions.actions.revokeAll', { ns: 'admin-account' })}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-
-                  {sessionErrorMessage ? (
-                    <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
-                      {sessionErrorMessage}
-                    </Alert>
-                  ) : null}
-                  {sessionSuccessMessage ? (
-                    <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
-                      {sessionSuccessMessage}
-                    </Alert>
-                  ) : null}
-
-                  {isSessionsLoading ? (
-                    <div className="admin-account-sessions-loading">
-                      <AdminLoadingState
-                        className="admin-loading-stack"
-                        ariaLabel={t('adminAccount.sessions.loading', { ns: 'admin-account' })}
-                      />
-                    </div>
-                  ) : activeSessions.length === 0 ? (
-                    <p className="small text-muted mb-0">{t('adminAccount.sessions.empty', { ns: 'admin-account' })}</p>
-                  ) : (
-                    <div className="admin-session-list">
-                      {activeSessions.map(sessionItem => (
-                        <div key={sessionItem.id} className="admin-session-item">
-                          <div className="admin-session-icon" aria-hidden="true">
-                            <FontAwesomeIcon icon={resolveSessionDeviceIcon(sessionItem.device)} />
-                          </div>
-                          <div className="admin-session-main">
-                            <div className="admin-session-title-row">
-                              <strong>{sessionItem.device}</strong>
-                              {sessionItem.current ? (
-                                <span className="admin-session-chip admin-session-chip-current">
-                                  {t('adminAccount.sessions.labels.current', { ns: 'admin-account' })}
-                                </span>
-                              ) : null}
-                              {sessionItem.persistent ? (
-                                <span className="admin-session-chip">
-                                  {t('adminAccount.sessions.labels.remembered', { ns: 'admin-account' })}
-                                </span>
-                              ) : null}
-                            </div>
-                            <div className="admin-session-meta">
-                              <span>
-                                {t('adminAccount.sessions.labels.ip', {
-                                  ns: 'admin-account',
-                                  value: sessionItem.ipAddress,
-                                })}
-                              </span>
-                              <span>
-                                {t('adminAccount.sessions.labels.country', {
-                                  ns: 'admin-account',
-                                  value: sessionItem.countryCode,
-                                })}
-                              </span>
-                              <span>
-                                {t('adminAccount.sessions.labels.lastActivity', {
-                                  ns: 'admin-account',
-                                  value: formatSessionDate(sessionItem.lastActivityAt),
-                                })}
-                              </span>
-                              <span>
-                                {t('adminAccount.sessions.labels.expires', {
-                                  ns: 'admin-account',
-                                  value: formatSessionDate(sessionItem.expiresAt),
-                                })}
-                              </span>
-                            </div>
-                          </div>
-                          <Button
-                            variant={sessionItem.current ? 'danger' : 'secondary'}
-                            size="sm"
-                            disabled={isRevokingAllSessions || revokingSessionID === sessionItem.id}
-                            onClick={() => {
-                              void handleRevokeSession(sessionItem);
-                            }}
-                          >
-                            {revokingSessionID === sessionItem.id ? (
-                              <span className="d-inline-flex align-items-center gap-2">
-                                <Spinner
-                                  as="span"
-                                  animation="border"
-                                  size="sm"
-                                  className="me-2 flex-shrink-0 admin-action-spinner"
-                                  aria-hidden="true"
-                                />
-                                <span>
-                                  {t('adminAccount.sessions.actions.revokingSingle', { ns: 'admin-account' })}
-                                </span>
-                              </span>
-                            ) : (
-                              <>
-                                <FontAwesomeIcon icon="right-from-bracket" className="me-2" />
-                                {t('adminAccount.sessions.actions.revokeSingle', {
-                                  ns: 'admin-account',
-                                  context: sessionItem.current ? 'current' : 'other',
-                                })}
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </>
+                <AdminAccountSessionsSection
+                  t={t}
+                  formatSessionDate={formatSessionDate}
+                  sessionErrorMessage={sessionErrorMessage}
+                  sessionSuccessMessage={sessionSuccessMessage}
+                  isSessionsLoading={isSessionsLoading}
+                  activeSessions={activeSessions}
+                  isRevokingAllSessions={isRevokingAllSessions}
+                  revokingSessionID={revokingSessionID}
+                  onRevokeAllSessions={handleRevokeAllSessions}
+                  onRevokeSession={handleRevokeSession}
+                  resolveSessionDeviceIcon={resolveSessionDeviceIcon}
+                />
               ) : null}
 
               {isNewsletterSection ? (
-                <>
-                  <h3 className="admin-dashboard-panel-title mb-3">
-                    {t('adminAccount.newsletter.title', { ns: 'admin-account' })}
-                  </h3>
-                  <hr className="admin-section-divider mb-3" />
-                  <p className="admin-dashboard-panel-copy mb-4">
-                    {t('adminAccount.newsletter.copy', { ns: 'admin-account' })}
-                  </p>
-                  <Tabs
-                    id="admin-newsletter-tabs"
-                    activeKey={newsletterTab}
-                    onSelect={handleNewsletterTabSelect}
-                    className="mb-3 admin-content-tabs"
-                    mountOnEnter
-                  >
-                    <Tab
-                      eventKey="overview"
-                      title={
-                        <span className="d-inline-flex align-items-center">
-                          <FontAwesomeIcon icon="chart-line" className="me-2" />
-                          {t('adminAccount.newsletter.tabs.overview', { ns: 'admin-account' })}
-                        </span>
-                      }
-                    >
-                      <div className="pt-3">
-                        {newsletterFeedback}
-                        <div className="admin-account-section-stack">
-                          <section className="card border shadow-sm admin-newsletter-panel">
-                            <div className="card-body p-4">
-                              <div className="admin-newsletter-operations-layout">
-                                <div className="admin-newsletter-operations-copy">
-                                  <h4 className="admin-dashboard-panel-title mb-2">
-                                    {t('adminAccount.newsletter.operations.title', { ns: 'admin-account' })}
-                                  </h4>
-                                  <p className="admin-dashboard-panel-copy mb-0">
-                                    {t('adminAccount.newsletter.operations.copy', { ns: 'admin-account' })}
-                                  </p>
-                                </div>
-                                <div className="admin-newsletter-operations-action">
-                                  <Button
-                                    type="button"
-                                    variant="primary"
-                                    size="sm"
-                                    className="d-inline-flex align-items-center"
-                                    disabled={isNewsletterDispatchRunning}
-                                    onClick={() => {
-                                      void handleTriggerNewsletterDispatch();
-                                    }}
-                                  >
-                                    {isNewsletterDispatchRunning ? (
-                                      <span className="d-inline-flex align-items-center gap-2">
-                                        <Spinner
-                                          as="span"
-                                          animation="border"
-                                          size="sm"
-                                          className="me-2 flex-shrink-0 admin-action-spinner"
-                                          aria-hidden="true"
-                                        />
-                                        <span>
-                                          {t('adminAccount.newsletter.operations.running', { ns: 'admin-account' })}
-                                        </span>
-                                      </span>
-                                    ) : (
-                                      <>
-                                        <FontAwesomeIcon icon="paper-plane" className="me-2" />
-                                        {t('adminAccount.newsletter.operations.trigger', { ns: 'admin-account' })}
-                                      </>
-                                    )}
-                                  </Button>
-                                </div>
-                              </div>
-
-                              {newsletterDispatchTimestamp ? (
-                                <div className="small text-muted mt-3">
-                                  {t('adminAccount.newsletter.operations.lastRun', {
-                                    ns: 'admin-account',
-                                    value: formatSessionDate(newsletterDispatchTimestamp),
-                                  })}
-                                </div>
-                              ) : null}
-
-                              {newsletterDispatchResults.length > 0 ? (
-                                <div className="d-grid gap-2 mt-3">
-                                  {newsletterDispatchResults.map(result => (
-                                    <div key={result.locale} className="border rounded-3 p-3">
-                                      <div className="d-flex align-items-center justify-content-between gap-3 flex-wrap">
-                                        <span className="fw-semibold text-uppercase">{result.locale}</span>
-                                        <span
-                                          className={
-                                            result.skipped ? 'badge text-bg-secondary' : 'badge text-bg-success'
-                                          }
-                                        >
-                                          {result.skipped
-                                            ? t('adminAccount.newsletter.operations.result.skipped', {
-                                                ns: 'admin-account',
-                                              })
-                                            : t('adminAccount.newsletter.operations.result.completed', {
-                                                ns: 'admin-account',
-                                              })}
-                                        </span>
-                                      </div>
-                                      <div className="small text-muted mt-2">
-                                        {t('adminAccount.newsletter.operations.result.meta', {
-                                          ns: 'admin-account',
-                                          locale: result.locale.toUpperCase(),
-                                          sent: result.sentCount,
-                                          failed: result.failedCount,
-                                        })}
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              ) : null}
-                            </div>
-                          </section>
-
-                          <section className="card border shadow-sm admin-newsletter-panel">
-                            <div className="card-body p-4">
-                              <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-3">
-                                <div>
-                                  <h4 className="admin-dashboard-panel-title mb-2">
-                                    {t('adminAccount.newsletter.summary.title', { ns: 'admin-account' })}
-                                  </h4>
-                                  <p className="small text-muted mb-0">
-                                    {t('adminAccount.newsletter.summary.copy', { ns: 'admin-account' })}
-                                  </p>
-                                </div>
-                              </div>
-
-                              {isNewsletterSummaryLoading ? (
-                                <div className="admin-account-sessions-loading">
-                                  <AdminLoadingState
-                                    className="admin-loading-stack"
-                                    ariaLabel={t('adminAccount.newsletter.summary.loading', { ns: 'admin-account' })}
-                                  />
-                                </div>
-                              ) : (
-                                <div className="row g-3">
-                                  {[
-                                    {
-                                      key: 'total',
-                                      label: t('adminAccount.newsletter.summary.metrics.total', {
-                                        ns: 'admin-account',
-                                      }),
-                                      value: newsletterSubscriberSummary.total,
-                                    },
-                                    {
-                                      key: 'active',
-                                      label: t('adminAccount.newsletter.summary.metrics.active', {
-                                        ns: 'admin-account',
-                                      }),
-                                      value: newsletterSubscriberSummary.active,
-                                    },
-                                    {
-                                      key: 'pending',
-                                      label: t('adminAccount.newsletter.summary.metrics.pending', {
-                                        ns: 'admin-account',
-                                      }),
-                                      value: newsletterSubscriberSummary.pending,
-                                    },
-                                    {
-                                      key: 'unsubscribed',
-                                      label: t('adminAccount.newsletter.summary.metrics.unsubscribed', {
-                                        ns: 'admin-account',
-                                      }),
-                                      value: newsletterSubscriberSummary.unsubscribed,
-                                    },
-                                  ].map(item => (
-                                    <div key={item.key} className="col-12 col-sm-6 col-xl-3">
-                                      <div
-                                        className={`admin-newsletter-summary-metric admin-newsletter-summary-metric--${item.key} h-100`}
-                                      >
-                                        <div className="admin-newsletter-summary-label">{item.label}</div>
-                                        <div className="admin-newsletter-summary-value">{item.value}</div>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          </section>
-
-                          <section className="card border shadow-sm admin-newsletter-panel">
-                            <div className="card-body p-4">
-                              <h4 className="admin-dashboard-panel-title mb-2">
-                                {t('adminAccount.newsletter.campaigns.title', { ns: 'admin-account' })}
-                              </h4>
-                              <p className="small text-muted mb-3">
-                                {t('adminAccount.newsletter.campaigns.copy', { ns: 'admin-account' })}
-                              </p>
-
-                              {renderAsyncSectionContent({
-                                isLoading: isNewsletterCampaignsLoading,
-                                loadingLabel: t('adminAccount.newsletter.campaigns.loading', { ns: 'admin-account' }),
-                                isEmpty: newsletterCampaigns.length === 0,
-                                emptyMessage: t('adminAccount.newsletter.campaigns.empty', { ns: 'admin-account' }),
-                                children: (
-                                  <div className="d-grid gap-3">
-                                    {newsletterCampaigns.map(item => {
-                                      const campaignKey = `${item.locale}:${item.itemKey}`;
-                                      const campaignThumbnail = newsletterCampaignThumbnails[campaignKey];
-                                      const campaignStatus = resolveNewsletterCampaignStatus(
-                                        item.sentCount,
-                                        item.failedCount,
-                                        t,
-                                      );
-
-                                      return (
-                                        <div
-                                          key={`${item.locale}-${item.itemKey}`}
-                                          className="admin-newsletter-campaign-card"
-                                        >
-                                          <div className="fw-bold fs-4 text-break">
-                                            {item.link ? (
-                                              <Link href={item.link} className="link">
-                                                {item.title}
-                                              </Link>
-                                            ) : (
-                                              item.title
-                                            )}
-                                          </div>
-                                          <div className="mt-3 d-flex align-items-center flex-wrap gap-2">
-                                            {item.locale === 'en' || item.locale === 'tr' ? (
-                                              <span className="d-inline-flex align-items-center gap-2">
-                                                <FlagIcon
-                                                  className="flex-shrink-0"
-                                                  code={item.locale}
-                                                  alt={`${item.locale.toUpperCase()} flag`}
-                                                  width={22}
-                                                  height={22}
-                                                />
-                                                <span className="fs-4">
-                                                  {resolveNewsletterLocaleLabel(item.locale, item.locale)}
-                                                </span>
-                                              </span>
-                                            ) : null}
-                                            <span className={`badge text-bg-${campaignStatus.variant}`}>
-                                              {campaignStatus.label}
-                                            </span>
-                                          </div>
-                                          <div className="d-flex flex-column gap-2 mt-3">
-                                            <div className="d-flex align-items-center flex-wrap gap-4">
-                                              <span className="d-inline-flex align-items-center gap-2 fs-5">
-                                                <FontAwesomeIcon icon="paper-plane" className="text-muted" />
-                                                <span>
-                                                  {t('adminAccount.newsletter.campaigns.metrics.sent', {
-                                                    ns: 'admin-account',
-                                                    count: item.sentCount,
-                                                  })}
-                                                </span>
-                                              </span>
-                                              <span className="d-inline-flex align-items-center gap-2 fs-5">
-                                                <FontAwesomeIcon icon="exclamation-triangle" className="text-muted" />
-                                                <span>
-                                                  {t('adminAccount.newsletter.campaigns.metrics.failed', {
-                                                    ns: 'admin-account',
-                                                    count: item.failedCount,
-                                                  })}
-                                                </span>
-                                              </span>
-                                            </div>
-                                            {item.lastRunAt ? (
-                                              <span className="d-inline-flex align-items-center gap-2 fs-5">
-                                                <FontAwesomeIcon icon="calendar-alt" className="text-muted" />
-                                                {t('adminAccount.newsletter.campaigns.metrics.lastRunAt', {
-                                                  ns: 'admin-account',
-                                                  value: formatSessionDate(item.lastRunAt),
-                                                })}
-                                              </span>
-                                            ) : null}
-                                          </div>
-                                          {campaignThumbnail ? (
-                                            <div className="admin-newsletter-campaign-thumbnail mt-3 overflow-hidden">
-                                              <Image
-                                                src={campaignThumbnail}
-                                                alt={item.title}
-                                                width={640}
-                                                height={360}
-                                                unoptimized
-                                                className="w-100 h-100 object-fit-cover"
-                                              />
-                                            </div>
-                                          ) : null}
-                                          {item.summary ? (
-                                            <p className="post-summary-text mt-3 mb-0 text-muted">{item.summary}</p>
-                                          ) : null}
-                                          <div className="d-flex flex-wrap gap-2 mt-3">
-                                            <Button
-                                              type="button"
-                                              variant="primary"
-                                              size="sm"
-                                              className="d-inline-flex align-items-center justify-content-center"
-                                              onClick={() => {
-                                                setNewsletterTestEmail(adminUser?.email ?? '');
-                                                setPendingNewsletterTestCampaign(item);
-                                              }}
-                                            >
-                                              <FontAwesomeIcon icon="envelope" className="me-2" />
-                                              {t('adminAccount.newsletter.campaigns.actions.sendTest', {
-                                                ns: 'admin-account',
-                                              })}
-                                            </Button>
-                                            {item.failedCount > 0 ? (
-                                              <Button
-                                                type="button"
-                                                variant="outline-secondary"
-                                                size="sm"
-                                                className="d-inline-flex align-items-center justify-content-center"
-                                                onClick={() => {
-                                                  void handleViewNewsletterFailures(item);
-                                                }}
-                                              >
-                                                <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
-                                                {t('adminAccount.newsletter.campaigns.actions.viewFailures', {
-                                                  ns: 'admin-account',
-                                                })}
-                                              </Button>
-                                            ) : null}
-                                            {item.link ? (
-                                              <Link
-                                                href={item.link}
-                                                className="btn btn-success btn-sm d-inline-flex align-items-center"
-                                              >
-                                                <FontAwesomeIcon icon="up-right-from-square" className="me-2" />
-                                                {t('adminAccount.newsletter.campaigns.actions.openPost', {
-                                                  ns: 'admin-account',
-                                                })}
-                                              </Link>
-                                            ) : null}
-                                          </div>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                ),
-                              })}
-                            </div>
-                          </section>
-                        </div>
-                      </div>
-                    </Tab>
-                    <Tab
-                      eventKey="subscribers"
-                      title={
-                        <span className="d-inline-flex align-items-center">
-                          <FontAwesomeIcon icon="address-book" className="me-2" />
-                          {t('adminAccount.newsletter.tabs.subscribers', { ns: 'admin-account' })}
-                        </span>
-                      }
-                    >
-                      <div className="pt-3">
-                        {newsletterFeedback}
-                        <div className="d-grid gap-3">
-                          <div className="card shadow-sm d-block">
-                            <div className="card-body p-3 w-100">
-                              <div className="row g-3">
-                                <div className="col-12 col-md-4">
-                                  <Form.Group controlId="admin-newsletter-filter-locale">
-                                    <Form.Label className="small fw-semibold mb-1">
-                                      {t('adminAccount.newsletter.filters.locale', { ns: 'admin-account' })}
-                                    </Form.Label>
-                                    <Form.Select
-                                      value={newsletterFilterLocale}
-                                      onChange={event => {
-                                        setNewsletterFilterLocale(event.currentTarget.value as 'all' | 'en' | 'tr');
-                                        setNewsletterPage(1);
-                                      }}
-                                    >
-                                      <option value="all">
-                                        {t('adminAccount.newsletter.filters.locales.all', { ns: 'admin-account' })}
-                                      </option>
-                                      <option value="en">
-                                        {t('adminAccount.newsletter.filters.locales.en', { ns: 'admin-account' })}
-                                      </option>
-                                      <option value="tr">
-                                        {t('adminAccount.newsletter.filters.locales.tr', { ns: 'admin-account' })}
-                                      </option>
-                                    </Form.Select>
-                                  </Form.Group>
-                                </div>
-                                <div className="col-12 col-md-4">
-                                  <Form.Group controlId="admin-newsletter-filter-status">
-                                    <Form.Label className="small fw-semibold mb-1">
-                                      {t('adminAccount.newsletter.filters.status', { ns: 'admin-account' })}
-                                    </Form.Label>
-                                    <Form.Select
-                                      value={newsletterFilterStatus}
-                                      onChange={event => {
-                                        setNewsletterFilterStatus(
-                                          event.currentTarget.value as 'all' | 'pending' | 'active' | 'unsubscribed',
-                                        );
-                                        setNewsletterPage(1);
-                                      }}
-                                    >
-                                      <option value="all">
-                                        {t('adminAccount.newsletter.filters.statuses.all', { ns: 'admin-account' })}
-                                      </option>
-                                      <option value="pending">
-                                        {t('adminAccount.newsletter.filters.statuses.pending', { ns: 'admin-account' })}
-                                      </option>
-                                      <option value="active">
-                                        {t('adminAccount.newsletter.filters.statuses.active', { ns: 'admin-account' })}
-                                      </option>
-                                      <option value="unsubscribed">
-                                        {t('adminAccount.newsletter.filters.statuses.unsubscribed', {
-                                          ns: 'admin-account',
-                                        })}
-                                      </option>
-                                    </Form.Select>
-                                  </Form.Group>
-                                </div>
-                                <div className="col-12 col-md-4">
-                                  <Form.Group controlId="admin-newsletter-filter-query">
-                                    <Form.Label className="small fw-semibold mb-1">
-                                      {t('adminAccount.newsletter.filters.query', { ns: 'admin-account' })}
-                                    </Form.Label>
-                                    <div className="search-bar w-100 d-flex align-items-center">
-                                      <div className="search-icon">
-                                        <FontAwesomeIcon icon="search" />
-                                      </div>
-                                      <Form.Control
-                                        type="text"
-                                        className="search-input form-control"
-                                        value={newsletterFilterQuery}
-                                        placeholder={t('adminAccount.newsletter.filters.queryPlaceholder', {
-                                          ns: 'admin-account',
-                                        })}
-                                        onChange={event => {
-                                          setNewsletterFilterQuery(event.currentTarget.value);
-                                          setNewsletterPage(1);
-                                        }}
-                                      />
-                                      {newsletterFilterQuery ? (
-                                        <button
-                                          type="button"
-                                          className="search-clear-btn border-0 bg-transparent"
-                                          onClick={() => {
-                                            setNewsletterFilterQuery('');
-                                            setNewsletterPage(1);
-                                          }}
-                                          aria-label={t('adminAccount.newsletter.filters.query', {
-                                            ns: 'admin-account',
-                                          })}
-                                        >
-                                          <FontAwesomeIcon icon="times-circle" className="clear-icon" />
-                                        </button>
-                                      ) : null}
-                                    </div>
-                                  </Form.Group>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div ref={newsletterListTopRef} className="card shadow-sm d-block">
-                            <div className="card-body p-3 w-100">
-                              <div className="mb-3">
-                                <div>
-                                  <h4 className="admin-dashboard-panel-title mb-2">
-                                    {t('adminAccount.newsletter.subscribers.title', { ns: 'admin-account' })}
-                                  </h4>
-                                  <p className="small text-muted mb-0">
-                                    {t('adminAccount.newsletter.subscribers.copy', { ns: 'admin-account' })}
-                                  </p>
-                                </div>
-                              </div>
-
-                              {renderAsyncSectionContent({
-                                isLoading: isNewsletterLoading,
-                                loadingLabel: t('adminAccount.newsletter.loading', { ns: 'admin-account' }),
-                                isEmpty: totalNewsletterSubscribers === 0,
-                                emptyMessage: t('adminAccount.newsletter.empty', { ns: 'admin-account' }),
-                                children: (
-                                  <div className="d-grid gap-2">
-                                    {newsletterSubscribers.map(item => {
-                                      const isUpdatingCurrentItem = updatingNewsletterEmail === item.email;
-                                      const isDeletingCurrentItem = deletingNewsletterEmail === item.email;
-                                      const normalizedStatus = item.status.toLowerCase();
-                                      const canActivate = normalizedStatus !== 'active';
-                                      const canUnsubscribe = normalizedStatus !== 'unsubscribed';
-                                      const localeCode = item.locale.toLowerCase();
-                                      const localeLabel = resolveNewsletterLocaleLabel(localeCode, item.locale);
-
-                                      return (
-                                        <div key={item.email} className="border rounded-3 p-3 w-100">
-                                          <div className="fw-bold fs-5 text-break">{item.email}</div>
-                                          <div className="mt-2 d-flex align-items-center flex-wrap gap-2">
-                                            <span className="d-inline-flex align-items-center gap-2 text-muted">
-                                              {localeCode === 'en' || localeCode === 'tr' ? (
-                                                <FlagIcon
-                                                  className="flex-shrink-0"
-                                                  code={localeCode}
-                                                  alt={`${localeLabel} flag`}
-                                                  width={18}
-                                                  height={18}
-                                                />
-                                              ) : (
-                                                <FontAwesomeIcon icon="globe" className="text-muted" />
-                                              )}
-                                              <span>{localeLabel}</span>
-                                            </span>
-                                            <span className="badge text-bg-secondary">
-                                              {t(`adminAccount.newsletter.filters.statuses.${normalizedStatus}`, {
-                                                ns: 'admin-account',
-                                              })}
-                                            </span>
-                                          </div>
-                                          {item.updatedAt ? (
-                                            <div className="small mt-2 text-muted d-flex align-items-center flex-wrap">
-                                              <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-                                              {t('adminAccount.newsletter.list.updatedAt', {
-                                                ns: 'admin-account',
-                                                value: formatSessionDate(item.updatedAt),
-                                              })}
-                                            </div>
-                                          ) : null}
-                                          <div className="row g-2 mt-3">
-                                            {canActivate ? (
-                                              <div className="col-12 col-md-auto">
-                                                <Button
-                                                  type="button"
-                                                  size="sm"
-                                                  variant="success"
-                                                  className="w-100"
-                                                  disabled={isUpdatingCurrentItem || isDeletingCurrentItem}
-                                                  onClick={() => {
-                                                    void handleNewsletterStatusUpdate(item, 'active');
-                                                  }}
-                                                >
-                                                  {isUpdatingCurrentItem ? (
-                                                    <span className="d-inline-flex align-items-center gap-2">
-                                                      <Spinner
-                                                        as="span"
-                                                        animation="border"
-                                                        size="sm"
-                                                        className="me-2 flex-shrink-0 admin-action-spinner"
-                                                        aria-hidden="true"
-                                                      />
-                                                      <span>
-                                                        {t('adminAccount.newsletter.actions.updating', {
-                                                          ns: 'admin-account',
-                                                        })}
-                                                      </span>
-                                                    </span>
-                                                  ) : (
-                                                    <>
-                                                      <FontAwesomeIcon icon="check" className="me-2" />
-                                                      {t('adminAccount.newsletter.actions.setActive', {
-                                                        ns: 'admin-account',
-                                                      })}
-                                                    </>
-                                                  )}
-                                                </Button>
-                                              </div>
-                                            ) : null}
-
-                                            {canUnsubscribe ? (
-                                              <div className="col-12 col-md-auto">
-                                                <Button
-                                                  type="button"
-                                                  size="sm"
-                                                  variant="secondary"
-                                                  className="w-100"
-                                                  disabled={isUpdatingCurrentItem || isDeletingCurrentItem}
-                                                  onClick={() => {
-                                                    void handleNewsletterStatusUpdate(item, 'unsubscribed');
-                                                  }}
-                                                >
-                                                  {isUpdatingCurrentItem ? (
-                                                    <span className="d-inline-flex align-items-center gap-2">
-                                                      <Spinner
-                                                        as="span"
-                                                        animation="border"
-                                                        size="sm"
-                                                        className="me-2 flex-shrink-0 admin-action-spinner"
-                                                        aria-hidden="true"
-                                                      />
-                                                      <span>
-                                                        {t('adminAccount.newsletter.actions.updating', {
-                                                          ns: 'admin-account',
-                                                        })}
-                                                      </span>
-                                                    </span>
-                                                  ) : (
-                                                    <>
-                                                      <FontAwesomeIcon icon="times-circle" className="me-2" />
-                                                      {t('adminAccount.newsletter.actions.unsubscribe', {
-                                                        ns: 'admin-account',
-                                                      })}
-                                                    </>
-                                                  )}
-                                                </Button>
-                                              </div>
-                                            ) : null}
-
-                                            <div className="col-12 col-md-auto">
-                                              <Button
-                                                type="button"
-                                                size="sm"
-                                                variant="danger"
-                                                className="w-100"
-                                                disabled={isUpdatingCurrentItem || isDeletingCurrentItem}
-                                                onClick={() => {
-                                                  setPendingNewsletterDelete(item);
-                                                }}
-                                              >
-                                                {isDeletingCurrentItem ? (
-                                                  <span className="d-inline-flex align-items-center gap-2">
-                                                    <Spinner
-                                                      as="span"
-                                                      animation="border"
-                                                      size="sm"
-                                                      className="me-2 flex-shrink-0 admin-action-spinner"
-                                                      aria-hidden="true"
-                                                    />
-                                                    <span>
-                                                      {t('adminAccount.newsletter.actions.deleting', {
-                                                        ns: 'admin-account',
-                                                      })}
-                                                    </span>
-                                                  </span>
-                                                ) : (
-                                                  <>
-                                                    <FontAwesomeIcon icon="trash" className="me-2" />
-                                                    {t('adminAccount.newsletter.actions.delete', {
-                                                      ns: 'admin-account',
-                                                    })}
-                                                  </>
-                                                )}
-                                              </Button>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                ),
-                              })}
-                            </div>
-                            {!isNewsletterLoading && totalNewsletterSubscribers > 0 ? (
-                              <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
-                                <PaginationBar
-                                  currentPage={newsletterPage}
-                                  totalPages={totalNewsletterPages}
-                                  totalResults={totalNewsletterSubscribers}
-                                  size={newsletterPageSize}
-                                  onPageChange={page => {
-                                    setNewsletterPage(page);
-                                    scrollToNewsletterListStart();
-                                  }}
-                                  onSizeChange={size => {
-                                    setNewsletterPageSize(size);
-                                    setNewsletterPage(1);
-                                    scrollToNewsletterListStart();
-                                  }}
-                                />
-                              </div>
-                            ) : null}
-                          </div>
-                        </div>
-                      </div>
-                    </Tab>
-                  </Tabs>
-
-                  <Modal
-                    show={pendingNewsletterDelete !== null}
-                    onHide={() => {
-                      if (deletingNewsletterEmail) {
-                        return;
-                      }
-                      setPendingNewsletterDelete(null);
-                    }}
-                    centered
-                  >
-                    <Modal.Header closeButton>
-                      <Modal.Title>
-                        {t('adminAccount.newsletter.deleteConfirm.title', { ns: 'admin-account' })}
-                      </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                      <p className="small text-muted mb-0">
-                        {t('adminAccount.newsletter.deleteConfirm.copy', {
-                          ns: 'admin-account',
-                          email: pendingNewsletterDelete?.email ?? '',
-                        })}
-                      </p>
-                    </Modal.Body>
-                    <Modal.Footer>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        disabled={deletingNewsletterEmail !== ''}
-                        onClick={() => {
-                          setPendingNewsletterDelete(null);
-                        }}
-                      >
-                        {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="danger"
-                        disabled={pendingNewsletterDelete === null || deletingNewsletterEmail !== ''}
-                        onClick={() => {
-                          void handleDeleteNewsletterSubscriber();
-                        }}
-                      >
-                        {deletingNewsletterEmail ? (
-                          <span className="d-inline-flex align-items-center gap-2">
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              className="me-2 flex-shrink-0 admin-action-spinner"
-                              aria-hidden="true"
-                            />
-                            <span>{t('adminAccount.newsletter.actions.deleting', { ns: 'admin-account' })}</span>
-                          </span>
-                        ) : (
-                          <>
-                            <FontAwesomeIcon icon="trash" className="me-2" />
-                            {t('adminAccount.newsletter.actions.delete', { ns: 'admin-account' })}
-                          </>
-                        )}
-                      </Button>
-                    </Modal.Footer>
-                  </Modal>
-
-                  <Modal
-                    show={selectedNewsletterCampaign !== null}
-                    onHide={() => {
-                      if (isNewsletterFailuresLoading) {
-                        return;
-                      }
-                      setSelectedNewsletterCampaign(null);
-                    }}
-                    centered
-                    size="lg"
-                  >
-                    <Modal.Header closeButton>
-                      <Modal.Title>{t('adminAccount.newsletter.failures.title', { ns: 'admin-account' })}</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                      <div className="small text-muted mb-3">
-                        {t('adminAccount.newsletter.failures.copy', {
-                          ns: 'admin-account',
-                          title: selectedNewsletterCampaign?.title ?? '',
-                        })}
-                      </div>
-
-                      {renderAsyncSectionContent({
-                        isLoading: isNewsletterFailuresLoading,
-                        loadingLabel: t('adminAccount.newsletter.failures.loading', { ns: 'admin-account' }),
-                        isEmpty: newsletterCampaignFailures.length === 0,
-                        emptyMessage: t('adminAccount.newsletter.failures.empty', { ns: 'admin-account' }),
-                        children: (
-                          <div className="d-grid gap-2">
-                            <div className="small text-muted">
-                              {t('adminAccount.newsletter.failures.total', {
-                                ns: 'admin-account',
-                                count: newsletterFailuresTotal,
-                              })}
-                            </div>
-                            {newsletterCampaignFailures.map(item => (
-                              <div key={`${item.itemKey}-${item.email}`} className="border rounded-3 p-3">
-                                <div className="fw-semibold text-break">{item.email}</div>
-                                {item.lastAttemptAt ? (
-                                  <div className="small text-muted mt-2">
-                                    {t('adminAccount.newsletter.failures.lastAttemptAt', {
-                                      ns: 'admin-account',
-                                      value: formatSessionDate(item.lastAttemptAt),
-                                    })}
-                                  </div>
-                                ) : null}
-                                {item.lastError ? <div className="small text-muted mt-2">{item.lastError}</div> : null}
-                              </div>
-                            ))}
-                          </div>
-                        ),
-                      })}
-                    </Modal.Body>
-                    <Modal.Footer>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        disabled={isNewsletterFailuresLoading}
-                        onClick={() => {
-                          setSelectedNewsletterCampaign(null);
-                        }}
-                      >
-                        {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-                      </Button>
-                    </Modal.Footer>
-                  </Modal>
-
-                  <Modal
-                    show={pendingNewsletterTestCampaign !== null}
-                    onHide={() => {
-                      if (isNewsletterTestSending) {
-                        return;
-                      }
-                      setPendingNewsletterTestCampaign(null);
-                    }}
-                    centered
-                  >
-                    <Modal.Header closeButton>
-                      <Modal.Title>{t('adminAccount.newsletter.testSend.title', { ns: 'admin-account' })}</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                      <p className="small text-muted mb-3">
-                        {t('adminAccount.newsletter.testSend.copy', {
-                          ns: 'admin-account',
-                          title: pendingNewsletterTestCampaign?.title ?? '',
-                        })}
-                      </p>
-                      <Form.Group controlId="admin-newsletter-test-email">
-                        <Form.Label className="small fw-semibold mb-1">
-                          {t('adminAccount.newsletter.testSend.emailLabel', { ns: 'admin-account' })}
-                        </Form.Label>
-                        <Form.Control
-                          type="email"
-                          value={newsletterTestEmail}
-                          placeholder={t('adminAccount.newsletter.testSend.emailPlaceholder', {
-                            ns: 'admin-account',
-                          })}
-                          disabled={isNewsletterTestSending}
-                          onChange={event => {
-                            setNewsletterTestEmail(event.currentTarget.value);
-                          }}
-                        />
-                      </Form.Group>
-                    </Modal.Body>
-                    <Modal.Footer>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        disabled={isNewsletterTestSending}
-                        onClick={() => {
-                          setPendingNewsletterTestCampaign(null);
-                        }}
-                      >
-                        {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="primary"
-                        disabled={isNewsletterTestSending || newsletterTestEmail.trim() === ''}
-                        onClick={() => {
-                          void handleSendNewsletterTestEmail();
-                        }}
-                      >
-                        {isNewsletterTestSending ? (
-                          <span className="d-inline-flex align-items-center gap-2">
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              className="me-2 flex-shrink-0 admin-action-spinner"
-                              aria-hidden="true"
-                            />
-                            <span>{t('adminAccount.newsletter.testSend.sending', { ns: 'admin-account' })}</span>
-                          </span>
-                        ) : (
-                          <>
-                            <FontAwesomeIcon icon="paper-plane" className="me-2" />
-                            {t('adminAccount.newsletter.testSend.submit', { ns: 'admin-account' })}
-                          </>
-                        )}
-                      </Button>
-                    </Modal.Footer>
-                  </Modal>
-                </>
+                <AdminAccountNewsletterSection
+                  t={t}
+                  formatSessionDate={formatSessionDate}
+                  newsletterErrorMessage={newsletterErrorMessage}
+                  newsletterSuccessMessage={newsletterSuccessMessage}
+                  newsletterTab={newsletterTab}
+                  onNewsletterTabSelect={handleNewsletterTabSelect}
+                  isNewsletterDispatchRunning={isNewsletterDispatchRunning}
+                  onTriggerNewsletterDispatch={handleTriggerNewsletterDispatch}
+                  newsletterDispatchTimestamp={newsletterDispatchTimestamp}
+                  newsletterDispatchResults={newsletterDispatchResults}
+                  isNewsletterSummaryLoading={isNewsletterSummaryLoading}
+                  newsletterSubscriberSummary={newsletterSubscriberSummary}
+                  isNewsletterCampaignsLoading={isNewsletterCampaignsLoading}
+                  newsletterCampaigns={newsletterCampaigns}
+                  newsletterCampaignThumbnails={newsletterCampaignThumbnails}
+                  renderAsyncSectionContent={renderAsyncSectionContent}
+                  onOpenNewsletterTest={item => {
+                    setNewsletterTestEmail(adminUser.email);
+                    setPendingNewsletterTestCampaign(item);
+                  }}
+                  onViewNewsletterFailures={handleViewNewsletterFailures}
+                  newsletterFilterLocale={newsletterFilterLocale}
+                  onNewsletterFilterLocaleChange={value => {
+                    setNewsletterFilterLocale(value);
+                    setNewsletterPage(1);
+                  }}
+                  newsletterFilterStatus={newsletterFilterStatus}
+                  onNewsletterFilterStatusChange={value => {
+                    setNewsletterFilterStatus(value);
+                    setNewsletterPage(1);
+                  }}
+                  newsletterFilterQuery={newsletterFilterQuery}
+                  onNewsletterFilterQueryChange={value => {
+                    setNewsletterFilterQuery(value);
+                    setNewsletterPage(1);
+                  }}
+                  newsletterListTopRef={newsletterListTopRef}
+                  isNewsletterLoading={isNewsletterLoading}
+                  totalNewsletterSubscribers={totalNewsletterSubscribers}
+                  newsletterSubscribers={newsletterSubscribers}
+                  updatingNewsletterEmail={updatingNewsletterEmail}
+                  deletingNewsletterEmail={deletingNewsletterEmail}
+                  onNewsletterStatusUpdate={handleNewsletterStatusUpdate}
+                  onOpenNewsletterDelete={item => {
+                    setPendingNewsletterDelete(item);
+                  }}
+                  newsletterPage={newsletterPage}
+                  totalNewsletterPages={totalNewsletterPages}
+                  newsletterPageSize={newsletterPageSize}
+                  onNewsletterPageChange={page => {
+                    setNewsletterPage(page);
+                    scrollToNewsletterListStart();
+                  }}
+                  onNewsletterPageSizeChange={size => {
+                    setNewsletterPageSize(size);
+                    setNewsletterPage(1);
+                    scrollToNewsletterListStart();
+                  }}
+                  pendingNewsletterDelete={pendingNewsletterDelete}
+                  onCloseNewsletterDelete={() => {
+                    if (deletingNewsletterEmail) {
+                      return;
+                    }
+                    setPendingNewsletterDelete(null);
+                  }}
+                  onDeleteNewsletterSubscriber={handleDeleteNewsletterSubscriber}
+                  selectedNewsletterCampaign={selectedNewsletterCampaign}
+                  onCloseNewsletterFailures={() => {
+                    if (isNewsletterFailuresLoading) {
+                      return;
+                    }
+                    setSelectedNewsletterCampaign(null);
+                  }}
+                  isNewsletterFailuresLoading={isNewsletterFailuresLoading}
+                  newsletterCampaignFailures={newsletterCampaignFailures}
+                  newsletterFailuresTotal={newsletterFailuresTotal}
+                  pendingNewsletterTestCampaign={pendingNewsletterTestCampaign}
+                  onCloseNewsletterTest={() => {
+                    if (isNewsletterTestSending) {
+                      return;
+                    }
+                    setPendingNewsletterTestCampaign(null);
+                  }}
+                  isNewsletterTestSending={isNewsletterTestSending}
+                  newsletterTestEmail={newsletterTestEmail}
+                  onNewsletterTestEmailChange={setNewsletterTestEmail}
+                  onSendNewsletterTestEmail={handleSendNewsletterTestEmail}
+                />
               ) : null}
 
               {isCommentsSection ? (
-                <>
-                  <h3 className="admin-dashboard-panel-title mb-3">
-                    {t('adminAccount.comments.title', { ns: 'admin-account' })}
-                  </h3>
-                  <hr className="admin-section-divider mb-3" />
-                  <p className="admin-dashboard-panel-copy mb-3">
-                    {t('adminAccount.comments.copy', { ns: 'admin-account' })}
-                  </p>
-
-                  {commentsErrorMessage ? (
-                    <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
-                      {commentsErrorMessage}
-                    </Alert>
-                  ) : null}
-                  {commentsSuccessMessage ? (
-                    <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
-                      {commentsSuccessMessage}
-                    </Alert>
-                  ) : null}
-
-                  <div className="d-grid gap-3">
-                    <div ref={commentsListTopRef} />
-
-                    <div className="card shadow-sm d-block">
-                      <div className="card-body p-3 w-100">
-                        <div className="row g-3">
-                          <div className="col-12 col-md-4">
-                            <Form.Group controlId="admin-comments-filter-status">
-                              <Form.Label className="small fw-semibold mb-1">
-                                {t('adminAccount.comments.filters.status', { ns: 'admin-account' })}
-                              </Form.Label>
-                              <Form.Select
-                                value={commentFilterStatus}
-                                onChange={event => {
-                                  setCommentFilterStatus(
-                                    event.currentTarget.value as 'all' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'SPAM',
-                                  );
-                                  setCommentsErrorMessage('');
-                                  setCommentsSuccessMessage('');
-                                }}
-                              >
-                                <option value="all">
-                                  {t('adminAccount.comments.filters.statuses.all', { ns: 'admin-account' })}
-                                </option>
-                                <option value="PENDING">
-                                  {t('adminAccount.comments.filters.statuses.pending', { ns: 'admin-account' })}
-                                </option>
-                                <option value="APPROVED">
-                                  {t('adminAccount.comments.filters.statuses.approved', { ns: 'admin-account' })}
-                                </option>
-                                <option value="REJECTED">
-                                  {t('adminAccount.comments.filters.statuses.rejected', { ns: 'admin-account' })}
-                                </option>
-                                <option value="SPAM">
-                                  {t('adminAccount.comments.filters.statuses.spam', { ns: 'admin-account' })}
-                                </option>
-                              </Form.Select>
-                            </Form.Group>
-                          </div>
-                          <div className="col-12 col-md-8">
-                            <Form.Group controlId="admin-comments-filter-query">
-                              <Form.Label className="small fw-semibold mb-1">
-                                {t('adminAccount.comments.filters.query', { ns: 'admin-account' })}
-                              </Form.Label>
-                              <div className="search-bar w-100 d-flex align-items-center">
-                                <div className="search-icon">
-                                  <FontAwesomeIcon icon="search" />
-                                </div>
-                                <Form.Control
-                                  type="text"
-                                  className="search-input form-control"
-                                  value={commentFilterQuery}
-                                  onChange={event => {
-                                    setCommentFilterQuery(event.currentTarget.value);
-                                    setCommentsErrorMessage('');
-                                  }}
-                                  placeholder={t('adminAccount.comments.filters.queryPlaceholder', {
-                                    ns: 'admin-account',
-                                  })}
-                                />
-                                {commentFilterQuery ? (
-                                  <button
-                                    type="button"
-                                    className="search-clear-btn border-0 bg-transparent"
-                                    onClick={() => {
-                                      setCommentFilterQuery('');
-                                      setCommentsErrorMessage('');
-                                    }}
-                                    aria-label={t('adminAccount.comments.filters.query', { ns: 'admin-account' })}
-                                  >
-                                    <FontAwesomeIcon icon="times-circle" className="clear-icon" />
-                                  </button>
-                                ) : null}
-                              </div>
-                            </Form.Group>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="card shadow-sm d-block">
-                      <div className="card-body p-3 w-100">
-                        {comments.length > 0 ? (
-                          <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                            <div className="d-flex align-items-center gap-2 flex-wrap">
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant={allVisibleCommentsSelected ? 'secondary' : 'outline-secondary'}
-                                disabled={isCommentsLoading || isBulkCommentActionPending}
-                                onClick={toggleVisibleCommentsSelection}
-                              >
-                                <FontAwesomeIcon
-                                  icon={allVisibleCommentsSelected ? 'check-circle' : 'circle'}
-                                  className="me-2"
-                                />
-                                {t('adminAccount.comments.bulk.selectAll', { ns: 'admin-account' })}
-                              </Button>
-                              {hasSelectedComments ? (
-                                <>
-                                  <Badge bg="light" text="dark" pill>
-                                    {t('adminAccount.comments.bulk.selected', {
-                                      ns: 'admin-account',
-                                      count: selectedCommentIDs.length,
-                                    })}
-                                  </Badge>
-                                  <Button
-                                    type="button"
-                                    size="sm"
-                                    variant="danger"
-                                    disabled={isBulkCommentActionPending}
-                                    onClick={() => {
-                                      setSelectedCommentIDs([]);
-                                    }}
-                                  >
-                                    <FontAwesomeIcon icon="trash" className="me-2" />
-                                    {t('adminAccount.comments.bulk.clearSelection', { ns: 'admin-account' })}
-                                  </Button>
-                                </>
-                              ) : null}
-                            </div>
-                            {hasSelectedComments ? (
-                              <div className="d-flex align-items-center gap-2 flex-wrap">
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  variant="success"
-                                  disabled={isBulkCommentActionPending}
-                                  onClick={() => {
-                                    void handleBulkCommentStatusUpdate('APPROVED');
-                                  }}
-                                >
-                                  {bulkCommentActionStatus === 'APPROVED' ? (
-                                    <span className="d-inline-flex align-items-center gap-2">
-                                      <Spinner
-                                        as="span"
-                                        animation="border"
-                                        size="sm"
-                                        className="me-2 flex-shrink-0 admin-action-spinner"
-                                        aria-hidden="true"
-                                      />
-                                      <span>
-                                        {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
-                                      </span>
-                                    </span>
-                                  ) : (
-                                    <>
-                                      <FontAwesomeIcon icon="check" className="me-2" />
-                                      {t('adminAccount.comments.actions.approve', { ns: 'admin-account' })}
-                                    </>
-                                  )}
-                                </Button>
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  variant="secondary"
-                                  className="admin-newsletter-action admin-newsletter-action--secondary"
-                                  disabled={isBulkCommentActionPending}
-                                  onClick={() => {
-                                    void handleBulkCommentStatusUpdate('REJECTED');
-                                  }}
-                                >
-                                  {bulkCommentActionStatus === 'REJECTED' ? (
-                                    <span className="d-inline-flex align-items-center gap-2">
-                                      <Spinner
-                                        as="span"
-                                        animation="border"
-                                        size="sm"
-                                        className="me-2 flex-shrink-0 admin-action-spinner"
-                                        aria-hidden="true"
-                                      />
-                                      <span>
-                                        {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
-                                      </span>
-                                    </span>
-                                  ) : (
-                                    <>
-                                      <FontAwesomeIcon icon="times-circle" className="me-2" />
-                                      {t('adminAccount.comments.actions.reject', { ns: 'admin-account' })}
-                                    </>
-                                  )}
-                                </Button>
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  variant="danger"
-                                  className="admin-newsletter-action admin-newsletter-action--danger"
-                                  disabled={isBulkCommentActionPending}
-                                  onClick={() => {
-                                    void handleBulkCommentStatusUpdate('SPAM');
-                                  }}
-                                >
-                                  {bulkCommentActionStatus === 'SPAM' ? (
-                                    <span className="d-inline-flex align-items-center gap-2">
-                                      <Spinner
-                                        as="span"
-                                        animation="border"
-                                        size="sm"
-                                        className="me-2 flex-shrink-0 admin-action-spinner"
-                                        aria-hidden="true"
-                                      />
-                                      <span>
-                                        {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
-                                      </span>
-                                    </span>
-                                  ) : (
-                                    <>
-                                      <FontAwesomeIcon icon="shield-halved" className="me-2" />
-                                      {t('adminAccount.comments.actions.spam', { ns: 'admin-account' })}
-                                    </>
-                                  )}
-                                </Button>
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  variant="danger"
-                                  disabled={isBulkCommentActionPending}
-                                  onClick={() => {
-                                    setPendingBulkCommentDeleteIDs(selectedCommentIDs);
-                                  }}
-                                >
-                                  {isBulkCommentDeleting ? (
-                                    <span className="d-inline-flex align-items-center gap-2">
-                                      <Spinner
-                                        as="span"
-                                        animation="border"
-                                        size="sm"
-                                        className="me-2 flex-shrink-0 admin-action-spinner"
-                                        aria-hidden="true"
-                                      />
-                                      <span>
-                                        {t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}
-                                      </span>
-                                    </span>
-                                  ) : (
-                                    <>
-                                      <FontAwesomeIcon icon="trash" className="me-2" />
-                                      {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
-                                    </>
-                                  )}
-                                </Button>
-                              </div>
-                            ) : null}
-                          </div>
-                        ) : null}
-                        {renderAsyncSectionContent({
-                          isLoading: isCommentsLoading,
-                          loadingLabel: t('adminAccount.comments.loading', { ns: 'admin-account' }),
-                          isEmpty: totalComments === 0,
-                          emptyMessage: t('adminAccount.comments.empty', { ns: 'admin-account' }),
-                          children: (
-                            <div className="d-grid gap-3">
-                              {comments.map(item => {
-                                const isActionPending = commentActionID === item.id;
-                                const isDeletePending = deletingCommentID === item.id;
-                                const isApprovePending = isActionPending && commentActionStatus === 'APPROVED';
-                                const isRejectPending = isActionPending && commentActionStatus === 'REJECTED';
-                                const isSpamPending = isActionPending && commentActionStatus === 'SPAM';
-                                const statusLabel = t(
-                                  `adminAccount.comments.filters.statuses.${item.status.toLowerCase()}`,
-                                  { ns: 'admin-account' },
-                                );
-                                const postHref = buildAdminContentPostDetailRoute(locale, item.postId);
-
-                                return (
-                                  <div
-                                    key={item.id}
-                                    className={`admin-newsletter-campaign-card admin-comments-card admin-comments-card--${item.status.toLowerCase()}`}
-                                  >
-                                    <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap">
-                                      <div className="d-flex align-items-start gap-3 flex-grow-1">
-                                        <Form.Check
-                                          type="checkbox"
-                                          className="mt-1"
-                                          aria-label={item.authorName}
-                                          checked={selectedCommentIDs.includes(item.id)}
-                                          disabled={isActionPending || isDeletePending || isBulkCommentActionPending}
-                                          onChange={event => {
-                                            toggleCommentSelection(item.id, event.currentTarget.checked);
-                                          }}
-                                        />
-                                        <div className="d-grid gap-2">
-                                          <div className="d-flex align-items-center gap-2 flex-wrap">
-                                            <strong className="text-break">{item.authorName}</strong>
-                                            <span
-                                              className={`badge text-bg-${resolveCommentStatusVariant(item.status)}`}
-                                            >
-                                              {statusLabel}
-                                            </span>
-                                            <span className="badge text-bg-light">
-                                              {item.parentId
-                                                ? t('adminAccount.comments.list.replyLabel', { ns: 'admin-account' })
-                                                : t('adminAccount.comments.list.rootLabel', { ns: 'admin-account' })}
-                                            </span>
-                                          </div>
-                                          <div className="small text-muted d-flex align-items-center gap-2 flex-wrap">
-                                            <span className="d-inline-flex align-items-center gap-2">
-                                              <FontAwesomeIcon icon="envelope" className="text-muted" />
-                                              <span>{item.authorEmail}</span>
-                                            </span>
-                                            <span className="d-inline-flex align-items-center gap-2">
-                                              <FontAwesomeIcon icon="calendar-alt" className="text-muted" />
-                                              <span>
-                                                {t('adminAccount.comments.list.submittedAt', {
-                                                  ns: 'admin-account',
-                                                  value: formatSessionDate(item.createdAt),
-                                                })}
-                                              </span>
-                                            </span>
-                                            {item.updatedAt && item.updatedAt !== item.createdAt ? (
-                                              <span className="d-inline-flex align-items-center gap-2">
-                                                <FontAwesomeIcon icon="clock" className="text-muted" />
-                                                <span>
-                                                  {t('adminAccount.comments.list.updatedAt', {
-                                                    ns: 'admin-account',
-                                                    value: formatSessionDate(item.updatedAt),
-                                                  })}
-                                                </span>
-                                              </span>
-                                            ) : null}
-                                          </div>
-                                        </div>
-                                      </div>
-
-                                      <Link
-                                        href={postHref}
-                                        className="btn btn-success btn-sm d-inline-flex align-items-center admin-newsletter-action admin-newsletter-action--external"
-                                      >
-                                        <FontAwesomeIcon icon="up-right-from-square" className="me-2" />
-                                        {t('adminAccount.comments.actions.openPost', { ns: 'admin-account' })}
-                                      </Link>
-                                    </div>
-
-                                    <div className="small text-muted mt-3 d-inline-flex align-items-center gap-2 flex-wrap">
-                                      <FontAwesomeIcon icon="book" className="text-muted" />
-                                      <span>
-                                        {t('adminAccount.comments.list.post', {
-                                          ns: 'admin-account',
-                                          title: item.postTitle || item.postId,
-                                        })}
-                                      </span>
-                                    </div>
-                                    <p className="mb-0 mt-2 text-break">{item.content}</p>
-
-                                    <div className="row g-2 mt-3">
-                                      <div className="col-12 col-md-auto">
-                                        <Button
-                                          type="button"
-                                          size="sm"
-                                          variant="success"
-                                          className="w-100"
-                                          disabled={
-                                            isActionPending ||
-                                            isDeletePending ||
-                                            isBulkCommentActionPending ||
-                                            item.status === 'APPROVED'
-                                          }
-                                          onClick={() => {
-                                            void handleCommentStatusUpdate(item.id, 'APPROVED');
-                                          }}
-                                        >
-                                          {isApprovePending ? (
-                                            <span className="d-inline-flex align-items-center gap-2">
-                                              <Spinner
-                                                as="span"
-                                                animation="border"
-                                                size="sm"
-                                                className="me-2 flex-shrink-0 admin-action-spinner"
-                                                aria-hidden="true"
-                                              />
-                                              <span>
-                                                {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
-                                              </span>
-                                            </span>
-                                          ) : (
-                                            <>
-                                              <FontAwesomeIcon icon="check" className="me-2" />
-                                              {t('adminAccount.comments.actions.approve', { ns: 'admin-account' })}
-                                            </>
-                                          )}
-                                        </Button>
-                                      </div>
-                                      <div className="col-12 col-md-auto">
-                                        <Button
-                                          type="button"
-                                          size="sm"
-                                          variant="secondary"
-                                          className="w-100 admin-newsletter-action admin-newsletter-action--secondary"
-                                          disabled={
-                                            isActionPending ||
-                                            isDeletePending ||
-                                            isBulkCommentActionPending ||
-                                            item.status === 'REJECTED'
-                                          }
-                                          onClick={() => {
-                                            void handleCommentStatusUpdate(item.id, 'REJECTED');
-                                          }}
-                                        >
-                                          {isRejectPending ? null : (
-                                            <FontAwesomeIcon icon="times-circle" className="me-2" />
-                                          )}
-                                          {isRejectPending ? (
-                                            <span className="d-inline-flex align-items-center gap-2">
-                                              <Spinner
-                                                as="span"
-                                                animation="border"
-                                                size="sm"
-                                                className="me-2 flex-shrink-0 admin-action-spinner"
-                                                aria-hidden="true"
-                                              />
-                                              <span>
-                                                {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
-                                              </span>
-                                            </span>
-                                          ) : (
-                                            t('adminAccount.comments.actions.reject', { ns: 'admin-account' })
-                                          )}
-                                        </Button>
-                                      </div>
-                                      <div className="col-12 col-md-auto">
-                                        <Button
-                                          type="button"
-                                          size="sm"
-                                          variant="danger"
-                                          className="w-100 admin-newsletter-action admin-newsletter-action--danger"
-                                          disabled={
-                                            isActionPending ||
-                                            isDeletePending ||
-                                            isBulkCommentActionPending ||
-                                            item.status === 'SPAM'
-                                          }
-                                          onClick={() => {
-                                            void handleCommentStatusUpdate(item.id, 'SPAM');
-                                          }}
-                                        >
-                                          {isSpamPending ? null : (
-                                            <FontAwesomeIcon icon="shield-halved" className="me-2" />
-                                          )}
-                                          {isSpamPending ? (
-                                            <span className="d-inline-flex align-items-center gap-2">
-                                              <Spinner
-                                                as="span"
-                                                animation="border"
-                                                size="sm"
-                                                className="me-2 flex-shrink-0 admin-action-spinner"
-                                                aria-hidden="true"
-                                              />
-                                              <span>
-                                                {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
-                                              </span>
-                                            </span>
-                                          ) : (
-                                            t('adminAccount.comments.actions.spam', { ns: 'admin-account' })
-                                          )}
-                                        </Button>
-                                      </div>
-                                      <div className="col-12 col-md-auto">
-                                        <Button
-                                          type="button"
-                                          size="sm"
-                                          variant="danger"
-                                          className="w-100"
-                                          disabled={isActionPending || isDeletePending || isBulkCommentActionPending}
-                                          onClick={() => {
-                                            setPendingCommentDelete(item);
-                                          }}
-                                        >
-                                          {isDeletePending ? (
-                                            <span className="d-inline-flex align-items-center gap-2">
-                                              <Spinner
-                                                as="span"
-                                                animation="border"
-                                                size="sm"
-                                                className="me-2 flex-shrink-0 admin-action-spinner"
-                                                aria-hidden="true"
-                                              />
-                                              <span>
-                                                {t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}
-                                              </span>
-                                            </span>
-                                          ) : (
-                                            <>
-                                              <FontAwesomeIcon icon="trash" className="me-2" />
-                                              {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
-                                            </>
-                                          )}
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          ),
-                        })}
-                      </div>
-                      {!isCommentsLoading && totalComments > 0 ? (
-                        <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
-                          <PaginationBar
-                            currentPage={commentsPage}
-                            totalPages={totalCommentPages}
-                            totalResults={totalComments}
-                            size={commentsPageSize}
-                            onPageChange={page => {
-                              setCommentsPage(page);
-                              scrollToCommentsListStart();
-                            }}
-                            onSizeChange={size => {
-                              setCommentsPageSize(size);
-                              setCommentsPage(1);
-                              scrollToCommentsListStart();
-                            }}
-                          />
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-
-                  <Modal
-                    show={pendingBulkCommentDeleteIDs.length > 0}
-                    onHide={() => {
-                      if (isBulkCommentDeleting) {
-                        return;
-                      }
-                      setPendingBulkCommentDeleteIDs([]);
-                    }}
-                    centered
-                  >
-                    <Modal.Header closeButton>
-                      <Modal.Title>
-                        {t('adminAccount.comments.bulk.deleteConfirmTitle', { ns: 'admin-account' })}
-                      </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                      <p className="small text-muted mb-0">
-                        {t('adminAccount.comments.bulk.deleteConfirmCopy', {
-                          ns: 'admin-account',
-                          count: pendingBulkCommentDeleteIDs.length,
-                        })}
-                      </p>
-                    </Modal.Body>
-                    <Modal.Footer>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        disabled={isBulkCommentDeleting}
-                        onClick={() => {
-                          setPendingBulkCommentDeleteIDs([]);
-                        }}
-                      >
-                        {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="danger"
-                        disabled={pendingBulkCommentDeleteIDs.length === 0 || isBulkCommentDeleting}
-                        onClick={() => {
-                          void handleBulkDeleteCommentSubmit();
-                        }}
-                      >
-                        {isBulkCommentDeleting ? (
-                          <span className="d-inline-flex align-items-center gap-2">
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              className="me-2 flex-shrink-0 admin-action-spinner"
-                              aria-hidden="true"
-                            />
-                            <span>{t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}</span>
-                          </span>
-                        ) : (
-                          <>
-                            <FontAwesomeIcon icon="trash" className="me-2" />
-                            {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
-                          </>
-                        )}
-                      </Button>
-                    </Modal.Footer>
-                  </Modal>
-
-                  <Modal
-                    show={pendingCommentDelete !== null}
-                    onHide={() => {
-                      if (deletingCommentID) {
-                        return;
-                      }
-                      setPendingCommentDelete(null);
-                    }}
-                    centered
-                  >
-                    <Modal.Header closeButton>
-                      <Modal.Title>
-                        {t('adminAccount.comments.deleteConfirm.title', { ns: 'admin-account' })}
-                      </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                      <p className="small text-muted mb-3">
-                        {t('adminAccount.comments.deleteConfirm.copy', {
-                          ns: 'admin-account',
-                          author: pendingCommentDelete?.authorName ?? '',
-                        })}
-                      </p>
-                      <dl className="row mb-0 small">
-                        <dt className="col-4 text-uppercase text-muted">
-                          {t('adminAccount.comments.deleteConfirm.labels.author', { ns: 'admin-account' })}
-                        </dt>
-                        <dd className="col-8 mb-2">{pendingCommentDelete?.authorName ?? '-'}</dd>
-                        <dt className="col-4 text-uppercase text-muted">
-                          {t('adminAccount.comments.deleteConfirm.labels.email', { ns: 'admin-account' })}
-                        </dt>
-                        <dd className="col-8 mb-2 text-break">{pendingCommentDelete?.authorEmail ?? '-'}</dd>
-                        <dt className="col-4 text-uppercase text-muted">
-                          {t('adminAccount.comments.deleteConfirm.labels.post', { ns: 'admin-account' })}
-                        </dt>
-                        <dd className="col-8 mb-0 text-break">
-                          {pendingCommentDelete?.postTitle || pendingCommentDelete?.postId || '-'}
-                        </dd>
-                      </dl>
-                    </Modal.Body>
-                    <Modal.Footer>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        disabled={deletingCommentID !== ''}
-                        onClick={() => {
-                          setPendingCommentDelete(null);
-                        }}
-                      >
-                        {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="danger"
-                        disabled={pendingCommentDelete === null || deletingCommentID !== ''}
-                        onClick={() => {
-                          void handleDeleteCommentSubmit();
-                        }}
-                      >
-                        {deletingCommentID ? (
-                          <span className="d-inline-flex align-items-center gap-2">
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              className="me-2 flex-shrink-0 admin-action-spinner"
-                              aria-hidden="true"
-                            />
-                            <span>{t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}</span>
-                          </span>
-                        ) : (
-                          <>
-                            <FontAwesomeIcon icon="trash" className="me-2" />
-                            {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
-                          </>
-                        )}
-                      </Button>
-                    </Modal.Footer>
-                  </Modal>
-                </>
+                <AdminAccountCommentsSection
+                  t={t}
+                  locale={locale}
+                  formatSessionDate={formatSessionDate}
+                  commentsErrorMessage={commentsSection.commentsErrorMessage}
+                  commentsSuccessMessage={commentsSection.commentsSuccessMessage}
+                  commentsListTopRef={commentsSection.commentsListTopRef}
+                  commentFilterStatus={commentsSection.commentFilterStatus}
+                  onCommentFilterStatusChange={commentsSection.onCommentFilterStatusChange}
+                  commentFilterQuery={commentsSection.commentFilterQuery}
+                  onCommentFilterQueryChange={commentsSection.onCommentFilterQueryChange}
+                  onClearCommentFilterQuery={commentsSection.onClearCommentFilterQuery}
+                  comments={commentsSection.comments}
+                  isCommentsLoading={commentsSection.isCommentsLoading}
+                  totalComments={commentsSection.totalComments}
+                  renderAsyncSectionContent={renderAsyncSectionContent}
+                  allVisibleCommentsSelected={commentsSection.allVisibleCommentsSelected}
+                  hasSelectedComments={commentsSection.hasSelectedComments}
+                  selectedCommentCount={commentsSection.selectedCommentCount}
+                  isBulkCommentActionPending={commentsSection.isBulkCommentActionPending}
+                  bulkCommentActionStatus={commentsSection.bulkCommentActionStatus}
+                  isBulkCommentDeleting={commentsSection.isBulkCommentDeleting}
+                  onToggleVisibleCommentsSelection={commentsSection.onToggleVisibleCommentsSelection}
+                  onClearSelectedComments={commentsSection.onClearSelectedComments}
+                  onBulkCommentStatusUpdate={commentsSection.onBulkCommentStatusUpdate}
+                  onOpenBulkCommentDelete={commentsSection.onOpenBulkCommentDelete}
+                  selectedCommentIDs={commentsSection.selectedCommentIDs}
+                  onToggleCommentSelection={commentsSection.onToggleCommentSelection}
+                  resolveCommentStatusVariant={commentsSection.resolveCommentStatusVariant}
+                  commentActionID={commentsSection.commentActionID}
+                  commentActionStatus={commentsSection.commentActionStatus}
+                  deletingCommentID={commentsSection.deletingCommentID}
+                  onCommentStatusUpdate={commentsSection.onCommentStatusUpdate}
+                  onOpenCommentDelete={commentsSection.onOpenCommentDelete}
+                  commentsPage={commentsSection.commentsPage}
+                  totalCommentPages={commentsSection.totalCommentPages}
+                  commentsPageSize={commentsSection.commentsPageSize}
+                  onCommentsPageChange={commentsSection.onCommentsPageChange}
+                  onCommentsPageSizeChange={commentsSection.onCommentsPageSizeChange}
+                  pendingBulkCommentDeleteCount={commentsSection.pendingBulkCommentDeleteCount}
+                  onCloseBulkCommentDelete={commentsSection.onCloseBulkCommentDelete}
+                  onConfirmBulkCommentDelete={commentsSection.onConfirmBulkCommentDelete}
+                  pendingCommentDelete={commentsSection.pendingCommentDelete}
+                  onCloseCommentDelete={commentsSection.onCloseCommentDelete}
+                  onConfirmCommentDelete={commentsSection.onConfirmCommentDelete}
+                />
               ) : null}
 
               {isErrorsSection ? (
-                <>
-                  <h3 className="admin-dashboard-panel-title mb-3">
-                    {t('adminAccount.errorsCatalog.title', { ns: 'admin-account' })}
-                  </h3>
-                  <hr className="admin-section-divider mb-3" />
-                  <p className="admin-dashboard-panel-copy mb-3">
-                    {t('adminAccount.errorsCatalog.copy', { ns: 'admin-account' })}
-                  </p>
-
-                  <div className="d-flex justify-content-end mb-3">
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      className="d-inline-flex align-items-center"
-                      disabled={isErrorMessagesLoading || isErrorCreateSubmitting}
-                      onClick={() => {
-                        setErrorCrudTab('create');
-                        setErrorMessagesErrorMessage('');
-                        setErrorMessagesSuccessMessage('');
-                        setIsErrorEditorModalOpen(true);
-                      }}
-                    >
-                      <FontAwesomeIcon icon="plus" className="me-2" />
-                      {t('adminAccount.errorsCatalog.actions.create', { ns: 'admin-account' })}
-                    </Button>
-                  </div>
-
-                  {errorMessagesErrorMessage ? (
-                    <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
-                      {errorMessagesErrorMessage}
-                    </Alert>
-                  ) : null}
-                  {errorMessagesSuccessMessage ? (
-                    <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
-                      {errorMessagesSuccessMessage}
-                    </Alert>
-                  ) : null}
-
-                  <div className="d-grid gap-3">
-                    <div ref={errorMessagesListTopRef} />
-                    <div className="card shadow-sm d-block">
-                      <div className="card-body p-3 w-100">
-                        <div className="row g-3">
-                          <div className="col-12 col-md-4">
-                            <Form.Group controlId="admin-error-filter-locale">
-                              <Form.Label className="small fw-semibold mb-1">
-                                {t('adminAccount.errorsCatalog.filters.locale', { ns: 'admin-account' })}
-                              </Form.Label>
-                              <Form.Select
-                                value={errorFilterLocale}
-                                onChange={event => {
-                                  setErrorFilterLocale(event.currentTarget.value as 'all' | 'en' | 'tr');
-                                  setErrorMessagesErrorMessage('');
-                                  setErrorMessagesSuccessMessage('');
-                                }}
-                              >
-                                <option value="all">
-                                  {t('adminAccount.errorsCatalog.filters.locales.all', { ns: 'admin-account' })}
-                                </option>
-                                <option value="en">
-                                  {t('adminAccount.errorsCatalog.filters.locales.en', { ns: 'admin-account' })}
-                                </option>
-                                <option value="tr">
-                                  {t('adminAccount.errorsCatalog.filters.locales.tr', { ns: 'admin-account' })}
-                                </option>
-                              </Form.Select>
-                            </Form.Group>
-                          </div>
-                          <div className="col-12 col-md-8">
-                            <Form.Group controlId="admin-error-filter-query">
-                              <Form.Label className="small fw-semibold mb-1">
-                                {t('adminAccount.errorsCatalog.filters.query', { ns: 'admin-account' })}
-                              </Form.Label>
-                              <div className="search-bar w-100 d-flex align-items-center">
-                                <div className="search-icon">
-                                  <FontAwesomeIcon icon="search" />
-                                </div>
-                                <Form.Control
-                                  type="text"
-                                  className="search-input form-control"
-                                  value={errorFilterQuery}
-                                  onChange={event => {
-                                    setErrorFilterQuery(event.currentTarget.value);
-                                    setErrorMessagesErrorMessage('');
-                                  }}
-                                  placeholder={t('adminAccount.errorsCatalog.filters.queryPlaceholder', {
-                                    ns: 'admin-account',
-                                  })}
-                                />
-                                {errorFilterQuery ? (
-                                  <button
-                                    type="button"
-                                    className="search-clear-btn border-0 bg-transparent"
-                                    onClick={() => {
-                                      setErrorFilterQuery('');
-                                      setErrorMessagesErrorMessage('');
-                                    }}
-                                    aria-label={t('adminAccount.errorsCatalog.filters.query', { ns: 'admin-account' })}
-                                  >
-                                    <FontAwesomeIcon icon="times-circle" className="clear-icon" />
-                                  </button>
-                                ) : null}
-                              </div>
-                            </Form.Group>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="card shadow-sm d-block">
-                      <div className="card-body p-3 w-100">
-                        {isErrorMessagesLoading ? (
-                          <div className="admin-account-sessions-loading">
-                            <AdminLoadingState
-                              className="admin-loading-stack"
-                              ariaLabel={t('adminAccount.errorsCatalog.loading', { ns: 'admin-account' })}
-                            />
-                          </div>
-                        ) : totalErrorMessages === 0 ? (
-                          <p className="small text-muted mb-0">
-                            {t('adminAccount.errorsCatalog.empty', { ns: 'admin-account' })}
-                          </p>
-                        ) : (
-                          <>
-                            <div className="d-grid gap-2">
-                              {errorMessages.map(item => {
-                                const itemKey = toAdminErrorMessageKey(item);
-                                const previewMessage = item.message;
-                                const isDeletingCurrentItem =
-                                  isErrorDeleteSubmitting && deletingErrorMessageKey === itemKey;
-
-                                return (
-                                  <div key={itemKey} className="border rounded-3 p-3">
-                                    <button
-                                      type="button"
-                                      className="border-0 bg-transparent p-0 text-start text-reset text-decoration-none w-100"
-                                      onClick={() => {
-                                        handleSelectErrorMessage(item);
-                                      }}
-                                    >
-                                      <div className="fw-bold fs-5 text-break">{item.code}</div>
-                                      <div className="mt-2 d-flex align-items-center flex-wrap gap-2">
-                                        <span className="d-inline-flex align-items-center gap-2 text-muted">
-                                          {item.locale.toLowerCase() === 'en' || item.locale.toLowerCase() === 'tr' ? (
-                                            <FlagIcon
-                                              className="flex-shrink-0"
-                                              code={item.locale.toLowerCase()}
-                                              alt={`${LOCALES[item.locale.toLowerCase() as 'en' | 'tr'].name} flag`}
-                                              width={18}
-                                              height={18}
-                                            />
-                                          ) : (
-                                            <FontAwesomeIcon icon="globe" className="text-muted" />
-                                          )}
-                                          <span>
-                                            {item.locale.toLowerCase() === 'en'
-                                              ? LOCALES.en.name
-                                              : item.locale.toLowerCase() === 'tr'
-                                                ? LOCALES.tr.name
-                                                : item.locale.toUpperCase()}
-                                          </span>
-                                        </span>
-                                      </div>
-                                      <div className="small mt-2 text-break text-muted">{previewMessage}</div>
-                                      {item.updatedAt ? (
-                                        <div className="small mt-2 text-muted d-flex align-items-center flex-wrap">
-                                          <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-                                          {t('adminAccount.errorsCatalog.list.updatedAt', {
-                                            ns: 'admin-account',
-                                            value: formatSessionDate(item.updatedAt),
-                                          })}
-                                        </div>
-                                      ) : null}
-                                    </button>
-
-                                    <div className="row g-2 mt-3">
-                                      <div className="col-12 col-md-auto">
-                                        <Button
-                                          type="button"
-                                          size="sm"
-                                          variant="primary"
-                                          className="w-100"
-                                          onClick={() => {
-                                            handleSelectErrorMessage(item);
-                                            setErrorCrudTab('update');
-                                            setIsErrorEditorModalOpen(true);
-                                          }}
-                                        >
-                                          <FontAwesomeIcon icon="save" className="me-2" />
-                                          {t('adminAccount.errorsCatalog.actions.update', { ns: 'admin-account' })}
-                                        </Button>
-                                      </div>
-                                      <div className="col-12 col-md-auto">
-                                        <Button
-                                          type="button"
-                                          size="sm"
-                                          variant="danger"
-                                          className="w-100"
-                                          disabled={isErrorDeleteSubmitting || isErrorUpdateSubmitting}
-                                          onClick={() => {
-                                            handleSelectErrorMessage(item);
-                                            openDeleteErrorMessageConfirm(item);
-                                          }}
-                                        >
-                                          {!isDeletingCurrentItem ? (
-                                            <FontAwesomeIcon icon="trash" className="me-2" />
-                                          ) : null}
-                                          {isDeletingCurrentItem ? (
-                                            <span className="d-inline-flex align-items-center gap-2">
-                                              <Spinner
-                                                as="span"
-                                                animation="border"
-                                                size="sm"
-                                                className="me-2 flex-shrink-0 admin-action-spinner"
-                                                aria-hidden="true"
-                                              />
-                                              <span>
-                                                {t('adminAccount.errorsCatalog.actions.deleting', {
-                                                  ns: 'admin-account',
-                                                })}
-                                              </span>
-                                            </span>
-                                          ) : (
-                                            t('adminAccount.errorsCatalog.actions.delete', { ns: 'admin-account' })
-                                          )}
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </>
-                        )}
-                      </div>
-                      {!isErrorMessagesLoading && totalErrorMessages > 0 ? (
-                        <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
-                          <PaginationBar
-                            currentPage={errorMessagesPage}
-                            totalPages={totalErrorMessagePages}
-                            totalResults={totalErrorMessages}
-                            size={errorMessagesPageSize}
-                            onPageChange={page => {
-                              setErrorMessagesPage(page);
-                              scrollToErrorMessagesListStart();
-                            }}
-                            onSizeChange={size => {
-                              setErrorMessagesPageSize(size);
-                              setErrorMessagesPage(1);
-                              scrollToErrorMessagesListStart();
-                            }}
-                          />
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-
-                  <Modal
-                    show={isErrorEditorModalOpen}
-                    onHide={() => {
-                      if (isErrorCreateSubmitting || isErrorUpdateSubmitting || isErrorDeleteSubmitting) {
-                        return;
-                      }
-                      setIsErrorEditorModalOpen(false);
-                    }}
-                    centered
-                    dialogClassName="admin-error-editor-modal"
-                  >
-                    <Modal.Header closeButton>
-                      <Modal.Title>
-                        {errorCrudTab === 'create'
-                          ? t('adminAccount.errorsCatalog.tabs.create', { ns: 'admin-account' })
-                          : t('adminAccount.errorsCatalog.tabs.update', { ns: 'admin-account' })}
-                      </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                      {errorCrudTab === 'create' ? (
-                        <>
-                          <p className="small text-muted mb-3">
-                            {t('adminAccount.errorsCatalog.create.copy', { ns: 'admin-account' })}
-                          </p>
-                          <div className="row g-2 mb-3">
-                            <div className="col-12 col-sm-4">
-                              <Form.Group controlId="admin-error-create-locale">
-                                <Form.Label className="small fw-semibold mb-1">
-                                  {t('adminAccount.errorsCatalog.create.locale', { ns: 'admin-account' })}
-                                </Form.Label>
-                                <Form.Select
-                                  value={errorCreateLocale}
-                                  onChange={event => {
-                                    setErrorCreateLocale(event.currentTarget.value as 'en' | 'tr');
-                                    setErrorMessagesErrorMessage('');
-                                    setErrorMessagesSuccessMessage('');
-                                  }}
-                                >
-                                  <option value="en">
-                                    {t('adminAccount.errorsCatalog.filters.locales.en', { ns: 'admin-account' })}
-                                  </option>
-                                  <option value="tr">
-                                    {t('adminAccount.errorsCatalog.filters.locales.tr', { ns: 'admin-account' })}
-                                  </option>
-                                </Form.Select>
-                              </Form.Group>
-                            </div>
-                            <div className="col-12 col-sm-8">
-                              <Form.Group controlId="admin-error-create-code">
-                                <Form.Label className="small fw-semibold mb-1">
-                                  {t('adminAccount.errorsCatalog.create.code', { ns: 'admin-account' })}
-                                </Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  value={errorCreateCode}
-                                  placeholder={t('adminAccount.errorsCatalog.create.codePlaceholder', {
-                                    ns: 'admin-account',
-                                  })}
-                                  onChange={event => {
-                                    setErrorCreateCode(event.currentTarget.value);
-                                    setErrorMessagesErrorMessage('');
-                                    setErrorMessagesSuccessMessage('');
-                                  }}
-                                  autoCapitalize="characters"
-                                  maxLength={120}
-                                />
-                                {normalizedErrorCreateCode !== '' && !isErrorCreateCodeValid ? (
-                                  <Form.Text className="text-danger">
-                                    {t('adminAccount.errorsCatalog.create.codeValidation', { ns: 'admin-account' })}
-                                  </Form.Text>
-                                ) : null}
-                              </Form.Group>
-                            </div>
-                          </div>
-
-                          <Form.Group controlId="admin-error-create-message">
-                            <Form.Label>
-                              {t('adminAccount.errorsCatalog.create.message', { ns: 'admin-account' })}
-                            </Form.Label>
-                            <Form.Control
-                              as="textarea"
-                              rows={5}
-                              value={errorCreateMessage}
-                              onChange={event => {
-                                setErrorCreateMessage(event.currentTarget.value);
-                                setErrorMessagesErrorMessage('');
-                                setErrorMessagesSuccessMessage('');
-                              }}
-                              maxLength={500}
-                            />
-                            <Form.Text className="text-muted">
-                              {t('adminAccount.errorsCatalog.create.messageHint', { ns: 'admin-account', count: 500 })}
-                            </Form.Text>
-                          </Form.Group>
-                        </>
-                      ) : selectedErrorMessage ? (
-                        <>
-                          <p className="small text-muted mb-3">
-                            {t('adminAccount.errorsCatalog.update.copy', { ns: 'admin-account' })}
-                          </p>
-                          <dl className="row mb-3 small">
-                            <dt className="col-4 text-uppercase text-muted">
-                              {t('adminAccount.errorsCatalog.update.labels.code', { ns: 'admin-account' })}
-                            </dt>
-                            <dd className="col-8 mb-2">{selectedErrorMessage.code}</dd>
-                            <dt className="col-4 text-uppercase text-muted">
-                              {t('adminAccount.errorsCatalog.update.labels.scope', { ns: 'admin-account' })}
-                            </dt>
-                            <dd className="col-8 mb-2">{selectedErrorMessage.scope}</dd>
-                            <dt className="col-4 text-uppercase text-muted">
-                              {t('adminAccount.errorsCatalog.update.labels.locale', { ns: 'admin-account' })}
-                            </dt>
-                            <dd className="col-8 mb-2">{selectedErrorMessage.locale}</dd>
-                          </dl>
-
-                          <Form.Group controlId="admin-error-update-message">
-                            <Form.Label>
-                              {t('adminAccount.errorsCatalog.update.message', { ns: 'admin-account' })}
-                            </Form.Label>
-                            <Form.Control
-                              as="textarea"
-                              rows={5}
-                              value={errorUpdateMessage}
-                              onChange={event => {
-                                setErrorUpdateMessage(event.currentTarget.value);
-                                setErrorMessagesErrorMessage('');
-                                setErrorMessagesSuccessMessage('');
-                              }}
-                              maxLength={500}
-                            />
-                            <Form.Text className="text-muted">
-                              {t('adminAccount.errorsCatalog.update.messageHint', { ns: 'admin-account', count: 500 })}
-                            </Form.Text>
-                          </Form.Group>
-                        </>
-                      ) : (
-                        <p className="small text-muted mb-0">
-                          {t('adminAccount.errorsCatalog.update.empty', { ns: 'admin-account' })}
-                        </p>
-                      )}
-                    </Modal.Body>
-                    <Modal.Footer className="justify-content-between">
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => {
-                          setIsErrorEditorModalOpen(false);
-                        }}
-                        disabled={isErrorCreateSubmitting || isErrorUpdateSubmitting || isErrorDeleteSubmitting}
-                      >
-                        {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-                      </Button>
-
-                      <div className="d-flex flex-wrap gap-2">
-                        <Button
-                          type="button"
-                          variant="primary"
-                          disabled={errorCrudTab === 'create' ? !canCreateErrorMessage : !canUpdateErrorMessage}
-                          onClick={() => {
-                            if (errorCrudTab === 'create') {
-                              void handleCreateErrorMessageSubmit();
-                              return;
-                            }
-                            void handleUpdateErrorMessageSubmit();
-                          }}
-                        >
-                          {errorCrudTab === 'create' ? (
-                            isErrorCreateSubmitting ? (
-                              <span className="d-inline-flex align-items-center gap-2">
-                                <Spinner
-                                  as="span"
-                                  animation="border"
-                                  size="sm"
-                                  className="me-2 flex-shrink-0 admin-action-spinner"
-                                  aria-hidden="true"
-                                />
-                                <span>{t('adminAccount.errorsCatalog.actions.creating', { ns: 'admin-account' })}</span>
-                              </span>
-                            ) : (
-                              <>
-                                <FontAwesomeIcon icon="plus" className="me-2" />
-                                {t('adminAccount.errorsCatalog.actions.create', { ns: 'admin-account' })}
-                              </>
-                            )
-                          ) : isErrorUpdateSubmitting ? (
-                            <span className="d-inline-flex align-items-center gap-2">
-                              <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                className="me-2 flex-shrink-0 admin-action-spinner"
-                                aria-hidden="true"
-                              />
-                              <span>{t('adminAccount.errorsCatalog.actions.updating', { ns: 'admin-account' })}</span>
-                            </span>
-                          ) : (
-                            <>
-                              <FontAwesomeIcon icon="save" className="me-2" />
-                              {t('adminAccount.errorsCatalog.actions.update', { ns: 'admin-account' })}
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </Modal.Footer>
-                  </Modal>
-
-                  <Modal
-                    show={pendingErrorMessageDelete !== null}
-                    onHide={() => {
-                      if (isErrorDeleteSubmitting) {
-                        return;
-                      }
-                      setPendingErrorMessageDelete(null);
-                    }}
-                    centered
-                    dialogClassName="admin-error-editor-modal"
-                  >
-                    <Modal.Header closeButton>
-                      <Modal.Title>
-                        {t('adminAccount.errorsCatalog.actions.delete', { ns: 'admin-account' })}
-                      </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                      <p className="small text-muted mb-3">
-                        {t('adminAccount.errorsCatalog.actions.confirmDelete', {
-                          ns: 'admin-account',
-                          code: pendingErrorMessageDelete?.code ?? '',
-                          locale: pendingErrorMessageDelete?.locale ?? '',
-                        })}
-                      </p>
-                      <dl className="row mb-0 small">
-                        <dt className="col-4 text-uppercase text-muted">
-                          {t('adminAccount.errorsCatalog.update.labels.code', { ns: 'admin-account' })}
-                        </dt>
-                        <dd className="col-8 mb-2">{pendingErrorMessageDelete?.code ?? '-'}</dd>
-                        <dt className="col-4 text-uppercase text-muted">
-                          {t('adminAccount.errorsCatalog.update.labels.scope', { ns: 'admin-account' })}
-                        </dt>
-                        <dd className="col-8 mb-2">{pendingErrorMessageDelete?.scope ?? '-'}</dd>
-                        <dt className="col-4 text-uppercase text-muted">
-                          {t('adminAccount.errorsCatalog.update.labels.locale', { ns: 'admin-account' })}
-                        </dt>
-                        <dd className="col-8 mb-0">{pendingErrorMessageDelete?.locale ?? '-'}</dd>
-                      </dl>
-                    </Modal.Body>
-                    <Modal.Footer>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        disabled={isErrorDeleteSubmitting}
-                        onClick={() => {
-                          setPendingErrorMessageDelete(null);
-                        }}
-                      >
-                        {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="danger"
-                        disabled={pendingErrorMessageDelete === null || isErrorDeleteSubmitting}
-                        onClick={() => {
-                          void handleDeleteErrorMessageSubmit();
-                        }}
-                      >
-                        {isErrorDeleteSubmitting ? (
-                          <span className="d-inline-flex align-items-center gap-2">
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              className="me-2 flex-shrink-0 admin-action-spinner"
-                              aria-hidden="true"
-                            />
-                            <span>{t('adminAccount.errorsCatalog.actions.deleting', { ns: 'admin-account' })}</span>
-                          </span>
-                        ) : (
-                          <>
-                            <FontAwesomeIcon icon="trash" className="me-2" />
-                            {t('adminAccount.errorsCatalog.actions.delete', { ns: 'admin-account' })}
-                          </>
-                        )}
-                      </Button>
-                    </Modal.Footer>
-                  </Modal>
-                </>
+                <AdminAccountErrorsSection
+                  t={t}
+                  formatSessionDate={formatSessionDate}
+                  errorMessagesErrorMessage={errorsSection.errorMessagesErrorMessage}
+                  errorMessagesSuccessMessage={errorsSection.errorMessagesSuccessMessage}
+                  isErrorMessagesLoading={errorsSection.isErrorMessagesLoading}
+                  isErrorCreateSubmitting={errorsSection.isErrorCreateSubmitting}
+                  isErrorUpdateSubmitting={errorsSection.isErrorUpdateSubmitting}
+                  isErrorDeleteSubmitting={errorsSection.isErrorDeleteSubmitting}
+                  onOpenCreateErrorMessage={errorsSection.onOpenCreateErrorMessage}
+                  errorMessagesListTopRef={errorsSection.errorMessagesListTopRef}
+                  errorFilterLocale={errorsSection.errorFilterLocale}
+                  onErrorFilterLocaleChange={errorsSection.onErrorFilterLocaleChange}
+                  errorFilterQuery={errorsSection.errorFilterQuery}
+                  onErrorFilterQueryChange={errorsSection.onErrorFilterQueryChange}
+                  onClearErrorFilterQuery={errorsSection.onClearErrorFilterQuery}
+                  totalErrorMessages={errorsSection.totalErrorMessages}
+                  errorMessages={errorsSection.errorMessages}
+                  deletingErrorMessageKey={errorsSection.deletingErrorMessageKey}
+                  getErrorMessageKey={errorsSection.getErrorMessageKey}
+                  onSelectErrorMessage={errorsSection.onSelectErrorMessage}
+                  onOpenUpdateErrorMessage={errorsSection.onOpenUpdateErrorMessage}
+                  onOpenDeleteErrorMessage={errorsSection.onOpenDeleteErrorMessage}
+                  errorMessagesPage={errorsSection.errorMessagesPage}
+                  totalErrorMessagePages={errorsSection.totalErrorMessagePages}
+                  errorMessagesPageSize={errorsSection.errorMessagesPageSize}
+                  onErrorMessagesPageChange={errorsSection.onErrorMessagesPageChange}
+                  onErrorMessagesPageSizeChange={errorsSection.onErrorMessagesPageSizeChange}
+                  isErrorEditorModalOpen={errorsSection.isErrorEditorModalOpen}
+                  onCloseErrorEditor={errorsSection.onCloseErrorEditor}
+                  errorCrudTab={errorsSection.errorCrudTab}
+                  selectedErrorMessage={errorsSection.selectedErrorMessage}
+                  errorCreateLocale={errorsSection.errorCreateLocale}
+                  onErrorCreateLocaleChange={errorsSection.onErrorCreateLocaleChange}
+                  errorCreateCode={errorsSection.errorCreateCode}
+                  onErrorCreateCodeChange={errorsSection.onErrorCreateCodeChange}
+                  normalizedErrorCreateCode={errorsSection.normalizedErrorCreateCode}
+                  isErrorCreateCodeValid={errorsSection.isErrorCreateCodeValid}
+                  errorCreateMessage={errorsSection.errorCreateMessage}
+                  onErrorCreateMessageChange={errorsSection.onErrorCreateMessageChange}
+                  errorUpdateMessage={errorsSection.errorUpdateMessage}
+                  onErrorUpdateMessageChange={errorsSection.onErrorUpdateMessageChange}
+                  canCreateErrorMessage={errorsSection.canCreateErrorMessage}
+                  canUpdateErrorMessage={errorsSection.canUpdateErrorMessage}
+                  onCreateErrorMessageSubmit={errorsSection.onCreateErrorMessageSubmit}
+                  onUpdateErrorMessageSubmit={errorsSection.onUpdateErrorMessageSubmit}
+                  pendingErrorMessageDelete={errorsSection.pendingErrorMessageDelete}
+                  onCloseDeleteErrorMessage={errorsSection.onCloseDeleteErrorMessage}
+                  onDeleteErrorMessageSubmit={errorsSection.onDeleteErrorMessageSubmit}
+                />
               ) : null}
 
               {isContentSection ? (
@@ -6579,491 +2937,66 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
               ) : null}
 
               {isSecuritySection ? (
-                <>
-                  <h3 className="admin-dashboard-panel-title mb-3">
-                    {t('adminAccount.connectedAccounts.title', { ns: 'admin-account' })}
-                  </h3>
-                  <hr className="admin-section-divider mb-3" />
-                  <p className="admin-dashboard-panel-copy">
-                    {t('adminAccount.connectedAccounts.copy', { ns: 'admin-account' })}
-                  </p>
-
-                  {securityErrorMessage ? (
-                    <Alert variant="danger" className="mb-4 px-4 py-3 lh-base">
-                      {securityErrorMessage}
-                    </Alert>
-                  ) : null}
-                  {securitySuccessMessage ? (
-                    <Alert variant="success" className="mb-4 px-4 py-3 lh-base">
-                      {securitySuccessMessage}
-                    </Alert>
-                  ) : null}
-                  {googleConnectMessage ? (
-                    <Alert variant={googleConnectMessageVariant} className="mb-4 px-4 py-3 lh-base">
-                      {googleConnectMessage}
-                    </Alert>
-                  ) : null}
-                  {githubConnectMessage ? (
-                    <Alert variant={githubConnectMessageVariant} className="mb-4 px-4 py-3 lh-base">
-                      {githubConnectMessage}
-                    </Alert>
-                  ) : null}
-                  {googleActionErrorMessage ? (
-                    <Alert variant="danger" className="mb-4 px-4 py-3 lh-base">
-                      {googleActionErrorMessage}
-                    </Alert>
-                  ) : null}
-                  {githubActionErrorMessage ? (
-                    <Alert variant="danger" className="mb-4 px-4 py-3 lh-base">
-                      {githubActionErrorMessage}
-                    </Alert>
-                  ) : null}
-
-                  <ListGroup className="rounded-4 overflow-hidden border shadow-sm">
-                    <ListGroup.Item className="px-4 py-4">
-                      <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
-                        <div className="d-flex align-items-start gap-3">
-                          <span className="fs-4 text-body-secondary">
-                            <FontAwesomeIcon icon="envelope" />
-                          </span>
-                          <div>
-                            <div className="fw-semibold mb-1">
-                              {t('adminAccount.account.email.title', { ns: 'admin-account' })}
-                            </div>
-                            <div className="text-body-secondary">{adminUser.pendingEmail ?? adminUser.email}</div>
-                            {adminUser.pendingEmail ? (
-                              <div className="small text-body-secondary mt-1">
-                                {t('adminAccount.account.email.pending.copy', {
-                                  ns: 'admin-account',
-                                  email: adminUser.pendingEmail,
-                                })}
-                              </div>
-                            ) : null}
-                          </div>
-                        </div>
-                        <div className="d-flex justify-content-lg-end">
-                          <Button
-                            variant="primary"
-                            onClick={() => router.push(`/${locale}${ADMIN_ROUTES.settings.email}`)}
-                          >
-                            {t('adminAccount.connectedAccounts.actions.manage', { ns: 'admin-account' })}
-                          </Button>
-                        </div>
-                      </div>
-                    </ListGroup.Item>
-
-                    <ListGroup.Item className="px-4 py-4">
-                      <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
-                        <div className="d-flex align-items-start gap-3">
-                          <span className="fs-4 text-body-secondary">
-                            <FontAwesomeIcon icon="lock" />
-                          </span>
-                          <div>
-                            <div className="fw-semibold mb-1">
-                              {t('adminCommon.actions.changePassword', { ns: 'admin-common' })}
-                            </div>
-                            <div className="text-body-secondary">
-                              {t('adminAccount.connectedAccounts.password.copy', { ns: 'admin-account' })}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="d-flex justify-content-lg-end">
-                          <Button
-                            variant="primary"
-                            onClick={() => setIsSecurityPasswordExpanded(previous => !previous)}
-                          >
-                            {isSecurityPasswordExpanded
-                              ? t('adminAccount.connectedAccounts.actions.hide', { ns: 'admin-account' })
-                              : t('adminAccount.connectedAccounts.password.action', { ns: 'admin-account' })}
-                          </Button>
-                        </div>
-                      </div>
-
-                      {isSecurityPasswordExpanded ? (
-                        <Form noValidate onSubmit={handleSecuritySubmit} className="mt-4 pt-4 border-top">
-                          <Form.Group className="mb-3" controlId="admin-account-current-password">
-                            <Form.Label>{t('adminAccount.form.currentPassword', { ns: 'admin-account' })}</Form.Label>
-                            <InputGroup>
-                              <Form.Control
-                                type={showCurrentPassword ? 'text' : 'password'}
-                                value={currentPassword}
-                                onChange={handleCurrentPasswordChange}
-                                placeholder={t('adminAccount.form.currentPasswordPlaceholder', { ns: 'admin-account' })}
-                                autoComplete="current-password"
-                                isInvalid={showCurrentPasswordError}
-                                required
-                                autoFocus
-                              />
-                              <Button
-                                variant="outline-secondary"
-                                type="button"
-                                onClick={() => setShowCurrentPassword(previous => !previous)}
-                                aria-label={
-                                  showCurrentPassword
-                                    ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
-                                    : t('adminAccount.form.showPassword', { ns: 'admin-account' })
-                                }
-                              >
-                                <FontAwesomeIcon icon={showCurrentPassword ? 'eye-slash' : 'eye'} />
-                              </Button>
-                            </InputGroup>
-                            <Form.Control.Feedback type="invalid" className={showCurrentPasswordError ? 'd-block' : ''}>
-                              {securityCurrentPasswordError}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-
-                          <Form.Group className="mb-3" controlId="admin-account-new-password">
-                            <Form.Label>{t('adminAccount.form.newPassword', { ns: 'admin-account' })}</Form.Label>
-                            <InputGroup>
-                              <Form.Control
-                                type={showNewPassword ? 'text' : 'password'}
-                                value={newPassword}
-                                onChange={handleNewPasswordChange}
-                                placeholder={t('adminAccount.form.newPasswordPlaceholder', { ns: 'admin-account' })}
-                                autoComplete="new-password"
-                                isInvalid={showNewPasswordError}
-                                required
-                                minLength={MIN_PASSWORD_LENGTH}
-                              />
-                              <Button
-                                variant="outline-secondary"
-                                type="button"
-                                onClick={() => setShowNewPassword(previous => !previous)}
-                                aria-label={
-                                  showNewPassword
-                                    ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
-                                    : t('adminAccount.form.showPassword', { ns: 'admin-account' })
-                                }
-                              >
-                                <FontAwesomeIcon icon={showNewPassword ? 'eye-slash' : 'eye'} />
-                              </Button>
-                            </InputGroup>
-                            <div
-                              className={`admin-password-strength admin-password-strength-${passwordStrength.tone}`}
-                              aria-live="polite"
-                            >
-                              <div className="admin-password-strength-head">
-                                <span>{t('adminAccount.strength.title', { ns: 'admin-account' })}</span>
-                              </div>
-                              <div className="admin-password-strength-track" aria-hidden="true">
-                                {Array.from({ length: 5 }, (_, index) => (
-                                  <span
-                                    key={`strength:${index + 1}`}
-                                    className={`admin-password-strength-segment${
-                                      index < passwordStrength.score ? ' is-active' : ''
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                            <Form.Control.Feedback type="invalid" className={showNewPasswordError ? 'd-block' : ''}>
-                              {securityNewPasswordError}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-
-                          <Form.Group className="mb-4" controlId="admin-account-confirm-password">
-                            <Form.Label>{t('adminAccount.form.confirmPassword', { ns: 'admin-account' })}</Form.Label>
-                            <InputGroup>
-                              <Form.Control
-                                type={showConfirmPassword ? 'text' : 'password'}
-                                value={confirmPassword}
-                                onChange={handleConfirmPasswordChange}
-                                placeholder={t('adminAccount.form.confirmPasswordPlaceholder', { ns: 'admin-account' })}
-                                autoComplete="new-password"
-                                isInvalid={showConfirmPasswordError}
-                                required
-                                minLength={MIN_PASSWORD_LENGTH}
-                              />
-                              <Button
-                                variant="outline-secondary"
-                                type="button"
-                                onClick={() => setShowConfirmPassword(previous => !previous)}
-                                aria-label={
-                                  showConfirmPassword
-                                    ? t('adminAccount.form.hidePassword', { ns: 'admin-account' })
-                                    : t('adminAccount.form.showPassword', { ns: 'admin-account' })
-                                }
-                              >
-                                <FontAwesomeIcon icon={showConfirmPassword ? 'eye-slash' : 'eye'} />
-                              </Button>
-                            </InputGroup>
-                            <Form.Control.Feedback type="invalid" className={showConfirmPasswordError ? 'd-block' : ''}>
-                              {securityConfirmPasswordError}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-
-                          <div className="d-flex flex-wrap gap-2">
-                            <Button
-                              type="submit"
-                              className="admin-newsletter-action admin-newsletter-action--primary"
-                              disabled={isSecuritySubmitting}
-                            >
-                              {isSecuritySubmitting ? (
-                                <span className="d-inline-flex align-items-center gap-2">
-                                  <Spinner
-                                    as="span"
-                                    animation="border"
-                                    size="sm"
-                                    className="me-2 flex-shrink-0 admin-action-spinner"
-                                    aria-hidden="true"
-                                  />
-                                  <span>{t('adminAccount.form.submitting', { ns: 'admin-account' })}</span>
-                                </span>
-                              ) : (
-                                t('adminAccount.form.submit', { ns: 'admin-account' })
-                              )}
-                            </Button>
-                          </div>
-                        </Form>
-                      ) : null}
-                    </ListGroup.Item>
-
-                    <ListGroup.Item className="px-4 py-4">
-                      <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
-                        <div className="d-flex align-items-start gap-3">
-                          <span className="fs-4 text-body-secondary">
-                            <FontAwesomeIcon icon={['fab', 'google']} />
-                          </span>
-                          <div>
-                            <div className="fw-semibold mb-1">
-                              {t('adminAccount.connectedAccounts.google.title', { ns: 'admin-account' })}
-                              {adminUser.googleLinked ? (
-                                <Badge bg="success" className="ms-2">
-                                  {t('adminAccount.connectedAccounts.google.connectedBadge', { ns: 'admin-account' })}
-                                </Badge>
-                              ) : null}
-                            </div>
-                            <div className="text-body-secondary">
-                              {adminUser.googleLinked
-                                ? t('adminAccount.connectedAccounts.google.connectedCopy', {
-                                    ns: 'admin-account',
-                                    email: adminUser.googleEmail ?? adminUser.email,
-                                  })
-                                : t('adminAccount.connectedAccounts.google.disconnectedCopy', { ns: 'admin-account' })}
-                            </div>
-                            {adminUser.googleLinkedAt ? (
-                              <div className="small text-body-secondary mt-1 d-inline-flex align-items-center gap-2">
-                                <FontAwesomeIcon icon="calendar-alt" />
-                                {t('adminAccount.connectedAccounts.google.linkedAt', {
-                                  ns: 'admin-account',
-                                  value: formatSessionDate(adminUser.googleLinkedAt),
-                                })}
-                              </div>
-                            ) : null}
-                            {adminUser.googleLinked && googleAuthStatus.loginAvailable ? (
-                              <div className="small text-body-secondary mt-1">
-                                {t('adminAccount.connectedAccounts.google.loginEnabled', { ns: 'admin-account' })}
-                              </div>
-                            ) : null}
-                            {!isGoogleAuthStatusLoading && !googleAuthStatus.enabled ? (
-                              <div className="small text-body-secondary mt-1">
-                                {t('adminAccount.connectedAccounts.google.unavailableBadge', { ns: 'admin-account' })}
-                              </div>
-                            ) : null}
-                          </div>
-                        </div>
-                        <div className="d-flex justify-content-lg-end">
-                          {renderConnectedAccountAction({
-                            isLoading: isGoogleAuthStatusLoading,
-                            isLinked: adminUser.googleLinked,
-                            isEnabled: googleAuthStatus.enabled,
-                            isConnectSubmitting: isGoogleConnectSubmitting,
-                            isDisconnectSubmitting: isGoogleDisconnectSubmitting,
-                            loadingLabel: t('adminCommon.status.loading', { ns: 'admin-common' }),
-                            connectContent: (
-                              <>
-                                <FontAwesomeIcon icon={['fab', 'google']} className="me-2" />
-                                {t('adminAccount.connectedAccounts.google.connect', { ns: 'admin-account' })}
-                              </>
-                            ),
-                            disconnectLabel: t('adminAccount.connectedAccounts.google.disconnect', {
-                              ns: 'admin-account',
-                            }),
-                            onConnect: handleGoogleConnect,
-                            onDisconnect: openGoogleDisconnectModal,
-                          })}
-                        </div>
-                      </div>
-                    </ListGroup.Item>
-
-                    <ListGroup.Item className="px-4 py-4">
-                      <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
-                        <div className="d-flex align-items-start gap-3">
-                          <span className="fs-4 text-body-secondary">
-                            <FontAwesomeIcon icon={['fab', 'github']} />
-                          </span>
-                          <div>
-                            <div className="fw-semibold mb-1">
-                              {t('adminAccount.connectedAccounts.github.title', { ns: 'admin-account' })}
-                              {adminUser.githubLinked ? (
-                                <Badge bg="success" className="ms-2">
-                                  {t('adminAccount.connectedAccounts.github.connectedBadge', { ns: 'admin-account' })}
-                                </Badge>
-                              ) : null}
-                            </div>
-                            <div className="text-body-secondary">
-                              {adminUser.githubLinked
-                                ? t('adminAccount.connectedAccounts.github.connectedCopy', {
-                                    ns: 'admin-account',
-                                    email: adminUser.githubEmail ?? adminUser.email,
-                                  })
-                                : t('adminAccount.connectedAccounts.github.disconnectedCopy', { ns: 'admin-account' })}
-                            </div>
-                            {adminUser.githubLinkedAt ? (
-                              <div className="small text-body-secondary mt-1 d-inline-flex align-items-center gap-2">
-                                <FontAwesomeIcon icon="calendar-alt" />
-                                {t('adminAccount.connectedAccounts.github.linkedAt', {
-                                  ns: 'admin-account',
-                                  value: formatSessionDate(adminUser.githubLinkedAt),
-                                })}
-                              </div>
-                            ) : null}
-                            {adminUser.githubLinked && githubAuthStatus.loginAvailable ? (
-                              <div className="small text-body-secondary mt-1">
-                                {t('adminAccount.connectedAccounts.github.loginEnabled', { ns: 'admin-account' })}
-                              </div>
-                            ) : null}
-                            {!isGithubAuthStatusLoading && !githubAuthStatus.enabled ? (
-                              <div className="small text-body-secondary mt-1">
-                                {t('adminAccount.connectedAccounts.github.unavailableBadge', { ns: 'admin-account' })}
-                              </div>
-                            ) : null}
-                          </div>
-                        </div>
-                        <div className="d-flex justify-content-lg-end">
-                          {renderConnectedAccountAction({
-                            isLoading: isGithubAuthStatusLoading,
-                            isLinked: adminUser.githubLinked,
-                            isEnabled: githubAuthStatus.enabled,
-                            isConnectSubmitting: isGithubConnectSubmitting,
-                            isDisconnectSubmitting: isGithubDisconnectSubmitting,
-                            loadingLabel: t('adminCommon.status.loading', { ns: 'admin-common' }),
-                            connectContent: (
-                              <>
-                                <FontAwesomeIcon icon={['fab', 'github']} className="me-2" />
-                                {t('adminAccount.connectedAccounts.github.connect', { ns: 'admin-account' })}
-                              </>
-                            ),
-                            disconnectLabel: t('adminAccount.connectedAccounts.github.disconnect', {
-                              ns: 'admin-account',
-                            }),
-                            onConnect: handleGithubConnect,
-                            onDisconnect: openGithubDisconnectModal,
-                          })}
-                        </div>
-                      </div>
-                    </ListGroup.Item>
-                  </ListGroup>
-                </>
+                <AdminAccountSecuritySection
+                  adminUser={adminUser}
+                  t={t}
+                  formatSessionDate={formatSessionDate}
+                  securityErrorMessage={securityErrorMessage}
+                  securitySuccessMessage={securitySuccessMessage}
+                  googleConnectMessage={googleConnectMessage}
+                  googleConnectMessageVariant={googleConnectMessageVariant}
+                  githubConnectMessage={githubConnectMessage}
+                  githubConnectMessageVariant={githubConnectMessageVariant}
+                  googleActionErrorMessage={googleActionErrorMessage}
+                  githubActionErrorMessage={githubActionErrorMessage}
+                  isSecurityPasswordExpanded={isSecurityPasswordExpanded}
+                  onToggleSecurityPassword={() => setIsSecurityPasswordExpanded(previous => !previous)}
+                  onManageEmail={() => router.push(`/${locale}${ADMIN_ROUTES.settings.email}`)}
+                  handleSecuritySubmit={handleSecuritySubmit}
+                  currentPassword={currentPassword}
+                  newPassword={newPassword}
+                  confirmPassword={confirmPassword}
+                  handleCurrentPasswordChange={handleCurrentPasswordChange}
+                  handleNewPasswordChange={handleNewPasswordChange}
+                  handleConfirmPasswordChange={handleConfirmPasswordChange}
+                  showCurrentPassword={showCurrentPassword}
+                  showNewPassword={showNewPassword}
+                  showConfirmPassword={showConfirmPassword}
+                  onToggleCurrentPassword={() => setShowCurrentPassword(previous => !previous)}
+                  onToggleNewPassword={() => setShowNewPassword(previous => !previous)}
+                  onToggleConfirmPassword={() => setShowConfirmPassword(previous => !previous)}
+                  showCurrentPasswordError={showCurrentPasswordError}
+                  showNewPasswordError={showNewPasswordError}
+                  showConfirmPasswordError={showConfirmPasswordError}
+                  securityCurrentPasswordError={securityCurrentPasswordError}
+                  securityNewPasswordError={securityNewPasswordError}
+                  securityConfirmPasswordError={securityConfirmPasswordError}
+                  passwordStrength={passwordStrength}
+                  isSecuritySubmitting={isSecuritySubmitting}
+                  googleAuthStatus={googleAuthStatus}
+                  githubAuthStatus={githubAuthStatus}
+                  isGoogleAuthStatusLoading={isGoogleAuthStatusLoading}
+                  isGithubAuthStatusLoading={isGithubAuthStatusLoading}
+                  isGoogleConnectSubmitting={isGoogleConnectSubmitting}
+                  isGoogleDisconnectSubmitting={isGoogleDisconnectSubmitting}
+                  isGithubConnectSubmitting={isGithubConnectSubmitting}
+                  isGithubDisconnectSubmitting={isGithubDisconnectSubmitting}
+                  onGoogleConnect={handleGoogleConnect}
+                  onOpenGoogleDisconnectModal={openGoogleDisconnectModal}
+                  onCloseGoogleDisconnectModal={closeGoogleDisconnectModal}
+                  onGoogleDisconnect={handleGoogleDisconnect}
+                  onGithubConnect={handleGithubConnect}
+                  onOpenGithubDisconnectModal={openGithubDisconnectModal}
+                  onCloseGithubDisconnectModal={closeGithubDisconnectModal}
+                  onGithubDisconnect={handleGithubDisconnect}
+                  isGoogleDisconnectModalOpen={isGoogleDisconnectModalOpen}
+                  isGithubDisconnectModalOpen={isGithubDisconnectModalOpen}
+                />
               ) : null}
             </div>
           </div>
         </div>
       </div>
-
-      <Modal show={isGoogleDisconnectModalOpen} onHide={closeGoogleDisconnectModal} centered>
-        <Modal.Header closeButton={!isGoogleDisconnectSubmitting}>
-          <Modal.Title>
-            {t('adminAccount.connectedAccounts.google.disconnectConfirmTitle', { ns: 'admin-account' })}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p className="mb-3">
-            {t('adminAccount.connectedAccounts.google.disconnectConfirmCopy', {
-              ns: 'admin-account',
-              email: adminUser?.googleEmail ?? adminUser?.email ?? '',
-            })}
-          </p>
-          {googleActionErrorMessage ? (
-            <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
-              {googleActionErrorMessage}
-            </Alert>
-          ) : null}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            className="admin-newsletter-action admin-newsletter-action--secondary"
-            onClick={closeGoogleDisconnectModal}
-            disabled={isGoogleDisconnectSubmitting}
-          >
-            {t('adminCommon.actions.cancel', { ns: 'admin-common' })}
-          </Button>
-          <Button
-            variant="danger"
-            className="admin-newsletter-action admin-newsletter-action--danger"
-            onClick={handleGoogleDisconnect}
-            disabled={isGoogleConnectSubmitting || isGoogleDisconnectSubmitting}
-          >
-            {isGoogleDisconnectSubmitting ? (
-              <span className="d-inline-flex align-items-center">
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  className="me-2 flex-shrink-0 admin-action-spinner"
-                  aria-hidden="true"
-                />
-                {t('adminAccount.connectedAccounts.google.disconnecting', { ns: 'admin-account' })}
-              </span>
-            ) : (
-              t('adminAccount.connectedAccounts.google.disconnect', { ns: 'admin-account' })
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      <Modal show={isGithubDisconnectModalOpen} onHide={closeGithubDisconnectModal} centered>
-        <Modal.Header closeButton={!isGithubDisconnectSubmitting}>
-          <Modal.Title>
-            {t('adminAccount.connectedAccounts.github.disconnectConfirmTitle', { ns: 'admin-account' })}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p className="mb-3">
-            {t('adminAccount.connectedAccounts.github.disconnectConfirmCopy', {
-              ns: 'admin-account',
-              email: adminUser?.githubEmail ?? adminUser?.email ?? '',
-            })}
-          </p>
-          {githubActionErrorMessage ? (
-            <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
-              {githubActionErrorMessage}
-            </Alert>
-          ) : null}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            className="admin-newsletter-action admin-newsletter-action--secondary"
-            onClick={closeGithubDisconnectModal}
-            disabled={isGithubDisconnectSubmitting}
-          >
-            {t('adminCommon.actions.cancel', { ns: 'admin-common' })}
-          </Button>
-          <Button
-            variant="danger"
-            className="admin-newsletter-action admin-newsletter-action--danger"
-            onClick={handleGithubDisconnect}
-            disabled={isGithubConnectSubmitting || isGithubDisconnectSubmitting}
-          >
-            {isGithubDisconnectSubmitting ? (
-              <span className="d-inline-flex align-items-center">
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  className="me-2 flex-shrink-0 admin-action-spinner"
-                  aria-hidden="true"
-                />
-                {t('adminAccount.connectedAccounts.github.disconnecting', { ns: 'admin-account' })}
-              </span>
-            ) : (
-              t('adminAccount.connectedAccounts.github.disconnect', { ns: 'admin-account' })
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
 
       <Modal
         show={isAvatarCropModalOpen}

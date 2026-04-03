@@ -487,6 +487,7 @@
       "success": {
         "postUpdated": "Post metadata güncellendi: {{id}}",
         "postContentUpdated": "Post içeriği güncellendi: {{id}}",
+        "postRevisionRestored": "#{{revision}} revizyonu geri yüklendi.",
         "postDeleted": "Post silindi: {{id}}",
         "topicCreated": "Topic oluşturuldu: {{id}}",
         "topicUpdated": "Topic güncellendi: {{id}}",
@@ -503,6 +504,8 @@
         "postLoad": "Postlar yüklenemedi.",
         "postUpdate": "Post metadata güncellenemedi.",
         "postContentUpdate": "Post içeriği güncellenemedi.",
+        "postRevisionsLoad": "Post revizyonları yüklenemedi.",
+        "postRevisionRestore": "Post revizyonu geri yüklenemedi.",
         "postDelete": "Post silinemedi.",
         "topicCreate": "Topic oluşturulamadı.",
         "topicUpdate": "Topic güncellenemedi.",
@@ -563,9 +566,45 @@
             "updatedDateHint": "Güncelleme tarihini temizlemek için boş bırakın.",
             "thumbnail": "Küçük görsel"
           },
+          "lifecycle": {
+            "statusLabel": "Yayın durumu",
+            "statusHint": "Postu taslakta tutabilir, zamanlayabilir veya hemen yayına alabilirsiniz.",
+            "scheduledAtLabel": "Zamanlanmış yayın zamanı",
+            "scheduledAtHint": "Zamanlı yayın için gelecekte bir tarih ve saat seçin.",
+            "scheduledAtDisabledHint": "Gelecekte bir yayın zamanı planlamak için durumu Zamanlı yapın.",
+            "scheduledFor": "Zamanlanan yayın: {{value}}",
+            "revisionSummary_one": "{{count}} kayıtlı revizyon",
+            "revisionSummary_other": "{{count}} kayıtlı revizyon",
+            "latestRevisionAt": "Son revizyon: {{value}}",
+            "statuses": {
+              "draft": "Taslak",
+              "scheduled": "Zamanlı",
+              "published": "Yayında"
+            }
+          },
           "topics": "Topicler",
           "topicsQueryPlaceholder": "Topicleri ada göre ara",
           "topicsEmpty": "Bu dil için topic bulunamadı.",
+          "revisions": {
+            "title": "Revizyon geçmişi",
+            "copy": "Metadata veya içerik güncellemesini geri almak gerektiğinde bu postun önceki kayıtlı sürümlerini geri yükleyin.",
+            "loading": "Post revizyonları yükleniyor...",
+            "empty": "Bu post için henüz kayıtlı revizyon yok.",
+            "restore": "Revizyonu geri yükle",
+            "restoring": "Geri yükleniyor...",
+            "restoreTitle": "Revizyonu geri yükle",
+            "restoreCopy": "#{{revision}} revizyonu geri yüklensin mi? İşlem tamamlanmadan önce mevcut post durumu yeni bir revizyon olarak kaydedilir.",
+            "revisionBadge": "Revizyon #{{revision}}",
+            "createdAt": "Kaydedildi: {{value}}",
+            "publishedDate": "Yayın: {{value}}",
+            "updatedDate": "Güncelleme: {{value}}",
+            "scheduledAt": "Zamanlı yayın: {{value}}",
+            "restoreLabels": {
+              "title": "Başlık",
+              "createdAt": "Kaydedilme zamanı",
+              "status": "Durum"
+            }
+          },
           "contentLabel": "Markdown içerik",
           "contentHint": "Standart Markdown sözdizimi desteklenir.",
           "previewTitle": "Önizleme",

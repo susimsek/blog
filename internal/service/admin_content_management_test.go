@@ -17,6 +17,9 @@ import (
 type adminContentStubRepository struct {
 	findPostByLocaleAndID func(context.Context, string, string) (*domain.AdminContentPostRecord, error)
 	listPostGroups        func(context.Context, domain.AdminContentPostFilter) (*domain.AdminContentPostListResult, error)
+	listPostRevisions     func(context.Context, string, string, int, int) (*domain.AdminContentPostRevisionListResult, error)
+	findPostRevisionByID  func(context.Context, string, string, string) (*domain.AdminContentPostRevisionRecord, error)
+	createPostRevision    func(context.Context, domain.AdminContentPostRecord, int, time.Time) (*domain.AdminContentPostRevisionRecord, error)
 	updatePostMetadata    func(
 		context.Context,
 		string,
@@ -24,9 +27,11 @@ type adminContentStubRepository struct {
 		domain.AdminContentPostMetadataFields,
 		*domain.AdminContentCategoryRecord,
 		[]domain.AdminContentTopicRecord,
+		*domain.AdminContentPostRevisionStamp,
 		time.Time,
 	) (*domain.AdminContentPostRecord, error)
-	updatePostContent           func(context.Context, string, string, string, time.Time) (*domain.AdminContentPostRecord, error)
+	updatePostContent           func(context.Context, string, string, string, *domain.AdminContentPostRevisionStamp, time.Time) (*domain.AdminContentPostRecord, error)
+	restorePostRevision         func(context.Context, domain.AdminContentPostRevisionRecord, *domain.AdminContentPostRevisionStamp, time.Time) (*domain.AdminContentPostRecord, error)
 	deletePostByLocaleAndID     func(context.Context, string, string) (bool, error)
 	listTopics                  func(context.Context, string, string) ([]domain.AdminContentTopicRecord, error)
 	listTopicGroups             func(context.Context, domain.AdminContentTaxonomyFilter) (*domain.AdminContentTopicListResult, error)
@@ -73,6 +78,49 @@ func (stub adminContentStubRepository) ListPostGroups(
 	return stub.listPostGroups(ctx, filter)
 }
 
+func (stub adminContentStubRepository) ListPostRevisions(
+	ctx context.Context,
+	locale string,
+	postID string,
+	page int,
+	size int,
+) (*domain.AdminContentPostRevisionListResult, error) {
+	if stub.listPostRevisions == nil {
+		return nil, nil
+	}
+	return stub.listPostRevisions(ctx, locale, postID, page, size)
+}
+
+func (stub adminContentStubRepository) FindPostRevisionByID(
+	ctx context.Context,
+	locale string,
+	postID string,
+	revisionID string,
+) (*domain.AdminContentPostRevisionRecord, error) {
+	if stub.findPostRevisionByID == nil {
+		return nil, nil
+	}
+	return stub.findPostRevisionByID(ctx, locale, postID, revisionID)
+}
+
+func (stub adminContentStubRepository) CreatePostRevision(
+	ctx context.Context,
+	record domain.AdminContentPostRecord,
+	revisionNumber int,
+	now time.Time,
+) (*domain.AdminContentPostRevisionRecord, error) {
+	if stub.createPostRevision == nil {
+		return &domain.AdminContentPostRevisionRecord{
+			ID:             "revision-1",
+			Locale:         record.Locale,
+			PostID:         record.ID,
+			RevisionNumber: revisionNumber,
+			CreatedAt:      now,
+		}, nil
+	}
+	return stub.createPostRevision(ctx, record, revisionNumber, now)
+}
+
 func (stub adminContentStubRepository) UpdatePostMetadata(
 	ctx context.Context,
 	locale string,
@@ -80,12 +128,13 @@ func (stub adminContentStubRepository) UpdatePostMetadata(
 	fields domain.AdminContentPostMetadataFields,
 	category *domain.AdminContentCategoryRecord,
 	topics []domain.AdminContentTopicRecord,
+	revisionStamp *domain.AdminContentPostRevisionStamp,
 	now time.Time,
 ) (*domain.AdminContentPostRecord, error) {
 	if stub.updatePostMetadata == nil {
 		return nil, nil
 	}
-	return stub.updatePostMetadata(ctx, locale, postID, fields, category, topics, now)
+	return stub.updatePostMetadata(ctx, locale, postID, fields, category, topics, revisionStamp, now)
 }
 
 func (stub adminContentStubRepository) UpdatePostContent(
@@ -93,12 +142,25 @@ func (stub adminContentStubRepository) UpdatePostContent(
 	locale string,
 	postID string,
 	content string,
+	revisionStamp *domain.AdminContentPostRevisionStamp,
 	now time.Time,
 ) (*domain.AdminContentPostRecord, error) {
 	if stub.updatePostContent == nil {
 		return nil, nil
 	}
-	return stub.updatePostContent(ctx, locale, postID, content, now)
+	return stub.updatePostContent(ctx, locale, postID, content, revisionStamp, now)
+}
+
+func (stub adminContentStubRepository) RestorePostRevision(
+	ctx context.Context,
+	revision domain.AdminContentPostRevisionRecord,
+	revisionStamp *domain.AdminContentPostRevisionStamp,
+	now time.Time,
+) (*domain.AdminContentPostRecord, error) {
+	if stub.restorePostRevision == nil {
+		return nil, nil
+	}
+	return stub.restorePostRevision(ctx, revision, revisionStamp, now)
 }
 
 func (stub adminContentStubRepository) DeletePostByLocaleAndID(ctx context.Context, locale, postID string) (bool, error) {
@@ -505,6 +567,7 @@ func TestUpdateAdminContentPostMetadataUpdatesAndAudits(t *testing.T) {
 			fields domain.AdminContentPostMetadataFields,
 			category *domain.AdminContentCategoryRecord,
 			topics []domain.AdminContentTopicRecord,
+			revisionStamp *domain.AdminContentPostRevisionStamp,
 			now time.Time,
 		) (*domain.AdminContentPostRecord, error) {
 			if locale != "en" || postID != "alpha-post" {
@@ -518,6 +581,9 @@ func TestUpdateAdminContentPostMetadataUpdatesAndAudits(t *testing.T) {
 			}
 			if len(topics) != 2 || topics[0].ID != "alpha-topic" || topics[1].ID != "beta-topic" {
 				t.Fatalf("unexpected topics: %#v", topics)
+			}
+			if revisionStamp == nil || revisionStamp.Number != 1 || revisionStamp.CreatedAt.IsZero() {
+				t.Fatalf("unexpected revision stamp: %#v", revisionStamp)
 			}
 			if now.IsZero() {
 				t.Fatal("expected update timestamp")
@@ -603,9 +669,17 @@ func TestUpdateAdminContentPostContentUpdatesAndAudits(t *testing.T) {
 				Source:  "BLOG",
 			}, nil
 		},
-		updatePostContent: func(_ context.Context, locale, postID, content string, now time.Time) (*domain.AdminContentPostRecord, error) {
+		updatePostContent: func(
+			_ context.Context,
+			locale, postID, content string,
+			revisionStamp *domain.AdminContentPostRevisionStamp,
+			now time.Time,
+		) (*domain.AdminContentPostRecord, error) {
 			if locale != "en" || postID != "alpha-post" || content != "  # Updated body  " || now.IsZero() {
 				t.Fatalf("unexpected UpdatePostContent args: %q %q %q %v", locale, postID, content, now)
+			}
+			if revisionStamp == nil || revisionStamp.Number != 1 || revisionStamp.CreatedAt.IsZero() {
+				t.Fatalf("unexpected revision stamp: %#v", revisionStamp)
 			}
 			return &domain.AdminContentPostRecord{Locale: locale, ID: postID, Title: "Alpha", Content: content, Source: "blog"}, nil
 		},

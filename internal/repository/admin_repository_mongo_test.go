@@ -598,12 +598,12 @@ func TestAdminContentRepositoryWithMockData(t *testing.T) {
 			Thumbnail:     "/alpha.webp",
 			PublishedDate: "2026-03-22",
 			UpdatedDate:   "2026-03-23",
-		}, &domain.AdminContentCategoryRecord{ID: "tech", Name: "Tech", Color: "#000"}, []domain.AdminContentTopicRecord{{ID: "go", Name: "Go", Color: "#fff"}}, now)
+		}, &domain.AdminContentCategoryRecord{ID: "tech", Name: "Tech", Color: "#000"}, []domain.AdminContentTopicRecord{{ID: "go", Name: "Go", Color: "#fff"}}, nil, now)
 		if err != nil || updatedPost == nil || updatedPost.Title != "Updated Alpha" || updatedPost.CategoryID != "tech" {
 			t.Fatalf("UpdatePostMetadata() = %#v, %v", updatedPost, err)
 		}
 
-		updatedContent, err := repository.UpdatePostContent(ctx, "en", "alpha-post", "Updated Body", now)
+		updatedContent, err := repository.UpdatePostContent(ctx, "en", "alpha-post", "Updated Body", nil, now)
 		if err != nil || updatedContent == nil || updatedContent.Content != "Updated Body" {
 			t.Fatalf("UpdatePostContent() = %#v, %v", updatedContent, err)
 		}

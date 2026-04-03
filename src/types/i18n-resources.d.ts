@@ -260,6 +260,8 @@ interface Resources {
           "postContentUpdate": "Post content could not be updated.",
           "postDelete": "Post could not be deleted.",
           "postLoad": "Posts could not be loaded.",
+          "postRevisionRestore": "Post revision could not be restored.",
+          "postRevisionsLoad": "Post revisions could not be loaded.",
           "postUpdate": "Post metadata could not be updated.",
           "taxonomyLoad": "Topics and categories could not be loaded.",
           "topicCreate": "Topic could not be created.",
@@ -368,6 +370,22 @@ interface Resources {
               "id": "Post id: {{value}}",
               "locale": "Locale: {{value}}"
             },
+            "lifecycle": {
+              "latestRevisionAt": "Latest revision: {{value}}",
+              "revisionSummary_one": "{{count}} saved revision",
+              "revisionSummary_other": "{{count}} saved revisions",
+              "scheduledAtDisabledHint": "Set status to Scheduled to plan a future publish time.",
+              "scheduledAtHint": "Pick a future date and time for scheduled publishing.",
+              "scheduledAtLabel": "Scheduled publish time",
+              "scheduledFor": "Scheduled for: {{value}}",
+              "statusHint": "Choose whether the post stays in draft, publishes on a schedule, or is live now.",
+              "statusLabel": "Publishing status",
+              "statuses": {
+                "draft": "Draft",
+                "published": "Published",
+                "scheduled": "Scheduled"
+              }
+            },
             "media": {
               "badges": {
                 "reused": "Reused",
@@ -419,6 +437,26 @@ interface Resources {
             },
             "previewEmpty": "No content to preview.",
             "previewTitle": "Preview",
+            "revisions": {
+              "copy": "Restore a previous saved version of this post if a metadata or content update needs to be rolled back.",
+              "createdAt": "Saved: {{value}}",
+              "empty": "No revisions have been saved for this post yet.",
+              "loading": "Loading post revisions...",
+              "publishedDate": "Published: {{value}}",
+              "restore": "Restore revision",
+              "restoreCopy": "Restore revision #{{revision}}? The current post state will be saved as a new revision before restore completes.",
+              "restoreLabels": {
+                "createdAt": "Saved at",
+                "status": "Status",
+                "title": "Title"
+              },
+              "restoreTitle": "Restore revision",
+              "restoring": "Restoring...",
+              "revisionBadge": "Revision #{{revision}}",
+              "scheduledAt": "Scheduled: {{value}}",
+              "title": "Revision history",
+              "updatedDate": "Updated: {{value}}"
+            },
             "seo": {
               "authorLabel": "Author",
               "canonicalLabel": "Canonical",
@@ -459,6 +497,7 @@ interface Resources {
           "mediaUploaded": "Image uploaded: {{name}}",
           "postContentUpdated": "Post content updated: {{id}}",
           "postDeleted": "Post deleted: {{id}}",
+          "postRevisionRestored": "Revision #{{revision}} restored.",
           "postUpdated": "Post metadata updated: {{id}}",
           "topicCreated": "Topic created: {{id}}",
           "topicDeleted": "Topic deleted: {{id}}",

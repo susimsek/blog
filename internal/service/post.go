@@ -63,7 +63,8 @@ func QueryContent(ctx context.Context, input ContentQueryInput) ContentResponse 
 	page := clampPositiveInt(input.Page, 1, 100000)
 	size := clampPositiveInt(input.Size, defaultPageSize, maxPageSize)
 
-	filter := buildContentFilter(locale, scopeIDs)
+	now := time.Now().UTC()
+	filter := buildContentFilter(locale, scopeIDs, now)
 
 	operationCtx, cancel := withTimeoutContext(ctx, 15*time.Second)
 	defer cancel()
@@ -135,6 +136,9 @@ func QueryPost(ctx context.Context, input PostQueryInput) ContentResponse {
 		return ContentResponse{Status: "failed", Locale: locale, PostID: postID}
 	}
 	if post == nil {
+		return ContentResponse{Status: "not-found", Locale: locale, PostID: postID}
+	}
+	if !isPublicPost(*post, time.Now().UTC()) {
 		return ContentResponse{Status: "not-found", Locale: locale, PostID: postID}
 	}
 
@@ -258,9 +262,17 @@ func normalizeSortOrder(value string) string {
 	}
 }
 
-func buildContentFilter(locale string, scopeIDs []string) bson.M {
+func buildContentFilter(locale string, scopeIDs []string, now time.Time) bson.M {
 	filter := bson.M{
 		"locale": locale,
+		"$or": bson.A{
+			bson.M{"status": bson.M{"$exists": false}},
+			bson.M{"status": domain.AdminContentPostStatusPublished},
+			bson.M{
+				"status":      domain.AdminContentPostStatusScheduled,
+				"scheduledAt": bson.M{"$lte": now.UTC()},
+			},
+		},
 	}
 
 	if len(scopeIDs) > 0 {
@@ -268,6 +280,18 @@ func buildContentFilter(locale string, scopeIDs []string) bson.M {
 	}
 
 	return filter
+}
+
+func isPublicPost(post PostRecord, now time.Time) bool {
+	status := strings.TrimSpace(strings.ToLower(post.Status))
+	switch status {
+	case "", domain.AdminContentPostStatusPublished:
+		return true
+	case domain.AdminContentPostStatusScheduled:
+		return !post.ScheduledAt.IsZero() && !post.ScheduledAt.After(now.UTC())
+	default:
+		return false
+	}
 }
 
 func resolveCommentCountsByPostID(ctx context.Context, posts []PostRecord) map[string]int64 {

@@ -2,13 +2,10 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import Alert from 'react-bootstrap/Alert';
 import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
-import Card from 'react-bootstrap/Card';
-import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Nav from 'react-bootstrap/Nav';
 import Spinner from 'react-bootstrap/Spinner';
@@ -16,22 +13,30 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
-import DatePicker, { registerLocale } from 'react-datepicker';
+import { registerLocale } from 'react-datepicker';
 import { enUS } from 'date-fns/locale/en-US';
 import { tr } from 'date-fns/locale/tr';
-import PaginationBar from '@/components/pagination/PaginationBar';
-import AdminLoadingState from '@/components/admin/AdminLoadingState';
-import AdminMarkdownEditor, { type AdminMarkdownEditorViewport } from '@/components/admin/AdminMarkdownEditor';
-import CompactCount from '@/components/common/CompactCount';
-import { getDatePickerLocale, toISODateString } from '@/components/common/DateRangePicker';
+import { type AdminMarkdownEditorViewport } from '@/components/admin/AdminMarkdownEditor';
+import AdminContentCategoriesTab from '@/components/admin/content/AdminContentCategoriesTab';
+import AdminContentBulkPostCommentDeleteModal from '@/components/admin/content/AdminContentBulkPostCommentDeleteModal';
+import AdminContentCategoryEditorModal from '@/components/admin/content/AdminContentCategoryEditorModal';
+import AdminContentMediaDeleteModal from '@/components/admin/content/AdminContentMediaDeleteModal';
+import AdminContentMediaTab from '@/components/admin/content/AdminContentMediaTab';
+import AdminContentPostContentTab from '@/components/admin/content/AdminContentPostContentTab';
+import AdminContentPostCommentDeleteModal from '@/components/admin/content/AdminContentPostCommentDeleteModal';
+import AdminContentPostCommentsTab from '@/components/admin/content/AdminContentPostCommentsTab';
+import AdminContentPostDeleteModal from '@/components/admin/content/AdminContentPostDeleteModal';
+import AdminContentPostMetadataTab from '@/components/admin/content/AdminContentPostMetadataTab';
+import AdminContentPostRevisionRestoreModal from '@/components/admin/content/AdminContentPostRevisionRestoreModal';
+import AdminContentPostsTab from '@/components/admin/content/AdminContentPostsTab';
+import AdminContentTopicEditorModal from '@/components/admin/content/AdminContentTopicEditorModal';
+import AdminContentTopicsTab from '@/components/admin/content/AdminContentTopicsTab';
+import { getDatePickerLocale } from '@/components/common/DateRangePicker';
 import FlagIcon from '@/components/common/FlagIcon';
-import PostDensityToggle, { type PostDensityMode } from '@/components/common/PostDensityToggle';
-import PostCategoryBadge from '@/components/posts/PostCategoryBadge';
-import MarkdownRenderer from '@/components/common/MarkdownRenderer';
+import { type PostDensityMode } from '@/components/common/PostDensityToggle';
 import Link from '@/components/common/Link';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { assetPrefix, AVATAR_LINK, AUTHOR_NAME, LOCALES, TWITTER_USERNAME } from '@/config/constants';
-import { formatReadingTime } from '@/lib/readingTime';
 import { buildLocalizedPath, toAbsoluteSiteUrl } from '@/lib/metadata';
 import {
   bulkDeleteAdminComments,
@@ -46,6 +51,7 @@ import {
   fetchAdminComments,
   fetchAdminMediaLibrary,
   fetchAdminContentPost,
+  fetchAdminContentPostRevisions,
   fetchAdminContentCategories,
   fetchAdminContentCategoriesPage,
   fetchAdminContentPosts,
@@ -59,6 +65,7 @@ import {
   updateAdminContentPostMetadata,
   updateAdminContentTopic,
   uploadAdminMediaAsset,
+  restoreAdminContentPostRevision,
   type AdminCommentItem,
   type AdminContentCategoryItem,
   type AdminContentCategoryGroupItem,
@@ -66,6 +73,7 @@ import {
   type AdminMediaLibrarySort,
   type AdminContentPostGroupItem,
   type AdminContentPostItem,
+  type AdminContentPostRevisionItem,
   type AdminContentTopicItem,
   type AdminContentTopicGroupItem,
 } from '@/lib/adminApi';
@@ -97,6 +105,7 @@ type SupportedContentLocale = 'en' | 'tr';
 type CommentStatusFilterValue = 'all' | AdminCommentItem['status'];
 type MediaLibraryFilterValue = AdminMediaLibraryItem['kind'] | 'ALL';
 type MediaLibrarySortValue = AdminMediaLibrarySort;
+type AdminContentPostLifecycleStatus = AdminContentPostItem['status'];
 const CONTENT_ID_PATTERN = /^[a-z0-9][a-z0-9-]{1,127}$/;
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 const CONTENT_LOCALES: SupportedContentLocale[] = ['en', 'tr'];
@@ -134,9 +143,6 @@ const resolveLocaleLabel = (value: string) => {
   }
   return value.toUpperCase();
 };
-
-const resolveLocaleOptionLabel = (item: { locale: string; name: string }) =>
-  `[${item.locale.toUpperCase()}] ${item.name}`;
 
 const toTaxonomyKey = (item: { locale: string; id: string }) => `${item.locale.toLowerCase()}|${item.id.toLowerCase()}`;
 
@@ -203,6 +209,16 @@ const resolveContentSectionTab = (value?: string | null): ContentSectionTab => {
   return 'categories';
 };
 
+const resolvePostLifecycleBadgeVariant = (status: AdminContentPostLifecycleStatus) => {
+  if (status === 'DRAFT') {
+    return 'secondary';
+  }
+  if (status === 'SCHEDULED') {
+    return 'warning';
+  }
+  return 'success';
+};
+
 const resolveAdminContentThumbnailSrc = (value: string | null) => {
   const resolved = value?.trim() ?? '';
   if (!resolved) {
@@ -257,6 +273,39 @@ const parseISODateInput = (value: string): Date | null => {
   }
 
   return parsed;
+};
+
+const toDateTimeLocalInputValue = (value: string | null) => {
+  const trimmed = value?.trim() ?? '';
+  if (!trimmed) {
+    return '';
+  }
+
+  const parsed = new Date(trimmed);
+  if (Number.isNaN(parsed.getTime())) {
+    return '';
+  }
+
+  const year = parsed.getFullYear();
+  const month = `${parsed.getMonth() + 1}`.padStart(2, '0');
+  const day = `${parsed.getDate()}`.padStart(2, '0');
+  const hours = `${parsed.getHours()}`.padStart(2, '0');
+  const minutes = `${parsed.getMinutes()}`.padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
+const fromDateTimeLocalInputValue = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const parsed = new Date(trimmed);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed.toISOString();
 };
 
 const adminPreviewImageLoader = ({ src }: { src: string }) => src;
@@ -324,6 +373,17 @@ export default function AdminContentManagementPanel({
   const [postEditorTitle, setPostEditorTitle] = React.useState('');
   const [postEditorSummary, setPostEditorSummary] = React.useState('');
   const [postEditorThumbnail, setPostEditorThumbnail] = React.useState('');
+  const [postEditorStatus, setPostEditorStatus] = React.useState<AdminContentPostLifecycleStatus>('PUBLISHED');
+  const [postEditorScheduledAt, setPostEditorScheduledAt] = React.useState('');
+  const [postRevisions, setPostRevisions] = React.useState<AdminContentPostRevisionItem[]>([]);
+  const [postRevisionsPage, setPostRevisionsPage] = React.useState(1);
+  const [postRevisionsPageSize, setPostRevisionsPageSize] = React.useState(5);
+  const [postRevisionsTotal, setPostRevisionsTotal] = React.useState(0);
+  const [isPostRevisionsLoading, setIsPostRevisionsLoading] = React.useState(false);
+  const [postRevisionsErrorMessage, setPostRevisionsErrorMessage] = React.useState('');
+  const [pendingPostRevisionRestore, setPendingPostRevisionRestore] =
+    React.useState<AdminContentPostRevisionItem | null>(null);
+  const [isPostRevisionRestoring, setIsPostRevisionRestoring] = React.useState(false);
   const [mediaLibraryQuery, setMediaLibraryQuery] = React.useState('');
   const [mediaLibraryFilter, setMediaLibraryFilter] = React.useState<MediaLibraryFilterValue>('ALL');
   const [mediaLibrarySort, setMediaLibrarySort] = React.useState<MediaLibrarySortValue>('RECENT');
@@ -459,8 +519,17 @@ export default function AdminContentManagementPanel({
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const totalPostCommentPages = Math.max(1, Math.ceil(postCommentsTotal / postCommentsPageSize));
+  const totalPostRevisionPages = Math.max(1, Math.ceil(postRevisionsTotal / postRevisionsPageSize));
   const totalMediaLibraryPages = Math.max(1, Math.ceil(mediaLibraryTotal / mediaLibraryPageSize));
   const adminNumberFormatter = React.useMemo(() => new Intl.NumberFormat(routeLocale), [routeLocale]);
+  const adminDateTimeFormatter = React.useMemo(
+    () =>
+      new Intl.DateTimeFormat(routeLocale, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      }),
+    [routeLocale],
+  );
   const selectedVisiblePostCommentIDs = React.useMemo(
     () => postComments.filter(item => selectedPostCommentIDs.includes(item.id)).map(item => item.id),
     [postComments, selectedPostCommentIDs],
@@ -511,6 +580,14 @@ export default function AdminContentManagementPanel({
     if (currentUpdatedDate !== nextUpdatedDate) {
       return true;
     }
+    if (editingPost.status !== postEditorStatus) {
+      return true;
+    }
+    const currentScheduledAt = (editingPost.scheduledAt ?? '').trim();
+    const nextScheduledAt = (postEditorScheduledAt ?? '').trim();
+    if (currentScheduledAt !== nextScheduledAt) {
+      return true;
+    }
     const currentCategory = (editingPost.categoryId ?? '').trim().toLowerCase();
     const nextCategory = postEditorCategoryID.trim().toLowerCase();
     if (currentCategory !== nextCategory) {
@@ -528,7 +605,9 @@ export default function AdminContentManagementPanel({
     isPostContentLoading,
     postEditorCategoryID,
     postEditorPublishedDate,
+    postEditorScheduledAt,
     postEditorSummary,
+    postEditorStatus,
     postEditorThumbnail,
     postEditorTitle,
     postEditorTopicIDs,
@@ -994,14 +1073,24 @@ export default function AdminContentManagementPanel({
     try {
       const resolvedLocale = filterLocale === 'all' ? undefined : filterLocale;
       const [nextTopics, nextCategories] = await Promise.all([
-        fetchAdminContentTopics(resolvedLocale),
-        fetchAdminContentCategories(resolvedLocale),
+        fetchAdminContentTopicsPage({
+          locale: resolvedLocale,
+          preferredLocale: routeLocale,
+          page: 1,
+          size: 500,
+        }),
+        fetchAdminContentCategoriesPage({
+          locale: resolvedLocale,
+          preferredLocale: routeLocale,
+          page: 1,
+          size: 500,
+        }),
       ]);
       if (requestID !== filterTaxonomyRequestIDRef.current) {
         return;
       }
-      setFilterTopicOptions(nextTopics);
-      setFilterCategoryOptions(nextCategories);
+      setFilterTopicOptions(nextTopics.items.map(item => item.preferred).filter(Boolean));
+      setFilterCategoryOptions(nextCategories.items.map(item => item.preferred).filter(Boolean));
     } catch (error) {
       if (requestID !== filterTaxonomyRequestIDRef.current) {
         return;
@@ -1010,7 +1099,7 @@ export default function AdminContentManagementPanel({
         onSessionExpired();
       }
     }
-  }, [filterLocale, onSessionExpired]);
+  }, [filterLocale, onSessionExpired, routeLocale]);
 
   const loadPostEditorCategories = React.useCallback(async () => {
     if (!editingPost) {
@@ -1041,12 +1130,12 @@ export default function AdminContentManagementPanel({
   }, [editingPost, onSessionExpired, t]);
 
   React.useEffect(() => {
-    void loadFilterTaxonomyOptions();
-  }, [loadFilterTaxonomyOptions]);
-
-  React.useEffect(() => {
     void loadPostEditorCategories();
   }, [loadPostEditorCategories]);
+
+  React.useEffect(() => {
+    void loadFilterTaxonomyOptions();
+  }, [loadFilterTaxonomyOptions]);
 
   const loadPosts = React.useCallback(async () => {
     const requestID = postsRequestIDRef.current + 1;
@@ -1241,6 +1330,42 @@ export default function AdminContentManagementPanel({
     void loadCategoriesPage();
   }, [loadCategoriesPage]);
 
+  const resetPostDetailEditorState = React.useCallback(() => {
+    setEditingPost(null);
+    setPostLocaleTabs([]);
+    setPostEditorTitle('');
+    setPostEditorSummary('');
+    setPostEditorThumbnail('');
+    setPostEditorStatus('PUBLISHED');
+    setPostEditorScheduledAt('');
+    setPostEditorPublishedDate('');
+    setPostEditorUpdatedDate('');
+    setPostEditorCategoryID('');
+    setPostEditorTopicIDs([]);
+    setPostEditorTopicQuery('');
+    setPostRevisions([]);
+    setPostRevisionsErrorMessage('');
+    setPostRevisionsPage(1);
+    setPostRevisionsTotal(0);
+    setPendingPostRevisionRestore(null);
+    setPostContentViewMode('editor');
+    setPostEditorContent('');
+    setPostEditorInitialContent('');
+    setPostComments([]);
+    setPostCommentsErrorMessage('');
+    setPostCommentsSuccessMessage('');
+    setSelectedPostCommentIDs([]);
+    setPostCommentActionID('');
+    setPostCommentActionStatus(null);
+    setDeletingPostCommentID('');
+    setBulkPostCommentActionStatus(null);
+    setPendingBulkPostCommentDeleteIDs([]);
+    setIsBulkPostCommentDeleting(false);
+    setPostCommentsPage(1);
+    setPostCommentsTotal(0);
+    setPendingPostCommentDelete(null);
+  }, []);
+
   const loadPostDetail = React.useCallback(
     async (options: { locale: string; id: string }) => {
       const requestID = postDetailRequestIDRef.current + 1;
@@ -1249,61 +1374,11 @@ export default function AdminContentManagementPanel({
       const normalizedLocale = options.locale.trim().toLowerCase();
       const normalizedID = options.id.trim();
       if (!normalizedLocale || !normalizedID) {
-        setEditingPost(null);
-        setPostLocaleTabs([]);
-        setPostEditorTitle('');
-        setPostEditorSummary('');
-        setPostEditorThumbnail('');
-        setPostEditorPublishedDate('');
-        setPostEditorUpdatedDate('');
-        setPostEditorCategoryID('');
-        setPostEditorTopicIDs([]);
-        setPostEditorTopicQuery('');
-        setPostContentViewMode('editor');
-        setPostEditorContent('');
-        setPostEditorInitialContent('');
-        setPostComments([]);
-        setPostCommentsErrorMessage('');
-        setPostCommentsSuccessMessage('');
-        setSelectedPostCommentIDs([]);
-        setPostCommentActionID('');
-        setPostCommentActionStatus(null);
-        setDeletingPostCommentID('');
-        setBulkPostCommentActionStatus(null);
-        setPendingBulkPostCommentDeleteIDs([]);
-        setIsBulkPostCommentDeleting(false);
-        setPostCommentsPage(1);
-        setPostCommentsTotal(0);
-        setPendingPostCommentDelete(null);
+        resetPostDetailEditorState();
         return;
       }
 
-      setEditingPost(null);
-      setPostLocaleTabs([]);
-      setPostEditorTitle('');
-      setPostEditorSummary('');
-      setPostEditorThumbnail('');
-      setPostEditorPublishedDate('');
-      setPostEditorUpdatedDate('');
-      setPostEditorCategoryID('');
-      setPostEditorTopicIDs([]);
-      setPostEditorTopicQuery('');
-      setPostContentViewMode('editor');
-      setPostEditorContent('');
-      setPostEditorInitialContent('');
-      setPostComments([]);
-      setPostCommentsErrorMessage('');
-      setPostCommentsSuccessMessage('');
-      setSelectedPostCommentIDs([]);
-      setPostCommentActionID('');
-      setPostCommentActionStatus(null);
-      setDeletingPostCommentID('');
-      setBulkPostCommentActionStatus(null);
-      setPendingBulkPostCommentDeleteIDs([]);
-      setIsBulkPostCommentDeleting(false);
-      setPostCommentsPage(1);
-      setPostCommentsTotal(0);
-      setPendingPostCommentDelete(null);
+      resetPostDetailEditorState();
       setIsPostContentLoading(true);
       setErrorMessage('');
       setSuccessMessage('');
@@ -1322,6 +1397,8 @@ export default function AdminContentManagementPanel({
         setPostEditorTitle(detail.title ?? '');
         setPostEditorSummary(detail.summary ?? '');
         setPostEditorThumbnail(detail.thumbnail ?? '');
+        setPostEditorStatus(detail.status ?? 'PUBLISHED');
+        setPostEditorScheduledAt(detail.scheduledAt ?? '');
         setPostEditorPublishedDate(detail.publishedDate ?? '');
         setPostEditorUpdatedDate(detail.updatedDate ?? '');
         setPostEditorCategoryID(detail.categoryId ?? '');
@@ -1376,37 +1453,12 @@ export default function AdminContentManagementPanel({
         }
       }
     },
-    [onSessionExpired, t],
+    [onSessionExpired, resetPostDetailEditorState, t],
   );
 
   React.useEffect(() => {
     if (!isPostDetailRoute) {
-      setEditingPost(null);
-      setPostLocaleTabs([]);
-      setPostEditorTitle('');
-      setPostEditorSummary('');
-      setPostEditorThumbnail('');
-      setPostEditorPublishedDate('');
-      setPostEditorUpdatedDate('');
-      setPostEditorCategoryID('');
-      setPostEditorTopicIDs([]);
-      setPostEditorTopicQuery('');
-      setPostContentViewMode('editor');
-      setPostEditorContent('');
-      setPostEditorInitialContent('');
-      setPostComments([]);
-      setPostCommentsErrorMessage('');
-      setPostCommentsSuccessMessage('');
-      setSelectedPostCommentIDs([]);
-      setPostCommentActionID('');
-      setPostCommentActionStatus(null);
-      setDeletingPostCommentID('');
-      setBulkPostCommentActionStatus(null);
-      setPendingBulkPostCommentDeleteIDs([]);
-      setIsBulkPostCommentDeleting(false);
-      setPostCommentsPage(1);
-      setPostCommentsTotal(0);
-      setPendingPostCommentDelete(null);
+      resetPostDetailEditorState();
       setIsPostContentLoading(false);
       return;
     }
@@ -1415,7 +1467,52 @@ export default function AdminContentManagementPanel({
       locale: routePostLocale ?? '',
       id: routePostID ?? '',
     });
-  }, [isPostDetailRoute, loadPostDetail, routePostID, routePostLocale]);
+  }, [isPostDetailRoute, loadPostDetail, resetPostDetailEditorState, routePostID, routePostLocale]);
+
+  const loadPostRevisions = React.useCallback(async () => {
+    if (!editingPost || activePostEditorTab !== 'metadata') {
+      return;
+    }
+
+    setIsPostRevisionsLoading(true);
+    setPostRevisionsErrorMessage('');
+    try {
+      const payload = await fetchAdminContentPostRevisions({
+        locale: editingPost.locale,
+        id: editingPost.id,
+        page: postRevisionsPage,
+        size: postRevisionsPageSize,
+      });
+      setPostRevisions(payload.items ?? []);
+      setPostRevisionsTotal(payload.total);
+      if (payload.page > 0 && payload.page !== postRevisionsPage) {
+        setPostRevisionsPage(payload.page);
+      }
+      if (payload.size > 0 && payload.size !== postRevisionsPageSize) {
+        setPostRevisionsPageSize(payload.size);
+      }
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        onSessionExpired();
+        return;
+      }
+      const resolvedError = resolveAdminError(error);
+      setPostRevisionsErrorMessage(
+        resolvedError.message || t('adminAccount.content.errors.postRevisionsLoad', { ns: 'admin-account' }),
+      );
+      setPostRevisions([]);
+      setPostRevisionsTotal(0);
+    } finally {
+      setIsPostRevisionsLoading(false);
+    }
+  }, [activePostEditorTab, editingPost, onSessionExpired, postRevisionsPage, postRevisionsPageSize, t]);
+
+  React.useEffect(() => {
+    if (!editingPost || activePostEditorTab !== 'metadata') {
+      return;
+    }
+    void loadPostRevisions();
+  }, [activePostEditorTab, editingPost, loadPostRevisions]);
 
   const loadMediaLibrary = React.useCallback(
     async (nextPage = mediaLibraryPage, nextSize = mediaLibraryPageSize) => {
@@ -1642,6 +1739,8 @@ export default function AdminContentManagementPanel({
         thumbnail: postEditorThumbnail,
         publishedDate: postEditorPublishedDate,
         updatedDate: postEditorUpdatedDate,
+        status: postEditorStatus,
+        scheduledAt: postEditorStatus === 'SCHEDULED' ? postEditorScheduledAt : null,
         categoryId: postEditorCategoryID || null,
         topicIds: postEditorTopicIDs,
       });
@@ -1649,12 +1748,14 @@ export default function AdminContentManagementPanel({
       setPostEditorTitle(updated.title ?? '');
       setPostEditorSummary(updated.summary ?? '');
       setPostEditorThumbnail(updated.thumbnail ?? '');
+      setPostEditorStatus(updated.status ?? 'PUBLISHED');
+      setPostEditorScheduledAt(updated.scheduledAt ?? '');
       setPostEditorPublishedDate(updated.publishedDate ?? '');
       setPostEditorUpdatedDate(updated.updatedDate ?? '');
       setPostEditorCategoryID(updated.categoryId ?? '');
       setPostEditorTopicIDs(updated.topicIds ?? []);
       setPostEditorTopicQuery('');
-      await loadPosts();
+      await Promise.all([loadPosts(), loadPostRevisions()]);
       setSuccessMessage(
         t('adminAccount.content.success.postUpdated', {
           ns: 'admin-account',
@@ -1679,12 +1780,15 @@ export default function AdminContentManagementPanel({
     onSessionExpired,
     postEditorCategoryID,
     postEditorPublishedDate,
+    postEditorScheduledAt,
     postEditorSummary,
+    postEditorStatus,
     postEditorThumbnail,
     postEditorTitle,
     postEditorTopicIDs,
     postEditorUpdatedDate,
     t,
+    loadPostRevisions,
   ]);
 
   const handleDeletePost = React.useCallback(async () => {
@@ -1751,7 +1855,7 @@ export default function AdminContentManagementPanel({
       setEditingPost(updated);
       setPostEditorContent(resolvedContent);
       setPostEditorInitialContent(resolvedContent);
-      await loadPosts();
+      await Promise.all([loadPosts(), loadPostRevisions()]);
       setSuccessMessage(
         t('adminAccount.content.success.postContentUpdated', {
           ns: 'admin-account',
@@ -1770,7 +1874,74 @@ export default function AdminContentManagementPanel({
     } finally {
       setIsPostContentUpdating(false);
     }
-  }, [editingPost, isPostContentLoading, isPostContentUpdating, loadPosts, onSessionExpired, postEditorContent, t]);
+  }, [
+    editingPost,
+    isPostContentLoading,
+    isPostContentUpdating,
+    loadPostRevisions,
+    loadPosts,
+    onSessionExpired,
+    postEditorContent,
+    t,
+  ]);
+
+  const handleRestorePostRevision = React.useCallback(async () => {
+    if (!editingPost || !pendingPostRevisionRestore || isPostRevisionRestoring) {
+      return;
+    }
+
+    setIsPostRevisionRestoring(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+    try {
+      const restored = await restoreAdminContentPostRevision({
+        locale: editingPost.locale,
+        postId: editingPost.id,
+        revisionId: pendingPostRevisionRestore.id,
+      });
+      setEditingPost(restored);
+      setPostEditorTitle(restored.title ?? '');
+      setPostEditorSummary(restored.summary ?? '');
+      setPostEditorThumbnail(restored.thumbnail ?? '');
+      setPostEditorStatus(restored.status ?? 'PUBLISHED');
+      setPostEditorScheduledAt(restored.scheduledAt ?? '');
+      setPostEditorPublishedDate(restored.publishedDate ?? '');
+      setPostEditorUpdatedDate(restored.updatedDate ?? '');
+      setPostEditorCategoryID(restored.categoryId ?? '');
+      setPostEditorTopicIDs(restored.topicIds ?? []);
+      setPostEditorTopicQuery('');
+      const restoredContent = restored.content ?? '';
+      setPostEditorContent(restoredContent);
+      setPostEditorInitialContent(restoredContent);
+      setPendingPostRevisionRestore(null);
+      await Promise.all([loadPosts(), loadPostRevisions()]);
+      setSuccessMessage(
+        t('adminAccount.content.success.postRevisionRestored', {
+          ns: 'admin-account',
+          revision: pendingPostRevisionRestore.revisionNumber,
+        }),
+      );
+    } catch (error) {
+      if (isAdminSessionError(error)) {
+        onSessionExpired();
+        return;
+      }
+      const resolvedError = resolveAdminError(error);
+      setErrorMessage(
+        resolvedError.message || t('adminAccount.content.errors.postRevisionRestore', { ns: 'admin-account' }),
+      );
+    } finally {
+      setIsPostRevisionRestoring(false);
+    }
+  }, [
+    editingPost,
+    isPostRevisionRestoring,
+    loadPostRevisions,
+    loadPosts,
+    onSessionExpired,
+    pendingPostRevisionRestore,
+    t,
+  ]);
 
   const resetTopicEditor = React.useCallback(() => {
     setTopicEditorMode('create');
@@ -2613,6 +2784,16 @@ export default function AdminContentManagementPanel({
                   </h4>
                   {editingPost ? (
                     <div className="small text-muted">
+                      <div className="mb-1">
+                        <Badge bg={resolvePostLifecycleBadgeVariant(editingPost.status)}>
+                          {t(
+                            `adminAccount.content.modals.post.lifecycle.statuses.${editingPost.status.toLowerCase()}`,
+                            {
+                              ns: 'admin-account',
+                            },
+                          )}
+                        </Badge>
+                      </div>
                       <div>
                         {t('adminAccount.content.modals.post.labels.id', {
                           ns: 'admin-account',
@@ -2692,420 +2873,67 @@ export default function AdminContentManagementPanel({
                         </span>
                       }
                     >
-                      <div className="admin-content-post-tab-pane pt-3">
-                        <div className="mb-4">
-                          <h5 className="mb-1">
-                            {t('adminAccount.content.modals.post.analytics.title', { ns: 'admin-account' })}
-                          </h5>
-                          <p className="small text-muted mb-0">
-                            {t('adminAccount.content.modals.post.analytics.copy', { ns: 'admin-account' })}
-                          </p>
-                        </div>
-                        <div className="row g-3 mb-4">
-                          <div className="col-12 col-sm-6 col-xl-3">
-                            <div className="admin-newsletter-summary-metric admin-newsletter-summary-metric--views h-100">
-                              <div className="admin-newsletter-summary-label d-flex align-items-center gap-2">
-                                <FontAwesomeIcon icon="eye" />
-                                <span>
-                                  {t('adminAccount.content.modals.post.analytics.views', { ns: 'admin-account' })}
-                                </span>
-                              </div>
-                              <div className="admin-newsletter-summary-value">
-                                <CompactCount value={editingPost.viewCount} locale={routeLocale} />
-                              </div>
-                            </div>
-                          </div>
-                          <div className="col-12 col-sm-6 col-xl-3">
-                            <div className="admin-newsletter-summary-metric admin-newsletter-summary-metric--likes h-100">
-                              <div className="admin-newsletter-summary-label d-flex align-items-center gap-2">
-                                <FontAwesomeIcon icon="heart" />
-                                <span>
-                                  {t('adminAccount.content.modals.post.analytics.likes', { ns: 'admin-account' })}
-                                </span>
-                              </div>
-                              <div className="admin-newsletter-summary-value">
-                                {adminNumberFormatter.format(editingPost.likeCount)}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="col-12 col-sm-6 col-xl-3">
-                            <div className="admin-newsletter-summary-metric admin-newsletter-summary-metric--comments h-100">
-                              <div className="admin-newsletter-summary-label d-flex align-items-center gap-2">
-                                <FontAwesomeIcon icon="comments" />
-                                <span>
-                                  {t('adminAccount.content.modals.post.analytics.comments', { ns: 'admin-account' })}
-                                </span>
-                              </div>
-                              <div className="admin-newsletter-summary-value">
-                                {adminNumberFormatter.format(editingPost.commentCount)}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        {postEditorSeoPreview ? (
-                          <div className="mb-4">
-                            <div className="mb-3">
-                              <h5 className="mb-1">
-                                {t('adminAccount.content.modals.post.seo.title', { ns: 'admin-account' })}
-                              </h5>
-                              <p className="small text-muted mb-0">
-                                {t('adminAccount.content.modals.post.seo.copy', { ns: 'admin-account' })}
-                              </p>
-                            </div>
-                            <Nav
-                              variant="tabs"
-                              activeKey={postSeoPreviewTab}
-                              onSelect={nextKey => {
-                                setPostSeoPreviewTab((nextKey as PostSeoPreviewTab) || 'openGraph');
-                              }}
-                              className="mb-3 admin-content-tabs"
-                            >
-                              <Nav.Item>
-                                <Nav.Link eventKey="openGraph">
-                                  <span className="d-inline-flex align-items-center gap-2">
-                                    <FontAwesomeIcon icon="globe" />
-                                    <span>
-                                      {t('adminAccount.content.modals.post.seo.openGraphTitle', {
-                                        ns: 'admin-account',
-                                      })}
-                                    </span>
-                                  </span>
-                                </Nav.Link>
-                              </Nav.Item>
-                              <Nav.Item>
-                                <Nav.Link eventKey="twitter">
-                                  <span className="d-inline-flex align-items-center gap-2">
-                                    <FontAwesomeIcon icon={['fab', 'x-twitter']} />
-                                    <span>
-                                      {t('adminAccount.content.modals.post.seo.twitterTitle', {
-                                        ns: 'admin-account',
-                                      })}
-                                    </span>
-                                  </span>
-                                </Nav.Link>
-                              </Nav.Item>
-                            </Nav>
-                            <div className="admin-content-seo-preview-wrap">
-                              {postSeoPreviewTab === 'openGraph' ? (
-                                <Card className="admin-content-seo-preview-card">
-                                  <Card.Body className="p-0">
-                                    <div className="admin-content-seo-image-frame">
-                                      {postEditorSeoPreview.previewImageSrc ? (
-                                        <Image
-                                          loader={adminPreviewImageLoader}
-                                          src={postEditorSeoPreview.previewImageSrc}
-                                          alt={postEditorSeoPreview.title}
-                                          fill
-                                          unoptimized
-                                          sizes="(max-width: 991px) 100vw, 50vw"
-                                          className="object-fit-cover"
-                                        />
-                                      ) : (
-                                        <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary">
-                                          <FontAwesomeIcon icon="camera" />
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className="p-3 p-lg-4">
-                                      <div className="admin-content-seo-card-domain mb-2">
-                                        {postEditorSeoPreview.domainLabel}
-                                      </div>
-                                      <div className="admin-content-seo-card-title">{postEditorSeoPreview.title}</div>
-                                      <div className="admin-content-seo-card-description">
-                                        {postEditorSeoPreview.description}
-                                      </div>
-                                    </div>
-                                  </Card.Body>
-                                </Card>
-                              ) : null}
-                              {postSeoPreviewTab === 'twitter' ? (
-                                <Card className="admin-content-seo-preview-card">
-                                  <Card.Body className="p-0">
-                                    <div className="admin-content-seo-image-frame admin-content-seo-image-frame--x">
-                                      {postEditorSeoPreview.previewImageSrc ? (
-                                        <Image
-                                          loader={adminPreviewImageLoader}
-                                          src={postEditorSeoPreview.previewImageSrc}
-                                          alt={postEditorSeoPreview.title}
-                                          fill
-                                          unoptimized
-                                          sizes="(max-width: 991px) 100vw, 50vw"
-                                          className="object-fit-cover"
-                                        />
-                                      ) : (
-                                        <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary">
-                                          <FontAwesomeIcon icon="camera" />
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className="p-3 p-lg-4">
-                                      <div className="admin-content-seo-card-title">{postEditorSeoPreview.title}</div>
-                                      <div className="admin-content-seo-card-description mb-3">
-                                        {postEditorSeoPreview.description}
-                                      </div>
-                                      <div className="small text-muted admin-content-seo-card-meta">
-                                        <span>
-                                          {t('adminAccount.content.modals.post.seo.canonicalLabel', {
-                                            ns: 'admin-account',
-                                          })}
-                                          : {postEditorSeoPreview.canonicalURL}
-                                        </span>
-                                        <span>
-                                          {t('adminAccount.content.modals.post.seo.creatorLabel', {
-                                            ns: 'admin-account',
-                                          })}
-                                          : {postEditorSeoPreview.creatorLabel}
-                                        </span>
-                                        <span>
-                                          {t('adminAccount.content.modals.post.seo.authorLabel', {
-                                            ns: 'admin-account',
-                                          })}
-                                          : {postEditorSeoPreview.authorLabel}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </Card.Body>
-                                </Card>
-                              ) : null}
-                            </div>
-                          </div>
-                        ) : null}
-                        <Form.Group className="mb-3" controlId="admin-content-post-title">
-                          <Form.Label>
-                            {t('adminAccount.content.modals.post.metadataFields.title', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <Form.Control
-                            type="text"
-                            value={postEditorTitle}
-                            onChange={event => {
-                              setPostEditorTitle(event.currentTarget.value);
-                            }}
-                          />
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="admin-content-post-summary">
-                          <Form.Label>
-                            {t('adminAccount.content.modals.post.metadataFields.summary', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <Form.Control
-                            as="textarea"
-                            rows={4}
-                            value={postEditorSummary}
-                            onChange={event => {
-                              setPostEditorSummary(event.currentTarget.value);
-                            }}
-                          />
-                        </Form.Group>
-
-                        <div className="row g-3 mb-3">
-                          <div className="col-12 col-lg-6">
-                            <Form.Group controlId="admin-content-post-published-date">
-                              <Form.Label>
-                                {t('adminAccount.content.modals.post.metadataFields.publishedDate', {
-                                  ns: 'admin-account',
-                                })}
-                              </Form.Label>
-                              <DatePicker
-                                selected={parseISODateInput(postEditorPublishedDate)}
-                                onChange={(date: Date | null) => {
-                                  setPostEditorPublishedDate(date ? toISODateString(date) : '');
-                                }}
-                                dateFormat="P"
-                                locale={datePickerLocaleConfig}
-                                className="form-control"
-                                wrapperClassName="d-block"
-                                placeholderText={t('adminAccount.content.modals.post.metadataFields.publishedDate', {
-                                  ns: 'admin-account',
-                                })}
-                              />
-                            </Form.Group>
-                          </div>
-                          <div className="col-12 col-lg-6">
-                            <Form.Group controlId="admin-content-post-updated-date">
-                              <Form.Label>
-                                {t('adminAccount.content.modals.post.metadataFields.updatedDate', {
-                                  ns: 'admin-account',
-                                })}
-                              </Form.Label>
-                              <DatePicker
-                                selected={parseISODateInput(postEditorUpdatedDate)}
-                                onChange={(date: Date | null) => {
-                                  setPostEditorUpdatedDate(date ? toISODateString(date) : '');
-                                }}
-                                dateFormat="P"
-                                locale={datePickerLocaleConfig}
-                                className="form-control"
-                                wrapperClassName="d-block"
-                                isClearable
-                                placeholderText={t('adminAccount.content.modals.post.metadataFields.updatedDate', {
-                                  ns: 'admin-account',
-                                })}
-                              />
-                              <Form.Text className="text-muted">
-                                {t('adminAccount.content.modals.post.metadataFields.updatedDateHint', {
-                                  ns: 'admin-account',
-                                })}
-                              </Form.Text>
-                            </Form.Group>
-                          </div>
-                        </div>
-
-                        <Form.Group className="mb-3" controlId="admin-content-post-thumbnail">
-                          <Form.Label>
-                            {t('adminAccount.content.modals.post.metadataFields.thumbnail', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <div className="border rounded-3 p-3">
-                            <div className="d-flex flex-column flex-lg-row gap-3 align-items-stretch">
-                              <div
-                                className="border rounded-3 overflow-hidden bg-body-tertiary flex-shrink-0"
-                                style={{ width: '100%', maxWidth: '17rem' }}
-                              >
-                                <div className="ratio ratio-16x9">
-                                  {resolveAdminContentThumbnailSrc(postEditorThumbnail) ? (
-                                    <Image
-                                      loader={adminPreviewImageLoader}
-                                      src={resolveAdminContentThumbnailSrc(postEditorThumbnail) ?? ''}
-                                      alt={postEditorTitle.trim() || editingPost?.title || 'Thumbnail preview'}
-                                      fill
-                                      unoptimized
-                                      sizes="(max-width: 991px) 100vw, 272px"
-                                      className="object-fit-cover"
-                                    />
-                                  ) : (
-                                    <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
-                                      <FontAwesomeIcon icon="camera" size="2x" />
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="flex-grow-1 d-flex flex-column gap-3">
-                                <Form.Control
-                                  type="text"
-                                  value={postEditorThumbnail}
-                                  onChange={event => {
-                                    setPostEditorThumbnail(event.currentTarget.value);
-                                  }}
-                                />
-                                <div className="d-flex flex-wrap gap-2">
-                                  <Button type="button" variant="primary" onClick={openMediaLibraryScreen}>
-                                    <FontAwesomeIcon icon="images" className="me-2" />
-                                    {t('adminAccount.content.modals.post.media.openLibrary', { ns: 'admin-account' })}
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    variant="danger"
-                                    onClick={() => {
-                                      setPostEditorThumbnail('');
-                                    }}
-                                    disabled={!postEditorThumbnail.trim()}
-                                  >
-                                    <FontAwesomeIcon icon="trash" className="me-2" />
-                                    {t('adminAccount.content.modals.post.media.clear', { ns: 'admin-account' })}
-                                  </Button>
-                                </div>
-                                <div className="small text-muted">
-                                  {selectedMediaLibraryItem ? (
-                                    <>
-                                      {selectedMediaLibraryItem.name}
-                                      {selectedMediaLibraryItem.usageCount > 0
-                                        ? ` · ${t('adminAccount.content.modals.post.media.usedIn', {
-                                            ns: 'admin-account',
-                                            count: selectedMediaLibraryItem.usageCount,
-                                          })}`
-                                        : ''}
-                                    </>
-                                  ) : (
-                                    t('adminAccount.content.modals.post.media.hint', { ns: 'admin-account' })
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="admin-content-post-category">
-                          <Form.Label>
-                            {t('adminAccount.content.modals.post.category', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <Form.Select
-                            value={postEditorCategoryID}
-                            onChange={event => {
-                              setPostEditorCategoryID(event.currentTarget.value);
-                            }}
-                          >
-                            <option value="">
-                              {t('adminAccount.content.modals.post.categoryNone', { ns: 'admin-account' })}
-                            </option>
-                            {postEditorCategoryOptions.map(item => (
-                              <option key={toTaxonomyKey(item)} value={item.id}>
-                                {item.name}
-                              </option>
-                            ))}
-                          </Form.Select>
-                        </Form.Group>
-
-                        <Form.Group controlId="admin-content-post-topics">
-                          <Form.Label>
-                            {t('adminAccount.content.modals.post.topics', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <div className="admin-content-topic-picker-shell border rounded-3 overflow-hidden">
-                            <div className="admin-content-topic-picker-list list-group list-group-flush">
-                              <div className="list-group-item p-2">
-                                <div className="search-bar w-100 d-flex align-items-center">
-                                  <div className="search-icon">
-                                    <FontAwesomeIcon icon="search" />
-                                  </div>
-                                  <Form.Control
-                                    type="text"
-                                    className="search-input form-control"
-                                    value={postEditorTopicQuery}
-                                    onChange={event => {
-                                      setPostEditorTopicQuery(event.currentTarget.value);
-                                    }}
-                                    placeholder={t('adminAccount.content.modals.post.topicsQueryPlaceholder', {
-                                      ns: 'admin-account',
-                                    })}
-                                  />
-                                  {postEditorTopicQuery ? (
-                                    <button
-                                      type="button"
-                                      className="search-clear-btn border-0 bg-transparent"
-                                      onClick={() => {
-                                        setPostEditorTopicQuery('');
-                                      }}
-                                      aria-label={t('adminAccount.content.modals.post.topics', { ns: 'admin-account' })}
-                                    >
-                                      <FontAwesomeIcon icon="times-circle" className="clear-icon" />
-                                    </button>
-                                  ) : null}
-                                </div>
-                              </div>
-                              <div className="admin-content-topic-picker overflow-auto" style={{ maxHeight: '18rem' }}>
-                                {postEditorTopicOptions.length === 0 ? (
-                                  <div className="list-group-item admin-content-topic-picker-empty small text-muted p-3">
-                                    {t('adminAccount.content.modals.post.topicsEmpty', { ns: 'admin-account' })}
-                                  </div>
-                                ) : (
-                                  postEditorTopicOptions.map(item => (
-                                    <div key={toTaxonomyKey(item)} className="list-group-item bg-transparent py-2">
-                                      <Form.Check
-                                        type="checkbox"
-                                        id={`admin-content-post-topic-${toTaxonomyKey(item)}`}
-                                        className="mb-0"
-                                        label={item.name}
-                                        checked={postEditorTopicIDs.includes(item.id)}
-                                        onChange={event => {
-                                          handlePostTopicToggle(item.id, event.currentTarget.checked);
-                                        }}
-                                      />
-                                    </div>
-                                  ))
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </Form.Group>
-                      </div>
+                      <AdminContentPostMetadataTab
+                        t={t}
+                        routeLocale={routeLocale}
+                        editingPost={editingPost}
+                        formatCount={value => adminNumberFormatter.format(value)}
+                        formatDateTime={value => adminDateTimeFormatter.format(new Date(value))}
+                        postEditorSeoPreview={postEditorSeoPreview}
+                        postSeoPreviewTab={postSeoPreviewTab}
+                        onPostSeoPreviewTabChange={setPostSeoPreviewTab}
+                        imageLoader={adminPreviewImageLoader}
+                        postEditorTitle={postEditorTitle}
+                        onPostEditorTitleChange={setPostEditorTitle}
+                        postEditorSummary={postEditorSummary}
+                        onPostEditorSummaryChange={setPostEditorSummary}
+                        postEditorPublishedDate={postEditorPublishedDate}
+                        onPostEditorPublishedDateChange={setPostEditorPublishedDate}
+                        postEditorUpdatedDate={postEditorUpdatedDate}
+                        onPostEditorUpdatedDateChange={setPostEditorUpdatedDate}
+                        parseISODateInput={parseISODateInput}
+                        datePickerLocaleConfig={datePickerLocaleConfig}
+                        postEditorStatus={postEditorStatus}
+                        onPostEditorStatusChange={setPostEditorStatus}
+                        postEditorScheduledAt={postEditorScheduledAt}
+                        onPostEditorScheduledAtChange={setPostEditorScheduledAt}
+                        toDateTimeLocalInputValue={toDateTimeLocalInputValue}
+                        fromDateTimeLocalInputValue={fromDateTimeLocalInputValue}
+                        resolvePostLifecycleBadgeVariant={resolvePostLifecycleBadgeVariant}
+                        postEditorThumbnail={postEditorThumbnail}
+                        onPostEditorThumbnailChange={setPostEditorThumbnail}
+                        resolveThumbnailSrc={resolveAdminContentThumbnailSrc}
+                        onOpenMediaLibrary={openMediaLibraryScreen}
+                        onClearPostEditorThumbnail={() => {
+                          setPostEditorThumbnail('');
+                        }}
+                        selectedMediaLibraryItem={selectedMediaLibraryItem}
+                        postEditorCategoryID={postEditorCategoryID}
+                        onPostEditorCategoryIDChange={setPostEditorCategoryID}
+                        postEditorCategoryOptions={postEditorCategoryOptions}
+                        postEditorTopicQuery={postEditorTopicQuery}
+                        onPostEditorTopicQueryChange={setPostEditorTopicQuery}
+                        onClearPostEditorTopicQuery={() => {
+                          setPostEditorTopicQuery('');
+                        }}
+                        postEditorTopicOptions={postEditorTopicOptions}
+                        postEditorTopicIDs={postEditorTopicIDs}
+                        onPostTopicToggle={handlePostTopicToggle}
+                        getTaxonomyKey={toTaxonomyKey}
+                        postRevisionsErrorMessage={postRevisionsErrorMessage}
+                        isPostRevisionsLoading={isPostRevisionsLoading}
+                        postRevisions={postRevisions}
+                        postRevisionsTotal={postRevisionsTotal}
+                        postRevisionsPage={postRevisionsPage}
+                        totalPostRevisionPages={totalPostRevisionPages}
+                        postRevisionsPageSize={postRevisionsPageSize}
+                        onPostRevisionsPageChange={setPostRevisionsPage}
+                        onPostRevisionsPageSizeChange={size => {
+                          setPostRevisionsPageSize(size);
+                          setPostRevisionsPage(1);
+                        }}
+                        onOpenRestoreRevision={setPendingPostRevisionRestore}
+                      />
                     </Tab>
                     {editingPost.source === 'blog' ? (
                       <Tab
@@ -3117,221 +2945,17 @@ export default function AdminContentManagementPanel({
                           </span>
                         }
                       >
-                        <div className="admin-content-post-tab-pane pt-3">
-                          {postEditorPreviewState ? (
-                            <article className="post-detail-section mt-0 mb-3">
-                              {postEditorPreviewState.resolvedPostCategory ? (
-                                <div className="post-detail-category-row text-start">
-                                  <PostCategoryBadge
-                                    category={postEditorPreviewState.resolvedPostCategory}
-                                    className="post-category-link--truncated"
-                                    linked={false}
-                                  />
-                                </div>
-                              ) : null}
-
-                              <h2 className="post-detail-title fw-bold text-center">{editingPost.title}</h2>
-
-                              <div className="post-detail-meta">
-                                <div className="post-detail-meta-item">
-                                  <span className="post-detail-meta-icon" aria-hidden="true">
-                                    <FontAwesomeIcon icon="calendar-alt" />
-                                  </span>
-                                  <div className="post-detail-meta-content">
-                                    <span className="post-detail-meta-label">
-                                      {t('adminAccount.content.modals.post.meta.published', { ns: 'admin-account' })}
-                                    </span>
-                                    <span className="post-detail-meta-value">{editingPost.publishedDate}</span>
-                                  </div>
-                                </div>
-
-                                <div className="post-detail-meta-item">
-                                  <span className="post-detail-meta-icon" aria-hidden="true">
-                                    <FontAwesomeIcon icon="clock" />
-                                  </span>
-                                  <div className="post-detail-meta-content">
-                                    <span className="post-detail-meta-label">
-                                      {t('adminAccount.content.modals.post.meta.updated', { ns: 'admin-account' })}
-                                    </span>
-                                    <span className="post-detail-meta-value">
-                                      {editingPost.updatedDate || editingPost.publishedDate}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div className="post-detail-meta-item">
-                                  <span className="post-detail-meta-icon" aria-hidden="true">
-                                    <FontAwesomeIcon icon={postEditorPreviewState.sourceIcon} />
-                                  </span>
-                                  <div className="post-detail-meta-content">
-                                    <span className="post-detail-meta-label">
-                                      {t('adminAccount.content.filters.source', { ns: 'admin-account' })}
-                                    </span>
-                                    <span className="post-detail-meta-value">{postEditorPreviewState.sourceLabel}</span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {postEditorPreviewState.resolvedTopicBadges.length > 0 ? (
-                                <div className="post-detail-topics d-flex justify-content-center flex-wrap">
-                                  {postEditorPreviewState.resolvedTopicBadges.map(topic => (
-                                    <Badge
-                                      key={`${editingPost.id}-${topic.id}`}
-                                      bg={topic.color}
-                                      className={`badge-${topic.color}`}
-                                    >
-                                      {topic.name}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              ) : null}
-
-                              <div className="post-hero-image">
-                                <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
-                                  {postEditorPreviewState.thumbnailSrc ? (
-                                    <Image
-                                      src={postEditorPreviewState.thumbnailSrc}
-                                      alt={editingPost.title}
-                                      fill
-                                      sizes="(max-width: 1200px) 100vw, 1040px"
-                                      className="object-fit-cover"
-                                      unoptimized
-                                    />
-                                  ) : (
-                                    <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary">
-                                      <FontAwesomeIcon icon="camera" />
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-
-                              {postEditorPreviewState.resolvedSummary ? (
-                                <p className="post-summary-text mt-3 mb-0">{postEditorPreviewState.resolvedSummary}</p>
-                              ) : null}
-                            </article>
-                          ) : null}
-
-                          <div className="d-flex justify-content-end mb-3">
-                            <div
-                              className="post-density-control"
-                              aria-label={t('adminAccount.content.modals.post.previewTitle', { ns: 'admin-account' })}
-                            >
-                              <fieldset
-                                className="btn-group post-density-toggle border-0 p-0 m-0"
-                                aria-label={t('adminAccount.content.modals.post.previewTitle', { ns: 'admin-account' })}
-                              >
-                                <button
-                                  type="button"
-                                  className={`btn${postContentViewMode === 'editor' ? ' is-active' : ''}`}
-                                  aria-pressed={postContentViewMode === 'editor'}
-                                  aria-label={t('adminAccount.content.modals.post.modes.editor', {
-                                    ns: 'admin-account',
-                                  })}
-                                  title={t('adminAccount.content.modals.post.modes.editor', { ns: 'admin-account' })}
-                                  onClick={() => setPostContentViewMode('editor')}
-                                >
-                                  <span className="post-density-toggle-icon" aria-hidden="true">
-                                    <FontAwesomeIcon icon="code" className="fa-fw" />
-                                  </span>
-                                </button>
-                                <button
-                                  type="button"
-                                  className={`btn${postContentViewMode === 'split' ? ' is-active' : ''}`}
-                                  aria-pressed={postContentViewMode === 'split'}
-                                  aria-label={t('adminAccount.content.modals.post.modes.split', {
-                                    ns: 'admin-account',
-                                  })}
-                                  title={t('adminAccount.content.modals.post.modes.split', { ns: 'admin-account' })}
-                                  onClick={() => setPostContentViewMode('split')}
-                                >
-                                  <span className="post-density-toggle-icon" aria-hidden="true">
-                                    <FontAwesomeIcon icon="table-cells" className="fa-fw" />
-                                  </span>
-                                </button>
-                                <button
-                                  type="button"
-                                  className={`btn${postContentViewMode === 'preview' ? ' is-active' : ''}`}
-                                  aria-pressed={postContentViewMode === 'preview'}
-                                  aria-label={t('adminAccount.content.modals.post.modes.preview', {
-                                    ns: 'admin-account',
-                                  })}
-                                  title={t('adminAccount.content.modals.post.modes.preview', { ns: 'admin-account' })}
-                                  onClick={() => setPostContentViewMode('preview')}
-                                >
-                                  <span className="post-density-toggle-icon" aria-hidden="true">
-                                    <FontAwesomeIcon icon="eye" className="fa-fw" />
-                                  </span>
-                                </button>
-                              </fieldset>
-                            </div>
-                          </div>
-
-                          {postContentViewMode === 'editor' ? (
-                            <AdminMarkdownEditor
-                              id="admin-content-post-content-editor"
-                              label={t('adminAccount.content.modals.post.contentLabel', { ns: 'admin-account' })}
-                              hint={t('adminAccount.content.modals.post.contentHint', { ns: 'admin-account' })}
-                              value={postEditorContent}
-                              rows={18}
-                              onChange={setPostEditorContent}
-                            />
-                          ) : postContentViewMode === 'split' ? (
-                            <div className="row g-3 admin-content-post-split-row">
-                              <div className="col-12 col-xl-6 admin-content-post-split-col">
-                                <AdminMarkdownEditor
-                                  id="admin-content-post-content-editor-split"
-                                  label={t('adminAccount.content.modals.post.contentLabel', { ns: 'admin-account' })}
-                                  hint={t('adminAccount.content.modals.post.contentHint', { ns: 'admin-account' })}
-                                  value={postEditorContent}
-                                  rows={18}
-                                  className="admin-content-post-split-editor"
-                                  onViewportChange={handleSplitEditorViewportChange}
-                                  onChange={setPostEditorContent}
-                                />
-                              </div>
-                              <div className="col-12 col-xl-6 admin-content-post-split-col">
-                                <Form.Label className="d-block mb-2">
-                                  {t('adminAccount.content.modals.post.modes.preview', { ns: 'admin-account' })}
-                                </Form.Label>
-                                <div
-                                  ref={splitPreviewRef}
-                                  className="admin-post-content-preview admin-post-content-preview--split"
-                                >
-                                  {postEditorContent.trim() ? (
-                                    <article className="post-article admin-post-content-preview-markdown mt-0">
-                                      <MarkdownRenderer content={postEditorContent} />
-                                    </article>
-                                  ) : (
-                                    <div className="border rounded-3 p-3 bg-body-tertiary d-flex align-items-center h-100">
-                                      <p className="small text-muted mb-0">
-                                        {t('adminAccount.content.modals.post.previewEmpty', { ns: 'admin-account' })}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="mt-3">
-                              <Form.Label className="d-block mb-2">
-                                {t('adminAccount.content.modals.post.modes.preview', { ns: 'admin-account' })}
-                              </Form.Label>
-                              <div className="admin-post-content-preview admin-post-content-preview--boxed">
-                                {postEditorContent.trim() ? (
-                                  <article className="post-article admin-post-content-preview-markdown mt-0">
-                                    <MarkdownRenderer content={postEditorContent} />
-                                  </article>
-                                ) : (
-                                  <div className="p-1 d-flex align-items-center">
-                                    <p className="small text-muted mb-0">
-                                      {t('adminAccount.content.modals.post.previewEmpty', { ns: 'admin-account' })}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                        <AdminContentPostContentTab
+                          t={t}
+                          editingPost={editingPost}
+                          postEditorPreviewState={postEditorPreviewState}
+                          postContentViewMode={postContentViewMode}
+                          onPostContentViewModeChange={setPostContentViewMode}
+                          postEditorContent={postEditorContent}
+                          onPostEditorContentChange={setPostEditorContent}
+                          onSplitEditorViewportChange={handleSplitEditorViewportChange}
+                          splitPreviewRef={splitPreviewRef}
+                        />
                       </Tab>
                     ) : null}
                     <Tab
@@ -3343,536 +2967,78 @@ export default function AdminContentManagementPanel({
                         </span>
                       }
                     >
-                      <div className="admin-content-post-tab-pane pt-3">
-                        <div ref={postCommentsListTopRef} />
-                        <div className="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
-                          <div>
-                            <h5 className="mb-1">
-                              {t('adminAccount.content.modals.post.comments.title', { ns: 'admin-account' })}
-                            </h5>
-                            <p className="small text-muted mb-0">
-                              {t('adminAccount.content.modals.post.comments.copy', { ns: 'admin-account' })}
-                            </p>
-                          </div>
-                          <div className="d-flex align-items-center gap-2 flex-wrap">
-                            <Badge bg="light" text="dark" pill>
-                              {t('adminAccount.content.modals.post.comments.total', {
-                                ns: 'admin-account',
-                                count: postCommentsTotal,
-                              })}
-                            </Badge>
-                            <Form.Group controlId="admin-content-post-comments-status" className="mb-0">
-                              <Form.Select
-                                size="sm"
-                                value={postCommentsStatusFilter}
-                                onChange={event => {
-                                  setPostCommentsStatusFilter(event.currentTarget.value as CommentStatusFilterValue);
-                                  setPostCommentsErrorMessage('');
-                                  setPostCommentsSuccessMessage('');
-                                }}
-                              >
-                                <option value="all">
-                                  {t('adminAccount.comments.filters.statuses.all', { ns: 'admin-account' })}
-                                </option>
-                                <option value="PENDING">
-                                  {t('adminAccount.comments.filters.statuses.pending', { ns: 'admin-account' })}
-                                </option>
-                                <option value="APPROVED">
-                                  {t('adminAccount.comments.filters.statuses.approved', { ns: 'admin-account' })}
-                                </option>
-                                <option value="REJECTED">
-                                  {t('adminAccount.comments.filters.statuses.rejected', { ns: 'admin-account' })}
-                                </option>
-                                <option value="SPAM">
-                                  {t('adminAccount.comments.filters.statuses.spam', { ns: 'admin-account' })}
-                                </option>
-                              </Form.Select>
-                            </Form.Group>
-                          </div>
-                        </div>
-
-                        <Form.Group controlId="admin-content-post-comments-query" className="mb-3">
-                          <Form.Label className="small fw-semibold mb-1">
-                            {t('adminAccount.comments.filters.query', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <div className="search-bar w-100 d-flex align-items-center">
-                            <div className="search-icon">
-                              <FontAwesomeIcon icon="search" />
-                            </div>
-                            <Form.Control
-                              type="text"
-                              className="search-input form-control"
-                              value={postCommentsFilterQuery}
-                              onChange={event => {
-                                setPostCommentsFilterQuery(event.currentTarget.value);
-                                setPostCommentsErrorMessage('');
-                                setPostCommentsSuccessMessage('');
-                              }}
-                              placeholder={t('adminAccount.content.modals.post.comments.queryPlaceholder', {
-                                ns: 'admin-account',
-                              })}
-                            />
-                            {postCommentsFilterQuery ? (
-                              <button
-                                type="button"
-                                className="search-clear-btn border-0 bg-transparent"
-                                onClick={() => {
-                                  setPostCommentsFilterQuery('');
-                                  setPostCommentsErrorMessage('');
-                                  setPostCommentsSuccessMessage('');
-                                }}
-                                aria-label={t('adminAccount.comments.filters.query', { ns: 'admin-account' })}
-                              >
-                                <FontAwesomeIcon icon="times-circle" className="clear-icon" />
-                              </button>
-                            ) : null}
-                          </div>
-                        </Form.Group>
-
-                        {postCommentsErrorMessage ? (
-                          <Alert variant="danger" className="mb-3 px-3 py-2 lh-base">
-                            {postCommentsErrorMessage}
-                          </Alert>
-                        ) : null}
-                        {postCommentsSuccessMessage ? (
-                          <Alert variant="success" className="mb-3 px-3 py-2 lh-base">
-                            {postCommentsSuccessMessage}
-                          </Alert>
-                        ) : null}
-
-                        <div className="card shadow-sm d-block">
-                          <div className="card-body p-3 w-100">
-                            {postComments.length > 0 ? (
-                              <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                                <div className="d-flex align-items-center gap-2 flex-wrap">
-                                  <Button
-                                    type="button"
-                                    size="sm"
-                                    variant={allVisiblePostCommentsSelected ? 'secondary' : 'outline-secondary'}
-                                    disabled={isPostCommentsLoading || isBulkPostCommentActionPending}
-                                    onClick={toggleVisiblePostCommentsSelection}
-                                  >
-                                    <FontAwesomeIcon
-                                      icon={allVisiblePostCommentsSelected ? 'check-circle' : 'circle'}
-                                      className="me-2"
-                                    />
-                                    {t('adminAccount.comments.bulk.selectAll', { ns: 'admin-account' })}
-                                  </Button>
-                                  {hasSelectedPostComments ? (
-                                    <>
-                                      <Badge bg="light" text="dark" pill>
-                                        {t('adminAccount.comments.bulk.selected', {
-                                          ns: 'admin-account',
-                                          count: selectedPostCommentIDs.length,
-                                        })}
-                                      </Badge>
-                                      <Button
-                                        type="button"
-                                        size="sm"
-                                        variant="danger"
-                                        disabled={isBulkPostCommentActionPending}
-                                        onClick={() => {
-                                          setSelectedPostCommentIDs([]);
-                                        }}
-                                      >
-                                        <FontAwesomeIcon icon="trash" className="me-2" />
-                                        {t('adminAccount.comments.bulk.clearSelection', { ns: 'admin-account' })}
-                                      </Button>
-                                    </>
-                                  ) : null}
-                                </div>
-                                {hasSelectedPostComments ? (
-                                  <div className="d-flex align-items-center gap-2 flex-wrap">
-                                    <Button
-                                      type="button"
-                                      size="sm"
-                                      variant="success"
-                                      disabled={isBulkPostCommentActionPending}
-                                      onClick={() => {
-                                        void handleBulkPostCommentStatusUpdate('APPROVED');
-                                      }}
-                                    >
-                                      {bulkPostCommentActionStatus === 'APPROVED' ? (
-                                        <span className="d-inline-flex align-items-center gap-2">
-                                          <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            className="me-2 flex-shrink-0 admin-action-spinner"
-                                            aria-hidden="true"
-                                          />
-                                          <span>
-                                            {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
-                                          </span>
-                                        </span>
-                                      ) : (
-                                        <>
-                                          <FontAwesomeIcon icon="check" className="me-2" />
-                                          {t('adminAccount.comments.actions.approve', { ns: 'admin-account' })}
-                                        </>
-                                      )}
-                                    </Button>
-                                    <Button
-                                      type="button"
-                                      size="sm"
-                                      variant="secondary"
-                                      className="admin-newsletter-action admin-newsletter-action--secondary"
-                                      disabled={isBulkPostCommentActionPending}
-                                      onClick={() => {
-                                        void handleBulkPostCommentStatusUpdate('REJECTED');
-                                      }}
-                                    >
-                                      {bulkPostCommentActionStatus === 'REJECTED' ? (
-                                        <span className="d-inline-flex align-items-center gap-2">
-                                          <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            className="me-2 flex-shrink-0 admin-action-spinner"
-                                            aria-hidden="true"
-                                          />
-                                          <span>
-                                            {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
-                                          </span>
-                                        </span>
-                                      ) : (
-                                        <>
-                                          <FontAwesomeIcon icon="times-circle" className="me-2" />
-                                          {t('adminAccount.comments.actions.reject', { ns: 'admin-account' })}
-                                        </>
-                                      )}
-                                    </Button>
-                                    <Button
-                                      type="button"
-                                      size="sm"
-                                      variant="danger"
-                                      className="admin-newsletter-action admin-newsletter-action--danger"
-                                      disabled={isBulkPostCommentActionPending}
-                                      onClick={() => {
-                                        void handleBulkPostCommentStatusUpdate('SPAM');
-                                      }}
-                                    >
-                                      {bulkPostCommentActionStatus === 'SPAM' ? (
-                                        <span className="d-inline-flex align-items-center gap-2">
-                                          <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            className="me-2 flex-shrink-0 admin-action-spinner"
-                                            aria-hidden="true"
-                                          />
-                                          <span>
-                                            {t('adminAccount.comments.actions.updating', { ns: 'admin-account' })}
-                                          </span>
-                                        </span>
-                                      ) : (
-                                        <>
-                                          <FontAwesomeIcon icon="shield-halved" className="me-2" />
-                                          {t('adminAccount.comments.actions.spam', { ns: 'admin-account' })}
-                                        </>
-                                      )}
-                                    </Button>
-                                    <Button
-                                      type="button"
-                                      size="sm"
-                                      variant="danger"
-                                      disabled={isBulkPostCommentActionPending}
-                                      onClick={() => {
-                                        setPendingBulkPostCommentDeleteIDs(selectedPostCommentIDs);
-                                      }}
-                                    >
-                                      {isBulkPostCommentDeleting ? (
-                                        <span className="d-inline-flex align-items-center gap-2">
-                                          <Spinner
-                                            as="span"
-                                            animation="border"
-                                            size="sm"
-                                            className="me-2 flex-shrink-0 admin-action-spinner"
-                                            aria-hidden="true"
-                                          />
-                                          <span>
-                                            {t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}
-                                          </span>
-                                        </span>
-                                      ) : (
-                                        <>
-                                          <FontAwesomeIcon icon="trash" className="me-2" />
-                                          {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
-                                        </>
-                                      )}
-                                    </Button>
-                                  </div>
-                                ) : null}
-                              </div>
-                            ) : null}
-                            {isPostCommentsLoading ? (
-                              <AdminLoadingState
-                                className="admin-loading-stack"
-                                ariaLabel={t('adminAccount.comments.loading', { ns: 'admin-account' })}
-                              />
-                            ) : postCommentsTotal === 0 ? ( // NOSONAR
-                              <p className="small text-muted mb-0">
-                                {t('adminAccount.content.modals.post.comments.empty', { ns: 'admin-account' })}
-                              </p>
-                            ) : (
-                              <div className="d-grid gap-3">
-                                {postComments.map(item => {
-                                  const isActionPending = postCommentActionID === item.id;
-                                  const isDeletePending = deletingPostCommentID === item.id;
-                                  const isApprovePending = isActionPending && postCommentActionStatus === 'APPROVED';
-                                  const isRejectPending = isActionPending && postCommentActionStatus === 'REJECTED';
-                                  const isSpamPending = isActionPending && postCommentActionStatus === 'SPAM';
-                                  const statusLabel = t(
-                                    `adminAccount.comments.filters.statuses.${item.status.toLowerCase()}`,
-                                    { ns: 'admin-account' },
-                                  );
-
-                                  return (
-                                    <div
-                                      key={item.id}
-                                      className={`admin-newsletter-campaign-card admin-comments-card admin-comments-card--${item.status.toLowerCase()}`}
-                                    >
-                                      <div className="d-flex align-items-start gap-3">
-                                        <Form.Check
-                                          type="checkbox"
-                                          className="mt-1"
-                                          aria-label={item.authorName}
-                                          checked={selectedPostCommentIDs.includes(item.id)}
-                                          disabled={
-                                            isActionPending || isDeletePending || isBulkPostCommentActionPending
-                                          }
-                                          onChange={event => {
-                                            togglePostCommentSelection(item.id, event.currentTarget.checked);
-                                          }}
-                                        />
-                                        <div className="d-grid gap-2 flex-grow-1">
-                                          <div className="d-flex align-items-center gap-2 flex-wrap">
-                                            <strong className="text-break">{item.authorName}</strong>
-                                            <span
-                                              className={`badge text-bg-${resolveCommentStatusVariant(item.status)}`}
-                                            >
-                                              {statusLabel}
-                                            </span>
-                                            <span className="badge text-bg-light">
-                                              {item.parentId
-                                                ? t('adminAccount.comments.list.replyLabel', { ns: 'admin-account' })
-                                                : t('adminAccount.comments.list.rootLabel', { ns: 'admin-account' })}
-                                            </span>
-                                          </div>
-                                          <div className="small text-muted d-flex align-items-center gap-2 flex-wrap">
-                                            <span className="d-inline-flex align-items-center gap-2">
-                                              <FontAwesomeIcon icon="envelope" className="text-muted" />
-                                              <span>{item.authorEmail}</span>
-                                            </span>
-                                            <span className="d-inline-flex align-items-center gap-2">
-                                              <FontAwesomeIcon icon="calendar-alt" className="text-muted" />
-                                              <span>
-                                                {t('adminAccount.comments.list.submittedAt', {
-                                                  ns: 'admin-account',
-                                                  value: formatDate(item.createdAt),
-                                                })}
-                                              </span>
-                                            </span>
-                                            {item.updatedAt && item.updatedAt !== item.createdAt ? (
-                                              <span className="d-inline-flex align-items-center gap-2">
-                                                <FontAwesomeIcon icon="clock" className="text-muted" />
-                                                <span>
-                                                  {t('adminAccount.comments.list.updatedAt', {
-                                                    ns: 'admin-account',
-                                                    value: formatDate(item.updatedAt),
-                                                  })}
-                                                </span>
-                                              </span>
-                                            ) : null}
-                                          </div>
-                                        </div>
-                                      </div>
-
-                                      <p className="mb-0 mt-3 text-break">{item.content}</p>
-
-                                      <div className="row g-2 mt-3">
-                                        <div className="col-12 col-md-auto">
-                                          <Button
-                                            type="button"
-                                            size="sm"
-                                            variant="success"
-                                            className="w-100"
-                                            disabled={
-                                              isActionPending ||
-                                              isDeletePending ||
-                                              isBulkPostCommentActionPending ||
-                                              item.status === 'APPROVED'
-                                            }
-                                            onClick={() => {
-                                              void handlePostCommentStatusUpdate(item.id, 'APPROVED');
-                                            }}
-                                          >
-                                            {isApprovePending ? (
-                                              <span className="d-inline-flex align-items-center gap-2">
-                                                <Spinner
-                                                  as="span"
-                                                  animation="border"
-                                                  size="sm"
-                                                  className="me-2 flex-shrink-0 admin-action-spinner"
-                                                  aria-hidden="true"
-                                                />
-                                                <span>
-                                                  {t('adminAccount.comments.actions.updating', {
-                                                    ns: 'admin-account',
-                                                  })}
-                                                </span>
-                                              </span>
-                                            ) : (
-                                              <>
-                                                <FontAwesomeIcon icon="check" className="me-2" />
-                                                {t('adminAccount.comments.actions.approve', { ns: 'admin-account' })}
-                                              </>
-                                            )}
-                                          </Button>
-                                        </div>
-                                        <div className="col-12 col-md-auto">
-                                          <Button
-                                            type="button"
-                                            size="sm"
-                                            variant="secondary"
-                                            className="w-100 admin-newsletter-action admin-newsletter-action--secondary"
-                                            disabled={
-                                              isActionPending ||
-                                              isDeletePending ||
-                                              isBulkPostCommentActionPending ||
-                                              item.status === 'REJECTED'
-                                            }
-                                            onClick={() => {
-                                              void handlePostCommentStatusUpdate(item.id, 'REJECTED');
-                                            }}
-                                          >
-                                            {isRejectPending ? null : (
-                                              <FontAwesomeIcon icon="times-circle" className="me-2" />
-                                            )}
-                                            {isRejectPending ? (
-                                              <span className="d-inline-flex align-items-center gap-2">
-                                                <Spinner
-                                                  as="span"
-                                                  animation="border"
-                                                  size="sm"
-                                                  className="me-2 flex-shrink-0 admin-action-spinner"
-                                                  aria-hidden="true"
-                                                />
-                                                <span>
-                                                  {t('adminAccount.comments.actions.updating', {
-                                                    ns: 'admin-account',
-                                                  })}
-                                                </span>
-                                              </span>
-                                            ) : (
-                                              t('adminAccount.comments.actions.reject', { ns: 'admin-account' })
-                                            )}
-                                          </Button>
-                                        </div>
-                                        <div className="col-12 col-md-auto">
-                                          <Button
-                                            type="button"
-                                            size="sm"
-                                            variant="danger"
-                                            className="w-100 admin-newsletter-action admin-newsletter-action--danger"
-                                            disabled={
-                                              isActionPending ||
-                                              isDeletePending ||
-                                              isBulkPostCommentActionPending ||
-                                              item.status === 'SPAM'
-                                            }
-                                            onClick={() => {
-                                              void handlePostCommentStatusUpdate(item.id, 'SPAM');
-                                            }}
-                                          >
-                                            {isSpamPending ? null : (
-                                              <FontAwesomeIcon icon="shield-halved" className="me-2" />
-                                            )}
-                                            {isSpamPending ? (
-                                              <span className="d-inline-flex align-items-center gap-2">
-                                                <Spinner
-                                                  as="span"
-                                                  animation="border"
-                                                  size="sm"
-                                                  className="me-2 flex-shrink-0 admin-action-spinner"
-                                                  aria-hidden="true"
-                                                />
-                                                <span>
-                                                  {t('adminAccount.comments.actions.updating', {
-                                                    ns: 'admin-account',
-                                                  })}
-                                                </span>
-                                              </span>
-                                            ) : (
-                                              t('adminAccount.comments.actions.spam', { ns: 'admin-account' })
-                                            )}
-                                          </Button>
-                                        </div>
-                                        <div className="col-12 col-md-auto">
-                                          <Button
-                                            type="button"
-                                            size="sm"
-                                            variant="danger"
-                                            className="w-100"
-                                            disabled={
-                                              isActionPending || isDeletePending || isBulkPostCommentActionPending
-                                            }
-                                            onClick={() => {
-                                              setPendingPostCommentDelete(item);
-                                            }}
-                                          >
-                                            {isDeletePending ? (
-                                              <span className="d-inline-flex align-items-center gap-2">
-                                                <Spinner
-                                                  as="span"
-                                                  animation="border"
-                                                  size="sm"
-                                                  className="me-2 flex-shrink-0 admin-action-spinner"
-                                                  aria-hidden="true"
-                                                />
-                                                <span>
-                                                  {t('adminAccount.comments.actions.deleting', {
-                                                    ns: 'admin-account',
-                                                  })}
-                                                </span>
-                                              </span>
-                                            ) : (
-                                              <>
-                                                <FontAwesomeIcon icon="trash" className="me-2" />
-                                                {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
-                                              </>
-                                            )}
-                                          </Button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                          {!isPostCommentsLoading && postCommentsTotal > 0 ? (
-                            <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
-                              <PaginationBar
-                                className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"
-                                currentPage={postCommentsPage}
-                                totalPages={totalPostCommentPages}
-                                totalResults={postCommentsTotal}
-                                size={postCommentsPageSize}
-                                onPageChange={nextPage => {
-                                  setPostCommentsPage(nextPage);
-                                  scrollToPostCommentsListTop();
-                                }}
-                                onSizeChange={size => {
-                                  setPostCommentsPageSize(size);
-                                  setPostCommentsPage(1);
-                                  scrollToPostCommentsListTop();
-                                }}
-                              />
-                            </div>
-                          ) : null}
-                        </div>
-                      </div>
+                      <AdminContentPostCommentsTab
+                        t={t}
+                        formatDate={formatDate}
+                        listTopRef={postCommentsListTopRef}
+                        postCommentsTotal={postCommentsTotal}
+                        postCommentsStatusFilter={postCommentsStatusFilter}
+                        onPostCommentsStatusFilterChange={value => {
+                          setPostCommentsStatusFilter(value);
+                          setPostCommentsErrorMessage('');
+                          setPostCommentsSuccessMessage('');
+                        }}
+                        postCommentsFilterQuery={postCommentsFilterQuery}
+                        onPostCommentsFilterQueryChange={value => {
+                          setPostCommentsFilterQuery(value);
+                          setPostCommentsErrorMessage('');
+                          setPostCommentsSuccessMessage('');
+                        }}
+                        onClearPostCommentsFilterQuery={() => {
+                          setPostCommentsFilterQuery('');
+                          setPostCommentsErrorMessage('');
+                          setPostCommentsSuccessMessage('');
+                        }}
+                        postCommentsErrorMessage={postCommentsErrorMessage}
+                        postCommentsSuccessMessage={postCommentsSuccessMessage}
+                        postComments={postComments}
+                        allVisiblePostCommentsSelected={allVisiblePostCommentsSelected}
+                        isPostCommentsLoading={isPostCommentsLoading}
+                        isBulkPostCommentActionPending={isBulkPostCommentActionPending}
+                        hasSelectedPostComments={hasSelectedPostComments}
+                        selectedPostCommentIDs={selectedPostCommentIDs}
+                        onToggleVisiblePostCommentsSelection={toggleVisiblePostCommentsSelection}
+                        onClearSelectedPostCommentIDs={() => {
+                          setSelectedPostCommentIDs([]);
+                        }}
+                        bulkPostCommentActionStatus={bulkPostCommentActionStatus}
+                        isBulkPostCommentDeleting={isBulkPostCommentDeleting}
+                        onBulkApprove={() => {
+                          void handleBulkPostCommentStatusUpdate('APPROVED');
+                        }}
+                        onBulkReject={() => {
+                          void handleBulkPostCommentStatusUpdate('REJECTED');
+                        }}
+                        onBulkSpam={() => {
+                          void handleBulkPostCommentStatusUpdate('SPAM');
+                        }}
+                        onOpenBulkDelete={() => {
+                          setPendingBulkPostCommentDeleteIDs(selectedPostCommentIDs);
+                        }}
+                        postCommentActionID={postCommentActionID}
+                        postCommentActionStatus={postCommentActionStatus}
+                        deletingPostCommentID={deletingPostCommentID}
+                        onTogglePostCommentSelection={togglePostCommentSelection}
+                        resolveCommentStatusVariant={resolveCommentStatusVariant}
+                        onUpdatePostCommentStatus={(commentID, status) => {
+                          void handlePostCommentStatusUpdate(commentID, status);
+                        }}
+                        onOpenDeletePostComment={item => {
+                          setPendingPostCommentDelete(item);
+                        }}
+                        postCommentsPage={postCommentsPage}
+                        totalPostCommentPages={totalPostCommentPages}
+                        postCommentsPageSize={postCommentsPageSize}
+                        onPostCommentsPageChange={nextPage => {
+                          setPostCommentsPage(nextPage);
+                          scrollToPostCommentsListTop();
+                        }}
+                        onPostCommentsPageSizeChange={size => {
+                          setPostCommentsPageSize(size);
+                          setPostCommentsPage(1);
+                          scrollToPostCommentsListTop();
+                        }}
+                      />
                     </Tab>
                   </Tabs>
 
@@ -3925,207 +3091,40 @@ export default function AdminContentManagementPanel({
                 </>
               }
             >
-              <div className="pt-3">
-                <div className="card d-block">
-                  <div className="card-body p-3 p-md-4 w-100">
-                    <div className="d-flex align-items-center justify-content-between mb-3">
-                      <h4 className="admin-dashboard-panel-title mb-0">
-                        {t('adminAccount.content.categories.title', { ns: 'admin-account' })}
-                      </h4>
-                      <Button type="button" size="sm" variant="primary" onClick={handleOpenCreateCategory}>
-                        <FontAwesomeIcon icon="plus" className="me-2" />
-                        {t('adminAccount.content.actions.create', { ns: 'admin-account' })}
-                      </Button>
-                    </div>
-                    <div className="row g-3 mb-3">
-                      <div className="col-12 col-lg-4">
-                        <Form.Group controlId="admin-content-categories-filter-locale">
-                          <Form.Label className="small fw-semibold mb-1">
-                            {t('adminAccount.content.filters.locale', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <Form.Select
-                            value={categoryFilterLocale}
-                            onChange={event => {
-                              setCategoryFilterLocale(event.currentTarget.value as LocaleFilterValue);
-                            }}
-                          >
-                            <option value="all">
-                              {t('adminAccount.content.filters.locales.all', { ns: 'admin-account' })}
-                            </option>
-                            <option value="en">
-                              {t('adminAccount.content.filters.locales.en', { ns: 'admin-account' })}
-                            </option>
-                            <option value="tr">
-                              {t('adminAccount.content.filters.locales.tr', { ns: 'admin-account' })}
-                            </option>
-                          </Form.Select>
-                        </Form.Group>
-                      </div>
-                      <div className="col-12 col-lg-8">
-                        <Form.Group controlId="admin-content-categories-filter-query">
-                          <Form.Label className="small fw-semibold mb-1">
-                            {t('adminAccount.content.filters.query', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <div className="search-bar w-100 d-flex align-items-center">
-                            <div className="search-icon">
-                              <FontAwesomeIcon icon="search" />
-                            </div>
-                            <Form.Control
-                              type="text"
-                              className="search-input form-control"
-                              value={categoryFilterQuery}
-                              onChange={event => {
-                                setCategoryFilterQuery(event.currentTarget.value);
-                              }}
-                              placeholder={t('adminAccount.content.filters.queryPlaceholder', { ns: 'admin-account' })}
-                            />
-                            {categoryFilterQuery ? (
-                              <button
-                                type="button"
-                                className="search-clear-btn border-0 bg-transparent"
-                                onClick={() => {
-                                  setCategoryFilterQuery('');
-                                }}
-                                aria-label={t('adminAccount.content.filters.query', { ns: 'admin-account' })}
-                              >
-                                <FontAwesomeIcon icon="times-circle" className="clear-icon" />
-                              </button>
-                            ) : null}
-                          </div>
-                        </Form.Group>
-                      </div>
-                    </div>
-                    {isCategoryListLoading ? (
-                      <AdminLoadingState
-                        className="admin-loading-stack"
-                        ariaLabel={t('adminAccount.content.loading.taxonomy', { ns: 'admin-account' })}
-                      />
-                    ) : categoryTotal === 0 ? (
-                      <p className="small text-muted mb-0">
-                        {t('adminAccount.content.empty.categories', { ns: 'admin-account' })}
-                      </p>
-                    ) : (
-                      <div className="post-list-results post-list-results--editorial">
-                        {categoryListItems.map(group => {
-                          const item = group.preferred;
-                          const accentColor = resolveAdminContentAccentColor(item.color);
-                          return (
-                            <div
-                              key={group.id.toLowerCase()}
-                              className="post-card d-flex align-items-center post-summary-card admin-account-card admin-content-category-card"
-                              style={
-                                {
-                                  '--topic-accent': accentColor,
-                                } as React.CSSProperties
-                              }
-                            >
-                              <div className="post-card-content flex-grow-1">
-                                <div className="post-summary-title-row">
-                                  <h4 className="fw-bold post-summary-title fs-4 mb-0 text-break">{item.name}</h4>
-                                </div>
-
-                                <p className="post-summary-meta mb-2">
-                                  <span className="text-muted d-flex align-items-center">
-                                    <FontAwesomeIcon icon="tags" className="me-2" />
-                                    {item.id}
-                                  </span>
-                                  <span className="text-muted d-flex align-items-center">
-                                    <FontAwesomeIcon icon="palette" className="me-2" />
-                                    {t('adminAccount.content.list.colorValue', {
-                                      ns: 'admin-account',
-                                      value: item.color,
-                                    })}
-                                  </span>
-                                  {item.icon ? (
-                                    <span className="text-muted d-flex align-items-center">
-                                      <FontAwesomeIcon icon="tag" className="me-2" />
-                                      {t('adminAccount.content.list.iconValue', {
-                                        ns: 'admin-account',
-                                        value: item.icon,
-                                      })}
-                                    </span>
-                                  ) : null}
-                                </p>
-
-                                {item.updatedAt ? (
-                                  <div className="post-summary-date text-muted d-flex align-items-center mb-3">
-                                    <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-                                    {t('adminAccount.content.list.updatedAt', {
-                                      ns: 'admin-account',
-                                      value: formatDate(item.updatedAt),
-                                    })}
-                                  </div>
-                                ) : null}
-
-                                <div className="post-summary-thumbnail">
-                                  <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
-                                    <div
-                                      className="w-100 h-100 d-flex align-items-end p-3"
-                                      style={{
-                                        background: `linear-gradient(135deg, color-mix(in srgb, ${accentColor} 90%, var(--main-bg) 10%) 0%, color-mix(in srgb, ${accentColor} 58%, var(--main-bg) 42%) 100%)`,
-                                      }}
-                                    >
-                                      <div className="w-100 d-flex align-items-center justify-content-between gap-2">
-                                        <span className="badge rounded-pill text-bg-dark">{item.id}</span>
-                                        <span className="badge border border-light-subtle text-bg-light text-dark">
-                                          {t('adminAccount.content.categories.title', { ns: 'admin-account' })}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="post-summary-cta d-flex flex-wrap gap-2 mt-3">
-                                  <Button
-                                    type="button"
-                                    size="sm"
-                                    variant="primary"
-                                    onClick={() => handleOpenUpdateCategory(item)}
-                                  >
-                                    <FontAwesomeIcon icon="save" className="me-2" />
-                                    {t('adminAccount.content.actions.update', { ns: 'admin-account' })}
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    size="sm"
-                                    variant="danger"
-                                    onClick={() => {
-                                      setPendingCategoryDelete(item);
-                                    }}
-                                  >
-                                    <FontAwesomeIcon icon="trash" className="me-2" />
-                                    {t('adminAccount.content.actions.delete', { ns: 'admin-account' })}
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                  {!isCategoryListLoading && categoryTotal > 0 ? (
-                    <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
-                      <PaginationBar
-                        className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"
-                        currentPage={categoryPage}
-                        totalPages={categoryTabTotalPages}
-                        totalResults={categoryTotal}
-                        size={categoryPageSize}
-                        onPageChange={nextPage => {
-                          setCategoryPage(nextPage);
-                          scrollToListTop();
-                        }}
-                        onSizeChange={size => {
-                          setCategoryPageSize(size);
-                          setCategoryPage(1);
-                          scrollToListTop();
-                        }}
-                      />
-                    </div>
-                  ) : null}
-                </div>
-              </div>
+              <AdminContentCategoriesTab
+                t={t}
+                formatDate={formatDate}
+                categoryFilterLocale={categoryFilterLocale}
+                onCategoryFilterLocaleChange={value => {
+                  setCategoryFilterLocale(value);
+                }}
+                categoryFilterQuery={categoryFilterQuery}
+                onCategoryFilterQueryChange={setCategoryFilterQuery}
+                onClearCategoryFilterQuery={() => {
+                  setCategoryFilterQuery('');
+                }}
+                isCategoryListLoading={isCategoryListLoading}
+                categoryTotal={categoryTotal}
+                categoryListItems={categoryListItems}
+                onOpenCreateCategory={handleOpenCreateCategory}
+                onOpenUpdateCategory={handleOpenUpdateCategory}
+                onOpenDeleteCategory={item => {
+                  setPendingCategoryDelete(item);
+                }}
+                resolveAccentColor={resolveAdminContentAccentColor}
+                categoryPage={categoryPage}
+                categoryTotalPages={categoryTabTotalPages}
+                categoryPageSize={categoryPageSize}
+                onCategoryPageChange={nextPage => {
+                  setCategoryPage(nextPage);
+                  scrollToListTop();
+                }}
+                onCategoryPageSizeChange={size => {
+                  setCategoryPageSize(size);
+                  setCategoryPage(1);
+                  scrollToListTop();
+                }}
+              />
             </Tab>
 
             <Tab
@@ -4137,197 +3136,40 @@ export default function AdminContentManagementPanel({
                 </>
               }
             >
-              <div className="pt-3">
-                <div className="card d-block">
-                  <div className="card-body p-3 p-md-4 w-100">
-                    <div className="d-flex align-items-center justify-content-between mb-3">
-                      <h4 className="admin-dashboard-panel-title mb-0">
-                        {t('adminAccount.content.topics.title', { ns: 'admin-account' })}
-                      </h4>
-                      <Button type="button" size="sm" variant="primary" onClick={handleOpenCreateTopic}>
-                        <FontAwesomeIcon icon="plus" className="me-2" />
-                        {t('adminAccount.content.actions.create', { ns: 'admin-account' })}
-                      </Button>
-                    </div>
-                    <div className="row g-3 mb-3">
-                      <div className="col-12 col-lg-4">
-                        <Form.Group controlId="admin-content-topics-filter-locale">
-                          <Form.Label className="small fw-semibold mb-1">
-                            {t('adminAccount.content.filters.locale', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <Form.Select
-                            value={topicFilterLocale}
-                            onChange={event => {
-                              setTopicFilterLocale(event.currentTarget.value as LocaleFilterValue);
-                            }}
-                          >
-                            <option value="all">
-                              {t('adminAccount.content.filters.locales.all', { ns: 'admin-account' })}
-                            </option>
-                            <option value="en">
-                              {t('adminAccount.content.filters.locales.en', { ns: 'admin-account' })}
-                            </option>
-                            <option value="tr">
-                              {t('adminAccount.content.filters.locales.tr', { ns: 'admin-account' })}
-                            </option>
-                          </Form.Select>
-                        </Form.Group>
-                      </div>
-                      <div className="col-12 col-lg-8">
-                        <Form.Group controlId="admin-content-topics-filter-query">
-                          <Form.Label className="small fw-semibold mb-1">
-                            {t('adminAccount.content.filters.query', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <div className="search-bar w-100 d-flex align-items-center">
-                            <div className="search-icon">
-                              <FontAwesomeIcon icon="search" />
-                            </div>
-                            <Form.Control
-                              type="text"
-                              className="search-input form-control"
-                              value={topicFilterQuery}
-                              onChange={event => {
-                                setTopicFilterQuery(event.currentTarget.value);
-                              }}
-                              placeholder={t('adminAccount.content.filters.queryPlaceholder', { ns: 'admin-account' })}
-                            />
-                            {topicFilterQuery ? (
-                              <button
-                                type="button"
-                                className="search-clear-btn border-0 bg-transparent"
-                                onClick={() => {
-                                  setTopicFilterQuery('');
-                                }}
-                                aria-label={t('adminAccount.content.filters.query', { ns: 'admin-account' })}
-                              >
-                                <FontAwesomeIcon icon="times-circle" className="clear-icon" />
-                              </button>
-                            ) : null}
-                          </div>
-                        </Form.Group>
-                      </div>
-                    </div>
-                    {isTopicListLoading ? (
-                      <AdminLoadingState
-                        className="admin-loading-stack"
-                        ariaLabel={t('adminAccount.content.loading.taxonomy', { ns: 'admin-account' })}
-                      />
-                    ) : topicTotal === 0 ? (
-                      <p className="small text-muted mb-0">
-                        {t('adminAccount.content.empty.topics', { ns: 'admin-account' })}
-                      </p>
-                    ) : (
-                      <div className="post-list-results post-list-results--editorial">
-                        {topicListItems.map(group => {
-                          const item = group.preferred;
-                          const accentColor = resolveAdminContentAccentColor(item.color);
-                          return (
-                            <div
-                              key={group.id.toLowerCase()}
-                              className="post-card d-flex align-items-center post-summary-card admin-account-card admin-content-topic-card"
-                              style={
-                                {
-                                  '--topic-accent': accentColor,
-                                } as React.CSSProperties
-                              }
-                            >
-                              <div className="post-card-content flex-grow-1">
-                                <div className="post-summary-title-row">
-                                  <h4 className="fw-bold post-summary-title fs-4 mb-0 text-break">{item.name}</h4>
-                                </div>
-
-                                <p className="post-summary-meta mb-2">
-                                  <span className="text-muted d-flex align-items-center">
-                                    <FontAwesomeIcon icon="tags" className="me-2" />
-                                    {item.id}
-                                  </span>
-                                  <span className="text-muted d-flex align-items-center">
-                                    <FontAwesomeIcon icon="palette" className="me-2" />
-                                    {t('adminAccount.content.list.colorValue', {
-                                      ns: 'admin-account',
-                                      value: item.color,
-                                    })}
-                                  </span>
-                                </p>
-                                {item.updatedAt ? (
-                                  <div className="post-summary-date text-muted d-flex align-items-center mb-3">
-                                    <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-                                    {t('adminAccount.content.list.updatedAt', {
-                                      ns: 'admin-account',
-                                      value: formatDate(item.updatedAt),
-                                    })}
-                                  </div>
-                                ) : null}
-
-                                <div className="post-summary-thumbnail">
-                                  <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
-                                    <div
-                                      className="w-100 h-100 d-flex align-items-end p-3"
-                                      style={{
-                                        background: `linear-gradient(135deg, color-mix(in srgb, ${accentColor} 90%, var(--main-bg) 10%) 0%, color-mix(in srgb, ${accentColor} 58%, var(--main-bg) 42%) 100%)`,
-                                      }}
-                                    >
-                                      <div className="w-100 d-flex align-items-center justify-content-between gap-2">
-                                        <span className="badge rounded-pill text-bg-dark">{item.id}</span>
-                                        <span className="badge border border-light-subtle text-bg-light text-dark">
-                                          {t('adminAccount.content.topics.title', { ns: 'admin-account' })}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="post-summary-cta d-flex flex-wrap gap-2 mt-3">
-                                  <Button
-                                    type="button"
-                                    size="sm"
-                                    variant="primary"
-                                    onClick={() => handleOpenUpdateTopic(item)}
-                                  >
-                                    <FontAwesomeIcon icon="save" className="me-2" />
-                                    {t('adminAccount.content.actions.update', { ns: 'admin-account' })}
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    size="sm"
-                                    variant="danger"
-                                    onClick={() => {
-                                      setPendingTopicDelete(item);
-                                    }}
-                                  >
-                                    <FontAwesomeIcon icon="trash" className="me-2" />
-                                    {t('adminAccount.content.actions.delete', { ns: 'admin-account' })}
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                  {!isTopicListLoading && topicTotal > 0 ? (
-                    <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
-                      <PaginationBar
-                        className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"
-                        currentPage={topicPage}
-                        totalPages={topicTabTotalPages}
-                        totalResults={topicTotal}
-                        size={topicPageSize}
-                        onPageChange={nextPage => {
-                          setTopicPage(nextPage);
-                          scrollToListTop();
-                        }}
-                        onSizeChange={size => {
-                          setTopicPageSize(size);
-                          setTopicPage(1);
-                          scrollToListTop();
-                        }}
-                      />
-                    </div>
-                  ) : null}
-                </div>
-              </div>
+              <AdminContentTopicsTab
+                t={t}
+                formatDate={formatDate}
+                topicFilterLocale={topicFilterLocale}
+                onTopicFilterLocaleChange={value => {
+                  setTopicFilterLocale(value);
+                }}
+                topicFilterQuery={topicFilterQuery}
+                onTopicFilterQueryChange={setTopicFilterQuery}
+                onClearTopicFilterQuery={() => {
+                  setTopicFilterQuery('');
+                }}
+                isTopicListLoading={isTopicListLoading}
+                topicTotal={topicTotal}
+                topicListItems={topicListItems}
+                onOpenCreateTopic={handleOpenCreateTopic}
+                onOpenUpdateTopic={handleOpenUpdateTopic}
+                onOpenDeleteTopic={item => {
+                  setPendingTopicDelete(item);
+                }}
+                resolveAccentColor={resolveAdminContentAccentColor}
+                topicPage={topicPage}
+                topicTotalPages={topicTabTotalPages}
+                topicPageSize={topicPageSize}
+                onTopicPageChange={nextPage => {
+                  setTopicPage(nextPage);
+                  scrollToListTop();
+                }}
+                onTopicPageSizeChange={size => {
+                  setTopicPageSize(size);
+                  setTopicPage(1);
+                  scrollToListTop();
+                }}
+              />
             </Tab>
 
             <Tab
@@ -4339,375 +3181,51 @@ export default function AdminContentManagementPanel({
                 </>
               }
             >
-              <div className="d-grid gap-3 pt-3">
-                <div className="card d-block">
-                  <div className="card-body p-3 w-100">
-                    <div className="row g-3">
-                      <div className="col-12 col-lg-6 col-xl-2">
-                        <Form.Group controlId="admin-content-filter-locale">
-                          <Form.Label className="small fw-semibold mb-1">
-                            {t('adminAccount.content.filters.locale', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <Form.Select
-                            value={filterLocale}
-                            onChange={event => {
-                              setFilterLocale(event.currentTarget.value as LocaleFilterValue);
-                            }}
-                          >
-                            <option value="all">
-                              {t('adminAccount.content.filters.locales.all', { ns: 'admin-account' })}
-                            </option>
-                            <option value="en">
-                              {t('adminAccount.content.filters.locales.en', { ns: 'admin-account' })}
-                            </option>
-                            <option value="tr">
-                              {t('adminAccount.content.filters.locales.tr', { ns: 'admin-account' })}
-                            </option>
-                          </Form.Select>
-                        </Form.Group>
-                      </div>
-                      <div className="col-12 col-lg-6 col-xl-2">
-                        <Form.Group controlId="admin-content-filter-source">
-                          <Form.Label className="small fw-semibold mb-1">
-                            {t('adminAccount.content.filters.source', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <Form.Select
-                            value={filterSource}
-                            onChange={event => {
-                              setFilterSource(event.currentTarget.value as SourceFilterValue);
-                            }}
-                          >
-                            <option value="all">
-                              {t('adminAccount.content.filters.sources.all', { ns: 'admin-account' })}
-                            </option>
-                            <option value="blog">{t('common.searchSource.blog', { ns: 'common' })}</option>
-                            <option value="medium">{t('common.searchSource.medium', { ns: 'common' })}</option>
-                          </Form.Select>
-                        </Form.Group>
-                      </div>
-                      <div className="col-12 col-lg-6 col-xl-3">
-                        <Form.Group controlId="admin-content-filter-category">
-                          <Form.Label className="small fw-semibold mb-1">
-                            {t('adminAccount.content.filters.category', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <Form.Select
-                            value={filterCategoryID}
-                            onChange={event => {
-                              setFilterCategoryID(event.currentTarget.value);
-                            }}
-                          >
-                            <option value="">
-                              {t('adminAccount.content.filters.categories.all', { ns: 'admin-account' })}
-                            </option>
-                            {filterCategoryOptions.map(item => (
-                              <option key={toTaxonomyKey(item)} value={item.id}>
-                                {resolveLocaleOptionLabel(item)}
-                              </option>
-                            ))}
-                          </Form.Select>
-                        </Form.Group>
-                      </div>
-                      <div className="col-12 col-lg-6 col-xl-3">
-                        <Form.Group controlId="admin-content-filter-topic">
-                          <Form.Label className="small fw-semibold mb-1">
-                            {t('adminAccount.content.filters.topic', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <Form.Select
-                            value={filterTopicID}
-                            onChange={event => {
-                              setFilterTopicID(event.currentTarget.value);
-                            }}
-                          >
-                            <option value="">
-                              {t('adminAccount.content.filters.topics.all', { ns: 'admin-account' })}
-                            </option>
-                            {filterTopicOptions.map(item => (
-                              <option key={toTaxonomyKey(item)} value={item.id}>
-                                {resolveLocaleOptionLabel(item)}
-                              </option>
-                            ))}
-                          </Form.Select>
-                        </Form.Group>
-                      </div>
-                    </div>
-                    <div className="row g-3 mt-0">
-                      <div className="col-12">
-                        <Form.Group controlId="admin-content-filter-query">
-                          <Form.Label className="small fw-semibold mb-1">
-                            {t('adminAccount.content.filters.query', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <div className="search-bar w-100 d-flex align-items-center">
-                            <div className="search-icon">
-                              <FontAwesomeIcon icon="search" />
-                            </div>
-                            <Form.Control
-                              type="text"
-                              className="search-input form-control"
-                              value={filterQuery}
-                              onChange={event => {
-                                setFilterQuery(event.currentTarget.value);
-                              }}
-                              placeholder={t('adminAccount.content.filters.queryPlaceholder', { ns: 'admin-account' })}
-                            />
-                            {filterQuery ? (
-                              <button
-                                type="button"
-                                className="search-clear-btn border-0 bg-transparent"
-                                onClick={() => {
-                                  setFilterQuery('');
-                                }}
-                                aria-label={t('adminAccount.content.filters.query', { ns: 'admin-account' })}
-                              >
-                                <FontAwesomeIcon icon="times-circle" className="clear-icon" />
-                              </button>
-                            ) : null}
-                          </div>
-                        </Form.Group>
-                      </div>
-                    </div>
-                    <div className="d-flex justify-content-end mt-3">
-                      <PostDensityToggle
-                        value={resolvedPostDensityMode}
-                        onChange={mode =>
-                          setPostDensityMode(!canUsePostGridDensity && mode === 'grid' ? 'default' : mode)
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="card d-block">
-                  <div className="card-body p-3 w-100">
-                    {isLoading ? (
-                      <div className="admin-account-sessions-loading">
-                        <AdminLoadingState
-                          className="admin-loading-stack"
-                          ariaLabel={t('adminAccount.content.loading.posts', { ns: 'admin-account' })}
-                        />
-                      </div>
-                    ) : total === 0 ? (
-                      <p className="small text-muted mb-0">
-                        {t('adminAccount.content.empty.posts', { ns: 'admin-account' })}
-                      </p>
-                    ) : (
-                      <div className={`post-list-results post-list-results--${resolvedPostDensityMode}`}>
-                        {posts.map(group => {
-                          const item = group.preferred;
-                          const localeCode = item.locale.toLowerCase();
-                          const thumbnailSrc = resolveAdminContentThumbnailSrc(item.thumbnail);
-                          const resolvedSummary = item.summary?.trim() ?? '';
-                          const normalizedSource = item.source === 'medium' ? 'medium' : 'blog';
-                          const sourceLabel =
-                            normalizedSource === 'medium'
-                              ? t('common.searchSource.medium', { ns: 'common' })
-                              : t('common.searchSource.blog', { ns: 'common' });
-                          const sourceIcon: IconProp =
-                            normalizedSource === 'medium' ? (['fab', 'medium'] as IconProp) : 'book';
-                          const canEditPostContent = normalizedSource === 'blog';
-                          const isListMode = resolvedPostDensityMode === 'editorial';
-                          const normalizedCategoryName = item.categoryName?.trim().toLowerCase() ?? '';
-                          const shouldShowCategoryBadge =
-                            normalizedCategoryName !== '' &&
-                            normalizedCategoryName !== 'all category' &&
-                            normalizedCategoryName !== 'all categories' &&
-                            normalizedCategoryName !== 'tüm kategoriler';
-                          const resolvedCategoryRecord = item.categoryId?.trim()
-                            ? categoriesByLocaleAndID.get(`${localeCode}|${item.categoryId.toLowerCase()}`)
-                            : null;
-                          const resolvedPostCategory: PostCategoryRef | null = resolvedCategoryRecord
-                            ? {
-                                id: resolvedCategoryRecord.id,
-                                name: resolvedCategoryRecord.name,
-                                color: resolvedCategoryRecord.color,
-                                icon: resolvedCategoryRecord.icon ?? undefined,
-                              }
-                            : null;
-                          const resolvedTopicBadges =
-                            item.topicIds.length > 0
-                              ? item.topicIds
-                                  .map(topicID => topicsByLocaleAndID.get(`${localeCode}|${topicID.toLowerCase()}`))
-                                  .filter((topic): topic is AdminContentTopicItem => Boolean(topic))
-                              : [];
-                          return (
-                            <div
-                              key={`${group.source.toLowerCase()}-${group.id.toLowerCase()}`}
-                              className="post-card d-flex align-items-center post-summary-card"
-                            >
-                              <div className="post-card-content flex-grow-1">
-                                <div className="post-summary-title-row">
-                                  {shouldShowCategoryBadge && resolvedPostCategory ? (
-                                    <PostCategoryBadge
-                                      category={resolvedPostCategory}
-                                      className="post-category-link--truncated"
-                                      linked={false}
-                                    />
-                                  ) : null}
-                                  <h4 className="fw-bold post-summary-title fs-4 mb-0 text-break">
-                                    {canEditPostContent ? (
-                                      <Link
-                                        href={buildAdminContentPostDetailRoute(item.locale, item.id)}
-                                        locale={item.locale.toLowerCase()}
-                                        className="link"
-                                      >
-                                        {item.title}
-                                      </Link>
-                                    ) : (
-                                      item.title
-                                    )}
-                                  </h4>
-                                  <div className="d-flex flex-wrap align-items-center gap-3 text-muted">
-                                    <span className="d-inline-flex align-items-center">
-                                      <FontAwesomeIcon icon={sourceIcon} className="me-2" />
-                                      {sourceLabel}
-                                    </span>
-                                    <span className="small d-inline-flex align-items-center text-break">
-                                      <FontAwesomeIcon icon="tags" className="me-2" />
-                                      {item.id}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div className="post-summary-meta-stack mb-2">
-                                  <p className="post-summary-meta mb-0">
-                                    <span className="text-muted d-flex align-items-center">
-                                      <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-                                      {formatDate(item.publishedDate)}
-                                    </span>
-                                    {item.updatedDate ? (
-                                      <span
-                                        className={`text-muted d-flex align-items-center${isListMode ? '' : ' w-100'}`}
-                                      >
-                                        <FontAwesomeIcon icon="calendar-alt" className="me-2" />
-                                        {t('adminAccount.content.list.updatedAt', {
-                                          ns: 'admin-account',
-                                          value: item.updatedDate,
-                                        })}
-                                      </span>
-                                    ) : null}
-                                  </p>
-
-                                  <div className="post-summary-meta mb-0">
-                                    <span className="text-muted d-inline-flex align-items-center lh-1">
-                                      <FontAwesomeIcon icon="clock" className="me-2" />
-                                      <span>{formatReadingTime(item.readingTimeMin, t, 1)}</span>
-                                    </span>
-                                    <Link
-                                      href={buildAdminContentPostDetailRoute(item.locale, item.id)}
-                                      locale={item.locale.toLowerCase()}
-                                      className="link-muted d-inline-flex align-items-center lh-1"
-                                    >
-                                      <FontAwesomeIcon icon="heart" className="me-2 post-summary-like-icon" />
-                                      <span className="post-summary-like-value">
-                                        {adminNumberFormatter.format(item.likeCount)}
-                                      </span>
-                                    </Link>
-                                    <Link
-                                      href={buildAdminContentPostDetailRoute(item.locale, item.id)}
-                                      locale={item.locale.toLowerCase()}
-                                      className="link-muted d-inline-flex align-items-center lh-1"
-                                    >
-                                      <FontAwesomeIcon icon="comments" className="me-2" />
-                                      <span className="post-summary-like-value">
-                                        {adminNumberFormatter.format(item.commentCount)}
-                                      </span>
-                                    </Link>
-                                    <Link
-                                      href={buildAdminContentPostDetailRoute(item.locale, item.id)}
-                                      locale={item.locale.toLowerCase()}
-                                      className="link-muted d-inline-flex align-items-center lh-1"
-                                    >
-                                      <FontAwesomeIcon icon="eye" className="me-2" />
-                                      <span className="post-summary-like-value">
-                                        <CompactCount value={item.viewCount} locale={routeLocale} />
-                                      </span>
-                                    </Link>
-                                  </div>
-                                </div>
-
-                                {resolvedTopicBadges.length > 0 || item.topicNames.length > 0 ? (
-                                  <div className="post-summary-topics">
-                                    {resolvedTopicBadges.length > 0
-                                      ? resolvedTopicBadges.map(topic => (
-                                          <Badge
-                                            key={`${item.id}-${topic.id}`}
-                                            bg={topic.color}
-                                            className={`badge-${topic.color}`}
-                                          >
-                                            {topic.name}
-                                          </Badge>
-                                        ))
-                                      : item.topicNames.map(topic => (
-                                          <Badge key={`${item.id}-${topic}`} bg="secondary">
-                                            {topic}
-                                          </Badge>
-                                        ))}
-                                  </div>
-                                ) : null}
-
-                                <div className="post-summary-thumbnail">
-                                  <div className="ratio ratio-16x9 rounded-3 overflow-hidden border">
-                                    {thumbnailSrc ? (
-                                      <Image
-                                        src={thumbnailSrc}
-                                        alt={item.title}
-                                        fill
-                                        sizes="(max-width: 768px) 100vw, 50vw"
-                                        className="object-fit-cover"
-                                        unoptimized
-                                      />
-                                    ) : (
-                                      <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary">
-                                        <FontAwesomeIcon icon="camera" />
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                                {resolvedSummary ? (
-                                  <p className="post-summary-text small text-muted mb-2">{resolvedSummary}</p>
-                                ) : null}
-
-                                <div className="post-summary-cta d-flex flex-wrap gap-2">
-                                  <Button
-                                    type="button"
-                                    size="sm"
-                                    variant="danger"
-                                    onClick={() => {
-                                      setPendingPostDelete(item);
-                                    }}
-                                  >
-                                    <FontAwesomeIcon icon="trash" className="me-2" />
-                                    {t('adminAccount.content.actions.deletePost', { ns: 'admin-account' })}
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                  {!isLoading && total > 0 ? (
-                    <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
-                      <PaginationBar
-                        className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"
-                        currentPage={page}
-                        totalPages={totalPages}
-                        totalResults={total}
-                        size={pageSize}
-                        onPageChange={nextPage => {
-                          setPage(nextPage);
-                          scrollToListTop();
-                        }}
-                        onSizeChange={size => {
-                          setPageSize(size);
-                          setPage(1);
-                          scrollToListTop();
-                        }}
-                      />
-                    </div>
-                  ) : null}
-                </div>
-              </div>
+              <AdminContentPostsTab
+                t={t}
+                formatDate={formatDate}
+                formatDateTime={value => adminDateTimeFormatter.format(new Date(value))}
+                formatCount={value => adminNumberFormatter.format(value)}
+                routeLocale={routeLocale}
+                filterLocale={filterLocale}
+                onFilterLocaleChange={setFilterLocale}
+                filterSource={filterSource}
+                onFilterSourceChange={setFilterSource}
+                filterCategoryID={filterCategoryID}
+                onFilterCategoryIDChange={setFilterCategoryID}
+                filterTopicID={filterTopicID}
+                onFilterTopicIDChange={setFilterTopicID}
+                filterQuery={filterQuery}
+                onFilterQueryChange={setFilterQuery}
+                onClearFilterQuery={() => {
+                  setFilterQuery('');
+                }}
+                filterCategoryOptions={filterCategoryOptions}
+                filterTopicOptions={filterTopicOptions}
+                resolvedPostDensityMode={resolvedPostDensityMode}
+                canUsePostGridDensity={canUsePostGridDensity}
+                onPostDensityModeChange={setPostDensityMode}
+                isLoading={isLoading}
+                total={total}
+                posts={posts}
+                categoriesByLocaleAndID={categoriesByLocaleAndID}
+                topicsByLocaleAndID={topicsByLocaleAndID}
+                page={page}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                onPageChange={nextPage => {
+                  setPage(nextPage);
+                  scrollToListTop();
+                }}
+                onPageSizeChange={size => {
+                  setPageSize(size);
+                  setPage(1);
+                  scrollToListTop();
+                }}
+                onOpenDeletePost={item => {
+                  setPendingPostDelete(item);
+                }}
+              />
             </Tab>
 
             <Tab
@@ -4719,760 +3237,162 @@ export default function AdminContentManagementPanel({
                 </>
               }
             >
-              <div className="d-grid gap-3 pt-3">
-                <div className="card d-block">
-                  <div className="card-body p-3 w-100">
-                    <div className="d-flex align-items-center justify-content-between mb-3">
-                      <h4 className="admin-dashboard-panel-title mb-0">
-                        {t('adminAccount.content.media.title', { ns: 'admin-account' })}
-                      </h4>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="primary"
-                        onClick={() => {
-                          mediaUploadInputRef.current?.click();
-                        }}
-                        disabled={isMediaLibraryUploading}
-                      >
-                        {isMediaLibraryUploading ? (
-                          <Spinner as="span" animation="border" size="sm" className="me-2" />
-                        ) : (
-                          <FontAwesomeIcon icon="upload" className="me-2" />
-                        )}
-                        {t('adminAccount.content.modals.post.media.upload', { ns: 'admin-account' })}
-                      </Button>
-                    </div>
-
-                    <div className="row g-3">
-                      <div className="col-12 col-xl-6">
-                        <Form.Group controlId="admin-content-media-filter-query">
-                          <Form.Label className="small fw-semibold mb-1">
-                            {t('adminAccount.content.filters.query', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <div className="search-bar w-100 d-flex align-items-center">
-                            <div className="search-icon">
-                              <FontAwesomeIcon icon="search" />
-                            </div>
-                            <Form.Control
-                              type="text"
-                              className="search-input form-control"
-                              value={mediaLibraryQuery}
-                              onChange={event => {
-                                setMediaLibraryQuery(event.currentTarget.value);
-                                setMediaLibraryPage(1);
-                              }}
-                              placeholder={t('adminAccount.content.modals.post.media.queryPlaceholder', {
-                                ns: 'admin-account',
-                              })}
-                            />
-                            {mediaLibraryQuery ? (
-                              <button
-                                type="button"
-                                className="search-clear-btn border-0 bg-transparent"
-                                onClick={() => {
-                                  setMediaLibraryQuery('');
-                                  setMediaLibraryPage(1);
-                                }}
-                                aria-label={t('adminAccount.content.modals.post.media.clearSearch', {
-                                  ns: 'admin-account',
-                                })}
-                              >
-                                <FontAwesomeIcon icon="times-circle" className="clear-icon" />
-                              </button>
-                            ) : null}
-                          </div>
-                        </Form.Group>
-                      </div>
-                      <div className="col-12 col-md-6 col-xl-3">
-                        <Form.Group controlId="admin-content-media-filter-kind">
-                          <Form.Label className="small fw-semibold mb-1">
-                            {t('adminAccount.content.modals.post.media.filterLabel', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <Form.Select
-                            value={mediaLibraryFilter}
-                            onChange={event => {
-                              setMediaLibraryFilter(event.currentTarget.value as MediaLibraryFilterValue);
-                              setMediaLibraryPage(1);
-                            }}
-                          >
-                            <option value="ALL">
-                              {t('adminAccount.content.modals.post.media.filters.all', { ns: 'admin-account' })}
-                            </option>
-                            <option value="UPLOADED">
-                              {t('adminAccount.content.modals.post.media.filters.uploaded', { ns: 'admin-account' })}
-                            </option>
-                            <option value="REFERENCE">
-                              {t('adminAccount.content.modals.post.media.filters.reused', { ns: 'admin-account' })}
-                            </option>
-                          </Form.Select>
-                        </Form.Group>
-                      </div>
-                      <div className="col-12 col-md-6 col-xl-3">
-                        <Form.Group controlId="admin-content-media-filter-sort">
-                          <Form.Label className="small fw-semibold mb-1">
-                            {t('adminAccount.content.modals.post.media.sortLabel', { ns: 'admin-account' })}
-                          </Form.Label>
-                          <Form.Select
-                            value={mediaLibrarySort}
-                            onChange={event => {
-                              setMediaLibrarySort(event.currentTarget.value as MediaLibrarySortValue);
-                              setMediaLibraryPage(1);
-                            }}
-                          >
-                            <option value="RECENT">
-                              {t('adminAccount.content.modals.post.media.sorts.recent', { ns: 'admin-account' })}
-                            </option>
-                            <option value="NAME">
-                              {t('adminAccount.content.modals.post.media.sorts.name', { ns: 'admin-account' })}
-                            </option>
-                            <option value="SIZE">
-                              {t('adminAccount.content.modals.post.media.sorts.size', { ns: 'admin-account' })}
-                            </option>
-                            <option value="USAGE">
-                              {t('adminAccount.content.modals.post.media.sorts.usage', { ns: 'admin-account' })}
-                            </option>
-                          </Form.Select>
-                        </Form.Group>
-                      </div>
-                    </div>
-
-                    <p className="small text-muted mb-0 mt-3">
-                      {t('adminAccount.content.media.copy', { ns: 'admin-account' })}
-                    </p>
-
-                    <div className="d-flex justify-content-end mt-3">
-                      <PostDensityToggle
-                        value={resolvedMediaDensityMode}
-                        onChange={mode =>
-                          setMediaDensityMode(!canUsePostGridDensity && mode === 'grid' ? 'default' : mode)
-                        }
-                      />
-                    </div>
-
-                    <Form.Control
-                      ref={mediaUploadInputRef}
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      className="d-none"
-                      onChange={async event => {
-                        const input = event.target as HTMLInputElement;
-                        const file = input.files?.[0];
-                        if (!file) {
-                          return;
-                        }
-                        await handleMediaUpload(file);
-                      }}
-                    />
-
-                    {mediaLibraryErrorMessage ? <Alert variant="danger">{mediaLibraryErrorMessage}</Alert> : null}
-                  </div>
-                </div>
-
-                <div className="card d-block">
-                  <div className="card-body p-3 w-100">
-                    {isMediaLibraryLoading ? (
-                      <div className="admin-account-sessions-loading">
-                        <AdminLoadingState
-                          className="admin-loading-stack"
-                          ariaLabel={t('adminAccount.content.media.loading', { ns: 'admin-account' })}
-                        />
-                      </div>
-                    ) : mediaLibraryTotal === 0 ? (
-                      <p className="small text-muted mb-0">
-                        {t('adminAccount.content.modals.post.media.empty', { ns: 'admin-account' })}
-                      </p>
-                    ) : (
-                      <div className={`post-list-results post-list-results--${resolvedMediaDensityMode}`}>
-                        {mediaLibraryItems.map(item => {
-                          const previewSrc = resolveAdminContentThumbnailSrc(item.previewUrl);
-                          const itemKindLabel =
-                            item.kind === 'UPLOADED'
-                              ? t('adminAccount.content.modals.post.media.badges.uploaded', { ns: 'admin-account' })
-                              : t('adminAccount.content.modals.post.media.badges.reused', { ns: 'admin-account' });
-                          const itemDate = item.updatedAt ?? item.createdAt;
-                          const metadataItems = [
-                            itemDate
-                              ? {
-                                  key: 'updated',
-                                  icon: 'calendar-alt' as const,
-                                  label: t('adminAccount.content.list.updatedAt', {
-                                    ns: 'admin-account',
-                                    value: formatDate(itemDate),
-                                  }),
-                                }
-                              : null,
-                            item.usageCount > 0
-                              ? {
-                                  key: 'usage',
-                                  icon: 'copy' as const,
-                                  label: t('adminAccount.content.modals.post.media.usedIn', {
-                                    ns: 'admin-account',
-                                    count: item.usageCount,
-                                  }),
-                                }
-                              : null,
-                            item.width && item.height
-                              ? {
-                                  key: 'dimensions',
-                                  icon: 'image' as const,
-                                  label: `${item.width}×${item.height}`,
-                                }
-                              : null,
-                            item.sizeBytes > 0
-                              ? {
-                                  key: 'size',
-                                  icon: 'database' as const,
-                                  label: formatMediaSize(item.sizeBytes, routeLocale),
-                                }
-                              : null,
-                          ].filter(
-                            (
-                              item,
-                            ): item is {
-                              key: 'updated' | 'usage' | 'dimensions' | 'size';
-                              icon: 'calendar-alt' | 'copy' | 'image' | 'database';
-                              label: string;
-                            } => item !== null,
-                          );
-                          return (
-                            <div key={item.id} className="post-card d-flex align-items-center post-summary-card">
-                              <div className="post-card-content flex-grow-1">
-                                <div className="post-summary-title-row">
-                                  <div className="d-flex flex-wrap align-items-center gap-2">
-                                    <h4 className="fw-bold post-summary-title fs-4 mb-0 text-break">{item.name}</h4>
-                                    <Badge bg={item.kind === 'UPLOADED' ? 'primary' : 'secondary'}>
-                                      {itemKindLabel}
-                                    </Badge>
-                                  </div>
-                                </div>
-
-                                {metadataItems.length > 0 ? (
-                                  <div className="post-summary-meta admin-media-library-meta-grid mb-2">
-                                    {metadataItems.map(metaItem => (
-                                      <span key={metaItem.key} className="text-muted d-flex align-items-center">
-                                        <FontAwesomeIcon icon={metaItem.icon} className="me-2" />
-                                        {metaItem.label}
-                                      </span>
-                                    ))}
-                                  </div>
-                                ) : null}
-
-                                <div className="post-summary-thumbnail">
-                                  <div className="thumbnail-wrapper rounded-3 overflow-hidden border bg-body-tertiary">
-                                    {previewSrc ? (
-                                      <Image
-                                        loader={adminPreviewImageLoader}
-                                        src={previewSrc}
-                                        alt={item.name}
-                                        width={1200}
-                                        height={630}
-                                        unoptimized
-                                        sizes="(max-width: 768px) 100vw, 50vw"
-                                        className="img-fluid rounded"
-                                        style={{
-                                          width: '100%',
-                                          height: 'auto',
-                                          aspectRatio: '16 / 9',
-                                          objectFit: 'cover',
-                                        }}
-                                      />
-                                    ) : (
-                                      <div
-                                        className="w-100 d-flex align-items-center justify-content-center text-muted bg-body-tertiary"
-                                        style={{ aspectRatio: '16 / 9' }}
-                                      >
-                                        <FontAwesomeIcon icon="camera" size="2x" />
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-
-                                <p className="post-summary-text small text-muted mb-3 text-break">{item.value}</p>
-
-                                <div className="post-summary-cta d-flex flex-wrap gap-2">
-                                  <Button
-                                    type="button"
-                                    size="sm"
-                                    variant="primary"
-                                    onClick={async () => {
-                                      await handleCopyMediaPath(item);
-                                    }}
-                                  >
-                                    <FontAwesomeIcon
-                                      icon={copiedMediaAssetID === item.id ? 'check' : 'copy'}
-                                      className="me-2"
-                                    />
-                                    {copiedMediaAssetID === item.id
-                                      ? t('adminAccount.content.media.actions.copied', { ns: 'admin-account' })
-                                      : t('adminAccount.content.media.actions.copy', { ns: 'admin-account' })}
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    as="a"
-                                    size="sm"
-                                    variant="secondary"
-                                    href={previewSrc || item.value}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                  >
-                                    <FontAwesomeIcon icon="up-right-from-square" className="me-2" />
-                                    {t('adminAccount.content.media.actions.open', { ns: 'admin-account' })}
-                                  </Button>
-                                  {item.kind === 'UPLOADED' ? (
-                                    <Button
-                                      type="button"
-                                      size="sm"
-                                      variant="danger"
-                                      onClick={() => {
-                                        setPendingMediaAssetDelete(item);
-                                      }}
-                                    >
-                                      <FontAwesomeIcon icon="trash" className="me-2" />
-                                      {t('adminAccount.content.media.actions.delete', { ns: 'admin-account' })}
-                                    </Button>
-                                  ) : null}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                  {!isMediaLibraryLoading && mediaLibraryTotal > 0 ? (
-                    <div className="card-footer bg-transparent py-3 px-3 px-md-4 border-top">
-                      <PaginationBar
-                        className="border-0 rounded-0 px-2 px-md-3 py-0 bg-transparent shadow-none"
-                        currentPage={mediaLibraryPage}
-                        totalPages={totalMediaLibraryPages}
-                        totalResults={mediaLibraryTotal}
-                        size={mediaLibraryPageSize}
-                        onPageChange={nextPage => {
-                          setMediaLibraryPage(nextPage);
-                          scrollToListTop();
-                        }}
-                        onSizeChange={size => {
-                          setMediaLibraryPageSize(size);
-                          setMediaLibraryPage(1);
-                          scrollToListTop();
-                        }}
-                      />
-                    </div>
-                  ) : null}
-                </div>
-              </div>
+              <AdminContentMediaTab
+                t={t}
+                formatDate={formatDate}
+                routeLocale={routeLocale}
+                mediaLibraryQuery={mediaLibraryQuery}
+                onMediaLibraryQueryChange={value => {
+                  setMediaLibraryQuery(value);
+                  setMediaLibraryPage(1);
+                }}
+                onClearMediaLibraryQuery={() => {
+                  setMediaLibraryQuery('');
+                  setMediaLibraryPage(1);
+                }}
+                mediaLibraryFilter={mediaLibraryFilter}
+                onMediaLibraryFilterChange={value => {
+                  setMediaLibraryFilter(value);
+                  setMediaLibraryPage(1);
+                }}
+                mediaLibrarySort={mediaLibrarySort}
+                onMediaLibrarySortChange={value => {
+                  setMediaLibrarySort(value);
+                  setMediaLibraryPage(1);
+                }}
+                isMediaLibraryUploading={isMediaLibraryUploading}
+                onTriggerUpload={() => {
+                  mediaUploadInputRef.current?.click();
+                }}
+                uploadInputRef={mediaUploadInputRef}
+                onUploadFileChange={handleMediaUpload}
+                mediaLibraryErrorMessage={mediaLibraryErrorMessage}
+                resolvedMediaDensityMode={resolvedMediaDensityMode}
+                onMediaDensityModeChange={mode =>
+                  setMediaDensityMode(!canUsePostGridDensity && mode === 'grid' ? 'default' : mode)
+                }
+                isMediaLibraryLoading={isMediaLibraryLoading}
+                mediaLibraryTotal={mediaLibraryTotal}
+                mediaLibraryItems={mediaLibraryItems}
+                formatMediaSize={formatMediaSize}
+                imageLoader={adminPreviewImageLoader}
+                copiedMediaAssetID={copiedMediaAssetID}
+                onCopyMediaPath={handleCopyMediaPath}
+                onOpenDeleteMediaAsset={item => {
+                  setPendingMediaAssetDelete(item);
+                }}
+                mediaLibraryPage={mediaLibraryPage}
+                totalMediaLibraryPages={totalMediaLibraryPages}
+                mediaLibraryPageSize={mediaLibraryPageSize}
+                onMediaLibraryPageChange={nextPage => {
+                  setMediaLibraryPage(nextPage);
+                  scrollToListTop();
+                }}
+                onMediaLibraryPageSizeChange={size => {
+                  setMediaLibraryPageSize(size);
+                  setMediaLibraryPage(1);
+                  scrollToListTop();
+                }}
+              />
             </Tab>
           </Tabs>
         )}
       </div>
 
-      <Modal
-        show={pendingMediaAssetDelete !== null}
+      <AdminContentMediaDeleteModal
+        t={t}
+        pendingMediaAssetDelete={pendingMediaAssetDelete}
+        isMediaAssetDeleting={isMediaAssetDeleting}
         onHide={() => {
           if (isMediaAssetDeleting) {
             return;
           }
           setPendingMediaAssetDelete(null);
         }}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{t('adminAccount.content.media.deleteConfirm.title', { ns: 'admin-account' })}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p className="small text-muted mb-3">
-            {t('adminAccount.content.media.deleteConfirm.copy', {
-              ns: 'admin-account',
-              name: pendingMediaAssetDelete?.name ?? '',
-            })}
-          </p>
-          <dl className="row gy-2 mb-0 small">
-            <dt className="col-sm-3 text-muted">
-              {t('adminAccount.content.media.deleteConfirm.labels.path', { ns: 'admin-account' })}
-            </dt>
-            <dd className="col-sm-9 mb-0 text-break">{pendingMediaAssetDelete?.value ?? ''}</dd>
-            <dt className="col-sm-3 text-muted">
-              {t('adminAccount.content.media.deleteConfirm.labels.usage', { ns: 'admin-account' })}
-            </dt>
-            <dd className="col-sm-9 mb-0 text-break">
-              {t('adminAccount.content.modals.post.media.usedIn', {
-                ns: 'admin-account',
-                count: pendingMediaAssetDelete?.usageCount ?? 0,
-              })}
-            </dd>
-          </dl>
-          {pendingMediaAssetDelete && pendingMediaAssetDelete.usageCount > 0 ? (
-            <Alert variant="warning" className="mt-3 mb-0">
-              {t('adminAccount.content.media.deleteConfirm.inUse', {
-                ns: 'admin-account',
-                count: pendingMediaAssetDelete.usageCount,
-              })}
-            </Alert>
-          ) : null}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={isMediaAssetDeleting}
-            onClick={() => {
-              setPendingMediaAssetDelete(null);
-            }}
-          >
-            {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-          </Button>
-          <Button
-            type="button"
-            variant="danger"
-            disabled={!pendingMediaAssetDelete || isMediaAssetDeleting || pendingMediaAssetDelete.usageCount > 0}
-            onClick={handleDeleteMediaAsset}
-          >
-            {isMediaAssetDeleting ? (
-              <span className="d-inline-flex align-items-center gap-2">
-                <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
-                <span>{t('adminAccount.content.actions.deleting', { ns: 'admin-account' })}</span>
-              </span>
-            ) : (
-              <>
-                <FontAwesomeIcon icon="trash" className="me-2" />
-                {t('adminAccount.content.media.actions.delete', { ns: 'admin-account' })}
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        onConfirmDelete={handleDeleteMediaAsset}
+      />
 
-      <Modal
-        show={pendingPostDelete !== null}
+      <AdminContentPostRevisionRestoreModal
+        t={t}
+        pendingPostRevisionRestore={pendingPostRevisionRestore}
+        isPostRevisionRestoring={isPostRevisionRestoring}
+        formatDateTime={value => adminDateTimeFormatter.format(new Date(value))}
+        onHide={() => {
+          if (isPostRevisionRestoring) {
+            return;
+          }
+          setPendingPostRevisionRestore(null);
+        }}
+        onConfirmRestore={handleRestorePostRevision}
+      />
+
+      <AdminContentPostDeleteModal
+        t={t}
+        pendingPostDelete={pendingPostDelete}
+        isPostDeleting={isPostDeleting}
         onHide={() => {
           if (isPostDeleting) {
             return;
           }
           setPendingPostDelete(null);
         }}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{t('adminAccount.content.modals.deletePost.title', { ns: 'admin-account' })}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p className="small text-muted mb-0">
-            {t('adminAccount.content.modals.deletePost.copy', {
-              ns: 'admin-account',
-              id: pendingPostDelete?.id ?? '',
-            })}
-          </p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={isPostDeleting}
-            onClick={() => {
-              setPendingPostDelete(null);
-            }}
-          >
-            {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-          </Button>
-          <Button
-            type="button"
-            variant="danger"
-            disabled={!pendingPostDelete || isPostDeleting}
-            onClick={handleDeletePost}
-          >
-            {isPostDeleting ? (
-              <span className="d-inline-flex align-items-center gap-2">
-                <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
-                <span>{t('adminAccount.content.actions.deleting', { ns: 'admin-account' })}</span>
-              </span>
-            ) : (
-              <>
-                <FontAwesomeIcon icon="trash" className="me-2" />
-                {t('adminAccount.content.actions.deletePost', { ns: 'admin-account' })}
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        onConfirmDelete={handleDeletePost}
+      />
 
-      <Modal
-        show={pendingBulkPostCommentDeleteIDs.length > 0}
+      <AdminContentBulkPostCommentDeleteModal
+        t={t}
+        pendingBulkPostCommentDeleteIDs={pendingBulkPostCommentDeleteIDs}
+        isBulkPostCommentDeleting={isBulkPostCommentDeleting}
         onHide={() => {
           if (isBulkPostCommentDeleting) {
             return;
           }
           setPendingBulkPostCommentDeleteIDs([]);
         }}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{t('adminAccount.comments.bulk.deleteConfirmTitle', { ns: 'admin-account' })}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p className="small text-muted mb-0">
-            {t('adminAccount.comments.bulk.deleteConfirmCopy', {
-              ns: 'admin-account',
-              count: pendingBulkPostCommentDeleteIDs.length,
-            })}
-          </p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={isBulkPostCommentDeleting}
-            onClick={() => {
-              setPendingBulkPostCommentDeleteIDs([]);
-            }}
-          >
-            {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-          </Button>
-          <Button
-            type="button"
-            variant="danger"
-            disabled={pendingBulkPostCommentDeleteIDs.length === 0 || isBulkPostCommentDeleting}
-            onClick={handleBulkDeletePostCommentSubmit}
-          >
-            {isBulkPostCommentDeleting ? (
-              <span className="d-inline-flex align-items-center gap-2">
-                <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
-                <span>{t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}</span>
-              </span>
-            ) : (
-              <>
-                <FontAwesomeIcon icon="trash" className="me-2" />
-                {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        onConfirmDelete={handleBulkDeletePostCommentSubmit}
+      />
 
-      <Modal
-        show={pendingPostCommentDelete !== null}
+      <AdminContentPostCommentDeleteModal
+        t={t}
+        pendingPostCommentDelete={pendingPostCommentDelete}
+        deletingPostCommentID={deletingPostCommentID}
         onHide={() => {
           if (deletingPostCommentID) {
             return;
           }
           setPendingPostCommentDelete(null);
         }}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{t('adminAccount.comments.deleteConfirm.title', { ns: 'admin-account' })}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p className="small text-muted mb-3">
-            {t('adminAccount.comments.deleteConfirm.copy', {
-              ns: 'admin-account',
-              author: pendingPostCommentDelete?.authorName ?? '',
-            })}
-          </p>
-          <dl className="row gy-2 mb-0 small">
-            <dt className="col-sm-3 text-muted">
-              {t('adminAccount.comments.deleteConfirm.labels.author', { ns: 'admin-account' })}
-            </dt>
-            <dd className="col-sm-9 mb-0 text-break">{pendingPostCommentDelete?.authorName ?? ''}</dd>
-            <dt className="col-sm-3 text-muted">
-              {t('adminAccount.comments.deleteConfirm.labels.email', { ns: 'admin-account' })}
-            </dt>
-            <dd className="col-sm-9 mb-0 text-break">{pendingPostCommentDelete?.authorEmail ?? ''}</dd>
-            <dt className="col-sm-3 text-muted">
-              {t('adminAccount.comments.deleteConfirm.labels.post', { ns: 'admin-account' })}
-            </dt>
-            <dd className="col-sm-9 mb-0 text-break">
-              {pendingPostCommentDelete?.postTitle ?? pendingPostCommentDelete?.postId ?? ''}
-            </dd>
-          </dl>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={deletingPostCommentID !== ''}
-            onClick={() => {
-              setPendingPostCommentDelete(null);
-            }}
-          >
-            {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-          </Button>
-          <Button
-            type="button"
-            variant="danger"
-            disabled={!pendingPostCommentDelete || deletingPostCommentID !== ''}
-            onClick={handleDeletePostCommentSubmit}
-          >
-            {deletingPostCommentID ? (
-              <span className="d-inline-flex align-items-center gap-2">
-                <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
-                <span>{t('adminAccount.comments.actions.deleting', { ns: 'admin-account' })}</span>
-              </span>
-            ) : (
-              <>
-                <FontAwesomeIcon icon="trash" className="me-2" />
-                {t('adminAccount.comments.actions.delete', { ns: 'admin-account' })}
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        onConfirmDelete={handleDeletePostCommentSubmit}
+      />
 
-      <Modal
-        show={isTopicEditorOpen}
+      <AdminContentTopicEditorModal
+        t={t}
+        isOpen={isTopicEditorOpen}
+        isSubmitting={isTopicSubmitting}
+        mode={topicEditorMode}
+        localeTabs={topicLocaleTabs}
+        locale={topicLocale}
+        onSwitchLocale={handleSwitchTopicEditorLocale}
+        onLocaleChange={setTopicLocale}
+        resolveLocaleLabel={resolveLocaleLabel}
+        id={topicID}
+        onIDChange={setTopicID}
+        isIDInvalid={normalizedTopicID !== '' && !CONTENT_ID_PATTERN.test(normalizedTopicID)}
+        name={topicName}
+        onNameChange={setTopicName}
+        color={topicColor}
+        onColorChange={setTopicColor}
+        link={topicLink}
+        onLinkChange={setTopicLink}
+        canSubmit={canSubmitTopic}
+        onSubmit={handleSubmitTopic}
         onHide={() => {
           if (isTopicSubmitting) {
             return;
           }
           setIsTopicEditorOpen(false);
         }}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {topicEditorMode === 'create'
-              ? t('adminAccount.content.modals.topic.createTitle', { ns: 'admin-account' })
-              : t('adminAccount.content.modals.topic.updateTitle', { ns: 'admin-account' })}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {topicLocaleTabs.length > 0 ? (
-            <Nav
-              variant="tabs"
-              activeKey={topicLocale}
-              className="mb-3 admin-content-tabs"
-              onSelect={eventKey => {
-                if (eventKey === 'en' || eventKey === 'tr') {
-                  handleSwitchTopicEditorLocale(eventKey);
-                }
-              }}
-            >
-              {topicLocaleTabs.map(item => (
-                <Nav.Item key={`topic-editor-${item.locale}`}>
-                  <Nav.Link eventKey={item.locale}>
-                    <span className="d-inline-flex align-items-center">
-                      <FlagIcon
-                        code={item.locale}
-                        className="flex-shrink-0 me-2"
-                        alt={`${resolveLocaleLabel(item.locale)} flag`}
-                        width={14}
-                        height={14}
-                      />
-                      <span>{item.locale.toUpperCase()}</span>
-                    </span>
-                  </Nav.Link>
-                </Nav.Item>
-              ))}
-            </Nav>
-          ) : null}
-          <div className="row g-2">
-            {topicLocaleTabs.length === 0 ? (
-              <div className="col-12 col-sm-4">
-                <Form.Group controlId="admin-content-topic-locale">
-                  <Form.Label>{t('adminAccount.content.modals.topic.locale', { ns: 'admin-account' })}</Form.Label>
-                  <Form.Select
-                    value={topicLocale}
-                    disabled={topicEditorMode === 'update'}
-                    onChange={event => {
-                      setTopicLocale(event.currentTarget.value === 'tr' ? 'tr' : 'en');
-                    }}
-                  >
-                    <option value="en">{t('adminAccount.content.filters.locales.en', { ns: 'admin-account' })}</option>
-                    <option value="tr">{t('adminAccount.content.filters.locales.tr', { ns: 'admin-account' })}</option>
-                  </Form.Select>
-                </Form.Group>
-              </div>
-            ) : null}
-            <div className={`col-12 ${topicLocaleTabs.length === 0 ? 'col-sm-8' : ''}`}>
-              <Form.Group controlId="admin-content-topic-id">
-                <Form.Label>{t('adminAccount.content.modals.topic.id', { ns: 'admin-account' })}</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={topicID}
-                  disabled={topicEditorMode === 'update'}
-                  onChange={event => {
-                    setTopicID(event.currentTarget.value);
-                  }}
-                />
-                {normalizedTopicID !== '' && !CONTENT_ID_PATTERN.test(normalizedTopicID) ? (
-                  <Form.Text className="text-danger">
-                    {t('adminAccount.content.validation.id', { ns: 'admin-account' })}
-                  </Form.Text>
-                ) : null}
-              </Form.Group>
-            </div>
-            <div className="col-12">
-              <Form.Group controlId="admin-content-topic-name">
-                <Form.Label>{t('adminAccount.content.modals.topic.name', { ns: 'admin-account' })}</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={topicName}
-                  onChange={event => {
-                    setTopicName(event.currentTarget.value);
-                  }}
-                />
-              </Form.Group>
-            </div>
-            <div className="col-12 col-sm-6">
-              <Form.Group controlId="admin-content-topic-color">
-                <Form.Label>{t('adminAccount.content.modals.topic.color', { ns: 'admin-account' })}</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={topicColor}
-                  onChange={event => {
-                    setTopicColor(event.currentTarget.value);
-                  }}
-                />
-              </Form.Group>
-            </div>
-            <div className="col-12 col-sm-6">
-              <Form.Group controlId="admin-content-topic-link">
-                <Form.Label>{t('adminAccount.content.modals.topic.link', { ns: 'admin-account' })}</Form.Label>
-                <Form.Control
-                  type="url"
-                  value={topicLink}
-                  onChange={event => {
-                    setTopicLink(event.currentTarget.value);
-                  }}
-                  placeholder="https://"
-                />
-              </Form.Group>
-            </div>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={isTopicSubmitting}
-            onClick={() => {
-              setIsTopicEditorOpen(false);
-            }}
-          >
-            {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-          </Button>
-          <Button
-            type="button"
-            variant="primary"
-            disabled={!canSubmitTopic || isTopicSubmitting}
-            onClick={handleSubmitTopic}
-          >
-            {isTopicSubmitting ? (
-              <span className="d-inline-flex align-items-center gap-2">
-                <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
-                <span>{t('adminAccount.content.actions.saving', { ns: 'admin-account' })}</span>
-              </span>
-            ) : (
-              <>
-                <FontAwesomeIcon icon="save" className="me-2" />
-                {topicEditorMode === 'create'
-                  ? t('adminAccount.content.actions.createTopic', { ns: 'admin-account' })
-                  : t('adminAccount.content.actions.update', { ns: 'admin-account' })}
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      />
 
       <Modal
         show={pendingTopicDelete !== null}
@@ -5527,173 +3447,36 @@ export default function AdminContentManagementPanel({
         </Modal.Footer>
       </Modal>
 
-      <Modal
-        show={isCategoryEditorOpen}
+      <AdminContentCategoryEditorModal
+        t={t}
+        isOpen={isCategoryEditorOpen}
+        isSubmitting={isCategorySubmitting}
+        mode={categoryEditorMode}
+        localeTabs={categoryLocaleTabs}
+        locale={categoryLocale}
+        onSwitchLocale={handleSwitchCategoryEditorLocale}
+        onLocaleChange={setCategoryLocale}
+        resolveLocaleLabel={resolveLocaleLabel}
+        id={categoryID}
+        onIDChange={setCategoryID}
+        isIDInvalid={normalizedCategoryID !== '' && !CONTENT_ID_PATTERN.test(normalizedCategoryID)}
+        name={categoryName}
+        onNameChange={setCategoryName}
+        color={categoryColor}
+        onColorChange={setCategoryColor}
+        icon={categoryIcon}
+        onIconChange={setCategoryIcon}
+        link={categoryLink}
+        onLinkChange={setCategoryLink}
+        canSubmit={canSubmitCategory}
+        onSubmit={handleSubmitCategory}
         onHide={() => {
           if (isCategorySubmitting) {
             return;
           }
           setIsCategoryEditorOpen(false);
         }}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {categoryEditorMode === 'create'
-              ? t('adminAccount.content.modals.category.createTitle', { ns: 'admin-account' })
-              : t('adminAccount.content.modals.category.updateTitle', { ns: 'admin-account' })}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {categoryLocaleTabs.length > 0 ? (
-            <Nav
-              variant="tabs"
-              activeKey={categoryLocale}
-              className="mb-3 admin-content-tabs"
-              onSelect={eventKey => {
-                if (eventKey === 'en' || eventKey === 'tr') {
-                  handleSwitchCategoryEditorLocale(eventKey);
-                }
-              }}
-            >
-              {categoryLocaleTabs.map(item => (
-                <Nav.Item key={`category-editor-${item.locale}`}>
-                  <Nav.Link eventKey={item.locale}>
-                    <span className="d-inline-flex align-items-center">
-                      <FlagIcon
-                        code={item.locale}
-                        className="flex-shrink-0 me-2"
-                        alt={`${resolveLocaleLabel(item.locale)} flag`}
-                        width={14}
-                        height={14}
-                      />
-                      <span>{item.locale.toUpperCase()}</span>
-                    </span>
-                  </Nav.Link>
-                </Nav.Item>
-              ))}
-            </Nav>
-          ) : null}
-          <div className="row g-2">
-            {categoryLocaleTabs.length === 0 ? (
-              <div className="col-12 col-sm-4">
-                <Form.Group controlId="admin-content-category-locale">
-                  <Form.Label>{t('adminAccount.content.modals.category.locale', { ns: 'admin-account' })}</Form.Label>
-                  <Form.Select
-                    value={categoryLocale}
-                    disabled={categoryEditorMode === 'update'}
-                    onChange={event => {
-                      setCategoryLocale(event.currentTarget.value === 'tr' ? 'tr' : 'en');
-                    }}
-                  >
-                    <option value="en">{t('adminAccount.content.filters.locales.en', { ns: 'admin-account' })}</option>
-                    <option value="tr">{t('adminAccount.content.filters.locales.tr', { ns: 'admin-account' })}</option>
-                  </Form.Select>
-                </Form.Group>
-              </div>
-            ) : null}
-            <div className={`col-12 ${categoryLocaleTabs.length === 0 ? 'col-sm-8' : ''}`}>
-              <Form.Group controlId="admin-content-category-id">
-                <Form.Label>{t('adminAccount.content.modals.category.id', { ns: 'admin-account' })}</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={categoryID}
-                  disabled={categoryEditorMode === 'update'}
-                  onChange={event => {
-                    setCategoryID(event.currentTarget.value);
-                  }}
-                />
-                {normalizedCategoryID !== '' && !CONTENT_ID_PATTERN.test(normalizedCategoryID) ? (
-                  <Form.Text className="text-danger">
-                    {t('adminAccount.content.validation.id', { ns: 'admin-account' })}
-                  </Form.Text>
-                ) : null}
-              </Form.Group>
-            </div>
-            <div className="col-12">
-              <Form.Group controlId="admin-content-category-name">
-                <Form.Label>{t('adminAccount.content.modals.category.name', { ns: 'admin-account' })}</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={categoryName}
-                  onChange={event => {
-                    setCategoryName(event.currentTarget.value);
-                  }}
-                />
-              </Form.Group>
-            </div>
-            <div className="col-12 col-sm-6">
-              <Form.Group controlId="admin-content-category-color">
-                <Form.Label>{t('adminAccount.content.modals.category.color', { ns: 'admin-account' })}</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={categoryColor}
-                  onChange={event => {
-                    setCategoryColor(event.currentTarget.value);
-                  }}
-                />
-              </Form.Group>
-            </div>
-            <div className="col-12 col-sm-6">
-              <Form.Group controlId="admin-content-category-icon">
-                <Form.Label>{t('adminAccount.content.modals.category.icon', { ns: 'admin-account' })}</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={categoryIcon}
-                  onChange={event => {
-                    setCategoryIcon(event.currentTarget.value);
-                  }}
-                />
-              </Form.Group>
-            </div>
-            <div className="col-12">
-              <Form.Group controlId="admin-content-category-link">
-                <Form.Label>{t('adminAccount.content.modals.category.link', { ns: 'admin-account' })}</Form.Label>
-                <Form.Control
-                  type="url"
-                  value={categoryLink}
-                  onChange={event => {
-                    setCategoryLink(event.currentTarget.value);
-                  }}
-                  placeholder="https://"
-                />
-              </Form.Group>
-            </div>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={isCategorySubmitting}
-            onClick={() => {
-              setIsCategoryEditorOpen(false);
-            }}
-          >
-            {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-          </Button>
-          <Button
-            type="button"
-            variant="primary"
-            disabled={!canSubmitCategory || isCategorySubmitting}
-            onClick={handleSubmitCategory}
-          >
-            {isCategorySubmitting ? (
-              <span className="d-inline-flex align-items-center gap-2">
-                <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
-                <span>{t('adminAccount.content.actions.saving', { ns: 'admin-account' })}</span>
-              </span>
-            ) : (
-              <>
-                <FontAwesomeIcon icon="save" className="me-2" />
-                {categoryEditorMode === 'create'
-                  ? t('adminAccount.content.actions.createCategory', { ns: 'admin-account' })
-                  : t('adminAccount.content.actions.update', { ns: 'admin-account' })}
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      />
 
       <Modal
         show={pendingCategoryDelete !== null}

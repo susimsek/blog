@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"errors"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -159,5 +161,74 @@ func TestDeleteAdminMediaAssetMapsRepositoryFailure(t *testing.T) {
 	err := DeleteAdminMediaAsset(context.Background(), &domain.AdminUser{ID: "admin-1"}, "asset-3")
 	if err == nil || !errors.Is(err, repository.ErrAdminMediaAssetRepositoryUnavailable) {
 		t.Fatalf("expected repository unavailable error, got %v", err)
+	}
+}
+
+func TestEnrichAdminMediaLibraryItemsLoadsRelativePublicImageMetadata(t *testing.T) {
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("Getwd() error = %v", err)
+	}
+
+	tempDirectory := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(tempDirectory, "public", "images"), 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+	if err := os.WriteFile(
+		filepath.Join(tempDirectory, "public", "images", "sample.png"),
+		[]byte{
+			0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+			0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
+			0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+			0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53,
+			0xde, 0x00, 0x00, 0x00, 0x0c, 0x49, 0x44, 0x41,
+			0x54, 0x08, 0xd7, 0x63, 0xf8, 0xcf, 0xc0, 0x00,
+			0x00, 0x03, 0x01, 0x01, 0x00, 0xc9, 0xfe, 0x92,
+			0xef, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e,
+			0x44, 0xae, 0x42, 0x60, 0x82,
+		},
+		0o644,
+	); err != nil {
+		t.Fatalf("WriteFile() error = %v", err)
+	}
+
+	if err := os.Chdir(tempDirectory); err != nil {
+		t.Fatalf("Chdir() error = %v", err)
+	}
+	t.Cleanup(func() {
+		_ = os.Chdir(workingDirectory)
+	})
+	t.Setenv("SITE_URL", "https://suaybsimsek.com")
+
+	items := enrichAdminMediaLibraryItems([]domain.AdminMediaLibraryItem{{
+		ID:         "ref-1",
+		Kind:       "REFERENCE",
+		Name:       "Sample",
+		Value:      "/images/sample.png",
+		PreviewURL: "/images/sample.png",
+	}})
+	if len(items) != 1 {
+		t.Fatalf("expected one item, got %d", len(items))
+	}
+	if items[0].Width != 1 || items[0].Height != 1 {
+		t.Fatalf("expected dimensions 1x1, got %dx%d", items[0].Width, items[0].Height)
+	}
+	if items[0].SizeBytes <= 0 {
+		t.Fatalf("expected positive file size, got %d", items[0].SizeBytes)
+	}
+}
+
+func TestResolveAdminMediaPublicFilePathAllowsSameSiteAbsoluteURLs(t *testing.T) {
+	t.Setenv("SITE_URL", "https://suaybsimsek.com")
+	resolvedPath, ok := resolveAdminMediaPublicFilePath(
+		"https://suaybsimsek.com/images/example.webp",
+		"/tmp/public",
+		"https://suaybsimsek.com",
+	)
+	if !ok {
+		t.Fatal("expected same-site absolute URL to resolve")
+	}
+	if resolvedPath != filepath.Join("/tmp/public", "images", "example.webp") {
+		t.Fatalf("unexpected resolved path %q", resolvedPath)
 	}
 }

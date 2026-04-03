@@ -1,4 +1,9 @@
-import { filterSearchResults, getStaticLocalePosts, normalizeSearchPosts } from '@/components/search/SearchContainer';
+import {
+  filterSearchResults,
+  getStaticLocalePosts,
+  normalizeSearchPosts,
+  resetStaticLocalePostsCache,
+} from '@/components/search/SearchContainer';
 
 jest.mock('@/lib/basePath', () => ({
   withBasePath: (value: string) => `/base${value}`,
@@ -7,6 +12,7 @@ jest.mock('@/lib/basePath', () => ({
 describe('SearchContainer helpers', () => {
   beforeEach(() => {
     global.fetch = jest.fn() as unknown as typeof fetch;
+    resetStaticLocalePostsCache();
   });
 
   it('normalizes valid posts and discards invalid payloads', () => {
@@ -65,7 +71,7 @@ describe('SearchContainer helpers', () => {
 
     await expect(getStaticLocalePosts('en')).resolves.toHaveLength(1);
     await expect(getStaticLocalePosts('en')).resolves.toHaveLength(1);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
 
     fetchMock.mockResolvedValueOnce({ ok: false } as Response);
     await expect(getStaticLocalePosts('tr')).resolves.toEqual([]);
@@ -103,5 +109,35 @@ describe('SearchContainer helpers', () => {
 
     expect(filterSearchResults(posts, ' ')).toEqual([]);
     expect(filterSearchResults(posts, 'react').map(post => post.id)).toEqual(['blog-1', 'medium-1']);
+  });
+
+  it('matches normalized Turkish text while preserving source order', () => {
+    const posts = normalizeSearchPosts([
+      {
+        id: 'blog-1',
+        title: 'Çeşme Rehberi',
+        publishedDate: '2024-01-01',
+        summary: 'Yazı özeti',
+        searchText: 'cesme rehberi yazi ozeti',
+        readingTimeMin: 5,
+        source: 'blog',
+        thumbnail: null,
+        topics: [],
+      },
+      {
+        id: 'medium-1',
+        title: 'Iğdır Notları',
+        publishedDate: '2024-01-01',
+        summary: 'Kısa özet',
+        searchText: 'igdir notlari kisa ozet',
+        readingTimeMin: 5,
+        source: 'medium',
+        thumbnail: null,
+        topics: [],
+      },
+    ]);
+
+    expect(filterSearchResults(posts, 'cesme').map(post => post.id)).toEqual(['blog-1']);
+    expect(filterSearchResults(posts, 'igdir').map(post => post.id)).toEqual(['medium-1']);
   });
 });

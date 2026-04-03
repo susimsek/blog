@@ -247,10 +247,10 @@ func TestAdminContentRepositoryUnavailablePaths(t *testing.T) {
 		Thumbnail:     "/alpha.webp",
 		PublishedDate: "2026-03-22",
 		UpdatedDate:   "2026-03-23",
-	}, &domain.AdminContentCategoryRecord{ID: "tech", Name: "Tech", Color: "#000"}, []domain.AdminContentTopicRecord{{ID: "go", Name: "Go", Color: "#fff"}}, now); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
+	}, &domain.AdminContentCategoryRecord{ID: "tech", Name: "Tech", Color: "#000"}, []domain.AdminContentTopicRecord{{ID: "go", Name: "Go", Color: "#fff"}}, nil, now); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
 		t.Fatalf("UpdatePostMetadata() error = %v", err)
 	}
-	if _, err := repository.UpdatePostContent(ctx, "en", "alpha-post", "Body", now); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
+	if _, err := repository.UpdatePostContent(ctx, "en", "alpha-post", "Body", nil, now); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
 		t.Fatalf("UpdatePostContent() error = %v", err)
 	}
 	if _, err := repository.DeletePostByLocaleAndID(ctx, "en", "alpha-post"); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {

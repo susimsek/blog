@@ -33,6 +33,7 @@ var (
 	listAdminErrorMessagesFn                = appservice.ListAdminErrorMessages
 	listAdminContentPostsFn                 = appservice.ListAdminContentPosts
 	getAdminContentPostFn                   = appservice.GetAdminContentPost
+	listAdminContentPostRevisionsFn         = appservice.ListAdminContentPostRevisions
 	listAdminContentTopicsPageFn            = appservice.ListAdminContentTopicsPage
 	listAdminContentCategoriesPageFn        = appservice.ListAdminContentCategoriesPage
 	listAdminContentTopicsFn                = appservice.ListAdminContentTopics
@@ -70,6 +71,7 @@ var (
 	deleteAdminErrorMessageFn               = appservice.DeleteAdminErrorMessage
 	updateAdminContentPostMetadataFn        = appservice.UpdateAdminContentPostMetadata
 	updateAdminContentPostContentFn         = appservice.UpdateAdminContentPostContent
+	restoreAdminContentPostRevisionFn       = appservice.RestoreAdminContentPostRevision
 	uploadAdminMediaAssetFn                 = appservice.UploadAdminMediaAsset
 	deleteAdminMediaAssetFn                 = appservice.DeleteAdminMediaAsset
 	deleteAdminContentPostFn                = appservice.DeleteAdminContentPost
@@ -157,6 +159,33 @@ func (r *adminQueryResolver) Dashboard(ctx context.Context) (*model.AdminDashboa
 	}
 
 	return mapAdminDashboard(payload), nil
+}
+
+// ContentPostRevisions is the resolver for the contentPostRevisions field.
+func (r *adminQueryResolver) ContentPostRevisions(
+	ctx context.Context,
+	input model.AdminContentEntityKeyInput,
+	page *int,
+	size *int,
+) (*model.AdminContentPostRevisionListPayload, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	payload, err := listAdminContentPostRevisionsFn(
+		ctx,
+		adminUser,
+		normalizeAdminLocale(input.Locale),
+		strings.TrimSpace(input.ID),
+		page,
+		size,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminContentPostRevisionListPayload(payload), nil
 }
 
 // Comments is the resolver for the comments field.
@@ -1255,6 +1284,8 @@ func (r *adminMutationResolver) UpdateContentPostMetadata(
 		Thumbnail:     toOptionalTrimmedInputString(input.Thumbnail),
 		PublishedDate: datePointerToStringPointer(input.PublishedDate),
 		UpdatedDate:   datePointerToStringPointer(input.UpdatedDate),
+		Status:        mapAdminContentPostStatusInput(input.Status),
+		ScheduledAt:   input.ScheduledAt,
 		CategoryID:    strings.TrimSpace(stringPointerValue(input.CategoryID)),
 		TopicIDs:      mapAdminContentTopicIDs(input.TopicIds),
 	})
@@ -1280,6 +1311,30 @@ func (r *adminMutationResolver) UpdateContentPostContent(
 		ID:      strings.TrimSpace(input.ID),
 		Content: input.Content,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminContentPost(updated), nil
+}
+
+// RestoreContentPostRevision is the resolver for the restoreContentPostRevision field.
+func (r *adminMutationResolver) RestoreContentPostRevision(
+	ctx context.Context,
+	input model.AdminRestoreContentPostRevisionInput,
+) (*model.AdminContentPost, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	updated, err := restoreAdminContentPostRevisionFn(
+		ctx,
+		adminUser,
+		normalizeAdminLocale(input.Locale),
+		strings.TrimSpace(input.PostID),
+		strings.TrimSpace(input.RevisionID),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -2017,12 +2072,90 @@ func mapAdminContentPost(item *domain.AdminContentPostRecord) *model.AdminConten
 		TopicIds:         append([]string{}, item.TopicIDs...),
 		TopicNames:       append([]string{}, item.TopicNames...),
 		ReadingTimeMin:   item.ReadingTimeMin,
+		Status:           mapAdminContentPostStatusOutput(item.Status),
+		ScheduledAt:      toOptionalAdminTime(item.ScheduledAt),
 		ContentUpdatedAt: toOptionalAdminTime(item.ContentUpdatedAt),
 		UpdatedAt:        toOptionalAdminTime(item.UpdatedAt),
+		RevisionCount:    item.RevisionCount,
+		LatestRevisionAt: toOptionalAdminTime(item.LatestRevisionAt),
 		ViewCount:        int(item.ViewCount),
 		LikeCount:        int(item.LikeCount),
 		CommentCount:     int(item.CommentCount),
 	}
+}
+
+func mapAdminContentPostRevisionListPayload(
+	payload *domain.AdminContentPostRevisionListResult,
+) *model.AdminContentPostRevisionListPayload {
+	if payload == nil {
+		return &model.AdminContentPostRevisionListPayload{
+			Items: []*model.AdminContentPostRevision{},
+			Total: 0,
+			Page:  1,
+			Size:  0,
+		}
+	}
+
+	items := make([]*model.AdminContentPostRevision, 0, len(payload.Items))
+	for _, item := range payload.Items {
+		copyItem := item
+		items = append(items, mapAdminContentPostRevision(&copyItem))
+	}
+
+	return &model.AdminContentPostRevisionListPayload{
+		Items: items,
+		Total: payload.Total,
+		Page:  payload.Page,
+		Size:  payload.Size,
+	}
+}
+
+func mapAdminContentPostRevision(item *domain.AdminContentPostRevisionRecord) *model.AdminContentPostRevision {
+	if item == nil {
+		return nil
+	}
+
+	return &model.AdminContentPostRevision{
+		ID:             item.ID,
+		Locale:         appscalars.Locale(item.Locale),
+		PostID:         item.PostID,
+		RevisionNumber: item.RevisionNumber,
+		Title:          item.Title,
+		Summary:        toOptionalAdminString(item.Summary),
+		Content:        toOptionalAdminString(item.Content),
+		ContentMode:    mapAdminContentModeOutput(item.ContentMode),
+		Thumbnail:      toOptionalAdminString(item.Thumbnail),
+		PublishedDate:  appscalars.Date(item.PublishedDate),
+		UpdatedDate:    toOptionalAdminDate(item.UpdatedDate),
+		CategoryID:     toOptionalAdminString(item.CategoryID),
+		CategoryName:   toOptionalAdminString(item.CategoryName),
+		TopicIds:       append([]string{}, item.TopicIDs...),
+		TopicNames:     append([]string{}, item.TopicNames...),
+		ReadingTimeMin: item.ReadingTimeMin,
+		Status:         mapAdminContentPostStatusOutput(item.Status),
+		ScheduledAt:    toOptionalAdminTime(item.ScheduledAt),
+		CreatedAt:      item.CreatedAt,
+	}
+}
+
+func mapAdminContentPostStatusOutput(value string) model.AdminContentPostStatus {
+	switch strings.TrimSpace(strings.ToLower(value)) {
+	case domain.AdminContentPostStatusDraft:
+		return model.AdminContentPostStatusDraft
+	case domain.AdminContentPostStatusScheduled:
+		return model.AdminContentPostStatusScheduled
+	default:
+		return model.AdminContentPostStatusPublished
+	}
+}
+
+func mapAdminContentPostStatusInput(value *model.AdminContentPostStatus) *string {
+	if value == nil {
+		return nil
+	}
+
+	resolved := strings.TrimSpace(strings.ToLower(string(*value)))
+	return &resolved
 }
 
 func mapAdminContentTopics(items []domain.AdminContentTopicRecord) []*model.AdminContentTopic {

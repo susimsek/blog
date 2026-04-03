@@ -10,6 +10,9 @@ import (
 	"image"
 	_ "image/jpeg" // Register JPEG decoder for image.DecodeConfig.
 	_ "image/png"  // Register PNG decoder for image.DecodeConfig.
+	"net/url"
+	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -78,6 +81,7 @@ func ListAdminMediaLibrary(
 	if payload.Items == nil {
 		payload.Items = []domain.AdminMediaLibraryItem{}
 	}
+	payload.Items = enrichAdminMediaLibraryItems(payload.Items)
 	payload.Page = resolvedPage
 	payload.Size = resolvedSize
 
@@ -260,6 +264,160 @@ func normalizeAdminMediaAssetName(value string) string {
 		resolved = resolved[:maxAdminMediaAssetNameLength]
 	}
 	return strings.TrimSpace(resolved)
+}
+
+type adminMediaFileMetadata struct {
+	SizeBytes int
+	Width     int
+	Height    int
+}
+
+func enrichAdminMediaLibraryItems(items []domain.AdminMediaLibraryItem) []domain.AdminMediaLibraryItem {
+	if len(items) == 0 {
+		return items
+	}
+
+	publicRoot, siteURL := resolveAdminMediaPublicRootAndSiteURL()
+	if publicRoot == "" {
+		return items
+	}
+
+	for index := range items {
+		if items[index].Width > 0 && items[index].Height > 0 && items[index].SizeBytes > 0 {
+			continue
+		}
+
+		metadata, err := resolveAdminMediaFileMetadata(items[index], publicRoot, siteURL)
+		if err != nil || metadata == nil {
+			continue
+		}
+		if items[index].SizeBytes <= 0 {
+			items[index].SizeBytes = metadata.SizeBytes
+		}
+		if items[index].Width <= 0 {
+			items[index].Width = metadata.Width
+		}
+		if items[index].Height <= 0 {
+			items[index].Height = metadata.Height
+		}
+	}
+
+	return items
+}
+
+func resolveAdminMediaPublicRootAndSiteURL() (string, string) {
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		return "", ""
+	}
+
+	publicRoot := filepath.Join(workingDirectory, "public")
+	if info, err := os.Stat(publicRoot); err != nil || !info.IsDir() {
+		return "", ""
+	}
+
+	return publicRoot, strings.TrimSpace(os.Getenv("SITE_URL"))
+}
+
+func resolveAdminMediaFileMetadata(
+	item domain.AdminMediaLibraryItem,
+	publicRoot string,
+	siteURL string,
+) (*adminMediaFileMetadata, error) {
+	resolvedPath, ok := resolveAdminMediaPublicFilePath(item.PreviewURL, publicRoot, siteURL)
+	if !ok {
+		resolvedPath, ok = resolveAdminMediaPublicFilePath(item.Value, publicRoot, siteURL)
+		if !ok {
+			return nil, nil
+		}
+	}
+
+	fileInfo, err := os.Stat(resolvedPath)
+	if err != nil || fileInfo.IsDir() {
+		return nil, err
+	}
+
+	file, err := os.Open(resolvedPath)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+
+	config, _, err := image.DecodeConfig(file)
+	if err != nil {
+		return &adminMediaFileMetadata{SizeBytes: int(fileInfo.Size())}, nil
+	}
+
+	return &adminMediaFileMetadata{
+		SizeBytes: int(fileInfo.Size()),
+		Width:     config.Width,
+		Height:    config.Height,
+	}, nil
+}
+
+func resolveAdminMediaPublicFilePath(
+	value string,
+	publicRoot string,
+	siteURL string,
+) (string, bool) {
+	resolved := strings.TrimSpace(value)
+	if resolved == "" {
+		return "", false
+	}
+
+	resolvedPath := ""
+	switch {
+	case strings.HasPrefix(resolved, "/"):
+		resolvedPath = resolved
+	default:
+		parsedURL, err := url.Parse(resolved)
+		if err != nil || parsedURL.Scheme == "" || parsedURL.Host == "" {
+			return "", false
+		}
+		if !isAdminMediaSameSiteURL(parsedURL, siteURL) {
+			return "", false
+		}
+		resolvedPath = parsedURL.Path
+	}
+
+	cleanPath := path.Clean("/" + strings.TrimPrefix(resolvedPath, "/"))
+	if cleanPath == "/" || strings.HasPrefix(cleanPath, "/api/media/") {
+		return "", false
+	}
+
+	absolutePublicRoot, err := filepath.Abs(publicRoot)
+	if err != nil {
+		return "", false
+	}
+
+	absoluteTarget, err := filepath.Abs(filepath.Join(absolutePublicRoot, filepath.FromSlash(strings.TrimPrefix(cleanPath, "/"))))
+	if err != nil {
+		return "", false
+	}
+
+	if absoluteTarget != absolutePublicRoot && !strings.HasPrefix(absoluteTarget, absolutePublicRoot+string(os.PathSeparator)) {
+		return "", false
+	}
+
+	return absoluteTarget, true
+}
+
+func isAdminMediaSameSiteURL(parsedURL *url.URL, siteURL string) bool {
+	if parsedURL == nil {
+		return false
+	}
+	if strings.TrimSpace(siteURL) == "" {
+		return false
+	}
+
+	parsedSiteURL, err := url.Parse(strings.TrimSpace(siteURL))
+	if err != nil {
+		return false
+	}
+
+	return strings.EqualFold(parsedURL.Host, parsedSiteURL.Host)
 }
 
 func defaultAdminMediaAssetName(contentType string) string {
