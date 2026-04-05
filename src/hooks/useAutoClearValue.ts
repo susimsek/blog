@@ -1,24 +1,29 @@
 import { useEffect, type Dispatch, type SetStateAction } from 'react';
 
-type UseAutoClearValueOptions = {
+type UseAutoClearValueOptions<T> = {
   when?: boolean;
-  nextValue?: string;
+  nextValue?: T;
+  isEmpty?: (value: T) => boolean;
 };
 
-export default function useAutoClearValue(
-  value: string,
-  setValue: Dispatch<SetStateAction<string>>,
+export default function useAutoClearValue<T>(
+  value: T,
+  setValue: Dispatch<SetStateAction<T>>,
   delayMs: number,
-  options?: UseAutoClearValueOptions,
+  options?: UseAutoClearValueOptions<T>,
 ) {
   const shouldAutoClear = options?.when ?? true;
-  const nextValue = options?.nextValue ?? '';
+  const hasExplicitNextValue = Object.prototype.hasOwnProperty.call(options ?? {}, 'nextValue');
+  const configuredNextValue = options?.nextValue;
+  const configuredIsEmpty = options?.isEmpty;
 
   useEffect(() => {
-    if (!shouldAutoClear || value === '') {
+    const isValueEmpty = configuredIsEmpty ?? ((currentValue: T) => currentValue === ('' as T));
+    if (!shouldAutoClear || isValueEmpty(value)) {
       return;
     }
 
+    const nextValue = (hasExplicitNextValue ? configuredNextValue : ('' as T)) as T;
     const timeoutId = globalThis.setTimeout(() => {
       setValue(nextValue);
     }, delayMs);
@@ -26,5 +31,5 @@ export default function useAutoClearValue(
     return () => {
       globalThis.clearTimeout(timeoutId);
     };
-  }, [delayMs, nextValue, setValue, shouldAutoClear, value]);
+  }, [configuredIsEmpty, configuredNextValue, delayMs, hasExplicitNextValue, setValue, shouldAutoClear, value]);
 }

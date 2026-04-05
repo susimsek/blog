@@ -31,51 +31,27 @@ import AdminContentPostRevisionRestoreModal from '@/components/admin/content/Adm
 import AdminContentPostsTab from '@/components/admin/content/AdminContentPostsTab';
 import AdminContentTopicEditorModal from '@/components/admin/content/AdminContentTopicEditorModal';
 import AdminContentTopicsTab from '@/components/admin/content/AdminContentTopicsTab';
+import { useAdminContentMediaSection } from '@/components/admin/content/useAdminContentMediaSection';
+import { useAdminContentPostCommentsSection } from '@/components/admin/content/useAdminContentPostCommentsSection';
+import { useAdminContentPostEditorSection } from '@/components/admin/content/useAdminContentPostEditorSection';
+import { useAdminContentTaxonomySection } from '@/components/admin/content/useAdminContentTaxonomySection';
 import { getDatePickerLocale } from '@/components/common/DateRangePicker';
 import FlagIcon from '@/components/common/FlagIcon';
 import { type PostDensityMode } from '@/components/common/PostDensityToggle';
 import Link from '@/components/common/Link';
+import useAutoClearValue from '@/hooks/useAutoClearValue';
+import useDebounce from '@/hooks/useDebounce';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { assetPrefix, AVATAR_LINK, AUTHOR_NAME, LOCALES, TWITTER_USERNAME } from '@/config/constants';
 import { buildLocalizedPath, toAbsoluteSiteUrl } from '@/lib/metadata';
 import {
-  bulkDeleteAdminComments,
-  bulkUpdateAdminCommentStatus,
-  createAdminContentCategory,
-  createAdminContentTopic,
-  deleteAdminComment,
-  deleteAdminContentCategory,
-  deleteAdminMediaAsset,
-  deleteAdminContentPost,
-  deleteAdminContentTopic,
-  fetchAdminComments,
-  fetchAdminMediaLibrary,
-  fetchAdminContentPost,
-  fetchAdminContentPostRevisions,
-  fetchAdminContentCategories,
-  fetchAdminContentCategoriesPage,
   fetchAdminContentPosts,
-  fetchAdminContentTopics,
-  fetchAdminContentTopicsPage,
   isAdminSessionError,
   resolveAdminError,
-  updateAdminCommentStatus,
-  updateAdminContentCategory,
-  updateAdminContentPostContent,
-  updateAdminContentPostMetadata,
-  updateAdminContentTopic,
-  uploadAdminMediaAsset,
-  restoreAdminContentPostRevision,
   type AdminCommentItem,
-  type AdminContentCategoryItem,
-  type AdminContentCategoryGroupItem,
-  type AdminMediaLibraryItem,
-  type AdminMediaLibrarySort,
   type AdminContentPostGroupItem,
   type AdminContentPostItem,
-  type AdminContentPostRevisionItem,
   type AdminContentTopicItem,
-  type AdminContentTopicGroupItem,
 } from '@/lib/adminApi';
 import {
   ADMIN_ROUTES,
@@ -95,21 +71,12 @@ type AdminContentManagementPanelProps = {
 
 type LocaleFilterValue = 'all' | 'en' | 'tr';
 type SourceFilterValue = 'all' | 'blog' | 'medium';
-type TopicEditorMode = 'create' | 'update';
-type CategoryEditorMode = 'create' | 'update';
 type ContentSectionTab = 'posts' | 'topics' | 'categories' | 'media';
 type PostEditorTab = 'metadata' | 'content' | 'comments';
-type PostSeoPreviewTab = 'openGraph' | 'twitter';
-type PostContentViewMode = 'editor' | 'split' | 'preview';
 type SupportedContentLocale = 'en' | 'tr';
-type CommentStatusFilterValue = 'all' | AdminCommentItem['status'];
-type MediaLibraryFilterValue = AdminMediaLibraryItem['kind'] | 'ALL';
-type MediaLibrarySortValue = AdminMediaLibrarySort;
-type AdminContentPostLifecycleStatus = AdminContentPostItem['status'];
 const CONTENT_ID_PATTERN = /^[a-z0-9][a-z0-9-]{1,127}$/;
 const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
-const CONTENT_LOCALES: SupportedContentLocale[] = ['en', 'tr'];
-const MEDIA_LIBRARY_DEFAULT_PAGE_SIZE = 10;
+const FILTER_QUERY_DEBOUNCE_MS = 220;
 const BOOTSTRAP_THEME_COLORS = new Set([
   'primary',
   'secondary',
@@ -120,18 +87,6 @@ const BOOTSTRAP_THEME_COLORS = new Set([
   'light',
   'dark',
 ]);
-
-const normalizeLocaleValue = (value: string): LocaleFilterValue => {
-  const normalized = value.trim().toLowerCase();
-  if (normalized === 'tr') {
-    return 'tr';
-  }
-  if (normalized === 'en') {
-    return 'en';
-  }
-
-  return 'all';
-};
 
 const resolveLocaleLabel = (value: string) => {
   const resolved = value.trim().toLowerCase();
@@ -145,44 +100,6 @@ const resolveLocaleLabel = (value: string) => {
 };
 
 const toTaxonomyKey = (item: { locale: string; id: string }) => `${item.locale.toLowerCase()}|${item.id.toLowerCase()}`;
-
-const resolveBulkCommentSuccessKey = (status: AdminCommentItem['status']) => {
-  if (status === 'APPROVED') {
-    return 'adminAccount.comments.success.bulkApproved';
-  }
-  if (status === 'REJECTED') {
-    return 'adminAccount.comments.success.bulkRejected';
-  }
-
-  return 'adminAccount.comments.success.bulkSpam';
-};
-
-const syncSelectedIDsWithItems =
-  <T extends { id: string }>(items: T[]) =>
-  (previous: string[]) =>
-    previous.filter(id => items.some(item => item.id === id));
-
-const toggleSingleSelection = (itemID: string, checked: boolean) => (previous: string[]) => {
-  if (checked) {
-    return previous.includes(itemID) ? previous : [...previous, itemID];
-  }
-
-  return previous.filter(id => id !== itemID);
-};
-
-const toggleVisibleSelection =
-  <T extends { id: string }>(items: T[], allVisibleSelected: boolean) =>
-  (previous: string[]) => {
-    if (allVisibleSelected) {
-      return previous.filter(id => !items.some(item => item.id === id));
-    }
-
-    const next = new Set(previous);
-    for (const item of items) {
-      next.add(item.id);
-    }
-    return Array.from(next);
-  };
 
 const resolvePostEditorTab = (value?: string | null, allowContent = true): PostEditorTab => {
   const normalizedValue = value?.trim().toLowerCase();
@@ -209,7 +126,7 @@ const resolveContentSectionTab = (value?: string | null): ContentSectionTab => {
   return 'categories';
 };
 
-const resolvePostLifecycleBadgeVariant = (status: AdminContentPostLifecycleStatus) => {
+const resolvePostLifecycleBadgeVariant = (status: AdminContentPostItem['status']) => {
   if (status === 'DRAFT') {
     return 'secondary';
   }
@@ -310,20 +227,6 @@ const fromDateTimeLocalInputValue = (value: string) => {
 
 const adminPreviewImageLoader = ({ src }: { src: string }) => src;
 
-const fileToDataURL = (file: File) =>
-  new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string' && reader.result.trim() !== '') {
-        resolve(reader.result);
-        return;
-      }
-      reject(new Error('invalid media file'));
-    };
-    reader.onerror = () => reject(new Error('invalid media file'));
-    reader.readAsDataURL(file);
-  });
-
 const formatMediaSize = (sizeBytes: number, locale: string) => {
   if (!Number.isFinite(sizeBytes) || sizeBytes <= 0) {
     return '';
@@ -351,16 +254,11 @@ export default function AdminContentManagementPanel({
 
   const [isLoading, setIsLoading] = React.useState(true);
   const [posts, setPosts] = React.useState<AdminContentPostGroupItem[]>([]);
-  const [topics, setTopics] = React.useState<AdminContentTopicItem[]>([]);
-  const [categories, setCategories] = React.useState<AdminContentCategoryItem[]>([]);
-  const [filterTopicOptions, setFilterTopicOptions] = React.useState<AdminContentTopicItem[]>([]);
-  const [filterCategoryOptions, setFilterCategoryOptions] = React.useState<AdminContentCategoryItem[]>([]);
   const [errorMessage, setErrorMessage] = React.useState('');
   const [successMessage, setSuccessMessage] = React.useState('');
   const [filterLocale, setFilterLocale] = React.useState<LocaleFilterValue>('all');
   const [filterSource, setFilterSource] = React.useState<SourceFilterValue>('all');
   const [filterQuery, setFilterQuery] = React.useState('');
-  const [filterQueryDebounced, setFilterQueryDebounced] = React.useState('');
   const [filterCategoryID, setFilterCategoryID] = React.useState('');
   const [filterTopicID, setFilterTopicID] = React.useState('');
   const [page, setPage] = React.useState(1);
@@ -368,110 +266,6 @@ export default function AdminContentManagementPanel({
   const [total, setTotal] = React.useState(0);
   const [postDensityMode, setPostDensityMode] = React.useState<PostDensityMode>('default');
   const [mediaDensityMode, setMediaDensityMode] = React.useState<PostDensityMode>('default');
-
-  const [editingPost, setEditingPost] = React.useState<AdminContentPostItem | null>(null);
-  const [postEditorTitle, setPostEditorTitle] = React.useState('');
-  const [postEditorSummary, setPostEditorSummary] = React.useState('');
-  const [postEditorThumbnail, setPostEditorThumbnail] = React.useState('');
-  const [postEditorStatus, setPostEditorStatus] = React.useState<AdminContentPostLifecycleStatus>('PUBLISHED');
-  const [postEditorScheduledAt, setPostEditorScheduledAt] = React.useState('');
-  const [postRevisions, setPostRevisions] = React.useState<AdminContentPostRevisionItem[]>([]);
-  const [postRevisionsPage, setPostRevisionsPage] = React.useState(1);
-  const [postRevisionsPageSize, setPostRevisionsPageSize] = React.useState(5);
-  const [postRevisionsTotal, setPostRevisionsTotal] = React.useState(0);
-  const [isPostRevisionsLoading, setIsPostRevisionsLoading] = React.useState(false);
-  const [postRevisionsErrorMessage, setPostRevisionsErrorMessage] = React.useState('');
-  const [pendingPostRevisionRestore, setPendingPostRevisionRestore] =
-    React.useState<AdminContentPostRevisionItem | null>(null);
-  const [isPostRevisionRestoring, setIsPostRevisionRestoring] = React.useState(false);
-  const [mediaLibraryQuery, setMediaLibraryQuery] = React.useState('');
-  const [mediaLibraryFilter, setMediaLibraryFilter] = React.useState<MediaLibraryFilterValue>('ALL');
-  const [mediaLibrarySort, setMediaLibrarySort] = React.useState<MediaLibrarySortValue>('RECENT');
-  const [mediaLibraryItems, setMediaLibraryItems] = React.useState<AdminMediaLibraryItem[]>([]);
-  const [mediaLibraryPage, setMediaLibraryPage] = React.useState(1);
-  const [mediaLibraryPageSize, setMediaLibraryPageSize] = React.useState(MEDIA_LIBRARY_DEFAULT_PAGE_SIZE);
-  const [mediaLibraryTotal, setMediaLibraryTotal] = React.useState(0);
-  const [isMediaLibraryLoading, setIsMediaLibraryLoading] = React.useState(false);
-  const [isMediaLibraryUploading, setIsMediaLibraryUploading] = React.useState(false);
-  const [mediaLibraryErrorMessage, setMediaLibraryErrorMessage] = React.useState('');
-  const [copiedMediaAssetID, setCopiedMediaAssetID] = React.useState('');
-  const [pendingMediaAssetDelete, setPendingMediaAssetDelete] = React.useState<AdminMediaLibraryItem | null>(null);
-  const [isMediaAssetDeleting, setIsMediaAssetDeleting] = React.useState(false);
-  const [postEditorPublishedDate, setPostEditorPublishedDate] = React.useState('');
-  const [postEditorUpdatedDate, setPostEditorUpdatedDate] = React.useState('');
-  const [postEditorCategoryID, setPostEditorCategoryID] = React.useState('');
-  const [postEditorTopicIDs, setPostEditorTopicIDs] = React.useState<string[]>([]);
-  const [postEditorTopicQuery, setPostEditorTopicQuery] = React.useState('');
-  const [postEditorTopicOptions, setPostEditorTopicOptions] = React.useState<AdminContentTopicItem[]>([]);
-  const [postEditorCategoryOptions, setPostEditorCategoryOptions] = React.useState<AdminContentCategoryItem[]>([]);
-  const [postSeoPreviewTab, setPostSeoPreviewTab] = React.useState<PostSeoPreviewTab>('openGraph');
-  const [postContentViewMode, setPostContentViewMode] = React.useState<PostContentViewMode>('editor');
-  const [postEditorContent, setPostEditorContent] = React.useState('');
-  const [postEditorInitialContent, setPostEditorInitialContent] = React.useState('');
-  const [isPostContentLoading, setIsPostContentLoading] = React.useState(false);
-  const [isPostUpdating, setIsPostUpdating] = React.useState(false);
-  const [isPostContentUpdating, setIsPostContentUpdating] = React.useState(false);
-  const [pendingPostDelete, setPendingPostDelete] = React.useState<AdminContentPostItem | null>(null);
-  const [isPostDeleting, setIsPostDeleting] = React.useState(false);
-  const [postComments, setPostComments] = React.useState<AdminCommentItem[]>([]);
-  const [isPostCommentsLoading, setIsPostCommentsLoading] = React.useState(false);
-  const [postCommentsErrorMessage, setPostCommentsErrorMessage] = React.useState('');
-  const [postCommentsSuccessMessage, setPostCommentsSuccessMessage] = React.useState('');
-  const [postCommentsStatusFilter, setPostCommentsStatusFilter] = React.useState<CommentStatusFilterValue>('all');
-  const [postCommentsFilterQuery, setPostCommentsFilterQuery] = React.useState('');
-  const [postCommentsFilterQueryDebounced, setPostCommentsFilterQueryDebounced] = React.useState('');
-  const [postCommentsPage, setPostCommentsPage] = React.useState(1);
-  const [postCommentsPageSize, setPostCommentsPageSize] = React.useState(5);
-  const [postCommentsTotal, setPostCommentsTotal] = React.useState(0);
-  const [selectedPostCommentIDs, setSelectedPostCommentIDs] = React.useState<string[]>([]);
-  const [postCommentActionID, setPostCommentActionID] = React.useState('');
-  const [postCommentActionStatus, setPostCommentActionStatus] = React.useState<AdminCommentItem['status'] | null>(null);
-  const [deletingPostCommentID, setDeletingPostCommentID] = React.useState('');
-  const [pendingPostCommentDelete, setPendingPostCommentDelete] = React.useState<AdminCommentItem | null>(null);
-  const [bulkPostCommentActionStatus, setBulkPostCommentActionStatus] = React.useState<
-    AdminCommentItem['status'] | null
-  >(null);
-  const [pendingBulkPostCommentDeleteIDs, setPendingBulkPostCommentDeleteIDs] = React.useState<string[]>([]);
-  const [isBulkPostCommentDeleting, setIsBulkPostCommentDeleting] = React.useState(false);
-
-  const [isTopicEditorOpen, setIsTopicEditorOpen] = React.useState(false);
-  const [topicEditorMode, setTopicEditorMode] = React.useState<TopicEditorMode>('create');
-  const [topicLocale, setTopicLocale] = React.useState<'en' | 'tr'>('en');
-  const [topicID, setTopicID] = React.useState('');
-  const [topicName, setTopicName] = React.useState('');
-  const [topicColor, setTopicColor] = React.useState('');
-  const [topicLink, setTopicLink] = React.useState('');
-  const [topicFilterLocale, setTopicFilterLocale] = React.useState<LocaleFilterValue>('all');
-  const [topicFilterQuery, setTopicFilterQuery] = React.useState('');
-  const [topicFilterQueryDebounced, setTopicFilterQueryDebounced] = React.useState('');
-  const [topicPage, setTopicPage] = React.useState(1);
-  const [topicPageSize, setTopicPageSize] = React.useState(10);
-  const [topicListItems, setTopicListItems] = React.useState<AdminContentTopicGroupItem[]>([]);
-  const [topicListTotal, setTopicListTotal] = React.useState(0);
-  const [isTopicListLoading, setIsTopicListLoading] = React.useState(false);
-  const [isTopicSubmitting, setIsTopicSubmitting] = React.useState(false);
-  const [pendingTopicDelete, setPendingTopicDelete] = React.useState<AdminContentTopicItem | null>(null);
-  const [isTopicDeleting, setIsTopicDeleting] = React.useState(false);
-
-  const [isCategoryEditorOpen, setIsCategoryEditorOpen] = React.useState(false);
-  const [categoryEditorMode, setCategoryEditorMode] = React.useState<CategoryEditorMode>('create');
-  const [categoryLocale, setCategoryLocale] = React.useState<'en' | 'tr'>('en');
-  const [categoryID, setCategoryID] = React.useState('');
-  const [categoryName, setCategoryName] = React.useState('');
-  const [categoryColor, setCategoryColor] = React.useState('');
-  const [categoryIcon, setCategoryIcon] = React.useState('');
-  const [categoryLink, setCategoryLink] = React.useState('');
-  const [categoryFilterLocale, setCategoryFilterLocale] = React.useState<LocaleFilterValue>('all');
-  const [categoryFilterQuery, setCategoryFilterQuery] = React.useState('');
-  const [categoryFilterQueryDebounced, setCategoryFilterQueryDebounced] = React.useState('');
-  const [categoryPage, setCategoryPage] = React.useState(1);
-  const [categoryPageSize, setCategoryPageSize] = React.useState(10);
-  const [categoryListItems, setCategoryListItems] = React.useState<AdminContentCategoryGroupItem[]>([]);
-  const [categoryListTotal, setCategoryListTotal] = React.useState(0);
-  const [isCategoryListLoading, setIsCategoryListLoading] = React.useState(false);
-  const [isCategorySubmitting, setIsCategorySubmitting] = React.useState(false);
-  const [pendingCategoryDelete, setPendingCategoryDelete] = React.useState<AdminContentCategoryItem | null>(null);
-  const [isCategoryDeleting, setIsCategoryDeleting] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<ContentSectionTab>('categories');
   const canUsePostGridDensity = useMediaQuery('(min-width: 1200px)');
   const resolvedPostDensityMode: PostDensityMode =
@@ -498,29 +292,14 @@ export default function AdminContentManagementPanel({
   const splitPreviewRef = React.useRef<HTMLDivElement | null>(null);
   const splitEditorViewportRef = React.useRef<AdminMarkdownEditorViewport | null>(null);
   const postsRequestIDRef = React.useRef(0);
-  const postDetailRequestIDRef = React.useRef(0);
-  const taxonomyRequestIDRef = React.useRef(0);
-  const filterTaxonomyRequestIDRef = React.useRef(0);
-  const topicsPageRequestIDRef = React.useRef(0);
-  const categoriesPageRequestIDRef = React.useRef(0);
-  const postCommentsRequestIDRef = React.useRef(0);
-  const postEditorTopicsRequestIDRef = React.useRef(0);
-  const postEditorCategoriesRequestIDRef = React.useRef(0);
-  const mediaLibraryRequestIDRef = React.useRef(0);
   const postCommentsListTopRef = React.useRef<HTMLDivElement | null>(null);
-  const mediaUploadInputRef = React.useRef<HTMLInputElement | null>(null);
+  const reloadPostsRef = React.useRef<() => Promise<void>>(async () => {});
 
-  const deferredPostEditorTopicQuery = React.useDeferredValue(postEditorTopicQuery);
-  const deferredMediaLibraryQuery = React.useDeferredValue(mediaLibraryQuery);
-  const activePostEditorTab = resolvePostEditorTab(
-    postEditorTabKey,
-    editingPost ? editingPost.source === 'blog' : true,
-  );
+  const requestedPostEditorTab = resolvePostEditorTab(postEditorTabKey);
+  const reloadPosts = React.useCallback(() => reloadPostsRef.current(), []);
+  const filterQueryDebounced = useDebounce(filterQuery.trim(), FILTER_QUERY_DEBOUNCE_MS);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const totalPostCommentPages = Math.max(1, Math.ceil(postCommentsTotal / postCommentsPageSize));
-  const totalPostRevisionPages = Math.max(1, Math.ceil(postRevisionsTotal / postRevisionsPageSize));
-  const totalMediaLibraryPages = Math.max(1, Math.ceil(mediaLibraryTotal / mediaLibraryPageSize));
   const adminNumberFormatter = React.useMemo(() => new Intl.NumberFormat(routeLocale), [routeLocale]);
   const adminDateTimeFormatter = React.useMemo(
     () =>
@@ -530,150 +309,265 @@ export default function AdminContentManagementPanel({
       }),
     [routeLocale],
   );
-  const selectedVisiblePostCommentIDs = React.useMemo(
-    () => postComments.filter(item => selectedPostCommentIDs.includes(item.id)).map(item => item.id),
-    [postComments, selectedPostCommentIDs],
-  );
-  const allVisiblePostCommentsSelected =
-    postComments.length > 0 && selectedVisiblePostCommentIDs.length === postComments.length;
-  const hasSelectedPostComments = selectedPostCommentIDs.length > 0;
-  const isBulkPostCommentActionPending = bulkPostCommentActionStatus !== null || isBulkPostCommentDeleting;
-  const normalizedTopicID = topicID.trim().toLowerCase();
-  const normalizedCategoryID = categoryID.trim().toLowerCase();
-  const canSubmitTopic =
-    CONTENT_ID_PATTERN.test(normalizedTopicID) && topicName.trim() !== '' && topicColor.trim().toLowerCase() !== '';
-  const canSubmitCategory =
-    CONTENT_ID_PATTERN.test(normalizedCategoryID) &&
-    categoryName.trim() !== '' &&
-    categoryColor.trim().toLowerCase() !== '';
-  const canSavePostContent =
-    editingPost !== null &&
-    postEditorContent.trim() !== '' &&
-    postEditorContent !== postEditorInitialContent &&
-    !isPostContentLoading;
-  const canSavePostMetadata = React.useMemo(() => {
-    if (!editingPost || isPostContentLoading) {
-      return false;
-    }
-    const currentTitle = editingPost.title.trim();
-    const nextTitle = postEditorTitle.trim();
-    if (currentTitle !== nextTitle) {
-      return true;
-    }
-    const currentSummary = (editingPost.summary ?? '').trim();
-    const nextSummary = postEditorSummary.trim();
-    if (currentSummary !== nextSummary) {
-      return true;
-    }
-    const currentThumbnail = (editingPost.thumbnail ?? '').trim();
-    const nextThumbnail = postEditorThumbnail.trim();
-    if (currentThumbnail !== nextThumbnail) {
-      return true;
-    }
-    const currentPublishedDate = editingPost.publishedDate.trim();
-    const nextPublishedDate = postEditorPublishedDate.trim();
-    if (currentPublishedDate !== nextPublishedDate) {
-      return true;
-    }
-    const currentUpdatedDate = (editingPost.updatedDate ?? '').trim();
-    const nextUpdatedDate = postEditorUpdatedDate.trim();
-    if (currentUpdatedDate !== nextUpdatedDate) {
-      return true;
-    }
-    if (editingPost.status !== postEditorStatus) {
-      return true;
-    }
-    const currentScheduledAt = (editingPost.scheduledAt ?? '').trim();
-    const nextScheduledAt = (postEditorScheduledAt ?? '').trim();
-    if (currentScheduledAt !== nextScheduledAt) {
-      return true;
-    }
-    const currentCategory = (editingPost.categoryId ?? '').trim().toLowerCase();
-    const nextCategory = postEditorCategoryID.trim().toLowerCase();
-    if (currentCategory !== nextCategory) {
-      return true;
-    }
-    const currentTopics = [...(editingPost.topicIds ?? [])]
-      .map(item => item.trim().toLowerCase())
-      .sort((left, right) => left.localeCompare(right));
-    const nextTopics = [...postEditorTopicIDs]
-      .map(item => item.trim().toLowerCase())
-      .sort((left, right) => left.localeCompare(right));
-    return currentTopics.join('|') !== nextTopics.join('|');
-  }, [
+
+  const {
     editingPost,
-    isPostContentLoading,
-    postEditorCategoryID,
-    postEditorPublishedDate,
-    postEditorScheduledAt,
-    postEditorSummary,
-    postEditorStatus,
-    postEditorThumbnail,
+    postLocaleTabs,
     postEditorTitle,
-    postEditorTopicIDs,
+    setPostEditorTitle,
+    postEditorSummary,
+    setPostEditorSummary,
+    postEditorThumbnail,
+    setPostEditorThumbnail,
+    postEditorStatus,
+    setPostEditorStatus,
+    postEditorScheduledAt,
+    setPostEditorScheduledAt,
+    postEditorPublishedDate,
+    setPostEditorPublishedDate,
     postEditorUpdatedDate,
-  ]);
+    setPostEditorUpdatedDate,
+    postEditorCategoryID,
+    setPostEditorCategoryID,
+    postEditorTopicIDs,
+    postEditorTopicQuery,
+    setPostEditorTopicQuery,
+    postEditorTopicOptions,
+    postEditorCategoryOptions,
+    postSeoPreviewTab,
+    setPostSeoPreviewTab,
+    postContentViewMode,
+    setPostContentViewMode,
+    postEditorContent,
+    setPostEditorContent,
+    isPostContentLoading,
+    isPostUpdating,
+    isPostContentUpdating,
+    canSavePostMetadata,
+    canSavePostContent,
+    handlePostTopicToggle,
+    handleUpdatePostMetadata,
+    handleUpdatePostContent,
+    postRevisions,
+    postRevisionsPage,
+    setPostRevisionsPage,
+    postRevisionsPageSize,
+    setPostRevisionsPageSize,
+    postRevisionsTotal,
+    isPostRevisionsLoading,
+    postRevisionsErrorMessage,
+    pendingPostRevisionRestore,
+    setPendingPostRevisionRestore,
+    isPostRevisionRestoring,
+    handleRestorePostRevision,
+    pendingPostDelete,
+    setPendingPostDelete,
+    isPostDeleting,
+    handleDeletePost,
+  } = useAdminContentPostEditorSection({
+    activePostEditorTab: requestedPostEditorTab,
+    isPostDetailRoute,
+    routePostLocale,
+    routePostID,
+    onSessionExpired,
+    t,
+    setErrorMessage,
+    setSuccessMessage,
+    reloadPosts,
+    totalPosts: total,
+    page,
+    pageSize,
+    setPage,
+  });
+  const activePostEditorTab = resolvePostEditorTab(
+    postEditorTabKey,
+    editingPost ? editingPost.source === 'blog' : true,
+  );
+  const totalPostRevisionPages = Math.max(1, Math.ceil(postRevisionsTotal / postRevisionsPageSize));
+
+  const {
+    postComments,
+    isPostCommentsLoading,
+    postCommentsErrorMessage,
+    setPostCommentsErrorMessage,
+    postCommentsSuccessMessage,
+    setPostCommentsSuccessMessage,
+    postCommentsStatusFilter,
+    setPostCommentsStatusFilter,
+    postCommentsFilterQuery,
+    setPostCommentsFilterQuery,
+    postCommentsPage,
+    setPostCommentsPage,
+    postCommentsPageSize,
+    setPostCommentsPageSize,
+    postCommentsTotal,
+    totalPostCommentPages,
+    selectedPostCommentIDs,
+    setSelectedPostCommentIDs,
+    postCommentActionID,
+    postCommentActionStatus,
+    deletingPostCommentID,
+    pendingPostCommentDelete,
+    setPendingPostCommentDelete,
+    bulkPostCommentActionStatus,
+    pendingBulkPostCommentDeleteIDs,
+    setPendingBulkPostCommentDeleteIDs,
+    isBulkPostCommentDeleting,
+    allVisiblePostCommentsSelected,
+    hasSelectedPostComments,
+    isBulkPostCommentActionPending,
+    togglePostCommentSelection,
+    toggleVisiblePostCommentsSelection,
+    handleBulkPostCommentStatusUpdate,
+    handleBulkDeletePostCommentSubmit,
+    handlePostCommentStatusUpdate,
+    handleDeletePostCommentSubmit,
+  } = useAdminContentPostCommentsSection({
+    editingPost,
+    activePostEditorTab,
+    routePostID,
+    onSessionExpired,
+    t,
+  });
+
+  const {
+    preferredContentLocale,
+    topicsByLocaleAndID,
+    categoriesByLocaleAndID,
+    filterTopicOptions,
+    filterCategoryOptions,
+    topicFilterLocale,
+    setTopicFilterLocale,
+    topicFilterQuery,
+    setTopicFilterQuery,
+    topicPage,
+    setTopicPage,
+    topicPageSize,
+    setTopicPageSize,
+    topicListItems,
+    topicListTotal,
+    topicTotalPages,
+    isTopicListLoading,
+    isTopicEditorOpen,
+    setIsTopicEditorOpen,
+    topicEditorMode,
+    topicLocale,
+    setTopicLocale,
+    topicID,
+    setTopicID,
+    topicName,
+    setTopicName,
+    topicColor,
+    setTopicColor,
+    topicLink,
+    setTopicLink,
+    normalizedTopicID,
+    canSubmitTopic,
+    topicLocaleTabs,
+    isTopicSubmitting,
+    pendingTopicDelete,
+    setPendingTopicDelete,
+    isTopicDeleting,
+    handleOpenCreateTopic,
+    handleOpenUpdateTopic,
+    handleSwitchTopicEditorLocale,
+    handleSubmitTopic,
+    handleDeleteTopic,
+    categoryFilterLocale,
+    setCategoryFilterLocale,
+    categoryFilterQuery,
+    setCategoryFilterQuery,
+    categoryPage,
+    setCategoryPage,
+    categoryPageSize,
+    setCategoryPageSize,
+    categoryListItems,
+    categoryListTotal,
+    categoryTotalPages,
+    isCategoryListLoading,
+    isCategoryEditorOpen,
+    setIsCategoryEditorOpen,
+    categoryEditorMode,
+    categoryLocale,
+    setCategoryLocale,
+    categoryID,
+    setCategoryID,
+    categoryName,
+    setCategoryName,
+    categoryColor,
+    setCategoryColor,
+    categoryIcon,
+    setCategoryIcon,
+    categoryLink,
+    setCategoryLink,
+    normalizedCategoryID,
+    canSubmitCategory,
+    categoryLocaleTabs,
+    isCategorySubmitting,
+    pendingCategoryDelete,
+    setPendingCategoryDelete,
+    isCategoryDeleting,
+    handleOpenCreateCategory,
+    handleOpenUpdateCategory,
+    handleSwitchCategoryEditorLocale,
+    handleSubmitCategory,
+    handleDeleteCategory,
+  } = useAdminContentTaxonomySection({
+    filterLocale,
+    currentDatePickerLocale,
+    routeLocale,
+    onSessionExpired,
+    t,
+    setErrorMessage,
+    setSuccessMessage,
+    reloadPosts,
+  });
+
+  const {
+    mediaLibraryQuery,
+    setMediaLibraryQuery,
+    mediaLibraryFilter,
+    setMediaLibraryFilter,
+    mediaLibrarySort,
+    setMediaLibrarySort,
+    mediaLibraryItems,
+    mediaLibraryPage,
+    setMediaLibraryPage,
+    mediaLibraryPageSize,
+    setMediaLibraryPageSize,
+    mediaLibraryTotal,
+    totalMediaLibraryPages,
+    isMediaLibraryLoading,
+    isMediaLibraryUploading,
+    mediaLibraryErrorMessage,
+    copiedMediaAssetID,
+    pendingMediaAssetDelete,
+    setPendingMediaAssetDelete,
+    isMediaAssetDeleting,
+    mediaUploadInputRef,
+    handleMediaUpload,
+    handleCopyMediaPath,
+    handleDeleteMediaAsset,
+    openMediaLibraryScreen,
+  } = useAdminContentMediaSection({
+    activeTab,
+    isPostDetailRoute,
+    routeLocale,
+    onSessionExpired,
+    t,
+    setSuccessMessage,
+    onMediaValueDeleted: value => {
+      if (postEditorThumbnail.trim() === value.trim()) {
+        setPostEditorThumbnail('');
+      }
+    },
+  });
+
   const selectedMediaLibraryItem = React.useMemo(
     () =>
       mediaLibraryItems.find(item => item.value.trim() !== '' && item.value.trim() === postEditorThumbnail.trim()) ??
       null,
     [mediaLibraryItems, postEditorThumbnail],
-  );
-
-  const topicTotal = topicListTotal;
-  const topicTabTotalPages = Math.max(1, Math.ceil(topicTotal / topicPageSize));
-  const categoryTotal = categoryListTotal;
-  const categoryTabTotalPages = Math.max(1, Math.ceil(categoryTotal / categoryPageSize));
-  const preferredContentLocale: SupportedContentLocale = React.useMemo(() => {
-    if (filterLocale === 'tr') {
-      return 'tr';
-    }
-    if (filterLocale === 'en') {
-      return 'en';
-    }
-    return currentDatePickerLocale === 'tr' ? 'tr' : 'en';
-  }, [currentDatePickerLocale, filterLocale]);
-
-  const categoriesByLocaleAndID = React.useMemo(() => {
-    const indexed = new Map<string, AdminContentCategoryItem>();
-    for (const item of categories) {
-      indexed.set(`${item.locale.toLowerCase()}|${item.id.toLowerCase()}`, item);
-    }
-    return indexed;
-  }, [categories]);
-
-  const topicsByLocaleAndID = React.useMemo(() => {
-    const indexed = new Map<string, AdminContentTopicItem>();
-    for (const item of topics) {
-      indexed.set(`${item.locale.toLowerCase()}|${item.id.toLowerCase()}`, item);
-    }
-    return indexed;
-  }, [topics]);
-
-  const [postLocaleTabs, setPostLocaleTabs] = React.useState<
-    Array<{ locale: SupportedContentLocale; available: boolean }>
-  >([]);
-
-  const topicLocaleTabs = React.useMemo(
-    () =>
-      topicID.trim()
-        ? (CONTENT_LOCALES.map(locale => ({
-            locale,
-            available: topicsByLocaleAndID.has(`${locale}|${topicID.trim().toLowerCase()}`),
-          })) as Array<{ locale: SupportedContentLocale; available: boolean }>)
-        : [],
-    [topicID, topicsByLocaleAndID],
-  );
-
-  const categoryLocaleTabs = React.useMemo(
-    () =>
-      categoryID.trim()
-        ? (CONTENT_LOCALES.map(locale => ({
-            locale,
-            available: categoriesByLocaleAndID.has(`${locale}|${categoryID.trim().toLowerCase()}`),
-          })) as Array<{ locale: SupportedContentLocale; available: boolean }>)
-        : [],
-    [categoriesByLocaleAndID, categoryID],
   );
 
   const postEditorPreviewState = React.useMemo(() => {
@@ -764,38 +658,6 @@ export default function AdminContentManagementPanel({
     };
   }, [editingPost, postEditorSummary, postEditorThumbnail, postEditorTitle, t]);
 
-  React.useEffect(() => {
-    if (!editingPost) {
-      setPostEditorTopicOptions([]);
-      return;
-    }
-
-    const requestID = postEditorTopicsRequestIDRef.current + 1;
-    postEditorTopicsRequestIDRef.current = requestID;
-
-    void (async () => {
-      try {
-        const nextTopics = await fetchAdminContentTopics(editingPost.locale, deferredPostEditorTopicQuery);
-        if (requestID !== postEditorTopicsRequestIDRef.current) {
-          return;
-        }
-        setPostEditorTopicOptions(nextTopics);
-      } catch (error) {
-        if (requestID !== postEditorTopicsRequestIDRef.current) {
-          return;
-        }
-        if (isAdminSessionError(error)) {
-          onSessionExpired();
-          return;
-        }
-        const resolvedError = resolveAdminError(error);
-        setErrorMessage(
-          resolvedError.message || t('adminAccount.content.errors.taxonomyLoad', { ns: 'admin-account' }),
-        );
-      }
-    })();
-  }, [deferredPostEditorTopicQuery, editingPost, onSessionExpired, t]);
-
   const scrollToListTop = React.useCallback(() => {
     const target = listTopRef.current;
     if (!target) {
@@ -837,55 +699,8 @@ export default function AdminContentManagementPanel({
   }, []);
 
   React.useEffect(() => {
-    const timeoutID = globalThis.setTimeout(() => {
-      setFilterQueryDebounced(filterQuery.trim());
-    }, 220);
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [filterQuery]);
-
-  React.useEffect(() => {
-    const timeoutID = globalThis.setTimeout(() => {
-      setTopicFilterQueryDebounced(topicFilterQuery.trim());
-    }, 220);
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [topicFilterQuery]);
-
-  React.useEffect(() => {
-    const timeoutID = globalThis.setTimeout(() => {
-      setCategoryFilterQueryDebounced(categoryFilterQuery.trim());
-    }, 220);
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [categoryFilterQuery]);
-
-  React.useEffect(() => {
     setPage(1);
   }, [filterCategoryID, filterLocale, filterQueryDebounced, filterSource, filterTopicID]);
-
-  React.useEffect(() => {
-    setTopicPage(1);
-  }, [topicFilterLocale, topicFilterQueryDebounced]);
-
-  React.useEffect(() => {
-    setCategoryPage(1);
-  }, [categoryFilterLocale, categoryFilterQueryDebounced]);
-
-  React.useEffect(() => {
-    if (topicPage > topicTabTotalPages) {
-      setTopicPage(topicTabTotalPages);
-    }
-  }, [topicPage, topicTabTotalPages]);
-
-  React.useEffect(() => {
-    if (categoryPage > categoryTabTotalPages) {
-      setCategoryPage(categoryTabTotalPages);
-    }
-  }, [categoryPage, categoryTabTotalPages]);
 
   React.useEffect(() => {
     if (postContentViewMode !== 'split') {
@@ -930,60 +745,7 @@ export default function AdminContentManagementPanel({
     };
   }, [postContentViewMode, syncSplitPreviewScroll]);
 
-  React.useEffect(() => {
-    if (!successMessage) {
-      return;
-    }
-    const timeoutID = globalThis.setTimeout(() => {
-      setSuccessMessage('');
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [successMessage]);
-
-  React.useEffect(() => {
-    if (!postCommentsSuccessMessage) {
-      return;
-    }
-    const timeoutID = globalThis.setTimeout(() => {
-      setPostCommentsSuccessMessage('');
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [postCommentsSuccessMessage]);
-
-  React.useEffect(() => {
-    if (!copiedMediaAssetID) {
-      return;
-    }
-    const timeoutID = globalThis.setTimeout(() => {
-      setCopiedMediaAssetID('');
-    }, 2000);
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [copiedMediaAssetID]);
-
-  React.useEffect(() => {
-    const timeoutID = globalThis.setTimeout(() => {
-      // NOSONAR
-      setPostCommentsFilterQueryDebounced(postCommentsFilterQuery.trim());
-    }, 220);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [postCommentsFilterQuery]);
-
-  React.useEffect(() => {
-    setSelectedPostCommentIDs(syncSelectedIDsWithItems(postComments));
-  }, [postComments]);
-
-  React.useEffect(() => {
-    setPostCommentsPage(1);
-  }, [postCommentsFilterQueryDebounced, postCommentsStatusFilter, routePostID]);
+  useAutoClearValue(successMessage, setSuccessMessage, SUCCESS_MESSAGE_AUTO_HIDE_MS);
 
   React.useEffect(() => {
     const categoryExists =
@@ -1037,105 +799,6 @@ export default function AdminContentManagementPanel({
       appWindow.removeEventListener('hashchange', syncPostEditorTabFromHash);
     };
   }, []);
-
-  const loadTaxonomies = React.useCallback(async () => {
-    const requestID = taxonomyRequestIDRef.current + 1;
-    taxonomyRequestIDRef.current = requestID;
-
-    try {
-      const [nextTopics, nextCategories] = await Promise.all([
-        fetchAdminContentTopics(),
-        fetchAdminContentCategories(),
-      ]);
-      if (requestID !== taxonomyRequestIDRef.current) {
-        return;
-      }
-      setTopics(nextTopics);
-      setCategories(nextCategories);
-      setErrorMessage('');
-    } catch (error) {
-      if (requestID !== taxonomyRequestIDRef.current) {
-        return;
-      }
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessage(resolvedError.message || t('adminAccount.content.errors.taxonomyLoad', { ns: 'admin-account' }));
-    }
-  }, [onSessionExpired, t]);
-
-  const loadFilterTaxonomyOptions = React.useCallback(async () => {
-    const requestID = filterTaxonomyRequestIDRef.current + 1;
-    filterTaxonomyRequestIDRef.current = requestID;
-
-    try {
-      const resolvedLocale = filterLocale === 'all' ? undefined : filterLocale;
-      const [nextTopics, nextCategories] = await Promise.all([
-        fetchAdminContentTopicsPage({
-          locale: resolvedLocale,
-          preferredLocale: routeLocale,
-          page: 1,
-          size: 500,
-        }),
-        fetchAdminContentCategoriesPage({
-          locale: resolvedLocale,
-          preferredLocale: routeLocale,
-          page: 1,
-          size: 500,
-        }),
-      ]);
-      if (requestID !== filterTaxonomyRequestIDRef.current) {
-        return;
-      }
-      setFilterTopicOptions(nextTopics.items.map(item => item.preferred).filter(Boolean));
-      setFilterCategoryOptions(nextCategories.items.map(item => item.preferred).filter(Boolean));
-    } catch (error) {
-      if (requestID !== filterTaxonomyRequestIDRef.current) {
-        return;
-      }
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-      }
-    }
-  }, [filterLocale, onSessionExpired, routeLocale]);
-
-  const loadPostEditorCategories = React.useCallback(async () => {
-    if (!editingPost) {
-      setPostEditorCategoryOptions([]);
-      return;
-    }
-
-    const requestID = postEditorCategoriesRequestIDRef.current + 1;
-    postEditorCategoriesRequestIDRef.current = requestID;
-
-    try {
-      const nextCategories = await fetchAdminContentCategories(editingPost.locale);
-      if (requestID !== postEditorCategoriesRequestIDRef.current) {
-        return;
-      }
-      setPostEditorCategoryOptions(nextCategories);
-    } catch (error) {
-      if (requestID !== postEditorCategoriesRequestIDRef.current) {
-        return;
-      }
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessage(resolvedError.message || t('adminAccount.content.errors.taxonomyLoad', { ns: 'admin-account' }));
-    }
-  }, [editingPost, onSessionExpired, t]);
-
-  React.useEffect(() => {
-    void loadPostEditorCategories();
-  }, [loadPostEditorCategories]);
-
-  React.useEffect(() => {
-    void loadFilterTaxonomyOptions();
-  }, [loadFilterTaxonomyOptions]);
 
   const loadPosts = React.useCallback(async () => {
     const requestID = postsRequestIDRef.current + 1;
@@ -1199,121 +862,9 @@ export default function AdminContentManagementPanel({
     t,
   ]);
 
-  const loadTopicsPage = React.useCallback(async () => {
-    const requestID = topicsPageRequestIDRef.current + 1;
-    topicsPageRequestIDRef.current = requestID;
-    setIsTopicListLoading(true);
-
-    try {
-      const payload = await fetchAdminContentTopicsPage({
-        locale: topicFilterLocale === 'all' ? undefined : topicFilterLocale,
-        preferredLocale: preferredContentLocale,
-        query: topicFilterQueryDebounced,
-        page: topicPage,
-        size: topicPageSize,
-      });
-      if (requestID !== topicsPageRequestIDRef.current) {
-        return;
-      }
-
-      setTopicListItems(payload.items ?? []);
-      setTopicListTotal(payload.total);
-
-      const resolvedPage = payload.page > 0 ? payload.page : 1;
-      if (resolvedPage !== topicPage) {
-        setTopicPage(resolvedPage);
-      }
-      if (payload.size > 0 && payload.size !== topicPageSize) {
-        setTopicPageSize(payload.size);
-      }
-
-      setErrorMessage('');
-    } catch (error) {
-      if (requestID !== topicsPageRequestIDRef.current) {
-        return;
-      }
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessage(resolvedError.message || t('adminAccount.content.errors.taxonomyLoad', { ns: 'admin-account' }));
-      setTopicListItems([]);
-      setTopicListTotal(0);
-    } finally {
-      if (requestID === topicsPageRequestIDRef.current) {
-        setIsTopicListLoading(false);
-      }
-    }
-  }, [
-    onSessionExpired,
-    preferredContentLocale,
-    t,
-    topicFilterLocale,
-    topicFilterQueryDebounced,
-    topicPage,
-    topicPageSize,
-  ]);
-
-  const loadCategoriesPage = React.useCallback(async () => {
-    const requestID = categoriesPageRequestIDRef.current + 1;
-    categoriesPageRequestIDRef.current = requestID;
-    setIsCategoryListLoading(true);
-
-    try {
-      const payload = await fetchAdminContentCategoriesPage({
-        locale: categoryFilterLocale === 'all' ? undefined : categoryFilterLocale,
-        preferredLocale: preferredContentLocale,
-        query: categoryFilterQueryDebounced,
-        page: categoryPage,
-        size: categoryPageSize,
-      });
-      if (requestID !== categoriesPageRequestIDRef.current) {
-        return;
-      }
-
-      setCategoryListItems(payload.items ?? []);
-      setCategoryListTotal(payload.total);
-
-      const resolvedPage = payload.page > 0 ? payload.page : 1;
-      if (resolvedPage !== categoryPage) {
-        setCategoryPage(resolvedPage);
-      }
-      if (payload.size > 0 && payload.size !== categoryPageSize) {
-        setCategoryPageSize(payload.size);
-      }
-
-      setErrorMessage('');
-    } catch (error) {
-      if (requestID !== categoriesPageRequestIDRef.current) {
-        return;
-      }
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessage(resolvedError.message || t('adminAccount.content.errors.taxonomyLoad', { ns: 'admin-account' }));
-      setCategoryListItems([]);
-      setCategoryListTotal(0);
-    } finally {
-      if (requestID === categoriesPageRequestIDRef.current) {
-        setIsCategoryListLoading(false);
-      }
-    }
-  }, [
-    categoryFilterLocale,
-    categoryFilterQueryDebounced,
-    categoryPage,
-    categoryPageSize,
-    onSessionExpired,
-    preferredContentLocale,
-    t,
-  ]);
-
   React.useEffect(() => {
-    void loadTaxonomies();
-  }, [loadTaxonomies]);
+    reloadPostsRef.current = loadPosts;
+  }, [loadPosts]);
 
   React.useEffect(() => {
     if (isPostDetailRoute) {
@@ -1321,974 +872,6 @@ export default function AdminContentManagementPanel({
     }
     void loadPosts();
   }, [isPostDetailRoute, loadPosts]);
-
-  React.useEffect(() => {
-    void loadTopicsPage();
-  }, [loadTopicsPage]);
-
-  React.useEffect(() => {
-    void loadCategoriesPage();
-  }, [loadCategoriesPage]);
-
-  const resetPostDetailEditorState = React.useCallback(() => {
-    setEditingPost(null);
-    setPostLocaleTabs([]);
-    setPostEditorTitle('');
-    setPostEditorSummary('');
-    setPostEditorThumbnail('');
-    setPostEditorStatus('PUBLISHED');
-    setPostEditorScheduledAt('');
-    setPostEditorPublishedDate('');
-    setPostEditorUpdatedDate('');
-    setPostEditorCategoryID('');
-    setPostEditorTopicIDs([]);
-    setPostEditorTopicQuery('');
-    setPostRevisions([]);
-    setPostRevisionsErrorMessage('');
-    setPostRevisionsPage(1);
-    setPostRevisionsTotal(0);
-    setPendingPostRevisionRestore(null);
-    setPostContentViewMode('editor');
-    setPostEditorContent('');
-    setPostEditorInitialContent('');
-    setPostComments([]);
-    setPostCommentsErrorMessage('');
-    setPostCommentsSuccessMessage('');
-    setSelectedPostCommentIDs([]);
-    setPostCommentActionID('');
-    setPostCommentActionStatus(null);
-    setDeletingPostCommentID('');
-    setBulkPostCommentActionStatus(null);
-    setPendingBulkPostCommentDeleteIDs([]);
-    setIsBulkPostCommentDeleting(false);
-    setPostCommentsPage(1);
-    setPostCommentsTotal(0);
-    setPendingPostCommentDelete(null);
-  }, []);
-
-  const loadPostDetail = React.useCallback(
-    async (options: { locale: string; id: string }) => {
-      const requestID = postDetailRequestIDRef.current + 1;
-      postDetailRequestIDRef.current = requestID;
-
-      const normalizedLocale = options.locale.trim().toLowerCase();
-      const normalizedID = options.id.trim();
-      if (!normalizedLocale || !normalizedID) {
-        resetPostDetailEditorState();
-        return;
-      }
-
-      resetPostDetailEditorState();
-      setIsPostContentLoading(true);
-      setErrorMessage('');
-      setSuccessMessage('');
-
-      try {
-        const detail = await fetchAdminContentPost({
-          locale: normalizedLocale,
-          id: normalizedID,
-        });
-
-        if (requestID !== postDetailRequestIDRef.current || !detail) {
-          return;
-        }
-
-        setEditingPost(detail);
-        setPostEditorTitle(detail.title ?? '');
-        setPostEditorSummary(detail.summary ?? '');
-        setPostEditorThumbnail(detail.thumbnail ?? '');
-        setPostEditorStatus(detail.status ?? 'PUBLISHED');
-        setPostEditorScheduledAt(detail.scheduledAt ?? '');
-        setPostEditorPublishedDate(detail.publishedDate ?? '');
-        setPostEditorUpdatedDate(detail.updatedDate ?? '');
-        setPostEditorCategoryID(detail.categoryId ?? '');
-        setPostEditorTopicIDs(detail.topicIds ?? []);
-        setPostEditorTopicQuery('');
-        const resolvedContent = detail.content ?? '';
-        setPostEditorContent(resolvedContent);
-        setPostEditorInitialContent(resolvedContent);
-
-        const currentLocale = normalizedLocale === 'tr' ? 'tr' : 'en';
-        const nextLocaleTabs = CONTENT_LOCALES.map(locale => ({
-          locale,
-          available: locale === currentLocale,
-        }));
-        const alternateLocales = CONTENT_LOCALES.filter(locale => locale !== currentLocale);
-        const alternateResults = await Promise.all(
-          alternateLocales.map(async locale => {
-            try {
-              const alternateDetail = await fetchAdminContentPost({
-                locale,
-                id: normalizedID,
-              });
-              return { locale, available: Boolean(alternateDetail) } as const;
-            } catch (error) {
-              if (isAdminSessionError(error)) {
-                onSessionExpired();
-                return { locale, available: false } as const;
-              }
-              return { locale, available: false } as const;
-            }
-          }),
-        );
-        if (requestID !== postDetailRequestIDRef.current) {
-          return;
-        }
-        setPostLocaleTabs(
-          nextLocaleTabs.map(item => alternateResults.find(result => result.locale === item.locale) ?? item),
-        );
-      } catch (error) {
-        if (requestID !== postDetailRequestIDRef.current) {
-          return;
-        }
-        if (isAdminSessionError(error)) {
-          onSessionExpired();
-          return;
-        }
-        const resolvedError = resolveAdminError(error);
-        setErrorMessage(resolvedError.message || t('adminAccount.content.errors.postLoad', { ns: 'admin-account' }));
-      } finally {
-        if (requestID === postDetailRequestIDRef.current) {
-          setIsPostContentLoading(false);
-        }
-      }
-    },
-    [onSessionExpired, resetPostDetailEditorState, t],
-  );
-
-  React.useEffect(() => {
-    if (!isPostDetailRoute) {
-      resetPostDetailEditorState();
-      setIsPostContentLoading(false);
-      return;
-    }
-
-    void loadPostDetail({
-      locale: routePostLocale ?? '',
-      id: routePostID ?? '',
-    });
-  }, [isPostDetailRoute, loadPostDetail, resetPostDetailEditorState, routePostID, routePostLocale]);
-
-  const loadPostRevisions = React.useCallback(async () => {
-    if (!editingPost || activePostEditorTab !== 'metadata') {
-      return;
-    }
-
-    setIsPostRevisionsLoading(true);
-    setPostRevisionsErrorMessage('');
-    try {
-      const payload = await fetchAdminContentPostRevisions({
-        locale: editingPost.locale,
-        id: editingPost.id,
-        page: postRevisionsPage,
-        size: postRevisionsPageSize,
-      });
-      setPostRevisions(payload.items ?? []);
-      setPostRevisionsTotal(payload.total);
-      if (payload.page > 0 && payload.page !== postRevisionsPage) {
-        setPostRevisionsPage(payload.page);
-      }
-      if (payload.size > 0 && payload.size !== postRevisionsPageSize) {
-        setPostRevisionsPageSize(payload.size);
-      }
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setPostRevisionsErrorMessage(
-        resolvedError.message || t('adminAccount.content.errors.postRevisionsLoad', { ns: 'admin-account' }),
-      );
-      setPostRevisions([]);
-      setPostRevisionsTotal(0);
-    } finally {
-      setIsPostRevisionsLoading(false);
-    }
-  }, [activePostEditorTab, editingPost, onSessionExpired, postRevisionsPage, postRevisionsPageSize, t]);
-
-  React.useEffect(() => {
-    if (!editingPost || activePostEditorTab !== 'metadata') {
-      return;
-    }
-    void loadPostRevisions();
-  }, [activePostEditorTab, editingPost, loadPostRevisions]);
-
-  const loadMediaLibrary = React.useCallback(
-    async (nextPage = mediaLibraryPage, nextSize = mediaLibraryPageSize) => {
-      if (isPostDetailRoute || activeTab !== 'media') {
-        return;
-      }
-
-      const requestID = mediaLibraryRequestIDRef.current + 1;
-      mediaLibraryRequestIDRef.current = requestID;
-      setIsMediaLibraryLoading(true);
-      setMediaLibraryErrorMessage('');
-
-      try {
-        const payload = await fetchAdminMediaLibrary({
-          query: deferredMediaLibraryQuery,
-          kind: mediaLibraryFilter,
-          sort: mediaLibrarySort,
-          page: nextPage,
-          size: nextSize,
-        });
-        if (requestID !== mediaLibraryRequestIDRef.current) {
-          return;
-        }
-        setMediaLibraryItems(payload.items);
-        setMediaLibraryTotal(payload.total);
-        setMediaLibraryPage(payload.page);
-        setMediaLibraryPageSize(payload.size);
-      } catch (error) {
-        if (requestID !== mediaLibraryRequestIDRef.current) {
-          return;
-        }
-        if (isAdminSessionError(error)) {
-          onSessionExpired();
-          return;
-        }
-        const resolvedError = resolveAdminError(error);
-        setMediaLibraryErrorMessage(
-          resolvedError.message || t('adminAccount.content.errors.mediaLibraryLoad', { ns: 'admin-account' }),
-        );
-      } finally {
-        if (requestID === mediaLibraryRequestIDRef.current) {
-          setIsMediaLibraryLoading(false);
-        }
-      }
-    },
-    [
-      activeTab,
-      deferredMediaLibraryQuery,
-      isPostDetailRoute,
-      mediaLibraryFilter,
-      mediaLibrarySort,
-      mediaLibraryPage,
-      mediaLibraryPageSize,
-      onSessionExpired,
-      t,
-    ],
-  );
-
-  React.useEffect(() => {
-    void loadMediaLibrary();
-  }, [loadMediaLibrary]);
-
-  const handleMediaUpload = React.useCallback(
-    async (file: File) => {
-      if (isMediaLibraryUploading) {
-        return;
-      }
-
-      setIsMediaLibraryUploading(true);
-      setMediaLibraryErrorMessage('');
-      try {
-        const dataUrl = await fileToDataURL(file);
-        const uploaded = await uploadAdminMediaAsset({
-          fileName: file.name,
-          dataUrl,
-        });
-        setSuccessMessage(
-          t('adminAccount.content.success.mediaUploaded', {
-            ns: 'admin-account',
-            name: uploaded.name,
-          }),
-        );
-        if (mediaLibraryPage !== 1) {
-          setMediaLibraryPage(1);
-        } else {
-          await loadMediaLibrary(1, mediaLibraryPageSize);
-        }
-      } catch (error) {
-        if (isAdminSessionError(error)) {
-          onSessionExpired();
-          return;
-        }
-        const resolvedError = resolveAdminError(error);
-        setMediaLibraryErrorMessage(
-          resolvedError.message || t('adminAccount.content.errors.mediaLibraryUpload', { ns: 'admin-account' }),
-        );
-      } finally {
-        setIsMediaLibraryUploading(false);
-        if (mediaUploadInputRef.current) {
-          mediaUploadInputRef.current.value = '';
-        }
-      }
-    },
-    [isMediaLibraryUploading, loadMediaLibrary, mediaLibraryPage, mediaLibraryPageSize, onSessionExpired, t],
-  );
-
-  const openMediaLibraryScreen = React.useCallback(() => {
-    const href = withAdminLocalePath(routeLocale, `${ADMIN_ROUTES.settings.content}#media`);
-    globalThis.window?.open(href, '_blank', 'noopener,noreferrer');
-  }, [routeLocale]);
-
-  const handleCopyMediaPath = React.useCallback(
-    async (item: AdminMediaLibraryItem) => {
-      if (!globalThis.navigator?.clipboard) {
-        setMediaLibraryErrorMessage(t('adminAccount.content.errors.mediaLibraryCopy', { ns: 'admin-account' }));
-        return;
-      }
-
-      try {
-        await globalThis.navigator.clipboard.writeText(item.value);
-        setCopiedMediaAssetID(item.id);
-        setMediaLibraryErrorMessage('');
-        setSuccessMessage(
-          t('adminAccount.content.success.mediaCopied', {
-            ns: 'admin-account',
-            name: item.name,
-          }),
-        );
-      } catch {
-        setMediaLibraryErrorMessage(t('adminAccount.content.errors.mediaLibraryCopy', { ns: 'admin-account' }));
-      }
-    },
-    [t],
-  );
-
-  const handleDeleteMediaAsset = React.useCallback(async () => {
-    if (!pendingMediaAssetDelete || isMediaAssetDeleting) {
-      return;
-    }
-
-    setIsMediaAssetDeleting(true);
-    setMediaLibraryErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const deleted = await deleteAdminMediaAsset(pendingMediaAssetDelete.id);
-      if (!deleted) {
-        throw new Error(t('adminAccount.content.errors.mediaLibraryDelete', { ns: 'admin-account' }));
-      }
-
-      if (postEditorThumbnail.trim() === pendingMediaAssetDelete.value.trim()) {
-        setPostEditorThumbnail('');
-      }
-      setPendingMediaAssetDelete(null);
-
-      const nextTotal = Math.max(mediaLibraryTotal - 1, 0);
-      const nextTotalPages = Math.max(1, Math.ceil(nextTotal / mediaLibraryPageSize));
-      const nextPage = Math.min(mediaLibraryPage, nextTotalPages);
-      if (nextPage === mediaLibraryPage) {
-        await loadMediaLibrary(nextPage, mediaLibraryPageSize);
-      } else {
-        setMediaLibraryPage(nextPage);
-      }
-
-      setSuccessMessage(
-        t('adminAccount.content.success.mediaDeleted', {
-          ns: 'admin-account',
-          name: pendingMediaAssetDelete.name,
-        }),
-      );
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setMediaLibraryErrorMessage(
-        resolvedError.message || t('adminAccount.content.errors.mediaLibraryDelete', { ns: 'admin-account' }),
-      );
-    } finally {
-      setIsMediaAssetDeleting(false);
-    }
-  }, [
-    isMediaAssetDeleting,
-    loadMediaLibrary,
-    mediaLibraryPage,
-    mediaLibraryPageSize,
-    mediaLibraryTotal,
-    onSessionExpired,
-    pendingMediaAssetDelete,
-    postEditorThumbnail,
-    t,
-  ]);
-
-  const handlePostTopicToggle = React.useCallback((topicID: string, checked: boolean) => {
-    setPostEditorTopicIDs(previous => {
-      const normalizedID = topicID.trim().toLowerCase();
-      if (!normalizedID) {
-        return previous;
-      }
-      if (checked) {
-        if (previous.includes(normalizedID)) {
-          return previous;
-        }
-        return [...previous, normalizedID];
-      }
-      return previous.filter(item => item !== normalizedID);
-    });
-  }, []);
-
-  const handleUpdatePostMetadata = React.useCallback(async () => {
-    if (!editingPost || isPostUpdating || !canSavePostMetadata) {
-      return;
-    }
-
-    setIsPostUpdating(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const updated = await updateAdminContentPostMetadata({
-        locale: editingPost.locale,
-        id: editingPost.id,
-        title: postEditorTitle,
-        summary: postEditorSummary,
-        thumbnail: postEditorThumbnail,
-        publishedDate: postEditorPublishedDate,
-        updatedDate: postEditorUpdatedDate,
-        status: postEditorStatus,
-        scheduledAt: postEditorStatus === 'SCHEDULED' ? postEditorScheduledAt : null,
-        categoryId: postEditorCategoryID || null,
-        topicIds: postEditorTopicIDs,
-      });
-      setEditingPost(updated);
-      setPostEditorTitle(updated.title ?? '');
-      setPostEditorSummary(updated.summary ?? '');
-      setPostEditorThumbnail(updated.thumbnail ?? '');
-      setPostEditorStatus(updated.status ?? 'PUBLISHED');
-      setPostEditorScheduledAt(updated.scheduledAt ?? '');
-      setPostEditorPublishedDate(updated.publishedDate ?? '');
-      setPostEditorUpdatedDate(updated.updatedDate ?? '');
-      setPostEditorCategoryID(updated.categoryId ?? '');
-      setPostEditorTopicIDs(updated.topicIds ?? []);
-      setPostEditorTopicQuery('');
-      await Promise.all([loadPosts(), loadPostRevisions()]);
-      setSuccessMessage(
-        t('adminAccount.content.success.postUpdated', {
-          ns: 'admin-account',
-          id: editingPost.id,
-        }),
-      );
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessage(resolvedError.message || t('adminAccount.content.errors.postUpdate', { ns: 'admin-account' }));
-    } finally {
-      setIsPostUpdating(false);
-    }
-  }, [
-    canSavePostMetadata,
-    editingPost,
-    isPostUpdating,
-    loadPosts,
-    onSessionExpired,
-    postEditorCategoryID,
-    postEditorPublishedDate,
-    postEditorScheduledAt,
-    postEditorSummary,
-    postEditorStatus,
-    postEditorThumbnail,
-    postEditorTitle,
-    postEditorTopicIDs,
-    postEditorUpdatedDate,
-    t,
-    loadPostRevisions,
-  ]);
-
-  const handleDeletePost = React.useCallback(async () => {
-    if (!pendingPostDelete || isPostDeleting) {
-      return;
-    }
-
-    setIsPostDeleting(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const payload = await deleteAdminContentPost({
-        locale: pendingPostDelete.locale,
-        id: pendingPostDelete.id,
-      });
-      if (!payload) {
-        throw new Error(t('adminAccount.content.errors.postDelete', { ns: 'admin-account' }));
-      }
-      setPendingPostDelete(null);
-
-      const nextTotal = Math.max(total - 1, 0);
-      const nextTotalPages = Math.max(1, Math.ceil(nextTotal / pageSize));
-      const nextPage = Math.min(page, nextTotalPages);
-      if (nextPage === page) {
-        await loadPosts();
-      } else {
-        setPage(nextPage);
-      }
-
-      setSuccessMessage(
-        t('adminAccount.content.success.postDeleted', {
-          ns: 'admin-account',
-          id: pendingPostDelete.id,
-        }),
-      );
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessage(resolvedError.message || t('adminAccount.content.errors.postDelete', { ns: 'admin-account' }));
-    } finally {
-      setIsPostDeleting(false);
-    }
-  }, [isPostDeleting, loadPosts, onSessionExpired, page, pageSize, pendingPostDelete, t, total]);
-
-  const handleUpdatePostContent = React.useCallback(async () => {
-    if (!editingPost || isPostContentUpdating || isPostContentLoading) {
-      return;
-    }
-
-    setIsPostContentUpdating(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const updated = await updateAdminContentPostContent({
-        locale: editingPost.locale,
-        id: editingPost.id,
-        content: postEditorContent,
-      });
-
-      const resolvedContent = updated.content ?? '';
-      setEditingPost(updated);
-      setPostEditorContent(resolvedContent);
-      setPostEditorInitialContent(resolvedContent);
-      await Promise.all([loadPosts(), loadPostRevisions()]);
-      setSuccessMessage(
-        t('adminAccount.content.success.postContentUpdated', {
-          ns: 'admin-account',
-          id: editingPost.id,
-        }),
-      );
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessage(
-        resolvedError.message || t('adminAccount.content.errors.postContentUpdate', { ns: 'admin-account' }),
-      );
-    } finally {
-      setIsPostContentUpdating(false);
-    }
-  }, [
-    editingPost,
-    isPostContentLoading,
-    isPostContentUpdating,
-    loadPostRevisions,
-    loadPosts,
-    onSessionExpired,
-    postEditorContent,
-    t,
-  ]);
-
-  const handleRestorePostRevision = React.useCallback(async () => {
-    if (!editingPost || !pendingPostRevisionRestore || isPostRevisionRestoring) {
-      return;
-    }
-
-    setIsPostRevisionRestoring(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const restored = await restoreAdminContentPostRevision({
-        locale: editingPost.locale,
-        postId: editingPost.id,
-        revisionId: pendingPostRevisionRestore.id,
-      });
-      setEditingPost(restored);
-      setPostEditorTitle(restored.title ?? '');
-      setPostEditorSummary(restored.summary ?? '');
-      setPostEditorThumbnail(restored.thumbnail ?? '');
-      setPostEditorStatus(restored.status ?? 'PUBLISHED');
-      setPostEditorScheduledAt(restored.scheduledAt ?? '');
-      setPostEditorPublishedDate(restored.publishedDate ?? '');
-      setPostEditorUpdatedDate(restored.updatedDate ?? '');
-      setPostEditorCategoryID(restored.categoryId ?? '');
-      setPostEditorTopicIDs(restored.topicIds ?? []);
-      setPostEditorTopicQuery('');
-      const restoredContent = restored.content ?? '';
-      setPostEditorContent(restoredContent);
-      setPostEditorInitialContent(restoredContent);
-      setPendingPostRevisionRestore(null);
-      await Promise.all([loadPosts(), loadPostRevisions()]);
-      setSuccessMessage(
-        t('adminAccount.content.success.postRevisionRestored', {
-          ns: 'admin-account',
-          revision: pendingPostRevisionRestore.revisionNumber,
-        }),
-      );
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessage(
-        resolvedError.message || t('adminAccount.content.errors.postRevisionRestore', { ns: 'admin-account' }),
-      );
-    } finally {
-      setIsPostRevisionRestoring(false);
-    }
-  }, [
-    editingPost,
-    isPostRevisionRestoring,
-    loadPostRevisions,
-    loadPosts,
-    onSessionExpired,
-    pendingPostRevisionRestore,
-    t,
-  ]);
-
-  const resetTopicEditor = React.useCallback(() => {
-    setTopicEditorMode('create');
-    setTopicLocale(normalizeLocaleValue(filterLocale) === 'tr' ? 'tr' : 'en');
-    setTopicID('');
-    setTopicName('');
-    setTopicColor('');
-    setTopicLink('');
-  }, [filterLocale]);
-
-  const handleOpenCreateTopic = React.useCallback(() => {
-    resetTopicEditor();
-    setIsTopicEditorOpen(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-  }, [resetTopicEditor]);
-
-  const handleOpenUpdateTopic = React.useCallback((item: AdminContentTopicItem) => {
-    setTopicEditorMode('update');
-    setTopicLocale(item.locale === 'tr' ? 'tr' : 'en');
-    setTopicID(item.id);
-    setTopicName(item.name);
-    setTopicColor(item.color);
-    setTopicLink(item.link ?? '');
-    setIsTopicEditorOpen(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-  }, []);
-
-  const handleOpenTopicByLocale = React.useCallback(
-    (id: string, locale: SupportedContentLocale) => {
-      const idKey = id.trim().toLowerCase();
-      const exact = topicsByLocaleAndID.get(`${locale}|${idKey}`);
-      if (exact) {
-        handleOpenUpdateTopic(exact);
-        return;
-      }
-      const base =
-        topicsByLocaleAndID.get(`en|${idKey}`) ??
-        topicsByLocaleAndID.get(`tr|${idKey}`) ??
-        topics.find(item => item.id.toLowerCase() === idKey) ??
-        null;
-      setTopicEditorMode('create');
-      setTopicLocale(locale);
-      setTopicID(idKey);
-      setTopicName(base?.name ?? '');
-      setTopicColor(base?.color ?? '');
-      setTopicLink(base?.link ?? '');
-      setIsTopicEditorOpen(true);
-      setErrorMessage('');
-      setSuccessMessage('');
-    },
-    [handleOpenUpdateTopic, topics, topicsByLocaleAndID],
-  );
-
-  const handleSubmitTopic = React.useCallback(async () => {
-    if (!canSubmitTopic || isTopicSubmitting) {
-      return;
-    }
-
-    setIsTopicSubmitting(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const payload = {
-        locale: topicLocale,
-        id: topicID,
-        name: topicName,
-        color: topicColor,
-        link: topicLink,
-      };
-      if (topicEditorMode === 'create') {
-        await createAdminContentTopic(payload);
-      } else {
-        await updateAdminContentTopic(payload);
-      }
-
-      setIsTopicEditorOpen(false);
-      await Promise.all([loadTaxonomies(), loadPosts(), loadTopicsPage()]);
-      setSuccessMessage(
-        t(
-          topicEditorMode === 'create'
-            ? 'adminAccount.content.success.topicCreated'
-            : 'adminAccount.content.success.topicUpdated',
-          {
-            ns: 'admin-account',
-            id: topicID.trim().toLowerCase(),
-          },
-        ),
-      );
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessage(
-        resolvedError.message ||
-          t(
-            topicEditorMode === 'create'
-              ? 'adminAccount.content.errors.topicCreate'
-              : 'adminAccount.content.errors.topicUpdate',
-            { ns: 'admin-account' },
-          ),
-      );
-    } finally {
-      setIsTopicSubmitting(false);
-    }
-  }, [
-    canSubmitTopic,
-    isTopicSubmitting,
-    loadPosts,
-    loadTopicsPage,
-    loadTaxonomies,
-    onSessionExpired,
-    t,
-    topicColor,
-    topicEditorMode,
-    topicID,
-    topicLink,
-    topicLocale,
-    topicName,
-  ]);
-
-  const handleSwitchTopicEditorLocale = React.useCallback(
-    (locale: SupportedContentLocale) => {
-      const resolvedID = topicID.trim();
-      if (!resolvedID || isTopicSubmitting) {
-        return;
-      }
-      handleOpenTopicByLocale(resolvedID, locale);
-    },
-    [handleOpenTopicByLocale, isTopicSubmitting, topicID],
-  );
-
-  const handleDeleteTopic = React.useCallback(async () => {
-    if (!pendingTopicDelete || isTopicDeleting) {
-      return;
-    }
-
-    setIsTopicDeleting(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const deleted = await deleteAdminContentTopic({
-        locale: pendingTopicDelete.locale,
-        id: pendingTopicDelete.id,
-      });
-      if (!deleted) {
-        throw new Error(t('adminAccount.content.errors.topicDelete', { ns: 'admin-account' }));
-      }
-      setPendingTopicDelete(null);
-      await Promise.all([loadTaxonomies(), loadPosts(), loadTopicsPage()]);
-      setSuccessMessage(
-        t('adminAccount.content.success.topicDeleted', {
-          ns: 'admin-account',
-          id: pendingTopicDelete.id,
-        }),
-      );
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessage(resolvedError.message || t('adminAccount.content.errors.topicDelete', { ns: 'admin-account' }));
-    } finally {
-      setIsTopicDeleting(false);
-    }
-  }, [isTopicDeleting, loadPosts, loadTaxonomies, loadTopicsPage, onSessionExpired, pendingTopicDelete, t]);
-
-  const resetCategoryEditor = React.useCallback(() => {
-    setCategoryEditorMode('create');
-    setCategoryLocale(normalizeLocaleValue(filterLocale) === 'tr' ? 'tr' : 'en');
-    setCategoryID('');
-    setCategoryName('');
-    setCategoryColor('');
-    setCategoryIcon('');
-    setCategoryLink('');
-  }, [filterLocale]);
-
-  const handleOpenCreateCategory = React.useCallback(() => {
-    resetCategoryEditor();
-    setIsCategoryEditorOpen(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-  }, [resetCategoryEditor]);
-
-  const handleOpenUpdateCategory = React.useCallback((item: AdminContentCategoryItem) => {
-    setCategoryEditorMode('update');
-    setCategoryLocale(item.locale === 'tr' ? 'tr' : 'en');
-    setCategoryID(item.id);
-    setCategoryName(item.name);
-    setCategoryColor(item.color);
-    setCategoryIcon(item.icon ?? '');
-    setCategoryLink(item.link ?? '');
-    setIsCategoryEditorOpen(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-  }, []);
-
-  const handleOpenCategoryByLocale = React.useCallback(
-    (id: string, locale: SupportedContentLocale) => {
-      const idKey = id.trim().toLowerCase();
-      const exact = categoriesByLocaleAndID.get(`${locale}|${idKey}`);
-      if (exact) {
-        handleOpenUpdateCategory(exact);
-        return;
-      }
-      const base =
-        categoriesByLocaleAndID.get(`en|${idKey}`) ??
-        categoriesByLocaleAndID.get(`tr|${idKey}`) ??
-        categories.find(item => item.id.toLowerCase() === idKey) ??
-        null;
-      setCategoryEditorMode('create');
-      setCategoryLocale(locale);
-      setCategoryID(idKey);
-      setCategoryName(base?.name ?? '');
-      setCategoryColor(base?.color ?? '');
-      setCategoryIcon(base?.icon ?? '');
-      setCategoryLink(base?.link ?? '');
-      setIsCategoryEditorOpen(true);
-      setErrorMessage('');
-      setSuccessMessage('');
-    },
-    [categories, categoriesByLocaleAndID, handleOpenUpdateCategory],
-  );
-
-  const handleSubmitCategory = React.useCallback(async () => {
-    if (!canSubmitCategory || isCategorySubmitting) {
-      return;
-    }
-
-    setIsCategorySubmitting(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const payload = {
-        locale: categoryLocale,
-        id: categoryID,
-        name: categoryName,
-        color: categoryColor,
-        icon: categoryIcon,
-        link: categoryLink,
-      };
-      if (categoryEditorMode === 'create') {
-        await createAdminContentCategory(payload);
-      } else {
-        await updateAdminContentCategory(payload);
-      }
-
-      setIsCategoryEditorOpen(false);
-      await Promise.all([loadTaxonomies(), loadPosts(), loadCategoriesPage()]);
-      setSuccessMessage(
-        t(
-          categoryEditorMode === 'create'
-            ? 'adminAccount.content.success.categoryCreated'
-            : 'adminAccount.content.success.categoryUpdated',
-          {
-            ns: 'admin-account',
-            id: categoryID.trim().toLowerCase(),
-          },
-        ),
-      );
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessage(
-        resolvedError.message ||
-          t(
-            categoryEditorMode === 'create'
-              ? 'adminAccount.content.errors.categoryCreate'
-              : 'adminAccount.content.errors.categoryUpdate',
-            { ns: 'admin-account' },
-          ),
-      );
-    } finally {
-      setIsCategorySubmitting(false);
-    }
-  }, [
-    canSubmitCategory,
-    categoryColor,
-    categoryEditorMode,
-    categoryID,
-    categoryIcon,
-    categoryLink,
-    categoryLocale,
-    categoryName,
-    isCategorySubmitting,
-    loadPosts,
-    loadCategoriesPage,
-    loadTaxonomies,
-    onSessionExpired,
-    t,
-  ]);
-
-  const handleSwitchCategoryEditorLocale = React.useCallback(
-    (locale: SupportedContentLocale) => {
-      const resolvedID = categoryID.trim();
-      if (!resolvedID || isCategorySubmitting) {
-        return;
-      }
-      handleOpenCategoryByLocale(resolvedID, locale);
-    },
-    [categoryID, handleOpenCategoryByLocale, isCategorySubmitting],
-  );
-
-  const handleDeleteCategory = React.useCallback(async () => {
-    if (!pendingCategoryDelete || isCategoryDeleting) {
-      return;
-    }
-
-    setIsCategoryDeleting(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const deleted = await deleteAdminContentCategory({
-        locale: pendingCategoryDelete.locale,
-        id: pendingCategoryDelete.id,
-      });
-      if (!deleted) {
-        throw new Error(t('adminAccount.content.errors.categoryDelete', { ns: 'admin-account' }));
-      }
-      setPendingCategoryDelete(null);
-      await Promise.all([loadTaxonomies(), loadPosts(), loadCategoriesPage()]);
-      setSuccessMessage(
-        t('adminAccount.content.success.categoryDeleted', {
-          ns: 'admin-account',
-          id: pendingCategoryDelete.id,
-        }),
-      );
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessage(
-        resolvedError.message || t('adminAccount.content.errors.categoryDelete', { ns: 'admin-account' }),
-      );
-    } finally {
-      setIsCategoryDeleting(false);
-    }
-  }, [isCategoryDeleting, loadPosts, loadTaxonomies, loadCategoriesPage, onSessionExpired, pendingCategoryDelete, t]);
 
   const handleTabSelect = React.useCallback((nextKey: string | null) => {
     const resolvedTab = resolveContentSectionTab(nextKey);
@@ -2386,322 +969,6 @@ export default function AdminContentManagementPanel({
     }
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
-
-  const togglePostCommentSelection = React.useCallback((commentId: string, checked: boolean) => {
-    setSelectedPostCommentIDs(toggleSingleSelection(commentId, checked));
-  }, []);
-
-  const toggleVisiblePostCommentsSelection = React.useCallback(() => {
-    if (postComments.length === 0) {
-      return;
-    }
-
-    setSelectedPostCommentIDs(toggleVisibleSelection(postComments, allVisiblePostCommentsSelected));
-  }, [allVisiblePostCommentsSelected, postComments]);
-
-  const loadPostComments = React.useCallback(
-    async (options?: { page?: number }) => {
-      if (!editingPost || activePostEditorTab !== 'comments') {
-        return [];
-      }
-
-      const requestedPage = options?.page && options.page > 0 ? options.page : postCommentsPage;
-      const requestID = postCommentsRequestIDRef.current + 1;
-      postCommentsRequestIDRef.current = requestID;
-      setIsPostCommentsLoading(true);
-      setPostCommentsErrorMessage('');
-
-      try {
-        const payload = await fetchAdminComments({
-          postId: editingPost.id,
-          status: postCommentsStatusFilter === 'all' ? undefined : postCommentsStatusFilter,
-          query: postCommentsFilterQueryDebounced,
-          page: requestedPage,
-          size: postCommentsPageSize,
-        });
-
-        if (requestID !== postCommentsRequestIDRef.current) {
-          return [];
-        }
-
-        const items = payload.items ?? [];
-        setPostComments(items);
-        setPostCommentsTotal(payload.total ?? 0);
-
-        const resolvedPage = payload.page > 0 ? payload.page : requestedPage;
-        if (resolvedPage !== postCommentsPage) {
-          setPostCommentsPage(resolvedPage);
-        }
-        if (payload.size > 0 && payload.size !== postCommentsPageSize) {
-          setPostCommentsPageSize(payload.size);
-        }
-
-        return items;
-      } catch (error) {
-        if (requestID !== postCommentsRequestIDRef.current) {
-          return [];
-        }
-        if (isAdminSessionError(error)) {
-          onSessionExpired();
-          return [];
-        }
-        const resolvedError = resolveAdminError(error);
-        setPostCommentsErrorMessage(
-          resolvedError.message || t('adminAccount.comments.errors.load', { ns: 'admin-account' }),
-        );
-        return [];
-      } finally {
-        if (requestID === postCommentsRequestIDRef.current) {
-          setIsPostCommentsLoading(false);
-        }
-      }
-    },
-    [
-      editingPost,
-      onSessionExpired,
-      postCommentsFilterQueryDebounced,
-      postCommentsPage,
-      postCommentsPageSize,
-      postCommentsStatusFilter,
-      activePostEditorTab,
-      t,
-    ],
-  );
-
-  React.useEffect(() => {
-    if (!editingPost || activePostEditorTab !== 'comments') {
-      return;
-    }
-    void loadPostComments();
-  }, [activePostEditorTab, editingPost, loadPostComments, postCommentsPage, postCommentsPageSize]);
-
-  const handleBulkPostCommentStatusUpdate = React.useCallback(
-    async (status: AdminCommentItem['status']) => {
-      if (!hasSelectedPostComments || deletingPostCommentID || postCommentActionID || isBulkPostCommentDeleting) {
-        return;
-      }
-
-      setBulkPostCommentActionStatus(status);
-      setPostCommentsErrorMessage('');
-      setPostCommentsSuccessMessage('');
-
-      try {
-        const successCount = await bulkUpdateAdminCommentStatus({
-          commentIds: selectedPostCommentIDs,
-          status,
-        });
-        if (successCount === 0) {
-          throw new Error(t('adminAccount.comments.errors.bulkStatusUpdate', { ns: 'admin-account' }));
-        }
-
-        const refreshedItems = await loadPostComments();
-        if (refreshedItems.length === 0 && postCommentsPage > 1) {
-          setPostCommentsPage(previous => Math.max(1, previous - 1));
-        }
-
-        setSelectedPostCommentIDs([]);
-        const successKey = resolveBulkCommentSuccessKey(status);
-        setPostCommentsSuccessMessage(t(successKey, { ns: 'admin-account', count: successCount }));
-
-        if (successCount !== selectedPostCommentIDs.length) {
-          setPostCommentsErrorMessage(
-            t('adminAccount.comments.errors.bulkStatusUpdatePartial', { ns: 'admin-account' }),
-          );
-        }
-      } catch (error) {
-        if (isAdminSessionError(error)) {
-          onSessionExpired();
-          return;
-        }
-        const resolvedError = resolveAdminError(error);
-        setPostCommentsErrorMessage(
-          resolvedError.message || t('adminAccount.comments.errors.bulkStatusUpdate', { ns: 'admin-account' }),
-        );
-      } finally {
-        setBulkPostCommentActionStatus(null);
-      }
-    },
-    [
-      deletingPostCommentID,
-      hasSelectedPostComments,
-      isBulkPostCommentDeleting,
-      loadPostComments,
-      onSessionExpired,
-      postCommentActionID,
-      postCommentsPage,
-      selectedPostCommentIDs,
-      t,
-    ],
-  );
-
-  const handleBulkDeletePostCommentSubmit = React.useCallback(async () => {
-    if (
-      pendingBulkPostCommentDeleteIDs.length === 0 ||
-      deletingPostCommentID ||
-      postCommentActionID ||
-      isBulkPostCommentDeleting
-    ) {
-      return;
-    }
-
-    setIsBulkPostCommentDeleting(true);
-    setPostCommentsErrorMessage('');
-    setPostCommentsSuccessMessage('');
-
-    try {
-      const successCount = await bulkDeleteAdminComments({
-        commentIds: pendingBulkPostCommentDeleteIDs,
-      });
-      if (successCount === 0) {
-        throw new Error(t('adminAccount.comments.errors.bulkDelete', { ns: 'admin-account' }));
-      }
-
-      const refreshedItems = await loadPostComments();
-      if (refreshedItems.length === 0 && postCommentsPage > 1) {
-        setPostCommentsPage(previous => Math.max(1, previous - 1));
-      }
-
-      setPendingBulkPostCommentDeleteIDs([]);
-      setSelectedPostCommentIDs([]);
-      setPostCommentsSuccessMessage(
-        t('adminAccount.comments.success.bulkDeleted', { ns: 'admin-account', count: successCount }),
-      );
-
-      if (successCount !== pendingBulkPostCommentDeleteIDs.length) {
-        setPostCommentsErrorMessage(t('adminAccount.comments.errors.bulkDeletePartial', { ns: 'admin-account' }));
-      }
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setPostCommentsErrorMessage(
-        resolvedError.message || t('adminAccount.comments.errors.bulkDelete', { ns: 'admin-account' }),
-      );
-    } finally {
-      setIsBulkPostCommentDeleting(false);
-    }
-  }, [
-    deletingPostCommentID,
-    isBulkPostCommentDeleting,
-    loadPostComments,
-    onSessionExpired,
-    pendingBulkPostCommentDeleteIDs,
-    postCommentActionID,
-    postCommentsPage,
-    t,
-  ]);
-
-  const handlePostCommentStatusUpdate = React.useCallback(
-    async (commentId: string, status: AdminCommentItem['status']) => {
-      if (!editingPost || deletingPostCommentID || isBulkPostCommentActionPending) {
-        return;
-      }
-
-      setPostCommentActionID(commentId);
-      setPostCommentActionStatus(status);
-      setPostCommentsErrorMessage('');
-      setPostCommentsSuccessMessage('');
-
-      try {
-        const updatedComment = await updateAdminCommentStatus({ commentId, status });
-        const refreshedItems = await loadPostComments();
-
-        if (refreshedItems.length === 0 && postCommentsPage > 1) {
-          setPostCommentsPage(previous => Math.max(1, previous - 1));
-        }
-
-        setPostCommentsSuccessMessage(
-          t(`adminAccount.comments.success.${status.toLowerCase()}`, {
-            ns: 'admin-account',
-            author: updatedComment.authorName,
-          }),
-        );
-      } catch (error) {
-        if (isAdminSessionError(error)) {
-          onSessionExpired();
-          return;
-        }
-        const resolvedError = resolveAdminError(error);
-        setPostCommentsErrorMessage(
-          resolvedError.message || t('adminAccount.comments.errors.statusUpdate', { ns: 'admin-account' }),
-        );
-      } finally {
-        setPostCommentActionID('');
-        setPostCommentActionStatus(null);
-      }
-    },
-    [
-      deletingPostCommentID,
-      loadPostComments,
-      onSessionExpired,
-      postCommentsPage,
-      isBulkPostCommentActionPending,
-      t,
-      editingPost,
-    ],
-  );
-
-  const handleDeletePostCommentSubmit = React.useCallback(async () => {
-    const item = pendingPostCommentDelete;
-    if (!item || deletingPostCommentID || postCommentActionID || isBulkPostCommentActionPending) {
-      return;
-    }
-
-    setDeletingPostCommentID(item.id);
-    setPostCommentsErrorMessage('');
-    setPostCommentsSuccessMessage('');
-
-    try {
-      const deleted = await deleteAdminComment({ commentId: item.id });
-      if (!deleted) {
-        throw new Error(t('adminAccount.comments.errors.delete', { ns: 'admin-account' }));
-      }
-
-      const remainingItems = postComments.filter(candidate => candidate.id !== item.id);
-      const nextTotal = Math.max(0, postCommentsTotal - 1);
-      const nextTotalPages = Math.max(1, Math.ceil(nextTotal / postCommentsPageSize));
-      const nextPage = Math.min(postCommentsPage, nextTotalPages);
-
-      if (nextPage === postCommentsPage) {
-        setPostComments(remainingItems);
-      } else {
-        setPostCommentsPage(nextPage);
-      }
-
-      setPostCommentsTotal(nextTotal);
-      setPendingPostCommentDelete(null);
-      setPostCommentsSuccessMessage(
-        t('adminAccount.comments.success.deleted', {
-          ns: 'admin-account',
-          author: item.authorName,
-        }),
-      );
-    } catch (error) {
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setPostCommentsErrorMessage(
-        resolvedError.message || t('adminAccount.comments.errors.delete', { ns: 'admin-account' }),
-      );
-    } finally {
-      setDeletingPostCommentID('');
-    }
-  }, [
-    deletingPostCommentID,
-    isBulkPostCommentActionPending,
-    onSessionExpired,
-    pendingPostCommentDelete,
-    postCommentActionID,
-    postComments,
-    postCommentsPage,
-    postCommentsPageSize,
-    postCommentsTotal,
-    t,
-  ]);
 
   const shouldShowPostSaveAction = activePostEditorTab !== 'comments';
   const shouldUpdatePostMetadata = Boolean(
@@ -3104,7 +1371,7 @@ export default function AdminContentManagementPanel({
                   setCategoryFilterQuery('');
                 }}
                 isCategoryListLoading={isCategoryListLoading}
-                categoryTotal={categoryTotal}
+                categoryTotal={categoryListTotal}
                 categoryListItems={categoryListItems}
                 onOpenCreateCategory={handleOpenCreateCategory}
                 onOpenUpdateCategory={handleOpenUpdateCategory}
@@ -3113,7 +1380,7 @@ export default function AdminContentManagementPanel({
                 }}
                 resolveAccentColor={resolveAdminContentAccentColor}
                 categoryPage={categoryPage}
-                categoryTotalPages={categoryTabTotalPages}
+                categoryTotalPages={categoryTotalPages}
                 categoryPageSize={categoryPageSize}
                 onCategoryPageChange={nextPage => {
                   setCategoryPage(nextPage);
@@ -3149,7 +1416,7 @@ export default function AdminContentManagementPanel({
                   setTopicFilterQuery('');
                 }}
                 isTopicListLoading={isTopicListLoading}
-                topicTotal={topicTotal}
+                topicTotal={topicListTotal}
                 topicListItems={topicListItems}
                 onOpenCreateTopic={handleOpenCreateTopic}
                 onOpenUpdateTopic={handleOpenUpdateTopic}
@@ -3158,7 +1425,7 @@ export default function AdminContentManagementPanel({
                 }}
                 resolveAccentColor={resolveAdminContentAccentColor}
                 topicPage={topicPage}
-                topicTotalPages={topicTabTotalPages}
+                topicTotalPages={topicTotalPages}
                 topicPageSize={topicPageSize}
                 onTopicPageChange={nextPage => {
                   setTopicPage(nextPage);

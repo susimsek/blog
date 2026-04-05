@@ -7,6 +7,7 @@ import Form from 'react-bootstrap/Form';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import useAutoClearValue from '@/hooks/useAutoClearValue';
 import useMediaQuery from '@/hooks/useMediaQuery';
 
 type GridSize = 3 | 4 | 5 | 6 | 7 | 8 | 9;
@@ -221,32 +222,18 @@ export default function SchulteTableTrainer() {
     return () => globalThis.clearInterval(interval);
   }, [startedAtMs, status]);
 
-  React.useEffect(() => {
-    if (lastWrongNumber === null) {
-      return;
-    }
-
-    const timeout = globalThis.setTimeout(() => setLastWrongNumber(null), 220);
-    return () => globalThis.clearTimeout(timeout);
-  }, [lastWrongNumber]);
-
-  React.useEffect(() => {
-    if (lastFoundNumber === null) {
-      return;
-    }
-
-    const timeout = globalThis.setTimeout(() => setLastFoundNumber(null), 180);
-    return () => globalThis.clearTimeout(timeout);
-  }, [lastFoundNumber]);
-
-  React.useEffect(() => {
-    if (!isCompletionFlashVisible) {
-      return;
-    }
-
-    const timeout = globalThis.setTimeout(() => setIsCompletionFlashVisible(false), 650);
-    return () => globalThis.clearTimeout(timeout);
-  }, [isCompletionFlashVisible]);
+  useAutoClearValue(lastWrongNumber, setLastWrongNumber, 220, {
+    nextValue: null,
+    isEmpty: value => value === null,
+  });
+  useAutoClearValue(lastFoundNumber, setLastFoundNumber, 180, {
+    nextValue: null,
+    isEmpty: value => value === null,
+  });
+  useAutoClearValue(isCompletionFlashVisible, setIsCompletionFlashVisible, 650, {
+    nextValue: false,
+    isEmpty: value => value === false,
+  });
 
   const totalCells = size * size;
   const foundSet = React.useMemo(() => new Set(foundNumbers), [foundNumbers]);

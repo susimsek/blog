@@ -7,6 +7,7 @@ import Form from 'react-bootstrap/Form';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
+import useAutoClearValue from '@/hooks/useAutoClearValue';
 import useMediaQuery from '@/hooks/useMediaQuery';
 
 type VisualMemoryMode = 'easy' | 'standard' | 'expert';
@@ -342,41 +343,22 @@ export default function VisualMemoryTrainer() {
     return () => globalThis.clearInterval(interval);
   }, [startedAtMs, status]);
 
-  React.useEffect(() => {
-    if (lastMissedCell === null) {
-      return;
-    }
-
-    const timeout = globalThis.setTimeout(() => setLastMissedCell(null), status === 'revealFail' ? 720 : 240);
-    return () => globalThis.clearTimeout(timeout);
-  }, [lastMissedCell, status]);
-
-  React.useEffect(() => {
-    if (lastSelectedCell === null) {
-      return;
-    }
-
-    const timeout = globalThis.setTimeout(() => setLastSelectedCell(null), 180);
-    return () => globalThis.clearTimeout(timeout);
-  }, [lastSelectedCell]);
-
-  React.useEffect(() => {
-    if (!isLevelPulseVisible) {
-      return;
-    }
-
-    const timeout = globalThis.setTimeout(() => setIsLevelPulseVisible(false), 560);
-    return () => globalThis.clearTimeout(timeout);
-  }, [isLevelPulseVisible]);
-
-  React.useEffect(() => {
-    if (!isGameOverRevealVisible) {
-      return;
-    }
-
-    const timeout = globalThis.setTimeout(() => setIsGameOverRevealVisible(false), 700);
-    return () => globalThis.clearTimeout(timeout);
-  }, [isGameOverRevealVisible]);
+  useAutoClearValue(lastMissedCell, setLastMissedCell, status === 'revealFail' ? 720 : 240, {
+    nextValue: null,
+    isEmpty: value => value === null,
+  });
+  useAutoClearValue(lastSelectedCell, setLastSelectedCell, 180, {
+    nextValue: null,
+    isEmpty: value => value === null,
+  });
+  useAutoClearValue(isLevelPulseVisible, setIsLevelPulseVisible, 560, {
+    nextValue: false,
+    isEmpty: value => value === false,
+  });
+  useAutoClearValue(isGameOverRevealVisible, setIsGameOverRevealVisible, 700, {
+    nextValue: false,
+    isEmpty: value => value === false,
+  });
 
   const prepareRound = React.useCallback(
     (nextMode: VisualMemoryMode, nextLevel: number, existingPattern?: number[]) => {

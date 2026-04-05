@@ -7,6 +7,7 @@ import Form from 'react-bootstrap/Form';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import useAutoClearValue from '@/hooks/useAutoClearValue';
 import useMediaQuery from '@/hooks/useMediaQuery';
 
 type StroopMode = 'practice' | 'standard' | 'timed';
@@ -542,41 +543,22 @@ export default function StroopTestTrainer() {
     status,
   ]);
 
-  React.useEffect(() => {
-    if (lastChoiceState === null) {
-      return;
-    }
-
-    const timeout = globalThis.setTimeout(() => setLastChoiceState(null), 220);
-    return () => globalThis.clearTimeout(timeout);
-  }, [lastChoiceState]);
-
-  React.useEffect(() => {
-    if (!isScorePulseVisible) {
-      return;
-    }
-
-    const timeout = globalThis.setTimeout(() => setIsScorePulseVisible(false), 180);
-    return () => globalThis.clearTimeout(timeout);
-  }, [isScorePulseVisible]);
-
-  React.useEffect(() => {
-    if (!isPromptTransitionVisible) {
-      return;
-    }
-
-    const timeout = globalThis.setTimeout(() => setIsPromptTransitionVisible(false), 140);
-    return () => globalThis.clearTimeout(timeout);
-  }, [isPromptTransitionVisible]);
-
-  React.useEffect(() => {
-    if (!isCompleteRevealVisible) {
-      return;
-    }
-
-    const timeout = globalThis.setTimeout(() => setIsCompleteRevealVisible(false), 700);
-    return () => globalThis.clearTimeout(timeout);
-  }, [isCompleteRevealVisible]);
+  useAutoClearValue(lastChoiceState, setLastChoiceState, 220, {
+    nextValue: null,
+    isEmpty: value => value === null,
+  });
+  useAutoClearValue(isScorePulseVisible, setIsScorePulseVisible, 180, {
+    nextValue: false,
+    isEmpty: value => value === false,
+  });
+  useAutoClearValue(isPromptTransitionVisible, setIsPromptTransitionVisible, 140, {
+    nextValue: false,
+    isEmpty: value => value === false,
+  });
+  useAutoClearValue(isCompleteRevealVisible, setIsCompleteRevealVisible, 700, {
+    nextValue: false,
+    isEmpty: value => value === false,
+  });
 
   React.useEffect(() => {
     if (globalThis.localStorage === undefined) {

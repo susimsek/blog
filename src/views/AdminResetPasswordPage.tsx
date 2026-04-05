@@ -10,6 +10,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import Spinner from 'react-bootstrap/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
+import useAutoClearValue from '@/hooks/useAutoClearValue';
 import { defaultLocale } from '@/i18n/settings';
 import { getAdminPasswordStrength, MIN_PASSWORD_LENGTH } from '@/lib/adminPassword';
 import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
@@ -201,6 +202,10 @@ export default function AdminResetPasswordPage() {
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const [isSuccess, setIsSuccess] = React.useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = React.useState(false);
+  useAutoClearValue(showSuccessMessage, setShowSuccessMessage, SUCCESS_MESSAGE_AUTO_HIDE_MS, {
+    nextValue: false,
+    isEmpty: value => value === false,
+  });
   const passwordStrength = getAdminPasswordStrength(password);
   const tokenState = useAdminPasswordResetTokenState(token, locale, t);
   const displayedErrorMessage = errorMessage || tokenState.errorMessage;
@@ -253,20 +258,6 @@ export default function AdminResetPasswordPage() {
       tokenState.tokenStatus,
     ],
   );
-
-  React.useEffect(() => {
-    if (showSuccessMessage === false) {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      setShowSuccessMessage(false);
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [showSuccessMessage]);
 
   return (
     <section className="py-5 admin-login-section">

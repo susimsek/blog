@@ -8,6 +8,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import useAutoClearValue from '@/hooks/useAutoClearValue';
 import { defaultLocale } from '@/i18n/settings';
 import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
 import { requestAdminPasswordReset, resolveAdminPasswordResetError } from '@/lib/adminPasswordResetApi';
@@ -41,6 +42,10 @@ export default function AdminForgotPasswordPage() {
   const [hasTouchedEmail, setHasTouchedEmail] = React.useState(false);
   const [isSuccess, setIsSuccess] = React.useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = React.useState(false);
+  useAutoClearValue(showSuccessMessage, setShowSuccessMessage, SUCCESS_MESSAGE_AUTO_HIDE_MS, {
+    nextValue: false,
+    isEmpty: value => value === false,
+  });
 
   const trimmedEmail = email.trim();
   const emailError = resolveEmailError(trimmedEmail, t);
@@ -90,20 +95,6 @@ export default function AdminForgotPasswordPage() {
     },
     [emailError, isSubmitting, locale, resolveDisplayError, t, trimmedEmail],
   );
-
-  React.useEffect(() => {
-    if (showSuccessMessage === false) {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      setShowSuccessMessage(false);
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [showSuccessMessage]);
 
   return (
     <section className="py-5 admin-login-section">

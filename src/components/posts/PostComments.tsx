@@ -8,13 +8,9 @@ import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
-import {
-  beginCommentOAuthLogin,
-  fetchCommentAuthSession,
-  logoutCommentViewer,
-  type CommentAuthSession,
-} from '@/lib/commentAuthApi';
-import { addComment, fetchComments } from '@/lib/commentsApi';
+import { addComment } from '@/lib/commentsApi';
+import { usePostCommentAuth } from '@/components/posts/usePostCommentAuth';
+import { usePostCommentThreads } from '@/components/posts/usePostCommentThreads';
 import type { CommentItem, CommentThread, CommentViewer } from '@/types/comments';
 
 type CommentFormState = {
@@ -37,8 +33,6 @@ type PostCommentsProps = {
   skipInitialFetch?: boolean;
   initialLoading?: boolean;
 };
-
-type CommentAccessMethod = 'email' | 'google' | 'github';
 
 type CommentCardProps = {
   comment: CommentItem;
@@ -70,16 +64,8 @@ const INITIAL_TOUCHED_STATE: CommentFormTouchedState = {
   authorEmail: false,
   content: false,
 };
-const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const DEFAULT_COMMENT_AUTH_SESSION: CommentAuthSession = {
-  authenticated: false,
-  providers: {
-    google: true,
-    github: true,
-  },
-};
 
 const getCommentInitial = (authorName: string) => {
   const normalized = authorName.trim();
@@ -104,37 +90,6 @@ const resolveCommentErrorTranslationKey = (status?: string) => {
   }
 
   return COMMENT_ERROR_TRANSLATION_KEYS.failed;
-};
-
-const buildCommentReturnTo = (locale: string) => {
-  if (globalThis.window === undefined) {
-    return `/${locale}`;
-  }
-
-  const currentURL = new URL(globalThis.window.location.href);
-  currentURL.searchParams.delete('commentAuth');
-  currentURL.searchParams.delete('commentProvider');
-  const query = currentURL.searchParams.toString();
-  const querySuffix = query ? `?${query}` : '';
-
-  return `${currentURL.pathname}${querySuffix}${currentURL.hash}`;
-};
-
-const buildCommentAuthCleanupURL = (searchParams: URLSearchParams) => {
-  const nextQuery = searchParams.toString();
-  const querySuffix = nextQuery ? `?${nextQuery}` : '';
-  return `${globalThis.window.location.pathname}${querySuffix}${globalThis.window.location.hash}`;
-};
-
-const resolveNextComposerAccessMethod = (
-  currentMethod: CommentAccessMethod,
-  provider: string | undefined,
-): CommentAccessMethod => {
-  if (currentMethod !== 'email') {
-    return currentMethod;
-  }
-
-  return provider === 'github' ? 'github' : 'google';
 };
 
 const renderCommentContent = (value: string) => {
@@ -458,285 +413,49 @@ export default function PostComments({
   initialLoading = false,
 }: Readonly<PostCommentsProps>) {
   const { t } = useTranslation('post');
-  const [threads, setThreads] = React.useState<CommentThread[]>(initialThreads ?? []);
-  const [total, setTotal] = React.useState(initialTotal ?? 0);
-  const [isLoading, setIsLoading] = React.useState(skipInitialFetch ? initialLoading : true);
-  const [isAuthLoading, setIsAuthLoading] = React.useState(true);
-  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
-  const [authSession, setAuthSession] = React.useState<CommentAuthSession>(DEFAULT_COMMENT_AUTH_SESSION);
-  const [errorMessage, setErrorMessage] = React.useState('');
-  const [successMessage, setSuccessMessage] = React.useState('');
-  const [authFeedback, setAuthFeedback] = React.useState<{ variant: 'success' | 'danger'; message: string } | null>(
-    null,
-  );
-  const [activeReplyID, setActiveReplyID] = React.useState<string | null>(null);
-  const [replySuccessMessage, setReplySuccessMessage] = React.useState<{ parentId: string; message: string } | null>(
-    null,
-  );
-  const [expandedReplyThreadIDs, setExpandedReplyThreadIDs] = React.useState<string[]>([]);
-  const [composerAccessMethod, setComposerAccessMethod] = React.useState<CommentAccessMethod>('email');
   const [isViewerAvatarBroken, setIsViewerAvatarBroken] = React.useState(false);
-  const authenticatedViewer = authSession.authenticated ? (authSession.viewer ?? null) : null;
-  const composerViewer = composerAccessMethod === 'email' ? null : authenticatedViewer;
+  const {
+    threads,
+    total,
+    isLoading,
+    errorMessage,
+    successMessage,
+    activeReplyID,
+    replySuccessMessage,
+    expandedReplyThreadIDs,
+    handleReplyToggle,
+    handleReplyThreadToggle,
+    handleSubmitted,
+    resetReplyState,
+  } = usePostCommentThreads({
+    postId,
+    skipInitialFetch,
+    initialLoading,
+    initialStatus,
+    initialThreads,
+    initialTotal,
+    t,
+  });
+  const {
+    isAuthLoading,
+    isLoggingOut,
+    authSession,
+    authFeedback,
+    composerAccessMethod,
+    authenticatedViewer,
+    composerViewer,
+    resolveProviderLabel,
+    handleComposerAccessMethodChange,
+    handleViewerLogout,
+  } = usePostCommentAuth({
+    locale,
+    t,
+    onLoggedOut: resetReplyState,
+  });
 
   React.useEffect(() => {
     setIsViewerAvatarBroken(false);
   }, [composerViewer?.avatarUrl]);
-
-  const resolveProviderLabel = React.useCallback(
-    (provider: string) => {
-      switch (provider.trim().toLowerCase()) {
-        case 'google':
-          return t('post.comments.auth.providers.google');
-        case 'github':
-          return t('post.comments.auth.providers.github');
-        default:
-          return t('post.comments.auth.providers.account');
-      }
-    },
-    [t],
-  );
-
-  const getCommentReturnTo = React.useCallback(() => {
-    return buildCommentReturnTo(locale);
-  }, [locale]);
-
-  const loadAuthSession = React.useCallback(async () => {
-    setIsAuthLoading(true);
-
-    try {
-      const session = (await fetchCommentAuthSession()) ?? DEFAULT_COMMENT_AUTH_SESSION;
-      setAuthSession(session);
-      if (session.authenticated && session.viewer) {
-        const provider = session.viewer.provider?.trim().toLowerCase();
-        setComposerAccessMethod(current => resolveNextComposerAccessMethod(current, provider));
-      }
-      return session;
-    } catch {
-      setAuthSession(DEFAULT_COMMENT_AUTH_SESSION);
-      return DEFAULT_COMMENT_AUTH_SESSION;
-    } finally {
-      setIsAuthLoading(false);
-    }
-  }, []);
-
-  const loadComments = React.useCallback(async () => {
-    setIsLoading(true);
-    setErrorMessage('');
-
-    try {
-      const result = await fetchComments(postId);
-      if (!result || (result.status && !['success', 'not-found'].includes(result.status))) {
-        setErrorMessage(t('post.comments.errors.load'));
-        return;
-      }
-
-      setThreads(result?.threads ?? []);
-      setTotal(result?.total ?? 0);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [postId, t]);
-
-  React.useEffect(() => {
-    if (!skipInitialFetch) {
-      return;
-    }
-
-    if (initialLoading) {
-      setIsLoading(true);
-      setErrorMessage('');
-      return;
-    }
-
-    if (initialStatus && !['success', 'not-found'].includes(initialStatus)) {
-      setThreads([]);
-      setTotal(0);
-      setErrorMessage(t('post.comments.errors.load'));
-      setIsLoading(false);
-      return;
-    }
-
-    setThreads(initialThreads ?? []);
-    setTotal(initialTotal ?? 0);
-    setErrorMessage('');
-    setIsLoading(false);
-  }, [initialLoading, initialStatus, initialThreads, initialTotal, skipInitialFetch, t]);
-
-  React.useEffect(() => {
-    if (skipInitialFetch) {
-      return;
-    }
-
-    void loadComments();
-  }, [loadComments, skipInitialFetch]);
-
-  React.useEffect(() => {
-    let isMounted = true;
-
-    const bootstrapAuth = async () => {
-      let authStatus = '';
-      let authProvider = '';
-
-      if (globalThis.window !== undefined) {
-        const searchParams = new URLSearchParams(globalThis.window.location.search);
-        authStatus = searchParams.get('commentAuth')?.trim().toLowerCase() ?? '';
-        authProvider = searchParams.get('commentProvider')?.trim().toLowerCase() ?? '';
-
-        if (authStatus || authProvider) {
-          searchParams.delete('commentAuth');
-          searchParams.delete('commentProvider');
-          const nextURL = buildCommentAuthCleanupURL(searchParams);
-          globalThis.window.history.replaceState(globalThis.window.history.state, '', nextURL);
-        }
-      }
-
-      const session = await loadAuthSession();
-      if (!isMounted || !authStatus) {
-        return;
-      }
-
-      const providerLabel = resolveProviderLabel(authProvider);
-      if (authStatus === 'connected' && session.authenticated && session.viewer) {
-        setAuthFeedback({
-          variant: 'success',
-          message: t('post.comments.auth.connected', {
-            provider: providerLabel,
-            name: session.viewer.name,
-          }),
-        });
-        return;
-      }
-
-      if (authStatus === 'cancelled') {
-        setAuthFeedback({
-          variant: 'danger',
-          message: t('post.comments.auth.cancelled', { provider: providerLabel }),
-        });
-        return;
-      }
-
-      if (authStatus === 'failed' || authStatus === 'connected') {
-        setAuthFeedback({
-          variant: 'danger',
-          message: t('post.comments.auth.failed', { provider: providerLabel }),
-        });
-      }
-    };
-
-    void bootstrapAuth();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [loadAuthSession, resolveProviderLabel, t]);
-
-  React.useEffect(() => {
-    if (!successMessage) {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      setSuccessMessage('');
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [successMessage]);
-
-  React.useEffect(() => {
-    if (!replySuccessMessage) {
-      return;
-    }
-
-    const timeoutID = globalThis.setTimeout(() => {
-      setReplySuccessMessage(null);
-    }, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
-    return () => {
-      globalThis.clearTimeout(timeoutID);
-    };
-  }, [replySuccessMessage]);
-
-  const handleReplyToggle = React.useCallback((rootID: string) => {
-    setReplySuccessMessage(null);
-    setActiveReplyID(current => (current === rootID ? null : rootID));
-  }, []);
-
-  const handleReplyThreadToggle = React.useCallback((rootID: string) => {
-    setExpandedReplyThreadIDs(previous =>
-      previous.includes(rootID) ? previous.filter(id => id !== rootID) : [...previous, rootID],
-    );
-  }, []);
-
-  const handleSubmitted = React.useCallback(
-    async (result: { status?: string; moderationStatus?: string }, options?: { parentId?: string }) => {
-      const successText =
-        result.moderationStatus === 'approved'
-          ? t('post.comments.success.approved')
-          : t('post.comments.success.pending');
-
-      if (options?.parentId) {
-        setReplySuccessMessage({
-          parentId: options.parentId,
-          message: successText,
-        });
-        setExpandedReplyThreadIDs(previous =>
-          previous.includes(options.parentId!) ? previous : [...previous, options.parentId!],
-        );
-        setSuccessMessage('');
-      } else {
-        setSuccessMessage(successText);
-        setReplySuccessMessage(null);
-      }
-
-      setActiveReplyID(null);
-
-      if (result.moderationStatus === 'approved') {
-        await loadComments();
-      }
-    },
-    [loadComments, t],
-  );
-
-  const handleComposerAccessMethodChange = React.useCallback(
-    (nextMethod: CommentAccessMethod) => {
-      if (nextMethod === 'email') {
-        setComposerAccessMethod('email');
-        setAuthFeedback(null);
-        return;
-      }
-
-      if (authenticatedViewer && authenticatedViewer.provider?.trim().toLowerCase() === nextMethod) {
-        setComposerAccessMethod(nextMethod);
-        setAuthFeedback(null);
-        return;
-      }
-
-      beginCommentOAuthLogin(nextMethod, locale, getCommentReturnTo());
-    },
-    [authenticatedViewer, getCommentReturnTo, locale],
-  );
-
-  const handleViewerLogout = React.useCallback(async () => {
-    setIsLoggingOut(true);
-    setAuthFeedback(null);
-
-    try {
-      await logoutCommentViewer();
-      setAuthSession(DEFAULT_COMMENT_AUTH_SESSION);
-      setComposerAccessMethod('email');
-      setActiveReplyID(null);
-      setReplySuccessMessage(null);
-      setAuthFeedback({
-        variant: 'success',
-        message: t('post.comments.auth.signedOut'),
-      });
-    } finally {
-      setIsLoggingOut(false);
-    }
-  }, [t]);
 
   return (
     <section className="post-comments-section" aria-labelledby="post-comments-title">
@@ -866,7 +585,7 @@ export default function PostComments({
                             parentId={thread.root.id}
                             replyToName={thread.root.authorName}
                             onSubmitted={handleSubmitted}
-                            onCancel={() => setActiveReplyID(null)}
+                            onCancel={resetReplyState}
                             submitLabel={t('post.comments.form.submitReply')}
                             cancelLabel={t('post.comments.form.cancelReply')}
                             variant="reply"
