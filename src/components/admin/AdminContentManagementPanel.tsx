@@ -4,58 +4,37 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useRouter } from 'next/navigation';
 import Alert from 'react-bootstrap/Alert';
-import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import Nav from 'react-bootstrap/Nav';
 import Spinner from 'react-bootstrap/Spinner';
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { registerLocale } from 'react-datepicker';
 import { enUS } from 'date-fns/locale/en-US';
 import { tr } from 'date-fns/locale/tr';
 import { type AdminMarkdownEditorViewport } from '@/components/admin/AdminMarkdownEditor';
-import AdminContentCategoriesTab from '@/components/admin/content/AdminContentCategoriesTab';
 import AdminContentBulkPostCommentDeleteModal from '@/components/admin/content/AdminContentBulkPostCommentDeleteModal';
 import AdminContentCategoryEditorModal from '@/components/admin/content/AdminContentCategoryEditorModal';
+import AdminContentDeleteEntityModal from '@/components/admin/content/AdminContentDeleteEntityModal';
 import AdminContentMediaDeleteModal from '@/components/admin/content/AdminContentMediaDeleteModal';
-import AdminContentMediaTab from '@/components/admin/content/AdminContentMediaTab';
-import AdminContentPostContentTab from '@/components/admin/content/AdminContentPostContentTab';
 import AdminContentPostCommentDeleteModal from '@/components/admin/content/AdminContentPostCommentDeleteModal';
-import AdminContentPostCommentsTab from '@/components/admin/content/AdminContentPostCommentsTab';
 import AdminContentPostDeleteModal from '@/components/admin/content/AdminContentPostDeleteModal';
-import AdminContentPostMetadataTab from '@/components/admin/content/AdminContentPostMetadataTab';
+import AdminContentPostDetailSection from '@/components/admin/content/AdminContentPostDetailSection';
 import AdminContentPostRevisionRestoreModal from '@/components/admin/content/AdminContentPostRevisionRestoreModal';
-import AdminContentPostsTab from '@/components/admin/content/AdminContentPostsTab';
+import AdminContentOverviewTabs from '@/components/admin/content/AdminContentOverviewTabs';
 import AdminContentTopicEditorModal from '@/components/admin/content/AdminContentTopicEditorModal';
-import AdminContentTopicsTab from '@/components/admin/content/AdminContentTopicsTab';
-import { useAdminContentMediaSection } from '@/components/admin/content/useAdminContentMediaSection';
-import { useAdminContentPostCommentsSection } from '@/components/admin/content/useAdminContentPostCommentsSection';
-import { useAdminContentPostEditorSection } from '@/components/admin/content/useAdminContentPostEditorSection';
-import { useAdminContentTaxonomySection } from '@/components/admin/content/useAdminContentTaxonomySection';
 import { getDatePickerLocale } from '@/components/common/DateRangePicker';
-import FlagIcon from '@/components/common/FlagIcon';
 import { type PostDensityMode } from '@/components/common/PostDensityToggle';
-import Link from '@/components/common/Link';
-import useAutoClearValue from '@/hooks/useAutoClearValue';
-import useDebounce from '@/hooks/useDebounce';
+import { useAdminContentMediaSection } from '@/hooks/admin-content/useAdminContentMediaSection';
+import { useAdminContentNavigation } from '@/hooks/admin-content/useAdminContentNavigation';
+import { useAdminContentPostCommentsSection } from '@/hooks/admin-content/useAdminContentPostCommentsSection';
+import { useAdminContentPostEditorSection } from '@/hooks/admin-content/useAdminContentPostEditorSection';
+import { useAdminContentPostsBrowserSection } from '@/hooks/admin-content/useAdminContentPostsBrowserSection';
+import { useAdminContentTaxonomySection } from '@/hooks/admin-content/useAdminContentTaxonomySection';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { assetPrefix, AVATAR_LINK, AUTHOR_NAME, LOCALES, TWITTER_USERNAME } from '@/config/constants';
 import { buildLocalizedPath, toAbsoluteSiteUrl } from '@/lib/metadata';
+import { type AdminCommentItem, type AdminContentPostItem, type AdminContentTopicItem } from '@/lib/adminApi';
 import {
-  fetchAdminContentPosts,
-  isAdminSessionError,
-  resolveAdminError,
-  type AdminCommentItem,
-  type AdminContentPostGroupItem,
-  type AdminContentPostItem,
-  type AdminContentTopicItem,
-} from '@/lib/adminApi';
-import {
-  ADMIN_ROUTES,
-  buildAdminContentPostDetailHash,
   buildAdminContentPostDetailHref,
   buildAdminContentPostDetailRoute,
   withAdminLocalePath,
@@ -69,14 +48,9 @@ type AdminContentManagementPanelProps = {
   formatDate: (value: string) => string;
 };
 
-type LocaleFilterValue = 'all' | 'en' | 'tr';
-type SourceFilterValue = 'all' | 'blog' | 'medium';
-type ContentSectionTab = 'posts' | 'topics' | 'categories' | 'media';
 type PostEditorTab = 'metadata' | 'content' | 'comments';
 type SupportedContentLocale = 'en' | 'tr';
 const CONTENT_ID_PATTERN = /^[a-z0-9][a-z0-9-]{1,127}$/;
-const SUCCESS_MESSAGE_AUTO_HIDE_MS = 3500;
-const FILTER_QUERY_DEBOUNCE_MS = 220;
 const BOOTSTRAP_THEME_COLORS = new Set([
   'primary',
   'secondary',
@@ -110,20 +84,6 @@ const resolvePostEditorTab = (value?: string | null, allowContent = true): PostE
     return 'content';
   }
   return 'metadata';
-};
-
-const resolveContentSectionTab = (value?: string | null): ContentSectionTab => {
-  const resolved = value?.trim().toLowerCase();
-  if (resolved === 'topics') {
-    return 'topics';
-  }
-  if (resolved === 'posts') {
-    return 'posts';
-  }
-  if (resolved === 'media') {
-    return 'media';
-  }
-  return 'categories';
 };
 
 const resolvePostLifecycleBadgeVariant = (status: AdminContentPostItem['status']) => {
@@ -252,26 +212,6 @@ export default function AdminContentManagementPanel({
   const { t } = useTranslation(['admin-account', 'admin-common']);
   const router = useRouter();
 
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [posts, setPosts] = React.useState<AdminContentPostGroupItem[]>([]);
-  const [errorMessage, setErrorMessage] = React.useState('');
-  const [successMessage, setSuccessMessage] = React.useState('');
-  const [filterLocale, setFilterLocale] = React.useState<LocaleFilterValue>('all');
-  const [filterSource, setFilterSource] = React.useState<SourceFilterValue>('all');
-  const [filterQuery, setFilterQuery] = React.useState('');
-  const [filterCategoryID, setFilterCategoryID] = React.useState('');
-  const [filterTopicID, setFilterTopicID] = React.useState('');
-  const [page, setPage] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(10);
-  const [total, setTotal] = React.useState(0);
-  const [postDensityMode, setPostDensityMode] = React.useState<PostDensityMode>('default');
-  const [mediaDensityMode, setMediaDensityMode] = React.useState<PostDensityMode>('default');
-  const [activeTab, setActiveTab] = React.useState<ContentSectionTab>('categories');
-  const canUsePostGridDensity = useMediaQuery('(min-width: 1200px)');
-  const resolvedPostDensityMode: PostDensityMode =
-    canUsePostGridDensity || postDensityMode !== 'grid' ? postDensityMode : 'default';
-  const resolvedMediaDensityMode: PostDensityMode =
-    canUsePostGridDensity || mediaDensityMode !== 'grid' ? mediaDensityMode : 'default';
   const params = useParams<{
     locale?: string | string[];
     postLocale?: string | string[];
@@ -285,21 +225,52 @@ export default function AdminContentManagementPanel({
   const routePostID = (Array.isArray(params.postId) ? params.postId[0] : params.postId)?.trim();
   const currentDatePickerLocale = getDatePickerLocale(params?.locale);
   const datePickerLocaleConfig = currentDatePickerLocale === 'tr' ? tr : enUS;
-  const [postEditorTabKey, setPostEditorTabKey] = React.useState<PostEditorTab>('metadata');
   const isPostDetailRoute = Boolean(routePostLocale && routePostID);
+  const {
+    isLoading,
+    posts,
+    errorMessage,
+    setErrorMessage,
+    successMessage,
+    setSuccessMessage,
+    filterLocale,
+    setFilterLocale,
+    filterSource,
+    setFilterSource,
+    filterQuery,
+    setFilterQuery,
+    filterCategoryID,
+    setFilterCategoryID,
+    filterTopicID,
+    setFilterTopicID,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    total,
+    totalPages,
+    postDensityMode,
+    setPostDensityMode,
+    mediaDensityMode,
+    setMediaDensityMode,
+    reloadPosts,
+  } = useAdminContentPostsBrowserSection({
+    currentDatePickerLocale,
+    isPostDetailRoute,
+    onSessionExpired,
+    t,
+  });
+  const canUsePostGridDensity = useMediaQuery('(min-width: 1200px)');
+  const resolvedPostDensityMode: PostDensityMode =
+    canUsePostGridDensity || postDensityMode !== 'grid' ? postDensityMode : 'default';
+  const resolvedMediaDensityMode: PostDensityMode =
+    canUsePostGridDensity || mediaDensityMode !== 'grid' ? mediaDensityMode : 'default';
 
   const listTopRef = React.useRef<HTMLDivElement | null>(null);
   const splitPreviewRef = React.useRef<HTMLDivElement | null>(null);
   const splitEditorViewportRef = React.useRef<AdminMarkdownEditorViewport | null>(null);
-  const postsRequestIDRef = React.useRef(0);
   const postCommentsListTopRef = React.useRef<HTMLDivElement | null>(null);
-  const reloadPostsRef = React.useRef<() => Promise<void>>(async () => {});
 
-  const requestedPostEditorTab = resolvePostEditorTab(postEditorTabKey);
-  const reloadPosts = React.useCallback(() => reloadPostsRef.current(), []);
-  const filterQueryDebounced = useDebounce(filterQuery.trim(), FILTER_QUERY_DEBOUNCE_MS);
-
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const adminNumberFormatter = React.useMemo(() => new Intl.NumberFormat(routeLocale), [routeLocale]);
   const adminDateTimeFormatter = React.useMemo(
     () =>
@@ -309,6 +280,8 @@ export default function AdminContentManagementPanel({
       }),
     [routeLocale],
   );
+  const { activeTab, handleTabSelect, postEditorTabKey, requestedPostEditorTab, navigateToPostEditorRoute } =
+    useAdminContentNavigation({ routeLocale });
 
   const {
     editingPost,
@@ -385,6 +358,36 @@ export default function AdminContentManagementPanel({
   );
   const totalPostRevisionPages = Math.max(1, Math.ceil(postRevisionsTotal / postRevisionsPageSize));
 
+  const handleSwitchPostEditorLocale = React.useCallback(
+    (locale: SupportedContentLocale) => {
+      if (!editingPost || editingPost.id.trim() === '' || editingPost.locale.trim().toLowerCase() === locale) {
+        return;
+      }
+
+      router.push(
+        withAdminLocalePath(routeLocale, buildAdminContentPostDetailHref(locale, editingPost.id, activePostEditorTab)),
+      );
+    },
+    [activePostEditorTab, editingPost, routeLocale, router],
+  );
+
+  React.useEffect(() => {
+    if (!editingPost || !isPostDetailRoute) {
+      return;
+    }
+
+    const canonicalTab = resolvePostEditorTab(postEditorTabKey, editingPost.source === 'blog');
+    if (canonicalTab === postEditorTabKey) {
+      return;
+    }
+
+    navigateToPostEditorRoute(
+      buildAdminContentPostDetailRoute(editingPost.locale, editingPost.id),
+      canonicalTab,
+      'replace',
+    );
+  }, [editingPost, isPostDetailRoute, navigateToPostEditorRoute, postEditorTabKey]);
+
   const {
     postComments,
     isPostCommentsLoading,
@@ -431,7 +434,6 @@ export default function AdminContentManagementPanel({
   });
 
   const {
-    preferredContentLocale,
     topicsByLocaleAndID,
     categoriesByLocaleAndID,
     filterTopicOptions,
@@ -699,10 +701,6 @@ export default function AdminContentManagementPanel({
   }, []);
 
   React.useEffect(() => {
-    setPage(1);
-  }, [filterCategoryID, filterLocale, filterQueryDebounced, filterSource, filterTopicID]);
-
-  React.useEffect(() => {
     if (postContentViewMode !== 'split') {
       return;
     }
@@ -745,8 +743,6 @@ export default function AdminContentManagementPanel({
     };
   }, [postContentViewMode, syncSplitPreviewScroll]);
 
-  useAutoClearValue(successMessage, setSuccessMessage, SUCCESS_MESSAGE_AUTO_HIDE_MS);
-
   React.useEffect(() => {
     const categoryExists =
       filterCategoryID === '' ||
@@ -754,7 +750,7 @@ export default function AdminContentManagementPanel({
     if (!categoryExists) {
       setFilterCategoryID('');
     }
-  }, [filterCategoryID, filterCategoryOptions]);
+  }, [filterCategoryID, filterCategoryOptions, setFilterCategoryID]);
 
   React.useEffect(() => {
     const topicExists =
@@ -762,190 +758,7 @@ export default function AdminContentManagementPanel({
     if (!topicExists) {
       setFilterTopicID('');
     }
-  }, [filterTopicID, filterTopicOptions]);
-
-  React.useEffect(() => {
-    const appWindow = globalThis.window;
-    if (!appWindow) {
-      return;
-    }
-
-    const syncTabFromHash = () => {
-      const hashValue = appWindow.location.hash.replace(/^#/, '');
-      setActiveTab(resolveContentSectionTab(hashValue));
-    };
-
-    syncTabFromHash();
-    appWindow.addEventListener('hashchange', syncTabFromHash);
-    return () => {
-      appWindow.removeEventListener('hashchange', syncTabFromHash);
-    };
-  }, []);
-
-  React.useEffect(() => {
-    const appWindow = globalThis.window;
-    if (!appWindow) {
-      return;
-    }
-
-    const syncPostEditorTabFromHash = () => {
-      const hashValue = appWindow.location.hash.replace(/^#/, '');
-      setPostEditorTabKey(resolvePostEditorTab(hashValue));
-    };
-
-    syncPostEditorTabFromHash();
-    appWindow.addEventListener('hashchange', syncPostEditorTabFromHash);
-    return () => {
-      appWindow.removeEventListener('hashchange', syncPostEditorTabFromHash);
-    };
-  }, []);
-
-  const loadPosts = React.useCallback(async () => {
-    const requestID = postsRequestIDRef.current + 1;
-    postsRequestIDRef.current = requestID;
-    setIsLoading(true);
-
-    try {
-      const payload = await fetchAdminContentPosts({
-        locale: filterLocale === 'all' ? undefined : filterLocale,
-        preferredLocale: preferredContentLocale,
-        source: filterSource === 'all' ? undefined : filterSource,
-        query: filterQueryDebounced,
-        categoryId: filterCategoryID || undefined,
-        topicId: filterTopicID || undefined,
-        page,
-        size: pageSize,
-      });
-      if (requestID !== postsRequestIDRef.current) {
-        return;
-      }
-
-      setPosts(payload.items ?? []);
-      setTotal(payload.total);
-
-      const resolvedPage = payload.page > 0 ? payload.page : 1;
-      if (resolvedPage !== page) {
-        setPage(resolvedPage);
-      }
-      if (payload.size > 0 && payload.size !== pageSize) {
-        setPageSize(payload.size);
-      }
-
-      setErrorMessage('');
-    } catch (error) {
-      if (requestID !== postsRequestIDRef.current) {
-        return;
-      }
-      if (isAdminSessionError(error)) {
-        onSessionExpired();
-        return;
-      }
-      const resolvedError = resolveAdminError(error);
-      setErrorMessage(resolvedError.message || t('adminAccount.content.errors.postLoad', { ns: 'admin-account' }));
-      setPosts([]);
-      setTotal(0);
-    } finally {
-      if (requestID === postsRequestIDRef.current) {
-        setIsLoading(false);
-      }
-    }
-  }, [
-    filterCategoryID,
-    filterLocale,
-    filterQueryDebounced,
-    filterSource,
-    filterTopicID,
-    onSessionExpired,
-    page,
-    pageSize,
-    preferredContentLocale,
-    t,
-  ]);
-
-  React.useEffect(() => {
-    reloadPostsRef.current = loadPosts;
-  }, [loadPosts]);
-
-  React.useEffect(() => {
-    if (isPostDetailRoute) {
-      return;
-    }
-    void loadPosts();
-  }, [isPostDetailRoute, loadPosts]);
-
-  const handleTabSelect = React.useCallback((nextKey: string | null) => {
-    const resolvedTab = resolveContentSectionTab(nextKey);
-    setActiveTab(resolvedTab);
-
-    const appWindow = globalThis.window;
-    if (!appWindow) {
-      return;
-    }
-
-    const nextHash = `#${resolvedTab}`;
-    if (appWindow.location.hash === nextHash) {
-      return;
-    }
-
-    const nextURL = `${appWindow.location.pathname}${appWindow.location.search}${nextHash}`;
-    appWindow.history.replaceState(appWindow.history.state, '', nextURL);
-  }, []);
-
-  const navigateToPostEditorRoute = React.useCallback(
-    (nextRoute: string, nextTab: PostEditorTab, mode: 'push' | 'replace' = 'push') => {
-      const appWindow = globalThis.window;
-      if (!appWindow) {
-        return;
-      }
-
-      const nextURL = withAdminLocalePath(routeLocale, `${nextRoute}${buildAdminContentPostDetailHash(nextTab)}`);
-      if (
-        appWindow.location.pathname === withAdminLocalePath(routeLocale, nextRoute) &&
-        appWindow.location.hash === `#${nextTab}`
-      ) {
-        setPostEditorTabKey(nextTab);
-        return;
-      }
-
-      if (mode === 'replace') {
-        appWindow.history.replaceState(appWindow.history.state, '', nextURL);
-      } else {
-        appWindow.history.pushState(appWindow.history.state, '', nextURL);
-      }
-      setPostEditorTabKey(nextTab);
-    },
-    [routeLocale],
-  );
-
-  const handleSwitchPostEditorLocale = React.useCallback(
-    (locale: SupportedContentLocale) => {
-      if (!editingPost || editingPost.id.trim() === '' || editingPost.locale.trim().toLowerCase() === locale) {
-        return;
-      }
-
-      router.push(
-        withAdminLocalePath(routeLocale, buildAdminContentPostDetailHref(locale, editingPost.id, activePostEditorTab)),
-      );
-    },
-    [activePostEditorTab, editingPost, routeLocale, router],
-  );
-
-  React.useEffect(() => {
-    if (!editingPost || !isPostDetailRoute) {
-      return;
-    }
-
-    const canonicalTab = resolvePostEditorTab(postEditorTabKey, editingPost.source === 'blog');
-    if (canonicalTab === postEditorTabKey) {
-      return;
-    }
-
-    navigateToPostEditorRoute(
-      buildAdminContentPostDetailRoute(editingPost.locale, editingPost.id),
-      canonicalTab,
-      'replace',
-    );
-  }, [editingPost, isPostDetailRoute, navigateToPostEditorRoute, postEditorTabKey]);
+  }, [filterTopicID, filterTopicOptions, setFilterTopicID]);
 
   const showInlinePostFeedback = isPostDetailRoute && Boolean(editingPost);
   const showTopFeedback = !showInlinePostFeedback;
@@ -1042,527 +855,314 @@ export default function AdminContentManagementPanel({
       <div className="d-grid gap-3">
         <div ref={listTopRef} />
         {isPostDetailRoute ? (
-          <div className="card d-block">
-            <div className="card-body p-3 p-md-4 w-100 admin-content-post-detail-body">
-              <div className="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
-                <div>
-                  <h4 className="admin-dashboard-panel-title mb-1">
-                    {editingPost?.title ?? t('adminAccount.content.modals.post.title', { ns: 'admin-account' })}
-                  </h4>
-                  {editingPost ? (
-                    <div className="small text-muted">
-                      <div className="mb-1">
-                        <Badge bg={resolvePostLifecycleBadgeVariant(editingPost.status)}>
-                          {t(
-                            `adminAccount.content.modals.post.lifecycle.statuses.${editingPost.status.toLowerCase()}`,
-                            {
-                              ns: 'admin-account',
-                            },
-                          )}
-                        </Badge>
-                      </div>
-                      <div>
-                        {t('adminAccount.content.modals.post.labels.id', {
-                          ns: 'admin-account',
-                          value: editingPost.id,
-                        })}
-                      </div>
-                      <div>
-                        {t('adminAccount.content.modals.post.labels.locale', {
-                          ns: 'admin-account',
-                          value: resolveLocaleLabel(editingPost.locale),
-                        })}
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-                <Link href={ADMIN_ROUTES.settings.content} className="btn btn-sm admin-content-back-link">
-                  <FontAwesomeIcon icon="arrow-left" className="me-2" />
-                  {t('adminAccount.content.actions.backToPosts', { ns: 'admin-account' })}
-                </Link>
-              </div>
-
-              {editingPost && postLocaleTabs.length > 0 ? (
-                <Nav
-                  variant="tabs"
-                  activeKey={editingPost.locale.trim().toLowerCase()}
-                  className="mb-3 admin-content-tabs"
-                  onSelect={eventKey => {
-                    if (eventKey === 'en' || eventKey === 'tr') {
-                      handleSwitchPostEditorLocale(eventKey);
-                    }
-                  }}
-                >
-                  {postLocaleTabs.map(item => (
-                    <Nav.Item key={`post-editor-${item.locale}`}>
-                      <Nav.Link eventKey={item.locale} disabled={!item.available}>
-                        <span className="d-inline-flex align-items-center">
-                          <FlagIcon
-                            code={item.locale}
-                            className="flex-shrink-0 me-2"
-                            alt={`${resolveLocaleLabel(item.locale)} flag`}
-                            width={14}
-                            height={14}
-                          />
-                          <span>{item.locale.toUpperCase()}</span>
-                        </span>
-                      </Nav.Link>
-                    </Nav.Item>
-                  ))}
-                </Nav>
-              ) : null}
-
-              {isPostContentLoading ? (
-                <div className="d-flex align-items-center gap-2 text-muted small py-2">
-                  <Spinner animation="border" size="sm" />
-                  <span>{t('adminAccount.content.loading.postContent', { ns: 'admin-account' })}</span>
-                </div>
-              ) : editingPost ? (
-                <>
-                  <Tabs
-                    id="admin-content-post-editor-tabs"
-                    activeKey={activePostEditorTab}
-                    onSelect={nextKey => {
-                      const nextTab = resolvePostEditorTab(nextKey, editingPost.source === 'blog');
-                      navigateToPostEditorRoute(
-                        buildAdminContentPostDetailRoute(editingPost.locale, editingPost.id),
-                        nextTab,
-                      );
-                    }}
-                    className="mb-3 admin-content-tabs"
-                  >
-                    <Tab
-                      eventKey="metadata"
-                      title={
-                        <span className="d-inline-flex align-items-center gap-2">
-                          <FontAwesomeIcon icon="info-circle" />
-                          <span>{t('adminAccount.content.modals.post.tabs.metadata', { ns: 'admin-account' })}</span>
-                        </span>
-                      }
-                    >
-                      <AdminContentPostMetadataTab
-                        t={t}
-                        routeLocale={routeLocale}
-                        editingPost={editingPost}
-                        formatCount={value => adminNumberFormatter.format(value)}
-                        formatDateTime={value => adminDateTimeFormatter.format(new Date(value))}
-                        postEditorSeoPreview={postEditorSeoPreview}
-                        postSeoPreviewTab={postSeoPreviewTab}
-                        onPostSeoPreviewTabChange={setPostSeoPreviewTab}
-                        imageLoader={adminPreviewImageLoader}
-                        postEditorTitle={postEditorTitle}
-                        onPostEditorTitleChange={setPostEditorTitle}
-                        postEditorSummary={postEditorSummary}
-                        onPostEditorSummaryChange={setPostEditorSummary}
-                        postEditorPublishedDate={postEditorPublishedDate}
-                        onPostEditorPublishedDateChange={setPostEditorPublishedDate}
-                        postEditorUpdatedDate={postEditorUpdatedDate}
-                        onPostEditorUpdatedDateChange={setPostEditorUpdatedDate}
-                        parseISODateInput={parseISODateInput}
-                        datePickerLocaleConfig={datePickerLocaleConfig}
-                        postEditorStatus={postEditorStatus}
-                        onPostEditorStatusChange={setPostEditorStatus}
-                        postEditorScheduledAt={postEditorScheduledAt}
-                        onPostEditorScheduledAtChange={setPostEditorScheduledAt}
-                        toDateTimeLocalInputValue={toDateTimeLocalInputValue}
-                        fromDateTimeLocalInputValue={fromDateTimeLocalInputValue}
-                        resolvePostLifecycleBadgeVariant={resolvePostLifecycleBadgeVariant}
-                        postEditorThumbnail={postEditorThumbnail}
-                        onPostEditorThumbnailChange={setPostEditorThumbnail}
-                        resolveThumbnailSrc={resolveAdminContentThumbnailSrc}
-                        onOpenMediaLibrary={openMediaLibraryScreen}
-                        onClearPostEditorThumbnail={() => {
-                          setPostEditorThumbnail('');
-                        }}
-                        selectedMediaLibraryItem={selectedMediaLibraryItem}
-                        postEditorCategoryID={postEditorCategoryID}
-                        onPostEditorCategoryIDChange={setPostEditorCategoryID}
-                        postEditorCategoryOptions={postEditorCategoryOptions}
-                        postEditorTopicQuery={postEditorTopicQuery}
-                        onPostEditorTopicQueryChange={setPostEditorTopicQuery}
-                        onClearPostEditorTopicQuery={() => {
-                          setPostEditorTopicQuery('');
-                        }}
-                        postEditorTopicOptions={postEditorTopicOptions}
-                        postEditorTopicIDs={postEditorTopicIDs}
-                        onPostTopicToggle={handlePostTopicToggle}
-                        getTaxonomyKey={toTaxonomyKey}
-                        postRevisionsErrorMessage={postRevisionsErrorMessage}
-                        isPostRevisionsLoading={isPostRevisionsLoading}
-                        postRevisions={postRevisions}
-                        postRevisionsTotal={postRevisionsTotal}
-                        postRevisionsPage={postRevisionsPage}
-                        totalPostRevisionPages={totalPostRevisionPages}
-                        postRevisionsPageSize={postRevisionsPageSize}
-                        onPostRevisionsPageChange={setPostRevisionsPage}
-                        onPostRevisionsPageSizeChange={size => {
-                          setPostRevisionsPageSize(size);
-                          setPostRevisionsPage(1);
-                        }}
-                        onOpenRestoreRevision={setPendingPostRevisionRestore}
-                      />
-                    </Tab>
-                    {editingPost.source === 'blog' ? (
-                      <Tab
-                        eventKey="content"
-                        title={
-                          <span className="d-inline-flex align-items-center gap-2">
-                            <FontAwesomeIcon icon="code" />
-                            <span>{t('adminAccount.content.modals.post.tabs.content', { ns: 'admin-account' })}</span>
-                          </span>
-                        }
-                      >
-                        <AdminContentPostContentTab
-                          t={t}
-                          editingPost={editingPost}
-                          postEditorPreviewState={postEditorPreviewState}
-                          postContentViewMode={postContentViewMode}
-                          onPostContentViewModeChange={setPostContentViewMode}
-                          postEditorContent={postEditorContent}
-                          onPostEditorContentChange={setPostEditorContent}
-                          onSplitEditorViewportChange={handleSplitEditorViewportChange}
-                          splitPreviewRef={splitPreviewRef}
-                        />
-                      </Tab>
-                    ) : null}
-                    <Tab
-                      eventKey="comments"
-                      title={
-                        <span className="d-inline-flex align-items-center gap-2">
-                          <FontAwesomeIcon icon="comments" />
-                          <span>{t('adminAccount.content.modals.post.tabs.comments', { ns: 'admin-account' })}</span>
-                        </span>
-                      }
-                    >
-                      <AdminContentPostCommentsTab
-                        t={t}
-                        formatDate={formatDate}
-                        listTopRef={postCommentsListTopRef}
-                        postCommentsTotal={postCommentsTotal}
-                        postCommentsStatusFilter={postCommentsStatusFilter}
-                        onPostCommentsStatusFilterChange={value => {
-                          setPostCommentsStatusFilter(value);
-                          setPostCommentsErrorMessage('');
-                          setPostCommentsSuccessMessage('');
-                        }}
-                        postCommentsFilterQuery={postCommentsFilterQuery}
-                        onPostCommentsFilterQueryChange={value => {
-                          setPostCommentsFilterQuery(value);
-                          setPostCommentsErrorMessage('');
-                          setPostCommentsSuccessMessage('');
-                        }}
-                        onClearPostCommentsFilterQuery={() => {
-                          setPostCommentsFilterQuery('');
-                          setPostCommentsErrorMessage('');
-                          setPostCommentsSuccessMessage('');
-                        }}
-                        postCommentsErrorMessage={postCommentsErrorMessage}
-                        postCommentsSuccessMessage={postCommentsSuccessMessage}
-                        postComments={postComments}
-                        allVisiblePostCommentsSelected={allVisiblePostCommentsSelected}
-                        isPostCommentsLoading={isPostCommentsLoading}
-                        isBulkPostCommentActionPending={isBulkPostCommentActionPending}
-                        hasSelectedPostComments={hasSelectedPostComments}
-                        selectedPostCommentIDs={selectedPostCommentIDs}
-                        onToggleVisiblePostCommentsSelection={toggleVisiblePostCommentsSelection}
-                        onClearSelectedPostCommentIDs={() => {
-                          setSelectedPostCommentIDs([]);
-                        }}
-                        bulkPostCommentActionStatus={bulkPostCommentActionStatus}
-                        isBulkPostCommentDeleting={isBulkPostCommentDeleting}
-                        onBulkApprove={() => {
-                          void handleBulkPostCommentStatusUpdate('APPROVED');
-                        }}
-                        onBulkReject={() => {
-                          void handleBulkPostCommentStatusUpdate('REJECTED');
-                        }}
-                        onBulkSpam={() => {
-                          void handleBulkPostCommentStatusUpdate('SPAM');
-                        }}
-                        onOpenBulkDelete={() => {
-                          setPendingBulkPostCommentDeleteIDs(selectedPostCommentIDs);
-                        }}
-                        postCommentActionID={postCommentActionID}
-                        postCommentActionStatus={postCommentActionStatus}
-                        deletingPostCommentID={deletingPostCommentID}
-                        onTogglePostCommentSelection={togglePostCommentSelection}
-                        resolveCommentStatusVariant={resolveCommentStatusVariant}
-                        onUpdatePostCommentStatus={(commentID, status) => {
-                          void handlePostCommentStatusUpdate(commentID, status);
-                        }}
-                        onOpenDeletePostComment={item => {
-                          setPendingPostCommentDelete(item);
-                        }}
-                        postCommentsPage={postCommentsPage}
-                        totalPostCommentPages={totalPostCommentPages}
-                        postCommentsPageSize={postCommentsPageSize}
-                        onPostCommentsPageChange={nextPage => {
-                          setPostCommentsPage(nextPage);
-                          scrollToPostCommentsListTop();
-                        }}
-                        onPostCommentsPageSizeChange={size => {
-                          setPostCommentsPageSize(size);
-                          setPostCommentsPage(1);
-                          scrollToPostCommentsListTop();
-                        }}
-                      />
-                    </Tab>
-                  </Tabs>
-
-                  {showInlinePostFeedback && errorMessage ? (
-                    <Alert variant="danger" className="mt-3 mb-0 px-3 py-2 lh-base">
-                      {errorMessage}
-                    </Alert>
-                  ) : null}
-                  {showInlinePostFeedback && successMessage ? (
-                    <Alert variant="success" className="mt-3 mb-0 px-3 py-2 lh-base">
-                      {successMessage}
-                    </Alert>
-                  ) : null}
-
-                  <div className="admin-content-post-actions d-flex flex-wrap gap-2 pt-3">
-                    {postSaveAction}
-                    <Button
-                      type="button"
-                      variant="danger"
-                      onClick={() => {
-                        setPendingPostDelete(editingPost);
-                      }}
-                    >
-                      <FontAwesomeIcon icon="trash" className="me-2" />
-                      {t('adminAccount.content.actions.deletePost', { ns: 'admin-account' })}
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <p className="small text-muted mb-0">
-                  {t('adminAccount.content.modals.post.empty', { ns: 'admin-account' })}
-                </p>
-              )}
-            </div>
-          </div>
+          <AdminContentPostDetailSection
+            t={t}
+            routeLocale={routeLocale}
+            editingPost={editingPost}
+            activePostEditorTab={activePostEditorTab}
+            postLocaleTabs={postLocaleTabs}
+            onSwitchPostEditorLocale={handleSwitchPostEditorLocale}
+            resolveLocaleLabel={resolveLocaleLabel}
+            resolvePostLifecycleBadgeVariant={resolvePostLifecycleBadgeVariant}
+            isPostContentLoading={isPostContentLoading}
+            navigateToPostEditorRoute={navigateToPostEditorRoute}
+            resolvePostEditorTab={resolvePostEditorTab}
+            formatDate={formatDate}
+            formatDateTime={value => adminDateTimeFormatter.format(new Date(value))}
+            formatCount={value => adminNumberFormatter.format(value)}
+            postEditorSeoPreview={postEditorSeoPreview}
+            postSeoPreviewTab={postSeoPreviewTab}
+            onPostSeoPreviewTabChange={setPostSeoPreviewTab}
+            imageLoader={adminPreviewImageLoader}
+            postEditorTitle={postEditorTitle}
+            onPostEditorTitleChange={setPostEditorTitle}
+            postEditorSummary={postEditorSummary}
+            onPostEditorSummaryChange={setPostEditorSummary}
+            postEditorPublishedDate={postEditorPublishedDate}
+            onPostEditorPublishedDateChange={setPostEditorPublishedDate}
+            postEditorUpdatedDate={postEditorUpdatedDate}
+            onPostEditorUpdatedDateChange={setPostEditorUpdatedDate}
+            parseISODateInput={parseISODateInput}
+            datePickerLocaleConfig={datePickerLocaleConfig}
+            postEditorStatus={postEditorStatus}
+            onPostEditorStatusChange={setPostEditorStatus}
+            postEditorScheduledAt={postEditorScheduledAt}
+            onPostEditorScheduledAtChange={setPostEditorScheduledAt}
+            toDateTimeLocalInputValue={toDateTimeLocalInputValue}
+            fromDateTimeLocalInputValue={fromDateTimeLocalInputValue}
+            postEditorThumbnail={postEditorThumbnail}
+            onPostEditorThumbnailChange={setPostEditorThumbnail}
+            resolveThumbnailSrc={resolveAdminContentThumbnailSrc}
+            onOpenMediaLibrary={openMediaLibraryScreen}
+            onClearPostEditorThumbnail={() => {
+              setPostEditorThumbnail('');
+            }}
+            selectedMediaLibraryItem={selectedMediaLibraryItem}
+            postEditorCategoryID={postEditorCategoryID}
+            onPostEditorCategoryIDChange={setPostEditorCategoryID}
+            postEditorCategoryOptions={postEditorCategoryOptions}
+            postEditorTopicQuery={postEditorTopicQuery}
+            onPostEditorTopicQueryChange={setPostEditorTopicQuery}
+            onClearPostEditorTopicQuery={() => {
+              setPostEditorTopicQuery('');
+            }}
+            postEditorTopicOptions={postEditorTopicOptions}
+            postEditorTopicIDs={postEditorTopicIDs}
+            onPostTopicToggle={handlePostTopicToggle}
+            getTaxonomyKey={toTaxonomyKey}
+            postRevisionsErrorMessage={postRevisionsErrorMessage}
+            isPostRevisionsLoading={isPostRevisionsLoading}
+            postRevisions={postRevisions}
+            postRevisionsTotal={postRevisionsTotal}
+            postRevisionsPage={postRevisionsPage}
+            totalPostRevisionPages={totalPostRevisionPages}
+            postRevisionsPageSize={postRevisionsPageSize}
+            onPostRevisionsPageChange={setPostRevisionsPage}
+            onPostRevisionsPageSizeChange={size => {
+              setPostRevisionsPageSize(size);
+              setPostRevisionsPage(1);
+            }}
+            onOpenRestoreRevision={setPendingPostRevisionRestore}
+            postEditorPreviewState={postEditorPreviewState}
+            postContentViewMode={postContentViewMode}
+            onPostContentViewModeChange={setPostContentViewMode}
+            postEditorContent={postEditorContent}
+            onPostEditorContentChange={setPostEditorContent}
+            onSplitEditorViewportChange={handleSplitEditorViewportChange}
+            splitPreviewRef={splitPreviewRef}
+            postCommentsTotal={postCommentsTotal}
+            postCommentsStatusFilter={postCommentsStatusFilter}
+            onPostCommentsStatusFilterChange={value => {
+              setPostCommentsStatusFilter(value);
+              setPostCommentsErrorMessage('');
+              setPostCommentsSuccessMessage('');
+            }}
+            postCommentsFilterQuery={postCommentsFilterQuery}
+            onPostCommentsFilterQueryChange={value => {
+              setPostCommentsFilterQuery(value);
+              setPostCommentsErrorMessage('');
+              setPostCommentsSuccessMessage('');
+            }}
+            onClearPostCommentsFilterQuery={() => {
+              setPostCommentsFilterQuery('');
+              setPostCommentsErrorMessage('');
+              setPostCommentsSuccessMessage('');
+            }}
+            postCommentsErrorMessage={postCommentsErrorMessage}
+            postCommentsSuccessMessage={postCommentsSuccessMessage}
+            postComments={postComments}
+            allVisiblePostCommentsSelected={allVisiblePostCommentsSelected}
+            isPostCommentsLoading={isPostCommentsLoading}
+            isBulkPostCommentActionPending={isBulkPostCommentActionPending}
+            hasSelectedPostComments={hasSelectedPostComments}
+            selectedPostCommentIDs={selectedPostCommentIDs}
+            onToggleVisiblePostCommentsSelection={toggleVisiblePostCommentsSelection}
+            onClearSelectedPostCommentIDs={() => {
+              setSelectedPostCommentIDs([]);
+            }}
+            bulkPostCommentActionStatus={bulkPostCommentActionStatus}
+            isBulkPostCommentDeleting={isBulkPostCommentDeleting}
+            onBulkApprove={() => {
+              void handleBulkPostCommentStatusUpdate('APPROVED');
+            }}
+            onBulkReject={() => {
+              void handleBulkPostCommentStatusUpdate('REJECTED');
+            }}
+            onBulkSpam={() => {
+              void handleBulkPostCommentStatusUpdate('SPAM');
+            }}
+            onOpenBulkDelete={() => {
+              setPendingBulkPostCommentDeleteIDs(selectedPostCommentIDs);
+            }}
+            postCommentActionID={postCommentActionID ?? ''}
+            postCommentActionStatus={postCommentActionStatus}
+            deletingPostCommentID={deletingPostCommentID ?? ''}
+            onTogglePostCommentSelection={togglePostCommentSelection}
+            resolveCommentStatusVariant={resolveCommentStatusVariant}
+            onUpdatePostCommentStatus={(commentID, status) => {
+              void handlePostCommentStatusUpdate(commentID, status);
+            }}
+            onOpenDeletePostComment={item => {
+              setPendingPostCommentDelete(item);
+            }}
+            postCommentsPage={postCommentsPage}
+            totalPostCommentPages={totalPostCommentPages}
+            postCommentsPageSize={postCommentsPageSize}
+            onPostCommentsPageChange={nextPage => {
+              setPostCommentsPage(nextPage);
+              scrollToPostCommentsListTop();
+            }}
+            onPostCommentsPageSizeChange={size => {
+              setPostCommentsPageSize(size);
+              setPostCommentsPage(1);
+              scrollToPostCommentsListTop();
+            }}
+            postCommentsListTopRef={postCommentsListTopRef}
+            showInlinePostFeedback={showInlinePostFeedback}
+            errorMessage={errorMessage}
+            successMessage={successMessage}
+            postSaveAction={postSaveAction}
+            onOpenDeletePost={() => {
+              if (editingPost) {
+                setPendingPostDelete(editingPost);
+              }
+            }}
+          />
         ) : (
-          <Tabs
-            id="admin-content-tabs"
-            activeKey={activeTab}
-            onSelect={handleTabSelect}
-            className="mb-3 admin-content-tabs"
-            mountOnEnter
-          >
-            <Tab
-              eventKey="categories"
-              title={
-                <>
-                  <FontAwesomeIcon icon="table-cells" className="me-2" />
-                  {t('adminAccount.content.tabs.categories', { ns: 'admin-account' })}
-                </>
-              }
-            >
-              <AdminContentCategoriesTab
-                t={t}
-                formatDate={formatDate}
-                categoryFilterLocale={categoryFilterLocale}
-                onCategoryFilterLocaleChange={value => {
-                  setCategoryFilterLocale(value);
-                }}
-                categoryFilterQuery={categoryFilterQuery}
-                onCategoryFilterQueryChange={setCategoryFilterQuery}
-                onClearCategoryFilterQuery={() => {
-                  setCategoryFilterQuery('');
-                }}
-                isCategoryListLoading={isCategoryListLoading}
-                categoryTotal={categoryListTotal}
-                categoryListItems={categoryListItems}
-                onOpenCreateCategory={handleOpenCreateCategory}
-                onOpenUpdateCategory={handleOpenUpdateCategory}
-                onOpenDeleteCategory={item => {
-                  setPendingCategoryDelete(item);
-                }}
-                resolveAccentColor={resolveAdminContentAccentColor}
-                categoryPage={categoryPage}
-                categoryTotalPages={categoryTotalPages}
-                categoryPageSize={categoryPageSize}
-                onCategoryPageChange={nextPage => {
-                  setCategoryPage(nextPage);
-                  scrollToListTop();
-                }}
-                onCategoryPageSizeChange={size => {
-                  setCategoryPageSize(size);
-                  setCategoryPage(1);
-                  scrollToListTop();
-                }}
-              />
-            </Tab>
-
-            <Tab
-              eventKey="topics"
-              title={
-                <>
-                  <FontAwesomeIcon icon="tags" className="me-2" />
-                  {t('adminAccount.content.tabs.topics', { ns: 'admin-account' })}
-                </>
-              }
-            >
-              <AdminContentTopicsTab
-                t={t}
-                formatDate={formatDate}
-                topicFilterLocale={topicFilterLocale}
-                onTopicFilterLocaleChange={value => {
-                  setTopicFilterLocale(value);
-                }}
-                topicFilterQuery={topicFilterQuery}
-                onTopicFilterQueryChange={setTopicFilterQuery}
-                onClearTopicFilterQuery={() => {
-                  setTopicFilterQuery('');
-                }}
-                isTopicListLoading={isTopicListLoading}
-                topicTotal={topicListTotal}
-                topicListItems={topicListItems}
-                onOpenCreateTopic={handleOpenCreateTopic}
-                onOpenUpdateTopic={handleOpenUpdateTopic}
-                onOpenDeleteTopic={item => {
-                  setPendingTopicDelete(item);
-                }}
-                resolveAccentColor={resolveAdminContentAccentColor}
-                topicPage={topicPage}
-                topicTotalPages={topicTotalPages}
-                topicPageSize={topicPageSize}
-                onTopicPageChange={nextPage => {
-                  setTopicPage(nextPage);
-                  scrollToListTop();
-                }}
-                onTopicPageSizeChange={size => {
-                  setTopicPageSize(size);
-                  setTopicPage(1);
-                  scrollToListTop();
-                }}
-              />
-            </Tab>
-
-            <Tab
-              eventKey="posts"
-              title={
-                <>
-                  <FontAwesomeIcon icon="book" className="me-2" />
-                  {t('adminAccount.content.tabs.posts', { ns: 'admin-account' })}
-                </>
-              }
-            >
-              <AdminContentPostsTab
-                t={t}
-                formatDate={formatDate}
-                formatDateTime={value => adminDateTimeFormatter.format(new Date(value))}
-                formatCount={value => adminNumberFormatter.format(value)}
-                routeLocale={routeLocale}
-                filterLocale={filterLocale}
-                onFilterLocaleChange={setFilterLocale}
-                filterSource={filterSource}
-                onFilterSourceChange={setFilterSource}
-                filterCategoryID={filterCategoryID}
-                onFilterCategoryIDChange={setFilterCategoryID}
-                filterTopicID={filterTopicID}
-                onFilterTopicIDChange={setFilterTopicID}
-                filterQuery={filterQuery}
-                onFilterQueryChange={setFilterQuery}
-                onClearFilterQuery={() => {
-                  setFilterQuery('');
-                }}
-                filterCategoryOptions={filterCategoryOptions}
-                filterTopicOptions={filterTopicOptions}
-                resolvedPostDensityMode={resolvedPostDensityMode}
-                canUsePostGridDensity={canUsePostGridDensity}
-                onPostDensityModeChange={setPostDensityMode}
-                isLoading={isLoading}
-                total={total}
-                posts={posts}
-                categoriesByLocaleAndID={categoriesByLocaleAndID}
-                topicsByLocaleAndID={topicsByLocaleAndID}
-                page={page}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                onPageChange={nextPage => {
-                  setPage(nextPage);
-                  scrollToListTop();
-                }}
-                onPageSizeChange={size => {
-                  setPageSize(size);
-                  setPage(1);
-                  scrollToListTop();
-                }}
-                onOpenDeletePost={item => {
-                  setPendingPostDelete(item);
-                }}
-              />
-            </Tab>
-
-            <Tab
-              eventKey="media"
-              title={
-                <>
-                  <FontAwesomeIcon icon="images" className="me-2" />
-                  {t('adminAccount.content.tabs.media', { ns: 'admin-account' })}
-                </>
-              }
-            >
-              <AdminContentMediaTab
-                t={t}
-                formatDate={formatDate}
-                routeLocale={routeLocale}
-                mediaLibraryQuery={mediaLibraryQuery}
-                onMediaLibraryQueryChange={value => {
-                  setMediaLibraryQuery(value);
-                  setMediaLibraryPage(1);
-                }}
-                onClearMediaLibraryQuery={() => {
-                  setMediaLibraryQuery('');
-                  setMediaLibraryPage(1);
-                }}
-                mediaLibraryFilter={mediaLibraryFilter}
-                onMediaLibraryFilterChange={value => {
-                  setMediaLibraryFilter(value);
-                  setMediaLibraryPage(1);
-                }}
-                mediaLibrarySort={mediaLibrarySort}
-                onMediaLibrarySortChange={value => {
-                  setMediaLibrarySort(value);
-                  setMediaLibraryPage(1);
-                }}
-                isMediaLibraryUploading={isMediaLibraryUploading}
-                onTriggerUpload={() => {
-                  mediaUploadInputRef.current?.click();
-                }}
-                uploadInputRef={mediaUploadInputRef}
-                onUploadFileChange={handleMediaUpload}
-                mediaLibraryErrorMessage={mediaLibraryErrorMessage}
-                resolvedMediaDensityMode={resolvedMediaDensityMode}
-                onMediaDensityModeChange={mode =>
-                  setMediaDensityMode(!canUsePostGridDensity && mode === 'grid' ? 'default' : mode)
-                }
-                isMediaLibraryLoading={isMediaLibraryLoading}
-                mediaLibraryTotal={mediaLibraryTotal}
-                mediaLibraryItems={mediaLibraryItems}
-                formatMediaSize={formatMediaSize}
-                imageLoader={adminPreviewImageLoader}
-                copiedMediaAssetID={copiedMediaAssetID}
-                onCopyMediaPath={handleCopyMediaPath}
-                onOpenDeleteMediaAsset={item => {
-                  setPendingMediaAssetDelete(item);
-                }}
-                mediaLibraryPage={mediaLibraryPage}
-                totalMediaLibraryPages={totalMediaLibraryPages}
-                mediaLibraryPageSize={mediaLibraryPageSize}
-                onMediaLibraryPageChange={nextPage => {
-                  setMediaLibraryPage(nextPage);
-                  scrollToListTop();
-                }}
-                onMediaLibraryPageSizeChange={size => {
-                  setMediaLibraryPageSize(size);
-                  setMediaLibraryPage(1);
-                  scrollToListTop();
-                }}
-              />
-            </Tab>
-          </Tabs>
+          <AdminContentOverviewTabs
+            t={t}
+            activeTab={activeTab}
+            onTabSelect={handleTabSelect}
+            formatDate={formatDate}
+            formatDateTime={value => adminDateTimeFormatter.format(new Date(value))}
+            formatCount={value => adminNumberFormatter.format(value)}
+            routeLocale={routeLocale}
+            filterLocale={filterLocale}
+            onFilterLocaleChange={setFilterLocale}
+            filterSource={filterSource}
+            onFilterSourceChange={setFilterSource}
+            filterCategoryID={filterCategoryID}
+            onFilterCategoryIDChange={setFilterCategoryID}
+            filterTopicID={filterTopicID}
+            onFilterTopicIDChange={setFilterTopicID}
+            filterQuery={filterQuery}
+            onFilterQueryChange={setFilterQuery}
+            onClearFilterQuery={() => {
+              setFilterQuery('');
+            }}
+            filterCategoryOptions={filterCategoryOptions}
+            filterTopicOptions={filterTopicOptions}
+            resolvedPostDensityMode={resolvedPostDensityMode}
+            canUsePostGridDensity={canUsePostGridDensity}
+            onPostDensityModeChange={setPostDensityMode}
+            isPostsLoading={isLoading}
+            totalPosts={total}
+            posts={posts}
+            categoriesByLocaleAndID={categoriesByLocaleAndID}
+            topicsByLocaleAndID={topicsByLocaleAndID}
+            postsPage={page}
+            postTotalPages={totalPages}
+            postsPageSize={pageSize}
+            onPostsPageChange={nextPage => {
+              setPage(nextPage);
+              scrollToListTop();
+            }}
+            onPostsPageSizeChange={size => {
+              setPageSize(size);
+              setPage(1);
+              scrollToListTop();
+            }}
+            onOpenDeletePost={item => {
+              setPendingPostDelete(item);
+            }}
+            categoryFilterLocale={categoryFilterLocale}
+            onCategoryFilterLocaleChange={setCategoryFilterLocale}
+            categoryFilterQuery={categoryFilterQuery}
+            onCategoryFilterQueryChange={setCategoryFilterQuery}
+            onClearCategoryFilterQuery={() => {
+              setCategoryFilterQuery('');
+            }}
+            isCategoryListLoading={isCategoryListLoading}
+            categoryTotal={categoryListTotal}
+            categoryListItems={categoryListItems}
+            onOpenCreateCategory={handleOpenCreateCategory}
+            onOpenUpdateCategory={handleOpenUpdateCategory}
+            onOpenDeleteCategory={item => {
+              setPendingCategoryDelete(item);
+            }}
+            resolveAccentColor={resolveAdminContentAccentColor}
+            categoryPage={categoryPage}
+            categoryTotalPages={categoryTotalPages}
+            categoryPageSize={categoryPageSize}
+            onCategoryPageChange={nextPage => {
+              setCategoryPage(nextPage);
+              scrollToListTop();
+            }}
+            onCategoryPageSizeChange={size => {
+              setCategoryPageSize(size);
+              setCategoryPage(1);
+              scrollToListTop();
+            }}
+            topicFilterLocale={topicFilterLocale}
+            onTopicFilterLocaleChange={setTopicFilterLocale}
+            topicFilterQuery={topicFilterQuery}
+            onTopicFilterQueryChange={setTopicFilterQuery}
+            onClearTopicFilterQuery={() => {
+              setTopicFilterQuery('');
+            }}
+            isTopicListLoading={isTopicListLoading}
+            topicTotal={topicListTotal}
+            topicListItems={topicListItems}
+            onOpenCreateTopic={handleOpenCreateTopic}
+            onOpenUpdateTopic={handleOpenUpdateTopic}
+            onOpenDeleteTopic={item => {
+              setPendingTopicDelete(item);
+            }}
+            topicPage={topicPage}
+            topicTotalPages={topicTotalPages}
+            topicPageSize={topicPageSize}
+            onTopicPageChange={nextPage => {
+              setTopicPage(nextPage);
+              scrollToListTop();
+            }}
+            onTopicPageSizeChange={size => {
+              setTopicPageSize(size);
+              setTopicPage(1);
+              scrollToListTop();
+            }}
+            mediaLibraryQuery={mediaLibraryQuery}
+            onMediaLibraryQueryChange={value => {
+              setMediaLibraryQuery(value);
+              setMediaLibraryPage(1);
+            }}
+            onClearMediaLibraryQuery={() => {
+              setMediaLibraryQuery('');
+              setMediaLibraryPage(1);
+            }}
+            mediaLibraryFilter={mediaLibraryFilter}
+            onMediaLibraryFilterChange={value => {
+              setMediaLibraryFilter(value);
+              setMediaLibraryPage(1);
+            }}
+            mediaLibrarySort={mediaLibrarySort}
+            onMediaLibrarySortChange={value => {
+              setMediaLibrarySort(value);
+              setMediaLibraryPage(1);
+            }}
+            isMediaLibraryUploading={isMediaLibraryUploading}
+            onTriggerMediaUpload={() => {
+              mediaUploadInputRef.current?.click();
+            }}
+            mediaUploadInputRef={mediaUploadInputRef}
+            onUploadFileChange={handleMediaUpload}
+            mediaLibraryErrorMessage={mediaLibraryErrorMessage}
+            resolvedMediaDensityMode={resolvedMediaDensityMode}
+            onMediaDensityModeChange={mode =>
+              setMediaDensityMode(!canUsePostGridDensity && mode === 'grid' ? 'default' : mode)
+            }
+            isMediaLibraryLoading={isMediaLibraryLoading}
+            mediaLibraryTotal={mediaLibraryTotal}
+            mediaLibraryItems={mediaLibraryItems}
+            formatMediaSize={formatMediaSize}
+            imageLoader={adminPreviewImageLoader}
+            copiedMediaAssetID={copiedMediaAssetID}
+            onCopyMediaPath={handleCopyMediaPath}
+            onOpenDeleteMediaAsset={item => {
+              setPendingMediaAssetDelete(item);
+            }}
+            mediaLibraryPage={mediaLibraryPage}
+            totalMediaLibraryPages={totalMediaLibraryPages}
+            mediaLibraryPageSize={mediaLibraryPageSize}
+            onMediaLibraryPageChange={nextPage => {
+              setMediaLibraryPage(nextPage);
+              scrollToListTop();
+            }}
+            onMediaLibraryPageSizeChange={size => {
+              setMediaLibraryPageSize(size);
+              setMediaLibraryPage(1);
+              scrollToListTop();
+            }}
+          />
         )}
       </div>
 
@@ -1661,58 +1261,25 @@ export default function AdminContentManagementPanel({
         }}
       />
 
-      <Modal
+      <AdminContentDeleteEntityModal
         show={pendingTopicDelete !== null}
+        title={t('adminAccount.content.modals.deleteTopic.title', { ns: 'admin-account' })}
+        body={t('adminAccount.content.modals.deleteTopic.copy', {
+          ns: 'admin-account',
+          id: pendingTopicDelete?.id ?? '',
+        })}
+        cancelLabel={t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
+        confirmLabel={t('adminAccount.content.actions.delete', { ns: 'admin-account' })}
+        deletingLabel={t('adminAccount.content.actions.deleting', { ns: 'admin-account' })}
+        isDeleting={isTopicDeleting}
         onHide={() => {
           if (isTopicDeleting) {
             return;
           }
           setPendingTopicDelete(null);
         }}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{t('adminAccount.content.modals.deleteTopic.title', { ns: 'admin-account' })}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p className="small text-muted mb-0">
-            {t('adminAccount.content.modals.deleteTopic.copy', {
-              ns: 'admin-account',
-              id: pendingTopicDelete?.id ?? '',
-            })}
-          </p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={isTopicDeleting}
-            onClick={() => {
-              setPendingTopicDelete(null);
-            }}
-          >
-            {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-          </Button>
-          <Button
-            type="button"
-            variant="danger"
-            disabled={!pendingTopicDelete || isTopicDeleting}
-            onClick={handleDeleteTopic}
-          >
-            {isTopicDeleting ? (
-              <span className="d-inline-flex align-items-center gap-2">
-                <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
-                <span>{t('adminAccount.content.actions.deleting', { ns: 'admin-account' })}</span>
-              </span>
-            ) : (
-              <>
-                <FontAwesomeIcon icon="trash" className="me-2" />
-                {t('adminAccount.content.actions.delete', { ns: 'admin-account' })}
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        onConfirm={handleDeleteTopic}
+      />
 
       <AdminContentCategoryEditorModal
         t={t}
@@ -1745,58 +1312,25 @@ export default function AdminContentManagementPanel({
         }}
       />
 
-      <Modal
+      <AdminContentDeleteEntityModal
         show={pendingCategoryDelete !== null}
+        title={t('adminAccount.content.modals.deleteCategory.title', { ns: 'admin-account' })}
+        body={t('adminAccount.content.modals.deleteCategory.copy', {
+          ns: 'admin-account',
+          id: pendingCategoryDelete?.id ?? '',
+        })}
+        cancelLabel={t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
+        confirmLabel={t('adminAccount.content.actions.delete', { ns: 'admin-account' })}
+        deletingLabel={t('adminAccount.content.actions.deleting', { ns: 'admin-account' })}
+        isDeleting={isCategoryDeleting}
         onHide={() => {
           if (isCategoryDeleting) {
             return;
           }
           setPendingCategoryDelete(null);
         }}
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{t('adminAccount.content.modals.deleteCategory.title', { ns: 'admin-account' })}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p className="small text-muted mb-0">
-            {t('adminAccount.content.modals.deleteCategory.copy', {
-              ns: 'admin-account',
-              id: pendingCategoryDelete?.id ?? '',
-            })}
-          </p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={isCategoryDeleting}
-            onClick={() => {
-              setPendingCategoryDelete(null);
-            }}
-          >
-            {t('adminAccount.profile.avatar.crop.cancel', { ns: 'admin-account' })}
-          </Button>
-          <Button
-            type="button"
-            variant="danger"
-            disabled={!pendingCategoryDelete || isCategoryDeleting}
-            onClick={handleDeleteCategory}
-          >
-            {isCategoryDeleting ? (
-              <span className="d-inline-flex align-items-center gap-2">
-                <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
-                <span>{t('adminAccount.content.actions.deleting', { ns: 'admin-account' })}</span>
-              </span>
-            ) : (
-              <>
-                <FontAwesomeIcon icon="trash" className="me-2" />
-                {t('adminAccount.content.actions.delete', { ns: 'admin-account' })}
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        onConfirm={handleDeleteCategory}
+      />
     </>
   );
 }
