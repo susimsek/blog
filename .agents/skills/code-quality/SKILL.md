@@ -60,11 +60,61 @@ Systematic code-quality review and refactor workflow for this Next.js + React + 
 - Prefer one shared helper or hook when the same logic appears in multiple places.
 - In this repo, first look for existing utilities under `src/hooks`, `src/lib`, `internal/service`, and `internal/graphql/admin`.
 
+**Violation:**
+
+```ts
+// Repeated debounce flow in multiple files
+const [query, setQuery] = useState('');
+const [debouncedQuery, setDebouncedQuery] = useState('');
+
+useEffect(() => {
+  const timeoutId = window.setTimeout(() => {
+    setDebouncedQuery(query.trim());
+  }, 220);
+
+  return () => window.clearTimeout(timeoutId);
+}, [query]);
+```
+
+**Fix:**
+
+```ts
+const [query, setQuery] = useState('');
+const debouncedQuery = useDebounce(query.trim(), 220);
+```
+
+**Checks:**
+
+- Is the same trim/normalize/map logic repeated in more than one handler, hook, or service?
+- Does the repo already have a hook or helper that expresses the same rule once?
+- Is the duplication real business duplication, or just a thin adapter that should stay local?
+
 ### KISS
 
 - Prefer the smallest solution that matches current product behavior.
 - Do not introduce factories, adapters, wrapper types, or extra configuration unless they remove real complexity.
 - When reviewing React code, prefer straightforward state flow over stacked effects and indirection.
+
+**Violation:**
+
+```ts
+type FilterController = {
+  state: { value: string };
+  actions: { update: (value: string) => void; reset: () => void };
+};
+```
+
+**Fix:**
+
+```ts
+const [filterQuery, setFilterQuery] = useState('');
+```
+
+**Checks:**
+
+- Can the same behavior be expressed with plain state and one helper instead of a new abstraction?
+- Is a new wrapper type hiding simple intent rather than clarifying it?
+- Would a future reader understand the flow without tracing multiple indirection layers?
 
 ### YAGNI
 
@@ -72,11 +122,60 @@ Systematic code-quality review and refactor workflow for this Next.js + React + 
 - Remove dead branches, stale compatibility code, and state that no longer drives UI or API behavior.
 - If an abstraction only has one caller and does not clarify intent, inline or simplify it.
 
+**Violation:**
+
+```ts
+type ContentOptions = {
+  enableExperimentalLocaleRouting?: boolean;
+  fallbackMode?: 'legacy' | 'modern';
+};
+```
+
+**Fix:**
+
+```ts
+// Keep only the current behavior until a second real use case appears.
+```
+
+**Checks:**
+
+- Is this option/flag solving a real current requirement, or an imagined one?
+- Does the abstraction have one caller and one implementation?
+- Can a dead branch or stale compatibility path be deleted now without changing behavior?
+
 ### SRP
 
 - Components should not mix UI rendering, async orchestration, and unrelated domain rules when these can be separated cleanly.
 - Resolvers should stay thin; services should not become god-objects.
 - Split large files by domain responsibility when the split reduces cognitive load without changing contracts.
+
+**Violation:**
+
+```tsx
+function AdminPage() {
+  // render
+  // fetch
+  // mutation
+  // modal state
+  // route sync
+  // validation
+}
+```
+
+**Fix:**
+
+```tsx
+function AdminPage() {
+  const pageData = useAdminPageData();
+  return <AdminPageView {...pageData} />;
+}
+```
+
+**Checks:**
+
+- Is one file handling render, fetch, mutation, modal state, and route logic together?
+- Can non-visual orchestration move into a focused hook without changing the public surface?
+- On backend, is one service mixing validation, repository access, audit logging, and response shaping?
 
 ### Naming And Intent
 
@@ -84,11 +183,53 @@ Systematic code-quality review and refactor workflow for this Next.js + React + 
 - Flag names like `handleData`, `processThing`, `value2`, or `doStuff`.
 - Rename variables and functions when intent is unclear even if the code is technically correct.
 
+**Violation:**
+
+```ts
+const data2 = map(items);
+const handleThing = () => mutate();
+```
+
+**Fix:**
+
+```ts
+const localizedTopicOptions = mapTopicOptions(items);
+const handleDeletePostComment = () => mutate();
+```
+
+**Checks:**
+
+- Does the name describe business meaning or just mechanics?
+- Would the function still make sense if read out of file context?
+- Are temporary names masking two different concepts that should be split?
+
 ### Side Effects And State
 
 - Avoid duplicated effect logic when an existing hook already solves it.
 - Avoid storing derived state that can be computed from current inputs.
 - Effects should synchronize with external systems, not compensate for unclear local state design.
+
+**Violation:**
+
+```ts
+const [preferredLocale, setPreferredLocale] = useState<'en' | 'tr'>('en');
+
+useEffect(() => {
+  setPreferredLocale(filterLocale === 'all' ? routeLocale : filterLocale);
+}, [filterLocale, routeLocale]);
+```
+
+**Fix:**
+
+```ts
+const preferredLocale = filterLocale === 'all' ? routeLocale : filterLocale;
+```
+
+**Checks:**
+
+- Is this state derived from other current inputs?
+- Is the effect synchronizing with an external system, or just reshaping local state?
+- Can an existing hook like `useDebounce` or `useAutoClearValue` replace the manual effect?
 
 ### Error Handling
 
@@ -96,11 +237,55 @@ Systematic code-quality review and refactor workflow for this Next.js + React + 
 - Avoid silent failure, swallowed exceptions, and broad catch-all behavior unless it is deliberate and documented.
 - Frontend error handling should normalize user-visible messages consistently instead of branching ad hoc in every component.
 
+**Violation:**
+
+```go
+if err != nil {
+    return errors.New("failed")
+}
+```
+
+**Fix:**
+
+```go
+if err != nil {
+    return fmt.Errorf("load admin session: %w", err)
+}
+```
+
+**Checks:**
+
+- Is the original cause preserved?
+- Is the error message domain-specific and actionable?
+- Are frontend user-visible messages normalized through the existing admin/content error helpers?
+
 ### API And Contract Discipline
 
 - Keep GraphQL and HTTP contracts stable unless the task explicitly changes them.
 - Prefer DTO/view-model mapping over leaking persistence models.
 - Validate verb semantics, mutation intent, pagination, locale handling, and nullability assumptions.
+
+**Violation:**
+
+```go
+func (r *mutationResolver) UpdatePost(ctx context.Context, input model.UpdatePostInput) (*domain.Post, error) {
+    // returns persistence model directly
+}
+```
+
+**Fix:**
+
+```go
+func (r *mutationResolver) UpdatePost(ctx context.Context, input model.UpdatePostInput) (*model.Post, error) {
+    // map input, delegate to service, map result
+}
+```
+
+**Checks:**
+
+- Is a persistence model leaking through GraphQL or HTTP?
+- Did a refactor accidentally change nullability, locale behavior, pagination, or route shape?
+- Is a mutation/query name semantically correct for the action it performs?
 
 ### React And Next.js
 
@@ -111,12 +296,24 @@ Systematic code-quality review and refactor workflow for this Next.js + React + 
 - Preserve static-export constraints; do not introduce server-only Next.js patterns.
 - Follow existing repo guidance: do not add `useMemo` or `useCallback` by default unless they solve a real problem or match local patterns.
 
+**Checks:**
+
+- Does the component violate static-export assumptions?
+- Is render code mixed with async orchestration that belongs in a hook?
+- Is a hook/component accumulating too many unrelated state variables?
+
 ### TypeScript
 
 - Prefer narrow types and explicit unions over loose strings.
 - Keep state shapes small and normalized.
 - Avoid duplicating the same parsing, trimming, or normalization logic across handlers.
 - Reuse shared mapping helpers when transforming API payloads.
+
+**Checks:**
+
+- Can a loose `string` become a union or shared type alias?
+- Is the same normalization rule duplicated across multiple handlers?
+- Is state normalized enough to avoid storing both source and derived values?
 
 ### Go Backend
 
@@ -126,6 +323,39 @@ Systematic code-quality review and refactor workflow for this Next.js + React + 
 - Return wrapped, meaningful errors and preserve causes.
 - Avoid broad god-services and giant test files when smaller domain splits are possible.
 
+**Violation:**
+
+```go
+func (s *Service) UpdatePost(...) error {
+    // validate
+    // normalize
+    // load repository data
+    // write audit log
+    // map response
+    // send side effects
+}
+```
+
+**Fix:**
+
+```go
+func (s *Service) UpdatePost(...) error {
+    input, err := s.normalizePostInput(...)
+    if err != nil { ... }
+
+    result, err := s.postWriter.Update(...)
+    if err != nil { ... }
+
+    return nil
+}
+```
+
+**Checks:**
+
+- Is one service method carrying transport, validation, persistence, and mapping concerns together?
+- Does the package layout still respect `api/*`, `internal/*`, `pkg/*` layering?
+- Can a large test file be split alongside the service split?
+
 ### GraphQL And API Contracts
 
 - Treat schema and public contracts as stable unless the task explicitly changes them.
@@ -133,11 +363,45 @@ Systematic code-quality review and refactor workflow for this Next.js + React + 
 - Validate HTTP verb semantics and mutation/query intent.
 - Avoid leaking persistence models when a stable API shape already exists.
 
+**Checks:**
+
+- Is resolver code doing business work instead of delegating?
+- Did a cleanup accidentally touch generated layers instead of source?
+- If the contract really changed, were schema, resolvers, documents, codegen, and tests updated together?
+
 ### Performance And Reliability
 
 - Watch for duplicated fetch logic, request race hazards, repeated parsing, and unnecessary rerenders.
 - Prefer pagination and scoped queries over loading everything.
 - Reuse existing timeout/debounce helpers instead of cloning effect code.
+
+**Violation:**
+
+```ts
+useEffect(() => {
+  fetchData(query).then(setItems);
+}, [query]);
+```
+
+**Fix:**
+
+```ts
+const requestIdRef = useRef(0);
+
+const loadData = useCallback(async () => {
+  const requestId = requestIdRef.current + 1;
+  requestIdRef.current = requestId;
+  const payload = await fetchData(query);
+  if (requestId !== requestIdRef.current) return;
+  setItems(payload.items);
+}, [query]);
+```
+
+**Checks:**
+
+- Is there a request race hazard?
+- Is the code loading everything where pagination already exists?
+- Are rerenders caused by unnecessary derived state or repeated parsing?
 
 ## Red Flags
 
@@ -194,6 +458,26 @@ Use the repo-local skills when relevant:
 - `code-change-verification`
 - `changeset-validation`
 - `graphql-change-flow`
+
+## Violation Patterns To Scan
+
+- Manual debounce or timeout effects
+- Repeated `trim()/toLowerCase()/map()` pipelines
+- Giant components/hooks/services/tests
+- Resolver methods with domain logic inline
+- DTO/view-model leaks
+- Broad `catch` or lost backend error causes
+- Manual request flows without race protection
+- Derived state mirrored into another piece of state
+
+## Refactor Fix Patterns
+
+- Extract purpose-driven hooks
+- Extract service helpers by responsibility
+- Reuse existing repo hooks/helpers before adding new abstractions
+- Replace duplicated normalize/map logic with shared helpers
+- Replace repeated modal/delete flows with generic modal components when the behavior is identical
+- Split large files into focused composition, orchestration, and presentational layers
 
 ## Tooling Guidance
 
