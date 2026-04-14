@@ -31,6 +31,8 @@ Use it to confirm required sync/codegen steps were considered and to produce a C
 
 - Repo-local skills live under `.agents/skills/`.
 - `$blog-content-authoring`: posts, indexes, locale content, thumbnails
+- `$code-quality`: review and refactor code for maintainability, duplication reduction, and cleaner layering
+- `$design-patterns`: choose and apply practical patterns for Go, React, and TypeScript code
 - `$graphql-change-flow`: GraphQL schema/resolver/codegen changes
 - `$release-gates`: minimum verification command selection
 - `$code-change-verification`: run the selected verification stack before handoff

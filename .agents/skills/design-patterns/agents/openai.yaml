@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Design Patterns'
+  short_description: 'Pick practical patterns for Go, React, and JS/TS'
+  default_prompt: 'Use $design-patterns to choose and apply the simplest fitting pattern for this Go, React, or JavaScript/TypeScript code.'
