@@ -22,6 +22,21 @@ import AdminContentPostDetailSection from '@/components/admin/content/AdminConte
 import AdminContentPostRevisionRestoreModal from '@/components/admin/content/AdminContentPostRevisionRestoreModal';
 import AdminContentOverviewTabs from '@/components/admin/content/AdminContentOverviewTabs';
 import AdminContentTopicEditorModal from '@/components/admin/content/AdminContentTopicEditorModal';
+import {
+  adminPreviewImageLoader,
+  CONTENT_ID_PATTERN,
+  formatMediaSize,
+  fromDateTimeLocalInputValue,
+  parseISODateInput,
+  resolveAdminContentAccentColor,
+  resolveAdminContentThumbnailSrc,
+  resolveLocaleLabel,
+  resolvePostEditorTab,
+  resolvePostLifecycleBadgeVariant,
+  toDateTimeLocalInputValue,
+  toTaxonomyKey,
+  type SupportedContentLocale,
+} from '@/components/admin/content/adminContentHelpers';
 import { getDatePickerLocale } from '@/components/common/DateRangePicker';
 import { type PostDensityMode } from '@/components/common/PostDensityToggle';
 import { useAdminContentMediaSection } from '@/hooks/admin-content/useAdminContentMediaSection';
@@ -31,9 +46,9 @@ import { useAdminContentPostEditorSection } from '@/hooks/admin-content/useAdmin
 import { useAdminContentPostsBrowserSection } from '@/hooks/admin-content/useAdminContentPostsBrowserSection';
 import { useAdminContentTaxonomySection } from '@/hooks/admin-content/useAdminContentTaxonomySection';
 import useMediaQuery from '@/hooks/useMediaQuery';
-import { assetPrefix, AVATAR_LINK, AUTHOR_NAME, LOCALES, TWITTER_USERNAME } from '@/config/constants';
+import { AVATAR_LINK, AUTHOR_NAME, TWITTER_USERNAME } from '@/config/constants';
 import { buildLocalizedPath, toAbsoluteSiteUrl } from '@/lib/metadata';
-import { type AdminCommentItem, type AdminContentPostItem, type AdminContentTopicItem } from '@/lib/adminApi';
+import { type AdminCommentItem, type AdminContentTopicItem } from '@/lib/adminApi';
 import {
   buildAdminContentPostDetailHref,
   buildAdminContentPostDetailRoute,
@@ -46,162 +61,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 type AdminContentManagementPanelProps = {
   onSessionExpired: () => void;
   formatDate: (value: string) => string;
-};
-
-type PostEditorTab = 'metadata' | 'content' | 'comments';
-type SupportedContentLocale = 'en' | 'tr';
-const CONTENT_ID_PATTERN = /^[a-z0-9][a-z0-9-]{1,127}$/;
-const BOOTSTRAP_THEME_COLORS = new Set([
-  'primary',
-  'secondary',
-  'success',
-  'danger',
-  'warning',
-  'info',
-  'light',
-  'dark',
-]);
-
-const resolveLocaleLabel = (value: string) => {
-  const resolved = value.trim().toLowerCase();
-  if (resolved === 'tr') {
-    return LOCALES.tr.name;
-  }
-  if (resolved === 'en') {
-    return LOCALES.en.name;
-  }
-  return value.toUpperCase();
-};
-
-const toTaxonomyKey = (item: { locale: string; id: string }) => `${item.locale.toLowerCase()}|${item.id.toLowerCase()}`;
-
-const resolvePostEditorTab = (value?: string | null, allowContent = true): PostEditorTab => {
-  const normalizedValue = value?.trim().toLowerCase();
-  if (normalizedValue === 'comments') {
-    return 'comments';
-  }
-  if (normalizedValue === 'content' && allowContent) {
-    return 'content';
-  }
-  return 'metadata';
-};
-
-const resolvePostLifecycleBadgeVariant = (status: AdminContentPostItem['status']) => {
-  if (status === 'DRAFT') {
-    return 'secondary';
-  }
-  if (status === 'SCHEDULED') {
-    return 'warning';
-  }
-  return 'success';
-};
-
-const resolveAdminContentThumbnailSrc = (value: string | null) => {
-  const resolved = value?.trim() ?? '';
-  if (!resolved) {
-    return null;
-  }
-  if (/^https?:\/\//i.test(resolved)) {
-    return resolved;
-  }
-
-  const normalizedPath = resolved.startsWith('/') ? resolved : `/${resolved}`;
-  if (!assetPrefix) {
-    return normalizedPath;
-  }
-  const normalizedPrefix = assetPrefix.endsWith('/') ? assetPrefix.slice(0, -1) : assetPrefix;
-  return `${normalizedPrefix}${normalizedPath}`;
-};
-
-const resolveAdminContentAccentColor = (value: string) => {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return 'var(--active-color)';
-  }
-  const lowered = trimmed.toLowerCase();
-  if (BOOTSTRAP_THEME_COLORS.has(lowered)) {
-    return `var(--bs-${lowered})`;
-  }
-  return trimmed;
-};
-
-const parseISODateInput = (value: string): Date | null => {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return null;
-  }
-  const matched = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed);
-  if (!matched) {
-    return null;
-  }
-
-  const [, yearRaw, monthRaw, dayRaw] = matched;
-  const year = Number(yearRaw);
-  const month = Number(monthRaw);
-  const day = Number(dayRaw);
-  const parsed = new Date(year, month - 1, day);
-  if (
-    Number.isNaN(parsed.getTime()) ||
-    parsed.getFullYear() !== year ||
-    parsed.getMonth() !== month - 1 ||
-    parsed.getDate() !== day
-  ) {
-    return null;
-  }
-
-  return parsed;
-};
-
-const toDateTimeLocalInputValue = (value: string | null) => {
-  const trimmed = value?.trim() ?? '';
-  if (!trimmed) {
-    return '';
-  }
-
-  const parsed = new Date(trimmed);
-  if (Number.isNaN(parsed.getTime())) {
-    return '';
-  }
-
-  const year = parsed.getFullYear();
-  const month = `${parsed.getMonth() + 1}`.padStart(2, '0');
-  const day = `${parsed.getDate()}`.padStart(2, '0');
-  const hours = `${parsed.getHours()}`.padStart(2, '0');
-  const minutes = `${parsed.getMinutes()}`.padStart(2, '0');
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
-};
-
-const fromDateTimeLocalInputValue = (value: string) => {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return null;
-  }
-
-  const parsed = new Date(trimmed);
-  if (Number.isNaN(parsed.getTime())) {
-    return null;
-  }
-
-  return parsed.toISOString();
-};
-
-const adminPreviewImageLoader = ({ src }: { src: string }) => src;
-
-const formatMediaSize = (sizeBytes: number, locale: string) => {
-  if (!Number.isFinite(sizeBytes) || sizeBytes <= 0) {
-    return '';
-  }
-  const numberFormatter = new Intl.NumberFormat(locale);
-  if (sizeBytes < 1024) {
-    return `${numberFormatter.format(sizeBytes)} B`;
-  }
-  if (sizeBytes < 1024 * 1024) {
-    return `${numberFormatter.format(Math.max(1, Math.round(sizeBytes / 1024)))} KB`;
-  }
-  return `${new Intl.NumberFormat(locale, {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  }).format(sizeBytes / (1024 * 1024))} MB`;
 };
 
 export default function AdminContentManagementPanel({
@@ -1134,10 +993,10 @@ export default function AdminContentManagementPanel({
               setMediaLibraryPage(1);
             }}
             isMediaLibraryUploading={isMediaLibraryUploading}
-            onTriggerUpload={() => {
+            onTriggerMediaUpload={() => {
               mediaUploadInputRef.current?.click();
             }}
-            uploadInputRef={mediaUploadInputRef}
+            mediaUploadInputRef={mediaUploadInputRef}
             onUploadFileChange={handleMediaUpload}
             replaceInputRef={mediaReplaceInputRef}
             onReplaceFileChange={handleReplaceMediaFileChange}

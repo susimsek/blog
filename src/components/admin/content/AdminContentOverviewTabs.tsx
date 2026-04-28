@@ -106,6 +106,8 @@ type AdminContentOverviewTabsProps = {
   onTriggerMediaUpload: () => void;
   mediaUploadInputRef: React.RefObject<HTMLInputElement | null>;
   onUploadFileChange: (file: File) => Promise<void>;
+  replaceInputRef: React.RefObject<HTMLInputElement | null>;
+  onReplaceFileChange: (file: File) => Promise<void>;
   mediaLibraryErrorMessage: string;
   resolvedMediaDensityMode: PostDensityMode;
   onMediaDensityModeChange: (mode: PostDensityMode) => void;
@@ -115,7 +117,9 @@ type AdminContentOverviewTabsProps = {
   formatMediaSize: (sizeBytes: number, locale: string) => string;
   imageLoader: ({ src }: { src: string }) => string;
   copiedMediaAssetID: string;
+  replacingMediaAssetID: string;
   onCopyMediaPath: (item: AdminMediaLibraryItem) => Promise<void>;
+  onTriggerReplaceMediaAsset: (item: AdminMediaLibraryItem) => void;
   onOpenDeleteMediaAsset: (item: AdminMediaLibraryItem) => void;
   mediaLibraryPage: number;
   totalMediaLibraryPages: number;
@@ -203,6 +207,8 @@ export default function AdminContentOverviewTabs({
   onTriggerMediaUpload,
   mediaUploadInputRef,
   onUploadFileChange,
+  replaceInputRef,
+  onReplaceFileChange,
   mediaLibraryErrorMessage,
   resolvedMediaDensityMode,
   onMediaDensityModeChange,
@@ -212,7 +218,9 @@ export default function AdminContentOverviewTabs({
   formatMediaSize,
   imageLoader,
   copiedMediaAssetID,
+  replacingMediaAssetID,
   onCopyMediaPath,
+  onTriggerReplaceMediaAsset,
   onOpenDeleteMediaAsset,
   mediaLibraryPage,
   totalMediaLibraryPages,
@@ -361,6 +369,8 @@ export default function AdminContentOverviewTabs({
           onTriggerUpload={onTriggerMediaUpload}
           uploadInputRef={mediaUploadInputRef}
           onUploadFileChange={onUploadFileChange}
+          replaceInputRef={replaceInputRef}
+          onReplaceFileChange={onReplaceFileChange}
           mediaLibraryErrorMessage={mediaLibraryErrorMessage}
           resolvedMediaDensityMode={resolvedMediaDensityMode}
           onMediaDensityModeChange={onMediaDensityModeChange}
@@ -370,7 +380,9 @@ export default function AdminContentOverviewTabs({
           formatMediaSize={formatMediaSize}
           imageLoader={imageLoader}
           copiedMediaAssetID={copiedMediaAssetID}
+          replacingMediaAssetID={replacingMediaAssetID}
           onCopyMediaPath={onCopyMediaPath}
+          onTriggerReplaceMediaAsset={onTriggerReplaceMediaAsset}
           onOpenDeleteMediaAsset={onOpenDeleteMediaAsset}
           mediaLibraryPage={mediaLibraryPage}
           totalMediaLibraryPages={totalMediaLibraryPages}
