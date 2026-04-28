@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next';
 import { buildSitePath } from '@/lib/metadata';
 
+export const dynamic = 'force-static';
+
 const resolveManifestPath = (path: string) => buildSitePath(path);
 
 export default function manifest(): MetadataRoute.Manifest {
