@@ -256,6 +256,7 @@ interface Resources {
           "mediaLibraryCopy": "Media path could not be copied.",
           "mediaLibraryDelete": "Media asset could not be deleted.",
           "mediaLibraryLoad": "Media library could not be loaded.",
+          "mediaLibraryReplace": "Image could not be replaced.",
           "mediaLibraryUpload": "Image could not be uploaded.",
           "postContentUpdate": "Post content could not be updated.",
           "postDelete": "Post could not be deleted.",
@@ -306,7 +307,8 @@ interface Resources {
             "copied": "Copied",
             "copy": "Copy path",
             "delete": "Delete asset",
-            "open": "Open"
+            "open": "Open",
+            "replace": "Replace image"
           },
           "copy": "Upload images, review reusable thumbnails, and copy media paths for content metadata.",
           "deleteConfirm": {
@@ -494,6 +496,7 @@ interface Resources {
           "categoryUpdated": "Category updated: {{id}}",
           "mediaCopied": "Path copied: {{name}}",
           "mediaDeleted": "Image deleted: {{name}}",
+          "mediaReplaced": "Image replaced: {{name}}",
           "mediaUploaded": "Image uploaded: {{name}}",
           "postContentUpdated": "Post content updated: {{id}}",
           "postDeleted": "Post deleted: {{id}}",

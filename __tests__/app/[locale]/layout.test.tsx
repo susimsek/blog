@@ -1,6 +1,12 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import LocaleLayout, { dynamic, dynamicParams, generateStaticParams } from '@/app/(localized)/[locale]/layout';
+import LocaleLayout, {
+  dynamic,
+  dynamicParams,
+  generateStaticParams,
+  metadata,
+  viewport,
+} from '@/app/(localized)/[locale]/layout';
 
 const notFoundMock = jest.fn(() => {
   throw new Error('NOT_FOUND');
@@ -37,6 +43,27 @@ describe('LocaleLayout', () => {
   it('exports static guards', () => {
     expect(dynamic).toBe('error');
     expect(dynamicParams).toBe(false);
+  });
+
+  it('exposes installable app metadata', () => {
+    expect(metadata).toMatchObject({
+      applicationName: "Suayb's Blog",
+      manifest: '/manifest.webmanifest',
+      appleWebApp: {
+        capable: true,
+        title: "Suayb's Blog",
+      },
+    });
+    expect(metadata.icons).toMatchObject({
+      icon: expect.arrayContaining([expect.objectContaining({ url: '/favicon-192x192.png' })]),
+      apple: [expect.objectContaining({ url: '/apple-touch-icon.png' })],
+    });
+    expect(viewport).toMatchObject({
+      themeColor: [
+        { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+        { media: '(prefers-color-scheme: dark)', color: '#111827' },
+      ],
+    });
   });
 
   it('generates locale params', async () => {

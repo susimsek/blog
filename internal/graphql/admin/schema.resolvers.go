@@ -72,6 +72,7 @@ var (
 	updateAdminContentPostContentFn         = appservice.UpdateAdminContentPostContent
 	restoreAdminContentPostRevisionFn       = appservice.RestoreAdminContentPostRevision
 	uploadAdminMediaAssetFn                 = appservice.UploadAdminMediaAsset
+	replaceAdminMediaAssetFn                = appservice.ReplaceAdminMediaAsset
 	deleteAdminMediaAssetFn                 = appservice.DeleteAdminMediaAsset
 	deleteAdminContentPostFn                = appservice.DeleteAdminContentPost
 	createAdminContentTopicFn               = appservice.CreateAdminContentTopic

@@ -364,6 +364,28 @@ func (*adminMutationResolver) UploadMediaAsset(
 	return mapAdminMediaLibraryItem(record), nil
 }
 
+// ReplaceMediaAsset is the resolver for the replaceMediaAsset field.
+func (*adminMutationResolver) ReplaceMediaAsset(
+	ctx context.Context,
+	id string,
+	input model.AdminUploadMediaAssetInput,
+) (*model.AdminMediaLibraryItem, error) {
+	adminUser, err := requireAdminUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	record, err := replaceAdminMediaAssetFn(ctx, adminUser, strings.TrimSpace(id), domain.AdminMediaUploadInput{
+		FileName: strings.TrimSpace(input.FileName),
+		DataURL:  strings.TrimSpace(input.DataURL),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return mapAdminMediaLibraryItem(record), nil
+}
+
 // DeleteMediaAsset is the resolver for the deleteMediaAsset field.
 func (*adminMutationResolver) DeleteMediaAsset(ctx context.Context, id string) (*model.AdminDeletePayload, error) {
 	adminUser, err := requireAdminUser(ctx)

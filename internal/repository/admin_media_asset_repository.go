@@ -38,6 +38,7 @@ type AdminMediaAssetRepository interface {
 	FindMediaAssetByDigest(ctx context.Context, digest string) (*domain.AdminMediaAssetRecord, error)
 	CountMediaAssetUsage(ctx context.Context, value string) (int, error)
 	CreateMediaAsset(ctx context.Context, record domain.AdminMediaAssetRecord) (*domain.AdminMediaAssetRecord, error)
+	ReplaceMediaAsset(ctx context.Context, record domain.AdminMediaAssetRecord) (*domain.AdminMediaAssetRecord, error)
 	DeleteMediaAssetByID(ctx context.Context, id string) (bool, error)
 }
 
@@ -202,6 +203,46 @@ func (*adminMediaAssetMongoRepository) CreateMediaAsset(
 	created.CreatedAt = now
 	created.UpdatedAt = updatedAt
 	return &created, nil
+}
+
+func (*adminMediaAssetMongoRepository) ReplaceMediaAsset(
+	ctx context.Context,
+	record domain.AdminMediaAssetRecord,
+) (*domain.AdminMediaAssetRecord, error) {
+	mediaCollection, err := getPostMediaAssetsCollection()
+	if err != nil {
+		return nil, fmt.Errorf(adminMediaAssetRepositoryUnavailableFormat, ErrAdminMediaAssetRepositoryUnavailable, err)
+	}
+
+	resolvedID := strings.TrimSpace(record.ID)
+	if resolvedID == "" {
+		return nil, ErrAdminMediaAssetNotFound
+	}
+
+	filter := bson.M{"id": resolvedID}
+	update := bson.M{
+		"$set": bson.M{
+			"name":        strings.TrimSpace(record.Name),
+			"contentType": strings.TrimSpace(record.ContentType),
+			"digest":      strings.TrimSpace(strings.ToLower(record.Digest)),
+			"sizeBytes":   record.SizeBytes,
+			"width":       record.Width,
+			"height":      record.Height,
+			"data":        append([]byte(nil), record.Data...),
+			"updatedAt":   record.UpdatedAt.UTC(),
+		},
+	}
+
+	result, err := mediaCollection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return nil, err
+	}
+	if result.MatchedCount == 0 {
+		return nil, ErrAdminMediaAssetNotFound
+	}
+
+	replaced := record
+	return &replaced, nil
 }
 
 func (*adminMediaAssetMongoRepository) CountMediaAssetUsage(ctx context.Context, value string) (int, error) {

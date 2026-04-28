@@ -21,9 +21,10 @@ import PostComments from '@/components/posts/PostComments';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'next/navigation';
 import { defaultLocale } from '@/i18n/settings';
-import { buildLocalizedAbsoluteUrl } from '@/lib/metadata';
+import { buildLocalizedAbsoluteUrl, toAbsoluteSiteUrl } from '@/lib/metadata';
 import type { AdjacentPostLink } from '@/lib/postFilters';
 import { formatReadingTime } from '@/lib/readingTime';
+import { AUTHOR_NAME, AVATAR_LINK, SITE_LOGO } from '@/config/constants';
 
 const MarkdownRenderer = dynamic(() => import('@/components/common/MarkdownRenderer'), {
   loading: () => null,
@@ -162,6 +163,81 @@ export const resolvePostDetailThumbnailSrc = (
   return `${normalizedPrefix}${normalizedPath}`;
 };
 
+export const buildPostStructuredData = (post: Post, locale: string) => {
+  const postUrl = buildLocalizedAbsoluteUrl(locale, `posts/${post.id}`);
+  const authorUrl = buildLocalizedAbsoluteUrl(locale, 'about');
+  const resolvedThumbnail = resolvePostDetailThumbnailSrc(post.thumbnail);
+  const imageUrl = toAbsoluteSiteUrl(resolvedThumbnail ?? SITE_LOGO);
+  const authorImageUrl = toAbsoluteSiteUrl(AVATAR_LINK);
+  const keywords = (post.topics ?? []).map(topic => topic.name).filter(Boolean);
+
+  const blogPosting = {
+    '@type': 'BlogPosting',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': postUrl,
+    },
+    headline: post.title,
+    description: post.summary,
+    image: [imageUrl],
+    datePublished: post.publishedDate,
+    dateModified: post.updatedDate ?? post.publishedDate,
+    inLanguage: locale,
+    ...(keywords.length > 0 ? { keywords } : {}),
+    ...(post.category?.name ? { articleSection: post.category.name } : {}),
+    author: {
+      '@type': 'Person',
+      name: AUTHOR_NAME,
+      url: authorUrl,
+    },
+    publisher: {
+      '@type': 'Person',
+      name: AUTHOR_NAME,
+      url: authorUrl,
+      image: {
+        '@type': 'ImageObject',
+        url: authorImageUrl,
+      },
+    },
+  };
+
+  const breadcrumbItems = [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Blog',
+      item: buildLocalizedAbsoluteUrl(locale),
+    },
+  ];
+
+  if (post.category?.id && post.category.name) {
+    breadcrumbItems.push({
+      '@type': 'ListItem',
+      position: breadcrumbItems.length + 1,
+      name: post.category.name,
+      item: buildLocalizedAbsoluteUrl(locale, `categories/${post.category.id}`),
+    });
+  }
+
+  breadcrumbItems.push({
+    '@type': 'ListItem',
+    position: breadcrumbItems.length + 1,
+    name: post.title,
+    item: postUrl,
+  });
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      blogPosting,
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbItems,
+      },
+    ],
+  };
+};
+
 export default function PostDetail({
   // NOSONAR
   post,
@@ -184,6 +260,7 @@ export default function PostDetail({
   const hasSideRail = true;
   const [runtimeState, setRuntimeState] = React.useState<PostDetailRuntimeState>({ status: 'loading' });
   const thumbnailSrc = resolvePostDetailThumbnailSrc(thumbnail);
+  const structuredData = React.useMemo(() => buildPostStructuredData(post, locale), [locale, post]);
 
   const splitIntro = React.useMemo(() => splitMarkdownIntro(markdown), [markdown]);
   const formattedUpdatedDate = React.useMemo(() => {
@@ -327,6 +404,7 @@ export default function PostDetail({
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <ReadingProgress />
       <BackToTop />
       <section className={`post-detail-section${hasToc ? ' has-toc' : ''}`}>

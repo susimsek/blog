@@ -457,6 +457,7 @@
           "copy": "Yolu kopyala",
           "copied": "Kopyalandı",
           "open": "Aç",
+          "replace": "Görseli değiştir",
           "delete": "Asseti sil"
         },
         "deleteConfirm": {
@@ -497,6 +498,7 @@
         "categoryDeleted": "Kategori silindi: {{id}}",
         "mediaUploaded": "Görsel yüklendi: {{name}}",
         "mediaCopied": "Yol kopyalandı: {{name}}",
+        "mediaReplaced": "Görsel değiştirildi: {{name}}",
         "mediaDeleted": "Görsel silindi: {{name}}"
       },
       "errors": {
@@ -516,6 +518,7 @@
         "mediaLibraryLoad": "Medya kütüphanesi yüklenemedi.",
         "mediaLibraryUpload": "Görsel yüklenemedi.",
         "mediaLibraryCopy": "Medya yolu kopyalanamadı.",
+        "mediaLibraryReplace": "Görsel değiştirilemedi.",
         "mediaLibraryDelete": "Medya asseti silinemedi."
       },
       "validation": {

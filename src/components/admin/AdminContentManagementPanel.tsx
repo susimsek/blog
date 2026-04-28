@@ -546,8 +546,12 @@ export default function AdminContentManagementPanel({
     pendingMediaAssetDelete,
     setPendingMediaAssetDelete,
     isMediaAssetDeleting,
+    replacingMediaAssetID,
     mediaUploadInputRef,
+    mediaReplaceInputRef,
     handleMediaUpload,
+    handleReplaceMediaFileChange,
+    handleTriggerReplaceMediaAsset,
     handleCopyMediaPath,
     handleDeleteMediaAsset,
     openMediaLibraryScreen,
@@ -1130,11 +1134,13 @@ export default function AdminContentManagementPanel({
               setMediaLibraryPage(1);
             }}
             isMediaLibraryUploading={isMediaLibraryUploading}
-            onTriggerMediaUpload={() => {
+            onTriggerUpload={() => {
               mediaUploadInputRef.current?.click();
             }}
-            mediaUploadInputRef={mediaUploadInputRef}
+            uploadInputRef={mediaUploadInputRef}
             onUploadFileChange={handleMediaUpload}
+            replaceInputRef={mediaReplaceInputRef}
+            onReplaceFileChange={handleReplaceMediaFileChange}
             mediaLibraryErrorMessage={mediaLibraryErrorMessage}
             resolvedMediaDensityMode={resolvedMediaDensityMode}
             onMediaDensityModeChange={mode =>
@@ -1146,7 +1152,9 @@ export default function AdminContentManagementPanel({
             formatMediaSize={formatMediaSize}
             imageLoader={adminPreviewImageLoader}
             copiedMediaAssetID={copiedMediaAssetID}
+            replacingMediaAssetID={replacingMediaAssetID}
             onCopyMediaPath={handleCopyMediaPath}
+            onTriggerReplaceMediaAsset={handleTriggerReplaceMediaAsset}
             onOpenDeleteMediaAsset={item => {
               setPendingMediaAssetDelete(item);
             }}

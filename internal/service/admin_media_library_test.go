@@ -18,6 +18,7 @@ type adminMediaAssetStubRepository struct {
 	findMediaAssetByDigest func(context.Context, string) (*domain.AdminMediaAssetRecord, error)
 	countMediaAssetUsage   func(context.Context, string) (int, error)
 	createMediaAsset       func(context.Context, domain.AdminMediaAssetRecord) (*domain.AdminMediaAssetRecord, error)
+	replaceMediaAsset      func(context.Context, domain.AdminMediaAssetRecord) (*domain.AdminMediaAssetRecord, error)
 	deleteMediaAssetByID   func(context.Context, string) (bool, error)
 }
 
@@ -66,6 +67,16 @@ func (stub adminMediaAssetStubRepository) CreateMediaAsset(
 		return nil, nil
 	}
 	return stub.createMediaAsset(ctx, record)
+}
+
+func (stub adminMediaAssetStubRepository) ReplaceMediaAsset(
+	ctx context.Context,
+	record domain.AdminMediaAssetRecord,
+) (*domain.AdminMediaAssetRecord, error) {
+	if stub.replaceMediaAsset == nil {
+		return nil, nil
+	}
+	return stub.replaceMediaAsset(ctx, record)
 }
 
 func (stub adminMediaAssetStubRepository) DeleteMediaAssetByID(ctx context.Context, id string) (bool, error) {
@@ -161,6 +172,83 @@ func TestDeleteAdminMediaAssetMapsRepositoryFailure(t *testing.T) {
 	err := DeleteAdminMediaAsset(context.Background(), &domain.AdminUser{ID: "admin-1"}, "asset-3")
 	if err == nil || !errors.Is(err, repository.ErrAdminMediaAssetRepositoryUnavailable) {
 		t.Fatalf("expected repository unavailable error, got %v", err)
+	}
+}
+
+func TestReplaceAdminMediaAssetReplacesUploadedAsset(t *testing.T) {
+	originalRepository := adminMediaAssetRepository
+	t.Cleanup(func() {
+		adminMediaAssetRepository = originalRepository
+	})
+
+	replacedRecord := domain.AdminMediaAssetRecord{}
+	adminMediaAssetRepository = adminMediaAssetStubRepository{
+		findMediaAssetByID: func(_ context.Context, id string) (*domain.AdminMediaAssetRecord, error) {
+			if id != "asset-9" {
+				t.Fatalf("unexpected id %q", id)
+			}
+			return &domain.AdminMediaAssetRecord{
+				ID:          "asset-9",
+				Name:        "old.webp",
+				ContentType: "image/webp",
+				Digest:      "old-digest",
+				SizeBytes:   10,
+				Width:       10,
+				Height:      10,
+				Data:        []byte("old"),
+				CreatedBy:   "admin-1",
+				CreatedAt:   time.Date(2026, 1, 10, 12, 0, 0, 0, time.UTC),
+				UpdatedAt:   time.Date(2026, 1, 10, 12, 0, 0, 0, time.UTC),
+			}, nil
+		},
+		replaceMediaAsset: func(_ context.Context, record domain.AdminMediaAssetRecord) (*domain.AdminMediaAssetRecord, error) {
+			replacedRecord = record
+			return &record, nil
+		},
+		countMediaAssetUsage: func(_ context.Context, value string) (int, error) {
+			if value != "/api/media/asset-9" {
+				t.Fatalf("unexpected usage value %q", value)
+			}
+			return 3, nil
+		},
+	}
+
+	item, err := ReplaceAdminMediaAsset(context.Background(), &domain.AdminUser{ID: "admin-1"}, "asset-9", domain.AdminMediaUploadInput{
+		FileName: "new-image.png",
+		DataURL:  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR42mP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC",
+	})
+	if err != nil {
+		t.Fatalf("expected replace to succeed, got %v", err)
+	}
+	if item == nil {
+		t.Fatal("expected item to be returned")
+	}
+	if item.ID != "asset-9" {
+		t.Fatalf("expected same asset id, got %q", item.ID)
+	}
+	if item.Name != "new-image.png" {
+		t.Fatalf("expected normalized name, got %q", item.Name)
+	}
+	if item.UsageCount != 3 {
+		t.Fatalf("expected usage count 3, got %d", item.UsageCount)
+	}
+	if replacedRecord.ID != "asset-9" {
+		t.Fatalf("expected replaced record id asset-9, got %q", replacedRecord.ID)
+	}
+	if replacedRecord.Name != "new-image.png" {
+		t.Fatalf("expected replaced record name new-image.png, got %q", replacedRecord.Name)
+	}
+	if replacedRecord.Digest == "" || replacedRecord.Digest == "old-digest" {
+		t.Fatalf("expected digest to be refreshed, got %q", replacedRecord.Digest)
+	}
+	if replacedRecord.Width != 1 || replacedRecord.Height != 1 {
+		t.Fatalf("expected dimensions 1x1, got %dx%d", replacedRecord.Width, replacedRecord.Height)
+	}
+	if replacedRecord.SizeBytes <= 0 {
+		t.Fatalf("expected positive size, got %d", replacedRecord.SizeBytes)
+	}
+	if replacedRecord.CreatedAt.IsZero() || replacedRecord.CreatedBy != "admin-1" {
+		t.Fatalf("expected original creation metadata to be preserved, got %+v", replacedRecord)
 	}
 }
 

@@ -103,6 +103,47 @@ describe('PostDetail Component', () => {
     expect(titleElement).toHaveClass('fw-bold');
   });
 
+  it('renders BlogPosting JSON-LD for the post', () => {
+    setup();
+
+    const structuredDataScript = document.querySelector('script[type="application/ld+json"]');
+    expect(structuredDataScript).toBeInTheDocument();
+
+    const structuredData = JSON.parse(structuredDataScript?.textContent ?? '{}') as {
+      '@graph'?: Array<{
+        '@type'?: string;
+        headline?: string;
+        description?: string;
+        datePublished?: string;
+        mainEntityOfPage?: { '@id'?: string };
+        itemListElement?: Array<{ name?: string; position?: number; item?: string }>;
+      }>;
+    };
+    const blogPosting = structuredData['@graph']?.find(item => item['@type'] === 'BlogPosting');
+    const breadcrumbList = structuredData['@graph']?.find(item => item['@type'] === 'BreadcrumbList');
+
+    expect(blogPosting).toBeDefined();
+    expect(structuredData).toEqual(
+      expect.objectContaining({
+        '@context': 'https://schema.org',
+      }),
+    );
+    expect(blogPosting).toEqual(
+      expect.objectContaining({
+        headline: mockPost.title,
+        description: mockPost.summary,
+        datePublished: mockPost.publishedDate,
+      }),
+    );
+    expect(blogPosting?.mainEntityOfPage?.['@id']).toContain('/en/posts/1');
+    expect(breadcrumbList?.itemListElement).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ position: 1, name: 'Blog' }),
+        expect.objectContaining({ position: 2, name: mockPost.title, item: expect.stringContaining('/en/posts/1') }),
+      ]),
+    );
+  });
+
   it('renders published and updated post dates', () => {
     setup();
     const dateElements = screen.getAllByText((content, element) => {

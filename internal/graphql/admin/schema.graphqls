@@ -98,6 +98,7 @@ type AdminMutation {
   updateContentPostContent(input: AdminUpdateContentPostContentInput!): AdminContentPost!
   restoreContentPostRevision(input: AdminRestoreContentPostRevisionInput!): AdminContentPost!
   uploadMediaAsset(input: AdminUploadMediaAssetInput!): AdminMediaLibraryItem!
+  replaceMediaAsset(id: ID!, input: AdminUploadMediaAssetInput!): AdminMediaLibraryItem!
   deleteMediaAsset(id: ID!): AdminDeletePayload!
   deleteContentPost(input: AdminContentEntityKeyInput!): AdminDeletePayload!
   createContentTopic(input: AdminContentTopicInput!): AdminContentTopic!

@@ -263,6 +263,94 @@ function generateTopicsSitemap() {
   console.log('Topics sitemap generated at:', sitemapPath);
 }
 
+/** -------------- CATEGORIES SITEMAP GENERATION -------------- **/
+
+/**
+ * Reads categories for a given locale from public data index.
+ * @param {string} locale - The locale identifier.
+ * @returns {Array} - Array of category objects.
+ */
+function readCategories(locale) {
+  const categoriesJsonPath = path.join(process.cwd(), 'public', 'data', `categories.${locale}.json`);
+  if (fs.existsSync(categoriesJsonPath)) {
+    try {
+      return JSON.parse(fs.readFileSync(categoriesJsonPath, 'utf8'));
+    } catch (error) {
+      console.error(`Error reading/parsing categories index for locale "${locale}":`, error);
+      return [];
+    }
+  } else {
+    console.warn(`categories index not found for locale "${locale}" at ${categoriesJsonPath}`);
+    return [];
+  }
+}
+
+/**
+ * Groups categories by their ID across locales.
+ * @returns {Object} - An object where keys are category IDs and values are objects mapping locale to category data.
+ */
+function groupCategoriesById() {
+  const categoriesById = {};
+  locales.forEach(locale => {
+    const categories = readCategories(locale);
+    categories.forEach(category => {
+      if (!categoriesById[category.id]) {
+        categoriesById[category.id] = {};
+      }
+      categoriesById[category.id][locale] = category;
+    });
+  });
+  return categoriesById;
+}
+
+/**
+ * Generates the XML sitemap content for categories.
+ * @param {Object} categoriesById - Categories grouped by ID.
+ * @returns {string} - The XML sitemap string.
+ */
+function generateCategoriesSitemapXML(categoriesById) {
+  let sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+  sitemap += `<?xml-stylesheet type="text/xsl" href="${xmlEscape(`${basePathPrefix}/sitemap.xsl`)}"?>\n`;
+  sitemap += `<urlset\n`;
+  sitemap += `  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n`;
+  sitemap += `  xmlns:xhtml="http://www.w3.org/1999/xhtml">\n\n`;
+
+  Object.keys(categoriesById).forEach(categoryId => {
+    const localesForCategory = Object.keys(categoriesById[categoryId]);
+    localesForCategory.forEach(locale => {
+      const category = categoriesById[categoryId][locale];
+      const categoryUrl = buildSiteUrl(basePath, locale, 'categories', category.id);
+      const categoryLastMod = getFileLastModified(
+        path.join(process.cwd(), 'public', 'data', `categories.${locale}.json`),
+      );
+
+      sitemap += `  <url>\n`;
+      sitemap += `    <loc>${xmlEscape(categoryUrl)}</loc>\n`;
+      sitemap += `    <lastmod>${categoryLastMod}</lastmod>\n`;
+      sitemap += `    <changefreq>weekly</changefreq>\n`;
+      // Add alternate language links for all locales where the category exists, plus x-default.
+      sitemap += buildAlternateLinksXml(localesForCategory, altLocale =>
+        buildSiteUrl(basePath, altLocale, 'categories', category.id),
+      );
+      sitemap += `  </url>\n\n`;
+    });
+  });
+
+  sitemap += `</urlset>\n`;
+  return sitemap;
+}
+
+/**
+ * Writes the categories sitemap XML to the build folder.
+ */
+function generateCategoriesSitemap() {
+  const categoriesById = groupCategoriesById();
+  const sitemapXML = generateCategoriesSitemapXML(categoriesById);
+  const sitemapPath = path.join(buildDir, 'category-sitemap.xml');
+  fs.writeFileSync(sitemapPath, sitemapXML, 'utf8');
+  console.log('Categories sitemap generated at:', sitemapPath);
+}
+
 /** -------------- PAGES SITEMAP GENERATION -------------- **/
 
 /**
@@ -407,7 +495,7 @@ function generatePagesSitemap() {
 
 /**
  * Generates the XML content for the sitemap index.
- * This index references the pages, posts, and topics sitemap files.
+ * This index references the pages, posts, topics, and categories sitemap files.
  * @returns {string} - The sitemap index XML string.
  */
 function generateSitemapIndexXML() {
@@ -415,7 +503,7 @@ function generateSitemapIndexXML() {
   sitemapIndex += `<?xml-stylesheet type="text/xsl" href="${xmlEscape(`${basePathPrefix}/sitemap.xsl`)}"?>\n`;
   sitemapIndex += `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n\n`;
 
-  const sitemapFiles = ['page-sitemap.xml', 'post-sitemap.xml', 'post_topic-sitemap.xml'];
+  const sitemapFiles = ['page-sitemap.xml', 'post-sitemap.xml', 'post_topic-sitemap.xml', 'category-sitemap.xml'];
   sitemapFiles.forEach(file => {
     const sitemapLastMod = getFileLastModified(path.join(buildDir, file));
     sitemapIndex += `  <sitemap>\n`;
@@ -441,12 +529,13 @@ function generateSitemapIndex() {
 /** -------------- MAIN -------------- **/
 
 /**
- * Main function that generates posts, topics, pages, and sitemap index.
+ * Main function that generates posts, topics, categories, pages, and sitemap index.
  */
 function generateAllSitemaps() {
   generatePagesSitemap();
   generatePostsSitemap();
   generateTopicsSitemap();
+  generateCategoriesSitemap();
   generateSitemapIndex();
 }
 

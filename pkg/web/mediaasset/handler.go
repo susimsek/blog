@@ -43,13 +43,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	if mediaAssetETagMatches(r.Header.Values("If-None-Match"), asset.ETag) {
 		w.Header().Set("ETag", asset.ETag)
-		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		w.Header().Set("Cache-Control", "public, max-age=0, must-revalidate")
 		w.WriteHeader(http.StatusNotModified)
 		return
 	}
 
 	w.Header().Set("Content-Type", asset.ContentType)
-	w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+	w.Header().Set("Cache-Control", "public, max-age=0, must-revalidate")
 	w.Header().Set("ETag", asset.ETag)
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(http.StatusOK)

@@ -1,0 +1,70 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7F9FC"/>
+      <stop offset="1" stop-color="#EDF3FF"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#0F62FE"/>
+      <stop offset="1" stop-color="#1F9D8B"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#1D2A441A"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" rx="28" fill="url(#bg)"/>
+
+  <text x="800" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#0F172A">Skill Tabanlı AI Çalışma Katmanı</text>
+  <text x="800" y="128" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#334155">Codex ve GitHub Copilot aynı mühendislik mantığını farklı entegrasyon biçimleriyle uygular</text>
+
+  <rect x="95" y="180" width="430" height="590" rx="28" fill="#FFFFFF" filter="url(#shadow)"/>
+  <rect x="585" y="140" width="430" height="660" rx="28" fill="#F8FBFF" stroke="#BFDBFE" stroke-width="3" filter="url(#shadow)"/>
+  <rect x="1075" y="180" width="430" height="590" rx="28" fill="#FFFFFF" filter="url(#shadow)"/>
+
+  <text x="310" y="240" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#0F62FE">Codex</text>
+  <text x="800" y="205" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#0F172A">Ortak Skill Mantığı</text>
+  <text x="1290" y="240" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#1D4ED8">GitHub Copilot</text>
+
+  <rect x="145" y="285" width="330" height="86" rx="18" fill="#E8F0FF"/>
+  <text x="310" y="335" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700" fill="#0F172A">AGENTS.md</text>
+  <text x="310" y="362" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#334155">Genel repo kuralları</text>
+
+  <rect x="145" y="400" width="330" height="106" rx="18" fill="#EEF6FF"/>
+  <text x="310" y="450" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700" fill="#0F172A">.agents/skills</text>
+  <text x="310" y="479" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#334155">SKILL.md + scripts + references</text>
+
+  <rect x="145" y="535" width="330" height="96" rx="18" fill="#F8FBFF" stroke="#CBD5E1"/>
+  <text x="310" y="585" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700" fill="#0F172A">$skill-name</text>
+  <text x="310" y="613" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#334155">Açık veya otomatik çağrı</text>
+
+  <rect x="145" y="660" width="330" height="70" rx="18" fill="#0F172A"/>
+  <text x="310" y="704" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#FFFFFF">Repo merkezli ajan akışı</text>
+
+  <rect x="635" y="245" width="330" height="82" rx="18" fill="url(#accent)"/>
+  <text x="800" y="293" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#FFFFFF">Ne zaman kullanılmalı?</text>
+
+  <rect x="635" y="355" width="330" height="82" rx="18" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="2"/>
+  <text x="800" y="404" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#0F172A">Hangi kararları vermeli?</text>
+
+  <rect x="635" y="465" width="330" height="82" rx="18" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="2"/>
+  <text x="800" y="514" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#0F172A">Hangi hataları engellemeli?</text>
+
+  <rect x="635" y="575" width="330" height="82" rx="18" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="2"/>
+  <text x="800" y="624" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#0F172A">Nasıl doğrulamalı?</text>
+
+  <rect x="1125" y="285" width="330" height="86" rx="18" fill="#EAF2FF"/>
+  <text x="1290" y="335" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#0F172A">copilot-instructions.md</text>
+  <text x="1290" y="362" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#334155">Genel davranış ve standart</text>
+
+  <rect x="1125" y="400" width="330" height="106" rx="18" fill="#F1F5FF"/>
+  <text x="1290" y="450" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700" fill="#0F172A">instructions + skills</text>
+  <text x="1290" y="479" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#334155">Yol bazlı yönerge ve uzmanlık</text>
+
+  <rect x="1125" y="535" width="330" height="96" rx="18" fill="#F8FBFF" stroke="#CBD5E1"/>
+  <text x="1290" y="585" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700" fill="#0F172A">Prompt files + agents</text>
+  <text x="1290" y="613" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#334155">IDE ve agent mode ile birleşir</text>
+
+  <rect x="1125" y="660" width="330" height="70" rx="18" fill="#0F172A"/>
+  <text x="1290" y="704" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#FFFFFF">IDE merkezli yaygın kullanım</text>
+</svg>

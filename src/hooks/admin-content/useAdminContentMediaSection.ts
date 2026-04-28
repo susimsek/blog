@@ -7,6 +7,7 @@ import {
   deleteAdminMediaAsset,
   fetchAdminMediaLibrary,
   isAdminSessionError,
+  replaceAdminMediaAsset,
   resolveAdminError,
   uploadAdminMediaAsset,
   type AdminMediaLibraryItem,
@@ -66,8 +67,11 @@ export function useAdminContentMediaSection({
   const [copiedMediaAssetID, setCopiedMediaAssetID] = React.useState('');
   const [pendingMediaAssetDelete, setPendingMediaAssetDelete] = React.useState<AdminMediaLibraryItem | null>(null);
   const [isMediaAssetDeleting, setIsMediaAssetDeleting] = React.useState(false);
+  const [replacingMediaAssetID, setReplacingMediaAssetID] = React.useState('');
 
   const mediaUploadInputRef = React.useRef<HTMLInputElement | null>(null);
+  const mediaReplaceInputRef = React.useRef<HTMLInputElement | null>(null);
+  const pendingMediaAssetReplaceRef = React.useRef<AdminMediaLibraryItem | null>(null);
   const mediaLibraryRequestIDRef = React.useRef(0);
   const deferredMediaLibraryQuery = React.useDeferredValue(mediaLibraryQuery);
 
@@ -274,6 +278,79 @@ export function useAdminContentMediaSection({
     t,
   ]);
 
+  const handleReplaceMediaAsset = React.useCallback(
+    async (item: AdminMediaLibraryItem, file: File) => {
+      if (item.kind !== 'UPLOADED' || replacingMediaAssetID.trim() !== '') {
+        return;
+      }
+
+      setReplacingMediaAssetID(item.id);
+      setMediaLibraryErrorMessage('');
+      try {
+        const dataUrl = await fileToDataURL(file);
+        const replaced = await replaceAdminMediaAsset({
+          id: item.id,
+          fileName: file.name,
+          dataUrl,
+        });
+        setSuccessMessage(
+          t('adminAccount.content.success.mediaReplaced', {
+            ns: 'admin-account',
+            name: replaced.name,
+          }),
+        );
+        await loadMediaLibrary(mediaLibraryPage, mediaLibraryPageSize);
+      } catch (error) {
+        if (isAdminSessionError(error)) {
+          onSessionExpired();
+          return;
+        }
+        const resolvedError = resolveAdminError(error);
+        setMediaLibraryErrorMessage(
+          resolvedError.message || t('adminAccount.content.errors.mediaLibraryReplace', { ns: 'admin-account' }),
+        );
+      } finally {
+        setReplacingMediaAssetID('');
+        pendingMediaAssetReplaceRef.current = null;
+        if (mediaReplaceInputRef.current) {
+          mediaReplaceInputRef.current.value = '';
+        }
+      }
+    },
+    [
+      loadMediaLibrary,
+      mediaLibraryPage,
+      mediaLibraryPageSize,
+      onSessionExpired,
+      replacingMediaAssetID,
+      setSuccessMessage,
+      t,
+    ],
+  );
+
+  const handleTriggerReplaceMediaAsset = React.useCallback((item: AdminMediaLibraryItem) => {
+    if (item.kind !== 'UPLOADED') {
+      return;
+    }
+    pendingMediaAssetReplaceRef.current = item;
+    mediaReplaceInputRef.current?.click();
+  }, []);
+
+  const handleReplaceMediaFileChange = React.useCallback(
+    async (file: File) => {
+      const pendingItem = pendingMediaAssetReplaceRef.current;
+      if (!pendingItem) {
+        if (mediaReplaceInputRef.current) {
+          mediaReplaceInputRef.current.value = '';
+        }
+        return;
+      }
+
+      await handleReplaceMediaAsset(pendingItem, file);
+    },
+    [handleReplaceMediaAsset],
+  );
+
   return {
     mediaLibraryQuery,
     setMediaLibraryQuery,
@@ -295,8 +372,13 @@ export function useAdminContentMediaSection({
     pendingMediaAssetDelete,
     setPendingMediaAssetDelete,
     isMediaAssetDeleting,
+    replacingMediaAssetID,
     mediaUploadInputRef,
+    mediaReplaceInputRef,
     handleMediaUpload,
+    handleReplaceMediaAsset,
+    handleReplaceMediaFileChange,
+    handleTriggerReplaceMediaAsset,
     handleCopyMediaPath,
     handleDeleteMediaAsset,
     openMediaLibraryScreen,

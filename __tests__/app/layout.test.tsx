@@ -1,13 +1,29 @@
 import React from 'react';
-import RootLayout, { metadata } from '@/app/(default)/layout';
+import RootLayout, { metadata, viewport } from '@/app/(default)/layout';
 
 describe('RootLayout', () => {
   it('exposes base metadata', () => {
     expect(metadata).toMatchObject({
+      applicationName: "Suayb's Blog",
       title: 'Blog',
       description: 'Blog application',
+      manifest: '/manifest.webmanifest',
+      appleWebApp: {
+        capable: true,
+        title: "Suayb's Blog",
+      },
     });
     expect(metadata.metadataBase).toBeInstanceOf(URL);
+    expect(metadata.icons).toMatchObject({
+      icon: expect.arrayContaining([expect.objectContaining({ url: '/favicon-192x192.png' })]),
+      apple: [expect.objectContaining({ url: '/apple-touch-icon.png' })],
+    });
+    expect(viewport).toMatchObject({
+      themeColor: [
+        { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+        { media: '(prefers-color-scheme: dark)', color: '#111827' },
+      ],
+    });
   });
 
   it('creates html/body wrapper with children', () => {

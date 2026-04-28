@@ -38,6 +38,8 @@ type AdminContentMediaTabProps = {
   onTriggerUpload: () => void;
   uploadInputRef: React.RefObject<HTMLInputElement | null>;
   onUploadFileChange: (file: File) => Promise<void>;
+  replaceInputRef: React.RefObject<HTMLInputElement | null>;
+  onReplaceFileChange: (file: File) => Promise<void>;
   mediaLibraryErrorMessage: string;
   resolvedMediaDensityMode: PostDensityMode;
   onMediaDensityModeChange: (mode: PostDensityMode) => void;
@@ -47,7 +49,9 @@ type AdminContentMediaTabProps = {
   formatMediaSize: (sizeBytes: number, locale: string) => string;
   imageLoader: ({ src }: { src: string }) => string;
   copiedMediaAssetID: string;
+  replacingMediaAssetID: string;
   onCopyMediaPath: (item: AdminMediaLibraryItem) => Promise<void>;
+  onTriggerReplaceMediaAsset: (item: AdminMediaLibraryItem) => void;
   onOpenDeleteMediaAsset: (item: AdminMediaLibraryItem) => void;
   mediaLibraryPage: number;
   totalMediaLibraryPages: number;
@@ -71,6 +75,8 @@ export default function AdminContentMediaTab({
   onTriggerUpload,
   uploadInputRef,
   onUploadFileChange,
+  replaceInputRef,
+  onReplaceFileChange,
   mediaLibraryErrorMessage,
   resolvedMediaDensityMode,
   onMediaDensityModeChange,
@@ -80,7 +86,9 @@ export default function AdminContentMediaTab({
   formatMediaSize,
   imageLoader,
   copiedMediaAssetID,
+  replacingMediaAssetID,
   onCopyMediaPath,
+  onTriggerReplaceMediaAsset,
   onOpenDeleteMediaAsset,
   mediaLibraryPage,
   totalMediaLibraryPages,
@@ -217,6 +225,20 @@ export default function AdminContentMediaTab({
                 return;
               }
               await onUploadFileChange(file);
+            }}
+          />
+          <Form.Control
+            ref={replaceInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            className="d-none"
+            onChange={async event => {
+              const input = event.target as HTMLInputElement;
+              const file = input.files?.[0];
+              if (!file) {
+                return;
+              }
+              await onReplaceFileChange(file);
             }}
           />
 
@@ -358,10 +380,32 @@ export default function AdminContentMediaTab({
                           {t('adminAccount.content.media.actions.open', { ns: 'admin-account' })}
                         </Button>
                         {item.kind === 'UPLOADED' ? (
-                          <Button type="button" size="sm" variant="danger" onClick={() => onOpenDeleteMediaAsset(item)}>
-                            <FontAwesomeIcon icon="trash" className="me-2" />
-                            {t('adminAccount.content.media.actions.delete', { ns: 'admin-account' })}
-                          </Button>
+                          <>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="secondary"
+                              disabled={replacingMediaAssetID !== '' && replacingMediaAssetID !== item.id}
+                              onClick={() => onTriggerReplaceMediaAsset(item)}
+                            >
+                              {replacingMediaAssetID === item.id ? (
+                                <Spinner as="span" animation="border" size="sm" className="me-2" />
+                              ) : (
+                                <FontAwesomeIcon icon="upload" className="me-2" />
+                              )}
+                              {t('adminAccount.content.media.actions.replace', { ns: 'admin-account' })}
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="danger"
+                              disabled={replacingMediaAssetID === item.id}
+                              onClick={() => onOpenDeleteMediaAsset(item)}
+                            >
+                              <FontAwesomeIcon icon="trash" className="me-2" />
+                              {t('adminAccount.content.media.actions.delete', { ns: 'admin-account' })}
+                            </Button>
+                          </>
                         ) : null}
                       </div>
                     </div>

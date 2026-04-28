@@ -139,6 +139,66 @@ func UploadAdminMediaAsset(
 	return &item, nil
 }
 
+func ReplaceAdminMediaAsset(
+	ctx context.Context,
+	adminUser *domain.AdminUser,
+	id string,
+	input domain.AdminMediaUploadInput,
+) (*domain.AdminMediaLibraryItem, error) {
+	if err := requireAdminAuthentication(adminUser); err != nil {
+		return nil, err
+	}
+
+	resolvedID := strings.TrimSpace(id)
+	if resolvedID == "" {
+		return nil, apperrors.BadRequest("media asset id is required")
+	}
+
+	existing, err := adminMediaAssetRepository.FindMediaAssetByID(ctx, resolvedID)
+	if err != nil {
+		return nil, toAdminMediaLibraryError(err, "failed to load admin media asset")
+	}
+	if existing == nil {
+		return nil, apperrors.New("NOT_FOUND", "media asset not found", 404, nil)
+	}
+
+	payload, err := decodeAdminMediaDataURL(strings.TrimSpace(input.DataURL))
+	if err != nil {
+		return nil, err
+	}
+
+	name := normalizeAdminMediaAssetName(input.FileName)
+	if name == "" {
+		name = defaultAdminMediaAssetName(payload.ContentType)
+	}
+
+	replaced, err := adminMediaAssetRepository.ReplaceMediaAsset(ctx, domain.AdminMediaAssetRecord{
+		ID:          resolvedID,
+		Name:        name,
+		ContentType: payload.ContentType,
+		Digest:      hashAdminMediaPayload(payload.Data),
+		SizeBytes:   len(payload.Data),
+		Width:       payload.Width,
+		Height:      payload.Height,
+		Data:        payload.Data,
+		CreatedBy:   existing.CreatedBy,
+		CreatedAt:   existing.CreatedAt,
+		UpdatedAt:   time.Now().UTC(),
+	})
+	if err != nil {
+		return nil, toAdminMediaLibraryError(err, "failed to replace admin media asset")
+	}
+
+	usageCount, err := adminMediaAssetRepository.CountMediaAssetUsage(ctx, "/api/media/"+resolvedID)
+	if err != nil {
+		return nil, toAdminMediaLibraryError(err, "failed to load media asset usage")
+	}
+
+	item := mapAdminMediaLibraryItemFromAsset(*replaced)
+	item.UsageCount = usageCount
+	return &item, nil
+}
+
 func DeleteAdminMediaAsset(ctx context.Context, adminUser *domain.AdminUser, id string) error {
 	if err := requireAdminAuthentication(adminUser); err != nil {
 		return err

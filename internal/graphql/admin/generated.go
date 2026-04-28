@@ -371,6 +371,7 @@ type ComplexityRoot struct {
 		Login                            func(childComplexity int, input model.AdminLoginInput) int
 		Logout                           func(childComplexity int) int
 		RefreshAdminSession              func(childComplexity int) int
+		ReplaceMediaAsset                func(childComplexity int, id string, input model.AdminUploadMediaAssetInput) int
 		RequestEmailChange               func(childComplexity int, input model.AdminRequestEmailChangeInput) int
 		RequestPasswordReset             func(childComplexity int, input model.AdminRequestPasswordResetInput) int
 		RestoreContentPostRevision       func(childComplexity int, input model.AdminRestoreContentPostRevisionInput) int
@@ -588,6 +589,7 @@ type AdminMutationResolver interface {
 	UpdateContentPostContent(ctx context.Context, input model.AdminUpdateContentPostContentInput) (*model.AdminContentPost, error)
 	RestoreContentPostRevision(ctx context.Context, input model.AdminRestoreContentPostRevisionInput) (*model.AdminContentPost, error)
 	UploadMediaAsset(ctx context.Context, input model.AdminUploadMediaAssetInput) (*model.AdminMediaLibraryItem, error)
+	ReplaceMediaAsset(ctx context.Context, id string, input model.AdminUploadMediaAssetInput) (*model.AdminMediaLibraryItem, error)
 	DeleteMediaAsset(ctx context.Context, id string) (*model.AdminDeletePayload, error)
 	DeleteContentPost(ctx context.Context, input model.AdminContentEntityKeyInput) (*model.AdminDeletePayload, error)
 	CreateContentTopic(ctx context.Context, input model.AdminContentTopicInput) (*model.AdminContentTopic, error)
@@ -2036,6 +2038,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.AdminMutation.RefreshAdminSession(childComplexity), true
+	case "AdminMutation.replaceMediaAsset":
+		if e.complexity.AdminMutation.ReplaceMediaAsset == nil {
+			break
+		}
+
+		args, err := ec.field_AdminMutation_replaceMediaAsset_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AdminMutation.ReplaceMediaAsset(childComplexity, args["id"].(string), args["input"].(model.AdminUploadMediaAssetInput)), true
 	case "AdminMutation.requestEmailChange":
 		if e.complexity.AdminMutation.RequestEmailChange == nil {
 			break
@@ -3360,6 +3373,22 @@ func (ec *executionContext) field_AdminMutation_login_args(ctx context.Context, 
 		return nil, err
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_AdminMutation_replaceMediaAsset_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNID2string)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNAdminUploadMediaAssetInput2suaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminUploadMediaAssetInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -11379,6 +11408,73 @@ func (ec *executionContext) fieldContext_AdminMutation_uploadMediaAsset(ctx cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_AdminMutation_uploadMediaAsset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminMutation_replaceMediaAsset(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminMutation_replaceMediaAsset,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.AdminMutation().ReplaceMediaAsset(ctx, fc.Args["id"].(string), fc.Args["input"].(model.AdminUploadMediaAssetInput))
+		},
+		nil,
+		ec.marshalNAdminMediaLibraryItem2ᚖsuaybsimsekᚗcomᚋblogᚑapiᚋinternalᚋgraphqlᚋadminᚋmodelᚐAdminMediaLibraryItem,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminMutation_replaceMediaAsset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AdminMediaLibraryItem_id(ctx, field)
+			case "kind":
+				return ec.fieldContext_AdminMediaLibraryItem_kind(ctx, field)
+			case "name":
+				return ec.fieldContext_AdminMediaLibraryItem_name(ctx, field)
+			case "value":
+				return ec.fieldContext_AdminMediaLibraryItem_value(ctx, field)
+			case "previewUrl":
+				return ec.fieldContext_AdminMediaLibraryItem_previewUrl(ctx, field)
+			case "contentType":
+				return ec.fieldContext_AdminMediaLibraryItem_contentType(ctx, field)
+			case "width":
+				return ec.fieldContext_AdminMediaLibraryItem_width(ctx, field)
+			case "height":
+				return ec.fieldContext_AdminMediaLibraryItem_height(ctx, field)
+			case "sizeBytes":
+				return ec.fieldContext_AdminMediaLibraryItem_sizeBytes(ctx, field)
+			case "usageCount":
+				return ec.fieldContext_AdminMediaLibraryItem_usageCount(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AdminMediaLibraryItem_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_AdminMediaLibraryItem_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminMediaLibraryItem", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AdminMutation_replaceMediaAsset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -20946,6 +21042,13 @@ func (ec *executionContext) _AdminMutation(ctx context.Context, sel ast.Selectio
 		case "uploadMediaAsset":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._AdminMutation_uploadMediaAsset(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "replaceMediaAsset":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._AdminMutation_replaceMediaAsset(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

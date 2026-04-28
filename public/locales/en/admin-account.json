@@ -457,6 +457,7 @@
           "copy": "Copy path",
           "copied": "Copied",
           "open": "Open",
+          "replace": "Replace image",
           "delete": "Delete asset"
         },
         "deleteConfirm": {
@@ -497,6 +498,7 @@
         "categoryDeleted": "Category deleted: {{id}}",
         "mediaUploaded": "Image uploaded: {{name}}",
         "mediaCopied": "Path copied: {{name}}",
+        "mediaReplaced": "Image replaced: {{name}}",
         "mediaDeleted": "Image deleted: {{name}}"
       },
       "errors": {
@@ -516,6 +518,7 @@
         "mediaLibraryLoad": "Media library could not be loaded.",
         "mediaLibraryUpload": "Image could not be uploaded.",
         "mediaLibraryCopy": "Media path could not be copied.",
+        "mediaLibraryReplace": "Image could not be replaced.",
         "mediaLibraryDelete": "Media asset could not be deleted."
       },
       "validation": {

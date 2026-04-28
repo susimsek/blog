@@ -23,6 +23,10 @@ type AdminDeleteMediaAssetPayload = {
   };
 };
 
+type AdminReplaceMediaAssetPayload = {
+  replaceMediaAsset: AdminMediaLibraryItem;
+};
+
 const ADMIN_MEDIA_LIBRARY_QUERY = gql`
   query AdminMediaLibraryQuery($filter: AdminMediaLibraryFilterInput) {
     mediaLibrary(filter: $filter) {
@@ -48,6 +52,14 @@ const ADMIN_DELETE_MEDIA_ASSET_MUTATION = gql`
   mutation AdminDeleteMediaAssetMutation($id: ID!) {
     deleteMediaAsset(id: $id) {
       success
+    }
+  }
+`;
+
+const ADMIN_REPLACE_MEDIA_ASSET_MUTATION = gql`
+  mutation AdminReplaceMediaAssetMutation($id: ID!, $input: AdminUploadMediaAssetInput!) {
+    replaceMediaAsset(id: $id, input: $input) {
+      ${ADMIN_MEDIA_LIBRARY_FIELDS}
     }
   }
 `;
@@ -139,4 +151,31 @@ export const deleteAdminMediaAsset = async (id: string) => {
   );
 
   return payload.deleteMediaAsset?.success === true;
+};
+
+export const replaceAdminMediaAsset = async (params: { id: string; fileName: string; dataUrl: string }) => {
+  const payload = await executeAdminGraphQL<
+    AdminReplaceMediaAssetPayload,
+    {
+      id: string;
+      input: {
+        fileName: string;
+        dataUrl: string;
+      };
+    }
+  >(
+    ADMIN_REPLACE_MEDIA_ASSET_MUTATION,
+    {
+      id: params.id.trim(),
+      input: {
+        fileName: params.fileName.trim(),
+        dataUrl: params.dataUrl.trim(),
+      },
+    },
+    {
+      operationName: 'AdminReplaceMediaAsset',
+    },
+  );
+
+  return payload.replaceMediaAsset;
 };
