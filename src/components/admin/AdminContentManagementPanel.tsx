@@ -998,7 +998,7 @@ export default function AdminContentManagementPanel({
             }}
             mediaUploadInputRef={mediaUploadInputRef}
             onUploadFileChange={handleMediaUpload}
-            replaceInputRef={mediaReplaceInputRef}
+            mediaReplaceInputRef={mediaReplaceInputRef}
             onReplaceFileChange={handleReplaceMediaFileChange}
             mediaLibraryErrorMessage={mediaLibraryErrorMessage}
             resolvedMediaDensityMode={resolvedMediaDensityMode}

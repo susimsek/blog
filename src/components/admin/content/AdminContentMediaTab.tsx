@@ -35,10 +35,10 @@ type AdminContentMediaTabProps = {
   mediaLibrarySort: MediaLibrarySortValue;
   onMediaLibrarySortChange: (value: MediaLibrarySortValue) => void;
   isMediaLibraryUploading: boolean;
-  onTriggerUpload: () => void;
-  uploadInputRef: React.RefObject<HTMLInputElement | null>;
+  onTriggerMediaUpload: () => void;
+  mediaUploadInputRef: React.RefObject<HTMLInputElement | null>;
   onUploadFileChange: (file: File) => Promise<void>;
-  replaceInputRef: React.RefObject<HTMLInputElement | null>;
+  mediaReplaceInputRef: React.RefObject<HTMLInputElement | null>;
   onReplaceFileChange: (file: File) => Promise<void>;
   mediaLibraryErrorMessage: string;
   resolvedMediaDensityMode: PostDensityMode;
@@ -72,10 +72,10 @@ export default function AdminContentMediaTab({
   mediaLibrarySort,
   onMediaLibrarySortChange,
   isMediaLibraryUploading,
-  onTriggerUpload,
-  uploadInputRef,
+  onTriggerMediaUpload,
+  mediaUploadInputRef,
   onUploadFileChange,
-  replaceInputRef,
+  mediaReplaceInputRef,
   onReplaceFileChange,
   mediaLibraryErrorMessage,
   resolvedMediaDensityMode,
@@ -108,7 +108,7 @@ export default function AdminContentMediaTab({
               type="button"
               size="sm"
               variant="primary"
-              onClick={onTriggerUpload}
+              onClick={onTriggerMediaUpload}
               disabled={isMediaLibraryUploading}
             >
               {isMediaLibraryUploading ? (
@@ -214,7 +214,7 @@ export default function AdminContentMediaTab({
           </div>
 
           <Form.Control
-            ref={uploadInputRef}
+            ref={mediaUploadInputRef}
             type="file"
             accept="image/png,image/jpeg,image/webp"
             className="d-none"
@@ -228,7 +228,7 @@ export default function AdminContentMediaTab({
             }}
           />
           <Form.Control
-            ref={replaceInputRef}
+            ref={mediaReplaceInputRef}
             type="file"
             accept="image/png,image/jpeg,image/webp"
             className="d-none"

@@ -106,7 +106,7 @@ type AdminContentOverviewTabsProps = {
   onTriggerMediaUpload: () => void;
   mediaUploadInputRef: React.RefObject<HTMLInputElement | null>;
   onUploadFileChange: (file: File) => Promise<void>;
-  replaceInputRef: React.RefObject<HTMLInputElement | null>;
+  mediaReplaceInputRef: React.RefObject<HTMLInputElement | null>;
   onReplaceFileChange: (file: File) => Promise<void>;
   mediaLibraryErrorMessage: string;
   resolvedMediaDensityMode: PostDensityMode;
@@ -207,7 +207,7 @@ export default function AdminContentOverviewTabs({
   onTriggerMediaUpload,
   mediaUploadInputRef,
   onUploadFileChange,
-  replaceInputRef,
+  mediaReplaceInputRef,
   onReplaceFileChange,
   mediaLibraryErrorMessage,
   resolvedMediaDensityMode,
@@ -366,10 +366,10 @@ export default function AdminContentOverviewTabs({
           mediaLibrarySort={mediaLibrarySort}
           onMediaLibrarySortChange={onMediaLibrarySortChange}
           isMediaLibraryUploading={isMediaLibraryUploading}
-          onTriggerUpload={onTriggerMediaUpload}
-          uploadInputRef={mediaUploadInputRef}
+          onTriggerMediaUpload={onTriggerMediaUpload}
+          mediaUploadInputRef={mediaUploadInputRef}
           onUploadFileChange={onUploadFileChange}
-          replaceInputRef={replaceInputRef}
+          mediaReplaceInputRef={mediaReplaceInputRef}
           onReplaceFileChange={onReplaceFileChange}
           mediaLibraryErrorMessage={mediaLibraryErrorMessage}
           resolvedMediaDensityMode={resolvedMediaDensityMode}
