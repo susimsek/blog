@@ -1,4 +1,4 @@
-import { AddCommentMutationDocument, CommentsQueryDocument } from '@/graphql/generated/graphql';
+import { AddCommentMutationDocument, CommentsQueryDocument } from '@/graphql/generated/operations';
 import { mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
 import {
   fromCommentModerationStatus,

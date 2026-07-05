@@ -1,9 +1,22 @@
 packages:
   - .
 
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - '@swc/core'
-  - sharp
-  - sonar-scanner
-  - unrs-resolver
+allowBuilds:
+  '@parcel/watcher': true
+  '@swc/core': true
+  sharp: true
+  sonar-scanner: true
+  unrs-resolver: true
+
+overrides:
+  typescript-eslint: 8.62.1
+  '@typescript-eslint/eslint-plugin': 8.62.1
+  '@typescript-eslint/parser': 8.62.1
+  '@typescript-eslint/project-service': 8.62.1
+  '@typescript-eslint/scope-manager': 8.62.1
+  '@typescript-eslint/tsconfig-utils': 8.62.1
+  '@typescript-eslint/type-utils': 8.62.1
+  '@typescript-eslint/types': 8.62.1
+  '@typescript-eslint/typescript-estree': 8.62.1
+  '@typescript-eslint/utils': 8.62.1
+  '@typescript-eslint/visitor-keys': 8.62.1

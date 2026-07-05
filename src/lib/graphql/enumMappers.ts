@@ -7,7 +7,7 @@ import {
   PostMetricStatus,
   Scalars,
   SortOrder,
-} from '@/graphql/generated/graphql';
+} from '@/graphql/generated/schema';
 
 const enumToKebabCase = (value: unknown) => {
   if (typeof value !== 'string') {
@@ -44,22 +44,28 @@ export const fromGraphQLLocale = (
   return undefined;
 };
 
-export const fromContentQueryStatus = (value: ContentQueryStatus | null | undefined): string | undefined =>
+export const fromContentQueryStatus = (value: ContentQueryStatus | string | null | undefined): string | undefined =>
   value ? enumToKebabCase(value) : undefined;
 
-export const fromPostMetricStatus = (value: PostMetricStatus | null | undefined): string | undefined =>
+export const fromPostMetricStatus = (value: PostMetricStatus | string | null | undefined): string | undefined =>
   value ? enumToKebabCase(value) : undefined;
 
-export const fromNewsletterMutationStatus = (value: NewsletterMutationStatus | null | undefined): string | undefined =>
+export const fromNewsletterMutationStatus = (
+  value: NewsletterMutationStatus | string | null | undefined,
+): string | undefined =>
   value ? enumToKebabCase(value) : undefined;
 
-export const fromCommentQueryStatus = (value: CommentQueryStatus | null | undefined): string | undefined =>
+export const fromCommentQueryStatus = (value: CommentQueryStatus | string | null | undefined): string | undefined =>
   value ? enumToKebabCase(value) : undefined;
 
-export const fromCommentMutationStatus = (value: CommentMutationStatus | null | undefined): string | undefined =>
+export const fromCommentMutationStatus = (
+  value: CommentMutationStatus | string | null | undefined,
+): string | undefined =>
   value ? enumToKebabCase(value) : undefined;
 
-export const fromCommentModerationStatus = (value: CommentModerationStatus | null | undefined): string | undefined =>
+export const fromCommentModerationStatus = (
+  value: CommentModerationStatus | string | null | undefined,
+): string | undefined =>
   value ? enumToKebabCase(value) : undefined;
 
 export const fromGraphQLSortOrder = (value: SortOrder | string | null | undefined): string | undefined => {

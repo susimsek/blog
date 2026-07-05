@@ -32,7 +32,7 @@ const toJestMapper = (paths, rootDir = '<rootDir>/') => {
 const customJestConfig = {
   testEnvironment: 'jsdom',
   roots: ['<rootDir>'],
-  modulePaths: [compilerOptions.baseUrl],
+  ...(compilerOptions.baseUrl ? { modulePaths: [compilerOptions.baseUrl] } : {}),
   moduleNameMapper: {
     ...toJestMapper(compilerOptions.paths),
   },

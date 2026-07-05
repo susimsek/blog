@@ -1,13 +1,15 @@
 import {
+  PostMetricStatus,
+  PostsQueryInput,
+  SortOrder,
+} from '@/graphql/generated/schema';
+import {
   IncrementPostHitMutationDocument,
   IncrementPostLikeMutationDocument,
-  PostMetricStatus,
   PostQueryDocument,
   PostRuntimeQueryDocument,
   PostsQueryDocument,
-  PostsQueryInput,
-  SortOrder,
-} from '@/graphql/generated/graphql';
+} from '@/graphql/generated/operations';
 import { normalizeCommentThreads } from '@/lib/commentsApi';
 import { mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
 import {

@@ -9,7 +9,7 @@ import {
   ResendNewsletterConfirmationMutationDocument,
   SubscribeNewsletterMutationDocument,
   UnsubscribeNewsletterMutationDocument,
-} from '@/graphql/generated/graphql';
+} from '@/graphql/generated/operations';
 import { mutateGraphQL } from '@/lib/graphql/apolloClient';
 
 jest.mock('@/lib/graphql/apolloClient', () => ({

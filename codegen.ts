@@ -4,7 +4,19 @@ const config: CodegenConfig = {
   schema: 'internal/graphql/schema.graphqls',
   documents: ['src/graphql/operations/**/*.graphql'],
   generates: {
-    'src/graphql/generated/graphql.ts': {
+    'src/graphql/generated/schema.ts': {
+      config: {
+        scalars: {
+          Date: 'string',
+          DateTime: 'string',
+          Email: 'string',
+          Locale: 'string',
+          URL: 'string',
+        },
+      },
+      plugins: ['typescript'],
+    },
+    'src/graphql/generated/operations.ts': {
       config: {
         dedupeOperationSuffix: true,
         scalars: {
@@ -15,7 +27,7 @@ const config: CodegenConfig = {
           URL: 'string',
         },
       },
-      plugins: ['typescript', 'typescript-operations', 'typed-document-node'],
+      plugins: ['typescript-operations', 'typed-document-node'],
     },
   },
   ignoreNoDocuments: false,

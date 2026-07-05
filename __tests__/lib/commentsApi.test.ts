@@ -1,4 +1,4 @@
-import { CommentModerationStatus, CommentMutationStatus, CommentQueryStatus } from '@/graphql/generated/graphql';
+import { CommentModerationStatus, CommentMutationStatus, CommentQueryStatus } from '@/graphql/generated/schema';
 import { addComment, fetchComments, normalizeCommentItem, normalizeCommentThreads } from '@/lib/commentsApi';
 import { mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
 

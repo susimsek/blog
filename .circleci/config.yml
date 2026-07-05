@@ -9,7 +9,7 @@ orbs:
 executors:
   node-executor:
     docker:
-      - image: cimg/node:24.13.0
+      - image: cimg/node:24.18.0
 
 jobs:
   build-and-deploy:
@@ -27,7 +27,9 @@ jobs:
 
       - run:
           name: Enable Corepack (pnpm)
-          command: corepack enable
+          command: |
+            corepack enable
+            corepack prepare pnpm@11.7.0 --activate
 
       - run:
           name: Configure pnpm store dir

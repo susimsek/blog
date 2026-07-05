@@ -1,12 +1,14 @@
 import {
-  ConfirmNewsletterSubscriptionMutationDocument,
   NewsletterMutationStatus,
+  type NewsletterResendInput as GraphQLNewsletterResendInput,
+  type NewsletterSubscribeInput as GraphQLNewsletterSubscribeInput,
+} from '@/graphql/generated/schema';
+import {
+  ConfirmNewsletterSubscriptionMutationDocument,
   ResendNewsletterConfirmationMutationDocument,
   SubscribeNewsletterMutationDocument,
   UnsubscribeNewsletterMutationDocument,
-  type NewsletterResendInput as GraphQLNewsletterResendInput,
-  type NewsletterSubscribeInput as GraphQLNewsletterSubscribeInput,
-} from '@/graphql/generated/graphql';
+} from '@/graphql/generated/operations';
 import { mutateGraphQL } from '@/lib/graphql/apolloClient';
 import { fromNewsletterMutationStatus, toGraphQLLocale } from '@/lib/graphql/enumMappers';
 

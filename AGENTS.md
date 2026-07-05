@@ -78,7 +78,7 @@ Use it to confirm required sync/codegen steps were considered and to produce a C
 
 ## Prerequisites
 
-- Node.js: `>= 24.13.0`
+- Node.js: `>= 24.18.0`
 - pnpm via Corepack
 - Go: `1.24.x`
 

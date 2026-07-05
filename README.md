@@ -35,7 +35,7 @@ This repository is a multilingual blog platform with a static-exported Next.js f
 
 ## Requirements
 
-- Node.js: `>= 24.13.0`
+- Node.js: `>= 24.18.0`
 - pnpm (recommended via Corepack)
 - Go: `1.24.x`
 - Optional: Docker / Helm for deployment

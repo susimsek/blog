@@ -13,7 +13,7 @@ import {
   PostQueryDocument,
   PostRuntimeQueryDocument,
   PostsQueryDocument,
-} from '@/graphql/generated/graphql';
+} from '@/graphql/generated/operations';
 import { mutateGraphQL, queryGraphQL } from '@/lib/graphql/apolloClient';
 
 jest.mock('@/lib/graphql/apolloClient', () => ({
