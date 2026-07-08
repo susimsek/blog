@@ -160,7 +160,6 @@ describe('App Route /[locale]/posts/[id]', () => {
     );
     expect(getAdjacentPostsMock).toHaveBeenCalledWith('1', [{ id: '1' }, { id: '2' }]);
     expect(postPageMock).toHaveBeenCalledWith({
-      locale: 'tr',
       post: {
         id: '1',
         title: 'Post Title',

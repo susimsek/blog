@@ -1,4 +1,5 @@
 import {
+  buildManagedSearchParams,
   filterAndSortPosts,
   isTrackablePostId,
   matchesCategoryFilter,
@@ -9,6 +10,7 @@ import {
   matchesSelectedTopics,
   matchesSourceFilter,
   mergeLoadedLikesByPostId,
+  parsePostListQueryState,
   resolveEffectiveSourceFilter,
   sortPostsByPublishedDate,
 } from '@/components/posts/PostList';
@@ -119,5 +121,40 @@ describe('PostList helpers', () => {
     expect(isTrackablePostId('post-123')).toBe(true);
     expect(isTrackablePostId('a')).toBe(false);
     expect(isTrackablePostId('Post_123')).toBe(false);
+  });
+
+  it('parses managed filter state from query params', () => {
+    const params = new URLSearchParams(
+      'sort=asc&topics=react,missing&category=frontend&startDate=2025-01-01&endDate=2025-01-31&readingTime=8-12&source=medium',
+    );
+
+    expect(parsePostListQueryState(params, new Set(['react', 'nextjs']))).toEqual({
+      sortOrder: 'asc',
+      selectedTopics: ['react'],
+      categoryFilter: 'frontend',
+      dateRange: {
+        startDate: '2025-01-01',
+        endDate: '2025-01-31',
+      },
+      readingTimeRange: '8-12',
+      sourceFilter: 'medium',
+    });
+  });
+
+  it('serializes managed filter state into query params', () => {
+    const params = buildManagedSearchParams(new URLSearchParams('q=react'), {
+      sortOrder: 'asc',
+      selectedTopics: ['react', 'nextjs'],
+      categoryFilter: 'frontend',
+      dateRange: { startDate: '2025-01-01', endDate: '2025-01-31' },
+      readingTimeRange: '8-12',
+      sourceFilter: 'medium',
+      page: 2,
+      size: 10,
+    });
+
+    expect(params.toString()).toBe(
+      'q=react&sort=asc&topics=react%2Cnextjs&category=frontend&startDate=2025-01-01&endDate=2025-01-31&readingTime=8-12&source=medium&page=2&size=10',
+    );
   });
 });

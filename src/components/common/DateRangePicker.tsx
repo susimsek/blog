@@ -13,11 +13,23 @@ import { tr } from 'date-fns/locale/tr';
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './DateRangePicker.module.scss';
 
+const DATE_QUERY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
 interface DateRangePickerProps {
   onRangeChange: (dates: { startDate?: string; endDate?: string }) => void;
   minDate?: Date;
   maxDate?: Date;
+  value?: { startDate?: string; endDate?: string };
 }
+
+const parseISODateValue = (value?: string) => {
+  if (!value || !DATE_QUERY_PATTERN.test(value)) {
+    return null;
+  }
+
+  const parsedDate = new Date(`${value}T00:00:00`);
+  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+};
 
 type DateRangeFormValues = {
   startDate: Date | null;
@@ -145,6 +157,7 @@ export default function DateRangePicker({
   onRangeChange,
   minDate = new Date('2024-01-01'),
   maxDate = new Date(),
+  value,
 }: Readonly<DateRangePickerProps>) {
   const { t } = useTranslation('common');
   const params = useParams<{ locale?: string | string[] }>();
@@ -170,6 +183,26 @@ export default function DateRangePicker({
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
+
+  useEffect(() => {
+    const nextStartDate = parseISODateValue(value?.startDate);
+    const nextEndDate = parseISODateValue(value?.endDate);
+
+    setFormValues({
+      startDate: nextStartDate,
+      endDate: nextEndDate,
+    });
+    setFormErrors({});
+
+    if (!nextStartDate && !nextEndDate) {
+      setSelectedOption(null);
+      setIsConfirmed(false);
+      return;
+    }
+
+    setSelectedOption('customDate');
+    setIsConfirmed(true);
+  }, [value?.endDate, value?.startDate]);
 
   const dropdownTitle = useMemo(
     () => getDateRangeDropdownTitle(selectedOption, isConfirmed, formValues, currentLocale, translate),

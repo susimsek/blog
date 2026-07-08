@@ -163,12 +163,14 @@ export const resolvePostDetailThumbnailSrc = (
   return `${normalizedPrefix}${normalizedPath}`;
 };
 
-export const buildPostStructuredData = (post: Post, locale: string) => {
+export const buildPostStructuredData = (post: Post, locale: string, blogLabel = 'Blog') => {
   const postUrl = buildLocalizedAbsoluteUrl(locale, `posts/${post.id}`);
   const authorUrl = buildLocalizedAbsoluteUrl(locale, 'about');
+  const siteRootUrl = toAbsoluteSiteUrl('/');
   const resolvedThumbnail = resolvePostDetailThumbnailSrc(post.thumbnail);
   const imageUrl = toAbsoluteSiteUrl(resolvedThumbnail ?? SITE_LOGO);
   const authorImageUrl = toAbsoluteSiteUrl(AVATAR_LINK);
+  const publisherLogoUrl = toAbsoluteSiteUrl(SITE_LOGO);
   const keywords = (post.topics ?? []).map(topic => topic.name).filter(Boolean);
 
   const blogPosting = {
@@ -189,14 +191,18 @@ export const buildPostStructuredData = (post: Post, locale: string) => {
       '@type': 'Person',
       name: AUTHOR_NAME,
       url: authorUrl,
-    },
-    publisher: {
-      '@type': 'Person',
-      name: AUTHOR_NAME,
-      url: authorUrl,
       image: {
         '@type': 'ImageObject',
         url: authorImageUrl,
+      },
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: AUTHOR_NAME,
+      url: siteRootUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: publisherLogoUrl,
       },
     },
   };
@@ -205,7 +211,7 @@ export const buildPostStructuredData = (post: Post, locale: string) => {
     {
       '@type': 'ListItem',
       position: 1,
-      name: 'Blog',
+      name: blogLabel,
       item: buildLocalizedAbsoluteUrl(locale),
     },
   ];
@@ -260,7 +266,8 @@ export default function PostDetail({
   const hasSideRail = true;
   const [runtimeState, setRuntimeState] = React.useState<PostDetailRuntimeState>({ status: 'loading' });
   const thumbnailSrc = resolvePostDetailThumbnailSrc(thumbnail);
-  const structuredData = React.useMemo(() => buildPostStructuredData(post, locale), [locale, post]);
+  const blogLabel = t('common.searchSource.blog', { ns: 'common' });
+  const structuredData = React.useMemo(() => buildPostStructuredData(post, locale, blogLabel), [blogLabel, locale, post]);
 
   const splitIntro = React.useMemo(() => splitMarkdownIntro(markdown), [markdown]);
   const formattedUpdatedDate = React.useMemo(() => {
@@ -287,7 +294,6 @@ export default function PostDetail({
   );
 
   const postUrl = React.useMemo(() => buildLocalizedAbsoluteUrl(locale, `posts/${post.id}`), [locale, post.id]);
-  const blogLabel = t('common.searchSource.blog', { ns: 'common' });
   const categoryHref = React.useMemo(() => {
     const rawID = typeof category?.id === 'string' ? category.id.trim().toLowerCase() : '';
     return rawID ? `/categories/${rawID}` : null;

@@ -71,6 +71,7 @@ describe('PostDetail helpers', () => {
         category: { id: 'backend', name: 'Backend', color: 'blue' },
       },
       'en',
+      'Blog',
     );
 
     const graph = structuredData['@graph'] as StructuredDataGraphNode[];
@@ -113,6 +114,14 @@ describe('PostDetail helpers', () => {
         '@type': 'Person',
         name: 'Şuayb Şimşek',
         url: expect.stringContaining('/en/about'),
+      }),
+    );
+    expect(blogPosting).toEqual(
+      expect.objectContaining({
+        publisher: expect.objectContaining({
+          '@type': 'Organization',
+          name: 'Şuayb Şimşek',
+        }),
       }),
     );
     expect(blogPosting.image).toEqual([expect.stringContaining(mockPost.thumbnail!)]);

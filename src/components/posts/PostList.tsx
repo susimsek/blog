@@ -8,8 +8,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PostFilters } from './PostFilters';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { useAppDispatch, useAppSelector } from '@/config/store';
-import { clearNonSearchFilters } from '@/reducers/postsQuery';
-import type { ReadingTimeRange, SortOrder, SourceFilter } from '@/reducers/postsQuery';
+import {
+  setCategoryFilter,
+  setDateRange,
+  setReadingTimeRange,
+  setSelectedTopics,
+  setSortOrder,
+} from '@/reducers/postsQuery';
+import type { CategoryFilter, DateRange, ReadingTimeRange, SortOrder, SourceFilter } from '@/reducers/postsQuery';
 import { fetchPostCommentCounts, fetchPostLikes } from '@/lib/contentApi';
 import i18nextConfig from '@/i18n/settings';
 import type { PostDensityMode } from '@/components/common/PostDensityToggle';
@@ -24,8 +30,117 @@ interface PostListProps {
 }
 
 const TRACKABLE_POST_ID_PATTERN = /^[a-z0-9][a-z0-9-]{1,127}$/;
+const DATE_QUERY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const MANAGED_FILTER_QUERY_KEYS = ['sort', 'topics', 'category', 'startDate', 'endDate', 'readingTime', 'source'];
 
 export const isTrackablePostId = (postId: string) => TRACKABLE_POST_ID_PATTERN.test(postId);
+
+export const normalizeDateQueryValue = (value: string | null) => {
+  const normalizedValue = value?.trim() ?? '';
+  return DATE_QUERY_PATTERN.test(normalizedValue) ? normalizedValue : undefined;
+};
+
+export const parseTopicsQueryValue = (value: string | null) =>
+  (value ?? '')
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean);
+
+export const serializeTopicsQueryValue = (topicIds: ReadonlyArray<string>) => topicIds.join(',');
+
+export const parseSortOrderQueryValue = (value: string | null): SortOrder => (value === 'asc' ? 'asc' : 'desc');
+
+export const parseReadingTimeQueryValue = (value: string | null): ReadingTimeRange => {
+  if (value === '3-7' || value === '8-12' || value === '15+') {
+    return value;
+  }
+  return 'any';
+};
+
+export const parseSourceQueryValue = (value: string | null): SourceFilter => {
+  if (value === 'blog' || value === 'medium' || value === 'all') {
+    return value;
+  }
+  return 'all';
+};
+
+type ParsedPostListQueryState = {
+  sortOrder: SortOrder;
+  selectedTopics: string[];
+  categoryFilter: CategoryFilter;
+  dateRange: DateRange;
+  readingTimeRange: ReadingTimeRange;
+  sourceFilter: SourceFilter;
+};
+
+export const parsePostListQueryState = (
+  searchParams: URLSearchParams,
+  availableTopicIds: ReadonlySet<string>,
+): ParsedPostListQueryState => {
+  const selectedTopics = parseTopicsQueryValue(searchParams.get('topics')).filter(topicId => availableTopicIds.has(topicId));
+  const categoryFilterValue = searchParams.get('category')?.trim().toLowerCase() ?? '';
+  const startDate = normalizeDateQueryValue(searchParams.get('startDate'));
+  const endDate = normalizeDateQueryValue(searchParams.get('endDate'));
+
+  return {
+    sortOrder: parseSortOrderQueryValue(searchParams.get('sort')),
+    selectedTopics,
+    categoryFilter: categoryFilterValue ? categoryFilterValue : 'all',
+    dateRange: {
+      ...(startDate ? { startDate } : {}),
+      ...(endDate ? { endDate } : {}),
+    },
+    readingTimeRange: parseReadingTimeQueryValue(searchParams.get('readingTime')),
+    sourceFilter: parseSourceQueryValue(searchParams.get('source')),
+  };
+};
+
+export const buildManagedSearchParams = (
+  currentSearchParams: URLSearchParams,
+  state: {
+    sortOrder: SortOrder;
+    selectedTopics: ReadonlyArray<string>;
+    categoryFilter: CategoryFilter;
+    dateRange: DateRange;
+    readingTimeRange: ReadingTimeRange;
+    sourceFilter: SourceFilter;
+    page?: number;
+    size: number;
+  },
+) => {
+  const nextParams = new URLSearchParams(currentSearchParams.toString());
+
+  for (const key of MANAGED_FILTER_QUERY_KEYS) {
+    nextParams.delete(key);
+  }
+
+  if (state.sortOrder !== 'desc') {
+    nextParams.set('sort', state.sortOrder);
+  }
+  if (state.selectedTopics.length > 0) {
+    nextParams.set('topics', serializeTopicsQueryValue(state.selectedTopics));
+  }
+  if (state.categoryFilter !== 'all') {
+    nextParams.set('category', state.categoryFilter);
+  }
+  if (state.dateRange.startDate) {
+    nextParams.set('startDate', state.dateRange.startDate);
+  }
+  if (state.dateRange.endDate) {
+    nextParams.set('endDate', state.dateRange.endDate);
+  }
+  if (state.readingTimeRange !== 'any') {
+    nextParams.set('readingTime', state.readingTimeRange);
+  }
+  if (state.sourceFilter !== 'all') {
+    nextParams.set('source', state.sourceFilter);
+  }
+
+  nextParams.set('page', String(state.page ?? 1));
+  nextParams.set('size', String(state.size));
+
+  return nextParams;
+};
 
 export const resolveEffectiveSourceFilter = (
   isSearchRoute: boolean,
@@ -232,77 +347,74 @@ export default function PostList({
     return Number.isFinite(parsedSize) && parsedSize > 0 ? parsedSize : 5;
   }, [searchParams]);
   const routeQuery = useMemo(() => searchParams.get('q') ?? '', [searchParams]);
-  const routeSource = useMemo(() => {
-    const routeSourceValue = searchParams.get('source');
-    return routeSourceValue === 'blog' || routeSourceValue === 'medium' || routeSourceValue === 'all'
-      ? routeSourceValue
-      : 'all';
-  }, [searchParams]);
   const dispatch = useAppDispatch();
   const listTopRef = useRef<HTMLDivElement | null>(null);
-  const lastFilterResetPathRef = useRef<string>('');
   const { sortOrder, selectedTopics, categoryFilter, dateRange, readingTimeRange, locale } = useAppSelector(
     state => state.postsQuery,
   );
   const currentLocale = locale ?? routeLocale ?? i18nextConfig.i18n.defaultLocale;
-  const effectiveSourceFilter = resolveEffectiveSourceFilter(isSearchRoute, isMediumRoute, isHomeRoute, routeSource);
+  const availableTopicIds = useMemo(() => new Set(topics.map(topic => topic.id)), [topics]);
+  const parsedQueryState = useMemo(
+    () => parsePostListQueryState(searchParams, availableTopicIds),
+    [availableTopicIds, searchParams],
+  );
+  const effectiveSortOrder = searchParams.has('sort') ? parsedQueryState.sortOrder : sortOrder;
+  const effectiveSelectedTopics = searchParams.has('topics') ? parsedQueryState.selectedTopics : selectedTopics;
+  const effectiveCategoryFilter = searchParams.has('category') ? parsedQueryState.categoryFilter : categoryFilter;
+  const effectiveDateRange =
+    searchParams.has('startDate') || searchParams.has('endDate') ? parsedQueryState.dateRange : dateRange;
+  const effectiveReadingTimeRange = searchParams.has('readingTime')
+    ? parsedQueryState.readingTimeRange
+    : readingTimeRange;
+  const effectiveSourceFilter = resolveEffectiveSourceFilter(
+    isSearchRoute,
+    isMediumRoute,
+    isHomeRoute,
+    parsedQueryState.sourceFilter,
+  );
   const effectiveSearchQuery = isSearchRoute ? routeQuery : '';
   const scopedPostIds = useMemo(() => posts.map(post => post.id), [posts]);
 
   useEffect(() => {
-    if (isSearchRoute || pathname === lastFilterResetPathRef.current) {
-      return;
-    }
-
-    const hasStaleFilters =
-      selectedTopics.length > 0 ||
-      categoryFilter !== 'all' ||
-      typeof dateRange.startDate === 'string' ||
-      typeof dateRange.endDate === 'string' ||
-      readingTimeRange !== 'any';
-    if (!hasStaleFilters) {
-      lastFilterResetPathRef.current = pathname;
-      return;
-    }
-
-    lastFilterResetPathRef.current = pathname;
-    dispatch(clearNonSearchFilters());
+    dispatch(setSortOrder(parsedQueryState.sortOrder));
+    dispatch(setSelectedTopics(parsedQueryState.selectedTopics));
+    dispatch(setCategoryFilter(parsedQueryState.categoryFilter));
+    dispatch(setDateRange(parsedQueryState.dateRange));
+    dispatch(setReadingTimeRange(parsedQueryState.readingTimeRange));
   }, [
-    dateRange.endDate,
-    dateRange.startDate,
-    categoryFilter,
     dispatch,
-    isSearchRoute,
-    pathname,
-    readingTimeRange,
-    selectedTopics.length,
+    parsedQueryState.categoryFilter,
+    parsedQueryState.dateRange,
+    parsedQueryState.readingTimeRange,
+    parsedQueryState.selectedTopics,
+    parsedQueryState.sortOrder,
   ]);
 
   const filteredPosts = useMemo(() => {
     const criteria: PostListFilterCriteria = {
       normalizedQuery: effectiveSearchQuery.trim().toLowerCase(),
-      startDateMs: dateRange.startDate ? new Date(dateRange.startDate).getTime() : null,
-      endDateMs: dateRange.endDate ? new Date(dateRange.endDate).getTime() : null,
+      startDateMs: effectiveDateRange.startDate ? new Date(effectiveDateRange.startDate).getTime() : null,
+      endDateMs: effectiveDateRange.endDate ? new Date(effectiveDateRange.endDate).getTime() : null,
       scopedIdSet: shouldUseScope ? new Set(scopedPostIds) : null,
-      selectedTopics,
-      categoryFilter,
+      selectedTopics: effectiveSelectedTopics,
+      categoryFilter: effectiveCategoryFilter,
       effectiveSourceFilter,
-      readingTimeRange,
+      readingTimeRange: effectiveReadingTimeRange,
     };
 
-    return filterAndSortPosts(posts, criteria, sortOrder);
+    return filterAndSortPosts(posts, criteria, effectiveSortOrder);
   }, [
-    dateRange.endDate,
-    dateRange.startDate,
+    effectiveCategoryFilter,
+    effectiveDateRange.endDate,
+    effectiveDateRange.startDate,
     effectiveSearchQuery,
+    effectiveSelectedTopics,
     effectiveSourceFilter,
+    effectiveReadingTimeRange,
+    effectiveSortOrder,
     posts,
-    categoryFilter,
-    readingTimeRange,
     scopedPostIds,
-    selectedTopics,
     shouldUseScope,
-    sortOrder,
   ]);
 
   const totalResults = filteredPosts.length;
@@ -410,48 +522,126 @@ export default function PostList({
     });
   }, []);
 
-  const handlePageChange = useCallback(
-    (newPage: number) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set('page', String(newPage));
-      params.set('size', String(routeSize));
-      const nextQuery = params.toString();
+  const pushManagedSearchParams = useCallback(
+    (nextParams: URLSearchParams) => {
+      const nextQuery = nextParams.toString();
       const nextSearch = nextQuery ? `?${nextQuery}` : '';
       router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
+    },
+    [pathname, router],
+  );
+
+  const updateFilterUrl = useCallback(
+    (overrides: Partial<Parameters<typeof buildManagedSearchParams>[1]>) => {
+      const nextParams = buildManagedSearchParams(searchParams, {
+        sortOrder: effectiveSortOrder,
+        selectedTopics: effectiveSelectedTopics,
+        categoryFilter: effectiveCategoryFilter,
+        dateRange: effectiveDateRange,
+        readingTimeRange: effectiveReadingTimeRange,
+        sourceFilter: parsedQueryState.sourceFilter,
+        size: routeSize,
+        page: 1,
+        ...overrides,
+      });
+      pushManagedSearchParams(nextParams);
+    },
+    [
+      effectiveCategoryFilter,
+      effectiveDateRange,
+      effectiveReadingTimeRange,
+      effectiveSelectedTopics,
+      parsedQueryState.sourceFilter,
+      pushManagedSearchParams,
+      routeSize,
+      searchParams,
+      effectiveSortOrder,
+    ],
+  );
+
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      const params = buildManagedSearchParams(searchParams, {
+        sortOrder: effectiveSortOrder,
+        selectedTopics: effectiveSelectedTopics,
+        categoryFilter: effectiveCategoryFilter,
+        dateRange: effectiveDateRange,
+        readingTimeRange: effectiveReadingTimeRange,
+        sourceFilter: parsedQueryState.sourceFilter,
+        page: newPage,
+        size: routeSize,
+      });
+      pushManagedSearchParams(params);
       scrollToListStart();
     },
-    [pathname, routeSize, router, scrollToListStart, searchParams],
+    [
+      effectiveCategoryFilter,
+      effectiveDateRange,
+      effectiveReadingTimeRange,
+      effectiveSelectedTopics,
+      effectiveSortOrder,
+      parsedQueryState.sourceFilter,
+      pushManagedSearchParams,
+      routeSize,
+      scrollToListStart,
+      searchParams,
+    ],
   );
 
   const handleSizeChange = useCallback(
     (size: number) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set('page', '1');
-      params.set('size', String(size));
-      const nextQuery = params.toString();
-      const nextSearch = nextQuery ? `?${nextQuery}` : '';
-      router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
+      const params = buildManagedSearchParams(searchParams, {
+        sortOrder: effectiveSortOrder,
+        selectedTopics: effectiveSelectedTopics,
+        categoryFilter: effectiveCategoryFilter,
+        dateRange: effectiveDateRange,
+        readingTimeRange: effectiveReadingTimeRange,
+        sourceFilter: parsedQueryState.sourceFilter,
+        page: 1,
+        size,
+      });
+      pushManagedSearchParams(params);
       scrollToListStart();
     },
-    [pathname, router, scrollToListStart, searchParams],
+    [
+      effectiveCategoryFilter,
+      effectiveDateRange,
+      effectiveReadingTimeRange,
+      effectiveSelectedTopics,
+      effectiveSortOrder,
+      parsedQueryState.sourceFilter,
+      pushManagedSearchParams,
+      scrollToListStart,
+      searchParams,
+    ],
   );
 
   const handleSourceFilterChange = useCallback(
     (nextSource: SourceFilter) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (nextSource === 'all') {
-        params.delete('source');
-      } else {
-        params.set('source', nextSource);
-      }
-      params.set('page', '1');
-      params.set('size', String(routeSize));
-      const nextQuery = params.toString();
-      const nextSearch = nextQuery ? `?${nextQuery}` : '';
-      router.push(nextSearch ? `${pathname}${nextSearch}` : pathname, { scroll: false });
+      const params = buildManagedSearchParams(searchParams, {
+        sortOrder: effectiveSortOrder,
+        selectedTopics: effectiveSelectedTopics,
+        categoryFilter: effectiveCategoryFilter,
+        dateRange: effectiveDateRange,
+        readingTimeRange: effectiveReadingTimeRange,
+        sourceFilter: nextSource,
+        page: 1,
+        size: routeSize,
+      });
+      pushManagedSearchParams(params);
       scrollToListStart();
     },
-    [pathname, routeSize, router, scrollToListStart, searchParams],
+    [
+      effectiveCategoryFilter,
+      effectiveDateRange,
+      effectiveReadingTimeRange,
+      effectiveSelectedTopics,
+      effectiveSortOrder,
+      pushManagedSearchParams,
+      routeSize,
+      scrollToListStart,
+      searchParams,
+    ],
   );
 
   return (
@@ -462,12 +652,32 @@ export default function PostList({
           <div className="post-list-filters-inline">
             <PostFilters
               topics={topics}
-              sourceFilter={routeSource}
+              sourceFilter={parsedQueryState.sourceFilter}
               showSourceFilter={showSourceFilter}
               showCategoryFilter={showCategoryFilter}
               densityMode={resolvedDensityMode}
               onDensityModeChange={mode => setDensityMode(!canUseGridDensity && mode === 'grid' ? 'default' : mode)}
               onSourceFilterChange={handleSourceFilterChange}
+              onSortOrderChange={value => {
+                dispatch(setSortOrder(value));
+                updateFilterUrl({ sortOrder: value });
+              }}
+              onTopicsChange={value => {
+                dispatch(setSelectedTopics(value));
+                updateFilterUrl({ selectedTopics: value });
+              }}
+              onCategoryFilterChange={value => {
+                dispatch(setCategoryFilter(value));
+                updateFilterUrl({ categoryFilter: value });
+              }}
+              onDateRangeChange={value => {
+                dispatch(setDateRange(value));
+                updateFilterUrl({ dateRange: value });
+              }}
+              onReadingTimeRangeChange={value => {
+                dispatch(setReadingTimeRange(value));
+                updateFilterUrl({ readingTimeRange: value });
+              }}
             />
           </div>
           {renderedPosts.length > 0 ? (

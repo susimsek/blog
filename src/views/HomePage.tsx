@@ -17,24 +17,41 @@ type HomePageProps = {
 export default function HomePage({ posts, topics, locale }: Readonly<HomePageProps>) {
   const { t } = useTranslation('home');
   const searchUrl = buildLocalizedAbsoluteUrl(locale, 'search');
+  const featuredPosts = posts.slice(0, 10);
 
   const jsonLdData = {
     '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: t('home.meta.title'),
-    description: t('home.meta.description'),
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${searchUrl}?q={search_term_string}`,
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        name: t('home.meta.title'),
+        description: t('home.meta.description'),
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${searchUrl}?q={search_term_string}`,
+          },
+          'query-input': {
+            '@type': 'PropertyValueSpecification',
+            valueRequired: true,
+            valueName: 'search_term_string',
+          },
+        },
       },
-      'query-input': {
-        '@type': 'PropertyValueSpecification',
-        valueRequired: true,
-        valueName: 'search_term_string',
+      {
+        '@type': 'ItemList',
+        name: t('home.header.title'),
+        itemListOrder: 'https://schema.org/ItemListOrderDescending',
+        numberOfItems: featuredPosts.length,
+        itemListElement: featuredPosts.map((post, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          url: buildLocalizedAbsoluteUrl(locale, `posts/${post.id}`),
+          name: post.title,
+        })),
       },
-    },
+    ],
   };
 
   return (

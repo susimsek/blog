@@ -220,6 +220,58 @@ describe('PostList Component', () => {
     await waitFor(() => expect(screen.getByText('Post 3')).toBeInTheDocument());
   });
 
+  it('hydrates managed filters from the route query string', async () => {
+    usePathnameMock.mockReturnValue('/search');
+    window.history.replaceState(
+      {},
+      '',
+      '/search?topics=react&sort=asc&readingTime=8-12&category=frontend&startDate=2024-06-01&endDate=2024-06-30',
+    );
+
+    const filteredPosts = [
+      {
+        ...mockPostSummaries[0],
+        id: 'short-post',
+        title: 'Short Post',
+        readingTimeMin: 2,
+        publishedDate: '2024-05-01',
+        category: { id: 'frontend', name: 'Frontend', color: 'blue' },
+      },
+      {
+        ...mockPostSummaries[1],
+        id: 'matching-post',
+        title: 'Matching Post',
+        readingTimeMin: 9,
+        publishedDate: '2024-06-15',
+        category: { id: 'frontend', name: 'Frontend', color: 'blue' },
+        topics: [{ id: 'react', name: 'React', color: 'red' }],
+      },
+      {
+        ...mockPostSummaries[2],
+        id: 'long-post',
+        title: 'Long Post',
+        readingTimeMin: 16,
+        publishedDate: '2024-07-20',
+        category: { id: 'backend', name: 'Backend', color: 'green' },
+      },
+    ];
+
+    renderWithProviders(<PostList posts={filteredPosts} topics={mockTopics} />, {
+      preloadedState: buildPreloadedState({
+        sortOrder: 'desc',
+        selectedTopics: [],
+        categoryFilter: 'all',
+        readingTimeRange: 'any',
+      }),
+    });
+
+    await waitFor(() => {
+      const renderedPosts = screen.getAllByTestId('post-card');
+      expect(renderedPosts).toHaveLength(1);
+      expect(renderedPosts[0]).toHaveTextContent('Matching Post');
+    });
+  });
+
   it('ignores route query on non-search routes', async () => {
     usePathnameMock.mockReturnValue('/en');
     window.history.replaceState({}, '', '/en?q=Post%203');
@@ -259,6 +311,20 @@ describe('PostList Component', () => {
     fireEvent.click(screen.getByText('Source Medium'));
 
     expect(pushMock).toHaveBeenCalledWith('/search?source=medium&page=1&size=5', { scroll: false });
+  });
+
+  it('pushes managed filter params when sort order changes', async () => {
+    usePathnameMock.mockReturnValue('/search');
+    window.history.replaceState({}, '', '/search');
+
+    renderWithProviders(<PostList posts={mockPostSummaries} topics={mockTopics} />, {
+      preloadedState: buildPreloadedState(),
+    });
+
+    await waitFor(() => expect(screen.getByTestId('sort-dropdown')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('Sort Ascending'));
+
+    expect(pushMock).toHaveBeenCalledWith('/search?sort=asc&page=1&size=5', { scroll: false });
   });
 
   it('ignores source filter on non-search routes', async () => {
@@ -555,8 +621,13 @@ describe('PostList Component', () => {
     expect(document.querySelector('.post-list-results')).toHaveClass('post-list-results--editorial');
   });
 
-  it('filters by reading time, category, and published date range from store state', async () => {
+  it('filters by reading time, category, and published date range from route query state', async () => {
     usePathnameMock.mockReturnValue('/search');
+    window.history.replaceState(
+      {},
+      '',
+      '/search?category=frontend&readingTime=8-12&startDate=2024-06-01&endDate=2024-06-30',
+    );
 
     const filteredPosts = [
       {
@@ -586,11 +657,7 @@ describe('PostList Component', () => {
     ];
 
     renderWithProviders(<PostList posts={filteredPosts} topics={[]} />, {
-      preloadedState: buildPreloadedState({
-        categoryFilter: 'frontend',
-        readingTimeRange: '8-12',
-        dateRange: { startDate: '2024-06-01', endDate: '2024-06-30' },
-      }),
+      preloadedState: buildPreloadedState(),
     });
 
     await waitFor(() => {

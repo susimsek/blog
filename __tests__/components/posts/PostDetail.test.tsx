@@ -138,7 +138,7 @@ describe('PostDetail Component', () => {
     expect(blogPosting?.mainEntityOfPage?.['@id']).toContain('/en/posts/1');
     expect(breadcrumbList?.itemListElement).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ position: 1, name: 'Blog' }),
+        expect.objectContaining({ position: 1, name: 'common.searchSource.blog' }),
         expect.objectContaining({ position: 2, name: mockPost.title, item: expect.stringContaining('/en/posts/1') }),
       ]),
     );

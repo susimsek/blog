@@ -150,6 +150,7 @@ describe('View pages', () => {
     expect(screen.getByTestId('post-carousel')).toBeInTheDocument();
     expect(screen.getByTestId('post-list')).toBeInTheDocument();
     expect(document.querySelector('script[type="application/ld+json"]')).toHaveTextContent('"@type":"WebSite"');
+    expect(document.querySelector('script[type="application/ld+json"]')).toHaveTextContent('"@type":"ItemList"');
   });
 
   it('renders MediumPage and passes medium posts to PostList', () => {
@@ -198,10 +199,9 @@ describe('View pages', () => {
     expect(document.querySelectorAll('script[type="application/ld+json"]')).toHaveLength(2);
   });
 
-  it('renders PostPage with json-ld scripts and resolved content', () => {
+  it('renders PostPage with resolved content delegated to PostDetail', () => {
     render(
       <PostPage
-        locale="en"
         post={{
           id: 'post-1',
           title: 'Post Title',
@@ -222,7 +222,7 @@ describe('View pages', () => {
     );
 
     expect(screen.getByTestId('post-detail')).toBeInTheDocument();
-    expect(document.querySelectorAll('script[type="application/ld+json"]')).toHaveLength(2);
+    expect(document.querySelectorAll('script[type="application/ld+json"]')).toHaveLength(0);
     expect(postDetailMock).toHaveBeenCalledWith(
       expect.objectContaining({
         post: expect.objectContaining({ contentHtml: '<p>Hello</p>' }),
@@ -230,10 +230,9 @@ describe('View pages', () => {
     );
   });
 
-  it('renders PostPage defaults without thumbnail/category and includes image/category metadata when provided', () => {
+  it('renders PostPage defaults without duplicate page-level structured data', () => {
     render(
       <PostPage
-        locale="tr"
         post={{
           id: 'post-2',
           title: 'Rich Post',
@@ -250,13 +249,7 @@ describe('View pages', () => {
       />,
     );
 
-    const scripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]')).map(
-      node => node.textContent ?? '',
-    );
-
-    expect(scripts[0]).toContain('"articleSection":"Programlama"');
-    expect(scripts[0]).toContain('"image"');
-    expect(scripts[1]).toContain('categories/programming');
+    expect(document.querySelectorAll('script[type="application/ld+json"]')).toHaveLength(0);
     expect(postDetailMock).toHaveBeenCalledWith(
       expect.objectContaining({
         relatedPosts: [],

@@ -9,6 +9,10 @@ import {
   setCategoryFilter,
   setDateRange,
   setReadingTimeRange,
+  type DateRange,
+  type ReadingTimeRange,
+  type SortOrder,
+  type CategoryFilter,
   type SourceFilter,
 } from '@/reducers/postsQuery';
 import ReadingTimeDropdown from '@/components/common/ReadingTimeDropdown';
@@ -26,6 +30,11 @@ interface PostFiltersProps {
   densityMode?: PostDensityMode;
   onDensityModeChange?: (mode: PostDensityMode) => void;
   onSourceFilterChange?: (value: SourceFilter) => void;
+  onSortOrderChange?: (value: SortOrder) => void;
+  onTopicsChange?: (value: string[]) => void;
+  onCategoryFilterChange?: (value: CategoryFilter) => void;
+  onDateRangeChange?: (value: DateRange) => void;
+  onReadingTimeRangeChange?: (value: ReadingTimeRange) => void;
 }
 
 const DateRangePicker = dynamic(() => import('@/components/common/DateRangePicker'), {
@@ -42,34 +51,81 @@ export function PostFilters({
   densityMode = 'default',
   onDensityModeChange,
   onSourceFilterChange,
+  onSortOrderChange,
+  onTopicsChange,
+  onCategoryFilterChange,
+  onDateRangeChange,
+  onReadingTimeRangeChange,
 }: Readonly<PostFiltersProps>) {
   const dispatch = useAppDispatch();
-  const { sortOrder, selectedTopics, categoryFilter, readingTimeRange } = useAppSelector(state => state.postsQuery);
+  const { sortOrder, selectedTopics, categoryFilter, dateRange, readingTimeRange } = useAppSelector(
+    state => state.postsQuery,
+  );
 
   return (
     <div className="post-filters-layout mb-3">
       <div className="post-filters-main-grid">
         {showCategoryFilter && (
-          <CategoryDropdown value={categoryFilter} onChange={value => dispatch(setCategoryFilter(value))} />
+          <CategoryDropdown
+            value={categoryFilter}
+            onChange={value => {
+              if (onCategoryFilterChange) {
+                onCategoryFilterChange(value);
+                return;
+              }
+              dispatch(setCategoryFilter(value));
+            }}
+          />
         )}
         {topics.length > 0 && (
           <TopicsDropdown
             topics={topics}
             selectedTopics={selectedTopics}
-            onTopicsChange={topicIds => dispatch(setSelectedTopics(topicIds))}
+            onTopicsChange={topicIds => {
+              if (onTopicsChange) {
+                onTopicsChange(topicIds);
+                return;
+              }
+              dispatch(setSelectedTopics(topicIds));
+            }}
           />
         )}
         {showSourceFilter && <SourceDropdown value={sourceFilter} onChange={value => onSourceFilterChange?.(value)} />}
         <DateRangePicker
-          onRangeChange={dates => dispatch(setDateRange(dates))}
+          value={dateRange}
+          onRangeChange={dates => {
+            if (onDateRangeChange) {
+              onDateRangeChange(dates);
+              return;
+            }
+            dispatch(setDateRange(dates));
+          }}
           minDate={new Date('2024-01-01')}
           maxDate={new Date()}
         />
-        <ReadingTimeDropdown value={readingTimeRange} onChange={value => dispatch(setReadingTimeRange(value))} />
+        <ReadingTimeDropdown
+          value={readingTimeRange}
+          onChange={value => {
+            if (onReadingTimeRangeChange) {
+              onReadingTimeRangeChange(value);
+              return;
+            }
+            dispatch(setReadingTimeRange(value));
+          }}
+        />
       </div>
       {showSortFilter && (
         <div className="post-filters-sort-slot">
-          <SortDropdown sortOrder={sortOrder} onChange={order => dispatch(setSortOrder(order))} />
+          <SortDropdown
+            sortOrder={sortOrder}
+            onChange={order => {
+              if (onSortOrderChange) {
+                onSortOrderChange(order);
+                return;
+              }
+              dispatch(setSortOrder(order));
+            }}
+          />
         </div>
       )}
       {onDensityModeChange && (

@@ -66,7 +66,6 @@ export default async function PostRoute({ params }: Readonly<PageProps<'/[locale
 
   return (
     <PostPage
-      locale={locale}
       post={post}
       relatedPosts={relatedPosts}
       previousPost={previousPost}
