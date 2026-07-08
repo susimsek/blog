@@ -61,10 +61,6 @@ export default function useAdminAccountEmailSection({
   const handleEmailInputChange = React.useCallback(
     (value: string) => {
       setEmailInput(value);
-      setEmailTouchedFields(previous => ({
-        ...previous,
-        newEmail: true,
-      }));
 
       if (emailErrorMessage && (emailErrorField === 'newEmail' || emailErrorField === 'generic')) {
         setEmailErrorMessage('');
