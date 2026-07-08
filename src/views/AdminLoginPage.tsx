@@ -224,6 +224,7 @@ export default function AdminLoginPage() {
           throw new Error(t('adminLogin.errorFallback', { ns: 'admin-login' }));
         }
         writeAdminSessionProfileCache(payload.user ?? null);
+        globalThis.dispatchEvent(new CustomEvent('admin:user-updated', { detail: { user: payload.user ?? null } }));
         router.replace(`/${locale}/admin`);
       } catch (error) {
         const resolvedError = resolveAdminError(error);

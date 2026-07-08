@@ -38,9 +38,11 @@ jest.mock('@/components/admin/AdminLoadingState', () => ({
 describe('AdminLoginPage', () => {
   const originalAudio = global.Audio;
   let consoleErrorSpy: jest.SpiedFunction<typeof console.error> | undefined;
+  let dispatchEventSpy: jest.SpiedFunction<typeof window.dispatchEvent> | undefined;
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    dispatchEventSpy = jest.spyOn(window, 'dispatchEvent');
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((...args: unknown[]) => {
       const joined = args.map(value => (value instanceof Error ? value.message : String(value))).join(' ');
 
@@ -65,6 +67,7 @@ describe('AdminLoginPage', () => {
   });
 
   afterEach(() => {
+    dispatchEventSpy?.mockRestore();
     consoleErrorSpy?.mockRestore();
     global.Audio = originalAudio;
   });
@@ -417,6 +420,26 @@ describe('AdminLoginPage', () => {
   });
 
   it('submits credentials and redirects to admin root', async () => {
+    loginAdminMock.mockResolvedValue({
+      success: true,
+      user: {
+        id: 'admin-1',
+        email: 'admin@example.com',
+        name: 'Admin User',
+        username: 'admin',
+        avatarUrl: null,
+        pendingEmail: null,
+        pendingEmailExpiresAt: null,
+        googleLinked: false,
+        googleEmail: null,
+        googleLinkedAt: null,
+        githubLinked: false,
+        githubEmail: null,
+        githubLinkedAt: null,
+        roles: ['ADMIN'],
+      },
+    });
+
     render(<AdminLoginPage />);
 
     await waitFor(() => {
@@ -429,6 +452,17 @@ describe('AdminLoginPage', () => {
 
     await waitFor(() => {
       expect(loginAdminMock).toHaveBeenCalledWith('admin@example.com', 'secret-password', false);
+      expect(dispatchEventSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'admin:user-updated',
+          detail: expect.objectContaining({
+            user: expect.objectContaining({
+              id: 'admin-1',
+              email: 'admin@example.com',
+            }),
+          }),
+        }),
+      );
       expect(replaceMock).toHaveBeenCalledWith('/en/admin');
     });
   });
