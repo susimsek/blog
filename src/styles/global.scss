@@ -10343,9 +10343,59 @@ label {
   color: var(--text-color);
 }
 
-.admin-newsletter-campaign-card,
 .admin-newsletter-subscriber-card {
   padding: 1rem;
+}
+
+.admin-newsletter-campaign-card {
+  margin-bottom: 0;
+}
+
+.admin-newsletter-campaign-card .post-card-content {
+  padding: 1.25rem;
+}
+
+.admin-newsletter-campaign-card .post-summary-title-row {
+  margin-bottom: 1rem;
+}
+
+.admin-newsletter-campaign-card .post-summary-title {
+  margin-bottom: 0;
+}
+
+.admin-newsletter-campaign-card .post-summary-meta-stack {
+  row-gap: 0.7rem;
+  margin-bottom: 1rem !important;
+}
+
+.admin-newsletter-campaign-card .post-summary-meta {
+  gap: 0.9rem 1.2rem;
+  margin-bottom: 0;
+}
+
+.admin-newsletter-campaign-card .admin-newsletter-campaign-last-run {
+  margin-top: 0.35rem;
+}
+
+.admin-newsletter-campaign-card .post-summary-thumbnail {
+  margin-bottom: 1rem;
+}
+
+.admin-newsletter-campaign-card .post-summary-text {
+  margin-bottom: 1rem;
+}
+
+.admin-content-post-meta-stack {
+  row-gap: 0.85rem;
+  margin-bottom: 1.15rem !important;
+}
+
+.admin-content-post-meta-row {
+  margin-bottom: 0;
+}
+
+.admin-content-post-meta-item {
+  min-height: 1.25rem;
 }
 
 .admin-newsletter-campaign-thumbnail {

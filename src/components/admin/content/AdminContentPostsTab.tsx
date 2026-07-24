@@ -275,7 +275,6 @@ export default function AdminContentPostsTab({
                     : t('common.searchSource.blog', { ns: 'common' });
                 const sourceIcon: IconProp = normalizedSource === 'medium' ? (['fab', 'medium'] as IconProp) : 'book';
                 const canEditPostContent = normalizedSource === 'blog';
-                const isListMode = resolvedPostDensityMode === 'editorial';
                 const normalizedCategoryName = item.categoryName?.trim().toLowerCase() ?? '';
                 const shouldShowCategoryBadge =
                   normalizedCategoryName !== '' &&
@@ -344,33 +343,39 @@ export default function AdminContentPostsTab({
                         </div>
                       </div>
 
-                      <div className="post-summary-meta-stack mb-2">
-                        <p className="post-summary-meta mb-0">
-                          <span className="text-muted d-flex align-items-center">
+                      <div className="post-summary-meta-stack admin-content-post-meta-stack mb-2">
+                        <div className="post-summary-meta admin-content-post-meta-row gap-3 mb-0">
+                          <span className="text-muted d-inline-flex align-items-center admin-content-post-meta-item">
                             <FontAwesomeIcon icon="calendar-alt" className="me-2" />
                             {formatDate(item.publishedDate)}
                           </span>
-                          {item.updatedDate ? (
-                            <span className={`text-muted d-flex align-items-center${isListMode ? '' : ' w-100'}`}>
+                        </div>
+
+                        {item.updatedDate ? (
+                          <div className="post-summary-meta admin-content-post-meta-row mb-0">
+                            <span className="text-muted d-inline-flex align-items-center admin-content-post-meta-item">
                               <FontAwesomeIcon icon="calendar-alt" className="me-2" />
                               {t('adminAccount.content.list.updatedAt', {
                                 ns: 'admin-account',
                                 value: item.updatedDate,
                               })}
                             </span>
-                          ) : null}
-                          {item.status === 'SCHEDULED' && item.scheduledAt ? (
-                            <span className={`text-muted d-flex align-items-center${isListMode ? '' : ' w-100'}`}>
+                          </div>
+                        ) : null}
+
+                        {item.status === 'SCHEDULED' && item.scheduledAt ? (
+                          <div className="post-summary-meta admin-content-post-meta-row mb-0">
+                            <span className="text-muted d-inline-flex align-items-center admin-content-post-meta-item">
                               <FontAwesomeIcon icon="clock" className="me-2" />
                               {t('adminAccount.content.modals.post.lifecycle.scheduledFor', {
                                 ns: 'admin-account',
                                 value: formatDateTime(item.scheduledAt),
                               })}
                             </span>
-                          ) : null}
-                        </p>
+                          </div>
+                        ) : null}
 
-                        <div className="post-summary-meta mb-0">
+                        <div className="post-summary-meta admin-content-post-meta-row mb-0">
                           <span className="text-muted d-inline-flex align-items-center lh-1">
                             <FontAwesomeIcon icon="clock" className="me-2" />
                             <span>{formatReadingTime(item.readingTimeMin, t, 1)}</span>

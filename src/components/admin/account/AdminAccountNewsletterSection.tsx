@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Alert from 'react-bootstrap/Alert';
+import Badge from 'react-bootstrap/Badge';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
@@ -380,82 +381,94 @@ export default function AdminAccountNewsletterSection({
                           const campaignStatus = resolveNewsletterCampaignStatus(item.sentCount, item.failedCount, t);
 
                           return (
-                            <div key={`${item.locale}-${item.itemKey}`} className="admin-newsletter-campaign-card">
-                              <div className="fw-bold fs-4 text-break">
-                                {item.link ? (
-                                  <Link href={item.link} className="link">
-                                    {item.title}
-                                  </Link>
-                                ) : (
-                                  item.title
-                                )}
-                              </div>
-                              <div className="mt-3 d-flex align-items-center flex-wrap gap-2">
-                                {item.locale === 'en' || item.locale === 'tr' ? (
-                                  <span className="d-inline-flex align-items-center gap-2">
-                                    <FlagIcon
-                                      className="flex-shrink-0"
-                                      code={item.locale}
-                                      alt={`${item.locale.toUpperCase()} flag`}
-                                      width={22}
-                                      height={22}
-                                    />
-                                    <span className="fs-4">
-                                      {resolveNewsletterLocaleLabel(item.locale, item.locale)}
+                            <div
+                              key={`${item.locale}-${item.itemKey}`}
+                              className="post-card d-flex align-items-center post-summary-card admin-newsletter-campaign-card"
+                            >
+                              <div className="post-card-content flex-grow-1">
+                                <div className="post-summary-title-row">
+                                  <h4 className="fw-bold post-summary-title fs-4 mb-0 text-break">
+                                    {item.link ? (
+                                      <Link href={item.link} className="link">
+                                        {item.title}
+                                      </Link>
+                                    ) : (
+                                      item.title
+                                    )}
+                                  </h4>
+                                  <div className="d-flex flex-wrap align-items-center gap-3 text-muted">
+                                    <span className="d-inline-flex align-items-center gap-2">
+                                      {item.locale === 'en' || item.locale === 'tr' ? (
+                                        <FlagIcon
+                                          className="flex-shrink-0"
+                                          code={item.locale}
+                                          alt={`${item.locale.toUpperCase()} flag`}
+                                          width={18}
+                                          height={18}
+                                        />
+                                      ) : (
+                                        <FontAwesomeIcon icon="globe" className="text-muted" />
+                                      )}
+                                      <span>{resolveNewsletterLocaleLabel(item.locale, item.locale)}</span>
                                     </span>
-                                  </span>
-                                ) : null}
-                                <span className={`badge text-bg-${campaignStatus.variant}`}>
-                                  {campaignStatus.label}
-                                </span>
-                              </div>
-                              <div className="d-flex flex-column gap-2 mt-3">
-                                <div className="d-flex align-items-center flex-wrap gap-4">
-                                  <span className="d-inline-flex align-items-center gap-2 fs-5">
-                                    <FontAwesomeIcon icon="paper-plane" className="text-muted" />
-                                    <span>
-                                      {t('adminAccount.newsletter.campaigns.metrics.sent', {
-                                        ns: 'admin-account',
-                                        count: item.sentCount,
-                                      })}
-                                    </span>
-                                  </span>
-                                  <span className="d-inline-flex align-items-center gap-2 fs-5">
-                                    <FontAwesomeIcon icon="exclamation-triangle" className="text-muted" />
-                                    <span>
-                                      {t('adminAccount.newsletter.campaigns.metrics.failed', {
-                                        ns: 'admin-account',
-                                        count: item.failedCount,
-                                      })}
-                                    </span>
-                                  </span>
+                                    <Badge bg={campaignStatus.variant}>{campaignStatus.label}</Badge>
+                                  </div>
                                 </div>
-                                {item.lastRunAt ? (
-                                  <span className="d-inline-flex align-items-center gap-2 fs-5">
-                                    <FontAwesomeIcon icon="calendar-alt" className="text-muted" />
-                                    {t('adminAccount.newsletter.campaigns.metrics.lastRunAt', {
-                                      ns: 'admin-account',
-                                      value: formatSessionDate(item.lastRunAt),
-                                    })}
-                                  </span>
-                                ) : null}
-                              </div>
-                              {campaignThumbnail ? (
-                                <div className="admin-newsletter-campaign-thumbnail mt-3 overflow-hidden">
-                                  <Image
-                                    src={campaignThumbnail}
-                                    alt={item.title}
-                                    width={640}
-                                    height={360}
-                                    unoptimized
-                                    className="w-100 h-100 object-fit-cover"
-                                  />
+
+                                <div className="post-summary-meta-stack mb-2">
+                                  <div className="post-summary-meta mb-0">
+                                    <span className="text-muted d-inline-flex align-items-center lh-1">
+                                      <FontAwesomeIcon icon="paper-plane" className="me-2" />
+                                      <span className="post-summary-like-value">
+                                        {t('adminAccount.newsletter.campaigns.metrics.sent', {
+                                          ns: 'admin-account',
+                                          count: item.sentCount,
+                                        })}
+                                      </span>
+                                    </span>
+                                    <span className="text-muted d-inline-flex align-items-center lh-1">
+                                      <FontAwesomeIcon icon="exclamation-triangle" className="me-2" />
+                                      <span className="post-summary-like-value">
+                                        {t('adminAccount.newsletter.campaigns.metrics.failed', {
+                                          ns: 'admin-account',
+                                          count: item.failedCount,
+                                        })}
+                                      </span>
+                                    </span>
+                                  </div>
+                                  {item.lastRunAt ? (
+                                    <div className="post-summary-meta mb-0 admin-newsletter-campaign-last-run">
+                                      <span className="text-muted d-inline-flex align-items-center lh-1">
+                                        <FontAwesomeIcon icon="calendar-alt" className="me-2" />
+                                        <span>
+                                          {t('adminAccount.newsletter.campaigns.metrics.lastRunAt', {
+                                            ns: 'admin-account',
+                                            value: formatSessionDate(item.lastRunAt),
+                                          })}
+                                        </span>
+                                      </span>
+                                    </div>
+                                  ) : null}
                                 </div>
-                              ) : null}
-                              {item.summary ? (
-                                <p className="post-summary-text mt-3 mb-0 text-muted">{item.summary}</p>
-                              ) : null}
-                              <div className="d-flex flex-wrap gap-2 mt-3">
+
+                                {campaignThumbnail ? (
+                                  <div className="post-summary-thumbnail">
+                                    <div className="admin-newsletter-campaign-thumbnail ratio ratio-16x9 overflow-hidden">
+                                      <Image
+                                        src={campaignThumbnail}
+                                        alt={item.title}
+                                        width={640}
+                                        height={360}
+                                        unoptimized
+                                        className="w-100 h-100 object-fit-cover"
+                                      />
+                                    </div>
+                                  </div>
+                                ) : null}
+                                {item.summary ? (
+                                  <p className="post-summary-text small text-muted mb-2">{item.summary}</p>
+                                ) : null}
+                                <div className="post-summary-cta d-flex flex-wrap gap-2">
                                 <Button
                                   type="button"
                                   variant="primary"
@@ -493,6 +506,7 @@ export default function AdminAccountNewsletterSection({
                                     {t('adminAccount.newsletter.campaigns.actions.openPost', { ns: 'admin-account' })}
                                   </Link>
                                 ) : null}
+                              </div>
                               </div>
                             </div>
                           );
