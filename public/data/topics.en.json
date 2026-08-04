@@ -3,6 +3,7 @@
   { "id": "kotlin", "name": "Kotlin", "color": "purple" },
   { "id": "go", "name": "Go", "color": "brown" },
   { "id": "spring-boot", "name": "Spring Boot", "color": "green" },
+  { "id": "grpc", "name": "gRPC", "color": "cyan" },
   { "id": "spring-cloud", "name": "Spring Cloud", "color": "pink" },
   { "id": "microservice", "name": "Microservice", "color": "orange" },
   { "id": "docker", "name": "Docker", "color": "blue" },

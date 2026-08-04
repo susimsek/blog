@@ -68,6 +68,50 @@
     }
   },
   {
+    "id": "spring-boot-grpc",
+    "title": "Spring Boot ile gRPC",
+    "summary": "Protobuf sözleşmeleri, JWT kimlik doğrulama, doğrulama, JPA ve in-process test desteğiyle Spring Boot üzerinde güvenli bir gRPC API geliştirmeyi öğrenin.",
+    "thumbnail": "/images/spring-boot-grpc-thumbnail.webp",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "grpc",
+        "name": "gRPC",
+        "color": "cyan"
+      },
+      {
+        "id": "security",
+        "name": "Güvenlik",
+        "color": "blue"
+      },
+      {
+        "id": "validation",
+        "name": "Doğrulama",
+        "color": "orange"
+      }
+    ],
+    "readingTimeMin": 7,
+    "searchText": "spring boot ile grpc protobuf sozlesmeleri jwt kimlik dogrulama dogrulama jpa ve in process test destegiyle spring boot uzerinde guvenli bir grpc api gelistirmeyi ogrenin java spring boot grpc guvenlik dogrulama",
+    "updatedDate": "2026-08-04",
+    "publishedDate": "2026-08-04",
+    "source": "blog",
+    "category": {
+      "id": "programming",
+      "name": "Programlama",
+      "color": "blue",
+      "icon": "code"
+    }
+  },
+  {
     "id": "spring-boot-configuration-properties",
     "title": "Spring Boot Configuration Properties",
     "summary": "@ConfigurationProperties ile tip-güvenli yapılandırma tanımlamayı, @Validated ile ayarları doğrulamayı ve profile-specific application-{profile}.yml dosyalarıyla ortama göre değer yönetimini öğrenin.",

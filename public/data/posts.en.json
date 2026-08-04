@@ -68,6 +68,50 @@
     }
   },
   {
+    "id": "spring-boot-grpc",
+    "title": "Spring Boot gRPC",
+    "summary": "Learn how to build a secured gRPC API with Spring Boot using protobuf contracts, JWT authentication, validation, JPA, and in-process testing.",
+    "thumbnail": "/images/spring-boot-grpc-thumbnail.webp",
+    "topics": [
+      {
+        "id": "java",
+        "name": "Java",
+        "color": "red"
+      },
+      {
+        "id": "spring-boot",
+        "name": "Spring Boot",
+        "color": "green"
+      },
+      {
+        "id": "grpc",
+        "name": "gRPC",
+        "color": "cyan"
+      },
+      {
+        "id": "security",
+        "name": "Security",
+        "color": "blue"
+      },
+      {
+        "id": "validation",
+        "name": "Validation",
+        "color": "orange"
+      }
+    ],
+    "readingTimeMin": 8,
+    "searchText": "spring boot grpc learn how to build a secured grpc api with spring boot using protobuf contracts jwt authentication validation jpa and in process testing java spring boot grpc security validation",
+    "updatedDate": "2026-08-04",
+    "publishedDate": "2026-08-04",
+    "source": "blog",
+    "category": {
+      "id": "programming",
+      "name": "Programming",
+      "color": "blue",
+      "icon": "code"
+    }
+  },
+  {
     "id": "spring-boot-configuration-properties",
     "title": "Spring Boot Configuration Properties",
     "summary": "Learn how to use @ConfigurationProperties for type-safe configuration, validate settings with @Validated, and manage environment-specific values with profile-specific application-{profile}.yml files.",

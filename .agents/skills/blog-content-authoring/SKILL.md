@@ -477,6 +477,8 @@ Notes:
 Constraint:
 
 - The `@tab` title is parsed via a regex; avoid emojis/special characters. Use **letters/numbers/spaces**.
+- For fenced code blocks with `filename="..."`, use the short file name only such as `pom.xml`, `AppProperties.java`, or `application.yml`.
+- Do not use package-qualified or repository-relative paths such as `src/main/java/.../App.java` in the `filename` attribute.
 
 Link rule:
 

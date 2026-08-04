@@ -1,0 +1,4026 @@
+---
+title: 'Spring Boot ile gRPC'
+publishedDate: '2026-08-04'
+category:
+  id: programming
+  name: Programlama
+  color: blue
+  icon: code
+updatedDate: '2026-08-04'
+summary: 'Protobuf sözleşmeleri, JWT kimlik doğrulama, doğrulama, JPA ve in-process test desteğiyle Spring Boot üzerinde güvenli bir gRPC API geliştirmeyi öğrenin.'
+thumbnail: '/images/spring-boot-grpc-thumbnail.webp'
+readingTime: '6 dk okuma'
+topics:
+  - id: 'java'
+    name: 'Java'
+    color: 'red'
+  - id: 'kotlin'
+    name: 'Kotlin'
+    color: 'purple'
+  - id: 'spring-boot'
+    name: 'Spring Boot'
+    color: 'green'
+  - id: 'grpc'
+    name: 'gRPC'
+    color: 'cyan'
+  - id: 'security'
+    name: 'Güvenlik'
+    color: 'blue'
+  - id: 'validation'
+    name: 'Doğrulama'
+    color: 'orange'
+---
+
+Spring Boot, düşük seviyeli sunucu açılış kodlarını elle birleştirmeden contract-first gRPC servisleri kurmayı mümkün hale getiren birinci sınıf gRPC sunucu desteği sunuyor. Bu makalede [spring-grpc-samples](https://github.com/susimsek/spring-grpc-samples) reposundaki gerçek kodları kullanacak ve akışı JWE + JPA makalesindeki dosya-merkezli yapıya yakın biçimde kuracağız.
+
+Bu örnek, basit bir hello-world RPC’sinden fazlasını içeriyor. Aynı Todo servisi içinde Spring gRPC, Spring Security, Protovalidate, JPA, Liquibase, yerelleştirilmiş hata yönetimi ve test desteği birlikte çalışıyor.
+
+---
+
+## 🌟 Neden Spring Boot gRPC Kullanılır?
+
+Bu bölümde Neden Spring Boot gRPC Kullanılır? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
+- Contract-first API tasarımı: protobuf dosyaları RPC isimlerini, mesaj yapısını ve doğrulama kurallarını tanımlar.
+- Küçük servis katmanı: Spring Boot `BindableService` bean’lerini otomatik yayımlar, bu yüzden servis sınıfları iş akışına odaklanır.
+- Tutarlı güvenlik: kimlik doğrulama ve yetkilendirme gRPC sunucu hattında uygulanır.
+- Yapılandırılmış doğrulama: istek kuralları sözleşmeye yakın yerde tanımlanır ve merkezi olarak çalıştırılır.
+- Daha iyi istemci geri bildirimi: hatalı istekler ve auth problemleri uygun gRPC status yanıtlarına çevrilir.
+- Üretim yoluna yakın örnek: proje zaten test, native build, Docker, Helm ve Terraform taraflarını da düşünür.
+
+---
+
+## 📋 Gereksinimler
+
+Bu bölümde Gereksinimler konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+
+- ☕ Java Development Kit (JDK) 25
+- 📦 `./mvnw` ile Maven Wrapper
+- 🔤 IDE (IntelliJ IDEA, Eclipse, VS Code)
+- 🛢️ JPA ve Spring Security hakkında temel bilgi
+- 🧪 İsteğe bağlı olarak manuel doğrulama için `grpcurl` ve `jq`
+
+---
+
+## 🛠️ Adım 1: Bağımlılıkları Ekle
+
+Örnek projedekiyle aynı temel parçaları ekleyin: gRPC transport katmanı, JPA persistence, Liquibase migration, JWT güvenliği, cache desteği, MapStruct ve Protovalidate.
+
+Maven:
+
+```xml filename="pom.xml"
+<properties>
+  <java.version>25</java.version>
+  <org.mapstruct.version>1.6.3</org.mapstruct.version>
+  <protovalidate.version>0.14.0</protovalidate.version>
+</properties>
+
+<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-grpc-server</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-cache</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-liquibase</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.hibernate.orm</groupId>
+    <artifactId>hibernate-jcache</artifactId>
+    <version>${hibernate.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>com.github.ben-manes.caffeine</groupId>
+    <artifactId>caffeine</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>com.github.ben-manes.caffeine</groupId>
+    <artifactId>jcache</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>build.buf</groupId>
+    <artifactId>protovalidate</artifactId>
+    <version>${protovalidate.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <optional>true</optional>
+  </dependency>
+  <dependency>
+    <groupId>org.mapstruct</groupId>
+    <artifactId>mapstruct</artifactId>
+    <version>${org.mapstruct.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-grpc-server-test</artifactId>
+    <scope>test</scope>
+  </dependency>
+</dependencies>
+```
+
+Gradle:
+
+```groovy filename="build.gradle"
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-grpc-server'
+  implementation 'org.springframework.boot:spring-boot-starter-cache'
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.springframework.boot:spring-boot-starter-liquibase'
+  implementation 'org.hibernate.orm:hibernate-jcache'
+  implementation 'com.github.ben-manes.caffeine:caffeine'
+  implementation 'com.github.ben-manes.caffeine:jcache'
+  implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+  implementation 'build.buf:protovalidate:0.14.0'
+  implementation 'org.mapstruct:mapstruct:1.6.3'
+  compileOnly 'org.projectlombok:lombok'
+  testImplementation 'org.springframework.boot:spring-boot-starter-grpc-server-test'
+}
+```
+
+Gradle Kotlin DSL:
+
+```kotlin filename="build.gradle.kts"
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-grpc-server")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-liquibase")
+    implementation("org.hibernate.orm:hibernate-jcache")
+    implementation("com.github.ben-manes.caffeine:caffeine")
+    implementation("com.github.ben-manes.caffeine:jcache")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("build.buf:protovalidate:0.14.0")
+    implementation("org.mapstruct:mapstruct:1.6.3")
+    compileOnly("org.projectlombok:lombok")
+    testImplementation("org.springframework.boot:spring-boot-starter-grpc-server-test")
+}
+```
+
+Yerel geliştirmede örnek proje varsayılan `dev` profilinde `H2`, `prod` profilinde ise `PostgreSQL` kullanır; bu yüzden veritabanı driver’ları profile bağlı runtime bağımlılıkları olarak kalır.
+
+Bu kombinasyon önemlidir çünkü proje yalnızca RPC metodu servis etmez. Aynı zamanda JPA ile Todo verisini saklar, Liquibase migration çalıştırır, MapStruct ile entity dönüşümü yapar, protobuf payload’larını doğrular, Hibernate cache desteği ekler ve iş RPC’lerini JWT ile korur.
+
+---
+
+## 🛠️ Adım 2: Yapılandırma Dosyaları
+
+Bu bölümde örnek projenin kullandığı temel yapılandırma ve migration dosyalarını tanımlıyor; gRPC ile persistence katmanını bir arada kullanan bir servis için neden önemli olduklarını açıklıyoruz.
+
+- `src/main/resources/config/application.yml`
+  Uygulama adı, aktif profil akışı, JPA varsayımları, Hibernate cache ayarları, Liquibase changelog yolu, message bundle ayarı ve gRPC portunu içerir.
+
+- `src/main/resources/config/application-dev.yml`
+  Yerel H2 tabanlı geliştirme profilini, debug log seviyelerini ve `faker` Liquibase context’ini tanımlar.
+
+- `src/main/resources/config/application-prod.yml`
+  Örneği PostgreSQL odaklı production varsayımlarına, daha kısa JWT süresine ve daha büyük cache boyutlarına geçirir.
+
+- `src/main/resources/logback-spring.xml`
+  gRPC, Liquibase, Hibernate ve security çıktılarının geliştirme sırasında okunabilir kalması için gürültülü framework loglarını kısar.
+
+- `src/main/resources/db/changelog/db.changelog-master.xml`
+  H2 ve PostgreSQL için `now` property’lerini tanımlar ve Todo ile kullanıcı şema dosyalarını include eder.
+
+- `src/main/resources/db/changelog/changes/001-create-todos.xml`
+  Todo sequence’ini, `todos` tablosunu, ilgili index’leri ve Faker context seed yüklemesini oluşturur.
+
+- `src/main/resources/db/changelog/changes/002-create-users.xml`
+  `users`, `authorities` ve `user_authorities` tablolarını oluşturur ve başlangıç güvenlik verilerini yükler.
+
+- `src/main/resources/db/data/todos.csv`
+  `faker` Liquibase context’i aktif olduğunda kullanılan başlangıç Todo kayıtlarıdır.
+
+- `src/main/resources/db/data/users.csv`
+  Bcrypt hash’li başlangıç kullanıcılarını içerir.
+
+- `src/main/resources/db/data/authorities.csv`
+  Başlangıç rol tanımlarını içerir.
+
+- `src/main/resources/db/data/user-authorities.csv`
+  Kullanıcı-rol eşleştirmelerini içerir.
+
+- `src/main/resources/i18n/messages.properties`
+  gRPC advice katmanı üzerinden dönen doğrulama, kimlik doğrulama ve Todo hata mesajlarının varsayılan İngilizce karşılıklarını içerir.
+
+- `src/main/resources/i18n/messages_tr.properties`
+  Aynı validation ve security message code'larının Türkçe çevirilerini içerir.
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/config/i18n/GrpcLocaleServerInterceptor.java`
+  gRPC metadata içindeki `accept-language` değerini çözüp validation ve exception çevirisi çalışmadan önce `LocaleContextHolder` içine taşır.
+
+```yaml filename="application.yml"
+spring:
+  application:
+    name: spring-grpc-samples
+  profiles:
+    active: '@spring.profiles.active@'
+  docker:
+    compose:
+      lifecycle-management: start-only
+      file: src/main/docker/services.yml
+  main:
+    allow-bean-definition-overriding: true
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: deferred
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: Europe/Istanbul
+      hibernate.cache.region.factory_class: jcache
+      hibernate.javax.cache.provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+      hibernate.cache.use_second_level_cache: true
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: false
+      hibernate.jdbc.batch_size: 50
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
+      hibernate.jdbc.fetch_size: 50
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+        implicit-strategy: org.springframework.boot.hibernate.SpringImplicitNamingStrategy
+  messages:
+    basename: i18n/messages
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  grpc:
+    server:
+      port: 9090
+```
+
+Buradaki gRPC açısından kritik ayar `spring.grpc.server.port` alanıdır. Ancak çevresindeki JPA, Liquibase ve message-source ayarları bu örneği izole bir transport demosu olmaktan çıkarıp gerçekçi bir sunucu haline getirir.
+
+`application-dev.yml`
+
+```yaml filename="application-dev.yml"
+spring:
+  devtools:
+    restart:
+      enabled: true
+  docker:
+    compose:
+      enabled: false
+  datasource:
+    url: jdbc:h2:mem:grpcsamples;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+  liquibase:
+    contexts: dev, faker
+
+app:
+  cache:
+    caffeine:
+      ttl: PT1H
+      initial-capacity: 50
+      maximum-size: 100
+  security:
+    jwt:
+      secret: CDyi/yxfK/EMHtj20eOFoLc0t08WVHotnfcpgpnjdt4=
+      issuer: https://spring-grpc-samples.local
+      expires-in: PT1H
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: DEBUG
+    io.github.susimsek.springgrpcsamples: DEBUG
+```
+
+`application-prod.yml`
+
+```yaml filename="application-prod.yml"
+spring:
+  devtools:
+    restart:
+      enabled: false
+  docker:
+    compose:
+      profiles:
+        active: prod
+  datasource:
+    url: jdbc:postgresql://localhost:5432/grpcsamples
+    username: ${SPRING_DATASOURCE_USERNAME}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+  jpa:
+    show-sql: false
+    properties:
+      hibernate.format_sql: false
+  liquibase:
+    contexts: prod
+
+app:
+  cache:
+    caffeine:
+      ttl: PT1H
+      initial-capacity: 500
+      maximum-size: 1000
+  security:
+    jwt:
+      secret: ${SECURITY_JWT_SECRET}
+      issuer: https://spring-grpc-samples.local
+      expires-in: PT30M
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: INFO
+    io.github.susimsek.springgrpcsamples: INFO
+```
+
+`logback-spring.xml`
+
+```xml filename="logback-spring.xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <!-- Noisy frameworks trimmed down to WARN to keep dev console readable -->
+    <logger name="com.zaxxer" level="WARN"/>
+    <logger name="org.apache" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.springframework.boot.docker" level="WARN"/>
+    <logger name="org.springframework.cache" level="WARN"/>
+    <logger name="org.springframework.grpc" level="WARN"/>
+    <logger name="org.springframework.security" level="WARN"/>
+    <logger name="org.springframework.security.oauth2" level="WARN"/>
+    <logger name="liquibase" level="WARN"/>
+    <logger name="LiquibaseSchemaResolver" level="INFO"/>
+    <logger name="io.grpc" level="WARN"/>
+
+    <springProperty name="log.level" source="logging.level.root" defaultValue="INFO"/>
+    <root level="${log.level}">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
+```
+
+`messages.properties`
+
+```properties filename="messages.properties"
+grpc.validation.failed=One or more validation errors occurred.
+grpc.validation.unknown=invalid value
+grpc.validation.constraints.notBlank=This field cannot be blank.
+grpc.validation.constraints.notEmpty=This field cannot be empty.
+grpc.validation.constraints.int32.gte=Value must be greater than or equal to {0}.
+grpc.validation.constraints.int32.gte_lte=Value must be between 1 and 100.
+grpc.validation.constraints.int32.lte=Value must be less than or equal to {0}.
+grpc.validation.constraints.int64.gt=Value must be greater than {0}.
+grpc.validation.constraints.string.max_len=Value length must be at most {0} characters.
+grpc.validation.constraints.string.min_len=Value length must be at least {0} characters.
+grpc.auth.invalidCredentials=invalid username or password
+grpc.auth.invalidToken=Invalid or expired token.
+grpc.auth.unauthenticated=Authentication failed.
+grpc.auth.accessDenied=Access denied.
+grpc.todo.notFound=todo not found with id: {0}
+grpc.internal=An unexpected error occurred. Please try again later.
+```
+
+`messages_tr.properties`
+
+```properties filename="messages_tr.properties"
+grpc.validation.failed=Bir veya daha fazla doğrulama hatası oluştu.
+grpc.validation.unknown=geçersiz değer
+grpc.validation.constraints.notBlank=Bu alan boş bırakılamaz.
+grpc.validation.constraints.notEmpty=Bu alan boş olamaz.
+grpc.validation.constraints.int32.gte=Değer {0} veya daha büyük olmalıdır.
+grpc.validation.constraints.int32.gte_lte=Değer 1 ile 100 arasında olmalıdır.
+grpc.validation.constraints.int32.lte=Değer {0} veya daha küçük olmalıdır.
+grpc.validation.constraints.int64.gt=Değer {0}''dan büyük olmalıdır.
+grpc.validation.constraints.string.max_len=Uzunluk en fazla {0} karakter olmalıdır.
+grpc.validation.constraints.string.min_len=Uzunluk en az {0} karakter olmalıdır.
+grpc.auth.invalidCredentials=kullanıcı adı veya parola geçersiz
+grpc.auth.invalidToken=Token geçersiz veya süresi dolmuş.
+grpc.auth.unauthenticated=Authentication failed.
+grpc.auth.accessDenied=Access denied.
+grpc.todo.notFound=id''si {0} olan todo bulunamadı
+grpc.internal=Beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.
+```
+
+`GrpcLocaleServerInterceptor.java`
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="GrpcLocaleServerInterceptor.java"
+package io.github.susimsek.springgrpcsamples.config.i18n;
+
+import io.grpc.ForwardingServerCallListener;
+import io.grpc.Metadata;
+import io.grpc.ServerCall;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
+import java.util.List;
+import java.util.Locale;
+import java.util.function.Supplier;
+import org.springframework.context.i18n.LocaleContext;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.i18n.SimpleLocaleContext;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.grpc.server.GlobalServerInterceptor;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+@Component
+@GlobalServerInterceptor
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class GrpcLocaleServerInterceptor implements ServerInterceptor {
+
+    private static final String ACCEPT_LANGUAGE_HEADER = "accept-language";
+    private static final List<Locale> SUPPORTED_LOCALES =
+            List.of(Locale.ENGLISH, Locale.forLanguageTag("tr"));
+    private static final Metadata.Key<String> ACCEPT_LANGUAGE =
+            Metadata.Key.of(ACCEPT_LANGUAGE_HEADER, Metadata.ASCII_STRING_MARSHALLER);
+
+    @Override
+    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+            ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
+        Locale locale = resolveLocale(headers);
+        ServerCall.Listener<ReqT> listener =
+                callWithLocale(locale, () -> next.startCall(call, headers));
+        return new LocaleAwareServerCallListener<>(listener, locale);
+    }
+
+    private static Locale resolveLocale(Metadata headers) {
+        String language = headers.get(ACCEPT_LANGUAGE);
+        if (!StringUtils.hasText(language)) {
+            return Locale.ENGLISH;
+        }
+        try {
+            Locale locale = Locale.lookup(Locale.LanguageRange.parse(language), SUPPORTED_LOCALES);
+            return locale != null ? locale : Locale.ENGLISH;
+        } catch (IllegalArgumentException ex) {
+            return Locale.ENGLISH;
+        }
+    }
+
+    private static <T> T callWithLocale(Locale locale, Supplier<T> action) {
+        LocaleContext previous = LocaleContextHolder.getLocaleContext();
+        try {
+            LocaleContextHolder.setLocaleContext(new SimpleLocaleContext(locale));
+            return action.get();
+        } finally {
+            LocaleContextHolder.setLocaleContext(previous);
+        }
+    }
+
+    private static final class LocaleAwareServerCallListener<ReqT>
+            extends ForwardingServerCallListener.SimpleForwardingServerCallListener<ReqT> {
+
+        private final Locale locale;
+
+        private LocaleAwareServerCallListener(ServerCall.Listener<ReqT> delegate, Locale locale) {
+            super(delegate);
+            this.locale = locale;
+        }
+
+        @Override
+        public void onMessage(ReqT message) {
+            runWithLocale(() -> super.onMessage(message));
+        }
+
+        @Override
+        public void onHalfClose() {
+            runWithLocale(super::onHalfClose);
+        }
+
+        @Override
+        public void onCancel() {
+            runWithLocale(super::onCancel);
+        }
+
+        @Override
+        public void onComplete() {
+            runWithLocale(super::onComplete);
+        }
+
+        @Override
+        public void onReady() {
+            runWithLocale(super::onReady);
+        }
+
+        private void runWithLocale(Runnable action) {
+            callWithLocale(locale, () -> {
+                action.run();
+                return null;
+            });
+        }
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="GrpcLocaleServerInterceptor.kt"
+package io.github.susimsek.springgrpcsamples.config.i18n
+
+import io.grpc.*
+import org.springframework.context.i18n.LocaleContext
+import org.springframework.context.i18n.LocaleContextHolder
+import org.springframework.context.i18n.SimpleLocaleContext
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
+import org.springframework.grpc.server.GlobalServerInterceptor
+import org.springframework.stereotype.Component
+import org.springframework.util.StringUtils
+import java.util.Locale
+
+@Component
+@GlobalServerInterceptor
+@Order(Ordered.HIGHEST_PRECEDENCE)
+class GrpcLocaleServerInterceptor : ServerInterceptor {
+
+    override fun <ReqT : Any?, RespT : Any?> interceptCall(
+        call: ServerCall<ReqT, RespT>,
+        headers: Metadata,
+        next: ServerCallHandler<ReqT, RespT>
+    ): ServerCall.Listener<ReqT> {
+        val locale = resolveLocale(headers)
+        val listener = callWithLocale(locale) { next.startCall(call, headers) }
+        return LocaleAwareServerCallListener(listener, locale)
+    }
+
+    private fun resolveLocale(headers: Metadata): Locale {
+        val language = headers.get(ACCEPT_LANGUAGE)
+        if (!StringUtils.hasText(language)) return Locale.ENGLISH
+        return try {
+            Locale.lookup(Locale.LanguageRange.parse(language), SUPPORTED_LOCALES) ?: Locale.ENGLISH
+        } catch (_: IllegalArgumentException) {
+            Locale.ENGLISH
+        }
+    }
+
+    private fun <T> callWithLocale(locale: Locale, action: () -> T): T {
+        val previous: LocaleContext = LocaleContextHolder.getLocaleContext()
+        return try {
+            LocaleContextHolder.setLocaleContext(SimpleLocaleContext(locale))
+            action()
+        } finally {
+            LocaleContextHolder.setLocaleContext(previous)
+        }
+    }
+
+    private inner class LocaleAwareServerCallListener<ReqT>(
+        delegate: ServerCall.Listener<ReqT>,
+        private val locale: Locale
+    ) : ForwardingServerCallListener.SimpleForwardingServerCallListener<ReqT>(delegate) {
+
+        override fun onMessage(message: ReqT) = runWithLocale { super.onMessage(message) }
+        override fun onHalfClose() = runWithLocale { super.onHalfClose() }
+        override fun onCancel() = runWithLocale { super.onCancel() }
+        override fun onComplete() = runWithLocale { super.onComplete() }
+        override fun onReady() = runWithLocale { super.onReady() }
+
+        private fun runWithLocale(action: () -> Unit) {
+            callWithLocale(locale) { action() }
+        }
+    }
+
+    companion object {
+        private const val ACCEPT_LANGUAGE_HEADER = "accept-language"
+        private val SUPPORTED_LOCALES = listOf(Locale.ENGLISH, Locale.forLanguageTag("tr"))
+        private val ACCEPT_LANGUAGE: Metadata.Key<String> =
+            Metadata.Key.of(ACCEPT_LANGUAGE_HEADER, Metadata.ASCII_STRING_MARSHALLER)
+    }
+}
+```
+
+:::
+
+`db.changelog-master.xml`
+
+```xml filename="db.changelog-master.xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <property name="now" value="now()" dbms="h2"/>
+    <property name="now" value="current_timestamp" dbms="postgresql"/>
+    <include file="db/changelog/changes/001-create-todos.xml"/>
+    <include file="db/changelog/changes/002-create-users.xml"/>
+</databaseChangeLog>
+```
+
+`001-create-todos.xml`
+
+```xml filename="001-create-todos.xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="001-create-todo-sequence" author="susimsek">
+        <createSequence
+            sequenceName="todo_seq"
+            startValue="1"
+            incrementBy="1"
+            minValue="1"
+            maxValue="9999999999999999"
+            cacheSize="100"
+            cycle="false"/>
+    </changeSet>
+    <changeSet id="002-create-todos-table" author="susimsek">
+        <createTable tableName="todos">
+            <column name="id" type="bigint" defaultValueSequenceNext="todo_seq">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_todos"/>
+            </column>
+            <column name="title" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="completed" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="varchar(100)"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="003-create-todo-indexes" author="susimsek">
+        <createIndex indexName="idx_todos_completed" tableName="todos">
+            <column name="completed"/>
+        </createIndex>
+        <createIndex indexName="idx_todos_title" tableName="todos">
+            <column name="title"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="004-seed-todos" author="susimsek" context="faker">
+        <loadData
+            encoding="UTF-8"
+            file="db/data/todos.csv"
+            separator=";"
+            tableName="todos"
+            usePreparedStatements="true">
+            <column header="title" type="string"/>
+            <column header="completed" type="boolean"/>
+            <column header="created_by" type="string"/>
+            <column header="last_modified_by" type="string"/>
+        </loadData>
+    </changeSet>
+</databaseChangeLog>
+```
+
+`002-create-users.xml`
+
+```xml filename="002-create-users.xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="001-create-user-sequence" author="susimsek">
+        <createSequence
+            sequenceName="user_seq"
+            startValue="1"
+            incrementBy="1"
+            minValue="1"
+            maxValue="9999999999999999"
+            cacheSize="100"
+            cycle="false"/>
+    </changeSet>
+    <changeSet id="002-create-users-table" author="susimsek">
+        <createTable tableName="users">
+            <column name="id" type="bigint" defaultValueSequenceNext="user_seq">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_users"/>
+            </column>
+            <column name="username" type="varchar(100)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_users_username"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="varchar(100)"/>
+            <column name="updated_at" type="timestamp" defaultValueComputed="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="003-create-user-indexes" author="susimsek">
+        <createIndex indexName="idx_users_username" tableName="users" unique="true">
+            <column name="username"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="004-create-authorities-table" author="susimsek">
+        <createSequence
+            sequenceName="authority_seq"
+            startValue="1"
+            incrementBy="1"
+            minValue="1"
+            maxValue="9999999999999999"
+            cacheSize="100"
+            cycle="false"/>
+        <createTable tableName="authorities">
+            <column name="id" type="bigint" defaultValueSequenceNext="authority_seq">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_authorities"/>
+            </column>
+            <column name="name" type="varchar(50)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_authorities_name"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="005-create-user-authorities-table" author="susimsek">
+        <createTable tableName="user_authorities">
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="authority_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey
+            tableName="user_authorities"
+            columnNames="user_id, authority_id"
+            constraintName="pk_user_authorities"/>
+        <addForeignKeyConstraint
+            baseTableName="user_authorities"
+            baseColumnNames="user_id"
+            constraintName="fk_user_authorities_user"
+            referencedTableName="users"
+            referencedColumnNames="id"/>
+        <addForeignKeyConstraint
+            baseTableName="user_authorities"
+            baseColumnNames="authority_id"
+            constraintName="fk_user_authorities_authority"
+            referencedTableName="authorities"
+            referencedColumnNames="id"/>
+        <createIndex indexName="idx_user_authorities_authority" tableName="user_authorities">
+            <column name="authority_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="006-seed-authorities" author="susimsek">
+        <loadData
+            encoding="UTF-8"
+            file="db/data/authorities.csv"
+            separator=";"
+            tableName="authorities"
+            usePreparedStatements="true">
+            <column header="id" type="numeric"/>
+            <column header="name" type="string"/>
+        </loadData>
+    </changeSet>
+    <changeSet id="007-seed-users" author="susimsek">
+        <loadData
+            encoding="UTF-8"
+            file="db/data/users.csv"
+            separator=";"
+            tableName="users"
+            usePreparedStatements="true">
+            <column header="username" type="string"/>
+            <column header="password" type="string"/>
+            <column header="enabled" type="boolean"/>
+            <column header="created_by" type="string"/>
+            <column header="last_modified_by" type="string"/>
+        </loadData>
+    </changeSet>
+    <changeSet id="008-seed-user-authorities" author="susimsek">
+        <loadData
+            encoding="UTF-8"
+            file="db/data/user-authorities.csv"
+            separator=";"
+            tableName="user_authorities"
+            usePreparedStatements="true">
+            <column header="user_id" type="numeric"/>
+            <column header="authority_id" type="numeric"/>
+        </loadData>
+    </changeSet>
+</databaseChangeLog>
+```
+
+`todos.csv`
+
+```csv filename="todos.csv"
+title;completed;created_by;last_modified_by
+Refactor gRPC service;false;system;system
+Review pageable todo list;true;system;system
+Validate mapper records;false;system;system
+Prepare Liquibase changelog;true;system;system
+Check auditing fields;false;system;system
+Update repository tests;true;system;system
+Document todo contract;false;system;system
+Exercise patch endpoint;true;system;system
+Verify delete behavior;false;system;system
+Run Maven coverage;true;system;system
+```
+
+`users.csv`
+
+```csv filename="users.csv"
+username;password;enabled;created_by;last_modified_by
+admin;$2a$10$dsEILtFz.VyZL6vXnj1Kg.GFczEdAJ9XlBI234j4ExulU3xub4zTe;true;system;system
+user;$2a$10$X4IqH828fc4B.V4t7PtB7.n1eKxlSvCRB6BmntaXnxDCBtj23g6L6;true;system;system
+```
+
+`authorities.csv`
+
+```csv filename="authorities.csv"
+id;name
+1;ROLE_ADMIN
+2;ROLE_USER
+```
+
+`user-authorities.csv`
+
+```csv filename="user-authorities.csv"
+user_id;authority_id
+1;1
+1;2
+2;2
+```
+
+Örnek proje ayrıca `src/main/resources/META-INF/native-image` altında birkaç native-image metadata dosyası da tutar. Uygulamaya özel hint kaydı `NativeRuntimeHints` içinde yapılırken, vendor metadata dosyaları Protovalidate, Hibernate JCache ve Liquibase resource taraması için kullanılır:
+
+- `src/main/resources/META-INF/native-image/build.buf/protovalidate/reflect-config.json`
+  GraalVM build’lerinde Buf validation model tiplerini reflection için kaydeder.
+- `src/main/resources/META-INF/native-image/org.hibernate.orm/hibernate-jcache/reflect-config.json`
+  Hibernate’in JCache region factory sınıfının reflective olarak oluşturulmasını sağlar.
+- `src/main/resources/META-INF/native-image/org.liquibase/liquibase-core/resource-config.json`
+  Liquibase CSV seed kaynaklarının native modda erişilebilir kalmasını sağlar.
+
+`reflect-config.json`
+
+```json filename="reflect-config.json"
+[
+  {
+    "name": "org.hibernate.cache.jcache.internal.JCacheRegionFactory",
+    "allPublicConstructors": true
+  }
+]
+```
+
+`resource-config.json`
+
+```json filename="resource-config.json"
+{
+  "resources": {
+    "includes": [
+      {
+        "pattern": "\\Qdb/data/\\E.*"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 🛠️ Adım 3: gRPC Bootstrap ve Sözleşmeler
+
+Önce uygulamanın bootstrap sınıfını, ardından public RPC yüzeyini tanımlayan protobuf sözleşmelerini ele alıyoruz.
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/SpringGrpcSamplesApplication.java`
+  Uygulamayı başlatır ve bootstrap akışını açık tutar.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="SpringGrpcSamplesApplication.java"
+package io.github.susimsek.springgrpcsamples;
+
+import io.github.susimsek.springgrpcsamples.config.aot.NativeRuntimeHints;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.context.annotation.ImportRuntimeHints;
+
+@SpringBootApplication
+@ConfigurationPropertiesScan
+@ImportRuntimeHints(NativeRuntimeHints.class)
+public class SpringGrpcSamplesApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringGrpcSamplesApplication.class, args);
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="SpringGrpcSamplesApplication.kt"
+package io.github.susimsek.springgrpcsamples
+
+import io.github.susimsek.springgrpcsamples.config.aot.NativeRuntimeHints
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
+import org.springframework.boot.runApplication
+import org.springframework.context.annotation.ImportRuntimeHints
+
+@SpringBootApplication
+@ConfigurationPropertiesScan
+@ImportRuntimeHints(NativeRuntimeHints::class)
+class SpringGrpcSamplesApplication
+
+fun main(args: Array<String>) {
+    runApplication<SpringGrpcSamplesApplication>(*args)
+}
+```
+
+:::
+
+---
+
+## 🛠️ Adım 4: JPA Entegrasyonu
+
+Kimlik doğrulama ve korumalı RPC akışına geçmeden önce, örnek projenin Todo modeli etrafındaki sözleşme ve persistence tarafını görmek faydalı olur.
+
+- `ApplicationProperties`, `DatabaseConfig`, `AuditableEntity` ve `AuthorityEntity`
+  Bu destek sınıfları JWT/cache ayarlarını, JPA auditing akışını ve `TodoEntity` ile `UserEntity` tarafından kullanılan ortak domain tabanını tanımlar.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="ApplicationProperties.java"
+package io.github.susimsek.springgrpcsamples.config;
+
+import java.time.Duration;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@Getter
+@Setter
+@ConfigurationProperties(prefix = "app")
+public class ApplicationProperties {
+    private Cache cache = new Cache();
+    private Security security = new Security();
+
+    @Getter
+    @Setter
+    public static class Cache {
+        private Caffeine caffeine = new Caffeine();
+    }
+
+    @Getter
+    @Setter
+    public static class Caffeine {
+        private Duration ttl = Duration.ofMinutes(10);
+        private int initialCapacity = 100;
+        private long maximumSize = 1_000;
+    }
+
+    @Getter
+    @Setter
+    public static class Security {
+        private Jwt jwt = new Jwt();
+    }
+
+    @Getter
+    @Setter
+    public static class Jwt {
+        private String issuer;
+        private String secret;
+        private Duration expiresIn;
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="ApplicationProperties.kt"
+package io.github.susimsek.springgrpcsamples.config
+
+import org.springframework.boot.context.properties.ConfigurationProperties
+import java.time.Duration
+
+@ConfigurationProperties(prefix = "app")
+class ApplicationProperties {
+    var cache: Cache = Cache()
+    var security: Security = Security()
+
+    class Cache {
+        var caffeine: Caffeine = Caffeine()
+    }
+
+    class Caffeine {
+        var ttl: Duration = Duration.ofMinutes(10)
+        var initialCapacity: Int = 100
+        var maximumSize: Long = 1_000
+    }
+
+    class Security {
+        var jwt: Jwt = Jwt()
+    }
+
+    class Jwt {
+        var issuer: String? = null
+        var secret: String? = null
+        var expiresIn: Duration? = null
+    }
+}
+```
+
+:::
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="DatabaseConfig.java"
+package io.github.susimsek.springgrpcsamples.config;
+
+import io.github.susimsek.springgrpcsamples.security.SecurityAuditorAware;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
+@Configuration(proxyBeanMethods = false)
+@EnableJpaAuditing
+public class DatabaseConfig {
+    @Bean
+    AuditorAware<String> auditorAware() {
+        return new SecurityAuditorAware();
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="DatabaseConfig.kt"
+package io.github.susimsek.springgrpcsamples.config
+
+import io.github.susimsek.springgrpcsamples.security.SecurityAuditorAware
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.data.domain.AuditorAware
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing
+
+@Configuration(proxyBeanMethods = false)
+@EnableJpaAuditing
+class DatabaseConfig {
+    @Bean
+    fun auditorAware(): AuditorAware<String> = SecurityAuditorAware()
+}
+```
+
+:::
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="AuditableEntity.java"
+package io.github.susimsek.springgrpcsamples.domain;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.MappedSuperclass;
+import java.time.Instant;
+import lombok.Getter;
+import lombok.Setter;
+import org.jspecify.annotations.Nullable;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+@Getter
+@Setter
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
+public abstract class AuditableEntity {
+    @CreatedBy
+    @Column(name = "created_by", nullable = false, updatable = false, length = 100)
+    private String createdBy;
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @LastModifiedBy
+    @Column(name = "last_modified_by", length = 100)
+    private @Nullable String lastModifiedBy;
+
+    @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="AuditableEntity.kt"
+package io.github.susimsek.springgrpcsamples.domain
+
+import jakarta.persistence.Column
+import jakarta.persistence.EntityListeners
+import jakarta.persistence.MappedSuperclass
+import org.springframework.data.annotation.CreatedBy
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedBy
+import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import java.time.Instant
+
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener::class)
+abstract class AuditableEntity {
+    @CreatedBy
+    @Column(name = "created_by", nullable = false, updatable = false, length = 100)
+    lateinit var createdBy: String
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    lateinit var createdAt: Instant
+
+    @LastModifiedBy
+    @Column(name = "last_modified_by", length = 100)
+    var lastModifiedBy: String? = null
+
+    @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
+    lateinit var updatedAt: Instant
+}
+```
+
+:::
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="AuthorityEntity.java"
+package io.github.susimsek.springgrpcsamples.domain;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Table(name = "authorities")
+public class AuthorityEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "authority_seq")
+    @SequenceGenerator(name = "authority_seq", sequenceName = "authority_seq", allocationSize = 1)
+    private Long id;
+
+    @Column(name = "name", nullable = false, unique = true, length = 50)
+    private String name;
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="AuthorityEntity.kt"
+package io.github.susimsek.springgrpcsamples.domain
+
+import jakarta.persistence.*
+import org.hibernate.annotations.Cache
+import org.hibernate.annotations.CacheConcurrencyStrategy
+
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Table(name = "authorities")
+class AuthorityEntity(
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "authority_seq")
+    @SequenceGenerator(name = "authority_seq", sequenceName = "authority_seq", allocationSize = 1)
+    var id: Long? = null,
+
+    @Column(name = "name", nullable = false, unique = true, length = 50)
+    var name: String? = null
+)
+```
+
+:::
+
+- `src/main/proto/auth.proto`
+  Public `Login` RPC’sini tanımlar ve kullanıcı adı/parola alanlarını doğrular.
+
+```proto filename="auth.proto"
+syntax = "proto3";
+
+import "buf/validate/validate.proto";
+
+option java_multiple_files = true;
+option java_package = "io.github.susimsek.springgrpcsamples.proto";
+option java_outer_classname = "AuthProto";
+
+service AuthService {
+  rpc Login(LoginRequest) returns (Token) {}
+}
+
+message LoginRequest {
+  string username = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 100
+    }
+  ];
+
+  string password = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 100
+    }
+  ];
+
+  option (buf.validate.message).cel = {
+    id: "grpc.validation.constraints.notBlank"
+    message: "This field cannot be blank."
+    expression: "this.username.matches('.*\\\\S.*') && this.password.matches('.*\\\\S.*')"
+  };
+}
+
+message Token {
+  string access_token = 1;
+  string token_type = 2;
+  int64 expires_in = 3;
+}
+```
+
+- `src/main/proto/todo.proto`
+  Tam CRUD yüzeyini tanımlar ve doğrulama kurallarını doğrudan istek mesajlarına yerleştirir.
+
+```proto filename="todo.proto"
+syntax = "proto3";
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "util/pagination.proto";
+
+option java_multiple_files = true;
+option java_package = "io.github.susimsek.springgrpcsamples.proto";
+option java_outer_classname = "TodoProto";
+
+service TodoService {
+  rpc CreateTodo(CreateTodoRequest) returns (Todo) {}
+  rpc GetTodo(GetTodoRequest) returns (Todo) {}
+  rpc ListTodos(ListTodosRequest) returns (TodoList) {}
+  rpc UpdateTodo(UpdateTodoRequest) returns (Todo) {}
+  rpc PatchTodo(PatchTodoRequest) returns (Todo) {}
+  rpc DeleteTodo(DeleteTodoRequest) returns (DeleteTodoResponse) {}
+}
+
+message CreateTodoRequest {
+  string title = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 255
+    }
+  ];
+
+  option (buf.validate.message).cel = {
+    id: "grpc.validation.constraints.notBlank"
+    message: "This field cannot be blank."
+    expression: "this.title.matches('.*\\\\S.*')"
+  };
+}
+
+message GetTodoRequest {
+  int64 id = 1 [
+    (buf.validate.field).int64 = {
+      gt: 0
+    }
+  ];
+}
+
+message ListTodosRequest {
+  util.PageRequest page_request = 1;
+}
+
+message TodoList {
+  repeated Todo items = 1;
+  int32 page = 2;
+  int32 size = 3;
+  int64 total_elements = 4;
+  int32 total_pages = 5;
+  bool first = 6;
+  bool last = 7;
+}
+
+message UpdateTodoRequest {
+  int64 id = 1 [
+    (buf.validate.field).int64 = {
+      gt: 0
+    }
+  ];
+
+  string title = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 255
+    }
+  ];
+
+  bool completed = 3;
+
+  option (buf.validate.message).cel = {
+    id: "grpc.validation.constraints.notBlank"
+    message: "This field cannot be blank."
+    expression: "this.title.matches('.*\\\\S.*')"
+  };
+}
+
+message PatchTodoRequest {
+  int64 id = 1 [
+    (buf.validate.field).int64 = {
+      gt: 0
+    }
+  ];
+
+  optional string title = 2 [
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 255
+    }
+  ];
+
+  optional bool completed = 3;
+
+  option (buf.validate.message).cel = {
+    id: "grpc.validation.constraints.notEmpty"
+    message: "This field cannot be empty."
+    expression: "has(this.title) || has(this.completed)"
+  };
+
+  option (buf.validate.message).cel = {
+    id: "grpc.validation.constraints.notBlank"
+    message: "This field cannot be blank."
+    expression: "!has(this.title) || this.title.matches('.*\\\\S.*')"
+  };
+}
+
+message DeleteTodoRequest {
+  int64 id = 1 [
+    (buf.validate.field).int64 = {
+      gt: 0
+    }
+  ];
+}
+
+message DeleteTodoResponse {
+  int64 id = 1;
+  bool deleted = 2;
+}
+
+message Todo {
+  int64 id = 1;
+  string title = 2;
+  bool completed = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+  string created_by = 6;
+  string last_modified_by = 7;
+}
+```
+
+Bu sözleşmeler; doğrulama anlamını, sayfalama tasarımını ve API sınırlarını zaten taşıyor. Java servis katmanının sade kalmasının ana sebeplerinden biri bu.
+
+- `TodoEntity`, `UserEntity` ve `UserRepository`
+  GraphQL JWE makalesindeki gibi burada da sadece servis katmanını değil, entity ve kullanıcı yükleme omurgasını da görünür kılmak gerekir.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="TodoEntity.java"
+package io.github.susimsek.springgrpcsamples.domain;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Table(name = "todos")
+public class TodoEntity extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "todo_seq")
+    @SequenceGenerator(name = "todo_seq", sequenceName = "todo_seq", allocationSize = 1)
+    private Long id;
+
+    @Column(name = "title", nullable = false, length = 255)
+    private String title;
+
+    @Column(name = "completed", nullable = false)
+    private boolean completed;
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="TodoEntity.kt"
+package io.github.susimsek.springgrpcsamples.domain
+
+import jakarta.persistence.*
+import org.hibernate.annotations.Cache
+import org.hibernate.annotations.CacheConcurrencyStrategy
+
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Table(name = "todos")
+class TodoEntity(
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "todo_seq")
+    @SequenceGenerator(name = "todo_seq", sequenceName = "todo_seq", allocationSize = 1)
+    var id: Long? = null,
+
+    @Column(name = "title", nullable = false, length = 255)
+    var title: String? = null,
+
+    @Column(name = "completed", nullable = false)
+    var completed: Boolean = false
+) : AuditableEntity()
+```
+
+:::
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="UserEntity.java"
+package io.github.susimsek.springgrpcsamples.domain;
+
+import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Table(name = "users")
+@NamedEntityGraph(
+        name = "User.withAuthorities",
+        attributeNodes = @NamedAttributeNode("authorities"))
+public class UserEntity extends AuditableEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
+    @SequenceGenerator(name = "user_seq", sequenceName = "user_seq", allocationSize = 1)
+    private Long id;
+
+    @Column(name = "username", nullable = false, length = 100)
+    private String username;
+
+    @Column(name = "password", nullable = false)
+    private String password;
+
+    @Column(name = "enabled", nullable = false)
+    private boolean enabled;
+
+    @ManyToMany
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JoinTable(
+            name = "user_authorities",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "authority_id"))
+    private Set<AuthorityEntity> authorities = new HashSet<>();
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="UserEntity.kt"
+package io.github.susimsek.springgrpcsamples.domain
+
+import jakarta.persistence.*
+import org.hibernate.annotations.Cache
+import org.hibernate.annotations.CacheConcurrencyStrategy
+
+@Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Table(name = "users")
+@NamedEntityGraph(
+    name = "User.withAuthorities",
+    attributeNodes = [NamedAttributeNode("authorities")]
+)
+class UserEntity(
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
+    @SequenceGenerator(name = "user_seq", sequenceName = "user_seq", allocationSize = 1)
+    var id: Long? = null,
+
+    @Column(name = "username", nullable = false, length = 100)
+    var username: String? = null,
+
+    @Column(name = "password", nullable = false)
+    var password: String? = null,
+
+    @Column(name = "enabled", nullable = false)
+    var enabled: Boolean = false,
+
+    @ManyToMany
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JoinTable(
+        name = "user_authorities",
+        joinColumns = [JoinColumn(name = "user_id")],
+        inverseJoinColumns = [JoinColumn(name = "authority_id")]
+    )
+    var authorities: MutableSet<AuthorityEntity> = linkedSetOf()
+) : AuditableEntity()
+```
+
+:::
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="UserRepository.java"
+package io.github.susimsek.springgrpcsamples.repository;
+
+import io.github.susimsek.springgrpcsamples.domain.UserEntity;
+import java.util.Optional;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
+
+    String USER_BY_USERNAME_CACHE = "usersByUsername";
+
+    @EntityGraph(value = "User.withAuthorities")
+    @Cacheable(cacheNames = USER_BY_USERNAME_CACHE, key = "#username", unless = "#result == null")
+    Optional<UserEntity> findByUsername(String username);
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="UserRepository.kt"
+package io.github.susimsek.springgrpcsamples.repository
+
+import io.github.susimsek.springgrpcsamples.domain.UserEntity
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.data.jpa.repository.EntityGraph
+import org.springframework.data.jpa.repository.JpaRepository
+import java.util.Optional
+
+interface UserRepository : JpaRepository<UserEntity, Long> {
+
+    companion object {
+        const val USER_BY_USERNAME_CACHE: String = "usersByUsername"
+    }
+
+    @EntityGraph(value = "User.withAuthorities")
+    @Cacheable(cacheNames = [USER_BY_USERNAME_CACHE], key = "#username", unless = "#result == null")
+    fun findByUsername(username: String): Optional<UserEntity>
+}
+```
+
+:::
+
+---
+
+## 🛠️ Adım 5: Kimlik Doğrulama ve Korumalı Endpointler
+
+Korumalı RPC handler'lara geçmeden önce onların bağımlı olduğu repository ve mapper parçalarını görmek faydalı olur.
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/repository/TodoRepository.java`
+  Spring Data JPA doğrudan kullanılıyor; temel CRUD ve sayfalama için özel implementasyon gerekmiyor.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="TodoRepository.java"
+package io.github.susimsek.springgrpcsamples.repository;
+
+import io.github.susimsek.springgrpcsamples.domain.TodoEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface TodoRepository extends JpaRepository<TodoEntity, Long> {}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="TodoRepository.kt"
+package io.github.susimsek.springgrpcsamples.repository
+
+import io.github.susimsek.springgrpcsamples.domain.TodoEntity
+import org.springframework.data.jpa.repository.JpaRepository
+
+interface TodoRepository : JpaRepository<TodoEntity, Long>
+```
+
+:::
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/mapper/TodoMapper.java`
+  Protobuf isteklerini JPA entity’lerine, entity’leri de protobuf yanıtlarına dönüştürür.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="TodoMapper.java"
+package io.github.susimsek.springgrpcsamples.mapper;
+
+import io.github.susimsek.springgrpcsamples.domain.TodoEntity;
+import io.github.susimsek.springgrpcsamples.proto.CreateTodoRequest;
+import io.github.susimsek.springgrpcsamples.proto.PatchTodoRequest;
+import io.github.susimsek.springgrpcsamples.proto.Todo;
+import io.github.susimsek.springgrpcsamples.proto.UpdateTodoRequest;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = ProtobufMapper.class,
+        nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+public interface TodoMapper {
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "completed", constant = "false")
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    TodoEntity toEntity(CreateTodoRequest request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    void updateEntity(UpdateTodoRequest request, @MappingTarget TodoEntity entity);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    void patchEntity(PatchTodoRequest request, @MappingTarget TodoEntity entity);
+
+    @ProtobufMapping
+    @Mapping(target = "mergeCreatedAt", ignore = true)
+    @Mapping(target = "mergeUpdatedAt", ignore = true)
+    @Mapping(target = "createdByBytes", ignore = true)
+    @Mapping(target = "lastModifiedByBytes", ignore = true)
+    @Mapping(target = "titleBytes", ignore = true)
+    Todo toProto(TodoEntity todo);
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="TodoMapper.kt"
+package io.github.susimsek.springgrpcsamples.mapper
+
+import io.github.susimsek.springgrpcsamples.domain.TodoEntity
+import io.github.susimsek.springgrpcsamples.proto.CreateTodoRequest
+import io.github.susimsek.springgrpcsamples.proto.PatchTodoRequest
+import io.github.susimsek.springgrpcsamples.proto.Todo
+import io.github.susimsek.springgrpcsamples.proto.UpdateTodoRequest
+import org.mapstruct.BeanMapping
+import org.mapstruct.Mapper
+import org.mapstruct.Mapping
+import org.mapstruct.MappingConstants
+import org.mapstruct.MappingTarget
+import org.mapstruct.NullValueCheckStrategy
+import org.mapstruct.NullValuePropertyMappingStrategy
+
+@Mapper(
+    componentModel = MappingConstants.ComponentModel.SPRING,
+    uses = [ProtobufMapper::class],
+    nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS
+)
+interface TodoMapper {
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "completed", constant = "false")
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    fun toEntity(request: CreateTodoRequest): TodoEntity
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    fun updateEntity(request: UpdateTodoRequest, @MappingTarget entity: TodoEntity)
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "lastModifiedBy", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    fun patchEntity(request: PatchTodoRequest, @MappingTarget entity: TodoEntity)
+
+    @ProtobufMapping
+    @Mapping(target = "mergeCreatedAt", ignore = true)
+    @Mapping(target = "mergeUpdatedAt", ignore = true)
+    @Mapping(target = "createdByBytes", ignore = true)
+    @Mapping(target = "lastModifiedByBytes", ignore = true)
+    @Mapping(target = "titleBytes", ignore = true)
+    fun toProto(todo: TodoEntity): Todo
+}
+```
+
+:::
+
+`TodoMapper` sade kalsın diye repo, küçük bir protobuf yardımcı sınıfı ve generated builder alanlarını dışarıda bırakan yeniden kullanılabilir bir MapStruct meta-annotation da ekliyor.
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/mapper/ProtobufMapper.java`
+  `Instant` değerlerini protobuf `Timestamp` nesnelerine çevirir.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="ProtobufMapper.java"
+package io.github.susimsek.springgrpcsamples.mapper;
+
+import com.google.protobuf.Timestamp;
+import java.time.Instant;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class ProtobufMapper {
+
+    public static Timestamp toTimestamp(Instant instant) {
+        return Timestamp.newBuilder()
+                .setSeconds(instant.getEpochSecond())
+                .setNanos(instant.getNano())
+                .build();
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="ProtobufMapper.kt"
+package io.github.susimsek.springgrpcsamples.mapper
+
+import com.google.protobuf.Timestamp
+import java.time.Instant
+
+object ProtobufMapper {
+    @JvmStatic
+    fun toTimestamp(instant: Instant): Timestamp =
+        Timestamp.newBuilder()
+            .setSeconds(instant.epochSecond)
+            .setNanos(instant.nano)
+            .build()
+}
+```
+
+:::
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/mapper/ProtobufMapping.java`
+  MapStruct’un protobuf builder iç detaylarını map etmeye çalışmasını engeller.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="ProtobufMapping.java"
+package io.github.susimsek.springgrpcsamples.mapper;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.mapstruct.Mapping;
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.CLASS)
+@Mapping(target = "allFields", ignore = true)
+@Mapping(target = "clearField", ignore = true)
+@Mapping(target = "clearOneof", ignore = true)
+@Mapping(target = "mergeFrom", ignore = true)
+@Mapping(target = "mergeUnknownFields", ignore = true)
+@Mapping(target = "unknownFields", ignore = true)
+public @interface ProtobufMapping {}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="ProtobufMapping.kt"
+package io.github.susimsek.springgrpcsamples.mapper
+
+import org.mapstruct.Mapping
+
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.BINARY)
+@Mapping(target = "allFields", ignore = true)
+@Mapping(target = "clearField", ignore = true)
+@Mapping(target = "clearOneof", ignore = true)
+@Mapping(target = "mergeFrom", ignore = true)
+@Mapping(target = "mergeUnknownFields", ignore = true)
+@Mapping(target = "unknownFields", ignore = true)
+annotation class ProtobufMapping
+```
+
+:::
+
+Kimlik doğrulama tarafı da JPA kullanıcılarını Spring Security’ye uyarlayan özel bir `UserDetailsService` sınıfına dayanır.
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/security/DomainUserDetailsService.java`
+  Persist edilen kullanıcıyı yükler ve `UserDetails` nesnesine dönüştürür.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="DomainUserDetailsService.java"
+package io.github.susimsek.springgrpcsamples.security;
+
+import io.github.susimsek.springgrpcsamples.domain.UserEntity;
+import io.github.susimsek.springgrpcsamples.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class DomainUserDetailsService implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    @Transactional(readOnly = true)
+    @Override
+    public UserDetails loadUserByUsername(String username) {
+        return userRepository
+                .findByUsername(username)
+                .map(
+                        user ->
+                                User.withUsername(user.getUsername())
+                                        .password(user.getPassword())
+                                        .authorities(authorities(user))
+                                        .disabled(!user.isEnabled())
+                                        .build())
+                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+    }
+
+    private static String[] authorities(UserEntity user) {
+        return user.getAuthorities().stream()
+                .map(authority -> authority.getName())
+                .toArray(String[]::new);
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="DomainUserDetailsService.kt"
+package io.github.susimsek.springgrpcsamples.security
+
+import io.github.susimsek.springgrpcsamples.domain.UserEntity
+import io.github.susimsek.springgrpcsamples.repository.UserRepository
+import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+@Service
+class DomainUserDetailsService(
+    private val userRepository: UserRepository
+) : UserDetailsService {
+
+    @Transactional(readOnly = true)
+    override fun loadUserByUsername(username: String): UserDetails =
+        userRepository.findByUsername(username)
+            .map { user ->
+                User.withUsername(user.username)
+                    .password(user.password)
+                    .authorities(*authorities(user))
+                    .disabled(!user.enabled)
+                    .build()
+            }
+            .orElseThrow { UsernameNotFoundException("user not found") }
+
+    private fun authorities(user: UserEntity): Array<String> =
+        user.authorities.map { it.name }.toTypedArray()
+}
+```
+
+:::
+
+Bu parçalar yerinde olduğunda gRPC servisleri dönüşüm ayrıntıları yerine iş akışına odaklanabilir.
+
+---
+
+## 🛠️ Adım 6: Güvenlik, Doğrulama ve Hata Yönetimi
+
+Bu bölümde repo içindeki gerçek servis sınıflarını kullanıyoruz. Kimlik doğrulama ve Todo CRUD akışı, üretilen gRPC base class’larını genişleten Spring bean’leri olarak yazılmış.
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/service/AuthGrpcService.java`
+  Kimlik bilgilerini doğrular ve JWT tabanlı token yanıtını üretir.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="AuthGrpcService.java"
+package io.github.susimsek.springgrpcsamples.service;
+
+import io.github.susimsek.springgrpcsamples.exception.InvalidCredentialsException;
+import io.github.susimsek.springgrpcsamples.proto.AuthServiceGrpc;
+import io.github.susimsek.springgrpcsamples.proto.LoginRequest;
+import io.github.susimsek.springgrpcsamples.proto.Token;
+import io.github.susimsek.springgrpcsamples.security.JwtService;
+import io.grpc.stub.StreamObserver;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class AuthGrpcService extends AuthServiceGrpc.AuthServiceImplBase {
+
+    private static final String BEARER_TOKEN_TYPE = "Bearer";
+
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+
+    @Override
+    public void login(LoginRequest request, StreamObserver<Token> responseObserver) {
+        Authentication authentication = authenticate(request);
+        responseObserver.onNext(
+                Token.newBuilder()
+                        .setAccessToken(jwtService.generateToken(authentication))
+                        .setTokenType(BEARER_TOKEN_TYPE)
+                        .setExpiresIn(jwtService.getExpiresInSeconds())
+                        .build());
+        responseObserver.onCompleted();
+    }
+
+    private Authentication authenticate(LoginRequest request) {
+        try {
+            return authenticationManager.authenticate(
+                    UsernamePasswordAuthenticationToken.unauthenticated(
+                            request.getUsername(), request.getPassword()));
+        } catch (AuthenticationException ex) {
+            throw new InvalidCredentialsException();
+        }
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="AuthGrpcService.kt"
+package io.github.susimsek.springgrpcsamples.service
+
+import io.github.susimsek.springgrpcsamples.exception.InvalidCredentialsException
+import io.github.susimsek.springgrpcsamples.proto.AuthServiceGrpc
+import io.github.susimsek.springgrpcsamples.proto.LoginRequest
+import io.github.susimsek.springgrpcsamples.proto.Token
+import io.github.susimsek.springgrpcsamples.security.JwtService
+import io.grpc.stub.StreamObserver
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.AuthenticationException
+import org.springframework.stereotype.Service
+
+@Service
+class AuthGrpcService(
+    private val authenticationManager: AuthenticationManager,
+    private val jwtService: JwtService
+) : AuthServiceGrpc.AuthServiceImplBase() {
+
+    override fun login(request: LoginRequest, responseObserver: StreamObserver<Token>) {
+        val authentication = authenticate(request)
+        responseObserver.onNext(
+            Token.newBuilder()
+                .setAccessToken(jwtService.generateToken(authentication))
+                .setTokenType(BEARER_TOKEN_TYPE)
+                .setExpiresIn(jwtService.expiresInSeconds)
+                .build()
+        )
+        responseObserver.onCompleted()
+    }
+
+    private fun authenticate(request: LoginRequest): Authentication =
+        try {
+            authenticationManager.authenticate(
+                UsernamePasswordAuthenticationToken.unauthenticated(request.username, request.password)
+            )
+        } catch (ex: AuthenticationException) {
+            throw InvalidCredentialsException()
+        }
+
+    companion object {
+        private const val BEARER_TOKEN_TYPE = "Bearer"
+    }
+}
+```
+
+:::
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/service/TodoGrpcService.java`
+  JPA repository erişimini ve protobuf dönüşümünü kullanarak CRUD akışını uygular.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="TodoGrpcService.java"
+package io.github.susimsek.springgrpcsamples.service;
+
+import io.github.susimsek.springgrpcsamples.domain.TodoEntity;
+import io.github.susimsek.springgrpcsamples.exception.TodoNotFoundException;
+import io.github.susimsek.springgrpcsamples.mapper.TodoMapper;
+import io.github.susimsek.springgrpcsamples.proto.CreateTodoRequest;
+import io.github.susimsek.springgrpcsamples.proto.DeleteTodoRequest;
+import io.github.susimsek.springgrpcsamples.proto.DeleteTodoResponse;
+import io.github.susimsek.springgrpcsamples.proto.GetTodoRequest;
+import io.github.susimsek.springgrpcsamples.proto.ListTodosRequest;
+import io.github.susimsek.springgrpcsamples.proto.PatchTodoRequest;
+import io.github.susimsek.springgrpcsamples.proto.Todo;
+import io.github.susimsek.springgrpcsamples.proto.TodoList;
+import io.github.susimsek.springgrpcsamples.proto.TodoServiceGrpc;
+import io.github.susimsek.springgrpcsamples.proto.UpdateTodoRequest;
+import io.github.susimsek.springgrpcsamples.repository.TodoRepository;
+import io.grpc.stub.StreamObserver;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class TodoGrpcService extends TodoServiceGrpc.TodoServiceImplBase {
+
+    private static final int DEFAULT_PAGE_SIZE = 20;
+
+    private final TodoRepository todoRepository;
+    private final TodoMapper todoMapper;
+
+    @Override
+    public void createTodo(CreateTodoRequest request, StreamObserver<Todo> responseObserver) {
+        TodoEntity created = todoRepository.save(todoMapper.toEntity(request));
+        responseObserver.onNext(todoMapper.toProto(created));
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getTodo(GetTodoRequest request, StreamObserver<Todo> responseObserver) {
+        TodoEntity todo = findTodo(request.getId());
+
+        responseObserver.onNext(todoMapper.toProto(todo));
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void listTodos(ListTodosRequest request, StreamObserver<TodoList> responseObserver) {
+        var pageRequest = request.getPageRequest();
+        int pageSize = pageRequest.getSize() == 0 ? DEFAULT_PAGE_SIZE : pageRequest.getSize();
+
+        Page<TodoEntity> page =
+                todoRepository.findAll(PageRequest.of(pageRequest.getPage(), pageSize));
+        TodoList.Builder response =
+                TodoList.newBuilder()
+                        .setPage(page.getNumber())
+                        .setSize(page.getSize())
+                        .setTotalElements(page.getTotalElements())
+                        .setTotalPages(page.getTotalPages())
+                        .setFirst(page.isFirst())
+                        .setLast(page.isLast());
+        page.stream().map(todoMapper::toProto).forEach(response::addItems);
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void updateTodo(UpdateTodoRequest request, StreamObserver<Todo> responseObserver) {
+        TodoEntity updated = findTodo(request.getId());
+
+        todoMapper.updateEntity(request, updated);
+        updated = todoRepository.save(updated);
+        responseObserver.onNext(todoMapper.toProto(updated));
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void patchTodo(PatchTodoRequest request, StreamObserver<Todo> responseObserver) {
+        TodoEntity existing = findTodo(request.getId());
+        todoMapper.patchEntity(request, existing);
+        TodoEntity patched = todoRepository.save(existing);
+
+        responseObserver.onNext(todoMapper.toProto(patched));
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void deleteTodo(
+            DeleteTodoRequest request, StreamObserver<DeleteTodoResponse> responseObserver) {
+        TodoEntity existing = findTodo(request.getId());
+        todoRepository.delete(existing);
+
+        responseObserver.onNext(
+                DeleteTodoResponse.newBuilder().setId(request.getId()).setDeleted(true).build());
+        responseObserver.onCompleted();
+    }
+
+    private TodoEntity findTodo(Long id) {
+        return todoRepository.findById(id).orElseThrow(() -> new TodoNotFoundException(id));
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="TodoGrpcService.kt"
+package io.github.susimsek.springgrpcsamples.service
+
+import io.github.susimsek.springgrpcsamples.domain.TodoEntity
+import io.github.susimsek.springgrpcsamples.exception.TodoNotFoundException
+import io.github.susimsek.springgrpcsamples.mapper.TodoMapper
+import io.github.susimsek.springgrpcsamples.proto.*
+import io.github.susimsek.springgrpcsamples.repository.TodoRepository
+import io.grpc.stub.StreamObserver
+import org.springframework.data.domain.PageRequest
+import org.springframework.stereotype.Service
+
+@Service
+class TodoGrpcService(
+    private val todoRepository: TodoRepository,
+    private val todoMapper: TodoMapper
+) : TodoServiceGrpc.TodoServiceImplBase() {
+
+    override fun createTodo(request: CreateTodoRequest, responseObserver: StreamObserver<Todo>) {
+        val created = todoRepository.save(todoMapper.toEntity(request))
+        responseObserver.onNext(todoMapper.toProto(created))
+        responseObserver.onCompleted()
+    }
+
+    override fun getTodo(request: GetTodoRequest, responseObserver: StreamObserver<Todo>) {
+        val todo = findTodo(request.id)
+        responseObserver.onNext(todoMapper.toProto(todo))
+        responseObserver.onCompleted()
+    }
+
+    override fun listTodos(request: ListTodosRequest, responseObserver: StreamObserver<TodoList>) {
+        val pageRequest = request.pageRequest
+        val pageSize = if (pageRequest.size == 0) DEFAULT_PAGE_SIZE else pageRequest.size
+        val page = todoRepository.findAll(PageRequest.of(pageRequest.page, pageSize))
+        val response = TodoList.newBuilder()
+            .setPage(page.number)
+            .setSize(page.size)
+            .setTotalElements(page.totalElements)
+            .setTotalPages(page.totalPages)
+            .setFirst(page.isFirst)
+            .setLast(page.isLast())
+        page.map(todoMapper::toProto).forEach(response::addItems)
+        responseObserver.onNext(response.build())
+        responseObserver.onCompleted()
+    }
+
+    override fun updateTodo(request: UpdateTodoRequest, responseObserver: StreamObserver<Todo>) {
+        var updated = findTodo(request.id)
+        todoMapper.updateEntity(request, updated)
+        updated = todoRepository.save(updated)
+        responseObserver.onNext(todoMapper.toProto(updated))
+        responseObserver.onCompleted()
+    }
+
+    override fun patchTodo(request: PatchTodoRequest, responseObserver: StreamObserver<Todo>) {
+        val existing = findTodo(request.id)
+        todoMapper.patchEntity(request, existing)
+        val patched = todoRepository.save(existing)
+        responseObserver.onNext(todoMapper.toProto(patched))
+        responseObserver.onCompleted()
+    }
+
+    override fun deleteTodo(request: DeleteTodoRequest, responseObserver: StreamObserver<DeleteTodoResponse>) {
+        val existing = findTodo(request.id)
+        todoRepository.delete(existing)
+        responseObserver.onNext(DeleteTodoResponse.newBuilder().setId(request.id).setDeleted(true).build())
+        responseObserver.onCompleted()
+    }
+
+    private fun findTodo(id: Long): TodoEntity =
+        todoRepository.findById(id).orElseThrow { TodoNotFoundException(id) }
+
+    companion object {
+        private const val DEFAULT_PAGE_SIZE = 20
+    }
+}
+```
+
+:::
+
+Servis katmanı bilinçli olarak doğrudan yazılmış. Her metod protobuf isteğini alır, repository ve mapper katmanına delegasyon yapar ve `StreamObserver` yanıtını tamamlar.
+
+---
+
+Örnek proje; parola encoder, authentication manager ve gRPC yetkilendirme kurallarını tek bir security sınıfında topluyor.
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/config/security/SecurityConfig.java`
+  Spring Security’yi gRPC sunucu hattına bağlar ve `TodoService/*` çağrılarını admin yetkisi ile korur.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="SecurityConfig.java"
+package io.github.susimsek.springgrpcsamples.config.security;
+
+import io.github.susimsek.springgrpcsamples.security.AuthoritiesConstants;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.grpc.server.GlobalServerInterceptor;
+import org.springframework.grpc.server.security.AuthenticationProcessInterceptor;
+import org.springframework.grpc.server.security.GrpcSecurity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration(proxyBeanMethods = false)
+public class SecurityConfig {
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    AuthenticationManager authenticationManager(
+            UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authenticationProvider =
+                new DaoAuthenticationProvider(userDetailsService);
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
+        return new ProviderManager(authenticationProvider);
+    }
+
+    @Bean
+    @GlobalServerInterceptor
+    @Order(Ordered.HIGHEST_PRECEDENCE + 5)
+    AuthenticationProcessInterceptor grpcSecurityFilterChain(GrpcSecurity grpc) throws Exception {
+        return grpc.authorizeRequests(
+                        requests ->
+                                requests.methods("AuthService/Login", "grpc.*/*")
+                                        .permitAll()
+                                        .methods("TodoService/*")
+                                        .hasAuthority(AuthoritiesConstants.ADMIN)
+                                        .allRequests()
+                                        .authenticated())
+                .oauth2ResourceServer(
+                        resourceServer -> resourceServer.jwt(Customizer.withDefaults()))
+                .build();
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="SecurityConfig.kt"
+package io.github.susimsek.springgrpcsamples.config.security
+
+import io.github.susimsek.springgrpcsamples.security.AuthoritiesConstants
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
+import org.springframework.grpc.server.GlobalServerInterceptor
+import org.springframework.grpc.server.security.AuthenticationProcessInterceptor
+import org.springframework.grpc.server.security.GrpcSecurity
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.ProviderManager
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
+import org.springframework.security.config.Customizer.withDefaults
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
+
+@Configuration(proxyBeanMethods = false)
+class SecurityConfig {
+
+    @Bean
+    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
+
+    @Bean
+    fun authenticationManager(
+        userDetailsService: UserDetailsService,
+        passwordEncoder: PasswordEncoder
+    ): AuthenticationManager {
+        val provider = DaoAuthenticationProvider(userDetailsService)
+        provider.setPasswordEncoder(passwordEncoder)
+        return ProviderManager(provider)
+    }
+
+    @Bean
+    @GlobalServerInterceptor
+    @Order(Ordered.HIGHEST_PRECEDENCE + 5)
+    @Throws(Exception::class)
+    fun grpcSecurityFilterChain(grpc: GrpcSecurity): AuthenticationProcessInterceptor =
+        grpc.authorizeRequests { requests ->
+            requests.methods("AuthService/Login", "grpc.*/*")
+                .permitAll()
+                .methods("TodoService/*")
+                .hasAuthority(AuthoritiesConstants.ADMIN)
+                .allRequests()
+                .authenticated()
+        }.oauth2ResourceServer { resourceServer ->
+            resourceServer.jwt(withDefaults())
+        }.build()
+}
+```
+
+:::
+
+Bu yapı pratik bir desen sunar çünkü yetkilendirme modeli tek yerde okunabilir hale gelir: login ve altyapı çağrıları public, iş RPC’leri ise bearer token ve doğru yetki ile korunur.
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/security/JwtService.java`
+  Doğrulanmış Spring Security principal’larından JWT token üretir.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="JwtService.java"
+package io.github.susimsek.springgrpcsamples.security;
+
+import io.github.susimsek.springgrpcsamples.config.ApplicationProperties;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.stereotype.Service;
+
+@Service
+public class JwtService {
+
+    private final JwtEncoder jwtEncoder;
+    private final String issuer;
+    private final Duration expiresIn;
+
+    public JwtService(JwtEncoder jwtEncoder, ApplicationProperties applicationProperties) {
+        this.jwtEncoder = jwtEncoder;
+        ApplicationProperties.Jwt jwtProperties = applicationProperties.getSecurity().getJwt();
+        this.issuer = jwtProperties.getIssuer();
+        this.expiresIn = jwtProperties.getExpiresIn();
+    }
+
+    public String generateToken(Authentication authentication) {
+        Instant issuedAt = Instant.now();
+        JwtClaimsSet claims =
+                JwtClaimsSet.builder()
+                        .issuer(issuer)
+                        .issuedAt(issuedAt)
+                        .expiresAt(issuedAt.plus(expiresIn))
+                        .subject(authentication.getName())
+                        .claim(SecurityUtils.AUTHORITIES_CLAIM, resolveRoles(authentication))
+                        .build();
+        JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
+        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+    }
+
+    public long getExpiresInSeconds() {
+        return expiresIn.toSeconds();
+    }
+
+    private static List<String> resolveRoles(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="JwtService.kt"
+package io.github.susimsek.springgrpcsamples.security
+
+import io.github.susimsek.springgrpcsamples.config.ApplicationProperties
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm
+import org.springframework.security.oauth2.jwt.JwsHeader
+import org.springframework.security.oauth2.jwt.JwtClaimsSet
+import org.springframework.security.oauth2.jwt.JwtEncoder
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters
+import org.springframework.stereotype.Service
+import java.time.Duration
+import java.time.Instant
+
+@Service
+class JwtService(
+    private val jwtEncoder: JwtEncoder,
+    applicationProperties: ApplicationProperties
+) {
+    private val issuer: String? = applicationProperties.security.jwt.issuer
+    private val expiresIn: Duration = applicationProperties.security.jwt.expiresIn ?: Duration.ofHours(1)
+
+    fun generateToken(authentication: Authentication): String {
+        val issuedAt = Instant.now()
+        val claims = JwtClaimsSet.builder()
+            .issuer(issuer)
+            .issuedAt(issuedAt)
+            .expiresAt(issuedAt.plus(expiresIn))
+            .subject(authentication.name)
+            .claim(SecurityUtils.AUTHORITIES_CLAIM, resolveRoles(authentication))
+            .build()
+        val header = JwsHeader.with(MacAlgorithm.HS256).build()
+        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).tokenValue
+    }
+
+    val expiresInSeconds: Long
+        get() = expiresIn.seconds
+
+    private fun resolveRoles(authentication: Authentication): List<String> =
+        authentication.authorities.map(GrantedAuthority::getAuthority)
+}
+```
+
+:::
+
+---
+
+JWT akışı birkaç küçük destek sınıfına bölünmüş durumda; böylece ana security konfigürasyonu okunabilir kalıyor.
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/security/AuthoritiesConstants.java`
+  Bootstrap verisi, yetkilendirme kuralları ve JWT claim’lerinde kullanılan rol adlarını tanımlar.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="AuthoritiesConstants.java"
+package io.github.susimsek.springgrpcsamples.security;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+/** Constants for Spring Security authorities. */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class AuthoritiesConstants {
+
+    public static final String ADMIN = "ROLE_ADMIN";
+
+    public static final String USER = "ROLE_USER";
+
+    public static final String ANONYMOUS = "ROLE_ANONYMOUS";
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="AuthoritiesConstants.kt"
+package io.github.susimsek.springgrpcsamples.security
+
+object AuthoritiesConstants {
+    const val ADMIN = "ROLE_ADMIN"
+    const val USER = "ROLE_USER"
+    const val ANONYMOUS = "ROLE_ANONYMOUS"
+}
+```
+
+:::
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/security/SecurityUtils.java`
+  Mevcut kullanıcı adını `UserDetails`, JWT subject veya string principal üzerinden çıkarır.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="SecurityUtils.java"
+package io.github.susimsek.springgrpcsamples.security;
+
+import java.util.Optional;
+import lombok.experimental.UtilityClass;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
+
+@UtilityClass
+public class SecurityUtils {
+
+    public static final String AUTHORITIES_CLAIM = "auth";
+
+    public Optional<String> getCurrentUserLogin() {
+        String principal = extractPrincipal(SecurityContextHolder.getContext().getAuthentication());
+        return Optional.ofNullable(principal);
+    }
+
+    private String extractPrincipal(Authentication authentication) {
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+            return null;
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserDetails userDetails) {
+            return userDetails.getUsername();
+        }
+        if (principal instanceof Jwt jwt) {
+            return jwt.getSubject();
+        }
+        if (principal instanceof String username) {
+            return username;
+        }
+        return null;
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="SecurityUtils.kt"
+package io.github.susimsek.springgrpcsamples.security
+
+import org.springframework.security.authentication.AnonymousAuthenticationToken
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.oauth2.jwt.Jwt
+
+object SecurityUtils {
+    const val AUTHORITIES_CLAIM = "auth"
+
+    fun getCurrentUserLogin(): String? =
+        extractPrincipal(SecurityContextHolder.getContext().authentication)
+
+    private fun extractPrincipal(authentication: Authentication?): String? {
+        if (authentication == null || authentication is AnonymousAuthenticationToken) {
+            return null
+        }
+        val principal = authentication.principal
+        return when (principal) {
+            is UserDetails -> principal.username
+            is Jwt -> principal.subject
+            is String -> principal
+            else -> null
+        }
+    }
+}
+```
+
+:::
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/security/SecurityAuditorAware.java`
+  Spring Security bağlamını JPA auditing ile birleştirir; böylece `createdBy` ve `lastModifiedBy` alanları otomatik dolar.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="SecurityAuditorAware.java"
+package io.github.susimsek.springgrpcsamples.security;
+
+import java.util.Optional;
+import org.springframework.data.domain.AuditorAware;
+
+public class SecurityAuditorAware implements AuditorAware<String> {
+
+    private static final String DEFAULT_AUDITOR = "system";
+
+    @Override
+    public Optional<String> getCurrentAuditor() {
+        return Optional.of(SecurityUtils.getCurrentUserLogin().orElse(DEFAULT_AUDITOR));
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="SecurityAuditorAware.kt"
+package io.github.susimsek.springgrpcsamples.security
+
+import org.springframework.data.domain.AuditorAware
+import java.util.Optional
+
+class SecurityAuditorAware : AuditorAware<String> {
+    override fun getCurrentAuditor(): Optional<String> =
+        Optional.of(SecurityUtils.getCurrentUserLogin() ?: DEFAULT_AUDITOR)
+
+    companion object {
+        private const val DEFAULT_AUDITOR = "system"
+    }
+}
+```
+
+:::
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/config/security/SecurityJwtConfig.java`
+  HMAC anahtarını, JWT encoder/decoder bean’lerini ve özel `auth` claim’i için `JwtAuthenticationConverter`’ı üretir.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="SecurityJwtConfig.java"
+package io.github.susimsek.springgrpcsamples.config.security;
+
+import io.github.susimsek.springgrpcsamples.config.ApplicationProperties;
+import io.github.susimsek.springgrpcsamples.security.SecurityUtils;
+import java.nio.charset.StandardCharsets;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+
+@Configuration(proxyBeanMethods = false)
+public class SecurityJwtConfig {
+
+    private static final String HMAC_SHA_256 = "HmacSHA256";
+
+    @Bean
+    SecretKey jwtSecretKey(ApplicationProperties applicationProperties) {
+        String secret = applicationProperties.getSecurity().getJwt().getSecret();
+        return new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_SHA_256);
+    }
+
+    @Bean
+    JwtEncoder jwtEncoder(SecretKey jwtSecretKey) {
+        return NimbusJwtEncoder.withSecretKey(jwtSecretKey).algorithm(MacAlgorithm.HS256).build();
+    }
+
+    @Bean
+    JwtDecoder jwtDecoder(SecretKey jwtSecretKey) {
+        return NimbusJwtDecoder.withSecretKey(jwtSecretKey)
+                .macAlgorithm(MacAlgorithm.HS256)
+                .build();
+    }
+
+    @Bean
+    JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter =
+                new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthoritiesClaimName(SecurityUtils.AUTHORITIES_CLAIM);
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="SecurityJwtConfig.kt"
+package io.github.susimsek.springgrpcsamples.config.security
+
+import io.github.susimsek.springgrpcsamples.config.ApplicationProperties
+import io.github.susimsek.springgrpcsamples.security.SecurityUtils
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm
+import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.security.oauth2.jwt.JwtEncoder
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter
+import java.nio.charset.StandardCharsets
+import javax.crypto.SecretKey
+import javax.crypto.spec.SecretKeySpec
+
+@Configuration(proxyBeanMethods = false)
+class SecurityJwtConfig {
+
+    @Bean
+    fun jwtSecretKey(applicationProperties: ApplicationProperties): SecretKey {
+        val secret = applicationProperties.security.jwt.secret
+        return SecretKeySpec(secret.toByteArray(StandardCharsets.UTF_8), HMAC_SHA_256)
+    }
+
+    @Bean
+    fun jwtEncoder(jwtSecretKey: SecretKey): JwtEncoder =
+        NimbusJwtEncoder.withSecretKey(jwtSecretKey).algorithm(MacAlgorithm.HS256).build()
+
+    @Bean
+    fun jwtDecoder(jwtSecretKey: SecretKey): JwtDecoder =
+        NimbusJwtDecoder.withSecretKey(jwtSecretKey).macAlgorithm(MacAlgorithm.HS256).build()
+
+    @Bean
+    fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
+        val grantedAuthoritiesConverter = JwtGrantedAuthoritiesConverter()
+        grantedAuthoritiesConverter.setAuthoritiesClaimName(SecurityUtils.AUTHORITIES_CLAIM)
+        grantedAuthoritiesConverter.setAuthorityPrefix("")
+
+        return JwtAuthenticationConverter().apply {
+            setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter)
+        }
+    }
+
+    companion object {
+        private const val HMAC_SHA_256 = "HmacSHA256"
+    }
+}
+```
+
+:::
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/config/cache/CacheConfig.java`
+  Spring Cache ve opsiyonel Hibernate second-level cache yapılandırmasını Caffeine ile sağlar.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="CacheConfig.java"
+package io.github.susimsek.springgrpcsamples.config.cache;
+
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.jcache.configuration.CaffeineConfiguration;
+import com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider;
+import io.github.susimsek.springgrpcsamples.config.ApplicationProperties;
+import io.github.susimsek.springgrpcsamples.domain.AuthorityEntity;
+import io.github.susimsek.springgrpcsamples.domain.TodoEntity;
+import io.github.susimsek.springgrpcsamples.domain.UserEntity;
+import io.github.susimsek.springgrpcsamples.repository.UserRepository;
+import java.util.OptionalLong;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.cache.jcache.ConfigSettings;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.cache.autoconfigure.JCacheManagerCustomizer;
+import org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration(proxyBeanMethods = false)
+@EnableCaching
+@RequiredArgsConstructor
+public class CacheConfig {
+
+    private final ApplicationProperties applicationProperties;
+
+    @Bean
+    public org.springframework.cache.CacheManager cacheManager() {
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+        cacheManager.setCaffeine(buildCaffeineConfig(cacheProperties()));
+        return cacheManager;
+    }
+
+    private ApplicationProperties.Caffeine cacheProperties() {
+        return applicationProperties.getCache().getCaffeine();
+    }
+
+    private Caffeine<Object, Object> buildCaffeineConfig(ApplicationProperties.Caffeine config) {
+        return Caffeine.newBuilder()
+                .expireAfterWrite(config.getTtl())
+                .initialCapacity(config.getInitialCapacity())
+                .maximumSize(config.getMaximumSize())
+                .recordStats();
+    }
+
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnProperty(
+            name = "spring.jpa.properties.hibernate.cache.use_second_level_cache",
+            havingValue = "true")
+    @RequiredArgsConstructor
+    static class HibernateSecondLevelCacheConfiguration {
+
+        private final ApplicationProperties applicationProperties;
+
+        @Bean
+        CacheManager jcacheManager(JCacheManagerCustomizer customizer) {
+            CacheManager manager =
+                    Caching.getCachingProvider(CaffeineCachingProvider.class.getName())
+                            .getCacheManager();
+            customizer.customize(manager);
+            return manager;
+        }
+
+        @Bean
+        HibernatePropertiesCustomizer hibernatePropertiesCustomizer(CacheManager jcacheManager) {
+            return properties -> properties.put(ConfigSettings.CACHE_MANAGER, jcacheManager);
+        }
+
+        @Bean
+        JCacheManagerCustomizer cacheManagerCustomizer() {
+            return cacheManager -> {
+                createCache(cacheManager, "default-update-timestamps-region");
+                createCache(cacheManager, "default-query-results-region");
+                createCache(cacheManager, AuthorityEntity.class.getName());
+                createCache(cacheManager, TodoEntity.class.getName());
+                createCache(cacheManager, UserEntity.class.getName());
+                createCache(cacheManager, UserEntity.class.getName() + ".authorities");
+                createCache(cacheManager, UserRepository.USER_BY_USERNAME_CACHE);
+            };
+        }
+
+        private void createCache(CacheManager cacheManager, String cacheName) {
+            javax.cache.Cache<Object, Object> cache = cacheManager.getCache(cacheName);
+            if (cache != null) {
+                cache.clear();
+                return;
+            }
+            ApplicationProperties.Caffeine config = applicationProperties.getCache().getCaffeine();
+            CaffeineConfiguration<Object, Object> caffeineConfig = new CaffeineConfiguration<>();
+            caffeineConfig.setMaximumSize(OptionalLong.of(config.getMaximumSize()));
+            caffeineConfig.setExpireAfterWrite(OptionalLong.of(config.getTtl().toNanos()));
+            caffeineConfig.setStatisticsEnabled(true);
+            cacheManager.createCache(cacheName, caffeineConfig);
+        }
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="CacheConfig.kt"
+package io.github.susimsek.springgrpcsamples.config.cache
+
+import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.jcache.configuration.CaffeineConfiguration
+import com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+import io.github.susimsek.springgrpcsamples.config.ApplicationProperties
+import io.github.susimsek.springgrpcsamples.domain.AuthorityEntity
+import io.github.susimsek.springgrpcsamples.domain.TodoEntity
+import io.github.susimsek.springgrpcsamples.domain.UserEntity
+import io.github.susimsek.springgrpcsamples.repository.UserRepository
+import org.hibernate.cache.jcache.ConfigSettings
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.cache.autoconfigure.JCacheManagerCustomizer
+import org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer
+import org.springframework.cache.annotation.EnableCaching
+import org.springframework.cache.caffeine.CaffeineCacheManager
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import java.util.OptionalLong
+import javax.cache.CacheManager
+import javax.cache.Caching
+
+@Configuration(proxyBeanMethods = false)
+@EnableCaching
+class CacheConfig(
+    private val applicationProperties: ApplicationProperties
+) {
+
+    @Bean
+    fun cacheManager(): org.springframework.cache.CacheManager =
+        CaffeineCacheManager().apply {
+            setCaffeine(buildCaffeineConfig(cacheProperties()))
+        }
+
+    private fun cacheProperties(): ApplicationProperties.Caffeine =
+        applicationProperties.cache.caffeine
+
+    private fun buildCaffeineConfig(config: ApplicationProperties.Caffeine): Caffeine<Any, Any> =
+        Caffeine.newBuilder()
+            .expireAfterWrite(config.ttl)
+            .initialCapacity(config.initialCapacity)
+            .maximumSize(config.maximumSize)
+            .recordStats()
+
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnProperty(
+        name = ["spring.jpa.properties.hibernate.cache.use_second_level_cache"],
+        havingValue = "true"
+    )
+    class HibernateSecondLevelCacheConfiguration(
+        private val applicationProperties: ApplicationProperties
+    ) {
+
+        @Bean
+        fun jcacheManager(customizer: JCacheManagerCustomizer): CacheManager =
+            Caching.getCachingProvider(CaffeineCachingProvider::class.java.name)
+                .cacheManager
+                .also(customizer::customize)
+
+        @Bean
+        fun hibernatePropertiesCustomizer(jcacheManager: CacheManager): HibernatePropertiesCustomizer =
+            HibernatePropertiesCustomizer { properties ->
+                properties[ConfigSettings.CACHE_MANAGER] = jcacheManager
+            }
+
+        @Bean
+        fun cacheManagerCustomizer(): JCacheManagerCustomizer =
+            JCacheManagerCustomizer { cacheManager ->
+                createCache(cacheManager, "default-update-timestamps-region")
+                createCache(cacheManager, "default-query-results-region")
+                createCache(cacheManager, AuthorityEntity::class.java.name)
+                createCache(cacheManager, TodoEntity::class.java.name)
+                createCache(cacheManager, UserEntity::class.java.name)
+                createCache(cacheManager, UserEntity::class.java.name + ".authorities")
+                createCache(cacheManager, UserRepository.USER_BY_USERNAME_CACHE)
+            }
+
+        private fun createCache(cacheManager: CacheManager, cacheName: String) {
+            val cache = cacheManager.getCache(cacheName)
+            if (cache != null) {
+                cache.clear()
+                return
+            }
+            val config = applicationProperties.cache.caffeine
+            val caffeineConfig = CaffeineConfiguration<Any, Any>()
+            caffeineConfig.setMaximumSize(OptionalLong.of(config.maximumSize))
+            caffeineConfig.setExpireAfterWrite(OptionalLong.of(config.ttl.toNanos()))
+            caffeineConfig.isStatisticsEnabled = true
+            cacheManager.createCache(cacheName, caffeineConfig)
+        }
+    }
+}
+```
+
+:::
+
+Örnek proje, her servis metodunda manuel doğrulama yapmıyor. Bunun yerine Protovalidate’ı global server interceptor içinde çalıştırıyor ve hataları merkezi gRPC advice katmanı üzerinden dönüştürüyor.
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/config/validation/GrpcValidationConfig.java`
+  Interceptor içinde kullanılacak ortak Protovalidate `Validator` bean’ini kaydeder.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="GrpcValidationConfig.java"
+package io.github.susimsek.springgrpcsamples.config.validation;
+
+import build.buf.protovalidate.Validator;
+import build.buf.protovalidate.ValidatorFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration(proxyBeanMethods = false)
+public class GrpcValidationConfig {
+
+    @Bean
+    public Validator grpcValidator() {
+        return ValidatorFactory.newBuilder().build();
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="GrpcValidationConfig.kt"
+package io.github.susimsek.springgrpcsamples.config.validation
+
+import build.buf.protovalidate.Validator
+import build.buf.protovalidate.ValidatorFactory
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+
+@Configuration(proxyBeanMethods = false)
+class GrpcValidationConfig {
+    @Bean
+    fun grpcValidator(): Validator = ValidatorFactory.newBuilder().build()
+}
+```
+
+:::
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/config/validation/GrpcValidationServerInterceptor.java`
+  Servis iş mantığı çalışmadan önce protobuf doğrulamasını uygular.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="GrpcValidationServerInterceptor.java"
+package io.github.susimsek.springgrpcsamples.config.validation;
+
+import build.buf.protovalidate.ValidationResult;
+import build.buf.protovalidate.Validator;
+import build.buf.protovalidate.exceptions.ValidationException;
+import com.google.protobuf.Message;
+import io.github.susimsek.springgrpcsamples.exception.GrpcValidationException;
+import io.github.susimsek.springgrpcsamples.exception.GrpcViolation;
+import io.grpc.ForwardingServerCallListener;
+import io.grpc.Metadata;
+import io.grpc.ServerCall;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.grpc.server.GlobalServerInterceptor;
+import org.springframework.stereotype.Component;
+
+@Component
+@GlobalServerInterceptor
+@Order(Ordered.HIGHEST_PRECEDENCE + 10)
+@RequiredArgsConstructor
+public class GrpcValidationServerInterceptor implements ServerInterceptor {
+
+    private static final String APPLICATION_PROTO_PACKAGE =
+            "io.github.susimsek.springgrpcsamples.proto";
+
+    private final Validator validator;
+
+    @Override
+    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+            ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
+        ServerCall.Listener<ReqT> listener = next.startCall(call, headers);
+        return new ValidationServerCallListener<>(listener, validator);
+    }
+
+    private static final class ValidationServerCallListener<ReqT>
+            extends ForwardingServerCallListener.SimpleForwardingServerCallListener<ReqT> {
+
+        private final Validator validator;
+
+        private ValidationServerCallListener(
+                ServerCall.Listener<ReqT> delegate, Validator validator) {
+            super(delegate);
+            this.validator = validator;
+        }
+
+        @Override
+        public void onMessage(ReqT message) {
+            if (message instanceof Message protoMessage
+                    && APPLICATION_PROTO_PACKAGE.equals(protoMessage.getClass().getPackageName())) {
+                validate(protoMessage);
+            }
+            super.onMessage(message);
+        }
+
+        private void validate(Message message) {
+            try {
+                ValidationResult result = validator.validate(message);
+                if (!result.isSuccess()) {
+                    throw new GrpcValidationException(
+                            result.getViolations().stream()
+                                    .map(v -> GrpcViolation.from(v))
+                                    .toList());
+                }
+            } catch (ValidationException ex) {
+                throw new IllegalStateException("Failed to validate gRPC request", ex);
+            }
+        }
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="GrpcValidationServerInterceptor.kt"
+package io.github.susimsek.springgrpcsamples.config.validation
+
+import build.buf.protovalidate.ValidationResult
+import build.buf.protovalidate.Validator
+import build.buf.protovalidate.exceptions.ValidationException
+import com.google.protobuf.Message
+import io.github.susimsek.springgrpcsamples.exception.GrpcValidationException
+import io.github.susimsek.springgrpcsamples.exception.GrpcViolation
+import io.grpc.*
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
+import org.springframework.grpc.server.GlobalServerInterceptor
+import org.springframework.stereotype.Component
+
+@Component
+@GlobalServerInterceptor
+@Order(Ordered.HIGHEST_PRECEDENCE + 10)
+class GrpcValidationServerInterceptor(
+    private val validator: Validator
+) : ServerInterceptor {
+
+    override fun <ReqT : Any?, RespT : Any?> interceptCall(
+        call: ServerCall<ReqT, RespT>,
+        headers: Metadata,
+        next: ServerCallHandler<ReqT, RespT>
+    ): ServerCall.Listener<ReqT> {
+        val listener = next.startCall(call, headers)
+        return ValidationServerCallListener(listener, validator)
+    }
+
+    private class ValidationServerCallListener<ReqT>(
+        delegate: ServerCall.Listener<ReqT>,
+        private val validator: Validator
+    ) : ForwardingServerCallListener.SimpleForwardingServerCallListener<ReqT>(delegate) {
+
+        override fun onMessage(message: ReqT) {
+            if (message is Message && message.javaClass.packageName == APPLICATION_PROTO_PACKAGE) {
+                validate(message)
+            }
+            super.onMessage(message)
+        }
+
+        private fun validate(message: Message) {
+            try {
+                val result: ValidationResult = validator.validate(message)
+                if (!result.isSuccess) {
+                    throw GrpcValidationException(result.violations.map { GrpcViolation.from(it) })
+                }
+            } catch (ex: ValidationException) {
+                throw IllegalStateException("Failed to validate gRPC request", ex)
+            }
+        }
+    }
+
+    companion object {
+        private const val APPLICATION_PROTO_PACKAGE = "io.github.susimsek.springgrpcsamples.proto"
+    }
+}
+```
+
+:::
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/exception/GlobalGrpcExceptionHandler.java`
+  Doğrulama, kimlik doğrulama, yetkilendirme ve beklenmeyen hataları yapılandırılmış gRPC status yanıtlarına çevirir.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="GlobalGrpcExceptionHandler.java"
+package io.github.susimsek.springgrpcsamples.exception;
+
+import build.buf.validate.FieldPathElement;
+import build.buf.validate.Violation;
+import com.google.protobuf.Any;
+import com.google.rpc.BadRequest;
+import io.grpc.Status;
+import io.grpc.StatusException;
+import io.grpc.protobuf.StatusProto;
+import java.util.Locale;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.grpc.server.advice.GrpcAdvice;
+import org.springframework.grpc.server.advice.GrpcExceptionHandler;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
+import org.springframework.util.StringUtils;
+
+@GrpcAdvice
+@RequiredArgsConstructor
+@Slf4j
+public class GlobalGrpcExceptionHandler {
+
+    private final MessageSource messageSource;
+
+    @GrpcExceptionHandler(GrpcApiException.class)
+    public StatusException handleGrpcApiException(GrpcApiException exception) {
+        return Status.fromCode(exception.getStatusCode())
+                .withDescription(resolveMessage(exception))
+                .asException();
+    }
+
+    @GrpcExceptionHandler(GrpcValidationException.class)
+    public StatusException handleGrpcValidationException(GrpcValidationException exception) {
+        BadRequest.Builder badRequest = BadRequest.newBuilder();
+        exception.getViolations().stream()
+                .map(this::toFieldViolation)
+                .forEach(badRequest::addFieldViolations);
+
+        com.google.rpc.Status status =
+                com.google.rpc.Status.newBuilder()
+                        .setCode(com.google.rpc.Code.INVALID_ARGUMENT_VALUE)
+                        .setMessage(
+                                resolveMessage(
+                                        "grpc.validation.failed",
+                                        "One or more validation errors occurred."))
+                        .addDetails(Any.pack(badRequest.build()))
+                        .build();
+
+        return StatusProto.toStatusException(status);
+    }
+
+    @GrpcExceptionHandler(InvalidBearerTokenException.class)
+    public StatusException handleInvalidBearerTokenException(
+            InvalidBearerTokenException exception) {
+        return Status.UNAUTHENTICATED
+                .withDescription(
+                        resolveMessage("grpc.auth.invalidToken", "Invalid or expired token."))
+                .asException();
+    }
+
+    @GrpcExceptionHandler(AuthenticationException.class)
+    public StatusException handleAuthenticationException(AuthenticationException exception) {
+        return Status.UNAUTHENTICATED
+                .withDescription(
+                        resolveMessage("grpc.auth.unauthenticated", "Authentication failed."))
+                .asException();
+    }
+
+    @GrpcExceptionHandler(AccessDeniedException.class)
+    public StatusException handleAccessDeniedException(AccessDeniedException exception) {
+        return Status.PERMISSION_DENIED
+                .withDescription(resolveMessage("grpc.auth.accessDenied", "Access denied."))
+                .asException();
+    }
+
+    @GrpcExceptionHandler(Exception.class)
+    public StatusException handleException(Exception exception) {
+        log.error("Unhandled gRPC exception", exception);
+        return Status.INTERNAL
+                .withDescription(
+                        resolveMessage(
+                                "grpc.internal",
+                                "An unexpected error occurred. Please try again later."))
+                .asException();
+    }
+
+    private String resolveMessage(GrpcApiException exception) {
+        return resolveMessage(
+                exception.getMessageCode(),
+                exception.getMessage(),
+                exception.getMessageArguments());
+    }
+
+    private String resolveMessage(
+            String messageCode, String defaultMessage, Object... messageArguments) {
+        Locale locale = LocaleContextHolder.getLocale();
+        return messageSource.getMessage(messageCode, messageArguments, defaultMessage, locale);
+    }
+
+    private BadRequest.FieldViolation toFieldViolation(GrpcViolation validationViolation) {
+        Violation violation = validationViolation.violation();
+        return BadRequest.FieldViolation.newBuilder()
+                .setField(resolveField(violation))
+                .setDescription(resolveValidationMessage(validationViolation))
+                .build();
+    }
+
+    private String resolveValidationMessage(GrpcViolation validationViolation) {
+        Violation violation = validationViolation.violation();
+        String defaultMessage = violation.hasMessage() ? violation.getMessage() : "invalid value";
+        return resolveMessage(
+                validationViolation.messageCode(),
+                defaultMessage,
+                validationViolation.messageArguments());
+    }
+
+    private static String resolveField(Violation violation) {
+        if (!violation.hasField() || violation.getField().getElementsCount() == 0) {
+            return resolveMessageLevelField();
+        }
+        return violation.getField().getElementsList().stream()
+                .map(GlobalGrpcExceptionHandler::resolveFieldElement)
+                .filter(StringUtils::hasText)
+                .reduce((left, right) -> left + "." + right)
+                .orElseGet(GlobalGrpcExceptionHandler::resolveMessageLevelField);
+    }
+
+    private static String resolveFieldElement(FieldPathElement element) {
+        if (element.hasFieldName()) {
+            return element.getFieldName();
+        }
+        if (element.hasFieldNumber()) {
+            return String.valueOf(element.getFieldNumber());
+        }
+        return "";
+    }
+
+    private static String resolveMessageLevelField() {
+        return "request";
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="GlobalGrpcExceptionHandler.kt"
+package io.github.susimsek.springgrpcsamples.exception
+
+import build.buf.validate.FieldPathElement
+import build.buf.validate.Violation
+import com.google.protobuf.Any
+import com.google.rpc.BadRequest
+import io.grpc.Status
+import io.grpc.StatusException
+import io.grpc.protobuf.StatusProto
+import org.slf4j.LoggerFactory
+import org.springframework.context.MessageSource
+import org.springframework.context.i18n.LocaleContextHolder
+import org.springframework.grpc.server.advice.GrpcAdvice
+import org.springframework.grpc.server.advice.GrpcExceptionHandler
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.core.AuthenticationException
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException
+import org.springframework.util.StringUtils
+
+@GrpcAdvice
+class GlobalGrpcExceptionHandler(
+    private val messageSource: MessageSource
+) {
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    @GrpcExceptionHandler(GrpcApiException::class)
+    fun handleGrpcApiException(exception: GrpcApiException): StatusException =
+        Status.fromCode(exception.statusCode).withDescription(resolveMessage(exception)).asException()
+
+    @GrpcExceptionHandler(GrpcValidationException::class)
+    fun handleGrpcValidationException(exception: GrpcValidationException): StatusException {
+        val badRequest = BadRequest.newBuilder()
+        exception.violations.map(::toFieldViolation).forEach(badRequest::addFieldViolations)
+        val status = com.google.rpc.Status.newBuilder()
+            .setCode(com.google.rpc.Code.INVALID_ARGUMENT_VALUE)
+            .setMessage(resolveMessage("grpc.validation.failed", "One or more validation errors occurred."))
+            .addDetails(Any.pack(badRequest.build()))
+            .build()
+        return StatusProto.toStatusException(status)
+    }
+
+    @GrpcExceptionHandler(InvalidBearerTokenException::class)
+    fun handleInvalidBearerTokenException(exception: InvalidBearerTokenException): StatusException =
+        Status.UNAUTHENTICATED.withDescription(resolveMessage("grpc.auth.invalidToken", "Invalid or expired token.")).asException()
+
+    @GrpcExceptionHandler(AuthenticationException::class)
+    fun handleAuthenticationException(exception: AuthenticationException): StatusException =
+        Status.UNAUTHENTICATED.withDescription(resolveMessage("grpc.auth.unauthenticated", "Authentication failed.")).asException()
+
+    @GrpcExceptionHandler(AccessDeniedException::class)
+    fun handleAccessDeniedException(exception: AccessDeniedException): StatusException =
+        Status.PERMISSION_DENIED.withDescription(resolveMessage("grpc.auth.accessDenied", "Access denied.")).asException()
+
+    @GrpcExceptionHandler(Exception::class)
+    fun handleException(exception: Exception): StatusException {
+        log.error("Unhandled gRPC exception", exception)
+        return Status.INTERNAL.withDescription(resolveMessage("grpc.internal", "An unexpected error occurred. Please try again later.")).asException()
+    }
+
+    private fun resolveMessage(exception: GrpcApiException): String =
+        resolveMessage(exception.messageCode, exception.message ?: "", *exception.messageArguments)
+
+    private fun resolveMessage(messageCode: String, defaultMessage: String, vararg args: Any?): String =
+        messageSource.getMessage(messageCode, args, defaultMessage, LocaleContextHolder.getLocale())
+
+    private fun toFieldViolation(validationViolation: GrpcViolation): BadRequest.FieldViolation =
+        BadRequest.FieldViolation.newBuilder()
+            .setField(resolveField(validationViolation.violation()))
+            .setDescription(resolveValidationMessage(validationViolation))
+            .build()
+
+    private fun resolveValidationMessage(validationViolation: GrpcViolation): String {
+        val violation = validationViolation.violation()
+        val defaultMessage = if (violation.hasMessage()) violation.message else "invalid value"
+        return resolveMessage(validationViolation.messageCode(), defaultMessage, *validationViolation.messageArguments())
+    }
+
+    private fun resolveField(violation: Violation): String {
+        if (!violation.hasField() || violation.field.elementsCount == 0) return "request"
+        return violation.field.elementsList.map(::resolveFieldElement).filter(StringUtils::hasText).reduceOrNull { left, right -> "$left.$right" } ?: "request"
+    }
+
+    private fun resolveFieldElement(element: FieldPathElement): String =
+        when {
+            element.hasFieldName() -> element.fieldName
+            element.hasFieldNumber() -> element.fieldNumber.toString()
+            else -> ""
+        }
+}
+```
+
+:::
+
+Bu tasarım sayesinde servis metotları tekrar eden guard clause’lar ve manuel exception mapping ile kirlenmez. Protobuf sözleşmesi, interceptor katmanı ve advice katmanı birlikte çalışır.
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/exception/GrpcApiException.java`
+  Uygulama seviyesi gRPC exception’ları için status code ve mesaj metadata’sını tanımlayan temel sınıftır.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="GrpcApiException.java"
+package io.github.susimsek.springgrpcsamples.exception;
+
+import io.grpc.Status;
+import lombok.Getter;
+
+@Getter
+public abstract class GrpcApiException extends RuntimeException {
+
+    private final Status.Code statusCode;
+    private final String messageCode;
+    private final Object[] messageArguments;
+
+    protected GrpcApiException(
+            Status.Code statusCode,
+            String messageCode,
+            String defaultMessage,
+            Object... messageArguments) {
+        super(defaultMessage);
+        this.statusCode = statusCode;
+        this.messageCode = messageCode;
+        this.messageArguments = messageArguments;
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="GrpcApiException.kt"
+package io.github.susimsek.springgrpcsamples.exception
+
+import io.grpc.Status
+
+abstract class GrpcApiException(
+    val statusCode: Status.Code,
+    val messageCode: String,
+    defaultMessage: String,
+    vararg val messageArguments: Any?
+) : RuntimeException(defaultMessage)
+```
+
+:::
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/exception/GrpcValidationException.java`
+  Tüm Protovalidate ihlallerini global advice tarafından yakalanan tek bir runtime exception içine toplar.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="GrpcValidationException.java"
+package io.github.susimsek.springgrpcsamples.exception;
+
+import java.util.List;
+import lombok.Getter;
+
+@Getter
+public class GrpcValidationException extends RuntimeException {
+
+    private final List<GrpcViolation> violations;
+
+    public GrpcValidationException(List<GrpcViolation> violations) {
+        super("gRPC request validation failed");
+        this.violations = List.copyOf(violations);
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="GrpcValidationException.kt"
+package io.github.susimsek.springgrpcsamples.exception
+
+class GrpcValidationException(
+    val violations: List<GrpcViolation>
+) : RuntimeException("gRPC request validation failed")
+```
+
+:::
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/exception/GrpcViolation.java`
+  Protovalidate ihlallerini i18n uyumlu mesaj kodları ve argümanlara normalize eder.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="GrpcViolation.java"
+package io.github.susimsek.springgrpcsamples.exception;
+
+import build.buf.validate.Violation;
+import java.util.Arrays;
+
+public record GrpcViolation(Violation violation, String messageCode, Object[] messageArguments) {
+
+    private static final String CUSTOM_RULE_ID_PREFIX = "grpc.";
+    private static final String STANDARD_RULE_MESSAGE_CODE_PREFIX = "grpc.validation.constraints.";
+    private static final String UNKNOWN_MESSAGE_CODE = "grpc.validation.unknown";
+
+    public static GrpcViolation from(build.buf.protovalidate.Violation violation) {
+        Violation proto = violation.toProto();
+        Object[] args =
+                isStandardRule(proto)
+                        ? new Object[] {violation.getRuleValue().getValue()}
+                        : new Object[0];
+        return new GrpcViolation(proto, resolveMessageCode(proto), args);
+    }
+
+    private static boolean isStandardRule(Violation violation) {
+        return violation.hasRuleId() && !violation.getRuleId().startsWith(CUSTOM_RULE_ID_PREFIX);
+    }
+
+    private static String resolveMessageCode(Violation violation) {
+        if (!violation.hasRuleId()) {
+            return UNKNOWN_MESSAGE_CODE;
+        }
+        String ruleId = violation.getRuleId();
+        boolean standardRule = !ruleId.startsWith(CUSTOM_RULE_ID_PREFIX);
+        return standardRule ? STANDARD_RULE_MESSAGE_CODE_PREFIX + ruleId : ruleId;
+    }
+
+    @Override
+    public Object[] messageArguments() {
+        return messageArguments;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        return object
+                        instanceof
+                        GrpcViolation(Violation violation1, String code, Object[] arguments)
+                && violation.equals(violation1)
+                && messageCode.equals(code)
+                && Arrays.equals(messageArguments, arguments);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = violation.hashCode();
+        result = 31 * result + messageCode.hashCode();
+        result = 31 * result + Arrays.hashCode(messageArguments);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "GrpcViolation[violation="
+                + violation
+                + ", messageCode="
+                + messageCode
+                + ", messageArguments="
+                + Arrays.toString(messageArguments)
+                + "]";
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="GrpcViolation.kt"
+package io.github.susimsek.springgrpcsamples.exception
+
+import build.buf.validate.Violation
+
+data class GrpcViolation(
+    val violation: Violation,
+    val messageCode: String,
+    private val args: Array<out Any?>
+) {
+    fun messageArguments(): Array<out Any?> = args
+
+    companion object {
+        private const val CUSTOM_RULE_ID_PREFIX = "grpc."
+        private const val STANDARD_RULE_MESSAGE_CODE_PREFIX = "grpc.validation.constraints."
+        private const val UNKNOWN_MESSAGE_CODE = "grpc.validation.unknown"
+
+        fun from(violation: build.buf.protovalidate.Violation): GrpcViolation {
+            val proto = violation.toProto()
+            val arguments =
+                if (isStandardRule(proto)) arrayOf(violation.ruleValue.value) else emptyArray()
+            return GrpcViolation(proto, resolveMessageCode(proto), arguments)
+        }
+
+        private fun isStandardRule(violation: Violation): Boolean =
+            violation.hasRuleId() && !violation.ruleId.startsWith(CUSTOM_RULE_ID_PREFIX)
+
+        private fun resolveMessageCode(violation: Violation): String {
+            if (!violation.hasRuleId()) {
+                return UNKNOWN_MESSAGE_CODE
+            }
+            val ruleId = violation.ruleId
+            val standardRule = !ruleId.startsWith(CUSTOM_RULE_ID_PREFIX)
+            return if (standardRule) STANDARD_RULE_MESSAGE_CODE_PREFIX + ruleId else ruleId
+        }
+    }
+}
+```
+
+:::
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/exception/InvalidCredentialsException.java`
+  Başarısız login denemelerini gRPC `UNAUTHENTICATED` uygulama hatası olarak temsil eder.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="InvalidCredentialsException.java"
+package io.github.susimsek.springgrpcsamples.exception;
+
+import io.grpc.Status;
+
+public class InvalidCredentialsException extends GrpcApiException {
+
+    public InvalidCredentialsException() {
+        super(
+                Status.Code.UNAUTHENTICATED,
+                "grpc.auth.invalidCredentials",
+                "invalid username or password");
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="InvalidCredentialsException.kt"
+package io.github.susimsek.springgrpcsamples.exception
+
+import io.grpc.Status
+
+class InvalidCredentialsException : GrpcApiException(
+    Status.Code.UNAUTHENTICATED,
+    "grpc.auth.invalidCredentials",
+    "invalid username or password"
+)
+```
+
+:::
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/exception/TodoNotFoundException.java`
+  Bulunamayan kayıtları eksik Todo ID bilgisiyle gRPC `NOT_FOUND` hatası olarak döndürür.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="TodoNotFoundException.java"
+package io.github.susimsek.springgrpcsamples.exception;
+
+import io.grpc.Status;
+
+public class TodoNotFoundException extends GrpcApiException {
+
+    public TodoNotFoundException(Long id) {
+        super(
+                Status.Code.NOT_FOUND,
+                "grpc.todo.notFound",
+                "todo not found with id: " + id,
+                id.toString());
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="TodoNotFoundException.kt"
+package io.github.susimsek.springgrpcsamples.exception
+
+import io.grpc.Status
+
+class TodoNotFoundException(id: Long) : GrpcApiException(
+    Status.Code.NOT_FOUND,
+    "grpc.todo.notFound",
+    "todo not found with id: $id",
+    id.toString()
+)
+```
+
+:::
+
+- `src/main/java/io/github/susimsek/springgrpcsamples/config/aot/NativeRuntimeHints.java`
+  Native build’ler için i18n kaynaklarını, protobuf request sınıflarını ve exception handler reflection hint’lerini kaydeder.
+
+:::tabs
+@tab Java [icon=java]
+
+```java filename="NativeRuntimeHints.java"
+package io.github.susimsek.springgrpcsamples.config.aot;
+
+import io.github.susimsek.springgrpcsamples.exception.GlobalGrpcExceptionHandler;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Stream;
+import org.springframework.aot.hint.MemberCategory;
+import org.springframework.aot.hint.RuntimeHints;
+import org.springframework.aot.hint.RuntimeHintsRegistrar;
+import org.springframework.aot.hint.TypeReference;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.SimpleMetadataReaderFactory;
+
+public class NativeRuntimeHints implements RuntimeHintsRegistrar {
+
+    private static final String APPLICATION_PROTO_REQUEST_PATTERN =
+            "classpath*:io/github/susimsek/springgrpcsamples/proto/*Request.class";
+
+    @Override
+    public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+        hints.resources().registerPattern("i18n/**");
+        hints.reflection()
+                .registerTypes(
+                        findApplicationProtoRequestTypes(classLoader).stream()
+                                .flatMap(
+                                        typeName ->
+                                                Stream.of(
+                                                        TypeReference.of(typeName),
+                                                        TypeReference.of(typeName + "$Builder")))
+                                .toList(),
+                        builder -> builder.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS));
+        hints.reflection()
+                .registerType(
+                        GlobalGrpcExceptionHandler.class, MemberCategory.INVOKE_PUBLIC_METHODS);
+    }
+
+    private static List<String> findApplicationProtoRequestTypes(ClassLoader classLoader) {
+        PathMatchingResourcePatternResolver resolver =
+                new PathMatchingResourcePatternResolver(classLoader);
+        SimpleMetadataReaderFactory metadataReaderFactory =
+                new SimpleMetadataReaderFactory(classLoader);
+        try {
+            return Stream.of(resolver.getResources(APPLICATION_PROTO_REQUEST_PATTERN))
+                    .filter(Resource::isReadable)
+                    .map(resource -> className(resource, metadataReaderFactory))
+                    .sorted()
+                    .toList();
+        } catch (IOException ex) {
+            throw new IllegalStateException("Failed to scan application proto request types", ex);
+        }
+    }
+
+    private static String className(
+            Resource resource, SimpleMetadataReaderFactory metadataReaderFactory) {
+        try {
+            MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
+            return metadataReader.getClassMetadata().getClassName();
+        } catch (IOException ex) {
+            throw new IllegalStateException("Failed to read proto request metadata", ex);
+        }
+    }
+}
+```
+
+@tab Kotlin [icon=kotlin]
+
+```kotlin filename="NativeRuntimeHints.kt"
+package io.github.susimsek.springgrpcsamples.config.aot
+
+import io.github.susimsek.springgrpcsamples.exception.GlobalGrpcExceptionHandler
+import org.springframework.aot.hint.MemberCategory
+import org.springframework.aot.hint.RuntimeHints
+import org.springframework.aot.hint.RuntimeHintsRegistrar
+import org.springframework.aot.hint.TypeReference
+import org.springframework.core.io.Resource
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver
+import org.springframework.core.type.classreading.MetadataReader
+import org.springframework.core.type.classreading.SimpleMetadataReaderFactory
+import java.io.IOException
+
+class NativeRuntimeHints : RuntimeHintsRegistrar {
+
+    override fun registerHints(hints: RuntimeHints, classLoader: ClassLoader) {
+        hints.resources().registerPattern("i18n/**")
+        hints.reflection().registerTypes(
+            findApplicationProtoRequestTypes(classLoader).flatMap { typeName ->
+                listOf(TypeReference.of(typeName), TypeReference.of("${typeName}\$Builder"))
+            }
+        ) { builder ->
+            builder.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS)
+        }
+        hints.reflection().registerType(
+            GlobalGrpcExceptionHandler::class.java,
+            MemberCategory.INVOKE_PUBLIC_METHODS
+        )
+    }
+
+    private fun findApplicationProtoRequestTypes(classLoader: ClassLoader): List<String> {
+        val resolver = PathMatchingResourcePatternResolver(classLoader)
+        val metadataReaderFactory = SimpleMetadataReaderFactory(classLoader)
+        try {
+            return resolver.getResources(APPLICATION_PROTO_REQUEST_PATTERN)
+                .asSequence()
+                .filter(Resource::isReadable)
+                .map { resource -> className(resource, metadataReaderFactory) }
+                .sorted()
+                .toList()
+        } catch (ex: IOException) {
+            throw IllegalStateException("Failed to scan application proto request types", ex)
+        }
+    }
+
+    private fun className(
+        resource: Resource,
+        metadataReaderFactory: SimpleMetadataReaderFactory
+    ): String =
+        try {
+            val metadataReader: MetadataReader = metadataReaderFactory.getMetadataReader(resource)
+            metadataReader.classMetadata.className
+        } catch (ex: IOException) {
+            throw IllegalStateException("Failed to read proto request metadata", ex)
+        }
+
+    companion object {
+        private const val APPLICATION_PROTO_REQUEST_PATTERN =
+            "classpath*:io/github/susimsek/springgrpcsamples/proto/*Request.class"
+    }
+}
+```
+
+:::
+
+---
+
+## ▶️ Uygulamayı Çalıştır
+
+Sunucuyu yerelde ayağa kaldırmak için repo içinde belgelenen akışı kullanın.
+
+```bash
+./mvnw spring-boot:run
+
+grpcurl -plaintext localhost:9090 list
+
+TOKEN=$(grpcurl -plaintext \
+  -d '{"username":"admin","password":"admin"}' \
+  localhost:9090 \
+  AuthService/Login | jq -r '.access_token')
+
+grpcurl -plaintext \
+  -rpc-header "authorization: Bearer ${TOKEN}" \
+  -d '{"pageRequest":{"page":0,"size":5}}' \
+  localhost:9090 \
+  TodoService/ListTodos
+```
+
+Beklenen davranış:
+
+- `grpcurl ... list` çıktısında `AuthService`, `TodoService`, `grpc.health.v1.Health` ve reflection servisleri görünmelidir.
+- `AuthService/Login`, `access_token`, `token_type` ve `expires_in` alanlarını döndürmelidir.
+- `TodoService/ListTodos`, yalnızca geçerli bearer token ve doğru yetkiyle çalışmalıdır.
+- Hatalı payload’lar, yapılandırılmış alan ihlalleriyle birlikte `InvalidArgument` dönmelidir.
+
+Spring ayrıca gRPC için in-process test taşımayı da destekler. Projenin README dosyasında `@AutoConfigureTestGrpcTransport` ve `@ImportGrpcClients` kullanımından bahsediliyor; deterministik entegrasyon testleri için doğru yön budur.
+
+---
+
+## 🧪 gRPC Endpoint Testi
+
+Bu örneği doğrulamanın en pratik yolu `grpcurl` kullanmaktır. Tüm Todo akışı için seed edilmiş `admin` hesabını, yetki hatalarını doğrulamak için ise `user` hesabını kullanın.
+
+### Admin Akışı
+
+`admin` olarak giriş yapın ve JWT token’ı alın:
+
+```bash
+grpcurl -plaintext \
+  -d '{"username":"admin","password":"admin"}' \
+  localhost:9090 \
+  AuthService/Login
+```
+
+Beklenen yanıt:
+
+```json filename="config.json"
+{
+  "accessToken": "<jwt-token>",
+  "tokenType": "Bearer",
+  "expiresIn": "3600"
+}
+```
+
+Bu token ile Todo listesini alın:
+
+```bash
+grpcurl -plaintext \
+  -rpc-header "authorization: Bearer <jwt-token>" \
+  -d '{"pageRequest":{"page":0,"size":5}}' \
+  localhost:9090 \
+  TodoService/ListTodos
+```
+
+Yeni bir Todo oluşturun:
+
+```bash
+grpcurl -plaintext \
+  -rpc-header "authorization: Bearer <jwt-token>" \
+  -d '{"title":"Write article examples"}' \
+  localhost:9090 \
+  TodoService/CreateTodo
+```
+
+Mevcut bir Todo kaydını patch edin:
+
+```bash
+grpcurl -plaintext \
+  -rpc-header "authorization: Bearer <jwt-token>" \
+  -d '{"id":1,"completed":true}' \
+  localhost:9090 \
+  TodoService/PatchTodo
+```
+
+Bir Todo kaydını silin:
+
+```bash
+grpcurl -plaintext \
+  -rpc-header "authorization: Bearer <jwt-token>" \
+  -d '{"id":1}' \
+  localhost:9090 \
+  TodoService/DeleteTodo
+```
+
+### User Akışı
+
+Daha düşük yetkili `user` hesabıyla giriş yapın:
+
+```bash
+grpcurl -plaintext \
+  -d '{"username":"user","password":"user"}' \
+  localhost:9090 \
+  AuthService/Login
+```
+
+Ardından admin korumalı bir RPC çağrısı deneyin:
+
+```bash
+grpcurl -plaintext \
+  -rpc-header "authorization: Bearer <jwt-token>" \
+  -d '{"pageRequest":{"page":0,"size":5}}' \
+  localhost:9090 \
+  TodoService/ListTodos
+```
+
+Beklenen davranış:
+
+- `admin`, tüm `TodoService/*` RPC’lerini başarıyla çağırabilir.
+- `user`, servis `ROLE_ADMIN` istediği için `PermissionDenied` alır.
+- Geçersiz kimlik bilgileri `Unauthenticated` döndürür.
+
+### Doğrulama ve i18n Kontrolü
+
+Protovalidate ve lokalize hata yönetimini doğrulamak için geçersiz bir payload gönderin:
+
+```bash
+grpcurl -plaintext \
+  -rpc-header "authorization: Bearer <jwt-token>" \
+  -rpc-header "accept-language: tr" \
+  -d '{"title":""}' \
+  localhost:9090 \
+  TodoService/CreateTodo
+```
+
+Beklenen davranış:
+
+- RPC çağrısı `InvalidArgument` ile başarısız olur.
+- Yanıt detayları yapılandırılmış field violation kayıtları içerir.
+- `accept-language: tr` gönderildiğinde validation mesajları `messages_tr.properties` içinden çözülür.
+
+---
+
+## 🏁 Sonuç
+
+Bu kurulum, Spring Boot, protobuf-first sözleşmeler, JPA tabanlı persistence, Spring Security, interceptor tabanlı doğrulama ve merkezi exception mapping birleşimiyle sağlam ve üretim-hazır bir gRPC API yaklaşımı sunar. Üretim sertleştirmesi için sonraki pratik adım olarak örnek repodaki yerel JWT varsayımlarını ve profile bağlı veritabanı ayarlarını ortam bazlı güvenli yapılandırmaya taşıyıp en kritik RPC sözleşmeleri için regresyon testleri ekleyin.
