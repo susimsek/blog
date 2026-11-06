@@ -2,7 +2,7 @@
 
 This repo is a multilingual blog platform with a **Next.js static-export frontend** and a **Go backend** for GraphQL, GraphiQL, newsletter confirmation, and newsletter dispatch.
 
-Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18next, Bootstrap/Sass, Go 1.24, gqlgen, MongoDB driver, ESLint (flat config), Jest + Testing Library, SonarCloud.
+Tech stack: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next + react-i18next, Bootstrap/Sass, Go 1.27, gqlgen, MongoDB Go Driver v2, ESLint (flat config), Jest + Testing Library, SonarCloud.
 
 For backend architecture, prefer a layered Go package structure similar in spirit to the frontend's clear separation of responsibilities. Do not introduce new feature-first Go package layouts.
 
@@ -78,9 +78,9 @@ Use it to confirm required sync/codegen steps were considered and to produce a C
 
 ## Prerequisites
 
-- Node.js: `>= 24.18.0`
+- Node.js: `>= 26.13.0`
 - pnpm via Corepack
-- Go: `1.24.x`
+- Go: `1.27.x`
 
 ## Project Structure
 
@@ -149,7 +149,7 @@ Do not introduce new feature-first Go package trees.
 ## Go Backend
 
 - Module: `suaybsimsek.com/blog-api`
-- Go version: `1.24.0`
+- Go version: `1.27.0` (toolchain `go1.27.3`)
 - GraphQL schema and generated layer live under `internal/graphql`; regenerate with `pnpm run graphql:generate`
 - GraphiQL handler lives under `pkg/graphql`
 - Backend env/config resolution lives under `internal/config`
@@ -333,3 +333,13 @@ Suggested scopes:
 - Forgetting dev rewrites depend on `NEXT_PUBLIC_DEV_API_ORIGIN`
 - Running Sonar without generating `coverage/go-cover.out`
 - Assuming GraphQL packages are automatically covered if they are not included in the Go coverage command
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

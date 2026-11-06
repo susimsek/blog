@@ -5,7 +5,10 @@ const notFoundMock = jest.fn(() => {
   throw new Error('NOT_FOUND');
 });
 
-const getAllCategoryIdsMock = jest.fn(async () => [{ params: { locale: 'en', id: 'frontend' } }]);
+const getAllCategoryIdsMock = jest.fn(async () => [
+  { params: { locale: 'en', id: 'frontend' } },
+  { params: { locale: 'tr', id: 'frontend' } },
+]);
 const getCategoryDataMock = jest.fn(async (_locale: string, id: string) =>
   id === 'frontend' ? { id: 'frontend', name: 'Frontend', color: '#fff' } : null,
 );
@@ -61,12 +64,12 @@ describe('App Route /[locale]/categories/[id]', () => {
   });
 
   it('generates static params from category ids', async () => {
-    await expect(generateStaticParams()).resolves.toEqual([{ locale: 'en', id: 'frontend' }]);
+    await expect(generateStaticParams()).resolves.toEqual([{ locale: 'tr', id: 'frontend' }]);
   });
 
   it('builds category metadata when category exists', async () => {
     const metadata = await generateMetadata({
-      params: Promise.resolve({ locale: 'en', id: 'frontend' }),
+      params: Promise.resolve({ locale: 'tr', id: 'frontend' }),
       searchParams: Promise.resolve({}),
     });
 
@@ -77,7 +80,7 @@ describe('App Route /[locale]/categories/[id]', () => {
 
   it('renders not-found metadata when category is missing', async () => {
     const metadata = await generateMetadata({
-      params: Promise.resolve({ locale: 'en', id: 'missing' }),
+      params: Promise.resolve({ locale: 'tr', id: 'missing' }),
       searchParams: Promise.resolve({}),
     });
 
@@ -88,18 +91,21 @@ describe('App Route /[locale]/categories/[id]', () => {
 
   it('loads posts and renders CategoryPage', async () => {
     const element = await CategoryRoute({
-      params: Promise.resolve({ locale: 'en', id: 'frontend' }),
+      params: Promise.resolve({ locale: 'tr', id: 'frontend' }),
       searchParams: Promise.resolve({}),
     });
     render(element);
 
     expect(categoryPageMock).toHaveBeenCalledWith({
-      locale: 'en',
-      category: { id: 'frontend', name: 'Frontend', color: '#fff' },
-      posts: [{ id: 'post-1', category: { id: 'frontend' } }],
-      layoutPosts: [{ id: 'post-1' }],
-      topics: [{ id: 'topic-1' }],
-      preFooterTopTopics: [{ id: 'topic-1' }],
+      contentByLocale: expect.objectContaining({
+        tr: expect.objectContaining({
+          category: { id: 'frontend', name: 'Frontend', color: '#fff' },
+          posts: [{ id: 'post-1', category: { id: 'frontend' } }],
+          layoutPosts: [{ id: 'post-1' }],
+          topics: [{ id: 'topic-1' }],
+          preFooterTopTopics: [{ id: 'topic-1' }],
+        }),
+      }),
     });
     expect(screen.getByTestId('category-page')).toBeInTheDocument();
   });
@@ -107,7 +113,7 @@ describe('App Route /[locale]/categories/[id]', () => {
   it('calls notFound when category is missing', async () => {
     await expect(
       CategoryRoute({
-        params: Promise.resolve({ locale: 'en', id: 'missing' }),
+        params: Promise.resolve({ locale: 'tr', id: 'missing' }),
         searchParams: Promise.resolve({}),
       }),
     ).rejects.toThrow('NOT_FOUND');

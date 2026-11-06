@@ -1,3 +1,4 @@
+import { locales } from '@/i18n/settings';
 import { getAllPostIds } from '@/lib/posts';
 
 type AdminSettingsContentPostRedirectPageProps = {
@@ -9,27 +10,12 @@ type AdminSettingsContentPostRedirectPageProps = {
 
 export async function generateStaticParams() {
   const postPaths = await getAllPostIds();
-  const params: Array<{ postLocale: string; postId: string }> = [];
-  const dedupe = new Set<string>();
-
-  for (const path of postPaths) {
-    const postLocale = path.params.locale.trim().toLowerCase();
-    const postId = path.params.id.trim();
-    if (!postLocale || !postId) {
-      continue;
-    }
-    const key = `${postLocale}|${postId}`;
-    if (dedupe.has(key)) {
-      continue;
-    }
-    dedupe.add(key);
-    params.push({
+  return locales.flatMap(postLocale =>
+    postPaths.map(path => ({
       postLocale,
-      postId,
-    });
-  }
-
-  return params;
+      postId: path.params.id,
+    })),
+  );
 }
 
 export default async function AdminSettingsContentPostRedirectPage({

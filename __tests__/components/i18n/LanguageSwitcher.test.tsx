@@ -11,7 +11,10 @@ jest.mock('next/navigation', () => ({
 
 // Mocking react-i18next and FontAwesomeIcon
 jest.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    i18n: { language: 'en', resolvedLanguage: 'en', changeLanguage: jest.fn() },
+    t: (key: string) => key,
+  }),
 }));
 
 jest.mock('@fortawesome/react-fontawesome', () => ({

@@ -12,6 +12,11 @@ server {
         return 200 '{"status":"UP"}';
     }
 
+    # Redirect legacy English-prefixed URLs to the canonical root routes.
+    location ~ ^${NEXT_PUBLIC_BASE_PATH}/en(?:/(.*))?$ {
+        return 301 ${NEXT_PUBLIC_BASE_PATH}/$1$is_args$args;
+    }
+
     # Favicon redirection
      location = /favicon.ico {
          try_files ${NEXT_PUBLIC_BASE_PATH}/favicon.ico =404;

@@ -1,121 +1,66 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import LanguageSwitchLink from '@/components/i18n/LanguageSwitchLink';
-import languageDetector from '@/lib/languageDetector';
 
-const replaceMock = jest.fn();
-const useRouterMock = jest.fn();
-const usePathnameMock = jest.fn();
-const useParamsMock = jest.fn();
+const mockReplace = jest.fn();
+let mockPathname = '/posts/example';
+let mockParams: { locale?: string } = {};
 
 jest.mock('next/navigation', () => ({
-  useRouter: () => useRouterMock(),
-  usePathname: () => usePathnameMock(),
-  useParams: () => useParamsMock(),
+  useRouter: () => ({ replace: mockReplace }),
+  usePathname: () => mockPathname,
+  useParams: () => mockParams,
 }));
 
 jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <span data-testid={`icon-${icon}`} />,
 }));
 
-jest.mock('@/lib/languageDetector', () => ({
-  cache: jest.fn(),
+jest.mock('@/components/common/FlagIcon', () => ({
+  __esModule: true,
+  default: ({ code, alt }: { code: string; alt?: string }) => <span data-testid={`flag-${code}`} aria-label={alt} />,
 }));
-
-jest.mock('@/components/common/FlagIcon', () => {
-  return ({ code, alt }: { code: string; alt?: string }) => (
-    <span data-testid={`flag-${code.toLowerCase()}`} aria-label={alt}></span>
-  );
-});
 
 describe('LanguageSwitchLink', () => {
   beforeEach(() => {
-    replaceMock.mockReset();
-    useRouterMock.mockReturnValue({ replace: replaceMock });
-    usePathnameMock.mockReturnValue('/en/post/123');
-    useParamsMock.mockReturnValue({ locale: 'en' });
-    window.history.replaceState({}, '', '/en/post/123');
+    document.documentElement.lang = 'en';
+    window.history.replaceState({}, '', '/posts/example?source=menu#section');
+    mockPathname = '/posts/example';
+    mockParams = {};
+    mockReplace.mockClear();
   });
 
-  it('renders locale label and flag', () => {
-    render(<LanguageSwitchLink locale="tr" />);
-    expect(screen.getByTestId('flag-tr')).toBeInTheDocument();
-    expect(screen.getByText('Türkçe')).toBeInTheDocument();
-  });
-
-  it('uses current pathname when href is not provided', () => {
+  it('navigates to the selected locale prefix and preserves the current query and fragment', () => {
     render(<LanguageSwitchLink locale="tr" />);
     fireEvent.click(screen.getByRole('button'));
 
-    expect(replaceMock).toHaveBeenCalledWith('/tr/post/123');
+    expect(mockReplace).toHaveBeenCalledWith('/tr/posts/example?source=menu#section');
   });
 
-  it('normalizes non-prefixed internal href values', () => {
-    render(<LanguageSwitchLink locale="tr" href="contact" />);
+  it('removes the locale prefix when switching back to the default language', () => {
+    mockPathname = '/tr/posts/example';
+    mockParams = { locale: 'tr' };
+    window.history.replaceState({}, '', '/tr/posts/example?source=menu');
+    render(<LanguageSwitchLink locale="en" />);
     fireEvent.click(screen.getByRole('button'));
 
-    expect(replaceMock).toHaveBeenCalledWith('/tr/contact');
+    expect(mockReplace).toHaveBeenCalledWith('/posts/example?source=menu');
   });
 
-  it('constructs href correctly for absolute internal paths', () => {
+  it('localizes an explicitly supplied destination path', () => {
+    window.history.replaceState({}, '', '/');
     render(<LanguageSwitchLink locale="tr" href="/about" />);
     fireEvent.click(screen.getByRole('button'));
 
-    expect(replaceMock).toHaveBeenCalledWith('/tr/about');
+    expect(mockReplace).toHaveBeenCalledWith('/tr/about');
   });
 
-  it('handles external URLs without modification', () => {
-    render(<LanguageSwitchLink locale="tr" href="https://example.com" />);
-    fireEvent.click(screen.getByRole('button'));
-
-    expect(replaceMock).toHaveBeenCalledWith('https://example.com');
-  });
-
-  it('keeps non-locale search params', () => {
-    window.history.replaceState({}, '', '/en/post/123?locale=en&page=2&tags=react&tags=ssg');
-
-    render(<LanguageSwitchLink locale="tr" />);
-    fireEvent.click(screen.getByRole('button'));
-
-    expect(replaceMock).toHaveBeenCalledWith('/tr/post/123?page=2&tags=react&tags=ssg');
-  });
-
-  it('maps locale root path to localized root', () => {
-    usePathnameMock.mockReturnValue('/en');
-
-    render(<LanguageSwitchLink locale="tr" />);
-    fireEvent.click(screen.getByRole('button'));
-
-    expect(replaceMock).toHaveBeenCalledWith('/tr');
-  });
-
-  it('prepends locale when current pathname has no locale prefix', () => {
-    usePathnameMock.mockReturnValue('/post/123');
-    useParamsMock.mockReturnValue({});
-
-    render(<LanguageSwitchLink locale="tr" />);
-    fireEvent.click(screen.getByRole('button'));
-
-    expect(replaceMock).toHaveBeenCalledWith('/tr/post/123');
-  });
-
-  it('calls languageDetector.cache with selected locale', () => {
-    render(<LanguageSwitchLink locale="tr" />);
-    fireEvent.click(screen.getByRole('button'));
-
-    expect(languageDetector.cache).toHaveBeenCalledWith('tr');
-  });
-
-  it('shows current-locale indicator when locale matches route locale', () => {
-    useParamsMock.mockReturnValue({ locale: 'tr' });
-
-    render(<LanguageSwitchLink locale="tr" />);
-
+  it('shows the selected-language indicator and ignores unsupported locales', () => {
+    render(<LanguageSwitchLink locale="en" />);
     expect(screen.getByTestId('icon-circle-check')).toBeInTheDocument();
-  });
 
-  it('falls back to locale code text for unknown locale labels', () => {
     render(<LanguageSwitchLink locale="fr-FR" />);
-
+    fireEvent.click(screen.getAllByRole('button')[1]);
+    expect(mockReplace).toHaveBeenCalledTimes(0);
     expect(screen.getByText('fr-FR')).toBeInTheDocument();
   });
 });

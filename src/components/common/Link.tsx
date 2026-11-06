@@ -2,6 +2,7 @@ import React, { ReactNode, MouseEvent, forwardRef } from 'react';
 import NextLink, { LinkProps } from 'next/link';
 import { useParams } from 'next/navigation';
 import i18nextConfig from '@/i18n/settings';
+import { defaultLocale, isSupportedLocale } from '@/i18n/settings';
 
 interface LinkComponentProps extends Omit<LinkProps, 'href' | 'locale'> {
   children: ReactNode;
@@ -27,13 +28,17 @@ export const hasLocalePrefix = (pathname: string) =>
   i18nextConfig.i18n.locales.some(locale => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`));
 
 export const localizePathname = (pathname: string, locale: string): string => {
-  if (hasLocalePrefix(pathname) || pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
-    return pathname;
+  const localePrefix = i18nextConfig.i18n.locales.find(
+    locale => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
+  );
+  const unlocalizedPath = localePrefix ? pathname.slice(localePrefix.length + 1) || '/' : pathname;
+  const targetLocale = isSupportedLocale(locale) ? locale : defaultLocale;
+
+  if (targetLocale === defaultLocale) {
+    return unlocalizedPath;
   }
-  if (pathname === '/') {
-    return `/${locale}`;
-  }
-  return `/${locale}${pathname}`;
+
+  return `/${targetLocale}${unlocalizedPath === '/' ? '' : unlocalizedPath}`;
 };
 
 export const localizeHref = (href: string, locale: string): string => {
@@ -43,22 +48,23 @@ export const localizeHref = (href: string, locale: string): string => {
 
   if (href.startsWith('http://') || href.startsWith('https://')) {
     try {
-      const base = globalThis.window ? globalThis.window.location.origin : 'http://localhost';
-      const url = new URL(href, base);
-      const localizedPath = localizePathname(url.pathname || '/', locale);
-      return `${localizedPath}${url.search}${url.hash}`;
+      const url = new URL(href);
+      const currentOrigin = globalThis.window?.location.origin;
+      if (!currentOrigin || url.origin !== currentOrigin) {
+        return href;
+      }
+
+      url.pathname = localizePathname(url.pathname, locale);
+      return `${url.pathname}${url.search}${url.hash}`;
     } catch {
       return href;
     }
   }
 
   if (href.startsWith('/')) {
-    const [pathWithoutHash, hash = ''] = href.split('#');
-    const [pathname = '/', query = ''] = pathWithoutHash.split('?');
-    const localizedPath = localizePathname(pathname || '/', locale);
-    const queryPart = query ? `?${query}` : '';
-    const hashPart = hash ? `#${hash}` : '';
-    return `${localizedPath}${queryPart}${hashPart}`;
+    const url = new URL(href, 'http://localhost');
+    url.pathname = localizePathname(url.pathname, locale);
+    return `${url.pathname}${url.search}${url.hash}`;
   }
 
   return href;
@@ -67,7 +73,7 @@ export const localizeHref = (href: string, locale: string): string => {
 const LinkComponent = forwardRef<HTMLAnchorElement, LinkComponentProps>(
   ({ children, skipLocaleHandling = false, href, locale, className, onClick, ...rest }, ref) => {
     const params = useParams<{ locale?: string | string[] }>();
-    const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
+    const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
     const activeLocale = locale ?? routeLocale ?? i18nextConfig.i18n.defaultLocale;
     const external = isExternalUrl(href);
     const shouldHandleLocale = !skipLocaleHandling && !external && !!activeLocale;

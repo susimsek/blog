@@ -8,6 +8,18 @@
       "maxDuration": 10
     }
   },
+  "redirects": [
+    {
+      "source": "/en",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/en/:path*",
+      "destination": "/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/graphql",

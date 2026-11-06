@@ -5,6 +5,7 @@ const matter = require('gray-matter');
 
 const i18nConfig = require('../i18n.config.json');
 const locales = i18nConfig.locales;
+const defaultLocale = i18nConfig.defaultLocale;
 
 const siteUrl = process.env.SITE_URL || 'https://suaybsimsek.com';
 const normalizedSiteUrl = siteUrl.replace(/\/+$/g, '');
@@ -27,6 +28,9 @@ const buildSiteUrl = (...segments) => {
   const normalizedSegments = segments.map(normalizeSegment).filter(Boolean);
   return normalizedSegments.length > 0 ? `${normalizedSiteUrl}/${normalizedSegments.join('/')}` : normalizedSiteUrl;
 };
+
+const buildLocaleUrl = (locale, ...segments) =>
+  buildSiteUrl(basePath, ...(locale === defaultLocale ? [] : [locale]), ...segments);
 
 const toAbsoluteUrl = value => {
   if (!value) {
@@ -235,8 +239,6 @@ async function generateRSSFeedXML(posts, locale) {
     copyright = '';
   }
 
-  const alternateLocale = locale === 'en' ? 'tr' : 'en';
-
   // Sort posts by published date (newest first).
   const sortedPosts = [...posts].sort((a, b) => getPostPublishedAt(b).getTime() - getPostPublishedAt(a).getTime());
   const newestPublishedAt =
@@ -257,7 +259,7 @@ async function generateRSSFeedXML(posts, locale) {
   rss += `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xmlns:content="http://purl.org/rss/1.0/modules/content/">\n`;
   rss += `  <channel>\n`;
   rss += `    <title>${wrapCdata(title)}</title>\n`;
-  rss += `    <link>${buildSiteUrl(basePath, locale)}</link>\n`;
+  rss += `    <link>${buildLocaleUrl(locale)}</link>\n`;
   rss += `    <description>${wrapCdata(description)}</description>\n`;
   rss += `    <docs>https://www.rssboard.org/rss-specification</docs>\n`;
   rss += `    <generator>${wrapCdata("Şuayb's Blog RSS Generator")}</generator>\n`;
@@ -270,14 +272,13 @@ async function generateRSSFeedXML(posts, locale) {
   rss += `    <image>\n`;
   rss += `      <url>${buildSiteUrl(basePath, 'images/logo.webp')}</url>\n`;
   rss += `      <title>${wrapCdata(title)}</title>\n`;
-  rss += `      <link>${buildSiteUrl(basePath, locale)}</link>\n`;
+  rss += `      <link>${buildLocaleUrl(locale)}</link>\n`;
   rss += `    </image>\n`;
-  rss += `    <atom:link rel="self" type="application/rss+xml" href="${buildSiteUrl(basePath, locale, 'rss.xml')}" />\n`;
-  rss += `    <atom:link rel="alternate" hreflang="${alternateLocale}" type="application/rss+xml" href="${buildSiteUrl(basePath, alternateLocale, 'rss.xml')}" />\n`;
+  rss += `    <atom:link rel="self" type="application/rss+xml" href="${buildLocaleUrl(locale, 'rss.xml')}" />\n`;
 
   // Add each post
   for (const post of sortedPosts) {
-    const postUrl = buildSiteUrl(basePath, locale, 'posts', post.id);
+    const postUrl = buildLocaleUrl(locale, 'posts', post.id);
     const publishedAt = getPostPublishedAt(post);
     const updatedAt = getPostUpdatedAt(post);
     const pubDate = publishedAt.toUTCString();
@@ -316,24 +317,18 @@ async function generateRSSFeedXML(posts, locale) {
   return rss;
 }
 
-/**
- * Generates and writes the RSS feed for each locale.
- * The feed is written to build/{locale}/rss.xml.
- */
+/** Generates one statically served RSS feed per locale. */
 async function generateRSSFeeds() {
   const outputRoots = [publicDir, buildDir].filter(root => fs.existsSync(root));
 
   for (const locale of locales) {
     const posts = readPosts(locale);
     const rssXML = await generateRSSFeedXML(posts, locale);
+    const localeSegments = locale === defaultLocale ? [] : [locale];
 
     outputRoots.forEach(root => {
-      const localeDir = path.join(root, locale);
-      if (!fs.existsSync(localeDir)) {
-        fs.mkdirSync(localeDir, { recursive: true });
-      }
-
-      const rssPath = path.join(localeDir, 'rss.xml');
+      const rssPath = path.join(root, ...localeSegments, 'rss.xml');
+      fs.mkdirSync(path.dirname(rssPath), { recursive: true });
       fs.writeFileSync(rssPath, rssXML, 'utf8');
       console.log(`RSS feed for locale "${locale}" generated at: ${rssPath}`);
     });

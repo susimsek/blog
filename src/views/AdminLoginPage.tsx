@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
@@ -18,7 +18,7 @@ import {
   resolveAdminError,
 } from '@/lib/adminApi';
 import { withBasePath } from '@/lib/basePath';
-import { defaultLocale } from '@/i18n/settings';
+import { useLocale } from '@/i18n/useLocale';
 import { useAppSelector } from '@/config/store';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
 import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
@@ -31,9 +31,7 @@ export default function AdminLoginPage() {
   const { t } = useTranslation(['admin-login', 'admin-common']);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
-  const locale = routeLocale ?? defaultLocale;
+  const locale = useLocale();
   const forgotPasswordHref = withAdminLocalePath(locale, ADMIN_ROUTES.forgotPassword);
   const isVoiceEnabled = useAppSelector(state => state.voice.isEnabled);
   const submitSoundRef = React.useRef<HTMLAudioElement | null>(null);
@@ -86,7 +84,7 @@ export default function AdminLoginPage() {
       try {
         const me = await fetchAdminMe();
         if (isMounted && me.authenticated) {
-          router.replace(`/${locale}/admin`);
+          router.replace(ADMIN_ROUTES.root);
           return;
         }
       } catch {
@@ -225,7 +223,7 @@ export default function AdminLoginPage() {
         }
         writeAdminSessionProfileCache(payload.user ?? null);
         globalThis.dispatchEvent(new CustomEvent('admin:user-updated', { detail: { user: payload.user ?? null } }));
-        router.replace(`/${locale}/admin`);
+        router.replace(ADMIN_ROUTES.root);
       } catch (error) {
         const resolvedError = resolveAdminError(error);
         if (resolvedError.kind === 'network') {

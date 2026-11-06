@@ -3,19 +3,11 @@ import { render, screen } from '@testing-library/react';
 import Localized404Page, { metadata } from '@/app/(localized)/[locale]/404/page';
 import LocaleNotFound from '@/app/(localized)/[locale]/not-found';
 
-const localeNotFoundPageMock = jest.fn(({ locale }: { locale: string }) => (
-  <div data-testid="locale-not-found-page">{locale}</div>
-));
-
-const useParamsMock = jest.fn<{ locale?: string }, []>(() => ({ locale: 'tr' }));
-
-jest.mock('next/navigation', () => ({
-  useParams: () => useParamsMock(),
-}));
+const localeNotFoundPageMock = jest.fn(() => <div data-testid="locale-not-found-page">localized-404</div>);
 
 jest.mock('@/views/LocaleNotFoundPage', () => ({
   __esModule: true,
-  default: (props: { locale: string }) => localeNotFoundPageMock(props),
+  default: () => localeNotFoundPageMock(),
 }));
 
 describe('App Route /[locale]/404 and not-found boundary', () => {
@@ -32,29 +24,17 @@ describe('App Route /[locale]/404 and not-found boundary', () => {
     });
   });
 
-  it('renders localized 404 page with locale param', async () => {
-    const element = await Localized404Page({
-      params: Promise.resolve({ locale: 'en' }),
-      searchParams: Promise.resolve({}),
-    });
-    render(element);
+  it('renders the localized 404 page without requiring a locale prop', () => {
+    render(<Localized404Page />);
 
-    expect(localeNotFoundPageMock).toHaveBeenCalledWith({ locale: 'en' });
-    expect(screen.getByTestId('locale-not-found-page')).toHaveTextContent('en');
+    expect(localeNotFoundPageMock).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('locale-not-found-page')).toHaveTextContent('localized-404');
   });
 
-  it('renders not-found boundary using useParams locale', () => {
+  it('renders not-found boundary in the route locale context', () => {
     render(<LocaleNotFound />);
 
-    expect(localeNotFoundPageMock).toHaveBeenCalledWith({ locale: 'tr' });
-    expect(screen.getByTestId('locale-not-found-page')).toHaveTextContent('tr');
-  });
-
-  it('falls back to default locale when useParams has no locale', () => {
-    useParamsMock.mockReturnValueOnce({ locale: undefined });
-
-    render(<LocaleNotFound />);
-
-    expect(localeNotFoundPageMock).toHaveBeenCalledWith({ locale: 'en' });
+    expect(localeNotFoundPageMock).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('locale-not-found-page')).toHaveTextContent('localized-404');
   });
 });

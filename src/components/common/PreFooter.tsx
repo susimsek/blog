@@ -4,8 +4,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Badge from 'react-bootstrap/Badge';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'next/navigation';
-import i18nextConfig from '@/i18n/settings';
+import { useLocale } from '@/i18n/useLocale';
 import type { LayoutPostSummary, Topic } from '@/types/posts';
 import Link from '@/components/common/Link';
 import { CONTACT_LINKS } from '@/config/constants';
@@ -13,6 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import useBoop from '@/hooks/useBoop';
 import { usePreFooterNewsletter } from '@/components/common/usePreFooterNewsletter';
+import { buildLocalizedPath } from '@/lib/metadata';
 
 interface PreFooterProps {
   posts?: LayoutPostSummary[];
@@ -96,7 +96,7 @@ function PreFooterDiscovery({
         {latestPosts.map(post => (
           <li key={post.id} className="mb-2">
             <Link
-              href={`/${currentLocale}/posts/${post.id}`}
+              href={buildLocalizedPath(currentLocale, `posts/${post.id}`)}
               skipLocaleHandling
               className="text-decoration-none pre-footer-latest-link"
             >
@@ -112,7 +112,7 @@ function PreFooterDiscovery({
         {topTopics.map(topic => (
           <Link
             key={topic.id}
-            href={`/${currentLocale}/topics/${topic.id}`}
+            href={buildLocalizedPath(currentLocale, `topics/${topic.id}`)}
             skipLocaleHandling
             className="text-decoration-none"
           >
@@ -247,7 +247,7 @@ function PreFooterNewsletterSection({
       <h4 className="h6 fw-bold mb-2">{t('common.preFooter.socialTitle')}</h4>
       <div className="d-flex align-items-center gap-3 flex-wrap pre-footer-social-links">
         <PreFooterSocialLink
-          href={`/${currentLocale}/rss.xml`}
+          href={buildLocalizedPath(currentLocale, 'rss.xml')}
           icon="rss"
           label={t('common.preFooter.rss')}
           external={false}
@@ -264,9 +264,7 @@ function PreFooterNewsletterSection({
 
 export default function PreFooter({ posts = [], topics = [], topTopics = [] }: Readonly<PreFooterProps>) {
   const { t } = useTranslation('common');
-  const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
-  const currentLocale = routeLocale || i18nextConfig.i18n.defaultLocale;
+  const currentLocale = useLocale();
 
   const latestPosts = useMemo(() => {
     const sorted = [...posts].sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime());
@@ -289,14 +287,14 @@ export default function PreFooter({ posts = [], topics = [], topTopics = [] }: R
             <p className="text-muted mb-3">{t('common.preFooter.aboutText')}</p>
             <div className="d-flex flex-wrap gap-2">
               <Link
-                href={`/${currentLocale}/contact`}
+                href={buildLocalizedPath(currentLocale, 'contact')}
                 skipLocaleHandling
                 className="btn pre-footer-cta pre-footer-cta-primary"
               >
                 {t('common.preFooter.contactCta')}
               </Link>
               <Link
-                href={`/${currentLocale}/about`}
+                href={buildLocalizedPath(currentLocale, 'about')}
                 skipLocaleHandling
                 className="btn pre-footer-cta pre-footer-cta-secondary"
               >

@@ -16,9 +16,9 @@ import (
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/pkg/newsletter"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 const hitsCollectionName = "post_hits"
@@ -254,7 +254,7 @@ func upsertPostHit(
 				"updatedAt":      now,
 			},
 		},
-		options.Update().SetUpsert(true),
+		options.UpdateOne().SetUpsert(true),
 	)
 	if err != nil {
 		return nil, 0, err
@@ -276,10 +276,7 @@ func main() {
 		log.Fatalf("read posts failed: %v", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
-
-	client, err := appconfig.NewMongoClient(ctx, databaseConfig, "blog-post-hits-sync-script")
+	client, err := appconfig.NewMongoClient(databaseConfig, "blog-post-hits-sync-script")
 	if err != nil {
 		log.Fatalf("mongodb connect failed: %v", err)
 	}

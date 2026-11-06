@@ -9,15 +9,15 @@ import Layout from '@/components/common/Layout';
 import ContactInfo from '@/components/common/ContactInfo';
 import type { LayoutPostSummary, Topic } from '@/types/posts';
 import { toAbsoluteSiteUrl } from '@/lib/metadata';
+import type { Localized } from '@/i18n/settings';
+import type { LayoutPageData } from '@/lib/localizedPageData';
+import { useLocalizedContent } from '@/i18n/useLocalizedContent';
 
-type AboutPageProps = {
-  layoutPosts: LayoutPostSummary[];
-  topics: Topic[];
-  preFooterTopTopics: Topic[];
-};
+type AboutPageProps = { contentByLocale: Localized<LayoutPageData> };
 
-export default function AboutPage({ layoutPosts, topics, preFooterTopTopics }: Readonly<AboutPageProps>) {
+export default function AboutPage({ contentByLocale }: Readonly<AboutPageProps>) {
   const { t } = useTranslation(['about']);
+  const { layoutPosts, topics, preFooterTopTopics } = useLocalizedContent(contentByLocale);
 
   const jsonLdData = {
     '@context': 'https://schema.org',

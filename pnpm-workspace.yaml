@@ -8,15 +8,21 @@ allowBuilds:
   sonar-scanner: true
   unrs-resolver: true
 
+minimumReleaseAgeExclude:
+  - '@apollo/client@4.3.7'
+  - i18next@26.7.2
+  - react-i18next@17.1.13
+  - sass@1.108.0
+
 overrides:
-  typescript-eslint: 8.62.1
-  '@typescript-eslint/eslint-plugin': 8.62.1
-  '@typescript-eslint/parser': 8.62.1
-  '@typescript-eslint/project-service': 8.62.1
-  '@typescript-eslint/scope-manager': 8.62.1
-  '@typescript-eslint/tsconfig-utils': 8.62.1
-  '@typescript-eslint/type-utils': 8.62.1
-  '@typescript-eslint/types': 8.62.1
-  '@typescript-eslint/typescript-estree': 8.62.1
-  '@typescript-eslint/utils': 8.62.1
-  '@typescript-eslint/visitor-keys': 8.62.1
+  typescript-eslint: 8.72.1
+  '@typescript-eslint/eslint-plugin': 8.72.1
+  '@typescript-eslint/parser': 8.72.1
+  '@typescript-eslint/project-service': 8.72.1
+  '@typescript-eslint/scope-manager': 8.72.1
+  '@typescript-eslint/tsconfig-utils': 8.72.1
+  '@typescript-eslint/type-utils': 8.72.1
+  '@typescript-eslint/types': 8.72.1
+  '@typescript-eslint/typescript-estree': 8.72.1
+  '@typescript-eslint/utils': 8.72.1
+  '@typescript-eslint/visitor-keys': 8.72.1

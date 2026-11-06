@@ -1,13 +1,13 @@
 'use client';
 
 import React from 'react';
-import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
 import CompactCount from '@/components/common/CompactCount';
 import { fetchPost, incrementPostHit } from '@/lib/contentApi';
 import { defaultLocale } from '@/i18n/settings';
+import { useLocale } from '@/i18n/useLocale';
 
 type PostHitProps = {
   postId: string;
@@ -23,9 +23,7 @@ export default function PostHit({
   initialLoading = false,
 }: Readonly<PostHitProps>) {
   const { t, i18n } = useTranslation('post');
-  const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
-  const locale = routeLocale ?? defaultLocale;
+  const locale = useLocale();
   const [hits, setHits] = React.useState<number | null>(
     typeof initialHits === 'number' ? Math.max(0, Math.trunc(initialHits)) : null,
   );

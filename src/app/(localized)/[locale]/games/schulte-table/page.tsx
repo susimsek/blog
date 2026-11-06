@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import SchulteTablePage from '@/views/SchulteTablePage';
-import { getAllTopics, getLayoutPosts, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/posts';
 import RouteI18nProvider from '@/i18n/RouteI18nProvider';
 import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';
+import { getLocalizedLayoutPageData } from '@/lib/localizedPageData';
 
 type SchulteRouteParams = {
   locale: string;
@@ -29,16 +29,12 @@ export async function generateMetadata({ params }: SchulteRouteProps): Promise<M
 
 export default async function SchulteTableRoute({ params }: SchulteRouteProps) {
   const { locale } = await params;
-
-  const allPosts = await getSortedPostsData(locale);
-  const topics = await getAllTopics(locale);
-  const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
-  const layoutPosts = getLayoutPosts(allPosts);
+  const contentByLocale = await getLocalizedLayoutPageData();
   const resources = await loadLocaleResources(locale, ['games']);
 
   return (
     <RouteI18nProvider locale={locale} resources={resources}>
-      <SchulteTablePage layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={preFooterTopTopics} />
+      <SchulteTablePage contentByLocale={contentByLocale} />
     </RouteI18nProvider>
   );
 }

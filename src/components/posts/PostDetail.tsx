@@ -19,8 +19,8 @@ import PostHit from '@/components/posts/PostHit';
 import PostAuthorBox from '@/components/posts/PostAuthorBox';
 import PostComments from '@/components/posts/PostComments';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'next/navigation';
 import { defaultLocale } from '@/i18n/settings';
+import { useLocale } from '@/i18n/useLocale';
 import { buildLocalizedAbsoluteUrl, toAbsoluteSiteUrl } from '@/lib/metadata';
 import type { AdjacentPostLink } from '@/lib/postFilters';
 import { formatReadingTime } from '@/lib/readingTime';
@@ -252,9 +252,7 @@ export default function PostDetail({
   nextPost = null,
 }: Readonly<PostDetailProps>) {
   const { t } = useTranslation(['post', 'common']);
-  const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
-  const locale = routeLocale ?? defaultLocale;
+  const locale = useLocale();
   const { title, publishedDate, updatedDate, contentHtml, thumbnail, topics, readingTimeMin, category } = post;
   const normalizedUpdatedDate = typeof updatedDate === 'string' ? updatedDate.trim() : '';
   const hasUpdatedNotice = normalizedUpdatedDate.length > 0 && normalizedUpdatedDate !== publishedDate;
@@ -267,7 +265,10 @@ export default function PostDetail({
   const [runtimeState, setRuntimeState] = React.useState<PostDetailRuntimeState>({ status: 'loading' });
   const thumbnailSrc = resolvePostDetailThumbnailSrc(thumbnail);
   const blogLabel = t('common.searchSource.blog', { ns: 'common' });
-  const structuredData = React.useMemo(() => buildPostStructuredData(post, locale, blogLabel), [blogLabel, locale, post]);
+  const structuredData = React.useMemo(
+    () => buildPostStructuredData(post, locale, blogLabel),
+    [blogLabel, locale, post],
+  );
 
   const splitIntro = React.useMemo(() => splitMarkdownIntro(markdown), [markdown]);
   const formattedUpdatedDate = React.useMemo(() => {
@@ -297,7 +298,7 @@ export default function PostDetail({
   const categoryHref = React.useMemo(() => {
     const rawID = typeof category?.id === 'string' ? category.id.trim().toLowerCase() : '';
     return rawID ? `/categories/${rawID}` : null;
-  }, [category?.id]);
+  }, [category]);
 
   const xShareUrl = React.useMemo(() => {
     const params = new URLSearchParams({

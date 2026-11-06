@@ -3,7 +3,7 @@
 import { ApolloClient, ApolloLink, HttpLink, InMemoryCache, gql } from '@apollo/client/core';
 import type { DocumentNode } from 'graphql';
 import { withBasePath } from '@/lib/basePath';
-import { defaultLocale } from '@/i18n/settings';
+import { resolveDocumentLocale } from '@/i18n/clientLocale';
 import { AdminGraphQLRequestError, shouldRetryAdminRefresh, toAdminRequestError } from '@/lib/admin-api/errors-core';
 export { isAdminSessionError, resolveAdminError, type ResolvedAdminError } from '@/lib/admin-api/errors-core';
 
@@ -82,23 +82,7 @@ const getCSRFToken = () => {
 };
 
 const resolveAdminRequestLocale = () => {
-  if (globalThis.window !== undefined) {
-    try {
-      const persistedLocale = globalThis.localStorage.getItem('i18nextLng')?.trim().toLowerCase();
-      if (persistedLocale) {
-        return persistedLocale;
-      }
-    } catch {
-      // Ignore localStorage access errors.
-    }
-  }
-
-  const htmlLang = globalThis.document?.documentElement?.lang?.trim().toLowerCase() ?? '';
-  if (htmlLang) {
-    return htmlLang;
-  }
-
-  return defaultLocale;
+  return resolveDocumentLocale();
 };
 
 const resolveOperationName = (document: DocumentNode) => {

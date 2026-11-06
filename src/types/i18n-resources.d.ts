@@ -1,4 +1,4 @@
-interface Resources {
+export default interface Resources {
   "404": {
     "404": {
       "backToHome": "Back to Home",
@@ -1396,15 +1396,15 @@ interface Resources {
         "datetimelocal": "This field should be a date and time.",
         "email": "Please enter a valid email address.",
         "endDateBeforeStartDate": "End date cannot be before start date.",
-        "max": "This field cannot be more than {{ max }}.",
-        "maxbytes": "This field cannot be more than {{ max }} bytes.",
-        "maxlength": "This field cannot be longer than {{ max }} characters.",
-        "min": "This field should be at least {{ min }}.",
-        "minbytes": "This field should be at least {{ min }} bytes.",
-        "minlength": "This field must be at least {{ min }} characters.",
+        "max": "This field cannot be more than {{max}}.",
+        "maxbytes": "This field cannot be more than {{max}} bytes.",
+        "maxlength": "This field cannot be longer than {{max}} characters.",
+        "min": "This field should be at least {{min}}.",
+        "minbytes": "This field should be at least {{min}} bytes.",
+        "minlength": "This field must be at least {{min}} characters.",
         "number": "This field should be a number.",
         "passwordStrength": "Password must contain at least 8 characters, including an uppercase letter, a number, and a special character.",
-        "pattern": "This field should match the pattern for {{ pattern }}.",
+        "pattern": "This field should match the pattern for {{pattern}}.",
         "patternLogin": "This field can only contain letters, digits, and e-mail addresses.",
         "required": "This field is required.",
         "startDateAfterEndDate": "Start date cannot be after end date.",
@@ -1957,5 +1957,3 @@ interface Resources {
     }
   }
 }
-
-export default Resources;

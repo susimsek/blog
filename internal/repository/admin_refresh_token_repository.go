@@ -13,9 +13,9 @@ import (
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/internal/domain"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type AdminRefreshTokenRepository interface {
@@ -392,10 +392,7 @@ func getAdminRefreshTokenMongoClient() (*mongo.Client, error) {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		client, err := appconfig.NewMongoClient(ctx, databaseConfig, "blog-api-admin-refresh-tokens")
+		client, err := appconfig.NewMongoClient(databaseConfig, "blog-api-admin-refresh-tokens")
 		if err != nil {
 			adminRefreshTokenMongoInitErr = fmt.Errorf("mongodb connect failed: %w", err)
 			return

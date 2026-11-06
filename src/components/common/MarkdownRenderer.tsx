@@ -11,9 +11,8 @@ import CodeBlock from '@/components/common/CodeBlock';
 import { splitContentWithTabs } from '@/lib/markdownUtils';
 import markdownSchema from '@/config/markdownSchema';
 import type { Theme } from '@/reducers/theme';
-import { useParams } from 'next/navigation';
-import i18nextConfig from '@/i18n/settings';
-import Link from '@/components/common/Link';
+import Link, { localizeHref } from '@/components/common/Link';
+import { useLocale } from '@/i18n/useLocale';
 import remarkCodeFilenameAttribute from '@/lib/remarkCodeFilenameAttribute';
 import { extractCodeFilenameByStartLine } from '@/lib/codeFilenameMap';
 import { buildHeadingIdMap, flattenHeadingText, slugifyHeading } from '@/lib/markdownHeadings';
@@ -28,17 +27,7 @@ interface MarkdownRendererProps {
 
 const isExternalHttpUrl = (href: string) => href.startsWith('http://') || href.startsWith('https://');
 
-const localizeInternalPath = (href: string, locale: string) => {
-  if (href === '/') {
-    return `/${locale}`;
-  }
-  const hasLocalePrefix = i18nextConfig.i18n.locales.some(lng => href === `/${lng}` || href.startsWith(`/${lng}/`));
-  if (hasLocalePrefix) {
-    return href;
-  }
-  const normalized = href.startsWith('/') ? href : `/${href}`;
-  return `/${locale}${normalized}`;
-};
+const localizeInternalPath = (href: string, locale: string) => localizeHref(href, locale);
 
 const createMarkdownComponents = (
   theme: Theme,
@@ -182,9 +171,7 @@ const createMarkdownComponents = (
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   const { t } = useTranslation('common');
   const theme = useAppSelector(state => state.theme.theme);
-  const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
-  const currentLocale = routeLocale || i18nextConfig.i18n.defaultLocale;
+  const currentLocale = useLocale();
   const headingIdMap = useMemo(() => buildHeadingIdMap(content), [content]);
 
   const createComponentsForContent = useMemo(

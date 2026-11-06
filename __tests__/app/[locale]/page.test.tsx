@@ -70,9 +70,9 @@ describe('App Route /[locale]', () => {
     expect(getAllTopicsMock).toHaveBeenCalledWith('tr');
     expect(loadLocaleResourcesMock).toHaveBeenCalledWith('tr', ['home']);
     expect(homePageMock).toHaveBeenCalledWith({
-      posts: [{ id: 'post-1' }],
-      topics: [{ id: 'topic-1' }],
-      locale: 'tr',
+      contentByLocale: expect.objectContaining({
+        tr: { posts: [{ id: 'post-1' }], topics: [{ id: 'topic-1' }] },
+      }),
     });
     expect(screen.getByTestId('home-page')).toBeInTheDocument();
   });

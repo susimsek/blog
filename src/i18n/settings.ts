@@ -2,6 +2,7 @@ import i18nConfig from '@root/i18n.config.json';
 import { LOCALES } from '@/config/constants';
 
 export type Locale = keyof typeof LOCALES;
+export type Localized<T> = Record<Locale, T>;
 
 const localeKeys = Object.keys(LOCALES) as Locale[];
 const isKnownLocale = (value: string): value is Locale => localeKeys.includes(value as Locale);

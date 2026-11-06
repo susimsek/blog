@@ -6,6 +6,12 @@ export default defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    rules: {
+      // Keep this guidance visible while existing asynchronous effect loaders are migrated.
+      'react-hooks/set-state-in-effect': 'warn',
+    },
+  },
+  {
     files: ['**/*.{js,cjs,mjs}'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',

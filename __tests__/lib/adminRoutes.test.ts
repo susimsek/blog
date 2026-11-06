@@ -7,9 +7,9 @@ import {
 } from '@/lib/adminRoutes';
 
 describe('adminRoutes', () => {
-  it('prefixes admin routes with the locale', () => {
-    expect(withAdminLocalePath('en', ADMIN_ROUTES.login)).toBe('/en/admin/login');
-    expect(withAdminLocalePath('tr', ADMIN_ROUTES.forgotPassword)).toBe('/tr/admin/forgot-password');
+  it('keeps admin routes independent from the selected locale', () => {
+    expect(withAdminLocalePath('en', ADMIN_ROUTES.login)).toBe('/admin/login');
+    expect(withAdminLocalePath('tr', ADMIN_ROUTES.forgotPassword)).toBe('/admin/forgot-password');
   });
 
   it('builds encoded admin post detail routes', () => {

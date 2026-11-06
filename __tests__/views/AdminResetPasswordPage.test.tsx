@@ -89,7 +89,7 @@ describe('AdminResetPasswordPage', () => {
     });
     expect(screen.getByRole('link', { name: /adminPasswordReset.reset.backToLogin/i })).toHaveAttribute(
       'href',
-      '/en/admin/login',
+      '/admin/login',
     );
 
     await act(async () => {
@@ -111,7 +111,7 @@ describe('AdminResetPasswordPage', () => {
     expect(screen.getByText('adminPasswordReset.reset.expired')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /adminPasswordReset.reset.requestAnother/i })).toHaveAttribute(
       'href',
-      '/en/admin/forgot-password',
+      '/admin/forgot-password',
     );
   });
 
@@ -140,7 +140,7 @@ describe('AdminResetPasswordPage', () => {
     expect(screen.getByText('adminPasswordReset.reset.invalid')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /adminPasswordReset.reset.requestAnother/i })).toHaveAttribute(
       'href',
-      '/en/admin/forgot-password',
+      '/admin/forgot-password',
     );
   });
 
@@ -259,7 +259,7 @@ describe('AdminResetPasswordPage', () => {
     expect(screen.queryByRole('link', { name: /adminPasswordReset.reset.requestAnother/i })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: /adminPasswordReset.reset.backToLogin/i })).toHaveAttribute(
       'href',
-      '/en/admin/login',
+      '/admin/login',
     );
   });
 });

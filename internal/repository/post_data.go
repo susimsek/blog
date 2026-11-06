@@ -13,9 +13,9 @@ import (
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/internal/domain"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 const (
@@ -68,19 +68,19 @@ type (
 )
 
 type postFinder interface {
-	Find(context.Context, any, ...*options.FindOptions) (*mongo.Cursor, error)
+	Find(context.Context, any, ...options.Lister[options.FindOptions]) (*mongo.Cursor, error)
 }
 
 type postSingleFinder interface {
-	FindOne(context.Context, any, ...*options.FindOneOptions) *mongo.SingleResult
+	FindOne(context.Context, any, ...options.Lister[options.FindOneOptions]) *mongo.SingleResult
 }
 
 type postBulkWriter interface {
-	BulkWrite(context.Context, []mongo.WriteModel, ...*options.BulkWriteOptions) (*mongo.BulkWriteResult, error)
+	BulkWrite(context.Context, []mongo.WriteModel, ...options.Lister[options.BulkWriteOptions]) (*mongo.BulkWriteResult, error)
 }
 
 type postSingleUpdater interface {
-	FindOneAndUpdate(context.Context, any, any, ...*options.FindOneAndUpdateOptions) *mongo.SingleResult
+	FindOneAndUpdate(context.Context, any, any, ...options.Lister[options.FindOneAndUpdateOptions]) *mongo.SingleResult
 }
 
 func normalizePostID(value string) (string, bool) {
@@ -117,10 +117,7 @@ func getPostMongoClient() (*mongo.Client, error) {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		client, err := appconfig.NewMongoClient(ctx, databaseConfig, "blog-api-posts")
+		client, err := appconfig.NewMongoClient(databaseConfig, "blog-api-posts")
 		if err != nil {
 			postMongoInitErr = fmt.Errorf("mongodb connect failed: %w", err)
 			return

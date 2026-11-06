@@ -2,32 +2,24 @@
 
 import React from 'react';
 import PostList from '@/components/posts/PostList';
-import type { Category, LayoutPostSummary, PostSummary, Topic } from '@/types/posts';
 import Layout from '@/components/common/Layout';
 import { AUTHOR_NAME } from '@/config/constants';
 import { useTranslation } from 'react-i18next';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
 import Link from '@/components/common/Link';
 import { buildLocalizedAbsoluteUrl, toAbsoluteSiteUrl } from '@/lib/metadata';
+import type { Localized } from '@/i18n/settings';
+import type { CategoryPageData } from '@/lib/localizedPageData';
+import { useLocalizedContent } from '@/i18n/useLocalizedContent';
+import { useLocale } from '@/i18n/useLocale';
 
-type CategoryPageProps = {
-  category: Category;
-  posts: PostSummary[];
-  layoutPosts: LayoutPostSummary[];
-  topics: Topic[];
-  preFooterTopTopics: Topic[];
-  locale: string;
-};
+type CategoryPageProps = { contentByLocale: Localized<CategoryPageData> };
 
-export default function CategoryPage({
-  category,
-  posts,
-  layoutPosts,
-  topics,
-  preFooterTopTopics,
-  locale,
-}: Readonly<CategoryPageProps>) {
+export default function CategoryPage({ contentByLocale }: Readonly<CategoryPageProps>) {
   const { t } = useTranslation(['category', 'common']);
+  const { category, posts, layoutPosts, topics, preFooterTopTopics } = useLocalizedContent(contentByLocale);
+  const locale = useLocale();
+  if (!category) return null;
   const siteRootUrl = toAbsoluteSiteUrl('/');
   const blogLabel = t('common.searchSource.blog', { ns: 'common' });
   const categoryBreadcrumbLabel = category.name;

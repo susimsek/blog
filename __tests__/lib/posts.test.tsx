@@ -420,7 +420,7 @@ describe('Posts Library', () => {
   });
 
   describe('getAllPostIds', () => {
-    it('returns all post IDs with locales', async () => {
+    it('returns locale-specific paths for IDs shared across locales', async () => {
       const mockPosts = [{ id: '1' }];
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify(mockPosts));
@@ -621,11 +621,8 @@ describe('Posts Library', () => {
       const ids = await getAllCategoryIds();
       expect(ids).toEqual([
         { params: { id: 'backend', locale: 'en' } },
-        { params: { id: 'backend', locale: 'fr' } },
-        { params: { id: 'backend', locale: 'de' } },
         { params: { id: 'frontend', locale: 'en' } },
         { params: { id: 'frontend', locale: 'fr' } },
-        { params: { id: 'frontend', locale: 'de' } },
       ]);
     });
   });
@@ -650,7 +647,7 @@ describe('Posts Library', () => {
       jest.restoreAllMocks();
     });
 
-    it('returns topic IDs for all locales when topics.json exists', async () => {
+    it('returns locale-specific topic IDs when topics indexes exist', async () => {
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.readFileSync as jest.Mock).mockImplementation((filePath: string) => {
         if (filePath.endsWith('/public/data/topics.en.json')) {
@@ -663,42 +660,10 @@ describe('Posts Library', () => {
       });
       const result = await getAllTopicIds();
       expect(result).toEqual([
-        {
-          params: {
-            id: 'nextjs',
-            locale: 'en',
-          },
-        },
-        {
-          params: {
-            id: 'nextjs',
-            locale: 'fr',
-          },
-        },
-        {
-          params: {
-            id: 'nextjs',
-            locale: 'de',
-          },
-        },
-        {
-          params: {
-            id: 'react',
-            locale: 'en',
-          },
-        },
-        {
-          params: {
-            id: 'react',
-            locale: 'fr',
-          },
-        },
-        {
-          params: {
-            id: 'react',
-            locale: 'de',
-          },
-        },
+        { params: { id: 'nextjs', locale: 'en' } },
+        { params: { id: 'nextjs', locale: 'fr' } },
+        { params: { id: 'react', locale: 'en' } },
+        { params: { id: 'react', locale: 'fr' } },
       ]);
       expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('/public/data/topics.en.json'));
       expect(fs.readFileSync).toHaveBeenCalledWith(expect.stringContaining('/public/data/topics.en.json'), 'utf8');
@@ -728,14 +693,7 @@ describe('Posts Library', () => {
       });
 
       const result = await getAllTopicIds();
-      expect(result).toEqual([
-        { params: { id: 'nestjs', locale: 'en' } },
-        { params: { id: 'nestjs', locale: 'fr' } },
-        { params: { id: 'nestjs', locale: 'de' } },
-        { params: { id: 'react', locale: 'en' } },
-        { params: { id: 'react', locale: 'fr' } },
-        { params: { id: 'react', locale: 'de' } },
-      ]);
+      expect(result).toEqual([{ params: { id: 'nestjs', locale: 'fr' } }, { params: { id: 'react', locale: 'en' } }]);
     });
 
     it('handles JSON parse errors gracefully', async () => {
@@ -767,44 +725,7 @@ describe('Posts Library', () => {
         throw new Error('File not found');
       });
       const result = await getAllTopicIds();
-      expect(result).toEqual([
-        {
-          params: {
-            id: 'nextjs',
-            locale: 'en',
-          },
-        },
-        {
-          params: {
-            id: 'nextjs',
-            locale: 'fr',
-          },
-        },
-        {
-          params: {
-            id: 'nextjs',
-            locale: 'de',
-          },
-        },
-        {
-          params: {
-            id: 'react',
-            locale: 'en',
-          },
-        },
-        {
-          params: {
-            id: 'react',
-            locale: 'fr',
-          },
-        },
-        {
-          params: {
-            id: 'react',
-            locale: 'de',
-          },
-        },
-      ]);
+      expect(result).toEqual([{ params: { id: 'nextjs', locale: 'en' } }, { params: { id: 'react', locale: 'en' } }]);
     });
   });
 

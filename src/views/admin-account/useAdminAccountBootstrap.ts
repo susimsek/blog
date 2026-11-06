@@ -96,7 +96,7 @@ export default function useAdminAccountBootstrap({
   React.useEffect(() => {
     redirectToAdminLoginRef.current = () => {
       clearAdminSessionProfileCache();
-      router.replace(`/${locale}/admin/login`);
+      router.replace('/admin/login');
     };
   }, [locale, router]);
 

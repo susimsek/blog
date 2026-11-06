@@ -21,7 +21,7 @@
         "hideSearch": "Aramayı gizle",
         "showSearch": "Aramayı göster",
         "toggleSidebar": "Kenar çubuğunu aç veya kapat",
-        "openRss": "RSS akışını aç"
+        "openRss": "Türkçe RSS akışını aç"
       },
       "themeToggle": "Temayı Değiştir",
       "theme": {
@@ -74,7 +74,7 @@
           "generic": "Abone olurken bir sorun oluştu. Lütfen tekrar dene."
         }
       },
-      "rss": "RSS",
+      "rss": "Türkçe RSS",
       "socialTitle": "Sosyal"
     },
     "newsletterCallback": {

@@ -79,14 +79,18 @@ describe('App Route /[locale]/medium', () => {
     });
     render(element);
 
-    expect(getSortedPostsDataMock).toHaveBeenNthCalledWith(1, 'tr', undefined, 'medium');
-    expect(getSortedPostsDataMock).toHaveBeenNthCalledWith(2, 'tr', undefined, undefined);
+    expect(getSortedPostsDataMock).toHaveBeenCalledWith('tr', undefined, 'medium');
+    expect(getSortedPostsDataMock).toHaveBeenCalledWith('tr', undefined, undefined);
     expect(loadLocaleResourcesMock).toHaveBeenCalledWith('tr', ['medium']);
     expect(mediumPageMock).toHaveBeenCalledWith({
-      mediumPosts: [{ id: 'medium-1' }],
-      layoutPosts: [{ id: 'post-1' }],
-      topics: [{ id: 'topic-1' }],
-      preFooterTopTopics: [{ id: 'topic-1' }],
+      contentByLocale: expect.objectContaining({
+        tr: {
+          mediumPosts: [{ id: 'medium-1' }],
+          layoutPosts: [{ id: 'post-1' }],
+          topics: [{ id: 'topic-1' }],
+          preFooterTopTopics: [{ id: 'topic-1' }],
+        },
+      }),
     });
     expect(screen.getByTestId('medium-page')).toBeInTheDocument();
   });

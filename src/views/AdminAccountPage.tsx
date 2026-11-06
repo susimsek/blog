@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AdminContentManagementPanel from '@/components/admin/AdminContentManagementPanel';
@@ -29,7 +29,7 @@ import useAdminErrorsSection from '@/views/admin-account/useAdminErrorsSection';
 import { changeAdminName, isAdminSessionError, resolveAdminError } from '@/lib/adminApi';
 import { withAdminAvatarSize } from '@/lib/adminAvatar';
 import { ADMIN_ROUTES } from '@/lib/adminRoutes';
-import { defaultLocale } from '@/i18n/settings';
+import { useLocale } from '@/i18n/useLocale';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
 import Link from '@/components/common/Link';
 import { useAppDispatch, useAppSelector } from '@/config/store';
@@ -127,9 +127,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
-  const locale = routeLocale ?? defaultLocale;
+  const locale = useLocale();
   const isProfileSection = section === 'profile';
   const isAccountSection = section === 'account';
   const isEmailSection = section === 'email';
@@ -379,11 +377,11 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
   const handleNewsletterTabSelect = React.useCallback(
     (key: string | null) => {
       if (key === 'subscribers') {
-        router.push(`/${locale}${ADMIN_ROUTES.settings.newsletterSubscribers}`);
+        router.push(ADMIN_ROUTES.settings.newsletterSubscribers);
         return;
       }
 
-      router.push(`/${locale}${ADMIN_ROUTES.settings.newsletter}`);
+      router.push(ADMIN_ROUTES.settings.newsletter);
     },
     [locale, router],
   );
@@ -887,7 +885,7 @@ export default function AdminAccountPage({ section }: Readonly<AdminAccountPageP
                   githubActionErrorMessage={securitySection.githubActionErrorMessage}
                   isSecurityPasswordExpanded={securitySection.isSecurityPasswordExpanded}
                   onToggleSecurityPassword={securitySection.toggleSecurityPasswordExpanded}
-                  onManageEmail={() => router.push(`/${locale}${ADMIN_ROUTES.settings.email}`)}
+                  onManageEmail={() => router.push(ADMIN_ROUTES.settings.email)}
                   handleSecuritySubmit={securitySection.handleSecuritySubmit}
                   currentPassword={securitySection.currentPassword}
                   newPassword={securitySection.newPassword}

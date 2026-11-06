@@ -135,11 +135,11 @@ describe('PostDetail Component', () => {
         datePublished: mockPost.publishedDate,
       }),
     );
-    expect(blogPosting?.mainEntityOfPage?.['@id']).toContain('/en/posts/1');
+    expect(blogPosting?.mainEntityOfPage?.['@id']).toContain('/posts/1');
     expect(breadcrumbList?.itemListElement).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ position: 1, name: 'common.searchSource.blog' }),
-        expect.objectContaining({ position: 2, name: mockPost.title, item: expect.stringContaining('/en/posts/1') }),
+        expect.objectContaining({ position: 2, name: mockPost.title, item: expect.stringContaining('/posts/1') }),
       ]),
     );
   });
@@ -159,7 +159,7 @@ describe('PostDetail Component', () => {
     setup();
     const blogLink = screen.getByRole('link', { name: 'common.searchSource.blog' });
     expect(blogLink).toBeInTheDocument();
-    expect(blogLink).toHaveAttribute('href', '/en');
+    expect(blogLink).toHaveAttribute('href', '/');
 
     const activeBreadcrumbItem = screen.getByText(mockPost.title, { selector: '.breadcrumb-item.active' });
     expect(activeBreadcrumbItem).toHaveAttribute('aria-current', 'page');
@@ -258,18 +258,15 @@ describe('PostDetail Component', () => {
       />,
     );
 
-    expect(screen.getByRole('link', { name: 'Frontend' })).toHaveAttribute('href', '/en/categories/frontend');
-    expect(screen.getByRole('link', { name: /post.navigation.previous/i })).toHaveAttribute(
-      'href',
-      '/en/posts/prev-post',
-    );
-    expect(screen.getByRole('link', { name: /post.navigation.next/i })).toHaveAttribute('href', '/en/posts/next-post');
+    expect(screen.getByRole('link', { name: 'Frontend' })).toHaveAttribute('href', '/categories/frontend');
+    expect(screen.getByRole('link', { name: /post.navigation.previous/i })).toHaveAttribute('href', '/posts/prev-post');
+    expect(screen.getByRole('link', { name: /post.navigation.next/i })).toHaveAttribute('href', '/posts/next-post');
 
     fireEvent.click(screen.getByRole('button', { name: 'post.share.copyLink' }));
 
     await waitFor(() => {
       expect(fetchPostRuntimeMock).toHaveBeenCalledWith('en', '1');
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('/en/posts/1'));
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('/posts/1'));
       expect(screen.getByRole('button', { name: 'post.share.copied' })).toBeInTheDocument();
     });
   });

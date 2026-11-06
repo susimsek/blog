@@ -11,9 +11,9 @@ import (
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/internal/domain"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type ErrorMessageRepository interface {
@@ -179,10 +179,7 @@ func getErrorMessageMongoClient() (*mongo.Client, error) {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		client, err := appconfig.NewMongoClient(ctx, databaseConfig, "blog-api-error-message-catalog")
+		client, err := appconfig.NewMongoClient(databaseConfig, "blog-api-error-message-catalog")
 		if err != nil {
 			errorMessageMongoInitErr = fmt.Errorf("mongodb connect failed: %w", err)
 			return

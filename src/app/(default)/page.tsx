@@ -1,29 +1,31 @@
-'use client';
+import type { Metadata } from 'next';
+import HomePage from '@/views/HomePage';
+import RouteI18nProvider from '@/i18n/RouteI18nProvider';
+import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
+import { buildPageMetadata } from '@/lib/metadata';
+import { defaultLocale } from '@/i18n/settings';
+import { getLocalizedHomePageData } from '@/lib/localizedPageData';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Loading from '@/components/common/Loading';
-import { defaultLocale, isSupportedLocale } from '@/i18n/settings';
-import languageDetector from '@/lib/languageDetector';
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = defaultLocale;
+  const { t } = await getServerTranslator(locale, ['home']);
 
-const resolveLocale = (): string => {
-  const detected = languageDetector.detect();
+  return buildPageMetadata({
+    locale,
+    title: t('home.meta.title', { ns: 'home' }),
+    description: t('home.meta.description', { ns: 'home' }),
+    keywords: t('home.meta.keywords', { ns: 'home' }),
+  });
+}
 
-  if (typeof detected === 'string' && isSupportedLocale(detected)) {
-    return detected;
-  }
+export default async function HomeRoute() {
+  const locale = defaultLocale;
+  const contentByLocale = await getLocalizedHomePageData();
+  const resources = await loadLocaleResources(locale, ['home']);
 
-  return defaultLocale;
-};
-
-export default function RootPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const targetLocale = resolveLocale();
-    languageDetector.cache?.(targetLocale);
-    router.replace(`/${targetLocale}`);
-  }, [router]);
-
-  return <Loading />;
+  return (
+    <RouteI18nProvider locale={locale} resources={resources}>
+      <HomePage contentByLocale={contentByLocale} />
+    </RouteI18nProvider>
+  );
 }

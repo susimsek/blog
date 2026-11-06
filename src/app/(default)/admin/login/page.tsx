@@ -1,10 +1,33 @@
-import { Suspense } from 'react';
-import LocaleRedirect from '@/components/LocaleRedirect';
+import { defaultLocale } from '@/i18n/settings';
+import type { Metadata } from 'next';
+import RouteI18nProvider from '@/i18n/RouteI18nProvider';
+import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
+import { buildPageMetadata } from '@/lib/metadata';
+import AdminLoginPage from '@/views/AdminLoginPage';
 
-export default function AdminLoginRedirectPage() {
+export async function generateMetadata({ params }: PageProps<'/admin/login'>): Promise<Metadata> {
+  const locale = defaultLocale;
+  const { t } = await getServerTranslator(locale, ['admin-login']);
+
+  return buildPageMetadata({
+    locale,
+    title: t('adminLogin.meta.title', { ns: 'admin-login' }),
+    description: t('adminLogin.meta.description', { ns: 'admin-login' }),
+    path: 'admin/login',
+    robots: {
+      index: false,
+      follow: false,
+    },
+  });
+}
+
+export default async function AdminLoginRoute({ params }: Readonly<PageProps<'/admin/login'>>) {
+  const locale = defaultLocale;
+  const resources = await loadLocaleResources(locale, ['admin-login']);
+
   return (
-    <Suspense fallback={null}>
-      <LocaleRedirect path="/admin/login" />
-    </Suspense>
+    <RouteI18nProvider locale={locale} resources={resources}>
+      <AdminLoginPage />
+    </RouteI18nProvider>
   );
 }

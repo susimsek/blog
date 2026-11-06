@@ -22,7 +22,7 @@ jest.mock('@/hooks/useMediaQuery', () => ({
 // Mock `Link` component
 jest.mock('@/components/common/Link', () => ({
   __esModule: true,
-  default: ({ children, ...props }: any) => <a {...props}>{children}</a>,
+  default: ({ children, prefetch: _prefetch, ...props }: any) => <a {...props}>{children}</a>,
 }));
 
 // Mock `LanguageSwitcher` component

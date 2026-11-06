@@ -33,6 +33,86 @@ describe('metadata helpers', () => {
     expect(metadata.toAbsoluteSiteUrl('/blog/posts/test')).toMatch(/\/blog\/posts\/test$/);
   });
 
+  it('advertises the English RSS feed alongside canonical URLs for indexable pages', () => {
+    const metadata = loadMetadataModule('/blog');
+    const pageMetadata = metadata.buildPageMetadata({
+      locale: 'en',
+      title: 'Example page',
+      description: 'Example description',
+      path: 'posts/example',
+    });
+
+    expect(pageMetadata.alternates).toEqual({
+      canonical: '/blog/posts/example',
+      languages: {
+        en: '/blog/posts/example',
+        tr: '/blog/tr/posts/example',
+        'x-default': '/blog/posts/example',
+      },
+      types: {
+        'application/rss+xml': [
+          {
+            url: '/blog/rss.xml',
+            title: 'English RSS feed',
+          },
+        ],
+      },
+    });
+  });
+
+  it('advertises the Turkish canonical, language alternates, and Turkish RSS feed', () => {
+    const metadata = loadMetadataModule('');
+    const pageMetadata = metadata.buildPageMetadata({
+      locale: 'tr',
+      title: 'Türkçe sayfa',
+      description: 'Türkçe açıklama',
+      path: 'posts/example',
+    });
+
+    expect(pageMetadata.alternates).toEqual({
+      canonical: '/tr/posts/example',
+      languages: {
+        en: '/posts/example',
+        tr: '/tr/posts/example',
+        'x-default': '/posts/example',
+      },
+      types: {
+        'application/rss+xml': [
+          {
+            url: '/tr/rss.xml',
+            title: 'Türkçe RSS feed',
+          },
+        ],
+      },
+    });
+  });
+
+  it('does not advertise the RSS feed on non-indexable pages', () => {
+    const metadata = loadMetadataModule('');
+    const pageMetadata = metadata.buildPageMetadata({
+      locale: 'en',
+      title: 'Admin page',
+      description: 'Admin description',
+      path: 'admin/login',
+      robots: { index: false, follow: false },
+    });
+
+    expect(pageMetadata.alternates).toEqual({ canonical: '/admin/login' });
+  });
+
+  it('does not advertise the RSS feed when robots metadata is a noindex string', () => {
+    const metadata = loadMetadataModule('');
+    const pageMetadata = metadata.buildPageMetadata({
+      locale: 'en',
+      title: 'Private page',
+      description: 'Private description',
+      path: 'private',
+      robots: 'noindex, nofollow',
+    });
+
+    expect(pageMetadata.alternates).toEqual({ canonical: '/private' });
+  });
+
   it('falls back to string concatenation when URL construction fails in toAbsoluteSiteUrl', () => {
     const metadata = loadMetadataModule('');
     const urlMock = jest.fn((_value: string, base?: string) => {

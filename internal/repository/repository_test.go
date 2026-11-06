@@ -11,9 +11,9 @@ import (
 
 	"suaybsimsek.com/blog-api/internal/domain"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 func resetPostRepositoryState() {
@@ -94,7 +94,7 @@ type bulkWriteMock struct {
 func (mock *bulkWriteMock) BulkWrite(
 	_ context.Context,
 	models []mongo.WriteModel,
-	_ ...*options.BulkWriteOptions,
+	_ ...options.Lister[options.BulkWriteOptions],
 ) (*mongo.BulkWriteResult, error) {
 	mock.writeCount++
 	mock.lastModels = models
@@ -114,7 +114,7 @@ type findMock struct {
 	err  error
 }
 
-func (mock *findMock) Find(_ context.Context, _ any, _ ...*options.FindOptions) (*mongo.Cursor, error) {
+func (mock *findMock) Find(_ context.Context, _ any, _ ...options.Lister[options.FindOptions]) (*mongo.Cursor, error) {
 	if mock.err != nil {
 		return nil, mock.err
 	}
@@ -127,7 +127,7 @@ type singleFindMock struct {
 	err error
 }
 
-func (mock *singleFindMock) FindOne(_ context.Context, _ any, _ ...*options.FindOneOptions) *mongo.SingleResult {
+func (mock *singleFindMock) FindOne(_ context.Context, _ any, _ ...options.Lister[options.FindOneOptions]) *mongo.SingleResult {
 	return mongo.NewSingleResultFromDocument(mock.doc, mock.err, nil)
 }
 
@@ -141,7 +141,7 @@ func (mock *metricCollectionMock) FindOneAndUpdate(
 	_ context.Context,
 	_ any,
 	_ any,
-	_ ...*options.FindOneAndUpdateOptions,
+	_ ...options.Lister[options.FindOneAndUpdateOptions],
 ) *mongo.SingleResult {
 	return mongo.NewSingleResultFromDocument(mock.updatedDoc, mock.updateErr, nil)
 }
@@ -150,7 +150,7 @@ type updateOneMock struct {
 	updateCount  int
 	lastFilter   any
 	lastUpdate   any
-	lastOptions  []*options.UpdateOptions
+	lastOptions  []options.UpdateOneOptions
 	updateResult *mongo.UpdateResult
 	err          error
 }
@@ -159,12 +159,20 @@ func (mock *updateOneMock) UpdateOne(
 	_ context.Context,
 	filter any,
 	update any,
-	opts ...*options.UpdateOptions,
+	opts ...options.Lister[options.UpdateOneOptions],
 ) (*mongo.UpdateResult, error) {
 	mock.updateCount++
 	mock.lastFilter = filter
 	mock.lastUpdate = update
-	mock.lastOptions = opts
+	for _, option := range opts {
+		resolved := options.UpdateOneOptions{}
+		for _, setter := range option.List() {
+			if err := setter(&resolved); err != nil {
+				return nil, err
+			}
+		}
+		mock.lastOptions = append(mock.lastOptions, resolved)
+	}
 	if mock.err != nil {
 		return nil, mock.err
 	}
@@ -540,7 +548,6 @@ func TestNewsletterRepositoryCollectionHelpers(t *testing.T) {
 	}
 	if upsertMock.updateCount != 1 ||
 		len(upsertMock.lastOptions) != 1 ||
-		upsertMock.lastOptions[0] == nil ||
 		upsertMock.lastOptions[0].Upsert == nil ||
 		!*upsertMock.lastOptions[0].Upsert {
 		t.Fatalf("upsertMock = %#v", upsertMock)

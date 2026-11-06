@@ -1,7 +1,7 @@
-import { useParams, usePathname, useRouter } from 'next/navigation';
-import languageDetector from '@/lib/languageDetector';
-import { defaultLocale, isSupportedLocale } from '@/i18n/settings';
-import type { Locale } from '@/i18n/settings';
+import { usePathname, useRouter } from 'next/navigation';
+import { isSupportedLocale } from '@/i18n/settings';
+import { useLocale } from '@/i18n/useLocale';
+import { localizePathname } from '@/components/common/Link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { LOCALES } from '@/config/constants';
@@ -15,55 +15,22 @@ interface LanguageSwitchLinkProps {
 const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href }) => {
   const router = useRouter();
   const pathname = usePathname() ?? '/';
-  const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
-  const currentLocale: Locale = routeLocale && isSupportedLocale(routeLocale) ? routeLocale : defaultLocale;
-
-  const isExternalHref = href?.startsWith('http');
-
-  const buildLocalizedHref = () => {
-    if (isExternalHref && href) {
-      return href;
-    }
-
-    const basePath = (() => {
-      if (href) {
-        return href.startsWith('/') ? href : `/${href}`;
-      }
-      const pathOnly = pathname || '/';
-      if (!currentLocale) {
-        return pathOnly;
-      }
-      const localePrefix = `/${currentLocale}`;
-      if (pathOnly === localePrefix) {
-        return '/';
-      }
-      if (pathOnly.startsWith(`${localePrefix}/`)) {
-        return pathOnly.substring(localePrefix.length) || '/';
-      }
-      return pathOnly;
-    })();
-
-    const normalizedPath = basePath === '/' ? '' : basePath;
-    const localizedPath = `/${locale}${normalizedPath}`;
-    const sanitizedQuery = (() => {
-      if (globalThis.window === undefined) {
-        return '';
-      }
-      const nextParams = new URLSearchParams(globalThis.window.location.search);
-      nextParams.delete('locale');
-      return nextParams.toString();
-    })();
-
-    return sanitizedQuery ? `${localizedPath}?${sanitizedQuery}` : localizedPath;
-  };
-
-  const currentHref = buildLocalizedHref();
+  const activeLocale = useLocale();
   const localeEntry = isSupportedLocale(locale) ? LOCALES[locale] : null;
 
   const handleClick = () => {
-    languageDetector.cache?.(locale);
-    router.replace(currentHref);
+    if (!isSupportedLocale(locale)) {
+      return;
+    }
+
+    const sourceUrl = new URL(href ?? pathname, globalThis.window.location.origin);
+    const targetPath = localizePathname(sourceUrl.pathname, locale);
+    const query = new URLSearchParams(href ? sourceUrl.search : globalThis.window.location.search);
+    query.delete('locale');
+    const queryString = query.toString();
+    const hash = href ? sourceUrl.hash : globalThis.window.location.hash;
+
+    router.replace(`${targetPath}${queryString ? `?${queryString}` : ''}${hash}`);
   };
 
   return (
@@ -80,7 +47,7 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
         />
         {localeEntry?.name ?? locale}
       </span>
-      {currentLocale === locale && <FontAwesomeIcon icon="circle-check" className="circle-check" />}
+      {activeLocale === locale && <FontAwesomeIcon icon="circle-check" className="circle-check" />}
     </button>
   );
 };

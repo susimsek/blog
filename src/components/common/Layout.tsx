@@ -9,8 +9,7 @@ import useMediaQuery from '@/hooks/useMediaQuery';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { GA_ID } from '@/config/constants';
 import { useAppDispatch } from '@/config/store';
-import { useParams } from 'next/navigation';
-import { defaultLocale } from '@/i18n/settings';
+import { useLocale } from '@/i18n/useLocale';
 import { setLocale } from '@/reducers/postsQuery';
 import PreFooter from '@/components/common/PreFooter';
 import dynamic from 'next/dynamic';
@@ -28,9 +27,7 @@ type LayoutProps = {
 
 const LayoutStateInitializer: React.FC = () => {
   const dispatch = useAppDispatch();
-  const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
-  const currentLocale = routeLocale ?? defaultLocale;
+  const currentLocale = useLocale();
 
   useEffect(() => {
     dispatch(setLocale(currentLocale));

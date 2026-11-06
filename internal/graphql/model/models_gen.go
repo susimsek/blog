@@ -262,7 +262,7 @@ func (e *CommentModerationStatus) UnmarshalGQL(v any) error {
 }
 
 func (e CommentModerationStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *CommentModerationStatus) UnmarshalJSON(b []byte) error {
@@ -334,7 +334,7 @@ func (e *CommentMutationStatus) UnmarshalGQL(v any) error {
 }
 
 func (e CommentMutationStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *CommentMutationStatus) UnmarshalJSON(b []byte) error {
@@ -396,7 +396,7 @@ func (e *CommentQueryStatus) UnmarshalGQL(v any) error {
 }
 
 func (e CommentQueryStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *CommentQueryStatus) UnmarshalJSON(b []byte) error {
@@ -466,7 +466,7 @@ func (e *ContentQueryStatus) UnmarshalGQL(v any) error {
 }
 
 func (e ContentQueryStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *ContentQueryStatus) UnmarshalJSON(b []byte) error {
@@ -522,7 +522,7 @@ func (e *ContentSource) UnmarshalGQL(v any) error {
 }
 
 func (e ContentSource) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *ContentSource) UnmarshalJSON(b []byte) error {
@@ -601,7 +601,7 @@ func (e *NewsletterMutationStatus) UnmarshalGQL(v any) error {
 }
 
 func (e NewsletterMutationStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *NewsletterMutationStatus) UnmarshalJSON(b []byte) error {
@@ -665,7 +665,7 @@ func (e *PostMetricStatus) UnmarshalGQL(v any) error {
 }
 
 func (e PostMetricStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *PostMetricStatus) UnmarshalJSON(b []byte) error {
@@ -723,7 +723,7 @@ func (e *SortOrder) UnmarshalGQL(v any) error {
 }
 
 func (e SortOrder) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *SortOrder) UnmarshalJSON(b []byte) error {

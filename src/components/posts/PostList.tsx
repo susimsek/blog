@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useEffect, useRef, useState } from 'react';
-import { usePathname, useRouter, useParams, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PostSummary } from '@/types/posts';
 import PaginationBar from '@/components/pagination/PaginationBar';
 import PostCard from '@/components/posts/PostSummary';
@@ -18,6 +18,7 @@ import {
 import type { CategoryFilter, DateRange, ReadingTimeRange, SortOrder, SourceFilter } from '@/reducers/postsQuery';
 import { fetchPostCommentCounts, fetchPostLikes } from '@/lib/contentApi';
 import i18nextConfig from '@/i18n/settings';
+import { useLocale } from '@/i18n/useLocale';
 import type { PostDensityMode } from '@/components/common/PostDensityToggle';
 import type { Topic } from '@/types/posts';
 
@@ -77,7 +78,9 @@ export const parsePostListQueryState = (
   searchParams: URLSearchParams,
   availableTopicIds: ReadonlySet<string>,
 ): ParsedPostListQueryState => {
-  const selectedTopics = parseTopicsQueryValue(searchParams.get('topics')).filter(topicId => availableTopicIds.has(topicId));
+  const selectedTopics = parseTopicsQueryValue(searchParams.get('topics')).filter(topicId =>
+    availableTopicIds.has(topicId),
+  );
   const categoryFilterValue = searchParams.get('category')?.trim().toLowerCase() ?? '';
   const startDate = normalizeDateQueryValue(searchParams.get('startDate'));
   const endDate = normalizeDateQueryValue(searchParams.get('endDate'));
@@ -319,8 +322,6 @@ export default function PostList({
   const { t } = useTranslation(['post', 'common']);
   const router = useRouter();
   const pathname = usePathname() ?? '/';
-  const routeParams = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(routeParams?.locale) ? routeParams?.locale[0] : routeParams?.locale;
   const isSearchRoute = /(?:^|\/)search(?:\/|$)/.test(pathname);
   const isMediumRoute = /(?:^|\/)medium(?:\/|$)/.test(pathname);
   const isHomeRoute = /^\/(?:[a-z]{2})?$/.test(pathname);
@@ -352,7 +353,8 @@ export default function PostList({
   const { sortOrder, selectedTopics, categoryFilter, dateRange, readingTimeRange, locale } = useAppSelector(
     state => state.postsQuery,
   );
-  const currentLocale = locale ?? routeLocale ?? i18nextConfig.i18n.defaultLocale;
+  const activeLocale = useLocale();
+  const currentLocale = locale ?? activeLocale ?? i18nextConfig.i18n.defaultLocale;
   const availableTopicIds = useMemo(() => new Set(topics.map(topic => topic.id)), [topics]);
   const parsedQueryState = useMemo(
     () => parsePostListQueryState(searchParams, availableTopicIds),

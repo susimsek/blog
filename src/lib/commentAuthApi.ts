@@ -1,4 +1,5 @@
 import { defaultLocale } from '@/i18n/settings';
+import { resolveDocumentLocale } from '@/i18n/clientLocale';
 import { withBasePath } from '@/lib/basePath';
 import { isLocalHttpOrigin, normalizeApiBaseUrl } from '@/lib/graphql/apolloClient';
 import type { CommentViewer } from '@/types/comments';
@@ -41,7 +42,7 @@ export const fetchCommentAuthSession = async (): Promise<CommentAuthSession | nu
     method: 'GET',
     credentials: 'include',
     headers: {
-      'Accept-Language': defaultLocale,
+      'Accept-Language': resolveDocumentLocale(),
     },
   });
 

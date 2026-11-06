@@ -7,9 +7,11 @@ import { resendNewsletterConfirmation, subscribeNewsletter } from '@/lib/newslet
 import type { NewsletterMutationResponse } from '@/lib/newsletterApi';
 
 const useParamsMock = jest.fn();
+const mockI18n = { language: 'tr', resolvedLanguage: 'tr' };
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
+    i18n: mockI18n,
     t: (key: string) => key,
   }),
 }));
@@ -64,6 +66,8 @@ describe('PreFooter', () => {
 
   beforeEach(() => {
     useParamsMock.mockReturnValue({ locale: 'tr' });
+    mockI18n.language = 'tr';
+    mockI18n.resolvedLanguage = 'tr';
     subscribeNewsletterMock.mockReset();
     resendNewsletterConfirmationMock.mockReset();
   });
@@ -106,11 +110,13 @@ describe('PreFooter', () => {
 
   it('falls back to default locale when route locale is missing', () => {
     useParamsMock.mockReturnValue({});
+    mockI18n.language = 'en';
+    mockI18n.resolvedLanguage = 'en';
     render(<PreFooter posts={[]} topics={[]} />);
 
-    expect(screen.getByRole('link', { name: 'common.preFooter.contactCta' })).toHaveAttribute('href', '/en/contact');
-    expect(screen.getByRole('link', { name: 'common.preFooter.startHereCta' })).toHaveAttribute('href', '/en/about');
-    expect(screen.getByRole('link', { name: 'common.preFooter.rss' })).toHaveAttribute('href', '/en/rss.xml');
+    expect(screen.getByRole('link', { name: 'common.preFooter.contactCta' })).toHaveAttribute('href', '/contact');
+    expect(screen.getByRole('link', { name: 'common.preFooter.startHereCta' })).toHaveAttribute('href', '/about');
+    expect(screen.getByRole('link', { name: 'common.preFooter.rss' })).toHaveAttribute('href', '/rss.xml');
   });
 
   it('prefers provided topTopics over derived topic frequency', () => {

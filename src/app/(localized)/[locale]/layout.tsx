@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import '@/styles/global.scss';
 import AppProviders from '@/app/providers';
-import { layoutNamespaces, locales } from '@/i18n/settings';
+import { defaultLocale, layoutNamespaces, locales } from '@/i18n/settings';
 import { hasLocale, loadLocaleResources } from '@/i18n/server';
 import { getMetadataBase } from '@/lib/metadata';
 
@@ -39,7 +39,7 @@ export const dynamic = 'error';
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  return locales.map(locale => ({ locale }));
+  return locales.filter(locale => locale !== defaultLocale).map(locale => ({ locale }));
 }
 
 export default async function LocaleLayout({ children, params }: LayoutProps<'/[locale]'>) {

@@ -13,6 +13,7 @@ type BuildPageMetadataOptions = {
   ogTitle?: string;
   type?: 'website' | 'article';
   robots?: Metadata['robots'];
+  availableLocales?: readonly string[];
   openGraph?: Metadata['openGraph'];
   twitter?: Metadata['twitter'];
 };
@@ -50,7 +51,11 @@ export const buildSitePath = (path = ''): string => {
   return joinedPath ? `/${joinedPath}` : '/';
 };
 
-export const buildLocalizedPath = (locale: string, path = ''): string => buildSitePath(joinPath(locale, path));
+export const buildLocalizedPath = (locale: string, path = ''): string => {
+  const activeLocale = isSupportedLocale(locale) ? locale : defaultLocale;
+  const localePrefix = activeLocale === defaultLocale ? '' : activeLocale;
+  return buildSitePath(joinPath(localePrefix, path));
+};
 
 export const toAbsoluteSiteUrl = (urlOrPath: string): string => {
   if (!urlOrPath) {
@@ -101,21 +106,34 @@ export const buildPageMetadata = ({
   ogTitle,
   type = 'website',
   robots,
+  availableLocales,
   openGraph,
   twitter,
 }: Readonly<BuildPageMetadataOptions>): Metadata => {
   const activeLocale = toSupportedLocale(locale);
   const resolvedOgTitle = ogTitle ?? title;
   const ogLocale = LOCALES[activeLocale]?.ogLocale;
-  const alternateLocales = locales
+  const supportedAlternateLocales = locales.filter(
+    candidateLocale =>
+      candidateLocale === activeLocale || !availableLocales || availableLocales.includes(candidateLocale),
+  );
+  const alternateLocales = supportedAlternateLocales
     .filter(candidateLocale => candidateLocale !== activeLocale)
     .map(candidateLocale => LOCALES[candidateLocale]?.ogLocale)
     .filter((candidateLocale): candidateLocale is string => Boolean(candidateLocale));
-
   const canonicalPath = buildLocalizedPath(activeLocale, path);
   const languageAlternates = Object.fromEntries(
-    locales.map(candidateLocale => [candidateLocale, buildLocalizedPath(candidateLocale, path)]),
+    supportedAlternateLocales.map(candidateLocale => [candidateLocale, buildLocalizedPath(candidateLocale, path)]),
   );
+  const xDefaultLocale = supportedAlternateLocales.includes(defaultLocale)
+    ? defaultLocale
+    : supportedAlternateLocales[0];
+  if (xDefaultLocale) {
+    languageAlternates['x-default'] = buildLocalizedPath(xDefaultLocale, path);
+  }
+  const isIndexable =
+    !(typeof robots === 'object' && robots !== null && robots.index === false) &&
+    !(typeof robots === 'string' && robots.split(',').some(directive => directive.trim().toLowerCase() === 'noindex'));
 
   return {
     title,
@@ -124,10 +142,19 @@ export const buildPageMetadata = ({
     authors: [{ name: AUTHOR_NAME }],
     alternates: {
       canonical: canonicalPath,
-      languages: {
-        ...languageAlternates,
-        'x-default': buildLocalizedPath(defaultLocale, path),
-      },
+      ...(isIndexable
+        ? {
+            languages: languageAlternates,
+            types: {
+              'application/rss+xml': [
+                {
+                  url: buildLocalizedPath(activeLocale, 'rss.xml'),
+                  title: activeLocale === 'tr' ? 'Türkçe RSS feed' : 'English RSS feed',
+                },
+              ],
+            },
+          }
+        : {}),
     },
     robots: robots ?? {
       index: true,

@@ -8,7 +8,7 @@ import ThemeToggler from '@/components/theme/ThemeToggler';
 import VoiceToggler from '@/components/voice/VoiceToggler';
 import useBoop from '@/hooks/useBoop';
 import useMediaQuery from '@/hooks/useMediaQuery';
-import { useParams, usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import { SITE_LOGO } from '@/config/constants';
@@ -19,7 +19,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { fetchAdminMe, logoutAdmin } from '@/lib/adminApi';
 import { withAdminAvatarSize } from '@/lib/adminAvatar';
 import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
-import { defaultLocale } from '@/i18n/settings';
+import { useLocale } from '@/i18n/useLocale';
 import {
   clearAdminSessionProfileCache,
   readAdminSessionProfileCache,
@@ -35,9 +35,7 @@ export default function AdminChrome({ children }: Readonly<AdminChromeProps>) {
   const { t } = useTranslation('admin-common');
   const router = useRouter();
   const pathname = usePathname();
-  const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
-  const locale = routeLocale ?? defaultLocale;
+  const locale = useLocale();
   const isMobile = useMediaQuery('(max-width: 991px)');
   const [adminIconStyle, triggerAdminIconBoop] = useBoop({ x: 2, rotation: 8, scale: 1.08, timing: 170 });
   const [isNavExpanded, setIsNavExpanded] = React.useState(false);

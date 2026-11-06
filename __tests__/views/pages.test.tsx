@@ -12,84 +12,79 @@ import SchulteTablePage from '@/views/SchulteTablePage';
 import StroopTestPage from '@/views/StroopTestPage';
 import TopicPage from '@/views/TopicPage';
 import VisualMemoryPage from '@/views/VisualMemoryPage';
+import type { Localized } from '@/i18n/settings';
+import type {
+  CategoryPageData,
+  LayoutPageData,
+  MediumPageData,
+  PostPageData,
+  SearchPageData,
+  TopicPageData,
+} from '@/lib/localizedPageData';
+import type { PostSummary, Topic } from '@/types/posts';
 
-const layoutMock = jest.fn(({ children }: { children?: React.ReactNode }) => (
+const mockI18n = { language: 'en', resolvedLanguage: 'en' };
+const mockLayout = jest.fn(({ children }: { children?: React.ReactNode }) => (
   <div data-testid="layout">{children}</div>
 ));
-const postListMock = jest.fn((_props: unknown) => <div data-testid="post-list">post-list</div>);
-const postCarouselMock = jest.fn((_props: unknown) => <div data-testid="post-carousel">post-carousel</div>);
-const postDetailMock = jest.fn((_props: unknown) => <div data-testid="post-detail">post-detail</div>);
-const contactInfoMock = jest.fn(() => <div data-testid="contact-info">contact-info</div>);
-const thumbnailMock = jest.fn((_props: unknown) => <div data-testid="thumbnail">thumbnail</div>);
-const schulteTrainerMock = jest.fn(() => <div data-testid="schulte-trainer">schulte-trainer</div>);
-const stroopTrainerMock = jest.fn(() => <div data-testid="stroop-trainer">stroop-trainer</div>);
-const visualMemoryTrainerMock = jest.fn(() => <div data-testid="visual-memory-trainer">visual-memory-trainer</div>);
-const linkMock = jest.fn(({ children, href }: { children: React.ReactNode; href: string }) => (
+const mockPostList = jest.fn((_props: unknown) => <div data-testid="post-list">post-list</div>);
+const mockPostCarousel = jest.fn((_props: unknown) => <div data-testid="post-carousel">post-carousel</div>);
+const mockPostDetail = jest.fn((_props: unknown) => <div data-testid="post-detail">post-detail</div>);
+const mockContactInfo = jest.fn(() => <div data-testid="contact-info">contact-info</div>);
+const mockThumbnail = jest.fn((_props: unknown) => <div data-testid="thumbnail">thumbnail</div>);
+const mockSchulteTrainer = jest.fn(() => <div data-testid="schulte-trainer">schulte-trainer</div>);
+const mockStroopTrainer = jest.fn(() => <div data-testid="stroop-trainer">stroop-trainer</div>);
+const mockVisualMemoryTrainer = jest.fn(() => <div data-testid="visual-memory-trainer">visual-memory-trainer</div>);
+const mockLink = jest.fn(({ children, href }: { children: React.ReactNode; href: string }) => (
   <a href={href}>{children}</a>
 ));
-const useSearchParamsMock = jest.fn();
+const mockUseSearchParams = jest.fn();
+const mockUseParams = jest.fn(() => ({ locale: 'en' }));
 
 jest.mock('@/components/common/Layout', () => ({
   __esModule: true,
-  default: (props: { children?: React.ReactNode }) => layoutMock(props),
+  default: (props: { children?: React.ReactNode }) => mockLayout(props),
 }));
-
 jest.mock('@/components/posts/PostList', () => ({
   __esModule: true,
-  default: (props: unknown) => postListMock(props),
+  default: (props: unknown) => mockPostList(props),
 }));
-
 jest.mock('@/components/posts/PostCarousel', () => ({
   __esModule: true,
-  default: (props: unknown) => postCarouselMock(props),
+  default: (props: unknown) => mockPostCarousel(props),
 }));
-
 jest.mock('@/components/posts/PostDetail', () => ({
   __esModule: true,
-  default: (props: unknown) => postDetailMock(props),
+  default: (props: unknown) => mockPostDetail(props),
 }));
-
 jest.mock('@/components/common/ContactInfo', () => ({
   __esModule: true,
-  default: () => contactInfoMock(),
+  default: () => mockContactInfo(),
 }));
-
 jest.mock('@/components/common/Thumbnail', () => ({
   __esModule: true,
-  default: (props: unknown) => thumbnailMock(props),
+  default: (props: unknown) => mockThumbnail(props),
 }));
-
 jest.mock('@/components/games/SchulteTableTrainer', () => ({
   __esModule: true,
-  default: () => schulteTrainerMock(),
+  default: () => mockSchulteTrainer(),
 }));
-
 jest.mock('@/components/games/StroopTestTrainer', () => ({
   __esModule: true,
-  default: () => stroopTrainerMock(),
+  default: () => mockStroopTrainer(),
 }));
-
 jest.mock('@/components/games/VisualMemoryTrainer', () => ({
   __esModule: true,
-  default: () => visualMemoryTrainerMock(),
+  default: () => mockVisualMemoryTrainer(),
 }));
-
-jest.mock('@/components/common/Link', () => ({
-  __esModule: true,
-  default: (props: { children: React.ReactNode; href: string }) => linkMock(props),
-}));
-
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: (props: { alt: string }) => <img alt={props.alt} />,
-}));
-
+jest.mock('@/components/common/Link', () => ({ __esModule: true, default: (props: never) => mockLink(props) }));
+jest.mock('next/image', () => ({ __esModule: true, default: ({ alt }: { alt: string }) => <img alt={alt} /> }));
 jest.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon }: { icon: string }) => <span data-testid={`icon-${icon}`} />,
 }));
-
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
+    i18n: mockI18n,
     t: (key: string, options?: Record<string, string | number>) => {
       if (key === 'about.description') return `About ${String(options?.experienceYears ?? '')}`;
       if (key === 'topic.title') return `Topic ${String(options?.topic ?? '')}`;
@@ -104,176 +99,128 @@ jest.mock('react-i18next', () => ({
     },
   }),
 }));
-
 jest.mock('next/navigation', () => ({
-  useSearchParams: () => useSearchParamsMock(),
+  useParams: () => mockUseParams(),
+  useSearchParams: () => mockUseSearchParams(),
 }));
 
+const topic: Topic = { id: 'react', name: 'React', color: '#fff' };
 const layoutPosts = [{ id: 'layout-post', title: 'Layout', publishedDate: '2025-01-01' }];
-const topics = [{ id: 'react', name: 'React', color: '#fff' }];
-const posts = [
-  {
-    id: 'post-1',
-    title: 'Post 1',
-    summary: 'Summary',
-    searchText: 'summary post 1',
-    publishedDate: '2025-01-01',
-    readingTimeMin: 3,
-    thumbnail: null,
-  },
-];
+const summary = (id: string): PostSummary => ({
+  id,
+  title: `Post ${id}`,
+  summary: 'Summary',
+  searchText: `summary post ${id}`,
+  publishedDate: '2025-01-01',
+  readingTimeMin: 3,
+  thumbnail: null,
+  topics: [topic],
+});
+const layoutData: LayoutPageData = { layoutPosts, topics: [topic], preFooterTopTopics: [topic] };
+const localized = <T,>(en: T, tr: T = en): Localized<T> => ({ en, tr });
+const layoutContent = localized(layoutData);
+const postList = [summary('post-1')];
+const categoryData: CategoryPageData = {
+  ...layoutData,
+  category: { id: 'frontend', name: 'Frontend', color: '#fff' },
+  posts: postList,
+};
+const topicData: TopicPageData = { ...layoutData, topic, posts: postList };
+const mediumData: MediumPageData = { ...layoutData, mediumPosts: postList };
+const searchData: SearchPageData = { posts: postList, topics: [topic] };
+const postData: PostPageData = {
+  ...layoutData,
+  post: { ...summary('post-1'), contentHtml: '<p>Hello</p>' },
+  relatedPosts: [],
+  previousPost: null,
+  nextPost: null,
+};
 
-describe('View pages', () => {
+describe('localized page views', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useSearchParamsMock.mockReturnValue(new URLSearchParams('q=react'));
+    mockI18n.resolvedLanguage = 'en';
+    mockUseParams.mockReturnValue({ locale: 'en' });
+    mockUseSearchParams.mockReturnValue(new URLSearchParams('q=react'));
   });
 
-  it('renders AboutPage with person schema and contact section', () => {
-    render(<AboutPage layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={topics} />);
-
-    expect(screen.getByTestId('layout')).toBeInTheDocument();
-    expect(screen.getByTestId('contact-info')).toBeInTheDocument();
+  it('renders About and Contact with their structured data and shared layout', () => {
+    render(<AboutPage contentByLocale={layoutContent} />);
+    expect(mockContactInfo).toHaveBeenCalled();
     expect(document.querySelector('script[type="application/ld+json"]')).toHaveTextContent('"@type":"Person"');
+
+    render(<ContactPage contentByLocale={layoutContent} />);
+    expect(document.querySelectorAll('script[type="application/ld+json"]')).toHaveLength(2);
+    expect(document.querySelectorAll('script[type="application/ld+json"]')[1]).toHaveTextContent(
+      '"@type":"ContactPage"',
+    );
   });
 
-  it('renders ContactPage with contact schema', () => {
-    render(<ContactPage layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={topics} />);
-
-    expect(screen.getByTestId('contact-info')).toBeInTheDocument();
-    expect(document.querySelector('script[type="application/ld+json"]')).toHaveTextContent('"@type":"ContactPage"');
-  });
-
-  it('renders HomePage with carousel, post list, and website schema', () => {
-    render(<HomePage posts={posts} topics={topics} locale="en" />);
-
-    expect(screen.getByTestId('post-carousel')).toBeInTheDocument();
-    expect(screen.getByTestId('post-list')).toBeInTheDocument();
+  it('selects the matching locale payload for home and list views', () => {
+    render(
+      <HomePage
+        contentByLocale={localized(
+          { posts: [summary('english')], topics: [topic] },
+          { posts: [summary('turkish')], topics: [topic] },
+        )}
+      />,
+    );
+    expect(mockPostList).toHaveBeenLastCalledWith(expect.objectContaining({ posts: [summary('english')] }));
     expect(document.querySelector('script[type="application/ld+json"]')).toHaveTextContent('"@type":"WebSite"');
-    expect(document.querySelector('script[type="application/ld+json"]')).toHaveTextContent('"@type":"ItemList"');
+
+    mockI18n.resolvedLanguage = 'tr';
+    mockUseParams.mockReturnValue({ locale: 'tr' });
+    render(
+      <HomePage
+        contentByLocale={localized(
+          { posts: [summary('english')], topics: [topic] },
+          {
+            posts: [summary('turkish')],
+            topics: [topic],
+          },
+        )}
+      />,
+    );
+    expect(mockPostList).toHaveBeenLastCalledWith(expect.objectContaining({ posts: [summary('turkish')] }));
   });
 
-  it('renders MediumPage and passes medium posts to PostList', () => {
-    render(<MediumPage mediumPosts={posts} layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={topics} />);
+  it('renders Medium and Search with language-specific content', () => {
+    render(<MediumPage contentByLocale={localized(mediumData)} />);
+    expect(mockPostList).toHaveBeenLastCalledWith(expect.objectContaining({ posts: postList }));
 
-    expect(postListMock).toHaveBeenCalledWith(expect.objectContaining({ posts }));
-    expect(document.querySelector('script[type="application/ld+json"]')).toHaveTextContent('"@type":"WebSite"');
-  });
-
-  it('renders SearchPage with trimmed query from route search params', () => {
-    render(<SearchPage posts={posts} topics={topics} />);
-
+    render(<SearchPage contentByLocale={localized(searchData)} />);
     expect(screen.getByText('search.subtitle')).toBeInTheDocument();
-    expect(postListMock).toHaveBeenCalledWith(expect.objectContaining({ posts, showLikes: true }));
+    expect(mockPostList).toHaveBeenLastCalledWith(expect.objectContaining({ posts: postList, showLikes: true }));
   });
 
-  it('renders CategoryPage with breadcrumb and collection schema', () => {
-    render(
-      <CategoryPage
-        category={{ id: 'frontend', name: 'Frontend', color: '#fff' }}
-        posts={posts}
-        layoutPosts={layoutPosts}
-        topics={topics}
-        preFooterTopTopics={topics}
-        locale="en"
-      />,
-    );
-
+  it('renders category and topic breadcrumbs and structured data', () => {
+    render(<CategoryPage contentByLocale={localized(categoryData)} />);
     expect(screen.getByText('Category Frontend')).toBeInTheDocument();
-    expect(document.querySelectorAll('script[type="application/ld+json"]')).toHaveLength(2);
-  });
 
-  it('renders TopicPage with breadcrumb and collection schema', () => {
-    render(
-      <TopicPage
-        topic={{ id: 'react', name: 'React', color: '#fff' }}
-        posts={posts}
-        layoutPosts={layoutPosts}
-        topics={topics}
-        preFooterTopTopics={topics}
-        locale="en"
-      />,
-    );
-
+    render(<TopicPage contentByLocale={localized(topicData)} />);
     expect(screen.getByText('Topic React')).toBeInTheDocument();
-    expect(document.querySelectorAll('script[type="application/ld+json"]')).toHaveLength(2);
+    expect(document.querySelectorAll('script[type="application/ld+json"]')).toHaveLength(4);
   });
 
-  it('renders PostPage with resolved content delegated to PostDetail', () => {
-    render(
-      <PostPage
-        post={{
-          id: 'post-1',
-          title: 'Post Title',
-          summary: 'Summary',
-          searchText: 'summary post title',
-          publishedDate: '2025-01-01',
-          readingTimeMin: 4,
-          thumbnail: null,
-          topics,
-          contentHtml: '<p>Hello</p>',
-        }}
-        relatedPosts={posts}
-        previousPost={{ id: 'prev', title: 'Prev' }}
-        nextPost={{ id: 'next', title: 'Next' }}
-        layoutPosts={layoutPosts}
-        preFooterTopTopics={topics}
-      />,
-    );
+  it('resolves selected post content and related links', () => {
+    render(<PostPage contentByLocale={localized(postData)} />);
 
     expect(screen.getByTestId('post-detail')).toBeInTheDocument();
-    expect(document.querySelectorAll('script[type="application/ld+json"]')).toHaveLength(0);
-    expect(postDetailMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        post: expect.objectContaining({ contentHtml: '<p>Hello</p>' }),
-      }),
+    expect(mockPostDetail).toHaveBeenCalledWith(
+      expect.objectContaining({ post: expect.objectContaining({ contentHtml: '<p>Hello</p>' }) }),
     );
   });
 
-  it('renders PostPage defaults without duplicate page-level structured data', () => {
-    render(
-      <PostPage
-        post={{
-          id: 'post-2',
-          title: 'Rich Post',
-          summary: 'Rich Summary',
-          searchText: 'rich summary post',
-          publishedDate: '2025-02-01',
-          updatedDate: '2025-02-02',
-          readingTimeMin: 5,
-          thumbnail: '/images/rich-post.jpg',
-          topics,
-          category: { id: 'programming', name: 'Programming', color: 'blue' },
-          contentHtml: '<p>Rich content</p>',
-        }}
-      />,
-    );
-
-    expect(document.querySelectorAll('script[type="application/ld+json"]')).toHaveLength(0);
-    expect(postDetailMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        relatedPosts: [],
-        previousPost: null,
-        nextPost: null,
-      }),
-    );
-  });
-
-  it('renders SchulteTablePage, StroopTestPage, and VisualMemoryPage with thumbnails and trainers', () => {
-    render(<SchulteTablePage layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={topics} />);
-    render(<StroopTestPage layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={topics} />);
-    render(<VisualMemoryPage layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={topics} />);
-
-    expect(screen.getAllByTestId('thumbnail').length).toBeGreaterThan(2);
+  it('renders the three static games and the prefixless not-found link', () => {
+    render(<SchulteTablePage contentByLocale={layoutContent} />);
+    render(<StroopTestPage contentByLocale={layoutContent} />);
+    render(<VisualMemoryPage contentByLocale={layoutContent} />);
     expect(screen.getByTestId('schulte-trainer')).toBeInTheDocument();
     expect(screen.getByTestId('stroop-trainer')).toBeInTheDocument();
     expect(screen.getByTestId('visual-memory-trainer')).toBeInTheDocument();
-  });
 
-  it('renders the locale not found page with a localized home link', () => {
-    render(<LocaleNotFoundPage locale="tr" />);
-
+    render(<LocaleNotFoundPage />);
     expect(screen.getByText('404.header')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: '404.backToHome' })).toHaveAttribute('href', '/tr');
+    expect(screen.getByRole('link', { name: '404.backToHome' })).toHaveAttribute('href', '/');
   });
 });

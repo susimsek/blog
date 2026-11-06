@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import StroopTestPage from '@/views/StroopTestPage';
-import { getAllTopics, getLayoutPosts, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/posts';
 import RouteI18nProvider from '@/i18n/RouteI18nProvider';
 import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';
+import { getLocalizedLayoutPageData } from '@/lib/localizedPageData';
 
 type StroopRouteParams = {
   locale: string;
@@ -29,16 +29,12 @@ export async function generateMetadata({ params }: StroopRouteProps): Promise<Me
 
 export default async function StroopTestRoute({ params }: StroopRouteProps) {
   const { locale } = await params;
-
-  const allPosts = await getSortedPostsData(locale);
-  const topics = await getAllTopics(locale);
-  const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
-  const layoutPosts = getLayoutPosts(allPosts);
+  const contentByLocale = await getLocalizedLayoutPageData();
   const resources = await loadLocaleResources(locale, ['games']);
 
   return (
     <RouteI18nProvider locale={locale} resources={resources}>
-      <StroopTestPage layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={preFooterTopTopics} />
+      <StroopTestPage contentByLocale={contentByLocale} />
     </RouteI18nProvider>
   );
 }

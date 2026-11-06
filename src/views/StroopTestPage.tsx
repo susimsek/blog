@@ -7,17 +7,16 @@ import { useTranslation } from 'react-i18next';
 import Layout from '@/components/common/Layout';
 import Thumbnail from '@/components/common/Thumbnail';
 import { assetPrefix } from '@/config/constants';
-import type { LayoutPostSummary, Topic } from '@/types/posts';
 import StroopTestTrainer from '@/components/games/StroopTestTrainer';
+import type { Localized } from '@/i18n/settings';
+import type { LayoutPageData } from '@/lib/localizedPageData';
+import { useLocalizedContent } from '@/i18n/useLocalizedContent';
 
-type StroopTestPageProps = {
-  layoutPosts: LayoutPostSummary[];
-  topics: Topic[];
-  preFooterTopTopics: Topic[];
-};
+type StroopTestPageProps = { contentByLocale: Localized<LayoutPageData> };
 
-export default function StroopTestPage({ layoutPosts, topics, preFooterTopTopics }: Readonly<StroopTestPageProps>) {
+export default function StroopTestPage({ contentByLocale }: Readonly<StroopTestPageProps>) {
   const { t } = useTranslation('games');
+  const { layoutPosts, topics, preFooterTopTopics } = useLocalizedContent(contentByLocale);
   const previewImageSrc = `${assetPrefix}/images/stroop-test-thumbnail.webp`;
 
   return (

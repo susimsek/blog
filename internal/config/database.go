@@ -1,11 +1,10 @@
 package config
 
 import (
-	"context"
 	"time"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 const (
@@ -52,8 +51,8 @@ func BuildMongoClientOptions(cfg DatabaseConfig, appName string) *options.Client
 	return clientOptions
 }
 
-func NewMongoClient(ctx context.Context, cfg DatabaseConfig, appName string) (*mongo.Client, error) {
-	return mongo.Connect(ctx, BuildMongoClientOptions(cfg, appName))
+func NewMongoClient(cfg DatabaseConfig, appName string) (*mongo.Client, error) {
+	return mongo.Connect(BuildMongoClientOptions(cfg, appName))
 }
 
 func ResolveDatabaseName() (string, error) {
