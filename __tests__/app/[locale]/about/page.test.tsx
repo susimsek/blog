@@ -78,9 +78,13 @@ describe('App Route /[locale]/about', () => {
     expect(getLayoutPostsMock).toHaveBeenCalled();
     expect(loadLocaleResourcesMock).toHaveBeenCalledWith('en', ['about']);
     expect(aboutPageMock).toHaveBeenCalledWith({
-      layoutPosts: [{ id: 'post-1' }],
-      topics: [{ id: 'topic-1' }],
-      preFooterTopTopics: [{ id: 'topic-1' }],
+      contentByLocale: expect.objectContaining({
+        en: {
+          layoutPosts: [{ id: 'post-1' }],
+          topics: [{ id: 'topic-1' }],
+          preFooterTopTopics: [{ id: 'topic-1' }],
+        },
+      }),
     });
     expect(screen.getByTestId('about-page')).toBeInTheDocument();
   });

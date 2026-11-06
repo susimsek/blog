@@ -10,9 +10,9 @@ import (
 
 	"suaybsimsek.com/blog-api/internal/domain"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 var ErrAdminDashboardRepositoryUnavailable = errors.New("admin dashboard repository unavailable")
@@ -39,10 +39,11 @@ func (*adminDashboardMongoRepository) CountDistinctPosts(ctx context.Context) (i
 		return 0, fmt.Errorf(adminDashboardRepositoryUnavailableFormat, ErrAdminDashboardRepositoryUnavailable, err)
 	}
 
-	values, err := collection.Distinct(ctx, "id", bson.M{
+	result := collection.Distinct(ctx, "id", bson.M{
 		"source": bson.M{"$ne": "medium"},
 	})
-	if err != nil {
+	var values []any
+	if err := result.Decode(&values); err != nil {
 		return 0, err
 	}
 
@@ -103,13 +104,15 @@ func (*adminDashboardMongoRepository) BuildContentHealthSummary(ctx context.Cont
 		return domain.AdminDashboardContentHealth{}, fmt.Errorf(adminDashboardRepositoryUnavailableFormat, ErrAdminDashboardRepositoryUnavailable, err)
 	}
 
-	enIDsRaw, err := collection.Distinct(ctx, "id", bson.M{"locale": "en"})
-	if err != nil {
+	enIDsResult := collection.Distinct(ctx, "id", bson.M{"locale": "en"})
+	var enIDsRaw []any
+	if err := enIDsResult.Decode(&enIDsRaw); err != nil {
 		return domain.AdminDashboardContentHealth{}, err
 	}
 
-	trIDsRaw, err := collection.Distinct(ctx, "id", bson.M{"locale": "tr"})
-	if err != nil {
+	trIDsResult := collection.Distinct(ctx, "id", bson.M{"locale": "tr"})
+	var trIDsRaw []any
+	if err := trIDsResult.Decode(&trIDsRaw); err != nil {
 		return domain.AdminDashboardContentHealth{}, err
 	}
 

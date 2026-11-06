@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
@@ -9,7 +8,7 @@ import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useAutoClearValue from '@/hooks/useAutoClearValue';
-import { defaultLocale } from '@/i18n/settings';
+import { useLocale } from '@/i18n/useLocale';
 import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
 import { requestAdminPasswordReset, resolveAdminPasswordResetError } from '@/lib/adminPasswordResetApi';
 
@@ -30,9 +29,7 @@ const resolveEmailError = (email: string, t: ReturnType<typeof useTranslation>['
 
 export default function AdminForgotPasswordPage() {
   const { t } = useTranslation('admin-password-reset');
-  const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
-  const locale = routeLocale ?? defaultLocale;
+  const locale = useLocale();
   const loginHref = withAdminLocalePath(locale, ADMIN_ROUTES.login);
 
   const [email, setEmail] = React.useState('');

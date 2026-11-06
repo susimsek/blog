@@ -1,26 +1,27 @@
 import { hasLocalePrefix, isExternalUrl, localizeHref, localizePathname } from '@/components/common/Link';
 
 describe('Link helpers', () => {
-  it('detects external urls using the current origin', () => {
-    expect(isExternalUrl('/about')).toBe(false);
-    expect(isExternalUrl('mailto:test@example.com')).toBe(true);
-    expect(isExternalUrl('https://example.com')).toBe(true);
-  });
-
-  it('detects locale prefixes and localizes paths safely', () => {
+  it('adds only non-default locale prefixes while normalizing existing prefixes', () => {
     expect(hasLocalePrefix('/en/posts/demo')).toBe(true);
+    expect(hasLocalePrefix('/tr/posts/demo')).toBe(true);
     expect(hasLocalePrefix('/posts/demo')).toBe(false);
-
-    expect(localizePathname('/', 'tr')).toBe('/tr');
-    expect(localizePathname('/about', 'en')).toBe('/en/about');
-    expect(localizePathname('/en/about', 'en')).toBe('/en/about');
+    expect(localizePathname('/en/posts/demo', 'tr')).toBe('/tr/posts/demo');
+    expect(localizePathname('/tr', 'en')).toBe('/');
+    expect(localizePathname('/about', 'tr')).toBe('/tr/about');
   });
 
-  it('localizes href variants and preserves non-localizable schemes', () => {
+  it('switches locale prefixes and preserves query strings and fragments', () => {
+    expect(localizeHref('/tr/posts/demo?tab=1#code', 'en')).toBe('/posts/demo?tab=1#code');
+    expect(localizeHref('/posts/demo?tab=1#code', 'tr')).toBe('/tr/posts/demo?tab=1#code');
     expect(localizeHref('#section', 'en')).toBe('#section');
     expect(localizeHref('mailto:test@example.com', 'en')).toBe('mailto:test@example.com');
-    expect(localizeHref('/posts/demo?tab=1#code', 'tr')).toBe('/tr/posts/demo?tab=1#code');
-    expect(localizeHref('https://example.com/posts/demo?tab=1#code', 'en')).toBe('/en/posts/demo?tab=1#code');
-    expect(localizeHref('invalid::href', 'en')).toBe('invalid::href');
+    expect(localizeHref('relative/path', 'en')).toBe('relative/path');
+  });
+
+  it('normalizes same-origin absolute links and preserves external links', () => {
+    expect(isExternalUrl('/about')).toBe(false);
+    expect(isExternalUrl('https://example.org')).toBe(true);
+    expect(localizeHref('http://localhost/en/about?page=1#top', 'tr')).toBe('/tr/about?page=1#top');
+    expect(localizeHref('https://example.org/en/about', 'tr')).toBe('https://example.org/en/about');
   });
 });

@@ -1,9 +1,12 @@
 import { redirect } from 'next/navigation';
-import { defaultLocale } from '@/i18n/settings';
-import { buildAdminContentPostDetailHref, withAdminLocalePath } from '@/lib/adminRoutes';
+import type { Metadata } from 'next';
+import { getServerTranslator } from '@/i18n/server';
+import { defaultLocale, locales } from '@/i18n/settings';
+import { buildPageMetadata } from '@/lib/metadata';
+import { buildAdminContentPostDetailHref } from '@/lib/adminRoutes';
 import { getAllPostIds } from '@/lib/posts';
 
-type AdminSettingsContentPostTabRedirectPageProps = {
+type AdminSettingsContentPostTabPageProps = {
   params: Promise<{
     postLocale: string;
     postId: string;
@@ -15,37 +18,36 @@ const POST_EDITOR_TABS = ['metadata', 'content', 'comments'] as const;
 
 export async function generateStaticParams() {
   const postPaths = await getAllPostIds();
-  const params: Array<{ postLocale: string; postId: string; tab: (typeof POST_EDITOR_TABS)[number] }> = [];
-  const dedupe = new Set<string>();
-
-  for (const path of postPaths) {
-    const postLocale = path.params.locale.trim().toLowerCase();
-    const postId = path.params.id.trim();
-    if (!postLocale || !postId) {
-      continue;
-    }
-
-    for (const tab of POST_EDITOR_TABS) {
-      const key = `${postLocale}|${postId}|${tab}`;
-      if (dedupe.has(key)) {
-        continue;
-      }
-
-      dedupe.add(key);
-      params.push({
+  return locales.flatMap(postLocale =>
+    postPaths.flatMap(path =>
+      POST_EDITOR_TABS.map(tab => ({
         postLocale,
-        postId,
+        postId: path.params.id,
         tab,
-      });
-    }
-  }
-
-  return params;
+      })),
+    ),
+  );
 }
 
-export default async function AdminSettingsContentPostTabRedirectPage({
-  params,
-}: Readonly<AdminSettingsContentPostTabRedirectPageProps>) {
+export async function generateMetadata({ params }: AdminSettingsContentPostTabPageProps): Promise<Metadata> {
   const { postLocale, postId, tab } = await params;
-  redirect(withAdminLocalePath(defaultLocale, buildAdminContentPostDetailHref(postLocale, postId, tab)));
+  const { t } = await getServerTranslator(defaultLocale, ['admin-account']);
+
+  return buildPageMetadata({
+    locale: defaultLocale,
+    title: t('adminAccount.meta.title', { ns: 'admin-account' }),
+    description: t('adminAccount.meta.description', { ns: 'admin-account' }),
+    path: `admin/settings/content/posts/${postLocale}/${postId}/${tab}`,
+    robots: {
+      index: false,
+      follow: false,
+    },
+  });
+}
+
+export default async function AdminSettingsContentPostTabRoute({
+  params,
+}: Readonly<AdminSettingsContentPostTabPageProps>) {
+  const { postLocale, postId, tab } = await params;
+  redirect(buildAdminContentPostDetailHref(postLocale, postId, tab));
 }

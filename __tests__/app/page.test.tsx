@@ -1,50 +1,71 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
-import RootPage from '@/app/(default)/page';
-import languageDetector from '@/lib/languageDetector';
+import { render, screen } from '@testing-library/react';
+import HomeRoute, { generateMetadata } from '@/app/(default)/page';
 
-const replaceMock = jest.fn();
+const mockGetLocalizedHomePageData = jest.fn(async () => ({
+  en: { posts: [{ id: 'english-post' }], topics: [{ id: 'english-topic' }] },
+  tr: { posts: [{ id: 'turkish-post' }], topics: [{ id: 'turkish-topic' }] },
+}));
+const mockLoadLocaleResources = jest.fn(async (_locale: string, _namespaces: string[]) => ({
+  home: { home: { header: { title: 'Home' } } },
+}));
+const mockHomePage = jest.fn((props: { contentByLocale: Record<string, unknown> }) => (
+  <div data-testid="home-page">{Object.keys(props.contentByLocale).join(',')}</div>
+));
 
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    replace: replaceMock,
+jest.mock('@/i18n/server', () => ({
+  getServerTranslator: async () => ({
+    t: (key: string) =>
+      ({
+        'home.meta.title': 'Home Meta Title',
+        'home.meta.description': 'Home Meta Description',
+        'home.meta.keywords': 'home,meta,keywords',
+      })[key] ?? key,
   }),
+  loadLocaleResources: (locale: string, namespaces: string[]) => mockLoadLocaleResources(locale, namespaces),
 }));
 
-jest.mock('@/lib/languageDetector', () => ({
-  detect: jest.fn(),
-  cache: jest.fn(),
+jest.mock('@/lib/localizedPageData', () => ({
+  getLocalizedHomePageData: () => mockGetLocalizedHomePageData(),
 }));
 
-jest.mock('@/components/common/Loading', () => ({
+jest.mock('@/i18n/RouteI18nProvider', () => ({
   __esModule: true,
-  default: () => <div data-testid="loading">loading</div>,
+  default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-describe('RootPage', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+jest.mock('@/views/HomePage', () => ({
+  __esModule: true,
+  default: (props: { contentByLocale: Record<string, unknown> }) => mockHomePage(props),
+}));
+
+describe('static home route', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('builds the English root canonical and advertises both language URLs', async () => {
+    const metadata = await generateMetadata();
+
+    expect(metadata).toMatchObject({
+      title: 'Home Meta Title',
+      description: 'Home Meta Description',
+      alternates: {
+        canonical: '/',
+        languages: { en: '/', tr: '/tr', 'x-default': '/' },
+        types: {
+          'application/rss+xml': [{ url: '/rss.xml', title: 'English RSS feed' }],
+        },
+      },
+      openGraph: { url: '/' },
+    });
   });
 
-  it('redirects to detected locale and caches it', async () => {
-    (languageDetector.detect as jest.Mock).mockReturnValue('tr');
+  it('renders both locale payloads into the static home page', async () => {
+    render(await HomeRoute());
 
-    render(<RootPage />);
-
-    await waitFor(() => {
-      expect(replaceMock).toHaveBeenCalledWith('/tr');
+    expect(mockGetLocalizedHomePageData).toHaveBeenCalledTimes(1);
+    expect(mockHomePage).toHaveBeenCalledWith({
+      contentByLocale: expect.objectContaining({ en: expect.any(Object), tr: expect.any(Object) }),
     });
-    expect(languageDetector.cache).toHaveBeenCalledWith('tr');
-  });
-
-  it('falls back to default locale for unsupported values', async () => {
-    (languageDetector.detect as jest.Mock).mockReturnValue('de');
-
-    render(<RootPage />);
-
-    await waitFor(() => {
-      expect(replaceMock).toHaveBeenCalledWith('/en');
-    });
-    expect(languageDetector.cache).toHaveBeenCalledWith('en');
+    expect(screen.getByTestId('home-page')).toHaveTextContent('en,tr');
   });
 });

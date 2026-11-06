@@ -10,10 +10,9 @@ import (
 
 	"suaybsimsek.com/blog-api/internal/domain"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 func (*adminContentMongoRepository) ListTopics(ctx context.Context, locale, query string) ([]domain.AdminContentTopicRecord, error) {
@@ -30,7 +29,7 @@ func (*adminContentMongoRepository) ListTopics(ctx context.Context, locale, quer
 
 	resolvedSearchQuery := strings.TrimSpace(query)
 	if resolvedSearchQuery != "" {
-		filterQuery["name"] = primitive.Regex{
+		filterQuery["name"] = bson.Regex{
 			Pattern: regexp.QuoteMeta(resolvedSearchQuery),
 			Options: "i",
 		}
@@ -304,7 +303,7 @@ func (*adminContentMongoRepository) UpsertTopic(
 				"createdAt": resolvedNow,
 			},
 		},
-		options.Update().SetUpsert(true),
+		options.UpdateOne().SetUpsert(true),
 	)
 	if err != nil {
 		return nil, err
@@ -370,10 +369,8 @@ func (*adminContentMongoRepository) SyncTopicOnPosts(
 			"topicIds": resolvedTopicID,
 		},
 		updateDocument,
-		options.Update().SetArrayFilters(options.ArrayFilters{
-			Filters: []any{
-				bson.M{"topic.id": resolvedTopicID},
-			},
+		options.UpdateMany().SetArrayFilters([]any{
+			bson.M{"topic.id": resolvedTopicID},
 		}),
 	)
 	return err

@@ -21,7 +21,7 @@ import (
 	"suaybsimsek.com/blog-api/internal/repository"
 	"suaybsimsek.com/blog-api/pkg/apperrors"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/bson"
 	_ "golang.org/x/image/webp" // Register WebP decoder for image.DecodeConfig.
 )
 
@@ -116,7 +116,7 @@ func UploadAdminMediaAsset(
 		return &item, nil
 	}
 
-	id := primitive.NewObjectID().Hex()
+	id := bson.NewObjectID().Hex()
 	now := time.Now().UTC()
 	created, err := adminMediaAssetRepository.CreateMediaAsset(ctx, domain.AdminMediaAssetRecord{
 		ID:          id,

@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import MediumPage from '@/views/MediumPage';
-import { getAllTopics, getLayoutPosts, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/posts';
 import RouteI18nProvider from '@/i18n/RouteI18nProvider';
 import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';
+import { getLocalizedMediumPageData } from '@/lib/localizedPageData';
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/medium'>): Promise<Metadata> {
   const { locale } = await params;
@@ -20,22 +20,12 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/medium'>
 
 export default async function MediumRoute({ params }: Readonly<PageProps<'/[locale]/medium'>>) {
   const { locale } = await params;
-  const mediumPosts = await getSortedPostsData(locale, undefined, 'medium');
-
-  const allPosts = await getSortedPostsData(locale);
-  const layoutPosts = getLayoutPosts(allPosts);
-  const topics = await getAllTopics(locale);
-  const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
+  const contentByLocale = await getLocalizedMediumPageData();
   const resources = await loadLocaleResources(locale, ['medium']);
 
   return (
     <RouteI18nProvider locale={locale} resources={resources}>
-      <MediumPage
-        mediumPosts={mediumPosts}
-        layoutPosts={layoutPosts}
-        topics={topics}
-        preFooterTopTopics={preFooterTopTopics}
-      />
+      <MediumPage contentByLocale={contentByLocale} />
     </RouteI18nProvider>
   );
 }

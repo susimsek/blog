@@ -22,6 +22,7 @@ jest.mock('react-markdown', () => {
 });
 
 jest.mock('@/components/common/Link', () => ({
+  ...jest.requireActual('@/components/common/Link'),
   __esModule: true,
   default: ({
     href,
@@ -157,9 +158,9 @@ describe('MarkdownRenderer Component', () => {
     expect(externalLink).toHaveAttribute('rel', 'noopener noreferrer');
 
     expect(screen.getByText('relative').closest('a')).toHaveAttribute('href', 'relative/path');
-    expect(screen.getByText('root').closest('a')).toHaveAttribute('href', '/en');
-    expect(screen.getByText('localized-path').closest('a')).toHaveAttribute('href', '/tr/about');
-    expect(screen.getByText('internal').closest('a')).toHaveAttribute('href', '/en/about');
+    expect(screen.getByText('root').closest('a')).toHaveAttribute('href', '/');
+    expect(screen.getByText('localized-path').closest('a')).toHaveAttribute('href', '/about');
+    expect(screen.getByText('internal').closest('a')).toHaveAttribute('href', '/about');
     expect(container.querySelectorAll('a').length).toBeGreaterThanOrEqual(8);
   });
 

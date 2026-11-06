@@ -1,14 +1,14 @@
 'use client';
 
 import React from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AdminLoadingState from '@/components/admin/AdminLoadingState';
-import { defaultLocale } from '@/i18n/settings';
+import { useLocale } from '@/i18n/useLocale';
 import { confirmAdminEmailChange, resolveAdminEmailChangeError } from '@/lib/adminEmailChangeApi';
 import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
 
@@ -47,10 +47,8 @@ const resolveStatusVariant = (status: EmailChangeStatus) => {
 
 export default function AdminEmailChangePage() {
   const { t } = useTranslation('admin-email-change');
-  const params = useParams<{ locale?: string | string[] }>();
   const searchParams = useSearchParams();
-  const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
-  const locale = routeLocale ?? defaultLocale;
+  const locale = useLocale();
   const token = (searchParams?.get('token') ?? '').trim();
   const loginHref = withAdminLocalePath(locale, ADMIN_ROUTES.login);
 

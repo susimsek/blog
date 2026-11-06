@@ -20,7 +20,9 @@ formatters:
     warn-unused: true
   settings:
     gofumpt:
-      extra-rules: true
+      extra:
+        group-params: true
+        clothe-returns: true
     goimports:
       local-prefixes:
         - suaybsimsek.com/blog-api
@@ -82,6 +84,7 @@ linters:
       disable:
         - omitzero
         - newexpr
+        - embedlit
     perfsprint:
       concat-loop: false
     revive:

@@ -7,17 +7,16 @@ import { useTranslation } from 'react-i18next';
 import Layout from '@/components/common/Layout';
 import Thumbnail from '@/components/common/Thumbnail';
 import { assetPrefix } from '@/config/constants';
-import type { LayoutPostSummary, Topic } from '@/types/posts';
 import VisualMemoryTrainer from '@/components/games/VisualMemoryTrainer';
+import type { Localized } from '@/i18n/settings';
+import type { LayoutPageData } from '@/lib/localizedPageData';
+import { useLocalizedContent } from '@/i18n/useLocalizedContent';
 
-type VisualMemoryPageProps = {
-  layoutPosts: LayoutPostSummary[];
-  topics: Topic[];
-  preFooterTopTopics: Topic[];
-};
+type VisualMemoryPageProps = { contentByLocale: Localized<LayoutPageData> };
 
-export default function VisualMemoryPage({ layoutPosts, topics, preFooterTopTopics }: Readonly<VisualMemoryPageProps>) {
+export default function VisualMemoryPage({ contentByLocale }: Readonly<VisualMemoryPageProps>) {
   const { t } = useTranslation('games');
+  const { layoutPosts, topics, preFooterTopTopics } = useLocalizedContent(contentByLocale);
   const previewImageSrc = `${assetPrefix}/images/visual-memory-thumbnail.webp`;
 
   return (

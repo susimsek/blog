@@ -29,10 +29,9 @@ import (
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/pkg/newsletter"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	_ "golang.org/x/image/webp"
 )
 
@@ -447,7 +446,7 @@ func syncLegacyThumbnailAsset(
 		return &syncedValue, nil
 	}
 
-	id := primitive.NewObjectID().Hex()
+	id := bson.NewObjectID().Hex()
 	_, err = mediaCollection.InsertOne(ctx, bson.M{
 		"id":          id,
 		"name":        filepath.Base(localPath),
@@ -1005,7 +1004,7 @@ func seedInitialEngagementForPost(
 				"createdAt":      now,
 			},
 		},
-		options.Update().SetUpsert(true),
+		options.UpdateOne().SetUpsert(true),
 	); err != nil {
 		return fmt.Errorf("likes seed failed: %w", err)
 	}
@@ -1025,7 +1024,7 @@ func seedInitialEngagementForPost(
 				"createdAt":      now,
 			},
 		},
-		options.Update().SetUpsert(true),
+		options.UpdateOne().SetUpsert(true),
 	); err != nil {
 		return fmt.Errorf("hits seed failed: %w", err)
 	}
@@ -1118,7 +1117,7 @@ func syncLocale(
 					"createdAt": now,
 				},
 			},
-			options.Update().SetUpsert(true),
+			options.UpdateOne().SetUpsert(true),
 		)
 		if err != nil {
 			return 0, 0, 0, fmt.Errorf("topic upsert failed: %w", err)
@@ -1154,7 +1153,7 @@ func syncLocale(
 					"createdAt": now,
 				},
 			},
-			options.Update().SetUpsert(true),
+			options.UpdateOne().SetUpsert(true),
 		)
 		if err != nil {
 			return 0, 0, 0, fmt.Errorf("category upsert failed: %w", err)
@@ -1264,7 +1263,7 @@ func syncLocale(
 					"createdAt": now,
 				},
 			},
-			options.Update().SetUpsert(true),
+			options.UpdateOne().SetUpsert(true),
 		)
 		if err != nil {
 			return 0, 0, 0, fmt.Errorf("post upsert failed: %w", err)
@@ -1354,10 +1353,7 @@ func main() {
 		log.Fatalf("database config error: %v", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
-
-	client, err := appconfig.NewMongoClient(ctx, databaseConfig, "blog-content-sync-script")
+	client, err := appconfig.NewMongoClient(databaseConfig, "blog-content-sync-script")
 	if err != nil {
 		log.Fatalf("mongodb connect failed: %v", err)
 	}

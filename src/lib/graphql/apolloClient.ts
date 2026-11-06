@@ -4,7 +4,7 @@ import { ErrorLink } from '@apollo/client/link/error';
 import { CombinedGraphQLErrors, ServerError, ServerParseError } from '@apollo/client/errors';
 import { withBasePath } from '@/lib/basePath';
 import { AppError, AppErrorCode, publishAppError, reportAppError, unknownAppError } from '@/lib/errors/appError';
-import { defaultLocale } from '@/i18n/settings';
+import { resolveDocumentLocale } from '@/i18n/clientLocale';
 
 type GraphQLOptions = {
   signal?: AbortSignal;
@@ -90,25 +90,7 @@ const notifyGraphQLError = (error: AppError, options: GraphQLOptions, operationN
 };
 
 export const resolveRequestLocale = () => {
-  if (globalThis.window === undefined) {
-    return defaultLocale;
-  }
-
-  try {
-    const persistedLocale = globalThis.localStorage.getItem('i18nextLng')?.trim().toLowerCase();
-    if (persistedLocale) {
-      return persistedLocale;
-    }
-  } catch {
-    // Ignore localStorage access errors.
-  }
-
-  const htmlLang = globalThis.document?.documentElement?.lang?.trim().toLowerCase() ?? '';
-  if (htmlLang) {
-    return htmlLang;
-  }
-
-  return defaultLocale;
+  return resolveDocumentLocale();
 };
 
 const getClient = (endpoint: string) => {

@@ -55,6 +55,7 @@ import {
   withAdminLocalePath,
 } from '@/lib/adminRoutes';
 import { defaultLocale } from '@/i18n/settings';
+import { useLocale } from '@/i18n/useLocale';
 import type { PostCategoryRef } from '@/types/posts';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -72,17 +73,15 @@ export default function AdminContentManagementPanel({
   const router = useRouter();
 
   const params = useParams<{
-    locale?: string | string[];
     postLocale?: string | string[];
     postId?: string | string[];
   }>();
-  const routeLocale =
-    (Array.isArray(params.locale) ? params.locale[0] : params.locale)?.trim().toLowerCase() || defaultLocale;
+  const routeLocale = useLocale();
   const routePostLocale = (Array.isArray(params.postLocale) ? params.postLocale[0] : params.postLocale)
     ?.trim()
     .toLowerCase();
   const routePostID = (Array.isArray(params.postId) ? params.postId[0] : params.postId)?.trim();
-  const currentDatePickerLocale = getDatePickerLocale(params?.locale);
+  const currentDatePickerLocale = getDatePickerLocale(routeLocale);
   const datePickerLocaleConfig = currentDatePickerLocale === 'tr' ? tr : enUS;
   const isPostDetailRoute = Boolean(routePostLocale && routePostID);
   const {

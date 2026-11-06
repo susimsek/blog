@@ -50,7 +50,7 @@ describe('AdminEmailChangePage', () => {
 
     expect(screen.getByRole('link', { name: /adminEmailChange.actions.backToLogin/i })).toHaveAttribute(
       'href',
-      '/en/admin/login',
+      '/admin/login',
     );
   });
 

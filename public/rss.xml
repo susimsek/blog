@@ -3,7 +3,7 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title><![CDATA[Şuayb's Blog]]></title>
-    <link>https://suaybsimsek.com/en</link>
+    <link>https://suaybsimsek.com</link>
     <description><![CDATA[Explore the latest articles, tutorials, and insights.]]></description>
     <docs>https://www.rssboard.org/rss-specification</docs>
     <generator><![CDATA[Şuayb's Blog RSS Generator]]></generator>
@@ -16,17 +16,16 @@
     <image>
       <url>https://suaybsimsek.com/images/logo.webp</url>
       <title><![CDATA[Şuayb's Blog]]></title>
-      <link>https://suaybsimsek.com/en</link>
+      <link>https://suaybsimsek.com</link>
     </image>
-    <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
-    <atom:link rel="alternate" hreflang="tr" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
+    <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/rss.xml" />
     <item>
       <title><![CDATA[Spring Boot gRPC]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-grpc</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-grpc</link>
       <description><![CDATA[Learn how to build a secured gRPC API with Spring Boot using protobuf contracts, JWT authentication, validation, JPA, and in-process testing.]]></description>
       <pubDate>Tue, 04 Aug 2026 00:00:00 GMT</pubDate>
       <atom:updated>2026-08-04T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-grpc</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-grpc</guid>
       <content:encoded><![CDATA[<p>Spring Boot's gRPC support lets you expose protobuf-defined services without writing the server bootstrap plumbing yourself. This walkthrough follows the Java and Kotlin implementations in the <a href="https://github.com/susimsek/spring-grpc-samples">spring-grpc-samples</a> repository.</p>
 <p>The repository's Todo service uses Spring gRPC, Spring Security, Protovalidate, JPA, and Liquibase, with localized error handling and integration tests.</p>
 <hr>
@@ -3644,11 +3643,11 @@ grpcurl -plaintext \
     </item>
     <item>
       <title><![CDATA[Captain Tsubasa 2: World Fighters]]></title>
-      <link>https://suaybsimsek.com/en/posts/captain-tsubasa-2-world-fighters</link>
+      <link>https://suaybsimsek.com/posts/captain-tsubasa-2-world-fighters</link>
       <description><![CDATA[A detailed breakdown of Captain Tsubasa 2: World Fighters from Bandai Namco’s official page and community tracking, covering platforms, gameplay scale, known details, and open questions before launch.]]></description>
       <pubDate>Fri, 27 Feb 2026 00:00:00 GMT</pubDate>
       <atom:updated>2026-02-28T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/captain-tsubasa-2-world-fighters</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/captain-tsubasa-2-world-fighters</guid>
       <content:encoded><![CDATA[<p>A new major Captain Tsubasa game is on the way, and the first official reveal already points to a much bigger scope than many fans expected. <code>Captain Tsubasa 2: World Fighters</code> is being presented as a high-energy arcade soccer experience with a strong anime identity and a large playable roster.</p>
 <p>In this article, I separate confirmed details from early assumptions, using the official Bandai Namco page as the primary source and the community wiki as a secondary tracking reference.</p>
 <hr>
@@ -3804,11 +3803,11 @@ grpcurl -plaintext \
     </item>
     <item>
       <title><![CDATA[Captain Tsubasa: Rise of New Champions]]></title>
-      <link>https://suaybsimsek.com/en/posts/captain-tsubasa-rise-of-new-champions</link>
+      <link>https://suaybsimsek.com/posts/captain-tsubasa-rise-of-new-champions</link>
       <description><![CDATA[Before World Fighters arrives, Rise of New Champions remains the clearest snapshot of Captain Tsubasa’s modern console identity: fast, theatrical, and built around pure anime football spectacle.]]></description>
       <pubDate>Thu, 26 Feb 2026 00:00:00 GMT</pubDate>
       <atom:updated>2026-02-27T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/captain-tsubasa-rise-of-new-champions</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/captain-tsubasa-rise-of-new-champions</guid>
       <content:encoded><![CDATA[<p>Before <code>Captain Tsubasa 2: World Fighters</code> arrives, <code>Captain Tsubasa: Rise of New Champions</code> remains the modern reference point for what a big-budget Captain Tsubasa console game looks like. It is still the clearest example of how Bandai Namco and Tamsoft translated the series into fast, spectacle-first arcade football.</p>
 <p>This article looks at the game from a current editorial angle: what was officially confirmed at launch, what the edition and DLC structure tells us, and why the game still matters if you are revisiting the series today.</p>
 <hr>
@@ -3975,11 +3974,11 @@ grpcurl -plaintext \
     </item>
     <item>
       <title><![CDATA[Spring Boot Configuration Properties]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-configuration-properties</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-configuration-properties</link>
       <description><![CDATA[Learn how to use @ConfigurationProperties for type-safe configuration, validate settings with @Validated, and manage environment-specific values with profile-specific application-{profile}.yml files.]]></description>
       <pubDate>Wed, 04 Feb 2026 00:00:00 GMT</pubDate>
       <atom:updated>2026-02-17T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-configuration-properties</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-configuration-properties</guid>
       <content:encoded><![CDATA[<p>If you’ve ever ended up with a dozen <code>@Value</code> annotations and no idea which settings are required, <code>@ConfigurationProperties</code> is the Spring Boot way to make configuration type-safe, structured, and validatable.</p>
 <p>In this post, you’ll learn:</p>
 <ul>
@@ -4205,11 +4204,11 @@ app:
     </item>
     <item>
       <title><![CDATA[Spring Boot GraphQL JWE Authentication]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-graphql-jwe-authentication</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-graphql-jwe-authentication</link>
       <description><![CDATA[Learn how to secure your Spring Boot GraphQL APIs with stateless encrypted JWTs (JWE) while persisting user identities and roles in a JPA-backed database.]]></description>
       <pubDate>Sat, 17 May 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-05-18T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-graphql-jwe-authentication</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-graphql-jwe-authentication</guid>
       <content:encoded><![CDATA[<p>Spring Boot GraphQL JWE Authentication combines the flexibility of GraphQL with stateless encrypted JWTs (JWE) and a JPA-backed user store to deliver a secure, scalable API.</p>
 <hr>
 <h2>🌟 Why Use GraphQL + JWE Authentication?</h2>
@@ -7733,11 +7732,11 @@ gradle bootRun
     </item>
     <item>
       <title><![CDATA[Spring Boot JWE Authentication with JPA]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-jwe-authentication-with-jpa</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-jwe-authentication-with-jpa</link>
       <description><![CDATA[Learn how to use stateless encrypted JWTs (JWE) to secure your Spring Boot APIs while persisting user identities and roles in a JPA-backed database.]]></description>
       <pubDate>Sun, 11 May 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-05-12T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-jwe-authentication-with-jpa</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-jwe-authentication-with-jpa</guid>
       <content:encoded><![CDATA[<p>Spring Boot lets you use stateless encrypted JWTs (JWE) to secure your APIs, while persisting user identities and roles in a JPA-backed database.</p>
 <hr>
 <h2>🌟 Why Use JWE + JPA Authentication?</h2>
@@ -10138,11 +10137,11 @@ gradle bootRun
     </item>
     <item>
       <title><![CDATA[Spring Boot LDAP and JWE Authentication]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-ldap-jwe-authentication</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-ldap-jwe-authentication</link>
       <description><![CDATA[Learn how to use LDAP authentication with JWE-encrypted JWTs to secure your Spring Boot APIs with both external directory integration and token confidentiality.]]></description>
       <pubDate>Sat, 10 May 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-05-11T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-ldap-jwe-authentication</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-ldap-jwe-authentication</guid>
       <content:encoded><![CDATA[<p>Spring Boot lets you combine LDAP authentication with JWE-encrypted JWTs to secure your Spring Boot APIs with both external directory integration and token confidentiality.</p>
 <hr>
 <h2>🌟 Why Combine LDAP &#x26; JWE?</h2>
@@ -11644,11 +11643,11 @@ gradle bootRun
     </item>
     <item>
       <title><![CDATA[Spring Boot JWE Authentication]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-jwe-authentication</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-jwe-authentication</link>
       <description><![CDATA[Learn how to use JWE to encrypt your JWTs and secure your Spring Boot APIs for confidentiality and integrity.]]></description>
       <pubDate>Sat, 03 May 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-05-04T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-jwe-authentication</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-jwe-authentication</guid>
       <content:encoded><![CDATA[<p>Spring Boot lets you combine JWS signing with JWE encryption to protect both the integrity and confidentiality of your JWTs in Spring-powered microservices.</p>
 <hr>
 <h2>🌟 Why Use JWE Authentication?</h2>
@@ -13118,11 +13117,11 @@ gradle bootRun
     </item>
     <item>
       <title><![CDATA[Spring Boot HTTP Interface Client]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-http-interface-client</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-http-interface-client</link>
       <description><![CDATA[Learn how to use Spring Boot 3.2+ HTTP Interface Client for declarative, type-safe HTTP calls.]]></description>
       <pubDate>Sun, 27 Apr 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-04-28T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-http-interface-client</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-http-interface-client</guid>
       <content:encoded><![CDATA[<p>Spring Boot 3.2+ introduces the HTTP Interface Client, enabling you to define declarative, type-safe HTTP clients with simple Java or Kotlin interfaces. In this article, you’ll learn to set it up from scratch using the JSONPlaceholder API.</p>
 <hr>
 <h2>🌟 Why HTTP Interface Client?</h2>
@@ -13390,11 +13389,11 @@ curl http://localhost:8080/posts/1
     </item>
     <item>
       <title><![CDATA[Spring Boot Async Tasks with Virtual Thread]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-async-tasks-virtual</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-async-tasks-virtual</link>
       <description><![CDATA[Learn how to run asynchronous tasks with `@Async` on JDK 21 virtual threads in Spring Boot.]]></description>
       <pubDate>Sat, 26 Apr 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-04-27T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-async-tasks-virtual</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-async-tasks-virtual</guid>
       <content:encoded><![CDATA[<p>Spring Boot 3.2+ lets you combine the simplicity of <code>@Async</code> with JDK 21 virtual threads for ultra-lightweight concurrency. Offload work to isolated virtual threads without complex pool configs.</p>
 <hr>
 <h2>🌟 Why Use Virtual Thread in Spring Boot?</h2>
@@ -13624,11 +13623,11 @@ gradle bootRun
     </item>
     <item>
       <title><![CDATA[Spring Boot AI Integration]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-ai</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-ai</link>
       <description><![CDATA[Learn how to integrate AI models into Spring Boot applications using Spring AI for modular, portable, and observable AI workflows.]]></description>
       <pubDate>Wed, 23 Apr 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-04-24T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-ai</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-ai</guid>
       <content:encoded><![CDATA[<p>Spring AI is a framework for AI engineering that applies Spring’s portability and modular design principles to AI workloads. It lets you build AI-driven applications using familiar Spring idioms and POJOs.</p>
 <hr>
 <h2>🌟 Why Use Spring AI?</h2>
@@ -13805,11 +13804,11 @@ gradle bootRun
     </item>
     <item>
       <title><![CDATA[Spring Boot JPA Auditing]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-jpa-auditing</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-jpa-auditing</link>
       <description><![CDATA[Learn how to automatically track created and modified fields in your Spring Boot applications using JPA Auditing.]]></description>
       <pubDate>Thu, 10 Apr 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-04-11T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-jpa-auditing</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-jpa-auditing</guid>
       <content:encoded><![CDATA[<p>JPA Auditing in Spring Boot allows you to automatically track who created or modified an entity and when. This is extremely useful for audit logs, history tracking, and debugging.</p>
 <hr>
 <h2>🌟 Why Use JPA Auditing?</h2>
@@ -14010,11 +14009,11 @@ class ArticleRepositoryTest {
     </item>
     <item>
       <title><![CDATA[Spring Boot Test-Driven Development]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-tdd</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-tdd</link>
       <description><![CDATA[Learn how to apply TDD in Spring Boot by writing unit tests first, implementing logic, and ensuring code quality through testing.]]></description>
       <pubDate>Wed, 09 Apr 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-04-10T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-tdd</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-tdd</guid>
       <content:encoded><![CDATA[<p>Test-Driven Development (TDD) helps you build robust applications by writing tests before implementing business logic. With Spring Boot, writing unit tests is fast, clean, and efficient.</p>
 <hr>
 <h2>🌟 Why Use TDD in Spring Boot?</h2>
@@ -14131,11 +14130,11 @@ class GreetingService {
     </item>
     <item>
       <title><![CDATA[Spring Boot Circuit Breaker]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-circuit-breaker</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-circuit-breaker</link>
       <description><![CDATA[Learn how to implement Circuit Breaker in Spring Boot applications for resilient microservices.]]></description>
       <pubDate>Thu, 13 Mar 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-03-14T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-circuit-breaker</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-circuit-breaker</guid>
       <content:encoded><![CDATA[<p>Spring Boot Circuit Breaker is a fault-tolerance mechanism used to prevent cascading failures in a microservices architecture. It helps applications handle failures gracefully by detecting failures and stopping excessive requests to unhealthy services. This guide will walk you through implementing Circuit Breaker using Resilience4j in Spring Boot.</p>
 <hr>
 <h2>🌟 Why Use Circuit Breaker?</h2>
@@ -14300,11 +14299,11 @@ class CircuitBreakerController(private val externalService: ExternalService) {
     </item>
     <item>
       <title><![CDATA[Spring Boot Eureka Server]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-eureka-server</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-eureka-server</link>
       <description><![CDATA[Learn how to set up and configure a Spring Boot Eureka Server for service discovery in microservices architecture.]]></description>
       <pubDate>Sun, 23 Feb 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-02-24T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-eureka-server</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-eureka-server</guid>
       <content:encoded><![CDATA[<p>Spring Boot Eureka Server is a service registry that enables service discovery in a microservices architecture. It allows microservices to register themselves and discover other services dynamically. This guide will walk you through setting up and configuring a Spring Boot Eureka Server.</p>
 <hr>
 <h2>🌟 Why Use Eureka Server?</h2>
@@ -14494,11 +14493,11 @@ fun main(args: Array&#x3C;String>) {
     </item>
     <item>
       <title><![CDATA[Spring Boot Config Server]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-config-server</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-config-server</link>
       <description><![CDATA[Learn how to use Spring Boot Config Server to centralize and manage application configurations efficiently.]]></description>
       <pubDate>Sat, 22 Feb 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-02-23T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-config-server</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-config-server</guid>
       <content:encoded><![CDATA[<p>Spring Boot Config Server enables centralized configuration management for distributed applications, allowing dynamic configuration updates without requiring service restarts. This guide covers how to set up and use Spring Boot Config Server efficiently.</p>
 <hr>
 <h2>🌟 Why Use Config Server?</h2>
@@ -14721,11 +14720,11 @@ fun main(args: Array&#x3C;String>) {
     </item>
     <item>
       <title><![CDATA[Spring Boot Docker Integration]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-docker</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-docker</link>
       <description><![CDATA[Learn how to build and deploy Spring Boot applications using Docker with Buildpacks and Jib for efficient containerization.]]></description>
       <pubDate>Fri, 21 Feb 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-02-22T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-docker</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-docker</guid>
       <content:encoded><![CDATA[<p>Spring Boot provides multiple ways to containerize applications efficiently using Docker, Buildpacks, and Jib. This guide explores different approaches to building and deploying Spring Boot applications with Docker.</p>
 <hr>
 <h2>🌟 Why Use Docker for Spring Boot?</h2>
@@ -14889,11 +14888,11 @@ fun main(args: Array&#x3C;String>) {
     </item>
     <item>
       <title><![CDATA[Spring Boot Kubernetes Integration]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-kubernetes</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-kubernetes</link>
       <description><![CDATA[Learn how to deploy Spring Boot applications on Kubernetes for scalable, containerized microservices.]]></description>
       <pubDate>Fri, 21 Feb 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-02-22T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-kubernetes</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-kubernetes</guid>
       <content:encoded><![CDATA[<p>Spring Boot seamlessly integrates with Kubernetes to provide scalable, containerized applications. This guide explores how to deploy and manage Spring Boot applications in a Kubernetes cluster.</p>
 <hr>
 <h2>🌟 Why Use Kubernetes for Spring Boot?</h2>
@@ -15046,11 +15045,11 @@ kubectl apply -f service.yaml
     </item>
     <item>
       <title><![CDATA[Spring Boot Async Tasks]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-async-tasks</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-async-tasks</link>
       <description><![CDATA[Learn how to use @Async in Spring Boot to execute tasks asynchronously without blocking the main thread.]]></description>
       <pubDate>Thu, 20 Feb 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-02-21T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-async-tasks</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-async-tasks</guid>
       <content:encoded><![CDATA[<p>Spring Boot provides an easy way to run asynchronous tasks using the <code>@Async</code> annotation. This is useful for executing tasks in the background, improving performance, and avoiding blocking the main thread.</p>
 <hr>
 <h2>🌟 Why Use @Async in Spring Boot?</h2>
@@ -15220,11 +15219,11 @@ class AsyncController(
     </item>
     <item>
       <title><![CDATA[Spring Boot Scheduled Tasks]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-scheduled-tasks</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-scheduled-tasks</link>
       <description><![CDATA[Learn how to use @Scheduled in Spring Boot to run background tasks at fixed intervals or cron expressions.]]></description>
       <pubDate>Thu, 20 Feb 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-02-21T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-scheduled-tasks</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-scheduled-tasks</guid>
       <content:encoded><![CDATA[<p>Spring Boot allows developers to easily schedule and execute background tasks using the <code>@Scheduled</code> annotation. This is useful for running periodic jobs, automation tasks, and batch processing without manual intervention.</p>
 <hr>
 <h2>🌟 Why Use @Scheduled in Spring Boot?</h2>
@@ -15356,11 +15355,11 @@ Scheduled task executed at: 12:00:11
     </item>
     <item>
       <title><![CDATA[Spring Boot Reactive Programming]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-reactive-programming</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-reactive-programming</link>
       <description><![CDATA[Learn how to build reactive applications using Spring Boot with Project Reactor and WebFlux for high-performance asynchronous processing.]]></description>
       <pubDate>Wed, 19 Feb 2025 00:00:00 GMT</pubDate>
       <atom:updated>2025-02-20T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-reactive-programming</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-reactive-programming</guid>
       <content:encoded><![CDATA[<p>Spring Boot with Reactive Programming enables developers to build non-blocking, event-driven applications that scale efficiently. By leveraging Spring WebFlux and Project Reactor, developers can handle large amounts of concurrent requests with minimal resource consumption, making it ideal for microservices and real-time applications.</p>
 <hr>
 <h2>🌟 Why Use Reactive Programming?</h2>
@@ -15484,11 +15483,11 @@ Flux
     </item>
     <item>
       <title><![CDATA[Spring Boot GraalVM Native Application]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-graalvm</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-graalvm</link>
       <description><![CDATA[Learn how to build and deploy a Spring Boot application as a GraalVM native image for improved startup time and reduced resource usage.]]></description>
       <pubDate>Sat, 28 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-29T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-graalvm</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-graalvm</guid>
       <content:encoded><![CDATA[<p>Spring Boot with GraalVM Native enables developers to create applications that offer lightning-fast startup times, reduced memory consumption, and enhanced security. With native image support, your Spring Boot applications can efficiently run in resource-constrained environments, making them ideal for modern cloud-native architectures.</p>
 <hr>
 <h2>🌟 Why Build a Native Application with GraalVM?</h2>
@@ -15621,11 +15620,11 @@ Run the following command:</p>
     </item>
     <item>
       <title><![CDATA[Spring Boot Kafka Integration]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-kafka</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-kafka</link>
       <description><![CDATA[Learn how to integrate Apache Kafka with Spring Boot to send and consume JSON messages through Kafka topics.]]></description>
       <pubDate>Wed, 25 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-26T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-kafka</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-kafka</guid>
       <content:encoded><![CDATA[<p>Apache Kafka is a distributed event streaming platform that facilitates real-time data processing. This guide demonstrates how to send and consume JSON messages in a Spring Boot application using Kafka.</p>
 <hr>
 <h2>🌟 Why Use Kafka?</h2>
@@ -15840,11 +15839,11 @@ class KafkaController(private val kafkaProducer: KafkaProducer) {
     </item>
     <item>
       <title><![CDATA[Spring Boot Redis Caching]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-redis-caching</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-redis-caching</link>
       <description><![CDATA[Learn how to implement Redis caching in your Spring Boot application to improve performance and efficiency.]]></description>
       <pubDate>Sun, 22 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-23T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-redis-caching</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-redis-caching</guid>
       <content:encoded><![CDATA[<p>Redis is a powerful in-memory data store often used for caching, messaging, and real-time data management. This guide explains how to integrate Redis into a Spring Boot application using both Java and Kotlin.</p>
 <hr>
 <h2>🌟 Why Use Redis?</h2>
@@ -16040,11 +16039,11 @@ class UserController(
     </item>
     <item>
       <title><![CDATA[Spring Boot with OpenAPI]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-openapi</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-openapi</link>
       <description><![CDATA[Learn how to integrate OpenAPI into your Spring Boot application for API documentation and testing using SpringDoc.]]></description>
       <pubDate>Fri, 20 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-21T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-openapi</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-openapi</guid>
       <content:encoded><![CDATA[<p>OpenAPI simplifies API documentation and testing by providing an interactive interface and machine-readable documentation. This guide will show you how to integrate OpenAPI into your Spring Boot application using SpringDoc.</p>
 <hr>
 <h2>🌟 Why Use OpenAPI?</h2>
@@ -16206,11 +16205,11 @@ data class User(
     </item>
     <item>
       <title><![CDATA[Clean Coding Practices in Spring Boot]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-clean-coding</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-clean-coding</link>
       <description><![CDATA[Learn how to apply clean coding principles in Spring Boot projects. Includes best practices, examples, and benefits of using Lombok in Java and Kotlin clean code techniques.]]></description>
       <pubDate>Thu, 19 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-20T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-clean-coding</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-clean-coding</guid>
       <content:encoded><![CDATA[<p>Clean coding practices ensure that your Spring Boot applications are maintainable, readable, and scalable. This guide provides essential tips and code examples to help you write cleaner and more efficient code in both Java and Kotlin.</p>
 <hr>
 <h2>🌟 Why Focus on Clean Coding?</h2>
@@ -16451,11 +16450,11 @@ class UserController(
     </item>
     <item>
       <title><![CDATA[Spring Boot DevTools]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-devtools</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-devtools</link>
       <description><![CDATA[Learn how to utilize Spring Boot DevTools for rapid development. Includes live reload, caching, and debugging tips.]]></description>
       <pubDate>Thu, 19 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-20T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-devtools</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-devtools</guid>
       <content:encoded><![CDATA[<p>Spring Boot DevTools is a must-have tool for developers looking to speed up their development process. This guide will walk you through the features and setup of DevTools, including live reload, caching, and debugging enhancements.</p>
 <hr>
 <h2>🌟 Why Use Spring Boot DevTools?</h2>
@@ -16542,11 +16541,11 @@ spring.freemarker.cache=false
     </item>
     <item>
       <title><![CDATA[Spring Boot Actuator]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-actuator</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-actuator</link>
       <description><![CDATA[Learn how to use Spring Boot Actuator to monitor and manage your applications with ease. Includes endpoints, customization, and security examples.]]></description>
       <pubDate>Wed, 18 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-19T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-actuator</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-actuator</guid>
       <content:encoded><![CDATA[<p>Spring Boot Actuator provides production-ready features to monitor and manage your applications. This guide explores Actuator's capabilities, how to enable it, and secure its endpoints.</p>
 <hr>
 <h2>🌟 Why Use Spring Boot Actuator?</h2>
@@ -16689,11 +16688,11 @@ class SecurityConfig {
     </item>
     <item>
       <title><![CDATA[Aspect-Oriented Programming in Spring Boot]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-aop</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-aop</link>
       <description><![CDATA[Learn how to implement Aspect-Oriented Programming (AOP) in Spring Boot using Java and Kotlin. Covers core concepts, use cases, and practical examples.]]></description>
       <pubDate>Wed, 18 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-19T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-aop</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-aop</guid>
       <content:encoded><![CDATA[<p>Aspect-Oriented Programming (AOP) provides a way to modularize cross-cutting concerns, such as logging, transaction management, and security. This guide demonstrates how to implement AOP in Spring Boot with examples in Java and Kotlin.</p>
 <hr>
 <h2>🌟 Why Use AOP?</h2>
@@ -16890,11 +16889,11 @@ Run the application with either stack to confirm the baseline setup is working b
     </item>
     <item>
       <title><![CDATA[Dependency Injection in Spring Boot]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-di</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-di</link>
       <description><![CDATA[Learn how Dependency Injection (DI) works in Spring Boot, including examples in Java and Kotlin. Covers key concepts, annotations, and practical use cases.]]></description>
       <pubDate>Wed, 18 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-19T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-di</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-di</guid>
       <content:encoded><![CDATA[<p>Dependency Injection (DI) is a fundamental concept in Spring Boot that helps achieve loose coupling and increased testability. This guide demonstrates how to use DI in Spring Boot with practical examples in Java and Kotlin.</p>
 <hr>
 <h2>🌟 Why Use Dependency Injection?</h2>
@@ -17048,11 +17047,11 @@ Run the application with either stack to confirm the baseline setup is working b
     </item>
     <item>
       <title><![CDATA[Object-Relational Mapping]]></title>
-      <link>https://suaybsimsek.com/en/posts/object-relational-mapping</link>
+      <link>https://suaybsimsek.com/posts/object-relational-mapping</link>
       <description><![CDATA[Learn how to set up an ORM-based application with Spring Boot using Java, Kotlin, and Go (Gin). Includes PostgreSQL integration and basic CRUD operations.]]></description>
       <pubDate>Mon, 16 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-17T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/object-relational-mapping</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/object-relational-mapping</guid>
       <content:encoded><![CDATA[<p>Object-Relational Mapping (ORM) simplifies database operations in modern applications. This guide will show you how to set up ORM with PostgreSQL using Spring Boot and the Gin framework.</p>
 <hr>
 <h2>🌟 Why Use ORM?</h2>
@@ -17326,11 +17325,11 @@ func main() {
     </item>
     <item>
       <title><![CDATA[Input Validation in REST APIs]]></title>
-      <link>https://suaybsimsek.com/en/posts/rest-api-input-validation</link>
+      <link>https://suaybsimsek.com/posts/rest-api-input-validation</link>
       <description><![CDATA[Learn how to implement input validation in REST APIs using Java, Kotlin, and Go with frameworks like Spring Boot and Gin. Covers annotations, custom validators, and error handling.]]></description>
       <pubDate>Sun, 15 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-16T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/rest-api-input-validation</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/rest-api-input-validation</guid>
       <content:encoded><![CDATA[<p>Input validation is crucial for building secure and robust REST APIs. In this article, we will explore how to implement input validation in Spring Boot using Java, Kotlin, and Go (with Gin).</p>
 <hr>
 <h2>🌟 Why Validate Input?</h2>
@@ -17608,11 +17607,11 @@ Run the Spring Boot application from your IDE or terminal:</p>
     </item>
     <item>
       <title><![CDATA[Building APIs with Spring for GraphQL]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-graphql</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-graphql</link>
       <description><![CDATA[Learn how to build GraphQL APIs using Spring for GraphQL with Java and Kotlin. Includes schema creation, query handling, and integration.]]></description>
       <pubDate>Sun, 15 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-16T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-graphql</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-graphql</guid>
       <content:encoded><![CDATA[<p>Spring for GraphQL simplifies the development of GraphQL APIs by integrating with Spring Boot. This guide demonstrates how to create a GraphQL API using Java and Kotlin, with examples for schema definition, query handling, and dependency injection.</p>
 <hr>
 <h2>🌟 Why Use GraphQL?</h2>
@@ -17825,11 +17824,11 @@ Run the application with either stack to confirm the baseline setup is working b
     </item>
     <item>
       <title><![CDATA[Gin - First Application]]></title>
-      <link>https://suaybsimsek.com/en/posts/golang-gin-first-application</link>
+      <link>https://suaybsimsek.com/posts/golang-gin-first-application</link>
       <description><![CDATA[A beginner-friendly guide to creating your first Golang Gin application from scratch. Learn the basics and start your journey with Gin.]]></description>
       <pubDate>Sat, 14 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-15T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/golang-gin-first-application</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/golang-gin-first-application</guid>
       <content:encoded><![CDATA[<p>Gin simplifies the process of building high-performance web applications with Golang. In this guide, we’ll walk through creating your first Gin application step by step.</p>
 <hr>
 <h2>🌟 What you'll learn</h2>
@@ -17913,11 +17912,11 @@ func main() {
     </item>
     <item>
       <title><![CDATA[Building a REST API with Spring Boot]]></title>
-      <link>https://suaybsimsek.com/en/posts/building-a-rest-api-with-spring-boot</link>
+      <link>https://suaybsimsek.com/posts/building-a-rest-api-with-spring-boot</link>
       <description><![CDATA[Learn how to create a REST API using Spring Boot. Includes HTTP methods, JSON handling, Lombok integration, and curl for testing.]]></description>
       <pubDate>Wed, 11 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-12T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/building-a-rest-api-with-spring-boot</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/building-a-rest-api-with-spring-boot</guid>
       <content:encoded><![CDATA[<p>Spring Boot is an excellent tool for quickly developing RESTful web services. In this article, we’ll walk through creating a REST API step by step using Spring Boot.</p>
 <hr>
 <h2>🌟 What is a REST API?</h2>
@@ -18116,11 +18115,11 @@ class TodoController {
     </item>
     <item>
       <title><![CDATA[Spring Boot - First Application]]></title>
-      <link>https://suaybsimsek.com/en/posts/spring-boot-first-application</link>
+      <link>https://suaybsimsek.com/posts/spring-boot-first-application</link>
       <description><![CDATA[A beginner-friendly guide to creating your first Spring Boot application from scratch. Learn the basics and start your journey with Spring Boot.]]></description>
       <pubDate>Tue, 10 Dec 2024 00:00:00 GMT</pubDate>
       <atom:updated>2024-12-11T00:00:00.000Z</atom:updated>
-      <guid isPermaLink="true">https://suaybsimsek.com/en/posts/spring-boot-first-application</guid>
+      <guid isPermaLink="true">https://suaybsimsek.com/posts/spring-boot-first-application</guid>
       <content:encoded><![CDATA[<p>Spring Boot simplifies the process of building production-ready applications with the Spring Framework. In this guide, we’ll walk through creating your first Spring Boot application step by step.</p>
 <hr>
 <h2>🌟 What you'll learn</h2>

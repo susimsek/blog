@@ -68,9 +68,13 @@ describe('App Route /[locale]/games/stroop-test', () => {
     expect(getAllTopicsMock).toHaveBeenCalledWith('tr');
     expect(loadLocaleResourcesMock).toHaveBeenCalledWith('tr', ['games']);
     expect(stroopPageMock).toHaveBeenCalledWith({
-      layoutPosts: [{ id: 'post-1' }],
-      topics: [{ id: 'topic-1' }],
-      preFooterTopTopics: [{ id: 'topic-1' }],
+      contentByLocale: expect.objectContaining({
+        tr: {
+          layoutPosts: [{ id: 'post-1' }],
+          topics: [{ id: 'topic-1' }],
+          preFooterTopTopics: [{ id: 'topic-1' }],
+        },
+      }),
     });
     expect(screen.getByTestId('stroop-page')).toBeInTheDocument();
   });

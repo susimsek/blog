@@ -3,8 +3,7 @@ import type { PostSummary } from '@/types/posts';
 import Link from '@/components/common/Link';
 import DateDisplay from '@/components/common/DateDisplay';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'next/navigation';
-import i18nextConfig from '@/i18n/settings';
+import { useLocale } from '@/i18n/useLocale';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -34,9 +33,7 @@ export const resolveThumbnailSrc = (value: string, prefix: string) => {
 
 export default function RelatedPosts({ posts }: Readonly<RelatedPostsProps>) {
   const { t } = useTranslation(['post', 'common']);
-  const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
-  const currentLocale = routeLocale || i18nextConfig.i18n.defaultLocale;
+  const currentLocale = useLocale();
 
   if (posts.length === 0) {
     return null;
@@ -48,11 +45,7 @@ export default function RelatedPosts({ posts }: Readonly<RelatedPostsProps>) {
       <Row className="g-3">
         {posts.map(post => (
           <Col key={post.id} xs={12} md={6} lg={4}>
-            <Link
-              href={`/${currentLocale}/posts/${post.id}`}
-              skipLocaleHandling
-              className="text-decoration-none d-block h-100"
-            >
+            <Link href={`/posts/${post.id}`} className="text-decoration-none d-block h-100">
               <div className="post-card flex-column align-items-stretch h-100 related-post-card">
                 {post.thumbnail && (
                   <div className="related-post-thumb">

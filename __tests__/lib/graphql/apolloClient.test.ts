@@ -1,3 +1,5 @@
+/** @jest-environment node */
+
 export {};
 
 const queryMock = jest.fn();
@@ -94,6 +96,8 @@ describe('apolloClient', () => {
     delete process.env.NEXT_PUBLIC_DEV_API_ORIGIN;
     global.fetch = jest.fn() as unknown as typeof fetch;
     delete (globalThis as { window?: unknown }).window;
+    delete (globalThis as { document?: unknown }).document;
+    delete (globalThis as { localStorage?: unknown }).localStorage;
     unknownAppErrorMock.mockImplementation(
       (error: unknown, message: string) => new MockAppError(message, 'UNKNOWN_ERROR', undefined, error),
     );
@@ -447,11 +451,15 @@ describe('apolloClient', () => {
     });
   });
 
-  it('falls back to html lang and default locale when persisted locale is unavailable', async () => {
+  it('uses the default locale when no supported locale cookie is present', async () => {
     queryMock.mockResolvedValue({ data: { ok: true } });
 
     const getItem = jest.fn(() => {
       throw new Error('storage blocked');
+    });
+    Object.defineProperty(globalThis, 'document', {
+      configurable: true,
+      value: { documentElement: { lang: 'TR' } },
     });
     const documentRef = globalThis.document as { documentElement?: { lang?: string } } | undefined;
     const originalLang = documentRef?.documentElement?.lang ?? '';

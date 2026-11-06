@@ -1,24 +1,22 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import PostPage from '@/views/PostPage';
-import {
-  getAllPostIds,
-  getAllTopics,
-  getLayoutPosts,
-  getPostData,
-  getSortedPostsData,
-  getTopTopicsFromPosts,
-} from '@/lib/posts';
-import { getAdjacentPosts, getRelatedPosts } from '@/lib/postFilters';
+import { getAllPostIds, getPostData } from '@/lib/posts';
 import { AUTHOR_NAME } from '@/config/constants';
 import { buildNotFoundMetadata, buildPageMetadata } from '@/lib/metadata';
+import { defaultLocale, isSupportedLocale } from '@/i18n/settings';
+import RouteI18nProvider from '@/i18n/RouteI18nProvider';
+import { loadLocaleResources } from '@/i18n/server';
+import { getLocalizedPostPageData } from '@/lib/localizedPageData';
 
 export async function generateStaticParams() {
   const paths = await getAllPostIds();
-  return paths.map(path => ({
-    locale: path.params.locale,
-    id: path.params.id,
-  }));
+  return paths
+    .filter(path => path.params.locale !== defaultLocale)
+    .map(path => ({
+      locale: path.params.locale,
+      id: path.params.id,
+    }));
 }
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/posts/[id]'>): Promise<Metadata> {
@@ -30,6 +28,9 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/posts/[i
   }
 
   const keywords = (post.topics ?? []).map(topic => topic.name);
+  const availableLocales = (await getAllPostIds())
+    .filter(postPath => postPath.params.id === id)
+    .map(postPath => postPath.params.locale);
 
   return buildPageMetadata({
     locale,
@@ -39,6 +40,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/posts/[i
     path: `posts/${id}`,
     image: post.thumbnail ?? undefined,
     type: 'article',
+    availableLocales,
     openGraph: {
       type: 'article',
       publishedTime: post.publishedDate,
@@ -51,27 +53,13 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/posts/[i
 
 export default async function PostRoute({ params }: Readonly<PageProps<'/[locale]/posts/[id]'>>) {
   const { locale, id } = await params;
-
-  const post = await getPostData(id, locale);
-  if (!post) {
-    notFound();
-  }
-
-  const allPosts = await getSortedPostsData(locale);
-  const relatedPosts = getRelatedPosts(post, allPosts, 3);
-  const { previousPost, nextPost } = getAdjacentPosts(post.id, allPosts);
-  const layoutPosts = getLayoutPosts(allPosts);
-  const topics = await getAllTopics(locale);
-  const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
+  const contentByLocale = await getLocalizedPostPageData(id);
+  if (!isSupportedLocale(locale) || !contentByLocale[locale]?.post) notFound();
+  const resources = await loadLocaleResources(locale, ['post']);
 
   return (
-    <PostPage
-      post={post}
-      relatedPosts={relatedPosts}
-      previousPost={previousPost}
-      nextPost={nextPost}
-      layoutPosts={layoutPosts}
-      preFooterTopTopics={preFooterTopTopics}
-    />
+    <RouteI18nProvider locale={locale} resources={resources}>
+      <PostPage contentByLocale={contentByLocale} />
+    </RouteI18nProvider>
   );
 }

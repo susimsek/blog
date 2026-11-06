@@ -213,14 +213,12 @@ export async function getAllPostIds() {
       const ids = await readIdsFromIndexFile(postsJsonPath, `posts index for locale "${locale}"`, {
         source: 'blog',
       });
-      return [...new Set(ids)].map(id => ({
-        params: { id, locale },
-      }));
+      return [...new Set(ids)].map(id => ({ params: { id, locale } }));
     }),
   );
 
   const localeOrder = new Map(localeList.map((locale, index) => [locale, index]));
-  const postIds = localizedIds
+  return localizedIds
     .flat()
     .sort(
       (a, b) =>
@@ -228,51 +226,36 @@ export async function getAllPostIds() {
         (localeOrder.get(a.params.locale) ?? Number.MAX_SAFE_INTEGER) -
           (localeOrder.get(b.params.locale) ?? Number.MAX_SAFE_INTEGER),
     );
-  return postIds;
 }
 
 export async function getAllTopicIds() {
   const localeList = i18nextConfig.i18n.locales;
-  const topicIdSet = new Set<string>();
-
-  await Promise.all(
+  const localizedIds = await Promise.all(
     localeList.map(async locale => {
       const topicsJsonPath = path.join(topicsIndexDirectory, `topics.${locale}.json`);
       const ids = await readIdsFromIndexFile(topicsJsonPath, `topics index for locale "${locale}"`);
-      ids.forEach(id => topicIdSet.add(id));
+      return ids.map(id => ({ params: { id, locale } }));
     }),
   );
 
-  const topicIds = [...topicIdSet]
-    .sort((a, b) => a.localeCompare(b))
-    .flatMap(id =>
-      localeList.map(locale => ({
-        params: { id, locale },
-      })),
-    );
-  return topicIds;
+  return localizedIds
+    .flat()
+    .sort((a, b) => a.params.id.localeCompare(b.params.id) || a.params.locale.localeCompare(b.params.locale));
 }
 
 export async function getAllCategoryIds() {
   const localeList = i18nextConfig.i18n.locales;
-  const categoryIDSet = new Set<string>();
-
-  await Promise.all(
+  const localizedIds = await Promise.all(
     localeList.map(async locale => {
       const categoriesJsonPath = path.join(topicsIndexDirectory, `categories.${locale}.json`);
       const ids = await readIdsFromIndexFile(categoriesJsonPath, `categories index for locale "${locale}"`);
-      ids.forEach(id => categoryIDSet.add(id));
+      return ids.map(id => ({ params: { id, locale } }));
     }),
   );
 
-  const categoryIds = [...categoryIDSet]
-    .sort((a, b) => a.localeCompare(b))
-    .flatMap(id =>
-      localeList.map(locale => ({
-        params: { id, locale },
-      })),
-    );
-  return categoryIds;
+  return localizedIds
+    .flat()
+    .sort((a, b) => a.params.id.localeCompare(b.params.id) || a.params.locale.localeCompare(b.params.locale));
 }
 
 export const toLayoutPostSummary = (post: PostSummary): LayoutPostSummary => ({

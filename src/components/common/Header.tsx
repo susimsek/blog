@@ -362,6 +362,7 @@ export default function Header({
               {!isMobile && (
                 <Link
                   href="/rss.xml"
+                  prefetch={false}
                   className="nav-link nav-icon-boop d-flex align-items-center"
                   onMouseEnter={triggerRssIconBoop}
                   aria-label={t('common.header.actions.openRss')}

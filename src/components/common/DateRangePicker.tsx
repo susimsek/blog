@@ -6,12 +6,12 @@ import Button from 'react-bootstrap/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 import { defaultLocale, isSupportedLocale } from '@/i18n/settings';
-import { useParams } from 'next/navigation';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { enUS } from 'date-fns/locale/en-US';
 import { tr } from 'date-fns/locale/tr';
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from './DateRangePicker.module.scss';
+import { useLocale } from '@/i18n/useLocale';
 
 const DATE_QUERY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -160,8 +160,7 @@ export default function DateRangePicker({
   value,
 }: Readonly<DateRangePickerProps>) {
   const { t } = useTranslation('common');
-  const params = useParams<{ locale?: string | string[] }>();
-  const currentLocale = getDatePickerLocale(params?.locale);
+  const currentLocale = getDatePickerLocale(useLocale());
 
   // Locale Mapping
   const localeMap = { en: enUS, tr };

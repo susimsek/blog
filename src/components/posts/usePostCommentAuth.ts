@@ -2,6 +2,7 @@
 
 import React from 'react';
 import type { TFunction } from 'i18next';
+import { localizePathname } from '@/components/common/Link';
 import {
   beginCommentOAuthLogin,
   fetchCommentAuthSession,
@@ -21,7 +22,7 @@ const DEFAULT_COMMENT_AUTH_SESSION: CommentAuthSession = {
 
 const buildCommentReturnTo = (locale: string) => {
   if (globalThis.window === undefined) {
-    return `/${locale}`;
+    return '/';
   }
 
   const currentURL = new URL(globalThis.window.location.href);
@@ -30,13 +31,15 @@ const buildCommentReturnTo = (locale: string) => {
   const query = currentURL.searchParams.toString();
   const querySuffix = query ? `?${query}` : '';
 
-  return `${currentURL.pathname}${querySuffix}${currentURL.hash}`;
+  const pathname = localizePathname(currentURL.pathname, locale);
+  return `${pathname}${querySuffix}${currentURL.hash}`;
 };
 
-const buildCommentAuthCleanupURL = (searchParams: URLSearchParams) => {
+const buildCommentAuthCleanupURL = (searchParams: URLSearchParams, locale: string) => {
   const nextQuery = searchParams.toString();
   const querySuffix = nextQuery ? `?${nextQuery}` : '';
-  return `${globalThis.window.location.pathname}${querySuffix}${globalThis.window.location.hash}`;
+  const pathname = localizePathname(globalThis.window.location.pathname, locale);
+  return `${pathname}${querySuffix}${globalThis.window.location.hash}`;
 };
 
 const resolveNextComposerAccessMethod = (
@@ -118,7 +121,7 @@ export function usePostCommentAuth({ locale, t, onLoggedOut }: UsePostCommentAut
         if (authStatus || authProvider) {
           searchParams.delete('commentAuth');
           searchParams.delete('commentProvider');
-          const nextURL = buildCommentAuthCleanupURL(searchParams);
+          const nextURL = buildCommentAuthCleanupURL(searchParams, locale);
           globalThis.window.history.replaceState(globalThis.window.history.state, '', nextURL);
         }
       }

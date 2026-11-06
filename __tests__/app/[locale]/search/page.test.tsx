@@ -73,8 +73,9 @@ describe('App Route /[locale]/search', () => {
     expect(getAllTopicsMock).toHaveBeenCalledWith('tr');
     expect(loadLocaleResourcesMock).toHaveBeenCalledWith('tr', ['search']);
     expect(searchPageMock).toHaveBeenCalledWith({
-      posts: [{ id: 'post-1' }],
-      topics: [{ id: 'topic-1' }],
+      contentByLocale: expect.objectContaining({
+        tr: { posts: [{ id: 'post-1' }], topics: [{ id: 'topic-1' }] },
+      }),
     });
     expect(screen.getByTestId('search-page')).toBeInTheDocument();
   });

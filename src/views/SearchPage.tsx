@@ -6,14 +6,15 @@ import type { PostSummary, Topic } from '@/types/posts';
 import Layout from '@/components/common/Layout';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'next/navigation';
+import type { Localized } from '@/i18n/settings';
+import type { SearchPageData } from '@/lib/localizedPageData';
+import { useLocalizedContent } from '@/i18n/useLocalizedContent';
 
-interface SearchPageProps {
-  posts: PostSummary[];
-  topics: Topic[];
-}
+type SearchPageProps = { contentByLocale: Localized<SearchPageData> };
 
-export default function SearchPage({ posts, topics }: Readonly<SearchPageProps>) {
+export default function SearchPage({ contentByLocale }: Readonly<SearchPageProps>) {
   const { t } = useTranslation(['search']);
+  const { posts, topics } = useLocalizedContent(contentByLocale);
   const searchParams = useSearchParams();
   const routeQuery = (searchParams?.get('q') ?? '').trim();
 

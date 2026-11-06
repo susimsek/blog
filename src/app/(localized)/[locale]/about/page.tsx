@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import AboutPage from '@/views/AboutPage';
-import { getAllTopics, getLayoutPosts, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/posts';
 import RouteI18nProvider from '@/i18n/RouteI18nProvider';
 import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';
+import { getLocalizedLayoutPageData } from '@/lib/localizedPageData';
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/about'>): Promise<Metadata> {
   const { locale } = await params;
@@ -20,16 +20,12 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/about'>)
 
 export default async function AboutRoute({ params }: Readonly<PageProps<'/[locale]/about'>>) {
   const { locale } = await params;
-
-  const allPosts = await getSortedPostsData(locale);
-  const topics = await getAllTopics(locale);
-  const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
-  const layoutPosts = getLayoutPosts(allPosts);
+  const contentByLocale = await getLocalizedLayoutPageData();
   const resources = await loadLocaleResources(locale, ['about']);
 
   return (
     <RouteI18nProvider locale={locale} resources={resources}>
-      <AboutPage layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={preFooterTopTopics} />
+      <AboutPage contentByLocale={contentByLocale} />
     </RouteI18nProvider>
   );
 }

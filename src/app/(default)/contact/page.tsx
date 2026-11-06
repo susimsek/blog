@@ -1,10 +1,32 @@
-import { Suspense } from 'react';
-import LocaleRedirect from '@/components/LocaleRedirect';
+import type { Metadata } from 'next';
+import ContactPage from '@/views/ContactPage';
+import RouteI18nProvider from '@/i18n/RouteI18nProvider';
+import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
+import { buildPageMetadata } from '@/lib/metadata';
+import { defaultLocale } from '@/i18n/settings';
+import { getLocalizedLayoutPageData } from '@/lib/localizedPageData';
 
-export default function ContactRedirectPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = defaultLocale;
+  const { t } = await getServerTranslator(locale, ['contact']);
+
+  return buildPageMetadata({
+    locale,
+    title: t('contact.meta.title', { ns: 'contact' }),
+    description: t('contact.meta.description', { ns: 'contact' }),
+    keywords: t('contact.meta.keywords', { ns: 'contact' }),
+    path: 'contact',
+  });
+}
+
+export default async function ContactRoute() {
+  const locale = defaultLocale;
+  const contentByLocale = await getLocalizedLayoutPageData();
+  const resources = await loadLocaleResources(locale, ['contact']);
+
   return (
-    <Suspense fallback={null}>
-      <LocaleRedirect path="/contact" />
-    </Suspense>
+    <RouteI18nProvider locale={locale} resources={resources}>
+      <ContactPage contentByLocale={contentByLocale} />
+    </RouteI18nProvider>
   );
 }

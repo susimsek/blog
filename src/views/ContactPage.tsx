@@ -7,15 +7,15 @@ import Layout from '@/components/common/Layout';
 import ContactInfo from '@/components/common/ContactInfo';
 import type { LayoutPostSummary, Topic } from '@/types/posts';
 import { toAbsoluteSiteUrl } from '@/lib/metadata';
+import type { Localized } from '@/i18n/settings';
+import type { LayoutPageData } from '@/lib/localizedPageData';
+import { useLocalizedContent } from '@/i18n/useLocalizedContent';
 
-type ContactPageProps = {
-  layoutPosts: LayoutPostSummary[];
-  topics: Topic[];
-  preFooterTopTopics: Topic[];
-};
+type ContactPageProps = { contentByLocale: Localized<LayoutPageData> };
 
-export default function ContactPage({ layoutPosts, topics, preFooterTopTopics }: Readonly<ContactPageProps>) {
+export default function ContactPage({ contentByLocale }: Readonly<ContactPageProps>) {
   const { t } = useTranslation(['contact']);
+  const { layoutPosts, topics, preFooterTopTopics } = useLocalizedContent(contentByLocale);
   const siteRootUrl = toAbsoluteSiteUrl('/');
 
   const jsonLdData = {

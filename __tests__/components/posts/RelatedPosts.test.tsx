@@ -85,7 +85,7 @@ describe('RelatedPosts', () => {
     const { container } = render(<RelatedPosts posts={[basePost]} />);
 
     expect(screen.getByRole('region', { name: 'post.relatedPostsTitle' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /First related post/i })).toHaveAttribute('href', '/tr/posts/1');
+    expect(screen.getByRole('link', { name: /First related post/i })).toHaveAttribute('href', '/posts/1');
     expect(screen.getByAltText('First related post')).toHaveAttribute(
       'src',
       expect.stringContaining('/images/post-1.webp'),
@@ -117,7 +117,7 @@ describe('RelatedPosts', () => {
 
     render(<RelatedPosts posts={[noMediaPost]} />);
 
-    expect(screen.getByRole('link', { name: /No media post/i })).toHaveAttribute('href', '/en/posts/2');
+    expect(screen.getByRole('link', { name: /No media post/i })).toHaveAttribute('href', '/posts/2');
     expect(screen.queryByAltText('No media post')).not.toBeInTheDocument();
     expect(screen.queryByText('React')).not.toBeInTheDocument();
   });
@@ -133,7 +133,7 @@ describe('RelatedPosts', () => {
 
     render(<RelatedPosts posts={[absoluteThumbnailPost]} />);
 
-    expect(screen.getByRole('link', { name: /Absolute thumbnail post/i })).toHaveAttribute('href', '/tr/posts/3');
+    expect(screen.getByRole('link', { name: /Absolute thumbnail post/i })).toHaveAttribute('href', '/posts/3');
     expect(screen.getByAltText('Absolute thumbnail post')).toHaveAttribute(
       'src',
       'https://cdn.example.com/post-3.webp',

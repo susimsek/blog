@@ -3,7 +3,7 @@
 [![CI](https://github.com/susimsek/blog/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/susimsek/blog/actions/workflows/ci.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=alert_status)](https://sonarcloud.io/summary/overall?id=blog&branch=main)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=coverage)](https://sonarcloud.io/summary/overall?id=blog&branch=main)
-[![Go](https://img.shields.io/badge/Go-1.24-00ADD8?logo=go)](https://go.dev/)
+[![Go](https://img.shields.io/badge/Go-1.27-00ADD8?logo=go)](https://go.dev/)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -35,15 +35,15 @@ This repository is a multilingual blog platform with a static-exported Next.js f
 
 ## Requirements
 
-- Node.js: `>= 24.18.0`
+- Node.js: `>= 26.13.0`
 - pnpm (recommended via Corepack)
-- Go: `1.24.x`
+- Go: `1.27.x`
 - Optional: Docker / Helm for deployment
 
 ## Tech Stack
 
 - Frontend: Next.js 16, React 19, TypeScript, Redux Toolkit, i18next, Sass, Bootstrap
-- Backend: Go 1.24, gqlgen, MongoDB driver, `net/http`, cookie/JWT auth for admin and reader flows
+- Backend: Go 1.27, gqlgen, MongoDB Go Driver v2, `net/http`, cookie/JWT auth for admin and reader flows
 - Tooling: ESLint, Prettier, Jest + Testing Library, SonarCloud, golangci-lint
 
 ## Project Layout

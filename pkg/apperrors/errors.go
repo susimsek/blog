@@ -80,8 +80,7 @@ func From(err error) *AppError {
 		return nil
 	}
 
-	var appErr *AppError
-	if errors.As(err, &appErr) {
+	if appErr, ok := errors.AsType[*AppError](err); ok {
 		return appErr
 	}
 

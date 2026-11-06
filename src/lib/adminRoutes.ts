@@ -25,7 +25,7 @@ export const ADMIN_ROUTES = {
   },
 } as const;
 
-export const withAdminLocalePath = (locale: string, route: string) => `/${locale}${route}`;
+export const withAdminLocalePath = (_locale: string, route: string) => route;
 
 export type AdminContentPostDetailTabRoute = 'metadata' | 'content' | 'comments';
 

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getServerTranslator } from '@/i18n/server';
-import { locales } from '@/i18n/settings';
+import { defaultLocale, locales } from '@/i18n/settings';
 import { buildPageMetadata } from '@/lib/metadata';
 import { buildAdminContentPostDetailHref, withAdminLocalePath } from '@/lib/adminRoutes';
 import { getAllPostIds } from '@/lib/posts';
@@ -21,27 +21,29 @@ export async function generateStaticParams() {
   const postPaths = await getAllPostIds();
   const seen = new Set<string>();
 
-  return locales.flatMap(locale =>
-    postPaths.flatMap(path => {
-      const postLocale = path.params.locale.trim().toLowerCase();
-      const postId = path.params.id.trim();
+  return locales
+    .filter(locale => locale !== defaultLocale)
+    .flatMap(locale =>
+      postPaths.flatMap(path => {
+        const postLocale = path.params.locale.trim().toLowerCase();
+        const postId = path.params.id.trim();
 
-      return POST_EDITOR_TABS.flatMap(tab => {
-        const key = `${locale}:${postLocale}:${postId}:${tab}`;
-        if (seen.has(key)) {
-          return [];
-        }
+        return POST_EDITOR_TABS.flatMap(tab => {
+          const key = `${locale}:${postLocale}:${postId}:${tab}`;
+          if (seen.has(key)) {
+            return [];
+          }
 
-        seen.add(key);
-        return {
-          locale,
-          postLocale,
-          postId,
-          tab,
-        };
-      });
-    }),
-  );
+          seen.add(key);
+          return {
+            locale,
+            postLocale,
+            postId,
+            tab,
+          };
+        });
+      }),
+    );
 }
 
 export async function generateMetadata({ params }: AdminSettingsContentPostTabPageProps): Promise<Metadata> {

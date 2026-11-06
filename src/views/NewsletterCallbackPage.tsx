@@ -7,16 +7,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Layout from '@/components/common/Layout';
 import Link from '@/components/common/Link';
 import type { LayoutPostSummary, Topic } from '@/types/posts';
+import type { Localized } from '@/i18n/settings';
+import type { LayoutPageData } from '@/lib/localizedPageData';
+import { useLocalizedContent } from '@/i18n/useLocalizedContent';
 import {
   confirmNewsletterSubscription as confirmNewsletterSubscriptionMutation,
   unsubscribeNewsletter as unsubscribeNewsletterMutation,
 } from '@/lib/newsletterApi';
 
 type NewsletterCallbackPageProps = {
-  locale: string;
-  layoutPosts: LayoutPostSummary[];
-  topics: Topic[];
-  preFooterTopTopics: Topic[];
+  contentByLocale: Localized<LayoutPageData>;
 };
 
 type Operation = 'confirm' | 'unsubscribe';
@@ -68,13 +68,9 @@ const resolveStatusKey = (operation: Operation, status: string | null): StatusKe
   return 'failed';
 };
 
-export default function NewsletterCallbackPage({
-  locale,
-  layoutPosts,
-  topics,
-  preFooterTopTopics,
-}: Readonly<NewsletterCallbackPageProps>) {
+export default function NewsletterCallbackPage({ contentByLocale }: Readonly<NewsletterCallbackPageProps>) {
   const { t } = useTranslation('common');
+  const { layoutPosts, topics, preFooterTopTopics } = useLocalizedContent(contentByLocale);
   const searchParams = useSearchParams();
   const [statusKey, setStatusKey] = useState<StatusKey>('loading');
 
@@ -114,7 +110,7 @@ export default function NewsletterCallbackPage({
     return () => {
       controller.abort();
     };
-  }, [locale, operation, token]);
+  }, [operation, token]);
 
   useEffect(() => {
     if (statusKey === 'loading' || !token || globalThis.window === undefined) {
@@ -177,12 +173,12 @@ export default function NewsletterCallbackPage({
             </p>
           </section>
           <div className="newsletter-callback-actions">
-            <Link href={`/${locale}`} skipLocaleHandling className="btn btn-primary">
+            <Link href="/" className="btn btn-primary">
               <FontAwesomeIcon icon="home" className="me-2" />
               {t('common.newsletterCallback.actions.goHome')}
             </Link>
             {showSubscribeAgain ? (
-              <Link href={`/${locale}`} skipLocaleHandling className="btn btn-secondary">
+              <Link href="/" className="btn btn-secondary">
                 <FontAwesomeIcon icon="envelope" className="me-2" />
                 {t('common.newsletterCallback.actions.subscribeAgain')}
               </Link>

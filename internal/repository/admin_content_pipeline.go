@@ -7,9 +7,8 @@ import (
 
 	"suaybsimsek.com/blog-api/internal/domain"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 func buildAdminContentPostFilter(filter domain.AdminContentPostFilter) bson.M {
@@ -37,7 +36,7 @@ func buildAdminContentPostFilter(filter domain.AdminContentPostFilter) bson.M {
 
 	resolvedSearchQuery := strings.TrimSpace(filter.Query)
 	if resolvedSearchQuery != "" {
-		searchPattern := primitive.Regex{
+		searchPattern := bson.Regex{
 			Pattern: regexp.QuoteMeta(resolvedSearchQuery),
 			Options: "i",
 		}
@@ -149,7 +148,7 @@ func buildAdminContentTopicFilter(filter domain.AdminContentTaxonomyFilter) bson
 
 	resolvedSearchQuery := strings.TrimSpace(filter.Query)
 	if resolvedSearchQuery != "" {
-		searchPattern := primitive.Regex{
+		searchPattern := bson.Regex{
 			Pattern: regexp.QuoteMeta(resolvedSearchQuery),
 			Options: "i",
 		}
@@ -217,7 +216,7 @@ func buildAdminContentCategoryFilter(filter domain.AdminContentTaxonomyFilter) b
 
 	resolvedSearchQuery := strings.TrimSpace(filter.Query)
 	if resolvedSearchQuery != "" {
-		searchPattern := primitive.Regex{
+		searchPattern := bson.Regex{
 			Pattern: regexp.QuoteMeta(resolvedSearchQuery),
 			Options: "i",
 		}

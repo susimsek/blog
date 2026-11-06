@@ -48,6 +48,23 @@ const buildSiteUrl = (...segments) => {
   return normalizedSegments.length > 0 ? `${normalizedSiteUrl}/${normalizedSegments.join('/')}` : normalizedSiteUrl;
 };
 
+const buildLocalizedSiteUrl = (locale, ...segments) =>
+  buildSiteUrl(basePath, ...(locale === defaultLocale ? [] : [locale]), ...segments);
+
+const buildAlternateLinksXml = (availableLocales, buildUrlForLocale) => {
+  let xml = '';
+  availableLocales.forEach(locale => {
+    xml += `    <xhtml:link rel="alternate" hreflang="${xmlEscape(locale)}" href="${xmlEscape(buildUrlForLocale(locale))}"/>\n`;
+  });
+
+  const xDefaultLocale = availableLocales.includes(defaultLocale) ? defaultLocale : availableLocales[0];
+  if (xDefaultLocale) {
+    xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${xmlEscape(buildUrlForLocale(xDefaultLocale))}"/>\n`;
+  }
+
+  return xml;
+};
+
 const toAbsoluteUrl = value => {
   if (!value) {
     return '';
@@ -56,27 +73,6 @@ const toAbsoluteUrl = value => {
     return value;
   }
   return buildSiteUrl(basePath, value);
-};
-
-const resolveXDefaultLocale = availableLocales => {
-  if (availableLocales.includes(defaultLocale)) {
-    return defaultLocale;
-  }
-  return availableLocales[0] || defaultLocale;
-};
-
-const buildAlternateLinksXml = (availableLocales, buildUrlForLocale) => {
-  let xml = '';
-  availableLocales.forEach(locale => {
-    const alternateUrl = buildUrlForLocale(locale);
-    xml += `    <xhtml:link rel="alternate" hreflang="${xmlEscape(locale)}" href="${xmlEscape(alternateUrl)}"/>\n`;
-  });
-
-  const xDefaultLocale = resolveXDefaultLocale(availableLocales);
-  const xDefaultUrl = buildUrlForLocale(xDefaultLocale);
-  xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${xmlEscape(xDefaultUrl)}"/>\n`;
-
-  return xml;
 };
 
 /** -------------- POSTS SITEMAP GENERATION -------------- **/
@@ -137,10 +133,10 @@ function generatePostsSitemapXML(postsById) {
   sitemap += `  xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n\n`;
 
   Object.keys(postsById).forEach(postId => {
-    const localesForPost = Object.keys(postsById[postId]);
-    localesForPost.forEach(locale => {
+    const availableLocales = Object.keys(postsById[postId]);
+    availableLocales.forEach(locale => {
       const post = postsById[postId][locale];
-      const postUrl = buildSiteUrl(basePath, locale, 'posts', post.id);
+      const postUrl = buildLocalizedSiteUrl(locale, 'posts', post.id);
       const thumbnailUrl = toAbsoluteUrl(post.thumbnail);
       const postLastMod = toIsoTimestamp(post.updatedDate ?? post.publishedDate);
 
@@ -154,9 +150,8 @@ function generatePostsSitemapXML(postsById) {
         sitemap += `      <image:title>${xmlEscape(post.title)}</image:title>\n`;
         sitemap += `    </image:image>\n`;
       }
-      // Add alternate language links for all locales where the post exists, plus x-default.
-      sitemap += buildAlternateLinksXml(localesForPost, altLocale =>
-        buildSiteUrl(basePath, altLocale, 'posts', post.id),
+      sitemap += buildAlternateLinksXml(availableLocales, alternateLocale =>
+        buildLocalizedSiteUrl(alternateLocale, 'posts', postsById[postId][alternateLocale].id),
       );
       sitemap += `  </url>\n\n`;
     });
@@ -230,19 +225,18 @@ function generateTopicsSitemapXML(topicsById) {
   sitemap += `  xmlns:xhtml="http://www.w3.org/1999/xhtml">\n\n`;
 
   Object.keys(topicsById).forEach(topicId => {
-    const localesForTopic = Object.keys(topicsById[topicId]);
-    localesForTopic.forEach(locale => {
+    const availableLocales = Object.keys(topicsById[topicId]);
+    availableLocales.forEach(locale => {
       const topic = topicsById[topicId][locale];
-      const topicUrl = buildSiteUrl(basePath, locale, 'topics', topic.id);
+      const topicUrl = buildLocalizedSiteUrl(locale, 'topics', topic.id);
       const topicLastMod = getFileLastModified(path.join(process.cwd(), 'public', 'data', `topics.${locale}.json`));
 
       sitemap += `  <url>\n`;
       sitemap += `    <loc>${xmlEscape(topicUrl)}</loc>\n`;
       sitemap += `    <lastmod>${topicLastMod}</lastmod>\n`;
       sitemap += `    <changefreq>weekly</changefreq>\n`;
-      // Add alternate language links for all locales where the topic exists, plus x-default.
-      sitemap += buildAlternateLinksXml(localesForTopic, altLocale =>
-        buildSiteUrl(basePath, altLocale, 'topics', topic.id),
+      sitemap += buildAlternateLinksXml(availableLocales, alternateLocale =>
+        buildLocalizedSiteUrl(alternateLocale, 'topics', topicsById[topicId][alternateLocale].id),
       );
       sitemap += `  </url>\n\n`;
     });
@@ -316,10 +310,10 @@ function generateCategoriesSitemapXML(categoriesById) {
   sitemap += `  xmlns:xhtml="http://www.w3.org/1999/xhtml">\n\n`;
 
   Object.keys(categoriesById).forEach(categoryId => {
-    const localesForCategory = Object.keys(categoriesById[categoryId]);
-    localesForCategory.forEach(locale => {
+    const availableLocales = Object.keys(categoriesById[categoryId]);
+    availableLocales.forEach(locale => {
       const category = categoriesById[categoryId][locale];
-      const categoryUrl = buildSiteUrl(basePath, locale, 'categories', category.id);
+      const categoryUrl = buildLocalizedSiteUrl(locale, 'categories', category.id);
       const categoryLastMod = getFileLastModified(
         path.join(process.cwd(), 'public', 'data', `categories.${locale}.json`),
       );
@@ -328,9 +322,8 @@ function generateCategoriesSitemapXML(categoriesById) {
       sitemap += `    <loc>${xmlEscape(categoryUrl)}</loc>\n`;
       sitemap += `    <lastmod>${categoryLastMod}</lastmod>\n`;
       sitemap += `    <changefreq>weekly</changefreq>\n`;
-      // Add alternate language links for all locales where the category exists, plus x-default.
-      sitemap += buildAlternateLinksXml(localesForCategory, altLocale =>
-        buildSiteUrl(basePath, altLocale, 'categories', category.id),
+      sitemap += buildAlternateLinksXml(availableLocales, alternateLocale =>
+        buildLocalizedSiteUrl(alternateLocale, 'categories', categoriesById[categoryId][alternateLocale].id),
       );
       sitemap += `  </url>\n\n`;
     });
@@ -364,7 +357,10 @@ function getPagesData() {
     {
       slug: '', // Home page
       changefreq: 'daily',
-      sourceFile: 'src/app/(localized)/[locale]/page.tsx',
+      sourceFiles: {
+        en: 'src/app/(default)/page.tsx',
+        tr: 'src/app/(localized)/[locale]/page.tsx',
+      },
       image: {
         loc: '/images/logo.webp',
         title: { en: "Welcome to Şuayb's Blog", tr: "Şuayb'in Bloguna Hoş Geldiniz" },
@@ -373,7 +369,10 @@ function getPagesData() {
     {
       slug: 'about',
       changefreq: 'monthly',
-      sourceFile: 'src/app/(localized)/[locale]/about/page.tsx',
+      sourceFiles: {
+        en: 'src/app/(default)/about/page.tsx',
+        tr: 'src/app/(localized)/[locale]/about/page.tsx',
+      },
       image: {
         loc: '/images/profile.webp',
         title: { en: 'About', tr: 'Hakkımda' },
@@ -382,7 +381,10 @@ function getPagesData() {
     {
       slug: 'contact',
       changefreq: 'monthly',
-      sourceFile: 'src/app/(localized)/[locale]/contact/page.tsx',
+      sourceFiles: {
+        en: 'src/app/(default)/contact/page.tsx',
+        tr: 'src/app/(localized)/[locale]/contact/page.tsx',
+      },
       image: {
         loc: '/images/profile.webp',
         title: { en: 'Contact Information', tr: 'İletişim Bilgileri' },
@@ -391,7 +393,10 @@ function getPagesData() {
     {
       slug: 'medium',
       changefreq: 'daily',
-      sourceFile: 'src/app/(localized)/[locale]/medium/page.tsx',
+      sourceFiles: {
+        en: 'src/app/(default)/medium/page.tsx',
+        tr: 'src/app/(localized)/[locale]/medium/page.tsx',
+      },
       image: {
         loc: '/images/medium.webp',
         title: {
@@ -403,7 +408,10 @@ function getPagesData() {
     {
       slug: 'games/schulte-table',
       changefreq: 'weekly',
-      sourceFile: 'src/app/(localized)/[locale]/games/schulte-table/page.tsx',
+      sourceFiles: {
+        en: 'src/app/(default)/games/schulte-table/page.tsx',
+        tr: 'src/app/(localized)/[locale]/games/schulte-table/page.tsx',
+      },
       image: {
         loc: '/images/schulte-table-thumbnail.webp',
         title: {
@@ -415,7 +423,10 @@ function getPagesData() {
     {
       slug: 'games/stroop-test',
       changefreq: 'weekly',
-      sourceFile: 'src/app/(localized)/[locale]/games/stroop-test/page.tsx',
+      sourceFiles: {
+        en: 'src/app/(default)/games/stroop-test/page.tsx',
+        tr: 'src/app/(localized)/[locale]/games/stroop-test/page.tsx',
+      },
       image: {
         loc: '/images/stroop-test-thumbnail.webp',
         title: {
@@ -427,7 +438,10 @@ function getPagesData() {
     {
       slug: 'games/visual-memory',
       changefreq: 'weekly',
-      sourceFile: 'src/app/(localized)/[locale]/games/visual-memory/page.tsx',
+      sourceFiles: {
+        en: 'src/app/(default)/games/visual-memory/page.tsx',
+        tr: 'src/app/(localized)/[locale]/games/visual-memory/page.tsx',
+      },
       image: {
         loc: '/images/visual-memory-thumbnail.webp',
         title: {
@@ -454,23 +468,20 @@ function generatePagesSitemapXML(pages) {
 
   pages.forEach(page => {
     locales.forEach(locale => {
-      // Construct the page URL; if slug is empty, it's the home page URL.
-      const pageUrl = page.slug ? buildSiteUrl(basePath, locale, page.slug) : buildSiteUrl(basePath, locale);
-      const pageLastMod = getFileLastModified(path.join(process.cwd(), page.sourceFile));
+      const pageUrl = buildLocalizedSiteUrl(locale, ...(page.slug ? [page.slug] : []));
+      const pageLastMod = getFileLastModified(path.join(process.cwd(), page.sourceFiles[locale]));
       sitemap += `  <url>\n`;
       sitemap += `    <loc>${xmlEscape(pageUrl)}</loc>\n`;
       sitemap += `    <lastmod>${pageLastMod}</lastmod>\n`;
       sitemap += `    <changefreq>${page.changefreq}</changefreq>\n`;
-      // Image details: build absolute URL and choose title based on locale.
       const imageUrl = toAbsoluteUrl(page.image.loc);
-      const imageTitle = page.image.title[locale] || page.image.title.en;
+      const imageTitle = page.image.title[locale] || page.image.title[defaultLocale];
       sitemap += `    <image:image>\n`;
       sitemap += `      <image:loc>${xmlEscape(imageUrl)}</image:loc>\n`;
       sitemap += `      <image:title>${xmlEscape(imageTitle)}</image:title>\n`;
       sitemap += `    </image:image>\n`;
-      // Add alternate language links for all locales, plus x-default.
-      sitemap += buildAlternateLinksXml(locales, altLocale =>
-        page.slug ? buildSiteUrl(basePath, altLocale, page.slug) : buildSiteUrl(basePath, altLocale),
+      sitemap += buildAlternateLinksXml(locales, alternateLocale =>
+        buildLocalizedSiteUrl(alternateLocale, ...(page.slug ? [page.slug] : [])),
       );
       sitemap += `  </url>\n\n`;
     });

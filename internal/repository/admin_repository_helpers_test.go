@@ -6,9 +6,8 @@ import (
 
 	"suaybsimsek.com/blog-api/internal/domain"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 func TestAdminContentMappingHelpers(t *testing.T) {
@@ -97,7 +96,7 @@ func TestAdminContentFilterAndPipelineHelpers(t *testing.T) {
 	if len(postPipeline) == 0 {
 		t.Fatal("expected post pipeline")
 	}
-	if stage, ok := postPipeline[0].Map()["$match"]; !ok || stage == nil {
+	if len(postPipeline[0]) == 0 || postPipeline[0][0].Key != "$match" || postPipeline[0][0].Value == nil {
 		t.Fatalf("expected $match stage, got %#v", postPipeline[0])
 	}
 
@@ -252,7 +251,7 @@ func TestPrimitiveRegexFiltersAreEscaped(t *testing.T) {
 	if !ok || len(clauses) == 0 {
 		t.Fatalf("expected regex clauses: %#v", filter)
 	}
-	regex, ok := clauses[0].(bson.M)["id"].(primitive.Regex)
+	regex, ok := clauses[0].(bson.M)["id"].(bson.Regex)
 	if !ok || regex.Pattern != "a\\+b" {
 		t.Fatalf("unexpected regex: %#v", clauses[0])
 	}

@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import ContactPage from '@/views/ContactPage';
-import { getAllTopics, getLayoutPosts, getSortedPostsData, getTopTopicsFromPosts } from '@/lib/posts';
 import RouteI18nProvider from '@/i18n/RouteI18nProvider';
 import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
 import { buildPageMetadata } from '@/lib/metadata';
+import { getLocalizedLayoutPageData } from '@/lib/localizedPageData';
 
 export async function generateMetadata({ params }: PageProps<'/[locale]/contact'>): Promise<Metadata> {
   const { locale } = await params;
@@ -20,16 +20,12 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/contact'
 
 export default async function ContactRoute({ params }: Readonly<PageProps<'/[locale]/contact'>>) {
   const { locale } = await params;
-
-  const allPosts = await getSortedPostsData(locale);
-  const topics = await getAllTopics(locale);
-  const preFooterTopTopics = getTopTopicsFromPosts(allPosts, topics);
-  const layoutPosts = getLayoutPosts(allPosts);
+  const contentByLocale = await getLocalizedLayoutPageData();
   const resources = await loadLocaleResources(locale, ['contact']);
 
   return (
     <RouteI18nProvider locale={locale} resources={resources}>
-      <ContactPage layoutPosts={layoutPosts} topics={topics} preFooterTopTopics={preFooterTopTopics} />
+      <ContactPage contentByLocale={contentByLocale} />
     </RouteI18nProvider>
   );
 }

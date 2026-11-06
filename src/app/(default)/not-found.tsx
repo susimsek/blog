@@ -1,17 +1,7 @@
-import Link from 'next/link';
-import { defaultLocale } from '@/i18n/settings';
-import { buildLocalizedPath } from '@/lib/metadata';
+'use client';
 
-export default function GlobalNotFound() {
-  const homePath = buildLocalizedPath(defaultLocale);
+import LocaleNotFoundPage from '@/views/LocaleNotFoundPage';
 
-  return (
-    <main style={{ padding: '4rem 1rem', textAlign: 'center' }}>
-      <h1>404</h1>
-      <p>Page not found.</p>
-      <p>
-        <Link href={homePath}>Go to home</Link>
-      </p>
-    </main>
-  );
+export default function NotFound() {
+  return <LocaleNotFoundPage />;
 }

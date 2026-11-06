@@ -4,10 +4,10 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'next/navigation';
 import { fetchPost, incrementPostLike } from '@/lib/contentApi';
 import { defaultLocale } from '@/i18n/settings';
 import { useAppSelector } from '@/config/store';
+import { useLocale } from '@/i18n/useLocale';
 
 type PostLikeProps = {
   postId: string;
@@ -28,9 +28,7 @@ export default function PostLike({
   initialLoading = false,
 }: Readonly<PostLikeProps>) {
   const { t, i18n } = useTranslation('post');
-  const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params?.locale[0] : params?.locale;
-  const locale = routeLocale ?? defaultLocale;
+  const locale = useLocale();
   const isVoiceEnabled = useAppSelector(state => state.voice.isEnabled);
   const [likes, setLikes] = React.useState<number>(
     typeof initialLikes === 'number' && Number.isFinite(initialLikes) ? Math.max(0, Math.trunc(initialLikes)) : 0,

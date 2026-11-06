@@ -76,9 +76,13 @@ describe('App Route /[locale]/contact', () => {
     expect(getAllTopicsMock).toHaveBeenCalledWith('tr');
     expect(loadLocaleResourcesMock).toHaveBeenCalledWith('tr', ['contact']);
     expect(contactPageMock).toHaveBeenCalledWith({
-      layoutPosts: [{ id: 'post-1' }],
-      topics: [{ id: 'topic-1' }],
-      preFooterTopTopics: [{ id: 'topic-1' }],
+      contentByLocale: expect.objectContaining({
+        tr: {
+          layoutPosts: [{ id: 'post-1' }],
+          topics: [{ id: 'topic-1' }],
+          preFooterTopTopics: [{ id: 'topic-1' }],
+        },
+      }),
     });
     expect(screen.getByTestId('contact-page')).toBeInTheDocument();
   });

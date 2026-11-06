@@ -162,10 +162,10 @@ describe('PostComments', () => {
     await screen.findByText('post.comments.empty');
 
     fireEvent.click(screen.getByRole('button', { name: 'post.comments.auth.google' }));
-    expect(mockedBeginCommentOAuthLogin).toHaveBeenCalledWith('google', 'en', '/en/posts/alpha-post');
+    expect(mockedBeginCommentOAuthLogin).toHaveBeenCalledWith('google', 'en', '/posts/alpha-post');
 
     fireEvent.click(screen.getByRole('button', { name: 'post.comments.auth.github' }));
-    expect(mockedBeginCommentOAuthLogin).toHaveBeenCalledWith('github', 'en', '/en/posts/alpha-post');
+    expect(mockedBeginCommentOAuthLogin).toHaveBeenCalledWith('github', 'en', '/posts/alpha-post');
   });
 
   it('shows auth callback feedback for successful and cancelled logins', async () => {

@@ -10,9 +10,9 @@ import (
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/internal/domain"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 const newsletterCollectionName = "newsletter_subscribers"
@@ -24,11 +24,11 @@ const newsletterRepositoryUnavailableFormat = "%w: %v"
 type NewsletterPendingSubscription = domain.NewsletterPendingSubscription
 
 type newsletterSingleFinder interface {
-	FindOne(context.Context, any, ...*options.FindOneOptions) *mongo.SingleResult
+	FindOne(context.Context, any, ...options.Lister[options.FindOneOptions]) *mongo.SingleResult
 }
 
 type newsletterUpdater interface {
-	UpdateOne(context.Context, any, any, ...*options.UpdateOptions) (*mongo.UpdateResult, error)
+	UpdateOne(context.Context, any, any, ...options.Lister[options.UpdateOneOptions]) (*mongo.UpdateResult, error)
 }
 
 type NewsletterRepository interface {
@@ -62,10 +62,7 @@ func getNewsletterMongoClient() (*mongo.Client, error) {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		client, err := appconfig.NewMongoClient(ctx, databaseConfig, "blog-api-newsletter")
+		client, err := appconfig.NewMongoClient(databaseConfig, "blog-api-newsletter")
 		if err != nil {
 			newsletterMongoInitErr = fmt.Errorf("mongodb connect failed: %w", err)
 			return
@@ -200,7 +197,7 @@ func upsertPendingSubscriptionInCollection(
 		}
 	}
 
-	_, err := collection.UpdateOne(ctx, bson.M{"email": input.Email}, update, options.Update().SetUpsert(true))
+	_, err := collection.UpdateOne(ctx, bson.M{"email": input.Email}, update, options.UpdateOne().SetUpsert(true))
 	return err
 }
 

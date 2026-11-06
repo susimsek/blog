@@ -19,6 +19,7 @@ const getSortedPostsDataMock = jest.fn(async (_locale: string) => [
 const getLayoutPostsMock = jest.fn((_posts: unknown[]) => [{ id: '1' }]);
 const getAllTopicsMock = jest.fn(async (_locale: string) => [{ id: 'java', name: 'Java' }]);
 const getTopTopicsFromPostsMock = jest.fn((_posts: unknown[], _topics: unknown[]) => [{ id: 'java', name: 'Java' }]);
+const loadLocaleResourcesMock = jest.fn(async (_locale: string, _ns: string[]) => ({ topic: { title: 'Topic' } }));
 const getServerTranslatorMock = jest.fn(async (_locale: string, _ns: string[]) => ({
   t: (key: string) =>
     ({
@@ -44,6 +45,12 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('@/i18n/server', () => ({
   getServerTranslator: (locale: string, ns: string[]) => getServerTranslatorMock(locale, ns),
+  loadLocaleResources: (locale: string, ns: string[]) => loadLocaleResourcesMock(locale, ns),
+}));
+
+jest.mock('@/i18n/RouteI18nProvider', () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 jest.mock('@/lib/posts', () => ({
@@ -75,20 +82,17 @@ describe('App Route /[locale]/topics/[id]', () => {
     getTopicDataMock.mockResolvedValue({ id: 'java', name: 'Java' });
   });
 
-  it('generates static params from all topic ids', async () => {
-    await expect(generateStaticParams()).resolves.toEqual([
-      { locale: 'en', id: 'java' },
-      { locale: 'tr', id: 'java' },
-    ]);
+  it('generates static params for translated Turkish topics only', async () => {
+    await expect(generateStaticParams()).resolves.toEqual([{ locale: 'tr', id: 'java' }]);
   });
 
   it('generates metadata from topic + translator', async () => {
     const metadata = await generateMetadata({
-      params: Promise.resolve({ locale: 'en', id: 'java' }),
+      params: Promise.resolve({ locale: 'tr', id: 'java' }),
       searchParams: Promise.resolve({}),
     });
 
-    expect(getServerTranslatorMock).toHaveBeenCalledWith('en', ['topic']);
+    expect(getServerTranslatorMock).toHaveBeenCalledWith('tr', ['topic']);
     expect(metadata).toMatchObject({
       title: 'Topic Title',
       description: 'Topic Description',
@@ -100,7 +104,7 @@ describe('App Route /[locale]/topics/[id]', () => {
     getTopicDataMock.mockResolvedValueOnce(null);
 
     const metadata = await generateMetadata({
-      params: Promise.resolve({ locale: 'en', id: 'missing' }),
+      params: Promise.resolve({ locale: 'tr', id: 'missing' }),
       searchParams: Promise.resolve({}),
     });
 
@@ -120,22 +124,25 @@ describe('App Route /[locale]/topics/[id]', () => {
     expect(getTopicDataMock).toHaveBeenCalledWith('tr', 'java');
     expect(getSortedPostsDataMock).toHaveBeenCalledWith('tr');
     expect(topicPageMock).toHaveBeenCalledWith({
-      locale: 'tr',
-      topic: { id: 'java', name: 'Java' },
-      posts: [{ id: '1', topics: [{ id: 'java' }] }],
-      layoutPosts: [{ id: '1' }],
-      topics: [{ id: 'java', name: 'Java' }],
-      preFooterTopTopics: [{ id: 'java', name: 'Java' }],
+      contentByLocale: expect.objectContaining({
+        tr: expect.objectContaining({
+          topic: { id: 'java', name: 'Java' },
+          posts: [{ id: '1', topics: [{ id: 'java' }] }],
+          layoutPosts: [{ id: '1' }],
+          topics: [{ id: 'java', name: 'Java' }],
+          preFooterTopTopics: [{ id: 'java', name: 'Java' }],
+        }),
+      }),
     });
     expect(screen.getByTestId('topic-page')).toBeInTheDocument();
   });
 
   it('calls notFound when topic does not exist', async () => {
-    getTopicDataMock.mockResolvedValueOnce(null);
+    getTopicDataMock.mockResolvedValue(null);
 
     await expect(
       TopicRoute({
-        params: Promise.resolve({ locale: 'en', id: 'missing' }),
+        params: Promise.resolve({ locale: 'tr', id: 'missing' }),
         searchParams: Promise.resolve({}),
       }),
     ).rejects.toThrow('NOT_FOUND');

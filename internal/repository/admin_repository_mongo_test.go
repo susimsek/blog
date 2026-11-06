@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"suaybsimsek.com/blog-api/internal/domain"
+	mtest "suaybsimsek.com/blog-api/internal/repository/testutil/mtest"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/integration/mtest"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func TestAdminDashboardRepositoryWithMockData(t *testing.T) {

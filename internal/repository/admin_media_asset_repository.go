@@ -10,9 +10,8 @@ import (
 
 	"suaybsimsek.com/blog-api/internal/domain"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 var (
@@ -426,7 +425,7 @@ func aggregateAdminMediaLibraryPayload(
 func buildUploadedMediaLibraryPipeline(postsCollectionName, query string) mongo.Pipeline {
 	match := bson.M{}
 	if search := strings.TrimSpace(query); search != "" {
-		match["name"] = primitive.Regex{Pattern: regexp.QuoteMeta(search), Options: "i"}
+		match["name"] = bson.Regex{Pattern: regexp.QuoteMeta(search), Options: "i"}
 	}
 
 	valueExpr := bson.M{"$concat": bson.A{"/api/media/", "$id"}}
@@ -482,14 +481,14 @@ func buildReferencedMediaLibraryPipeline(query string) mongo.Pipeline {
 		"thumbnail": bson.M{
 			"$type": "string",
 			"$ne":   "",
-			"$not": primitive.Regex{
+			"$not": bson.Regex{
 				Pattern: `^/api/media(?:/|\?)`,
 				Options: "i",
 			},
 		},
 	}
 	if search := strings.TrimSpace(query); search != "" {
-		regex := primitive.Regex{Pattern: regexp.QuoteMeta(search), Options: "i"}
+		regex := bson.Regex{Pattern: regexp.QuoteMeta(search), Options: "i"}
 		match["$or"] = bson.A{
 			bson.M{"thumbnail": regex},
 			bson.M{"title": regex},

@@ -7,17 +7,16 @@ import { useTranslation } from 'react-i18next';
 import Layout from '@/components/common/Layout';
 import Thumbnail from '@/components/common/Thumbnail';
 import { assetPrefix } from '@/config/constants';
-import type { LayoutPostSummary, Topic } from '@/types/posts';
 import SchulteTableTrainer from '@/components/games/SchulteTableTrainer';
+import type { Localized } from '@/i18n/settings';
+import type { LayoutPageData } from '@/lib/localizedPageData';
+import { useLocalizedContent } from '@/i18n/useLocalizedContent';
 
-type SchulteTablePageProps = {
-  layoutPosts: LayoutPostSummary[];
-  topics: Topic[];
-  preFooterTopTopics: Topic[];
-};
+type SchulteTablePageProps = { contentByLocale: Localized<LayoutPageData> };
 
-export default function SchulteTablePage({ layoutPosts, topics, preFooterTopTopics }: Readonly<SchulteTablePageProps>) {
+export default function SchulteTablePage({ contentByLocale }: Readonly<SchulteTablePageProps>) {
   const { t } = useTranslation('games');
+  const { layoutPosts, topics, preFooterTopTopics } = useLocalizedContent(contentByLocale);
   const previewImageSrc = `${assetPrefix}/images/schulte-table-thumbnail.webp`;
 
   return (

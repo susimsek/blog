@@ -7,15 +7,21 @@ import PostList from '@/components/posts/PostList';
 import PostCarousel from '@/components/posts/PostCarousel';
 import type { PostSummary, Topic } from '@/types/posts';
 import { buildLocalizedAbsoluteUrl } from '@/lib/metadata';
+import type { Localized } from '@/i18n/settings';
+import { useLocalizedContent } from '@/i18n/useLocalizedContent';
+import { useLocale } from '@/i18n/useLocale';
 
-type HomePageProps = {
+type HomePageContent = {
   posts: PostSummary[];
   topics: Topic[];
-  locale: string;
 };
 
-export default function HomePage({ posts, topics, locale }: Readonly<HomePageProps>) {
+type HomePageProps = { contentByLocale: Localized<HomePageContent> };
+
+export default function HomePage({ contentByLocale }: Readonly<HomePageProps>) {
   const { t } = useTranslation('home');
+  const { posts, topics } = useLocalizedContent(contentByLocale);
+  const locale = useLocale();
   const searchUrl = buildLocalizedAbsoluteUrl(locale, 'search');
   const featuredPosts = posts.slice(0, 10);
 

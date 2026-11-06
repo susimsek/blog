@@ -7,6 +7,7 @@ const replaceStateMock = jest.fn();
 const getParamMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
+  useParams: () => ({ locale: 'en' }),
   useSearchParams: () => ({
     get: (key: string) => getParamMock(key),
   }),
@@ -32,6 +33,7 @@ jest.mock('@fortawesome/react-fontawesome', () => ({
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
+    i18n: { language: 'en', resolvedLanguage: 'en' },
     t: (key: string) => key,
   }),
 }));
@@ -43,6 +45,10 @@ jest.mock('@/lib/newsletterApi', () => ({
 
 const confirmNewsletterSubscriptionMock = confirmNewsletterSubscription as jest.Mock;
 const unsubscribeNewsletterMock = unsubscribeNewsletter as jest.Mock;
+const contentByLocale = {
+  en: { layoutPosts: [], topics: [], preFooterTopTopics: [] },
+  tr: { layoutPosts: [], topics: [], preFooterTopTopics: [] },
+};
 
 describe('NewsletterCallbackPage', () => {
   beforeEach(() => {
@@ -53,7 +59,7 @@ describe('NewsletterCallbackPage', () => {
       return null;
     });
     window.history.replaceState = replaceStateMock;
-    window.history.pushState({ page: 1 }, '', '/en/callback?operation=confirm&token=token-1&locale=en');
+    window.history.pushState({ page: 1 }, '', '/callback?operation=confirm&token=token-1&locale=en');
   });
 
   it('confirms newsletter subscriptions and strips sensitive query params from the url', async () => {
@@ -61,7 +67,7 @@ describe('NewsletterCallbackPage', () => {
       status: 'success',
     });
 
-    render(<NewsletterCallbackPage locale="en" layoutPosts={[]} topics={[]} preFooterTopTopics={[]} />);
+    render(<NewsletterCallbackPage contentByLocale={contentByLocale} />);
 
     await waitFor(() =>
       expect(screen.getByText('common.newsletterCallback.confirm.status.success.title')).toBeInTheDocument(),
@@ -73,13 +79,13 @@ describe('NewsletterCallbackPage', () => {
         signal: expect.any(AbortSignal),
       }),
     );
-    expect(replaceStateMock).toHaveBeenCalledWith({ page: 1 }, '', '/en/callback?operation=confirm');
+    expect(replaceStateMock).toHaveBeenCalledWith({ page: 1 }, '', '/callback?operation=confirm');
   });
 
   it('shows invalid link state when token is missing', async () => {
     getParamMock.mockImplementation((key: string) => (key === 'operation' ? 'confirm' : null));
 
-    render(<NewsletterCallbackPage locale="en" layoutPosts={[]} topics={[]} preFooterTopTopics={[]} />);
+    render(<NewsletterCallbackPage contentByLocale={contentByLocale} />);
 
     await waitFor(() =>
       expect(screen.getByText('common.newsletterCallback.confirm.status.invalid-link.title')).toBeInTheDocument(),
@@ -98,7 +104,7 @@ describe('NewsletterCallbackPage', () => {
       status: '',
     });
 
-    render(<NewsletterCallbackPage locale="tr" layoutPosts={[]} topics={[]} preFooterTopTopics={[]} />);
+    render(<NewsletterCallbackPage contentByLocale={contentByLocale} />);
 
     await waitFor(() =>
       expect(

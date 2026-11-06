@@ -1,11 +1,41 @@
-import { Suspense } from 'react';
-import LocaleRedirect from '@/components/LocaleRedirect';
-import { ADMIN_ROUTES } from '@/lib/adminRoutes';
+import { defaultLocale } from '@/i18n/settings';
+import type { Metadata } from 'next';
+import RouteI18nProvider from '@/i18n/RouteI18nProvider';
+import { getServerTranslator, loadLocaleResources } from '@/i18n/server';
+import { buildPageMetadata } from '@/lib/metadata';
+import AdminAccountPage from '@/views/AdminAccountPage';
 
-export default function AdminSettingsNewsletterSubscribersRedirectPage() {
+type AdminSettingsNewsletterSubscribersPageProps = {
+  params: Promise<{
+    locale: string;
+  }>;
+};
+
+export async function generateMetadata({ params }: AdminSettingsNewsletterSubscribersPageProps): Promise<Metadata> {
+  const locale = defaultLocale;
+  const { t } = await getServerTranslator(locale, ['admin-account']);
+
+  return buildPageMetadata({
+    locale,
+    title: t('adminAccount.meta.title', { ns: 'admin-account' }),
+    description: t('adminAccount.meta.description', { ns: 'admin-account' }),
+    path: 'admin/settings/newsletter/subscribers',
+    robots: {
+      index: false,
+      follow: false,
+    },
+  });
+}
+
+export default async function AdminSettingsNewsletterSubscribersRoute({
+  params,
+}: Readonly<AdminSettingsNewsletterSubscribersPageProps>) {
+  const locale = defaultLocale;
+  const resources = await loadLocaleResources(locale, ['admin-account', 'admin-common']);
+
   return (
-    <Suspense fallback={null}>
-      <LocaleRedirect path={ADMIN_ROUTES.settings.newsletterSubscribers} />
-    </Suspense>
+    <RouteI18nProvider locale={locale} resources={resources}>
+      <AdminAccountPage section="newsletterSubscribers" />
+    </RouteI18nProvider>
   );
 }

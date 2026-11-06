@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { defaultLocale } from '@/i18n/settings';
+import { useLocale } from '@/i18n/useLocale';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import Link from '@/components/common/Link';
 import AdminDashboardAnalyticsSection from '@/components/admin/dashboard/AdminDashboardAnalyticsSection';
@@ -125,9 +125,7 @@ export default function AdminDashboardPage() {
   const { t } = useTranslation(['admin-dashboard', 'admin-common']);
   const router = useRouter();
   const isMobile = useMediaQuery('(max-width: 991px)');
-  const params = useParams<{ locale?: string | string[] }>();
-  const routeLocale = Array.isArray(params?.locale) ? params.locale[0] : params?.locale;
-  const locale = routeLocale ?? defaultLocale;
+  const locale = useLocale();
   const {
     adminUser,
     dashboard,

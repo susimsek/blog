@@ -120,7 +120,7 @@ describe('AdminLoginPage', () => {
     render(<AdminLoginPage />);
 
     await waitFor(() => {
-      expect(replaceMock).toHaveBeenCalledWith('/en/admin');
+      expect(replaceMock).toHaveBeenCalledWith('/admin');
     });
   });
 
@@ -401,7 +401,7 @@ describe('AdminLoginPage', () => {
     resolveLogin?.({ success: true, user: null });
 
     await waitFor(() => {
-      expect(replaceMock).toHaveBeenCalledWith('/en/admin');
+      expect(replaceMock).toHaveBeenCalledWith('/admin');
     });
   });
 
@@ -463,7 +463,7 @@ describe('AdminLoginPage', () => {
           }),
         }),
       );
-      expect(replaceMock).toHaveBeenCalledWith('/en/admin');
+      expect(replaceMock).toHaveBeenCalledWith('/admin');
     });
   });
 });

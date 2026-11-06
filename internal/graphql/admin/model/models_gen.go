@@ -713,7 +713,7 @@ func (e *AdminAuditStatus) UnmarshalGQL(v any) error {
 }
 
 func (e AdminAuditStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *AdminAuditStatus) UnmarshalJSON(b []byte) error {
@@ -772,7 +772,7 @@ func (e *AdminCommentStatus) UnmarshalGQL(v any) error {
 }
 
 func (e AdminCommentStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *AdminCommentStatus) UnmarshalJSON(b []byte) error {
@@ -827,7 +827,7 @@ func (e *AdminContentMode) UnmarshalGQL(v any) error {
 }
 
 func (e AdminContentMode) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *AdminContentMode) UnmarshalJSON(b []byte) error {
@@ -884,7 +884,7 @@ func (e *AdminContentPostStatus) UnmarshalGQL(v any) error {
 }
 
 func (e AdminContentPostStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *AdminContentPostStatus) UnmarshalJSON(b []byte) error {
@@ -939,7 +939,7 @@ func (e *AdminMediaLibraryItemKind) UnmarshalGQL(v any) error {
 }
 
 func (e AdminMediaLibraryItemKind) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *AdminMediaLibraryItemKind) UnmarshalJSON(b []byte) error {
@@ -998,7 +998,7 @@ func (e *AdminMediaLibrarySort) UnmarshalGQL(v any) error {
 }
 
 func (e AdminMediaLibrarySort) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *AdminMediaLibrarySort) UnmarshalJSON(b []byte) error {
@@ -1055,7 +1055,7 @@ func (e *AdminNewsletterCampaignStatus) UnmarshalGQL(v any) error {
 }
 
 func (e AdminNewsletterCampaignStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *AdminNewsletterCampaignStatus) UnmarshalJSON(b []byte) error {
@@ -1108,7 +1108,7 @@ func (e *AdminNewsletterDeliveryFailureStatus) UnmarshalGQL(v any) error {
 }
 
 func (e AdminNewsletterDeliveryFailureStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *AdminNewsletterDeliveryFailureStatus) UnmarshalJSON(b []byte) error {
@@ -1165,7 +1165,7 @@ func (e *AdminNewsletterSubscriberStatus) UnmarshalGQL(v any) error {
 }
 
 func (e AdminNewsletterSubscriberStatus) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *AdminNewsletterSubscriberStatus) UnmarshalJSON(b []byte) error {
@@ -1220,7 +1220,7 @@ func (e *ContentSource) UnmarshalGQL(v any) error {
 }
 
 func (e ContentSource) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	_, _ = fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (e *ContentSource) UnmarshalJSON(b []byte) error {

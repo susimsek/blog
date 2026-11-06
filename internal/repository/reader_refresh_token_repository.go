@@ -13,9 +13,9 @@ import (
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/internal/domain"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type ReaderRefreshTokenRepository interface {
@@ -174,7 +174,7 @@ func (*readerRefreshTokenMongoRepository) Rotate(
 	}
 	defer session.EndSession(ctx)
 
-	_, err = session.WithTransaction(ctx, func(sessionContext mongo.SessionContext) (any, error) {
+	_, err = session.WithTransaction(ctx, func(sessionContext context.Context) (any, error) {
 		updateResult, updateErr := collection.UpdateOne(
 			sessionContext,
 			bson.M{

@@ -67,7 +67,7 @@ describe('LocaleLayout', () => {
   });
 
   it('generates locale params', async () => {
-    await expect(generateStaticParams()).resolves.toEqual([{ locale: 'en' }, { locale: 'tr' }]);
+    await expect(generateStaticParams()).resolves.toEqual([{ locale: 'tr' }]);
   });
 
   it('loads resources and renders providers for valid locale', async () => {

@@ -19,7 +19,6 @@
       <link>https://suaybsimsek.com/tr</link>
     </image>
     <atom:link rel="self" type="application/rss+xml" href="https://suaybsimsek.com/tr/rss.xml" />
-    <atom:link rel="alternate" hreflang="en" type="application/rss+xml" href="https://suaybsimsek.com/en/rss.xml" />
     <item>
       <title><![CDATA[Spring Boot ile gRPC]]></title>
       <link>https://suaybsimsek.com/tr/posts/spring-boot-grpc</link>

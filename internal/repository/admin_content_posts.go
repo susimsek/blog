@@ -9,10 +9,9 @@ import (
 
 	"suaybsimsek.com/blog-api/internal/domain"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 func (*adminContentMongoRepository) ListPostGroups(
@@ -314,7 +313,7 @@ func (*adminContentMongoRepository) CreatePostRevision(
 		revisionNumber = max(record.RevisionCount, 0) + 1
 	}
 
-	revisionID := primitive.NewObjectID().Hex()
+	revisionID := bson.NewObjectID().Hex()
 	document := buildAdminContentPostRevisionDocument(record, revisionID, revisionNumber, resolvedNow)
 	if _, err := revisionsCollection.InsertOne(ctx, document); err != nil {
 		return nil, err

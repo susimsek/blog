@@ -106,14 +106,14 @@ describe('PostDetail helpers', () => {
     expect(blogPosting.mainEntityOfPage).toEqual(
       expect.objectContaining({
         '@type': 'WebPage',
-        '@id': expect.stringContaining('/en/posts/1'),
+        '@id': expect.stringContaining('/posts/1'),
       }),
     );
     expect(blogPosting.author).toEqual(
       expect.objectContaining({
         '@type': 'Person',
         name: 'Şuayb Şimşek',
-        url: expect.stringContaining('/en/about'),
+        url: expect.stringContaining('/about'),
       }),
     );
     expect(blogPosting).toEqual(
@@ -133,19 +133,19 @@ describe('PostDetail helpers', () => {
             '@type': 'ListItem',
             position: 1,
             name: 'Blog',
-            item: expect.stringContaining('/en'),
+            item: expect.stringContaining('suaybsimsek.com/'),
           }),
           expect.objectContaining({
             '@type': 'ListItem',
             position: 2,
             name: 'Backend',
-            item: expect.stringContaining('/en/categories/backend'),
+            item: expect.stringContaining('/categories/backend'),
           }),
           expect.objectContaining({
             '@type': 'ListItem',
             position: 3,
             name: mockPost.title,
-            item: expect.stringContaining('/en/posts/1'),
+            item: expect.stringContaining('/posts/1'),
           }),
         ],
       }),

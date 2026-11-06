@@ -81,6 +81,11 @@ jest.mock('@/views/PostPage', () => ({
   }) => postPageMock(props),
 }));
 
+jest.mock('@/i18n/RouteI18nProvider', () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 import PostRoute, { generateMetadata, generateStaticParams } from '@/app/(localized)/[locale]/posts/[id]/page';
 
 describe('App Route /[locale]/posts/[id]', () => {
@@ -97,11 +102,8 @@ describe('App Route /[locale]/posts/[id]', () => {
     });
   });
 
-  it('generates static params from all post ids', async () => {
-    await expect(generateStaticParams()).resolves.toEqual([
-      { locale: 'en', id: '1' },
-      { locale: 'tr', id: '1' },
-    ]);
+  it('generates static params for translated Turkish posts only', async () => {
+    await expect(generateStaticParams()).resolves.toEqual([{ locale: 'tr', id: '1' }]);
   });
 
   it('generates metadata from post content', async () => {
@@ -119,7 +121,7 @@ describe('App Route /[locale]/posts/[id]', () => {
     });
 
     const metadata = await generateMetadata({
-      params: Promise.resolve({ locale: 'en', id: '1' }),
+      params: Promise.resolve({ locale: 'tr', id: '1' }),
       searchParams: Promise.resolve({}),
     });
 
@@ -160,30 +162,34 @@ describe('App Route /[locale]/posts/[id]', () => {
     );
     expect(getAdjacentPostsMock).toHaveBeenCalledWith('1', [{ id: '1' }, { id: '2' }]);
     expect(postPageMock).toHaveBeenCalledWith({
-      post: {
-        id: '1',
-        title: 'Post Title',
-        summary: 'Post Summary',
-        topics: [],
-        publishedDate: '2024-01-01',
-        readingTimeMin: 3,
-        thumbnail: null,
-      },
-      relatedPosts: [{ id: '2' }],
-      previousPost: { id: '0', title: 'Previous Post' },
-      nextPost: { id: '2', title: 'Next Post' },
-      layoutPosts: [{ id: '1' }],
-      preFooterTopTopics: [{ id: 'topic-1' }],
+      contentByLocale: expect.objectContaining({
+        tr: expect.objectContaining({
+          post: expect.objectContaining({
+            id: '1',
+            title: 'Post Title',
+            summary: 'Post Summary',
+            topics: [],
+            publishedDate: '2024-01-01',
+            readingTimeMin: 3,
+            thumbnail: null,
+          }),
+          relatedPosts: [{ id: '2' }],
+          previousPost: { id: '0', title: 'Previous Post' },
+          nextPost: { id: '2', title: 'Next Post' },
+          layoutPosts: [{ id: '1' }],
+          preFooterTopTopics: [{ id: 'topic-1' }],
+        }),
+      }),
     });
     expect(screen.getByTestId('post-page')).toBeInTheDocument();
   });
 
   it('calls notFound when post does not exist', async () => {
-    getPostDataMock.mockResolvedValueOnce(null);
+    getPostDataMock.mockResolvedValue(null);
 
     await expect(
       PostRoute({
-        params: Promise.resolve({ locale: 'en', id: 'missing' }),
+        params: Promise.resolve({ locale: 'tr', id: 'missing' }),
         searchParams: Promise.resolve({}),
       }),
     ).rejects.toThrow('NOT_FOUND');

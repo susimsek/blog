@@ -21,9 +21,9 @@ import (
 	"suaybsimsek.com/blog-api/pkg/apperrors"
 	"suaybsimsek.com/blog-api/pkg/newsletter"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 const (
@@ -193,13 +193,14 @@ func resolveDispatchLocalesFromSubscribers(collection *mongo.Collection) ([]stri
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	values, err := collection.Distinct(ctx, "locale", bson.M{
+	result := collection.Distinct(ctx, "locale", bson.M{
 		"status": "active",
 		"locale": bson.M{
 			"$in": []string{newsletter.LocaleEN, newsletter.LocaleTR},
 		},
 	})
-	if err != nil {
+	var values []any
+	if err := result.Decode(&values); err != nil {
 		return nil, err
 	}
 
@@ -276,10 +277,7 @@ func getDispatchClient() (*mongo.Client, error) {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		client, err := appconfig.NewMongoClient(ctx, databaseConfig, "blog-api-newsletter-dispatch")
+		client, err := appconfig.NewMongoClient(databaseConfig, "blog-api-newsletter-dispatch")
 		if err != nil {
 			dispatchInitErr = fmt.Errorf("mongodb connect failed: %w", err)
 			return
@@ -517,7 +515,7 @@ func upsertDeliveryAttempt(
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	_, err := collection.UpdateOne(ctx, filter, update, options.Update().SetUpsert(true))
+	_, err := collection.UpdateOne(ctx, filter, update, options.UpdateOne().SetUpsert(true))
 	return err
 }
 

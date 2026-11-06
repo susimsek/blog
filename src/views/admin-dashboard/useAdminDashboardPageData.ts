@@ -50,7 +50,7 @@ export function useAdminDashboardPageData({ locale, router, isMobile }: UseAdmin
 
           if (!me.authenticated || !me.user) {
             clearAdminSessionProfileCache();
-            router.replace(`/${locale}/admin/login`);
+            router.replace('/admin/login');
             return;
           }
 
@@ -81,7 +81,7 @@ export function useAdminDashboardPageData({ locale, router, isMobile }: UseAdmin
           return;
         }
         clearAdminSessionProfileCache();
-        router.replace(`/${locale}/admin/login`);
+        router.replace('/admin/login');
       } finally {
         if (isMounted) {
           setIsCommentsLoading(false);
