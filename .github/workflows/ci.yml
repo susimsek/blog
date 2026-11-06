@@ -88,6 +88,8 @@ jobs:
         run: pnpm test
 
       - name: Run backend lint
+        env:
+          GOTOOLCHAIN: auto
         run: pnpm run backend:lint:report
 
       - name: Run backend tests
