@@ -1,12 +1,19 @@
-# Blog Platform (Next.js 16 + Go)
+# Multilingual Blog Platform
 
+[![Live Site](https://img.shields.io/badge/Live-suaybsimsek.com-46E3B7?logo=vercel&logoColor=white)](https://suaybsimsek.com)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE.md)
 [![CI](https://github.com/susimsek/blog/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/susimsek/blog/actions/workflows/ci.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=alert_status)](https://sonarcloud.io/summary/overall?id=blog&branch=main)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=coverage)](https://sonarcloud.io/summary/overall?id=blog&branch=main)
+[![Docker Image Size](https://img.shields.io/docker/image-size/suayb/blog/main?label=Docker%20image)](https://hub.docker.com/r/suayb/blog)
+[![Node.js](https://img.shields.io/badge/Node.js-26.13-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![pnpm](https://img.shields.io/badge/pnpm-12.18-F69220?logo=pnpm&logoColor=white)](https://pnpm.io/)
 [![Go](https://img.shields.io/badge/Go-1.27-00ADD8?logo=go)](https://go.dev/)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![GraphQL](https://img.shields.io/badge/GraphQL-API-E10098?logo=graphql&logoColor=white)](https://graphql.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Driver%20v2-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 
 This repository is a multilingual blog platform with a static-exported Next.js frontend and a Go backend for GraphQL, GraphiQL, and newsletter flows.
 
@@ -21,6 +28,7 @@ This repository is a multilingual blog platform with a static-exported Next.js f
 - [Environment Variables](#environment-variables)
 - [Quality and Testing](#quality-and-testing)
 - [Build and Deployment](#build-and-deployment)
+- [License](#license)
 - [Notes](#notes)
 
 ## Features
@@ -323,6 +331,12 @@ Deployment files:
 
 - `deploy/docker-compose/docker-compose.yml`
 - `deploy/helm/blog`
+
+## License
+
+The application source code is licensed under the Apache License 2.0; see [LICENSE.md](LICENSE.md).
+Blog posts, translations, images, thumbnails, and other editorial or third-party assets are excluded
+unless a file or asset provides a separate license or permission notice.
 
 ## Notes
 
