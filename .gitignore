@@ -30,6 +30,11 @@ yarn-error.log*
 
 # production
 /build
+/public/category-sitemap.xml
+/public/page-sitemap.xml
+/public/post-sitemap.xml
+/public/post_topic-sitemap.xml
+/public/sitemap_index.xml
 /.air/
 /.gocache/
 
