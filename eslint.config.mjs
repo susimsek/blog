@@ -42,7 +42,6 @@ export default defineConfig([
       'src/generated/**',
       'target/**',
       '.git/**',
-      '.circleci/**',
       '.github/**',
       'next-env.d.ts',
       'pnpm-lock.yaml',

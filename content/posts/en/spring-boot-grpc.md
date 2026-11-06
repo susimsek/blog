@@ -31,28 +31,26 @@ topics:
     color: 'orange'
 ---
 
-Spring Boot brings first-class gRPC server support, which makes it possible to build contract-first APIs without stitching together low-level server bootstrap code by hand. In this article, we will use the real code from the [spring-grpc-samples](https://github.com/susimsek/spring-grpc-samples) repository and shape the walkthrough in the same file-oriented style as the JWE + JPA article.
+Spring Boot's gRPC support lets you expose protobuf-defined services without writing the server bootstrap plumbing yourself. This walkthrough follows the Java and Kotlin implementations in the [spring-grpc-samples](https://github.com/susimsek/spring-grpc-samples) repository.
 
-The sample is more than a hello-world RPC. It combines Spring gRPC, Spring Security, Protovalidate, JPA, Liquibase, localized error handling, and test support in one Todo service.
+The repository's Todo service uses Spring gRPC, Spring Security, Protovalidate, JPA, and Liquibase, with localized error handling and integration tests.
 
 ---
 
 ## 🌟 Why Use Spring Boot gRPC?
 
-In this section, we clarify Why Use Spring Boot gRPC? and summarize the key points you will apply in implementation.
+Spring Boot lets you expose protobuf-defined RPC methods as Spring-managed services.
 
-- Contract-first API design: protobuf files define RPC names, message shapes, and validation rules.
-- Small service layer: Spring Boot auto-exposes `BindableService` beans, so service classes stay focused on business flow.
-- Consistent security: authentication and authorization are enforced through the gRPC server pipeline.
-- Structured validation: request constraints live close to the contract and are enforced centrally.
-- Better client feedback: invalid requests and auth failures are mapped to proper gRPC status responses.
-- Production path included: the sample already covers testing, native builds, Docker, Helm, and Terraform.
+- Contract-first API design: protobuf files define RPC methods, message shapes, and validation rules.
+- Spring-managed services: Spring Boot registers `BindableService` beans with the gRPC server.
+- gRPC security: authentication and authorization run through the server pipeline.
+- Centralized validation: request constraints live in the protobuf contract and are checked before service logic.
+- Consistent errors: invalid requests and authentication failures become gRPC status responses.
+- Deployment support: the repository includes tests, native-image metadata, Docker, Helm, and Terraform assets.
 
 ---
 
 ## 📋 Prerequisites
-
-In this section, we clarify Prerequisites and summarize the key points you will apply in implementation.
 
 - ☕ Java Development Kit (JDK) 25
 - 📦 Maven Wrapper with `./mvnw`
@@ -64,7 +62,7 @@ In this section, we clarify Prerequisites and summarize the key points you will 
 
 ## 🛠️ Step 1: Add Dependencies
 
-Include the same core building blocks used in the sample: gRPC transport, JPA persistence, Liquibase migrations, JWT security, cache support, MapStruct, and Protovalidate.
+Add the dependencies used by the sample for gRPC, JPA, Liquibase, JWT security, caching, MapStruct, and Protovalidate.
 
 Maven:
 
@@ -170,15 +168,15 @@ dependencies {
 }
 ```
 
-For local development, the sample uses `H2` in the default `dev` profile and `PostgreSQL` in the `prod` profile, so the runtime database drivers stay profile-specific.
+The `dev` profile uses `H2`, while `prod` uses `PostgreSQL`; each database driver is scoped to its profile.
 
-This combination matters because the project is not only serving RPC methods. It also persists Todo data with JPA, applies Liquibase migrations, maps entities with MapStruct, validates protobuf payloads, adds Hibernate cache support, and secures business RPCs with JWT.
+Together, these dependencies let the service persist Todos, run Liquibase migrations, map entities with MapStruct, validate protobuf messages, cache Hibernate data, and protect business RPCs with JWTs.
 
 ---
 
 ## 🛠️ Step 2: Configuration Files
 
-In this section, we define the core configuration and migration files used by the sample project and explain why each block matters for a gRPC service with persistence and validation.
+Application configuration connects the gRPC listener to the active profile, persistence layer, migrations, and localized messages. The files below show those settings along with the schema and seed data.
 
 - `src/main/resources/config/application.yml`
   Holds the application name, active profile handling, JPA defaults, Hibernate cache settings, Liquibase changelog path, message bundle path, and gRPC server port.
@@ -265,7 +263,7 @@ spring:
       port: 9090
 ```
 
-The important gRPC-specific setting is `spring.grpc.server.port`, but the surrounding JPA, Liquibase, and message-source configuration is what turns the sample into a realistic server instead of an isolated transport demo.
+The gRPC listener uses `spring.grpc.server.port`. JPA, Liquibase, and message-source settings configure the application around it.
 
 `application-dev.yml`
 
@@ -869,7 +867,7 @@ user_id;authority_id
 2;2
 ```
 
-The sample also keeps a few native-image metadata files under `src/main/resources/META-INF/native-image`. The application-specific hint registration lives in `NativeRuntimeHints`, while vendor metadata is shipped for Protovalidate, Hibernate JCache, and Liquibase resource scanning:
+Native-image metadata lives under `src/main/resources/META-INF/native-image`. `NativeRuntimeHints` registers application-specific hints; the dependency metadata covers Protovalidate, Hibernate JCache, and Liquibase resource scanning:
 
 - `src/main/resources/META-INF/native-image/build.buf/protovalidate/reflect-config.json`
   Registers Buf validation model types for reflection in GraalVM builds.
@@ -907,10 +905,10 @@ The sample also keeps a few native-image metadata files under `src/main/resource
 
 ## 🛠️ Step 3: gRPC Bootstrap and Contracts
 
-We start with the application bootstrap class, then move directly into the protobuf contracts that define the public RPC surface.
+The application class starts Spring Boot. The protobuf contracts that follow define the public RPC methods and message shapes.
 
 - `src/main/java/io/github/susimsek/springgrpcsamples/SpringGrpcSamplesApplication.java`
-  Starts the application and keeps bootstrap concerns explicit.
+  Starts the Spring application; component scanning discovers the gRPC service beans.
 
 :::tabs
 @tab Java [icon=java]
@@ -962,10 +960,10 @@ fun main(args: Array<String>) {
 
 ## 🛠️ Step 4: JPA Integration
 
-Before moving to authentication and protected RPC handlers, it is worth looking at how the sample defines the contract and persistence-facing mapping around the Todo model.
+The persistence layer brings together application and database settings, shared audit fields, protobuf contracts, and JPA entities.
 
 - `ApplicationProperties`, `DatabaseConfig`, `AuditableEntity`, and `AuthorityEntity`
-  These supporting classes define app-level JWT/cache settings, JPA auditing, and the shared domain base used by `TodoEntity` and `UserEntity`.
+  These classes hold JWT/cache settings, configure JPA auditing, and model shared audit fields and user authorities.
 
 :::tabs
 @tab Java [icon=java]
@@ -1419,10 +1417,10 @@ message Todo {
 }
 ```
 
-The contract is already carrying validation semantics, pagination design, and API boundaries. That is one of the main reasons the Java service layer stays small.
+The protobuf contracts keep validation rules, pagination, and API boundaries close to the RPC definitions, leaving less request-shape logic in the service layer.
 
 - `TodoEntity`, `UserEntity`, and `UserRepository`
-  The sample does not stop at protobuf contracts. It also models Todo persistence, cached user lookups, and authority loading through JPA entities and repositories.
+  JPA entities and repositories model Todo persistence, cached user lookups, and authority loading.
 
 :::tabs
 @tab Java [icon=java]
@@ -1641,7 +1639,7 @@ interface UserRepository : JpaRepository<UserEntity, Long> {
 
 ## 🛠️ Step 5: Authentication & Protected Endpoints
 
-Before looking at the protected RPC handlers themselves, it helps to see the repository and mapper pieces they depend on.
+The Todo handlers depend on a repository and mapper; authentication also needs a `UserDetailsService` that loads JPA users.
 
 - `src/main/java/io/github/susimsek/springgrpcsamples/repository/TodoRepository.java`
   Uses Spring Data JPA directly; no custom implementation is needed for basic CRUD and paging.
@@ -1792,7 +1790,7 @@ interface TodoMapper {
 
 :::
 
-To keep `TodoMapper` lean, the repository also adds a tiny protobuf helper and a reusable MapStruct meta-annotation for generated builder fields.
+Two small helpers keep protobuf-specific conversion details out of `TodoMapper`.
 
 - `src/main/java/io/github/susimsek/springgrpcsamples/mapper/ProtobufMapper.java`
   Converts `Instant` values into protobuf `Timestamp` instances.
@@ -1886,10 +1884,8 @@ annotation class ProtobufMapping
 
 :::
 
-Authentication also depends on a dedicated `UserDetailsService` that loads JPA users and exposes their authorities to Spring Security.
-
 - `src/main/java/io/github/susimsek/springgrpcsamples/security/DomainUserDetailsService.java`
-  Resolves a persisted user and adapts it into Spring Security’s `UserDetails`.
+  Loads a persisted user and adapts it to Spring Security’s `UserDetails`.
 
 :::tabs
 @tab Java [icon=java]
@@ -1974,13 +1970,11 @@ class DomainUserDetailsService(
 
 :::
 
-With these pieces in place, the gRPC services can stay focused on orchestration rather than conversion boilerplate.
-
 ---
 
 ## 🛠️ Step 6: Security, Validation, and Error Handling
 
-In this section, we use the repository’s actual service classes. Authentication and Todo CRUD are implemented as Spring-managed beans that extend generated gRPC base classes.
+Both gRPC services are Spring-managed classes that extend generated service base classes.
 
 - `src/main/java/io/github/susimsek/springgrpcsamples/service/AuthGrpcService.java`
   Authenticates credentials and returns a JWT-based token response.
@@ -2281,11 +2275,11 @@ class TodoGrpcService(
 
 :::
 
-The service layer is intentionally direct. Each method receives a protobuf request, delegates to repository and mapper logic, and completes the `StreamObserver` response.
+Each handler receives a protobuf request and completes its response through `StreamObserver`. Todo handlers delegate persistence and conversion to repositories and mappers; login delegates credential checks to Spring Security.
 
 ---
 
-This sample uses one security configuration class to define password encoding, authentication manager creation, and the gRPC authorization rules.
+Security configuration defines password encoding, the authentication manager, and gRPC authorization rules.
 
 - `src/main/java/io/github/susimsek/springgrpcsamples/config/security/SecurityConfig.java`
   Wires Spring Security into the gRPC server pipeline and protects `TodoService/*` with admin authority.
@@ -2405,7 +2399,7 @@ class SecurityConfig {
 
 :::
 
-This is a practical pattern because the authorization model is readable in one place: login and infrastructure calls are public, while business RPCs require a bearer token with the expected authority.
+The access boundary is explicit: login and infrastructure calls are public, while business RPCs require a bearer token with the expected authority.
 
 - `src/main/java/io/github/susimsek/springgrpcsamples/security/JwtService.java`
   Generates JWT tokens from authenticated Spring Security principals.
@@ -2518,8 +2512,6 @@ class JwtService(
 :::
 
 ---
-
-JWT handling is split into focused support classes so the main security configuration stays readable.
 
 - `src/main/java/io/github/susimsek/springgrpcsamples/security/AuthoritiesConstants.java`
   Defines role names used across bootstrap data, authorization rules, and JWT claims.
@@ -3448,8 +3440,6 @@ class GlobalGrpcExceptionHandler(
 
 :::
 
-This design keeps service methods free from repetitive guard clauses and manual exception mapping. The protobuf contract, interceptor layer, and advice layer work together.
-
 - `src/main/java/io/github/susimsek/springgrpcsamples/exception/GrpcApiException.java`
   Defines the base contract for application-level gRPC exceptions with a status code and message metadata.
 
@@ -3880,7 +3870,7 @@ class NativeRuntimeHints : RuntimeHintsRegistrar {
 
 ## ▶️ Run the App
 
-Use the repository’s documented local flow to start the server locally.
+Start the server with the Maven Wrapper:
 
 ```bash
 ./mvnw spring-boot:run
@@ -3906,13 +3896,13 @@ Expected behavior:
 - `TodoService/ListTodos` should work only with a valid bearer token that has the expected authority.
 - Invalid payloads should return `InvalidArgument` with structured field violations.
 
-Spring also supports in-process test transport for gRPC. The sample README notes the use of `@AutoConfigureTestGrpcTransport` and explicit client stub registration with `@ImportGrpcClients`, which is the right direction for deterministic integration tests.
+The repository also uses in-process gRPC transport for integration tests. Its README shows `@AutoConfigureTestGrpcTransport` and explicit stub registration with `@ImportGrpcClients`.
 
 ---
 
 ## 🧪 Test gRPC Endpoints
 
-This sample is easiest to verify with `grpcurl`. Use the seeded `admin` account for the full Todo flow and the `user` account to confirm authorization failures.
+Use `grpcurl` to exercise both authorization paths: the seeded `admin` account should complete Todo operations, while `user` should receive an authorization error.
 
 ### Admin Flow
 
@@ -4025,4 +4015,4 @@ Expected behavior:
 
 ## 🏁 Conclusion
 
-This setup delivers a robust, production-ready gRPC API by combining Spring Boot, protobuf-first contracts, JPA-backed persistence, Spring Security, interceptor-based validation, and centralized exception mapping in one coherent server design. As a practical next step for production hardening, move the sample’s local JWT defaults and profile-specific database settings into environment-specific secure configuration and add regression tests around the most critical RPC contracts.
+The example combines protobuf contracts, JPA persistence, Spring Security, interceptor-based validation, and centralized gRPC error mapping. Before production, move the sample JWT defaults and database settings into secure environment-specific configuration, then add regression tests for the RPC contracts your clients depend on.

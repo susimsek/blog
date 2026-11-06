@@ -31,28 +31,26 @@ topics:
     color: 'orange'
 ---
 
-Spring Boot, düşük seviyeli sunucu açılış kodlarını elle birleştirmeden contract-first gRPC servisleri kurmayı mümkün hale getiren birinci sınıf gRPC sunucu desteği sunuyor. Bu makalede [spring-grpc-samples](https://github.com/susimsek/spring-grpc-samples) reposundaki gerçek kodları kullanacak ve akışı JWE + JPA makalesindeki dosya-merkezli yapıya yakın biçimde kuracağız.
+Spring Boot'un gRPC desteği, sunucu başlatma altyapısını elle kurmadan protobuf sözleşmeleriyle servis yayımlamanızı sağlar. Bu yazı, [spring-grpc-samples](https://github.com/susimsek/spring-grpc-samples) reposundaki Java ve Kotlin uygulamalarını izliyor.
 
-Bu örnek, basit bir hello-world RPC’sinden fazlasını içeriyor. Aynı Todo servisi içinde Spring gRPC, Spring Security, Protovalidate, JPA, Liquibase, yerelleştirilmiş hata yönetimi ve test desteği birlikte çalışıyor.
+Repodaki Todo servisi Spring gRPC, Spring Security, Protovalidate, JPA ve Liquibase kullanıyor; repo ayrıca yerelleştirilmiş hata yönetimi ve entegrasyon testleri içeriyor.
 
 ---
 
 ## 🌟 Neden Spring Boot gRPC Kullanılır?
 
-Bu bölümde Neden Spring Boot gRPC Kullanılır? konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
+Spring Boot, protobuf ile tanımlanan RPC metotlarını Spring yönetimli servisler olarak yayımlar.
 
-- Contract-first API tasarımı: protobuf dosyaları RPC isimlerini, mesaj yapısını ve doğrulama kurallarını tanımlar.
-- Küçük servis katmanı: Spring Boot `BindableService` bean’lerini otomatik yayımlar, bu yüzden servis sınıfları iş akışına odaklanır.
-- Tutarlı güvenlik: kimlik doğrulama ve yetkilendirme gRPC sunucu hattında uygulanır.
-- Yapılandırılmış doğrulama: istek kuralları sözleşmeye yakın yerde tanımlanır ve merkezi olarak çalıştırılır.
-- Daha iyi istemci geri bildirimi: hatalı istekler ve auth problemleri uygun gRPC status yanıtlarına çevrilir.
-- Üretim yoluna yakın örnek: proje zaten test, native build, Docker, Helm ve Terraform taraflarını da düşünür.
+- Contract-first API tasarımı: protobuf dosyaları RPC metotlarını, mesaj yapılarını ve doğrulama kurallarını tanımlar.
+- Spring yönetimli servisler: Spring Boot `BindableService` bean’lerini gRPC sunucusuna kaydeder.
+- gRPC güvenliği: kimlik doğrulama ve yetkilendirme sunucu hattında çalışır.
+- Merkezi doğrulama: istek kuralları protobuf sözleşmesinde tanımlanır ve servis mantığından önce denetlenir.
+- Tutarlı hata yanıtları: geçersiz istekler ve kimlik doğrulama hataları gRPC status yanıtlarına çevrilir.
+- Dağıtım desteği: repoda testler, native-image metadata’sı, Docker, Helm ve Terraform dosyaları bulunur.
 
 ---
 
 ## 📋 Gereksinimler
-
-Bu bölümde Gereksinimler konusunu netleştirip uygulamada kullanacağınız temel noktaları özetliyoruz.
 
 - ☕ Java Development Kit (JDK) 25
 - 📦 `./mvnw` ile Maven Wrapper
@@ -64,7 +62,7 @@ Bu bölümde Gereksinimler konusunu netleştirip uygulamada kullanacağınız te
 
 ## 🛠️ Adım 1: Bağımlılıkları Ekle
 
-Örnek projedekiyle aynı temel parçaları ekleyin: gRPC transport katmanı, JPA persistence, Liquibase migration, JWT güvenliği, cache desteği, MapStruct ve Protovalidate.
+Örnekte kullanılan gRPC, JPA, Liquibase, JWT güvenliği, cache, MapStruct ve Protovalidate bağımlılıklarını ekleyin.
 
 Maven:
 
@@ -170,15 +168,15 @@ dependencies {
 }
 ```
 
-Yerel geliştirmede örnek proje varsayılan `dev` profilinde `H2`, `prod` profilinde ise `PostgreSQL` kullanır; bu yüzden veritabanı driver’ları profile bağlı runtime bağımlılıkları olarak kalır.
+`dev` profili `H2`, `prod` profili ise `PostgreSQL` kullanır; ilgili veritabanı driver’ları kendi profillerine bağlıdır.
 
-Bu kombinasyon önemlidir çünkü proje yalnızca RPC metodu servis etmez. Aynı zamanda JPA ile Todo verisini saklar, Liquibase migration çalıştırır, MapStruct ile entity dönüşümü yapar, protobuf payload’larını doğrular, Hibernate cache desteği ekler ve iş RPC’lerini JWT ile korur.
+Bu bağımlılıklar Todo kayıtlarını JPA ile saklar, Liquibase migration’larını çalıştırır, entity dönüşümünü ve protobuf doğrulamasını sağlar, Hibernate cache’ini etkinleştirir ve iş RPC’lerini JWT ile korur.
 
 ---
 
 ## 🛠️ Adım 2: Yapılandırma Dosyaları
 
-Bu bölümde örnek projenin kullandığı temel yapılandırma ve migration dosyalarını tanımlıyor; gRPC ile persistence katmanını bir arada kullanan bir servis için neden önemli olduklarını açıklıyoruz.
+Uygulama yapılandırması gRPC listener’ını aktif profil, veritabanı, migration ve yerelleştirilmiş mesaj ayarlarıyla birleştirir. Aşağıdaki dosyalar bu ayarları, şema tanımlarını ve başlangıç verilerini gösterir.
 
 - `src/main/resources/config/application.yml`
   Uygulama adı, aktif profil akışı, JPA varsayımları, Hibernate cache ayarları, Liquibase changelog yolu, message bundle ayarı ve gRPC portunu içerir.
@@ -265,7 +263,7 @@ spring:
       port: 9090
 ```
 
-Buradaki gRPC açısından kritik ayar `spring.grpc.server.port` alanıdır. Ancak çevresindeki JPA, Liquibase ve message-source ayarları bu örneği izole bir transport demosu olmaktan çıkarıp gerçekçi bir sunucu haline getirir.
+gRPC listener’ı `spring.grpc.server.port` üzerinden yapılandırılır. JPA, Liquibase ve message-source ayarları uygulamanın diğer katmanlarını kurar.
 
 `application-dev.yml`
 
@@ -869,7 +867,7 @@ user_id;authority_id
 2;2
 ```
 
-Örnek proje ayrıca `src/main/resources/META-INF/native-image` altında birkaç native-image metadata dosyası da tutar. Uygulamaya özel hint kaydı `NativeRuntimeHints` içinde yapılırken, vendor metadata dosyaları Protovalidate, Hibernate JCache ve Liquibase resource taraması için kullanılır:
+Native-image metadata dosyaları `src/main/resources/META-INF/native-image` altındadır. `NativeRuntimeHints` uygulamaya özel hint’leri kaydeder; bağımlılık metadata’sı Protovalidate, Hibernate JCache ve Liquibase resource taraması içindir:
 
 - `src/main/resources/META-INF/native-image/build.buf/protovalidate/reflect-config.json`
   GraalVM build’lerinde Buf validation model tiplerini reflection için kaydeder.
@@ -907,10 +905,10 @@ user_id;authority_id
 
 ## 🛠️ Adım 3: gRPC Bootstrap ve Sözleşmeler
 
-Önce uygulamanın bootstrap sınıfını, ardından public RPC yüzeyini tanımlayan protobuf sözleşmelerini ele alıyoruz.
+Uygulama sınıfı Spring Boot'u başlatır. Ardından gelen protobuf sözleşmeleri, dışarıya açılan RPC metotlarını ve mesaj yapılarını tanımlar.
 
 - `src/main/java/io/github/susimsek/springgrpcsamples/SpringGrpcSamplesApplication.java`
-  Uygulamayı başlatır ve bootstrap akışını açık tutar.
+  Spring uygulamasını başlatır; component scan gRPC servis bean’lerini bulur.
 
 :::tabs
 @tab Java [icon=java]
@@ -962,10 +960,10 @@ fun main(args: Array<String>) {
 
 ## 🛠️ Adım 4: JPA Entegrasyonu
 
-Kimlik doğrulama ve korumalı RPC akışına geçmeden önce, örnek projenin Todo modeli etrafındaki sözleşme ve persistence tarafını görmek faydalı olur.
+Persistence katmanı uygulama ve veritabanı ayarlarını, ortak audit alanlarını, protobuf sözleşmelerini ve JPA entity’lerini bir araya getirir.
 
 - `ApplicationProperties`, `DatabaseConfig`, `AuditableEntity` ve `AuthorityEntity`
-  Bu destek sınıfları JWT/cache ayarlarını, JPA auditing akışını ve `TodoEntity` ile `UserEntity` tarafından kullanılan ortak domain tabanını tanımlar.
+  Bu sınıflar JWT/cache ayarlarını tutar, JPA auditing’i yapılandırır ve ortak audit alanlarıyla kullanıcı yetkilerini modeller.
 
 :::tabs
 @tab Java [icon=java]
@@ -1417,10 +1415,10 @@ message Todo {
 }
 ```
 
-Bu sözleşmeler; doğrulama anlamını, sayfalama tasarımını ve API sınırlarını zaten taşıyor. Java servis katmanının sade kalmasının ana sebeplerinden biri bu.
+Protobuf sözleşmeleri doğrulama kurallarını, sayfalamayı ve API sınırlarını RPC tanımlarına yakın tutar; servis katmanındaki istek şekli kontrolleri azalır.
 
 - `TodoEntity`, `UserEntity` ve `UserRepository`
-  GraphQL JWE makalesindeki gibi burada da sadece servis katmanını değil, entity ve kullanıcı yükleme omurgasını da görünür kılmak gerekir.
+  JPA entity ve repository’leri Todo kayıtlarını, cache’lenen kullanıcı sorgularını ve yetki yüklemesini yönetir.
 
 :::tabs
 @tab Java [icon=java]
@@ -1639,7 +1637,7 @@ interface UserRepository : JpaRepository<UserEntity, Long> {
 
 ## 🛠️ Adım 5: Kimlik Doğrulama ve Korumalı Endpointler
 
-Korumalı RPC handler'lara geçmeden önce onların bağımlı olduğu repository ve mapper parçalarını görmek faydalı olur.
+Todo handler’ları repository ve mapper kullanır; kimlik doğrulama için JPA kullanıcılarını yükleyen bir `UserDetailsService` gerekir.
 
 - `src/main/java/io/github/susimsek/springgrpcsamples/repository/TodoRepository.java`
   Spring Data JPA doğrudan kullanılıyor; temel CRUD ve sayfalama için özel implementasyon gerekmiyor.
@@ -1790,7 +1788,7 @@ interface TodoMapper {
 
 :::
 
-`TodoMapper` sade kalsın diye repo, küçük bir protobuf yardımcı sınıfı ve generated builder alanlarını dışarıda bırakan yeniden kullanılabilir bir MapStruct meta-annotation da ekliyor.
+İki küçük yardımcı sınıf, protobuf dönüşüm ayrıntılarını `TodoMapper` dışında tutar.
 
 - `src/main/java/io/github/susimsek/springgrpcsamples/mapper/ProtobufMapper.java`
   `Instant` değerlerini protobuf `Timestamp` nesnelerine çevirir.
@@ -1884,10 +1882,8 @@ annotation class ProtobufMapping
 
 :::
 
-Kimlik doğrulama tarafı da JPA kullanıcılarını Spring Security’ye uyarlayan özel bir `UserDetailsService` sınıfına dayanır.
-
 - `src/main/java/io/github/susimsek/springgrpcsamples/security/DomainUserDetailsService.java`
-  Persist edilen kullanıcıyı yükler ve `UserDetails` nesnesine dönüştürür.
+  Veritabanındaki kullanıcıyı yükler ve Spring Security `UserDetails` nesnesine dönüştürür.
 
 :::tabs
 @tab Java [icon=java]
@@ -1972,13 +1968,11 @@ class DomainUserDetailsService(
 
 :::
 
-Bu parçalar yerinde olduğunda gRPC servisleri dönüşüm ayrıntıları yerine iş akışına odaklanabilir.
-
 ---
 
 ## 🛠️ Adım 6: Güvenlik, Doğrulama ve Hata Yönetimi
 
-Bu bölümde repo içindeki gerçek servis sınıflarını kullanıyoruz. Kimlik doğrulama ve Todo CRUD akışı, üretilen gRPC base class’larını genişleten Spring bean’leri olarak yazılmış.
+Her iki gRPC servisi de üretilen service base class’larını genişleten Spring bean’leridir.
 
 - `src/main/java/io/github/susimsek/springgrpcsamples/service/AuthGrpcService.java`
   Kimlik bilgilerini doğrular ve JWT tabanlı token yanıtını üretir.
@@ -2279,11 +2273,11 @@ class TodoGrpcService(
 
 :::
 
-Servis katmanı bilinçli olarak doğrudan yazılmış. Her metod protobuf isteğini alır, repository ve mapper katmanına delegasyon yapar ve `StreamObserver` yanıtını tamamlar.
+Her handler protobuf isteğini alır ve yanıtı `StreamObserver` üzerinden tamamlar. Todo handler’ları persistence ve dönüşümü repository/mapper katmanlarına bırakırken login akışı kimlik bilgilerini Spring Security’ye doğrulatır.
 
 ---
 
-Örnek proje; parola encoder, authentication manager ve gRPC yetkilendirme kurallarını tek bir security sınıfında topluyor.
+Security yapılandırması parola encoder’ını, authentication manager’ı ve gRPC yetkilendirme kurallarını tanımlar.
 
 - `src/main/java/io/github/susimsek/springgrpcsamples/config/security/SecurityConfig.java`
   Spring Security’yi gRPC sunucu hattına bağlar ve `TodoService/*` çağrılarını admin yetkisi ile korur.
@@ -2403,7 +2397,7 @@ class SecurityConfig {
 
 :::
 
-Bu yapı pratik bir desen sunar çünkü yetkilendirme modeli tek yerde okunabilir hale gelir: login ve altyapı çağrıları public, iş RPC’leri ise bearer token ve doğru yetki ile korunur.
+Erişim sınırı açıktır: login ve altyapı çağrıları public kalır; iş RPC’leri beklenen yetkiye sahip bearer token ister.
 
 - `src/main/java/io/github/susimsek/springgrpcsamples/security/JwtService.java`
   Doğrulanmış Spring Security principal’larından JWT token üretir.
@@ -2516,8 +2510,6 @@ class JwtService(
 :::
 
 ---
-
-JWT akışı birkaç küçük destek sınıfına bölünmüş durumda; böylece ana security konfigürasyonu okunabilir kalıyor.
 
 - `src/main/java/io/github/susimsek/springgrpcsamples/security/AuthoritiesConstants.java`
   Bootstrap verisi, yetkilendirme kuralları ve JWT claim’lerinde kullanılan rol adlarını tanımlar.
@@ -3446,8 +3438,6 @@ class GlobalGrpcExceptionHandler(
 
 :::
 
-Bu tasarım sayesinde servis metotları tekrar eden guard clause’lar ve manuel exception mapping ile kirlenmez. Protobuf sözleşmesi, interceptor katmanı ve advice katmanı birlikte çalışır.
-
 - `src/main/java/io/github/susimsek/springgrpcsamples/exception/GrpcApiException.java`
   Uygulama seviyesi gRPC exception’ları için status code ve mesaj metadata’sını tanımlayan temel sınıftır.
 
@@ -3878,7 +3868,7 @@ class NativeRuntimeHints : RuntimeHintsRegistrar {
 
 ## ▶️ Uygulamayı Çalıştır
 
-Sunucuyu yerelde ayağa kaldırmak için repo içinde belgelenen akışı kullanın.
+Sunucuyu Maven Wrapper ile başlatın:
 
 ```bash
 ./mvnw spring-boot:run
@@ -3904,13 +3894,13 @@ Beklenen davranış:
 - `TodoService/ListTodos`, yalnızca geçerli bearer token ve doğru yetkiyle çalışmalıdır.
 - Hatalı payload’lar, yapılandırılmış alan ihlalleriyle birlikte `InvalidArgument` dönmelidir.
 
-Spring ayrıca gRPC için in-process test taşımayı da destekler. Projenin README dosyasında `@AutoConfigureTestGrpcTransport` ve `@ImportGrpcClients` kullanımından bahsediliyor; deterministik entegrasyon testleri için doğru yön budur.
+Repo, entegrasyon testlerinde in-process gRPC transport da kullanıyor. README’de `@AutoConfigureTestGrpcTransport` ve `@ImportGrpcClients` ile client stub kaydı gösteriliyor.
 
 ---
 
 ## 🧪 gRPC Endpoint Testi
 
-Bu örneği doğrulamanın en pratik yolu `grpcurl` kullanmaktır. Tüm Todo akışı için seed edilmiş `admin` hesabını, yetki hatalarını doğrulamak için ise `user` hesabını kullanın.
+`grpcurl` ile iki yetkilendirme akışını da deneyin: seed edilmiş `admin` hesabı Todo işlemlerini yapabilmeli, `user` hesabı ise yetki hatası almalıdır.
 
 ### Admin Akışı
 
@@ -4023,4 +4013,4 @@ Beklenen davranış:
 
 ## 🏁 Sonuç
 
-Bu kurulum, Spring Boot, protobuf-first sözleşmeler, JPA tabanlı persistence, Spring Security, interceptor tabanlı doğrulama ve merkezi exception mapping birleşimiyle sağlam ve üretim-hazır bir gRPC API yaklaşımı sunar. Üretim sertleştirmesi için sonraki pratik adım olarak örnek repodaki yerel JWT varsayımlarını ve profile bağlı veritabanı ayarlarını ortam bazlı güvenli yapılandırmaya taşıyıp en kritik RPC sözleşmeleri için regresyon testleri ekleyin.
+Örnek; protobuf sözleşmelerini, JPA ile veri kalıcılığını, Spring Security’yi, interceptor tabanlı doğrulamayı ve merkezi gRPC hata eşlemesini bir araya getiriyor. Üretime almadan önce JWT varsayımlarını ve veritabanı ayarlarını ortama özel güvenli yapılandırmaya taşıyın; ardından istemcilerin kullandığı RPC sözleşmeleri için regresyon testleri ekleyin.

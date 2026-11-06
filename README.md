@@ -1,6 +1,6 @@
 # Blog Platform (Next.js 16 + Go)
 
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/susimsek/blog/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/susimsek/blog/tree/main)
+[![CI](https://github.com/susimsek/blog/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/susimsek/blog/actions/workflows/ci.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=alert_status)](https://sonarcloud.io/summary/overall?id=blog&branch=main)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=blog&metric=coverage)](https://sonarcloud.io/summary/overall?id=blog&branch=main)
 [![Go](https://img.shields.io/badge/Go-1.24-00ADD8?logo=go)](https://go.dev/)
@@ -255,6 +255,22 @@ Note: exact allowed HTTP methods are enforced in each handler; the table reflect
 | ----------------- | -------- | ------- | ----------------------------------------------------- |
 | `SONAR_TOKEN`     | No       | -       | Token for SonarCloud scan auth.                       |
 | `SONARQUBE_TOKEN` | No       | -       | Alternative token variable used in some environments. |
+
+### GitHub Actions CI and Release
+
+The `CI` workflow runs tests, backend lint, security analysis, and the production build on pushes and pull requests. After a successful push to `main`, the separate `Release` workflow downloads that run's static-site artifact, publishes the Docker image, and deploys to Vercel.
+
+Configure these repository secrets for releases:
+
+| Secret              | Purpose                              |
+| ------------------- | ------------------------------------ |
+| `DOCKER_LOGIN`      | Docker Hub username.                 |
+| `DOCKER_PASSWORD`   | Docker Hub password or access token. |
+| `VERCEL_TOKEN`      | Vercel deployment token.             |
+| `VERCEL_ORG_ID`     | Vercel account or team ID.           |
+| `VERCEL_PROJECT_ID` | Vercel project ID.                   |
+
+`SONAR_TOKEN` and `SNYK_TOKEN` are optional. Their scans are skipped when the corresponding secret is absent; Snyk findings remain non-blocking.
 
 ## Quality and Testing
 
