@@ -12,7 +12,17 @@ const basePath = (process.env.NEXT_PUBLIC_BASE_PATH || '').replace(/^\/+|\/+$/g,
 const basePathPrefix = basePath ? `/${basePath}` : '';
 
 const buildDir = path.join(process.cwd(), 'build');
+const publicDir = path.join(process.cwd(), 'public');
 const generatedAt = new Date().toISOString();
+
+function writeSitemap(fileName, sitemapXML) {
+  [buildDir, publicDir].forEach(outputDir => {
+    const sitemapPath = path.join(outputDir, fileName);
+    fs.mkdirSync(path.dirname(sitemapPath), { recursive: true });
+    fs.writeFileSync(sitemapPath, sitemapXML, 'utf8');
+    console.log('Sitemap generated at:', sitemapPath);
+  });
+}
 
 const toIsoTimestamp = value => {
   if (!value) {
@@ -167,9 +177,7 @@ function generatePostsSitemapXML(postsById) {
 function generatePostsSitemap() {
   const postsById = groupPostsById();
   const sitemapXML = generatePostsSitemapXML(postsById);
-  const sitemapPath = path.join(buildDir, 'post-sitemap.xml');
-  fs.writeFileSync(sitemapPath, sitemapXML, 'utf8');
-  console.log('Posts sitemap generated at:', sitemapPath);
+  writeSitemap('post-sitemap.xml', sitemapXML);
 }
 
 /** -------------- TOPICS SITEMAP GENERATION -------------- **/
@@ -252,9 +260,7 @@ function generateTopicsSitemapXML(topicsById) {
 function generateTopicsSitemap() {
   const topicsById = groupTopicsById();
   const sitemapXML = generateTopicsSitemapXML(topicsById);
-  const sitemapPath = path.join(buildDir, 'post_topic-sitemap.xml');
-  fs.writeFileSync(sitemapPath, sitemapXML, 'utf8');
-  console.log('Topics sitemap generated at:', sitemapPath);
+  writeSitemap('post_topic-sitemap.xml', sitemapXML);
 }
 
 /** -------------- CATEGORIES SITEMAP GENERATION -------------- **/
@@ -339,9 +345,7 @@ function generateCategoriesSitemapXML(categoriesById) {
 function generateCategoriesSitemap() {
   const categoriesById = groupCategoriesById();
   const sitemapXML = generateCategoriesSitemapXML(categoriesById);
-  const sitemapPath = path.join(buildDir, 'category-sitemap.xml');
-  fs.writeFileSync(sitemapPath, sitemapXML, 'utf8');
-  console.log('Categories sitemap generated at:', sitemapPath);
+  writeSitemap('category-sitemap.xml', sitemapXML);
 }
 
 /** -------------- PAGES SITEMAP GENERATION -------------- **/
@@ -497,9 +501,7 @@ function generatePagesSitemapXML(pages) {
 function generatePagesSitemap() {
   const pages = getPagesData();
   const sitemapXML = generatePagesSitemapXML(pages);
-  const sitemapPath = path.join(buildDir, 'page-sitemap.xml');
-  fs.writeFileSync(sitemapPath, sitemapXML, 'utf8');
-  console.log('Pages sitemap generated at:', sitemapPath);
+  writeSitemap('page-sitemap.xml', sitemapXML);
 }
 
 /** -------------- SITEMAP INDEX GENERATION -------------- **/
@@ -532,9 +534,7 @@ function generateSitemapIndexXML() {
  */
 function generateSitemapIndex() {
   const sitemapIndexXML = generateSitemapIndexXML();
-  const sitemapIndexPath = path.join(buildDir, 'sitemap_index.xml');
-  fs.writeFileSync(sitemapIndexPath, sitemapIndexXML, 'utf8');
-  console.log('Sitemap index generated at:', sitemapIndexPath);
+  writeSitemap('sitemap_index.xml', sitemapIndexXML);
 }
 
 /** -------------- MAIN -------------- **/
