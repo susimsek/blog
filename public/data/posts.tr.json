@@ -99,7 +99,7 @@
         "color": "orange"
       }
     ],
-    "readingTimeMin": 7,
+    "readingTimeMin": 6,
     "searchText": "spring boot ile grpc protobuf sozlesmeleri jwt kimlik dogrulama dogrulama jpa ve in process test destegiyle spring boot uzerinde guvenli bir grpc api gelistirmeyi ogrenin java spring boot grpc guvenlik dogrulama",
     "updatedDate": "2026-08-04",
     "publishedDate": "2026-08-04",

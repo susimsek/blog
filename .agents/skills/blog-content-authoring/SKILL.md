@@ -53,6 +53,11 @@ Use this rule set to keep every article at a modern, professional developer-blog
 3. Keep heading hierarchy clean: main sections `##`, subsections `###`, avoid deeper nesting.
 4. Keep prose direct and concrete; prefer short paragraphs and scannable bullets.
 5. Avoid duplicate/redundant wording (e.g., repeated “Spring Boot” phrases in conclusions).
+6. For new articles and substantial prose edits, do a humanizer pass in both locales. Use the [Humanizer skill](https://github.com/blader/humanizer) and its source, [Wikipedia's Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), as editorial references, not as an AI detector or a rigid checklist:
+   - Look for staged openers, empty emphasis or conclusions, repeated claims, forced three-part lists, generic transitions, inflated importance, and excessive dash or bold-label use.
+   - Rewrite or remove a pattern only when it adds no useful meaning. Keep real contrasts, meaningful lists, emphasis, and the author's natural voice.
+   - Preserve factual claims, technical meaning, citations, names, versions, and EN/TR parity. Do not invent anecdotes or details to make prose sound more human.
+   - Leave code blocks, inline code, commands, filenames, links, and frontmatter values unchanged. The goal is clear, reader-focused writing, not evading AI detectors.
 
 ### C) Professional editing checks
 
