@@ -8,78 +8,37 @@ import (
 
 	"suaybsimsek.com/blog-api/internal/graphql/model"
 	appservice "suaybsimsek.com/blog-api/internal/service"
+	"suaybsimsek.com/blog-api/internal/testassert"
 )
 
 func TestEnumAndScalarHelpers(t *testing.T) {
-	if got := mapLocaleInput("tr"); got != "tr" {
-		t.Fatalf("mapLocaleInput() = %q", got)
-	}
-	if got := mapLocaleOutput(" TR "); got != "tr" {
-		t.Fatalf("mapLocaleOutput() = %q", got)
-	}
-	if got := mapLocaleOutput("unknown"); got != "en" {
-		t.Fatalf("mapLocaleOutput(default) = %q", got)
-	}
-	if got := mapResolvedSortOrder("asc"); got == nil || *got != model.SortOrderAsc {
-		t.Fatalf("mapResolvedSortOrder(asc) = %#v", got)
-	}
-	if got := mapResolvedSortOrder("nope"); got != nil {
-		t.Fatalf("mapResolvedSortOrder(default) = %#v", got)
-	}
-	if got := mapContentQueryStatus("not-found"); got != model.ContentQueryStatusNotFound {
-		t.Fatalf("mapContentQueryStatus() = %q", got)
-	}
-	if got := mapContentQueryStatus("service-unavailable"); got != model.ContentQueryStatusServiceUnavailable {
-		t.Fatalf("mapContentQueryStatus(service-unavailable) = %q", got)
-	}
-	if got := mapContentQueryStatus("invalid-scope-ids"); got != model.ContentQueryStatusInvalidScopeIDS {
-		t.Fatalf("mapContentQueryStatus(invalid-scope-ids) = %q", got)
-	}
-	if got := mapContentQueryStatus("invalid-post-id"); got != model.ContentQueryStatusInvalidPostID {
-		t.Fatalf("mapContentQueryStatus(invalid-post-id) = %q", got)
-	}
-	if got := mapContentQueryStatus("unknown"); got != model.ContentQueryStatusFailed {
-		t.Fatalf("mapContentQueryStatus(default) = %q", got)
-	}
-	if got := mapPostMetricStatus("invalid-post-id"); got != model.PostMetricStatusInvalidPostID {
-		t.Fatalf("mapPostMetricStatus() = %q", got)
-	}
-	if got := mapPostMetricStatus("service-unavailable"); got != model.PostMetricStatusServiceUnavailable {
-		t.Fatalf("mapPostMetricStatus(service-unavailable) = %q", got)
-	}
-	if got := mapPostMetricStatus("unknown"); got != model.PostMetricStatusFailed {
-		t.Fatalf("mapPostMetricStatus(default) = %q", got)
-	}
-	if got := mapNewsletterMutationStatus("success"); got != model.NewsletterMutationStatusSuccess {
-		t.Fatalf("mapNewsletterMutationStatus(success) = %q", got)
-	}
-	if got := mapNewsletterMutationStatus("invalid-email"); got != model.NewsletterMutationStatusInvalidEmail {
-		t.Fatalf("mapNewsletterMutationStatus(invalid-email) = %q", got)
-	}
-	if got := mapNewsletterMutationStatus("rate-limited"); got != model.NewsletterMutationStatusRateLimited {
-		t.Fatalf("mapNewsletterMutationStatus(rate-limited) = %q", got)
-	}
-	if got := mapNewsletterMutationStatus("invalid-link"); got != model.NewsletterMutationStatusInvalidLink {
-		t.Fatalf("mapNewsletterMutationStatus(invalid-link) = %q", got)
-	}
-	if got := mapNewsletterMutationStatus("config-error"); got != model.NewsletterMutationStatusConfigError {
-		t.Fatalf("mapNewsletterMutationStatus(config-error) = %q", got)
-	}
-	if got := mapNewsletterMutationStatus("service-unavailable"); got != model.NewsletterMutationStatusServiceUnavailable {
-		t.Fatalf("mapNewsletterMutationStatus(service-unavailable) = %q", got)
-	}
-	if got := mapNewsletterMutationStatus("expired"); got != model.NewsletterMutationStatusExpired {
-		t.Fatalf("mapNewsletterMutationStatus(expired) = %q", got)
-	}
-	if got := mapNewsletterMutationStatus("failed"); got != model.NewsletterMutationStatusFailed {
-		t.Fatalf("mapNewsletterMutationStatus(failed) = %q", got)
-	}
-	if got := mapNewsletterMutationStatus("unknown"); got != model.NewsletterMutationStatusUnknownError {
-		t.Fatalf("mapNewsletterMutationStatus(default) = %q", got)
-	}
-	if got := toGraphQLInt(int64(^uint32(0))); got <= 0 {
-		t.Fatalf("toGraphQLInt() = %d", got)
-	}
+	testassert.Equal(t, mapLocaleInput("tr"), "tr", "locale input")
+	testassert.Equal(t, mapLocaleOutput(" TR "), "tr", "locale output")
+	testassert.Equal(t, mapLocaleOutput("unknown"), "en", "default locale")
+
+	sortOrder := mapResolvedSortOrder("asc")
+	testassert.NotNil(t, sortOrder, "ascending sort order should be mapped")
+	testassert.Equal(t, *sortOrder, model.SortOrderAsc, "ascending sort order")
+	testassert.True(t, mapResolvedSortOrder("nope") == nil, "unknown sort order should be nil")
+
+	testassert.Equal(t, mapContentQueryStatus("not-found"), model.ContentQueryStatusNotFound, "not-found query status")
+	testassert.Equal(t, mapContentQueryStatus("service-unavailable"), model.ContentQueryStatusServiceUnavailable, "unavailable query status")
+	testassert.Equal(t, mapContentQueryStatus("invalid-scope-ids"), model.ContentQueryStatusInvalidScopeIDS, "invalid scope status")
+	testassert.Equal(t, mapContentQueryStatus("invalid-post-id"), model.ContentQueryStatusInvalidPostID, "invalid post status")
+	testassert.Equal(t, mapContentQueryStatus("unknown"), model.ContentQueryStatusFailed, "default query status")
+	testassert.Equal(t, mapPostMetricStatus("invalid-post-id"), model.PostMetricStatusInvalidPostID, "invalid post metric status")
+	testassert.Equal(t, mapPostMetricStatus("service-unavailable"), model.PostMetricStatusServiceUnavailable, "unavailable post metric status")
+	testassert.Equal(t, mapPostMetricStatus("unknown"), model.PostMetricStatusFailed, "default post metric status")
+	testassert.Equal(t, mapNewsletterMutationStatus("success"), model.NewsletterMutationStatusSuccess, "successful newsletter status")
+	testassert.Equal(t, mapNewsletterMutationStatus("invalid-email"), model.NewsletterMutationStatusInvalidEmail, "invalid email status")
+	testassert.Equal(t, mapNewsletterMutationStatus("rate-limited"), model.NewsletterMutationStatusRateLimited, "rate-limited status")
+	testassert.Equal(t, mapNewsletterMutationStatus("invalid-link"), model.NewsletterMutationStatusInvalidLink, "invalid link status")
+	testassert.Equal(t, mapNewsletterMutationStatus("config-error"), model.NewsletterMutationStatusConfigError, "configuration error status")
+	testassert.Equal(t, mapNewsletterMutationStatus("service-unavailable"), model.NewsletterMutationStatusServiceUnavailable, "newsletter unavailable status")
+	testassert.Equal(t, mapNewsletterMutationStatus("expired"), model.NewsletterMutationStatusExpired, "expired status")
+	testassert.Equal(t, mapNewsletterMutationStatus("failed"), model.NewsletterMutationStatusFailed, "failed newsletter status")
+	testassert.Equal(t, mapNewsletterMutationStatus("unknown"), model.NewsletterMutationStatusUnknownError, "unknown newsletter status")
+	testassert.True(t, toGraphQLInt(int64(^uint32(0))) > 0, "GraphQL integer should remain positive")
 }
 
 func TestPostMappingHelpers(t *testing.T) {

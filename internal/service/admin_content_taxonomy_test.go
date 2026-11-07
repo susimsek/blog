@@ -146,11 +146,20 @@ func TestAdminContentTopicWorkflowsPersistAndAudit(t *testing.T) {
 		t.Fatalf("DeleteAdminContentTopic returned error: %v", err)
 	}
 
+	assertAdminContentTopicWorkflowResult(t, syncCalls, removeCalls, audit)
+}
+
+func assertAdminContentTopicWorkflowResult(
+	t *testing.T,
+	syncCalls, removeCalls int,
+	audit *adminErrorMessageManagementAuditStub,
+) {
+	t.Helper()
 	if syncCalls != 2 || removeCalls != 1 {
 		t.Fatalf("unexpected topic sync calls: sync=%d remove=%d", syncCalls, removeCalls)
 	}
 	if len(audit.records) != 3 || audit.records[0].Action != "content_topic_created" || audit.records[1].Action != "content_topic_updated" || audit.records[2].Action != "content_topic_deleted" {
-		t.Fatalf("unexpected audit records: %#v", audit.records)
+		t.Fatalf("unexpected topic audit records: %#v", audit.records)
 	}
 }
 
@@ -232,11 +241,20 @@ func TestAdminContentCategoryWorkflowsPersistAndAudit(t *testing.T) {
 		t.Fatalf("DeleteAdminContentCategory returned error: %v", err)
 	}
 
+	assertAdminContentCategoryWorkflowResult(t, syncCalls, clearCalls, audit)
+}
+
+func assertAdminContentCategoryWorkflowResult(
+	t *testing.T,
+	syncCalls, clearCalls int,
+	audit *adminErrorMessageManagementAuditStub,
+) {
+	t.Helper()
 	if syncCalls != 2 || clearCalls != 1 {
 		t.Fatalf("unexpected category sync calls: sync=%d clear=%d", syncCalls, clearCalls)
 	}
 	if len(audit.records) != 3 || audit.records[0].Action != "content_category_created" || audit.records[1].Action != "content_category_updated" || audit.records[2].Action != "content_category_deleted" {
-		t.Fatalf("unexpected audit records: %#v", audit.records)
+		t.Fatalf("unexpected category audit records: %#v", audit.records)
 	}
 }
 

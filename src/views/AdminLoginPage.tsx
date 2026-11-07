@@ -25,6 +25,166 @@ import { ADMIN_ROUTES, withAdminLocalePath } from '@/lib/adminRoutes';
 import { writeAdminSessionProfileCache } from '@/lib/adminSessionProfileCache';
 import { isValidEmail } from '@/lib/emailValidation';
 
+type AdminLoginTranslate = ReturnType<typeof useTranslation>['t'];
+type AdminOAuthStatus = { enabled: boolean; loginAvailable: boolean };
+
+const resolveLoginValidation = (email: string, password: string, t: AdminLoginTranslate) => {
+  const trimmedEmail = email.trim();
+  let emailError = '';
+  if (trimmedEmail === '') {
+    emailError = t('adminLogin.validation.emailRequired', { ns: 'admin-login' });
+  } else if (!isValidEmail(trimmedEmail)) {
+    emailError = t('adminLogin.validation.emailInvalid', { ns: 'admin-login' });
+  }
+
+  return {
+    trimmedEmail,
+    emailError,
+    passwordError: password.trim() === '' ? t('adminLogin.validation.passwordRequired', { ns: 'admin-login' }) : '',
+  };
+};
+
+const AdminLoginPasswordField = ({
+  password,
+  passwordError,
+  showPassword,
+  showPasswordError,
+  hasErrorMessage,
+  setPassword,
+  setShowPassword,
+  clearError,
+  t,
+}: {
+  password: string;
+  passwordError: string;
+  showPassword: boolean;
+  showPasswordError: boolean;
+  hasErrorMessage: boolean;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
+  setShowPassword: React.Dispatch<React.SetStateAction<boolean>>;
+  clearError: () => void;
+  t: AdminLoginTranslate;
+}) => (
+  <Form.Group className="mb-4" controlId="admin-login-password">
+    <Form.Label className="mb-2">{t('adminLogin.password', { ns: 'admin-login' })}</Form.Label>
+    <InputGroup>
+      <Form.Control
+        type={showPassword ? 'text' : 'password'}
+        value={password}
+        onChange={event => {
+          setPassword(event.currentTarget.value);
+          if (hasErrorMessage) {
+            clearError();
+          }
+        }}
+        placeholder={t('adminLogin.passwordPlaceholder', { ns: 'admin-login' })}
+        autoComplete="current-password"
+        isInvalid={showPasswordError}
+        required
+      />
+      <Button
+        variant="outline-secondary"
+        type="button"
+        onClick={() => setShowPassword(previous => !previous)}
+        aria-label={
+          showPassword
+            ? t('adminLogin.hidePassword', { ns: 'admin-login' })
+            : t('adminLogin.showPassword', { ns: 'admin-login' })
+        }
+      >
+        <FontAwesomeIcon icon={showPassword ? 'eye-slash' : 'eye'} />
+      </Button>
+    </InputGroup>
+    <Form.Control.Feedback type="invalid" className={showPasswordError ? 'd-block' : ''}>
+      {passwordError}
+    </Form.Control.Feedback>
+  </Form.Group>
+);
+
+const AdminLoginSocialOptions = ({
+  googleAuthStatus,
+  githubAuthStatus,
+  handleGoogleLogin,
+  handleGithubLogin,
+  handleSubmitHoverStart,
+  handleSubmitHoverEnd,
+  t,
+}: {
+  googleAuthStatus: AdminOAuthStatus;
+  githubAuthStatus: AdminOAuthStatus;
+  handleGoogleLogin: () => void;
+  handleGithubLogin: () => void;
+  handleSubmitHoverStart: () => void;
+  handleSubmitHoverEnd: () => void;
+  t: AdminLoginTranslate;
+}) => {
+  const hasGoogle = googleAuthStatus.enabled && googleAuthStatus.loginAvailable;
+  const hasGithub = githubAuthStatus.enabled && githubAuthStatus.loginAvailable;
+  if (!hasGoogle && !hasGithub) {
+    return null;
+  }
+
+  return (
+    <>
+      <div className="d-flex align-items-center gap-3 theme-text-muted small text-uppercase fw-semibold mb-4">
+        <span className="flex-grow-1 border-top" />
+        <span>{t('adminLogin.google.or', { ns: 'admin-login' })}</span>
+        <span className="flex-grow-1 border-top" />
+      </div>
+      {hasGoogle ? (
+        <div className={hasGithub ? 'mb-3' : 'mb-4'}>
+          <Button
+            type="button"
+            variant="danger"
+            className="post-summary-read-more w-100 justify-content-center"
+            onClick={handleGoogleLogin}
+            onMouseEnter={handleSubmitHoverStart}
+            onMouseLeave={handleSubmitHoverEnd}
+          >
+            <span className="read-more-label d-inline-flex align-items-center justify-content-center gap-2">
+              <FontAwesomeIcon icon={['fab', 'google']} />
+              <span>{t('adminLogin.google.submit', { ns: 'admin-login' })}</span>
+            </span>
+            <span className="read-more-icon-rail" aria-hidden="true">
+              <span className="read-more-icon read-more-icon-front">
+                <FontAwesomeIcon icon="angle-right" />
+              </span>
+              <span className="read-more-icon read-more-icon-back">
+                <FontAwesomeIcon icon="angle-right" />
+              </span>
+            </span>
+          </Button>
+        </div>
+      ) : null}
+      {hasGithub ? (
+        <div className="mb-4">
+          <Button
+            type="button"
+            variant="secondary"
+            className="post-summary-read-more w-100 justify-content-center"
+            onClick={handleGithubLogin}
+            onMouseEnter={handleSubmitHoverStart}
+            onMouseLeave={handleSubmitHoverEnd}
+          >
+            <span className="read-more-label d-inline-flex align-items-center justify-content-center gap-2">
+              <FontAwesomeIcon icon={['fab', 'github']} />
+              <span>{t('adminLogin.github.submit', { ns: 'admin-login' })}</span>
+            </span>
+            <span className="read-more-icon-rail" aria-hidden="true">
+              <span className="read-more-icon read-more-icon-front">
+                <FontAwesomeIcon icon="angle-right" />
+              </span>
+              <span className="read-more-icon read-more-icon-back">
+                <FontAwesomeIcon icon="angle-right" />
+              </span>
+            </span>
+          </Button>
+        </div>
+      ) : null}
+    </>
+  );
+};
+
 export default function AdminLoginPage() {
   // NOSONAR
   const { t } = useTranslation(['admin-login', 'admin-common']);
@@ -51,20 +211,9 @@ export default function AdminLoginPage() {
     loginAvailable: false,
   });
 
-  const trimmedEmail = email.trim();
-  let emailError = '';
-  if (trimmedEmail === '') {
-    emailError = t('adminLogin.validation.emailRequired', { ns: 'admin-login' });
-  } else if (!isValidEmail(trimmedEmail)) {
-    emailError = t('adminLogin.validation.emailInvalid', { ns: 'admin-login' });
-  }
-  const passwordError =
-    password.trim() === '' ? t('adminLogin.validation.passwordRequired', { ns: 'admin-login' }) : '';
+  const { trimmedEmail, emailError, passwordError } = resolveLoginValidation(email, password, t);
   const showEmailError = hasSubmitted && emailError !== '';
   const showPasswordError = hasSubmitted && passwordError !== '';
-  const hasSocialLogin =
-    (googleAuthStatus.enabled && googleAuthStatus.loginAvailable) ||
-    (githubAuthStatus.enabled && githubAuthStatus.loginAvailable);
 
   React.useEffect(
     () => () => {
@@ -340,41 +489,17 @@ export default function AdminLoginPage() {
                   <Form.Control.Feedback type="invalid">{emailError}</Form.Control.Feedback>
                 </Form.Group>
 
-                <Form.Group className="mb-4" controlId="admin-login-password">
-                  <Form.Label className="mb-2">{t('adminLogin.password', { ns: 'admin-login' })}</Form.Label>
-                  <InputGroup>
-                    <Form.Control
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={event => {
-                        const nextValue = event.currentTarget.value;
-                        setPassword(nextValue);
-                        if (errorMessage) {
-                          setErrorMessage('');
-                        }
-                      }}
-                      placeholder={t('adminLogin.passwordPlaceholder', { ns: 'admin-login' })}
-                      autoComplete="current-password"
-                      isInvalid={showPasswordError}
-                      required
-                    />
-                    <Button
-                      variant="outline-secondary"
-                      type="button"
-                      onClick={() => setShowPassword(previous => !previous)}
-                      aria-label={
-                        showPassword
-                          ? t('adminLogin.hidePassword', { ns: 'admin-login' })
-                          : t('adminLogin.showPassword', { ns: 'admin-login' })
-                      }
-                    >
-                      <FontAwesomeIcon icon={showPassword ? 'eye-slash' : 'eye'} />
-                    </Button>
-                  </InputGroup>
-                  <Form.Control.Feedback type="invalid" className={showPasswordError ? 'd-block' : ''}>
-                    {passwordError}
-                  </Form.Control.Feedback>
-                </Form.Group>
+                <AdminLoginPasswordField
+                  password={password}
+                  passwordError={passwordError}
+                  showPassword={showPassword}
+                  showPasswordError={showPasswordError}
+                  hasErrorMessage={Boolean(errorMessage)}
+                  setPassword={setPassword}
+                  setShowPassword={setShowPassword}
+                  clearError={() => setErrorMessage('')}
+                  t={t}
+                />
 
                 <Form.Group className="mb-4" controlId="admin-login-remember-me">
                   <div className="d-flex align-items-center justify-content-between gap-3 flex-wrap">
@@ -430,66 +555,15 @@ export default function AdminLoginPage() {
                   </Button>
                 </div>
 
-                {hasSocialLogin ? (
-                  <>
-                    <div className="d-flex align-items-center gap-3 theme-text-muted small text-uppercase fw-semibold mb-4">
-                      <span className="flex-grow-1 border-top" />
-                      <span>{t('adminLogin.google.or', { ns: 'admin-login' })}</span>
-                      <span className="flex-grow-1 border-top" />
-                    </div>
-                    {googleAuthStatus.enabled && googleAuthStatus.loginAvailable ? (
-                      <div className={githubAuthStatus.enabled && githubAuthStatus.loginAvailable ? 'mb-3' : 'mb-4'}>
-                        <Button
-                          type="button"
-                          variant="danger"
-                          className="post-summary-read-more w-100 justify-content-center"
-                          onClick={handleGoogleLogin}
-                          onMouseEnter={handleSubmitHoverStart}
-                          onMouseLeave={handleSubmitHoverEnd}
-                        >
-                          <span className="read-more-label d-inline-flex align-items-center justify-content-center gap-2">
-                            <FontAwesomeIcon icon={['fab', 'google']} />
-                            <span>{t('adminLogin.google.submit', { ns: 'admin-login' })}</span>
-                          </span>
-                          <span className="read-more-icon-rail" aria-hidden="true">
-                            <span className="read-more-icon read-more-icon-front">
-                              <FontAwesomeIcon icon="angle-right" />
-                            </span>
-                            <span className="read-more-icon read-more-icon-back">
-                              <FontAwesomeIcon icon="angle-right" />
-                            </span>
-                          </span>
-                        </Button>
-                      </div>
-                    ) : null}
-
-                    {githubAuthStatus.enabled && githubAuthStatus.loginAvailable ? (
-                      <div className="mb-4">
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          className="post-summary-read-more w-100 justify-content-center"
-                          onClick={handleGithubLogin}
-                          onMouseEnter={handleSubmitHoverStart}
-                          onMouseLeave={handleSubmitHoverEnd}
-                        >
-                          <span className="read-more-label d-inline-flex align-items-center justify-content-center gap-2">
-                            <FontAwesomeIcon icon={['fab', 'github']} />
-                            <span>{t('adminLogin.github.submit', { ns: 'admin-login' })}</span>
-                          </span>
-                          <span className="read-more-icon-rail" aria-hidden="true">
-                            <span className="read-more-icon read-more-icon-front">
-                              <FontAwesomeIcon icon="angle-right" />
-                            </span>
-                            <span className="read-more-icon read-more-icon-back">
-                              <FontAwesomeIcon icon="angle-right" />
-                            </span>
-                          </span>
-                        </Button>
-                      </div>
-                    ) : null}
-                  </>
-                ) : null}
+                <AdminLoginSocialOptions
+                  googleAuthStatus={googleAuthStatus}
+                  githubAuthStatus={githubAuthStatus}
+                  handleGoogleLogin={handleGoogleLogin}
+                  handleGithubLogin={handleGithubLogin}
+                  handleSubmitHoverStart={handleSubmitHoverStart}
+                  handleSubmitHoverEnd={handleSubmitHoverEnd}
+                  t={t}
+                />
 
                 <p className="small theme-text-muted mb-0 mt-3">{t('adminLogin.help', { ns: 'admin-login' })}</p>
               </Form>

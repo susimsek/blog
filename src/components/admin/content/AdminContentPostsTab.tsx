@@ -252,18 +252,20 @@ export default function AdminContentPostsTab({
 
       <div className="card d-block">
         <div className="card-body p-3 w-100">
-          {isLoading ? (
+          {isLoading && (
             <div className="admin-account-sessions-loading">
               <AdminLoadingState
                 className="admin-loading-stack"
                 ariaLabel={t('adminAccount.content.loading.posts', { ns: 'admin-account' })}
               />
             </div>
-          ) : total === 0 ? (
+          )}
+          {!isLoading && total === 0 && (
             <p className="small theme-text-muted mb-0">
               {t('adminAccount.content.empty.posts', { ns: 'admin-account' })}
             </p>
-          ) : (
+          )}
+          {!isLoading && total !== 0 && (
             <div className={`post-list-results post-list-results--${resolvedPostDensityMode}`}>
               {posts.map(group => {
                 const item = group.preferred;

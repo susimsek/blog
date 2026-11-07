@@ -135,7 +135,7 @@ export default function AdminAccountCommentsSection({
       <div className="d-grid gap-3">
         <div ref={commentsListTopRef} />
 
-        <div className="card shadow-sm d-block">
+        <div className="card theme-shadow-sm d-block">
           <div className="card-body p-3 w-100">
             <div className="row g-3">
               <div className="col-12 col-md-4">
@@ -206,7 +206,7 @@ export default function AdminAccountCommentsSection({
           </div>
         </div>
 
-        <div className="card shadow-sm d-block">
+        <div className="card theme-shadow-sm d-block">
           <div className="card-body p-3 w-100">
             {comments.length > 0 ? (
               <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">

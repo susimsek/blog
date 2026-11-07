@@ -117,16 +117,18 @@ export default function AdminContentTopicsTab({
               </Form.Group>
             </div>
           </div>
-          {isTopicListLoading ? (
+          {isTopicListLoading && (
             <AdminLoadingState
               className="admin-loading-stack"
               ariaLabel={t('adminAccount.content.loading.taxonomy', { ns: 'admin-account' })}
             />
-          ) : topicTotal === 0 ? (
+          )}
+          {!isTopicListLoading && topicTotal === 0 && (
             <p className="small theme-text-muted mb-0">
               {t('adminAccount.content.empty.topics', { ns: 'admin-account' })}
             </p>
-          ) : (
+          )}
+          {!isTopicListLoading && topicTotal !== 0 && (
             <div className="post-list-results post-list-results--editorial">
               {topicListItems.map(group => {
                 const item = group.preferred;

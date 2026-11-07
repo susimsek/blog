@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"strings"
 	"testing"
 	"time"
 
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/repository"
+	"suaybsimsek.com/blog-api/internal/testassert"
 )
 
 func TestResolveAdminGithubIdentityFromCodeReturnsVerifiedIdentity(t *testing.T) {
@@ -513,20 +513,16 @@ func TestAdminOAuthRepositoryAndHTTPErrorPaths(t *testing.T) {
 			},
 		}
 
-		if _, err := QueryAdminGithubAuthStatus(context.Background()); err == nil || !strings.Contains(err.Error(), "failed to load github auth status") {
-			t.Fatalf("expected github status error, got %v", err)
-		}
-		if _, err := QueryAdminGoogleAuthStatus(context.Background()); err == nil || !strings.Contains(err.Error(), "failed to load google auth status") {
-			t.Fatalf("expected google status error, got %v", err)
-		}
+		_, err := QueryAdminGithubAuthStatus(context.Background())
+		testassert.ErrorContains(t, err, "failed to load github auth status")
+		_, err = QueryAdminGoogleAuthStatus(context.Background())
+		testassert.ErrorContains(t, err, "failed to load google auth status")
 
 		t.Setenv("JWT_SECRET", "admin-secret")
-		if _, err := LoginAdminWithGithubSubject(context.Background(), "github-123", false, AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), adminLoadAdminUserMessage) {
-			t.Fatalf("expected github login load error, got %v", err)
-		}
-		if _, err := LoginAdminWithGoogleSubject(context.Background(), "google-123", false, AdminSessionMetadata{}); err == nil || !strings.Contains(err.Error(), adminLoadAdminUserMessage) {
-			t.Fatalf("expected google login load error, got %v", err)
-		}
+		_, err = LoginAdminWithGithubSubject(context.Background(), "github-123", false, AdminSessionMetadata{})
+		testassert.ErrorContains(t, err, adminLoadAdminUserMessage)
+		_, err = LoginAdminWithGoogleSubject(context.Background(), "google-123", false, AdminSessionMetadata{})
+		testassert.ErrorContains(t, err, adminLoadAdminUserMessage)
 	})
 
 	t.Run("link and disconnect map repository errors", func(t *testing.T) {
@@ -553,12 +549,10 @@ func TestAdminOAuthRepositoryAndHTTPErrorPaths(t *testing.T) {
 				return nil, errors.New("db down")
 			},
 		}
-		if _, err := LinkAdminGithubAccount(context.Background(), "admin-1", &AdminGithubIdentity{Subject: "github-new", Email: "admin@example.com"}); err == nil || !strings.Contains(err.Error(), "failed to load github account link") {
-			t.Fatalf("expected github link lookup error, got %v", err)
-		}
-		if _, err := LinkAdminGoogleAccount(context.Background(), "admin-1", &AdminGoogleIdentity{Subject: "google-new", Email: "admin@example.com"}); err == nil || !strings.Contains(err.Error(), "failed to load google account link") {
-			t.Fatalf("expected google link lookup error, got %v", err)
-		}
+		_, err := LinkAdminGithubAccount(context.Background(), "admin-1", &AdminGithubIdentity{Subject: "github-new", Email: "admin@example.com"})
+		testassert.ErrorContains(t, err, "failed to load github account link")
+		_, err = LinkAdminGoogleAccount(context.Background(), "admin-1", &AdminGoogleIdentity{Subject: "google-new", Email: "admin@example.com"})
+		testassert.ErrorContains(t, err, "failed to load google account link")
 
 		user.GithubSubject = "github-123"
 		user.GoogleSubject = "google-123"
@@ -577,18 +571,14 @@ func TestAdminOAuthRepositoryAndHTTPErrorPaths(t *testing.T) {
 				return errors.New("boom")
 			},
 		}
-		if _, err := LinkAdminGithubAccount(context.Background(), "admin-1", &AdminGithubIdentity{Subject: "github-123", Email: "admin@example.com"}); err == nil || !strings.Contains(err.Error(), "already linked to another admin") {
-			t.Fatalf("expected github duplicate link error, got %v", err)
-		}
-		if _, err := LinkAdminGoogleAccount(context.Background(), "admin-1", &AdminGoogleIdentity{Subject: "google-123", Email: "admin@example.com"}); err == nil || !strings.Contains(err.Error(), "already linked to another admin") {
-			t.Fatalf("expected google duplicate link error, got %v", err)
-		}
-		if _, err := DisconnectAdminGithubAccount(context.Background(), &domain.AdminUser{ID: "admin-1"}); err == nil || !strings.Contains(err.Error(), "failed to disconnect github account") {
-			t.Fatalf("expected github disconnect error, got %v", err)
-		}
-		if _, err := DisconnectAdminGoogleAccount(context.Background(), &domain.AdminUser{ID: "admin-1"}); err == nil || !strings.Contains(err.Error(), "failed to disconnect google account") {
-			t.Fatalf("expected google disconnect error, got %v", err)
-		}
+		_, err = LinkAdminGithubAccount(context.Background(), "admin-1", &AdminGithubIdentity{Subject: "github-123", Email: "admin@example.com"})
+		testassert.ErrorContains(t, err, "already linked to another admin")
+		_, err = LinkAdminGoogleAccount(context.Background(), "admin-1", &AdminGoogleIdentity{Subject: "google-123", Email: "admin@example.com"})
+		testassert.ErrorContains(t, err, "already linked to another admin")
+		_, err = DisconnectAdminGithubAccount(context.Background(), &domain.AdminUser{ID: "admin-1"})
+		testassert.ErrorContains(t, err, "failed to disconnect github account")
+		_, err = DisconnectAdminGoogleAccount(context.Background(), &domain.AdminUser{ID: "admin-1"})
+		testassert.ErrorContains(t, err, "failed to disconnect google account")
 	})
 
 	t.Run("http helpers map decode and response failures", func(t *testing.T) {
@@ -610,19 +600,17 @@ func TestAdminOAuthRepositoryAndHTTPErrorPaths(t *testing.T) {
 			}),
 		}
 
-		if _, err := exchangeGithubAuthorizationCode(context.Background(), appconfig.AdminGithubConfig{
+		_, err := exchangeGithubAuthorizationCode(context.Background(), appconfig.AdminGithubConfig{
 			ClientID:     "client-id",
 			ClientSecret: "client-secret",
-		}, "code", "https://example.com/callback"); err == nil || !strings.Contains(err.Error(), "github token exchange failed") {
-			t.Fatalf("expected github token exchange failure, got %v", err)
-		}
+		}, "code", "https://example.com/callback")
+		testassert.ErrorContains(t, err, "github token exchange failed")
 
-		if _, err := exchangeGoogleAuthorizationCode(context.Background(), appconfig.AdminGoogleConfig{
+		_, err = exchangeGoogleAuthorizationCode(context.Background(), appconfig.AdminGoogleConfig{
 			ClientID:     "client-id",
 			ClientSecret: "client-secret",
-		}, "code", "https://example.com/callback"); err == nil {
-			t.Fatal("expected google token decode failure")
-		}
+		}, "code", "https://example.com/callback")
+		testassert.True(t, err != nil, "expected google token decode failure")
 
 		http.DefaultClient = &http.Client{
 			Transport: roundTripFunc(func(request *http.Request) (*http.Response, error) {
@@ -638,26 +626,20 @@ func TestAdminOAuthRepositoryAndHTTPErrorPaths(t *testing.T) {
 			}),
 		}
 
-		if _, err := fetchGithubUserInfo(context.Background(), "gh-token"); err == nil || !strings.Contains(err.Error(), adminGithubInvalidMessage) {
-			t.Fatalf("expected invalid github identity error, got %v", err)
-		}
-		if _, err := fetchGoogleUserInfo(context.Background(), "goog-token"); err == nil || !strings.Contains(err.Error(), "google userinfo request failed") {
-			t.Fatalf("expected google userinfo failure, got %v", err)
-		}
+		_, err = fetchGithubUserInfo(context.Background(), "gh-token")
+		testassert.ErrorContains(t, err, adminGithubInvalidMessage)
+		_, err = fetchGoogleUserInfo(context.Background(), "goog-token")
+		testassert.ErrorContains(t, err, "google userinfo request failed")
 	})
 
 	t.Run("helper normalizers reject invalid payloads", func(t *testing.T) {
-		if _, _, err := normalizeAdminGithubIdentity(nil); err == nil || !strings.Contains(err.Error(), adminGithubInvalidMessage) {
-			t.Fatalf("expected github invalid identity error, got %v", err)
-		}
-		if _, _, err := normalizeAdminGithubIdentity(&AdminGithubIdentity{Subject: "github-123"}); err == nil || !strings.Contains(err.Error(), adminGithubInvalidMessage) {
-			t.Fatalf("expected github missing email error, got %v", err)
-		}
-		if _, _, err := normalizeAdminGoogleIdentity(nil); err == nil || !strings.Contains(err.Error(), adminGoogleInvalidMessage) {
-			t.Fatalf("expected google invalid identity error, got %v", err)
-		}
-		if _, _, err := normalizeAdminGoogleIdentity(&AdminGoogleIdentity{Subject: "google-123"}); err == nil || !strings.Contains(err.Error(), adminGoogleInvalidMessage) {
-			t.Fatalf("expected google missing email error, got %v", err)
-		}
+		_, _, err := normalizeAdminGithubIdentity(nil)
+		testassert.ErrorContains(t, err, adminGithubInvalidMessage)
+		_, _, err = normalizeAdminGithubIdentity(&AdminGithubIdentity{Subject: "github-123"})
+		testassert.ErrorContains(t, err, adminGithubInvalidMessage)
+		_, _, err = normalizeAdminGoogleIdentity(nil)
+		testassert.ErrorContains(t, err, adminGoogleInvalidMessage)
+		_, _, err = normalizeAdminGoogleIdentity(&AdminGoogleIdentity{Subject: "google-123"})
+		testassert.ErrorContains(t, err, adminGoogleInvalidMessage)
 	})
 }

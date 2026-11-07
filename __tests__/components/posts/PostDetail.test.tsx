@@ -196,30 +196,31 @@ describe('PostDetail Component', () => {
     expect(screen.queryByTestId('markdown-renderer')).not.toBeInTheDocument();
   });
 
-  it('splits intro and rest when a section heading exists', () => {
-    const post = {
-      ...mockPost,
+  it.each([
+    {
+      description: 'splits intro and rest when a section heading exists',
       contentHtml: 'Intro paragraph.\n\n## Section Title\nSection content.',
-    };
-
-    setup(post);
-    const markdownElements = screen.getAllByTestId('markdown-renderer');
-    expect(markdownElements).toHaveLength(2);
-    expect(markdownElements[0]).toHaveTextContent('Intro paragraph.');
-    expect(markdownElements[1]).toHaveTextContent('## Section Title');
-  });
-
-  it('does not split headings inside code fences', () => {
-    const post = {
-      ...mockPost,
+      firstSection: 'Intro paragraph.',
+      secondSection: '## Section Title',
+    },
+    {
+      description: 'does not split headings inside code fences',
       contentHtml: '```md\n## In code\n```\n\n## Actual section\nBody',
-    };
-
-    setup(post);
+      firstSection: '```md',
+      secondSection: '## Actual section',
+    },
+    {
+      description: 'does not treat tilde code fences as real headings',
+      contentHtml: '~~~md\n## In code\n~~~\n\n### Actual section\nBody',
+      firstSection: '~~~md',
+      secondSection: '### Actual section',
+    },
+  ])('$description', ({ contentHtml, firstSection, secondSection }) => {
+    setup({ ...mockPost, contentHtml });
     const markdownElements = screen.getAllByTestId('markdown-renderer');
     expect(markdownElements).toHaveLength(2);
-    expect(markdownElements[0]).toHaveTextContent('```md');
-    expect(markdownElements[1]).toHaveTextContent('## Actual section');
+    expect(markdownElements[0]).toHaveTextContent(firstSection);
+    expect(markdownElements[1]).toHaveTextContent(secondSection);
   });
 
   it('renders updated notice after article when updatedDate differs from published date', () => {
@@ -294,19 +295,6 @@ describe('PostDetail Component', () => {
     expect(screen.queryByRole('link', { name: 'Frontend' })).not.toBeInTheDocument();
     expect(screen.getByText('not-a-date')).toBeInTheDocument();
     expect(document.querySelector('.post-navigation-grid')).toHaveClass('has-only-previous');
-  });
-
-  it('does not treat tilde code fences as real headings', () => {
-    const post = {
-      ...mockPost,
-      contentHtml: '~~~md\n## In code\n~~~\n\n### Actual section\nBody',
-    };
-
-    setup(post);
-    const markdownElements = screen.getAllByTestId('markdown-renderer');
-    expect(markdownElements).toHaveLength(2);
-    expect(markdownElements[0]).toHaveTextContent('~~~md');
-    expect(markdownElements[1]).toHaveTextContent('### Actual section');
   });
 
   it('passes runtime engagement data to toc and hit widgets after load', async () => {

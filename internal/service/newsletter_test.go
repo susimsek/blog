@@ -7,8 +7,14 @@ import (
 	"time"
 
 	appconfig "suaybsimsek.com/blog-api/internal/config"
+	"suaybsimsek.com/blog-api/internal/testassert"
 	newsletterpkg "suaybsimsek.com/blog-api/pkg/newsletter"
 )
+
+func assertNewsletterStatus(t *testing.T, got, want string) {
+	t.Helper()
+	testassert.Equal(t, got, want, "newsletter result status")
+}
 
 type newsletterStubRepository struct {
 	getStatusByEmail          func(context.Context, string) (string, bool, error)
@@ -263,31 +269,19 @@ func TestNewsletterServiceBranches(t *testing.T) {
 		},
 	}
 
-	if result := Subscribe(context.Background(), SubscribeInput{Terms: true}, RequestMetadata{}); result.Status != "success" {
-		t.Fatalf("terms subscribe = %#v", result)
-	}
-	if result := Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{}); result.Status != "unknown-error" {
-		t.Fatalf("site url subscribe = %#v", result)
-	}
+	assertNewsletterStatus(t, Subscribe(context.Background(), SubscribeInput{Terms: true}, RequestMetadata{}).Status, "success")
+	assertNewsletterStatus(t, Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{}).Status, "unknown-error")
 
 	resolveSiteURLFn = func() (string, error) { return "https://example.com", nil }
 	resolveMailConfigFn = func() (appconfig.MailConfig, error) {
 		return appconfig.MailConfig{}, errors.New("missing smtp")
 	}
-	if result := Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{}); result.Status != "unknown-error" {
-		t.Fatalf("smtp subscribe = %#v", result)
-	}
+	assertNewsletterStatus(t, Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{}).Status, "unknown-error")
 
 	resolveMailConfigFn = func() (appconfig.MailConfig, error) { return appconfig.MailConfig{}, nil }
-	if result := Subscribe(context.Background(), SubscribeInput{Email: "bad-email"}, RequestMetadata{}); result.Status != "invalid-email" {
-		t.Fatalf("invalid email subscribe = %#v", result)
-	}
-	if result := Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "127.0.0.1"}); result.Status != "unknown-error" {
-		t.Fatalf("repository subscribe = %#v", result)
-	}
-	if result := Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "127.0.0.1"}); result.Status != "rate-limited" {
-		t.Fatalf("rate limited subscribe = %#v", result)
-	}
+	assertNewsletterStatus(t, Subscribe(context.Background(), SubscribeInput{Email: "bad-email"}, RequestMetadata{}).Status, "invalid-email")
+	assertNewsletterStatus(t, Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "127.0.0.1"}).Status, "unknown-error")
+	assertNewsletterStatus(t, Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "127.0.0.1"}).Status, "rate-limited")
 
 	newsletterRepository = newsletterStubRepository{
 		getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "active", true, nil },
@@ -297,33 +291,19 @@ func TestNewsletterServiceBranches(t *testing.T) {
 		unsubscribeByEmail:        func(context.Context, string, time.Time) error { return nil },
 	}
 	resendLimiter = newRateLimiter(1, time.Hour)
-	if result := Resend(context.Background(), ResendInput{Terms: true}, RequestMetadata{}); result.Status != "success" {
-		t.Fatalf("terms resend = %#v", result)
-	}
-	if result := Resend(context.Background(), ResendInput{Email: "bad"}, RequestMetadata{}); result.Status != "invalid-email" {
-		t.Fatalf("invalid email resend = %#v", result)
-	}
-	if result := Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "127.0.0.1"}); result.Status != "success" {
-		t.Fatalf("active resend = %#v", result)
-	}
-	if result := Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "127.0.0.1"}); result.Status != "rate-limited" {
-		t.Fatalf("rate limited resend = %#v", result)
-	}
+	assertNewsletterStatus(t, Resend(context.Background(), ResendInput{Terms: true}, RequestMetadata{}).Status, "success")
+	assertNewsletterStatus(t, Resend(context.Background(), ResendInput{Email: "bad"}, RequestMetadata{}).Status, "invalid-email")
+	assertNewsletterStatus(t, Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "127.0.0.1"}).Status, "success")
+	assertNewsletterStatus(t, Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "127.0.0.1"}).Status, "rate-limited")
 
 	resolveDatabaseConfigFn = func() (appconfig.DatabaseConfig, error) { return appconfig.DatabaseConfig{}, errors.New("missing db") }
-	if result := Confirm(context.Background(), ""); result.Status != "invalid-link" {
-		t.Fatalf("empty confirm = %#v", result)
-	}
-	if result := Confirm(context.Background(), "token"); result.Status != "config-error" {
-		t.Fatalf("config confirm = %#v", result)
-	}
+	assertNewsletterStatus(t, Confirm(context.Background(), "").Status, "invalid-link")
+	assertNewsletterStatus(t, Confirm(context.Background(), "token").Status, "config-error")
 
 	resolveDatabaseConfigFn = func() (appconfig.DatabaseConfig, error) {
 		return appconfig.DatabaseConfig{Name: "blog"}, nil
 	}
-	if result := Confirm(context.Background(), "token"); result.Status != "expired" {
-		t.Fatalf("expired confirm = %#v", result)
-	}
+	assertNewsletterStatus(t, Confirm(context.Background(), "token").Status, "expired")
 	newsletterRepository = newsletterStubRepository{
 		getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "", false, nil },
 		upsertPendingSubscription: func(context.Context, PendingSubscription) error { return nil },
@@ -331,22 +311,14 @@ func TestNewsletterServiceBranches(t *testing.T) {
 		confirmByTokenHash:        func(context.Context, string, time.Time) (bool, error) { return true, nil },
 		unsubscribeByEmail:        func(context.Context, string, time.Time) error { return nil },
 	}
-	if result := Confirm(context.Background(), "token"); result.Status != "success" {
-		t.Fatalf("success confirm = %#v", result)
-	}
+	assertNewsletterStatus(t, Confirm(context.Background(), "token").Status, "success")
 
 	resolveUnsubscribeSecretFn = func() (string, error) { return "", errors.New("missing secret") }
-	if result := Unsubscribe(context.Background(), ""); result.Status != "invalid-link" {
-		t.Fatalf("empty unsubscribe = %#v", result)
-	}
-	if result := Unsubscribe(context.Background(), "token"); result.Status != "config-error" {
-		t.Fatalf("config secret unsubscribe = %#v", result)
-	}
+	assertNewsletterStatus(t, Unsubscribe(context.Background(), "").Status, "invalid-link")
+	assertNewsletterStatus(t, Unsubscribe(context.Background(), "token").Status, "config-error")
 	resolveUnsubscribeSecretFn = func() (string, error) { return "secret", nil }
 	parseUnsubscribeTokenFn = func(string, string, time.Time) (string, error) { return "", errors.New("bad token") }
-	if result := Unsubscribe(context.Background(), "token"); result.Status != "invalid-link" {
-		t.Fatalf("invalid token unsubscribe = %#v", result)
-	}
+	assertNewsletterStatus(t, Unsubscribe(context.Background(), "token").Status, "invalid-link")
 
 	parseUnsubscribeTokenFn = func(string, string, time.Time) (string, error) { return "reader@example.com", nil }
 	newsletterRepository = newsletterStubRepository{
@@ -356,9 +328,7 @@ func TestNewsletterServiceBranches(t *testing.T) {
 		confirmByTokenHash:        func(context.Context, string, time.Time) (bool, error) { return false, nil },
 		unsubscribeByEmail:        func(context.Context, string, time.Time) error { return errRepositoryUnavailable },
 	}
-	if result := Unsubscribe(context.Background(), "token"); result.Status != "service-unavailable" {
-		t.Fatalf("service unavailable unsubscribe = %#v", result)
-	}
+	assertNewsletterStatus(t, Unsubscribe(context.Background(), "token").Status, "service-unavailable")
 	newsletterRepository = newsletterStubRepository{
 		getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "", false, nil },
 		upsertPendingSubscription: func(context.Context, PendingSubscription) error { return nil },
@@ -366,9 +336,7 @@ func TestNewsletterServiceBranches(t *testing.T) {
 		confirmByTokenHash:        func(context.Context, string, time.Time) (bool, error) { return false, nil },
 		unsubscribeByEmail:        func(context.Context, string, time.Time) error { return nil },
 	}
-	if result := Unsubscribe(context.Background(), "token"); result.Status != "success" {
-		t.Fatalf("success unsubscribe = %#v", result)
-	}
+	assertNewsletterStatus(t, Unsubscribe(context.Background(), "token").Status, "success")
 }
 
 func TestNewsletterServiceAdditionalBranches(t *testing.T) {
@@ -427,9 +395,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 			unsubscribeByEmail:        func(context.Context, string, time.Time) error { return nil },
 		}
 
-		if result := Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.1"}); result.Status != "success" {
-			t.Fatalf("active subscribe = %#v", result)
-		}
+		assertNewsletterStatus(t, Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.1"}).Status, "success")
 	})
 
 	t.Run("subscribe returns unknown error when confirmation setup fails", func(t *testing.T) {
@@ -444,15 +410,11 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 
 		resolveSiteURLFn = func() (string, error) { return "https://example.com", nil }
 		generateConfirmTokenFn = func() (string, error) { return "", errors.New("boom") }
-		if result := Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.2"}); result.Status != statusUnknownError {
-			t.Fatalf("token failure subscribe = %#v", result)
-		}
+		assertNewsletterStatus(t, Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.2"}).Status, statusUnknownError)
 
 		generateConfirmTokenFn = func() (string, error) { return "token", nil }
 		resolveSiteURLFn = func() (string, error) { return "not-a-url", nil }
-		if result := Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.3"}); result.Status != statusUnknownError {
-			t.Fatalf("url failure subscribe = %#v", result)
-		}
+		assertNewsletterStatus(t, Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.3"}).Status, statusUnknownError)
 
 		resolveSiteURLFn = func() (string, error) { return "https://example.com", nil }
 		newsletterRepository = newsletterStubRepository{
@@ -464,9 +426,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 			confirmByTokenHash:        func(context.Context, string, time.Time) (bool, error) { return false, nil },
 			unsubscribeByEmail:        func(context.Context, string, time.Time) error { return nil },
 		}
-		if result := Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.4"}); result.Status != statusUnknownError {
-			t.Fatalf("upsert failure subscribe = %#v", result)
-		}
+		assertNewsletterStatus(t, Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.4"}).Status, statusUnknownError)
 
 		newsletterRepository = newsletterStubRepository{
 			getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "", false, nil },
@@ -478,9 +438,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 		sendConfirmationEmailFn = func(appconfig.MailConfig, string, string, string, string) error {
 			return errors.New("smtp failure")
 		}
-		if result := Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.5"}); result.Status != statusUnknownError {
-			t.Fatalf("email failure subscribe = %#v", result)
-		}
+		assertNewsletterStatus(t, Subscribe(context.Background(), SubscribeInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.5"}).Status, statusUnknownError)
 	})
 
 	t.Run("resend covers not found and failure branches", func(t *testing.T) {
@@ -496,9 +454,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 			confirmByTokenHash:        func(context.Context, string, time.Time) (bool, error) { return false, nil },
 			unsubscribeByEmail:        func(context.Context, string, time.Time) error { return nil },
 		}
-		if result := Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.10"}); result.Status != "success" {
-			t.Fatalf("not found resend = %#v", result)
-		}
+		assertNewsletterStatus(t, Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.10"}).Status, "success")
 
 		newsletterRepository = newsletterStubRepository{
 			getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "pending", true, nil },
@@ -508,15 +464,11 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 			unsubscribeByEmail:        func(context.Context, string, time.Time) error { return nil },
 		}
 		generateConfirmTokenFn = func() (string, error) { return "", errors.New("boom") }
-		if result := Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.11"}); result.Status != statusUnknownError {
-			t.Fatalf("token failure resend = %#v", result)
-		}
+		assertNewsletterStatus(t, Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.11"}).Status, statusUnknownError)
 
 		generateConfirmTokenFn = func() (string, error) { return "token", nil }
 		resolveSiteURLFn = func() (string, error) { return "not-a-url", nil }
-		if result := Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.12"}); result.Status != statusUnknownError {
-			t.Fatalf("url failure resend = %#v", result)
-		}
+		assertNewsletterStatus(t, Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.12"}).Status, statusUnknownError)
 
 		resolveSiteURLFn = func() (string, error) { return "https://example.com", nil }
 		newsletterRepository = newsletterStubRepository{
@@ -530,9 +482,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 			confirmByTokenHash: func(context.Context, string, time.Time) (bool, error) { return false, nil },
 			unsubscribeByEmail: func(context.Context, string, time.Time) error { return nil },
 		}
-		if result := Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.13"}); result.Status != statusUnknownError {
-			t.Fatalf("update failure resend = %#v", result)
-		}
+		assertNewsletterStatus(t, Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.13"}).Status, statusUnknownError)
 
 		newsletterRepository = newsletterStubRepository{
 			getStatusByEmail:          func(context.Context, string) (string, bool, error) { return "pending", true, nil },
@@ -544,9 +494,7 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 		sendConfirmationEmailFn = func(appconfig.MailConfig, string, string, string, string) error {
 			return errors.New("smtp failure")
 		}
-		if result := Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.14"}); result.Status != statusUnknownError {
-			t.Fatalf("email failure resend = %#v", result)
-		}
+		assertNewsletterStatus(t, Resend(context.Background(), ResendInput{Email: "reader@example.com"}, RequestMetadata{ClientIP: "203.0.113.14"}).Status, statusUnknownError)
 	})
 
 	t.Run("confirm and unsubscribe return failed for generic repository errors", func(t *testing.T) {
@@ -560,12 +508,8 @@ func TestNewsletterServiceAdditionalBranches(t *testing.T) {
 			unsubscribeByEmail:        func(context.Context, string, time.Time) error { return errors.New("db failure") },
 		}
 
-		if result := Confirm(context.Background(), "token"); result.Status != "failed" {
-			t.Fatalf("failed confirm = %#v", result)
-		}
-		if result := Unsubscribe(context.Background(), "token"); result.Status != "failed" {
-			t.Fatalf("failed unsubscribe = %#v", result)
-		}
+		assertNewsletterStatus(t, Confirm(context.Background(), "token").Status, "failed")
+		assertNewsletterStatus(t, Unsubscribe(context.Background(), "token").Status, "failed")
 	})
 }
 

@@ -13,7 +13,7 @@ func (ec *executionContext) unmarshalInputDateTime(_ context.Context, value any)
 	return gql.UnmarshalTime(value)
 }
 
-func (ec *executionContext) _DateTime(_ context.Context, _ ast.SelectionSet, value *time.Time) gql.Marshaler {
+func (ec *executionContext) _DateTime(_ context.Context, _ ast.SelectionSet, value *time.Time) gql.Marshaler { // NOSONAR: gqlgen's generated scalar contract requires this name.
 	_ = ec
 	if value == nil {
 		return gql.Null

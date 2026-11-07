@@ -13,7 +13,7 @@ export default function useAutoClearValue<T>(
   options?: UseAutoClearValueOptions<T>,
 ) {
   const shouldAutoClear = options?.when ?? true;
-  const hasExplicitNextValue = Object.prototype.hasOwnProperty.call(options ?? {}, 'nextValue');
+  const hasExplicitNextValue = Object.hasOwn(options ?? {}, 'nextValue');
   const configuredNextValue = options?.nextValue;
   const configuredIsEmpty = options?.isEmpty;
 

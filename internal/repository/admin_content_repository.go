@@ -51,16 +51,7 @@ type AdminContentRepository interface {
 		revisionNumber int,
 		now time.Time,
 	) (*domain.AdminContentPostRevisionRecord, error)
-	UpdatePostMetadata(
-		ctx context.Context,
-		locale string,
-		postID string,
-		fields domain.AdminContentPostMetadataFields,
-		category *domain.AdminContentCategoryRecord,
-		topics []domain.AdminContentTopicRecord,
-		revisionStamp *domain.AdminContentPostRevisionStamp,
-		now time.Time,
-	) (*domain.AdminContentPostRecord, error)
+	UpdatePostMetadata(ctx context.Context, update domain.AdminContentPostMetadataUpdate) (*domain.AdminContentPostRecord, error)
 	UpdatePostContent(
 		ctx context.Context,
 		locale string,

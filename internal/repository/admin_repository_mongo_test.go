@@ -9,6 +9,7 @@ import (
 
 	"suaybsimsek.com/blog-api/internal/domain"
 	mtest "suaybsimsek.com/blog-api/internal/repository/testutil/mtest"
+	"suaybsimsek.com/blog-api/internal/testassert"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
@@ -714,60 +715,68 @@ func TestAdminContentRepositoryWithMockData(t *testing.T) {
 		ctx := context.Background()
 
 		postGroups, err := repository.ListPostGroups(ctx, domain.AdminContentPostFilter{PreferredLocale: "tr"})
-		if err != nil || postGroups.Total != 1 || len(postGroups.Items) != 1 || postGroups.Items[0].Preferred.ID != "alpha-post" {
-			t.Fatalf("ListPostGroups() = %#v, %v", postGroups, err)
-		}
+		testassert.NoError(t, err, "ListPostGroups")
+		testassert.Equal(t, postGroups.Total, 1, "post group total")
+		testassert.Equal(t, len(postGroups.Items), 1, "post group count")
+		testassert.Equal(t, postGroups.Items[0].Preferred.ID, "alpha-post", "preferred post id")
 
 		posts, err := repository.ListAllPosts(ctx, domain.AdminContentPostFilter{Locale: "en"})
-		if err != nil || len(posts) != 1 || posts[0].ID != "alpha-post" {
-			t.Fatalf("ListAllPosts() = %#v, %v", posts, err)
-		}
+		testassert.NoError(t, err, "ListAllPosts")
+		testassert.Equal(t, len(posts), 1, "post count")
+		testassert.Equal(t, posts[0].ID, "alpha-post", "post id")
 
 		post, err := repository.FindPostByLocaleAndID(ctx, "en", "alpha-post")
-		if err != nil || post == nil || post.ID != "alpha-post" {
-			t.Fatalf("FindPostByLocaleAndID() = %#v, %v", post, err)
-		}
+		testassert.NoError(t, err, "FindPostByLocaleAndID")
+		testassert.NotNil(t, post, "post should be found")
+		testassert.Equal(t, post.ID, "alpha-post", "found post id")
 
-		updatedPost, err := repository.UpdatePostMetadata(ctx, "en", "alpha-post", domain.AdminContentPostMetadataFields{
-			Title:         "Updated Alpha",
-			Summary:       "Updated Summary",
-			Thumbnail:     "/alpha.webp",
-			PublishedDate: "2026-03-22",
-			UpdatedDate:   "2026-03-23",
-		}, &domain.AdminContentCategoryRecord{ID: "tech", Name: "Tech", Color: "#000"}, []domain.AdminContentTopicRecord{{ID: "go", Name: "Go", Color: "#fff"}}, nil, now)
-		if err != nil || updatedPost == nil || updatedPost.Title != "Updated Alpha" || updatedPost.CategoryID != "tech" {
-			t.Fatalf("UpdatePostMetadata() = %#v, %v", updatedPost, err)
-		}
+		updatedPost, err := repository.UpdatePostMetadata(ctx, domain.AdminContentPostMetadataUpdate{
+			Locale: "en", PostID: "alpha-post",
+			Fields: domain.AdminContentPostMetadataFields{
+				Title:         "Updated Alpha",
+				Summary:       "Updated Summary",
+				Thumbnail:     "/alpha.webp",
+				PublishedDate: "2026-03-22",
+				UpdatedDate:   "2026-03-23",
+			},
+			Category: &domain.AdminContentCategoryRecord{ID: "tech", Name: "Tech", Color: "#000"},
+			Topics:   []domain.AdminContentTopicRecord{{ID: "go", Name: "Go", Color: "#fff"}},
+			Now:      now,
+		})
+		testassert.NoError(t, err, "UpdatePostMetadata")
+		testassert.NotNil(t, updatedPost, "updated post should be returned")
+		testassert.Equal(t, updatedPost.Title, "Updated Alpha", "updated title")
+		testassert.Equal(t, updatedPost.CategoryID, "tech", "updated category id")
 
 		updatedContent, err := repository.UpdatePostContent(ctx, "en", "alpha-post", "Updated Body", nil, now)
-		if err != nil || updatedContent == nil || updatedContent.Content != "Updated Body" {
-			t.Fatalf("UpdatePostContent() = %#v, %v", updatedContent, err)
-		}
+		testassert.NoError(t, err, "UpdatePostContent")
+		testassert.NotNil(t, updatedContent, "updated content should be returned")
+		testassert.Equal(t, updatedContent.Content, "Updated Body", "updated body")
 
 		deletedPost, err := repository.DeletePostByLocaleAndID(ctx, "en", "alpha-post")
-		if err != nil || !deletedPost {
-			t.Fatalf("DeletePostByLocaleAndID() = %v, %v", deletedPost, err)
-		}
+		testassert.NoError(t, err, "DeletePostByLocaleAndID")
+		testassert.True(t, deletedPost, "post should be deleted")
 
 		topics, err := repository.ListTopics(ctx, "en", "go")
-		if err != nil || len(topics) != 1 || topics[0].ID != "go" {
-			t.Fatalf("ListTopics() = %#v, %v", topics, err)
-		}
+		testassert.NoError(t, err, "ListTopics")
+		testassert.Equal(t, len(topics), 1, "topic count")
+		testassert.Equal(t, topics[0].ID, "go", "topic id")
 
 		allTopics, err := repository.ListAllTopics(ctx, domain.AdminContentTaxonomyFilter{Locale: "tr"})
-		if err != nil || len(allTopics) != 1 || allTopics[0].Locale != "tr" {
-			t.Fatalf("ListAllTopics() = %#v, %v", allTopics, err)
-		}
+		testassert.NoError(t, err, "ListAllTopics")
+		testassert.Equal(t, len(allTopics), 1, "all topic count")
+		testassert.Equal(t, allTopics[0].Locale, "tr", "all topic locale")
 
 		topicGroups, err := repository.ListTopicGroups(ctx, domain.AdminContentTaxonomyFilter{PreferredLocale: "tr"})
-		if err != nil || topicGroups.Total != 1 || len(topicGroups.Items) != 1 || topicGroups.Items[0].Preferred.Locale != "tr" {
-			t.Fatalf("ListTopicGroups() = %#v, %v", topicGroups, err)
-		}
+		testassert.NoError(t, err, "ListTopicGroups")
+		testassert.Equal(t, topicGroups.Total, 1, "topic group total")
+		testassert.Equal(t, len(topicGroups.Items), 1, "topic group count")
+		testassert.Equal(t, topicGroups.Items[0].Preferred.Locale, "tr", "preferred topic locale")
 
 		topic, err := repository.FindTopicByLocaleAndID(ctx, "en", "go")
-		if err != nil || topic == nil || topic.Link != "https://example.com/topic" {
-			t.Fatalf("FindTopicByLocaleAndID() = %#v, %v", topic, err)
-		}
+		testassert.NoError(t, err, "FindTopicByLocaleAndID")
+		testassert.NotNil(t, topic, "topic should be found")
+		testassert.Equal(t, topic.Link, "https://example.com/topic", "topic link")
 
 		savedTopic, err := repository.UpsertTopic(ctx, domain.AdminContentTopicRecord{
 			Locale: "en",
@@ -776,41 +785,37 @@ func TestAdminContentRepositoryWithMockData(t *testing.T) {
 			Color:  "#fff",
 			Link:   "https://example.com/topic",
 		}, now)
-		if err != nil || savedTopic == nil || savedTopic.ID != "go" {
-			t.Fatalf("UpsertTopic() = %#v, %v", savedTopic, err)
-		}
+		testassert.NoError(t, err, "UpsertTopic")
+		testassert.NotNil(t, savedTopic, "saved topic should be returned")
+		testassert.Equal(t, savedTopic.ID, "go", "saved topic id")
 
 		deletedTopic, err := repository.DeleteTopicByLocaleAndID(ctx, "en", "go")
-		if err != nil || !deletedTopic {
-			t.Fatalf("DeleteTopicByLocaleAndID() = %v, %v", deletedTopic, err)
-		}
+		testassert.NoError(t, err, "DeleteTopicByLocaleAndID")
+		testassert.True(t, deletedTopic, "topic should be deleted")
 
-		if err := repository.SyncTopicOnPosts(ctx, domain.AdminContentTopicRecord{Locale: "en", ID: "go", Name: "Go", Color: "#fff", Link: "https://example.com/topic"}, now); err != nil {
-			t.Fatalf("SyncTopicOnPosts() error = %v", err)
-		}
-		if err := repository.RemoveTopicFromPosts(ctx, "en", "go", now); err != nil {
-			t.Fatalf("RemoveTopicFromPosts() error = %v", err)
-		}
+		testassert.NoError(t, repository.SyncTopicOnPosts(ctx, domain.AdminContentTopicRecord{Locale: "en", ID: "go", Name: "Go", Color: "#fff", Link: "https://example.com/topic"}, now), "SyncTopicOnPosts")
+		testassert.NoError(t, repository.RemoveTopicFromPosts(ctx, "en", "go", now), "RemoveTopicFromPosts")
 
 		categories, err := repository.ListCategories(ctx, "en")
-		if err != nil || len(categories) != 1 || categories[0].ID != "tech" {
-			t.Fatalf("ListCategories() = %#v, %v", categories, err)
-		}
+		testassert.NoError(t, err, "ListCategories")
+		testassert.Equal(t, len(categories), 1, "category count")
+		testassert.Equal(t, categories[0].ID, "tech", "category id")
 
 		allCategories, err := repository.ListAllCategories(ctx, domain.AdminContentTaxonomyFilter{Locale: "tr"})
-		if err != nil || len(allCategories) != 1 || allCategories[0].Locale != "tr" {
-			t.Fatalf("ListAllCategories() = %#v, %v", allCategories, err)
-		}
+		testassert.NoError(t, err, "ListAllCategories")
+		testassert.Equal(t, len(allCategories), 1, "all category count")
+		testassert.Equal(t, allCategories[0].Locale, "tr", "all category locale")
 
 		categoryGroups, err := repository.ListCategoryGroups(ctx, domain.AdminContentTaxonomyFilter{PreferredLocale: "tr"})
-		if err != nil || categoryGroups.Total != 1 || len(categoryGroups.Items) != 1 || categoryGroups.Items[0].Preferred.Locale != "tr" {
-			t.Fatalf("ListCategoryGroups() = %#v, %v", categoryGroups, err)
-		}
+		testassert.NoError(t, err, "ListCategoryGroups")
+		testassert.Equal(t, categoryGroups.Total, 1, "category group total")
+		testassert.Equal(t, len(categoryGroups.Items), 1, "category group count")
+		testassert.Equal(t, categoryGroups.Items[0].Preferred.Locale, "tr", "preferred category locale")
 
 		category, err := repository.FindCategoryByLocaleAndID(ctx, "en", "tech")
-		if err != nil || category == nil || category.Icon != "tag" {
-			t.Fatalf("FindCategoryByLocaleAndID() = %#v, %v", category, err)
-		}
+		testassert.NoError(t, err, "FindCategoryByLocaleAndID")
+		testassert.NotNil(t, category, "category should be found")
+		testassert.Equal(t, category.Icon, "tag", "category icon")
 
 		savedCategory, err := repository.UpsertCategory(ctx, domain.AdminContentCategoryRecord{
 			Locale: "en",
@@ -820,27 +825,22 @@ func TestAdminContentRepositoryWithMockData(t *testing.T) {
 			Icon:   "tag",
 			Link:   "https://example.com/category",
 		}, now)
-		if err != nil || savedCategory == nil || savedCategory.ID != "tech" {
-			t.Fatalf("UpsertCategory() = %#v, %v", savedCategory, err)
-		}
+		testassert.NoError(t, err, "UpsertCategory")
+		testassert.NotNil(t, savedCategory, "saved category should be returned")
+		testassert.Equal(t, savedCategory.ID, "tech", "saved category id")
 
 		deletedCategory, err := repository.DeleteCategoryByLocaleAndID(ctx, "en", "tech")
-		if err != nil || !deletedCategory {
-			t.Fatalf("DeleteCategoryByLocaleAndID() = %v, %v", deletedCategory, err)
-		}
+		testassert.NoError(t, err, "DeleteCategoryByLocaleAndID")
+		testassert.True(t, deletedCategory, "category should be deleted")
 
-		if err := repository.SyncCategoryOnPosts(ctx, domain.AdminContentCategoryRecord{
+		testassert.NoError(t, repository.SyncCategoryOnPosts(ctx, domain.AdminContentCategoryRecord{
 			Locale: "en",
 			ID:     "tech",
 			Name:   "Tech",
 			Color:  "#000",
 			Icon:   "tag",
-		}, now); err != nil {
-			t.Fatalf("SyncCategoryOnPosts() error = %v", err)
-		}
-		if err := repository.ClearCategoryFromPosts(ctx, "en", "tech", now); err != nil {
-			t.Fatalf("ClearCategoryFromPosts() error = %v", err)
-		}
+		}, now), "SyncCategoryOnPosts")
+		testassert.NoError(t, repository.ClearCategoryFromPosts(ctx, "en", "tech", now), "ClearCategoryFromPosts")
 	})
 }
 
@@ -908,9 +908,10 @@ func TestAdminAuditLogRepositoryWithMockData(t *testing.T) {
 		}
 
 		records, err := repository.ListRecentByResource(ctx, "admin:error-message:auth:en:INVALID", 10)
-		if err != nil || len(records) != 1 || records[0].ActorEmail != "admin@example.com" || records[0].Code != "INVALID" {
-			t.Fatalf("ListRecentByResource() = %#v, %v", records, err)
-		}
+		testassert.NoError(t, err, "ListRecentByResource")
+		testassert.Equal(t, len(records), 1, "audit record count")
+		testassert.Equal(t, records[0].ActorEmail, "admin@example.com", "audit actor email")
+		testassert.Equal(t, records[0].Code, "INVALID", "audit error code")
 	})
 }
 
@@ -975,53 +976,50 @@ func TestCommentRepositoryWithMockData(t *testing.T) {
 		ctx := context.Background()
 
 		approved, err := repository.ListApprovedByPost(ctx, "alpha-post")
-		if err != nil || len(approved) != 1 || approved[0].ID != "comment-1" {
-			t.Fatalf("ListApprovedByPost() = %#v, %v", approved, err)
-		}
+		testassert.NoError(t, err, "ListApprovedByPost")
+		testassert.Equal(t, len(approved), 1, "approved comment count")
+		testassert.Equal(t, approved[0].ID, "comment-1", "approved comment id")
 
 		total, err := repository.CountApprovedByPost(ctx, "alpha-post")
-		if err != nil || total != 1 {
-			t.Fatalf("CountApprovedByPost() = %d, %v", total, err)
-		}
+		testassert.NoError(t, err, "CountApprovedByPost")
+		testassert.Equal(t, total, 1, "approved comment total")
 
 		counts, err := repository.CountApprovedByPosts(ctx, []string{"alpha-post", "beta-post"})
-		if err != nil || counts["alpha-post"] != 2 || counts["beta-post"] != 1 {
-			t.Fatalf("CountApprovedByPosts() = %#v, %v", counts, err)
-		}
+		testassert.NoError(t, err, "CountApprovedByPosts")
+		testassert.Equal(t, counts["alpha-post"], 2, "alpha approved count")
+		testassert.Equal(t, counts["beta-post"], 1, "beta approved count")
 
 		found, err := repository.FindCommentByID(ctx, "comment-1")
-		if err != nil || found == nil || found.AuthorEmail != "reader@example.com" {
-			t.Fatalf("FindCommentByID() = %#v, %v", found, err)
-		}
+		testassert.NoError(t, err, "FindCommentByID")
+		testassert.NotNil(t, found, "comment should be found")
+		testassert.Equal(t, found.AuthorEmail, "reader@example.com", "comment author email")
 
 		listResult, err := repository.ListComments(ctx, domain.AdminCommentFilter{
 			Status: "APPROVED",
 			PostID: "ALPHA-POST",
 			Query:  "reader",
 		}, 1, 10)
-		if err != nil || listResult.Total != 1 || len(listResult.Items) != 1 {
-			t.Fatalf("ListComments() = %#v, %v", listResult, err)
-		}
+		testassert.NoError(t, err, "ListComments")
+		testassert.Equal(t, listResult.Total, 1, "listed comment total")
+		testassert.Equal(t, len(listResult.Items), 1, "listed comment count")
 
 		updated, err := repository.UpdateCommentStatusByID(ctx, "comment-1", "APPROVED", "ok", now)
-		if err != nil || updated == nil || updated.Status != "approved" || updated.ModerationNote != "ok" {
-			t.Fatalf("UpdateCommentStatusByID() = %#v, %v", updated, err)
-		}
+		testassert.NoError(t, err, "UpdateCommentStatusByID")
+		testassert.NotNil(t, updated, "updated comment should be returned")
+		testassert.Equal(t, updated.Status, "approved", "updated comment status")
+		testassert.Equal(t, updated.ModerationNote, "ok", "updated moderation note")
 
 		deleted, err := repository.DeleteCommentByID(ctx, "comment-1")
-		if err != nil || !deleted {
-			t.Fatalf("DeleteCommentByID() = %v, %v", deleted, err)
-		}
+		testassert.NoError(t, err, "DeleteCommentByID")
+		testassert.True(t, deleted, "comment should be deleted")
 
 		matched, err := repository.UpdateCommentStatusByIDs(ctx, []string{"comment-1", "comment-2"}, "APPROVED", "ok", now)
-		if err != nil || matched != 2 {
-			t.Fatalf("UpdateCommentStatusByIDs() = %d, %v", matched, err)
-		}
+		testassert.NoError(t, err, "UpdateCommentStatusByIDs")
+		testassert.Equal(t, matched, 2, "updated comment count")
 
 		deletedCount, err := repository.DeleteCommentsByIDs(ctx, []string{"comment-1", "comment-2"})
-		if err != nil || deletedCount != 2 {
-			t.Fatalf("DeleteCommentsByIDs() = %d, %v", deletedCount, err)
-		}
+		testassert.NoError(t, err, "DeleteCommentsByIDs")
+		testassert.Equal(t, deletedCount, 2, "deleted comment count")
 	})
 }
 

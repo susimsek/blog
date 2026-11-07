@@ -75,7 +75,17 @@ func TestPostAnnouncementEmailStripsSummaryHTML(t *testing.T) {
 	if err != nil {
 		t.Fatalf("PostAnnouncementEmail returned error: %v", err)
 	}
+	assertPostAnnouncementEmailContent(t, subject, htmlBody)
+}
 
+func assertPostAnnouncementEmailContent(t *testing.T, subject, htmlBody string) {
+	t.Helper()
+	assertPostAnnouncementEmailSummaryAndLinks(t, subject, htmlBody)
+	assertPostAnnouncementEmailMetadata(t, htmlBody)
+}
+
+func assertPostAnnouncementEmailSummaryAndLinks(t *testing.T, subject, htmlBody string) {
+	t.Helper()
 	if subject != "New post: Launch update" {
 		t.Fatalf("unexpected subject: %q", subject)
 	}
@@ -107,7 +117,10 @@ func TestPostAnnouncementEmailStripsSummaryHTML(t *testing.T) {
 	if strings.Count(htmlBody, "https://example.com/posts/launch-update") < 3 {
 		t.Fatalf("post URL should be used for heading, image, and CTA links: %q", htmlBody)
 	}
+}
 
+func assertPostAnnouncementEmailMetadata(t *testing.T, htmlBody string) {
+	t.Helper()
 	if !strings.Contains(htmlBody, "&#128197; February 4, 2026") {
 		t.Fatalf("html body does not contain formatted EN published date: %q", htmlBody)
 	}

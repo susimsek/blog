@@ -15,25 +15,7 @@ func TestResolveNewsletterConfig(t *testing.T) {
 		if err != nil {
 			t.Fatalf("ResolveNewsletterConfig() error = %v", err)
 		}
-
-		if cfg.SiteURL != "https://example.com" {
-			t.Fatalf("SiteURL = %q", cfg.SiteURL)
-		}
-		if cfg.CronSecret != "cron-secret" {
-			t.Fatalf("CronSecret = %q", cfg.CronSecret)
-		}
-		if cfg.UnsubscribeSecret != "unsubscribe-secret" {
-			t.Fatalf("UnsubscribeSecret = %q", cfg.UnsubscribeSecret)
-		}
-		if cfg.MaxRecipientsPerRun != DefaultNewsletterMaxRecipientsPerRun {
-			t.Fatalf("MaxRecipientsPerRun = %d", cfg.MaxRecipientsPerRun)
-		}
-		if cfg.MaxItemAge != time.Duration(DefaultNewsletterMaxItemAgeHours)*time.Hour {
-			t.Fatalf("MaxItemAge = %s", cfg.MaxItemAge)
-		}
-		if cfg.UnsubscribeTokenTTL != time.Duration(DefaultUnsubscribeTokenTTLHours)*time.Hour {
-			t.Fatalf("UnsubscribeTokenTTL = %s", cfg.UnsubscribeTokenTTL)
-		}
+		assertDefaultNewsletterConfig(t, cfg)
 	})
 
 	t.Run("uses configured limits", func(t *testing.T) {
@@ -49,14 +31,27 @@ func TestResolveNewsletterConfig(t *testing.T) {
 			t.Fatalf("ResolveNewsletterConfig() error = %v", err)
 		}
 
-		if cfg.MaxRecipientsPerRun != 25 {
-			t.Fatalf("MaxRecipientsPerRun = %d", cfg.MaxRecipientsPerRun)
-		}
-		if cfg.MaxItemAge != 12*time.Hour {
-			t.Fatalf("MaxItemAge = %s", cfg.MaxItemAge)
-		}
-		if cfg.UnsubscribeTokenTTL != 48*time.Hour {
-			t.Fatalf("UnsubscribeTokenTTL = %s", cfg.UnsubscribeTokenTTL)
-		}
+		assertNewsletterConfigLimits(t, cfg, 25, 12*time.Hour, 48*time.Hour)
 	})
+}
+
+func assertDefaultNewsletterConfig(t *testing.T, cfg NewsletterConfig) {
+	t.Helper()
+	if cfg.SiteURL != "https://example.com" || cfg.CronSecret != "cron-secret" || cfg.UnsubscribeSecret != "unsubscribe-secret" {
+		t.Fatalf("newsletter config secrets/site = %#v", cfg)
+	}
+	assertNewsletterConfigLimits(
+		t,
+		cfg,
+		DefaultNewsletterMaxRecipientsPerRun,
+		time.Duration(DefaultNewsletterMaxItemAgeHours)*time.Hour,
+		time.Duration(DefaultUnsubscribeTokenTTLHours)*time.Hour,
+	)
+}
+
+func assertNewsletterConfigLimits(t *testing.T, cfg NewsletterConfig, recipients int, maxAge, tokenTTL time.Duration) {
+	t.Helper()
+	if cfg.MaxRecipientsPerRun != recipients || cfg.MaxItemAge != maxAge || cfg.UnsubscribeTokenTTL != tokenTTL {
+		t.Fatalf("newsletter limits = %d/%s/%s", cfg.MaxRecipientsPerRun, cfg.MaxItemAge, cfg.UnsubscribeTokenTTL)
+	}
 }

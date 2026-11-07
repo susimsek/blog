@@ -1,6 +1,6 @@
 export const isValidEmail = (email: string, minimumTopLevelDomainLength = 1): boolean => {
-  const atIndex = email.indexOf('@');
-  if (atIndex <= 0 || email.indexOf('@', atIndex + 1) !== -1) {
+  const [localPart, domain = '', ...extraParts] = email.split('@');
+  if (!localPart || !domain || extraParts.length > 0) {
     return false;
   }
 
@@ -10,7 +10,6 @@ export const isValidEmail = (email: string, minimumTopLevelDomainLength = 1): bo
     }
   }
 
-  const finalDotIndex = email.lastIndexOf('.');
-  const domainStartIndex = atIndex + 1;
-  return finalDotIndex > domainStartIndex && email.length - finalDotIndex - 1 >= minimumTopLevelDomainLength;
+  const finalDotIndex = domain.lastIndexOf('.');
+  return finalDotIndex > 0 && domain.length - finalDotIndex - 1 >= minimumTopLevelDomainLength;
 };

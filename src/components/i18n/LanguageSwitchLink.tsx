@@ -29,8 +29,9 @@ const LanguageSwitchLink: React.FC<LanguageSwitchLinkProps> = ({ locale, href })
     query.delete('locale');
     const queryString = query.toString();
     const hash = href ? sourceUrl.hash : globalThis.window.location.hash;
+    const search = queryString ? `?${queryString}` : '';
 
-    router.replace(`${targetPath}${queryString ? `?${queryString}` : ''}${hash}`);
+    router.replace(`${targetPath}${search}${hash}`);
   };
 
   return (

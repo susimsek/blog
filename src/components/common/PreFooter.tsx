@@ -245,7 +245,7 @@ function PreFooterNewsletterSection({
       ) : null}
 
       <h4 className="h6 fw-bold mb-2">{t('common.preFooter.socialTitle')}</h4>
-      <div className="d-flex align-items-center gap-3 flex-wrap pre-footer-social-links">
+      <div className="d-flex align-items-center flex-wrap pre-footer-social-links">
         <PreFooterSocialLink
           href={buildLocalizedPath(currentLocale, 'rss.xml')}
           icon="rss"

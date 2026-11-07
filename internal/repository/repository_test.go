@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"suaybsimsek.com/blog-api/internal/domain"
+	"suaybsimsek.com/blog-api/internal/testassert"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -191,53 +192,37 @@ func (mock *updateOneMock) UpdateOne(
 }
 
 func TestPostRepositoryHelpers(t *testing.T) {
-	if repository, ok := NewPostMongoRepository().(*postMongoRepository); !ok || repository == nil {
-		t.Fatalf("NewPostMongoRepository() = %#v", repository)
-	}
+	repository, ok := NewPostMongoRepository().(*postMongoRepository)
+	testassert.True(t, ok && repository != nil, "NewPostMongoRepository should return its concrete implementation")
 
-	if got, ok := normalizePostID(" Alpha-Post "); !ok || got != "alpha-post" {
-		t.Fatalf("normalizePostID(valid) = %q, %v", got, ok)
-	}
-	if got, ok := normalizePostID("bad id"); ok || got != "" {
-		t.Fatalf("normalizePostID(invalid) = %q, %v", got, ok)
-	}
+	got, ok := normalizePostID(" Alpha-Post ")
+	testassert.True(t, ok, "valid post id should normalize")
+	testassert.Equal(t, got, "alpha-post", "normalized valid post id")
+	got, ok = normalizePostID("bad id")
+	testassert.True(t, !ok, "invalid post id should be rejected")
+	testassert.Equal(t, got, "", "normalized invalid post id")
 
 	alphaLikes := computeInitialLikes("alpha-post")
-	if alphaLikes != computeInitialLikes("alpha-post") || alphaLikes <= 0 {
-		t.Fatalf("computeInitialLikes(alpha-post) = %d", alphaLikes)
-	}
+	testassert.Equal(t, alphaLikes, computeInitialLikes("alpha-post"), "deterministic likes")
+	testassert.True(t, alphaLikes > 0, "initial likes should be positive")
 
 	alphaHits := computeInitialHits("alpha-post")
-	if alphaHits != computeInitialHits("alpha-post") || alphaHits < 700 {
-		t.Fatalf("computeInitialHits(alpha-post) = %d", alphaHits)
-	}
+	testassert.Equal(t, alphaHits, computeInitialHits("alpha-post"), "deterministic hits")
+	testassert.True(t, alphaHits >= 700, "initial hits should meet minimum")
 
-	if got := normalizeSortOrder(" ASC "); got != "asc" {
-		t.Fatalf("normalizeSortOrder(asc) = %q", got)
-	}
-	if got := normalizeSortOrder("nope"); got != "desc" {
-		t.Fatalf("normalizeSortOrder(default) = %q", got)
-	}
+	testassert.Equal(t, normalizeSortOrder(" ASC "), "asc", "normalized sort order")
+	testassert.Equal(t, normalizeSortOrder("nope"), "desc", "default sort order")
 
-	if got := normalizeSource(" medium "); got != "medium" {
-		t.Fatalf("normalizeSource(medium) = %q", got)
-	}
-	if got := normalizeSource("unknown"); got != "all" {
-		t.Fatalf("normalizeSource(default) = %q", got)
-	}
+	testassert.Equal(t, normalizeSource(" medium "), "medium", "normalized source")
+	testassert.Equal(t, normalizeSource("unknown"), "all", "default source")
 
-	if got := normalizeOptionalString(nil); got != nil {
-		t.Fatalf("normalizeOptionalString(nil) = %#v", got)
-	}
+	testassert.True(t, normalizeOptionalString(nil) == nil, "nil optional string should remain nil")
 	blank := "   "
-	if got := normalizeOptionalString(&blank); got != nil {
-		t.Fatalf("normalizeOptionalString(blank) = %#v", got)
-	}
+	testassert.True(t, normalizeOptionalString(&blank) == nil, "blank optional string should be cleared")
 	value := " hello "
 	gotValue := normalizeOptionalString(&value)
-	if gotValue == nil || *gotValue != "hello" {
-		t.Fatalf("normalizeOptionalString(value) = %#v", gotValue)
-	}
+	testassert.True(t, gotValue != nil, "non-empty optional string should remain")
+	testassert.Equal(t, *gotValue, "hello", "normalized optional string")
 
 	topicLink := " https://example.com/topic "
 	updatedDate := " 2026-03-01 "
@@ -257,48 +242,34 @@ func TestPostRepositoryHelpers(t *testing.T) {
 			Color: "green",
 		},
 	})
-	if normalizedPost.Source != "blog" {
-		t.Fatalf("normalizePostForResponse().Source = %q", normalizedPost.Source)
-	}
-	if normalizedPost.UpdatedDate == nil || *normalizedPost.UpdatedDate != "2026-03-01" {
-		t.Fatalf("normalizePostForResponse().UpdatedDate = %#v", normalizedPost.UpdatedDate)
-	}
-	if normalizedPost.Topics[0].Color != "blue" {
-		t.Fatalf("normalizePostForResponse().Topics = %#v", normalizedPost.Topics)
-	}
-	if normalizedPost.Category == nil || normalizedPost.Category.ID != "programming" {
-		t.Fatalf("normalizePostForResponse().Category = %#v", normalizedPost.Category)
-	}
+	testassert.Equal(t, normalizedPost.Source, "blog", "normalized post source")
+	testassert.True(t, normalizedPost.UpdatedDate != nil, "updated date should remain set")
+	testassert.Equal(t, *normalizedPost.UpdatedDate, "2026-03-01", "normalized updated date")
+	testassert.Equal(t, len(normalizedPost.Topics), 1, "normalized topic count")
+	testassert.Equal(t, normalizedPost.Topics[0].Color, "blue", "normalized topic color")
+	testassert.True(t, normalizedPost.Category != nil, "valid category should remain set")
+	testassert.Equal(t, normalizedPost.Category.ID, "programming", "normalized category id")
 
 	normalizedWithoutCategory := normalizePostForResponse(PostRecord{
 		Category: &PostCategory{ID: " ", Name: "Programming"},
 	})
-	if normalizedWithoutCategory.Category != nil {
-		t.Fatalf("normalizePostForResponse() should clear invalid category: %#v", normalizedWithoutCategory.Category)
-	}
+	testassert.True(t, normalizedWithoutCategory.Category == nil, "invalid category should be cleared")
 
 	postIDs := collectPostIDs([]PostRecord{
 		{ID: " Alpha-Post "},
 		{ID: "bad id"},
 		{ID: "beta-post"},
 	})
-	if len(postIDs) != 2 || postIDs[0] != "alpha-post" || postIDs[1] != "beta-post" {
-		t.Fatalf("collectPostIDs() = %#v", postIDs)
-	}
-	if got := collectPostIDs(nil); got != nil {
-		t.Fatalf("collectPostIDs(nil) = %#v", got)
-	}
+	testassert.Equal(t, len(postIDs), 2, "normalized post id count")
+	testassert.Equal(t, postIDs[0], "alpha-post", "first normalized post id")
+	testassert.Equal(t, postIDs[1], "beta-post", "second normalized post id")
+	testassert.True(t, collectPostIDs(nil) == nil, "nil post ids should remain nil")
 
 	filter := buildContentFilter("tr", []string{"alpha-post"})
-	if filter["locale"] != "tr" {
-		t.Fatalf("buildContentFilter(locale) = %#v", filter)
-	}
-	if scopedFilter, ok := filter["id"].(bson.M); !ok || len(scopedFilter["$in"].([]string)) != 1 {
-		t.Fatalf("buildContentFilter(scope) = %#v", filter)
-	}
-	if filter := buildContentFilter("en", nil); len(filter) != 1 {
-		t.Fatalf("buildContentFilter(no scope) = %#v", filter)
-	}
+	testassert.Equal(t, filter["locale"], "tr", "content filter locale")
+	scopedFilter, ok := filter["id"].(bson.M)
+	testassert.True(t, ok && len(scopedFilter["$in"].([]string)) == 1, "content filter should include scoped ids")
+	testassert.Equal(t, len(buildContentFilter("en", nil)), 1, "unscoped content filter size")
 }
 
 func TestPostRepositoryUnavailablePaths(t *testing.T) {
@@ -345,24 +316,16 @@ func TestPostRepositoryCollectionHelpers(t *testing.T) {
 
 	t.Run("ensure seeded documents", func(t *testing.T) {
 		likesCollection := &bulkWriteMock{}
-		if err := ensurePostLikeDocuments(context.Background(), likesCollection, []string{"alpha-post", "beta-post"}, now); err != nil {
-			t.Fatalf("ensurePostLikeDocuments() error = %v", err)
-		}
-		if likesCollection.writeCount != 1 || len(likesCollection.lastModels) != 2 {
-			t.Fatalf("likesCollection = %#v", likesCollection)
-		}
+		testassert.NoError(t, ensurePostLikeDocuments(context.Background(), likesCollection, []string{"alpha-post", "beta-post"}, now), "ensurePostLikeDocuments")
+		testassert.Equal(t, likesCollection.writeCount, 1, "likes write count")
+		testassert.Equal(t, len(likesCollection.lastModels), 2, "like model count")
 
 		hitsCollection := &bulkWriteMock{}
-		if err := ensurePostHitDocuments(context.Background(), hitsCollection, []string{"alpha-post"}, now); err != nil {
-			t.Fatalf("ensurePostHitDocuments() error = %v", err)
-		}
-		if hitsCollection.writeCount != 1 || len(hitsCollection.lastModels) != 1 {
-			t.Fatalf("hitsCollection = %#v", hitsCollection)
-		}
+		testassert.NoError(t, ensurePostHitDocuments(context.Background(), hitsCollection, []string{"alpha-post"}, now), "ensurePostHitDocuments")
+		testassert.Equal(t, hitsCollection.writeCount, 1, "hits write count")
+		testassert.Equal(t, len(hitsCollection.lastModels), 1, "hit model count")
 
-		if err := ensurePostLikeDocuments(context.Background(), likesCollection, nil, now); err != nil {
-			t.Fatalf("ensurePostLikeDocuments(nil) error = %v", err)
-		}
+		testassert.NoError(t, ensurePostLikeDocuments(context.Background(), likesCollection, nil, now), "ensurePostLikeDocuments(nil)")
 	})
 
 	t.Run("fetch metrics from cursor docs", func(t *testing.T) {
@@ -371,29 +334,22 @@ func TestPostRepositoryCollectionHelpers(t *testing.T) {
 				bson.D{{Key: "postId", Value: "alpha-post"}, {Key: "likes", Value: int64(12)}},
 			},
 		}, []string{"alpha-post", "beta-post"})
-		if err != nil {
-			t.Fatalf("fetchPostLikesByIDs() error = %v", err)
-		}
-		if likesByPostID["alpha-post"] != 12 || likesByPostID["beta-post"] != computeInitialLikes("beta-post") {
-			t.Fatalf("likesByPostID = %#v", likesByPostID)
-		}
+		testassert.NoError(t, err, "fetchPostLikesByIDs")
+		testassert.Equal(t, likesByPostID["alpha-post"], int64(12), "alpha likes")
+		testassert.Equal(t, likesByPostID["beta-post"], computeInitialLikes("beta-post"), "beta initial likes")
 
 		hitsByPostID, err := fetchPostHitsByIDs(context.Background(), &findMock{
 			docs: []any{
 				bson.D{{Key: "postId", Value: "alpha-post"}, {Key: "hits", Value: int64(120)}},
 			},
 		}, []string{"alpha-post", "beta-post"})
-		if err != nil {
-			t.Fatalf("fetchPostHitsByIDs() error = %v", err)
-		}
-		if hitsByPostID["alpha-post"] != 120 || hitsByPostID["beta-post"] != computeInitialHits("beta-post") {
-			t.Fatalf("hitsByPostID = %#v", hitsByPostID)
-		}
+		testassert.NoError(t, err, "fetchPostHitsByIDs")
+		testassert.Equal(t, hitsByPostID["alpha-post"], int64(120), "alpha hits")
+		testassert.Equal(t, hitsByPostID["beta-post"], computeInitialHits("beta-post"), "beta initial hits")
 
 		emptyLikes, err := fetchPostLikesByIDs(context.Background(), &findMock{}, nil)
-		if err != nil || len(emptyLikes) != 0 {
-			t.Fatalf("fetchPostLikesByIDs(nil) = %#v, %v", emptyLikes, err)
-		}
+		testassert.NoError(t, err, "fetchPostLikesByIDs(nil)")
+		testassert.Equal(t, len(emptyLikes), 0, "empty likes count")
 	})
 
 	t.Run("increment metric values", func(t *testing.T) {
@@ -401,23 +357,17 @@ func TestPostRepositoryCollectionHelpers(t *testing.T) {
 			updatedDoc: bson.D{{Key: "likes", Value: int64(41)}},
 		}
 		likes, err := incrementPostLikeValue(context.Background(), likesCollection, "alpha-post", now)
-		if err != nil {
-			t.Fatalf("incrementPostLikeValue() error = %v", err)
-		}
-		if likes != 41 || likesCollection.writeCount != 1 {
-			t.Fatalf("likes = %d, collection = %#v", likes, likesCollection)
-		}
+		testassert.NoError(t, err, "incrementPostLikeValue")
+		testassert.Equal(t, likes, int64(41), "incremented likes")
+		testassert.Equal(t, likesCollection.writeCount, 1, "like write count")
 
 		hitsCollection := &metricCollectionMock{
 			updatedDoc: bson.D{{Key: "hits", Value: int64(205)}},
 		}
 		hits, err := incrementPostHitValue(context.Background(), hitsCollection, "alpha-post", now)
-		if err != nil {
-			t.Fatalf("incrementPostHitValue() error = %v", err)
-		}
-		if hits != 205 || hitsCollection.writeCount != 1 {
-			t.Fatalf("hits = %d, collection = %#v", hits, hitsCollection)
-		}
+		testassert.NoError(t, err, "incrementPostHitValue")
+		testassert.Equal(t, hits, int64(205), "incremented hits")
+		testassert.Equal(t, hitsCollection.writeCount, 1, "hit write count")
 	})
 
 	t.Run("query posts and single post", func(t *testing.T) {
@@ -441,12 +391,9 @@ func TestPostRepositoryCollectionHelpers(t *testing.T) {
 				},
 			},
 		}, bson.M{"locale": "en"}, "desc", 0, 10)
-		if err != nil {
-			t.Fatalf("queryPostRecords() error = %v", err)
-		}
-		if len(posts) != 1 || posts[0].Source != "blog" {
-			t.Fatalf("posts = %#v", posts)
-		}
+		testassert.NoError(t, err, "queryPostRecords")
+		testassert.Equal(t, len(posts), 1, "queried post count")
+		testassert.Equal(t, posts[0].Source, "blog", "normalized queried post source")
 
 		post, err := queryPostRecordByID(context.Background(), &singleFindMock{
 			doc: bson.D{
@@ -459,20 +406,16 @@ func TestPostRepositoryCollectionHelpers(t *testing.T) {
 				{Key: "source", Value: "medium"},
 			},
 		}, "en", "alpha-post")
-		if err != nil {
-			t.Fatalf("queryPostRecordByID() error = %v", err)
-		}
-		if post == nil || post.Source != "medium" {
-			t.Fatalf("post = %#v", post)
-		}
+		testassert.NoError(t, err, "queryPostRecordByID")
+		testassert.NotNil(t, post, "queried post should be returned")
+		testassert.Equal(t, post.Source, "medium", "queried post source")
 
 		post, err = queryPostRecordByID(context.Background(), &singleFindMock{
 			doc: bson.M{},
 			err: mongo.ErrNoDocuments,
 		}, "en", "missing")
-		if err != nil || post != nil {
-			t.Fatalf("queryPostRecordByID(no documents) = %#v, %v", post, err)
-		}
+		testassert.NoError(t, err, "queryPostRecordByID(no documents)")
+		testassert.True(t, post == nil, "missing post should be nil")
 	})
 }
 

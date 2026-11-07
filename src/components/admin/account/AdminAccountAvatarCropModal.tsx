@@ -85,7 +85,6 @@ export default function AdminAccountAvatarCropModal({
           onPointerUp={onPointerEnd}
           onPointerCancel={onPointerEnd}
           onLostPointerCapture={onPointerEnd}
-          role="presentation"
         >
           {cropSource ? (
             <Image

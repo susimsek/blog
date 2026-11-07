@@ -64,6 +64,76 @@ type AdminContentManagementPanelProps = {
   formatDate: (value: string) => string;
 };
 
+const resolveRouteParameter = (value?: string | string[]) => (Array.isArray(value) ? value[0] : value);
+
+const resolveDensityMode = (canUseGridDensity: boolean, density: PostDensityMode): PostDensityMode =>
+  canUseGridDensity || density !== 'grid' ? density : 'default';
+
+const renderFeedbackMessages = (showTopFeedback: boolean, errorMessage: string, successMessage: string) => (
+  <>
+    {showTopFeedback && errorMessage ? (
+      <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
+        {errorMessage}
+      </Alert>
+    ) : null}
+    {showTopFeedback && successMessage ? (
+      <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
+        {successMessage}
+      </Alert>
+    ) : null}
+  </>
+);
+
+const renderPostSaveAction = (options: {
+  shouldShow: boolean;
+  shouldUpdateMetadata: boolean;
+  canSaveMetadata: boolean;
+  isUpdatingMetadata: boolean;
+  canSaveContent: boolean;
+  isUpdatingContent: boolean;
+  onUpdateMetadata: () => void;
+  onUpdateContent: () => void;
+  t: ReturnType<typeof useTranslation>['t'];
+}) => {
+  const {
+    shouldShow,
+    shouldUpdateMetadata,
+    canSaveMetadata,
+    isUpdatingMetadata,
+    canSaveContent,
+    isUpdatingContent,
+    onUpdateMetadata,
+    onUpdateContent,
+    t,
+  } = options;
+  if (!shouldShow) {
+    return null;
+  }
+
+  const isUpdating = shouldUpdateMetadata ? isUpdatingMetadata : isUpdatingContent;
+  const canSave = shouldUpdateMetadata ? canSaveMetadata : canSaveContent;
+  const onUpdate = shouldUpdateMetadata ? onUpdateMetadata : onUpdateContent;
+  const updateLabel = shouldUpdateMetadata
+    ? 'adminAccount.content.actions.updatePost'
+    : 'adminAccount.content.actions.updatePostContent';
+
+  return (
+    <Button type="button" variant="primary" disabled={!canSave || isUpdating} onClick={onUpdate}>
+      {isUpdating ? (
+        <span className="d-inline-flex align-items-center gap-2">
+          <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
+          <span>{t('adminAccount.content.actions.updating', { ns: 'admin-account' })}</span>
+        </span>
+      ) : (
+        <>
+          <FontAwesomeIcon icon="save" className="me-2" />
+          {t(updateLabel, { ns: 'admin-account' })}
+        </>
+      )}
+    </Button>
+  );
+};
+
 export default function AdminContentManagementPanel({
   // NOSONAR
   onSessionExpired,
@@ -77,10 +147,8 @@ export default function AdminContentManagementPanel({
     postId?: string | string[];
   }>();
   const routeLocale = useLocale();
-  const routePostLocale = (Array.isArray(params.postLocale) ? params.postLocale[0] : params.postLocale)
-    ?.trim()
-    .toLowerCase();
-  const routePostID = (Array.isArray(params.postId) ? params.postId[0] : params.postId)?.trim();
+  const routePostLocale = resolveRouteParameter(params.postLocale)?.trim().toLowerCase();
+  const routePostID = resolveRouteParameter(params.postId)?.trim();
   const currentDatePickerLocale = getDatePickerLocale(routeLocale);
   const datePickerLocaleConfig = currentDatePickerLocale === 'tr' ? tr : enUS;
   const isPostDetailRoute = Boolean(routePostLocale && routePostID);
@@ -119,10 +187,8 @@ export default function AdminContentManagementPanel({
     t,
   });
   const canUsePostGridDensity = useMediaQuery('(min-width: 1200px)');
-  const resolvedPostDensityMode: PostDensityMode =
-    canUsePostGridDensity || postDensityMode !== 'grid' ? postDensityMode : 'default';
-  const resolvedMediaDensityMode: PostDensityMode =
-    canUsePostGridDensity || mediaDensityMode !== 'grid' ? mediaDensityMode : 'default';
+  const resolvedPostDensityMode = resolveDensityMode(canUsePostGridDensity, postDensityMode);
+  const resolvedMediaDensityMode = resolveDensityMode(canUsePostGridDensity, mediaDensityMode);
 
   const listTopRef = React.useRef<HTMLDivElement | null>(null);
   const splitPreviewRef = React.useRef<HTMLDivElement | null>(null);
@@ -210,10 +276,7 @@ export default function AdminContentManagementPanel({
     pageSize,
     setPage,
   });
-  const activePostEditorTab = resolvePostEditorTab(
-    postEditorTabKey,
-    editingPost ? editingPost.source === 'blog' : true,
-  );
+  const activePostEditorTab = resolvePostEditorTab(postEditorTabKey, !editingPost || editingPost.source === 'blog');
   const totalPostRevisionPages = Math.max(1, Math.ceil(postRevisionsTotal / postRevisionsPageSize));
 
   const handleSwitchPostEditorLocale = React.useCallback(
@@ -645,57 +708,17 @@ export default function AdminContentManagementPanel({
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
-  const shouldShowPostSaveAction = activePostEditorTab !== 'comments';
-  const shouldUpdatePostMetadata = Boolean(
-    editingPost && (activePostEditorTab === 'metadata' || editingPost.source !== 'blog'),
-  );
-  let postSaveAction: React.ReactNode = null;
-
-  if (shouldShowPostSaveAction) {
-    if (shouldUpdatePostMetadata) {
-      postSaveAction = (
-        <Button
-          type="button"
-          variant="primary"
-          disabled={!canSavePostMetadata || isPostUpdating}
-          onClick={handleUpdatePostMetadata}
-        >
-          {isPostUpdating ? (
-            <span className="d-inline-flex align-items-center gap-2">
-              <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
-              <span>{t('adminAccount.content.actions.updating', { ns: 'admin-account' })}</span>
-            </span>
-          ) : (
-            <>
-              <FontAwesomeIcon icon="save" className="me-2" />
-              {t('adminAccount.content.actions.updatePost', { ns: 'admin-account' })}
-            </>
-          )}
-        </Button>
-      );
-    } else {
-      postSaveAction = (
-        <Button
-          type="button"
-          variant="primary"
-          disabled={!canSavePostContent || isPostContentUpdating}
-          onClick={handleUpdatePostContent}
-        >
-          {isPostContentUpdating ? (
-            <span className="d-inline-flex align-items-center gap-2">
-              <Spinner as="span" animation="border" size="sm" className="me-2 flex-shrink-0" aria-hidden="true" />
-              <span>{t('adminAccount.content.actions.updating', { ns: 'admin-account' })}</span>
-            </span>
-          ) : (
-            <>
-              <FontAwesomeIcon icon="save" className="me-2" />
-              {t('adminAccount.content.actions.updatePostContent', { ns: 'admin-account' })}
-            </>
-          )}
-        </Button>
-      );
-    }
-  }
+  const postSaveAction = renderPostSaveAction({
+    shouldShow: activePostEditorTab !== 'comments',
+    shouldUpdateMetadata: Boolean(editingPost && (activePostEditorTab === 'metadata' || editingPost.source !== 'blog')),
+    canSaveMetadata: canSavePostMetadata,
+    isUpdatingMetadata: isPostUpdating,
+    canSaveContent: canSavePostContent,
+    isUpdatingContent: isPostContentUpdating,
+    onUpdateMetadata: handleUpdatePostMetadata,
+    onUpdateContent: handleUpdatePostContent,
+    t,
+  });
 
   return (
     <>
@@ -703,16 +726,7 @@ export default function AdminContentManagementPanel({
       <hr className="admin-section-divider mb-3" />
       <p className="admin-dashboard-panel-copy mb-3">{t('adminAccount.content.copy', { ns: 'admin-account' })}</p>
 
-      {showTopFeedback && errorMessage ? (
-        <Alert variant="danger" className="mb-3 px-4 py-3 lh-base">
-          {errorMessage}
-        </Alert>
-      ) : null}
-      {showTopFeedback && successMessage ? (
-        <Alert variant="success" className="mb-3 px-4 py-3 lh-base">
-          {successMessage}
-        </Alert>
-      ) : null}
+      {renderFeedbackMessages(showTopFeedback, errorMessage, successMessage)}
 
       <div className="d-grid gap-3">
         <div ref={listTopRef} />

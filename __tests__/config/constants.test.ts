@@ -43,7 +43,7 @@ describe('Static Constants', () => {
 
   it('should export correct locales', () => {
     const { LOCALES } = require('@/config/constants');
-    expect(Object.keys(LOCALES).length).toBe(2);
+    expect(Object.keys(LOCALES)).toHaveLength(2);
   });
 
   it('should export correct themes', () => {

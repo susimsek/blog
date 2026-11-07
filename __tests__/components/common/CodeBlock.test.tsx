@@ -239,7 +239,7 @@ describe('CodeBlock Component', () => {
       </CodeBlock>,
     );
     fireEvent.click(screen.getAllByRole('button', { name: 'common.codeBlock.copy' }).at(-1) as HTMLElement);
-    expect((navigator.clipboard.writeText as jest.Mock).mock.calls.filter(call => call[0] === '').length).toBe(0);
+    expect((navigator.clipboard.writeText as jest.Mock).mock.calls.filter(call => call[0] === '')).toHaveLength(0);
   });
 
   it('loads syntax assets outside test environment and applies all theme branches', async () => {

@@ -162,13 +162,15 @@ func UpdateAdminContentPostMetadata( // NOSONAR
 
 	updated, err := adminContentRepository.UpdatePostMetadata(
 		ctx,
-		resolvedLocale,
-		resolvedPostID,
-		metadataFields,
-		category,
-		topics,
-		revisionStamp,
-		now,
+		domain.AdminContentPostMetadataUpdate{
+			Locale:        resolvedLocale,
+			PostID:        resolvedPostID,
+			Fields:        metadataFields,
+			Category:      category,
+			Topics:        topics,
+			RevisionStamp: revisionStamp,
+			Now:           now,
+		},
 	)
 	if err != nil {
 		return nil, toAdminContentError(err, "failed to update content post")

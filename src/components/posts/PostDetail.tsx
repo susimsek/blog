@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import { Post } from '@/types/posts';
 import Badge from 'react-bootstrap/Badge';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
-import { assetPrefix } from '@/config/constants';
+import { assetPrefix, AUTHOR_NAME, AVATAR_LINK, SITE_LOGO } from '@/config/constants';
 import DateDisplay from '@/components/common/DateDisplay';
 import Thumbnail from '@/components/common/Thumbnail';
 import Link from '@/components/common/Link';
@@ -19,12 +19,10 @@ import PostHit from '@/components/posts/PostHit';
 import PostAuthorBox from '@/components/posts/PostAuthorBox';
 import PostComments from '@/components/posts/PostComments';
 import { useTranslation } from 'react-i18next';
-import { defaultLocale } from '@/i18n/settings';
 import { useLocale } from '@/i18n/useLocale';
 import { buildLocalizedAbsoluteUrl, toAbsoluteSiteUrl } from '@/lib/metadata';
 import type { AdjacentPostLink } from '@/lib/postFilters';
 import { formatReadingTime } from '@/lib/readingTime';
-import { AUTHOR_NAME, AVATAR_LINK, SITE_LOGO } from '@/config/constants';
 
 const MarkdownRenderer = dynamic(() => import('@/components/common/MarkdownRenderer'), {
   loading: () => null,

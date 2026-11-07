@@ -12,6 +12,7 @@ import (
 	appconfig "suaybsimsek.com/blog-api/internal/config"
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/repository"
+	"suaybsimsek.com/blog-api/internal/testassert"
 	"suaybsimsek.com/blog-api/pkg/httpauth"
 )
 
@@ -201,17 +202,15 @@ func TestResolveReaderFromAccessTokenErrorPaths(t *testing.T) {
 	})
 
 	t.Run("requires jwt secret and token", func(t *testing.T) {
-		if _, err := ResolveReaderFromAccessToken(context.Background(), " "); err == nil || !strings.Contains(err.Error(), readerAuthRequiredMessage) {
-			t.Fatalf("expected auth required error, got %v", err)
-		}
+		_, err := ResolveReaderFromAccessToken(context.Background(), " ")
+		testassert.ErrorContains(t, err, readerAuthRequiredMessage)
 	})
 
 	t.Run("rejects invalid token", func(t *testing.T) {
 		t.Setenv("JWT_SECRET", "reader-secret")
 
-		if _, err := ResolveReaderFromAccessToken(context.Background(), "invalid-token"); err == nil || !strings.Contains(err.Error(), readerAuthRequiredMessage) {
-			t.Fatalf("expected auth required error, got %v", err)
-		}
+		_, err := ResolveReaderFromAccessToken(context.Background(), "invalid-token")
+		testassert.ErrorContains(t, err, readerAuthRequiredMessage)
 	})
 
 	t.Run("rejects token without subject", func(t *testing.T) {
@@ -222,13 +221,10 @@ func TestResolveReaderFromAccessTokenErrorPaths(t *testing.T) {
 			IssuedAt:  time.Now().Add(-time.Minute).Unix(),
 			ExpiresAt: time.Now().Add(time.Hour).Unix(),
 		}, "reader-secret")
-		if err != nil {
-			t.Fatalf("IssueHS256JWT returned error: %v", err)
-		}
+		testassert.NoError(t, err, "IssueHS256JWT")
 
-		if _, err := ResolveReaderFromAccessToken(context.Background(), token); err == nil || !strings.Contains(err.Error(), readerAuthRequiredMessage) {
-			t.Fatalf("expected auth required error, got %v", err)
-		}
+		_, err = ResolveReaderFromAccessToken(context.Background(), token)
+		testassert.ErrorContains(t, err, readerAuthRequiredMessage)
 	})
 
 	t.Run("maps repository and session failures", func(t *testing.T) {
@@ -241,9 +237,7 @@ func TestResolveReaderFromAccessTokenErrorPaths(t *testing.T) {
 			IssuedAt:        time.Now().Add(-time.Minute).Unix(),
 			ExpiresAt:       time.Now().Add(time.Hour).Unix(),
 		}, "reader-secret")
-		if err != nil {
-			t.Fatalf("IssueHS256JWT returned error: %v", err)
-		}
+		testassert.NoError(t, err, "IssueHS256JWT")
 
 		readerUsersRepository = stubReaderUserRepository{
 			findByID: func(_ context.Context, id string) (*domain.ReaderUserRecord, error) {
@@ -261,9 +255,8 @@ func TestResolveReaderFromAccessTokenErrorPaths(t *testing.T) {
 			},
 		}
 
-		if _, err := ResolveReaderFromAccessToken(context.Background(), token); err == nil || !strings.Contains(err.Error(), "failed to load reader user") {
-			t.Fatalf("expected load error, got %v", err)
-		}
+		_, err = ResolveReaderFromAccessToken(context.Background(), token)
+		testassert.ErrorContains(t, err, "failed to load reader user")
 
 		missingUserToken, err := httpauth.IssueHS256JWT(httpauth.JWTClaims{
 			Subject:         "reader-2",
@@ -272,12 +265,9 @@ func TestResolveReaderFromAccessTokenErrorPaths(t *testing.T) {
 			IssuedAt:        time.Now().Add(-time.Minute).Unix(),
 			ExpiresAt:       time.Now().Add(time.Hour).Unix(),
 		}, "reader-secret")
-		if err != nil {
-			t.Fatalf("IssueHS256JWT returned error: %v", err)
-		}
-		if _, err := ResolveReaderFromAccessToken(context.Background(), missingUserToken); err == nil || !strings.Contains(err.Error(), readerAuthRequiredMessage) {
-			t.Fatalf("expected missing user auth error, got %v", err)
-		}
+		testassert.NoError(t, err, "IssueHS256JWT")
+		_, err = ResolveReaderFromAccessToken(context.Background(), missingUserToken)
+		testassert.ErrorContains(t, err, readerAuthRequiredMessage)
 
 		mismatchToken, err := httpauth.IssueHS256JWT(httpauth.JWTClaims{
 			Subject:         "reader-3",
@@ -286,12 +276,9 @@ func TestResolveReaderFromAccessTokenErrorPaths(t *testing.T) {
 			IssuedAt:        time.Now().Add(-time.Minute).Unix(),
 			ExpiresAt:       time.Now().Add(time.Hour).Unix(),
 		}, "reader-secret")
-		if err != nil {
-			t.Fatalf("IssueHS256JWT returned error: %v", err)
-		}
-		if _, err := ResolveReaderFromAccessToken(context.Background(), mismatchToken); err == nil || !strings.Contains(err.Error(), readerAuthRequiredMessage) {
-			t.Fatalf("expected session mismatch auth error, got %v", err)
-		}
+		testassert.NoError(t, err, "IssueHS256JWT")
+		_, err = ResolveReaderFromAccessToken(context.Background(), mismatchToken)
+		testassert.ErrorContains(t, err, readerAuthRequiredMessage)
 	})
 }
 
@@ -376,17 +363,15 @@ func TestRefreshReaderSessionErrorPaths(t *testing.T) {
 	})
 
 	t.Run("requires jwt config", func(t *testing.T) {
-		if _, err := RefreshReaderSession(context.Background(), "token", ReaderSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "reader jwt is not configured") {
-			t.Fatalf("expected jwt config error, got %v", err)
-		}
+		_, err := RefreshReaderSession(context.Background(), "token", ReaderSessionMetadata{})
+		testassert.ErrorContains(t, err, "reader jwt is not configured")
 	})
 
 	t.Run("rejects invalid refresh tokens", func(t *testing.T) {
 		t.Setenv("JWT_SECRET", "reader-secret")
 
-		if _, err := RefreshReaderSession(context.Background(), "bad-token", ReaderSessionMetadata{}); err == nil || !strings.Contains(err.Error(), readerInvalidSessionMessage) {
-			t.Fatalf("expected invalid session error, got %v", err)
-		}
+		_, err := RefreshReaderSession(context.Background(), "bad-token", ReaderSessionMetadata{})
+		testassert.ErrorContains(t, err, readerInvalidSessionMessage)
 
 		tokenWithoutID, err := httpauth.IssueHS256JWT(httpauth.JWTClaims{
 			Subject:   "reader-1",
@@ -394,12 +379,9 @@ func TestRefreshReaderSessionErrorPaths(t *testing.T) {
 			IssuedAt:  time.Now().Add(-time.Minute).Unix(),
 			ExpiresAt: time.Now().Add(time.Hour).Unix(),
 		}, "reader-secret")
-		if err != nil {
-			t.Fatalf("IssueHS256JWT returned error: %v", err)
-		}
-		if _, err := RefreshReaderSession(context.Background(), tokenWithoutID, ReaderSessionMetadata{}); err == nil || !strings.Contains(err.Error(), readerInvalidSessionMessage) {
-			t.Fatalf("expected invalid session error, got %v", err)
-		}
+		testassert.NoError(t, err, "IssueHS256JWT")
+		_, err = RefreshReaderSession(context.Background(), tokenWithoutID, ReaderSessionMetadata{})
+		testassert.ErrorContains(t, err, readerInvalidSessionMessage)
 	})
 
 	t.Run("maps repository and user validation failures", func(t *testing.T) {
@@ -413,9 +395,7 @@ func TestRefreshReaderSessionErrorPaths(t *testing.T) {
 			IssuedAt:        time.Now().Add(-time.Minute).Unix(),
 			ExpiresAt:       time.Now().Add(time.Hour).Unix(),
 		}, "reader-secret")
-		if err != nil {
-			t.Fatalf("IssueHS256JWT returned error: %v", err)
-		}
+		testassert.NoError(t, err, "IssueHS256JWT")
 
 		readerRefreshTokensRepository = stubReaderRefreshTokenRepository{
 			findActiveByToken: func(_ context.Context, jti, rawToken string, _ time.Time) (*domain.ReaderRefreshTokenRecord, error) {
@@ -454,9 +434,8 @@ func TestRefreshReaderSessionErrorPaths(t *testing.T) {
 			},
 		}
 
-		if _, err := RefreshReaderSession(context.Background(), refreshToken, ReaderSessionMetadata{}); err == nil || !strings.Contains(err.Error(), readerSessionUnavailableText) {
-			t.Fatalf("expected session unavailable error, got %v", err)
-		}
+		_, err = RefreshReaderSession(context.Background(), refreshToken, ReaderSessionMetadata{})
+		testassert.ErrorContains(t, err, readerSessionUnavailableText)
 
 		nilRecordToken, err := httpauth.IssueHS256JWT(httpauth.JWTClaims{
 			ID:              "refresh-nil",
@@ -466,12 +445,9 @@ func TestRefreshReaderSessionErrorPaths(t *testing.T) {
 			IssuedAt:        time.Now().Add(-time.Minute).Unix(),
 			ExpiresAt:       time.Now().Add(time.Hour).Unix(),
 		}, "reader-secret")
-		if err != nil {
-			t.Fatalf("IssueHS256JWT returned error: %v", err)
-		}
-		if _, err := RefreshReaderSession(context.Background(), nilRecordToken, ReaderSessionMetadata{}); err == nil || !strings.Contains(err.Error(), readerInvalidSessionMessage) {
-			t.Fatalf("expected invalid session error, got %v", err)
-		}
+		testassert.NoError(t, err, "IssueHS256JWT")
+		_, err = RefreshReaderSession(context.Background(), nilRecordToken, ReaderSessionMetadata{})
+		testassert.ErrorContains(t, err, readerInvalidSessionMessage)
 
 		userErrorToken, err := httpauth.IssueHS256JWT(httpauth.JWTClaims{
 			ID:              "refresh-user-error",
@@ -481,12 +457,9 @@ func TestRefreshReaderSessionErrorPaths(t *testing.T) {
 			IssuedAt:        time.Now().Add(-time.Minute).Unix(),
 			ExpiresAt:       time.Now().Add(time.Hour).Unix(),
 		}, "reader-secret")
-		if err != nil {
-			t.Fatalf("IssueHS256JWT returned error: %v", err)
-		}
-		if _, err := RefreshReaderSession(context.Background(), userErrorToken, ReaderSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "failed to load reader user") {
-			t.Fatalf("expected user load error, got %v", err)
-		}
+		testassert.NoError(t, err, "IssueHS256JWT")
+		_, err = RefreshReaderSession(context.Background(), userErrorToken, ReaderSessionMetadata{})
+		testassert.ErrorContains(t, err, "failed to load reader user")
 
 		missingUserToken, err := httpauth.IssueHS256JWT(httpauth.JWTClaims{
 			ID:              "refresh-user-missing",
@@ -496,12 +469,9 @@ func TestRefreshReaderSessionErrorPaths(t *testing.T) {
 			IssuedAt:        time.Now().Add(-time.Minute).Unix(),
 			ExpiresAt:       time.Now().Add(time.Hour).Unix(),
 		}, "reader-secret")
-		if err != nil {
-			t.Fatalf("IssueHS256JWT returned error: %v", err)
-		}
-		if _, err := RefreshReaderSession(context.Background(), missingUserToken, ReaderSessionMetadata{}); err == nil || !strings.Contains(err.Error(), readerInvalidSessionMessage) {
-			t.Fatalf("expected missing user invalid session error, got %v", err)
-		}
+		testassert.NoError(t, err, "IssueHS256JWT")
+		_, err = RefreshReaderSession(context.Background(), missingUserToken, ReaderSessionMetadata{})
+		testassert.ErrorContains(t, err, readerInvalidSessionMessage)
 
 		mismatchUserToken, err := httpauth.IssueHS256JWT(httpauth.JWTClaims{
 			ID:              "refresh-user-mismatch",
@@ -511,12 +481,9 @@ func TestRefreshReaderSessionErrorPaths(t *testing.T) {
 			IssuedAt:        time.Now().Add(-time.Minute).Unix(),
 			ExpiresAt:       time.Now().Add(time.Hour).Unix(),
 		}, "reader-secret")
-		if err != nil {
-			t.Fatalf("IssueHS256JWT returned error: %v", err)
-		}
-		if _, err := RefreshReaderSession(context.Background(), mismatchUserToken, ReaderSessionMetadata{}); err == nil || !strings.Contains(err.Error(), readerInvalidSessionMessage) {
-			t.Fatalf("expected session mismatch error, got %v", err)
-		}
+		testassert.NoError(t, err, "IssueHS256JWT")
+		_, err = RefreshReaderSession(context.Background(), mismatchUserToken, ReaderSessionMetadata{})
+		testassert.ErrorContains(t, err, readerInvalidSessionMessage)
 	})
 }
 
@@ -1051,9 +1018,7 @@ func TestReaderOAuthErrorPaths(t *testing.T) {
 		}
 
 		_, err := ResolveReaderGithubIdentityFromCode(context.Background(), "oauth-code", "https://example.com/callback")
-		if err == nil || !strings.Contains(err.Error(), readerGithubInvalidMessage) {
-			t.Fatalf("expected github invalid account error, got %v", err)
-		}
+		testassert.ErrorContains(t, err, readerGithubInvalidMessage)
 	})
 
 	t.Run("google identity invalid when email is not verified", func(t *testing.T) {
@@ -1080,30 +1045,24 @@ func TestReaderOAuthErrorPaths(t *testing.T) {
 		}
 
 		_, err := ResolveReaderGoogleIdentityFromCode(context.Background(), "oauth-code", "https://example.com/callback")
-		if err == nil || !strings.Contains(err.Error(), readerGoogleInvalidMessage) {
-			t.Fatalf("expected google invalid account error, got %v", err)
-		}
+		testassert.ErrorContains(t, err, readerGoogleInvalidMessage)
 	})
 
 	t.Run("reader login requires valid identity and jwt config", func(t *testing.T) {
-		if _, err := LoginReaderWithGithubIdentity(context.Background(), nil, false, ReaderSessionMetadata{}); err == nil || !strings.Contains(err.Error(), readerGithubInvalidMessage) {
-			t.Fatalf("expected github identity error, got %v", err)
-		}
-		if _, err := LoginReaderWithGoogleIdentity(context.Background(), nil, false, ReaderSessionMetadata{}); err == nil || !strings.Contains(err.Error(), readerGoogleInvalidMessage) {
-			t.Fatalf("expected google identity error, got %v", err)
-		}
-		if _, err := LoginReaderWithGithubIdentity(context.Background(), &ReaderGithubIdentity{
+		_, err := LoginReaderWithGithubIdentity(context.Background(), nil, false, ReaderSessionMetadata{})
+		testassert.ErrorContains(t, err, readerGithubInvalidMessage)
+		_, err = LoginReaderWithGoogleIdentity(context.Background(), nil, false, ReaderSessionMetadata{})
+		testassert.ErrorContains(t, err, readerGoogleInvalidMessage)
+		_, err = LoginReaderWithGithubIdentity(context.Background(), &ReaderGithubIdentity{
 			Subject: "github-subject",
 			Email:   "reader@example.com",
-		}, false, ReaderSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "reader jwt is not configured") {
-			t.Fatalf("expected reader jwt config error, got %v", err)
-		}
-		if _, err := LoginReaderWithGoogleIdentity(context.Background(), &ReaderGoogleIdentity{
+		}, false, ReaderSessionMetadata{})
+		testassert.ErrorContains(t, err, "reader jwt is not configured")
+		_, err = LoginReaderWithGoogleIdentity(context.Background(), &ReaderGoogleIdentity{
 			Subject: "google-subject",
 			Email:   "reader@example.com",
-		}, false, ReaderSessionMetadata{}); err == nil || !strings.Contains(err.Error(), "reader jwt is not configured") {
-			t.Fatalf("expected reader jwt config error, got %v", err)
-		}
+		}, false, ReaderSessionMetadata{})
+		testassert.ErrorContains(t, err, "reader jwt is not configured")
 	})
 }
 

@@ -250,18 +250,20 @@ export default function AdminContentMediaTab({
 
       <div className="card d-block">
         <div className="card-body p-3 w-100">
-          {isMediaLibraryLoading ? (
+          {isMediaLibraryLoading && (
             <div className="admin-account-sessions-loading">
               <AdminLoadingState
                 className="admin-loading-stack"
                 ariaLabel={t('adminAccount.content.media.loading', { ns: 'admin-account' })}
               />
             </div>
-          ) : mediaLibraryTotal === 0 ? (
+          )}
+          {!isMediaLibraryLoading && mediaLibraryTotal === 0 && (
             <p className="small theme-text-muted mb-0">
               {t('adminAccount.content.modals.post.media.empty', { ns: 'admin-account' })}
             </p>
-          ) : (
+          )}
+          {!isMediaLibraryLoading && mediaLibraryTotal !== 0 && (
             <div className={`post-list-results post-list-results--${resolvedMediaDensityMode}`}>
               {mediaLibraryItems.map(item => {
                 const previewSrc = item.previewUrl?.trim() || '';

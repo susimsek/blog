@@ -9,25 +9,17 @@ import (
 
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/repository"
+	"suaybsimsek.com/blog-api/internal/testassert"
 	"suaybsimsek.com/blog-api/pkg/httpapi"
 )
 
 type adminContentStubRepository struct {
-	findPostByLocaleAndID func(context.Context, string, string) (*domain.AdminContentPostRecord, error)
-	listPostGroups        func(context.Context, domain.AdminContentPostFilter) (*domain.AdminContentPostListResult, error)
-	listPostRevisions     func(context.Context, string, string, int, int) (*domain.AdminContentPostRevisionListResult, error)
-	findPostRevisionByID  func(context.Context, string, string, string) (*domain.AdminContentPostRevisionRecord, error)
-	createPostRevision    func(context.Context, domain.AdminContentPostRecord, int, time.Time) (*domain.AdminContentPostRevisionRecord, error)
-	updatePostMetadata    func(
-		context.Context,
-		string,
-		string,
-		domain.AdminContentPostMetadataFields,
-		*domain.AdminContentCategoryRecord,
-		[]domain.AdminContentTopicRecord,
-		*domain.AdminContentPostRevisionStamp,
-		time.Time,
-	) (*domain.AdminContentPostRecord, error)
+	findPostByLocaleAndID       func(context.Context, string, string) (*domain.AdminContentPostRecord, error)
+	listPostGroups              func(context.Context, domain.AdminContentPostFilter) (*domain.AdminContentPostListResult, error)
+	listPostRevisions           func(context.Context, string, string, int, int) (*domain.AdminContentPostRevisionListResult, error)
+	findPostRevisionByID        func(context.Context, string, string, string) (*domain.AdminContentPostRevisionRecord, error)
+	createPostRevision          func(context.Context, domain.AdminContentPostRecord, int, time.Time) (*domain.AdminContentPostRevisionRecord, error)
+	updatePostMetadata          func(context.Context, domain.AdminContentPostMetadataUpdate) (*domain.AdminContentPostRecord, error)
 	updatePostContent           func(context.Context, string, string, string, *domain.AdminContentPostRevisionStamp, time.Time) (*domain.AdminContentPostRecord, error)
 	restorePostRevision         func(context.Context, domain.AdminContentPostRevisionRecord, *domain.AdminContentPostRevisionStamp, time.Time) (*domain.AdminContentPostRecord, error)
 	deletePostByLocaleAndID     func(context.Context, string, string) (bool, error)
@@ -121,18 +113,12 @@ func (stub adminContentStubRepository) CreatePostRevision(
 
 func (stub adminContentStubRepository) UpdatePostMetadata(
 	ctx context.Context,
-	locale string,
-	postID string,
-	fields domain.AdminContentPostMetadataFields,
-	category *domain.AdminContentCategoryRecord,
-	topics []domain.AdminContentTopicRecord,
-	revisionStamp *domain.AdminContentPostRevisionStamp,
-	now time.Time,
+	update domain.AdminContentPostMetadataUpdate,
 ) (*domain.AdminContentPostRecord, error) {
 	if stub.updatePostMetadata == nil {
 		return nil, nil
 	}
-	return stub.updatePostMetadata(ctx, locale, postID, fields, category, topics, revisionStamp, now)
+	return stub.updatePostMetadata(ctx, update)
 }
 
 func (stub adminContentStubRepository) UpdatePostContent(
@@ -333,45 +319,42 @@ func TestListAdminContentFunctionsHandleNilResultsAndDefaults(t *testing.T) {
 
 	adminContentRepository = adminContentStubRepository{
 		listPostGroups: func(_ context.Context, filter domain.AdminContentPostFilter) (*domain.AdminContentPostListResult, error) {
-			if filter.Locale != "" || filter.PreferredLocale != "en" || filter.Source != "" {
-				t.Fatalf("unexpected post filter locales/source: %#v", filter)
-			}
-			if filter.CategoryID != "tech" || filter.TopicID != "alpha-topic" {
-				t.Fatalf("unexpected post filter taxonomy ids: %#v", filter)
-			}
-			if filter.Page == nil || *filter.Page != 1 || filter.Size == nil || *filter.Size != adminContentDefaultPageSize {
-				t.Fatalf("unexpected post filter pagination: %#v", filter)
-			}
+			testassert.Equal(t, filter.Locale, "", "post filter locale")
+			testassert.Equal(t, filter.PreferredLocale, "en", "preferred post filter locale")
+			testassert.Equal(t, filter.Source, "", "post filter source")
+			testassert.Equal(t, filter.CategoryID, "tech", "post filter category")
+			testassert.Equal(t, filter.TopicID, "alpha-topic", "post filter topic")
+			testassert.NotNil(t, filter.Page, "post filter page should be set")
+			testassert.Equal(t, *filter.Page, 1, "post filter page")
+			testassert.NotNil(t, filter.Size, "post filter size should be set")
+			testassert.Equal(t, *filter.Size, adminContentDefaultPageSize, "post filter size")
 			return nil, nil
 		},
 		listTopics: func(_ context.Context, locale, query string) ([]domain.AdminContentTopicRecord, error) {
-			if locale != "" || query != "alpha" {
-				t.Fatalf("unexpected ListTopics args: %q %q", locale, query)
-			}
+			testassert.Equal(t, locale, "", "topic list locale")
+			testassert.Equal(t, query, "alpha", "topic list query")
 			return nil, nil
 		},
 		listTopicGroups: func(_ context.Context, filter domain.AdminContentTaxonomyFilter) (*domain.AdminContentTopicListResult, error) {
-			if filter.Locale != "" || filter.PreferredLocale != "" {
-				t.Fatalf("unexpected topic page filter: %#v", filter)
-			}
-			if filter.Page == nil || *filter.Page != 1 || filter.Size == nil || *filter.Size != adminContentDefaultPageSize {
-				t.Fatalf("unexpected topic page pagination: %#v", filter)
-			}
+			testassert.Equal(t, filter.Locale, "", "topic page locale")
+			testassert.Equal(t, filter.PreferredLocale, "", "topic page preferred locale")
+			testassert.NotNil(t, filter.Page, "topic page should be set")
+			testassert.Equal(t, *filter.Page, 1, "topic page number")
+			testassert.NotNil(t, filter.Size, "topic page size should be set")
+			testassert.Equal(t, *filter.Size, adminContentDefaultPageSize, "topic page size")
 			return nil, nil
 		},
 		listCategories: func(_ context.Context, locale string) ([]domain.AdminContentCategoryRecord, error) {
-			if locale != "" {
-				t.Fatalf("unexpected category locale: %q", locale)
-			}
+			testassert.Equal(t, locale, "", "category locale")
 			return nil, nil
 		},
 		listCategoryGroups: func(_ context.Context, filter domain.AdminContentTaxonomyFilter) (*domain.AdminContentCategoryListResult, error) {
-			if filter.Locale != "" || filter.PreferredLocale != "tr" {
-				t.Fatalf("unexpected category page filter: %#v", filter)
-			}
-			if filter.Page == nil || *filter.Page != 1 || filter.Size == nil || *filter.Size != adminContentDefaultPageSize {
-				t.Fatalf("unexpected category page pagination: %#v", filter)
-			}
+			testassert.Equal(t, filter.Locale, "", "category page locale")
+			testassert.Equal(t, filter.PreferredLocale, "tr", "category preferred locale")
+			testassert.NotNil(t, filter.Page, "category page should be set")
+			testassert.Equal(t, *filter.Page, 1, "category page number")
+			testassert.NotNil(t, filter.Size, "category page size should be set")
+			testassert.Equal(t, *filter.Size, adminContentDefaultPageSize, "category page size")
 			return nil, nil
 		},
 	}
@@ -386,46 +369,38 @@ func TestListAdminContentFunctionsHandleNilResultsAndDefaults(t *testing.T) {
 		Page:            intPtr(0),
 		Size:            intPtr(0),
 	})
-	if err != nil {
-		t.Fatalf("ListAdminContentPosts returned error: %v", err)
-	}
-	if posts == nil || len(posts.Items) != 0 || posts.Total != 0 || posts.Page != 1 || posts.Size != adminContentDefaultPageSize {
-		t.Fatalf("unexpected posts result: %#v", posts)
-	}
+	testassert.NoError(t, err, "ListAdminContentPosts")
+	testassert.NotNil(t, posts, "post list should be returned")
+	testassert.Equal(t, len(posts.Items), 0, "post list item count")
+	testassert.Equal(t, posts.Total, 0, "post list total")
+	testassert.Equal(t, posts.Page, 1, "post list page")
+	testassert.Equal(t, posts.Size, adminContentDefaultPageSize, "post list size")
 
 	topics, err := ListAdminContentTopics(context.Background(), &domain.AdminUser{ID: "admin-1"}, "all", " alpha ")
-	if err != nil {
-		t.Fatalf("ListAdminContentTopics returned error: %v", err)
-	}
-	if len(topics) != 0 {
-		t.Fatalf("expected empty topics, got %#v", topics)
-	}
+	testassert.NoError(t, err, "ListAdminContentTopics")
+	testassert.Equal(t, len(topics), 0, "topic list item count")
 
 	topicsPage, err := ListAdminContentTopicsPage(context.Background(), &domain.AdminUser{ID: "admin-1"}, domain.AdminContentTaxonomyFilter{})
-	if err != nil {
-		t.Fatalf("ListAdminContentTopicsPage returned error: %v", err)
-	}
-	if topicsPage == nil || len(topicsPage.Items) != 0 || topicsPage.Total != 0 || topicsPage.Page != 1 || topicsPage.Size != adminContentDefaultPageSize {
-		t.Fatalf("unexpected topics page result: %#v", topicsPage)
-	}
+	testassert.NoError(t, err, "ListAdminContentTopicsPage")
+	testassert.NotNil(t, topicsPage, "topic page should be returned")
+	testassert.Equal(t, len(topicsPage.Items), 0, "topic page item count")
+	testassert.Equal(t, topicsPage.Total, 0, "topic page total")
+	testassert.Equal(t, topicsPage.Page, 1, "topic page number")
+	testassert.Equal(t, topicsPage.Size, adminContentDefaultPageSize, "topic page size")
 
 	categories, err := ListAdminContentCategories(context.Background(), &domain.AdminUser{ID: "admin-1"}, "all")
-	if err != nil {
-		t.Fatalf("ListAdminContentCategories returned error: %v", err)
-	}
-	if len(categories) != 0 {
-		t.Fatalf("expected empty categories, got %#v", categories)
-	}
+	testassert.NoError(t, err, "ListAdminContentCategories")
+	testassert.Equal(t, len(categories), 0, "category list item count")
 
 	categoriesPage, err := ListAdminContentCategoriesPage(context.Background(), &domain.AdminUser{ID: "admin-1"}, domain.AdminContentTaxonomyFilter{
 		PreferredLocale: "tr",
 	})
-	if err != nil {
-		t.Fatalf("ListAdminContentCategoriesPage returned error: %v", err)
-	}
-	if categoriesPage == nil || len(categoriesPage.Items) != 0 || categoriesPage.Total != 0 || categoriesPage.Page != 1 || categoriesPage.Size != adminContentDefaultPageSize {
-		t.Fatalf("unexpected categories page result: %#v", categoriesPage)
-	}
+	testassert.NoError(t, err, "ListAdminContentCategoriesPage")
+	testassert.NotNil(t, categoriesPage, "category page should be returned")
+	testassert.Equal(t, len(categoriesPage.Items), 0, "category page item count")
+	testassert.Equal(t, categoriesPage.Total, 0, "category page total")
+	testassert.Equal(t, categoriesPage.Page, 1, "category page number")
+	testassert.Equal(t, categoriesPage.Size, adminContentDefaultPageSize, "category page size")
 }
 
 func TestAdminContentOperationsRejectInvalidStates(t *testing.T) {
@@ -469,9 +444,8 @@ func TestAdminContentOperationsRejectInvalidStates(t *testing.T) {
 			}
 		},
 		deleteTopicByLocaleAndID: func(_ context.Context, locale, topicID string) (bool, error) {
-			if locale != "en" || topicID != "existing-topic" {
-				t.Fatalf("unexpected DeleteTopicByLocaleAndID args: %q %q", locale, topicID)
-			}
+			testassert.Equal(t, locale, "en", "deleted topic locale")
+			testassert.Equal(t, topicID, "existing-topic", "deleted topic ID")
 			return false, nil
 		},
 		findCategoryByLocaleAndID: func(_ context.Context, locale, categoryID string) (*domain.AdminContentCategoryRecord, error) {
@@ -486,78 +460,67 @@ func TestAdminContentOperationsRejectInvalidStates(t *testing.T) {
 			}
 		},
 		deleteCategoryByLocaleAndID: func(_ context.Context, locale, categoryID string) (bool, error) {
-			if locale != "en" || categoryID != "existing-category" {
-				t.Fatalf("unexpected DeleteCategoryByLocaleAndID args: %q %q", locale, categoryID)
-			}
+			testassert.Equal(t, locale, "en", "deleted category locale")
+			testassert.Equal(t, categoryID, "existing-category", "deleted category ID")
 			return false, nil
 		},
 	}
 
 	adminUser := &domain.AdminUser{ID: "admin-1"}
 
-	if _, err := GetAdminContentPost(context.Background(), adminUser, "en", "alpha-post"); err == nil || !strings.Contains(err.Error(), "content post not found") {
-		t.Fatalf("expected missing post error, got %v", err)
-	}
+	_, err := GetAdminContentPost(context.Background(), adminUser, "en", "alpha-post")
+	testassert.ErrorContains(t, err, "content post not found")
 
-	if _, err := UpdateAdminContentPostContent(context.Background(), adminUser, domain.AdminContentPostContentInput{
+	_, err = UpdateAdminContentPostContent(context.Background(), adminUser, domain.AdminContentPostContentInput{
 		Locale:  "en",
 		ID:      "medium-post",
 		Content: "updated",
-	}); err == nil || !strings.Contains(err.Error(), "only allowed for blog posts") {
-		t.Fatalf("expected non-blog update rejection, got %v", err)
-	}
+	})
+	testassert.ErrorContains(t, err, "only allowed for blog posts")
 
-	if err := DeleteAdminContentPost(context.Background(), adminUser, "en", "alpha-post"); err == nil || !strings.Contains(err.Error(), "content post not found") {
-		t.Fatalf("expected delete missing post error, got %v", err)
-	}
+	err = DeleteAdminContentPost(context.Background(), adminUser, "en", "alpha-post")
+	testassert.ErrorContains(t, err, "content post not found")
 
-	if _, err := CreateAdminContentTopic(context.Background(), adminUser, domain.AdminContentTopicInput{
+	_, err = CreateAdminContentTopic(context.Background(), adminUser, domain.AdminContentTopicInput{
 		Locale: "en",
 		ID:     "existing-topic",
 		Name:   "Existing",
 		Color:  "#112233",
-	}); err == nil || !strings.Contains(err.Error(), "already exists") {
-		t.Fatalf("expected existing topic error, got %v", err)
-	}
+	})
+	testassert.ErrorContains(t, err, "already exists")
 
-	if _, err := UpdateAdminContentTopic(context.Background(), adminUser, domain.AdminContentTopicInput{
+	_, err = UpdateAdminContentTopic(context.Background(), adminUser, domain.AdminContentTopicInput{
 		Locale: "en",
 		ID:     "missing-topic",
 		Name:   "Missing",
 		Color:  "#112233",
-	}); err == nil || !strings.Contains(err.Error(), "content topic not found") {
-		t.Fatalf("expected missing topic update error, got %v", err)
-	}
+	})
+	testassert.ErrorContains(t, err, "content topic not found")
 
-	if err := DeleteAdminContentTopic(context.Background(), adminUser, "en", "existing-topic"); err == nil || !strings.Contains(err.Error(), "content topic not found") {
-		t.Fatalf("expected missing topic delete error, got %v", err)
-	}
+	err = DeleteAdminContentTopic(context.Background(), adminUser, "en", "existing-topic")
+	testassert.ErrorContains(t, err, "content topic not found")
 
-	if _, err := CreateAdminContentCategory(context.Background(), adminUser, domain.AdminContentCategoryInput{
+	_, err = CreateAdminContentCategory(context.Background(), adminUser, domain.AdminContentCategoryInput{
 		Locale: "en",
 		ID:     "existing-category",
 		Name:   "Existing",
 		Color:  "#112233",
-	}); err == nil || !strings.Contains(err.Error(), "already exists") {
-		t.Fatalf("expected existing category error, got %v", err)
-	}
+	})
+	testassert.ErrorContains(t, err, "already exists")
 
-	if _, err := UpdateAdminContentCategory(context.Background(), adminUser, domain.AdminContentCategoryInput{
+	_, err = UpdateAdminContentCategory(context.Background(), adminUser, domain.AdminContentCategoryInput{
 		Locale: "en",
 		ID:     "missing-category",
 		Name:   "Missing",
 		Color:  "#112233",
-	}); err == nil || !strings.Contains(err.Error(), "content category not found") {
-		t.Fatalf("expected missing category update error, got %v", err)
-	}
+	})
+	testassert.ErrorContains(t, err, "content category not found")
 
-	if err := DeleteAdminContentCategory(context.Background(), adminUser, "en", "existing-category"); err == nil || !strings.Contains(err.Error(), "content category not found") {
-		t.Fatalf("expected missing category delete error, got %v", err)
-	}
+	err = DeleteAdminContentCategory(context.Background(), adminUser, "en", "existing-category")
+	testassert.ErrorContains(t, err, "content category not found")
 
-	if _, err := ListAdminContentPosts(context.Background(), nil, domain.AdminContentPostFilter{}); err == nil || !strings.Contains(err.Error(), "admin authentication required") {
-		t.Fatalf("expected list auth error, got %v", err)
-	}
+	_, err = ListAdminContentPosts(context.Background(), nil, domain.AdminContentPostFilter{})
+	testassert.ErrorContains(t, err, "admin authentication required")
 }
 
 func TestAdminContentOperationsRequireAdminUser(t *testing.T) {

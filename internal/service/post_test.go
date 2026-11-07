@@ -8,6 +8,7 @@ import (
 
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/repository"
+	"suaybsimsek.com/blog-api/internal/testassert"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
@@ -254,9 +255,7 @@ func TestQueryPostAndMetrics(t *testing.T) {
 		countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
 		findPosts:  func(context.Context, bson.M, string, int64, int64) ([]domain.PostRecord, error) { return nil, nil },
 		findPostByID: func(_ context.Context, locale, postID string) (*domain.PostRecord, error) {
-			if locale != "en" || postID != "alpha-post" {
-				t.Fatalf("FindPostByID args = %q %q", locale, postID)
-			}
+			testassert.True(t, locale == "en" && postID == "alpha-post", "FindPostByID should receive normalized identifiers")
 			return &domain.PostRecord{ID: postID, Title: "Alpha", PublishedDate: "2026-03-01", Summary: "Summary", SearchText: "alpha", ReadingTimeMin: 3}, nil
 		},
 		resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 {
@@ -266,45 +265,36 @@ func TestQueryPostAndMetrics(t *testing.T) {
 			return map[string]int64{"alpha-post": 42}
 		},
 		incrementPostLike: func(_ context.Context, postID string, received time.Time) (int64, error) {
-			if postID != "alpha-post" || received.IsZero() {
-				t.Fatalf("IncrementPostLike args = %q %v", postID, received)
-			}
+			testassert.True(t, postID == "alpha-post" && !received.IsZero(), "IncrementPostLike should receive a post id and timestamp")
 			return 13, nil
 		},
 		incrementPostHit: func(_ context.Context, postID string, received time.Time) (int64, error) {
-			if postID != "alpha-post" || received.Before(now.Add(-time.Minute)) {
-				t.Fatalf("IncrementPostHit args = %q %v", postID, received)
-			}
+			testassert.True(t, postID == "alpha-post" && !received.Before(now.Add(-time.Minute)), "IncrementPostHit should receive the expected post and timestamp")
 			return 43, nil
 		},
 	}
 	postCommentRepository = postCommentStubRepository{
 		countApprovedByPosts: func(_ context.Context, postIDs []string) (map[string]int64, error) {
-			if len(postIDs) != 1 || postIDs[0] != "alpha-post" {
-				t.Fatalf("postIDs = %#v", postIDs)
-			}
+			testassert.True(t, len(postIDs) == 1 && postIDs[0] == "alpha-post", "comment count lookup should target the queried post")
 			return map[string]int64{"alpha-post": 6}, nil
 		},
 	}
 
 	postResult := QueryPost(context.Background(), PostQueryInput{Locale: "en", PostID: "Alpha-Post"})
-	if postResult.Status != "success" || postResult.PostID != "alpha-post" || len(postResult.Posts) != 1 {
-		t.Fatalf("postResult = %#v", postResult)
-	}
-	if postResult.LikesByPostID["alpha-post"] != 12 || postResult.HitsByPostID["alpha-post"] != 42 ||
-		postResult.CommentsByPostID["alpha-post"] != 6 {
-		t.Fatalf("engagement = %#v", postResult)
-	}
+	testassert.Equal(t, postResult.Status, "success", "post query status")
+	testassert.Equal(t, postResult.PostID, "alpha-post", "normalized post id")
+	testassert.Equal(t, len(postResult.Posts), 1, "queried post count")
+	testassert.Equal(t, postResult.LikesByPostID["alpha-post"], int64(12), "post likes")
+	testassert.Equal(t, postResult.HitsByPostID["alpha-post"], int64(42), "post hits")
+	testassert.Equal(t, postResult.CommentsByPostID["alpha-post"], int64(6), "post comments")
 
 	likeResult := IncrementLike(context.Background(), "Alpha-Post")
-	if likeResult.Status != "success" || likeResult.Likes != 13 {
-		t.Fatalf("likeResult = %#v", likeResult)
-	}
+	testassert.Equal(t, likeResult.Status, "success", "like status")
+	testassert.Equal(t, likeResult.Likes, int64(13), "like count")
 
 	hitResult := IncrementHit(context.Background(), "Alpha-Post")
-	if hitResult.Status != "success" || hitResult.Hits != 43 {
-		t.Fatalf("hitResult = %#v", hitResult)
-	}
+	testassert.Equal(t, hitResult.Status, "success", "hit status")
+	testassert.Equal(t, hitResult.Hits, int64(43), "hit count")
 }
 
 func TestQueryPostAndMetricBranches(t *testing.T) {

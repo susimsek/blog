@@ -99,15 +99,11 @@ func TestMutationResolverMetricsAndNewsletter(t *testing.T) {
 		return appservice.ContentResponse{Status: "failed", PostID: "alpha-post", Hits: 9}
 	}
 	subscribeFn = func(_ context.Context, input appservice.SubscribeInput, meta appservice.RequestMetadata) appservice.Result {
-		if input.Locale != "tr" || input.Email != "reader@example.com" || input.FormName != "footer" || meta.ClientIP != "203.0.113.5" {
-			t.Fatalf("subscribe input = %#v %#v", input, meta)
-		}
+		assertNewsletterSubscribeServiceInput(t, input, meta)
 		return appservice.Result{Status: "success", ForwardTo: "/tr/thanks"}
 	}
 	resendFn = func(_ context.Context, input appservice.ResendInput, meta appservice.RequestMetadata) appservice.Result {
-		if input.Locale != "tr" || input.Email != "reader@example.com" || meta.AcceptLanguage != "tr-TR" {
-			t.Fatalf("resend input = %#v %#v", input, meta)
-		}
+		assertNewsletterResendServiceInput(t, input, meta)
 		return appservice.Result{Status: "rate-limited"}
 	}
 	confirmFn = func(context.Context, string) appservice.Result { return appservice.Result{Status: "expired"} }
@@ -119,20 +115,12 @@ func TestMutationResolverMetricsAndNewsletter(t *testing.T) {
 	ctx := WithRequestMetadata(context.Background(), request)
 
 	likeResult, err := (&mutationResolver{&Resolver{}}).IncrementPostLike(ctx, "alpha-post")
-	if err != nil {
-		t.Fatalf("IncrementPostLike() error = %v", err)
-	}
-	if likeResult.Likes == nil || *likeResult.Likes != 7 || likeResult.PostID != "alpha-post" {
-		t.Fatalf("likeResult = %#v", likeResult)
-	}
+	assertResolverError(t, "IncrementPostLike", err)
+	assertPostMetricLikeResult(t, likeResult)
 
 	hitResult, err := (&mutationResolver{&Resolver{}}).IncrementPostHit(ctx, "alpha-post")
-	if err != nil {
-		t.Fatalf("IncrementPostHit() error = %v", err)
-	}
-	if hitResult.Hits == nil || *hitResult.Hits != 9 || hitResult.Status != model.PostMetricStatusFailed {
-		t.Fatalf("hitResult = %#v", hitResult)
-	}
+	assertResolverError(t, "IncrementPostHit", err)
+	assertPostMetricHitResult(t, hitResult)
 
 	formName := " footer "
 	subscribeResult, err := (&mutationResolver{&Resolver{}}).SubscribeNewsletter(ctx, model.NewsletterSubscribeInput{
@@ -141,31 +129,79 @@ func TestMutationResolverMetricsAndNewsletter(t *testing.T) {
 		Tags:     []string{"news"},
 		FormName: &formName,
 	})
-	if err != nil {
-		t.Fatalf("SubscribeNewsletter() error = %v", err)
-	}
-	if subscribeResult.ForwardTo == nil || *subscribeResult.ForwardTo != "/tr/thanks" {
-		t.Fatalf("subscribeResult = %#v", subscribeResult)
-	}
+	assertResolverError(t, "SubscribeNewsletter", err)
+	assertNewsletterMutationResult(t, subscribeResult, model.NewsletterMutationStatusSuccess, "/tr/thanks")
 
 	resendResult, err := (&mutationResolver{&Resolver{}}).ResendNewsletterConfirmation(ctx, model.NewsletterResendInput{
 		Locale: "tr",
 		Email:  "reader@example.com",
 	})
-	if err != nil || resendResult.Status != model.NewsletterMutationStatusRateLimited {
-		t.Fatalf("resendResult = %#v, %v", resendResult, err)
-	}
+	assertResolverError(t, "ResendNewsletterConfirmation", err)
+	assertNewsletterMutationResult(t, resendResult, model.NewsletterMutationStatusRateLimited, "")
 
 	confirmResult, err := (&mutationResolver{&Resolver{}}).ConfirmNewsletterSubscription(ctx, " token ")
-	if err != nil || confirmResult.Status != model.NewsletterMutationStatusExpired {
-		t.Fatalf("confirmResult = %#v, %v", confirmResult, err)
-	}
+	assertResolverError(t, "ConfirmNewsletterSubscription", err)
+	assertNewsletterMutationResult(t, confirmResult, model.NewsletterMutationStatusExpired, "")
 
 	unsubscribeResult, err := (&mutationResolver{&Resolver{}}).UnsubscribeNewsletter(ctx, " token ")
-	if err != nil || unsubscribeResult.Status != model.NewsletterMutationStatusSuccess {
-		t.Fatalf("unsubscribeResult = %#v, %v", unsubscribeResult, err)
-	}
+	assertResolverError(t, "UnsubscribeNewsletter", err)
+	assertNewsletterMutationResult(t, unsubscribeResult, model.NewsletterMutationStatusSuccess, "")
 
+	assertResolverAccessors(t)
+}
+
+func assertResolverError(t *testing.T, operation string, err error) {
+	t.Helper()
+	if err != nil {
+		t.Fatalf("%s() error = %v", operation, err)
+	}
+}
+
+func assertNewsletterSubscribeServiceInput(t *testing.T, input appservice.SubscribeInput, metadata appservice.RequestMetadata) {
+	t.Helper()
+	if input.Locale != "tr" || input.Email != "reader@example.com" || input.FormName != "footer" || metadata.ClientIP != "203.0.113.5" {
+		t.Fatalf("subscribe input = %#v %#v", input, metadata)
+	}
+}
+
+func assertNewsletterResendServiceInput(t *testing.T, input appservice.ResendInput, metadata appservice.RequestMetadata) {
+	t.Helper()
+	if input.Locale != "tr" || input.Email != "reader@example.com" || metadata.AcceptLanguage != "tr-TR" {
+		t.Fatalf("resend input = %#v %#v", input, metadata)
+	}
+}
+
+func assertPostMetricLikeResult(t *testing.T, result *model.PostMetricResult) {
+	t.Helper()
+	if result.Likes == nil || *result.Likes != 7 || result.PostID != "alpha-post" {
+		t.Fatalf("likeResult = %#v", result)
+	}
+}
+
+func assertPostMetricHitResult(t *testing.T, result *model.PostMetricResult) {
+	t.Helper()
+	if result.Hits == nil || *result.Hits != 9 || result.Status != model.PostMetricStatusFailed {
+		t.Fatalf("hitResult = %#v", result)
+	}
+}
+
+func assertNewsletterMutationResult(
+	t *testing.T,
+	result *model.NewsletterMutationResult,
+	status model.NewsletterMutationStatus,
+	forwardTo string,
+) {
+	t.Helper()
+	if result.Status != status {
+		t.Fatalf("newsletter result status = %q, want %q", result.Status, status)
+	}
+	if forwardTo != "" && (result.ForwardTo == nil || *result.ForwardTo != forwardTo) {
+		t.Fatalf("newsletter result forwardTo = %#v, want %q", result.ForwardTo, forwardTo)
+	}
+}
+
+func assertResolverAccessors(t *testing.T) {
+	t.Helper()
 	if (&Resolver{}).Mutation() == nil || (&Resolver{}).Query() == nil {
 		t.Fatal("expected resolver accessors")
 	}

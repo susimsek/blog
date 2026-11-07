@@ -88,7 +88,7 @@ export const parsePostListQueryState = (
   return {
     sortOrder: parseSortOrderQueryValue(searchParams.get('sort')),
     selectedTopics,
-    categoryFilter: categoryFilterValue ? categoryFilterValue : 'all',
+    categoryFilter: categoryFilterValue || 'all',
     dateRange: {
       ...(startDate ? { startDate } : {}),
       ...(endDate ? { endDate } : {}),

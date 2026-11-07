@@ -47,6 +47,58 @@ type UseAdminAccountBootstrapParams = {
   t: TFunction;
 };
 
+type AdminSessionLoadOptions = {
+  isSessionsSection: boolean;
+  isMounted: () => boolean;
+  setActiveSessions: React.Dispatch<React.SetStateAction<AdminSession[]>>;
+  setIsSessionsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setSessionErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  onSessionExpired: () => void;
+  t: TFunction;
+};
+
+const loadAdminSessions = async ({
+  isSessionsSection,
+  isMounted,
+  setActiveSessions,
+  setIsSessionsLoading,
+  setSessionErrorMessage,
+  onSessionExpired,
+  t,
+}: AdminSessionLoadOptions) => {
+  if (!isSessionsSection) {
+    return;
+  }
+
+  setIsSessionsLoading(true);
+  try {
+    const sessions = await fetchAdminActiveSessions();
+    if (!isMounted()) {
+      return;
+    }
+    setActiveSessions(sessions);
+    setSessionErrorMessage('');
+  } catch (error) {
+    if (!isMounted()) {
+      return;
+    }
+    if (isAdminSessionError(error)) {
+      onSessionExpired();
+      return;
+    }
+    const resolvedError = resolveAdminError(error);
+    setSessionErrorMessage(
+      resolvedError.kind === 'network'
+        ? t('adminCommon.errors.network', { ns: 'admin-common' })
+        : resolvedError.message || t('adminAccount.sessions.errors.load', { ns: 'admin-account' }),
+    );
+  } finally {
+    if (isMounted()) {
+      setIsSessionsLoading(false);
+    }
+  }
+};
+
 export default function useAdminAccountBootstrap({
   isSecuritySection,
   isSessionsSection,
@@ -132,37 +184,15 @@ export default function useAdminAccountBootstrap({
           setUsernameInput(me.user.username ?? '');
         }
 
-        if (!isSessionsSection) {
-          return;
-        }
-
-        setIsSessionsLoading(true);
-        try {
-          const sessions = await fetchAdminActiveSessions();
-          if (!isMounted) {
-            return;
-          }
-          setActiveSessions(sessions);
-          setSessionErrorMessage('');
-        } catch (error) {
-          if (!isMounted) {
-            return;
-          }
-          if (isAdminSessionError(error)) {
-            redirectToAdminLoginRef.current();
-            return;
-          }
-          const resolvedError = resolveAdminError(error);
-          setSessionErrorMessage(
-            resolvedError.kind === 'network'
-              ? t('adminCommon.errors.network', { ns: 'admin-common' })
-              : resolvedError.message || t('adminAccount.sessions.errors.load', { ns: 'admin-account' }),
-          );
-        } finally {
-          if (isMounted) {
-            setIsSessionsLoading(false);
-          }
-        }
+        await loadAdminSessions({
+          isSessionsSection,
+          isMounted: () => isMounted,
+          setActiveSessions,
+          setIsSessionsLoading,
+          setSessionErrorMessage,
+          onSessionExpired: () => redirectToAdminLoginRef.current(),
+          t,
+        });
       } catch {
         if (isMounted) {
           redirectToAdminLoginRef.current();

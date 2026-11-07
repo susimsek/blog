@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"suaybsimsek.com/blog-api/internal/domain"
+	"suaybsimsek.com/blog-api/internal/testassert"
 	"suaybsimsek.com/blog-api/pkg/httpapi"
 )
 
@@ -122,12 +123,8 @@ func TestAdminErrorCatalogFallbacksAndCacheHelpers(t *testing.T) {
 	})
 
 	t.Run("empty code uses fallback or default", func(t *testing.T) {
-		if message := ResolveAdminErrorMessage(context.Background(), " ", " fallback "); message != "fallback" {
-			t.Fatalf("expected trimmed fallback, got %q", message)
-		}
-		if message := ResolveAdminErrorMessage(context.Background(), "", " "); message != "Admin request failed." {
-			t.Fatalf("expected default message, got %q", message)
-		}
+		testassert.Equal(t, ResolveAdminErrorMessage(context.Background(), " ", " fallback "), "fallback", "trimmed fallback")
+		testassert.Equal(t, ResolveAdminErrorMessage(context.Background(), "", " "), "Admin request failed.", "default message")
 	})
 
 	t.Run("falls back to english catalog", func(t *testing.T) {
@@ -137,40 +134,29 @@ func TestAdminErrorCatalogFallbacksAndCacheHelpers(t *testing.T) {
 
 		ctx := httpapi.WithRequestTrace(context.Background(), httpapi.RequestTrace{AcceptLang: "fr-FR"})
 		message := ResolveAdminErrorMessage(ctx, adminErrorCodeUnauthorized, "")
-		if message != "Authentication is required." {
-			t.Fatalf("expected english fallback, got %q", message)
-		}
+		testassert.Equal(t, message, "Authentication is required.", "english fallback")
 	})
 
 	t.Run("resolve locale lookup clone and invalidate helpers", func(t *testing.T) {
 		ctx := httpapi.WithRequestTrace(context.Background(), httpapi.RequestTrace{AcceptLang: "tr-TR"})
-		if locale := resolveAdminErrorLocale(ctx); locale != adminErrorLocaleTR {
-			t.Fatalf("expected tr locale, got %q", locale)
-		}
+		testassert.Equal(t, resolveAdminErrorLocale(ctx), adminErrorLocaleTR, "resolved locale")
 
-		if lookupAdminErrorMessage(map[string]map[string]string{
+		testassert.Equal(t, lookupAdminErrorMessage(map[string]map[string]string{
 			adminErrorLocaleEN: {"CODE": " value "},
-		}, adminErrorLocaleEN, "CODE") != "value" {
-			t.Fatal("expected trimmed lookup value")
-		}
-		if lookupAdminErrorMessage(map[string]map[string]string{}, adminErrorLocaleEN, "CODE") != "" {
-			t.Fatal("expected empty lookup for missing locale")
-		}
+		}, adminErrorLocaleEN, "CODE"), "value", "trimmed lookup value")
+		testassert.Equal(t, lookupAdminErrorMessage(map[string]map[string]string{}, adminErrorLocaleEN, "CODE"), "", "missing locale lookup")
 
 		cloned := cloneAdminErrorCatalog(map[string]map[string]string{
 			adminErrorLocaleEN: {"CODE": "value"},
 		})
 		cloned[adminErrorLocaleEN]["CODE"] = "changed"
-		if defaultAdminErrorCatalog[adminErrorLocaleEN]["INVALID_CREDENTIALS"] == "" {
-			t.Fatal("expected default catalog to remain populated")
-		}
+		testassert.True(t, defaultAdminErrorCatalog[adminErrorLocaleEN]["INVALID_CREDENTIALS"] != "", "default catalog should remain populated")
 
 		adminErrorCatalogCache = map[string]map[string]string{adminErrorLocaleEN: {"CODE": "value"}}
 		adminErrorCatalogExpiry = time.Now().Add(time.Minute)
 		InvalidateAdminErrorCatalogCache()
-		if adminErrorCatalogCache != nil || !adminErrorCatalogExpiry.IsZero() {
-			t.Fatalf("expected cache invalidation, got cache=%v expiry=%v", adminErrorCatalogCache, adminErrorCatalogExpiry)
-		}
+		testassert.True(t, adminErrorCatalogCache == nil, "cache should be invalidated")
+		testassert.True(t, adminErrorCatalogExpiry.IsZero(), "cache expiry should be reset")
 	})
 
 	t.Run("repository values are cached until invalidated", func(t *testing.T) {
@@ -192,11 +178,8 @@ func TestAdminErrorCatalogFallbacksAndCacheHelpers(t *testing.T) {
 
 		first := getAdminErrorCatalog(context.Background())
 		second := getAdminErrorCatalog(context.Background())
-		if calls != 1 {
-			t.Fatalf("expected repository to be read once, got %d", calls)
-		}
-		if first[adminErrorLocaleEN]["INVALID_CREDENTIALS"] != "Cached" || second[adminErrorLocaleEN]["INVALID_CREDENTIALS"] != "Cached" {
-			t.Fatalf("expected cached override catalog, got %#v %#v", first, second)
-		}
+		testassert.Equal(t, calls, 1, "repository reads")
+		testassert.Equal(t, first[adminErrorLocaleEN]["INVALID_CREDENTIALS"], "Cached", "first cached value")
+		testassert.Equal(t, second[adminErrorLocaleEN]["INVALID_CREDENTIALS"], "Cached", "second cached value")
 	})
 }

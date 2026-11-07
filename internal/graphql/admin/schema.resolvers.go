@@ -983,10 +983,7 @@ func normalizeAdminLocale(value appscalars.Locale) string {
 }
 
 func normalizeAdminLocalePointer(value *appscalars.Locale) string {
-	if value == nil {
-		return ""
-	}
-	return normalizeAdminLocale(*value)
+	return localePointerValue(value)
 }
 
 func mapAdminContentSourceInput(value model.ContentSource) string {

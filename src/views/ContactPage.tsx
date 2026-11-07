@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { AUTHOR_NAME, AVATAR_LINK, CONTACT_LINKS } from '@/config/constants';
 import Layout from '@/components/common/Layout';
 import ContactInfo from '@/components/common/ContactInfo';
-import type { LayoutPostSummary, Topic } from '@/types/posts';
 import { toAbsoluteSiteUrl } from '@/lib/metadata';
 import type { Localized } from '@/i18n/settings';
 import type { LayoutPageData } from '@/lib/localizedPageData';

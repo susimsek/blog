@@ -24,6 +24,15 @@ type UseAdminCommentsSectionOptions = {
   successMessageAutoHideMs: number;
 };
 
+const resolvePageNumber = (page: number | undefined, fallback: number) => (page && page > 0 ? page : fallback);
+
+const resolveCommentsLoadError = (error: unknown, t: AdminAccountTranslate) => {
+  const resolvedError = resolveAdminError(error);
+  return resolvedError.kind === 'network'
+    ? t('adminCommon.errors.network', { ns: 'admin-common' })
+    : resolvedError.message || t('adminAccount.comments.errors.load', { ns: 'admin-account' });
+};
+
 const resolveBulkCommentSuccessKey = (status: AdminCommentItem['status']) => {
   if (status === 'APPROVED') {
     return 'adminAccount.comments.success.bulkApproved';
@@ -132,7 +141,7 @@ export default function useAdminCommentsSection({
         return [];
       }
 
-      const requestedPage = options?.page && options.page > 0 ? options.page : commentsPage;
+      const requestedPage = resolvePageNumber(options?.page, commentsPage);
       const requestID = commentsRequestIDRef.current + 1;
       commentsRequestIDRef.current = requestID;
       setIsCommentsLoading(true);
@@ -154,7 +163,7 @@ export default function useAdminCommentsSection({
         setComments(items);
         setTotalComments(payload.total ?? 0);
 
-        const resolvedPage = payload.page > 0 ? payload.page : requestedPage;
+        const resolvedPage = resolvePageNumber(payload.page, requestedPage);
         if (resolvedPage !== commentsPage) {
           setCommentsPage(resolvedPage);
         }
@@ -172,12 +181,7 @@ export default function useAdminCommentsSection({
           onSessionExpired();
           return [];
         }
-        const resolvedError = resolveAdminError(error);
-        setCommentsErrorMessage(
-          resolvedError.kind === 'network'
-            ? t('adminCommon.errors.network', { ns: 'admin-common' })
-            : resolvedError.message || t('adminAccount.comments.errors.load', { ns: 'admin-account' }),
-        );
+        setCommentsErrorMessage(resolveCommentsLoadError(error, t));
         return [];
       } finally {
         if (requestID === commentsRequestIDRef.current) {

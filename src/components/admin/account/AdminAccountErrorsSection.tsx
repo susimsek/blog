@@ -155,7 +155,7 @@ export default function AdminAccountErrorsSection({
 
       <div className="d-grid gap-3">
         <div ref={errorMessagesListTopRef} />
-        <div className="card shadow-sm d-block">
+        <div className="card theme-shadow-sm d-block">
           <div className="card-body p-3 w-100">
             <div className="row g-3">
               <div className="col-12 col-md-4">
@@ -218,7 +218,7 @@ export default function AdminAccountErrorsSection({
           </div>
         </div>
 
-        <div className="card shadow-sm d-block">
+        <div className="card theme-shadow-sm d-block">
           <div className="card-body p-3 w-100">
             {isErrorMessagesLoading && (
               <div className="admin-account-sessions-loading">

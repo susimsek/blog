@@ -8,6 +8,7 @@ import (
 
 	"suaybsimsek.com/blog-api/internal/domain"
 	"suaybsimsek.com/blog-api/internal/repository"
+	"suaybsimsek.com/blog-api/internal/testassert"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
@@ -393,9 +394,7 @@ func TestCommentServiceErrorAndValidationPaths(t *testing.T) {
 	})
 
 	t.Run("ListComments handles invalid post id and repository failures", func(t *testing.T) {
-		if result := ListComments(context.Background(), CommentQueryInput{PostID: "??"}); result.Status != statusInvalidPostID {
-			t.Fatalf("expected invalid post id, got %#v", result)
-		}
+		testassert.Equal(t, ListComments(context.Background(), CommentQueryInput{PostID: "??"}).Status, statusInvalidPostID, "invalid post id status")
 
 		postsRepository = postStubRepository{
 			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
@@ -409,9 +408,7 @@ func TestCommentServiceErrorAndValidationPaths(t *testing.T) {
 			createComment:      func(context.Context, domain.CommentRecord) error { return nil },
 			findCommentByID:    func(context.Context, string) (*domain.CommentRecord, error) { return nil, nil },
 		}
-		if result := ListComments(context.Background(), CommentQueryInput{PostID: "alpha-post"}); result.Status != statusServiceUnavailable {
-			t.Fatalf("expected service unavailable, got %#v", result)
-		}
+		testassert.Equal(t, ListComments(context.Background(), CommentQueryInput{PostID: "alpha-post"}).Status, statusServiceUnavailable, "post lookup failure status")
 
 		postsRepository = postStubRepository{
 			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
@@ -420,9 +417,7 @@ func TestCommentServiceErrorAndValidationPaths(t *testing.T) {
 				return nil, nil
 			},
 		}
-		if result := ListComments(context.Background(), CommentQueryInput{PostID: "alpha-post"}); result.Status != commentStatusNotFound {
-			t.Fatalf("expected not found, got %#v", result)
-		}
+		testassert.Equal(t, ListComments(context.Background(), CommentQueryInput{PostID: "alpha-post"}).Status, commentStatusNotFound, "missing post status")
 
 		postsRepository = postStubRepository{
 			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
@@ -438,9 +433,7 @@ func TestCommentServiceErrorAndValidationPaths(t *testing.T) {
 			createComment:   func(context.Context, domain.CommentRecord) error { return nil },
 			findCommentByID: func(context.Context, string) (*domain.CommentRecord, error) { return nil, nil },
 		}
-		if result := ListComments(context.Background(), CommentQueryInput{PostID: "alpha-post"}); result.Status != statusServiceUnavailable {
-			t.Fatalf("expected comment storage unavailable, got %#v", result)
-		}
+		testassert.Equal(t, ListComments(context.Background(), CommentQueryInput{PostID: "alpha-post"}).Status, statusServiceUnavailable, "comment lookup failure status")
 	})
 
 	t.Run("AddComment handles invalid inputs moderation and repository failures", func(t *testing.T) {
@@ -459,15 +452,9 @@ func TestCommentServiceErrorAndValidationPaths(t *testing.T) {
 			findCommentByID:    func(context.Context, string) (*domain.CommentRecord, error) { return nil, nil },
 		}
 
-		if result := AddComment(context.Background(), AddCommentInput{PostID: "alpha-post", Content: "hello"}, RequestMetadata{}); result.Status != commentStatusInvalidAuthor {
-			t.Fatalf("expected invalid author, got %#v", result)
-		}
-		if result := AddComment(context.Background(), AddCommentInput{PostID: "alpha-post", AuthorName: "Alice", Content: "hello"}, RequestMetadata{}); result.Status != commentStatusInvalidEmail {
-			t.Fatalf("expected invalid email, got %#v", result)
-		}
-		if result := AddComment(context.Background(), AddCommentInput{PostID: "alpha-post", AuthorName: "Alice", AuthorEmail: "alice@example.com", Content: "  "}, RequestMetadata{}); result.Status != commentStatusInvalidContent {
-			t.Fatalf("expected invalid content, got %#v", result)
-		}
+		testassert.Equal(t, AddComment(context.Background(), AddCommentInput{PostID: "alpha-post", Content: "hello"}, RequestMetadata{}).Status, commentStatusInvalidAuthor, "invalid author status")
+		testassert.Equal(t, AddComment(context.Background(), AddCommentInput{PostID: "alpha-post", AuthorName: "Alice", Content: "hello"}, RequestMetadata{}).Status, commentStatusInvalidEmail, "invalid email status")
+		testassert.Equal(t, AddComment(context.Background(), AddCommentInput{PostID: "alpha-post", AuthorName: "Alice", AuthorEmail: "alice@example.com", Content: "  "}, RequestMetadata{}).Status, commentStatusInvalidContent, "invalid content status")
 
 		var stored domain.CommentRecord
 		commentRepository = commentStubRepository{
@@ -484,9 +471,9 @@ func TestCommentServiceErrorAndValidationPaths(t *testing.T) {
 			AuthorEmail: "alice@example.com",
 			Content:     "https://a.example https://b.example https://c.example https://d.example",
 		}, RequestMetadata{ClientIP: "203.0.113.50"})
-		if result.Status != "success" || result.ModerationStatus != commentStatusSpam || stored.ModerationNote == "" {
-			t.Fatalf("expected spam moderation, got result=%#v stored=%#v", result, stored)
-		}
+		testassert.Equal(t, result.Status, "success", "spam comment status")
+		testassert.Equal(t, result.ModerationStatus, commentStatusSpam, "spam moderation status")
+		testassert.True(t, stored.ModerationNote != "", "spam moderation note should be set")
 
 		postsRepository = postStubRepository{
 			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
@@ -495,14 +482,12 @@ func TestCommentServiceErrorAndValidationPaths(t *testing.T) {
 				return nil, repository.ErrPostRepositoryUnavailable
 			},
 		}
-		if result := AddComment(context.Background(), AddCommentInput{
+		testassert.Equal(t, AddComment(context.Background(), AddCommentInput{
 			PostID:      "alpha-post",
 			AuthorName:  "Alice",
 			AuthorEmail: "alice@example.com",
 			Content:     "hello world",
-		}, RequestMetadata{ClientIP: "203.0.113.51"}); result.Status != statusServiceUnavailable {
-			t.Fatalf("expected post repository unavailable, got %#v", result)
-		}
+		}, RequestMetadata{ClientIP: "203.0.113.51"}).Status, statusServiceUnavailable, "post repository failure status")
 
 		postsRepository = postStubRepository{
 			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
@@ -511,14 +496,12 @@ func TestCommentServiceErrorAndValidationPaths(t *testing.T) {
 				return nil, nil
 			},
 		}
-		if result := AddComment(context.Background(), AddCommentInput{
+		testassert.Equal(t, AddComment(context.Background(), AddCommentInput{
 			PostID:      "alpha-post",
 			AuthorName:  "Alice",
 			AuthorEmail: "alice@example.com",
 			Content:     "hello world",
-		}, RequestMetadata{ClientIP: "203.0.113.52"}); result.Status != commentStatusNotFound {
-			t.Fatalf("expected missing post, got %#v", result)
-		}
+		}, RequestMetadata{ClientIP: "203.0.113.52"}).Status, commentStatusNotFound, "missing post status")
 
 		postsRepository = postStubRepository{
 			countPosts: func(context.Context, bson.M) (int, error) { return 0, nil },
@@ -534,14 +517,12 @@ func TestCommentServiceErrorAndValidationPaths(t *testing.T) {
 				return nil, repository.ErrCommentRepositoryUnavailable
 			},
 		}
-		if result := AddComment(context.Background(), AddCommentInput{
+		testassert.Equal(t, AddComment(context.Background(), AddCommentInput{
 			PostID:      "alpha-post",
 			ParentID:    "root",
 			AuthorName:  "Alice",
 			AuthorEmail: "alice@example.com",
 			Content:     "reply body",
-		}, RequestMetadata{ClientIP: "203.0.113.53"}); result.Status != statusServiceUnavailable {
-			t.Fatalf("expected comment repository unavailable, got %#v", result)
-		}
+		}, RequestMetadata{ClientIP: "203.0.113.53"}).Status, statusServiceUnavailable, "parent comment lookup failure status")
 	})
 }

@@ -459,35 +459,34 @@ func TestReplaceAdminMediaAssetReplacesUploadedAsset(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected replace to succeed, got %v", err)
 	}
+	assertReplacedAdminMediaAsset(t, item, replacedRecord)
+}
+
+func assertReplacedAdminMediaAsset(t *testing.T, item *domain.AdminMediaLibraryItem, record domain.AdminMediaAssetRecord) {
+	t.Helper()
 	if item == nil {
 		t.Fatal("expected item to be returned")
 	}
-	if item.ID != "asset-9" {
-		t.Fatalf("expected same asset id, got %q", item.ID)
+	if item.ID != "asset-9" || record.ID != "asset-9" {
+		t.Fatalf("expected replacement to keep asset id, item=%q record=%q", item.ID, record.ID)
 	}
-	if item.Name != "new-image.png" {
-		t.Fatalf("expected normalized name, got %q", item.Name)
+	if item.Name != "new-image.png" || record.Name != "new-image.png" {
+		t.Fatalf("expected normalized replacement name, item=%q record=%q", item.Name, record.Name)
 	}
 	if item.UsageCount != 3 {
 		t.Fatalf("expected usage count 3, got %d", item.UsageCount)
 	}
-	if replacedRecord.ID != "asset-9" {
-		t.Fatalf("expected replaced record id asset-9, got %q", replacedRecord.ID)
+	if record.Digest == "" || record.Digest == "old-digest" {
+		t.Fatalf("expected digest to be refreshed, got %q", record.Digest)
 	}
-	if replacedRecord.Name != "new-image.png" {
-		t.Fatalf("expected replaced record name new-image.png, got %q", replacedRecord.Name)
+	if record.Width != 1 || record.Height != 1 {
+		t.Fatalf("expected dimensions 1x1, got %dx%d", record.Width, record.Height)
 	}
-	if replacedRecord.Digest == "" || replacedRecord.Digest == "old-digest" {
-		t.Fatalf("expected digest to be refreshed, got %q", replacedRecord.Digest)
+	if record.SizeBytes <= 0 {
+		t.Fatalf("expected positive size, got %d", record.SizeBytes)
 	}
-	if replacedRecord.Width != 1 || replacedRecord.Height != 1 {
-		t.Fatalf("expected dimensions 1x1, got %dx%d", replacedRecord.Width, replacedRecord.Height)
-	}
-	if replacedRecord.SizeBytes <= 0 {
-		t.Fatalf("expected positive size, got %d", replacedRecord.SizeBytes)
-	}
-	if replacedRecord.CreatedAt.IsZero() || replacedRecord.CreatedBy != "admin-1" {
-		t.Fatalf("expected original creation metadata to be preserved, got %+v", replacedRecord)
+	if record.CreatedAt.IsZero() || record.CreatedBy != "admin-1" {
+		t.Fatalf("expected original creation metadata to be preserved, got %+v", record)
 	}
 }
 

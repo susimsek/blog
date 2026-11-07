@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"suaybsimsek.com/blog-api/internal/domain"
+	"suaybsimsek.com/blog-api/internal/testassert"
 )
 
 func TestAdminUserRepositoryUnavailablePaths(t *testing.T) {
@@ -228,72 +229,60 @@ func TestAdminContentRepositoryUnavailablePaths(t *testing.T) {
 	ctx := context.Background()
 	now := time.Date(2026, time.March, 22, 10, 0, 0, 0, time.UTC)
 
-	if concreteRepository, ok := repository.(*adminContentMongoRepository); !ok || concreteRepository == nil {
-		t.Fatalf("NewAdminContentRepository() = %#v", repository)
-	}
+	concreteRepository, ok := repository.(*adminContentMongoRepository)
+	testassert.True(t, ok, "repository should use Mongo implementation")
+	testassert.NotNil(t, concreteRepository, "Mongo repository should be initialized")
 
-	if _, err := repository.ListPostGroups(ctx, domain.AdminContentPostFilter{}); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("ListPostGroups() error = %v", err)
-	}
-	if _, err := repository.ListAllPosts(ctx, domain.AdminContentPostFilter{}); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("ListAllPosts() error = %v", err)
-	}
-	if _, err := repository.FindPostByLocaleAndID(ctx, "en", "alpha-post"); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("FindPostByLocaleAndID() error = %v", err)
-	}
-	if _, err := repository.UpdatePostMetadata(ctx, "en", "alpha-post", domain.AdminContentPostMetadataFields{
-		Title:         "Alpha",
-		Summary:       "Summary",
-		Thumbnail:     "/alpha.webp",
-		PublishedDate: "2026-03-22",
-		UpdatedDate:   "2026-03-23",
-	}, &domain.AdminContentCategoryRecord{ID: "tech", Name: "Tech", Color: "#000"}, []domain.AdminContentTopicRecord{{ID: "go", Name: "Go", Color: "#fff"}}, nil, now); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("UpdatePostMetadata() error = %v", err)
-	}
-	if _, err := repository.UpdatePostContent(ctx, "en", "alpha-post", "Body", nil, now); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("UpdatePostContent() error = %v", err)
-	}
-	if _, err := repository.DeletePostByLocaleAndID(ctx, "en", "alpha-post"); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("DeletePostByLocaleAndID() error = %v", err)
-	}
-	if _, err := repository.ListTopics(ctx, "en", "alpha"); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("ListTopics() error = %v", err)
-	}
-	if _, err := repository.ListTopicGroups(ctx, domain.AdminContentTaxonomyFilter{}); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("ListTopicGroups() error = %v", err)
-	}
-	if _, err := repository.ListAllTopics(ctx, domain.AdminContentTaxonomyFilter{}); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("ListAllTopics() error = %v", err)
-	}
-	if _, err := repository.FindTopicByLocaleAndID(ctx, "en", "go"); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("FindTopicByLocaleAndID() error = %v", err)
-	}
-	if _, err := repository.UpsertTopic(ctx, domain.AdminContentTopicRecord{Locale: "en", ID: "go", Name: "Go", Color: "#fff"}, now); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("UpsertTopic() error = %v", err)
-	}
-	if _, err := repository.DeleteTopicByLocaleAndID(ctx, "en", "go"); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("DeleteTopicByLocaleAndID() error = %v", err)
-	}
+	_, err := repository.ListPostGroups(ctx, domain.AdminContentPostFilter{})
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.ListAllPosts(ctx, domain.AdminContentPostFilter{})
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.FindPostByLocaleAndID(ctx, "en", "alpha-post")
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.UpdatePostMetadata(ctx, domain.AdminContentPostMetadataUpdate{
+		Locale: "en", PostID: "alpha-post",
+		Fields: domain.AdminContentPostMetadataFields{
+			Title:         "Alpha",
+			Summary:       "Summary",
+			Thumbnail:     "/alpha.webp",
+			PublishedDate: "2026-03-22",
+			UpdatedDate:   "2026-03-23",
+		},
+		Category: &domain.AdminContentCategoryRecord{ID: "tech", Name: "Tech", Color: "#000"},
+		Topics:   []domain.AdminContentTopicRecord{{ID: "go", Name: "Go", Color: "#fff"}},
+		Now:      now,
+	})
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.UpdatePostContent(ctx, "en", "alpha-post", "Body", nil, now)
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.DeletePostByLocaleAndID(ctx, "en", "alpha-post")
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.ListTopics(ctx, "en", "alpha")
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.ListTopicGroups(ctx, domain.AdminContentTaxonomyFilter{})
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.ListAllTopics(ctx, domain.AdminContentTaxonomyFilter{})
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.FindTopicByLocaleAndID(ctx, "en", "go")
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.UpsertTopic(ctx, domain.AdminContentTopicRecord{Locale: "en", ID: "go", Name: "Go", Color: "#fff"}, now)
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.DeleteTopicByLocaleAndID(ctx, "en", "go")
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
 	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, repository.SyncTopicOnPosts(ctx, domain.AdminContentTopicRecord{Locale: "en", ID: "go"}, now))
 	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, repository.RemoveTopicFromPosts(ctx, "en", "go", now))
-	if _, err := repository.ListCategories(ctx, "en"); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("ListCategories() error = %v", err)
-	}
-	if _, err := repository.ListCategoryGroups(ctx, domain.AdminContentTaxonomyFilter{}); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("ListCategoryGroups() error = %v", err)
-	}
-	if _, err := repository.ListAllCategories(ctx, domain.AdminContentTaxonomyFilter{}); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("ListAllCategories() error = %v", err)
-	}
-	if _, err := repository.FindCategoryByLocaleAndID(ctx, "en", "tech"); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("FindCategoryByLocaleAndID() error = %v", err)
-	}
-	if _, err := repository.UpsertCategory(ctx, domain.AdminContentCategoryRecord{Locale: "en", ID: "tech", Name: "Tech", Color: "#000"}, now); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("UpsertCategory() error = %v", err)
-	}
-	if _, err := repository.DeleteCategoryByLocaleAndID(ctx, "en", "tech"); !errors.Is(err, ErrAdminContentRepositoryUnavailable) {
-		t.Fatalf("DeleteCategoryByLocaleAndID() error = %v", err)
-	}
+	_, err = repository.ListCategories(ctx, "en")
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.ListCategoryGroups(ctx, domain.AdminContentTaxonomyFilter{})
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.ListAllCategories(ctx, domain.AdminContentTaxonomyFilter{})
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.FindCategoryByLocaleAndID(ctx, "en", "tech")
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.UpsertCategory(ctx, domain.AdminContentCategoryRecord{Locale: "en", ID: "tech", Name: "Tech", Color: "#000"}, now)
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
+	_, err = repository.DeleteCategoryByLocaleAndID(ctx, "en", "tech")
+	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, err)
 	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, repository.SyncCategoryOnPosts(ctx, domain.AdminContentCategoryRecord{Locale: "en", ID: "tech"}, now))
 	checkUnavailableError(t, ErrAdminContentRepositoryUnavailable, repository.ClearCategoryFromPosts(ctx, "en", "tech", now))
 }
