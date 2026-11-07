@@ -22,6 +22,239 @@ type adminMediaAssetStubRepository struct {
 	deleteMediaAssetByID   func(context.Context, string) (bool, error)
 }
 
+func TestListAdminMediaLibraryNormalizesFilterAndEmptyPayload(t *testing.T) {
+	originalRepository := adminMediaAssetRepository
+	t.Cleanup(func() { adminMediaAssetRepository = originalRepository })
+
+	adminMediaAssetRepository = adminMediaAssetStubRepository{
+		listMediaLibraryItems: func(_ context.Context, filter domain.AdminMediaLibraryFilter) (*domain.AdminMediaLibraryListPayload, error) {
+			if filter.Query != "logo" || filter.Kind != "UPLOADED" || filter.Sort != "NAME" || filter.Page != 1 || filter.Size != adminMediaLibraryMaxSize {
+				t.Fatalf("ListMediaLibraryItems() filter = %#v", filter)
+			}
+			return &domain.AdminMediaLibraryListPayload{Items: nil, Total: 0}, nil
+		},
+	}
+
+	result, err := ListAdminMediaLibrary(context.Background(), &domain.AdminUser{ID: "admin-1"}, domain.AdminMediaLibraryFilter{
+		Query: " logo ", Kind: " uploaded ", Sort: " name ", Page: 0, Size: adminMediaLibraryMaxSize + 1,
+	})
+	if err != nil {
+		t.Fatalf("ListAdminMediaLibrary() error = %v", err)
+	}
+	if result == nil || result.Page != 1 || result.Size != adminMediaLibraryMaxSize || result.Items == nil || len(result.Items) != 0 {
+		t.Fatalf("ListAdminMediaLibrary() = %#v", result)
+	}
+}
+
+func TestListAdminMediaLibraryReturnsDefaultForNilPayload(t *testing.T) {
+	originalRepository := adminMediaAssetRepository
+	t.Cleanup(func() { adminMediaAssetRepository = originalRepository })
+	adminMediaAssetRepository = adminMediaAssetStubRepository{
+		listMediaLibraryItems: func(context.Context, domain.AdminMediaLibraryFilter) (*domain.AdminMediaLibraryListPayload, error) {
+			return nil, nil
+		},
+	}
+
+	result, err := ListAdminMediaLibrary(context.Background(), &domain.AdminUser{ID: "admin-1"}, domain.AdminMediaLibraryFilter{})
+	if err != nil || result == nil || result.Page != adminMediaLibraryDefaultPage || result.Size != adminMediaLibraryDefaultSize || result.Items == nil {
+		t.Fatalf("ListAdminMediaLibrary() = %#v, %v", result, err)
+	}
+}
+
+func TestUploadAdminMediaAssetReusesAndCreatesImage(t *testing.T) {
+	originalRepository := adminMediaAssetRepository
+	t.Cleanup(func() { adminMediaAssetRepository = originalRepository })
+	createdRecord := domain.AdminMediaAssetRecord{}
+	adminMediaAssetRepository = adminMediaAssetStubRepository{
+		findMediaAssetByDigest: func(context.Context, string) (*domain.AdminMediaAssetRecord, error) {
+			return &domain.AdminMediaAssetRecord{
+				ID: "existing-asset", Name: "existing.png", ContentType: "image/png", Digest: "digest", SizeBytes: 5,
+				Width: 1, Height: 1,
+			}, nil
+		},
+	}
+
+	input := domain.AdminMediaUploadInput{
+		FileName: "  ",
+		DataURL:  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR42mP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC",
+	}
+	user := &domain.AdminUser{ID: "admin-1"}
+	reused, err := UploadAdminMediaAsset(context.Background(), user, input)
+	if err != nil || reused == nil || reused.ID != "existing-asset" {
+		t.Fatalf("UploadAdminMediaAsset(existing) = %#v, %v", reused, err)
+	}
+
+	adminMediaAssetRepository = adminMediaAssetStubRepository{
+		findMediaAssetByDigest: func(context.Context, string) (*domain.AdminMediaAssetRecord, error) { return nil, nil },
+		createMediaAsset: func(_ context.Context, record domain.AdminMediaAssetRecord) (*domain.AdminMediaAssetRecord, error) {
+			createdRecord = record
+			return &record, nil
+		},
+	}
+	created, err := UploadAdminMediaAsset(context.Background(), user, input)
+	if err != nil || created == nil || created.Kind != "UPLOADED" || created.Name != "media-image.png" {
+		t.Fatalf("UploadAdminMediaAsset(new) = %#v, %v", created, err)
+	}
+	if createdRecord.ID == "" || createdRecord.ContentType != "image/png" || createdRecord.Width != 1 || createdRecord.Height != 1 || createdRecord.CreatedBy != user.ID {
+		t.Fatalf("created media record was not populated: %#v", createdRecord)
+	}
+}
+
+func TestResolveAdminMediaAssetReturnsCopiedPayload(t *testing.T) {
+	originalRepository := adminMediaAssetRepository
+	t.Cleanup(func() { adminMediaAssetRepository = originalRepository })
+	originalData := []byte("image")
+	adminMediaAssetRepository = adminMediaAssetStubRepository{
+		findMediaAssetByID: func(_ context.Context, id string) (*domain.AdminMediaAssetRecord, error) {
+			if id != "asset-1" {
+				t.Fatalf("FindMediaAssetByID() id = %q", id)
+			}
+			return &domain.AdminMediaAssetRecord{ContentType: " image/webp ", Digest: " digest ", Data: originalData}, nil
+		},
+	}
+
+	asset, err := ResolveAdminMediaAsset(context.Background(), " asset-1 ")
+	if err != nil || asset == nil || asset.ContentType != "image/webp" || asset.ETag != `"digest"` {
+		t.Fatalf("ResolveAdminMediaAsset() = %#v, %v", asset, err)
+	}
+	asset.Data[0] = 'X'
+	if originalData[0] != 'i' {
+		t.Fatal("resolved payload must not alias repository data")
+	}
+}
+
+func TestAdminMediaLibraryOperationsHandleInvalidRequestsAndRepositoryErrors(t *testing.T) {
+	ctx := context.Background()
+	user := &domain.AdminUser{ID: "admin-1"}
+	validUpload := domain.AdminMediaUploadInput{
+		FileName: "image.png",
+		DataURL:  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR42mP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC",
+	}
+	asset := &domain.AdminMediaAssetRecord{ID: "asset-1", Name: "image.png", ContentType: "image/png", Data: []byte("image")}
+	cases := []struct {
+		name       string
+		repository adminMediaAssetStubRepository
+		run        func() error
+	}{
+		{name: "list requires authentication", run: func() error { _, err := ListAdminMediaLibrary(ctx, nil, domain.AdminMediaLibraryFilter{}); return err }},
+		{
+			name: "list maps repository error",
+			repository: adminMediaAssetStubRepository{listMediaLibraryItems: func(context.Context, domain.AdminMediaLibraryFilter) (*domain.AdminMediaLibraryListPayload, error) {
+				return nil, errors.New("list failed")
+			}},
+			run: func() error { _, err := ListAdminMediaLibrary(ctx, user, domain.AdminMediaLibraryFilter{}); return err },
+		},
+		{name: "upload requires authentication", run: func() error { _, err := UploadAdminMediaAsset(ctx, nil, validUpload); return err }},
+		{name: "upload rejects invalid data URL", run: func() error { _, err := UploadAdminMediaAsset(ctx, user, domain.AdminMediaUploadInput{}); return err }},
+		{
+			name: "upload maps digest lookup error",
+			repository: adminMediaAssetStubRepository{findMediaAssetByDigest: func(context.Context, string) (*domain.AdminMediaAssetRecord, error) {
+				return nil, errors.New("digest lookup failed")
+			}},
+			run: func() error { _, err := UploadAdminMediaAsset(ctx, user, validUpload); return err },
+		},
+		{
+			name: "upload maps create error",
+			repository: adminMediaAssetStubRepository{
+				findMediaAssetByDigest: func(context.Context, string) (*domain.AdminMediaAssetRecord, error) { return nil, nil },
+				createMediaAsset: func(context.Context, domain.AdminMediaAssetRecord) (*domain.AdminMediaAssetRecord, error) {
+					return nil, errors.New("create failed")
+				},
+			},
+			run: func() error { _, err := UploadAdminMediaAsset(ctx, user, validUpload); return err },
+		},
+		{name: "replace requires authentication", run: func() error { _, err := ReplaceAdminMediaAsset(ctx, nil, "asset-1", validUpload); return err }},
+		{name: "replace requires id", run: func() error { _, err := ReplaceAdminMediaAsset(ctx, user, " ", validUpload); return err }},
+		{
+			name: "replace maps lookup error",
+			repository: adminMediaAssetStubRepository{findMediaAssetByID: func(context.Context, string) (*domain.AdminMediaAssetRecord, error) {
+				return nil, errors.New("lookup failed")
+			}},
+			run: func() error { _, err := ReplaceAdminMediaAsset(ctx, user, "asset-1", validUpload); return err },
+		},
+		{
+			name:       "replace rejects missing asset",
+			repository: adminMediaAssetStubRepository{findMediaAssetByID: func(context.Context, string) (*domain.AdminMediaAssetRecord, error) { return nil, nil }},
+			run:        func() error { _, err := ReplaceAdminMediaAsset(ctx, user, "asset-1", validUpload); return err },
+		},
+		{
+			name: "replace maps update error",
+			repository: adminMediaAssetStubRepository{
+				findMediaAssetByID: func(context.Context, string) (*domain.AdminMediaAssetRecord, error) { return asset, nil },
+				replaceMediaAsset: func(context.Context, domain.AdminMediaAssetRecord) (*domain.AdminMediaAssetRecord, error) {
+					return nil, errors.New("replace failed")
+				},
+			},
+			run: func() error { _, err := ReplaceAdminMediaAsset(ctx, user, "asset-1", validUpload); return err },
+		},
+		{
+			name: "replace maps usage lookup error",
+			repository: adminMediaAssetStubRepository{
+				findMediaAssetByID: func(context.Context, string) (*domain.AdminMediaAssetRecord, error) { return asset, nil },
+				replaceMediaAsset: func(_ context.Context, record domain.AdminMediaAssetRecord) (*domain.AdminMediaAssetRecord, error) {
+					return &record, nil
+				},
+				countMediaAssetUsage: func(context.Context, string) (int, error) {
+					return 0, errors.New("usage lookup failed")
+				},
+			},
+			run: func() error { _, err := ReplaceAdminMediaAsset(ctx, user, "asset-1", validUpload); return err },
+		},
+		{name: "delete requires authentication", run: func() error { return DeleteAdminMediaAsset(ctx, nil, "asset-1") }},
+		{name: "delete requires id", run: func() error { return DeleteAdminMediaAsset(ctx, user, " ") }},
+		{
+			name:       "delete rejects missing asset",
+			repository: adminMediaAssetStubRepository{findMediaAssetByID: func(context.Context, string) (*domain.AdminMediaAssetRecord, error) { return nil, nil }},
+			run:        func() error { return DeleteAdminMediaAsset(ctx, user, "asset-1") },
+		},
+		{
+			name: "delete maps usage lookup error",
+			repository: adminMediaAssetStubRepository{
+				findMediaAssetByID:   func(context.Context, string) (*domain.AdminMediaAssetRecord, error) { return asset, nil },
+				countMediaAssetUsage: func(context.Context, string) (int, error) { return 0, errors.New("usage lookup failed") },
+			},
+			run: func() error { return DeleteAdminMediaAsset(ctx, user, "asset-1") },
+		},
+		{
+			name: "delete maps repository error",
+			repository: adminMediaAssetStubRepository{
+				findMediaAssetByID:   func(context.Context, string) (*domain.AdminMediaAssetRecord, error) { return asset, nil },
+				countMediaAssetUsage: func(context.Context, string) (int, error) { return 0, nil },
+				deleteMediaAssetByID: func(context.Context, string) (bool, error) { return false, errors.New("delete failed") },
+			},
+			run: func() error { return DeleteAdminMediaAsset(ctx, user, "asset-1") },
+		},
+		{
+			name: "delete detects stale asset",
+			repository: adminMediaAssetStubRepository{
+				findMediaAssetByID:   func(context.Context, string) (*domain.AdminMediaAssetRecord, error) { return asset, nil },
+				countMediaAssetUsage: func(context.Context, string) (int, error) { return 0, nil },
+				deleteMediaAssetByID: func(context.Context, string) (bool, error) { return false, nil },
+			},
+			run: func() error { return DeleteAdminMediaAsset(ctx, user, "asset-1") },
+		},
+		{name: "resolve requires id", run: func() error { _, err := ResolveAdminMediaAsset(ctx, " "); return err }},
+		{
+			name: "resolve rejects missing payload",
+			repository: adminMediaAssetStubRepository{findMediaAssetByID: func(context.Context, string) (*domain.AdminMediaAssetRecord, error) {
+				return &domain.AdminMediaAssetRecord{ID: "asset-1", ContentType: "image/png"}, nil
+			}},
+			run: func() error { _, err := ResolveAdminMediaAsset(ctx, "asset-1"); return err },
+		},
+	}
+
+	previousRepository := adminMediaAssetRepository
+	t.Cleanup(func() { adminMediaAssetRepository = previousRepository })
+	for _, testCase := range cases {
+		t.Run(testCase.name, func(t *testing.T) {
+			adminMediaAssetRepository = testCase.repository
+			if err := testCase.run(); err == nil {
+				t.Fatal("expected operation to return an error")
+			}
+		})
+	}
+}
+
 func (stub adminMediaAssetStubRepository) ListMediaLibraryItems(
 	ctx context.Context,
 	filter domain.AdminMediaLibraryFilter,

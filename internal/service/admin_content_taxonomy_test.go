@@ -331,3 +331,358 @@ func TestNormalizeAdminContentCategoryInputRejectsLongIcon(t *testing.T) {
 		t.Fatal("expected icon length validation error")
 	}
 }
+
+func TestNormalizeAdminContentTopicInputRejectsInvalidFields(t *testing.T) {
+	tests := []struct {
+		name  string
+		input domain.AdminContentTopicInput
+	}{
+		{
+			name: "unsupported locale",
+			input: domain.AdminContentTopicInput{
+				Locale: "fr", ID: "alpha-topic", Name: "Alpha Topic", Color: "#abcdef",
+			},
+		},
+		{
+			name: "invalid id",
+			input: domain.AdminContentTopicInput{
+				Locale: "en", ID: "not a slug", Name: "Alpha Topic", Color: "#abcdef",
+			},
+		},
+		{
+			name: "long name",
+			input: domain.AdminContentTopicInput{
+				Locale: "en", ID: "alpha-topic", Name: strings.Repeat("a", adminContentNameMaxLength+1), Color: "#abcdef",
+			},
+		},
+		{
+			name: "missing color",
+			input: domain.AdminContentTopicInput{
+				Locale: "en", ID: "alpha-topic", Name: "Alpha Topic",
+			},
+		},
+		{
+			name: "malformed link",
+			input: domain.AdminContentTopicInput{
+				Locale: "en", ID: "alpha-topic", Name: "Alpha Topic", Color: "#abcdef", Link: "%gh",
+			},
+		},
+		{
+			name: "link without host",
+			input: domain.AdminContentTopicInput{
+				Locale: "en", ID: "alpha-topic", Name: "Alpha Topic", Color: "#abcdef", Link: "https:///topics/alpha",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if _, err := normalizeAdminContentTopicInput(test.input); err == nil {
+				t.Fatal("expected invalid topic input to be rejected")
+			}
+		})
+	}
+}
+
+func TestNormalizeAdminContentCategoryInputRejectsInvalidFields(t *testing.T) {
+	tests := []struct {
+		name  string
+		input domain.AdminContentCategoryInput
+	}{
+		{
+			name: "unsupported locale",
+			input: domain.AdminContentCategoryInput{
+				Locale: "fr", ID: "alpha-category", Name: "Alpha Category", Color: "#abcdef",
+			},
+		},
+		{
+			name: "invalid id",
+			input: domain.AdminContentCategoryInput{
+				Locale: "en", ID: "not a slug", Name: "Alpha Category", Color: "#abcdef",
+			},
+		},
+		{
+			name: "missing name",
+			input: domain.AdminContentCategoryInput{
+				Locale: "en", ID: "alpha-category", Color: "#abcdef",
+			},
+		},
+		{
+			name: "long color",
+			input: domain.AdminContentCategoryInput{
+				Locale: "en", ID: "alpha-category", Name: "Alpha Category", Color: strings.Repeat("a", adminContentColorMaxLength+1),
+			},
+		},
+		{
+			name: "unsupported link scheme",
+			input: domain.AdminContentCategoryInput{
+				Locale: "en", ID: "alpha-category", Name: "Alpha Category", Color: "#abcdef", Link: "javascript://example.com",
+			},
+		},
+		{
+			name: "long link",
+			input: domain.AdminContentCategoryInput{
+				Locale: "en", ID: "alpha-category", Name: "Alpha Category", Color: "#abcdef", Link: "https://example.com/" + strings.Repeat("a", adminContentLinkMaxLength),
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if _, err := normalizeAdminContentCategoryInput(test.input); err == nil {
+				t.Fatal("expected invalid category input to be rejected")
+			}
+		})
+	}
+}
+
+func listEmptyAdminContentTopics(t *testing.T, adminUser *domain.AdminUser) error {
+	t.Helper()
+	items, err := ListAdminContentTopics(context.Background(), adminUser, "en", "")
+	if err == nil && items == nil {
+		t.Error("expected non-nil empty topic list")
+	}
+	return err
+}
+
+func listEmptyAdminContentTopicGroups(t *testing.T, adminUser *domain.AdminUser) error {
+	t.Helper()
+	result, err := ListAdminContentTopicsPage(context.Background(), adminUser, domain.AdminContentTaxonomyFilter{})
+	if err == nil && (result == nil || result.Items == nil) {
+		t.Error("expected non-nil empty topic groups")
+	}
+	return err
+}
+
+func listEmptyAdminContentCategories(t *testing.T, adminUser *domain.AdminUser) error {
+	t.Helper()
+	items, err := ListAdminContentCategories(context.Background(), adminUser, "en")
+	if err == nil && items == nil {
+		t.Error("expected non-nil empty category list")
+	}
+	return err
+}
+
+func listEmptyAdminContentCategoryGroups(t *testing.T, adminUser *domain.AdminUser) error {
+	t.Helper()
+	result, err := ListAdminContentCategoriesPage(context.Background(), adminUser, domain.AdminContentTaxonomyFilter{})
+	if err == nil && (result == nil || result.Items == nil) {
+		t.Error("expected non-nil empty category groups")
+	}
+	return err
+}
+
+func assertTaxonomyListResult(t *testing.T, err error, expectsErr bool) {
+	t.Helper()
+	if expectsErr && err == nil {
+		t.Fatal("expected repository error")
+	}
+	if !expectsErr && err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestListAdminContentTaxonomyErrorsAndEmptyResults(t *testing.T) {
+	previousAdminContentRepository := adminContentRepository
+	t.Cleanup(func() {
+		adminContentRepository = previousAdminContentRepository
+	})
+
+	adminUser := &domain.AdminUser{ID: "admin-1"}
+	tests := []struct {
+		name       string
+		repo       adminContentStubRepository
+		list       func() error
+		expectsErr bool
+	}{
+		{
+			name: "topic list error",
+			repo: adminContentStubRepository{listTopics: func(context.Context, string, string) ([]domain.AdminContentTopicRecord, error) {
+				return nil, repository.ErrAdminContentRepositoryUnavailable
+			}},
+			list:       func() error { _, err := ListAdminContentTopics(context.Background(), adminUser, "en", ""); return err },
+			expectsErr: true,
+		},
+		{
+			name: "topic groups error",
+			repo: adminContentStubRepository{listTopicGroups: func(context.Context, domain.AdminContentTaxonomyFilter) (*domain.AdminContentTopicListResult, error) {
+				return nil, repository.ErrAdminContentRepositoryUnavailable
+			}},
+			list: func() error {
+				_, err := ListAdminContentTopicsPage(context.Background(), adminUser, domain.AdminContentTaxonomyFilter{})
+				return err
+			},
+			expectsErr: true,
+		},
+		{
+			name: "category list error",
+			repo: adminContentStubRepository{listCategories: func(context.Context, string) ([]domain.AdminContentCategoryRecord, error) {
+				return nil, repository.ErrAdminContentRepositoryUnavailable
+			}},
+			list:       func() error { _, err := ListAdminContentCategories(context.Background(), adminUser, "en"); return err },
+			expectsErr: true,
+		},
+		{
+			name: "category groups error",
+			repo: adminContentStubRepository{listCategoryGroups: func(context.Context, domain.AdminContentTaxonomyFilter) (*domain.AdminContentCategoryListResult, error) {
+				return nil, repository.ErrAdminContentRepositoryUnavailable
+			}},
+			list: func() error {
+				_, err := ListAdminContentCategoriesPage(context.Background(), adminUser, domain.AdminContentTaxonomyFilter{})
+				return err
+			},
+			expectsErr: true,
+		},
+		{
+			name: "empty topic list",
+			repo: adminContentStubRepository{listTopics: func(context.Context, string, string) ([]domain.AdminContentTopicRecord, error) {
+				return nil, nil
+			}},
+			list: func() error { return listEmptyAdminContentTopics(t, adminUser) },
+		},
+		{
+			name: "empty topic groups",
+			repo: adminContentStubRepository{listTopicGroups: func(context.Context, domain.AdminContentTaxonomyFilter) (*domain.AdminContentTopicListResult, error) {
+				return nil, nil
+			}},
+			list: func() error { return listEmptyAdminContentTopicGroups(t, adminUser) },
+		},
+		{
+			name: "empty category list",
+			repo: adminContentStubRepository{listCategories: func(context.Context, string) ([]domain.AdminContentCategoryRecord, error) {
+				return nil, nil
+			}},
+			list: func() error { return listEmptyAdminContentCategories(t, adminUser) },
+		},
+		{
+			name: "empty category groups",
+			repo: adminContentStubRepository{listCategoryGroups: func(context.Context, domain.AdminContentTaxonomyFilter) (*domain.AdminContentCategoryListResult, error) {
+				return nil, nil
+			}},
+			list: func() error { return listEmptyAdminContentCategoryGroups(t, adminUser) },
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			adminContentRepository = test.repo
+			assertTaxonomyListResult(t, test.list(), test.expectsErr)
+		})
+	}
+}
+
+func TestAdminContentTaxonomyRejectsDuplicateAndMissingRecords(t *testing.T) {
+	previousAdminContentRepository := adminContentRepository
+	t.Cleanup(func() {
+		adminContentRepository = previousAdminContentRepository
+	})
+
+	adminUser := &domain.AdminUser{ID: "admin-1"}
+	topic := domain.AdminContentTopicRecord{Locale: "en", ID: "alpha-topic", Name: "Alpha Topic", Color: "#abcdef"}
+	category := domain.AdminContentCategoryRecord{Locale: "en", ID: "alpha-category", Name: "Alpha Category", Color: "#abcdef"}
+	topicInput := domain.AdminContentTopicInput{Locale: "en", ID: topic.ID, Name: topic.Name, Color: topic.Color}
+	categoryInput := domain.AdminContentCategoryInput{Locale: "en", ID: category.ID, Name: category.Name, Color: category.Color}
+	tests := []struct {
+		name string
+		repo adminContentStubRepository
+		run  func() error
+	}{
+		{
+			name: "topic already exists",
+			repo: adminContentStubRepository{findTopicByLocaleAndID: func(context.Context, string, string) (*domain.AdminContentTopicRecord, error) { return &topic, nil }},
+			run: func() error {
+				_, err := CreateAdminContentTopic(context.Background(), adminUser, topicInput)
+				return err
+			},
+		},
+		{
+			name: "topic save returned nil",
+			repo: adminContentStubRepository{
+				findTopicByLocaleAndID: func(context.Context, string, string) (*domain.AdminContentTopicRecord, error) { return nil, nil },
+				upsertTopic: func(context.Context, domain.AdminContentTopicRecord, time.Time) (*domain.AdminContentTopicRecord, error) {
+					return nil, nil
+				},
+			},
+			run: func() error {
+				_, err := CreateAdminContentTopic(context.Background(), adminUser, topicInput)
+				return err
+			},
+		},
+		{
+			name: "topic update missing record",
+			repo: adminContentStubRepository{findTopicByLocaleAndID: func(context.Context, string, string) (*domain.AdminContentTopicRecord, error) { return nil, nil }},
+			run: func() error {
+				_, err := UpdateAdminContentTopic(context.Background(), adminUser, topicInput)
+				return err
+			},
+		},
+		{
+			name: "topic delete missing record",
+			repo: adminContentStubRepository{findTopicByLocaleAndID: func(context.Context, string, string) (*domain.AdminContentTopicRecord, error) { return nil, nil }},
+			run:  func() error { return DeleteAdminContentTopic(context.Background(), adminUser, "en", topic.ID) },
+		},
+		{
+			name: "topic delete reported missing",
+			repo: adminContentStubRepository{
+				findTopicByLocaleAndID:   func(context.Context, string, string) (*domain.AdminContentTopicRecord, error) { return &topic, nil },
+				deleteTopicByLocaleAndID: func(context.Context, string, string) (bool, error) { return false, nil },
+			},
+			run: func() error { return DeleteAdminContentTopic(context.Background(), adminUser, "en", topic.ID) },
+		},
+		{
+			name: "category already exists",
+			repo: adminContentStubRepository{findCategoryByLocaleAndID: func(context.Context, string, string) (*domain.AdminContentCategoryRecord, error) {
+				return &category, nil
+			}},
+			run: func() error {
+				_, err := CreateAdminContentCategory(context.Background(), adminUser, categoryInput)
+				return err
+			},
+		},
+		{
+			name: "category save returned nil",
+			repo: adminContentStubRepository{
+				findCategoryByLocaleAndID: func(context.Context, string, string) (*domain.AdminContentCategoryRecord, error) { return nil, nil },
+				upsertCategory: func(context.Context, domain.AdminContentCategoryRecord, time.Time) (*domain.AdminContentCategoryRecord, error) {
+					return nil, nil
+				},
+			},
+			run: func() error {
+				_, err := CreateAdminContentCategory(context.Background(), adminUser, categoryInput)
+				return err
+			},
+		},
+		{
+			name: "category update missing record",
+			repo: adminContentStubRepository{findCategoryByLocaleAndID: func(context.Context, string, string) (*domain.AdminContentCategoryRecord, error) { return nil, nil }},
+			run: func() error {
+				_, err := UpdateAdminContentCategory(context.Background(), adminUser, categoryInput)
+				return err
+			},
+		},
+		{
+			name: "category delete missing record",
+			repo: adminContentStubRepository{findCategoryByLocaleAndID: func(context.Context, string, string) (*domain.AdminContentCategoryRecord, error) { return nil, nil }},
+			run:  func() error { return DeleteAdminContentCategory(context.Background(), adminUser, "en", category.ID) },
+		},
+		{
+			name: "category delete reported missing",
+			repo: adminContentStubRepository{
+				findCategoryByLocaleAndID: func(context.Context, string, string) (*domain.AdminContentCategoryRecord, error) {
+					return &category, nil
+				},
+				deleteCategoryByLocaleAndID: func(context.Context, string, string) (bool, error) { return false, nil },
+			},
+			run: func() error { return DeleteAdminContentCategory(context.Background(), adminUser, "en", category.ID) },
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			adminContentRepository = test.repo
+			if err := test.run(); err == nil {
+				t.Fatal("expected taxonomy operation to fail")
+			}
+		})
+	}
+}

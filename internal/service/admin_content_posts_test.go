@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -10,6 +11,122 @@ import (
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
+
+func TestListAdminContentPostRevisionsNormalizesPaginationAndEmptyResult(t *testing.T) {
+	previousAdminContentRepository := adminContentRepository
+	t.Cleanup(func() { adminContentRepository = previousAdminContentRepository })
+
+	adminContentRepository = adminContentStubRepository{
+		listPostRevisions: func(_ context.Context, locale, postID string, page, size int) (*domain.AdminContentPostRevisionListResult, error) {
+			if locale != "en" || postID != "alpha-post" || page != 1 || size != adminContentMaxPageSize {
+				t.Fatalf("ListPostRevisions args = %q %q %d %d", locale, postID, page, size)
+			}
+			return nil, nil
+		},
+	}
+
+	page, size := 0, adminContentMaxPageSize+10
+	result, err := ListAdminContentPostRevisions(
+		context.Background(), &domain.AdminUser{ID: "admin-1"}, " EN ", " alpha-post ", &page, &size,
+	)
+	if err != nil {
+		t.Fatalf("ListAdminContentPostRevisions() error = %v", err)
+	}
+	if result == nil || result.Page != 1 || result.Size != adminContentMaxPageSize || result.Total != 0 || len(result.Items) != 0 {
+		t.Fatalf("ListAdminContentPostRevisions() = %#v", result)
+	}
+}
+
+func TestListAdminContentPostRevisionsMapsRepositoryFailure(t *testing.T) {
+	previousAdminContentRepository := adminContentRepository
+	t.Cleanup(func() { adminContentRepository = previousAdminContentRepository })
+	wantErr := errors.New("revision store failed")
+	adminContentRepository = adminContentStubRepository{
+		listPostRevisions: func(context.Context, string, string, int, int) (*domain.AdminContentPostRevisionListResult, error) {
+			return nil, wantErr
+		},
+	}
+
+	_, err := ListAdminContentPostRevisions(
+		context.Background(), &domain.AdminUser{ID: "admin-1"}, "en", "alpha-post", nil, nil,
+	)
+	if !errors.Is(err, wantErr) {
+		t.Fatalf("ListAdminContentPostRevisions() error = %v, want wrapped repository error", err)
+	}
+}
+
+func TestRestoreAdminContentPostRevisionRestoresAndAudits(t *testing.T) {
+	previousAdminContentRepository := adminContentRepository
+	previousAuditRepo := adminAuditLogRepo
+	previousPostsRepository := postsRepository
+	previousCommentRepository := postCommentRepository
+	t.Cleanup(func() {
+		adminContentRepository = previousAdminContentRepository
+		adminAuditLogRepo = previousAuditRepo
+		postsRepository = previousPostsRepository
+		postCommentRepository = previousCommentRepository
+	})
+
+	audit := &adminErrorMessageManagementAuditStub{}
+	adminAuditLogRepo = audit
+	adminContentRepository = adminContentStubRepository{
+		findPostByLocaleAndID: func(_ context.Context, locale, postID string) (*domain.AdminContentPostRecord, error) {
+			return &domain.AdminContentPostRecord{Locale: locale, ID: postID, Title: "Current", RevisionCount: 4, Source: "blog"}, nil
+		},
+		findPostRevisionByID: func(_ context.Context, locale, postID, revisionID string) (*domain.AdminContentPostRevisionRecord, error) {
+			if locale != "en" || postID != "alpha-post" || revisionID != "revision-2" {
+				t.Fatalf("FindPostRevisionByID args = %q %q %q", locale, postID, revisionID)
+			}
+			return &domain.AdminContentPostRevisionRecord{ID: revisionID, Locale: locale, PostID: postID, Title: "Restored"}, nil
+		},
+		restorePostRevision: func(_ context.Context, revision domain.AdminContentPostRevisionRecord, stamp *domain.AdminContentPostRevisionStamp, now time.Time) (*domain.AdminContentPostRecord, error) {
+			if revision.Title != "Restored" || stamp == nil || stamp.Number != 5 || stamp.CreatedAt.IsZero() || now.IsZero() {
+				t.Fatalf("RestorePostRevision args = %#v %#v %v", revision, stamp, now)
+			}
+			return &domain.AdminContentPostRecord{Locale: revision.Locale, ID: revision.PostID, Title: revision.Title}, nil
+		},
+	}
+	postsRepository = postStubRepository{
+		resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 { return map[string]int64{} },
+		resolveHitsByPostID:  func(context.Context, []domain.PostRecord) map[string]int64 { return map[string]int64{} },
+	}
+	postCommentRepository = postCommentStubRepository{
+		countApprovedByPosts: func(context.Context, []string) (map[string]int64, error) { return nil, nil },
+	}
+
+	result, err := RestoreAdminContentPostRevision(
+		context.Background(), &domain.AdminUser{ID: "admin-1", Email: "admin@example.com"}, " EN ", " alpha-post ", " revision-2 ",
+	)
+	if err != nil {
+		t.Fatalf("RestoreAdminContentPostRevision() error = %v", err)
+	}
+	if result == nil || result.Title != "Restored" {
+		t.Fatalf("RestoreAdminContentPostRevision() = %#v", result)
+	}
+	if len(audit.records) != 1 || audit.records[0].Action != "content_post_revision_restored" {
+		t.Fatalf("unexpected audit records: %#v", audit.records)
+	}
+}
+
+func TestRestoreAdminContentPostRevisionRejectsMissingRevision(t *testing.T) {
+	previousAdminContentRepository := adminContentRepository
+	t.Cleanup(func() { adminContentRepository = previousAdminContentRepository })
+	adminContentRepository = adminContentStubRepository{
+		findPostByLocaleAndID: func(_ context.Context, locale, postID string) (*domain.AdminContentPostRecord, error) {
+			return &domain.AdminContentPostRecord{Locale: locale, ID: postID}, nil
+		},
+		findPostRevisionByID: func(context.Context, string, string, string) (*domain.AdminContentPostRevisionRecord, error) {
+			return nil, nil
+		},
+	}
+
+	_, err := RestoreAdminContentPostRevision(
+		context.Background(), &domain.AdminUser{ID: "admin-1"}, "en", "alpha-post", "revision-missing",
+	)
+	if err == nil || !strings.Contains(err.Error(), "revision not found") {
+		t.Fatalf("RestoreAdminContentPostRevision() error = %v, want revision-not-found", err)
+	}
+}
 
 func TestGetAdminContentPostPopulatesAnalytics(t *testing.T) {
 	previousAdminContentRepository := adminContentRepository
@@ -129,6 +246,68 @@ func TestListAdminContentPostsPopulatesAnalytics(t *testing.T) {
 	item := result.Items[0].Preferred
 	if item.ViewCount != 27 || item.LikeCount != 9 || item.CommentCount != 4 {
 		t.Fatalf("unexpected analytics: %+v", item)
+	}
+}
+
+func TestListAdminContentPostsNormalizesFiltersAndDefaultsEmptyRepositoryResult(t *testing.T) {
+	previousAdminContentRepository := adminContentRepository
+	t.Cleanup(func() { adminContentRepository = previousAdminContentRepository })
+	page, size := 0, adminContentMaxPageSize+1
+	adminContentRepository = adminContentStubRepository{
+		listPostGroups: func(_ context.Context, filter domain.AdminContentPostFilter) (*domain.AdminContentPostListResult, error) {
+			if filter.Locale != "en" || filter.PreferredLocale != "en" || filter.Source != "blog" ||
+				filter.Query != "captain" || filter.CategoryID != "tech" || filter.TopicID != "sports" {
+				t.Fatalf("ListPostGroups filter = %#v", filter)
+			}
+			if filter.Page == nil || *filter.Page != 1 || filter.Size == nil || *filter.Size != adminContentMaxPageSize {
+				t.Fatalf("normalized pagination = %#v %#v", filter.Page, filter.Size)
+			}
+			return nil, nil
+		},
+	}
+
+	result, err := ListAdminContentPosts(context.Background(), &domain.AdminUser{ID: "admin-1"}, domain.AdminContentPostFilter{
+		Locale: " EN ", Source: " BLOG ", Query: " captain ", CategoryID: " TECH ", TopicID: " SPORTS ",
+		Page: &page, Size: &size,
+	})
+	if err != nil {
+		t.Fatalf("ListAdminContentPosts() error = %v", err)
+	}
+	if result == nil || len(result.Items) != 0 || result.Page != 1 || result.Size != adminContentMaxPageSize {
+		t.Fatalf("default empty result = %#v", result)
+	}
+}
+
+func TestGetAdminContentPostKeepsRecordWhenAnalyticsLookupFails(t *testing.T) {
+	previousAdminContentRepository := adminContentRepository
+	previousPostsRepository := postsRepository
+	previousCommentRepository := postCommentRepository
+	t.Cleanup(func() {
+		adminContentRepository = previousAdminContentRepository
+		postsRepository = previousPostsRepository
+		postCommentRepository = previousCommentRepository
+	})
+	adminContentRepository = adminContentStubRepository{
+		findPostByLocaleAndID: func(_ context.Context, locale, id string) (*domain.AdminContentPostRecord, error) {
+			return &domain.AdminContentPostRecord{Locale: locale, ID: id, Title: "Alpha"}, nil
+		},
+	}
+	postsRepository = postStubRepository{
+		resolveLikesByPostID: func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
+		resolveHitsByPostID:  func(context.Context, []domain.PostRecord) map[string]int64 { return nil },
+	}
+	postCommentRepository = postCommentStubRepository{
+		countApprovedByPosts: func(context.Context, []string) (map[string]int64, error) {
+			return nil, errors.New("comments unavailable")
+		},
+	}
+
+	record, err := GetAdminContentPost(context.Background(), &domain.AdminUser{ID: "admin-1"}, "en", "alpha-post")
+	if err != nil {
+		t.Fatalf("GetAdminContentPost() error = %v", err)
+	}
+	if record == nil || record.ID != "alpha-post" || record.CommentCount != 0 {
+		t.Fatalf("record after analytics failure = %#v", record)
 	}
 }
 

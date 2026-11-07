@@ -26,6 +26,14 @@ func resetPostRepositoryState() {
 	postHitsIndexesErr = nil
 	postContentIndexesOnce = sync.Once{}
 	postContentIndexesErr = nil
+	postTopicIndexesOnce = sync.Once{}
+	postTopicIndexesErr = nil
+	postCategoryIndexesOnce = sync.Once{}
+	postCategoryIndexesErr = nil
+	postMediaAssetIndexesOnce = sync.Once{}
+	postMediaAssetIndexesErr = nil
+	postRevisionIndexesOnce = sync.Once{}
+	postRevisionIndexesErr = nil
 }
 
 func resetNewsletterRepositoryState() {

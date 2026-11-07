@@ -431,6 +431,44 @@ func TestAdminResolverMappingHelpers(t *testing.T) {
 	}
 }
 
+func TestAdminResolverMappingNilInputsAndDefaults(t *testing.T) {
+	if mapAdminUser(nil) != nil || mapAdminNewsletterCampaign(nil) != nil ||
+		mapAdminNewsletterDeliveryFailure(nil) != nil || mapAdminNewsletterSubscriber(nil) != nil ||
+		mapAdminErrorMessage(nil) != nil || mapAdminContentPostGroup(nil) != nil ||
+		mapAdminContentTopicGroup(nil) != nil || mapAdminContentCategoryGroup(nil) != nil ||
+		mapAdminContentPost(nil) != nil || mapAdminContentPostRevision(nil) != nil ||
+		mapAdminComment(nil) != nil || mapAdminMediaLibraryItem(nil) != nil {
+		t.Fatal("nil records must map to nil")
+	}
+
+	if mapAdminNewsletterSubscriberListPayload(nil).Page != 1 ||
+		mapAdminNewsletterCampaignListPayload(nil).Page != 1 ||
+		mapAdminNewsletterDeliveryFailureListPayload(nil).Page != 1 ||
+		mapAdminErrorMessageListPayload(nil).Page != 1 ||
+		mapAdminContentPostListPayload(nil).Page != 1 ||
+		mapAdminContentTopicListPayload(nil).Page != 1 ||
+		mapAdminContentCategoryListPayload(nil).Page != 1 {
+		t.Fatal("nil list payloads must use their first-page defaults")
+	}
+	if mapAdminNewsletterDispatchPayload(nil).Results == nil || mapAdminNewsletterTestSendPayload(nil) == nil {
+		t.Fatal("nil newsletter payloads must produce usable defaults")
+	}
+	if mapAdminContentPostRevisionListPayload(nil).Size != 0 || mapAdminCommentListPayload(nil).Size != 1 {
+		t.Fatal("nil revision and comment payloads must use their default sizes")
+	}
+	if mapAdminContentPostStatusInput(nil) != nil || localePointerValue(nil) != "" ||
+		urlPointerValue(nil) != "" || urlPointerToStringPointer(nil) != nil ||
+		datePointerToStringPointer(nil) != nil || toOptionalTrimmedInputString(nil) != nil ||
+		normalizeAdminLocalePointer(nil) != "" {
+		t.Fatal("nil optional input pointers must map to empty defaults")
+	}
+	if mapAdminNewsletterCampaignStatusOutput("unknown") != model.AdminNewsletterCampaignStatusProcessing ||
+		mapAdminContentPostStatusOutput("unknown") != model.AdminContentPostStatusPublished ||
+		mapAdminContentModeOutput("unknown") != nil {
+		t.Fatal("unknown values must map to documented output defaults")
+	}
+}
+
 func TestAdminResolverSessionAndRequestHelpers(t *testing.T) {
 	t.Setenv("JWT_SECRET", "test-secret")
 	t.Setenv("ADMIN_REFRESH_COOKIE_NAME", "admin_refresh")
